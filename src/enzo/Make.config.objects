@@ -87,6 +87,7 @@ OBJS_CONFIG_LIB = \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
 	ConductionBubbleInitialize.o \
+	ConductionCloudInitialize.o \
 	ConductionTestInitialize.o \
         comp_accel.o \
         ComputePotentialFieldLevelZero.o \
@@ -350,6 +351,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeXrayEmissivity.o \
         Grid_ConductHeat.o \
 	Grid_ConductionBubbleInitialize.o \
+	Grid_ConductionCloudInitialize.o \
 	Grid_ConductionTestInitialize.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \

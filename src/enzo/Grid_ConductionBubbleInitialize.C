@@ -65,6 +65,10 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   int i,j,k;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
+
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+    DINum, DIINum, HDINum;
+
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
   float VelocityUnits = 1.0, TimeUnits = 1.0;
   double MassUnits = 1.0;
@@ -79,6 +83,12 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
+
+  if (MultiSpecies)
+    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+            ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
+    }
 
   int MetallicityField = FALSE;
   if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
@@ -231,6 +241,63 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 
 	  } // DEF
 	}
+
+	// Set multispecies fields!
+	// this attempts to set them such that species conservation is maintained,
+	// using the method in CosmologySimulationInitializeGrid.C
+	if(TestProblemData.MultiSpecies) {
+
+	  BaryonField[HIINum][ELT(i,j,k)] = TestProblemData.HII_Fraction_Inner * 
+	    BaryonField[DensNum][ELT(i,j,k)];
+	  
+	  BaryonField[HeIINum][ELT(i,j,k)] = TestProblemData.HeII_Fraction_Inner *
+	    BaryonField[DensNum][ELT(i,j,k)];
+	      
+	  BaryonField[HeIIINum][ELT(i,j,k)] = TestProblemData.HeIII_Fraction_Inner *
+	    BaryonField[DensNum][ELT(i,j,k)];
+
+	  BaryonField[HeINum][ELT(i,j,k)] = BaryonField[DensNum][ELT(i,j,k)] -
+	    BaryonField[HeIINum][ELT(i,j,k)] - BaryonField[HeIIINum][ELT(i,j,k)];
+	      
+	  if(TestProblemData.MultiSpecies > 1){
+	    BaryonField[HMNum][ELT(i,j,k)] = TestProblemData.HM_Fraction_Inner *
+	      BaryonField[HIINum][ELT(i,j,k)];
+		
+	    BaryonField[H2INum][ELT(i,j,k)] = TestProblemData.H2I_Fraction_Inner *
+	      BaryonField[DensNum][ELT(i,j,k)];
+		
+	    BaryonField[H2IINum][ELT(i,j,k)] = TestProblemData.H2II_Fraction_Inner * 2.0 *
+	      BaryonField[HIINum][ELT(i,j,k)];
+	  }
+
+	  // HI density is calculated by subtracting off the various ionized fractions
+	  // from the total
+	  BaryonField[HINum][ELT(i,j,k)] = BaryonField[DensNum][ELT(i,j,k)]
+	    - BaryonField[HIINum][ELT(i,j,k)];
+	  if (MultiSpecies > 1)
+	    BaryonField[HINum][ELT(i,j,k)] -= (BaryonField[HMNum][ELT(i,j,k)] + BaryonField[H2IINum][ELT(i,j,k)]
+					      + BaryonField[H2INum][ELT(i,j,k)]);
+	  
+	  // Electron "density" (remember, this is a factor of m_p/m_e scaled from the 'normal'
+	  // density for convenience) is calculated by summing up all of the ionized species.
+	  // The factors of 0.25 and 0.5 in front of HeII and HeIII are to fix the fact that we're
+	  // calculating mass density, not number density (because the BaryonField values are 4x as
+	  // heavy for helium for a single electron)
+	  BaryonField[DeNum][ELT(i,j,k)] = BaryonField[HIINum][ELT(i,j,k)] +
+	    0.25*BaryonField[HeIINum][ELT(i,j,k)] + 0.5*BaryonField[HeIIINum][ELT(i,j,k)];
+	  if (MultiSpecies > 1)
+	    BaryonField[DeNum][ELT(i,j,k)] += 0.5*BaryonField[H2IINum][ELT(i,j,k)] -
+	      BaryonField[HMNum][ELT(i,j,k)];
+	  
+	  // Set deuterium species (assumed to be a negligible fraction of the total, so not
+	  // counted in the conservation)
+	  if(TestProblemData.MultiSpecies > 2){
+	    BaryonField[DINum ][ELT(i,j,k)]  = TestProblemData.InnerDeuteriumToHydrogenRatio * BaryonField[HINum][ELT(i,j,k)];
+	    BaryonField[DIINum][ELT(i,j,k)] = TestProblemData.InnerDeuteriumToHydrogenRatio * BaryonField[HIINum][ELT(i,j,k)];
+	    BaryonField[HDINum][ELT(i,j,k)] = 0.75 * TestProblemData.InnerDeuteriumToHydrogenRatio * BaryonField[H2INum][ELT(i,j,k)];
+	  }
+	  
+	} // if(TestProblemData.MultiSpecies)
 
 	if(TestProblemData.UseMetallicityField>0 && MetalNum != FALSE){
 	  if(celldist <= BubbleRadius){

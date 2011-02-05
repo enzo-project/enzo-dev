@@ -24,10 +24,10 @@
 #include "Grid.h"
 
 // Grid Initializer
-int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int PulseType) {
+int grid::ConductionCloudInitialize (float CloudOverdensity, FLOAT CloudWidth, int CloudType) {
 
   if (debug) {
-    printf("Entering ConductionTestInitialize\n");
+    printf("Entering ConductionCloudInitialize\n");
     fflush(stdout);
   }
 
@@ -64,7 +64,7 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
     GridEnd[dim] = GridDimension[dim]-1;
   }
 
-  FLOAT sig2 = PulseWidth*PulseWidth;
+  FLOAT sig2 = CloudWidth*CloudWidth;
 
   FLOAT x,y,z, r2, celldist;
 
@@ -101,26 +101,26 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 
 	/* now we select between our different pulse options */
 
-	if(PulseType == 1){  // gaussian pulse
+	if(CloudType == 1){  // gaussian pulse
 
-	  val = 1.0 + exp(-1.0*r2/sig2/2.0)*(PulseHeight-1.0);
+	  val = 1.0 + exp(-1.0*r2/sig2/2.0)*(CloudOverdensity-1.0);
 
-	} else if(PulseType == 2){ // square pulse
+	} else if(CloudType == 2){ // square pulse
 
 	  if(r2 <= sig2)
-	    val = PulseHeight;
+	    val = CloudOverdensity;
 	  
-	} else if(PulseType == 3){  // sinusoidal pulse with values along x-axis
+	} else if(CloudType == 3){  // sinusoidal pulse with values along x-axis
 
-	  val = 1.0 + PulseHeight + PulseHeight * sin(2.0 * 3.14158 * x / PulseWidth);
+	  val = 1.0 + CloudOverdensity + CloudOverdensity * sin(2.0 * 3.14158 * x / CloudWidth);
 	  
-	} else if(PulseType == 4){  // square pulse with smoothed edges (as suggested by A. Kravtsov)
+	} else if(CloudType == 4){  // square pulse with smoothed edges (as suggested by A. Kravtsov)
 
-	  val = 1.0 + (PulseHeight-1.0)*(1.0 - tanh((10.*(celldist/PulseWidth-1.0)))) / 2.0;
+	  val = 1.0 + (CloudOverdensity-1.0)*(1.0 - tanh((10.*(celldist/CloudWidth-1.0)))) / 2.0;
 
 	} else {
 
-	  ENZO_FAIL("Grid::ConductionTestInitialize: PulseType is not 1,2 or 3!");
+	  ENZO_FAIL("Grid::ConductionCloudInitialize: CloudType is not 1,2, 3 or 4!");
 	  
 	}
 
@@ -139,7 +139,7 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 
 	if(TestProblemData.MultiSpecies>1){
 	  fprintf(stderr,"This problem type is not set up for MultiSpecies > 1.  Oops!\n");
-	  ENZO_FAIL("Error in Grid::ConductionTestInitialize.");
+	  ENZO_FAIL("Error in Grid::ConductionCloudInitialize.");
 	}
 
 	// Set multispecies fields!
@@ -181,7 +181,7 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
       } // for(i...)  (loop over grid and set values)
 
   if (debug) {
-    printf("Exiting ConductionTestInitialize\n");
+    printf("Exiting ConductionCloudInitialize\n");
     fflush(stdout);
   }
 

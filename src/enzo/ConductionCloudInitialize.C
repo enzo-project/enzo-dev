@@ -31,10 +31,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, float *MassUnits, FLOAT Time);
 
 // Problem Initializer
-int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid, TopGridData &MetaData){
+int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid, TopGridData &MetaData){
 
   if(debug){
-    printf("Entering ConductionTestInitialize\n");
+    printf("Entering ConductionCloudInitialize\n");
     fflush(stdout);
   }
 
@@ -42,29 +42,29 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   int i, j, dim, ret;
 
-  float ConductionTestDensity = 1.0;
-  float ConductionTestTemperature = 1.0;
-  float ConductionTestTotalEnergy = 1.0;
-  float ConductionTestVelocity[3] = {0.0,0.0,0.0};
-  float ConductionTestInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
+  float ConductionCloudDensity = 1.0;
+  float ConductionCloudTemperature = 1.0;
+  float ConductionCloudTotalEnergy = 1.0;
+  float ConductionCloudVelocity[3] = {0.0,0.0,0.0};
+  float ConductionCloudInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
 
-  for (int i = 0; i<MetaData.TopGridRank; i++) {ConductionTestVelocity[i] = 0.0;}
+  for (int i = 0; i<MetaData.TopGridRank; i++) {ConductionCloudVelocity[i] = 0.0;}
  
-  float ConductionTestPulseHeight;
-  FLOAT ConductionTestPulseWidth;
-  int ConductionTestPulseType = 0;
+  float ConductionCloudPulseHeight;
+  FLOAT ConductionCloudPulseWidth;
+  int ConductionCloudPulseType = 0;
 
   TestProblemData.MultiSpecies = MultiSpecies;  // set this from global data (kind of a hack, but necessary)
 
   // Read parameters
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
     ret = 0;
-    ret += sscanf(line, "ConductionTestPulseHeight = %"FSYM, &ConductionTestPulseHeight);
-    ret += sscanf(line, "ConductionTestTotalEnergy = %"FSYM, &ConductionTestTotalEnergy);
-    ret += sscanf(line, "ConductionTestTemperature = %"FSYM, &ConductionTestTemperature);
-    ret += sscanf(line, "ConductionTestDensity = %"FSYM, &ConductionTestDensity);
-    ret += sscanf(line, "ConductionTestPulseWidth = %"PSYM, &ConductionTestPulseWidth);
-    ret += sscanf(line, "ConductionTestPulseType = %"ISYM, &ConductionTestPulseType);
+    ret += sscanf(line, "ConductionCloudPulseHeight = %"FSYM, &ConductionCloudPulseHeight);
+    ret += sscanf(line, "ConductionCloudTotalEnergy = %"FSYM, &ConductionCloudTotalEnergy);
+    ret += sscanf(line, "ConductionCloudTemperature = %"FSYM, &ConductionCloudTemperature);
+    ret += sscanf(line, "ConductionCloudDensity = %"FSYM, &ConductionCloudDensity);
+    ret += sscanf(line, "ConductionCloudPulseWidth = %"PSYM, &ConductionCloudPulseWidth);
+    ret += sscanf(line, "ConductionCloudPulseType = %"ISYM, &ConductionCloudPulseType);
 
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
     ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
@@ -107,7 +107,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "TestProblemInitialMultiMetalsField2Fraction  = %"FSYM, &TestProblemData.MultiMetalsField2_Fraction);
 
     if (ret == 0 && 
-	strstr(line, "=") && strstr(line, "ConductionTest") &&
+	strstr(line, "=") && strstr(line, "ConductionCloud") &&
 	line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "*** warning: the following parameter line was not interpreted:\n%s\n", line);
     }
@@ -124,28 +124,28 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   float Boltzmann = 1.38e-16, mu = 0.6, mh=1.67e-24;
 
-  if(ConductionTestTemperature > 1.0){
+  if(ConductionCloudTemperature > 1.0){
 
-    ConductionTestTotalEnergy = (Boltzmann*ConductionTestTemperature)/((Gamma - 1.0)*mu*mh);
-    ConductionTestTotalEnergy /= (VelocityUnits*VelocityUnits);
-    printf("ConductionTestTotalEnergy is %e and ConductionTestTemperature is %e\n\n",ConductionTestTotalEnergy, ConductionTestTemperature);
+    ConductionCloudTotalEnergy = (Boltzmann*ConductionCloudTemperature)/((Gamma - 1.0)*mu*mh);
+    ConductionCloudTotalEnergy /= (VelocityUnits*VelocityUnits);
+    printf("ConductionCloudTotalEnergy is %e and ConductionCloudTemperature is %e\n\n",ConductionCloudTotalEnergy, ConductionCloudTemperature);
     fflush(stdout);
   }
 
   // Create a uniform grid
-  if (TopGrid.GridData->InitializeUniformGrid(ConductionTestDensity,
-					      ConductionTestTotalEnergy,
-					      ConductionTestTotalEnergy,
-					      ConductionTestVelocity,
-					      ConductionTestInitialUniformBField) == FAIL) {
+  if (TopGrid.GridData->InitializeUniformGrid(ConductionCloudDensity,
+					      ConductionCloudTotalEnergy,
+					      ConductionCloudTotalEnergy,
+					      ConductionCloudVelocity,
+					      ConductionCloudInitialUniformBField) == FAIL) {
     ENZO_FAIL("Error in InitializeUniformGrid.");
   }
   
   // Then perturb it
-  if (TopGrid.GridData->ConductionTestInitialize(ConductionTestPulseHeight, 
-						 ConductionTestPulseWidth, 
-						 ConductionTestPulseType) == FAIL) {
-    ENZO_FAIL("Error in ConductionTestInitialize.");
+  if (TopGrid.GridData->ConductionCloudInitialize(ConductionCloudPulseHeight, 
+						 ConductionCloudPulseWidth, 
+						 ConductionCloudPulseType) == FAIL) {
+    ENZO_FAIL("Error in ConductionCloudInitialize.");
   }
 
   // set up field names and units
@@ -185,9 +185,9 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fprintf(Outfptr, "ConductionTestPulseHeight = %"FSYM"\n", ConductionTestPulseHeight);
-    fprintf(Outfptr, "ConductionTestPulseWidth = %"PSYM"\n", ConductionTestPulseWidth);
-    fprintf(Outfptr, "ConductionTestPulseType = %"ISYM"\n", ConductionTestPulseType);
+    fprintf(Outfptr, "ConductionCloudPulseHeight = %"FSYM"\n", ConductionCloudPulseHeight);
+    fprintf(Outfptr, "ConductionCloudPulseWidth = %"PSYM"\n", ConductionCloudPulseWidth);
+    fprintf(Outfptr, "ConductionCloudPulseType = %"ISYM"\n", ConductionCloudPulseType);
 
     fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
     fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
@@ -232,7 +232,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   }
 
   if(debug){
-    printf("Exiting ConductionTestInitialize\n");
+    printf("Exiting ConductionCloudInitialize\n");
     fflush(stdout);
   }
 
