@@ -49,6 +49,39 @@ void ProblemType_Python::SetField(PythonGrid *grid,
                 FieldIndex, FieldType);
 }
 
+float* ProblemType_Python::GetField(PythonGrid *grid, int FieldIndex) {
+    if (FieldIndex > MAX_NUMBER_OF_BARYON_FIELDS) return NULL;
+    return grid->BaryonField[FieldIndex]; /* Should be NULL if not allocated */
+}
+
+void ProblemType_Python::GetGridInformation(
+        PythonGrid *grid, int *ActiveDimensions,
+        FLOAT *GridLeftEdge, FLOAT *GridRightEdge) {
+        /*fprintf(stderr, "SI %"ISYM" %"ISYM" %"ISYM"\n",
+                grid->GridStartIndex[0],
+                grid->GridStartIndex[1],
+                grid->GridStartIndex[2]);
+        fprintf(stderr, "EI %"ISYM" %"ISYM" %"ISYM"\n",
+                grid->GridEndIndex[0],
+                grid->GridEndIndex[1],
+                grid->GridEndIndex[2]);
+        fprintf(stderr, "LE %"GSYM" %"GSYM" %"GSYM"\n",
+                grid->GridLeftEdge[0],
+                grid->GridLeftEdge[1],
+                grid->GridLeftEdge[2]);
+        fprintf(stderr, "RE %"GSYM" %"GSYM" %"GSYM"\n",
+                grid->GridRightEdge[0],
+                grid->GridRightEdge[1],
+                grid->GridRightEdge[2]);
+                */
+    for (int i = 0; i < MAX_DIMENSION; i++) {
+        ActiveDimensions[i] = grid->GridEndIndex[i] - grid->GridStartIndex[i] + 1;
+        GridLeftEdge[i] = grid->GridLeftEdge[i];
+        GridRightEdge[i] = grid->GridRightEdge[i];
+    }
+    return;
+}
+
 // All methods must go above this method
 
 int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
