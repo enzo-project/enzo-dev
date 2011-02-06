@@ -47,6 +47,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float ConductionTestDensity = 1.0;
   float ConductionTestTemperature = 1.0;
   float ConductionTestTotalEnergy = 1.0;
+  float ConductionTestGasEnergy = 1.0;
   float ConductionTestVelocity[3] = {0.0,0.0,0.0};
   float ConductionTestInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
 
@@ -65,6 +66,9 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "ConductionTestDensity = %"FSYM, &ConductionTestDensity);
     ret += sscanf(line, "ConductionTestPulseWidth = %"PSYM, &ConductionTestPulseWidth);
     ret += sscanf(line, "ConductionTestPulseType = %"ISYM, &ConductionTestPulseType);
+    ret += sscanf(line, "ConductionTestPulseBFieldX = %"FSYM,&ConductionTestInitialUniformBField[0]);
+    ret += sscanf(line, "ConductionTestPulseBFieldY = %"FSYM,&ConductionTestInitialUniformBField[1]);
+    ret += sscanf(line, "ConductionTestPulseBFieldZ = %"FSYM,&ConductionTestInitialUniformBField[2]);
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
     ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
 
@@ -91,14 +95,26 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     ConductionTestTotalEnergy = (Boltzmann*ConductionTestTemperature)/((Gamma - 1.0)*mu*mh);
     ConductionTestTotalEnergy /= (VelocityUnits*VelocityUnits);
+    ConductionTestGasEnergy = ConductionTestTotalEnergy;
     printf("ConductionTestTotalEnergy is %e and ConductionTestTemperature is %e\n\n",ConductionTestTotalEnergy, ConductionTestTemperature);
     fflush(stdout);
+  }
+
+  if (HydroMethod == MHD_RK){
+    float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
+    ConductionTestInitialUniformBField[0] /= MagneticUnits;
+    ConductionTestInitialUniformBField[1] /= MagneticUnits;
+    ConductionTestInitialUniformBField[2] /= MagneticUnits;
+
+    ConductionTestTotalEnergy += 0.5*(ConductionTestInitialUniformBField[0]*ConductionTestInitialUniformBField[0] + 
+				      ConductionTestInitialUniformBField[1]*ConductionTestInitialUniformBField[1] + 
+				      ConductionTestInitialUniformBField[2]*ConductionTestInitialUniformBField[2])/ConductionTestDensity;
   }
 
   // Create a uniform grid
   if (TopGrid.GridData->InitializeUniformGrid(ConductionTestDensity,
 					      ConductionTestTotalEnergy,
-					      ConductionTestTotalEnergy,
+					      ConductionTestGasEnergy,
 					      ConductionTestVelocity,
 					      ConductionTestInitialUniformBField) == FAIL) {
     ENZO_FAIL("Error in InitializeUniformGrid.");
@@ -117,8 +133,17 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[i++] = "Total_Energy";
   if (DualEnergyFormalism) {DataLabel[i++] = "Gas_Energy";}
   if (MetaData.TopGridRank > 0) {DataLabel[i++] = "x-velocity";}
-  if (MetaData.TopGridRank > 1) {DataLabel[i++] = "y-velocity";}
-  if (MetaData.TopGridRank > 2) {DataLabel[i++] = "z-velocity";}
+  if (MetaData.TopGridRank > 1 || HydroMethod > 2) {DataLabel[i++] = "y-velocity";}
+  if (MetaData.TopGridRank > 2 || HydroMethod > 2) {DataLabel[i++] = "z-velocity";}
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = "Bx";
+    DataLabel[i++] = "By";
+    DataLabel[i++] = "Bz";
+    DataLabel[i++] = "Phi";
+    if(UseDivergenceCleaning){
+      DataLabel[i++] = "Phip";
+    }
+  }
 
   if (TestProblemData.UseMetallicityField)
     DataLabel[i++] = "Metal_Density";

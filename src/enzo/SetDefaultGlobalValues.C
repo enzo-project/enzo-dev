@@ -413,6 +413,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   OutputParticleTypeGrouping       = FALSE;
 
   Conduction = FALSE;
+  AnisotropicConduction = FALSE;
   ConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 

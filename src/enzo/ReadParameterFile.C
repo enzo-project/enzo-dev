@@ -783,6 +783,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
     ret += sscanf(line, "Conduction = %"ISYM, &Conduction);
+    ret += sscanf(line, "AnisotropicConduction = %"ISYM, &AnisotropicConduction);
     ret += sscanf(line, "ConductionSpitzerFraction = %"FSYM, &ConductionSpitzerFraction);
     ret += sscanf(line, "ConductionCourantSafetyNumber = %"FSYM, &ConductionCourantSafetyNumber);
 
@@ -1008,6 +1009,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     rewind(fptr);
   }
+
+  // make sure that Conduction is turned on if AnisotropicConduction is turned on.
+  if(AnisotropicConduction==TRUE)
+    Conduction==TRUE;
 
   /*
     if (EOSType == 3) // an isothermal equation of state implies the adiabatic index = 1 
