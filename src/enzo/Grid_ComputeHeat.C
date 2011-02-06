@@ -50,8 +50,9 @@ int grid::ComputeHeat (float dedt[]) {
   float VelocityUnits = 1.0, TimeUnits = 1.0, aUnits = 1.0;
   FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
-  float *rho;
+  float *rho,*Bx,*By,*Bz;
   double kappa_star = 6.0e-7 * ConductionSpitzerFraction;
+  float Bx_face, By_face, Bz_face, Bhat, Bmag;
 
   int size = 1, grid_index, right_side_index;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -60,6 +61,18 @@ int grid::ComputeHeat (float dedt[]) {
 
   float *Temp = new float[size];
   FLOAT dx = CellWidth[0][0];
+
+  if (AnisotropicConduction){
+    // find fields
+    iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+    iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+    iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
+    // make masks (easier later)
+    Bx = BaryonField[iBx];
+    By = BaryonField[iBy];
+    Bz = BaryonField[iBz];
+
+  }
 
   // Zero-out the de/dt array
   for (int i=0; i<size; i++) 
@@ -154,6 +167,18 @@ int grid::ComputeHeat (float dedt[]) {
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    // conduction saturation
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+
+	    // modify flux based on magnetic field orientation, if we are using
+	    // anisotropic conduction
+	    if(AnisotropicConduction){
+	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);
+	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
+	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
+	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
+	      Bhat = fabs(Bx_face)/Bmag;
+	      r.kappa *= Bhat;
+	    } 
+
 	    r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
 
 	  }
@@ -184,6 +209,19 @@ int grid::ComputeHeat (float dedt[]) {
 	    
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+
+	    // modify flux based on magnetic field orientation, if we are using
+	    // anisotropic conduction
+	    if(AnisotropicConduction){
+	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);
+	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
+	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
+	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
+	      Bhat = fabs(By_face)/Bmag;
+	      r.kappa *= Bhat;
+	    } 
+
+
 	    r.dedt = r.kappa*r.dT;
 	  }
 
@@ -213,6 +251,19 @@ int grid::ComputeHeat (float dedt[]) {
 
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
+
+	    // modify flux based on magnetic field orientation, if we are using
+	    // anisotropic conduction
+	    if(AnisotropicConduction){
+	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);
+	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
+	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
+	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
+	      Bhat = fabs(Bz_face)/Bmag;
+	      r.kappa *= Bhat;
+	    } 
+
+
 	    r.dedt = r.kappa*r.dT;
 	  }
 
