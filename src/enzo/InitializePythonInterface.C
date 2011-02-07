@@ -13,6 +13,11 @@
 /
 ************************************************************************/
 
+#ifndef ENZO_PYTHON_IMPORTED
+#define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
+#define ENZO_PYTHON_IMPORTED
+#endif
+
 #include <Python.h>
 #include "numpy/arrayobject.h"
 
