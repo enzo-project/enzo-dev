@@ -21,6 +21,9 @@
 #include "numpy/arrayobject.h"
 #include "ProblemType_Python.h"
 
+void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime);
+int InitializePythonInterface(int argc, char **argv);
+
 namespace{
     EnzoProblemType_creator_concrete<ProblemType_Python>
         python_initializer("PythonInitializer");
@@ -57,23 +60,6 @@ float* ProblemType_Python::GetField(PythonGrid *grid, int FieldIndex) {
 void ProblemType_Python::GetGridInformation(
         PythonGrid *grid, int *ActiveDimensions,
         FLOAT *GridLeftEdge, FLOAT *GridRightEdge) {
-        /*fprintf(stderr, "SI %"ISYM" %"ISYM" %"ISYM"\n",
-                grid->GridStartIndex[0],
-                grid->GridStartIndex[1],
-                grid->GridStartIndex[2]);
-        fprintf(stderr, "EI %"ISYM" %"ISYM" %"ISYM"\n",
-                grid->GridEndIndex[0],
-                grid->GridEndIndex[1],
-                grid->GridEndIndex[2]);
-        fprintf(stderr, "LE %"GSYM" %"GSYM" %"GSYM"\n",
-                grid->GridLeftEdge[0],
-                grid->GridLeftEdge[1],
-                grid->GridLeftEdge[2]);
-        fprintf(stderr, "RE %"GSYM" %"GSYM" %"GSYM"\n",
-                grid->GridRightEdge[0],
-                grid->GridRightEdge[1],
-                grid->GridRightEdge[2]);
-                */
     for (int i = 0; i < MAX_DIMENSION; i++) {
         ActiveDimensions[i] = grid->GridEndIndex[i] - grid->GridStartIndex[i] + 1;
         GridLeftEdge[i] = grid->GridLeftEdge[i];
@@ -99,13 +85,12 @@ int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
     }
 
     initproblemtype_handler();
-    print_hello();
-    fprintf(stderr, "ABOUT TO CREATE\n");
     PythonGrid *pgrid = static_cast<PythonGrid*> (TopGrid.GridData);
-    fprintf(stderr, "Dimensions: %"ISYM" %"ISYM" %"ISYM"\n",
-        pgrid->GridDimension[0],
-        pgrid->GridDimension[1],
-        pgrid->GridDimension[2]);
+
+    char *argv[] = {"enzo"};
+    InitializePythonInterface(1, argv);
+    ExportParameterFile(&MetaData, MetaData.Time);
+
     rv = create_problem_instance(this, pgrid);
 
     return SUCCESS;

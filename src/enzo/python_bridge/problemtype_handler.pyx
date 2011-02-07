@@ -223,7 +223,6 @@ cdef class ProblemCreator:
             self.prob = new ProblemType_Python()
         self.datalabel_mapping = {}
         self.field_numbers = field_enums
-        print self.field_numbers
 
     def add_data_label(self, char *f):
         cdef int i = self.prob.AddDataLabel(f)
@@ -245,10 +244,7 @@ cdef public int create_problem_instance(
     tg.this_grid = TopGrid
     tg._obtain_grid_info()
     pc.prob = prob
-    problem_definition.run(pc, tg)
-
-cdef public int print_hello():
-    print "Seems to be working"
+    problem_definition.generate_initial_conditions(pc, tg)
 
 cdef extern from "fix_enzo_defs.h":
     pass

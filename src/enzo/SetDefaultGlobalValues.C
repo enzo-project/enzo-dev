@@ -83,6 +83,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.dtTracerParticleDump       = 0.0;
   MetaData.TimeLastInterpolatedDataDump    = FLOAT_UNDEFINED;
   MetaData.dtInterpolatedDataDump          = 0.0;
+  MetaData.WroteData           = FALSE;
  
   MetaData.CycleLastRestartDump = 0;
   MetaData.CycleSkipRestartDump = 0;
