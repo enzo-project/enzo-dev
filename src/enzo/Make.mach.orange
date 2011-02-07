@@ -39,13 +39,6 @@ MACH_CPP       = /usr/bin/cpp
 
 # With MPI
 
-#MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
-##MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpic++ -DMPICH_IGNORE_CXX_SEEK
-#MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpic++
-#MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif90
-#MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90
-#MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
-
 MACH_CC_MPI  = $(INT_DIR)/bin/@sys/icc
 MACH_CXX_MPI = $(INT_DIR)/bin/@sys/icc
 MACH_FC_MPI  = $(INT_DIR)/bin/@sys/ifort
