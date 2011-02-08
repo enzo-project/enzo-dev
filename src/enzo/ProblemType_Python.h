@@ -33,6 +33,8 @@ class ProblemType_Python;
 
 class PythonGrid : private grid {
     friend class ProblemType_Python;
+    public:
+        int Level;
 };
 
 /* 

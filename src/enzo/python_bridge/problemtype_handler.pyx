@@ -112,6 +112,7 @@ cdef extern from "ProblemType_Python.h":
 
     cdef cppclass PythonGrid:
         Eflt *BaryonField[]
+        int Level
 
     cdef cppclass ProblemType_Python:
         ProblemTypeGeneral()
@@ -158,6 +159,7 @@ cdef class GridHolder:
     cdef public left_edge
     cdef public right_edge
     cdef public active_dimensions
+    cdef public int level
 
     def __cinit__(self, problem_creator, create_grid = False):
         self.problem_creator = problem_creator
@@ -173,6 +175,7 @@ cdef class GridHolder:
         self.left_edge = np.array( [LE[0], LE[1], LE[2]], dtype="float64")
         self.right_edge = np.array( [RE[0], RE[1], RE[2]], dtype="float64")
         self.active_dimensions = np.array( [dims[0], dims[1], dims[2]], dtype="int64")
+        self.level = self.this_grid.Level
 
     def set_grid_field(self, field_name, np.ndarray[np.float64_t, ndim=3] data):
         cdef ProblemType_Python *prob = \

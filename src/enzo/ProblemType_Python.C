@@ -68,6 +68,11 @@ void ProblemType_Python::GetGridInformation(
     return;
 }
 
+void ProblemType_Python::RebuildHierarchy(
+    PythonGrid *grid)
+{
+    
+}
 // All methods must go above this method
 
 int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
@@ -86,6 +91,7 @@ int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
 
     initproblemtype_handler();
     PythonGrid *pgrid = static_cast<PythonGrid*> (TopGrid.GridData);
+    pgrid->Level = 0;
 
     char *argv[] = {"enzo"};
     InitializePythonInterface(1, argv);
