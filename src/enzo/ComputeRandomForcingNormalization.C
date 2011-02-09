@@ -96,8 +96,6 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
     *norm = ( sqrt(GlobVal[0]*GlobVal[0] + GlobVal[1]*dt*RandomForcingEdot*2.0*
 		 numberOfGridZones) - GlobVal[0] )/GlobVal[1];
  
-            *norm,GlobVal[0]*GlobVal[0], GlobVal[1],dt,RandomForcingEdot,numberOfGridZones,
-            GlobVal[0],GlobVal[1]);
   if (debug) printf("RandomForcingNormalization %.10"GSYM"\n", *norm);
   if (debug) printf("RandomForcingGlobals: E_k %"GSYM" M_m %"GSYM" M_v %"GSYM" \n",
 		    0.5*GlobVal[4]/numberOfGridZones,
