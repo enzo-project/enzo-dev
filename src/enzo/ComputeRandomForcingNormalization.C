@@ -43,7 +43,7 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 				      int level, TopGridData *MetaData,
 				      float * norm, float * pTopGridTimeStep)
 {
-
+    fprintf(stderr,"TURD1 %"GSYM"\n",*norm);
   /* Return if this does not concern us */
   if (!RandomForcing) return SUCCESS;
  
@@ -97,6 +97,9 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
     *norm = ( sqrt(GlobVal[0]*GlobVal[0] + GlobVal[1]*dt*RandomForcingEdot*2.0*
 		 numberOfGridZones) - GlobVal[0] )/GlobVal[1];
  
+    fprintf(stderr,"TURD2 %"GSYM" = sqrt( %"GSYM" + %"GSYM"*%"GSYM"*%"GSYM"*%"GSYM" - %"GSYM")/%"GSYM"\n",
+            *norm,GlobVal[0]*GlobVal[0], GlobVal[1],dt,RandomForcingEdot,numberOfGridZones,
+            GlobVal[0],GlobVal[1]);
   if (debug) printf("RandomForcingNormalization %.10"GSYM"\n", *norm);
   if (debug) printf("RandomForcingGlobals: E_k %"GSYM" M_m %"GSYM" M_v %"GSYM" \n",
 		    0.5*GlobVal[4]/numberOfGridZones,
@@ -112,15 +115,23 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
       FILE * Fptr;
       if ((Fptr = fopen("randomForcing.out", "a")) == NULL)
 	ERROR_MESSAGE;
-      fprintf( Fptr, "%"ISYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %10.5"FSYM"\n",
-	       MetaData->CycleNumber,
-	       MetaData->Time,
-	       0.50*GlobVal[4]/numberOfGridZones,   // kinetic energy
-	       sqrt(GlobVal[2]/numberOfGridZones),  // mass weighted rms Mach
-	       sqrt(GlobVal[3]/numberOfGridZones),  // volume weighed rms Mach
-	       sqrt(GlobVal[5]/numberOfGridZones),  // rms Velocity
-	       sqrt(GlobVal[6]/numberOfGridZones),  // Density variance
-	       minDens, maxDens );                  // min/max Density
+      fprintf( Fptr, "%"ISYM" %9.6"FSYM" ", MetaData->CycleNumber, MetaData->Time);
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[1]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[2]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[3]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[4]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[5]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[6]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[7]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[8]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[9]); //gv1
+      fprintf( Fptr, "\n");
+      fprintf( Fptr, " %9.6"FSYM, 0.50*GlobVal[4]/numberOfGridZones);   // kinetic energy
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[2]/numberOfGridZones));  // mass weighted rms Mach
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[3]/numberOfGridZones));  // volume weighed rms Mach
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[5]/numberOfGridZones));  // rms Velocity
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[6]/numberOfGridZones));  // Density variance
+      fprintf( Fptr, " %9.6"FSYM" %10.5"FSYM"\n", minDens, maxDens );                  // min/max Density
       fclose(Fptr);
     }
  
