@@ -50,6 +50,7 @@ static PyMethodDef _EnzoModuleMethods[] = {
 int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
+  static int PythonInterpreterInitialized = 0;
   if(PythonInterpreterInitialized == 0){
     Py_SetProgramName("embed_enzo");
     Py_Initialize();

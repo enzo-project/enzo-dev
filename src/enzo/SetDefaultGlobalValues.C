@@ -420,7 +420,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
-  PythonInterpreterInitialized     = 0;
 
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
