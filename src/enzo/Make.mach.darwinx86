@@ -7,11 +7,14 @@
 #       System OpenMPI (mpicc, mpic++)
 #       HDF5 installed to /usr/local/ with no additional 'configure'
 #           arguments
-#       gfortran from http://hpc.sf.net/
 #
 # AUTHOR:      Matthew Turk (mturk@slac.stanford.edu)
 #
 # DATE:        2008-10-30
+# Modified:    2011-02-08, dcollins
+#       Added C, C++, fortran compile flags.
+#       Use gfortran from http://r.research.att.com/gfortran-4.2.3.dmg
+#          The one from http://hpc.sf.net/ had problems with the x86 libgfortran
 #
 #=======================================================================
 
@@ -32,10 +35,11 @@ LOCAL_PACKAGES       = /usr/local
 
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = /Users/dcollins/local/
+LOCAL_HDF5_INSTALL   = $(HDF5_DIR)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
+LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
 LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
 LOCAL_CVODE_INSTALL  = /usr/local/
 
@@ -70,7 +74,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API  -DHAOXU_NOMULTI -DHAOXU -DATHENA -DDC_COSMOLOGY_FLUX  -DNEW_DIVB  -DHAOXU_NOMULTI
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API #-DNEW_PROBLEM_TYPES
 
 #-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
 
@@ -83,7 +87,7 @@ MACH_CFLAGS   = -arch x86_64
 MACH_CXXFLAGS = -arch x86_64
 MACH_FFLAGS   = -fno-second-underscore -m64
 MACH_F90FLAGS = -fno-second-underscore -m64
-MACH_LDFLAGS  = #-arch i386 
+MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
 # Precision-related flags
@@ -114,8 +118,10 @@ LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
+LOCAL_INCLUDES_CVODE  = -I$(LOCAL_CVODE_INSTALL)/include/cvode/
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) 
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA) \
+                        $(LOCAL_INCLUDES_CVODE)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
