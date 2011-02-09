@@ -21,6 +21,9 @@
 #include "numpy/arrayobject.h"
 #include "ProblemType_Python.h"
 
+void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime);
+int InitializePythonInterface(int argc, char **argv);
+
 namespace{
     EnzoProblemType_creator_concrete<ProblemType_Python>
         python_initializer("PythonInitializer");
@@ -49,6 +52,27 @@ void ProblemType_Python::SetField(PythonGrid *grid,
                 FieldIndex, FieldType);
 }
 
+float* ProblemType_Python::GetField(PythonGrid *grid, int FieldIndex) {
+    if (FieldIndex > MAX_NUMBER_OF_BARYON_FIELDS) return NULL;
+    return grid->BaryonField[FieldIndex]; /* Should be NULL if not allocated */
+}
+
+void ProblemType_Python::GetGridInformation(
+        PythonGrid *grid, int *ActiveDimensions,
+        FLOAT *GridLeftEdge, FLOAT *GridRightEdge) {
+    for (int i = 0; i < MAX_DIMENSION; i++) {
+        ActiveDimensions[i] = grid->GridEndIndex[i] - grid->GridStartIndex[i] + 1;
+        GridLeftEdge[i] = grid->GridLeftEdge[i];
+        GridRightEdge[i] = grid->GridRightEdge[i];
+    }
+    return;
+}
+
+void ProblemType_Python::RebuildHierarchy(
+    PythonGrid *grid)
+{
+    
+}
 // All methods must go above this method
 
 int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
@@ -66,13 +90,13 @@ int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
     }
 
     initproblemtype_handler();
-    print_hello();
-    fprintf(stderr, "ABOUT TO CREATE\n");
     PythonGrid *pgrid = static_cast<PythonGrid*> (TopGrid.GridData);
-    fprintf(stderr, "Dimensions: %"ISYM" %"ISYM" %"ISYM"\n",
-        pgrid->GridDimension[0],
-        pgrid->GridDimension[1],
-        pgrid->GridDimension[2]);
+    pgrid->Level = 0;
+
+    char *argv[] = {"enzo"};
+    InitializePythonInterface(1, argv);
+    ExportParameterFile(&MetaData, MetaData.Time);
+
     rv = create_problem_instance(this, pgrid);
 
     return SUCCESS;

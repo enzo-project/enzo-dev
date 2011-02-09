@@ -33,6 +33,8 @@ class ProblemType_Python;
 
 class PythonGrid : private grid {
     friend class ProblemType_Python;
+    public:
+        int Level;
 };
 
 /* 
@@ -61,6 +63,12 @@ class ProblemType_Python : public EnzoProblemType
             HierarchyEntry &TopGrid, TopGridData &MetaData);
 
     void SetField(PythonGrid *grid, int FieldIndex, float *data, int FieldType);
+    float* GetField(PythonGrid *grid, int FieldIndex);
+
+    void GetGridInformation(PythonGrid *grid,
+        int ActiveDimensions[MAX_DIMENSION],
+        FLOAT GridLeftEdge[MAX_DIMENSION],
+        FLOAT GridRightEdge[MAX_DIMENSION]);
 
 };
 
