@@ -27,8 +27,7 @@ int InitializeLymanWernerTable()
  
   FILE *fptr = fopen("LW_J21.in", "r");
   if (fptr == NULL) {
-    fprintf(stderr, "Error opening LW_J21.in\n");
-    return FAIL;
+    return ENZO_FAIL("Error opening LW_J21.in\n");
   }
  
   /* Read rate data, skipping over comments (count first). */
