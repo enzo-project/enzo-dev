@@ -83,10 +83,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
- 
- 
-int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
-
+  
 void InitializeHierarchyArrayStorage(int grid_count);
 void WriteHierarchyArrayStorage(const char* name);
 void FinalizeHierarchyArrayStorage();

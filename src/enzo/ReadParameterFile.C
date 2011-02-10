@@ -1154,10 +1154,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
-  /* If using MBHFeedback = 2 or 3 (Star->FeedbackFlag = MBH_JETS), 
+  /* If using MBHFeedback = 2 to 5 (Star->FeedbackFlag = MBH_JETS), 
      you need MBHParticleIO for angular momentum */
 
-  if (MBHFeedback == 2 || MBHFeedback == 3) 
+  if (MBHFeedback >= 2 && MBHFeedback <= 5) 
     MBHParticleIO = TRUE;
 
   /* Turn off DualEnergyFormalism for zeus hydro (and a few other things). */

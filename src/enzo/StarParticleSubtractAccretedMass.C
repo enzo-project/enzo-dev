@@ -35,7 +35,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level, FLOAT star_pos[],
-				   double star_mass, float star_last_accretion_rate,
+				   double star_mass, float star_last_accretion_rate, star_type star_type,
+				   grid *star_CurrentGrid, 
 				   float StarLevelCellWidth, float dtForThisStar,
 				   float &Radius, double &Subtraction);
 
@@ -112,8 +113,12 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
       /* Compute some parameters, similar to Star_CalculateFeedbackParameters */
 
+      grid *cstar_grid = cstar->ReturnCurrentGrid();
+
       CalculateSubtractionParameters(LevelArray, level, cstar->ReturnPosition(), cstar->ReturnMass(),
-				     cstar->ReturnLastAccretionRate(), StarLevelCellWidth, dtForThisStar, 
+				     cstar->ReturnLastAccretionRate(), cstar->ReturnType(),
+				     cstar->ReturnCurrentGrid(), 
+				     StarLevelCellWidth, dtForThisStar, 
 				     influenceRadius, Subtraction);
 
 //      fprintf(stdout, "SPSAM: Subtraction=%g, influenceRadius=%g\n", Subtraction, influenceRadius); 
@@ -188,7 +193,6 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
       if (debug) {
 	if (cstar->ReturnFeedbackFlag() != FORMATION)
-
 	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		  "Radius = %"GSYM" pc\n",
 		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);

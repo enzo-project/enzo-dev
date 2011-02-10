@@ -501,6 +501,11 @@ typedef int            HDF5_hid_t;
 #define BONDI_ACCRETION 1
 #define RADIAL_ACCRETION 2 // accrete based on a radial profile of dM/dt
 
+/* Correcting Bondi accretion rate */
+
+#define BONDI_ACCRETION_CORRECT_ANALYTIC -1   // by using R^-1.5 profile
+#define BONDI_ACCRETION_CORRECT_NUMERICAL -2  // by stepping outwards
+
 /* Type of metal cooling */
 
 #define JHW_METAL_COOLING 1

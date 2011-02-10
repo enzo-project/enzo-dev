@@ -712,6 +712,7 @@ OBJS_CONFIG_LIB = \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
+        RecalibrateAccretingMass.o \
         RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
         remap.o \
@@ -778,6 +779,7 @@ OBJS_CONFIG_LIB = \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
+        Star_MultiplyAccretionRate.o \
         Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
 	Star_SphereContained.o \

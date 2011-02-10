@@ -466,7 +466,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIColorMass                  = 1e6;          // total mass to color
   IMFData                          = NULL;
 
-  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
+  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
@@ -476,7 +476,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e3;          // Msun
 
-  MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
+  MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L, 4: jet along L with 10deg noise, 5: jet along random direction
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackEnergyCoupling        = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C

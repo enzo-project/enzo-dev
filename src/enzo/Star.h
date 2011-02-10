@@ -100,10 +100,11 @@ public:
   float *ReturnVelocity(void) { return vel; }
   float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
   float ReturnLastAccretionRate(void) { return last_accretion_rate; }
+  void  MultiplyAccretionRate(float &RecalibrateAccretingMassRatio);
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
-  int	CalculateMassAccretion(void);
-  int	ComputePhotonRates(int &nbins, float E[], double Q[]);
+  int   CalculateMassAccretion(float &BondiRadius, float &density);
+  int   ComputePhotonRates(int &nbins, float E[], double Q[]);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS

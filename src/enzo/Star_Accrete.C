@@ -33,6 +33,7 @@ int Star::Accrete(void)
   if (this->CurrentGrid == NULL || this->naccretions == 0)
     return SUCCESS;
 
+  const double Msun = 1.989e33, yr = 3.1557e7;
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
@@ -102,8 +103,8 @@ int Star::Accrete(void)
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 
-//  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, time = %g, accretion_time[0] = %g, this_dt = %e, 
-//          DeltaMass = %g, Mass = %lf\n", last_accretion_rate, time, accretion_time[0], this_dt, DeltaMass, Mass); 
+  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g Msun/yr, time = %g, accretion_time[0] = %g, this_dt = %e, DeltaMass = %g, Mass = %lf\n", 
+	  last_accretion_rate*yr, time, accretion_time[0], this_dt, DeltaMass, Mass); //#####
 
   /* Remove these entries in the accretion table */
 

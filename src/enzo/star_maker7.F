@@ -398,6 +398,16 @@ c
      &     m_eject, yield, minitial, xv1, xv2, dratio
       parameter (clight = 3e10, msolar_e51 = 1800.0)
 c
+#define NO_KINETIC_FEEDBACK  !#####
+#ifdef KINETIC_FEEDBACK
+      integer nn
+      integer ind_x(7), ind_y(7), ind_z(7)
+      data ind_x/0, 1, 0, 0,-1, 0, 0/
+      data ind_y/0, 0, 1, 0, 0,-1, 0/
+      data ind_z/0, 0, 0, 1, 0, 0,-1/
+      real speed_shock
+#endif /*KINETIC_FEEDBACK */
+c
 c-----------------------------------------------------------------------
 c
 c  check whether we have MBH particle here AND whether MBHFeedbackRadius 
@@ -498,45 +508,175 @@ c
      &              (mform*m_eject + minitial*exp(-xv2)*(1.0 + xv2))
 #endif /* SHARE_ENERGY */
 c
-c           Add energy to energy field
 c
-            dratio = d(i,j,k)/(d(i,j,k) + mform * m_eject)
-            te(i,j,k) = te(i,j,k)*dratio + energy
-            if (idual .eq. 1) 
-     &          ge(i,j,k) = ge(i,j,k)*dratio + energy
+c
+c  INTRODUCE KINETIC FEEDBACK, EJECT THE MASS INTO 6 NEARBY CELLS WITH VELOCITY
+c  IF 3^3 SUPERCELL IS NOT CONTAINED, STICK WITH THE THERMAL FEEDBACK MODEL
+c  JHK, 12 Nov 10 
+c           
+c
+#ifdef KINETIC_FEEDBACK
+            if (i .lt. 5 .or. i .gt. nx-4 .or. j .lt. 5 .or. 
+     &          j .gt. ny-4 .or. k .lt. 5 .or. k .gt. nz-4) then
+#endif /*KINETIC_FEEDBACK */
+c
+c              Add energy to energy field
+c
+               dratio = d(i,j,k)/(d(i,j,k) + mform * m_eject)
+               te(i,j,k) = te(i,j,k)*dratio + energy
+               if (idual .eq. 1) 
+     &            ge(i,j,k) = ge(i,j,k)*dratio + energy
 
 c
-c           Metal feedback (note that in this function gas metal is
-c             a fraction (rho_metal/rho_gas) rather than a density.
-c             The conversion has been done in the handling routine)
+c              Metal feedback (note that in this function gas metal is
+c              a fraction (rho_metal/rho_gas) rather than a density.
+c              The conversion has been done in the handling routine)
 c
-            if (imetal .eq. 1) then
+               if (imetal .eq. 1) then
 c
-c           "Cen method".  This takes into account gas recycling.
+c              "Cen method".  This takes into account gas recycling.
 c
-               metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-     &              (yield * (1.0-metalf(n)) + m_eject * metalf(n)))
-     &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
+                  metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
+     &                 (yield * (1.0-metalf(n)) + m_eject * metalf(n)))
+     &                 / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
+c
+               endif
+c
+c              Mass and momentum feedback
+c
+               u(i,j,k) = u(i,j,k)*d(i,j,k) + mform * m_eject * up(n)
+               v(i,j,k) = v(i,j,k)*d(i,j,k) + mform * m_eject * vp(n)
+               w(i,j,k) = w(i,j,k)*d(i,j,k) + mform * m_eject * wp(n)
+               d(i,j,k) = d(i,j,k) + mform * m_eject
+               u(i,j,k) = u(i,j,k)/d(i,j,k)
+               v(i,j,k) = v(i,j,k)/d(i,j,k)
+               w(i,j,k) = w(i,j,k)/d(i,j,k)
+c
+c              If te is really total energy (and it is unless imethod=2),
+c              then just set this value
+c
+               if (imethod .ne. 2 .and. idual .eq. 1) then
+                  te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
+     &                             w(i,j,k)**2) + ge(i,j,k)
+               endif
+c
+c
+#ifdef KINETIC_FEEDBACK
+            else
+c               if (n .le. 100) then
+c                  write(6,*) 'star_maker7: particle in active zone'
+c                  write(6,*) 'apply kinetic feedback: i,j,k,level = ',
+c     &                        i,j,k,level
+c                  write(6,*) 'd,u,te = ', d(i,j,k), u(i,j,k), te(i,j,k)
+c                  write(6,*) 'd1,u1,te1 = ', d(i+1,j,k), u(i+1,j,k), 
+c     &                        te(i+1,j,k)
+c               endif
+c
+c              LOOP THROUGH 7 NEARBY CELLS 
+c
+               do nn = 1, 7
+c
+                  if (nn .eq. 1) then
+c
+c                    Add energy to energy field (only for the central cell)
+c
+                     dratio = d(i,j,k)/(d(i,j,k) + 1./7.*mform*m_eject)
+                     te(i,j,k) = te(i,j,k)*dratio + energy
+                     if (idual .eq. 1) 
+     &                    ge(i,j,k) = ge(i,j,k)*dratio + energy
+c
+                  else
+c
+c                    Mass and momentum feedback (for the nearby 6 cells)
+c
+                     speed_shock = sqrt(sn_param * mform * 
+     &                             (clight/v1)**2 / (0.5*mform*m_eject))
+c
+C                      if (n .le. 100 .and. nn .eq. 2) then
+C                         write(6,*) 'u, d, m*m, up+i*s = ', 
+C      &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)),
+C      &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)),
+C      &                        1./7. * mform * m_eject,
+C      &                        up(n) + ind_x(nn) * speed_shock
+C                      endif
+
+                     u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) *
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1./7. * mform * m_eject * 
+     &                        (up(n) + ind_x(nn) * speed_shock)
+                     v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) *
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1./7. * mform * m_eject * 
+     &                        (vp(n) + ind_y(nn) * speed_shock)
+                     w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) *
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1./7. * mform * m_eject * 
+     &                        (wp(n) + ind_z(nn) * speed_shock)
+                     d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1./7. * mform * m_eject
+                     u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) /
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+                     v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) /
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+                     w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) /
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+
+C                      if (n .le. 100 .and. nn .eq. 2) then
+C                         write(6,*) 'u-2 = ', 
+C      &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+C                      endif
+c
+                  endif              
+c
+c                 Metal feedback (note that in this function gas metal is
+c                 a fraction (rho_metal/rho_gas) rather than a density.
+c                 The conversion has been done in the handling routine)
+c
+                  if (imetal .eq. 1) then
+c
+c                 "Cen method".  This takes into account gas recycling.
+c
+                     metal(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                  (metal(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) * 
+     &                  d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                  1./7. * mform * (yield * (1.0-metalf(n)) + 
+     &                  m_eject * metalf(n))) / 
+     &                  (d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                  1./7. * mform * m_eject)  ! metal is a fraction
+c
+                  endif
+c
+c                 If te is really total energy (and it is unless imethod=2),
+c                 then just set this value
+c
+                  if (imethod .ne. 2 .and. idual .eq. 1) then
+                     te(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 0.5 * 
+     &                  (u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))**2 + 
+     &                   v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))**2 + 
+     &                   w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))**2) + 
+     &                   ge(i,j,k)
+                  endif
+c
+               enddo
+c   
+c               if (n .le. 100) then
+c                  write(6,*) 'after kinetic feedback: i,j,k,level = ',
+c     &                        i,j,k,level
+c                  write(6,*) 'd,u,te = ', d(i,j,k), u(i,j,k), te(i,j,k)
+c                  write(6,*) 'd1,u1,te1 = ', d(i+1,j,k), u(i+1,j,k), 
+c     &                        te(i+1,j,k)
+c               endif
 c
             endif
+#endif /*KINETIC_FEEDBACK */
 c
-c           Mass and momentum feedback
-c
-            u(i,j,k) = u(i,j,k)*d(i,j,k) + mform * m_eject * up(n)
-            v(i,j,k) = v(i,j,k)*d(i,j,k) + mform * m_eject * vp(n)
-            w(i,j,k) = w(i,j,k)*d(i,j,k) + mform * m_eject * wp(n)
-            d(i,j,k) = d(i,j,k) + mform * m_eject
-            u(i,j,k) = u(i,j,k)/d(i,j,k)
-            v(i,j,k) = v(i,j,k)/d(i,j,k)
-            w(i,j,k) = w(i,j,k)/d(i,j,k)
-c
-c           If te is really total energy (and it is unless imethod=2),
-c             then just set this value
-c
-            if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
-     &                          w(i,j,k)**2) + ge(i,j,k)
-            endif
 c
  10         continue
          endif
