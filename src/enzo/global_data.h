@@ -620,6 +620,11 @@ EXTERN int MovieVertexCentered;
 EXTERN char *NewMovieName;
 EXTERN int NewMovieDumpNumber;
 EXTERN int NewMovieParticleOn;
+EXTERN FLOAT *StarParticlesOnProcOnLvl_Position[128][3]; 
+EXTERN float *StarParticlesOnProcOnLvl_Velocity[128][3], *StarParticlesOnProcOnLvl_Mass[128];
+EXTERN float *StarParticlesOnProcOnLvl_Attr[128][MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+EXTERN int *StarParticlesOnProcOnLvl_Type[128];
+EXTERN PINT *StarParticlesOnProcOnLvl_Number[128];
 
 /* Stanford Hydro Solver variables */
 
