@@ -95,6 +95,7 @@ OBJS_CONFIG_LIB = \
         ComputeTable.o \
         Continue.o \
 	cool1d_cloudy.o \
+    cool1d_koyama.o\
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \

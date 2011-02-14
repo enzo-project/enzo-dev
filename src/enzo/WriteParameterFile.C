@@ -410,6 +410,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
+  fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
   fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
