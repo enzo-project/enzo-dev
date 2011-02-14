@@ -10,9 +10,10 @@
 /           mode = 1 ==> fill out random force
 ************************************************************************/
 
-#include <string.h>
 #include <stdio.h>
-#include <assert.h>
+#include <stdlib.h>
+#include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
