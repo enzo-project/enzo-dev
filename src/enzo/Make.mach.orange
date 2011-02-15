@@ -29,6 +29,7 @@ MACHINE_NOTES = "***** MACHINE_NOTES for Orange at KIPAC/Stanford: \
 INT_DIR              = /afs/slac.stanford.edu/package/intel_tools/compiler11.1/
 LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.3.4/@sys
 LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-x86_64/
+LOCAL_HDF4_INSTALL   = /afs/slac/g/ki/software/hdf4/amd64_linux26/
 LOCAL_PYTHON_INSTALL = /u/ki/mturk/Research/local/yt-x86_64/
 
 #-----------------------------------------------------------------------
@@ -109,6 +110,7 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
 LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lopen-rte -lopen-pal
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 
 LOCAL_LIBS_MACH   =  -L$(INT_DIR)/lib/intel64/ -limf -lifcore -lifport -lstdc++
