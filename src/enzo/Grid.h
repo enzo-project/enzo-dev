@@ -2081,9 +2081,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 #define TURBULENCE_INIT_PARAMETERS_DECL \
      float TurbulenceSimulationInitialDensity, \
+     float TurbulenceSimulationInitialDensityPerturbationAmplitude, \
      float TurbulenceSimulationInitialTemperature, \
+     float TurbulenceSimulationInitialPressure, \
+     float TurbulenceSimulationInitialMagneticField[], \
+     char *TurbulenceSimulationMagneticNames[], \
      char *TurbulenceSimulationDensityName, \
      char *TurbulenceSimulationTotalEnergyName, \
+     char *TurbulenceSimulationGasPressureName, \
      char *TurbulenceSimulationGasEnergyName, \
      char *TurbulenceSimulationVelocityNames[], \
      char *TurbulenceSimulationRandomForcingNames[], \
@@ -2093,9 +2098,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 #define TURBULENCE_INIT_PARAMETERS \
      TurbulenceSimulationInitialDensity, \
+     TurbulenceSimulationInitialDensityPerturbationAmplitude, \
      TurbulenceSimulationInitialTemperature, \
+     TurbulenceSimulationInitialPressure, \
+     TurbulenceSimulationInitialMagneticField, \
+     TurbulenceSimulationMagneticNames, \
      TurbulenceSimulationDensityName, \
      TurbulenceSimulationTotalEnergyName, \
+     TurbulenceSimulationGasPressureName, \
      TurbulenceSimulationGasEnergyName, \
      TurbulenceSimulationVelocityNames, \
      TurbulenceSimulationRandomForcingNames, \
@@ -2104,6 +2114,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
  int TurbulenceSimulationInitializeGrid(TURBULENCE_INIT_PARAMETERS_DECL);
+ int ComputeRandomForcingFields(int mode);
 
   // The following are private since they should only be called by
   // TurbulenceSimulationInitializeGrid()

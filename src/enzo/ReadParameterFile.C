@@ -426,6 +426,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
 
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
+    ret += sscanf(line, "TabulatedLWBackground = %"ISYM, &TabulatedLWBackground);
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
     ret += sscanf(line, "SetHeIIHeatingScale = %"FSYM, &SetHeIIHeatingScale);
@@ -927,6 +928,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
     if (strstr(line, "KH")                  ) ret++;
     if (strstr(line, "Noh")                 ) ret++;
+    if (strstr(line, "TestProblem")         ) ret++;
     if (strstr(line, "ZeldovichPancake")    ) ret++;
     if (strstr(line, "PressurelessCollapse")) ret++;
     if (strstr(line, "AdiabaticExpansion" ) ) ret++;
@@ -1268,6 +1270,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ParallelRootGridIO = 1;
     ParallelParticleIO = 1;
   }
+
+  if(ProblemType==70 && UseHydro==1){
+    printf("ReadParameterFile: ProblemType=70.  Disabling hydrodynamics!\n");
+    UseHydro=FALSE;
+  }
+
 
   if ((MetaData.GravityBoundary != TopGridPeriodic) &&
       (UnigridTranspose)) {

@@ -30,6 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int InitializeCloudyCooling(FLOAT Time);
+int InitializeLymanWernerTable();
 int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits, 
 			  float aUnits, float DensityUnits, float TimeUnits, 
 			  float aye);
@@ -194,6 +195,13 @@ int InitializeRateData(FLOAT Time)
         &RateData.k29, &RateData.k30, &RateData.k31,
      RateData.k50, RateData.k51, RateData.k52, RateData.k53, RateData.k54,
         RateData.k55, RateData.k56, &ioutput);
+
+  /* If using tabulated J21 values for Lyman-Werner, initialize. */
+  if (TabulatedLWBackground) {
+    if (InitializeLymanWernerTable() == FAIL) {
+      ENZO_FAIL("Error in InitializeLymanWernerTable.\n");
+    }
+  }
 
   /* Initialize Cloudy cooling, even if not being used. */
   /* If not used, this will just initialize some data structues. */

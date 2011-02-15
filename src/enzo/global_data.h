@@ -359,6 +359,7 @@ EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 EXTERN int RadiationXRayComptonHeating;
+EXTERN int TabulatedLWBackground;
 
 /* Photoelectric cooling turn on/off */
 
@@ -435,7 +436,6 @@ EXTERN float IncrementDensityOutput;
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
-EXTERN int PythonInterpreterInitialized;
 
 /* Parameters to control inline halo finding */
 

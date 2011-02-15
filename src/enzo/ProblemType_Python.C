@@ -12,11 +12,6 @@
 #ifdef NEW_PROBLEM_TYPES
 #ifdef USE_PYTHON
 
-#ifndef ENZO_PYTHON_IMPORTED
-#define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#define ENZO_PYTHON_IMPORTED
-#endif
-
 #include <Python.h>
 #include "numpy/arrayobject.h"
 #include "ProblemType_Python.h"
@@ -68,33 +63,20 @@ void ProblemType_Python::GetGridInformation(
     return;
 }
 
-void ProblemType_Python::RebuildHierarchy(
-    PythonGrid *grid)
-{
-    
-}
 // All methods must go above this method
 
 int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,
     HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
     int rv;
-#undef int
-    if (PythonInterpreterInitialized == 0){
-      Py_SetProgramName("embed_enzo");
-      Py_Initialize();
-      PySys_SetArgv(3, argv);
-      import_array1(FAIL);
-      PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
-      PythonInterpreterInitialized = 1;
-    }
+
+    char *argv[] = {"enzo"};
+    InitializePythonInterface(1, argv);
 
     initproblemtype_handler();
     PythonGrid *pgrid = static_cast<PythonGrid*> (TopGrid.GridData);
     pgrid->Level = 0;
 
-    char *argv[] = {"enzo"};
-    InitializePythonInterface(1, argv);
     ExportParameterFile(&MetaData, MetaData.Time);
 
     rv = create_problem_instance(this, pgrid);

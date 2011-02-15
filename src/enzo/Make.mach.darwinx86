@@ -7,11 +7,14 @@
 #       System OpenMPI (mpicc, mpic++)
 #       HDF5 installed to /usr/local/ with no additional 'configure'
 #           arguments
-#       gfortran from http://hpc.sf.net/
 #
 # AUTHOR:      Matthew Turk (mturk@slac.stanford.edu)
 #
 # DATE:        2008-10-30
+# Modified:    2011-02-08, dcollins
+#       Added C, C++, fortran compile flags.
+#       Use gfortran from http://r.research.att.com/gfortran-4.2.3.dmg
+#          The one from http://hpc.sf.net/ had problems with the x86 libgfortran
 #
 #=======================================================================
 
@@ -32,7 +35,7 @@ LOCAL_PACKAGES       = /usr/local
 
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = $(LOCAL_PACKAGES)
+LOCAL_HDF5_INSTALL   = $(HDF5_DIR)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
@@ -71,7 +74,8 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API #-DNEW_PROBLEM_TYPES
+
 #-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
 
 #-----------------------------------------------------------------------
@@ -79,13 +83,11 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 #-----------------------------------------------------------------------
 
 MACH_CPPFLAGS = -P -traditional 
-MACH_CFLAGS   = 
-MACH_CXXFLAGS =
-MACH_FFLAGS   = -fno-second-underscore
-MACH_F90FLAGS = -fno-second-underscore
+MACH_CFLAGS   = -arch x86_64
+MACH_CXXFLAGS = -arch x86_64
+MACH_FFLAGS   = -fno-second-underscore -m64
+MACH_F90FLAGS = -fno-second-underscore -m64
 MACH_LDFLAGS  = 
-MACH_SHARED_FLAGS = -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup
-MACH_SHARED_EXT   = dylib
 
 #-----------------------------------------------------------------------
 # Precision-related flags
@@ -128,16 +130,14 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # Libraries
 #-----------------------------------------------------------------------
 
-LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran 
-                    #-L$(HOME)/yt/enzolib/enzolib -lproblemtype_handler
+LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
-LOCAL_LIBS_PYTHON = -lpython2.6
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
 LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
                     -lsundials_nvecserial -lhdf5_hl
 
-MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_CVODE)
+MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE  = $(LOCAL_LIBS_HYPRE)
