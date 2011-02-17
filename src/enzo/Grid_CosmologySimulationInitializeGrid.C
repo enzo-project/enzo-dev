@@ -368,7 +368,7 @@ int grid::CosmologySimulationInitializeGrid(
  
   if (CosmologySimulationGasEnergyName != NULL && DualEnergyFormalism && ReadData)
     if (READFILE(CosmologySimulationGasEnergyName, GridRank, GridDimension,
-		 GridStartIndex, GridEndIndex, Offset, BaryonField[2],
+		 GridStartIndex, GridEndIndex, Offset, BaryonField[iTE+1],
 		 &tempbuffer, 0, 1) == FAIL) {
             ENZO_FAIL("Error reading gas energy field.");
     }
@@ -523,7 +523,7 @@ int grid::CosmologySimulationInitializeGrid(
 
     if (CosmologySimulationTotalEnergyName == NULL)
       for (i = 0; i < size; i++)
-	BaryonField[1][i] = CosmologySimulationInitialTemperature/
+	BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
 	                      TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
  
 /*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
@@ -531,13 +531,13 @@ int grid::CosmologySimulationInitializeGrid(
  
     if (CosmologySimulationGasEnergyName == NULL && DualEnergyFormalism)
       for (i = 0; i < size; i++)
-	BaryonField[2][i] = BaryonField[1][i];
+	BaryonField[iTE+1][i] = BaryonField[iTE][i];
  
     if (CosmologySimulationTotalEnergyName == NULL &&
 	HydroMethod != Zeus_Hydro) {
       for (dim = 0; dim < GridRank; dim++)
 	for (i = 0; i < size; i++) {
-	  BaryonField[1][i] +=
+	  BaryonField[iTE][i] +=
 	    0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
  	  if (HydroMethod == MHD_RK) {
  	    BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
