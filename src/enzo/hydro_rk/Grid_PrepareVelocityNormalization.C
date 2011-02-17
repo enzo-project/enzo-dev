@@ -35,6 +35,7 @@ int grid::PrepareVelocityNormalization(double *v_rms, double *Volume)
   /* Find fields: density, total energy, velocity1-3. */
  
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+    fprintf(stderr, "GPREPARVN: \n");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "GPRFN: Error in IdentifyPhysicalQuantities.\n");
@@ -61,6 +62,6 @@ int grid::PrepareVelocityNormalization(double *v_rms, double *Volume)
         }
       }
 
-
+  
   return SUCCESS;
 }

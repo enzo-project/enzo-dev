@@ -55,8 +55,8 @@ int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
   /* If this is a zoom-in calculation, we shouldn't load balance the
      root grids by nodes but the finest static grid. */
 
-  if (StaticRefineRegionLevel[0] != INT_UNDEFINED)
-    return SUCCESS;
+//  if (StaticRefineRegionLevel[0] != INT_UNDEFINED)
+//    return SUCCESS;
 
   /* Declarations */
 

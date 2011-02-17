@@ -92,7 +92,14 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   FLOAT ShakeSource[3];
   double RampPercent = 1;
 
-  if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
+  if (RS->Type == Episodic) {
+    const float sigma_inv = 4.0;
+    float t = PhotonTime - RS->CreationTime + dtPhoton;
+    float frac = 2.0 * fabs(t - round(t/RS->RampTime) * RS->RampTime) /
+      RS->RampTime;
+    RampPercent = exp((frac-1)*sigma_inv);
+  } // ENDIF episodic
+  else if (PhotonTime < (RS->CreationTime + RS->RampTime)) {   
     float t = PhotonTime-RS->CreationTime+dtPhoton;
     float frac = t / (RS->RampTime+dtPhoton);
     RampPercent = (exp(frac)-1) / (M_E-1);   // M_E = e = 2.71828...
@@ -102,12 +109,13 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   /* Shake source within the grid cell every time it shines */
 
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    //ShakeSource[dim] = 0.0;
-    ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
+    ShakeSource[dim] = 0.0;
+  //ShakeSource[dim] = (-0.01 + 0.02*float(rand())/RAND_MAX) * CellWidth[dim][0];
 
   switch (RS->Type) {
   case PopII:
     break;
+  case Episodic:
   case PopIII:
     if (MyProcessorNumber == ProcessorNumber)
       printf("Shine: ramp = %lf, lapsed = %lf/%"FSYM", L = %"GSYM"\n", RampPercent,
@@ -173,7 +181,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
       //      for (j=0; j<1; j++) {
       //	if (photons_per_package>tiny_number) { //removed and changed to below by Ji-hoon Kim in Sep.2009
-      if (!isnan(photons_per_package)) {
+      if (!isnan(photons_per_package) && photons_per_package > 0) { 
 	PhotonPackageEntry *NewPack = new PhotonPackageEntry;
 	NewPack->NextPackage = PhotonPackages->NextPackage;
 	PhotonPackages->NextPackage = NewPack;
@@ -183,7 +191,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->Photons = photons_per_package;
 
 	// Type 4 = X-Ray
-	NewPack->Type = ((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ? 4 : ebin;
+	NewPack->Type = (((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ||
+			 RS->Energy[ebin] > 100) ? 4 : ebin;
 
 	// Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
 	if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####

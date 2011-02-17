@@ -37,6 +37,8 @@ class Star
   float		 DeltaMass;	// Msun (to be added to ParticleMass[])
   float		 BirthTime;
   float		 LifeTime;
+  float          Metallicity;
+  float          deltaZ;
   int		 FeedbackFlag;
   PINT		 Identifier;
   int		 level;
@@ -134,7 +136,7 @@ public:
   bool  IsARadiationSource(FLOAT Time);
   int   DeleteParticle(LevelHierarchyEntry *LevelArray[]);
   int   DisableParticle(LevelHierarchyEntry *LevelArray[]);
-  void  ActivateNewStar(FLOAT Time);
+  void  ActivateNewStar(FLOAT Time, float Timestep);
   bool  ApplyFeedbackTrue(float dt);
   int   HitEndpoint(FLOAT Time);
   void  PrintInfo(void);
@@ -146,7 +148,8 @@ public:
 				    double &EjectaMetalDensity,
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
-				    float VelocityUnits, float dtForThisStar);
+				    float VelocityUnits, float dtForThisStar,
+				    FLOAT Time);
   int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
 				      float DensityUnits, float LengthUnits,
 				      int &CellsModified);
@@ -156,11 +159,12 @@ public:
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
-			 float VelocityUnits, FLOAT Time);
+			 float VelocityUnits, FLOAT Time,
+			 bool &MarkedSubgrids);
 
   int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
 		      float Radius);
-  int AssignFinalMassFromIMF(void);
+  int AssignFinalMassFromIMF(float TimeUnits);
 
 #ifdef TRANSFER
   RadiationSourceEntry* RadiationSourceInitialize(void);

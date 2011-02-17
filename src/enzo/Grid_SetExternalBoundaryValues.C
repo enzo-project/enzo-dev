@@ -65,6 +65,15 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
       ENZO_FAIL("Error in grid->ComputeExternalNohBoundary.\n");
     }
 
+  /* For the SetWengenCollidingFlowBoundary problem, set the inflow boundary conditions. */
+ 
+  if (ProblemType == 201 && (EOSSoundSpeed > 0)) 
+    if (Exterior->SetWengenCollidingFlowBoundary(Time, CellLeftEdge[0], CellWidth[0])
+	== FAIL) {
+      ENZO_FAIL("Error in exterior->SetWengenCollidingFlowBoundary.\n");
+    }
+
+
   /* Compute offset from corner of domain. */
  
   int GridOffset[MAX_DIMENSION];

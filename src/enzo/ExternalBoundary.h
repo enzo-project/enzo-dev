@@ -98,6 +98,10 @@ class ExternalBoundary
 //
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
                                  int &Vel2Num, int &Vel3Num, int &TENum);
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
+                                 int &Vel2Num, int &Vel3Num, int &TENum,
+				 int &B1Num, int&B2Num, int &B3Num, int &PhiNum);
+
 //
 /************************************************************************/
 //
@@ -119,6 +123,9 @@ class ExternalBoundary
   int SetDoubleMachBoundary(FLOAT time, FLOAT CellLeftEdge[], 
                             FLOAT CellWidth[]);
 
+// Wengen colliding flow with pseudo cooling has  a particular shape.
+  int SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftEdge[], 
+                            FLOAT CellWidth[]);
 
 /*  RandomForcing tricks. */
 

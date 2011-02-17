@@ -1,4 +1,4 @@
-#define MAX_SOURCES 1000
+#define MAX_SOURCES 3000
 // Photons
 int    NumberOfPhotonPackages;
 //int    NumberOfRenderingPackages;

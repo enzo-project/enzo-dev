@@ -57,6 +57,7 @@ SPEXTERN float StarEnergyToQuasarUV;
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
 SPEXTERN int   PopIIIInitialMassFunctionSeed;
+SPEXTERN int   PopIIIInitialMassFunctionCalls;
 SPEXTERN float PopIIILowerMassCutoff;
 SPEXTERN float PopIIIUpperMassCutoff;
 SPEXTERN float PopIIIInitialMassFunctionSlope;
@@ -82,6 +83,7 @@ SPEXTERN float  StarClusterSNRadius;
 SPEXTERN float  StarClusterFormEfficiency;
 SPEXTERN float  StarClusterMinimumMass;
 SPEXTERN float  StarClusterCombineRadius;
+SPEXTERN int    StarClusterUnresolvedModel;
 SPEXTERN float  StarClusterRegionLeftEdge[3];
 SPEXTERN float  StarClusterRegionRightEdge[3];
 

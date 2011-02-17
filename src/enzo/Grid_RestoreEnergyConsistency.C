@@ -4,7 +4,7 @@
 /
 /  written by: Greg Bryan
 /  date:       May, 1995
-/  modified1:
+/  modified1: Tom Abel 2010 Added MHD
 /
 /  PURPOSE:
 /    If using the dual energy formalism, this routine will restore

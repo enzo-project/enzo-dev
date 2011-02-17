@@ -23,7 +23,7 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-void Star::ActivateNewStar(FLOAT Time)
+void Star::ActivateNewStar(FLOAT Time, float Timestep)
 {
   int StarType;
   FILE *fptr;
@@ -36,8 +36,11 @@ void Star::ActivateNewStar(FLOAT Time)
     case PopII:
       if (Mass >= StarClusterMinimumMass) {
 	type = StarType;
-	BirthTime = (1-1e-6)*Time;  // slightly before to avoid
-				    // round-off errors in comparisons
+	if (StarClusterUnresolvedModel)
+	  BirthTime = Time-Timestep;
+	else
+	  // slightly before to avoid round-off errors in comparisons
+	  BirthTime = (1-1e-6)*Time;
       }
       break;
     case PopIII:

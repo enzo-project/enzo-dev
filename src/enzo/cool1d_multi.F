@@ -31,6 +31,7 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
+     &                ih2optical, iciecool, ciecoa, cieco,
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -64,7 +65,7 @@
       integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
      &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
      &        nfreq, iradshield, iradtype, imetalregen, iradtrans,
-     &        n_xe, imetal, igammah
+     &        n_xe, imetal, igammah, ih2optical, iciecool
       real    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
@@ -81,7 +82,7 @@
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      &        metala(nratec, n_xe)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec)
+     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -115,7 +116,7 @@
       real dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
       real dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
-     &     gphdl1, factor, dom_inv
+     &     gphdl1, factor, dom_inv, tau, ciefudge
       double precision coolunit, dbase1, tbase1, xbase1, rtunits
 
 !  Slice locals
@@ -130,7 +131,7 @@
       double precision ceHI(in), ceHeI(in), ceHeII(in),
      &     ciHI(in), ciHeI(in), ciHeIS(in), ciHeII(in),
      &     reHII(in), reHeII1(in), reHeII2(in), reHeIII(in),
-     &     brem(in)
+     &     brem(in), cieco(in)
       real hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), metalc(in)
       real gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
@@ -421,6 +422,8 @@
      &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))
             gphdl(i) = gphdla(indixe(i)) + tdef(i)
      &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))
+            cieco(i) = ciecoa(indixe(i)) + tdef(i)
+     &         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))
             end if
          enddo
 
@@ -436,7 +439,14 @@
      &               ((nH2 + nother)*dom) )
             fudge = min(fudge, 1.0)
 #endif /* OPTICAL_DEPTH_FUDGE */
-
+            ! Note that this optical depth approximation comes from
+            ! RA04.
+            if (ih2optical.eq.1) then
+                fudge = (0.76*d(i,j,k)*dom/8.0e9)**(-0.45)
+                fudge = min(fudge, 1.0)
+            else
+                fudge = 1.0
+            endif
             galdl(i) = gaHI(i) * HI(i,j,k)  + gaH2(i) * H2I(i,j,k)
      &               + gaHe(i) * HeI(i,j,k) + gaHp(i) * HII(i,j,k)
      &               + gael(i) * de(i,j,k)
@@ -461,6 +471,8 @@
      &         *(gpldla(indixe(i)+1) - gpldla(indixe(i)))
             gphdl(i) = gphdla(indixe(i)) + tdef(i)
      &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))
+            cieco(i) = ciecoa(indixe(i)) + tdef(i)
+     &         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))
             end if
          enddo
 
@@ -477,7 +489,14 @@
      &               ((nH2 + nother)*dom) )
             fudge = min(fudge, 1.0)
 #endif /* OPTICAL_DEPTH_FUDGE */
-
+            ! Note that this optical depth approximation comes from
+            ! RA04.
+            if (ih2optical.eq.1) then
+                fudge = (0.76*d(i,j,k)*dom/8.0e9)**(-0.45)
+                fudge = min(fudge, 1.0)
+            else
+                fudge = 1.0
+            endif
             gphdl1 = gphdl(i)/(HI(i,j,k)*dom)
             edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*
      &           gphdl(i)/(1.0 + gphdl1/gpldl(i)) / (2.0*dom)
@@ -499,6 +518,8 @@
      &         *(rotha(indixe(i)+1) - rotha(indixe(i)))
             rotl(i) = rotla(indixe(i)) + tdef(i)
      &         *(rotla(indixe(i)+1) - rotla(indixe(i)))
+            cieco(i) = ciecoa(indixe(i)) + tdef(i)
+     &         *(ciecoa(indixe(i)+1) - ciecoa(indixe(i)))
             end if
          enddo
 
@@ -530,6 +551,31 @@
 
 #endif /* USE_GALLI_PALLA1999 */
 #endif /* USE_GLOVER_ABEL2008 */
+
+c     CIE
+c     cooling from H2-H2 and He-H2 collisional induced emission comes
+C     with its own radiative transfer correction as discussed in
+C     Ripamonti & Abel 2003
+         if (iciecool.eq.1) then
+            do i = is+1, ie+1
+            if (itmask(i)) then
+c     Only calculate if H2I(i) is a substantial fraction
+              if (d(i,j,k)*dom.gt.1e10) then
+                ciefudge = 1.
+                tau = ((d(i,j,k)/2e16)*dom)**2.8  ! 2e16 is in units of cm^-3
+                tau = max(tau, 1.e-5)
+                ciefudge = min((1.-exp(-tau))/tau,1.0)
+c               Matt's attempt at a second exponentialier cutoff
+                tau = ((d(i,j,k)/2e18)*dom)**8.0d0  ! 2e18 is in units of cm^-3
+                tau = max(tau, 1.e-5)
+                ciefudge = ciefudge*min((1.-exp(-tau))/tau,1.0)
+c               ciefudge, which is applied to the continuum, is applied to edot
+                edot(i) = ciefudge*(edot(i) - 
+     &                  H2I(i,j,k)*(d(i,j,k)*cieco(i)))
+              endif
+            endif
+            enddo
+         endif
 
       endif
 

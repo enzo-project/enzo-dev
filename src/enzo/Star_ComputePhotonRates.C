@@ -33,6 +33,7 @@ float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, i
 int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
 {
 
+  int i;
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
@@ -64,6 +65,9 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
       Q[2] = pow(10.0, 26.71 + 18.14*x - 3.58*x2);
       Q[3] = pow(10.0, 44.03 + 4.59*x  - 0.77*x2);
     } // ENDELSE
+    else {
+      for (i = 0; i < nbins; i++) Q[i] = 0.0;
+    }
     break;
 
     /* Average energy from Schaerer (2003) */
@@ -72,14 +76,15 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     nbins = (StarClusterHeliumIonization && 
 	     !RadiativeTransferHydrogenOnly) ? 3 : 1;
 #ifdef TRANSFER    
-    if (!RadiativeTransferOpticallyThinH2) nbins++;
+    if (!RadiativeTransferOpticallyThinH2 &&
+	MultiSpecies > 1) nbins++;
 #endif
     EnergyFractionLW   = 0.01;
-    EnergyFractionHeI  = 0.295;
-    EnergyFractionHeII = 2.81e-4;
+    EnergyFractionHeI  = 0.4284;
+    EnergyFractionHeII = 0.0282;
     E[0] = 21.62; // eV (good for a standard, low-Z IMF)
-    E[1] = 24.6;
-    E[2] = 54.4;
+    E[1] = 30.0;
+    E[2] = 60.0;
     E[3] = 12.8;
     Q[0] = StarClusterIonizingLuminosity * this->Mass;
     if (StarClusterHeliumIonization) {

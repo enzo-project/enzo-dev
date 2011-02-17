@@ -49,6 +49,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferPeriodicBoundary);
   fprintf(fptr, "RadiativeTransferSplitPhotonRadius        = %"FSYM"\n", 
 	  RadiativeTransferSplitPhotonRadius);
+  fprintf(fptr, "RadiativeTransferFluxBackgroundLimit      = %"FSYM"\n", 
+	  RadiativeTransferFluxBackgroundLimit);
   fprintf(fptr, "RadiativeTransferRaysPerCell              = %"FSYM"\n", 
 	  RadiativeTransferRaysPerCell);
   fprintf(fptr, "RadiativeTransferTimestepVelocityLimit    = %"FSYM"\n", 

@@ -295,7 +295,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
- 
+
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet
  
@@ -433,6 +433,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderLastTime               = 0.0;
 
   StarClusterUseMetalField         = FALSE;
+  StarClusterUnresolvedModel       = FALSE;
   StarClusterHeliumIonization      = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
   StarClusterIonizingLuminosity    = 1e47;         // ph/s / Msun
@@ -449,6 +450,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
   PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
+  PopIIIInitialMassFunctionCalls   = 0;
   PopIIIHeliumIonization           = FALSE;
   PopIIILowerMassCutoff            = 1.0;
   PopIIIUpperMassCutoff            = 300.0;
@@ -528,14 +530,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallEint		     = 1e-30;
   SmallT		     = 1e-10;
   MaximumAlvenSpeed	     = 1e30;
-  RiemannSolver		     = HLL;
-  ReconstructionMethod	     = PLM;
+  RiemannSolver		     = INT_UNDEFINED;
+  RiemannSolverFallback      = FALSE;
+  ReconstructionMethod	     = INT_UNDEFINED;
+  PositiveReconstruction     = FALSE;
   ConservativeReconstruction = 0;
   EOSType		     = 0;
   EOSSoundSpeed		     = 2.65e4;
   EOSCriticalDensity	     = 1e-13;
   EOSGamma		     = 1.667;
   Mu			     = 0.6;
+  DivBDampingLength          = 1.;
   CoolingCutOffDensity1	     = 0;
   CoolingCutOffDensity2	     = 1e10;
   CoolingCutOffTemperature   = 0.0;
@@ -550,6 +555,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseResistivity	     = 0;
 
   StringKick = 0;
+  StringKickDimension = 0;
 
   iden	= 0;
   ivx	= 1;
@@ -614,6 +620,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
+  TestProblemData.MetallicityNormalization = 0.0204;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;
