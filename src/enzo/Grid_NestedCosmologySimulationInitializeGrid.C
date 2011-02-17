@@ -349,8 +349,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     FieldType[NumberOfBaryonFields++] = Velocity2;
   if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
     FieldType[NumberOfBaryonFields++] = Velocity3;
-  iTE = NumberOfBaryonFields;
-  FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  FieldType[iTE = NumberOfBaryonFields++] = TotalEnergy;
 
   if (DualEnergyFormalism)
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
