@@ -30,6 +30,10 @@
 # define EXTERN extern
 #endif
 
+#ifdef NEW_PROBLEM_TYPES
+class EnzoProblemType;
+#endif
+
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
                           1 = Equalize processor memory count
@@ -74,6 +78,10 @@ EXTERN int extract;
 	                                                                  */
 EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
+#ifdef NEW_PROBLEM_TYPES
+EXTERN char *ProblemTypeName;
+EXTERN EnzoProblemType *CurrentProblemType;
+#endif
 
 /* Hydrodynamics method:
        0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
@@ -351,6 +359,7 @@ EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 EXTERN int RadiationXRayComptonHeating;
+EXTERN int TabulatedLWBackground;
 
 /* Photoelectric cooling turn on/off */
 
@@ -872,6 +881,7 @@ EXTERN char current_error[255];
 /* Thermal conduction */
 
 EXTERN int Conduction;  // TRUE OR FALSE
+EXTERN int AnisotropicConduction;  // TRUE OR FALSE
 EXTERN float ConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 

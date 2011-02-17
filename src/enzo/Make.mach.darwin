@@ -36,6 +36,7 @@ LOCAL_HDF5_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
+LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
 LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
 LOCAL_CVODE_INSTALL  = /usr/local/
 
@@ -70,7 +71,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
 #-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
 
 #-----------------------------------------------------------------------
@@ -83,6 +84,8 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = -fno-second-underscore
 MACH_F90FLAGS = -fno-second-underscore
 MACH_LDFLAGS  = 
+MACH_SHARED_FLAGS = -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup
+MACH_SHARED_EXT   = dylib
 
 #-----------------------------------------------------------------------
 # Precision-related flags
@@ -125,8 +128,10 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # Libraries
 #-----------------------------------------------------------------------
 
-LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran
+LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran 
+                    #-L$(HOME)/yt/enzolib/enzolib -lproblemtype_handler
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_PYTHON = -lpython2.6
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
 LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \

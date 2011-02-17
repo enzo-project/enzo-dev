@@ -4,9 +4,13 @@
 //
 //  written by: David A. Ventimiglia, Brian O'Shea
 //  date:       June 2009
-//  modified:  
+//  modified:  February 10, 2011 by BWO
 //
-//  PURPOSE: 
+//  PURPOSE: This initializes a bubble with user-controlled entropy in an 
+//     ambient medium that is initially in hydrostatic equilibrium
+//     (with density, temperature profile controlled by the user).  The
+//     bubble then does its thing based on its entropy relative to the 
+//     ambient medium.
 //
 //  RETURNS: SUCCESS or FAIL
 //
@@ -41,7 +45,7 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float ConductionBubbleDensity = 1.0;
   float ConductionBubbleTotalEnergy = 1.0;
   float ConductionBubbleVelocity[3] = {0.0,0.0,0.0};
-  float ConductionBubbleInitialUniformBField[MAX_DIMENSION];  // in Gauss
+  float ConductionBubbleInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
 
   FLOAT ConductionBubbleRadiusOfBubble = 0.1;  // units of box size
   int   ConductionBubblePulseType = 1;  // pulse type
@@ -50,7 +54,6 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float ConductionBubbleEntropyGradient = 1.0;   // kev*cm^2 / kpc
   float ConductionBubbleMidpointTemperature = 5.0e+7;  // Kelvin
   FLOAT ConductionBubbleCenter[MAX_DIMENSION] = {0.5,0.5,0.5};
-
 
   // Read parameters
 

@@ -194,6 +194,9 @@ static double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
  
+int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
+                                      int level, TopGridData *MetaData,
+                                      float * norm, float * pTopGridTimeStep);
 static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
 
@@ -397,6 +400,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
     }
+    /* Prepare normalization for random forcing. Involves top grid only. */
+ 
+    ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
+				      &norm, &TopGridTimeStep);
 
     /* Solve the radiative transfer */
 
@@ -556,6 +563,14 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
         );
  
+      /* Compute and apply thermal conduction. */
+      if(Conduction){
+	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+	  fprintf(stderr, "Error in grid->ConductHeat.\n");
+	  return FAIL;
+	}
+      }
+
       /* Gravity: clean up AccelerationField. */
 
       if ((level != MaximumGravityRefinementLevel ||

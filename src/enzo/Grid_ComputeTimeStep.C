@@ -461,7 +461,7 @@ float grid::ComputeTimeStep()
     if (NumberOfParticles)
       printf("Part = %"FSYM" ", dtParticles);
     if (Conduction)
-      printf("Cond = %"FSYM" ",(dtConduction));
+      printf("Cond = %"ESYM" ",(dtConduction));
     printf(")\n");
   }
  

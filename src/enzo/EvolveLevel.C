@@ -94,6 +94,11 @@
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif
+#ifdef NEW_PROBLEM_TYPES
+#include "EventHooks.h"
+#else
+void RunEventHooks(char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
+#endif
  
 /* function prototypes */
  
@@ -278,6 +283,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
+  RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */

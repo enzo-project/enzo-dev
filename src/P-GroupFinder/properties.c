@@ -20,6 +20,7 @@ void get_properties(struct particle_data *p, int len, float *pcm, float *pmtot,
   int i,k,dim, irvir;
   double s[3], sv[3], L[3], delx[3], delv[3], del, vrms, spin, mvir, rvir;
   double mtot, mgas, mstars, sfr, mcold, menc, rho, factor, rho200, r3;
+  double dwidth_inv;
   float *radius;
   int *pindex;
 
@@ -154,8 +155,11 @@ void get_properties(struct particle_data *p, int len, float *pcm, float *pmtot,
   mvir *= 1e10;
   mtot *= 1e10;
   mstars *= 1e10;
-  for (dim = 0; dim < 3; dim++)
-    pcm[dim] /= BoxSize;
+  dwidth_inv = 1.0/(rightEdge[0] - leftEdge[0]);
+  for (dim = 0; dim < 3; dim++) {
+    pcm[dim] /= BoxSize * dwidth_inv;
+    pcm[dim] += leftEdge[dim];
+  }
 
   // Spin parameter
   float ang_mom = 0;

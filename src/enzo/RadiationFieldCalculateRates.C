@@ -39,6 +39,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int RadiationFieldLymanWernerTable(float Redshift,float *J21);
 
 int RadiationFieldCalculateRates(FLOAT Time)
 {
@@ -335,8 +336,30 @@ int RadiationFieldCalculateRates(FLOAT Time)
   /* 9) molecular hydrogen constant photo-dissociation only! 
      rate is 1.13e-8 * F_LW  (flux in Lyman-Werner bands) */
 
-  if (RadiationFieldType == 9)
-    RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
+  if (RadiationFieldType == 9) {
+
+    /* Redshift dependent background. */
+    if (TabulatedLWBackground) {
+
+      /* Get J_21 of LW background from table. */
+      float LW_J21;
+      if (RadiationFieldLymanWernerTable(Redshift, &LW_J21) == FAIL) {
+	ENZO_FAIL("Error in RadiationFieldLymanWernerTable.\n");
+      }
+
+      /* molecular hydrogen constant photo-dissociation
+	 rate is 1.13e8 * F_LW  (flux in Lyman-Werner bands) 
+	 F = 4 Pi J, so rate is 1.42e9 * J_LW. */
+      RateData.k31 = 1.42e9 * LW_J21 * 1.0e-21 * TimeUnits;
+
+    }
+
+    /* Constant background. */
+    else {
+      RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
+    }
+
+  }
 
   /* ------------------------------------------------------------------ */
   /* 10 & 11) - internally-computed radiation field.  Most of the rates

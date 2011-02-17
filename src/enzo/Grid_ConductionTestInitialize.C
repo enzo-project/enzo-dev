@@ -41,6 +41,13 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
 
+  int MetallicityField = FALSE;
+  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
+      != -1)
+    MetallicityField = TRUE;
+  else
+    MetalNum = 0;
+
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
 
   for (int dim = 0; dim<GridRank; dim++) {
@@ -50,7 +57,7 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 
   FLOAT sig2 = PulseWidth*PulseWidth;
 
-  FLOAT x,y,z, r2;
+  FLOAT x,y,z, r2, celldist;
 
   int i,j,k;
 
@@ -79,23 +86,29 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	  r2 += POW(z-0.5, 2.0);
 	}
 
+	celldist = POW(r2,0.5);
+
 	float val=1.0;
 
 	/* now we select between our different pulse options */
 
-	if(PulseType==1){  // gaussian pulse
+	if(PulseType == 1){  // gaussian pulse
 
 	  val = 1.0 + exp(-1.0*r2/sig2/2.0)*(PulseHeight-1.0);
 
-	} else if(PulseType==2){ // square pulse
+	} else if(PulseType == 2){ // square pulse
 
 	  if(r2 <= sig2)
 	    val = PulseHeight;
 	  
-	} else if(PulseType ==3){  // sinusoidal pulse with values along x-axis
+	} else if(PulseType == 3){  // sinusoidal pulse with values along x-axis
 
 	  val = 1.0 + PulseHeight + PulseHeight * sin(2.0 * 3.14158 * x / PulseWidth);
 	  
+	} else if(PulseType == 4){  // square pulse with smoothed edges (as suggested by A. Kravtsov)
+
+	  val = 1.0 + (PulseHeight-1.0)*(1.0 - tanh((10.*(celldist/PulseWidth-1.0)))) / 2.0;
+
 	} else {
 
 	  ENZO_FAIL("Grid::ConductionTestInitialize: PulseType is not 1,2 or 3!");
@@ -112,10 +125,16 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	    BaryonField[GENum][ELT(i,j,k)] *= val;  // if DEF=1, need to separately set the gas internal energy.
 	}
 
-      } // for(i...)
+	if(TestProblemData.UseMetallicityField>0 && MetalNum != FALSE)
+	  BaryonField[MetalNum][ELT(i,j,k)] = 
+	    BaryonField[DensNum][ELT(i,j,k)]*TestProblemData.MetallicityField_Fraction;
+
+      } // for(i...)  (loop over grid and set values)
 
   if (debug) {
     printf("Exiting ConductionTestInitialize\n");
-    fflush(stdout);}
+    fflush(stdout);
+  }
+
   return SUCCESS;
 }

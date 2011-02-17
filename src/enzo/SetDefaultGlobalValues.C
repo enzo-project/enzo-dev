@@ -83,6 +83,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.dtTracerParticleDump       = 0.0;
   MetaData.TimeLastInterpolatedDataDump    = FLOAT_UNDEFINED;
   MetaData.dtInterpolatedDataDump          = 0.0;
+  MetaData.WroteData           = FALSE;
  
   MetaData.CycleLastRestartDump = 0;
   MetaData.CycleSkipRestartDump = 0;
@@ -327,6 +328,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
   RadiationFieldType          = 0;
+  TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
   AdjustUVBackground          = 1;
@@ -413,6 +415,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   OutputParticleTypeGrouping       = FALSE;
 
   Conduction = FALSE;
+  AnisotropicConduction = FALSE;
   ConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 

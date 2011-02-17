@@ -65,6 +65,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   int i,j,k;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
+
   float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
   float VelocityUnits = 1.0, TimeUnits = 1.0;
   double MassUnits = 1.0;
