@@ -629,7 +629,8 @@ Hierarchy Control Parameters
     on the same node. Option 2 assumes grouped scheduling, i.e. proc #
     = (01234567) reside on node (00112233) if there are 4 nodes. Option
     3 assumes round-robin scheduling (proc = (01234567) -> node =
-    (01230123)). Default: 1
+    (01230123)). Set to 4 for load balancing along a Hilbert
+    space-filling curve on each level. Default: 1
 ``LoadBalancingCycleSkip`` (external)
     This sets how many cycles pass before we load balance the root
     grids. Only works with LoadBalancing set to 2 or 3. NOT RECOMMENDED
@@ -666,13 +667,17 @@ malism`` flags.
     2              Marquina
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
-<<<<<<< local
-=======
     5              TwoShock
->>>>>>> other
     ============== ===========================
 
-   Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for ``HydroMethod`` = 0
+   Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
+   ``HydroMethod`` = 0
+
+``RiemannSolverFallback`` (external)
+    If the euler update results in a negative density or energy, the
+    solver will fallback to the HLL Riemann solver that is more
+    diffusive only for the failing cell.  Only active when using the
+    HLLC or TwoShock Riemann solver.  Default: OFF.
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
@@ -692,6 +697,17 @@ malism`` flags.
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
     this value is ignored in favor of a direct calculation (except for
     PPM LR) Default: 5/3.
+``ConservativeReconstruction`` (external)
+    Experimental.  This option turns on the reconstruction of the
+    left/right interfaces in the Riemann problem in the conserved
+    variables (density, momentum, and energy) instead of the primitive
+    variables (density, velocity, and pressure).  This generally gives
+    better results in constant-mesh problems has been problematic in
+    AMR simulations.  Default: OFF
+``PositiveReconstruction`` (external)
+    Experimental and not working.  This forces the Riemann solver to
+    restrict the fluxes to always give positive pressure.  Attempts to
+    use the Waagan (2009), JCP, 228, 8609 method.  Default: OFF
 ``CourantSafetyNumber`` (external)
     This is the maximum fraction of the CFL-implied timestep that will
     be used to advance any grid. A value greater than 1 is unstable
