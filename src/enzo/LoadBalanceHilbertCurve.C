@@ -671,7 +671,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
     if (WorkLeft == 0) {
       BlockDivisions[i] = grid_num-1;
       ProcessorWork[i] = 0;
-      break;
+      continue;
     }
     WorkThisProcessor = 0;
     GridsThisProcessor = 0;
