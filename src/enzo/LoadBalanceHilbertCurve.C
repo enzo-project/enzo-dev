@@ -735,6 +735,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   int LoadedBlock, UnloadedBlock;
   float WorkDifference, MinWork, MaxWork, WorkImbalance;
 
+#ifdef UNUSED
   for (iter = 0; iter < FUZZY_ITERATIONS; iter++) {
     MinWork = 0x7FFFFFFF;
     MaxWork = -1;
@@ -798,6 +799,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
       break;
 
   } // ENDFOR iterations
+#endif /* UNUSED */
 
 #ifdef UNUSED
   float *ww = new float[NumberOfProcessors];
