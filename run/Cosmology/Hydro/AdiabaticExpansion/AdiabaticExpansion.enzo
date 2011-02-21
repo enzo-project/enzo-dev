@@ -5,7 +5,7 @@
 #
 ProblemType                = 22      // Adiabatic Expansion
 TopGridRank                = 3
-TopGridDimensions          = 18 18 18
+TopGridDimensions          = 4 4 4
 SelfGravity                = 1       // gravity off
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3 3 3      // same for fluid
@@ -21,7 +21,7 @@ AdiabaticExpansionInitialVelocity    = 100   // km/s
 ComovingCoordinates        = 1       // Expansion ON
 CosmologyHubbleConstantNow = 0.5
 CosmologyComovingBoxSize   = 64.0    // 64 Mpc/h
-CosmologyMaxExpansionRate  = 0.01    //
+CosmologyMaxExpansionRate  = 0.5    //
 CosmologyInitialRedshift   = 20      // start at z=20
 CosmologyFinalRedshift     = 0
 GravitationalConstant      = 1       // this must be true for cosmology
@@ -32,6 +32,7 @@ dtDataDump             = 20.0
 #
 #  set hydro parameters
 #
+HydroMethod            = 3
 Gamma                  = 1.6667
 CourantSafetyNumber    = 0.5
 PPMDiffusionParameter  = 0       // diffusion off
