@@ -1899,7 +1899,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  PINT &CurrentNumberOfParticles,
 			  int CosmologySimulationManuallySetParticleMassRatio,
 			  float CosmologySimulationManualParticleMassRatio,
-			  int CosmologySimulationCalculatePositions);
+			  int CosmologySimulationCalculatePositions,
+			  float CosmologySimulationInitialUniformBField[]);
 
   int CosmologyReadParticles3D(
 		   char *CosmologySimulationParticleVelocityName,

@@ -4,12 +4,12 @@
 #  define problem
 #
 ProblemType                = 22      // Adiabatic Expansion
-TopGridRank                = 1
-TopGridDimensions          = 8
-SelfGravity                = 0       // gravity off
+TopGridRank                = 3
+TopGridDimensions          = 18 18 18
+SelfGravity                = 1       // gravity off
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
-LeftFaceBoundaryCondition  = 3       // same for fluid
-RightFaceBoundaryCondition = 3
+LeftFaceBoundaryCondition  = 3 3 3      // same for fluid
+RightFaceBoundaryCondition = 3 3 3
 #
 #  problem parameters
 #
@@ -23,11 +23,12 @@ CosmologyHubbleConstantNow = 0.5
 CosmologyComovingBoxSize   = 64.0    // 64 Mpc/h
 CosmologyMaxExpansionRate  = 0.01    //
 CosmologyInitialRedshift   = 20      // start at z=20
+CosmologyFinalRedshift     = 0
 GravitationalConstant      = 1       // this must be true for cosmology
 #
 #  set I/O and stop/start parameters
 #
-dtDataDump             = 80.0
+dtDataDump             = 20.0
 #
 #  set hydro parameters
 #
@@ -42,3 +43,4 @@ StaticHierarchy           = 1    // static hierarchy
 #
 #  set some global parameters
 #
+WritePotential  = 1

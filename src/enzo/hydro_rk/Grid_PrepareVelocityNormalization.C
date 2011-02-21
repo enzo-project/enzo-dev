@@ -51,7 +51,7 @@ int grid::PrepareVelocityNormalization(double *v_rms, double *Volume)
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
-	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
+	index = GRIDINDEX_NOGHOST(i,j,k);
 	for (int dim = 0; dim < GridRank; dim++) {
 	  int vel = Vel1Num + dim;
 	  (*v_rms) += BaryonField[vel][index]*BaryonField[vel][index]*MassFactor;

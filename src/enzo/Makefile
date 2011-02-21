@@ -102,12 +102,17 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: MACHNOTES $(EXE).exe
+all: MACHNOTES MAKETAGS $(EXE).exe
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
+MAKETAGS:
+	@echo -e "Making Tags with $(ETAGS_COMMAND)"
+	@rm TAGS
+	@$(ETAGS_COMMAND)
+	@echo -e "Done updating TAGS"
 MACHNOTES: 
 	@echo -e $(MACHINE_NOTES)
 

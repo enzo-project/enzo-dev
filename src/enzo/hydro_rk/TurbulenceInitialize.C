@@ -80,6 +80,7 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   char *Acce1Name = "AccelerationField1";
   char *Acce2Name = "AccelerationField2";
   char *Acce3Name = "AccelerationField3";
+  char *MetalName = "Metal_Density";
 
   /* declarations */
 
@@ -92,7 +93,8 @@ int TurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   int PutSink         = FALSE;
   int SetTurbulence = TRUE;
   int RandomSeed = 52761;
-  float CloudDensity=1.0, CloudSoundSpeed=1.0, CloudMachNumber=1.0, CloudAngularVelocity = 0.0, InitialBField = 0.0;
+  float CloudDensity=1.0, CloudSoundSpeed=1.0, CloudMachNumber=1.0, 
+    CloudAngularVelocity = 0.0, InitialBField = 0.0;
   FLOAT CloudRadius = 0.05;
   int CloudType = 1;
 
@@ -291,7 +293,8 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
       DataLabel[count++] = DIIName;
       DataLabel[count++] = HDIName;
     }
-  }  // if Multispecies                                                                                                      
+  }  // if Multispecies                                                                                                   
+  DataLabel[count++] = MetalName;
   //if (PhotonTestUseColour)
   //DataLabel[count++] = ColourName;
 #ifdef TRANSFER

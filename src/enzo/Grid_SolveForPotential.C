@@ -38,7 +38,7 @@ extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
 extern "C" void FORTRAN_NAME(smooth2)(float *source, float *dest, int *ndim,
                                    int *sdim1, int *sdim2, int *sdim3);
  
-#define TOLERANCE 5.0e-4
+#define TOLERANCE 1.0e-6
 #define MAX_ITERATION 10
  
 int grid::SolveForPotential(int level, FLOAT PotentialTime)

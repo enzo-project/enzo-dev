@@ -91,11 +91,11 @@ int grid::CopyPotentialToBaryonField()
   int jj = 0;
  
   float maxPot=-1e30, minPot=1e30;
-  for (k = 0; k < GridDimension[2]; k++)
-  {
+  for (k = 0; k < GridDimension[2]; k++) {
     for (j = 0; j < GridDimension[1]; j++)
     {
-      index = (((k+Off[2])*GravitatingMassFieldDimension[1]) + (j+Off[1]))*GravitatingMassFieldDimension[0] + Off[0];
+      index = (((k+Off[2])*GravitatingMassFieldDimension[1]) + 
+	       (j+Off[1]))*GravitatingMassFieldDimension[0] + Off[0];
  
       for (i = 0; i < GridDimension[0]; i++, index++)
       {
