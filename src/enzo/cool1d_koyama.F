@@ -30,7 +30,7 @@ c
       parameter (pmin = tiny)
       double precision mh
 
-      parameter (mh = 1.67d-24)  ! DPC
+      parameter (mh = 1.67262d-24)  ! DPC
 
 c
 c  Locals
@@ -42,7 +42,6 @@ c  Slice locals
 c 
       real p2d(in), tgas(in), tgasold(in), cool(in)
       real edot(in), kboltz, Lambda, Heating
-      real derp
       parameter ( kboltz = 1.30865d-16 ) !erg / Kelvin
 
 c
@@ -83,7 +82,6 @@ c     Compute temperature
 c
       do i = is+1, ie+1
          tgas(i) = max(p2d(i)*utem/d(i,j,k), temstart)
-c         tgas(i) = utem !max(p2d(i)*utem/d(i,j,k), temstart)
       enddo
 c
 c     If this is the first time through, just set tgasold to tgas
@@ -107,17 +105,8 @@ c        thalf = tgas(i)                              !kludge
             Lambda = Lambda * Heating
             edot(i) = d(i,j,k)*urho/(mh*mh)*Lambda
             edot(i) = edot(i) + Heating/mh
-
-
             edot(i) = edot(i) * utim /(utem * kboltz)*mh
-            if( i .eq. is+1) then
-                derp = edot(i)
-            else
-                derp = max(edot(i), derp)
-            endif
 
-c            edot(i) = utim /(utem * kboltz) *mh       !kludge
-c            edot(i) =edot(i)! * utim /(utem * kboltz) !kludge
         endif
 
 
@@ -126,11 +115,5 @@ c            edot(i) =edot(i)! * utim /(utem * kboltz) !kludge
       do i=is+1, ie+1
          tgasold(i) = tgas(i)
       enddo
-      do i=is+1, ie+1
-         edot(i) = 1e-3
-      enddo
-      write(*,1000) edot(32) , utim ,utem , kboltz,mh
-1000        format(5(e11.2))
-!     return
       end
 c
