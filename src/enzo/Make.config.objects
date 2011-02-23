@@ -96,6 +96,7 @@ OBJS_CONFIG_LIB = \
         ComputeTable.o \
         Continue.o \
 	cool1d_cloudy.o \
+    cool1d_koyama.o\
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \
@@ -900,6 +901,7 @@ POBJS_CONFIG_LIB = \
         Grid_DeletePhotonPackages.o \
         Grid_DetectIonizationFrontApprox.o \
         Grid_ElectronFractionEstimate.o \
+        Grid_ExtraFunction.o \
         Grid_FinalizeRadiationFields.o \
 	Grid_FindPhotonNewGrid.o \
         Grid_FlagCellsToBeRefinedByOpticalDepth.o \

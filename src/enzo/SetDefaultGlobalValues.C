@@ -308,6 +308,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
+  RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
+                                                   //3=Koyama&Inutsuka 2002
   GadgetEquilibriumCooling    = FALSE;             // off
   RadiativeTransfer           = 0;                 // off
   RadiativeTransferFLD        = 0;                 // off

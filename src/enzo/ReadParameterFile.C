@@ -399,6 +399,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
+    ret += sscanf(line, "RadiativeCoolingModel = %"ISYM, &RadiativeCoolingModel);
     ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
     ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);

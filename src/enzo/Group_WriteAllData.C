@@ -858,7 +858,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
-    fprintf(sptr, "DATASET WRITTEN %s \n", name);
+    fprintf(sptr, "DATASET WRITTEN %s %8"ISYM" %18.16e\n", name, MetaData.CycleNumber, MetaData.Time);
     fclose(sptr);
   }
  
