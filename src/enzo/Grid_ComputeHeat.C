@@ -52,7 +52,10 @@ int grid::ComputeHeat (float dedt[]) {
   double MassUnits = 1.0;
   float *rho,*Bx,*By,*Bz;
   double kappa_star = 6.0e-7 * ConductionSpitzerFraction;
-  float Bx_face, By_face, Bz_face, Bhat, Bmag;
+  float Bx_face, By_face, Bz_face, Bxhat, Byhat, Bzhat, Bmag;
+  float dTx, dTy, dTz;
+
+  float Bhat; // gotta get rid of this later
 
   int size = 1, grid_index, right_side_index;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -144,15 +147,15 @@ int grid::ComputeHeat (float dedt[]) {
      at the end. */
   if (GridRank>0) {
     for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
-      for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+      for (int j = GridStart[1]+1; j <= GridEnd[1]-1; j++) {
 	r = cfzero;
-	for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+	for (int i = GridStart[0]+1; i <= GridEnd[0]-1; i++) {
 	  l = r;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i+1,j,k);
 
-	  if(i == GridEnd[0]){
+	  if(i == GridEnd[0]-1){
 	    r = cfzero;
 	  } else {
 
@@ -175,11 +178,18 @@ int grid::ComputeHeat (float dedt[]) {
 	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
 	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
 	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
-	      Bhat = fabs(Bx_face)/Bmag;
-	      r.kappa *= Bhat;
-	    } 
+	      Bxhat = Bx_face/Bmag;
+	      Byhat = By_face/Bmag;
+	      Bzhat = Bz_face/Bmag;
+	      dTx =Temp[ELT(i+1,j,k)]- Temp[ELT(i,j,k)];
+	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i+1,j-1,k)]))/4.0;
 
-	    r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
+	      r.dedt =  -1.0*r.kappa*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy );  // factors of dx and units done later.
+	      //printf("r.dedt %e %d %d %d\n",r.dedt,i,j,k);
+	    } else {
+	      r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
+	      //printf("***r.dedt %e %d %d %d\n",r.dedt,i,j,k);
+	    }
 
 	  }
 
@@ -190,16 +200,16 @@ int grid::ComputeHeat (float dedt[]) {
   } // if (GridRank>0)
 
   if (GridRank>1) {
-    for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+    for (int i = GridStart[0]+1; i <= GridEnd[0]-1; i++) {
       for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
 	r = cfzero;
-	for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+	for (int j = GridStart[1]+1; j <= GridEnd[1]-1; j++) {
 	  l = r;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i,j+1,k);
 
-	  if(j==GridEnd[1]){
+	  if(j==GridEnd[1]-1){
 	    r = cfzero;
 	  } else {
 
@@ -217,12 +227,18 @@ int grid::ComputeHeat (float dedt[]) {
 	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
 	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
 	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
-	      Bhat = fabs(By_face)/Bmag;
-	      r.kappa *= Bhat;
-	    } 
 
+	      Bxhat = Bx_face/Bmag;
+	      Byhat = By_face/Bmag;
+	      Bzhat = Bz_face/Bmag;
 
-	    r.dedt = r.kappa*r.dT;
+	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i-1,j+1,k)]))/4.0;
+	      dTy = Temp[ELT(i,j+1,k)]-Temp[ELT(i,j,k)];
+	      r.dedt = -1.0*r.kappa*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  // factors of dx and units done later.
+
+	    } else {
+	      r.dedt = r.kappa*r.dT;
+	    }
 	  }
 
 	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];

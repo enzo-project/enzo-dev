@@ -1062,7 +1062,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if(AnisotropicConduction==TRUE && useMHD==0){
     ENZO_FAIL("AnisotropicConduction can only be used if MHD is turned on!\n");
   }  
-    
+  if(AnisotropicConduction==TRUE && MetaData.TopGridRank < 2){
+    ENZO_FAIL("AnisotropicConduction can only be used if TopGridRank is >= 2!\n");
+  }
+
+
   /*
     if (EOSType == 3) // an isothermal equation of state implies the adiabatic index = 1 
     Gamma = 1; 

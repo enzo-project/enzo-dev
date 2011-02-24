@@ -24,7 +24,7 @@
 #include "Grid.h"
 
 // Grid Initializer
-int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int PulseType) {
+int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int PulseType, FLOAT PulseCenter[MAX_DIMENSION], int FieldGeometry, float BField) {
 
   if (debug) {
     printf("Entering ConductionTestInitialize\n");
@@ -47,6 +47,12 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
     MetallicityField = TRUE;
   else
     MetalNum = 0;
+
+  if(AnisotropicConduction){
+    iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+    iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+    iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
+  }
 
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
 
@@ -74,16 +80,16 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	// radius squared: assume we always want to be at center of 
 	// box
 	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	r2 = POW(x-0.5, 2.0);
+	r2 = POW(x-PulseCenter[0], 2.0);
 
 	if(GridRank>1){
 	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	  r2 += POW(y-0.5, 2.0);
+	  r2 += POW(y-PulseCenter[1], 2.0);
 	}
 
 	if(GridRank>2){
 	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-	  r2 += POW(z-0.5, 2.0);
+	  r2 += POW(z-PulseCenter[2], 2.0);
 	}
 
 	celldist = POW(r2,0.5);
@@ -128,6 +134,23 @@ int grid::ConductionTestInitialize (float PulseHeight, FLOAT PulseWidth, int Pul
 	if(TestProblemData.UseMetallicityField>0 && MetalNum != FALSE)
 	  BaryonField[MetalNum][ELT(i,j,k)] = 
 	    BaryonField[DensNum][ELT(i,j,k)]*TestProblemData.MetallicityField_Fraction;
+
+	if(FieldGeometry==1){
+
+	  if(celldist > tiny_number){
+	    BaryonField[iBx][ELT(i,j,k)] = -1.0*BField*(y-.5)/POW( (POW(x-.5,2.0)+POW(y-.5,2.0)), 0.5);
+	    BaryonField[iBy][ELT(i,j,k)] = BField*(x-.5)/POW( (POW(x-.5,2.0)+POW(y-.5,2.0)), 0.5);
+	    BaryonField[iBz][ELT(i,j,k)] = 0.0;
+	  } else {
+	    BaryonField[iBx][ELT(i,j,k)] = 
+	      BaryonField[iBy][ELT(i,j,k)] = 
+	      BaryonField[iBz][ELT(i,j,k)] = 0.0;
+
+	  }
+
+	} else if(FieldGeometry>1){
+	  ENZO_FAIL("FieldGeometry > 1 not implemented yet!\n");
+	}
 
       } // for(i...)  (loop over grid and set values)
 

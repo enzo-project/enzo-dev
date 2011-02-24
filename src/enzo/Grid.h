@@ -1820,7 +1820,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Conduction Test: initialize grid. */
 
-  int ConductionTestInitialize(float PulseHeight, FLOAT PulseWidth, int PulseType);
+  int ConductionTestInitialize(float PulseHeight, FLOAT PulseWidth, int PulseType, FLOAT PulseCenter[MAX_DIMENSION], int FieldGeometry, float Bfield);
 
 /* Conduction Test: initialize grid. */
 
