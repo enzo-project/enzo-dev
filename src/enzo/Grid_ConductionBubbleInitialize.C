@@ -268,7 +268,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	// in ZEUS 'total energy' is really internal energy, so we don't have to worry about this.
 	if(HydroMethod != Zeus_Hydro){
 
-	  BaryonField[TENum][ELT(i,j,k)] = e[ELT(i,j,k)] + 0.5*POW(BaryonField[Vel1Num][ELT(i,j,k)], 2.0);
+	  BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel1Num][ELT(i,j,k)], 2.0);
 	  if(GridRank > 1)
 	    BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel2Num][ELT(i,j,k)], 2.0);
 	  if(GridRank > 2)
