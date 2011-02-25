@@ -166,11 +166,11 @@ int grid::ConductHeat(){
 	      BaryonField[TENum][idx] += 0.5*POW(BaryonField[Vel3Num][idx], 2.0);
 
 	    if(useMHD)
-	      BaryonField[TENum][idx] += 0.5*(POW(BaryonField[iBx][i],2.0) + 
-					      POW(BaryonField[iBy][i],2.0) + 
-					      POW(BaryonField[iBz][i],2.0))/BaryonField[DensNum][i];
+	      BaryonField[TENum][idx] += 0.5*(POW(BaryonField[iBx][idx],2.0) + 
+					      POW(BaryonField[iBy][idx],2.0) + 
+					      POW(BaryonField[iBz][idx],2.0))/BaryonField[DensNum][idx];
 
-	  }
+	  } // if(HydroMethod != Zeus_Hydro)
 
 	} // triple for loop
 

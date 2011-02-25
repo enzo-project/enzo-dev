@@ -6,12 +6,12 @@
 //  date:       March 2010
 //  modified1:  
 //
-//  PURPOSE: 
+//  PURPOSE: Initialize conduction bubble test problem.  
 //
 //  RETURNS: FAIL or SUCCESS
 //
 ////////////////////////////////////////////////////////////////////////////////
- 
+
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
@@ -30,24 +30,25 @@ int GetUnits (float *DensityUnits, float *LengthUnits,
 
 int FindField(int field, int farray[], int numfields);
 
-double g, bunch_of_constants, dKdr, 
+
+// routines, variables and definitions used to calculate density, temperature 
+// as a function of distance from the bottom of the simulation volume.
+void get_dens_temp(void);
+double dndr(double T, double n);
+double dtdr(double n);
+
+double *rad,*nofr,*Tofr, g, bunch_of_constants, dKdr, 
   dKdr_cgs, K_mid, T_mid, n_mid,r_mid, 
   r_mid_cgs, r_max, r_max_cgs;
-
-double *rad,*nofr,*Tofr;
 int ncells;
 
 #define KEV_KELVIN 1.1604e+7
 #define KPC_CGS 3.0857e+21
-#define DEFAULT_MU 0.6
+#define DEFAULT_MU 0.6  // we assume total ionization
 
-double dndr(double T, double n);
-double dtdr(double n);
-
-void get_dens_temp(void);
-
-
-// Grid Initializer
+// Grid Initializer: all input values are in Enzo internal units _except_ 
+// for MidpointEntropy, EntropyGradient and MidpointTemperature, which
+// are assumed to be in CGS
 int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float DeltaEntropy, 
 				      float MidpointEntropy, float EntropyGradient,
 				      float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]) {
@@ -88,12 +89,30 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   else
     MetalNum = 0;
 
+  /* get field numbers for x, y z components of magnetic fields.  Note that
+     regardless of how many dimensions are in the simulation, we _always_ have
+     a 3D magnetic field, so there's no checking for dimensionality here. These
+     fields are accessed in the same way as any Enzo baryon field, and the magnetic
+     fields are in Enzo's internal units system (to convert to Gauss, look
+     in ConductionBubbleInitialize.C for the conversion).
+
+     Note also for the purposes of modification, the B-fields are set to a uniform value
+     in Grid::InitializeUniformGrid (to user-specified but constant values).  So, you really
+     only need to modify what you want, but be careful to make sure that the field is
+     divergence-free! */
+  if(useMHD){  
+    iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+    iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+    iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
+  }
+
   // Get system of units
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, 
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
 
+  // calculate graviational constant in Enzo internal units.
   g = fabs(UniformGravityConstant)*LengthUnits/(TimeUnits*TimeUnits);
 
   if(UniformGravity==0) g = 0.0;  // if gravity is off make sure it's zero
@@ -112,7 +131,6 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   r_mid_cgs = r_mid * LengthUnits;
   r_max_cgs = 2.0*r_mid_cgs;
 
-
   printf("g, UGC = %e %e\n",g,UniformGravityConstant);
   printf("dKdr / cgs  %e  %e\n",dKdr, dKdr_cgs);
   printf("K_mid:  %e\n", K_mid);
@@ -120,44 +138,40 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   printf("r_mid_cgs, r_max_cgs:  %e %e\n", r_mid_cgs, r_max_cgs);
   printf("\n");
 
-
+  // get density, temperature assuming hydrostatic equilibrium in
+  // constant gravitational field.  Returns 1D arrays rad, nofr, Tofr
+  // that are distance from center of box, number density as f(r), temperature
+  // as f(r)
   get_dens_temp();
 
+  // convert 1D arrays into Enzo internal units.
   for(i=0; i<ncells; i++){
     rad[i] /= LengthUnits;  // convert to enzo distance
     nofr[i] *= DEFAULT_MU * 1.67e-24 / DensityUnits;  // convert to enzo-unit density (from number density)
     Tofr[i] /= (TemperatureUnits*(Gamma-1.0)*DEFAULT_MU);  // convert from temp to internal energy
-
-    //printf("*** %d  %e  %e  %e\n",i,rad[i],nofr[i],Tofr[i]);
   }
-  fflush(stdout);
 
   int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
-
   for (int dim = 0; dim<GridRank; dim++) {
     GridStart[dim] = 0;
     GridEnd[dim] = GridDimension[dim]-1;
   }
 
-  //FLOAT sig2 = PulseWidth*PulseWidth;
-
   int ii, small_index;
   FLOAT smallest_d, celldist;
 
-  // loop over grid and set pulse values
+  // loop over grid and set cell values: we're setting both the 
+  // pulse values and the background values here.
   for (k = GridStart[2]; k <= GridEnd[2]; k++) 
     for (j = GridStart[1]; j <= GridEnd[1]; j++) 
       for (i = GridStart[0]; i <= GridEnd[0]; i++) {
 
-	/* Compute position */
+	/* Compute position of the cell and find distance 
+	   from the center of the bubble */
 	x=y=z=0.0;
 
-	/* Find distance from center. */
-
-	// radius squared: assume we always want to be at center of 
-	// box
 	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	r2 = POW(x-BubbleCenter[0], 2.0);
+	r2 = POW(x-BubbleCenter[0], 2.0);  // currently distance^2
 
 	if(GridRank>1){
 	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
@@ -169,8 +183,11 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	  r2 += POW(z-BubbleCenter[2], 2.0);
 	}
 
-	celldist = POW(r2,0.5);
+	celldist = POW(r2,0.5);  // go from distance^2 to just plain distance
 
+	// figure out how far we are from the edge of the box in the x-direction
+	// (we're implicitly assuming that gravity points in the x-direction, but
+	// this is easy to fix if somebody needs it)
 	smallest_d = huge_number;
 	for(ii=0;ii<ncells;ii++){
 	  if(fabs(x-rad[ii])<smallest_d){
@@ -179,27 +196,23 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	  }
 	}
 
-	/*
-	printf("%d %d %d   smallest_d, small_index = %e %d  (%e)   %e/%e\n",i,j,k,
-	       smallest_d,small_index,
-	       nofr[small_index],Tofr[small_index],x);
-	*/
-
+	// this_delta modifies density, energies.
 	this_delta = 1.0;
 
-	if(PulseType==1){  // top hat with radius of 
+	// what type of pulse are we using?
+	if(PulseType==1){  // top hat 
 
 	  if(celldist <= BubbleRadius){
 	    this_delta = delta;
 	  }
 	  
-	} else if (PulseType==2){
+	} else if (PulseType==2){ // gaussian
 
 	  if(celldist <= 5.0*BubbleRadius){
 	    this_delta = 1.0 + exp(-1.0*r2/sig2/2.0)*(delta-1.0);
 	  }
 
-	} else if (PulseType==3){
+	} else if (PulseType==3){ // top hat with smoothed edges (c.f. Kravtsov, priv. comm.)
 
 	  this_delta = 1.0 + (delta-1.0)*(1.0 - tanh((10.*(celldist/BubbleRadius-1.0)))) / 2.0;
 
@@ -208,10 +221,10 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 
 	}
 
+	// set baryon density
+	BaryonField[DensNum][ELT(i,j,k)] = nofr[small_index];  // background
 
-	BaryonField[DensNum][ELT(i,j,k)] = nofr[small_index];
-
-	BaryonField[DensNum][ELT(i,j,k)] /= this_delta;
+	BaryonField[DensNum][ELT(i,j,k)] /= this_delta;  // perturb
 
 	if(HydroMethod==Zeus_Hydro){  // ZEUS
 	  BaryonField[TENum][ELT(i,j,k)] = Tofr[small_index];  // TE = gas energy
@@ -231,8 +244,50 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	    BaryonField[GENum][ELT(i,j,k)] *= this_delta;
 
 	  } // DEF
-	}
+	} // PPM
 
+	/* HERE WOULD BE AN APPROPRIATE PLACE TO MODIFY THE MAGNETIC FIELD 
+	  Remember, it's already set to a uniform value; only fiddle wtih it
+	  if you want something non-uniform.  Take a look in Grid::ConductionTestInitialize
+	  for one example of how to do this.  */
+	
+	/*
+	BaryonField[iBx][ELT(i,j,k)] = ... ;
+	BaryonField[iBy][ELT(i,j,k)] = ... ;
+	BaryonField[iBz][ELT(i,j,k)] = ... ;
+	*/
+
+	/* HERE WOULD BE AN APPROPRIATE PLACE TO MODIFY THE VELOCITY FIELD IF YOU NEED TO */
+
+
+	/* we've messed with the total baryon energy above, so the values are no longer consistent with what was set in
+	   Grid::InitializeUniformGrid.  Regardless of whether we've fiddled with the velocity or the magnetic fields, 
+	   we need to add that energy back in! */
+
+	// total energy needs to be updated to take into account gas velocity if hydro is PPM or MHD
+	// in ZEUS 'total energy' is really internal energy, so we don't have to worry about this.
+	if(HydroMethod != Zeus_Hydro){
+
+	  BaryonField[TENum][ELT(i,j,k)] = e[ELT(i,j,k)] + 0.5*POW(BaryonField[Vel1Num][ELT(i,j,k)], 2.0);
+	  if(GridRank > 1)
+	    BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel2Num][ELT(i,j,k)], 2.0);
+	  if(GridRank > 2)
+	    BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel3Num][ELT(i,j,k)], 2.0);
+	  
+	  if(useMHD)
+	    BaryonField[TENum][ELT(i,j,k)] += 0.5*(POW(BaryonField[iBx][ELT(i,j,k)],2.0) + 
+					    POW(BaryonField[iBy][ELT(i,j,k)],2.0) + 
+					    POW(BaryonField[iBz][ELT(i,j,k)],2.0))/BaryonField[DensNum][ELT(i,j,k)];	  
+	} // if(HydroMethod != Zeus_Hydro)
+
+	// add magnetic field into total energy here - don't need to check for hydro method because we can't be 
+	// using ZEUS if MHD is turned on.
+	if(useMHD)
+	  BaryonField[TENum][ELT(i,j,k)] += 0.5*(POW(BaryonField[iBx][ELT(i,j,k)],2.0) + 
+						 POW(BaryonField[iBy][ELT(i,j,k)],2.0) + 
+						 POW(BaryonField[iBz][ELT(i,j,k)],2.0))/BaryonField[DensNum][ELT(i,j,k)];
+
+	// metallicity
 	if(TestProblemData.UseMetallicityField>0 && MetalNum != FALSE){
 	  if(celldist <= BubbleRadius){
 	    BaryonField[MetalNum][ELT(i,j,k)] = 
@@ -241,13 +296,13 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	    BaryonField[MetalNum][ELT(i,j,k)] = tiny_number;
 	  }
 
-	  if(i%32==0){
+	  if(i%32==0){  // set lines of tracer field at constant altitude
 	    BaryonField[MetalNum][ELT(i,j,k)] = 
 	      BaryonField[DensNum][ELT(i,j,k)]*TestProblemData.MetallicityField_Fraction;
 	  }
+	} // if(TestProblemData.UseMetallicityField>0 && MetalNum != FALSE)
 
-	}
-      } // for(i...)
+      } // for(i...)  (loop over all cells in this grid)
 
   delete [] rad;
   delete [] nofr;
@@ -255,7 +310,8 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 
   if (debug) {
     printf("Exiting ConductionBubbleInitialize\n");
-    fflush(stdout);}
+  }
+
   return SUCCESS;
 }
 
