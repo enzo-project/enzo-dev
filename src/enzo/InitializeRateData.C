@@ -30,10 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int InitializeCloudyCooling(FLOAT Time);
-<<<<<<< local
-=======
 int InitializeLymanWernerTable();
->>>>>>> other
 int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits, 
 			  float aUnits, float DensityUnits, float TimeUnits, 
 			  float aye);
