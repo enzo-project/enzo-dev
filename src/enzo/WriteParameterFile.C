@@ -673,6 +673,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n\n",
           StarEnergyToQuasarUV);
+  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n\n",
+          StarFeedbackDistRadius);
+  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n\n",
+          StarFeedbackDistCellStep);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
   fprintf(fptr, "Conduction                      = %"ISYM"\n", Conduction);

@@ -49,7 +49,7 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float ConductionTestTotalEnergy = 1.0;
   float ConductionTestGasEnergy = 1.0;
   float ConductionTestVelocity[3] = {0.0,0.0,0.0};
-  float ConductionTestPulseCenter[3] = {0.5,0.5,0.5};
+  FLOAT ConductionTestPulseCenter[3] = {0.5,0.5,0.5};
   float ConductionTestInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
 
   for (int i = 0; i<MetaData.TopGridRank; i++) {ConductionTestVelocity[i] = 0.0;}

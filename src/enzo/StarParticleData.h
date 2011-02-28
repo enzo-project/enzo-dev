@@ -53,6 +53,9 @@ SPEXTERN float StarEnergyToThermalFeedback;
 SPEXTERN float StarEnergyFeedbackRate;
 SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
+SPEXTERN int StarFeedbackDistRadius;
+SPEXTERN int StarFeedbackDistCellStep;
+SPEXTERN int StarFeedbackDistTotalCells;
 
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
