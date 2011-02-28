@@ -4,7 +4,7 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
+/  modified1: Tom Abel 2010, add turbulence generator to this problem as well
 /
 /
 ************************************************************************/
@@ -27,6 +27,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 double Gaussian(double cs);
+void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
+			  float kmin, float kmax, float dk,
+			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
+
 
 int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 				      FLOAT r_sphere[MAX_SPHERES],
@@ -35,15 +39,39 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 				      float p_sphere[MAX_SPHERES],
 				      float cs_sphere[MAX_SPHERES],
 				      FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-				      float omega_sphere[MAX_SPHERES], float Bnaught, float theta_B,
+				      float omega_sphere[MAX_SPHERES], 
+				      float turb_sphere[MAX_SPHERES], 
+				      float Bnaught, float theta_B,
+				      int Bdirection,
 				      int   sphere_type[MAX_SPHERES],
-				      float rho_medium, float p_medium, int level)
+				      float rho_medium, float p_medium, int level,
+				      int SetBaryonFields)
 {
+
+  const float HIIFraction = 1.2e-5;
+  const float HeIIFraction = 1.0e-14;
+  const float HeIIIFraction = 1.0e-17;
+  const float HMFraction = 2.0e-9;
+  const float H2IFraction = 2.0e-4;
+  const float H2IIFraction = 3.0e-14;
+  int TurbulenceSeed = 191105;
+  float *TurbulenceVelocity[3];
+  float HIFraction, HeIFraction, eFraction;
+  HIFraction = CoolData.HydrogenFractionByMass - HIIFraction;
+  if (MultiSpecies > 1)
+    HIFraction -= HMFraction + H2IFraction + H2IIFraction;
+  HeIFraction = 1.0 - CoolData.HydrogenFractionByMass - 
+    HeIIFraction - HeIIIFraction;
+  eFraction = HIIFraction + 0.25*HeIIFraction + 0.5*HeIIIFraction;
+  if (MultiSpecies > 1)
+    eFraction += 0.5*H2IIFraction - HMFraction;
+
+
   /* declarations */
 
-  int dim, i, j, k, m, field, sphere, size;
+  int dim, i, j, k, m, field, sphere, size, activesize;
 
-    int phip_num;
+  int phip_num;
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -65,6 +93,28 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     FieldType[NumberOfBaryonFields++] = DebugField;  
   }
 
+  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, 
+    H2INum, H2IINum, DINum, DIINum, HDINum;
+
+  if (MultiSpecies) {
+    FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
+    FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
+    FieldType[HIINum   = NumberOfBaryonFields++] = HIIDensity;
+    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
+    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;
+    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+    if (MultiSpecies > 1) {
+      FieldType[HMNum    = NumberOfBaryonFields++] = HMDensity;
+      FieldType[H2INum   = NumberOfBaryonFields++] = H2IDensity;
+      FieldType[H2IINum  = NumberOfBaryonFields++] = H2IIDensity;
+    }
+    if (MultiSpecies > 2) {
+      FieldType[DINum   = NumberOfBaryonFields++] = DIDensity;
+      FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
+      FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
+    }
+  }
+
   if (WritePotential) {
     FieldType[NumberOfBaryonFields++] = GravPotential;
     FieldType[NumberOfBaryonFields++] = AccelerationField1;
@@ -72,11 +122,18 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     FieldType[NumberOfBaryonFields++] = AccelerationField3;
   }
 
+  FieldType[NumberOfBaryonFields++] = DebugField;
+
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
+
+  //  for (i=0; i< NumberOfBaryonFields; i++)    BaryonField[i] = NULL;
+
+
+  printf("Grid_CollapseMHD3DInitialize: Setting up grid variables.\n");
 
   /* Units and parameters */
 
@@ -92,11 +149,24 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }
+  activesize = 1;
+  for (dim = 0; dim < GridRank; dim++) {
+    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+  }
+
+  for (dim = 0; dim < GridRank; dim++) {
+    TurbulenceVelocity[dim] = new float[activesize];
+    for (int n = 0; n < activesize; n++) {
+      TurbulenceVelocity[dim][n] = 0.0;
+    }
+  }
 
   int count=0;
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if (BaryonField[field] == NULL) {
       BaryonField[field] = new float[size];
+      for (i=0;i<size;i++)
+	BaryonField[field][i] = 0.;
       count++;
     }
   }
@@ -105,6 +175,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
   printf("r_sphere: %"GSYM"\n", r_sphere[0]);
+  printf("turb_sphere: %"GSYM"\n", turb_sphere[0]);
+
   // if use BE sphere, read in the BE sphere density profile
 
   char *filename = "be.dat";
@@ -113,6 +185,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   float rho_be[n_bin];
 
   if (sphere_type[0] == 3 || sphere_type[0] == 4) {
+    printf("Opening ./be.dat\n");
     FILE *fptr = fopen(filename, "r");
     char line[MAX_LINE_LENGTH];
     for (int i = 0; i < n_bin; i++) {
@@ -120,8 +193,9 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
         printf("BE sphere data not enough\n");
         return FAIL;
       }
-      sscanf(line, "%"GSYM" %"GSYM, &radius[i], &rho_be[i]);
+      sscanf(line, "%"FSYM" %"FSYM, &radius[i], &rho_be[i]);
     }
+    printf("Reading ./be.dat finished.\n");
     fclose(fptr);
   }
 
@@ -166,9 +240,24 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	for (dim = 0; dim < 3; dim++) {
 	  vel[dim] = 0.0;
 	}
+
 	Bx = 0.0;
 	By = 0.0;
-	Bz = Bnaught;
+	Bz = 0.0;
+
+	switch (Bdirection) {
+	case 0:
+	  Bx = Bnaught;
+	  break;
+	case 1:
+	  By = Bnaught;
+	  break;
+	case 2:
+	  Bz = Bnaught;
+	  break;
+	default:
+	  ENZO_FAIL("Bdirection must be 0,1,2");
+	}
 
 	/* Loop over spheres. */
 	for (sphere = 0; sphere < n_sphere; sphere++) {
@@ -224,6 +313,9 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      // BUT keep the pressure constant everywhere
 	      // to avoid discontinuities at the sphere boundaries
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0)/m2mode;
+	      float p, cs, h, dpdrho, dpde;
+	      p = pow(cs_sphere[sphere], 2)*rho;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
 	      // for the B-field we put it along x to slow the 
 	      // collapse along the z direction
 	      Bx = Bnaught;
@@ -270,7 +362,10 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 		n = n_bin -1;
 	      }
 	      rho = rho_sphere[sphere]*rho_be[n];
-	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
+	      float p, cs, h, dpdrho, dpde;
+	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      //	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0);
 	      FLOAT omega = omega_sphere[sphere];
 	      vel[0] = -omega*ypos;
 	      vel[1] = omega*xpos;
@@ -324,6 +419,47 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      vel[1] = omega_sphere[sphere]*xpos;
 	    }
 
+	    /* Rotating Gaussian of Truelove et al 1997 */
+
+	    if (sphere_type[sphere] == 7) {
+	      float m2mode = 1. + 0.1*cos(2.*phi);
+	      rho = rho_sphere[sphere] * exp(-pow(r/r_sphere[sphere]/0.58,2));
+	      rho *= m2mode;
+	      float p, cs, h, dpdrho, dpde;
+	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      vel[0] = -omega_sphere[sphere]*ypos;
+	      vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
+	    /* Rotating Gaussian similar to Truelove et al 1997 no m=2 mode*/
+
+	    if (sphere_type[sphere] == 8) {
+	      rho = rho_sphere[sphere] * exp(-pow(r/r_sphere[sphere]/0.58,2));
+	      float p, cs, h, dpdrho, dpde;
+	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      vel[0] = -omega_sphere[sphere]*ypos;
+	      vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
+	    if (sphere_type[sphere] == 9) {
+	      rho  = rho_sphere[sphere];
+	      // Uniform Burkert Bodenheimer test
+	      // BUT keep the pressure constant everywhere
+	      // to avoid discontinuities at the sphere boundaries
+	      float p, cs, h, dpdrho, dpde;
+	      p = pow(cs_sphere[sphere], 2)*rho/Gamma;
+	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      // for the B-field we put it along x to slow the 
+	      // collapse along the z direction
+	      Bx = Bnaught;
+	      By = 0;
+	      Bz = 0;
+              vel[0] = -omega_sphere[sphere]*ypos;
+              vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
 
 	  } // if (r < r_sphere)
 	} // end: loop over spheres
@@ -345,10 +481,76 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	  BaryonField[iBz ][n] = Bz;
 	  BaryonField[iPhi][n] = 0.0;
 	}
-
+	BaryonField[NumberOfBaryonFields-1][n] = 0.;
       } // end loop over grid
     }
   }
+
+
+
+  /* Initialize turbulent velocity field */
+
+  if (SetBaryonFields && (turb_sphere[0] > 0.)) {
+
+    float k1, k2, dk;
+      k1 = 5;
+      k2 = 8.0;
+      dk = 1.0;
+
+    printf("Begin generating turbulent velocity spectrum...\n");
+    Turbulence_Generator(TurbulenceVelocity, 
+			 GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
+			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 4.0, k1, k2, dk,
+			 CellLeftEdge, CellWidth, TurbulenceSeed);    
+
+    printf("Turbulent spectrum generated\n");
+
+    float VelocityNormalization = 1;
+// for level > 0 grids the CloudMachNumber passed in is actuall the Velocity normalization factor
+    if (level > 0) VelocityNormalization = turb_sphere[0];
+    printf("Cloud Mach Number = %"GSYM" \n",turb_sphere[0]);
+    for (i = 0; i < 3; i++) {
+      for (n = 0; n < activesize; n++) {
+	TurbulenceVelocity[i][n] *= VelocityNormalization;
+      }
+    }
+
+
+    /* Set turbulent velocity field */
+  FLOAT x,y,z;
+  int igrid;
+    n = 0;
+    /*    for (k = 0; k < GridDimension[2]; k++) {
+      for (j = 0; j < GridDimension[1]; j++) {
+      for (i = 0; i < GridDimension[0]; i++, n++) { */
+	  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) { 
+	    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) { 
+	  igrid = i + GridDimension[0]*(j+k*GridDimension[1]);
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+	  
+	  BaryonField[ivx][igrid] += TurbulenceVelocity[0][n];
+	  BaryonField[ivy][igrid] += TurbulenceVelocity[1][n];
+	  BaryonField[ivz][igrid] += TurbulenceVelocity[2][n];
+	  BaryonField[ietot][igrid] += 
+	    0.5 * (pow(TurbulenceVelocity[0][n],2) + 
+		   pow(TurbulenceVelocity[1][n],2) + 
+		   pow(TurbulenceVelocity[2][n],2));
+
+	} 
+      }
+    }    
+
+  }
+
+
+
+
+
 
   int TestBinary = 0;
   if (TestBinary == 1 && level == 0) {
@@ -392,9 +594,20 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
 
   int PutSinkParticle = 0;
-  if (PutSinkParticle == 1 && level == MaximumRefinementLevel) {
+  float ppos[3];
+  ppos[0] = 0.50001;
+  ppos[1] = 0.50001;
+  ppos[2] = 0.50001;
 
-    double mass_p = 1.1*1.989e33;
+  this->DeleteParticles();
+  NumberOfParticles = 0;
+  NumberOfStars    = 0;
+  //  if (PutSinkParticle == 1 && level == MaximumRefinementLevel) {
+  if (PutSinkParticle == 1 && GridLeftEdge[0] < ppos[0] && GridRightEdge[0] > ppos[0] &&
+      GridLeftEdge[1] < ppos[1] && GridRightEdge[1] > ppos[1] &&
+      GridLeftEdge[2] < ppos[2] && GridRightEdge[2] > ppos[2]) {
+
+    double mass_p = 1.*1.989e32;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);
@@ -404,23 +617,63 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
     NumberOfParticles = 1;
     NumberOfStars = 1;
+    NumberOfParticleAttributes = 3;
     //    MaximumParticleNumber = 1;
     this->AllocateNewParticles(NumberOfParticles);
     ParticleMass[0] = den_p;
     ParticleNumber[0] = 0;
     ParticleType[0] = PARTICLE_TYPE_MUST_REFINE;
-    ParticlePosition[0][0] = 0.501; // 0.6; // 0.55;                         
-    ParticlePosition[1][0] = 0.501;
-    ParticlePosition[2][0] = 0.501;
+    ParticlePosition[0][0] = ppos[0]; // 0.6; // 0.55;                         
+    ParticlePosition[1][0] = ppos[1];
+    ParticlePosition[2][0] = ppos[2];
 
     ParticleVelocity[0][0] = 0.0;
     ParticleVelocity[1][0] = 0.0;
     ParticleVelocity[2][0] = 0.0;
-    ParticleAttribute[0][0] = 0.01; // creation time    
-    ParticleAttribute[1][0] = 0; // dynamical time                                                                
+    ParticleAttribute[0][0] = 0.01; // creation time
+    ParticleAttribute[1][0] = 0; // dynamical time
     ParticleAttribute[2][0] = mass_p;
   }
 
+  /* Set uniform species fractions */
 
+  int index;
+  if (MultiSpecies > 0) {
+    for (k = 0, index = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  BaryonField[DeNum][index] = eFraction * BaryonField[0][index];
+	  BaryonField[HINum][index] = HIFraction * BaryonField[0][index];
+	  BaryonField[HIINum][index] = HIIFraction * BaryonField[0][index];
+	  BaryonField[HeINum][index] = HeIFraction * BaryonField[0][index];
+	  BaryonField[HeIINum][index] = HeIIFraction * BaryonField[0][index];
+	  BaryonField[HeIIINum][index] = HeIIIFraction * BaryonField[0][index];
+	}
+  }
+
+  if (MultiSpecies > 1) {
+    for (k = 0, index = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  BaryonField[HMNum][index] = HMFraction * BaryonField[0][index];
+	  BaryonField[H2INum][index] = H2IFraction * BaryonField[0][index];
+	  BaryonField[H2IINum][index] = H2IIFraction * BaryonField[0][index];
+	}
+  }
+
+  if (MultiSpecies > 2) {
+    for (k = 0, index = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++)
+	for (i = 0; i < GridDimension[0]; i++, index++) {
+	  BaryonField[DINum][index] = CoolData.DeuteriumToHydrogenRatio * 
+	    BaryonField[HINum][index];
+	  BaryonField[DIINum][index] = CoolData.DeuteriumToHydrogenRatio * 
+	    BaryonField[HIINum][index];
+	  BaryonField[HDINum][index] = CoolData.DeuteriumToHydrogenRatio * 
+	    BaryonField[H2INum][index];
+	}
+  }
+
+  printf("Grid_CollapseMHD3DInitiailize: done with this grid\n");
   return SUCCESS;
 }

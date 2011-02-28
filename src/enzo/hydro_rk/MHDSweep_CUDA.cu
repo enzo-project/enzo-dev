@@ -107,9 +107,9 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux, const int &tx,
 __device__ void plm_point(const float &vm1, const float &v, const float &vp1, float &vl_plm, const float &cTheta_Limiter);
 __device__ void EOS(float &p, float &rho, float &e, float &cs, 
 		    const float &cGamma, const int &eostype, const int &mode);
-__device__ float minmod(const float &a, const float &b, const float &c);
-__device__ float Max(const float &a, const float &b, const float &c);
-__device__ float Min(const float &a, const float &b, const float &c);
+__device__ float minmod_mhd(const float &a, const float &b, const float &c);
+__device__ float Max_mhd(const float &a, const float &b, const float &c);
+__device__ float Min_mhd(const float &a, const float &b, const float &c);
 double ReturnWallTime();
 
 /******************************************************************************
@@ -950,8 +950,8 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux,
   lm_r = Primr_vx - cs;
 
   // 2.3. compute the maximum local wave speed
-  lp_l = Max(0, lp_l, lp_r);
-  lm_l = Max(0, -lm_l, -lm_r);
+  lp_l = Max_mhd(0, lp_l, lp_r);
+  lm_l = Max_mhd(0, -lm_l, -lm_r);
   lp_l = (lp_l > lm_l) ? lp_l : lm_l;
 
   // 2.4. compute the flux
@@ -971,9 +971,9 @@ __device__ void LLF_PLM_MHD_CUDA3(float *Prim, float *Flux,
 }
 
 // minmod limiter function
-__device__ float minmod(const float &a, const float &b, const float &c)
+__device__ float minmod_mhd(const float &a, const float &b, const float &c)
 {
-  return 0.25*(sign(a)+sign(b))*ABS((sign(a)+sign(c)))*Min(ABS(a), ABS(b), ABS(c));
+  return 0.25*(sign(a)+sign(b))*ABS((sign(a)+sign(c)))*Min_mhd(ABS(a), ABS(b), ABS(c));
 }
 
 // do PLM reconstruction for a point
@@ -983,13 +983,13 @@ __device__ void plm_point(const float &vm1, const float &v, const float &vp1, fl
   float dv_r = (vp1-v) * cTheta_Limiter;
   float dv_m = 0.5*(vp1-vm1);
   
-  float dv = minmod(dv_l, dv_r, dv_m);
+  float dv = minmod_mhd(dv_l, dv_r, dv_m);
 
   vl_plm = v + 0.5*dv;
 }
 
 // return the maximum of a, b, c
-__device__ float Max(const float &a, const float &b, const float &c)  
+__device__ float Max_mhd(const float &a, const float &b, const float &c)  
 {
   if (a > b) {
     if (a > c)
@@ -1005,7 +1005,7 @@ __device__ float Max(const float &a, const float &b, const float &c)
 }
 
 // return the minimum of a, b, c
-__device__ float Min(const float &a, const float &b, const float &c)
+__device__ float Min_mhd(const float &a, const float &b, const float &c)
 {
   if (a<b) {
     if (c<a)

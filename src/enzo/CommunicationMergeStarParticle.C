@@ -20,6 +20,7 @@
 #include "mpi.h"
 #endif /* USE_MPI */
 #include <stdio.h>
+#include <map>
 #include <string>
 #include <math.h>
 #include "macros_and_parameters.h"
@@ -91,7 +92,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   }
 
   //for (int i = 0; i < count; i++)
-  //printf("P(%d): %d %g %g %g %g \n", MyProcessorNumber,
+  //printf("P(%"ISYM"): %"ISYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" \n", MyProcessorNumber,
   //     ParticlePartialList[i].Number, 
   //     ParticlePartialList[i].Mass, ParticlePartialList[i].Position[0], 
   //     ParticlePartialList[i].Velocity[0], ParticlePartialList[i].Attribute[0]);
@@ -155,15 +156,15 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
       if (!found) {
 	float v = sqrt(pow(SharedList[i].Velocity[0],2) + pow(SharedList[i].Velocity[1],2) +
 		       pow(SharedList[i].Velocity[2],2))*VelocityUnits/1e5;
-	printf("Particle %d is not in any grid!\n", SharedList[i].Number);
-	printf("m=%g, v=%g, tc=%g, dm=%g\n", SharedList[i].Mass*MassUnits,
+	printf("Particle %"ISYM" is not in any grid!\n", SharedList[i].Number);
+	printf("m=%"GSYM", v=%"GSYM", tc=%"GSYM", dm=%"GSYM"\n", SharedList[i].Mass*MassUnits,
 	       v, SharedList[i].Attribute[0], SharedList[i].Attribute[2]);
 	return FAIL;
       }
     }
   }
   */
-  //  printf("\n CMSP: SinkMergeDistance = %g, SinkMergeMass = %g, MassUnits = %g\n \n",
+  //  printf("\n CMSP: SinkMergeDistance = %"GSYM", SinkMergeMass = %"GSYM", MassUnits = %"GSYM"\n \n",
   //	 SinkMergeDistance, SinkMergeMass, MassUnits); 
 
 
@@ -212,7 +213,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /* communicate to check whether all the particles are added */
 
-  MPI_Allreduce(PartialAdded, TotalAdded, NumberOfGroups, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(PartialAdded, TotalAdded, NumberOfGroups, IntDataType, MPI_SUM, MPI_COMM_WORLD);
 
   int total = 0;
   for (int i = 0; i < NumberOfGroups; i++)
@@ -220,14 +221,14 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   if (total != NumberOfGroups) {
     if (debug) {
-      printf("CommunicationMergeParticle: total %d != NumberOfGroups %d\n", 
+      printf("CommunicationMergeParticle: total %"ISYM" != NumberOfGroups %"ISYM"\n", 
 	     total, NumberOfGroups);
       for (int i = 0; i < NumberOfGroups; i++) {
 	if (!TotalAdded[i]) {
-	  printf("Group %d failed to be added.\n", NewList[i].Number);
+	  printf("Group %"ISYM" failed to be added.\n", NewList[i].Number);
 	  float v = sqrt(pow(NewList[i].Velocity[0],2) + pow(NewList[i].Velocity[1],2) +
 			 pow(NewList[i].Velocity[2],2));
-	  printf("m=%g, x=(%g, %g, %g), v=%g\n", NewList[i].Mass*MassUnits, NewList[i].Position[0],
+	  printf("m=%"GSYM", x=(%"GSYM", %"GSYM", %"GSYM"), v=%"GSYM"\n", NewList[i].Mass*MassUnits, NewList[i].Position[0],
 		 NewList[i].Position[1], NewList[i].Position[2], v*VelocityUnits/1e5);
 	  int found = 0;
 	  for (int grid = 0; grid < NumberOfGrids; grid++)
@@ -264,10 +265,10 @@ int CheckMergeFlagList(ParticleEntry *List, const int &Size, int *Flag, const in
 		       const double &MassUnits)
 {
   for (int group = 0; group < GroupSize; group++) {
-    printf("group %d ", group);
+    printf("group %"ISYM" ", group);
     for (int i = 0; i < Size; i++) {
       if (Flag[i] == group)
-	printf("%g ", List[i].Mass*MassUnits);
+	printf("%"GSYM" ", List[i].Mass*MassUnits);
     }
     printf("\n");
   }

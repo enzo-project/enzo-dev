@@ -178,24 +178,23 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	}
       }
       
-      if (MyProcessorNumber == ROOT_PROCESSOR){
-	if( outputNow != -1 )
-	  if (unlink("outputNow")) {
- 	    ENZO_FAIL("Error deleting 'outputNow'");
-	  }
-	if( subcycleCount != -1 )
-	  if (unlink("subcycleCount")) {
-	    fprintf(stderr, "Error deleting subcycleCount.\n");
-	  }
-	if( stopNow != -1 )
-	  if (unlink("stopNow")) {
-   	    ENZO_FAIL("Error deleting stopNow");
-	  } 
-	if( checkpointDumpNow != -1 )
-	  if (unlink("checkpointDump")) {
-   	    ENZO_FAIL("Error deleting checkpointDump");
-	  } 
-      } 
+      if( outputNow != -1 )
+	if (unlink("outputNow")) {
+	  ENZO_FAIL("Error deleting 'outputNow'");
+	}
+      if( subcycleCount != -1 )
+	if (unlink("subcycleCount")) {
+	  fprintf(stderr, "Error deleting subcycleCount.\n");
+	}
+      if( stopNow != -1 )
+	if (unlink("stopNow")) {
+	  ENZO_FAIL("Error deleting stopNow");
+	} 
+      if( checkpointDumpNow != -1 )
+	if (unlink("checkpointDump")) {
+	  ENZO_FAIL("Error deleting checkpointDump");
+	} 
+      
 
     }//Root Processor only
 

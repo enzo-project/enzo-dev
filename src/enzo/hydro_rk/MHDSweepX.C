@@ -39,10 +39,9 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
 
   int i, j, k, m, iflux, igrid;
   int idual = (DualEnergyFormalism) ? 1 : 0;
-//  int icons = (ConservativeReconstruction) ? 1 : 0;  // not implemented properly yet, who did this?  .. JHK
+//  int icons = (ConservativeReconstruction) ? 1 : 0;  // not implemented properly yet, TA
   float *FluxLine[NEQ_MHD+NSpecies+NColor];
-  float *Prim1[NEQ_MHD+NSpecies+NColor-idual]; // was -idual instead of +idual here and next line .. TA
-                                               // -idual seems to be correct, although + wouldn't hurt .. JHK
+  float *Prim1[NEQ_MHD+NSpecies+NColor-idual]; 
   float *priml[NEQ_MHD-idual], *primr[NEQ_MHD-idual], *species[NSpecies], *colors[NColor];
   
   int Xactivesize = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
@@ -55,7 +54,7 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
   }
 
   //+icons may be needed for ConservativeReconstruction implementation
-  for (int field = 0; field < NEQ_MHD+NSpecies+NColor-idual; field++) {
+  for (int field = 0; field < NEQ_MHD+NSpecies+NColor+idual; field++) {
     Prim1[field] = new float[GridDimension[0]];
   }
 

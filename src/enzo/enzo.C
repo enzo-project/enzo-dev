@@ -45,6 +45,7 @@
 #include "CosmologyParameters.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#include "EventHooks.h"
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
@@ -228,8 +229,13 @@ void PrintMemoryUsage(char *str);
  
 //  ENZO Main Program
 
- 
-Eint32 main(Eint32 argc, char *argv[])
+#ifdef SHARED_LIBRARY
+#define MAIN_NAME enzo_main
+#else
+#define MAIN_NAME main
+#endif
+
+Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 {
 
 
@@ -564,7 +570,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (HaloFinderOnly) {
     InlineHaloFinder = TRUE;
-    HaloFinderSubfind = TRUE;
+    HaloFinderSubfind = FALSE;
     FOF(&MetaData, LevelArray, TRUE, TRUE);
     my_exit(EXIT_SUCCESS);
   }

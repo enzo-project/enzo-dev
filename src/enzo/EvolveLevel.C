@@ -94,6 +94,11 @@
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif
+#ifdef NEW_PROBLEM_TYPES
+#include "EventHooks.h"
+#else
+void RunEventHooks(char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
+#endif
  
 /* function prototypes */
  
@@ -229,7 +234,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[],
 void my_exit(int status);
  
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
+               int level, int from_topgrid);
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -278,6 +283,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
+  RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
@@ -532,6 +538,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     }  // end loop over grids
  
+    /* Finalize (accretion, feedback, etc.) star particles */
+
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			 level, AllStars, TotalStarParticleCountPrevious);
+
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
@@ -542,11 +553,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			  Exterior, LevelArray[level]);
 #endif
-
-    /* Finalize (accretion, feedback, etc.) star particles */
-
-    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
 
     /* If cosmology, then compute grav. potential for output if needed. */
 
@@ -618,7 +624,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
-    CallPython(LevelArray, MetaData, level);
+    CallPython(LevelArray, MetaData, level, 0);
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note

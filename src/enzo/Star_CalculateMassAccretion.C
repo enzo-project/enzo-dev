@@ -77,8 +77,8 @@ int Star::CalculateMassAccretion(void)
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= CurrentGrid->GridDimension[dim];
-    igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-      CurrentGrid->CellWidth[0][0];
+    igrid[dim] = (int) ((pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
+			CurrentGrid->CellWidth[0][0]);
   }
 
   temperature = new float[size];

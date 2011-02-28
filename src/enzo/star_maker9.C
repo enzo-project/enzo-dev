@@ -44,6 +44,7 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "phys_constants.h"
+// #include "CommunicationUtilities.h"
 
 #define USE
 
@@ -85,7 +86,7 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   double msun = 1.989e33;
   double umass = (*d1)*POW(*x1,3)/msun;
 
-  printf("Star Maker 9 running.......\n");
+  //printf("Star Maker 9 running.......\n");
 
   /* Convert mass threshold to density */
 
@@ -118,141 +119,147 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   yo = *nx;
   zo = (*nx) * (*ny);
 
+  //BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
 
   /* Loop over grid looking for a cell with mass larger than massthres */
+  //printf("BigStarFormationDone = %"ISYM" MyProcessorNumber = %"ISYM"\n", BigStarFormationDone,MyProcessorNumber);
+  if(BigStarFormationDone == 0){
+    if (*level == MaximumRefinementLevel) {
+      float oldrho;
+      float SinkCollapseDistance = SinkMergeDistance;
+      for (k = *ibuff; k < *nz-*ibuff; k++) {
+	for (j = *ibuff; j < *ny-*ibuff; j++) {
+	  index = (k * (*ny) + j) * (*nx) + (*ibuff);
+	  for (i = *ibuff; i < *nx-*ibuff; i++, index++) {
 
-  if (*level == MaximumRefinementLevel) {
-    float oldrho;
-    float SinkCollapseDistance = SinkMergeDistance;
-    for (k = *ibuff; k < *nz-*ibuff; k++) {
-      for (j = *ibuff; j < *ny-*ibuff; j++) {
-	index = (k * (*ny) + j) * (*nx) + (*ibuff);
-	for (i = *ibuff; i < *nx-*ibuff; i++, index++) {
-
-	  /* Finest level of refinement and density greater than threshold? */
+	    /* Finest level of refinement and density greater than threshold? */
 	  
-	  if (*jlrefine > 0)
-	    jeansthresh = jlsquared * temp[index] / d[index];
-	  //printf("jeansthresh = %g \n",jeansthresh);
-	  //printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);
+	    if (*jlrefine > 0)
+	      jeansthresh = jlsquared * temp[index] / d[index];
+	    //printf("jeansthresh = %g \n",jeansthresh);
+	    //printf("jlsquared = %g \n",jlsquared);printf("temp[index] = %g \n",temp[index]);printf("d[index] = %g \n",d[index]);
 
-	  if (r[index] == 0 && (d[index] > densthresh ||
-				(*jlrefine > 0 && dx2 > jeansthresh))) {
-	    //printf("star_maker9: density above thresh-hold - will now make a new star?!\n");
-	    xpos = *xstart + ((float) i - 0.5)*(*dx);
-	    ypos = *ystart + ((float) j - 0.5)*(*dx);
-	    zpos = *zstart + ((float) k - 0.5)*(*dx);
+	    if (r[index] == 0 && (d[index] > densthresh ||
+				  (*jlrefine > 0 && dx2 > jeansthresh))) {
+	      //printf("star_maker9: density above thresh-hold - will now make a new star?!\n");
+	      xpos = *xstart + ((float) i - 0.5)*(*dx);
+	      ypos = *ystart + ((float) j - 0.5)*(*dx);
+	      zpos = *zstart + ((float) k - 0.5)*(*dx);
 
-	    nearestdx2 = 1e20;
-	    //float BigStarSeparation = (*x1)/4;
-	    // printf("BigStarSeparation = %g = %g cgs \n", BigStarSeparation, BigStarSeparation*(*x1) );
+	      nearestdx2 = 1e20;
+	      //float BigStarSeparation = (*x1)/4;
+	      // printf("BigStarSeparation = %g = %g cgs \n", BigStarSeparation, BigStarSeparation*(*x1) );
 
-	    for (cc = 0; cc < nsinks; cc++) {
+	      for (cc = 0; cc < nsinks; cc++) {
 	      
-	      n = sink_index[cc];
-	      if (mpold[n]*umass < 3.0) continue;
-	      delx = xpos - xpold[n];
-	      dely = ypos - ypold[n];
-	      delz = zpos - zpold[n];
-	      dist2 = delx*delx + dely*dely + delz*delz;
+		n = sink_index[cc];
+		if (mpold[n]*umass < 3.0) continue;
+		delx = xpos - xpold[n];
+		dely = ypos - ypold[n];
+		delz = zpos - zpold[n];
+		dist2 = delx*delx + dely*dely + delz*delz;
 
 		/* If sink is within 5 cells and closest one, then add to it */
-	      if (dist2 < POW(BigStarSeparation,2) && dist2 < nearestdx2) {
-		nearestdx2 = dist2;
-		closest = n;		  
-	      }
-
-	    } // ENDFOR old particles
-	      //printf("star_maker9: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
-
-	    if (ii < *nmax) {
-
-	      // PUT BIG STAR FORMATION IF STATEMENT HERE
-	      if(BigStarFormation){
-
-		/* Calculate change in density */
-
-		if (*jlrefine > 0)
-		  maxdens = min(jlsquared * temp[index] / dx2, densthresh);
-		else
-		  maxdens = densthresh;
-		oldrho = d[index];
-		adddens = d[index] - maxdens;
-		BigStarFormation = 0;
-		StarParticleCreation = 0;
-		CommunicationBroadcastValue(&BigStarFormation, MyProcessorNumber);
-		CommunicationBroadcastValue(&StarParticleCreation, MyProcessorNumber);
-		printf("BigStarFormation complete: no more star formation from now on. ");
-	    
-		/* Remove mass from grid */
-	    
-		d[index] = maxdens;
-
-		if (*imethod == 2) {
-		  ugrid = 0.5*(u[index] + u[index+xo]);
-		  vgrid = 0.5*(v[index] + v[index+yo]);
-		  wgrid = 0.5*(w[index] + w[index+zo]);
-		} else {
-		  total_density = d[index] + d[index-xo] + d[index+xo] + d[index-yo] +
-		    d[index+yo] + d[index-zo] + d[index+zo];
-
-		  ugrid = (u[index]*d[index] + 
-			   u[index-xo]*d[index-xo] + u[index+xo]*d[index+xo] +
-			   u[index-yo]*d[index-yo] + u[index+yo]*d[index+yo] +
-			   u[index-zo]*d[index-zo] + u[index+zo]*d[index+zo]) /
-		    total_density;
-
-		  vgrid = (v[index]*d[index] + 
-			   v[index-xo]*d[index-xo] + v[index+xo]*d[index+xo] +
-			   v[index-yo]*d[index-yo] + v[index+yo]*d[index+yo] +
-			   v[index-zo]*d[index-zo] + v[index+zo]*d[index+zo]) /
-		    total_density;
-
-		  wgrid = (w[index]*d[index] + 
-			   w[index-xo]*d[index-xo] + w[index+xo]*d[index+xo] +
-			   w[index-yo]*d[index-yo] + w[index+yo]*d[index+yo] +
-			   w[index-zo]*d[index-zo] + w[index+zo]*d[index+zo]) /
-		    total_density;
+		if (dist2 < POW(BigStarSeparation,2) && dist2 < nearestdx2) {
+		  nearestdx2 = dist2;
+		  closest = n;		  
 		}
 
+	      } // ENDFOR old particles
+	      //printf("star_maker9: nearest old star = %"FSYM"\n",POW(nearestdx2,0.5) );
 
-		printf("star_maker9: making new star, type = %"ISYM"\n",*ctype );
-		mp[ii] = adddens;
-		type[ii] = *ctype;
-	      
-		/* Set positions and velocities */
+	      if (ii < *nmax) {
+
+		// PUT BIG STAR FORMATION IF STATEMENT HERE
+		if(BigStarFormation == 1){
+
+		  /* Calculate change in density */
+
+// 		  if (*jlrefine > 0)
+// 		    maxdens = min(jlsquared * temp[index] / dx2, densthresh);
+// 		  else
+// 		    maxdens = densthresh;
+// 		  oldrho = d[index];
+// 		  adddens = d[index] - maxdens;
+		  BigStarFormationDone = 1;
+		  //StarParticleCreation = 0;
+		  //StarParticleFeedback = 0;
+		  CommunicationBroadcastValue(&BigStarFormationDone, MyProcessorNumber);
+		  //CommunicationBroadcastValue(&StarParticleCreation, MyProcessorNumber);
+		  //CommunicationBroadcastValue(&StarParticleFeedback, MyProcessorNumber);
 	    
-		xp[ii] = xpos;
-		yp[ii] = ypos;
-		zp[ii] = zpos;;
-		up[ii] = ugrid;
-		vp[ii] = vgrid;
-		wp[ii] = wgrid;
-
-		/* Set creation time */
-	      
-		tcp[ii] = (float) *t;
-		tdp[ii] = 0.0;
-		dm[ii]  = adddens*POW(*dx,3);
-
-		ii++;
-
-
-
-	      }
-	      else {
-		printf("star_maker 9 called but not BigStarFormation \n");
-	      }
-
-	    } // ENDIF create a new sink
+		  /* Remove mass from grid */
 	    
-	  } // ENDIF make sink particle
+// 		  d[index] = maxdens;
+		  printf("BigStarFormation: Star made at %"FSYM", %"FSYM", %"FSYM" \n ", xpos, ypos, zpos);
+		  //printf("now BigStarFormation = %"ISYM"\n", BigStarFormation);
 
-	} // ENDFOR i
-      } // ENDFOR j
-    } // ENDFOR k
+		  if (*imethod == 2) {
+		    ugrid = 0.5*(u[index] + u[index+xo]);
+		    vgrid = 0.5*(v[index] + v[index+yo]);
+		    wgrid = 0.5*(w[index] + w[index+zo]);
+		  } else {
+		    total_density = d[index] + d[index-xo] + d[index+xo] + d[index-yo] +
+		      d[index+yo] + d[index-zo] + d[index+zo];
 
-  } // if (level == maxlevel)
+		    ugrid = (u[index]*d[index] + 
+			     u[index-xo]*d[index-xo] + u[index+xo]*d[index+xo] +
+			     u[index-yo]*d[index-yo] + u[index+yo]*d[index+yo] +
+			     u[index-zo]*d[index-zo] + u[index+zo]*d[index+zo]) /
+		      total_density;
+
+		    vgrid = (v[index]*d[index] + 
+			     v[index-xo]*d[index-xo] + v[index+xo]*d[index+xo] +
+			     v[index-yo]*d[index-yo] + v[index+yo]*d[index+yo] +
+			     v[index-zo]*d[index-zo] + v[index+zo]*d[index+zo]) /
+		      total_density;
+
+		    wgrid = (w[index]*d[index] + 
+			     w[index-xo]*d[index-xo] + w[index+xo]*d[index+xo] +
+			     w[index-yo]*d[index-yo] + w[index+yo]*d[index+yo] +
+			     w[index-zo]*d[index-zo] + w[index+zo]*d[index+zo]) /
+		      total_density;
+		  }
+
+
+		  printf("star_maker9: making new star, type = %"ISYM"\n",*ctype );
+		  mp[ii] = 0.0; //adddens;
+		  type[ii] = -*ctype;
+	      
+		  /* Set positions and velocities */
+	    
+		  xp[ii] = xpos;
+		  yp[ii] = ypos;
+		  zp[ii] = zpos;;
+		  up[ii] = ugrid;
+		  vp[ii] = vgrid;
+		  wp[ii] = wgrid;
+
+		  /* Set creation time */
+	      
+		  tcp[ii] = (float) *t;
+		  tdp[ii] = 1.0e20;
+		  dm[ii]  = 0.0; //adddens*POW(*dx,3);
+
+		  ii++;
+
+
+
+		}
+		else {
+		  printf("star_maker 9 called but not BigStarFormation \n");
+		}
+
+	      } // ENDIF create a new sink
+	    
+	    } // ENDIF make sink particle
+
+	  } // ENDFOR i
+	} // ENDFOR j
+      } // ENDFOR k
+
+    } // if (level == maxlevel)
+  } // if BigStarForm
 
   if (ii > 0)
     printf("P(%"ISYM"): star_maker9[add]: %"ISYM" new sink particles\n", *nproc, ii);

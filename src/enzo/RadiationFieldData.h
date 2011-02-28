@@ -57,4 +57,9 @@ struct RadiationFieldDataType
 
   float IntegratedStarFormation;
 
+  /* tabulated LW background vs. redshift */
+  int NumberOfLWRedshiftBins;
+  float *LymanWerner_J21;
+  float *LymanWerner_redshift;
+
 };

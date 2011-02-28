@@ -152,7 +152,8 @@ c
             dz = real(k1) + 0.5 - zpos
 c
 c           Interpolate from field into sumfield
-c     
+c 
+    
             sumfield(n) = sumfield(n) +
      &              field(i1  ,j1  ,k1  )*     dx *     dy *     dz  +
      &              field(i1+1,j1  ,k1  )*(1.0-dx)*     dy *     dz  +
@@ -163,10 +164,12 @@ c
      &              field(i1  ,j1+1,k1+1)*     dx *(1.0-dy)*(1.0-dz) +
      &              field(i1+1,j1+1,k1+1)*(1.0-dx)*(1.0-dy)*(1.0-dz)
 c
+
          enddo
 c
       endif
 c
+
       return
 #endif
       end

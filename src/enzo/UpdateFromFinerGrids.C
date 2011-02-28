@@ -26,6 +26,7 @@
 #endif /* USE_MPI */
  
 #include <stdio.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
@@ -64,6 +65,8 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
  
 {
+
+  LCAPERF_START("UpdateFromFinerGrids");
  
   int grid1, subgrid, StartGrid, EndGrid;
   HierarchyEntry *NextGrid;
@@ -88,6 +91,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
   TIME_MSG("UpdateFromFinerGrids");
+  LCAPERF_START("GetProjectedBoundaryFluxes");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -96,7 +100,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationDirection = COMMUNICATION_POST_RECEIVE;
     CommunicationReceiveIndex = 0;
     for (grid1 = StartGrid; grid1 < EndGrid; grid1++) {
-      
+
       /* Loop over subgrids for this grid. */
  
       NextGrid = Grids[grid1]->NextGridNextLevel;
@@ -231,6 +235,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 
   } // ENDFOR grid batches
+  LCAPERF_STOP("GetProjectedBoundaryFluxes");
 
   /************************************************************************
     (b) correct for the difference between this grid's fluxes and the
@@ -238,6 +243,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
   ************************************************************************/
 
   TIME_MSG("Projecting solution to parent");
+  LCAPERF_START("ProjectSolutionToParentGrid");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
     EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -283,7 +289,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     CommunicationReceiveHandler();
 
   } // ENDFOR grid batches
-
+  LCAPERF_STOP("ProjectSolutionToParentGrid");
 
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
@@ -291,6 +297,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  
+  LCAPERF_STOP("UpdateFromFinerGrids");
   return SUCCESS;
 }
  

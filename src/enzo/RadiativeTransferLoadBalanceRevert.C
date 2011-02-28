@@ -32,19 +32,72 @@
 #include "communication.h"
 #include "CommunicationUtilities.h"
 
+double ReturnWallTime(void);
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
 				int FluxFlag = FALSE,
 				TopGridData* MetaData = NULL);
 
+#define MIN_LEVEL 1
+
 int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids)
 {
 
-  int i, level, temp_proc, ori_proc, nph;
+  int i, index, level, temp_proc, ori_proc, nph, GridsMoved;
+
+  /* Send updated baryon fields (species and energy in particular)
+     back to the original processor */
+
+  /* Now we know where the grids are going, transfer them. */
+
+  for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+
+  /* Post receives */
+
+  CommunicationReceiveIndex = 0;
+  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+  CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+
+  GridsMoved = 0;
+  for (i = 0; i < NumberOfGrids[level]; i++) {
+    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
+    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+    if (ori_proc != temp_proc) {
+      Grids[level][i]->GridData->CommunicationMoveGrid(ori_proc, FALSE, FALSE);
+      GridsMoved++;
+    }
+  }
+
+  /* Send grids */
+
+  CommunicationDirection = COMMUNICATION_SEND;
+
+  for (i = 0; i < NumberOfGrids[level]; i++) {
+    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
+    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+    if (ori_proc != temp_proc) {
+      if (RandomForcing)  //AK
+	Grids[level][i]->GridData->AppendForcingToBaryonFields();
+      Grids[level][i]->GridData->CommunicationMoveGrid(ori_proc, FALSE, FALSE);
+    }
+  }
+
+  /* Receive grids */
+
+  if (CommunicationReceiveHandler() == FAIL)
+    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
+
+  CommunicationBarrier();
+
+//  if (MyProcessorNumber == ROOT_PROCESSOR && GridsMoved > 0)
+//    printf("RevertPhotonLoadBalance[%d]: Number of grids moved = %"ISYM" out of %"ISYM"\n",
+//	   level, GridsMoved, NumberOfGrids[level]);
+
+  } // ENDFOR level
 
   /* Delete baryon fields in replicated grid */
 
-  for (level = 1; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+  for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++) {
     for (i = 0; i < NumberOfGrids[level]; i++) {
       ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
       temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
@@ -59,43 +112,41 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
 
   PhotonPackageEntry *PP;
 
+  for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+
   /* Post receives */
 
   CommunicationReceiveIndex = 0;
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
   CommunicationDirection = COMMUNICATION_POST_RECEIVE;
 
-  for (level = 1; level < MAX_DEPTH_OF_HIERARCHY; level++) {
-    for (i = 0; i < NumberOfGrids[level]; i++) {
-      ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
-      temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
-      if (ori_proc != temp_proc) {
-	PP = Grids[level][i]->GridData->ReturnPhotonPackagePointer();
-	nph = Grids[level][i]->GridData->ReturnNumberOfPhotonPackages();
-	if (PP->NextPackage != NULL)
-	  Grids[level][i]->GridData->CommunicationSendPhotonPackages
-	    (Grids[level][i]->GridData, ori_proc, nph, nph, &PP->NextPackage);
-      } // ENDIF
-    } // ENDFOR grids
-  } // ENDFOR level
+  for (i = 0; i < NumberOfGrids[level]; i++) {
+    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
+    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+    if (ori_proc != temp_proc) {
+      PP = Grids[level][i]->GridData->ReturnPhotonPackagePointer();
+      nph = Grids[level][i]->GridData->ReturnNumberOfPhotonPackages();
+      if (PP->NextPackage != NULL)
+	Grids[level][i]->GridData->CommunicationSendPhotonPackages
+	  (Grids[level][i]->GridData, ori_proc, nph, nph, &PP->NextPackage);
+    } // ENDIF
+  } // ENDFOR grids
 
   /* Send photons */
   
   CommunicationDirection = COMMUNICATION_SEND;
 
-  for (level = 1; level < MAX_DEPTH_OF_HIERARCHY; level++) {
-    for (i = 0; i < NumberOfGrids[level]; i++) {
-      ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
-      temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
-      if (ori_proc != temp_proc) {
-	PP = Grids[level][i]->GridData->ReturnPhotonPackagePointer();
-	nph = Grids[level][i]->GridData->ReturnNumberOfPhotonPackages();
-	if (PP->NextPackage != NULL)
-	  Grids[level][i]->GridData->CommunicationSendPhotonPackages
-	    (Grids[level][i]->GridData, ori_proc, nph, nph, &PP->NextPackage);
-      } // ENDIF
-    } // ENDFOR grids
-  } // ENDFOR level
+  for (i = 0; i < NumberOfGrids[level]; i++) {
+    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
+    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+    if (ori_proc != temp_proc) {
+      PP = Grids[level][i]->GridData->ReturnPhotonPackagePointer();
+      nph = Grids[level][i]->GridData->ReturnNumberOfPhotonPackages();
+      if (PP->NextPackage != NULL)
+	Grids[level][i]->GridData->CommunicationSendPhotonPackages
+	  (Grids[level][i]->GridData, ori_proc, nph, nph, &PP->NextPackage);
+    } // ENDIF
+  } // ENDFOR grids
 
   /* Receive photons */
 
@@ -104,13 +155,13 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
 
   /* Return processor number back to original */
 
-  for (level = 1; level < MAX_DEPTH_OF_HIERARCHY; level++) {
-    for (i = 0; i < NumberOfGrids[level]; i++) {
-      ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
-      temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
-      if (ori_proc != temp_proc)
-	Grids[level][i]->GridData->SetProcessorNumber(ori_proc);
-    } // ENDFOR grids
+  for (i = 0; i < NumberOfGrids[level]; i++) {
+    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
+    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+    if (ori_proc != temp_proc)
+      Grids[level][i]->GridData->SetProcessorNumber(ori_proc);
+  } // ENDFOR grids
+
   } // ENDFOR level
 
   return SUCCESS;

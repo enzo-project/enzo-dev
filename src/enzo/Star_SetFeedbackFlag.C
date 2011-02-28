@@ -47,6 +47,7 @@ void Star::SetFeedbackFlag(Eint32 flag)
 int Star::SetFeedbackFlag(FLOAT Time)
 {
 
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
   const float StarClusterSNeStart = 4.0;   // Myr after cluster is born
   const float StarClusterSNeEnd = 20.0; // Myr (lifetime of a 8 Msun star)
@@ -68,18 +69,24 @@ int Star::SetFeedbackFlag(FLOAT Time)
     if (this->type < 0) // birth
       this->FeedbackFlag = FORMATION;
     else if (Time > this->BirthTime + this->LifeTime) // endpoint
-      if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass)
+      if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
+	  (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass))
 	this->FeedbackFlag = SUPERNOVA;
       else
 	this->FeedbackFlag = NO_FEEDBACK; // BH formation
     else // main sequence
       this->FeedbackFlag = NO_FEEDBACK;
     break;
+
+  case SimpleSource:
+    if (this->type < 0) // birth
+      this->FeedbackFlag = FORMATION;
     
   case PopII:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
     if (this->type > 0)
-      if (AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd)
+      if ((AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd) ||
+	  StarClusterUnresolvedModel)
 	this->FeedbackFlag = CONT_SUPERNOVA;
       else
 	this->FeedbackFlag = NO_FEEDBACK;

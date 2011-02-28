@@ -30,6 +30,10 @@
 # define EXTERN extern
 #endif
 
+#ifdef NEW_PROBLEM_TYPES
+class EnzoProblemType;
+#endif
+
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
                           1 = Equalize processor memory count
@@ -74,6 +78,10 @@ EXTERN int extract;
 	                                                                  */
 EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
+#ifdef NEW_PROBLEM_TYPES
+EXTERN char *ProblemTypeName;
+EXTERN EnzoProblemType *CurrentProblemType;
+#endif
 
 /* Hydrodynamics method:
        0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
@@ -288,6 +296,7 @@ EXTERN float RootGridCourantSafetyNumber;
 
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
+EXTERN int RadiativeCoolingModel;
 
 /* Cloudy cooling parameters and data. */
 
@@ -351,6 +360,7 @@ EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 EXTERN int RadiationXRayComptonHeating;
+EXTERN int TabulatedLWBackground;
 
 /* Photoelectric cooling turn on/off */
 
@@ -425,6 +435,7 @@ EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
 
 /* Parameter(s) for embedded python execution */
+EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
 
 /* Parameters to control inline halo finding */
@@ -527,7 +538,10 @@ EXTERN int   StarParticleFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
+EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
+EXTERN float SimpleQ;
+EXTERN float SimpleRampTime;
 
 
 /* Parameters governing certain time or redshift-dependent actions. */
@@ -643,6 +657,8 @@ EXTERN float MaximumAlvenSpeed;
 EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
+EXTERN int PositiveReconstruction;
+EXTERN int RiemannSolverFallback;
 EXTERN int RiemannSolver;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
@@ -651,11 +667,13 @@ EXTERN float EOSCriticalDensity;
 EXTERN float EOSGamma;
 EXTERN float C_h;
 EXTERN float C_p;
+EXTERN float DivBDampingLength;
 EXTERN int UseConstantAcceleration;
 EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
 EXTERN int ExternalGravity;
-EXTERN int StringKick;
+EXTERN float StringKick;
+EXTERN int StringKickDimension;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;
@@ -738,6 +756,8 @@ EXTERN char GlobalPath[MAX_LINE_LENGTH];
 
 #ifdef USE_PYTHON
 EXTERN int NumberOfPythonCalls;
+EXTERN int NumberOfPythonTopGridCalls;
+EXTERN int NumberOfPythonSubcycleCalls;
 EXTERN PyObject *grid_dictionary;
 EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;
@@ -862,6 +882,7 @@ EXTERN char current_error[255];
 /* Thermal conduction */
 
 EXTERN int Conduction;  // TRUE OR FALSE
+EXTERN int AnisotropicConduction;  // TRUE OR FALSE
 EXTERN float ConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 

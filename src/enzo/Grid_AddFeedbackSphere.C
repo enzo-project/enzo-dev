@@ -94,15 +94,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   /* Find Metallicity or SNColour field and set flag. */
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
+    Galaxy2ColourNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
-  MetalNum = max(MetalNum, SNColourNum);
+  MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
@@ -162,9 +163,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     if (cstar->FeedbackFlag != SUPERNOVA) {
       float old_mass = (float)(cstar->Mass);
       cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
-      cstar->vel[0] *= old_mass / cstar->Mass; 
-      cstar->vel[1] *= old_mass / cstar->Mass;
-      cstar->vel[2] *= old_mass / cstar->Mass;
+      float frac = old_mass / cstar->Mass;
+      cstar->vel[0] *= frac;
+      cstar->vel[1] *= frac;
+      cstar->vel[2] *= frac;
     } // ENDIF !Supernova
 
 //    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
@@ -871,8 +873,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
-
-	    factor = EjectaDensity / BaryonField[DensNum][index];
+	    //if (abs(cstar->type) == SimpleSource) {
+	    //  factor = PopIIIStarMass/EjectaDensity;
+	    //}
+	    //else 
+	      factor = EjectaDensity / BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] *= factor;
 
 	    if (MultiSpecies) {
@@ -895,8 +900,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDINum][index] *= factor;
 	    }
 
-	    if (MetallicityField == TRUE)
-	      BaryonField[MetalNum][index] *= factor;
+	    if (SNColourNum > 0)
+	      BaryonField[SNColourNum][index] *= factor;
+	    if (Metal2Num > 0)
+	      BaryonField[Metal2Num][index] *= factor;
 
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star

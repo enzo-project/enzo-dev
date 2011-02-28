@@ -41,6 +41,8 @@ int InitializeEquilibriumCoolData(FLOAT Time)
  
   /* Open input file for data. */
  
+  if( RadiativeCoolingModel == 1){
+      
   FILE *fptr = fopen("cool_rates.in", "r");
   if (fptr == NULL) {
     ENZO_FAIL("Error opening cool_rates.in\n");
@@ -136,6 +138,12 @@ int InitializeEquilibriumCoolData(FLOAT Time)
 	   float(CoolData.NumberOfTemperatureBins-1),
 	   CoolData.EquilibriumRate[index]);
   fclose(fptr);
+  }else if( RadiativeCoolingModel == 3){
+      CoolData.NumberOfTemperatureBins = 2;
+      CoolData.EquilibriumRate = new float[CoolData.NumberOfTemperatureBins];
+      CoolData.TemperatureEnd = 1e4  ;
+      CoolData.TemperatureStart = 18;
+  }
  
   return SUCCESS;
 }

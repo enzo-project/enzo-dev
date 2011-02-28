@@ -6,7 +6,7 @@ c
       subroutine xlagrange_sweep(k, d, e, u, v, w, ge, in, jn, kn,
      &                        gravity, gr_acc, idual, eta1, eta2,
      &                        is, ie, js, je, ks, ke, 
-     &                        gamma, pmin, dt, dx, dy, dz,
+     &                        eostype, gamma, pmin, dt, dx, dy, dz,
      &                        idiff, iflatten, isteepen, ipresfree,
      &                        nsubgrids, lface, rface,
      &                        fistart, fiend, fjstart, fjend,
@@ -44,6 +44,7 @@ c    dx,dy,dz - grid spacing
 c    e      - total specific energy field
 c    eta1   - (dual) selection parameter for gas energy (typically ~0.001)
 c    eta2   - (dual) selection parameter for total energy (typically ~0.1)
+c    eostype- polytropic equations of state supported thorugh this
 c    gamma  - ideal gas constant
 c    ge     - gas specific energy field (used when idual = 1)
 c    gravity - gravity flag (0 = off)
@@ -114,7 +115,7 @@ c  argument declarations
 c
       integer gravity, idiff, idual, iflatten, isteepen, ipresfree,
      &        in, jn, kn, is, ie, js, je, ks, ke, k, nsubgrids,
-     &        ncolor, coloff(ncolor)
+     &        ncolor, coloff(ncolor), eostype
       real    dt, eta1, eta2, gamma, pmin, vgx
       real    d(in,jn,kn), e(in,jn,kn), u(in,jn,kn), v(in,jn,kn), 
      &        w(in,jn,kn),ge(in,jn,kn), gr_acc(in,jn,kn),
@@ -207,7 +208,7 @@ c
      &                    in, jn, is-3, ie+3, j1, j2, gamma, pmin)
       else
          call pgas2d(dslice, eslice, pslice, uslice, vslice, wslice,
-     &               in, jn, is-3, ie+3, j1, j2, gamma, pmin)
+     &               in, jn, is-3, ie+3, j1, j2, eostype, gamma, pmin)
       endif
 c
 c  If requested, compute diffusion and slope flattening coefficients
@@ -256,7 +257,7 @@ c
      &                    in, jn, is-3, ie+3, j1, j2, gamma, pmin)
       else
          call pgas2d(dslice, eslice, pslice, uslice, vslice, wslice,
-     &               in, jn, is-3, ie+3, j1, j2, gamma, pmin)
+     &               in, jn, is-3, ie+3, j1, j2, eostype, gamma, pmin)
       endif
 c
 c  Compute remap fluxes

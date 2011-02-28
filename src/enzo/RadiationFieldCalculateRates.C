@@ -39,6 +39,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+int RadiationFieldLymanWernerTable(float Redshift,float *J21);
 
 int RadiationFieldCalculateRates(FLOAT Time)
 {
@@ -335,8 +336,30 @@ int RadiationFieldCalculateRates(FLOAT Time)
   /* 9) molecular hydrogen constant photo-dissociation only! 
      rate is 1.13e-8 * F_LW  (flux in Lyman-Werner bands) */
 
-  if (RadiationFieldType == 9)
-    RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
+  if (RadiationFieldType == 9) {
+
+    /* Redshift dependent background. */
+    if (TabulatedLWBackground) {
+
+      /* Get J_21 of LW background from table. */
+      float LW_J21;
+      if (RadiationFieldLymanWernerTable(Redshift, &LW_J21) == FAIL) {
+	ENZO_FAIL("Error in RadiationFieldLymanWernerTable.\n");
+      }
+
+      /* molecular hydrogen constant photo-dissociation
+	 rate is 1.13e8 * F_LW  (flux in Lyman-Werner bands) 
+	 F = 4 Pi J, so rate is 1.42e9 * J_LW. */
+      RateData.k31 = 1.42e9 * LW_J21 * 1.0e-21 * TimeUnits;
+
+    }
+
+    /* Constant background. */
+    else {
+      RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
+    }
+
+  }
 
   /* ------------------------------------------------------------------ */
   /* 10 & 11) - internally-computed radiation field.  Most of the rates
@@ -383,8 +406,30 @@ int RadiationFieldCalculateRates(FLOAT Time)
     }
 
 
+  /* ------------------------------------------------------------------ */
+  /* 14) molecular hydrogen photo-dissociation only with a fit from
+     the Wise & Abel (2005) model, updated for WMAP7, reionization at
+     z=6.8.  Only valid for 6<z<50.  At z>50, set to tiny.  At z<6,
+     set it to CoolData.f3.
+
+     rate is 1.13e-8 * F_LW  (flux in Lyman-Werner bands) */
+
+  if (RadiationFieldType == 14) {
+    float logJ;
+    if (Redshift > 50.0)
+      RateData.k31 = tiny_number;
+    else if (Redshift > 6.0) {
+      logJ = -23.56688 + 4.56213e-1 * (1.0+Redshift) -
+	2.67982e-2 * POW(1.0+Redshift, 2.0) + 
+	5.88234e-4 * POW(1.0+Redshift, 3.0) -
+	5.05576e-6 * POW(1.0+Redshift, 4.0);
+      RateData.k31 = 1.13e8 * POW(10.0,logJ) * TimeUnits;  //*4.0*M_PI
+    } else
+      RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
+  }
+
 /* ------------------------------------------------------------------ */
-  if (RadiationFieldType < 0 || RadiationFieldType > 12) {
+  if (RadiationFieldType < 0 || RadiationFieldType > 14) {
     ENZO_VFAIL("RadiationFieldType %"ISYM" not recognized.\n", 
 	    RadiationFieldType)
    }

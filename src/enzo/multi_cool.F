@@ -25,6 +25,7 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma, 
+     &                ih2optical, iciecool, ciecoa, 
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -69,11 +70,12 @@
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
       real    photogamma(in,jn,kn)
+      integer ih2optical, iciecool
       real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec)
+     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
       real    metala(nratec, n_xe)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
@@ -130,7 +132,7 @@
       double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
-     &     brem(ijk)
+     &     brem(ijk), cieco(ijk)
       real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
 
@@ -232,6 +234,7 @@
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma, 
+     &                ih2optical, iciecool, ciecoa, cieco,
      &                icmbTfloor, iClHeat, iClMMW,
      &                clMetNorm, clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
@@ -280,7 +283,7 @@ c            endif
              dtit(i) = min(real(abs(0.1*energy/edot(i))),
      &                     dt-ttot(i), dt2)
 
-             if ( dt-ttot(i) <= tolerance*dt ) then
+             if ( dt-ttot(i) .le. tolerance*dt ) then
                 itmask(i) = .false.
              end if
 
@@ -353,7 +356,7 @@ c            endif
 
              e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
-             if (e(i,j,k) < 0.0) then
+             if (e(i,j,k) .lt. 0.0) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                call open_mpi_error_file( 'F3', 3, 'unknown' )
                 write(6,*) 'Eijk < 0', e(i,j,k)

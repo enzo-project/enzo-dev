@@ -35,6 +35,7 @@ int grid::PrepareVelocityNormalization(double *v_rms, double *Volume)
   /* Find fields: density, total energy, velocity1-3. */
  
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
+    fprintf(stderr, "GPREPARVN: \n");
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     fprintf(stderr, "GPRFN: Error in IdentifyPhysicalQuantities.\n");
@@ -51,13 +52,16 @@ int grid::PrepareVelocityNormalization(double *v_rms, double *Volume)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
       for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
-	for (int dim = 0; dim < GridRank; dim++) {
-	  int vel = Vel1Num + dim;
-	  (*v_rms) += BaryonField[vel][index]*BaryonField[vel][index]*MassFactor;
-	}
-	(*Volume) += MassFactor;
+	if (BaryonField[Vel1Num][index] != 0 || BaryonField[Vel2Num][index] != 0 || 
+	    BaryonField[Vel3Num][index] != 0){
+	  for (int dim = 0; dim < GridRank; dim++) {
+	    int vel = Vel1Num + dim;
+	    (*v_rms) += BaryonField[vel][index]*BaryonField[vel][index]*MassFactor;
+	  }
+	  (*Volume) += MassFactor;
+        }
       }
 
-
+  
   return SUCCESS;
 }

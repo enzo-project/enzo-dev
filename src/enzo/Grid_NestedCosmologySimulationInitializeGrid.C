@@ -89,9 +89,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           char *CosmologySimulationVelocityNames[],
                           char *CosmologySimulationParticlePositionName,
                           char *CosmologySimulationParticleVelocityName,
+ 			  char *CosmologySimulationParticleDisplacementName,
                           char *CosmologySimulationParticleMassName,
                           char *CosmologySimulationParticleTypeName,
                           char *CosmologySimulationParticleVelocityNames[],
+ 			  char *CosmologySimulationParticleDisplacementNames[],
                           int   CosmologySimulationSubgridsAreStatic,
                           int   TotalRefinement,
                           float CosmologySimulationInitialFractionHII,
@@ -107,7 +109,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           float CosmologySimulationManualParticleMassRatio,
                           int CosmologySimulationCalculatePositions,
 			  FLOAT SubDomainLeftEdge[],
-			  FLOAT SubDomainRightEdge[])
+			  FLOAT SubDomainRightEdge[],
+			  float CosmologySimulationInitialUniformBField[])
 
 { 
  
@@ -117,6 +120,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum;
  
+  int iTE = ietot;
   int ExtraField[2];
   int ForbidNum;
   int CRNum, MachNum, PSTempNum, PSDenNum;
@@ -339,15 +343,23 @@ int grid::NestedCosmologySimulationInitializeGrid(
     //  fprintf(stderr, "Create baryon fields for %s on CPU %"ISYM"\n", CosmologySimulationDensityName, MyProcessorNumber);
  
     FieldType[NumberOfBaryonFields++] = Density;
-    FieldType[NumberOfBaryonFields++] = TotalEnergy;
-    if (DualEnergyFormalism)
-      FieldType[NumberOfBaryonFields++] = InternalEnergy;
-    FieldType[NumberOfBaryonFields++] = Velocity1;
-    vel = NumberOfBaryonFields - 1;
-    if (GridRank > 1)
-      FieldType[NumberOfBaryonFields++] = Velocity2;
-    if (GridRank > 2)
-      FieldType[NumberOfBaryonFields++] = Velocity3;
+  vel = NumberOfBaryonFields;
+  FieldType[NumberOfBaryonFields++] = Velocity1;
+  if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    FieldType[NumberOfBaryonFields++] = Velocity2;
+  if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    FieldType[NumberOfBaryonFields++] = Velocity3;
+  FieldType[iTE = NumberOfBaryonFields++] = TotalEnergy;
+
+  if (DualEnergyFormalism)
+    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+
+  if (HydroMethod == MHD_RK) {
+    FieldType[NumberOfBaryonFields++] = Bfield1;
+    FieldType[NumberOfBaryonFields++] = Bfield2;
+    FieldType[NumberOfBaryonFields++] = Bfield3;
+    FieldType[NumberOfBaryonFields++] = PhiField;
+  }
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
       FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
@@ -388,7 +400,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
       FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
- 
+
+
   //  fprintf(stderr, "Total Baryon Fields in VVV: %"ISYM" on CPU %"ISYM"\n", NumberOfBaryonFields, MyProcessorNumber);
  
   // Set the subgrid static flag
@@ -457,7 +470,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
       if (CosmologySimulationTotalEnergyName != NULL && ReadData)
 	if (READFILE(CosmologySimulationTotalEnergyName, GridRank,
 		     GridDimension, GridStartIndex, GridEndIndex, Offset,
-		     BaryonField[1], &tempbuffer, 0, 1) == FAIL) {
+		     BaryonField[iTE], &tempbuffer, 0, 1) == FAIL) {
 	  ENZO_FAIL("Error reading total energy field.\n");
 	}
  
@@ -577,9 +590,26 @@ int grid::NestedCosmologySimulationInitializeGrid(
       // If they were not read in above, set the total & gas energy fields now
  
       if (CosmologySimulationDensityName != NULL && ReadData) {
+
+	if (StringKick > 0.) { // gives only baryons a uniform kick velocity in x direction
+	  // models http://adsabs.harvard.edu/abs/2010PhRvD..82h3520T
+	  printf("adding string kick %"FSYM" %"FSYM"\n", StringKick, 
+		 StringKick/VelocityUnits*1e5);
+	  int dim0 = vel + StringKickDimension;
+	  int dim1 = vel + (StringKickDimension+1) % GridRank;
+	  int dim2 = vel + (StringKickDimension+2) % GridRank;
+	  for (i = 0; i < size; i++) {
+	    BaryonField[0][i]   = 	    
+	      (CosmologySimulationOmegaBaryonNow)/(OmegaMatterNow);
+	    BaryonField[dim0][i] = StringKick/VelocityUnits*1e5; // input in km/s
+	    BaryonField[dim1][i] = 0.; // do not neglect initial perturbations. (below jeans length)
+	    BaryonField[dim2][i] = 0.;
+	  }
+	}
+
 	if (CosmologySimulationTotalEnergyName == NULL)
 	  for (i = 0; i < size; i++)
-	    BaryonField[1][i] = CosmologySimulationInitialTemperature/
+	    BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
 	      TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
  
 	/*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
@@ -587,14 +617,30 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
 	if (CosmologySimulationGasEnergyName == NULL && DualEnergyFormalism)
 	  for (i = 0; i < size; i++)
-	    BaryonField[2][i] = BaryonField[1][i];
+	    BaryonField[iTE+1][i] = BaryonField[iTE][i];
  
 	if (CosmologySimulationTotalEnergyName == NULL &&
-	    HydroMethod != Zeus_Hydro)
+	    HydroMethod != Zeus_Hydro) {
 	  for (dim = 0; dim < GridRank; dim++)
-	    for (i = 0; i < size; i++)
-	      BaryonField[1][i] +=
+	    for (i = 0; i < size; i++) {
+	      BaryonField[iTE][i] +=
 		0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
+	      
+	      if (HydroMethod == MHD_RK) {
+		BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
+		BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
+		BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
+		BaryonField[iPhi ][i] = 0.0;
+		BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
+					    BaryonField[iBy][i] * BaryonField[iBy][i]+
+					    BaryonField[iBz][i] * BaryonField[iBz][i])/
+		  BaryonField[iden][i];
+	      }
+	    }
+	}
+
+	  
+
 
 	//Shock/Cosmic Ray Model
 	if (CRModel && ReadData) {
@@ -1236,10 +1282,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
       } // end: if (ParallelRootGridIO && PresortedParticles == 1)
 
       if (CosmologySimulationCalculatePositions) {
-	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName,
+	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName, 
+					 CosmologySimulationParticleDisplacementName,
 					 CosmologySimulationParticleMassName,
 					 CosmologySimulationParticleTypeName,
 					 CosmologySimulationParticleVelocityNames,
+					 CosmologySimulationParticleDisplacementNames,
 					 CosmologySimulationOmegaBaryonNow,
 					 Offset, level) == FAIL) {
 	  ENZO_FAIL("Error in grid::CosmologyInitializePositions.\n");

@@ -417,27 +417,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
-  /* If both metal fields exist, make a total metal field */
-
-  float *MetalPointer;
-  float *TotalMetals = NULL;
-  int MetallicityField;
-
-  MetallicityField = (MetalNum != -1 || SNColourNum != -1);
-
-  if (MetalNum != -1 && SNColourNum != -1) {
-    TotalMetals = new float[size];
-    for (i = 0; i < size; i++)
-      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
-    MetalPointer = TotalMetals;
-  } // ENDIF both metal types
-  else {
-    if (MetalNum != -1)
-      MetalPointer = BaryonField[MetalNum];
-    else if (SNColourNum != -1)
-      MetalPointer = BaryonField[SNColourNum];
-  } // ENDELSE both metal types
-
   /* Set variables to type defines to pass to FORTRAN routines */
 
   int NormalStarType = PARTICLE_TYPE_STAR;
@@ -519,6 +498,28 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
+
+  /* If both metal fields exist, make a total metal field */
+
+  float *MetalPointer;
+  float *TotalMetals = NULL;
+  int MetallicityField;
+
+  MetallicityField = (MetalNum != -1 || SNColourNum != -1);
+
+  if (MetalNum != -1 && SNColourNum != -1) {
+    TotalMetals = new float[size];
+    for (i = 0; i < size; i++)
+      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+    MetalPointer = TotalMetals;
+  } // ENDIF both metal types
+  else {
+    if (MetalNum != -1)
+      MetalPointer = BaryonField[MetalNum];
+    else if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } // ENDELSE both metal types
+
   //printf("Star type \n");
   /* Set the units. */
  
@@ -741,6 +742,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
       // Convert into a parameter!
       float StarClusterLifeTime = 20e6;  // yr
 
+      // will be assigned lifetime = 4*tdyn
+      if (StarClusterUnresolvedModel == TRUE)
+	StarClusterLifeTime = FLOAT_UNDEFINED;
+
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(cluster_maker)
@@ -884,9 +889,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 
     /* This creates sink particles which suck up mass off the grid. */
 
-    //if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
+    //    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
     //if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
-    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
+    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel || BigStarFormation > 0) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
  
@@ -897,11 +902,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	if (CellFlaggingMethod[method] == 2)
 	  SinkParticleMassThreshold = MinimumMassForRefinement[method]*
 	    pow(RefineBy, level*MinimumMassForRefinementLevelExponent[method]);
-	if (CellFlaggingMethod[method] == 6)
+	if (CellFlaggingMethod[method] == 6) { 
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
+	}
       }
 
-      if(BigStarFormation){
+      if(BigStarFormation > 0){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
@@ -936,6 +942,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 			&JeansLengthRefinement, temperature, &Gamma, &Mu,
 			&MyProcessorNumber, &NumberOfStarParticles) == FAIL) {
 	  ENZO_FAIL("Error in star_maker9.\n");
+
 	}
       }
       else if(StellarWindFeedback || HydroMethod == MHD_RK || HydroMethod == HD_RK || ProblemType == 107){

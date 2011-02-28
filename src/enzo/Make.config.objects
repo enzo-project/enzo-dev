@@ -33,6 +33,7 @@ OBJS_CONFIG_LIB = \
         calcdiss.o \
         calc_dt.o \
         calc_dt_c.o \
+	calc_eigen.o \
         calc_photo_rates.o \
         calc_rad.o \
         calc_rates.o \
@@ -87,6 +88,7 @@ OBJS_CONFIG_LIB = \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
 	ConductionBubbleInitialize.o \
+	ConductionCloudInitialize.o \
 	ConductionTestInitialize.o \
         comp_accel.o \
         ComputePotentialFieldLevelZero.o \
@@ -94,6 +96,7 @@ OBJS_CONFIG_LIB = \
         ComputeTable.o \
         Continue.o \
 	cool1d_cloudy.o \
+    cool1d_koyama.o\
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \
@@ -139,8 +142,10 @@ OBJS_CONFIG_LIB = \
 	EnzoVector_test.o \
         euler.o \
         EvolveHierarchy.o \
+	EventHooks.o \
 	execinfo_local.o \
         expand_terms.o \
+        expand_mhd_terms.o \
         ExternalBoundary_AddField.o \
         ExposeDataHierarchy.o \
         ExposeGridHierarchy.o \
@@ -157,6 +162,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetExternalBoundaryParticles.o \
         ExternalBoundary_SetShockPoolBoundary.o \
         ExternalBoundary_SetWavePoolBoundary.o \
+        ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
         ExtractSection.o \
         FastFourierTransform.o \
@@ -177,6 +183,9 @@ OBJS_CONFIG_LIB = \
         FindSubgrids.o \
         flow.o \
         FluxFix_Grid_CorrectForRefinedFluxes.o \
+	flux_hll.o \
+	flux_hllc.o \
+	flux_twoshock.o \
         FOF.o \
         FOF_allocate.o \
         FOF_cmpfunc.o \
@@ -342,6 +351,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeMetalLineLuminosity.o \
 	Grid_ComputePressureDualEnergyFormalism.o \
 	Grid_ComputePressure.o \
+    Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
 	Grid_ComputeTimeStep.o \
         Grid_ComputeVectorAnalysisFields.o \
@@ -349,6 +359,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeXrayEmissivity.o \
         Grid_ConductHeat.o \
 	Grid_ConductionBubbleInitialize.o \
+	Grid_ConductionCloudInitialize.o \
 	Grid_ConductionTestInitialize.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
@@ -371,6 +382,7 @@ OBJS_CONFIG_LIB = \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \
 	Grid_DeleteAllFields.o \
+	Grid_DeleteBaryonFields.o \
 	Grid_DeleteFlaggingField.o \
         Grid_DeleteObsoleteFields.o \
 	Grid_DepositBaryons.o \
@@ -393,6 +405,7 @@ OBJS_CONFIG_LIB = \
         Grid_FlagCellsToAvoidRefinement.o \
 	Grid_FlagCellsToBeRefinedByCoolingTime.o \
 	Grid_FlagCellsToBeRefinedByJeansLength.o \
+	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
 	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
@@ -458,6 +471,7 @@ OBJS_CONFIG_LIB = \
 	Grid_MultiSpeciesHandler.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
+	Grid_OneZoneFreefallTestInitializeGrid.o \
 	Grid_OutputAsParticleData.o \
 	Grid_OutputStarParticleInformation.o \
         Grid_ParticleSplitter.o \
@@ -517,6 +531,7 @@ OBJS_CONFIG_LIB = \
         Grid_SolveHighDensityPrimordialChemistry.o \
         Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
+	Grid_SolveOneZoneFreefall.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -583,6 +598,7 @@ OBJS_CONFIG_LIB = \
 	InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
+        InitializeLymanWernerTable.o \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
@@ -600,6 +616,8 @@ OBJS_CONFIG_LIB = \
         int_lin3d.o \
         intrmp.o \
         int_spline.o \
+	intpos.o \
+	intprim.o \
         intvar.o \
         Isdigit.o \
         KHInitialize.o \
@@ -633,6 +651,7 @@ OBJS_CONFIG_LIB = \
         nr_3d.o \
         nr_st1.o \
 	NullProblem.o \
+	OneZoneFreefallTestInitialize.o \
         Options.o \
         OutputAsParticleData.o \
         OutputFromEvolveLevel.o\
@@ -660,6 +679,9 @@ OBJS_CONFIG_LIB = \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
         PressurelessCollapseInitialize.o \
+        ProblemType.o \
+        ProblemType_RotatingCylinder.o \
+        ProblemType_CollapsingCoolingCloud.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -689,6 +711,7 @@ OBJS_CONFIG_LIB = \
 	RadiationGetUnits.o \
 	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
+        RadiationFieldLymanWernerTable.o \
         RadiationFieldUpdate.o \
         ReadAllData.o \
         ReadAttr.o \
@@ -799,6 +822,7 @@ OBJS_CONFIG_LIB = \
         tscint2d.o \
         tscint3d.o \
         TurbulenceSimulationInitialize.o \
+turboinit.o\
         twoshock.o \
 	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
@@ -877,6 +901,7 @@ POBJS_CONFIG_LIB = \
         Grid_DeletePhotonPackages.o \
         Grid_DetectIonizationFrontApprox.o \
         Grid_ElectronFractionEstimate.o \
+        Grid_ExtraFunction.o \
         Grid_FinalizeRadiationFields.o \
 	Grid_FindPhotonNewGrid.o \
         Grid_FlagCellsToBeRefinedByOpticalDepth.o \

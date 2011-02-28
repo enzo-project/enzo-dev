@@ -248,7 +248,7 @@ float grid::ComputePhotonTimestep()
 
   float dtSafetyVelocity = huge_number;
   if (TimestepSafetyVelocity > 0)
-    dtSafetyVelocity = CellWidth[0][0] / 
+    dtSafetyVelocity = a*CellWidth[0][0] / 
       (TimestepSafetyVelocity*1e5 / VelocityUnits);    // parameter in km/s
 
   dt = min(dt, dtSafetyVelocity);
@@ -260,7 +260,7 @@ float grid::ComputePhotonTimestep()
   float dtPhotonSafety = tiny_number;
 
   if (RadiativeTransferTimestepVelocityLimit > 0)
-    dtPhotonSafety = CellWidth[0][0] / 
+    dtPhotonSafety = a*CellWidth[0][0] / 
       (RadiativeTransferTimestepVelocityLimit*1e5 / VelocityUnits);
   dt = max(dt, dtPhotonSafety);
 
