@@ -79,7 +79,8 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
 			  ChainingMeshStructure ChainingMesh);
 #ifdef TRANSFER
 int SetSubgridMarker(TopGridData &MetaData, 
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level,
+		     int UpdateReplicatedGridsOnly);
 #endif
 double ReturnWallTime(void);
 
@@ -638,9 +639,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (RadiativeTransferLoadBalance == FALSE || MetaData->FirstTimestepAfterRestart)
-    if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
-      ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+  SetSubgridMarker(*MetaData, LevelArray, level, FALSE);
 #endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION

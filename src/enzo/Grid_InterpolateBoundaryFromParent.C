@@ -40,7 +40,8 @@ extern "C" void FORTRAN_NAME(interpolate)
                              (int *rank, float *pfield, int pdim[],
 			      int pis[], int pie[], int r[],
 			      float *field, int dim[], int is[], float *work,
-			      interpolation_type *imethod, int *posflag);
+			      interpolation_type *imethod, int *posflag,
+			      int *ierror);
 extern "C" void FORTRAN_NAME(mult3d)(float *source, float *dest,
 				     int *sdim1, int *sdim2, int *sdim3,
 				     int *ddim1, int *ddim2, int *ddim3,
@@ -80,12 +81,13 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
   int ParentTempDim[MAX_DIMENSION], TempDim[MAX_DIMENSION];
   int ParentDim[MAX_DIMENSION];
   int ParentTempSize, WorkSize, TempSize, One = 1, Zero = 0;
-  int i, j, k, dim, field, fieldindex, tempindex;
+  int i, j, k, dim, field, fieldindex, tempindex, interp_error;
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
  
- 
   if (NumberOfBaryonFields > 0) {
+
+    interp_error = FALSE;
  
     /* Compute refinement factors and set zero. */
  
@@ -319,14 +321,33 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       InterpolationMethod = (SecondOrderBFlag[densfield] == 0) ?
 	SecondOrderA : SecondOrderC;
 
-    if( AccelerationHack != TRUE ) 
-    FORTRAN_NAME(interpolate)(&GridRank,
+    if( AccelerationHack != TRUE ) {
+      FORTRAN_NAME(interpolate)(&GridRank,
 			      ParentTemp[densfield], ParentTempDim,
 			      ParentTempStartIndex, ParentTempEndIndex,
                                  Refinement,
 			      TemporaryDensityField, TempDim, ZeroVector, Work,
 			      &InterpolationMethod,
-			      &SecondOrderBFlag[densfield]);
+			      &SecondOrderBFlag[densfield], &interp_error);
+      if (interp_error) {
+	printf("P%d: Error interpolating density.\n"
+		   "ParentGrid ID = %d\n"
+		   "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		   "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
+		   "ThisGrid ID = %d\n"
+		   "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		   "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+		   MyProcessorNumber, ParentGrid->ID, 
+		   ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
+		   ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
+		   ParentGrid->GridRightEdge[1], ParentGrid->GridRightEdge[2],
+		   this->ID, 
+		   this->GridLeftEdge[0], this->GridLeftEdge[1], 
+		   this->GridLeftEdge[2], this->GridRightEdge[0], 
+	       this->GridRightEdge[1], this->GridRightEdge[2]);
+	ENZO_FAIL("");
+      }
+    } // ENDIF !AccelerationHack
 
     /* Loop over all the fields. */
  
@@ -340,20 +361,48 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	 is done for the entire current grid, not just it's boundaries.
 	 (skip density since we did it already) */
 
-      if (FieldType[field] != Density)
+      //      if (FieldType[field] != Density && FieldType[field] != DebugField) {
+      if (FieldType[field] != Density) {
 	FORTRAN_NAME(interpolate)(&GridRank,
 				  ParentTemp[field], ParentTempDim,
 				  ParentTempStartIndex, ParentTempEndIndex,
                                      Refinement,
 				  TemporaryField, TempDim, ZeroVector, Work,
 				  &InterpolationMethod,
-				  &SecondOrderBFlag[field]);
+				  &SecondOrderBFlag[field], &interp_error);
+	if (interp_error) {
+	  printf("P%d: Error interpolating field %d (%s).\n"
+		     "ParentGrid ID = %d\n"
+		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
+		     "ThisGrid ID = %d\n"
+		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+		     MyProcessorNumber, field, DataLabel[field], ParentGrid->ID, 
+		     ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
+		     ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
+		     ParentGrid->GridRightEdge[1], ParentGrid->GridRightEdge[2],
+		     this->ID, 
+		     this->GridLeftEdge[0], this->GridLeftEdge[1], 
+		     this->GridLeftEdge[2], this->GridRightEdge[0], 
+		 this->GridRightEdge[1], this->GridRightEdge[2]);
+	  ENZO_FAIL("");
+	}
+      }
  
       /* Divide by density field to convert from conserved to physical
          variables (skipping density). */
  
       if (ConservativeInterpolation)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE)
+	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
+	    FieldType[field] != Bfield1 &&
+	    FieldType[field] != Bfield2 &&
+	    FieldType[field] != Bfield3 &&
+	    FieldType[field] != PhiField &&
+	    FieldType[field] != DrivingField1 &&
+	    FieldType[field] != DrivingField2 &&
+	    FieldType[field] != DrivingField3 &&
+	    FieldType[field] != GravPotential)
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,

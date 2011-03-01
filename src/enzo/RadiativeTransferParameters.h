@@ -99,3 +99,8 @@ EXTERN char *RadiativeTransferTraceSpectrumTable;
 /* Flag for temporary load balancing for the ray tracing */
 
 EXTERN int RadiativeTransferLoadBalance;
+
+/* Flux threshold when rays are deleted in units of the UV background
+   flux (RadiationFieldType > 0) */
+
+EXTERN float RadiativeTransferFluxBackgroundLimit;

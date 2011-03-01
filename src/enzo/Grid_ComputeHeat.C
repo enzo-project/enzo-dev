@@ -6,7 +6,11 @@
 /  date:        December, 2009
 /
 /  PURPOSE:  Calculates the heat flowing into (or out of) the cells of
-/  a grid patch due to thermal conduction.
+/  a grid patch due to thermal conduction.  As of early 2011, it also includes
+/  anisotropic conduction (though this only works if MHD is also turned on)
+/  Note that we have implemented the anisotropic conduction from Parrish & 
+/  Stone 2005 -- NOT the one that's actually in the paper, but the one that
+/  they have implemented into Athena.  
 /
 /  RETURNS:
 /    SUCCESS or FAIL
@@ -52,7 +56,10 @@ int grid::ComputeHeat (float dedt[]) {
   double MassUnits = 1.0;
   float *rho,*Bx,*By,*Bz;
   double kappa_star = 6.0e-7 * ConductionSpitzerFraction;
-  float Bx_face, By_face, Bz_face, Bhat, Bmag;
+  float Bx_face, By_face, Bz_face, Bxhat, Byhat, Bzhat, Bmag;
+  float dTx, dTy, dTz;
+  int x_offset=0, y_offset=0, z_offset=0;
+  float Bhat; // gotta get rid of this later
 
   int size = 1, grid_index, right_side_index;
   for (int dim = 0; dim < GridRank; dim++) {
@@ -63,16 +70,26 @@ int grid::ComputeHeat (float dedt[]) {
   FLOAT dx = CellWidth[0][0];
 
   if (AnisotropicConduction){
-    // find fields
+    // find magnetic fields: no dimensionality check because they all seem to
+    // be initialized, always.
     iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
     iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
     iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
-    // make masks (easier later)
+    // make masks (for convenience)
     Bx = BaryonField[iBx];
     By = BaryonField[iBy];
     Bz = BaryonField[iBz];
 
-  }
+    /* offsets are because of the size of the finite-difference stencil for calculating
+       cross derivatives in heat flux: you need i,j,k +-1, since it's a 3x3(x3) stencil.
+       This means that we're ignoring the outermost cell.  Offset is zero for isotropic
+       conduction, because it's only local (well, just the i,j,k and +1 cell on each 
+       axis. */
+    x_offset=1;
+    if(GridRank>1) y_offset=1;
+    if(GridRank>2) z_offset=1;
+
+  } // if(AnisotropicConduction)
 
   // Zero-out the de/dt array
   for (int i=0; i<size; i++) 
@@ -141,18 +158,25 @@ int grid::ComputeHeat (float dedt[]) {
      face is zero for the first cell, and then set left face of cell
      i+1 to right face of cell i, to save some computation.  We have
      to multiply through by various constants, but this is done 
-     at the end. */
+     at the end.
+
+     The x,y,z offsets in the loops are 0 for isotropic, 1 for 
+     anisotropic conduction. 
+
+     Note that the GridRank==1 loop is heavily commented, but the 
+     GridRank=2,3 (y and z) are not commented very much.  Read the x
+     loop to understand what's going on. */
   if (GridRank>0) {
-    for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
-      for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+    for (int k = GridStart[2]+z_offset; k <= GridEnd[2]-z_offset; k++) {
+      for (int j = GridStart[1]+y_offset; j <= GridEnd[1]-y_offset; j++) {
 	r = cfzero;
-	for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+	for (int i = GridStart[0]+x_offset; i <= GridEnd[0]-x_offset; i++) {
 	  l = r;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i+1,j,k);
 
-	  if(i == GridEnd[0]){
+	  if(i == GridEnd[0]-x_offset){
 	    r = cfzero;
 	  } else {
 
@@ -160,7 +184,7 @@ int grid::ComputeHeat (float dedt[]) {
 	    // (the 'l' struct has it on the right face)
 	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
 	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
-	    r.dT = Temp[grid_index] - Temp[right_side_index];
+	    r.dT = Temp[right_side_index] - Temp[grid_index];
 
 	    // kappa is the spitzer conductivity, which scales as 
 	    // the temperature to the 2.5 power
@@ -171,103 +195,154 @@ int grid::ComputeHeat (float dedt[]) {
 	    // modify flux based on magnetic field orientation, if we are using
 	    // anisotropic conduction
 	    if(AnisotropicConduction){
-	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);
+	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);  // magnetic fields including sign and magnitude
 	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
 	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
-	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
-	      Bhat = fabs(Bx_face)/Bmag;
-	      r.kappa *= Bhat;
-	    } 
+	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face + tiny_number*tiny_number), 0.5); // just magnitude
+	      Bxhat = Bx_face/Bmag;  // unit vectors
+	      Byhat = By_face/Bmag;
+	      Bzhat = Bz_face/Bmag;
 
-	    r.dedt = r.kappa*r.dT;  // factors of dx and units done later.
+	      /* calculating derivatives for heat flux:
+
+		 q_vector = -X_c bhat * (bhat dot grad T), so
+
+		 q_x = -Kappa * (bx*bx*dT/dx + bx*by*dT/dy + bx*bz*dT/dz)
+
+		 With the derivatives being partials.  It's analogous for the other dimensions.  For x, the 
+		 calculation of dT/dx is straightforward, but you need to calculate the dT/dy (and possibly 
+		 dT/dz) derivatives on the +x face of the cell.  If you want to do this in a symmetric way
+		 it requires using the j+-1 and k+-1 cells.
+	       */
+
+	      dTx =Temp[ELT(i+1,j,k)]- Temp[ELT(i,j,k)];
+	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i+1,j-1,k)]))/4.0;
+
+	      // calculate energy flux across this face. Note that the negative sign is missing from the expression
+	      // for heat flux: this is accounted for later.  Also, factors of dx and units are applied
+	      // at the end of the routine.
+	      r.dedt =  r.kappa*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy ); 
+
+	      // If anisotropic conduction is turned on, we _know_ that it's at least 2D, but there's no guarantee that
+	      // it's 3D.  So, check, and then if we're using 3D calculate the z cross-derivative
+	      if(GridRank > 2){
+		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i+1,j,k-1)]))/4.0;
+		r.dedt += r.kappa*Bxhat*Bzhat*dTz;
+	      }
+
+	    } else {  // otherwise we're doing plain ol' isotropic conduction.
+	      r.dedt = r.kappa*r.dT;  // factors of dx and units done later (also missing negative sign accounted for)
+	    }
 
 	  }
 
-	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];
+	  // actually calculate de/dt: note that there's nominally a missing negative sign, which accounts for
+	  // the missing sign above
+	  dedt[grid_index] += (r.dedt - l.dedt)/rho[grid_index];
 	}
       }
     }
   } // if (GridRank>0)
 
+
   if (GridRank>1) {
-    for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
-      for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
+    for (int i = GridStart[0]+x_offset; i <= GridEnd[0]-x_offset; i++) {
+      for (int k = GridStart[2]+z_offset; k <= GridEnd[2]-z_offset; k++) {
 	r = cfzero;
-	for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
+	for (int j = GridStart[1]+y_offset; j <= GridEnd[1]-y_offset; j++) {
 	  l = r;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i,j+1,k);
 
-	  if(j==GridEnd[1]){
+	  if(j==GridEnd[1]-y_offset){
 	    r = cfzero;
 	  } else {
 
 	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
 	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
-	    r.dT = Temp[grid_index] - Temp[right_side_index];
+	    r.dT = Temp[right_side_index] - Temp[grid_index];
 	    
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
 
-	    // modify flux based on magnetic field orientation, if we are using
-	    // anisotropic conduction
 	    if(AnisotropicConduction){
 	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);
 	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
 	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
-	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
-	      Bhat = fabs(By_face)/Bmag;
-	      r.kappa *= Bhat;
-	    } 
+	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face + tiny_number*tiny_number), 0.5);
 
+	      Bxhat = Bx_face/Bmag;
+	      Byhat = By_face/Bmag;
+	      Bzhat = Bz_face/Bmag;
 
-	    r.dedt = r.kappa*r.dT;
+	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i-1,j+1,k)]))/4.0;
+	      dTy = Temp[ELT(i,j+1,k)]-Temp[ELT(i,j,k)];
+
+	      r.dedt = r.kappa*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  
+
+	      if(GridRank > 2){
+		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j+1,k-1)]))/4.0;
+		r.dedt += r.kappa*Byhat*Bzhat*dTz;
+	      }
+
+	    } else {
+	      r.dedt = r.kappa*r.dT;
+	    }
 	  }
 
-	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];
+	  dedt[grid_index] += (r.dedt - l.dedt)/rho[grid_index];
 	}
       }
     }
   } // if (GridRank>1)
   
+
   if (GridRank>2) {
-    for (int j = GridStart[1]; j <= GridEnd[1]; j++) {
-      for (int i = GridStart[0]; i <= GridEnd[0]; i++) {
+    for (int j = GridStart[1]+y_offset; j <= GridEnd[1]-y_offset; j++) {
+      for (int i = GridStart[0]+x_offset; i <= GridEnd[0]-x_offset; i++) {
 	r = cfzero;
-	for (int k = GridStart[2]; k <= GridEnd[2]; k++) {
+	for (int k = GridStart[2]+z_offset; k <= GridEnd[2]-z_offset; k++) {
 	  l = r;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i,j,k+1);
 
-	  if(k==GridEnd[2]){
+	  if(k==GridEnd[2]-z_offset){
 	    r = cfzero;
 	  } else {
 
 	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
 	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
-	    r.dT = Temp[grid_index] - Temp[right_side_index];
+	    r.dT = Temp[right_side_index] - Temp[grid_index];
 
 	    r.kappa = kappa_star*POW(r.T, 2.5);
 	    r.kappa /= (1 + (saturation_factor * r.T * fabs(r.dT) / r.rho));
 
-	    // modify flux based on magnetic field orientation, if we are using
-	    // anisotropic conduction
 	    if(AnisotropicConduction){
 	      Bx_face = 0.5*(Bx[grid_index]+Bx[right_side_index]);
 	      By_face = 0.5*(By[grid_index]+By[right_side_index]);
 	      Bz_face = 0.5*(Bz[grid_index]+Bz[right_side_index]);
-	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face), 0.5);
-	      Bhat = fabs(Bz_face)/Bmag;
-	      r.kappa *= Bhat;
-	    } 
+	      Bmag = POW( (Bx_face*Bx_face + By_face*By_face + Bz_face*Bz_face + tiny_number*tiny_number), 0.5);
 
+	      Bxhat = Bx_face/Bmag;
+	      Byhat = By_face/Bmag;
+	      Bzhat = Bz_face/Bmag;
 
-	    r.dedt = r.kappa*r.dT;
+	      // don't need to check if GridRank>2, because that's the only reason this loop gets called.
+	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i-1,j,k+1)]))/4.0;
+	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j-1,k+1)]))/4.0;
+	      dTz = Temp[ELT(i,j,k+1)]-Temp[ELT(i,j,k)];
+
+	      r.dedt = r.kappa*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
+
+	    } else {
+	      r.dedt = r.kappa*r.dT;
+	    }
+
 	  }
 
-	  dedt[grid_index] += (l.dedt - r.dedt)/rho[grid_index];
+	  dedt[grid_index] += (r.dedt - l.dedt)/rho[grid_index];
 	}
       }
     }

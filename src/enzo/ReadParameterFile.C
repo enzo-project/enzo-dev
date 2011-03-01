@@ -399,6 +399,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
+    ret += sscanf(line, "RadiativeCoolingModel = %"ISYM, &RadiativeCoolingModel);
     ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
     ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
@@ -685,7 +686,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarEnergyToThermalFeedback);
     ret += sscanf(line, "StarEnergyToStellarUV = %"FSYM, &StarEnergyToStellarUV);
     ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
- 
+    ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
+    ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM, 
 		  &StarClusterUseMetalField);
@@ -693,6 +695,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarClusterMinDynamicalTime);
     ret += sscanf(line, "StarClusterHeliumIonization = %"ISYM, 
 		  &StarClusterHeliumIonization);
+    ret += sscanf(line, "StarClusterUnresolvedModel = %"ISYM, 
+		  &StarClusterUnresolvedModel);
     ret += sscanf(line, "StarClusterIonizingLuminosity = %lf", 
 		  &StarClusterIonizingLuminosity);
     ret += sscanf(line, "StarClusterSNEnergy = %lf", &StarClusterSNEnergy);
@@ -715,6 +719,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIInitialMassFunction);
     ret += sscanf(line, "PopIIIInitialMassFunctionSeed = %"ISYM, 
 		  &PopIIIInitialMassFunctionSeed);
+    ret += sscanf(line, "PopIIIInitialMassFunctionCalls = %"ISYM, 
+		  &PopIIIInitialMassFunctionCalls);
     ret += sscanf(line, "PopIIIMassRange = %"FSYM" %"FSYM,
 		  &PopIIILowerMassCutoff, &PopIIIUpperMassCutoff);
     ret += sscanf(line, "PopIIIInitialMassFunctionSlope = %"FSYM, 
@@ -859,7 +865,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseDrivingField = %d", &UseDrivingField);
     ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
 
-    ret += sscanf(line, "StringKick = %d", &StringKick);
+    ret += sscanf(line, "StringKick = %"FSYM, &StringKick);
+    ret += sscanf(line, "StringKickDimension = %"ISYM, &StringKickDimension);
     ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
     ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
     ret += sscanf(line, "RKOrder = %d", &RKOrder);
@@ -874,8 +881,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
+    ret += sscanf(line, "RiemannSolverFallback = %"ISYM, &RiemannSolverFallback);
     ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
+    ret += sscanf(line, "PositiveReconstruction = %"ISYM, &PositiveReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
+
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
     ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);
     ret += sscanf(line, "EOSCriticalDensity = %"FSYM, &EOSCriticalDensity);
@@ -884,6 +894,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ConstantAcceleration = %"GSYM" %"GSYM" %"GSYM, &ConstantAcceleration[0],
 		  &ConstantAcceleration[1], &ConstantAcceleration[2]);
     ret += sscanf(line, "Mu = %"GSYM, &Mu);
+    ret += sscanf(line, "DivBDampingLength = %"FSYM, &DivBDampingLength);
     ret += sscanf(line, "CoolingCutOffDensity1 = %"GSYM, &CoolingCutOffDensity1);
     ret += sscanf(line, "CoolingCutOffDensity2 = %"GSYM, &CoolingCutOffDensity2);
     ret += sscanf(line, "CoolingCutOffTemperature = %"GSYM, &CoolingCutOffTemperature);
@@ -980,10 +991,41 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   delete [] dummy;
   rewind(fptr);
 
+  /* Now we know which hydro solver we're using, we can assign the
+     default Riemann solver and flux reconstruction methods.  These
+     parameters aren't used for PPM_LagrangeRemap and Zeus. */
+
+  if (HydroMethod == PPM_DirectEuler) {
+    if (RiemannSolver == INT_UNDEFINED) 
+      RiemannSolver = TwoShock;
+    if (ReconstructionMethod == INT_UNDEFINED)
+      ReconstructionMethod = PPM;
+    if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	printf("RiemannSolver = HLL, ReconstructionMethod = PLM.\n"
+	       "These are the defaults for the MUSCL (hydro_rk) solvers,\n"
+	       "but don't exist for the FORTRAN solvers.  Changing to the\n"
+	       "old FORTRAN default, two-shock and PPM.\n"
+	       "-- To override this, set RiemannSolver = -1\n");
+      RiemannSolver = TwoShock;
+      ReconstructionMethod = PPM;
+    }
+    if (RiemannSolver == -HLL) RiemannSolver = HLL;
+  } else if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
+    if (RiemannSolver == INT_UNDEFINED) 
+      RiemannSolver = HLL;
+    if (ReconstructionMethod == INT_UNDEFINED)
+      ReconstructionMethod = PLM;
+  }
+
+  //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
   /* Even if this is not cosmology, due to a check for nested grid cosmology
      in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
   CosmologySimulationNumberOfInitialGrids = 1;
+
+  if (HydroMethod != MHD_RK)
+    BAnyl = 0; // set this to zero no matter what unless we have a magnetic field to analyze.
 
   /* Count static nested grids since this isn't written in the
      parameter file */
@@ -1021,7 +1063,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if(AnisotropicConduction==TRUE && useMHD==0){
     ENZO_FAIL("AnisotropicConduction can only be used if MHD is turned on!\n");
   }  
-    
+  if(AnisotropicConduction==TRUE && MetaData.TopGridRank < 2){
+    ENZO_FAIL("AnisotropicConduction can only be used if TopGridRank is >= 2!\n");
+  }
+
+
   /*
     if (EOSType == 3) // an isothermal equation of state implies the adiabatic index = 1 
     Gamma = 1; 
@@ -1168,6 +1214,33 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ConservativeInterpolation = FALSE;
     DualEnergyFormalism       = FALSE;
     //    FluxCorrection            = FALSE;
+  }
+
+  /* Set some star feedback parameters. */
+
+  if ((STARFEED_METHOD(NORMAL_STAR) || STARFEED_METHOD(UNIGRID_STAR)) && 
+      (StarFeedbackDistRadius > 0)) {
+
+    // Calculate number of cells in the shape over which to distribute feedback.
+    StarFeedbackDistRadius = min(StarFeedbackDistRadius,
+				 StarFeedbackDistCellStep);
+    int i, j, k, cell_step;
+
+    StarFeedbackDistTotalCells = 0;
+    for (k = -StarFeedbackDistRadius;k <= StarFeedbackDistRadius;k++) {
+      for (j = -StarFeedbackDistRadius;j <= StarFeedbackDistRadius;j++) {
+	for (i = -StarFeedbackDistRadius;i <= StarFeedbackDistRadius;i++) {
+	  cell_step = fabs(k) + fabs(j) + fabs(i);
+	  if (cell_step <= StarFeedbackDistCellStep) {
+	    StarFeedbackDistTotalCells++;
+	  }
+       }
+      }
+    }
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      fprintf(stderr,"Total cells for star feedback smoothing: %"ISYM".\n",
+	      StarFeedbackDistTotalCells);
+    }
   }
  
   /* For rk_hydro, we need to set some variables */

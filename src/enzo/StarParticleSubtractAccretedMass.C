@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -49,6 +50,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
+  bool MarkedSubgrids = false;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy;
   float influenceRadius, RootCellWidth, SNe_dt, mdot;
@@ -59,6 +61,8 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
   if (AllStars == NULL)
     return SUCCESS;
+
+  LCAPERF_START("StarParticleSubtractAccretedMass");
 
   /* Get time and SNe timestep */
 
@@ -127,13 +131,11 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	 we use FindFeedbackSphere function, but we are not doing any "feedback" here; 
 	 we simply subtract the mass */
 
-      if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-				    Subtraction, dummy_float, 
-				    SphereContained, dummy, DensityUnits, 
-				    LengthUnits, TemperatureUnits, TimeUnits, 
-				    VelocityUnits, Time) == FAIL) {
-	ENZO_FAIL("Error in star::FindFeedbackSphere");
-      }
+      cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
+				Subtraction, dummy_float, 
+				SphereContained, dummy, DensityUnits, 
+				LengthUnits, TemperatureUnits, TimeUnits, 
+				VelocityUnits, Time, MarkedSubgrids);
 
       /* If something weird happens, don't bother. */
 
@@ -148,13 +150,11 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
       SphereContainedNextLevel = FALSE;
 
       if (LevelArray[level+1] != NULL) {
-	if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
-				      Subtraction, dummy_float, 
-				      SphereContainedNextLevel, dummy, DensityUnits, 
-				      LengthUnits, TemperatureUnits, TimeUnits, 
-				      VelocityUnits, Time) == FAIL) {
-	  ENZO_FAIL("Error in star::FindFeedbackSphere\n");
-	}
+	cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
+				  Subtraction, dummy_float, 
+				  SphereContainedNextLevel, dummy, DensityUnits, 
+				  LengthUnits, TemperatureUnits, TimeUnits, 
+				  VelocityUnits, Time, MarkedSubgrids);
       }
 
 //    fprintf(stdout, "SPSAM: SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
@@ -208,6 +208,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
   } // ENDFOR stars
 
+  LCAPERF_STOP("StarParticleSubtractAccretedMass");
   return SUCCESS;
 
 }

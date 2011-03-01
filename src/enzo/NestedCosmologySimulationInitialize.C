@@ -47,6 +47,9 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
  
 // Cosmology Parameters (that need to be shared)
  
@@ -83,6 +86,8 @@ static float CosmologySimulationManualParticleMassRatio = 1.0;
 
 static int   CosmologySimulationCalculatePositions   = FALSE; 
 
+static float CosmologySimulationInitialUniformBField[MAX_DIMENSION];  // in proper Gauss
+
 #define MAX_INITIAL_GRIDS 10
  
 static  int   CosmologySimulationGridDimension[MAX_INITIAL_GRIDS][MAX_DIMENSION];
@@ -90,6 +95,7 @@ static  int   CosmologySimulationGridLevel[MAX_INITIAL_GRIDS];
 static  FLOAT CosmologySimulationGridLeftEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
 static  FLOAT CosmologySimulationGridRightEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
  
+
  
 int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			       		HierarchyEntry &TopGrid, TopGridData &MetaData)
@@ -119,6 +125,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
+  char *DebugName = "Debug";
+  char *Phi_pName = "Phip";
+
  
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
@@ -141,6 +154,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ParticlePositionNames[dim] = NULL;
     ParticleDisplacementNames[dim] = NULL;
     CosmologySimulationParticleVelocityNames[dim] = NULL;
+    CosmologySimulationInitialUniformBField[dim] = 0.0;
     CosmologySimulationParticlePositionNames[dim] = NULL;
     CosmologySimulationParticleDisplacementNames[dim] = NULL;
   }
@@ -273,6 +287,11 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "CosmologySimulationCalculatePositions = %"ISYM,
 		  &CosmologySimulationCalculatePositions);
 
+    ret += sscanf(line, "CosmologySimulationInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
+		  CosmologySimulationInitialUniformBField,
+		  CosmologySimulationInitialUniformBField+1,
+		  CosmologySimulationInitialUniformBField+2);
+
     // If the dummy char space was used, then make another
  
     if (dummy[0] != 0) {
@@ -323,6 +342,21 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     CosmologySimulationInitialTemperature = 550.0 *
       POW((1.0 + InitialRedshift)/(1.0 + 200), 2);
  
+
+  /* Convert from Gauss */
+  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
+    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+  }
+  PressureUnits = DensityUnits * VelocityUnits*VelocityUnits;
+  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
+    printf("magnetic field: %"FSYM" %"ESYM" \n", MagneticUnits,  CosmologySimulationInitialUniformBField[dim]);
+  }
   // Generate the grids and set-up the hierarchy
  
   HierarchyEntry *GridsList[MAX_INITIAL_GRIDS];
@@ -582,7 +616,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions,
 			     CosmologySimulationGridLeftEdge[gridnum],
-			     CosmologySimulationGridRightEdge[gridnum]
+			     CosmologySimulationGridRightEdge[gridnum],
+			     CosmologySimulationInitialUniformBField
 						       ) == FAIL) {
       ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
     }
@@ -623,13 +658,25 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
+  DataLabel[i++] = Vel1Name;
+  if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    DataLabel[i++] = Vel2Name;
+  if (MetaData.TopGridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
-  DataLabel[i++] = Vel1Name;
-  DataLabel[i++] = Vel2Name;
-  DataLabel[i++] = Vel3Name;
-  if (MultiSpecies) {
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = BxName;
+    DataLabel[i++] = ByName;
+    DataLabel[i++] = BzName;
+    DataLabel[i++] = PhiName;
+    if(UseDivergenceCleaning){
+      DataLabel[i++] = Phi_pName;
+      DataLabel[i++] = DebugName;
+    }
+  }
+   if (MultiSpecies) {
     DataLabel[i++] = ElectronName;
     DataLabel[i++] = HIName;
     DataLabel[i++] = HIIName;
@@ -768,6 +815,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionMetal);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
+
+    float CSBField[MAX_DIMENSION];  // in proper Gauss
+    for (int dim = 0; dim < MAX_DIMENSION; dim++) 
+      CSBField[dim] = CosmologySimulationInitialUniformBField[dim] * MagneticUnits;
+    fprintf(Outfptr, "CosmologySimulationInitialUniformBField = ");
+    WriteListOfFloats(Outfptr, 3, CSBField);
+
   }
  
   // Clean up
@@ -926,7 +980,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 	   CosmologySimulationManualParticleMassRatio,
 	   CosmologySimulationCalculatePositions,
 	   CosmologySimulationGridLeftEdge[gridnum],
-	   CosmologySimulationGridRightEdge[gridnum]
+	   CosmologySimulationGridRightEdge[gridnum],
+	   CosmologySimulationInitialUniformBField
 	   ) == FAIL) {
 	ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
       }

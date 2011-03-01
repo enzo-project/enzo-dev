@@ -49,13 +49,14 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float ConductionTestTotalEnergy = 1.0;
   float ConductionTestGasEnergy = 1.0;
   float ConductionTestVelocity[3] = {0.0,0.0,0.0};
+  FLOAT ConductionTestPulseCenter[3] = {0.5,0.5,0.5};
   float ConductionTestInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
 
   for (int i = 0; i<MetaData.TopGridRank; i++) {ConductionTestVelocity[i] = 0.0;}
  
   float ConductionTestPulseHeight;
   FLOAT ConductionTestPulseWidth;
-  int ConductionTestPulseType = 0;
+  int ConductionTestPulseType = 0, ConductionTestFieldGeometry=0;
 
   // Read parameters
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
@@ -65,7 +66,10 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "ConductionTestTemperature = %"FSYM, &ConductionTestTemperature);
     ret += sscanf(line, "ConductionTestDensity = %"FSYM, &ConductionTestDensity);
     ret += sscanf(line, "ConductionTestPulseWidth = %"PSYM, &ConductionTestPulseWidth);
+    ret += sscanf(line, "ConductionTestPulseCenter = %"PSYM" %"PSYM" %"PSYM, &ConductionTestPulseCenter[0],
+		  &ConductionTestPulseCenter[1], &ConductionTestPulseCenter[2]);
     ret += sscanf(line, "ConductionTestPulseType = %"ISYM, &ConductionTestPulseType);
+    ret += sscanf(line, "ConductionTestFieldGeometry = %"ISYM, &ConductionTestFieldGeometry);
     ret += sscanf(line, "ConductionTestPulseBFieldX = %"FSYM,&ConductionTestInitialUniformBField[0]);
     ret += sscanf(line, "ConductionTestPulseBFieldY = %"FSYM,&ConductionTestInitialUniformBField[1]);
     ret += sscanf(line, "ConductionTestPulseBFieldZ = %"FSYM,&ConductionTestInitialUniformBField[2]);
@@ -77,6 +81,17 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 	line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR) {
       fprintf(stderr, "*** warning: the following parameter line was not interpreted:\n%s\n", line);
     }
+  }
+
+  float BFieldVal=0.0;
+
+  if(ConductionTestFieldGeometry >= 1){
+    BFieldVal = fabs(ConductionTestInitialUniformBField[0]);
+
+    ConductionTestInitialUniformBField[0] =
+      ConductionTestInitialUniformBField[1] =
+      ConductionTestInitialUniformBField[2]=0.0;
+    
   }
 
   float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, TimeUnits=1.0,
@@ -124,7 +139,10 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   // Then perturb it
   if (TopGrid.GridData->ConductionTestInitialize(ConductionTestPulseHeight, 
 						 ConductionTestPulseWidth, 
-						 ConductionTestPulseType) == FAIL) {
+						 ConductionTestPulseType,
+						 ConductionTestPulseCenter,
+						 ConductionTestFieldGeometry, 
+						 BFieldVal) == FAIL) {
     ENZO_FAIL("Error in ConductionTestInitialize.");
   }
 

@@ -9,7 +9,7 @@ c
      &                    refine1, refine2, refine3, grid,
      &                    gdim1, gdim2, gdim3, 
      &                    gstart1, gstart2, gstart3,
-     &                    wdim1, wdim2, wdim3)
+     &                    wdim1, wdim2, wdim3, ierror)
 c
 c  PERFORMS A 3D LINEAR, MONOTONIC, CONSERVATIVE INTERPOLATION
 c
@@ -56,7 +56,7 @@ c
       integer dim1, dim2, dim3, start1, start2, start3, 
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3,
-     &        wdim1, wdim2, wdim3
+     &        wdim1, wdim2, wdim3, ierror
       real    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3),
      &        work(wdim1, wdim2, wdim3)
 c
@@ -114,7 +114,16 @@ c
      &             parent(pstart1+i,pstart2+j,pstart3+k)     ) then
                   write(6,*) 'int1',i,j,k,pstart1,pstart2,pstart3,
      &                 parent(pstart1+i,pstart2+j,pstart3+k)
-                  ERROR_MESSAGE
+                  write(6,*) 'int1a', 
+     &                 parent(pstart1+i-1,pstart2+j-1,pstart3+k-1),
+     &                 parent(pstart1+i-1,pstart2+j-1,pstart3+k  ),
+     &                 parent(pstart1+i-1,pstart2+j  ,pstart3+k-1),
+     &                 parent(pstart1+i-1,pstart2+j  ,pstart3+k  ),
+     &                 parent(pstart1+i  ,pstart2+j-1,pstart3+k-1),
+     &                 parent(pstart1+i  ,pstart2+j-1,pstart3+k  ),
+     &                 parent(pstart1+i  ,pstart2+j  ,pstart3+k-1)
+                  ierror = 1
+                  return
                endif
                if (work(i,j,k) .le. 0.0 .or.
      &             parent(pstart1+i, pstart2+j, pstart3+k) .le. 0.0) 
@@ -233,7 +242,9 @@ c     &               delf1new,delf2new,delf3new,s
                    write(6,*) 'abc',delf0,sprime,chi1,chi2,chi3,
      &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
      &               delf1new,delf2new,delf3new,s,work(i,j,k),
-     &               work(i+1,j+1,k+1)
+     &               work(i+1,j+1,k+1),
+     &               work(i+1,j,k), work(i,j+1,k+1), work(i,j+1,k),
+     &               work(i+1,j,k+1), work(i,j,k+1), work(i+1,j+1,k)
                    write(6,*) i,j,k,pdim1,pdim2,pdim3,dim1,dim2,dim3,
      &               end1,end2,end3,refine1,refine2,refine3,
      &               pstart1,pstart2,pstart3
@@ -255,14 +266,16 @@ c     &               delf1new,delf2new,delf3new,s
      &                   parent(pstart1+i+1, pstart2+j  , pstart3+k+1),
      &                   parent(pstart1+i+1, pstart2+j+1, pstart3+k  ),
      &                   parent(pstart1+i+1, pstart2+j+1, pstart3+k+1)
-                   ERROR_MESSAGE
+                   ierror = 1
+                   return
                 endif
                 if (s .ne. s) then
                    write(6,*) 'int2',delf0,sprime,chi1,chi2,chi3,
      &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
      &               delf1new,delf2new,delf3new,s,work(i,j,k),
      &               work(i+1,j+1,k+1)
-                   ERROR_MESSAGE
+                   ierror = 1
+                   return
                 endif
 c
 c              Now, find the the interpolation coefficients.

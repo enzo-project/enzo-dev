@@ -454,15 +454,15 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-      printf("TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
+      fprintf(stderr, "TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
 	     dt, MetaData.Time, MetaData.CycleNumber);
 
       if (ComovingCoordinates) {
 	FLOAT a, dadt;
 	CosmologyComputeExpansionFactor(MetaData.Time, &a, &dadt);
-	printf("    z = %"GOUTSYM, (1 + InitialRedshift)/a - 1);
+	fprintf(stderr, "    z = %"GOUTSYM, (1 + InitialRedshift)/a - 1);
       }
-      printf("\n");
+      fprintf(stderr, "\n");
     }
     //}
  

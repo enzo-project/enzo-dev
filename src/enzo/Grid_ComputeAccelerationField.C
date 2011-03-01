@@ -44,7 +44,10 @@ int grid::ComputeAccelerationField(int DifferenceType, int level)
  
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
- 
+
+  if (SelfGravity == 0) 
+    return SUCCESS;
+
   /* declarations */
  
   int dim, size = 1, Offset[MAX_DIMENSION] = {0,0,0};
@@ -84,7 +87,7 @@ int grid::ComputeAccelerationField(int DifferenceType, int level)
   /* Difference potential. */
  
   FORTRAN_NAME(comp_accel)(PotentialField, AccelerationField[0],
-	      AccelerationField[1], AccelerationField[2], &GridRank, &DifferenceType,
+      AccelerationField[1], AccelerationField[2], &GridRank, &DifferenceType,
 	    GravitatingMassFieldDimension, GravitatingMassFieldDimension+1,
 	      GravitatingMassFieldDimension+2,
 	    GridDimension, GridDimension+1, GridDimension+2,

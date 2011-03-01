@@ -29,7 +29,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
-				 float &mass, float &metallicity, 
+				 float &mass, float &metallicity2, 
+				 float &metallicity3,
 				 float &coldgas_mass, float AvgVelocity[])
 {
 
@@ -157,9 +158,9 @@ int grid::GetEnclosedMassInShell(Star *star, float radius0, float radius1,
 	  if (ThresholdField[index] < ColdThreshold)
 	    coldgas_mass += gasmass;
 	  if (MetallicityField)
-	    metallicity += BaryonField[MetalNum][index] * MassConversion;
+	    metallicity2 += BaryonField[MetalNum][index] * MassConversion;
 	  if (UseColour)
-	    metallicity += BaryonField[SNColourNum][index] * MassConversion;
+	    metallicity3 += BaryonField[SNColourNum][index] * MassConversion;
 	}
 	
       }

@@ -629,7 +629,8 @@ Hierarchy Control Parameters
     on the same node. Option 2 assumes grouped scheduling, i.e. proc #
     = (01234567) reside on node (00112233) if there are 4 nodes. Option
     3 assumes round-robin scheduling (proc = (01234567) -> node =
-    (01230123)). Default: 1
+    (01230123)). Set to 4 for load balancing along a Hilbert
+    space-filling curve on each level. Default: 1
 ``LoadBalancingCycleSkip`` (external)
     This sets how many cycles pass before we load balance the root
     grids. Only works with LoadBalancing set to 2 or 3. NOT RECOMMENDED
@@ -647,10 +648,12 @@ Hydrodynamic Parameters
     ============ ===========================
     0            PPM DE (a direct-Eulerian version of PPM)
     1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
-    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 
-    3            Runge Kutta third order based MUSCL solvers. 
-    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set. 
-    ============ ===========================
+  2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFor\
+malism`` flags.
+    3            Runge Kutta third order based MUSCL solvers.
+    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to\
+ set.
+   ============ ===========================
 
     Default: 0
 ``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
@@ -664,9 +667,17 @@ Hydrodynamic Parameters
     2              Marquina
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+    5              TwoShock
     ============== ===========================
 
-    Default: 1 (HLL)
+   Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
+   ``HydroMethod`` = 0
+
+``RiemannSolverFallback`` (external)
+    If the euler update results in a negative density or energy, the
+    solver will fallback to the HLL Riemann solver that is more
+    diffusive only for the failing cell.  Only active when using the
+    HLLC or TwoShock Riemann solver.  Default: OFF.
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
@@ -680,12 +691,23 @@ Hydrodynamic Parameters
     4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
     ===================== ====================
 
-    Default: 0 (PLM)
+   Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
     this value is ignored in favor of a direct calculation (except for
     PPM LR) Default: 5/3.
+``ConservativeReconstruction`` (external)
+    Experimental.  This option turns on the reconstruction of the
+    left/right interfaces in the Riemann problem in the conserved
+    variables (density, momentum, and energy) instead of the primitive
+    variables (density, velocity, and pressure).  This generally gives
+    better results in constant-mesh problems has been problematic in
+    AMR simulations.  Default: OFF
+``PositiveReconstruction`` (external)
+    Experimental and not working.  This forces the Riemann solver to
+    restrict the fluxes to always give positive pressure.  Attempts to
+    use the Waagan (2009), JCP, 228, 8609 method.  Default: OFF
 ``CourantSafetyNumber`` (external)
     This is the maximum fraction of the CFL-implied timestep that will
     be used to advance any grid. A value greater than 1 is unstable
@@ -1741,11 +1763,14 @@ Accretion Physics
     Set to 1 to turn on accretion based on the Eddington-limited
     spherical Bondi-Hoyle formula (Bondi 1952). Set to 2 to turn on
     accretion based on the Bondi-Hoyle formula but with fixed
-    temperature defined below. Set to 3 to turn on accretion based with
+    temperature defined below. Set to 3 to turn on accretion with a
     fixed rate defined below. Set to 4 to to turn on accretion based on
     the Eddington-limited spherical Bondi-Hoyle formula, but without
-    v\_rel in the denominator. Add 10 to each of these options (i.e.
-    11, 12, 13, 14) to ignore the Eddington limit. See
+    v\_rel in the denominator. Set to 5 to turn on accretion based on
+    Krumholz et al.(2006) which takes vorticity into account. Set to 6 
+    to turn on alpha disk formalism based on DeBuhr et al.(2010).  
+    7 and 8 are still failed experiment. Add 10 to each of these options 
+    (i.e. 11, 12, 13, 14) to ignore the Eddington limit. See
     ``Star\_CalculateMassAccretion.C``. Default: 0 (FALSE)
 ``MBHAccretionRadius`` (external)
     This is the radius (in pc) of a gas sphere from which the accreting
@@ -1795,10 +1820,15 @@ Feedback Physics
     - not fully tested). Set to 2 to turn on mechanical feedback of MBH
     particles (``MBH\_JETS``, bipolar jets along the total angular momentum
     of gas accreted onto the MBH particle so far). Set to 3 to turn on
-    an experimental version of mechanical feedback of MBH particles
-    (``MBH\_JETS``, bipolar jets along z-axis). Note that, even when this
+    another version of mechanical feedback of MBH particles (``MBH\_JETS``, 
+    always directed along z-axis). Set to 4 to turn on experimental version of 
+    mechanical feedback (`MBH\_JETS`, bipolar jets along the total angular 
+    momentum of gas accreted onto the MBH particle so far + 10 degree random 
+    noise).  Set to 5 to turn on experimental version of mechanical feedback
+    (``MBH\_JETS``, launched at random direction). Note that, even when this
     parameter is set to 0, MBH particles still can be radiation sources
-    if ``RadiativeTransfer`` is on. Default: 0 (FALSE)
+    if ``RadiativeTransfer`` is on. See ``Grid\_AddFeedbackSphere.C``.
+    Default: 0 (FALSE)
     
     -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all
     -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 1`` : purely thermal

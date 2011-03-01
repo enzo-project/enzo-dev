@@ -205,13 +205,11 @@ int InitializeRateData(FLOAT Time)
 
   /* Initialize Cloudy cooling, even if not being used. */
   /* If not used, this will just initialize some data structues. */
-
   if (InitializeCloudyCooling(Time) == FAIL) {
     ENZO_FAIL("Error in InitializeCloudyCooling.");
   }
 
   /* If table exists, read metal cooling rates */
-
   if (MetalCooling == JHW_METAL_COOLING)
     if (ReadMetalCoolingRates(TemperatureUnits, LengthUnits, aUnits, 
 			      DensityUnits, TimeUnits, afloat) == FAIL) {

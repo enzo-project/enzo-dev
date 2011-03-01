@@ -967,6 +967,53 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     } // endfor j 
   } // if MHD2DProblemType == 13
 
+  /* Wengen 2 test */
+  /* Tom Abel Sept 2010 */
+
+  if (MHD2DProblemType == 14) { 
+
+    float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot, bx ,by;
+
+    for (int j = 0; j < GridDimension[1]; j++) {
+      for (int i = 0; i < GridDimension[0]; i++) {
+	/* Compute position */
+	igrid = i + j*GridDimension[0];
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	ramp =  1./(1.+exp(-2/RampWidth*(y-0.5)));
+	float rho, vx, vy, f;
+	rho = rhol + ramp*(rhou-rhol);
+
+	pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // isothermal sound speed = 0.112611
+	  EOSSoundSpeed*EOSSoundSpeed*rho ; 
+	EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
+	// impose mode perturbation
+	//	f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.);
+	f = cos(2.*M_PI*x*10.)*exp(-fabs(y-0.5)*10.)*cos(2.*M_PI*x*3);
+	vx = f * (vxl+ ramp*(vxu-vxl))  ;
+	vy = vyl + ramp*(vyu - vyl);
+	bx = (Bxl+ ramp*(Bxu-Bxl))  ;
+	by = (Byl+ ramp*(Byu-Byl))  ;
+	etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(bx*bx+by*by)/rho;
+	BaryonField[iden ][igrid] = rho;
+	BaryonField[ivx  ][igrid] = vx ;
+	BaryonField[ivy  ][igrid] = vy;
+	BaryonField[ivz  ][igrid] = 0.0;
+	
+	BaryonField[ietot][igrid] = etotl;
+	if (DualEnergyFormalism) {
+	  BaryonField[ieint][igrid] = pres / ((Gamma-1.0)*rho);
+	}
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx  ][igrid] = bx;
+	  BaryonField[iBy  ][igrid] = by;
+	  BaryonField[iBz  ][igrid] = 0.0;
+	  BaryonField[iPhi ][igrid] = 0.0;
+	}
+      } // endfor i
+    } // endfor j 
+  } // if MHD2DProblemType == 14
+
 
 
   return SUCCESS;

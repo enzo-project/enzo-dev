@@ -296,6 +296,7 @@ EXTERN float RootGridCourantSafetyNumber;
 
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
+EXTERN int RadiativeCoolingModel;
 
 /* Cloudy cooling parameters and data. */
 
@@ -661,6 +662,8 @@ EXTERN float MaximumAlvenSpeed;
 EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
+EXTERN int PositiveReconstruction;
+EXTERN int RiemannSolverFallback;
 EXTERN int RiemannSolver;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
@@ -669,11 +672,13 @@ EXTERN float EOSCriticalDensity;
 EXTERN float EOSGamma;
 EXTERN float C_h;
 EXTERN float C_p;
+EXTERN float DivBDampingLength;
 EXTERN int UseConstantAcceleration;
 EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
 EXTERN int ExternalGravity;
-EXTERN int StringKick;
+EXTERN float StringKick;
+EXTERN int StringKickDimension;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;

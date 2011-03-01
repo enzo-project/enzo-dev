@@ -13,6 +13,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -44,6 +45,8 @@ int StarParticleAccretion(TopGridData *MetaData,
 #if defined(SEDOV_TEST) || defined(HII_REGION_TEST)
   return SUCCESS;
 #endif
+
+  LCAPERF_START("StarParticleAccretion");
 
   Star *ThisStar;
   FLOAT Time;
@@ -114,6 +117,7 @@ int StarParticleAccretion(TopGridData *MetaData,
 
   }
 
+  LCAPERF_STOP("StarParticleAccretion");
   return SUCCESS;
 
 }
