@@ -2601,7 +2601,7 @@ if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions &&
 			UniformParticleMass);
       for (i = 0; i < NumberOfParticles; i++)
 	ParticleMass[i] = UniformParticleMass;
-	
+
     }
  
     // Set Particle attributes to FLOAT_UNDEFINED

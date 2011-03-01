@@ -309,7 +309,7 @@ EXTERN int GadgetEquilibriumCooling;
 
 EXTERN int     RandomForcing;
 EXTERN FLOAT   RandomForcingEdot;
-EXTERN FLOAT   RandomForcingMachNumber;
+EXTERN FLOAT   RandomForcingMachNumber;  //#####
 EXTERN fpos_t  BaryonFileNamePosition;
 
 /* Multi-species rate equation flag and associated data. */

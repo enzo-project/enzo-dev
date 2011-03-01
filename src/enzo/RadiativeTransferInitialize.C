@@ -135,8 +135,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
 
-    if (StarParticleFeedback && !AddedMetallicity)
-	TypesToAdd[FieldsToAdd++] = Metallicity;
+     if (StarParticleFeedback && !AddedMetallicity)
+ 	TypesToAdd[FieldsToAdd++] = Metallicity;      //#####
 
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
       TypesToAdd[i] = FieldUndefined;
