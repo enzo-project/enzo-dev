@@ -419,9 +419,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleTypeInFile               = TRUE;
   OutputParticleTypeGrouping       = FALSE;
 
-  Conduction = FALSE;
+  IsotropicConduction = FALSE;
   AnisotropicConduction = FALSE;
-  ConductionSpitzerFraction = 1.0;
+  IsotropicConductionSpitzerFraction = 1.0;
+  AnisotropicConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
   PythonTopGridSkip                = 0;

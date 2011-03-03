@@ -679,9 +679,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarFeedbackDistCellStep);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
-  fprintf(fptr, "Conduction                      = %"ISYM"\n", Conduction);
-  fprintf(fptr, "AnisotropicConduction                      = %"ISYM"\n", AnisotropicConduction);
-  fprintf(fptr, "ConductionSpitzerFraction       = %"FSYM"\n", ConductionSpitzerFraction);
+  fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);
+  fprintf(fptr, "AnisotropicConduction                 = %"ISYM"\n", AnisotropicConduction);
+  fprintf(fptr, "IsotropicConductionSpitzerFraction    = %"FSYM"\n", IsotropicConductionSpitzerFraction);
+  fprintf(fptr, "AnisotropicConductionSpitzerFraction  = %"FSYM"\n", AnisotropicConductionSpitzerFraction);
   fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);

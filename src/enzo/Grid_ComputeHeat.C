@@ -55,7 +55,7 @@ int grid::ComputeHeat (float dedt[]) {
   FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
   float *rho,*Bx,*By,*Bz;
-  double kappa_star = 6.0e-7 * ConductionSpitzerFraction;
+  double kappa_star = 6.0e-7;
   float Bx_face, By_face, Bz_face, Bxhat, Byhat, Bzhat, Bmag;
   float dTx, dTy, dTz;
   int x_offset=0, y_offset=0, z_offset=0;
@@ -221,17 +221,17 @@ int grid::ComputeHeat (float dedt[]) {
 	      // calculate energy flux across this face. Note that the negative sign is missing from the expression
 	      // for heat flux: this is accounted for later.  Also, factors of dx and units are applied
 	      // at the end of the routine.
-	      r.dedt =  r.kappa*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy ); 
+	      r.dedt =  r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy ); 
 
 	      // If anisotropic conduction is turned on, we _know_ that it's at least 2D, but there's no guarantee that
 	      // it's 3D.  So, check, and then if we're using 3D calculate the z cross-derivative
 	      if(GridRank > 2){
 		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i+1,j,k-1)]))/4.0;
-		r.dedt += r.kappa*Bxhat*Bzhat*dTz;
+		r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*Bxhat*Bzhat*dTz;
 	      }
 
 	    } else {  // otherwise we're doing plain ol' isotropic conduction.
-	      r.dedt = r.kappa*r.dT;  // factors of dx and units done later (also missing negative sign accounted for)
+	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;  // factors of dx and units done later (also missing negative sign accounted for)
 	    }
 
 	  }
@@ -279,15 +279,15 @@ int grid::ComputeHeat (float dedt[]) {
 	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i-1,j+1,k)]))/4.0;
 	      dTy = Temp[ELT(i,j+1,k)]-Temp[ELT(i,j,k)];
 
-	      r.dedt = r.kappa*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  
+	      r.dedt = r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  
 
 	      if(GridRank > 2){
 		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j+1,k-1)]))/4.0;
-		r.dedt += r.kappa*Byhat*Bzhat*dTz;
+		r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*Byhat*Bzhat*dTz;
 	      }
 
 	    } else {
-	      r.dedt = r.kappa*r.dT;
+	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;
 	    }
 	  }
 
@@ -334,10 +334,10 @@ int grid::ComputeHeat (float dedt[]) {
 	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j-1,k+1)]))/4.0;
 	      dTz = Temp[ELT(i,j,k+1)]-Temp[ELT(i,j,k)];
 
-	      r.dedt = r.kappa*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
+	      r.dedt = r.kappa*AnisotropicConductionSpitzerFraction*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
 
 	    } else {
-	      r.dedt = r.kappa*r.dT;
+	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;
 	    }
 
 	  }

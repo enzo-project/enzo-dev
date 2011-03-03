@@ -789,9 +789,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MovieTimestepCounter = %"ISYM, &MetaData.MovieTimestepCounter);
 
     ret += sscanf(line, "MultiMetals = %"ISYM, &MultiMetals);
-    ret += sscanf(line, "Conduction = %"ISYM, &Conduction);
+    ret += sscanf(line, "IsotropicConduction = %"ISYM, &IsotropicConduction);
     ret += sscanf(line, "AnisotropicConduction = %"ISYM, &AnisotropicConduction);
-    ret += sscanf(line, "ConductionSpitzerFraction = %"FSYM, &ConductionSpitzerFraction);
+    ret += sscanf(line, "IsotropicConductionSpitzerFraction = %"FSYM, &IsotropicConductionSpitzerFraction);
+    ret += sscanf(line, "AnisotropicConductionSpitzerFraction = %"FSYM, &AnisotropicConductionSpitzerFraction);
     ret += sscanf(line, "ConductionCourantSafetyNumber = %"FSYM, &ConductionCourantSafetyNumber);
 
     ret += sscanf(line, "RadiativeTransfer = %"ISYM, &RadiativeTransfer);
@@ -1053,10 +1054,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
     rewind(fptr);
   }
-
-  // make sure that Conduction is turned on if AnisotropicConduction is turned on.
-  if(AnisotropicConduction==TRUE)
-    Conduction==TRUE;
 
   // make sure that MHD is turned on if we're trying to use anisotropic conduction.
   // if not, alert user.

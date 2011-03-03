@@ -217,8 +217,8 @@ int grid::ComputeConductionTimeStep (float &dt) {
   // all of the units required to put this into the appropriate enzo internal
   // units, scaled correctly. Note that this does NOT contain a factor
   // of 1/mu, since we don't necessarily know anything about the gas in question.
-  all_units = POW(dx,2.0)*POW(LengthUnits,2.0)*DensityUnits*kboltz
-    / ( 6.0e-7 * ConductionSpitzerFraction * mh * TimeUnits );
+  all_units = POW(dx,2.0)*POW(LengthUnits,2.0)*DensityUnits*kboltz /
+    ( 6.0e-7 * max(IsotropicConductionSpitzerFraction, AnisotropicConductionSpitzerFraction) * mh * TimeUnits );
   
   dt *= float(all_units);
 

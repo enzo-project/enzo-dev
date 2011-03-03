@@ -886,9 +886,10 @@ EXTERN char current_error[255];
 
 /* Thermal conduction */
 
-EXTERN int Conduction;  // TRUE OR FALSE
+EXTERN int IsotropicConduction;  // TRUE OR FALSE
 EXTERN int AnisotropicConduction;  // TRUE OR FALSE
-EXTERN float ConductionSpitzerFraction;  // f_Spitzer
+EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
+EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
 #endif
