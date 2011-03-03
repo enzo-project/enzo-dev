@@ -171,14 +171,13 @@ int grid::ComputeHeat (float dedt[]) {
       for (int j = GridStart[1]+y_offset; j <= GridEnd[1]-y_offset; j++) {
 	r = cfzero;
 	for (int i = GridStart[0]+x_offset; i <= GridEnd[0]-x_offset; i++) {
-	  l = r;
+	  l = r;  // left face of this cell is the right face of the previous cell.
+	  r = cfzero;  // zero out right face: we're going to set this later.
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i+1,j,k);
 
-	  if(i == GridEnd[0]-x_offset){
-	    r = cfzero;
-	  } else {
+	  if( i != GridEnd[0]-x_offset ){
 
 	    // get temperature, temperature gradient on + face of cell
 	    // (the 'l' struct has it on the right face)
@@ -221,7 +220,7 @@ int grid::ComputeHeat (float dedt[]) {
 	      // calculate energy flux across this face. Note that the negative sign is missing from the expression
 	      // for heat flux: this is accounted for later.  Also, factors of dx and units are applied
 	      // at the end of the routine.
-	      r.dedt =  r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy ); 
+	      r.dedt +=  r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy ); 
 
 	      // If anisotropic conduction is turned on, we _know_ that it's at least 2D, but there's no guarantee that
 	      // it's 3D.  So, check, and then if we're using 3D calculate the z cross-derivative
@@ -232,8 +231,10 @@ int grid::ComputeHeat (float dedt[]) {
 
 	    } // if(AnisotropicConduction) 
 
-	    if(IsotropicConduction){  // plain ol' isotropic conduction.
-	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;  // factors of dx and units done later (also missing negative sign accounted for)
+	    // add in energy transport because of isotropic conduction as well.
+	    if(IsotropicConduction){ 
+	      // factors of dx and units done later (also missing negative sign accounted for)
+	      r.dedt += r.kappa*IsotropicConductionSpitzerFraction*r.dT;  
 	    }
 
 	  }
@@ -253,13 +254,12 @@ int grid::ComputeHeat (float dedt[]) {
 	r = cfzero;
 	for (int j = GridStart[1]+y_offset; j <= GridEnd[1]-y_offset; j++) {
 	  l = r;
+	  r = cfzero;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i,j+1,k);
 
-	  if(j==GridEnd[1]-y_offset){
-	    r = cfzero;
-	  } else {
+	  if( j != GridEnd[1]-y_offset ){
 
 	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
 	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
@@ -281,7 +281,7 @@ int grid::ComputeHeat (float dedt[]) {
 	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i-1,j+1,k)]))/4.0;
 	      dTy = Temp[ELT(i,j+1,k)]-Temp[ELT(i,j,k)];
 
-	      r.dedt = r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  
+	      r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  
 
 	      if(GridRank > 2){
 		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j+1,k-1)]))/4.0;
@@ -291,7 +291,7 @@ int grid::ComputeHeat (float dedt[]) {
 	    } // if(AnisotropicConduction)
 
 	    if(IsotropicConduction){
-	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;
+	      r.dedt += r.kappa*IsotropicConductionSpitzerFraction*r.dT;
 	    }
 
 	  }
@@ -309,13 +309,12 @@ int grid::ComputeHeat (float dedt[]) {
 	r = cfzero;
 	for (int k = GridStart[2]+z_offset; k <= GridEnd[2]-z_offset; k++) {
 	  l = r;
+	  r = cfzero;
 
 	  grid_index = ELT(i,j,k);
 	  right_side_index = ELT(i,j,k+1);
 
-	  if(k==GridEnd[2]-z_offset){
-	    r = cfzero;
-	  } else {
+	  if( k != GridEnd[2]-z_offset ){
 
 	    r.T = 0.5 * (Temp[grid_index] + Temp[right_side_index]);
 	    r.rho = 0.5 * (rho[grid_index] + rho[right_side_index]);
@@ -339,12 +338,12 @@ int grid::ComputeHeat (float dedt[]) {
 	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j-1,k+1)]))/4.0;
 	      dTz = Temp[ELT(i,j,k+1)]-Temp[ELT(i,j,k)];
 
-	      r.dedt = r.kappa*AnisotropicConductionSpitzerFraction*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
+	      r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
 
 	    } // if(AnisotropicConduction)
 
 	    if(IsotropicConduction){
-	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;
+	      r.dedt += r.kappa*IsotropicConductionSpitzerFraction*r.dT;
 	    }
 
 	  }
