@@ -230,7 +230,9 @@ int grid::ComputeHeat (float dedt[]) {
 		r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*Bxhat*Bzhat*dTz;
 	      }
 
-	    } else {  // otherwise we're doing plain ol' isotropic conduction.
+	    } // if(AnisotropicConduction) 
+
+	    if(IsotropicConduction){  // plain ol' isotropic conduction.
 	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;  // factors of dx and units done later (also missing negative sign accounted for)
 	    }
 
@@ -286,9 +288,12 @@ int grid::ComputeHeat (float dedt[]) {
 		r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*Byhat*Bzhat*dTz;
 	      }
 
-	    } else {
+	    } // if(AnisotropicConduction)
+
+	    if(IsotropicConduction){
 	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;
 	    }
+
 	  }
 
 	  dedt[grid_index] += (r.dedt - l.dedt)/rho[grid_index];
@@ -336,7 +341,9 @@ int grid::ComputeHeat (float dedt[]) {
 
 	      r.dedt = r.kappa*AnisotropicConductionSpitzerFraction*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
 
-	    } else {
+	    } // if(AnisotropicConduction)
+
+	    if(IsotropicConduction){
 	      r.dedt = r.kappa*IsotropicConductionSpitzerFraction*r.dT;
 	    }
 
