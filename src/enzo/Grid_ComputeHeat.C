@@ -37,6 +37,10 @@ int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
+/* Limiter functions */
+static float minmod(float var1, float var2);  /* minmod limiter */
+static float mcd(float var1, float var2);     /* monotonized central diff. limiter */
+
 // Member functions
 int grid::ComputeHeat (float dedt[]) {
 
@@ -208,24 +212,33 @@ int grid::ComputeHeat (float dedt[]) {
 
 		 q_x = -Kappa * (bx*bx*dT/dx + bx*by*dT/dy + bx*bz*dT/dz)
 
-		 With the derivatives being partials.  It's analogous for the other dimensions.  For x, the 
+		 with the derivatives being partials.  It's analogous for the other dimensions.  For x, the 
 		 calculation of dT/dx is straightforward, but you need to calculate the dT/dy (and possibly 
 		 dT/dz) derivatives on the +x face of the cell.  If you want to do this in a symmetric way
-		 it requires using the j+-1 and k+-1 cells.
+		 it requires using the j+-1 and k+-1 cells.  We use a monotonize central difference limiter
+		 for the off-axis temperature derivatives to avoid spurious oscillations (though I've left the
+		 simpler code in here as well, for the sake of friendliness toward future generations).
 	       */
 
 	      dTx =Temp[ELT(i+1,j,k)]- Temp[ELT(i,j,k)];
-	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i+1,j-1,k)]))/4.0;
+
+	      //dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i+1,j-1,k)]))/4.0;
+	      dTy = mcd( mcd( Temp[ELT(i+1,j+1,k)] - Temp[ELT(i+1,j,k)], Temp[ELT(i+1,j,k)] - Temp[ELT(i+1,j-1,k)] ),
+			 mcd( Temp[ELT(i,  j+1,k)] - Temp[ELT(i,  j,k)], Temp[ELT(i,  j,k)] - Temp[ELT(i,  j-1,k)] ) );
 
 	      // calculate energy flux across this face. Note that the negative sign is missing from the expression
-	      // for heat flux: this is accounted for later.  Also, factors of dx and units are applied
-	      // at the end of the routine.
+	      // for heat flux: this is accounted for later, in Grid::ConductHeat (where deltat*de/dt is added, not
+	      // subtracted.  Also, factors of dx and units are applied at the end of the routine.
 	      r.dedt +=  r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Bxhat*dTx + Bxhat*Byhat*dTy ); 
 
 	      // If anisotropic conduction is turned on, we _know_ that it's at least 2D, but there's no guarantee that
 	      // it's 3D.  So, check, and then if we're using 3D calculate the z cross-derivative
 	      if(GridRank > 2){
-		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i+1,j,k-1)]))/4.0;
+
+		//dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i+1,j,k-1)]))/4.0;
+		dTz = mcd( mcd( Temp[ELT(i+1,j,k+1)] - Temp[ELT(i+1,j,k)], Temp[ELT(i+1,j,k)] - Temp[ELT(i+1,j,k-1)] ), 
+			   mcd( Temp[ELT(i,  j,k+1)] - Temp[ELT(i,  j,k)], Temp[ELT(i,  j,k)] - Temp[ELT(i,  j,k-1)] ) );
+
 		r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*Bxhat*Bzhat*dTz;
 	      }
 
@@ -278,13 +291,19 @@ int grid::ComputeHeat (float dedt[]) {
 	      Byhat = By_face/Bmag;
 	      Bzhat = Bz_face/Bmag;
 
-	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i-1,j+1,k)]))/4.0;
+	      //dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j+1,k)] - Temp[ELT(i-1,j+1,k)]))/4.0;
+	      dTx = mcd( mcd( Temp[ELT(i+1,j+1,k)] - Temp[ELT(i,j+1,k)], Temp[ELT(i,j+1,k)] - Temp[ELT(i-1,j+1,k)] ),
+			 mcd( Temp[ELT(i+1,j,  k)] - Temp[ELT(i,j,  k)], Temp[ELT(i,j,  k)] - Temp[ELT(i-1,j,  k)] ) );
+
 	      dTy = Temp[ELT(i,j+1,k)]-Temp[ELT(i,j,k)];
 
 	      r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*(Bxhat*Byhat*dTx + Byhat*Byhat*dTy );  
 
 	      if(GridRank > 2){
-		dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j+1,k-1)]))/4.0;
+		//dTz =  ((Temp[ELT(i,j,k+1)] - Temp[ELT(i,j,k-1)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j+1,k-1)]))/4.0;
+		dTz = mcd( mcd( Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j+1,k)], Temp[ELT(i,j+1,k)] - Temp[ELT(i,j+1,k-1)] ), 
+			   mcd( Temp[ELT(i,j,  k+1)] - Temp[ELT(i,j,  k)], Temp[ELT(i,j,  k)] - Temp[ELT(i,j,  k-1)] ) );
+
 		r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*Byhat*Bzhat*dTz;
 	      }
 
@@ -334,8 +353,14 @@ int grid::ComputeHeat (float dedt[]) {
 	      Bzhat = Bz_face/Bmag;
 
 	      // don't need to check if GridRank>2, because that's the only reason this loop gets called.
-	      dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i-1,j,k+1)]))/4.0;
-	      dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j-1,k+1)]))/4.0;
+	      //dTx = ((Temp[ELT(i+1,j,k)] - Temp[ELT(i-1,j,k)]) + (Temp[ELT(i+1,j,k+1)] - Temp[ELT(i-1,j,k+1)]))/4.0;
+	      dTx = mcd( mcd( Temp[ELT(i+1,j,k+1)] - Temp[ELT(i,j,k+1)], Temp[ELT(i,j,k+1)] - Temp[ELT(i-1,j,k+1)] ), 
+			 mcd( Temp[ELT(i+1,j,k  )] - Temp[ELT(i,j,k  )], Temp[ELT(i,j,k  )] - Temp[ELT(i-1,j,k  )] ) );
+
+	      //dTy = ((Temp[ELT(i,j+1,k)] - Temp[ELT(i,j-1,k)]) + (Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j-1,k+1)]))/4.0;
+	      dTy = mcd( mcd( Temp[ELT(i,j+1,k+1)] - Temp[ELT(i,j,k+1)], Temp[ELT(i,j,k+1)] - Temp[ELT(i,j-1,k+1)] ), 
+			 mcd( Temp[ELT(i,j+1,k  )] - Temp[ELT(i,j,k  )], Temp[ELT(i,j,k  )] - Temp[ELT(i,j-1,k  )] ) );
+
 	      dTz = Temp[ELT(i,j,k+1)]-Temp[ELT(i,j,k)];
 
 	      r.dedt += r.kappa*AnisotropicConductionSpitzerFraction*(Bzhat*Bxhat*dTx + Bzhat*Byhat*dTy + Bzhat*Bzhat*dTz); 
@@ -364,4 +389,31 @@ int grid::ComputeHeat (float dedt[]) {
 
   return SUCCESS;
 
+}
+
+
+
+/* monotonized central difference limiter - Van Leer 1977. Uses minmod
+   limiter for convenience. */
+static float mcd(float var1, float var2){
+  float limited, temp;
+  temp = 2.0*minmod(var1, var2);
+  limited = minmod(temp,(var1+var2)/2.0);
+  return limited;
+}
+
+/* minmod limiter (Roe 1986) */
+static float minmod(float var1, float var2){
+  /*if the variables are of the same sign, return the minimum,
+   *if the variables are of opposite sign, return zero*/
+  float limited;
+  if(var1*var2 > 0.0){
+    if(fabs(var1) > fabs(var2))
+      limited = var2;
+    else
+      limited = var1;
+  }
+  else
+    limited = 0.0;
+  return limited;
 }
