@@ -639,21 +639,22 @@ Hierarchy Control Parameters
 Hydrodynamic Parameters
 -----------------------
 
+``UseHydro`` (external)
+    This flag (1 - on, 0 - off) controls whether a hydro solver is used.  
+    Default: 1
 ``HydroMethod`` (external)
     This integer specifies the hydrodynamics method that will be used.
     Currently implemented are
 
-    ============ ===========================
+    ============ =============================
     Hydro method Description
-    ============ ===========================
+    ============ =============================
     0            PPM DE (a direct-Eulerian version of PPM)
     1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
-  2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFor\
-malism`` flags.
+    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
     3            Runge Kutta third order based MUSCL solvers.
-    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to\
- set.
-   ============ ===========================
+    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
+    ============ =============================
 
     Default: 0
 ``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
@@ -1196,7 +1197,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     formation even for very low star formation rates. It attempts to do
     so (relatively successfully according to tests) in a fashion that
     conserves the global average star formation rate. Default: 1e9
-``StarMakerMinimumDynamicalTime``(external)
+``StarMakerMinimumDynamicalTime`` (external)
     When the star formation rate is computed, the rate is proportional
     to M\_baryon \* dt/max(t\_dyn, t\_max) where t\_max is this
     parameter. This effectively sets a limit on the rate of star
@@ -1218,6 +1219,28 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. Default: 5e-6
+``StarFeedbackDistRadius`` (external)
+    The radius in grid pixels away from a star particle out to which 
+    stellar feedback is deposited.  This can only be used with the 
+    Cen & Ostriker feedback, ``StarParticleFeedback`` methods 0 and 1.  
+    If set to 0, stellar feedback is only deposited into the cell in 
+    which the star particle lives. Default: 0
+``StarFeedbackDistCellStep`` (external)
+    This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
+    determines the shape of the region into which stellar feedback is 
+    deposited.  Starting at the grid cell in which a star particle is 
+    located, it is the maximum number of walking steps along the x, y, 
+    and z axes that can be taken to reach a point inside the stellar 
+    feedback region.  For example, setting ``StarFeedbackDistRadius`` = 
+    1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, 
+    since the corner of the cube is one step in the x, one in the y, and 
+    one in the z direction away from the center.  Setting 
+    ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 
+    corresponds to a 3x3x3 cube with the corners missing.  The maximum 
+    value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * 
+    ``StarFeedbackDistRadius``).  When this is used, equal amounts of 
+    stellar feedback products are deposited into all cells in the 
+    region.  Default: 0
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2495,6 +2518,8 @@ Cosmology Simulation (30)
 ``CosmologySimulationInitialFractionHM`` (external)
     The fraction of negatively charged hydrogen (H-) at
     ``InitialRedshift``. Default: 2.0e-9
+``CosmologySimulationInitialFractionMetal`` (external)
+    The fraction of metals at ``InitialRedshift``. Default: 1.0e-10
 ``CosmologySimulationInitialTemperature`` (external)
     A uniform temperature value at ``InitialRedshift`` (needed if the
     initial gas energy field is not supplied). Default: 550\*((1.0 +
