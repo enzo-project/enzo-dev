@@ -52,7 +52,7 @@ C ---19--       H2II  + HM  -> HI    + H2I
 c
 c-----------------------------------------------------------------------
 c
-#define USE_SAVIN2004
+#define NO_USE_SAVIN2004
 c
       implicit NONE
 c
