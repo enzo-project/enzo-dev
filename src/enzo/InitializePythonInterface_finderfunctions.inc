@@ -2,6 +2,8 @@
 #endif /* MEMORY_POOL */ 
 #ifdef DEFINE_STORAGE
 #endif /* DEFINE_STORAGE */ 
+#ifdef NEW_PROBLEM_TYPES
+#endif /* NEW_PROBLEM_TYPES */ 
 
     if (strncmp(parameter_name, "LoadBalancing", 14) == 0) {
         PyObject *rv = PyLong_FromLong((long) LoadBalancing);
@@ -77,6 +79,8 @@
         PyObject *rv = PyLong_FromLong((long) ProblemType);
         return rv;
     }
+#ifdef NEW_PROBLEM_TYPES
+#endif /* NEW_PROBLEM_TYPES */ 
 
     if (strncmp(parameter_name, "huge_number", 12) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) huge_number);
@@ -338,6 +342,11 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "RadiativeCoolingModel", 22) == 0) {
+        PyObject *rv = PyLong_FromLong((long) RadiativeCoolingModel);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "GadgetEquilibriumCooling", 25) == 0) {
         PyObject *rv = PyLong_FromLong((long) GadgetEquilibriumCooling);
         return rv;
@@ -445,6 +454,11 @@
 
     if (strncmp(parameter_name, "RadiationXRayComptonHeating", 28) == 0) {
         PyObject *rv = PyLong_FromLong((long) RadiationXRayComptonHeating);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "TabulatedLWBackground", 22) == 0) {
+        PyObject *rv = PyLong_FromLong((long) TabulatedLWBackground);
         return rv;
     }
 
@@ -1622,13 +1636,23 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "Conduction", 11) == 0) {
-        PyObject *rv = PyLong_FromLong((long) Conduction);
+    if (strncmp(parameter_name, "IsotropicConduction", 20) == 0) {
+        PyObject *rv = PyLong_FromLong((long) IsotropicConduction);
         return rv;
     }
 
-    if (strncmp(parameter_name, "ConductionSpitzerFraction", 26) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) ConductionSpitzerFraction);
+    if (strncmp(parameter_name, "AnisotropicConduction", 22) == 0) {
+        PyObject *rv = PyLong_FromLong((long) AnisotropicConduction);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "IsotropicConductionSpitzerFraction", 35) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) IsotropicConductionSpitzerFraction);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "AnisotropicConductionSpitzerFraction", 37) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) AnisotropicConductionSpitzerFraction);
         return rv;
     }
 
