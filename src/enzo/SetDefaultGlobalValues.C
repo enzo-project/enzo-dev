@@ -193,7 +193,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
   MinimumSubgridEdge        = 6;                 // min for acceptable subgrid
   MaximumSubgridSize        = 32768;             // max for acceptable subgrid
-  SubgridSizeAutoAdjust     = FALSE; // true for adjusting maxsize and minedge
+  SubgridSizeAutoAdjust     = TRUE; // true for adjusting maxsize and minedge
   OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
  
