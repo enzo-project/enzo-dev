@@ -858,7 +858,7 @@ c
      &            5.58513d0   * (dlog10(ttt))**2 +
      &            0.8561149d0 * (dlog10(ttt))**3 - 
      &            1.75538d-2  * (dlog10(ttt))**4
-      hdltea(i) = (10.0**min(hdltea(i), 15.0)) / coolunit
+      hdltea(i) = (10.0**min(hdltea(i), 0.0)) / coolunit
 c      hdlte=10**lhdlte/den
 c
 c Galli and Palla 1998 low density limit (erg cm3 /s)
