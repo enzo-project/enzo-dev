@@ -79,9 +79,7 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
-        CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
-        CommunicationTransferStars.o \
         CommunicationTransferStarsOpt.o \
 	CommunicationTransferSubgridParticles.o \
         CommunicationTranspose.o \
@@ -330,9 +328,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CommunicationSendParticles.o \
 	Grid_CommunicationSendStars.o \
 	Grid_CommunicationSendRegion.o \
-	Grid_CommunicationTransferParticles.o \
 	Grid_CommunicationTransferParticlesOpt.o \
-	Grid_CommunicationTransferStars.o \
 	Grid_CommunicationTransferStarsOpt.o \
 	Grid_ComovingExpansionTerms.o \
 	Grid_ComovingGravitySourceTerm.o \

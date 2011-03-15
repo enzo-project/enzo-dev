@@ -406,7 +406,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
-    printf("magnetic field: %"FSYM" %"ESYM" \n", MagneticUnits,  CosmologySimulationInitialUniformBField[dim]);
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
+	     CosmologySimulationInitialUniformBField[dim]);
   }
   
 

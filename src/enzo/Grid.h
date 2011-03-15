@@ -1482,7 +1482,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* Transfer particle amount level 0 grids. */
 
-#ifdef OPTIMIZED_CTP
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 				     int ThisGridNum, int TopGridDims[],
 				     int *&NumberToMove, 
@@ -1497,14 +1496,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 				 star_data *&List, int *Layout, 
 				 int *GStartIndex[], int *GridMap, 
 				 int CopyDirection);
-#else
-  int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-			     int ToGrid[6], int NumberToMove[6],
-			     float_int *ParticleData[6], int CopyDirection);
-  int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
-			 int ToGrid[6], int NumberToMove[6],
-			 StarBuffer *StarData[6], int CopyDirection);
-#endif
 
   int CollectParticles(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 

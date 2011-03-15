@@ -181,30 +181,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.CPUTime > 1e2*MetaData.StopCPUTime)
     MetaData.CPUTime = 0.0;
  
-  /* Double-check if the topgrid is evenly divided if we're using the
-     optimized version of CommunicationTransferParticles. */
-
-#ifdef UNUSED
-  //#ifdef OPTIMIZED_CTP
-  int NumberOfGrids = 0, Layout[MAX_DIMENSION] = {1,1,1};
-  Temp = LevelArray[0];
-  while (Temp != NULL) {
-    NumberOfGrids++;
-    Temp = Temp->NextGridThisLevel;
-  }
-  Enzo_Dims_create(NumberOfGrids, MetaData.TopGridRank, Layout);
-  for (dim = 0; dim < MetaData.TopGridRank; dim++)
-    if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
-      if (debug)
-      ENZO_VFAIL("ERROR: "
-		"\tTo use the optimized CommunicationTransferParticles routine,\n"
-		"\tthe top grid must be split evenly, "
-		"i.e. mod(Dims[i], Layout[i]) != 0\n"
-		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
-		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim])
-    }
-#endif /* OPTIMIZED_CTP */
-
   /* Attach RandomForcingFields to BaryonFields temporarily to apply BCs */
  
   if (RandomForcing) { //AK
