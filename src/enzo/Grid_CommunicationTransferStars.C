@@ -12,7 +12,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#ifndef OPTIMIZED_CTP
 //
  
 #ifdef USE_MPI
@@ -210,4 +209,3 @@ int grid::CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
  
   return SUCCESS;
 }
-#endif /* OPTIMIZED_CTP */
