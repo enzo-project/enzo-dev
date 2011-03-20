@@ -1823,6 +1823,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				 float MidpointEntropy, float EntropyGradient,
 				 float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]);
 
+/* Exploding Stratified Medium Test: initialize grid. */
+
+  int StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
+					  float ExplosionEnergy, FLOAT BubbleCenter[MAX_DIMENSION]);
+
 /* Spherical Infall Test: initialize grid. */
 
   int SphericalInfallInitializeGrid(float InitialPerturbation, int UseBaryons,
