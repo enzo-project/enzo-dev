@@ -81,7 +81,8 @@ int grid::RotatingCylinderInitializeGrid(FLOAT RotatingCylinderRadius,
 
   outside_rho =  BaryonField[DensNum][0];
 
-  omega = RotatingCylinderLambda * sqrt(GravitationalConstant * RotatingCylinderOverdensity * outside_rho) / 0.117;
+  // updated to include correct gravitational constant and more accurate constant (corrections by J-H Choi, U. Kentucky)
+  omega = RotatingCylinderLambda * sqrt((GravitationalConstant / (4.0*M_PI)) * RotatingCylinderOverdensity * outside_rho) / 0.146;
 
   if(HydroMethod==2){  // ZEUS
 
