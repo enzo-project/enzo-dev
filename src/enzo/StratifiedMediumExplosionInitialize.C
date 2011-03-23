@@ -43,7 +43,7 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
   }
 
   char line[MAX_LINE_LENGTH];
-  float LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+  FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   int i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION], SubgridDims[MAX_DIMENSION];
 
   float StratifiedMediumExplosionDensity = 1.0;
