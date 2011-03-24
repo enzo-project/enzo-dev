@@ -105,9 +105,14 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       /* (TODO) If requested, calculate ramping time for the luminosity */
 
       float ramptime = 0.0;   // zero for no ramp
-      if (cstar->ReturnType() == PopII)
-	ramptime = TimeInYears * StarClusterMinDynamicalTime;
-      else if (cstar->ReturnType() == PopIII)
+      float tdyn, ti;
+      if (cstar->ReturnType() == PopII) {
+	if (StarClusterUnresolvedModel) {  // Cen & Ostriker
+	  ramptime = cstar->ReturnLifetime();
+	} else {  // Wise & Cen
+	  ramptime = TimeInYears * StarClusterMinDynamicalTime;
+	}
+      } else if (cstar->ReturnType() == PopIII)
 	// should be an parameter or determined from the data
 	ramptime = TimeInYears * 50e3;
       else if (cstar->ReturnType() == SimpleSource)

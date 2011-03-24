@@ -341,8 +341,8 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
           if (CloudType ==6) {
 	    //Density = max(DensityUnits, 0.5*CloudDensity/(1.0 + pow(4.0*r/CloudRadius,2)));
-	    Density = CloudDensity/1000.0;
-	    eint = CloudInternalEnergy*200.0; //400.0;
+	    Density = 0.1*CloudDensity/(1.0 + pow(4.0,2));
+	    eint = CloudInternalEnergy*100.0; //400.0;
 	  }
 
 	}

@@ -379,7 +379,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ComputePotential               = %"ISYM"\n", ComputePotential);
   fprintf(fptr, "PotentialIterations            = %"ISYM"\n", PotentialIterations);
   fprintf(fptr, "WritePotential                 = %"ISYM"\n", WritePotential);
-  fprintf(fptr, "BaryonSelfGravityApproximation = %"ISYM"\n\n",
+  fprintf(fptr, "BaryonSelfGravityApproximation = %"ISYM"\n",
 	  BaryonSelfGravityApproximation);
 
   fprintf(fptr, "InlineHaloFinder               = %"ISYM"\n", InlineHaloFinder);
@@ -410,6 +410,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
+  fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
   fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
@@ -432,6 +433,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
+  fprintf(fptr, "TabulatedLWBackground          = %"ISYM"\n", TabulatedLWBackground);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
   fprintf(fptr, "SetHeIIHeatingScale            = %"GSYM"\n", SetHeIIHeatingScale);
@@ -671,10 +673,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n\n",
           StarEnergyToQuasarUV);
+  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n\n",
+          StarFeedbackDistRadius);
+  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n\n",
+          StarFeedbackDistCellStep);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
-  fprintf(fptr, "Conduction                      = %"ISYM"\n", Conduction);
-  fprintf(fptr, "ConductionSpitzerFraction       = %"FSYM"\n", ConductionSpitzerFraction);
+  fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);
+  fprintf(fptr, "AnisotropicConduction                 = %"ISYM"\n", AnisotropicConduction);
+  fprintf(fptr, "IsotropicConductionSpitzerFraction    = %"FSYM"\n", IsotropicConductionSpitzerFraction);
+  fprintf(fptr, "AnisotropicConductionSpitzerFraction  = %"FSYM"\n", AnisotropicConductionSpitzerFraction);
   fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
@@ -682,6 +690,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           
   fprintf(fptr, "StarClusterUseMetalField              = %"ISYM"\n",
 	  StarClusterUseMetalField);
+  fprintf(fptr, "StarClusterUnresolvedModel            = %"ISYM"\n",
+	  StarClusterUnresolvedModel);
   fprintf(fptr, "StarClusterMinDynamicalTime           = %"GSYM"\n",
           StarClusterMinDynamicalTime);
   fprintf(fptr, "StarClusterIonizingLuminosity         = %lg\n",
@@ -710,6 +720,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           PopIIIInitialMassFunction);
   fprintf(fptr, "PopIIIInitialMassFunctionSeed         = %"ISYM"\n",
           PopIIIInitialMassFunctionSeed);
+  fprintf(fptr, "PopIIIInitialMassFunctionCalls        = %"ISYM"\n",
+          PopIIIInitialMassFunctionCalls);
   fprintf(fptr, "PopIIIMassRange                       = %"FSYM" %"FSYM"\n",
           PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
   fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
@@ -770,7 +782,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "RiemannSolverFallback      = %d\n", RiemannSolverFallback);
   fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
+  fprintf(fptr, "PositiveReconstruction     = %d\n", PositiveReconstruction);
   fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);
   fprintf(fptr, "RKOrder                    = %d\n", RKOrder);
   fprintf(fptr, "UsePhysicalUnit            = %d\n", UsePhysicalUnit);
@@ -789,6 +803,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "EOSCriticalDensity         = %g\n", EOSCriticalDensity);
   fprintf(fptr, "EOSGamma                   = %g\n", EOSGamma); 
   fprintf(fptr, "Mu                         = %g\n", Mu);
+  fprintf(fptr, "DivBDampingLength          = %g\n", DivBDampingLength);
   fprintf(fptr, "CoolingCutOffDensity1      = %g\n", CoolingCutOffDensity1);
   fprintf(fptr, "CoolingCutOffDensity2      = %g\n", CoolingCutOffDensity2);
   fprintf(fptr, "CoolingCutOffTemperature   = %g\n", CoolingCutOffTemperature);

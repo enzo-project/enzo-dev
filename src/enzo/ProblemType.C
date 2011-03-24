@@ -15,6 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 
 #include "ErrorExceptions.h"
@@ -30,10 +31,9 @@
 
 #include "ProblemType.h"
 
-std::map< std::string, EnzoProblemType_creator *>& 
-get_problem_types()
+EnzoProblemMap& get_problem_types()
 {
-    static std::map< std::string, EnzoProblemType_creator* > problem_type_map;
+    static EnzoProblemMap problem_type_map;
     return problem_type_map;
 }
 
@@ -45,8 +45,15 @@ EnzoProblemType *select_problem_type( std::string problem_type_name)
             [ problem_type_name ];
 
     /* Simply throw an error if no such plugin exists... */
+
     if( !ept_creator )
     {   
+        EnzoProblemMap mymap = get_problem_types();
+
+        for (EnzoProblemMap::const_iterator it 
+                = mymap.begin(); it != mymap.end(); ++it) {
+          std::cout << "Available: " << it->first << std::endl;
+        }
         ENZO_FAIL("Unknown output plug-in.");
     }
 
@@ -54,6 +61,23 @@ EnzoProblemType *select_problem_type( std::string problem_type_name)
 
     return ptype;
 
+}
+
+EnzoProblemType::EnzoProblemType()
+{
+    this->DataLabelCount = 0;
+}
+
+int EnzoProblemType::AddDataLabel(const char *FieldName) {
+    /* We allocate a new copy of FieldName */
+    /* Include NUL-terminator */
+    int slen = strlen(FieldName) + 1;
+    char *fcopy = new char[slen];
+    strncpy(fcopy, FieldName, slen);
+    DataLabel[this->DataLabelCount] = fcopy;
+    std::cout << "Adding " << DataLabel[this->DataLabelCount]
+              << " in place " << this->DataLabelCount << std::endl;
+    return DataLabelCount++;
 }
 
 grid *EnzoProblemType::CreateNewUniformGrid(

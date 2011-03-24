@@ -35,7 +35,7 @@ void RunEventHooks(std::string event_name, HierarchyEntry *Grids[],
                     TopGridData &MetaData)
 {
     if (event_hooks.empty()) {
-        std::cout << "EVENT HOOKS IS EMPTY3" << std::endl;
+        return;
     }
     std::pair<std::multimap<std::string, std::string>::iterator,
               std::multimap<std::string, std::string>::iterator> it;
@@ -46,15 +46,17 @@ void RunEventHooks(std::string event_name, HierarchyEntry *Grids[],
 
     if (itr == event_hooks.end())
     {
-        std::cout << "Event plugin for hook " << event_name;
-        std::cout << " not found." << std::endl;
+        /* This is commented out until further notice */
+        /*std::cout << "Event plugin for hook " << event_name;
+        std::cout << " not found." << std::endl;*/
         return;
     }
     for (; itr != it.second ; itr++)
     {
         std::string plugin_name = (*itr).second;
-        std::cout << "Loading event plugin for hook " << event_name;
-        std::cout << " with name " << plugin_name << std::endl;
+        /* Debugging statement is next */
+        /*std::cout << "Loading event plugin for hook " << event_name;
+        std::cout << " with name " << plugin_name << std::endl;*/
         plugin_function the_plugin = plugins[plugin_name];
         the_plugin(Grids, MetaData);
     }

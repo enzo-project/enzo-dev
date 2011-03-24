@@ -629,7 +629,8 @@ Hierarchy Control Parameters
     on the same node. Option 2 assumes grouped scheduling, i.e. proc #
     = (01234567) reside on node (00112233) if there are 4 nodes. Option
     3 assumes round-robin scheduling (proc = (01234567) -> node =
-    (01230123)). Default: 1
+    (01230123)). Set to 4 for load balancing along a Hilbert
+    space-filling curve on each level. Default: 1
 ``LoadBalancingCycleSkip`` (external)
     This sets how many cycles pass before we load balance the root
     grids. Only works with LoadBalancing set to 2 or 3. NOT RECOMMENDED
@@ -638,19 +639,22 @@ Hierarchy Control Parameters
 Hydrodynamic Parameters
 -----------------------
 
+``UseHydro`` (external)
+    This flag (1 - on, 0 - off) controls whether a hydro solver is used.  
+    Default: 1
 ``HydroMethod`` (external)
     This integer specifies the hydrodynamics method that will be used.
     Currently implemented are
 
-    ============ ===========================
+    ============ =============================
     Hydro method Description
-    ============ ===========================
+    ============ =============================
     0            PPM DE (a direct-Eulerian version of PPM)
     1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
-    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 
-    3            Runge Kutta third order based MUSCL solvers. 
-    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set. 
-    ============ ===========================
+    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
+    3            Runge Kutta third order based MUSCL solvers.
+    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
+    ============ =============================
 
     Default: 0
 ``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
@@ -664,9 +668,17 @@ Hydrodynamic Parameters
     2              Marquina
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+    5              TwoShock
     ============== ===========================
 
-    Default: 1 (HLL)
+   Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
+   ``HydroMethod`` = 0
+
+``RiemannSolverFallback`` (external)
+    If the euler update results in a negative density or energy, the
+    solver will fallback to the HLL Riemann solver that is more
+    diffusive only for the failing cell.  Only active when using the
+    HLLC or TwoShock Riemann solver.  Default: OFF.
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
@@ -680,12 +692,23 @@ Hydrodynamic Parameters
     4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
     ===================== ====================
 
-    Default: 0 (PLM)
+   Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
     this value is ignored in favor of a direct calculation (except for
     PPM LR) Default: 5/3.
+``ConservativeReconstruction`` (external)
+    Experimental.  This option turns on the reconstruction of the
+    left/right interfaces in the Riemann problem in the conserved
+    variables (density, momentum, and energy) instead of the primitive
+    variables (density, velocity, and pressure).  This generally gives
+    better results in constant-mesh problems has been problematic in
+    AMR simulations.  Default: OFF
+``PositiveReconstruction`` (external)
+    Experimental and not working.  This forces the Riemann solver to
+    restrict the fluxes to always give positive pressure.  Attempts to
+    use the Waagan (2009), JCP, 228, 8609 method.  Default: OFF
 ``CourantSafetyNumber`` (external)
     This is the maximum fraction of the CFL-implied timestep that will
     be used to advance any grid. A value greater than 1 is unstable
@@ -1174,7 +1197,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     formation even for very low star formation rates. It attempts to do
     so (relatively successfully according to tests) in a fashion that
     conserves the global average star formation rate. Default: 1e9
-``StarMakerMinimumDynamicalTime``(external)
+``StarMakerMinimumDynamicalTime`` (external)
     When the star formation rate is computed, the rate is proportional
     to M\_baryon \* dt/max(t\_dyn, t\_max) where t\_max is this
     parameter. This effectively sets a limit on the rate of star
@@ -1196,6 +1219,28 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. Default: 5e-6
+``StarFeedbackDistRadius`` (external)
+    The radius in grid pixels away from a star particle out to which 
+    stellar feedback is deposited.  This can only be used with the 
+    Cen & Ostriker feedback, ``StarParticleFeedback`` methods 0 and 1.  
+    If set to 0, stellar feedback is only deposited into the cell in 
+    which the star particle lives. Default: 0
+``StarFeedbackDistCellStep`` (external)
+    This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
+    determines the shape of the region into which stellar feedback is 
+    deposited.  Starting at the grid cell in which a star particle is 
+    located, it is the maximum number of walking steps along the x, y, 
+    and z axes that can be taken to reach a point inside the stellar 
+    feedback region.  For example, setting ``StarFeedbackDistRadius`` = 
+    1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, 
+    since the corner of the cube is one step in the x, one in the y, and 
+    one in the z direction away from the center.  Setting 
+    ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 
+    corresponds to a 3x3x3 cube with the corners missing.  The maximum 
+    value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * 
+    ``StarFeedbackDistRadius``).  When this is used, equal amounts of 
+    stellar feedback products are deposited into all cells in the 
+    region.  Default: 0
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1741,11 +1786,14 @@ Accretion Physics
     Set to 1 to turn on accretion based on the Eddington-limited
     spherical Bondi-Hoyle formula (Bondi 1952). Set to 2 to turn on
     accretion based on the Bondi-Hoyle formula but with fixed
-    temperature defined below. Set to 3 to turn on accretion based with
+    temperature defined below. Set to 3 to turn on accretion with a
     fixed rate defined below. Set to 4 to to turn on accretion based on
     the Eddington-limited spherical Bondi-Hoyle formula, but without
-    v\_rel in the denominator. Add 10 to each of these options (i.e.
-    11, 12, 13, 14) to ignore the Eddington limit. See
+    v\_rel in the denominator. Set to 5 to turn on accretion based on
+    Krumholz et al.(2006) which takes vorticity into account. Set to 6 
+    to turn on alpha disk formalism based on DeBuhr et al.(2010).  
+    7 and 8 are still failed experiment. Add 10 to each of these options 
+    (i.e. 11, 12, 13, 14) to ignore the Eddington limit. See
     ``Star\_CalculateMassAccretion.C``. Default: 0 (FALSE)
 ``MBHAccretionRadius`` (external)
     This is the radius (in pc) of a gas sphere from which the accreting
@@ -1795,10 +1843,15 @@ Feedback Physics
     - not fully tested). Set to 2 to turn on mechanical feedback of MBH
     particles (``MBH\_JETS``, bipolar jets along the total angular momentum
     of gas accreted onto the MBH particle so far). Set to 3 to turn on
-    an experimental version of mechanical feedback of MBH particles
-    (``MBH\_JETS``, bipolar jets along z-axis). Note that, even when this
+    another version of mechanical feedback of MBH particles (``MBH\_JETS``, 
+    always directed along z-axis). Set to 4 to turn on experimental version of 
+    mechanical feedback (`MBH\_JETS`, bipolar jets along the total angular 
+    momentum of gas accreted onto the MBH particle so far + 10 degree random 
+    noise).  Set to 5 to turn on experimental version of mechanical feedback
+    (``MBH\_JETS``, launched at random direction). Note that, even when this
     parameter is set to 0, MBH particles still can be radiation sources
-    if ``RadiativeTransfer`` is on. Default: 0 (FALSE)
+    if ``RadiativeTransfer`` is on. See ``Grid\_AddFeedbackSphere.C``.
+    Default: 0 (FALSE)
     
     -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all
     -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 1`` : purely thermal
@@ -1855,6 +1908,37 @@ Feedback Physics
 ``MBHParticleIOFilename`` (external)
     The name of the file used for the parameter above. Default:
     ``mbh\_particle\_io.dat``
+
+Conduction
+^^^^^^^^^^^^^^^^
+
+Isotropic and anisotropic thermal conduction are implemented using the
+method of Parrish and Stone: namely, using an explicit, forward
+time-centered algorithm.  In the anisotropic conduction, heat can only
+conduct along magnetic field lines.  One can turn on the two types of
+conduction independently, since there are situations where one might 
+want to use both.  The Spitzer fraction can be also set
+independently for the isotropic and anisotropic conduction.
+
+``IsotropicConduction`` (external)
+    Turns on isotropic thermal conduction using Spitzer conduction.  Default: 0 (FALSE)
+``AnisotropicConduction`` (external)
+    Turns on anisotropic thermal conduction using Spitzer conduction.
+    Can only be used if MHD is turned on (``HydroMethod`` = 4).
+    Default: 0 (FALSE)
+``IsotropicConductionSpitzerFraction`` (external)
+    Prefactor that goes in front of the isotropic Spitzer conduction
+    coefficient.  Should be a value between 0 and 1.
+    Default: 1.0
+``AnisotropicConductionSpitzerFraction`` (external)
+    Prefactor that goes in front of the anisotropic Spitzer conduction
+    coefficient.  Should be a value between 0 and 1.
+    Default: 1.0
+``ConductionCourantSafetyNumber`` (external)
+    This is a prefactor that controls the stability of the conduction
+    algorithm.  In its current explicit formulation, it must be set to
+    a value of 0.5 or less.
+    Default: 0.5
 
 Test Problem Parameters
 -----------------------
@@ -2434,6 +2518,8 @@ Cosmology Simulation (30)
 ``CosmologySimulationInitialFractionHM`` (external)
     The fraction of negatively charged hydrogen (H-) at
     ``InitialRedshift``. Default: 2.0e-9
+``CosmologySimulationInitialFractionMetal`` (external)
+    The fraction of metals at ``InitialRedshift``. Default: 1.0e-10
 ``CosmologySimulationInitialTemperature`` (external)
     A uniform temperature value at ``InitialRedshift`` (needed if the
     initial gas energy field is not supplied). Default: 550\*((1.0 +

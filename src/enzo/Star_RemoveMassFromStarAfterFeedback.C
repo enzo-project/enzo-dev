@@ -7,9 +7,11 @@
 /  date:       January, 2010
 /  modified1: 
 /
-/  PURPOSE: Currently this file is not being used
+/  PURPOSE: Currently this file is not being used; now the functionality 
+/           of this file has moved to
+/
 /           MBH_THERMAL -> no need to do this because EjectaDensity = 0
-/           MBH_JETS    -> done in Grid_AddFeedbackSphere.C
+/           MBH_JETS    -> now done in Grid_AddFeedbackSphere.C
 /
 ************************************************************************/
 #include <stdlib.h>

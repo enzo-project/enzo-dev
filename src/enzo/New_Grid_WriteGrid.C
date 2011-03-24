@@ -259,11 +259,13 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     for (field = 0; field < NumberOfBaryonFields; field++) {
 
       if(WriteEverything == FALSE) {
+      if (debug1)
+	fprintf(stdout, "field = %i %s\n", field, DataLabel[field]);
 
         this->write_dataset(GridRank, OutDims, DataLabel[field],
             group_id, file_type_id, (VOIDP) BaryonField[field],
             CopyOnlyActive, temp);
-
+	//	fprintf(stderr, "%i field\n", field);
       } else {
 
         this->write_dataset(GridRank, FullOutDims, DataLabel[field],
@@ -506,7 +508,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     for (field = 0; field < NumberOfDMFields; field++) {
 
       // Only the active part was calculated, so no copying in the routine
-
+      if (debug1)
+	fprintf(stdout, "DM field = %i\n", field);
       this->write_dataset(GridRank, OutDims, SmoothedDMLabel[field],
                     group_id, file_type_id, (VOIDP) InterpolatedField[field], FALSE);
 

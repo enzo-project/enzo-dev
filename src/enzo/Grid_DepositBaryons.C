@@ -107,7 +107,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     GridOffset[dim] = nint((GridLeftEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			   TargetGrid->GravitatingMassFieldCellSize) - 1;
+			   TargetGrid->GravitatingMassFieldCellSize) - 1;  
     if (TargetGrid == this)
       GridOffset[dim] = max(GridOffset[dim],
 	nint((TargetGrid->GridLeftEdge[dim] -
@@ -128,7 +128,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     GridOffsetEnd[dim] = nint((GridRightEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			   TargetGrid->GravitatingMassFieldCellSize);
+			      TargetGrid->GravitatingMassFieldCellSize); 
     if (TargetGrid == this)
       GridOffsetEnd[dim] = min(GridOffsetEnd[dim],
 	nint((TargetGrid->GridRightEdge[dim] -

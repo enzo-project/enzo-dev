@@ -28,6 +28,7 @@
 int Star::HitEndpoint(FLOAT Time)
 {
 
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   /* First check if the star's past its lifetime and then check other
@@ -44,23 +45,25 @@ int Star::HitEndpoint(FLOAT Time)
   case PopIII:
     // If a Pop III star is going supernova, only kill it after it has
     // applied its feedback sphere
-    if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass)
+    if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
+	(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass)) {
       if (this->FeedbackFlag == DEATH) {
 	this->Mass = 1e-10;  // Needs to be non-zero
 
 	// Set lifetime so the time of death is exactly now.
 	this->LifeTime = Time - this->BirthTime;
 
-	this->FeedbackFlag = NO_FEEDBACK;
-	//result = KILL_STAR;
+	//this->FeedbackFlag = NO_FEEDBACK;
+	result = KILL_STAR;
+	//result = NO_DEATH;
+      } else {
 	result = NO_DEATH;
-      } else
-	result = NO_DEATH;
+      }
 
     // Check mass: Don't want to kill tracer SN particles formed
     // (above) in the previous timesteps.
 
-    else if (this->Mass > 1e-9) {
+    } else if (this->Mass > 1e-9) {
       // Turn particle into a black hole (either radiative or tracer)
       if (PopIIIBlackHoles) {
 	this->type = BlackHole;

@@ -52,6 +52,8 @@ C ---19--       H2II  + HM  -> HI    + H2I
 c
 c-----------------------------------------------------------------------
 c
+#define NO_USE_SAVIN2004
+c
       implicit NONE
 c
 c  Arguments
@@ -187,6 +189,17 @@ c     set HeIII recombination rate as either case A or case B
          k13 = 1.0670825e-10*T_eV**2.012/
      &        (exp(4.463/T_eV)*(1+0.2472*T_eV)**3.512) / kunit
          
+#ifdef USE_SAVIN2004
+         k11 = (exp(-21237.15/T) * 
+     $       (- 3.3232183e-07
+     $        + 3.3735382e-07 * log_T
+     $        - 1.4491368e-07 * log_T**2
+     $        + 3.4172805e-08 * log_T**3
+     $        - 4.7813720e-09 * log_T**4
+     $        + 3.9731542e-10 * log_T**5
+     $        - 1.8171411e-11 * log_T**6
+     $        + 3.5311932e-13 * log_T**7)) / kunit
+#else /* Abel et al. (1997) */
          k11 = exp(-24.24914687731536
      &        + 3.400824447095291*log_T_eV
      &        - 3.898003964650152*log_T_eV**2
@@ -196,6 +209,7 @@ c     set HeIII recombination rate as either case A or case B
      &        - 0.007879026154483455*log_T_eV**6
      &        + 0.0004138398421504563*log_T_eV**7
      &        - 9.36345888928611e-6*log_T_eV**8) / kunit
+#endif /* USE_SAVIN2004 */
          
 C     k12 = 4.38e-10*exp(-102000.0/T)*T**0.35 / kunit
          k12 = 5.6e-11*exp(-102124/T)*T**0.5 / kunit

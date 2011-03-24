@@ -10,8 +10,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#ifndef OPTIMIZED_CTP 
-
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -408,4 +406,3 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids)
  
   return SUCCESS;
 }
-#endif /* OPTIMIZED_CTP */

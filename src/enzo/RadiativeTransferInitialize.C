@@ -68,6 +68,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
   FILE *fptr;
   LevelHierarchyEntry *Temp;
 
+  if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE)
+    return SUCCESS;
+
   /* Read and set parameter values and static radiation sources */
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {
@@ -127,16 +130,20 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	  TypesToAdd[FieldsToAdd++] = i;
       if (PopIIISupernovaUseColour)
 	TypesToAdd[FieldsToAdd++] = SNColour;
-      if (StarClusterUseMetalField) {
+      if (StarClusterUseMetalField &&
+	  StarParticleFeedback > 0 &&
+	  StarParticleFeedback != (1 << POP3_STAR)) {
 	TypesToAdd[FieldsToAdd++] = Metallicity;
 	AddedMetallicity = true;
       }
       if (RadiativeTransferLoadBalance)
 	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
-
-    if (StarParticleFeedback && !AddedMetallicity)
-	TypesToAdd[FieldsToAdd++] = Metallicity;
+    // Add metallicity if Pop II star feedback
+    if (StarParticleFeedback > 0 && 
+	StarParticleFeedback != (1 << POP3_STAR) && 
+	!AddedMetallicity)
+      TypesToAdd[FieldsToAdd++] = Metallicity;      //#####
 
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
       TypesToAdd[i] = FieldUndefined;

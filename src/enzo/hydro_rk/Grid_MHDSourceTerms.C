@@ -46,14 +46,20 @@ int grid::MHDSourceTerms(float **dU)
 				   TENum, B1Num, B2Num, B3Num, PhiNum);
 
 
+  FLOAT a = 1, dadt;
+  if (ComovingCoordinates)
+    if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+	== FAIL) {
+      ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
+    }
+  
 
-
-#ifdef USE
+#ifdef NOUSE
   /* Dedner MHD formulation source terms */
 
-  FLOAT dtdx = dtFixed/CellWidth[0][0],
-    dtdy = (GridRank > 1) ? dtFixed/CellWidth[1][0] : 0.0,
-    dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0] : 0.0;  
+  FLOAT dtdx = dtFixed/CellWidth[0][0]/a,
+    dtdy = (GridRank > 1) ? dtFixed/CellWidth[1][0]/a : 0.0,
+    dtdz = (GridRank > 2) ? dtFixed/CellWidth[2][0]/a : 0.0;  
   float Bx, By, Bz;
   float coeff = 1.;
 
@@ -93,9 +99,10 @@ int grid::MHDSourceTerms(float **dU)
 
   if (DualEnergyFormalism) {
     int igrid, ip1, im1, jp1, jm1, kp1, km1;
-    FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0],
-      dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0] : 0.0,
-      dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0] : 0.0;
+    FLOAT coef = 1.;
+    FLOAT dtdx = coef*dtFixed/CellWidth[0][0]/a,
+      dtdy = (GridRank > 1) ? coef*dtFixed/CellWidth[1][0]/a : 0.0,
+      dtdz = (GridRank > 2) ? coef*dtFixed/CellWidth[2][0]/a : 0.0;
     float min_coeff = 0.0;
     if (UseMinimumPressureSupport) {
       min_coeff = MinimumPressureSupportParameter*
@@ -167,9 +174,6 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
-
-
-
   if (UseConstantAcceleration) {
     int igrid;
     float rho, gx, gy, gz;
@@ -200,8 +204,8 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
-   
-  if ((SelfGravity && GridRank == 3) || ExternalGravity) {
+
+  if ((SelfGravity) || ExternalGravity || UniformGravity || PointSourceGravity) {
     int igrid;
     float rho, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;
@@ -213,8 +217,9 @@ int grid::MHDSourceTerms(float **dU)
 	  rho = BaryonField[DensNum][igrid];
 	  
 	  gx = AccelerationField[0][igrid];
-	  gy = AccelerationField[1][igrid];
-	  gz = AccelerationField[2][igrid];
+	  gy = (GridRank > 1) ? (AccelerationField[1][igrid]) : 0;
+	  gz = (GridRank > 2) ? (AccelerationField[2][igrid]) : 0;
+
 	  vx = BaryonField[Vel1Num][igrid];
 	  vy = BaryonField[Vel2Num][igrid];
 	  vz = BaryonField[Vel3Num][igrid];
@@ -223,34 +228,34 @@ int grid::MHDSourceTerms(float **dU)
 	  dU[iS2  ][n] += dtFixed*gy*rho;
 	  dU[iS3  ][n] += dtFixed*gz*rho;
 	  dU[iEtot][n] += dtFixed*rho*(gx*vx + gy*vy + gz*vz);
-
 	
 	}
       }
     }
   }
 
-  if ((ComovingCoordinates == 1)) { // add cosmological expansion terms here
+
+  if ((ComovingCoordinates == 1)) { // add some B related cosmological expansion terms here
 
     int igrid;
     float rho, coef=0.;
-    FLOAT a, dadt;
     int n = 0;
-    CosmologyComputeExpansionFactor(0.5*(Time+OldTime), &a, &dadt);
     coef = -0.5*dadt/a;
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+	  //	  rho = 0.5*(BaryonField[DensNum][igrid]+OldBaryonField[DensNum][igrid]);
 	  rho = BaryonField[DensNum][igrid];
 	  
-	  
-	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][n];
-	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][n];
-	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][n];
-	  dU[iEtot][n] += dtFixed*coef*(BaryonField[B1Num][n]*BaryonField[B1Num][n]+
-					BaryonField[B2Num][n]*BaryonField[B2Num][n]+
-					BaryonField[B3Num][n]*BaryonField[B3Num][n]);
+	  dU[iBx  ][n] += dtFixed*coef*BaryonField[B1Num][igrid];
+	  dU[iBy  ][n] += dtFixed*coef*BaryonField[B2Num][igrid];
+	  dU[iBz  ][n] += dtFixed*coef*BaryonField[B3Num][igrid];
+
+	  dU[iEtot][n] -= dtFixed*coef*(BaryonField[B1Num][igrid]*BaryonField[B1Num][igrid]+
+					BaryonField[B2Num][igrid]*BaryonField[B2Num][igrid]+
+					BaryonField[B3Num][igrid]*BaryonField[B3Num][igrid]);
+
 	  dU[iPhi][n] += 0.0; // Add correct Phi term here .....
 
 
@@ -258,6 +263,7 @@ int grid::MHDSourceTerms(float **dU)
       }
     }
   }
+
 
   /* Apply external driving force */
 

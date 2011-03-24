@@ -511,10 +511,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->ShocksHandler();
 
       /* Compute and apply thermal conduction. */
-      if(Conduction){
+      if(IsotropicConduction || AnisotropicConduction){
 	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
-	  fprintf(stderr, "Error in grid->ConductHeat.\n");
-	  return FAIL;
+	  ENZO_FAIL("Error in grid->ConductHeat.\n");
 	}
       }
 
@@ -538,6 +537,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     }  // end loop over grids
  
+    /* Finalize (accretion, feedback, etc.) star particles */
+
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			 level, AllStars, TotalStarParticleCountPrevious);
+
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
@@ -548,11 +552,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			  Exterior, LevelArray[level]);
 #endif
-
-    /* Finalize (accretion, feedback, etc.) star particles */
-
-    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
 
     /* If cosmology, then compute grav. potential for output if needed. */
 

@@ -26,6 +26,8 @@
 #include "EOS.h"
 
 
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -45,12 +47,26 @@ int grid::SourceTerms(float **dU)
     return FAIL;
   }
 
+
+    /* If using comoving coordinates, multiply dx by a(n+1/2).
+       In one fell swoop, this recasts the equations solved by solver
+       in comoving form (except for the expansion terms which are taken
+       care of elsewhere). */
+
+    FLOAT a = 1, dadt;
+    if (ComovingCoordinates)
+      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
+	  == FAIL) {
+	ENZO_FAIL("Error in CsomologyComputeExpansionFactors.");
+      }
+
+
   if (DualEnergyFormalism) {   
     if (Coordinate == Cartesian) {
       int igrid, ip1, im1, jp1, jm1, kp1, km1;
-      FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0],
-	dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0] : 0.0,
-	dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0] : 0.0;
+      FLOAT dtdx = 0.5*dtFixed/CellWidth[0][0]/a,
+	dtdy = (GridRank > 1) ? 0.5*dtFixed/CellWidth[1][0]/a : 0.0,
+	dtdz = (GridRank > 2) ? 0.5*dtFixed/CellWidth[2][0]/a : 0.0;
       float rho, eint, p, divVdt, h, cs, dpdrho, dpde;
       float min_coeff = 0.0;
       if (UseMinimumPressureSupport) {
@@ -158,7 +174,7 @@ int grid::SourceTerms(float **dU)
     }
   }
 
-  if ((SelfGravity && GridRank == 3) || ExternalGravity) {
+  if ((SelfGravity) || ExternalGravity) {
     int igrid;
     float rho, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;
@@ -168,10 +184,11 @@ int grid::SourceTerms(float **dU)
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
 	  rho = BaryonField[DensNum][igrid];
-	  
+	  //	  fprintf(stderr, "glad youre calling me");	  
 	  gx = AccelerationField[0][igrid];
-	  gy = AccelerationField[1][igrid];
-	  gz = AccelerationField[2][igrid];
+	  gy = (GridRank > 1) ? (AccelerationField[1][igrid]) : 0;
+	  gz = (GridRank > 2) ? (AccelerationField[2][igrid]) : 0;
+
 	  vx = BaryonField[Vel1Num][igrid];
 	  vy = BaryonField[Vel2Num][igrid];
 	  vz = BaryonField[Vel3Num][igrid];
@@ -185,6 +202,7 @@ int grid::SourceTerms(float **dU)
     }
   }
 
+  /*
   if (SelfGravity && GridRank == 1) {
     // calculate gravitational field
     float pi = 4.0*atan(1.0);
@@ -209,6 +227,7 @@ int grid::SourceTerms(float **dU)
     }
     delete [] gr;
   }
+  */
 
   /* Apply external driving force */
 

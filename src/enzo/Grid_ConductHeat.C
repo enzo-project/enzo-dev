@@ -55,22 +55,31 @@ int grid::ConductHeat(){
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 
+  if (useMHD){
+    iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+    iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+    iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);  
+  }
+
   // figure out what is actually internal energy and set it.  If we
   // use PPM, convert total energy into internal energy regardless, 
   // because it has to be updated to keep everything consistent.
 
   if (HydroMethod==Zeus_Hydro){
     e = BaryonField[TENum];  // 'total energy' is really gas internal energy in zeus
-  } 
-  else {
+  } else if (HydroMethod==PPM_DirectEuler) {
     if(DualEnergyFormalism){
       e = BaryonField[GENum];  // if DEF, gas energy is really gas energy.
     }
     else {
       // energy will be calculated below inside time loop.
       e = new float[size];
-    } // else
-  } // else(HydroMethod==Zeus_Hydro)
+    } 
+  } else if (HydroMethod == MHD_RK) {
+    e = new float[size];
+  } else {  // fails for PPM_LR, HD_RK
+    ENZO_FAIL("Error in Grid::ConductHeat - your Hydro/MHD method is not supported!\n");
+  }
 
   // Sub-cycle, computing and applying heat
 
@@ -92,6 +101,19 @@ int grid::ConductHeat(){
 	  e[i] -= 0.5*POW(BaryonField[Vel2Num][i], 2.0);
 	if(GridRank > 2)
 	  e[i] -= 0.5*POW(BaryonField[Vel3Num][i], 2.0);
+      }
+    }
+
+    if(HydroMethod==MHD_RK){  // convert total energy into internal energy: subract off kinetic, magnetic energy
+      
+      for (i = 0; i < size; i++) {
+	e[i] = BaryonField[TENum][i] - 0.5*POW(BaryonField[Vel1Num][i], 2.0);
+	if(GridRank > 1)
+	  e[i] -= 0.5*POW(BaryonField[Vel2Num][i], 2.0);
+	if(GridRank > 2)
+	  e[i] -= 0.5*POW(BaryonField[Vel3Num][i], 2.0);
+	
+	e[i] -= 0.5*(POW(BaryonField[iBx][i],2.0) + POW(BaryonField[iBy][i],2.0) + POW(BaryonField[iBz][i],2.0))/BaryonField[DensNum][i];
       }
     }
 
@@ -134,7 +156,7 @@ int grid::ConductHeat(){
 		       dtFixed, dtSubcycle);
 	  }
 
-	  // energy needs to be updated here if hydro is PPM
+	  // energy needs to be updated here if hydro is PPM or MHD
 	  if(HydroMethod != Zeus_Hydro){
 
 	    BaryonField[TENum][idx] = e[idx] + 0.5*POW(BaryonField[Vel1Num][idx], 2.0);
@@ -143,7 +165,12 @@ int grid::ConductHeat(){
 	    if(GridRank > 2)
 	      BaryonField[TENum][idx] += 0.5*POW(BaryonField[Vel3Num][idx], 2.0);
 
-	  }
+	    if(useMHD)
+	      BaryonField[TENum][idx] += 0.5*(POW(BaryonField[iBx][idx],2.0) + 
+					      POW(BaryonField[iBy][idx],2.0) + 
+					      POW(BaryonField[iBz][idx],2.0))/BaryonField[DensNum][idx];
+
+	  } // if(HydroMethod != Zeus_Hydro)
 
 	} // triple for loop
 
@@ -155,7 +182,7 @@ int grid::ConductHeat(){
 
   if(debug1) printf("Grid::ConductHeat:  Nsubcycles = %"ISYM"\n",Nsub);
 
-  if(HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0)
+  if((HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0) || (HydroMethod==MHD_RK))
     delete [] e;
 
   delete [] dedt;

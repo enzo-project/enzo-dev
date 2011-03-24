@@ -311,7 +311,7 @@ c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
 c
 c              Remove mass from grid
 
-               d(i,j,k) = 0.5 * d(i,j,k)
+c               d(i,j,k) = 0.5 * d(i,j,k)
 
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k

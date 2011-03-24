@@ -83,6 +83,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.dtTracerParticleDump       = 0.0;
   MetaData.TimeLastInterpolatedDataDump    = FLOAT_UNDEFINED;
   MetaData.dtInterpolatedDataDump          = 0.0;
+  MetaData.WroteData           = FALSE;
  
   MetaData.CycleLastRestartDump = 0;
   MetaData.CycleSkipRestartDump = 0;
@@ -192,7 +193,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
   MinimumSubgridEdge        = 6;                 // min for acceptable subgrid
   MaximumSubgridSize        = 32768;             // max for acceptable subgrid
-  SubgridSizeAutoAdjust     = FALSE; // true for adjusting maxsize and minedge
+  SubgridSizeAutoAdjust     = TRUE; // true for adjusting maxsize and minedge
   OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
  
@@ -294,7 +295,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
- 
+
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet
  
@@ -307,6 +308,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
   RadiativeCooling            = FALSE;             // off
+  RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
+                                                   //3=Koyama&Inutsuka 2002
   GadgetEquilibriumCooling    = FALSE;             // off
   RadiativeTransfer           = 0;                 // off
   RadiativeTransferFLD        = 0;                 // off
@@ -327,6 +330,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
   RadiationFieldType          = 0;
+  TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
   AdjustUVBackground          = 1;
@@ -407,13 +411,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarEnergyToThermalFeedback      = 1.0e-5;
   StarEnergyToStellarUV            = 3.0e-6;
   StarEnergyToQuasarUV             = 5.0e-6;
+  StarFeedbackDistRadius           = 0;
+  StarFeedbackDistCellStep         = 0;
+  StarFeedbackDistTotalCells       = 1;
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
   OutputParticleTypeGrouping       = FALSE;
 
-  Conduction = FALSE;
-  ConductionSpitzerFraction = 1.0;
+  IsotropicConduction = FALSE;
+  AnisotropicConduction = FALSE;
+  IsotropicConductionSpitzerFraction = 1.0;
+  AnisotropicConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
   PythonTopGridSkip                = 0;
@@ -430,6 +439,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderLastTime               = 0.0;
 
   StarClusterUseMetalField         = FALSE;
+  StarClusterUnresolvedModel       = FALSE;
   StarClusterHeliumIonization      = FALSE;
   StarClusterMinDynamicalTime      = 10e6;         // in years
   StarClusterIonizingLuminosity    = 1e47;         // ph/s / Msun
@@ -446,6 +456,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIStarMass                   = 100;
   PopIIIInitialMassFunction        = FALSE;
   PopIIIInitialMassFunctionSeed    = INT_UNDEFINED;
+  PopIIIInitialMassFunctionCalls   = 0;
   PopIIIHeliumIonization           = FALSE;
   PopIIILowerMassCutoff            = 1.0;
   PopIIIUpperMassCutoff            = 300.0;
@@ -463,7 +474,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIIColorMass                  = 1e6;          // total mass to color
   IMFData                          = NULL;
 
-  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate
+  MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
   MBHAccretionRadius               = 50;           // pc
   MBHAccretingMassRatio            = 1.0;          // 100%, check Star_CalculateMassAccretion.C
   MBHAccretionFixedTemperature     = 3e5;          // K,       for MBHAccretion = 2
@@ -473,7 +484,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHMinDynamicalTime              = 10e6;         // in years
   MBHMinimumMass                   = 1e3;          // Msun
 
-  MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L
+  MBHFeedback                      = FALSE;        // 1: isotropic thermal, 2: jet along z, 3: jet along L, 4: jet along L with 10deg noise, 5: jet along random direction
   MBHFeedbackRadiativeEfficiency   = 0.1;          // Shakura & Sunyaev (1973)
   MBHFeedbackEnergyCoupling        = 0.05;         // Springel (2005), Di Matteo (2005)
   MBHFeedbackMassEjectionFraction  = 0.1;          // 10%, check Star_CalculateFeedbackParameters.C
@@ -525,14 +536,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallEint		     = 1e-30;
   SmallT		     = 1e-10;
   MaximumAlvenSpeed	     = 1e30;
-  RiemannSolver		     = HLL;
-  ReconstructionMethod	     = PLM;
+  RiemannSolver		     = INT_UNDEFINED;
+  RiemannSolverFallback      = FALSE;
+  ReconstructionMethod	     = INT_UNDEFINED;
+  PositiveReconstruction     = FALSE;
   ConservativeReconstruction = 0;
   EOSType		     = 0;
   EOSSoundSpeed		     = 2.65e4;
   EOSCriticalDensity	     = 1e-13;
   EOSGamma		     = 1.667;
   Mu			     = 0.6;
+  DivBDampingLength          = 1.;
   CoolingCutOffDensity1	     = 0;
   CoolingCutOffDensity2	     = 1e10;
   CoolingCutOffTemperature   = 0.0;
@@ -547,6 +561,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseResistivity	     = 0;
 
   StringKick = 0;
+  StringKickDimension = 0;
 
   iden	= 0;
   ivx	= 1;
@@ -611,6 +626,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
+  TestProblemData.MetallicityNormalization = 0.0204;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

@@ -1,0 +1,144 @@
+#=======================================================================
+#
+# FILE:        Make.mach.darwin
+#
+# DESCRIPTION: Makefile settings for Leopard OSX
+#  This was written to use:
+#       System OpenMPI (mpicc, mpic++)
+#       HDF5 installed to /usr/local/ with no additional 'configure'
+#           arguments
+#
+# AUTHOR:      Matthew Turk (mturk@slac.stanford.edu)
+#
+# DATE:        2008-10-30
+# Modified:    2011-02-08, dcollins
+#       Added C, C++, fortran compile flags.
+#       Use gfortran from http://r.research.att.com/gfortran-4.2.3.dmg
+#          The one from http://hpc.sf.net/ had problems with the x86 libgfortran
+#
+#=======================================================================
+
+MACH_TEXT  = Darwin (OSX Leopard)
+MACH_VALID = 1
+MACH_FILE  = Make.mach.darwin
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_PACKAGES       = /usr/local
+
+LOCAL_MPI_INSTALL    = /usr
+LOCAL_FC_INSTALL     = /usr/local
+LOCAL_HDF5_INSTALL   = $(HDF5_DIR)
+LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
+LOCAL_HYPRE_INSTALL  = $(HOME)
+LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
+LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
+LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
+LOCAL_CVODE_INSTALL  = /usr/local/
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /usr/bin/cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpic++
+MACH_FC_MPI    = gfortran
+MACH_F90_MPI   = gfortran
+MACH_LD_MPI    = mpic++
+MACH_CUDACOMPILER = /usr/local/cuda/bin/nvcc
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc  # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = g++ # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+# Note: When compiling against HDF5 version 1.8 or greater, you need to
+# compile HDF5 with --with-default-api-version=v16, or Enzo with
+# -DH5_USE_16_API.
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API #-DNEW_PROBLEM_TYPES
+
+#-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = -arch x86_64
+MACH_CXXFLAGS = -arch x86_64
+MACH_FFLAGS   = -fno-second-underscore -m64
+MACH_F90FLAGS = -fno-second-underscore -m64
+MACH_LDFLAGS  = 
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = 
+MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
+MACH_FFLAGS_REAL_32    = 
+MACH_FFLAGS_REAL_64    = -fdefault-real-8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
+LOCAL_INCLUDES_HYPRE  = 
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
+LOCAL_INCLUDES_CVODE  = -I$(LOCAL_CVODE_INSTALL)/include/cvode/
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA) \
+                        $(LOCAL_INCLUDES_CVODE)
+MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MACH   = -L$(LOCAL_FC_INSTALL)/lib -lgfortran
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_PYTHON = -framework Python 
+LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
+LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
+                    -lsundials_nvecserial -lhdf5_hl
+
+MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) 
+MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
+MACH_LIBS_MPI    = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE  = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)

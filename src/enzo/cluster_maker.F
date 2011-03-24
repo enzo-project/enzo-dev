@@ -108,11 +108,11 @@ c
       parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
      &           msolar=1.989e33, mh=1.673e-24)
 c
-      if (iradtrans .eq. 0) then
-         write(6,*) 'Radiative transfer required for cluster_maker!'
-         write(6,*) 'Check parameter file.'
-         stop
-      endif
+c      if (iradtrans .eq. 0) then
+c         write(6,*) 'Radiative transfer required for cluster_maker!'
+c         write(6,*) 'Check parameter file.'
+c         stop
+c      endif
 
       ii = np
 c
@@ -173,7 +173,15 @@ c               if (tdyn .gt. cooltime(i,j,k) .or.
 c     &            temp(i,j,k) .lt. 1.1e4) 
 c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
 c               if (tdyn .lt. cooltime(i,j,k)) goto 10
-               if (temp(i,j,k) .gt. min_temp) goto 10
+
+c     Lifetime > 0 (resolved SF. Don't use tdyn)
+               if (temp(i,j,k) .gt. min_temp .and. 
+     &              lifetime.gt.0) goto 10
+c     Lifetime < 0 means unresolved SF.  Use tcool<tdyn.
+               if (lifetime.lt.0 .and.
+     &              tdyn .lt. cooltime(i,j,k) .and. 
+     &              temp(i,j,k) .gt. min_temp) goto 10
+
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. min_temp) goto 10
 c
@@ -222,7 +230,11 @@ c
                ii = ii + 1
 c               mp(ii)   = efficiency*bmass
                mp(ii)  = efficiency*d(i,j,k)
-               tdp(ii) = lifetime*3.15e7/t1  ! yr -> code
+               if (lifetime.lt.0.0) then
+                  tdp(ii) = 4*tdyn
+               else
+                  tdp(ii) = lifetime*3.15e7/t1 ! yr -> code
+               endif
 
                type(ii) = -ctype
                tcp(ii) = t

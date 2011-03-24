@@ -260,6 +260,7 @@ c
      &                      d, dm, te, ge, u, v, w, metal,
      &                      idual, imetal, imethod, dt, r, dx, t, z,
      &                      d1, x1, v1, t1, sn_param, m_eject, yield,
+     &                      distrad, diststep, distcells,
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn)
@@ -308,6 +309,9 @@ c    npart    - particle array size specified by calling routine
 c    sn_param - fraction of stellar rest mass that goes to feedback
 c    m_eject  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
+c    distrad  - feedback distribution radius in cells
+c    diststep - distance in walking steps to deposit feedback
+c    distcells - total number of cells over which to distribute feedback
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -320,7 +324,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
+      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod,
+     &      distrad, diststep, distcells
       real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
@@ -335,9 +340,10 @@ c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      integer i, j, k, n
+      integer i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
-     &     m_eject, yield, minitial, xv1, xv2, dratio
+     &     m_eject, yield, minitial, xv1, xv2, dratio,
+     &     distmass
       parameter (clight = 3e10, msolar_e51 = 1800.0)
 c
 c-----------------------------------------------------------------------
@@ -398,6 +404,22 @@ c          skip if very little mass is formed.
 c
             if (mform/d(i,j,k) .lt. 1.0e-10) goto 10
 c
+c          calculate mass added to each cell
+c
+            distmass = (mform * m_eject) / distcells
+c
+c          if using distributed feedback, check if particle is
+c          too close to the boundary
+c
+            if (distrad .gt. 0) then
+               i = max((1 + ibuff + distrad), 
+     &              min((nx - ibuff - distrad), i))
+               j = max((1 + ibuff + distrad), 
+     &              min((ny - ibuff - distrad), j))
+               k = max((1 + ibuff + distrad), 
+     &              min((nz - ibuff - distrad), k))
+            endif
+c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
 c
@@ -410,8 +432,7 @@ c
 c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c
-            energy = sn_param * mform * (clight/v1)**2 / 
-     &                (d(i,j,k)+mform*m_eject)
+            energy = sn_param * mform * (clight/v1)**2 / distcells
 c
 c             (aug 7/00 addition: share ejected energy between gas
 c              being ejected and that remaining in star particle)
@@ -424,43 +445,63 @@ c
 c
 c           Add energy to energy field
 c
-            dratio = d(i,j,k)/(d(i,j,k) + mform * m_eject)
-            te(i,j,k) = te(i,j,k)*dratio + energy
-            if (idual .eq. 1) 
-     &          ge(i,j,k) = ge(i,j,k)*dratio + energy
-
+            do kc = k-distrad,k+distrad
+               stepk = abs(kc-k)
+               do jc = j-distrad,j+distrad
+                  stepj = stepk + abs(jc-j)
+                  do ic = i-distrad,i+distrad
+                     cellstep = stepj + abs(ic-i)
+                     if (cellstep .le. diststep) then
+                        dratio = 1.0/(d(ic,jc,kc) + distmass)
+                        te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
+     &                       energy) * dratio
+                        if (idual .eq. 1)
+     &                       ge(ic,jc,kc) = 
+     &                       ((ge(ic,jc,kc)*d(ic,jc,kc)) +
+     &                       energy) * dratio
 c
 c           Metal feedback (note that in this function gas metal is
 c             a fraction (rho_metal/rho_gas) rather than a density.
 c             The conversion has been done in the handling routine)
 c
-            if (imetal .eq. 1) then
+                        if (imetal .eq. 1) then
 c
 c           "Cen method".  This takes into account gas recycling.
 c
-               metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-     &              (yield * (1.0-metalf(n)) + m_eject * metalf(n)))
-     &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
+                           metal(ic,jc,kc) = 
+     &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
+     &                          (mform / distcells) * 
+     &                          (yield * (1.0-metalf(n)) + 
+     &                          m_eject * metalf(n))) * dratio
+            !metal is a fraction
 c
-            endif
+                        endif
 c
 c           Mass and momentum feedback
 c
-            u(i,j,k) = u(i,j,k)*d(i,j,k) + mform * m_eject * up(n)
-            v(i,j,k) = v(i,j,k)*d(i,j,k) + mform * m_eject * vp(n)
-            w(i,j,k) = w(i,j,k)*d(i,j,k) + mform * m_eject * wp(n)
-            d(i,j,k) = d(i,j,k) + mform * m_eject
-            u(i,j,k) = u(i,j,k)/d(i,j,k)
-            v(i,j,k) = v(i,j,k)/d(i,j,k)
-            w(i,j,k) = w(i,j,k)/d(i,j,k)
+                        u(ic,jc,kc) = u(ic,jc,kc)*d(ic,jc,kc) +
+     &                       distmass * up(n)
+                        v(ic,jc,kc) = v(ic,jc,kc)*d(ic,jc,kc) +
+     &                       distmass * vp(n)
+                        w(ic,jc,kc) = w(ic,jc,kc)*d(ic,jc,kc) +
+     &                       distmass * wp(n)
+                        d(ic,jc,kc) = d(ic,jc,kc) + distmass
+                        u(ic,jc,kc) = u(ic,jc,kc)/d(ic,jc,kc)
+                        v(ic,jc,kc) = v(ic,jc,kc)/d(ic,jc,kc)
+                        w(ic,jc,kc) = w(ic,jc,kc)/d(ic,jc,kc)
 c
 c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
-            if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
-     &                          w(i,j,k)**2) + ge(i,j,k)
-            endif
+                        if (imethod .ne. 2 .and. idual .eq. 1) then
+                           te(ic,jc,kc) = 0.5*(u(ic,jc,kc)**2 + 
+     &                          v(ic,jc,kc)**2 + w(ic,jc,kc)**2) +
+     &                          ge(ic,jc,kc)
+                        endif
+                     endif
+                  enddo
+               enddo
+            enddo
 c
  10         continue
          endif

@@ -79,6 +79,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   int OriginalDimension[] = {1,1,1};
   int Offset[] = {0,0,0};
   float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer, CellSize;
+  float *ParticleMassPointerSink;    
   float TimeDifference = 0;
   FLOAT LeftEdge[MAX_DIMENSION], OriginalLeftEdge[MAX_DIMENSION];
   float *DepositFieldPointer, *OriginalDepositFieldPointer;
@@ -229,10 +230,16 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 	MassFactor *= RefinementFactors[dim];
  
     } // ENDIF (this != TargetGrid)
+
+    /* Check if we are smoothing. */
+
+    int SmoothField = (DepositPositionsParticleSmoothRadius <= CellSize) ? FALSE : TRUE;
  
     /* If required, Change the mass of particles in this grid. */
  
-    if (MassFactor != 1.0) {
+    if (MassFactor != 1.0 || 
+	((StarParticleCreation == (1 << SINK_PARTICLE)) && 
+	 SmoothField == TRUE)) {
       ParticleMassTemp = new float[NumberOfParticles];
       for (i = 0; i < NumberOfParticles; i++)
 	ParticleMassTemp[i] = ParticleMass[i]*MassFactor;
@@ -259,10 +266,36 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     //The second argument forces the update even if 
     //MyProcessor == Target->ProcessorNumber != this->ProcessorNumber
     this->UpdateParticlePosition(TimeDifference, TRUE);
+
+    /* If using sink particles, then create a second field of unsmoothed sink particles
+       (since we don't want sink particles smoothed -- they are stellar sized). */
+
+      /* Note that several types of particles may be appropriate for this,
+         but they will have to be added if needed. */
+    if ((this->ReturnNumberOfStarParticles() > 0) && 
+	(StarParticleCreation == (1 << SINK_PARTICLE)) && SmoothField == TRUE) {
+      ParticleMassPointerSink = new float[NumberOfParticles];
+      for (i = 0; i < NumberOfParticles; i++) {
+	if (ParticleType[i] == PARTICLE_TYPE_STAR) {
+	  ParticleMassPointerSink[i] = ParticleMassPointer[i];
+	  ParticleMassPointer[i] = 0;
+	} else {
+	  ParticleMassPointerSink[i] = 0;
+	}
+      }
+
+      /* Deposit sink particles (only) to field using CIC. */
+
+      PFORTRAN_NAME(cic_deposit)
+	(ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
+	 &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
+	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);      
+
+    }
  
     /* Deposit particles. */
 
-    if (DepositPositionsParticleSmoothRadius <= CellSize) {
+    if (SmoothField == FALSE) {
 
     /* Deposit to field using CIC. */
  
@@ -287,6 +320,17 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 	 &DepositPositionsParticleSmoothRadius);
     }
     
+    if ((this->ReturnNumberOfStarParticles() > 0) && 
+	(StarParticleCreation == (1 << SINK_PARTICLE)) && SmoothField == TRUE) {
+      for (i = 0; i < NumberOfParticles; i++) {
+	if (ParticleType[i] == PARTICLE_TYPE_STAR) {
+	  ParticleMassPointer[i] = ParticleMassPointerSink[i];
+	}
+      }
+      delete [] ParticleMassPointerSink;
+    }
+
+
   } // ENDIF this processor
  
   /* If on different processors, copy deposited field back to the

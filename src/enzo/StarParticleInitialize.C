@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -41,6 +42,8 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   /* Return if this does not concern us */
   if (!(StarParticleCreation || StarParticleFeedback)) 
     return SUCCESS;
+
+  LCAPERF_START("StarParticleInitialize");
 
   /* Set MetaData->NumberOfParticles and prepare TotalStarParticleCountPrevious
      these are to be used in CommunicationUpdateStarParticleCount 
@@ -119,6 +122,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //  fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
 
 
+  LCAPERF_STOP("StarParticleInitialize");
   return SUCCESS;
 
 }
