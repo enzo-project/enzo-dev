@@ -404,7 +404,7 @@ Hierarchy Control Parameters
     (0). In other words, a value of 1 takes the A out of AMR. Default:
     1
 ``RefineBy`` (external)
-    This is the refinement factor between a grid and it's subgrid. For
+    This is the refinement factor between a grid and its subgrid. For
     cosmology simulations, we have found a ratio of 2 to be most useful.
     Default: 4
 ``MaximumRefinementLevel`` (external)
@@ -470,19 +470,17 @@ Hierarchy Control Parameters
     comment header line. Default: None.
 ``MinimumOverDensityForRefinement`` (external)
     These float values (up to 5) are used if the ``CellFlaggingMethod`` is
-    2, 4, or 5 although in slightly different ways. For Method 5, this
-    is the overdensity in terms of (rho/<rho> - 1), where rho is the
-    density of the cell, and <rho> is the mean density. For the others,
-    the meaning is actually just rho/<rho> where rho is the density of
-    the appropriate species. This value is converted into a mass, by
-    multiplying by the volume of the a top grid cell. This result is
-    then stored in the next parameter (unless it is set directly in
+    2, 4 or 5, although in slightly different ways. For cosmology simulations, the value is rho/<rho> for Methods 2 and 4, where rho is the density of the appropriate species in the cell and <rho> the mean density of that species in the simulation volume. For Method 5 it becomes (rho/<rho> - 1). For non-cosmology simulations, it is simply the density above which a refinement occurs.
+
+    In practice, this value is converted into a mass by
+    multiplying it by the volume of the top grid cell. The result is
+    then stored in the next parameter (unless that is set directly in
     which case this parameter is ignored), and this defines the mass
     resolution of the simulation. Note that the volume is of a top grid
     cell, so if you are doing a multi-grid initialization, you must
     divide this number by r\ :sup:`(d\*l)`\  where r is the refinement
     factor, d is the dimensionality and l is the (zero-based) lowest
-    level. For example, for a two grid setup where a cell should be
+    level. For example, for a two grid cosmology setup where a cell should be
     refined whenever the mass exceeds 4 times the mean density of the
     subgrid, this value should be 4 / (2\ :sup:`(3\*1)`\ ) = 4 / 8 =
     0.5. Keep in mind that this parameter has no effect if it is
