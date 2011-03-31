@@ -177,6 +177,8 @@ highly refined up to a certain level) so that you don't
 double-count (or worse) the gas in a given cell. Look at this
 example analysis code.
 
+.. _EnzoPhysicalUnits:
+
 Writing your own tools, II - Enzo Physical Units
 ------------------------------------------------
 

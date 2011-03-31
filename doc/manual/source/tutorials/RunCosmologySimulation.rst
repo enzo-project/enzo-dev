@@ -1,3 +1,5 @@
+.. _RunCosmologySimulation:
+
 How to run a cosmology simulation
 =================================
 
