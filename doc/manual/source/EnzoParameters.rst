@@ -48,7 +48,7 @@ Stopping Parameters
 ``StopCycle`` (external)
     The cycle (top grid timestep) at which the calculation stops. A
     value of zero indicates that this criterion is not be used.
-    *Default: 100000*
+    *Default: 100,000*
 ``StopFirstTimeAtLevel`` (external)
     Causes the simulation to immediately stop when a specified level is
     reached. Default value 0 (off), possible values are levels 1
@@ -144,7 +144,7 @@ Problem Type Description and Parameter List
 
 
 ``TopGridRank`` (external)
-    This specified the dimensionality of the root grid and by extension
+    This specifies the dimensionality of the root grid and by extension
     the entire hierarchy. It should be 1,2 or 3. Default: none
 ``TopGridDimensions`` (external)
     This is the dimension of the top or root grid. It should consist of
@@ -188,13 +188,13 @@ Problem Type Description and Parameter List
     appropriate format. This is too involved to go into here. Default:
     none
 ``InitialTime`` (internal)
-    The time, in "code" units, of the current step. For cosmology the
+    The time, in code units, of the current step. For cosmology the
     units are in free-fall times at the initial epoch (see output
-    format). Default: generally 0, depends on problem
+    format). Default: generally 0, depending on problem
 ``Initialdt`` (internal)
-    The timestep, in "code" units, for the current step. For cosmology
+    The timestep, in code units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see output
-    format). Default: generally 0, depends on problem
+    format). Default: generally 0, depending on problem
 ``GridVelocity`` (obsolete)
     For problems in which the grid must move. Originally implemented,
     but was never used, and so almost surely doesn't work. Default: 0 0
@@ -236,7 +236,7 @@ There are three ways to specify the frequency of outputs:
 time-based, cycle-based (a cycle is a top-grid timestep), and, for
 cosmology simulations, redshift-based. There is also a shortened
 output format intended for visualization (movie format). Please
-have a look at :ref:`ControllingDataOutput` for more information.
+have a look at :ref:`controlling_data_output` for more information.
 
 ``dtDataDump`` (external)
     The time interval, in code units, between time-based outputs. A

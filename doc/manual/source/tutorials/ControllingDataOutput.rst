@@ -1,3 +1,5 @@
+.. _controlling_data_output:
+
 Controlling Enzo data output
 ============================
 
