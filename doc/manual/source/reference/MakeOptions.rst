@@ -26,6 +26,8 @@ with the default configuration, then compiling is relatively
 straightforward. For example, to compile ``Enzo`` on NICS's Kraken
 platform (starting from the top-level ``Enzo`` directory):
 
+.. highlight:: none
+
 ::
 
        ./configure
@@ -49,13 +51,17 @@ value (even if that value is an empty string), and all variables that
 begin with ``LOCAL_`` (or anything else) are optional and only
 accessed within the ``Make.mach.*`` file itself.
 
-The list of ``MACH_`` variables that can be set are listed below:
+The list of ``MACH_`` variables that can be set are listed below.
+
+General variables:
 
 ================ ============
 **MACH\_FILE**    Name of the make include file for the machine, e.g. ``Make.mach.nics-kraken``
 **MACH\_TEXT**    Description of the platform, e.g. ``"NICS Kraken"``
 **MACH\_VALID**   Should be set to 1, though not currently accessed
 ================ ============
+
+Paths to compilers:
 
 ===================== ============
 **MACH\_CPP**          The C preprocessor
@@ -72,6 +78,8 @@ The list of ``MACH_`` variables that can be set are listed below:
 **MACH\_LD\_NOMPI**    The linker (typically the C++ compiler)
 ===================== ============
 
+Compiler flags:
+
 ================== ============
 **MACH\_CPPFLAGS**    Machine-dependent flags for the C preprocessor, e.g.  ``-P -traditional``
 **MACH\_CFLAGS**    Machine-dependent flags for the C compiler
@@ -81,6 +89,8 @@ The list of ``MACH_`` variables that can be set are listed below:
 **MACH\_LDFLAGS**    Machine-dependent flags for the linker
 ================== ============
 
+Precision flags:
+
 ============================== ============
 **MACH\_DEFINES**               Machine-specific defines, e.g. ``-DLINUX``, ``-DIBM``, ``-DIA64``, etc.
 **MACH\_FFLAGS\_INTEGER\_32**    Fortran flags for specifying 32-bit integers
@@ -89,6 +99,7 @@ The list of ``MACH_`` variables that can be set are listed below:
 **MACH\_FFLAGS\_REAL\_64**      Fortran flags for specifying 64-bit reals
 ============================== ============
 
+Paths to include header files:
 
 ========================= ============
 **MACH\_INCLUDES**         All required machine-dependent includes--should at least include    HDF5.
@@ -98,6 +109,8 @@ The list of ``MACH_`` variables that can be set are listed below:
 **MACH_INCLUDES_PYTHON**    Includes for Python if needed
 ========================= ============
 
+Paths to library files:
+
 ====================== ============
 **MACH\_LIBS**         All required machine-dependent libraries--should at least include    HDF5.
 **MACH\_LIBS\_HYPRE**    Libraries for optional Hypre linear solver package
@@ -106,6 +119,8 @@ The list of ``MACH_`` variables that can be set are listed below:
 **MACH_LIBS_CUDA**      Libraries for CUDA if needed
 **MACH_LIBS_PYTHON**    Libraries for Python if needed
 ====================== ============
+
+Optimization flags:
 
 ========================= ============
 **MACH\_OPT\_AGGRESSIVE**    Compiler/link flags for "aggressive" optimization
