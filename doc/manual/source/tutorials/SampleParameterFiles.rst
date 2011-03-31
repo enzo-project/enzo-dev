@@ -1,3 +1,5 @@
+.. _sample-parameter-files:
+
 Sample inits and Enzo parameter files
 =====================================
 
