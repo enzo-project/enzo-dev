@@ -9,6 +9,8 @@ tarball.
 
 Note: unless otherwise specified, inits is run by calling
 
+.. highlight:: none
+
 ::
 
       inits -d <name of inits parameter file>
