@@ -23,6 +23,8 @@ size of the root grid. The code then takes that information and
 creates a set of initial conditions. Here is an example inits
 file:
 
+.. highlight:: none
+
 ::
 
     #
@@ -94,7 +96,7 @@ side and we allow a maximum of three levels of mesh refinement.
 Still, we will use the ring tool, since it is important for larger
 simulations of sizes typically used for doing science.  Additionally,
 if you wish to run with 64 or more processors, you should use
-``ParallelRootGridIO``, described in :ref:`ParallelRootGrid`.
+``ParallelRootGridIO``, described in :ref:`ParallelRootGridIO`.
 
 The ring tool is part of the Enzo parallel IO (input-output)
 scheme. Examine the last section of the parameter file (see below)
