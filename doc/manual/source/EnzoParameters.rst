@@ -490,10 +490,10 @@ Hierarchy Control Parameters
     ``CellFlaggingMethod``. Default: 1.5
 ``MinimumMassForRefinement`` (internal)
     This float is usually set by the parameter above and so is labeled
-    internal, but it can be set by hand. It is the mass (in units such
-    that the entire mass in the computational volume is 1.0) above
+    internal, but it can be set by hand. For non-cosmological simulations, it can be the easier refinement criteria to specify. It is the mass above
     which a refinement occurs if the ``CellFlaggingMethod`` is
-    appropriately set. There are five numbers here again, as per the
+    appropriately set. For cosmological simulations, it is specified in units such
+    that the entire mass in the computational volume is 1.0, otherwise it is in code units. There are five numbers here again, as per the
     above parameter. Default: none
 ``MinimumMassForRefinementLevelExponent`` (external).
     This parameter modifies the behaviour of the above parameter. As it
