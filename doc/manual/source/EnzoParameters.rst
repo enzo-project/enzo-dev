@@ -1670,11 +1670,10 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroMGRelaxType`` (external)
     Relaxation method used by the multigrid solver. Default: 1.
     
-    -  (0) - Jacobi.
-    -  (1) - Weighted Jacobi.
-    -  (2) - `Red/Black? </wiki/Red/Black>`_ Gauss-Seidel (symmetric).
-    -  (3) - `Red/Black? </wiki/Red/Black>`_ Gauss-Seidel
-       (non-symmetric).
+      #. Jacobi.
+      #. Weighted Jacobi.
+      #. Red/Black Gauss-Seidel (symmetric).
+      #. Red/Black Gauss-Seidel (non-symmetric).
 
 ``RadHydroMGPreRelax`` (external)
     Number of pre-relaxation sweeps used by the multigrid solver.
@@ -1782,11 +1781,10 @@ Radiative Transfer (FLD) Split Solver Parameters
 ``RadHydroMGRelaxType`` (external)
     Relaxation method used by the multigrid solver. Default: 1.
     
-    -  (0) - Jacobi.
-    -  (1) - Weighted Jacobi.
-    -  (2) - `Red/Black? </wiki/Red/Black>`_ Gauss-Seidel (symmetric).
-    -  (3) - `Red/Black? </wiki/Red/Black>`_ Gauss-Seidel
-       (non-symmetric).
+      #. Jacobi.
+      #. Weighted Jacobi.
+      #. Red/Black Gauss-Seidel (symmetric).
+      #. Red/Black Gauss-Seidel (non-symmetric).
 
 ``RadHydroMGPreRelax`` (external)
     Number of pre-relaxation sweeps used by the multigrid solver.
@@ -2116,7 +2114,7 @@ Rotating Cylinder (10)
 
     A test for the angular momentum conservation of a collapsing
     cylinder of gas in an AMR simulation. Written by Brian O'Shea
-    (` oshea@msu.edu <mailto:oshea@msu.edu>`_).
+    (`oshea@msu.edu <mailto:oshea@msu.edu>`_).
 
 
 ``RotatingCylinderOverdensity`` (external)
