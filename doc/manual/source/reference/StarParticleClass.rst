@@ -102,7 +102,7 @@ How to add a new particle type
    have to add a new case to the switch statement. Something as simple
    as
 
-   ::
+   .. code-block:: c
 
       case NEW_PARTICLE_TYPE:
       if (this->type < 0)
