@@ -1,3 +1,5 @@
+.. _BaryonFieldAccess:
+
 Accessing Data in BaryonField
 =============================
 
