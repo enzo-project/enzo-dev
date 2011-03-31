@@ -285,6 +285,8 @@ Ring
 
 This will produce ``ring.exe``.
 
+.. _build_yt:
+
 YT
 ~~
 

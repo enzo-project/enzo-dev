@@ -33,7 +33,7 @@ Using YT to Analyze Data
 
 If you have installed `YT <http://yt.enzotools.org/>`_ along with
 Enzo (as per the
-`build instructions? </wiki/UserGuide/BuildingEnzo#YT>`_), you
+build instructions :ref:`build_yt`), you
 should be able to use it to find halos, examine profiles, prepare
 plots and handle data directly via physically meaningful objects.
 `Documentation <http://yt.enzotools.org/doc/>`_, a
@@ -122,6 +122,8 @@ grid file can be obtained from the hierarchy file, which has the
 file extension ".hierarchy". This ascii file has a listing for each
 grid that looks something like this:
 
+.. highlight:: none
+
 ::
 
     Grid = 26
@@ -186,7 +188,7 @@ Yet another significant source of confusion is the units that Enzo
 uses. When doing a cosmology simulation, the code uses a set of
 units that make most quantities on the order of unity (in
 principle). The Enzo manual section on
-`the code output format? </wiki/UserGuide/EnzoOutputFormat>`_
+the code output format :ref:`EnzoOutputFormats`
 explains how to convert code units to cgs units. However, there are
 some subtleties:
 
@@ -232,7 +234,7 @@ When the simulation is done, Enzo will display the message
 "Successful run, exiting."
 Enzo is a complicated code, with a similarly complicated output
 format. See the Enzo User Guide page on
-`the Enzo output format? </wiki/UserGuide/EnzoOutputFormat>`_ for
+the Enzo output format :ref:`EnzoOutputFormats` for
 more information on the data outputs.
 
 Congratulations! If you've made it this far, you have now
