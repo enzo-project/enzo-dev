@@ -11,9 +11,6 @@ modifications to support Enzo data formats.
 Using inits
 -----------
 
-`TOC? </wiki/TOC>`_
-
-Setting the parameter file for the inits package
 The inits program uses one or more ASCII input files to set
 parameters, including the details of the power spectrum, the grid
 size, and output file names. Each line of the parameter file is
@@ -30,16 +27,15 @@ assumed to be comments and ignored.
 
 First, set the parameters in the file. There are a large number of
 parameters, but many don't need to be set since reasonable default
-values are provided. Modifying a provided example (see the tutorial
-page containing many
-`sample parameter files? </wiki/Tutorials/SampleParameterFiles>`_)
-is probably the easiest route, but for reference there is a list of
-the parameters, their meanings, and their default values.
+values are provided. Modifying a provided example (see
+:ref:`sample-parameter-files`) is probably the easiest route, but for
+reference there is a list of the parameters, their meanings, and their
+default values.
 
-Generating a single grid initialization (for KRONOS and simple Enzo
-runs) is relatively straightforward. Generating a multi-grid
-initialization for Enzo is somewhat more complicated, and we only
-sketch the full procedure here.
+Generating a single grid initialization (for simple Enzo runs) is
+relatively straightforward. Generating a multi-grid initialization for
+Enzo is somewhat more complicated, and we only sketch the full
+procedure here.
 
 Single Grid Initialization
 ++++++++++++++++++++++++++
@@ -61,66 +57,56 @@ run the code with:
 Where parameter\_file is the name of your modified parameter file
 (the -d turns on a debug option). This will produce a number of HDF
 files containing the initial grids and particles, which are in the
-correct units for use in KRONOS or Enzo.
+correct units for use in Enzo.
 
 Multiple-grid Initialization
 ++++++++++++++++++++++++++++
 
-The multi-grid initialization requires running inits once for each
-grid to be generated. Typically, one uses this option to examine an
-object that collapses out of a small region of the top-grid, and so
-you are interested in simulating this small region with higher
-initial resolution. We will assume here that two grids are to be
-used, but the extension to a larger number is relatively
-straightforward.
-
-The most difficult part is finding the region to be refined. This
-can be done with an iterative approach. Generate a single-grid
-initialization and run the simulation at relatively low resolution.
-Once you have identified an object (see the analysis section), you
-can use the findinit utility, which is part of the analysis package
-(see the instructions on obtaining Enzo). After setting the
-MACHINE\_NAME macro in the file amr\_mpi/anyl/Makefile, (and making
-enzo itself, which is a pre-requisite), compile with make findinit.
-This should generate the findinit utility which can be run with:
+The multi-grid (or nested) initialization can be used to refine in a
+specific region, such as the Lagrangian sphere of a halo.  We assume
+that you have first run a single-grid simulation and identified a
+region out of which a halo will form and can put this in the form of
+the left and right corners of a box which describes the region.  Then
+you add the following parameters to the single-grid initialization
+code:
 
 ::
 
-     findinit enzo_final_output enzo_initial_output object_file
+     MaximumInitialRefinementLevel = 2
+     RefineRegionLeftEdge          = 0.15523 0.14551 0.30074
+     RefineRegionRightEdge         = 0.38523 0.37551 0.53074
+     NewCenterFloat                = 0.270230055 0.260508984 0.415739357
 
-Here, enzo\_initial\_output and enzo\_final\_output refer to the
-initial and final outputs (usually at z=0) of the low resolution
-enzo run. The position and radius of the object of interest should
-be in object\_file. This file contains just a single line with four
-numbers, separated by spaces. The first three specify the position
-of the object, (as floats ranging from 0 to 1) and the fourth is
-the radius (again in units of the box size). You can find the
-position of various objects with enzohop, and its radius with
-enzo\_anyl (see the analysis section).
+MaximumInitialRefinementLevel indicates how many extra levels you want
+to generate (in this case two additional levels, or 3 in total,
+including the root grid).  The next two parameters
+(RefineRegionLeftEdge and RefineRegionRightEdge) describe the region
+to be refined.  The fourth (optional) parameter re-centers the grid on
+the halo to be resimulated.
 
-The way findinit works is to extract all the particles within the
-sphere centered on the object from the final output and then
-identify them in the initial output. It returns two points which
-are the two corners of a volume containing all of the particles at
-the initial time (although this fails if the region wraps around
-the edge of the box). It also outputs an ascii file which contains
-the initial positions of all the particles identified.
+Once you have added these parameters, run inits once on the new
+parameter file.  It will give you a progress report as it runs (note
+that if MaximumInitialRefinementLevel is large, this can take a long
+time), and generate all of the necessary files (e.g.  GridDensity.0,
+GridDensity.1, etc.).
 
-To generate a subgrid which corresponds to this region, create two
-new parameter files (by, for example, copying the old one), one
-each for the top grid and for the subgrid. The cosmology and power
-spectrum parameters can be left unchanged, but you will have to
-modify the grid parameters. Assuming that the refinement factor is
-2, you will have to set MaxDims to double the original GridDims,
-set GridRefinement and ParticleRefinement to 2 in the top grid
-parameter file (and 1 in the subgrid parameter file). Set
-StartIndex, and GridDims/ParticleDims in the subgrid to cover the
-region. The output names should also be modified slightly, adding
-.0 to the end of the topgrids names and .1 to the sub grid names
-(this convention is assumed by Enzo when reading more than a single
-grid).
+It will also generate a file called EnzoMultigridParameters which you
+can then copy directly into the enzo parameter file, and it specifies
+the positions of the new grids.  You will still need to set a few
+other parameters in the enzo parameter file, including
+RefineRegionLeftEdge and RefineRegionRightEdge so that it only refines
+in the specified region (typically this should match the most refined
+initial grid).  Also set the MaximumRefinementLevel parameter and the
+parameter controlling the density to be refined
+(MinimumOverDensityForRefinement -- this also applies to the root
+grid, so it needs to be divided by 8^l where l is the value of
+MaximumInitialRefinementLevel).
 
-Once the parameter files are prepared, the top grid can be
+
+Note that it is also possible to generate each level of initial
+conditions manually.  This should not really be necessary, but a rough
+guideline is given here.  To do this, prepare multiple parameter file
+describing the individual parameter regions, and then top grid can be
 generated with:
 
 ::
@@ -139,9 +125,6 @@ line:
 !Subgrids with MaxDims of 512 or larger will take some time and
 require a fair amount of memory since the entire region is
 generated and then the desired section extracted.
-
-A sample parameter file setup with a top grid and one refined grid
-is available.
 
 Inits Parameter List
 ++++++++++++++++++++
@@ -294,7 +277,7 @@ Grid Parameters: Basic
     needed (enzo generates its own masses if not provided). Default:
     None
 **GridDensityName**
-    The name of the HDF which contains the grid density SDS. Default:
+    The name of the HDF file which contains the grid density SDS. Default: 
     GridDensity
 **GridVelocityName**
     The name of the HDF file which contains the SDS's for the baryonic
@@ -304,6 +287,21 @@ Grid Parameters: Basic
 Grid Parameters: Advanced
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+**MaximumInitialRefinementLevel**
+    Used for multi-grid (nested) initial code generation.  This
+    parameter speciesi the level (0-based) that the initial conditions
+    should be generated to.  So, for example, setting it to 1
+    generates the top grid and one additional level of refinement.
+    Note that the additional levels are nested, keeping at least one
+    coarse cell between the edge of a coarse grid and its refined grid.
+    Default: 0
+**RefineRegionLeftEdge, RefineRegionRightEdge**
+    Species the left and right corners of the region that should be
+    refined using the AutomaticSubgridGeneration method (see above
+    parameter).  Default: 0 0 0 - 1 1 1
+**NewCenterFloat**
+    Indicates that the final grid should be recenter so that this point
+    is the new center (0.5 0.5 0.5) of the grid.
 **MaxDims**
     All dimensions are specified as one to three numbers deliminated by
     spaces (and for those familiar with the KRONOS or ZEUS method of
