@@ -6,7 +6,7 @@ and makes things like finding segfaults extremely easy.
 
 This is not intended to be a tutorial on totalview-- your super
 computer center and the internet will provide you with better
-tutorials that I will. This is just a few caveats when using enzo.
+tutorials that I will. This is just a few caveats when using Enzo.
 
 
 #. Compile with -g and -O1 or-O1. Missing the -g will cause

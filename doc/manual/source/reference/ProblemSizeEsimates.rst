@@ -1,8 +1,8 @@
-Estimate of processor counts needed for different Enzo simulations and problem sizes
-====================================================================================
+Estimated Simulation Resource Requirements
+==========================================
 
 Estimating problem sizes for most Enzo calculations is at best an
-inexact science, given the nature of adaptive mesh refinement
+inexact science, given the nature of Adaptive Mesh Refinement (AMR)
 simulations. The fundamental issue with an AMR calculation in
 cosmology or in many astrophysical situations where gravitational
 collapse is important has to do with memory. The amount of memory
@@ -50,7 +50,7 @@ greater than average memory consumption. Keeping 128\ :sup:`3`\
 cells and particles per core seems to scale extremely efficiently
 up to thousands of processors, though if one is using a machine
 like an
-` IBM Blue Gene <http://domino.research.ibm.com/comm/research_projects.nsf/pages/bluegene.index.html>`_,
+`IBM Blue Gene <http://domino.research.ibm.com/comm/research_projects.nsf/pages/bluegene.index.html>`_,
 which typically has far less memory per core than other computers,
 one might have to go to 64\ :sup:`3`\  cells/particles per core so
 that nodes corresponding to dense regions of the universe don't run
@@ -70,14 +70,15 @@ that it had to be run on a system where half of the cores per node
 were kept this particle mass field over these processors. For each
 grid, only processors with particles contribute to this sum to
 reduce the amount of computation and communication. In short, this
-routine performs a non-blocking MPI\_SUM over a select number of
+routine performs a non-blocking ``MPI\_SUM`` over a select number of
 processors.
-CommunicationCollectParticles(SUBGRIDS\_LOCAL) -- This routine
-replaces grid::MoveSubgridParticlesFast. It keeps the particles on
+
+``CommunicationCollectParticles(SUBGRIDS\_LOCAL)`` -- This routine
+replaces ``grid::MoveSubgridParticlesFast()``. It keeps the particles on
 the same processor, but this doesn't matter here because the
 children grids are always created on the same processor as its
 parent and then moved to another processor during load balancing.
-CommunicationCollectParticles(SIBLINGS\_ONLY) -- After load
+``CommunicationCollectParticles(SIBLINGS\_ONLY)`` -- After load
 balancing is complete on level L\_sub\_, we can safely move the
 particles to their host processor without the worry of running out
 of memory.

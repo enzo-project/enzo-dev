@@ -12,14 +12,14 @@ starting the simulation is easy:
 
 The syntax of the mpirun varies between mpi implementations. The
 example given here comes from a machine using a standard MPI
-implementation that is initiated by the 'mpirun' command, and
-implies the use of a single processors (the argument after the -np
-flag indicates the number of processors).
+implementation that is initiated by the 'mpirun' command, and implies
+the use of a single processors (the argument after the -np flag
+indicates the number of processors).
 
-The -d flag triggers a debug option that produces a substantial
-amount of output. See :ref:`Tutorials` for more detailed information on running
-simulations. You may also need to use ring (see
-:ref:`ExecutablesArgumentsOptions`) if you are using parallel I/O.
+The -d flag triggers a debug option that produces a substantial amount
+of output. See :ref:`GettingStarted` for more detailed information on
+running simulations. You may also need to use :ref:`ring` if you are
+using parallel I/O.
 
 Restarting
 ----------
@@ -53,18 +53,25 @@ used, the fourth is the mean axis ratio of all grids, and the last
 two are reserved for future use. Then, there are three spaces,
 and another group of numbers, all providing information about the
 first (top grid) level. This pattern of three spaces and six
-numbers is repeated for every level. The information for each level
-is:
+numbers is repeated for every level.  An example of this file is
+provided below.
 
+::
+
+      Cycle 151  Time 20.241365  MaxDepth 4  Grids 412  Memory(MB) 53.3117  Ratio 2.22582
+         Level 0  Grids 2  Memory(MB) 13.8452  Coverage 1  Ratio 2  Flagged 0  Active 262144
+         Level 1  Grids 304  Memory(MB) 31.4977  Coverage 0.166855  Ratio 2.43768  Flagged 0  Active 349920
+         Level 2  Grids 76  Memory(MB) 5.81878  Coverage 0.00329208  Ratio 1.66118  Flagged 0  Active 55232
+         Level 3  Grids 22  Memory(MB) 1.74578  Coverage 0.000125825  Ratio 1.63561  Flagged 0  Active 16888
+         Level 4  Grids 8  Memory(MB) 0.404286  Coverage 2.5034e-06  Ratio 1.21875  Flagged 0  Active 2688
+
+The information for each level is:
 
 #. number of grids on the level
-#. memory usage (roughly)
-#. the volume fraction of the entire region covered by grids on
-   this level,
-#. the mean axis ratio of grids on this level (please don't ask why
-   this information is here)
-#. the fraction of cells on this level which need refinement (I
-   think),
+#. memory usage (minus overhead).  Actual memory usage is usually a factor of 10 higher.
+#. the volume fraction of the entire region covered by grids on this level,
+#. the mean axis ratio of grids on this level
+#. the fraction of cells on this level which need refinement (unused)
 #. the number of active cells on this level.
 
 Debugging information
@@ -86,12 +93,12 @@ These can be ignored unless problems occur.
 Test Problems
 -------------
 
-There are a number of built-in tests, which can be used to debug the system or
-characterize how well it solves a particular problem.  (see
-:ref:`EnzoTestSuite` for a complete list.) Note that Enzo can run any problem
-after compilation, since no compilation flags affect simulation parameters
-(unlike the hydrodynamics code KRONOS for example) To run a particular test, cd
-to the [browser:public/trunk/doc/examples doc/examples] subdirectory of the
+There are a number of built-in tests, which can be used to debug the
+system or characterize how well it solves a particular problem.  (see
+:doc:`EnzoTestSuite` for a complete list.) Note that Enzo can run any
+problem after compilation, since no compilation flags affect
+simulation parameters.  To run a particular test, cd to the
+[browser:public/trunk/doc/examples doc/examples] subdirectory of the
 Enzo source distribution (after compiling enzo) and use the following
 command-line:
 
@@ -104,14 +111,14 @@ example given here comes from the Origin2000 and implies a single
 processor (the argument after the -np flag indicates the number of
 processors).
 
-The parameter test\_name corresponds to the parameter file that
+The parameter test_name corresponds to the parameter file that
 specifies the type of test and the test particulars. This file is
 ascii, and can be edited.
 It consists of a series of lines (and optional comments) each of
 which specifies the value of one parameter. The parameters are
-discussed in more detail in :ref:`EnzoParameters`.
+discussed in more detail in :doc:`../EnzoParameters`.
 
-If you just type enzo without any arguments, or if the number of
+If you just type ``enzo`` without any arguments, or if the number of
 arguments is incorrect, the program should respond with a summary
 of the command-line usage.
 
@@ -136,12 +143,11 @@ The response should be:
     Successfully read in parameter file ShockTube.
     Successful completion...
 
-How do you know if the results are correct? We hope to add the
-ability for the code to check against pre-computed results, but for
-the moment, if the code doesn't crash, it's probably a reasonable
-bet that it is working correctly (the other good check is that the
-shock tube run takes 68 or 69 steps). You may also wish to plot the
-results (output as HDF files). This section will be expanded in
-later editions of this manual.
+How do you know if the results are correct?  New for v2.0, we have
+added more `regression tests and answer tests
+<http://ppcluster.ucsd.edu/lcatest/>`_, using LCAtest.  We hope to
+add more answer tests, especially for large production-type
+simulations, e.g. a 512\ :sup:`3` cosmology simulation.
+
 
 

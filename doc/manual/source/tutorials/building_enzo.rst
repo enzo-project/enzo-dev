@@ -23,109 +23,29 @@ compiler, the following libraries are necessary:
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run oon a single processor.
 
-Subversion Check Out Instructions
----------------------------------
+Mercurial Check Out Instructions
+--------------------------------
 
-The latest public version of Enzo is available for anonymous
-checkout using `Subversion <http://subversion.tigris.org/>`_. This
-is where bug fixes and new features will appear between releases.
+Enzo is provided in both a stable and an unstable form.  **It is highly
+recommended that for any production run the stable version is used.**
+Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
+List <https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_.  A source
+browser is also available.
 
-You also browse the source tree, either through the
-`default Subversion HTTP interface <http://mngrid.ucsd.edu/svn/Enzo/public>`_,
-or the nicer [browser:public Trac browser].
+Please visit the Google Code project website to access the Enzo source tree and
+read the latest source checkout instructions.
 
-*A hint*: Before you try to build Enzo, you might want to make sure
-you meet the
+http://enzo.googlecode.com/
+
+Before you try to build Enzo, you may wish to verify your system meets the
 `compilation requirements? </wiki/Devel/UserGuide/CompilationRequirements>`_.
 
-Subversion Clients
-++++++++++++++++++
+Updating a source tree with Mercurial is beyond the scope of this document; for
+more information, please peruse :ref:`HowToDevelopEnzo` and the Mercurial
+documentation.  The `mercurial <http://mercurial.selenic.com/`_ commands of
+most use are ``pull``, ``update`` and ``incoming``.
 
-To check out a local copy of the Enzo source, you need a
-`Subversion <http://subversion.tigris.org/>`_ client. These are
-available as part of all recent Linux distributions; for other
-operating systems (OS X, AIX, etc.), binaries are available
-(there's a list of third-party clients on the
-`Subversion front page <http://subversion.tigris.org/>`_), or the
-client can be built from source. GUI clients are available, but
-these instructions assume you're using a command line client.
-
-To see if you already have the client installed, use which.
-
-::
-
-    $ which svn
-    /usr/local/bin/svn
-
-If you don't have the client, and are a shared shared resource (a
-cluster, or supercomputer), please ask the system administrator to
-install Subversion for everyone. This will make things easier for
-the next user who comes along.
-
-Getting a Copy
-++++++++++++++
-
-FYI: Checking out Enzo will also get you a copy
-`YT <http://yt.enzotools.org/>`_, the
-`Python <http://www.python.org>`_ based analysis toolkit. Check
-the `YT website <http://yt.enzotools.org/>`_ for instructions on
-compiling and using `YT <http://yt.enzotools.org/>`_.
-
-Once you have the client, you can use it *checkout* a local copy.
-
-::
-
-    $ svn checkout http://mngrid.ucsd.edu/svn/Enzo/public/trunk enzo
-    A    enzo/configure
-    A    enzo/doc
-    A    enzo/doc/flowchart
-    ...
-    A    enzo/src/enzo/Grid_FastSiblingLocatorFindSiblings.C
-    A    enzo/src/enzo/AnalyzeClusters.h
-    A    enzo/src/Makefile
-    A    enzo/bin
-    
-    Fetching external item into 'enzo/src/yt'
-    A    enzo/src/yt/LICENSE.txt
-    A    enzo/src/yt/epydoc.cfg
-    A    enzo/src/yt/tests
-    ...
-    A    enzo/src/yt/examples/test_parallel_projection.py
-    A    enzo/src/yt/setup.cfg
-     U   enzo/src/yt
-    Checked out external at revision 731.
-    
-    Checked out revision 1761.
-
-And now you have a copy of the latest public version. Time to work
-on `building Enzo? </wiki/Devel/UserGuide/BuildingEnzo>`_.
-
-Updating
-++++++++
-
-To update your local copy, you can use svn to pull down only the
-latest changes.
-
-*Note*: If you've modified any files in your copy, this will merge
-changes from the trunk in to your working copy, which may generate
-conflicts. If you're doing development on Enzo itself, you may want
-to check the [log:public/trunk revision log] before doing an
-update.
-
-::
-
-    $ cd enzo/
-    $ svn update
-    A    README
-    
-    Fetching external item into 'src/yt'
-    Updated external to revision 731.
-    
-    Updated to revision 1762.
-
-Now, you can do a make clean; make and get back to work.
-
-Building enzo
+Building Enzo
 -------------
 
 This is a quick, line by line example of checking out and building
@@ -213,7 +133,7 @@ to run Enzo on. The basic steps are as follows:
 #. Edit the machine-specific settings (compilers, libraries, etc.).
 #. Build and test.
 
-If you expect that you will have multiple checkouts of the enzo source code,
+If you expect that you will have multiple checkouts of the Enzo source code,
 you should feel free to create the directory $HOME/.enzo/ and place your custom
 makefiles there, and Enzo's build system will use any machine name-matching
 Makefile in that directory to provide or override Make settings.
@@ -310,7 +230,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
 Build Enzo
 ++++++++++
 
-The default build target is the main executable, enzo.
+The default build target is the main executable, Enzo.
 
 ::
 
@@ -326,17 +246,6 @@ The default build target is the main executable, enzo.
     ~/enzo/src/enzo $ 
 
 After compiling, you will have ``enzo.exe`` in the current directory.
-
-::
-
-    ~/enzo/src/enzo $ make install 
-    if [ ! -e ../../bin ]; then mkdir ../../bin; fi
-    make -s show-flags   >& ../../bin/enzo.show-flags
-    make -s show-config  >& ../../bin/enzo.show-config
-    make -s show-version >& ../../bin/enzo.show-version
-    make -s show-diff    >& ../../bin/enzo.show-diff
-    ~/enzo/src/enzo $
-
 
 Building other Tools
 ++++++++++++++++++++

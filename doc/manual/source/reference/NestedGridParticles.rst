@@ -18,7 +18,7 @@ Following the
 `cosmology tutorial? </wiki/Tutorials/RunCosmologySimulation>`_ for
 `nested grids? </wiki/Tutorials/WritingParameterFiles#Multiplenestedgrids>`_,
 first inits is run, and then ring is run on the output of inits to
-prepare data for the parallel IO mode of enzo. The contents of the
+prepare data for the Parallel Root Grid IO mode of Enzo. The contents of the
 initial conditions are easily inspected:
 
 ::
@@ -33,7 +33,7 @@ initial conditions are easily inspected:
 
 In this example, there are two initial grids. The root grid has
 2,064,384 particles, and the nested grid has 262,144. After ring is
-run, a number of files with prefixes PPos, PVel and PMass are
+run, a number of files with prefixes ``PPos``, ``PVel`` and ``PMass`` are
 created. Using eight tasks, here are the contents of the PPos files
 for the top grid:
 
@@ -86,22 +86,23 @@ see
 for more on why the particle mass must be changed when moving
 between grids.
 
-One wrinkle to this solution is the ParticleMasses file *must* be
-created by inits, for all grids, along with the ParticlePositions
-and ParticleVelocities files. CosmologySimulationParticleMassName
-must therefore also be specified as an input in the enzo parameter
+One wrinkle to this solution is the ``ParticleMasses`` file *must* be
+created by inits, for all grids, along with the ``ParticlePositions``
+and ``ParticleVelocities files``. ``CosmologySimulationParticleMassName``
+must therefore also be specified as an input in the Enzo parameter
 file.
 
-Attached below is a simple ` Python <http://python.org/>`_ script
+`Linked here <http://barn.enzotools.org/inits_sort/>`_
+is a simple `Python <http://python.org/>`_ script
 that will fix the initial condition files. After running the
 script, run ring on the new initial condition files. The script
 requires a Python installation that has both
-` Numpy <http://numpy.scipy.org/>`_ and
-` h5py <http://code.google.com/p/h5py/>`_. A simple way to gain an
-installation of Python with these modules is to use
-` yt <http://yt.enzotools.org/>`_, which is one of the
+`Numpy <http://numpy.scipy.org/>`_ and
+`h5py <http://code.google.com/p/h5py/>`_. A simple way to gain an
+installation of Python with these modules is to install
+`yt <http://yt.enzotools.org/>`_, which is one of the
 `data analysis tools? </wiki/Tutorials/DataAnalysisBasics>`_
-available for enzo.
+available for Enzo.
 
 Procedure
 ---------
@@ -109,9 +110,9 @@ Procedure
 Save a copy of the script to the same directory as your nested
 initial condition files. Edit the top of the file, where noted, to
 match your setup. Please note the order items should be entered.
-Once the settings are correct, invoke python inits\_sort.py. The
+Once the settings are correct, invoke ``python inits\_sort.py``. The
 updated initial condition files will be placed inside the directory
-new\_ICs. Then run ring on the new initial condition files, and use
-the results with enzo.
+``new\_ICs``. Then run ring on the new initial condition files, and use
+the results with Enzo.
 
 
