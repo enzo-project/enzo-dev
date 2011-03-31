@@ -42,3 +42,5 @@ src/mpgrafic/mpgrafic-0.2/stamp-h1
 src/mpgrafic/degraf/autom4te.cache/
 
 src/P-GroupFinder/P-GroupFinder
+
+doc/manual/build

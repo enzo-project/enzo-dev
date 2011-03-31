@@ -4,11 +4,6 @@ Header files in Enzo
 Here is a complete list of the Enzo 2.0 header files and a brief
 description of what they do.
 
-``src/enzo/AnalysisBaseClass.h`` 
-
-  Class for inline or post-run analysis.  Provides convenience
-  functions to access the data.  Not used in v2.0 (Aug. 2010).
-
 ``src/enzo/CoolData.h`` 
 
   Contains parameters for cooling tables and radiation fields.  Most
@@ -41,11 +36,6 @@ description of what they do.
   Framework for simple tests on Enzo.  Not used in typical
   simulations.
 
-``src/enzo/error.h`` 
-
-  Houses one macro to check and deal with MPI errors.  Not used
-  anywhere in Enzo.
-
 ``src/enzo/ExternalBoundary.h`` 
 
   The ExternalBoundary class definition.
@@ -73,7 +63,7 @@ description of what they do.
 
 ``src/enzo/Grid.h`` 
 
-  This defines the primary God Class, grid
+  This defines the primary God Class, ``grid``.
 
 ``src/enzo/GridList.h`` 
 
