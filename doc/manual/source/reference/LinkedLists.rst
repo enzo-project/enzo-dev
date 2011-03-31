@@ -31,7 +31,9 @@ hierarchy, from parents to children.
 This is the contents of the definition of the structure, which you
 can find in ``src/enzo/Hierarchy.h``.
 
-::
+.. highlight:: none
+
+.. code-block:: c
 
     struct HierarchyEntry
     {
@@ -54,16 +56,17 @@ communication between
 child and parent grids needs to be done. The typical pattern for
 looping over all the children of a parent grid is as following:
 
-::
+.. code-block:: c
+   :linenos:
 
-    1.)    HierarchyEntry * NextGrid = ParentGrid->NextGridNextLevel;
-    2.)    while (NextGrid != NULL ){
-    3.)      if (NextGrid->GridData->SomeFunctionOnChildren(args) == FAIL )
-    4.)        fprintf(stderr, "Error in your function\n");
-    5.)        return FAIL;
-    6.)      }
-    7.)      NextGrid = NextGrid->NextGridThisLevel;
-    8.)    }
+    HierarchyEntry * NextGrid = ParentGrid->NextGridNextLevel;
+    while (NextGrid != NULL ){
+      if (NextGrid->GridData->SomeFunctionOnChildren(args) == FAIL )
+        fprintf(stderr, "Error in your function\n");
+        return FAIL;
+      }
+      NextGrid = NextGrid->NextGridThisLevel;
+    }
 
 Line 1 sets the pointer ``NextGrid`` to the "first" child of the parent
 grid.
@@ -92,27 +95,28 @@ called in ``src/enzo/RebuildHierarchy.C``.
 This code is called on a single 'Parent Grid'
 at a time. Paraphrased and annotated:
 
-::
+.. code-block:: c
+   :linenos:
 
-     1   HierarchyEntry *, *ThisGrid;
-     2   PreviousGrid = &ParentGrid;
-     3    for (i = 0; i < NumberOfSubgrids; i++) {
-     4
-     5      ThisGrid = new HierarchyEntry;
-     6
-     7      if (PreviousGrid == &ParentGrid)
-     8        ParentGrid.NextGridNextLevel = ThisGrid;
-     9      else
-    10        PreviousGrid->NextGridThisLevel = ThisGrid;
-    11      ThisGrid->NextGridNextLevel = NULL;
-    12      ThisGrid->NextGridThisLevel = NULL;
-    13      ThisGrid->ParentGrid        = &ParentGrid;
-    14
-    15      ThisGrid->GridData = new grid;
-    16      ThisGrid->GridData = Setup Functions Skipped for clarity;
-    17
-    18      PreviousGrid = ThisGrid;
-    19   }
+   HierarchyEntry *, *ThisGrid;
+   PreviousGrid = &ParentGrid;
+    for (i = 0; i < NumberOfSubgrids; i++) {
+  
+      ThisGrid = new HierarchyEntry;
+  
+      if (PreviousGrid == &ParentGrid)
+        ParentGrid.NextGridNextLevel = ThisGrid;
+      else
+        PreviousGrid->NextGridThisLevel = ThisGrid;
+      ThisGrid->NextGridNextLevel = NULL;
+      ThisGrid->NextGridThisLevel = NULL;
+      ThisGrid->ParentGrid        = &ParentGrid;
+  
+      ThisGrid->GridData = new grid;
+      ThisGrid->GridData = Setup Functions Skipped for clarity;
+  
+      PreviousGrid = ThisGrid;
+   }
 
 Line 1 starts the ``HierarchyEntry`` list with ``ParentGrid``. (Called
 simply ``Grid`` in the source, changed here for clarity.)
@@ -162,7 +166,7 @@ grids on a given level. It's a simpler structure than
 ``HierarchyEntry``. The source can be found in
 ``src/enzo/LevelHierarchy.h``.
 
-::
+.. code-block:: c
 
     struct LevelHierarchyEntry
     {
@@ -185,7 +189,7 @@ Usage of LevelHierarchyEntry and LevelArray
 The main usage of the ``LevelHierarchyEntry`` list is quite similar to
 the main loop for ``HierarchyEntry`` lists.
 
-::
+.. code-block:: c
 
       LevelHierarchyEntry *Temp = LevelArray[level];
       while (Temp != NULL) {
@@ -206,47 +210,47 @@ This is done in two places in the code: in
 ``src/enzo/RebuildHierarchy.C``. It's done by the code
 ``src/enzo/LevelHierarchy\_AddLevel.C``, which is described below.
 
-The setup:
+The setup, prep in main.C:
 
-::
+.. code-block:: c
 
-    Prep in main.C:
       for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
         LevelArray[level] = NULL;
 
 The call in ``main()``:
 
-::
+.. code-block:: c
 
     AddLevel(LevelArray, &TopGrid, 0);
 
 The fill:
 
-::
+.. code-block:: c
+   :linenos:
 
-     1   void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
-     2                 int level)
-     3   {
-     4      LevelHierarchyEntry *ThisLevel;
-     5
-     6     /* create a new LevelHierarchyEntry for the HierarchyEntry Grid                                          
-     7        and insert it into the head of the linked list (LevelArray[level]). */
-     8
-     9     ThisLevel = new LevelHierarchyEntry;
-    10     ThisLevel->GridData = Grid->GridData;
-    11     ThisLevel->NextGridThisLevel = LevelArray[level];
-    12     ThisLevel->GridHierarchyEntry = Grid;
-    13     LevelArray[level] = ThisLevel;
-    14
-    15     /* recursively call this for the next grid on this level. */
-    16
-    17     if (Grid->NextGridThisLevel != NULL)
-    18       AddLevel(LevelArray, Grid->NextGridThisLevel, level);
-    19  
-    20     /* ... and then descend the tree. */
-    21
-    22     if (Grid->NextGridNextLevel != NULL)
-    23       AddLevel(LevelArray, Grid->NextGridNextLevel, level+1);
+   void AddLevel(LevelHierarchyEntry *LevelArray[], HierarchyEntry *Grid,
+                 int level)
+   {
+      LevelHierarchyEntry *ThisLevel;
+   
+     /* create a new LevelHierarchyEntry for the HierarchyEntry Grid                                          
+        and insert it into the head of the linked list (LevelArray[level]). */
+   
+     ThisLevel = new LevelHierarchyEntry;
+     ThisLevel->GridData = Grid->GridData;
+     ThisLevel->NextGridThisLevel = LevelArray[level];
+     ThisLevel->GridHierarchyEntry = Grid;
+     LevelArray[level] = ThisLevel;
+   
+     /* recursively call this for the next grid on this level. */
+   
+     if (Grid->NextGridThisLevel != NULL)
+       AddLevel(LevelArray, Grid->NextGridThisLevel, level);
+   
+     /* ... and then descend the tree. */
+   
+     if (Grid->NextGridNextLevel != NULL)
+       AddLevel(LevelArray, Grid->NextGridNextLevel, level+1);
     }
 
 This is a recursive function that takes ``LevelArray`` that's to be
