@@ -76,7 +76,7 @@ work. Here's how to begin:
    -  The
       ` 1.11.2 source distribution <https://wci.llnl.gov/codes/visit/1.11.2/visit1.11.2.tar.gz>`_
    -  The
-      ` 1.11.2 build\_visit script <https://wci.llnl.gov/codes/visit/1.11.2/build_visit>`_
+      ` 1.11.2 build_visit script <https://wci.llnl.gov/codes/visit/1.11.2/build_visit>`_
    -  An updated
       ` avtEnzoFileFormat.C <https://email.ornl.gov/pipermail/visit-developers/attachments/20090406/b8dc7fe5/avtEnzoFileFormat.C>`_
    -  An updated
@@ -91,7 +91,7 @@ work. Here's how to begin:
 (You can do this without untarring and retarring, but this is a bit
 clearer for those not familiar with tar.)
 From this point, you can
-` build and install VisIt using the build\_visit script <http://visitusers.org/index.php?title=Build_visit_overview>`_.
+` build and install VisIt using the build_visit script <http://visitusers.org/index.php?title=Build_visit_overview>`_.
 When you do this, remember to do two things:
 
 

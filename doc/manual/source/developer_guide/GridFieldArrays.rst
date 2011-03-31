@@ -89,7 +89,7 @@ There are six accessor methods declared in
        EnzoArrayFLOAT *CreateFieldArrayFLOAT(char *field_name);
 
 These methods are defined in
-``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+``/public/trunk/src/enzo/Grid_CreateFieldArray.C``.
 Basically, they allocate a new
 ``EnzoArray``, fill in the dimensions, attach the relevant pointers,
 and hand it back to. All you need to do is delete the return
@@ -101,8 +101,8 @@ Field Numbers and Names
 The arguments to are either a field number, defined in
 ``/public/trunk/src/enzo/typedefs.h``, or the
 string version of the same. The string versions are defined in a
-``long`` array, named ``field\_map`` in
-``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+``long`` array, named ``field_map`` in
+``/public/trunk/src/enzo/Grid_CreateFieldArray.C``.
 This means you can access something as
 
 ::
@@ -137,7 +137,7 @@ This is really pretty simple, since just about everything returned
 is a ``float``. For a complete list of the (hopefully current) fields,
 see the section **Field List Reference**. For the best reference,
 check in ``/public/trunk/src/enzo/typedefs.h``,
-and ``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+and ``/public/trunk/src/enzo/Grid_CreateFieldArray.C``.
 
 Using the Methods
 -----------------
@@ -223,10 +223,10 @@ some of the attributes:
     }
 
 This is a complete program,
-``/public/trunk/src/enzo/field\_array\_example.C``;
+``/public/trunk/src/enzo/field_array_example.C``;
 what this snippet lacks is the fairly
 long list of header files that need to be included. You can compile
-this by calling ``make field\_array\_example.exe`` in source directory.
+this by calling ``make field_array_example.exe`` in source directory.
 
 Field List Reference
 --------------------

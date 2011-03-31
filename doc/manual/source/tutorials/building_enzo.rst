@@ -149,7 +149,7 @@ HDF5 Versions
 If your system uses a version of HDF5 greater than or equal to 1.8, you
 probably need to add a flag to your compile settings, unless your HDF5 library
 was compiled using --with-default-api-version=v16. The simplest thing to do is
-to find the line in your Make.mach file that sets up MACH\_DEFINES, which may
+to find the line in your Make.mach file that sets up MACH_DEFINES, which may
 look like this
 
 ::

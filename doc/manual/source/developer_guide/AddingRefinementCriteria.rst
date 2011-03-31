@@ -42,7 +42,7 @@ A minimal code should look like this:
 Call your method
 ----------------
 
-Edit the file ``Grid\_SetFlaggingField.C`` In this routine, there's a
+Edit the file ``Grid_SetFlaggingField.C`` In this routine, there's a
 loop over the ``CellFlaggingMethod`` array. In this loop, you'll see
 code like this:
 

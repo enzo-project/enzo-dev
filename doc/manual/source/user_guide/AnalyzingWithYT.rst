@@ -39,9 +39,9 @@ the maximum density location, with a width of 100 kpc.
    pc.set_width(100.0,'kpc')
    pc.save("z35_100kpc")
 
-If you put this into a file called ``my\_script.py``, you can execute
-it with ``python2.5 my\_script.py`` and it will save out a set of
-images prefixed with ``z35\_100kpc`` in PNG format.
+If you put this into a file called ``my_script.py``, you can execute
+it with ``python2.5 my_script.py`` and it will save out a set of
+images prefixed with ``z35_100kpc`` in PNG format.
 
 Making Simple Radial Profiles
 -----------------------------

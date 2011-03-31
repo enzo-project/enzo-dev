@@ -208,7 +208,7 @@ Generation of LevelHierarchyEntry and LevelArray
 This is done in two places in the code: in
 ``src/enzo/main.C main.C`` and
 ``src/enzo/RebuildHierarchy.C``. It's done by the code
-``src/enzo/LevelHierarchy\_AddLevel.C``, which is described below.
+``src/enzo/LevelHierarchy_AddLevel.C``, which is described below.
 
 The setup, prep in main.C:
 

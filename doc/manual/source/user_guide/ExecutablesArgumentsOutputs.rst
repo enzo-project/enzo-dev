@@ -112,7 +112,7 @@ information.
 anyl
 ----
 
-anyl is the analysis package written in C, previously known as enzo\_anyl.
+anyl is the analysis package written in C, previously known as enzo_anyl.
 Although the analysis toolkit for enzo that's being constantly updated is YT,
 anyl has its own value for some users. It creates radial, disk, vertical
 profiles for baryon (each species), dark matter, and star particles. Works with
