@@ -44,7 +44,8 @@ complex than Gadget or Zeus, and much much easier to break.
 
 
 #. Locate this block of code:
-   ::
+
+   .. code-block:: c
 
              if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {
@@ -64,7 +65,8 @@ This is in the primary grid loop on this level.
 
 #. Insert your new grid operation right before the last comment. It
    should look something like this:
-   ::
+   
+   .. code-block:: c
 
              if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {
