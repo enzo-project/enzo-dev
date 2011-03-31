@@ -189,12 +189,10 @@ Problem Type Description and Parameter List
     none
 ``InitialTime`` (internal)
     The time, in code units, of the current step. For cosmology the
-    units are in free-fall times at the initial epoch (see output
-    format). Default: generally 0, depending on problem
+    units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
 ``Initialdt`` (internal)
     The timestep, in code units, for the current step. For cosmology
-    the units are in free-fall times at the initial epoch (see output
-    format). Default: generally 0, depending on problem
+    the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
 ``GridVelocity`` (obsolete)
     For problems in which the grid must move. Originally implemented,
     but was never used, and so almost surely doesn't work. Default: 0 0
