@@ -56,7 +56,7 @@ c
 c  constants (half is slightly more than 1/2 to make sure rounding is
 c             performed in the correct direction)
 c
-      parameter (half = 0.5001)
+      parameter (half = 0.50001)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

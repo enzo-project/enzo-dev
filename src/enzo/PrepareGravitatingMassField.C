@@ -96,9 +96,6 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
  
   /* Baryons: deposit mass into GravitatingMassField. */
  
-  // if (CurrentGrid->AddBaryonsToGravitatingMassField() == FAIL) {
-      //fprintf(stderr, "  PGMF - DepositBaryons\n");
-
   // IF STATEMENT HERE TO MAKE IT SO NO GAS CONTRIBUTES TO GRAVITY
   if(!SelfGravityGasOff){
     if (DepositBaryons(Grid, When) == FAIL) {
@@ -122,39 +119,16 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
         == FAIL) {
       fprintf(stderr, "Error in grid->AddOverlappingParticleMassFields.\n");
     }
+  //  for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
+  //fprintf(stderr,"grid %i %i\n", grid1, grid2);
+
 #else
   if (CopyOverlappingParticleMassFields(CurrentGrid, MetaData,
                                         LevelArray, level) == FAIL) {
     ENZO_FAIL("Error in CopyOverlappingParticleMassFields.\n");
   }
 #endif
- 
-#ifdef UNUSED
-  FLOAT Zero[] = {0,0,0};
-  if (CurrentGrid->AddOverlappingParticleMassField(CurrentGrid,Zero) == FAIL) {
-    ENZO_FAIL("Error in grid->AddOverlappingParticleMassField.\n");
-  }
-#endif /* UNUSED */
- 
-  /* Particles: deposit particles in the parent grid into GravitatingMassField
-     (they should only be in the boundaries).  We should really do this for
-     all parent grids.  Or better yet do a PP summation. sigh. */
- 
-#ifdef UNUSED
-  if (Grid->ParentGrid != NULL) {
- 
-/* The following is done to allow this to be parallelized. */
-//    FLOAT TimeMidStep = CurrentGrid->ReturnTime() +
-//                        When*CurrentGrid->ReturnTimeStep();
-      FLOAT TimeMidStep = Grid->ParentGrid->GridData->ReturnTime();
- 
-    if (Grid->ParentGrid->GridData->DepositParticlePositions(CurrentGrid,
-			       TimeMidStep, GRAVITATING_MASS_FIELD) == FAIL) {
-      ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
-    }
-  }
-#endif /* UNUSED */
- 
+
   /* If we are using comoving coordinates, we must adjust the source term. */
  
   if (CommunicationDirection == COMMUNICATION_SEND ||

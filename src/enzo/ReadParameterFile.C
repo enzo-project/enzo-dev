@@ -1439,7 +1439,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
+
+#ifdef SAB
+  if (HydroMethod == Zeus_Hydro)
+      ENZO_FAIL("SetAccelerationBoundary (-D SAB) does not work with zeus_hydro !\n");
+#endif 
+
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
+
 
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;

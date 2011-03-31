@@ -661,8 +661,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   /* Do some error checking */
  
-  if (MetaData.StopTime == FLOAT_UNDEFINED)
-    ENZO_FAIL("StopTime never set.");
+  if (MetaData.StopTime == FLOAT_UNDEFINED && MetaData.StopCycle == INT_UNDEFINED)
+    ENZO_FAIL("StopTime nor StopCycle ever set.");
+  if (MetaData.StopCycle != INT_UNDEFINED && MetaData.StopTime == FLOAT_UNDEFINED)
+    MetaData.StopTime = huge_number;
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {

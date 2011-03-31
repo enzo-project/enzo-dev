@@ -128,9 +128,9 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   //  printf("GpotNum : %i\n", GPotNum);
   rhox = rhoy = rhoz = 0.;
   int ci,cj,ck,cind;
-  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+  for (k = GridStartIndex[2]+1; k < GridEndIndex[2]; k++) {
+    for (j = GridStartIndex[1]+1; j < GridEndIndex[1]; j++) {
+      for (i = GridStartIndex[0]+1; i < GridEndIndex[0]; i++) {
 	ci = max(i,GridStartIndex[0]+1);
 	ci = min(ci, GridEndIndex[0]-1);
 	cj = max(j,GridStartIndex[1]+1);
@@ -143,11 +143,11 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 	//	ci = i; cj= j; ck = k; cind = index; //  <-  would do this if BC would be correct
 
 	rhox = Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck)] 
-	  + Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck)] - 2.*Phi[cind];
+	     + Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck)] - 2.*Phi[cind];
 	rhoy = Phi[GRIDINDEX_NOGHOST(ci,cj+1,ck)]
-	  + Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck)] - 2.*Phi[cind];
+	     + Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck)] - 2.*Phi[cind];
 	rhoz = Phi[GRIDINDEX_NOGHOST(ci,cj,ck+1)] 
-	  + Phi[GRIDINDEX_NOGHOST(ci,cj,ck-1)] - 2.*Phi[cind];
+	     + Phi[GRIDINDEX_NOGHOST(ci,cj,ck-1)] - 2.*Phi[cind];
 	rhoxy = (Phi[GRIDINDEX_NOGHOST(ci+1,cj+1,ck)] +
 		 Phi[GRIDINDEX_NOGHOST(ci-1,cj-1,ck)] -
 		 Phi[GRIDINDEX_NOGHOST(ci+1,cj-1,ck)] -
@@ -161,10 +161,10 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 		 Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck-1)] -
 		 Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck+1)])/4; 
 	
-	//	MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
+	MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
 
 	// largest component
-	MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)),tiny_number))))/ GravitationalConstant/CellWidthSquared ;
+	//MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)),tiny_number))))/ GravitationalConstant/CellWidthSquared ;
 	
 	// eigenvalues of tidal tensor instead of maximal component
 #if 0

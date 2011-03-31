@@ -312,6 +312,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       for (grid2 = 0; grid2 < SiblingList[grid1].NumberOfSiblings; grid2++)
 	Grids[grid1]->GridData->
 	  CheckForOverlap(SiblingList[grid1].GridList[grid2],
+
 			  MetaData->LeftFaceBoundaryCondition,
 			  MetaData->RightFaceBoundaryCondition,
 			  &grid::CopyOverlappingMassField);
@@ -384,6 +385,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       
       if (iterate > 0)
 	CopyPotentialFieldAverage = 2;
+
  
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 	Grids[grid1]->GridData->SolveForPotential(level, EvaluateTime);

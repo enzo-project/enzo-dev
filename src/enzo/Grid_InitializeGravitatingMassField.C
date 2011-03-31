@@ -84,11 +84,12 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
   }
  
   /* Set unused dims. */
- 
+
   for (dim = GridRank; dim < MAX_DIMENSION; dim++) {
     GravitatingMassFieldDimension[dim] = 1;
     GravitatingMassFieldLeftEdge[dim] = DomainLeftEdge[dim];
   }
- 
+
+
   return SUCCESS;
 }

@@ -27,7 +27,7 @@
 #include "Grid.h"
 #include "communication.h"
  
-#define SPLINE
+#define NO_SPLINE
  
 /* function prototypes */
  

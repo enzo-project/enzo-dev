@@ -30,7 +30,10 @@ int FindField(int field, int farray[], int numfields);
  
 int grid::CopyPotentialToBaryonField()
 {
- 
+
+  if (CopyGravPotential == FALSE)
+    return SUCCESS;
+
   // Return if this doesn't concern us
  
   if (ProcessorNumber != MyProcessorNumber)
@@ -45,7 +48,6 @@ int grid::CopyPotentialToBaryonField()
   if (BaryonField[field] == NULL) {
     ENZO_FAIL("GravPotential field missing.\n");
   }
- 
  
   // Check to make sure PotentialField exists
  
@@ -75,17 +77,6 @@ int grid::CopyPotentialToBaryonField()
 //     fprintf(stderr, "CPOT (%"ISYM") %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n", dim, GridDimension[dim], GridStartIndex[dim], GridEndIndex[dim], GravitatingMassFieldDimension[dim], BufferSize, Off[dim]);
   }
  
-/*
-  int jj = 0, shift = 6;
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]+shift; k++)
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]+shift; j++) {
-      int index = (k*(GridDimension[1]+shift) + j)*(GridDimension[0]+shift) +
-	GridStartIndex[0];
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]+shift; i++, index++)
-	BaryonField[field][jj++] = PotentialField[index];
-    }
-*/
- 
   int i, j, k;
   int index;
   int jj = 0;
@@ -99,7 +90,7 @@ int grid::CopyPotentialToBaryonField()
  
       for (i = 0; i < GridDimension[0]; i++, index++)
       {
-	//BaryonField[field+1][jj] = GravitatingMassField[index]; // use this for debugging 
+	//	BaryonField[field][jj++] = GravitatingMassField[index] + 1; // use this for debugging 
 	BaryonField[field][jj++] = PotentialField[index];
 	// debuggin:
 	maxPot = max(maxPot,PotentialField[index]);

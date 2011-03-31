@@ -42,6 +42,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
+int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits);
+
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid)
 {

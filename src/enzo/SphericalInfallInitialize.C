@@ -48,7 +48,8 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
- 
+  char *GPotName  = "Grav_Potential";
+
   /* declarations */
  
   char  line[MAX_LINE_LENGTH];
@@ -103,6 +104,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 		  &SphericalInfallFixedMass);
     ret += sscanf(line, "SphericalInfallCenter = %"PSYM" %"PSYM" %"PSYM,
 		  SphericalInfallCenter, SphericalInfallCenter+1,
+
 		  SphericalInfallCenter+2);
  
     /* if the line is suspicious, issue a warning */
@@ -204,7 +206,7 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
 				   SphericalInfallOmegaBaryonNow,
 				   SphericalInfallOmegaCDMNow,
 				   FALSE)
-	== FAIL) {
+ 	== FAIL) {
       ENZO_FAIL("Error in SphericalInfallInitializeGrid (2).\n");
     }			
   }
@@ -242,13 +244,16 @@ int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = Vel1Name;
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
- 
+  if (WritePotential)
+    DataLabel[count++] = GPotName;  
+
   DataUnits[0] = NULL;
   DataUnits[1] = NULL;
   DataUnits[2] = NULL;
   DataUnits[3] = NULL;
   DataUnits[4] = NULL;
   DataUnits[5] = NULL;
+  DataUnits[6] = NULL;
  
   /* Write parameters to parameter output file */
  

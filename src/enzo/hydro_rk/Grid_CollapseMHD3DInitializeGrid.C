@@ -224,16 +224,16 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   }
 
   float rho, vel[3], eint, etot, h, cs, dpdrho, dpde, v2, B2, Bx, By, Bz;
-  FLOAT phi, theta;
+  FLOAT phi, theta, x=0., y=0., z=0.;
   int n = 0;
   
   for (k = 0; k < GridDimension[2]; k++) {
     for (j = 0; j < GridDimension[1]; j++) {
       for (i = 0; i < GridDimension[0]; i++, n++) {
 
-	FLOAT x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	FLOAT y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	FLOAT z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	if (GridRank > 1) y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	if (GridRank > 2) z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
 	rho = rho_medium;
 	EOS(p_medium, rho_medium, eint, h, cs, dpdrho, dpde, EOSType, 1);
@@ -271,11 +271,11 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
 	  if (r < r_sphere[sphere]) {
 
-            FLOAT xpos, ypos, zpos, drad;
+            FLOAT xpos=0., ypos=0., zpos=0., drad;
 
 	    xpos = x-sphere_position[sphere][0];
-	    ypos = y-sphere_position[sphere][1];
-	    zpos = z-sphere_position[sphere][2];
+	    if (GridRank > 1) ypos = y-sphere_position[sphere][1];
+	    if (GridRank > 2) zpos = z-sphere_position[sphere][2];
 
 	    // compute the azimuthal angle
 	    FLOAT cosphi = xpos/sqrt(xpos*xpos+ypos*ypos);
@@ -424,7 +424,8 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	    if (sphere_type[sphere] == 7) {
 	      float m2mode = 1. + 0.1*cos(2.*phi);
 	      rho = rho_sphere[sphere] * exp(-pow(r/r_sphere[sphere]/0.58,2));
-	      rho *= m2mode;
+
+	      //	      rho *= m2mode;
 	      float p, cs, h, dpdrho, dpde;
 	      p = rho*pow(cs_sphere[sphere], 2)/Gamma;
 	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
@@ -451,6 +452,24 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      float p, cs, h, dpdrho, dpde;
 	      p = pow(cs_sphere[sphere], 2)*rho/Gamma;
 	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
+	      // for the B-field we put it along x to slow the 
+	      // collapse along the z direction
+	      Bx = Bnaught;
+	      By = 0;
+	      Bz = 0;
+              vel[0] = -omega_sphere[sphere]*ypos;
+              vel[1] = omega_sphere[sphere]*xpos;
+	    }
+
+	    if (sphere_type[sphere] == 10) {
+	      rho  = rho_sphere[sphere];
+	      // Cooling Sphere from Volker Springel
+	      // 
+	      // 
+	      float p, cs, h, dpdrho, dpde, a2, rho0;
+	      a2 = PointSourceGravityCoreRadius*PointSourceGravityCoreRadius;
+	      rho = rho_sphere[sphere]*a2/(a2+xpos*xpos);
+	      eint = .75 * PointSourceGravityConstant;
 	      // for the B-field we put it along x to slow the 
 	      // collapse along the z direction
 	      Bx = Bnaught;

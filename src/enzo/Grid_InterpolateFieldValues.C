@@ -217,7 +217,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
     if (ProcessorNumber != ParentGrid->ProcessorNumber) {
       ParentGrid->CommunicationSendRegion(ParentGrid, ProcessorNumber,
-			ALL_FIELDS, NEW_ONLY, ParentStartIndex, ParentTempDim);
+					  ALL_FIELDS, NEW_ONLY, ParentStartIndex, ParentTempDim);
       for (dim = 0; dim < GridRank; dim++) {
 	ParentDim[dim] = ParentTempDim[dim];
 	ParentStartIndex[dim] = 0;
@@ -242,12 +242,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
     //    if (HydroMethod != Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	FORTRAN_NAME(copy3d)(ParentGrid->BaryonField[field], ParentTemp[field],
-			     ParentDim, ParentDim+1, ParentDim+2,
-			     ParentTempDim, ParentTempDim+1, ParentTempDim+2,
-			     &Zero, &Zero, &Zero,
-			     ParentStartIndex, ParentStartIndex+1,
-			     ParentStartIndex+2);
+	  FORTRAN_NAME(copy3d)(ParentGrid->BaryonField[field], ParentTemp[field],
+			       ParentDim, ParentDim+1, ParentDim+2,
+			       ParentTempDim, ParentTempDim+1, ParentTempDim+2,
+			       &Zero, &Zero, &Zero,
+			       ParentStartIndex, ParentStartIndex+1,
+			       ParentStartIndex+2);
+
 /*
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++) {
@@ -279,8 +280,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 
-	    //	   && FieldType[field] != DebugField &&
-	    //	    FieldType[field] != GravPotential
+	    //	   && FieldType[field] != DebugField 
+	    	   && FieldType[field] != GravPotential
 	    )
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
@@ -383,8 +384,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 
-	    //	    FieldType[field] != DebugField &&
-	    //	    FieldType[field] != GravPotential
+	    //	    FieldType[field] != DebugField 
+	    // &&  FieldType[field] != GravPotential
 	    )
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,

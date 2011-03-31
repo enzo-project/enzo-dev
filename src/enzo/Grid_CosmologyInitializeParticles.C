@@ -41,7 +41,7 @@ int ReadIntFile(char *name, int Rank, int Dims[], int StartIndex[],
 		int EndIndex[], int BufferOffset[], int *buffer,
 		int **tempbuffer, int Part, int Npart);
 
-#define ICPART_SHIFT8
+//#define ICPART_SHIFT8
 
 int grid::CosmologyInitializeParticles(
 		   char *CosmologySimulationParticleVelocityName,
@@ -140,7 +140,13 @@ int grid::CosmologyInitializeParticles(
 
   */
 
-  float32 vfact;                                                                                                    float disp_factor;                                                                                                hid_t grp_id = H5Gopen(file_id,"/");                                                                              err |= readAttribute(grp_id, H5T_NATIVE_FLOAT, "vfact", &vfact);                                                  H5Gclose(grp_id);                                                                                                 assert(err == 0);                                                                                                 H5Fclose(file_id);                                                                                              
+  float32 vfact;
+  float disp_factor;
+  hid_t grp_id = H5Gopen(file_id,"/");
+  err |= readAttribute(grp_id, H5T_NATIVE_FLOAT, "vfact", &vfact);
+  H5Gclose(grp_id);
+  assert(err == 0);
+  H5Fclose(file_id);                                                                                              
 
   disp_factor = 1e-5*VelocityUnits / vfact / (ComovingBoxSize / HubbleConstantNow);
 

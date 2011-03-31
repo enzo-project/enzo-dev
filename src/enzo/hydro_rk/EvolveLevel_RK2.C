@@ -343,9 +343,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	       dt0, C_h, C_p);
 
 
-    //    When = 0.5;
-    When = 0.0;
-//    RK2SecondStepBaryonDeposit = 1;  
+    When = 0.5;
+
+    RK2SecondStepBaryonDeposit = 1;  
     if (SelfGravity) {
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
@@ -377,6 +377,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (level > 0) 
 	    Grids[grid1]->GridData->SolveForPotential(level) ;
 	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
+	  Grids[grid1]->GridData->CopyPotentialToBaryonField();
 	}
 	// otherwise, use interpolated potential from coarser grid, which is
 	// done in PrepareDensity.
@@ -431,8 +432,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
     //    printf("SECOND STEP\n");
-    if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
-      When = 0.;
+    if (RK2SecondStepBaryonDeposit && SelfGravity) {  
+      When = 0.5;
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else  
@@ -450,9 +451,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Grids[grid1]->GridData->SolveForPotential(level) ;
 	  Grids[grid1]->GridData->ComputeAccelerations(level) ;
 	}
-	Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
       } // end: if (SelfGravity)
 
+      Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
 
     } // End of loop over grids
 
@@ -554,33 +555,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
 
-    //dcc cut second potential cut: Duplicate?
-    /*
-    if (SelfGravity && WritePotential) {
-      CopyGravPotential = TRUE;
-      When = 0.5;
- 
-#ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
-#else   // !FAST_SIB
-      PrepareDensityField(LevelArray, level, MetaData, When);
-#endif  // end FAST_SIB
-  
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        if (level <= MaximumGravityRefinementLevel) {
- 
-          // Compute the potential. 
- 
-          if (level > 0)
-            Grids[grid1]->GridData->SolveForPotential(level);
-          Grids[grid1]->GridData->CopyPotentialToBaryonField();
-        }
-} //  end loop over grids
-      CopyGravPotential = FALSE;
-
-} // if WritePotential
- 
-*/
 
     OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
 #ifdef TRANSFER
@@ -671,6 +645,33 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Recompute radiation field, if requested. */
 
     RadiationFieldUpdate(LevelArray, level, MetaData);
+
+    //dcc cut second potential cut: Duplicate?
+    
+    if (SelfGravity && WritePotential) {
+      CopyGravPotential = TRUE;
+      When = 0.;
+ 
+#ifdef FAST_SIB
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+#else   // !FAST_SIB
+      PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
+  
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        if (level <= MaximumGravityRefinementLevel) {
+ 
+          // Compute the potential. 
+ 
+          if (level > 0)
+            Grids[grid1]->GridData->SolveForPotential(level);
+          Grids[grid1]->GridData->CopyPotentialToBaryonField();
+        }
+} //  end loop over grids
+      CopyGravPotential = FALSE;
+
+} // if WritePotential
+ 
 
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */

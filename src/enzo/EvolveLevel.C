@@ -390,7 +390,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Prepare the density field (including particle density). */
 
     When = 0.5;
- 
+
 #ifdef FAST_SIB
      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else   // !FAST_SIB
@@ -421,6 +421,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (level > 0)
 	    Grids[grid1]->GridData->SolveForPotential(level);
 	  Grids[grid1]->GridData->ComputeAccelerations(level);
+	  Grids[grid1]->GridData->CopyPotentialToBaryonField();
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
 	     now done in PrepareDensity. */
@@ -550,33 +551,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* If cosmology, then compute grav. potential for output if needed. */
 
-    //dcc cut second potential cut: Duplicate?
- 
-    if (SelfGravity && WritePotential) {
-      CopyGravPotential = TRUE;
-      When = 0.0;
- 
-#ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
-#else   // !FAST_SIB
-      PrepareDensityField(LevelArray, level, MetaData, When);
-#endif  // end FAST_SIB
- 
- 
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        if (level <= MaximumGravityRefinementLevel) {
- 
-          /* Compute the potential. */
- 
-          if (level > 0)
-            Grids[grid1]->GridData->SolveForPotential(level);
-          Grids[grid1]->GridData->CopyPotentialToBaryonField();
-        }
-      } //  end loop over grids
-      CopyGravPotential = FALSE;
-
-    } // if WritePotential
- 
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
@@ -676,6 +650,34 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
  
+//     //dcc cut second potential cut: Duplicate?
+ 
+//     if (SelfGravity && WritePotential) {
+//       CopyGravPotential = TRUE;
+//       When = 0.0;
+ 
+// #ifdef FAST_SIB
+//       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+// #else   // !FAST_SIB
+//       PrepareDensityField(LevelArray, level, MetaData, When);
+// #endif  // end FAST_SIB
+ 
+ 
+//       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+//         if (level <= MaximumGravityRefinementLevel) {
+ 
+//           /* Compute the potential. */
+ 
+//           if (level > 0)
+//             Grids[grid1]->GridData->SolveForPotential(level);
+//           Grids[grid1]->GridData->CopyPotentialToBaryonField();
+//         }
+//       } //  end loop over grids
+//        CopyGravPotential = FALSE;
+
+//     } // if WritePotential
+ 
+
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
