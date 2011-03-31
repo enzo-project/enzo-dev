@@ -287,7 +287,7 @@ have a look at :ref:`controlling_data_output` for more information.
     within the 0.1 - 20 keV range is available here. If these
     parameters are specified, then the second field is replaced with
     integrated emissivity along the line of sight in units of
-    10\ :sup:`-23 erg/cm`\ 2/s.
+    10\ :sup:`-23` erg/cm\ :sup:`2`/s.
 ``ExtractFieldsOnly`` (external)
     Used for extractions (enzo -x ...) when only field data are needed
     instead of field + particle data. Default is 1 (TRUE).
