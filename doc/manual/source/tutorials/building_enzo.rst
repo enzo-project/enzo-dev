@@ -42,7 +42,7 @@ Before you try to build Enzo, you may wish to verify your system meets the
 
 Updating a source tree with Mercurial is beyond the scope of this document; for
 more information, please peruse :ref:`HowToDevelopEnzo` and the Mercurial
-documentation.  The `mercurial <http://mercurial.selenic.com/`_ commands of
+documentation.  The `mercurial <http://mercurial.selenic.com/>`_ commands of
 most use are ``pull``, ``update`` and ``incoming``.
 
 Building Enzo
