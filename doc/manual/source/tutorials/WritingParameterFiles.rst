@@ -32,6 +32,8 @@ command line. Typically, a parameter is set by writing the
 parameter name, an equals sign, and then the parameter value or
 values, like this:
 
+.. highlight:: none
+
 ::
 
     NumberOfBufferZones = 3
