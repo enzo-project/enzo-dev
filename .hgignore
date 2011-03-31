@@ -5,6 +5,7 @@ syntax: glob
 *.f
 *.f90
 *~
+*.pyc
 
 bin/enzo
 bin/inits
