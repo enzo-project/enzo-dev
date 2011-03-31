@@ -237,6 +237,10 @@ show-flags:
 	@echo ""
 	@echo "LIBS     = $(LIBS)"
 	@echo
+	@echo "   Use MHDCT"
+	@echo
+	@echo "      gmake mhdct-yes (not working!)"
+	@echo "      gmake mhdct-no"
 
 #-----------------------------------------------------------------------
 
@@ -902,6 +906,24 @@ CONFIG_GRAVITY_4S-%: suggest-clean
 
 
 #-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+
+VALID_MHDCT = mhdct-yes mhdct-no
+.PHONY: $(VALID_MHDCT)
+
+mhdct-yes: CONFIG_MHDCT-yes
+mhdct-no: CONFIG_MHDCT-no
+mhdct-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_MHDCT)]\n\n"
+CONFIG_MHDCT-%:
+	@tmp=.config.temp; \
+	grep -v CONFIG_MHDCT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+	echo "CONFIG_MHDCT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE) show-config | grep CONFIG_MHDCT:
+	@echo
 
 VALID_MHDCT = mhdct-yes mhdct-no
 .PHONY: $(VALID_MHDCT)

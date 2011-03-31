@@ -993,6 +993,27 @@
         $(error Illegal Value '$(CONFIG_MHDCT)' for $$(CONFIG_MHDCT))
     endif
 
+#-----------------------------------------------------------------------
+# Determine MHDCT object files. dcc July 28 2009
+#-----------------------------------------------------------------------
+    ERROR_MHDCT = 1
+
+    ifeq ($(CONFIG_MHDCT),yes)
+        ERROR_MHDCT = 0
+        ASSEMBLE_OBJS_MHDCT = $(OBJS_MHDCT)
+        ASSEMBLE_MHDCT_DEFINES = -DMHDCT
+    endif
+
+    ifeq ($(CONFIG_MHDCT),no)
+        ERROR_MHDCT = 0
+    endif
+
+    ifeq ($(ERROR_MHDCT),1)
+        .PHONY: error_mhdf
+        error_mhdf:
+        $(error Illegal Value '$(CONFIG_MHDCT)' for $$(CONFIG_MHDCT))
+    endif
+
 
 #=======================================================================
 # ASSIGN ALL OUTPUT VARIABLES
