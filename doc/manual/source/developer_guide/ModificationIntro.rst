@@ -38,6 +38,8 @@ https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l
 This document describes how to use Mercurial to make changes to Enzo, how to
 send those changes upstream, and how to navigate the Enzo source tree.
 
+.. highlight:: none
+
 Mercurial Introduction
 ----------------------
 
