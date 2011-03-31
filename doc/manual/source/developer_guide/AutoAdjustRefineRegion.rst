@@ -33,8 +33,8 @@ resolution particles, which is not desired. We will incrementally shrink the
 region by a cell width on the level with the finest nested initial grid.
 
 
-#. Find the mass of the highest resolution particle, M_min.
-#. Create a list of any particles with a mass > M_min inside the current
+#. Find the mass of the highest resolution particle, M\ :sub:`min`.
+#. Create a list of any particles with a mass > M\ :sub:`min` inside the current
    refine region. This list is unique on each processor.
 #. Because we will incrementally reduce the refine region by cell
    widths, it is convenient to convert the massive particle positions to
@@ -68,4 +68,3 @@ above process.
 
 .. youtube:: 0LgyJ1HcrQM
 
-test.
