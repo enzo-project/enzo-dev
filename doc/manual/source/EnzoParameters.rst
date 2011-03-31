@@ -36,6 +36,8 @@ common convention of 0 meaning false or off and 1 for true or on.
 
 This list includes parameters for the Enzo 2.0 release.
 
+.. highlight:: none
+
 Stopping Parameters
 -------------------
 
@@ -422,15 +424,14 @@ Hierarchy Control Parameters
     Note that some methods have additional parameters which are
     described below. Default: 1
 
-::
+    :: 
 
-    1 - refine by slope		       6  - refine by Jeans length
-    2 - refine by baryon mass	       7  - refine if (cooling time <
-      	       	  	 	       	    cell width/sound speed)
-    3 - refine by shocks               11 - refine by resistive length
-    4 - refine by particle mass        12 - refine by defined region "MustRefineRegion"
-    5 - refine by baryon overdensity   13 - refine by metallicity
-        (currently disabled)
+       1 - refine by slope		       6  - refine by Jeans length
+       2 - refine by baryon mass	       7  - refine if (cooling time < cell width/sound speed)
+       3 - refine by shocks 		       11 - refine by resistive length
+       4 - refine by particle mass	       12 - refine by defined region "MustRefineRegion"
+       5 - refine by baryon overdensity	       13 - refine by metallicity
+       	  (currently disabled)
 
 ``RefineRegionLeftEdge``, ``RefineRegionRightEdge`` (external)
     These two parameters control the region in which refinement is
