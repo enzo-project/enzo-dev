@@ -1,3 +1,5 @@
+.. _NewLocalOperator:
+
 Adding a new Local Operator.
 ============================
 
