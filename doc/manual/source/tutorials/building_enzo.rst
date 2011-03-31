@@ -37,9 +37,6 @@ read the latest source checkout instructions.
 
 http://enzo.googlecode.com/
 
-Before you try to build Enzo, you may wish to verify your system meets the
-`compilation requirements? </wiki/Devel/UserGuide/CompilationRequirements>`_.
-
 Updating a source tree with Mercurial is beyond the scope of this document; for
 more information, please peruse :ref:`HowToDevelopEnzo` and the Mercurial
 documentation.  The `mercurial <http://mercurial.selenic.com/>`_ commands of
@@ -62,6 +59,8 @@ Initializing the Build System
 
 This just clears any existing configurations left over from a previous machine,
 and creates a couple of files for building.
+
+.. highlight:: none
 
 ::
 
@@ -290,5 +289,5 @@ YT
 ~~
 
 To install yt, you can use the installation script provided with the yt source
-distribution.  See :ref:`installation` or :ref:`installation_script` for more
+distribution.  See `the yt homepage <http://yt.enzotools.org/>`_ for more
 information.
