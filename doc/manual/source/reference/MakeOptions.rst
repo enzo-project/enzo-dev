@@ -56,55 +56,55 @@ The list of ``MACH_`` variables that can be set are listed below.
 General variables:
 
 ================ ============
-**MACH\_FILE**    Name of the make include file for the machine, e.g. ``Make.mach.nics-kraken``
-**MACH\_TEXT**    Description of the platform, e.g. ``"NICS Kraken"``
-**MACH\_VALID**   Should be set to 1, though not currently accessed
+**MACH_FILE**    Name of the make include file for the machine, e.g. ``Make.mach.nics-kraken``
+**MACH_TEXT**    Description of the platform, e.g. ``"NICS Kraken"``
+**MACH_VALID**   Should be set to 1, though not currently accessed
 ================ ============
 
 Paths to compilers:
 
 ===================== ============
-**MACH\_CPP**          The C preprocessor
-**MACH\_CC\_MPI**     The MPI C compiler
-**MACH\_CC\_NOMPI**    The C compiler
-**MACH\_CXX\_MPI**    The MPI C++ compiler
-**MACH\_CXX\_NOMPI**    The C++ compiler
-**MACH\_F90\_MPI**    The MPI F90 compiler
-**MACH\_F90\_NOMPI**    The F90 compiler
-**MACH\_FC\_MPI**      The MPI F77 compiler
-**MACH\_FC\_NOMPI**    The F77 compiler
+**MACH_CPP**          The C preprocessor
+**MACH_CC_MPI**     The MPI C compiler
+**MACH_CC_NOMPI**    The C compiler
+**MACH_CXX_MPI**    The MPI C++ compiler
+**MACH_CXX_NOMPI**    The C++ compiler
+**MACH_F90_MPI**    The MPI F90 compiler
+**MACH_F90_NOMPI**    The F90 compiler
+**MACH_FC_MPI**      The MPI F77 compiler
+**MACH_FC_NOMPI**    The F77 compiler
 **MACH_CUDACOMPILER**    The CUDA compiler
-**MACH\_LD\_MPI**      The MPI linker (typically the MPI C++ compiler)
-**MACH\_LD\_NOMPI**    The linker (typically the C++ compiler)
+**MACH_LD_MPI**      The MPI linker (typically the MPI C++ compiler)
+**MACH_LD_NOMPI**    The linker (typically the C++ compiler)
 ===================== ============
 
 Compiler flags:
 
 ================== ============
-**MACH\_CPPFLAGS**    Machine-dependent flags for the C preprocessor, e.g.  ``-P -traditional``
-**MACH\_CFLAGS**    Machine-dependent flags for the C compiler
-**MACH\_CXXFLAGS**    Machine-dependent flags for the C++ compiler
-**MACH\_F90FLAGS**    Machine-dependent flags for the F90 compiler
-**MACH\_FFLAGS**    Machine-dependent flags for the F77 compiler
-**MACH\_LDFLAGS**    Machine-dependent flags for the linker
+**MACH_CPPFLAGS**    Machine-dependent flags for the C preprocessor, e.g.  ``-P -traditional``
+**MACH_CFLAGS**    Machine-dependent flags for the C compiler
+**MACH_CXXFLAGS**    Machine-dependent flags for the C++ compiler
+**MACH_F90FLAGS**    Machine-dependent flags for the F90 compiler
+**MACH_FFLAGS**    Machine-dependent flags for the F77 compiler
+**MACH_LDFLAGS**    Machine-dependent flags for the linker
 ================== ============
 
 Precision flags:
 
 ============================== ============
-**MACH\_DEFINES**               Machine-specific defines, e.g. ``-DLINUX``, ``-DIBM``, ``-DIA64``, etc.
-**MACH\_FFLAGS\_INTEGER\_32**    Fortran flags for specifying 32-bit integers
-**MACH\_FFLAGS\_INTEGER\_64**    Fortran flags for specifying 64-bit integers
-**MACH\_FFLAGS\_REAL\_32**      Fortran flags for specifying 32-bit reals
-**MACH\_FFLAGS\_REAL\_64**      Fortran flags for specifying 64-bit reals
+**MACH_DEFINES**               Machine-specific defines, e.g. ``-DLINUX``, ``-DIBM``, ``-DIA64``, etc.
+**MACH_FFLAGS_INTEGER_32**    Fortran flags for specifying 32-bit integers
+**MACH_FFLAGS_INTEGER_64**    Fortran flags for specifying 64-bit integers
+**MACH_FFLAGS_REAL_32**      Fortran flags for specifying 32-bit reals
+**MACH_FFLAGS_REAL_64**      Fortran flags for specifying 64-bit reals
 ============================== ============
 
 Paths to include header files:
 
 ========================= ============
-**MACH\_INCLUDES**         All required machine-dependent includes--should at least include    HDF5.
-**MACH\_INCLUDES\_HYPRE**    Includes for optional Hypre linear solver package
-**MACH\_INCLUDES\_MPI**    Includes for MPI if needed
+**MACH_INCLUDES**         All required machine-dependent includes--should at least include    HDF5.
+**MACH_INCLUDES_HYPRE**    Includes for optional Hypre linear solver package
+**MACH_INCLUDES_MPI**    Includes for MPI if needed
 **MACH_INCLUDES_CUDA**     Includes for CUDA if needed
 **MACH_INCLUDES_PYTHON**    Includes for Python if needed
 ========================= ============
@@ -112,10 +112,10 @@ Paths to include header files:
 Paths to library files:
 
 ====================== ============
-**MACH\_LIBS**         All required machine-dependent libraries--should at least include    HDF5.
-**MACH\_LIBS\_HYPRE**    Libraries for optional Hypre linear solver package
-**MACH\_LIBS\_MPI**     Libraries for MPI if needed
-**MACH\_LIBS\_PAPI**    Libraries for optional PAPI performance package (optionally called    by ``lcaperf``)
+**MACH_LIBS**         All required machine-dependent libraries--should at least include    HDF5.
+**MACH_LIBS_HYPRE**    Libraries for optional Hypre linear solver package
+**MACH_LIBS_MPI**     Libraries for MPI if needed
+**MACH_LIBS_PAPI**    Libraries for optional PAPI performance package (optionally called    by ``lcaperf``)
 **MACH_LIBS_CUDA**      Libraries for CUDA if needed
 **MACH_LIBS_PYTHON**    Libraries for Python if needed
 ====================== ============
@@ -123,10 +123,10 @@ Paths to library files:
 Optimization flags:
 
 ========================= ============
-**MACH\_OPT\_AGGRESSIVE**    Compiler/link flags for "aggressive" optimization
-**MACH\_OPT\_DEBUG**      Compiler/link flags for debugging
-**MACH\_OPT\_HIGH**       Compiler/link flags for standard optimizations
-**MACH\_OPT\_WARN**       Compiler/link flags to generate verbose warning messages
+**MACH_OPT_AGGRESSIVE**    Compiler/link flags for "aggressive" optimization
+**MACH_OPT_DEBUG**      Compiler/link flags for debugging
+**MACH_OPT_HIGH**       Compiler/link flags for standard optimizations
+**MACH_OPT_WARN**       Compiler/link flags to generate verbose warning messages
 ========================= ============
 
 Although it breaks from the ``MACH_*`` naming convention, there is
@@ -290,7 +290,7 @@ excluding the file containing ``main()``. Only one variable needs to
 be set.
 
 ======================  ==============
-**OBJS\_CONFIG\_LIB**    List of all object files excluding the file containing ``main()``
+**OBJS_CONFIG_LIB**    List of all object files excluding the file containing ``main()``
 ======================  ==============
 
 Dependencies are generated automatically using the makedepend

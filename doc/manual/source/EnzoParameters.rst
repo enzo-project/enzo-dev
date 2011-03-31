@@ -1227,7 +1227,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     conserves the global average star formation rate. Default: 1e9
 ``StarMakerMinimumDynamicalTime`` (external)
     When the star formation rate is computed, the rate is proportional
-    to M\_baryon \* dt/max(t\_dyn, t\_max) where t\_max is this
+    to M_baryon \* dt/max(t_dyn, t_max) where t_max is this
     parameter. This effectively sets a limit on the rate of star
     formation based on the idea that stars have a non-negligible
     formation and life-time. The unit is years. Default: 1e6
@@ -1817,17 +1817,17 @@ Accretion Physics
     temperature defined below. Set to 3 to turn on accretion with a
     fixed rate defined below. Set to 4 to to turn on accretion based on
     the Eddington-limited spherical Bondi-Hoyle formula, but without
-    v\_rel in the denominator. Set to 5 to turn on accretion based on
+    v_rel in the denominator. Set to 5 to turn on accretion based on
     Krumholz et al.(2006) which takes vorticity into account. Set to 6 
     to turn on alpha disk formalism based on DeBuhr et al.(2010).  
     7 and 8 are still failed experiment. Add 10 to each of these options 
     (i.e. 11, 12, 13, 14) to ignore the Eddington limit. See
-    ``Star\_CalculateMassAccretion.C``. Default: 0 (FALSE)
+    ``Star_CalculateMassAccretion.C``. Default: 0 (FALSE)
 ``MBHAccretionRadius`` (external)
     This is the radius (in pc) of a gas sphere from which the accreting
     mass is subtracted out at every timestep. Instead, you may want to
     try set this parameter to -1, in which case an approximate Bondi
-    radius is calculated and used (from ``DEFAULT\_MU`` and
+    radius is calculated and used (from ``DEFAULT_MU`` and
     ``MBHAccretionFixedTemperature``). If set to -N, it will use N\*(Bondi
     radius). See ``CalculateSubtractionParameters.C``. Default: 50.0
 ``MBHAccretingMassRatio`` (external)
@@ -1867,18 +1867,18 @@ Feedback Physics
 ^^^^^^^^^^^^^^^^
 
 ``MBHFeedback`` (external)
-    Set to 1 to turn on thermal feedback of MBH particles (``MBH\_THERMAL``
+    Set to 1 to turn on thermal feedback of MBH particles (``MBH_THERMAL``
     - not fully tested). Set to 2 to turn on mechanical feedback of MBH
-    particles (``MBH\_JETS``, bipolar jets along the total angular momentum
+    particles (``MBH_JETS``, bipolar jets along the total angular momentum
     of gas accreted onto the MBH particle so far). Set to 3 to turn on
-    another version of mechanical feedback of MBH particles (``MBH\_JETS``, 
+    another version of mechanical feedback of MBH particles (``MBH_JETS``, 
     always directed along z-axis). Set to 4 to turn on experimental version of 
-    mechanical feedback (`MBH\_JETS`, bipolar jets along the total angular 
+    mechanical feedback (`MBH_JETS`, bipolar jets along the total angular 
     momentum of gas accreted onto the MBH particle so far + 10 degree random 
     noise).  Set to 5 to turn on experimental version of mechanical feedback
-    (``MBH\_JETS``, launched at random direction). Note that, even when this
+    (``MBH_JETS``, launched at random direction). Note that, even when this
     parameter is set to 0, MBH particles still can be radiation sources
-    if ``RadiativeTransfer`` is on. See ``Grid\_AddFeedbackSphere.C``.
+    if ``RadiativeTransfer`` is on. See ``Grid_AddFeedbackSphere.C``.
     Default: 0 (FALSE)
     
     -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all

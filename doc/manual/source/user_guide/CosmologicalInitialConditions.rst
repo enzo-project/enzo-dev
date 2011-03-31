@@ -58,7 +58,7 @@ run the code with:
 
      inits [-d] parameter_file
 
-Where parameter\_file is the name of your modified parameter file
+Where parameter_file is the name of your modified parameter file
 (the -d turns on a debug option). This will produce a number of HDF
 files containing the initial grids and particles, which are in the
 correct units for use in KRONOS or Enzo.
@@ -80,7 +80,7 @@ initialization and run the simulation at relatively low resolution.
 Once you have identified an object (see the analysis section), you
 can use the findinit utility, which is part of the analysis package
 (see the instructions on obtaining Enzo). After setting the
-MACHINE\_NAME macro in the file amr\_mpi/anyl/Makefile, (and making
+MACHINE_NAME macro in the file amr_mpi/anyl/Makefile, (and making
 enzo itself, which is a pre-requisite), compile with make findinit.
 This should generate the findinit utility which can be run with:
 
@@ -88,15 +88,15 @@ This should generate the findinit utility which can be run with:
 
      findinit enzo_final_output enzo_initial_output object_file
 
-Here, enzo\_initial\_output and enzo\_final\_output refer to the
+Here, enzo_initial_output and enzo_final_output refer to the
 initial and final outputs (usually at z=0) of the low resolution
 enzo run. The position and radius of the object of interest should
-be in object\_file. This file contains just a single line with four
+be in object_file. This file contains just a single line with four
 numbers, separated by spaces. The first three specify the position
 of the object, (as floats ranging from 0 to 1) and the fourth is
 the radius (again in units of the box size). You can find the
 position of various objects with enzohop, and its radius with
-enzo\_anyl (see the analysis section).
+enzo_anyl (see the analysis section).
 
 The way findinit works is to extract all the particles within the
 sphere centered on the object from the final output and then
@@ -409,7 +409,7 @@ configure / make systems are set up similarly.
     creates files in double precision
 --enable-onedim
     creates one file per velocity component
---with-hdf=HDF5\_DIR
+--with-hdf=HDF5_DIR
     sets directory for parallel HDF5
 
 If FFTW is not present in the user's library path, the following
@@ -435,10 +435,10 @@ Example configure scripts can be found in mpgrafic/mpgrafic-0.2/conf.\*. After
 a successful configure, you can make mpgrafic or degraf by typing 'make'.
 
 After the programs are compiled, you make the initial conditions by using a
-python script, make\_ic.py, in the top directory that simplifies the user input
+python script, make_ic.py, in the top directory that simplifies the user input
 into mpgrafic and degraf and the moving of files.
 
-make\_ic.py parameters
+make_ic.py parameters
 ~~~~~~~~~~~~~~~~~~~~~~
 
 nprocs
@@ -447,11 +447,11 @@ boxsize
     box size in comoving Mpc (not Mpc/h)
 resolution
     top-level grid resolution
-n\_levels
+n_levels
     level of the finest nested grid
-inner\_width
+inner_width
     width of the finest nested grid
-buffer\_cells
+buffer_cells
     number of cells separating nested grids
 seed
     random seed (must be 9 digits)
@@ -466,17 +466,17 @@ LargeScaleFile
     noise file from that lower-resolution run
 OneDimPerFile
     whether we're using one file per velocity component
-omega\_m
+omega_m
     Omega matter
-omega\_v
+omega_v
     Omega lambda
-omega\_b
+omega_b
     Omega baryon
 h0
     Hubble constant in units of [km/s/Mpc]
 sigma8
-    sigma\_8
-n\_plawslope
+    sigma_8
+n_plawslope
     slope of power spectrum
 
 After you set your parameters, run this script with
@@ -493,10 +493,10 @@ The user cannot specify the initial redshift because mpgrafic determines it
 from the parameter sigstart that is the maximum initial density fluctuation.
 From this, mpgrafic calculates the initial redshift. This file is overwritten
 by the python script, so if you want to change this parameter, change it in the
-python script (routine write\_grafic1inc).
+python script (routine write_grafic1inc).
 
 The noise file is always kept in mpgrafic/mpgrafic-0.2/src and is named
-$seed\_$resolution.dat, where $resolution is the top-level grid resolution. It
+$seed_$resolution.dat, where $resolution is the top-level grid resolution. It
 can be re-used with LargeScaleFile if the user wants to re-simulate the volume
 at a higher resolution.
 

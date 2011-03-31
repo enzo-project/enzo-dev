@@ -58,7 +58,7 @@ description of what they do.
 
   This houses all global parameters for Enzo, which is most of them.
   Variables defined here are defined as extern in all routines but
-  ``src/enzo/enzo.C`` (see the ``DEFINE\_STORAGE`` #define there) and
+  ``src/enzo/enzo.C`` (see the ``DEFINE_STORAGE`` #define there) and
   are initialized with ``src/enzo/SetDefaultGlobalValues.C``.
 
 ``src/enzo/Grid.h`` 

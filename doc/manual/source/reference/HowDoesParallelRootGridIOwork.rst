@@ -164,7 +164,7 @@ More on that in a moment.
 
 ``CommunicationPartitionGrid()`` is the routine that takes the ``TopGrid``
 (or, any grid) and breaks it across the processors. It first sorts
-out the layout of the processors with ``MPI\_Dims\_create()``. It then
+out the layout of the processors with ``MPI_Dims_create()``. It then
 evenly splits the initial grid over those processors by first
 creating a new grid on each tile, linking them to the Hierarchy
 linked list. It then (and here's the tricky part)
