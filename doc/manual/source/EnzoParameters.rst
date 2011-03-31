@@ -48,7 +48,7 @@ Stopping Parameters
 ``StopCycle`` (external)
     The cycle (top grid timestep) at which the calculation stops. A
     value of zero indicates that this criterion is not be used.
-    *Default: 0*
+    *Default: 100000*
 ``StopFirstTimeAtLevel`` (external)
     Causes the simulation to immediately stop when a specified level is
     reached. Default value 0 (off), possible values are levels 1
@@ -75,18 +75,16 @@ Initialization Parameters
 -------------------------
 
 ``ProblemType`` (external)
-    This integer specifies the type of problem to be run. It's value
+    This integer specifies the type of problem to be run. Its value
     causes the correct problem initializer to be called to set up the
     grid, and also may trigger certain boundary conditions or other
     problem-dependent routines to be called. The possible values are
-    listed below. [Not all of these problems run with more than one
-    processor. The list of those known to work in parallel are: 23, 25,
-    30.] Default: none. 
+    listed below. Default: none. 
 
 For other problem-specific parameters follow the links below.  The problems
-marked with "hydro_rk" originate from the MUSCL solver package in
+marked with "hydro_rk" originate from the MUSCL solver package in the enzo installation directory
 ``src/enzo/hydro_rk``.  For the 4xx radiation hydrodynamics problem types, see
-the user guides in ``doc/implicit_fld`` and ``doc/split_fld``.
+the user guides in the installation directory ``doc/implicit_fld`` and ``doc/split_fld``.
 
 ============ ====================================
 Problem Type Description and Parameter List
