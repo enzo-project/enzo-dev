@@ -231,9 +231,9 @@ this by calling ``make field\_array\_example.exe`` in source directory.
 Field List Reference
 --------------------
 
-=====================  =====================  ==========  ===============
-Field Number            Field Name             Data Type   Array or Vector
-=====================  =====================  ==========  ===============
+======================  ======================  ==========  ===============
+Field Number            Field Name              Data Type   Array or Vector
+======================  ======================  ==========  ===============
 Density                 "Density"               float       Array
 TotalEnergy             "TotalEnergy"           float       Array
 InternalEnergy          "InternalEnergy"        float       Array
@@ -272,5 +272,5 @@ gAccelerationField      "AccelerationField"     float       Vector
 gGravitatingMassField   "GravitatingMassField"  float       Array
 gFlaggingField          "FlaggingField"         int         Array
 gVelocity               "Velocity"              float       Vector
-======================  ====================   =========  ===============
+======================  ======================  ==========  ===============
 
