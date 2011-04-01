@@ -92,6 +92,11 @@ Method 10: Population III stellar tracers
 -----------------------------------------
 *Source: pop3_color_maker.F*
 
+Mergers
+--------
+
+
+
 Notes
 ------------------------
 
