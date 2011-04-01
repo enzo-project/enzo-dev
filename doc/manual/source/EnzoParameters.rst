@@ -1167,25 +1167,23 @@ For details on each of the different star formation methods available in Enzo se
     2\ :sup:`3`\ ), or if methods 0, 1 and 4 are wanted, this would be
     19 (2\ :sup:`0`\  + 2\ :sup:`1`\  + 2\ :sup:`4`\ ). Default: 0
     
-    -  Method 0 = Cen & Ostriker (1992)
-    -  Method 1 = Cen & Ostriker (1992) - without the Jeans mass
-       restriction
-    -  Method 2 = Kravstov et al. (2003)
-    -  Method 3 = Population III stars / Abel, Wise, & Bryan (2007)
-    -  Method 4 = Sink particles: pure sink particle OR star particle
-       with wind feedback depending on HydroMethod used / Wang et al.
-       (2009)
-    -  Method 5 = Star clusters that are Jeans resolved / Wise & Cen
-       (2009)
-    -  Method 6 = [reserved]
-    -  Method 7 = Cen & Ostriker (1992) - (1) without the Jeans mass
-       restriction, (2) without dt dependence in stellar mass formed, and
-       (3) without stochastic star formation / Kim, Wise, & Abel (2009)
-    -  Method 8 = Springel & Hernquist (2003)
-    -  Method 9 = Massive Black Hole (MBH) particles insertion by hand
-       (automatically turned off once all the particles are inserted) /
-       Kim et al. (2010)
+    ::
 
+	0 - Cen & Ostriker (1992)		
+	1 - Cen & Ostriker (1992), without the Jeans mass restriction
+	2 - Kravstov et al. (2003)
+	3 - Population III stars / Abel, Wise & Bryan (2007)
+	4 - Sink particles: Pure sink particle or star particle with wind feedback depending on 
+	    choice for HydroMethod / Wang et al. (2009)
+	5 - Star clusters that are Jeans resolved / Wise & Cen (2009)
+	6 - [ reserved ]
+	7 - Cen & Ostriker (1992) - 
+	    	(1) without the Jeans mass restriction, 
+	    	(2) without dt dependence in stellar mass formed and 
+		(3) without stochastic star formation / Kim, Wise & Abel (2009)
+	8 - Springel & Hernquist (2003)
+	9 - Massive Black Hole (MBH) particles insertion by hand 
+	    (automatically turned off once all the particles are inserted) / Kim et al. (2010)
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
