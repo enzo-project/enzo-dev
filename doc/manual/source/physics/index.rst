@@ -9,3 +9,5 @@ physics modules.
    
    star_particles.rst
 
+   hydro_methods.rst
+
