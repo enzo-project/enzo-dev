@@ -1,0 +1,9 @@
+name = 'RotatingCylinder'
+answer_testing_script = 'test_rotating_cylinder.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+dimensionality = 3
