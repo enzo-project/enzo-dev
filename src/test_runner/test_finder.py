@@ -1,6 +1,6 @@
 # This is the object that locates all *.enzo_test directories
 
-import glob
+import os.path
 
 known_variables = dict(
     name = str,
@@ -17,10 +17,15 @@ known_variables = dict(
     dimensionality = int
 )
 
+def add_files(my_list, dirname, fns):
+    my_list += [os.path.join(dirname, fn) for
+                fn in fns if fn.endswith(".enzotest")]
+
 class EnzoTestCollection(object):
     def __init__(self):
         # Now we look for all our *.enzo_test files
-        fns = glob.glob("**/*.enzo_test")
+        fns = []
+        os.path.walk(".", add_files, fns)
         self.tests = []
         for fn in sorted(fns):
             print "HANDLING", fn
@@ -36,6 +41,7 @@ class EnzoTestCollection(object):
             if var in known_variables:
                 caster = known_variables[var]
                 test_spec[var] = caster(val)
+                if val == "None": test_spec[var] = None
             else:
                 print "%s UNRECOGNIZED VARIABLE %s" % ( fn, var)
         self.tests.append(test_spec)
