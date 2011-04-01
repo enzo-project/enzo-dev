@@ -10,7 +10,7 @@ and by no means a replacement to the documentation.
 NICS: Kraken
 ------------
 
-`http://www.nics.tennessee.edu/table-of-contents <http://www.nics.tennessee.edu/table-of-contents>`_
+`http://www.nics.tennessee.edu/computing-resources/kraken <http://www.nics.tennessee.edu/computing-resources/kraken>`_
 
 Important
 ~~~~~~~~~
