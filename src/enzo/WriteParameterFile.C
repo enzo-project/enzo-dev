@@ -167,7 +167,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MetaData.CycleSkipHistoryDump);
 
 
+  fprintf(fptr, "PythonTopGridSkip       = %"ISYM"\n", PythonTopGridSkip);
   fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
+#ifdef USE_PYTHON
+  fprintf(fptr, "NumberOfPythonCalls         = %"ISYM"\n", NumberOfPythonCalls);
+  fprintf(fptr, "NumberOfPythonTopGridCalls  = %"ISYM"\n", NumberOfPythonTopGridCalls);
+  fprintf(fptr, "NumberOfPythonSubcycleCalls = %"ISYM"\n", NumberOfPythonSubcycleCalls);
+#endif
+
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
 
@@ -403,6 +410,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
+  fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
   fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
@@ -425,6 +433,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
+  fprintf(fptr, "TabulatedLWBackground          = %"ISYM"\n", TabulatedLWBackground);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
   fprintf(fptr, "SetHeIIHeatingScale            = %"GSYM"\n", SetHeIIHeatingScale);
@@ -616,6 +625,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  StarParticleCreation);
   fprintf(fptr, "BigStarFormation                      = %"ISYM"\n",
 	  BigStarFormation);
+  fprintf(fptr, "BigStarFormationDone                  = %"ISYM"\n",
+	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
   fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
@@ -662,10 +673,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n\n",
           StarEnergyToQuasarUV);
+  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n\n",
+          StarFeedbackDistRadius);
+  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n\n",
+          StarFeedbackDistCellStep);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
-  fprintf(fptr, "Conduction                      = %"ISYM"\n", Conduction);
-  fprintf(fptr, "ConductionSpitzerFraction       = %"FSYM"\n", ConductionSpitzerFraction);
+  fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);
+  fprintf(fptr, "AnisotropicConduction                 = %"ISYM"\n", AnisotropicConduction);
+  fprintf(fptr, "IsotropicConductionSpitzerFraction    = %"FSYM"\n", IsotropicConductionSpitzerFraction);
+  fprintf(fptr, "AnisotropicConductionSpitzerFraction  = %"FSYM"\n", AnisotropicConductionSpitzerFraction);
   fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);

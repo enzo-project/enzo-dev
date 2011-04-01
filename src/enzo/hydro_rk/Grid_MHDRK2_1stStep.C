@@ -126,6 +126,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   this->ReturnHydroRKPointers(Prim, true); //##### added! because Hydro3D needs fractions for species
 
+
   /* Compute dU */
 
   int fallback = 0;

@@ -12,3 +12,6 @@ jb-print      Display data in data files in a human-readable format
 jb-promote    Converts the listed global variables to attributes
 jb-region     Filters records according to region names
 jb-rename     Renames globals, attributes, and counters.
+
+See http://lca.ucsd.edu/workshops/enzo2010/slides/bordner-lcaperf.pdf for more
+information.

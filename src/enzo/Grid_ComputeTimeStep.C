@@ -352,7 +352,7 @@ float grid::ComputeTimeStep()
 
   /* 5) Calculate minimum dt due to thermal conduction. */
 
-  if(Conduction){
+  if(IsotropicConduction || AnisotropicConduction){
     if (this->ComputeConductionTimeStep(dtConduction) == FAIL) {
       fprintf(stderr, "Error in ComputeConductionTimeStep.\n");
       return FAIL;
@@ -460,8 +460,8 @@ float grid::ComputeTimeStep()
       printf("Acc = %"FSYM" ", dtAcceleration);
     if (NumberOfParticles)
       printf("Part = %"FSYM" ", dtParticles);
-    if (Conduction)
-      printf("Cond = %"FSYM" ",(dtConduction));
+    if (IsotropicConduction || AnisotropicConduction)
+      printf("Cond = %"ESYM" ",(dtConduction));
     printf(")\n");
   }
  

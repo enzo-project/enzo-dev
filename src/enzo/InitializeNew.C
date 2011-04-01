@@ -70,6 +70,10 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
+int ConductionCloudInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
+int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			     TopGridData &MetaData);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData);
 int NohInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -291,8 +295,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ProblemType != 40 && ProblemType != 51) {
  
-  // Error check the rank
-    printf("This should only run if not a restart!");
+    // Error check the rank
+    //printf("This should only run if not a restart!");
  
     if (MetaData.TopGridRank < 0 || MetaData.TopGridRank > 3) {
       ENZO_VFAIL("TopGridRank = %"ISYM" ill defined.\n", MetaData.TopGridRank)
@@ -532,12 +536,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 72) Conduction bubble test problem
   if (ProblemType == 72)
     ret = ConductionBubbleInitialize(fptr, Outfptr, TopGrid, MetaData);
-  
-  // Insert new problem intializer here...
-  
-  if (ProblemType ==300) {
-    ret = PoissonSolverTestInitialize(fptr, Outfptr, TopGrid, MetaData);
-  }
+
+  // 73) Conducting cloud test problem
+  if (ProblemType == 73)
+    ret = ConductionCloudInitialize(fptr, Outfptr, TopGrid, MetaData);  
+
+  // 80) Explosion in a stratified medium
+  if (ProblemType == 80)
+    ret = StratifiedMediumExplosionInitialize(fptr, Outfptr, TopGrid, MetaData);  
+
   
   /* 101) 3D Collapse */
   if (ProblemType == 101) {
@@ -645,11 +652,17 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
 #endif /* TRANSFER */
 
+#ifdef NEW_PROBLEM_TYPES
+  if (ProblemType == -978)
+  {
+    /*CurrentProblemType = get_problem_types()[ProblemTypeName];*/
+    CurrentProblemType = select_problem_type(ProblemTypeName);
+    ret = CurrentProblemType->InitializeSimulation(fptr, Outfptr, TopGrid, MetaData);
+  }
+#endif
 
   // Insert new problem intializer here...
 
-
- 
   
   if (ret == INT_UNDEFINED) {
     ENZO_VFAIL("Problem Type %"ISYM" undefined.\n", ProblemType)

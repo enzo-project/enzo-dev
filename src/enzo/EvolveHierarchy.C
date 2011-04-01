@@ -101,7 +101,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		   ImplicitProblemABC *ImplicitSolver,
 #endif		 
-		   int &WroteData, int Restart = FALSE);
+		   int Restart = FALSE);
 int CheckForTimeAction(LevelHierarchyEntry *LevelArray[],
 		       TopGridData &MetaData);
 int CheckForResubmit(TopGridData &MetaData, int &Stop);
@@ -137,7 +137,8 @@ int SetEvolveRefineRegion(FLOAT time);
 Eint64 mused(void);
 #endif
 #ifdef USE_PYTHON
-int CallPython();
+int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
+               int level, int from_topgrid);
 #endif
 
  
@@ -157,7 +158,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   float dt;
  
-  int i, dim, Stop = FALSE, WroteData;
+  int i, dim, Stop = FALSE;
   int Restart = FALSE;
   double tlev0, tlev1, treb0, treb1, tloop0, tloop1, tentry, texit;
   LevelHierarchyEntry *Temp;
@@ -180,30 +181,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   if (MetaData.CPUTime > 1e2*MetaData.StopCPUTime)
     MetaData.CPUTime = 0.0;
  
-  /* Double-check if the topgrid is evenly divided if we're using the
-     optimized version of CommunicationTransferParticles. */
-
-#ifdef UNUSED
-  //#ifdef OPTIMIZED_CTP
-  int NumberOfGrids = 0, Layout[MAX_DIMENSION] = {1,1,1};
-  Temp = LevelArray[0];
-  while (Temp != NULL) {
-    NumberOfGrids++;
-    Temp = Temp->NextGridThisLevel;
-  }
-  Enzo_Dims_create(NumberOfGrids, MetaData.TopGridRank, Layout);
-  for (dim = 0; dim < MetaData.TopGridRank; dim++)
-    if (MetaData.TopGridDims[dim] % Layout[MAX_DIMENSION-1-dim] != 0) {
-      if (debug)
-      ENZO_VFAIL("ERROR: "
-		"\tTo use the optimized CommunicationTransferParticles routine,\n"
-		"\tthe top grid must be split evenly, "
-		"i.e. mod(Dims[i], Layout[i]) != 0\n"
-		"\t==> dimension %"ISYM": Dims = %"ISYM", Layout = %"ISYM"\n",
-		dim, MetaData.TopGridDims[dim], Layout[MAX_DIMENSION-1-dim])
-    }
-#endif /* OPTIMIZED_CTP */
-
   /* Attach RandomForcingFields to BaryonFields temporarily to apply BCs */
  
   if (RandomForcing) { //AK
@@ -280,7 +257,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		 ImplicitSolver,
 #endif		 
-		 WroteData);
+		 Restart);
 
   PrintMemoryUsage("Output");
  
@@ -453,21 +430,21 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-      printf("TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
+      fprintf(stderr, "TopGrid dt = %"ESYM"     time = %"GOUTSYM"    cycle = %"ISYM,
 	     dt, MetaData.Time, MetaData.CycleNumber);
 
       if (ComovingCoordinates) {
 	FLOAT a, dadt;
 	CosmologyComputeExpansionFactor(MetaData.Time, &a, &dadt);
-	printf("    z = %"GOUTSYM, (1 + InitialRedshift)/a - 1);
+	fprintf(stderr, "    z = %"GOUTSYM, (1 + InitialRedshift)/a - 1);
       }
-      printf("\n");
+      fprintf(stderr, "\n");
     }
     //}
  
     /* Inline halo finder */
 
-    FOF(&MetaData, LevelArray, WroteData);
+    FOF(&MetaData, LevelArray, MetaData.WroteData);
 
     /* If provided, set RefineRegion from evolving RefineRegion */
     if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
@@ -618,7 +595,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		   ImplicitSolver,
 #endif		 
-		   WroteData, Restart);
+		   Restart);
+
+    /* Call inline analysis. */
+#ifdef USE_PYTHON
+    CallPython(LevelArray, &MetaData, 0, 1);
+#endif
 
     /* Check for resubmission */
     
@@ -634,7 +616,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
 #ifdef REDUCE_FRAGMENTATION
  
-    if (WroteData && !Stop)
+    if (MetaData.WroteData && !Stop)
       ReduceFragmentation(TopGrid, MetaData, Exterior, LevelArray);
  
 #endif /* REDUCE_FRAGMENTATION */
@@ -685,7 +667,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
 #ifdef MEM_TRACE
     Eint64 MemInUse;
-    if (WroteData) {
+    if (MetaData.WroteData) {
       MemInUse = mused();
       MemInUse = CommunicationMaxValue(MemInUse);
       if (MemInUse > MemoryLimit) {
@@ -726,7 +708,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* if we are doing data dumps, then do one last one */
  
   if ((MetaData.dtDataDump != 0.0 || MetaData.CycleSkipDataDump != 0) &&
-      !WroteData)
+      !MetaData.WroteData)
     //#ifdef USE_HDF5_GROUPS
     if (Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber,
 			   &TopGrid, MetaData, Exterior, 

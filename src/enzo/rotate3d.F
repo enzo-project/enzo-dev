@@ -2,13 +2,13 @@
 
       implicit none
 
-      integer :: n1,n2,n3
-      complex :: x(n1,n2,n3), y(n2,n3,n1)
+      integer n1,n2,n3
+      complex x(n1,n2,n3), y(n2,n3,n1)
 
-      integer :: i,j,k
-      integer :: ii,jj,kk
-      integer :: ib,jb,kb
-      integer :: bs
+      integer i,j,k
+      integer ii,jj,kk
+      integer ib,jb,kb
+      integer bs
 
       bs = 64
 

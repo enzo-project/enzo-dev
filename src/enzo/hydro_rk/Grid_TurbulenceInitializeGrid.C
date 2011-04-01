@@ -142,9 +142,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   double MassUnits = DensityUnits*pow(LengthUnits,3);
   printf("Mass Units = %"GSYM" \n",MassUnits);
   printf("Time Units = %"GSYM" \n",TimeUnits);
+  printf("Density Units = %"GSYM" \n",DensityUnits);
 
   GravitationalConstant = 4.0*pi*GravConst*MassUnits*pow(TimeUnits,2)/pow(LengthUnits,3);
-
 
   /* Return if this doesn't concern us. */
 
@@ -280,7 +280,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	    Density = CloudDensity / (1.0 + pow(6.0*r/CloudRadius,2));
 	    eint = CloudInternalEnergy;
 	  }
-
+ 
 	  /* Type 4: 1/r^2 profile with a smaller core.
 	     This is a model for massive star formation with a seed
 	     protostar in the center */
@@ -335,13 +335,14 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 
 	  if (CloudType == 4) {
 	    Density = max(DensityUnits,0.5*4.25*CloudDensity/(1.0 + pow(9.0*r/CloudRadius,2)));
-	    eint = CloudInternalEnergy*2.0;
+	    eint = CloudInternalEnergy*200.0; //400.0;
 	  }
 
 
           if (CloudType ==6) {
-	    Density = max(DensityUnits, 0.5*CloudDensity/(1.0 + pow(4.0*r/CloudRadius,2)));
-	    eint = CloudInternalEnergy*2.0;
+	    //Density = max(DensityUnits, 0.5*CloudDensity/(1.0 + pow(4.0*r/CloudRadius,2)));
+	    Density = 0.1*CloudDensity/(1.0 + pow(4.0,2));
+	    eint = CloudInternalEnergy*100.0; //400.0;
 	  }
 
 	}
@@ -449,8 +450,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     }
     if (CloudType == 4 || CloudType == 6) {
       k1 = 2.0;
-      k2 = 34.0;
-      dk = 3.0;
+      k2 = min(34.0, int(GridDimension[0]/10));
+      printf("                GridDimension[0] = %"ISYM"\n",GridDimension[0] );
+      dk = max(1.0,int((k2-k1)/10));
     }
     if (CloudType == 7) {
       k1 = 1.0;

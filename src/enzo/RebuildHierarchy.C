@@ -56,15 +56,10 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
 int DetermineSubgridSizeExtrema(LevelHierarchyEntry *LevelArray[],
 				int level);
-#ifdef OPTIMIZED_CTP
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 			       int TopGridDims[]);
-#else
-int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
-int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
-#endif
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -80,7 +75,7 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
 #ifdef TRANSFER
 int SetSubgridMarker(TopGridData &MetaData, 
 		     LevelHierarchyEntry *LevelArray[], int level,
-		     int UpdateReplicatedGridsOnly=FALSE);
+		     int UpdateReplicatedGridsOnly);
 #endif
 double ReturnWallTime(void);
 
@@ -240,13 +235,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
-#ifdef OPTIMIZED_CTP
     CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
     CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
-#else
-    CommunicationTransferParticles(GridPointer, grids);
-    CommunicationTransferStars(GridPointer, grids);
-#endif
 
     /* We need to collect particles again */
 
@@ -649,8 +639,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
-    ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+  SetSubgridMarker(*MetaData, LevelArray, level, FALSE);
 #endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION

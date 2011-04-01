@@ -178,14 +178,12 @@ int FastSiblingLocatorInitializeStaticChainingMesh(ChainingMeshStructure *Mesh, 
 
 double ReturnWallTime();
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
+               int level, int from_topgrid);
 int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level, 
 		     float *dtThisLevelSoFar, float *dtThisLevel, 
 		     float dtLevelAbove);
 
 void my_exit(int status);
-int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
 
 /* Counters for performance and cycle counting. */
 
@@ -194,6 +192,9 @@ static double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
 static double LevelZoneCycleCountPerProc[MAX_DEPTH_OF_HIERARCHY];
  
+int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
+                                      int level, TopGridData *MetaData,
+                                      float * norm, float * pTopGridTimeStep);
 static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
 
@@ -344,8 +345,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 
     When = 0.5;
-
-    RK2SecondStepBaryonDeposit = 1;  
+//    RK2SecondStepBaryonDeposit = 1;  
     if (SelfGravity) {
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
@@ -353,6 +353,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
     }
+    /* Prepare normalization for random forcing. Involves top grid only. */
+ 
+    ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
+				      &norm, &TopGridTimeStep);
 
     /* Solve the radiative transfer */
 
@@ -430,9 +434,9 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     // Recompute potential and accelerations with time centered baryon Field
     // this also does the particles again at the moment so could be made more efficient.
 
-      RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
+    RK2SecondStepBaryonDeposit = 1; // set this to (0/1) to (not use/use) this extra step  //#####
     //    printf("SECOND STEP\n");
-    if (RK2SecondStepBaryonDeposit && SelfGravity) {  
+    if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
@@ -518,6 +522,14 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
         );
  
+      /* Compute and apply thermal conduction. */
+      if(IsotropicConduction || AnisotropicConduction){
+	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+	  fprintf(stderr, "Error in grid->ConductHeat.\n");
+	  return FAIL;
+	}
+      }
+
       /* Gravity: clean up AccelerationField. */
 
       if ((level != MaximumGravityRefinementLevel ||
@@ -561,7 +573,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
-    CallPython(LevelArray, MetaData, level);
+    CallPython(LevelArray, MetaData, level, 0);
 
 
     /* For each grid, delete the GravitatingMassFieldParticles. */

@@ -185,6 +185,7 @@ extern "C" void FORTRAN_NAME(star_feedback2)(int *nx, int *ny, int *nz,
 		       float *r, float *dx, FLOAT *t, float *z,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
+	     int *distrad, int *diststep, int *distcells,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
@@ -198,6 +199,7 @@ extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
 		       float *dt, float *r, float *dx, FLOAT *t, float *z,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
+	     int *distrad, int *diststep, int *distcells,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
@@ -889,7 +891,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 
     //    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
     //if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
-    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
+    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel || BigStarFormation > 0) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
  
@@ -1141,7 +1143,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
-          &StarMetalYield,
+          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
+       &StarFeedbackDistTotalCells,
        &NumberOfParticles,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
        ParticlePosition[0], ParticlePosition[1],
@@ -1168,7 +1171,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
-          &StarMetalYield,
+          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
+       &StarFeedbackDistTotalCells,
        &NumberOfParticles,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
        ParticlePosition[0], ParticlePosition[1],

@@ -297,19 +297,32 @@ c to do this second-order BDF
       eqable(iH2II)     =  .false.
       eqable(iHM)       =  .false.
 
-      dtcoef(iHI   )    =  0.1; capycare(iHI   )    = .true.
-      dtcoef(iHII  )    =  0.1; capycare(iHII  )    = .true.
-      dtcoef(ide   )    =  0.1; capycare(ide   )    = .false.
-      dtcoef(iHeI  )    =  0.1; capycare(iHeI  )    = .false. !
-      dtcoef(iHeII)     =  0.1; capycare(iHeII)     = .false. !
-      dtcoef(iHeIII)    =  0.1; capycare(iHeIII)    = .false.
-      dtcoef(iH2I)      =  0.01; capycare(iH2I)      = .true.
-      dtcoef(ige)       =  0.01; capycare(ige)       = .true.
-      dtcoef(iDI)       =  1.0; capycare(iDI)       = .false.
-      dtcoef(iDII)      =  1.0; capycare(iDII)      = .false.
-      dtcoef(iHDI)      =  1.0; capycare(iHDI)      = .false. ! Off for now; should track H2 directly
-      dtcoef(iH2II)     =  1.0; capycare(iH2II)     = .false.
-      dtcoef(iHM)       =  1.0; capycare(iHM)       = .false.
+      dtcoef(iHI)      =  0.1
+      capycare(iHI)    = .true.
+      dtcoef(iHII)     =  0.1 
+      capycare(iHII)   = .true.
+      dtcoef(ide)      =  0.1
+      capycare(ide)    = .false.
+      dtcoef(iHeI)     =  0.1
+      capycare(iHeI)   = .false.
+      dtcoef(iHeII)    =  0.1
+      capycare(iHeII)  = .false.
+      dtcoef(iHeIII)   =  0.1
+      capycare(iHeIII) = .false.
+      dtcoef(iH2I)     =  0.01
+      capycare(iH2I)   = .true.
+      dtcoef(ige)      =  0.01
+      capycare(ige)    = .true.
+      dtcoef(iDI)      =  1.0
+      capycare(iDI)    = .false.
+      dtcoef(iDII)     =  1.0
+      capycare(iDII)   = .false.
+      dtcoef(iHDI)     =  1.0
+      capycare(iHDI)   = .false. ! Off for now; should track H2 directly
+      dtcoef(iH2II)    =  1.0
+      capycare(iH2II)  = .false.
+      dtcoef(iHM)      =  1.0
+      capycare(iHM)    = .false.
 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////

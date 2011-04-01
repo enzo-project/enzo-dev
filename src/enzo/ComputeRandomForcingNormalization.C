@@ -43,7 +43,6 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 				      int level, TopGridData *MetaData,
 				      float * norm, float * pTopGridTimeStep)
 {
-
   /* Return if this does not concern us */
   if (!RandomForcing) return SUCCESS;
  
@@ -112,15 +111,22 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
       FILE * Fptr;
       if ((Fptr = fopen("randomForcing.out", "a")) == NULL)
 	ERROR_MESSAGE;
-      fprintf( Fptr, "%"ISYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %9.6"FSYM" %10.5"FSYM"\n",
-	       MetaData->CycleNumber,
-	       MetaData->Time,
-	       0.50*GlobVal[4]/numberOfGridZones,   // kinetic energy
-	       sqrt(GlobVal[2]/numberOfGridZones),  // mass weighted rms Mach
-	       sqrt(GlobVal[3]/numberOfGridZones),  // volume weighed rms Mach
-	       sqrt(GlobVal[5]/numberOfGridZones),  // rms Velocity
-	       sqrt(GlobVal[6]/numberOfGridZones),  // Density variance
-	       minDens, maxDens );                  // min/max Density
+      fprintf( Fptr, "%"ISYM" %9.6"FSYM" ", MetaData->CycleNumber, MetaData->Time);
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[1]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[2]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[3]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[4]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[5]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[6]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[7]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[8]); //gv1
+      fprintf( Fptr, " %9.3"GSYM, GlobVal[9]); //gv1
+      fprintf( Fptr, " %9.6"FSYM, 0.50*GlobVal[4]/numberOfGridZones);   // kinetic energy
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[2]/numberOfGridZones));  // mass weighted rms Mach
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[3]/numberOfGridZones));  // volume weighed rms Mach
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[5]/numberOfGridZones));  // rms Velocity
+      fprintf( Fptr, " %9.6"FSYM, sqrt(GlobVal[6]/numberOfGridZones));  // Density variance
+      fprintf( Fptr, " %9.6"FSYM" %10.5"FSYM"\n", minDens, maxDens );                  // min/max Density
       fclose(Fptr);
     }
  

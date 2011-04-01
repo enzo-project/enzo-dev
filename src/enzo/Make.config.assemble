@@ -118,6 +118,7 @@
         ERROR_PRECISION = 0
         ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_4
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
+        ASSEMBLE_PRECISION_NUMBER = 4
     endif
 
     # Settings for 64-bit floating point baryon precision
@@ -126,6 +127,7 @@
         ERROR_PRECISION = 0
         ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_8
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_64)
+        ASSEMBLE_PRECISION_NUMBER = 8
     endif
 
     # error if CONFIG_PRECISION is incorrect
@@ -147,6 +149,7 @@
     ifeq ($(CONFIG_PARTICLES),32)
         ERROR_PARTICLES = 0
         ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_4
+        ASSEMBLE_PARTICLE_NUMBER = 4
     endif
 
     # Settings for 64-bit particle position precision
@@ -154,6 +157,7 @@
     ifeq ($(CONFIG_PARTICLES),64)
         ERROR_PARTICLES = 0
         ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_8
+        ASSEMBLE_PARTICLE_NUMBER = 8
     endif
 
     # Settings for 128-bit particle position precision
@@ -161,6 +165,7 @@
     ifeq ($(CONFIG_PARTICLES),128)
         ERROR_PARTICLES = 0
         ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_16
+        ASSEMBLE_PARTICLE_NUMBER = 16
     endif
 
     # error if CONFIG_PARTICLES is incorrect
@@ -443,6 +448,39 @@
        .PHONY: error_PYTHON
        error_PYTHON:
 	$(error Illegal value '$(CONFIG_PYTHON)' for $$(CONFIG_PYTHON))
+    endif
+
+#-----------------------------------------------------------------------
+# DETERMINE NEW_PROBLEM_TYPES SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_NEW_PROBLEM_TYPES = 1
+
+    # Settings to turn NEW_PROBLEM_TYPES ON
+
+    ifeq ($(CONFIG_NEW_PROBLEM_TYPES),yes)
+        ERROR_NEW_PROBLEM_TYPES = 0
+        ASSEMBLE_NEW_PROBLEM_TYPES_DEFINES = -DNEW_PROBLEM_TYPES
+        ASSEMBLE_NEW_PROBLEM_TYPES_INCLUDES = $(MACH_INCLUDES_NEW_PROBLEM_TYPES)
+        ASSEMBLE_NEW_PROBLEM_TYPES_LIBS     = $(MACH_LIBS_NEW_PROBLEM_TYPES)
+        ifeq ($(CONFIG_PYTHON),yes)
+            OBJS_PYTHON += python_bridge/problemtype_handler.o
+            OBJS_PYTHON += ProblemType_Python.o
+        endif
+    endif
+
+    # Settings to turn NEW_PROBLEM_TYPES OFF
+
+    ifeq ($(CONFIG_NEW_PROBLEM_TYPES),no)
+        ERROR_NEW_PROBLEM_TYPES = 0
+    endif
+
+    # error if CONFIG_NEW_PROBLEM_TYPES is incorrect
+
+    ifeq ($(ERROR_NEW_PROBLEM_TYPES),1)
+       .PHONY: error_NEW_PROBLEM_TYPES
+       error_NEW_PROBLEM_TYPES:
+	$(error Illegal value '$(CONFIG_NEW_PROBLEM_TYPES)' for $$(CONFIG_NEW_PROBLEM_TYPES))
     endif
 
 #-----------------------------------------------------------------------
@@ -973,6 +1011,7 @@
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_LCAPERF_DEFINES) \
               $(ASSEMBLE_PYTHON_DEFINES) \
+              $(ASSEMBLE_NEW_PROBLEM_TYPES_DEFINES) \
               $(ASSEMBLE_CVODE_DEFINES) \
               $(ASSEMBLE_MPI_DEFINES) \
               $(ASSEMBLE_OOC_BOUNDARY_DEFINES) \
@@ -1002,6 +1041,7 @@
                $(ASSEMBLE_LCAPERF_INCLUDES) \
                $(ASSEMBLE_CVODE_INCLUDES) \
                $(ASSEMBLE_PYTHON_INCLUDES) \
+               $(ASSEMBLE_NEW_PROBLEM_TYPES_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
                $(MAKEFILE_INCLUDES)   -I.
 
@@ -1009,7 +1049,8 @@
     	       $(OBJS_PHOTON_LIB) \
     	       $(OBJS_LCAPERF_LIB) \
 	       $(OBJS_HYDRO_RK) \
-	       $(OBJS_ECUDA_LIB) 
+	       $(OBJS_ECUDA_LIB) \
+	       $(OBJS_PYTHON) 
 
     LIBS = $(MACH_LIBS) \
            $(ASSEMBLE_MPI_LIBS) \
@@ -1018,6 +1059,7 @@
            $(ASSEMBLE_PAPI_LIBS) \
            $(ASSEMBLE_CVODE_LIBS) \
            $(ASSEMBLE_PYTHON_LIBS) \
+           $(ASSEMBLE_NEW_PROBLEM_TYPES_LIBS) \
            $(ASSEMBLE_CUDA_LIBS)
 
 

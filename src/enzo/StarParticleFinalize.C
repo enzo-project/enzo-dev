@@ -71,6 +71,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     NumberOfStars++;
   bool *AddedFeedback = new bool[NumberOfStars];
 
+  BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
+
   LCAPERF_START("StarParticleFinalize");
 
   /* Update the star particle counters. */

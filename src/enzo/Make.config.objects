@@ -79,15 +79,14 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
-        CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
-        CommunicationTransferStars.o \
         CommunicationTransferStarsOpt.o \
 	CommunicationTransferSubgridParticles.o \
         CommunicationTranspose.o \
         CommunicationUpdateStarParticleCount.o \
         CommunicationUtilities.o \
 	ConductionBubbleInitialize.o \
+	ConductionCloudInitialize.o \
 	ConductionTestInitialize.o \
         comp_accel.o \
         ComputePotentialFieldLevelZero.o \
@@ -95,6 +94,7 @@ OBJS_CONFIG_LIB = \
         ComputeTable.o \
         Continue.o \
 	cool1d_cloudy.o \
+    	cool1d_koyama.o\
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \
@@ -140,6 +140,7 @@ OBJS_CONFIG_LIB = \
 	EnzoVector_test.o \
         euler.o \
         EvolveHierarchy.o \
+	EventHooks.o \
 	execinfo_local.o \
         expand_terms.o \
         expand_mhd_terms.o \
@@ -327,9 +328,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CommunicationSendParticles.o \
 	Grid_CommunicationSendStars.o \
 	Grid_CommunicationSendRegion.o \
-	Grid_CommunicationTransferParticles.o \
 	Grid_CommunicationTransferParticlesOpt.o \
-	Grid_CommunicationTransferStars.o \
 	Grid_CommunicationTransferStarsOpt.o \
 	Grid_ComovingExpansionTerms.o \
 	Grid_ComovingGravitySourceTerm.o \
@@ -348,6 +347,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeMetalLineLuminosity.o \
 	Grid_ComputePressureDualEnergyFormalism.o \
 	Grid_ComputePressure.o \
+	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
 	Grid_ComputeTimeStep.o \
         Grid_ComputeVectorAnalysisFields.o \
@@ -355,6 +355,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeXrayEmissivity.o \
         Grid_ConductHeat.o \
 	Grid_ConductionBubbleInitialize.o \
+	Grid_ConductionCloudInitialize.o \
 	Grid_ConductionTestInitialize.o \
 	Grid_constructor.o \
 	Grid_ConvertTotalEnergyToGasEnergy.o \
@@ -377,6 +378,7 @@ OBJS_CONFIG_LIB = \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \
 	Grid_DeleteAllFields.o \
+	Grid_DeleteBaryonFields.o \
 	Grid_DeleteFlaggingField.o \
         Grid_DeleteObsoleteFields.o \
 	Grid_DepositBaryons.o \
@@ -536,6 +538,7 @@ OBJS_CONFIG_LIB = \
         Grid_SphericalInfallGetProfile.o \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
+	Grid_StratifiedMediumExplosionInitialize.o \
         Grid_SupernovaRestartInitialize.o \
         Grid_SubtractAccretedMassFromSphere.o \
         Grid_TestGravityCheckResults.o \
@@ -593,6 +596,7 @@ OBJS_CONFIG_LIB = \
 	InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
+        InitializeLymanWernerTable.o \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
@@ -673,6 +677,9 @@ OBJS_CONFIG_LIB = \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
         PressurelessCollapseInitialize.o \
+        ProblemType.o \
+        ProblemType_RotatingCylinder.o \
+        ProblemType_CollapsingCoolingCloud.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -702,6 +709,7 @@ OBJS_CONFIG_LIB = \
 	RadiationGetUnits.o \
 	RadiatingShockInitialize.o \
         RadiationFieldCalculateRates.o \
+        RadiationFieldLymanWernerTable.o \
         RadiationFieldUpdate.o \
         ReadAllData.o \
         ReadAttr.o \
@@ -719,6 +727,7 @@ OBJS_CONFIG_LIB = \
         ReadStarParticleData.o \
         ReadUnits.o \
         RebuildHierarchy.o \
+        RecalibrateAccretingMass.o \
         RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
         remap.o \
@@ -785,6 +794,7 @@ OBJS_CONFIG_LIB = \
         Star_HitEndpoint.o \
         Star_IsARadiationSource.o \
         Star_MirrorToParticle.o \
+        Star_MultiplyAccretionRate.o \
         Star_RemoveMassFromStarAfterFeedback.o \
         Star_SetFeedbackFlag.o \
 	Star_SphereContained.o \
@@ -798,6 +808,7 @@ OBJS_CONFIG_LIB = \
 	star_maker8.o \
 	star_maker9.o \
 	particle_splitter.o \
+	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \
@@ -812,6 +823,7 @@ OBJS_CONFIG_LIB = \
         tscint2d.o \
         tscint3d.o \
         TurbulenceSimulationInitialize.o \
+	turboinit.o\
         twoshock.o \
 	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
@@ -827,6 +839,11 @@ OBJS_CONFIG_LIB = \
         uuid/unpack.o \
         uuid/unparse.o \
         uuid/uuid_time.o \
+		libconfig/grammar.o \
+		libconfig/libconfig.o \
+		libconfig/scanctx.o \
+		libconfig/scanner.o \
+		libconfig/strbuf.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \
@@ -890,6 +907,7 @@ POBJS_CONFIG_LIB = \
         Grid_DeletePhotonPackages.o \
         Grid_DetectIonizationFrontApprox.o \
         Grid_ElectronFractionEstimate.o \
+        Grid_ExtraFunction.o \
         Grid_FinalizeRadiationFields.o \
 	Grid_FindPhotonNewGrid.o \
         Grid_FlagCellsToBeRefinedByOpticalDepth.o \

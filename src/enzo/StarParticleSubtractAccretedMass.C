@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -35,7 +36,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level, FLOAT star_pos[],
-				   double star_mass, float star_last_accretion_rate,
+				   double star_mass, float star_last_accretion_rate, star_type star_type,
+				   grid *star_CurrentGrid, 
 				   float StarLevelCellWidth, float dtForThisStar,
 				   float &Radius, double &Subtraction);
 
@@ -48,6 +50,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
+  bool MarkedSubgrids = false;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy;
   float influenceRadius, RootCellWidth, SNe_dt, mdot;
@@ -58,6 +61,8 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
   if (AllStars == NULL)
     return SUCCESS;
+
+  LCAPERF_START("StarParticleSubtractAccretedMass");
 
   /* Get time and SNe timestep */
 
@@ -112,8 +117,12 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
       /* Compute some parameters, similar to Star_CalculateFeedbackParameters */
 
+      grid *cstar_grid = cstar->ReturnCurrentGrid();
+
       CalculateSubtractionParameters(LevelArray, level, cstar->ReturnPosition(), cstar->ReturnMass(),
-				     cstar->ReturnLastAccretionRate(), StarLevelCellWidth, dtForThisStar, 
+				     cstar->ReturnLastAccretionRate(), cstar->ReturnType(),
+				     cstar->ReturnCurrentGrid(), 
+				     StarLevelCellWidth, dtForThisStar, 
 				     influenceRadius, Subtraction);
 
 //      fprintf(stdout, "SPSAM: Subtraction=%g, influenceRadius=%g\n", Subtraction, influenceRadius); 
@@ -122,13 +131,11 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 	 we use FindFeedbackSphere function, but we are not doing any "feedback" here; 
 	 we simply subtract the mass */
 
-      if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-				    Subtraction, dummy_float, 
-				    SphereContained, dummy, DensityUnits, 
-				    LengthUnits, TemperatureUnits, TimeUnits, 
-				    VelocityUnits, Time) == FAIL) {
-	ENZO_FAIL("Error in star::FindFeedbackSphere");
-      }
+      cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
+				Subtraction, dummy_float, 
+				SphereContained, dummy, DensityUnits, 
+				LengthUnits, TemperatureUnits, TimeUnits, 
+				VelocityUnits, Time, MarkedSubgrids);
 
       /* If something weird happens, don't bother. */
 
@@ -143,13 +150,11 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
       SphereContainedNextLevel = FALSE;
 
       if (LevelArray[level+1] != NULL) {
-	if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
-				      Subtraction, dummy_float, 
-				      SphereContainedNextLevel, dummy, DensityUnits, 
-				      LengthUnits, TemperatureUnits, TimeUnits, 
-				      VelocityUnits, Time) == FAIL) {
-	  ENZO_FAIL("Error in star::FindFeedbackSphere\n");
-	}
+	cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
+				  Subtraction, dummy_float, 
+				  SphereContainedNextLevel, dummy, DensityUnits, 
+				  LengthUnits, TemperatureUnits, TimeUnits, 
+				  VelocityUnits, Time, MarkedSubgrids);
       }
 
 //    fprintf(stdout, "SPSAM: SkipMassRemoval=%d, SphereContained=%d, SphereContainedNextLevel=%d\n", 
@@ -188,7 +193,6 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
       if (debug) {
 	if (cstar->ReturnFeedbackFlag() != FORMATION)
-
 	  fprintf(stdout, "StarParticleSubtractAccretedMass[%"ISYM"][%"ISYM"]: "
 		  "Radius = %"GSYM" pc\n",
 		  cstar->ReturnID(), level, influenceRadius*LengthUnits/pc);
@@ -204,6 +208,7 @@ int StarParticleSubtractAccretedMass(TopGridData *MetaData,
 
   } // ENDFOR stars
 
+  LCAPERF_STOP("StarParticleSubtractAccretedMass");
   return SUCCESS;
 
 }

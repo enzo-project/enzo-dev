@@ -202,7 +202,7 @@
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
                   call interpolate_1D(log10_tCMB, clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clCooling, 
      &                 log_cool_cmb(i))
@@ -225,7 +225,7 @@
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
                   call interpolate_2D(log_n_h(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clDataSize, clCooling, log_cool_cmb(i))
@@ -250,7 +250,7 @@
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
                   call interpolate_3D(log_n_h(i), log_Z(i), log10_tCMB,
      &                 clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -279,7 +279,7 @@
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
                   call interpolate_4D(log_n_h(i), log_Z(i),
      &                 log_e_frac(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -310,7 +310,7 @@
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
                   call interpolate_5D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), zr, log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),

@@ -70,7 +70,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
-  float tau_delete;
+  float tau_delete, flux_floor;
   double dN;
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
@@ -285,6 +285,26 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
   }
 
+  /* Calculate minimum photo-ionization rate (*dOmega) before ray
+     termination with a radiation background.  Probably only accurate
+     with ray merging. */
+
+  if (RadiationFieldType > 0 && RadiativeTransferSourceClustering > 0) {
+    flux_floor = dtPhoton * RadiativeTransferFluxBackgroundLimit / sigma[type];
+    switch (type) {
+    case iHI:
+      flux_floor *= RateData.k24;
+      break;
+    case iHeI:
+      flux_floor *= RateData.k25;
+      break;
+    case iHeII:
+      flux_floor *= RateData.k26;
+      break;
+    default:
+      flux_floor = 0;
+    } // ENDSWITCH
+  } // ENDIF
 
   /* Calculate conversion factor for radiation pressure.  In cgs, we
      actually calculate acceleration due to radiation pressure, (all
@@ -734,7 +754,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	(*PP)->Radius > (*PP)->SourcePositionDiff)
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	BaryonField[RPresNum1+dim][index] += 
-	  RadiationPressureConversion * dP * (*PP)->Energy / 
+	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy / 
 	  density[index] * dir_vec[dim];
     
     (*PP)->CurrentTime += cdt;
@@ -762,6 +782,21 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       DeleteMe = TRUE;
       return SUCCESS;
     }
+
+    // If we are using a radiation background, check if the
+    // optically-thin flux has dropped below 1% of the background.
+    // Only can be used accurately with ray merging.
+    // Ray photon flux < dOmega * 0.01 * photo-ionization(background)
+    //   dOmega = 4*pi*r^2/N_pixels
+    //   flux_floor = 0.01 * photon-ionization(background) / cross-section
+    if (RadiationFieldType > 0 && RadiativeTransferSourceClustering > 0)
+      if ((*PP)->Photons < flux_floor * solid_angle) {
+//	printf("Deleting photon %p: r=%g, P=%g, limit=%g\n", *PP, radius,
+//	       (*PP)->Photons, flux_floor*solid_angle);
+	(*PP)->Photons = -1;
+	DeleteMe = TRUE;
+	return SUCCESS;
+      }
     
     // are we done ? 
     if (((*PP)->CurrentTime) >= EndTime) {

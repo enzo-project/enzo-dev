@@ -12,12 +12,14 @@
 /    SUCCESS or FAIL
 /
 ************************************************************************/
-#ifdef USE_PYTHON
+
+#ifndef ENZO_PYTHON_IMPORTED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#include <Python.h>
-#include "numpy/arrayobject.h"
 #define ENZO_PYTHON_IMPORTED
 #endif
+
+#include <Python.h>
+#include "numpy/arrayobject.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,34 +43,58 @@ int ExposeDataHierarchy(TopGridData *MetaData, HierarchyEntry *Grid,
 		       int &GridID, FLOAT WriteTime, int reset, int ParentID, int level);
 void ExposeGridHierarchy(int NumberOfGrids);
 
+static PyObject *_parameterFindingError;
+
+static PyObject *PyGetEnzoParameter(PyObject *obj, PyObject *args)
+{
+
+    char *parameter_name;
+
+    if (!PyArg_ParseTuple(args, "s", &parameter_name))
+        return PyErr_Format(_parameterFindingError,
+                    "FindBindingEnergy: Invalid parameters.");
+
+    fprintf(stderr, "Looking for %s\n", parameter_name);
+#include "InitializePythonInterface_finderfunctions.inc"
+
+    return Py_None;
+    
+}
+
 static PyMethodDef _EnzoModuleMethods[] = {
+  {"get_parameter", PyGetEnzoParameter, METH_VARARGS},
   {NULL, NULL, 0, NULL}
 };
 
 int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
-
-  Py_SetProgramName("embed_enzo");
-
-  Py_Initialize();
-
-  PySys_SetArgv(argc, argv);
-  PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
-  PyObject *enzo_module, *enzo_module_dict; 
-  enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
-  enzo_module_dict = PyModule_GetDict(enzo_module);
-  if(enzo_module == NULL) ENZO_FAIL("Failed on Enzo Module!");
-  if(enzo_module_dict == NULL) ENZO_FAIL("Failed on Dict!");
-  PyDict_SetItemString(enzo_module_dict, "grid_data", grid_dictionary);
-  PyDict_SetItemString(enzo_module_dict, "old_grid_data", old_grid_dictionary);
-  PyDict_SetItemString(enzo_module_dict, "hierarchy_information", hierarchy_information);
-  PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
-  PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
-  PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
-  import_array1(FAIL);
-  if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
-  if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
+  static int PythonInterpreterInitialized = 0;
+  if(PythonInterpreterInitialized == 0){
+    Py_SetProgramName("embed_enzo");
+    Py_Initialize();
+    PySys_SetArgv(argc, argv);
+    import_array1(FAIL);
+    PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
+    PythonInterpreterInitialized = 1;
+  }
+  static int PythonEnzoModuleInitialized = 0;
+  if (PythonEnzoModuleInitialized == 0){
+    PyObject *enzo_module, *enzo_module_dict; 
+    enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
+    enzo_module_dict = PyModule_GetDict(enzo_module);
+    if(enzo_module == NULL) ENZO_FAIL("Failed on Enzo Module!");
+    if(enzo_module_dict == NULL) ENZO_FAIL("Failed on Dict!");
+    PyDict_SetItemString(enzo_module_dict, "grid_data", grid_dictionary);
+    PyDict_SetItemString(enzo_module_dict, "old_grid_data", old_grid_dictionary);
+    PyDict_SetItemString(enzo_module_dict, "hierarchy_information", hierarchy_information);
+    PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
+    PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
+    PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
+    if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
+    if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
+    PythonEnzoModuleInitialized = 1;
+  }
   return SUCCESS;
 }
 
@@ -166,6 +192,12 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
   TEMP_PYINT(NumberOfPythonCalls);
   PyDict_SetItemString(yt_parameter_file, "NumberOfPythonCalls", temp_int);
 
+  TEMP_PYINT(NumberOfPythonSubcycleCalls);
+  PyDict_SetItemString(yt_parameter_file, "NumberOfPythonSubcycleCalls", temp_int);
+
+  TEMP_PYINT(NumberOfPythonTopGridCalls);
+  PyDict_SetItemString(yt_parameter_file, "NumberOfPythonTopGridCalls", temp_int);
+
   TEMP_PYFLOAT(CurrentMaximumDensity);
   PyDict_SetItemString(yt_parameter_file, "CurrentMaximumDensity", temp_float);
 
@@ -175,19 +207,28 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime)
   TEMP_PYFLOAT(VelocityGradient);
   PyDict_SetItemString(yt_parameter_file, "VelocityGradient", temp_float);
 
+  TEMP_PYFLOAT(MetaData->dtDataDump);
+  PyDict_SetItemString(yt_parameter_file, "dtDataDump", temp_float);
+
+  TEMP_PYFLOAT(MetaData->TimeLastDataDump);
+  PyDict_SetItemString(yt_parameter_file, "TimeLastDataDump", temp_float);
+
+  TEMP_PYINT(MetaData->WroteData);
+  PyDict_SetItemString(yt_parameter_file, "WroteData", temp_int);
+
   PyObject *tgd_tuple, *tgd0, *tgd1, *tgd2;
   
   /* Construct a tuple */
-  tgd0 = PyLong_FromLong((long) DomainLeftEdge[0]);
-  tgd1 = PyLong_FromLong((long) DomainLeftEdge[1]);
-  tgd2 = PyLong_FromLong((long) DomainLeftEdge[2]);
+  tgd0 = PyFloat_FromDouble((double) DomainLeftEdge[0]);
+  tgd1 = PyFloat_FromDouble((double) DomainLeftEdge[1]);
+  tgd2 = PyFloat_FromDouble((double) DomainLeftEdge[2]);
   tgd_tuple = PyTuple_Pack(3, tgd0, tgd1, tgd2);
   PyDict_SetItemString(yt_parameter_file, "DomainLeftEdge", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);
 
-  tgd0 = PyLong_FromLong((long) DomainRightEdge[0]);
-  tgd1 = PyLong_FromLong((long) DomainRightEdge[1]);
-  tgd2 = PyLong_FromLong((long) DomainRightEdge[2]);
+  tgd0 = PyFloat_FromDouble((double) DomainRightEdge[0]);
+  tgd1 = PyFloat_FromDouble((double) DomainRightEdge[1]);
+  tgd2 = PyFloat_FromDouble((double) DomainRightEdge[2]);
   tgd_tuple = PyTuple_Pack(3, tgd0, tgd1, tgd2);
   PyDict_SetItemString(yt_parameter_file, "DomainRightEdge", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);

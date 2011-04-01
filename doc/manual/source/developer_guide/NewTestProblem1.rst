@@ -3,25 +3,23 @@
 Adding a new Test Problem.
 ==========================
 
-`TOC? </wiki/TOC>`_
-
 This is the best place to start your Enzo Development Career. Even
 if you're not interested in actually writing a new problem
-generator, in this page I'll discuss the basic enzo datastructures
+generator, in this page I'll discuss the basic Enzo datastructures
 and programming patterns.
 
 One deficiency in this tutorial is the lack of Particles. This is
 not an oversight, but due to the fact that the author of the
 article doesn't really use particles, as he's not a cosmologist.
 These will be added in the future, but particles are really not
-that big of a deal when it comes to the general enzo data
+that big of a deal when it comes to the general Enzo data
 structures. All the information herein is still essential.
 
 Overview
 --------
 
 Essentially, you need two write files: ``MyProblemInitialize.C`` and
-``Grid\_MyProblemInitializeGrid.C``. We'll be discussing these two
+``Grid_MyProblemInitializeGrid.C``. We'll be discussing these two
 files. ``MyProblemInitialize`` is the basic setup code that sets up
 parameters and the hierarchy, and ``MyProblemInitializeGrid`` is a
 member function of the grid class, and actually allocates and
@@ -29,8 +27,8 @@ assigns data. There are several pitfalls to setting up these files,
 so read these pages carefully.
 
 We strongly recommend reading everything that proceeds this page on
-the `Tutorials? </wiki/Tutorials>`_ page, especially the version
-control and regression testing.
+the :doc:`../tutorials/index` page and the page about version control
+and regression testing, :doc:`DiffVersions`.
 
 Lastly, please give your problem a reasonable name. I'll be using
 ``MyProblem`` throughout this tutorial. Please change this to something
@@ -42,7 +40,7 @@ Setup and Installation
 Please follow the general Enzo naming convention and call your
 routines ``MyProblemInitialize`` and store it in ``MyProblemInitialize.C``,
 and ``MyProblemInitializeGrid`` and store it in
-``Grid\_MyProblemInitializeGrid.C``
+``Grid_MyProblemInitializeGrid.C``
 
 You'll need to install your code in three places.
 
@@ -131,13 +129,12 @@ order, they are:
 
 #. ``HierarchyEntry &TopGrid`` This is the pointer to the top of the
     Hierarchy Linked List. For details of the linked list,
-    `See this description? </wiki/Tutorials/LinkedLists>`_. For most
-    problem types, it points to the undivided root grid, which is a
-    grid the full size of the top grid, where you will be initializing
-    your data. For problems that are too large for the entire root grid
-    to be allocated, we use the ParallelRootGridIO functionality, to be
+    :doc:`../reference/LinkedLists`. For most problem types, it
+    points to the undivided root grid, which is a grid the full size
+    of the top grid, where you will be initializing your data. For
+    problems that are too large for the entire root grid to be
+    allocated, we use the ParallelRootGridIO functionality, to be
     discussed later. (Please read everything between here and there.)
-    For a description of the H
 
 #. ``TopGridData &MetaData`` This is the structure that contains the meta
     data describing the Top Grid. Things like boundary condition,
@@ -154,7 +151,7 @@ doing a problem with boundary conditions other than the big 3
 (periodic, reflecting, outflow) then we recommend you read the
 entirety of this tutorial, then follow what's done with the
 DoubleMach problem, which is problem type 4. You will also need to
-examine ``Grid\_SetExternalBoundaryValues.C``
+examine ``Grid_SetExternalBoundaryValues.C``
 
 Necessary Headers
 ~~~~~~~~~~~~~~~~~
@@ -182,14 +179,14 @@ standard headers <stdio.h> and <string.h>
 
 In brief, these are:
 
-- ``src/enzo/macros\_and\_parameters.h`` The standard set of macros. This takes
+- ``src/enzo/macros_and_parameters.h`` The standard set of macros. This takes
     care of the float promotion so its inclusion is
     **ABSOLUTELY ESSENTIAL**
 
 - ``src/enzo/typedefs.h`` This takes
     care of enumerates for parameters like the hydro method.
 
-- ``src/enzo/global\_data.h`` There
+- ``src/enzo/global_data.h`` There
     are a lot of global parameters in Enzo. This houses them.
 
 - ``src/enzo/Fluxes.h`` Definition of the
@@ -210,8 +207,7 @@ In brief, these are:
 
 - ``src/enzo/TopGridData.h`` This defines the meta data object.
 
-Somewhat more information can be found in
-`Tutorials/Headers? </wiki/Tutorials/Headers>`_
+More information can be found in :doc:`../reference/Headers`.
 
 Necessary Assignments
 ~~~~~~~~~~~~~~~~~~~~~
@@ -312,6 +308,8 @@ this section:
 
 or else it will register as an error.
 
+.. _UnigridInitialize:
+
 Calling the Grid Initializer: Unigrid
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -330,6 +328,10 @@ that you will be modifying.
 
 We will be discussing AMR problems, and large problems that require
 parallel startup later.
+
+.. _InitializeGrid:
+
+.. _InitializeGrid:
 
 MyProblemInitializeGrid
 -----------------------
@@ -351,9 +353,9 @@ they MUST BE DONE IN THIS ORDER.
 
 #. Set up the FieldType array and define NumberOfBaryonFields.
 
-    The FieldType array is an array of type field\_type, a type defined
-    in ``src/enzo/typedefs.h``. It is
-    used to relate physics to the actual BaryonField element.
+    The FieldType array is an array of type field_type, a type defined
+    in ``src/enzo/typedefs.h``. It is used to relate physics to the
+    actual BaryonField element.
 
     ``NumberOfBaryonFields`` is the number of valid, allocated fields. This
     can be as little as 5 for pure fluid dynamics, or as many as you
@@ -425,9 +427,9 @@ linked lists, and links to examples in the code.
 Using ParallelRootGridIO
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+Main article: :doc:`NewTestProblem3`
+
 ``ParallelRootGridIO`` is a fairly complex piece of code. If you absolutely
 must do this in the code, it is recommended that you read the description
 of the inner workings of ``ParallelRootGridIO`` and then cloning what's done
 for the ``CosmologyInitialize`` routines.
-
-

@@ -61,7 +61,11 @@ struct LevelHierarchyEntry;
 
 class grid
 {
+#ifdef NEW_PROBLEM_TYPES
+ protected:
+#else
  private:
+#endif
 //
 //  General grid class data
 //
@@ -171,7 +175,7 @@ class grid
   friend int ProtoSubgrid::CopyFlaggedZonesFromGrid(grid *Grid);
   friend class Star;
 #ifdef NEW_PROBLEM_TYPES
-  friend class ProblemType;
+  friend class EnzoProblemType;
 #endif
 
 #ifdef TRANSFER
@@ -732,6 +736,10 @@ public:
 /* Delete all the fields except for the particle data */
 
    void DeleteAllButParticles();
+
+/* Delete all the baryon fields */
+
+   void DeleteBaryonFields();
 
 /* Sum particle mass flagging fields into ProcessorNumber if particles
    aren't local. */
@@ -1465,7 +1473,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Move a grid from one processor to another. */
 
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
-			    int DeleteOldFields = TRUE);
+			    int DeleteAllFields = TRUE);
 
 /* Send particles from one grid to another. */
 
@@ -1474,7 +1482,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* Transfer particle amount level 0 grids. */
 
-#ifdef OPTIMIZED_CTP
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 				     int ThisGridNum, int TopGridDims[],
 				     int *&NumberToMove, 
@@ -1489,14 +1496,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 				 star_data *&List, int *Layout, 
 				 int *GStartIndex[], int *GridMap, 
 				 int CopyDirection);
-#else
-  int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-			     int ToGrid[6], int NumberToMove[6],
-			     float_int *ParticleData[6], int CopyDirection);
-  int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
-			 int ToGrid[6], int NumberToMove[6],
-			 StarBuffer *StarData[6], int CopyDirection);
-#endif
 
   int CollectParticles(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 
@@ -1815,13 +1814,22 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Conduction Test: initialize grid. */
 
-  int ConductionTestInitialize(float PulseHeight, FLOAT PulseWidth, int PulseType);
+  int ConductionTestInitialize(float PulseHeight, FLOAT PulseWidth, int PulseType, FLOAT PulseCenter[MAX_DIMENSION], int FieldGeometry, float Bfield);
+
+/* Conduction Cloud: initialize grid. */
+
+  int ConductionCloudInitialize(float CloudOverdensity, FLOAT CloudWidth, int CloudType);
 
 /* Conducting Bubble Test: initialize grid. */
 
   int ConductionBubbleInitialize(FLOAT BubbleRadius, int PulseType, float DeltaEntropy, 
 				 float MidpointEntropy, float EntropyGradient,
 				 float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]);
+
+/* Exploding Stratified Medium Test: initialize grid. */
+
+  int StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
+					  float ExplosionEnergy, FLOAT BubbleCenter[MAX_DIMENSION]);
 
 /* Spherical Infall Test: initialize grid. */
 
@@ -1879,10 +1887,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  char *CosmologySimulationVelocityNames[],
 			  char *CosmologySimulationParticlePositionName,
 			  char *CosmologySimulationParticleVelocityName,
+ 			  char *CosmologySimulationParticleDisplacementName,
 			  char *CosmologySimulationParticleMassName,
 			  char *CosmologySimulationParticleTypeName,
 			  char *CosmologySimulationParticlePositionNames[],
 			  char *CosmologySimulationParticleVelocityNames[],
+ 			  char *CosmologySimulationParticleDisplacementNames[],
 			  int   CosmologySimulationSubgridsAreStatic,
 			  int   TotalRefinement,
 			  float CosmologySimulationInitialFractionHII,
@@ -1913,9 +1923,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int CosmologyInitializeParticles(
 		   char *CosmologySimulationParticleVelocityName,
+ 		   char *CosmologySimulationParticleDisplacementName,
 		   char *CosmologySimulationParticleMassName,
 		   char *CosmologySimulationParticleTypeName,
 		   char *CosmologySimulationParticleVelocityNames[],
+ 		   char *CosmologySimulationParticleDisplacementNames[],
 		   float CosmologySimulationOmegaBaryonNow,
 		   int *Offset, int level);
 
@@ -1930,10 +1942,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  char *CosmologySimulationGasEnergyName,
 			  char *CosmologySimulationVelocityNames[],
 			  char *CosmologySimulationParticlePositionName,
+			  char *CosmologySimulationParticleDisplacementName,
 			  char *CosmologySimulationParticleVelocityName,
 			  char *CosmologySimulationParticleMassName,
 			  char *CosmologySimulationParticleTypeName,
 			  char *CosmologySimulationParticleVelocityNames[],
+			  char *CosmologySimulationParticleDisplacementNames[],
 			  int   CosmologySimulationSubgridsAreStatic,
 			  int   TotalRefinement,
 			  float CosmologySimulationInitialFractionHII,
@@ -2099,9 +2113,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 #define TURBULENCE_INIT_PARAMETERS_DECL \
      float TurbulenceSimulationInitialDensity, \
+     float TurbulenceSimulationInitialDensityPerturbationAmplitude, \
      float TurbulenceSimulationInitialTemperature, \
+     float TurbulenceSimulationInitialPressure, \
+     float TurbulenceSimulationInitialMagneticField[], \
+     char *TurbulenceSimulationMagneticNames[], \
      char *TurbulenceSimulationDensityName, \
      char *TurbulenceSimulationTotalEnergyName, \
+     char *TurbulenceSimulationGasPressureName, \
      char *TurbulenceSimulationGasEnergyName, \
      char *TurbulenceSimulationVelocityNames[], \
      char *TurbulenceSimulationRandomForcingNames[], \
@@ -2111,9 +2130,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 #define TURBULENCE_INIT_PARAMETERS \
      TurbulenceSimulationInitialDensity, \
+     TurbulenceSimulationInitialDensityPerturbationAmplitude, \
      TurbulenceSimulationInitialTemperature, \
+     TurbulenceSimulationInitialPressure, \
+     TurbulenceSimulationInitialMagneticField, \
+     TurbulenceSimulationMagneticNames, \
      TurbulenceSimulationDensityName, \
      TurbulenceSimulationTotalEnergyName, \
+     TurbulenceSimulationGasPressureName, \
      TurbulenceSimulationGasEnergyName, \
      TurbulenceSimulationVelocityNames, \
      TurbulenceSimulationRandomForcingNames, \
@@ -2122,6 +2146,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
  int TurbulenceSimulationInitializeGrid(TURBULENCE_INIT_PARAMETERS_DECL);
+ int ComputeRandomForcingFields(int mode);
+ int ExtraFunction(char * message); //for debugging.
 
   // The following are private since they should only be called by
   // TurbulenceSimulationInitializeGrid()

@@ -6,7 +6,7 @@ c//////////////////////  SUBROUTINE SOLVE_COOL  \\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine solve_cool(
      &                d, e, ge, u, v, w,
-     &                in, jn, kn, nratec, iexpand, imethod,
+     &                in, jn, kn, nratec, iexpand, imethod, cool_method,
      &                idual, idim, igammah,
      &                is, js, ks, ie, je, ke, 
      &                dt, aye, temstart, temend, fh,
@@ -36,7 +36,7 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke,
-     &        idual, iexpand, nratec, idim, imethod, igammah
+     &       idual, iexpand, nratec, idim, imethod, igammah, cool_method
       real    dt, aye, temstart, temend, fh, gammaha,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, coola(nratec)
@@ -91,6 +91,7 @@ c
 c
 c        Compute the cooling rate on a slice
 c
+         if( cool_method .eq. 1 ) then
             call cool1d(d, e, ge, u, v, w,
      &                  in, jn, kn, nratec, idual, idim, imethod, 
      &                  iter, igammah,
@@ -100,6 +101,16 @@ c
      &                  indixe, t1, t2, logtem, tdef, edot,
      &                  tgas, tgasold, p2d, cool
      &                     )
+        else if ( cool_method .eq. 3) then
+            call cool1d_koyama(d,e,ge,u,v,w, 
+     &                  in,jn, kn, nratec, idual, idim, imethod, iter,
+     &                  is, ie, j,k,temstart, temend,
+     &                  utem, uxyz, urho, utim, gamma, coola,
+     &                  edot, tgas, tgasold, p2d, cool
+     &                  )
+
+        endif
+            
 c
 c         Compute maximim timstep that keeps any fractional change to 10%
 c              (maximum timestep is 1/2 hydro step).

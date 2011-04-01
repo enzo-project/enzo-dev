@@ -65,14 +65,14 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 	           ImplicitProblemABC *ImplicitSolver,
 #endif
-		   int &WroteData, int Restart)
+		   int Restart)
 {
  
   /* Declarations. */
  
   char *Name;
   int i, Number;
-  WroteData = FALSE;
+  MetaData.WroteData = FALSE;
   double SavedCPUTime;
 
   /* Check for output: restart-based. */
@@ -80,7 +80,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   char *param;
   FILE *pfptr;
 
-  if (Restart == TRUE && WroteData == FALSE) {
+  if (Restart == TRUE && MetaData.WroteData == FALSE) {
 
     MetaData.CycleLastRestartDump = MetaData.CycleNumber;
 
@@ -115,7 +115,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
       delete [] param;
     } // ENDIF ROOT_PROCESSOR
 
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
     return SUCCESS;
   }
     
@@ -135,7 +135,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
   if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
       FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
-      WroteData == FALSE) {
+      MetaData.WroteData == FALSE) {
     MetaData.CycleLastDataDump = MetaData.CycleNumber;
     SavedCPUTime = MetaData.CPUTime;
     MetaData.CPUTime = 0.0;
@@ -147,7 +147,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #endif
 		       );
     MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   } // ENDIF
 
   /* Check for output: time-based. */
@@ -177,7 +177,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
     MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   }
  
   /* Check for output: cycle-based. */
@@ -208,7 +208,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
     MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   }
  
   /* Check for output: redshift-based. */
@@ -246,15 +246,14 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
 	  MetaData.CPUTime = SavedCPUTime;
-	  WroteData = TRUE;
+	  MetaData.WroteData = TRUE;
 	}
 
 #ifdef UNUSED
   /* Check for output: when the MBH jets haven't been ejected for too long 
                        this is currently a test - Ji-hoon Kim, Mar.2010 */  
  
-  if ((MBHFeedback == 2 || MBHFeedback == 3) && 
-
+  if ((MBHFeedback >= 2 && MBHFeedback <= 5) && 
       OutputWhenJetsHaveNotEjected == TRUE) {
 
     fprintf(stdout, "CheckForOutput: MBH_JETS - file output complete; restart with the dump!\n");
@@ -262,7 +261,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 		       TopGrid, MetaData, Exterior);
 
     OutputWhenJetsHaveNotEjected = FALSE;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
     my_exit(EXIT_SUCCESS);
 
   }

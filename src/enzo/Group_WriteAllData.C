@@ -83,10 +83,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
- 
- 
-int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
-
+  
 void InitializeHierarchyArrayStorage(int grid_count);
 void WriteHierarchyArrayStorage(const char* name);
 void FinalizeHierarchyArrayStorage();
@@ -858,7 +855,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
-    fprintf(sptr, "DATASET WRITTEN %s \n", name);
+    fprintf(sptr, "DATASET WRITTEN %s %8"ISYM" %18.16e\n", name, MetaData.CycleNumber, MetaData.Time);
     fclose(sptr);
   }
  

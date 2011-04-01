@@ -95,8 +95,8 @@
 
       implicit none
 
-      integer :: n1, idir
-      complex :: x(n1)
+      integer n1, idir
+      complex x(n1)
 
       write(0,'("ACML stride 1 FFT error")')
       ERROR_MESSAGE

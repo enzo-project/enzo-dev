@@ -102,10 +102,11 @@ public:
   float *ReturnVelocity(void) { return vel; }
   float *ReturnAccretedAngularMomentum(void) { return accreted_angmom; }
   float ReturnLastAccretionRate(void) { return last_accretion_rate; }
+  void  MultiplyAccretionRate(float &RecalibrateAccretingMassRatio);
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
-  int	CalculateMassAccretion(void);
-  int	ComputePhotonRates(int &nbins, float E[], double Q[]);
+  int   CalculateMassAccretion(float &BondiRadius, float &density);
+  int   ComputePhotonRates(int &nbins, float E[], double Q[]);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
 #ifdef LARGE_INTS
@@ -159,7 +160,8 @@ public:
 			 int &SphereContained, int &SkipMassRemoval,
 			 float DensityUnits, float LengthUnits, 
 			 float TemperatureUnits, float TimeUnits,
-			 float VelocityUnits, FLOAT Time);
+			 float VelocityUnits, FLOAT Time,
+			 bool &MarkedSubgrids);
 
   int SphereContained(LevelHierarchyEntry *LevelArray[], int level, 
 		      float Radius);

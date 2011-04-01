@@ -25,7 +25,9 @@ import sys, os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.pngmath',  'sphinx.ext.intersphinx']
+sys.path.append(os.path.abspath('exts'))
+extensions = ['sphinx.ext.pngmath',  'sphinx.ext.intersphinx',
+              'youtube']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -224,4 +226,5 @@ intersphinx_mapping = {'http://docs.python.org/': None,
                        'http://matplotlib.sourceforge.net/': None,
                        'http://yt.enzotools.org/doc': None,
                        }
+
 

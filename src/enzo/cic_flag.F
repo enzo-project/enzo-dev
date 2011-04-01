@@ -85,8 +85,6 @@ c	    only for particles above minimum mass
 c
 	      if (partmass(n) .gt. minmassmust) then
 c
-	      write(6,*) 'found imatch1, imatch2 = ', imatch1, imatch2    
-c
 c             Compute the position of the central cell
 c
               xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)

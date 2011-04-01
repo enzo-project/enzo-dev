@@ -25,6 +25,7 @@
 #    CONFIG_PACKED_MEM
 #    CONFIG_LCAPERF
 #    CONFIG_PYTHON
+#    CONFIG_NEW_PROBLEM_TYPES
 #    CONFIG_CVODE
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
@@ -174,6 +175,15 @@
 #-----------------------------------------------------------------------
 
      CONFIG_PYTHON = no
+
+#=======================================================================
+# CONFIG_NEW_PROBLEM_TYPES
+#=======================================================================
+#    yes           use the new problem initializers
+#    no            don't use the new problem initializers
+#-----------------------------------------------------------------------
+
+     CONFIG_NEW_PROBLEM_TYPES = no
 
 #=======================================================================
 # CONFIG_CVODE

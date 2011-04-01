@@ -287,16 +287,14 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     CommunicationBarrier();
 #endif
 
-//    for (i = 0; i < NumberOfProcessors; i++)
-//      for (j = 0; j < 8; j++) 
-//	fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProc[%d][%d] = %d\n", 
-//		i, j, NumberOfStarParticlesOnProcOnLvl[i][j]); 
-
+    /*
+    for (i = 0; i < NumberOfProcessors; i++)  
+      for (j = 0; j < 8; j++) 
+ 	fprintf(stdout, "WriteStreamData: NumberOfStarParticlesOnProcOnLvl[%d][%d] = %d\n", 
+ 		i, j, NumberOfStarParticlesOnProcOnLvl[i][j]); 
+    */
+    
   } // ENDIF NON_DM_PARTICLES_MERGED_LEVEL
-
-#ifdef USE_MPI
-    CommunicationBarrier();
-#endif
 
   if (debug)
     printf("WriteStreamData: level = %d, StartLevel = %d, timestep = %d\n", 
@@ -304,7 +302,33 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
   for (ilvl = StartLevel; ilvl < MAX_DEPTH_OF_HIERARCHY; ilvl++) {
 
+#ifdef USE_MPI  
+    CommunicationBarrier();
+#endif
+
     Temp = LevelArray[ilvl];
+
+    /* Allocate memory */
+
+    for (int l = 0; l < NumberOfProcessors; l++) {
+      if (NumberOfStarParticlesOnProcOnLvl[l][ilvl] > 0) {
+	for (int dim = 0; dim < 3; dim++) {
+	  StarParticlesOnProcOnLvl_Position[l][dim] = new FLOAT[NumberOfStarParticlesOnProcOnLvl[l][ilvl]];
+	  StarParticlesOnProcOnLvl_Velocity[l][dim] = new float[NumberOfStarParticlesOnProcOnLvl[l][ilvl]];
+	}
+	StarParticlesOnProcOnLvl_Mass[l] = new float[NumberOfStarParticlesOnProcOnLvl[l][ilvl]];
+	for (int nattr = 0; nattr < NumberOfParticleAttributes; nattr++)
+	  StarParticlesOnProcOnLvl_Attr[l][nattr] = new float[NumberOfStarParticlesOnProcOnLvl[l][ilvl]];
+	StarParticlesOnProcOnLvl_Type[l] = new int[NumberOfStarParticlesOnProcOnLvl[l][ilvl]];
+	StarParticlesOnProcOnLvl_Number[l] = new PINT[NumberOfStarParticlesOnProcOnLvl[l][ilvl]];
+
+	// to use it later to determine whether all particles are collected
+	for (i = 0; i < NumberOfStarParticlesOnProcOnLvl[l][ilvl]; i++)
+	  StarParticlesOnProcOnLvl_Type[l][i] = 0;
+      }
+    }
+
+
 
     while (Temp != NULL) {
 
@@ -334,6 +358,29 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 
     } /* ENDWHILE: grid loop */
 
+#ifdef USE_MPI
+    CommunicationBarrier();
+#endif
+
+
+    /* Free memory */
+
+    for (int l = 0; l < NumberOfProcessors; l++) {
+      if (NumberOfStarParticlesOnProcOnLvl[l][ilvl] > 0) {
+	for (int dim = 0; dim < 3; dim++) {
+	  delete [] StarParticlesOnProcOnLvl_Position[l][dim];
+	  delete [] StarParticlesOnProcOnLvl_Velocity[l][dim];
+	}
+	for (int nattr = 0; nattr < NumberOfParticleAttributes; nattr++)
+	  delete [] StarParticlesOnProcOnLvl_Attr[l][nattr];
+	delete [] StarParticlesOnProcOnLvl_Mass[l];
+	delete [] StarParticlesOnProcOnLvl_Type[l];
+	delete [] StarParticlesOnProcOnLvl_Number[l];
+      } 
+    }
+
+
+
     /* Increase particlegridId for NON_DM_PARTICLES_MERGED_LEVEL
        when a level is done with nonzero star particles 
        (the group name should be the same on a level) 
@@ -342,7 +389,20 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
     if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL) 
       MetaData->AmiraGrid.IncreaseParticleGridCount();  
 
+#ifdef USE_MPI 
+    CommunicationBarrier();
+#endif
+
   } /* ENDFOR: level loop */
+
+
+
+
+
+
+
+
+
 
 
   /* Print out particles all merged to a separate file if requested.  
@@ -409,6 +469,10 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 #endif
 
     MetaData->AmiraGrid.IncreaseOutputParticleCount();
+
+#ifdef USE_MPI  
+    CommunicationBarrier();
+#endif
 
   }
 

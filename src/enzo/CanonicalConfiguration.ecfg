@@ -1,0 +1,156 @@
+# This is the canonical Enzo configuration file.  It is read in as the
+# defaults, and then written out either on demand or in line with a simulation.
+
+Enzo :
+{
+
+    # In general these settings will not need to be modified by the user
+    InternalParameters : {
+
+        InitialCycleNumber  = 0;
+        InitialTime         = 0.0;
+        InitialCPUTime      = 0.0;
+
+        CheckpointRestart   = false;
+        StopTime            = 3.0;
+        StopCycle           = 100000;
+        StopSteps           = 10000;
+        StopCPUTime         = 2.592e+06;
+        ResubmitOn          = false;
+        ResubmitCommand     = "";
+
+        MaximumTopGridTimeStep = 1e+20;
+        TimeLastRestartDump = 0;
+        dtRestartDump       = -99999;
+        TimeLastDataDump    = 0;
+        dtDataDump          = 0;
+        TimeLastHistoryDump = 0;
+        dtHistoryDump       = 0;
+
+    };
+
+    OutputControl : {
+
+        SupplementalOutputControl : {
+            TracerParticleOn           = false;
+            TimeLastTracerParticleDump = 0;
+            dtTracerParticleDump       = 0.0;
+            TimeLastInterpolatedDataDump    = -99999;
+            dtInterpolatedDataDump          = 0.0;
+            NewMovieLeftEdge     = [0.0, 0.0, 0.0]; 
+            NewMovieRightEdge    = [1.0, 1.0, 1.0]; 
+            MovieSkipTimestep    = -99999;
+            Movie3DVolumes       = 0;
+            MovieVertexCentered  = false;
+            NewMovieParticleOn   = false;
+            MovieDataField       = [-99999, -99999, -99999, -99999, -99999, -99999];
+            NewMovieDumpNumber   = 0;
+            NewMovieName         = "MoviePack";
+            MovieTimestepCounter = 0;
+        };
+
+        CycleOutputControl : {
+            CycleLastRestartDump = 0;
+            CycleSkipRestartDump = 0;
+            CycleLastDataDump    = 0;
+            CycleSkipDataDump    = 10;
+            CycleLastHistoryDump = 0;
+            CycleSkipHistoryDump = 0;
+            CycleSkipGlobalDataDump = 0;
+        };
+
+        SubcycleOutputControl : {
+            SubcycleNumber          = 0;
+            SubcycleSkipDataDump    = 0;
+            SubcycleLastDataDump    = -99999;
+            OutputFirstTimeAtLevel = 4;
+            StopFirstTimeAtLevel    = 0;
+        };
+
+        DensityOutputControl : {
+            OutputOnDensity = false;
+            StartDensityOutputs = 999;
+            CurrentDensityOutput = 999;
+            IncrementDensityOutput = 999;
+        };
+
+        OutputParameters : {
+            FileDirectedOutput = true;
+            WriteBinaryHierarchy = false;
+            RestartDumpNumber   = 0;
+            DataDumpNumber      = 1;
+            HistoryDumpNumber   = 0;
+            TracerParticleDumpNumber = 0;
+            RestartDumpName     = "RS";
+            DataDumpName        = "DD";
+            HistoryDumpName     = "HD";
+            TracerParticleDumpName = "TracerOutput";
+            RedshiftDumpName    = "RD";
+            RestartDumpDir        = "RS";
+            DataDumpDir           = "DD";
+            HistoryDumpDir        = "HD";
+            TracerParticleDumpDir = "TD";
+            RedshiftDumpDir       = "RD";
+            GlobalDir           = ".";
+        };
+
+    };
+
+    PythonControl : {
+        PythonTopGridSkip       = 0;
+        PythonSubcycleSkip      = 1;
+        NumberOfPythonCalls         = 0;
+        NumberOfPythonTopGridCalls  = 0;
+        NumberOfPythonSubcycleCalls = 0;
+    };
+
+    ProblemSetupParameters : {
+        TopGridGravityBoundary = 1;
+        ImplicitProblem = false;
+        RadiativeTransferFLD   = false;
+        ParticleBoundaryType   = 3;
+        NumberOfParticles      = 0;
+        CourantSafetyNumber    = 0.500000;
+        PPMFlatteningParameter = 0.0;
+        PPMDiffusionParameter  = 0.0;
+        PPMSteepeningParameter = 0.0;
+
+        ProblemType                    = 27;
+        HydroMethod                    = 0;
+        huge_number                    = 1.000000e+20;
+        tiny_number                    = 1.000000e-20;
+        Gamma                          = 1.6667;
+        PressureFree                   = 0;
+        RefineBy                       = 2;
+        MaximumRefinementLevel         = 25;
+        MaximumGravityRefinementLevel  = 25;
+        MaximumParticleRefinementLevel = 12;
+        CellFlaggingMethod             = [2, 6];
+        FluxCorrection                 = false;
+        InterpolationMethod            = 1;
+        ConservativeInterpolation      = false;
+        MinimumEfficiency              = 0.3;
+        SubgridSizeAutoAdjust          = 0;
+        OptimalSubgridsPerProcessor    = 16;
+        MinimumSubgridEdge             = 6;
+        MaximumSubgridSize             = 32768;
+        NumberOfBufferZones            = 1;
+
+        FastSiblingLocatorEntireDomain      = true;
+        MustRefineRegionMinRefinementLevel  = -1;
+        MetallicityRefinementMinLevel       = -1;
+        MetallicityRefinementMinMetallicity = 1e-05;
+        MetallicityRefinementMinDensity     = -99999;
+        DomainLeftEdge         = [0.0, 0.0, 0.0];
+        DomainRightEdge        = [1.0, 1.0, 1.0];
+        GridVelocity           = [0.0, 0.0, 0.0];
+        RefineRegionAutoAdjust = false;
+        RefineRegionLeftEdge   = [0.0, 0.0, 0.0];
+        RefineRegionRightEdge  = [1.0, 1.0, 1.0];
+        MustRefineRegionLeftEdge   = [0.0, 0.0, 0.0];
+        MustRefineRegionRightEdge  = [1.0, 1.0, 1.0];
+        RefineRegionTimeType   = -1;
+
+    };
+};
+

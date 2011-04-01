@@ -1,3 +1,5 @@
+.. _EnzoInternalUnits:
+
 Enzo Internal Unit System
 =========================
 
