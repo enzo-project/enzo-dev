@@ -1,9 +1,9 @@
 .. _hydro_methods:
 
-Hydro Methods
+Hydro and MHD Methods
 =============================
 
-There are five possible routines in Enzo for calculating the evolution of the gas. 
+There are five possible routines in Enzo for calculating the evolution of the gas with and without magnetic fields. Below is a brief description of each method, including the parameters associated with each one and a link to further reading. 
 
 Method 0: Piecewise Parabolic Method (PPM)
 ------------------------------------
@@ -23,7 +23,6 @@ Associated parameters:
 *Reference: Colella & Woodward (1992)*
 
 
-fsdfjsisuruserusirlfsjdf;
 Method 2: ZEUS
 ---------------
 
