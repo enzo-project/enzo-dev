@@ -568,6 +568,35 @@
        error_ooc_boundary:
 	$(error Illegal value '$(CONFIG_OOC_BOUNDARY)' for $$(CONFIG_OOC_BOUNDARY))
     endif
+    
+#-----------------------------------------------------------------------
+# DETERMINE SET ACCELERATION BOUNDARY SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_ACCELERATION_BOUNDARY = 1
+
+    # Settings to turn ON the setting of Acceleration Boundary
+
+    ifeq ($(CONFIG_ACCELERATION_BOUNDARY),yes)
+        ERROR_ACCELERATION_BOUNDARY = 0
+        ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES = -DSET_ACCELERATION_BOUNDARY
+    endif
+
+    # Settings to turn OFF the setting of Acceleration Boundary
+
+    ifeq ($(CONFIG_ACCELERATION_BOUNDARY),no)
+        ERROR_ACCELERATION_BOUNDARY = 0
+        ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES =
+    endif
+
+    # error if CONFIG_ACCELERATION_BOUNDARY is incorrect
+
+    ifeq ($(ERROR_ACCELERATION_BOUNDARY),1)
+       .PHONY: error_sab
+       error_sab:
+	$(error Illegal value '$(CONFIG_ACCELERATION_BOUNDARY)' for $$(CONFIG_ACCELERATION_BOUNDARY))
+    endif
+
 
 #-----------------------------------------------------------------------
 # DETERMINE OPTIMIZATION LEVEL SETTINGS
@@ -1033,7 +1062,8 @@
               $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES) \
-              $(ASSEMBLE_GRAVITY_4S_DEFINES)
+              $(ASSEMBLE_GRAVITY_4S_DEFINES) \
+              $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \
