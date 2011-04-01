@@ -1,12 +1,11 @@
-name = 'CosmologyFLD_RT'
+name = 'RadiatingShockLab1D_sp'
 answer_testing_script = None
-nprocs = 8
-runtime = 'long' 
+nprocs = 1
+runtime = 'short'
 critical = True
 cadence = 'nightly'
 hydro = True
-gravity = True
-cosmology = True
-dimensionality = 3
+gravity = False
+dimensionality = 1
 radiation = 'fld'
 max_time_minutes = 10
