@@ -681,6 +681,8 @@ Hydrodynamic Parameters
     ============ =============================
 
     Default: 0
+
+    More details on each of the above methods can be found at :ref:`hydro_methods`.
 ``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the Riemann solver used by the MUSCL solver. Choice of
 
