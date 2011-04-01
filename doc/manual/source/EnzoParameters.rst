@@ -469,7 +469,7 @@ Hierarchy Control Parameters
     comment header line. Default: None.
 ``MinimumOverDensityForRefinement`` (external)
     These float values (up to 9) are used if the ``CellFlaggingMethod`` is
-    2, 4 or 5, although in slightly different ways. For cosmology simulations, the value is rho/<rho> for Methods 2 and 4, where rho is the density of the appropriate species in the cell and <rho> the mean density of that species in the simulation volume. For Method 5 it becomes (rho/<rho> - 1). For non-cosmology simulations, it is simply the density above which a refinement occurs.
+    2, 4 or 5, although in slightly different ways. For cosmology simulations, the value is rho/<rho> for Methods 2 and 4, where rho is the density of the appropriate species in the cell and <rho> the mean density of that species in the simulation volume. For method 5 it becomes (rho/<rho> - 1). For non-cosmology simulations, it is simply the density above which a refinement occurs.
 
     In practice, this value is converted into a mass by
     multiplying it by the volume of the top grid cell. The result is
@@ -1184,7 +1184,7 @@ For details on each of the different star formation methods available in Enzo se
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
-    is valid for Methods 0, 1, 2, 7 and 8 because methods 3, 5 and 9
+    is valid for ``StarParticleCreation`` = 0, 1, 2, 7 and 8 because methods 3, 5 and 9
     use the radiation transport module and ``Star_*.C`` routines to
     calculate the feedback, 4 has explicit feedback and 10 does not use feedback. Default: 0.
 
@@ -1194,7 +1194,7 @@ For details on each of the different star formation methods available in Enzo se
     radius.  This results in feedback being distributed to a cube with
     a side of ``StarFeedbackDistRadius+1``. It is in units of cell
     widths of the finest grid which hosts the star particle.  Only
-    implemented for StarFeedbackCreation = 2 or 3.  Default: 0.
+    implemented for ``StarFeedbackCreation`` = 0 or 1 with ``StarParticleFeedback`` =  1. (If ``StarParticleFeedback`` = 0, stellar feedback is only deposited into the cell in which the star particle lives).  Default: 0.
 
 ``StarFeedbackDistCellStep`` (external)
     In essence, this parameter controls the shape of the volume where
@@ -1202,20 +1202,20 @@ For details on each of the different star formation methods available in Enzo se
     that are within ``StarFeedbackDistCellSteps`` cells from the host
     cell, counted in steps in Cartesian directions, are injected with
     stellar feedback.  Its maximum value is ``StarFeedbackDistRadius``
-    * ``TopGridRank``.  Only implemented for StarFeedbackCreation = 2
-    or 3.  See :ref:`distributed_feedback` for an illustration.
+    * ``TopGridRank``.  Only implemented for ``StarFeedbackCreation`` = 0
+    or 1.  See :ref:`distributed_feedback` for an illustration.
     Default: 0.
 
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method
-1, 2, 7 and 8.
+0, 1, 2, 7 and 8.
 
 ``StarMakerOverDensityThreshold`` (external)
-    The overdensity threshold (for cosmological simulations, this is relative to the total mean density, not
+    The overdensity threshold in code units (for cosmological simulations, note that code units are relative to the total mean density, not
     just the dark matter mean density) before star formation will be
-    considered. For ``StarParticleCreation`` method 7 in cosmological
+    considered. For ``StarParticleCreation`` = 7 in cosmological
     simulations, however, ``StarMakerOverDensityThreshold`` should be in
     particles/cc, so it is not the ratio with respect to the
     ``DensityUnits`` (unlike most other
@@ -1225,7 +1225,7 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
     formation ( \\rho_{th} in the paper) used to determine the star
-    formation timescale in units of g cm\ :sup:`-3`\ . Default: 7e-26.
+    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for ``StarParticleCreation`` = 8. Default: 7e-26.
 ``StarMakerMassEfficiency`` (external)
     The fraction of identified baryonic mass in a cell
     (Mass\*dt/t_dyn) that is converted into a star particle. Default:
@@ -1259,12 +1259,6 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. Default: 5e-6
-``StarFeedbackDistRadius`` (external)
-    The radius in grid pixels away from a star particle out to which 
-    stellar feedback is deposited.  This can only be used with the 
-    Cen & Ostriker feedback, ``StarParticleFeedback`` methods 0 and 1.  
-    If set to 0, stellar feedback is only deposited into the cell in 
-    which the star particle lives. Default: 0
 ``StarFeedbackDistCellStep`` (external)
     This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
     determines the shape of the region into which stellar feedback is 
