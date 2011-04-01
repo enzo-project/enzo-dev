@@ -20,7 +20,9 @@ Associated parameters:
 
 ``PPMSteepeningParamter``;
 
-*Reference: Colella & Woodward (1992)*
+.. [Ref I] P. R. Woodward and P. Colella. "A piecewise parabolic method
+   for gas dynamical simulations," *J. Comp. Phys*, 54:174, 1984 `link
+   <https://seesar.lbl.gov/anag/publications/colella/A_1_4_1984.pdf>`__
 
 
 Method 2: ZEUS
@@ -34,7 +36,17 @@ Associated parameters:
 
 ``ZEUSLinearArtificialViscosity``;
 
-*Reference: Stone & Norman*
+.. [Ref I] J. M. Stone and M. L. Norman. "Zeus-2D: A radiation
+   magnetohydrodynamics code for astrophysical flows in two space
+   dimensions. I. The hydrodynamics algorithms and tests."  *The
+   Astrophysical Journal Supplement*, 80:753, 1992 `link
+   <http://adsabs.harvard.edu/abs/1992ApJS...80..753S>`__
+
+.. [Ref II] J. M. Stone and M. L. Norman. "Zeus-2D: A radiation
+   magnetohydrodynamics code for astrophysical flows in two space
+   dimensions. II. The magnetohydrodynamic algorithms and tests."
+   *The Astrophysical Journal Supplement*, 80:791, 1992
+   `link <http://adsabs.harvard.edu/abs/1992ApJS...80..791S>`__
 
 Method 3: MUSCL
 ---------------
