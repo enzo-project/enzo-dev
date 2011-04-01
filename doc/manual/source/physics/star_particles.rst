@@ -1,3 +1,6 @@
+.. _star_particles:
+
+
 Active Particles: Stars, BH, and Sinks
 ======================================
 

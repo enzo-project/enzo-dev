@@ -1157,6 +1157,9 @@ Inline Python
 Star Formation and Feedback Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+For details on each of the different star formation methods available in Enzo see :ref:`star_particles`.
+
+
 ``StarParticleCreation`` (external)
     This parameter is bitwise so that multiple types of star formation
     routines can be used in a single simulation. For example if methods
