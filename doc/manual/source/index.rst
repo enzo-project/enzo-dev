@@ -60,6 +60,5 @@ California in San Diego (http://lca.ucsd.edu).
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`search`
 
