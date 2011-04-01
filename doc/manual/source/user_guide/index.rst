@@ -44,6 +44,7 @@ inquiries and comments should be directed to the `Enzo Users' List
    RunningEnzo.rst
    EnzoTestSuite.rst
    CosmologicalInitialConditions.rst
+   RunningLargeSimulations.rst
    EnzoOutputFormat.rst
    AnalyzingWithYT.rst
    SimulationNamesAndIdentifiers.rst
