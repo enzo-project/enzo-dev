@@ -10,7 +10,7 @@ in Enzo.  There are also methods that include routines for black hole,
 sink, and Pop III stellar tracer formation.  Here we give the details
 of each implementation and the parameters that control them.
 
-Method 1: Cen & Ostriker
+Method 0: Cen & Ostriker
 ------------------------
 *Source: star_maker2.F*
 
@@ -62,7 +62,7 @@ star particle mass and creation time, respectively.
   Z\ :sub:`star` is the star particle metallicity.  This formulation
   accounts for gas recycling back into the stars.
 
-Method 2: Cen & Ostriker with Stochastic Star Formation
+Method 1: Cen & Ostriker with Stochastic Star Formation
 -------------------------------------------------------
 *Source: star_maker3.F*
 
@@ -81,7 +81,7 @@ same manner as Method 1 except
 
 * Support for multiple metal fields.
 
-Method 3: Global Schmidt Law
+Method 2: Global Schmidt Law
 ----------------------------
 *Source: star_maker4.F*
 
@@ -100,7 +100,7 @@ Stellar feedback is accomplished in the same way as Method 1 (Cen &
 Ostriker) but M\ :sub:`form` = ``StarMakerEjectionFraction`` * (star
 particle mass).
 
-Method 4: Population III Stars
+Method 3: Population III Stars
 ------------------------------
 *Source: pop3_maker.F*
 
@@ -128,27 +128,27 @@ the stellar mass and is deposited in a sphere with radius
 ``PopIIISupernovaRadius`` in *units of pc*.  To track metal
 enrichment, turn on the parameter ``PopIIISupernovaUseColour``.
 
-Method 5: Sink particles
+Method 4: Sink particles
 ------------------------
 *Source: sink_maker.C*
 
-Method 6: Radiative Stellar Clusters
+Method 5: Radiative Stellar Clusters
 ------------------------------------
 *Source: cluster_maker.F*
 
-Method 7: Cen & Ostriker with no delay in formation
+Method 6: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
 *Source: star_maker7.F*
 
-Method 8: Springel & Hernquist
+Method 7: Springel & Hernquist
 ------------------------------
 *Source: star_maker5.F*
 
-Method 9: Massive Black Holes
+Method 8: Massive Black Holes
 -----------------------------
 *Source: mbh_maker.C*
 
-Method 10: Population III stellar tracers
+Method 9: Population III stellar tracers
 -----------------------------------------
 *Source: pop3_color_maker.F*
 
