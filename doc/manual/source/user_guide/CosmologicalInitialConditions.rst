@@ -61,6 +61,7 @@ correct units for use in Enzo.
 
 Multiple-grid Initialization
 ++++++++++++++++++++++++++++
+.. versionadded:: 2.1
 
 The multi-grid (or nested) initialization can be used to refine in a
 specific region, such as the Lagrangian sphere of a halo.  We assume
@@ -345,6 +346,7 @@ Grid Parameters: Advanced
 
 Using mpgrafic
 --------------
+.. versionadded:: 2.0
 
 This version of mpgrafic is a modified version of the public version of
 mpgrafic, found at
