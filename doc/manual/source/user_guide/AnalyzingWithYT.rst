@@ -1,3 +1,6 @@
+.. _analyzing_with_yt:
+
+
 Analyzing With YT
 =================
 

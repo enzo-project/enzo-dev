@@ -32,7 +32,7 @@ Using YT to Analyze Data
 ------------------------
 
 If you have installed `YT <http://yt.enzotools.org/>`_ along with
-Enzo (as per the
+Enzo (as suggested in the
 build instructions :ref:`obtaining_and_building_enzo`), you
 should be able to use it to find halos, examine profiles, prepare
 plots and handle data directly via physically meaningful objects.
@@ -40,7 +40,7 @@ plots and handle data directly via physically meaningful objects.
 `wiki <http://yt.enzotools.org/wiki>`_ and a
 `mailing list <http://lists.spacepope.org/listinfo.cgi/yt-users-spacepope.org>`_
 are available for support and assistance with installation and
-usage.
+usage as well as a brief introduction in these documents :ref:`analyzing_with_yt`
 
 Analysis with VisIt
 -------------------
