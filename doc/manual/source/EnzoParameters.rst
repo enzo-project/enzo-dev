@@ -196,10 +196,6 @@ Problem Type Description and Parameter List
 ``Initialdt`` (internal)
     The timestep, in code units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
-``GridVelocity`` (obsolete)
-    For problems in which the grid must move. Originally implemented,
-    but was never used, and so almost surely doesn't work. Default: 0 0
-    0
 
 Simulation Identifiers and UUIDs
 --------------------------------
@@ -885,10 +881,6 @@ Gravity Parameters
     idea. The value (a float) indicates the ratio of the gravitational
     cell width to the baryon cell width. [Ignored in current version].
     Default: 1
-``ComputePotential`` (external)
-    This flag (1 -on, 0 - off) indicates if the gravitational potential
-    is to be computed on the mesh. This is necessary if the energy
-    conservation is to be computed. [not tested] Default: 0
 ``PotentialIterations`` (external)
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid

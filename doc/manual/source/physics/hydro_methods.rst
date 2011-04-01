@@ -7,46 +7,52 @@ There are five possible routines in Enzo for calculating the evolution of the ga
 
 Method 0: Piecewise Parabolic Method (PPM)
 ------------------------------------
+*Source:  euler.F, euler_sweep.h, feuler_sweep.F*
 
-Parameter file call: ``HydroMethod = 0``
+Brief description here.
 
-Associated parameters: 
+Parameters
+^^^^^^^^^^
 
-``RiemannSolver = 0``; specifies the type of solver xxxxx
+Main call: ``HydroMethod = 0``
 
-``DuelEnergyFormalism``; allows the total and thermal energy to be followed seperately during the simulation. Helpful when the velocities are high such that E\ :sub:`total`\ >> E\ :sub:`thermal`. 
+``RiemannSolver = 0``: specifies the type of solver xxxxx
 
-``PPMFlatteningParameter``;
+``DuelEnergyFormalism``: allows the total and thermal energy to be followed seperately during the simulation. Helpful when the velocities are high such that E\ :sub:`total`\ >> E\ :sub:`thermal`. 
 
-``PPMSteepeningParamter``;
+``PPMFlatteningParameter``
 
-.. [Ref I] P. R. Woodward and P. Colella. "A piecewise parabolic method
-   for gas dynamical simulations," *J. Comp. Phys*, 54:174, 1984 `link
-   <https://seesar.lbl.gov/anag/publications/colella/A_1_4_1984.pdf>`__
+``PPMSteepeningParamter``
+
+
+Links
+^^^^^^
+
+\ P. R. Woodward and P. Colella. "A piecewise parabolic method for gas dynamical simulations," *J. Comp. Phys*, 54:174, 1984 `link <https://seesar.lbl.gov/anag/publications/colella/A_1_4_1984.pdf>`_
 
 
 Method 2: ZEUS
 ---------------
+*Source: ZeusSource.C, Zeus_xTransport.C, Zeus_yTransport.C, Zeus_zTransport.C, Grid_ZeusSolver.C, ZeusUtilities.C*
 
-Parameter file call: ``HydroMethod = 2``
+Description here.
 
-Associated parameters:
+Parameters
+^^^^^^^^^^
 
-``ZEUSQuadraticArtificialViscosity``; 
+Main call: ``HydroMethod = 2``
 
-``ZEUSLinearArtificialViscosity``;
+``ZEUSQuadraticArtificialViscosity``
 
-.. [Ref I] J. M. Stone and M. L. Norman. "Zeus-2D: A radiation
-   magnetohydrodynamics code for astrophysical flows in two space
-   dimensions. I. The hydrodynamics algorithms and tests."  *The
-   Astrophysical Journal Supplement*, 80:753, 1992 `link
-   <http://adsabs.harvard.edu/abs/1992ApJS...80..753S>`__
+``ZEUSLinearArtificialViscosity`` 
 
-.. [Ref II] J. M. Stone and M. L. Norman. "Zeus-2D: A radiation
-   magnetohydrodynamics code for astrophysical flows in two space
-   dimensions. II. The magnetohydrodynamic algorithms and tests."
-   *The Astrophysical Journal Supplement*, 80:791, 1992
-   `link <http://adsabs.harvard.edu/abs/1992ApJS...80..791S>`__
+
+Links
+^^^^^^
+
+\  J. M. Stone and M. L. Norman. "Zeus-2D: A radiation magnetohydrodynamics code for astrophysical flows in two space dimensions. I. The hydrodynamics algorithms and tests."  *The Astrophysical Journal Supplement*, 80:753, 1992 `link <http://adsabs.harvard.edu/abs/1992ApJS...80..753S>`_
+
+\ J. M. Stone and M. L. Norman. "Zeus-2D: A radiation magnetohydrodynamics code for astrophysical flows in two space dimensions. II. The magnetohydrodynamic algorithms and tests." *The Astrophysical Journal Supplement*, 80:791, 1992 `link <http://adsabs.harvard.edu/abs/1992ApJS...80..791S>`_
 
 Method 3: MUSCL
 ---------------
