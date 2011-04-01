@@ -7,4 +7,4 @@ cadence = 'nightly'
 hydro = True
 gravity = True
 dimensionality = 3
-Author = 'Stephen Skory'
+author = 'Stephen Skory'
