@@ -7,5 +7,5 @@ cadence = 'nightly'
 hydro = True
 gravity = True
 dimensionality = 3
-Radiation = 'fld'
+radiation = 'fld'
 max_time_minutes = 10
