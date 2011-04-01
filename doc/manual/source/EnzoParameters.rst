@@ -1164,12 +1164,11 @@ For details on each of the different star formation methods available in Enzo se
     This parameter is bitwise so that multiple types of star formation
     routines can be used in a single simulation. For example if methods
     1 and 3 are desired, the user would specify 10 (2\ :sup:`1`\  +
-    2\ :sup:`3`\ ), or if methods 0, 1 and 4 are wanted, this would be
-    19 (2\ :sup:`0`\  + 2\ :sup:`1`\  + 2\ :sup:`4`\ ). Default: 0
+    2\ :sup:`3`\ ), or if methods 1, 4 and 7 are wanted, this would be
+    146 (2\ :sup:`1`\  + 2\ :sup:`4`\  + 2\ :sup:`7`\ ). Default: 0
     
     ::
 
-	0 - Cen & Ostriker (1992)		
 	1 - Cen & Ostriker (1992), without the Jeans mass restriction
 	2 - Kravstov et al. (2003)
 	3 - Population III stars / Abel, Wise & Bryan (2007)
@@ -1184,6 +1183,7 @@ For details on each of the different star formation methods available in Enzo se
 	8 - Springel & Hernquist (2003)
 	9 - Massive Black Hole (MBH) particles insertion by hand 
 	    (automatically turned off once all the particles are inserted) / Kim et al. (2010)
+	10 - Population III stellar tracers  
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
