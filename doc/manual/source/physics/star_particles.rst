@@ -107,7 +107,7 @@ the cells that are ``StarFeedbackDistCellStep`` cells away from the
 center cell, counted only in steps in Cartesian directions.  Below we
 show two examples with 
 
-1. ``StarFeedbackDistRadius = 1``
+* ``StarFeedbackDistRadius = 1``
 
 .. figure:: dist-feedback1.png
    :align: center
@@ -118,7 +118,7 @@ show two examples with
    the central cell.  Only cells with D\ :sub:`cell` <=
    ``StarFeedbackDistCellStep`` have feedback applied to them.
 
-2. ``StarFeedbackDistRadius = 2``
+* ``StarFeedbackDistRadius = 2``
 
 .. figure:: dist-feedback2.png
    :align: center
