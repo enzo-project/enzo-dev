@@ -142,6 +142,9 @@ Problem Type Description and Parameter List
 450-452	     Free-streaming radiation tests
 ============ ====================================
 
+.. raw:: html
+
+   <p></p>
 
 ``TopGridRank`` (external)
     This specifies the dimensionality of the root grid and by extension
@@ -697,8 +700,8 @@ Hydrodynamic Parameters
     5              TwoShock
     ============== ===========================
 
-   Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
-   ``HydroMethod`` = 0
+    Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
+    ``HydroMethod`` = 0
 
 ``RiemannSolverFallback`` (external)
     If the euler update results in a negative density or energy, the
@@ -718,7 +721,8 @@ Hydrodynamic Parameters
     4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
     ===================== ====================
 
-   Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
+    Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
+
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
