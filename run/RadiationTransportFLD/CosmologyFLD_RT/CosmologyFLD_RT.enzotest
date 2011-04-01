@@ -1,0 +1,11 @@
+name = 'CosmologyFLD_RT'
+answer_testing_script = None
+nprocs = 8
+runtime = 'long' 
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+dimensionality = 3
+Radiation = 'fld'
+max_time_minutes = 10
