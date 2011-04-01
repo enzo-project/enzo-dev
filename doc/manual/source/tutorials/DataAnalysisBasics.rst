@@ -33,7 +33,7 @@ Using YT to Analyze Data
 
 If you have installed `YT <http://yt.enzotools.org/>`_ along with
 Enzo (as per the
-build instructions :ref:`build_yt`), you
+build instructions :ref:`obtaining_and_building_enzo`), you
 should be able to use it to find halos, examine profiles, prepare
 plots and handle data directly via physically meaningful objects.
 `Documentation <http://yt.enzotools.org/doc/>`_, a
