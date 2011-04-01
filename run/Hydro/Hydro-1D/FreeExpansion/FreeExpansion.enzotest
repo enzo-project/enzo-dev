@@ -1,9 +1,9 @@
-name = 'NohProblem2DAMR'
-answer_testing_script = 'test_noh2damr.py'
+name = 'FreeExpansion'
+answer_testing_script = 'test_free_expansion.py'
 nprocs = 1
 runtime = 'short'
 critical = True
 cadence = 'nightly'
 hydro = True
 gravity = False
-dimensionality = 2
+dimensionality = 1
