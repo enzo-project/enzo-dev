@@ -412,7 +412,7 @@ Hierarchy Control Parameters
     grid) is one more than this value. Default: 2
 ``CellFlaggingMethod`` (external)
     The method(s) used to specify when a cell should be refined. This
-    is a list of integers, up to five, as described by the following
+    is a list of integers, up to 9, as described by the following
     table. The methods combine in an "OR" fashion: if any of them
     indicate that a cell should be refined, then it is flagged. For
     cosmology simulations, methods 2 and 4 are probably most useful.
@@ -468,7 +468,7 @@ Hierarchy Control Parameters
     corner. There is a maximum of 300 lines in the file and there is no
     comment header line. Default: None.
 ``MinimumOverDensityForRefinement`` (external)
-    These float values (up to 5) are used if the ``CellFlaggingMethod`` is
+    These float values (up to 9) are used if the ``CellFlaggingMethod`` is
     2, 4 or 5, although in slightly different ways. For cosmology simulations, the value is rho/<rho> for Methods 2 and 4, where rho is the density of the appropriate species in the cell and <rho> the mean density of that species in the simulation volume. For Method 5 it becomes (rho/<rho> - 1). For non-cosmology simulations, it is simply the density above which a refinement occurs.
 
     In practice, this value is converted into a mass by
@@ -484,7 +484,7 @@ Hierarchy Control Parameters
     subgrid, this value should be 4 / (2\ :sup:`(3\*1)`\ ) = 4 / 8 =
     0.5. Keep in mind that this parameter has no effect if it is
     changed in a restart output; if you want to change the refinement
-    mid-run you will have to modify the next parameter. Up to five
+    mid-run you will have to modify the next parameter. Up to 9
     numbers may be specified here, each corresponding to the respective
     ``CellFlaggingMethod``. Default: 1.5
 ``MinimumMassForRefinement`` (internal)
@@ -492,7 +492,7 @@ Hierarchy Control Parameters
     internal, but it can be set by hand. For non-cosmological simulations, it can be the easier refinement criteria to specify. It is the mass above
     which a refinement occurs if the ``CellFlaggingMethod`` is
     appropriately set. For cosmological simulations, it is specified in units such
-    that the entire mass in the computational volume is 1.0, otherwise it is in code units. There are five numbers here again, as per the
+    that the entire mass in the computational volume is 1.0, otherwise it is in code units. There are 9 numbers here again, as per the
     above parameter. Default: none
 ``MinimumMassForRefinementLevelExponent`` (external).
     This parameter modifies the behaviour of the above parameter. As it
@@ -503,7 +503,7 @@ Hierarchy Control Parameters
     the level and alpha is the value of this parameter
     (``MinimumMassForRefinementLevelExponent``). Therefore a negative value
     makes the refinement super-Lagrangian, while positive values are
-    sub-Lagrangian. There are up to five values specified here, as per
+    sub-Lagrangian. There are up to 9 values specified here, as per
     the above two parameters. Default: 0.0
 ``SlopeFlaggingFields[#]`` (external)
     If ``CellFlaggingMethod`` is 1, and you only want to refine on the
