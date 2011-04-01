@@ -6,7 +6,7 @@ Active Particles: Stars, BH, and Sinks
 
 There are many different subgrid models of star formation and feedback
 in the astrophysical literature, and we have included several of them
-in Enzo.  There are also methods include routines for black hole,
+in Enzo.  There are also methods that include routines for black hole,
 sink, and Pop III stellar tracer formation.  Here we give the details
 of each implementation and the parameters that control them.
 
@@ -25,7 +25,9 @@ met
 #. The divergence is negative
 
 #. The dynamical time is less than the cooling time or the temperature
-   is less than 11,000 K.
+   is less than 11,000 K.  The minimum dynamical time considered is
+   given by the parameter ``StarMakerMinimumDynamicalTime`` in *units
+   of years*.
 
 #. The cell is Jeans unstable.
 
@@ -56,20 +58,75 @@ star particle mass and creation time, respectively.
   of energy is deposited into the cell.
 
 * M\ :sub:`form` * ((1 - Z\ :sub:`star`) * ``StarMetalYield`` + M\
-  :sub:`ej` * Z\ :sub:`star`) of metals are added to the cell.  This
-  formulation accounts for gas recycling back into the stars.
+  :sub:`ej` * Z\ :sub:`star`) of metals are added to the cell, where
+  Z\ :sub:`star` is the star particle metallicity.  This formulation
+  accounts for gas recycling back into the stars.
 
 Method 2: Cen & Ostriker with Stochastic Star Formation
 -------------------------------------------------------
 *Source: star_maker3.F*
 
+This method is suitable for unigrid calculations.  It behaves in the
+same manner as Method 1 except
+
+* No Jeans unstable check
+
+* **Stochastic star formation**: Keeps a global sum of "unfulfilled"
+  star formation that were not previously formed because the star
+  particle masses were under ``StarMakerMinimumMass``.  When this
+  running sum exceeds the minimum mass, it forms a star particle.
+
+* Initial star particle velocities are zero instead of the gas
+  velocity as in Method 1.
+
+* Support for multiple metal fields.
+
 Method 3: Global Schmidt Law
 ----------------------------
 *Source: star_maker4.F*
 
+This method is based on the Kratsov (2003, ApJL 590, 1) paper that
+forms star particles that result in a global Schmidt law.  This
+generally occurs when the gas consumption time depends on the local
+dynamical time.
+
+A star particle is created if a cell has an overdensity greater than
+``StarMakerOverDensityThreshold``.  The fraction of gas that is
+deposited into the star particle is
+dt/``StarMakerMinimumDynamicalTime`` up to a maximum of 90% of the gas
+mass.  Here the dynamical time is in *units of years*.
+
+Stellar feedback is accomplished in the same way as Method 1 (Cen &
+Ostriker) but M\ :sub:`form` = ``StarMakerEjectionFraction`` * (star
+particle mass).
+
 Method 4: Population III Stars
 ------------------------------
 *Source: pop3_maker.F*
+
+This method is based on the Abel et al. (2007, ApJL 659, 87) paper
+that forms star particles that represents single metal-free stars.
+The criteria for star formation are the same as Method 1 (Cen &
+Ostriker) with the expection of the Jeans unstable check.  It makes
+two additional checks, 
+
+#. The H\ :sub:`2` fraction exceeds the parameter
+   ``PopIIIH2CriticalFraction``.  This is necessary because the
+   cooling and collapse is dependent on molecular hydrogen and local
+   radiative feedback in the Lyman-Werner bands may prevent this
+   collapse.
+
+#. If the simulation tracks metal species, the gas metallicity *in an
+   absolute fraction* must be below ``PopIIIMetalCriticalFraction``.
+
+Stellar radiative feedback is handled by the :ref:`radiative_transfer`
+module.  By default, only hydrogen ionizing radiation is considered.
+To include helium ionizing radiation, set ``PopIIIHeliumIonization``
+to 1.  Supernova feedback through thermal energy injection is done by
+the :ref:`star_particle_class`.  The explosion energy is computed from
+the stellar mass and is deposited in a sphere with radius
+``PopIIISupernovaRadius`` in *units of pc*.  To track metal
+enrichment, turn on the parameter ``PopIIISupernovaUseColour``.
 
 Method 5: Sink particles
 ------------------------
@@ -108,7 +165,7 @@ cells if ``StarFeedbackDistRadius`` > 0.  The cells are within a cube
 with a side ``StarFeedbackDistRadius+1``.  This cube can be cropped to
 the cells that are ``StarFeedbackDistCellStep`` cells away from the
 center cell, counted only in steps in Cartesian directions.  Below we
-show two examples with 
+show a couple of *two-dimensional* examples with
 
 * ``StarFeedbackDistRadius = 1``
 

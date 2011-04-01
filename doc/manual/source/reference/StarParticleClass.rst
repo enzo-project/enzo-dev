@@ -1,3 +1,5 @@
+.. _star_particle_class:
+
 Star Particle Class
 ===================
 

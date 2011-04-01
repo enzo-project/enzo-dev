@@ -1204,7 +1204,8 @@ For details on each of the different star formation methods available in Enzo se
     the feedback is applied, cropping the original cube.  This volume
     that are within ``StarFeedbackDistCellSteps`` cells from the host
     cell, counted in steps in Cartesian directions, are injected with
-    stellar feedback.  Only implemented for StarFeedbackCreation = 2
+    stellar feedback.  Its maximum value is ``StarFeedbackDistRadius``
+    * ``TopGridRank``.  Only implemented for StarFeedbackCreation = 2
     or 3.  See :ref:`distributed_feedback` for an illustration.
     Default: 0.
 
