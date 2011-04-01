@@ -57,9 +57,8 @@ Computations described in this work were performed using the Enzo code
 developed by the Laboratory for Computational Astrophysics at the University of
 California in San Diego (http://lca.ucsd.edu). 
 
-Indices and tables
-==================
+Search
+======
 
-* :ref:`genindex`
 * :ref:`search`
 
