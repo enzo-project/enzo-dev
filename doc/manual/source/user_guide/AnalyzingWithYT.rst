@@ -1,6 +1,5 @@
 .. _analyzing_with_yt:
 
-FDADAD
 Analyzing With YT
 =================
 
