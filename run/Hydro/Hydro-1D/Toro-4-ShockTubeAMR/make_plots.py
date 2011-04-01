@@ -2,7 +2,7 @@ from yt.mods import *
 import pylab
 
 ### define problem name
-problem_name = 'Toro-5-ShockTube'
+problem_name = 'Toro-4-ShockTubeAMR'
 
 
 ### define simulation output directory and filename base
@@ -20,7 +20,7 @@ print "Plotting output file %s\n" % filename
 
 
 ### some more filenames
-exact_solution_filename = './Toro-5-ShockTube_t=0.012_exact.txt'
+exact_solution_filename = './Toro-4-ShockTube_t=0.035_exact.txt'
 png_filename = './' + problem_name + '.png'
 
 
@@ -106,11 +106,11 @@ pylab.plot(exact['x'],exact['Density'])
 pylab.plot(ray['x'],ray['Density'], 'ro', ms=4)
 #pylab.plot(ray_exact['x'],ray_exact['Density'], 'g+', ms=4)
 
-pylab.axis([0,1,0.0,7.0])
+pylab.axis([0,1,0.0,35.0])
 pylab.xlabel('Position')
 pylab.ylabel('Density')
 
-error_label(norm['Density'], maxnorm['Density'], 0.1, 6.5)
+error_label(norm['Density'], maxnorm['Density'], 0.1, 30.0)
 
 
 # Velocity Plot
@@ -120,11 +120,11 @@ pylab.plot(exact['x'],exact['x-velocity'])
 pylab.plot(ray['x'],ray['x-velocity'], 'ro', ms=4)
 #pylab.plot(ray_exact['x'],ray_exact['x-velocity'], 'g+', ms=4)
 
-pylab.axis([0,1,-25.0,5.0])
+pylab.axis([0,1,-10.0,25.0])
 pylab.xlabel('Position')
 pylab.ylabel('Velocity')
 
-error_label(norm['x-velocity'], maxnorm['x-velocity'], 0.3, -15.0)
+error_label(norm['x-velocity'], maxnorm['x-velocity'], 0.5, 22.0)
 
 
 # Pressure Plot
@@ -134,11 +134,11 @@ pylab.plot(exact['x'],exact['Pressure'])
 pylab.plot(ray['x'],ray['Pressure'], 'ro', ms=4)
 #pylab.plot(ray_exact['x'],ray_exact['Pressure'], 'g+', ms=4)
 
-pylab.axis([0,1,-100.0,1100.0])
+pylab.axis([0,1,0.0,1800.0])
 pylab.xlabel('Position')
 pylab.ylabel('Pressure')
 
-error_label(norm['Pressure'], maxnorm['Pressure'], 0.4, 1000.0)
+error_label(norm['Pressure'], maxnorm['Pressure'], 0.05, 1600.0)
 
 
 # InternalEnergy Plot
@@ -148,11 +148,11 @@ pylab.plot(exact['x'],exact['InternalEnergy'])
 pylab.plot(ray['x'],ray['InternalEnergy'], 'ro', ms=4)
 #pylab.plot(ray_exact['x'],ray_exact['InternalEnergy'], 'g+', ms=4)
 
-pylab.axis([0,1,-100.0,2600.0])
+pylab.axis([0,1,0.0,350.0])
 pylab.xlabel('Position')
 pylab.ylabel('Internal Energy')
 
-error_label(norm['InternalEnergy'], maxnorm['InternalEnergy'], 0.1, 800.0)
+error_label(norm['InternalEnergy'], maxnorm['InternalEnergy'], 0.1, 100.0)
 
 
 ### Save plot
