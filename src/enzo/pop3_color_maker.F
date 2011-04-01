@@ -1,3 +1,4 @@
+#include "phys_const.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE POP3_COLOR_MAKER \\\\\\\\\\\\\\\\\\\\
 c
@@ -99,8 +100,8 @@ c
       real   pi, G, sndspdC, m1
       real   isosndsp2, bmass, jeanmass, lum
       double precision msolar, mh
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33, mh=1.673e-24)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8,
+     &           msolar=SolarMass, mh=mass_h)
 c
       ii = np
 c

@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -92,8 +93,8 @@ c
       real   isosndsp2, starmass, starfraction, bmass, jeanmass
       real   densthresh, timeconstant, gasfrac
       double precision msolar
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33,mproton=1.67e-24)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8,
+     &           msolar=SolarMass,mproton=mass_h)
 c
       ii = np
 c
@@ -283,7 +284,7 @@ c
       integer i, j, k, n
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (clight = 3e10, msolar_e51 = 1800.0)
+      parameter (clight = c_light, msolar_e51 = 1800.0)
 c
 c-----------------------------------------------------------------------
 c

@@ -1,4 +1,5 @@
 #include "error.def"
+#include "phys_const.def"
 
 c=======================================================================
 c//////////////////////  SUBROUTINE SMOOTH_DEPOSIT  \\\\\\\\\\\\\\\\\\\\
@@ -54,7 +55,7 @@ c
       integer i, j, k, n
       REALSUB xpos, ypos, zpos, rsmsqr, rsqr
       real    coef, pi
-      parameter (pi = 3.14159)
+      parameter (pi = pi_val)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

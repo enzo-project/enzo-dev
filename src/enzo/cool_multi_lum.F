@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c////////////////////  SUBROUTINE COOL_MULTI_LUM  \\\\\\\\\\\\\\\\\\\\\
 c
@@ -81,7 +82,7 @@ c
       integer i, j, k, n
       real comp1, comp2, energy
       double precision dom, coolunit, dbase1, tbase1, xbase1, mh, ulum
-      parameter (mh = 1.673e-24)
+      parameter (mh = mass_h)
 c
 c  Slice locals
 c 

@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #define EQOFFSET 1.5
 #define EQOVERLAP 3.0
 #define TOLERANCE 1e-20
@@ -188,7 +189,7 @@ c
       integer itmax, ijk
       parameter (itmax = 1e8, ijk = MAX_ANY_SINGLE_DIRECTION)
       double precision mh
-      parameter (mh = 1.67d-24)
+      parameter (mh = mass_h)
 c
 c  Locals
 c
@@ -271,7 +272,7 @@ c
 
       double precision everg, e24, e26
       real dlogrho, dloge
-      parameter(everg = 1.60184d-12, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
       integer totalit
       parameter(iHI=1,iHII=2,iHeI=3,iHeII=4,iHeIII=5,
      &          iH2I=6,ige=7,iDI=8,iDII=9,iHDI=10,

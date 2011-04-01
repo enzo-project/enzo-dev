@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CLUSTER_MAKER \\\\\\\\\\\\\\\\\\\\\\
 c
@@ -105,8 +106,8 @@ c
       real   isosndsp2, bmass, jeanmass, lum, min_temp
       REALSUB this_pos(3)
       double precision msolar, mh
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33, mh=1.673e-24)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8,
+     &           msolar=SolarMass, mh=mass_h)
 c
 c      if (iradtrans .eq. 0) then
 c         write(6,*) 'Radiative transfer required for cluster_maker!'

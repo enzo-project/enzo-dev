@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -110,8 +111,8 @@ c
       real   mproton, RandomSeed, beta,x ,y, kb
       real   starfraction, bmass, densthresh 
       double precision msolar
-      parameter (msolar=1.989e33, mproton=1.67e-24, beta=0.1,
-     &     sqrtepssn=2e24, RandomSeed=-123456, kb=1.3806e-16)
+      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1,
+     &     sqrtepssn=2e24, RandomSeed=-123456, kb=kboltz)
 
       real random
 
@@ -326,8 +327,8 @@ c
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio, sqrtepssn,
      &     msolar, beta
-      parameter (clight = 3e10, msolar_e51 = 1800.0, msolar=1.989e33,
-     &     sqrtepssn=2e24, beta=0.1)
+      parameter (clight = c_light, msolar_e51 = 1800.0, 
+     &     msolar=SolarMass, sqrtepssn=2e24, beta=0.1)
 
 c    Basically calculate some of the same stuff from above.
 c    Dump it all into thermal making sure to take care of

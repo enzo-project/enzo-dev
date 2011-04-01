@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c///////////////////  SUBROUTINE CALC_PHOTO_RATES  \\\\\\\\\\\\\\\\\\\\\
 c
@@ -61,7 +62,7 @@ c
      &        utim, uxyz, urho, uaye, aye
 c  Parameters
 c
-      real    EV2HZ, EV2ERG, PI
+      real    EV2HZ, PI
 c
 c  Locals
 c
@@ -76,11 +77,10 @@ c=======================================================================
 c
 c     FIRST, DEFINE SOME CONSTANTS
 c
-      PI        = 4.0*ATAN(1.0)
+      PI        = pi_val
       EV2HZ     = 2.415E14       ! from eV to Hz
-      EV2ERG    = 1.6E-12        ! from eV to erg
 
-      mh        = 1.67d-24       ! DPC
+      mh        = mass_h         ! DPC
 
 c
 c     Clear sums used for X-ray compton temperature
@@ -119,13 +119,13 @@ c
 c
 c        AVGERAGE ENERGY OF THE BIN IN QUESTION IN ergs
 c
-         AVGNU     = 10.0**((N11-1.0)*FREQDEL)*EV2ERG
+         AVGNU     = 10.0**((N11-1.0)*FREQDEL)*ev2erg
 c
 c        energy difference (in ergs) between mean frequency and cutoffs
 c
-         FNUMNUH0  = AVGNU - 13.6*EV2ERG
-         FNUMNUHE0 = AVGNU - 24.6*EV2ERG
-         FNUMNUHE20= AVGNU - 54.4*EV2ERG
+         FNUMNUH0  = AVGNU - 13.6*ev2erg
+         FNUMNUHE0 = AVGNU - 24.6*ev2erg
+         FNUMNUHE20= AVGNU - 54.4*ev2erg
 c
 c        This is bin energy in units of the electron rest mass
 c
@@ -147,13 +147,13 @@ C        X-RAY BACKGROUND ENERGY DENSITY MULTIPLIED BY \SIGMA_{e,photon},
 C        IN 1.E-21 erg/cm^3*cm^2, NOTE THAT INUTOT() IS IN
 C        1.E-21 erg/cm^2/sec/hz/sr
 C
-         EXRY   = EXRY  + 4.0*PI/3.E10*INUTOT(N11)*FNUDEL
-     .                       *CROSSS
+         EXRY   = EXRY  + 4.0*PI/c_light*INUTOT(N11)
+     .                       *FNUDEL*CROSSS
 C
 C        X-RAY BACKGROUND EFFECTIVE TEMPERATURE
 C
-         TXRY   = TXRY  + 4.0*PI/3.E10*INUTOT(N11)*AVGNU*FNUDEL
-     .                       *CROSSS
+         TXRY   = TXRY  + 4.0*PI/c_light*INUTOT(N11)*AVGNU
+     .                       *FNUDEL*CROSSS
 C
 C        2) FOR PHOTOIONIZATION RATES
 C
@@ -213,7 +213,7 @@ C
 C
 C     X-RAY BACKGROUND RADIATION FIELD TEMPERATURE CONVERTED TO IN KELVIN
 C
-      TXRY      = MIN(1.E-7,TXRY/MAX(1.E-10,EXRY))/(4.0*1.38E-16)
+      TXRY      = MIN(1.E-7,TXRY/MAX(1.E-10,EXRY))/(4.0*kboltz)
 c
 c     For the approximate radiative shield, compute the
 c        AVERAGE CROSS SECTION

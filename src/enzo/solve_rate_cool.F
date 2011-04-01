@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 !=======================================================================
@@ -203,7 +204,7 @@
 #endif
 
       double precision mh
-      parameter (mh = 1.67d-24)
+      parameter (mh = mass_h)
 
 !  Locals
 
@@ -900,7 +901,7 @@ c -------------------------------------------------------------------
 !     Parameters
 
       double precision everg, e24, e26
-      parameter(everg = 1.60184d-12, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
 
 !     locals
 
