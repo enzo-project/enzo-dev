@@ -49,6 +49,18 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
+#ifdef IO_64
+#define io_type float64
+#else
+#define io_type float32
+#endif
+
+#ifdef MHDCT
+int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
+		 int * DataDims, int GridRank,
+		 int *WriteStartIndex, int *WriteEndIndex, int * WriteDims,
+		 char * Label, char * Units,hid_t file_type_id,hid_t float_type_id,FILE *log_fptr ) ;
+#endif //MHDCT 
 
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
@@ -57,11 +69,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
 
-#ifdef IO_64
-#define io_type float64
-#else
-#define io_type float32
-#endif
  
   io_type *temp;
  

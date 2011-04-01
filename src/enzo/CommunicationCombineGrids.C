@@ -98,7 +98,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 #ifdef MHDCT
     //Sometimes E isn't created by the time this code is run.Ensure it is.
 
-    if(MHD_Used == TRUE  && MyProcessorNumber == OldGrid->ReturnProcessorNumber() ){
+    if(useMHDCT == TRUE  && MyProcessorNumber == OldGrid->ReturnProcessorNumber() ){
       for(int field=0;field<3;field++)
         if( OldGrid->ElectricField[field] == NULL ){
           OldGrid->ElectricField[field] = new float[OldGrid->ElectricSize[field]];

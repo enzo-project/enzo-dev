@@ -1036,8 +1036,15 @@ OBJS_ECUDA_ALL = \
 #	hydro_rk/overlapping_MHDSweep_CUDA.o
 #
 OBJS_MHDCT = MHDBlastInitialize.o \
-	Grid_MHDBlastInitializeGrid.o
-	Grid_MHDBlastInitializeGrid.o\
+	Grid_MHDBlastInitializeGrid.o \
 	MHDCT_ParameterJuggle.o \
-	DaveTools.o 
-#	Grid_SolveMHDEquations.o
+	DaveTools.o \
+	Grid_SolveMHDEquations.o \
+	mhd_li.o \
+	pde1dsolver_mhd.o\
+	riemann_mhd.o \
+	Grid_ComputeElectricField.o \
+	Grid_MHD_Curl.o \
+	Grid_CenterMagneticField.o\
+	mhd_hlld_isothermal.o \
+	mhd_dt.o

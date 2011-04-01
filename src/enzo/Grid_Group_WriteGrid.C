@@ -49,6 +49,62 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+
+#ifdef IO_64
+#define io_type float64
+#else
+#define io_type float32
+#endif
+
+ 
+#ifdef MHDCT
+int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
+		 int * DataDims, int GridRank,
+		 int *WriteStartIndex, int *WriteEndIndex, int * WriteDims,
+		 char * Label, char * Units,hid_t file_type_id,hid_t float_type_id,FILE *log_fptr ) 
+{
+
+  int i,j,k,dim;
+  herr_t h5_status, h5_error = -1;
+  
+  hsize_t     OutDims[MAX_DIMENSION];
+  for (dim = 0; dim < GridRank; dim++)
+    OutDims[GridRank-dim-1] = WriteDims[dim];
+  io_type dbg_temp;
+  for (k = WriteStartIndex[2]; k <= WriteEndIndex[2]; k++)
+    for (j = WriteStartIndex[1]; j <= WriteEndIndex[1]; j++)
+      for (i = WriteStartIndex[0]; i <= WriteEndIndex[0]; i++){
+	tmp_buffer[(i-WriteStartIndex[0])                           + 
+		   (j-WriteStartIndex[1])*WriteDims[0]              + 
+		   (k-WriteStartIndex[2])*WriteDims[0]*WriteDims[1] ] =
+	  io_type(
+		  data_buffer[i + j*DataDims[0] +
+			      k*DataDims[0]*DataDims[1]]
+		  );
+      }
+  hid_t file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);} 
+  hid_t dset_id =  H5Dcreate(WriteLoc, Label, file_type_id, file_dsp_id, H5P_DEFAULT);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}  
+  /* set datafield name and units, etc. */
+  
+  WriteStringAttr(dset_id, "Label", Label, log_fptr);
+  WriteStringAttr(dset_id, "Units", Units, log_fptr);
+  WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+  WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+  h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tmp_buffer);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);} 
+  h5_status = H5Sclose(file_dsp_id);
+  if (log_fptr) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+  h5_status = H5Dclose(dset_id);
+  if (log_fptr) fprintf(log_fptr, "H5Dclose: %d\n", h5_status);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+}
+#endif //MHDCT
+
 #ifndef NEW_GRID_IO
 int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id)
 {
@@ -56,11 +112,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
 
-#ifdef IO_64
-#define io_type float64
-#else
-#define io_type float32
-#endif
  
   io_type *temp, *temp_VelAnyl;
  

@@ -60,8 +60,8 @@ FORTRAN_NAME(mhd_dt)(float *bxc, float *byc, float *bzc,
                      int *i1, int *i2,
                      int *j1, int *j2,
                      int *k1, int *k2, float* eng);
-
 #endif //MHDCT 
+
 float grid::ComputeTimeStep()
 {
  
@@ -139,9 +139,9 @@ float grid::ComputeTimeStep()
  
     /* Call fortran routine to do calculation. */
  
-+#ifdef MHDCT
-+    if( HydroMethod != MHD_Li)
-+#endif //MHDCT
+#ifdef MHDCT
+    if( HydroMethod != MHD_Li)
+#endif //MHDCT
     PFORTRAN_NAME(calc_dt)(&GridRank, GridDimension, GridDimension+1,
                                GridDimension+2,
 //                        Zero, TempInt, Zero+1, TempInt+1, Zero+2, TempInt+2,

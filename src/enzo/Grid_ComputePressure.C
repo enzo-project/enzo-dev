@@ -298,8 +298,11 @@ int grid::ComputePressure(FLOAT time, float *pressure)
      simulations */
   
   float Gamma1 = Gamma;
-  if ((ProblemType == 60 || ProblemType == 61) && SelfGravity == 1)
-
+  if ((ProblemType == 60 || ProblemType == 61) && SelfGravity == 1 
+#ifdef MHDCT
+      && EquationOfState != 1
+#endif //MHDCT
+      )
     for (i=0; i<size; i++) {
       Gamma1 = min(Gamma + (log10(BaryonField[DensNum][i])-8.0)*0.3999/2.5, 1.4);
       pressure[i] *= (Gamma1 - 1.0)/(Gamma - 1.0);

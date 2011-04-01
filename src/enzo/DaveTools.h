@@ -10,6 +10,8 @@ int CheckForSingleGridDump(int flag);
 void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum);
 //</dcc>
 
+int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
+				    TopGridData *MetaData);
 
 #ifdef DEFINE_STORAGE
 # define EXTERN

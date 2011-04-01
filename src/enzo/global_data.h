@@ -852,8 +852,6 @@ EXTERN int useMHD;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
-EXTERN float IsothermalSoundSpeed;
-EXTERN int RefineByJeansLengthUnits;
 
 
 
@@ -894,6 +892,11 @@ EXTERN float ConductionCourantSafetyNumber;
 
 #ifdef MHDCT
 //MHDCT variables
+EXTERN int TracerParticlesAddToRestart;// forces addition of tracer particles to already initialized simulations
+EXTERN int RefineByJeansLengthUnits;// determines method for computing jeans length. 0==std cosmology, 1==isothermal, 2==adiabatic ( code units )
+EXTERN int MHD_ProjectThisFace[3]; //Used for determining face projection/communication needs for 
+                                   //face centered fields
+EXTERN int ProcessorTopology[3]; //user define processor topology.
 EXTERN float CT_AthenaDissipation;
 EXTERN int MHD_WriteElectric;
 EXTERN int MHDLi[5];    //Options for the MHD_Li method

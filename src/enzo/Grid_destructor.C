@@ -114,5 +114,42 @@ grid::~grid()
     WriteListOfInts(stdout, GridRank, GridDimension);
   }
 */
- 
+#ifdef MHDCT
+  //MHD stuff 
+
+  if( useMHDCT ){
+    for(i=0;i<3;i++){
+
+      if(MagneticField[i] != NULL ){
+	delete MagneticField[i];
+	MagneticField[i] = NULL;
+      }
+      if(OldMagneticField[i] != NULL ){
+	delete OldMagneticField[i];
+	OldMagneticField[i] = NULL;
+      }
+
+      if( CenteredB[i] != NULL ){
+	delete CenteredB[i];
+	CenteredB[i] = NULL;
+      }
+
+      if(ElectricField[i] != NULL){
+	delete ElectricField[i];
+	ElectricField[i] = NULL;
+      }
+
+      if(AvgElectricField[i] != NULL){
+	delete AvgElectricField[i];
+	AvgElectricField[i] = NULL;
+      }
+
+    }
+
+    //MHDCleanUpTemp();
+
+  }
+
+
+#endif //MHDCT 
 }

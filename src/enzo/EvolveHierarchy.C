@@ -52,6 +52,9 @@
 #include "CosmologyParameters.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#ifdef MHDCT
+#include "DaveTools.h"
+#endif //MHDCT 
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif

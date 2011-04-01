@@ -2141,7 +2141,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
      TurbulenceSimulationSubgridsAreStatic, \
      TotalRefinement
 
-
  int TurbulenceSimulationInitializeGrid(TURBULENCE_INIT_PARAMETERS_DECL);
  int ComputeRandomForcingFields(int mode);
  int ExtraFunction(char * message); //for debugging.

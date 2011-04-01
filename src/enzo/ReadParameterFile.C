@@ -287,6 +287,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
     ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
     if (HydroMethod==MHD_RK) useMHD = 1;
+#ifdef MHDCT
+    if (HydroMethod==MHD_Li) useMHDCT = 1;
+#endif //MHDCT
 
     ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
@@ -912,13 +915,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 #ifdef MHDCT
     //MHDCT variables
-    ret += sscanf(line,"CT_AthenaDissipation = %"GSYM,&CT_AthenaDissipation);
+    ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
+    ret += sscanf(line,"RefineByJeansLengthUnits = %"ISYM,&RefineByJeansLengthUnits);
+    ret += sscanf(line, "ProcessorTopology      = %"ISYM" %"ISYM" %"ISYM,
+		  ProcessorTopology,ProcessorTopology+1,ProcessorTopology+2);
+
+    ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
     ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
     ret += sscanf(line, "MHDLi = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"",
 		  MHDLi,MHDLi+1,MHDLi+2,MHDLi+3,MHDLi+4);
 
     ret += sscanf(line,"MHD_Equation = %"ISYM,&MHD_Equation);
-    ret += sscanf(line,"tiny_pressure = %"GSYM,&tiny_pressure);
+    ret += sscanf(line,"tiny_pressure = %"FSYM,&tiny_pressure);
     ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method);
     ret += sscanf(line, "SingleGridDump = %d %d %d %d %d %d %d %d %d %d", SingleGridDumpList,
 		  SingleGridDumpList +1,SingleGridDumpList +2,SingleGridDumpList +3,
@@ -926,12 +934,23 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  SingleGridDumpList +7,SingleGridDumpList +8,SingleGridDumpList +9);
 		  
     ret += sscanf(line,"DEFAULT_GHOST_ZONES = %"ISYM,&DEFAULT_GHOST_ZONES);
-    ret += sscanf(line,"MHD_Used = %"ISYM,&MHD_Used);
-    ret += sscanf(line,"IsothermalSoundSpeed = %"GSYM,&IsothermalSoundSpeed);
+    //ret += sscanf(line,"MHD_Used = %"ISYM,&MHD_Used);
+    ret += sscanf(line,"IsothermalSoundSpeed = %"FSYM,&IsothermalSoundSpeed);
     ret += sscanf(line,"MHD_ProjectB = %"ISYM,&MHD_ProjectB);
     ret += sscanf(line,"MHD_ProjectE = %"ISYM,&MHD_ProjectE);
     ret += sscanf(line,"useMHDCT = %"ISYM,&useMHDCT);
     ret += sscanf(line,"EquationOfState = %"ISYM,&EquationOfState);
+
+    if(sscanf(line, "MHDLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDLabel[dim] = dummy;
+    if(sscanf(line, "MHDUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDUnits[dim] = dummy;
+    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDcLabel[dim] = dummy;
+    if(sscanf(line, "MHDeLabel[%"ISYM"] = %s\n", &dim, dummy) ==2)
+      MHDeLabel[dim] = dummy;
+    if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDeUnits[dim] = dummy;
 #endif //MHDCT
 
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,

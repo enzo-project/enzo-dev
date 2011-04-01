@@ -72,16 +72,31 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
   if (levelNorm <= 0.0)
     WARNING_MESSAGE;
  
+#ifdef MHDCT
+  float useDensity = 1;
+#endif //MHDCT
   /* do not do the update if using ZEUS */
  
-  if (HydroMethod != Zeus_Hydro)
-
+  if (HydroMethod != Zeus_Hydro 
+#ifdef MHDCT
+      && EquationOfState == 0 
+#endif //MHDCT
+      )
     for (i = 0; i < size; i++)
-      for (dim = 0; dim < GridRank; dim++)
+      for (dim = 0; dim < GridRank; dim++){
+#ifdef MHDCT
+	if( HydroMethod == MHD_Li ) useDensity = BaryonField[DensNum][i];
+	BaryonField[TENum][i] +=
+	  useDensity*(BaryonField[Vel1Num+dim][i]*RandomForcingField[dim][i]*levelNorm +
+	  0.5*RandomForcingField[dim][i]*levelNorm*RandomForcingField[dim][i]*levelNorm);	
+	
+#else
 	BaryonField[TENum][i] +=
 	  BaryonField[Vel1Num+dim][i]*RandomForcingField[dim][i]*levelNorm +
 	  0.5*RandomForcingField[dim][i]*levelNorm*RandomForcingField[dim][i]*levelNorm;
- 
+#endif //MHDCT 
+      }
+
   /* add velocity perturbation to velocity fields. */
  
   for (dim = 0; dim < GridRank; dim++)

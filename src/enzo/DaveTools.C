@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "ErrorExceptions.h"
 #include <string.h>
 #include <math.h>
 #include "macros_and_parameters.h"
@@ -14,6 +15,104 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+
+
+ 
+// This routine intializes a new simulation based on the parameter file.
+ 
+
+ 
+ 
+int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
+				    TopGridData *MetaData)
+{
+
+  if( TracerParticlesAddToRestart == FALSE )
+    return SUCCESS;
+
+  //Adds evenly spaced tracer particles to an existing run (most likely 
+  //to a restart from a previous enzo version or otherwise generated dataset.)
+  //Requires the following flags to be set:
+  //TracerParticlesAddToRestart = 1 (this is not written out, only a trigger)
+  //TracerParticleOn = 1
+  //TracerParticleCreationSpacing = 0.125 (or whatever)
+  //TracerParticleCreationLeftEdge = 0 0 0 
+  //TracerParticleCreationRightEdge= 1 1 1
+
+
+  char line[MAX_LINE_LENGTH];
+  int dim;
+ 
+  // Set default values for parameters
+ 
+  //  Declared in global_data.h (RH)
+  //  FLOAT TracerParticleCreationLeftEdge[MAX_DIMENSION];
+  //  FLOAT TracerParticleCreationRightEdge[MAX_DIMENSION];
+  //  FLOAT TracerParticleCreationSpacing = FLOAT_UNDEFINED;
+ 
+  TracerParticleCreationSpacing = FLOAT_UNDEFINED;
+ 
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    TracerParticleCreationLeftEdge[dim] = FLOAT_UNDEFINED;
+    TracerParticleCreationRightEdge[dim] = FLOAT_UNDEFINED;
+  }
+ 
+  // Read until out of lines
+ 
+  FILE * fptr = fopen(filename,"r");
+ 
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+ 
+    // Read tracer particle parameters
+ 
+    sscanf(line, "TracerParticleCreationSpacing = %"PSYM,
+	   &TracerParticleCreationSpacing);
+    sscanf(line, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM,
+		  TracerParticleCreationLeftEdge,
+		  TracerParticleCreationLeftEdge+1,
+		  TracerParticleCreationLeftEdge+2);
+    sscanf(line, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM,
+		  TracerParticleCreationRightEdge,
+		  TracerParticleCreationRightEdge+1,
+		  TracerParticleCreationRightEdge+2);
+ 
+  }
+  fclose(fptr);
+ 
+/*
+  fprintf(stderr, "TracerParticleCreation = %"ISYM"\n", MetaData->CycleNumber);
+  fprintf(stderr, "TracerParticleCreationSpacing = %"PSYM"\n", TracerParticleCreationSpacing);
+  fprintf(stderr, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+                  TracerParticleCreationLeftEdge[0],
+                  TracerParticleCreationLeftEdge[1],
+                  TracerParticleCreationLeftEdge[2]);
+  fprintf(stderr, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+                  TracerParticleCreationRightEdge[0],
+                  TracerParticleCreationRightEdge[1],
+                  TracerParticleCreationRightEdge[2]);
+*/
+  HierarchyEntry * Temp = TopGrid;
+  if (TracerParticleCreationSpacing > 0) {
+    while( Temp != NULL ){
+      fprintf(stderr,"adding tracer particles\n");
+      if (Temp->GridData->TracerParticleCreateParticles(
+					      TracerParticleCreationLeftEdge,
+					      TracerParticleCreationRightEdge,
+					      TracerParticleCreationSpacing,
+					      MetaData->NumberOfParticles) == FAIL) {
+        fprintf(stderr, "Error in grid->TracerParticleCreateParticles.\n");
+        ENZO_FAIL("");
+      }
+      Temp = Temp->NextGridThisLevel;
+    }
+  }
+  
+ 
+
+ 
+  return SUCCESS;
+}
+
 
 //returns the wall time.
 extern FILE * wall_ptr;

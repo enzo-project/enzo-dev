@@ -9,14 +9,259 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "DaveTools.h"
-#define ABS abs
+//#define ABS abs
 
 //both declared below.
 
-float blaststyle(int i,int j, int k, int InitStyle, float BlastCenterLocal[], float Radius);
+float blaststyle(int i,int j, int k, int InitStyle, float BlastCenterLocal[], float Radius){
+  int which;
+  float iF ,jF,kF;
+  iF= (float) i + 0.5;
+  jF= (float) j + 0.5;
+  kF= (float) k + 0.5;
+  switch( InitStyle ){
+  case 0:
+    
+    if( (iF - BlastCenterLocal[0] )*(iF - BlastCenterLocal[0] )
+	+(jF - BlastCenterLocal[1] )*(jF - BlastCenterLocal[1] )
+	+(kF - BlastCenterLocal[2] )*(kF - BlastCenterLocal[2] ) >=
+	Radius*Radius){
+      
+      which = 0;
+      
+    }else{
+      which = 1;
+    }
+    
+    break;
+    
+  case 1:
+    
+    if( fabs(iF- BlastCenterLocal[0] ) >= Radius ) {
+      which = 0;
+    }else{
+      which = 1;
+    }     
+    break;
+    
+    
+  case 2:
+    
+    if( fabs(jF - BlastCenterLocal[1] ) >= Radius ) {
+      which = 0;
+    }else{
+      which = 1;
+    }     
+    break;
+    
+  case 3:
+    
+    if( fabs(kF - BlastCenterLocal[2] ) >= Radius ) {
+      which = 0;
+    }else{
+      which = 1;
+    }     
+    break;
+    
+  case 40:
+    
+    if( (kF - BlastCenterLocal[2] )*(kF - BlastCenterLocal[2] )
+	+(jF - BlastCenterLocal[1] )*(jF - BlastCenterLocal[1] )
+	>= Radius*Radius){
+      which = 0;
+    }else{
+      which = 1;
+    }     
+    break;
+    
+  case 41:
+    
+    if( (kF - BlastCenterLocal[2] )*(kF - BlastCenterLocal[2] )
+	+(iF - BlastCenterLocal[0] )*(iF - BlastCenterLocal[0] )
+	>= Radius*Radius){
+      which = 0;
+    }else{
+      which = 1;
+    }     
+    break;
+    
+  case 42:
+    
+    if( (iF - BlastCenterLocal[0] )*(iF - BlastCenterLocal[0] )
+	+(jF - BlastCenterLocal[1] )*(jF - BlastCenterLocal[1] )
+	>= Radius*Radius){
+      which = 0;
+    }else{
+      which = 1;
+    }     
+    break;
+    
+  default:
+    which = -1;
+    fprintf(stderr,"MHDBlast: Invalid Init Style %d\n",InitStyle);
+    break;
+
+  }//switch
+
+  return which;
+}//blaststyle
 void eigen( float d, float vx, float vy, float vz, 
 	    float bx, float by, float bz, float eng, 
-	    float right[][7]);
+	    float right[][7])
+	    //, float Speeds[])
+{  
+  //Eigen vectors taken from Ryu & Jones, ApJ 442:228-258, 1995
+  //Normalization starting on p. 231.
+  float p;
+  float bp = 0.5*(bx*bx + by*by + bz*bz );
+  float sqrt2 = sqrt(2.0);
+  float sqrt2i= 1.0/sqrt2;
+  float sqrtD = sqrt(d);
+  float sqrtDi = 1.0/sqrtD;
+  float sbx  = sign(bx);
+  float og1  = 1.0/(Gamma - 1);
+
+#ifndef ATHENA
+   int  EquationOfState = 0 ;
+   float IsothermalSoundSpeed = 0;
+#endif
+
+  if( EquationOfState == 0 ){
+    p = (Gamma -1 ) * (eng - 0.5* d * (vx*vx + vy*vy + vz * vz ) - 0.5*(bx*bx + by*by + bz*bz));
+  }else{
+    p = IsothermalSoundSpeed*IsothermalSoundSpeed * d;
+  }
+  
+  //compute wave speeds
+  float aa;
+    if( EquationOfState == 0 ){
+    aa = sqrt( Gamma* p/d );
+  }else{
+    aa = IsothermalSoundSpeed;
+  }
+  float cs = sqrt( 0.5*( aa*aa + 2*bp/d - sqrt( pow( (aa*aa + 2*bp/d ),2) - 4* aa*aa*bx*bx/d ) ) );
+  float ca = sqrt( bx*bx/d ); 
+  float cf = sqrt( 0.5*( aa*aa + 2*bp/d + sqrt( pow( (aa*aa + 2*bp/d ),2) - 4* aa*aa*bx*bx/d ) ) );
+
+  /*
+    Speeds[0] =aa;
+    Speeds[1] =cs;
+    Speeds[2] =ca;
+    Speeds[3] =cf;
+  */
+  //compute ancilary values
+  //The normalization of alph_f may change. This normalization uses Ryu
+  //& Jones, but Balsara may be more robust.
+  float betay, betaz, alph_f, alph_s, bt;
+  
+  if( (by == 0.0) && (bz == 0.0) ){
+    betay = sqrt2i;
+    betaz = sqrt2i;
+    alph_f = 1;
+    alph_s = 1;
+  }else{
+    bt = sqrt( by*by + bz*bz );
+    betay = by/bt;
+    betaz = bz/bt;
+    alph_f = sqrt( (cf*cf-ca*ca)/(cf*cf-cs*cs) );
+    alph_s = sqrt( (cf*cf-aa*aa)/(cf*cf-cs*cs) );
+  }
+  
+  //the vectors
+  
+  //fast, left
+  right[0][0] = alph_f;
+  right[1][0] = (EquationOfState == 1 ) ? 0 :
+    alph_f*0.5*(vx*vx+vy*vy+vz*vz) + 
+    alph_f*cf*cf*og1 - alph_f*cf*vx + alph_s*ca*sbx*(betay*vy + betaz*vz) + 
+    (Gamma-2)*og1*alph_f*(cf*cf-aa*aa);
+  right[2][0] = alph_f*(vx - cf);
+  right[3][0] = alph_f*vy + alph_s*betay*ca*sbx;
+  right[4][0] = alph_f*vz + alph_s*betaz*ca*sbx;
+  right[5][0] = alph_s*betay*cf*sqrtDi;
+  right[6][0] = alph_s*betaz*cf*sqrtDi;
+  
+  //alfven][left
+  right[0][1] = 0;
+  right[1][1] = (EquationOfState == 1 ) ? 0 :
+    1*(betaz*vy - betay*vz)*sbx;
+  right[2][1] = 0;
+  right[3][1] =  1*betaz*sbx;
+  right[4][1] = -1*betay*sbx;
+  right[5][1] = betaz*sqrtDi;
+  right[6][1] = -betay*sqrtDi;
+
+  
+  //slow,left
+  right[0][2] = alph_s;
+  right[1][2] =  (EquationOfState == 1 ) ? 0 :
+    alph_s*0.5*(vx*vx+vy*vy+vz*vz) + 
+    alph_s*cs*cs*og1 - alph_s*cs*vx - alph_f*aa*sbx*(betay*vy + betaz*vz) +
+    (Gamma-2)*og1*alph_s*(cs*cs - aa*aa );
+  right[2][2] = alph_s*(vx-cs);
+  right[3][2] = alph_s*vy - alph_f*betay*aa*sbx;
+  right[4][2] = alph_s*vz - alph_f*betaz*aa*sbx;
+  right[5][2] = -alph_f*betay*aa*aa*sqrtDi/cf;
+  right[6][2] = -alph_f*betaz*aa*aa*sqrtDi/cf;
+  //right[4][2]*betaz/betay; Why was this here?
+  
+  //entropy (no entropy wave in isothermal MHD.)(Or hydro,for that matter)
+  if(EquationOfState == 1 ){
+    right[0][3] = 1;
+    right[1][3] = 0.5*(vx*vx+vy*vy+vz*vz);
+    right[2][3] = vx;
+    right[3][3] = vy;
+    right[4][3] = vz;
+    right[5][3] = 0;
+    right[6][3] = 0;
+  }else{
+    right[0][3] = 0;
+    right[1][3] = 0;
+    right[2][3] = 0;
+    right[3][3] = 0;
+    right[4][3] = 0;
+    right[5][3] = 0;
+    right[6][3] = 0;
+
+  }
+  
+  //slow,right
+  right[0][4] = alph_s;
+  right[1][4] = (EquationOfState == 1 ) ? 0 :
+    alph_s*0.5*(vx*vx+vy*vy+vz*vz) + 
+    alph_s*cs*cs*og1 + alph_s*cs*vx + alph_f*aa*sbx*(betay*vy + betaz*vz) +
+    (Gamma-2)*og1*alph_s*(cs*cs - aa*aa );
+  right[2][4] = alph_s*(vx+cs);
+  right[3][4] = alph_s*vy + alph_f*betay*aa*sbx;
+  right[4][4] = alph_s*vz + alph_f*betaz*aa*sbx;
+  right[5][4] = -alph_f*betay*aa*aa*sqrtDi/cf;
+  right[6][4] = -alph_f*betaz*aa*aa*sqrtDi/cf;
+  
+  //alfven,right
+  right[0][5] = 0;
+  right[1][5] = (EquationOfState == 1 ) ? 0 :
+    -1*(betaz*vy - betay*vz)*sbx;
+  right[2][5] = 0;
+  right[3][5] = -1*betaz*sbx;
+  right[4][5] = +1*betay*sbx;
+  right[5][5] = betaz*sqrtDi;
+  right[6][5] = -betay*sqrtDi;
+
+
+  //fast, right
+  right[0][6] = alph_f;
+  right[1][6] = (EquationOfState == 1 ) ? 0 :
+    alph_f*0.5*(vx*vx+vy*vy+vz*vz) + 
+    alph_f*cf*cf*og1 + alph_f*cf*vx - alph_s*ca*sbx*(betay*vy + betaz*vz) + 
+    (Gamma-2)*og1*alph_f*(cf*cf-aa*aa);
+  right[2][6] = alph_f*(vx + cf);
+  right[3][6] = alph_f*vy - alph_s*betay*ca*sbx;
+  right[4][6] = alph_f*vz - alph_s*betaz*ca*sbx;
+  right[5][6] = alph_s*betay*cf*sqrtDi;
+  right[6][6] = alph_s*betaz*cf*sqrtDi;
+
+}
+
 #ifdef Unsupported
 float AreaWrapper(int i,int j,int k,int dim, int rank, float dx ,float dy, float dz,float Normal[]);
 float VolumeWrapper(int i,int j,int k, int rank, float dx ,float dy, float dz,float Normal[]);
@@ -31,7 +276,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 				 int InitStyle, float Normal[])
   
 {
-
   //Every processor needs to know this for every grid,
   //WHETHER OR NOT IT HAS THE DATA.
 
@@ -672,253 +916,4 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   
 }
 
-float blaststyle(int i,int j, int k, int InitStyle, float BlastCenterLocal[], float Radius){
-  int which;
-  float iF ,jF,kF;
-  iF= (float) i + 0.5;
-  jF= (float) j + 0.5;
-  kF= (float) k + 0.5;
-  switch( InitStyle ){
-  case 0:
-    
-    if( (iF - BlastCenterLocal[0] )*(iF - BlastCenterLocal[0] )
-	+(jF - BlastCenterLocal[1] )*(jF - BlastCenterLocal[1] )
-	+(kF - BlastCenterLocal[2] )*(kF - BlastCenterLocal[2] ) >=
-	Radius*Radius){
-      
-      which = 0;
-      
-    }else{
-      which = 1;
-    }
-    
-    break;
-    
-  case 1:
-    
-    if( fabs(iF- BlastCenterLocal[0] ) >= Radius ) {
-      which = 0;
-    }else{
-      which = 1;
-    }     
-    break;
-    
-    
-  case 2:
-    
-    if( fabs(jF - BlastCenterLocal[1] ) >= Radius ) {
-      which = 0;
-    }else{
-      which = 1;
-    }     
-    break;
-    
-  case 3:
-    
-    if( fabs(kF - BlastCenterLocal[2] ) >= Radius ) {
-      which = 0;
-    }else{
-      which = 1;
-    }     
-    break;
-    
-  case 40:
-    
-    if( (kF - BlastCenterLocal[2] )*(kF - BlastCenterLocal[2] )
-	+(jF - BlastCenterLocal[1] )*(jF - BlastCenterLocal[1] )
-	>= Radius*Radius){
-      which = 0;
-    }else{
-      which = 1;
-    }     
-    break;
-    
-  case 41:
-    
-    if( (kF - BlastCenterLocal[2] )*(kF - BlastCenterLocal[2] )
-	+(iF - BlastCenterLocal[0] )*(iF - BlastCenterLocal[0] )
-	>= Radius*Radius){
-      which = 0;
-    }else{
-      which = 1;
-    }     
-    break;
-    
-  case 42:
-    
-    if( (iF - BlastCenterLocal[0] )*(iF - BlastCenterLocal[0] )
-	+(jF - BlastCenterLocal[1] )*(jF - BlastCenterLocal[1] )
-	>= Radius*Radius){
-      which = 0;
-    }else{
-      which = 1;
-    }     
-    break;
-    
-  default:
-    which = -1;
-    fprintf(stderr,"MHDBlast: Invalid Init Style %d\n",InitStyle);
-    break;
-
-  }//switch
-
-  return which;
-}//blaststyle
-
-void eigen( float d, float vx, float vy, float vz, 
-	    float bx, float by, float bz, float eng, 
-	    float right[][7])
-	    //, float Speeds[])
-{  
-  //Eigen vectors taken from Ryu & Jones, ApJ 442:228-258, 1995
-  //Normalization starting on p. 231.
-  float p;
-  float bp = 0.5*(bx*bx + by*by + bz*bz );
-  float sqrt2 = sqrt(2.0);
-  float sqrt2i= 1.0/sqrt2;
-  float sqrtD = sqrt(d);
-  float sqrtDi = 1.0/sqrtD;
-  float sbx  = sign(bx);
-  float og1  = 1.0/(Gamma - 1);
-
-#ifndef ATHENA
-   int  EquationOfState = 0 ;
-   float IsothermalSoundSpeed = 0;
-#endif
-
-  if( EquationOfState == 0 ){
-    p = (Gamma -1 ) * (eng - 0.5* d * (vx*vx + vy*vy + vz * vz ) - 0.5*(bx*bx + by*by + bz*bz));
-  }else{
-    p = IsothermalSoundSpeed*IsothermalSoundSpeed * d;
-  }
-  
-  //compute wave speeds
-  float aa;
-    if( EquationOfState == 0 ){
-    aa = sqrt( Gamma* p/d );
-  }else{
-    aa = IsothermalSoundSpeed;
-  }
-  float cs = sqrt( 0.5*( aa*aa + 2*bp/d - sqrt( pow( (aa*aa + 2*bp/d ),2) - 4* aa*aa*bx*bx/d ) ) );
-  float ca = sqrt( bx*bx/d ); 
-  float cf = sqrt( 0.5*( aa*aa + 2*bp/d + sqrt( pow( (aa*aa + 2*bp/d ),2) - 4* aa*aa*bx*bx/d ) ) );
-
-  /*
-    Speeds[0] =aa;
-    Speeds[1] =cs;
-    Speeds[2] =ca;
-    Speeds[3] =cf;
-  */
-  //compute ancilary values
-  //The normalization of alph_f may change. This normalization uses Ryu
-  //& Jones, but Balsara may be more robust.
-  float betay, betaz, alph_f, alph_s, bt;
-  
-  if( (by == 0.0) && (bz == 0.0) ){
-    betay = sqrt2i;
-    betaz = sqrt2i;
-    alph_f = 1;
-    alph_s = 1;
-  }else{
-    bt = sqrt( by*by + bz*bz );
-    betay = by/bt;
-    betaz = bz/bt;
-    alph_f = sqrt( (cf*cf-ca*ca)/(cf*cf-cs*cs) );
-    alph_s = sqrt( (cf*cf-aa*aa)/(cf*cf-cs*cs) );
-  }
-  
-  //the vectors
-  
-  //fast, left
-  right[0][0] = alph_f;
-  right[1][0] = (EquationOfState == 1 ) ? 0 :
-    alph_f*0.5*(vx*vx+vy*vy+vz*vz) + 
-    alph_f*cf*cf*og1 - alph_f*cf*vx + alph_s*ca*sbx*(betay*vy + betaz*vz) + 
-    (Gamma-2)*og1*alph_f*(cf*cf-aa*aa);
-  right[2][0] = alph_f*(vx - cf);
-  right[3][0] = alph_f*vy + alph_s*betay*ca*sbx;
-  right[4][0] = alph_f*vz + alph_s*betaz*ca*sbx;
-  right[5][0] = alph_s*betay*cf*sqrtDi;
-  right[6][0] = alph_s*betaz*cf*sqrtDi;
-  
-  //alfven][left
-  right[0][1] = 0;
-  right[1][1] = (EquationOfState == 1 ) ? 0 :
-    1*(betaz*vy - betay*vz)*sbx;
-  right[2][1] = 0;
-  right[3][1] =  1*betaz*sbx;
-  right[4][1] = -1*betay*sbx;
-  right[5][1] = betaz*sqrtDi;
-  right[6][1] = -betay*sqrtDi;
-
-  
-  //slow,left
-  right[0][2] = alph_s;
-  right[1][2] =  (EquationOfState == 1 ) ? 0 :
-    alph_s*0.5*(vx*vx+vy*vy+vz*vz) + 
-    alph_s*cs*cs*og1 - alph_s*cs*vx - alph_f*aa*sbx*(betay*vy + betaz*vz) +
-    (Gamma-2)*og1*alph_s*(cs*cs - aa*aa );
-  right[2][2] = alph_s*(vx-cs);
-  right[3][2] = alph_s*vy - alph_f*betay*aa*sbx;
-  right[4][2] = alph_s*vz - alph_f*betaz*aa*sbx;
-  right[5][2] = -alph_f*betay*aa*aa*sqrtDi/cf;
-  right[6][2] = -alph_f*betaz*aa*aa*sqrtDi/cf;
-  //right[4][2]*betaz/betay; Why was this here?
-  
-  //entropy (no entropy wave in isothermal MHD.)(Or hydro,for that matter)
-  if(EquationOfState == 1 ){
-    right[0][3] = 1;
-    right[1][3] = 0.5*(vx*vx+vy*vy+vz*vz);
-    right[2][3] = vx;
-    right[3][3] = vy;
-    right[4][3] = vz;
-    right[5][3] = 0;
-    right[6][3] = 0;
-  }else{
-    right[0][3] = 0;
-    right[1][3] = 0;
-    right[2][3] = 0;
-    right[3][3] = 0;
-    right[4][3] = 0;
-    right[5][3] = 0;
-    right[6][3] = 0;
-
-  }
-  
-  //slow,right
-  right[0][4] = alph_s;
-  right[1][4] = (EquationOfState == 1 ) ? 0 :
-    alph_s*0.5*(vx*vx+vy*vy+vz*vz) + 
-    alph_s*cs*cs*og1 + alph_s*cs*vx + alph_f*aa*sbx*(betay*vy + betaz*vz) +
-    (Gamma-2)*og1*alph_s*(cs*cs - aa*aa );
-  right[2][4] = alph_s*(vx+cs);
-  right[3][4] = alph_s*vy + alph_f*betay*aa*sbx;
-  right[4][4] = alph_s*vz + alph_f*betaz*aa*sbx;
-  right[5][4] = -alph_f*betay*aa*aa*sqrtDi/cf;
-  right[6][4] = -alph_f*betaz*aa*aa*sqrtDi/cf;
-  
-  //alfven,right
-  right[0][5] = 0;
-  right[1][5] = (EquationOfState == 1 ) ? 0 :
-    -1*(betaz*vy - betay*vz)*sbx;
-  right[2][5] = 0;
-  right[3][5] = -1*betaz*sbx;
-  right[4][5] = +1*betay*sbx;
-  right[5][5] = betaz*sqrtDi;
-  right[6][5] = -betay*sqrtDi;
-
-
-  //fast, right
-  right[0][6] = alph_f;
-  right[1][6] = (EquationOfState == 1 ) ? 0 :
-    alph_f*0.5*(vx*vx+vy*vy+vz*vz) + 
-    alph_f*cf*cf*og1 + alph_f*cf*vx - alph_s*ca*sbx*(betay*vy + betaz*vz) + 
-    (Gamma-2)*og1*alph_f*(cf*cf-aa*aa);
-  right[2][6] = alph_f*(vx + cf);
-  right[3][6] = alph_f*vy - alph_s*betay*ca*sbx;
-  right[4][6] = alph_f*vz - alph_s*betaz*ca*sbx;
-  right[5][6] = alph_s*betay*cf*sqrtDi;
-  right[6][6] = alph_s*betaz*cf*sqrtDi;
-
-}
 
