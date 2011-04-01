@@ -857,9 +857,9 @@ Gravity Parameters
     This flag (1 - on, 0 - off) indicates if the baryons and particles
     undergo self-gravity.
 ``GravitationalConstant`` (external)
-    This is the gravitational constant to be used. For cgs units it
+    This is the gravitational constant to be used in code units. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the
-    standard units to hold. Default: 4\*pi.
+    standard units to hold. A more detailed decription can be found at :ref:`EnzoInternalUnits`. Default: 4\*pi.
 ``GreensFunctionMaxNumber`` (external)
     The Green's functions for the gravitational potential depend on the
     grid size, so they are calculated on a as-needed basis. Since they
