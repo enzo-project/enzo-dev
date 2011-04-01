@@ -110,10 +110,7 @@ float grid::ComputeTimeStep()
     /* Compute the pressure. */
  
     float *pressure_field = new float[size];
-    if (DualEnergyFormalism)
-      result = this->ComputePressureDualEnergyFormalism(Time, pressure_field);
-    else
-      result = this->ComputePressure(Time, pressure_field);
+    result = this->ComputePressure(Time, pressure_field);
  
     if (result == FAIL) {
       fprintf(stderr, "Error in grid->ComputePressure.\n");

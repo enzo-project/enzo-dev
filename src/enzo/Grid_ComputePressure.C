@@ -105,17 +105,22 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 
       } else { 
       /* gas energy = E - 1/2 v^2. */
-	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-						velocity2*velocity2 +
-						velocity3*velocity3);
- 	if (HydroMethod == MHD_RK) {
-	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
-	    pow(BaryonField[B3Num][i],2);
-	  gas_energy -= OneHalf*B2/density;
-	}
-
+	if (DualEnergyFormalism == 0) 
+	  {
+	    gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
+						    velocity2*velocity2 +
+						    velocity3*velocity3);
+	    if (HydroMethod == MHD_RK) {
+	      float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
+		pow(BaryonField[B3Num][i],2);
+	      gas_energy -= OneHalf*B2/density;
+	    }
+	  
+	  } else
+	  gas_energy = BaryonField[GENum][i];
+	
 	pressure[i] = (Gamma - 1.0)*density*gas_energy;
- 
+	
 	if (pressure[i] < tiny_number)
 	  pressure[i] = tiny_number;
       }
@@ -149,15 +154,20 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 
       } else {
       /* gas energy = E - 1/2 v^2. */
-	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-						velocity2*velocity2 +
-						velocity3*velocity3);
+	if (DualEnergyFormalism == 0) 
+	  {
+	    gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
+						    velocity2*velocity2 +
+						    velocity3*velocity3);
 	
-	if (HydroMethod == MHD_RK) {
-	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
-	    pow(BaryonField[B3Num][i],2);
-	  gas_energy -= OneHalf*B2/density;
-	}
+	    if (HydroMethod == MHD_RK) {
+	      float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
+		pow(BaryonField[B3Num][i],2);
+	      gas_energy -= OneHalf*B2/density;
+	    }
+	  } else 
+	  gas_energy =  coef   *   BaryonField[GENum][i] +
+                        coefold*OldBaryonField[GENum][i];
 	
 	pressure[i] = (Gamma - 1.0)*density*gas_energy;
 	

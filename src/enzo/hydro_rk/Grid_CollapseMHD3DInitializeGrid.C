@@ -117,9 +117,9 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
   if (WritePotential) {
     FieldType[NumberOfBaryonFields++] = GravPotential;
-    FieldType[NumberOfBaryonFields++] = AccelerationField1;
-    FieldType[NumberOfBaryonFields++] = AccelerationField2;
-    FieldType[NumberOfBaryonFields++] = AccelerationField3;
+    //    FieldType[NumberOfBaryonFields++] = AccelerationField1;
+    //    FieldType[NumberOfBaryonFields++] = AccelerationField2;
+    //    FieldType[NumberOfBaryonFields++] = AccelerationField3;
   }
 
   FieldType[NumberOfBaryonFields++] = DebugField;
@@ -314,7 +314,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	      // to avoid discontinuities at the sphere boundaries
 	      eint = pow(cs_sphere[sphere], 2)/(Gamma-1.0)/m2mode;
 	      float p, cs, h, dpdrho, dpde;
-	      p = pow(cs_sphere[sphere], 2)*rho;
+	      p = pow(cs_sphere[sphere], 2)*rho/Gamma;
 	      EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1); 
 	      // for the B-field we put it along x to slow the 
 	      // collapse along the z direction

@@ -3,7 +3,7 @@ c=======================================================================
 c///////////////////////  SUBROUTINE EXPAND_TERMS  \\\\\\\\\\\\\\\\\\\\\
 c
       subroutine expand_terms(rank, isize, idual, coef, imethod, gamma,
-     &                        p, pdual, d, e, ge, u, v, w,
+     &                        p, d, e, ge, u, v, w,
      &                        dold, eold, geold, uold, vold, wold)
 c
 c  ADDS THE COMOVING EXPANSION TERMS TO THE PHYSICAL VARIABLES
@@ -21,7 +21,6 @@ c    idual   - dual energy flag (1 = on, 0 = off)
 c    coef    - coefficent (dt * adot / a)
 c    d       - density field
 c    p       - pressure field (from total energy - 0.5v^2)
-c    pdual   - pressure field (from gas energy, if available)
 c    e,ge    - total energy and gas energy (specific)
 c    u,v,w   - velocities
 c
@@ -39,7 +38,7 @@ c
       integer isize, idual, imethod, rank
       real    gamma, coef
       real    d(isize), p(isize), e(isize), ge(isize),
-     &        u(isize), v(isize), w(isize), pdual(isize)
+     &        u(isize), v(isize), w(isize)
       real    dold(isize), eold(isize), geold(isize),
      &        uold(isize), vold(isize), wold(isize)
 c
@@ -64,19 +63,19 @@ c
       if (idual .eq. 1) then
          do i = 1, isize
 #ifdef ENERGY_METHOD1
-            ge(i) = max(ge(i) - coef*6.0*pdual(i)/(d(i) + dold(i)),
+            ge(i) = max(ge(i) - coef*6.0*p(i)/(d(i) + dold(i)),
      &                  0.5*ge(i))
 #endif /* ENERGY_METHOD1 */
 #ifdef ENERGY_METHOD2
-            ge(i) = max(ge(i) - coef*3.0*pdual(i)/d(i), 0.5*ge(i))
+            ge(i) = max(ge(i) - coef*3.0*p(i)/d(i), 0.5*ge(i))
 #endif /* ENERGY_METHOD2 */
 #ifdef ENERGY_METHOD3
             ge(i) = ge(i)*(1.0-coef)/(1.0+coef)
-c            if (ge(i)-coef*(3.0-2.0/(gamma-1.0))*pdual(i)/d(i).le.0)
+c            if (ge(i)-coef*(3.0-2.0/(gamma-1.0))*p(i)/d(i).le.0)
 c     &         write(6,*) 'get:',i,ge(i),p(i),d(i)
 c
 c  this line should be there if gamma != 5/3:
-c            ge(i) = ge(i) - coef*(3.0 - 2.0/(gamma-1.0))*pdual(i)/d(i)
+c            ge(i) = ge(i) - coef*(3.0 - 2.0/(gamma-1.0))*p(i)/d(i)
 c
 #endif /* ENERGY_METHOD3 */
          enddo

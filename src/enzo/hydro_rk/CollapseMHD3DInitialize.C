@@ -424,9 +424,9 @@ int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr,
   
   if (WritePotential) {
     DataLabel[count++] = (char*) GravPotenName;
-    DataLabel[count++] = (char*) Acce1Name;
-    DataLabel[count++] = (char*) Acce2Name;
-    DataLabel[count++] = (char*) Acce3Name;
+    //    DataLabel[count++] = (char*) Acce1Name;
+    //    DataLabel[count++] = (char*) Acce2Name;
+    //    DataLabel[count++] = (char*) Acce3Name;
   }
   
   DataLabel[count++] = (char*) DebugName;
