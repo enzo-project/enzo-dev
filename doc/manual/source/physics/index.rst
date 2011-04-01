@@ -8,6 +8,5 @@ physics modules.
    :maxdepth: 2
    
    star_particles.rst
-
    hydro_methods.rst
 
