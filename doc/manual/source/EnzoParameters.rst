@@ -1169,27 +1169,24 @@ For details on each of the different star formation methods available in Enzo se
     
     ::
 
-	1 - Cen & Ostriker (1992), without the Jeans mass restriction
-	2 - Kravstov et al. (2003)
+	0 - Cen & Ostriker (1992)
+	1 - Cen & Ostriker (1992) with stocastic star formation
+	2 - Global Schmidt Law / Kravstov et al. (2003)
 	3 - Population III stars / Abel, Wise & Bryan (2007)
 	4 - Sink particles: Pure sink particle or star particle with wind feedback depending on 
 	    choice for HydroMethod / Wang et al. (2009)
-	5 - Star clusters that are Jeans resolved / Wise & Cen (2009)
-	6 - [ reserved ]
-	7 - Cen & Ostriker (1992) - 
-	    	(1) without the Jeans mass restriction, 
-	    	(2) without dt dependence in stellar mass formed and 
-		(3) without stochastic star formation / Kim, Wise & Abel (2009)
+	5 - Radiative star clusters  / Wise & Cen (2009)
+	6 - [reserved]
+	7 - Cen & Ostriker (1992) with no delay in formation
 	8 - Springel & Hernquist (2003)
-	9 - Massive Black Hole (MBH) particles insertion by hand 
-	    (automatically turned off once all the particles are inserted) / Kim et al. (2010)
+	9 - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
 	10 - Population III stellar tracers  
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
     is valid for Methods 0, 1, 2, 7 and 8 because methods 3, 5 and 9
     use the radiation transport module and ``Star_*.C`` routines to
-    calculate the feedback. Default: 0.
+    calculate the feedback, 4 has explicit feedback and 10 does not use feedback. Default: 0.
 
 ``StarFeedbackDistRadius`` (external)
     If this parameter is greater than zero, stellar feedback will be
@@ -1213,21 +1210,21 @@ Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method
-0, 1, 2, 7 and 8.
+1, 2, 7 and 8.
 
 ``StarMakerOverDensityThreshold`` (external)
-    The overdensity threshold (relative to the total mean density, not
+    The overdensity threshold (for cosmological simulations, this is relative to the total mean density, not
     just the dark matter mean density) before star formation will be
-    considered. For ``StarParticleCreation`` method 7 in "cosmological"
-    simulations, however, ``StarMakerOverDensity`` should be in
+    considered. For ``StarParticleCreation`` method 7 in cosmological
+    simulations, however, ``StarMakerOverDensityThreshold`` should be in
     particles/cc, so it is not the ratio with respect to the
     ``DensityUnits`` (unlike most other
-    star_maker's). This way one correctly represents the Jeans
+    star_makers). This way one correctly represents the Jeans
     collapse and molecular cloud scale physics even in cosmological
     simulations. Default: 100
 ``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
-    formation (\\rho_{th} in the paper) used to determine the star
+    formation ( \\rho_{th} in the paper) used to determine the star
     formation timescale in units of g cm\ :sup:`-3`\ . Default: 7e-26.
 ``StarMakerMassEfficiency`` (external)
     The fraction of identified baryonic mass in a cell
