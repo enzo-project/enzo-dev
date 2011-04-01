@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CALC_RATES  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -183,10 +184,10 @@ c
      &           iphoto_mol = 0)
 
       double precision everg, evhz, tevk, mh, pi, tiny_cgs, dhuge, kb
-      parameter (everg = 1.60184d-12, evhz  = 2.41838d+14, 
-     &           tevk = 1.1605d+4, mh = 1.67d-24, pi=3.14159d0,
-     &           tiny_cgs = 1.0d-37, dhuge = 1.0d+30,
-     &           kb = 1.380658d-16)
+      parameter (everg = ev2erg, evhz  = 2.41838d+14, 
+     &           tevk = 1.1605d+4, mh = mass_h, 
+     &           pi=pi_val, tiny_cgs = 1.0d-37, 
+     &           dhuge = 1.0d+30, kb = kboltz)
 
 c
 c         Set various cutoff values in eV.
@@ -738,10 +739,11 @@ c
            dum = 1.4d-13*exp((ttt/125.) - (ttt/577.)**2)
         endif
         hyd01ka(i) = dum*exp(-min(log(dhuge),
-     &                            8.152d-13/(1.38d-16*ttt) )) 
+     &                            8.152d-13/(kboltz*ttt) )) 
      &               / coolunit
 c
-        dum = 8.152d-13*(4.2/(1.38d-16*(ttt+1190))+1./(1.38d-16*ttt))
+        dum = 8.152d-13*(4.2/(kboltz*(ttt+1190)) +
+     &       1./(kboltz*ttt))
         h2k01a(i) = 1.45d-12*sqrt(ttt)*exp(-min(log(dhuge),dum)) 
      &              / coolunit
 c

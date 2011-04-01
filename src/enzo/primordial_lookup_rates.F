@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c
 c -----------------------------------------------------------
 c This routine uses the temperature to look up the chemical
@@ -72,7 +73,7 @@ c
 c     Parameters
 c
       double precision everg, e24, e26, temp
-      parameter(everg = 1.60184d-12, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
 c
 c     locals
 c

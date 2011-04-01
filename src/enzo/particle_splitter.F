@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 c
 c=======================================================================
@@ -98,7 +99,7 @@ c
       real    l11, l12, l13
       real    l21, l22, l23
       real    l31, l32, l33      
-      parameter (pi=3.14159265)
+      parameter (pi=pi_val)
 c
 c-----------------------------------------------------------------------
 c

@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -54,7 +56,6 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -77,7 +78,7 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
   !--------------
   ! locals
   integer :: i, j, k
-  real    :: mp, eV2ergs, HIconst, HeIconst, HeIIconst
+  real    :: mp, HIconst, HeIconst, HeIIconst
   real    :: rhoval, Tval
 
   !=======================================================================
@@ -89,8 +90,7 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
   ier = 1
 
   ! set shortcut values
-  eV2ergs = 1.60217733d-12       ! coversion factor from eV to ergs
-  mp = 1.67262171d-24            ! mass of a proton [g]
+  mp = mass_h                    ! mass of a proton [g]
 
   ! compute opacity shortcuts
   HIconst   = IsEsHI/IsE

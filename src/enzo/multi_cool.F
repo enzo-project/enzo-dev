@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 !=======================================================================
@@ -112,7 +113,7 @@
 #endif
 
       double precision mh
-      parameter (mh = 1.67d-24)
+      parameter (mh = mass_h)
 
 !  Locals
 

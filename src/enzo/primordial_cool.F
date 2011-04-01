@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE COOL1D_MULTI  \\\\\\\\\\\\\\\\\\\\\\
 c
@@ -90,7 +91,7 @@ c  Parameters
 c
       double precision mh
       real    ZSOLAR
-      parameter (mh = 1.67d-24, ZSOLAR = 0.02041)
+      parameter (mh = mass_h, ZSOLAR = 0.02041)
 c
 c  Locals
 c

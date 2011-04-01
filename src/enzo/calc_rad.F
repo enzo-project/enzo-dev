@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE CALC_RAD  \\\\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -86,7 +87,7 @@ c
 c
 c  Parameters
 c
-      real    EV2HZ, EV2ERG, PI
+      real    EV2HZ, PI
 c
 c  Locals
 c
@@ -101,7 +102,6 @@ c     FIRST, DEFINE SOME CONSTANTS
 c
       PI        = 4.0*ATAN(1.0)
       EV2HZ     = 2.415E14       ! from eV to Hz
-      EV2ERG    = 1.6E-12        ! from eV to erg
 c
 c     Set the timestep in seconds
 c
@@ -111,12 +111,12 @@ C     FREE-FREE EMISSION COEFFICIENT IN UNITS OF
 C     1E-21 erg/cm^3/sec/hz/sr * cm/sec
 C     SEE SPITZER "Physical Processes in the Interstellar Medium" PAGE 57
 C
-      UFF       = 1.3*5.44E-18*3.E10
+      UFF       = 1.3*5.44E-18*c_light
 C
 C     FREE-BOUND EMISSION COEFFICIENT IN UNITS OF
 C     1E-21 erg/cm^3/sec/hz/sr * cm/sec
 C
-      UFB       = 3.66E-4*3.E10
+      UFB       = 3.66E-4*c_light
 C     
 C     COEFICIENT FOR THE MASS BURNING STARS PRODUCING UV 
 C     RADIATION RATE IN UNITS 1.0E-21 erg/cm^2/sec/sr
@@ -158,7 +158,7 @@ c
             IF(FNU.GE.13.6) THEN
               SUB2=EXP(-MIN(50.,1.16E4*(FNU-13.6)/TEMP))
      .            /TEMP/SQRT(TEMP)
-     .            *SQRT((FNU-13.6)*EV2ERG)
+     .            *SQRT((FNU-13.6)*ev2erg)
             ELSE 
               SUB2=0.
             ENDIF
@@ -168,7 +168,7 @@ c
             IF(FNU.GE.24.6) THEN
               SUB3=EXP(-MIN(50.,1.16E4*(FNU-24.6)/TEMP))
      .            /TEMP/SQRT(TEMP)
-     .            *SQRT((FNU-24.6)*EV2ERG)
+     .            *SQRT((FNU-24.6)*ev2erg)
             ELSE 
               SUB3=0.
             ENDIF
@@ -178,7 +178,7 @@ c
             IF(FNU.GE.54.4) THEN
               SUB4=EXP(-MIN(50.,1.16E4*(FNU-54.4)/TEMP))
      .            /TEMP/SQRT(TEMP)
-     .            *SQRT((FNU-54.4)*EV2ERG)
+     .            *SQRT((FNU-54.4)*ev2erg)
             ELSE 
               SUB4=0.
             ENDIF
@@ -195,17 +195,17 @@ c
 c                          2) free-bound (HI, HeI, HeII)
 c
      .                          + UFB*DSH2(N22)*SUB2
-     .                           *FNU*EV2ERG
+     .                           *FNU*ev2erg
      .                           *6.63E-11/SQRT(TEMP) 
      .                            /(TEMP/1.E3)**0.2
      .                            /(1.+(TEMP/1.E6)**0.7)
 C
      .                          + UFB*DSHE2(N22)*SUB3
-     .                           *FNU*EV2ERG
+     .                           *FNU*ev2erg
      .                            *1.50E-10/TEMP**0.6353
 C
      .                          + UFB*DSHE3(N22)*SUB4
-     .                           *FNU*EV2ERG
+     .                           *FNU*ev2erg
      .                            *2.65E-10/SQRT(TEMP)
      .                            /(TEMP/1.E3)**0.2
      .                            /(1.+(TEMP/1.E6)**0.7)
@@ -255,7 +255,7 @@ c                  Emissivity from quasars
 c
      .             +SPSTAR2(N11)*JUSTBURN*COEFUV2
 
-     .             )/(1.0+3.E10*FKAPA*DTST)
+     .             )/(1.0+c_light*FKAPA*DTST)
 c
 c        Save the various emissivitivies
 c
@@ -268,16 +268,16 @@ c
          INUG(N11) = ((INUG(NUPP)*(ETA-NSHFT)
      .              +INUG(NLOW)*(1.0-ETA+NSHFT))*DELTAOA**3
      .              +JNUG(N11)*DTST
-     .               )/(1.0+3.E10*FKAPA*DTST)
+     .               )/(1.0+c_light*FKAPA*DTST)
          INUS(N11) =((INUS(NUPP)*(ETA-NSHFT)
      .              +INUS(NLOW)*(1.0-ETA+NSHFT))*DELTAOA**3
      .              +SPSTAR1(N11)*JUSTBURN*COEFUV1
-     .              )/(1.0+3.E10*FKAPA*DTST)
+     .              )/(1.0+c_light*FKAPA*DTST)
 C
          INUQ(N11) =((INUQ(NUPP)*(ETA-NSHFT)
      .              +INUQ(NLOW)*(1.0-ETA+NSHFT))*DELTAOA**3
      .              +SPSTAR2(N11)*JUSTBURN*COEFUV2
-     .              )/(1.0+3.E10*FKAPA*DTST)
+     .              )/(1.0+c_light*FKAPA*DTST)
 C
       ENDDO
 c

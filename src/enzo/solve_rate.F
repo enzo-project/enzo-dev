@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -82,7 +83,7 @@ c
 #endif
 
       double precision everg, mh, e24, e26
-      parameter (everg = 1.60184d-12, mh = 1.67d-24,
+      parameter (everg = ev2erg, mh = mass_h,
      &           e24 = 13.6d0, e26 = 24.6d0)            ! DPC
 c
 c  Locals

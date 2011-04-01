@@ -991,6 +991,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/HydroSweepZ.o \
         hydro_rk/LLF_PLM.o \
         hydro_rk/LLF_Zero.o \
+        hydro_rk/LLF_Zero_MHD.o \
         hydro_rk/Rec_PLM.o \
         hydro_rk/Rec_ConsPLM.o \
         hydro_rk/Rec_PPM.o \

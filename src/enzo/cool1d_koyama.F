@@ -1,5 +1,5 @@
-
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c////////////////////////  SUBROUTINE cool1d_koyama  \\\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -30,7 +30,7 @@ c
       parameter (pmin = tiny)
       double precision mh
 
-      parameter (mh = 1.67262d-24)  ! DPC
+      parameter (mh = mass_h)  ! DPC
 
 c
 c  Locals
@@ -41,8 +41,7 @@ c
 c  Slice locals
 c 
       real p2d(in), tgas(in), tgasold(in), cool(in)
-      real edot(in), kboltz, Lambda, Heating
-      parameter ( kboltz = 1.30865d-16 ) !erg / Kelvin
+      real edot(in), Lambda, Heating
 
 c
 c     Note that the temperature definition here is slightly different

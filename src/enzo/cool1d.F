@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c////////////////////////  SUBROUTINE COOL2D  \\\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -47,7 +48,7 @@ c
       parameter (pmin = tiny)
       double precision mh
 
-      parameter (mh = 1.67d-24)  ! DPC
+      parameter (mh = mass_h)  ! DPC
 
 c
 c  Locals

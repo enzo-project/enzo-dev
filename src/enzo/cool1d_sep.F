@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE COOL1D_SEP  \\\\\\\\\\\\\\\\\\\\\\
 c
@@ -82,7 +83,7 @@ c  Parameters
 c
       double precision mh
       real    ZSOLAR
-      parameter (mh = 1.67d-24, ZSOLAR = 0.02041)
+      parameter (mh = mass_h, ZSOLAR = 0.02041)
 c
 c  Locals
 c
@@ -598,8 +599,8 @@ c
 c        Convert to 10^{-21} erg/cm^2/s
 c
             do i=1, NIB-1
-               radt(i) = inutot(i)*4.0*3.14159*(eb(i+1)-eb(i))
-     &                   *(1.2e11/6.625)
+               radt(i) = inutot(i)*4.0*pi_val
+     &                   *(eb(i+1)-eb(i))*(1.2e11/6.625)
             enddo
          else
             do i=1, NIB-1

@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 !=======================================================================
@@ -106,7 +107,7 @@
 
       double precision mh
       real    ZSOLAR, mu_metal
-      parameter (mh = 1.67d-24)      !DPC
+      parameter (mh = mass_h)      !DPC
       parameter (ZSOLAR = 0.02041)
       parameter (mu_metal = 16.0)    ! approx. mean molecular weight of metals
 
@@ -683,7 +684,7 @@ c  new (correct) way: (april 4, 2007)
 
       if (iradtrans .eq. 1) then
 c     for radiative transfer, convert from eV/s*TimeUnits to the coolunits use
-         rtunits = 1.60217646e-12/utim/coolunit/dom
+         rtunits = ev2erg/utim/coolunit/dom
          do i = is+1, ie+1
             if (itmask(i)) then
                edot(i) = edot(i) + float(ipiht) * photogamma(i,j,k) * 
@@ -837,8 +838,8 @@ c
 !        Convert to 10^{-21} erg/cm^2/s
 
             do i=1, NIB-1
-               radt(i) = inutot(i)*4.0*3.14159*(eb(i+1)-eb(i))
-     &                   *(1.2e11/6.625)
+               radt(i) = inutot(i)*4.0*pi_val
+     &                   *(eb(i+1)-eb(i))*(1.2e11/6.625)
             enddo
 
          else

@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -49,7 +50,7 @@ c
 c
 c  Parameters
 c
-      real    EV2HZ, EV2ERG, PI
+      real    EV2HZ, PI
 c
 c  Locals
 c
@@ -64,9 +65,8 @@ c=======================================================================
 c
 c     Set some cosntants
 c
-      PI        = 4.*ATAN(1.)
+      PI        = pi_val
       EV2HZ     = 2.415E14 
-      EV2ERG    = 1.6E-12
 C
 c-----------------------------------------------------------------------
 C     CREATE THE CROSS SECTIONS
@@ -202,7 +202,8 @@ C     BLACK BODY TEMPERATURE IN eV
       RAT     = 0.3
       FLAMRAT = 5450.0
 c     h\nu IN eV
-      FNURAT  = 6.625e-27*3.e10/(FLAMRAT*1.e-8)/(1.6e-12)
+      FNURAT  = hplanck*c_light/(FLAMRAT*1.e-8)/
+     &     ev2erg
 c
       ALA     = -1.3
 c

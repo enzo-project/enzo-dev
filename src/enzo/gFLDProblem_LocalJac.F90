@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -111,7 +113,6 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -410,7 +411,6 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -465,7 +465,6 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   real :: dG_dEr, dG_dHI, dG_dHeI, dG_dHeII
   real :: dLambda_dec, dLambda_dHI, dLambda_dHeI, dLambda_dHeII
   real :: G_HI, dGHI_dEr, G_HeI, dGHeI_dEr, G_HeII, dGHeII_dEr
-  real :: ev2erg
 
   !=======================================================================
 
@@ -516,13 +515,12 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
   ! initialize constants
   aval = a*aunits
-  pi = 4.D0*datan(1.D0)
+  pi = pi_val
   afac = adot/a                ! adot/a
-  mp = 1.67262171d-24          ! mass of a proton [g]
-  c  = 2.99792458d10           ! speed of light    [cm/s]
-  hp = 6.6260693d-27           ! Planck's constant [ergs*s]
-  kb = 1.3806504e-16           ! boltzmann constant [erg/K]
-  ev2erg = 1.60219e-12         ! conversion constant from eV to ergs
+  mp = mass_h                  ! mass of a proton [g]
+  c  = c_light                 ! speed of light    [cm/s]
+  hp = hplanck                 ! Planck's constant [ergs*s]
+  kb = kboltz                  ! boltzmann constant [erg/K]
   StBz  = 5.6704d-5            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   min_temp = 1.d-1             ! minimum temperature [K]
   nu0_HI = 13.6*ev2erg/hp      ! ionization frequency of HI
@@ -1062,7 +1060,6 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -1116,7 +1113,6 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   real :: dG_dEr, dG_dHI, dG_dHeI, dG_dHeII
   real :: dLambda_dec, dLambda_dHI, dLambda_dHeI, dLambda_dHeII
   real :: G_HI, dGHI_dEr, G_HeI, dGHeI_dEr, G_HeII, dGHeII_dEr
-  real :: ev2erg
 
   !=======================================================================
 
@@ -1167,13 +1163,12 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
 
   ! initialize constants
   aval = a*aunits
-  pi = 4.D0*datan(1.D0)
+  pi = pi_val
   afac = adot/a                ! adot/a
-  ev2erg = 1.60219e-12         ! conversion constant from eV to ergs
-  mp = 1.67262171d-24          ! mass of a proton [g]
-  c  = 2.99792458d10           ! speed of light    [cm/s]
-  hp = 6.6260693d-27           ! Planck's constant [ergs*s]
-  kb = 1.3806504e-16           ! boltzmann constant [erg/K]
+  mp = mass_h                  ! mass of a proton [g]
+  c  = c_light                 ! speed of light    [cm/s]
+  hp = hplanck                 ! Planck's constant [ergs*s]
+  kb = kboltz                  ! boltzmann constant [erg/K]
   StBz  = 5.6704d-5            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   min_temp = 1.d-1             ! minimum temperature [K]
   alpha = -0.4910454d0         ! exponent in emissivity fitting
@@ -1656,7 +1651,6 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -1719,10 +1713,10 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
   ! initialize constants
   afac = adot/a        ! adot/a
-  mp = 1.67262171d-24  ! mass of a proton [g]
-  c  = 2.99792458d10   ! speed of light [cm/s]
-  hp = 6.6260693d-27   ! Planck's constant [ergs*s]
-  kb = 1.3806504e-16   ! boltzmann constant [erg/K]
+  mp = mass_h          ! mass of a proton [g]
+  c  = c_light         ! speed of light [cm/s]
+  hp = hplanck         ! Planck's constant [ergs*s]
+  kb = kboltz          ! boltzmann constant [erg/K]
   StBz  = 5.6704d-5    ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   min_temp = 1.d-1     ! minimum temperature [K]
   mol_weight = 0.6d0   ! mean molecular mass
@@ -1864,7 +1858,6 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -1914,7 +1907,7 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
 
   ! initialize constants
-  c  = 2.99792458d10   ! speed of light [cm/s]
+  c  = c_light         ! speed of light [cm/s]
   afac = adot/a        ! adot/a
   grey = 1.d0
   if (ESpectrum == -1)  grey = 0.d0
@@ -2016,7 +2009,6 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -2042,7 +2034,7 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   real :: T, dT_dec, min_temp, mol_weight
   real :: pi, c, hp, kb, rc, StBz, eint, Er, rho, afac, grey, mp, KEconst
   real :: kappaP, dkappaP_dec, kappaE, dkappaE_dec
-  real :: eta, deta_dec, Cv, ev2erg
+  real :: eta, deta_dec, Cv
 
   !=======================================================================
 
@@ -2056,19 +2048,18 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
 
 
   ! initialize constants
-  pi = 4.D0*datan(1.D0)
+  pi = pi_val
   afac = adot/a                      ! adot/a
-  mp = 1.67262171d-24                ! mass of a proton [g]
-  c  = 2.99792458d10                 ! speed of light    [cm/s]
-  hp = 6.6260693d-27                 ! Planck's constant [ergs*s]
-  kb = 1.3806504e-16                 ! boltzmann constant [erg/K]
+  mp = mass_h                        ! mass of a proton [g]
+  c  = c_light                       ! speed of light    [cm/s]
+  hp = hplanck                       ! Planck's constant [ergs*s]
+  kb = kboltz                        ! boltzmann constant [erg/K]
   rc = 7.56e-15                      ! radiation constant [erg/cm^3/K^4]
   StBz  = 5.6704d-5                  ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   min_temp = 1.d-1                   ! minimum temperature [K]
-  ev2erg = 1.60219e-12               ! conversion constant from eV to ergs
-  Cv    = 2.218056e12 * kb / ev2erg  ! used for problem 205
+  Cv    = 2.218056d12 * kb / ev2erg  ! used for problem 205
   if (ProbType == 405) then
-     mol_weight = 1.60219d-12/(gamma-1.0)/2.218056d12/mp  ! mean molecular mass
+     mol_weight = ev2erg/(gamma-1.d0)/2.218056d12/mp  ! mean molecular mass
   else if (ProbType == 404) then
      mol_weight = 0.5d0
   else

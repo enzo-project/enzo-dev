@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -81,7 +83,6 @@ subroutine FSProb_SetupSystem(mat, rhs, rhsnorm, E, E0, kappa_h2on,       &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -151,7 +152,6 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
 !
 !  PURPOSE: 3D version of the routine
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -190,7 +190,7 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   dtfac0 = dt*(1.d0-theta)   ! time step conversion factor
   afac   = adot/a            ! expansion factor (new time)
   afac0  = adot0/a0          ! expansion factor (old time)
-  c      = 2.99792458d10     ! speed of light [cm/s]
+  c      = c_light           ! speed of light [cm/s]
   dxi    = a/dx/lUn
   dyi    = a/dy/lUn
   dzi    = a/dz/lUn
@@ -467,7 +467,6 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
 !
 !  PURPOSE: 2D version of the routine
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -504,7 +503,7 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   dtfac0 = dt*(1.d0-theta)   ! time step conversion factor
   afac   = adot/a            ! expansion factor (new time)
   afac0  = adot0/a0          ! expansion factor (old time)
-  c      = 2.99792458d10     ! speed of light [cm/s]
+  c      = c_light           ! speed of light [cm/s]
   dxi    = a/dx/lUn
   dyi    = a/dy/lUn
   dxi0   = a0/dx/lUn0
@@ -690,7 +689,6 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
 !
 !  PURPOSE: 1D version of the routine
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -726,7 +724,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   dtfac0 = dt*(1.d0-theta)   ! time step conversion factor
   afac   = adot/a            ! expansion factor (new time)
   afac0  = adot0/a0          ! expansion factor (old time)
-  c      = 2.99792458d10     ! speed of light [cm/s]
+  c      = c_light           ! speed of light [cm/s]
   dxi    = a/dx/lUn
   dxi0   = a0/dx/lUn0
   eps    = 1.d-12
