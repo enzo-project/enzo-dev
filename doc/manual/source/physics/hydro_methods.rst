@@ -19,7 +19,7 @@ Associated parameters:
 ``PPMFlatteningParameter``;
 
 ``PPMSteepeningParamter``;
-HELLLLLO
+
 .. [Ref I] P. R. Woodward and P. Colella. "A piecewise parabolic method
    for gas dynamical simulations," *J. Comp. Phys*, 54:174, 1984 `link
    <https://seesar.lbl.gov/anag/publications/colella/A_1_4_1984.pdf>`__
