@@ -92,10 +92,46 @@ Method 10: Population III stellar tracers
 -----------------------------------------
 *Source: pop3_color_maker.F*
 
-Mergers
---------
+.. _distributed_feedback:
 
+Distributed Stellar Feedback
+----------------------------
 
+The following applies to Methods 2 (Cen & Ostriker) and 3 (+
+stochastic star formation).
+
+The stellar feedback can be evenly distributed over the neighboring
+cells if ``StarFeedbackDistRadius`` > 0.  The cells are within a cube
+with a side ``StarFeedbackDistRadius+1``.  This cube can be cropped to
+the cells that are ``StarFeedbackDistCellStep`` cells away from the
+center cell, counted only in steps in Cartesian directions.  Below we
+show two examples with 
+
+* ``StarFeedbackDistRadius = 1``
+
+.. figure:: dist-feedback1.png
+   :align: center
+   :scale: 70%
+   :alt: Distributed feedback with radius 1
+
+   The cells are labeled with the distance D\ :sub:`cell` away from
+   the central cell.  Only cells with D\ :sub:`cell` <=
+   ``StarFeedbackDistCellStep`` have feedback applied to them.
+
+* ``StarFeedbackDistRadius = 2``
+
+.. figure:: dist-feedback2.png
+   :align: center
+   :scale: 70%
+   :alt: Distributed feedback with radius 2
+
+   Same as the figure above but with a radius of 2.
+
+Feedback regions cannot extend past the host grid boundaries and are
+cropped if the radius exceeds the distance between the boundary and
+star particle.
+
+Also see :ref:`StarParticleParameters`.
 
 Notes
 ------------------------

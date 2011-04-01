@@ -1190,6 +1190,23 @@ Star Formation and Feedback Parameters
     use the radiation transport module and ``Star_*.C`` routines to
     calculate the feedback. Default: 0.
 
+``StarFeedbackDistRadius`` (external)
+    If this parameter is greater than zero, stellar feedback will be
+    deposited into the host cell and neighboring cells within this
+    radius.  This results in feedback being distributed to a cube with
+    a side of ``StarFeedbackDistRadius+1``. It is in units of cell
+    widths of the finest grid which hosts the star particle.  Only
+    implemented for StarFeedbackCreation = 2 or 3.  Default: 0.
+
+``StarFeedbackDistCellStep`` (external)
+    In essence, this parameter controls the shape of the volume where
+    the feedback is applied, cropping the original cube.  This volume
+    that are within ``StarFeedbackDistCellSteps`` cells from the host
+    cell, counted in steps in Cartesian directions, are injected with
+    stellar feedback.  Only implemented for StarFeedbackCreation = 2
+    or 3.  See :ref:`distributed_feedback` for an illustration.
+    Default: 0.
+
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
 
