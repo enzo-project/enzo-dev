@@ -1645,15 +1645,15 @@ int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
 int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 // AccelerationHack
 
@@ -1730,6 +1730,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                float SedovBlastInnerTotalEnergy);
 
   int SedovBlastInitializeGrid3D(char * fname);
+
+  int SedovBlastInitializeGrid3DFixedR(float dr);
+
 
 /* Initialize a grid for RadiatingShock (Sedov+Cooling) Explosion */
 
@@ -2153,7 +2156,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
      TurbulenceSimulationRandomForcingNames, \
      TurbulenceSimulationSubgridsAreStatic, \
      TotalRefinement
-
 
  int TurbulenceSimulationInitializeGrid(TURBULENCE_INIT_PARAMETERS_DECL);
  int ComputeRandomForcingFields(int mode);
@@ -2647,6 +2649,65 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int AddResistivity();
   int ComputeResistivity(float *resistivity, int DensNum);
   /* END OF NEW STANFORD HYDRO/MHD ROUTINES */
+
+#ifdef MHDCT
+
+  //Variables
+    //CenteredB is used in the Riemann solver (SolveMHDequations) and the timestep (dtMagnetic)
+  //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
+  //CT style algorithm.
+
+  float *MagneticField[3]; 
+  float *CenteredB[3]; 
+  float *ElectricField[3];
+  float *AvgElectricField[3];
+  float *OldMagneticField[3];
+  float *OldElectricField[3];
+  float *OldCenteredB[3];
+  float *OldAccelerationField[3];
+
+  //Magnetic dimensions: MagneticDims[field][axis]
+  int MagneticDims[3][3], ElectricDims[3][3];
+  int MHDStartIndex[3][3], MHDEndIndex[3][3];//For the MagneticField
+  int MHDeStartIndex[3][3], MHDeEndIndex[3][3];//Electric Field
+  int MHDAdd[3][3]; //How much to add to Barryon Dimensions.  MHDAdd[i][j]=KronikerDelta(i,j)
+  int MagneticSize[3];
+  int ElectricSize[3];
+
+  float dtParent; //used for the Electric Field update.
+
+  //MHDParentTemp is used for the interpolation.
+  //It's a member of the grid class because it's also used in CopyZonesFromGrid,
+  //for the prolongation (see Balsara's AMR MHD paper), which has no knowledge of the parent.
+
+  float *MHDParentTemp[3];
+  int MHDParentTempPermanent[3];
+  int    MHDRefinementFactors[3];
+  FLOAT ParentDx, ParentDy, ParentDz;
+
+  ;
+  float *DyBx, *DzBx, *DyzBx;
+  float *DxBy, *DzBy, *DxzBy;
+  float *DxBz, *DyBz, *DxyBz;
+  int * DBxFlag, *DByFlag, *DBzFlag;
+  //Evolution/AMR routines
+  int SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
+			fluxes *SubgridFluxes[], int level, int grid);
+  int ComputeElectricField(float dT, float ** Fluxes);
+  int MHD_Curl( int * Start, int * End, int Method);
+  int CenterMagneticField(int * Start = NULL, int * End = NULL);
+
+  //Test Problems
+  int MHDBlastInitializeGrid(float Density0, float Density1,
+                             float Energy0,  float Energy1,
+                             float Velocity0[], float Velocity1[],
+                             float B0[], float B1[],
+                             float Radius, float MHDBlastCenter[], int LongDimension,
+                             float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
+                             int InitStyle, float Normal[]);
+
+#endif //MHDCT
+
 
 };
 

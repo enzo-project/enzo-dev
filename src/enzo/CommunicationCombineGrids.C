@@ -94,7 +94,19 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
       StartIndex[dim] = nint((Left[dim] - DomainLeftEdge[dim])/CellSize[dim])
 	              + SendOffset[dim];
     }
- 
+
+#ifdef MHDCT
+    //Sometimes E isn't created by the time this code is run.Ensure it is.
+
+    if(useMHDCT == TRUE  && MyProcessorNumber == OldGrid->ReturnProcessorNumber() ){
+      for(int field=0;field<3;field++)
+        if( OldGrid->ElectricField[field] == NULL ){
+          OldGrid->ElectricField[field] = new float[OldGrid->ElectricSize[field]];
+          for(int i=0;i<OldGrid->ElectricSize[field];i++)
+            OldGrid->ElectricField[field][i]=0.0;
+        }
+    }
+#endif //MHDCT 
     /* Copy grid region. */
  
     int RecvType = ((WriteTime < 0) && (RestartDump == FALSE)) ? 

@@ -287,6 +287,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
     ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
     if (HydroMethod==MHD_RK) useMHD = 1;
+#ifdef MHDCT
+    if (HydroMethod==MHD_Li) useMHDCT = 1;
+#endif //MHDCT
 
     ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
@@ -910,6 +913,46 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseH2OnDust           = %"ISYM, &UseH2OnDust);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
+#ifdef MHDCT
+    //MHDCT variables
+    ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
+    ret += sscanf(line,"RefineByJeansLengthUnits = %"ISYM,&RefineByJeansLengthUnits);
+    ret += sscanf(line, "ProcessorTopology      = %"ISYM" %"ISYM" %"ISYM,
+		  ProcessorTopology,ProcessorTopology+1,ProcessorTopology+2);
+
+    ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
+    ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
+    ret += sscanf(line, "MHDLi = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"",
+		  MHDLi,MHDLi+1,MHDLi+2,MHDLi+3,MHDLi+4);
+
+    ret += sscanf(line,"MHD_Equation = %"ISYM,&MHD_Equation);
+    ret += sscanf(line,"tiny_pressure = %"FSYM,&tiny_pressure);
+    ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method);
+    ret += sscanf(line, "SingleGridDump = %d %d %d %d %d %d %d %d %d %d", SingleGridDumpList,
+		  SingleGridDumpList +1,SingleGridDumpList +2,SingleGridDumpList +3,
+		  SingleGridDumpList +4,SingleGridDumpList +5,SingleGridDumpList +6,
+		  SingleGridDumpList +7,SingleGridDumpList +8,SingleGridDumpList +9);
+		  
+    ret += sscanf(line,"DEFAULT_GHOST_ZONES = %"ISYM,&DEFAULT_GHOST_ZONES);
+    //ret += sscanf(line,"MHD_Used = %"ISYM,&MHD_Used);
+    ret += sscanf(line,"IsothermalSoundSpeed = %"FSYM,&IsothermalSoundSpeed);
+    ret += sscanf(line,"MHD_ProjectB = %"ISYM,&MHD_ProjectB);
+    ret += sscanf(line,"MHD_ProjectE = %"ISYM,&MHD_ProjectE);
+    ret += sscanf(line,"useMHDCT = %"ISYM,&useMHDCT);
+    ret += sscanf(line,"EquationOfState = %"ISYM,&EquationOfState);
+
+    if(sscanf(line, "MHDLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDLabel[dim] = dummy;
+    if(sscanf(line, "MHDUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDUnits[dim] = dummy;
+    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDcLabel[dim] = dummy;
+    if(sscanf(line, "MHDeLabel[%"ISYM"] = %s\n", &dim, dummy) ==2)
+      MHDeLabel[dim] = dummy;
+    if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDeUnits[dim] = dummy;
+#endif //MHDCT
+
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
@@ -1008,15 +1051,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RiemannSolver = TwoShock;
     if (ReconstructionMethod == INT_UNDEFINED)
       ReconstructionMethod = PPM;
-    if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
+    if (ReconstructionMethod == PLM) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	printf("RiemannSolver = HLL, ReconstructionMethod = PLM.\n"
+	printf("ReconstructionMethod = PLM.\n"
 	       "These are the defaults for the MUSCL (hydro_rk) solvers,\n"
-	       "but don't exist for the FORTRAN solvers.  Changing to the\n"
-	       "old FORTRAN default, two-shock and PPM.\n"
-	       "-- To override this, set RiemannSolver = -1\n");
-      RiemannSolver = TwoShock;
-      ReconstructionMethod = PPM;
+	       "but don't exist for the FORTRAN solvers (HydroMethod = 0).  "
+	       "-- To override this, do not set ReconstructionMethod or set it to 1\n");
+      ENZO_FAIL("Stopped in ReadParameterFile.\n");
+      //      RiemannSolver = TwoShock;
+      //      ReconstructionMethod = PPM;
     }
     if (RiemannSolver == -HLL) RiemannSolver = HLL;
   } else if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
@@ -1219,6 +1262,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     DualEnergyFormalism       = FALSE;
     //    FluxCorrection            = FALSE;
   }
+
+  if (DualEnergyFormalism > 0 && EOSType > 0)
+    ENZO_FAIL("DualEnergyFormalism should be off for EOSType > 0");
 
   /* Set some star feedback parameters. */
 
@@ -1512,7 +1558,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     my_exit(EXIT_SUCCESS);
 #endif
   }
+
+#ifdef SAB
+  if (HydroMethod == Zeus_Hydro && SelfGravity != 0)
+      ENZO_FAIL("SetAccelerationBoundary (-D SAB) does not work with zeus_hydro !\n");
+#endif 
+
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
+
 
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;

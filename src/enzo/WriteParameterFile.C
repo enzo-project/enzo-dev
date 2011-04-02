@@ -913,6 +913,22 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 
   MustRefineParticlesMinimumMass /= POW(1/(float(MetaData.TopGridDims[0])
 				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
+#ifdef MHDCT
+  //MHDCT variables
+  fprintf(fptr,"CT_AthenaDissipation          =%"GSYM"\n",CT_AthenaDissipation);
+  fprintf(fptr,"MHD_WriteElectric             =%"ISYM"\n",MHD_WriteElectric);
+  fprintf(fptr, "MHDLi                    = %d %d %d %d %d\n",MHDLi[0],MHDLi[1],
+	  MHDLi[2],MHDLi[3],MHDLi[4]);
+  fprintf(fptr,"MHD_Equation                  =%"ISYM"\n",MHD_Equation);
+  fprintf(fptr,"tiny_pressure                 =%"GSYM"\n",tiny_pressure);
+  fprintf(fptr,"MHD_CT_Method                 =%"ISYM"\n",MHD_CT_Method);
+  fprintf(fptr,"DEFAULT_GHOST_ZONES           =%"ISYM"\n",DEFAULT_GHOST_ZONES);
+  fprintf(fptr,"IsothermalSoundSpeed          =%"GSYM"\n",IsothermalSoundSpeed);
+  fprintf(fptr,"MHD_ProjectB                  =%"ISYM"\n",MHD_ProjectB);
+  fprintf(fptr,"MHD_ProjectE                  =%"ISYM"\n",MHD_ProjectE);
+  fprintf(fptr,"useMHDCT                      =%"ISYM"\n",useMHDCT);
+  fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
+#endif //MHDCT
 
   /* Output current time */
   time_t ID;

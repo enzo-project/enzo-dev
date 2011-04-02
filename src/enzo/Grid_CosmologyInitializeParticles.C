@@ -41,7 +41,7 @@ int ReadIntFile(char *name, int Rank, int Dims[], int StartIndex[],
 		int EndIndex[], int BufferOffset[], int *buffer,
 		int **tempbuffer, int Part, int Npart);
 
-#define ICPART_SHIFT8
+//#define ICPART_SHIFT8
 
 int grid::CosmologyInitializeParticles(
 		   char *CosmologySimulationParticleVelocityName,

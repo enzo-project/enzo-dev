@@ -54,7 +54,9 @@
 
 #define MEMORY_POOL_SIZE  __memory_pool_size
 
+#ifndef MHDCT
 #define DEFAULT_GHOST_ZONES                 3  /* at least 3 */
+#endif //MHDCT
 
 #define MAX_NUMBER_OF_OUTPUT_REDSHIFTS    500
 
@@ -80,7 +82,7 @@
 
 #define MAX_MOVIE_FIELDS                    6
 
-#define MAX_POTENTIAL_ITERATIONS            8
+#define MAX_POTENTIAL_ITERATIONS            80
 
 #define MAX_ENERGY_BINS                    10
 
@@ -375,7 +377,13 @@ typedef int            HDF5_hid_t;
 
 /* Definitions for grid::CommunicationSend/ReceiveRegion and 
    grid::DepositPositions */
-
+#ifdef MHDCT
+#define BARYONS_ELECTRIC                 -13
+#define BARYONS_MAGNETIC                 -12
+#define JUST_BARYONS                     -11
+#define MAGNETIC_FIELD                   -10
+#define ELECTRIC_FIELD                   -9
+#endif //MHDCT
 #define INTERPOLATED_FIELDS              -8
 #define PARTICLE_MASS_FLAGGING_FIELD     -7
 #define MASS_FLAGGING_FIELD              -6
@@ -555,5 +563,11 @@ typedef int            HDF5_hid_t;
 #else
 #define TIME_MSG(A) ;
 #endif
+#ifdef MHDCT
+//For the MidWayDump tool
+#define N_DbgWrites 30 
+#define nBfields 3
+#define MAX_NUMBER_RANDOM_FORCING 3
 
+#endif //MHDCT
 #endif

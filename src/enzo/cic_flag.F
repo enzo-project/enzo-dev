@@ -61,6 +61,7 @@ c
       integer istart, iend, jstart, jend, kstart, kend
       real    xpos, ypos, zpos, fact
       REALSUB edge1, edge2, edge3, half
+
       parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

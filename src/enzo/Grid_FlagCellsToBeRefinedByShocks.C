@@ -53,10 +53,7 @@ int grid::FlagCellsToBeRefinedByShocks()
   /* Compute the pressure. */
  
   float *Pressure = new float[size];
-  if (this->ComputePressure(Time, Pressure) == FAIL) {
-    fprintf(stderr, "Error in ComputePressure.\n");
-    return -1;
-  }
+  this->ComputePressure(Time, Pressure);
  
   /* Find fields: density, total energy, velocity1-3. */
  

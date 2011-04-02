@@ -4,41 +4,69 @@
 #  define problem
 #
 ProblemType                = 22      // Adiabatic Expansion
-TopGridRank                = 1
-TopGridDimensions          = 8
-SelfGravity                = 0       // gravity off
+TopGridRank                = 3
+TopGridDimensions          = 16 16 16
+SelfGravity                = 1       // gravity off
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
-LeftFaceBoundaryCondition  = 3       // same for fluid
-RightFaceBoundaryCondition = 3
+LeftFaceBoundaryCondition  = 3 3 3      // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+#
+StaticRefineRegionLevel[0] = 0
+#StaticRefineRegionLeftEdge[0] = 0.375 0.375 0.375 
+#StaticRefineRegionRightEdge[0] = 0.625 0.625 0.625
+StaticRefineRegionLeftEdge[0] = 0.475 0.475 0.475 
+StaticRefineRegionRightEdge[0] = 0.725 0.725 0.725
 #
 #  problem parameters
 #
-AdiabaticExpansionInitialTemperature = 1000   // K
+AdiabaticExpansionInitialTemperature = 1   // K
 AdiabaticExpansionInitialVelocity    = 100   // km/s
+AdiabaticExpansionOmegaBaryonNow     = 1.0
 #
 #  define cosmology parameters
-#
+
+
 ComovingCoordinates        = 1       // Expansion ON
-CosmologyHubbleConstantNow = 0.5
+CosmologyHubbleConstantNow = 1.
+CosmologyOmegaMatterNow = 1
+CosmologyOmegaLambdaNow = 0
 CosmologyComovingBoxSize   = 64.0    // 64 Mpc/h
-CosmologyMaxExpansionRate  = 0.01    //
+CosmologyMaxExpansionRate  = 0.05    //
 CosmologyInitialRedshift   = 20      // start at z=20
+CosmologyFinalRedshift     = 0
 GravitationalConstant      = 1       // this must be true for cosmology
 #
 #  set I/O and stop/start parameters
 #
-dtDataDump             = 80.0
+Initialdt              = 1e-16
+dtDataDump             = 5.0
+#CycleSkipDataDump = 1
+#StopCycle = 15
+
 #
 #  set hydro parameters
 #
+InterpolationMethod    = 1
+ConservativeInterpolation = 1
+UseHydro               = 1
+
+HydroMethod            = 0
 Gamma                  = 1.6667
-CourantSafetyNumber    = 0.5
+CourantSafetyNumber    = 0.2
 PPMDiffusionParameter  = 0       // diffusion off
 DualEnergyFormalism    = 1       // use total & internal energy
+FluxCorrection = 0
+MaximumGravityRefinementLevel = 5
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 1    // static hierarchy
+StaticHierarchy           = 0    // static hierarchy
+CellFlaggingMethod        = 2
 #
 #  set some global parameters
 #
+ParallelRootGridIO = 0
+PotentialIterations = 0
+WritePotential  = 1
+ComputePotential = 1
+Debug1 = 1

@@ -68,6 +68,7 @@ c
       real    fact1, fact2, fact3, x, y, z, dx, dy, dz, weight, mass,
      &        coef1, coef2, coef3, shift1, shift2, shift3,
      &        start1, start2, start3, half, edge1, edge2, edge3, temp1
+
       parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

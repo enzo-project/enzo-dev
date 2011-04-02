@@ -211,6 +211,12 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
+#ifdef MHDCT
+int MHDCT_ParameterJuggle(); //updates old style MHDCT parameter files to reflect new values
+int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                          TopGridData &MetaData, ExternalBoundary &Exterior);
+#endif //MHDCT
+
 void PrintMemoryUsage(char *str);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -273,6 +279,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
     ENZO_FAIL("Error in ReadParameterFile.");
   }
+
+#ifdef MHDCT
+  //Ensure old style MHD_CT parameter files still work.
+  if( MHDCT_ParameterJuggle() == FAIL ){
+    ENZO_FAIL("Invalid parameter from old style MHD CT");
+  }
+#endif //MHDCT 
 
   // Set the number of particle attributes, if left unset
  
@@ -341,6 +354,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     
   } // end: if (ProblemType != 40 && ProblemType !=51)
   
+
+
+
   // Call problem initializer
 
   PrintMemoryUsage("Call problem init");
@@ -477,6 +493,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 31) GalaxySimulation
   if (ProblemType == 31)
     ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+#ifdef MHDCT
+  if (ProblemType == 500)
+    ret = MHDBlastInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
+
+#endif
 
 
 // 35) Shearing Box Simulation
@@ -671,8 +693,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   /* Do some error checking */
  
-  if (MetaData.StopTime == FLOAT_UNDEFINED)
-    ENZO_FAIL("StopTime never set.");
+  if (MetaData.StopTime == FLOAT_UNDEFINED && MetaData.StopCycle == INT_UNDEFINED)
+    ENZO_FAIL("StopTime nor StopCycle ever set.");
+  if (MetaData.StopCycle != INT_UNDEFINED && MetaData.StopTime == FLOAT_UNDEFINED)
+    MetaData.StopTime = huge_number;
 
   int nFields = TopGrid.GridData->ReturnNumberOfBaryonFields();
   if (nFields >= MAX_NUMBER_OF_BARYON_FIELDS) {
@@ -682,8 +706,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   }
 
   PrintMemoryUsage("1st Initialization done");
-  
-  
+
+
   if (debug)
     printf("Initialize Exterior\n");
   
@@ -753,6 +777,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     fprintf(stderr, "End of set exterior\n");
   }
   
+
   // Set values that were left undefined (above)
   
   if (MetaData.TimeLastDataDump == FLOAT_UNDEFINED)
