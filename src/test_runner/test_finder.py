@@ -39,7 +39,8 @@ machines = {'local':       dict(script = 'local.run',
                                 command = 'qsub')}
 
 template_vars = {'N_PROCS': 'nprocs',
-                 'PAR_FILE': 'run_par_file'}
+                 'PAR_FILE': 'run_par_file',
+                 'TEST_NAME': 'name'}
 
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
