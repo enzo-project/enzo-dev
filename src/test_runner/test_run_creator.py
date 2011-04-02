@@ -5,10 +5,10 @@ import os
 import shutil
 
 run_template_dir = 'run_templates'
-machines = {'local': dict(script = 'local.sh',
+machines = {'local': dict(script = 'local.run',
                           command = 'bash'),
 
-            'nics-kraken': dict(script = 'nics-kraken.sh',
+            'nics-kraken': dict(script = 'nics-kraken.run',
                                 command = 'qsub')}
 
 template_vars = {'N_PROCS': 'nprocs',
