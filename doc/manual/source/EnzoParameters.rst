@@ -1257,28 +1257,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a young star spectrum. This is used when calculating the radiation background. Default: 3e-6
 ``StarEnergyToQuasarUV`` (external)
-    The fraction of the rest-mass energy of the stars created which is
-<<<<<<< local
-    returned as UV radiation with a quasar spectrum. This is used when calculating the radiation background. Default: 5e-6
-=======
-    returned as UV radiation with a quasar spectrum. Default: 5e-6
-``StarFeedbackDistCellStep`` (external)
-    This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
-    determines the shape of the region into which stellar feedback is 
-    deposited.  Starting at the grid cell in which a star particle is 
-    located, it is the maximum number of walking steps along the x, y, 
-    and z axes that can be taken to reach a point inside the stellar 
-    feedback region.  For example, setting ``StarFeedbackDistRadius`` = 
-    1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, 
-    since the corner of the cube is one step in the x, one in the y, and 
-    one in the z direction away from the center.  Setting 
-    ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 
-    corresponds to a 3x3x3 cube with the corners missing.  The maximum 
-    value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * 
-    ``StarFeedbackDistRadius``).  When this is used, equal amounts of 
-    stellar feedback products are deposited into all cells in the 
-    region.  Default: 0
->>>>>>> other
+    The fraction of the rest-mass energy of the stars created which is returned as UV radiation with a quasar spectrum. This is used when calculating the radiation background. Default: 5e-6
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1315,13 +1294,8 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
 ``PopIIISupernovaUseColour`` (internal)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
 
-<<<<<<< local
-Jeans Resolved Star Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-=======
 Radiative Star Cluster Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->>>>>>> other
 
 The parameters below are considered in ``StarParticleCreation`` method 5.
 
