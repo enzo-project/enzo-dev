@@ -221,7 +221,7 @@ if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
-    parser.add_option("--interleaved", action='store_true', dest='interleave', default=False,
+    parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
@@ -257,4 +257,4 @@ if __name__ == "__main__":
     f.close()
 
     # Make it happen
-    etc2.go(options.output_dir, options.interleaved, options.machine)
+    etc2.go(options.output_dir, options.interleave, options.machine)
