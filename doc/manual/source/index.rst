@@ -58,7 +58,10 @@ To post a message to this list, send an email to:
 
 enzo-users@googlegroups.com
 
-The archives for the old Enzo users mailing list can be found here:
+The archives for the old Enzo users mailing list can be found here.
+A search of the list archives should be performed before emailing the list
+to prevent asking a question that has already been answered (using
+`an advanced web search <http://www.google.com/advanced_search>`_, for example).
 
 https://mailman.ucsd.edu/pipermail/enzo-users-l/
 
