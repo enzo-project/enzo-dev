@@ -15,7 +15,7 @@
 #
 ProblemType            = 1
 TopGridRank            = 1
-TopGridDimensions      = 400
+TopGridDimensions      = 100
 
 #  Use this for the original PPM-DirectEulerian method
 #
@@ -24,6 +24,8 @@ RiemannSolver          = 4
 ConservativeReconstruction = 1
 ReconstructionMethod   = 1
 PositiveReconstruction = 0
+
+
 
 #  Use this for the newer Runge-Kutta solvers (supporting PLM or PPM
 #  reconstruction, and several different Riemann solvers)
@@ -49,12 +51,26 @@ RightFaceBoundaryCondition   = 0 0 0
 #  set hydro parameters
 #
 Gamma                  = 1.4
-CourantSafetyNumber    = 0.5
+CourantSafetyNumber    = 0.4
+DualEnergyFormalism = 0
 
 #
 #  set grid refinement parameters
 #
-StaticHierarchy        = 1    // static hierarchy
+#StaticHierarchy        = 1    // static hierarchy
+# use this for AMR 
+StaticHierarchy             = 0
+FluxCorrection              = 1
+MaximumRefinementLevel      = 2
+RefineBy                    = 2
+CellFlaggingMethod          = 1
+#SlopeFlaggingFields         = 0
+MinimumOverDensityForRefinement = 8.
+MinimumSlopeForRefinement   = .5
+MinimumEfficiency           = 0.8
+InterpolationMethod         = 1
+ConservativeInterpolation   = 0
+NumberOfBufferZones         = 2
 
 #
 # The following parameters define the shock tube problem

@@ -1008,15 +1008,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RiemannSolver = TwoShock;
     if (ReconstructionMethod == INT_UNDEFINED)
       ReconstructionMethod = PPM;
-    if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
+    if (ReconstructionMethod == PLM) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	printf("RiemannSolver = HLL, ReconstructionMethod = PLM.\n"
+	printf("ReconstructionMethod = PLM.\n"
 	       "These are the defaults for the MUSCL (hydro_rk) solvers,\n"
-	       "but don't exist for the FORTRAN solvers.  Changing to the\n"
-	       "old FORTRAN default, two-shock and PPM.\n"
-	       "-- To override this, set RiemannSolver = -1\n");
-      RiemannSolver = TwoShock;
-      ReconstructionMethod = PPM;
+	       "but don't exist for the FORTRAN solvers (HydroMethod = 0).  "
+	       "-- To override this, do not set ReconstructionMethod or set it to 1\n");
+      ENZO_FAIL("Stopped in ReadParameterFile.\n");
+      //      RiemannSolver = TwoShock;
+      //      ReconstructionMethod = PPM;
     }
     if (RiemannSolver == -HLL) RiemannSolver = HLL;
   } else if (HydroMethod == HD_RK || HydroMethod == MHD_RK) {
@@ -1219,6 +1219,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     DualEnergyFormalism       = FALSE;
     //    FluxCorrection            = FALSE;
   }
+
+  if (DualEnergyFormalism > 0 && EOSType > 0)
+    ENZO_FAIL("DualEnergyFormalism should be off for EOSType > 0");
 
   /* Set some star feedback parameters. */
 
@@ -1514,7 +1517,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
 #ifdef SAB
-  if (HydroMethod == Zeus_Hydro)
+  if (HydroMethod == Zeus_Hydro && SelfGravity != 0)
       ENZO_FAIL("SetAccelerationBoundary (-D SAB) does not work with zeus_hydro !\n");
 #endif 
 

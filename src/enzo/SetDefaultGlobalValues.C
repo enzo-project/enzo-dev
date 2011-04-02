@@ -537,7 +537,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallT		     = 1e-10;
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = INT_UNDEFINED;
-  RiemannSolverFallback      = FALSE;
+  RiemannSolverFallback      = 1;
   ReconstructionMethod	     = INT_UNDEFINED;
   PositiveReconstruction     = FALSE;
   ConservativeReconstruction = 0;

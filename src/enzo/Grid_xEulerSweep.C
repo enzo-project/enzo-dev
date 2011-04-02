@@ -32,7 +32,7 @@
 
 int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		      Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		      int GravityOn, int NumberOfColours, int colnum[])
+		      int GravityOn, int NumberOfColours, int colnum[], float *pressure)
 {
 
   int dim = 0, idim = 1, jdim = 2;
@@ -86,6 +86,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
       index3 = (k*GridDimension[1] + j) * GridDimension[0] + i;
       dslice[index2+i] = BaryonField[DensNum][index3];
       eslice[index2+i] = BaryonField[TENum][index3];
+      pslice[index2+i] = pressure[index3];
       uslice[index2+i] = BaryonField[Vel1Num][index3];
     } // ENDFOR i
 
@@ -178,7 +179,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   k_p1 = k + 1;
 
   /* Compute the pressure on a slice */
-
+  /*
   if (DualEnergyFormalism)
     FORTRAN_NAME(pgas2d_dual)(dslice, eslice, geslice, pslice, uslice, vslice, 
 			      wslice, &DualEnergyFormalismEta1, 
@@ -189,7 +190,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     FORTRAN_NAME(pgas2d)(dslice, eslice, pslice, uslice, vslice, 
 			 wslice, &GridDimension[0], &GridDimension[1], 
 			 &is_m3, &ie_p3, &js, &je, &Gamma, &MinimumPressure);
-
+  */
   /* If requested, compute diffusion and slope flattening coefficients */
 
   if (PPMDiffusionParameter != 0 || PPMFlatteningParameter != 0)

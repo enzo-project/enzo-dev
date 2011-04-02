@@ -93,12 +93,11 @@ int grid::ComovingExpansionTerms()
 
     this->ComputePressure(PressureTime, Pressure);
 
-
     /* Call fortran routine to do the real work. */
     /*
     if (HydroMethod == MHD_RK) 
       FORTRAN_NAME(expand_mhd_terms)(
-				 &GridRank, &size, &DualEnergyFormalism, &Coefficient, 
+				 &GridRank, &size, & DualEnergyFormalism, &Coefficient, 
 				 (int*) &HydroMethod, &Gamma,
 				 Pressure, PressureDual,
 				 BaryonField[DensNum], BaryonField[TENum], 
@@ -129,9 +128,8 @@ int grid::ComovingExpansionTerms()
 
     /* Compute the time-centered pressure for this grid. */
 
-    if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
-            ENZO_FAIL("Error in ComputePressure.");
-    }
+      this->ComputePressure(PressureTime, Pressure);
+
 
     for (i = 0; i < size; i++)
 
