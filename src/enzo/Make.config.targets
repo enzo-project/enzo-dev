@@ -130,6 +130,11 @@ help-config:
 	@echo "      gmake ooc-boundary-yes"
 	@echo "      gmake ooc-boundary-no"
 	@echo
+	@echo "   Set whether to set the acceleration boundary"
+	@echo
+	@echo "      gmake acceleration-boundary-yes"
+	@echo "      gmake acceleration-boundary-no"
+	@echo
 	@echo "   Set optimization/debug/warning levels"
 	@echo
 	@echo "      gmake opt-warn"
@@ -264,6 +269,7 @@ show-config:
 	@echo "   CONFIG_CVODE  [cvode-{yes,no}]                            : $(CONFIG_CVODE)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
+	@echo "   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]              : $(CONFIG_ACCELERATION_BOUNDARY)"
 	@echo "   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING  [testing-{yes,no}]                        : $(CONFIG_TESTING)"
 	@echo "   CONFIG_TPVEL  [tpvel-{yes,no}]]                           : $(CONFIG_TPVEL)"
@@ -677,6 +683,23 @@ CONFIG_OOC-BOUNDARY-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_OOC_BOUNDARY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_OOC_BOUNDARY; \
+	echo
+
+#-----------------------------------------------------------------------
+
+VALID_ACCELERATION-BOUNDARY = acceleration-boundary-yes acceleration-boundary-no
+.PHONY: $(VALID_ACCELERATION-BOUNDARY)
+
+acceleration-boundary-yes: CONFIG_ACCELERATION-BOUNDARY-yes
+acceleration-boundary-no: CONFIG_ACCELERATION-BOUNDARY-no
+acceleration-boundary-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ACCELERATION-BOUNDARY)]\n\n"
+CONFIG_ACCELERATION-BOUNDARY-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_ACCELERATION_BOUNDARY $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_ACCELERATION_BOUNDARY = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_ACCELERATION_BOUNDARY; \
 	echo
 
 #-----------------------------------------------------------------------
