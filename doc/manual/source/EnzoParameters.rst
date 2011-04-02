@@ -1290,7 +1290,7 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
 
 Radiative Star Cluster Star Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method 5.
 
