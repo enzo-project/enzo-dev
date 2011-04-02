@@ -42,7 +42,7 @@ each for each datadump.  For more information on the format of Enzo output, see
 inits
 -----
 
-This is the initial conditions generator. See :ref:`RunningInits` for more
+This is the initial conditions generator. See :ref:`using_inits` for more
 detailed information. Initial conditions with a single initial grid or multiple
 nested grids can be created with this executable.  Output file names are
 user-specified, but in a standard cosmology simulation with a single initial

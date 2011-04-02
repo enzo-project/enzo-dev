@@ -1,3 +1,5 @@
+.. _enzo_modification:
+
 Introduction to Enzo Modification
 =================================
 

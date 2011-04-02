@@ -38,7 +38,7 @@ read the latest source checkout instructions.
 http://enzo.googlecode.com/
 
 Updating a source tree with Mercurial is beyond the scope of this document; for
-more information, please peruse :ref:`HowToDevelopEnzo` and the Mercurial
+more information, please peruse :ref:`developers_guide` and the Mercurial
 documentation.  The `mercurial <http://mercurial.selenic.com/>`_ commands of
 most use are ``pull``, ``update`` and ``incoming``.
 
@@ -52,7 +52,7 @@ system arguments can be found in :ref:`MakeOptions`.
 This assumes that we're working from a checkout from the Enzo project page,
 located at http://enzo.googlecode.com/ .  Checkout instructions can be found
 there, and for more detailed information about the structure of the Enzo source
-control repository, see :ref:`CheckOutInstructions`.
+control repository, see :ref:`enzo_modification`.
 
 Initializing the Build System
 +++++++++++++++++++++++++++++

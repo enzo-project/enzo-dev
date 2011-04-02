@@ -1543,6 +1543,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 
 ``RadHydroESpectrum`` (external)
     Type of assumed radiation spectrum for radiation field, Default: 1.
+
    ::
  
     -1 - monochromatic spectrum at frequency h nu_{HI} = 13.6 eV
@@ -1557,6 +1558,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroModel`` (external)
     Determines which set of equations to use within the solver.
     Default: 1.
+
    ::
  
     1  - chemistry-dependent model, with case-B hydrogen II recombination coefficient.
@@ -1578,6 +1580,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroDtNorm`` (external)
     type of p-norm to use in estimating time-accuracy for predicting
     next time step. Default: 2.0.    
+
    ::
 
      0 - use the max-norm.
@@ -1605,6 +1608,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadiationBoundaryX0Faces`` (external)
     Boundary condition types to use on the x0 faces of the radiation
     field. Default: [0 0].
+
    ::
  
     0 - Periodic.
@@ -1643,6 +1647,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroInitialGuess`` (external)
     Type of algorithm to use in computing the initial guess for the
     time-evolved solution. Default: 0.
+
    ::
  
     0 - use the solution from the previous time step (safest).
@@ -1667,7 +1672,6 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     Relaxation method used by the multigrid solver. Default: 1.
 
     ::
-
     1 - Jacobi.
     2 - Weighted Jacobi.
     3 - Red/Black Gauss-Seidel (symmetric).
@@ -1696,6 +1700,7 @@ Radiative Transfer (FLD) Split Solver Parameters
 
 ``RadHydroESpectrum`` (external)
     Type of assumed radiation spectrum for radiation field, Default: 1.
+
    ::
  
     -1 - monochromatic spectrum at frequency h nu_{HI}= 13.6 eV
@@ -1710,13 +1715,15 @@ Radiative Transfer (FLD) Split Solver Parameters
 ``RadHydroModel`` (external)
     Determines which set of equations to use within the solver.
     Default: 1.
-    ::
 
-    1  - chemistry-dependent model, with case-B hydrogen II recombination coefficient.
-    4  - chemistry-dependent model, with case-A hydrogen II recombination coefficient, 
-         but assumes an isothermal gas energy.
-    10 - no chemistry, instead uses a model of local thermodynamic
-         equilibrium to couple radiation to gas energy.
+   ::
+    1  - chemistry-dependent model, with case-B hydrogen II recombination
+         coefficient.
+    4  - chemistry-dependent model, with case-A hydrogen II recombination
+         coefficient, but assumes an isothermal gas energy.
+   10  - no chemistry, instead uses a model of local thermodynamic
+       	 equilibrium to couple radiation to gas energy.
+
 
 ``RadHydroMaxDt`` (external)
     maximum time step to use in the FLD solver. Default: 1e20 (no
@@ -1732,7 +1739,6 @@ Radiative Transfer (FLD) Split Solver Parameters
     next time step. Default: 2.0.
 
    ::
- 
     0  - use the max-norm.
     >0 - use the specified p-norm.
     <0 - illegal.
@@ -1761,9 +1767,9 @@ Radiative Transfer (FLD) Split Solver Parameters
 
     ::
 
-    0 - Periodic.
-    1 - Dirichlet.
-    2 - Neumann.
+     0 - Periodic.
+     1 - Dirichlet.
+     2 - Neumann.
 
 ``RadiationBoundaryX1Faces`` (external)
     Boundary condition types to use on the x1 faces of the radiation
