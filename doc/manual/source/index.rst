@@ -27,12 +27,51 @@ National Science Foundation.
    reference/index.rst
    presentations/index.rst
 
-Enzo Users Mailing List
+Enzo Mailing Lists
 -----------------------
 
-`enzo-users-l@lists.ucsd.edu
-<http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_ is the community
-forum (`archive <http://mailman.ucsd.edu/pipermail/enzo-users-l/>`_).
+There are two mailing lists for Enzo hosted on Google Groups, enzo-users
+and enzo-dev.
+
+enzo-users
+^^^^^^^^^^
+
+Everyone Enzo user should sign up for the
+enzo-users mailing list.
+This is is used to announce changes to Enzo, and sometimes major changes
+Enzo-related analysis tools.
+This list is appropriate for anything else Enzo-related,
+such as machine-specific compile problems,
+discussions of the science and physics behind what Enzo does,
+or queries about problem initialization.
+We recommend using the Enzo users mailing list liberally - by this we mean
+that any question asked on the list will educate everyone else on the list,
+and is manifestly not a stupid question.
+As long as a good effort has been made to try to figure out the answer
+before mailing the list, all questions about Enzo are welcome!
+Please follow the link below to sign up for this list and a link
+to discussion archives:
+
+`http://groups.google.com/group/enzo-users <http://groups.google.com/group/enzo-users>`_
+
+To post a message to this list, send an email to:
+
+enzo-users@googlegroups.com
+
+enzo-dev
+^^^^^^^^
+
+The second mailing is for developers of Enzo. This is for Enzo "old-hats",
+or anyone interested in adding new features to Enzo, or anyone who wants a deeper
+understanding of the internals of Enzo. Please follow the link below
+to sign up for the list and a link to the discussion archives:
+
+`http://groups.google.com/group/enzo-dev <http://groups.google.com/group/enzo-dev>`_
+
+To post a message to this list, send an email to:
+
+enzo-dev@googlegroups.com
+
 
 Regression Tests
 ----------------
