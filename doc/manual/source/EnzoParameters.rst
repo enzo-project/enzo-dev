@@ -1175,7 +1175,7 @@ For details on each of the different star formation methods available in Enzo se
 	3 - Population III stars / Abel, Wise & Bryan (2007)
 	4 - Sink particles: Pure sink particle or star particle with wind feedback depending on 
 	    choice for HydroMethod / Wang et al. (2009)
-	5 - Radiative star clusters  / Wise & Cen (2009)
+	5 - Radiative star clusters (Jeans resolved) / Wise & Cen (2009)
 	6 - [reserved]
 	7 - Cen & Ostriker (1992) with no delay in formation
 	8 - Springel & Hernquist (2003)
@@ -1236,7 +1236,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     to M_baryon \* dt/max(t_dyn, t_max) where t_max is this
     parameter. This effectively sets a limit on the rate of star
     formation based on the idea that stars have a non-negligible
-    formation and life-time. The unit is years. Default: 1e6
+    formation and life-time. This is used to control the feedback in ``StarParticleFeedback`` = 0, 1 and 7. The unit is years. Default: 1e6
 ``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
     phase. Default: 0.25
@@ -1289,8 +1289,8 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
 ``PopIIISupernovaUseColour`` (internal)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
 
-Jeans Resolved Star Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Radiative Star Cluster Star Formation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method 5.
 
