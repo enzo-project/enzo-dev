@@ -42,6 +42,15 @@ template_vars = {'N_PROCS': 'nprocs',
                  'PAR_FILE': 'run_par_file',
                  'TEST_NAME': 'name'}
 
+def _get_hg_version(path):
+    print "Getting current revision."
+    from mercurial import hg, ui, commands 
+    u = ui.ui() 
+    u.pushbuffer() 
+    repo = hg.repository(u, path) 
+    commands.identify(u, repo) 
+    return u.popbuffer()
+
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
@@ -216,6 +225,8 @@ if __name__ == "__main__":
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
+    parser.add_option("--repo", dest='repository', default=".",
+                      help="Path to repository being tested.")
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
@@ -236,6 +247,11 @@ if __name__ == "__main__":
     print "\n".join(list(etc2.unique('name')))
     print "Total: %s" % len(etc2.tests)
 
+    # get current revision
+    hg_current = _get_hg_version(options.repository)
+    rev_hash = hg_current.split()[0]
+    options.output_dir = os.path.join(options.output_dir, rev_hash)
+
     # Make it happen
-    if not os.path.exists(options.output_dir): os.mkdir(options.output_dir)
+    if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     etc2.go(options.output_dir, options.interleaved, options.machine)
