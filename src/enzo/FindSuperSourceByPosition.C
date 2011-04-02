@@ -30,7 +30,8 @@ int FindSuperSourceByPosition(PhotonPackageEntry **PP)
 	      "This shouldn't happen. LeafID = %"ISYM"\n", temp->LeafID)
     }
 
-    dim_search = loop_count % MAX_DIMENSION;
+    //dim_search = loop_count % MAX_DIMENSION;
+    dim_search = temp->LeafID % MAX_DIMENSION;
 
     // Left leaf
     if ((*PP)->SourcePosition[dim_search] < temp->Position[dim_search]) {
