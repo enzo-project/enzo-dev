@@ -1,3 +1,5 @@
+.. _EnzoTestSuite:
+
 Enzo Test Suite
 ===============
 
