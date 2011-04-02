@@ -181,7 +181,12 @@ class EnzoTestRun(object):
     def run_sim(self):
         print "Running test simulation: %s." % self.test_data['name']
         cur_dir = os.getcwd()
-        os.chdir(self.run_dir)
+        # Check for existence
+        if os.path.exists(cur_dir+'/RunFinished'):
+            print "%s Test Already Completed, continuing..." % self.test_data['name']
+            return
+        
+        os.chdir(self.run_dir) 
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         print "Executing \"%s\"." % command
