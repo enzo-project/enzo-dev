@@ -58,6 +58,10 @@ To post a message to this list, send an email to:
 
 enzo-users@googlegroups.com
 
+The archives for the old Enzo users mailing list can be found here:
+
+https://mailman.ucsd.edu/pipermail/enzo-users-l/
+
 enzo-dev
 ^^^^^^^^
 
@@ -71,6 +75,7 @@ to sign up for the list and a link to the discussion archives:
 To post a message to this list, send an email to:
 
 enzo-dev@googlegroups.com
+
 
 
 Regression Tests
