@@ -174,6 +174,8 @@ class EnzoTestRun(object):
                 print "%s exists, but clobber == True, so overwriting it." % self.test_data['name']
                 shutil.rmtree(self.run_dir)
                 shutil.copytree(self.test_data['fulldir'], self.run_dir)
+                if self.exe_path is not None:
+                    shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
             else:
                 print "%s already exists. Skipping directory." % self.test_data['name']
         else:
