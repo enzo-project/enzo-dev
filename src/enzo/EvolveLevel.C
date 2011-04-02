@@ -115,7 +115,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 		    TopGridData *MetaData, int *CycleCount, int open=FALSE);
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
 				int GridNum, float *norm, float TopGridTimeStep, 
-				int level, int LevelCycleCount[]);  //moo
+				int level, int LevelCycleCount[]);  
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
@@ -468,9 +468,21 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Call hydro solver and save fluxes around subgrids. */
 
+#ifdef MHDCT
+
+      if( useMHDCT && HydroMethod == MHD_Li ){
+	Grids[grid1]->GridData->SolveMHDEquations(LevelCycleCount[level],
+		NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level ,grid1); 
+	
+      }else{
+	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
+	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
+      }
+#else
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
 
+#endif //MHDCT	
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();

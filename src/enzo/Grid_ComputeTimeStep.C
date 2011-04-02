@@ -50,7 +50,18 @@ extern "C" void PFORTRAN_NAME(calc_dt)(
                   float *d, float *p, float *u, float *v, float *w,
 			     float *dt, float *dtviscous);
  
- 
+#ifdef MHDCT
+extern "C" void
+FORTRAN_NAME(mhd_dt)(float *bxc, float *byc, float *bzc,
+                     float *vx, float *vy, float *vz,
+                     float *d, float *p, float *gamma, float *dt,
+                     FLOAT *dx, FLOAT *dy, FLOAT *dz,
+                     int *idim, int *jdim, int *kdim, int * rank,
+                     int *i1, int *i2,
+                     int *j1, int *j2,
+                     int *k1, int *k2, float* eng);
+#endif //MHDCT 
+
 float grid::ComputeTimeStep()
 {
  
@@ -120,6 +131,9 @@ float grid::ComputeTimeStep()
  
     /* Call fortran routine to do calculation. */
  
+#ifdef MHDCT
+    if( HydroMethod != MHD_Li)
+#endif //MHDCT
     PFORTRAN_NAME(calc_dt)(&GridRank, GridDimension, GridDimension+1,
                                GridDimension+2,
 //                        Zero, TempInt, Zero+1, TempInt+1, Zero+2, TempInt+2,
@@ -134,6 +148,36 @@ float grid::ComputeTimeStep()
                                BaryonField[Vel1Num], BaryonField[Vel2Num],
                                BaryonField[Vel3Num], &dtBaryons, &dtViscous);
  
+
+#ifdef MHDCT
+    if(HydroMethod == MHD_Li){
+      //<dbg>
+      fprintf(stderr,"moo: proper timestep\n");
+      //</dbg>
+      /* 1.5) Calculate minimum dt due to MHD: Maximum Fast MagnetoSonic Shock Speed */
+      
+      //Cosmos nees this, for some reason.
+      if(GridRank < 3 ){
+	if( CellWidth[2] == NULL ) CellWidth[2] = new float;
+	CellWidth[2][0] = 1.0;
+	if( GridRank < 2 ){
+	  if( CellWidth[1] == NULL ) CellWidth[1] = new float;
+	  CellWidth[1][0] = 1.0;
+	}}
+      int Rank_Hack = 3; //MHD needs a 3d timestep allways.
+      FORTRAN_NAME(mhd_dt)(CenteredB[0], CenteredB[1], CenteredB[2],
+			   BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
+			   BaryonField[DensNum], pressure_field, &Gamma, &dtMHD, 
+			   CellWidth[0], CellWidth[1], CellWidth[2],
+			   GridDimension, GridDimension + 1, GridDimension +2,&Rank_Hack,
+			   GridStartIndex, GridEndIndex,
+			   GridStartIndex+1, GridEndIndex+1,
+			   GridStartIndex+2, GridEndIndex+2, BaryonField[TENum]);
+      
+      dtMHD *= CourantSafetyNumber;
+      dtMHD *= afloat;  
+    }//if HydroMethod== MHD_Li
+#endif //MHDCT
     /* Clean up */
  
     delete [] pressure_field;

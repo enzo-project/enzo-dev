@@ -407,6 +407,87 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	}}}
  
   
+#ifdef MHDCT
+  int i,j,k,field;
+  if( useMHDCT ){
+    /* Centered Magentic Field */
+    //Shift is for oblique boxes, and presently not supported in this version.
+    //See the Old mhdct version for more details. (contact dcollins)
+    //Should ultimately be merged with the ShearingBox boundary, I think they overlap
+    int Shift[3] = {0,0,0};    
+    for (field = 0; field < 3; field++)
+      for (k = 0; k < Dim[2]; k++)
+	for (j = 0; j < Dim[1]; j++) {
+	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] + 
+	    (k + Start[2])*GridDimension[0]*GridDimension[1];
+	  otherindex = (0 + StartOther[0] + Shift[0]) + (j + StartOther[1]+Shift[1])*OtherDim[0] + 
+	    (k + StartOther[2]+Shift[2])*OtherDim[0]*OtherDim[1];
+	  for(i = 0; i < Dim[0];i++, thisindex++, otherindex++)
+	    CenteredB[field][thisindex] = 
+	      OtherGrid->CenteredB[field][otherindex];
+	}
+    
+    //
+    // Face Centered Magnetic Field
+    //
+    
+    // set up some Magnetic Field properties
+    // The DimToAdd business controlls whether or not to add the first active
+    // face centered field.  (i.e., Bzf(z=0) on the z boundary.)
+    // Only the right edge, face centered field (i.e. Bzf(z=1) on the z face) is coppied
+    // for boundary calls.  This ensures correct periodicity. dcc.
+    
+    int MHDDim[3][3], MHDOtherDim[3][3], MHDShift[3][3], DimToAdd=0;
+    
+    for(field=0;field<3;field++)
+      for(dim=0;dim<3;dim++){
+	MHDShift[field][dim]=0;
+	DimToAdd = (End[dim] == DEFAULT_GHOST_ZONES-1 && field == dim ) ? 0 : 1;
+	MHDDim[field][dim] = Dim[dim] + ( (field == dim) ? 1 : 0 );
+	MHDOtherDim[field][dim] = OtherDim[dim] + ((field == dim) ?1:0);
+      }
+    
+    int othersize[3]={1,1,1};
+    for (field =0; field<3; field++){
+      
+      if( MagneticField[field] == NULL ){
+	fprintf(stderr,"Severe Error: Grid_CopyZonesFromGrid.  MagneticField[%d] == NULL..\n", field);
+	return FAIL;
+      }
+      
+      othersize[field] = MHDOtherDim[field][0]*MHDOtherDim[field][1]*MHDOtherDim[field][2];
+      for( k=0; k<MHDDim[field][2]; k++)
+	for( j=0; j<MHDDim[field][1]; j++)
+	  for( i=0; i<MHDDim[field][0]; i++){
+	    thisindex = ( (i + Start[0]+MHDShift[field][0])
+			  +(j+ Start[1]+MHDShift[field][1])*MagneticDims[field][0]
+			  +(k+ Start[2]+MHDShift[field][2])*MagneticDims[field][1]*MagneticDims[field][0] );
+	    
+	    otherindex= ( (i + StartOther[0]+MHDShift[field][0]+Shift[0] )
+			  +(j+ StartOther[1]+MHDShift[field][1]+Shift[1] )*(MHDOtherDim[field][0])
+			  +(k+ StartOther[2]+MHDShift[field][2]+Shift[2] )*(MHDOtherDim[field][0]*MHDOtherDim[field][1]));
+	    
+	    //MagneticField[field][thisindex] = ((dccCounter < 0 )? 0 : OtherGrid->MagneticField[field][otherindex]);
+	    MagneticField[field][thisindex] = OtherGrid->MagneticField[field][otherindex];
+#ifdef KILL_THIS
+	    if( thisindex >= MagneticSize[field] ){
+		fprintf(stderr, "Severe Error: Grid_CopyZonesFromGrid overstepped array bounds.\n");
+		Pout(" ---------- fuck: this index >= Magnetic Size\n");
+		return FAIL;
+	      }
+	      if(otherindex >= othersize[field]){
+		fprintf(stderr, "Severe Error: Grid_CopyZonesFromGrid overstepped array bounds (other field).\n");
+		return FAIL;
+	      }
+#endif //KILL_THIS
+	    }//i
+    }//field
+    
+    
+    /* Clean up if we have transfered data. */
+  }//useMHDCT
+
+#endif //MHDCT  
 
   /* Clean up if we have transfered data. */
   

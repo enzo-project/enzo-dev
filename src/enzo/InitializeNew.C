@@ -211,6 +211,12 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
+#ifdef MHDCT
+int MHDCT_ParameterJuggle(); //updates old style MHDCT parameter files to reflect new values
+int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                          TopGridData &MetaData, ExternalBoundary &Exterior);
+#endif //MHDCT
+
 void PrintMemoryUsage(char *str);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -273,6 +279,13 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
     ENZO_FAIL("Error in ReadParameterFile.");
   }
+
+#ifdef MHDCT
+  //Ensure old style MHD_CT parameter files still work.
+  if( MHDCT_ParameterJuggle() == FAIL ){
+    ENZO_FAIL("Invalid parameter from old style MHD CT");
+  }
+#endif //MHDCT 
 
   // Set the number of particle attributes, if left unset
  
@@ -480,6 +493,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 31) GalaxySimulation
   if (ProblemType == 31)
     ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+#ifdef MHDCT
+  if (ProblemType == 500)
+    ret = MHDBlastInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
+
+#endif
 
 
 // 35) Shearing Box Simulation

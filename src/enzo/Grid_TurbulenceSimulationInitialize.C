@@ -139,7 +139,12 @@ int grid::TurbulenceSimulationInitializeGrid(
   NumberOfBaryonFields = 0;
   //if (TurbulenceSimulationVelocityNames[0] != NULL) {
     FieldType[NumberOfBaryonFields++] = Density;
+#ifdef MHDCT
+    if( EquationOfState == 0 )
+      FieldType[NumberOfBaryonFields++] = TotalEnergy;
+#else //MHDCT
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
+#endif //MHDCT
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -207,6 +212,16 @@ int grid::TurbulenceSimulationInitializeGrid(
     printf("Allocating %"ISYM" baryon fields of size %"ISYM"\n", NumberOfBaryonFields, size);
     for (int field = 0; field < NumberOfBaryonFields; field++)
       BaryonField[field] = new float[size];
+#ifdef MHDCT
+    if( useMHDCT == TRUE ){
+      for (int field = 0; field < 3; field++ ){
+	MagneticField[field] = new float[ MagneticSize[field] ];
+	CenteredB[field] = new float[size];
+	for( i=0;i<size;i++)
+	  CenteredB[field][size] = 0.0;
+      }
+    }
+#endif //MHDCT
   }
  
   /* If set, allocate space for RandomForcing fields. */
@@ -226,8 +241,12 @@ int grid::TurbulenceSimulationInitializeGrid(
     }
  
   /* Read the total energy field. */
- 
-  if (TurbulenceSimulationTotalEnergyName != NULL && ReadData)
+  if (TurbulenceSimulationTotalEnergyName != NULL && ReadData
+#ifdef MHDCT
+      && EquationOfState == 0
+#endif //MHDCT
+      )
+
     if (ReadFile(TurbulenceSimulationTotalEnergyName, GridRank,
 		    GridDimension, GridStartIndex, GridEndIndex, Offset,
 		    BaryonField[DensNum], &tempbuffer, 0, 1) == FAIL) {
