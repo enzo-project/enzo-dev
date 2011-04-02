@@ -1619,10 +1619,10 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     field. Default: [0 0].
 ``RadHydroLimiterType`` (external)
     Type of flux limiter to use in the FLD approximation. Default: 4.
-    ::
 
-    0 - original Levermore-Pomraning limiter, à la Levermore &
-        Pomraning, 1981 and Levermore, 1984.
+   ::
+
+    0 - original Levermore-Pomraning limiter, à la Levermore & Pomraning, 1981 and Levermore, 1984.
     1 - rational approximation to LP limiter.
     2 - new approximation to LP limiter (to reduce floating-point cancellation error).
     3 - no limiter.
@@ -1634,7 +1634,8 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroAnalyticChem`` (external)
     Type of time approximation to use on gas energy and chemistry
     equations. Default: 1 (if possible for model).
-    ::
+
+   ::
 
     0 - use a standard theta-method.
     1 - use an implicit quasi-steady state (IQSS) approximation.
@@ -1664,11 +1665,13 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     multigrid). Default: 50.
 ``RadHydroMGRelaxType`` (external)
     Relaxation method used by the multigrid solver. Default: 1.
-    
-      #. Jacobi.
-      #. Weighted Jacobi.
-      #. Red/Black Gauss-Seidel (symmetric).
-      #. Red/Black Gauss-Seidel (non-symmetric).
+
+    ::
+
+    1 - Jacobi.
+    2 - Weighted Jacobi.
+    3 - Red/Black Gauss-Seidel (symmetric).
+    4 - Red/Black Gauss-Seidel (non-symmetric).
 
 ``RadHydroMGPreRelax`` (external)
     Number of pre-relaxation sweeps used by the multigrid solver.
@@ -1695,9 +1698,8 @@ Radiative Transfer (FLD) Split Solver Parameters
     Type of assumed radiation spectrum for radiation field, Default: 1.
    ::
  
-    -1 - monochromatic spectrum at frequency h nu\ :sub:`HI`\  =
-       13.6 eV
-    0  - power law spectrum, (nu / nu\ :sub:`HI`\ )\ :sup:`-1.5`\ 
+    -1 - monochromatic spectrum at frequency h nu_{HI}= 13.6 eV
+    0  - power law spectrum, (nu / nu_{HI})^(-1.5) 
     1  - T=1e5 blackbody spectrum
 
 ``RadHydroChemistry`` (external)
@@ -1708,13 +1710,13 @@ Radiative Transfer (FLD) Split Solver Parameters
 ``RadHydroModel`` (external)
     Determines which set of equations to use within the solver.
     Default: 1.
-    
-    -  (1) - chemistry-dependent model, with case-B hydrogen II
-       recombination coefficient.
-    -  (4) - chemistry-dependent model, with case-A hydrogen II
-       recombination coefficient, but assumes an isothermal gas energy.
-    -  (10) - no chemistry, instead uses a model of local thermodynamic
-       equilibrium to couple radiation to gas energy.
+    ::
+
+    1  - chemistry-dependent model, with case-B hydrogen II recombination coefficient.
+    4  - chemistry-dependent model, with case-A hydrogen II recombination coefficient, 
+         but assumes an isothermal gas energy.
+    10 - no chemistry, instead uses a model of local thermodynamic
+         equilibrium to couple radiation to gas energy.
 
 ``RadHydroMaxDt`` (external)
     maximum time step to use in the FLD solver. Default: 1e20 (no
@@ -1728,10 +1730,12 @@ Radiative Transfer (FLD) Split Solver Parameters
 ``RadHydroDtNorm`` (external)
     type of p-norm to use in estimating time-accuracy for predicting
     next time step. Default: 2.0.
-    
-    -  (0) - use the max-norm.
-    -  (>0) - use the specified p-norm.
-    -  (<0) - illegal.
+
+   ::
+ 
+    0  - use the max-norm.
+    >0 - use the specified p-norm.
+    <0 - illegal.
 
 ``RadHydroDtRadFac`` (external)
     Desired time accuracy tolerance for the radiation field. Default:
@@ -1754,10 +1758,12 @@ Radiative Transfer (FLD) Split Solver Parameters
 ``RadiationBoundaryX0Faces`` (external)
     Boundary condition types to use on the x0 faces of the radiation
     field. Default: [0 0].
-    
-    -  (0) - Periodic.
-    -  (1) - Dirichlet.
-    -  (2) - Neumann.
+
+    ::
+
+    0 - Periodic.
+    1 - Dirichlet.
+    2 - Neumann.
 
 ``RadiationBoundaryX1Faces`` (external)
     Boundary condition types to use on the x1 faces of the radiation
@@ -1776,11 +1782,13 @@ Radiative Transfer (FLD) Split Solver Parameters
     multigrid). Default: 50.
 ``RadHydroMGRelaxType`` (external)
     Relaxation method used by the multigrid solver. Default: 1.
-    
-      #. Jacobi.
-      #. Weighted Jacobi.
-      #. Red/Black Gauss-Seidel (symmetric).
-      #. Red/Black Gauss-Seidel (non-symmetric).
+
+    ::
+
+     Jacobi.
+     Weighted Jacobi.
+     Red/Black Gauss-Seidel (symmetric).
+     Red/Black Gauss-Seidel (non-symmetric).
 
 ``RadHydroMGPreRelax`` (external)
     Number of pre-relaxation sweeps used by the multigrid solver.
@@ -1872,15 +1880,14 @@ Feedback Physics
     parameter is set to 0, MBH particles still can be radiation sources
     if ``RadiativeTransfer`` is on. See ``Grid_AddFeedbackSphere.C``.
     Default: 0 (FALSE)
-    
-    -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all
-    -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 1`` : purely thermal
-       feedback
-    -  ``RadiativeTransfer = 0`` & ``MBHFeedback = 2`` : purely mechanical
-       feedback
-    -  ``RadiativeTransfer = 1`` & ``MBHFeedback = 0`` : purely radiative
-       feedback
-    -  ``RadiativeTransfer = 1`` & ``MBHFeedback = 2`` : radiative and
+
+   ::
+ 
+     ``RadiativeTransfer = 0`` & ``MBHFeedback = 0`` : no feedback at all
+     ``RadiativeTransfer = 0`` & ``MBHFeedback = 1`` : purely thermal feedback
+     ``RadiativeTransfer = 0`` & ``MBHFeedback = 2`` : purely mechanical feedback
+     ``RadiativeTransfer = 1`` & ``MBHFeedback = 0`` : purely radiative feedback
+     ``RadiativeTransfer = 1`` & ``MBHFeedback = 2`` : radiative and
        mechanical feedback combined (one has to change the following
        ``MBHFeedbackRadiativeEfficiency`` parameter accordingly, say from 0.1
        to 0.05, to keep the same total energy across different modes of
