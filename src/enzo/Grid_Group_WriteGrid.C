@@ -683,6 +683,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
     if (OutputSmoothedDarkMatter == FALSE) {
     
+
       if (SelfGravity && NumberOfParticles > 0) {
 	float SaveGravityResolution = GravityResolution;
 	GravityResolution = 1;
@@ -692,7 +693,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 				       GRAVITATING_MASS_FIELD_PARTICLES);
 	GravityResolution = SaveGravityResolution;
       }
- 
+
       /* If present, write out the GravitatingMassFieldParticles. */
  
       if (GravitatingMassFieldParticles != NULL) {

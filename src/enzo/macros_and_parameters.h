@@ -80,7 +80,7 @@
 
 #define MAX_MOVIE_FIELDS                    6
 
-#define MAX_POTENTIAL_ITERATIONS            8
+#define MAX_POTENTIAL_ITERATIONS            80
 
 #define MAX_ENERGY_BINS                    10
 

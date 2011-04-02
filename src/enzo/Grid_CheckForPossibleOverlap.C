@@ -43,7 +43,7 @@ int grid::CheckForPossibleOverlap(grid *OtherGrid,
   int FullPeriod = TRUE;
  
   /* Always overlap with self. */
- 
+
   if (this == OtherGrid)
     return TRUE;
  
@@ -171,7 +171,7 @@ int grid::CheckForPossibleOverlapHelper(grid *OtherGrid,
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
  
   /* Initialize gravitating mass field parameters. */
- 
+
   if (GravitatingMassFieldCellSize == FLOAT_UNDEFINED)
     this->InitializeGravitatingMassField(RefineBy);
   if (OtherGrid->GravitatingMassFieldCellSize == FLOAT_UNDEFINED)

@@ -73,13 +73,7 @@ int grid::ComputeTemperatureField(float *temperature)
 
   /* Compute the pressure first. */
  
-  if (DualEnergyFormalism)
-    result = this->ComputePressureDualEnergyFormalism(Time, temperature);
-  else
-    result = this->ComputePressure(Time, temperature);
- 
-  if (result == FAIL)
-    ENZO_FAIL("Error in grid->ComputePressure.");
+  this->ComputePressure(Time, temperature);
  
   /* Compute the size of the fields. */
  

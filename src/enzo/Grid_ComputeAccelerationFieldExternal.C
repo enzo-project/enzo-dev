@@ -96,7 +96,7 @@ int grid::ComputeAccelerationFieldExternal()
      Point Source gravity
      ----------------------------------------------------------------- */
  
-  if (PointSourceGravity) {
+  if (PointSourceGravity > 0) {
  
     FLOAT a = 1.0, accel, dadt, radius, rcubed, rsquared, 
       xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
@@ -111,90 +111,101 @@ int grid::ComputeAccelerationFieldExternal()
 
     /* Loop over grid, adding acceleration to field. */
 
-    if (PointSourceGravity == 1 || PointSourceGravity == 2)
-      for (dim = 0; dim < GridRank; dim++) {
-	int n = 0;
- 
-	for (k = 0; k < GridDimension[2]; k++) {
-	  if (GridRank > 2)
-	    zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] -
-	      PointSourceGravityPosition[2];
-	  if (dim == 2 && HydroMethod == Zeus_Hydro)
-	    zpos -= 0.5*CellWidth[2][k];
+    for (dim = 0; dim < GridRank; dim++) {
+      int n = 0;
+      
+      for (k = 0; k < GridDimension[2]; k++) {
+	if (GridRank > 2)
+	  zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] -
+	    PointSourceGravityPosition[2];
+	if (dim == 2 && HydroMethod == Zeus_Hydro)
+	  zpos -= 0.5*CellWidth[2][k];
 	  
-	  for (j = 0; j < GridDimension[1]; j++) {
-	    if (GridRank > 1)
-	      ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] -
-		PointSourceGravityPosition[1];
-	    if (dim == 1 && HydroMethod == Zeus_Hydro)
-	      ypos -= 0.5*CellWidth[1][j];
+	for (j = 0; j < GridDimension[1]; j++) {
+	  if (GridRank > 1)
+	    ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] -
+	      PointSourceGravityPosition[1];
+	  if (dim == 1 && HydroMethod == Zeus_Hydro)
+	    ypos -= 0.5*CellWidth[1][j];
 	    
-	    for (i = 0; i < GridDimension[0]; i++, n++) {
-	      xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -
-		PointSourceGravityPosition[0];
-	      if (dim == 0 && HydroMethod == Zeus_Hydro)
-		xpos -= 0.5*CellWidth[0][i];
+	  for (i = 0; i < GridDimension[0]; i++, n++) {
+	    xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] -
+	      PointSourceGravityPosition[0];
+	    if (dim == 0 && HydroMethod == Zeus_Hydro)
+	      xpos -= 0.5*CellWidth[0][i];
 
-	      /* Compute distance from center. */
+	    /* Compute distance from center. */
  
-	      rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
-	      rcubed = POW(rsquared, 1.5);
+	    rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
+	    rcubed = POW(rsquared, 1.5);
  
-	      if (PointSourceGravity == 1) {
+	    if (PointSourceGravity == 1) {
 		
-		/* (1) Point Source:
-		   Multiply by a(t) to offset the 1/a(t) in ComovingAccelTerm(). 
-		   (i.e. 1/a^2 * a = 1/a). */
+	      /* (1) Point Source:
+		 Multiply by a(t) to offset the 1/a(t) in ComovingAccelTerm(). 
+		 (i.e. 1/a^2 * a = 1/a). */
 		
-		rcore = max(0.1*CellWidth[0][0], PointSourceGravityCoreRadius);
-		accel = min(PointSourceGravityConstant/((rsquared)*POW(rsquared,0.5)*a),
-			    PointSourceGravityConstant/(rcore*rcore*POW(rsquared,0.5)*a));
+	      rcore = max(0.1*CellWidth[0][0], PointSourceGravityCoreRadius);
+	      accel = min(PointSourceGravityConstant/((rsquared)*POW(rsquared,0.5)*a),
+			  PointSourceGravityConstant/(rcore*rcore*POW(rsquared,0.5)*a));
 		
-	      } else if (PointSourceGravity == 2) {
+	    } else if (PointSourceGravity == 2) {
 		  
-		/* (2) NFW Profile: CoreRadius and Constant are both in code units 
-		   if ProblemType == 31 (Galaxy simulation), otherwise they're in CGS.
-		   Need to convert the core radius to code units and the gravity constant to
-		   CGS.  (BWO, July 2009)  */
+	      /* (2) NFW Profile: CoreRadius and Constant are both in code units 
+		 if ProblemType == 31 (Galaxy simulation), otherwise they're in CGS.
+		 Need to convert the core radius to code units and the gravity constant to
+		 CGS.  (BWO, July 2009)  */
 
-		radius = sqrt(rsquared);
-		if(ProblemType == 31){
-		  rcore = PointSourceGravityCoreRadius;  // already in code units
-		} else {
-		  rcore = PointSourceGravityCoreRadius/LengthUnits;  // convert from CGS to code
-		}
-
-		FLOAT x = radius/rcore;
-
-		// BWO, July 2009: MassUnitsDouble is CGS mass units if ProblemType == 31,
-		// and 1.0 otherwise.
-		accel = GravConst*PointSourceGravityConstant*MassUnitsDouble*
-		  ((log(1.0+x  )-x  /(1.0+x  )) /
-		   (log(1.0+1.0)-1.0/(1.0+1.0))) / 
-		  POW(radius*LengthUnits, 2.0) / AccelUnits;
-
-		accel = accel/radius;  // this radius normalizes the multiplication by 
-		                         // xpos,ypos,zpos done below
-
+	      radius = sqrt(rsquared);
+	      if(ProblemType == 31){
+		rcore = PointSourceGravityCoreRadius;  // already in code units
 	      } else {
-		/* this is only reached if there are two types of point sources - 
-		   when you add a new one, this changes */
-		ENZO_FAIL("should never get here! in Grid::ComputeAccelFieldExternal");
+		rcore = PointSourceGravityCoreRadius/LengthUnits;  // convert from CGS to code
 	      }
 
-	      /* Apply force. */
-	
-	      if (dim == 0)
-		AccelerationField[0][n] -= accel*xpos;
-	      if (dim == 1)
-		AccelerationField[1][n] -= accel*ypos;
-	      if (dim == 2)
-		AccelerationField[2][n] -= accel*zpos;
+	      FLOAT x = radius/rcore;
 
-	    } // end: loop over i
-	  } // end: loop over j
-	} // end: loop over k
-      } // end: loop over dims
+	      // BWO, July 2009: MassUnitsDouble is CGS mass units if ProblemType == 31,
+	      // and 1.0 otherwise.
+	      accel = GravConst*PointSourceGravityConstant*MassUnitsDouble*
+		((log(1.0+x  )-x  /(1.0+x  )) /
+		 (log(1.0+1.0)-1.0/(1.0+1.0))) / 
+		POW(radius*LengthUnits, 2.0) / AccelUnits;
+
+	      accel = accel/radius;  // this radius normalizes the multiplication by 
+	      // xpos,ypos,zpos done below
+
+	    }  else if (PointSourceGravity == 3) {
+	      // (3) Isothermal sphere along a line at the cylindrical radius, a,  
+	      //    
+	      FLOAT a2 = PointSourceGravityCoreRadius*PointSourceGravityCoreRadius;
+	      /*	      if (GridRank > 1)
+		a2 = max(a2, ypos*ypos);
+	      if (GridRank > 2)
+		a2 += zpos*zpos;
+	      */
+	      //	      accel = PointSourceGravityConstant/(xpos*xpos + a2);
+	      accel = PointSourceGravityConstant/(rsquared + a2);
+	      //	      fprintf(stderr, "%g %g %g\n", xpos, accel, AccelUnits);
+	    }  else {
+	      /* this is only reached if there are two types of point sources - 
+		 when you add a new one, this changes */
+	      ENZO_FAIL("should never get here! in Grid::ComputeAccelFieldExternal");
+	    }
+
+	    /* Apply force. */
+	
+	    if (dim == 0)
+	      AccelerationField[0][n] -= accel*xpos;
+	    if (dim == 1)
+	      AccelerationField[1][n] -= accel*ypos;
+	    if (dim == 2)
+	      AccelerationField[2][n] -= accel*zpos;
+
+	  } // end: loop over i
+	} // end: loop over j
+      } // end: loop over k
+    } // end: loop over dims
    
     /* DO PARTICLES HERE! */
 
@@ -202,7 +213,7 @@ int grid::ComputeAccelerationFieldExternal()
         ENZO_FAIL("PointSourceGravity assumes 3D");
     }
       
-    if (PointSourceGravity == 1 || PointSourceGravity == 2)
+    if (PointSourceGravity > 0)
       for (i = 0; i < NumberOfParticles; i++) {
 	
 	/* Compute vector between particle (advanced by 1/2 step) and

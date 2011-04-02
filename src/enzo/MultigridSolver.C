@@ -51,7 +51,8 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
   int i, dim, MinDim, bottom, cycle, smooth,
       Dims[MAX_DIMENSION][MAX_DEPTH], Size[MAX_DEPTH];
   float *Solution[MAX_DEPTH], *RHS[MAX_DEPTH], *defect[MAX_DEPTH];
- 
+  double lmean = 0.0;
+
   for (Size[0] = 1, dim = 0; dim < Rank; dim++)
     Size[0] *= (Dims[dim][0] = TopDims[dim]);
   for (dim = Rank; dim < MAX_DIMENSION; dim++)
@@ -204,11 +205,12 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
  
   /* Calculate mean. */
  
-  mean = 0;
+  lmean = 0;
   for (i = 0; i < Size[0]; i++)
-    mean += fabs(Solution[0][i]);
-  mean /= float(Size[0]);
- 
+    lmean += fabs(Solution[0][i]);
+  lmean /= float(Size[0]);
+  mean = lmean;
+
   iter++;
   tol_check = norm/mean;
  
@@ -223,10 +225,11 @@ int MultigridSolver(float *TopRHS, float *TopSolution, int Rank, int TopDims[],
 			   &Dims[0][0], &Dims[1][0], &Dims[2][0]);
     FORTRAN_NAME(mg_calc_defect)(Solution[0], RHS[0], defect[0], &Rank,
 				 &Dims[0][0], &Dims[1][0], &Dims[2][0], &norm);
-    mean = 0;
+    lmean = 0;
     for (i = 0; i < Size[0]; i++)
-      mean += fabs(Solution[0][i]);
-    mean /= float(Size[0]);
+      lmean += fabs(Solution[0][i]);
+    lmean /= float(Size[0]);
+    mean = lmean;
     tol_check = norm/mean;
     //    printf("%"ISYM" (%"ISYM" %"ISYM" %"ISYM") %"GSYM" %"GSYM" %"GSYM"\n", repeat, Dims[0][0], Dims[1][0],
     //	   Dims[2][0], norm, mean, tol_check);

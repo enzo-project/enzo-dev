@@ -1645,15 +1645,15 @@ int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
 int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 // AccelerationHack
 
@@ -1730,6 +1730,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                float SedovBlastInnerTotalEnergy);
 
   int SedovBlastInitializeGrid3D(char * fname);
+
+  int SedovBlastInitializeGrid3DFixedR(float dr);
+
 
 /* Initialize a grid for RadiatingShock (Sedov+Cooling) Explosion */
 
