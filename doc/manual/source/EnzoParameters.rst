@@ -471,7 +471,7 @@ Hierarchy Control Parameters
     comment header line. Default: None.
 ``MinimumOverDensityForRefinement`` (external)
     These float values (up to 9) are used if the
-    ``CellFlaggingMethod`` is 2, 4 or 5. The value is the density (baryon or particle), in code units, above which refinement occurs. For cosmological simulations, note that the unit is with respect to the average density (baryon or particle) in the simulation volume. The exception to this is method 5, where it becomes rho [code] - 1. The elements in this array must match those in ``CellFlaggingMethod``. Therefore, if ``CellFlaggingMethod`` = 1 4 9 10, ``MinimumOverDensityForRefinement`` = 0 8.0 0 0.
+    ``CellFlaggingMethod`` is 2, 4 or 5. For method 2 and 4, the value is the density (baryon or particle), in code units, above which refinement occurs. When using method 5, it becomes rho [code] - 1. The elements in this array must match those in ``CellFlaggingMethod``. Therefore, if ``CellFlaggingMethod`` = 1 4 9 10, ``MinimumOverDensityForRefinement`` = 0 8.0 0 0.
 
     In practice, this value is converted into a mass by
     multiplying it by the volume of the top grid cell. The result is
