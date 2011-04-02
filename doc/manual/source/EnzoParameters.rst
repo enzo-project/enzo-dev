@@ -283,10 +283,10 @@ have a look at :ref:`controlling_data_output` for more information.
     first two specify the X-ray band (observed at z=0) to be used, and
     the last gives the name of an ascii file that contains the X-ray
     spectral information. A gzipped version of this file good for bands
-    within the 0.1 - 20 keV range is available here. If these
+    within the 0.1 - 20 keV range is available :ref:`here?`. If these
     parameters are specified, then the second field is replaced with
     integrated emissivity along the line of sight in units of
-    10\ :sup:`-23` erg/cm\ :sup:`2`/s.
+    10\ :sup:`-23` erg/cm\ :sup:`2`/s. Default: ``XrayLowerCutoffkeV = 0.5``, ``XrayUpperCutoffkeV = 2.5``.
 ``ExtractFieldsOnly`` (external)
     Used for extractions (enzo -x ...) when only field data are needed
     instead of field + particle data. Default is 1 (TRUE).
@@ -1175,7 +1175,7 @@ For details on each of the different star formation methods available in Enzo se
 	3 - Population III stars / Abel, Wise & Bryan (2007)
 	4 - Sink particles: Pure sink particle or star particle with wind feedback depending on 
 	    choice for HydroMethod / Wang et al. (2009)
-	5 - Radiative star clusters (Jeans resolved) / Wise & Cen (2009)
+	5 - Radiative star clusters  / Wise & Cen (2009)
 	6 - [reserved]
 	7 - Cen & Ostriker (1992) with no delay in formation
 	8 - Springel & Hernquist (2003)
@@ -1197,8 +1197,14 @@ For details on each of the different star formation methods available in Enzo se
     implemented for ``StarFeedbackCreation`` = 0 or 1 with ``StarParticleFeedback`` =  1. (If ``StarParticleFeedback`` = 0, stellar feedback is only deposited into the cell in which the star particle lives).  Default: 0.
 
 ``StarFeedbackDistCellStep`` (external)
-    This parameter is used with ``StarFeedbackDistRadius`` > 0 and in essence, controls the shape of the volume where
-    the feedback is deposited. Starting at the grid cell in which a star particle is located, it is the maximum number of walking steps along the x, y, and z axes that can be taken within the stellar feedback region. Since corner cells take 1-2 more steps than adjacent cells, the value of ``StarFeedbackDistCellStep`` dictates whether these are included. For example, setting ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, since the corner of the cube is one step in the x, one in the y, and one in the z direction away from the center. Setting ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 corresponds to a 3x3x3 cube with the corners missing. The maximum value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * ``StarFeedbackDistRadius``). When this is used, equal amounts of stellar feedback products are deposited into all cells in the region. Only implemented for ``StarFeedbackCreation`` = 0 or 1 with ``StarParticleFeedback`` = 1.  See :ref:`distributed_feedback` for an illustration. Default: 0.
+    In essence, this parameter controls the shape of the volume where
+    the feedback is applied, cropping the original cube.  This volume
+    that are within ``StarFeedbackDistCellSteps`` cells from the host
+    cell, counted in steps in Cartesian directions, are injected with
+    stellar feedback.  Its maximum value is ``StarFeedbackDistRadius``
+    * ``TopGridRank``.  Only implemented for ``StarFeedbackCreation`` = 0
+    or 1.  See :ref:`distributed_feedback` for an illustration.
+    Default: 0.
 
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1236,7 +1242,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     to M_baryon \* dt/max(t_dyn, t_max) where t_max is this
     parameter. This effectively sets a limit on the rate of star
     formation based on the idea that stars have a non-negligible
-    formation and life-time. This is used to control the feedback in ``StarParticleFeedback`` = 0, 1 and 7. The unit is years. Default: 1e6
+    formation and life-time. The unit is years. Default: 1e6
 ``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
     phase. Default: 0.25
@@ -1253,6 +1259,22 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. Default: 5e-6
+``StarFeedbackDistCellStep`` (external)
+    This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
+    determines the shape of the region into which stellar feedback is 
+    deposited.  Starting at the grid cell in which a star particle is 
+    located, it is the maximum number of walking steps along the x, y, 
+    and z axes that can be taken to reach a point inside the stellar 
+    feedback region.  For example, setting ``StarFeedbackDistRadius`` = 
+    1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, 
+    since the corner of the cube is one step in the x, one in the y, and 
+    one in the z direction away from the center.  Setting 
+    ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 
+    corresponds to a 3x3x3 cube with the corners missing.  The maximum 
+    value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * 
+    ``StarFeedbackDistRadius``).  When this is used, equal amounts of 
+    stellar feedback products are deposited into all cells in the 
+    region.  Default: 0
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1289,8 +1311,13 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
 ``PopIIISupernovaUseColour`` (internal)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
 
+<<<<<<< local
+Jeans Resolved Star Formation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=======
 Radiative Star Cluster Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>>>>>>> other
 
 The parameters below are considered in ``StarParticleCreation`` method 5.
 
@@ -1350,16 +1377,18 @@ Background Radiation Parameters
     is to be used. It can currently only be used if ``MultiSpecies`` = 1
     (i.e. no molecular H support). The following values are used.
     Default: 0
-    
-    - 1. Haardt & Madau spectrum with q_alpha=1.5
-    - 2. Haardt & Madau spectrum with q_alpha = 1.8
-    - 3. reserved for experimentation
-    - 4. H&M spectrum (q_alpha=1.5. supplemented with an X-ray Compton heating
+
+   ::
+  
+     1. Haardt & Madau spectrum with q_alpha=1.5
+     2. Haardt & Madau spectrum with q_alpha = 1.8
+     3. reserved for experimentation
+     4. H&M spectrum (q_alpha=1.5. supplemented with an X-ray Compton heating
          background from Madau & Efstathiou (see astro-ph/9902080)
-    - 9. a constant molecular H2 photo-dissociation rate
-    - 10. internally computed radiation field using the algorithm of Cen & Ostriker
-    - 11. same as previous, but with very, very simple optical shielding fudge
-    - 12. Haardt & Madau spectrum with q_alpha=1.57
+     9. a constant molecular H2 photo-dissociation rate
+     10. internally computed radiation field using the algorithm of Cen & Ostriker
+     11. same as previous, but with very, very simple optical shielding fudge
+     12. Haardt & Madau spectrum with q_alpha=1.57
 
 ``RadiationFieldLevelRecompute`` (external)
     This integer parameter is used only if the previous parameter is
@@ -1536,11 +1565,11 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 
 ``RadHydroESpectrum`` (external)
     Type of assumed radiation spectrum for radiation field, Default: 1.
-    
-    -  (-1) - monochromatic spectrum at frequency h nu\ :sub:`HI`\  =
-       13.6 eV
-    -  (0) - power law spectrum, (nu / nu\ :sub:`HI`\ )\ :sup:`-1.5`\ 
-    -  (1) - T=1e5 blackbody spectrum
+   ::
+ 
+    -1 - monochromatic spectrum at frequency h nu_{HI} = 13.6 eV
+    0  - power law spectrum, (nu / nu_{HI} )^(-1.5) 
+    1  - T = 1e5 blackbody spectrum
 
 ``RadHydroChemistry`` (external)
     Use of hydrogen chemistry in ionization model, set to 1 to turn on
@@ -1550,14 +1579,13 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroModel`` (external)
     Determines which set of equations to use within the solver.
     Default: 1.
-    
-    -  (1) - chemistry-dependent model, with case-B hydrogen II
-       recombination coefficient.
-    -  (2) - chemistry-dependent model, with case-A hydrogen II
-       recombination coefficient.
-    -  (4) - chemistry-dependent model, with case-A hydrogen II
+   ::
+ 
+    1  - chemistry-dependent model, with case-B hydrogen II recombination coefficient.
+    2  - chemistry-dependent model, with case-A hydrogen II recombination coefficient.
+    4  - chemistry-dependent model, with case-A hydrogen II
        recombination coefficient, but assumes an isothermal gas energy.
-    -  (10) - no chemistry, instead uses a model of local thermodynamic
+    10 - no chemistry, instead uses a model of local thermodynamic
        equilibrium to couple radiation to gas energy.
 
 ``RadHydroMaxDt`` (external)
@@ -1571,11 +1599,12 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     hydro time step).
 ``RadHydroDtNorm`` (external)
     type of p-norm to use in estimating time-accuracy for predicting
-    next time step. Default: 2.0.
-    
-    -  (0) - use the max-norm.
-    -  (>0) - use the specified p-norm.
-    -  (<0) - illegal.
+    next time step. Default: 2.0.    
+   ::
+
+     0 - use the max-norm.
+    >0 - use the specified p-norm.
+    <0 - illegal.
 
 ``RadHydroDtRadFac`` (external)
     Desired time accuracy tolerance for the radiation field. Default:
@@ -1598,10 +1627,11 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadiationBoundaryX0Faces`` (external)
     Boundary condition types to use on the x0 faces of the radiation
     field. Default: [0 0].
-    
-    -  (0) - Periodic.
-    -  (1) - Dirichlet.
-    -  (2) - Neumann.
+   ::
+ 
+    0 - Periodic.
+    1 - Dirichlet.
+    2 - Neumann.
 
 ``RadiationBoundaryX1Faces`` (external)
     Boundary condition types to use on the x1 faces of the radiation
@@ -1611,14 +1641,14 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     field. Default: [0 0].
 ``RadHydroLimiterType`` (external)
     Type of flux limiter to use in the FLD approximation. Default: 4.
-    
-    -  (0) - original Levermore-Pomraning limiter, à la Levermore &
-       Pomraning, 1981 and Levermore, 1984.
-    -  (1) - rational approximation to LP limiter.
-    -  (2) - new approximation to LP limiter (to reduce floating-point
-       cancellation error).
-    -  (3) - no limiter.
-    -  (4) - ZEUS limiter (limiter 2, but with no "effective albedo").
+    ::
+
+    0 - original Levermore-Pomraning limiter, à la Levermore &
+        Pomraning, 1981 and Levermore, 1984.
+    1 - rational approximation to LP limiter.
+    2 - new approximation to LP limiter (to reduce floating-point cancellation error).
+    3 - no limiter.
+    4 - ZEUS limiter (limiter 2, but with no "effective albedo").
 
 ``RadHydroTheta`` (external)
     Time-discretization parameter to use, 0 gives explicit Euler, 1
@@ -1626,19 +1656,20 @@ Radiative Transfer (FLD) Implicit Solver Parameters
 ``RadHydroAnalyticChem`` (external)
     Type of time approximation to use on gas energy and chemistry
     equations. Default: 1 (if possible for model).
-    
-    -  (0) - use a standard theta-method.
-    -  (1) - use an implicit quasi-steady state (IQSS) approximation.
+    ::
+
+    0 - use a standard theta-method.
+    1 - use an implicit quasi-steady state (IQSS) approximation.
 
 ``RadHydroInitialGuess`` (external)
     Type of algorithm to use in computing the initial guess for the
     time-evolved solution. Default: 0.
-    
-    -  (0) - use the solution from the previous time step (safest).
-    -  (1) - use explicit Euler with only spatially-local physics
-       (heating & cooling).
-    -  (2) - use explicit Euler with all physics.
-    -  (5) - use an analytic predictor based on IQSS approximation of
+   ::
+ 
+    0 - use the solution from the previous time step (safest).
+    1 - use explicit Euler with only spatially-local physics (heating & cooling).
+    2 - use explicit Euler with all physics.
+    5 - use an analytic predictor based on IQSS approximation of
        spatially-local physics.
 
 ``RadHydroNewtTolerance`` (external)
@@ -1684,11 +1715,12 @@ Radiative Transfer (FLD) Split Solver Parameters
 
 ``RadHydroESpectrum`` (external)
     Type of assumed radiation spectrum for radiation field, Default: 1.
-    
-    -  (-1) - monochromatic spectrum at frequency h nu\ :sub:`HI`\  =
+   ::
+ 
+    -1 - monochromatic spectrum at frequency h nu\ :sub:`HI`\  =
        13.6 eV
-    -  (0) - power law spectrum, (nu / nu\ :sub:`HI`\ )\ :sup:`-1.5`\ 
-    -  (1) - T=1e5 blackbody spectrum
+    0  - power law spectrum, (nu / nu\ :sub:`HI`\ )\ :sup:`-1.5`\ 
+    1  - T=1e5 blackbody spectrum
 
 ``RadHydroChemistry`` (external)
     Use of hydrogen chemistry in ionization model, set to 1 to turn on
@@ -2503,7 +2535,7 @@ Cosmology Simulation (30)
 ``CosmologySimulationParticleVelocity[123]Name`` (external)
     This is the name of the file which contains initial data for
     particle velocities but only has one component per file. This is
-    more useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
+    more useful with very large (≥2048\ :sup:`3`\ ) datasets. Currently
     can only use in conjunction with ``CosmologySimulationCalculatePositions``.
     because it expects a 3D grid structure instead of a 1D list of particles.
     Default: None.
