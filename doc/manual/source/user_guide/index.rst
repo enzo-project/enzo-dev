@@ -35,7 +35,7 @@ driven by working researchers, and we encourage everyone who has made
 useful changes to contribute those changes back to the community and
 to participate in the collaborative development of the code.  Email
 inquiries and comments should be directed to the `Enzo Users' List
-<http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_. Thank you!
+<http://groups.google.com/group/enzo-users>`_. Thank you!
 
 .. toctree::
    :maxdepth: 2

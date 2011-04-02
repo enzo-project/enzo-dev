@@ -29,7 +29,7 @@ Mercurial Check Out Instructions
 Enzo is provided in both a stable and an unstable form.  **It is highly
 recommended that for any production run the stable version is used.**
 Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
-List <https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_.  A source
+List <http://groups.google.com/group/enzo-users>`_.  A source
 browser is also available.
 
 Please visit the Google Code project website to access the Enzo source tree and
@@ -139,7 +139,7 @@ Makefile in that directory to provide or override Make settings.
 
 Make sure you save your configuration file! If you're on a big system (multiple
 Enzo users), please post your file to `the Enzo mailing list
-<http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_, and it will be
+<http://groups.google.com/group/enzo-users>`_, and it will be
 considered for inclusion with the base Enzo distribution.
 
 HDF5 Versions
