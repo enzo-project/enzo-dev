@@ -81,7 +81,7 @@ c
      &                 real(6*refine1**3                     )
          coefp1(i+1) = real(3*i**2 + 3*i + 1)                 /
      &                 real(6*refine1**3                     )
-         coef01(i+1) = 1.0/refine1 - coefm1(i+1) - coefp1(i+1)
+         coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
@@ -89,7 +89,7 @@ c
      &                 real(6*refine2**3                     )
          coefp2(i+1) = real(3*i**2 + 3*i + 1)                 /
      &                 real(6*refine2**3                     )
-         coef02(i+1) = 1.0/refine2 - coefm2(i+1) - coefp2(i+1)
+         coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
 c  Loop over area to be refined and interpolate
@@ -117,7 +117,7 @@ c  Correct to make sure the interpolation is conservative
 c
       do j = start2, end2, refine2
          do i = start1, end1, refine1
-            sum = 0.0
+            sum = 0.d0
             do jsub = 0, refine2-1
                do isub = 0, refine1-1
                   sum = sum + grid(i-start1+gstart1+isub, 
@@ -160,7 +160,7 @@ c           a) zero temp space
 c           b) average over one line of the interpolated grid in i direction
 c
          do i = 1, (end1-start1+1)/refine1
-            temp(i) = 0.0
+            temp(i) = 0.d0
          enddo
          do i = start1, end1
             temp((i-start1)/refine1 + 1) = temp((i-start1)/refine1 + 1)
@@ -184,7 +184,7 @@ c
             if (abs(del2left) .lt. tiny) 
      &           del2left = sign(tiny, del2left)
             fraction((i-start1)/refine1 + 1) = 
-     &           min(max(del1left/del2left, 0.0), 1.0)
+     &           min(max(del1left/del2left, 0.d0), 1.d0)
          enddo
 c
 c        repeat for right side of each distribution
@@ -202,7 +202,7 @@ c
             if (abs(del2right) .lt. tiny) del2right = 
      &           sign(tiny, del2right)
             fraction((i-start1)/refine1 + 1) = max(
-     &                    min(max(del1right/del2right, 0.0), 1.0)   ,
+     &                    min(max(del1right/del2right, 0.d0), 1.d0)  ,
      &                    fraction((i-start1)/refine1 + 1)           )
          enddo
 c
@@ -213,7 +213,7 @@ c
      &         temp((i-start1)/refine1+1) 
      &                        *        fraction((i-start1)/refine1+1) +
      &         grid(i-start1+gstart1, jgrid)
-     &                        * (1.0 - fraction((i-start1)/refine1+1) )
+     &                        * (1.d0 - fraction((i-start1)/refine1+1) )
          enddo
       enddo
 c
@@ -226,7 +226,7 @@ c
 c        Compute the average along a single line of the interpolated values
 c
          do j = 1, (end2-start2+1)/refine2
-            temp(j) = 0.0
+            temp(j) = 0.d0
          enddo
          do j = start2, end2
             temp((j-start2)/refine2 + 1) = temp((j-start2)/refine2 + 1)
@@ -250,7 +250,7 @@ c
             if (abs(del2left) .lt. tiny) 
      &           del2left = sign(tiny, del2left)
             fraction((j-start2)/refine2 + 1) = 
-     &           min(max(del1left/del2left, 0.0), 1.0)
+     &           min(max(del1left/del2left, 0.d0), 1.d0)
          enddo
 c
 c        repeat for right side of each distribution
@@ -268,7 +268,7 @@ c
             if (abs(del2right) .lt. tiny) del2right = 
      &           sign(tiny, del2right)
             fraction((j-start2)/refine2 + 1) = max(
-     &                    min(max(del1right/del2right, 0.0), 1.0)   ,
+     &                    min(max(del1right/del2right, 0.d0), 1.d0)  ,
      &                    fraction((j-start2)/refine2 + 1)           )
          enddo
 c
@@ -279,7 +279,7 @@ c
      &         temp((j-start2)/refine2+1) 
      &                        *        fraction((j-start2)/refine2+1) +
      &         grid(igrid, j-start2+gstart2)
-     &                        * (1.0 - fraction((j-start2)/refine2+1) )
+     &                        * (1.d0 - fraction((j-start2)/refine2+1))
          enddo
       enddo
 c

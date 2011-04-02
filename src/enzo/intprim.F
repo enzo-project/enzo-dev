@@ -78,10 +78,11 @@ c
 c  local declarations (arrays passed as temps)
 c
       integer i, m, n
-      real temp1, temp2, dxdt, gamma1, pc, rhoc, du2, dplim, limit
+      real temp1, temp2, dxdt, gamma1, pc, rhoc, du2, dplim, limit, one
       real qplus(idim,5), qmnus(idim,5), qcent(idim,5), qvanl(idim,5),
      $     qplusc(idim,5), qmnusc(idim,5), qcentc(idim,5), 
      $     qvanlc(idim,5), dqc(idim,5)
+      parameter (one=1.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -128,9 +129,9 @@ c
             if (qmnusc(i,n)*qplusc(i,n) .gt. 0.0) then
                temp1 = min(abs(qmnusc(i,n)), abs(qplusc(i,n)))
                temp2 = min(abs(qcentc(i,n)), abs(qvanlc(i,n)))
-               dqc(i,n) = min(2.0*temp1, temp2) * sign(1.0, qcentc(i,n))
+               dqc(i,n) = min(2.0*temp1, temp2) * sign(one, qcentc(i,n))
             else
-               dqc(i,n) = 0.0
+               dqc(i,n) = 0.d0
             endif
          enddo
       enddo
@@ -140,10 +141,10 @@ c     (U-reconstruction; Waagan 2009, JCP, 228, 8609, Eqn 3.17).
 c     Recall that i = 0->4 = rho, u, v, w, p.
 c
       if (iposrec .eq. 1) then
-         gamma1 = gamma - 1.0
+         gamma1 = gamma - 1.d0
          ! Density
          do i = i1-2, i2+2
-            limit = 0.5 * dslice(i)
+            limit = 0.5d0 * dslice(i)
             if (dqc(i,1) .gt. limit) then
                print*, 'Enforcing positive pressure by limiting ' ,
      $              'density slope', i, dslice(i), limit
@@ -168,7 +169,7 @@ c
             enddo
             rhoc = dslice(i) - dqc(i,1)
             pc = pslice(i) - dqc(i,5)
-            dplim = 2.0 * abs(0.125 * rhoc * du2 * gamma1 + pc)
+            dplim = 2.d0 * abs(0.125d0 * rhoc * du2 * gamma1 + pc)
             if (dqc(i,5) .gt. dplim) then
                print*, 'Enforcing positive pressure by limiting ' ,
      $              'pressure slope', i, pslice(i), dplim
@@ -198,10 +199,10 @@ c     Steepen density if asked for (use precomputed steepening parameter)
 c
       if (isteep .ne. 0) then
          do i = i1-1, i2+1
-            dl(i) = (1.0-steepen(i))*dl(i) + 
-     &              steepen(i)*(dslice(i-1)+0.5*dd(i-1))
-            dr(i) = (1.0-steepen(i))*dr(i) + 
-     &              steepen(i)*(dslice(i+1)-0.5*dd(i+1))
+            dl(i) = (1.d0-steepen(i))*dl(i) + 
+     &              steepen(i)*(dslice(i-1)+0.5d0*dd(i-1))
+            dr(i) = (1.d0-steepen(i))*dr(i) + 
+     &              steepen(i)*(dslice(i+1)-0.5d0*dd(i+1))
          enddo
       endif
 c
@@ -247,9 +248,9 @@ c-----------------------------------------------------------------------
          qmnus(i) = qslice(i  )-qslice(i-1)
          qcent(i) = c1(i)*qplus(i) + c2(i)*qmnus(i)
          if (qplus(i)*qmnus(i) .gt. 0) then
-            qvanl(i) = 2.0*qplus(i)*qmnus(i)/(qmnus(i)+qplus(i))
+            qvanl(i) = 2.d0*qplus(i)*qmnus(i)/(qmnus(i)+qplus(i))
          else
-            qvanl(i) = 0.0
+            qvanl(i) = 0.d0
          endif
       enddo
 
@@ -311,7 +312,7 @@ c
       do i=i1-1,i2+1
          temp1 = (qr(i)-qslice(i))*(qslice(i)-ql(i))
          temp2 = qr(i)-ql(i)
-         temp3 = 6.0*(qslice(i)-0.5*(qr(i)+ql(i)))
+         temp3 = 6.d0*(qslice(i)-0.5d0*(qr(i)+ql(i)))
          if (temp1 .le. 0.0) then
             ql(i) = qslice(i)
             qr(i) = qslice(i)
@@ -319,17 +320,17 @@ c
          temp22 = temp2**2
          temp23 = temp2*temp3
          if (temp22 .lt. temp23)
-     &        ql(i) = 3.0*qslice(i) - 2.0*qr(i)
+     &        ql(i) = 3.d0*qslice(i) - 2.d0*qr(i)
          if (temp22 .lt. -temp23)
-     &        qr(i) = 3.0*qslice(i) - 2.0*ql(i)
+     &        qr(i) = 3.d0*qslice(i) - 2.d0*ql(i)
       enddo
 c
 c     If requested, flatten slopes with flatteners calculated in calcdiss (4.1)
 c
       if (iflatten .ne. 0) then
          do i = i1-1, i2+1
-            ql(i) = qslice(i)*flatten(i) + ql(i)*(1.0-flatten(i))
-            qr(i) = qslice(i)*flatten(i) + qr(i)*(1.0-flatten(i))
+            ql(i) = qslice(i)*flatten(i) + ql(i)*(1.d0-flatten(i))
+            qr(i) = qslice(i)*flatten(i) + qr(i)*(1.d0-flatten(i))
          enddo
       endif
 c
@@ -361,21 +362,21 @@ c-----------------------------------------------------------------------
 
       integer i
       real ft
-      parameter(ft = 4.0/3.0)
+      parameter(ft = 4.d0/3.d0)
 
       do i = i1-1, i2+1
-         q6(i) = 6.0*(qslice(i)-0.5*(ql(i)+qr(i)))
+         q6(i) = 6.d0*(qslice(i)-0.5d0*(ql(i)+qr(i)))
          dq(i) = qr(i) - ql(i)
       enddo
 c
       do i = i1, i2+1
-        qla(i)= qr(i-1)-char1(i-1)*(dq(i-1)-(1.0-ft*char1(i-1))*q6(i-1))
-        qra(i)= ql(i  )+char2(i  )*(dq(i  )+(1.0-ft*char2(i  ))*q6(i  ))
+        qla(i)=qr(i-1)-char1(i-1)*(dq(i-1)-(1.d0-ft*char1(i-1))*q6(i-1))
+        qra(i)=ql(i  )+char2(i  )*(dq(i  )+(1.d0-ft*char2(i  ))*q6(i  ))
       enddo
 c
       do i=i1,i2+1
-         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1)-(1.0-ft*c0(i-1))*q6(i-1))
-         qr0(i) = ql(i  )-c0(i  )*(dq(i  )+(1.0+ft*c0(i  ))*q6(i  ))
+         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1)-(1.d0-ft*c0(i-1))*q6(i-1))
+         qr0(i) = ql(i  )-c0(i  )*(dq(i  )+(1.d0+ft*c0(i  ))*q6(i  ))
       enddo
 
       end

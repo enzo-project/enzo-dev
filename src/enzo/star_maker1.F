@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -97,8 +98,8 @@ c
       real   pi, G, sndspdC
       real   isosndsp2, starmass, starfraction, bmass, jeanmass
       double precision msolar
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+     &           msolar=SolarMass)
 
 
 !     external random
@@ -123,7 +124,7 @@ c
 c
 c              1) finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0.d0) goto 10
 c
 c              2) density greater than threshold
 c
@@ -142,15 +143,15 @@ c
      &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
-               if (div .ge. 0.0) goto 10
+               if (div .ge. 0.d0) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
+               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4) goto 10
+     &             temp(i,j,k) .gt. 1.1d4) goto 10
 c
 c              5) M > M_Jeans (this definition involves only baryons under
 c                 the assumption that the dark matter is stable, which
@@ -160,8 +161,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6.0*sqrt(d(i,j,k)*dble(d1))) *
-     &                    dble(pi * isosndsp2 / G)**1.5 / msolar
+               jeanmass = pi/(6.d0*sqrt(d(i,j,k)*dble(d1))) *
+     &                    dble(pi * isosndsp2 / G)**1.5d0 / msolar
 
                if (bmass .lt. jeanmass) goto 10
 c
@@ -170,7 +171,7 @@ c
 c       note:  currently, this only lets us make a star with mass
 c              15% of the baryon mass or less!
 c
-               starfraction = min(masseff*dt/tdyn, 0.15)
+               starfraction = min(masseff*dt/tdyn, 0.15d0)
 
 c
 c  confusion might result here - for now, in this algorithm, mintdyn is 
@@ -181,7 +182,7 @@ c  nothing - however, it only lets a small fraction of particles be made.
 c
 
         call random_number(random)
-        if ( random .ge. exp( -1.0 * mintdyn / tdyn ) ) goto 10
+        if ( random .ge. exp( -1.d0 * mintdyn / tdyn ) ) goto 10
 
 c
 c              Create a star particle
@@ -190,13 +191,13 @@ c
                mp(ii)  = starfraction * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = xstart + (float(i)-0.5d0)*dx
+               yp(ii) = ystart + (float(j)-0.5d0)*dx
+               zp(ii) = zstart + (float(k)-0.5d0)*dx
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -209,12 +210,12 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
                endif
 c
 c              Remove mass from grid
 c
-               d(i,j,k) = (1.0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
 c
 c               write(7+procnum,1000) bmass*starfraction,tdp(ii),tcp(ii),
 c     &                       metalf(ii)
@@ -323,7 +324,7 @@ c
       integer i, j, k, n
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (clight = 3e10, msolar_e51 = 1800.0)
+      parameter (clight = c_light, msolar_e51 = 1800.d0)
 c      parameter (sn_param = 4e-6)    ! this seems a bit high
 c      parameter (m_eject = 0.3, yield = 0.02)
 c
@@ -342,12 +343,12 @@ c               calculate the mass formed during dt using the
 c               integral form on Cen & Ostriker formula.
 c
             xv1 = (t      - tcp(n))/tdp(n)
-            if (xv1 .gt. 12.0) goto 10     ! t-tcp >> tdp so ignore
+            if (xv1 .gt. 12.d0) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
             minitial = mp(n) / 
-     &              (1.0 - m_eject*(1.0 - (1.0 + xv1)*exp(-xv1)))
-            mform = minitial * ((1.0 + xv1)*exp(-xv1) - 
-     &                          (1.0 + xv2)*exp(-xv2))
+     &              (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
+            mform = minitial * ((1.d0 + xv1)*exp(-xv1) - 
+     &                          (1.d0 + xv2)*exp(-xv2))
             mform = min(mform, mp(n))
 c
 c           Compute index of nearest cell
@@ -362,7 +363,7 @@ c
                goto 100
             endif
 c
-            if (mform/d(i,j,k) .lt. 1.0e-10) goto 10
+            if (mform/d(i,j,k) .lt. 1.0d-10) goto 10
 c
             mp(n) = mp(n) - mform * m_eject
 c
@@ -381,7 +382,7 @@ c
 #define NO_SHARE_ENERGY
 #ifdef SHARE_ENERGY
             energy = energy*mform*m_eject/
-     &              (mform*m_eject + minitial*exp(-xv2)*(1.0 + xv2))
+     &              (mform*m_eject + minitial*exp(-xv2)*(1.d0 + xv2))
 #endif /* SHARE_ENERGY */
 c
 c           Add energy to energy field
@@ -409,7 +410,7 @@ c     &              (yield * (1.0-metalf(n)) + m_eject * metalf(n))
 c     &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
 
                metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-     &              (yield * (1.0-metalf(n)) + m_eject * metalf(n)))
+     &              (yield * (1.d0-metalf(n)) + m_eject * metalf(n)))
      &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
 c
             endif
@@ -428,8 +429,8 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
-     &                          w(i,j,k)**2) + ge(i,j,k)
+               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + 
+     &                            w(i,j,k)**2) + ge(i,j,k)
             endif
 c
  10         continue

@@ -53,9 +53,9 @@ c
       h1 = 1.0/real(dim1-1)
       if (ndim .ge. 2) h2 = h1/real(dim2-1)
       if (ndim .ge. 3) h3 = h2/real(dim3-1)
-      coef1 = 12.0/30.0
-      coef2 = 12.0/60.0
-      coef3 = 12.0/90.0
+      coef1 = 12.d0/30.d0
+      coef2 = 12.d0/60.d0
+      coef3 = 12.d0/90.d0
 c
 c     a) 1D
 c
@@ -63,11 +63,11 @@ c
          do ipass=1, 2
             do i=ipass+2, dim1-2, 2
                solution(i,1,1) = coef1*((
-     &                  - 1.0 * (solution(i+2,1,1)+
+     &                  - 1.d0 * (solution(i+2,1,1)+
      &                           solution(i-2,1,1)) +
-     &                  +16.0 * (solution(i+1,1,1)+
+     &                  +16.d0 * (solution(i+1,1,1)+
      &                           solution(i-1,1,1)) )
-     &                  /12.0-h1*rhs(i,1,1))
+     &                  /12.d0-h1*rhs(i,1,1))
             enddo
          enddo
       endif
@@ -81,15 +81,15 @@ c
             do j=3, dim2-2
                do i=istart+2, dim1-2, 2
                  solution(i,j,1) = coef2*((
-     &                     - 1.0 * (solution(i+2,j,1)+
+     &                     - 1.d0 * (solution(i+2,j,1)+
      &                              solution(i-2,j,1)+
      &                              solution(i,j+2,1)+
      &                              solution(i,j-2,1)) +
-     &                     +16.0 * (solution(i+1,j,1)+
+     &                     +16.d0 * (solution(i+1,j,1)+
      &                              solution(i-1,j,1)+
      &				    solution(i,j+1,1)+
      &                              solution(i,j-1,1)) )
-     &                     /12.0-h2*rhs(i,j,1))
+     &                     /12.d0-h2*rhs(i,j,1))
                enddo
                istart = 3-istart
             enddo
@@ -108,19 +108,19 @@ c
                do j=3, dim2-2
                   do i=istart+2, dim1-2, 2
                     solution(i,j,k) = coef3*((
-     &                   - 1.0 * (solution(i+2,j,k)+
+     &                   - 1.d0 * (solution(i+2,j,k)+
      &                            solution(i-2,j,k)+
      &                            solution(i,j+2,k)+
      &                            solution(i,j-2,k)+
      &                            solution(i,j,k+2)+
      &                            solution(i,j,k-2))
-     &                   +16.0 * (solution(i+1,j,k)+
+     &                   +16.d0 * (solution(i+1,j,k)+
      &                            solution(i-1,j,k)+
      &				  solution(i,j+1,k)+
      &                            solution(i,j-1,k)+
      &                            solution(i,j,k+1)+
      &                            solution(i,j,k-1)) )
-     &                   /12.0-h3*rhs(i,j,k))
+     &                   /12.d0-h3*rhs(i,j,k))
                   enddo
                   istart = 3-istart
                enddo
@@ -140,12 +140,12 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.0/real(dim1-1)
+      h1 = 1.d0/real(dim1-1)
       if (ndim .ge. 2) h2 = h1/real(dim2-1)
       if (ndim .ge. 3) h3 = h2/real(dim3-1)
-      coef1 = 1080.0/2720.0
-      coef2 = 1080.0/5440.0
-      coef3 = 1080.0/8160.0
+      coef1 = 1080.d0/2720.d0
+      coef2 = 1080.d0/5440.d0
+      coef3 = 1080.d0/8160.d0
 c
 c     a) 1D
 c
@@ -153,13 +153,13 @@ c
          do ipass=1, 2
             do i=ipass+3, dim1-3, 2
                solution(i,1,1) = coef1*((
-     &                    1.0 * (solution(i+3,1,1)+
+     &                    1.d0 * (solution(i+3,1,1)+
      &                           solution(i-3,1,1)) +
-     &                  -96.0 * (solution(i+2,1,1)+
+     &                  -96.d0 * (solution(i+2,1,1)+
      &                           solution(i-2,1,1)) +
-     &                +1455.0 * (solution(i+1,1,1)+
+     &                +1455.d0 * (solution(i+1,1,1)+
      &                           solution(i-1,1,1)) )
-     &                /1080.0-h1*rhs(i,1,1))
+     &                /1080.d0-h1*rhs(i,1,1))
             enddo
          enddo
       endif
@@ -173,19 +173,19 @@ c
             do j=4, dim2-3
                do i=istart+3, dim1-3, 2
                  solution(i,j,1) = coef2*((
-     &                       1.0 * (solution(i+3,j,1)+
+     &                       1.d0 * (solution(i+3,j,1)+
      &                              solution(i-3,j,1)+
      &                              solution(i,j+3,1)+
      &                              solution(i,j-3,1))
-     &                     -96.0 * (solution(i+2,j,1)+
+     &                     -96.d0 * (solution(i+2,j,1)+
      &                              solution(i-2,j,1)+
      &                              solution(i,j+2,1)+
      &                              solution(i,j-2,1))
-     &                   +1455.0 * (solution(i+1,j,1)+
+     &                   +1455.d0 * (solution(i+1,j,1)+
      &                              solution(i-1,j,1)+
      &		                    solution(i,j+1,1)+
      &                              solution(i,j-1,1)))
-     &                   /1080.0-h2*rhs(i,j,1))
+     &                   /1080.d0-h2*rhs(i,j,1))
                enddo
                istart = 3-istart
             enddo
@@ -204,25 +204,25 @@ c
                do j=4, dim2-3
                   do i=istart+3, dim1-3, 2
                     solution(i,j,k) = coef3*((
-     &                     1.0 * (solution(i+3,j,k)+
+     &                     1.d0 * (solution(i+3,j,k)+
      &                            solution(i-3,j,k)+
      &                            solution(i,j+3,k)+
      &                            solution(i,j-3,k)+
      &                            solution(i,j,k+3)+
      &                            solution(i,j,k-3))
-     &                   -96.0 * (solution(i+2,j,k)+
+     &                   -96.d0 * (solution(i+2,j,k)+
      &                            solution(i-2,j,k)+
      &                            solution(i,j+2,k)+
      &                            solution(i,j-2,k)+
      &                            solution(i,j,k+2)+
      &                            solution(i,j,k-2))
-     &                 +1455.0 * (solution(i+1,j,k)+
+     &                 +1455.d0 * (solution(i+1,j,k)+
      &                            solution(i-1,j,k)+
      &				  solution(i,j+1,k)+
      &                            solution(i,j-1,k)+
      &                            solution(i,j,k+1)+
      &                            solution(i,j,k-1)) )
-     &                 /1080.0-h3*rhs(i,j,k))
+     &                 /1080.d0-h3*rhs(i,j,k))
                   enddo
                   istart = 3-istart
                enddo
@@ -242,12 +242,12 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.0/real(dim1-1)
+      h1 = 1.d0/real(dim1-1)
       if (ndim .ge. 2) h2 = h1/real(dim2-1)
       if (ndim .ge. 3) h3 = h2/real(dim3-1)
-      coef1 = 1.0/2.0
-      coef2 = 1.0/4.0
-      coef3 = 1.0/6.0
+      coef1 = 1.d0/2.d0
+      coef2 = 1.d0/4.d0
+      coef3 = 1.d0/6.d0
       
 c
 c     a) 1D

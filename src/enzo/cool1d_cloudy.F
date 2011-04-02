@@ -114,7 +114,7 @@
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
-      inv_log10 = 1.0 / log(10.0)
+      inv_log10 = 1.d0 / log(10.d0)
       log10_tCMB = log10(comp2)
 
 !     Calculate parameter value slopes
@@ -153,7 +153,7 @@
             endif
 
             if (ispecies .gt. 2) then
-               h_mass_fr(i) = h_mass_fr(i) + (HDI(i,j,k) / 3.0)
+               h_mass_fr(i) = h_mass_fr(i) + (HDI(i,j,k) / 3.d0)
             endif
 
             h_mass_fr(i) = h_mass_fr(i) / d(i,j,k)
@@ -180,15 +180,15 @@
             
             if (clGridRank .gt. 3) then
 
-               e_frac(i) = 2.0 * de(i,j,k) / 
+               e_frac(i) = 2.d0 * de(i,j,k) / 
      &              (d(i,j,k) * (1 + h_mass_fr(i)))
                log_e_frac(i) = log10(e_frac(i))
 
 !           Get extra electrons contributed by metals
 
                cl_e_frac(i) = e_frac(i) * 
-     &              (1.0 + (2.0 * clEleFra * big_Z(i) * h_mass_fr(i)) /
-     &              (1 + h_mass_fr(i)))
+     &              (1.d0 + (2.d0 * clEleFra * big_Z(i) * h_mass_fr(i))/
+     &              (1.d0 + h_mass_fr(i)))
 
             endif
 
@@ -198,22 +198,22 @@
             if (clGridRank .eq. 1) then
                call interpolate_1D(log10tem(i), clGridDim, clPar1,
      &              dclPar(1), clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10**log_cool(i)
+               edot_met(i) = -10.d0**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
                   call interpolate_1D(log10_tCMB, clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clCooling, 
      &                 log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
                endif
 
                if (iClHeat .eq. 1) then
                   call interpolate_1D(log10tem(i), clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clHeating, 
      &                 log_heat(i))
-                  edot_met(i) = edot_met(i) + 10**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
                endif
 
 !           Interpolate over density and temperature.
@@ -221,7 +221,7 @@
                call interpolate_2D(log_n_h(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10**log_cool(i)
+               edot_met(i) = -10.d0**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
@@ -229,14 +229,14 @@
                   call interpolate_2D(log_n_h(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
                endif
 
                if (iClHeat .eq. 1) then
                call interpolate_2D(log_n_h(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
                endif
 
 !           Interpolate over density, metallicity, and temperature.
@@ -246,17 +246,17 @@
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clPar3, dclPar(3),
      &              clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10**log_cool(i)
+               edot_met(i) = -10.d0**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
                   call interpolate_3D(log_n_h(i), log_Z(i), log10_tCMB,
      &                 clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
                endif
 
                if (iClHeat .eq. 1) then
@@ -265,7 +265,7 @@
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3),
      &                 clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
                endif
 
 !           Interpolate over density, metallicity, electron fraction, and temperature.
@@ -275,17 +275,17 @@
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clPar3, dclPar(3), clPar4, dclPar(4),
      &              clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10**log_cool(i)
+               edot_met(i) = -10.d0**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
                   call interpolate_4D(log_n_h(i), log_Z(i),
      &                 log_e_frac(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
                endif
 
                if (iClHeat .eq. 1) then
@@ -294,7 +294,7 @@
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
                endif
 
 !           Interpolate over density, metallicity, electron fraction, redshift, 
@@ -306,18 +306,18 @@
      &           clPar3, dclPar(3), clPar4, dclPar(4),
      &           clPar5, dclPar(5),
      &           clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10**log_cool(i)
+               edot_met(i) = -10.d0**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
                if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
+     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
                   call interpolate_5D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), zr, log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clPar5, dclPar(5),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
                endif
 
                if (iClHeat .eq. 1) then
@@ -327,7 +327,7 @@
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clPar5, dclPar(5),
      &                 clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
                endif
 
             endif

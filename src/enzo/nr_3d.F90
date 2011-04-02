@@ -21,7 +21,7 @@
       n(2) = n2
       n(3) = n3
 
-      factor = 1.0/real(n1*n2*n3)
+      factor = 1.d0/real(n1*n2*n3)
 
       if( dir == -1 ) then
         call fourn(x, n, rank, dir)

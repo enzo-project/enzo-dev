@@ -52,7 +52,7 @@ c
       integer i1, j1, k1, n
       real    xpos, ypos, zpos, dx, dy, dz, fact
       REALSUB edge1, edge2, edge3, half
-      parameter (half = 0.50001)
+      parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -60,7 +60,7 @@ c
 
 !     write(0,*) npositions, leftedge, dim1, dim2, dim3, cellsize
 
-      fact = 1.0/cellsize
+      fact = 1.d0/cellsize
       edge1 = real(dim1) - half
       edge2 = real(dim2) - half
       edge3 = real(dim3) - half
@@ -77,16 +77,16 @@ c
 c
 c           Convert this into an integer index
 c
-            i1  = int(xpos + 0.5)
+            i1  = int(xpos + 0.5d0)
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5 - xpos
+            dx = real(i1) + 0.5d0 - xpos
 c
 c           Interpolate from field into sumfield
 c
             field(i1  ,1,1) = field(i1  ,1,1) + mass(n)*dx
-            field(i1+1,1,1) = field(i1+1,1,1) + mass(n)*(1.0-dx)
+            field(i1+1,1,1) = field(i1+1,1,1) + mass(n)*(1.d0-dx)
 c
          enddo
 c
@@ -105,24 +105,24 @@ c
 c
 c           Convert this into an integer index
 c
-            i1  = int(xpos + 0.5)
-            j1  = int(ypos + 0.5)
+            i1  = int(xpos + 0.5d0)
+            j1  = int(ypos + 0.5d0)
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5 - xpos
-            dy = real(j1) + 0.5 - ypos
+            dx = real(i1) + 0.5d0 - xpos
+            dy = real(j1) + 0.5d0 - ypos
 c
 c           Interpolate from field into sumfield
 c
             field(i1  ,j1  ,1) = field(i1  ,j1  ,1) +
-     &                           mass(n)*     dx *     dy
+     &                           mass(n)*      dx *      dy
             field(i1+1,j1  ,1) = field(i1+1,j1  ,1) +
-     &                           mass(n)*(1.0-dx)*     dy
+     &                           mass(n)*(1.d0-dx)*      dy
             field(i1  ,j1+1,1) = field(i1  ,j1+1,1) + 
-     &                           mass(n)*     dx *(1.0-dy)
+     &                           mass(n)*      dx *(1.d0-dy)
             field(i1+1,j1+1,1) = field(i1+1,j1+1,1) +
-     &                           mass(n)*(1.0-dx)*(1.0-dy)
+     &                           mass(n)*(1.d0-dx)*(1.d0-dy)
 c
          enddo
 c
@@ -131,10 +131,36 @@ c
 c     3D
 c
       if (ndim .eq. 3) then
+<<<<<<< local
 
          if (addaspoints .eq. 1) then
             do n=1, npositions
+=======
+c
+         do n=1, npositions
+c
+c           Compute the position of the central cell
+c
+            xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
+            ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
+            zpos = min(max((posz(n) - leftedge(3))*fact, half), edge3)
+c
+c           Convert this into an integer index
+c
+            i1  = int(xpos + 0.5d0)
+            j1  = int(ypos + 0.5d0)
+            k1  = int(zpos + 0.5d0)
+c
+c           Compute the weights
+c
+            dx = real(i1) + 0.5d0 - xpos
+            dy = real(j1) + 0.5d0 - ypos
+            dz = real(k1) + 0.5d0 - zpos
+c
+c           Interpolate from field into sumfield
+>>>>>>> other
 c     
+<<<<<<< local
 c     Compute the position of the central cell
 c     
                xpos = min(max((posx(n)- leftedge(1))*fact, 0.), edge1)
@@ -196,6 +222,26 @@ c
             enddo
       
          endif                  ! end of  addaspoints if 
+=======
+            field(i1  ,j1  ,k1  ) = field(i1  ,j1  ,k1  ) +
+     &                           mass(n)*      dx *      dy *     dz
+            field(i1+1,j1  ,k1  ) = field(i1+1,j1  ,k1  ) +
+     &                           mass(n)*(1.d0-dx)*      dy *     dz
+            field(i1  ,j1+1,k1  ) = field(i1  ,j1+1,k1  ) + 
+     &                           mass(n)*      dx *(1.d0-dy)*     dz
+            field(i1+1,j1+1,k1  ) = field(i1+1,j1+1,k1  ) +
+     &                           mass(n)*(1.d0-dx)*(1.d0-dy)*     dz
+            field(i1  ,j1  ,k1+1) = field(i1  ,j1  ,k1+1) +
+     &                           mass(n)*      dx *      dy *(1.d0-dz)
+            field(i1+1,j1  ,k1+1) = field(i1+1,j1  ,k1+1) +
+     &                           mass(n)*(1.d0-dx)*      dy *(1.d0-dz)
+            field(i1  ,j1+1,k1+1) = field(i1  ,j1+1,k1+1) + 
+     &                           mass(n)*      dx *(1.d0-dy)*(1.d0-dz)
+            field(i1+1,j1+1,k1+1) = field(i1+1,j1+1,k1+1) +
+     &                           mass(n)*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+c
+         enddo
+>>>>>>> other
 
 !     do kkk=1,dim3
 !     write(0,'("K = ",i2)') kkk

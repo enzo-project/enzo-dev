@@ -58,18 +58,19 @@ c-----------------------------------------------------------------------
 c     Locals
 c
       integer i, j, n
-      real qa, qb, qc, frac
+      real qa, qb, qc, frac, one
       real sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
      $     dbar(ijkn), cbar(ijkn), l0(ijkn), lbar(ijkn), 
      $     ub(ijkn), vb(ijkn), wb(ijkn), db(ijkn), pb(ijkn), 
      $     cb(ijkn), eb(ijkn), geb(ijkn), colb(ijkn,MAX_COLOR),
      $     upb(ijkn), dub(ijkn), duub(ijkn), duvb(ijkn), duwb(ijkn),
      $     dueb(ijkn), dugeb(ijkn), pcent(ijkn)
+      parameter (one=1.d0)
 c
 c-----------------------------------------------------------------------
 c
-      qa = (gamma + 1.0)/(2.0*gamma)
-      qb = (gamma - 1.0)/(gamma + 1.0)
+      qa = (gamma + 1.d0)/(2.d0*gamma)
+      qb = (gamma - 1.d0)/(gamma + 1.d0)
 
 c
 c  Loop over sweep lines (in this slice)
@@ -81,7 +82,7 @@ c   (see Colella, Siam J Sci Stat Comput 1982, 3, 77.  Appendix)
 c
        do i=i1, i2+1
 c
-          sn(i)    = sign(1.0, -ubar(i,j))
+          sn(i)    = sign(one, -ubar(i,j))
 c
 c  Collect values of interest depending on which way fluid is flowing
 c     
@@ -102,7 +103,7 @@ c             geb(i) = gers(i,j)
           endif
           c0(i)    = sqrt(max(gamma*p0(i)/d0(i), tiny))
           z0(i)    = c0(i)*d0(i)*sqrt(max(
-     &               1.0 + qa*(pbar(i,j)/p0(i)-1.0), tiny))
+     &               1.d0 + qa*(pbar(i,j)/p0(i)-1.d0), tiny))
 c          write(24,*) i, u0(i), uls(i,j), urs(i,j), c0(i)
        enddo
 c
@@ -124,7 +125,7 @@ c  Compute equivalent bar (inside shock & rarefaction) values for density
 c    and sound speed
 c
        do i=i1, i2+1
-          dbar(i)  = 1.0/(1.0/d0(i) - (pbar(i,j)-p0(i))/
+          dbar(i)  = 1.d0/(1.d0/d0(i) - (pbar(i,j)-p0(i))/
      &                                max(z0(i)**2, tiny))
           cbar(i)  = sqrt(max(gamma*pbar(i,j)/dbar(i), tiny))
        enddo
@@ -154,7 +155,7 @@ c  sound speed is assumed to be 1.0 in expression for db(i)
 c  (see eqs (3.11) - (3.16) in Balsara (1994) ApJ 420, p. 200)
 c
          ub(i)    = -cbar(i)*sn(i)
-         db(i)    = d0(i)*exp(-sn(i)*u0(i) - 1.0)
+         db(i)    = d0(i)*exp(-sn(i)*u0(i) - 1.d0)
          pb(i)    = db(i)*cbar(i)**2
 c
 #endif /* RAREFACTION0 */
@@ -164,12 +165,12 @@ c
 c  Compute values for inside a rarefaction fan
 c  (method described in Colella (1982) SIAM J Sci Stat Comp 3, p. 107)
 c
-         cb(i)    = (-sn(i)*ubar(i,j) + 2.0*cbar(i)/(gamma - 1.0))*qb
+         cb(i)    = (-sn(i)*ubar(i,j) + 2.0*cbar(i)/(gamma - 1.d0))*qb
          ub(i)    = -cb(i)*sn(i)
 c         alpha    = (c0(i)**2 - cb(i)**2)/(c0(i)**2 + cb(i)**2)/
 c     &              (gamma - 1.0)
 c         db(i)    = d0(i)*(1.0 - alpha)/(1.0 + alpha)
-         db(i)    = d0(i)*(cb(i)/c0(i))**(2.0/(gamma - 1.0)) !AK
+         db(i)    = d0(i)*(cb(i)/c0(i))**(2.0/(gamma - 1.d0)) !AK
          pb(i)    = db(i)*cb(i)**2/gamma
 c
 #endif /* RAREFACTION1 */
@@ -181,12 +182,12 @@ c     (linear interpolation between end states, as suggested in PPM ref)
 c
          frac     = l0(i) - lbar(i)
          if (frac .lt. tiny) frac = tiny
-         if (frac .gt. 1.0)  frac = 1.0
-         frac     = (0.0 - lbar(i))/frac
-         frac     = min(max(frac, 0.0), 1.0)
-         pb(i)    = p0(i)*frac + pbar(i,j)*(1.0 - frac)
-         db(i)    = d0(i)*frac + dbar(i  )*(1.0 - frac)
-         ub(i)    = u0(i)*frac + ubar(i,j)*(1.0 - frac)
+         if (frac .gt. 1.0)  frac = 1.d0
+         frac     = (0.d0 - lbar(i))/frac
+         frac     = min(max(frac, 0.d0), 1.d0)
+         pb(i)    = p0(i)*frac + pbar(i,j)*(1.d0 - frac)
+         db(i)    = d0(i)*frac + dbar(i  )*(1.d0 - frac)
+         ub(i)    = u0(i)*frac + ubar(i,j)*(1.d0 - frac)
 c
 #endif /* RAREFACTION2 */
 c
@@ -225,7 +226,7 @@ c
             write(6,1010) i,j,ubar(i,j),ub(i),db(i),
      &              dslice(i,j),dslice(i-1,j)
  1010       format('cav:',2i6,8g12.4)
-            ub(i) = 0.0
+            ub(i) = 0.d0
          endif
       enddo
 #endif
@@ -280,9 +281,9 @@ c  Calculate total specific energy corresponding to this state
 c     (and the specific gas energy).
 c
        do i=i1, i2+1
-         eb(i) = pb(i)/((gamma-1.0)*db(i)) + 
-     &           0.5*(ub(i)**2 + vb(i)**2 + wb(i)**2)
-c         geb(i) = pb(i)/((gamma-1.0)*db(i))
+         eb(i) = pb(i)/((gamma-1.d0)*db(i)) + 
+     &           0.5d0*(ub(i)**2 + vb(i)**2 + wb(i)**2)
+c         geb(i) = pb(i)/((gamma-1.d0)*db(i))
        enddo
 c
 c  Compute terms in differenced hydro equations (eq. 3.1)
@@ -384,7 +385,7 @@ c      JHW (Jul 2010): Moved the source term to here.
 c
        if (idual .eq. 1) then
           do i=i1, i2+1
-             pcent(i) = max((gamma-1.0)*geslice(i,j)*dslice(i,j), 
+             pcent(i) = max((gamma-1.d0)*geslice(i,j)*dslice(i,j), 
      $            tiny)
           enddo
           do i=i1, i2+1

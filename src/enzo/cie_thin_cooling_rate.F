@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
       subroutine cie_thin_cooling_rate(temp, value)
 c     written by Tom Abel    8/2003
 c     compute optically thin cooling rate due to CIE cooling
@@ -118,7 +119,7 @@ C     becomes mostly dissociated.
      $     1.719e-10/
       integer i, j, jmin, jmax
       real*8 mh
-      mh = 1.67353403e-24
+      mh = mass_h
 c     rough low temperature extrapolation
       if (temp .le. t_cie(1)) then
          value = cie_table(1)*(temp/t_cie(1))**4

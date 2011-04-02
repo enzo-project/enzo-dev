@@ -1,7 +1,7 @@
 #include "fortran.def"
-#define TOLERANCE 1e-20
-#define RTOL 5e-1
-#define ITERTOL 1e-4
+#define TOLERANCE 1.d-20
+#define RTOL 5.d-1
+#define ITERTOL 1.d-4
 c -----------------------------------------------------------
 c  This routine is very simple.  It calculates the derivatives
 c  of the species.
@@ -80,7 +80,7 @@ c
         stopthepresses = .false.
         flipdmask=.false.
         if(itererror.gt.1)flipdmask=.true.
-        itererror = -1.0
+        itererror = -1.d0
 
         do i = is+1, ie+1
         if(dmask(i).eqv..true.) then
@@ -369,7 +369,7 @@ c   We assume that the charge exchange with the H/H+ species will completely
 c   regulate the abundance of D/D+
 c Recall:
 c   nD = (nDTot - nHD) * (nH * k51) / (nH*k51 + nH*k50)
-        temp1 = max(tiny, dtot(i) - (2.0/3.0) * s(i,HDI))
+        temp1 = max(tiny, dtot(i) - (2.d0/3.d0) * s(i,HDI))
 c        s(i,DI)  = max(tiny*rtot(i), temp1 * 
 c     &     (s(i,HI) * k51(i)) / (s(i,HI)*k51(i) + s(i,HII)*k50(i)))
 c        s(i,DI) = s(i,DI) * (r62 + r51 + r55) / (r61 + r50 + r54)

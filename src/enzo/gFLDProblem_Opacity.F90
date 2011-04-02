@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -60,7 +62,6 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -85,7 +86,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
   !--------------
   ! locals
   integer :: i, j, k
-  real :: mp, eV2ergs, HIconst, HeIconst, HeIIconst
+  real :: mp, HIconst, HeIconst, HeIIconst
   real :: rhoval, Tval
 
   !=======================================================================
@@ -98,8 +99,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
   ier = 1
 
   ! set shortcut values
-  eV2ergs = 1.60217733d-12       ! coversion factor from eV to ergs
-  mp = 1.67262171d-24            ! mass of a proton [g]
+  mp = mass_h                    ! mass of a proton [g]
 
   ! compute opacity shortcuts, incorporate scaling 
   ! coefficient for density to convert from comoving to proper

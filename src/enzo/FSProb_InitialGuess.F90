@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -46,7 +48,6 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
 
   !--------------
   ! argument declarations
@@ -74,8 +75,8 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
   ier = 1
 
   ! set some constants
-  c  = 2.99792458d10           ! speed of light [cm/s]
-  pi = 4.D0*datan(1.D0)
+  c  = c_light             ! speed of light [cm/s]
+  pi = pi_val
 
   ! compute initial guess based on input parameter
   !    use analytical solution locally in space

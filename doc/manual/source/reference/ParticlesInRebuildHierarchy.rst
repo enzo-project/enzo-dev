@@ -63,14 +63,14 @@ during ``RebuildHierarchy()`` on level L. Pre-existing routines in
    migrated across grid boundaries to their siblings.
 
 
-#. ``CommunicationCollectParticles(SIBLINGS\_ONLY)`` -- If we are
+#. ``CommunicationCollectParticles(SIBLINGS_ONLY)`` -- If we are
    rebuilding a level > L\ :sub:`sub`\ , move all particles to their host
    processor, as this new method is not needed. This was previously done
    in ``grid::MoveAllParticles``. This routine is faster than before
-   because we do the communication in one ``MPI\_Alltoallv()`` call.
+   because we do the communication in one ``MPI_Alltoallv()`` call.
 
 
-#. Loop over levels L\ :sub:`0`\  -> ``MAX\_DEPTH\_OF\_HIERARCHY``.
+#. Loop over levels L\ :sub:`0`\  -> ``MAX_DEPTH_OF_HIERARCHY``.
 
 
 #. ``DepositParticleMassFlaggingField()`` -- If level <= L\ :sub:`sub`\ ,
@@ -80,14 +80,14 @@ during ``RebuildHierarchy()`` on level L. Pre-existing routines in
    these processors. For each grid, only processors with particles
    contribute to this sum to reduce the amount of computation and
    communication. In short, this routine performs a non-blocking
-   ``MPI\_SUM`` over a select number of processors.
-#. ``CommunicationCollectParticles(SUBGRIDS\_LOCAL)`` -- This routine
+   ``MPI_SUM`` over a select number of processors.
+#. ``CommunicationCollectParticles(SUBGRIDS_LOCAL)`` -- This routine
    replaces ``grid::MoveSubgridParticlesFast()``. It keeps the particles on
    the same processor, but this doesn't matter here because the
    children grids are always created on the same processor as its
    parent and then moved to another processor during load balancing.
-#. ``CommunicationCollectParticles(SIBLINGS\_ONLY)`` -- After load
-   balancing is complete on level L\_sub\_, we can safely move the
+#. ``CommunicationCollectParticles(SIBLINGS_ONLY)`` -- After load
+   balancing is complete on level L\ :sub:`sub`\, we can safely move the
    particles to their host processor without the worry of running out
    of memory.
 

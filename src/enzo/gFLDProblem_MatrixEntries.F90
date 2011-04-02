@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -88,7 +90,6 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
 !--------------
@@ -131,9 +132,9 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
   dxi   = a/dx/LenUnits
   dyi   = a/dy/LenUnits
   dzi   = a/dz/LenUnits
-  c  = 2.99792458d10     ! speed of light [cm/s]
+  c  = c_light           ! speed of light [cm/s]
   StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
-  pi = 4.d0*datan(1.d0)
+  pi = pi_val
   Rmin = 1.0e-20
 
   ! iterate over the active domain
@@ -531,7 +532,6 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
 !--------------
@@ -571,9 +571,9 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
   dtfac = dt*theta       ! time step conversion factor
   dxi   = a/dx/LenUnits
   dyi   = a/dy/LenUnits
-  c  = 2.99792458d10     ! speed of light [cm/s]
+  c  = c_light           ! speed of light [cm/s]
   StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
-  pi = 4.d0*datan(1.d0)
+  pi = pi_val
   Rmin = 1.0e-20
 
   ! iterate over the active domain
@@ -868,7 +868,6 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
 !--------------
@@ -904,9 +903,9 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
   ! set shortcut values
   dtfac = dt*theta       ! time step conversion factor
   dxi   = a/dx/LenUnits
-  c  = 2.99792458d10     ! speed of light [cm/s]
+  c  = c_light           ! speed of light [cm/s]
   StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
-  pi = 4.d0*datan(1.d0)
+  pi = pi_val
   Rmin = 1.0e-20
 
   ! iterate over the active domain

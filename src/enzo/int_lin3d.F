@@ -98,7 +98,7 @@ c
       do k = 1, pdim3+1
          do j = 1, pdim2+1
             do i = 1, pdim1+1
-               work(i, j, k) = 0.125*(
+               work(i, j, k) = 0.125d0*(
      &                   parent(pstart1+i-1, pstart2+j-1, pstart3+k-1) +
      &                   parent(pstart1+i-1, pstart2+j-1, pstart3+k  ) +
      &                   parent(pstart1+i-1, pstart2+j  , pstart3+k-1) +
@@ -124,26 +124,26 @@ c
 c
 c              Compute the minimum delta f across all four diagonals
 c
-               delf0 =  0.5*(work(i+1, j+1, k+1) - work(i  , j  , k  ))
-               delf1 =  0.5*(work(i  , j+1, k+1) - work(i+1, j  , k  ))
-               delf2 =  0.5*(work(i+1, j  , k+1) - work(i  , j+1, k  ))
-               delf3 =  0.5*(work(i+1, j+1, k  ) - work(i  , j  , k+1))
+               delf0 = 0.5d0*(work(i+1, j+1, k+1) - work(i  , j  , k  ))
+               delf1 = 0.5d0*(work(i  , j+1, k+1) - work(i+1, j  , k  ))
+               delf2 = 0.5d0*(work(i+1, j  , k+1) - work(i  , j+1, k  ))
+               delf3 = 0.5d0*(work(i+1, j+1, k  ) - work(i  , j  , k+1))
 c
 c              Enforce positivity if requested
 c               (the value 0.8 is arbitrary, it should be in the range 0-1)
 c
                if (iposflag .eq. 1) then
-                  if (fbar + delf0 .lt. 0.0) delf0 = -0.8*fbar
-                  if (fbar - delf0 .lt. 0.0) delf0 =  0.8*fbar
+                  if (fbar + delf0 .lt. 0.0) delf0 = -0.8d0*fbar
+                  if (fbar - delf0 .lt. 0.0) delf0 =  0.8d0*fbar
 c
-                  if (fbar + delf1 .lt. 0.0) delf1 = -0.8*fbar
-                  if (fbar - delf1 .lt. 0.0) delf1 =  0.8*fbar
+                  if (fbar + delf1 .lt. 0.0) delf1 = -0.8d0*fbar
+                  if (fbar - delf1 .lt. 0.0) delf1 =  0.8d0*fbar
 c
-                  if (fbar + delf2 .lt. 0.0) delf2 = -0.8*fbar
-                  if (fbar - delf2 .lt. 0.0) delf2 =  0.8*fbar
+                  if (fbar + delf2 .lt. 0.0) delf2 = -0.8d0*fbar
+                  if (fbar - delf2 .lt. 0.0) delf2 =  0.8d0*fbar
 c
-                  if (fbar + delf3 .lt. 0.0) delf3 = -0.8*fbar
-                  if (fbar - delf3 .lt. 0.0) delf3 =  0.8*fbar
+                  if (fbar + delf3 .lt. 0.0) delf3 = -0.8d0*fbar
+                  if (fbar - delf3 .lt. 0.0) delf3 =  0.8d0*fbar
                endif
 c
 c              Determine s, the resulting scaled value of delf0 and contain
@@ -152,47 +152,47 @@ c
                if (delf0 .eq. 0.0) 
      &              delf0 = sign(tiny, delf0 + delf1 + delf2)
                s = (delf1 + delf2 + delf3) / delf0
-               sprime = min(max(s, 0.0), 1.0)
+               sprime = min(max(s, 0.d0), 1.d0)
 c
 c              Compute the chi# flags which are 1 if delf# can contribute
 c                 to setting s and 0 if it cannot.
 c
-               chi1 = 1.0
-               chi2 = 1.0
-               chi3 = 1.0
-               if (delf1/delf0 .ge. 0.0) chi1 = 0.0
-               if (delf2/delf0 .ge. 0.0) chi2 = 0.0
-               if (delf3/delf0 .ge. 0.0) chi3 = 0.0
+               chi1 = 1.d0
+               chi2 = 1.d0
+               chi3 = 1.d0
+               if (delf1/delf0 .ge. 0.0) chi1 = 0.d0
+               if (delf2/delf0 .ge. 0.0) chi2 = 0.d0
+               if (delf3/delf0 .ge. 0.0) chi3 = 0.d0
 c
 c              If sprime is one (i.e. implied delf0 is too high) reverse chi#.
 c
-               chi1 = (1.0 - sprime)*chi1 + sprime*(1.0 - chi1)
-               chi2 = (1.0 - sprime)*chi2 + sprime*(1.0 - chi2)
-               chi3 = (1.0 - sprime)*chi3 + sprime*(1.0 - chi3)
+               chi1 = (1.d0 - sprime)*chi1 + sprime*(1.d0 - chi1)
+               chi2 = (1.d0 - sprime)*chi2 + sprime*(1.d0 - chi2)
+               chi3 = (1.d0 - sprime)*chi3 + sprime*(1.d0 - chi3)
 c
 c              If sprime is not 0 or 1 (i.e. we do not have to adjust delf#) 
 c                   then set chi# to zero.
 c
                if (sprime .ne. 0.0 .and. sprime .ne. 1.0) then
-                  chi1 = 0.0
-                  chi2 = 0.0
-                  chi3 = 0.0
+                  chi1 = 0.d0
+                  chi2 = 0.d0
+                  chi3 = 0.d0
                endif
 c
 c              Compute frac, the adjustment fraction.
 c
-               frac = - ( (-delf0*sprime) + (1.0-chi1)*delf1 
-     &                                    + (1.0-chi2)*delf2
-     &                                    + (1.0-chi3)*delf3 ) /
+               frac = - ( (-delf0*sprime) + (1.d0-chi1)*delf1 
+     &                                    + (1.d0-chi2)*delf2
+     &                                    + (1.d0-chi3)*delf3 ) /
      &           (chi1*delf1 + chi2*delf2 + chi3*delf3 + tiny)
 c
-               frac = min(frac, 1.0)
+               frac = min(frac, 1.d0)
 c
 c              Compute the new delf# according to the adjustment fraction.
 c
-               delf1new = frac*chi1*delf1 + (1.0-chi1)*delf1
-               delf2new = frac*chi2*delf2 + (1.0-chi2)*delf2
-               delf3new = frac*chi3*delf3 + (1.0-chi3)*delf3
+               delf1new = frac*chi1*delf1 + (1.d0-chi1)*delf1
+               delf2new = frac*chi2*delf2 + (1.d0-chi2)*delf2
+               delf3new = frac*chi3*delf3 + (1.d0-chi3)*delf3
 c
 c              Now, find the the interpolation coefficients.
 c
@@ -208,9 +208,12 @@ c
                         grid(gstart1+(i-1)*refine1+i1,
      &                       gstart2+(j-1)*refine2+j1,
      &                       gstart3+(k-1)*refine3+k1) = (fbar +
-     &               (real(i1)+0.5-0.5*real(refine1))/real(refine1)*fx +
-     &               (real(j1)+0.5-0.5*real(refine2))/real(refine2)*fy +
-     &               (real(k1)+0.5-0.5*real(refine3))/real(refine3)*fz )
+     &                       (real(i1) + 
+     &                     0.5d0-0.5d0*real(refine1))/real(refine1)*fx +
+     &                       (real(j1) +
+     &                     0.5d0-0.5d0*real(refine2))/real(refine2)*fy +
+     &                       (real(k1) +
+     &                     0.5d0-0.5d0*real(refine3))/real(refine3)*fz )
                         if (iposflag .eq. 1 .and. 
      &                       grid(gstart1+(i-1)*refine1+i1,
      &                          gstart2+(j-1)*refine2+j1,

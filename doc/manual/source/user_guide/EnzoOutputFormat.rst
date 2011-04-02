@@ -37,7 +37,7 @@ Summary of Files
     (HDF) version 5, a self-describing machine-independent data format
     developed and supported by the National Center for Supercomputing
     Applications (NCSA). More information can be found on their
-    `home page <http://www.hdfgroup.org>`_. Most scientific
+    `home page <http://www.hdfgroup.org/>`_. Most scientific
     visualization packages support this format. Each field is stored as
     it's own one-, two- or three-dimensional Scientific Data Set (SDS),
     and is named for identification. Particles (if any) are included

@@ -62,7 +62,8 @@ c
 c  locals
 c
       integer i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
-      real    delf0, delf1, fbar, fx, fy
+      real    delf0, delf1, fbar, fx, fy, one
+      parameter (one=1.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -112,15 +113,15 @@ c           Compute the minimum delta f across both diagonals
 c
             delf0 =     min(abs(fbar - work(i  , j  )),
      &                      abs(fbar - work(i+1, j+1)) )*
-     &               sign(1.0, (fbar - work(i  , j  )))
+     &               sign(one, (fbar - work(i  , j  )))
             if ((work(i+1, j+1) - fbar) * (fbar - work(i, j)) .lt. 0.0)
-     &         delf0 = 0.0
+     &         delf0 = 0.d0
 c
             delf1 =     min(abs(fbar - work(i+1, j  )),
      &                      abs(fbar - work(i  , j+1)) )*
-     &               sign(1.0, (fbar - work(i+1, j  )))
+     &               sign(one, (fbar - work(i+1, j  )))
             if ((work(i, j+1) - fbar) * (fbar - work(i+1, j)) .lt. 0.0)
-     &         delf1 = 0.0
+     &         delf1 = 0.d0
 c
 c           Now, find the the interpolation coefficients.
 c
@@ -133,8 +134,10 @@ c
                do i1 = 0, refine1-1
                   grid(gstart1+(i-1)*refine1+i1,
      &                 gstart2+(j-1)*refine2+j1) = (fbar +
-     &               (real(i1)+0.5-0.5*real(refine1))/real(refine1)*fx +
-     &               (real(j1)+0.5-0.5*real(refine2))/real(refine2)*fy )
+     &               (real(i1)+0.5d0 -
+     &                 0.5d0*real(refine1))/real(refine1)*fx +
+     &               (real(j1)+0.5d0 
+     &                 -0.5d0*real(refine2))/real(refine2)*fy )
 c                  if (grid(gstart1+(i-1)*refine1+i1,
 c     &                     gstart2+(j-1)*refine2+j1) .lt. 0.0)
 c     &                write(6,*) 'b',i,j,i1,j1

@@ -170,7 +170,7 @@ c
 !     j2 = je
 
 c
-      vgx = 0.0
+      vgx = 0.d0
 c
 c Copy from field to slice
 c

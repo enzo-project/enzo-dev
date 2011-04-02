@@ -20,6 +20,7 @@
  
 void PrintUsage(char *myname);
 void my_exit(int status);
+void WriteConfigure(FILE *fp);
 
 Eint32 hide_isdigit(Eint32 c);
 
@@ -128,6 +129,14 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	  PrintUsage(myname);
 	my_exit(EXIT_SUCCESS);
 	break;
+
+    /* */
+
+      case 'V':
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      WriteConfigure(stdout);
+    my_exit(EXIT_SUCCESS);
+    break;
  
 	/* Information output */
  

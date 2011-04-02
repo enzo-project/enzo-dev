@@ -229,7 +229,7 @@ const hydro_method
 
 const enum_type iHI = 0, iHeI = 1, iHeII = 2, iH2I = 3, iHII = 4;
 const enum_type Cartesian = 0, Spherical = 1, Cylindrical = 2;
-const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4;
+const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4, ZERO = 5;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
   LLF = 3, HLLC = 4, TwoShock = 5;
 const enum_type Neumann = 0, Dirichlet = 1;
