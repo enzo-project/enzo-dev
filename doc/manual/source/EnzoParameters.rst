@@ -2526,7 +2526,7 @@ Cosmology Simulation (30)
 ``CosmologySimulationParticleVelocity[123]Name`` (external)
     This is the name of the file which contains initial data for
     particle velocities but only has one component per file. This is
-    more useful with very large (≥2048\ :sup:`3`\ ) datasets. Currently
+    more useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
     can only use in conjunction with ``CosmologySimulationCalculatePositions``.
     because it expects a 3D grid structure instead of a 1D list of particles.
     Default: None.
