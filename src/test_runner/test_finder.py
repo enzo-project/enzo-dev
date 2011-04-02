@@ -63,6 +63,10 @@ class EnzoTestCollection(object):
         for my_test in self.tests:
             self.test_container.append(EnzoTestRun("my_tests", my_test))
 
+    def run_sims(self):
+        for my_test in self.test_container:
+            my_test.run_sim()
+
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
         # its environment variables from it.
@@ -118,7 +122,7 @@ class EnzoTestCollection(object):
         print "NUMBER OF TESTS", len(self.tests)
 
 class EnzoTestRun(object):
-    def __init__(self, test_dir, test_data, machine='local', exe_path=None):
+    def __init__(self, test_dir, test_data, machine='local', exe_path="../src/enzo/enzo.exe"):
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
