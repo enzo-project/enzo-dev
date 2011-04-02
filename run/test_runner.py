@@ -69,23 +69,23 @@ class EnzoTestCollection(object):
             self.tests = tests
         self.test_container = []
 
-    def go(self, output_dir, interleaved, machine):
+    def go(self, output_dir, interleaved, machine, exe_path):
         if interleaved:
             for my_test in self.tests:
                 print "Preparing test: %s." % my_test['name']
-                self.test_container.append(EnzoTestRun(output_dir, my_test, machine))
+                self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
                 self.test_container[-1].run_sim()
                 self.test_container[-1].run_test()
         else:
-            self.prepare_all_tests(output_dir, machine)
+            self.prepare_all_tests(output_dir, machine, exe_path)
             self.run_all_sims()
             self.run_all_tests()
 
-    def prepare_all_tests(self, output_dir, machine):
+    def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
         for my_test in self.tests:
             print "Preparing test: %s." % my_test['name']
-            self.test_container.append(EnzoTestRun(output_dir, my_test, machine))
+            self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
 
     def run_all_sims(self):
         print "Running all simulations."
@@ -152,7 +152,7 @@ class EnzoTestCollection(object):
         print "NUMBER OF TESTS", len(self.tests)
 
 class EnzoTestRun(object):
-    def __init__(self, test_dir, test_data, machine, exe_path="../src/enzo/enzo.exe"):
+    def __init__(self, test_dir, test_data, machine, exe_path):
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
@@ -259,5 +259,8 @@ if __name__ == "__main__":
     f.write(hg_current)
     f.close()
 
+    # the path to the executable we're testing
+    exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+
     # Make it happen
-    etc2.go(options.output_dir, options.interleave, options.machine)
+    etc2.go(options.output_dir, options.interleave, options.machine, exe_path)
