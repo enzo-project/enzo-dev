@@ -26,11 +26,13 @@ Main call: ``HydroMethod = 0``
 only works with the PPM solver.
 
 1. HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no
-   resolution of contact waves.  The most diffusive of the available
-   three solvers in PPM.  *New for version 2.1*
+   resolution of contact waves.  This is the most diffusive of the
+   available three solvers in PPM.  *New for version 2.1*
+
 4. HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state
    solver with better resolution of contacts.  The most resilient to
    rarefaction waves (e.g. blastwave interiors). *New for version 2.1*
+
 5. **Default** Two-shock approximation.  Iterative solver.
 
 ``RiemannSolverFallback``: allows for the Riemann solver to "fallback"
@@ -68,7 +70,9 @@ Method 2: ZEUS
 *Source: ZeusSource.C, Zeus_xTransport.C, Zeus_yTransport.C,
 Zeus_zTransport.C, Grid_ZeusSolver.C, ZeusUtilities.C*
 
-Description here.
+ZEUS is a finite-difference method of solving hyperbolic PDEs instead
+of solving the Godunov problem.  It is a very robust but relatively
+diffusive scheme.
 
 Parameters
 ^^^^^^^^^^
@@ -98,11 +102,56 @@ Astrophysical Journal Supplement*, 80:791, 1992 `link
 Method 3: MUSCL
 ---------------
 
+.. versionadded:: 2.0
+
+The MUSCL [#f1]_ scheme is a second-order accurate extensive of Godunov's
+method for solving the hydrodynamics in one dimension.  The
+implementation in Enzo uses second-order Runge-Kutta time
+integration.  In principle, it can use any number of Riemann solvers
+and interpolation schemes.  Here we list the compatible ones that are
+currently implemented.
+
+Parameters
+^^^^^^^^^^
 Parameter file call: ``HydroMethod = 3``
+
+``RiemannSolver``: specifies the type of solver, where the following
+only works with the MUSCL solver.
+
+1. HLL (Harten-Lax-van Leer): a two-wave, three-state solver with no
+   resolution of contact waves.
+
+3. LLF (Local Lax-Friedrichs) is based on central differences instead
+   of a Riemann problem.  It requires no characteristic information.
+   This is the most diffusive of the available three solvers in
+   MUSCL.
+
+4. HLLC (Harten-Lax-van Leer with Contact): a three-wave, four-state
+   solver with better resolution of contacts.  The most resilient to
+   rarefaction waves (e.g. blastwave interiors).
+
+If negative energies or densities are computed, the solution is
+corrected using a more diffusive solver, where the order in decreasing
+accuracy is HLLC -> HLL -> LLF.
+
+``ReconstructionMethod``: specifies the type of interpolation scheme
+used for the left and right states in the Riemann problem.
+
+0. PLM: **default**
+
+1. PPM: Currently being developed.
 
 Method 4: MHD
 -------------
 
+.. versionadded:: 2.0
+
+The MHD scheme uses the same MUSCL framework as Method 3.  To enforce
+:math:`\div \cdot B = 0`, it uses the hyperbolic cleaning method of
+Dedner et al. (2002, JCP 175, 645).
+
+Parameters
+^^^^^^^^^^
 Parameter file call: ``HydroMethod = 4``
 
 Notes
@@ -110,3 +159,7 @@ Notes
 
 ``HydroMethod = 1`` was an experimental implementation that is now
 obsolete, which is why it is skipped in the above notes.
+
+.. rubric:: Footnotes
+
+.. [#f1] Monotone Upstream-centered Schemes for Conservation Laws
