@@ -53,6 +53,10 @@ protected:
 
     void FinalizeGrids(HierarchyEntry **RefLevels, HierarchyEntry &TopGrid,
                        TopGridData &MetaData);
+
+    protected:
+
+    private:
 };
 
 /*!

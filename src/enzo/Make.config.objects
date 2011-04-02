@@ -79,9 +79,7 @@ OBJS_CONFIG_LIB = \
         CommunicationShareParticles.o \
         CommunicationShareStars.o \
         CommunicationSyncNumberOfParticles.o \
-        CommunicationTransferParticles.o \
         CommunicationTransferParticlesOpt.o \
-        CommunicationTransferStars.o \
         CommunicationTransferStarsOpt.o \
 	CommunicationTransferSubgridParticles.o \
         CommunicationTranspose.o \
@@ -96,7 +94,7 @@ OBJS_CONFIG_LIB = \
         ComputeTable.o \
         Continue.o \
 	cool1d_cloudy.o \
-    cool1d_koyama.o\
+    	cool1d_koyama.o\
         cool1d_multi.o \
         cool1d_sep.o \
         cool1d.o \
@@ -330,9 +328,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CommunicationSendParticles.o \
 	Grid_CommunicationSendStars.o \
 	Grid_CommunicationSendRegion.o \
-	Grid_CommunicationTransferParticles.o \
 	Grid_CommunicationTransferParticlesOpt.o \
-	Grid_CommunicationTransferStars.o \
 	Grid_CommunicationTransferStarsOpt.o \
 	Grid_ComovingExpansionTerms.o \
 	Grid_ComovingGravitySourceTerm.o \
@@ -351,7 +347,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeMetalLineLuminosity.o \
 	Grid_ComputePressureDualEnergyFormalism.o \
 	Grid_ComputePressure.o \
-    Grid_ComputeRandomForcingFields.o\
+	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
 	Grid_ComputeTimeStep.o \
         Grid_ComputeVectorAnalysisFields.o \
@@ -541,6 +537,7 @@ OBJS_CONFIG_LIB = \
         Grid_SphericalInfallGetProfile.o \
         Grid_SphericalInfallInitializeGrid.o \
         Grid_StarParticleHandler.o \
+	Grid_StratifiedMediumExplosionInitialize.o \
         Grid_SupernovaRestartInitialize.o \
         Grid_SubtractAccretedMassFromSphere.o \
         Grid_TestGravityCheckResults.o \
@@ -810,6 +807,7 @@ OBJS_CONFIG_LIB = \
 	star_maker8.o \
 	star_maker9.o \
 	particle_splitter.o \
+	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
         TestGravityCheckResults.o \
@@ -824,7 +822,7 @@ OBJS_CONFIG_LIB = \
         tscint2d.o \
         tscint3d.o \
         TurbulenceSimulationInitialize.o \
-turboinit.o\
+	turboinit.o\
         twoshock.o \
 	UpdateFromFinerGrids.o \
         UpdateParticlePositions.o \
@@ -840,6 +838,11 @@ turboinit.o\
         uuid/unpack.o \
         uuid/unparse.o \
         uuid/uuid_time.o \
+		libconfig/grammar.o \
+		libconfig/libconfig.o \
+		libconfig/scanctx.o \
+		libconfig/scanner.o \
+		libconfig/strbuf.o \
         wall_clock.o \
         WavePoolInitialize.o \
         wrapper1d.o \
@@ -988,6 +991,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/HydroSweepZ.o \
         hydro_rk/LLF_PLM.o \
         hydro_rk/LLF_Zero.o \
+        hydro_rk/LLF_Zero_MHD.o \
         hydro_rk/Rec_PLM.o \
         hydro_rk/Rec_ConsPLM.o \
         hydro_rk/Rec_PPM.o \

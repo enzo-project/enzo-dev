@@ -9,6 +9,7 @@ of AMR and numerical methods is assumed throughout this documentation.
 .. toctree::
    :maxdepth: 2
 
+   ModificationIntro.rst
    ProgrammingGuide.rst
    AddingNewParameters.rst
    HowToAddNewBaryonField.rst
@@ -17,8 +18,6 @@ of AMR and numerical methods is assumed throughout this documentation.
    AutoAdjustRefineRegion.rst
    BaryonFieldAccess.rst
    GridFieldArrays.rst
-   DiffVersions.rst
-   ModificationIntro.rst
    NewLocalOperator.rst
    NewTestProblem1.rst
    NewTestProblem3.rst

@@ -42,11 +42,11 @@ NumberOfBufferZones         = 2
 #
 Gamma                       = 1.1
 Mu                          = 1
-HydroMethod                 = 3
+HydroMethod                 = 4
 CourantSafetyNumber         = 0.3
 Theta_Limiter               = 1.5
 RiemannSolver               = 1
-ReconstructionMethod        = 0
+ReconstructionMethod        = 1
 DualEnergyFormalism         = 0
 RKOrder                     = 2
 SmallRho                    = 1e-4

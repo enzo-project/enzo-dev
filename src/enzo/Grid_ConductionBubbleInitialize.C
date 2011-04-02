@@ -33,14 +33,14 @@ int FindField(int field, int farray[], int numfields);
 
 // routines, variables and definitions used to calculate density, temperature 
 // as a function of distance from the bottom of the simulation volume.
-void get_dens_temp(void);
-double dndr(double T, double n);
-double dtdr(double n);
+static void get_dens_temp(void);
+static double dndr(double T, double n);
+static double dtdr(double n);
 
-double *rad,*nofr,*Tofr, g, bunch_of_constants, dKdr, 
+static double *rad,*nofr,*Tofr, g, bunch_of_constants, dKdr, 
   dKdr_cgs, K_mid, T_mid, n_mid,r_mid, 
   r_mid_cgs, r_max, r_max_cgs;
-int ncells;
+static int ncells;
 
 #define KEV_KELVIN 1.1604e+7
 #define KPC_CGS 3.0857e+21
@@ -315,7 +315,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
   return SUCCESS;
 }
 
-void get_dens_temp(void){
+static void get_dens_temp(void){
 
   /*
   printf("***********\n");
@@ -465,10 +465,10 @@ void get_dens_temp(void){
   return;
 }
 
-double dndr(double T, double n){
+static double dndr(double T, double n){
   return -0.6*(n/T)*(bunch_of_constants + dKdr_cgs*POW(n,2.0/3.0));
 }
 
-double dtdr(double n){
+static double dtdr(double n){
   return -0.4*(bunch_of_constants -1.5*dKdr_cgs*POW(n,2.0/3.0));
 }

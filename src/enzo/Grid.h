@@ -1124,6 +1124,19 @@ public:
    int GetGridDimension(int Dimension) {return GridDimension[Dimension];}
    int GetGridStartIndex(int Dimension) {return GridStartIndex[Dimension];}
    int GetGridEndIndex(int Dimension) {return GridEndIndex[Dimension];}
+   int GetActiveSize() {
+     int dim, size;
+     for (dim = 0, size = 1; dim < GridRank; dim++) {
+       size *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
+     }
+     return size;
+   }
+   int GetGridSize() {
+     int dim, size;
+     for (dim = 0, size = 1; dim < GridRank; dim++)
+       size *= GridDimension[dim];
+     return size;
+   }
    FLOAT GetGridLeftEdge(int Dimension) {return GridLeftEdge[Dimension];}
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
 
@@ -1482,7 +1495,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
 /* Transfer particle amount level 0 grids. */
 
-#ifdef OPTIMIZED_CTP
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 				     int ThisGridNum, int TopGridDims[],
 				     int *&NumberToMove, 
@@ -1497,14 +1509,6 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 				 star_data *&List, int *Layout, 
 				 int *GStartIndex[], int *GridMap, 
 				 int CopyDirection);
-#else
-  int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-			     int ToGrid[6], int NumberToMove[6],
-			     float_int *ParticleData[6], int CopyDirection);
-  int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
-			 int ToGrid[6], int NumberToMove[6],
-			 StarBuffer *StarData[6], int CopyDirection);
-#endif
 
   int CollectParticles(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 
@@ -1831,6 +1835,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ConductionBubbleInitialize(FLOAT BubbleRadius, int PulseType, float DeltaEntropy, 
 				 float MidpointEntropy, float EntropyGradient,
 				 float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]);
+
+/* Exploding Stratified Medium Test: initialize grid. */
+
+  int StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
+					  float ExplosionEnergy, FLOAT BubbleCenter[MAX_DIMENSION]);
 
 /* Spherical Infall Test: initialize grid. */
 

@@ -50,7 +50,7 @@ c
       real    tempi, tempr
 c     double precision twopi, theta, wr, wi, wpr, wpi, wtemp
       real    twopi, theta, wr, wi, wpr, wpi, wtemp
-      parameter (twopi=6.2831853071796e0)
+      parameter (twopi=6.2831853071796d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

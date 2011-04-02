@@ -30,7 +30,7 @@ LOCAL_MPI_INSTALL    =
 LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_pgi9.0.1/
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
-LOCAL_SPRNG_INSTALL  = /sw/xt5/sprng/2.0b/cnl2.1_pgi7.2.3
+LOCAL_SPRNG_INSTALL  = /sw/xt/sprng/2.0b/cnl2.2_pgi7.2.3/
 LOCAL_PNG_INSTALL    = 
 LOCAL_HYPRE_INSTALL  = 
 
@@ -141,7 +141,7 @@ LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
 #LOCAL_LIBS_SPRNG  =
 LOCAL_LIBS_PNG    = 
 
-LOCAL_LIBS_MACH   = -L/sw/xt5/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
+LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
 		    -L/usr/local/lib -lz \
 		    -L/opt/acml/4.3.0/pgi64/lib -lacml -lm \
                     -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \

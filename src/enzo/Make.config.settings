@@ -29,6 +29,7 @@
 #    CONFIG_CVODE
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
+#    CONFIG_ACCELERATION_BOUNDARY
 #    CONFIG_OPT
 #    CONFIG_TESTING
 #    CONFIG_TPVEL
@@ -41,6 +42,7 @@
 #    CONFIG_USE_HDF4	
 #    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
+#    CONFIG_SET_ACCELERATION_BOUNDARY
 #
 #=======================================================================
 
@@ -202,6 +204,16 @@
 #-----------------------------------------------------------------------
 
      CONFIG_OOC_BOUNDARY = no
+
+#=======================================================================
+# CONFIG_ACCELERATION_BOUNDARY
+#=======================================================================
+#    yes           Set the boundary on the acceleration field.
+#    no            Don't set acceleration boundary
+#-----------------------------------------------------------------------
+
+     CONFIG_ACCELERATION_BOUNDARY = yes
+
 
 #=======================================================================
 # CONFIG_OPT

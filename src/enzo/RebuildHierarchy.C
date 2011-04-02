@@ -54,17 +54,11 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
-int DetermineSubgridSizeExtrema(LevelHierarchyEntry *LevelArray[],
-				int level);
-#ifdef OPTIMIZED_CTP
+int DetermineSubgridSizeExtrema(int NumberOfCells, int level, int MaximumStaticSubgridLevel);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 			       int TopGridDims[]);
-#else
-int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
-int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
-#endif
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -162,6 +156,19 @@ int RebuildHierarchy(TopGridData *MetaData,
     MaximumStaticSubgridLevel = max(MaximumStaticSubgridLevel,
 				    StaticRefineRegionLevel[i]);
 
+  /* Calculate number of cells on each level */
+
+  int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
+  if (SubgridSizeAutoAdjust == TRUE) {
+    for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+      NumberOfCells[i] = 0;
+      for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
+	if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
+	  NumberOfCells[i] += Temp->GridData->GetActiveSize();
+    }
+    CommunicationAllSumValues(NumberOfCells, MAX_DEPTH_OF_HIERARCHY);
+  }
+
   for (i = MAX_DEPTH_OF_HIERARCHY-1; i > level; i--) {
 
     Temp = LevelArray[i];
@@ -240,13 +247,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
-#ifdef OPTIMIZED_CTP
     CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
     CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
-#else
-    CommunicationTransferParticles(GridPointer, grids);
-    CommunicationTransferStars(GridPointer, grids);
-#endif
 
     /* We need to collect particles again */
 
@@ -329,7 +331,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       /* Determine the subgrid minimum and maximum sizes, if
 	 requested. */
 
-      DetermineSubgridSizeExtrema(LevelArray, i);
+      DetermineSubgridSizeExtrema(NumberOfCells[i+1], i+1, 
+				  MaximumStaticSubgridLevel+1);
  
       /* 3a) Generate an array of grids on this level. */
  

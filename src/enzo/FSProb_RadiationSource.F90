@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -46,7 +48,6 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
 
 !--------------
 ! argument declarations
@@ -81,7 +82,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   dy    = (x1R-x1L)/Ny                ! mesh spacing (comoving), x1 direction
   dz    = (x2R-x2L)/Nz                ! mesh spacing (comoving), x2 direction
   dV    = dx*dy*dz*(dble(lUn))**3     ! cell volume (proper)
-  h_nu0 = 13.6d0*1.60217653e-12       ! ionization energy of HI [ergs]
+  h_nu0 = 13.6d0*ev2erg               ! ionization energy of HI [ergs]
 
   ! compute point source emissivity for various problems
 

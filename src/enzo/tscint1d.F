@@ -73,7 +73,7 @@ c
      &                real(6*refine1**3                     )
          coefp(i+1) = real(3*i**2 + 3*i + 1)                 /
      &                real(6*refine1**3                     )
-         coef0(i+1) = 1.0/refine1 - coefm(i+1) - coefp(i+1)
+         coef0(i+1) = 1.d0/refine1 - coefm(i+1) - coefp(i+1)
       enddo
 c
 c  Loop over area to be refined and interpolate
@@ -89,7 +89,7 @@ c
 c  Correct to make sure the interpolation is conservatiove
 c
       do i = start1, end1, refine1
-         sum = 0.0
+         sum = 0.d0
          do j = 0, refine1-1
             sum = sum + grid(i-start1+gstart1+j)
          enddo
@@ -120,7 +120,7 @@ c
          if (abs(del2left) .lt. tiny) 
      &        del2left = sign(tiny, del2left)
          fraction((i-start1)/refine1 + 1) = 
-     &             min(max(del1left/del2left, 0.0), 1.0)
+     &             min(max(del1left/del2left, 0.d0), 1.d0)
       enddo
 c
 c       repeat for right side of each distribution
@@ -138,7 +138,7 @@ c
          if (abs(del2right) .lt. tiny) del2right = 
      &        sign(tiny, del2right)
          fraction((i-start1)/refine1 + 1) = max(
-     &                    min(max(del1right/del2right, 0.0), 1.0)   ,
+     &                    min(max(del1right/del2right, 0.d0), 1.d0)  ,
      &                    fraction((i-start1)/refine1 + 1)           )
       enddo
 c
@@ -149,7 +149,7 @@ c
      &           parent((i-1)/refine1+1)/real(refine1)*
      &                        fraction((i-start1)/refine1 + 1) +
      &           grid(i-start1+gstart1)             *
-     &                 (1.0 - fraction((i-start1)/refine1 + 1) )
+     &                 (1.d0 - fraction((i-start1)/refine1 + 1) )
       enddo
 c
 c     Remove the irritating division by the refinement volume

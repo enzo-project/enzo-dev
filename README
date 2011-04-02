@@ -1,71 +1,56 @@
-= Enzo SVN README =
+= ENZO =
 
-== DESCRIPTION ==
+ENZO IS AN OPEN SOURCE CODE.  We encourage you to take it, inspect it, use it,
+and contribute back any changes you have made.  We strive to make the the Enzo
+community a community of *developers*.
 
-== WEBSITES ==
+== RESOURCES ==
 
-  Enzo User website
+Enzo is developed in the open at:
 
-    URL: http://lca.ucsd.edu/portal/software/enzo   
+ * http://enzo.googlecode.com/
 
-  Enzo Developent website
+Documentation, including instructions for compilation, can be found at:
 
-    URL: http://lca.ucsd.edu/projects/enzo   
+ * http://docs.enzo.googlecode.com/hg/index.html
 
-  Enzo Documentation (also in the doc directory)
+Please subscribe to the Enzo Users' mailing list at:
 
-    URL: http://lca.ucsd.edu/software/enzo
+ * https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l
+
+If you have received this source code through an archive, rather than the
+mercurial version control system, we highly encourage you to upgrade to the
+version controlled source, as no support can be provided for archived
+("tarball") sources.
 
 == DEVELOPERS ==
+
+Many people have contributed to the development of Enzo -- here's just a short
+list of the people who have recently contributed.
    
    * Greg Bryan      gbryan@astro.columbia.edu
+   * Tom Abel        tabel@stanford.edu
    * Michael Norman  mlnorman@ucsd.edu
-
-   * James Bordner   jobordner@ucsd.edu
-   * Dave Collins    dcollins@physics.ucsd.edu
+   * John Wise       jwise@astro.princeton.edu
+   * Dan Reynolds    reynolds@smu.edu
+   * Michael Kuhlen  mqk@astro.berkeley.edu
+   * Matthew Turk    matthewturk@gmail.com
+   * Brian O'Shea    oshea@msu.edu
    * Robert Harkness harkness@sdsc.edu
    * Alexei Kritsuk   akritsuk@ucsd.edu
+   * Elizabeth Tasker taskere@mcmaster.ca
+   * Dave Collins    dcollins@physics.ucsd.edu
+   * Britton Smith   brittonsmith@gmail.com
+   * Elizabeth Harper-Clark h-clark@astro.utoronto.ca
+   * Peng Wang       pengw@slac.stanford.edu
+   * Fen Zhao        fenzhao@stanford.edu
+   * James Bordner   jobordner@ucsd.edu
    * Pascal Paschos  ppaschos@minbari.ucsd.edu
-   * Dan Reynolds    reynolds@smu.edu
    * Stephen Skory   sskory@physics.ucsd.edu
    * Rick Wagner     rwagner@physics.ucsd.edu
-
    * Renyue Cen      cen@astro.princeton.edu
    * Alex Razoumov   razoumov@gmail.com
+   * Cameron Hummels chummels@astro.columbia.edu
+   * JS Oishi        jsoishi@gmail.com
+   * Christine Simpson csimpson@astro.columbia.edu
 
-== COMPILING ==
-
-   Note, this assumes that GNU make on your platform is called "make".
-   This is not necessarily true on operating systems that ship with
-   their on version of make (e.g., AIX). You may need to replace
-   the "make" commands with "gmake".
-
-   0.  Run "./configure" from the top-level Enzo directory
-
-   1.  Change directory to "src/enzo"
-
-   2.  Look at the "Make.mach.*" files to find one for your target
-       architecture.
-
-   3a. If an appropriate "Make.mach.<machine> file is found, then run
-
-          % make machine-<machine>
-
-       to select it.
-
-   3b  Otherwise, if no appropriate "Make.mach.<machine>" file is
-       found, then create an empty one using
-       
-          % cp Make.mach.unknown Make.mach.<machine>
-
-       and editing it.  Note that the <machine> part of the machine
-       file by convention is of the form <site>-<platform>.  For
-       example, "Make.mach.sdsc-datastar" for the platform DataStar at
-       SDSC.
-
-       Edit your newly-created Make.mach.<machine> file by filling in
-       the variable settings to those for the new target machine.
-
-   4.  To compile Enzo, from the amr_mpi/src directory, type 
-
-          % make

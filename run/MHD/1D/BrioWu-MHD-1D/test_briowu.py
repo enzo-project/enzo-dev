@@ -1,5 +1,5 @@
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest
+from yt.utilities.answer_testing.output_tests import YTStaticOutputTest
 
 class TestBrioWuDensity(YTStaticOutputTest):
     name = "briowu_density"

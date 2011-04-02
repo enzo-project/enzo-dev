@@ -40,8 +40,8 @@ c
       do m = 1,5
          do n = 1,5
             do i = 1, idim
-               lem(i,n,m) = 0.0
-               rem(i,n,m) = 0.0
+               lem(i,n,m) = 0.d0
+               rem(i,n,m) = 0.d0
             enddo
          enddo
       enddo
@@ -49,28 +49,28 @@ c
       do i = 1, idim
          csi = 1.0/cs(i)
          csq = cs(i)**2
-         csqi = 1.0/csq
+         csqi = 1.d0/csq
 c
 c     Left eigenvectors
 c         
-         lem(i,2,1) = -0.5*dslice(i)*csi
-         lem(i,5,1) = 0.5*csqi
-         lem(i,1,2) = 1.0
+         lem(i,2,1) = -0.5d0*dslice(i)*csi
+         lem(i,5,1) = 0.5d0*csqi
+         lem(i,1,2) = 1.d0
          lem(i,5,2) = -csqi
-         lem(i,3,3) = 1.0
+         lem(i,3,3) = 1.d0
          lem(i,4,4) = 1.0
          lem(i,2,5) = -lem(i,2,1)
          lem(i,5,5) = lem(i,5,1)
 c
 c     Right eigenvectors
 c
-         rem(i,1,1) = 1.0
+         rem(i,1,1) = 1.d0
          rem(i,1,2) = -cs(i)/dslice(i)
          rem(i,1,5) = csq
-         rem(i,2,1) = 1.0
-         rem(i,3,3) = 1.0
-         rem(i,4,4) = 1.0
-         rem(i,5,1) = 1.0
+         rem(i,2,1) = 1.d0
+         rem(i,3,3) = 1.d0
+         rem(i,4,4) = 1.d0
+         rem(i,5,1) = 1.d0
          rem(i,5,2) = -rem(i,1,2)
          rem(i,5,5) = csq
 

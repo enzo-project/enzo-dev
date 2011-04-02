@@ -96,7 +96,7 @@ c
      &                 real(6*refine1**3                     )
          coefp1(i+1) = real(3*i**2 + 3*i + 1)                 /
      &                 real(6*refine1**3                     )
-         coef01(i+1) = 1.0/refine1 - coefm1(i+1) - coefp1(i+1)
+         coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
@@ -104,7 +104,7 @@ c
      &                 real(6*refine2**3                     )
          coefp2(i+1) = real(3*i**2 + 3*i + 1)                 /
      &                 real(6*refine2**3                     )
-         coef02(i+1) = 1.0/refine2 - coefm2(i+1) - coefp2(i+1)
+         coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
       do i = 0, refine3-1
@@ -112,7 +112,7 @@ c
      &                 real(6*refine3**3                     )
          coefp3(i+1) = real(3*i**2 + 3*i + 1)                 /
      &                 real(6*refine3**3                     )
-         coef03(i+1) = 1.0/refine3 - coefm3(i+1) - coefp3(i+1)
+         coef03(i+1) = 1.d0/refine3 - coefm3(i+1) - coefp3(i+1)
       enddo
 c
 c  Loop over area to be refined and interpolate
@@ -183,7 +183,7 @@ c
 c           Clear the work field
 c
             do i = 1, wdim1
-               temp(i) = 0.0
+               temp(i) = 0.d0
             enddo
 c
 c           Compute the sum over each parent zone
@@ -237,7 +237,7 @@ c    to the neighbour and the average value), then decrease the entire
 c    profile as needed, but do it in such a way as to keep the average value
 c    the same.
 c
-      dV = 1.0/real(refine1*refine2*refine3)
+      dV = 1.d0/real(refine1*refine2*refine3)
       do iter = 1, num_iter
 c
 c  1) Do it first in the i direction
@@ -254,7 +254,7 @@ c           a) zero temp space
 c           b) average over one line of the interpolated grid in i direction
 c
          do i = 1, wdim1
-            temp(i) = 0.0
+            temp(i) = 0.d0
          enddo
 c
          do i1 = gstart1, gstart1+refine1-1
@@ -278,7 +278,7 @@ c
 c
             if (abs(del2left) .lt. tiny) 
      &           del2left = sign(tiny, del2left)
-            fraction(i) = min(max(del1left/del2left, 0.0), 1.0)
+            fraction(i) = min(max(del1left/del2left, 0.d0), 1.d0)
          enddo
 c
 c        repeat for right side of each distribution
@@ -293,7 +293,7 @@ c
 c
             if (abs(del2right) .lt. tiny) 
      &           del2right = sign(tiny, del2right)
-            fraction(i) =  max(max(min(del1right/del2right, 0.0), 1.0),
+            fraction(i) =  max(max(min(del1right/del2right, 0.d0),1.d0),
      &                         fraction(i)                            )
          enddo
 c
@@ -304,14 +304,14 @@ c            grid(i-start1+gstart1, jgrid, kgrid) =
 c     &         temp((i-start1)/refine1+1) 
 c     &                        *        fraction((i-start1)/refine1+1) +
 c     &         grid(i-start1+gstart1, jgrid, kgrid)
-c     &                        * (1.0 - fraction((i-start1)/refine1+1) )
+c     &                        * (1.d0 - fraction((i-start1)/refine1+1))
 c         enddo
 c
          do i1 = gstart1, gstart1+refine1-1
             do i2 = 1, wdim1
                grid((i2-1)*refine1+i1, jgrid, kgrid) = 
      &                     fraction(i2)  * temp(i2) +
-     &              (1.0 - fraction(i2)) * grid((i2-1)*refine1+i1, 
+     &              (1.d0 - fraction(i2)) * grid((i2-1)*refine1+i1, 
      &                                          jgrid, kgrid)
             enddo
          enddo
@@ -331,7 +331,7 @@ c
 c        Compute the average along a single line of the interpolated values
 c
          do j = 1, wdim2
-            temp(j) = 0.0
+            temp(j) = 0.d0
          enddo
 c
          do j1 = gstart2, gstart2+refine2-1
@@ -355,7 +355,7 @@ c
 c
             if (abs(del2left) .lt. tiny) 
      &           del2left = sign(tiny, del2left)
-            fraction(j) = min(max(del1left/del2left, 0.0), 1.0)
+            fraction(j) = min(max(del1left/del2left, 0.d0), 1.d0)
          enddo
 c
 c        repeat for right side of each distribution
@@ -370,7 +370,7 @@ c
 c
             if (abs(del2right) .lt. tiny) 
      &           del2right = sign(tiny, del2right)
-            fraction(j) =  max(max(min(del1right/del2right, 0.0), 1.0),
+            fraction(j) =  max(max(min(del1right/del2right, 0.d0),1.d0),
      &                         fraction(j)                            )
          enddo
 c
@@ -380,7 +380,7 @@ c
             do j2 = 1, wdim2
                grid(igrid, (j2-1)*refine2+j1, kgrid) = 
      &                     fraction(j2)  * temp(j2) +
-     &              (1.0 - fraction(j2)) * grid(igrid, 
+     &              (1.d0 - fraction(j2)) * grid(igrid, 
      &                                         (j2-1)*refine2+j1, kgrid)
             enddo
          enddo
@@ -400,7 +400,7 @@ c
 c        Compute the average along a single line of the interpolated values
 c
          do k = 1, wdim3
-            temp(k) = 0.0
+            temp(k) = 0.d0
          enddo
 c
          do k1 = gstart3, gstart3+refine3-1
@@ -424,7 +424,7 @@ c
 c
             if (abs(del2left) .lt. tiny) 
      &           del2left = sign(tiny, del2left)
-            fraction(k) = min(max(del1left/del2left, 0.0), 1.0)
+            fraction(k) = min(max(del1left/del2left, 0.d0), 1.d0)
          enddo
 c
 c        repeat for right side of each distribution
@@ -439,7 +439,7 @@ c
 c
             if (abs(del2right) .lt. tiny) 
      &           del2right = sign(tiny, del2right)
-            fraction(k) =  max(max(min(del1right/del2right, 0.0), 1.0),
+            fraction(k) =  max(max(min(del1right/del2right, 0.d0),1.d0),
      &                         fraction(k)                            )
          enddo
 c
@@ -449,7 +449,7 @@ c
             do k2 = 1, wdim3
                grid(igrid, jgrid, (k2-1)*refine3+k1) = 
      &                     fraction(k2)  * temp(k2) +
-     &              (1.0 - fraction(k2)) * grid(igrid, jgrid,
+     &              (1.d0 - fraction(k2)) * grid(igrid, jgrid,
      &                                         (k2-1)*refine3+k1)
             enddo
          enddo

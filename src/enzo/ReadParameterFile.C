@@ -25,6 +25,11 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+
+#ifdef CONFIG_USE_LIBCONFIG
+#include <libconfig.h++>
+#endif
+ 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -35,7 +40,7 @@
 #include "Grid.h"
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
- 
+
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
 
@@ -62,6 +67,7 @@ void get_uuid(char *buffer);
 
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 {
+#ifndef CONFIG_USE_LIBCONFIG
   /* declarations */
 
   
@@ -936,6 +942,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "RadiatingShock")      ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
     if (strstr(line, "RotatingSphere")    ) ret++;
+    if (strstr(line, "StratifiedMediumExplosion")) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;
     if (strstr(line, "KelvinHelmholtz")     ) ret++;
     if (strstr(line, "KH")                  ) ret++;
@@ -1509,4 +1516,5 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
+#endif /* ndef CONFIG_USE_LIBCONFIG */
 }

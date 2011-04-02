@@ -189,7 +189,7 @@ explains how to convert code units to cgs units. However, there are
 some subtleties:
 
 **Density fields**
-    All density fields are in the units described in the amr guide
+    All density fields are in the units described in the AMR guide
     **except** electron density. Electron density is only output when
     ``MultiSpecies`` is turned on, and in order to convert the electron
     density to cgs it must be multiplied by the code density conversion

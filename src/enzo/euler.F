@@ -99,7 +99,7 @@ c
       real dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
       real min_color
-      parameter(min_color=1e-05*tiny)
+      parameter(min_color=1d-05*tiny)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -111,8 +111,8 @@ c     write(6,*) 'EULER: j1   =',j1,  ' j2   =',j2
 c
 c  Set constants
 c
-      qa = (gamma + 1.0)/(2.0*gamma)
-      qb = (gamma - 1.0)/(gamma + 1.0)
+      qa = (gamma + 1.d0)/(2.d0*gamma)
+      qb = (gamma - 1.d0)/(gamma + 1.d0)
 c
 c  Loop over sweep lines (in this slice)
 c
@@ -123,7 +123,7 @@ c
        do i=i1, i2
           qc = dt/dx(i)
           dnu(i) = dslice(i,j) + (df(i,j) - df(i+1,j))
-          dnuinv(i) = 1.0/dnu(i)
+          dnuinv(i) = 1.d0/dnu(i)
 c          write(21,*) i, dnu(i), dub(i), db(i), ub(i)
 c          uadvect = (dnu(i)-dslice(i,j))/(qc*(db(i+1)-db(i)))
 c          if (uslice(i,j)/(uadvect) .gt. 1.8 .and. uadvect .ne. 0.0)
@@ -136,7 +136,7 @@ c     A small cheat: if idual is on, assume a cosmo sim, and institute a
 c     minimum density.  This should be a parameter and pased in.
 c
           if (idual .eq. 1 .and. gravity .eq. 1) 
-     &         dnu(i) = max(dnu(i),1.0e-3)
+     &         dnu(i) = max(dnu(i),1.d-3)
 
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
@@ -188,7 +188,7 @@ c
      $            write(6,*) 'euler: geslice<0:', i,j,geslice(i,j)
              geslice(i,j) = max((geslice(i,j)*dslice(i,j) +
      $            (gef(i,j) - gef(i+1,j))/dx(i) + ges(i,j)) * dnuinv(i)
-     $            ,0.5*geslice(i,j))
+     $            ,0.5d0*geslice(i,j))
 c             if (geslice(i,j) .lt. tiny) geslice(i,j) = tiny
              if (geslice(i,j) .lt. 0.0) then
                 write(6,*) i,j,dslice(i,j),dnu(i),pcent(i),eslice(i,j),
@@ -218,15 +218,15 @@ c
              dadx(i) = grslice(i+1,j) - grslice(i-1,j)
              dddx(i) =  dslice(i+1,j) -  dslice(i-1,j)
 c
-             dddx(i) = 2.0*( dslice(i,j) - max(dslice(i,j) -
-     &                   0.5*dddx(i), min(dslice(i,j), dslice(i-1,j))))
-             dddx(i) = 2.0*(-dslice(i,j) + max(dslice(i,j) +
-     &                   0.5*dddx(i), min(dslice(i,j), dslice(i+1,j))))
+             dddx(i) = 2.d0*( dslice(i,j) - max(dslice(i,j) -
+     &                  0.5d0*dddx(i), min(dslice(i,j), dslice(i-1,j))))
+             dddx(i) = 2.d0*(-dslice(i,j) + max(dslice(i,j) +
+     &                  0.5d0*dddx(i), min(dslice(i,j), dslice(i+1,j))))
           enddo
 c
           do i=i1, i2
              grslice(i,j) = grslice(i,j) + 
-     &                      0.5*dadx(i)*dddx(i)/(12.0*dslice(i,j))
+     &                      0.5d0*dadx(i)*dddx(i)/(12.d0*dslice(i,j))
           enddo
        endif
 c
@@ -242,20 +242,20 @@ c
 
 #ifdef GRAVITY_METHOD1 /* (right) */
              uslice(i,j) = uslice(i,j) + 
-     &            dt*grslice(i,j)*0.5*(dslice(i,j)*dnuinv(i)+1.0)
-             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5*
+     &            dt*grslice(i,j)*0.5d0*(dslice(i,j)*dnuinv(i)+1.d0)
+             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5d0*
      &            (uslice(i,j) + uold(i)*dslice(i,j)*dnuinv(i))
              if (eslice(i,j) .le. 0) write(6,*) 'eu1',i,j,eslice(i,j),
-     &                     dslice(i,j),dnu(i),uslice(i,j),grslice(i,j),
-     &                     dt*grslice(i,j)*0.5*(dslice(i,j)/dnu(i)+1.0),
-     &                     dt*grslice(i,j)*0.5*
-     &                     (uslice(i,j) + uold(i)*dslice(i,j)/dnu(i))
+     &            dslice(i,j),dnu(i),uslice(i,j),grslice(i,j),
+     &            dt*grslice(i,j)*0.5d0*(dslice(i,j)/dnu(i)+1.d0),
+     &            dt*grslice(i,j)*0.5d0*
+     &            (uslice(i,j) + uold(i)*dslice(i,j)/dnu(i))
              eslice(i,j) = max(eslice(i,j), tiny)
 #endif /* GRAVITY_METHOD1 */
 
 #ifdef GRAVITY_METHOD2 /* (wrong) */
              uslice(i,j) = uslice(i,j) + dt*grslice(i,j)
-             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5*
+             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5d0*
      &                                      (uslice(i,j) + uold(i))
 #endif /* GRAVITY_METHOD2 */
           enddo

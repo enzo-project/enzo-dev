@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -88,7 +90,6 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
     
 !--------------
@@ -127,7 +128,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
   real :: dxi2, dyi2, dzi2, DivV, GradRhoDotV
   real :: rho, ec, eh, Er, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
   real :: T, lamT, G, Lambda
-  real :: alpha, beta, eta, nu0_HI, nu0_HeI, nu0_HeII, ev2erg
+  real :: alpha, beta, eta, nu0_HI, nu0_HeI, nu0_HeII
   real :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII
   real :: reHII, reHeII1, reHeII2, reHeIII, brem, Comp1, Comp2
   real :: G_HI, G_HeI, G_HeII
@@ -180,11 +181,10 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
   ! initialize constants
   aval = a*aunits
   gam_1 = gamma-1.d0
-  pi = 4.D0*datan(1.D0)
-  ev2erg = 1.60217653e-12      ! conversion constant from eV to ergs
-  c  = 2.99792458d10           ! speed of light [cm/s]
-  hp = 6.6260693d-27           ! Planck's constant [ergs*s]
-  mp = 1.67262171d-24          ! Mass of a proton [g]
+  pi = pi_val
+  c  = c_light                 ! speed of light [cm/s]
+  hp = hplanck                 ! Planck's constant [ergs*s]
+  mp = mass_h                  ! Mass of a proton [g]
   zr = 1.d0/(aval) - 1.d0      ! cosmological redshift
   StBz  = 5.6704d-5            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   afac  = adot/a               ! adot/a
