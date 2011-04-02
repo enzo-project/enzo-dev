@@ -42,14 +42,23 @@ template_vars = {'N_PROCS': 'nprocs',
                  'PAR_FILE': 'run_par_file',
                  'TEST_NAME': 'name'}
 
+def _get_hg_version(path):
+    print "Getting current revision."
+    from mercurial import hg, ui, commands 
+    u = ui.ui() 
+    u.pushbuffer() 
+    repo = hg.repository(u, path) 
+    commands.identify(u, repo) 
+    return u.popbuffer()
+
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
 
 class EnzoTestCollection(object):
-    def __init__(self, tests = None):
+    def __init__(self, tests = None, machine = 'local'):
         if tests is None:
-            # Now we look for all our *.enzo_test files
+            # Now we look for all our *.enzotest files
             fns = []
             os.path.walk(".", add_files, fns)
             self.tests = []
@@ -60,13 +69,33 @@ class EnzoTestCollection(object):
             self.tests = tests
         self.test_container = []
 
-    def prepare_tests(self):
-        for my_test in self.tests:
-            self.test_container.append(EnzoTestRun("my_tests", my_test))
+    def go(self, output_dir, interleaved, machine):
+        if interleaved:
+            for my_test in self.tests:
+                print "Preparing test: %s." % my_test['name']
+                self.test_container.append(EnzoTestRun(output_dir, my_test, machine))
+                self.test_container[-1].run_sim()
+                self.test_container[-1].run_test()
+        else:
+            self.prepare_all_tests(output_dir, machine)
+            self.run_all_sims()
+            self.run_all_tests()
 
-    def run_sims(self):
+    def prepare_all_tests(self, output_dir, machine):
+        print "Preparing all tests."
+        for my_test in self.tests:
+            print "Preparing test: %s." % my_test['name']
+            self.test_container.append(EnzoTestRun(output_dir, my_test, machine))
+
+    def run_all_sims(self):
+        print "Running all simulations."
         for my_test in self.test_container:
             my_test.run_sim()
+
+    def run_all_tests(self):
+        print "Running all tests."
+        for my_test in self.test_container:
+            my_test.run_test()
 
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
@@ -76,7 +105,7 @@ class EnzoTestCollection(object):
         test_spec = variable_defaults.copy()
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
-        test_spec['run_par_file'] = os.path.basename(test_spec['fulldir'])
+        test_spec['run_par_file'] = os.path.basename(test_spec['fulldir']) + ".enzo"
         for var, val in local_vars.items():
             if var in known_variables:
                 caster = known_variables[var]
@@ -123,7 +152,7 @@ class EnzoTestCollection(object):
         print "NUMBER OF TESTS", len(self.tests)
 
 class EnzoTestRun(object):
-    def __init__(self, test_dir, test_data, machine='local', exe_path="../src/enzo/enzo.exe"):
+    def __init__(self, test_dir, test_data, machine, exe_path="../src/enzo/enzo.exe"):
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
@@ -134,15 +163,18 @@ class EnzoTestRun(object):
             self.local_exe = os.path.basename(exe_path)
 
         self.run_dir = os.path.join(self.test_dir, self.test_data['fulldir'])
-        if not os.path.exists(self.test_dir): os.mkdir(self.test_dir)
 
         self._copy_test_files()
         self._create_run_script()
 
     def _copy_test_files(self):
-        shutil.copytree(self.test_data['fulldir'], self.run_dir)
-        if self.exe_path is not None:
-           shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
+        # Check for existence
+        if os.path.exists(self.run_dir):
+            print "%s already exists. Skipping directory." % self.test_data['name']
+        else:
+            shutil.copytree(self.test_data['fulldir'], self.run_dir)
+            if self.exe_path is not None:
+                shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
 
     def _create_run_script(self):
         template_path = os.path.join(os.path.dirname(__file__), 
@@ -160,11 +192,25 @@ class EnzoTestRun(object):
         f.close()
 
     def run_sim(self):
-        os.chdir(self.run_dir)
+        print "Running test simulation: %s." % self.test_data['name']
+        cur_dir = os.getcwd()
+        # Check for existence
+        if os.path.exists(self.run_dir+'/RunFinished'):
+            print "%s run already completed, continuing..." % self.test_data['name']
+            return
+        
+        os.chdir(self.run_dir) 
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         print "Executing \"%s\"." % command
         os.system(command)
+        os.chdir(cur_dir)
+
+    def run_test(self):
+        cur_dir = os.getcwd()
+        os.chdir(self.run_dir)
+        print "Running test: %s" % self.test_data['name']
+        os.chdir(cur_dir)
 
 class UnspecifiedParameter(object):
     pass
@@ -173,8 +219,17 @@ unknown = UnspecifiedParameter()
 if __name__ == "__main__":
     etc = EnzoTestCollection()
     parser = optparse.OptionParser()
-    parser.add_option("-o", "--output-dir", dest='outputdir',
+    parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
+    parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
+                      help="Option to interleave preparation, running, and testing.")
+    parser.add_option("-m", "--machine", dest='machine', default='local', 
+                      help="Machine to run tests on.")
+    parser.add_option("--clobber", dest='clobber', default=True,
+                      help="Recopies tests and tests from scratch.")
+    parser.add_option("--repo", dest='repository', default="../",
+                      help="Path to repository being tested.")
+
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
@@ -194,3 +249,15 @@ if __name__ == "__main__":
     print
     print "\n".join(list(etc2.unique('name')))
     print "Total: %s" % len(etc2.tests)
+
+    # get current revision
+    hg_current = _get_hg_version(options.repository)
+    rev_hash = hg_current.split()[0]
+    options.output_dir = os.path.join(options.output_dir, rev_hash)
+    if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
+    f = open(os.path.join(options.output_dir, 'version.txt'), 'w')
+    f.write(hg_current)
+    f.close()
+
+    # Make it happen
+    etc2.go(options.output_dir, options.interleave, options.machine)
