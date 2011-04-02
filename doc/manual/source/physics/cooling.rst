@@ -3,4 +3,4 @@
 Cooling and Heating of Gas
 ==========================
 
-Yo Britton
+.. sectionauthor:: Britton Smith <brittonsmith@gmail.com>
