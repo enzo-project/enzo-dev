@@ -47,7 +47,7 @@ def add_files(my_list, dirname, fns):
                 fn in fns if fn.endswith(".enzotest")]
 
 class EnzoTestCollection(object):
-    def __init__(self, tests = None):
+    def __init__(self, tests = None, machine = 'local'):
         if tests is None:
             # Now we look for all our *.enzotest files
             fns = []
@@ -60,13 +60,33 @@ class EnzoTestCollection(object):
             self.tests = tests
         self.test_container = []
 
-    def prepare_tests(self):
-        for my_test in self.tests:
-            self.test_container.append(EnzoTestRun("my_tests", my_test))
+    def go(self, output_dir, interleaved, machine):
+        if interleaved:
+            for my_test in self.tests:
+                print "Preparing test: %s." % my_test['name']
+                self.test_container.append(EnzoTestRun(output_dir, my_test, machine))
+                self.test_container[-1].run_sim()
+                self.test_container[-1].run_test()
+        else:
+            self.prepare_all_tests(output_dir, machine)
+            self.run_all_sims()
+            self.run_all_tests()
 
-    def run_sims(self):
+    def prepare_all_tests(self, output_dir, machine):
+        print "Preparing all tests."
+        for my_test in self.tests:
+            print "Preparing test: %s." % my_test['name']
+            self.test_container.append(EnzoTestRun(output_dir, my_test, machine))
+
+    def run_all_sims(self):
+        print "Running all simulations."
         for my_test in self.test_container:
             my_test.run_sim()
+
+    def run_all_tests(self):
+        print "Running all tests."
+        for my_test in self.test_container:
+            my_test.run_test()
 
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
@@ -76,7 +96,7 @@ class EnzoTestCollection(object):
         test_spec = variable_defaults.copy()
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
-        test_spec['run_par_file'] = os.path.basename(test_spec['fulldir'])
+        test_spec['run_par_file'] = os.path.basename(test_spec['fulldir']) + ".enzo"
         for var, val in local_vars.items():
             if var in known_variables:
                 caster = known_variables[var]
@@ -123,7 +143,7 @@ class EnzoTestCollection(object):
         print "NUMBER OF TESTS", len(self.tests)
 
 class EnzoTestRun(object):
-    def __init__(self, test_dir, test_data, machine='local', exe_path="../src/enzo/enzo.exe"):
+    def __init__(self, test_dir, test_data, machine, exe_path="../src/enzo/enzo.exe"):
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
@@ -134,7 +154,6 @@ class EnzoTestRun(object):
             self.local_exe = os.path.basename(exe_path)
 
         self.run_dir = os.path.join(self.test_dir, self.test_data['fulldir'])
-        if not os.path.exists(self.test_dir): os.mkdir(self.test_dir)
 
         self._copy_test_files()
         self._create_run_script()
@@ -160,11 +179,20 @@ class EnzoTestRun(object):
         f.close()
 
     def run_sim(self):
+        print "Running test simulation: %s." % self.test_data['name']
+        cur_dir = os.getcwd()
         os.chdir(self.run_dir)
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         print "Executing \"%s\"." % command
         os.system(command)
+        os.chdir(cur_dir)
+
+    def run_test(self):
+        cur_dir = os.getcwd()
+        os.chdir(self.run_dir)
+        print "Running test: %s" % self.test_data['name']
+        os.chdir(cur_dir)
 
 class UnspecifiedParameter(object):
     pass
@@ -173,8 +201,12 @@ unknown = UnspecifiedParameter()
 if __name__ == "__main__":
     etc = EnzoTestCollection()
     parser = optparse.OptionParser()
-    parser.add_option("-o", "--output-dir", dest='outputdir',
+    parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
+    parser.add_option("--interleaved", action='store_true', dest='interleaved', default=False,
+                      help="Option to interleave preparation, running, and testing.")
+    parser.add_option("-m", "--machine", dest='machine', default='local', 
+                      help="Machine to run tests on.")
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
@@ -194,3 +226,7 @@ if __name__ == "__main__":
     print
     print "\n".join(list(etc2.unique('name')))
     print "Total: %s" % len(etc2.tests)
+
+    # Make it happen
+    if not os.path.exists(options.output_dir): os.mkdir(options.output_dir)
+    etc2.go(options.output_dir, options.interleaved, options.machine)
