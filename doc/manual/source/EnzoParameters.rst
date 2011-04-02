@@ -1255,9 +1255,12 @@ The parameters below are considered in ``StarParticleCreation`` method
     returned to the gas phase as thermal energy. Default: 1e-5
 ``StarEnergyToStellarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
-    returned as UV radiation with a young star spectrum. Default: 3e-6
+    returned as UV radiation with a young star spectrum. This is used when calculating the radiation background. Default: 3e-6
 ``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
+<<<<<<< local
+    returned as UV radiation with a quasar spectrum. This is used when calculating the radiation background. Default: 5e-6
+=======
     returned as UV radiation with a quasar spectrum. Default: 5e-6
 ``StarFeedbackDistCellStep`` (external)
     This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
@@ -1275,6 +1278,7 @@ The parameters below are considered in ``StarParticleCreation`` method
     ``StarFeedbackDistRadius``).  When this is used, equal amounts of 
     stellar feedback products are deposited into all cells in the 
     region.  Default: 0
+>>>>>>> other
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
