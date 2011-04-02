@@ -229,6 +229,7 @@ if __name__ == "__main__":
                       help="Recopies tests and tests from scratch.")
     parser.add_option("--repo", dest='repository', default=".",
                       help="Path to repository being tested.")
+
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
