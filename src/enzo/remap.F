@@ -104,7 +104,7 @@ c
          if (idual .eq. 1) then
             do i=i1, i2
                if (geslice(i,j) .le. 0.0) write(6,*) 'remap_a',i
-               geslice(i,j) = max(0.5*geslice(i,j), 
+               geslice(i,j) = max(0.5d0*geslice(i,j), 
      &                         (dm(i)*geslice(i,j) - 
      &                         (gef(i+1,j)-gef(i,j)))/ dmnu(i) )
                if (geslice(i,j) .le. 0.0) write(6,*) 'remap_b',i

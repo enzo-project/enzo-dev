@@ -140,11 +140,12 @@ c
 c  parameters
 c
       real    epsilon, kappa1, kappa2, Kparam, nu1, nu2, nu3,
-     &        omega1, omega2, sigma1, sigma2
-      parameter (epsilon = 0.33  , kappa1 = 2.0 , kappa2 =  0.01,
-     &            Kparam = 0.1   ,    nu1 = 2.0 , nu2    =  0.1 ,
-     &               nu3 = 0.2333, omega1 = 0.75, omega2 = 10.0 ,
-     &            sigma1 = 0.5   , sigma2 = 1.0)
+     &        omega1, omega2, sigma1, sigma2, one, two
+      parameter (epsilon = 0.33d0, kappa1 = 2.d0, kappa2 =  0.01d0,
+     &            Kparam = 0.1d0 ,    nu1 = 2.d0, nu2    =  0.1d0 ,
+     &               nu3 = 0.2333, omega1 = 0.75, omega2 = 10.d0  ,
+     &            sigma1 = 0.5d0 , sigma2 = 1.d0, one    = 1.d0   ,
+     &               two = 2.d0)
 c
 c Notice, for 1D calculations nu2 = 0 and nu3 = 0.3333, see CW84, p. 200.
 c
@@ -191,9 +192,9 @@ c
      &           / min(pslice(i+1,j),  pslice(i-1,j))
             if ( qb.gt.epsilon .and.
      &          uslice(i-1,j).gt.uslice(i+1,j) ) then
-               wflag(i) = 1.0
+               wflag(i) = 1.d0
             else
-               wflag(i) = 0.0
+               wflag(i) = 0.d0
             endif
          end do
 c
@@ -211,7 +212,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     vdiff1(i) = 0.0
+                     vdiff1(i) = 0.d0
                   end do
                end if
 c     
@@ -222,7 +223,7 @@ c
                   end do
                else 
                   do i = i1-2, i2+2
-                     wdiff1(i) = 0.0
+                     wdiff1(i) = 0.d0
                   end do
                end if
 c     
@@ -237,7 +238,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     vdiff1(i) = 0.0
+                     vdiff1(i) = 0.d0
                   end do
                endif
 c     
@@ -248,7 +249,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     wdiff1(i) = 0.0
+                     wdiff1(i) = 0.d0
                   end do
                endif
 c
@@ -264,7 +265,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     vdiff1(i) = 0.0
+                     vdiff1(i) = 0.d0
                   end do
                end if
 c     
@@ -275,7 +276,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     wdiff1(i) = 0.0
+                     wdiff1(i) = 0.d0
                   end do
                endif
 c     
@@ -297,7 +298,7 @@ c
                   end do
                else
                   do i=i1-2, i2+2
-                     vdiff2(i) = 0.0
+                     vdiff2(i) = 0.d0
                   end do
                endif
 c     
@@ -308,7 +309,7 @@ c
                   end do
                else
                   do i=i1-2, i2+2
-                     wdiff2(i) = 0.0
+                     wdiff2(i) = 0.d0
                   end do
                endif
 c     
@@ -322,7 +323,7 @@ c
                   end do
                else
                   do i=i1-2, i2+2
-                     vdiff2(i) = 0.0
+                     vdiff2(i) = 0.d0
                   end do
                endif
 c     
@@ -333,7 +334,7 @@ c
                   end do
                else
                   do i=i1-2, i2+2
-                     wdiff2(i) = 0.0
+                     wdiff2(i) = 0.d0
                   end do
                endif
 c     
@@ -347,7 +348,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     vdiff2(i) = 0.0
+                     vdiff2(i) = 0.d0
                   end do
                end if
 c     
@@ -358,7 +359,7 @@ c
                   end do
                else
                   do i = i1-2, i2+2
-                     wdiff2(i) = 0.0
+                     wdiff2(i) = 0.d0
                   end do
                end if
 c     
@@ -379,20 +380,20 @@ c
 c
             if (nyz.gt.1 .and. lj1) then
                do i=i1, i2+1
-                  diffcoef(i,j) = diffcoef(i,j) + (0.25*(dx(i)+dx(i-1))
-     &                 /   (0.5*(dy(j+1)+dy(j-1)) + dy(j)))*vdiff1(i)
+                  diffcoef(i,j) = diffcoef(i,j) +(0.25d0*(dx(i)+dx(i-1))
+     &                 /   (0.5d0*(dy(j+1)+dy(j-1)) + dy(j)))*vdiff1(i)
                end do
             endif
 c     
             if (nzz.gt.1 .and. lk1) then
                do i=i1, i2+1
-                  diffcoef(i,j) = diffcoef(i,j) + (0.25*(dx(i)+dx(i-1))
-     &                 /   (0.5*(dz(k+1)+dz(k-1)) + dz(k)))*wdiff1(i)
+                  diffcoef(i,j) = diffcoef(i,j) +(0.25d0*(dx(i)+dx(i-1))
+     &                 /   (0.5d0*(dz(k+1)+dz(k-1)) + dz(k)))*wdiff1(i)
                end do
             endif
 c     
             do i=i1, i2+1
-               diffcoef(i,j) = Kparam*max(0.0, diffcoef(i,j))
+               diffcoef(i,j) = Kparam*max(0.d0, diffcoef(i,j))
             end do
 c
          endif
@@ -405,15 +406,15 @@ c
             do i=i1-1, i2+1
                if (abs(pslice(i+2,j) - pslice(i-2,j))/
      &            min(pslice(i+2,j),pslice(i-2,j)) .lt. epsilon) then
-                 qa = 1.0
+                 qa = 1.d0
                else
                  qa =     ( pslice(i+1,j) - pslice(i-1,j) )
      &                /   ( pslice(i+2,j) - pslice(i-2,j) )
                endif
-               flattemp(i) = min( 1.0, (qa-omega1)*omega2*wflag(i) )
+               flattemp(i) = min( 1.d0, (qa-omega1)*omega2*wflag(i) )
 c               flattemp(i) = wflag(i) !AK: Svetsov 2001, ShockWaves 11, 229
-               flattemp(i) = max(0.0, flattemp(i))
-c              flattemp(i) = 1.0-flattemp(i)  !AK: typo in CW84 eq. (A.2)
+               flattemp(i) = max(0.d0, flattemp(i))
+c              flattemp(i) = 1.d0-flattemp(i)  !AK: typo in CW84 eq. (A.2)
              end do
 
             flattemp(i1-2) = flattemp(i1-1)
@@ -446,21 +447,21 @@ c
 
             do i=i1-1, i2+1
 
-               is = i + sign(2.0, pslice(i+1,j) - pslice(i-1,j))
+               is = i + sign(two, pslice(i+1,j) - pslice(i-1,j))
 
-               omega(i) = max(0.0, omega1 * (omega2 
+               omega(i) = max(0.d0, omega1 * (omega2 
      &              - (pslice(i+1,j) - pslice(i-1,j))
      &              / (pslice(i+2,j) - pslice(i-2,j)) ))
 
                Z = sqrt(( max(pslice(i+2,j),pslice(i-2,j)) +
-     &              0.5*(pslice(i+2,j)+pslice(i-2,j))*(gamma-1.0))
+     &              0.5d0*(pslice(i+2,j)+pslice(i-2,j))*(gamma-1.d0))
      &              / max(di(i+2),di(i-2)))
 
                kappa_tilde = 
      &              (Z + sqrt(gamma*pslice(is,j)*dslice(is,j))) / Z
 
-               kappa(i)   = max(0.0, (kappa_tilde - kappa1)
-     &              /                (kappa_tilde + kappa2))
+               kappa(i)   = max(0.d0, (kappa_tilde - kappa1)
+     &              /                 (kappa_tilde + kappa2))
 
                flattemp(i) = min(wflag(i)*omega(i), kappa(i))
 
@@ -483,7 +484,7 @@ c
          if (iflatten .eq. 3 .or. idiff .eq. 2) then
 c     
             do i=i1-3, i2+3
-               di(i) = 1.0/dslice(i,j)
+               di(i) = 1.d0/dslice(i,j)
             end do
 c     
             do i=i1-1, i2+1
@@ -493,34 +494,34 @@ c
                de1 = eslice(i+1,j) - eslice(i-1,j)
                de2 = eslice(i+2,j) - eslice(i-2,j)
 c
-               dpp = 0.0
-               dee = 0.0
-               if (dp2 .ne. 0.0) dpp = dp1/dp2
-               if (de2 .ne. 0.0) dee = de1/de2
+               dpp = 0.d0
+               dee = 0.d0
+               if (dp2 .ne. 0.d0) dpp = dp1/dp2
+               if (de2 .ne. 0.d0) dee = de1/de2
                omega_tilde = max( dpp , dee )
 c
-               ism = i + sign(2.0, dp1)        ! post-shock
-               isp = i - sign(2.0, dp1)        ! upstream
-               s   =   - sign(1.0, dp1)        ! i+s - zone upstream from i
-               if (dp1 .eq. 0.0) s = 0.0
+               ism = i + sign(two, dp1)        ! post-shock
+               isp = i - sign(two, dp1)        ! upstream
+               s   =   - sign(one, dp1)        ! i+s - zone upstream from i
+               if (dp1 .eq. 0.0) s = 0.d0
 c
 c              Compute sigma(i): strength of a shock near zone i
 c     
                sigma_tilde = 
      &              wflag(i)*abs(dp2)/min(pslice(i+2,j),pslice(i-2,j))
-               sigma(i) = max( 0.0, (sigma_tilde - sigma1)
-     &              /               (sigma_tilde + sigma2) )
+               sigma(i) = max( 0.d0, (sigma_tilde - sigma1)
+     &              /                (sigma_tilde + sigma2) )
 c
 c              Compute omega(i): steepness of a shock near zone i 
 c
                omega(i) = 
-     &              max(0.0, omega2*(omega_tilde - omega1)) ! as in Prometheus
+     &              max(0.d0, omega2*(omega_tilde - omega1)) ! as in Prometheus
 c     &              max(0.0, omega1*(omega2 - omega_tilde)) !AK: a CW84 typo?
 c     
 c              Compute an estimate of the Lagrangean shock speed W_j
 c
                Z = sqrt(( max(pslice(i+2,j),pslice(i-2,j)) +
-     &              0.5*(pslice(i+2,j)+pslice(i-2,j))*(gamma-1.0))
+     &              0.5d0*(pslice(i+2,j)+pslice(i-2,j))*(gamma-1.d0))
      &              / max(di(i+2),di(i-2)))
 c
 c              Compute W_j^E; Possible typos in kappa_tilda definition in 
@@ -532,8 +533,8 @@ c
 c              Compute kappa(i): the wavelength of the noise
 c
                kappa_tilde = abs((ZE - uslice(isp,j) + s*cj2s)/ZE)
-               kappa(i) = max(0.0, (kappa_tilde - kappa1)
-     &              /              (kappa_tilde + kappa2))
+               kappa(i) = max(0.d0, (kappa_tilde - kappa1)
+     &              /               (kappa_tilde + kappa2))
 c     
                flattemp(i) =
      &              min(kappa(i),wflag(i)*omega(i),wflag(i)*sigma(i))
@@ -571,22 +572,22 @@ c
             
             if (nyz.ne.1 .and. lj2) then
                do i=i1-1, i2+1
-                  qa = 0.5*(0.5*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
-     &                 / (0.5*(dy(j+2)+dy(j-2)) + dy(j+1)+dy(j)+dy(j-1))
+                  qa = 0.5d0*(0.5d0*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
+     &                /(0.5d0*(dy(j+2)+dy(j-2)) + dy(j+1)+dy(j)+dy(j-1))
                   difftemp(i) = difftemp(i) + qa*vdiff2(i)
                end do
             end if
 
             if (nzz.ne.1 .and. lk2) then
                do i=i1-1, i2+1
-                  qb = 0.5*(0.5*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
-     &                 / (0.5*(dz(k+2)+dz(k-2)) + dz(k+1)+dz(k)+dz(k-1))
+                  qb = 0.5d0*(0.5d0*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
+     &                /(0.5d0*(dz(k+2)+dz(k-2)) + dz(k+1)+dz(k)+dz(k-1))
                   difftemp(i) = difftemp(i) + qb*wdiff2(i)
                end do
             end if
 
             do i=i1-1, i2+1
-               difftemp(i) = max(0.0, nu1*difftemp(i))
+               difftemp(i) = max(0.d0, nu1*difftemp(i))
             end do
 
             difftemp(i1-2) = difftemp(i1-1)
@@ -594,7 +595,7 @@ c
 
             do i=i1-1, i2+1
 
-               s  = - sign(1.0, pslice(i-1,j) - pslice(i,j))
+               s  = - sign(one, pslice(i-1,j) - pslice(i,j))
                diffcoef(i,j) = s*min(
      &              max(difftemp(i-1),difftemp(i),difftemp(i+1)),
      &              (nu2 + nu3*max(sigma(i-1)*kappa(i-1)**2

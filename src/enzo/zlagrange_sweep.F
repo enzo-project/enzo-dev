@@ -156,7 +156,7 @@ c
 
 
 c
-      vgz = 0.0
+      vgz = 0.d0
 c
 c Copy from field to slice
 c    (note that we have permuted uvw here and not in the routine calls)

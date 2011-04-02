@@ -59,12 +59,12 @@ c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
 c
-      xshift = 0.5
-      yshift = 0.5
-      zshift = 0.5
-      if (ishift .eq. 1) xshift = 1.0
-      if (ishift .eq. 2) yshift = 1.0
-      if (ishift .eq. 3) zshift = 1.0
+      xshift = 0.5d0
+      yshift = 0.5d0
+      zshift = 0.5d0
+      if (ishift .eq. 1) xshift = 1.d0
+      if (ishift .eq. 2) yshift = 1.d0
+      if (ishift .eq. 3) zshift = 1.d0
 c
 c  Loop over area to be refined and interpolate
 c
@@ -73,13 +73,13 @@ c
       if (ndim .eq. 1) then
 c
          do i = start1, end1
-            xpos    = (real(i)-xshift)/real(refine1) + 1.0
-            iparent = int(xpos-(1.0-xshift))
-            dx      = real(iparent) - xpos + 2.0 - xshift
+            xpos    = (real(i)-xshift)/real(refine1) + 1.d0
+            iparent = int(xpos-(1.d0-xshift))
+            dx      = real(iparent) - xpos + 2.d0 - xshift
 c
             grid(i-start1+gstart1, 1, 1) =
-     &      dx  * parent(iparent  , 1, 1) +
-     &   (1-dx) * parent(iparent+1, 1, 1)
+     &                 dx  * parent(iparent  , 1, 1) +
+     &           (1.d0-dx) * parent(iparent+1, 1, 1)
          enddo
 c
       endif
@@ -89,20 +89,20 @@ c
       if (ndim .eq. 2) then
 c
         do j = start2, end2
-          ypos    = (real(j)-yshift)/real(refine2) + 1.0
-          jparent = int(ypos-(1.0-yshift))
-          dy      = real(jparent) - ypos + 2.0 - yshift
+          ypos    = (real(j)-yshift)/real(refine2) + 1.d0
+          jparent = int(ypos-(1.d0-yshift))
+          dy      = real(jparent) - ypos + 2.d0 - yshift
 c
           do i = start1, end1
-            xpos    = (real(i)-xshift)/real(refine1) + 1.0
-            iparent = int(xpos-(1.0-xshift))
-            dx      = real(iparent) - xpos + 2.0 - xshift
+            xpos    = (real(i)-xshift)/real(refine1) + 1.d0
+            iparent = int(xpos-(1.d0-xshift))
+            dx      = real(iparent) - xpos + 2.d0 - xshift
 c
             grid(i-start1+gstart1, j-start2+gstart2, 1) =
-     &      dx *   dy * parent(iparent  , jparent  , 1) +
-     &   (1-dx)*   dy * parent(iparent+1, jparent  , 1) +
-     &      dx *(1-dy)* parent(iparent  , jparent+1, 1) +
-     &   (1-dx)*(1-dy)* parent(iparent+1, jparent+1, 1)
+     &         dx *      dy * parent(iparent  , jparent  , 1) +
+     &   (1.d0-dx)*      dy * parent(iparent+1, jparent  , 1) +
+     &         dx *(1.d0-dy)* parent(iparent  , jparent+1, 1) +
+     &   (1.d0-dx)*(1.d0-dy)* parent(iparent+1, jparent+1, 1)
 c
           enddo
         enddo
@@ -113,29 +113,37 @@ c     3d)
 c
       if (ndim .eq. 3) then
       do k = start3, end3
-        zpos    = (real(k)-zshift)/real(refine3) + 1.0
-        kparent = int(zpos-(1.0-zshift))
-        dz      = real(kparent) - zpos + 2.0 - zshift
+        zpos    = (real(k)-zshift)/real(refine3) + 1.d0
+        kparent = int(zpos-(1.d0-zshift))
+        dz      = real(kparent) - zpos + 2.d0 - zshift
 c
         do j = start2, end2
-          ypos    = (real(j)-yshift)/real(refine2) + 1.0
-          jparent = int(ypos-(1.0-yshift))
-          dy      = real(jparent) - ypos + 2.0 - yshift
+          ypos    = (real(j)-yshift)/real(refine2) + 1.d0
+          jparent = int(ypos-(1.d0-yshift))
+          dy      = real(jparent) - ypos + 2.d0 - yshift
 c
           do i = start1, end1
-            xpos    = (real(i)-xshift)/real(refine1) + 1.0
-            iparent = int(xpos-(1.0-xshift))
-            dx      = real(iparent) - xpos + 2.0 - xshift
+            xpos    = (real(i)-xshift)/real(refine1) + 1.d0
+            iparent = int(xpos-(1.d0-xshift))
+            dx      = real(iparent) - xpos + 2.d0 - xshift
 c
             grid(i-start1+gstart1, j-start2+gstart2, k-start3+gstart3) =
-     &      dx *   dy *   dz * parent(iparent  , jparent  , kparent  ) +
-     &   (1-dx)*   dy *   dz * parent(iparent+1, jparent  , kparent  ) +
-     &      dx *(1-dy)*   dz * parent(iparent  , jparent+1, kparent  ) +
-     &   (1-dx)*(1-dy)*   dz * parent(iparent+1, jparent+1, kparent  ) +
-     &      dx *   dy *(1-dz)* parent(iparent  , jparent  , kparent+1) +
-     &   (1-dx)*   dy *(1-dz)* parent(iparent+1, jparent  , kparent+1) +
-     &      dx *(1-dy)*(1-dz)* parent(iparent  , jparent+1, kparent+1) +
-     &   (1-dx)*(1-dy)*(1-dz)* parent(iparent+1, jparent+1, kparent+1)
+     &           dx *   dy *   dz * 
+     &           parent(iparent  , jparent  , kparent  ) +
+     &           (1.d0-dx)*   dy *   dz * 
+     &           parent(iparent+1, jparent  , kparent  ) +
+     &           dx *(1.d0-dy)*   dz * 
+     &           parent(iparent  , jparent+1, kparent  ) +
+     &           (1.d0-dx)*(1.d0-dy)*   dz * 
+     &           parent(iparent+1, jparent+1, kparent  ) +
+     &           dx *   dy *(1.d0-dz)* 
+     &           parent(iparent  , jparent  , kparent+1) +
+     &           (1.d0-dx)*   dy *(1.d0-dz)* 
+     &           parent(iparent+1, jparent  , kparent+1) +
+     &           dx *(1.d0-dy)*(1.d0-dz)* 
+     &           parent(iparent  , jparent+1, kparent+1) +
+     &           (1.d0-dx)*(1.d0-dy)*(1.d0-dz)* 
+     &           parent(iparent+1, jparent+1, kparent+1)
 c
           enddo
         enddo

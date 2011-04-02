@@ -111,8 +111,8 @@ c
       real   mproton, RandomSeed, beta,x ,y, kb
       real   starfraction, bmass, densthresh 
       double precision msolar
-      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1,
-     &     sqrtepssn=2e24, RandomSeed=-123456, kb=kboltz)
+      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1d0,
+     &     sqrtepssn=2.d24, RandomSeed=-123456, kb=kboltz)
 
       real random
 
@@ -128,7 +128,7 @@ c      open (unit=1701,file=fname,access="APPEND",status="UNKNOWN")
 
 c     Define the energy output from supernovae
 
-      usn=(1.0-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
+      usn=(1.d0-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
       usn=usn*sqrtepssn   ! this trick done to avoid floating-point issues (BWO)
 
 c     Loop over all grids
@@ -136,15 +136,15 @@ c     Loop over all grids
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 c	       Only if this is the most refined cell at this location.
-	       if(r(i,j,k) .ne. 0.0) goto 10
+	       if(r(i,j,k) .ne. 0.d0) goto 10
 
 c             Only over-dense enough cells.
               if(d(i,j,k) .le. odthresh) goto 10
 
 c         Don't consider this cell if it's not in the refinement region.
-              tempx = xstart + (float(i)-0.5)*dx
-              tempy = ystart + (float(j)-0.5)*dx
-              tempz = zstart + (float(k)-0.5)*dx
+              tempx = xstart + (float(i)-0.5d0)*dx
+              tempy = ystart + (float(j)-0.5d0)*dx
+              tempz = zstart + (float(k)-0.5d0)*dx
               if (tempx .lt. rr_left0 .or. tempx .gt. rr_right0 .or. 
      &          tempy .lt. rr_left1 .or. tempy .gt. rr_right1 .or. 
      &          tempz .lt. rr_left2 .or. tempz .gt. rr_right2) then
@@ -152,8 +152,8 @@ c         Don't consider this cell if it's not in the refinement region.
                endif
 
 c	       Calculate star formation timescale               
-               tstar = 31556926.0*mintdyn*(d(i,j,k)*dble(d1)/  
-     &              shdens)**(-0.5)			!Eq(21)
+               tstar = 31556926.d0*mintdyn*(d(i,j,k)*dble(d1)/  
+     &              shdens)**(-0.5d0)			!Eq(21)
             
             
 c		note: minus sign is because 'coolrate' is actual backwards: when coolrate is 
@@ -163,10 +163,10 @@ c		& Hernquist 2003, MNRAS, 339, 289, eqtn. 16
      &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton) !Eq(16)
 
 c	       Calculate the fraction of mass in cold clouds
-               if (y .le. 0) then
-                  x = 0
+               if (y .le. 0.d0) then
+                  x = 0.d0
                else
-                  x = 1.0 + 1.0/2.0/y - sqrt(1.0/y + 1.0/4.0/y/y)	!Eq(18)
+                  x = 1.d0 + 1.d0/2.d0/y - sqrt(1.d0/y + 1.d0/4.d0/y/y)	!Eq(18)
                endif
 
 c              Calculate total baryon mass in the cell               
@@ -193,7 +193,7 @@ c               write(1701, *) bmass, newd, newcool, newtemp, newdt,pstar
 c ----------If a random number < pstar, create a star!----------------
 
                if(dummy1 .gt. pstar) goto 10
-               starfraction = min(smthresh/bmass, 0.5)
+               starfraction = min(smthresh/bmass, 0.5d0)
 
                ii = ii + 1
 	       mp(ii)  = starfraction * d(i,j,k) 
@@ -203,9 +203,9 @@ c ----------If a random number < pstar, create a star!----------------
                yp(ii) = tempy
                zp(ii) = tempz
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -216,10 +216,10 @@ c	       Set metal Fraction
                if (imetal .eq. 1) then
                   metalf(ii) = metal(i,j,k)
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
                endif
 c	       Remove mass from grid
-               d(i,j,k) = (1.0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
 c
 c              Do not generate more star particles than available
 c
@@ -327,8 +327,8 @@ c
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio, sqrtepssn,
      &     msolar, beta
-      parameter (clight = c_light, msolar_e51 = 1800.0, 
-     &     msolar=SolarMass, sqrtepssn=2e24, beta=0.1)
+      parameter (clight = c_light, msolar_e51 = 1800.d0, 
+     &     msolar=SolarMass, sqrtepssn=2.d24, beta=0.1d0)
 
 c    Basically calculate some of the same stuff from above.
 c    Dump it all into thermal making sure to take care of
@@ -338,7 +338,7 @@ c    energy formalisms.
          if(tcp(n) .eq. t .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
             
             i = int((xp(n) - xstart)/dx) +1
-            j = int((yp(n) - ystart)/dx) + 1
+            j = int((yp(n) - ystart)/dx) +1
             k = int((zp(n) - zstart)/dx) +1
 
 c
@@ -357,7 +357,7 @@ c
 
 c	    Metal Feedback
             metal(i,j,k) = metal(i,j,k) +
-     &            (1-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
+     &            (1.d0-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
 
             energy = sqrtepssn*mp(n)/msolar/v1/v1/d(i,j,k)  
             energy = energy*sqrtepssn    ! this is due to floating-point issues (BWO)
@@ -368,7 +368,7 @@ c	    Metal Feedback
      &           ge(i,j,k) = ge(i,j,k) + energy
             
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 +
+               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 +
      &              w(i,j,k)**2) + ge(i,j,k)
             endif
             

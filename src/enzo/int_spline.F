@@ -158,9 +158,9 @@ c
       do i=1, (n-2)*refine
          j = int(x) + 1
          a = real(j) - x
-         b = 1.0 - a
+         b = 1.d0 - a
          result(i) = a*y(j) + b*y(j+1) + ((a**3 - a)*y2(j) +
-     &               (b**3-b)*y2(j+1))/6.0
+     &               (b**3-b)*y2(j+1))/6.d0
          x = x + step
 c         write(7,1000) i,a*y(j) + b*y(j+1),
 c     &        result(i),y(j),y(j+1),y2(j),y2(j+1)
@@ -186,13 +186,13 @@ c
       work(1) = 0.0
 c
       do i=2, n-1
-         p = 1.0/(0.5*y2(i-1) + 2.0)
-         y2(i) = -0.5*p
-         work(i) = (3.0*((y(i+1)-y(i)) - (y(i)-y(i-1))) - 
-     &              0.5*work(i-1))*p
+         p = 1.d0/(0.5d0*y2(i-1) + 2.d0)
+         y2(i) = -0.5d0*p
+         work(i) = (3.d0*((y(i+1)-y(i)) - (y(i)-y(i-1))) - 
+     &              0.5d0*work(i-1))*p
       enddo
 c
-      y2(n) = 0.0
+      y2(n) = 0.d0
 c
 c     back substitution
 c

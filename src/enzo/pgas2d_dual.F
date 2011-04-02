@@ -70,7 +70,7 @@ c
 c
 c           Compute the specific energy from the total energy
 c
-            ke = 0.5*(uslice(i,j)**2 + vslice(i,j)**2 + wslice(i,j)**2)
+            ke = 0.5d0*(uslice(i,j)**2 + vslice(i,j)**2 +wslice(i,j)**2)
             ge1 = eslice(i,j) - ke
 c
 c           Find the maximum nearby total energy (not specific)
@@ -103,7 +103,7 @@ c
 c
 c           If pressure is below the minimum, set it to the minimum
 c
-            ge2 = max(ge2, pmin/((gamma - 1.0)*dslice(i,j)))
+            ge2 = max(ge2, pmin/((gamma - 1.d0)*dslice(i,j)))
 c
 c           Update the total energy
 c
@@ -111,7 +111,7 @@ c
 c
 c           Compute the pressure with the total energy derived gas energy
 c
-            pslice(i,j) = (gamma - 1.0)*dslice(i,j)*ge2
+            pslice(i,j) = (gamma - 1.d0)*dslice(i,j)*ge2
 c
          enddo
       enddo

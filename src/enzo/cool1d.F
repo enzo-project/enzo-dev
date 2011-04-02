@@ -66,7 +66,7 @@ c
 c  Set the mean molecular mass
 c     (see also Grid_ComputeTemperatureField.C)
 c
-#define DEFAULT_MU 0.6
+#define DEFAULT_MU 0.6d0
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -84,7 +84,7 @@ c
 c        Zeus - e() is really gas energy
 c
          do i = is+1, ie+1
-            p2d(i) = (gamma - 1.0)*d(i,j,k)*e(i,j,k)
+            p2d(i) = (gamma - 1.d0)*d(i,j,k)*e(i,j,k)
          enddo
       else
          if (idual .eq. 1) then
@@ -92,17 +92,17 @@ c
 c           PPM with dual energy -- use gas energy
 c
             do i = is+1, ie+1
-               p2d(i) = (gamma - 1.0)*d(i,j,k)*ge(i,j,k)
+               p2d(i) = (gamma - 1.d0)*d(i,j,k)*ge(i,j,k)
             enddo
          else
 c
 c           PPM without dual energy -- use total energy
 c
             do i = is+1, ie+1
-               p2d(i) = e(i,j,k) - 0.5*u(i,j,k)**2
-               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5*v(i,j,k)**2
-               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5*w(i,j,k)**2
-               p2d(i) = max((gamma - 1.0)*d(i,j,k)*p2d(i), tiny)
+               p2d(i) = e(i,j,k) - 0.5d0*u(i,j,k)**2
+               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5d0*v(i,j,k)**2
+               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5d0*w(i,j,k)**2
+               p2d(i) = max((gamma - 1.d0)*d(i,j,k)*p2d(i), tiny)
             enddo
          endif
       endif
@@ -127,7 +127,7 @@ c
 c
 c        Compute log temperature and truncate if above/below table max/min
 c
-         logtem(i) = log(0.5*(tgas(i)+tgasold(i)))
+         logtem(i) = log(0.5d0*(tgas(i)+tgasold(i)))
          logtem(i) = max(logtem(i), logtem0)
          logtem(i) = min(logtem(i), logtem9)
 c
@@ -164,7 +164,7 @@ c
       do i = is+1, ie+1
          edot(i) = edot(i) + (
 c
-     .                  0.0
+     .                  0.d0
 c
      .      )/dom
       enddo
