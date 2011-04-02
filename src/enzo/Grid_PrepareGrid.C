@@ -54,11 +54,8 @@ void grid::PrepareGrid(int Rank, int GridDim[],
     WriteListOfFloats(stdout, Rank, RightEdge);
   }
 */
-
-  int field, dim; 
-
   /* Set Particle quantities. */
-
+ 
   NumberOfParticles = NumParticles;
  
   /* Set global grid quantities.
@@ -66,7 +63,7 @@ void grid::PrepareGrid(int Rank, int GridDim[],
  
   GridRank = Rank;
  
-  for (dim = 0; dim < GridRank; dim++) {
+  for (int dim = 0; dim < GridRank; dim++) {
     GridDimension[dim]  = GridDim[dim];
     GridStartIndex[dim] = min(DEFAULT_GHOST_ZONES, GridDim[dim]-1);
     GridEndIndex[dim]   = min(ABS(GridDim[dim]-DEFAULT_GHOST_ZONES-1),
@@ -75,47 +72,6 @@ void grid::PrepareGrid(int Rank, int GridDim[],
     GridRightEdge[dim]  = RightEdge[dim];
   }
  
-#ifdef MHDCT
-  if(useMHDCT)
-    {
-
-      for(field=0; field<3; field++){
- 	MagneticSize[field] = 1;
- 	ElectricSize[field] = 1;
-	
- 	for(dim=0; dim<3; dim++){
-	  MagneticDims[field][dim] = GridDimension[dim];
-	  ElectricDims[field][dim] = GridDimension[dim] +1;
- 	  
-	  
- 	  MHDStartIndex[field][dim] = GridStartIndex[dim];
- 	  MHDEndIndex[field][dim] = GridEndIndex[dim];
-	  
- 	  MHDeStartIndex[field][dim] = GridStartIndex[dim];
- 	  MHDeEndIndex[field][dim] = GridEndIndex[dim]+1;
-	  
-	  if( field == dim ){
-	    MagneticDims[field][dim]++;
-	      ElectricDims[field][dim]--;
-	      MHDEndIndex[field][dim]++;
-	      MHDeEndIndex[field][dim]--;
-	  }
-	  fprintf(stderr,"moo PrepareGrid MHDStart %"ISYM" regular %"ISYM"\n",
-		  MHDStartIndex[field][dim],GridStartIndex[dim]);
-	  fprintf(stderr,"moo PrepareGrid MHDEnd %"ISYM" regular %"ISYM"\n",
-		  MHDEndIndex[field][dim],GridEndIndex[dim]);
- 	  MagneticSize[field] *= MagneticDims[field][dim];
- 	  ElectricSize[field] *= ElectricDims[field][dim];
- 	}//dim
-      }//field
-
-      for( field=0;field<3;field++)
- 	for(dim=0;dim<3;dim++){
- 	  MHDAdd[field][dim]=MagneticDims[field][dim]-GridDimension[dim];
- 	}
-    }//useMHDCT
-#endif //MHDCT
-
   /* compute derived quantites */
  
   this->PrepareGridDerivedQuantities();
@@ -129,7 +85,7 @@ void grid::PrepareGrid(int Rank, int GridDim[],
   for (int dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }
-
+  
   if (HydroMethod == MHD_RK) {
 
     if (divB == NULL) {

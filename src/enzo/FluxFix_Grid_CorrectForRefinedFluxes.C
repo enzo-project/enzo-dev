@@ -352,7 +352,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  FieldType[field] != DrivingField2 &&
 		  FieldType[field] != DrivingField3 &&
 		  FieldType[field] != GravPotential &&
-		  FieldType[field] != DebugField &&
 		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && 
 					   FieldType[field] != InternalEnergy))) {
 		for (k = Start[2]; k <= End[2]; k++) {
@@ -406,8 +405,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		FieldType[field] != DrivingField1 &&
 		FieldType[field] != DrivingField2 &&
 		FieldType[field] != DrivingField3 &&
-		FieldType[field] != GravPotential &&
-		FieldType[field] != DebugField) {
+		FieldType[field] != GravPotential) {
 	      for (k = Start[2]; k <= End[2]; k++){
 		for (j = Start[1]; j <= End[1]; j++){
 		  for (i = Start[0]; i <= End[0]; i++) {
@@ -567,9 +565,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      FieldType[field] != DrivingField1 &&
 	      FieldType[field] != DrivingField2 &&
 	      FieldType[field] != DrivingField3 &&
-	      FieldType[field] != GravPotential &&
-	      FieldType[field] != DebugField
-	      ) {
+	      FieldType[field] != GravPotential) {
 	  for (k = Start[2]; k <= End[2]; k++) {
 	    for (j = Start[1]; j <= End[1]; j++) {
 	      for (i = Start[0]; i <= End[0]; i++) {

@@ -12,11 +12,6 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
        2: another polytropic EOS
        3: isothermal 
        4: pseudocooling for Wengen 2 test
-       5: Wengen 2 the original
-       6: minimum pressure similar (but not equal to)
-          http://adsabs.harvard.edu/abs/2004ApJ...606...32R
-          equation 4
-
      mode:  
        1: given p and rho, calculate others.
        2: given rho and e, calculate others.
@@ -119,31 +114,6 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     dpdrho = 1;
     dpde = 1;
     h = e + p/rho;
-  }
-
-  if (eostype == 6) {
-    float lenu, denu, tu, velu, tempu;
-    GetUnits(&denu, &lenu, &tempu, &tu, &velu, 1);
-    double rho_cr = EOSCriticalDensity;
-    //    c_s /= velu;
-    rho_cr /= denu;
-    double Pmin = 1.e4*rho_cr/1.67e-24*1.381e-16/(velu*velu);
-    Pmin *= (rho/rho_cr)*(rho/rho_cr); // effective gamma = 2 at high density
-    if (mode == 1) {
-      poverrho = p / rho;
-      e = poverrho / (Gamma - 1);      
-    } else if (mode == 2) {
-      p = (Gamma - 1) * rho * e + Pmin;
-      poverrho = p / rho;
-    }
-    dpdrho = poverrho;
-    
-    dpde = (Gamma - 1) * rho;
-    
-    h = e + poverrho;
-    // this is somewhat inconsistent as we are using the gamma = 5/3 everywhere
-    cs = sqrt(Gamma*poverrho);
-
   }
 
 

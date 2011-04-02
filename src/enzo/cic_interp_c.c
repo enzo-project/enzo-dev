@@ -86,9 +86,9 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
     /* Function Body */
     fact = (FLOAT)1. / *cellsize;
-    edge1 = (FLOAT) (*dim1) - (FLOAT).500;
-    edge2 = (FLOAT) (*dim2) - (FLOAT).500;
-    edge3 = (FLOAT) (*dim3) - (FLOAT).500;
+    edge1 = (FLOAT) (*dim1) - (FLOAT).5001;
+    edge2 = (FLOAT) (*dim2) - (FLOAT).5001;
+    edge3 = (FLOAT) (*dim3) - (FLOAT).5001;
 
 /*     1D */
 
@@ -102,7 +102,7 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 /* Computing min */
 /* Computing max */
 	    r__2 = (posx[n] - leftedge[1]) * fact;
-	    r__1 = max(r__2,(FLOAT).500);
+	    r__1 = max(r__2,(FLOAT).5001);
 	    xpos = min(r__1,edge1);
 
 /*           Convert this into an integer index */
@@ -135,12 +135,12 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 /* Computing min */
 /* Computing max */
 	    r__2 = (posx[n] - leftedge[1]) * fact;
-	    r__1 = max(r__2,(FLOAT).500);
+	    r__1 = max(r__2,(FLOAT).5001);
 	    xpos = min(r__1,edge1);
 /* Computing min */
 /* Computing max */
 	    r__2 = (posy[n] - leftedge[2]) * fact;
-	    r__1 = max(r__2,(FLOAT).500);
+	    r__1 = max(r__2,(FLOAT).5001);
 	    ypos = min(r__1,edge2);
 
 /*           Convert this into an integer index */
@@ -178,17 +178,17 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 /* Computing min */
 /* Computing max */
 	    r__2 = (posx[n] - leftedge[1]) * fact;
-	    r__1 = max(r__2,(FLOAT).500);
+	    r__1 = max(r__2,(FLOAT).5001);
 	    xpos = min(r__1,edge1);
 /* Computing min */
 /* Computing max */
 	    r__2 = (posy[n] - leftedge[2]) * fact;
-	    r__1 = max(r__2,(FLOAT).500);
+	    r__1 = max(r__2,(FLOAT).5001);
 	    ypos = min(r__1,edge2);
 /* Computing min */
 /* Computing max */
 	    r__2 = (posz[n] - leftedge[3]) * fact;
-	    r__1 = max(r__2,(FLOAT).500);
+	    r__1 = max(r__2,(FLOAT).5001);
 	    zpos = min(r__1,edge3);
 
 /*           Convert this into an integer index */

@@ -64,9 +64,6 @@ int grid::InitializeUniformGrid(float UniformDensity,
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }
-  if (WritePotential)
-    FieldType[NumberOfBaryonFields++] = GravPotential;
-
 
 
   int colorfields = NumberOfBaryonFields;

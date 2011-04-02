@@ -42,9 +42,10 @@ int grid::ComovingGravitySourceTerm()
   /* Set AverageDensity (held in global_data.h). */
  
   int i, j, k, gmf_index;
-  float AverageDensity = 1.;
+  float AverageDensity = 1.0;
 
   if (ProblemType == 50 || ProblemType == 60 || ProblemType == 61) //AK
+
     AverageDensity = 0.0;
  
   /* Loop over the field, subracting off the mean field. */

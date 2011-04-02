@@ -89,7 +89,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.CycleSkipRestartDump = 0;
   MetaData.CycleLastDataDump    = INT_UNDEFINED;
   MetaData.CycleSkipDataDump    = 0;
-  MetaData.SubcycleLastDataDump    = 0;
+  MetaData.SubcycleLastDataDump    = INT_UNDEFINED;
   MetaData.SubcycleSkipDataDump    = 0;
   MetaData.CycleLastHistoryDump = INT_UNDEFINED;
   MetaData.CycleSkipHistoryDump = 0;
@@ -537,7 +537,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallT		     = 1e-10;
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = INT_UNDEFINED;
-  RiemannSolverFallback      = 1;
+  RiemannSolverFallback      = FALSE;
   ReconstructionMethod	     = INT_UNDEFINED;
   PositiveReconstruction     = FALSE;
   ConservativeReconstruction = 0;
@@ -719,28 +719,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
-#ifdef MHDCT
-  //MHDCT variables
-  CT_AthenaDissipation = 0.0;
-  MHD_WriteElectric = TRUE;
-  MHDLi[0]                 = 2;
-  MHDLi[1]                 = 1;
-  MHDLi[2]                 = 5;
-  MHDLi[3]                 = 1;
-  MHDLi[4]                 = 0;
-  MHD_Equation = 1;
-  tiny_pressure = tiny_number;
-  MHD_CT_Method = 0;
-  DEFAULT_GHOST_ZONES = 3;
-  MHD_Used = FALSE;
-  IsothermalSoundSpeed = 1.0;
-  MHD_ProjectB = FALSE;
-  MHD_ProjectE = TRUE;
-  useMHDCT = FALSE;
-  EquationOfState = 0;
-  for(int dccdbg=0; dccdbg<N_DbgWrites;dccdbg++) SingleGridDumpList[dccdbg]=0;
-
-#endif //MHDCT
 
   MoveParticlesBetweenSiblings = TRUE;
 

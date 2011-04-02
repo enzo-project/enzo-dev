@@ -44,15 +44,6 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
   ixyz = CycleNumber % GridRank;
 
-  // compute pressure
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-  
-  float *Pressure = new float[size];
-  this->ComputePressure(Time, Pressure);
-
-
   int i,j,k,n;
   for (n = ixyz; n < ixyz+GridRank; n++) {
 
@@ -61,7 +52,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
       for (k = 0; k < GridDimension[2]; k++) {
 	if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
-			      NumberOfColours, colnum, Pressure) == FAIL) {
+			      NumberOfColours, colnum) == FAIL) {
 	  ENZO_VFAIL("Error in xEulerSweep.  k = %d\n", k)
 	}
       } // ENDFOR k
@@ -72,7 +63,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
       for (i = 0; i < GridDimension[0]; i++) {
 	if (this->yEulerSweep(i, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
-			      NumberOfColours, colnum, Pressure) == FAIL) {
+			      NumberOfColours, colnum) == FAIL) {
 	  ENZO_VFAIL("Error in yEulerSweep.  i = %d\n", i)
 	}
       } // ENDFOR i
@@ -83,7 +74,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
       for (j = 0; j < GridDimension[1]; j++) {
 	if (this->zEulerSweep(j, NumberOfSubgrids, SubgridFluxes, 
 			      GridGlobalStart, CellWidthTemp, GravityOn, 
-			      NumberOfColours, colnum, Pressure) == FAIL) {
+			      NumberOfColours, colnum) == FAIL) {
 	  ENZO_VFAIL("Error in zEulerSweep.  j = %d\n", j)
 
 	}
@@ -91,13 +82,6 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
     } // ENDIF z-direction
 
   } // ENDFOR n
-
-  // make energies consistent for polytropic equations of state
-  if (EOSType > 0) 
-    this->ComputePressure(Time, Pressure);
-
-
-  delete [] Pressure;
 
   return SUCCESS;
 

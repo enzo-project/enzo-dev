@@ -301,8 +301,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
 	  for (i = ParentStartIndex[0]; i <= ParentEndIndex[0]; i++, i1++) {
 	    B2 = pow(ParentGrid.BaryonField[B1Num][i1],2) + 
-      	         pow(ParentGrid.BaryonField[B2Num][i1],2) +
-	         pow(ParentGrid.BaryonField[B3Num][i1],2);
+	      pow(ParentGrid.BaryonField[B2Num][i1],2) +
+	      pow(ParentGrid.BaryonField[B3Num][i1],2);
 	    ParentGrid.BaryonField[TENum][i1] += 
 	      0.5 * B2 / ParentGrid.BaryonField[DensNum][i1];  
 	  }

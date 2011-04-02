@@ -213,10 +213,6 @@ help-config:
 	@echo "      gmake gravity-4s-yes"
 	@echo "      gmake gravity-4s-no"
 	@echo
-	@echo "   Use MHDCT"
-	@echo
-	@echo "      gmake mhdct-yes (not working!)"
-	@echo "      gmake mhdct-no"
 
 #-----------------------------------------------------------------------
 
@@ -242,10 +238,6 @@ show-flags:
 	@echo ""
 	@echo "LIBS     = $(LIBS)"
 	@echo
-	@echo "   Use MHDCT"
-	@echo
-	@echo "      gmake mhdct-yes (not working!)"
-	@echo "      gmake mhdct-no"
 
 #-----------------------------------------------------------------------
 
@@ -290,7 +282,6 @@ show-config:
 	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : $(CONFIG_FLUX_FIX)"
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
-	@echo "   CONFIG_MHDCT:    [mhdct-{yes,no}]                         :  $(CONFIG_MHDCT)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -926,40 +917,4 @@ CONFIG_GRAVITY_4S-%: suggest-clean
 
 
 #-----------------------------------------------------------------------
-
-
-#-----------------------------------------------------------------------
-
-
-#-----------------------------------------------------------------------
-
-VALID_MHDCT = mhdct-yes mhdct-no
-.PHONY: $(VALID_MHDCT)
-
-mhdct-yes: CONFIG_MHDCT-yes
-mhdct-no: CONFIG_MHDCT-no
-mhdct-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_MHDCT)]\n\n"
-CONFIG_MHDCT-%:
-	@tmp=.config.temp; \
-	grep -v CONFIG_MHDCT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-	echo "CONFIG_MHDCT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_MHDCT:
-	@echo
-
-VALID_MHDCT = mhdct-yes mhdct-no
-.PHONY: $(VALID_MHDCT)
-
-mhdct-yes: CONFIG_MHDCT-yes
-mhdct-no: CONFIG_MHDCT-no
-mhdct-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_MHDCT)]\n\n"
-CONFIG_MHDCT-%:
-	@tmp=.config.temp; \
-	grep -v CONFIG_MHDCT $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-	mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-	echo "CONFIG_MHDCT = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_MHDCT:
-	@echo
 

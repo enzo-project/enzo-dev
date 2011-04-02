@@ -78,11 +78,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
        to multiply against the CellWidth. */
 
 //    DC revision 16th September 2005 
-//     FLOAT a = 1, dadt;
-//     if (ComovingCoordinates)
-//       if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-//         ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
-//       }
+//    FLOAT a = 1, dadt;
+//    if (ComovingCoordinates)
+//      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
+//        ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+//      }
  
     /* Main loop over all faces. */
  

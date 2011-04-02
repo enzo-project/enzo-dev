@@ -30,6 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind, 
 			  float kmin, float kmax, float dk,
 			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
+
 int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
 				   float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
 				   int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, int level,

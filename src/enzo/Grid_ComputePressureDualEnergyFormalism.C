@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GRID CLASS (COMPUTE THE PRESSURE FIELD AT THE GIVEN TIME)
+/  GRID CLASS (COMPUTE THE PRESSURE FIELD AT THE GIVEN TIME) - DUAL ENERGY
 /
 /  written by: Greg Bryan
 /  date:       November, 1994
@@ -13,7 +13,7 @@
 ************************************************************************/
  
 // Compute the pressure at the requested time.  The pressure here is
-//   just the ideal-gas equation-of-state.
+//   just the ideal-gas equation-of-state (dual energy version).
  
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +26,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "hydro_rk/EOS.h"
  
 /* function prototypes */
  
@@ -34,13 +33,12 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-int grid::ComputePressure(FLOAT time, float *pressure)
+int grid::ComputePressureDualEnergyFormalism(FLOAT time, float *pressure)
 {
  
   /* declarations */
  
-  float density, gas_energy, total_energy;
-  float velocity1, velocity2 = 0, velocity3 = 0;
+  float density, gas_energy;
   int i, size = 1;
  
   /* Error Check */
@@ -66,18 +64,11 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
   /* Find fields: density, total energy, velocity1-3. */
  
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+					 Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
- 
-  /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
-     subtract the kinetic energy term. */
- 
-  float OneHalf = 0.5;
-  if (HydroMethod == Zeus_Hydro)
-    OneHalf = 0.0;
  
   /* Loop over the grid, compute the thermal energy, then the pressure,
      the timestep and finally the implied timestep. */
@@ -87,39 +78,13 @@ int grid::ComputePressure(FLOAT time, float *pressure)
   if (time == Time)
  
     for (i = 0; i < size; i++) {
+      pressure[i] = (Gamma - 1.0) * BaryonField[DensNum][i] *
+                                    BaryonField[GENum][i];
  
-      total_energy  = BaryonField[TENum][i];
-      density       = BaryonField[DensNum][i];
-      velocity1     = BaryonField[Vel1Num][i];
-      if (GridRank > 1)
-	velocity2   = BaryonField[Vel2Num][i];
-      if (GridRank > 2)
-	velocity3   = BaryonField[Vel3Num][i];
-
-      if (EOSType > 0){
-
-	/* If using polytropic EOS, calculate pressure directly from density */
-
-	float e, h, cs, dpdrho, dpde;
-	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
-
-      } else { 
-      /* gas energy = E - 1/2 v^2. */
-	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-						velocity2*velocity2 +
-						velocity3*velocity3);
- 	if (HydroMethod == MHD_RK) {
-	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
-	    pow(BaryonField[B3Num][i],2);
-	  gas_energy -= OneHalf*B2/density;
-	}
-
-	pressure[i] = (Gamma - 1.0)*density*gas_energy;
+      if (pressure[i] < tiny_number)
+	pressure[i] = tiny_number;
  
-	if (pressure[i] < tiny_number)
-	  pressure[i] = tiny_number;
-      }
-    } // end of loop
+    }
  
   else
  
@@ -127,50 +92,23 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
     for (i = 0; i < size; i++) {
  
-      total_energy  = coef   *   BaryonField[TENum][i] +
-	              coefold*OldBaryonField[TENum][i];
+      gas_energy    = coef   *   BaryonField[GENum][i] +
+	              coefold*OldBaryonField[GENum][i];
       density       = coef   *   BaryonField[DensNum][i] +
                       coefold*OldBaryonField[DensNum][i];
-      velocity1     = coef   *   BaryonField[Vel1Num][i] +
-                      coefold*OldBaryonField[Vel1Num][i];
  
-      if (GridRank > 1)
-	velocity2   = coef   *   BaryonField[Vel2Num][i] +
-	              coefold*OldBaryonField[Vel2Num][i];
-      if (GridRank > 2)
-	velocity3   = coef   *   BaryonField[Vel3Num][i] +
-	              coefold*OldBaryonField[Vel3Num][i];
+      pressure[i] = (Gamma - 1.0)*density*gas_energy;
  
-      if (EOSType > 0) {
-	
-	/* If using polytropic EOS, calculate pressure directly from density */
-	float e, h, cs, dpdrho, dpde;
-	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
-
-      } else {
-      /* gas energy = E - 1/2 v^2. */
-	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-						velocity2*velocity2 +
-						velocity3*velocity3);
-	
-	if (HydroMethod == MHD_RK) {
-	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
-	    pow(BaryonField[B3Num][i],2);
-	  gas_energy -= OneHalf*B2/density;
-	}
-	
-	pressure[i] = (Gamma - 1.0)*density*gas_energy;
-	
-	if (pressure[i] < tiny_number)
-	  pressure[i] = tiny_number;
-      }
-    } /* end of loop over cells */
+      if (pressure[i] < tiny_number)
+	pressure[i] = tiny_number;
+ 
+    }
  
   /* Correct for Gamma from H2. */
  
   if (MultiSpecies > 1) {
  
-    float TemperatureUnits=1, number_density, nH2, GammaH2Inverse,
+    float TemperatureUnits = 1, number_density, nH2, GammaH2Inverse,
       GammaInverse = 1.0/(Gamma-1.0), x, Gamma1, temp;
     float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1; 
  
@@ -212,7 +150,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
       GammaH2Inverse = 0.5*5.0;
       if (nH2/number_density > 1e-3) {
-    x = 6100.0/temp;
+	x = 6100.0/temp;
 	if (x < 10.0)
 	  GammaH2Inverse = 0.5*(5 + 2.0 * x*x * exp(x)/POW(exp(x)-1.0,2));
       }
@@ -227,18 +165,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
     } // end: loop over i
  
   } // end: if (MultiSpecies > 1)
+
  
-  /* To emulate the opacity limit in turbulent star formation 
-     simulations */
-  
-  float Gamma1 = Gamma;
-  if ((ProblemType == 60 || ProblemType == 61) && SelfGravity == 1)
-
-    for (i=0; i<size; i++) {
-      Gamma1 = min(Gamma + (log10(BaryonField[DensNum][i])-8.0)*0.3999/2.5, 1.4);
-      pressure[i] *= (Gamma1 - 1.0)/(Gamma - 1.0);
-    }
-
-
   return SUCCESS;
 }

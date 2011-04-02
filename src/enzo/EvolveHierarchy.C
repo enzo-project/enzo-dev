@@ -52,9 +52,6 @@
 #include "CosmologyParameters.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
-#ifdef MHDCT
-#include "DaveTools.h"
-#endif //MHDCT 
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
 #endif
@@ -478,12 +475,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 */
 #endif
-
+ 
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
 	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
-#ifdef MHDCT
-	HydroMethod == MHD_Li ||
-#endif //MHDCT
 	HydroMethod < 0) {
       if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER

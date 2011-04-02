@@ -66,7 +66,6 @@ int grid::PrepareFFT(region *InitialRegion, int Field, int DomainDim[])
 	InitialRegion->RegionDim[dim] == DomainDim[dim] &&
 	dim == 0) {
       InitialRegion->RegionDim[dim] += 2;
-      //      InitialRegion->RegionDim[dim] += 0;
     }
     size *= InitialRegion->RegionDim[dim];
   }

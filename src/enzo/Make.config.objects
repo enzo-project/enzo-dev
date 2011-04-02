@@ -345,6 +345,7 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeHeat.o \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
+	Grid_ComputePressureDualEnergyFormalism.o \
 	Grid_ComputePressure.o \
 	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
@@ -511,7 +512,6 @@ OBJS_CONFIG_LIB = \
 	Grid_RotatingCylinderInitialize.o \
 	Grid_SedovBlastInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid3D.o \
-	Grid_SedovBlastInitializeGrid3DFixedR.o \
 	Grid_SetExternalBoundaryValues.o \
 	Grid_SetFlaggingField.o \
 	Grid_SetFlaggingFieldStaticRegions.o \
@@ -1036,16 +1036,3 @@ OBJS_ECUDA_ALL = \
 	hydro_rk/MHDSweep_CUDA.o
 #	hydro_rk/overlapping_MHDSweep_CUDA.o
 #
-OBJS_MHDCT = MHDBlastInitialize.o \
-	Grid_MHDBlastInitializeGrid.o \
-	MHDCT_ParameterJuggle.o \
-	DaveTools.o \
-	Grid_SolveMHDEquations.o \
-	mhd_li.o \
-	pde1dsolver_mhd.o\
-	riemann_mhd.o \
-	Grid_ComputeElectricField.o \
-	Grid_MHD_Curl.o \
-	Grid_CenterMagneticField.o\
-	mhd_hlld_isothermal.o \
-	mhd_dt.o

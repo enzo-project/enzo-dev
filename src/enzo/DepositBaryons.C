@@ -84,10 +84,10 @@ int DepositBaryonsChildren(HierarchyEntry *DepositGrid,
   if (CommunicationDirection == COMMUNICATION_SEND ||
       CommunicationDirection == COMMUNICATION_SEND_RECEIVE) {
     HierarchyEntry *Temp = Grid->NextGridNextLevel;
-    Grid->GridData->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD, 1., 1, 1);
+    Grid->GridData->ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD);
     while (Temp != NULL) {
       Grid->GridData->ZeroSolutionUnderSubgrid(Temp->GridData,
-					       ZERO_UNDER_SUBGRID_FIELD, 1., 1, 1);
+					       ZERO_UNDER_SUBGRID_FIELD);
       Temp = Temp->NextGridThisLevel;
     }
   }

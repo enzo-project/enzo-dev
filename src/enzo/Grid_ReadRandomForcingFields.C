@@ -129,20 +129,12 @@ int grid::ReadRandomForcingFields(FILE *fptr)
   /* Assume general grid class data are known and
      read velocity fields only (as RandomForcingFields).
      Do not modify the existing current BaryonFields and grid class data. */
-#ifdef MHDCT
-  int MinNumberOfFields = GridRank + 1;
-  if( EquationOfState == 0 ) MinNumberOfFields++;
-  if (NumberOfBaryonFields < MinNumberOfFields) {
-    fprintf(stderr, "Error: No.  Baryon Fields (%d) => Nothing to Force. Right?.\n",
-            NumberOfBaryonFields);
-    ERROR_MESSAGE;
-  }
-#else
+ 
   if (NumberOfBaryonFields <= GridRank + 1) {
     fprintf(stderr, "Error: No Baryon Fields => Nothing to Force. Right?.\n");
     ERROR_MESSAGE;
   }
-#endif 
+ 
   /* Read the filename where the current baryon fields are; assume that
      initial fields were sitting in a file with the same name but different
      number; change the current number into '0000' and, thus, prepare the

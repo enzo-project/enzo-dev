@@ -294,7 +294,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Determine if Gamma should be a scalar or a field. */
     
     int UseGammaField = FALSE;
-    float *GammaField = NULL;
+    float *GammaField;
     if (HydroMethod == Zeus_Hydro && MultiSpecies > 1) {
       UseGammaField = TRUE;
       GammaField = new float[size];
@@ -302,7 +302,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	ENZO_FAIL("Error in grid->ComputeGammaField.");
       }
     } else {
-      GammaField = new float;
+      GammaField = new float[1];
       GammaField[0] = Gamma;
     }
 
@@ -400,7 +400,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     if (ComovingCoordinates)
       if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) 
 	  == FAIL) {
-	ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
+	ENZO_FAIL("Error in CsomologyComputeExpansionFactors.");
       }
 
     /* Create a cell width array to pass (and convert to absolute coords). */
@@ -477,6 +477,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Clean up allocated fields. */
 
+    delete [] GammaField;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];

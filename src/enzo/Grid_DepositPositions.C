@@ -28,8 +28,7 @@
 extern "C" void PFORTRAN_NAME(cic_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         float *densfield, float *field, FLOAT *leftedge,
-		        int *dim1, int *dim2, int *dim3, float *cellsize,
-			int *addaspoints);
+                        int *dim1, int *dim2, int *dim3, float *cellsize);
  
 extern "C" void PFORTRAN_NAME(smooth_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
@@ -42,7 +41,7 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
 			   int DepositField)
 {
   if (Number == 0) return SUCCESS;
-
+ 
   /* DepositField specifies where the particles should go.  Set LeftEdge,
      Dimension, CellSize, DepositFieldPointer according to it. */
  
@@ -117,15 +116,11 @@ int grid::DepositPositions(FLOAT *Position[], float *Mass, int Number,
     /* Deposit to field using CIC. */
  
 //  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %"GSYM"\n", CellSize);
-    int addaspoints=0;
-    // to add child grids as points rather than with CIC use the following line
-    addaspoints= (CellSize > 1.5*CellWidth[0][0]) ? 1 : 0;
-
  
     PFORTRAN_NAME(cic_deposit)(Position[0], Position[1], Position[2], &GridRank,
 			      &Number, Mass, DepositFieldPointer, LeftEdge,
 			      Dimension, Dimension+1, Dimension+2,
-			       &CellSize, &addaspoints);
+			      &CellSize);
   }
   else
   {

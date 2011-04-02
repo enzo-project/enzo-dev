@@ -286,14 +286,13 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       if (Time == ParentGrid->Time)
 	ParentOld = ParentGrid->BaryonField[field]; // not used
 
-      if (ParentOld != NULL && ParentGrid->BaryonField[field] != NULL)
-	FORTRAN_NAME(combine3d)(
-				ParentOld, &coef1, ParentGrid->BaryonField[field], &coef2,
-				ParentTemp[field], ParentDim, ParentDim+1, ParentDim+2,
-				ParentTempDim, ParentTempDim+1, ParentTempDim+2,
-				&Zero, &Zero, &Zero,
-				ParentStartIndex, ParentStartIndex+1, ParentStartIndex+2,
-				&VelocityShiftFlag, Refinement);
+      FORTRAN_NAME(combine3d)(
+	       ParentOld, &coef1, ParentGrid->BaryonField[field], &coef2,
+	       ParentTemp[field], ParentDim, ParentDim+1, ParentDim+2,
+	       ParentTempDim, ParentTempDim+1, ParentTempDim+2,
+	       &Zero, &Zero, &Zero,
+	       ParentStartIndex, ParentStartIndex+1, ParentStartIndex+2,
+	       &VelocityShiftFlag, Refinement);
     }
  
     /* Multiply ParentTemp fields by their own density to get conserved
@@ -309,9 +308,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != DebugField &&
-	    FieldType[field] != GravPotential
-	    ) {
+	    FieldType[field] != GravPotential) {
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
 			       &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
@@ -364,8 +361,8 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	 is done for the entire current grid, not just it's boundaries.
 	 (skip density since we did it already) */
 
-      if (FieldType[field] != Density && FieldType[field] != DebugField) {
-	//      if (FieldType[field] != Density) {
+      //      if (FieldType[field] != Density && FieldType[field] != DebugField) {
+      if (FieldType[field] != Density) {
 	FORTRAN_NAME(interpolate)(&GridRank,
 				  ParentTemp[field], ParentTempDim,
 				  ParentTempStartIndex, ParentTempEndIndex,
@@ -405,9 +402,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != DebugField &&
-	    FieldType[field] != GravPotential
-	    )
+	    FieldType[field] != GravPotential)
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,

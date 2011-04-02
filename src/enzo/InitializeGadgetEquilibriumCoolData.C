@@ -46,15 +46,12 @@ int InitializeGadgetEquilibriumCoolData(FLOAT Time)
 
   if(debug) fprintf(stderr,"in InitializeGadgetEquilibriumCoolData\n");
 
-  FLOAT a = 1.0, dadt, redshift=0.;
+  FLOAT a = 1.0, dadt, redshift;
   
-  if (ComovingCoordinates) 
-    {
-      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-	ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
-      }
-      redshift = (1 + InitialRedshift)/a - 1;
-    }
+  if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
+    ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
+  }
+  redshift = (1 + InitialRedshift)/a - 1;
 
   GadgetInitCoolMemory();
   GadgetMakeCoolingTable();  

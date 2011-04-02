@@ -346,11 +346,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
-#ifdef MHDCT
-  if( EquationOfState == 0 ) DataLabel[i++] = TEName;
-#else //MHDCT
   DataLabel[i++] = TEName;
-#endif //MHDCT
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
   DataLabel[i++] = Vel1Name;
@@ -419,27 +415,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   /* Clean up. */
  
   delete dummy;
-#ifdef MHDCT 
-  //set up field labels
-  if( useMHD == TRUE ){
-    MHDLabel[0] = "MagneticField_F_1";
-    MHDLabel[1] = "MagneticField_F_2";
-    MHDLabel[2] = "MagneticField_F_3";
-
-    MHDeLabel[0] = "ElectricField_1";
-    MHDeLabel[1] = "ElectricField_2";
-    MHDeLabel[2] = "ElectricField_3";
-
-    MHDUnits[0] = "FourPiGauss";
-    MHDUnits[1] = "FourPiGauss";
-    MHDUnits[2] = "FourPiGauss";
-
-    MHDeUnits[0] = "FourPiGauss";
-    MHDeUnits[1] = "FourPiGauss";
-    MHDeUnits[2] = "FourPiGauss";
-  }
-
-#endif //MHDCT 
+ 
   return SUCCESS;
 }
  

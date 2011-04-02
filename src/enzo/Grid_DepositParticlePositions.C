@@ -39,8 +39,7 @@
 extern "C" void PFORTRAN_NAME(cic_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         float *densfield, float *field, FLOAT *leftedge,
-			int *dim1, int *dim2, int *dim3, float *cellsize, 
-			int *addaspoints);
+                        int *dim1, int *dim2, int *dim3, float *cellsize);
  
 extern "C" void PFORTRAN_NAME(smooth_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
@@ -206,10 +205,6 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   } // ENDIF different processors
 
   if (MyProcessorNumber == ProcessorNumber) {
-
-    int addaspoints=0;
-    // too add child grids as points rather than with CIC use the following line
-    addaspoints= (CellSize > 1.5*CellWidth[0][0]) ? 1 : 0;
     
     /* If the Target is this grid and the DepositField is MassFlaggingField,
        then multiply the Particle density by the volume to get the mass. */
@@ -291,12 +286,10 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
       /* Deposit sink particles (only) to field using CIC. */
 
-      PFORTRAN_NAME(cic_deposit)(
-           ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
-	   &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
-	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &addaspoints);
-
-      delete [] ParticleMassPointerSink;
+      PFORTRAN_NAME(cic_deposit)
+	(ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
+	 &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
+	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);      
 
     }
  
@@ -308,11 +301,10 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
  
       //  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %"GSYM"\n", CellSize);
  
-
       PFORTRAN_NAME(cic_deposit)
 	(ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	 &GridRank, &NumberOfParticles, ParticleMassPointer, DepositFieldPointer, 
-	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &addaspoints);
+	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);
     }
     else {
 

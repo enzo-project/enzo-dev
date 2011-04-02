@@ -16,9 +16,6 @@
 
 #include "macros_and_parameters.h"
 
-#ifdef MHDCT
-extern int DEFAULT_GHOST_ZONES;
-#endif //MHDCT
 
 double Gaussian(double cs); 
 

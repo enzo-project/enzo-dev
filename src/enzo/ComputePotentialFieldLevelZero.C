@@ -94,7 +94,6 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 
 
 #ifdef FAST_SIB
-
 int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 				   SiblingGridList SiblingList[],
 				   HierarchyEntry *Grids[],

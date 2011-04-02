@@ -164,42 +164,5 @@ grid::grid()
   
   NumberOfStars = 0;
   Stars = NULL;
-#ifdef MHDCT
-  for(i=0;i<3;i++){
-    MagneticField[i] = NULL;
-    CenteredB[i]     = NULL;
-    ElectricField[i] = NULL;
-    AvgElectricField[i] = NULL;
-    OldMagneticField[i] = NULL;
-    OldElectricField[i] = NULL;
-    OldCenteredB[i] = NULL;
-    OldAccelerationField[i] = NULL;
-    MHDParentTemp[i] = NULL;
 
-  }
-  dtParent = -1;
-
-  DyBx = NULL;
-  DzBx = NULL;
-  DyzBx = NULL;
-  DBxFlag = NULL;
-
-  DxBy = NULL;
-  DzBy = NULL;
-  DxzBy = NULL;
-  DByFlag = NULL;
-
-  DxBz = NULL;
-  DyBz = NULL;
-  DxyBz = NULL;
-  DBzFlag = NULL;
-
-  for(int field=0;field<3;field++){
-    MagneticSize[field] = -100;
-    ElectricSize[field] = -100;
-    for(int dim=0;dim<3;dim++){
-      MHDAdd[field][dim]=(field==dim) ? 1:0;
-      MagneticDims[field][dim] = -100;
-    }}
-#endif //MHDCT
 }

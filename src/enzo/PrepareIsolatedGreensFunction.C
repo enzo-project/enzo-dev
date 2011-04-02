@@ -91,7 +91,7 @@ int PrepareIsolatedGreensFunction(region *GreensFunction, int proc,
 
   /* Set the constant to be used. */
 
-  float GravConst, pi = M_PI;
+  float GravConst, pi = 3.14159;
   if (GridRank == 3) 
     GravConst = -GravitationalConstant*RealCellVolume/(4.0*pi);
   if (GridRank == 2)

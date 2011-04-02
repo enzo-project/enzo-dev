@@ -30,7 +30,7 @@
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 extern "C" void FORTRAN_NAME(expand_terms)(
    int *rank, int *isize, int *idual, float *coef, int *imethod, float *gamma,
-   float *p,  float *d, float *e, float *ge, 
+   float *p, float *pdual, float *d, float *e, float *ge, 
       float *u, float *v, float *w,
    float *dold, float *eold, float *geold, float *uold, float *vold, 
       float *wold);
@@ -79,7 +79,7 @@ int grid::ComovingExpansionTerms()
             ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 
-    float *Pressure = new float[size];
+    float *PressureDual, *Pressure = new float[size];
 
     /* If we can, compute the pressure at the mid-point. */
 
@@ -91,13 +91,23 @@ int grid::ComovingExpansionTerms()
 
     /* Compute the time-centered pressure for this grid. */
 
-    this->ComputePressure(PressureTime, Pressure);
+    if (DualEnergyFormalism) {
+      PressureDual = new float[size];
+      if (this->ComputePressureDualEnergyFormalism(PressureTime,
+						   PressureDual) == FAIL) {
+		ENZO_FAIL("Error in ComputePressureDualEnergyFormalism.");
+      }
+    }
+
+    if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
+            ENZO_FAIL("Error in ComputePressure.");
+    }
 
     /* Call fortran routine to do the real work. */
     /*
     if (HydroMethod == MHD_RK) 
       FORTRAN_NAME(expand_mhd_terms)(
-				 &GridRank, &size, & DualEnergyFormalism, &Coefficient, 
+				 &GridRank, &size, &DualEnergyFormalism, &Coefficient, 
 				 (int*) &HydroMethod, &Gamma,
 				 Pressure, PressureDual,
 				 BaryonField[DensNum], BaryonField[TENum], 
@@ -115,7 +125,7 @@ int grid::ComovingExpansionTerms()
       FORTRAN_NAME(expand_terms)(
 				 &GridRank, &size, &DualEnergyFormalism, &Coefficient, 
 				 (int*) &HydroMethod, &Gamma,
-				 Pressure, 
+				 Pressure, PressureDual,
 				 BaryonField[DensNum], BaryonField[TENum], 
 				 BaryonField[GENum], BaryonField[Vel1Num], 
 				 BaryonField[Vel2Num], BaryonField[Vel3Num],
@@ -123,13 +133,16 @@ int grid::ComovingExpansionTerms()
 				 OldBaryonField[GENum], OldBaryonField[Vel1Num], 
 				 OldBaryonField[Vel2Num], OldBaryonField[Vel3Num]);
     
+    if (DualEnergyFormalism)
+      delete [] PressureDual;
 
 #else /* USE_FORTRAN */
 
     /* Compute the time-centered pressure for this grid. */
 
-      this->ComputePressure(PressureTime, Pressure);
-
+    if (this->ComputePressure(PressureTime, Pressure) == FAIL) {
+            ENZO_FAIL("Error in ComputePressure.");
+    }
 
     for (i = 0; i < size; i++)
 
@@ -192,7 +205,10 @@ int grid::ComovingExpansionTerms()
 
     if (DualEnergyFormalism) {
 
-      this->ComputePressure(PressureTime, Pressure);
+      if (this->ComputePressureDualEnergyFormalism(PressureTime,
+						   Pressure) == FAIL) {
+		ENZO_FAIL("Error in ComputePressureDualEnergyFormalism.");
+      }
 
       /* Replace pressure with the time-centered combination 3*p/d. */
 

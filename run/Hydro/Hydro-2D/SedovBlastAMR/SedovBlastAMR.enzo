@@ -13,8 +13,7 @@
 #
 ProblemType               =  7       // Sedov blast wave
 Gamma                     =  1.4
-SedovBlastPressure        =  1e-4
-SedovBlastInputEnergy     =  10
+SedovBlastEnergy          =  1.0
 #
 #  grid setup
 #

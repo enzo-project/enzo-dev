@@ -62,12 +62,11 @@ int grid::CopyPotentialField(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
                                      GravitatingMassFieldCellSize;
     if (CopyPotentialFieldAverage > 0) {
       OnlyBoundary = TRUE;
-      OtherGridLeft[dim] = OtherGrid->GravitatingMassFieldLeftEdge[dim]
-	 + OtherGrid->GravitatingMassFieldCellSize;
+      OtherGridLeft[dim] = OtherGrid->GravitatingMassFieldLeftEdge[dim] +
+	                   OtherGrid->GravitatingMassFieldCellSize;
       OtherGridRight[dim] = OtherGrid->GravitatingMassFieldLeftEdge[dim] +
-		(OtherGrid->GravitatingMassFieldDimension[dim] - 1)*
-	//	(OtherGrid->GravitatingMassFieldDimension[dim])*
-	OtherGrid->GravitatingMassFieldCellSize;
+	                   (OtherGrid->GravitatingMassFieldDimension[dim] - 1)*
+	                    OtherGrid->GravitatingMassFieldCellSize;
       //      OtherGridLeft[dim] = OtherGrid->CellLeftEdge[dim][0];
       //      OtherGridRight[dim] = OtherGrid->CellLeftEdge[dim][0] +
       //	OtherGrid->GridDimension[dim]*OtherGrid->CellWidth[dim][0];

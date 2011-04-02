@@ -42,8 +42,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits);
-
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid)
 {
@@ -59,8 +57,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   char *PhiName = "Phi";
   char *DebugName = "Debug";
   char *Phi_pName = "Phip";
-  char *GPotName  = "Grav_Potential";
-
+ 
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
@@ -172,10 +169,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = Phi_pName;
     DataLabel[i++] = DebugName;
   }
-  if (WritePotential)
-    DataLabel[i++] = GPotName;  
  
-
   DataUnits[0] = NULL;
   DataUnits[1] = NULL;
   DataUnits[2] = NULL;

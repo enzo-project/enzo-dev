@@ -50,9 +50,6 @@
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
 #endif
-#ifdef MHDCT
-#include "DaveTools.h"
-#endif //MHDCT
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
 int InitializePythonInterface(int argc, char **argv);
@@ -708,12 +705,6 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   InitializePythonInterface(argc, argv);
 #endif 
 
-#ifdef MHDCT
-  if( TracerParticlesAddToRestart == TRUE ){
-    TracerParticlesAddToRestart_DoIt(ParameterFile,&TopGrid,&MetaData);
-  }
-#endif //MHDCT
- 
   // Call the main evolution routine
  
   if (debug) fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);

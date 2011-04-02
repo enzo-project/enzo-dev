@@ -6,7 +6,7 @@
 /  date:       October 2010
 /  modified1:  
 /
-/  PURPOSE: Refine on the Jeans length determined from the inertial tensor
+/  PURPOSE: Refine on the Jeans length determined from gradients in the forces
 /           rather than purely the baryons own self-gravity
 /
 /  RETURNS:
@@ -35,9 +35,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
  
 int FindField(int f, int farray[], int n);
  
-extern "C" void FORTRAN_NAME(smooth2)(float *source, float *dest, int *ndim,
-				      int *sdim1, int *sdim2, int *sdim3);
-
 int grid::FlagCellsToBeRefinedByTotalJeansLength()
 {
   /* declarations */
@@ -50,9 +47,6 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
     fprintf(stderr, "Flagging Field is undefined.\n");
     return -1;
   }
-
-  if (NumberOfBaryonFields == 0) 
-    return SUCCESS;
  
   /* compute size */
  
@@ -72,7 +66,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
     /* This is less efficient, but it avoids too many conditionals */
     if(JeansRefinementColdTemperature > 0.0){
       for (i = 0; i < size; i++) temperature[i] =
-				   JeansRefinementColdTemperature;
+        JeansRefinementColdTemperature;
     }
   }
  
@@ -88,83 +82,47 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   // set up temporary array to hold maximal relevant densities as computed from acceleration gradients
   float *MaxDensity = NULL;
   MaxDensity = new float[size];
-  for (i=0;i<size;i++) {
-    MaxDensity[i] = BaryonField[DensNum][i];
-    BaryonField[NumberOfBaryonFields-1][i]  = MaxDensity[i];
-  }
-  
   FLOAT CellWidthSquared = CellWidth[0][0]*CellWidth[0][0];
-  int j, jj, k, index;
+  int j, k, index;
+  for (i=0;i<size;i++) MaxDensity[i] = tiny_number;
   float rhox, rhoy, rhoz, rhoxy, rhoxz, rhoyz,  rhomax, maxmax;
 
   if ((GPotNum = FindField(GravPotential, FieldType, NumberOfBaryonFields)) < 0) {
     ENZO_FAIL("Cannot find Gravitational Potential. Set WritePotential = 1 ... hack");
   };
-  
-  // make a copy
-  float *Phi = NULL;
-  Phi = new float[size];
-  for (i=0;i<size;i++) 
-    Phi[i] = BaryonField[GPotNum][i];
-  //    Phi[i] = BaryonField[GPotNum][i];
-  
-
-  int Off[3];
-  for (int dim = 0; dim < GridRank; dim++)
-    Off[dim] = (GravitatingMassFieldDimension[dim] - GridDimension[dim])/2;
-  
-  jj = 0;
-  if (PotentialField != NULL)
-    for (k = 0; k < GridDimension[2]; k++)
-      for (j = 0; j < GridDimension[1]; j++) {
-	index = (((k+Off[2])*GravitatingMassFieldDimension[1]) + (j+Off[1]))*GravitatingMassFieldDimension[0] + Off[0];
-	for (i = 0; i < GridDimension[0]; i++, index++)
-	  Phi[jj++] = PotentialField[index];
-      }
-
-
-  //  FORTRAN_NAME(smooth2)(BaryonField[GPotNum] ,Phi, &GridRank, GridDimension, GridDimension+1, GridDimension+2);
-      
   //  printf("GpotNum : %i\n", GPotNum);
   rhox = rhoy = rhoz = 0.;
-  int ci,cj,ck,cind;
-  for (k = GridStartIndex[2]+1; k < GridEndIndex[2]; k++) {
-    for (j = GridStartIndex[1]+1; j < GridEndIndex[1]; j++) {
-      for (i = GridStartIndex[0]+1; i < GridEndIndex[0]; i++) {
-	ci = max(i,GridStartIndex[0]+1);
-	ci = min(ci, GridEndIndex[0]-1);
-	cj = max(j,GridStartIndex[1]+1);
-	cj = min(cj, GridEndIndex[1]-1);
-	ck = max(k,GridStartIndex[2]+1);
-	ck = min(ck, GridEndIndex[2]-1);
-	cind = GRIDINDEX_NOGHOST(ci,cj,ck);
+  rhomax = tiny_number;
+  maxmax = tiny_number;
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
 	index = GRIDINDEX_NOGHOST(i,j,k);
-
-	//	ci = i; cj= j; ck = k; cind = index; //  <-  would do this if BC would be correct
-
-	rhox = Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck)] 
-	     + Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck)] - 2.*Phi[cind];
-	rhoy = Phi[GRIDINDEX_NOGHOST(ci,cj+1,ck)]
-	     + Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck)] - 2.*Phi[cind];
-	rhoz = Phi[GRIDINDEX_NOGHOST(ci,cj,ck+1)] 
-	     + Phi[GRIDINDEX_NOGHOST(ci,cj,ck-1)] - 2.*Phi[cind];
-	rhoxy = (Phi[GRIDINDEX_NOGHOST(ci+1,cj+1,ck)] +
-		 Phi[GRIDINDEX_NOGHOST(ci-1,cj-1,ck)] -
-		 Phi[GRIDINDEX_NOGHOST(ci+1,cj-1,ck)] -
-		 Phi[GRIDINDEX_NOGHOST(ci-1,cj+1,ck)])/4; 
-	rhoyz = (Phi[GRIDINDEX_NOGHOST(ci,cj+1,ck+1)] +
-		 Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck-1)] - 
-		 Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck+1)] -
-		 Phi[GRIDINDEX_NOGHOST(ci,cj+1,ck-1)])/4; 
-	rhoxz = (Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck+1)] +
-		 Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck-1)] +
-		 Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck-1)] -
-		 Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck+1)])/4; 
+	rhox = BaryonField[GPotNum][GRIDINDEX_NOGHOST(min(i+1,GridEndIndex[0]),j,k)] 
+	  + BaryonField[GPotNum][GRIDINDEX_NOGHOST(max(i-1,GridStartIndex[0]),j,k)]
+	  -2.*BaryonField[GPotNum][index];
+	rhoy = BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,min(j+1,GridEndIndex[1]),k)]
+	  + BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,max(j-1,GridStartIndex[1]),k)]
+	  -2.*BaryonField[GPotNum][index];
+	rhoz = BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,j,min(k+1,GridEndIndex[2]))] 
+	  + BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,j,max(k-1,GridStartIndex[2]))]
+	  -2.*BaryonField[GPotNum][index];
+	rhoxy = (BaryonField[GPotNum][GRIDINDEX_NOGHOST(i+1,j+1,k)] +
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i-1,j-1,k)] -
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i+1,j-1,k)] -
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i-1,j+1,k)])/4; 
+	rhoyz = (BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,j+1,k+1)] +
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,j-1,k-1)] - 
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,j-1,k+1)] -
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i,j+1,k-1)])/4; 
+	rhoxz = (BaryonField[GPotNum][GRIDINDEX_NOGHOST(i+1,j,k+1)] +
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i-1,j,k-1)] +
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i+1,j,k-1)] -
+		 BaryonField[GPotNum][GRIDINDEX_NOGHOST(i-1,j,k+1)])/4; 
 	
-	MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
-
-	// largest component
-	//MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)),tiny_number))))/ GravitationalConstant/CellWidthSquared ;
+	//	  MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
+	MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)), tiny_number))))
+	  / GravitationalConstant/CellWidthSquared;
 	
 	// eigenvalues of tidal tensor instead of maximal component
 #if 0
@@ -195,15 +153,22 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 	MaxDensity[index] = max(w2, max( w1, max(w0, tiny_number)))
 	  / GravitationalConstant/CellWidthSquared;
 #endif // use eigenvalues 
-
-	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging	
-	MaxDensity[index] = max(MaxDensity[index], BaryonField[DensNum][index]);
+	
+	rhomax = max(rhomax,BaryonField[DensNum][index]);
+	maxmax = max(maxmax, MaxDensity[index]);
+	
+	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging
+	MaxDensity[index] = max(MaxDensity[index]  , BaryonField[DensNum][index] );
+	
+	
+	//	printf("Density:  %g  MaxDensity: %g  ratio: %g \n", BaryonField[DensNum][index],
+	//	       MaxDensity[index], MaxDensity[index]/BaryonField[DensNum][index]);
+	
       }
-    }
-  };
-  
-  delete [] Phi;
-  
+    };
+
+  //  printf("rhomax %g , maxmax: %g ratio:: %g\n", rhomax,maxmax, maxmax/rhomax);
+
   /* Get density units. */
  
   float DensityUnits=1, LengthUnits=1, VelocityUnits=1, TimeUnits=1,
@@ -215,11 +180,11 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   }
  
   /* Compute constant for Jean's length computation.
-     l_j = sqrt((pi*k*T) / (G \rho m_p))  . */
+      l_j = sqrt((pi*k*T) / (G \rho m_p))  . */
  
   FLOAT JLSquared = (double(3.14159*1.38e-16/6.67e-8)/
-		     (double(DensityUnits)*double(1.67e-24))) /
-    (double(LengthUnits)*double(LengthUnits));
+                 (double(DensityUnits)*double(1.67e-24))) /
+                (double(LengthUnits)*double(LengthUnits));
  
   if (ProblemType == 60 || ProblemType == 61)
     JLSquared = double(4.0*3.14159*3.14159)/GravitationalConstant; //AK
@@ -229,51 +194,50 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
       float cs,dpdrho,dpde, eint, h, rho, p;
       EOS(p, rho, eint, h, cs, dpdrho, dpde, EOSType, 1) ;
       JLSquared = cs*cs*M_PI/GravConst/DensityUnits*VelocityUnits*VelocityUnits/LengthUnits/LengthUnits; // TA
-    };
+    }
   //  printf("JLSquared %g\n", JLSquared);
 
   /* This is the safety factor to decrease the Jean's length by. */
  
   JLSquared /= POW(RefineByJeansLengthSafetyFactor, 2);
  
-  /* printf("jl: JL, dx, t, d = %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
-     temperature[(3 + 3*GridDimension[1])*GridDimension[0]+3],
-     BaryonField[DensNum][(3 + 3*GridDimension[1])*GridDimension[0]+3]);*/
+/* printf("jl: JL, dx, t, d = %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n", sqrt(JLSquared), CellWidth[0][3],
+	 temperature[(3 + 3*GridDimension[1])*GridDimension[0]+3],
+	 BaryonField[DensNum][(3 + 3*GridDimension[1])*GridDimension[0]+3]);*/
  
   /* Loop over grid. */
 
-  for (k = GridStartIndex[2]; k < GridEndIndex[2]; k++) {
-    for (j = GridStartIndex[1]; j < GridEndIndex[1]; j++) {
-      for (i = GridStartIndex[0]; i < GridEndIndex[0]; i++) {
+  for (k = GridStartIndex[2]+1; k < GridEndIndex[2]; k++)
+    for (j = GridStartIndex[1]+1; j < GridEndIndex[1]; j++) {
+      for (i = GridStartIndex[0]+1; i < GridEndIndex[0]; i++) {
 	index = GRIDINDEX_NOGHOST(i,j,k);
 	if (EOSType == 0) {
 	  if (CellWidthSquared > JLSquared*temperature[index]/MaxDensity[index])
 	    FlaggingField[index]++; 
 	}
-	// isothermal and polytropic sound speed version
+        // isothermal and polytropic sound speed version
 	if (EOSType > 0)
 	  if (CellWidthSquared > JLSquared/MaxDensity[index])
 	    FlaggingField[index]++; 
       }
-    };
-  };
+    }
 
   /* clean up */
-  delete [] MaxDensity ;
-  
+ 
   if (ProblemType != 60 && ProblemType != 61 && EOSType == 0 ) //AK
-    delete [] temperature;
-  
-  
+    delete temperature;
+ 
+  delete MaxDensity;
+
   /* Count number of flagged Cells. */
-  
+ 
   int NumberOfFlaggedCells = 0;
   for (i = 0; i < size; i++) {
     FlaggingField[i] = (FlaggingField[i] >= 1)? 1 : 0;
     NumberOfFlaggedCells += FlaggingField[i];
-  };
+  }
   //  printf("NumberOfFlaggedCells %i\n", NumberOfFlaggedCells);
-  
+ 
   return NumberOfFlaggedCells;
-  
+ 
 }

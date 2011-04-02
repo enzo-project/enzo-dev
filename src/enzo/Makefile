@@ -104,7 +104,7 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: MACHNOTES MAKETAGS $(EXE).exe
+all: MACHNOTES $(EXE).exe
 
 # I believe this has to be done here, as it is target-specific.
 lib: CFLAGS   += $(MACH_SHARED_FLAGS) 
@@ -118,11 +118,6 @@ lib: lib$(EXE)_p$(ASSEMBLE_PARTICLE_NUMBER)_b$(ASSEMBLE_PRECISION_NUMBER).$(MACH
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
-MAKETAGS:
-	@echo -e "Making Tags with $(ETAGS_COMMAND)"
-	@rm TAGS
-	@$(ETAGS_COMMAND)
-	@echo -e "Done updating TAGS"
 MACHNOTES: 
 	@echo -e $(MACHINE_NOTES)
 

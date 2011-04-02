@@ -265,29 +265,24 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     FLOAT r0 = 0.125;
     float rho0 = 1.0, pres0 = 100.0, pres1 = 1.0, Bx0 = 10.0/sqrt(2), By0 = 10.0/sqrt(2);
 
-    if (HydroMethod != MHD_RK) {
-      Bx0 = By0 = 0.;
-    }
     
     for (int j = 0; j < GridDimension[1]; j++) {
       for (int i = 0; i < GridDimension[0]; i++) {
 	
 	igrid = i + j*GridDimension[0];
 	
-	x = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] ;
-	y = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] ;	
+	x = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i] -0.5;
+	y = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j] -0.5;	
 	r = sqrt(pow(x , 2) + pow(y , 2));
 
 	BaryonField[iden][igrid] = rho0;
 	BaryonField[ivx ][igrid] = 0.0;
 	BaryonField[ivy ][igrid] = 0.0;
 	BaryonField[ivz ][igrid] = 0.0;
-	if (HydroMethod == MHD_RK) {
-	  BaryonField[iBx ][igrid] = Bx0;
-	  BaryonField[iBy ][igrid] = By0;
-	  BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
-	}
+	BaryonField[iBx ][igrid] = Bx0;
+	BaryonField[iBy ][igrid] = By0;
+	BaryonField[iBz ][igrid] = 0.0;
+	BaryonField[iPhi][igrid] = 0.0;
 	
 	if (r < r0) {
           EOS(pres0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
@@ -607,7 +602,6 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBy ][igrid] = Byl;
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
-	  BaryonField[ietot][igrid] += 0.5*(Bxl*Bxl+Byl*Byl)/BaryonField[iden][igrid];
 	}
 
       }

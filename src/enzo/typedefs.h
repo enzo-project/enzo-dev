@@ -31,7 +31,6 @@ typedef int star_type;
 typedef int enum_type;
 typedef int staggering;
 typedef int fieldtype;
-typedef int mhd_ct_method;
 #endif
 
 #ifdef LARGE_INTS
@@ -44,7 +43,6 @@ typedef long_int star_type;
 typedef long_int enum_type;
 typedef long_int staggering;
 typedef long_int fieldtype;
-typedef int mhd_ct_method;
 #endif
 
 const field_type 
@@ -178,7 +176,7 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
-#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) || ((A) == GravPotential)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) ((((A) >= Mach) && ((A) <= Mach + 1 + CRModel)) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -219,17 +217,6 @@ const interpolation_type
 
 /* Hydrodynamics methods. */
 
-#ifdef MHDCT
-const hydro_method
-  PPM_DirectEuler      = 0,
-  PPM_LagrangeRemap    = 1,
-  Zeus_Hydro           = 2,
-  HD_RK                = 3,
-  MHD_RK               = 4,
-  NoHydro              = 5, 
-  MHD_Li             = 6,
-  HydroMethodUndefined = 7;
-#else
 const hydro_method
   PPM_DirectEuler      = 0,
   PPM_LagrangeRemap    = 1,
@@ -237,7 +224,7 @@ const hydro_method
   HD_RK                = 3,
   MHD_RK               = 4,
   HydroMethodUndefined = 5;
-#endif //MHDCT
+
 // enum hydro_method {PPM_DirectEuler, PPM_LagrangeRemap, Zeus_Hydro};
 
 const enum_type iHI = 0, iHeI = 1, iHeII = 2, iH2I = 3, iHII = 4;
@@ -255,13 +242,6 @@ const enum_type Isotropic = 1, Beamed = -2, Episodic = -3;
 
 /* These are the different types of poisson cleaining boundary conditions. */
 //enum{Neumann, Dirichlet};
-#ifdef MHDCT
-const mhd_ct_method CT_BalsaraSpicer = 0,
-  CT_Athena_LF = 1,
-  CT_Athena_Switch = 2,
-  CT_None = 3;
-
-#endif
 
 /* Definitions for streaming format */
 

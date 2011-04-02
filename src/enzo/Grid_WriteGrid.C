@@ -49,18 +49,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-#ifdef IO_64
-#define io_type float64
-#else
-#define io_type float32
-#endif
-
-#ifdef MHDCT
-int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
-		 int * DataDims, int GridRank,
-		 int *WriteStartIndex, int *WriteEndIndex, int * WriteDims,
-		 char * Label, char * Units,hid_t file_type_id,hid_t float_type_id,FILE *log_fptr ) ;
-#endif //MHDCT 
 
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
@@ -69,6 +57,11 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
 
+#ifdef IO_64
+#define io_type float64
+#else
+#define io_type float32
+#endif
  
   io_type *temp;
  
@@ -332,77 +325,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
     }   // end of loop over fields
  
-
-#ifdef MHDCT
-    if( useMHDCT ){
-      for(field=0;field<nBfields;field++){
-	WriteDataset(file_id,CenteredB[field],temp,
-		     GridDimension,GridRank,
-		     GridStartIndex,GridEndIndex,ActiveDim,
-		     MHDcLabel[field], MHDUnits[0], file_type_id, float_type_id,log_fptr);
-      }
-
-      hsize_t MHDOutDims[3];
-      int MHDActive[3], MHDWriteStartIndex[3], MHDWriteEndIndex[3];
-      int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
-      int index1, index2;
-      io_type *MHDtmp = new io_type[BiggieSize];
-      int WriteBoundary = FALSE; 
-
-      for(field=0;field<nBfields;field++){
-      if( WriteBoundary == TRUE){
-	for(i=0;i<3;i++){
-	  MHDWriteStartIndex[i] = 0;
-	  MHDWriteEndIndex[i] = MagneticDims[field][i]-1;
-	}
-      }else{
-	for(i=0;i<3;i++){
-	  MHDWriteStartIndex[i] = MHDStartIndex[field][i];
-	  MHDWriteEndIndex[i] = MHDEndIndex[field][i];
-	}
-      }
-      /*
-	int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
-	int * DataDims, int GridRank,
-	int *WriteStartIndex, int *WriteEndIndex, int * WriteDims,
-	char * Label, char * Units,hid_t file_type_id,hid_t float_type_id,FILE *log_fptr ) 
-      */
-      for (dim = 0; dim < 3; dim++)
-	MHDActive[dim] = MHDWriteEndIndex[dim] - MHDWriteStartIndex[dim] +1;
-      WriteDataset(file_id,MagneticField[field],MHDtmp,
-		     MagneticDims[field],GridRank,
-		     MHDWriteStartIndex,MHDWriteEndIndex,MHDActive,
-		     MHDLabel[field],MHDUnits[0], file_type_id, float_type_id,log_fptr);
-      }
-      if( MHD_WriteElectric ){
-	for(field=0;field<nBfields;field++){
-	  if( WriteBoundary == TRUE ){
-	    for( i=0;i<3;i++){
-	      MHDWriteStartIndex[i] = 0;
-	      MHDWriteEndIndex[i] = ElectricDims[field][i] - 1;
-	    }
-	  }else{
-	    for(i=0;i<3;i++){
-	      MHDWriteStartIndex[i] = MHDeStartIndex[field][i];
-	      MHDWriteEndIndex[i] = MHDeEndIndex[field][i];
-	    }
-	  }
-	  for(dim = 0; dim<3; dim++)
-	    MHDActive[dim] = MHDWriteEndIndex[dim] - MHDWriteStartIndex[dim] +1;
-	  
-	  WriteDataset(file_id,ElectricField[field],MHDtmp,
-		       ElectricDims[field],GridRank,
-		       MHDWriteStartIndex,MHDWriteEndIndex,MHDActive,
-		       MHDeLabel[field],MHDeUnits[0], file_type_id, float_type_id,log_fptr);
-
-	}
-	
-      }//WriteElectric
-      delete [] MHDtmp;
-    }//useMHDCT
-    
-#endif  //MHDCT
-
     /* If this is cosmology, or one of the Sedov-based test problems,
        compute the temperature field as well since
        its such a pain to compute after the fact. */
