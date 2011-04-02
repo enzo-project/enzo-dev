@@ -131,13 +131,10 @@ c
 c     3D
 c
       if (ndim .eq. 3) then
-<<<<<<< local
 
          if (addaspoints .eq. 1) then
             do n=1, npositions
-=======
-c
-         do n=1, npositions
+
 c
 c           Compute the position of the central cell
 c
@@ -158,9 +155,7 @@ c
             dz = real(k1) + 0.5d0 - zpos
 c
 c           Interpolate from field into sumfield
->>>>>>> other
-c     
-<<<<<<< local
+
 c     Compute the position of the central cell
 c     
                xpos = min(max((posx(n)- leftedge(1))*fact, 0.), edge1)
@@ -222,27 +217,6 @@ c
             enddo
       
          endif                  ! end of  addaspoints if 
-=======
-            field(i1  ,j1  ,k1  ) = field(i1  ,j1  ,k1  ) +
-     &                           mass(n)*      dx *      dy *     dz
-            field(i1+1,j1  ,k1  ) = field(i1+1,j1  ,k1  ) +
-     &                           mass(n)*(1.d0-dx)*      dy *     dz
-            field(i1  ,j1+1,k1  ) = field(i1  ,j1+1,k1  ) + 
-     &                           mass(n)*      dx *(1.d0-dy)*     dz
-            field(i1+1,j1+1,k1  ) = field(i1+1,j1+1,k1  ) +
-     &                           mass(n)*(1.d0-dx)*(1.d0-dy)*     dz
-            field(i1  ,j1  ,k1+1) = field(i1  ,j1  ,k1+1) +
-     &                           mass(n)*      dx *      dy *(1.d0-dz)
-            field(i1+1,j1  ,k1+1) = field(i1+1,j1  ,k1+1) +
-     &                           mass(n)*(1.d0-dx)*      dy *(1.d0-dz)
-            field(i1  ,j1+1,k1+1) = field(i1  ,j1+1,k1+1) + 
-     &                           mass(n)*      dx *(1.d0-dy)*(1.d0-dz)
-            field(i1+1,j1+1,k1+1) = field(i1+1,j1+1,k1+1) +
-     &                           mass(n)*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
-c
-         enddo
->>>>>>> other
-
 !     do kkk=1,dim3
 !     write(0,'("K = ",i2)') kkk
 !     do jjj=1,dim2
