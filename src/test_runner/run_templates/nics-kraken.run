@@ -6,4 +6,4 @@
 
 cd $PBS_O_WORKDIR
 
-aprun -n ${N_PROCS} ${ENZO_EXE} -d ${PAR_FILE} >& estd.out;
+aprun -n ${N_PROCS} ${EXECUTABLE} -d ${PAR_FILE} >& estd.out;
