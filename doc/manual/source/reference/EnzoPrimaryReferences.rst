@@ -88,4 +88,4 @@ The YT papers can be found here:
   Smith, B. D.; Oishi, J. S.; Skory, S.; Skillman, S. W.; Abel, T.; and 
   Norman, M. L. The Astrophysical Journal Supplement, Volume 192, Issue 1,
   article id. 9 (2011)
-  `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2011ApJS..192....9T&data_type=BIBTEX&db_key=AST&nocookieset=1`_.
+  `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2011ApJS..192....9T&data_type=BIBTEX&db_key=AST&nocookieset=1>`_.
