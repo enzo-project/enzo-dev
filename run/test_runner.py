@@ -170,7 +170,12 @@ class EnzoTestRun(object):
     def _copy_test_files(self):
         # Check for existence
         if os.path.exists(self.run_dir):
-            print "%s already exists. Skipping directory." % self.test_data['name']
+            if options.clobber:
+                print "%s exists, but clobber == True, so overwriting it." % self.test_data['name']
+                shutil.rmtree(self.run_dir)
+                shutil.copytree(self.test_data['fulldir'], self.run_dir)
+            else:
+                print "%s already exists. Skipping directory." % self.test_data['name']
         else:
             shutil.copytree(self.test_data['fulldir'], self.run_dir)
             if self.exe_path is not None:
@@ -225,7 +230,8 @@ if __name__ == "__main__":
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
-    parser.add_option("--clobber", dest='clobber', default=True,
+    parser.add_option("--clobber", dest='clobber', default=False,
+                      action="store_true", 
                       help="Recopies tests and tests from scratch.")
     parser.add_option("--repo", dest='repository', default=".",
                       help="Path to repository being tested.")
