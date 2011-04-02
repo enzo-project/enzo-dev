@@ -2,7 +2,6 @@
 
 import glob
 import os
-import shutil
 
 run_template_dir = 'run_templates'
 machines = {'local':       dict(script = 'local.run',
@@ -13,7 +12,6 @@ machines = {'local':       dict(script = 'local.run',
 
 template_vars = {'N_PROCS': 'nprocs',
                  'PAR_FILE': 'run_par_file'}
-                 
 
 class EnzoTestRun(object):
     def __init__(self, test_dir, test_data, machine='local', exe_path=None):
