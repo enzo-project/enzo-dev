@@ -252,7 +252,7 @@ Merger Tree Graphviz Example
 Below is an example section of the Graphviz view of the MergerTree.gv file
 produced above.
 
-.. image: _images/skory-tree.png
+.. image:: _images/skory-tree.png
    :width: 922
    :height: 571
 
