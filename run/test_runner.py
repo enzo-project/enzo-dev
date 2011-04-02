@@ -235,7 +235,7 @@ if __name__ == "__main__":
     parser.add_option("--clobber", dest='clobber', default=False,
                       action="store_true", 
                       help="Recopies tests and tests from scratch.")
-    parser.add_option("--repo", dest='repository', default=".",
+    parser.add_option("--repo", dest='repository', default="../",
                       help="Path to repository being tested.")
 
     for var, caster in sorted(known_variables.items()):
