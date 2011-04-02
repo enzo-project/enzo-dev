@@ -159,9 +159,13 @@ class EnzoTestRun(object):
         self._create_run_script()
 
     def _copy_test_files(self):
-        shutil.copytree(self.test_data['fulldir'], self.run_dir)
-        if self.exe_path is not None:
-           shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
+        # Check for existence
+        if os.path.exists(self.run_dir):
+            print "%s already exists. Skipping directory." % self.test_data['name']
+        else:
+            shutil.copytree(self.test_data['fulldir'], self.run_dir)
+            if self.exe_path is not None:
+                shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
 
     def _create_run_script(self):
         template_path = os.path.join(os.path.dirname(__file__), 
@@ -182,8 +186,8 @@ class EnzoTestRun(object):
         print "Running test simulation: %s." % self.test_data['name']
         cur_dir = os.getcwd()
         # Check for existence
-        if os.path.exists(cur_dir+'/RunFinished'):
-            print "%s Test Already Completed, continuing..." % self.test_data['name']
+        if os.path.exists(self.run_dir+'/RunFinished'):
+            print "%s run already completed, continuing..." % self.test_data['name']
             return
         
         os.chdir(self.run_dir) 
