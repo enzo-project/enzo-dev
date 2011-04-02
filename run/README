@@ -1,4 +1,15 @@
-In order to run the test_runner suite, go to the enzo/run subdirectory and execute:
+The test_runner suite will run a series of tests with the current version of 
+enzo.  It compares these new outputs against a set of existing "good" outputs 
+(either from analytical solutions or from previous versions of enzo).  It 
+returns how the current version of enzo performed on these tests.
+
+You must specify a test destination directory outside of the enzo file 
+structure where the tests will executed and tested.  You can also specify 
+invididual test tags for choosing the tests to run.  By default, all the tests 
+will be run.
+
+In order to run the test_runner suite, go to the enzo/run subdirectory and 
+execute:
 
 Usage: python test_runner.py -o <TEST_DEST_DIR> --<TEST_TAG>=<TEST_TAG_VAL> 
 
@@ -25,5 +36,14 @@ radiation = None, `fld', `ray'
 max_time_minutes = 1  
 
 Additional flags are:
---clobber - For clobbering files in the test_dest_dir and rerunning from scratch
---repo=   - to specify a repository other than the current directory
+--clobber           For clobbering files in the test_dest_dir and 
+                    rerunning each test from scratch. The default will not
+                    clobber. 
+--interleave        For copying, running, and testing each test set in order.
+                    It's kind of like colate on a copy machine.  The default 
+                    copies all tests, then runs them all, then tests them all.  
+--repo=<enzo_dir>   To specify a repository other than the current enzo 
+                    directory structure.
+--machine=<machine> To specify on which machine you are running.
+                    The default is local, but there are presets for kraken,
+                    ranger, etc.
