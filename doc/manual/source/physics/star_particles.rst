@@ -157,7 +157,7 @@ Method 9: Population III stellar tracers
 Distributed Stellar Feedback
 ----------------------------
 
-The following applies to Methods 2 (Cen & Ostriker) and 3 (+
+The following applies to Methods 0 (Cen & Ostriker) and 1 (+
 stochastic star formation).
 
 The stellar feedback can be evenly distributed over the neighboring
@@ -165,7 +165,7 @@ cells if ``StarFeedbackDistRadius`` > 0.  The cells are within a cube
 with a side ``StarFeedbackDistRadius+1``.  This cube can be cropped to
 the cells that are ``StarFeedbackDistCellStep`` cells away from the
 center cell, counted only in steps in Cartesian directions.  Below we
-show a couple of *two-dimensional* examples with
+show a couple of *two-dimensional* examples. The number on the cells indicates the number cell steps each is from the central cell.
 
 * ``StarFeedbackDistRadius = 1``
 
@@ -174,9 +174,7 @@ show a couple of *two-dimensional* examples with
    :scale: 70%
    :alt: Distributed feedback with radius 1
 
-   The cells are labeled with the distance D\ :sub:`cell` away from
-   the central cell.  Only cells with D\ :sub:`cell` <=
-   ``StarFeedbackDistCellStep`` have feedback applied to them.
+Only cells with a step number <= ``StarFeedbackDistCellStep`` have feedback applied to them. So, ``StarFeedbackDistCellStep`` = 1 would result in only the cells marked with a "1" receiving energy. In three-dimensions, the eight corner cells in a 3x3x3 cube would be removed by setting ``StarFeebackDistCellStep`` = 2.
 
 * ``StarFeedbackDistRadius = 2``
 
@@ -185,11 +183,9 @@ show a couple of *two-dimensional* examples with
    :scale: 70%
    :alt: Distributed feedback with radius 2
 
-   Same as the figure above but with a radius of 2.
+Same as the figure above but with a radius of 2.
 
-Feedback regions cannot extend past the host grid boundaries and are
-cropped if the radius exceeds the distance between the boundary and
-star particle.
+Feedback regions cannot extend past the host grid boundaries. If the region specified will extend beyond the edge of the grid, it is recentered to lie within the grid's active dimensions. This conserves the energy injected during feedback but results in the feedback sphere no longer being centered on the star particle it originates from. Due to the finite size of each grid, we do not recommend using a ``StarFeedbackDistRadius`` of more than a few cells.
 
 Also see :ref:`StarParticleParameters`.
 
