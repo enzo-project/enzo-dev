@@ -242,6 +242,12 @@ if __name__ == "__main__":
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
     options, args = parser.parse_args()
+
+    # Break out if output directory not specified.
+    if options.output_dir is None:
+        print 'Please enter an output directory with -o option'
+        sys.exit(1)
+    
     construct_selection = {}
     for var, caster in known_variables.items():
         if getattr(options, var) != unknown:
