@@ -1,0 +1,10 @@
+name = 'PhotonTestAMR'
+answer_testing_script = 'test_amrphotontest.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+radiation = 'ray'
+dimensionality = 1

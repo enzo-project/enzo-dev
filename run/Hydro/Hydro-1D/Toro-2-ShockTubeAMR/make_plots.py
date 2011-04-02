@@ -2,7 +2,7 @@ from yt.mods import *
 import pylab
 
 ### define problem name
-problem_name = 'Toro-2-ShockTube'
+problem_name = 'Toro-2-ShockTubeAMR'
 
 
 ### define simulation output directory and filename base

@@ -1,0 +1,12 @@
+name = 'CosmoIonization_q05z4'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = False
+gravity = False
+dimensionality = 3
+radiation = 'fld'
+cosmology = True
+max_time_minutes = 10
