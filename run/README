@@ -1,4 +1,29 @@
-In order to run the test_runner suite:
+In order to run the test_runner suite, go to the enzo/run subdirectory and execute:
 
-python $(ENZO_DIR)/src/test_runner/test_finder.py -o <DESTINATION DIR>
+Usage: python test_runner.py -o <TEST_DEST_DIR> --<TEST_TAG>=<TEST_TAG_VAL> 
 
+Example: python test_runner.py -o ~/temp --AMR=True --Author="John Wise"
+
+The test tags are (with defaults first followed by alternatives):
+
+name = ''
+answer_testing_script = None  `my_test_file.py'
+nprocs = 1
+runtime = 'short' `medium' `long'
+critical = True False
+cadence = 'nightly'
+hydro = False  True
+mhd = False  True
+gravity = False True
+cosmology = False  True
+chemistry = False True
+cooling = False True
+AMR = False True
+dimensionality = 1 2 3
+author = `' `John Wise'
+radiation = None, `fld', `ray'
+max_time_minutes = 1  
+
+Additional flags are:
+--clobber - For clobbering files in the test_dest_dir and rerunning from scratch
+--repo=   - to specify a repository other than the current directory
