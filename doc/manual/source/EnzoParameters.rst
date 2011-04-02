@@ -1197,14 +1197,8 @@ For details on each of the different star formation methods available in Enzo se
     implemented for ``StarFeedbackCreation`` = 0 or 1 with ``StarParticleFeedback`` =  1. (If ``StarParticleFeedback`` = 0, stellar feedback is only deposited into the cell in which the star particle lives).  Default: 0.
 
 ``StarFeedbackDistCellStep`` (external)
-    In essence, this parameter controls the shape of the volume where
-    the feedback is applied, cropping the original cube.  This volume
-    that are within ``StarFeedbackDistCellSteps`` cells from the host
-    cell, counted in steps in Cartesian directions, are injected with
-    stellar feedback.  Its maximum value is ``StarFeedbackDistRadius``
-    * ``TopGridRank``.  Only implemented for ``StarFeedbackCreation`` = 0
-    or 1.  See :ref:`distributed_feedback` for an illustration.
-    Default: 0.
+    This parameter is used with ``StarFeedbackDistRadius`` > 0 and in essence, controls the shape of the volume where
+    the feedback is deposited. Starting at the grid cell in which a star particle is located, it is the maximum number of walking steps along the x, y, and z axes that can be taken within the stellar feedback region. Since corner cells take 1-2 more steps than adjacent cells, the value of ``StarFeedbackDistCellStep`` dictates whether these are included. For example, setting ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, since the corner of the cube is one step in the x, one in the y, and one in the z direction away from the center. Setting ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 corresponds to a 3x3x3 cube with the corners missing. The maximum value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * ``StarFeedbackDistRadius``). When this is used, equal amounts of stellar feedback products are deposited into all cells in the region. Only implemented for ``StarFeedbackCreation`` = 0 or 1 with ``StarParticleFeedback`` = 1.  See :ref:`distributed_feedback` for an illustration. Default: 0.
 
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1259,22 +1253,6 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarEnergyToQuasarUV`` (external)
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. Default: 5e-6
-``StarFeedbackDistCellStep`` (external)
-    This is used with ``StarFeedbackDistRadius`` > 0.  This parameter 
-    determines the shape of the region into which stellar feedback is 
-    deposited.  Starting at the grid cell in which a star particle is 
-    located, it is the maximum number of walking steps along the x, y, 
-    and z axes that can be taken to reach a point inside the stellar 
-    feedback region.  For example, setting ``StarFeedbackDistRadius`` = 
-    1 and ``StarFeedbackDistCellStep`` = 3 corresponds to a 3x3x3 cube, 
-    since the corner of the cube is one step in the x, one in the y, and 
-    one in the z direction away from the center.  Setting 
-    ``StarFeedbackDistRadius`` = 1 and ``StarFeedbackDistCellStep`` = 2 
-    corresponds to a 3x3x3 cube with the corners missing.  The maximum 
-    value of ``StarFeedbackDistCellStep`` is (``TopGridRank`` * 
-    ``StarFeedbackDistRadius``).  When this is used, equal amounts of 
-    stellar feedback products are deposited into all cells in the 
-    region.  Default: 0
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
