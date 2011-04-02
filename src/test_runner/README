@@ -1,0 +1,4 @@
+In order to run the test_runner suite:
+
+python $(ENZO_DIR)/src/test_runner/test_finder.py -o <DESTINATION DIR>
+
