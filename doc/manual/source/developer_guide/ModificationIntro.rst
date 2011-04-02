@@ -33,7 +33,7 @@ very easy and straightforward submission of changesets.  We're eager to hear
 from you, and if you are developing Enzo, please subscribe to the users'
 mailing list:
 
-https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l
+http://groups.google.com/group/enzo-users
 
 This document describes how to use Mercurial to make changes to Enzo, how to
 send those changes upstream, and how to navigate the Enzo source tree.
@@ -138,7 +138,9 @@ How To Share Changes
 
 If you do not have "push" rights on the primary mercurial repository, set up
 and use the "patchbomb" extension in mercurial to email a bundle of changes to
-the developer mailing list, ``enzo-l@mailman.ucsd.edu``.
+the developer mailing list:
+
+http://groups.google.com/group/enzo-dev
 
 The patchbomb extension is documented here:
 

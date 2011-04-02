@@ -10,16 +10,42 @@ each one and a link to further reading.
 
 Method 0: Piecewise Parabolic Method (PPM)
 ------------------------------------------
-*Source:  Grid_xEulerSweep.C, Grid_yEulerSweep.C, Grid_zEulerSweep.C, euler.F*
+*Source:  Grid_SolvePPM_DE.C*
 
-Brief description here.
+The PPM scheme uses a parabolic function to estimate the left and
+states of the Godunov problem.  This more accurately represents both
+smooth gradients and discontinuities over linear interpolation,
+i.e. PLM.
 
 Parameters
 ^^^^^^^^^^
 
 Main call: ``HydroMethod = 0``
 
-``RiemannSolver = 0``: specifies the type of solver xxxxx
+``RiemannSolver``: specifies the type of solver, where the following
+only works with the PPM solver.
+
+1. HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no
+   resolution of contact waves.  The most diffusive of the available
+   three solvers in PPM.  *New for version 2.1*
+4. HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state
+   solver with better resolution of contacts.  The most resilient to
+   rarefaction waves (e.g. blastwave interiors). *New for version 2.1*
+5. **Default** Two-shock approximation.  Iterative solver.
+
+``RiemannSolverFallback``: allows for the Riemann solver to "fallback"
+to the more diffusive HLL solver when negative energies or densities
+are computed.  Only applicable when using the HLLC and Two-shock
+solvers.  The fluxes in the failing cell are recomputed and used in
+the Euler update of the gas quantities. *New for version 2.1*
+
+``ConservativeReconstruction``: When interpolating (PPM) to the left
+and right states, interpolation occurs in the conserved variables
+(density, momentum, and energy) instead of the primitive variables
+(density, velocity, and pressure).  This results in more accurate
+results in unigrid simulations but can cause errors with AMR.  See
+Section 4.2.2 (steps 1-5) and Appendices A1 and B1 in Stone et
+al. (2008, ApJS 178, 137).  *New for version 2.1*
 
 ``DualEnergyFormalism``: allows the total and thermal energy to be
 followed seperately during the simulation. Helpful when the velocities
