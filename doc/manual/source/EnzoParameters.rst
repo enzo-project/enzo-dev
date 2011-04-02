@@ -278,15 +278,17 @@ have a look at :ref:`controlling_data_output` for more information.
     If this parameter is set to 1, whenever the finest level has finished
     evolving Enzo will check for new signal files to output.  (See
     :ref:`force_output_now`.)  Default 1.
-``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName``, (external)
+``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName`` (external)
     These parameters are used in 2D projections (``enzo -p ...``). The
     first two specify the X-ray band (observed at z=0) to be used, and
     the last gives the name of an ascii file that contains the X-ray
-    spectral information. A gzipped version of this file good for bands
-    within the 0.1 - 20 keV range is available :ref:`here?`. If these
+    spectral information. A gzipped version of this file good for
+    bands within the 0.1 - 20 keV range is provided in the
+    distribution in ``input/lookup_metal0.3.data``. If these
     parameters are specified, then the second field is replaced with
-    integrated emissivity along the line of sight in units of
-    10\ :sup:`-23` erg/cm\ :sup:`2`/s. Default: ``XrayLowerCutoffkeV = 0.5``, ``XrayUpperCutoffkeV = 2.5``.
+    integrated emissivity along the line of sight in units of 10\
+    :sup:`-23` erg/cm\ :sup:`2`/s. Default: ``XrayLowerCutoffkeV =
+    0.5``, ``XrayUpperCutoffkeV = 2.5``.
 ``ExtractFieldsOnly`` (external)
     Used for extractions (enzo -x ...) when only field data are needed
     instead of field + particle data. Default is 1 (TRUE).
