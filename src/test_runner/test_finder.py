@@ -21,6 +21,7 @@ varspec = dict(
     dimensionality = (int, 1),
     author = (str, ''),
     fullpath = (str, '.'),
+    run_par_file = (str, None),
     fulldir = (str, '.'),
     max_time_minutes = (float, 1),
     radiation = (str, None),
@@ -54,6 +55,7 @@ class EnzoTestCollection(object):
         test_spec = variable_defaults.copy()
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
+        test_spec['run_par_file'] = os.path.basename(test_spec['fulldir'])
         for var, val in local_vars.items():
             if var in known_variables:
                 caster = known_variables[var]
