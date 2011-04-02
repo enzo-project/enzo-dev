@@ -221,7 +221,7 @@ if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
-    parser.add_option("--interleaved", action='store_true', dest='interleaved', default=False,
+    parser.add_option("--interleaved", action='store_true', dest='interleave', default=False,
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
@@ -251,7 +251,10 @@ if __name__ == "__main__":
     hg_current = _get_hg_version(options.repository)
     rev_hash = hg_current.split()[0]
     options.output_dir = os.path.join(options.output_dir, rev_hash)
+    if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
+    f = open(os.path.join(options.output_dir, 'version.txt'), 'w')
+    f.write(hg_current)
+    f.close()
 
     # Make it happen
-    if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     etc2.go(options.output_dir, options.interleaved, options.machine)
