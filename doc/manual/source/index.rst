@@ -14,7 +14,6 @@ versions of Enzo from 1.0 on are available.
 Enzo development is supported by grants AST-0808184 and OCI-0832662 from the
 National Science Foundation. 
 
-Contents:
 
 .. toctree::
    :maxdepth: 2
@@ -54,8 +53,8 @@ If you use Enzo for a scientific publication, we ask that you cite the code in
 the following way in the acknowledgments of your paper:
 
 Computations described in this work were performed using the Enzo code
-developed by the Laboratory for Computational Astrophysics at the University of
-California in San Diego (http://lca.ucsd.edu). 
+(http://enzo.googlecode.com), which is the product of a collaborative effort
+of scientists at many universities and national laboratories.
 
 Search
 ======
