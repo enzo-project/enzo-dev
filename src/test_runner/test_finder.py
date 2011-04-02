@@ -225,6 +225,8 @@ if __name__ == "__main__":
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
+    parser.add_option("--clobber", dest='clobber', default=True,
+                      help="Recopies tests and tests from scratch.")
     parser.add_option("--repo", dest='repository', default=".",
                       help="Path to repository being tested.")
     for var, caster in sorted(known_variables.items()):
