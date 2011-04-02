@@ -468,8 +468,14 @@ Hierarchy Control Parameters
     corner. There is a maximum of 300 lines in the file and there is no
     comment header line. Default: None.
 ``MinimumOverDensityForRefinement`` (external)
-    These float values (up to 9) are used if the ``CellFlaggingMethod`` is
-    2, 4 or 5, although in slightly different ways. For cosmology simulations, the value is rho/<rho> for Methods 2 and 4, where rho is the density of the appropriate species in the cell and <rho> the mean density of that species in the simulation volume. For method 5 it becomes (rho/<rho> - 1). For non-cosmology simulations, it is simply the density above which a refinement occurs.
+    These float values (up to 9) are used if the
+    ``CellFlaggingMethod`` is 2, 4 or 5, although in slightly
+    different ways. For cosmology simulations, the value is rho/<rho>
+    for Methods 2 and 4, where rho is the density of the appropriate
+    species in the cell and <rho> the mean density of that species in
+    the simulation volume. For method 5 it becomes (rho/<rho> -
+    1). For non-cosmology simulations, it is simply the density above
+    which a refinement occurs.
 
     In practice, this value is converted into a mass by
     multiplying it by the volume of the top grid cell. The result is
@@ -673,9 +679,9 @@ Hydrodynamic Parameters
     Hydro method Description
     ============ =============================
     0            PPM DE (a direct-Eulerian version of PPM)
-    1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
+    1            [reserved]
     2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
-    3            Runge Kutta third order based MUSCL solvers.
+    3            Runge Kutta second-order based MUSCL solvers.
     4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
     ============ =============================
 
@@ -688,9 +694,9 @@ Hydrodynamic Parameters
     ============== ===========================
     Riemann solver Description
     ============== ===========================
-    0              FluxReconstruction
+    0              [reserved]
     1              HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no resolution of contact waves
-    2              Marquina
+    2              [reserved]
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
     5              TwoShock
@@ -712,9 +718,9 @@ Hydrodynamic Parameters
     ===================== ====================
     0                     PLM (piecewise linear)
     1                     PPM (piecwise parabolic)
-    2                     CENO
-    3                     WENO3 (Weighted Essentially Non-Oscillating, 3rd order)
-    4                     WENO5 (Weighted Essentially Non-Oscillating, 5th order)
+    2                     [reserved]
+    3                     [reserved]
+    4                     [reserved]
     ===================== ====================
 
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
