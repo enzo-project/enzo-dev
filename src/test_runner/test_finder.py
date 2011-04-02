@@ -49,7 +49,7 @@ def add_files(my_list, dirname, fns):
 class EnzoTestCollection(object):
     def __init__(self, tests = None):
         if tests is None:
-            # Now we look for all our *.enzo_test files
+            # Now we look for all our *.enzotest files
             fns = []
             os.path.walk(".", add_files, fns)
             self.tests = []
