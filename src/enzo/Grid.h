@@ -1124,6 +1124,19 @@ public:
    int GetGridDimension(int Dimension) {return GridDimension[Dimension];}
    int GetGridStartIndex(int Dimension) {return GridStartIndex[Dimension];}
    int GetGridEndIndex(int Dimension) {return GridEndIndex[Dimension];}
+   int GetActiveSize() {
+     int dim, size;
+     for (dim = 0, size = 1; dim < GridRank; dim++) {
+       size *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
+     }
+     return size;
+   }
+   int GetGridSize() {
+     int dim, size;
+     for (dim = 0, size = 1; dim < GridRank; dim++)
+       size *= GridDimension[dim];
+     return size;
+   }
    FLOAT GetGridLeftEdge(int Dimension) {return GridLeftEdge[Dimension];}
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
 
@@ -2361,6 +2374,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int UpdateStarParticles(int level);
 
   int AddH2Dissociation(Star *AllStars);
+
+  int AddH2DissociationFromTree(void);
 
   int ReturnStarStatistics(int &Number, float &minLife);
 
