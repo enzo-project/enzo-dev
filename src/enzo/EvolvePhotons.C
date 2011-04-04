@@ -309,7 +309,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
       CreateSourceClusteringTree(NULL, NULL, LevelArray);
-      //PrintSourceClusteringTree(SourceClusteringTree);
+      PrintSourceClusteringTree(SourceClusteringTree);
     }
     END_PERF(1);
 
@@ -569,8 +569,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	if (Temp->GridData->RadiationPresent() == TRUE) {
 
 	  if (RadiativeTransferCoupledRateSolver && 
-	      RadiativeTransferOpticallyThinH2)
-	    Temp->GridData->AddH2Dissociation(AllStars);
+	      RadiativeTransferOpticallyThinH2) {
+	    if (RadiativeTransferSourceClustering == TRUE)
+	      Temp->GridData->AddH2DissociationFromTree();
+	    else
+	      Temp->GridData->AddH2Dissociation(AllStars);
+	  } // ENDIF coupled & thinH2
 
 	  if (RadiativeTransferCoupledRateSolver) {
 	    int RTCoupledSolverIntermediateStep = TRUE;
@@ -592,7 +596,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == FALSE)
-	    Temp->GridData->AddH2Dissociation(AllStars);
+	    if (RadiativeTransferSourceClustering == TRUE)
+	      Temp->GridData->AddH2DissociationFromTree();
+	    else
+	      Temp->GridData->AddH2Dissociation(AllStars);
     END_PERF(10);
 
     /* Clean up temperature field */
