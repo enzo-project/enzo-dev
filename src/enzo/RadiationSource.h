@@ -18,6 +18,8 @@ struct SuperSourceEntry {
   FLOAT Position[MAX_DIMENSION];
   int LeafID;
   float ClusteringRadius;
+  // Used for computing the Lyman-Werner radiation with the tree.
+  float LWLuminosity;
 };
 
 struct RadiationSourceEntry  {
@@ -45,6 +47,7 @@ struct SuperSourceData {
   RadiationSourceEntry *Source;
   FLOAT Position[MAX_DIMENSION];
   float Luminosity;
+  float LWLuminosity;
 };
 
 #endif
