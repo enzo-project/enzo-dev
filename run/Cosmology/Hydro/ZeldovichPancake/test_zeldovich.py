@@ -3,7 +3,7 @@ ytcfg["yt","loglevel"] = '50'
 ytcfg["yt","suppressStreamLogging"] = 'True'
 
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest, run
+from yt.utilities.answer_testing.api import YTStaticOutputTest, run_main
 
 class TestZeldovich(YTStaticOutputTest):
     name = "zeldovich_plot"
@@ -39,4 +39,4 @@ class TestZeldovichMax(YTStaticOutputTest):
         return []
 
 if __name__ == "__main__":
-    run()
+    run_main()

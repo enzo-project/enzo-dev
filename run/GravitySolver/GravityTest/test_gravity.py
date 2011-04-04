@@ -3,7 +3,7 @@ ytcfg["yt","loglevel"] = '50'
 ytcfg["yt","suppressStreamLogging"] = 'True'
 
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest
+from yt.utilities.answer_testing.api import YTStaticOutputTest
 
 class TestGravityTest(YTStaticOutputTest):
     name = "GravityTest_plot"

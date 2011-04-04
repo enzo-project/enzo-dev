@@ -4,6 +4,13 @@ import os.path
 import optparse
 import sys
 import shutil
+import imp
+
+try:
+    from yt.utilities.answer_testing.api import \
+        RegressionTestRunner, clear_registry
+except ImportError:
+    RegressionTestRunner = None
 
 varspec = dict(
     name = (str, ''),
@@ -217,6 +224,17 @@ class EnzoTestRun(object):
         cur_dir = os.getcwd()
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['name']
+        fn = self.test_data['answer_testing_script']
+        if fn is None or RegressionTestRunner is None:
+            print "NO ANSWER TESTING PROVIDED"
+            return
+        clear_registry()
+        if fn.endswith(".py"): fn = fn[:-3]
+        print "Loading module %s" % (fn)
+        f, filename, desc = imp.find_module(fn, ["."])
+        project = imp.load_module(fn, f, filename, desc)
+        rtr = RegressionTestRunner("", None)
+        rtr.run_all_tests()
         os.chdir(cur_dir)
 
 class UnspecifiedParameter(object):
@@ -226,6 +244,15 @@ unknown = UnspecifiedParameter()
 if __name__ == "__main__":
     etc = EnzoTestCollection()
     parser = optparse.OptionParser()
+    parser.add_option("-c", "--compare-id", dest='compare_id',
+                      default=None,
+                      help="The ID to compare against")
+    parser.add_option("-p", "--results-path", dest='results_path',
+                      default=None,
+                      help="The path within which results should be stored or located.")
+    parser.add_option("-s", "--store-results", dest='store_results',
+                      default=False, action="store_true",
+                      help="Should these results be stored?")
     parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
     parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
