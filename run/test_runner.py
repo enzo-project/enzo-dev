@@ -306,6 +306,8 @@ if __name__ == "__main__":
     print "Total: %s" % len(etc2.tests)
 
     # get current revision
+    options.repository = os.path.expanduser(options.repository)
+    options.compare_dir = os.path.expanduser(options.compare_dir)
     hg_current = _get_hg_version(options.repository)
     rev_hash = hg_current.split()[0]
     options.output_dir = os.path.join(options.output_dir, rev_hash)
