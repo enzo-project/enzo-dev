@@ -255,6 +255,7 @@ class EnzoTestRun(object):
         rtr = RegressionTestRunner("", compare_id,
                     compare_results_path = compare_dir)
         rtr.run_all_tests()
+        self.results = rtr.passed_tests.copy()
         os.chdir(cur_dir)
 
 class UnspecifiedParameter(object):
@@ -278,7 +279,8 @@ if __name__ == "__main__":
                       help="Recopies tests and tests from scratch.")
     parser.add_option("--repo", dest='repository', default="../",
                       help="Path to repository being tested.")
-
+    parser.add_option("--json", dest='json', action="store_true",
+                      default=False, help="Store the results in a JSON catalog?")
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
@@ -307,7 +309,8 @@ if __name__ == "__main__":
 
     # get current revision
     options.repository = os.path.expanduser(options.repository)
-    options.compare_dir = os.path.expanduser(options.compare_dir)
+    if options.compare_dir is not None:
+        options.compare_dir = os.path.expanduser(options.compare_dir)
     hg_current = _get_hg_version(options.repository)
     rev_hash = hg_current.split()[0]
     options.output_dir = os.path.join(options.output_dir, rev_hash)
@@ -322,3 +325,16 @@ if __name__ == "__main__":
     # Make it happen
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             options.compare_dir)
+    if options.json:
+        import json
+        f = open("results.js", "w")
+        results = []
+        for test in etc2.test_container:
+            # This is to avoid any sorting code in JS
+            vals = test.results.items()
+            vals.sort()
+            results.append( dict(name = test.test_data['name'],
+                             results = vals) )
+        f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
+        f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
+                  options.compare_dir.strip(), hg_current.strip()))
