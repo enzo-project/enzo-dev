@@ -6,6 +6,18 @@ import sys
 import shutil
 import imp
 
+known_categories = [
+    "Cooling",
+    "Cosmology",
+    "DrivenTurbulence3D",
+    "FLD",
+    "GravitySolver",
+    "Hydro",
+    "MHD",
+    "RadiationTransport",
+    "RadiationTransportFLD",
+]
+
 try:
     from yt.utilities.answer_testing.api import \
         RegressionTestRunner, clear_registry
@@ -67,7 +79,8 @@ class EnzoTestCollection(object):
         if tests is None:
             # Now we look for all our *.enzotest files
             fns = []
-            os.path.walk(".", add_files, fns)
+            for cat in known_categories:
+                os.path.walk(cat, add_files, fns)
             self.tests = []
             for fn in sorted(fns):
                 print "HANDLING", fn
@@ -222,6 +235,12 @@ class EnzoTestRun(object):
 
     def run_test(self, compare_dir):
         cur_dir = os.getcwd()
+        if compare_dir is None:
+            compare_id = None
+        else:
+            compare_id = ""
+            compare_dir = os.path.join(cur_dir, compare_dir,
+                            self.test_data['fulldir'])
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['name']
         fn = self.test_data['answer_testing_script']
@@ -233,11 +252,6 @@ class EnzoTestRun(object):
         print "Loading module %s" % (fn)
         f, filename, desc = imp.find_module(fn, ["."])
         project = imp.load_module(fn, f, filename, desc)
-        if compare_dir is None:
-            compare_id = None
-        else:
-            compare_id = ""
-            compare_dir = os.path.join(compare_dir, self.test_data['fulldir'])
         rtr = RegressionTestRunner("", compare_id,
                     compare_results_path = compare_dir)
         rtr.run_all_tests()
