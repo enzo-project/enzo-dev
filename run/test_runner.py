@@ -76,17 +76,17 @@ class EnzoTestCollection(object):
             self.tests = tests
         self.test_container = []
 
-    def go(self, output_dir, interleaved, machine, exe_path):
+    def go(self, output_dir, interleaved, machine, exe_path, compare_dir):
         if interleaved:
             for my_test in self.tests:
                 print "Preparing test: %s." % my_test['name']
                 self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
                 self.test_container[-1].run_sim()
-                self.test_container[-1].run_test()
+                self.test_container[-1].run_test(compare_dir)
         else:
             self.prepare_all_tests(output_dir, machine, exe_path)
             self.run_all_sims()
-            self.run_all_tests()
+            self.run_all_tests(compare_dir)
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
@@ -99,10 +99,10 @@ class EnzoTestCollection(object):
         for my_test in self.test_container:
             my_test.run_sim()
 
-    def run_all_tests(self):
+    def run_all_tests(self, compare_dir):
         print "Running all tests."
         for my_test in self.test_container:
-            my_test.run_test()
+            my_test.run_test(compare_dir)
 
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
@@ -220,7 +220,7 @@ class EnzoTestRun(object):
         os.system(command)
         os.chdir(cur_dir)
 
-    def run_test(self):
+    def run_test(self, compare_dir):
         cur_dir = os.getcwd()
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['name']
@@ -233,7 +233,13 @@ class EnzoTestRun(object):
         print "Loading module %s" % (fn)
         f, filename, desc = imp.find_module(fn, ["."])
         project = imp.load_module(fn, f, filename, desc)
-        rtr = RegressionTestRunner("", None)
+        if compare_dir is None:
+            compare_id = None
+        else:
+            compare_id = ""
+            compare_dir = os.path.join(compare_dir, self.test_data['fulldir'])
+        rtr = RegressionTestRunner("", compare_id,
+                    compare_results_path = compare_dir)
         rtr.run_all_tests()
         os.chdir(cur_dir)
 
@@ -244,15 +250,9 @@ unknown = UnspecifiedParameter()
 if __name__ == "__main__":
     etc = EnzoTestCollection()
     parser = optparse.OptionParser()
-    parser.add_option("-c", "--compare-id", dest='compare_id',
+    parser.add_option("-c", "--compare-dir", dest='compare_dir',
                       default=None,
-                      help="The ID to compare against")
-    parser.add_option("-p", "--results-path", dest='results_path',
-                      default=None,
-                      help="The path within which results should be stored or located.")
-    parser.add_option("-s", "--store-results", dest='store_results',
-                      default=False, action="store_true",
-                      help="Should these results be stored?")
+                      help="The directory structure to compare against")
     parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
     parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
@@ -304,4 +304,5 @@ if __name__ == "__main__":
     exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
 
     # Make it happen
-    etc2.go(options.output_dir, options.interleave, options.machine, exe_path)
+    etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
+            options.compare_dir)
