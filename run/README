@@ -18,32 +18,38 @@ Example: python test_runner.py -o ~/temp --AMR=True --Author="John Wise"
 The test tags are (with defaults first followed by alternatives):
 
 name = ''
-answer_testing_script = None  `my_test_file.py'
+answer_testing_script = None  'my_test_file.py'
 nprocs = 1
-runtime = 'short' `medium' `long'
+runtime = 'short', 'medium', 'long'
 critical = True False
 cadence = 'nightly'
-hydro = False  True
-mhd = False  True
-gravity = False True
-cosmology = False  True
-chemistry = False True
-cooling = False True
-AMR = False True
-dimensionality = 1 2 3
-author = `' `John Wise'
-radiation = None, `fld', `ray'
+hydro = False, True
+mhd = False, True
+gravity = False, True
+cosmology = False, True
+chemistry = False, True
+cooling = False, True
+AMR = False, True
+dimensionality = 1, 2, 3
+author = 'John Wise'
+radiation = None, 'fld', 'ray'
 max_time_minutes = 1  
 
 Additional flags are:
---clobber           For clobbering files in the test_dest_dir and 
-                    rerunning each test from scratch. The default will not
-                    clobber. 
---interleave        For copying, running, and testing each test set in order.
-                    It's kind of like colate on a copy machine.  The default 
-                    copies all tests, then runs them all, then tests them all.  
---repo=<enzo_dir>   To specify a repository other than the current enzo 
-                    directory structure.
---machine=<machine> To specify on which machine you are running.
-                    The default is local, but there are presets for kraken,
-                    ranger, etc.
+-c, --clobber		      For clobbering files in the test_dest_dir and 
+                              rerunning each test from scratch. The default 
+			      will not clobber. 
+--interleave	    	      For copying, running, and testing each test 
+			      set in order.  It's kind of like colate on a 
+			      copy machine.  The default copies all tests, 
+			      then runs them all, then tests them all.  
+--json		    	      Store the results in a JSON catalog.
+-m, --machine=<machine>       To specify on which machine you are running.
+    			      The default is local, but there are presets 
+			      for kraken, ranger, etc.
+-o, --output-dir=<output_dir> Specify the top level directory in which to 
+    			      run the tests.
+--repo=<enzo_dir>   	      To specify a repository other than the current 
+			      enzo directory structure.
+--sim-only	    	      Only run the simulations and not the tests.
+--test-only		      Only run the tests and not the simulations.

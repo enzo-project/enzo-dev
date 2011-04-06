@@ -90,19 +90,25 @@ class EnzoTestCollection(object):
             self.tests = tests
         self.test_container = []
 
-    def go(self, output_dir, interleaved, machine, exe_path, compare_dir):
+    def go(self, output_dir, interleaved, machine, exe_path, compare_dir,
+           sim_only=False, test_only=False):
         self.output_dir = output_dir
+        total_tests = len(self.tests)
         if interleaved:
-            for my_test in self.tests:
+            for i, my_test in enumerate(self.tests):
                 print "Preparing test: %s." % my_test['name']
                 self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
-                self.test_container[-1].run_sim()
-                self.test_container[-1].run_test(compare_dir)
+                if not test_only:
+                    print "Running simulation: %d of %d." % (i, total_tests)
+                    self.test_container[i].run_sim()
+                if not sim_only:
+                    print "Running test: %d of %d." % (i, total_tests)
+                    self.test_container[-1].run_test(compare_dir)
         else:
             self.prepare_all_tests(output_dir, machine, exe_path)
-            self.run_all_sims()
-            self.run_all_tests(compare_dir)
-        self.save_test_summary()
+            if not test_only: self.run_all_sims()
+            if not sim_only: self.run_all_tests(compare_dir)
+        if not sim_only: self.save_test_summary()
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
@@ -111,13 +117,17 @@ class EnzoTestCollection(object):
             self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
 
     def run_all_sims(self):
+        total_tests = len(self.test_container)
         print "Running all simulations."
-        for my_test in self.test_container:
+        for i, my_test in enumerate(self.test_container):
+            print "Running simulation: %d of %d." % (i, total_tests)
             my_test.run_sim()
 
     def run_all_tests(self, compare_dir):
+        total_tests = len(self.test_container)
         print "Running all tests."
-        for my_test in self.test_container:
+        for i, my_test in enumerate(self.test_container):
+            print "Running test: %d of %d." % (i, total_tests)
             my_test.run_test(compare_dir)
 
     def add_test(self, fn):
@@ -346,6 +356,10 @@ if __name__ == "__main__":
                       help="Path to repository being tested.")
     parser.add_option("--json", dest='json', action="store_true",
                       default=False, help="Store the results in a JSON catalog?")
+    parser.add_option("--sim-only", dest='sim_only', action="store_true", 
+                      default=False, help="Only run simulations.")
+    parser.add_option("--test-only", dest='test_only', action="store_true", 
+                      default=False, help="Only perform tests.")
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
@@ -389,7 +403,8 @@ if __name__ == "__main__":
 
     # Make it happen
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
-            options.compare_dir)
+            options.compare_dir, sim_only=options.sim_only, 
+            test_only=options.test_only)
     if options.json:
         import json
         f = open("results.js", "w")
