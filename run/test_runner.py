@@ -183,6 +183,7 @@ class EnzoTestCollection(object):
                 if my_test.test_data['answer_testing_script'] == 'None' or \
                         my_test.test_data['answer_testing_script'] is None:
                     finished_no_test += 1
+                    f.write("%-70sRun finished, no test available.\n" % my_test.test_data['fulldir'])
                     continue
                 t_passes = 0
                 t_failures = 0
