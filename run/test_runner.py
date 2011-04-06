@@ -1,10 +1,11 @@
 # This is the object that locates all *.enzo_test directories
 
-import os.path
+import imp
 import optparse
+import os.path
 import sys
 import shutil
-import imp
+import time
 
 known_categories = [
     "Cooling",
@@ -264,11 +265,17 @@ class EnzoTestRun(object):
             print "%s run already completed, continuing..." % self.test_data['name']
             return
         
-        os.chdir(self.run_dir) 
+        os.chdir(self.run_dir)
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         print "Executing \"%s\"." % command
+        sim_start_time = time.time()
         os.system(command)
+        sim_stop_time = time.time()
+        if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
+            f = open(os.path.join(self.run_dir, 'run_time'), 'w')
+            f.write("%f seconds.\n" % (sim_stop_time - sim_start_time))
+            f.close()
         os.chdir(cur_dir)
 
     def run_test(self, compare_dir):
