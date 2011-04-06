@@ -92,6 +92,7 @@ class EnzoTestCollection(object):
 
     def go(self, output_dir, interleaved, machine, exe_path, compare_dir,
            sim_only=False, test_only=False):
+        go_start_time = time.time()
         self.output_dir = output_dir
         total_tests = len(self.tests)
         if interleaved:
@@ -109,6 +110,8 @@ class EnzoTestCollection(object):
             if not test_only: self.run_all_sims()
             if not sim_only: self.run_all_tests(compare_dir)
         if not sim_only: self.save_test_summary()
+        go_stop_time = time.time()
+        print "Total test time: %f seconds." % (go_stop_time - go_start_time)
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
