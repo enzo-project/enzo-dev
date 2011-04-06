@@ -90,6 +90,7 @@ class EnzoTestCollection(object):
         self.test_container = []
 
     def go(self, output_dir, interleaved, machine, exe_path, compare_dir):
+        self.output_dir = output_dir
         if interleaved:
             for my_test in self.tests:
                 print "Preparing test: %s." % my_test['name']
@@ -100,6 +101,7 @@ class EnzoTestCollection(object):
             self.prepare_all_tests(output_dir, machine, exe_path)
             self.run_all_sims()
             self.run_all_tests(compare_dir)
+        self.save_test_summary()
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
@@ -171,6 +173,41 @@ class EnzoTestCollection(object):
         print
         print "NUMBER OF TESTS", len(self.tests)
 
+    def save_test_summary(self):
+        all_passes = all_failures = 0
+        run_passes = run_failures = 0
+        dnfs = finished_no_test = 0
+        f = open(os.path.join(self.output_dir, 'test_results.txt'), 'w')
+        for my_test in self.test_container:
+            if my_test.run_finished:
+                if my_test.test_data['answer_testing_script'] == 'None' or \
+                        my_test.test_data['answer_testing_script'] is None:
+                    finished_no_test += 1
+                    continue
+                t_passes = 0
+                t_failures = 0
+                for t_result in my_test.results.values():
+                    t_passes += int(t_result)
+                    t_failures += int(not t_result)
+                f.write("%-70sPassed: %4d, Failed: %4d.\n" % (my_test.test_data['fulldir'], 
+                                                              t_passes, t_failures))
+                all_passes += t_passes
+                all_failures += t_failures
+                run_passes += int(not (t_failures > 0))
+                run_failures += int(t_failures > 0)
+            else:
+                dnfs += 1
+                f.write("%-70sPassed: DID NOT FINISH\n" % my_test.test_data['fulldir'])
+
+        f.write("\n")
+        f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
+                                                      all_passes, all_failures))
+        f.write("Runs finished with all tests passed: %d.\n" % run_passes)
+        f.write("Runs finished with at least one failure: %d.\n" % run_failures)
+        f.write("Runs failed to complete: %d.\n" % dnfs)
+        f.write("Runs finished with no tests to perform: %d.\n" % finished_no_test)
+        f.close()
+
 class EnzoTestRun(object):
     def __init__(self, test_dir, test_data, machine, exe_path):
         self.machine = machine
@@ -222,7 +259,7 @@ class EnzoTestRun(object):
         print "Running test simulation: %s." % self.test_data['name']
         cur_dir = os.getcwd()
         # Check for existence
-        if os.path.exists(self.run_dir+'/RunFinished'):
+        if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             print "%s run already completed, continuing..." % self.test_data['name']
             return
         
@@ -247,16 +284,36 @@ class EnzoTestRun(object):
         if fn is None or RegressionTestRunner is None:
             print "NO ANSWER TESTING PROVIDED"
             return
+        self.run_finished = os.path.exists(os.path.join(self.run_dir, 'RunFinished'))
         clear_registry()
-        if fn.endswith(".py"): fn = fn[:-3]
-        print "Loading module %s" % (fn)
-        f, filename, desc = imp.find_module(fn, ["."])
-        project = imp.load_module(fn, f, filename, desc)
-        rtr = RegressionTestRunner("", compare_id,
-                    compare_results_path = compare_dir)
-        rtr.run_all_tests()
-        self.results = rtr.passed_tests.copy()
+
+        if self.run_finished and \
+                self.test_data['answer_testing_script'] != 'None' and \
+                self.test_data['answer_testing_script'] is not None:
+            if fn.endswith(".py"): fn = fn[:-3]
+            print "Loading module %s" % (fn)
+            f, filename, desc = imp.find_module(fn, ["."])
+            project = imp.load_module(fn, f, filename, desc)
+            rtr = RegressionTestRunner("", compare_id,
+                        compare_results_path = compare_dir)
+            rtr.run_all_tests()
+            self.results = rtr.passed_tests.copy()
+
         os.chdir(cur_dir)
+        self.save_results()
+
+    def save_results(self):
+        if self.test_data['answer_testing_script'] == 'None' \
+                or self.test_data['answer_testing_script'] is None: return
+        f = open(os.path.join(self.run_dir, 'test_results.txt'), 'w')
+        if self.run_finished:
+            my_tests = self.results.keys()
+            my_tests.sort()
+            for my_test in my_tests:
+                f.write("%-70s%s\n" % (my_test, self.results[my_test]))
+        else:
+            f.write("All tests failed because simulation did not finish.\n")
+        f.close()
 
 class UnspecifiedParameter(object):
     pass
