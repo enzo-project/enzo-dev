@@ -1,6 +1,8 @@
+#include "fortran.def"
       subroutine rotate3d(x,n1,n2,n3,y)
 
       implicit none
+#include "fortran_types.def"
 
       integer n1,n2,n3
       CMPLX_PREC x(n1,n2,n3), y(n2,n3,n1)

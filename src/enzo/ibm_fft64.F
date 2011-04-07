@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
 #ifdef SP2
 
@@ -7,6 +8,7 @@
       subroutine ibm_1d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1)
@@ -76,6 +78,7 @@
       subroutine ibm_2d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2)
@@ -141,6 +144,7 @@
       subroutine ibm_3d( x, rank, n1, n2, n3, idir )
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2,n3)
@@ -223,6 +227,7 @@
       subroutine ibm_1d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1)
@@ -289,6 +294,7 @@
       subroutine ibm_2d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2)
@@ -354,6 +360,7 @@
       subroutine ibm_3d( x, rank, n1, n2, n3, idir )
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2,n3)
@@ -433,6 +440,7 @@
       subroutine ibm_1d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer rank, n1, n2, n3, idir
       CMPLX_PREC x(n1)
@@ -446,6 +454,7 @@
       subroutine ibm_2d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer rank, n1, n2, n3, idir
       CMPLX_PREC x(n1,n2)
@@ -459,6 +468,7 @@
       subroutine ibm_3d( x, rank, n1, n2, n3, idir )
 
       implicit none
+#include "fortran_types.def"
 
       integer rank, n1, n2, n3, idir
       CMPLX_PREC x(n1,n2,n3)

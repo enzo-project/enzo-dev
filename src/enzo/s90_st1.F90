@@ -1,8 +1,10 @@
+#include "fortran.def"
       subroutine s90_st1( a, n, dir )
 
       use singleton
 
       implicit none
+#include "fortran_types.def"
 
       integer :: n, dir
       CMPLX_PREC :: a(n)

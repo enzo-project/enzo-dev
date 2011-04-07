@@ -1,8 +1,10 @@
 #include "error.def"
+#include "fortran.def"
 
       subroutine wrapper2d(x, rank, n1, n2, n3, dir, method)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1,n2)
@@ -51,6 +53,7 @@
       subroutine fftwrap2d( a, n, dir, method )
 
       implicit none
+#include "fortran_types.def"
 
       CMPLX_PREC :: a(*)
       integer :: n(3)

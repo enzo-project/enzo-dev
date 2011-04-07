@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
 #ifdef ALTIX
 
@@ -8,6 +9,7 @@
       subroutine sgi_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: n1, idir
       CMPLX_PREC :: x(n1)
@@ -52,6 +54,7 @@
       subroutine sgi_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: n1, idir
       CMPLX_PREC :: x(n1)
@@ -97,6 +100,7 @@
       subroutine sgi_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: n1, idir
       CMPLX_PREC :: x(n1)

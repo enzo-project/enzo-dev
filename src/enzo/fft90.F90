@@ -1,3 +1,4 @@
+#include "fortran.def"
 MODULE singleton
   !-----------------------------------------------------------------------------
   ! Multivariate Fast Fourier Transform
@@ -135,6 +136,7 @@ MODULE singleton
   ! Michael Steffens, 09.12.96, <Michael.Steffens@mbox.muk.uni-hannover.de>
   !-----------------------------------------------------------------------------
   IMPLICIT NONE
+#include "fortran_types.def"
 
   PRIVATE
   PUBLIC:: fft, fftn, fftkind

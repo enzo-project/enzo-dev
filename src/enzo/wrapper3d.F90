@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
       subroutine wrapper3d(x, rank, n1, n2, n3, dir, method)
 
@@ -7,6 +8,7 @@
 !     Date:       November, 2003
 
       implicit none
+#include "fortran_types.def"
 
 !     Arguments
 
@@ -71,6 +73,7 @@
       subroutine fftwrap3d( a, n, dir, method )
 
       implicit none
+#include "fortran_types.def"
 
       CMPLX_PREC :: a(*)
       integer :: n(3)
