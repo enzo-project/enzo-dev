@@ -37,7 +37,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -61,10 +61,10 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
-  integer, intent(in)  :: Nz, NGzl, NGzr, BCzL, BCzR, zlface, zrface, x2s, x2e
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr, BCzL, BCzR, zlface, zrface, x2s, x2e
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC,    intent(in)  :: dx, dy, dz
   R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
@@ -73,7 +73,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
 
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: dxa, dya, dza
 !=======================================================================
 
@@ -272,7 +272,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -296,9 +296,9 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC,    intent(in)  :: dx, dy
   R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
@@ -307,7 +307,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
 
 !--------------
 ! locals
-  integer :: i, j
+  INTG_PREC :: i, j
   R_PREC :: dxa, dya
 
 !=======================================================================
@@ -440,7 +440,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -464,8 +464,8 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC,    intent(in)  :: dx
   R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
@@ -474,7 +474,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 
 !--------------
 ! locals
-  integer :: i
+  INTG_PREC :: i
   R_PREC :: dxa
 
 !=======================================================================

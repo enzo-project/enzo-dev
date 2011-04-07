@@ -48,11 +48,11 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: Nchem, ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: Nchem, ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a
   R_PREC,    intent(in) :: time, HFrac
   R_PREC,    intent(in) :: aUnits, LenUnits, TimeUnits, NiUnits
@@ -62,7 +62,7 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
   
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
 
 !=======================================================================
 

@@ -38,7 +38,7 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
+      INTG_PREC ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        start1, start2, start3, iflag
       R_PREC    source(sdim1, sdim2, sdim3), delx, dely, delz,
      &        dest1(ddim1, ddim2, ddim3), dest2(ddim1, ddim2, ddim3),
@@ -46,7 +46,7 @@ c
 c
 c  locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
       R_PREC    fact1, fact2, fact3
 
 

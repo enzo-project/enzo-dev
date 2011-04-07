@@ -27,7 +27,7 @@ c     parent    - parent field
 c     dim1,2    - declared dimension of parent
 c     start1,2  - starting index in parent in units of grid (one based)
 c     end1,2    - ending index in parent in units of grid (one based)
-c     refine1,2 - integer refinement factors
+c     refine1,2 - INTG_PREC refinement factors
 c     gdim1,2   - declared dimension of grid
 c     gstart1,2 - starting offset of refined region in grid (one based)
 c
@@ -44,7 +44,7 @@ c-----------------------------------------------------------------------
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn, MAX_REFINE, num_iter
+      INTG_PREC ijkn, MAX_REFINE, num_iter
       parameter (ijkn = MAX_ANY_SINGLE_DIRECTION, num_iter = 2)
       parameter (MAX_REFINE = 32)
 c
@@ -52,13 +52,13 @@ c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, start1, start2, end1, end2, 
+      INTG_PREC dim1, dim2, start1, start2, end1, end2, 
      &        refine1, refine2, gdim1, gdim2, gstart1, gstart2
       R_PREC    parent(dim1, dim2), grid(gdim1, gdim2)
 c
 c  locals
 c
-      integer i, icoef, igrid, iparent, isub, iter,
+      INTG_PREC i, icoef, igrid, iparent, isub, iter,
      &        j, jcoef, jgrid, jparent, jsub, k
       R_PREC coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
      &       coefm2(MAX_REFINE), coefp2(MAX_REFINE), coef02(MAX_REFINE),

@@ -150,7 +150,7 @@ c
 c
 c  Arguments
 c
-      integer nratec, iradtype, casebrates, threebody
+      INTG_PREC nratec, iradtype, casebrates, threebody
       R_PREC    aye, temstart, temend, alpha0, f3,
      &        utem, uxyz, uaye, urho, utim
       R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
@@ -173,14 +173,14 @@ c
      &        k30, k31,
      &        k22a(nratec), k50a(nratec), k51a(nratec), k52a(nratec), 
      &        k53a(nratec), k54a(nratec), k55a(nratec), k56a(nratec)
-      integer ioutput
+      INTG_PREC ioutput
       R_PREC    k13dda(nratec, 7), hdcool(nratec, 5)
 c
 c  Parameters
 c
-      integer nnu
+      INTG_PREC nnu
       parameter (nnu = 400)
-      integer ireco, ibrco, icico, iceco, iphoto_mol
+      INTG_PREC ireco, ibrco, icico, iceco, iphoto_mol
       parameter (ireco = 1, ibrco = 1, icico = 1, iceco = 1, 
      &           iphoto_mol = 0)
 
@@ -211,7 +211,7 @@ c
 
 c  Locals
 c
-      integer i,j,n
+      INTG_PREC i,j,n
       double precision nu, delnu, hnu, logttt, ttt, tev, logtev, 
      &                 xx, dum, tbase1, xbase1, kunit, coolunit,
      &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate

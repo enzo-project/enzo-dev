@@ -4,12 +4,12 @@
 
       implicit none
 
-      integer :: rank, n1, n2, n3, dir
+      INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1,n2,n3)
 
       CMPLX_PREC, allocatable :: y(:,:,:), z(:,:,:)
-      integer :: n(3)
-      integer :: i,j,k
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j,k
 
 !     write(*,*) 'S66_3D ',rank,n1,n2,n3,dir
 
@@ -93,9 +93,9 @@
 
       implicit none
 
-      integer :: n, dir
+      INTG_PREC :: n, dir
       R_PREC :: a(2*n)
-      integer :: i
+      INTG_PREC :: i
 
       if( dir == -1 ) then
         call fft66(a(1),a(2),n,n,n,-2)

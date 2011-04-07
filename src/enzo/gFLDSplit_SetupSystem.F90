@@ -80,7 +80,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !                  BCs may move these to 0:Nx, 1:Nx+1, etc.
 !     Nx,Ny,Nz   - active mesh size in each direction
 !     NG*l/NG*r  - left/right ghost cells in each direction
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -107,10 +107,10 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
   
   !--------------
   ! argument declarations
-  integer, intent(in)  :: rank, ESpectrum
-  integer, intent(in)  :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  INTG_PREC, intent(in)  :: rank, ESpectrum
+  INTG_PREC, intent(in)  :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   P_PREC, intent(in)  :: a, a0, adot, adot0
   R_PREC,    intent(in)  :: dt, theta, dx, dy, dz
   R_PREC,    intent(in)  :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
@@ -118,7 +118,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
   REAL*8,  intent(out) :: matentries(*)
   REAL*8,  intent(out) :: rhsentries(*)
   R_PREC,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  INTG_PREC, intent(out) :: ier
 
   !=======================================================================
   
@@ -178,10 +178,10 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: ESpectrum
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  INTG_PREC,  intent(in) :: ESpectrum
+  INTG_PREC,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   P_PREC,  intent(in) :: a, a0, adot, adot0
   R_PREC,     intent(in) :: dt, theta, dx, dy, dz
   R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
@@ -190,11 +190,11 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   REAL*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
   REAL*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
   R_PREC,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  INTG_PREC, intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   REAL*8  :: dtfac, dtfac0, kap, kap0, eta, eta0, c, pi, StBz
   REAL*8  :: dxi, dxi0, dyi, dyi0, dzi, dzi0
   REAL*8  :: afac, afac0, R, R0, E0avg
@@ -576,9 +576,9 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: ESpectrum
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC,  intent(in) :: ESpectrum
+  INTG_PREC,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   P_PREC,  intent(in) :: a, a0, adot, adot0
   R_PREC,     intent(in) :: dt, theta, dx, dy
   R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
@@ -587,11 +587,11 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   REAL*8,   intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
   REAL*8,   intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
   R_PREC,     intent(out) :: rhsnorm
-  integer,  intent(out) :: ier
+  INTG_PREC,  intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j
+  INTG_PREC :: i, j
   REAL*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
   REAL*8  :: c, pi, dxi, dxi0, dyi, dyi0
   REAL*8  :: afac, afac0, R, R0, E0avg
@@ -852,8 +852,8 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: ESpectrum
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC,  intent(in) :: ESpectrum
+  INTG_PREC,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   P_PREC,  intent(in) :: a, a0, adot, adot0
   R_PREC,     intent(in) :: dt, theta, dx
   R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
@@ -861,11 +861,11 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   REAL*8,   intent(out) :: matentries(3,x0s:x0e)
   REAL*8,   intent(out) :: rhsentries(x0s:x0e)
   R_PREC,     intent(out) :: rhsnorm
-  integer,  intent(out) :: ier
+  INTG_PREC,  intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i
+  INTG_PREC :: i
   REAL*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
   REAL*8  :: c, pi, dxi, dxi0
   REAL*8  :: afac, afac0, R, R0, E0avg

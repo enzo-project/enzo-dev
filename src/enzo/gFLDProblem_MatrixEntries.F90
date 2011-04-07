@@ -55,7 +55,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -95,12 +95,12 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
-  integer, intent(in)  :: Nz, NGzl, NGzr, zrface, x2s, x2e
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr, zrface, x2s, x2e
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC,    intent(in) :: dx, dy, dz, dt, theta
   R_PREC,    intent(in) :: aUnits, LenUnits, EgUnits
@@ -114,7 +114,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: c, pi, StBz, dxi, dyi, dzi, dtfac
   R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
   R_PREC :: Dlim
@@ -498,7 +498,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -538,11 +538,11 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC,    intent(in) :: dx, dy, dt, theta
   R_PREC,    intent(in) :: aUnits, LenUnits, EgUnits
@@ -555,7 +555,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 
 !--------------
 ! locals
-  integer :: i, j
+  INTG_PREC :: i, j
   R_PREC :: c, pi, StBz, dxi, dyi, dtfac
   R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
   R_PREC :: Dlim
@@ -835,7 +835,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -875,10 +875,10 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC,    intent(in)  :: dx, dt, theta
   R_PREC,    intent(in)  :: aUnits, LenUnits, EgUnits
@@ -889,7 +889,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 
 !--------------
 ! locals
-  integer :: i
+  INTG_PREC :: i
   R_PREC :: c, pi, StBz, dxi, dtfac
   R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
   R_PREC :: Dlim

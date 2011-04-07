@@ -3,10 +3,10 @@
 
       implicit none
 
-      integer :: rank, dim1, dim2, dim3, dir
+      INTG_PREC :: rank, dim1, dim2, dim3, dir
       CMPLX_PREC :: x(dim1,dim2,dim3)
 
-      integer :: method
+      INTG_PREC :: method
 
       REAL*8 :: t0, t1, t2, wall_clock
 

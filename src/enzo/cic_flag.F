@@ -27,7 +27,7 @@ c     npositions - number of particles
 c     posx,y,z   - particle positions
 c     partmass   - particle masses
 c     itype      - 1D field (length npositions) of types
-c     imatch1,2  - integer(s) indicating type of particle to match
+c     imatch1,2  - INTG_PREC(s) indicating type of particle to match
 c     minmassmust - minimum mass for MustRefine particles to refine around
 c     buffersize - how many cells to flag around the particle
 c
@@ -47,19 +47,19 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
+      INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
       R_PREC minmassmust
-      integer buffersize
+      INTG_PREC buffersize
       P_PREC posx(npositions), posy(npositions), posz(npositions), 
      &        partmass(npositions), leftedge(3)
       P_PREC cellsize
-      integer itype(npositions)
-      integer ffield(dim1, dim2, dim3)
+      INTG_PREC itype(npositions)
+      INTG_PREC ffield(dim1, dim2, dim3)
 c
 c  locals
 c
-      integer i1, j1, k1, n, ii, jj, kk
-      integer istart, iend, jstart, jend, kstart, kend
+      INTG_PREC i1, j1, k1, n, ii, jj, kk
+      INTG_PREC istart, iend, jstart, jend, kstart, kend
       R_PREC    xpos, ypos, zpos, fact
       P_PREC edge1, edge2, edge3, half
       parameter (half = 0.5001d0)
@@ -90,7 +90,7 @@ c             Compute the position of the central cell
 c
               xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
 c
-c             Convert this into an integer index
+c             Convert this into an INTG_PREC index
 c
               i1  = int(xpos + 0.5d0)
 c
@@ -134,7 +134,7 @@ c
               xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
               ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
 c
-c             Convert this into an integer index
+c             Convert this into an INTG_PREC index
 c
               i1  = int(xpos + 0.5d0)
               j1  = int(ypos + 0.5d0)
@@ -186,7 +186,7 @@ c
               ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
               zpos = min(max((posz(n) - leftedge(3))*fact, half), edge3)
 c  
-c             Convert this into an integer index
+c             Convert this into an INTG_PREC index
 c  
               i1  = int(xpos + 0.5d0)
               j1  = int(ypos + 0.5d0)

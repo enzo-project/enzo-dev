@@ -10,7 +10,7 @@
 #endif
 
       character*(*) fn, type
-      integer       iunit
+      INTG_PREC       iunit
 
 #ifdef LARGE_TASK_COUNT
       character*8   post
@@ -19,7 +19,7 @@
 #endif
 
       integer*4     id, ierr
-      integer       i
+      INTG_PREC       i
       character*32  fnx
 
 #ifdef USE_MPI
@@ -54,7 +54,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer iunit
+      INTG_PREC iunit
 
       close(unit=iunit)
 

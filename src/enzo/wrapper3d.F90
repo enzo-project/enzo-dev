@@ -12,15 +12,15 @@
 
 !     Arguments
 
-      integer :: rank, n1, n2, n3, dir
+      INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1,n2,n3)
       external :: method
 
 !     Locals
 
       CMPLX_PREC, allocatable :: y(:,:,:), z(:,:,:)
-      integer :: n(3)
-      integer :: i,j,k
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j,k
 
       if( rank /= 3 ) then
         write(0,*) '3D wrapper rank != 3'
@@ -76,8 +76,8 @@
 #include "fortran_types.def"
 
       CMPLX_PREC :: a(*)
-      integer :: n(3)
-      integer :: dir
+      INTG_PREC :: n(3)
+      INTG_PREC :: dir
       external :: method
 
       call method(a, n(1), dir)

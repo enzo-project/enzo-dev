@@ -104,7 +104,7 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, idiff, idual, iflatten, isteepen, ipresfree,
+      INTG_PREC gravity, idiff, idual, iflatten, isteepen, ipresfree,
      &        in, jn, kn, d0n, d1n, d2n, d0start, d0end, d1start, d1end,
      &        iter, ncolor, d2nactive
       R_PREC    dt, eta1, eta2, gamma, pmin
@@ -116,12 +116,12 @@ c
       R_PREC     df(d0n,d1n),     ef(d0n,d1n),
      &         uf(d0n,d1n),     vf(d0n,d1n),     wf(d0n,d1n),
      &        gef(d0n,d1n),   colf(d0n,d1n,ncolor)
-      integer sweep_dir
+      INTG_PREC sweep_dir
 c
 c  locals
 c
-      integer d2, d0s, d1s, d0e, d1e
-      integer i
+      INTG_PREC d2, d0s, d1s, d0e, d1e
+      INTG_PREC i
 c
 c  define local slices (declared here as temps)
 c

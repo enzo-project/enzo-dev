@@ -93,8 +93,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
-      integer procnum, ctype, option
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
+      INTG_PREC procnum, ctype, option
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -106,7 +106,7 @@ c
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       R_PREC    odthresh, masseff, smthresh, mintdyn
       P_PREC xpold(nmax), ypold(nmax), zpold(nmax)
-      integer typeold(npart)
+      INTG_PREC typeold(npart)
 c
       R_PREC   sformsum
       save   sformsum
@@ -114,7 +114,7 @@ c
 c
 c  Locals:
 c
-      integer  i, j, k, ii, n, i_c, j_c, k_c
+      INTG_PREC  i, j, k, ii, n, i_c, j_c, k_c
       R_PREC   div, tdyn, dtot
       R_PREC   pi, G, sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
@@ -380,7 +380,7 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod, level
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod, level
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
@@ -390,21 +390,21 @@ c
       P_PREC xp(npart), yp(npart), zp(npart)
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
-      integer type(npart)
-      integer ctype
+      INTG_PREC type(npart)
+      INTG_PREC ctype
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      integer i, j, k, n
+      INTG_PREC i, j, k, n
       R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
       parameter (clight = c_light, msolar_e51 = 1800.d0)
 c
 #define NO_KINETIC_FEEDBACK  !#####
 #ifdef KINETIC_FEEDBACK
-      integer nn
-      integer ind_x(7), ind_y(7), ind_z(7)
+      INTG_PREC nn
+      INTG_PREC ind_x(7), ind_y(7), ind_z(7)
       data ind_x/0, 1, 0, 0,-1, 0, 0/
       data ind_y/0, 0, 1, 0, 0,-1, 0/
       data ind_z/0, 0, 0, 1, 0, 0,-1/

@@ -52,11 +52,11 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   REAL*8,  intent(in) :: NGammaDot
   P_PREC, intent(in) :: a
   R_PREC,    intent(in) :: time, EtaRadius, EtaCenter(3)
@@ -66,7 +66,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   
 !--------------
 ! locals
-  integer :: i, j, k, l, nsrc, seed(8)
+  INTG_PREC :: i, j, k, l, nsrc, seed(8)
   R_PREC    :: h_nu0, etaconst, rnums(10)
   R_PREC    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
   R_PREC    :: cellXc, cellYc, cellZc
@@ -91,9 +91,9 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   if (ProbType == 450) then
 
      ! get the number of sources from EtaRadius
-     nsrc = EtaRadius   ! cast to an integer
+     nsrc = EtaRadius   ! cast to an INTG_PREC
 
-     ! set the seed by casting the time to an integer
+     ! set the seed by casting the time to an INTG_PREC
      seed(1) = 5.d0*time/tUn + x0L/dx + x1L/dy + x2L/dz
      seed(1) = seed(1) + 13
 !     print *,'random seed = ',seed(1),' time = ',time

@@ -9,7 +9,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
+      INTG_PREC :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1)
 
       REAL*4 :: factor
@@ -47,7 +47,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
+      INTG_PREC :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2)
 
       REAL*4 :: factor
@@ -86,7 +86,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
+      INTG_PREC :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2,n3)
 
       REAL*4 :: factor
@@ -129,7 +129,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
+      INTG_PREC :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1)
 
       REAL*8 :: factor
@@ -167,7 +167,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
+      INTG_PREC :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2)
 
       REAL*8 :: factor
@@ -206,7 +206,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
+      INTG_PREC :: rank, n1, n2, n3, idir
       CMPLX_PREC :: x(n1,n2,n3)
 
       REAL*8 :: factor
@@ -252,7 +252,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer rank, n1, n2, n3, idir
+      INTG_PREC rank, n1, n2, n3, idir
       CMPLX_PREC x(n1)
 
       write(0,'("Dummy Cray X1 1D FFT - error")')
@@ -266,7 +266,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer rank, n1, n2, n3, idir
+      INTG_PREC rank, n1, n2, n3, idir
       CMPLX_PREC x(n1,n2)
 
       write(0,'("Dummy Cray X1 2D FFT - error")')
@@ -280,7 +280,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer rank, n1, n2, n3, idir
+      INTG_PREC rank, n1, n2, n3, idir
       CMPLX_PREC x(n1,n2,n3)
 
       write(0,'("Dummy Cray X1 3D FFT - error")')

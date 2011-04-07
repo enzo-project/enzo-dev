@@ -26,7 +26,7 @@ c     parent      - parent field
 c     dim1,2,3    - declared dimension of parent
 c     start1,2,3  - starting index in parent in units of grid (one based)
 c     end1,2,3    - ending index in parent in units of grid (one based)
-c     refine1,2,3 - integer refinement factors
+c     refine1,2,3 - INTG_PREC refinement factors
 c     gdim1,2,3   - declared dimension of grid
 c     gstart1,2,3 - starting offset of refined region in grid (one based)
 c     ishift      - specified face-centered (0 - none, 1/2/3 x,y,z)
@@ -47,14 +47,14 @@ c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, dim3, start1, start2, start3, ndim,
+      INTG_PREC dim1, dim2, dim3, start1, start2, start3, ndim,
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3, ishift
       R_PREC    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
 c
 c  locals
 c
-      integer i, j, k, iparent, jparent, kparent
+      INTG_PREC i, j, k, iparent, jparent, kparent
       R_PREC    dx, dy, dz, xpos, ypos, zpos, xshift, yshift, zshift
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////

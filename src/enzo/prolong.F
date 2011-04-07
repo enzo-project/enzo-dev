@@ -37,13 +37,13 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
+      INTG_PREC ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        start1, start2, start3, refine1, refine2, refine3
       R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, i1, j1, k1
+      INTG_PREC i, j, k, i1, j1, k1
       R_PREC    fact1, fact2, fact3, x, y, z, dx, dy, dz, 
      &        edge1, edge2, edge3, half
       parameter (half = 0.5001d0)

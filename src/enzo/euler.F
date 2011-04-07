@@ -48,7 +48,7 @@ c    gravity - gravity flag (0 = off)
 c    grslice - acceleration in this dimension in this slice
 c    i1,i2  - starting and ending addresses for dimension 1
 c    idim   - declared leading dimension of slices
-c    idiff  - integer flag for standard artificial diffusion (0 = off)
+c    idiff  - INTG_PREC flag for standard artificial diffusion (0 = off)
 c    idual  - dual energy formalism flag (0 = off)
 c    j1,j2  - starting and ending addresses for dimension 2
 c    jdim   - declared second dimension of slices
@@ -77,13 +77,13 @@ c
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, i1, i2, idiff, idim, idual, j1, j2, jdim, ncolor
+      INTG_PREC gravity, i1, i2, idiff, idim, idual, j1, j2, jdim, ncolor
       R_PREC    dt, eta1, eta2, gamma
       R_PREC diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),
@@ -95,7 +95,7 @@ c
 c
 c  local declarations
 c
-      integer i, j, n
+      INTG_PREC i, j, n
       R_PREC qa, qb, qc, frac, uadvect, eold
       R_PREC dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)

@@ -76,14 +76,14 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer gravity, idiff, idual, iflatten, isteepen, nhy, rank,
+      INTG_PREC gravity, idiff, idual, iflatten, isteepen, nhy, rank,
      &        ifloat_size
-      integer ipresfree, end(3), in, jn, kn, nsubgrids, start(3),
+      INTG_PREC ipresfree, end(3), in, jn, kn, nsubgrids, start(3),
      &        ncolor, coloff(ncolor)
-      integer fistart(nsubgrids*3), fiend(nsubgrids*3),
+      INTG_PREC fistart(nsubgrids*3), fiend(nsubgrids*3),
      &        fjstart(nsubgrids*3), fjend(nsubgrids*3), 
      &        lface(nsubgrids*3), rface(nsubgrids*3)
-      integer dindex(nsubgrids*6), eindex(nsubgrids*6),
+      INTG_PREC dindex(nsubgrids*6), eindex(nsubgrids*6),
      &        uindex(nsubgrids*6), vindex(nsubgrids*6),
      &        windex(nsubgrids*6),geindex(nsubgrids*6),
      &        colindex(nsubgrids*6,ncolor)
@@ -99,9 +99,9 @@ c
 c
 c  Locals
 c
-      integer i, ie, is, ixyz, j, je, js, k, ke, ks,
+      INTG_PREC i, ie, is, ixyz, j, je, js, k, ke, ks,
      &        n, nxz, nyz, nzz, ms
-      integer i1, i2, j1, j2, k1, k2
+      INTG_PREC i1, i2, j1, j2, k1, k2
       R_PREC tmp(1)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////

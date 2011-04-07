@@ -99,11 +99,11 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC, intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
@@ -122,7 +122,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
 
 !--------------
 ! locals
-  integer :: i, j, k, l, sweeps, sweeps2, Tidx, Tidxp
+  INTG_PREC :: i, j, k, l, sweeps, sweeps2, Tidx, Tidxp
   REAL*8 :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
   REAL*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
   REAL*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
@@ -555,11 +555,11 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC, intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
   R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
@@ -581,7 +581,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
 
 !--------------
 ! locals
-  integer :: i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
+  INTG_PREC :: i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
   REAL*8 :: chmin, chmax, chsum, eint, gam
   REAL*8 :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
   REAL*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
@@ -1062,8 +1062,8 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, ESpectrum
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, ESpectrum
+  INTG_PREC, intent(out) :: ier
   REAL*8, intent(in) :: a, adot
   REAL*8, intent(in) :: dt, dx, gamma, HFrac, TempStart, TempEnd
   REAL*8, intent(in) :: Comp1, Comp2, Comp_xray, Comp_temp
@@ -1081,7 +1081,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
   !--------------
   ! locals
-  integer :: Tidx, Tidxp
+  INTG_PREC :: Tidx, Tidxp
   REAL*8 :: afac, c, hp, kb, mp, lTempS, lTempE, dlTemp
   REAL*8 :: nu0_HI, nu0_HeI, nu0_HeII, HIconst, HeIconst, HeIIconst
   REAL*8 :: min_temp, min_ni, min_rad
@@ -1805,8 +1805,8 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: ESpectrum
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: ESpectrum
+  INTG_PREC, intent(out) :: ier
   REAL*8, intent(in)   :: a, adot, dt, HFrac, DenUnits, ErUnits, NiUnits
   REAL*8, intent(in)   :: IsE, IsEsHI, IsEsHInu, k1, k2
   REAL*8, intent(in)   :: Er, HI, Er0, HI0, rho, src_Er, src_HI

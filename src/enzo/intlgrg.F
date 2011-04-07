@@ -29,8 +29,8 @@ c    flatten - ammount of flattening (calculated in calcdiss)
 c    gamma  - ideal gas law constant
 c    i1,i2  - starting and ending addresses for dimension 1
 c    idim   - declared leading dimension of slices
-c    iflatten - integer flag for flattener (eq. A1, A2) (0 = off)
-c    isteep - integer flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
+c    iflatten - INTG_PREC flag for flattener (eq. A1, A2) (0 = off)
+c    isteep - INTG_PREC flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
 c    j1,j2  - starting and ending addresses for dimension 2
 c    jdim   - declared second dimension of slices
 c    pslice - extracted 2d slice of the pressure, p
@@ -51,14 +51,14 @@ c
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, idim, iflatten, isteep, j1, j2, jdim
+      INTG_PREC i1, i2, idim, iflatten, isteep, j1, j2, jdim
       R_PREC   dt, gamma
       R_PREC   dslice(idim,jdim),  dxi(idim     ), pslice(idim,jdim),
      &         uslice(idim,jdim)
@@ -69,7 +69,7 @@ c
 c
 c  locals
 c
-      integer i, j
+      INTG_PREC i, j
       R_PREC qa,qb,qc,qd,qe,dplus,pplus,uplus,dmnus,pmnus,umnus,ft,one
       R_PREC c1(ijkn),c2(ijkn),c3(ijkn), c4(ijkn),  c5(ijkn), c6(ijkn)
      &    ,dd(ijkn),dp(ijkn),du(ijkn),dph(ijkn), pph(ijkn),uph(ijkn)

@@ -12,7 +12,7 @@ c   data:
 c   modified1:
 c
 c  PURPOSE:  Replaces DATA by its NDIM-dimensional discrete Fourier transform
-c      if ISIGN is 1.  NN is an integer array of length NDIM, containing
+c      if ISIGN is 1.  NN is an INTG_PREC array of length NDIM, containing
 c      the lengths of each dimension (number of CMPLX_PREC values), which
 c      MUST all be powers of 2.  DATA is a real array of length twice the
 c      product of these lengths, in which the data are stored as in a
@@ -21,7 +21,7 @@ c      DATA is replaced by its inverse transform times the product of the
 c      lengths of all dimensions.
 c
 c  INPUTS:
-c    nn    - an integer array of length NDIM, containing the lengths of 
+c    nn    - an INTG_PREC array of length NDIM, containing the lengths of 
 c          each dimension
 c    data  - data to be transformed
 c    ndim  - number of dimensions
@@ -37,17 +37,17 @@ c
 c  Arguments
 c
       R_PREC    data(*)
-      integer isign, ndim, nn(ndim)
+      INTG_PREC isign, ndim, nn(ndim)
 c
 c  External functions
 c
-      integer power_of_2
+      INTG_PREC power_of_2
 c
 c  Locals
 c
-      integer i1, i2, i3, i2rev, i3rev, ibit, idim,
+      INTG_PREC i1, i2, i3, i2rev, i3rev, ibit, idim,
      &        ifp1, ifp2, ip1, ip2, ip3, k2, n, nprev, nrem, ntot
-      integer ibad
+      INTG_PREC ibad
       R_PREC    tempi, tempr
 c     double precision twopi, theta, wr, wi, wpr, wpi, wtemp
       R_PREC    twopi, theta, wr, wi, wpr, wpi, wtemp

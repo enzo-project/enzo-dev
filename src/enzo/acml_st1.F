@@ -10,7 +10,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
       REAL*4 :: factor
@@ -53,7 +53,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
       REAL*8 :: factor
@@ -99,7 +99,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer n1, idir
+      INTG_PREC n1, idir
       CMPLX_PREC x(n1)
 
       write(0,'("ACML stride 1 FFT error")')

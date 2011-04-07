@@ -55,14 +55,14 @@ c
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, idim, idual, j1, j2, jdim
+      INTG_PREC i1, i2, idim, idual, j1, j2, jdim
       R_PREC  dslice(idim,jdim),      dx(idim     ),  eslice(idim,jdim),
      &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
      &        dxnslice(idim,jdim), geslice(idim,jdim)
@@ -71,7 +71,7 @@ c
 c
 c  local declarations
 c
-      integer i, j
+      INTG_PREC i, j
       R_PREC    dm(ijkn), dmnu(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////

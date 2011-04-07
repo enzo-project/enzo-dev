@@ -70,10 +70,10 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: Nchem, Model, ESpectrum, ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(in) :: Nchem, Model, ESpectrum, ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
   P_PREC, intent(in) :: a
   R_PREC,    intent(in) :: time, HFrac, NGammaDot, EtaRadius
   R_PREC,    intent(in) :: EtaCenter0, EtaCenter1, EtaCenter2
@@ -83,11 +83,11 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
   R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: Era, eca, nHIa, nHeIa, nHeIIa, Temp, rhoa, eha, vxa, vya, vza
   R_PREC, intent(out) :: Ersrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  integer, intent(out) :: ier
+  INTG_PREC, intent(out) :: ier
   
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: pi, h_nu0, etaconst
   R_PREC :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
   R_PREC :: cellXc, cellYc, cellZc

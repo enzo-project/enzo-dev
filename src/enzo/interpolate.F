@@ -31,7 +31,7 @@ c     parent    - parent field
 c     pdims(3)  - declared dimension of parent
 c     pend(3)   - ending dimension in parent in index units of grid
 c     pstart(3) - starting dimension in parent in index units of grid
-c     refine(3) - integer refinement factors
+c     refine(3) - INTG_PREC refinement factors
 c     work      - array of size Multiply[i=1,ndim][(gdims(i)/refine(i) + 1)] 
 c
 c  OUTPUTS:
@@ -46,14 +46,14 @@ c-----------------------------------------------------------------------
 c
 c  arguements
 c
-      integer imethod, iposflag, ndim, ierror
-      integer pdims(ndim), pstart(ndim), pend(ndim), refine(ndim),
+      INTG_PREC imethod, iposflag, ndim, ierror
+      INTG_PREC pdims(ndim), pstart(ndim), pend(ndim), refine(ndim),
      &        gdims(ndim), gstart(ndim)
       R_PREC    grid(1), parent(1), work(1)
 c
 c  locals
 c
-      integer i
+      INTG_PREC i
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

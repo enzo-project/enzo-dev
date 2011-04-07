@@ -60,13 +60,13 @@ c-----------------------------------------------------------------------
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, i1, i2, idim, idual, ipresfree, j1, j2, jdim
+      INTG_PREC gravity, i1, i2, idim, idual, ipresfree, j1, j2, jdim
       R_PREC    dt, eta1, gamma, pmin
       R_PREC    dls(idim,jdim),     drs(idim,jdim),    pbar(idim,jdim),
      &          pls(idim,jdim),     prs(idim,jdim),    ubar(idim,jdim),
@@ -74,13 +74,13 @@ c
 c
 c  local declarations
 c
-      integer i, j, n
+      INTG_PREC i, j, n
       R_PREC     cl(ijkn),    cr(ijkn), dpdul(ijkn), dpdur(ijkn),
      &         ps(ijkn),    ubl(ijkn),   ubr(ijkn),
      &         qa      ,     zl(ijkn),    zr(ijkn)
 
-      integer itok, jjj
-      integer mask(ijkn), jfail(ijkn)
+      INTG_PREC itok, jjj
+      INTG_PREC mask(ijkn), jfail(ijkn)
       R_PREC    old_ps(ijkn), delta_ps(ijkn)
       R_PREC    fails(ijkn)
 
@@ -102,7 +102,7 @@ c
 c
 c  parameters
 c
-      integer numiter
+      INTG_PREC numiter
       parameter( numiter = 8 )
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//////////////////////////////////

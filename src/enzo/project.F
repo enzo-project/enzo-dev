@@ -4,7 +4,7 @@ c////////////////////////  SUBROUTINE PROJECT  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine project(rank, i1, i2, i3, iline, pdim, field, line)
 c
-c  PROJECTS A 2 OR 3D INTEGER FIELD TO A LINE
+c  PROJECTS A 2 OR 3D INTG_PREC FIELD TO A LINE
 c
 c  written by: Greg Bryan
 c  date:       October, 1995

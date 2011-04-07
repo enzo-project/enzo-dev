@@ -28,7 +28,7 @@ c     parent      - parent field
 c     dim1,2,3    - declared dimension of parent
 c     start1,2,3  - starting index in parent in units of grid (one based)
 c     end1,2,3    - ending index in parent in units of grid (one based)
-c     refine1,2,3 - integer refinement factors
+c     refine1,2,3 - INTG_PREC refinement factors
 c     gdim1,2,3   - declared dimension of grid
 c     gstart1,2,3 - starting offset of refined region in grid (one based)
 c     wdim1,2,3   - work dimensions
@@ -47,14 +47,14 @@ c-----------------------------------------------------------------------
       implicit NONE
 #include "fortran_types.def"
 c
-      integer MAX_REFINE, ijkn
+      INTG_PREC MAX_REFINE, ijkn
       parameter (MAX_REFINE = 32, ijkn = MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, dim3, start1, start2, start3, 
+      INTG_PREC dim1, dim2, dim3, start1, start2, start3, 
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3,
      &        wdim1, wdim2, wdim3, ierror
@@ -63,7 +63,7 @@ c
 c
 c  locals
 c
-      integer i, i1, j, j1, k, k1, pstart1, pstart2, pstart3, 
+      INTG_PREC i, i1, j, j1, k, k1, pstart1, pstart2, pstart3, 
      &        pdim1, pdim2, pdim3
       R_PREC    chi1, chi2, chi3, 
      &        delf0, delf1, delf1new, delf2, delf2new, delf3, delf3new,
@@ -71,7 +71,7 @@ c
       parameter (one=1.d0)
 c
       R_PREC    fbar_save(ijkn)
-      integer nneg
+      INTG_PREC nneg
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

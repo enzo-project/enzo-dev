@@ -23,19 +23,19 @@ c     M          - number of systems to solve
 c
 c  OUTPUT ARGUMENTS: 
 c     xvec       - solution NxM matrix
-c     ier        - integer return flag (0=>failure, 1=>success)
+c     ier        - INTG_PREC return flag (0=>failure, 1=>success)
 c
 c=======================================================================
       implicit none
 #include "fortran_types.def"
 c
 c  argument declarations
-      integer  N, M
-      integer  ier
+      INTG_PREC  N, M
+      INTG_PREC  ier
       R_PREC  Amat(N*N), xvec(N*M), bvec(N*M)
 c
 c  locals
-      integer  i, ierr, ipiv(N)
+      INTG_PREC  i, ierr, ipiv(N)
 c
 c=======================================================================
 c
@@ -1419,7 +1419,7 @@ c     modified 12/3/93, array(1) declarations changed to array(*)
 #include "fortran_types.def"
 c
       R_PREC dx(*),dy(*),dtemp
-      integer i,incx,incy,ix,iy,m,mp1,n
+      INTG_PREC i,incx,incy,ix,iy,m,mp1,n
 c
       if(n.le.0)return
       if(incx.eq.1.and.incy.eq.1)go to 20
@@ -1481,7 +1481,7 @@ c     modified 12/3/93, array(1) declarations changed to array(*)
 #include "fortran_types.def"
 c
       R_PREC da,dx(*)
-      integer i,incx,m,mp1,n,nincx
+      INTG_PREC i,incx,m,mp1,n,nincx
 c
       if( n.le.0 .or. incx.le.0 )return
       if(incx.eq.1)go to 20
@@ -1901,7 +1901,7 @@ c
 c
 c=======================================================================
 c
-      integer function e_idamax(n,dx,incx)
+      INTG_PREC function e_idamax(n,dx,incx)
 c
 c     finds the index of element having max. absolute value.
 c     jack dongarra, linpack, 3/11/78.
@@ -1909,7 +1909,7 @@ c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
       R_PREC dx(*),dmax
-      integer i,incx,ix,n
+      INTG_PREC i,incx,ix,n
 c
       e_idamax = 0
       if( n.lt.1 .or. incx.le.0 ) return

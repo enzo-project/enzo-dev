@@ -50,7 +50,7 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, idim, j1, j2, jdim
+      INTG_PREC i1, i2, idim, j1, j2, jdim
       R_PREC    eta1, eta2, gamma, pmin
       R_PREC dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
      &     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
@@ -58,7 +58,7 @@ c
 c
 c  locals
 c
-      integer i, j, im1, ip1
+      INTG_PREC i, j, im1, ip1
       R_PREC    demax, ge1, ge2, ke
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

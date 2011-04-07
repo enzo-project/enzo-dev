@@ -20,16 +20,16 @@ MODULE singleton
   !
   !   fft(array, dim, inv, stat)           generic transform function
   !    CMPLX_PREC(fftkind), DIMENSION(:,...,:), INTENT(IN)           :: array
-  !    INTEGER(fftkind), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
+  !    INTG_PREC(fftkind), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
   !    LOGICAL,                              INTENT(IN),  OPTIONAL:: inv
-  !    INTEGER(fftkind),                     INTENT(OUT), OPTIONAL:: stat
+  !    INTG_PREC(fftkind),                     INTENT(OUT), OPTIONAL:: stat
   !
   !   fftn(array, shape, dim, inv, stat)   in place transform subroutine
   !    CMPLX_PREC(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
-  !    INTEGER(fftkind), DIMENSION(:), INTENT(IN)           :: shape
-  !    INTEGER(fftkind), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
+  !    INTG_PREC(fftkind), DIMENSION(:), INTENT(IN)           :: shape
+  !    INTG_PREC(fftkind), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
   !    LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
-  !    INTEGER(fftkind),               INTENT(OUT), OPTIONAL:: stat
+  !    INTG_PREC(fftkind),               INTENT(OUT), OPTIONAL:: stat
   !
   !
   ! Formal Parameters:
@@ -60,7 +60,7 @@ MODULE singleton
   !
   ! Optional Parameters:
   !
-  !   dim      One dimensional integer array, containing the dimensions to be
+  !   dim      One dimensional INTG_PREC array, containing the dimensions to be
   !            transformed. Default is (/1,...,N/) with N being the rank of
   !            array, i.e. complete transform. dim can restrict transformation
   !            to a subset of available dimensions. Its size must not exceed the
@@ -150,15 +150,15 @@ MODULE singleton
 #endif
 
 #ifdef SMALL_INTS
-  INTEGER*4 :: ITYPE_DUMMY
+  INTG_PREC*4 :: ITYPE_DUMMY
 #endif
 
 #ifdef LARGE_INTS
-  INTEGER*8 :: ITYPE_DUMMY
+  INTG_PREC*8 :: ITYPE_DUMMY
 #endif
 
-  INTEGER, PARAMETER:: fftkind = KIND(TYPE_DUMMY)  !--- adjust here for other precisions
-  INTEGER, PARAMETER:: fftintk = KIND(ITYPE_DUMMY) !--- adjust here for other precisions
+  INTG_PREC, PARAMETER:: fftkind = KIND(TYPE_DUMMY)  !--- adjust here for other precisions
+  INTG_PREC, PARAMETER:: fftintk = KIND(ITYPE_DUMMY) !--- adjust here for other precisions
 
   REAL(fftkind), PARAMETER:: sin60 = 0.86602540378443865_fftkind
   REAL(fftkind), PARAMETER:: cos72 = 0.30901699437494742_fftkind
@@ -182,13 +182,13 @@ CONTAINS
   FUNCTION fft1d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), DIMENSION(SIZE(array, 1)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(1):: arrshape
+    INTG_PREC(fftintk), DIMENSION(1):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -202,13 +202,13 @@ CONTAINS
   FUNCTION fft2d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:,:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:),   INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:),   INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                          INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),                 INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),                 INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), DIMENSION(SIZE(array, 1), SIZE(array, 2)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(2):: arrshape
+    INTG_PREC(fftintk), DIMENSION(2):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -222,14 +222,14 @@ CONTAINS
   FUNCTION fft3d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:,:,:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:),     INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:),     INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                            INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),                   INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),                   INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), &
          DIMENSION(SIZE(array, 1), SIZE(array, 2), SIZE(array, 3)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(3):: arrshape
+    INTG_PREC(fftintk), DIMENSION(3):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -243,14 +243,14 @@ CONTAINS
   FUNCTION fft4d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:,:,:,:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                              INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),                     INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),                     INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(4):: arrshape
+    INTG_PREC(fftintk), DIMENSION(4):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -264,15 +264,15 @@ CONTAINS
   FUNCTION fft5d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:,:,:,:,:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:),         INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:),         INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                                INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),                       INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),                       INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4), &
          SIZE(array, 5)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(5):: arrshape
+    INTG_PREC(fftintk), DIMENSION(5):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -286,15 +286,15 @@ CONTAINS
   FUNCTION fft6d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:,:,:,:,:,:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:),           INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:),           INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                                  INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),                         INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),                         INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4), &
          SIZE(array, 5), SIZE(array, 6)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(6):: arrshape
+    INTG_PREC(fftintk), DIMENSION(6):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -308,15 +308,15 @@ CONTAINS
   FUNCTION fft7d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(:,:,:,:,:,:,:), INTENT(IN)           :: array
-    INTEGER(fftintk), DIMENSION(:),             INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:),             INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                                    INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),                           INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),                           INTENT(OUT), OPTIONAL:: stat
     !--- function result
     CMPLX_PREC(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4), &
          SIZE(array, 5), SIZE(array, 6), SIZE(array, 7)):: ft
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(7):: arrshape
+    INTG_PREC(fftintk), DIMENSION(7):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -330,15 +330,15 @@ CONTAINS
   SUBROUTINE fftn(array, shape, dim, inv, stat)
     !--- formal parameters
     CMPLX_PREC(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
-    INTEGER(fftintk), DIMENSION(:), INTENT(IN)           :: shape
-    INTEGER(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
+    INTG_PREC(fftintk), DIMENSION(:), INTENT(IN)           :: shape
+    INTG_PREC(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
-    INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(SIZE(shape)):: d
+    INTG_PREC(fftintk), DIMENSION(SIZE(shape)):: d
     !--- local scalars
     LOGICAL      :: inverse
-    INTEGER(fftintk) :: i, ndim, ntotal
+    INTG_PREC(fftintk) :: i, ndim, ntotal
     REAL(fftkind):: scale
     !--- intrinsics used
     INTRINSIC PRESENT, MIN, PRODUCT, SIZE, SQRT
@@ -375,19 +375,19 @@ CONTAINS
 
   SUBROUTINE fftradix(array, ntotal, npass, nspan, inv, stat)
     !--- formal parameters
-    INTEGER(fftintk),               INTENT(IN)           :: ntotal, npass, nspan
+    INTG_PREC(fftintk),               INTENT(IN)           :: ntotal, npass, nspan
     CMPLX_PREC(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
     LOGICAL,                        INTENT(IN)           :: inv
-    INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
+    INTG_PREC(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- local arrays
-    INTEGER(fftintk), DIMENSION(BIT_SIZE(0))     :: factor
+    INTG_PREC(fftintk), DIMENSION(BIT_SIZE(0))     :: factor
     CMPLX_PREC(fftkind), DIMENSION(:), ALLOCATABLE  :: ctmp
     REAL(fftkind),    DIMENSION(:), ALLOCATABLE  :: sine, cosine
-    INTEGER(fftintk), DIMENSION(:), ALLOCATABLE  :: perm
+    INTG_PREC(fftintk), DIMENSION(:), ALLOCATABLE  :: perm
     !--- local scalars
-    INTEGER(fftintk) :: ii, kspan, ispan
-    INTEGER(fftintk) :: j, jc, jf, jj, k, k1, k2, k3, k4, kk, kt, nn, ns, nt
-    INTEGER(fftintk) :: maxfactor, nfactor, nperm
+    INTG_PREC(fftintk) :: ii, kspan, ispan
+    INTG_PREC(fftintk) :: j, jc, jf, jj, k, k1, k2, k3, k4, kk, kt, nn, ns, nt
+    INTG_PREC(fftintk) :: maxfactor, nfactor, nperm
     REAL(fftkind)   :: s60, c72, s72, pi2
     REAL(fftkind)   :: radf
     REAL(fftkind)   :: c1, c2, c3, cd, ak

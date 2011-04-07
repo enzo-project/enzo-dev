@@ -6,13 +6,13 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, dir
+      INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1,n2)
       external :: method
 
       CMPLX_PREC, allocatable :: y(:,:)
-      integer :: n(3)
-      integer :: i,j
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j
 
       if( rank /= 2 ) then
         write(0,*) '2D wrapper rank != 2'
@@ -56,8 +56,8 @@
 #include "fortran_types.def"
 
       CMPLX_PREC :: a(*)
-      integer :: n(3)
-      integer :: dir
+      INTG_PREC :: n(3)
+      INTG_PREC :: dir
       external :: method
 
       call method(a, n(1), dir)

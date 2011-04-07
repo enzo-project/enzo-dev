@@ -98,17 +98,17 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, idiff, idual, iflatten, isteepen, ipresfree,
+      INTG_PREC gravity, idiff, idual, iflatten, isteepen, ipresfree,
      &        in, jn, kn, is, ie, j, js, je, ks, ke, nsubgrids,
      &        ncolor, coloff(ncolor)
       R_PREC    dt, eta1, eta2, gamma, pmin, vgz
       R_PREC    d(in,jn,kn), e(in,jn,kn), u(in,jn,kn), v(in,jn,kn), 
      &        w(in,jn,kn),ge(in,jn,kn), gr_acc(in,jn,kn),
      &        dx(in), dy(jn), dz(kn)
-      integer fistart(nsubgrids*3), fiend(nsubgrids*3),
+      INTG_PREC fistart(nsubgrids*3), fiend(nsubgrids*3),
      &        fjstart(nsubgrids*3), fjend(nsubgrids*3), 
      &        lface(nsubgrids*3), rface(nsubgrids*3)
-      integer dindex(nsubgrids*6), eindex(nsubgrids*6),
+      INTG_PREC dindex(nsubgrids*6), eindex(nsubgrids*6),
      &        uindex(nsubgrids*6), vindex(nsubgrids*6),
      &        windex(nsubgrids*6),geindex(nsubgrids*6),
      &        colindex(nsubgrids*6,ncolor)
@@ -132,13 +132,13 @@ c
 c
 c  parameters
 c
-      integer zsweep
+      INTG_PREC zsweep
       parameter (zsweep = 3)
 c
 c  locals
 c
-      integer i, ic, idim, k, n, nxz, nyz, nzz, offset
-      integer i1, i2
+      INTG_PREC i, ic, idim, k, n, nxz, nyz, nzz, offset
+      INTG_PREC i1, i2
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////
 c=======================================================================

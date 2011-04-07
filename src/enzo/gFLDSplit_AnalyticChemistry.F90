@@ -30,11 +30,11 @@ subroutine gFLDSplit_AnalyticChemistry(Er, ec, HI, HeI, HeII, Er0, ec0,  &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, PType, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, PType, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   R_PREC,    intent(in) :: CompA, CompXray, CompTemp
@@ -184,11 +184,11 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   R_PREC,    intent(in) :: CompA, CompXray, CompTemp
@@ -208,7 +208,7 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
 
 !--------------
 ! locals
-  integer :: i, j, k, l, sweeps, sweeps2
+  INTG_PREC :: i, j, k, l, sweeps, sweeps2
   REAL*8  :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
   REAL*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
   REAL*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
@@ -645,11 +645,11 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   R_PREC,    intent(in) :: DenUnits, VelUnits, ErUnits, NiUnits, ecScale
@@ -662,7 +662,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
 
 !--------------
 ! locals
-  integer :: i, j, k, Tidx, Tidxp
+  INTG_PREC :: i, j, k, Tidx, Tidxp
   REAL*8  :: KEconst, eint, HydFrac, deltat, int1, int2, int3
   REAL*8  :: dUn, rUn, nUn, res_Er, res_HI, aval, dadt, Ernew, HInew
   REAL*8  :: Erold, HIold, rhoval, HIsrc, T, lamT, lTemp
@@ -813,11 +813,11 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, PType, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, PType, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: dt, gamma
   R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits, &
@@ -828,7 +828,7 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
 
 !--------------
 ! locals
-  integer :: i, j, k, l
+  INTG_PREC :: i, j, k, l
   REAL*8  :: zr, KEconst, eint, gam, deltat, aUn, dUn, vUn, lUn, tUn, rUn
   REAL*8  :: eUn, nUn, kap, res_Er, res_ec, aval, dadt, Ernew, ecnew
   REAL*8  :: Erold, ecold, rhoval, ecsrc
@@ -981,11 +981,11 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
   R_PREC,    intent(in) :: CompA, CompXray, CompTemp
@@ -1006,7 +1006,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
 
 !--------------
 ! locals
-  integer :: ijk, i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
+  INTG_PREC :: ijk, i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
   REAL*8  :: chmin, chmax, chsum, eint, gam
   REAL*8  :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
   REAL*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
@@ -1554,8 +1554,8 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: Model, PType, ESpectrum
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, PType, ESpectrum
+  INTG_PREC, intent(out) :: ier
   REAL*8,  intent(in) :: a, adot
   REAL*8,  intent(in) :: dt, gamma, kappa
   REAL*8,  intent(in) :: DenUnits, TimeUnits, LenUnits, &

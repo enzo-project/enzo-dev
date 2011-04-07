@@ -33,7 +33,7 @@ c    i1,i2  - starting and ending addresses for dimension 1
 c    ibvdim1,2 - dimension of niib, noib, eiib, eoib
 c    idim   - declared leading dimension of slices
 c    idir   - direction of sweep w.r.t. 3d arrays (1=x, 2=y, 3=z)
-c    isteep - integer flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
+c    isteep - INTG_PREC flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
 c    j1,j2  - starting and ending addresses for dimension 2
 c    jdim   - declared second dimension of slices
 c    k      - index in dimension 3
@@ -57,16 +57,16 @@ c
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, ibvdim1, ibvdim2, idim, idir, idual, isteep,
+      INTG_PREC i1, i2, ibvdim1, ibvdim2, idim, idir, idual, isteep,
      &        j1, j2, jdim, k
-c      integer niib(ibvdim1,ibvdim2), noib(ibvdim1,ibvdim2)
+c      INTG_PREC niib(ibvdim1,ibvdim2), noib(ibvdim1,ibvdim2)
 c      R_PREC    eiib(ibvdim1,ibvdim2), eoib(ibvdim1,ibvdim2)
       R_PREC  dt, gamma, vgx
       R_PREC  dslice(idim,jdim),     dxi(idim,jdim),  pslice(idim,jdim),
@@ -78,7 +78,7 @@ c      R_PREC    eiib(ibvdim1,ibvdim2), eoib(ibvdim1,ibvdim2)
 c
 c  local declarations
 c
-      integer i, j
+      INTG_PREC i, j
       R_PREC    qa, qb, qc, qd, qe, s1, s2, udtim1, udti, ft,
      &        dplus, pplus, uplus, vplus, wplus, eplus, geplus,
      &        dmnus, pmnus, umnus, vmnus, wmnus, emnus, gemnus, yy, one

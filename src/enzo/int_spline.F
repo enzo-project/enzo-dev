@@ -37,14 +37,14 @@ c
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn = MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
+      INTG_PREC ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        start1, start2, start3, refine1, refine2, refine3
       R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
      &        temp1(ddim1, ddim2/refine2+2), 
@@ -52,7 +52,7 @@ c
 c
 c  locals
 c
-      integer i, j, k, i1, j1, k1, i2, j2, k2
+      INTG_PREC i, j, k, i1, j1, k1, i2, j2, k2
       R_PREC work1(ijkn), work2(ijkn), work3(ijkn), work4(ijkn)
 c     
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -153,7 +153,7 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer i, j, n, refine
+      INTG_PREC i, j, n, refine
       R_PREC y(n), y2(n), result((n-2)*refine), a, b, step, x
 c
       step = 1.0/refine
@@ -182,7 +182,7 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer i, n
+      INTG_PREC i, n
       R_PREC y(n), y2(n), work(n), p
 c
 c     hardwire for natural derivatives (zero 2nd deriv at ends)

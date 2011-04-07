@@ -66,7 +66,7 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
 !     EgOld      - Gray radiation energy density (old time step)
 !     Temp       - fluid temperature
 !     kappaE     - energy mean absorption coefficient in cell
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -99,12 +99,12 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in)  :: Ny, NGyl, NGyr, ylface, yrface
-  integer, intent(in)  :: Nz, NGzl, NGzr, zlface, zrface
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr, zlface, zrface
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC, intent(in) :: aUnits, LenUnits, EgUnits
   R_PREC, intent(in) :: dx, dy, dz
@@ -117,7 +117,7 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
 
   !--------------
   ! locals
-  integer  :: i, j, k
+  INTG_PREC  :: i, j, k
   R_PREC :: c, pi, dxi, dyi, dzi, Dlim
   R_PREC :: Egf, omega, R, sigT, AGradEg, StBz, Tf, Rmin
   R_PREC, dimension(3) :: GradEgL, GradEgR, DEgL, DEgR
@@ -472,7 +472,7 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
 !     EgOld      - Gray radiation energy density (old time step)
 !     Temp       - fluid temperature
 !     kappaE     - energy mean absorption coefficient in cell
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -505,11 +505,11 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in)  :: Ny, NGyl, NGyr, ylface, yrface
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC, intent(in) :: aUnits, LenUnits, EgUnits
   R_PREC, intent(in) :: dx, dy
@@ -520,7 +520,7 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
 
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: c, pi, dxi, dyi, Dlim
   R_PREC :: Egf, omega, R, sigT, AGradEg, StBz, Tf, Rmin
   R_PREC, dimension(2) :: GradEgL, GradEgR, DEgL, DEgR
@@ -786,7 +786,7 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
 !     EgOld      - Gray radiation energy density (old time step)
 !     Temp       - fluid temperature
 !     kappaE     - energy mean absorption coefficient in cell
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -819,10 +819,10 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a
   R_PREC, intent(in) :: aUnits, LenUnits, EgUnits
   R_PREC, intent(in) :: dx
@@ -832,7 +832,7 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
 
   !--------------
   ! locals
-  integer  :: i
+  INTG_PREC  :: i
   R_PREC :: c, pi, dxi, Dlim
   R_PREC :: Egf, omega, R, sigT, AGradEg, StBz, Tf
   R_PREC :: GradEgL, GradEgR, DEgL, DEgR, Rmin

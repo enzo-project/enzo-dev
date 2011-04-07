@@ -54,11 +54,11 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: ESpectrum, ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: ESpectrum, ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a
   R_PREC,    intent(in) :: time, NGammaDot, EtaRadius
   R_PREC,    intent(in) :: EtaCenter(3)
@@ -68,7 +68,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
   
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: pi, h_nu0, etaconst, specconst
   R_PREC :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
   R_PREC :: cellXc, cellYc, cellZc

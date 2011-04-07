@@ -42,15 +42,15 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer dim1, dim2, dim3, npositions, ndim, addaspoints
+      INTG_PREC dim1, dim2, dim3, npositions, ndim, addaspoints
       P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
       R_PREC    mass(npositions), field(dim1, dim2, dim3), cellsize
 c
 c  locals
 c
-      integer iii, jjj, kkk
-      integer i1, j1, k1, n
+      INTG_PREC iii, jjj, kkk
+      INTG_PREC i1, j1, k1, n
       R_PREC    xpos, ypos, zpos, dx, dy, dz, fact
       P_PREC edge1, edge2, edge3, half
       parameter (half = 0.5001d0)
@@ -76,7 +76,7 @@ c           Compute the position of the central cell
 c
             xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
 c
-c           Convert this into an integer index
+c           Convert this into an INTG_PREC index
 c
             i1  = int(xpos + 0.5d0)
 c
@@ -104,7 +104,7 @@ c
             xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
             ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
 c
-c           Convert this into an integer index
+c           Convert this into an INTG_PREC index
 c
             i1  = int(xpos + 0.5d0)
             j1  = int(ypos + 0.5d0)
@@ -143,7 +143,7 @@ c
             ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
             zpos = min(max((posz(n) - leftedge(3))*fact, half), edge3)
 c
-c           Convert this into an integer index
+c           Convert this into an INTG_PREC index
 c
             i1  = int(xpos + 0.5d0)
             j1  = int(ypos + 0.5d0)
@@ -163,7 +163,7 @@ c
                ypos = min(max((posy(n)- leftedge(2))*fact, 0.), edge2)
                zpos = min(max((posz(n)- leftedge(3))*fact, 0.), edge3)
 c     
-c     Convert this into an integer index
+c     Convert this into an INTG_PREC index
 c     
                i1  = int(xpos)+1
                j1  = int(ypos)+1
@@ -184,7 +184,7 @@ c
                ypos = min(max((posy(n) - leftedge(2))*fact, half),edge2)
                zpos = min(max((posz(n) - leftedge(3))*fact, half),edge3)
 c     
-c     Convert this into an integer index
+c     Convert this into an INTG_PREC index
 c     
                i1  = int(xpos + 0.5)
                j1  = int(ypos + 0.5)

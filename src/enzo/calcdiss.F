@@ -113,13 +113,13 @@ c-----------------------------------------------------------------------
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer dimx, dimy, dimz, i1, i2, idiff, idim, idir, iflatten, 
+      INTG_PREC dimx, dimy, dimz, i1, i2, idiff, idim, idir, iflatten, 
      &        j1, j2, jdim, k, kdim, nzz
       R_PREC    gamma, dt, dx(idim), dy(jdim), dz(kdim)
       R_PREC    dslice(idim,jdim), eslice(idim,jdim), uslice(idim,jdim),
@@ -128,7 +128,7 @@ c
 c
 c  locals
 c
-      integer i, j, nyz, is, isp, ism
+      INTG_PREC i, j, nyz, is, isp, ism
       R_PREC    cj2s, di(ijkn), difftemp(ijkn), flattemp(ijkn),
      &        kappa(ijkn), kappa_tilde, omega(ijkn),
      &        qa, qb, qc, s, sigma(ijkn),

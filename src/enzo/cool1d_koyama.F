@@ -18,7 +18,7 @@ c  From Koyama & Inutsuka 2006, arxiv: asrto-ph 0605528v1
 c
 c  Arguments
 c
-      integer in, jn, kn, is, ie, j, k,
+      INTG_PREC in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter
       R_PREC    temstart, temend, utem, uxyz, urho, utim,
      &        gamma, coola(nratec)
@@ -36,7 +36,7 @@ c
 c
 c  Locals
 c
-      integer i
+      INTG_PREC i
       R_PREC thalf
 c
 c  Slice locals

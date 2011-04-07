@@ -27,7 +27,7 @@ c     parent      - parent field
 c     dim1,2      - declared dimension of parent
 c     start1,2    - starting index in parent in units of grid (one based)
 c     end1,2      - ending index in parent in units of grid (one based)
-c     refine1,2   - integer refinement factors
+c     refine1,2   - INTG_PREC refinement factors
 c     gdim1,2     - declared dimension of grid
 c     gstart1,2   - starting offset of refined region in grid (one based)
 c     wdim1,2     - work dimensions
@@ -46,14 +46,14 @@ c-----------------------------------------------------------------------
       implicit NONE
 #include "fortran_types.def"
 c
-      integer MAX_REFINE
+      INTG_PREC MAX_REFINE
       parameter (MAX_REFINE = 32)
 c
 c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, start1, start2,
+      INTG_PREC dim1, dim2, start1, start2,
      &        end1, end2, refine1, refine2,
      &        gdim1, gdim2, gstart1, gstart2, 
      &        wdim1, wdim2
@@ -62,7 +62,7 @@ c
 c
 c  locals
 c
-      integer i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
+      INTG_PREC i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
       R_PREC    delf0, delf1, fbar, fx, fy, one
       parameter (one=1.d0)
 c

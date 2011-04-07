@@ -31,13 +31,13 @@ c                         own routine
 c
       implicit none
 #include "fortran_types.def"
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c     Arguments
 c
-      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
+      INTG_PREC i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
      $     ifallback
       R_PREC gamma, dt, eta1
       R_PREC ubar(idim,jdim), pbar(idim,jdim), dx(idim),
@@ -58,7 +58,7 @@ c
 c-----------------------------------------------------------------------
 c     Locals
 c
-      integer i, j, n
+      INTG_PREC i, j, n
       R_PREC qa, qb, qc, frac, one
       R_PREC sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
      $     dbar(ijkn), cbar(ijkn), l0(ijkn), lbar(ijkn), 

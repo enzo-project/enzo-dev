@@ -1,8 +1,8 @@
-      integer function power_of_2(in)
+      INTG_PREC function power_of_2(in)
 
       implicit none
 
-      integer in, n, m
+      INTG_PREC in, n, m
 
       if( in .lt. 1 ) then
         power_of_2 = -1

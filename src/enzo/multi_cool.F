@@ -57,7 +57,7 @@
 
 !  Arguments
 
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, n_xe, iradtrans,
      &        imcool, igammah
@@ -72,7 +72,7 @@
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
       R_PREC    photogamma(in,jn,kn)
-      integer ih2optical, iciecool
+      INTG_PREC ih2optical, iciecool
       R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
@@ -89,8 +89,8 @@
 
 !  Cloudy cooling data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
-      integer clGridDim(clGridRank)
+      INTG_PREC icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      INTG_PREC clGridDim(clGridRank)
       R_PREC clMetNorm, clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
@@ -100,7 +100,7 @@
 
 !  Parameters
 
-      integer itmax, ijk
+      INTG_PREC itmax, ijk
       parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
@@ -118,13 +118,13 @@
 
 !  Locals
 
-      integer i, j, k, n, iter
+      INTG_PREC i, j, k, n, iter
       R_PREC dom, energy
       R_PREC dt2, ttmin, comp1, comp2
 
 !  Row locals
  
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
       double precision edot(ijk)

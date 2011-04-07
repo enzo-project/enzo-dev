@@ -57,13 +57,13 @@ c-----------------------------------------------------------------------
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
+      INTG_PREC i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
      $     ifallback
       R_PREC gamma, dt, eta1
       R_PREC dx(idim)
@@ -82,7 +82,7 @@ c
 c
 c  local declarations
 c
-      integer i, j, n
+      INTG_PREC i, j, n
       R_PREC sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
      $     hroe, tl, tr, dl, dr, q1, dub, delu, energy, qc,
      $     gamma1i, csl0, csr0

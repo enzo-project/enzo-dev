@@ -46,7 +46,7 @@ c
 c
 c  argument declarations
 c
-      integer idim, i1, i2, iflatten, isteep
+      INTG_PREC idim, i1, i2, iflatten, isteep
       R_PREC gamma
       R_PREC dslice(idim), uslice(idim), pslice(idim), dxdt2(idim),
      $     drho(idim), rhol(idim), rhor(idim), dla(idim), dra(idim),
@@ -59,7 +59,7 @@ c
 c
 c  local declarations (arrays passed as temps)
 c
-      integer i
+      INTG_PREC i
       R_PREC limit, gamma1i
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////

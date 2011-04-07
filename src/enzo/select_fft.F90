@@ -5,10 +5,10 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, dim1, dim2, dim3, dir
+      INTG_PREC :: rank, dim1, dim2, dim3, dir
       CMPLX_PREC :: x(dim1,dim2,dim3)
 
-      integer :: method
+      INTG_PREC :: method
 
       character (len=8) :: choice
 

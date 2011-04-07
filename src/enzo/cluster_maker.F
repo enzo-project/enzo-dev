@@ -81,8 +81,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, ctype, iradtrans, imulti
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum, ctype, iradtrans, imulti
       R_PREC    formleft(3), formright(3)
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
@@ -93,15 +93,15 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
+      INTG_PREC type(nmax)
       R_PREC    odthresh, masseff, starmass, min_tdyn, efficiency
       R_PREC    lifetime
       R_PREC    metalcrit
 c
 c  Locals:
 c
-      integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
-      integer  dim
+      INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
+      INTG_PREC  dim
       R_PREC   div, tdyn, dtot, wgt
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum, min_temp

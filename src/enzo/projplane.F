@@ -59,7 +59,7 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gdim1, gdim2, gdim3, ifield, iflag, ismooth, 
+      INTG_PREC gdim1, gdim2, gdim3, ifield, iflag, ismooth, 
      &        pdim1, pdim2, projdim, npstart, npend
       R_PREC    weight, fracleft, fracright
       R_PREC    grid1(gdim1,gdim2,gdim3), grid2(gdim1,gdim2,gdim3),
@@ -69,7 +69,7 @@ c
 c
 c  locals
 c
-      integer i, i0, j, j0, k0, n, istart(3), iend(3)
+      INTG_PREC i, i0, j, j0, k0, n, istart(3), iend(3)
       R_PREC    sample1, sample2, dx, dy, dz, weight1
       R_PREC  xpos, ypos, zpos
 c

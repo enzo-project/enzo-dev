@@ -31,7 +31,7 @@ c    FREQDEL  - space between frequency bins, in log10(eV)
 c    NFREQT   - Number of temperature bins for emission calculation
 c    FREQTDEL - space between temperature bins, in log10(K)
 c    TMIN     - minimum temperature bin, in log10(K)
-c    iradshield - integer flag indicating if approximate radiative
+c    iradshield - INTG_PREC flag indicating if approximate radiative
 c                 shielding should be used (0 - no, 1 - yes)
 c    AAA      - original expansion factor (were AAA=1 means z=0)
 c    ANEW     - new expansion factor
@@ -76,7 +76,7 @@ c
 c
 c  Arguments
 c
-      integer NFREQ, NFREQT
+      INTG_PREC NFREQ, NFREQT
       R_PREC    FREQDEL, FREQTDEL, TMIN, DT1, JNU(NFREQ), INU(NFREQ),
      &        JNUG(NFREQ), JNUS(NFREQ), JNUQ(NFREQ),
      &        INUG(NFREQ), INUS(NFREQ), INUQ(NFREQ),
@@ -92,7 +92,7 @@ c
 c
 c  Locals
 c
-      integer N11, N22, NSHFT, NUPP, NLOW
+      INTG_PREC N11, N22, NSHFT, NUPP, NLOW
       R_PREC    FNU, TEMP, SUB2, SUB3, SUB4, UFF, UFB, DELTAOA, ETA,
      &        ZR, COEFUV1, COEFUV2, DTST, FKAPA
 c

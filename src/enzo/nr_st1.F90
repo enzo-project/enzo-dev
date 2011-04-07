@@ -3,10 +3,10 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
-      integer :: n(3)
+      INTG_PREC :: n(3)
       R_PREC :: factor
 
       factor = 1.0/REAL(n1)

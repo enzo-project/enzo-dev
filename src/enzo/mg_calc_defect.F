@@ -36,14 +36,14 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ndim, dim1, dim2, dim3
+      INTG_PREC ndim, dim1, dim2, dim3
       R_PREC    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3),
      &        defect(dim1, dim2, dim3), norm
       REAL*8  sum
 c
 c  locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
       R_PREC    h1, h2, h3
       
 #if defined(GRAVITY_4S) && !defined(GRAVITY_6S)

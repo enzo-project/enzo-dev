@@ -95,11 +95,11 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, ESpectrum, NTempBins, AnalyticChem
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Model, Nchem, ESpectrum, NTempBins, AnalyticChem
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in)  :: time, dx, dy, dz, gamma, HFrac
   R_PREC,    intent(in)  :: CompA, Comp_xray, Comp_temp
@@ -121,7 +121,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 
 !--------------
 ! locals
-  integer :: i, j, k, Tidx, Tidxp
+  INTG_PREC :: i, j, k, Tidx, Tidxp
   R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac
   R_PREC :: k1, k2, k3, k4, k5, k6
   R_PREC :: aval, afac, grey, c, hp, mp, zr, gam_1, StBz, pi

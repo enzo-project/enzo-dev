@@ -3,9 +3,9 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n, dir
+      INTG_PREC :: n, dir
       R_PREC :: a(2*n)
-      integer :: i
+      INTG_PREC :: i
 
       if( dir == -1 ) then
         call fft66(a(1),a(2),n,n,n,-2)

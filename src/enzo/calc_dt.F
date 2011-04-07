@@ -51,7 +51,7 @@ c
 c
 c     Arguments
 c
-      integer idim, jdim, kdim, i1, i2, j1, j2, k1, k2, rank, ipfree,
+      INTG_PREC idim, jdim, kdim, i1, i2, j1, j2, k1, k2, rank, ipfree,
      &        ihydro
       P_PREC dx(idim), dy(jdim), dz(kdim)
       R_PREC    dt, vgx, vgy, vgz, gamma, aye, C2, dtviscous
@@ -60,7 +60,7 @@ c
 c
 c     Locals
 c
-      integer i,j,k
+      INTG_PREC i,j,k
       R_PREC    cs, dt1
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////

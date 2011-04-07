@@ -41,7 +41,7 @@ c
 c
 c     Arguments
 c
-      integer isize, idual, imethod, rank
+      INTG_PREC isize, idual, imethod, rank
       R_PREC    gamma, coef, rho
       R_PREC    d(isize), p(isize), e(isize), ge(isize),
      &        u(isize), v(isize), w(isize), pdual(isize),
@@ -52,7 +52,7 @@ c
 c
 c     Locals
 c
-      integer i
+      INTG_PREC i
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

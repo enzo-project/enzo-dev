@@ -79,8 +79,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, ctype, iradtrans
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum, ctype, iradtrans
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -90,13 +90,13 @@ c
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
+      INTG_PREC type(nmax)
       R_PREC    odthresh, masseff, starmass, mintdyn, h2crit, lifetime
       R_PREC    metalcrit
 c
 c  Locals:
 c
-      integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
+      INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
       R_PREC   div, tdyn, dtot, wgt
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
@@ -414,7 +414,7 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod, ctype
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod, ctype
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
@@ -424,11 +424,11 @@ c
       P_PREC xp(npart), yp(npart), zp(npart)
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), life(npart), tcp(npart), metalf(npart)
-      integer type(npart)
+      INTG_PREC type(npart)
 c
 c  Locals
 c
-      integer i, j, k, n
+      INTG_PREC i, j, k, n
       R_PREC energy, lum, sn_nrg, m_eject, yield, dratio, m1
       R_PREC lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
       double precision msolar

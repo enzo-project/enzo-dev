@@ -57,7 +57,7 @@ c
 c
 c  argument declarations
 c
-      integer idim, i1, i2, iflatten, isteep, iposrec
+      INTG_PREC idim, i1, i2, iflatten, isteep, iposrec
       R_PREC gamma
       R_PREC c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
      &     char1(idim), char2(idim), c0(idim)
@@ -78,7 +78,7 @@ c
 c
 c  local declarations (arrays passed as temps)
 c
-      integer i, m, n
+      INTG_PREC i, m, n
       R_PREC temp1, temp2, dxdt, gamma1, pc, rhoc, du2, dplim, 
      $       limit, one
       R_PREC qplus(idim,5), qmnus(idim,5), qcent(idim,5), qvanl(idim,5),
@@ -240,11 +240,11 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer i1, i2, idim
+      INTG_PREC i1, i2, idim
       R_PREC qslice(idim), qplus(idim), qmnus(idim), qcent(idim), 
      $     qvanl(idim), c1(idim), c2(idim)
       
-      integer i
+      INTG_PREC i
 
       do i = i1-2, i2+2
          qplus(i) = qslice(i+1)-qslice(i  )
@@ -266,10 +266,10 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer n, i1, i2, idim
+      INTG_PREC n, i1, i2, idim
       R_PREC dqc(idim,5), dq(idim), rem(idim,5,5)
       
-      integer i, m
+      INTG_PREC i, m
 
       do i = i1-2, i2+2
          dq(i) = dqc(i,1) * rem(i,1,n)
@@ -288,11 +288,11 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer i1, i2, idim
+      INTG_PREC i1, i2, idim
       R_PREC qslice(idim), c3(idim), c4(idim), c5(idim), c6(idim)
       R_PREC dq(idim), ql(idim), qr(idim)
 
-      integer i
+      INTG_PREC i
 
       do i = i1-1, i2+2
          ql(i) = c3(i)*qslice(i-1) + c4(i)*qslice(i) +
@@ -310,10 +310,10 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer i1, i2, idim, iflatten
+      INTG_PREC i1, i2, idim, iflatten
       R_PREC qslice(idim), ql(idim), qr(idim), flatten(idim)
 
-      integer i
+      INTG_PREC i
       R_PREC temp1, temp2, temp3, temp22, temp23
 c
 c     Monotonize again (eqn 1.10)
@@ -366,12 +366,12 @@ c
       implicit none
 #include "fortran_types.def"
 c
-      integer i1, i2, idim
+      INTG_PREC i1, i2, idim
       R_PREC qslice(idim), ql(idim), qr(idim), char1(idim), char2(idim),
      $     c0(idim), dq(idim), q6(idim), qla(idim), qra(idim), 
      $     ql0(idim), qr0(idim)
 
-      integer i
+      INTG_PREC i
       R_PREC ft
       parameter(ft = 4.d0/3.d0)
 

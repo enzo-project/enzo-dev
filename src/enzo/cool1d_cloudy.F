@@ -71,7 +71,7 @@
 
 !  General Arguments
 
-      integer in, jn, kn, is, ie, j, k, ispecies
+      INTG_PREC in, jn, kn, is, ie, j, k, ispecies
 
       R_PREC    comp2, dom, zr
       R_PREC    d(in,jn,kn),
@@ -85,8 +85,8 @@
 
 !  Cloudy parameters and data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
-      integer clGridDim(clGridRank)
+      INTG_PREC icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      INTG_PREC clGridDim(clGridRank)
       R_PREC clMetNorm, clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
@@ -102,7 +102,7 @@
 
 !  Locals
 
-      integer i, q
+      INTG_PREC i, q
       R_PREC dclPar(clGridRank), inv_log10, log10_tCMB
 
 !  Slice locals
@@ -357,15 +357,15 @@
 
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(1)
+      INTG_PREC dataSize
+      INTG_PREC gridDim(1)
       R_PREC input1, value
       R_PREC gridPar1(gridDim(1)), dgridPar1
       R_PREC dataField(dataSize)
 
 !  Locals
 
-      integer index1
+      INTG_PREC index1
       R_PREC slope
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -399,8 +399,8 @@
 
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(2)
+      INTG_PREC dataSize
+      INTG_PREC gridDim(2)
       R_PREC input1, input2, value
       R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2
@@ -408,7 +408,7 @@
 
 !  Locals
 
-      integer index1, index2, int_index, q
+      INTG_PREC index1, index2, int_index, q
       R_PREC slope, value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -459,8 +459,8 @@
 
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(3)
+      INTG_PREC dataSize
+      INTG_PREC gridDim(3)
       R_PREC input1, input2, input3, value
       R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
@@ -469,7 +469,7 @@
 
 !  Locals
 
-      integer index1, index2, index3, int_index, q, w
+      INTG_PREC index1, index2, index3, int_index, q, w
       R_PREC slope, value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -536,8 +536,8 @@
 
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(4)
+      INTG_PREC dataSize
+      INTG_PREC gridDim(4)
       R_PREC input1, input2, input3, input4, value
       R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
@@ -547,7 +547,7 @@
 
 !  Locals
 
-      integer index1, index2, index3, index4, int_index, q, w, e
+      INTG_PREC index1, index2, index3, index4, int_index, q, w, e
       R_PREC slope, value4(2), value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -629,8 +629,8 @@
 
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(4)
+      INTG_PREC dataSize
+      INTG_PREC gridDim(4)
       R_PREC input1, input2, input3, input4, input5, value
       R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
@@ -641,7 +641,7 @@
 
 !  Locals
 
-      integer index1, index2, index3, index4, index5, 
+      INTG_PREC index1, index2, index3, index4, index5, 
      &     int_index, q, w, e, r, midPt, highPt
       R_PREC slope, value5(2), value4(2), value3(2), value2(2)
 

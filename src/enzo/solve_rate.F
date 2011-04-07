@@ -46,7 +46,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, ispecies,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, ispecies,
      &        iradshield, iradtype, iradtrans, irt_honly
       R_PREC    dt, aye, temstart, temend, utim, uaye, urho, uxyz,
      &        fh, dtoh
@@ -70,7 +70,7 @@ c
 c
 c  Parameters
 c
-      integer itmax, ijk
+      INTG_PREC itmax, ijk
       parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
@@ -89,7 +89,7 @@ c
 c
 c  Locals
 c
-      integer i, j, k, n, iter, n1
+      INTG_PREC i, j, k, n, iter, n1
       R_PREC qq, vibl, logtem0, logtem9, dlogtem
       R_PREC ttmin, comp1, comp2, c2, scoef, acoef, nh, dom, factor, x
       R_PREC HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
@@ -104,7 +104,7 @@ c
 c
 c  Slice temporaries (passed in)
 c 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
      &     dtit(ijk), ttot(ijk)
 c

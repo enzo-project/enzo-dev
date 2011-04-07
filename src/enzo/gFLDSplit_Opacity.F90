@@ -61,11 +61,11 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Model, Nchem
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: Model, Nchem
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a
   R_PREC,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
   R_PREC,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
@@ -78,7 +78,7 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC    :: mp, HIconst, HeIconst, HeIIconst
   R_PREC    :: rhoval, Tval
 

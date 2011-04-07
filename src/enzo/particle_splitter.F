@@ -73,8 +73,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart
-      integer  idual, imetal, imethod, iterations
+      INTG_PREC nx, ny, nz, ibuff, npart
+      INTG_PREC  idual, imetal, imethod, iterations
       R_PREC    dt, dx, z, separation
       R_PREC    d1, x1, v1, t1
       R_PREC    r(nx,ny,nz)
@@ -83,17 +83,17 @@ c
       R_PREC    upold(npart), vpold(npart), wpold(npart)
       R_PREC    mpold(npart), tdpold(npart), tcpold(npart)
       R_PREC    metalfold(npart)
-      integer typeold(npart)
-      integer npartnew, nmax, children, level, ran1_init
+      INTG_PREC typeold(npart)
+      INTG_PREC npartnew, nmax, children, level, ran1_init
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
       R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
+      INTG_PREC type(nmax)
       P_PREC rr_leftedge(3), rr_rightedge(3)
 c
 c  Locals
 c
-      integer n, m, ii, i, j, k
+      INTG_PREC n, m, ii, i, j, k
       R_PREC    xp0(children), yp0(children), zp0(children)
       R_PREC    rad, pi
       R_PREC    alpha(3)

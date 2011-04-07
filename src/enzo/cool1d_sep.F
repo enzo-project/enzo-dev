@@ -53,7 +53,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
+      INTG_PREC in, jn, kn, is, ie, j, k, nratec, imethod, idim,
      &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
      &        nfreq, iradshield, iradtype, imetalregen, 
      &        iradtrans, n_xe, nedot, imetal
@@ -88,7 +88,7 @@ c
 c
 c  Locals
 c
-      integer i, j1, iter, iradfield, tcmb_idx
+      INTG_PREC i, j1, iter, iradfield, tcmb_idx
       R_PREC dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
       R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
@@ -97,7 +97,7 @@ c
 c
 c  Slice locals
 c 
-      integer indixe(in)
+      INTG_PREC indixe(in)
       R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in)
       double precision edot(in,nedot)
@@ -113,13 +113,13 @@ c
 c
 c  Metal cooling locals
 c
-      integer xe_idx
+      INTG_PREC xe_idx
       R_PREC logxe0, logxe1, dlogxea, log_xe, xe1, dlogT, dlogxe, xi
       R_PREC xe_slope, xe_logtem0, xe_min, xe_max
       parameter (xe_slope = 5.d0, xe_logtem0 = 9.7859d0)  ! e^9.78 = 10^4.25 K
       parameter (xe_min = -9.21d0)  ! e^-9.21 = 1e-4
 #ifdef CEN_METALS
-      integer nti, ndi, cmgenerate, NIT, NID, NIB
+      INTG_PREC nti, ndi, cmgenerate, NIT, NID, NIB
       R_PREC    TEMMIN, DELT, DENMIN, DELD, FREQDEL, FREQMIN
       PARAMETER(NIT=200,TEMMIN=3.d0,DELT=0.03d0)
       PARAMETER(NID=300,DENMIN=-12.d0,DELD=0.05d0)

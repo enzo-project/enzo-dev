@@ -50,7 +50,7 @@ c
 c
 c  argument declarations
 c
-      integer idim, i1, i2, iflatten, isteep
+      INTG_PREC idim, i1, i2, iflatten, isteep
       R_PREC c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
      &     char1(idim), char2(idim), c0(idim),
      &     qla(idim), qra(idim), ql0(idim), qr0(idim)
@@ -63,7 +63,7 @@ c
 c
 c  local declarations (arrays passed as temps)
 c
-      integer i
+      INTG_PREC i
       R_PREC qplus, qmnus, qcent, qvanl
       R_PREC temp1, temp2, temp3, temp22, temp23
       R_PREC dq(idim), ql(idim), qr(idim), q6(idim)

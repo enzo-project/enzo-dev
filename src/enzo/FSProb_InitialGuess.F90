@@ -52,11 +52,11 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: iguess, kappa_h2on
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: iguess, kappa_h2on
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
   R_PREC,    intent(in) :: dt, kappa_c, dx, dy, dz
   R_PREC,    intent(in) :: aUn, lUn, tUn, EUn, dUn
@@ -67,7 +67,7 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
   
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: P, c, pi
 
   !=======================================================================

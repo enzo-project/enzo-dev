@@ -29,7 +29,7 @@ c    FREQDEL  - space between frequency bins, in log10(eV)
 c    SIGH     - HI photo-ionization heating cross-section
 c    SIGHE    - HeI photo-ionization heating cross-section
 c    SIGHE2   - HeII photo-ionization heating cross-section
-c    iradshield - integer flag indicating if approximate radiative
+c    iradshield - INTG_PREC flag indicating if approximate radiative
 c                 shielding should be used (0 - no, 1 - yes)
 c    INUTOT   - total radiation intensity
 c    AYE      - expansion factor in code units
@@ -54,7 +54,7 @@ c
 c
 c  Arguments
 c
-      integer NFREQ, iradshield
+      INTG_PREC NFREQ, iradshield
       R_PREC    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
      &        PHTH, PHTHE, PHTHE2, EXRY, TXRY, INUTOT(NFREQ),
      &        PHTLAMH, PHTLAMHE, PHTLAMHE2,
@@ -67,7 +67,7 @@ c
 c
 c  Locals
 c
-      integer N11
+      INTG_PREC N11
       R_PREC    FNUDEL, AVGNU, FNUMNUH0, FNUMNUHE0, FNUMNUHE20,
      &        QNICK, CROSSS, FJXRY11, FJXRY21,
      &        FJXRY12, FJXRY22, FJXRY13, FJXRY23

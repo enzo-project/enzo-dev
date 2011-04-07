@@ -14,7 +14,7 @@
 ! zfft1d( r, n, isign, wsave )
 
 ! r(n)  CMPLX_PREC / double CMPLX_PREC
-! n     integer must be power of 2
+! n     INTG_PREC must be power of 2
 ! wsave CMPLX_PREC / double CMPLX_PREC  array((3*n)/2)
 
 
@@ -27,10 +27,10 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
-      integer :: power_of_2
+      INTG_PREC :: power_of_2
 
       REAL*4 :: factor
       REAL*4 :: scale
@@ -66,10 +66,10 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
-      integer :: power_of_2
+      INTG_PREC :: power_of_2
 
       REAL*8 :: factor
       REAL*8 :: scale
@@ -105,7 +105,7 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
       write(0,'("MKL stride 1 FFT error")')

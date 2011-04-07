@@ -126,7 +126,7 @@
 
 !  General Arguments
 
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
@@ -180,8 +180,8 @@
 
 !  Cloudy cooling data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
-      integer clGridDim(clGridRank)
+      INTG_PREC icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      INTG_PREC clGridDim(clGridRank)
       R_PREC clMetNorm, clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
@@ -191,7 +191,7 @@
 
 !  Parameters
 
-      integer itmax, ijk
+      INTG_PREC itmax, ijk
       parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
@@ -209,8 +209,8 @@
 
 !  Locals
 
-      integer i, j, k, iter
-      integer clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
+      INTG_PREC i, j, k, iter
+      INTG_PREC clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
       R_PREC ttmin, dom, energy, comp1, comp2
       double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
       double precision heq1, heq2, eqk221, eqk222, eqk131, eqk132,
@@ -218,7 +218,7 @@
 
 !  row temporaries
 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
      &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
      &     olddtit
@@ -696,7 +696,7 @@ c -------------------------------------------------------------------
 
 !     Arguments
 
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      INTG_PREC in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
       R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
       R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
@@ -706,7 +706,7 @@ c -------------------------------------------------------------------
 
 !     locals
 
-      integer i, j, k
+      INTG_PREC i, j, k
 
 !     Multiply all fields by factor (1/a^3 or a^3)
 
@@ -772,7 +772,7 @@ c -------------------------------------------------------------------
 
 !     Arguments
 
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      INTG_PREC in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
       R_PREC     d(in,jn,kn)
       R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
@@ -782,7 +782,7 @@ c -------------------------------------------------------------------
 
 !     locals
 
-      integer i, j, k
+      INTG_PREC i, j, k
 
 !     Multiply all fields by factor (1/a^3 or a^3)
 
@@ -864,7 +864,7 @@ c -------------------------------------------------------------------
 
 !     Arguments
 
-      integer is, ie, ijk, iradtype, iradshield, nratec, 
+      INTG_PREC is, ie, ijk, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, ithreebody, j, k
       R_PREC temstart, temend, tgas1d(in), dom
       double precision coolunit, tbase1
@@ -900,7 +900,7 @@ c -------------------------------------------------------------------
 
 !     1D temporaries (passed in)
 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
 
 !     Parameters
@@ -910,7 +910,7 @@ c -------------------------------------------------------------------
 
 !     locals
 
-      integer i, n1
+      INTG_PREC i, n1
       R_PREC factor, x, logtem0, logtem9, dlogtem, nh
 
 !     Set log values of start and end of lookup tables
@@ -1115,7 +1115,7 @@ c -------------------------------------------------------------------
 
 !     arguments
 
-      integer ispecies, is, ie, j, k, in, jn, kn, iradtrans, irt_honly
+      INTG_PREC ispecies, is, ie, j, k, in, jn, kn, iradtrans, irt_honly
       R_PREC dedot(in), HIdot(in), edot(in)
       logical itmask(in)
 
@@ -1146,7 +1146,7 @@ c -------------------------------------------------------------------
 
 !     locals
 
-      integer i
+      INTG_PREC i
       double precision H2delta, H2dmag, atten, tau
 
       if (ispecies .eq. 1) then
@@ -1298,7 +1298,7 @@ c -------------------------------------------------------------------
 
 !     arguments
 
-      integer ispecies, in, jn, kn, is, ie, j, k, iradtrans, irt_honly
+      INTG_PREC ispecies, in, jn, kn, is, ie, j, k, iradtrans, irt_honly
       R_PREC    dtit(in), dedot_prev(in), HIdot_prev(in)
       logical itmask(in)
 
@@ -1334,7 +1334,7 @@ c -------------------------------------------------------------------
 
 !     locals
 
-      integer i
+      INTG_PREC i
       R_PREC scoef, acoef
 
 !   A) the 6-species integrator
@@ -1701,7 +1701,7 @@ c
 
 !     Arguments
 
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      INTG_PREC in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
       R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &         d(in,jn,kn), metal(in,jn,kn)
@@ -1711,12 +1711,12 @@ c
 
 !     Parameters
 
-      integer ijk
+      INTG_PREC ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 
 !     locals
 
-      integer i, j, k
+      INTG_PREC i, j, k
       R_PREC totalH(ijk), totalHe(ijk), 
      &     totalD, correctH, correctHe, correctD
       R_PREC metalfree(ijk)

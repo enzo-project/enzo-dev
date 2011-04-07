@@ -30,9 +30,9 @@ c
 c
 c     arguments
 c
-      integer in, is, ie, ijk, ncspecies, n
+      INTG_PREC in, is, ie, ijk, ncspecies, n
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
-      integer mins(ijk), iter
+      INTG_PREC mins(ijk), iter
       REAL*8  chunit, checker, dtcoef(NSPECIES)
       REAL*8 s(ijk,NSPECIES), sp(ijk,NSPECIES), sm1(ijk,NSPECIES),
      &       dsq(ijk,NSPECIES), dsp(ijk,NSPECIES), tempde, peqHq, peqHp,
@@ -70,10 +70,10 @@ c
 c
 c     locals
 c
-      integer i, retloc
+      INTG_PREC i, retloc
       logical stopthepresses, flipdmask
 
-      integer HI,HII,de,HeI,HeII,HeIII,H2I,H2II,HM,ge,DI,DII,HDI
+      INTG_PREC HI,HII,de,HeI,HeII,HeIII,H2I,H2II,HM,ge,DI,DII,HDI
       parameter(HI=1,HII=2,HeI=3,HeII=4,HeIII=5,
      &          H2I=6,ge=7,DI=8,DII=9,HDI=10,
      &          de=11,HM=12,H2II=13 ) ! eq species

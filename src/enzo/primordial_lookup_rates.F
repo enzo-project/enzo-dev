@@ -29,7 +29,7 @@ c
 c
 c     Arguments
 c
-      integer is, ie, ijk, iradtype, iradshield, nratec, 
+      INTG_PREC is, ie, ijk, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, j, k, threebody
       R_PREC temstart, temend, tgas1d(in), tgasold(in), dom
       double precision coolunit, tbase1
@@ -67,7 +67,7 @@ c
 c
 c     1D temporaries (passed in)
 c 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
 c     &     k13dd_dot1(ijk,7), k13dd_dot2(ijk,7)
 c
@@ -78,7 +78,7 @@ c
 c
 c     locals
 c
-      integer i, n1
+      INTG_PREC i, n1
       R_PREC factor, x, logtem0, logtem9, dlogtem, nh
 c     &     k13dd_dot(ijk, 7), dd1, dd2, dd3, dd4, dd5, dd6, dd7
 c

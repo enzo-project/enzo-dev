@@ -52,7 +52,7 @@
 
 !  Arguments
 
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        n_xe, imcool, igammah, ih2optical, iciecool
@@ -84,8 +84,8 @@
 
 !  Cloudy cooling data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
-      integer clGridDim(clGridRank)
+      INTG_PREC icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      INTG_PREC clGridDim(clGridRank)
       R_PREC clMetNorm, clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
@@ -95,17 +95,17 @@
 
 !  Parameters
 
-      integer ijk
+      INTG_PREC ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 
 !  Locals
 
-      integer i, j, k, n
+      INTG_PREC i, j, k, n
       R_PREC comp1, comp2, energy
 
 !  Slice locals
  
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
       double precision edot(ijk)

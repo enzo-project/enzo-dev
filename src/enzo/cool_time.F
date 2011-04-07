@@ -31,7 +31,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke, 
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, 
      &        idual, iexpand, nratec, idim, imethod, igammah
       R_PREC    dt, aye, temstart, temend, fh, utem, gammaha,
      &        eta1, eta2, gamma, coola(nratec)
@@ -41,17 +41,17 @@ c
 c
 c  Parameters
 c
-      integer ijk
+      INTG_PREC ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 c
 c  Locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
       R_PREC    energy
 c
 c  Slice locals
 c 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), edot(ijk), tgas(ijk), tgasold(ijk),
      &     cool(ijk)

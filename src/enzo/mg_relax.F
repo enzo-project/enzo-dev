@@ -34,12 +34,12 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ndim, dim1, dim2, dim3
+      INTG_PREC ndim, dim1, dim2, dim3
       R_PREC    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3)
 c
 c  locals
 c
-      integer i, j, k, ipass, istart, jstart, kstart
+      INTG_PREC i, j, k, ipass, istart, jstart, kstart
       R_PREC    h1, h2, h3, coef1, coef2, coef3
       
 #if defined(GRAVITY_4S) && !defined(GRAVITY_6S)

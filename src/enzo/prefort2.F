@@ -38,13 +38,13 @@ c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, dim3, isign, rank, rdim1, rdim2, rdim3
+      INTG_PREC dim1, dim2, dim3, isign, rank, rdim1, rdim2, rdim3
       R_PREC    buffer(rdim1, rdim2, rdim3), 
      &        tempbuffer(2*dim1, dim2, dim3)
 c
 c  locals
 c
-      integer i, i1, j, j1, k, k1, dims(3)
+      INTG_PREC i, i1, j, j1, k, k1, dims(3)
       R_PREC    factor
 c
 c
@@ -62,7 +62,7 @@ c
          ERROR_MESSAGE
       endif
 c
-c     Copy dims into integer array for fourn
+c     Copy dims into INTG_PREC array for fourn
 c
       dims(1) = dim1
       dims(2) = dim2

@@ -104,7 +104,7 @@ c
 c
 c  General Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, idim,
      &        iradtype, nfreq, iradshield, iciecool, 
      &        ih2optical, errcode, omaskflag, threebody
@@ -144,18 +144,18 @@ CF2PY INTENT(INOUT) ::  geout(in,jn,kn)
      &        ,tgasoutf(in,jn,kn),geout(in,jn,kn)
 #endif
 #ifdef UNUSED_TABULATED_EQ
-      integer nebins,nrhobins
+      INTG_PREC nebins,nrhobins
       R_PREC    HIeqtable(nrhobins,nebins), HIIeqtable(nrhobins,nebins),
      &        H2Ieqtable(nrhobins,nebins),
      &        rhostart, rhoend,
      &        estart, eend
 #endif
 #ifdef PYFORT
-      integer subgridmask(in,jn,kn)
+      INTG_PREC subgridmask(in,jn,kn)
 #else
-      integer subgridmask
+      INTG_PREC subgridmask
 #endif
-      integer subgridtempmask(in,jn,kn)
+      INTG_PREC subgridtempmask(in,jn,kn)
 c
 c  Cooling tables (coolings rates as a function of temperature)
 c
@@ -187,14 +187,14 @@ c
 c
 c  Parameters
 c
-      integer itmax, ijk
+      INTG_PREC itmax, ijk
       parameter (itmax = 1e8, ijk = MAX_ANY_SINGLE_DIRECTION)
       double precision mh
       parameter (mh = mass_h)
 c
 c  Locals
 c
-      integer i, j, k, n, m, iter, inneriter, imin, ifedtgas
+      INTG_PREC i, j, k, n, m, iter, inneriter, imin, ifedtgas
       R_PREC ttmin, dom, energy(ijk), comp1, comp2, maxchange, fH2, dfH2,
      &     scaling, prevfH2, HIfrac(ijk), HIIfrac(ijk), H2Ifrac(ijk)
       double precision coolunit, dbase1, tbase1, xbase1, kunit,
@@ -212,7 +212,7 @@ c  Stuff for TWOSTEP
       REAL*8 temp, dtot(ijk), rtot(ijk), h2heatp(ijk), h2heatm(ijk),
      &       hiheatp(ijk), heiheatp(ijk), heiiheatp(ijk),
      &       esterr(ijk), itererror
-      integer iHI,iHII,ide,iHeI,iHeII,iHeIII,iH2I,iH2II,iHM,ige,
+      INTG_PREC iHI,iHII,ide,iHeI,iHeII,iHeIII,iH2I,iH2II,iHM,ige,
      &        iDI,iDII,iHDI,ncspecies,
      &        coriter, totaliter, nciter, oreas
       REAL*8 dtcoef(NSPECIES)
@@ -221,7 +221,7 @@ c  Stuff for TWOSTEP
 c
 c  row temporaries
 c 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk),
      &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
      &     olddtit(ijk), correctH(ijk), 
@@ -269,12 +269,12 @@ c
      &         rejected(ijk), eulermask(ijk),
      &         eqflag, itflag, miscflag, doupdate
 
-      integer totaleq, mins(ijk)
+      INTG_PREC totaleq, mins(ijk)
 
       double precision everg, e24, e26
       R_PREC dlogrho, dloge
       parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
-      integer totalit
+      INTG_PREC totalit
       parameter(iHI=1,iHII=2,iHeI=3,iHeII=4,iHeIII=5,
      &          iH2I=6,ige=7,iDI=8,iDII=9,iHDI=10,
      &          ide=11,iHM=12,iH2II=13 ) ! eq species
@@ -797,7 +797,7 @@ c
 c
 c     Arguments
 c
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies
+      INTG_PREC in, jn, kn, is, ie, js, je, ks, ke, ispecies
       R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
       R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
@@ -807,7 +807,7 @@ c
 c
 c     locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
 c
 c     Multiply all fields by factor (1/a^3 or a^3)
 c
@@ -860,7 +860,7 @@ c
 c
 c     Arguments
 c
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies
+      INTG_PREC in, jn, kn, is, ie, js, je, ks, ke, ispecies
       R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &         d(in,jn,kn)
@@ -870,12 +870,12 @@ c
 c
 c     Parameters
 c
-      integer ijk, iter
+      INTG_PREC ijk, iter
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 c
 c     locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
       R_PREC totalDen(ijk), totalH(ijk), totalHe(ijk), 
      &     totalD, correctD
 c

@@ -29,13 +29,13 @@ c
 c
 c     Arguments
 c
-      integer idim, is, ie
+      INTG_PREC idim, is, ie
       R_PREC dslice(idim), cs(idim)
       R_PREC lem(idim,5,5), rem(idim,5,5)
 c
 c     Locals
 c
-      integer i, n, m
+      INTG_PREC i, n, m
       R_PREC csi, csqi, csq
 c
       do m = 1,5

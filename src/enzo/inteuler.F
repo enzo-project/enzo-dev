@@ -40,9 +40,9 @@ c    grslice - acceleration in this direction in this slice
 c    i1,i2  - starting and ending addresses for dimension 1
 c    idim   - declared leading dimension of slices
 c    idual  - dual energy formalism flag (0 = off)
-c    iflatten - integer flag for flattener (eq. A1, A2) (0 = off)
-c    iconsrec - integer flag for conservative reconstruction (0 = off)
-c    isteep - integer flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
+c    iflatten - INTG_PREC flag for flattener (eq. A1, A2) (0 = off)
+c    iconsrec - INTG_PREC flag for conservative reconstruction (0 = off)
+c    isteep - INTG_PREC flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
 c    ipresfree - pressure free flag (0 = off, 1 = on, i.e. p=0)
 c    j1,j2  - starting and ending addresses for dimension 2
 c    jdim   - declared second dimension of slices
@@ -70,14 +70,14 @@ c
       implicit NONE
 #include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, i1, i2, idim, idual, iflatten, ipresfree, isteep,
+      INTG_PREC gravity, i1, i2, idim, idual, iflatten, ipresfree, isteep,
      &        j1, j2, jdim, ncolor, iconsrec, iposrec
       R_PREC  dt, eta1, eta2, gamma
       R_PREC  dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
@@ -93,7 +93,7 @@ c
 c
 c  local declarations
 c
-      integer i, j, n, m, ic
+      INTG_PREC i, j, n, m, ic
       R_PREC steepen(ijkn),tmp1(ijkn),tmp2(ijkn),tmp3(ijkn),tmp4(ijkn)
       R_PREC qa,qb,qc,qd,qe,s1,s2,f1
       R_PREC  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)

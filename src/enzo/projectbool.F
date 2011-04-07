@@ -35,13 +35,13 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, i3, iline, pdim, rank
-      integer line(iline)
+      INTG_PREC i1, i2, i3, iline, pdim, rank
+      INTG_PREC line(iline)
       logical*1 field(i1, i2, i3)
 c
 c  locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

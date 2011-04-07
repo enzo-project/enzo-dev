@@ -45,7 +45,7 @@ c
 c
 c  Arguments
 c
-      integer NFREQ
+      INTG_PREC NFREQ
       R_PREC    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
      &        SPSTAR1(NFREQ), SPSTAR2(NFREQ)
 c
@@ -55,7 +55,7 @@ c
 c
 c  Locals
 c
-      integer N, NTI
+      INTG_PREC N, NTI
       R_PREC    E0, sigma0, ya, P, yw, y0, y1, x, y, Fy, FNU, FNU2,
      &        SPTMO, SUM, TBB, RAT, FLAMRAT, FNURAT, ALA, A,
      &        FNUPOWBK1, FNUPOWBK2, SPITP(9), FNUITP(9), WORK(9),

@@ -4,12 +4,12 @@
 
       implicit none
 
-      integer :: rank, n1, n2, n3, dir
+      INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1,n2)
 
       CMPLX_PREC, allocatable :: y(:,:)
-      integer :: n(3)
-      integer :: i,j
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j
 
 !     write(*,*) 'S90_2D ',rank,n1,n2,n3,dir
 
@@ -53,11 +53,11 @@
 
       implicit none
 
-      integer :: n, dir
+      INTG_PREC :: n, dir
       CMPLX_PREC :: a(n)
 
-      integer :: i
-      integer :: sn(1)
+      INTG_PREC :: i
+      INTG_PREC :: sn(1)
 
       sn(1) = n
 

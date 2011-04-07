@@ -46,7 +46,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, 
      &        iradtrans, n_xe, nlum, imcool
@@ -75,19 +75,19 @@ c
 c
 c  Parameters
 c
-      integer ijk
+      INTG_PREC ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 c
 c  Locals
 c
-      integer i, j, k, n
+      INTG_PREC i, j, k, n
       R_PREC comp1, comp2, energy
       double precision dom, coolunit, dbase1, tbase1, xbase1, mh, ulum
       parameter (mh = mass_h)
 c
 c  Slice locals
 c 
-      integer indixe(ijk)
+      INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
       double precision edot(in,nlum)

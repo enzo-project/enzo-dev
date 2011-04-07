@@ -26,28 +26,28 @@
       REAL*8 :: TYPE_DUMMY
 #endif
 
-      integer, parameter :: fftkind = KIND(TYPE_DUMMY)
+      INTG_PREC, parameter :: fftkind = KIND(TYPE_DUMMY)
 
 ! the maximum supported 2-d transform length is 65536.
-      integer, parameter :: nda2=65536
+      INTG_PREC, parameter :: nda2=65536
 
 ! the maximum supported 3-d transform length is 4096.
-      integer, parameter :: nda3=4096
-      integer, parameter :: nda4=256
+      INTG_PREC, parameter :: nda3=4096
+      INTG_PREC, parameter :: nda4=256
 
 ! the parameter nblk is a blocking parameter.
-!     integer, parameter :: nblk=8  !(for pentiumiii and athlon)
-      integer, parameter :: nblk=16 !(for pentium4, athlon xp, opteron,
+!     INTG_PREC, parameter :: nblk=8  !(for pentiumiii and athlon)
+      INTG_PREC, parameter :: nblk=16 !(for pentium4, athlon xp, opteron,
                                     ! itanium and itanium2)
 
 ! the parameter np is a padding parameter to avoid cache
 ! conflicts in the fft routines.
-!     integer, parameter :: np=2 !(for pentiumiii)
-!     integer, parameter :: np=4 !(for athlon, athlon xp, opteron and itanium)
-      integer, parameter :: np=8 !(for pentium4 and itanium2)
+!     INTG_PREC, parameter :: np=2 !(for pentiumiii)
+!     INTG_PREC, parameter :: np=4 !(for athlon, athlon xp, opteron and itanium)
+      INTG_PREC, parameter :: np=8 !(for pentium4 and itanium2)
 
 ! size of l2 cache
-      integer, parameter :: l2size=1048576
+      INTG_PREC, parameter :: l2size=1048576
 
       end module ffte_param
 
@@ -89,19 +89,19 @@
 
       implicit none
 
-      integer :: n, iopt
+      INTG_PREC :: n, iopt
       CMPLX_PREC :: a(*),b(*)
 
-      integer :: i
-      integer :: nd
-      integer :: n1, n2, m1, m2
-      integer :: nw2, nw3, nw4
+      INTG_PREC :: i
+      INTG_PREC :: nd
+      INTG_PREC :: n1, n2, m1, m2
+      INTG_PREC :: nw2, nw3, nw4
       R_PREC :: dn
 
       CMPLX_PREC :: c((nda2+np)*(nblk+1)+np)
       CMPLX_PREC :: w1(nda2/2+np),w2(nda2/2+np)
       CMPLX_PREC :: ww((nda2+np)*4+np)
-      integer :: ip(3),ip1(3),ip2(3)
+      INTG_PREC :: ip(3),ip1(3),ip2(3)
 
       save w1,w2,ww
 
@@ -171,16 +171,16 @@
 
       implicit none
 
-      integer :: n1, n2, m1, m2
+      INTG_PREC :: n1, n2, m1, m2
       CMPLX_PREC :: a1(n1,*),a2(n2,*),b(n1,*),c(n2+np,*),d(*)
       CMPLX_PREC :: w1(*),w2(*)
       CMPLX_PREC :: ww1(m1,*),ww2(m1,*),ww3(m2,*),ww4(n1/m1,*)
       CMPLX_PREC :: temp
-      integer :: ip1(*),ip2(*)
+      INTG_PREC :: ip1(*),ip2(*)
 
-      integer :: i, j
-      integer :: ii, jj
-      integer :: ij, ik, ir, is, ij0
+      INTG_PREC :: i, j
+      INTG_PREC :: ii, jj
+      INTG_PREC :: ij, ik, ir, is, ij0
 
 !$omp do private(ij,ij0,ir,j,temp)
       do ii = 1,n1,nblk
@@ -248,11 +248,11 @@
 
       implicit none
 
-      integer :: n1, n2, m1, m2
+      INTG_PREC :: n1, n2, m1, m2
       R_PREC :: w1(2,m1,*),w2(2,m1,*),w3(2,m2,*),w4(2,n1/m1,*)
 
-      integer :: j, k
-      integer :: ir, is
+      INTG_PREC :: j, k
+      INTG_PREC :: ir, is
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
@@ -323,13 +323,13 @@
 
       implicit none
 
-      integer :: nx, ny, iopt
+      INTG_PREC :: nx, ny, iopt
       CMPLX_PREC :: a(*)
       CMPLX_PREC :: b((nda2+np)*(nblk+1)+np)
       CMPLX_PREC :: wx(nda2/2+np),wy(nda2/2+np)
-      integer :: lnx(3),lny(3)
+      INTG_PREC :: lnx(3),lny(3)
 
-      integer :: i, nc
+      INTG_PREC :: i, nc
       R_PREC :: dn
 
       save wx,wy
@@ -371,13 +371,13 @@
 
       implicit none
 
-      integer :: nx, ny
+      INTG_PREC :: nx, ny
       CMPLX_PREC :: a(nx,*),b(ny+np,*),c(*)
       CMPLX_PREC :: wx(*),wy(*)
-      integer :: lnx(*),lny(*)
+      INTG_PREC :: lnx(*),lny(*)
 
-      integer :: i, j
-      integer :: ii, jj
+      INTG_PREC :: i, j
+      INTG_PREC :: ii, jj
 
 !$omp do
       do ii = 1,nx,nblk
@@ -445,13 +445,13 @@
 
       implicit none
 
-      integer :: nx, ny, nz, iopt
+      INTG_PREC :: nx, ny, nz, iopt
       CMPLX_PREC :: a(*)
       CMPLX_PREC :: b((nda3+np)*(nblk+1)+np)
       CMPLX_PREC :: wx(nda3/2+np),wy(nda3/2+np),wz(nda3/2+np)
-      integer :: lnx(3),lny(3),lnz(3)
+      INTG_PREC :: lnx(3),lny(3),lnz(3)
 
-      integer :: i, nc
+      INTG_PREC :: i, nc
       R_PREC :: dn
 
       save wx,wy,wz
@@ -495,13 +495,13 @@
 
       implicit none
 
-      integer :: nx, ny, nz
+      INTG_PREC :: nx, ny, nz
       CMPLX_PREC :: a(nx,ny,*),by(ny+np,*),bz(nz+np,*),c(*)
       CMPLX_PREC :: wx(*),wy(*),wz(*)
-      integer :: lnx(*),lny(*),lnz(*)
+      INTG_PREC :: lnx(*),lny(*),lnz(*)
 
-      integer :: i, j, k
-      integer :: ii, jj, kk
+      INTG_PREC :: i, j, k
+      INTG_PREC :: ii, jj, kk
 
 !$omp do
       do j = 1,ny
@@ -575,13 +575,13 @@
 
       implicit none
 
-      integer :: n
-      integer :: ip(*)
+      INTG_PREC :: n
+      INTG_PREC :: ip(*)
       CMPLX_PREC :: a(*),b(*),w(*)
 
-      integer :: j, k, l, m
-      integer :: key
-      integer :: kp4, kp8
+      INTG_PREC :: j, k, l, m
+      INTG_PREC :: key
+      INTG_PREC :: kp4, kp8
 
       if (ip(1) .ne. 1) then
         kp4 = 2-mod(ip(1)+2,3)
@@ -693,7 +693,7 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
@@ -712,7 +712,7 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
@@ -731,7 +731,7 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
@@ -750,7 +750,7 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
@@ -769,12 +769,12 @@
 
       implicit none
 
-      integer :: n
+      INTG_PREC :: n
       CMPLX_PREC :: w(*)
 
-      integer :: i, j, k, l
-      integer :: ip(3)
-      integer :: kp4, kp8
+      INTG_PREC :: i, j, k, l
+      INTG_PREC :: ip(3)
+      INTG_PREC :: kp4, kp8
 
       call factor(n,ip)
 
@@ -823,9 +823,9 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       R_PREC :: w(2,*)
-      integer :: i
+      INTG_PREC :: i
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
@@ -846,9 +846,9 @@
 
       implicit none
 
-      integer :: n1, n2
+      INTG_PREC :: n1, n2
       R_PREC :: w(2,n1,*)
-      integer :: j, k
+      INTG_PREC :: j, k
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
@@ -871,8 +871,8 @@
 
       implicit none
 
-      integer :: n, n2
-      integer :: ip(*)
+      INTG_PREC :: n, n2
+      INTG_PREC :: ip(*)
 
       ip(1) = 0
       ip(2) = 0
@@ -927,10 +927,10 @@
 
       implicit none
 
-      integer :: m
+      INTG_PREC :: m
       R_PREC :: a(2,m,*),b(2,m,*)
 
-      integer :: i
+      INTG_PREC :: i
       R_PREC :: x0, y0, x1, y1
 
       do i = 1,m
@@ -954,10 +954,10 @@
 
       implicit none
 
-      integer :: l
+      INTG_PREC :: l
       R_PREC :: a(2,l,*),b(2,3,*),w(2,*)
 
-      integer :: i, j
+      INTG_PREC :: i, j
       R_PREC :: wr1, wi1, wr2, wi2
       R_PREC :: x0, y0, x1, y1, x2, y2
 
@@ -994,10 +994,10 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       R_PREC :: a(2,m,l,*),b(2,m,3,*),w(2,*)
 
-      integer :: i, j
+      INTG_PREC :: i, j
       R_PREC :: wr1, wi1, wr2, wi2
       R_PREC :: x0, y0, x1, y1, x2, y2
 
@@ -1051,10 +1051,10 @@
 
       implicit none
 
-      integer :: l
+      INTG_PREC :: l
       R_PREC :: a(2,l,*),b(2,4,*),w(2,*)
 
-      integer :: j
+      INTG_PREC :: j
       R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3
       R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
 
@@ -1094,10 +1094,10 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       R_PREC :: a(2,m,l,*),b(2,m,4,*),w(2,*)
 
-      integer :: i, j
+      INTG_PREC :: i, j
       R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3
       R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
 
@@ -1157,10 +1157,10 @@
 
       implicit none
 
-      integer :: l
+      INTG_PREC :: l
       R_PREC :: a(2,l,*),b(2,5,*),w(2,*)
 
-      integer :: j
+      INTG_PREC :: j
       R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
       R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
       R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
@@ -1225,10 +1225,10 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       R_PREC :: a(2,m,l,*),b(2,m,5,*),w(2,*)
 
-      integer :: i, j
+      INTG_PREC :: i, j
       R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
       R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
       R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
@@ -1330,10 +1330,10 @@
 
       implicit none
 
-      integer :: l
+      INTG_PREC :: l
       R_PREC :: a(2,l,*),b(2,8,*),w(2,*)
 
-      integer :: j
+      INTG_PREC :: j
       R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
       R_PREC :: wr5, wi5, wr6, wi6, wr7, wi7
       R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
@@ -1421,10 +1421,10 @@
 
       implicit none
 
-      integer :: m, l
+      INTG_PREC :: m, l
       R_PREC :: a(2,m,l,*),b(2,m,8,*),w(2,*)
 
-      integer :: i, j
+      INTG_PREC :: i, j
       R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
       R_PREC :: wr5, wi5, wr6, wi6, wr7, wi7
       R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3

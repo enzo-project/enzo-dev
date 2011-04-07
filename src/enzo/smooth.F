@@ -34,14 +34,14 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer sdim1, sdim2, sdim3, ndim, nsmooth
+      INTG_PREC sdim1, sdim2, sdim3, ndim, nsmooth
       R_PREC    source1(sdim1, sdim2, sdim3), 
      &        source2(sdim1, sdim2, sdim3), 
      &        source3(sdim1, sdim2, sdim3)
 c
 c  locals
 c
-      integer i, j, k, n, i1, j1, k1
+      INTG_PREC i, j, k, n, i1, j1, k1
       R_PREC    temp(MAX_ANY_SINGLE_DIRECTION), fact
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -151,12 +151,12 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer sdim1, sdim2, sdim3, ndim
+      INTG_PREC sdim1, sdim2, sdim3, ndim
       R_PREC    source(sdim1, sdim2, sdim3), dest(sdim1, sdim2, sdim3)
 c
 c  locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
       R_PREC    fact
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

@@ -45,7 +45,7 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer dim1, dim2, dim3, npositions, ndim
+      INTG_PREC dim1, dim2, dim3, npositions, ndim
       P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
       R_PREC    mass(npositions), field(dim1, dim2, dim3)
@@ -53,7 +53,7 @@ c
 c
 c  locals
 c     
-      integer i, j, k, n
+      INTG_PREC i, j, k, n
       P_PREC xpos, ypos, zpos, rsmsqr, rsqr
       R_PREC    coef, pi
       parameter (pi = pi_val)

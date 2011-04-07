@@ -146,7 +146,7 @@ c
      &                     sstart1, sstart2, sstart3, 
      &                     dstart1, dstart2, dstart3)
 c
-c  COPIES PART OF FIELD (INTEGER VERSION)
+c  COPIES PART OF FIELD (INTG_PREC VERSION)
 c
 c  written by: Greg Bryan
 c  date:       October, 1995

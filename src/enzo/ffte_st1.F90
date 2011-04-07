@@ -3,15 +3,15 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n1, idir
+      INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
       R_PREC :: factor
       R_PREC :: scale
       CMPLX_PREC, allocatable :: work(:)
 
-      integer :: nwork, jdir
-      integer :: m1
+      INTG_PREC :: nwork, jdir
+      INTG_PREC :: m1
 
       m1 = n1
       nwork = n1*2

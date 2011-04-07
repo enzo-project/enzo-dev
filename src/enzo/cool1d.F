@@ -36,7 +36,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, ie, j, k,
+      INTG_PREC in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter, igammah
       R_PREC    temstart, temend, fh, utem, gammaha,
      &        eta1, eta2, gamma, coola(nratec)
@@ -54,12 +54,12 @@ c
 c
 c  Locals
 c
-      integer i
+      INTG_PREC i
       R_PREC logtem0, logtem9, dlogtem
 c
 c  Slice locals
 c 
-      integer indixe(in)
+      INTG_PREC indixe(in)
       R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in), cool(in)
       R_PREC edot(in)

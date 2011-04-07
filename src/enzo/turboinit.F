@@ -40,15 +40,15 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer rank, nbox, in, jn, kn, ig, jg, kg
+      INTG_PREC rank, nbox, in, jn, kn, ig, jg, kg
       R_PREC u(in,jn,kn), v(in,jn,kn), w(in,jn,kn)
       P_PREC random_forcing
 c
 c  Locals
 c
-      integer i, j, k, imo, nmode
+      INTG_PREC i, j, k, imo, nmode
       parameter (nmode=16)
-      integer mode(3,nmode)
+      INTG_PREC mode(3,nmode)
       data    mode/
      &             1,1,1,
      &             -1,1,1,

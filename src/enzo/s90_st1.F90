@@ -6,11 +6,11 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: n, dir
+      INTG_PREC :: n, dir
       CMPLX_PREC :: a(n)
 
-      integer :: i
-      integer :: sn(1)
+      INTG_PREC :: i
+      INTG_PREC :: sn(1)
 
       sn(1) = n
 

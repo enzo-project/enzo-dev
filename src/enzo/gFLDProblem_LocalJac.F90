@@ -118,12 +118,12 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Nchem, Model, ESpectrum, ProbType, DualEnergy
-  integer, intent(in) :: NTempBins
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: Nchem, Model, ESpectrum, ProbType, DualEnergy
+  INTG_PREC, intent(in) :: NTempBins
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
   R_PREC,    intent(in) :: dx, dy, dz
   R_PREC,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
@@ -150,7 +150,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
 
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: dxi2, dyi2, dzi2, DivV, GradRhoDotV, aval
 
   !=======================================================================
@@ -417,12 +417,12 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Nchem, Model, ESpectrum, DualEnergy
-  integer, intent(in) :: NTempBins
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: Nchem, Model, ESpectrum, DualEnergy
+  INTG_PREC, intent(in) :: NTempBins
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
   R_PREC,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   R_PREC,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
@@ -443,7 +443,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
   !--------------
   ! locals
-  integer :: i, j, k, Tidx, Tidxp
+  INTG_PREC :: i, j, k, Tidx, Tidxp
   R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, Tfac2
   R_PREC :: k1, k2, k3, k4, k5, k6
   R_PREC :: dk1_dT, dk2_dT, dk3_dT, dk4_dT, dk5_dT, dk6_dT
@@ -1067,12 +1067,12 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Nchem, Model, ESpectrum, DualEnergy
-  integer, intent(in) :: NTempBins
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: Nchem, Model, ESpectrum, DualEnergy
+  INTG_PREC, intent(in) :: NTempBins
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
   R_PREC, intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   R_PREC, intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
@@ -1093,7 +1093,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
 
   !--------------
   ! locals
-  integer :: i, j, k, Tidx, Tidxp
+  INTG_PREC :: i, j, k, Tidx, Tidxp
   R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, Tfac2
   R_PREC :: k1, k2, k3, k4, k5, k6
   R_PREC :: dk1_dT, dk2_dT, dk3_dT, dk4_dT, dk5_dT, dk6_dT
@@ -1659,12 +1659,12 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: Nchem, Model, ESpectrum, DualEnergy
-  integer, intent(in)  :: NTempBins
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Nchem, Model, ESpectrum, DualEnergy
+  INTG_PREC, intent(in)  :: NTempBins
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   R_PREC,    intent(in) :: TempStart, TempEnd
@@ -1678,7 +1678,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
   !--------------
   ! locals
-  integer :: i, j, k, Tidx, Tidxp
+  INTG_PREC :: i, j, k, Tidx, Tidxp
   R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, k1, k2
   R_PREC :: afac, grey, T, min_temp, lamT
   R_PREC :: c, hp, kb, StBz, eint, Er, rho, mp, KEconst
@@ -1867,11 +1867,11 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Nchem, Model, ESpectrum
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: Nchem, Model, ESpectrum
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC,  intent(in) :: a, adot
   R_PREC, intent(in) :: ErUnits, NiUnits
   R_PREC, intent(in) :: IsE, IsEsHI
@@ -1883,7 +1883,7 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: c, nHI, Er, kappaE, afac, grey
 
   !=======================================================================
@@ -2019,11 +2019,11 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: Nchem, Model, ESpectrum, ProbType, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: Nchem, Model, ESpectrum, ProbType, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
   R_PREC,    intent(in) :: time, gamma
   R_PREC,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
@@ -2036,7 +2036,7 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
 
   !--------------
   ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
   R_PREC :: T, dT_dec, min_temp, mol_weight
   R_PREC :: pi, c, hp, kb, rc, StBz, eint, Er, rho, afac, grey, mp, KEconst
   R_PREC :: kappaP, dkappaP_dec, kappaE, dkappaE_dec

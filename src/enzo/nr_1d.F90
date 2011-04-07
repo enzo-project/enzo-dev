@@ -5,10 +5,10 @@
       implicit none
 #include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, dir
+      INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1)
 
-      integer :: n(3)
+      INTG_PREC :: n(3)
       R_PREC :: factor
 
 !     write(*,*) 'NR_1D ',rank,n1,n2,n3,dir

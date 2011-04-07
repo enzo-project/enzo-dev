@@ -56,7 +56,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
+      INTG_PREC in, jn, kn, is, ie, j, k, nratec, imethod, idim,
      &        idual, iexpand, ih2co, ipiht, ispecies,
      &        nfreq, iradshield, iradtype, iciecool,
      &        ih2optical, ifedtgas, ijk
@@ -96,7 +96,7 @@ c
 c
 c  Locals
 c
-      integer i, m, j1, iter, iradfield, mciei
+      INTG_PREC i, m, j1, iter, iradfield, mciei
       R_PREC dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
       R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, x, nH2, nother, fudge, fH2,
@@ -106,7 +106,7 @@ c
 c
 c  Slice locals
 c 
-      integer indixe(in)
+      INTG_PREC indixe(in)
       R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in), tdef_inv(in)
       REAL*8 edotplus(ijk), edotminus(ijk)
@@ -128,7 +128,7 @@ c
 c     Iteration mask
       
       logical itmask(in)
-      integer inneriter
+      INTG_PREC inneriter
       R_PREC oldgamma2(in)
 
       R_PREC g2p(10)
