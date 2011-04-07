@@ -95,21 +95,21 @@ c
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/REAL(refine1)
-      fact2 = 1.d0/REAL(refine2)
-      fact3 = 1.d0/REAL(refine3)
+      fact1 = 1.d0/REAL(refine1,RKIND)
+      fact2 = 1.d0/REAL(refine2,RKIND)
+      fact3 = 1.d0/REAL(refine3,RKIND)
 c
                        coef1 = dt/delx*fact1
       if (ndim .gt. 1) coef2 = dt/dely*fact2
       if (ndim .gt. 2) coef3 = dt/delz*fact3
 c     
-      start1 = -sstart1 - 0.5d0 + offset1*REAL(refine1)
-      start2 = -sstart2 - 0.5d0 + offset2*REAL(refine2)
-      start3 = -sstart3 - 0.5d0 + offset3*REAL(refine3)
+      start1 = -sstart1 - 0.5d0 + offset1*REAL(refine1,RKIND)
+      start2 = -sstart2 - 0.5d0 + offset2*REAL(refine2,RKIND)
+      start3 = -sstart3 - 0.5d0 + offset3*REAL(refine3,RKIND)
 c
-      edge1 = REAL(ddim1) - half
-      edge2 = REAL(ddim2) - half
-      edge3 = REAL(ddim3) - half
+      edge1 = REAL(ddim1,RKIND) - half
+      edge2 = REAL(ddim2,RKIND) - half
+      edge3 = REAL(ddim3,RKIND) - half
 
 !     write(0,'("grid_cic: ",6f12.4)') start1,start2,start3,
 !    &                                 edge1,edge2,edge3
@@ -124,8 +124,8 @@ c        compute density and mass-weighted velocity field
 c
          do i=sstart1+1, send1+1
             x = min(max((start1 + i)*fact1, half), edge1)
-            i1 = int(x + 0.5d0)
-            dx = REAL(i1) + 0.5d0 - x
+            i1 = int(x + 0.5d0,IKIND)
+            dx = REAL(i1,RKIND) + 0.5d0 - x
             mass = (1.d0 - rfield(i,1,1))*weight*source(i,1,1)
 c
             temp(i1  ,1  ,1, 1) = temp(i1  ,1  ,1, 1) + 
@@ -147,8 +147,8 @@ c
          do i=1,ddim1
             shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),tiny)*coef1
             x = min(max((i - 0.5d0 + shift1), half), edge1)
-            i1 = int(x + 0.5d0)
-            dx = REAL(i1) + 0.5d0 - x
+            i1 = int(x + 0.5d0,IKIND)
+            dx = REAL(i1,RKIND) + 0.5d0 - x
             mass = temp(i,1,1,1)
             dest(i1  ,1  ,1) = dest(i1  ,1  ,1) + mass*      dx
             dest(i1+1,1  ,1) = dest(i1+1,1  ,1) + mass*(1.d0-dx)
@@ -164,12 +164,12 @@ c        compute density and mass-weighted velocity field
 c
          do j=sstart2+1, send2+1
             y = min(max((start2 + j)*fact2, half), edge2)
-            j1 = int(y + 0.5d0)
-            dy = REAL(j1) + 0.5d0 - y
+            j1 = int(y + 0.5d0,IKIND)
+            dy = REAL(j1,RKIND) + 0.5d0 - y
             do i=sstart1+1, send1+1
                x = min(max((start1 + i)*fact1, half), edge1)
-               i1 = int(x + 0.5d0)
-               dx = REAL(i1) + 0.5d0 - x
+               i1 = int(x + 0.5d0,IKIND)
+               dx = REAL(i1,RKIND) + 0.5d0 - x
                mass = (1.d0 - rfield(i,j,1))*weight*source(i,j,1)
 c
                temp(i1  ,j1  ,1,1) = temp(i1  ,j1  ,1,1) +
@@ -215,13 +215,13 @@ c
                shift2 = temp(i,j,1,3)/
      &                  max(temp(i,j,1,1),tiny)*coef2
                y = min(max((j - 0.5d0 + shift2), half), edge2)
-               j1 = int(y + 0.5d0)
-               dy = REAL(j1) + 0.5d0 - y
+               j1 = int(y + 0.5d0,IKIND)
+               dy = REAL(j1,RKIND) + 0.5d0 - y
                shift1 = temp(i,j,1,2)/
      &                  max(temp(i,j,1,1),tiny)*coef1
                x = min(max((i - 0.5d0 + shift1), half), edge1)
-               i1 = int(x + 0.5d0)
-               dx = REAL(i1) + 0.5d0 - x
+               i1 = int(x + 0.5d0,IKIND)
+               dx = REAL(i1,RKIND) + 0.5d0 - x
                mass = temp(i,j,1,1)
                dest(i1  ,j1  ,1) = dest(i1  ,j1  ,1) +
      &                             mass*      dx *      dy
@@ -244,16 +244,16 @@ c        compute density and mass-weighted velocity field
 c
          do k=sstart3+1, send3+1
             z = min(max((start3 + k)*fact3, half), edge3)
-            k1 = int(z + 0.5d0)
-            dz = REAL(k1) + 0.5d0 - z
+            k1 = int(z + 0.5d0,IKIND)
+            dz = REAL(k1,RKIND) + 0.5d0 - z
             do j=sstart2+1, send2+1
                y = min(max((start2 + j)*fact2, half), edge2)
-               j1 = int(y + 0.5d0)
-               dy = REAL(j1) + 0.5d0 - y
+               j1 = int(y + 0.5d0,IKIND)
+               dy = REAL(j1,RKIND) + 0.5d0 - y
                do i=sstart1+1, send1+1
                   x = min(max((start1 + i)*fact1, half), edge1)
-                  i1 = int(x + 0.5d0)
-                  dx = REAL(i1) + 0.5d0 - x
+                  i1 = int(x + 0.5d0,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5d0 - x
                   mass = (1.d0 - rfield(i,j,k))*weight*source(i,j,k)
 c
                   temp(i1  ,j1  ,k1  ,1) = temp(i1  ,j1  ,k1  ,1) +
@@ -345,20 +345,20 @@ c
                   shift3 = temp(i,j,k,4)/
      &                     max(temp(i,j,k,1),tiny)*coef3
                   z = min(max((k - 0.5d0 + shift3), half), edge3)
-                  k1 = int(z + 0.5d0)
-                  dz = REAL(k1) + 0.5d0 - z
+                  k1 = int(z + 0.5d0,IKIND)
+                  dz = REAL(k1,RKIND) + 0.5d0 - z
 c
                   shift2 = temp(i,j,k,3)/
      &                     max(temp(i,j,k,1),tiny)*coef2
                   y = min(max((j - 0.5d0 + shift2), half), edge2)
-                  j1 = int(y + 0.5d0)
-                  dy = REAL(j1) + 0.5d0 - y
+                  j1 = int(y + 0.5d0,IKIND)
+                  dy = REAL(j1,RKIND) + 0.5d0 - y
 c
                   shift1 = temp(i,j,k,2)/
      &                     max(temp(i,j,k,1),tiny)*coef1
                   x = min(max((i - 0.5d0 + shift1), half), edge1)
-                  i1 = int(x + 0.5d0)
-                  dx = REAL(i1) + 0.5d0 - x
+                  i1 = int(x + 0.5d0,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5d0 - x
 c
 c                  if (i1 .lt. 1 .or. i1 .ge. ddim1 .or.
 c     &                j1 .lt. 1 .or. j1 .ge. ddim2 .or.
@@ -451,17 +451,17 @@ c=======================================================================
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/REAL(refine1)
-      fact2 = 1.d0/REAL(refine2)
-      fact3 = 1.d0/REAL(refine3)
+      fact1 = 1.d0/REAL(refine1,RKIND)
+      fact2 = 1.d0/REAL(refine2,RKIND)
+      fact3 = 1.d0/REAL(refine3,RKIND)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
             x = (start1 + i - 0.5d0)*fact1
-            i1 = int(x + 0.5d0)
-            dx = REAL(i1) + 0.5d0 - x
+            i1 = int(x + 0.5d0,IKIND)
+            dx = REAL(i1,RKIND) + 0.5d0 - x
             dest(i,1,1) = source(i1  ,1  ,1)*     dx +
      &                    source(i1+1,1  ,1)*(1.d0-dx)
          enddo
@@ -472,12 +472,12 @@ c
       if (ndim .eq. 2) then
          do j=1, ddim2
             y = (start2 + j - 0.5d0)*fact2
-            j1 = int(y + 0.5d0)
-            dy = REAL(j1) + 0.5d0 - y
+            j1 = int(y + 0.5d0,IKIND)
+            dy = REAL(j1,RKIND) + 0.5d0 - y
             do i=1, ddim1
                x = (start1 + i - 0.5d0)*fact1
-               i1 = int(x + 0.5d0)
-               dx = REAL(i1) + 0.5d0 - x
+               i1 = int(x + 0.5d0,IKIND)
+               dx = REAL(i1,RKIND) + 0.5d0 - x
                dest(i,j,1) = source(i1  ,j1  ,1)*      dx *      dy  +
      &                       source(i1+1,j1  ,1)*(1.d0-dx)*      dy  +
      &                       source(i1  ,j1+1,1)*      dx *(1.d0-dy) +
@@ -491,16 +491,16 @@ c
       if (ndim .eq. 3) then
          do k=1, ddim3
             z = (start3 + k - 0.5d0)*fact3
-            k1 = int(z + 0.5d0)
-            dz = REAL(k1) + 0.5d0 - z
+            k1 = int(z + 0.5d0,IKIND)
+            dz = REAL(k1,RKIND) + 0.5d0 - z
             do j=1, ddim2
                y = (start2 + j - 0.5d0)*fact2
-               j1 = int(y + 0.5d0)
-               dy = REAL(j1) + 0.5d0 - y
+               j1 = int(y + 0.5d0,IKIND)
+               dy = REAL(j1,RKIND) + 0.5d0 - y
                do i=1, ddim1
                   x = (start1 + i - 0.5d0)*fact1
-                  i1 = int(x + 0.5d0)
-                  dx = REAL(i1) + 0.5d0 - x
+                  i1 = int(x + 0.5d0,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5d0 - x
                   dest(i,j,k) =
      &             source(i1  ,j1  ,k1  )*      dx *      dy *      dz +
      &             source(i1+1,j1  ,k1  )*(1.d0-dx)*      dy *      dz +

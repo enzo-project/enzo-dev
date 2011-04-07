@@ -51,9 +51,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.0/REAL(dim1-1)
-      if (ndim .ge. 2) h2 = h1/REAL(dim2-1)
-      if (ndim .ge. 3) h3 = h2/REAL(dim3-1)
+      h1 = 1.0/REAL(dim1-1,RKIND)
+      if (ndim .ge. 2) h2 = h1/REAL(dim2-1,RKIND)
+      if (ndim .ge. 3) h3 = h2/REAL(dim3-1,RKIND)
       coef1 = 12.d0/30.d0
       coef2 = 12.d0/60.d0
       coef3 = 12.d0/90.d0
@@ -141,9 +141,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.d0/REAL(dim1-1)
-      if (ndim .ge. 2) h2 = h1/REAL(dim2-1)
-      if (ndim .ge. 3) h3 = h2/REAL(dim3-1)
+      h1 = 1.d0/REAL(dim1-1,RKIND)
+      if (ndim .ge. 2) h2 = h1/REAL(dim2-1,RKIND)
+      if (ndim .ge. 3) h3 = h2/REAL(dim3-1,RKIND)
       coef1 = 1080.d0/2720.d0
       coef2 = 1080.d0/5440.d0
       coef3 = 1080.d0/8160.d0
@@ -243,9 +243,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.d0/REAL(dim1-1)
-      if (ndim .ge. 2) h2 = h1/REAL(dim2-1)
-      if (ndim .ge. 3) h3 = h2/REAL(dim3-1)
+      h1 = 1.d0/REAL(dim1-1,RKIND)
+      if (ndim .ge. 2) h2 = h1/REAL(dim2-1,RKIND)
+      if (ndim .ge. 3) h3 = h2/REAL(dim3-1,RKIND)
       coef1 = 1.d0/2.d0
       coef2 = 1.d0/4.d0
       coef3 = 1.d0/6.d0

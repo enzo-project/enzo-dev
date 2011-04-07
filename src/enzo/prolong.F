@@ -54,23 +54,24 @@ c=======================================================================
 c
 c     Precompute some things
 c
-c      fact1 = REAL(sdim1)/REAL(ddim1)
-c      fact2 = REAL(sdim2)/REAL(ddim2)
-c      fact3 = REAL(sdim3)/REAL(ddim3)
-      fact1 = 1.d0/REAL(refine1)
-      fact2 = 1.d0/REAL(refine2)
-      fact3 = 1.d0/REAL(refine3)
-      edge1 = REAL(sdim1) - half
-      edge2 = REAL(sdim2) - half
-      edge3 = REAL(sdim3) - half
+c      fact1 = REAL(sdim1,RKIND)/REAL(ddim1,RKIND)
+c      fact2 = REAL(sdim2,RKIND)/REAL(ddim2,RKIND)
+c      fact3 = REAL(sdim3,RKIND)/REAL(ddim3,RKIND)
+      fact1 = 1.d0/REAL(refine1,RKIND)
+      fact2 = 1.d0/REAL(refine2,RKIND)
+      fact3 = 1.d0/REAL(refine3,RKIND)
+      edge1 = REAL(sdim1,RKIND) - half
+      edge2 = REAL(sdim2,RKIND) - half
+      edge3 = REAL(sdim3,RKIND) - half
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
-            x = min(max((REAL(i+start1)-0.5d0)*fact1, half), edge1)
-            i1 = int(x + 0.5d0)
-            dx = REAL(i1) + 0.5d0 - x
+            x = min(max((REAL(i+start1,RKIND)-0.5d0)*fact1, half), 
+     &              edge1)
+            i1 = int(x + 0.5d0,IKIND)
+            dx = REAL(i1,RKIND) + 0.5d0 - x
             dest(i,1,1) = source(i1,1,1)*dx + source(i1+1,1,1)*(1.d0-dx)
          enddo
       endif
@@ -79,13 +80,14 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=1, ddim2
-            y = min(max((REAL(j+start2)-0.5)*fact2, half), edge2)
-            j1 = int(y + 0.5d0)
-            dy = REAL(j1) + 0.5d0 - y
+            y = min(max((REAL(j+start2,RKIND)-0.5)*fact2, half), edge2)
+            j1 = int(y + 0.5d0,IKIND)
+            dy = REAL(j1,RKIND) + 0.5d0 - y
             do i=1, ddim1
-               x = min(max((REAL(i+start1)-0.5)*fact1, half), edge1)
-               i1 = int(x + 0.5d0)
-               dx = REAL(i1) + 0.5d0 - x
+               x = min(max((REAL(i+start1,RKIND)-0.5)*fact1, half), 
+     &                 edge1)
+               i1 = int(x + 0.5d0,IKIND)
+               dx = REAL(i1,RKIND) + 0.5d0 - x
                dest(i,j,1) = source(i1  ,j1  ,1)*     dx *     dy  + 
      &                       source(i1+1,j1  ,1)*(1.d0-dx)*     dy  +
      &                       source(i1  ,j1+1,1)*     dx *(1.d0-dy) +
@@ -98,17 +100,19 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=1, ddim3
-            z = min(max((REAL(k+start3)-0.5d0)*fact3, half), edge3)
-            k1 = int(z + 0.5d0)
-            dz = REAL(k1) + 0.5d0 - z
+            z = min(max((REAL(k+start3,RKIND)-0.5d0)*fact3, half),edge3)
+            k1 = int(z + 0.5d0,IKIND)
+            dz = REAL(k1,RKIND) + 0.5d0 - z
             do j=1, ddim2
-               y = min(max((REAL(j+start2)-0.5d0)*fact2, half), edge2)
-               j1 = int(y + 0.5d0)
-               dy = REAL(j1) + 0.5d0 - y
+               y = min(max((REAL(j+start2,RKIND)-0.5d0)*fact2, half), 
+     &                 edge2)
+               j1 = int(y + 0.5d0,IKIND)
+               dy = REAL(j1,RKIND) + 0.5d0 - y
                do i=1, ddim1
-                  x = min(max((REAL(i+start1)-0.5d0)*fact1, half),edge1)
-                  i1 = int(x + 0.5d0)
-                  dx = REAL(i1) + 0.5d0 - x
+                  x = min(max((REAL(i+start1,RKIND)-0.5d0)*fact1, half),
+     &                    edge1)
+                  i1 = int(x + 0.5d0,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5d0 - x
                    dest(i,j,k) = 
      &              source(i1  ,j1  ,k1  )*     dx *     dy *     dz   +
      &              source(i1+1,j1  ,k1  )*(1.d0-dx)*     dy *     dz  +

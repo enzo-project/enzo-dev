@@ -60,12 +60,12 @@ c=======================================================================
 c
 c     Precompute some things
 c
-      i1 = int(start1/refine1)
-      i2 = int((start1+ddim1)/refine1)+1
-      j1 = int(start2/refine2)
-      j2 = int((start2+ddim2)/refine2)+1
-      k1 = int(start3/refine3)
-      k2 = int((start3+ddim3)/refine3)+1
+      i1 = int(start1/refine1,IKIND)
+      i2 = int((start1+ddim1)/refine1,IKIND)+1
+      j1 = int(start2/refine2,IKIND)
+      j2 = int((start2+ddim2)/refine2,IKIND)+1
+      k1 = int(start3/refine3,IKIND)
+      k2 = int((start3+ddim3)/refine3,IKIND)+1
 c
       if ((i2-i1-1)*refine1 .ne. ddim1) then
          write(6,*) i2-i1-1, refine1, ddim1
@@ -159,8 +159,8 @@ c
       step = 1.0/refine
       x = 1.0 - 0.5*step
       do i=1, (n-2)*refine
-         j = int(x) + 1
-         a = REAL(j) - x
+         j = int(x,IKIND) + 1
+         a = REAL(j,RKIND) - x
          b = 1.d0 - a
          result(i) = a*y(j) + b*y(j+1) + ((a**3 - a)*y2(j) +
      &               (b**3-b)*y2(j+1))/6.d0

@@ -154,7 +154,7 @@
       end if
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/REAL(n)
+        dn = 1.0_fftkind/REAL(n,RKIND)
         do i = 1,n
           a(i) = conjg(a(i))*dn
         end do
@@ -256,28 +256,28 @@
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(REAL(n1)*REAL(n2))
+      px = -pi2/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
 !$omp parallel
 !$omp do
       do k = 1,m2
         do j = 1,m1
-          w1(1,j,k) = cos(px*REAL(j-1)*REAL(k-1))
-          w1(2,j,k) = sin(px*REAL(j-1)*REAL(k-1))
+          w1(1,j,k) = cos(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
+          w1(2,j,k) = sin(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
         end do
         do ir = 1,n1/m1
-          w3(1,k,ir) = cos(px*REAL(k-1)*REAL(ir-1)*REAL(m1))
-          w3(2,k,ir) = sin(px*REAL(k-1)*REAL(ir-1)*REAL(m1))
+          w3(1,k,ir) = cos(px*REAL(k-1,RKIND)*REAL(ir-1,RKIND)*REAL(m1,RKIND))
+          w3(2,k,ir) = sin(px*REAL(k-1,RKIND)*REAL(ir-1,RKIND)*REAL(m1,RKIND))
         end do
       end do
       do is = 1,n2/m2
         do j = 1,m1
-          w2(1,j,is) = cos(px*REAL(j-1)*REAL(is-1)*REAL(m2))
-          w2(2,j,is) = sin(px*REAL(j-1)*REAL(is-1)*REAL(m2))
+          w2(1,j,is) = cos(px*REAL(j-1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
+          w2(2,j,is) = sin(px*REAL(j-1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
         end do
         do ir = 1,n1/m1
-          w4(1,ir,is) = cos(px*REAL(ir-1)*REAL(m1)*REAL(is-1)*REAL(m2))
-          w4(2,ir,is) = sin(px*REAL(ir-1)*REAL(m1)*REAL(is-1)*REAL(m2))
+          w4(1,ir,is) = cos(px*REAL(ir-1,RKIND)*REAL(m1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
+          w4(2,ir,is) = sin(px*REAL(ir-1,RKIND)*REAL(m1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
         end do
       end do
 !$omp end parallel
@@ -355,7 +355,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(REAL(nx)*REAL(ny))
+        dn = 1.0_fftkind/(REAL(nx,RKIND)*REAL(ny,RKIND))
         do i = 1,nx*ny
           a(i) = conjg(a(i))*dn
         end do
@@ -479,7 +479,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(REAL(nx)*REAL(ny)*REAL(nz))
+        dn = 1.0_fftkind/(REAL(nx,RKIND)*REAL(ny,RKIND)*REAL(nz,RKIND))
         do i = 1,nx*ny*nz
           a(i) = conjg(a(i))*dn
         end do
@@ -829,11 +829,11 @@
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(REAL(m)*REAL(l))
+      px = -pi2/(REAL(m,RKIND)*REAL(l,RKIND))
 
       do 10 i = 1,l
-        w(1,i) = cos(px*REAL(i-1))
-        w(2,i) = sin(px*REAL(i-1))
+        w(1,i) = cos(px*REAL(i-1,RKIND))
+        w(2,i) = sin(px*REAL(i-1,RKIND))
    10 continue
 
       return
@@ -852,12 +852,12 @@
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(REAL(n1)*REAL(n2))
+      px = -pi2/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       do 20 k = 1,n2
         do 10 j = 1,n1
-          w(1,j,k) = cos(px*REAL(j-1)*REAL(k-1))
-          w(2,j,k) = sin(px*REAL(j-1)*REAL(k-1))
+          w(1,j,k) = cos(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
+          w(2,j,k) = sin(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
    10   continue
    20 continue
 

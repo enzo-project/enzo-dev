@@ -414,9 +414,9 @@ c
 c         Compute index of the cell that the star particle
 c           resides in.
 c 
-            i = int((xp(n) - xstart)/dx) + 1
-            j = int((yp(n) - ystart)/dx) + 1
-            k = int((zp(n) - zstart)/dx) + 1
+            i = int((xp(n) - xstart)/dx,IKIND) + 1
+            j = int((yp(n) - ystart)/dx,IKIND) + 1
+            k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
 c         check bounds - if star particle is outside of this grid
 c         then exit and give a warning.

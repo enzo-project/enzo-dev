@@ -2102,6 +2102,8 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1999
 *
+      IMPLICIT NONE
+#include "fortran_types.def"      
 *     .. Scalar Arguments ..
       CHARACTER*( * )    NAME, OPTS
       INTG_PREC          ISPEC, N1, N2, N3, N4
@@ -2590,7 +2592,7 @@ c
 *
 *     ISPEC = 6:  crossover point for SVD (used by xGELSS and xGESVD)
 *
-      ILAENV = INT( REAL( MIN( N1, N2 ) )*1.6E0 )
+      ILAENV = INT( REAL( MIN( N1, N2 ), RKIND)*1.6E0, IKIND)
       RETURN
 *
   700 CONTINUE

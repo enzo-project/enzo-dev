@@ -24,7 +24,7 @@
 
       deallocate( work )
 
-!     factor = 1.0/REAL(n1)
+!     factor = 1.0/REAL(n1,RKIND)
 
 !     if( jdir == 1 ) then
 !       scale = 1.0

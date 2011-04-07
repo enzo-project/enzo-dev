@@ -104,10 +104,10 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 
         ! get 4 random numbers for each source (3 location, 1 strength)
         call random_number(rnums)
-        i = max(min(int(rnums(4)*Nx), Nx-1), 2)
-        j = max(min(int(rnums(6)*Ny), Ny-1), 2)
-        k = max(min(int(rnums(8)*Nz), Nz-1), 2)
-!        eta(i,j,k) = rnums(10)*h_nu0*REAL(NGammaDot/dV)
+        i = max(min(int(rnums(4)*Nx,IKIND), Nx-1), 2)
+        j = max(min(int(rnums(6)*Ny,IKIND), Ny-1), 2)
+        k = max(min(int(rnums(8)*Nz,IKIND), Nz-1), 2)
+!        eta(i,j,k) = rnums(10)*h_nu0*REAL(NGammaDot/dV,RKIND)
         eta(i,j,k) = rnums(10)*h_nu0*NGammaDot/dV
 !        print '(A,3(i2,1x),A,es9.2)', '   setting source at ',i,j,k,' with strength ',eta(i,j,k)
 
@@ -193,7 +193,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      etaconst = h_nu0*NGammaDot/dV
         
      ! place ionization source in center of subdomain
-     eta(int(Nx/2),int(Ny/2),int(Nz/2)) = etaconst
+     eta(int(Nx/2,IKIND),int(Ny/2,IKIND),int(Nz/2,IKIND)) = etaconst
 
   !   homogeneous emissivity field w/ strength h_nu0*NGammaDot/dV
   elseif (ProbType == 462) then

@@ -93,26 +93,26 @@ c
 c  Compute constants
 c
       do i = 0, refine1-1
-         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3)/
-     &                 REAL(6*refine1**3                     )
-         coefp1(i+1) = REAL(3*i**2 + 3*i + 1)                 /
-     &                 REAL(6*refine1**3                     )
+         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3,RKIND)/
+     &                 REAL(6*refine1**3                     ,RKIND)
+         coefp1(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine1**3                     ,RKIND)
          coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
-         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3)/
-     &                 REAL(6*refine2**3                     )
-         coefp2(i+1) = REAL(3*i**2 + 3*i + 1)                 /
-     &                 REAL(6*refine2**3                     )
+         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3,RKIND)/
+     &                 REAL(6*refine2**3                     ,RKIND)
+         coefp2(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine2**3                     ,RKIND)
          coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
       do i = 0, refine3-1
-         coefm3(i+1) = REAL((refine3-i)**3 - (refine3-i-1)**3)/
-     &                 REAL(6*refine3**3                     )
-         coefp3(i+1) = REAL(3*i**2 + 3*i + 1)                 /
-     &                 REAL(6*refine3**3                     )
+         coefm3(i+1) = REAL((refine3-i)**3 - (refine3-i-1)**3,RKIND)/
+     &                 REAL(6*refine3**3                     ,RKIND)
+         coefp3(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine3**3                     ,RKIND)
          coef03(i+1) = 1.d0/refine3 - coefm3(i+1) - coefp3(i+1)
       enddo
 c

@@ -51,18 +51,18 @@ c=======================================================================
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/REAL(refine1)
-      fact2 = 1.d0/REAL(refine2)
-      fact3 = 1.d0/REAL(refine3)
+      fact1 = 1.d0/REAL(refine1,RKIND)
+      fact2 = 1.d0/REAL(refine2,RKIND)
+      fact3 = 1.d0/REAL(refine3,RKIND)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
-            x = (REAL(i+start1)-0.5)*fact1 + 0.5d0
-            i1 = int(x) + 1
-            dxm = 0.5d0*(    -x+REAL(i1))
-            dxp = 0.5d0*(1.d0+x-REAL(i1))
+            x = (REAL(i+start1,RKIND)-0.5)*fact1 + 0.5d0
+            i1 = int(x,IKIND) + 1
+            dxm = 0.5d0*(    -x+REAL(i1,RKIND))
+            dxp = 0.5d0*(1.d0+x-REAL(i1,RKIND))
             dx0 = 1.d0 - dxp - dxm
             dest(i,1,1) = source(i1-1,1,1)*dxm + 
      &                    source(i1  ,1,1)*dx0 +
@@ -74,16 +74,16 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=1, ddim2
-            y = (REAL(j+start2)-0.5d0)*fact2 + 0.5d0
-            j1 = int(y) + 1
-            dym = 0.5d0*(    -y+REAL(j1))
-            dyp = 0.5d0*(1.d0+y-REAL(j1))
+            y = (REAL(j+start2,RKIND)-0.5d0)*fact2 + 0.5d0
+            j1 = int(y,IKIND) + 1
+            dym = 0.5d0*(    -y+REAL(j1,RKIND))
+            dyp = 0.5d0*(1.d0+y-REAL(j1,RKIND))
             dy0 = 1.d0 - dyp - dym
             do i=1, ddim1
-               x = (REAL(i+start1)-0.5d0)*fact1 + 0.5d0
-               i1 = int(x) + 1
-               dxm = 0.5d0*(    -x+REAL(i1))
-               dxp = 0.5d0*(1.d0+x-REAL(i1))
+               x = (REAL(i+start1,RKIND)-0.5d0)*fact1 + 0.5d0
+               i1 = int(x,IKIND) + 1
+               dxm = 0.5d0*(    -x+REAL(i1,RKIND))
+               dxp = 0.5d0*(1.d0+x-REAL(i1,RKIND))
                dx0 = 1.d0 - dxp - dxm
                dest(i,j,1) = source(i1-1,j1-1,1)*dxm*dym + 
      &                       source(i1  ,j1-1,1)*dx0*dym +
@@ -102,22 +102,22 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=1, ddim3
-            z = (REAL(k+start3)-0.5)*fact3 + 0.5d0
-            k1 = int(z) + 1
-            dzm = 0.5d0*(    -z+REAL(k1))**2
-            dzp = 0.5d0*(1.d0+z-REAL(k1))**2
+            z = (REAL(k+start3,RKIND)-0.5)*fact3 + 0.5d0
+            k1 = int(z,IKIND) + 1
+            dzm = 0.5d0*(    -z+REAL(k1,RKIND))**2
+            dzp = 0.5d0*(1.d0+z-REAL(k1,RKIND))**2
             dz0 = 1.d0 - dzp - dzm
             do j=1, ddim2
-               y = (REAL(j+start2)-0.5d0)*fact2 + 0.5d0
-               j1 = int(y) + 1
-               dym = 0.5d0*(    -y+REAL(j1))**2
-               dyp = 0.5d0*(1.d0+y-REAL(j1))**2
+               y = (REAL(j+start2,RKIND)-0.5d0)*fact2 + 0.5d0
+               j1 = int(y,IKIND) + 1
+               dym = 0.5d0*(    -y+REAL(j1,RKIND))**2
+               dyp = 0.5d0*(1.d0+y-REAL(j1,RKIND))**2
                dy0 = 1.d0 - dyp - dym
                do i=1, ddim1
-                  x = (REAL(i+start1)-0.5d0)*fact1 + 0.5d0
-                  i1 = int(x) + 1
-                  dxm = 0.5d0*(   -x+REAL(i1))**2
-                  dxp = 0.5d0*(1.d0+x-REAL(i1))**2
+                  x = (REAL(i+start1,RKIND)-0.5d0)*fact1 + 0.5d0
+                  i1 = int(x,IKIND) + 1
+                  dxm = 0.5d0*(   -x+REAL(i1,RKIND))**2
+                  dxp = 0.5d0*(1.d0+x-REAL(i1,RKIND))**2
                   dx0 = 1.d0 - dxp - dxm
                   dest(i,j,k) = source(i1-1,j1-1,k1-1)*dxm*dym*dzm + 
      &                          source(i1  ,j1-1,k1-1)*dx0*dym*dzm +

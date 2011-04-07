@@ -78,18 +78,18 @@ c
 c  Compute constants
 c
       do i = 0, refine1-1
-         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3)/
-     &                 REAL(6*refine1**3                     )
-         coefp1(i+1) = REAL(3*i**2 + 3*i + 1)                 /
-     &                 REAL(6*refine1**3                     )
+         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3,RKIND)/
+     &                 REAL(6*refine1**3                     ,RKIND)
+         coefp1(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine1**3                     ,RKIND)
          coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
-         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3)/
-     &                 REAL(6*refine2**3                     )
-         coefp2(i+1) = REAL(3*i**2 + 3*i + 1)                 /
-     &                 REAL(6*refine2**3                     )
+         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3,RKIND)/
+     &                 REAL(6*refine2**3                     ,RKIND)
+         coefp2(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine2**3                     ,RKIND)
          coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
@@ -126,7 +126,7 @@ c
                enddo
             enddo
             factor = (parent((i-1)/refine1+1, (j-1)/refine2+1) - sum)/
-     &                REAL(refine1*refine2)
+     &                REAL(refine1*refine2,RKIND)
             do jsub = 0, refine2-1
                do isub = 0, refine1-1
 c                  grid(i-start1+gstart1+isub, j-start2+gstart2+jsub) = 
@@ -147,7 +147,7 @@ c    to the neighbour and the average value), then decrease the entire
 c    profile as needed, but do it in such a way as to keep the average value
 c    the same.
 c
-      dV = 1.0/REAL(refine1*refine2)
+      dV = 1.0/REAL(refine1*refine2,RKIND)
       do iter = 1, num_iter
 c
 c  1) Do it first in the i direction
@@ -165,7 +165,7 @@ c
          enddo
          do i = start1, end1
             temp((i-start1)/refine1 + 1) = temp((i-start1)/refine1 + 1)
-     &         + grid(i-start1+gstart1, jgrid)/REAL(refine1)
+     &         + grid(i-start1+gstart1, jgrid)/REAL(refine1,RKIND)
          enddo
 c
 c        Check to see if the end of the distribution is a local maxima
@@ -231,7 +231,7 @@ c
          enddo
          do j = start2, end2
             temp((j-start2)/refine2 + 1) = temp((j-start2)/refine2 + 1)
-     &         + grid(igrid, j-start2+gstart2)/REAL(refine2)
+     &         + grid(igrid, j-start2+gstart2)/REAL(refine2,RKIND)
          enddo
 c
 c        Check to see if the end of the distribution is a local maxima

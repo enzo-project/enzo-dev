@@ -149,7 +149,7 @@ c
 c        Copy real part of tempbuffer to buffer & scale.
 c
 
-!        factor = 1.0/REAL(dim1*dim2*dim3)
+!        factor = 1.0/REAL(dim1*dim2*dim3,RKIND)
 
          do k = 1, dim3
             do j = 1, dim2

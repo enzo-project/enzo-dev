@@ -147,9 +147,9 @@ c     &                     rr_leftedge(1), rr_leftedge(2), level
 c
 c           Compute index of the cell that the parent particle resides in.
 c 
-            i = int((xpold(n) - xstart)/dx) + 1
-            j = int((ypold(n) - ystart)/dx) + 1
-            k = int((zpold(n) - zstart)/dx) + 1
+            i = int((xpold(n) - xstart)/dx,IKIND) + 1
+            j = int((ypold(n) - ystart)/dx,IKIND) + 1
+            k = int((zpold(n) - zstart)/dx,IKIND) + 1
 c
 c           Check bounds [2] - if the particle is outside of this grid
 c           then give a warning and exit.  (This is very possible when 

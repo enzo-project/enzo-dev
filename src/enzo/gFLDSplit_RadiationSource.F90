@@ -197,7 +197,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
      etaconst = h_nu0*NGammaDot*specconst/dV
         
      ! place ionization source in center of subdomain
-     Ersrc(int(Nx/2),int(Ny/2),int(Nz/2)) = etaconst
+     Ersrc(int(Nx/2,IKIND),int(Ny/2,IKIND),int(Nz/2,IKIND)) = etaconst
      
   endif ! ProbType
 

@@ -218,7 +218,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -670,7 +670,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1168,7 +1168,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      T = max(1.d0*T,1.d0*min_temp)
      lamT = 3.15614d5/T
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1387,7 +1387,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      T = max(1.d0*T,1.d0*min_temp)
      lamT = 3.15614d5/T
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp

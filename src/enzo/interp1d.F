@@ -108,7 +108,9 @@ c        And interpolate to the subgrid.
 c
          do i1 = 0, refine1-1
             grid(gstart1+(i-1)*refine1+i1) = (fbar +
-     &            (REAL(i1)+0.5d0-0.5d0*REAL(refine1))/REAL(refine1)*fx)
+     &            (REAL(i1,RKIND)+0.5d0 - 
+     &             0.5d0*REAL(refine1,RKIND)) / 
+     &             REAL(refine1,RKIND)*fx)
          enddo
 c
       enddo

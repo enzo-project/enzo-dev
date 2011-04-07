@@ -74,9 +74,9 @@ c
       if (ndim .eq. 1) then
 c
          do i = start1, end1
-            xpos    = (REAL(i)-xshift)/REAL(refine1) + 1.d0
-            iparent = int(xpos-(1.d0-xshift))
-            dx      = REAL(iparent) - xpos + 2.d0 - xshift
+            xpos    = (REAL(i,RKIND)-xshift)/REAL(refine1,RKIND) + 1.d0
+            iparent = int(xpos-(1.d0-xshift),IKIND)
+            dx      = REAL(iparent,RKIND) - xpos + 2.d0 - xshift
 c
             grid(i-start1+gstart1, 1, 1) =
      &                 dx  * parent(iparent  , 1, 1) +
@@ -90,14 +90,14 @@ c
       if (ndim .eq. 2) then
 c
         do j = start2, end2
-          ypos    = (REAL(j)-yshift)/REAL(refine2) + 1.d0
-          jparent = int(ypos-(1.d0-yshift))
-          dy      = REAL(jparent) - ypos + 2.d0 - yshift
+          ypos    = (REAL(j,RKIND)-yshift)/REAL(refine2,RKIND) + 1.d0
+          jparent = int(ypos-(1.d0-yshift),IKIND)
+          dy      = REAL(jparent,RKIND) - ypos + 2.d0 - yshift
 c
           do i = start1, end1
-            xpos    = (REAL(i)-xshift)/REAL(refine1) + 1.d0
-            iparent = int(xpos-(1.d0-xshift))
-            dx      = REAL(iparent) - xpos + 2.d0 - xshift
+            xpos    = (REAL(i,RKIND)-xshift)/REAL(refine1,RKIND) + 1.d0
+            iparent = int(xpos-(1.d0-xshift),IKIND)
+            dx      = REAL(iparent,RKIND) - xpos + 2.d0 - xshift
 c
             grid(i-start1+gstart1, j-start2+gstart2, 1) =
      &         dx *      dy * parent(iparent  , jparent  , 1) +
@@ -114,19 +114,19 @@ c     3d)
 c
       if (ndim .eq. 3) then
       do k = start3, end3
-        zpos    = (REAL(k)-zshift)/REAL(refine3) + 1.d0
-        kparent = int(zpos-(1.d0-zshift))
-        dz      = REAL(kparent) - zpos + 2.d0 - zshift
+        zpos    = (REAL(k,RKIND)-zshift)/REAL(refine3,RKIND) + 1.d0
+        kparent = int(zpos-(1.d0-zshift),IKIND)
+        dz      = REAL(kparent,RKIND) - zpos + 2.d0 - zshift
 c
         do j = start2, end2
-          ypos    = (REAL(j)-yshift)/REAL(refine2) + 1.d0
-          jparent = int(ypos-(1.d0-yshift))
-          dy      = REAL(jparent) - ypos + 2.d0 - yshift
+          ypos    = (REAL(j,RKIND)-yshift)/REAL(refine2,RKIND) + 1.d0
+          jparent = int(ypos-(1.d0-yshift),IKIND)
+          dy      = REAL(jparent,RKIND) - ypos + 2.d0 - yshift
 c
           do i = start1, end1
-            xpos    = (REAL(i)-xshift)/REAL(refine1) + 1.d0
-            iparent = int(xpos-(1.d0-xshift))
-            dx      = REAL(iparent) - xpos + 2.d0 - xshift
+            xpos    = (REAL(i,RKIND)-xshift)/REAL(refine1,RKIND) + 1.d0
+            iparent = int(xpos-(1.d0-xshift),IKIND)
+            dx      = REAL(iparent,RKIND) - xpos + 2.d0 - xshift
 c
             grid(i-start1+gstart1, j-start2+gstart2, k-start3+gstart3) =
      &           dx *   dy *   dz * 

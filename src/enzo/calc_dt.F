@@ -76,12 +76,13 @@ c
          do i = i1+1, i2+1
             cs = max(sqrt(gamma*p(i,1,1)/d(i,1,1)), tiny)
             if (ipfree .eq. 1) cs = tiny
-            dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,1,1)-vgx))))
+            dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,1,1)-vgx)),RKIND))
          enddo
          if (ihydro .eq. 2) then
             do i = i1+1, i2+1
                dtviscous = min(dtviscous,
-     &     REAL(dx(i)*aye/(4.d0*C2*max(-u(i+1,1,1)+u(i,1,1),tiny))))
+     &              REAL(dx(i)*aye/(4.d0*C2*
+     &              max(-u(i+1,1,1)+u(i,1,1),tiny)),RKIND))
             enddo
          endif
       endif
@@ -98,21 +99,25 @@ c
 c 	Here is Godunov's formula (to make sure ppm works with 0.8)
 c
  	       dt = min(dt, REAL(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
-     &                       (cs + abs(v(i,j,1)-vgy))/dy(j)) ))
+     &                       (cs + abs(v(i,j,1)-vgy))/dy(j)), RKIND))
                else
 c
 c       The way it was originally in enzo
 c
-               dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,j,1)-vgx))),
-     &                      REAL(dy(j)*aye/(cs + abs(v(i,j,1)-vgy))))
+               dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,j,1)-vgx)),
+     &                           RKIND),
+     &                      REAL(dy(j)*aye/(cs + abs(v(i,j,1)-vgy)),
+     &                           RKIND))
                endif
             enddo
 c
             if (ihydro .eq. 2) then
                do i = i1+1, i2+1
                   dtviscous = min(dtviscous, 
-     &      REAL(dx(i)*aye/(4.d0*C2*max(-u(i+1,j,1)+u(i,j,1),tiny))),
-     &      REAL(dy(j)*aye/(4.d0*C2*max(-v(i,j+1,1)+v(i,j,1),tiny))))
+     &      REAL(dx(i)*aye/(4.d0*C2*max(-u(i+1,j,1)+u(i,j,1),tiny)),
+     &                 RKIND),
+     &      REAL(dy(j)*aye/(4.d0*C2*max(-v(i,j+1,1)+v(i,j,1),tiny)),
+     &                 RKIND))
                enddo
             endif
          enddo

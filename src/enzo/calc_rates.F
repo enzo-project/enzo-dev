@@ -283,7 +283,7 @@ c  Compute log spacing in temperature
 c
       ttt    = temstart
       logttt = log(ttt)
-      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 c
 c  Initialize constants to tiny
 c
@@ -362,7 +362,7 @@ c
 c
 c       Compute temperature of this bin (in eV)
 c
-        logttt = log(temstart) + REAL(i-1)*dlogtem
+        logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
         ttt = exp(logttt)
         tev = ttt/tevk
         logtev = log(tev)
@@ -633,7 +633,7 @@ c  Write out cgs rate coefficients
 c
 c      open(10, file='k1-6.out', status='unknown')
 c      do i = 1, nratec
-c         write(10,1010) exp(log(temstart) + REAL(i-1)*dlogtem),
+c         write(10,1010) exp(log(temstart) + REAL(i-1,RKIND)*dlogtem),
 c     &               k1a(i),k2a(i),k3a(i),k4a(i),k5a(i),k6a(i)
 c      enddo
 c 1010 format(7(1pe11.4))
@@ -644,7 +644,7 @@ c  2) Cooling/heating rates (excluding external radiation field)
 c
       do i = 1, nratec
 c
-        logttt = log(temstart) + REAL(i-1)*dlogtem
+        logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
         ttt = exp(logttt)
 c
 c    a) Collisional excitations (Black 1981; Cen 1992)
@@ -1143,7 +1143,7 @@ c
 !      call open_mpi_error_file( 'cool_rates.out', 10, 'unknown' )
 
         do i=1, nratec
-           logttt = log(temstart) + REAL(i-1)*dlogtem
+           logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
            ttt = exp(logttt)
            write(10,1000) ttt, ceHIa(i), ceHeIa(i), ceHeIIa(i),
      &                    ciHIa(i), ciHeIa(i), ciHeISa(i),
@@ -1169,7 +1169,7 @@ c
 !      call open_mpi_error_file( 'rates.out', 10, 'unknown' )
 
         do i=1, nratec
-           logttt = log(temstart) + REAL(i-1)*dlogtem
+           logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
            ttt = exp(logttt)
            write(10,1000) ttt, k1a(i), k2a(i), k3a(i), k4a(i), k5a(i),
      &                    k6a(i), k7a(i), k8a(i), k9a(i), k10a(i),

@@ -481,9 +481,9 @@ c
 c
 c           Compute index of nearest cell
 c 
-            i = int((xp(n) - xstart)/dx) + 1
-            j = int((yp(n) - ystart)/dx) + 1
-            k = int((zp(n) - zstart)/dx) + 1
+            i = int((xp(n) - xstart)/dx,IKIND) + 1
+            j = int((yp(n) - ystart)/dx,IKIND) + 1
+            k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
             if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
      &          .or. k .lt. 1 .or. k .gt. nz) then

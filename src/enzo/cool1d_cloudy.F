@@ -121,22 +121,22 @@
 !     Calculate parameter value slopes
 
       dclPar(1) = (clPar1(clGridDim(1)) - clPar1(1)) / 
-     &     REAL(clGridDim(1) - 1)
+     &     REAL(clGridDim(1) - 1, RKIND)
       if (clGridRank .gt. 1) then
          dclPar(2) = (clPar2(clGridDim(2)) - clPar2(1)) / 
-     &        REAL(clGridDim(2) - 1)
+     &        REAL(clGridDim(2) - 1, RKIND)
       endif
       if (clGridRank .gt. 2) then
          dclPar(3) = (clPar3(clGridDim(3)) - clPar3(1)) / 
-     &        REAL(clGridDim(3) - 1)
+     &        REAL(clGridDim(3) - 1, RKIND)
       endif
       if (clGridRank .gt. 3) then
          dclPar(4) = (clPar4(clGridDim(4)) - clPar4(1)) / 
-     &        REAL(clGridDim(4) - 1)
+     &        REAL(clGridDim(4) - 1, RKIND)
       endif
       if (clGridRank .gt. 4) then
          dclPar(5) = (clPar5(clGridDim(5)) - clPar5(1)) / 
-     &        REAL(clGridDim(5) - 1)
+     &        REAL(clGridDim(5) - 1, RKIND)
       endif
 
       do i=is+1, ie+1
@@ -374,7 +374,7 @@
 !     Calculate interpolation index
 
       index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
+     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
 
 !     Interpolate over parameter 1
 
@@ -417,9 +417,9 @@
 !     Calculate interpolation indices
 
       index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
+     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
       index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
+     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
 
       do q=1, 2
 
@@ -478,11 +478,11 @@
 !     Calculate interpolation indices
 
       index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
+     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
       index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
+     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
       index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3)+1))
+     &     max(1,int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
 
       do q=1, 2
 
@@ -556,13 +556,13 @@
 !     Calculate interpolation indices
 
       index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
+     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
       index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
+     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
       index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3)+1))
+     &     max(1,int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
       index4 = min(gridDim(4)-1,
-     &     max(1,int((input4-gridPar4(1))/dgridPar4)+1))
+     &     max(1,int((input4-gridPar4(1))/dgridPar4,IKIND)+1))
 
       do q=1, 2
 
@@ -651,11 +651,11 @@
 !     Calculate interpolation indices
 
       index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
+     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
       index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
+     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
       index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3)+1))
+     &     max(1,int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
 #define INDEX_4_BISECTION
 #ifdef INDEX_4_BISECTION
 !     get index 4 with bisection, since not evenly spaced
@@ -667,7 +667,7 @@
          index4 = 1
          highPt = gridDim(4)
          do while ((highPt - index4) .gt. 1)
-            midPt = int((highPt + index4) / 2)
+            midPt = int((highPt + index4) / 2,IKIND)
             if (input4 .ge. gridPar4(midPt)) then
                index4 = midPt
             else
@@ -677,10 +677,10 @@
       endif
 #else
       index4 = min(gridDim(4)-1,
-     &     max(1,int((input4-gridPar4(1))/dgridPar4)+1))
+     &     max(1,int((input4-gridPar4(1))/dgridPar4,IKIND)+1))
 #endif /* INDEX_4_BISECTION */
       index5 = min(gridDim(5)-1,
-     &     max(1,int((input5-gridPar5(1))/dgridPar5)+1))
+     &     max(1,int((input5-gridPar5(1))/dgridPar5,IKIND)+1))
 
       do q=1, 2
 

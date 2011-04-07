@@ -517,8 +517,8 @@ c
       if (ivel_shift .eq. 1) then
        do k = start3, end3
           do j = start2, end2
-             fact1 = (REAL(irefine)+1.0)/(2.0*REAL(irefine))
-             fact2 = (REAL(irefine)-1.0)/(2.0*REAL(irefine))
+             fact1 = (REAL(irefine,RKIND)+1.0)/(2.0*REAL(irefine,RKIND))
+             fact2 = (REAL(irefine,RKIND)-1.0)/(2.0*REAL(irefine,RKIND))
              do i = start1, end1
                 dest   (i-dstart1+1, j-dstart2+1, k-dstart3+1) = fact1*(
      &          source1(i-sstart1+1, j-sstart2+1, k-sstart3+1)*weight1 +
@@ -534,8 +534,8 @@ c
       if (ivel_shift .eq. 2) then
        do k = start3, end3
           do j = start2, end2
-             fact1 = (REAL(irefine)+1.0)/(2.0*REAL(irefine))
-             fact2 = (REAL(irefine)-1.0)/(2.0*REAL(irefine))
+             fact1 = (REAL(irefine,RKIND)+1.0)/(2.0*REAL(irefine,RKIND))
+             fact2 = (REAL(irefine,RKIND)-1.0)/(2.0*REAL(irefine,RKIND))
              do i = start1, end1
                 dest   (i-dstart1+1, j-dstart2+1, k-dstart3+1) = fact1*(
      &          source1(i-sstart1+1, j-sstart2+1, k-sstart3+1)*weight1 +
@@ -551,8 +551,8 @@ c
       if (ivel_shift .eq. 3) then
        do k = start3, end3
           do j = start2, end2
-             fact1 = (REAL(irefine)+1.0)/(2.0*REAL(irefine))
-             fact2 = (REAL(irefine)-1.0)/(2.0*REAL(irefine))
+             fact1 = (REAL(irefine,RKIND)+1.0)/(2.0*REAL(irefine,RKIND))
+             fact2 = (REAL(irefine,RKIND)-1.0)/(2.0*REAL(irefine,RKIND))
              do i = start1, end1
                 dest   (i-dstart1+1, j-dstart2+1, k-dstart3+1) = fact1*(
      &          source1(i-sstart1+1, j-sstart2+1, k-sstart3+1)*weight1 +

@@ -170,7 +170,7 @@
 
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 
 !     Set units
 
@@ -315,7 +315,7 @@
 !        Compute index into the table and precompute parts of linear interp
 
          indixe(i) = min(nratec-1,
-     &                   max(1,int((logtem(i)-logtem0)/dlogtem)+1))
+     &        max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))
@@ -714,13 +714,13 @@ c               endif
 
          logxe0 = log(xe_start)
          logxe1 = log(xe_end)
-         dlogxea = (logxe1 - logxe0) / REAL(n_xe-1)
+         dlogxea = (logxe1 - logxe0) / REAL(n_xe-1,RKIND)
 c
 c  Determine temperature for CMB temperature so we can subtract metal
 c  cooling at T=T_cmb
 c
          logtcmb = log(comp2)
-         tcmb_idx = max(1, int((logtcmb-logtem0)/dlogtem)+1)
+         tcmb_idx = max(1, int((logtcmb-logtem0)/dlogtem,IKIND)+1)
          dlogTcmb = (logtcmb - (logtem0 + (tcmb_idx-1)*dlogtem)) 
      $        / dlogtem
          do i = is+1, ie+1
@@ -741,7 +741,7 @@ c               if (tgas(i) .lt. 1e4) xe = min(xe, 1e-2)
                   log_xe = min(log_xe, xe_max)
                endif
                xe_idx = min(n_xe-1,
-     $              max(1, int((log_xe - logxe0)/dlogxea)+1))
+     $              max(1, int((log_xe - logxe0)/dlogxea,IKIND)+1))
                xe1 = logxe0 + (xe_idx - 1)*dlogxea
                dlogT = tdef(i)
                dlogxe = (log_xe - xe1) / dlogxea

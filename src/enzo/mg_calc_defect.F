@@ -55,9 +55,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = -REAL(dim1-1)/12.d0
-      h2 = h1*REAL(dim2-1)
-      h3 = h2*REAL(dim3-1)
+      h1 = -REAL(dim1-1,RKIND)/12.d0
+      h2 = h1*REAL(dim2-1,RKIND)
+      h3 = h2*REAL(dim3-1,RKIND)
 c
 c     a) 1D
 c
@@ -171,9 +171,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = -REAL(dim1-1)/1080.d0
-      h2 = h1*REAL(dim2-1)
-      h3 = h2*REAL(dim3-1)
+      h1 = -REAL(dim1-1,RKIND)/1080.d0
+      h2 = h1*REAL(dim2-1,RKIND)
+      h3 = h2*REAL(dim3-1,RKIND)
 c
 c     a) 1D
 c
@@ -312,9 +312,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = -REAL(dim1-1)
-      h2 = h1*REAL(dim2-1)
-      h3 = h2*REAL(dim3-1)
+      h1 = -REAL(dim1-1,RKIND)
+      h2 = h1*REAL(dim2-1,RKIND)
+      h3 = h2*REAL(dim3-1,RKIND)
 c
 c     a) 1D
 c

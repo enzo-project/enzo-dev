@@ -247,9 +247,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c     -- standard 2nd order derivative operators --
 c
-      fact1 = -1.d0/(REAL(iflag+1)*delx)
-      fact2 = -1.d0/(REAL(iflag+1)*dely)
-      fact3 = -1.d0/(REAL(iflag+1)*delz)
+      fact1 = -1.d0/(REAL(iflag+1,RKIND)*delx)
+      fact2 = -1.d0/(REAL(iflag+1,RKIND)*dely)
+      fact3 = -1.d0/(REAL(iflag+1,RKIND)*delz)
 c
 c     1) 1D
 c

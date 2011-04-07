@@ -31,7 +31,7 @@
       i0 = 0
       i1 = idir
 
-      factor = 1.0e-00/REAL(n1)
+      factor = 1.0e-00/REAL(n1,RKIND)
 
       if( idir == -1 ) then
         scale = 1.0e-00
@@ -76,7 +76,7 @@
       i0 = 0
       i1 = idir
 
-      factor = 1.0d-00/REAL(n1)
+      factor = 1.0d-00/REAL(n1,RKIND)
 
       if( idir == -1 ) then
         scale = 1.0d-00

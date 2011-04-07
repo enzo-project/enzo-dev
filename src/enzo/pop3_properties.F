@@ -371,8 +371,8 @@ c------------------------------------------------------------------------
          luminosity = lumtable(995)
          lifetime = lifetable(995)
       else
-         luminosity = lumtable(nint(mass-minmass))
-         lifetime = lifetable(nint(mass-minmass))
+         luminosity = lumtable(nint(mass-minmass,IKIND))
+         lifetime = lifetable(nint(mass-minmass,IKIND))
       endif
 
       return

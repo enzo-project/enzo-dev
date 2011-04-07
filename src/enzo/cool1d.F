@@ -76,7 +76,7 @@ c     Set log values of start and end of lookup tables
 c
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 c
 c     Compute Pressure
 c
@@ -135,7 +135,7 @@ c
 c        Compute index into the table and precompute parts of linear interp
 c
          indixe(i) = min(nratec-1,
-     .                  max(1,int((logtem(i)-logtem0)/dlogtem)+1))
+     .                  max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)

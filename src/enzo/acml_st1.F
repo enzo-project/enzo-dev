@@ -33,11 +33,11 @@
 
       if( idir == -1 ) then
         do i = 1, n1
-          x(i) = x(i) * sqrt(REAL(n1))
+          x(i) = x(i) * sqrt(REAL(n1,RKIND))
         end do
       else
         do i = 1, n1
-          x(i) = x(i) / sqrt(REAL(n1))
+          x(i) = x(i) / sqrt(REAL(n1,RKIND))
         end do
       end if
 
@@ -79,11 +79,11 @@
 
       if( idir == -1 ) then
         do i = 1, n1
-          x(i) = x(i) * sqrt(REAL(n1))
+          x(i) = x(i) * sqrt(REAL(n1,RKIND))
         end do
       else
         do i = 1, n1
-          x(i) = x(i) / sqrt(REAL(n1))
+          x(i) = x(i) / sqrt(REAL(n1,RKIND))
         end do
       end if
 

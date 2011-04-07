@@ -50,7 +50,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/REAL(n1)
+      factor = 1.0/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -116,7 +116,7 @@
         naux2 = 20000+(max(n1,n2)+256)*(min(64,n1,n2)+1.14)
       end if
 
-      factor = 1.0/(REAL(n1)*REAL(n2))
+      factor = 1.0/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -201,7 +201,7 @@
 
       write(*,*) naux
 
-      factor = 1.0/(REAL(n1)*REAL(n2)*REAL(n3))
+      factor = 1.0/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -269,7 +269,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/REAL(n1)
+      factor = 1.0d-00/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
         scale = 1.0d-00
@@ -332,7 +332,7 @@
         naux2 = 20000+(2*max(n1,n2)+256)*(min(64,n1,n2)+2.28)
       end if
 
-      factor = 1.0d-00/(REAL(n1)*REAL(n2))
+      factor = 1.0d-00/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == 1 ) then
         scale = 1.0d-00
@@ -417,7 +417,7 @@
 
       write(*,*) naux
 
-      factor = 1.0d-00/(REAL(n1)*REAL(n2)*REAL(n3))
+      factor = 1.0d-00/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == 1 ) then
         scale = 1.0d-00

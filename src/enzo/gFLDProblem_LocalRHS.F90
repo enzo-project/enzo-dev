@@ -417,7 +417,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -540,7 +540,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -619,7 +619,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -760,7 +760,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -879,7 +879,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp

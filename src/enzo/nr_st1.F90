@@ -9,7 +9,7 @@
       INTG_PREC :: n(3)
       R_PREC :: factor
 
-      factor = 1.0/REAL(n1)
+      factor = 1.0/REAL(n1,RKIND)
 
       n(1) = n1
       n(2) = 1

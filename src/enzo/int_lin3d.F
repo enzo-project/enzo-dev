@@ -209,12 +209,15 @@ c
                         grid(gstart1+(i-1)*refine1+i1,
      &                       gstart2+(j-1)*refine2+j1,
      &                       gstart3+(k-1)*refine3+k1) = (fbar +
-     &                       (REAL(i1) + 
-     &                     0.5d0-0.5d0*REAL(refine1))/REAL(refine1)*fx +
-     &                       (REAL(j1) +
-     &                     0.5d0-0.5d0*REAL(refine2))/REAL(refine2)*fy +
-     &                       (REAL(k1) +
-     &                     0.5d0-0.5d0*REAL(refine3))/REAL(refine3)*fz )
+     &                       (REAL(i1,RKIND) + 0.5d0 -
+     &                        0.5d0*REAL(refine1,RKIND)) / 
+     &                        REAL(refine1,RKIND)*fx +
+     &                       (REAL(j1,RKIND) + 0.5d0 -
+     &                        0.5d0*REAL(refine2,RKIND)) / 
+     &                        REAL(refine2,RKIND)*fy +
+     &                       (REAL(k1,RKIND) + 0.5d0 -
+     &                        0.5d0*REAL(refine3,RKIND)) / 
+     &                        REAL(refine3,RKIND)*fz )
                         if (iposflag .eq. 1 .and. 
      &                       grid(gstart1+(i-1)*refine1+i1,
      &                          gstart2+(j-1)*refine2+j1,

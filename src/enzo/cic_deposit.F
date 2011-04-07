@@ -62,9 +62,9 @@ c
 !     write(0,*) npositions, leftedge, dim1, dim2, dim3, cellsize
 
       fact = 1.d0/cellsize
-      edge1 = REAL(dim1) - half
-      edge2 = REAL(dim2) - half
-      edge3 = REAL(dim3) - half
+      edge1 = REAL(dim1,RKIND) - half
+      edge2 = REAL(dim2,RKIND) - half
+      edge3 = REAL(dim3,RKIND) - half
 c
 c     1D
 c
@@ -78,11 +78,11 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0)
+            i1  = int(xpos + 0.5d0,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1) + 0.5d0 - xpos
+            dx = REAL(i1,RKIND) + 0.5d0 - xpos
 c
 c           Interpolate from field into sumfield
 c
@@ -106,13 +106,13 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0)
-            j1  = int(ypos + 0.5d0)
+            i1  = int(xpos + 0.5d0,IKIND)
+            j1  = int(ypos + 0.5d0,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1) + 0.5d0 - xpos
-            dy = REAL(j1) + 0.5d0 - ypos
+            dx = REAL(i1,RKIND) + 0.5d0 - xpos
+            dy = REAL(j1,RKIND) + 0.5d0 - ypos
 c
 c           Interpolate from field into sumfield
 c
@@ -145,15 +145,15 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0)
-            j1  = int(ypos + 0.5d0)
-            k1  = int(zpos + 0.5d0)
+            i1  = int(xpos + 0.5d0,IKIND)
+            j1  = int(ypos + 0.5d0,IKIND)
+            k1  = int(zpos + 0.5d0,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1) + 0.5d0 - xpos
-            dy = REAL(j1) + 0.5d0 - ypos
-            dz = REAL(k1) + 0.5d0 - zpos
+            dx = REAL(i1,RKIND) + 0.5d0 - xpos
+            dy = REAL(j1,RKIND) + 0.5d0 - ypos
+            dz = REAL(k1,RKIND) + 0.5d0 - zpos
 c
 c           Interpolate from field into sumfield
 
@@ -165,9 +165,9 @@ c
 c     
 c     Convert this into an INTG_PREC index
 c     
-               i1  = int(xpos)+1
-               j1  = int(ypos)+1
-               k1  = int(zpos)+1
+               i1  = int(xpos,IKIND)+1
+               j1  = int(ypos,IKIND)+1
+               k1  = int(zpos,IKIND)+1
 c     
 c     Add from field into sumfield
 c     
@@ -186,15 +186,15 @@ c
 c     
 c     Convert this into an INTG_PREC index
 c     
-               i1  = int(xpos + 0.5)
-               j1  = int(ypos + 0.5)
-               k1  = int(zpos + 0.5)
+               i1  = int(xpos + 0.5,IKIND)
+               j1  = int(ypos + 0.5,IKIND)
+               k1  = int(zpos + 0.5,IKIND)
 c     
 c     Compute the weights
 c     
-               dx = REAL(i1) + 0.5 - xpos
-               dy = REAL(j1) + 0.5 - ypos
-               dz = REAL(k1) + 0.5 - zpos
+               dx = REAL(i1,RKIND) + 0.5 - xpos
+               dy = REAL(j1,RKIND) + 0.5 - ypos
+               dz = REAL(k1,RKIND) + 0.5 - zpos
 c     
 c     Interpolate from field into sumfield
 c     

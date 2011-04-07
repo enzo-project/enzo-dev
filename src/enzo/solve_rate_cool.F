@@ -267,7 +267,7 @@
       uvel     = uxyz / utim
       chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
 
-      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 
 !  Convert densities from comoving to proper
 
@@ -546,17 +546,17 @@
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
-!                 dtit(i) = min(REAL(abs(0.1*energy/edot(i))), 
+!                 dtit(i) = min(REAL(abs(0.1*energy/edot(i)),RKIND), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
-                  dtit(i) = min(REAL(abs(0.1d0*energy/edot(i))), 
+                  dtit(i) = min(REAL(abs(0.1d0*energy/edot(i)),RKIND), 
      &                        dt-ttot(i), dtit(i))
 !              endif
 
                if (dtit(i) .ne. dtit(i)) !#####
      &           write(6,*) 'HUGE dtit :: ', energy, edot(i), dtit(i),
      &                      dt, ttot(i), abs(0.1d0*energy/edot(i)), 
-     &                      REAL(abs(0.1d0*energy/edot(i)))
+     &                      REAL(abs(0.1d0*energy/edot(i)),RKIND)
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
@@ -917,7 +917,7 @@ c -------------------------------------------------------------------
 
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 
       do i = is+1, ie+1
          if (itmask(i)) then
@@ -931,7 +931,7 @@ c -------------------------------------------------------------------
 !        Find index into tble and precompute interpolation values
 
          indixe(i) = min(nratec-1,
-     &        max(1,int((logtem(i)-logtem0)/dlogtem)+1))
+     &        max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))

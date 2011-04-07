@@ -712,7 +712,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
   lTempE = log(TempEnd)
   dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
   lTemp = min(max(log(T), lTempS), lTempE)
-  Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+  Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
   Tidxp = Tidx+1
   Tl = lTempS + (Tidx-1)*dlTemp
   Tr = lTempS +  Tidx*dlTemp
@@ -1095,7 +1095,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp

@@ -275,14 +275,14 @@ c            energy = p(i,j,k)/(gamma-1.d0)
 !            Compute timestep for 10% change
 
 c            if (iter .gt. 100) then
-c               dtit(i) = min(REAL(abs(0.01d0*energy/edot(i))), 
+c               dtit(i) = min(REAL(abs(0.01d0*energy/edot(i)),RKIND), 
 c    &                        dt-ttot(i), dt2)
 c            else
-c               dtit(i) = min(REAL(abs(0.1d0*energy/edot(i))), 
+c               dtit(i) = min(REAL(abs(0.1d0*energy/edot(i)),RKIND), 
 c    &                        dt-ttot(i), dt2)
 c            endif
 
-             dtit(i) = min(REAL(abs(0.1d0*energy/edot(i))),
+             dtit(i) = min(REAL(abs(0.1d0*energy/edot(i)),RKIND),
      &                     dt-ttot(i), dt2)
 
              if ( dt-ttot(i) .le. tolerance*dt ) then

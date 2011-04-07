@@ -32,7 +32,7 @@
       n(2) = n2
       n(3) = n3
 
-      factor = 1.d0/REAL(n1)
+      factor = 1.d0/REAL(n1,RKIND)
 
       if( dir == -1 ) then
         call fourn(x, n, rank, dir)

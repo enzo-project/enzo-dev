@@ -134,9 +134,9 @@ c
       if (option .eq. 1) then
          do n=1, npart
             if (typeold(n) .eq. ctype) then
-               i_c = int((xpold(n) - xstart)/dx) + 1
-               j_c = int((ypold(n) - ystart)/dx) + 1
-               k_c = int((zpold(n) - zstart)/dx) + 1
+               i_c = int((xpold(n) - xstart)/dx,IKIND) + 1
+               j_c = int((ypold(n) - ystart)/dx,IKIND) + 1
+               k_c = int((zpold(n) - zstart)/dx,IKIND) + 1
             endif
          enddo
       endif
@@ -462,9 +462,9 @@ c
 c         Compute index of the cell that the star particle
 c           resides in.
 c 
-            i = int((xp(n) - xstart)/dx) + 1
-            j = int((yp(n) - ystart)/dx) + 1
-            k = int((zp(n) - zstart)/dx) + 1
+            i = int((xp(n) - xstart)/dx,IKIND) + 1
+            j = int((yp(n) - ystart)/dx,IKIND) + 1
+            k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
 c         check bounds - if star particle is outside of this grid
 c         then exit and give a warning.

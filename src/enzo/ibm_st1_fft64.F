@@ -48,7 +48,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/REAL(n1)
+      factor = 1.0/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -117,7 +117,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/REAL(n1)
+      factor = 1.0d-00/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
         scale = 1.0d-00

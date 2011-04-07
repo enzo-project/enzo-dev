@@ -135,10 +135,12 @@ c
                do i1 = 0, refine1-1
                   grid(gstart1+(i-1)*refine1+i1,
      &                 gstart2+(j-1)*refine2+j1) = (fbar +
-     &               (REAL(i1)+0.5d0 -
-     &                 0.5d0*REAL(refine1))/REAL(refine1)*fx +
-     &               (REAL(j1)+0.5d0 
-     &                 -0.5d0*REAL(refine2))/REAL(refine2)*fy )
+     &               (REAL(i1,RKIND)+0.5d0 -
+     &                 0.5d0*REAL(refine1,RKIND)) / 
+     &                 REAL(refine1,RKIND)*fx +
+     &               (REAL(j1,RKIND)+0.5d0 - 
+     &                 0.5d0*REAL(refine2,RKIND)) / 
+     &                 REAL(refine2,RKIND)*fy )
 c                  if (grid(gstart1+(i-1)*refine1+i1,
 c     &                     gstart2+(j-1)*refine2+j1) .lt. 0.0)
 c     &                write(6,*) 'b',i,j,i1,j1
