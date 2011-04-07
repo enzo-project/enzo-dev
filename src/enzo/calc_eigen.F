@@ -30,13 +30,13 @@ c
 c     Arguments
 c
       integer idim, is, ie
-      real dslice(idim), cs(idim)
-      real lem(idim,5,5), rem(idim,5,5)
+      R_PREC dslice(idim), cs(idim)
+      R_PREC lem(idim,5,5), rem(idim,5,5)
 c
 c     Locals
 c
       integer i, n, m
-      real csi, csqi, csq
+      R_PREC csi, csqi, csq
 c
       do m = 1,5
          do n = 1,5

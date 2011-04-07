@@ -40,6 +40,7 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
       integer MAX_REFINE
       parameter (MAX_REFINE = 32)
@@ -49,12 +50,12 @@ c
 c  arguments
 c
       integer dim1, start1, end1, refine1, gdim1, gstart1, wdim1
-      real    parent(dim1), grid(gdim1), work(wdim1)
+      R_PREC    parent(dim1), grid(gdim1), work(wdim1)
 c
 c  locals
 c
       integer i, i1, pstart1, pdim1
-      real    delf0, fbar, fx, one
+      R_PREC    delf0, fbar, fx, one
       parameter (one=1.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
@@ -107,7 +108,7 @@ c        And interpolate to the subgrid.
 c
          do i1 = 0, refine1-1
             grid(gstart1+(i-1)*refine1+i1) = (fbar +
-     &            (real(i1)+0.5d0-0.5d0*real(refine1))/real(refine1)*fx)
+     &            (REAL(i1)+0.5d0-0.5d0*REAL(refine1))/REAL(refine1)*fx)
          enddo
 c
       enddo

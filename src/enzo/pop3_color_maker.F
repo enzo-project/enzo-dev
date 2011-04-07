@@ -82,24 +82,24 @@ c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imethod
       integer procnum, ctype
-      real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
-      real    odthresh
+      R_PREC    odthresh
 c
 c  Locals:
 c
       integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
-      real   div, tdyn, dtot, wgt
-      real   pi, G, sndspdC, m1
-      real   isosndsp2, bmass, jeanmass, lum
+      R_PREC   div, tdyn, dtot, wgt
+      R_PREC   pi, G, sndspdC, m1
+      R_PREC   isosndsp2, bmass, jeanmass, lum
       double precision msolar, mh
       parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
      &           msolar=SolarMass, mh=mass_h)

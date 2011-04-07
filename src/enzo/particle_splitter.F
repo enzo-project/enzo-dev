@@ -75,31 +75,31 @@ c  Arguments
 c
       integer nx, ny, nz, ibuff, npart
       integer  idual, imetal, imethod, iterations
-      real    dt, dx, z, separation
-      real    d1, x1, v1, t1
-      real    r(nx,ny,nz)
+      R_PREC    dt, dx, z, separation
+      R_PREC    d1, x1, v1, t1
+      R_PREC    r(nx,ny,nz)
       P_PREC xstart, ystart, zstart, t
       P_PREC xpold(npart), ypold(npart), zpold(npart)
-      real    upold(npart), vpold(npart), wpold(npart)
-      real    mpold(npart), tdpold(npart), tcpold(npart)
-      real    metalfold(npart)
+      R_PREC    upold(npart), vpold(npart), wpold(npart)
+      R_PREC    mpold(npart), tdpold(npart), tcpold(npart)
+      R_PREC    metalfold(npart)
       integer typeold(npart)
       integer npartnew, nmax, children, level, ran1_init
       P_PREC xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
       P_PREC rr_leftedge(3), rr_rightedge(3)
 c
 c  Locals
 c
       integer n, m, ii, i, j, k
-      real    xp0(children), yp0(children), zp0(children)
-      real    rad, pi
-      real    alpha(3)
-      real    l11, l12, l13
-      real    l21, l22, l23
-      real    l31, l32, l33      
+      R_PREC    xp0(children), yp0(children), zp0(children)
+      R_PREC    rad, pi
+      R_PREC    alpha(3)
+      R_PREC    l11, l12, l13
+      R_PREC    l21, l22, l23
+      R_PREC    l31, l32, l33      
       parameter (pi=pi_val)
 c
 c-----------------------------------------------------------------------

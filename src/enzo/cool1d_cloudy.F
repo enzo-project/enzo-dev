@@ -73,25 +73,25 @@
 
       integer in, jn, kn, is, ie, j, k, ispecies
 
-      real    comp2, dom, zr
-      real    d(in,jn,kn),
+      R_PREC    comp2, dom, zr
+      R_PREC    d(in,jn,kn),
      &        de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &        HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &        HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
-      real    logtem(in)
+      R_PREC    logtem(in)
       double precision edot(in)
 
 !  Cloudy parameters and data
 
       integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
-      real clPar1(clGridDim(1)), clPar2(clGridDim(2)),
+      R_PREC clMetNorm, clEleFra
+      R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
+      R_PREC clCooling(clDataSize), clHeating(clDataSize), 
      &     clMMW(clDataSize)
 
 !  Iteration mask
@@ -103,11 +103,11 @@
 !  Locals
 
       integer i, q
-      real dclPar(clGridRank), inv_log10, log10_tCMB
+      R_PREC dclPar(clGridRank), inv_log10, log10_tCMB
 
 !  Slice locals
 
-      real big_Z(in), log_Z(in), e_frac(in), log_e_frac(in), 
+      R_PREC big_Z(in), log_Z(in), e_frac(in), log_e_frac(in), 
      &     cl_e_frac(in), h_mass_fr(in), log_n_h(in),
      &     log_cool(in), log_cool_cmb(in), log_heat(in),
      &     edot_met(in), log10tem(in)
@@ -121,22 +121,22 @@
 !     Calculate parameter value slopes
 
       dclPar(1) = (clPar1(clGridDim(1)) - clPar1(1)) / 
-     &     real(clGridDim(1) - 1)
+     &     REAL(clGridDim(1) - 1)
       if (clGridRank .gt. 1) then
          dclPar(2) = (clPar2(clGridDim(2)) - clPar2(1)) / 
-     &        real(clGridDim(2) - 1)
+     &        REAL(clGridDim(2) - 1)
       endif
       if (clGridRank .gt. 2) then
          dclPar(3) = (clPar3(clGridDim(3)) - clPar3(1)) / 
-     &        real(clGridDim(3) - 1)
+     &        REAL(clGridDim(3) - 1)
       endif
       if (clGridRank .gt. 3) then
          dclPar(4) = (clPar4(clGridDim(4)) - clPar4(1)) / 
-     &        real(clGridDim(4) - 1)
+     &        REAL(clGridDim(4) - 1)
       endif
       if (clGridRank .gt. 4) then
          dclPar(5) = (clPar5(clGridDim(5)) - clPar5(1)) / 
-     &        real(clGridDim(5) - 1)
+     &        REAL(clGridDim(5) - 1)
       endif
 
       do i=is+1, ie+1
@@ -359,14 +359,14 @@
 
       integer dataSize
       integer gridDim(1)
-      real input1, value
-      real gridPar1(gridDim(1)), dgridPar1
-      real dataField(dataSize)
+      R_PREC input1, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1
+      R_PREC dataField(dataSize)
 
 !  Locals
 
       integer index1
-      real slope
+      R_PREC slope
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -401,15 +401,15 @@
 
       integer dataSize
       integer gridDim(2)
-      real input1, input2, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      R_PREC input1, input2, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
       integer index1, index2, int_index, q
-      real slope, value2(2)
+      R_PREC slope, value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -461,16 +461,16 @@
 
       integer dataSize
       integer gridDim(3)
-      real input1, input2, input3, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      R_PREC input1, input2, input3, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
      &     gridPar3(gridDim(3)), dgridPar3
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
       integer index1, index2, index3, int_index, q, w
-      real slope, value3(2), value2(2)
+      R_PREC slope, value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -538,17 +538,17 @@
 
       integer dataSize
       integer gridDim(4)
-      real input1, input2, input3, input4, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      R_PREC input1, input2, input3, input4, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
      &     gridPar3(gridDim(3)), dgridPar3,
      &     gridPar4(gridDim(4)), dgridPar4
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
       integer index1, index2, index3, index4, int_index, q, w, e
-      real slope, value4(2), value3(2), value2(2)
+      R_PREC slope, value4(2), value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -631,19 +631,19 @@
 
       integer dataSize
       integer gridDim(4)
-      real input1, input2, input3, input4, input5, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      R_PREC input1, input2, input3, input4, input5, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
      &     gridPar3(gridDim(3)), dgridPar3,
      &     gridPar4(gridDim(4)), dgridPar4,
      &     gridPar5(gridDim(5)), dgridPar5
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
       integer index1, index2, index3, index4, index5, 
      &     int_index, q, w, e, r, midPt, highPt
-      real slope, value5(2), value4(2), value3(2), value2(2)
+      R_PREC slope, value5(2), value4(2), value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================

@@ -67,21 +67,22 @@ c
       integer i1, i2, ibvdim1, ibvdim2, idim, idir, idual, isteep,
      &        j1, j2, jdim, k
 c      integer niib(ibvdim1,ibvdim2), noib(ibvdim1,ibvdim2)
-c      real    eiib(ibvdim1,ibvdim2), eoib(ibvdim1,ibvdim2)
-      real    dt, gamma, vgx
-      real   dslice(idim,jdim),     dxi(idim,jdim),  pslice(idim,jdim),
-     &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
-     &     dxlslice(idim,jdim),  eslice(idim,jdim), geslice(idim,jdim)
-      real       df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
-     &           vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
+c      R_PREC    eiib(ibvdim1,ibvdim2), eoib(ibvdim1,ibvdim2)
+      R_PREC  dt, gamma, vgx
+      R_PREC  dslice(idim,jdim),     dxi(idim,jdim),  pslice(idim,jdim),
+     &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
+     &        dxlslice(idim,jdim),  eslice(idim,jdim), 
+     &        geslice(idim,jdim)
+      R_PREC  df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
+     &        vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
 c
 c  local declarations
 c
       integer i, j
-      real    qa, qb, qc, qd, qe, s1, s2, udtim1, udti, ft,
+      R_PREC    qa, qb, qc, qd, qe, s1, s2, udtim1, udti, ft,
      &        dplus, pplus, uplus, vplus, wplus, eplus, geplus,
      &        dmnus, pmnus, umnus, vmnus, wmnus, emnus, gemnus, yy, one
-      real  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
+      R_PREC  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
      &    , dd(ijkn), dp(ijkn), du(ijkn), dv(ijkn), dw(ijkn), de(ijkn)
      &    ,dph(ijkn),pph(ijkn),uph(ijkn),vph(ijkn),wph(ijkn),eph(ijkn)
      &    ,d2d(ijkn),dxb(ijkn), dl(ijkn), el(ijkn), ul(ijkn), vl(ijkn)

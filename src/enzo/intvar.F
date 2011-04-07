@@ -51,22 +51,22 @@ c
 c  argument declarations
 c
       integer idim, i1, i2, iflatten, isteep
-      real c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
+      R_PREC c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
      &     char1(idim), char2(idim), c0(idim),
      &     qla(idim), qra(idim), ql0(idim), qr0(idim)
-      real qslice(idim), steepen(idim), flatten(idim)
+      R_PREC qslice(idim), steepen(idim), flatten(idim)
 c
 c  parameters
 c
-      real ft, one
+      R_PREC ft, one
       parameter(ft = 4.d0/3.d0, one=1.d0)
 c
 c  local declarations (arrays passed as temps)
 c
       integer i
-      real qplus, qmnus, qcent, qvanl
-      real temp1, temp2, temp3, temp22, temp23
-      real dq(idim), ql(idim), qr(idim), q6(idim)
+      R_PREC qplus, qmnus, qcent, qvanl
+      R_PREC temp1, temp2, temp3, temp22, temp23
+      R_PREC dq(idim), ql(idim), qr(idim), q6(idim)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================

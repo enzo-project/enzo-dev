@@ -61,8 +61,8 @@ c  argument declarations
 c
       integer gdim1, gdim2, gdim3, ifield, iflag, ismooth, 
      &        pdim1, pdim2, projdim, npstart, npend
-      real    weight, fracleft, fracright
-      real    grid1(gdim1,gdim2,gdim3), grid2(gdim1,gdim2,gdim3),
+      R_PREC    weight, fracleft, fracright
+      R_PREC    grid1(gdim1,gdim2,gdim3), grid2(gdim1,gdim2,gdim3),
      &        flaggrid(gdim1,gdim2,gdim3), plane(pdim1,pdim2)
       P_PREC gleft(3), gfarleft(3), gright(3), pleft(3), pright(3),
      &        pcellsize, gcellsize
@@ -70,7 +70,7 @@ c
 c  locals
 c
       integer i, i0, j, j0, k0, n, istart(3), iend(3)
-      real    sample1, sample2, dx, dy, dz, weight1
+      R_PREC    sample1, sample2, dx, dy, dz, weight1
       R_PREC  xpos, ypos, zpos
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -116,8 +116,8 @@ c
 c
 c                 Compute position in grid space
 c
-                  ypos = pleft(2) + (real(i)-0.5d0)*pcellsize
-                  zpos = pleft(3) + (real(j)-0.5d0)*pcellsize
+                  ypos = pleft(2) + (REAL(i)-0.5d0)*pcellsize
+                  zpos = pleft(3) + (REAL(j)-0.5d0)*pcellsize
 c
 c                 Compute indexes in grid (for base cell)
 c
@@ -126,8 +126,8 @@ c
 c
 c                 Compute weights for interpolation
 c
-                  dy = real(j0) - (ypos - gfarleft(2))/gcellsize + 0.5d0
-                  dz = real(k0) - (zpos - gfarleft(3))/gcellsize + 0.5d0
+                  dy = REAL(j0) - (ypos - gfarleft(2))/gcellsize + 0.5d0
+                  dz = REAL(k0) - (zpos - gfarleft(3))/gcellsize + 0.5d0
 c
 c                 Do 2D linear interpolation into grid field
 c
@@ -171,14 +171,14 @@ c
             do j = istart(3)+1, iend(3)
                do i = istart(1)+1, iend(1)
 c
-                  xpos = pleft(1) + (real(i)-0.5d0)*pcellsize
-                  zpos = pleft(3) + (real(j)-0.5d0)*pcellsize
+                  xpos = pleft(1) + (REAL(i)-0.5d0)*pcellsize
+                  zpos = pleft(3) + (REAL(j)-0.5d0)*pcellsize
 c
                   i0 = int((xpos - gfarleft(1))/gcellsize + 0.5d0)
                   k0 = int((zpos - gfarleft(3))/gcellsize + 0.5d0)
 c
-                  dx = real(i0) - (xpos - gfarleft(1))/gcellsize + 0.5d0
-                  dz = real(k0) - (zpos - gfarleft(3))/gcellsize + 0.5d0
+                  dx = REAL(i0) - (xpos - gfarleft(1))/gcellsize + 0.5d0
+                  dz = REAL(k0) - (zpos - gfarleft(3))/gcellsize + 0.5d0
 c
                   sample1 = grid1(i0  ,n,k0  )*     dx *     dz  +
      &                      grid1(i0  ,n,k0+1)*     dx *(1.d0-dz) +
@@ -220,14 +220,14 @@ c
             do j = istart(2)+1, iend(2)
                do i = istart(1)+1, iend(1)
 c
-                  xpos = pleft(1) + (real(i)-0.5)*pcellsize
-                  ypos = pleft(2) + (real(j)-0.5)*pcellsize
+                  xpos = pleft(1) + (REAL(i)-0.5)*pcellsize
+                  ypos = pleft(2) + (REAL(j)-0.5)*pcellsize
 c
                   i0 = int((xpos - gfarleft(1))/gcellsize + 0.5d0)
                   j0 = int((ypos - gfarleft(2))/gcellsize + 0.5d0)
 c
-                  dx = real(i0) - (xpos - gfarleft(1))/gcellsize + 0.5d0
-                  dy = real(j0) - (ypos - gfarleft(2))/gcellsize + 0.5d0
+                  dx = REAL(i0) - (xpos - gfarleft(1))/gcellsize + 0.5d0
+                  dy = REAL(j0) - (ypos - gfarleft(2))/gcellsize + 0.5d0
 c
                   sample1 = grid1(i0  ,j0  ,n)*     dx *     dy  +
      &                      grid1(i0  ,j0+1,n)*     dx *(1.d0-dy) +
@@ -276,9 +276,9 @@ c
             do j = istart(3)+1, iend(3)
                do i = istart(2)+1, iend(2)
 c
-                  j0 = int((pleft(2) + (real(i)-0.5d0)*pcellsize - 
+                  j0 = int((pleft(2) + (REAL(i)-0.5d0)*pcellsize - 
      &                      gfarleft(2))/gcellsize) + 1
-                  k0 = int((pleft(3) + (real(j)-0.5d0)*pcellsize - 
+                  k0 = int((pleft(3) + (REAL(j)-0.5d0)*pcellsize - 
      &                      gfarleft(3))/gcellsize) + 1
 c
                   sample1 = grid1(n,j0,k0)
@@ -309,9 +309,9 @@ c
             do j = istart(3)+1, iend(3)
                do i = istart(1)+1, iend(1)
 c
-                  i0 = int((pleft(1) + (real(i)-0.5d0)*pcellsize - 
+                  i0 = int((pleft(1) + (REAL(i)-0.5d0)*pcellsize - 
      &                      gfarleft(1))/gcellsize) + 1
-                  k0 = int((pleft(3) + (real(j)-0.5d0)*pcellsize - 
+                  k0 = int((pleft(3) + (REAL(j)-0.5d0)*pcellsize - 
      &                      gfarleft(3))/gcellsize) + 1
 c
                   sample1 = grid1(i0,n,k0)
@@ -342,9 +342,9 @@ c
             do j = istart(2)+1, iend(2)
                do i = istart(1)+1, iend(1)
 c
-                  i0 = int((pleft(1) + (real(i)-0.5d0)*pcellsize - 
+                  i0 = int((pleft(1) + (REAL(i)-0.5d0)*pcellsize - 
      &                      gfarleft(1))/gcellsize) + 1
-                  j0 = int((pleft(2) + (real(j)-0.5d0)*pcellsize - 
+                  j0 = int((pleft(2) + (REAL(j)-0.5d0)*pcellsize - 
      &                      gfarleft(2))/gcellsize) + 1
 c
                   sample1 = grid1(i0,j0,n)

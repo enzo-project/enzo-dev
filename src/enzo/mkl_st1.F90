@@ -30,8 +30,8 @@
 
       integer :: power_of_2
 
-      real*4 :: factor
-      real*4 :: scale
+      REAL*4 :: factor
+      REAL*4 :: scale
       complex*8, allocatable :: wsave(:)
 
       integer*4 :: isign, n
@@ -68,8 +68,8 @@
 
       integer :: power_of_2
 
-      real*8 :: factor
-      real*8 :: scale
+      REAL*8 :: factor
+      REAL*8 :: scale
       complex*16, allocatable :: wsave(:)
 
       integer*4 :: isign, n

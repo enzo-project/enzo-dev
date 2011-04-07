@@ -60,14 +60,14 @@ c
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3,
      &        wdim1, wdim2, wdim3, iposflag
-      real    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3),
+      R_PREC    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3),
      &        work(wdim1, wdim2, wdim3)
 c
 c  locals
 c
       integer i, i1, j, j1, k, k1, pstart1, pstart2, pstart3, 
      &        pdim1, pdim2, pdim3
-      real    chi1, chi2, chi3, 
+      R_PREC    chi1, chi2, chi3, 
      &        delf0, delf1, delf1new, delf2, delf2new, delf3, delf3new,
      &        fbar, frac, fx, fy, fz, s, sprime
 c
@@ -209,12 +209,12 @@ c
                         grid(gstart1+(i-1)*refine1+i1,
      &                       gstart2+(j-1)*refine2+j1,
      &                       gstart3+(k-1)*refine3+k1) = (fbar +
-     &                       (real(i1) + 
-     &                     0.5d0-0.5d0*real(refine1))/real(refine1)*fx +
-     &                       (real(j1) +
-     &                     0.5d0-0.5d0*real(refine2))/real(refine2)*fy +
-     &                       (real(k1) +
-     &                     0.5d0-0.5d0*real(refine3))/real(refine3)*fz )
+     &                       (REAL(i1) + 
+     &                     0.5d0-0.5d0*REAL(refine1))/REAL(refine1)*fx +
+     &                       (REAL(j1) +
+     &                     0.5d0-0.5d0*REAL(refine2))/REAL(refine2)*fy +
+     &                       (REAL(k1) +
+     &                     0.5d0-0.5d0*REAL(refine3))/REAL(refine3)*fz )
                         if (iposflag .eq. 1 .and. 
      &                       grid(gstart1+(i-1)*refine1+i1,
      &                          gstart2+(j-1)*refine2+j1,

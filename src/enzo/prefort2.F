@@ -32,19 +32,20 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  arguments
 c
       integer dim1, dim2, dim3, isign, rank, rdim1, rdim2, rdim3
-      real    buffer(rdim1, rdim2, rdim3), 
+      R_PREC    buffer(rdim1, rdim2, rdim3), 
      &        tempbuffer(2*dim1, dim2, dim3)
 c
 c  locals
 c
       integer i, i1, j, j1, k, k1, dims(3)
-      real    factor
+      R_PREC    factor
 c
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
@@ -148,7 +149,7 @@ c
 c        Copy real part of tempbuffer to buffer & scale.
 c
 
-!        factor = 1.0/real(dim1*dim2*dim3)
+!        factor = 1.0/REAL(dim1*dim2*dim3)
 
          do k = 1, dim3
             do j = 1, dim2

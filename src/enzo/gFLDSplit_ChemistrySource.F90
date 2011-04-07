@@ -54,10 +54,10 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in) :: a
-  real,    intent(in) :: time, HFrac
-  real,    intent(in) :: aUnits, LenUnits, TimeUnits, NiUnits
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
+  R_PREC,    intent(in) :: time, HFrac
+  R_PREC,    intent(in) :: aUnits, LenUnits, TimeUnits, NiUnits
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
        :: HIsrc, HeIsrc, HeIIsrc
   
 !--------------

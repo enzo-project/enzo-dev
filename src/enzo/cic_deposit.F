@@ -45,13 +45,13 @@ c
       integer dim1, dim2, dim3, npositions, ndim, addaspoints
       P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
-      real    mass(npositions), field(dim1, dim2, dim3), cellsize
+      R_PREC    mass(npositions), field(dim1, dim2, dim3), cellsize
 c
 c  locals
 c
       integer iii, jjj, kkk
       integer i1, j1, k1, n
-      real    xpos, ypos, zpos, dx, dy, dz, fact
+      R_PREC    xpos, ypos, zpos, dx, dy, dz, fact
       P_PREC edge1, edge2, edge3, half
       parameter (half = 0.5001d0)
 c
@@ -62,9 +62,9 @@ c
 !     write(0,*) npositions, leftedge, dim1, dim2, dim3, cellsize
 
       fact = 1.d0/cellsize
-      edge1 = real(dim1) - half
-      edge2 = real(dim2) - half
-      edge3 = real(dim3) - half
+      edge1 = REAL(dim1) - half
+      edge2 = REAL(dim2) - half
+      edge3 = REAL(dim3) - half
 c
 c     1D
 c
@@ -82,7 +82,7 @@ c
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5d0 - xpos
+            dx = REAL(i1) + 0.5d0 - xpos
 c
 c           Interpolate from field into sumfield
 c
@@ -111,8 +111,8 @@ c
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5d0 - xpos
-            dy = real(j1) + 0.5d0 - ypos
+            dx = REAL(i1) + 0.5d0 - xpos
+            dy = REAL(j1) + 0.5d0 - ypos
 c
 c           Interpolate from field into sumfield
 c
@@ -151,9 +151,9 @@ c
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5d0 - xpos
-            dy = real(j1) + 0.5d0 - ypos
-            dz = real(k1) + 0.5d0 - zpos
+            dx = REAL(i1) + 0.5d0 - xpos
+            dy = REAL(j1) + 0.5d0 - ypos
+            dz = REAL(k1) + 0.5d0 - zpos
 c
 c           Interpolate from field into sumfield
 
@@ -192,9 +192,9 @@ c
 c     
 c     Compute the weights
 c     
-               dx = real(i1) + 0.5 - xpos
-               dy = real(j1) + 0.5 - ypos
-               dz = real(k1) + 0.5 - zpos
+               dx = REAL(i1) + 0.5 - xpos
+               dy = REAL(j1) + 0.5 - ypos
+               dz = REAL(k1) + 0.5 - zpos
 c     
 c     Interpolate from field into sumfield
 c     

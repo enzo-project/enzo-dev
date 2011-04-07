@@ -21,12 +21,12 @@ c------------------------------------------------------------------------
 #include "fortran_types.def"
 c------------------------------------------------------------------------
 
-      real mass, luminosity, lifetime
+      R_PREC mass, luminosity, lifetime
 
-      real minmass, maxmass
+      R_PREC minmass, maxmass
       parameter (minmass=5, maxmass=1000)
 
-      real lumtable(996), lifetable(996)
+      R_PREC lumtable(996), lifetable(996)
       
       data lumtable
      $    /7.413E+02,1.257E+03,2.094E+03,3.364E+03,5.117E+03,7.274E+03,

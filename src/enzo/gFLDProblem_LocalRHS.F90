@@ -101,38 +101,38 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in)  :: time, dx, dy, dz, gamma, HFrac
-  real,    intent(in)  :: CompA, Comp_xray, Comp_temp
-  real,    intent(in)  :: TempStart, TempEnd, piHI, piHeI, piHeII
-  real,    intent(in)  :: aUnits, DenUnits, VelUnits, LenUnits, ErUnits, &
+  R_PREC,    intent(in)  :: time, dx, dy, dz, gamma, HFrac
+  R_PREC,    intent(in)  :: CompA, Comp_xray, Comp_temp
+  R_PREC,    intent(in)  :: TempStart, TempEnd, piHI, piHeI, piHeII
+  R_PREC,    intent(in)  :: aUnits, DenUnits, VelUnits, LenUnits, ErUnits, &
        ecUnits, NiUnits, ecScale
-  real,    intent(in)  :: IsE, IsEsHI, IsEsHInu, IsEsHeI
-  real,    intent(in)  :: IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in),                                              &
+  R_PREC,    intent(in)  :: IsE, IsEsHI, IsEsHInu, IsEsHeI
+  R_PREC,    intent(in)  :: IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in),                                              &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::   &
        src_Er, src_ec, src_HI, src_HeI, src_HeII, vx, vy, vz, rhoa, &
        eca, Era, n_HIa, n_HeIa, n_HeIIa, Tempa, eha, kappaEa, kappaPa
-  real,    intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb,   &
+  R_PREC,    intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb,   &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, &
        ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
-  real,    intent(out),                                           &
+  R_PREC,    intent(out),                                           &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        rhs_Er, rhs_ec, rhs_HI, rhs_HeI, rhs_HeII
 
 !--------------
 ! locals
   integer :: i, j, k, Tidx, Tidxp
-  real :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac
-  real :: k1, k2, k3, k4, k5, k6
-  real :: aval, afac, grey, c, hp, mp, zr, gam_1, StBz, pi
-  real :: HIconst, HeIconst, HeIIconst, kappaP, kappaE
-  real :: dxi2, dyi2, dzi2, DivV, GradRhoDotV
-  real :: rho, ec, eh, Er, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
-  real :: T, lamT, G, Lambda
-  real :: alpha, beta, eta, nu0_HI, nu0_HeI, nu0_HeII
-  real :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII
-  real :: reHII, reHeII1, reHeII2, reHeIII, brem, Comp1, Comp2
-  real :: G_HI, G_HeI, G_HeII
+  R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac
+  R_PREC :: k1, k2, k3, k4, k5, k6
+  R_PREC :: aval, afac, grey, c, hp, mp, zr, gam_1, StBz, pi
+  R_PREC :: HIconst, HeIconst, HeIIconst, kappaP, kappaE
+  R_PREC :: dxi2, dyi2, dzi2, DivV, GradRhoDotV
+  R_PREC :: rho, ec, eh, Er, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
+  R_PREC :: T, lamT, G, Lambda
+  R_PREC :: alpha, beta, eta, nu0_HI, nu0_HeI, nu0_HeII
+  R_PREC :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII
+  R_PREC :: reHII, reHeII1, reHeII2, reHeIII, brem, Comp1, Comp2
+  R_PREC :: G_HI, G_HeI, G_HeII
 
 !=======================================================================
 

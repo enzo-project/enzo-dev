@@ -37,10 +37,10 @@ c
 c     Arguments
 c
       integer isize, idual, imethod, rank
-      real    gamma, coef
-      real    d(isize), p(isize), e(isize), ge(isize),
+      R_PREC    gamma, coef
+      R_PREC    d(isize), p(isize), e(isize), ge(isize),
      &        u(isize), v(isize), w(isize)
-      real    dold(isize), eold(isize), geold(isize),
+      R_PREC    dold(isize), eold(isize), geold(isize),
      &        uold(isize), vold(isize), wold(isize)
 c
 c     Locals

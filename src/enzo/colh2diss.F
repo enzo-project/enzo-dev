@@ -41,7 +41,7 @@ c
 c
 c  Arguments
 c
-      real f1,f2,f3,f4,f5,f6,f7
+      R_PREC f1,f2,f3,f4,f5,f6,f7
       double precision t, tgas
 c
 c  Parameters

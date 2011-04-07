@@ -57,7 +57,7 @@ c
       integer dim1, dim2, dim3, start1, start2, start3, 
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3
-      real    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
+      R_PREC    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
 c
 c  locals
 c
@@ -65,13 +65,13 @@ c
      &        j, j1, j2, jcoef, jgrid, jparent, jsub, 
      &        k, k1, k2, kcoef, kgrid, kparent, ksub, 
      &        wdim1, wdim2, wdim3
-      real   coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
+      R_PREC coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
      &       coefm2(MAX_REFINE), coefp2(MAX_REFINE), coef02(MAX_REFINE),
      &       coefm3(MAX_REFINE), coefp3(MAX_REFINE), coef03(MAX_REFINE),
      &       del1left, del2left, del1next, del2next, 
      &       del1right, del2right, dV, factor, sum,
      &       w01, w02, w03, wm1, wm2, wm3, wp1, wp2, wp3
-      real   temp(ijkn), fraction(ijkn)
+      R_PREC   temp(ijkn), fraction(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -93,26 +93,26 @@ c
 c  Compute constants
 c
       do i = 0, refine1-1
-         coefm1(i+1) = real((refine1-i)**3 - (refine1-i-1)**3)/
-     &                 real(6*refine1**3                     )
-         coefp1(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine1**3                     )
+         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3)/
+     &                 REAL(6*refine1**3                     )
+         coefp1(i+1) = REAL(3*i**2 + 3*i + 1)                 /
+     &                 REAL(6*refine1**3                     )
          coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
-         coefm2(i+1) = real((refine2-i)**3 - (refine2-i-1)**3)/
-     &                 real(6*refine2**3                     )
-         coefp2(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine2**3                     )
+         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3)/
+     &                 REAL(6*refine2**3                     )
+         coefp2(i+1) = REAL(3*i**2 + 3*i + 1)                 /
+     &                 REAL(6*refine2**3                     )
          coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
       do i = 0, refine3-1
-         coefm3(i+1) = real((refine3-i)**3 - (refine3-i-1)**3)/
-     &                 real(6*refine3**3                     )
-         coefp3(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine3**3                     )
+         coefm3(i+1) = REAL((refine3-i)**3 - (refine3-i-1)**3)/
+     &                 REAL(6*refine3**3                     )
+         coefp3(i+1) = REAL(3*i**2 + 3*i + 1)                 /
+     &                 REAL(6*refine3**3                     )
          coef03(i+1) = 1.d0/refine3 - coefm3(i+1) - coefp3(i+1)
       enddo
 c
@@ -207,7 +207,7 @@ c
                temp(i) = (parent((start1-1)/refine1+i, 
      &                           (start2-1)/refine2+j, 
      &                           (start3-1)/refine3+k) - temp(i))/
-     &                   real(refine1*refine2*refine3)
+     &                   REAL(refine1*refine2*refine3)
             enddo
 c
 c           Add difference to each subgrid value
@@ -238,7 +238,7 @@ c    to the neighbour and the average value), then decrease the entire
 c    profile as needed, but do it in such a way as to keep the average value
 c    the same.
 c
-      dV = 1.d0/real(refine1*refine2*refine3)
+      dV = 1.d0/REAL(refine1*refine2*refine3)
       do iter = 1, num_iter
 c
 c  1) Do it first in the i direction
@@ -261,7 +261,7 @@ c
          do i1 = gstart1, gstart1+refine1-1
             do i2 = 1, wdim1
                temp(i2) = temp(i2) + 
-     &              grid((i2-1)*refine1+i1, jgrid, kgrid)/real(refine1)
+     &              grid((i2-1)*refine1+i1, jgrid, kgrid)/REAL(refine1)
             enddo
          enddo
 c
@@ -338,7 +338,7 @@ c
          do j1 = gstart2, gstart2+refine2-1
             do j2 = 1, wdim2
                temp(j2) = temp(j2) + 
-     &              grid(igrid, (j2-1)*refine2+j1, kgrid)/real(refine2)
+     &              grid(igrid, (j2-1)*refine2+j1, kgrid)/REAL(refine2)
             enddo
          enddo
 c
@@ -407,7 +407,7 @@ c
          do k1 = gstart3, gstart3+refine3-1
             do k2 = 1, wdim3
                temp(k2) = temp(k2) + 
-     &              grid(igrid, jgrid, (k2-1)*refine3+k1)/real(refine3)
+     &              grid(igrid, jgrid, (k2-1)*refine3+k1)/REAL(refine3)
             enddo
          enddo
 c

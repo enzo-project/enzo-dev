@@ -11,9 +11,9 @@
       integer :: n1, idir
       complex :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*4 :: factor
+      REAL*4 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -46,7 +46,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/real(n1)
+      factor = 1.0/REAL(n1)
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -79,9 +79,9 @@
       integer :: n1, idir
       complex :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -114,7 +114,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/real(n1)
+      factor = 1.0d-00/REAL(n1)
 
       if( jdir == 1 ) then
         scale = 1.0d-00

@@ -56,7 +56,7 @@ c
       integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim, ihydro,
      &        refine1, refine2, refine3, sstart1, sstart2, sstart3,
      &        send1, send2, send3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
      &        rfield(sdim1, sdim2, sdim3),
      &        velx(sdim1, sdim2, sdim3), vely(sdim1, sdim2, sdim3),
      &        velz(sdim1, sdim2, sdim3), dt, delx, dely, delz,
@@ -66,7 +66,7 @@ c
 c  locals
 c
       integer i, j, k, i1, j1, k1, n
-      real    fact1, fact2, fact3, x, y, z, dx, dy, dz, weight, mass,
+      R_PREC    fact1, fact2, fact3, x, y, z, dx, dy, dz, weight, mass,
      &        coef1, coef2, coef3, shift1, shift2, shift3,
      &        start1, start2, start3, half, edge1, edge2, edge3, temp1
       parameter (half = 0.5001d0)
@@ -95,21 +95,21 @@ c
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/real(refine1)
-      fact2 = 1.d0/real(refine2)
-      fact3 = 1.d0/real(refine3)
+      fact1 = 1.d0/REAL(refine1)
+      fact2 = 1.d0/REAL(refine2)
+      fact3 = 1.d0/REAL(refine3)
 c
                        coef1 = dt/delx*fact1
       if (ndim .gt. 1) coef2 = dt/dely*fact2
       if (ndim .gt. 2) coef3 = dt/delz*fact3
 c     
-      start1 = -sstart1 - 0.5d0 + offset1*real(refine1)
-      start2 = -sstart2 - 0.5d0 + offset2*real(refine2)
-      start3 = -sstart3 - 0.5d0 + offset3*real(refine3)
+      start1 = -sstart1 - 0.5d0 + offset1*REAL(refine1)
+      start2 = -sstart2 - 0.5d0 + offset2*REAL(refine2)
+      start3 = -sstart3 - 0.5d0 + offset3*REAL(refine3)
 c
-      edge1 = real(ddim1) - half
-      edge2 = real(ddim2) - half
-      edge3 = real(ddim3) - half
+      edge1 = REAL(ddim1) - half
+      edge2 = REAL(ddim2) - half
+      edge3 = REAL(ddim3) - half
 
 !     write(0,'("grid_cic: ",6f12.4)') start1,start2,start3,
 !    &                                 edge1,edge2,edge3
@@ -125,7 +125,7 @@ c
          do i=sstart1+1, send1+1
             x = min(max((start1 + i)*fact1, half), edge1)
             i1 = int(x + 0.5d0)
-            dx = real(i1) + 0.5d0 - x
+            dx = REAL(i1) + 0.5d0 - x
             mass = (1.d0 - rfield(i,1,1))*weight*source(i,1,1)
 c
             temp(i1  ,1  ,1, 1) = temp(i1  ,1  ,1, 1) + 
@@ -148,7 +148,7 @@ c
             shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),tiny)*coef1
             x = min(max((i - 0.5d0 + shift1), half), edge1)
             i1 = int(x + 0.5d0)
-            dx = real(i1) + 0.5d0 - x
+            dx = REAL(i1) + 0.5d0 - x
             mass = temp(i,1,1,1)
             dest(i1  ,1  ,1) = dest(i1  ,1  ,1) + mass*      dx
             dest(i1+1,1  ,1) = dest(i1+1,1  ,1) + mass*(1.d0-dx)
@@ -165,11 +165,11 @@ c
          do j=sstart2+1, send2+1
             y = min(max((start2 + j)*fact2, half), edge2)
             j1 = int(y + 0.5d0)
-            dy = real(j1) + 0.5d0 - y
+            dy = REAL(j1) + 0.5d0 - y
             do i=sstart1+1, send1+1
                x = min(max((start1 + i)*fact1, half), edge1)
                i1 = int(x + 0.5d0)
-               dx = real(i1) + 0.5d0 - x
+               dx = REAL(i1) + 0.5d0 - x
                mass = (1.d0 - rfield(i,j,1))*weight*source(i,j,1)
 c
                temp(i1  ,j1  ,1,1) = temp(i1  ,j1  ,1,1) +
@@ -216,12 +216,12 @@ c
      &                  max(temp(i,j,1,1),tiny)*coef2
                y = min(max((j - 0.5d0 + shift2), half), edge2)
                j1 = int(y + 0.5d0)
-               dy = real(j1) + 0.5d0 - y
+               dy = REAL(j1) + 0.5d0 - y
                shift1 = temp(i,j,1,2)/
      &                  max(temp(i,j,1,1),tiny)*coef1
                x = min(max((i - 0.5d0 + shift1), half), edge1)
                i1 = int(x + 0.5d0)
-               dx = real(i1) + 0.5d0 - x
+               dx = REAL(i1) + 0.5d0 - x
                mass = temp(i,j,1,1)
                dest(i1  ,j1  ,1) = dest(i1  ,j1  ,1) +
      &                             mass*      dx *      dy
@@ -245,15 +245,15 @@ c
          do k=sstart3+1, send3+1
             z = min(max((start3 + k)*fact3, half), edge3)
             k1 = int(z + 0.5d0)
-            dz = real(k1) + 0.5d0 - z
+            dz = REAL(k1) + 0.5d0 - z
             do j=sstart2+1, send2+1
                y = min(max((start2 + j)*fact2, half), edge2)
                j1 = int(y + 0.5d0)
-               dy = real(j1) + 0.5d0 - y
+               dy = REAL(j1) + 0.5d0 - y
                do i=sstart1+1, send1+1
                   x = min(max((start1 + i)*fact1, half), edge1)
                   i1 = int(x + 0.5d0)
-                  dx = real(i1) + 0.5d0 - x
+                  dx = REAL(i1) + 0.5d0 - x
                   mass = (1.d0 - rfield(i,j,k))*weight*source(i,j,k)
 c
                   temp(i1  ,j1  ,k1  ,1) = temp(i1  ,j1  ,k1  ,1) +
@@ -346,19 +346,19 @@ c
      &                     max(temp(i,j,k,1),tiny)*coef3
                   z = min(max((k - 0.5d0 + shift3), half), edge3)
                   k1 = int(z + 0.5d0)
-                  dz = real(k1) + 0.5d0 - z
+                  dz = REAL(k1) + 0.5d0 - z
 c
                   shift2 = temp(i,j,k,3)/
      &                     max(temp(i,j,k,1),tiny)*coef2
                   y = min(max((j - 0.5d0 + shift2), half), edge2)
                   j1 = int(y + 0.5d0)
-                  dy = real(j1) + 0.5d0 - y
+                  dy = REAL(j1) + 0.5d0 - y
 c
                   shift1 = temp(i,j,k,2)/
      &                     max(temp(i,j,k,1),tiny)*coef1
                   x = min(max((i - 0.5d0 + shift1), half), edge1)
                   i1 = int(x + 0.5d0)
-                  dx = real(i1) + 0.5d0 - x
+                  dx = REAL(i1) + 0.5d0 - x
 c
 c                  if (i1 .lt. 1 .or. i1 .ge. ddim1 .or.
 c     &                j1 .lt. 1 .or. j1 .ge. ddim2 .or.
@@ -415,7 +415,7 @@ c     source       - source field
 c     sdim1-3      - source dimension
 c     ddim1-3      - destination dimension
 c     ndim         - rank of fields
-c     start1-3     - start of dest field in dest grid cells (real)
+c     start1-3     - start of dest field in dest grid cells (R_PREC)
 c     refine1-3    - refinement factors
 c     sstart1-3    - source start index
 c     send1-3      - source end index
@@ -438,22 +438,22 @@ c  argument declarations
 c
       integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        refine1, refine2, refine3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
      &        start1, start2, start3
 c
 c  locals
 c
       integer i, j, k, i1, j1, k1
-      real    fact1, fact2, fact3, x, y, z, dx, dy, dz
+      R_PREC    fact1, fact2, fact3, x, y, z, dx, dy, dz
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/real(refine1)
-      fact2 = 1.d0/real(refine2)
-      fact3 = 1.d0/real(refine3)
+      fact1 = 1.d0/REAL(refine1)
+      fact2 = 1.d0/REAL(refine2)
+      fact3 = 1.d0/REAL(refine3)
 c
 c     a) 1D
 c
@@ -461,7 +461,7 @@ c
          do i=1, ddim1
             x = (start1 + i - 0.5d0)*fact1
             i1 = int(x + 0.5d0)
-            dx = real(i1) + 0.5d0 - x
+            dx = REAL(i1) + 0.5d0 - x
             dest(i,1,1) = source(i1  ,1  ,1)*     dx +
      &                    source(i1+1,1  ,1)*(1.d0-dx)
          enddo
@@ -473,11 +473,11 @@ c
          do j=1, ddim2
             y = (start2 + j - 0.5d0)*fact2
             j1 = int(y + 0.5d0)
-            dy = real(j1) + 0.5d0 - y
+            dy = REAL(j1) + 0.5d0 - y
             do i=1, ddim1
                x = (start1 + i - 0.5d0)*fact1
                i1 = int(x + 0.5d0)
-               dx = real(i1) + 0.5d0 - x
+               dx = REAL(i1) + 0.5d0 - x
                dest(i,j,1) = source(i1  ,j1  ,1)*      dx *      dy  +
      &                       source(i1+1,j1  ,1)*(1.d0-dx)*      dy  +
      &                       source(i1  ,j1+1,1)*      dx *(1.d0-dy) +
@@ -492,15 +492,15 @@ c
          do k=1, ddim3
             z = (start3 + k - 0.5d0)*fact3
             k1 = int(z + 0.5d0)
-            dz = real(k1) + 0.5d0 - z
+            dz = REAL(k1) + 0.5d0 - z
             do j=1, ddim2
                y = (start2 + j - 0.5d0)*fact2
                j1 = int(y + 0.5d0)
-               dy = real(j1) + 0.5d0 - y
+               dy = REAL(j1) + 0.5d0 - y
                do i=1, ddim1
                   x = (start1 + i - 0.5d0)*fact1
                   i1 = int(x + 0.5d0)
-                  dx = real(i1) + 0.5d0 - x
+                  dx = REAL(i1) + 0.5d0 - x
                   dest(i,j,k) =
      &             source(i1  ,j1  ,k1  )*      dx *      dy *      dz +
      &             source(i1+1,j1  ,k1  )*(1.d0-dx)*      dy *      dz +

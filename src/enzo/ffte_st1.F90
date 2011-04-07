@@ -1,12 +1,13 @@
       subroutine ffte_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: n1, idir
       complex :: x(n1)
 
-      real :: factor
-      real :: scale
+      R_PREC :: factor
+      R_PREC :: scale
       complex, allocatable :: work(:)
 
       integer :: nwork, jdir
@@ -23,7 +24,7 @@
 
       deallocate( work )
 
-!     factor = 1.0/real(n1)
+!     factor = 1.0/REAL(n1)
 
 !     if( jdir == 1 ) then
 !       scale = 1.0

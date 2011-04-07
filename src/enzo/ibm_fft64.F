@@ -11,9 +11,9 @@
       integer :: rank, n1, n2, n3, idir
       complex :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*4 :: factor
+      REAL*4 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -48,7 +48,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/real(n1)
+      factor = 1.0/REAL(n1)
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -80,9 +80,9 @@
       integer :: rank, n1, n2, n3, idir
       complex :: x(n1,n2)
 
-      real*4 :: factor
-      real*4 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*4 :: factor
+      REAL*4 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir
@@ -113,7 +113,7 @@
         naux2 = 20000+(max(n1,n2)+256)*(min(64,n1,n2)+1.14)
       end if
 
-      factor = 1.0/(real(n1)*real(n2))
+      factor = 1.0/(REAL(n1)*REAL(n2))
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -145,9 +145,9 @@
       integer :: rank, n1, n2, n3, idir
       complex :: x(n1,n2,n3)
 
-      real*4 :: factor
-      real*4:: scale
-      real*8, allocatable :: aux(:)
+      REAL*4 :: factor
+      REAL*4:: scale
+      REAL*8, allocatable :: aux(:)
 
       integer*4 :: inc2x, inc3x, naux, jdir
       integer*4 :: m1, m2, m3, i0, i1
@@ -197,7 +197,7 @@
 
       write(*,*) naux
 
-      factor = 1.0/(real(n1)*real(n2)*real(n3))
+      factor = 1.0/(REAL(n1)*REAL(n2)*REAL(n3))
 
       if( jdir == 1 ) then
         scale = 1.0
@@ -227,9 +227,9 @@
       integer :: rank, n1, n2, n3, idir
       complex :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -264,7 +264,7 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/real(n1)
+      factor = 1.0d-00/REAL(n1)
 
       if( jdir == 1 ) then
         scale = 1.0d-00
@@ -293,9 +293,9 @@
       integer :: rank, n1, n2, n3, idir
       complex :: x(n1,n2)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir
@@ -326,7 +326,7 @@
         naux2 = 20000+(2*max(n1,n2)+256)*(min(64,n1,n2)+2.28)
       end if
 
-      factor = 1.0d-00/(real(n1)*real(n2))
+      factor = 1.0d-00/(REAL(n1)*REAL(n2))
 
       if( jdir == 1 ) then
         scale = 1.0d-00
@@ -358,9 +358,9 @@
       integer :: rank, n1, n2, n3, idir
       complex :: x(n1,n2,n3)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux(:)
 
       integer*4 :: inc2x, inc3x, naux, jdir
       integer*4 :: m1, m2, m3, i0, i1
@@ -410,7 +410,7 @@
 
       write(*,*) naux
 
-      factor = 1.0d-00/(real(n1)*real(n2)*real(n3))
+      factor = 1.0d-00/(REAL(n1)*REAL(n2)*REAL(n3))
 
       if( jdir == 1 ) then
         scale = 1.0d-00

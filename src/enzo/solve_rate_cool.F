@@ -131,44 +131,44 @@
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
      &        igammah, ih2optical, iciecool, ithreebody
-      real    dt, aye, temstart, temend, eta1, eta2, gamma,
+      R_PREC    dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
 
 !  Density, energy and velocity fields fields
 
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
-      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &        metal(in,jn,kn)
 
 !  Radiation fields
 
-      real kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
+      R_PREC kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &     kdissH2I(in,jn,kn)
-      real photogamma(in,jn,kn)
+      R_PREC photogamma(in,jn,kn)
 
 !  Cooling tables (coolings rates as a function of temperature)
 
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+      R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
      &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    metala(nratec, n_xe)
-      real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
+      R_PREC    metala(nratec, n_xe)
+      R_PREC    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
-      real    gammaha 
+      R_PREC    gammaha 
 
 !  Chemistry tables (rates as a function of temperature)
 
-      real k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &     k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &     k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &     k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -182,11 +182,11 @@
 
       integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
-      real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
+      R_PREC clMetNorm, clEleFra
+      R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
+      R_PREC clCooling(clDataSize), clHeating(clDataSize), 
      &     clMMW(clDataSize)
 
 !  Parameters
@@ -195,12 +195,12 @@
       parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0e-05)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0e-10)
 #endif
 
@@ -211,7 +211,7 @@
 
       integer i, j, k, iter
       integer clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
-      real ttmin, dom, energy, comp1, comp2
+      R_PREC ttmin, dom, energy, comp1, comp2
       double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
       double precision heq1, heq2, eqk221, eqk222, eqk131, eqk132,
      &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem
@@ -219,18 +219,18 @@
 !  row temporaries
 
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
      &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
      &     olddtit
 
 !  Rate equation row temporaries
 
-      real HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
+      R_PREC HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
      &     HMp(ijk), H2Ip(ijk), H2IIp(ijk),
      &     dep(ijk), dedot(ijk),HIdot(ijk), dedot_prev(ijk),
      &     DIp(ijk), DIIp(ijk), HDIp(ijk), HIdot_prev(ijk),
      &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
+      R_PREC k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
      &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
      &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
@@ -243,7 +243,7 @@
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), edot(ijk)
-      real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
+      R_PREC hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), cieco(ijk)
 
 !  Iteration mask
@@ -267,7 +267,7 @@
       uvel     = uxyz / utim
       chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
 
-      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1)
 
 !  Convert densities from comoving to proper
 
@@ -546,17 +546,17 @@
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
-!                 dtit(i) = min(real(abs(0.1*energy/edot(i))), 
+!                 dtit(i) = min(REAL(abs(0.1*energy/edot(i))), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
-                  dtit(i) = min(real(abs(0.1d0*energy/edot(i))), 
+                  dtit(i) = min(REAL(abs(0.1d0*energy/edot(i))), 
      &                        dt-ttot(i), dtit(i))
 !              endif
 
                if (dtit(i) .ne. dtit(i)) !#####
      &           write(6,*) 'HUGE dtit :: ', energy, edot(i), dtit(i),
      &                      dt, ttot(i), abs(0.1d0*energy/edot(i)), 
-     &                      real(abs(0.1d0*energy/edot(i)))
+     &                      REAL(abs(0.1d0*energy/edot(i)))
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
@@ -697,12 +697,12 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
-      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
-      real     d(in,jn,kn),metal(in,jn,kn)
-      real    factor
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      R_PREC     d(in,jn,kn),metal(in,jn,kn)
+      R_PREC    factor
 
 !     locals
 
@@ -773,12 +773,12 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
-      real     d(in,jn,kn)
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC     d(in,jn,kn)
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
-      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
-      real metal(in,jn,kn)
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      R_PREC metal(in,jn,kn)
 
 !     locals
 
@@ -866,13 +866,13 @@ c -------------------------------------------------------------------
 
       integer is, ie, ijk, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, ithreebody, j, k
-      real temstart, temend, tgas1d(in), dom
+      R_PREC temstart, temend, tgas1d(in), dom
       double precision coolunit, tbase1
       logical itmask(ijk)
 
 !     Chemistry rates as a function of temperature
 
-      real k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &     k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &     k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &     k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -885,12 +885,12 @@ c -------------------------------------------------------------------
 
 !     Density fields
 
-      real    HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    HI(in,jn,kn),   HII(in,jn,kn),
      &        HeI(in,jn,kn), HeII(in,jn,kn)
 
 !     Returned rate values
 
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
+      R_PREC k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
      &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
      &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
@@ -901,7 +901,7 @@ c -------------------------------------------------------------------
 !     1D temporaries (passed in)
 
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
 
 !     Parameters
 
@@ -911,13 +911,13 @@ c -------------------------------------------------------------------
 !     locals
 
       integer i, n1
-      real factor, x, logtem0, logtem9, dlogtem, nh
+      R_PREC factor, x, logtem0, logtem9, dlogtem, nh
 
 !     Set log values of start and end of lookup tables
 
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1)
 
       do i = is+1, ie+1
          if (itmask(i)) then
@@ -1116,26 +1116,26 @@ c -------------------------------------------------------------------
 !     arguments
 
       integer ispecies, is, ie, j, k, in, jn, kn, iradtrans, irt_honly
-      real dedot(in), HIdot(in), edot(in)
+      R_PREC dedot(in), HIdot(in), edot(in)
       logical itmask(in)
 
 !     Density fields
 
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &         d(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
 
 !     Radiation fields
 
-      real    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
+      R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &        kdissH2I(in,jn,kn)
 
       double precision chunit
 
 !     Rate values
 
-      real k1 (in), k2 (in), k3 (in), k4 (in), k5 (in),
+      R_PREC k1 (in), k2 (in), k3 (in), k4 (in), k5 (in),
      &     k6 (in), k7 (in), k8 (in), k9 (in), k10(in),
      &     k11(in), k12(in), k13(in), k14(in), k15(in),
      &     k16(in), k17(in), k18(in), k19(in), k22(in),
@@ -1299,25 +1299,25 @@ c -------------------------------------------------------------------
 !     arguments
 
       integer ispecies, in, jn, kn, is, ie, j, k, iradtrans, irt_honly
-      real    dtit(in), dedot_prev(in), HIdot_prev(in)
+      R_PREC    dtit(in), dedot_prev(in), HIdot_prev(in)
       logical itmask(in)
 
 !     Density fields
 
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &         d(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
-      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
 
 !     Radiation fields
 
-      real    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
+      R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &        kdissH2I(in,jn,kn)
 
 !     Rate values
 
-      real k1 (in), k2 (in), k3 (in), k4 (in), k5 (in),
+      R_PREC k1 (in), k2 (in), k3 (in), k4 (in), k5 (in),
      &     k6 (in), k7 (in), k8 (in), k9 (in), k10(in),
      &     k11(in), k12(in), k13(in), k14(in), k15(in),
      &     k16(in), k17(in), k18(in), k19(in), k22(in),
@@ -1328,14 +1328,14 @@ c -------------------------------------------------------------------
 
 !     temporaries (passed in)
 
-      real HIp(in), HIIp(in), HeIp(in), HeIIp(in), HeIIIp(in),
+      R_PREC HIp(in), HIIp(in), HeIp(in), HeIIp(in), HeIIIp(in),
      &     HMp(in), H2Ip(in), H2IIp(in), dep(in),
      &     DIp(in), DIIp(in), HDIp(in)
 
 !     locals
 
       integer i
-      real scoef, acoef
+      R_PREC scoef, acoef
 
 !   A) the 6-species integrator
 !      
@@ -1702,12 +1702,12 @@ c
 !     Arguments
 
       integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &         d(in,jn,kn), metal(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
-      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)  
-      real    fh, dtoh
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)  
+      R_PREC    fh, dtoh
 
 !     Parameters
 
@@ -1717,9 +1717,9 @@ c
 !     locals
 
       integer i, j, k
-      real totalH(ijk), totalHe(ijk), 
+      R_PREC totalH(ijk), totalHe(ijk), 
      &     totalD, correctH, correctHe, correctD
-      real metalfree(ijk)
+      R_PREC metalfree(ijk)
 
 !     Loop over all zones
 

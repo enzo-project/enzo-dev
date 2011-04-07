@@ -41,7 +41,7 @@ c
 c  Arguments
 c
       integer rank, nbox, in, jn, kn, ig, jg, kg
-      real u(in,jn,kn), v(in,jn,kn), w(in,jn,kn)
+      R_PREC u(in,jn,kn), v(in,jn,kn), w(in,jn,kn)
       P_PREC random_forcing
 c
 c  Locals
@@ -71,21 +71,21 @@ c A set of randomly selected phases for seed=12398L that provide good isotropy
 c Phases are uniformly sampled from [0, 2pi)
 c Phases for x, y, and z velocities for each mode
 c
-      real phax(nmode)
+      R_PREC phax(nmode)
       data phax/       
      &       4.8827171d0 , 4.5501628d0 , 3.6897256d0  , 5.7606730d0, 
      &       2.0264773d0 , 0.83200777d0, 1.9374901d0 , 0.014175551d0, 
      &       5.1355696d0 , 2.7778759d0 , 2.0290945d0 , 0.66376913d0, 
      &       1.8051250d0 , 3.3130596d0 , 1.0506331d0 , 1.7523085d0/
 c
-      real phay(nmode)
+      R_PREC phay(nmode)
       data phay/
      &       1.4011313d0, 5.7180996d0 , 3.8207288d0 , 1.0026506d0, 
      &       2.2681668d0, 2.8144622d0 , 0.99058449d0, 2.9458065d0, 
      &       3.9271564d0, 0.89623797d0, 1.8535780d0 , 2.8460610d0, 
      &       1.6346333d0, 3.4661922d0 , 5.5859957d0 , 1.5948143d0/
 c
-      real phaz(nmode)
+      R_PREC phaz(nmode)
       data phaz/
      &       5.6059551d0, 4.1390905d0, 6.2273364d0, 5.9263325d0, 
      &       3.5187488d0, 5.4222918d0, 5.7706189d0, 4.9518018d0, 
@@ -94,7 +94,7 @@ c
 c
 c Random Gaussian amplitudes for each mode for seed=12398L, solenoidalized
 c
-      real amp(nmode,3)
+      R_PREC amp(nmode,3)
       data amp/ 
      &      0.075595722d0, -1.3572438d0,   0.37845582d0, -0.38310400d0,   ! X
      &      0.11698084d0,  -1.1607968d0,   0.d0,         -0.028096508d0,  ! X
@@ -111,13 +111,13 @@ c
 c
 c signs of choice in eqs. (10.6) and (10.7) in Crockett (2005), p.96
 c
-      real sign1(4)
+      R_PREC sign1(4)
       data sign1/1.d0,-1.d0,-1.d0, 1.d0/
 c
-      real sign2(4)
+      R_PREC sign2(4)
       data sign2/-1.d0,-1.d0, 1.d0, 1.d0/
 c
-      real  aa, pi, phayy, phazz, k1
+      R_PREC  aa, pi, phayy, phazz, k1
       parameter (pi=pi_val) 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////

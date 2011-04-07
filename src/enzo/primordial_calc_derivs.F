@@ -33,8 +33,8 @@ c
       integer in, is, ie, ijk, ncspecies, n
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
       integer mins(ijk), iter
-      real*8  chunit, checker, dtcoef(NSPECIES)
-      real*8 s(ijk,NSPECIES), sp(ijk,NSPECIES), sm1(ijk,NSPECIES),
+      REAL*8  chunit, checker, dtcoef(NSPECIES)
+      REAL*8 s(ijk,NSPECIES), sp(ijk,NSPECIES), sm1(ijk,NSPECIES),
      &       dsq(ijk,NSPECIES), dsp(ijk,NSPECIES), tempde, peqHq, peqHp,
      &       temp1, temp2, temp3, temp4, tsgamma(ijk),
      &       tscapy(ijk,NSPECIES), dtot(ijk), rtot(ijk), h2heatp(ijk),
@@ -42,24 +42,24 @@ c
      &       tsc(ijk), esterr(ijk), qbar, qdot, tbar, prevval,
      &       itererror, fd(ijk)
       logical dmask(ijk), doupdate, rejected(ijk), eqmask(ijk)
-      real dtit(ijk), dom, dt, ttot(ijk), tgas(ijk)
+      R_PREC dtit(ijk), dom, dt, ttot(ijk), tgas(ijk)
 c
 c     Rate values
 c
-      real*8 r01, r02, r03, r04, r05,
+      REAL*8 r01, r02, r03, r04, r05,
      &       r06, r07, r08, r09, r10,
      &       r11, r12, r13, r14, r15,
      &       r16, r17, r18, r19, r21,
      &       r22, r23, r50, r51, r52,
      &       r53, r54, r55, r56, r61, r62
-      real ar01(in), ar02(in), ar03(in), ar04(in), ar05(in),
+      R_PREC ar01(in), ar02(in), ar03(in), ar04(in), ar05(in),
      &     ar06(in), ar07(in), ar08(in), ar09(in), ar10(in),
      &     ar11(in), ar12(in), ar13(in), ar14(in), ar15(in),
      &     ar16(in), ar17(in), ar18(in), ar19(in), ar21(in),
      &     ar22(in), ar23(in), ar50(in), ar51(in), ar52(in),
      &     ar53(in), ar54(in), ar55(in), ar56(in),
      &     ar24, ar25, ar26, ar27, ar28, ar29, ar30, ar31
-      real k01(in), k02(in), k03(in), k04(in), k05(in),
+      R_PREC k01(in), k02(in), k03(in), k04(in), k05(in),
      &     k06(in), k07(in), k08(in), k09(in), k10(in),
      &     k11(in), k12(in), k13(in), k14(in), k15(in),
      &     k16(in), k17(in), k18(in), k19(in), k21(in),

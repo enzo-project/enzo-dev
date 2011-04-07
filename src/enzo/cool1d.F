@@ -38,14 +38,14 @@ c  Arguments
 c
       integer in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter, igammah
-      real    temstart, temend, fh, utem, gammaha,
+      R_PREC    temstart, temend, fh, utem, gammaha,
      &        eta1, eta2, gamma, coola(nratec)
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
 c  Parameters
 c
-      real pmin
+      R_PREC pmin
       parameter (pmin = tiny)
       double precision mh
 
@@ -55,14 +55,14 @@ c
 c  Locals
 c
       integer i
-      real logtem0, logtem9, dlogtem
+      R_PREC logtem0, logtem9, dlogtem
 c
 c  Slice locals
 c 
       integer indixe(in)
-      real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
+      R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in), cool(in)
-      real edot(in)
+      R_PREC edot(in)
 c
 c  Set the mean molecular mass
 c     (see also Grid_ComputeTemperatureField.C)
@@ -76,7 +76,7 @@ c     Set log values of start and end of lookup tables
 c
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
 c
 c     Compute Pressure
 c

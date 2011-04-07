@@ -151,20 +151,20 @@ c
 c  Arguments
 c
       integer nratec, iradtype, casebrates, threebody
-      real    aye, temstart, temend, alpha0, f3,
+      R_PREC    aye, temstart, temend, alpha0, f3,
      &        utem, uxyz, uaye, urho, utim
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldl(nratec),
      &        gphdl(nratec), hdltea(nratec), hdlowa(nratec)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
+      R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
      &        gaHpa(nratec), gaela(nratec),
      &        ciecoa(nratec)
-      real    compa, gammaha, piHI, piHeI, piHeII
-      real    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC    compa, gammaha, piHI, piHeI, piHeII
+      R_PREC    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &        k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &        k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &        k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -174,7 +174,7 @@ c
      &        k22a(nratec), k50a(nratec), k51a(nratec), k52a(nratec), 
      &        k53a(nratec), k54a(nratec), k55a(nratec), k56a(nratec)
       integer ioutput
-      real    k13dda(nratec, 7), hdcool(nratec, 5)
+      R_PREC    k13dda(nratec, 7), hdcool(nratec, 5)
 c
 c  Parameters
 c
@@ -218,7 +218,7 @@ c
       double precision sigma24(nnu), sigma25(nnu), sigma26(nnu), 
      &                 sigma27(nnu), sigma28(nnu), sigma29(nnu), 
      &                 sigma30(nnu), sigma31(nnu), fext(nnu)
-      real tm
+      R_PREC tm
       double precision HDLR, HDLV, lt, t3, lt3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
@@ -283,7 +283,7 @@ c  Compute log spacing in temperature
 c
       ttt    = temstart
       logttt = log(ttt)
-      dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
 c
 c  Initialize constants to tiny
 c
@@ -362,7 +362,7 @@ c
 c
 c       Compute temperature of this bin (in eV)
 c
-        logttt = log(temstart) + real(i-1)*dlogtem
+        logttt = log(temstart) + REAL(i-1)*dlogtem
         ttt = exp(logttt)
         tev = ttt/tevk
         logtev = log(tev)
@@ -633,7 +633,7 @@ c  Write out cgs rate coefficients
 c
 c      open(10, file='k1-6.out', status='unknown')
 c      do i = 1, nratec
-c         write(10,1010) exp(log(temstart) + real(i-1)*dlogtem),
+c         write(10,1010) exp(log(temstart) + REAL(i-1)*dlogtem),
 c     &               k1a(i),k2a(i),k3a(i),k4a(i),k5a(i),k6a(i)
 c      enddo
 c 1010 format(7(1pe11.4))
@@ -644,7 +644,7 @@ c  2) Cooling/heating rates (excluding external radiation field)
 c
       do i = 1, nratec
 c
-        logttt = log(temstart) + real(i-1)*dlogtem
+        logttt = log(temstart) + REAL(i-1)*dlogtem
         ttt = exp(logttt)
 c
 c    a) Collisional excitations (Black 1981; Cen 1992)
@@ -1143,7 +1143,7 @@ c
 !      call open_mpi_error_file( 'cool_rates.out', 10, 'unknown' )
 
         do i=1, nratec
-           logttt = log(temstart) + real(i-1)*dlogtem
+           logttt = log(temstart) + REAL(i-1)*dlogtem
            ttt = exp(logttt)
            write(10,1000) ttt, ceHIa(i), ceHeIa(i), ceHeIIa(i),
      &                    ciHIa(i), ciHeIa(i), ciHeISa(i),
@@ -1169,7 +1169,7 @@ c
 !      call open_mpi_error_file( 'rates.out', 10, 'unknown' )
 
         do i=1, nratec
-           logttt = log(temstart) + real(i-1)*dlogtem
+           logttt = log(temstart) + REAL(i-1)*dlogtem
            ttt = exp(logttt)
            write(10,1000) ttt, k1a(i), k2a(i), k3a(i), k4a(i), k5a(i),
      &                    k6a(i), k7a(i), k8a(i), k9a(i), k10a(i),

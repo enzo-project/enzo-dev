@@ -63,16 +63,16 @@ c
 c  argument declarations
 c
       integer i1, i2, idim, idual, j1, j2, jdim
-      real   dslice(idim,jdim),      dx(idim     ),  eslice(idim,jdim),
-     &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
-     &     dxnslice(idim,jdim), geslice(idim,jdim)
-      real       df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
-     &           vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
+      R_PREC  dslice(idim,jdim),      dx(idim     ),  eslice(idim,jdim),
+     &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
+     &        dxnslice(idim,jdim), geslice(idim,jdim)
+      R_PREC  df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
+     &        vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
 c
 c  local declarations
 c
       integer i, j
-      real    dm(ijkn), dmnu(ijkn)
+      R_PREC    dm(ijkn), dmnu(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////
 c=======================================================================

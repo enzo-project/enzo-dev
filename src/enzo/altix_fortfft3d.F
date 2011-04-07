@@ -8,7 +8,7 @@
 
       integer :: method
 
-      real*8 :: t0, t1, t2, wall_clock
+      REAL*8 :: t0, t1, t2, wall_clock
 
       external :: ibm_st1
       external :: sgi_st1

@@ -68,46 +68,46 @@
      &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
      &        nfreq, iradshield, iradtype, imetalregen, iradtrans,
      &        n_xe, imetal, igammah, ih2optical, iciecool
-      real    aye, temstart, temend,
+      R_PREC    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &       de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &      HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
-      real    photogamma(in,jn,kn)
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    photogamma(in,jn,kn)
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      &        metala(nratec, n_xe)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+      R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
      &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
+      R_PREC    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
-      real    gammaha, xe_start, xe_end
+      R_PREC    gammaha, xe_start, xe_end
 
 !  Cloudy cooling data
 
       integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
-      real clPar1(clGridDim(1)), clPar2(clGridDim(2)),
+      R_PREC clMetNorm, clEleFra
+      R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
+      R_PREC clCooling(clDataSize), clHeating(clDataSize), 
      &     clMMW(clDataSize)
 
 !  Parameters
 
       double precision mh
-      real    ZSOLAR, mu_metal
+      R_PREC    ZSOLAR, mu_metal
       parameter (mh = mass_h)      !DPC
       parameter (ZSOLAR = 0.02041d0)
       parameter (mu_metal = 16.d0)    ! approx. mean molecular weight of metals
@@ -115,8 +115,8 @@
 !  Locals
 
       integer i, j1, iter, iradfield
-      real dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
-      real dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
+      R_PREC dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
+      R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
      &     gphdl1, factor, dom_inv, tau, ciefudge
       double precision coolunit, dbase1, tbase1, xbase1, rtunits
@@ -124,7 +124,7 @@
 !  Slice locals
  
       integer indixe(in)
-      real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
+      R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in)
       double precision edot(in)
 
@@ -134,27 +134,27 @@
      &     ciHI(in), ciHeI(in), ciHeIS(in), ciHeII(in),
      &     reHII(in), reHeII1(in), reHeII2(in), reHeIII(in),
      &     brem(in), cieco(in)
-      real hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
+      R_PREC hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), metalc(in)
-      real gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
+      R_PREC gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
      &     galdl(in)
 
 !  Metal cooling locals
 
       integer xe_idx, tcmb_idx
-      real logxe0, logxe1, dlogxea, xe, log_xe, xe1, dlogT, dlogxe, xi
-      real logTcmb, dlogTcmb, metalc_cmb, xe_max, metalfree
-      real xe_slope, xe_logtem0, xe_min
+      R_PREC logxe0, logxe1, dlogxea, xe, log_xe, xe1, dlogT, dlogxe, xi
+      R_PREC logTcmb, dlogTcmb, metalc_cmb, xe_max, metalfree
+      R_PREC xe_slope, xe_logtem0, xe_min
       parameter (xe_slope = 5.d0, xe_logtem0 = 9.7859d0)  ! e^9.78 = 10^4.25 K
       parameter (xe_min = -9.21d0)  ! e^-9.21 = 1e-4
 #ifdef CEN_METALS
       integer nti, ndi, cmgenerate, NIT, NID, NIB
-      real    TEMMIN, DELT, DENMIN, DELD, FREQDEL, FREQMIN
+      R_PREC    TEMMIN, DELT, DENMIN, DELD, FREQDEL, FREQMIN
       PARAMETER(NIT=200,TEMMIN=3.d0,DELT=0.03d0)
       PARAMETER(NID=300,DENMIN=-12.d0,DELD=0.05d0)
       PARAMETER(NIB=400,FREQDEL=0.02d0,FREQMIN=1.d0)
-      real    metal_cool, metal_heat, xi
-      real    cbovcool(NIT,NID), cbovheat(NIT,NID), denwk(NID), 
+      R_PREC    metal_cool, metal_heat, xi
+      R_PREC    cbovcool(NIT,NID), cbovheat(NIT,NID), denwk(NID), 
      &        radt(NIB), eb(NIB)
       common  /cen_metal_com/ cbovcool, cbovheat, denwk
 #endif /* CEN_METALS */
@@ -170,7 +170,7 @@
 
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
 
 !     Set units
 
@@ -714,7 +714,7 @@ c               endif
 
          logxe0 = log(xe_start)
          logxe1 = log(xe_end)
-         dlogxea = (logxe1 - logxe0) / real(n_xe-1)
+         dlogxea = (logxe1 - logxe0) / REAL(n_xe-1)
 c
 c  Determine temperature for CMB temperature so we can subtract metal
 c  cooling at T=T_cmb

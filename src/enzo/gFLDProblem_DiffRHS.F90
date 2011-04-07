@@ -106,21 +106,21 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real, intent(in) :: aUnits, LenUnits, EgUnits
-  real, intent(in) :: dx, dy, dz
-  real, intent(in), target, &
+  R_PREC, intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, intent(in) :: dx, dy, dz
+  R_PREC, intent(in), target, &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        EgCur, EgOld, Temp
-  real, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        kappaE
-  real, intent(out) :: rhs(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC, intent(out) :: rhs(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
   !--------------
   ! locals
   integer  :: i, j, k
-  real :: c, pi, dxi, dyi, dzi, Dlim
-  real :: Egf, omega, R, sigT, AGradEg, StBz, Tf, Rmin
-  real, dimension(3) :: GradEgL, GradEgR, DEgL, DEgR
+  R_PREC :: c, pi, dxi, dyi, dzi, Dlim
+  R_PREC :: Egf, omega, R, sigT, AGradEg, StBz, Tf, Rmin
+  R_PREC, dimension(3) :: GradEgL, GradEgR, DEgL, DEgR
 
   !=======================================================================
 
@@ -511,19 +511,19 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real, intent(in) :: aUnits, LenUnits, EgUnits
-  real, intent(in) :: dx, dy
-  real, intent(in), target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: &
+  R_PREC, intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, intent(in) :: dx, dy
+  R_PREC, intent(in), target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: &
        EgCur, EgOld, Temp
-  real, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: kappaE
-  real, intent(out) :: rhs(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
+  R_PREC, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: kappaE
+  R_PREC, intent(out) :: rhs(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
 
   !--------------
   ! locals
   integer :: i, j, k
-  real :: c, pi, dxi, dyi, Dlim
-  real :: Egf, omega, R, sigT, AGradEg, StBz, Tf, Rmin
-  real, dimension(2) :: GradEgL, GradEgR, DEgL, DEgR
+  R_PREC :: c, pi, dxi, dyi, Dlim
+  R_PREC :: Egf, omega, R, sigT, AGradEg, StBz, Tf, Rmin
+  R_PREC, dimension(2) :: GradEgL, GradEgR, DEgL, DEgR
 
   !=======================================================================
 
@@ -824,18 +824,18 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real, intent(in) :: aUnits, LenUnits, EgUnits
-  real, intent(in) :: dx
-  real, intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld, Temp
-  real, intent(in), dimension(1-NGxl:Nx+NGxr) :: kappaE
-  real, intent(out) :: rhs(1-NGxl:Nx+NGxr)
+  R_PREC, intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, intent(in) :: dx
+  R_PREC, intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld, Temp
+  R_PREC, intent(in), dimension(1-NGxl:Nx+NGxr) :: kappaE
+  R_PREC, intent(out) :: rhs(1-NGxl:Nx+NGxr)
 
   !--------------
   ! locals
   integer  :: i
-  real :: c, pi, dxi, Dlim
-  real :: Egf, omega, R, sigT, AGradEg, StBz, Tf
-  real :: GradEgL, GradEgR, DEgL, DEgR, Rmin
+  R_PREC :: c, pi, dxi, Dlim
+  R_PREC :: Egf, omega, R, sigT, AGradEg, StBz, Tf
+  R_PREC :: GradEgL, GradEgR, DEgL, DEgR, Rmin
 
   !=======================================================================
 

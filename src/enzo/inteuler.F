@@ -79,24 +79,24 @@ c  argument declarations
 c
       integer gravity, i1, i2, idim, idual, iflatten, ipresfree, isteep,
      &        j1, j2, jdim, ncolor, iconsrec, iposrec
-      real    dt, eta1, eta2, gamma
-      real   dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
-     &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
-     &      grslice(idim,jdim), geslice(idim,jdim)
-      real      dls(idim,jdim),     drs(idim,jdim), flatten(idim,jdim),
-     &          pls(idim,jdim),
-     &          prs(idim,jdim),    gels(idim,jdim),    gers(idim,jdim),
-     &          uls(idim,jdim),     urs(idim,jdim),     vls(idim,jdim),
-     &          vrs(idim,jdim),     wls(idim,jdim),     wrs(idim,jdim)
-      real colslice(idim,jdim,ncolor),   colls(idim,jdim,ncolor),
+      R_PREC  dt, eta1, eta2, gamma
+      R_PREC  dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
+     &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
+     &        grslice(idim,jdim), geslice(idim,jdim)
+      R_PREC  dls(idim,jdim),     drs(idim,jdim), flatten(idim,jdim),
+     &        pls(idim,jdim),
+     &        prs(idim,jdim),    gels(idim,jdim),    gers(idim,jdim),
+     &        uls(idim,jdim),     urs(idim,jdim),     vls(idim,jdim),
+     &        vrs(idim,jdim),     wls(idim,jdim),     wrs(idim,jdim)
+      R_PREC  colslice(idim,jdim,ncolor),   colls(idim,jdim,ncolor),
      &        colrs(idim,jdim,ncolor)
 c
 c  local declarations
 c
       integer i, j, n, m, ic
-      real steepen(ijkn),tmp1(ijkn),tmp2(ijkn),tmp3(ijkn),tmp4(ijkn)
-      real qa,qb,qc,qd,qe,s1,s2,f1
-      real  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
+      R_PREC steepen(ijkn),tmp1(ijkn),tmp2(ijkn),tmp3(ijkn),tmp4(ijkn)
+      R_PREC qa,qb,qc,qd,qe,s1,s2,f1
+      R_PREC  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
      &    ,c7(ijkn), c8(ijkn)
      &    ,dd(ijkn),dl(ijkn),dr(ijkn),d6(ijkn)
      &    ,dp(ijkn),pl(ijkn),pr(ijkn),p6(ijkn)
@@ -119,11 +119,11 @@ c
      &    ,coll0(ijkn,MAX_COLOR),colr0(ijkn,MAX_COLOR)
      &    ,dcol(ijkn,MAX_COLOR),coll(ijkn,MAX_COLOR)
      &    ,colr(ijkn,MAX_COLOR),col6(ijkn,MAX_COLOR)
-      real lem(idim,5,5),rem(idim,5,5), dxdt2(ijkn)
+      R_PREC lem(idim,5,5),rem(idim,5,5), dxdt2(ijkn)
 c
 c  parameters
 c
-      real ft
+      R_PREC ft
       parameter(ft = 4.d0/3.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////

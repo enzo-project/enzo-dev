@@ -84,22 +84,22 @@ c
 c  argument declarations
 c
       integer gravity, i1, i2, idiff, idim, idual, j1, j2, jdim, ncolor
-      real    dt, eta1, eta2, gamma
-      real diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim     ),
+      R_PREC    dt, eta1, eta2, gamma
+      R_PREC diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim)
-      real df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
+      R_PREC df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
      &     vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim),
      &     ges(idim,jdim)
-      real colslice(idim,jdim,ncolor), colf(idim,jdim,ncolor)
+      R_PREC colslice(idim,jdim,ncolor), colf(idim,jdim,ncolor)
 c
 c  local declarations
 c
       integer i, j, n
-      real qa, qb, qc, frac, uadvect, eold
-      real dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
+      R_PREC qa, qb, qc, frac, uadvect, eold
+      R_PREC dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
-      real min_color
+      R_PREC min_color
       parameter(min_color=1d-05*tiny)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////

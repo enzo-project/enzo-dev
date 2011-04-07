@@ -39,8 +39,8 @@ c     Arguments
 c
       integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
      $     ifallback
-      real gamma, dt, eta1
-      real ubar(idim,jdim), pbar(idim,jdim), dx(idim),
+      R_PREC gamma, dt, eta1
+      R_PREC ubar(idim,jdim), pbar(idim,jdim), dx(idim),
      $     uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
      $     urs(idim,jdim), vrs(idim,jdim), wrs(idim,jdim),
      $     pls(idim,jdim), dls(idim,jdim), gels(idim,jdim),
@@ -50,7 +50,7 @@ c
      $     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      $     eslice(idim,jdim), geslice(idim,jdim),
      $     colslice(idim,jdim,ncolor)
-      real df(idim,jdim), ef(idim,jdim), gef(idim,jdim),
+      R_PREC df(idim,jdim), ef(idim,jdim), gef(idim,jdim),
      $     uf(idim,jdim), vf(idim,jdim), wf(idim,jdim),
      $     colf(idim,jdim,ncolor), ges(idim,jdim)
 
@@ -59,8 +59,8 @@ c-----------------------------------------------------------------------
 c     Locals
 c
       integer i, j, n
-      real qa, qb, qc, frac, one
-      real sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
+      R_PREC qa, qb, qc, frac, one
+      R_PREC sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
      $     dbar(ijkn), cbar(ijkn), l0(ijkn), lbar(ijkn), 
      $     ub(ijkn), vb(ijkn), wb(ijkn), db(ijkn), pb(ijkn), 
      $     cb(ijkn), eb(ijkn), geb(ijkn), colb(ijkn,MAX_COLOR),

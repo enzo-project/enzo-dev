@@ -28,18 +28,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
       integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
       integer i, j, k, i1, j1, k1
-      real    fact1, fact2, fact3, x, y, z, dx, dy, dz, 
+      R_PREC    fact1, fact2, fact3, x, y, z, dx, dy, dz, 
      &        edge1, edge2, edge3, half
       parameter (half = 0.50001)
 c
@@ -48,20 +49,20 @@ c=======================================================================
 c
 c     Precompute some things
 c
-      fact1 = real(sdim1)/real(ddim1)
-      fact2 = real(sdim2)/real(ddim2)
-      fact3 = real(sdim3)/real(ddim3)
-      edge1 = real(sdim1) - half
-      edge2 = real(sdim2) - half
-      edge3 = real(sdim3) - half
+      fact1 = REAL(sdim1)/REAL(ddim1)
+      fact2 = REAL(sdim2)/REAL(ddim2)
+      fact3 = REAL(sdim3)/REAL(ddim3)
+      edge1 = REAL(sdim1) - half
+      edge2 = REAL(sdim2) - half
+      edge3 = REAL(sdim3) - half
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
-            x = min(max((real(i)-0.5d0)*fact1, half), edge1)
+            x = min(max((REAL(i)-0.5d0)*fact1, half), edge1)
             i1 = int(x + 0.5d0)
-            dx = real(i1) + 0.5d0 - x
+            dx = REAL(i1) + 0.5d0 - x
             dest(i,1,1) = source(i1,1,1)*dx + source(i1+1,1,1)*(1.d0-dx)
          enddo
       endif
@@ -70,13 +71,13 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=1, ddim2
-            y = min(max((real(j)-0.5d0)*fact2, half), edge2)
+            y = min(max((REAL(j)-0.5d0)*fact2, half), edge2)
             j1 = int(y + 0.5d0)
-            dy = real(j1) + 0.5d0 - y
+            dy = REAL(j1) + 0.5d0 - y
             do i=1, ddim1
-               x = min(max((real(i)-0.5d0)*fact1, half), edge1)
+               x = min(max((REAL(i)-0.5d0)*fact1, half), edge1)
                i1 = int(x + 0.5d0)
-               dx = real(i1) + 0.5d0 - x
+               dx = REAL(i1) + 0.5d0 - x
                dest(i,j,1) = source(i1  ,j1  ,1)*     dx *     dy  + 
      &                       source(i1+1,j1  ,1)*(1.d0-dx)*     dy  +
      &                       source(i1  ,j1+1,1)*     dx *(1.d0-dy) +
@@ -89,17 +90,17 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=1, ddim3
-            z = min(max((real(k)-0.5d0)*fact3, half), edge3)
+            z = min(max((REAL(k)-0.5d0)*fact3, half), edge3)
             k1 = int(z + 0.5d0)
-            dz = real(k1) + 0.5d0 - z
+            dz = REAL(k1) + 0.5d0 - z
             do j=1, ddim2
-               y = min(max((real(j)-0.5d0)*fact2, half), edge2)
+               y = min(max((REAL(j)-0.5d0)*fact2, half), edge2)
                j1 = int(y + 0.5d0)
-               dy = real(j1) + 0.5d0 - y
+               dy = REAL(j1) + 0.5d0 - y
                do i=1, ddim1
-                  x = min(max((real(i)-0.5d0)*fact1, half), edge1)
+                  x = min(max((REAL(i)-0.5d0)*fact1, half), edge1)
                   i1 = int(x + 0.5d0)
-                  dx = real(i1) + 0.5d0 - x
+                  dx = REAL(i1) + 0.5d0 - x
                   dest(i,j,k) = 
      &              source(i1  ,j1  ,k1  )*     dx *     dy *     dz   +
      &              source(i1+1,j1  ,k1  )*(1.d0-dx)*     dy *     dz  +

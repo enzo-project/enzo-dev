@@ -49,12 +49,12 @@ c
       integer dim1, dim2, dim3, start1, start2, start3, ndim,
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3
-      real    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
+      R_PREC    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
 c
 c  locals
 c
       integer i, j, k, iparent, jparent, kparent
-      real    dx, dy, dz, xpos, ypos, zpos
+      R_PREC    dx, dy, dz, xpos, ypos, zpos
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

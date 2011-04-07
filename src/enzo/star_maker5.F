@@ -83,39 +83,39 @@ c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
       integer procnum
-      real    d(nx,ny,nz), dm(nx,ny,nz)
-      real    temp(nx,ny,nz), coolrate(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, msolar1
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz)
+      R_PREC    temp(nx,ny,nz), coolrate(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, msolar1
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      real    odthresh, shdens, masseff, smthresh, mintdyn
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    odthresh, shdens, masseff, smthresh, mintdyn
       P_PREC rr_left0, rr_left1, rr_left2
       P_PREC rr_right0, rr_right1, rr_right2
 c
-      real   sformsum
+      R_PREC   sformsum
       save   sformsum
       data   sformsum/0/
 c
 c  Locals:
 c
       integer  i, j, k, ii, ran1_init
-      real   div, tdyn, dtot, dummy1
-      real   newd, newdt, newcool, newtemp
-      real   tempx, tempy, tempz
+      R_PREC   div, tdyn, dtot, dummy1
+      R_PREC   newd, newdt, newcool, newtemp
+      R_PREC   tempx, tempy, tempz
       character*15 fname
-      real   usn, tstar, pstar, sqrtepssn, timeconstant
-      real   mproton, RandomSeed, beta,x ,y, kb
-      real   starfraction, bmass, densthresh 
+      R_PREC   usn, tstar, pstar, sqrtepssn, timeconstant
+      R_PREC   mproton, RandomSeed, beta,x ,y, kb
+      R_PREC   starfraction, bmass, densthresh 
       double precision msolar
       parameter (msolar=SolarMass, mproton=mass_h, beta=0.1d0,
      &     sqrtepssn=2.d24, RandomSeed=-123456, kb=kboltz)
 
-      real random
+      R_PREC random
 
       ii = 0
 c     Initialize Random Number Generator Once
@@ -311,22 +311,22 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
-      real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, justburn
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, justburn
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(npart), yp(npart), zp(npart)
-      real    up(npart), vp(npart), wp(npart)
-      real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      R_PREC    up(npart), vp(npart), wp(npart)
+      R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       integer type(npart)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
       integer i, j, k, n
-      real mform, tfactor, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio, sqrtepssn,
      &     msolar, beta
       parameter (clight = c_light, msolar_e51 = 1800.d0, 

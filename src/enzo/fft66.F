@@ -41,7 +41,7 @@ c    to two to give correct indexing increment, and a(1) and a(2) used
 c    to pass the initial addresses for the sequences of real and
 c    imaginary values, e.g.
 c       complex c(ntot)
-c       real    a(2*ntot)
+c       R_PREC    a(2*ntot)
 c       equivalence (c(1),a(1))
 c       call fft(a(1),a(2),ntot,n,nspan,2)
 c  arrays at(maxf), ck(maxf), bt(maxf), sk(maxf), and np(maxp)

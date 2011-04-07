@@ -15,12 +15,12 @@
       if( dir == -1 ) then
         call fftn(a, sn, inv=.false. )
         do i = 1,n
-        a(i) = a(i) * sqrt(real(n))
+        a(i) = a(i) * sqrt(REAL(n))
         end do
       else
         call fftn(a, sn, inv=.true. )
         do i = 1,n
-        a(i) = a(i) / sqrt(real(n))
+        a(i) = a(i) / sqrt(REAL(n))
         end do
       end if
 

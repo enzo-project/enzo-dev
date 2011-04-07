@@ -65,9 +65,9 @@ c  argument declarations
 c
       integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual, 
      $     ifallback
-      real gamma, dt, eta1
-      real dx(idim)
-      real uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
+      R_PREC gamma, dt, eta1
+      R_PREC dx(idim)
+      R_PREC uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
      $     urs(idim,jdim), vrs(idim,jdim), wrs(idim,jdim),
      $     pls(idim,jdim), dls(idim,jdim), gels(idim,jdim),
      $     prs(idim,jdim), drs(idim,jdim), gers(idim,jdim),
@@ -76,28 +76,28 @@ c
      $     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      $     eslice(idim,jdim), geslice(idim,jdim),
      $     colslice(idim,jdim,ncolor)
-      real df(idim,jdim), ef(idim,jdim), gef(idim,jdim), ges(idim,jdim),
-     $     uf(idim,jdim), vf(idim,jdim), wf(idim,jdim),
-     $     colf(idim,jdim,ncolor)
+      R_PREC df(idim,jdim), ef(idim,jdim), gef(idim,jdim), 
+     $     ges(idim,jdim), uf(idim,jdim), vf(idim,jdim), 
+     $     wf(idim,jdim), colf(idim,jdim,ncolor)
 c
 c  local declarations
 c
       integer i, j, n
-      real sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
+      R_PREC sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
      $     hroe, tl, tr, dl, dr, q1, dub, delu, energy, qc,
      $     gamma1i, csl0, csr0
-      real cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
+      R_PREC cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
      $     cw(ijkn), cp(ijkn), diffd(ijkn), diffuu(ijkn), diffuv(ijkn),
      $     diffuw(ijkn), diffue(ijkn), diffuge(ijkn), 
      $     bp(ijkn), bm(ijkn), el(ijkn), er(ijkn), pcent(ijkn),
      $     bm0(ijkn), bp0(ijkn)
-      real dfl(ijkn), dfr(ijkn), ufl(ijkn), ufr(ijkn), 
+      R_PREC dfl(ijkn), dfr(ijkn), ufl(ijkn), ufr(ijkn), 
      $     vfl(ijkn), vfr(ijkn), wfl(ijkn), wfr(ijkn),
      $     efl(ijkn), efr(ijkn), gefl(ijkn), gefr(ijkn),
      $     gesl(ijkn), gesr(ijkn),
      $     colfl(ijkn,MAX_COLOR), colfr(ijkn,MAX_COLOR)
-      real sl(ijkn), sr(ijkn), sm(ijkn)
-      real dubl, dubr
+      R_PREC sl(ijkn), sr(ijkn), sm(ijkn)
+      R_PREC dubl, dubr
 
       gamma1 = gamma - 1.d0
       gamma1i = 1.d0 / gamma1

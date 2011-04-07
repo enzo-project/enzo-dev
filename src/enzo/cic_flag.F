@@ -48,7 +48,7 @@ c
 c  argument declarations
 c
       integer dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
-      real minmassmust
+      R_PREC minmassmust
       integer buffersize
       P_PREC posx(npositions), posy(npositions), posz(npositions), 
      &        partmass(npositions), leftedge(3)
@@ -60,7 +60,7 @@ c  locals
 c
       integer i1, j1, k1, n, ii, jj, kk
       integer istart, iend, jstart, jend, kstart, kend
-      real    xpos, ypos, zpos, fact
+      R_PREC    xpos, ypos, zpos, fact
       P_PREC edge1, edge2, edge3, half
       parameter (half = 0.5001d0)
 c
@@ -68,9 +68,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
       fact = 1.d0/cellsize
-      edge1 = real(dim1) - half
-      edge2 = real(dim2) - half
-      edge3 = real(dim3) - half
+      edge1 = REAL(dim1) - half
+      edge2 = REAL(dim2) - half
+      edge3 = REAL(dim3) - half
 c
 c     1D
 c

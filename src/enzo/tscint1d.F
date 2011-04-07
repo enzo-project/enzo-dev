@@ -48,12 +48,12 @@ c
 c  arguments
 c
       integer dim1, start1, end1, refine1, gdim1, gstart1
-      real    parent(dim1), grid(gdim1)
+      R_PREC    parent(dim1), grid(gdim1)
 c
 c  locals
 c
       integer i, j, k
-      real    coefm(MAX_REFINE), coefp(MAX_REFINE), coef0(MAX_REFINE),
+      R_PREC  coefm(MAX_REFINE), coefp(MAX_REFINE), coef0(MAX_REFINE),
      &        del1left, del2left, del1right, del2right, factor,
      &        fraction(ijkn), sum
 c
@@ -70,10 +70,10 @@ c
 c  Compute constants
 c
       do i = 0, refine1-1
-         coefm(i+1) = real((refine1-i)**3 - (refine1-i-1)**3)/
-     &                real(6*refine1**3                     )
-         coefp(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                real(6*refine1**3                     )
+         coefm(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3)/
+     &                REAL(6*refine1**3                     )
+         coefp(i+1) = REAL(3*i**2 + 3*i + 1)                 /
+     &                REAL(6*refine1**3                     )
          coef0(i+1) = 1.d0/refine1 - coefm(i+1) - coefp(i+1)
       enddo
 c
@@ -94,7 +94,7 @@ c
          do j = 0, refine1-1
             sum = sum + grid(i-start1+gstart1+j)
          enddo
-         factor = (parent((i-1)/refine1+1) - sum)/real(refine1)
+         factor = (parent((i-1)/refine1+1) - sum)/REAL(refine1)
          do j = 0, refine1-1
             grid(i-start1+gstart1+j) = grid(i-start1+gstart1+j) +
      &               factor
@@ -111,12 +111,12 @@ c    the same.
 c
       do i = start1, end1, refine1
          if (i .eq. start1) then
-            del1left = parent((i-1)/refine1)/real(refine1) -
+            del1left = parent((i-1)/refine1)/REAL(refine1) -
      &                 grid(i-start1+gstart1)
          else
             del1left = grid(i-start1+gstart1-1) - grid(i-start1+gstart1)
          endif
-         del2left = parent((i-1)/refine1+1)/real(refine1) - 
+         del2left = parent((i-1)/refine1+1)/REAL(refine1) - 
      &              grid(i-start1+gstart1)
          if (abs(del2left) .lt. tiny) 
      &        del2left = sign(tiny, del2left)
@@ -128,13 +128,13 @@ c       repeat for right side of each distribution
 c
       do i = start1, end1, refine1
          if (i .eq. end1-refine1+1) then
-            del1right = parent((i-1)/refine1+2)/real(refine1) -
+            del1right = parent((i-1)/refine1+2)/REAL(refine1) -
      &                 grid(i-start1+gstart1+refine1-1)
          else
             del1right = grid(i-start1+gstart1+refine1) - 
      &                 grid(i-start1+gstart1+refine1-1)
          endif
-         del2right = parent((i-1)/refine1+1)/real(refine1) - 
+         del2right = parent((i-1)/refine1+1)/REAL(refine1) - 
      &              grid(i-start1+gstart1+refine1-1)
          if (abs(del2right) .lt. tiny) del2right = 
      &        sign(tiny, del2right)
@@ -147,7 +147,7 @@ c   Modify distributions based on the computed fraction decrease
 c
       do i = start1, end1
             grid(i-start1+gstart1) = 
-     &           parent((i-1)/refine1+1)/real(refine1)*
+     &           parent((i-1)/refine1+1)/REAL(refine1)*
      &                        fraction((i-start1)/refine1 + 1) +
      &           grid(i-start1+gstart1)             *
      &                 (1.d0 - fraction((i-start1)/refine1 + 1) )

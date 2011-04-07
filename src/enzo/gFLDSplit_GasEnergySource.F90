@@ -49,10 +49,10 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in) :: a
-  real,    intent(in) :: time
-  real,    intent(in) :: aUnits, VelUnits, LenUnits, TimeUnits, ecUnits
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(out) :: ecsrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in) :: time
+  R_PREC,    intent(in) :: aUnits, VelUnits, LenUnits, TimeUnits, ecUnits
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(out) :: ecsrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------
 ! locals

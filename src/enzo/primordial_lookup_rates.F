@@ -31,13 +31,13 @@ c     Arguments
 c
       integer is, ie, ijk, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, j, k, threebody
-      real temstart, temend, tgas1d(in), tgasold(in), dom
+      R_PREC temstart, temend, tgas1d(in), tgasold(in), dom
       double precision coolunit, tbase1
       logical itmask(in), eqmask(in)
 c
 c     Chemistry rates as a function of temperature
 c
-      real k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &     k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &     k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &     k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -50,14 +50,14 @@ c
 c
 c     Density fields
 c
-c      real    d(in,jn,kn), HI(in,jn,kn),   HII(in,jn,kn),
+c      R_PREC    d(in,jn,kn), HI(in,jn,kn),   HII(in,jn,kn),
 c     &        HeI(in,jn,kn), HeII(in,jn,kn)
-       real d(in,jn,kn)
-       real*8 HI(ijk), HII(ijk), HeI(ijk), HeII(ijk)
+       R_PREC d(in,jn,kn)
+       REAL*8 HI(ijk), HII(ijk), HeI(ijk), HeII(ijk)
 c
 c     Returned rate values
 c
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
+      R_PREC k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
      &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
      &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k21(ijk),
@@ -68,7 +68,7 @@ c
 c     1D temporaries (passed in)
 c 
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
 c     &     k13dd_dot1(ijk,7), k13dd_dot2(ijk,7)
 c
 c     Parameters
@@ -79,14 +79,14 @@ c
 c     locals
 c
       integer i, n1
-      real factor, x, logtem0, logtem9, dlogtem, nh
+      R_PREC factor, x, logtem0, logtem9, dlogtem, nh
 c     &     k13dd_dot(ijk, 7), dd1, dd2, dd3, dd4, dd5, dd6, dd7
 c
 c     Set log values of start and end of lookup tables
 c
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1)
 c
       do i = is+1, ie+1
       if (itmask(i).eqv..true.) then

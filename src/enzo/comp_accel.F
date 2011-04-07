@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c/////////////////////////  SUBROUTINE COMP_ACCEL  \\\\\\\\\\\\\\\\\\\\\
 c
@@ -31,6 +32,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
@@ -38,14 +40,14 @@ c  argument declarations
 c
       integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        start1, start2, start3, iflag
-      real    source(sdim1, sdim2, sdim3), delx, dely, delz,
+      R_PREC    source(sdim1, sdim2, sdim3), delx, dely, delz,
      &        dest1(ddim1, ddim2, ddim3), dest2(ddim1, ddim2, ddim3),
      &        dest3(ddim1, ddim2, ddim3)
 c
 c  locals
 c
       integer i, j, k
-      real    fact1, fact2, fact3
+      R_PREC    fact1, fact2, fact3
 
 
 #if defined(GRAVITY_4S) && !defined(GRAVITY_6S)
@@ -245,9 +247,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c     -- standard 2nd order derivative operators --
 c
-      fact1 = -1.d0/(real(iflag+1)*delx)
-      fact2 = -1.d0/(real(iflag+1)*dely)
-      fact3 = -1.d0/(real(iflag+1)*delz)
+      fact1 = -1.d0/(REAL(iflag+1)*delx)
+      fact2 = -1.d0/(REAL(iflag+1)*dely)
+      fact3 = -1.d0/(REAL(iflag+1)*delz)
 c
 c     1) 1D
 c

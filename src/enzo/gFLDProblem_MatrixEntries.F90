@@ -102,23 +102,23 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real,    intent(in) :: dx, dy, dz, dt, theta
-  real,    intent(in) :: aUnits, LenUnits, EgUnits
-  real, target, intent(in),                                &
+  R_PREC,    intent(in) :: dx, dy, dz, dt, theta
+  R_PREC,    intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, target, intent(in),                                &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) &
        :: EgCur, EgOld
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: Temp, kappaE
-  real*8, intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: adjvec
+  REAL*8, intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: adjvec
 
 !--------------
 ! locals
   integer :: i, j, k
-  real :: c, pi, StBz, dxi, dyi, dzi, dtfac
-  real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: Dlim
-  real :: Rmin, acoef
+  R_PREC :: c, pi, StBz, dxi, dyi, dzi, dtfac
+  R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
+  R_PREC :: Dlim
+  R_PREC :: Rmin, acoef
 
 !=======================================================================
   
@@ -544,22 +544,22 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real,    intent(in) :: dx, dy, dt, theta
-  real,    intent(in) :: aUnits, LenUnits, EgUnits
-  real, target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
+  R_PREC,    intent(in) :: dx, dy, dt, theta
+  R_PREC,    intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: EgCur, EgOld
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: Temp, kappaE
-  real*8, intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: adjvec
+  REAL*8, intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: adjvec
 
 !--------------
 ! locals
   integer :: i, j
-  real :: c, pi, StBz, dxi, dyi, dtfac
-  real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: Dlim
-  real :: Rmin, acoef
+  R_PREC :: c, pi, StBz, dxi, dyi, dtfac
+  R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
+  R_PREC :: Dlim
+  R_PREC :: Rmin, acoef
 
 !=======================================================================
   
@@ -880,20 +880,20 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real,    intent(in)  :: dx, dt, theta
-  real,    intent(in)  :: aUnits, LenUnits, EgUnits
-  real,    intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld
-  real,    intent(in), dimension(1-NGxl:Nx+NGxr) :: Temp, kappaE
-  real*8,  intent(out) :: matentries(3,x0s:x0e)
-  real, dimension(1-NGxl:Nx+NGxr) :: adjvec
+  R_PREC,    intent(in)  :: dx, dt, theta
+  R_PREC,    intent(in)  :: aUnits, LenUnits, EgUnits
+  R_PREC,    intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld
+  R_PREC,    intent(in), dimension(1-NGxl:Nx+NGxr) :: Temp, kappaE
+  REAL*8,  intent(out) :: matentries(3,x0s:x0e)
+  R_PREC, dimension(1-NGxl:Nx+NGxr) :: adjvec
 
 !--------------
 ! locals
   integer :: i
-  real :: c, pi, StBz, dxi, dtfac
-  real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: Dlim
-  real :: Rmin, acoef
+  R_PREC :: c, pi, StBz, dxi, dtfac
+  R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
+  R_PREC :: Dlim
+  R_PREC :: Rmin, acoef
 
 !=======================================================================
   

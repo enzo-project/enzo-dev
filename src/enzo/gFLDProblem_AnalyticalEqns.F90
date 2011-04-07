@@ -105,32 +105,32 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real, intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real, intent(in) :: CompA, Comp_xray, Comp_temp
-  real, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
+  R_PREC, intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
+  R_PREC, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
        IsEsHeII, IsEsHeIInu
-  real, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        ec, Er, HI, HeI, HeII, ec0, Er0, HI0, HeI0, HeII0, vx, vy, &
        vz, rho, eh, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        ecres, HIres, HeIres, HeIIres
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, &
        k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeIITb,        &
        ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
 
 !--------------
 ! locals
   integer :: i, j, k, l, sweeps, sweeps2, Tidx, Tidxp
-  real*8 :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
-  real*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
-  real*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8 :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
-  real*8 :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8 :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
-  real*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  REAL*8 :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
+  REAL*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
+  REAL*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8 :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
+  REAL*8 :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8 :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -561,20 +561,20 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real, intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
-  real, intent(in) :: CompA, Comp_xray, Comp_temp
-  real, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,     &
+  R_PREC, intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
+  R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,     &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,   &
+  R_PREC, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,   &
        IsEsHeII, IsEsHeIInu
-  real, intent(in),                                                &
+  R_PREC, intent(in),                                                &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        vx, vy, vz, rho, eh, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        ec, Er, HI, HeI, HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        ecres, HIres, HeIres, HeIIres
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb,      &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb,      &
        k4Tb, k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb,        &
        ciHeITb, ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb, &
        reHeIIITb, bremTb
@@ -582,15 +582,15 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
 !--------------
 ! locals
   integer :: i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
-  real*8 :: chmin, chmax, chsum, eint, gam
-  real*8 :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
-  real*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
-  real*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8 :: Ernew, ecnew, HInew, HeInew, HeIInew
-  real*8 :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8 :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
-  real*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  REAL*8 :: chmin, chmax, chsum, eint, gam
+  REAL*8 :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
+  REAL*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
+  REAL*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8 :: Ernew, ecnew, HInew, HeInew, HeIInew
+  REAL*8 :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8 :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -1064,17 +1064,17 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   ! argument declarations
   integer, intent(in)  :: Model, Nchem, NTempBins, ESpectrum
   integer, intent(out) :: ier
-  real*8, intent(in) :: a, adot
-  real*8, intent(in) :: dt, dx, gamma, HFrac, TempStart, TempEnd
-  real*8, intent(in) :: Comp1, Comp2, Comp_xray, Comp_temp
-  real*8, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
+  REAL*8, intent(in) :: a, adot
+  REAL*8, intent(in) :: dt, dx, gamma, HFrac, TempStart, TempEnd
+  REAL*8, intent(in) :: Comp1, Comp2, Comp_xray, Comp_temp
+  REAL*8, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
        ErUnits, ecUnits, NiUnits, aUnits
-  real*8, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
+  REAL*8, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
        IsEsHeII, IsEsHeIInu
-  real*8, intent(in) :: Er, ec, HI, HeI, HeII, Er0, ec0, HI0, HeI0, &
+  REAL*8, intent(in) :: Er, ec, HI, HeI, HeII, Er0, ec0, HI0, HeI0, &
        HeII0, rho, eint, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real*8, intent(out) :: Erres, ecres, HIres, HeIres, HeIIres
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  REAL*8, intent(out) :: Erres, ecres, HIres, HeIres, HeIIres
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
@@ -1082,20 +1082,20 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   !--------------
   ! locals
   integer :: Tidx, Tidxp
-  real*8 :: afac, c, hp, kb, mp, lTempS, lTempE, dlTemp
-  real*8 :: nu0_HI, nu0_HeI, nu0_HeII, HIconst, HeIconst, HeIIconst
-  real*8 :: min_temp, min_ni, min_rad
-  real*8 :: HIval, HeIval, HeIIval, ecval, Erval, rhoval
-  real*8 :: nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
-  real*8 :: HIanal, HeIanal, HeIIanal, Eranal, ecanal
-  real*8 :: grey, T, lamT, lTemp, Tl, Tr, Tfac, kE, P1, Q1, cond, dx_sc
-  real*8 :: wts(7), taus(7), vals(7), fvals(7), ival
-  real*8 :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeII, ciHeIS
-  real*8 :: reHII, reHeII1, reHeII2, reHeIII, brem, G, Lambda
-  real*8 :: P2, Q2, k1, k2, k3, k4, k5, k6, G_HI, G_HeI, G_HeII
-  real*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
-  real*8 :: aHeI, bHeI, cHeI, dHeI, kHeI, expVHeI
-  real*8 :: aHeII, bHeII, cHeII, dHeII, kHeII, expVHeII
+  REAL*8 :: afac, c, hp, kb, mp, lTempS, lTempE, dlTemp
+  REAL*8 :: nu0_HI, nu0_HeI, nu0_HeII, HIconst, HeIconst, HeIIconst
+  REAL*8 :: min_temp, min_ni, min_rad
+  REAL*8 :: HIval, HeIval, HeIIval, ecval, Erval, rhoval
+  REAL*8 :: nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
+  REAL*8 :: HIanal, HeIanal, HeIIanal, Eranal, ecanal
+  REAL*8 :: grey, T, lamT, lTemp, Tl, Tr, Tfac, kE, P1, Q1, cond, dx_sc
+  REAL*8 :: wts(7), taus(7), vals(7), fvals(7), ival
+  REAL*8 :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeII, ciHeIS
+  REAL*8 :: reHII, reHeII1, reHeII2, reHeIII, brem, G, Lambda
+  REAL*8 :: P2, Q2, k1, k2, k3, k4, k5, k6, G_HI, G_HeI, G_HeII
+  REAL*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
+  REAL*8 :: aHeI, bHeI, cHeI, dHeI, kHeI, expVHeI
+  REAL*8 :: aHeII, bHeII, cHeII, dHeII, kHeII, expVHeII
 
   !=======================================================================
 
@@ -1807,17 +1807,17 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   ! argument declarations
   integer, intent(in)  :: ESpectrum
   integer, intent(out) :: ier
-  real*8, intent(in)   :: a, adot, dt, HFrac, DenUnits, ErUnits, NiUnits
-  real*8, intent(in)   :: IsE, IsEsHI, IsEsHInu, k1, k2
-  real*8, intent(in)   :: Er, HI, Er0, HI0, rho, src_Er, src_HI
-  real*8, intent(out)  :: Erres, HIres
+  REAL*8, intent(in)   :: a, adot, dt, HFrac, DenUnits, ErUnits, NiUnits
+  REAL*8, intent(in)   :: IsE, IsEsHI, IsEsHInu, k1, k2
+  REAL*8, intent(in)   :: Er, HI, Er0, HI0, rho, src_Er, src_HI
+  REAL*8, intent(out)  :: Erres, HIres
 
   !--------------
   ! locals
-  real*8 :: afac, c, hp, mp, nu0_HI, nu0_HeI, nu0_HeII, HIconst
-  real*8 :: min_ni, min_rad, HIval, Erval, rhoval, nH, nHI, nHII, ne
-  real*8 :: HIanal, Eranal, grey, kE, P1, Q1, G_HI
-  real*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
+  REAL*8 :: afac, c, hp, mp, nu0_HI, nu0_HeI, nu0_HeII, HIconst
+  REAL*8 :: min_ni, min_rad, HIval, Erval, rhoval, nH, nHI, nHII, ne
+  REAL*8 :: HIanal, Eranal, grey, kE, P1, Q1, G_HI
+  REAL*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
 
   !=======================================================================
 

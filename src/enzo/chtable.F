@@ -46,17 +46,17 @@ c
 c  Arguments
 c
       integer NFREQ
-      real    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
+      R_PREC    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
      &        SPSTAR1(NFREQ), SPSTAR2(NFREQ)
 c
 c  Parameters
 c
-      real    EV2HZ, PI
+      R_PREC    EV2HZ, PI
 c
 c  Locals
 c
       integer N, NTI
-      real    E0, sigma0, ya, P, yw, y0, y1, x, y, Fy, FNU, FNU2,
+      R_PREC    E0, sigma0, ya, P, yw, y0, y1, x, y, Fy, FNU, FNU2,
      &        SPTMO, SUM, TBB, RAT, FLAMRAT, FNURAT, ALA, A,
      &        FNUPOWBK1, FNUPOWBK2, SPITP(9), FNUITP(9), WORK(9),
      &        FNU1

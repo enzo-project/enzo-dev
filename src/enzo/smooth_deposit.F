@@ -48,14 +48,14 @@ c
       integer dim1, dim2, dim3, npositions, ndim
       P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
-      real    mass(npositions), field(dim1, dim2, dim3)
-      real    cellsize, rsmooth
+      R_PREC    mass(npositions), field(dim1, dim2, dim3)
+      R_PREC    cellsize, rsmooth
 c
 c  locals
 c     
       integer i, j, k, n
       P_PREC xpos, ypos, zpos, rsmsqr, rsqr
-      real    coef, pi
+      R_PREC    coef, pi
       parameter (pi = pi_val)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

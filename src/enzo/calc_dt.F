@@ -54,14 +54,14 @@ c
       integer idim, jdim, kdim, i1, i2, j1, j2, k1, k2, rank, ipfree,
      &        ihydro
       P_PREC dx(idim), dy(jdim), dz(kdim)
-      real    dt, vgx, vgy, vgz, gamma, aye, C2, dtviscous
-      real    d(idim,jdim,kdim), p(idim,jdim,kdim), u(idim,jdim,kdim),
+      R_PREC    dt, vgx, vgy, vgz, gamma, aye, C2, dtviscous
+      R_PREC    d(idim,jdim,kdim), p(idim,jdim,kdim), u(idim,jdim,kdim),
      &        v(idim,jdim,kdim), w(idim,jdim,kdim)
 c
 c     Locals
 c
       integer i,j,k
-      real    cs, dt1
+      R_PREC    cs, dt1
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -76,12 +76,12 @@ c
          do i = i1+1, i2+1
             cs = max(sqrt(gamma*p(i,1,1)/d(i,1,1)), tiny)
             if (ipfree .eq. 1) cs = tiny
-            dt = min(dt, real(dx(i)*aye/(cs + abs(u(i,1,1)-vgx))))
+            dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,1,1)-vgx))))
          enddo
          if (ihydro .eq. 2) then
             do i = i1+1, i2+1
                dtviscous = min(dtviscous,
-     &     real(dx(i)*aye/(4.d0*C2*max(-u(i+1,1,1)+u(i,1,1),tiny))))
+     &     REAL(dx(i)*aye/(4.d0*C2*max(-u(i+1,1,1)+u(i,1,1),tiny))))
             enddo
          endif
       endif
@@ -97,22 +97,22 @@ c
 c
 c 	Here is Godunov's formula (to make sure ppm works with 0.8)
 c
- 	       dt = min(dt, real(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
+ 	       dt = min(dt, REAL(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
      &                       (cs + abs(v(i,j,1)-vgy))/dy(j)) ))
                else
 c
 c       The way it was originally in enzo
 c
-               dt = min(dt, real(dx(i)*aye/(cs + abs(u(i,j,1)-vgx))),
-     &                      real(dy(j)*aye/(cs + abs(v(i,j,1)-vgy))))
+               dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,j,1)-vgx))),
+     &                      REAL(dy(j)*aye/(cs + abs(v(i,j,1)-vgy))))
                endif
             enddo
 c
             if (ihydro .eq. 2) then
                do i = i1+1, i2+1
                   dtviscous = min(dtviscous, 
-     &      real(dx(i)*aye/(4.d0*C2*max(-u(i+1,j,1)+u(i,j,1),tiny))),
-     &      real(dy(j)*aye/(4.d0*C2*max(-v(i,j+1,1)+v(i,j,1),tiny))))
+     &      REAL(dx(i)*aye/(4.d0*C2*max(-u(i+1,j,1)+u(i,j,1),tiny))),
+     &      REAL(dy(j)*aye/(4.d0*C2*max(-v(i,j+1,1)+v(i,j,1),tiny))))
                enddo
             endif
          enddo

@@ -77,7 +77,7 @@ c
 c  Arguments
 c
       integer NFREQ, NFREQT
-      real    FREQDEL, FREQTDEL, TMIN, DT1, JNU(NFREQ), INU(NFREQ),
+      R_PREC    FREQDEL, FREQTDEL, TMIN, DT1, JNU(NFREQ), INU(NFREQ),
      &        JNUG(NFREQ), JNUS(NFREQ), JNUQ(NFREQ),
      &        INUG(NFREQ), INUS(NFREQ), INUQ(NFREQ),
      &        DENSQ(NFREQT), DSH2(NFREQT), DSHE2(NFREQT), DSHE3(NFREQT),
@@ -88,12 +88,12 @@ c
 c
 c  Parameters
 c
-      real    EV2HZ, PI
+      R_PREC    EV2HZ, PI
 c
 c  Locals
 c
       integer N11, N22, NSHFT, NUPP, NLOW
-      real    FNU, TEMP, SUB2, SUB3, SUB4, UFF, UFB, DELTAOA, ETA,
+      R_PREC    FNU, TEMP, SUB2, SUB3, SUB4, UFF, UFB, DELTAOA, ETA,
      &        ZR, COEFUV1, COEFUV2, DTST, FKAPA
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////

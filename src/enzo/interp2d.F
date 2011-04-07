@@ -44,6 +44,7 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
       integer MAX_REFINE
       parameter (MAX_REFINE = 32)
@@ -56,13 +57,13 @@ c
      &        end1, end2, refine1, refine2,
      &        gdim1, gdim2, gstart1, gstart2, 
      &        wdim1, wdim2
-      real    parent(dim1, dim2), grid(gdim1, gdim2),
+      R_PREC    parent(dim1, dim2), grid(gdim1, gdim2),
      &        work(wdim1, wdim2)
 c
 c  locals
 c
       integer i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
-      real    delf0, delf1, fbar, fx, fy, one
+      R_PREC    delf0, delf1, fbar, fx, fy, one
       parameter (one=1.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
@@ -134,10 +135,10 @@ c
                do i1 = 0, refine1-1
                   grid(gstart1+(i-1)*refine1+i1,
      &                 gstart2+(j-1)*refine2+j1) = (fbar +
-     &               (real(i1)+0.5d0 -
-     &                 0.5d0*real(refine1))/real(refine1)*fx +
-     &               (real(j1)+0.5d0 
-     &                 -0.5d0*real(refine2))/real(refine2)*fy )
+     &               (REAL(i1)+0.5d0 -
+     &                 0.5d0*REAL(refine1))/REAL(refine1)*fx +
+     &               (REAL(j1)+0.5d0 
+     &                 -0.5d0*REAL(refine2))/REAL(refine2)*fy )
 c                  if (grid(gstart1+(i-1)*refine1+i1,
 c     &                     gstart2+(j-1)*refine2+j1) .lt. 0.0)
 c     &                write(6,*) 'b',i,j,i1,j1

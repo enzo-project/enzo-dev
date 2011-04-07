@@ -81,25 +81,25 @@ c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
       integer procnum, ctype, iradtrans
-      real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, justburn
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, justburn
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
-      real    odthresh, masseff, starmass, mintdyn, h2crit, lifetime
-      real    metalcrit
+      R_PREC    odthresh, masseff, starmass, mintdyn, h2crit, lifetime
+      R_PREC    metalcrit
 c
 c  Locals:
 c
       integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
-      real   div, tdyn, dtot, wgt
-      real   pi, G, sndspdC, m1
-      real   isosndsp2, bmass, jeanmass, lum
+      R_PREC   div, tdyn, dtot, wgt
+      R_PREC   pi, G, sndspdC, m1
+      R_PREC   isosndsp2, bmass, jeanmass, lum
       double precision msolar, mh
       parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
      &           msolar=SolarMass, mh=mass_h)
@@ -415,22 +415,22 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, npart, idual, imetal, imethod, ctype
-      real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(npart), yp(npart), zp(npart)
-      real    up(npart), vp(npart), wp(npart)
-      real    mp(npart), life(npart), tcp(npart), metalf(npart)
+      R_PREC    up(npart), vp(npart), wp(npart)
+      R_PREC    mp(npart), life(npart), tcp(npart), metalf(npart)
       integer type(npart)
 c
 c  Locals
 c
       integer i, j, k, n
-      real energy, lum, sn_nrg, m_eject, yield, dratio, m1
-      real lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
+      R_PREC energy, lum, sn_nrg, m_eject, yield, dratio, m1
+      R_PREC lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
       double precision msolar
       parameter (lower_pisn = 140.0, upper_pisn = 260.0, lsun = 2.d33)
       parameter (msolar = SolarMass)

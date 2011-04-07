@@ -72,23 +72,23 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   P_PREC, intent(in) :: a
-  real,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
-  real,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
-  real,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
-  real,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
+  R_PREC,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
+  R_PREC,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
+  R_PREC,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: rho, n_HI, n_HeI, n_HeII, Temp
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
        :: kappaP, kappaE
   integer, intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i, j, k
-  real :: mp, HIconst, HeIconst, HeIIconst
-  real :: rhoval, Tval
+  R_PREC :: mp, HIconst, HeIconst, HeIIconst
+  R_PREC :: rhoval, Tval
 
   !=======================================================================
 

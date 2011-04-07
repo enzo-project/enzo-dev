@@ -46,14 +46,14 @@ c  argument declarations
 c
       integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        start1, start2, start3, refine1, refine2, refine3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
      &        temp1(ddim1, ddim2/refine2+2), 
      &        temp2(ddim1, ddim2, ddim3/refine3+2)
 c
 c  locals
 c
       integer i, j, k, i1, j1, k1, i2, j2, k2
-      real work1(ijkn), work2(ijkn), work3(ijkn), work4(ijkn)
+      R_PREC work1(ijkn), work2(ijkn), work3(ijkn), work4(ijkn)
 c     
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -154,13 +154,13 @@ c
 #include "fortran_types.def"
 c
       integer i, j, n, refine
-      real y(n), y2(n), result((n-2)*refine), a, b, step, x
+      R_PREC y(n), y2(n), result((n-2)*refine), a, b, step, x
 c
       step = 1.0/refine
       x = 1.0 - 0.5*step
       do i=1, (n-2)*refine
          j = int(x) + 1
-         a = real(j) - x
+         a = REAL(j) - x
          b = 1.d0 - a
          result(i) = a*y(j) + b*y(j+1) + ((a**3 - a)*y2(j) +
      &               (b**3-b)*y2(j+1))/6.d0
@@ -183,7 +183,7 @@ c
 #include "fortran_types.def"
 c
       integer i, n
-      real y(n), y2(n), work(n), p
+      R_PREC y(n), y2(n), work(n), p
 c
 c     hardwire for natural derivatives (zero 2nd deriv at ends)
 c

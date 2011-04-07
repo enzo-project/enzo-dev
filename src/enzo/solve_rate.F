@@ -48,16 +48,16 @@ c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, ispecies,
      &        iradshield, iradtype, iradtrans, irt_honly
-      real    dt, aye, temstart, temend, utim, uaye, urho, uxyz,
+      R_PREC    dt, aye, temstart, temend, utim, uaye, urho, uxyz,
      &        fh, dtoh
-      real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
+      R_PREC    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &      tgas(in,jn,kn),    d(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
-      real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
-      real kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
+      R_PREC    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
+      R_PREC kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &     kdissH2I(in,jn,kn)
-      real k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &     k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &     k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &     k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -74,12 +74,12 @@ c
       parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0e-05)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0d-10)
 #endif
 
@@ -90,9 +90,9 @@ c
 c  Locals
 c
       integer i, j, k, n, iter, n1
-      real qq, vibl, logtem0, logtem9, dlogtem
-      real ttmin, comp1, comp2, c2, scoef, acoef, nh, dom, factor, x
-      real HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
+      R_PREC qq, vibl, logtem0, logtem9, dlogtem
+      R_PREC ttmin, comp1, comp2, c2, scoef, acoef, nh, dom, factor, x
+      R_PREC HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
      &     HMp(ijk), H2Ip(ijk), H2IIp(ijk),
      &     dep(ijk), dedot(ijk),HIdot(ijk),
      &     DIp(ijk), DIIp(ijk), HDIp(ijk),
@@ -105,19 +105,19 @@ c
 c  Slice temporaries (passed in)
 c 
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
      &     dtit(ijk), ttot(ijk)
 c
 c  Rate equation slice temporaries (passed in)
 c
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
+      R_PREC k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
      &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
      &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
      &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
      &     k55(ijk), k56(ijk), k13dd(ijk, 7)
 c
-c      real tgas(in,jn,kn), tgasold(in,jn,kn)
+c      R_PREC tgas(in,jn,kn), tgasold(in,jn,kn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -134,7 +134,7 @@ c     Set log values of start and end of lookup tables
 c
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/REAL(nratec-1)
 c
 c  Convert densities from comoving to proper
 c

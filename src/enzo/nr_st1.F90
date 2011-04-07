@@ -1,14 +1,15 @@
       subroutine nr_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
       integer :: n1, idir
       complex :: x(n1)
 
       integer :: n(3)
-      real :: factor
+      R_PREC :: factor
 
-      factor = 1.0/real(n1)
+      factor = 1.0/REAL(n1)
 
       n(1) = n1
       n(2) = 1

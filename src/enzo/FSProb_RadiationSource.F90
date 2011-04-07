@@ -57,20 +57,20 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  real*8,  intent(in) :: NGammaDot
+  REAL*8,  intent(in) :: NGammaDot
   P_PREC, intent(in) :: a
-  real,    intent(in) :: time, EtaRadius, EtaCenter(3)
-  real,    intent(in) :: aUn, lUn, tUn, rUn
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(out) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in) :: time, EtaRadius, EtaCenter(3)
+  R_PREC,    intent(in) :: aUn, lUn, tUn, rUn
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(out) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------
 ! locals
   integer :: i, j, k, l, nsrc, seed(8)
-  real    :: h_nu0, etaconst, rnums(10)
-  real    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
-  real    :: cellXc, cellYc, cellZc
-  real*8  :: dV
+  R_PREC    :: h_nu0, etaconst, rnums(10)
+  R_PREC    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
+  R_PREC    :: cellXc, cellYc, cellZc
+  REAL*8  :: dV
 
 !=======================================================================
 
@@ -107,7 +107,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
         i = max(min(int(rnums(4)*Nx), Nx-1), 2)
         j = max(min(int(rnums(6)*Ny), Ny-1), 2)
         k = max(min(int(rnums(8)*Nz), Nz-1), 2)
-!        eta(i,j,k) = rnums(10)*h_nu0*real(NGammaDot/dV)
+!        eta(i,j,k) = rnums(10)*h_nu0*REAL(NGammaDot/dV)
         eta(i,j,k) = rnums(10)*h_nu0*NGammaDot/dV
 !        print '(A,3(i2,1x),A,es9.2)', '   setting source at ',i,j,k,' with strength ',eta(i,j,k)
 

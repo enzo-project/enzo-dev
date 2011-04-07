@@ -59,19 +59,19 @@ c
 c  argument declarations
 c
       integer i1, i2, idim, iflatten, isteep, j1, j2, jdim
-      real    dt, gamma
-      real   dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
-     &       uslice(idim,jdim)
-      real      dls(idim,jdim),     drs(idim,jdim), flatten(idim,jdim),
-     &          pls(idim,jdim),
-     &          prs(idim,jdim),
-     &          uls(idim,jdim),     urs(idim,jdim)
+      R_PREC   dt, gamma
+      R_PREC   dslice(idim,jdim),  dxi(idim     ), pslice(idim,jdim),
+     &         uslice(idim,jdim)
+      R_PREC   dls(idim,jdim),     drs(idim,jdim), flatten(idim,jdim),
+     &         pls(idim,jdim),
+     &         prs(idim,jdim),
+     &         uls(idim,jdim),     urs(idim,jdim)
 c
 c  locals
 c
       integer i, j
-      real qa,qb,qc,qd,qe,dplus,pplus,uplus,dmnus,pmnus,umnus,ft,one
-      real c1(ijkn),c2(ijkn),c3(ijkn), c4(ijkn),  c5(ijkn), c6(ijkn)
+      R_PREC qa,qb,qc,qd,qe,dplus,pplus,uplus,dmnus,pmnus,umnus,ft,one
+      R_PREC c1(ijkn),c2(ijkn),c3(ijkn), c4(ijkn),  c5(ijkn), c6(ijkn)
      &    ,dd(ijkn),dp(ijkn),du(ijkn),dph(ijkn), pph(ijkn),uph(ijkn)
      &    ,dl(ijkn),dr(ijkn),pl(ijkn), pr(ijkn),  ul(ijkn), ur(ijkn)
      &    ,d6(ijkn),p6(ijkn),u6(ijkn), cs(ijkn)

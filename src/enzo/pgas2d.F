@@ -40,14 +40,15 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
       integer i1, i2, idim, j1, j2, jdim
-      real    gamma, pmin
-      real dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
+      R_PREC    gamma, pmin
+      R_PREC dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
      &     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim)
 c
 c  locals

@@ -28,18 +28,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
       integer ndim, dim1, dim2, dim3
-      real    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3)
+      R_PREC    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3)
 c
 c  locals
 c
       integer i, j, k, ipass, istart, jstart, kstart
-      real    h1, h2, h3, coef1, coef2, coef3
+      R_PREC    h1, h2, h3, coef1, coef2, coef3
       
 #if defined(GRAVITY_4S) && !defined(GRAVITY_6S)
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -50,9 +51,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.0/real(dim1-1)
-      if (ndim .ge. 2) h2 = h1/real(dim2-1)
-      if (ndim .ge. 3) h3 = h2/real(dim3-1)
+      h1 = 1.0/REAL(dim1-1)
+      if (ndim .ge. 2) h2 = h1/REAL(dim2-1)
+      if (ndim .ge. 3) h3 = h2/REAL(dim3-1)
       coef1 = 12.d0/30.d0
       coef2 = 12.d0/60.d0
       coef3 = 12.d0/90.d0
@@ -140,9 +141,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.d0/real(dim1-1)
-      if (ndim .ge. 2) h2 = h1/real(dim2-1)
-      if (ndim .ge. 3) h3 = h2/real(dim3-1)
+      h1 = 1.d0/REAL(dim1-1)
+      if (ndim .ge. 2) h2 = h1/REAL(dim2-1)
+      if (ndim .ge. 3) h3 = h2/REAL(dim3-1)
       coef1 = 1080.d0/2720.d0
       coef2 = 1080.d0/5440.d0
       coef3 = 1080.d0/8160.d0
@@ -242,9 +243,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.d0/real(dim1-1)
-      if (ndim .ge. 2) h2 = h1/real(dim2-1)
-      if (ndim .ge. 3) h3 = h2/real(dim3-1)
+      h1 = 1.d0/REAL(dim1-1)
+      if (ndim .ge. 2) h2 = h1/REAL(dim2-1)
+      if (ndim .ge. 3) h3 = h2/REAL(dim3-1)
       coef1 = 1.d0/2.d0
       coef2 = 1.d0/4.d0
       coef3 = 1.d0/6.d0

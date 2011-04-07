@@ -12,14 +12,14 @@
       integer :: n1, idir
       complex :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
+      REAL*4 :: factor
+      REAL*4 :: scale
 
       integer*4 :: jdir
       integer*4 :: m1, i0, i1
 
-      real*4 :: work(2*n1)
-      real*4 :: table(2*n1+256)
+      REAL*4 :: work(2*n1)
+      REAL*4 :: table(2*n1+256)
       integer*4 :: isys(0:1)
 
       isys(0) = 1
@@ -29,7 +29,7 @@
       i0 = 0
       i1 = idir
 
-      factor = 1.0e-00/real(n1)
+      factor = 1.0e-00/REAL(n1)
 
       if( idir == -1 ) then
         scale = 1.0e-00
@@ -56,14 +56,14 @@
       integer :: n1, idir
       complex :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
+      REAL*8 :: factor
+      REAL*8 :: scale
 
       integer*4 :: jdir
       integer*4 :: m1, i0, i1
 
-      real*8 :: work(2*n1)
-      real*8 :: table(2*n1+256)
+      REAL*8 :: work(2*n1)
+      REAL*8 :: table(2*n1+256)
       integer*4 :: isys(0:1)
 
       isys(0) = 1
@@ -73,7 +73,7 @@
       i0 = 0
       i1 = idir
 
-      factor = 1.0d-00/real(n1)
+      factor = 1.0d-00/REAL(n1)
 
       if( idir == -1 ) then
         scale = 1.0d-00

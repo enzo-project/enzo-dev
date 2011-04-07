@@ -20,14 +20,14 @@ c  Arguments
 c
       integer in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter
-      real    temstart, temend, utem, uxyz, urho, utim,
+      R_PREC    temstart, temend, utem, uxyz, urho, utim,
      &        gamma, coola(nratec)
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
 c  Parameters
 c
-      real pmin
+      R_PREC pmin
       parameter (pmin = tiny)
       double precision mh
 
@@ -37,12 +37,12 @@ c
 c  Locals
 c
       integer i
-      real thalf
+      R_PREC thalf
 c
 c  Slice locals
 c 
-      real p2d(in), tgas(in), tgasold(in), cool(in)
-      real edot(in), Lambda, Heating
+      R_PREC p2d(in), tgas(in), tgasold(in), cool(in)
+      R_PREC edot(in), Lambda, Heating
 
 c
 c     Note that the temperature definition here is slightly different

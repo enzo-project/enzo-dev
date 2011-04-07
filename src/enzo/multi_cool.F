@@ -61,41 +61,41 @@
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, n_xe, iradtrans,
      &        imcool, igammah
-      real    dt, aye, temstart, temend,
+      R_PREC    dt, aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &       de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &      HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
-      real    photogamma(in,jn,kn)
+      R_PREC    photogamma(in,jn,kn)
       integer ih2optical, iciecool
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+      R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
      &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
-      real    metala(nratec, n_xe)
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC    metala(nratec, n_xe)
+      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
+      R_PREC    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
-      real    gammaha
+      R_PREC    gammaha
 
 !  Cloudy cooling data
 
       integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
-      real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
+      R_PREC clMetNorm, clEleFra
+      R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
+      R_PREC clCooling(clDataSize), clHeating(clDataSize), 
      &     clMMW(clDataSize)
 
 !  Parameters
@@ -104,12 +104,12 @@
       parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0e-05)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0d-10)
 #endif
 
@@ -119,13 +119,13 @@
 !  Locals
 
       integer i, j, k, n, iter
-      real dom, energy
-      real dt2, ttmin, comp1, comp2
+      R_PREC dom, energy
+      R_PREC dt2, ttmin, comp1, comp2
 
 !  Row locals
  
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
       double precision edot(ijk)
 
@@ -135,7 +135,7 @@
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), cieco(ijk)
-      real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
+      R_PREC hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
 
 !  Iteration mask
@@ -275,14 +275,14 @@ c            energy = p(i,j,k)/(gamma-1.d0)
 !            Compute timestep for 10% change
 
 c            if (iter .gt. 100) then
-c               dtit(i) = min(real(abs(0.01d0*energy/edot(i))), 
+c               dtit(i) = min(REAL(abs(0.01d0*energy/edot(i))), 
 c    &                        dt-ttot(i), dt2)
 c            else
-c               dtit(i) = min(real(abs(0.1d0*energy/edot(i))), 
+c               dtit(i) = min(REAL(abs(0.1d0*energy/edot(i))), 
 c    &                        dt-ttot(i), dt2)
 c            endif
 
-             dtit(i) = min(real(abs(0.1d0*energy/edot(i))),
+             dtit(i) = min(REAL(abs(0.1d0*energy/edot(i))),
      &                     dt-ttot(i), dt2)
 
              if ( dt-ttot(i) .le. tolerance*dt ) then

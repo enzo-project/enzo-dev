@@ -125,22 +125,22 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
-  real,    intent(in) :: dx, dy, dz
-  real,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
-  real,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in) :: CompA, Comp_xray, Comp_temp
-  real,    intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
-  real,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
-  real,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
-  real,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits,  &
+  R_PREC,    intent(in) :: dx, dy, dz
+  R_PREC,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
+  R_PREC,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC,    intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
+  R_PREC,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
+  R_PREC,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
+  R_PREC,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits,  &
        ErUnits, ecUnits, NiUnits, ecScale
-  real, intent(in),                                             &
+  R_PREC, intent(in),                                             &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)  &
        :: Era, eca, n_HIa, n_HeIa, n_HeIIa, eha, rhoa, vx, vy, vz
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb,      &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb,      &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, &
        ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
-  real, intent(out),                                           &
+  R_PREC, intent(out),                                           &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, Erjac_HeII,       &
        ecjac_Er, ecjac_ec, ecjac_HI, ecjac_HeI, ecjac_HeII,       &
@@ -151,7 +151,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
   !--------------
   ! locals
   integer :: i, j, k
-  real :: dxi2, dyi2, dzi2, DivV, GradRhoDotV, aval
+  R_PREC :: dxi2, dyi2, dzi2, DivV, GradRhoDotV, aval
 
   !=======================================================================
 
@@ -424,17 +424,17 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
-  real,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
-  real,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
-  real,    intent(in) :: CompA, Comp_xray, Comp_temp
-  real,    intent(in) :: aUnits, DenUnits, VelUnits, ErUnits, ecUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
+  R_PREC,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
+  R_PREC,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
+  R_PREC,    intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC,    intent(in) :: aUnits, DenUnits, VelUnits, ErUnits, ecUnits, NiUnits
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
        Era, eca, n_HIa, n_HeIa, n_HeIIa, eha, rhoa, vx, vy, vz
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb,      &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb,      &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, &
        ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
        Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, Erjac_HeII,    &
        ecjac_Er, ecjac_ec, ecjac_HI, ecjac_HeI, ecjac_HeII,       &
        HIjac_Er, HIjac_ec, HIjac_HI, HIjac_HeI, HIjac_HeII,       &
@@ -444,29 +444,29 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   !--------------
   ! locals
   integer :: i, j, k, Tidx, Tidxp
-  real :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, Tfac2
-  real :: k1, k2, k3, k4, k5, k6
-  real :: dk1_dT, dk2_dT, dk3_dT, dk4_dT, dk5_dT, dk6_dT
-  real :: aval, grey
-  real :: T, dT_dec, dT_dHI, dT_dHeI, dT_dHeII, min_temp
-  real :: lamT, dlamT_dT
-  real :: pi, c, hp, kb, StBz, eint, Er, rho, zr, afac, mp, KEconst
-  real :: mol_weight, dmu_dHI, dmu_dHeI, dmu_dHeII
-  real :: comp1, comp2
-  real :: HIconst, HeIconst, HeIIconst, nu0_HI, nu0_HeI, nu0_HeII
-  real :: nH, nHI, dnHI_dHI, nHII, dnHII_dHI
-  real :: ne, dne_dHI, dne_dHeI, dne_dHeII
-  real :: nHe, nHeI, dnHeI_dHeI, nHeII, dnHeII_dHeII
-  real :: nHeIII, dnHeIII_dHeI, dnHeIII_dHeII 
-  real :: kappaE, dkappaE_dHI, dkappaE_dHeI, dkappaE_dHeII
-  real :: eta, deta_dec, deta_dHI, deta_dHeI, deta_dHeII
-  real :: brem, dbrem_dT, ceHI, dceHI_dT, ceHeI, dceHeI_dT
-  real :: ceHeII, dceHeII_dT, ciHI, dciHI_dT, ciHeI, dciHeI_dT
-  real :: ciHeIS, dciHeIS_dT, ciHeII, dciHeII_dT, reHII, dreHII_dT
-  real :: reHeII1, dreHeII1_dT, reHeII2, dreHeII2_dT, reHeIII, dreHeIII_dT
-  real :: dG_dEr, dG_dHI, dG_dHeI, dG_dHeII
-  real :: dLambda_dec, dLambda_dHI, dLambda_dHeI, dLambda_dHeII
-  real :: G_HI, dGHI_dEr, G_HeI, dGHeI_dEr, G_HeII, dGHeII_dEr
+  R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, Tfac2
+  R_PREC :: k1, k2, k3, k4, k5, k6
+  R_PREC :: dk1_dT, dk2_dT, dk3_dT, dk4_dT, dk5_dT, dk6_dT
+  R_PREC :: aval, grey
+  R_PREC :: T, dT_dec, dT_dHI, dT_dHeI, dT_dHeII, min_temp
+  R_PREC :: lamT, dlamT_dT
+  R_PREC :: pi, c, hp, kb, StBz, eint, Er, rho, zr, afac, mp, KEconst
+  R_PREC :: mol_weight, dmu_dHI, dmu_dHeI, dmu_dHeII
+  R_PREC :: comp1, comp2
+  R_PREC :: HIconst, HeIconst, HeIIconst, nu0_HI, nu0_HeI, nu0_HeII
+  R_PREC :: nH, nHI, dnHI_dHI, nHII, dnHII_dHI
+  R_PREC :: ne, dne_dHI, dne_dHeI, dne_dHeII
+  R_PREC :: nHe, nHeI, dnHeI_dHeI, nHeII, dnHeII_dHeII
+  R_PREC :: nHeIII, dnHeIII_dHeI, dnHeIII_dHeII 
+  R_PREC :: kappaE, dkappaE_dHI, dkappaE_dHeI, dkappaE_dHeII
+  R_PREC :: eta, deta_dec, deta_dHI, deta_dHeI, deta_dHeII
+  R_PREC :: brem, dbrem_dT, ceHI, dceHI_dT, ceHeI, dceHeI_dT
+  R_PREC :: ceHeII, dceHeII_dT, ciHI, dciHI_dT, ciHeI, dciHeI_dT
+  R_PREC :: ciHeIS, dciHeIS_dT, ciHeII, dciHeII_dT, reHII, dreHII_dT
+  R_PREC :: reHeII1, dreHeII1_dT, reHeII2, dreHeII2_dT, reHeIII, dreHeIII_dT
+  R_PREC :: dG_dEr, dG_dHI, dG_dHeI, dG_dHeII
+  R_PREC :: dLambda_dec, dLambda_dHI, dLambda_dHeI, dLambda_dHeII
+  R_PREC :: G_HI, dGHI_dEr, G_HeI, dGHeI_dEr, G_HeII, dGHeII_dEr
 
   !=======================================================================
 
@@ -1074,17 +1074,17 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in) :: a, adot
-  real, intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
-  real, intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real, intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
-  real, intent(in) :: CompA, Comp_xray, Comp_temp
-  real, intent(in) :: aUnits, DenUnits, VelUnits, ErUnits, ecUnits, NiUnits
-  real, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
+  R_PREC, intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC, intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
+  R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC, intent(in) :: aUnits, DenUnits, VelUnits, ErUnits, ecUnits, NiUnits
+  R_PREC, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        Era, eca, n_HIa, n_HeIa, n_HeIIa, eha, rhoa, vx, vy, vz
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
        k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb,          &
        ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
        Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, Erjac_HeII,    &
        ecjac_Er, ecjac_ec, ecjac_HI, ecjac_HeI, ecjac_HeII,       &
        HIjac_Er, HIjac_ec, HIjac_HI, HIjac_HeI, HIjac_HeII,       &
@@ -1094,28 +1094,28 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   !--------------
   ! locals
   integer :: i, j, k, Tidx, Tidxp
-  real :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, Tfac2
-  real :: k1, k2, k3, k4, k5, k6
-  real :: dk1_dT, dk2_dT, dk3_dT, dk4_dT, dk5_dT, dk6_dT
-  real :: aval, grey
-  real :: T, dT_dec, dT_dHI, dT_dHeI, dT_dHeII, min_temp
-  real :: pi, c, hp, kb, StBz, eint, Er, rho, zr, afac, mp, KEconst
-  real :: mol_weight, dmu_dHI, dmu_dHeI, dmu_dHeII
-  real :: alpha, beta, comp1, comp2
-  real :: HIconst, HeIconst, HeIIconst, nu0_HI, nu0_HeI, nu0_HeII
-  real :: nH, nHI, dnHI_dHI, nHII, dnHII_dHI
-  real :: ne, dne_dHI, dne_dHeI, dne_dHeII
-  real :: nHe, nHeI, dnHeI_dHeI, nHeII, dnHeII_dHeII
-  real :: nHeIII, dnHeIII_dHeI, dnHeIII_dHeII 
-  real :: kappaE, dkappaE_dHI, dkappaE_dHeI, dkappaE_dHeII
-  real :: eta, deta_dec, deta_dHI, deta_dHeI, deta_dHeII
-  real :: brem, dbrem_dT, ceHI, dceHI_dT, ceHeI, dceHeI_dT
-  real :: ceHeII, dceHeII_dT, ciHI, dciHI_dT, ciHeI, dciHeI_dT
-  real :: ciHeIS, dciHeIS_dT, ciHeII, dciHeII_dT, reHII, dreHII_dT
-  real :: reHeII1, dreHeII1_dT, reHeII2, dreHeII2_dT, reHeIII, dreHeIII_dT
-  real :: dG_dEr, dG_dHI, dG_dHeI, dG_dHeII
-  real :: dLambda_dec, dLambda_dHI, dLambda_dHeI, dLambda_dHeII
-  real :: G_HI, dGHI_dEr, G_HeI, dGHeI_dEr, G_HeII, dGHeII_dEr
+  R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, Tfac2
+  R_PREC :: k1, k2, k3, k4, k5, k6
+  R_PREC :: dk1_dT, dk2_dT, dk3_dT, dk4_dT, dk5_dT, dk6_dT
+  R_PREC :: aval, grey
+  R_PREC :: T, dT_dec, dT_dHI, dT_dHeI, dT_dHeII, min_temp
+  R_PREC :: pi, c, hp, kb, StBz, eint, Er, rho, zr, afac, mp, KEconst
+  R_PREC :: mol_weight, dmu_dHI, dmu_dHeI, dmu_dHeII
+  R_PREC :: alpha, beta, comp1, comp2
+  R_PREC :: HIconst, HeIconst, HeIIconst, nu0_HI, nu0_HeI, nu0_HeII
+  R_PREC :: nH, nHI, dnHI_dHI, nHII, dnHII_dHI
+  R_PREC :: ne, dne_dHI, dne_dHeI, dne_dHeII
+  R_PREC :: nHe, nHeI, dnHeI_dHeI, nHeII, dnHeII_dHeII
+  R_PREC :: nHeIII, dnHeIII_dHeI, dnHeIII_dHeII 
+  R_PREC :: kappaE, dkappaE_dHI, dkappaE_dHeI, dkappaE_dHeII
+  R_PREC :: eta, deta_dec, deta_dHI, deta_dHeI, deta_dHeII
+  R_PREC :: brem, dbrem_dT, ceHI, dceHI_dT, ceHeI, dceHeI_dT
+  R_PREC :: ceHeII, dceHeII_dT, ciHI, dciHI_dT, ciHeI, dciHeI_dT
+  R_PREC :: ciHeIS, dciHeIS_dT, ciHeII, dciHeII_dT, reHII, dreHII_dT
+  R_PREC :: reHeII1, dreHeII1_dT, reHeII2, dreHeII2_dT, reHeIII, dreHeIII_dT
+  R_PREC :: dG_dEr, dG_dHI, dG_dHeI, dG_dHeII
+  R_PREC :: dLambda_dec, dLambda_dHI, dLambda_dHeI, dLambda_dHeII
+  R_PREC :: G_HI, dGHI_dEr, G_HeI, dGHeI_dEr, G_HeII, dGHeII_dEr
 
   !=======================================================================
 
@@ -1666,25 +1666,25 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
-  real,    intent(in) :: TempStart, TempEnd
-  real,    intent(in) :: DenUnits, VelUnits, ErUnits, ecUnits, NiUnits, ecScale
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
+  R_PREC,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
+  R_PREC,    intent(in) :: TempStart, TempEnd
+  R_PREC,    intent(in) :: DenUnits, VelUnits, ErUnits, ecUnits, NiUnits, ecScale
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
        Era, eca, n_HIa, eha, rhoa, vx, vy, vz
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
        Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er, ecjac_ec, ecjac_HI, &
        HIjac_Er, HIjac_ec, HIjac_HI
 
   !--------------
   ! locals
   integer :: i, j, k, Tidx, Tidxp
-  real :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, k1, k2
-  real :: afac, grey, T, min_temp, lamT
-  real :: c, hp, kb, StBz, eint, Er, rho, mp, KEconst
-  real :: mol_weight, nH, nHI, nHII, ne
-  real :: kappaE, dkappaE_dHI, G_HI, dGHI_dEr
-  real :: dnHI_dHI, dnHII_dHI, dne_dHI
+  R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac, k1, k2
+  R_PREC :: afac, grey, T, min_temp, lamT
+  R_PREC :: c, hp, kb, StBz, eint, Er, rho, mp, KEconst
+  R_PREC :: mol_weight, nH, nHI, nHII, ne
+  R_PREC :: kappaE, dkappaE_dHI, G_HI, dGHI_dEr
+  R_PREC :: dnHI_dHI, dnHII_dHI, dne_dHI
 
   !=======================================================================
 
@@ -1873,18 +1873,18 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC,  intent(in) :: a, adot
-  real, intent(in) :: ErUnits, NiUnits
-  real, intent(in) :: IsE, IsEsHI
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
+  R_PREC, intent(in) :: ErUnits, NiUnits
+  R_PREC, intent(in) :: IsE, IsEsHI
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
        Era, n_HIa
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
        Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er, ecjac_ec, ecjac_HI, &
        HIjac_Er, HIjac_ec, HIjac_HI
 
   !--------------
   ! locals
   integer :: i, j, k
-  real :: c, nHI, Er, kappaE, afac, grey
+  R_PREC :: c, nHI, Er, kappaE, afac, grey
 
   !=======================================================================
 
@@ -2025,22 +2025,22 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: time, gamma
-  real,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
-  real,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
-  real,    intent(in) :: DenUnits, VelUnits, ErUnits, ecUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
+  R_PREC,    intent(in) :: time, gamma
+  R_PREC,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
+  R_PREC,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
+  R_PREC,    intent(in) :: DenUnits, VelUnits, ErUnits, ecUnits
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
        Era, eca, eha, rhoa, vx, vy, vz
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) :: &
        Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec
 
   !--------------
   ! locals
   integer :: i, j, k
-  real :: T, dT_dec, min_temp, mol_weight
-  real :: pi, c, hp, kb, rc, StBz, eint, Er, rho, afac, grey, mp, KEconst
-  real :: kappaP, dkappaP_dec, kappaE, dkappaE_dec
-  real :: eta, deta_dec, Cv
+  R_PREC :: T, dT_dec, min_temp, mol_weight
+  R_PREC :: pi, c, hp, kb, rc, StBz, eint, Er, rho, afac, grey, mp, KEconst
+  R_PREC :: kappaP, dkappaP_dec, kappaE, dkappaE_dec
+  R_PREC :: eta, deta_dec, Cv
 
   !=======================================================================
 

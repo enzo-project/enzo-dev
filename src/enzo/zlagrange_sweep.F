@@ -101,8 +101,8 @@ c
       integer gravity, idiff, idual, iflatten, isteepen, ipresfree,
      &        in, jn, kn, is, ie, j, js, je, ks, ke, nsubgrids,
      &        ncolor, coloff(ncolor)
-      real    dt, eta1, eta2, gamma, pmin, vgz
-      real    d(in,jn,kn), e(in,jn,kn), u(in,jn,kn), v(in,jn,kn), 
+      R_PREC    dt, eta1, eta2, gamma, pmin, vgz
+      R_PREC    d(in,jn,kn), e(in,jn,kn), u(in,jn,kn), v(in,jn,kn), 
      &        w(in,jn,kn),ge(in,jn,kn), gr_acc(in,jn,kn),
      &        dx(in), dy(jn), dz(kn)
       integer fistart(nsubgrids*3), fiend(nsubgrids*3),
@@ -112,11 +112,11 @@ c
      &        uindex(nsubgrids*6), vindex(nsubgrids*6),
      &        windex(nsubgrids*6),geindex(nsubgrids*6),
      &        colindex(nsubgrids*6,ncolor)
-      real    array(1), colorpt(1)
+      R_PREC    array(1), colorpt(1)
 c
 c  define local slices (passed as temps)
 c
-      real         dls(kn,in),        drs(kn,in),    flatten(kn,in),
+      R_PREC         dls(kn,in),        drs(kn,in),    flatten(kn,in),
      &            pbar(kn,in),        pls(kn,in),
      &             prs(kn,in),     pslice(kn,in),       ubar(kn,in),
      &             uls(kn,in),        urs(kn,in),        vls(kn,in),
@@ -127,7 +127,7 @@ c
      &              df(kn,in),         ef(kn,in),    grslice(kn,in),
      &              uf(kn,in),         vf(kn,in),         wf(kn,in),
      &        dznslice(kn,in),   dzlslice(kn,in)
-      real colslice(kn,in,ncolor),  colf(kn,in,ncolor),
+      R_PREC colslice(kn,in,ncolor),  colf(kn,in,ncolor),
      &        colls(kn,in,ncolor), colrs(kn,in,ncolor)
 c
 c  parameters

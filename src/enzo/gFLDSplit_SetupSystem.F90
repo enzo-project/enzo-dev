@@ -112,12 +112,12 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
   integer, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   P_PREC, intent(in)  :: a, a0, adot, adot0
-  real,    intent(in)  :: dt, theta, dx, dy, dz
-  real,    intent(in)  :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real,    intent(in)  :: E0(*), E(*), Temp(*), Temp0(*), kappa(*), src(*)
-  real*8,  intent(out) :: matentries(*)
-  real*8,  intent(out) :: rhsentries(*)
-  real,    intent(out) :: rhsnorm
+  R_PREC,    intent(in)  :: dt, theta, dx, dy, dz
+  R_PREC,    intent(in)  :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC,    intent(in)  :: E0(*), E(*), Temp(*), Temp0(*), kappa(*), src(*)
+  REAL*8,  intent(out) :: matentries(*)
+  REAL*8,  intent(out) :: rhsentries(*)
+  R_PREC,    intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !=======================================================================
@@ -183,25 +183,25 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
   P_PREC,  intent(in) :: a, a0, adot, adot0
-  real,     intent(in) :: dt, theta, dx, dy, dz
-  real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC,     intent(in) :: dt, theta, dx, dy, dz
+  R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: E0, E, kappa, src, Temp, Temp0
-  real*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
-  real,    intent(out) :: rhsnorm
+  REAL*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  REAL*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC,    intent(out) :: rhsnorm
   integer, intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i, j, k
-  real*8  :: dtfac, dtfac0, kap, kap0, eta, eta0, c, pi, StBz
-  real*8  :: dxi, dxi0, dyi, dyi0, dzi, dzi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
-  real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
-  real*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr, Ed_zl, Ed_zr
-  real*8  :: Rmin
+  REAL*8  :: dtfac, dtfac0, kap, kap0, eta, eta0, c, pi, StBz
+  REAL*8  :: dxi, dxi0, dyi, dyi0, dzi, dzi0
+  REAL*8  :: afac, afac0, R, R0, E0avg
+  REAL*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
+  REAL*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
+  REAL*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr, Ed_zl, Ed_zr
+  REAL*8  :: Rmin
 
 !=======================================================================
   
@@ -580,24 +580,24 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   P_PREC,  intent(in) :: a, a0, adot, adot0
-  real,     intent(in) :: dt, theta, dx, dy
-  real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
+  R_PREC,     intent(in) :: dt, theta, dx, dy
+  R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: E0, E, src, kappa, Temp, Temp0
-  real*8,   intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
-  real*8,   intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
-  real,     intent(out) :: rhsnorm
+  REAL*8,   intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
+  REAL*8,   intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
+  R_PREC,     intent(out) :: rhsnorm
   integer,  intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i, j
-  real*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
-  real*8  :: c, pi, dxi, dxi0, dyi, dyi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
-  real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
-  real*8  :: Rmin
+  REAL*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
+  REAL*8  :: c, pi, dxi, dxi0, dyi, dyi0
+  REAL*8  :: afac, afac0, R, R0, E0avg
+  REAL*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
+  REAL*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
+  REAL*8  :: Rmin
 
 !=======================================================================
   
@@ -855,22 +855,22 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   integer,  intent(in) :: ESpectrum
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   P_PREC,  intent(in) :: a, a0, adot, adot0
-  real,     intent(in) :: dt, theta, dx
-  real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr), intent(in) :: E0, E, src, kappa, Temp, Temp0
-  real*8,   intent(out) :: matentries(3,x0s:x0e)
-  real*8,   intent(out) :: rhsentries(x0s:x0e)
-  real,     intent(out) :: rhsnorm
+  R_PREC,     intent(in) :: dt, theta, dx
+  R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr), intent(in) :: E0, E, src, kappa, Temp, Temp0
+  REAL*8,   intent(out) :: matentries(3,x0s:x0e)
+  REAL*8,   intent(out) :: rhsentries(x0s:x0e)
+  R_PREC,     intent(out) :: rhsnorm
   integer,  intent(out) :: ier
 
   !--------------
   ! locals
   integer :: i
-  real*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
-  real*8  :: c, pi, dxi, dxi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
-  real*8  :: Rmin
+  REAL*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
+  REAL*8  :: c, pi, dxi, dxi0
+  REAL*8  :: afac, afac0, R, R0, E0avg
+  REAL*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
+  REAL*8  :: Rmin
 
 !=======================================================================
   

@@ -55,7 +55,7 @@ c
 c  Arguments
 c
       integer NFREQ, iradshield
-      real    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
+      R_PREC    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
      &        PHTH, PHTHE, PHTHE2, EXRY, TXRY, INUTOT(NFREQ),
      &        PHTLAMH, PHTLAMHE, PHTLAMHE2,
      &        AVGSIGH, AVGSIGHE, AVGSIGHE2,
@@ -63,12 +63,12 @@ c
      &        utim, uxyz, urho, uaye, aye
 c  Parameters
 c
-      real    EV2HZ, PI
+      R_PREC    EV2HZ, PI
 c
 c  Locals
 c
       integer N11
-      real    FNUDEL, AVGNU, FNUMNUH0, FNUMNUHE0, FNUMNUHE20,
+      R_PREC    FNUDEL, AVGNU, FNUMNUH0, FNUMNUHE0, FNUMNUHE20,
      &        QNICK, CROSSS, FJXRY11, FJXRY21,
      &        FJXRY12, FJXRY22, FJXRY13, FJXRY23
       double precision tbase1, xbase1, dbase1, coolunit, mh

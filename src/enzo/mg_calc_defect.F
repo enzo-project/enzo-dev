@@ -30,20 +30,21 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
       integer ndim, dim1, dim2, dim3
-      real    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3),
+      R_PREC    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3),
      &        defect(dim1, dim2, dim3), norm
-      real*8  sum
+      REAL*8  sum
 c
 c  locals
 c
       integer i, j, k
-      real    h1, h2, h3
+      R_PREC    h1, h2, h3
       
 #if defined(GRAVITY_4S) && !defined(GRAVITY_6S)
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -54,9 +55,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = -real(dim1-1)/12.d0
-      h2 = h1*real(dim2-1)
-      h3 = h2*real(dim3-1)
+      h1 = -REAL(dim1-1)/12.d0
+      h2 = h1*REAL(dim2-1)
+      h3 = h2*REAL(dim3-1)
 c
 c     a) 1D
 c
@@ -170,9 +171,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = -real(dim1-1)/1080.d0
-      h2 = h1*real(dim2-1)
-      h3 = h2*real(dim3-1)
+      h1 = -REAL(dim1-1)/1080.d0
+      h2 = h1*REAL(dim2-1)
+      h3 = h2*REAL(dim3-1)
 c
 c     a) 1D
 c
@@ -311,9 +312,9 @@ c
 c
 c     Precompute some things
 c
-      h1 = -real(dim1-1)
-      h2 = h1*real(dim2-1)
-      h3 = h2*real(dim3-1)
+      h1 = -REAL(dim1-1)
+      h2 = h1*REAL(dim2-1)
+      h3 = h2*REAL(dim3-1)
 c
 c     a) 1D
 c

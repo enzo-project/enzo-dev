@@ -35,14 +35,14 @@ c
 c  argument declarations
 c
       integer sdim1, sdim2, sdim3, ndim, nsmooth
-      real    source1(sdim1, sdim2, sdim3), 
+      R_PREC    source1(sdim1, sdim2, sdim3), 
      &        source2(sdim1, sdim2, sdim3), 
      &        source3(sdim1, sdim2, sdim3)
 c
 c  locals
 c
       integer i, j, k, n, i1, j1, k1
-      real    temp(MAX_ANY_SINGLE_DIRECTION), fact
+      R_PREC    temp(MAX_ANY_SINGLE_DIRECTION), fact
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -152,12 +152,12 @@ c
 c  argument declarations
 c
       integer sdim1, sdim2, sdim3, ndim
-      real    source(sdim1, sdim2, sdim3), dest(sdim1, sdim2, sdim3)
+      R_PREC    source(sdim1, sdim2, sdim3), dest(sdim1, sdim2, sdim3)
 c
 c  locals
 c
       integer i, j, k
-      real    fact
+      R_PREC    fact
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

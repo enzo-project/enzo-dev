@@ -46,12 +46,12 @@ c
       integer dim1, dim2, dim3, npositions, ndim
       P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3), cellsize
-      real    sumfield(npositions), field(dim1, dim2, dim3)
+      R_PREC    sumfield(npositions), field(dim1, dim2, dim3)
 c
 c  locals
 c
       integer i1, j1, k1, n
-      real    xpos, ypos, zpos, dx, dy, dz, fact
+      R_PREC    xpos, ypos, zpos, dx, dy, dz, fact
       P_PREC half, edge1, edge2, edge3
 c
 c  constants (half is slightly more than 1/2 to make sure rounding is
@@ -63,9 +63,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
       fact = 1.d0/cellsize
-      edge1 = real(dim1) - half
-      edge2 = real(dim2) - half
-      edge3 = real(dim3) - half
+      edge1 = REAL(dim1) - half
+      edge2 = REAL(dim2) - half
+      edge3 = REAL(dim3) - half
 c
 c     1D
 c
@@ -83,7 +83,7 @@ c
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5d0 - xpos
+            dx = REAL(i1) + 0.5d0 - xpos
 c
 c           Interpolate from field into sumfield
 c
@@ -113,8 +113,8 @@ c
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5d0 - xpos
-            dy = real(j1) + 0.5d0 - ypos
+            dx = REAL(i1) + 0.5d0 - xpos
+            dy = REAL(j1) + 0.5d0 - ypos
 c
 c           Interpolate from field into sumfield
 c
@@ -148,9 +148,9 @@ c
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5d0 - xpos
-            dy = real(j1) + 0.5d0 - ypos
-            dz = real(k1) + 0.5d0 - zpos
+            dx = REAL(i1) + 0.5d0 - xpos
+            dy = REAL(j1) + 0.5d0 - ypos
+            dz = REAL(k1) + 0.5d0 - zpos
 c
 c           Interpolate from field into sumfield
 c 

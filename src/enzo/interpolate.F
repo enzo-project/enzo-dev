@@ -42,13 +42,14 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c  arguements
 c
       integer imethod, iposflag, ndim, ierror
       integer pdims(ndim), pstart(ndim), pend(ndim), refine(ndim),
      &        gdims(ndim), gstart(ndim)
-      real    grid(1), parent(1), work(1)
+      R_PREC    grid(1), parent(1), work(1)
 c
 c  locals
 c

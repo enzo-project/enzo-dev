@@ -67,22 +67,22 @@ c
 c  argument declarations
 c
       integer gravity, i1, i2, idim, idual, ipresfree, j1, j2, jdim
-      real    dt, eta1, gamma, pmin
-      real      dls(idim,jdim),     drs(idim,jdim),    pbar(idim,jdim),
+      R_PREC    dt, eta1, gamma, pmin
+      R_PREC    dls(idim,jdim),     drs(idim,jdim),    pbar(idim,jdim),
      &          pls(idim,jdim),     prs(idim,jdim),    ubar(idim,jdim),
      &          uls(idim,jdim),     urs(idim,jdim), grslice(idim,jdim)
 c
 c  local declarations
 c
       integer i, j, n
-      real     cl(ijkn),    cr(ijkn), dpdul(ijkn), dpdur(ijkn),
+      R_PREC     cl(ijkn),    cr(ijkn), dpdul(ijkn), dpdur(ijkn),
      &         ps(ijkn),    ubl(ijkn),   ubr(ijkn),
      &         qa      ,     zl(ijkn),    zr(ijkn)
 
       integer itok, jjj
       integer mask(ijkn), jfail(ijkn)
-      real    old_ps(ijkn), delta_ps(ijkn)
-      real    fails(ijkn)
+      R_PREC    old_ps(ijkn), delta_ps(ijkn)
+      R_PREC    fails(ijkn)
 
 !     To reduce this to the old fixed iteration count method
 !     simply set tolerance = 1.0e-50
@@ -90,12 +90,12 @@ c
 !     Tolerance can be relaxed to reduce the cost of this routine
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0e-07)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0d-14)
 #endif
 

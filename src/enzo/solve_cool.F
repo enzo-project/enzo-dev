@@ -38,10 +38,10 @@ c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke,
      &       idual, iexpand, nratec, idim, imethod, igammah, cool_method
-      real    dt, aye, temstart, temend, fh, gammaha,
+      R_PREC    dt, aye, temstart, temend, fh, gammaha,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, coola(nratec)
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
 c  Parameters
@@ -50,24 +50,24 @@ c
       parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0e-05)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
+      R_PREC tolerance
       parameter (tolerance = 1.0d-10)
 #endif
 
 c  Locals
 c
       integer i, j, k, iter
-      real energy, dt2, ttmin
+      R_PREC energy, dt2, ttmin
 c
 c  Slice locals
 c 
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk),
      &     cool(ijk), edot(ijk)
 c

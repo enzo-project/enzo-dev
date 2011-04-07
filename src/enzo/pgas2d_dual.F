@@ -44,21 +44,22 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
       integer i1, i2, idim, j1, j2, jdim
-      real    eta1, eta2, gamma, pmin
-      real dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
+      R_PREC    eta1, eta2, gamma, pmin
+      R_PREC dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
      &     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      &    geslice(idim,jdim)
 c
 c  locals
 c
       integer i, j, im1, ip1
-      real    demax, ge1, ge2, ke
+      R_PREC    demax, ge1, ge2, ke
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

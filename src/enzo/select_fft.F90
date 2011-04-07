@@ -10,7 +10,7 @@
 
       character (len=8) :: choice
 
-      real*8 :: t0, t1, t2, wall_clock
+      REAL*8 :: t0, t1, t2, wall_clock
 
       external :: cray_st1
       external :: acml_st1

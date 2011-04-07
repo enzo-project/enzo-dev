@@ -66,15 +66,15 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
   integer, intent(in)  :: Nz, NGzl, NGzr, BCzL, BCzR, zlface, zrface, x2s, x2e
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real,    intent(in)  :: dx, dy, dz
-  real,    intent(in)  :: aUnits, LenUnits, ErUnits
-  real*8 :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in)  :: dx, dy, dz
+  R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
+  REAL*8 :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
 !--------------
 ! locals
   integer :: i, j, k
-  real :: dxa, dya, dza
+  R_PREC :: dxa, dya, dza
 !=======================================================================
 
 !!$  write(*,*) 'Entering gFLDProblem::SetNewtonBCs routine'
@@ -300,15 +300,15 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
   integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real,    intent(in)  :: dx, dy
-  real,    intent(in)  :: aUnits, LenUnits, ErUnits
-  real*8 :: matentries(5,x0s:x0e,x1s:x1e)
-  real :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
+  R_PREC,    intent(in)  :: dx, dy
+  R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
+  REAL*8 :: matentries(5,x0s:x0e,x1s:x1e)
+  R_PREC :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
 
 !--------------
 ! locals
   integer :: i, j
-  real :: dxa, dya
+  R_PREC :: dxa, dya
 
 !=======================================================================
 
@@ -467,15 +467,15 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
   integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a
-  real,    intent(in)  :: dx
-  real,    intent(in)  :: aUnits, LenUnits, ErUnits
-  real*8 :: matentries(3,x0s:x0e)
-  real :: rhsentries(1-NGxl:Nx+NGxr)
+  R_PREC,    intent(in)  :: dx
+  R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
+  REAL*8 :: matentries(3,x0s:x0e)
+  R_PREC :: rhsentries(1-NGxl:Nx+NGxr)
 
 !--------------
 ! locals
   integer :: i
-  real :: dxa
+  R_PREC :: dxa
 
 !=======================================================================
 

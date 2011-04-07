@@ -16,6 +16,7 @@
       module ffte_param
 
       implicit none
+#include "fortran_types.def"
 
 #ifdef CONFIG_BFLOAT_4
       REAL*4 :: TYPE_DUMMY
@@ -95,7 +96,7 @@
       integer :: nd
       integer :: n1, n2, m1, m2
       integer :: nw2, nw3, nw4
-      real :: dn
+      R_PREC :: dn
 
       complex :: c((nda2+np)*(nblk+1)+np)
       complex :: w1(nda2/2+np),w2(nda2/2+np)
@@ -153,7 +154,7 @@
       end if
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/real(n)
+        dn = 1.0_fftkind/REAL(n)
         do i = 1,n
           a(i) = conjg(a(i))*dn
         end do
@@ -248,35 +249,35 @@
       implicit none
 
       integer :: n1, n2, m1, m2
-      real :: w1(2,m1,*),w2(2,m1,*),w3(2,m2,*),w4(2,n1/m1,*)
+      R_PREC :: w1(2,m1,*),w2(2,m1,*),w3(2,m2,*),w4(2,n1/m1,*)
 
       integer :: j, k
       integer :: ir, is
-      real :: pi2, px
+      R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(real(n1)*real(n2))
+      px = -pi2/(REAL(n1)*REAL(n2))
 
 !$omp parallel
 !$omp do
       do k = 1,m2
         do j = 1,m1
-          w1(1,j,k) = cos(px*real(j-1)*real(k-1))
-          w1(2,j,k) = sin(px*real(j-1)*real(k-1))
+          w1(1,j,k) = cos(px*REAL(j-1)*REAL(k-1))
+          w1(2,j,k) = sin(px*REAL(j-1)*REAL(k-1))
         end do
         do ir = 1,n1/m1
-          w3(1,k,ir) = cos(px*real(k-1)*real(ir-1)*real(m1))
-          w3(2,k,ir) = sin(px*real(k-1)*real(ir-1)*real(m1))
+          w3(1,k,ir) = cos(px*REAL(k-1)*REAL(ir-1)*REAL(m1))
+          w3(2,k,ir) = sin(px*REAL(k-1)*REAL(ir-1)*REAL(m1))
         end do
       end do
       do is = 1,n2/m2
         do j = 1,m1
-          w2(1,j,is) = cos(px*real(j-1)*real(is-1)*real(m2))
-          w2(2,j,is) = sin(px*real(j-1)*real(is-1)*real(m2))
+          w2(1,j,is) = cos(px*REAL(j-1)*REAL(is-1)*REAL(m2))
+          w2(2,j,is) = sin(px*REAL(j-1)*REAL(is-1)*REAL(m2))
         end do
         do ir = 1,n1/m1
-          w4(1,ir,is) = cos(px*real(ir-1)*real(m1)*real(is-1)*real(m2))
-          w4(2,ir,is) = sin(px*real(ir-1)*real(m1)*real(is-1)*real(m2))
+          w4(1,ir,is) = cos(px*REAL(ir-1)*REAL(m1)*REAL(is-1)*REAL(m2))
+          w4(2,ir,is) = sin(px*REAL(ir-1)*REAL(m1)*REAL(is-1)*REAL(m2))
         end do
       end do
 !$omp end parallel
@@ -329,7 +330,7 @@
       integer :: lnx(3),lny(3)
 
       integer :: i, nc
-      real :: dn
+      R_PREC :: dn
 
       save wx,wy
 
@@ -354,7 +355,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(real(nx)*real(ny))
+        dn = 1.0_fftkind/(REAL(nx)*REAL(ny))
         do i = 1,nx*ny
           a(i) = conjg(a(i))*dn
         end do
@@ -451,7 +452,7 @@
       integer :: lnx(3),lny(3),lnz(3)
 
       integer :: i, nc
-      real :: dn
+      R_PREC :: dn
 
       save wx,wy,wz
 
@@ -478,7 +479,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(real(nx)*real(ny)*real(nz))
+        dn = 1.0_fftkind/(REAL(nx)*REAL(ny)*REAL(nz))
         do i = 1,nx*ny*nz
           a(i) = conjg(a(i))*dn
         end do
@@ -823,16 +824,16 @@
       implicit none
 
       integer :: m, l
-      real :: w(2,*)
+      R_PREC :: w(2,*)
       integer :: i
-      real :: pi2, px
+      R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(real(m)*real(l))
+      px = -pi2/(REAL(m)*REAL(l))
 
       do 10 i = 1,l
-        w(1,i) = cos(px*real(i-1))
-        w(2,i) = sin(px*real(i-1))
+        w(1,i) = cos(px*REAL(i-1))
+        w(2,i) = sin(px*REAL(i-1))
    10 continue
 
       return
@@ -846,17 +847,17 @@
       implicit none
 
       integer :: n1, n2
-      real :: w(2,n1,*)
+      R_PREC :: w(2,n1,*)
       integer :: j, k
-      real :: pi2, px
+      R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(real(n1)*real(n2))
+      px = -pi2/(REAL(n1)*REAL(n2))
 
       do 20 k = 1,n2
         do 10 j = 1,n1
-          w(1,j,k) = cos(px*real(j-1)*real(k-1))
-          w(2,j,k) = sin(px*real(j-1)*real(k-1))
+          w(1,j,k) = cos(px*REAL(j-1)*REAL(k-1))
+          w(2,j,k) = sin(px*REAL(j-1)*REAL(k-1))
    10   continue
    20 continue
 
@@ -927,10 +928,10 @@
       implicit none
 
       integer :: m
-      real :: a(2,m,*),b(2,m,*)
+      R_PREC :: a(2,m,*),b(2,m,*)
 
       integer :: i
-      real :: x0, y0, x1, y1
+      R_PREC :: x0, y0, x1, y1
 
       do i = 1,m
         x0 = a(1,i,1)
@@ -954,13 +955,13 @@
       implicit none
 
       integer :: l
-      real :: a(2,l,*),b(2,3,*),w(2,*)
+      R_PREC :: a(2,l,*),b(2,3,*),w(2,*)
 
       integer :: i, j
-      real :: wr1, wi1, wr2, wi2
-      real :: x0, y0, x1, y1, x2, y2
+      R_PREC :: wr1, wi1, wr2, wi2
+      R_PREC :: x0, y0, x1, y1, x2, y2
 
-      real :: c31, c32
+      R_PREC :: c31, c32
       data c31/0.86602540378443865_fftkind/
       data c32/0.5_fftkind/
 
@@ -994,13 +995,13 @@
       implicit none
 
       integer :: m, l
-      real :: a(2,m,l,*),b(2,m,3,*),w(2,*)
+      R_PREC :: a(2,m,l,*),b(2,m,3,*),w(2,*)
 
       integer :: i, j
-      real :: wr1, wi1, wr2, wi2
-      real :: x0, y0, x1, y1, x2, y2
+      R_PREC :: wr1, wi1, wr2, wi2
+      R_PREC :: x0, y0, x1, y1, x2, y2
 
-      real :: c31, c32
+      R_PREC :: c31, c32
       data c31/0.86602540378443865_fftkind/
       data c32/0.5_fftkind/
 
@@ -1051,11 +1052,11 @@
       implicit none
 
       integer :: l
-      real :: a(2,l,*),b(2,4,*),w(2,*)
+      R_PREC :: a(2,l,*),b(2,4,*),w(2,*)
 
       integer :: j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
 
       do j = 1,l
         wr1 = w(1,j)
@@ -1094,11 +1095,11 @@
       implicit none
 
       integer :: m, l
-      real :: a(2,m,l,*),b(2,m,4,*),w(2,*)
+      R_PREC :: a(2,m,l,*),b(2,m,4,*),w(2,*)
 
       integer :: i, j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
 
       do i = 1,m
         x0 = a(1,i,1,1)+a(1,i,1,3)
@@ -1157,15 +1158,15 @@
       implicit none
 
       integer :: l
-      real :: a(2,l,*),b(2,5,*),w(2,*)
+      R_PREC :: a(2,l,*),b(2,5,*),w(2,*)
 
       integer :: j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: x8, y8, x9, y9, x10, y10
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: x8, y8, x9, y9, x10, y10
 
-      real :: c51, c52, c53, c54
+      R_PREC :: c51, c52, c53, c54
       data c51/0.95105651629515357_fftkind/
       data c52/0.61803398874989485_fftkind/
       data c53/0.55901699437494742_fftkind/
@@ -1225,15 +1226,15 @@
       implicit none
 
       integer :: m, l
-      real :: a(2,m,l,*),b(2,m,5,*),w(2,*)
+      R_PREC :: a(2,m,l,*),b(2,m,5,*),w(2,*)
 
       integer :: i, j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: x8, y8, x9, y9, x10, y10
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: x8, y8, x9, y9, x10, y10
 
-      real :: c51, c52, c53, c54
+      R_PREC :: c51, c52, c53, c54
       data c51/0.95105651629515357_fftkind/
       data c52/0.61803398874989485_fftkind/
       data c53/0.55901699437494742_fftkind/
@@ -1330,19 +1331,19 @@
       implicit none
 
       integer :: l
-      real :: a(2,l,*),b(2,8,*),w(2,*)
+      R_PREC :: a(2,l,*),b(2,8,*),w(2,*)
 
       integer :: j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: wr5, wi5, wr6, wi6, wr7, wi7
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: u0, v0
-      real :: u1, v1
-      real :: u2, v2
-      real :: u3, v3
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: wr5, wi5, wr6, wi6, wr7, wi7
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: u0, v0
+      R_PREC :: u1, v1
+      R_PREC :: u2, v2
+      R_PREC :: u3, v3
 
-      real :: c81
+      R_PREC :: c81
       data c81/0.70710678118654752_fftkind/
 
       do j = 1,l
@@ -1421,19 +1422,19 @@
       implicit none
 
       integer :: m, l
-      real :: a(2,m,l,*),b(2,m,8,*),w(2,*)
+      R_PREC :: a(2,m,l,*),b(2,m,8,*),w(2,*)
 
       integer :: i, j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: wr5, wi5, wr6, wi6, wr7, wi7
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: u0, v0
-      real :: u1, v1
-      real :: u2, v2
-      real :: u3, v3
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: wr5, wi5, wr6, wi6, wr7, wi7
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: u0, v0
+      R_PREC :: u1, v1
+      R_PREC :: u2, v2
+      R_PREC :: u3, v3
 
-      real :: c81
+      R_PREC :: c81
       data c81/0.70710678118654752_fftkind/
 
       do i = 1,m

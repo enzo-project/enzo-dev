@@ -62,43 +62,43 @@ c
      &        ih2optical, ifedtgas, ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 
-      real    aye, temstart, temend,
+      R_PREC    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
-      real    d(in,jn,kn), e(in,jn,kn)
-      real    u(ijk),    v(ijk),     w(ijk)
-      real*8
+      R_PREC    d(in,jn,kn), e(in,jn,kn)
+      R_PREC    u(ijk),    v(ijk),     w(ijk)
+      REAL*8
      &       de(ijk),   HI(ijk),   HII(ijk),
      &      HeI(ijk), HeII(ijk), HeIII(ijk),
      &       ge(ijk),
      &        HM(ijk),  H2I(ijk), H2II(ijk),
      &        DI(ijk),  DII(ijk), HDI(ijk)
       logical omask(ijk)
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      $        hdcoola(nratec, 5), ciecoa(nratec)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
+      R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
      &        gaHpa(nratec), gaela(nratec)
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
+      R_PREC    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p,
      &        ciecont, mciecont, medot, gamma2(in)
 c
 c  Parameters
 c
       double precision mh
-      real    ZSOLAR
+      R_PREC    ZSOLAR
       parameter (mh = mass_h, ZSOLAR = 0.02041d0)
 c
 c  Locals
 c
       integer i, m, j1, iter, iradfield, mciei
-      real dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
-      real dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
+      R_PREC dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
+      R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, x, nH2, nother, fudge, fH2,
      &     gphdl1, factor, ciefudge, tau, comp_edot, comp_xray_edot
       double precision coolunit, dbase1, tbase1, xbase1, 
@@ -107,11 +107,11 @@ c
 c  Slice locals
 c 
       integer indixe(in)
-      real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
+      R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in), tdef_inv(in)
-      real*8 edotplus(ijk), edotminus(ijk)
+      REAL*8 edotplus(ijk), edotminus(ijk)
       double precision ttgas
-      real temp_table(5)
+      R_PREC temp_table(5)
 c
 c  Cooling/heating slice locals
 c
@@ -119,19 +119,19 @@ c
      &     ciHI(in), ciHeI(in), ciHeIS(in), ciHeII(in),
      &     reHII(in), reHeII1(in), reHeII2(in), reHeIII(in),
      &     brem(in)
-      real hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
+      R_PREC hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), 
      &     hdcool(in, 5), hdcoolval(in), cieco(in)
-      real gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
+      R_PREC gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
      &     galdl(in)
 c
 c     Iteration mask
       
       logical itmask(in)
       integer inneriter
-      real oldgamma2(in)
+      R_PREC oldgamma2(in)
 
-      real g2p(10)
+      R_PREC g2p(10)
       data g2p/0.0493452d0, 2.28021d0, 0.115357d0,
      &         0.114188d0,  2.90778d0, 0.689708d0,
      &         64.2416d0, -9.36334d0, -0.377266d0, 69.8091d0/
@@ -144,7 +144,7 @@ c
       mciecont = 0
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
 c
 c     Set units
 c

@@ -75,22 +75,22 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   P_PREC, intent(in) :: a
-  real,    intent(in) :: time, HFrac, NGammaDot, EtaRadius
-  real,    intent(in) :: EtaCenter0, EtaCenter1, EtaCenter2
-  real,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
+  R_PREC,    intent(in) :: time, HFrac, NGammaDot, EtaRadius
+  R_PREC,    intent(in) :: EtaCenter0, EtaCenter1, EtaCenter2
+  R_PREC,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
        ErUnits, ecUnits, NiUnits
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: Era, eca, nHIa, nHeIa, nHeIIa, Temp, rhoa, eha, vxa, vya, vza
-  real, intent(out) :: Ersrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC, intent(out) :: Ersrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   integer, intent(out) :: ier
   
 !--------------
 ! locals
   integer :: i, j, k
-  real :: pi, h_nu0, etaconst
-  real :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
-  real :: cellXc, cellYc, cellZc
+  R_PREC :: pi, h_nu0, etaconst
+  R_PREC :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
+  R_PREC :: cellXc, cellYc, cellZc
 
 !=======================================================================
 

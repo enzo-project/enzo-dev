@@ -32,10 +32,11 @@ c    data  - transformed array
 c
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      real    data(*)
+      R_PREC    data(*)
       integer isign, ndim, nn(ndim)
 c
 c  External functions
@@ -47,9 +48,9 @@ c
       integer i1, i2, i3, i2rev, i3rev, ibit, idim,
      &        ifp1, ifp2, ip1, ip2, ip3, k2, n, nprev, nrem, ntot
       integer ibad
-      real    tempi, tempr
+      R_PREC    tempi, tempr
 c     double precision twopi, theta, wr, wi, wpr, wpi, wtemp
-      real    twopi, theta, wr, wi, wpr, wpi, wtemp
+      R_PREC    twopi, theta, wr, wi, wpr, wpi, wtemp
       parameter (twopi=6.2831853071796d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////

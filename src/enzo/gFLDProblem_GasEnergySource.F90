@@ -70,14 +70,14 @@ subroutine gFLDProblem_GasEnergySource(ecsrc, time, Era, eca, nHIa,     &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC,  intent(in) :: a
-  real, intent(in) :: time, HFrac
-  real, intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
+  R_PREC, intent(in) :: time, HFrac
+  R_PREC, intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
        ErUnits, ecUnits, NiUnits
-  real, intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real, intent(in),                                        &
+  R_PREC, intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC, intent(in),                                        &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) &
        :: Era, eca, nHIa, nHeIa, nHeIIa, Temp, rhoa, eha, vxa, vya, vza
-  real, intent(out) ::                                     &
+  R_PREC, intent(out) ::                                     &
        ecsrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------

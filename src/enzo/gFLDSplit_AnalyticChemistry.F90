@@ -36,18 +36,18 @@ subroutine gFLDSplit_AnalyticChemistry(Er, ec, HI, HeI, HeII, Er0, ec0,  &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: CompA, CompXray, CompTemp
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
+  R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: CompA, CompXray, CompTemp
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
        IsEsHeII, IsEsHeIInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(in) :: Er, ec0, Er0, HI0, HeI0, HeII0, vx, vy, vz,    &
        rho, eh, src_ec, src_HI, src_HeI, src_HeII, kappa
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(out) :: ec, HI, HeI, HeII
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
@@ -190,18 +190,18 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: CompA, CompXray, CompTemp
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
+  R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: CompA, CompXray, CompTemp
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
        ErUnits, ecUnits, NiUnits, aUnits
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
        IsEsHeII, IsEsHeIInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(in) :: Er, ec0, Er0, HI0, HeI0, HeII0, vx, vy, vz,    &
        rho, eh, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(out) :: ec, HI, HeI, HeII
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
@@ -209,13 +209,13 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
 !--------------
 ! locals
   integer :: i, j, k, l, sweeps, sweeps2
-  real*8  :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
-  real*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
-  real*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8  :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
-  real*8  :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8  :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8  :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
+  REAL*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
+  REAL*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8  :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
+  REAL*8  :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8  :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
   
 !=======================================================================
 
@@ -651,22 +651,22 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: DenUnits, VelUnits, ErUnits, NiUnits, ecScale
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
+  R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: DenUnits, VelUnits, ErUnits, NiUnits, ecScale
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
        intent(in) :: Er, Er0, HI0, vx, vy, vz, rho, eh, src_HI
-  real,    intent(out) :: HI(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  real,    intent(in) :: k1Tb(NTempBins)
+  R_PREC,    intent(out) :: HI(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in) :: k1Tb(NTempBins)
        
 
 !--------------
 ! locals
   integer :: i, j, k, Tidx, Tidxp
-  real*8  :: KEconst, eint, HydFrac, deltat, int1, int2, int3
-  real*8  :: dUn, rUn, nUn, res_Er, res_HI, aval, dadt, Ernew, HInew
-  real*8  :: Erold, HIold, rhoval, HIsrc, T, lamT, lTemp
-  real*8  :: lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  REAL*8  :: KEconst, eint, HydFrac, deltat, int1, int2, int3
+  REAL*8  :: dUn, rUn, nUn, res_Er, res_HI, aval, dadt, Ernew, HInew
+  REAL*8  :: Erold, HIold, rhoval, HIsrc, T, lamT, lTemp
+  REAL*8  :: lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -819,19 +819,19 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits, &
+  R_PREC,    intent(in) :: dt, gamma
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits, &
        ErUnits, ecUnits, aUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),  &
        intent(in) :: Er, ec0, Er0, vx, vy, vz, rho, eh, src_ec, kappa
-  real, intent(out) :: ec(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC, intent(out) :: ec(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
 !--------------
 ! locals
   integer :: i, j, k, l
-  real*8  :: zr, KEconst, eint, gam, deltat, aUn, dUn, vUn, lUn, tUn, rUn
-  real*8  :: eUn, nUn, kap, res_Er, res_ec, aval, dadt, Ernew, ecnew
-  real*8  :: Erold, ecold, rhoval, ecsrc
+  REAL*8  :: zr, KEconst, eint, gam, deltat, aUn, dUn, vUn, lUn, tUn, rUn
+  REAL*8  :: eUn, nUn, kap, res_Er, res_ec, aval, dadt, Ernew, ecnew
+  REAL*8  :: Erold, ecold, rhoval, ecsrc
   
 !=======================================================================
 
@@ -987,19 +987,19 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in)  :: a, adot
-  real,    intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: CompA, CompXray, CompTemp
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
+  R_PREC,    intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: CompA, CompXray, CompTemp
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
        IsEsHeII, IsEsHeIInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: vx, vy, vz, rho, eh, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        ec, Er, HI, HeI, HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        ecres, HIres, HeIres, HeIIres
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
@@ -1007,15 +1007,15 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
 !--------------
 ! locals
   integer :: ijk, i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
-  real*8  :: chmin, chmax, chsum, eint, gam
-  real*8  :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
-  real*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
-  real*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8  :: Ernew, ecnew, HInew, HeInew, HeIInew
-  real*8  :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8  :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
-  real*8  :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  REAL*8  :: chmin, chmax, chsum, eint, gam
+  REAL*8  :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
+  REAL*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
+  REAL*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8  :: Ernew, ecnew, HInew, HeInew, HeIInew
+  REAL*8  :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8  :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8  :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -1556,18 +1556,18 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
   ! argument declarations
   integer, intent(in)  :: Model, PType, ESpectrum
   integer, intent(out) :: ier
-  real*8,  intent(in) :: a, adot
-  real*8,  intent(in) :: dt, gamma, kappa
-  real*8,  intent(in) :: DenUnits, TimeUnits, LenUnits, &
+  REAL*8,  intent(in) :: a, adot
+  REAL*8,  intent(in) :: dt, gamma, kappa
+  REAL*8,  intent(in) :: DenUnits, TimeUnits, LenUnits, &
        ErUnits, ecUnits, aUnits, NiUnits
-  real*8,  intent(in) :: Er, ec, Er0, ec0, rho, eint, src_Er, src_ec
-  real*8,  intent(out) :: Erres, ecres
+  REAL*8,  intent(in) :: Er, ec, Er0, ec0, rho, eint, src_Er, src_ec
+  REAL*8,  intent(out) :: Erres, ecres
 
   !--------------
   ! locals
-  real*8 :: afac, StBz, c, kb, mp, min_temp, min_rad, grey, eta
-  real*8 :: ecval, Erval, rhoval, Eranal, ecanal
-  real*8 :: T, P1, Q1, P2, Q2
+  REAL*8 :: afac, StBz, c, kb, mp, min_temp, min_rad, grey, eta
+  REAL*8 :: ecval, Erval, rhoval, Eranal, ecanal
+  REAL*8 :: T, P1, Q1, P2, Q2
 
   !=======================================================================
 

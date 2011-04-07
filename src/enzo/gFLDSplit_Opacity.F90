@@ -67,20 +67,20 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   P_PREC, intent(in) :: a
-  real,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
-  real,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(in) :: EmC0, EmC1, EmC2
-  real,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
+  R_PREC,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(in) :: EmC0, EmC1, EmC2
+  R_PREC,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: rho, n_HI, n_HeI, n_HeII
-  real, intent(out) :: kappaE(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC, intent(out) :: kappaE(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
   !--------------
   ! locals
   integer :: i, j, k
-  real    :: mp, HIconst, HeIconst, HeIIconst
-  real    :: rhoval, Tval
+  R_PREC    :: mp, HIconst, HeIconst, HeIIconst
+  R_PREC    :: rhoval, Tval
 
   !=======================================================================
 

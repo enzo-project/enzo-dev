@@ -30,6 +30,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
@@ -37,12 +38,12 @@ c  argument declarations
 c
       integer ddim1, ddim2, ddim3, sdim1, sdim2, sdim3, ndim,
      &        start1, start2, start3, refine1, refine2, refine3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
       integer i, j, k, i1, j1, k1
-      real    fact1, fact2, fact3, x, y, z, dxm, dym, dzm, dx0, dy0,
+      R_PREC    fact1, fact2, fact3, x, y, z, dxm, dym, dzm, dx0, dy0,
      &        dz0, dxp, dyp, dzp
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -50,18 +51,18 @@ c=======================================================================
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/real(refine1)
-      fact2 = 1.d0/real(refine2)
-      fact3 = 1.d0/real(refine3)
+      fact1 = 1.d0/REAL(refine1)
+      fact2 = 1.d0/REAL(refine2)
+      fact3 = 1.d0/REAL(refine3)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
-            x = (real(i+start1)-0.5)*fact1 + 0.5d0
+            x = (REAL(i+start1)-0.5)*fact1 + 0.5d0
             i1 = int(x) + 1
-            dxm = 0.5d0*(    -x+real(i1))
-            dxp = 0.5d0*(1.d0+x-real(i1))
+            dxm = 0.5d0*(    -x+REAL(i1))
+            dxp = 0.5d0*(1.d0+x-REAL(i1))
             dx0 = 1.d0 - dxp - dxm
             dest(i,1,1) = source(i1-1,1,1)*dxm + 
      &                    source(i1  ,1,1)*dx0 +
@@ -73,16 +74,16 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=1, ddim2
-            y = (real(j+start2)-0.5d0)*fact2 + 0.5d0
+            y = (REAL(j+start2)-0.5d0)*fact2 + 0.5d0
             j1 = int(y) + 1
-            dym = 0.5d0*(    -y+real(j1))
-            dyp = 0.5d0*(1.d0+y-real(j1))
+            dym = 0.5d0*(    -y+REAL(j1))
+            dyp = 0.5d0*(1.d0+y-REAL(j1))
             dy0 = 1.d0 - dyp - dym
             do i=1, ddim1
-               x = (real(i+start1)-0.5d0)*fact1 + 0.5d0
+               x = (REAL(i+start1)-0.5d0)*fact1 + 0.5d0
                i1 = int(x) + 1
-               dxm = 0.5d0*(    -x+real(i1))
-               dxp = 0.5d0*(1.d0+x-real(i1))
+               dxm = 0.5d0*(    -x+REAL(i1))
+               dxp = 0.5d0*(1.d0+x-REAL(i1))
                dx0 = 1.d0 - dxp - dxm
                dest(i,j,1) = source(i1-1,j1-1,1)*dxm*dym + 
      &                       source(i1  ,j1-1,1)*dx0*dym +
@@ -101,22 +102,22 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=1, ddim3
-            z = (real(k+start3)-0.5)*fact3 + 0.5d0
+            z = (REAL(k+start3)-0.5)*fact3 + 0.5d0
             k1 = int(z) + 1
-            dzm = 0.5d0*(    -z+real(k1))**2
-            dzp = 0.5d0*(1.d0+z-real(k1))**2
+            dzm = 0.5d0*(    -z+REAL(k1))**2
+            dzp = 0.5d0*(1.d0+z-REAL(k1))**2
             dz0 = 1.d0 - dzp - dzm
             do j=1, ddim2
-               y = (real(j+start2)-0.5d0)*fact2 + 0.5d0
+               y = (REAL(j+start2)-0.5d0)*fact2 + 0.5d0
                j1 = int(y) + 1
-               dym = 0.5d0*(    -y+real(j1))**2
-               dyp = 0.5d0*(1.d0+y-real(j1))**2
+               dym = 0.5d0*(    -y+REAL(j1))**2
+               dyp = 0.5d0*(1.d0+y-REAL(j1))**2
                dy0 = 1.d0 - dyp - dym
                do i=1, ddim1
-                  x = (real(i+start1)-0.5d0)*fact1 + 0.5d0
+                  x = (REAL(i+start1)-0.5d0)*fact1 + 0.5d0
                   i1 = int(x) + 1
-                  dxm = 0.5d0*(   -x+real(i1))**2
-                  dxp = 0.5d0*(1.d0+x-real(i1))**2
+                  dxm = 0.5d0*(   -x+REAL(i1))**2
+                  dxp = 0.5d0*(1.d0+x-REAL(i1))**2
                   dx0 = 1.d0 - dxp - dxm
                   dest(i,j,k) = source(i1-1,j1-1,k1-1)*dxm*dym*dzm + 
      &                          source(i1  ,j1-1,k1-1)*dx0*dym*dzm +

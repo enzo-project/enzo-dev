@@ -107,13 +107,13 @@ c
       integer gravity, idiff, idual, iflatten, isteepen, ipresfree,
      &        in, jn, kn, d0n, d1n, d2n, d0start, d0end, d1start, d1end,
      &        iter, ncolor, d2nactive
-      real    dt, eta1, eta2, gamma, pmin
-      real    v(in,jn,kn), w(in,jn,kn), 
+      R_PREC    dt, eta1, eta2, gamma, pmin
+      R_PREC    v(in,jn,kn), w(in,jn,kn), 
      &        dx(d0n), dy(d1n), dz(d2n)
-      real dslice(d0n,d1n), eslice(d0n,d1n), grslice(d0n,d1n),
+      R_PREC dslice(d0n,d1n), eslice(d0n,d1n), grslice(d0n,d1n),
      &     uslice(d0n,d1n), vslice(d0n,d1n),  wslice(d0n,d1n), 
      &    geslice(d0n,d1n), colslice(d0n,d1n,ncolor)
-      real     df(d0n,d1n),     ef(d0n,d1n),
+      R_PREC     df(d0n,d1n),     ef(d0n,d1n),
      &         uf(d0n,d1n),     vf(d0n,d1n),     wf(d0n,d1n),
      &        gef(d0n,d1n),   colf(d0n,d1n,ncolor)
       integer sweep_dir
@@ -125,7 +125,7 @@ c
 c
 c  define local slices (declared here as temps)
 c
-      real    dls(d0n,d1n),    drs(d0n,d1n),flatten(d0n,d1n),
+      R_PREC    dls(d0n,d1n),    drs(d0n,d1n),flatten(d0n,d1n),
      &       pbar(d0n,d1n),    pls(d0n,d1n),
      &        prs(d0n,d1n), pslice(d0n,d1n),   ubar(d0n,d1n),
      &        uls(d0n,d1n),    urs(d0n,d1n),    vls(d0n,d1n),

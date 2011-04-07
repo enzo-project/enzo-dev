@@ -66,19 +66,20 @@ c
 c  argument declarations
 c
       integer gravity, i1, i2, idiff, idim, idual, j1, j2, jdim
-      real    dt, etol2, gamma
-      real diffcoef(idim,jdim),   dslice(idim,jdim),      dx(idim     ),
-     &       eslice(idim,jdim),   uslice(idim,jdim), grslice(idim,jdim),
-     &     dxlslice(idim,jdim), dxnslice(idim,jdim), geslice(idim,jdim)
-      real      dls(idim,jdim),      drs(idim,jdim),  vslice(idim,jdim),
-     &         pbar(idim,jdim),      pls(idim,jdim),  wslice(idim,jdim),
-     &          prs(idim,jdim),     ubar(idim,jdim),
-     &          uls(idim,jdim),      urs(idim,jdim)
+      R_PREC  dt, etol2, gamma
+      R_PREC  diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
+     &        eslice(idim,jdim),  uslice(idim,jdim), grslice(idim,jdim),
+     &        dxlslice(idim,jdim), dxnslice(idim,jdim), 
+     &        geslice(idim,jdim)
+      R_PREC  dls(idim,jdim),      drs(idim,jdim),  vslice(idim,jdim),
+     &        pbar(idim,jdim),      pls(idim,jdim),  wslice(idim,jdim),
+     &        prs(idim,jdim),     ubar(idim,jdim),
+     &        uls(idim,jdim),      urs(idim,jdim)
 c
 c  local declarations
 c
       integer i, j
-      real    qa, qb, qc, nu, di(ijkn), upb(ijkn), erat(ijkn),
+      R_PREC    qa, qb, qc, nu, di(ijkn), upb(ijkn), erat(ijkn),
      &        dadx(ijkn), dddx(ijkn), pcent(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
