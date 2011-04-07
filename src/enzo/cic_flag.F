@@ -49,9 +49,9 @@ c
       integer dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
       real minmassmust
       integer buffersize
-      REALSUB posx(npositions), posy(npositions), posz(npositions), 
+      P_PREC posx(npositions), posy(npositions), posz(npositions), 
      &        partmass(npositions), leftedge(3)
-      REALSUB cellsize
+      P_PREC cellsize
       integer itype(npositions)
       integer ffield(dim1, dim2, dim3)
 c
@@ -60,7 +60,7 @@ c
       integer i1, j1, k1, n, ii, jj, kk
       integer istart, iend, jstart, jend, kstart, kend
       real    xpos, ypos, zpos, fact
-      REALSUB edge1, edge2, edge3, half
+      P_PREC edge1, edge2, edge3, half
       parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

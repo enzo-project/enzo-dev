@@ -19,16 +19,16 @@ MODULE singleton
   !
   !   fft(array, dim, inv, stat)           generic transform function
   !    COMPLEX(fftkind), DIMENSION(:,...,:), INTENT(IN)           :: array
-  !    INTEGER,          DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
+  !    INTEGER(fftkind), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
   !    LOGICAL,                              INTENT(IN),  OPTIONAL:: inv
-  !    INTEGER,                              INTENT(OUT), OPTIONAL:: stat
+  !    INTEGER(fftkind),                     INTENT(OUT), OPTIONAL:: stat
   !
   !   fftn(array, shape, dim, inv, stat)   in place transform subroutine
   !    COMPLEX(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
-  !    INTEGER,          DIMENSION(:), INTENT(IN)           :: shape
-  !    INTEGER,          DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
+  !    INTEGER(fftkind), DIMENSION(:), INTENT(IN)           :: shape
+  !    INTEGER(fftkind), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
   !    LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
-  !    INTEGER,                        INTENT(OUT), OPTIONAL:: stat
+  !    INTEGER(fftkind),               INTENT(OUT), OPTIONAL:: stat
   !
   !
   ! Formal Parameters:
@@ -147,7 +147,16 @@ MODULE singleton
   REAL*8 :: TYPE_DUMMY
 #endif
 
-  INTEGER, PARAMETER:: fftkind = KIND(TYPE_DUMMY) !--- adjust here for other precisions
+#ifdef SMALL_INTS
+  INTEGER*4 :: ITYPE_DUMMY
+#endif
+
+#ifdef LARGE_INTS
+  INTEGER*8 :: ITYPE_DUMMY
+#endif
+
+  INTEGER, PARAMETER:: fftkind = KIND(TYPE_DUMMY)  !--- adjust here for other precisions
+  INTEGER, PARAMETER:: fftintk = KIND(ITYPE_DUMMY) !--- adjust here for other precisions
 
   REAL(fftkind), PARAMETER:: sin60 = 0.86602540378443865_fftkind
   REAL(fftkind), PARAMETER:: cos72 = 0.30901699437494742_fftkind
@@ -171,13 +180,13 @@ CONTAINS
   FUNCTION fft1d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                        INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION(SIZE(array, 1)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(1):: arrshape
+    INTEGER(fftintk), DIMENSION(1):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -191,13 +200,13 @@ CONTAINS
   FUNCTION fft2d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:),   INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:),   INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                          INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                          INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),                 INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION(SIZE(array, 1), SIZE(array, 2)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(2):: arrshape
+    INTEGER(fftintk), DIMENSION(2):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -211,14 +220,14 @@ CONTAINS
   FUNCTION fft3d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:),     INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:),     INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                            INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                            INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),                   INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), &
          DIMENSION(SIZE(array, 1), SIZE(array, 2), SIZE(array, 3)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(3):: arrshape
+    INTEGER(fftintk), DIMENSION(3):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -232,14 +241,14 @@ CONTAINS
   FUNCTION fft4d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                              INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                              INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),                     INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(4):: arrshape
+    INTEGER(fftintk), DIMENSION(4):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -253,15 +262,15 @@ CONTAINS
   FUNCTION fft5d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:,:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:),         INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:),         INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                                INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                                INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),                       INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4), &
          SIZE(array, 5)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(5):: arrshape
+    INTEGER(fftintk), DIMENSION(5):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -275,15 +284,15 @@ CONTAINS
   FUNCTION fft6d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:,:,:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:),           INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:),           INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                                  INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                                  INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),                         INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4), &
          SIZE(array, 5), SIZE(array, 6)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(6):: arrshape
+    INTEGER(fftintk), DIMENSION(6):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -297,15 +306,15 @@ CONTAINS
   FUNCTION fft7d(array, dim, inv, stat) RESULT(ft)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:,:,:,:), INTENT(IN)           :: array
-    INTEGER,          DIMENSION(:),             INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:),             INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                                    INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                                    INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),                           INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
          SIZE(array, 1), SIZE(array, 2), SIZE(array, 3), SIZE(array, 4), &
          SIZE(array, 5), SIZE(array, 6), SIZE(array, 7)):: ft
     !--- local arrays
-    INTEGER, DIMENSION(7):: arrshape
+    INTEGER(fftintk), DIMENSION(7):: arrshape
     !--- intrinsics used
     INTRINSIC SIZE, SHAPE
 
@@ -319,15 +328,15 @@ CONTAINS
   SUBROUTINE fftn(array, shape, dim, inv, stat)
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
-    INTEGER,          DIMENSION(:), INTENT(IN)           :: shape
-    INTEGER,          DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
+    INTEGER(fftintk), DIMENSION(:), INTENT(IN)           :: shape
+    INTEGER(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
     LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
-    INTEGER,                        INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- local arrays
-    INTEGER, DIMENSION(SIZE(shape)):: d
+    INTEGER(fftintk), DIMENSION(SIZE(shape)):: d
     !--- local scalars
     LOGICAL      :: inverse
-    INTEGER      :: i, ndim, ntotal
+    INTEGER(fftintk) :: i, ndim, ntotal
     REAL(fftkind):: scale
     !--- intrinsics used
     INTRINSIC PRESENT, MIN, PRODUCT, SIZE, SQRT
@@ -364,19 +373,19 @@ CONTAINS
 
   SUBROUTINE fftradix(array, ntotal, npass, nspan, inv, stat)
     !--- formal parameters
-    INTEGER,                        INTENT(IN)           :: ntotal, npass, nspan
+    INTEGER(fftintk),               INTENT(IN)           :: ntotal, npass, nspan
     COMPLEX(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
     LOGICAL,                        INTENT(IN)           :: inv
-    INTEGER,                        INTENT(OUT), OPTIONAL:: stat
+    INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- local arrays
-    INTEGER,          DIMENSION(BIT_SIZE(0))     :: factor
+    INTEGER(fftintk), DIMENSION(BIT_SIZE(0))     :: factor
     COMPLEX(fftkind), DIMENSION(:), ALLOCATABLE  :: ctmp
     REAL(fftkind),    DIMENSION(:), ALLOCATABLE  :: sine, cosine
-    INTEGER,          DIMENSION(:), ALLOCATABLE  :: perm
+    INTEGER(fftintk), DIMENSION(:), ALLOCATABLE  :: perm
     !--- local scalars
-    INTEGER         :: ii, kspan, ispan
-    INTEGER         :: j, jc, jf, jj, k, k1, k2, k3, k4, kk, kt, nn, ns, nt
-    INTEGER         :: maxfactor, nfactor, nperm
+    INTEGER(fftintk) :: ii, kspan, ispan
+    INTEGER(fftintk) :: j, jc, jf, jj, k, k1, k2, k3, k4, kk, kt, nn, ns, nt
+    INTEGER(fftintk) :: maxfactor, nfactor, nperm
     REAL(fftkind)   :: s60, c72, s72, pi2
     REAL(fftkind)   :: radf
     REAL(fftkind)   :: c1, c2, c3, cd, ak

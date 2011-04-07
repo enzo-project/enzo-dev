@@ -123,7 +123,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a, adot
+  P_PREC, intent(in) :: a, adot
   real,    intent(in) :: dx, dy, dz
   real,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   real,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
@@ -421,7 +421,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a, adot
+  P_PREC, intent(in) :: a, adot
   real,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   real,    intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
   real,    intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
@@ -1070,7 +1070,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a, adot
+  P_PREC, intent(in) :: a, adot
   real, intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   real, intent(in) :: IsEsHeI, IsEsHeInu, IsEsHeII, IsEsHeIInu
   real, intent(in) :: TempStart, TempEnd, piHI, piHeI, piHeII
@@ -1661,7 +1661,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: time, HFrac, gamma, IsE, IsEsHI, IsEsHInu
   real,    intent(in) :: TempStart, TempEnd
   real,    intent(in) :: DenUnits, VelUnits, ErUnits, ecUnits, NiUnits, ecScale
@@ -1867,7 +1867,7 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB,  intent(in) :: a, adot
+  P_PREC,  intent(in) :: a, adot
   real, intent(in) :: ErUnits, NiUnits
   real, intent(in) :: IsE, IsEsHI
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) :: &
@@ -2018,7 +2018,7 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: time, gamma
   real,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
   real,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4

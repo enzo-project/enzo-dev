@@ -34,7 +34,7 @@ subroutine gFLDSplit_AnalyticChemistry(Er, ec, HI, HeI, HeII, Er0, ec0,  &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   real,    intent(in) :: CompA, CompXray, CompTemp
   real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
@@ -187,7 +187,7 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   real,    intent(in) :: CompA, CompXray, CompTemp
   real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
@@ -647,7 +647,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   real,    intent(in) :: DenUnits, VelUnits, ErUnits, NiUnits, ecScale
   real,    intent(in) :: IsE, IsEsHI, IsEsHInu
@@ -814,7 +814,7 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: dt, gamma
   real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits, &
        ErUnits, ecUnits, aUnits, NiUnits
@@ -981,7 +981,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
   real,    intent(in) :: CompA, CompXray, CompTemp
   real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &

@@ -73,7 +73,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
   integer, intent(in) :: Nx, NGxl, NGxr
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time, HFrac, NGammaDot, EtaRadius
   real,    intent(in) :: EtaCenter0, EtaCenter1, EtaCenter2
   real,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &

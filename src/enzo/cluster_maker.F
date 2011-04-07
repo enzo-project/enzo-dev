@@ -88,8 +88,8 @@ c
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
       real    dt, dx, z
       real    d1, x1, v1, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
@@ -104,7 +104,7 @@ c
       real   div, tdyn, dtot, wgt
       real   pi, G, sndspdC, m1
       real   isosndsp2, bmass, jeanmass, lum, min_temp
-      REALSUB this_pos(3)
+      P_PREC this_pos(3)
       double precision msolar, mh
       parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
      &           msolar=SolarMass, mh=mass_h)

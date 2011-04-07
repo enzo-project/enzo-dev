@@ -99,7 +99,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real,    intent(in)  :: time, dx, dy, dz, gamma, HFrac
   real,    intent(in)  :: CompA, Comp_xray, Comp_temp
   real,    intent(in)  :: TempStart, TempEnd, piHI, piHeI, piHeII

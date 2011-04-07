@@ -68,7 +68,7 @@ subroutine gFLDProblem_GasEnergySource(ecsrc, time, Era, eca, nHIa,     &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB,  intent(in) :: a
+  P_PREC,  intent(in) :: a
   real, intent(in) :: time, HFrac
   real, intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
        ErUnits, ecUnits, NiUnits

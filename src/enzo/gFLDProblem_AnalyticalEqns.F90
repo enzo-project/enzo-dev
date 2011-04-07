@@ -103,7 +103,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real, intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
   real, intent(in) :: CompA, Comp_xray, Comp_temp
   real, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
@@ -558,7 +558,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
   integer, intent(in)  :: Ny, NGyl, NGyr
   integer, intent(in)  :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
+  P_PREC, intent(in)  :: a, adot
   real, intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
   real, intent(in) :: CompA, Comp_xray, Comp_temp
   real, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,     &

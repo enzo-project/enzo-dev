@@ -43,7 +43,7 @@ c
 c  argument declarations
 c
       integer dim1, dim2, dim3, npositions, ndim
-      REALSUB posx(npositions), posy(npositions), posz(npositions),
+      P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3), cellsize
       real    sumfield(npositions), field(dim1, dim2, dim3)
 c
@@ -51,7 +51,7 @@ c  locals
 c
       integer i1, j1, k1, n
       real    xpos, ypos, zpos, dx, dy, dz, fact
-      REALSUB half, edge1, edge2, edge3
+      P_PREC half, edge1, edge2, edge3
 c
 c  constants (half is slightly more than 1/2 to make sure rounding is
 c             performed in the correct direction)

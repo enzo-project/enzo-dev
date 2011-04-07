@@ -70,7 +70,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
   integer, intent(in) :: Nx, NGxl, NGxr
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
   real,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
   real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R

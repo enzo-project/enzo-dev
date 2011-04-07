@@ -41,7 +41,7 @@ c  Arguments
 c
       integer rank, nbox, in, jn, kn, ig, jg, kg
       real u(in,jn,kn), v(in,jn,kn), w(in,jn,kn)
-      REALSUB random_forcing
+      P_PREC random_forcing
 c
 c  Locals
 c

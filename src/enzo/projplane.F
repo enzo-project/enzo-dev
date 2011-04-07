@@ -63,14 +63,14 @@ c
       real    weight, fracleft, fracright
       real    grid1(gdim1,gdim2,gdim3), grid2(gdim1,gdim2,gdim3),
      &        flaggrid(gdim1,gdim2,gdim3), plane(pdim1,pdim2)
-      REALSUB gleft(3), gfarleft(3), gright(3), pleft(3), pright(3),
+      P_PREC gleft(3), gfarleft(3), gright(3), pleft(3), pright(3),
      &        pcellsize, gcellsize
 c
 c  locals
 c
       integer i, i0, j, j0, k0, n, istart(3), iend(3)
       real    sample1, sample2, dx, dy, dz, weight1
-      REAL    xpos, ypos, zpos
+      R_PREC  xpos, ypos, zpos
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

@@ -30,17 +30,18 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, i3, iline, pdim, rank
-      integer field(i1, i2, i3), line(iline)
+      INTG_PREC i1, i2, i3, iline, pdim, rank
+      INTG_PREC field(i1, i2, i3), line(iline)
 c
 c  locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

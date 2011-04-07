@@ -57,7 +57,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
   real*8,  intent(in) :: NGammaDot
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time, EtaRadius, EtaCenter(3)
   real,    intent(in) :: aUn, lUn, tUn, rUn
   real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R

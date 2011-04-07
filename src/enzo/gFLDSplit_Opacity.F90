@@ -65,7 +65,7 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
   real,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
   real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R

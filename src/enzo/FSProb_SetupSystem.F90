@@ -91,7 +91,7 @@ subroutine FSProb_SetupSystem(mat, rhs, rhsnorm, E, E0, kappa_h2on,       &
   integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
+  P_PREC, intent(in) :: a, a0, adot, adot0
   real,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
   real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
   real,    intent(in) :: E(*), E0(*), eta(*), kappa_arr(*)
@@ -160,7 +160,7 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
+  P_PREC, intent(in) :: a, a0, adot, adot0
   real,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
   real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
@@ -474,7 +474,7 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   integer, intent(in) :: kappa_h2on
   integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
+  P_PREC, intent(in) :: a, a0, adot, adot0
   real,    intent(in) :: kappa_c, dt, theta, dx, dy
   real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) :: E, E0, eta, kappa
@@ -695,7 +695,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   ! argument declarations
   integer, intent(in) :: kappa_h2on
   integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
+  P_PREC, intent(in) :: a, a0, adot, adot0
   real,    intent(in) :: kappa_c, dt, theta, dx
   real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
   real, dimension(1-NGxl:Nx+NGxr), intent(in) :: E, E0, eta, kappa

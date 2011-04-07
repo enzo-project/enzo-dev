@@ -42,7 +42,7 @@ c
 c  argument declarations
 c
       integer dim1, dim2, dim3, npositions, ndim, addaspoints
-      REALSUB posx(npositions), posy(npositions), posz(npositions),
+      P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
       real    mass(npositions), field(dim1, dim2, dim3), cellsize
 c
@@ -51,7 +51,7 @@ c
       integer iii, jjj, kkk
       integer i1, j1, k1, n
       real    xpos, ypos, zpos, dx, dy, dz, fact
-      REALSUB edge1, edge2, edge3, half
+      P_PREC edge1, edge2, edge3, half
       parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////

@@ -47,7 +47,7 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time
   real,    intent(in) :: aUnits, VelUnits, LenUnits, TimeUnits, ecUnits
   real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R

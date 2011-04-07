@@ -58,7 +58,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time, NGammaDot, EtaRadius
   real,    intent(in) :: EtaCenter(3)
   real,    intent(in) :: aUnits, LenUnits, TimeUnits, ErUnits

@@ -75,8 +75,8 @@ c
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
       real    dt, dx, z
       real    d1, x1, v1, t1
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       real    odthresh, masseff, smthresh, mintdyn
@@ -272,8 +272,8 @@ c
       real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
       real    dt, dx, z
       real    d1, x1, v1, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(npart), yp(npart), zp(npart)
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(npart), yp(npart), zp(npart)
       real    up(npart), vp(npart), wp(npart)
       real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       integer type(npart)

@@ -64,7 +64,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
   integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
   integer, intent(in)  :: Nz, NGzl, NGzr, BCzL, BCzR, zlface, zrface, x2s, x2e
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real,    intent(in)  :: dx, dy, dz
   real,    intent(in)  :: aUnits, LenUnits, ErUnits
   real*8 :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
@@ -298,7 +298,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
   integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
   integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real,    intent(in)  :: dx, dy
   real,    intent(in)  :: aUnits, LenUnits, ErUnits
   real*8 :: matentries(5,x0s:x0e,x1s:x1e)
@@ -465,7 +465,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 ! argument declarations
   integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real,    intent(in)  :: dx
   real,    intent(in)  :: aUnits, LenUnits, ErUnits
   real*8 :: matentries(3,x0s:x0e)

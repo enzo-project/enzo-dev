@@ -52,7 +52,7 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
+  P_PREC, intent(in) :: a
   real,    intent(in) :: time, HFrac
   real,    intent(in) :: aUnits, LenUnits, TimeUnits, NiUnits
   real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R

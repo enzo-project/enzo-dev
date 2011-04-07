@@ -104,7 +104,7 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
   integer, intent(in)  :: Nz, NGzl, NGzr, zlface, zrface
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real, intent(in) :: aUnits, LenUnits, EgUnits
   real, intent(in) :: dx, dy, dz
   real, intent(in), target, &
@@ -508,7 +508,7 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
   integer, intent(in)  :: Ny, NGyl, NGyr, ylface, yrface
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real, intent(in) :: aUnits, LenUnits, EgUnits
   real, intent(in) :: dx, dy
   real, intent(in), target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: &
@@ -820,7 +820,7 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
   integer, intent(in)  :: Nx, NGxl, NGxr, xlface, xrface
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real, intent(in) :: aUnits, LenUnits, EgUnits
   real, intent(in) :: dx
   real, intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld, Temp

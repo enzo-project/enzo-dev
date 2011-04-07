@@ -77,18 +77,18 @@ c
       real    dt, dx, z, separation
       real    d1, x1, v1, t1
       real    r(nx,ny,nz)
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xpold(npart), ypold(npart), zpold(npart)
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xpold(npart), ypold(npart), zpold(npart)
       real    upold(npart), vpold(npart), wpold(npart)
       real    mpold(npart), tdpold(npart), tcpold(npart)
       real    metalfold(npart)
       integer typeold(npart)
       integer npartnew, nmax, children, level, ran1_init
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       integer type(nmax)
-      REALSUB rr_leftedge(3), rr_rightedge(3)
+      P_PREC rr_leftedge(3), rr_rightedge(3)
 c
 c  Locals
 c

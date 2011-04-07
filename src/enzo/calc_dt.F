@@ -52,7 +52,7 @@ c     Arguments
 c
       integer idim, jdim, kdim, i1, i2, j1, j2, k1, k2, rank, ipfree,
      &        ihydro
-      REALSUB dx(idim), dy(jdim), dz(kdim)
+      P_PREC dx(idim), dy(jdim), dz(kdim)
       real    dt, vgx, vgy, vgz, gamma, aye, C2, dtviscous
       real    d(idim,jdim,kdim), p(idim,jdim,kdim), u(idim,jdim,kdim),
      &        v(idim,jdim,kdim), w(idim,jdim,kdim)

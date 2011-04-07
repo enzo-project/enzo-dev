@@ -56,7 +56,7 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
   integer, intent(in) :: Ny, NGyl, NGyr
   integer, intent(in) :: Nz, NGzl, NGzr
   integer, intent(out) :: ier
-  REALSUB, intent(in) :: a, adot
+  P_PREC, intent(in) :: a, adot
   real,    intent(in) :: dt, kappa_c, dx, dy, dz
   real,    intent(in) :: aUn, lUn, tUn, EUn, dUn
   real,    intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)

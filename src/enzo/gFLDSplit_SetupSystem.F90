@@ -110,7 +110,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
   integer, intent(in)  :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB, intent(in)  :: a, a0, adot, adot0
+  P_PREC, intent(in)  :: a, a0, adot, adot0
   real,    intent(in)  :: dt, theta, dx, dy, dz
   real,    intent(in)  :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
   real,    intent(in)  :: E0(*), E(*), Temp(*), Temp0(*), kappa(*), src(*)
@@ -180,7 +180,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
   integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
+  P_PREC,  intent(in) :: a, a0, adot, adot0
   real,     intent(in) :: dt, theta, dx, dy, dz
   real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
@@ -576,7 +576,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   integer,  intent(in) :: ESpectrum
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
   integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
+  P_PREC,  intent(in) :: a, a0, adot, adot0
   real,     intent(in) :: dt, theta, dx, dy
   real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
   real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
@@ -850,7 +850,7 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   ! argument declarations
   integer,  intent(in) :: ESpectrum
   integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
+  P_PREC,  intent(in) :: a, a0, adot, adot0
   real,     intent(in) :: dt, theta, dx
   real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
   real, dimension(1-NGxl:Nx+NGxr), intent(in) :: E0, E, src, kappa, Temp, Temp0

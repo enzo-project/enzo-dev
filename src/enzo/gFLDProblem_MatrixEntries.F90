@@ -100,7 +100,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
   integer, intent(in)  :: Nz, NGzl, NGzr, zrface, x2s, x2e
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real,    intent(in) :: dx, dy, dz, dt, theta
   real,    intent(in) :: aUnits, LenUnits, EgUnits
   real, target, intent(in),                                &
@@ -541,7 +541,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
   integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real,    intent(in) :: dx, dy, dt, theta
   real,    intent(in) :: aUnits, LenUnits, EgUnits
   real, target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
@@ -876,7 +876,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
   integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
   integer, intent(in)  :: Model
   integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
+  P_PREC, intent(in)  :: a
   real,    intent(in)  :: dx, dt, theta
   real,    intent(in)  :: aUnits, LenUnits, EgUnits
   real,    intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld
