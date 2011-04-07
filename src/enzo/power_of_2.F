@@ -1,6 +1,8 @@
+#include "fortran.def"
       INTG_PREC function power_of_2(in)
 
       implicit none
+#include "fortran_types.def"
 
       INTG_PREC in, n, m
 
