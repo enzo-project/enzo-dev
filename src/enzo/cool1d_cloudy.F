@@ -67,6 +67,7 @@
 !-----------------------------------------------------------------------
 
       implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 
@@ -351,6 +352,9 @@
       subroutine interpolate_1D(input1, gridDim, gridPar1, dgridPar1, 
      &     dataSize, dataField, value)
 
+      implicit NONE
+#include "fortran_types.def"
+
 !  General Arguments
 
       integer dataSize
@@ -389,6 +393,9 @@
      &     gridPar1, dgridPar1,
      &     gridPar2, dgridPar2,
      &     dataSize, dataField, value)
+
+      implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 
@@ -446,6 +453,9 @@
      &     gridPar2, dgridPar2,
      &     gridPar3, dgridPar3,
      &     dataSize, dataField, value)
+
+      implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 
@@ -520,6 +530,9 @@
      &     gridPar3, dgridPar3,
      &     gridPar4, dgridPar4,
      &     dataSize, dataField, value)
+
+      implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 
@@ -610,6 +623,9 @@
      &     gridPar4, dgridPar4,
      &     gridPar5, dgridPar5,
      &     dataSize, dataField, value)
+
+      implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 

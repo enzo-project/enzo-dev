@@ -100,6 +100,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  General Arguments
 c
@@ -792,6 +793,7 @@ c
 c -------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c     Arguments
 c
@@ -854,6 +856,7 @@ c
 c -------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c     Arguments
 c

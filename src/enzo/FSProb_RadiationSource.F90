@@ -48,6 +48,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations

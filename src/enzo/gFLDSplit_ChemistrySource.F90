@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -43,7 +44,7 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations

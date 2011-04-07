@@ -66,6 +66,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations

@@ -26,6 +26,7 @@ subroutine gFLDSplit_AnalyticChemistry(Er, ec, HI, HeI, HeII, Er0, ec0,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -179,6 +180,7 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -639,6 +641,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -806,6 +809,7 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -973,6 +977,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -1545,6 +1550,7 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations

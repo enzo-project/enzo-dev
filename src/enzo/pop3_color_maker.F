@@ -1,3 +1,4 @@
+#include "fortran.def"
 #include "phys_const.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE POP3_COLOR_MAKER \\\\\\\\\\\\\\\\\\\\
@@ -11,7 +12,6 @@ c
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tcp, type, ctype )
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  CREATES PRIMORDIAL STAR PARTICLES
 c
@@ -75,6 +75,7 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments

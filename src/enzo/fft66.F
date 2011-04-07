@@ -8,7 +8,6 @@
 * ======================================================================
 
       subroutine fft66(a,b,ntot,n,nspan,isn)
-
 c  multivariate complex fourier transform, computed in place
 c    using mixed-radix fast fourier transform algorithm.
 c  by r. c. singleton, stanford research institute, sept. 1968
@@ -52,6 +51,16 @@ c    maxf must be .ge. the maximum prime factor of n.
 c    maxp must be .gt. the number of prime factors of n.
 c    in addition, if the square-free portion k of n has two or
 c    more prime factors, then maxp must be .ge. k-1.
+c
+      implicit none
+#include "fortran_types.def"
+c
+      INTG_PREC i, ii, inc, isn, j, jc, jf, jj, k, k1, k2, k3, k4, kk, 
+     &          ks, kspan, kspnn, kt, m, maxf, maxp, n, nfac, nn, np, 
+     &          nspan, nt, ntot
+      R_PREC    a, aa, aj, ajm, ajp, ak, akm, akp, at, b, bb, bj, bjm, 
+     &          bjp, bk, bkm, bkp, bt, c1, c2, c3, c72, cd, ck, rad, 
+     &          radf, s1, s120, s2, s3, s72, sd, sk
       dimension a(1),b(1)
 c  array storage in nfac for a maximum of 15 prime factors of n.
 c  if n has more than one square-free factor, the product of the

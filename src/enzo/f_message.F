@@ -1,3 +1,4 @@
+#include "fortran.def"
 *****************************************************************************
 *                                                                           *
 * Copyright 2004 Greg Bryan                                                 *
@@ -20,7 +21,7 @@ c=======================================================================
 
 
       implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 
       CHARACTER sourcefile*(*)
       INTG_PREC linenumber
@@ -40,7 +41,7 @@ c=======================================================================
 
 
       implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 
       CHARACTER sourcefile*(*)
       INTG_PREC linenumber

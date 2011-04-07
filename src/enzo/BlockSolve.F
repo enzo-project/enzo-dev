@@ -27,6 +27,7 @@ c     ier        - integer return flag (0=>failure, 1=>success)
 c
 c=======================================================================
       implicit none
+#include "fortran_types.def"
 c
 c  argument declarations
       integer  N, M
@@ -80,6 +81,8 @@ c
       SUBROUTINE UGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
 *     .. Scalar Arguments ..
+      implicit none
+#include "fortran_types.def"
       CHARACTER*1        TRANSA, TRANSB
       INTG_PREC          M, N, K, LDA, LDB, LDC
       R_PREC             ALPHA, BETA
@@ -395,6 +398,8 @@ c=======================================================================
 c
       SUBROUTINE UGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
       R_PREC             ALPHA, BETA
       INTG_PREC          INCX, INCY, LDA, M, N
@@ -658,6 +663,8 @@ c
 c=======================================================================
 c
       SUBROUTINE UGER  ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
       R_PREC             ALPHA
       INTG_PREC          INCX, INCY, LDA, M, N
@@ -824,6 +831,8 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1992
 *
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
       INTG_PREC          INFO, LDA, M, N
 *     ..
@@ -961,6 +970,8 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
       INTG_PREC          INFO, LDA, M, N
@@ -1124,6 +1135,8 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
       CHARACTER          TRANS
@@ -1277,6 +1290,8 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1999
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
       INTG_PREC          INCX, K1, K2, LDA, N
@@ -1400,6 +1415,8 @@ c     interchanges two vectors.
 c     uses unrolled loops for increments equal one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 12/3/93, array(1) declarations changed to array(*)
+      implicit none
+#include "fortran_types.def"
 c
       R_PREC dx(*),dy(*),dtemp
       integer i,incx,incy,ix,iy,m,mp1,n
@@ -1460,6 +1477,8 @@ c     uses unrolled loops for increment equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
+      implicit none
+#include "fortran_types.def"
 c
       R_PREC da,dx(*)
       integer i,incx,m,mp1,n,nincx
@@ -1501,6 +1520,8 @@ c=======================================================================
 c
       SUBROUTINE UTRSM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
       INTG_PREC          M, N, LDA, LDB
@@ -2719,6 +2740,8 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
       CHARACTER*6        SRNAME

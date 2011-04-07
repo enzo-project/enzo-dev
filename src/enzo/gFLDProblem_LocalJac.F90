@@ -114,6 +114,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
@@ -412,6 +413,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
@@ -1061,6 +1063,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
@@ -1652,6 +1655,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
@@ -1859,6 +1863,7 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
@@ -2010,6 +2015,7 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations

@@ -35,6 +35,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
       integer ijkn
       parameter (ijkn = MAX_ANY_SINGLE_DIRECTION)
@@ -150,6 +151,8 @@ c
       subroutine spline_eval(y, n, y2, refine, result)
 c
       implicit none
+#include "fortran_types.def"
+c
       integer i, j, n, refine
       real y(n), y2(n), result((n-2)*refine), a, b, step, x
 c
@@ -177,6 +180,8 @@ c
 c     This routine assumes that all y points are deltax=1 apart
 c
       implicit none
+#include "fortran_types.def"
+c
       integer i, n
       real y(n), y2(n), work(n), p
 c

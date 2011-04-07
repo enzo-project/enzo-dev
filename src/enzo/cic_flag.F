@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_FLAG  \\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -6,7 +7,6 @@ c
      &                    dim1, dim2, dim3, cellsize, imatch1, 
      &                    imatch2, minmassmust, buffersize)
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  PERFORMS 1/2/3D CLOUD-IN-CELL MARKING OF FLAGGING FIELD
 c
@@ -41,6 +41,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c

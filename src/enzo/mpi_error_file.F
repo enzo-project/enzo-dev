@@ -3,6 +3,7 @@
       subroutine open_mpi_error_file( fn, iunit, type )
 
       implicit none
+#include "fortran_types.def"
 
 #ifdef USE_MPI
       include 'mpif.h'
@@ -51,6 +52,7 @@
       subroutine close_mpi_error_file( iunit )
 
       implicit none
+#include "fortran_types.def"
 
       integer iunit
 

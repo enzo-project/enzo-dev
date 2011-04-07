@@ -108,6 +108,7 @@ c    calcdiss - Calculate dissiptation and flattening coefficients
 c
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c

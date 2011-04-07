@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -38,7 +39,7 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations

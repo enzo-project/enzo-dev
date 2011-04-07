@@ -57,6 +57,7 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations

@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -55,8 +56,8 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
@@ -290,8 +291,8 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
@@ -458,8 +459,8 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations

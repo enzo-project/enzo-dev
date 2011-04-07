@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c////////////////////////  SUBROUTINE CALC_DT  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -7,7 +8,6 @@ c
      &                   dx, dy, dz, vgx, vgy, vgz, gamma, ipfree, aye,
      &                   d, p, u, v, w, dt, dtviscous)
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  COMPUTES TIME STEP FOR NEXT CYCLE
 c
@@ -47,6 +47,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c     Arguments
 c

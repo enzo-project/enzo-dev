@@ -91,6 +91,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations

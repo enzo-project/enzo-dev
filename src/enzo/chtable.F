@@ -41,6 +41,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
@@ -414,6 +415,11 @@ C
 C     WRITTEN: BY RENYUE CEN, 11/7/92
 C
 C
+      implicit none
+#include "fortran_types.def"
+C
+      INTG_PREC N, NPOLY, NSHIFT, I
+      R_PREC    XN, YN, X, Y, XX, XNTMP, YNTMP, DIRV1, DIRVN, DY
       DIMENSION XN(N),YN(N),XX(N)
       DIMENSION XNTMP(10),YNTMP(10)
 C
@@ -461,6 +467,10 @@ c
 c
 c
       SUBROUTINE SPLINE(X,Y,N,YP1,YPN,Y2)
+      implicit none
+#include "fortran_types.def"
+      INTG_PREC N, NMAX, I, K
+      R_PREC    X, Y, YP1, YPN, Y2, U, SIG, P, QN, UN
       PARAMETER (NMAX=1000)
       DIMENSION X(N),Y(N),Y2(N),U(NMAX)
       IF (YP1.GT..99d30) THEN
@@ -492,6 +502,10 @@ c
       END
 c
       SUBROUTINE SPLINT(XA,YA,Y2A,N,X,Y)
+      implicit none
+#include "fortran_types.def"
+      INTG_PREC N, KLO, KHI, K
+      R_PREC    XA, YA, Y2A, X, Y, H, A, B
       DIMENSION XA(N),YA(N),Y2A(N)
       KLO=1
       KHI=N
@@ -520,6 +534,10 @@ c
 C
 C
       SUBROUTINE RATINT(XA,YA,N,X,Y,DY)
+      implicit none
+#include "fortran_types.def"
+      INTG_PREC N, NMAX, NS, I, M
+      R_PREC    XA, YA, X, Y, DY, TINY, C, D, HH, H, W, T, DD
       PARAMETER (NMAX=10,TINY=1.E-25)
       DIMENSION XA(N),YA(N),C(NMAX),D(NMAX)
       NS=1

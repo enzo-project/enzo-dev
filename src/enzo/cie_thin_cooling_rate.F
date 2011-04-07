@@ -15,6 +15,7 @@ C     (greater than 0.5).
 C     Currently it is not clear what happens in the regime where H2
 C     becomes mostly dissociated.
       implicit none
+#include "fortran_types.def"
       real*8 temp
       real*8 value
       real*8 cie_table(288)

@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE COLL_RATES  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -54,7 +55,7 @@ c
 #define NO_USE_SAVIN2004
 c
       implicit NONE
-#include "fortran.def"
+#include "fortran_types.def"
 c
 c  Arguments
 c

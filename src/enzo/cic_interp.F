@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CIC_INTERP  \\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -5,7 +6,6 @@ c
      &                      sumfield, field, leftedge, 
      &                      dim1, dim2, dim3, cellsize)
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  PERFORMS 1/2/3D CLOUD-IN-CELL INTERPOLATION FROM FIELD TO SUMFIELD
 c
@@ -37,6 +37,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c

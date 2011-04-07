@@ -48,6 +48,7 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations

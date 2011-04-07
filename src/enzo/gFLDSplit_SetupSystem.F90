@@ -103,6 +103,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
@@ -173,6 +174,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !  PURPOSE: 3D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
@@ -570,6 +572,7 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !  PURPOSE: 2D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
@@ -845,6 +848,7 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
 !  PURPOSE: 1D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations

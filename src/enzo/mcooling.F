@@ -1,3 +1,4 @@
+#include "fortran.def"
 #include "phys_const.def"
 #include "error.def"
 
@@ -47,7 +48,7 @@ C
 C     *******************************************************************
 C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       R_PREC DEN(NID)
@@ -118,7 +119,7 @@ C     S2J(),S3J(),S4J(),S5J() : COEFFICIENTS FOR PHOTOIONIZ. CROSS SECTION
 C
 C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       DIMENSION WEIGHT(12), SOLAR(12)
@@ -154,7 +155,7 @@ C     NAME METAL
 C 
 C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       R_PREC CBOVCOOL(NIT,NID)
@@ -276,7 +277,7 @@ C     NAME=APHTR
       SUBROUTINE APHTR(NO,N,AP1,AP2,HEATR)
 C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       R_PREC AP1(12,30),AP2(12,30),HEATR(12,30)
@@ -383,8 +384,9 @@ C
 C
 C     NAME=PHTR
       SUBROUTINE PHTR(NO,N,PHOTR,HEATR)
+C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       R_PREC PHOTR(12,30),HEATR(12,30)
@@ -524,7 +526,7 @@ C
 C     T  : TEMPERATURE
 C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       R_PREC E(30),EA(30),S2(30),S3(30),S4(30),S5(30)
@@ -707,7 +709,7 @@ C     AS INPUT THIS ROUTINE TAKES THE ELECTRON NUMBER DENSITY IN THE FORM
 C     AN(), IN UNITS OF THE HYDROGEN ATOM NUMBER DENSITY
 C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       R_PREC PHOTR(12,30),AP1(12,30),AP2(12,30)
@@ -1155,10 +1157,11 @@ C
 C
 C     NAME=ATREAD
       SUBROUTINE ATREAD
+C
       IMPLICIT NONE
-#include "fortran.def"
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"   
-
+C
       R_PREC E(30),EA(30),S2(30),S3(30),S4(30),S5(30)
      .    ,WAVE(MAXLN),E3(MAXLN),F(MAXLN)
       INTG_PREC LLL(30)
@@ -2391,9 +2394,12 @@ C
 C     NAME=SEATON
       FUNCTION SEATON(X,Q)
 C     R. MOORE OCTOBER 1976
-      IMPLICIT REAL*8 (A,B)
-#include "fortran.def"
-      DOUBLE PRECISION XD,XS1,XS2,X3
+#include "fortran_types.def"
+      IMPLICIT NONE
+      DOUBLE PRECISION XD, XS1, XS2, X3, A10, A11, A12, A13, A14, A15, 
+     &                 A20, A21, A22, A23, A24, A25, A30, A31, A32, A33, 
+     &                 A34, A35, B10, B11, B12, B13, B14, B20, B21, B22, 
+     &                 B23, B24, B30, B31, B32, B33, B34, SEATON
       DATA A10/8.7469604697013D-4/    ,B10/-1.2007397521051D-4/
       DATA A11/.20406771231267D0/       ,B11/-.055223640825293D0/
       DATA A12/-2.1524482972354D0/      ,B12/.029171138841798D0/

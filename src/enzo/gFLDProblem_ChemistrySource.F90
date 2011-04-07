@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -57,7 +58,7 @@ subroutine gFLDProblem_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time,   &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 !#ifdef USE_MPI
 !#include "mpif.h"
 !#endif

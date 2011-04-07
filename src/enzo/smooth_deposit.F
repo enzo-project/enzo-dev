@@ -1,3 +1,4 @@
+#include "fortran.def"
 #include "error.def"
 #include "phys_const.def"
 
@@ -8,7 +9,6 @@ c
      &                      mass, field, leftedge, 
      &                      dim1, dim2, dim3, cellsize, rsmooth)
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  PERFORMS 3D SMOOTHED INTERPOLATION FROM FIELD TO SUMFIELD
 c
@@ -39,6 +39,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c

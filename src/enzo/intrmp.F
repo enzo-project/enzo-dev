@@ -55,6 +55,7 @@ c  LOCALS:
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
       integer ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)

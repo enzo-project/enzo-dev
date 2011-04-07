@@ -12,6 +12,7 @@ c
 
     
       implicit NONE
+#include "fortran_types.def"
 c
 c  From Koyama & Inutsuka 2006, arxiv: asrto-ph 0605528v1
 c

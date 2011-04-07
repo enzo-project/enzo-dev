@@ -63,6 +63,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations

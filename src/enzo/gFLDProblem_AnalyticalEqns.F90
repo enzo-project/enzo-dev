@@ -95,6 +95,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -550,6 +551,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
@@ -1056,6 +1058,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
@@ -1798,6 +1801,7 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations

@@ -53,6 +53,7 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  argument declarations
 c
@@ -234,9 +235,10 @@ c-----------------------------------------------------------------------
 
       subroutine linslope(qslice, c1, c2, i1, i2, idim, qplus, qmnus, 
      $     qcent, qvanl)
-      
+c      
       implicit none
-
+#include "fortran_types.def"
+c
       integer i1, i2, idim
       real qslice(idim), qplus(idim), qmnus(idim), qcent(idim), 
      $     qvanl(idim), c1(idim), c2(idim)
@@ -259,8 +261,10 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 
       subroutine char2prim(n, dqc, rem, i1, i2, idim, dq)
-      
+c      
       implicit none
+#include "fortran_types.def"
+c
       integer n, i1, i2, idim
       real dqc(idim,5), dq(idim), rem(idim,5,5)
       
@@ -279,8 +283,10 @@ c-----------------------------------------------------------------------
 
       subroutine lr_states(qslice, c3, c4, c5, c6, dq, i1, i2, idim, 
      $     ql, qr)
-      
+c      
       implicit none
+#include "fortran_types.def"
+c
       integer i1, i2, idim
       real qslice(idim), c3(idim), c4(idim), c5(idim), c6(idim)
       real dq(idim), ql(idim), qr(idim)
@@ -299,8 +305,10 @@ c-----------------------------------------------------------------------
 
       subroutine mono_n_flat(qslice, ql, qr, iflatten, flatten, 
      $     i1, i2, idim)
-
+c
       implicit none
+#include "fortran_types.def"
+c
       integer i1, i2, idim, iflatten
       real qslice(idim), ql(idim), qr(idim), flatten(idim)
 
@@ -353,8 +361,10 @@ c-----------------------------------------------------------------------
 
       subroutine lr_interface(qslice, ql, qr, char1, char2, c0,
      $     i1, i2, idim, dq, q6, qla, qra, ql0, qr0)
-
+c
       implicit none
+#include "fortran_types.def"
+c
       integer i1, i2, idim
       real qslice(idim), ql(idim), qr(idim), char1(idim), char2(idim),
      $     c0(idim), dq(idim), q6(idim), qla(idim), qra(idim), 
