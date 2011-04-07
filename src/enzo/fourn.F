@@ -41,7 +41,7 @@ c
 c
 c  External functions
 c
-      INTG_PREC power_of_2
+      integer*8 power_of_2
 c
 c  Locals
 c

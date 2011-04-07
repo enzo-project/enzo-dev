@@ -30,7 +30,7 @@
       INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
-      INTG_PREC :: power_of_2
+      integer*8 :: power_of_2
 
       REAL*4 :: factor
       REAL*4 :: scale
@@ -69,7 +69,7 @@
       INTG_PREC :: n1, idir
       CMPLX_PREC :: x(n1)
 
-      INTG_PREC :: power_of_2
+      integer*8 :: power_of_2
 
       REAL*8 :: factor
       REAL*8 :: scale

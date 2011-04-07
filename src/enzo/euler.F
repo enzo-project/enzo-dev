@@ -83,7 +83,8 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      INTG_PREC gravity, i1, i2, idiff, idim, idual, j1, j2, jdim, ncolor
+      INTG_PREC gravity, i1, i2, idiff, idim, idual, j1, j2, 
+     &       jdim, ncolor
       R_PREC    dt, eta1, eta2, gamma
       R_PREC diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),

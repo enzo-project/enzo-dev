@@ -77,8 +77,8 @@ c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      INTG_PREC gravity, i1, i2, idim, idual, iflatten, ipresfree, isteep,
-     &        j1, j2, jdim, ncolor, iconsrec, iposrec
+      INTG_PREC gravity, i1, i2, idim, idual, iflatten, ipresfree, 
+     &        isteep, j1, j2, jdim, ncolor, iconsrec, iposrec
       R_PREC  dt, eta1, eta2, gamma
       R_PREC  dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
      &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),

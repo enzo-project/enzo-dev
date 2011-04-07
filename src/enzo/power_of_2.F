@@ -1,10 +1,10 @@
 #include "fortran.def"
-      INTG_PREC function power_of_2(in)
+      integer*8 function power_of_2(in)
 
       implicit none
 #include "fortran_types.def"
 
-      INTG_PREC in, n, m
+      integer*8 in, n, m
 
       if( in .lt. 1 ) then
         power_of_2 = -1

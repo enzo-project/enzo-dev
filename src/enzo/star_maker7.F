@@ -93,8 +93,8 @@ c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      INTG_PREC nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
-      INTG_PREC procnum, ctype, option
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, npart, level, imetal
+      INTG_PREC imethod, procnum, ctype, option
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
