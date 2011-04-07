@@ -5,10 +5,10 @@
       implicit none
 
       integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2)
+      CMPLX_PREC :: x(n1,n2)
       external :: method
 
-      complex, allocatable :: y(:,:)
+      CMPLX_PREC, allocatable :: y(:,:)
       integer :: n(3)
       integer :: i,j
 
@@ -52,7 +52,7 @@
 
       implicit none
 
-      complex :: a(*)
+      CMPLX_PREC :: a(*)
       integer :: n(3)
       integer :: dir
       external :: method

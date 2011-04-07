@@ -9,7 +9,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       REAL*4 :: factor
       REAL*4 :: scale
@@ -78,7 +78,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2)
+      CMPLX_PREC :: x(n1,n2)
 
       REAL*4 :: factor
       REAL*4 :: scale
@@ -143,7 +143,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2,n3)
+      CMPLX_PREC :: x(n1,n2,n3)
 
       REAL*4 :: factor
       REAL*4:: scale
@@ -225,7 +225,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       REAL*8 :: factor
       REAL*8 :: scale
@@ -291,7 +291,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2)
+      CMPLX_PREC :: x(n1,n2)
 
       REAL*8 :: factor
       REAL*8 :: scale
@@ -356,7 +356,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2,n3)
+      CMPLX_PREC :: x(n1,n2,n3)
 
       REAL*8 :: factor
       REAL*8 :: scale
@@ -435,7 +435,7 @@
       implicit none
 
       integer rank, n1, n2, n3, idir
-      complex x(n1)
+      CMPLX_PREC x(n1)
 
       write(0,'("Dummy IBM 1D FFT - error")')
       ERROR_MESSAGE
@@ -448,7 +448,7 @@
       implicit none
 
       integer rank, n1, n2, n3, idir
-      complex x(n1,n2)
+      CMPLX_PREC x(n1,n2)
 
       write(0,'("Dummy IBM 2D FFT - error")')
       ERROR_MESSAGE
@@ -461,7 +461,7 @@
       implicit none
 
       integer rank, n1, n2, n3, idir
-      complex x(n1,n2,n3)
+      CMPLX_PREC x(n1,n2,n3)
 
       write(0,'("Dummy IBM 3D FFT - error")')
       ERROR_MESSAGE

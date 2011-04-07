@@ -4,7 +4,7 @@
       implicit none
 
       integer :: rank, dim1, dim2, dim3, dir
-      complex :: x(dim1,dim2,dim3)
+      CMPLX_PREC :: x(dim1,dim2,dim3)
 
       integer :: method
 

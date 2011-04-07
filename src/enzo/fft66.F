@@ -8,7 +8,7 @@
 * ======================================================================
 
       subroutine fft66(a,b,ntot,n,nspan,isn)
-c  multivariate complex fourier transform, computed in place
+c  multivariate CMPLX_PREC fourier transform, computed in place
 c    using mixed-radix fast fourier transform algorithm.
 c  by r. c. singleton, stanford research institute, sept. 1968
 c  arrays a and b originally hold the real and imaginary
@@ -19,11 +19,11 @@ c    array element successor function, without limit
 c    on the number of implied multiple subscripts.
 c    the subroutine is called once for each variate.
 c    the calls for a multivariate transform may be in any order.
-c  ntot is the total number of complex data values.
+c  ntot is the total number of CMPLX_PREC data values.
 c  n is the dimension of the current variable.
 c  nspan/n is the spacing of consecutive data values
 c    while indexing the current variable.
-c  the sign of isn determines the sign of the complex
+c  the sign of isn determines the sign of the CMPLX_PREC
 c    exponential, and the magnitude of isn is normally one.
 c  a tri-variate transform with a(n1,n2,n3), b(n1,n2,n3)
 c    is computed by
@@ -31,16 +31,16 @@ c      call fft(a,b,n1*n2*n3,n1,n1,1)
 c      call fft(a,b,n1*n2*n3,n2,n1*n2,1)
 c      call fft(a,b,n1*n2*n3,n3,n1*n2*n3,1)
 c  for a single-variate transform,
-c    ntot = n = nspan = (number of complex data values), e.g.
+c    ntot = n = nspan = (number of CMPLX_PREC data values), e.g.
 c      call fft(a,b,n,n,n,1)
-c  the data can alternatively be stored in a single complex array c
+c  the data can alternatively be stored in a single CMPLX_PREC array c
 c    in standard fortran fashion, i.e. alternating real and imaginary
-c    parts. then with most fortran compilers, the complex array c can
+c    parts. then with most fortran compilers, the CMPLX_PREC array c can
 c    be equivalenced to a real array a, the magnitude of isn changed
 c    to two to give correct indexing increment, and a(1) and a(2) used
 c    to pass the initial addresses for the sequences of real and
 c    imaginary values, e.g.
-c       complex c(ntot)
+c       CMPLX_PREC c(ntot)
 c       R_PREC    a(2*ntot)
 c       equivalence (c(1),a(1))
 c       call fft(a(1),a(2),ntot,n,nspan,2)

@@ -9,7 +9,7 @@
       implicit none
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       REAL*4 :: factor
       REAL*4 :: scale
@@ -47,7 +47,7 @@
       implicit none
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       REAL*8 :: factor
       REAL*8 :: scale
@@ -85,7 +85,7 @@
       implicit none
 
       integer n1, idir
-      complex x(n1)
+      CMPLX_PREC x(n1)
 
       write(0,'("Dummy Cray X1 1D FFT - error")')
       ERROR_MESSAGE

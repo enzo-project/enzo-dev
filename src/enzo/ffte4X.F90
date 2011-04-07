@@ -65,13 +65,13 @@
 !         e-mail: daisuke@cs.tsukuba.ac.jp
 !
 !
-!     1-d complex fft routine
+!     1-d CMPLX_PREC fft routine
 !
 !     fortran77 source program
 !
 !     call zfft1d(a,n,iopt,b)
 !
-!     a(n) is complex input/output vector (complex*16)
+!     a(n) is CMPLX_PREC input/output vector (complex*16)
 !     b(n) is work vector (complex*16)
 !     n is the length of the transforms (integer*4)
 !       -----------------------------------
@@ -90,7 +90,7 @@
       implicit none
 
       integer :: n, iopt
-      complex :: a(*),b(*)
+      CMPLX_PREC :: a(*),b(*)
 
       integer :: i
       integer :: nd
@@ -98,9 +98,9 @@
       integer :: nw2, nw3, nw4
       R_PREC :: dn
 
-      complex :: c((nda2+np)*(nblk+1)+np)
-      complex :: w1(nda2/2+np),w2(nda2/2+np)
-      complex :: ww((nda2+np)*4+np)
+      CMPLX_PREC :: c((nda2+np)*(nblk+1)+np)
+      CMPLX_PREC :: w1(nda2/2+np),w2(nda2/2+np)
+      CMPLX_PREC :: ww((nda2+np)*4+np)
       integer :: ip(3),ip1(3),ip2(3)
 
       save w1,w2,ww
@@ -172,10 +172,10 @@
       implicit none
 
       integer :: n1, n2, m1, m2
-      complex :: a1(n1,*),a2(n2,*),b(n1,*),c(n2+np,*),d(*)
-      complex :: w1(*),w2(*)
-      complex :: ww1(m1,*),ww2(m1,*),ww3(m2,*),ww4(n1/m1,*)
-      complex :: temp
+      CMPLX_PREC :: a1(n1,*),a2(n2,*),b(n1,*),c(n2+np,*),d(*)
+      CMPLX_PREC :: w1(*),w2(*)
+      CMPLX_PREC :: ww1(m1,*),ww2(m1,*),ww3(m2,*),ww4(n1/m1,*)
+      CMPLX_PREC :: temp
       integer :: ip1(*),ip2(*)
 
       integer :: i, j
@@ -298,13 +298,13 @@
 !         e-mail: daisuke@cs.tsukuba.ac.jp
 !
 !
-!     2-d complex fft routine
+!     2-d CMPLX_PREC fft routine
 !
 !     fortran77 source program
 !
 !     call zfft2d(a,nx,ny,iopt)
 !
-!     a(nx,ny) is complex input/output vector (complex*16)
+!     a(nx,ny) is CMPLX_PREC input/output vector (complex*16)
 !     nx is the length of the transforms in the x-direction (integer*4)
 !     ny is the length of the transforms in the y-direction (integer*4)
 !       ------------------------------------
@@ -324,9 +324,9 @@
       implicit none
 
       integer :: nx, ny, iopt
-      complex :: a(*)
-      complex :: b((nda2+np)*(nblk+1)+np)
-      complex :: wx(nda2/2+np),wy(nda2/2+np)
+      CMPLX_PREC :: a(*)
+      CMPLX_PREC :: b((nda2+np)*(nblk+1)+np)
+      CMPLX_PREC :: wx(nda2/2+np),wy(nda2/2+np)
       integer :: lnx(3),lny(3)
 
       integer :: i, nc
@@ -372,8 +372,8 @@
       implicit none
 
       integer :: nx, ny
-      complex :: a(nx,*),b(ny+np,*),c(*)
-      complex :: wx(*),wy(*)
+      CMPLX_PREC :: a(nx,*),b(ny+np,*),c(*)
+      CMPLX_PREC :: wx(*),wy(*)
       integer :: lnx(*),lny(*)
 
       integer :: i, j
@@ -418,13 +418,13 @@
 !         e-mail: daisuke@cs.tsukuba.ac.jp
 !
 !
-!     3-d complex fft routine
+!     3-d CMPLX_PREC fft routine
 !
 !     fortran77 source program
 !
 !     call zfft3d(a,nx,ny,nz,iopt)
 !
-!     a(nx,ny,nz) is complex input/output vector (complex*16)
+!     a(nx,ny,nz) is CMPLX_PREC input/output vector (complex*16)
 !     nx is the length of the transforms in the x-direction (integer*4)
 !     ny is the length of the transforms in the y-direction (integer*4)
 !     nz is the length of the transforms in the z-direction (integer*4)
@@ -446,9 +446,9 @@
       implicit none
 
       integer :: nx, ny, nz, iopt
-      complex :: a(*)
-      complex :: b((nda3+np)*(nblk+1)+np)
-      complex :: wx(nda3/2+np),wy(nda3/2+np),wz(nda3/2+np)
+      CMPLX_PREC :: a(*)
+      CMPLX_PREC :: b((nda3+np)*(nblk+1)+np)
+      CMPLX_PREC :: wx(nda3/2+np),wy(nda3/2+np),wz(nda3/2+np)
       integer :: lnx(3),lny(3),lnz(3)
 
       integer :: i, nc
@@ -496,8 +496,8 @@
       implicit none
 
       integer :: nx, ny, nz
-      complex :: a(nx,ny,*),by(ny+np,*),bz(nz+np,*),c(*)
-      complex :: wx(*),wy(*),wz(*)
+      CMPLX_PREC :: a(nx,ny,*),by(ny+np,*),bz(nz+np,*),c(*)
+      CMPLX_PREC :: wx(*),wy(*),wz(*)
       integer :: lnx(*),lny(*),lnz(*)
 
       integer :: i, j, k
@@ -577,7 +577,7 @@
 
       integer :: n
       integer :: ip(*)
-      complex :: a(*),b(*),w(*)
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       integer :: j, k, l, m
       integer :: key
@@ -694,7 +694,7 @@
       implicit none
 
       integer :: m, l
-      complex :: a(*),b(*),w(*)
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft3a(a,b,w,l)
@@ -713,7 +713,7 @@
       implicit none
 
       integer :: m, l
-      complex :: a(*),b(*),w(*)
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft4a(a,b,w,l)
@@ -732,7 +732,7 @@
       implicit none
 
       integer :: m, l
-      complex :: a(*),b(*),w(*)
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft5a(a,b,w,l)
@@ -751,7 +751,7 @@
       implicit none
 
       integer :: m, l
-      complex :: a(*),b(*),w(*)
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft8a(a,b,w,l)
@@ -770,7 +770,7 @@
       implicit none
 
       integer :: n
-      complex :: w(*)
+      CMPLX_PREC :: w(*)
 
       integer :: i, j, k, l
       integer :: ip(3)

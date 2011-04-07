@@ -6,7 +6,7 @@ c
       subroutine prefort(buffer, tempbuffer, dim1, dim2, dim3,
      &                   rdim1, rdim2, rdim3, rank, isign)
 c
-c  PREPARES THE REAL/COMPLEX BUFFER FOR A CALL TO FORTRAN COMPLEX FFT
+c  PREPARES THE REAL/CMPLX_PREC BUFFER FOR A CALL TO FORTRAN CMPLX_PREC FFT
 c
 c     written by: Robert Harkness
 c     date:       May, 2003
@@ -15,7 +15,7 @@ c
 c  PURPOSE:
 c
 c  INPUTS:
-c     buffer      - real or complex array to be transformed
+c     buffer      - real or CMPLX_PREC array to be transformed
 c     tempbuffer  - temporary buffer of size 2*dim1*dim2*dim3
 c     dim1,2,3    - dimension of transform
 c     rdim1,2,3   - declared dimension of buffer
@@ -72,7 +72,7 @@ c     1) Forward direction
 c
       if (isign .eq. -1) then
 c
-c        Copy real data into complex temporary
+c        Copy real data into CMPLX_PREC temporary
 c
          do k = 1, dim3
             do j = 1, dim2
@@ -94,7 +94,7 @@ c
          call fortfft(tempbuffer, rank, dim1, dim2, dim3, isign)
 
 c
-c        Copy unique part of complex temporary back to buffer.
+c        Copy unique part of CMPLX_PREC temporary back to buffer.
 c
          do k = 1, dim3
             do j = 1, dim2
@@ -108,7 +108,7 @@ c     2) Inverse transform
 c
       else
 c
-c        Recreate the other half of the complex data.
+c        Recreate the other half of the CMPLX_PREC data.
 c
          do k = 1, dim3
             do j = 1, dim2

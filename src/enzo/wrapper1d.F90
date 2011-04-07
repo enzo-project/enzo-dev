@@ -5,7 +5,7 @@
       implicit none
 
       integer :: rank, n1, n2, n3, dir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
       external :: method
 
       integer :: n(3)
@@ -40,7 +40,7 @@
 
       implicit none
 
-      complex :: a(*)
+      CMPLX_PREC :: a(*)
       integer :: n(3)
       integer :: dir
       external :: method

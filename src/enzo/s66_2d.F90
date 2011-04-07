@@ -5,9 +5,9 @@
       implicit none
 
       integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2)
+      CMPLX_PREC :: x(n1,n2)
 
-      complex, allocatable :: y(:,:)
+      CMPLX_PREC, allocatable :: y(:,:)
       integer :: n(3)
       integer :: i,j
 

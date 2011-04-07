@@ -5,7 +5,7 @@
       implicit none
 
       integer :: n, dir
-      complex :: a(n)
+      CMPLX_PREC :: a(n)
 
       integer :: i
       integer :: sn(1)

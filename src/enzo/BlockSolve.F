@@ -2290,7 +2290,7 @@ c
 *     ISPEC = 1:  block size
 *
 *     In these examples, separate code is provided for setting NB for
-*     R_PREC and complex.  We assume that NB will take the same value in
+*     R_PREC and CMPLX_PREC.  We assume that NB will take the same value in
 *     single or double precision.
 *
       NB = 1

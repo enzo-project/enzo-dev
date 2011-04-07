@@ -11,12 +11,12 @@
 !     Arguments
 
       integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2,n3)
+      CMPLX_PREC :: x(n1,n2,n3)
       external :: method
 
 !     Locals
 
-      complex, allocatable :: y(:,:,:), z(:,:,:)
+      CMPLX_PREC, allocatable :: y(:,:,:), z(:,:,:)
       integer :: n(3)
       integer :: i,j,k
 
@@ -72,7 +72,7 @@
 
       implicit none
 
-      complex :: a(*)
+      CMPLX_PREC :: a(*)
       integer :: n(3)
       integer :: dir
       external :: method

@@ -4,7 +4,7 @@
 #include "fortran_types.def"
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       integer :: n(3)
       R_PREC :: factor

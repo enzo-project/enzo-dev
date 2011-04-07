@@ -562,7 +562,7 @@ c
          endif
 c     
 c-----------------------------------------------------------------------
-c (C)  Compute complex diffusion coefficient
+c (C)  Compute CMPLX_PREC diffusion coefficient
 c     
 
          if (idiff .eq. 2) then

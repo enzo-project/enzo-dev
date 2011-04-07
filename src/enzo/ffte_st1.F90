@@ -4,11 +4,11 @@
 #include "fortran_types.def"
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       R_PREC :: factor
       R_PREC :: scale
-      complex, allocatable :: work(:)
+      CMPLX_PREC, allocatable :: work(:)
 
       integer :: nwork, jdir
       integer :: m1

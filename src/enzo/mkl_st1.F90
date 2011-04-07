@@ -1,7 +1,7 @@
 #include "error.def"
 
 
-! Complex to complex
+! Complex to CMPLX_PREC
 
 ! isign = 0   initialize coeffts
 ! isign = -1  forward normal
@@ -12,9 +12,9 @@
 ! cfft1d( r, n, isign, wsave )
 ! zfft1d( r, n, isign, wsave )
 
-! r(n)  complex / double complex
+! r(n)  CMPLX_PREC / double CMPLX_PREC
 ! n     integer must be power of 2
-! wsave complex / double complex  array((3*n)/2)
+! wsave CMPLX_PREC / double CMPLX_PREC  array((3*n)/2)
 
 
 #ifdef MKL
@@ -26,7 +26,7 @@
       implicit none
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       integer :: power_of_2
 
@@ -64,7 +64,7 @@
       implicit none
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       integer :: power_of_2
 
@@ -102,7 +102,7 @@
       implicit none
 
       integer :: n1, idir
-      complex :: x(n1)
+      CMPLX_PREC :: x(n1)
 
       write(0,'("MKL stride 1 FFT error")')
       ERROR_MESSAGE

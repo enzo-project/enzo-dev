@@ -5,7 +5,7 @@ c////////////////////////  SUBROUTINE FOURN  \\\\\\\\\\\\\\\\\\\\\\\\\\\
 c
         subroutine fourn(data, nn, ndim, isign)
 c
-c  PERFORM A COMPLEX-COMPLEX N-DIMENSIONAL FFT
+c  PERFORM A CMPLX_PREC-CMPLX_PREC N-DIMENSIONAL FFT
 c
 c   written by: Numerical Recipes
 c   data:
@@ -13,10 +13,10 @@ c   modified1:
 c
 c  PURPOSE:  Replaces DATA by its NDIM-dimensional discrete Fourier transform
 c      if ISIGN is 1.  NN is an integer array of length NDIM, containing
-c      the lengths of each dimension (number of complex values), which
+c      the lengths of each dimension (number of CMPLX_PREC values), which
 c      MUST all be powers of 2.  DATA is a real array of length twice the
 c      product of these lengths, in which the data are stored as in a
-c      multidimensional complex FORTRAN array.  If ISIGN in input as -1,
+c      multidimensional CMPLX_PREC FORTRAN array.  If ISIGN in input as -1,
 c      DATA is replaced by its inverse transform times the product of the
 c      lengths of all dimensions.
 c
@@ -56,7 +56,7 @@ c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
 c
-c     Compute total number of complex values
+c     Compute total number of CMPLX_PREC values
 c
 
 !     write(*,*) 'FOURN:', nn, ndim, isign

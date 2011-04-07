@@ -6,7 +6,7 @@
 #include "fortran_types.def"
 
       integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2)
+      CMPLX_PREC :: x(n1,n2)
 
       integer :: n(3)
       R_PREC :: factor

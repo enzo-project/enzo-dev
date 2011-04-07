@@ -3,7 +3,7 @@
       implicit none
 
       integer n1,n2
-      complex x(n1,n2), y(n2,n1)
+      CMPLX_PREC x(n1,n2), y(n2,n1)
 
       integer i,j
       integer ii,jj
