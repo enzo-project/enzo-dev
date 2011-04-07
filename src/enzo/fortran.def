@@ -7,37 +7,33 @@
 #endif
 
 #ifdef CONFIG_PFLOAT_8
-#define tiny 1.0d-20
-#define huge 1.0d+20
+#define tiny 1.0e-20
+#define huge 1.0e+20
 #define P_PREC real*8
 #endif
 
 #ifdef CONFIG_PFLOAT_16
-#define tiny 1.0d-35
-#define huge 1.0d+35
+#define tiny 1.0e-35
+#define huge 1.0e+35
 #define P_PREC real*8
 #endif
 
 #ifdef CONFIG_BFLOAT_4
 #define R_PREC real*4
 #define CMPLX_PREC complex*8
-      integer, parameter :: RTYPE=4
 #endif
 
 #ifdef CONFIG_BFLOAT_8
 #define R_PREC real*8
 #define CMPLX_PREC complex*16
-      integer, parameter :: RTYPE=8
 #endif
 
 #ifdef SMALL_INTS
 #define INTG_PREC integer*4
-      integer, parameter :: ITYPE=4
 #endif
 
 #ifdef LARGE_INTS
 #define INTG_PREC integer*8
-      integer, parameter :: ITYPE=8
 #endif
 
 #define MAX_COLOR 45

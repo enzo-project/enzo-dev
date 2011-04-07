@@ -1,0 +1,16 @@
+#ifdef CONFIG_BFLOAT_4
+      integer, parameter :: RTYPE=4
+#endif
+
+#ifdef CONFIG_BFLOAT_8
+      integer, parameter :: RTYPE=8
+#endif
+
+#ifdef SMALL_INTS
+      integer, parameter :: ITYPE=4
+#endif
+
+#ifdef LARGE_INTS
+      integer, parameter :: ITYPE=8
+#endif
+
