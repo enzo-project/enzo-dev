@@ -20,7 +20,7 @@
 #include "ReconstructionRoutines.h"
 #include "EOS.h"  
 
-int hlld(float **FluxLine, float **priml, float **primr, int ActiveSize)
+int hlld_mhd(float **FluxLine, float **priml, float **primr, int ActiveSize)
 {
   float Ul[NEQ_MHD], Ur[NEQ_MHD], Fl[NEQ_MHD], Fr[NEQ_MHD], Us[NEQ_MHD], Uss[NEQ_MHD];
   float etot_l,etot_r, eint_l, eint_r, h, dpdrho, dpde, rho_l, rho_r, vx_l, vy_l, vz_l, vx_r, vy_r, vz_r, Bx, By_l, Bz_l, By_r, Bz_r, Phi, v2, B2, Bv_l, Bv_r, p_l, p_r, cs_l, cs_r, pt_l, pt_r;
