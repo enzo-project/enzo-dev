@@ -68,10 +68,10 @@ c
 c     Density
 c     
       do i = i1, i1+1
-         if (drho(i) .gt. 0.5d0*dslice(i)) then
-            drho(i) = 0.5d0*dslice(i)
-            dla(i) = dslice(i) - 0.5d0*drho(i)
-            dra(i) = dslice(i) + 0.5d0*drho(i)
+         if (drho(i) .gt. 0.5_RKIND*dslice(i)) then
+            drho(i) = 0.5_RKIND*dslice(i)
+            dla(i) = dslice(i) - 0.5_RKIND*drho(i)
+            dra(i) = dslice(i) + 0.5_RKIND*drho(i)
             dl0(i) = dla(i)
             dr0(i) = dra(i)
             print*, 'Enforcing positive pressure by limiting ' ,
@@ -82,13 +82,13 @@ c
 c
 c     Velocity1
 c     
-      gamma1i = 1.d0 / (gamma + 1.d0)
+      gamma1i = 1._RKIND / (gamma + 1._RKIND)
       do i = i1, i1+1
-         limit = 2.d0 * gamma1i * dxdt2(i)
+         limit = 2._RKIND * gamma1i * dxdt2(i)
          if (du(i) .gt. limit) then
             du(i) = limit
-            ula(i) = uslice(i) - 0.5d0*du(i)
-            ura(i) = uslice(i) + 0.5d0*du(i)
+            ula(i) = uslice(i) - 0.5_RKIND*du(i)
+            ura(i) = uslice(i) + 0.5_RKIND*du(i)
             ul0(i) = ula(i)
             ur0(i) = ura(i)
             print*, 'Enforcing positive pressure by limiting ' ,
@@ -103,8 +103,8 @@ c
          limit = pslice(i) * gamma1i
          if (du(i) .gt. limit) then
             dp(i) = limit
-            pla(i) = pslice(i) - 0.5d0*dp(i)
-            pra(i) = pslice(i) + 0.5d0*dp(i)
+            pla(i) = pslice(i) - 0.5_RKIND*dp(i)
+            pra(i) = pslice(i) + 0.5_RKIND*dp(i)
             pl0(i) = pla(i)
             pr0(i) = pra(i)
             print*, 'Enforcing positive pressure by limiting ' ,

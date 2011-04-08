@@ -3,6 +3,7 @@
       subroutine s66_1d(x, rank, n1, n2, n3, dir)
 
       implicit none
+#include "fortran_types.def"
 
       INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1)
@@ -40,6 +41,7 @@
       subroutine sf66( a, n, dir )
 
       implicit none
+#include "fortran_types.def"
 
       INTG_PREC :: n, dir
       R_PREC :: a(2*n)

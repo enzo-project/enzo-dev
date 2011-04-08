@@ -51,7 +51,7 @@ c
       R_PREC    tempi, tempr
 c     double precision twopi, theta, wr, wi, wpr, wpi, wtemp
       R_PREC    twopi, theta, wr, wi, wpr, wpi, wtemp
-      parameter (twopi=6.2831853071796d0)
+      parameter (twopi=6.2831853071796_RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

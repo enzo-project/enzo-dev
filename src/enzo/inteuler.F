@@ -124,7 +124,7 @@ c
 c  parameters
 c
       R_PREC ft
-      parameter(ft = 4.d0/3.d0)
+      parameter(ft = 4._RKIND/3._RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -139,22 +139,22 @@ c     Compute coefficients used in interpolation formulae (from eq. 1.6)
 c
       do i=i1-2,i2+2
          qa    = dxi(i)/(dxi(i-1) + dxi(i) + dxi(i+1))
-         c1(i) = qa*(2.d0*dxi(i-1) + dxi(i))/(dxi(i+1) + dxi(i))
-         c2(i) = qa*(2.d0*dxi(i+1) + dxi(i))/(dxi(i-1) + dxi(i))
-         dxdt2(i) = 0.5d0*dt/dxi(i)
+         c1(i) = qa*(2._RKIND*dxi(i-1) + dxi(i))/(dxi(i+1) + dxi(i))
+         c2(i) = qa*(2._RKIND*dxi(i+1) + dxi(i))/(dxi(i-1) + dxi(i))
+         dxdt2(i) = 0.5_RKIND*dt/dxi(i)
       enddo
 c
       do i=i1-1,i2+2
          qa    = dxi(i-2) + dxi(i-1) + dxi(i) + dxi(i+1)
          qb    = dxi(i-1)/(dxi(i-1) + dxi(i))
-         qc    = (dxi(i-2) + dxi(i-1))/(2.d0*dxi(i-1) + dxi(i  ))
-         qd    = (dxi(i+1) + dxi(i  ))/(2.d0*dxi(i  ) + dxi(i-1))
-         qb    = qb + 2.d0*dxi(i)*qb/qa*(qc-qd)
-         c3(i) = 1.d0 - qb
+         qc    = (dxi(i-2) + dxi(i-1))/(2._RKIND*dxi(i-1) + dxi(i  ))
+         qd    = (dxi(i+1) + dxi(i  ))/(2._RKIND*dxi(i  ) + dxi(i-1))
+         qb    = qb + 2._RKIND*dxi(i)*qb/qa*(qc-qd)
+         c3(i) = 1._RKIND - qb
          c4(i) = qb
          c5(i) =  dxi(i  )/qa*qd
          c6(i) = -dxi(i-1)/qa*qc
-         dx2i(i) = 0.5d0/dxi(i)
+         dx2i(i) = 0.5_RKIND/dxi(i)
       enddo
 c
 c    Loop over sweep lines (in this slice)
@@ -169,25 +169,25 @@ c
             d2d(i) = (dslice(i+1,j) - dslice(i,j))/(dxi(i+1) + dxi(i))
             d2d(i) = (d2d(i) - (dslice(i,j)-dslice(i-1,j))
      &               /(dxi(i)+dxi(i-1)))/qa
-            dxb(i) = 0.5d0*(dxi(i) + dxi(i+1))
+            dxb(i) = 0.5_RKIND*(dxi(i) + dxi(i+1))
          enddo
          do i=i1-1,i2+1
             qc = abs(dslice(i+1,j) - dslice(i-1,j))
-     &           - 0.01d0*min(abs(dslice(i+1,j)),abs(dslice(i-1,j)))
+     &           - 0.01_RKIND*min(abs(dslice(i+1,j)),abs(dslice(i-1,j)))
             s1 = (d2d(i-1) - d2d(i+1))*(dxb(i-1)**3 + dxb(i)**3)
      &           /((dxb(i) + dxb(i-1))*
      &           (dslice(i+1,j) - dslice(i-1,j) + tiny))
-            if (d2d(i+1)*d2d(i-1) .gt. 0.0) s1 = 0.d0
-            if (qc .le. 0.0) s1 = 0.d0
-            s2 = max(0.d0, min(20.d0*(s1-0.05d0), 1.d0))
+            if (d2d(i+1)*d2d(i-1) .gt. 0.0) s1 = 0._RKIND
+            if (qc .le. 0.0) s1 = 0._RKIND
+            s2 = max(0._RKIND, min(20._RKIND*(s1-0.05_RKIND), 1._RKIND))
             qa = abs(dslice(i+1,j) - dslice(i-1,j))/
      &           min(dslice(i+1,j),  dslice(i-1,j))
             qb = abs(pslice(i+1,j) - pslice(i-1,j))/
      &           min(pslice(i+1,j),  pslice(i-1,j))
-            if (gamma*0.1d0*qa .ge. qb) then
+            if (gamma*0.1_RKIND*qa .ge. qb) then
                steepen(i) = s2
             else
-               steepen(i) = 0.d0
+               steepen(i) = 0._RKIND
             endif
          enddo
       endif
@@ -197,8 +197,8 @@ c
       do i=1,idim
          cs(i) = sqrt(gamma*pslice(i,j)/dslice(i,j))
          if (ipresfree .eq. 1) cs(i) = tiny
-         char1(i) = max(0.d0, dt*(uslice(i,j)+cs(i)))*dx2i(i)
-         char2(i) = max(0.d0,-dt*(uslice(i,j)-cs(i)))*dx2i(i)
+         char1(i) = max(0._RKIND, dt*(uslice(i,j)+cs(i)))*dx2i(i)
+         char2(i) = max(0._RKIND,-dt*(uslice(i,j)-cs(i)))*dx2i(i)
       enddo
 c
       do i=i1-2,i2+2
@@ -282,7 +282,7 @@ c
 c
 #ifdef UNUSED
       do i=i1,i2+1
-         if (dla(i)/dslice(i-1,j) .gt. 4.d0) then
+         if (dla(i)/dslice(i-1,j) .gt. 4._RKIND) then
             write(6,*) 'inteuler left:',i,j
             write(6,*) dla(i-1),dla(i),dla(i+1)
             write(6,*) dslice(i-1,j),dslice(i,j),dslice(i+1,j)
@@ -301,33 +301,33 @@ c     First, compute averge over characteristic domain of dependance (3.5)
 c
 c
       do i=i1,i2+1
-        plm(i)= pr(i-1)-cm(i-1)*(dp(i-1)-(1.d0-ft*cm(i-1))*p6(i-1))
-        prm(i)= pl(i  )-cm(i  )*(dp(i  )+(1.d0+ft*cm(i  ))*p6(i  ))
-        plp(i)= pr(i-1)-cp(i-1)*(dp(i-1)-(1.d0-ft*cp(i-1))*p6(i-1))
-        prp(i)= pl(i  )-cp(i  )*(dp(i  )+(1.d0+ft*cp(i  ))*p6(i  ))
+        plm(i)= pr(i-1)-cm(i-1)*(dp(i-1)-(1._RKIND-ft*cm(i-1))*p6(i-1))
+        prm(i)= pl(i  )-cm(i  )*(dp(i  )+(1._RKIND+ft*cm(i  ))*p6(i  ))
+        plp(i)= pr(i-1)-cp(i-1)*(dp(i-1)-(1._RKIND-ft*cp(i-1))*p6(i-1))
+        prp(i)= pl(i  )-cp(i  )*(dp(i  )+(1._RKIND+ft*cp(i  ))*p6(i  ))
       enddo
 c
       do i=i1,i2+1
-        ulm(i)= ur(i-1)-cm(i-1)*(du(i-1)-(1.d0-ft*cm(i-1))*u6(i-1))
-        urm(i)= ul(i  )-cm(i  )*(du(i  )+(1.d0+ft*cm(i  ))*u6(i  ))
-        ulp(i)= ur(i-1)-cp(i-1)*(du(i-1)-(1.d0-ft*cp(i-1))*u6(i-1))
-        urp(i)= ul(i  )-cp(i  )*(du(i  )+(1.d0+ft*cp(i  ))*u6(i  ))
+        ulm(i)= ur(i-1)-cm(i-1)*(du(i-1)-(1._RKIND-ft*cm(i-1))*u6(i-1))
+        urm(i)= ul(i  )-cm(i  )*(du(i  )+(1._RKIND+ft*cm(i  ))*u6(i  ))
+        ulp(i)= ur(i-1)-cp(i-1)*(du(i-1)-(1._RKIND-ft*cp(i-1))*u6(i-1))
+        urp(i)= ul(i  )-cp(i  )*(du(i  )+(1._RKIND+ft*cp(i  ))*u6(i  ))
       enddo
 c
 c     Compute correction terms (3.7)
 c
       do i = i1, i2+1
-         cla(i) = sqrt(max(gamma*pla(i)*dla(i), 0.d0))
-         cra(i) = sqrt(max(gamma*pra(i)*dra(i), 0.d0))
+         cla(i) = sqrt(max(gamma*pla(i)*dla(i), 0._RKIND))
+         cra(i) = sqrt(max(gamma*pra(i)*dra(i), 0._RKIND))
       enddo
 c
 c     a) left side
 c
       do i = i1, i2+1
-         f1 = 1.d0/cla(i)
+         f1 = 1._RKIND/cla(i)
          betalp(i) = (ula(i)-ulp(i)) + (pla(i)-plp(i))*f1
          betalm(i) = (ula(i)-ulm(i)) - (pla(i)-plm(i))*f1
-         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1.d0/dla(i) - 1.d0/dl0(i)
+         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1._RKIND/dla(i) - 1._RKIND/dl0(i)
       enddo
 c
 c     Add gravity component
@@ -336,31 +336,31 @@ c
         do i = i1, i2+1
 c          if (cla(i) .gt. 0.3*ula(i)) then
 c          if (gamma*pla(i)/dla(i) .gt. eta2*ula(i)**2) then
-           betalp(i) = betalp(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
-           betalm(i) = betalm(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
+           betalp(i) = betalp(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
+           betalm(i) = betalm(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
 c          endif
         enddo
       endif
 c
       do i = i1, i2+1
-         f1 = 0.5d0/cla(i)
+         f1 = 0.5_RKIND/cla(i)
          betalp(i) = -betalp(i)*f1
          betalm(i) = +betalm(i)*f1
       enddo
 c
       do i = i1, i2+1
-         if (cp(i-1) .le. 0) betalp(i) = 0.d0
-         if (cm(i-1) .le. 0) betalm(i) = 0.d0
-         if (c0(i-1) .le. 0) betal0(i) = 0.d0
+         if (cp(i-1) .le. 0) betalp(i) = 0._RKIND
+         if (cm(i-1) .le. 0) betalm(i) = 0._RKIND
+         if (c0(i-1) .le. 0) betal0(i) = 0._RKIND
       enddo
 c
 c     b) right side
 c
       do i = i1, i2+1
-         f1 = 1.d0/cra(i)
+         f1 = 1._RKIND/cra(i)
          betarp(i) = (ura(i)-urp(i)) + (pra(i)-prp(i))*f1
          betarm(i) = (ura(i)-urm(i)) - (pra(i)-prm(i))*f1
-         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1.d0/dra(i) - 1.d0/dr0(i)
+         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1._RKIND/dra(i) - 1._RKIND/dr0(i)
       enddo
 c
 c     Add gravity component
@@ -369,22 +369,22 @@ c
         do i = i1, i2+1
 c          if (cra(i) .gt. 0.3*ura(i)) then
 c           if (gamma*pra(i)/dra(i) .gt. eta2*ura(i)**2) then
-           betarp(i) = betarp(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
-           betarm(i) = betarm(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
+           betarp(i) = betarp(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
+           betarm(i) = betarm(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
 c          endif
         enddo
       endif
 c
       do i = i1, i2+1
-         f1 = 0.5d0/cra(i)
+         f1 = 0.5_RKIND/cra(i)
          betarp(i) = -betarp(i)*f1
          betarm(i) = +betarm(i)*f1
       enddo
 c
       do i = i1, i2+1
-         if (cp(i) .ge. 0) betarp(i) = 0.d0
-         if (cm(i) .ge. 0) betarm(i) = 0.d0
-         if (c0(i) .ge. 0) betar0(i) = 0.d0
+         if (cp(i) .ge. 0) betarp(i) = 0._RKIND
+         if (cm(i) .ge. 0) betarm(i) = 0._RKIND
+         if (c0(i) .ge. 0) betar0(i) = 0._RKIND
       enddo
 c
 c     Finally, combine to create corrected left/right states (eq. 3.6)
@@ -396,8 +396,8 @@ c
          uls(i,j) = ula(i) + (betalp(i)-betalm(i))*cla(i)
          urs(i,j) = ura(i) + (betarp(i)-betarm(i))*cra(i)
 c
-         dls(i,j) = 1.d0/(1.d0/dla(i) - (betal0(i)+betalp(i)+betalm(i)))
-         drs(i,j) = 1.d0/(1.d0/dra(i) - (betar0(i)+betarp(i)+betarm(i)))
+         dls(i,j) = 1._RKIND/(1._RKIND/dla(i) - (betal0(i)+betalp(i)+betalm(i)))
+         drs(i,j) = 1._RKIND/(1._RKIND/dra(i) - (betar0(i)+betarp(i)+betarm(i)))
       enddo
 c
 c     Take the appropriate state from the advected variables
@@ -447,15 +447,15 @@ c
       do i = i1,i2+1
          if (uslice(i,j) .gt. 0.0) then
             c7(i) = dt*dx2i(i) * cs(i)
-            c8(i) = 0.5d0*ft*(dt*dx2i(i))**2 * 
-     $           (cs(i)**2 + 2.d0*uslice(i,j)*cs(i))
+            c8(i) = 0.5_RKIND*ft*(dt*dx2i(i))**2 * 
+     $           (cs(i)**2 + 2._RKIND*uslice(i,j)*cs(i))
             vls(i,j) = vls(i,j) + c7(i)*(dv(i)-v6(i)) + c8(i)*v6(i)
             wls(i,j) = wls(i,j) + c7(i)*(dw(i)-w6(i)) + c8(i)*w6(i)
             gels(i,j) = gels(i,j) + c7(i)*(dge(i)-ge6(i)) + c8(i)*ge6(i)
          else if (uslice(i,j) .lt. 0.0) then
             c7(i) = -dt*dx2i(i) * cs(i)
-            c8(i) = 0.5d0*ft*(dt*dx2i(i))**2 *
-     $           (cs(i)**2 - 2.d0*uslice(i,j)*cs(i))
+            c8(i) = 0.5_RKIND*ft*(dt*dx2i(i))**2 *
+     $           (cs(i)**2 - 2._RKIND*uslice(i,j)*cs(i))
             vrs(i,j) = vrs(i,j) + c7(i)*(dv(i)+v6(i)) + c8(i)*v6(i)
             wrs(i,j) = wrs(i,j) + c7(i)*(dw(i)+w6(i)) + c8(i)*w6(i)
             gers(i,j) = gers(i,j) + c7(i)*(dge(i)+ge6(i)) + c8(i)*ge6(i)
@@ -487,7 +487,7 @@ c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
             if (gamma*pla(i)/dla(i) .lt. eta2*ula(i)**2 .or.
      &          max(abs(cm(i-1)),abs(c0(i-1)),abs(cp(i-1))) .lt. 
      &          1.0e-3
-     &          .or. dls(i,j)/dla(i) .gt. 5.d0) then
+     &          .or. dls(i,j)/dla(i) .gt. 5._RKIND) then
                pls(i,j) = pla(i)
                uls(i,j) = ula(i)
                dls(i,j) = dla(i)
@@ -495,7 +495,7 @@ c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
 c            if (gamma*pra(i)/dra(i) .lt. eta1*ura(i)**2) then
             if (gamma*pra(i)/dra(i) .lt. eta2*ura(i)**2 .or.
      &          max(abs(cm(i)),abs(c0(i)),abs(cp(i))) .lt. 1.0d-3
-     &          .or. drs(i,j)/dra(i) .gt. 5.d0) then
+     &          .or. drs(i,j)/dra(i) .gt. 5._RKIND) then
                prs(i,j) = pra(i)
                urs(i,j) = ura(i)
                drs(i,j) = dra(i)

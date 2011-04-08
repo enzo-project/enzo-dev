@@ -74,7 +74,7 @@ c
 c     Parameters
 c
       double precision everg, e24, e26, temp
-      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6_RKIND, e26 = 24.6_RKIND)
 c
 c     locals
 c
@@ -231,12 +231,12 @@ c
          do i = is+1, ie+1
          if (itmask(i).eqv..true.) then
             x = max(HII(i)/(HI(i)+HII(i)), 1.0d-4)
-            factor = 0.3908d0*(1.d0 - x**0.4092d0)**1.7592d0
+            factor = 0.3908_RKIND*(1._RKIND - x**0.4092_RKIND)**1.7592_RKIND
             k24shield(i) = k24shield(i) + 
-     &         factor*(piHI + 0.08d0*piHeI)/(e24*everg) *coolunit*tbase1
-            factor = 0.0554d0*(1.d0 - x**0.4614d0)**1.6660d0
+     &         factor*(piHI + 0.08_RKIND*piHeI)/(e24*everg) *coolunit*tbase1
+            factor = 0.0554_RKIND*(1._RKIND - x**0.4614_RKIND)**1.666_RKIND
             k26shield(i) = k26shield(i) + 
-     &         factor*(piHI/0.08d0 + piHeI)/(e26*everg) *coolunit*tbase1
+     &         factor*(piHI/0.08_RKIND + piHeI)/(e26*everg) *coolunit*tbase1
          endif
          enddo
       endif
@@ -256,13 +256,13 @@ c
                if (itmask(i).eqv..true.) then
                   nh = min(HI(i)*dom, 1.0d9)
                   k13(i) = tiny
-                  if (tgas1d(i) .ge. 500.d0 .and.
+                  if (tgas1d(i) .ge. 500._RKIND .and.
      &                tgas1d(i) .lt. 1.0d6) then
                      k13(i) = k13dd(i,1)-k13dd(i,2)/
-     &                          (1.d0+(nh/k13dd(i,5))**k13dd(i,7))
+     &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                      + k13dd(i,3)-k13dd(i,4)/
-     &                          (1.d0+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10.d0**k13(i), tiny)
+     &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
+                     k13(i) = max(10._RKIND**k13(i), tiny)
                   endif
                endif
                enddo

@@ -95,8 +95,8 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
 !!$  write(*,*) 'Entering gFLDProblem::Opacity routine'
 
   ! initialize outputs to zero, flag to success
-  kappaP = 0.d0
-  kappaE = 0.d0
+  kappaP = 0._RKIND
+  kappaE = 0._RKIND
   ier = 1
 
   ! set shortcut values
@@ -106,8 +106,8 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
   ! coefficient for density to convert from comoving to proper
   !    divide by mp since need NUMBER density
   HIconst   = IsEsHI/IsE*NiUnits
-  HeIconst  = IsEsHeI/IsE*NiUnits/4.d0
-  HeIIconst = IsEsHeII/IsE*NiUnits/4.d0
+  HeIconst  = IsEsHeI/IsE*NiUnits/4._RKIND
+  HeIIconst = IsEsHeII/IsE*NiUnits/4._RKIND
 
   ! compute opacity over domain depending on number of chemical species 
 
@@ -116,7 +116,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
      do k=1-NGzl,Nz+NGzr,1
         do j=1-NGyl,Ny+NGyr,1
            do i=1-NGxl,Nx+NGxr,1
-              kappaE(i,j,k) = 0.d0
+              kappaE(i,j,k) = 0._RKIND
            enddo
         enddo
      enddo
@@ -126,7 +126,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
      do k=1-NGzl,Nz+NGzr,1
         do j=1-NGyl,Ny+NGyr,1
            do i=1-NGxl,Nx+NGxr,1
-              kappaE(i,j,k) = 0.d0
+              kappaE(i,j,k) = 0._RKIND
            enddo
         enddo
      enddo

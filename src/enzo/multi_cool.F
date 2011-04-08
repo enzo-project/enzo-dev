@@ -200,7 +200,7 @@
 !       Set time elapsed to zero for each cell
 
         do i = is+1, ie+1
-           ttot(i) = 0.d0
+           ttot(i) = 0._RKIND
         enddo
 
 !       Loop over cooling subcycles
@@ -249,7 +249,7 @@
 !         Then, use each cell~s individual timestep tp update it~s energy
 !         Find minimum elapsed timestep (ttot)
 
-          dt2 = dt/2.d0
+          dt2 = dt/2._RKIND
           ttmin = huge
 	  write(0,*) 'is=',is, ie
 	  write(81,*) 'is=',is, ie
@@ -263,26 +263,26 @@
 
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 
-             energy = max(p2d(i)/(gamma-1.d0), tiny)
+             energy = max(p2d(i)/(gamma-1._RKIND), tiny)
 
 c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1.0), 
 c    &                    tiny)
 c            if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
-c    &              0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
-c            energy = p(i,j,k)/(gamma-1.d0)
+c    &              0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
+c            energy = p(i,j,k)/(gamma-1._RKIND)
 
 
 !            Compute timestep for 10% change
 
 c            if (iter .gt. 100) then
-c               dtit(i) = min(REAL(abs(0.01d0*energy/edot(i)),RKIND), 
+c               dtit(i) = min(REAL(abs(0.01_RKIND*energy/edot(i)),RKIND), 
 c    &                        dt-ttot(i), dt2)
 c            else
-c               dtit(i) = min(REAL(abs(0.1d0*energy/edot(i)),RKIND), 
+c               dtit(i) = min(REAL(abs(0.1_RKIND*energy/edot(i)),RKIND), 
 c    &                        dt-ttot(i), dt2)
 c            endif
 
-             dtit(i) = min(REAL(abs(0.1d0*energy/edot(i)),RKIND),
+             dtit(i) = min(REAL(abs(0.1_RKIND*energy/edot(i)),RKIND),
      &                     dt-ttot(i), dt2)
 
              if ( dt-ttot(i) .le. tolerance*dt ) then
@@ -310,7 +310,7 @@ c            endif
      &           d(i,j,k) .ne. d(i+ih2co-1,j,k) .or.
      &           e(i,j,k) .ne. e(i+ih2co-1,j,k) .or.
      &           dtit(i) .ne. dtit(i+ih2co-1) .or. 
-     &           d(i,j,k) .eq. 0.d0) 
+     &           d(i,j,k) .eq. 0._RKIND) 
      &           then 
                 write(6,*) 'multi_cool_a:',
      &          edot(i),d(i,j,k),dtit(i),i,j,k,iter,p2d(i),

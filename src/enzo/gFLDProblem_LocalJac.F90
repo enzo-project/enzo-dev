@@ -165,7 +165,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
      ier = 0
      return
   endif
-  if ((HFrac < 0.d0) .or. (HFrac > 1.d0)) then
+  if ((HFrac < 0._RKIND) .or. (HFrac > 1._RKIND)) then
      write(*,*) 'Chemistry ERROR: illegal value, HFrac = ',HFrac, &
           ',  value must be in the inteval [0,1].  Returning!'
      ier = 0
@@ -174,13 +174,13 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
 
   ! set shortcut values
   aval = a*aunits
-  dxi2 = 0.5d0*a/(dx*LenUnits)   ! convert to proper units during transition
-  dyi2 = 0.5d0*a/(dy*LenUnits)
-  dzi2 = 0.5d0*a/(dz*LenUnits)
+  dxi2 = 0.5_RKIND*a/(dx*LenUnits)   ! convert to proper units during transition
+  dyi2 = 0.5_RKIND*a/(dy*LenUnits)
+  dzi2 = 0.5_RKIND*a/(dz*LenUnits)
 
   !  First compute correction-based adjustments alone
   !  (as these involve derivatives, use loop for appropriate dimension)
-  ecjac_ec = 0.d0
+  ecjac_ec = 0._RKIND
 !!$  if (Ny == 1) then
 !!$     do k=1,Nz,1
 !!$        do j=1,Ny,1
@@ -194,7 +194,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
 !!$                   * vx(i,j,k) / rhoa(i,j,k) * VelUnits
 !!$
 !!$              ! put it together
-!!$              ecjac_ec(i,j,k) = ecUnits/aval*(DivV - (gamma-1.d0)*GradRhoDotV)
+!!$              ecjac_ec(i,j,k) = ecUnits/aval*(DivV - (gamma-1._RKIND)*GradRhoDotV)
 !!$
 !!$           enddo
 !!$        enddo
@@ -215,7 +215,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
 !!$                   / rhoa(i,j,k)*VelUnits
 !!$
 !!$              ! put it together
-!!$              ecjac_ec(i,j,k) = ecUnits/aval*(DivV - (gamma-1.d0)*GradRhoDotV)
+!!$              ecjac_ec(i,j,k) = ecUnits/aval*(DivV - (gamma-1._RKIND)*GradRhoDotV)
 !!$
 !!$           enddo
 !!$        enddo
@@ -238,7 +238,7 @@ subroutine gFLDProblem_LocalJac(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,  &
 !!$                          / rhoa(i,j,k) * VelUnits
 !!$
 !!$              ! put it together
-!!$              ecjac_ec(i,j,k) = ecUnits/aval*(DivV - (gamma-1.d0)*GradRhoDotV)
+!!$              ecjac_ec(i,j,k) = ecUnits/aval*(DivV - (gamma-1._RKIND)*GradRhoDotV)
 !!$
 !!$           enddo
 !!$        enddo
@@ -474,44 +474,44 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   ier = 1
 
   ! initialize outputs to have all zero values
-  Erjac_Er = 0.d0
-  Erjac_ec = 0.d0
-  ecjac_Er = 0.d0
+  Erjac_Er = 0._RKIND
+  Erjac_ec = 0._RKIND
+  ecjac_Er = 0._RKIND
   if (Nchem == 1) then
-     Erjac_HI = 0.d0
+     Erjac_HI = 0._RKIND
 
-     ecjac_HI = 0.d0
+     ecjac_HI = 0._RKIND
 
-     HIjac_Er = 0.d0
-     HIjac_ec = 0.d0
-     HIjac_HI = 0.d0
+     HIjac_Er = 0._RKIND
+     HIjac_ec = 0._RKIND
+     HIjac_HI = 0._RKIND
   endif
   if (Nchem == 3) then
-     Erjac_HI   = 0.d0
-     Erjac_HeI  = 0.d0
-     Erjac_HeII = 0.d0
+     Erjac_HI   = 0._RKIND
+     Erjac_HeI  = 0._RKIND
+     Erjac_HeII = 0._RKIND
 
-     ecjac_HI   = 0.d0
-     ecjac_HeI  = 0.d0
-     ecjac_HeII = 0.d0
+     ecjac_HI   = 0._RKIND
+     ecjac_HeI  = 0._RKIND
+     ecjac_HeII = 0._RKIND
 
-     HIjac_Er   = 0.d0
-     HIjac_ec   = 0.d0
-     HIjac_HI   = 0.d0
-     HIjac_HeI  = 0.d0
-     HIjac_HeII = 0.d0
+     HIjac_Er   = 0._RKIND
+     HIjac_ec   = 0._RKIND
+     HIjac_HI   = 0._RKIND
+     HIjac_HeI  = 0._RKIND
+     HIjac_HeII = 0._RKIND
 
-     HeIjac_Er   = 0.d0
-     HeIjac_ec   = 0.d0
-     HeIjac_HI   = 0.d0
-     HeIjac_HeI  = 0.d0
-     HeIjac_HeII = 0.d0
+     HeIjac_Er   = 0._RKIND
+     HeIjac_ec   = 0._RKIND
+     HeIjac_HI   = 0._RKIND
+     HeIjac_HeI  = 0._RKIND
+     HeIjac_HeII = 0._RKIND
 
-     HeIIjac_Er   = 0.d0
-     HeIIjac_ec   = 0.d0
-     HeIIjac_HI   = 0.d0
-     HeIIjac_HeI  = 0.d0
-     HeIIjac_HeII = 0.d0
+     HeIIjac_Er   = 0._RKIND
+     HeIIjac_ec   = 0._RKIND
+     HeIIjac_HI   = 0._RKIND
+     HeIIjac_HeI  = 0._RKIND
+     HeIIjac_HeII = 0._RKIND
   endif
 
 
@@ -523,31 +523,31 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
   c  = c_light                 ! speed of light    [cm/s]
   hp = hplanck                 ! Planck's constant [ergs*s]
   kb = kboltz                  ! boltzmann constant [erg/K]
-  StBz  = 5.6704d-5            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  StBz  = 5.6704e-5_RKIND      ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   min_temp = 1.d-1             ! minimum temperature [K]
   nu0_HI = 13.6*ev2erg/hp      ! ionization frequency of HI
   nu0_HeI = 24.6*ev2erg/hp     ! ionization frequency of HeI
   nu0_HeII = 54.4*ev2erg/hp    ! ionization frequency of HeII
-  zr = 1.d0/aval - 1.d0        ! cosmological redshift
-  if (aval .ne. 1.d0) then        ! Compton cooling coefficients
-     Comp1 = CompA*(1.d0 + zr)**4
-     Comp2 = 2.73d0*(1.d0 + zr)
+  zr = 1._RKIND/aval - 1._RKIND        ! cosmological redshift
+  if (aval .ne. 1._RKIND) then        ! Compton cooling coefficients
+     Comp1 = CompA*(1._RKIND + zr)**4
+     Comp2 = 2.73_RKIND*(1._RKIND + zr)
   else
-     Comp1 = 0.d0
-     Comp2 = 0.d0
+     Comp1 = 0._RKIND
+     Comp2 = 0._RKIND
   endif
   if (DualEnergy == 1) then
-     KEconst = 0.d0
+     KEconst = 0._RKIND
   else
-     KEconst = 0.5d0
+     KEconst = 0.5_RKIND
   endif
-  grey = 1.d0
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   !   lookup table constants
   lTempS = log(TempStart)
   lTempE = log(TempEnd)
-  dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
+  dlTemp = (lTempE - lTempS)/(1._RKIND*NTempBins - 1._RKIND)
 
   ! set shortcut values
   HIconst   = c*(IsEsHI - nu0_HI*IsEsHInu)/IsE
@@ -572,7 +572,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1.d0*(nH - nHI), 0.d0)
+              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
               ne  = nHII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
@@ -585,12 +585,12 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               mol_weight = rho/mp/(nHI + nHII + ne)
               dmu_dHI = -rho/mp*(dnHI_dHI + dnHII_dHI + dne_dHI) &
                    / (nHI + nHII + ne)**2
-              T = (gamma-1.d0)*mol_weight*mp*eint/kb
-              T = max(1.d0*T,1.d0*min_temp)
-              dT_dec = ecUnits*(gamma-1.d0)*mol_weight*mp/kb
-              dT_dHI = (gamma-1.d0)*mp*eint/kb*dmu_dHI
-              lamT = 3.15614d5/T
-              dlamT_dT = -3.15614d5/T/T
+              T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
+              T = max(1._RKIND*T,1._RKIND*min_temp)
+              dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
+              dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
+              lamT = 3.15614e5_RKIND/T
+              dlamT_dT = -3.15614e5_RKIND/T/T
 
               ! look up rates, derivatives
               lTemp = min(max(log(T), lTempS), lTempE)
@@ -599,7 +599,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
               Tfac = (lTemp - Tl)/(Tr - Tl)
-              Tfac2 = 1.d0/(Tr - Tl)/T
+              Tfac2 = 1._RKIND/(Tr - Tl)/T
               k1 = k1Tb(Tidx) + (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac
               dk1_dT = (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac2
               ceHI = ceHITb(Tidx) + (ceHITb(Tidxp) - ceHITb(Tidx))*Tfac
@@ -618,13 +618,13 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               ! compute case B Hydrogen recombination coefficient 
               ! [Hui & Gnedin, 1997: RI^B_{HII}]
               !   (still need this because table holds case A coefficient!)
-              k2 = 2.753d-14*lamT**(1.5d0) *                         &
-                   (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
-              dk2_dT = 2.753d-14*dlamT_dT*sqrt(lamT)*(               &
-                   1.5d0*(1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0) &
-                   - lamT*(2.242d0*0.407d0/2.74d0)*                  &
-                   (lamT/2.74d0)**(-0.593d0)*                        &
-                   (1.d0+(lamT/2.74d0)**(0.407d0))**(-3.242d0))
+              k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                         &
+                   (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
+              dk2_dT = 2.753e-14_RKIND*dlamT_dT*sqrt(lamT)*(               &
+                   1.5_RKIND*(1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND) &
+                   - lamT*(2.242_RKIND*0.407_RKIND/2.74_RKIND)*                  &
+                   (lamT/2.74_RKIND)**(-0.593_RKIND)*                        &
+                   (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-3.242_RKIND))
 
               ! compute Hydrogen photoionization rate & derivs
               G_HI = c*Er/hp*IsEsHInu/IsE
@@ -659,16 +659,16 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
               ! compute emissivity 
               ! [WE HAVE NO FORMULA FOR ETA IN CASE-B CASE!!]
-              eta      = 0.d0
-              deta_dec = 0.d0
-              deta_dHI = 0.d0
+              eta      = 0._RKIND
+              deta_dec = 0._RKIND
+              deta_dHI = 0._RKIND
 
               ! put it all together
-              !   rhs_Er = (src_Er + 4.d0*pi*eta 
+              !   rhs_Er = (src_Er + 4._RKIND*pi*eta 
               !            - (afac*grey + c*kappaE)*Er)/ErUnits
               Erjac_Er(i,j,k) = -afac*grey - c*kappaE
-              Erjac_ec(i,j,k) =  4.d0*pi*deta_dec/ErUnits
-              Erjac_HI(i,j,k) = (4.d0*pi*deta_dHI - c*Er*dkappaE_dHI)/ErUnits
+              Erjac_ec(i,j,k) =  4._RKIND*pi*deta_dec/ErUnits
+              Erjac_HI(i,j,k) = (4._RKIND*pi*deta_dHI - c*Er*dkappaE_dHI)/ErUnits
 
               !   rhs_HI = (src_HI + k2*ne*nHII - nHI*(k1*ne + G_HI))/NiUnits
               HIjac_Er(i,j,k) = -nHI*dGHI_dEr/NiUnits
@@ -678,7 +678,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
                    - nHI*(dk1_dT*dT_dHI*ne + k1*dne_dHI))/NiUnits
 
               !   rhs_ec = (src_ec + G - Lambda - 2*afac*ec)/ecUnits
-              ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2.d0*afac*ecUnits &
+              ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2._RKIND*afac*ecUnits &
                    - dLambda_dec)/ecUnits
               ecjac_Er(i,j,k) = dG_dEr/ecUnits
               ecjac_HI(i,j,k) = (dG_dHI - dLambda_dHI)/ecUnits
@@ -701,40 +701,40 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1.d0*(nH - nHI), 0.d0)
-              nHe    = (1.d0-HFrac)*rho/4.d0/mp
-              nHeI   = n_HeIa(i,j,k)*NiUnits/4.d0
-              nHeII  = n_HeIIa(i,j,k)*NiUnits/4.d0
-              nHeIII = max(1.d0*(nHe - nHeI - nHeII), 0.d0)
-              ne     = nHII + 0.25d0*nHeII + 0.5d0*nHeIII
+              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
+              nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
+              nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
+              nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
+              ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
-              dnHeI_dHeI = NiUnits/4.d0
-              dnHeII_dHeII = NiUnits/4.d0
+              dnHeI_dHeI = NiUnits/4._RKIND
+              dnHeII_dHeII = NiUnits/4._RKIND
               dnHeIII_dHeI = -dnHeI_dHeI
               dnHeIII_dHeII = -dnHeII_dHeII
               dne_dHI = dnHII_dHI
-              dne_dHeI = 0.5d0*dnHeIII_dHeI
-              dne_dHeII = 0.25d0*dnHeII_dHeII + 0.5d0*dnHeIII_dHeII
+              dne_dHeI = 0.5_RKIND*dnHeIII_dHeI
+              dne_dHeII = 0.25_RKIND*dnHeII_dHeII + 0.5_RKIND*dnHeIII_dHeII
 
               ! compute temperature and shortcuts
               eint = eca(i,j,k)*ecUnits + VelUnits*VelUnits*(eha(i,j,k)  &
                    - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
-              mol_weight = rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)
-              dmu_dHI = -rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
+              mol_weight = rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)
+              dmu_dHI = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
                    * (dnHI_dHI+dnHII_dHI+dne_dHI)
-              dmu_dHeI = -rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
-                   * (0.25d0*(dnHeI_dHeI+dnHeIII_dHeI) + dne_dHeI)
-              dmu_dHeII = -rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
-                   * (0.25d0*(dnHeII_dHeII+dnHeIII_dHeII) + dne_dHeII)
-              T = (gamma-1.d0)*mol_weight*mp*eint/kb
-              T = max(1.d0*T,1.d0*min_temp)
-              dT_dec = ecUnits*(gamma-1.d0)*mol_weight*mp/kb
-              dT_dHI = (gamma-1.d0)*mp*eint/kb*dmu_dHI
-              dT_dHeI = (gamma-1.d0)*mp*eint/kb*dmu_dHeI
-              dT_dHeII = (gamma-1.d0)*mp*eint/kb*dmu_dHeII
-              lamT = 3.15614d5/T
-              dlamT_dT = -3.15614d5/T/T
+              dmu_dHeI = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
+                   * (0.25_RKIND*(dnHeI_dHeI+dnHeIII_dHeI) + dne_dHeI)
+              dmu_dHeII = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
+                   * (0.25_RKIND*(dnHeII_dHeII+dnHeIII_dHeII) + dne_dHeII)
+              T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
+              T = max(1._RKIND*T,1._RKIND*min_temp)
+              dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
+              dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
+              dT_dHeI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHeI
+              dT_dHeII = (gamma-1._RKIND)*mp*eint/kb*dmu_dHeII
+              lamT = 3.15614e5_RKIND/T
+              dlamT_dT = -3.15614e5_RKIND/T/T
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
@@ -743,7 +743,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
               Tfac = (lTemp - Tl)/(Tr - Tl)
-              Tfac2 = 1.d0/(Tr - Tl)/T
+              Tfac2 = 1._RKIND/(Tr - Tl)/T
               k1 = k1Tb(Tidx) + (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac
               dk1_dT = (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac2
               k2 = k2Tb(Tidx) + (k2Tb(Tidxp) - k2Tb(Tidx))*Tfac
@@ -790,13 +790,13 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               ! compute case B Hydrogen recombination coefficient 
               ! [Hui & Gnedin, 1997: RI^B_{HII}]
               !   (still need this because table holds case A coefficient!)
-              k2 = 2.753d-14*lamT**(1.5d0) *                         &
-                   (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
-              dk2_dT = 2.753d-14*dlamT_dT*sqrt(lamT)*(               &
-                   1.5d0*(1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0) &
-                   - lamT*(2.242d0*0.407d0/2.74d0)*                  &
-                   (lamT/2.74d0)**(-0.593d0)*                        &
-                   (1.d0+(lamT/2.74d0)**(0.407d0))**(-3.242d0))
+              k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                         &
+                   (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
+              dk2_dT = 2.753e-14_RKIND*dlamT_dT*sqrt(lamT)*(               &
+                   1.5_RKIND*(1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND) &
+                   - lamT*(2.242_RKIND*0.407_RKIND/2.74_RKIND)*                  &
+                   (lamT/2.74_RKIND)**(-0.593_RKIND)*                        &
+                   (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-3.242_RKIND))
 
               ! compute Hydrogen photoionization rate & derivs
               G_HI = c*Er/hp*IsEsHInu/IsE
@@ -817,59 +817,59 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               !    Bremsstrahlung
               !  Lambda = ne/rho*(ceHI*nHI + ciHI*nHI + reHII*nHII 
               !     + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII
-              !     + reHeII1 + reHeII2 + brem)*nHeII/4.d0
-              !     + (ciHeI*nHeI + reHeIII*nHeIII)/4.d0
+              !     + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND
+              !     + (ciHeI*nHeI + reHeIII*nHeIII)/4._RKIND
               !     + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)
               !     + brem*(nHII+nHeIII))
               dLambda_dec = ne/rho*dT_dec*(dceHI_dT*nHI + dciHI_dT*nHI &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT        &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT            &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0        &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII          &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND        &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII          &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))
               dLambda_dHI = ne/rho*(                                 &
                    (ceHI + ciHI)*dnHI_dHI + (reHII+brem)*dnHII_dHI + &
                    dT_dHI*(dceHI_dT*nHI + dciHI_dT*nHI               &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT      &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT          &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0      &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII        &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND      &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII        &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))) +  &
                    dne_dHI/rho*(ceHI*nHI + reHII*nHII + ciHI*nHI     &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*nHeII/4.d0            &
-                   + (reHeIII*nHeIII + ciHeI*nHeI)/4.d0              &
+                   + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND            &
+                   + (reHeIII*nHeIII + ciHeI*nHeI)/4._RKIND              &
                    + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)       &
                    + brem*(nHII+nHeIII))
               dLambda_dHeI = ne/rho*(                                &
-                   + (ciHeI*dnHeI_dHeI + reHeIII*dnHeIII_dHeI)/4.d0  &
+                   + (ciHeI*dnHeI_dHeI + reHeIII*dnHeIII_dHeI)/4._RKIND  &
                    + brem*dnHeIII_dHeI +                             &
                    dT_dHeI*(dceHI_dT*nHI + dciHI_dT*nHI              &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT      &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT          &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0      &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII        &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND      &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII        &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))) +  &
                    dne_dHeI/rho*(ceHI*nHI + reHII*nHII + ciHI*nHI    &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*nHeII/4.d0            &
-                   + (reHeIII*nHeIII + ciHeI*nHeI)/4.d0              &
+                   + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND            &
+                   + (reHeIII*nHeIII + ciHeI*nHeI)/4._RKIND              &
                    + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)       &
                    + brem*(nHII+nHeIII))
               dLambda_dHeII = ne/rho*(                               &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*dnHeII_dHeII/4.d0     &
-                   + (reHeIII/4.d0 + brem)*dnHeIII_dHeII +           &
+                   + reHeII1 + reHeII2 + brem)*dnHeII_dHeII/4._RKIND     &
+                   + (reHeIII/4._RKIND + brem)*dnHeIII_dHeII +           &
                    dT_dHeII*(dceHI_dT*nHI + dciHI_dT*nHI             &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT      &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT          &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0      &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII        &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND      &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII        &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))) +  &
                    dne_dHeII/rho*(ceHI*nHI + reHII*nHII + ciHI*nHI   &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*nHeII/4.d0            &
-                   + (reHeIII*nHeIII + ciHeI*nHeI)/4.d0              &
+                   + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND            &
+                   + (reHeIII*nHeIII + ciHeI*nHeI)/4._RKIND              &
                    + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)       &
                    + brem*(nHII+nHeIII))
 
@@ -882,23 +882,23 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
               ! compute emissivity 
               ! [WE HAVE NO FORMULA FOR ETA IN CASE-B CASE!!]
-              eta        = 0.d0
-              deta_dec   = 0.d0
-              deta_dHI   = 0.d0
-              deta_dHeI  = 0.d0
-              deta_dHeII = 0.d0
+              eta        = 0._RKIND
+              deta_dec   = 0._RKIND
+              deta_dHI   = 0._RKIND
+              deta_dHeI  = 0._RKIND
+              deta_dHeII = 0._RKIND
 
               ! put it all together
-              !   rhs_Er = (src_Er + 4.d0*pi*eta 
+              !   rhs_Er = (src_Er + 4._RKIND*pi*eta 
               !             - (afac*grey + c*kappaE)*Er)/ErUnits
               Erjac_Er(i,j,k)   = -(afac*grey + c*kappaE)
-              Erjac_ec(i,j,k)   =  (4.d0*pi*deta_dec)/ErUnits
-              Erjac_HI(i,j,k)   =  (4.d0*pi*deta_dHI-c*Er*dkappaE_dHI)/ErUnits
-              Erjac_HeI(i,j,k)  =  (4.d0*pi*deta_dHeI-c*Er*dkappaE_dHeI)/ErUnits
-              Erjac_HeII(i,j,k) =  (4.d0*pi*deta_dHeII-c*Er*dkappaE_dHeII)/ErUnits
+              Erjac_ec(i,j,k)   =  (4._RKIND*pi*deta_dec)/ErUnits
+              Erjac_HI(i,j,k)   =  (4._RKIND*pi*deta_dHI-c*Er*dkappaE_dHI)/ErUnits
+              Erjac_HeI(i,j,k)  =  (4._RKIND*pi*deta_dHeI-c*Er*dkappaE_dHeI)/ErUnits
+              Erjac_HeII(i,j,k) =  (4._RKIND*pi*deta_dHeII-c*Er*dkappaE_dHeII)/ErUnits
 
-              !   rhs_ec = (src_ec + G - Lambda - 2.d0*afac*ec)/ecUnits
-              ecjac_ec(i,j,k) = (ecJac_ec(i,j,k) - 2.d0*afac*ecUnits &
+              !   rhs_ec = (src_ec + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+              ecjac_ec(i,j,k) = (ecJac_ec(i,j,k) - 2._RKIND*afac*ecUnits &
                    - dLambda_dec)/ecUnits
               ecjac_Er(i,j,k) = dG_dEr/ecUnits
               ecjac_HI(i,j,k) = (dG_dHI - dLambda_dHI)/ecUnits
@@ -933,7 +933,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               ! rhs_HeII = (src_HeII + nHeI*G_HeI - nHeII*G_HeII
               !            + ne*(k3*nHeI + k6*nHeIII 
               !                  - k4*nHeII + k5*nHeII))/NiUnits
-              HeIIjac_Er(i,j,k) = -nHeII*dGHeII_dEr*4.d0/NiUnits
+              HeIIjac_Er(i,j,k) = -nHeII*dGHeII_dEr*4._RKIND/NiUnits
               HeIIjac_ec(i,j,k) = ne*(nHeI*dk3_dT + nHeIII*dk6_dT    &
                    - nHeII*dk4_dT + nHeII*dk5_dT)*dT_dec/NiUnits
               HeIIjac_HI(i,j,k) = (ne*(nHeI*dk3_dT + nHeIII*dk6_dT   &
@@ -1123,44 +1123,44 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   ier = 1
 
   ! initialize outputs to have all zero values
-  Erjac_Er = 0.d0
-  Erjac_ec = 0.d0
-  ecjac_Er = 0.d0
+  Erjac_Er = 0._RKIND
+  Erjac_ec = 0._RKIND
+  ecjac_Er = 0._RKIND
   if (Nchem == 1) then
-     Erjac_HI = 0.d0
+     Erjac_HI = 0._RKIND
 
-     ecjac_HI = 0.d0
+     ecjac_HI = 0._RKIND
 
-     HIjac_Er = 0.d0
-     HIjac_ec = 0.d0
-     HIjac_HI = 0.d0
+     HIjac_Er = 0._RKIND
+     HIjac_ec = 0._RKIND
+     HIjac_HI = 0._RKIND
   endif
   if (Nchem == 3) then
-     Erjac_HI   = 0.d0
-     Erjac_HeI  = 0.d0
-     Erjac_HeII = 0.d0
+     Erjac_HI   = 0._RKIND
+     Erjac_HeI  = 0._RKIND
+     Erjac_HeII = 0._RKIND
 
-     ecjac_HI   = 0.d0
-     ecjac_HeI  = 0.d0
-     ecjac_HeII = 0.d0
+     ecjac_HI   = 0._RKIND
+     ecjac_HeI  = 0._RKIND
+     ecjac_HeII = 0._RKIND
 
-     HIjac_Er   = 0.d0
-     HIjac_ec   = 0.d0
-     HIjac_HI   = 0.d0
-     HIjac_HeI  = 0.d0
-     HIjac_HeII = 0.d0
+     HIjac_Er   = 0._RKIND
+     HIjac_ec   = 0._RKIND
+     HIjac_HI   = 0._RKIND
+     HIjac_HeI  = 0._RKIND
+     HIjac_HeII = 0._RKIND
 
-     HeIjac_Er   = 0.d0
-     HeIjac_ec   = 0.d0
-     HeIjac_HI   = 0.d0
-     HeIjac_HeI  = 0.d0
-     HeIjac_HeII = 0.d0
+     HeIjac_Er   = 0._RKIND
+     HeIjac_ec   = 0._RKIND
+     HeIjac_HI   = 0._RKIND
+     HeIjac_HeI  = 0._RKIND
+     HeIjac_HeII = 0._RKIND
 
-     HeIIjac_Er   = 0.d0
-     HeIIjac_ec   = 0.d0
-     HeIIjac_HI   = 0.d0
-     HeIIjac_HeI  = 0.d0
-     HeIIjac_HeII = 0.d0
+     HeIIjac_Er   = 0._RKIND
+     HeIIjac_ec   = 0._RKIND
+     HeIIjac_HI   = 0._RKIND
+     HeIIjac_HeI  = 0._RKIND
+     HeIIjac_HeII = 0._RKIND
   endif
 
 
@@ -1172,33 +1172,33 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
   c  = c_light                 ! speed of light    [cm/s]
   hp = hplanck                 ! Planck's constant [ergs*s]
   kb = kboltz                  ! boltzmann constant [erg/K]
-  StBz  = 5.6704d-5            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
-  min_temp = 1.d-1             ! minimum temperature [K]
-  alpha = -0.4910454d0         ! exponent in emissivity fitting
-  beta  = 2.17748887d-24       ! scaling in emissivity fitting
+  StBz  = 5.6704e-5_RKIND      ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  min_temp = 0.1_RKIND         ! minimum temperature [K]
+  alpha = -0.4910454_RKIND     ! exponent in emissivity fitting
+  beta  = 2.17748887e-24_RKIND ! scaling in emissivity fitting
   nu0_HI = 13.6*ev2erg/hp      ! ionization frequency of HI
   nu0_HeI = 24.6*ev2erg/hp     ! ionization frequency of HeI
   nu0_HeII = 54.4*ev2erg/hp    ! ionization frequency of HeII
-  zr = 1.d0/aval - 1.d0        ! cosmological redshift
-  if (aval .ne. 1.d0) then        ! Compton cooling coefficients
-     Comp1 = CompA*(1.d0 + zr)**4
-     Comp2 = 2.73d0*(1.d0 + zr)
+  zr = 1._RKIND/aval - 1._RKIND        ! cosmological redshift
+  if (aval .ne. 1._RKIND) then        ! Compton cooling coefficients
+     Comp1 = CompA*(1._RKIND + zr)**4
+     Comp2 = 2.73_RKIND*(1._RKIND + zr)
   else
-     Comp1 = 0.d0
-     Comp2 = 0.d0
+     Comp1 = 0._RKIND
+     Comp2 = 0._RKIND
   endif
   if (DualEnergy == 1) then
-     KEconst = 0.d0
+     KEconst = 0._RKIND
   else
-     KEconst = 0.5d0
+     KEconst = 0.5_RKIND
   endif
-  grey = 1.d0
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   !   lookup table constants
   lTempS = log(TempStart)
   lTempE = log(TempEnd)
-  dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
+  dlTemp = (lTempE - lTempS)/(1._RKIND*NTempBins - 1._RKIND)
 
   ! set shortcut values
   HIconst   = c*(IsEsHI - nu0_HI*IsEsHInu)/IsE     ! matches RadHydro Document
@@ -1223,7 +1223,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1.d0*(nH - nHI), 0.d0)
+              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
               ne  = nHII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
@@ -1236,10 +1236,10 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               mol_weight = rho/mp/(nHI + nHII + ne)
               dmu_dHI = -rho/mp*(dnHI_dHI + dnHII_dHI + dne_dHI) &
                    / (nHI + nHII + ne)**2
-              T = (gamma-1.d0)*mol_weight*mp*eint/kb
-              T = max(1.d0*T,1.d0*min_temp)
-              dT_dec = ecUnits*(gamma-1.d0)*mol_weight*mp/kb
-              dT_dHI = (gamma-1.d0)*mp*eint/kb*dmu_dHI
+              T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
+              T = max(1._RKIND*T,1._RKIND*min_temp)
+              dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
+              dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
 
               ! look up rates, derivatives
               lTemp = min(max(log(T), lTempS), lTempE)
@@ -1248,7 +1248,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
               Tfac = (lTemp - Tl)/(Tr - Tl)
-              Tfac2 = 1.d0/(Tr - Tl)/T
+              Tfac2 = 1._RKIND/(Tr - Tl)/T
               k1 = k1Tb(Tidx) + (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac
               dk1_dT = (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac2
               ceHI = ceHITb(Tidx) + (ceHITb(Tidxp) - ceHITb(Tidx))*Tfac
@@ -1297,16 +1297,16 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
 
               ! compute emissivity 
               eta = nHII*ne*beta*T**alpha
-              deta_dec = dT_dec*alpha*nHII*ne*beta*T**(alpha-1.d0)
-              deta_dHI = dT_dHI*alpha*nHII*ne*beta*T**(alpha-1.d0) &
+              deta_dec = dT_dec*alpha*nHII*ne*beta*T**(alpha-1._RKIND)
+              deta_dHI = dT_dHI*alpha*nHII*ne*beta*T**(alpha-1._RKIND) &
                    + (dnHII_dHI*ne + nHII*dne_dHI)*beta*T**alpha
 
               ! put it all together
-              !   rhs_Er = (src_Er + 4.d0*pi*eta 
+              !   rhs_Er = (src_Er + 4._RKIND*pi*eta 
               !            - (afac*grey + c*kappaE)*Er)/ErUnits
               Erjac_Er(i,j,k) = -(afac*grey + c*kappaE)
-              Erjac_ec(i,j,k) =  (4.d0*pi*deta_dec)/ErUnits
-              Erjac_HI(i,j,k) =  (4.d0*pi*deta_dHI - c*Er*dkappaE_dHI)/ErUnits
+              Erjac_ec(i,j,k) =  (4._RKIND*pi*deta_dec)/ErUnits
+              Erjac_HI(i,j,k) =  (4._RKIND*pi*deta_dHI - c*Er*dkappaE_dHI)/ErUnits
 
               !   rhs_HI = (src_HI + k2*ne*nHII - nHI*(k1*ne + G_HI))/NiUnits
               HIjac_Er(i,j,k) = -nHI*dGHI_dEr/NiUnits
@@ -1315,8 +1315,8 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
                    + k2*ne*dnHII_dHI - dnHI_dHI*k1*ne - nHI*k1*dne_dHI   &
                    - nHI*dk1_dT*dT_dHI*ne - dnHI_dHI*G_HI)/NiUnits
 
-              !   rhs_ec = (src_ec + G - Lambda - 2.d0*afac*ec)/ecUnits
-              ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2.d0*afac*ecUnits &
+              !   rhs_ec = (src_ec + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+              ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2._RKIND*afac*ecUnits &
                    - dLambda_dec)/ecUnits
               ecjac_Er(i,j,k) = dG_dEr/ecUnits
               ecjac_HI(i,j,k) = (dG_dHI - dLambda_dHI)/ecUnits
@@ -1339,38 +1339,38 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1.d0*(nH - nHI), 0.d0)
-              nHe    = (1.d0-HFrac)*rho/4.d0/mp
-              nHeI   = n_HeIa(i,j,k)*NiUnits/4.d0
-              nHeII  = n_HeIIa(i,j,k)*NiUnits/4.d0
-              nHeIII = max(1.d0*(nHe - nHeI - nHeII), 0.d0)
-              ne     = nHII + 0.25d0*nHeII + 0.5d0*nHeIII
+              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
+              nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
+              nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
+              nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
+              ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
-              dnHeI_dHeI = NiUnits/4.d0
-              dnHeII_dHeII = NiUnits/4.d0
+              dnHeI_dHeI = NiUnits/4._RKIND
+              dnHeII_dHeII = NiUnits/4._RKIND
               dnHeIII_dHeI = -dnHeI_dHeI
               dnHeIII_dHeII = -dnHeII_dHeII
               dne_dHI = dnHII_dHI
-              dne_dHeI = 0.5d0*dnHeIII_dHeI
-              dne_dHeII = 0.25d0*dnHeII_dHeII + 0.5d0*dnHeIII_dHeII
+              dne_dHeI = 0.5_RKIND*dnHeIII_dHeI
+              dne_dHeII = 0.25_RKIND*dnHeII_dHeII + 0.5_RKIND*dnHeIII_dHeII
 
               ! compute temperature and shortcuts
               eint = eca(i,j,k)*ecUnits + VelUnits*VelUnits*(eha(i,j,k)  &
                    - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
-              mol_weight = rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)
-              dmu_dHI = -rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
+              mol_weight = rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)
+              dmu_dHI = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
                    * (dnHI_dHI+dnHII_dHI+dne_dHI)
-              dmu_dHeI = -rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
-                   * (0.25d0*(dnHeI_dHeI+dnHeIII_dHeI) + dne_dHeI)
-              dmu_dHeII = -rho/mp/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
-                   * (0.25d0*(dnHeII_dHeII+dnHeIII_dHeII) + dne_dHeII)
-              T = (gamma-1.d0)*mol_weight*mp*eint/kb
-              T = max(1.d0*T,1.d0*min_temp)
-              dT_dec = ecUnits*(gamma-1.d0)*mol_weight*mp/kb
-              dT_dHI = (gamma-1.d0)*mp*eint/kb*dmu_dHI
-              dT_dHeI = (gamma-1.d0)*mp*eint/kb*dmu_dHeI
-              dT_dHeII = (gamma-1.d0)*mp*eint/kb*dmu_dHeII
+              dmu_dHeI = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
+                   * (0.25_RKIND*(dnHeI_dHeI+dnHeIII_dHeI) + dne_dHeI)
+              dmu_dHeII = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
+                   * (0.25_RKIND*(dnHeII_dHeII+dnHeIII_dHeII) + dne_dHeII)
+              T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
+              T = max(1._RKIND*T,1._RKIND*min_temp)
+              dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
+              dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
+              dT_dHeI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHeI
+              dT_dHeII = (gamma-1._RKIND)*mp*eint/kb*dmu_dHeII
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
@@ -1379,7 +1379,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
               Tfac = (lTemp - Tl)/(Tr - Tl)
-              Tfac2 = 1.d0/(Tr - Tl)/T
+              Tfac2 = 1._RKIND/(Tr - Tl)/T
               k1 = k1Tb(Tidx) + (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac
               dk1_dT = (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac2
               k2 = k2Tb(Tidx) + (k2Tb(Tidxp) - k2Tb(Tidx))*Tfac
@@ -1442,59 +1442,59 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               !    Bremsstrahlung
               !  Lambda = ne/rho*(ceHI*nHI + ciHI*nHI + reHII*nHII
               !     + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII
-              !     + reHeII1 + reHeII2 + brem)*nHeII/4.d0
-              !     + (ciHeI*nHeI + reHeIII*nHeIII)/4.d0
+              !     + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND
+              !     + (ciHeI*nHeI + reHeIII*nHeIII)/4._RKIND
               !     + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)
               !     + brem*(nHII+nHeIII))
               dLambda_dec = ne/rho*dT_dec*(dceHI_dT*nHI + dciHI_dT*nHI &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT        &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT            &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0        &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII          &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND        &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII          &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))
               dLambda_dHI = ne/rho*(                                 &
                    (ceHI + ciHI)*dnHI_dHI + (reHII+brem)*dnHII_dHI + &
                    dT_dHI*(dceHI_dT*nHI + dciHI_dT*nHI               &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT      &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT          &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0      &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII        &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND      &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII        &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))) +  &
                    dne_dHI/rho*(ceHI*nHI + reHII*nHII + ciHI*nHI     &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*nHeII/4.d0            &
-                   + (reHeIII*nHeIII + ciHeI*nHeI)/4.d0              &
+                   + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND            &
+                   + (reHeIII*nHeIII + ciHeI*nHeI)/4._RKIND              &
                    + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)       &
                    + brem*(nHII+nHeIII))
               dLambda_dHeI = ne/rho*(                                &
-                   + (ciHeI*dnHeI_dHeI + reHeIII*dnHeIII_dHeI)/4.d0  &
+                   + (ciHeI*dnHeI_dHeI + reHeIII*dnHeIII_dHeI)/4._RKIND  &
                    + brem*dnHeIII_dHeI +                             &
                    dT_dHeI*(dceHI_dT*nHI + dciHI_dT*nHI              &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT      &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT          &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0      &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII        &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND      &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII        &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))) +  &
                    dne_dHeI/rho*(ceHI*nHI + reHII*nHII + ciHI*nHI    &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*nHeII/4.d0            &
-                   + (reHeIII*nHeIII + ciHeI*nHeI)/4.d0              &
+                   + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND            &
+                   + (reHeIII*nHeIII + ciHeI*nHeI)/4._RKIND              &
                    + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)       &
                    + brem*(nHII+nHeIII))
               dLambda_dHeII = ne/rho*(                               &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*dnHeII_dHeII/4.d0     &
-                   + (reHeIII/4.d0 + brem)*dnHeIII_dHeII +           &
+                   + reHeII1 + reHeII2 + brem)*dnHeII_dHeII/4._RKIND     &
+                   + (reHeIII/4._RKIND + brem)*dnHeIII_dHeII +           &
                    dT_dHeII*(dceHI_dT*nHI + dciHI_dT*nHI             &
                    + (dceHeI_dT*ne + dciHeIS_dT*ne + dceHeII_dT      &
                    + dciHeII_dT + dreHeII1_dT + dreHeII2_dT          &
-                   + dbrem_dT)*nHeII/4.d0 + dciHeI_dT*nHeI/4.d0      &
-                   + dreHeIII_dT*nHeIII/4.d0 + dreHII_dT*nHII        &
+                   + dbrem_dT)*nHeII/4._RKIND + dciHeI_dT*nHeI/4._RKIND      &
+                   + dreHeIII_dT*nHeIII/4._RKIND + dreHII_dT*nHII        &
                    + Comp1 + Comp_xray + dbrem_dT*(nHII+nHeIII))) +  &
                    dne_dHeII/rho*(ceHI*nHI + reHII*nHII + ciHI*nHI   &
                    + (ceHeI*ne + ciHeIS*ne + ceHeII + ciHeII         &
-                   + reHeII1 + reHeII2 + brem)*nHeII/4.d0            &
-                   + (reHeIII*nHeIII + ciHeI*nHeI)/4.d0              &
+                   + reHeII1 + reHeII2 + brem)*nHeII/4._RKIND            &
+                   + (reHeIII*nHeIII + ciHeI*nHeI)/4._RKIND              &
                    + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)       &
                    + brem*(nHII+nHeIII))
 
@@ -1507,22 +1507,22 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
 
               ! compute emissivity 
               ! [WE HAVE NO FORMULA FOR ETA IN MULTISPECIES CASE!!]
-              eta        = 0.d0
-              deta_dec   = 0.d0
-              deta_dHI   = 0.d0
-              deta_dHeI  = 0.d0
-              deta_dHeII = 0.d0
+              eta        = 0._RKIND
+              deta_dec   = 0._RKIND
+              deta_dHI   = 0._RKIND
+              deta_dHeI  = 0._RKIND
+              deta_dHeII = 0._RKIND
 
               ! put it all together
-              !   rhs_Er = (src_Er + 4.d0*pi*eta - (afac*grey + c*kappaE)*Er)/ErUnits
+              !   rhs_Er = (src_Er + 4._RKIND*pi*eta - (afac*grey + c*kappaE)*Er)/ErUnits
               Erjac_Er(i,j,k)   = -(afac*grey + c*kappaE)
-              Erjac_ec(i,j,k)   =  (4.d0*pi*deta_dec)/ErUnits
-              Erjac_HI(i,j,k)   =  (4.d0*pi*deta_dHI-c*Er*dkappaE_dHI)/ErUnits
-              Erjac_HeI(i,j,k)  =  (4.d0*pi*deta_dHeI-c*Er*dkappaE_dHeI)/ErUnits
-              Erjac_HeII(i,j,k) =  (4.d0*pi*deta_dHeII-c*Er*dkappaE_dHeII)/ErUnits
+              Erjac_ec(i,j,k)   =  (4._RKIND*pi*deta_dec)/ErUnits
+              Erjac_HI(i,j,k)   =  (4._RKIND*pi*deta_dHI-c*Er*dkappaE_dHI)/ErUnits
+              Erjac_HeI(i,j,k)  =  (4._RKIND*pi*deta_dHeI-c*Er*dkappaE_dHeI)/ErUnits
+              Erjac_HeII(i,j,k) =  (4._RKIND*pi*deta_dHeII-c*Er*dkappaE_dHeII)/ErUnits
 
-              !   rhs_ec = (src_ec + G - Lambda - 2.d0*afac*ec)/ecUnits
-              ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2.d0*afac*ecUnits &
+              !   rhs_ec = (src_ec + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+              ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2._RKIND*afac*ecUnits &
                    - dLambda_dec)/ecUnits
               ecjac_Er(i,j,k) = dG_dEr/ecUnits
               ecjac_HI(i,j,k) = (dG_dHI - dLambda_dHI)/ecUnits
@@ -1703,16 +1703,16 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   endif
 
   ! initialize outputs to have all zero values
-  Erjac_Er = 0.d0
-  Erjac_ec = 0.d0
-  Erjac_HI = 0.d0
+  Erjac_Er = 0._RKIND
+  Erjac_ec = 0._RKIND
+  Erjac_HI = 0._RKIND
 
-  ecjac_Er = 0.d0
-  ecjac_HI = 0.d0
+  ecjac_Er = 0._RKIND
+  ecjac_HI = 0._RKIND
 
-  HIjac_Er = 0.d0
-  HIjac_ec = 0.d0
-  HIjac_HI = 0.d0
+  HIjac_Er = 0._RKIND
+  HIjac_ec = 0._RKIND
+  HIjac_HI = 0._RKIND
 
 
   ! initialize constants
@@ -1721,21 +1721,21 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   c  = c_light         ! speed of light [cm/s]
   hp = hplanck         ! Planck's constant [ergs*s]
   kb = kboltz          ! boltzmann constant [erg/K]
-  StBz  = 5.6704d-5    ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
-  min_temp = 1.d-1     ! minimum temperature [K]
-  mol_weight = 0.6d0   ! mean molecular mass
+  StBz  = 5.6704e-5_RKIND  ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  min_temp = 0.1_RKIND     ! minimum temperature [K]
+  mol_weight = 0.6_RKIND   ! mean molecular mass
   if (DualEnergy == 1) then
-     KEconst = 0.d0
+     KEconst = 0._RKIND
   else
-     KEconst = 0.5d0
+     KEconst = 0.5_RKIND
   endif
-  grey = 1.d0
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   !   lookup table constants
   lTempS = log(TempStart)
   lTempE = log(TempEnd)
-  dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
+  dlTemp = (lTempE - lTempS)/(1._RKIND*NTempBins - 1._RKIND)
 
   do k=1,Nz,1
      do j=1,Ny,1
@@ -1747,7 +1747,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
            rho = rhoa(i,j,k)*DenUnits
            nHI = n_HIa(i,j,k)*NiUnits
            nH = Hfrac*rho/mp
-           nHII = max(1.d0*(nH - nHI), 0.d0)
+           nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
            ne = nHII
            dnHI_dHI = NiUnits
            dnHII_dHI = -dnHI_dHI
@@ -1755,15 +1755,15 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
            ! compute temperature and shortcuts
            !*** For Model 4 with cosmology, the temperature is held in ecScale ***!
-           if (adot == 0.d0) then
+           if (adot == 0._RKIND) then
               eint = eca(i,j,k)*ecUnits + VelUnits*VelUnits*(eha(i,j,k)  &
                    - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
-              T = (gamma-1.d0)*mol_weight*mp*eint/kb
-              T = max(1.d0*T,1.d0*min_temp)
+              T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
+              T = max(1._RKIND*T,1._RKIND*min_temp)
            else
               T = ecScale
            endif
-           lamT = 3.15614d5/T
+           lamT = 3.15614e5_RKIND/T
 
            ! look up rates
            lTemp = min(max(log(T), lTempS), lTempE)
@@ -1781,8 +1781,8 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
            ! compute case B Hydrogen recombination coefficient 
            ! [Hui & Gnedin, 1997: RI^B_{HII}]
            !   (still need this because table holds case A coefficient!)
-           k2 = 2.753d-14*lamT**(1.5d0) *                 &
-                (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
+           k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                 &
+                (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
 
            ! compute Hydrogen photoionization rate & derivs
            G_HI = c*Er/hp*IsEsHInu/IsE
@@ -1791,18 +1791,18 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
            ! put it all together
            !   rhs_Er = -(afac*grey + c*kappaE)*Er/ErUnits
            Erjac_Er(i,j,k) = -afac*grey - c*kappaE 
-           Erjac_ec(i,j,k) = 0.d0
+           Erjac_ec(i,j,k) = 0._RKIND
            Erjac_HI(i,j,k) = -c*Er*dkappaE_dHI/ErUnits
 
            !   rhs_HI = (k2*ne*nHII - nHI*(k1*ne + G_HI))/NiUnits
            HIjac_Er(i,j,k) = -nHI*dGHI_dEr/NiUnits
-           HIjac_ec(i,j,k) = 0.d0
+           HIjac_ec(i,j,k) = 0._RKIND
            HIjac_HI(i,j,k) = (k2*dne_dHI*nHII + k2*ne*dnHII_dHI &
                 - dnHI_dHI*(k1*ne + G_HI) - nHI*k1*dne_dHI)/NiUnits
 
-           ecjac_ec(i,j,k) = 0.d0
-           ecjac_Er(i,j,k) = 0.d0
-           ecjac_HI(i,j,k) = 0.d0
+           ecjac_ec(i,j,k) = 0._RKIND
+           ecjac_Er(i,j,k) = 0._RKIND
+           ecjac_HI(i,j,k) = 0._RKIND
 
         enddo
      enddo
@@ -1899,23 +1899,23 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
   endif
 
   ! initialize outputs to have all zero values
-  Erjac_Er = 0.d0
-  Erjac_ec = 0.d0
-  Erjac_HI = 0.d0
+  Erjac_Er = 0._RKIND
+  Erjac_ec = 0._RKIND
+  Erjac_HI = 0._RKIND
 
-  ecjac_Er = 0.d0
-  ecjac_HI = 0.d0
+  ecjac_Er = 0._RKIND
+  ecjac_HI = 0._RKIND
 
-  HIjac_Er = 0.d0
-  HIjac_ec = 0.d0
-  HIjac_HI = 0.d0
+  HIjac_Er = 0._RKIND
+  HIjac_ec = 0._RKIND
+  HIjac_HI = 0._RKIND
 
 
   ! initialize constants
   c  = c_light         ! speed of light [cm/s]
   afac = adot/a        ! adot/a
-  grey = 1.d0
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   if (Model /= 5) then
      write(0,*) 'gFLDProblem_LocalJac5: illegal Model =',Model
@@ -1936,16 +1936,16 @@ subroutine gFLDProblem_LocalJac5(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
            ! put it all together
            ! rhs_Er = -(afac*grey + c*kappaE)*Er/ErUnits
            Erjac_Er(i,j,k) = -afac*grey - c*kappaE
-           Erjac_ec(i,j,k) = 0.d0
-           Erjac_HI(i,j,k) = 0.d0
+           Erjac_ec(i,j,k) = 0._RKIND
+           Erjac_HI(i,j,k) = 0._RKIND
 
-           HIjac_Er(i,j,k) = 0.d0
-           HIjac_ec(i,j,k) = 0.d0
-           HIjac_HI(i,j,k) = 0.d0
+           HIjac_Er(i,j,k) = 0._RKIND
+           HIjac_ec(i,j,k) = 0._RKIND
+           HIjac_HI(i,j,k) = 0._RKIND
 
-           ecjac_ec(i,j,k) = 0.d0
-           ecjac_Er(i,j,k) = 0.d0
-           ecjac_HI(i,j,k) = 0.d0
+           ecjac_ec(i,j,k) = 0._RKIND
+           ecjac_Er(i,j,k) = 0._RKIND
+           ecjac_HI(i,j,k) = 0._RKIND
 
         enddo
      enddo
@@ -2048,9 +2048,9 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   ier = 1
 
   ! initialize outputs to have all zero values
-  Erjac_Er = 0.d0
-  Erjac_ec = 0.d0
-  ecjac_Er = 0.d0
+  Erjac_Er = 0._RKIND
+  Erjac_ec = 0._RKIND
+  ecjac_Er = 0._RKIND
 
 
   ! initialize constants
@@ -2060,24 +2060,24 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
   c  = c_light                       ! speed of light    [cm/s]
   hp = hplanck                       ! Planck's constant [ergs*s]
   kb = kboltz                        ! boltzmann constant [erg/K]
-  rc = 7.56e-15                      ! radiation constant [erg/cm^3/K^4]
-  StBz  = 5.6704d-5                  ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
-  min_temp = 1.d-1                   ! minimum temperature [K]
-  Cv    = 2.218056d12 * kb / ev2erg  ! used for problem 205
+  rc = 7.56e-15_RKIND                ! radiation constant [erg/cm^3/K^4]
+  StBz  = 5.6704e-5_RKIND            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  min_temp = 0.1_RKIND               ! minimum temperature [K]
+  Cv    = 2.218056e12_RKIND * kb / ev2erg  ! used for problem 205
   if (ProbType == 405) then
-     mol_weight = ev2erg/(gamma-1.d0)/2.218056d12/mp  ! mean molecular mass
+     mol_weight = ev2erg/(gamma-1._RKIND)/2.218056e12_RKIND/mp  ! mean molecular mass
   else if (ProbType == 404) then
-     mol_weight = 0.5d0
+     mol_weight = 0.5_RKIND
   else
-     mol_weight = 0.6d0   ! mean molecular mass
+     mol_weight = 0.6_RKIND   ! mean molecular mass
   endif
   if (DualEnergy == 1) then
-     KEconst = 0.d0
+     KEconst = 0._RKIND
   else
-     KEconst = 0.5d0
+     KEconst = 0.5_RKIND
   endif
-  grey = 1.d0
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   if (Model /= 10) then
      write(0,*) 'gFLDProblem_LocalJac10: illegal Model =',Model
@@ -2104,37 +2104,37 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
            eint = eca(i,j,k)*ecUnits + VelUnits*VelUnits*(eha(i,j,k)  &
                 - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
            if ( ProbType /= 405 ) then
-              T = (gamma-1.d0)*mol_weight*mp*eint/kb
-              dT_dec = ecUnits*(gamma-1.d0)*mol_weight*mp/kb
+              T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
+              dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
            else
               T = eint/Cv
               dT_dec = ecUnits/Cv
            endif
            
-           T = max(1.d0*T,1.d0*min_temp)
+           T = max(1._RKIND*T,1._RKIND*min_temp)
            
            ! compute opacities and derivatives
            kappaP = PmC0 * (rho/PmC1)**PmC2 * (T/PmC3)**PmC4
            kappaE = EmC0 * (rho/EmC1)**EmC2 * (T/EmC3)**EmC4
            dkappaP_dec = PmC0*PmC4 * (rho/PmC1)**PmC2 &
-                * (T/PmC3)**(PmC4-1.d0)*dT_dec/PmC3
+                * (T/PmC3)**(PmC4-1._RKIND)*dT_dec/PmC3
            dkappaE_dec = EmC0*EmC4 * (rho/EmC1)**EmC2 &
-                * (T/EmC3)**(EmC4-1.d0)*dT_dec/EmC3
+                * (T/EmC3)**(EmC4-1._RKIND)*dT_dec/EmC3
            
            ! compute emissivity and derivatives
            eta = kappaP*StBz/pi*T**4
            deta_dec = StBz/pi*T**4*dkappaP_dec &
-                + 4.d0*kappaP*StBz/pi*T**3*dT_dec
+                + 4._RKIND*kappaP*StBz/pi*T**3*dT_dec
            
            ! put it all together
-           !   rhs_ec = (-2.d0*afac*ec + (c*kappaE*Er - 4.d0*pi*eta)/rho)/ecUnits
-           ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2.d0*afac*ecUnits  &
-                + (c*Er*dkappaE_dec - 4.d0*pi*deta_dec)/rho)/ecUnits
+           !   rhs_ec = (-2._RKIND*afac*ec + (c*kappaE*Er - 4._RKIND*pi*eta)/rho)/ecUnits
+           ecjac_ec(i,j,k) = (ecjac_ec(i,j,k) - 2._RKIND*afac*ecUnits  &
+                + (c*Er*dkappaE_dec - 4._RKIND*pi*deta_dec)/rho)/ecUnits
            ecjac_Er(i,j,k) = c*kappaE/rho*ErUnits/ecUnits
            
-           !   rhs_Er = (4.d0*pi*eta - (afac*grey + c*kappaE)*Er)/ErUnits
+           !   rhs_Er = (4._RKIND*pi*eta - (afac*grey + c*kappaE)*Er)/ErUnits
            Erjac_Er(i,j,k) = -(afac*grey + c*kappaE)
-           Erjac_ec(i,j,k) =  (4.d0*pi*deta_dec - c*Er*dkappaE_dec)/ErUnits
+           Erjac_ec(i,j,k) =  (4._RKIND*pi*deta_dec - c*Er*dkappaE_dec)/ErUnits
            
         enddo
      enddo

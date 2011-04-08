@@ -56,9 +56,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c     -- standard 4th order derivative operators --
 c
-      fact1 = -1.d0/delx/12.d0
-      fact2 = -1.d0/dely/12.d0
-      fact3 = -1.d0/delz/12.d0
+      fact1 = -1._RKIND/delx/12._RKIND
+      fact2 = -1._RKIND/dely/12._RKIND
+      fact3 = -1._RKIND/delz/12._RKIND
       
       if (iflag.ne.1) then
       	write(*,*) 'Error: Need symmetric gravity for 4th order.'
@@ -73,10 +73,10 @@ c
             do j=1, ddim2
                do i=1, ddim1
                   dest1(i,j,k) = fact1*(
-     &                  - 1.d0 * source(i+start1+2,j+start2,k+start3) 
-     &			+ 8.d0 * source(i+start1+1,j+start2,k+start3)
-     &			- 8.d0 * source(i+start1-1,j+start2,k+start3)
-     &                  + 1.d0 * source(i+start1-2,j+start2,k+start3))
+     &                  - 1._RKIND * source(i+start1+2,j+start2,k+start3) 
+     &			+ 8._RKIND * source(i+start1+1,j+start2,k+start3)
+     &			- 8._RKIND * source(i+start1-1,j+start2,k+start3)
+     &                  + 1._RKIND * source(i+start1-2,j+start2,k+start3))
                enddo
             enddo
          enddo
@@ -90,17 +90,17 @@ c
                do i=1, ddim1
                
 	              dest1(i,j,k) = fact1*(
-     &                  - 1.d0 * source(i+start1+2,j+start2,k+start3) 
-     &			+ 8.d0 * source(i+start1+1,j+start2,k+start3)
-     &			- 8.d0 * source(i+start1-1,j+start2,k+start3)
-     &                  + 1.d0 * source(i+start1-2,j+start2,k+start3))
+     &                  - 1._RKIND * source(i+start1+2,j+start2,k+start3) 
+     &			+ 8._RKIND * source(i+start1+1,j+start2,k+start3)
+     &			- 8._RKIND * source(i+start1-1,j+start2,k+start3)
+     &                  + 1._RKIND * source(i+start1-2,j+start2,k+start3))
      
      
      		      dest2(i,j,k) = fact1*(
-     &			- 1.d0 * source(i+start1,j+start2+2,k+start3)
-     &			+ 8.d0 * source(i+start1,j+start2+1,k+start3)
-     &		       	- 8.d0 * source(i+start1,j+start2-1,k+start3)
-     &			+ 1.d0 * source(i+start1,j+start2-2,k+start3))
+     &			- 1._RKIND * source(i+start1,j+start2+2,k+start3)
+     &			+ 8._RKIND * source(i+start1,j+start2+1,k+start3)
+     &		       	- 8._RKIND * source(i+start1,j+start2-1,k+start3)
+     &			+ 1._RKIND * source(i+start1,j+start2-2,k+start3))
      			  		
                enddo
             enddo
@@ -115,24 +115,24 @@ c
                do i=1, ddim1
                          
                   dest1(i,j,k) = fact1*(
-     &                  - 1.d0 * source(i+start1+2,j+start2,k+start3) 
-     &			+ 8.d0 * source(i+start1+1,j+start2,k+start3)
-     &			- 8.d0 * source(i+start1-1,j+start2,k+start3)
-     &                  + 1.d0 * source(i+start1-2,j+start2,k+start3))
+     &                  - 1._RKIND * source(i+start1+2,j+start2,k+start3) 
+     &			+ 8._RKIND * source(i+start1+1,j+start2,k+start3)
+     &			- 8._RKIND * source(i+start1-1,j+start2,k+start3)
+     &                  + 1._RKIND * source(i+start1-2,j+start2,k+start3))
      
      
      		  dest2(i,j,k) = fact1*(
-     &			- 1.d0 * source(i+start1,j+start2+2,k+start3)
-     &			+ 8.d0 * source(i+start1,j+start2+1,k+start3)
-     &			- 8.d0 * source(i+start1,j+start2-1,k+start3)
-     &			+ 1.d0 * source(i+start1,j+start2-2,k+start3))
+     &			- 1._RKIND * source(i+start1,j+start2+2,k+start3)
+     &			+ 8._RKIND * source(i+start1,j+start2+1,k+start3)
+     &			- 8._RKIND * source(i+start1,j+start2-1,k+start3)
+     &			+ 1._RKIND * source(i+start1,j+start2-2,k+start3))
      
      
      		  dest3(i,j,k) = fact1*(
-     &			- 1.d0 * source(i+start1,j+start2,k+start3+2) 
-     &                  + 8.d0 * source(i+start1,j+start2,k+start3+1)
-     &			- 8.d0 * source(i+start1,j+start2,k+start3-1)
-     &			+ 1.d0 * source(i+start1,j+start2,k+start3-2))
+     &			- 1._RKIND * source(i+start1,j+start2,k+start3+2) 
+     &                  + 8._RKIND * source(i+start1,j+start2,k+start3+1)
+     &			- 8._RKIND * source(i+start1,j+start2,k+start3-1)
+     &			+ 1._RKIND * source(i+start1,j+start2,k+start3-2))
      
                enddo
             enddo
@@ -146,9 +146,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c     -- standard 6th order derivative operators --
 c
-      fact1 = -1.d0/delx/60.d0
-      fact2 = -1.d0/dely/60.d0
-      fact3 = -1.d0/delz/60.d0
+      fact1 = -1._RKIND/delx/60._RKIND
+      fact2 = -1._RKIND/dely/60._RKIND
+      fact3 = -1._RKIND/delz/60._RKIND
       
       if (iflag.ne.1) then
       	write(*,*) 'Error: Need symmetric gravity for 6th order.'
@@ -163,12 +163,12 @@ c
             do j=1, ddim2
                do i=1, ddim1
                   dest1(i,j,k) = fact1*(
-     &                    1.d0 * source(i+start1+3,j+start2,k+start3) 
-     &			 -9.d0 * source(i+start1+2,j+start2,k+start3)
-     &			+45.d0 * source(i+start1+1,j+start2,k+start3)
-     &			-45.d0 * source(i+start1-1,j+start2,k+start3)
-     &			 +9.d0 * source(i+start1-2,j+start2,k+start3)
-     &                   -1.d0 * source(i+start1-3,j+start2,k+start3))
+     &                    1._RKIND * source(i+start1+3,j+start2,k+start3) 
+     &			 -9._RKIND * source(i+start1+2,j+start2,k+start3)
+     &			+45._RKIND * source(i+start1+1,j+start2,k+start3)
+     &			-45._RKIND * source(i+start1-1,j+start2,k+start3)
+     &			 +9._RKIND * source(i+start1-2,j+start2,k+start3)
+     &                   -1._RKIND * source(i+start1-3,j+start2,k+start3))
                enddo
             enddo
          enddo
@@ -182,21 +182,21 @@ c
                do i=1, ddim1
                
 	              dest1(i,j,k) = fact1*(
-     &                    1.d0 * source(i+start1+3,j+start2,k+start3) 
-     &			 -9.d0 * source(i+start1+2,j+start2,k+start3)
-     &			+45.d0 * source(i+start1+1,j+start2,k+start3)
-     &			-45.d0 * source(i+start1-1,j+start2,k+start3)
-     &			 +9.d0 * source(i+start1-2,j+start2,k+start3)     
-     &                   -1.d0 * source(i+start1-3,j+start2,k+start3))
+     &                    1._RKIND * source(i+start1+3,j+start2,k+start3) 
+     &			 -9._RKIND * source(i+start1+2,j+start2,k+start3)
+     &			+45._RKIND * source(i+start1+1,j+start2,k+start3)
+     &			-45._RKIND * source(i+start1-1,j+start2,k+start3)
+     &			 +9._RKIND * source(i+start1-2,j+start2,k+start3)     
+     &                   -1._RKIND * source(i+start1-3,j+start2,k+start3))
      
      
      		      dest2(i,j,k) = fact1*(
-     &	  		  1.d0 * source(i+start1,j+start2+3,k+start3)
-     &			 -9.d0 * source(i+start1,j+start2+2,k+start3)
-     &			+45.d0 * source(i+start1,j+start2+1,k+start3)
-     &		 	-45.d0 * source(i+start1,j+start2-1,k+start3)
-     &		 	 +9.d0 * source(i+start1,j+start2-2,k+start3)
-     &			 -1.d0 * source(i+start1,j+start2-3,k+start3))
+     &	  		  1._RKIND * source(i+start1,j+start2+3,k+start3)
+     &			 -9._RKIND * source(i+start1,j+start2+2,k+start3)
+     &			+45._RKIND * source(i+start1,j+start2+1,k+start3)
+     &		 	-45._RKIND * source(i+start1,j+start2-1,k+start3)
+     &		 	 +9._RKIND * source(i+start1,j+start2-2,k+start3)
+     &			 -1._RKIND * source(i+start1,j+start2-3,k+start3))
      			  		
                enddo
             enddo
@@ -211,30 +211,30 @@ c
                do i=1, ddim1
                          
 			dest1(i,j,k) = fact1*(
-     &                    1.d0 * source(i+start1+3,j+start2,k+start3) 
-     &			 -9.d0 * source(i+start1+2,j+start2,k+start3)
-     &			+45.d0 * source(i+start1+1,j+start2,k+start3)
-     &			-45.d0 * source(i+start1-1,j+start2,k+start3)
-     &			 +9.d0 * source(i+start1-2,j+start2,k+start3)
-     &                   -1.d0 * source(i+start1-3,j+start2,k+start3))
+     &                    1._RKIND * source(i+start1+3,j+start2,k+start3) 
+     &			 -9._RKIND * source(i+start1+2,j+start2,k+start3)
+     &			+45._RKIND * source(i+start1+1,j+start2,k+start3)
+     &			-45._RKIND * source(i+start1-1,j+start2,k+start3)
+     &			 +9._RKIND * source(i+start1-2,j+start2,k+start3)
+     &                   -1._RKIND * source(i+start1-3,j+start2,k+start3))
      
      
      			dest2(i,j,k) = fact1*(
-     &			  1.d0 * source(i+start1,j+start2+3,k+start3)
-     &			 -9.d0 * source(i+start1,j+start2+2,k+start3)
-     &			+45.d0 * source(i+start1,j+start2+1,k+start3)
-     &			-45.d0 * source(i+start1,j+start2-1,k+start3)
-     &			 +9.d0 * source(i+start1,j+start2-2,k+start3)
-     &			 -1.d0 * source(i+start1,j+start2-3,k+start3))
+     &			  1._RKIND * source(i+start1,j+start2+3,k+start3)
+     &			 -9._RKIND * source(i+start1,j+start2+2,k+start3)
+     &			+45._RKIND * source(i+start1,j+start2+1,k+start3)
+     &			-45._RKIND * source(i+start1,j+start2-1,k+start3)
+     &			 +9._RKIND * source(i+start1,j+start2-2,k+start3)
+     &			 -1._RKIND * source(i+start1,j+start2-3,k+start3))
      
      
                         dest3(i,j,k) = fact1*(
-     &			  1.d0 * source(i+start1,j+start2,k+start3+3) 
-     &                   -9.d0 * source(i+start1,j+start2,k+start3+2)
-     &                  +45.d0 * source(i+start1,j+start2,k+start3+1)
-     &			-45.d0 * source(i+start1,j+start2,k+start3-1)
-     &			 +9.d0 * source(i+start1,j+start2,k+start3-2)
-     &			 -1.d0 * source(i+start1,j+start2,k+start3-3))
+     &			  1._RKIND * source(i+start1,j+start2,k+start3+3) 
+     &                   -9._RKIND * source(i+start1,j+start2,k+start3+2)
+     &                  +45._RKIND * source(i+start1,j+start2,k+start3+1)
+     &			-45._RKIND * source(i+start1,j+start2,k+start3-1)
+     &			 +9._RKIND * source(i+start1,j+start2,k+start3-2)
+     &			 -1._RKIND * source(i+start1,j+start2,k+start3-3))
      
                enddo
             enddo
@@ -247,9 +247,9 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c     -- standard 2nd order derivative operators --
 c
-      fact1 = -1.d0/(REAL(iflag+1,RKIND)*delx)
-      fact2 = -1.d0/(REAL(iflag+1,RKIND)*dely)
-      fact3 = -1.d0/(REAL(iflag+1,RKIND)*delz)
+      fact1 = -1._RKIND/(REAL(iflag+1,RKIND)*delx)
+      fact2 = -1._RKIND/(REAL(iflag+1,RKIND)*dely)
+      fact3 = -1._RKIND/(REAL(iflag+1,RKIND)*delz)
 c
 c     1) 1D
 c

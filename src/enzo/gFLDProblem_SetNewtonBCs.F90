@@ -97,7 +97,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do j=1,Ny,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i+1,j,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -121,7 +121,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do j=1,Ny,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i-1,j,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -145,7 +145,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j+1,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -169,7 +169,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j-1,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -193,7 +193,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j,k+1)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -217,7 +217,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j,k-1)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -329,7 +329,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do j=1,Ny,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i+1,j)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCxL==2) then
@@ -349,7 +349,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do j=1,Ny,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i-1,j)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCxR==2) then
@@ -369,7 +369,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do i=1,Nx,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i,j+1)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCyL==2) then
@@ -389,7 +389,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do i=1,Nx,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i,j-1)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCyR==2) then
@@ -493,7 +493,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
         i = 0
         matentries(:,i) = 0.d0
         matentries(2,i) = sum(abs(matentries(:,i+1)))
-        rhsentries(i)   = 0.d0
+        rhsentries(i)   = 0._RKIND
      ! Neumann
      else if (BCxL==2) then
         i = 1
@@ -509,7 +509,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
         i = Nx+1
         matentries(:,i) = 0.d0
         matentries(2,i) = sum(abs(matentries(:,i-1)))
-        rhsentries(i)   = 0.d0
+        rhsentries(i)   = 0._RKIND
      ! Neumann
      else if (BCxR==2) then
         i = Nx

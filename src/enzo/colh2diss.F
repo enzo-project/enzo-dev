@@ -61,9 +61,9 @@ c
       f2 = tiny
       f3 = tiny
       f4 = tiny
-      f5 = 1.d0
-      f6 = 1.d0
-      f7 = 0.d0
+      f5 = 1._RKIND
+      f6 = 1._RKIND
+      f7 = 0._RKIND
 c
 c     do not use tiny values for temperatures below 500 K also do not
 c     return values for temperatures above 1 million Kelvin. Note that     
@@ -71,13 +71,13 @@ c     data and fits are only accurate for t< 5 10^5. However,
 c     collisional dissociation by electrons will be dominant above this
 c     temperature, anyhow. 
 c
-      if (tgas .le. 500.d0) then
-         t=500.d0
-c         CID = -60.d0
+      if (tgas .le. 500._RKIND) then
+         t=500._RKIND
+c         CID = -60._RKIND
       endif
       if (t .ge. 1.d6) then
          t = 1.d6
-c         CID = -60.d0
+c         CID = -60._RKIND
       endif
 c
 c     fitting parameters
@@ -107,7 +107,7 @@ c
       tl=log10(t)
 c high density limit
       a =   y(1)+y(2)*tl+y(3)*tl*tl+y(4)*tl*tl*tl
-     $     +y(5)*dlog10(1.d0+y(6)/t)
+     $     +y(5)*dlog10(1._RKIND+y(6)/t)
       a1=   y(7)/t
 c low density limit
       b =   y(8)+y(9)*tl+y(10)*tl*tl+y(11)*dlog10(1.0D0+y(12)/t)       
@@ -115,14 +115,14 @@ c low density limit
 c critical density
       c =   y(14)+y(15)*tl+y(16)*tl*tl+y(17)/t
       c1 =  y(18)+c
-      d =   y(19)+y(20)*exp(-t/1850.d0)+y(21)*exp(-t/440.d0)    
+      d =   y(19)+y(20)*exp(-t/1850._RKIND)+y(21)*exp(-t/440._RKIND)    
 c     tabulate the following temperature dependent coefficients:
       f1 = a
       f2 = (a-b)
       f3 = a1   
       f4 = (a1-b1)
-      f5 = 10.d0**c
-      f6 = 10.d0**c1
+      f5 = 10._RKIND**c
+      f6 = 10._RKIND**c1
       f7 = d
 c
 c and then get the dissociation rate in cm^3/s with this

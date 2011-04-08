@@ -64,7 +64,7 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  ecsrc = 0.d0
+  ecsrc = 0._RKIND
 
   return
 end subroutine gFLDSplit_GasEnergySource

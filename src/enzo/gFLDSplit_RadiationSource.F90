@@ -81,7 +81,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
 !!$  write(*,*) '   EtaCenter = ',EtaCenter
 
   ! initialize output to have all zero values, flag to success
-  Ersrc = 0.d0
+  Ersrc = 0._RKIND
   ier = 1
   
   ! initialize constants
@@ -90,13 +90,13 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
   dy    = (x1R-x1L)/Ny                ! mesh spacing (comoving), x1 direction
   dz    = (x2R-x2L)/Nz                ! mesh spacing (comoving), x2 direction
   dV    = dx*dy*dz*(LenUnits)**3      ! cell volume (proper)
-  h_nu0 = 13.6d0*ev2erg               ! ionization energy of HI [ergs]
+  h_nu0 = 13.6_RKIND*ev2erg               ! ionization energy of HI [ergs]
 
   ! scaling factor for T=10^5 blackbody spectrum
   if (ESpectrum == 1) then
-     specconst = 1.52877652583602d0
+     specconst = 1.52877652583602_RKIND
   else
-     specconst = 1.d0
+     specconst = 1._RKIND
   endif
 
   ! compute emissivity for various problems
@@ -106,7 +106,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
       (ProbType == 413) .or. (ProbType == 415)) then
 
      ! one-cell source
-     if (EtaRadius == 0.d0) then
+     if (EtaRadius == 0._RKIND) then
         
         ! compute eta factor for given ionization source
         etaconst = h_nu0*NGammaDot*specconst/dV
@@ -144,23 +144,23 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
      else
 
         ! compute eta factor for given ionization source
-        etaconst = h_nu0*NGammaDot*specconst/dV/8.d0/(EtaRadius**3)
+        etaconst = h_nu0*NGammaDot*specconst/dV/8._RKIND/(EtaRadius**3)
         
         ! place ionization source in center of domain
         do k=1,Nz,1
            
            ! z-center (comoving) for this cell
-           cellZc = x2L + (k-0.5d0)*dz
+           cellZc = x2L + (k-0.5_RKIND)*dz
            
            do j=1,Ny,1
               
               ! y-center (comoving) for this cell
-              cellYc = x1L + (j-0.5d0)*dy
+              cellYc = x1L + (j-0.5_RKIND)*dy
               
               do i=1,Nx,1
                  
                  ! x-center (comoving) for this cell
-                 cellXc = x0L + (i-0.5d0)*dx
+                 cellXc = x0L + (i-0.5_RKIND)*dx
                  
                  ! see if cell is within source region
                  if ( (abs(cellXc-EtaCenter(1)) < EtaRadius*dx) .and. &
@@ -179,7 +179,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
   else if (ProbType == 412) then
 
      ! place ionization source along left wall (if on this subdomain)
-     if (x0L == 0.d0) then
+     if (x0L == 0._RKIND) then
 
         ! compute eta factor for given ionization source, and put on wall
         etaconst = h_nu0*NGammaDot*specconst/dy

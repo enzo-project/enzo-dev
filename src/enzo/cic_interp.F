@@ -57,12 +57,12 @@ c
 c  constants (half is slightly more than 1/2 to make sure rounding is
 c             performed in the correct direction)
 c
-      parameter (half = 0.5001d0)
+      parameter (half = 0.5001_RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1.d0/cellsize
+      fact = 1._RKIND/cellsize
       edge1 = REAL(dim1,RKIND) - half
       edge2 = REAL(dim2,RKIND) - half
       edge3 = REAL(dim3,RKIND) - half
@@ -79,17 +79,17 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0,IKIND)
+            i1  = int(xpos + 0.5_RKIND,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1,RKIND) + 0.5d0 - xpos
+            dx = REAL(i1,RKIND) + 0.5_RKIND - xpos
 c
 c           Interpolate from field into sumfield
 c
             sumfield(n) = sumfield(n) +
      &              field(i1  ,1,1)*     dx  +
-     &              field(i1+1,1,1)*(1.d0-dx)
+     &              field(i1+1,1,1)*(1._RKIND-dx)
 c
          enddo
 c
@@ -108,21 +108,21 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0,IKIND)
-            j1  = int(ypos + 0.5d0,IKIND)
+            i1  = int(xpos + 0.5_RKIND,IKIND)
+            j1  = int(ypos + 0.5_RKIND,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1,RKIND) + 0.5d0 - xpos
-            dy = REAL(j1,RKIND) + 0.5d0 - ypos
+            dx = REAL(i1,RKIND) + 0.5_RKIND - xpos
+            dy = REAL(j1,RKIND) + 0.5_RKIND - ypos
 c
 c           Interpolate from field into sumfield
 c
             sumfield(n) = sumfield(n) +
      &              field(i1  ,j1  ,1)*      dx *      dy  +
-     &              field(i1+1,j1  ,1)*(1.d0-dx)*      dy  +
-     &              field(i1  ,j1+1,1)*      dx *(1.d0-dy) +
-     &              field(i1+1,j1+1,1)*(1.d0-dx)*(1.d0-dy)
+     &              field(i1+1,j1  ,1)*(1._RKIND-dx)*      dy  +
+     &              field(i1  ,j1+1,1)*      dx *(1._RKIND-dy) +
+     &              field(i1+1,j1+1,1)*(1._RKIND-dx)*(1._RKIND-dy)
 c
          enddo
 c
@@ -142,28 +142,28 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0,IKIND)
-            j1  = int(ypos + 0.5d0,IKIND)
-            k1  = int(zpos + 0.5d0,IKIND)
+            i1  = int(xpos + 0.5_RKIND,IKIND)
+            j1  = int(ypos + 0.5_RKIND,IKIND)
+            k1  = int(zpos + 0.5_RKIND,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1,RKIND) + 0.5d0 - xpos
-            dy = REAL(j1,RKIND) + 0.5d0 - ypos
-            dz = REAL(k1,RKIND) + 0.5d0 - zpos
+            dx = REAL(i1,RKIND) + 0.5_RKIND - xpos
+            dy = REAL(j1,RKIND) + 0.5_RKIND - ypos
+            dz = REAL(k1,RKIND) + 0.5_RKIND - zpos
 c
 c           Interpolate from field into sumfield
 c 
     
             sumfield(n) = sumfield(n) +
      &              field(i1  ,j1  ,k1  )*      dx *      dy *      dz +
-     &              field(i1+1,j1  ,k1  )*(1.d0-dx)*      dy *      dz +
-     &              field(i1  ,j1+1,k1  )*      dx *(1.d0-dy)*      dz +
-     &              field(i1+1,j1+1,k1  )*(1.d0-dx)*(1.d0-dy)*      dz +
-     &              field(i1  ,j1  ,k1+1)*      dx *      dy *(1.d0-dz)+
-     &              field(i1+1,j1  ,k1+1)*(1.d0-dx)*      dy *(1.d0-dz)+
-     &              field(i1  ,j1+1,k1+1)*      dx *(1.d0-dy)*(1.d0-dz)+
-     &              field(i1+1,j1+1,k1+1)*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &              field(i1+1,j1  ,k1  )*(1._RKIND-dx)*      dy *      dz +
+     &              field(i1  ,j1+1,k1  )*      dx *(1._RKIND-dy)*      dz +
+     &              field(i1+1,j1+1,k1  )*(1._RKIND-dx)*(1._RKIND-dy)*      dz +
+     &              field(i1  ,j1  ,k1+1)*      dx *      dy *(1._RKIND-dz)+
+     &              field(i1+1,j1  ,k1+1)*(1._RKIND-dx)*      dy *(1._RKIND-dz)+
+     &              field(i1  ,j1+1,k1+1)*      dx *(1._RKIND-dy)*(1._RKIND-dz)+
+     &              field(i1+1,j1+1,k1+1)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
 
          enddo

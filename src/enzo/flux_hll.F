@@ -99,8 +99,8 @@ c
       R_PREC sl(ijkn), sr(ijkn), sm(ijkn)
       R_PREC dubl, dubr
 
-      gamma1 = gamma - 1.d0
-      gamma1i = 1.d0 / gamma1
+      gamma1 = gamma - 1._RKIND
+      gamma1i = 1._RKIND / gamma1
 c
 c  Loop through this slice, doing 1 sweep at a time
 c
@@ -111,7 +111,7 @@ c
       do i = i1,i2+1
          sqrtdl = sqrt(dls(i,j))
          sqrtdr = sqrt(drs(i,j))
-         isdlpdr = 1.d0 / (sqrtdl + sqrtdr)
+         isdlpdr = 1._RKIND / (sqrtdl + sqrtdr)
          vroe1 = (sqrtdl * uls(i,j) + sqrtdr * urs(i,j)) * isdlpdr
          vroe2 = (sqrtdl * vls(i,j) + sqrtdr * vrs(i,j)) * isdlpdr
          vroe3 = (sqrtdl * wls(i,j) + sqrtdr * wrs(i,j)) * isdlpdr
@@ -121,16 +121,16 @@ c     The enthalpy H=(E+P)/d is averaged for adiabatic flows, rather
 c     than E or P directly.  
 c     sqrtql*hl = sqrtdl*(el+pl)/dl = (el+pl)/sqrtdl
 c         
-         el(i) = gamma1i * pls(i,j) + 0.5d0*dls(i,j)*
+         el(i) = gamma1i * pls(i,j) + 0.5_RKIND*dls(i,j)*
      $        (uls(i,j)**2 + vls(i,j)**2 + wls(i,j)**2)
-         er(i) = gamma1i * prs(i,j) + 0.5d0*drs(i,j)*
+         er(i) = gamma1i * prs(i,j) + 0.5_RKIND*drs(i,j)*
      $        (urs(i,j)**2 + vrs(i,j)**2 + wrs(i,j)**2)
          hroe = ((el(i) + pls(i,j))/sqrtdl + 
      $        (er(i) + prs(i,j))/sqrtdr) * isdlpdr
 c
 c     Compute characteristics using Roe-averaged values
 c
-         cs(i) = sqrt(gamma1*max((hroe - 0.5d0*v2), tiny))
+         cs(i) = sqrt(gamma1*max((hroe - 0.5_RKIND*v2), tiny))
          char1(i) = vroe1 - cs(i)
          char2(i) = vroe1 + cs(i)
       enddo
@@ -145,8 +145,8 @@ c
          csl(i) = min(uls(i,j)-csl0, char1(i))
          csr(i) = max(urs(i,j)+csr0, char2(i))
 
-         bm(i) = min(csl(i), 0.d0)
-         bp(i) = max(csr(i), 0.d0)
+         bm(i) = min(csl(i), 0._RKIND)
+         bp(i) = max(csr(i), 0._RKIND)
          
          bm0(i) = uls(i,j) - bm(i)
          bp0(i) = urs(i,j) - bp(i)
@@ -157,8 +157,8 @@ c     Weights for different (left, right, star) regions in the cell
 c
       do i = i1,i2+1
          q1 = (bp(i) + bm(i)) / (bp(i) - bm(i))
-         sl(i) = 0.5d0 * (1.d0 + q1)
-         sr(i) = 0.5d0 * (1.d0 - q1)
+         sl(i) = 0.5_RKIND * (1._RKIND + q1)
+         sr(i) = 0.5_RKIND * (1._RKIND - q1)
       enddo
 c
 c     Compute diffusion terms
@@ -184,12 +184,12 @@ c
          endif
       else
          do i = i1,i2+1
-            diffd(i) = 0.d0
-            diffuu(i) = 0.d0
-            diffuv(i) = 0.d0
-            diffuw(i) = 0.d0
-            diffue(i) = 0.d0
-            diffuge(i) = 0.d0
+            diffd(i) = 0._RKIND
+            diffuu(i) = 0._RKIND
+            diffuv(i) = 0._RKIND
+            diffuw(i) = 0._RKIND
+            diffue(i) = 0._RKIND
+            diffuge(i) = 0._RKIND
          enddo
       endif
 c
@@ -296,7 +296,7 @@ c     Calculate source term for gas energy
 c
       if (idual .eq. 1) then
          do i=i1, i2+1
-            pcent(i) = max((gamma-1.d0)*geslice(i,j)*dslice(i,j), 
+            pcent(i) = max((gamma-1._RKIND)*geslice(i,j)*dslice(i,j), 
      $           tiny)
          enddo
          do i=i1, i2+1

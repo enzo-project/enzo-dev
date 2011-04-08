@@ -53,7 +53,7 @@ c
       INTG_PREC i1, j1, k1, n
       R_PREC    xpos, ypos, zpos, dx, dy, dz, fact
       P_PREC edge1, edge2, edge3, half
-      parameter (half = 0.5001d0)
+      parameter (half = 0.5001_RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -61,7 +61,7 @@ c
 
 !     write(0,*) npositions, leftedge, dim1, dim2, dim3, cellsize
 
-      fact = 1.d0/cellsize
+      fact = 1._RKIND/cellsize
       edge1 = REAL(dim1,RKIND) - half
       edge2 = REAL(dim2,RKIND) - half
       edge3 = REAL(dim3,RKIND) - half
@@ -78,16 +78,16 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0,IKIND)
+            i1  = int(xpos + 0.5_RKIND,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1,RKIND) + 0.5d0 - xpos
+            dx = REAL(i1,RKIND) + 0.5_RKIND - xpos
 c
 c           Interpolate from field into sumfield
 c
             field(i1  ,1,1) = field(i1  ,1,1) + mass(n)*dx
-            field(i1+1,1,1) = field(i1+1,1,1) + mass(n)*(1.d0-dx)
+            field(i1+1,1,1) = field(i1+1,1,1) + mass(n)*(1._RKIND-dx)
 c
          enddo
 c
@@ -106,24 +106,24 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0,IKIND)
-            j1  = int(ypos + 0.5d0,IKIND)
+            i1  = int(xpos + 0.5_RKIND,IKIND)
+            j1  = int(ypos + 0.5_RKIND,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1,RKIND) + 0.5d0 - xpos
-            dy = REAL(j1,RKIND) + 0.5d0 - ypos
+            dx = REAL(i1,RKIND) + 0.5_RKIND - xpos
+            dy = REAL(j1,RKIND) + 0.5_RKIND - ypos
 c
 c           Interpolate from field into sumfield
 c
             field(i1  ,j1  ,1) = field(i1  ,j1  ,1) +
      &                           mass(n)*      dx *      dy
             field(i1+1,j1  ,1) = field(i1+1,j1  ,1) +
-     &                           mass(n)*(1.d0-dx)*      dy
+     &                           mass(n)*(1._RKIND-dx)*      dy
             field(i1  ,j1+1,1) = field(i1  ,j1+1,1) + 
-     &                           mass(n)*      dx *(1.d0-dy)
+     &                           mass(n)*      dx *(1._RKIND-dy)
             field(i1+1,j1+1,1) = field(i1+1,j1+1,1) +
-     &                           mass(n)*(1.d0-dx)*(1.d0-dy)
+     &                           mass(n)*(1._RKIND-dx)*(1._RKIND-dy)
 c
          enddo
 c
@@ -145,15 +145,15 @@ c
 c
 c           Convert this into an INTG_PREC index
 c
-            i1  = int(xpos + 0.5d0,IKIND)
-            j1  = int(ypos + 0.5d0,IKIND)
-            k1  = int(zpos + 0.5d0,IKIND)
+            i1  = int(xpos + 0.5_RKIND,IKIND)
+            j1  = int(ypos + 0.5_RKIND,IKIND)
+            k1  = int(zpos + 0.5_RKIND,IKIND)
 c
 c           Compute the weights
 c
-            dx = REAL(i1,RKIND) + 0.5d0 - xpos
-            dy = REAL(j1,RKIND) + 0.5d0 - ypos
-            dz = REAL(k1,RKIND) + 0.5d0 - zpos
+            dx = REAL(i1,RKIND) + 0.5_RKIND - xpos
+            dy = REAL(j1,RKIND) + 0.5_RKIND - ypos
+            dz = REAL(k1,RKIND) + 0.5_RKIND - zpos
 c
 c           Interpolate from field into sumfield
 

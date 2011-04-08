@@ -61,11 +61,11 @@ c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=2, ddim1-1
-            x = REAL(i-1,RKIND)*fact1 + 0.5d0
+            x = REAL(i-1,RKIND)*fact1 + 0.5_RKIND
             i1 = int(x,IKIND) + 1
-            dxm = 0.5d0*(   -x+REAL(i1,RKIND))
-            dxp = 0.5d0*(1.d0+x-REAL(i1,RKIND))
-            dx0 = 1.d0 - dxp - dxm
+            dxm = 0.5_RKIND*(   -x+REAL(i1,RKIND))
+            dxp = 0.5_RKIND*(1._RKIND+x-REAL(i1,RKIND))
+            dx0 = 1._RKIND - dxp - dxm
             dest(i,1,1) = source(i1-1,1,1)*dxm + 
      &                    source(i1  ,1,1)*dx0 +
      &                    source(i1+1,1,1)*dxp
@@ -79,17 +79,17 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=2, ddim2-1
-            y = REAL(j-1,RKIND)*fact2 + 0.5d0
+            y = REAL(j-1,RKIND)*fact2 + 0.5_RKIND
             j1 = int(y,IKIND) + 1
-            dym = 0.5d0*(   -y+REAL(j1,RKIND))
-            dyp = 0.5d0*(1.d0+y-REAL(j1,RKIND))
-            dy0 = 1.d0 - dyp - dym
+            dym = 0.5_RKIND*(   -y+REAL(j1,RKIND))
+            dyp = 0.5_RKIND*(1._RKIND+y-REAL(j1,RKIND))
+            dy0 = 1._RKIND - dyp - dym
             do i=2, ddim1-1
-               x = REAL(i-1,RKIND)*fact1 + 0.5d0
+               x = REAL(i-1,RKIND)*fact1 + 0.5_RKIND
                i1 = int(x,IKIND) + 1
-               dxm = 0.5d0*(   -x+REAL(i1,RKIND))
-               dxp = 0.5d0*(1.d0+x-REAL(i1,RKIND))
-               dx0 = 1.d0 - dxp - dxm
+               dxm = 0.5_RKIND*(   -x+REAL(i1,RKIND))
+               dxp = 0.5_RKIND*(1._RKIND+x-REAL(i1,RKIND))
+               dx0 = 1._RKIND - dxp - dxm
                dest(i,j,1) = source(i1-1,j1-1,1)*dxm*dym + 
      &                       source(i1  ,j1-1,1)*dx0*dym +
      &                       source(i1+1,j1-1,1)*dxp*dym +
@@ -104,7 +104,7 @@ c
             dest(ddim1,j,1) = source(sdim1,j1,1)
          enddo
          do i=1, ddim1
-            i1 = min(max(int(REAL(i-1,RKIND)*fact1 + 0.5d0,IKIND)+1, 1), 
+            i1 = min(max(int(REAL(i-1,RKIND)*fact1 + 0.5_RKIND,IKIND)+1, 1), 
      &               sdim1)
             dest(i,    1,1) = source(i1,    1,1)
             dest(i,ddim2,1) = source(i1,sdim2,1)
@@ -115,23 +115,23 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=2, ddim3-1
-            z = REAL(k-1,RKIND)*fact3 + 0.5d0
+            z = REAL(k-1,RKIND)*fact3 + 0.5_RKIND
             k1 = int(z,IKIND) + 1
-            dzm = 0.5d0*(   -z+REAL(k1,RKIND))**2
-            dzp = 0.5d0*(1.d0+z-REAL(k1,RKIND))**2
-            dz0 = 1.d0 - dzp - dzm
+            dzm = 0.5_RKIND*(   -z+REAL(k1,RKIND))**2
+            dzp = 0.5_RKIND*(1._RKIND+z-REAL(k1,RKIND))**2
+            dz0 = 1._RKIND - dzp - dzm
             do j=2, ddim2-1
-               y = REAL(j-1,RKIND)*fact2 + 0.5d0
+               y = REAL(j-1,RKIND)*fact2 + 0.5_RKIND
                j1 = int(y,IKIND) + 1
-               dym = 0.5d0*(   -y+REAL(j1,RKIND))**2
-               dyp = 0.5d0*(1.d0+y-REAL(j1,RKIND))**2
-               dy0 = 1.d0 - dyp - dym
+               dym = 0.5_RKIND*(   -y+REAL(j1,RKIND))**2
+               dyp = 0.5_RKIND*(1._RKIND+y-REAL(j1,RKIND))**2
+               dy0 = 1._RKIND - dyp - dym
                do i=2, ddim1-1
-                  x = REAL(i-1,RKIND)*fact1 + 0.5d0
+                  x = REAL(i-1,RKIND)*fact1 + 0.5_RKIND
                   i1 = int(x,IKIND) + 1
-                  dxm = 0.5d0*(   -x+REAL(i1,RKIND))**2
-                  dxp = 0.5d0*(1.d0+x-REAL(i1,RKIND))**2
-                  dx0 = 1.d0 - dxp - dxm
+                  dxm = 0.5_RKIND*(   -x+REAL(i1,RKIND))**2
+                  dxp = 0.5_RKIND*(1._RKIND+x-REAL(i1,RKIND))**2
+                  dx0 = 1._RKIND - dxp - dxm
                   dest(i,j,k) = source(i1-1,j1-1,k1-1)*dxm*dym*dzm + 
      &                          source(i1  ,j1-1,k1-1)*dx0*dym*dzm +
      &                          source(i1+1,j1-1,k1-1)*dxp*dym*dzm +
@@ -168,17 +168,17 @@ c
             enddo
             do i=1, ddim1
                i1 = min(max(int(
-     &              REAL(i-1,RKIND)*fact1 + 0.5d0,IKIND) + 1, 1), sdim1)
+     &              REAL(i-1,RKIND)*fact1 + 0.5_RKIND,IKIND) + 1, 1), sdim1)
                dest(i,    1,k) = source(i1,    1,k1)
                dest(i,ddim2,k) = source(i1,sdim2,k1)
             enddo
          enddo
          do j=1, ddim2
             j1 = min(max(int(
-     &           REAL(j-1,RKIND)*fact2 + 0.5d0,IKIND) + 1, 1), sdim2)
+     &           REAL(j-1,RKIND)*fact2 + 0.5_RKIND,IKIND) + 1, 1), sdim2)
             do i=1, ddim1
                i1 = min(max(int(
-     &              REAL(i-1,RKIND)*fact1 + 0.5d0,IKIND) + 1, 1), sdim1)
+     &              REAL(i-1,RKIND)*fact1 + 0.5_RKIND,IKIND) + 1, 1), sdim1)
                dest(i,j,    1) = source(i1,j1,    1)
                dest(i,j,ddim3) = source(i1,j1,sdim3)
             enddo

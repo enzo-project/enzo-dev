@@ -81,7 +81,7 @@ c
         stopthepresses = .false.
         flipdmask=.false.
         if(itererror.gt.1)flipdmask=.true.
-        itererror = -1.d0
+        itererror = -1._RKIND
 
         do i = is+1, ie+1
         if(dmask(i).eqv..true.) then
@@ -118,11 +118,11 @@ c
         dsq(i,n) = (
      &       + r09
      &       + r11
-     &       + r17 ) * 2.0d0
+     &       + r17 ) * 2._RKIND
         dsp(i,n) = (
      &       + r10
      &       + r18
-     &       + r19 ) * 2.0d0
+     &       + r19 ) * 2._RKIND
         if(doupdate.eqv..true.)then
           s(i,n) = s(i,n) * (dsq(i,n)/dsp(i,n))
           s(i,n) = max(s(i,n),tiny*rtot(i))
@@ -149,9 +149,9 @@ c
      &       + r50 !
         if(doupdate.eqv..true..and.eqmask(i).eqv..false.)then
           s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &            / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-          temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &         (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+     &            / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+          temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &         (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
      &      /  (RTOL*dtcoef(n)*sp(i,n))
           itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
           if(temp2.gt.temp3)then
@@ -184,9 +184,9 @@ c
      &       + r62 !
         if(doupdate.eqv..true.)then
 c        s(i,n) = (dsq(i,n)*dtit(i)+s(i,n))
-c     &         / (1.0d0+dtit(i)*dsp(i,n)/s(i,n))
-        s(i,de) = s(i,HII) + s(i,HeII)/4.0d0 + s(i,HeIII)/2.0d0
-     &           + s(i,H2II)/2.0d0 - s(i,HM) + s(i,DII)/2.0d0
+c     &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
+        s(i,de) = s(i,HII) + s(i,HeII)/4._RKIND + s(i,HeIII)/2._RKIND
+     &           + s(i,H2II)/2._RKIND - s(i,HM) + s(i,DII)/2._RKIND
         s(i,de) = max(tiny,s(i,de))
 #include "primordial_reactions.inc"
         endif
@@ -199,14 +199,14 @@ c
         dsq(i,n) = (
      &       + r02
      &       + r11 !
-     &       + r12  * 2.0d0
+     &       + r12  * 2._RKIND
      &       + r14 !
      &       + r15 !
-     &       + r16  * 2.0d0 !
-     &       + r18  * 2.0d0 !
+     &       + r16  * 2._RKIND !
+     &       + r18  * 2._RKIND !
      &       + r19 !
-     &       + r13  * 2.0d0
-     &       + r23  * 2.0d0
+     &       + r13  * 2._RKIND
+     &       + r23  * 2._RKIND
      &       + r50 !
      &       + r54 !
      &       )
@@ -216,16 +216,16 @@ c
      &       + r08 !
      &       + r09 !
      &       + r10 !
-     &       + r21  * 2.0d0
-     &       + r22  * 2.0d0
+     &       + r21  * 2._RKIND
+     &       + r22  * 2._RKIND
      &       + r51 !
      &       + r55 !
      &       )
         if(doupdate.eqv..true..and.eqmask(i).eqv..false.)then
           s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &            / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-          temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &         (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+     &            / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+          temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &         (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
      &      /  (RTOL*dtcoef(n)*sp(i,n))
           itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
           if(temp2.gt.temp3)then
@@ -234,7 +234,7 @@ c
           endif
 #include "primordial_reactions.inc"
         endif
-        hiheatp(i) = 1.0d0 * (r01)
+        hiheatp(i) = 1._RKIND * (r01)
 
 c
 c-------------H2I----------------------------------------------------
@@ -249,7 +249,7 @@ c
      &       + r22
      &       + r53 !
      &       + r55 !
-     &       ) * 2.0d0
+     &       ) * 2._RKIND
         dsp(i,n) = (
      &       + r11
      &       + r12
@@ -257,14 +257,14 @@ c
      &       + r23
      &       + r52 !
      &       + r54 !
-     &       ) * 2.0d0
+     &       ) * 2._RKIND
 ! With quantitiyes in number density:
 ! H2_eq = (sqrt(k13)*sqrt(4*k22*rho+k13)-k13)/(2*k22)
         if(doupdate.eqv..true..and.eqmask(i).eqv..false.)then
           s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &            / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-          temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &         (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+     &            / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+          temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &         (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
      &      /  (RTOL*dtcoef(n)*s(i,n))
           itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
           if(temp2.gt.temp3)then
@@ -274,12 +274,12 @@ c
         endif
 #include "primordial_reactions.inc"
         if(s(i,H2I)/fd(i).gt.1e-7)then
-          h2heatp(i) = 2.0d0 * (r21 + r22)
-          h2heatm(i) = 2.0d0 * (r13 + r23)
+          h2heatp(i) = 2._RKIND * (r21 + r22)
+          h2heatm(i) = 2._RKIND * (r13 + r23)
         endif
 c        if((tgas(i).gt.8000).and.(rtot(i)*dom.gt.1e8))then
-c          h2heatp(i) = max((s(i,H2I)-sp(i,H2I))/dtit(i),0.0d0)
-c          h2heatm(i) = max((sp(i,H2I)-s(i,H2I))/dtit(i),0.0d0)
+c          h2heatp(i) = max((s(i,H2I)-sp(i,H2I))/dtit(i),0._RKIND)
+c          h2heatm(i) = max((sp(i,H2I)-s(i,H2I))/dtit(i),0._RKIND)
 c        endif
 
 c
@@ -289,17 +289,17 @@ c
         prevval = s(i,n)
         dsq(i,n) = (
      &       + r04
-     &       ) * 4.0d0
+     &       ) * 4._RKIND
         dsp(i,n) = (
      &       + r03
-     &       ) * 4.0d0
+     &       ) * 4._RKIND
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &          / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+     &          / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
         s(i,n) = max(s(i,n), tiny)
 #include "primordial_reactions.inc"
-        temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &       (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+        temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &       (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
      &    /  (RTOL*dtcoef(n)*sp(i,n))
 c        itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
         if(temp2.gt.temp3)then
@@ -307,7 +307,7 @@ c        itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
           mins(i) = n
         endif
         endif
-        heiheatp(i)  = 4.0d0 * (r03)
+        heiheatp(i)  = 4._RKIND * (r03)
 c        write(0,*) heiheatp(i)
 
 c
@@ -318,18 +318,18 @@ c
         dsq(i,n) = (
      &       + r03
      &       + r06
-     &       ) * 4.0d0
+     &       ) * 4._RKIND
         dsp(i,n) = (
      &       + r04
      &       + r05
-     &       ) * 4.0d0
+     &       ) * 4._RKIND
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &          / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+     &          / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
         s(i,n) = max(tiny,s(i,n))
 #include "primordial_reactions.inc"
-        temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &       (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+        temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &       (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
      &    /  (RTOL*dtcoef(n)*sp(i,n))
 c        itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
         if(temp2.gt.temp3)then
@@ -337,7 +337,7 @@ c          temp3 = temp2
 c          mins(i) = n
         endif
         endif
-        heiiheatp(i) = 4.0d0 * (r05)
+        heiiheatp(i) = 4._RKIND * (r05)
 
 c
 c-------------HeIII--------------------------------------------------
@@ -346,17 +346,17 @@ c
         prevval = s(i,n)
         dsq(i,n) = (
      &       + r05
-     &       ) * 4.0d0
+     &       ) * 4._RKIND
         dsp(i,n) = (
      &       + r06
-     &       ) * 4.0d0
+     &       ) * 4._RKIND
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &          / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+     &          / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
         s(i,n) = max(tiny,s(i,n))
 #include "primordial_reactions.inc"
-        temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &       (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
+        temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &       (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
      &    /  (RTOL*dtcoef(n)*sp(i,n))
 c        itererror = max(itererror, abs(s(i,n)-prevval)/prevval)
         if(temp2.gt.temp3)then
@@ -370,7 +370,7 @@ c   We assume that the charge exchange with the H/H+ species will completely
 c   regulate the abundance of D/D+
 c Recall:
 c   nD = (nDTot - nHD) * (nH * k51) / (nH*k51 + nH*k50)
-        temp1 = max(tiny, dtot(i) - (2.d0/3.d0) * s(i,HDI))
+        temp1 = max(tiny, dtot(i) - (2._RKIND/3._RKIND) * s(i,HDI))
 c        s(i,DI)  = max(tiny*rtot(i), temp1 * 
 c     &     (s(i,HI) * k51(i)) / (s(i,HI)*k51(i) + s(i,HII)*k50(i)))
 c        s(i,DI) = s(i,DI) * (r62 + r51 + r55) / (r61 + r50 + r54)
@@ -387,15 +387,15 @@ c
      &       + r61
      &       + r50
      &       + r53
-     & ) * 2.0d0
+     & ) * 2._RKIND
         dsp(i,DII) = (  ! DII
      &       + r62
      &       + r51
      &       + r52
-     & ) * 2.0d0
+     & ) * 2._RKIND
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*dtit(i)+sp(i,n))
-     &         / (1.0d0+dtit(i)*dsp(i,n)/s(i,n))
+     &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
         s(i,n) = max(tiny, s(i,n))
 #include "primordial_reactions.inc"
         endif
@@ -408,15 +408,15 @@ c
      &       + r62
      &       + r51
      &       + r55
-     & ) * 2.0d0
+     & ) * 2._RKIND
         dsp(i,DI) = (  ! DI
      &       + r61
      &       + r50
      &       + r54
-     & ) * 2.0d0
+     & ) * 2._RKIND
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*dtit(i)+sp(i,n))
-     &         / (1.0d0+dtit(i)*dsp(i,n)/s(i,n))
+     &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
         s(i,n) = max(tiny, s(i,n))
 #include "primordial_reactions.inc"
         endif
@@ -428,14 +428,14 @@ c
         dsq(i,HDI) = (  ! HDI
      &       + r52
      &       + r54
-     & ) * 3.0d0
+     & ) * 3._RKIND
         dsp(i,HDI) = (  ! HDI
      &       + r53
      &       + r55
-     & ) * 3.0d0
+     & ) * 3._RKIND
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*dtit(i)+sp(i,n))
-     &         / (1.0d0+dtit(i)*dsp(i,n)/s(i,n))
+     &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
         s(i,n) = max(tiny, s(i,n))
 #include "primordial_reactions.inc"
         endif
@@ -444,8 +444,8 @@ c Charge conservation constraint step only gets applied when we actually
 c update, except, we probably only want to do it once both corrections are
 c done.
         if(doupdate.eqv..true.)then
-          s(i,de) = s(i,HII) + s(i,HeII)/4.0d0 + s(i,HeIII)/2.0d0
-     &            + s(i,H2II)/2.0d0 - s(i,HM)
+          s(i,de) = s(i,HII) + s(i,HeII)/4._RKIND + s(i,HeIII)/2._RKIND
+     &            + s(i,H2II)/2._RKIND - s(i,HM)
           s(i,de) = max(s(i,de),tiny)
         endif
 

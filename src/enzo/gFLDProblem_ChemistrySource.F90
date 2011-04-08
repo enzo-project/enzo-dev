@@ -91,12 +91,12 @@ subroutine gFLDProblem_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time,   &
   ! initialize outputs to have all zero values, flag to success
   ier = 1
   if (Nchem == 1) then
-     HIsrc = 0.d0
+     HIsrc = 0._RKIND
   endif
   if (Nchem == 3) then
-     HIsrc   = 0.d0
-     HeIsrc  = 0.d0
-     HeIIsrc = 0.d0
+     HIsrc   = 0._RKIND
+     HeIsrc  = 0._RKIND
+     HeIIsrc = 0._RKIND
   endif
 
 

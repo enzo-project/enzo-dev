@@ -91,12 +91,12 @@ c
 
 #ifdef CONFIG_BFLOAT_4
       R_PREC tolerance
-      parameter (tolerance = 1.0e-07)
+      parameter (tolerance = 1.0e-7_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
       R_PREC tolerance
-      parameter (tolerance = 1.0d-14)
+      parameter (tolerance = 1.e-14_RKIND)
 #endif
 
 c
@@ -112,7 +112,7 @@ c     write(6,*) 'TWOSHOCK: dt =',dt,'  idim =',idim,'  jdim=',jdim
 c     write(6,*) 'TWOSHOCK: i1 =',i1,'  i2   =',i2
 c     write(6,*) 'TWOSHOCK: j1 =',j1,'  j2   =',j2
 
-      qa = (gamma + 1.d0)/(2.d0*gamma)
+      qa = (gamma + 1._RKIND)/(2._RKIND*gamma)
 c
 c  Loop through this slice, doing 1 sweep at a time
 c
@@ -124,7 +124,7 @@ c
        if (ipresfree .eq. 1) then
         do i=i1, i2
            pbar(i,j) = pmin
-           ubar(i,j) = 0.5d0*(uls(i,j)+urs(i,j))
+           ubar(i,j) = 0.5_RKIND*(uls(i,j)+urs(i,j))
            pls(i,j)  = pmin
            prs(i,j)  = pmin
         enddo
@@ -143,9 +143,9 @@ c       if (gravity .eq. 1) then
           cl  (i) = sqrt(gamma*pls(i,j)*dls(i,j))
           cr  (i) = sqrt(gamma*prs(i,j)*drs(i,j))
           ps(i) = (cr(i)*pls(i,j) + cl(i)*prs(i,j)
-     &          +  cr(i)*cl(i)*(uls(i,j) - urs(i,j)
-     &                        + 0.5d0*dt*(grslice(i-1,j)-grslice(i,j)) 
-     &                                           ) )/(cr(i)+cl(i))
+     &         +  cr(i)*cl(i)*(uls(i,j) - urs(i,j)
+     &         + 0.5_RKIND*dt*(grslice(i-1,j)-grslice(i,j)) 
+     &         ) )/(cr(i)+cl(i))
 
 !               ^
 !               changed to + June 2003
@@ -189,8 +189,8 @@ c
 
           do i=i1,i2
             if ( mask(i) .gt. 0 ) then
-            zl (i) = cl(i)*sqrt((1.d0+qa*(ps(i)/pls(i,j)-1.d0)))
-            zr (i) = cr(i)*sqrt((1.d0+qa*(ps(i)/prs(i,j)-1.d0)))
+            zl (i) = cl(i)*sqrt((1._RKIND+qa*(ps(i)/pls(i,j)-1._RKIND)))
+            zr (i) = cr(i)*sqrt((1._RKIND+qa*(ps(i)/prs(i,j)-1._RKIND)))
             ubl(i) = uls(i,j) - (ps(i)-pls(i,j))/zl(i)
             ubr(i) = urs(i,j) + (ps(i)-prs(i,j))/zr(i)
             end if
@@ -198,10 +198,12 @@ c
 
           do i=i1,i2
             if ( mask(i) .gt. 0 ) then
-            dpdul(i) = -4.d0*zl(i)**3/dls(i,j)
-     &        /(4.d0*zl(i)**2/dls(i,j) - (gamma+1.d0)*(ps(i)-pls(i,j)))
-            dpdur(i) =  4.d0*zr(i)**3/drs(i,j)
-     &        /(4.d0*zr(i)**2/drs(i,j) - (gamma+1.d0)*(ps(i)-prs(i,j)))
+            dpdul(i) = -4._RKIND*zl(i)**3/dls(i,j)
+     &              /(4._RKIND*zl(i)**2/dls(i,j) 
+     &              - (gamma+1._RKIND)*(ps(i)-pls(i,j)))
+            dpdur(i) =  4._RKIND*zr(i)**3/drs(i,j)
+     &           /(4._RKIND*zr(i)**2/drs(i,j) 
+     &           - (gamma+1._RKIND)*(ps(i)-prs(i,j)))
             ps (i) = ps(i) + (ubr(i)-ubl(i))*dpdur(i)*dpdul(i)
      &                      /(dpdur(i)-dpdul(i))
 c            if (ps(i) .lt. pmin) ps(i) = min(pls(i,j),prs(i,j))
@@ -259,8 +261,8 @@ c
            do i=i1, i2
               if (gamma*ps(i)/min(dls(i,j),drs(i,j)) .lt.
      &             eta1*ubar(i,j)**2) then
-                 pbar(i,j) = 0.5d0*(pls(i,j) + prs(i,j))
-                 ubar(i,j) = 0.5d0*(uls(i,j) + urs(i,j))
+                 pbar(i,j) = 0.5_RKIND*(pls(i,j) + prs(i,j))
+                 ubar(i,j) = 0.5_RKIND*(uls(i,j) + urs(i,j))
               endif
            enddo
         endif

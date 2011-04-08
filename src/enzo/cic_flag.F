@@ -62,12 +62,12 @@ c
       INTG_PREC istart, iend, jstart, jend, kstart, kend
       R_PREC    xpos, ypos, zpos, fact
       P_PREC edge1, edge2, edge3, half
-      parameter (half = 0.5001d0)
+      parameter (half = 0.5001_RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1.d0/cellsize
+      fact = 1._RKIND/cellsize
       edge1 = REAL(dim1,RKIND) - half
       edge2 = REAL(dim2,RKIND) - half
       edge3 = REAL(dim3,RKIND) - half
@@ -92,7 +92,7 @@ c
 c
 c             Convert this into an INTG_PREC index
 c
-              i1  = int(xpos + 0.5d0,IKIND)
+              i1  = int(xpos + 0.5_RKIND,IKIND)
 c
 c             set flagging field
 c
@@ -136,8 +136,8 @@ c
 c
 c             Convert this into an INTG_PREC index
 c
-              i1  = int(xpos + 0.5d0,IKIND)
-              j1  = int(ypos + 0.5d0,IKIND)
+              i1  = int(xpos + 0.5_RKIND,IKIND)
+              j1  = int(ypos + 0.5_RKIND,IKIND)
 c
 c             Interpolate from field into sumfield
 c
@@ -188,9 +188,9 @@ c
 c  
 c             Convert this into an INTG_PREC index
 c  
-              i1  = int(xpos + 0.5d0,IKIND)
-              j1  = int(ypos + 0.5d0,IKIND)
-              k1  = int(zpos + 0.5d0,IKIND)
+              i1  = int(xpos + 0.5_RKIND,IKIND)
+              j1  = int(ypos + 0.5_RKIND,IKIND)
+              k1  = int(zpos + 0.5_RKIND,IKIND)
 c
 c             Set flagging field
 c     

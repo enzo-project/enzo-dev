@@ -1,7 +1,7 @@
 #include "fortran.def"
 #include "phys_const.def"
-#define EQOFFSET 1.5d0
-#define EQOVERLAP 3.d0
+#define EQOFFSET 1.5_RKIND
+#define EQOVERLAP 3._RKIND
 #define TOLERANCE 1d-20
 c=======================================================================
 c/////////////////////  SUBROUTINE SOLVE_RATE  \\\\\\\\\\\\\\\\\\\\\\\\\
@@ -273,7 +273,7 @@ c
 
       double precision everg, e24, e26
       R_PREC dlogrho, dloge
-      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6_RKIND, e26 = 24.6_RKIND)
       INTG_PREC totalit
       parameter(iHI=1,iHII=2,iHeI=3,iHeII=4,iHeIII=5,
      &          iH2I=6,ige=7,iDI=8,iDII=9,iHDI=10,
@@ -299,31 +299,31 @@ c to do this second-order BDF
       eqable(iH2II)     =  .false.
       eqable(iHM)       =  .false.
 
-      dtcoef(iHI)      =  0.1d0
+      dtcoef(iHI)      =  0.1_RKIND
       capycare(iHI)    = .true.
-      dtcoef(iHII)     =  0.1d0
+      dtcoef(iHII)     =  0.1_RKIND
       capycare(iHII)   = .true.
-      dtcoef(ide)      =  0.1d0
+      dtcoef(ide)      =  0.1_RKIND
       capycare(ide)    = .false.
-      dtcoef(iHeI)     =  0.1d0
+      dtcoef(iHeI)     =  0.1_RKIND
       capycare(iHeI)   = .false.
-      dtcoef(iHeII)    =  0.1d0
+      dtcoef(iHeII)    =  0.1_RKIND
       capycare(iHeII)  = .false.
-      dtcoef(iHeIII)   =  0.1d0
+      dtcoef(iHeIII)   =  0.1_RKIND
       capycare(iHeIII) = .false.
-      dtcoef(iH2I)     =  0.01d0
+      dtcoef(iH2I)     =  0.01_RKIND
       capycare(iH2I)   = .true.
-      dtcoef(ige)      =  0.01d0
+      dtcoef(ige)      =  0.01_RKIND
       capycare(ige)    = .true.
-      dtcoef(iDI)      =  1.0d0
+      dtcoef(iDI)      =  1._RKIND
       capycare(iDI)    = .false.
-      dtcoef(iDII)     =  1.0d0
+      dtcoef(iDII)     =  1._RKIND
       capycare(iDII)   = .false.
-      dtcoef(iHDI)     =  1.0d0
+      dtcoef(iHDI)     =  1._RKIND
       capycare(iHDI)   = .false. ! Off for now; should track H2 directly
-      dtcoef(iH2II)    =  1.0d0
+      dtcoef(iH2II)    =  1._RKIND
       capycare(iH2II)  = .false.
-      dtcoef(iHM)      =  1.0d0
+      dtcoef(iHM)      =  1._RKIND
       capycare(iHM)    = .false.
 
 c
@@ -340,18 +340,18 @@ c
       kunit    = (uaye**3 * mh) / (dbase1 * tbase1)
       kunit_3bdy  = kunit * (uaye**3 * mh) / dbase1
 c     4.48 eV = 7.17775d-12 ergs
-      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
+      chunit = (7.17775d-12)/(2._RKIND*uvel*uvel*mh)
       ciHIunit    = (2.18d-11)/(uvel*uvel*mh)
-      ciHeIunit   = (3.94d-11)/(4.d0*uvel*uvel*mh)
-      ciHeIIunit  = (8.72d-11)/(4.d0*uvel*uvel*mh)
+      ciHeIunit   = (3.94d-11)/(4._RKIND*uvel*uvel*mh)
+      ciHeIIunit  = (8.72d-11)/(4._RKIND*uvel*uvel*mh)
 
 #ifdef UNUSED_TABULATED_EQ
-c      rhostartcode = log10((10**rhostart)/(urho*aye**3.d0))
-c      rhoendcode = log10((10**rhoend)/(urho*aye**3.d0))
-      estartcode = log10((10.d0**estart)/(uvel**2.d0))
-      eendcode = log10((10.d0**eend)/(uvel**2.d0))
-      rhostartcode = log10(10.d0**rhostart/(fh*dom))
-      rhoendcode = log10(10.d0**rhoend/(fh*dom))
+c      rhostartcode = log10((10**rhostart)/(urho*aye**3._RKIND))
+c      rhoendcode = log10((10**rhoend)/(urho*aye**3._RKIND))
+      estartcode = log10((10._RKIND**estart)/(uvel**2._RKIND))
+      eendcode = log10((10._RKIND**eend)/(uvel**2._RKIND))
+      rhostartcode = log10(10._RKIND**rhostart/(fh*dom))
+      rhoendcode = log10(10._RKIND**rhoend/(fh*dom))
 #endif
 
 #ifdef PYFORT_OFF
@@ -397,18 +397,18 @@ c        Initialize variables
 c
          iter = 1
          do i = is+1, ie+1
-            ttot(i) = 0.d0
+            ttot(i) = 0._RKIND
             omask(i) = .false.
             rejected(i) = .false.
             fd(i) = fh*d(i,j,k)
 #ifdef PYFORT
             if(subgridmask(i,j,k).eq.1
-     &        .and.dt(i,j,k).gt.0.0d0)then
+     &        .and.dt(i,j,k).gt.0._RKIND)then
               itmask(i)=.true.
             else
                itmask(i)=.false.
             endif
-            dtit(i) = dt(i,j,k)/5.d0
+            dtit(i) = dt(i,j,k)/5._RKIND
 #else
             dtit(i) = dt
             subgridmask = 1
@@ -416,13 +416,13 @@ c
 #endif
             eqmask(i) = .false.
 #ifdef UNUSED_TABULATED_EQ
-            dprime(i) = -35.d0
-            geprime(i) = -35.d0
+            dprime(i) = -35._RKIND
+            geprime(i) = -35._RKIND
             geprime(i) = log10((ge(i,j,k) +
-     &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.d0))
+     &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2._RKIND))
             dprime(i) = log10(d(i,j,k)*dom*fh)
 c            write(0,*) rhostartcode, rhostart, estartcode, estart
-            if ((dprime(i).gt.rhostart+3.5d0).and.
+            if ((dprime(i).gt.rhostart+3.5_RKIND).and.
      &           (geprime(i).gt.estart))then
                 totaleq = totaleq + 1
 c                eqmask(i) = .true.
@@ -450,9 +450,9 @@ c                stop
             h2heatm(i) = tiny
             h2heatp(i) = tiny
             dmask(i) = itmask(i)
-            correctH(i) = 1.0d0
-            tsc(i) = 1.0d0
-            tsgamma(i) = 1.0d0
+            correctH(i) = 1._RKIND
+            tsc(i) = 1._RKIND
+            tsgamma(i) = 1._RKIND
 #ifdef PYFORT
             tgasouti(i,j,k) = tgas(i)
 #endif
@@ -474,20 +474,20 @@ c                stop
 #include "primordial_derivstep.inc"
 
          do n = 1, ncspecies
-           if(dtcoef(n).gt.0.d0) then
+           if(dtcoef(n).gt.0._RKIND) then
              do i = is+1, ie+1
              if((itmask(i).eqv..true.).and.(eqmask(i).eqv..false.))then
                ! Figure out our dtit here
                kws = min(abs(dsq(i,n)-dsp(i,n)),huge)
                qt = max(s(i,n),tiny) / max(tiny, kws)
-               temp1 = 0.1d0*abs(dtcoef(n)*qt)
+               temp1 = 0.1_RKIND*abs(dtcoef(n)*qt)
                if(temp1.lt.dtit(i).and.temp1.gt.tiny)then
                  dtit(i) = temp1
                  mins(i) = n
                endif
 #ifdef PYFORT
                tgasouti(i,j,k) = tgas(i)
-c               dtit(i) = dt(i,j,k)/10.d0
+c               dtit(i) = dt(i,j,k)/10._RKIND
 #endif
              endif
              enddo   ! end loop over i
@@ -496,9 +496,9 @@ c               dtit(i) = dt(i,j,k)/10.d0
          do i = is+1, ie+1
          if ((itmask(i).eqv..true.))then!.and.(eqmask(i).eqv..false.))then
 #ifdef PYFORT
-           dtit(i) = min(dt(i,j,k)/2.d0, abs(dt(i,j,k)-ttot(i)),dtit(i))
+           dtit(i) = min(dt(i,j,k)/2._RKIND, abs(dt(i,j,k)-ttot(i)),dtit(i))
 #else
-           dtit(i) = min(dt/2.d0, abs(dt-ttot(i)), dtit(i))
+           dtit(i) = min(dt/2._RKIND, abs(dt-ttot(i)), dtit(i))
 #endif
            olddtit(i) = dtit(i) ! First iteration!
          endif
@@ -552,14 +552,14 @@ c               dtit(i) = dt(i,j,k)/10.d0
               rejected(i) = .false.
               if(iter.gt.1)then
                 tsc(i) = olddtit(i)/dtit(i) ! c
-                tsgamma(i) = (tsc(i)+1.0d0)/(tsc(i)+2.0d0) ! gamma
+                tsgamma(i) = (tsc(i)+1._RKIND)/(tsc(i)+2._RKIND) ! gamma
                 do n = 1, ncspecies
                   temp2tsc = tsc(i)+tsc(i)
                   temptsc2 = tsc(i)*tsc(i)
-                  temptsc12 = (tsc(i) + 1.0d0)*(tsc(i) + 1.0d0)
+                  temptsc12 = (tsc(i) + 1._RKIND)*(tsc(i) + 1._RKIND)
                   tscapy(i,n) = (temptsc12*sp(i,n)-sm1(i,n))
      &                        / (temptsc2 + temp2tsc)
-                  if(tscapy(i,n).lt.0.0d0.and.
+                  if(tscapy(i,n).lt.0._RKIND.and.
      &               capycare(n).eqv..true.)then
                     if(eqmask(i).eqv..true.)then!.and.eqable(n).eqv..true.)then
                     else
@@ -625,9 +625,9 @@ c         omaskflag = 0
             if((itmask(i).eqv..true.).and.(rejected(i).eqv..false.))then
               ttot(i) = ttot(i) + dtit(i)
 #ifdef PYFORT
-              if(dt(i,j,k).le.1.001d0*ttot(i))then
+              if(dt(i,j,k).le.1.001_RKIND*ttot(i))then
 #else
-              if(dt.le.1.001d0*ttot(i))then
+              if(dt.le.1.001_RKIND*ttot(i))then
 #endif
                 itmask(i) = .false.
 c                write(0,*) d(i,j,k),s(i,iH2I)/d(i,j,k)
@@ -648,7 +648,7 @@ c                write(0,*) 'finishing',i,j,k,iter
               do i=is+1,ie+1
                 if(itmask(i).eqv..true.)then
                   temp1 = ttot(i)/(
-     &                  (1.0d0/sqrt(1.11d-31*dom*d(i,j,k)))/utim)
+     &                  (1._RKIND/sqrt(1.11d-31*dom*d(i,j,k)))/utim)
 #ifndef PYFORT
 c                  write(0,*)'FAILING?',i,j,k,mins(i),dtit(i),ttot(i),dt,olddtit(i),temp1
 c                  write(0,*)'Tried for:',dt,'but only got',ttot(i)
@@ -677,10 +677,10 @@ c           Guess stepsize for next iteration.
               if(rejected(i).eqv..false.) olddtit(i) = dtit(i)
 #ifdef PYFORT
               dtit(i) = min(dt(i,j,k)-ttot(i),max(
-     &                  0.5d0,min(2.d0,0.8d0/sqrt(esterr(i))))*dtit(i))
+     &                  0.5_RKIND,min(2._RKIND,0.8_RKIND/sqrt(esterr(i))))*dtit(i))
 #else
               dtit(i) = min(dt-ttot(i),max(
-     &                  0.5d0,min(2.d0,0.8d0/sqrt(esterr(i))))*dtit(i))
+     &                  0.5_RKIND,min(2._RKIND,0.8_RKIND/sqrt(esterr(i))))*dtit(i))
 #endif
             endif
             enddo
@@ -692,7 +692,7 @@ c
 
          do i=is+1, ie+1
            if(itmask(i).eqv..false.)then
-           if(s(i,ige).le.0.0d0)write(6,*)'ge raspberried',i,j,k
+           if(s(i,ige).le.0._RKIND)write(6,*)'ge raspberried',i,j,k
            HI(i,j,k) = s(i,iHI)
            HII(i,j,k) = s(i,iHII)
            de(i,j,k) = s(i,ide)
@@ -926,7 +926,7 @@ c         endif
          HI(i,j,k)  = HI(i,j,k)*correctH(i)
          HII(i,j,k) = HII(i,j,k)*correctH(i)
 c
-         correctHe(i) = (1.d0 - fh)*(d(i,j,k)/totalHe(i))
+         correctHe(i) = (1._RKIND - fh)*(d(i,j,k)/totalHe(i))
          HeI(i,j,k)   = HeI(i,j,k)*correctHe(i)
          HeII(i,j,k)  = HeII(i,j,k)*correctHe(i)
          HeIII(i,j,k) = HeIII(i,j,k)*correctHe(i)
@@ -947,11 +947,11 @@ c
             DI  (i,j,k) = abs(DI  (i,j,k))
             DII (i,j,k) = abs(DII (i,j,k))
             HDI (i,j,k) = abs(HDI (i,j,k))
-            totalD = DI(i,j,k) + DII(i,j,k) + (2.d0/3.d0)*HDI(i,j,k)
+            totalD = DI(i,j,k) + DII(i,j,k) + (2._RKIND/3._RKIND)*HDI(i,j,k)
             correctD = fh*dtoh*(d(i,j,k)/totalD)
             DI  (i,j,k) = DI (i,j,k)*correctD
             DII (i,j,k) = DII(i,j,k)*correctD
-c            HDI (i,j,k) = HDI(i,j,k)*(3.d0/2.d0)*correctD
+c            HDI (i,j,k) = HDI(i,j,k)*(3._RKIND/2._RKIND)*correctD
             HDI (i,j,k) = HDI(i,j,k)*correctD
          enddo
       endif
@@ -962,9 +962,9 @@ c
          totalDen(i) = HI(i,j,k) + HII(i,j,k)
          totalDen(i) = totalDen(i) + HeI(i,j,k) + HeII(i,j,k)
      &               + HeIII(i,j,k)
-         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4. + HeIII(i,j,k)/2.d0
+         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4. + HeIII(i,j,k)/2._RKIND
          if (ispecies .gt. 1) then 
-            de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2.d0
+            de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2._RKIND
             totalDen(i) = totalDen(i) + HM(i,j,k) + H2I(i,j,k) 
      &                  + H2II(i,j,k)
          endif

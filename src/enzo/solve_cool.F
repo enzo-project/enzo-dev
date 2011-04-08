@@ -82,7 +82,7 @@ c
 c        Set time elapsed to zero for each cell (and convert dens to abs)
 c
          do i = is+1, ie+1
-            ttot(i) = 0.d0
+            ttot(i) = 0._RKIND
             d(i,j,k) = d(i,j,k)/aye**3
          enddo
 c
@@ -118,15 +118,15 @@ c              (maximum timestep is 1/2 hydro step).
 c         Then, use each cell~s individual timestep tp update it~s energy
 c         Find minimum elapsed timestep (ttot)
 c
-          dt2 = dt/2.d0
+          dt2 = dt/2._RKIND
           ttmin = huge
 c
           do i = is+1, ie+1
              if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
      &              edot(i) = tiny
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
-             energy = max(p2d(i)/d(i,j,k)/(gamma-1.d0), tiny)
-             dtit(i) = min(abs(0.1d0*energy/edot(i)), 
+             energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
+             dtit(i) = min(abs(0.1_RKIND*energy/edot(i)), 
      &                      dt-ttot(i), dt2)
 #ifdef FORTRAN_DEBUG
              if (ge(i,j,k) .ne. ge(i,j,k) .or.

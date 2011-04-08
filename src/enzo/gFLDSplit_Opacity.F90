@@ -87,7 +87,7 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 !!$  write(*,*) 'Entering gFLDSplit::Opacity routine'
 
   ! initialize outputs to zero, flag to success
-  kappaE = 0.d0
+  kappaE = 0._RKIND
   ier = 1
 
   ! set shortcut values
@@ -95,8 +95,8 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 
   ! compute opacity shortcuts
   HIconst   = IsEsHI/IsE
-  HeIconst  = IsEsHeI/IsE/4.d0
-  HeIIconst = IsEsHeII/IsE/4.d0
+  HeIconst  = IsEsHeI/IsE/4._RKIND
+  HeIIconst = IsEsHeII/IsE/4._RKIND
 
   ! compute opacity over domain depending on number of chemical species 
 

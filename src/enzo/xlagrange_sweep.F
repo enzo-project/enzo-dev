@@ -171,7 +171,7 @@ c
 !     j2 = je
 
 c
-      vgx = 0.d0
+      vgx = 0._RKIND
 c
 c Copy from field to slice
 c

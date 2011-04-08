@@ -156,7 +156,7 @@ c
 !     k2 = ke
 
 c
-      vgy = 0.d0
+      vgy = 0._RKIND
 c
 c Copy from field to slice
 c    (note that we have permuted uvw here and not in the routine calls)

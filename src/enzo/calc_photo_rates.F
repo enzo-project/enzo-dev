@@ -79,33 +79,33 @@ c
 c     FIRST, DEFINE SOME CONSTANTS
 c
       PI        = pi_val
-      EV2HZ     = 2.415d14       ! from eV to Hz
+      EV2HZ     = 2.415e14_RKIND ! from eV to Hz
 
       mh        = mass_h         ! DPC
 
 c
 c     Clear sums used for X-ray compton temperature
 c
-      TXRY      = 0.d0
-      EXRY      = 0.d0
+      TXRY      = 0._RKIND
+      EXRY      = 0._RKIND
 c
 c     Clear sums used in approximate radiative shield
 c
-      FJXRY11   = 0.d0
-      FJXRY12   = 0.d0
-      FJXRY13   = 0.d0
-      FJXRY21   = 0.d0
-      FJXRY22   = 0.d0
-      FJXRY23   = 0.d0
+      FJXRY11   = 0._RKIND
+      FJXRY12   = 0._RKIND
+      FJXRY13   = 0._RKIND
+      FJXRY21   = 0._RKIND
+      FJXRY22   = 0._RKIND
+      FJXRY23   = 0._RKIND
 c
 c     Clear photo-heating sums
 c
-      PHTH      = 0.d0
-      PHTHE     = 0.d0
-      PHTHE2    = 0.d0
-      PHTLAMH   = 0.d0
-      PHTLAMHE  = 0.d0
-      PHTLAMHE2 = 0.d0
+      PHTH      = 0._RKIND
+      PHTHE     = 0._RKIND
+      PHTHE2    = 0._RKIND
+      PHTLAMH   = 0._RKIND
+      PHTLAMHE  = 0._RKIND
+      PHTLAMHE2 = 0._RKIND
 c
 c     Integrate over frequencies to get rates which depend on the
 c         shape of the spectrum.
@@ -114,32 +114,34 @@ c
 c
 c        BIN WIDTH IN Hz
 c
-         FNUDEL    = (10.d0**((N11-0.5d0)*FREQDEL)
-     .               -10.d0**((N11-1.5d0)*FREQDEL)
+         FNUDEL    = (10._RKIND**((N11-0.5_RKIND)*FREQDEL)
+     .               -10._RKIND**((N11-1.5_RKIND)*FREQDEL)
      .               )*EV2HZ
 c
 c        AVGERAGE ENERGY OF THE BIN IN QUESTION IN ergs
 c
-         AVGNU     = 10.d0**((N11-1.d0)*FREQDEL)*ev2erg
+         AVGNU     = 10._RKIND**((N11-1._RKIND)*FREQDEL)*ev2erg
 c
 c        energy difference (in ergs) between mean frequency and cutoffs
 c
-         FNUMNUH0  = AVGNU - 13.6d0*ev2erg
-         FNUMNUHE0 = AVGNU - 24.6d0*ev2erg
-         FNUMNUHE20= AVGNU - 54.4d0*ev2erg
+         FNUMNUH0  = AVGNU - 13.6_RKIND*ev2erg
+         FNUMNUHE0 = AVGNU - 24.6_RKIND*ev2erg
+         FNUMNUHE20= AVGNU - 54.4_RKIND*ev2erg
 c
 c        This is bin energy in units of the electron rest mass
 c
-         QNICK  = (10.d0**((N11-1.d0)*FREQDEL))/5.12d5
+         QNICK  = (10._RKIND**((N11-1._RKIND)*FREQDEL))/5.12e5_RKIND
 c
 c        This is the Klein-Nishina cross-section
 c
-         IF(QNICK.LE.0.03d0) THEN
-           CROSSS = 1.d0 - 2.d0*QNICK
+         IF(QNICK.LE.0.03_RKIND) THEN
+           CROSSS = 1._RKIND - 2._RKIND*QNICK
          ELSE
-           CROSSS = 3.d0/8.d0/QNICK*((1.d0-2.d0/QNICK-2.d0/QNICK**2)
-     .             *LOG(1.d0+2.d0*QNICK) + 1.d0/2.d0
-     .             -1.d0/2.d0/(1.d0+2.d0*QNICK)**2 + 4.d0/QNICK)
+           CROSSS = 3._RKIND/8._RKIND/QNICK
+     .           *((1._RKIND-2._RKIND/QNICK-2._RKIND/QNICK**2)
+     .           *LOG(1._RKIND+2._RKIND*QNICK) + 0.5_RKIND
+     .           -0.5_RKIND/(1._RKIND+2._RKIND*QNICK)**2 
+     .           +4._RKIND/QNICK)
          ENDIF
 C
 C        1) FOR COMPTON HEATING
@@ -148,12 +150,12 @@ C        X-RAY BACKGROUND ENERGY DENSITY MULTIPLIED BY \SIGMA_{e,photon},
 C        IN 1.E-21 erg/cm^3*cm^2, NOTE THAT INUTOT() IS IN
 C        1.E-21 erg/cm^2/sec/hz/sr
 C
-         EXRY   = EXRY  + 4.d0*PI/c_light*INUTOT(N11)
+         EXRY   = EXRY  + 4._RKIND*PI/c_light*INUTOT(N11)
      .                       *FNUDEL*CROSSS
 C
 C        X-RAY BACKGROUND EFFECTIVE TEMPERATURE
 C
-         TXRY   = TXRY  + 4.d0*PI/c_light*INUTOT(N11)*AVGNU
+         TXRY   = TXRY  + 4._RKIND*PI/c_light*INUTOT(N11)*AVGNU
      .                       *FNUDEL*CROSSS
 C
 C        2) FOR PHOTOIONIZATION RATES
@@ -164,15 +166,15 @@ C        IN 1.E-21/sec
 C
 C        HYDROGEN PHOTON IONIZATION RATE
 C
-         PHTH   = PHTH   + SIGH(N11)  *4.d0*PI*INUTOT(N11)/AVGNU*FNUDEL
+         PHTH   = PHTH   + SIGH(N11)  *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
 C
 C        HELIUM I PHOTON IONIZATION RATE
 C
-         PHTHE  = PHTHE  + SIGHE(N11) *4.d0*PI*INUTOT(N11)/AVGNU*FNUDEL
+         PHTHE  = PHTHE  + SIGHE(N11) *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
 C
 C        HELIUM II PHOTON IONIZATION RATE
 C
-         PHTHE2 = PHTHE2 + SIGHE2(N11)*4.d0*PI*INUTOT(N11)/AVGNU*FNUDEL
+         PHTHE2 = PHTHE2 + SIGHE2(N11)*4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
 c
 c        If using approximate radiation-shielding, compute the
 c          mean optical depth
@@ -180,20 +182,20 @@ c
          if (iradshield .eq. 1) then
 c     
             IF(FNUMNUH0.GE.0.0) THEN
-               FJXRY11  = FJXRY11 + 4.d0*PI*INUTOT(N11)/AVGNU*FNUDEL
-               FJXRY21  = FJXRY21 + 4.d0*PI*INUTOT(N11)/AVGNU*FNUMNUH0
+               FJXRY11  = FJXRY11 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
+               FJXRY21  = FJXRY21 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUH0
      .                            *FNUDEL
             ENDIF
 C
             IF(FNUMNUHE0.GE.0.0) THEN
-               FJXRY12  = FJXRY12 + 4.d0*PI*INUTOT(N11)/AVGNU*FNUDEL
-               FJXRY22  = FJXRY22 + 4.d0*PI*INUTOT(N11)/AVGNU*FNUMNUHE0
+               FJXRY12  = FJXRY12 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
+               FJXRY22  = FJXRY22 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE0
      .                            *FNUDEL
             ENDIF
 C
             IF(FNUMNUHE20.GE.0.0) THEN
-               FJXRY13  = FJXRY13 + 4.d0*PI*INUTOT(N11)/AVGNU*FNUDEL
-               FJXRY23  = FJXRY23 + 4.d0*PI*INUTOT(N11)/AVGNU*FNUMNUHE20
+               FJXRY13  = FJXRY13 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
+               FJXRY23  = FJXRY23 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE20
      .                            *FNUDEL
             ENDIF
 c
@@ -203,18 +205,18 @@ C        3) FOR PHOTOIONIZATION HEATING RATES
 C           PHOTON IONIZATION HEATING RATE IN 1.E-21 erg/sec
 C
          PHTLAMH   = PHTLAMH   + SIGH(N11)
-     .                   *4.d0*PI*INUTOT(N11)/AVGNU*FNUMNUH0*FNUDEL
+     .                   *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUH0*FNUDEL
          PHTLAMHE  = PHTLAMHE  + SIGHE(N11)
-     .                   *4.d0*PI*INUTOT(N11)/AVGNU*FNUMNUHE0*FNUDEL
+     .                   *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE0*FNUDEL
          PHTLAMHE2 = PHTLAMHE2 + SIGHE2(N11)
-     .                   *4.d0*PI*INUTOT(N11)/AVGNU*FNUMNUHE20*FNUDEL
+     .                   *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE20*FNUDEL
 C
       ENDDO
 C
 C
 C     X-RAY BACKGROUND RADIATION FIELD TEMPERATURE CONVERTED TO IN KELVIN
 C
-      TXRY      = MIN(1.d-7,TXRY/MAX(1.d-10,EXRY))/(4.d0*kboltz)
+      TXRY      = MIN(1.d-7,TXRY/MAX(1.d-10,EXRY))/(4._RKIND*kboltz)
 c
 c     For the approximate radiative shield, compute the
 c        AVERAGE CROSS SECTION
@@ -236,17 +238,17 @@ C
 C     X-RAY BACKGROUND RADIATION ENERGY DENSITY IN erg/cm^3
 C
       EXRY      = EXRY*1.d-21
-      EXRY      = MAX(0.d0,EXRY)
+      EXRY      = MAX(0._RKIND,EXRY)
 C
 C     PHOTO-IONIZATION RATES IN 1/sec
 C       (now in AMR code units -- see calc_rates from more details)
 C
       PHTH      = PHTH     *1.D-21 * utim
-      PHTH      = MAX(0.d0,PHTH)
+      PHTH      = MAX(0._RKIND,PHTH)
       PHTHE     = PHTHE    *1.D-21 * utim
-      PHTHE     = MAX(0.d0,PHTHE)
+      PHTHE     = MAX(0._RKIND,PHTHE)
       PHTHE2    = PHTHE2   *1.D-21 * utim
-      PHTHE2    = MAX(0.d0,PHTHE2)
+      PHTHE2    = MAX(0._RKIND,PHTHE2)
 C
 C     PHOTO-IONIZATION HEATING RATES IN 1.D-30 erg/sec
 C       (now in AMR code units -- see calc_rates from more details)
@@ -256,11 +258,11 @@ C
       dbase1 = urho*(aye*uaye)**3 ! urho is [dens]/a^3
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       PHTLAMH   = PHTLAMH  *1.D-21 / coolunit
-      PHTLAMH   = MAX(0.d0,PHTLAMH)
+      PHTLAMH   = MAX(0._RKIND,PHTLAMH)
       PHTLAMHE  = PHTLAMHE *1.D-21 / coolunit
-      PHTLAMHE  = MAX(0.d0,PHTLAMHE)
+      PHTLAMHE  = MAX(0._RKIND,PHTLAMHE)
       PHTLAMHE2 = PHTLAMHE2*1.D-21 / coolunit
-      PHTLAMHE2 = MAX(0.d0,PHTLAMHE2)
+      PHTLAMHE2 = MAX(0._RKIND,PHTLAMHE2)
 C
       RETURN
       END

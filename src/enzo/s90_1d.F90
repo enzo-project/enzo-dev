@@ -3,6 +3,7 @@
       subroutine s90_1d(x, rank, n1, n2, n3, dir)
 
       implicit none
+#include "fortran_types.def"
 
       INTG_PREC :: rank, n1, n2, n3, dir
       CMPLX_PREC :: x(n1)

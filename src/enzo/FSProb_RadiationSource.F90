@@ -70,12 +70,12 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   R_PREC    :: h_nu0, etaconst, rnums(10)
   R_PREC    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
   R_PREC    :: cellXc, cellYc, cellZc
-  REAL*8  :: dV
+  REAL*8    :: dV
 
 !=======================================================================
 
   ! initialize output to have all zero values, flag to success
-  eta = 0.d0
+  eta = 0._RKIND
   ier = 1
   
   ! initialize constants
@@ -83,7 +83,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   dy    = (x1R-x1L)/Ny                ! mesh spacing (comoving), x1 direction
   dz    = (x2R-x2L)/Nz                ! mesh spacing (comoving), x2 direction
   dV    = dx*dy*dz*(dble(lUn))**3     ! cell volume (proper)
-  h_nu0 = 13.6d0*ev2erg               ! ionization energy of HI [ergs]
+  h_nu0 = 13.6_RKIND*ev2erg               ! ionization energy of HI [ergs]
 
   ! compute point source emissivity for various problems
 
@@ -94,7 +94,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      nsrc = EtaRadius   ! cast to an INTG_PREC
 
      ! set the seed by casting the time to an INTG_PREC
-     seed(1) = 5.d0*time/tUn + x0L/dx + x1L/dy + x2L/dz
+     seed(1) = 5._RKIND*time/tUn + x0L/dx + x1L/dy + x2L/dz
      seed(1) = seed(1) + 13
 !     print *,'random seed = ',seed(1),' time = ',time
      call random_seed(PUT=seed)
@@ -117,7 +117,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   else if ((ProbType > 450) .and. (ProbType <= 460)) then
 
      ! one-cell source
-     if (EtaRadius == 0.d0) then
+     if (EtaRadius == 0._RKIND) then
         
         ! compute eta factor for given ionization source
         etaconst = h_nu0*NGammaDot/dV
@@ -155,23 +155,23 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      else
 
         ! compute eta factor for given ionization source
-        etaconst = h_nu0*NGammaDot/dV/8.d0/(EtaRadius**3)
+        etaconst = h_nu0*NGammaDot/dV/8._RKIND/(EtaRadius**3)
         
         ! place ionization source in center of domain
         do k=1,Nz,1
            
            ! z-center (comoving) for this cell
-           cellZc = x2L + (k-0.5d0)*dz
+           cellZc = x2L + (k-0.5_RKIND)*dz
            
            do j=1,Ny,1
               
               ! y-center (comoving) for this cell
-              cellYc = x1L + (j-0.5d0)*dy
+              cellYc = x1L + (j-0.5_RKIND)*dy
               
               do i=1,Nx,1
                  
                  ! x-center (comoving) for this cell
-                 cellXc = x0L + (i-0.5d0)*dx
+                 cellXc = x0L + (i-0.5_RKIND)*dx
                  
                  ! see if cell is within source region
                  if ( (abs(cellXc-EtaCenter(1)) < EtaRadius*dx) .and. &

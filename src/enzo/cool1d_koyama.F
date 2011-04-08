@@ -55,7 +55,7 @@ c
 c        Zeus - e() is really gas energy
 c
          do i = is+1, ie+1
-            p2d(i) = (gamma - 1.d0)*d(i,j,k)*e(i,j,k)
+            p2d(i) = (gamma - 1._RKIND)*d(i,j,k)*e(i,j,k)
          enddo
       else
          if (idual .eq. 1) then
@@ -63,17 +63,17 @@ c
 c           PPM with dual energy -- use gas energy
 c
             do i = is+1, ie+1
-               p2d(i) = (gamma - 1.d0)*d(i,j,k)*ge(i,j,k)
+               p2d(i) = (gamma - 1._RKIND)*d(i,j,k)*ge(i,j,k)
             enddo
          else
 c
 c           PPM without dual energy -- use total energy
 c
             do i = is+1, ie+1
-               p2d(i) = e(i,j,k) - 0.5d0*u(i,j,k)**2
-               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5d0*v(i,j,k)**2
-               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5d0*w(i,j,k)**2
-               p2d(i) = max((gamma - 1.d0)*d(i,j,k)*p2d(i), tiny)
+               p2d(i) = e(i,j,k) - 0.5_RKIND*u(i,j,k)**2
+               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
+               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
+               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), tiny)
             enddo
          endif
       endif
@@ -95,13 +95,13 @@ c
 c     Loop over a slice
 c
       do i = is+1, ie+1
-        thalf = 0.5d0*(tgas(i) + tgasold(i))
+        thalf = 0.5_RKIND*(tgas(i) + tgasold(i))
 c        thalf = tgas(i)                              !kludge
-        edot(i) = 0.d0
+        edot(i) = 0._RKIND
         if( thalf .gt. temstart ) then
             Heating = 2.d-26
-            Lambda = -(1.d7 * exp(-1.184d5/(thalf+1000.d0)) +
-     &          14.d-3*sqrt(thalf)*exp(-92.d0/thalf))
+            Lambda = -(1.d7 * exp(-1.184d5/(thalf+1000._RKIND)) +
+     &          14.d-3*sqrt(thalf)*exp(-92._RKIND/thalf))
             Lambda = Lambda * Heating
             edot(i) = d(i,j,k)*urho/(mh*mh)*Lambda
             edot(i) = edot(i) + Heating/mh

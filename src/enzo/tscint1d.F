@@ -74,7 +74,7 @@ c
      &                REAL(6*refine1**3                     ,RKIND)
          coefp(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
      &                REAL(6*refine1**3                     ,RKIND)
-         coef0(i+1) = 1.d0/refine1 - coefm(i+1) - coefp(i+1)
+         coef0(i+1) = 1._RKIND/refine1 - coefm(i+1) - coefp(i+1)
       enddo
 c
 c  Loop over area to be refined and interpolate
@@ -90,7 +90,7 @@ c
 c  Correct to make sure the interpolation is conservatiove
 c
       do i = start1, end1, refine1
-         sum = 0.d0
+         sum = 0._RKIND
          do j = 0, refine1-1
             sum = sum + grid(i-start1+gstart1+j)
          enddo
@@ -121,7 +121,7 @@ c
          if (abs(del2left) .lt. tiny) 
      &        del2left = sign(tiny, del2left)
          fraction((i-start1)/refine1 + 1) = 
-     &             min(max(del1left/del2left, 0.d0), 1.d0)
+     &             min(max(del1left/del2left, 0._RKIND), 1._RKIND)
       enddo
 c
 c       repeat for right side of each distribution
@@ -139,8 +139,8 @@ c
          if (abs(del2right) .lt. tiny) del2right = 
      &        sign(tiny, del2right)
          fraction((i-start1)/refine1 + 1) = max(
-     &                    min(max(del1right/del2right, 0.d0), 1.d0)  ,
-     &                    fraction((i-start1)/refine1 + 1)           )
+     &                    min(max(del1right/del2right, 0._RKIND), 
+     &                    1._RKIND), fraction((i-start1)/refine1 + 1) )
       enddo
 c
 c   Modify distributions based on the computed fraction decrease
@@ -150,7 +150,7 @@ c
      &           parent((i-1)/refine1+1)/REAL(refine1,RKIND)*
      &                        fraction((i-start1)/refine1 + 1) +
      &           grid(i-start1+gstart1)             *
-     &                 (1.d0 - fraction((i-start1)/refine1 + 1) )
+     &                 (1._RKIND - fraction((i-start1)/refine1 + 1) )
       enddo
 c
 c     Remove the irritating division by the refinement volume

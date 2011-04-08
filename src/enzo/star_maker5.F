@@ -112,7 +112,7 @@ c
       R_PREC   mproton, RandomSeed, beta,x ,y, kb
       R_PREC   starfraction, bmass, densthresh 
       double precision msolar
-      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1d0,
+      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1_RKIND,
      &     sqrtepssn=2.d24, RandomSeed=-123456, kb=kboltz)
 
       R_PREC random
@@ -129,7 +129,7 @@ c      open (unit=1701,file=fname,access="APPEND",status="UNKNOWN")
 
 c     Define the energy output from supernovae
 
-      usn=(1.d0-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
+      usn=(1._RKIND-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
       usn=usn*sqrtepssn   ! this trick done to avoid floating-point issues (BWO)
 
 c     Loop over all grids
@@ -137,15 +137,15 @@ c     Loop over all grids
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 c	       Only if this is the most refined cell at this location.
-	       if(r(i,j,k) .ne. 0.d0) goto 10
+	       if(r(i,j,k) .ne. 0._RKIND) goto 10
 
 c             Only over-dense enough cells.
               if(d(i,j,k) .le. odthresh) goto 10
 
 c         Don't consider this cell if it's not in the refinement region.
-              tempx = xstart + (float(i)-0.5d0)*dx
-              tempy = ystart + (float(j)-0.5d0)*dx
-              tempz = zstart + (float(k)-0.5d0)*dx
+              tempx = xstart + (float(i)-0.5_RKIND)*dx
+              tempy = ystart + (float(j)-0.5_RKIND)*dx
+              tempz = zstart + (float(k)-0.5_RKIND)*dx
               if (tempx .lt. rr_left0 .or. tempx .gt. rr_right0 .or. 
      &          tempy .lt. rr_left1 .or. tempy .gt. rr_right1 .or. 
      &          tempz .lt. rr_left2 .or. tempz .gt. rr_right2) then
@@ -153,21 +153,23 @@ c         Don't consider this cell if it's not in the refinement region.
                endif
 
 c	       Calculate star formation timescale               
-               tstar = 31556926.d0*mintdyn*(d(i,j,k)*dble(d1)/  
-     &              shdens)**(-0.5d0)			!Eq(21)
+               tstar = 31556926._RKIND*mintdyn*(d(i,j,k)*dble(d1)/  
+     &              shdens)**(-0.5_RKIND)			!Eq(21)
             
             
 c		note: minus sign is because 'coolrate' is actual backwards: when coolrate is 
 c		negative, gas is cooling (which is the opposite of how it's defined in springel
 c		& Hernquist 2003, MNRAS, 339, 289, eqtn. 16
-               y = -1.0*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
-     &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton) !Eq(16)
+               y = -1._RKIND*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
+     &              (beta*usn-(1._RKIND-beta)*1.5_RKIND*kb*temp(i,j,k)/
+     &              0.6_RKIND/mproton) !Eq(16)
 
 c	       Calculate the fraction of mass in cold clouds
-               if (y .le. 0.d0) then
-                  x = 0.d0
+               if (y .le. 0._RKIND) then
+                  x = 0._RKIND
                else
-                  x = 1.d0 + 1.d0/2.d0/y - sqrt(1.d0/y + 1.d0/4.d0/y/y)	!Eq(18)
+                  x = 1._RKIND + 1._RKIND/2._RKIND/y - 
+     &                 sqrt(1._RKIND/y + 1._RKIND/4._RKIND/y/y)	!Eq(18)
                endif
 
 c              Calculate total baryon mass in the cell               
@@ -175,7 +177,7 @@ c              Calculate total baryon mass in the cell
 
 c              Calculate a parameter which is compared to a random number
                pstar=(bmass/smthresh)*
-     &                (1.-exp(-(1.-beta)*x*dt*dble(t1)/tstar)) !Eq(39)
+     &              (1._RKIND-exp(-(1._RKIND-beta)*x*dt*dble(t1)/tstar)) !Eq(39)
 
                newd = d(i,j,k) * dble(d1)
                newdt = dt*dble(t1)
@@ -194,7 +196,7 @@ c               write(1701, *) bmass, newd, newcool, newtemp, newdt,pstar
 c ----------If a random number < pstar, create a star!----------------
 
                if(dummy1 .gt. pstar) goto 10
-               starfraction = min(smthresh/bmass, 0.5d0)
+               starfraction = min(smthresh/bmass, 0.5_RKIND)
 
                ii = ii + 1
 	       mp(ii)  = starfraction * d(i,j,k) 
@@ -204,9 +206,9 @@ c ----------If a random number < pstar, create a star!----------------
                yp(ii) = tempy
                zp(ii) = tempz
                if (imethod .eq. 2) then
-                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -217,10 +219,10 @@ c	       Set metal Fraction
                if (imetal .eq. 1) then
                   metalf(ii) = metal(i,j,k)
                else
-                  metalf(ii) = 0.d0
+                  metalf(ii) = 0._RKIND
                endif
 c	       Remove mass from grid
-               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1._RKIND - starfraction)*d(i,j,k)
 c
 c              Do not generate more star particles than available
 c
@@ -329,8 +331,8 @@ c
       R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio, sqrtepssn,
      &     msolar, beta
-      parameter (clight = c_light, msolar_e51 = 1800.d0, 
-     &     msolar=SolarMass, sqrtepssn=2.d24, beta=0.1d0)
+      parameter (clight = c_light, msolar_e51 = 1800._RKIND, 
+     &     msolar=SolarMass, sqrtepssn=2.e24_RKIND, beta=0.1_RKIND)
 
 c    Basically calculate some of the same stuff from above.
 c    Dump it all into thermal making sure to take care of
@@ -359,7 +361,7 @@ c
 
 c	    Metal Feedback
             metal(i,j,k) = metal(i,j,k) +
-     &            (1.d0-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
+     &            (1._RKIND-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
 
             energy = sqrtepssn*mp(n)/msolar/v1/v1/d(i,j,k)  
             energy = energy*sqrtepssn    ! this is due to floating-point issues (BWO)
@@ -370,7 +372,7 @@ c	    Metal Feedback
      &           ge(i,j,k) = ge(i,j,k) + energy
             
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 +
+               te(i,j,k) = 0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 +
      &              w(i,j,k)**2) + ge(i,j,k)
             endif
             

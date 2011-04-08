@@ -91,15 +91,15 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
                  ! if attenuation is negligible, use simpler analytical 
                  ! solution to avoid division by zero 
                  P = adot/a + c*kappa(i,j,k)
-                 if (P < 1.d-14) then
-                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4.d0*pi
+                 if (P < 1.e-14_RKIND) then
+                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4._RKIND*pi
                  ! solution to avoid flt pt overflow
-                 elseif (P*dt > 7.0d2) then
-                    Ef(i,j,k) = eta(i,j,k)*4.d0*pi/P
+                 elseif (P*dt > 7.e2_RKIND) then
+                    Ef(i,j,k) = eta(i,j,k)*4._RKIND*pi/P
                  ! otherwise use full analytical solution
                  else
-                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4.d0*pi/P)*exp(-P*dt) &
-                              + eta(i,j,k)*4.d0*pi/P
+                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4._RKIND*pi/P)*exp(-P*dt) &
+                              + eta(i,j,k)*4._RKIND*pi/P
                  endif
               enddo
            enddo
@@ -113,15 +113,15 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
                  ! if attenuation is negligible, use simpler analytical 
                  ! solution to avoid division by zero 
                  P = adot/a + c*kappa_c
-                 if (P < 1.d-14) then
-                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4.d0*pi
+                 if (P < 1.e-14_RKIND) then
+                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4._RKIND*pi
                  ! solution to avoid flt pt overflow
-                 elseif (P*dt > 7.0d2) then
-                    Ef(i,j,k) = eta(i,j,k)*4.d0*pi/P
+                 elseif (P*dt > 7.e2_RKIND) then
+                    Ef(i,j,k) = eta(i,j,k)*4._RKIND*pi/P
                  ! otherwise use full analytical solution
                  else
-                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4.d0*pi/P)*exp(-P*dt) &
-                              + eta(i,j,k)*4.d0*pi/P
+                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4._RKIND*pi/P)*exp(-P*dt) &
+                              + eta(i,j,k)*4._RKIND*pi/P
                  endif
               enddo
            enddo

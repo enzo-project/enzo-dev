@@ -69,7 +69,7 @@ c
       R_PREC    fact1, fact2, fact3, x, y, z, dx, dy, dz, weight, mass,
      &        coef1, coef2, coef3, shift1, shift2, shift3,
      &        start1, start2, start3, half, edge1, edge2, edge3, temp1
-      parameter (half = 0.5001d0)
+      parameter (half = 0.5001_RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -95,17 +95,17 @@ c
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/REAL(refine1,RKIND)
-      fact2 = 1.d0/REAL(refine2,RKIND)
-      fact3 = 1.d0/REAL(refine3,RKIND)
+      fact1 = 1._RKIND/REAL(refine1,RKIND)
+      fact2 = 1._RKIND/REAL(refine2,RKIND)
+      fact3 = 1._RKIND/REAL(refine3,RKIND)
 c
                        coef1 = dt/delx*fact1
       if (ndim .gt. 1) coef2 = dt/dely*fact2
       if (ndim .gt. 2) coef3 = dt/delz*fact3
 c     
-      start1 = -sstart1 - 0.5d0 + offset1*REAL(refine1,RKIND)
-      start2 = -sstart2 - 0.5d0 + offset2*REAL(refine2,RKIND)
-      start3 = -sstart3 - 0.5d0 + offset3*REAL(refine3,RKIND)
+      start1 = -sstart1 - 0.5_RKIND + offset1*REAL(refine1,RKIND)
+      start2 = -sstart2 - 0.5_RKIND + offset2*REAL(refine2,RKIND)
+      start3 = -sstart3 - 0.5_RKIND + offset3*REAL(refine3,RKIND)
 c
       edge1 = REAL(ddim1,RKIND) - half
       edge2 = REAL(ddim2,RKIND) - half
@@ -124,34 +124,34 @@ c        compute density and mass-weighted velocity field
 c
          do i=sstart1+1, send1+1
             x = min(max((start1 + i)*fact1, half), edge1)
-            i1 = int(x + 0.5d0,IKIND)
-            dx = REAL(i1,RKIND) + 0.5d0 - x
-            mass = (1.d0 - rfield(i,1,1))*weight*source(i,1,1)
+            i1 = int(x + 0.5_RKIND,IKIND)
+            dx = REAL(i1,RKIND) + 0.5_RKIND - x
+            mass = (1._RKIND - rfield(i,1,1))*weight*source(i,1,1)
 c
             temp(i1  ,1  ,1, 1) = temp(i1  ,1  ,1, 1) + 
      &                                 mass*      dx
             temp(i1+1,1  ,1, 1) = temp(i1+1,1  ,1, 1) + 
-     &                                 mass*(1.d0-dx)
+     &                                 mass*(1._RKIND-dx)
 c
             temp1 = velx(i,1,1)*mass
             if (ihydro .eq. 2) temp1 = 
-     &           0.5d0*(velx(i,1,1)+velx(i+1,1,1))*mass
+     &           0.5_RKIND*(velx(i,1,1)+velx(i+1,1,1))*mass
             temp(i1  ,1  ,1, 2) = temp(i1  ,1  ,1, 2) + 
      &                     temp1*      dx
             temp(i1+1,1  ,1, 2) = temp(i1+1,1  ,1, 2) + 
-     &                     temp1*(1.d0-dx)
+     &                     temp1*(1._RKIND-dx)
          enddo
 c
 c        Use velocity and mass field to generate mass field advanced by dt
 c
          do i=1,ddim1
             shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),tiny)*coef1
-            x = min(max((i - 0.5d0 + shift1), half), edge1)
-            i1 = int(x + 0.5d0,IKIND)
-            dx = REAL(i1,RKIND) + 0.5d0 - x
+            x = min(max((i - 0.5_RKIND + shift1), half), edge1)
+            i1 = int(x + 0.5_RKIND,IKIND)
+            dx = REAL(i1,RKIND) + 0.5_RKIND - x
             mass = temp(i,1,1,1)
             dest(i1  ,1  ,1) = dest(i1  ,1  ,1) + mass*      dx
-            dest(i1+1,1  ,1) = dest(i1+1,1  ,1) + mass*(1.d0-dx)
+            dest(i1+1,1  ,1) = dest(i1+1,1  ,1) + mass*(1._RKIND-dx)
          enddo
       endif
 c
@@ -164,46 +164,46 @@ c        compute density and mass-weighted velocity field
 c
          do j=sstart2+1, send2+1
             y = min(max((start2 + j)*fact2, half), edge2)
-            j1 = int(y + 0.5d0,IKIND)
-            dy = REAL(j1,RKIND) + 0.5d0 - y
+            j1 = int(y + 0.5_RKIND,IKIND)
+            dy = REAL(j1,RKIND) + 0.5_RKIND - y
             do i=sstart1+1, send1+1
                x = min(max((start1 + i)*fact1, half), edge1)
-               i1 = int(x + 0.5d0,IKIND)
-               dx = REAL(i1,RKIND) + 0.5d0 - x
-               mass = (1.d0 - rfield(i,j,1))*weight*source(i,j,1)
+               i1 = int(x + 0.5_RKIND,IKIND)
+               dx = REAL(i1,RKIND) + 0.5_RKIND - x
+               mass = (1._RKIND - rfield(i,j,1))*weight*source(i,j,1)
 c
                temp(i1  ,j1  ,1,1) = temp(i1  ,j1  ,1,1) +
      &                             mass*      dx *      dy
                temp(i1+1,j1  ,1,1) = temp(i1+1,j1  ,1,1) +
-     &                             mass*(1.d0-dx)*      dy
+     &                             mass*(1._RKIND-dx)*      dy
                temp(i1  ,j1+1,1,1) = temp(i1  ,j1+1,1,1) +
-     &                             mass*      dx *(1.d0-dy)
+     &                             mass*      dx *(1._RKIND-dy)
                temp(i1+1,j1+1,1,1) = temp(i1+1,j1+1,1,1) +
-     &                             mass*(1. 0-dx)*(1.d0-dy)
+     &                             mass*(1. 0-dx)*(1._RKIND-dy)
 c
                temp1 = velx(i,j,1)*mass
                if (ihydro .eq. 2) temp1 = 
-     &              0.5d0*(velx(i,j,1)+velx(i+1,j,1))*mass
+     &              0.5_RKIND*(velx(i,j,1)+velx(i+1,j,1))*mass
                temp(i1  ,j1  ,1,2) = temp(i1  ,j1  ,1,2) +
      &                 temp1*      dx *      dy
                temp(i1+1,j1  ,1,2) = temp(i1+1,j1  ,1,2) +
-     &                 temp1*(1.d0-dx)*      dy
+     &                 temp1*(1._RKIND-dx)*      dy
                temp(i1  ,j1+1,1,2) = temp(i1  ,j1+1,1,2) +
-     &                 temp1*      dx *(1.d0-dy)
+     &                 temp1*      dx *(1._RKIND-dy)
                temp(i1+1,j1+1,1,2) = temp(i1+1,j1+1,1,2) +
-     &                 temp1*(1.d0-dx)*(1.d0-dy)
+     &                 temp1*(1._RKIND-dx)*(1._RKIND-dy)
 c
                temp1 = vely(i,j,1)*mass
                if (ihydro .eq. 2) temp1 = 
-     &              0.5d0*(vely(i,j,1)+vely(i,j+1,1))*mass
+     &              0.5_RKIND*(vely(i,j,1)+vely(i,j+1,1))*mass
                temp(i1  ,j1  ,1,3) = temp(i1  ,j1  ,1,3) +
      &                 temp1*      dx *      dy
                temp(i1+1,j1  ,1,3) = temp(i1+1,j1  ,1,3) +
-     &                 temp1*(1.d0-dx)*      dy
+     &                 temp1*(1._RKIND-dx)*      dy
                temp(i1  ,j1+1,1,3) = temp(i1  ,j1+1,1,3) +
-     &                 temp1*      dx *(1.d0-dy)
+     &                 temp1*      dx *(1._RKIND-dy)
                temp(i1+1,j1+1,1,3) = temp(i1+1,j1+1,1,3) +
-     &                 temp1*(1.d0-dx)*(1.d0-dy)
+     &                 temp1*(1._RKIND-dx)*(1._RKIND-dy)
 c
             enddo
          enddo
@@ -214,23 +214,23 @@ c
             do i=1, ddim1
                shift2 = temp(i,j,1,3)/
      &                  max(temp(i,j,1,1),tiny)*coef2
-               y = min(max((j - 0.5d0 + shift2), half), edge2)
-               j1 = int(y + 0.5d0,IKIND)
-               dy = REAL(j1,RKIND) + 0.5d0 - y
+               y = min(max((j - 0.5_RKIND + shift2), half), edge2)
+               j1 = int(y + 0.5_RKIND,IKIND)
+               dy = REAL(j1,RKIND) + 0.5_RKIND - y
                shift1 = temp(i,j,1,2)/
      &                  max(temp(i,j,1,1),tiny)*coef1
-               x = min(max((i - 0.5d0 + shift1), half), edge1)
-               i1 = int(x + 0.5d0,IKIND)
-               dx = REAL(i1,RKIND) + 0.5d0 - x
+               x = min(max((i - 0.5_RKIND + shift1), half), edge1)
+               i1 = int(x + 0.5_RKIND,IKIND)
+               dx = REAL(i1,RKIND) + 0.5_RKIND - x
                mass = temp(i,j,1,1)
                dest(i1  ,j1  ,1) = dest(i1  ,j1  ,1) +
      &                             mass*      dx *      dy
                dest(i1+1,j1  ,1) = dest(i1+1,j1  ,1) +
-     &                             mass*(1.d0-dx)*      dy
+     &                             mass*(1._RKIND-dx)*      dy
                dest(i1  ,j1+1,1) = dest(i1  ,j1+1,1) +
-     &                             mass*      dx *(1.d0-dy)
+     &                             mass*      dx *(1._RKIND-dy)
                dest(i1+1,j1+1,1) = dest(i1+1,j1+1,1) +
-     &                             mass*(1.d0-dx)*(1.d0-dy)
+     &                             mass*(1._RKIND-dx)*(1._RKIND-dy)
             enddo
          enddo
       endif
@@ -244,94 +244,94 @@ c        compute density and mass-weighted velocity field
 c
          do k=sstart3+1, send3+1
             z = min(max((start3 + k)*fact3, half), edge3)
-            k1 = int(z + 0.5d0,IKIND)
-            dz = REAL(k1,RKIND) + 0.5d0 - z
+            k1 = int(z + 0.5_RKIND,IKIND)
+            dz = REAL(k1,RKIND) + 0.5_RKIND - z
             do j=sstart2+1, send2+1
                y = min(max((start2 + j)*fact2, half), edge2)
-               j1 = int(y + 0.5d0,IKIND)
-               dy = REAL(j1,RKIND) + 0.5d0 - y
+               j1 = int(y + 0.5_RKIND,IKIND)
+               dy = REAL(j1,RKIND) + 0.5_RKIND - y
                do i=sstart1+1, send1+1
                   x = min(max((start1 + i)*fact1, half), edge1)
-                  i1 = int(x + 0.5d0,IKIND)
-                  dx = REAL(i1,RKIND) + 0.5d0 - x
-                  mass = (1.d0 - rfield(i,j,k))*weight*source(i,j,k)
+                  i1 = int(x + 0.5_RKIND,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5_RKIND - x
+                  mass = (1._RKIND - rfield(i,j,k))*weight*source(i,j,k)
 c
                   temp(i1  ,j1  ,k1  ,1) = temp(i1  ,j1  ,k1  ,1) +
      &                       mass*      dx *      dy *      dz
                   temp(i1+1,j1  ,k1  ,1) = temp(i1+1,j1  ,k1  ,1) +
-     &                       mass*(1.d0-dx)*      dy *      dz
+     &                       mass*(1._RKIND-dx)*      dy *      dz
                   temp(i1  ,j1+1,k1  ,1) = temp(i1  ,j1+1,k1  ,1) +
-     &                       mass*      dx *(1.d0-dy)*      dz
+     &                       mass*      dx *(1._RKIND-dy)*      dz
                   temp(i1+1,j1+1,k1  ,1) = temp(i1+1,j1+1,k1  ,1) +
-     &                       mass*(1.d0-dx)*(1.d0-dy)*      dz
+     &                       mass*(1._RKIND-dx)*(1._RKIND-dy)*      dz
                   temp(i1  ,j1  ,k1+1,1) = temp(i1  ,j1  ,k1+1,1) +
-     &                       mass*      dx *      dy *(1.d0-dz)
+     &                       mass*      dx *      dy *(1._RKIND-dz)
                   temp(i1+1,j1  ,k1+1,1) = temp(i1+1,j1  ,k1+1,1) +
-     &                       mass*(1.d0-dx)*      dy *(1.d0-dz)
+     &                       mass*(1._RKIND-dx)*      dy *(1._RKIND-dz)
                   temp(i1  ,j1+1,k1+1,1) = temp(i1  ,j1+1,k1+1,1) +
-     &                       mass*      dx *(1.d0-dy)*(1.d0-dz)
+     &                       mass*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,1) = temp(i1+1,j1+1,k1+1,1) +
-     &                       mass*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &                       mass*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   temp1 = velx(i,j,k)*mass
                   if (ihydro .eq. 2) temp1 = 
-     &                 0.5d0*(velx(i,j,k)+velx(i+1,j,k))*mass
+     &                 0.5_RKIND*(velx(i,j,k)+velx(i+1,j,k))*mass
                   temp(i1  ,j1  ,k1  ,2) = temp(i1  ,j1  ,k1  ,2) +
      &                       temp1*      dx *      dy *      dz
                   temp(i1+1,j1  ,k1  ,2) = temp(i1+1,j1  ,k1  ,2) +
-     &                       temp1*(1.d0-dx)*      dy *      dz
+     &                       temp1*(1._RKIND-dx)*      dy *      dz
                   temp(i1  ,j1+1,k1  ,2) = temp(i1  ,j1+1,k1  ,2) +
-     &                       temp1*      dx *(1.d0-dy)*      dz
+     &                       temp1*      dx *(1._RKIND-dy)*      dz
                   temp(i1+1,j1+1,k1  ,2) = temp(i1+1,j1+1,k1  ,2) +
-     &                       temp1*(1.d0-dx)*(1.d0-dy)*      dz
+     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*      dz
                   temp(i1  ,j1  ,k1+1,2) = temp(i1  ,j1  ,k1+1,2) +
-     &                       temp1*      dx *      dy *(1.d0-dz)
+     &                       temp1*      dx *      dy *(1._RKIND-dz)
                   temp(i1+1,j1  ,k1+1,2) = temp(i1+1,j1  ,k1+1,2) +
-     &                       temp1*(1.d0-dx)*      dy *(1.d0-dz)
+     &                       temp1*(1._RKIND-dx)*      dy *(1._RKIND-dz)
                   temp(i1  ,j1+1,k1+1,2) = temp(i1  ,j1+1,k1+1,2) +
-     &                       temp1*      dx *(1.d0-dy)*(1.d0-dz)
+     &                       temp1*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,2) = temp(i1+1,j1+1,k1+1,2) +
-     &                       temp1*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   temp1 = vely(i,j,k)*mass
                   if (ihydro .eq. 2) temp1 = 
-     &                 0.5d0*(vely(i,j,k)+vely(i,j+1,k))*mass
+     &                 0.5_RKIND*(vely(i,j,k)+vely(i,j+1,k))*mass
                   temp(i1  ,j1  ,k1  ,3) = temp(i1  ,j1  ,k1  ,3) +
      &                       temp1*      dx *      dy *      dz
                   temp(i1+1,j1  ,k1  ,3) = temp(i1+1,j1  ,k1  ,3) +
-     &                       temp1*(1.d0-dx)*      dy *      dz
+     &                       temp1*(1._RKIND-dx)*      dy *      dz
                   temp(i1  ,j1+1,k1  ,3) = temp(i1  ,j1+1,k1  ,3) +
-     &                       temp1*      dx *(1.d0-dy)*      dz
+     &                       temp1*      dx *(1._RKIND-dy)*      dz
                   temp(i1+1,j1+1,k1  ,3) = temp(i1+1,j1+1,k1  ,3) +
-     &                       temp1*(1.d0-dx)*(1.d0-dy)*      dz
+     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*      dz
                   temp(i1  ,j1  ,k1+1,3) = temp(i1  ,j1  ,k1+1,3) +
-     &                       temp1*      dx *      dy *(1.d0-dz)
+     &                       temp1*      dx *      dy *(1._RKIND-dz)
                   temp(i1+1,j1  ,k1+1,3) = temp(i1+1,j1  ,k1+1,3) +
-     &                       temp1*(1.d0-dx)*      dy *(1.d0-dz)
+     &                       temp1*(1._RKIND-dx)*      dy *(1._RKIND-dz)
                   temp(i1  ,j1+1,k1+1,3) = temp(i1  ,j1+1,k1+1,3) +
-     &                       temp1*      dx *(1.d0-dy)*(1.d0-dz)
+     &                       temp1*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,3) = temp(i1+1,j1+1,k1+1,3) +
-     &                       temp1*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   temp1 = velz(i,j,k)*mass
                   if (ihydro .eq. 2) temp1 = 
-     &                 0.5d0*(velz(i,j,k)+velz(i,j,k+1))*mass
+     &                 0.5_RKIND*(velz(i,j,k)+velz(i,j,k+1))*mass
                   temp(i1  ,j1  ,k1  ,4) = temp(i1  ,j1  ,k1  ,4) +
      &                       temp1*      dx *      dy *      dz
                   temp(i1+1,j1  ,k1  ,4) = temp(i1+1,j1  ,k1  ,4) +
-     &                       temp1*(1.d0-dx)*      dy *      dz
+     &                       temp1*(1._RKIND-dx)*      dy *      dz
                   temp(i1  ,j1+1,k1  ,4) = temp(i1  ,j1+1,k1  ,4) +
-     &                       temp1*      dx *(1.d0-dy)*      dz
+     &                       temp1*      dx *(1._RKIND-dy)*      dz
                   temp(i1+1,j1+1,k1  ,4) = temp(i1+1,j1+1,k1  ,4) +
-     &                       temp1*(1.d0-dx)*(1.d0-dy)*      dz
+     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*      dz
                   temp(i1  ,j1  ,k1+1,4) = temp(i1  ,j1  ,k1+1,4) +
-     &                       temp1*      dx *      dy *(1.d0-dz)
+     &                       temp1*      dx *      dy *(1._RKIND-dz)
                   temp(i1+1,j1  ,k1+1,4) = temp(i1+1,j1  ,k1+1,4) +
-     &                       temp1*(1.d0-dx)*      dy *(1.d0-dz)
+     &                       temp1*(1._RKIND-dx)*      dy *(1._RKIND-dz)
                   temp(i1  ,j1+1,k1+1,4) = temp(i1  ,j1+1,k1+1,4) +
-     &                       temp1*      dx *(1.d0-dy)*(1.d0-dz)
+     &                       temp1*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,4) = temp(i1+1,j1+1,k1+1,4) +
-     &                       temp1*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                enddo
             enddo
@@ -344,21 +344,21 @@ c
                do i=1, ddim1
                   shift3 = temp(i,j,k,4)/
      &                     max(temp(i,j,k,1),tiny)*coef3
-                  z = min(max((k - 0.5d0 + shift3), half), edge3)
-                  k1 = int(z + 0.5d0,IKIND)
-                  dz = REAL(k1,RKIND) + 0.5d0 - z
+                  z = min(max((k - 0.5_RKIND + shift3), half), edge3)
+                  k1 = int(z + 0.5_RKIND,IKIND)
+                  dz = REAL(k1,RKIND) + 0.5_RKIND - z
 c
                   shift2 = temp(i,j,k,3)/
      &                     max(temp(i,j,k,1),tiny)*coef2
-                  y = min(max((j - 0.5d0 + shift2), half), edge2)
-                  j1 = int(y + 0.5d0,IKIND)
-                  dy = REAL(j1,RKIND) + 0.5d0 - y
+                  y = min(max((j - 0.5_RKIND + shift2), half), edge2)
+                  j1 = int(y + 0.5_RKIND,IKIND)
+                  dy = REAL(j1,RKIND) + 0.5_RKIND - y
 c
                   shift1 = temp(i,j,k,2)/
      &                     max(temp(i,j,k,1),tiny)*coef1
-                  x = min(max((i - 0.5d0 + shift1), half), edge1)
-                  i1 = int(x + 0.5d0,IKIND)
-                  dx = REAL(i1,RKIND) + 0.5d0 - x
+                  x = min(max((i - 0.5_RKIND + shift1), half), edge1)
+                  i1 = int(x + 0.5_RKIND,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5_RKIND - x
 c
 c                  if (i1 .lt. 1 .or. i1 .ge. ddim1 .or.
 c     &                j1 .lt. 1 .or. j1 .ge. ddim2 .or.
@@ -369,19 +369,19 @@ c
                   dest(i1  ,j1  ,k1  ) = dest(i1  ,j1  ,k1  ) +
      &                       mass*      dx *      dy *      dz
                   dest(i1+1,j1  ,k1  ) = dest(i1+1,j1  ,k1  ) +
-     &                       mass*(1.d0-dx)*      dy *      dz
+     &                       mass*(1._RKIND-dx)*      dy *      dz
                   dest(i1  ,j1+1,k1  ) = dest(i1  ,j1+1,k1  ) +
-     &                       mass*      dx *(1.d0-dy)*      dz
+     &                       mass*      dx *(1._RKIND-dy)*      dz
                   dest(i1+1,j1+1,k1  ) = dest(i1+1,j1+1,k1  ) +
-     &                       mass*(1.d0-dx)*(1.d0-dy)*      dz
+     &                       mass*(1._RKIND-dx)*(1._RKIND-dy)*      dz
                   dest(i1  ,j1  ,k1+1) = dest(i1  ,j1  ,k1+1) +
-     &                       mass*      dx *      dy *(1.d0-dz)
+     &                       mass*      dx *      dy *(1._RKIND-dz)
                   dest(i1+1,j1  ,k1+1) = dest(i1+1,j1  ,k1+1) +
-     &                       mass*(1.d0-dx)*      dy *(1.d0-dz)
+     &                       mass*(1._RKIND-dx)*      dy *(1._RKIND-dz)
                   dest(i1  ,j1+1,k1+1) = dest(i1  ,j1+1,k1+1) +
-     &                       mass*      dx *(1.d0-dy)*(1.d0-dz)
+     &                       mass*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   dest(i1+1,j1+1,k1+1) = dest(i1+1,j1+1,k1+1) +
-     &                       mass*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &                       mass*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
                enddo
             enddo
          enddo
@@ -451,19 +451,19 @@ c=======================================================================
 c
 c     Precompute some things
 c
-      fact1 = 1.d0/REAL(refine1,RKIND)
-      fact2 = 1.d0/REAL(refine2,RKIND)
-      fact3 = 1.d0/REAL(refine3,RKIND)
+      fact1 = 1._RKIND/REAL(refine1,RKIND)
+      fact2 = 1._RKIND/REAL(refine2,RKIND)
+      fact3 = 1._RKIND/REAL(refine3,RKIND)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
-            x = (start1 + i - 0.5d0)*fact1
-            i1 = int(x + 0.5d0,IKIND)
-            dx = REAL(i1,RKIND) + 0.5d0 - x
+            x = (start1 + i - 0.5_RKIND)*fact1
+            i1 = int(x + 0.5_RKIND,IKIND)
+            dx = REAL(i1,RKIND) + 0.5_RKIND - x
             dest(i,1,1) = source(i1  ,1  ,1)*     dx +
-     &                    source(i1+1,1  ,1)*(1.d0-dx)
+     &                    source(i1+1,1  ,1)*(1._RKIND-dx)
          enddo
       endif
 c
@@ -471,17 +471,17 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=1, ddim2
-            y = (start2 + j - 0.5d0)*fact2
-            j1 = int(y + 0.5d0,IKIND)
-            dy = REAL(j1,RKIND) + 0.5d0 - y
+            y = (start2 + j - 0.5_RKIND)*fact2
+            j1 = int(y + 0.5_RKIND,IKIND)
+            dy = REAL(j1,RKIND) + 0.5_RKIND - y
             do i=1, ddim1
-               x = (start1 + i - 0.5d0)*fact1
-               i1 = int(x + 0.5d0,IKIND)
-               dx = REAL(i1,RKIND) + 0.5d0 - x
+               x = (start1 + i - 0.5_RKIND)*fact1
+               i1 = int(x + 0.5_RKIND,IKIND)
+               dx = REAL(i1,RKIND) + 0.5_RKIND - x
                dest(i,j,1) = source(i1  ,j1  ,1)*      dx *      dy  +
-     &                       source(i1+1,j1  ,1)*(1.d0-dx)*      dy  +
-     &                       source(i1  ,j1+1,1)*      dx *(1.d0-dy) +
-     &                       source(i1+1,j1+1,1)*(1.d0-dx)*(1.d0-dy)
+     &                       source(i1+1,j1  ,1)*(1._RKIND-dx)*      dy  +
+     &                       source(i1  ,j1+1,1)*      dx *(1._RKIND-dy) +
+     &                       source(i1+1,j1+1,1)*(1._RKIND-dx)*(1._RKIND-dy)
             enddo
          enddo
       endif
@@ -490,26 +490,26 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=1, ddim3
-            z = (start3 + k - 0.5d0)*fact3
-            k1 = int(z + 0.5d0,IKIND)
-            dz = REAL(k1,RKIND) + 0.5d0 - z
+            z = (start3 + k - 0.5_RKIND)*fact3
+            k1 = int(z + 0.5_RKIND,IKIND)
+            dz = REAL(k1,RKIND) + 0.5_RKIND - z
             do j=1, ddim2
-               y = (start2 + j - 0.5d0)*fact2
-               j1 = int(y + 0.5d0,IKIND)
-               dy = REAL(j1,RKIND) + 0.5d0 - y
+               y = (start2 + j - 0.5_RKIND)*fact2
+               j1 = int(y + 0.5_RKIND,IKIND)
+               dy = REAL(j1,RKIND) + 0.5_RKIND - y
                do i=1, ddim1
-                  x = (start1 + i - 0.5d0)*fact1
-                  i1 = int(x + 0.5d0,IKIND)
-                  dx = REAL(i1,RKIND) + 0.5d0 - x
+                  x = (start1 + i - 0.5_RKIND)*fact1
+                  i1 = int(x + 0.5_RKIND,IKIND)
+                  dx = REAL(i1,RKIND) + 0.5_RKIND - x
                   dest(i,j,k) =
      &             source(i1  ,j1  ,k1  )*      dx *      dy *      dz +
-     &             source(i1+1,j1  ,k1  )*(1.d0-dx)*      dy *      dz +
-     &             source(i1  ,j1+1,k1  )*      dx *(1.d0-dy)*      dz +
-     &             source(i1+1,j1+1,k1  )*(1.d0-dx)*(1.d0-dy)*      dz +
-     &             source(i1  ,j1  ,k1+1)*      dx *      dy *(1.d0-dz)+
-     &             source(i1+1,j1  ,k1+1)*(1.d0-dx)*      dy *(1.d0-dz)+
-     &             source(i1  ,j1+1,k1+1)*      dx *(1.d0-dy)*(1.d0-dz)+
-     &             source(i1+1,j1+1,k1+1)*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
+     &             source(i1+1,j1  ,k1  )*(1._RKIND-dx)*      dy *      dz +
+     &             source(i1  ,j1+1,k1  )*      dx *(1._RKIND-dy)*      dz +
+     &             source(i1+1,j1+1,k1  )*(1._RKIND-dx)*(1._RKIND-dy)*      dz +
+     &             source(i1  ,j1  ,k1+1)*      dx *      dy *(1._RKIND-dz)+
+     &             source(i1+1,j1  ,k1+1)*(1._RKIND-dx)*      dy *(1._RKIND-dz)+
+     &             source(i1  ,j1+1,k1+1)*      dx *(1._RKIND-dy)*(1._RKIND-dz)+
+     &             source(i1+1,j1+1,k1+1)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
                enddo
             enddo
          enddo

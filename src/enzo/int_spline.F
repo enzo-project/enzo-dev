@@ -161,9 +161,9 @@ c
       do i=1, (n-2)*refine
          j = int(x,IKIND) + 1
          a = REAL(j,RKIND) - x
-         b = 1.d0 - a
+         b = 1._RKIND - a
          result(i) = a*y(j) + b*y(j+1) + ((a**3 - a)*y2(j) +
-     &               (b**3-b)*y2(j+1))/6.d0
+     &               (b**3-b)*y2(j+1))/6._RKIND
          x = x + step
 c         write(7,1000) i,a*y(j) + b*y(j+1),
 c     &        result(i),y(j),y(j+1),y2(j),y2(j+1)
@@ -191,13 +191,13 @@ c
       work(1) = 0.0
 c
       do i=2, n-1
-         p = 1.d0/(0.5d0*y2(i-1) + 2.d0)
-         y2(i) = -0.5d0*p
-         work(i) = (3.d0*((y(i+1)-y(i)) - (y(i)-y(i-1))) - 
-     &              0.5d0*work(i-1))*p
+         p = 1._RKIND/(0.5_RKIND*y2(i-1) + 2._RKIND)
+         y2(i) = -0.5_RKIND*p
+         work(i) = (3._RKIND*((y(i+1)-y(i)) - (y(i)-y(i-1))) - 
+     &              0.5_RKIND*work(i-1))*p
       enddo
 c
-      y2(n) = 0.d0
+      y2(n) = 0._RKIND
 c
 c     back substitution
 c

@@ -91,7 +91,7 @@ c compute ratio of thermal to total energy
 c
       if (idual .eq. 1) then
          do i=i1-1, i2+1
-            erat(i) = (eslice(i,j) - 0.5d0*(uslice(i,j)**2 +
+            erat(i) = (eslice(i,j) - 0.5_RKIND*(uslice(i,j)**2 +
      &                                    vslice(i,j)**2 +
      &                                    wslice(i,j)**2) )/eslice(i,j)
          enddo
@@ -100,10 +100,10 @@ c
 c  Compute diffusive fluxes (using coefficients from diffcoef)
 c
       if (idiff .ne. 0) then
-         di(i1-1) = 1.d0/dslice(i1-1,j)
+         di(i1-1) = 1._RKIND/dslice(i1-1,j)
          do i=i1, i2+1
             nu         = min(dslice(i,j),dslice(i-1,j))*diffcoef(i,j)
-            di(i)      = 1.d0/dslice(i,j)
+            di(i)      = 1._RKIND/dslice(i,j)
             ubar (i,j) = ubar(i,j)           + nu*(di(i  )-di(i-1  ))
             pbar (i,j) = pbar(i,j)           -
      &                                 nu*(uslice(i,j)-uslice(i-1,j))
@@ -121,12 +121,12 @@ c   Perform Riemann correction if necessary.
 c
       if (idual .eq. 1) then
          do i=i1, i2
-            pcent(i) = max((gamma - 1.d0)*geslice(i,j)*dslice(i,j),
-     &                 0.5d0*(pbar(i,j)+pbar(i+1,j)))
+            pcent(i) = max((gamma - 1._RKIND)*geslice(i,j)*dslice(i,j),
+     &                 0.5_RKIND*(pbar(i,j)+pbar(i+1,j)))
             if (max(erat(i-1),erat(i),erat(i+1)) .gt. etol2)
-     &          pcent(i) = (gamma - 1.d0)*geslice(i,j)*dslice(i,j)
+     &          pcent(i) = (gamma - 1._RKIND)*geslice(i,j)*dslice(i,j)
             pcent(i) = min(pcent(i), 
-     &                     0.5d0*geslice(i,j)*dslice(i,j)*dx(i)/
+     &                     0.5_RKIND*geslice(i,j)*dslice(i,j)*dx(i)/
      &                     (max(ubar(i+1,j)-ubar(i,j),tiny)*dt)  )
          enddo
       endif
@@ -175,15 +175,15 @@ c
             dadx(i) = grslice(i+1,j) - grslice(i-1,j)
             dddx(i) =  dslice(i+1,j) -  dslice(i-1,j)
 c     
-            dddx(i) = 2.d0*( dslice(i,j) - max(dslice(i,j) -
-     &                  0.5d0*dddx(i), min(dslice(i,j), dslice(i-1,j))))
-            dddx(i) = 2.d0*(-dslice(i,j) + max(dslice(i,j) +
-     &                  0.5d0*dddx(i), min(dslice(i,j), dslice(i+1,j))))
+            dddx(i) = 2._RKIND*( dslice(i,j) - max(dslice(i,j) -
+     &                  0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i-1,j))))
+            dddx(i) = 2._RKIND*(-dslice(i,j) + max(dslice(i,j) +
+     &                  0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i+1,j))))
          enddo
 c
          do i=i1, i2
             grslice(i,j) = grslice(i,j) + 
-     &                     0.5d0*dadx(i)*dddx(i)/(12.0*dslice(i,j))
+     &                     0.5_RKIND*dadx(i)*dddx(i)/(12.0*dslice(i,j))
          enddo
       endif
 c
@@ -211,7 +211,7 @@ c
       if (gravity .eq. 1) then
          do i=i1, i2
             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*(uslice(i,j) +
-     &                                  0.5d0*dt*grslice(i,j))
+     &                                  0.5_RKIND*dt*grslice(i,j))
             uslice(i,j) = uslice(i,j) + dt*grslice(i,j)
          enddo
       endif

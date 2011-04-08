@@ -90,12 +90,12 @@ subroutine gFLDProblem_GasEnergySource(ecsrc, time, Era, eca, nHIa,     &
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  ecsrc = 0.d0
+  ecsrc = 0._RKIND
 
 
   if (ProbType == 416) then
 !!$     if (time/TimeUnits > 0.005) then
-        ecsrc = 1.d4
+        ecsrc = 1.e4_RKIND
 !!$     end if
   end if
 

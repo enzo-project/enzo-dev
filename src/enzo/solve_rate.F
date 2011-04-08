@@ -85,7 +85,7 @@ c
 
       double precision everg, mh, e24, e26
       parameter (everg = ev2erg, mh = mass_h,
-     &           e24 = 13.6d0, e26 = 24.6d0)            ! DPC
+     &           e24 = 13.6_RKIND, e26 = 24.6_RKIND)            ! DPC
 c
 c  Locals
 c
@@ -173,11 +173,11 @@ c
 c
          do i = is+1, ie+1
 c
-            ttot(i) = 0.d0
+            ttot(i) = 0._RKIND
 c
 c           Compute temp-centered temperature (and log)
 c
-c           logtem(i) = log(0.5d0*(tgas(i,j,k)+tgasold(i,j,k)))
+c           logtem(i) = log(0.5_RKIND*(tgas(i,j,k)+tgasold(i,j,k)))
             logtem(i) = log(tgas(i,j,k))
             logtem(i) = max(logtem(i), logtem0)
             logtem(i) = min(logtem(i), logtem9)
@@ -295,12 +295,12 @@ c
          if (iradtype .eq. 8) then
             do i = is+1, ie+1
                x = max(HII(i,j,k)/(HI(i,j,k)+HII(i,j,k)), 1.0d-4)
-               factor = 0.3908d0*(1.d0 - x**0.4092d0)**1.7592d0
+               factor = 0.3908_RKIND*(1._RKIND - x**0.4092_RKIND)**1.7592_RKIND
                k24shield(i) = k24shield(i) + 
-     &          factor*(piHI + 0.08d0*piHeI)/(e24*everg)*coolunit*tbase1
-               factor = 0.0554d0*(1.d0 - x**0.4614d0)**1.6660d0
+     &          factor*(piHI + 0.08_RKIND*piHeI)/(e24*everg)*coolunit*tbase1
+               factor = 0.0554_RKIND*(1._RKIND - x**0.4614_RKIND)**1.666_RKIND
                k26shield(i) = k26shield(i) + 
-     &          factor*(piHI/0.08d0 + piHeI)/(e26*everg)*coolunit*tbase1
+     &          factor*(piHI/0.08_RKIND + piHeI)/(e26*everg)*coolunit*tbase1
             enddo
          endif
 c
@@ -322,13 +322,13 @@ c
                do i = is+1, ie+1
                   nh = min(HI(i,j,k)*dom, 1.0d9)
                   k13(i) = tiny
-                  if (tgas(i,j,k) .ge. 500.d0 .and.
+                  if (tgas(i,j,k) .ge. 500._RKIND .and.
      &                tgas(i,j,k) .lt. 1.0e6) then
                      k13(i) = k13dd(i,1)-k13dd(i,2)/
-     &                          (1.d0+(nh/k13dd(i,5))**k13dd(i,7))
+     &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                     + k13dd(i,3)-k13dd(i,4)/
-     &                          (1.d0+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10.d0**k13(i), tiny)
+     &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
+                     k13(i) = max(10._RKIND**k13(i), tiny)
                   endif
                enddo
             endif
@@ -344,15 +344,15 @@ c     Compute the electron density rate-of-change
 c
                   dedot(i) = 
      &               + k1(i)*HI(i,j,k)*de(i,j,k)
-     &               + k3(i)*HeI(i,j,k)*de(i,j,k)/4.d0
-     &               + k5(i)*HeII(i,j,k)*de(i,j,k)/4.d0
+     &               + k3(i)*HeI(i,j,k)*de(i,j,k)/4._RKIND
+     &               + k5(i)*HeII(i,j,k)*de(i,j,k)/4._RKIND
      &               - k2(i)*HII(i,j,k)*de(i,j,k)
-     &               - k4(i)*HeII(i,j,k)*de(i,j,k)/4.d0
-     &               - k6(i)*HeIII(i,j,k)*de(i,j,k)/4.d0
+     &               - k4(i)*HeII(i,j,k)*de(i,j,k)/4._RKIND
+     &               - k6(i)*HeIII(i,j,k)*de(i,j,k)/4._RKIND
 #ifdef RADIATION
      &               +      ( k24shield(i)*HI(i,j,k)
-     &               + k25shield(i)*HeII(i,j,k)/4.d0
-     &               + k26shield(i)*HeI(i,j,k)/4.d0)
+     &               + k25shield(i)*HeII(i,j,k)/4._RKIND
+     &               + k26shield(i)*HeI(i,j,k)/4._RKIND)
 #endif /* RADIATION */
 c
 c     Compute the HI density rate-of-change
@@ -375,17 +375,17 @@ c
      &               -      k7(i) *de(i,j,k)    *HI(i,j,k)
      &               -      k8(i) *HM(i,j,k)    *HI(i,j,k)
      &               -      k9(i) *HII(i,j,k)   *HI(i,j,k)
-     &               -      k10(i)*H2II(i,j,k)  *HI(i,j,k)/2.d0
-     &               - 2.d0*k22(i)*HI(i,j,k)**2 *HI(i,j,k)
+     &               -      k10(i)*H2II(i,j,k)  *HI(i,j,k)/2._RKIND
+     &               - 2._RKIND*k22(i)*HI(i,j,k)**2 *HI(i,j,k)
      &               +      k2(i) *HII(i,j,k)   *de(i,j,k) 
-     &               + 2.d0*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2.d0
-     &               +      k11(i)*HII(i,j,k)   *H2I(i,j,k)/2.d0
-     &               + 2.d0*k12(i)*de(i,j,k)    *H2I(i,j,k)/2.d0
+     &               + 2._RKIND*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2._RKIND
+     &               +      k11(i)*HII(i,j,k)   *H2I(i,j,k)/2._RKIND
+     &               + 2._RKIND*k12(i)*de(i,j,k)    *H2I(i,j,k)/2._RKIND
      &               +      k14(i)*HM(i,j,k)    *de(i,j,k)
      &               +      k15(i)*HM(i,j,k)    *HI(i,j,k)
-     &               + 2.d0*k16(i)*HM(i,j,k)    *HII(i,j,k)
-     &               + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0
-     &               +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
+     &               + 2._RKIND*k16(i)*HM(i,j,k)    *HII(i,j,k)
+     &               + 2._RKIND*k18(i)*H2II(i,j,k)  *de(i,j,k)/2._RKIND
+     &               +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2._RKIND
 #ifdef RADIATION
      &               -      k24shield(i)*HI(i,j,k)
 #endif /* RADIATION */
@@ -394,22 +394,22 @@ c     Compute the electron density rate-of-change
 c
                   dedot(i) = 
      &               + k1(i) * HI(i,j,k)   * de(i,j,k)
-     &               + k3(i) * HeI(i,j,k)  * de(i,j,k)/4.d0
-     &               + k5(i) * HeII(i,j,k) * de(i,j,k)/4.d0
+     &               + k3(i) * HeI(i,j,k)  * de(i,j,k)/4._RKIND
+     &               + k5(i) * HeII(i,j,k) * de(i,j,k)/4._RKIND
      &               + k8(i) * HM(i,j,k)   * HI(i,j,k)
      &               + k15(i)* HM(i,j,k)   * HI(i,j,k)
      &               + k17(i)* HM(i,j,k)   * HII(i,j,k)
      &               + k14(i)* HM(i,j,k)   * de(i,j,k)
      &               - k2(i) * HII(i,j,k)  * de(i,j,k)
-     &               - k4(i) * HeII(i,j,k) * de(i,j,k)/4.d0
-     &               - k6(i) * HeIII(i,j,k)* de(i,j,k)/4.d0
+     &               - k4(i) * HeII(i,j,k) * de(i,j,k)/4._RKIND
+     &               - k6(i) * HeIII(i,j,k)* de(i,j,k)/4._RKIND
      &               - k7(i) * HI(i,j,k)   * de(i,j,k)
-     &               - k18(i)* H2II(i,j,k) * de(i,j,k)/2.d0
+     &               - k18(i)* H2II(i,j,k) * de(i,j,k)/2._RKIND
 c
 #ifdef RADIATION
      &               +      ( k24shield(i)*HI(i,j,k)
-     &               + k25shield(i)*HeII(i,j,k)/4.d0
-     &               + k26shield(i)*HeI(i,j,k)/4.d0)
+     &               + k25shield(i)*HeII(i,j,k)/4._RKIND
+     &               + k26shield(i)*HeI(i,j,k)/4._RKIND)
 #endif /* RADIATION */
                enddo
             endif
@@ -422,8 +422,8 @@ c
                   do i = is+1, ie+1
                      HIdot(i) = HIdot(i) - kphHI(i,j,k)*HI(i,j,k)
                      dedot(i) = dedot(i) + kphHI(i,j,k)*HI(i,j,k)
-     $                    + kphHeI(i,j,k) * HeI(i,j,k) / 4.d0
-     $                    + kphHeII(i,j,k) *HeII(i,j,k) / 4.d0
+     $                    + kphHeI(i,j,k) * HeI(i,j,k) / 4._RKIND
+     $                    + kphHeII(i,j,k) *HeII(i,j,k) / 4._RKIND
                   enddo
                else
                   do i = is+1, ie+1
@@ -455,7 +455,7 @@ c
 c
                dtit(i) = min(abs(0.1*de(i,j,k)/dedot(i)), 
      &                       abs(0.1*HI(i,j,k)/HIdot(i)),
-     &                       dt-ttot(i), 0.5d0*dt)
+     &                       dt-ttot(i), 0.5_RKIND*dt)
 c
                if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 200 .and.
      &             abs((dt-ttot(i))/dt) .gt. 1.0d-3) then
@@ -474,17 +474,17 @@ c
      &               -      k7(i) *de(i,j,k)    *HI(i,j,k),
      &               -      k8(i) *HM(i,j,k)    *HI(i,j,k),
      &               -      k9(i) *HII(i,j,k)   *HI(i,j,k),
-     &               -      k10(i)*H2II(i,j,k)  *HI(i,j,k)/2.d0,
-     &               - 2.d0*k22(i)*HI(i,j,k)**2 *HI(i,j,k),
+     &               -      k10(i)*H2II(i,j,k)  *HI(i,j,k)/2._RKIND,
+     &               - 2._RKIND*k22(i)*HI(i,j,k)**2 *HI(i,j,k),
      &               +      k2(i) *HII(i,j,k)   *de(i,j,k) ,
-     &               + 2.d0*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2.d0,
-     &               +      k11(i)*HII(i,j,k)   *H2I(i,j,k)/2.d0,
-     &               + 2.d0*k12(i)*de(i,j,k)    *H2I(i,j,k)/2.d0,
+     &               + 2._RKIND*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2._RKIND,
+     &               +      k11(i)*HII(i,j,k)   *H2I(i,j,k)/2._RKIND,
+     &               + 2._RKIND*k12(i)*de(i,j,k)    *H2I(i,j,k)/2._RKIND,
      &               +      k14(i)*HM(i,j,k)    *de(i,j,k),
      &               +      k15(i)*HM(i,j,k)    *HI(i,j,k),
-     &               + 2.d0*k16(i)*HM(i,j,k)    *HII(i,j,k),
-     &               + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0,
-     &               +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
+     &               + 2._RKIND*k16(i)*HM(i,j,k)    *HII(i,j,k),
+     &               + 2._RKIND*k18(i)*H2II(i,j,k)  *de(i,j,k)/2._RKIND,
+     &               +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2._RKIND
 
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!               call close_mpi_error_file( 4 )
@@ -510,7 +510,7 @@ c
                   if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
                   HIp(i)    = ( scoef*dtit(i) + HI(i,j,k) ) / 
-     &                        ( 1.d0 + acoef*dtit(i) )
+     &                        ( 1._RKIND + acoef*dtit(i) )
 c
 c                 2) HII
 c 
@@ -522,31 +522,31 @@ c
 #endif /* RADIATION */
                   acoef  = k2(i)*de (i,j,k)
                   HIIp(i)  = ( scoef*dtit(i) + HII(i,j,k) )
-     &                     / ( 1.d0 + acoef*dtit(i) )
+     &                     / ( 1._RKIND + acoef*dtit(i) )
 c
 c                 3) Electron density
 c
-                  scoef = 0.d0
+                  scoef = 0._RKIND
 #ifdef RADIATION
      &                 + k24shield(i)*HI(i,j,k)
-     &                 + k25shield(i)*HeII(i,j,k)/4.d0
-     &                 + k26shield(i)*HeI(i,j,k)/4.d0
+     &                 + k25shield(i)*HeII(i,j,k)/4._RKIND
+     &                 + k26shield(i)*HeI(i,j,k)/4._RKIND
                   if (iradtrans .eq. 1 .and. irt_honly.eq.0) 
      $                 scoef = scoef + kphHI(i,j,k)   * HI(i,j,k)
-     $                 + kphHeI(i,j,k)  * HeI(i,j,k)/4.d0
-     $                 + kphHeII(i,j,k) * HeII(i,j,k)/4.d0
+     $                 + kphHeI(i,j,k)  * HeI(i,j,k)/4._RKIND
+     $                 + kphHeII(i,j,k) * HeII(i,j,k)/4._RKIND
                   if (iradtrans .eq. 1 .and. irt_honly.eq.1) 
      $                 scoef = scoef + kphHI(i,j,k)   * HI(i,j,k)
 #endif /* RADIATION */
                   acoef = -(k1(i)*HI(i,j,k)      
      &                    - k2(i)*HII(i,j,k)
-     &                    + k3(i)*HeI(i,j,k)/4.d0
-     &                    - k6(i)*HeIII(i,j,k)/4.d0
-     &                    + k5(i)*HeII(i,j,k)/4.d0
-     &                    - k4(i)*HeII(i,j,k)/4.d0
+     &                    + k3(i)*HeI(i,j,k)/4._RKIND
+     &                    - k6(i)*HeIII(i,j,k)/4._RKIND
+     &                    + k5(i)*HeII(i,j,k)/4._RKIND
+     &                    - k4(i)*HeII(i,j,k)/4._RKIND
      &                )
                   dep(i)   = ( scoef*dtit(i) + de(i,j,k) )
-     &                     / ( 1.d0 + acoef*dtit(i) )
+     &                     / ( 1._RKIND + acoef*dtit(i) )
 c
                enddo
 c
@@ -566,7 +566,7 @@ c
      $              acoef = acoef + kphHeI(i,j,k)
 #endif /* RADIATION */
                HeIp(i)   = ( scoef*dtit(i) + HeI(i,j,k) ) 
-     &              / ( 1.d0 + acoef*dtit(i) )
+     &              / ( 1._RKIND + acoef*dtit(i) )
 c
 c              5) HeII
 c
@@ -584,7 +584,7 @@ c
      $              acoef = acoef + kphHeII(i,j,k)
 #endif /* RADIATION */
                HeIIp(i)  = ( scoef*dtit(i) + HeII(i,j,k) )
-     &              / ( 1.d0 + acoef*dtit(i) )
+     &              / ( 1._RKIND + acoef*dtit(i) )
 c
 c              6) HeIII
 c
@@ -596,7 +596,7 @@ c
 #endif /* RADIATION */
                acoef   = k6(i)*de(i,j,k)
                HeIIIp(i)  = ( scoef*dtit(i) + HeIII(i,j,k) )
-     &              / ( 1.d0 + acoef*dtit(i) )
+     &              / ( 1._RKIND + acoef*dtit(i) )
             enddo
 c
 c         --- (3) Now do extra 3-species for molecular hydrogen ---
@@ -610,37 +610,37 @@ c
 c                 1) HI
 c
                   scoef  =      k2(i) * HII(i,j,k) * de(i,j,k) 
-     &                   + 2.d0*k13(i)* HI(i,j,k)  * H2I(i,j,k)/2.d0
-     &                   +      k11(i)* HII(i,j,k) * H2I(i,j,k)/2.d0
-     &                   + 2.d0*k12(i)* de(i,j,k)  * H2I(i,j,k)/2.d0
+     &                   + 2._RKIND*k13(i)* HI(i,j,k)  * H2I(i,j,k)/2._RKIND
+     &                   +      k11(i)* HII(i,j,k) * H2I(i,j,k)/2._RKIND
+     &                   + 2._RKIND*k12(i)* de(i,j,k)  * H2I(i,j,k)/2._RKIND
      &                   +      k14(i)* HM(i,j,k)  * de(i,j,k)
      &                   +      k15(i)* HM(i,j,k)  * HI(i,j,k)
-     &                   + 2.d0*k16(i)* HM(i,j,k)  * HII(i,j,k)
-     &                   + 2.d0*k18(i)* H2II(i,j,k)* de(i,j,k)/2.d0
-     &                   +      k19(i)* H2II(i,j,k)* HM(i,j,k)/2.d0
+     &                   + 2._RKIND*k16(i)* HM(i,j,k)  * HII(i,j,k)
+     &                   + 2._RKIND*k18(i)* H2II(i,j,k)* de(i,j,k)/2._RKIND
+     &                   +      k19(i)* H2II(i,j,k)* HM(i,j,k)/2._RKIND
 #ifdef RADIATION
-     &                   + 2.d0*k31   * H2I(i,j,k)/2.d0
+     &                   + 2._RKIND*k31   * H2I(i,j,k)/2._RKIND
                   if (iradtrans.eq.1)
-     $                 scoef = scoef + 2.d0*kdissH2I(i,j,k)* 
-     $                         H2I(i,j,k)/2.d0
+     $                 scoef = scoef + 2._RKIND*kdissH2I(i,j,k)* 
+     $                         H2I(i,j,k)/2._RKIND
 #endif /* RADIATION */
                   acoef  =      k1(i) * de(i,j,k)
      &                   +      k7(i) * de(i,j,k)  
      &                   +      k8(i) * HM(i,j,k)
      &                   +      k9(i) * HII(i,j,k)
-     &                   +      k10(i)* H2II(i,j,k)/2.d0
-     &                   + 2.d0*k22(i)* HI(i,j,k)**2
+     &                   +      k10(i)* H2II(i,j,k)/2._RKIND
+     &                   + 2._RKIND*k22(i)* HI(i,j,k)**2
 #ifdef RADIATION
      &                   + k24shield(i)
                   if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
                   HIp(i)  = ( scoef*dtit(i) + HI(i,j,k) ) / 
-     &                      ( 1.d0 + acoef*dtit(i) )
+     &                      ( 1._RKIND + acoef*dtit(i) )
 c
 c                 2) HII
 c 
                   scoef  =    k1(i)  * HI(i,j,k) * de(i,j,k)
-     &                   +    k10(i) * H2II(i,j,k)*HI(i,j,k)/2.d0
+     &                   +    k10(i) * H2II(i,j,k)*HI(i,j,k)/2._RKIND
 #ifdef RADIATION
      &                   + k24shield(i)*HI(i,j,k)
                   if (iradtrans .eq. 1) 
@@ -648,11 +648,11 @@ c
 #endif /* RADIATION */
                   acoef  =    k2(i)  * de(i,j,k)
      &                   +    k9(i)  * HI(i,j,k)
-     &                   +    k11(i) * H2I(i,j,k)/2.d0
+     &                   +    k11(i) * H2I(i,j,k)/2._RKIND
      &                   +    k16(i) * HM(i,j,k)
      &                   +    k17(i) * HM(i,j,k)
                   HIIp(i)   = ( scoef*dtit(i) + HII(i,j,k) )
-     &                      / ( 1.d0 + acoef*dtit(i) )
+     &                      / ( 1._RKIND + acoef*dtit(i) )
 c
 c                 3) electrons:
 c
@@ -662,44 +662,44 @@ c
 c                  
 #ifdef RADIATION
      &                   + k24shield(i)*HIp(i)
-     &                   + k25shield(i)*HeIIp(i)/4.d0
-     &                   + k26shield(i)*HeIp(i)/4.d0
+     &                   + k25shield(i)*HeIIp(i)/4._RKIND
+     &                   + k26shield(i)*HeIp(i)/4._RKIND
                   if (iradtrans .eq. 1 .and. irt_honly.eq.0) 
      $                 scoef = scoef + kphHI(i,j,k)   * HIp(i)
-     $                 + kphHeI(i,j,k)  * HeIp(i)/4.d0
-     $                 + kphHeII(i,j,k) * HeIIp(i)/4.d0
+     $                 + kphHeI(i,j,k)  * HeIp(i)/4._RKIND
+     $                 + kphHeII(i,j,k) * HeIIp(i)/4._RKIND
                   if (iradtrans .eq. 1 .and. irt_honly.eq.1) 
      $                 scoef = scoef + kphHI(i,j,k)   * HIp(i)
 #endif /* RADIATION */
                   acoef = - (k1(i) *HI(i,j,k)    
      &                   -  k2(i)*HII(i,j,k)
-     &                   +  k3(i) *HeI(i,j,k)/4.d0
-     &                   -  k6(i)*HeIII(i,j,k)/4.d0
-     &                   +  k5(i) *HeII(i,j,k)/4.d0
-     &                   -  k4(i)*HeII(i,j,k)/4.d0
+     &                   +  k3(i) *HeI(i,j,k)/4._RKIND
+     &                   -  k6(i)*HeIII(i,j,k)/4._RKIND
+     &                   +  k5(i) *HeII(i,j,k)/4._RKIND
+     &                   -  k4(i)*HeII(i,j,k)/4._RKIND
      &                   +  k14(i)*HM(i,j,k)
      &                   -  k7(i) *HI(i,j,k)
-     &                   -  k18(i)*H2II(i,j,k)/2.d0
+     &                   -  k18(i)*H2II(i,j,k)/2._RKIND
      &                 )
                   dep(i)  = ( scoef*dtit(i) + de(i,j,k) )
-     &                    / ( 1.d0 + acoef*dtit(i) )
+     &                    / ( 1._RKIND + acoef*dtit(i) )
 c
 c                 7) H2
 c
-                  scoef = 2.d0*(k8(i)  * HM(i,j,k)   * HI(i,j,k)
-     &                  +     k10(i) * H2II(i,j,k) * HI(i,j,k)/2.d0
-     &                  +     k19(i) * H2II(i,j,k) * HM(i,j,k)/2.d0
+                  scoef = 2._RKIND*(k8(i)  * HM(i,j,k)   * HI(i,j,k)
+     &                  +     k10(i) * H2II(i,j,k) * HI(i,j,k)/2._RKIND
+     &                  +     k19(i) * H2II(i,j,k) * HM(i,j,k)/2._RKIND
      &                  +     k22(i) * HI(i,j,k)**3             
      &                 )
                   acoef = ( k13(i)*HI(i,j,k) + k11(i)*HII(i,j,k)
      &                  + k12(i)*de(i,j,k) )
 #ifdef RADIATION
      &                  + k29 + k31
-                  if (iradtrans.eq.1) acoef = acoef+2.d0*kdissH2I(i,j,k)
+                  if (iradtrans.eq.1) acoef = acoef+2._RKIND*kdissH2I(i,j,k)
 #endif /* RADIATION */
 c
                   H2Ip(i) = ( scoef*dtit(i) + H2I(i,j,k) )
-     &                    / ( 1.d0 + acoef*dtit(i) )
+     &                    / ( 1._RKIND + acoef*dtit(i) )
 c
 c                 8) H-
 c
@@ -713,8 +713,8 @@ c
 c
 c                 9) H2+
 c
-                  H2IIp(i) = 2.d0*( k9 (i)*HIp(i)*HIIp(i)
-     &                          + k11(i)*H2Ip(i)/2.d0*HIIp(i)
+                  H2IIp(i) = 2._RKIND*( k9 (i)*HIp(i)*HIIp(i)
+     &                          + k11(i)*H2Ip(i)/2._RKIND*HIIp(i)
      &                          + k17(i)*HMp(i)*HIIp(i)
 #ifdef RADIATION
      &                          + k29*H2Ip(i)
@@ -739,24 +739,24 @@ c                 1) DI
 c     
                   scoef =   (    k2(i)* DII(i,j,k) * de(i,j,k)
      &                      +    k51(i)* DII(i,j,k) * HI(i,j,k)
-     &                      + 2.d0*k55(i)* HDI(i,j,k) * HI(i,j,k)/3.d0
+     &                      + 2._RKIND*k55(i)* HDI(i,j,k) * HI(i,j,k)/3._RKIND
      &                 )
                   acoef  =    k1(i) * de(i,j,k)
      &                 +     k50(i) * HII(i,j,k)
-     &                 +     k54(i) * H2I(i,j,k)/2.d0
+     &                 +     k54(i) * H2I(i,j,k)/2._RKIND
      &                 +     k56(i) * HM(i,j,k)
 #ifdef RADIATION
      &                 + k24shield(i)
                   if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
                   DIp(i)    = ( scoef*dtit(i) + DI(i,j,k) ) / 
-     &                 ( 1.d0 + acoef*dtit(i) )
+     &                 ( 1._RKIND + acoef*dtit(i) )
 c
 c                 2) DII
 c 
                   scoef = (   k1(i) * DI(i,j,k) * de(i,j,k)
      &                  +     k50(i) * HII(i,j,k)* DI(i,j,k)
-     &                  +  2.d0*k53(i) * HII(i,j,k)* HDI(i,j,k)/3.d0
+     &                  +  2._RKIND*k53(i) * HII(i,j,k)* HDI(i,j,k)/3._RKIND
      &                  )
 #ifdef RADIATION
      &                 + k24shield(i)*DI(i,j,k)
@@ -765,22 +765,22 @@ c
 #endif /* RADIATION */
                   acoef =    k2(i)  * de(i,j,k)
      &                  +    k51(i) * HI(i,j,k)
-     &                  +    k52(i) * H2I(i,j,k)/2.d0
+     &                  +    k52(i) * H2I(i,j,k)/2._RKIND
 c
                   DIIp(i)   = ( scoef*dtit(i) + DII(i,j,k) )
-     &                 / ( 1.d0 + acoef*dtit(i) )
+     &                 / ( 1._RKIND + acoef*dtit(i) )
 c
 c                 3) HDI
 c 
-                  scoef = 3.d0*(k52(i)*DII(i,j,k)* H2I(i,j,k)/2.d0/2.d0
-     &                   +    k54(i) * DI(i,j,k) * H2I(i,j,k)/2.d0/2.d0
-     &                   + 2.d0*k56(i) *DI(i,j,k) *HM(i,j,k)/2.d0
+                  scoef = 3._RKIND*(k52(i)*DII(i,j,k)* H2I(i,j,k)/2._RKIND/2._RKIND
+     &                   +    k54(i) * DI(i,j,k) * H2I(i,j,k)/2._RKIND/2._RKIND
+     &                   + 2._RKIND*k56(i) *DI(i,j,k) *HM(i,j,k)/2._RKIND
      &                 )
                   acoef  =    k53(i) * HII(i,j,k)
      &                   +    k55(i) * HI(i,j,k)
 c
                   HDIp(i)   = ( scoef*dtit(i) + HDI(i,j,k) )
-     &                 / ( 1.d0 + acoef*dtit(i) )
+     &                 / ( 1._RKIND + acoef*dtit(i) )
 
                enddo
             endif
@@ -799,10 +799,10 @@ c               de(i,j,k)    = dep(i)
 c
 c              Use charge conservation to determine electron fraction
 c 
-               de(i,j,k) = HII(i,j,k) + HeII(i,j,k)/4.d0 + 
-     &              HeIII(i,j,k)/2.d0
+               de(i,j,k) = HII(i,j,k) + HeII(i,j,k)/4._RKIND + 
+     &              HeIII(i,j,k)/2._RKIND
                if (ispecies .gt. 1) de(i,j,k) = de(i,j,k)
-     &                   - HM(i,j,k) + H2II(i,j,k)/2.d0
+     &                   - HM(i,j,k) + H2II(i,j,k)/2._RKIND
 c
 c
                if (ispecies .gt. 1) then
@@ -918,7 +918,7 @@ c
          HI(i,j,k)  = HI(i,j,k)*correctH
          HII(i,j,k) = HII(i,j,k)*correctH
 c
-         correctHe = (1.d0 - fh)*metalfree/totalHe(i)
+         correctHe = (1._RKIND - fh)*metalfree/totalHe(i)
          HeI(i,j,k)   = HeI(i,j,k)*correctHe
          HeII(i,j,k)  = HeII(i,j,k)*correctHe
          HeIII(i,j,k) = HeIII(i,j,k)*correctHe
@@ -941,7 +941,7 @@ c
             DI  (i,j,k) = abs(DI  (i,j,k))
             DII (i,j,k) = abs(DII (i,j,k))
             HDI (i,j,k) = abs(HDI (i,j,k))
-            totalD = DI(i,j,k) + DII(i,j,k) + 2.d0/3.d0*HDI(i,j,k)
+            totalD = DI(i,j,k) + DII(i,j,k) + 2._RKIND/3._RKIND*HDI(i,j,k)
             metalfree = totalH(i) + totalHe(i) + totalD
             correctD = fh*dtoh*metalfree/totalD
             DI  (i,j,k) = DI (i,j,k)*correctD
@@ -953,9 +953,9 @@ c
 c       Set the electron density
 c
       do i = is+1, ie+1
-         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4.d0 + HeIII(i,j,k)/2.d0
+         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4._RKIND + HeIII(i,j,k)/2._RKIND
          if (ispecies .gt. 1) de(i,j,k) = de(i,j,k)
-     &             - HM(i,j,k) + H2II(i,j,k)/2.d0
+     &             - HM(i,j,k) + H2II(i,j,k)/2._RKIND
       enddo
 c
       enddo

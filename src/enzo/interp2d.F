@@ -64,7 +64,7 @@ c  locals
 c
       INTG_PREC i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
       R_PREC    delf0, delf1, fbar, fx, fy, one
-      parameter (one=1.d0)
+      parameter (one=1._RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -116,13 +116,13 @@ c
      &                      abs(fbar - work(i+1, j+1)) )*
      &               sign(one, (fbar - work(i  , j  )))
             if ((work(i+1, j+1) - fbar) * (fbar - work(i, j)) .lt. 0.0)
-     &         delf0 = 0.d0
+     &         delf0 = 0._RKIND
 c
             delf1 =     min(abs(fbar - work(i+1, j  )),
      &                      abs(fbar - work(i  , j+1)) )*
      &               sign(one, (fbar - work(i+1, j  )))
             if ((work(i, j+1) - fbar) * (fbar - work(i+1, j)) .lt. 0.0)
-     &         delf1 = 0.d0
+     &         delf1 = 0._RKIND
 c
 c           Now, find the the interpolation coefficients.
 c
@@ -135,11 +135,11 @@ c
                do i1 = 0, refine1-1
                   grid(gstart1+(i-1)*refine1+i1,
      &                 gstart2+(j-1)*refine2+j1) = (fbar +
-     &               (REAL(i1,RKIND)+0.5d0 -
-     &                 0.5d0*REAL(refine1,RKIND)) / 
+     &               (REAL(i1,RKIND)+0.5_RKIND -
+     &                 0.5_RKIND*REAL(refine1,RKIND)) / 
      &                 REAL(refine1,RKIND)*fx +
-     &               (REAL(j1,RKIND)+0.5d0 - 
-     &                 0.5d0*REAL(refine2,RKIND)) / 
+     &               (REAL(j1,RKIND)+0.5_RKIND - 
+     &                 0.5_RKIND*REAL(refine2,RKIND)) / 
      &                 REAL(refine2,RKIND)*fy )
 c                  if (grid(gstart1+(i-1)*refine1+i1,
 c     &                     gstart2+(j-1)*refine2+j1) .lt. 0.0)

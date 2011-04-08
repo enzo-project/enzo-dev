@@ -16,7 +16,7 @@
      &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp, piHI, piHeI, piHeII,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
-     &                hyd01ka, h2k01a, vibha, rotha, rotla,
+     &                hy_RKIND1ka, h2k01a, vibha, rotha, rotla,
      &                gpldla, gphdla, hdltea, hdlowa,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &                metala, n_xe, xe_start, xe_end,
@@ -68,7 +68,7 @@
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
       R_PREC    metal(in,jn,kn)
       R_PREC    photogamma(in,jn,kn)
-      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hy_RKIND1ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
@@ -116,7 +116,7 @@
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), cieco(ijk)
-      R_PREC hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
+      R_PREC hy_RKIND1k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
           
 !  Iteration mask for multi_cool
@@ -186,8 +186,8 @@
      &                comp_xraya, comp_temp,
      &                piHI, piHeI, piHeII, comp1, comp2,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
-     &                hyd01ka, h2k01a, vibha, rotha, rotla,
-     &                hyd01k, h2k01, vibh, roth, rotl,
+     &                hy_RKIND1ka, h2k01a, vibha, rotha, rotla,
+     &                hy_RKIND1k, h2k01, vibh, roth, rotl,
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
@@ -211,7 +211,7 @@
 !           in cool1d_multi)
 
          do i = is+1, ie+1
-            energy = max(p2d(i)/(gamma-1.d0), tiny)   
+            energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 

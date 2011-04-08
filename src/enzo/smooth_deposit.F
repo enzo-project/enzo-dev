@@ -62,7 +62,7 @@ c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
       rsmsqr = rsmooth**2
-      coef   = 3.d0/pi*(cellsize/rsmooth)**3
+      coef   = 3._RKIND/pi*(cellsize/rsmooth)**3
 c
       if (ndim .ne. 3) then
          write(6,*) 'SMOOTH_DEPOSIT: only ndim=3 supported.'
@@ -76,11 +76,11 @@ c
 c        loop over grid
 c
          do k=1, dim3
-            zpos = leftedge(3) + (float(k) - 0.5d0)*cellsize
+            zpos = leftedge(3) + (float(k) - 0.5_RKIND)*cellsize
             do j=1, dim2
-               ypos = leftedge(2) + (float(j) - 0.5d0)*cellsize
+               ypos = leftedge(2) + (float(j) - 0.5_RKIND)*cellsize
                do i=1, dim1
-                  xpos = leftedge(1) + (float(i) - 0.5d0)*cellsize
+                  xpos = leftedge(1) + (float(i) - 0.5_RKIND)*cellsize
 c
 c                 Loop over particles
 c
@@ -94,7 +94,7 @@ c
 c
                      if (rsqr .lt. rsmsqr)
      &                    field(i,j,k) = field(i,j,k) +
-     &                         mass(n)*coef*(1.d0 - sqrt(rsqr)/rsmooth)
+     &                         mass(n)*coef*(1._RKIND - sqrt(rsqr)/rsmooth)
 c
                   enddo
 c

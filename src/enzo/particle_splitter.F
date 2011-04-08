@@ -211,7 +211,7 @@ c
 c           First reduce the mass of the parent down to 1/(children+parent) = 1/13
 c 
 c            mpold(n) = mpold(n) / 13.0
-            mpold(n) = mpold(n) / (children + 1.d0)
+            mpold(n) = mpold(n) / (children + 1._RKIND)
 c
 c
 c           ===================================
@@ -228,57 +228,57 @@ c           Step[I-1]: 6 children on the same x-y plane as the parent
 c                      (counter-clockwise; again, here we assume the parent is at the origin)
 c
             xp0(1) = rad
-            yp0(1) = 0.d0 
-            zp0(1) = 0.d0 
+            yp0(1) = 0._RKIND 
+            zp0(1) = 0._RKIND 
 c
-            xp0(2) = 0.5000d0*rad
-            yp0(2) = 0.8660d0*rad
-            zp0(2) = 0.d0
+            xp0(2) = 0.5_RKIND*rad
+            yp0(2) = 0.866_RKIND*rad
+            zp0(2) = 0._RKIND
 c
-            xp0(3) = -0.5000d0*rad
-            yp0(3) = 0.8660d0*rad
-            zp0(3) = 0.d0
+            xp0(3) = -0.5_RKIND*rad
+            yp0(3) = 0.866_RKIND*rad
+            zp0(3) = 0._RKIND
 c
             xp0(4) = -rad
-            yp0(4) = 0.d0
-            zp0(4) = 0.d0
+            yp0(4) = 0._RKIND
+            zp0(4) = 0._RKIND
 c
-            xp0(5) = -0.5000d0*rad
-            yp0(5) = -0.8660d0*rad
-            zp0(5) = 0.d0
+            xp0(5) = -0.5_RKIND*rad
+            yp0(5) = -0.866_RKIND*rad
+            zp0(5) = 0._RKIND
 c
-            xp0(6) = 0.5000d0*rad
-            yp0(6) = -0.8660d0*rad
-            zp0(6) = 0.d0
+            xp0(6) = 0.5_RKIND*rad
+            yp0(6) = -0.866_RKIND*rad
+            zp0(6) = 0._RKIND
 c
 c           Step[I-2]: 3 children above the parent plane (x-y)
 c                      (the height of the tetrahedron of edge r = sqrt(2/3)*r)
 c
-            xp0(7) = 0.5000d0*rad
-            yp0(7) = 0.2887d0*rad
-            zp0(7) = 0.8165d0*rad
+            xp0(7) = 0.5_RKIND*rad
+            yp0(7) = 0.2887_RKIND*rad
+            zp0(7) = 0.8165_RKIND*rad
 c
-            xp0(8) = -0.5000d0*rad
-            yp0(8) = 0.2887d0*rad
+            xp0(8) = -0.5_RKIND*rad
+            yp0(8) = 0.2887_RKIND*rad
             zp0(8) = 0.8165*rad
 c
-            xp0(9) = 0.d0
-            yp0(9) = -0.5774d0*rad
-            zp0(9) = +0.8165d0*rad
+            xp0(9) = 0._RKIND
+            yp0(9) = -0.5774_RKIND*rad
+            zp0(9) = +0.8165_RKIND*rad
 c
 c           Step[I-3]: 3 children below the parent plane (x-y)
 c
-            xp0(10) = 0.5000d0*rad
-            yp0(10) = 0.2887d0*rad
-            zp0(10) = -0.8165d0*rad
+            xp0(10) = 0.5_RKIND*rad
+            yp0(10) = 0.2887_RKIND*rad
+            zp0(10) = -0.8165_RKIND*rad
 c
-            xp0(11) = -0.5000d0*rad
-            yp0(11) = 0.2887d0*rad
-            zp0(11) = -0.8165d0*rad
+            xp0(11) = -0.5_RKIND*rad
+            yp0(11) = 0.2887_RKIND*rad
+            zp0(11) = -0.8165_RKIND*rad
 c
-            xp0(12) = 0.d0
-            yp0(12) = -0.5774d0*rad
-            zp0(12) = -0.8165d0*rad
+            xp0(12) = 0._RKIND
+            yp0(12) = -0.5774_RKIND*rad
+            zp0(12) = -0.8165_RKIND*rad
 c
 c
 c           ===================================
@@ -304,7 +304,7 @@ c           Step[II-1]: First generate random numbers which will be in the range
 c
             call random_number(alpha)
             do m = 1, 3
-               alpha(m) = alpha(m) * pi * 2.d0
+               alpha(m) = alpha(m) * pi * 2._RKIND
             enddo
 c
 c            write(6,*) 'random number:', alpha(1), alpha(2), alpha(3)
@@ -362,7 +362,7 @@ c
                if (imetal .eq. 1) then
                   metalf(ii+m) = metalfold(n)    !in here metal is a fraction
                else
-                  metalf(ii+m) = 0.d0
+                  metalf(ii+m) = 0._RKIND
                endif
             enddo
 c
