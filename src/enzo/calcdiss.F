@@ -142,11 +142,13 @@ c  parameters
 c
       R_PREC    epsilon, kappa1, kappa2, Kparam, nu1, nu2, nu3,
      &        omega1, omega2, sigma1, sigma2, one, two
-      parameter (epsilon = 0.33_RKIND, kappa1 = 2._RKIND, kappa2 =  0.01_RKIND,
-     &            Kparam = 0.1_RKIND ,    nu1 = 2._RKIND, nu2    =  0.1_RKIND ,
-     &               nu3 = 0.2333, omega1 = 0.75, omega2 = 10._RKIND ,
-     &            sigma1 = 0.5_RKIND , sigma2 = 1._RKIND, one = 1._RKIND,
-     &               two = 2._RKIND)
+      parameter (epsilon = 0.33_RKIND,    kappa1 = 2._RKIND, 
+     &           kappa2  = 0.01_RKIND,    Kparam = 0.1_RKIND,    
+     &           nu1     = 2._RKIND,      nu2    = 0.1_RKIND,
+     &           nu3     = 0.2333_RKIND,  omega1 = 0.75_RKIND, 
+     &           omega2  = 10._RKIND,     sigma1 = 0.5_RKIND, 
+     &           sigma2  = 1._RKIND,      one    = 1._RKIND,
+     &           two     = 2._RKIND)
 c
 c Notice, for 1D calculations nu2 = 0 and nu3 = 0.3333, see CW84, p. 200.
 c
@@ -381,15 +383,17 @@ c
 c
             if (nyz.gt.1 .and. lj1) then
                do i=i1, i2+1
-                  diffcoef(i,j) = diffcoef(i,j) +(0.25_RKIND*(dx(i)+dx(i-1))
-     &                 /   (0.5_RKIND*(dy(j+1)+dy(j-1)) + dy(j)))*vdiff1(i)
+                  diffcoef(i,j) = diffcoef(i,j) +
+     &                 (0.25_RKIND*(dx(i)+dx(i-1)) / 
+     &                 (0.5_RKIND*(dy(j+1)+dy(j-1)) + dy(j)))*vdiff1(i)
                end do
             endif
 c     
             if (nzz.gt.1 .and. lk1) then
                do i=i1, i2+1
-                  diffcoef(i,j) = diffcoef(i,j) +(0.25_RKIND*(dx(i)+dx(i-1))
-     &                 /   (0.5_RKIND*(dz(k+1)+dz(k-1)) + dz(k)))*wdiff1(i)
+                  diffcoef(i,j) = diffcoef(i,j) +
+     &                 (0.25_RKIND*(dx(i)+dx(i-1)) /
+     &                 (0.5_RKIND*(dz(k+1)+dz(k-1)) + dz(k)))*wdiff1(i)
                end do
             endif
 c     
@@ -424,7 +428,7 @@ c              flattemp(i) = 1._RKIND-flattemp(i)  !AK: typo in CW84 eq. (A.2)
 c     Now, choose the maximum (eq. A2, first part)
 
             do i=i1-1, i2+1
-               if (pslice(i+1,j) - pslice(i-1,j) .lt. 0.0) then
+               if (pslice(i+1,j) - pslice(i-1,j) .lt. 0._RKIND) then
                   flatten(i,j) = max(flattemp(i),flattemp(i+1))
                else
                   flatten(i,j) = max(flattemp(i),flattemp(i-1))
@@ -443,7 +447,7 @@ c
          if (iflatten .eq. 2) then
 
             do i=i1-3, i2+3
-               di(i) = 1.0/dslice(i,j)
+               di(i) = 1._RKIND/dslice(i,j)
             end do
 
             do i=i1-1, i2+1
@@ -504,7 +508,7 @@ c
                ism = i + sign(two, dp1)        ! post-shock
                isp = i - sign(two, dp1)        ! upstream
                s   =   - sign(one, dp1)        ! i+s - zone upstream from i
-               if (dp1 .eq. 0.0) s = 0._RKIND
+               if (dp1 .eq. 0._RKIND)  s = 0._RKIND
 c
 c              Compute sigma(i): strength of a shock near zone i
 c     
@@ -552,7 +556,7 @@ c
 c     Now, choose the maximum (eq. A.2, first part; also A.10)
 c     
             do i=i1-1, i2+1
-               if (pslice(i+1,j) - pslice(i-1,j) .lt. 0.0) then
+               if (pslice(i+1,j) - pslice(i-1,j) .lt. 0._RKIND) then
                   flatten(i,j) = max(flattemp(i),flattemp(i+1))
                else
                   flatten(i,j) = max(flattemp(i),flattemp(i-1))
@@ -573,16 +577,20 @@ c
             
             if (nyz.ne.1 .and. lj2) then
                do i=i1-1, i2+1
-                  qa = 0.5_RKIND*(0.5_RKIND*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
-     &                /(0.5_RKIND*(dy(j+2)+dy(j-2)) + dy(j+1)+dy(j)+dy(j-1))
+                  qa = 0.5_RKIND
+     &                 * (0.5_RKIND*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
+     &                 / (0.5_RKIND*(dy(j+2)+dy(j-2)) 
+     &                 + dy(j+1)+dy(j)+dy(j-1))
                   difftemp(i) = difftemp(i) + qa*vdiff2(i)
                end do
             end if
 
             if (nzz.ne.1 .and. lk2) then
                do i=i1-1, i2+1
-                  qb = 0.5_RKIND*(0.5_RKIND*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
-     &                /(0.5_RKIND*(dz(k+2)+dz(k-2)) + dz(k+1)+dz(k)+dz(k-1))
+                  qb = 0.5_RKIND 
+     &                 * (0.5_RKIND*(dx(i+1)+dx(i-2))+dx(i)+dx(i-1))
+     &                 / (0.5_RKIND*(dz(k+2)+dz(k-2)) 
+     &                 + dz(k+1)+dz(k)+dz(k-1))
                   difftemp(i) = difftemp(i) + qb*wdiff2(i)
                end do
             end if

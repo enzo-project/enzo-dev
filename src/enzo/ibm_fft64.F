@@ -38,22 +38,22 @@
       if( n1 <= 8192 ) then
         naux1 = 20000
       else
-        naux1 = 20000+(1.14)*n1
+        naux1 = 20000+(1.14_RKIND)*n1
       end if
 
       if( n1 <= 8192 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(1.14)*n1
+        naux2 = 20000+(1.14_RKIND)*n1
       end if 
 
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/REAL(n1,RKIND)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -107,19 +107,19 @@
       if( max(n1,n2) <= 8192 ) then
         naux1 = 40000
       else
-        naux1 = 40000+(1.14)*(n1+n2)
+        naux1 = 40000+(1.14_RKIND)*(n1+n2)
       end if
 
       if( max(n1,n2) < 252 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(max(n1,n2)+256)*(min(64,n1,n2)+1.14)
+        naux2 = 20000+(max(n1,n2)+256)*(min(64,n1,n2)+1.14_RKIND)
       end if
 
-      factor = 1.0/(REAL(n1,RKIND)*REAL(n2,RKIND))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -171,40 +171,40 @@
         if( n1 <= 8192 ) then
           naux = 60000
         else
-          naux = 60000+(2.28)*n1
+          naux = 60000+(2.28_RKIND)*n1
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 < 252 )) then
         if( n1 <= 8192 ) then
-          naux = 60000          +(n2+256)*(min(64,n1)+2.28)
+          naux = 60000                +(n2+256)*(min(64,n1)+2.28_RKIND)
         else
-          naux = 60000+(2.28)*n1+(n2+256)*(min(64,n1)+2.28)
+          naux = 60000+(2.28_RKIND)*n1+(n2+256)*(min(64,n1)+2.28_RKIND)
         end if
       end if
 
       if(( n2 < 252 ) .and. ( n3 >= 252 )) then
         if( n1 <= 8192 ) then
-          naux = 60000          +(n3+256)*(min(64,n1*n2)+2.28)
+          naux=60000                +(n3+256)*(min(64,n1*n2)+2.28_RKIND)
         else
-          naux = 60000+(2.28)*n1+(n3+256)*(min(64,n1*n2)+2.28)
+          naux=60000+(2.28_RKIND)*n1+(n3+256)*(min(64,n1*n2)+2.28_RKIND)
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 >= 252 )) then
 
         naux = max(
-     &         60000+(2.28)*n1+(n2+256)*(min(64,n1)+2.28),
-     &         60000+(2.28)*n1+(n3+256)*(min(64,n1*n2)+2.28) )
+     &        60000+(2.28_RKIND)*n1+(n2+256)*(min(64,n1)+2.28_RKIND),
+     &        60000+(2.28_RKIND)*n1+(n3+256)*(min(64,n1*n2)+2.28_RKIND))
 
       end if
 
       write(*,*) naux
 
-      factor = 1.0/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -257,22 +257,22 @@
       if( n1 <= 2048 ) then
         naux1 = 20000
       else
-        naux1 = 20000+(2.28)*n1
+        naux1 = 20000+(2.28_RKIND)*n1
       end if
 
       if( n1 <= 2048 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(2.28)*n1
+        naux2 = 20000+(2.28_RKIND)*n1
       end if
 
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/REAL(n1,RKIND)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -323,19 +323,19 @@
       if( max(n1,n2) <= 2048 ) then
         naux1 = 40000
       else
-        naux1 = 40000+(2.28)*(n1+n2)
+        naux1 = 40000+(2.28_RKIND)*(n1+n2)
       end if
 
       if( max(n1,n2) < 252 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(2*max(n1,n2)+256)*(min(64,n1,n2)+2.28)
+        naux2 = 20000+(2*max(n1,n2)+256)*(min(64,n1,n2)+2.28_RKIND)
       end if
 
-      factor = 1.0d-00/(REAL(n1,RKIND)*REAL(n2,RKIND))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -387,40 +387,43 @@
         if( n1 <= 2048 ) then
           naux = 60000
         else
-          naux = 60000+(4.56)*n1
+          naux = 60000+(4.56_RKIND)*n1
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 < 252 )) then
         if( n1 <= 2048 ) then
-          naux = 60000          +(2*n2+256)*(min(64,n1)+4.56)
+          naux = 60000+(2*n2+256)*(min(64,n1)+4.56_RKIND)
         else
-          naux = 60000+(4.56)*n1+(2*n2+256)*(min(64,n1)+4.56)
+          naux = 60000+(4.56_RKIND)*n1
+     &          +(2*n2+256)*(min(64,n1)+4.56_RKIND)
         end if
       end if
 
       if(( n2 < 252 ) .and. ( n3 >= 252 )) then
         if( n1 <= 2048 ) then
-          naux = 60000          +(2*n3+256)*(min(64,n1*n2)+4.56)
+          naux = 60000+(2*n3+256)*(min(64,n1*n2)+4.56_RKIND)
         else
-          naux = 60000+(2.28)*n1+(2*n3+256)*(min(64,n1*n2)+4.56)
+          naux = 60000+(2.28_RKIND)*n1
+     &          +(2*n3+256)*(min(64,n1*n2)+4.56_RKIND)
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 >= 252 )) then
 
         naux = max(
-     &         60000+(4.56)*n1+(2*n2+256)*(min(64,n1)+4.56),
-     &         60000+(4.56)*n1+(2*n3+256)*(min(64,n1*n2)+4.56) )
+     &        60000+(4.56_RKIND)*n1+(2*n2+256)*(min(64,n1)+4.56_RKIND),
+     &        60000+(4.56_RKIND)*n1
+     &             +(2*n3+256)*(min(64,n1*n2)+4.56_RKIND) )
 
       end if
 
       write(*,*) naux
 
-      factor = 1.0d-00/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if

@@ -271,8 +271,8 @@
          do i = is+1, ie+1
             if ( itmask(i) ) then
             nH2 = 0.5_RKIND*(H2I(i,j,k) + H2II(i,j,k))
-            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND +
-     &           HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND
+     &           + HI(i,j,k) + HII(i,j,k) + de(i,j,k)
             if (nH2/nother .gt. 1.0e-3) then
                x = 6100._RKIND/tgas(i) ! not quite self-consistent
                if (x .gt. 10._RKIND) then
@@ -386,8 +386,8 @@
 
 !                    Bremsstrahlung
 
-     &             - brem(i)*(HII(i,j,k)+HeII(i,j,k)/4._RKIND+HeIII(i,j,k))
-     &                        *de(i,j,k)
+     &             - brem(i)*(HII(i,j,k)+HeII(i,j,k)/4._RKIND +
+     &                        HeIII(i,j,k))*de(i,j,k)
 
 !                    Photoelectric heating by UV-irradiated dust
 
@@ -434,8 +434,8 @@
             if ( itmask(i) ) then
 #ifdef OPTICAL_DEPTH_FUDGE
             nH2 = 0.5_RKIND*H2I(i,j,k)
-            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND +
-     &                HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND
+     &                + HI(i,j,k) + HII(i,j,k) + de(i,j,k)
             fH2 = nH2/(nH2 + nother)
             fudge = sqrt((40._RKIND * 10._RKIND**(4.8_RKIND * 
      &               sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
@@ -445,7 +445,8 @@
             ! Note that this optical depth approximation comes from
             ! RA04.
             if (ih2optical.eq.1) then
-                fudge = (0.76_RKIND*d(i,j,k)*dom/8.d9)**(-0.45_RKIND)
+                fudge = (0.76_RKIND*d(i,j,k)*dom /
+     &              8.e9_RKIND)**(-0.45_RKIND)
                 fudge = min(fudge, 1._RKIND)
             else
                 fudge = 1._RKIND
@@ -484,18 +485,19 @@
 
 #ifdef OPTICAL_DEPTH_FUDGE
             nH2 = 0.5_RKIND*H2I(i,j,k)
-            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND +
-     &                HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND
+     &                + HI(i,j,k) + HII(i,j,k) + de(i,j,k)
             fH2 = nH2/(nH2 + nother)
             fudge = sqrt((40._RKIND * 10._RKIND**(4.8_RKIND * 
-     &               sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
-     &               ((nH2 + nother)*dom) )
+     &           sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
+     &           ((nH2 + nother)*dom) )
             fudge = min(fudge, 1._RKIND)
 #endif /* OPTICAL_DEPTH_FUDGE */
             ! Note that this optical depth approximation comes from
             ! RA04.
             if (ih2optical.eq.1) then
-                fudge = (0.76_RKIND*d(i,j,k)*dom/8.d9)**(-0.45_RKIND)
+                fudge = (0.76_RKIND*d(i,j,k)*dom / 
+     &              8.e9_RKIND)**(-0.45_RKIND)
                 fudge = min(fudge, 1._RKIND)
             else
                 fudge = 1._RKIND
@@ -532,23 +534,23 @@
      &                (H2I(i,j,k)*dom/2._RKIND)**0.77_RKIND
             vibl = (HI(i,j,k)*hyd01k(i) + 
      &             H2I(i,j,k)/2._RKIND*h2k01(i))
-     &             *dom*8.18d-13
+     &             *dom*8.18e-13_RKIND
 
 #ifdef OPTICAL_DEPTH_FUDGE
             nH2 = 0.5_RKIND*H2I(i,j,k)
-            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND +
-     &                HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND
+     &                + HI(i,j,k) + HII(i,j,k) + de(i,j,k)
             fH2 = nH2/(nH2 + nother)
             fudge = sqrt((40._RKIND * 10._RKIND**(4.8_RKIND * 
-     &               sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
-     &               ((nH2 + nother)*dom) )
+     &           sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
+     &           ((nH2 + nother)*dom) )
             fudge = min(fudge, 1._RKIND)
 #endif /* OPTICAL_DEPTH_FUDGE */
 
             edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*(
-     &          vibh(i)/(1._RKIND+vibh(i)/max(   vibl     ,tiny)) +
-     &          roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
-     &                                                      )/2._RKIND/dom
+     &           vibh(i)/(1._RKIND+vibh(i)/max(   vibl     ,tiny)) +
+     &           roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
+     &           )/2._RKIND/dom
             end if
          enddo
 
@@ -563,18 +565,19 @@ C     Ripamonti & Abel 2003
             do i = is+1, ie+1
             if (itmask(i)) then
 c     Only calculate if H2I(i) is a substantial fraction
-              if (d(i,j,k)*dom.gt.1e10) then
+              if (d(i,j,k)*dom.gt.1e10_RKIND) then
                 ciefudge = 1._RKIND
-                tau = ((d(i,j,k)/2d16)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
-                tau = max(tau, 1.d-5)
+                tau = ((d(i,j,k)/2e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
+                tau = max(tau, 1.e-5_RKIND)
                 ciefudge = min((1._RKIND-exp(-tau))/tau,1._RKIND)
 c               Matt's attempt at a second exponentialier cutoff
-                tau = ((d(i,j,k)/2.d18)*dom)**8._RKIND  ! 2e18 is in units of cm^-3
-                tau = max(tau, 1.d-5)
-                ciefudge = ciefudge*min((1.-exp(-tau))/tau,1._RKIND)
+                tau = ((d(i,j,k)/2.e18_RKIND)*dom)**8._RKIND  ! 2e18 is in units of cm^-3
+                tau = max(tau, 1.e-5_RKIND)
+                ciefudge = ciefudge*min((1._RKIND-exp(-tau))/tau,
+     &               1._RKIND)
 c               ciefudge, which is applied to the continuum, is applied to edot
                 edot(i) = ciefudge*(edot(i) - 
-     &                  H2I(i,j,k)*(d(i,j,k)*cieco(i)))
+     &               H2I(i,j,k)*(d(i,j,k)*cieco(i)))
               endif
             endif
             enddo
@@ -611,7 +614,7 @@ c  new (correct) way: (april 4, 2007)
                hdlte1 = hdlte(i)/(HI(i,j,k)*dom)
                hdlow1 = max(hdlow(i), tiny)
                edot(i) = edot(i) - HDI(i,j,k)*
-     .              (hdlte(i)/(1._RKIND + hdlte1/hdlow1)) /(3._RKIND*dom)
+     .              (hdlte(i)/(1._RKIND + hdlte1/hdlow1))/(3._RKIND*dom)
             end if
          enddo
       endif
@@ -727,7 +730,7 @@ c
          do i = is+1, ie+1
             if (itmask(i)) then
 !
-               if (de(i,j,k) .lt. 0.0) then !#####
+               if (de(i,j,k) .lt. 0._RKIND) then !#####
                   write(6,*) 'cool1d_multi: negative d(i,j,k)', 
      $                 de(i,j,k), d(i,j,k), metal(i,j,k)
                endif
@@ -849,7 +852,7 @@ c
 
             do i=1, NIB-1
                radt(i) = inutot(i)*4._RKIND*pi_val
-     &                   *(eb(i+1)-eb(i))*(1.2d11/6.625_RKIND)
+     &                   *(eb(i+1)-eb(i))*(1.2e11_RKIND/6.625_RKIND)
             enddo
 
          else
@@ -897,7 +900,7 @@ c
          metal_heat = cbovheat(nti,ndi) * xi / dom *
      &                (HI(i,j,k)+HII(i,j,k))
          if (tgas(i) .le. 1e4) then
-            metal_cool = metal_cool*(tgas(i)/1.d4)**3
+            metal_cool = metal_cool*(tgas(i)/1.e4_RKIND)**3
             metal_heat = 0._RKIND
          endif
 

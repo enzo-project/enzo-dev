@@ -1,7 +1,7 @@
 #include "fortran.def"
-#define TOLERANCE 1.d-20
-#define RTOL 5.d-1
-#define ITERTOL 1.d-4
+#define TOLERANCE 1.e-20_RKIND
+#define RTOL 0.5_RKIND
+#define ITERTOL 1.e-4_RKIND
 c -----------------------------------------------------------
 c  This routine is very simple.  It calculates the derivatives
 c  of the species.
@@ -456,7 +456,7 @@ c done.
           if((dsp(i,n).ne.dsp(i,n)).or.
      &       (dsq(i,n).ne.dsq(i,n)).or.
      &       (s(i,n).ne.s(i,n)).or.
-     &       (s(i,n).lt.0.0))then
+     &       (s(i,n).lt.0._RKIND))then
             write(0,*) "CALC_DERIV PROBLEM",i,n,iter,eqmask(i)
             write(0,*)'a',dsp(i,n),dsq(i,n),s(i,n)
             write(0,*)'b',sp(i,n),tsgamma(i),tscapy(i,n)

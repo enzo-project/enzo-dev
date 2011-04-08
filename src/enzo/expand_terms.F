@@ -68,11 +68,11 @@ c
      &                  0.5_RKIND*ge(i))
 #endif /* ENERGY_METHOD1 */
 #ifdef ENERGY_METHOD2
-            ge(i) = max(ge(i) - coef*3._RKIND*p(i)/d(i), 0.5_RKIND*ge(i))
+            ge(i) = max(ge(i) - coef*3._RKIND*p(i)/d(i),0.5_RKIND*ge(i))
 #endif /* ENERGY_METHOD2 */
 #ifdef ENERGY_METHOD3
             ge(i) = ge(i)*(1._RKIND-coef)/(1._RKIND+coef)
-c            if (ge(i)-coef*(3.0-2.0/(gamma-1.0))*p(i)/d(i).le.0)
+c            if (ge(i)-coef*(3._RKIND-2._RKIND/(gamma-1._RKIND))*p(i)/d(i).le.0)
 c     &         write(6,*) 'get:',i,ge(i),p(i),d(i)
 c
 c  this line should be there if gamma != 5/3:
@@ -87,7 +87,8 @@ c       (for zeus method (imethod=2), only use 3*p/d term)
 c
       if (imethod .eq. 2) then
          do i = 1, isize
-            e(i) = max(e(i) - coef*6._RKIND*p(i)/(d(i)+dold(i)), 0.5_RKIND*e(i))
+            e(i) = max(e(i) - coef*6._RKIND*p(i)/(d(i)+dold(i)), 
+     &           0.5_RKIND*e(i))
          enddo
       else
          do i = 1, isize
@@ -111,8 +112,8 @@ c
 #endif /* ENERGY_METHOD2 */
 #ifdef ENERGY_METHOD3
             e(i) = e(i)*(1._RKIND-coef)/(1._RKIND+coef)
-            e(i) = max(e(i) - coef*(3._RKIND - 2._RKIND/(gamma-1._RKIND))*p(i)/d(i),
-     &                 0.5_RKIND*e(i))
+            e(i) = max(e(i) - coef*(3._RKIND - 
+     &           2._RKIND/(gamma-1._RKIND))*p(i)/d(i), 0.5_RKIND*e(i))
 #endif /* ENERGY_METHOD3 */
          enddo
       endif
@@ -148,9 +149,12 @@ c        iii) semi-implicit way: */
 c
 #ifdef VELOCITY_METHOD3
       do i = 1, isize
-                          u(i) = u(i)*(1._RKIND-0.5_RKIND*coef)/(1.0 + 0.5*coef)
-         if (rank .gt. 1) v(i) = v(i)*(1._RKIND-0.5_RKIND*coef)/(1.0 + 0.5*coef)
-         if (rank .gt. 2) w(i) = w(i)*(1._RKIND-0.5_RKIND*coef)/(1.0 + 0.5*coef)
+         u(i) = u(i)*(1._RKIND-0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
+         if (rank .gt. 1) v(i) = v(i)*(1._RKIND-0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
+         if (rank .gt. 2) w(i) = w(i)*(1._RKIND-0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
       enddo
 #endif /*  VELOCITY_METHOD3 */
 c

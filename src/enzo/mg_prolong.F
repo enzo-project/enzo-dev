@@ -63,7 +63,8 @@ c
             x = min(max(REAL(i-1,RKIND)*fact1 + 0.5_RKIND, half), edge1)
             i1 = int(x + 0.5_RKIND,IKIND)
             dx = REAL(i1,RKIND) + 0.5_RKIND - x
-            dest(i,1,1) = source(i1,1,1)*dx + source(i1+1,1,1)*(1._RKIND-dx)
+            dest(i,1,1) = source(i1,1,1)*dx + 
+     &           source(i1+1,1,1)*(1._RKIND-dx)
          enddo
       endif
 c
@@ -75,13 +76,14 @@ c
             j1 = int(y + 0.5_RKIND,IKIND)
             dy = REAL(j1,RKIND) + 0.5_RKIND - y
             do i=1, ddim1
-               x = min(max(REAL(i-1,RKIND)*fact1 + 0.5_RKIND, half), edge1)
+               x = min(max(REAL(i-1,RKIND)*fact1 + 0.5_RKIND, half), 
+     &              edge1)
                i1 = int(x + 0.5_RKIND,IKIND)
                dx = REAL(i1,RKIND) + 0.5_RKIND - x
                dest(i,j,1) = source(i1  ,j1  ,1)*     dx *     dy  + 
-     &                       source(i1+1,j1  ,1)*(1._RKIND-dx)*     dy  +
-     &                       source(i1  ,j1+1,1)*     dx *(1._RKIND-dy) +
-     &                       source(i1+1,j1+1,1)*(1._RKIND-dx)*(1._RKIND-dy)
+     &              source(i1+1,j1  ,1)*(1._RKIND-dx)*     dy  +
+     &              source(i1  ,j1+1,1)*     dx *(1._RKIND-dy) +
+     &              source(i1+1,j1+1,1)*(1._RKIND-dx)*(1._RKIND-dy)
             enddo
          enddo
       endif
@@ -94,7 +96,8 @@ c
             k1 = int(z + 0.5_RKIND,IKIND)
             dz = REAL(k1,RKIND) + 0.5_RKIND - z
             do j=1, ddim2
-               y = min(max(REAL(j-1,RKIND)*fact2 + 0.5_RKIND, half), edge2)
+               y = min(max(REAL(j-1,RKIND)*fact2 + 0.5_RKIND, half), 
+     &              edge2)
                j1 = int(y + 0.5_RKIND,IKIND)
                dy = REAL(j1,RKIND) + 0.5_RKIND - y
                do i=1, ddim1
@@ -103,14 +106,22 @@ c
                   i1 = int(x + 0.5_RKIND,IKIND)
                   dx = REAL(i1,RKIND) + 0.5_RKIND - x
                   dest(i,j,k) = 
-     &              source(i1  ,j1  ,k1  )*     dx *     dy *     dz  +
-     &              source(i1+1,j1  ,k1  )*(1._RKIND-dx)*     dy *     dz  +
-     &              source(i1  ,j1+1,k1  )*     dx *(1._RKIND-dy)*     dz  +
-     &              source(i1+1,j1+1,k1  )*(1._RKIND-dx)*(1._RKIND-dy)*     dz +
-     &              source(i1  ,j1  ,k1+1)*     dx *     dy *(1._RKIND-dz) +
-     &              source(i1+1,j1  ,k1+1)*(1._RKIND-dx)*     dy *(1._RKIND-dz)+
-     &              source(i1  ,j1+1,k1+1)*     dx *(1._RKIND-dy)*(1._RKIND-dz)+
-     &              source(i1+1,j1+1,k1+1)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 source(i1  ,j1  ,k1  )
+     &                    *     dx *     dy *     dz  +
+     &                 source(i1+1,j1  ,k1  )
+     &                    *(1._RKIND-dx)*     dy *     dz  +
+     &                 source(i1  ,j1+1,k1  )
+     &                    *     dx *(1._RKIND-dy)*     dz  +
+     &                 source(i1+1,j1+1,k1  )
+     &                    *(1._RKIND-dx)*(1._RKIND-dy)*     dz +
+     &                 source(i1  ,j1  ,k1+1)
+     &                    *     dx *     dy *(1._RKIND-dz) +
+     &                 source(i1+1,j1  ,k1+1)
+     &                    *(1._RKIND-dx)*     dy *(1._RKIND-dz)+
+     &                 source(i1  ,j1+1,k1+1)
+     &                    *     dx *(1._RKIND-dy)*(1._RKIND-dz)+
+     &                 source(i1+1,j1+1,k1+1)
+     &                    *(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
                enddo
             enddo
          enddo

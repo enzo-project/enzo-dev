@@ -99,9 +99,10 @@ c
 c        thalf = tgas(i)                              !kludge
         edot(i) = 0._RKIND
         if( thalf .gt. temstart ) then
-            Heating = 2.d-26
-            Lambda = -(1.d7 * exp(-1.184d5/(thalf+1000._RKIND)) +
-     &          14.d-3*sqrt(thalf)*exp(-92._RKIND/thalf))
+            Heating = 2.e-26_RKIND
+            Lambda = -(1.e7_RKIND 
+     &           * exp(-1.184e5_RKIND/(thalf+1000._RKIND)) +
+     &           14.e-3_RKIND*sqrt(thalf)*exp(-92._RKIND/thalf))
             Lambda = Lambda * Heating
             edot(i) = d(i,j,k)*urho/(mh*mh)*Lambda
             edot(i) = edot(i) + Heating/mh

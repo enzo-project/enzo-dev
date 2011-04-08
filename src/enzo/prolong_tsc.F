@@ -59,9 +59,9 @@ c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=1, ddim1
-            x = (REAL(i+start1,RKIND)-0.5)*fact1 + 0.5_RKIND
+            x = (REAL(i+start1,RKIND)-0.5_RKIND)*fact1 + 0.5_RKIND
             i1 = int(x,IKIND) + 1
-            dxm = 0.5_RKIND*(    -x+REAL(i1,RKIND))
+            dxm = 0.5_RKIND*(        -x+REAL(i1,RKIND))
             dxp = 0.5_RKIND*(1._RKIND+x-REAL(i1,RKIND))
             dx0 = 1._RKIND - dxp - dxm
             dest(i,1,1) = source(i1-1,1,1)*dxm + 
@@ -76,13 +76,13 @@ c
          do j=1, ddim2
             y = (REAL(j+start2,RKIND)-0.5_RKIND)*fact2 + 0.5_RKIND
             j1 = int(y,IKIND) + 1
-            dym = 0.5_RKIND*(    -y+REAL(j1,RKIND))
+            dym = 0.5_RKIND*(        -y+REAL(j1,RKIND))
             dyp = 0.5_RKIND*(1._RKIND+y-REAL(j1,RKIND))
             dy0 = 1._RKIND - dyp - dym
             do i=1, ddim1
                x = (REAL(i+start1,RKIND)-0.5_RKIND)*fact1 + 0.5_RKIND
                i1 = int(x,IKIND) + 1
-               dxm = 0.5_RKIND*(    -x+REAL(i1,RKIND))
+               dxm = 0.5_RKIND*(        -x+REAL(i1,RKIND))
                dxp = 0.5_RKIND*(1._RKIND+x-REAL(i1,RKIND))
                dx0 = 1._RKIND - dxp - dxm
                dest(i,j,1) = source(i1-1,j1-1,1)*dxm*dym + 
@@ -102,21 +102,21 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=1, ddim3
-            z = (REAL(k+start3,RKIND)-0.5)*fact3 + 0.5_RKIND
+            z = (REAL(k+start3,RKIND)-0.5_RKIND)*fact3 + 0.5_RKIND
             k1 = int(z,IKIND) + 1
-            dzm = 0.5_RKIND*(    -z+REAL(k1,RKIND))**2
+            dzm = 0.5_RKIND*(        -z+REAL(k1,RKIND))**2
             dzp = 0.5_RKIND*(1._RKIND+z-REAL(k1,RKIND))**2
             dz0 = 1._RKIND - dzp - dzm
             do j=1, ddim2
                y = (REAL(j+start2,RKIND)-0.5_RKIND)*fact2 + 0.5_RKIND
                j1 = int(y,IKIND) + 1
-               dym = 0.5_RKIND*(    -y+REAL(j1,RKIND))**2
+               dym = 0.5_RKIND*(        -y+REAL(j1,RKIND))**2
                dyp = 0.5_RKIND*(1._RKIND+y-REAL(j1,RKIND))**2
                dy0 = 1._RKIND - dyp - dym
                do i=1, ddim1
                   x = (REAL(i+start1,RKIND)-0.5_RKIND)*fact1 + 0.5_RKIND
                   i1 = int(x,IKIND) + 1
-                  dxm = 0.5_RKIND*(   -x+REAL(i1,RKIND))**2
+                  dxm = 0.5_RKIND*(        -x+REAL(i1,RKIND))**2
                   dxp = 0.5_RKIND*(1._RKIND+x-REAL(i1,RKIND))**2
                   dx0 = 1._RKIND - dxp - dxm
                   dest(i,j,k) = source(i1-1,j1-1,k1-1)*dxm*dym*dzm + 

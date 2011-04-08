@@ -165,7 +165,7 @@ c
 c     1) 1d
 c
       if (ndim .eq. 1) then
-         fact = 1.0/3.0
+         fact = 1._RKIND/3._RKIND
          do i=2, sdim1-1
             dest(i,1,1) = fact*(source(i-1,1,1) + source(i,1,1) +
      &                          source(i+1,1,1))

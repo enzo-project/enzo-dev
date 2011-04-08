@@ -210,7 +210,7 @@ c
 c
 c           First reduce the mass of the parent down to 1/(children+parent) = 1/13
 c 
-c            mpold(n) = mpold(n) / 13.0
+c            mpold(n) = mpold(n) / 13._RKIND
             mpold(n) = mpold(n) / (children + 1._RKIND)
 c
 c

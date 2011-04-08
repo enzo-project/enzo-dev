@@ -154,11 +154,14 @@ c        iii) semi-implicit way: */
 c
 #ifdef VELOCITY_METHOD3
       do i = 1, isize
-         u(i) = u(i)*(1._RKIND - 0.5_RKIND*coef)/(1._RKIND + 0.5_RKIND*coef)
+         u(i) = u(i)*(1._RKIND - 0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
          if (rank .gt. 1) 
-     &        v(i) = v(i)*(1._RKIND - 0.5_RKIND*coef)/(1._RKIND + 0.5_RKIND*coef)
+     &        v(i) = v(i)*(1._RKIND - 0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
          if (rank .gt. 2) 
-     &        w(i) = w(i)*(1._RKIND - 0.5_RKIND*coef)/(1._RKIND + 0.5_RKIND*coef)
+     &        w(i) = w(i)*(1._RKIND - 0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
       enddo
 #endif /*  VELOCITY_METHOD3 */
 c
@@ -193,11 +196,14 @@ c
 #ifdef MAGNETIC_METHOD3 
 c not yet implemented
       do i = 1, isize
-         u(i) = u(i)*(1._RKIND - 0.5_RKIND*coef)/(1._RKIND + 0.5_RKIND*coef)
+         u(i) = u(i)*(1._RKIND - 0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
          if (rank .gt. 1) 
-     &        v(i) = v(i)*(1._RKIND - 0.5_RKIND*coef)/(1._RKIND + 0.5_RKIND*coef)
+     &        v(i) = v(i)*(1._RKIND - 0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
          if (rank .gt. 2) 
-     &        w(i) = w(i)*(1._RKIND - 0.5_RKIND*coef)/(1._RKIND + 0.5_RKIND*coef)
+     &        w(i) = w(i)*(1._RKIND - 0.5_RKIND*coef) / 
+     &        (1._RKIND + 0.5_RKIND*coef)
       enddo
 #endif /*  MAGNETIC_METHOD3 */
 c

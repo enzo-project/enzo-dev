@@ -87,7 +87,7 @@ c
 c
 c  Collect values of interest depending on which way fluid is flowing
 c     
-          if (sn(i) .lt. 0.0) then
+          if (sn(i) .lt. 0._RKIND) then
              u0(i) = uls(i,j)
              p0(i) = pls(i,j)
              d0(i) = dls(i,j)
@@ -113,7 +113,7 @@ c
 #ifdef UNUSED
        do n=1,ncolor
           do i=i1, i2+1
-             if (sn(i) .lt. 0.0) then
+             if (sn(i) .lt. 0._RKIND) then
                 colb(i,n) = colls(i,j,n)
              else
                 colb(i,n) = colrs(i,j,n)
@@ -166,13 +166,13 @@ c
 c  Compute values for inside a rarefaction fan
 c  (method described in Colella (1982) SIAM J Sci Stat Comp 3, p. 107)
 c
-         cb(i)    = (-sn(i)*ubar(i,j) + 2.0*cbar(i)/(gamma - 1._RKIND))*qb
-         ub(i)    = -cb(i)*sn(i)
-c         alpha    = (c0(i)**2 - cb(i)**2)/(c0(i)**2 + cb(i)**2)/
+         cb(i) = (-sn(i)*ubar(i,j) + 2.0*cbar(i)/(gamma - 1._RKIND))*qb
+         ub(i) = -cb(i)*sn(i)
+c         alpha = (c0(i)**2 - cb(i)**2)/(c0(i)**2 + cb(i)**2)/
 c     &              (gamma - 1.0)
-c         db(i)    = d0(i)*(1.0 - alpha)/(1.0 + alpha)
-         db(i)    = d0(i)*(cb(i)/c0(i))**(2.0/(gamma - 1._RKIND)) !AK
-         pb(i)    = db(i)*cb(i)**2/gamma
+c         db(i) = d0(i)*(1.0 - alpha)/(1.0 + alpha)
+         db(i) = d0(i)*(cb(i)/c0(i))**(2.0/(gamma - 1._RKIND)) !AK
+         pb(i) = db(i)*cb(i)**2/gamma
 c
 #endif /* RAREFACTION1 */
 c
@@ -183,7 +183,7 @@ c     (linear interpolation between end states, as suggested in PPM ref)
 c
          frac     = l0(i) - lbar(i)
          if (frac .lt. tiny) frac = tiny
-         if (frac .gt. 1.0)  frac = 1._RKIND
+         if (frac .gt. 1._RKIND)  frac = 1._RKIND
          frac     = (0._RKIND - lbar(i))/frac
          frac     = min(max(frac, 0._RKIND), 1._RKIND)
          pb(i)    = p0(i)*frac + pbar(i,j)*(1._RKIND - frac)
@@ -200,12 +200,12 @@ c     l0   <  0 --> outside shock/rarefaction wave,
 c     otherwise --> inside rarefaction wave).
 c
        do i=i1, i2+1
-         if (lbar(i) .ge. 0.0) then !AK
+         if (lbar(i) .ge. 0._RKIND) then !AK
             pb(i) = pbar(i,j)
             db(i) = dbar(i  )
             ub(i) = ubar(i,j)
          endif
-         if (l0  (i) .lt. 0.0) then !AK
+         if (l0  (i) .lt. 0._RKIND) then !AK
             pb(i) = p0(i)
             db(i) = d0(i)
             ub(i) = u0(i)
@@ -221,7 +221,7 @@ c
 #define NO_CAVITATE_AVOID
 #ifdef CAVITATE_AVOID
        do i=i1, i2+1
-         if (ubar(i,j)*ub(i) .lt. 0.0 .and. 
+         if (ubar(i,j)*ub(i) .lt. 0._RKIND .and. 
      &       -db(i)*ub(i)*dt/dx(i) .gt. dslice(i,j) .or.
      &        db(i)*ub(i)*dt/dx(i) .gt. dslice(i-1,j)     ) then
             write(6,1010) i,j,ubar(i,j),ub(i),db(i),
@@ -236,7 +236,7 @@ c  Collect values of interest depending on which way fluid is flowing
 c     (note: new placement for this - uses ub instead of ubar for consistency)
 c
        do i=i1, i2+1
-          if (ub(i) .gt. 0.0) then !AK
+          if (ub(i) .gt. 0._RKIND) then !AK
              vb(i) = vls(i,j)
              wb(i) = wls(i,j)
              geb(i) = gels(i,j)
@@ -251,7 +251,7 @@ c      Repeat for colour variables
 c
        do n=1,ncolor
           do i=i1, i2+1
-             if (ub(i) .gt. 0.0) then
+             if (ub(i) .gt. 0._RKIND) then
                 colb(i,n) = colls(i,j,n)
              else
                 colb(i,n) = colrs(i,j,n)
@@ -400,9 +400,9 @@ c
 c     Check here for negative densities and energies
 c
        do i=i1, i2
-          if (dslice(i,j) + (df(i,j)-df(i+1,j)) .le. 0.0 .or.
-     $         eslice(i,j) .lt. 0.0) then
-             if (eslice(i,j) .lt. 0.0) then
+          if (dslice(i,j) + (df(i,j)-df(i+1,j)) .le. 0._RKIND .or.
+     $         eslice(i,j) .lt. 0._RKIND) then
+             if (eslice(i,j) .lt. 0._RKIND) then
                 write (6,*) 'flux_twoshock: eslice < 0: ', i, j
                 write (6,*) qc*(dueb(i)-dueb(i+1)),
      &                     qc*(upb(i)-upb(i+1)), eslice(i,j)*dslice(i,j)
@@ -462,7 +462,7 @@ c
        do n=1, ncolor
           do i=i1, i2
              if (colslice(i,j,n) +
-     $            (colf(i,j,n)-colf(i+1,j,n))/dx(i) .lt. 0.0) then
+     $            (colf(i,j,n)-colf(i+1,j,n))/dx(i) .lt. 0._RKIND) then
                 write(6,*) 'flux_twoshock: negative color',i,j,n
                 write(6,*) 'a', dx(i), colf(i-1,j,n),colf(i,j,n),
      $               colf(i+1,j,n)

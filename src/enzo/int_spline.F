@@ -156,8 +156,8 @@ c
       INTG_PREC i, j, n, refine
       R_PREC y(n), y2(n), result((n-2)*refine), a, b, step, x
 c
-      step = 1.0/refine
-      x = 1.0 - 0.5*step
+      step = 1._RKIND/refine
+      x = 1._RKIND - 0.5_RKIND*step
       do i=1, (n-2)*refine
          j = int(x,IKIND) + 1
          a = REAL(j,RKIND) - x
@@ -187,8 +187,8 @@ c
 c
 c     hardwire for natural derivatives (zero 2nd deriv at ends)
 c
-      y2(1) = 0.0
-      work(1) = 0.0
+      y2(1) = 0._RKIND
+      work(1) = 0._RKIND
 c
       do i=2, n-1
          p = 1._RKIND/(0.5_RKIND*y2(i-1) + 2._RKIND)

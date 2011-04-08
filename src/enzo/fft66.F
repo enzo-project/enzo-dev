@@ -74,10 +74,10 @@ c  the following two constants should agree with the array dimensions.
       maxf=23
       if(n .lt. 2) return
       inc=isn
-      c72=0.30901699437494742
-      s72=0.95105651629515357
-      s120=0.86602540378443865
-      rad=6.2831853071796
+      c72=0.30901699437494742_RKIND
+      s72=0.95105651629515357_RKIND
+      s120=0.86602540378443865_RKIND
+      rad=6.2831853071796_RKIND
       if(isn .ge. 0) go to 10
       s72=-s72
       s120=-s120
@@ -88,7 +88,7 @@ c  the following two constants should agree with the array dimensions.
       kspan=ks
       nn=nt-inc
       jc=ks/n
-      radf=rad*float(jc)*0.5
+      radf=rad*float(jc)*0.5_RKIND
       i=0
       jf=0
 c  determine the factors of n
@@ -189,8 +189,8 @@ c  transform for factor of 3 (optional code)
       bj=b(k1)+b(k2)
       a(kk)=ak+aj
       b(kk)=bk+bj
-      ak=-0.5*aj+ak
-      bk=-0.5*bj+bk
+      ak=-0.5_RKIND*aj+ak
+      bk=-0.5_RKIND*bj+bk
       aj=(a(k1)-a(k2))*s120
       bj=(b(k1)-b(k2))*s120
       a(k1)=ak-bj
@@ -239,11 +239,11 @@ c  transform for factor of 4
       if(kk .le. nt) go to 420
   440 c2=c1-(cd*c1+sd*s1)
       s1=(sd*c1-cd*s1)+s1
-      c1=2.0-(c2**2+s1**2)
+      c1=2._RKIND-(c2**2+s1**2)
       s1=c1*s1
       c1=c1*c2
       c2=c1**2-s1**2
-      s2=2.0*c1*s1
+      s2=2._RKIND*c1*s1
       c3=c2*c1-s2*s1
       s3=c2*s1+s2*c1
       kk=kk-nt+jc
@@ -318,8 +318,8 @@ c  transform for odd factors
       c1=cos(s1)
       s1=sin(s1)
       if(jf .gt. maxf) go to 998
-      ck(jf)=1.0
-      sk(jf)=0.0
+      ck(jf)=1.0_RKIND
+      sk(jf)=0.0_RKIND
       j=1
   630 ck(j)=ck(k)*c1+sk(k)*s1
       sk(j)=ck(k)*s1-sk(k)*c1
@@ -357,8 +357,8 @@ c  transform for odd factors
       jj=j
       ak=aa
       bk=bb
-      aj=0.0
-      bj=0.0
+      aj=0.0_RKIND
+      bj=0.0_RKIND
       k=1
   670 k=k+1
       ak=at(k)*ck(jj)+ak

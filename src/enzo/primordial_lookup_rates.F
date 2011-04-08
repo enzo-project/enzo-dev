@@ -95,7 +95,7 @@ c
 c        Compute time-centered temperature (and log)
 c
          logtem(i) = log(tgas1d(i))
-c         logtem(i) = log(0.5*(tgas1d(i)+tgasold(i)))
+c         logtem(i) = log(0.5_RKIND*(tgas1d(i)+tgasold(i)))
          logtem(i) = max(logtem(i), logtem0)
          logtem(i) = min(logtem(i), logtem9)
 c
@@ -115,7 +115,7 @@ c
      &           *(k1a(indixe(i)LEFT) -k1a(indixe(i)RIGHT))/tdef(i)
          k2(i) = k2a(indixe(i)) + (logtem(i) - t1(i))
      &           *(k2a(indixe(i)LEFT) -k2a(indixe(i)RIGHT))/tdef(i)
-c         if(d(i,j,k)*dom.gt.1e12)k2(i)=tiny
+c         if(d(i,j,k)*dom.gt.1e12_RKIND)k2(i)=tiny
          k3(i) = k3a(indixe(i)) + (logtem(i) - t1(i))
      &           *(k3a(indixe(i)LEFT) -k3a(indixe(i)RIGHT))/tdef(i)
          k4(i) = k4a(indixe(i)) + (logtem(i) - t1(i))
@@ -230,13 +230,15 @@ c
       if (iradtype .eq. 8) then
          do i = is+1, ie+1
          if (itmask(i).eqv..true.) then
-            x = max(HII(i)/(HI(i)+HII(i)), 1.0d-4)
-            factor = 0.3908_RKIND*(1._RKIND - x**0.4092_RKIND)**1.7592_RKIND
-            k24shield(i) = k24shield(i) + 
-     &         factor*(piHI + 0.08_RKIND*piHeI)/(e24*everg) *coolunit*tbase1
-            factor = 0.0554_RKIND*(1._RKIND - x**0.4614_RKIND)**1.666_RKIND
-            k26shield(i) = k26shield(i) + 
-     &         factor*(piHI/0.08_RKIND + piHeI)/(e26*everg) *coolunit*tbase1
+            x = max(HII(i)/(HI(i)+HII(i)), 1.e-4_RKIND)
+            factor = 0.3908_RKIND*(1._RKIND - 
+     &           x**0.4092_RKIND)**1.7592_RKIND
+            k24shield(i) = k24shield(i) + factor*(piHI + 
+     &           0.08_RKIND*piHeI)/(e24*everg) *coolunit*tbase1
+            factor = 0.0554_RKIND*(1._RKIND - 
+     &           x**0.4614_RKIND)**1.666_RKIND
+            k26shield(i) = k26shield(i) + factor*(piHI/0.08_RKIND + 
+     &           piHeI)/(e26*everg) *coolunit*tbase1
          endif
          enddo
       endif
@@ -254,10 +256,10 @@ c
             if ((ispecies .gt. 1).and.(threebody.eq.0)) then
                do i = is+1, ie+1
                if (itmask(i).eqv..true.) then
-                  nh = min(HI(i)*dom, 1.0d9)
+                  nh = min(HI(i)*dom, 1.e9_RKIND)
                   k13(i) = tiny
                   if (tgas1d(i) .ge. 500._RKIND .and.
-     &                tgas1d(i) .lt. 1.0d6) then
+     &                tgas1d(i) .lt. 1.e6_RKIND) then
                      k13(i) = k13dd(i,1)-k13dd(i,2)/
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                      + k13dd(i,3)-k13dd(i,4)/

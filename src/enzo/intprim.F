@@ -131,7 +131,8 @@ c
             if (qmnusc(i,n)*qplusc(i,n) .gt. 0.0) then
                temp1 = min(abs(qmnusc(i,n)), abs(qplusc(i,n)))
                temp2 = min(abs(qcentc(i,n)), abs(qvanlc(i,n)))
-               dqc(i,n) = min(2.0*temp1, temp2) * sign(one, qcentc(i,n))
+               dqc(i,n) = min(2._RKIND*temp1, temp2) * 
+     &              sign(one, qcentc(i,n))
             else
                dqc(i,n) = 0._RKIND
             endif
@@ -171,7 +172,7 @@ c
             enddo
             rhoc = dslice(i) - dqc(i,1)
             pc = pslice(i) - dqc(i,5)
-            dplim = 2._RKIND * abs(0.125_RKIND * rhoc * du2 * gamma1 + pc)
+            dplim = 2._RKIND * abs(0.125_RKIND*rhoc*du2*gamma1+pc)
             if (dqc(i,5) .gt. dplim) then
                print*, 'Enforcing positive pressure by limiting ' ,
      $              'pressure slope', i, pslice(i), dplim
@@ -322,7 +323,7 @@ c
          temp1 = (qr(i)-qslice(i))*(qslice(i)-ql(i))
          temp2 = qr(i)-ql(i)
          temp3 = 6._RKIND*(qslice(i)-0.5_RKIND*(qr(i)+ql(i)))
-         if (temp1 .le. 0.0) then
+         if (temp1 .le. 0._RKIND) then
             ql(i) = qslice(i)
             qr(i) = qslice(i)
          endif
@@ -381,13 +382,15 @@ c
       enddo
 c
       do i = i1, i2+1
-        qla(i)=qr(i-1)-char1(i-1)*(dq(i-1)-(1._RKIND-ft*char1(i-1))*q6(i-1))
-        qra(i)=ql(i  )+char2(i  )*(dq(i  )+(1._RKIND-ft*char2(i  ))*q6(i  ))
+        qla(i) = qr(i-1)-char1(i-1)*(dq(i-1) - 
+     &        (1._RKIND-ft*char1(i-1))*q6(i-1))
+        qra(i) = ql(i  )+char2(i  )*(dq(i  ) + 
+     &       (1._RKIND-ft*char2(i  ))*q6(i  ))
       enddo
 c
       do i=i1,i2+1
-         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1)-(1._RKIND-ft*c0(i-1))*q6(i-1))
-         qr0(i) = ql(i  )-c0(i  )*(dq(i  )+(1._RKIND+ft*c0(i  ))*q6(i  ))
+         ql0(i)=qr(i-1)-c0(i-1)*(dq(i-1)-(1._RKIND-ft*c0(i-1))*q6(i-1))
+         qr0(i)=ql(i  )-c0(i  )*(dq(i  )+(1._RKIND+ft*c0(i  ))*q6(i  ))
       enddo
 
       end

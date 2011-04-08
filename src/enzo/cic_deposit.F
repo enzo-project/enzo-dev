@@ -159,9 +159,9 @@ c           Interpolate from field into sumfield
 
 c     Compute the position of the central cell
 c     
-               xpos = min(max((posx(n)- leftedge(1))*fact, 0.), edge1)
-               ypos = min(max((posy(n)- leftedge(2))*fact, 0.), edge2)
-               zpos = min(max((posz(n)- leftedge(3))*fact, 0.), edge3)
+               xpos =min(max((posx(n)-leftedge(1))*fact,0._RKIND),edge1)
+               ypos =min(max((posy(n)-leftedge(2))*fact,0._RKIND),edge2)
+               zpos =min(max((posz(n)-leftedge(3))*fact,0._RKIND),edge3)
 c     
 c     Convert this into an INTG_PREC index
 c     
@@ -201,19 +201,19 @@ c
                field(i1  ,j1  ,k1  ) = field(i1  ,j1  ,k1  ) +
      &              mass(n)*     dx *     dy *    dz
                field(i1+1,j1  ,k1  ) = field(i1+1,j1  ,k1  ) +
-     &              mass(n)*(1.0-dx)*     dy *    dz
+     &              mass(n)*(1._RKIND-dx)*     dy *    dz
                field(i1  ,j1+1,k1  ) = field(i1  ,j1+1,k1  ) + 
-     &              mass(n)*     dx *(1.0-dy)*    dz
+     &              mass(n)*     dx *(1._RKIND-dy)*    dz
                field(i1+1,j1+1,k1  ) = field(i1+1,j1+1,k1  ) +
-     &              mass(n)*(1.0-dx)*(1.0-dy)*    dz
+     &              mass(n)*(1._RKIND-dx)*(1._RKIND-dy)*    dz
                field(i1  ,j1  ,k1+1) = field(i1  ,j1  ,k1+1) +
-     &              mass(n)*     dx *     dy *(1.0-dz)
+     &              mass(n)*     dx *     dy *(1._RKIND-dz)
                field(i1+1,j1  ,k1+1) = field(i1+1,j1  ,k1+1) +
-     &              mass(n)*(1.0-dx)*     dy *(1.0-dz)
+     &              mass(n)*(1._RKIND-dx)*     dy *(1._RKIND-dz)
                field(i1  ,j1+1,k1+1) = field(i1  ,j1+1,k1+1) + 
-     &              mass(n)*     dx *(1.0-dy)*(1.0-dz)
+     &              mass(n)*     dx *(1._RKIND-dy)*(1._RKIND-dz)
                field(i1+1,j1+1,k1+1) = field(i1+1,j1+1,k1+1) +
-     &              mass(n)*(1.0-dx)*(1.0-dy)*(1.0-dz)
+     &              mass(n)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c     
             enddo
       

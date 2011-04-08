@@ -223,7 +223,7 @@ c
       R_PREC             TEMP
 *     .. Parameters ..
       R_PREC             ONE         , ZERO
-      PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      PARAMETER        ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     ..
 *     .. Executable Statements ..
 *
@@ -501,7 +501,7 @@ c
 *
 *     .. Parameters ..
       R_PREC             ONE         , ZERO
-      PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      PARAMETER        ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     .. Local Scalars ..
       R_PREC             TEMP
       INTG_PREC          I, INFO, IX, IY, J, JX, JY, KX, KY, LENX, LENY
@@ -744,7 +744,7 @@ c
 *
 *     .. Parameters ..
       R_PREC             ZERO
-      PARAMETER        ( ZERO = 0.0D+0 )
+      PARAMETER        ( ZERO = 0._RKIND )
 *     .. Local Scalars ..
       R_PREC             TEMP
       INTG_PREC          I, INFO, IX, J, JY, KX
@@ -888,7 +888,7 @@ c
 *
 *     .. Parameters ..
       R_PREC             ONE, ZERO
-      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      PARAMETER          ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     ..
 *     .. Local Scalars ..
       INTG_PREC          J, JP
@@ -1028,7 +1028,7 @@ c
 *
 *     .. Parameters ..
       R_PREC             ONE
-      PARAMETER          ( ONE = 1.0D+0 )
+      PARAMETER          ( ONE = 1._RKIND )
 *     ..
 *     .. Local Scalars ..
       INTG_PREC          I, IINFO, J, JB, NB
@@ -1662,7 +1662,7 @@ c
       R_PREC             TEMP
 *     .. Parameters ..
       R_PREC             ONE         , ZERO
-      PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      PARAMETER        ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     ..
 *     .. Executable Statements ..
 *
@@ -2592,7 +2592,7 @@ c
 *
 *     ISPEC = 6:  crossover point for SVD (used by xGELSS and xGESVD)
 *
-      ILAENV = INT( REAL( MIN( N1, N2 ), RKIND)*1.6E0, IKIND)
+      ILAENV = INT( REAL( MIN( N1, N2 ), RKIND)*1.6_RKIND, IKIND)
       RETURN
 *
   700 CONTINUE
@@ -2625,7 +2625,7 @@ c
 C     ILAENV = 0
       ILAENV = 1
       IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 0, 0.0, 1.0 ) 
+         ILAENV = IEEECK( 0, 0._RKIND, 1._RKIND ) 
       END IF
       RETURN
 *
@@ -2636,7 +2636,7 @@ C     ILAENV = 0
 C     ILAENV = 0
       ILAENV = 1
       IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 1, 0.0, 1.0 ) 
+         ILAENV = IEEECK( 1, 0._RKIND, 1._RKIND ) 
       END IF
       RETURN
 *

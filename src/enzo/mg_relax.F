@@ -51,7 +51,7 @@ c
 c
 c     Precompute some things
 c
-      h1 = 1.0/REAL(dim1-1,RKIND)
+      h1 = 1._RKIND/REAL(dim1-1,RKIND)
       if (ndim .ge. 2) h2 = h1/REAL(dim2-1,RKIND)
       if (ndim .ge. 3) h3 = h2/REAL(dim3-1,RKIND)
       coef1 = 12._RKIND/30._RKIND

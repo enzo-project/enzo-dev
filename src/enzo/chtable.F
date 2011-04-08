@@ -67,13 +67,13 @@ c
 c     Set some cosntants
 c
       PI        = pi_val
-      EV2HZ     = 2.415d14 
+      EV2HZ     = 2.415e14_RKIND
 C
 c-----------------------------------------------------------------------
 C     CREATE THE CROSS SECTIONS
 C
       E0 = 13.61_RKIND 
-      sigma0 = 9.492d-16
+      sigma0 = 9.492e-16_RKIND
       ya = 1.469_RKIND
       P  = 3.188_RKIND
       yw = 2.039_RKIND
@@ -90,7 +90,7 @@ C
      .                       /(1._RKIND -EXP(-2._RKIND*PI/FNU1))
          ELSE 
            IF(FNU .EQ. 13.6_RKIND) THEN
-             SIGH(N) = 2.16d-13*FNU**(-4)
+             SIGH(N) = 2.16e-13_RKIND*FNU**(-4)
            ELSE
              SIGH(N) = 0._RKIND
            ENDIF
@@ -115,11 +115,12 @@ C        iii) HELIUM II PHOTON-IONIZATION CROSS SECTION
 C
          IF(FNU.GT.54.4_RKIND) THEN
            FNU2      = SQRT(FNU/54.4_RKIND -1._RKIND)
-           SIGHE2(N) = 7.55d-10*FNU**(-4)*EXP(-4._RKIND*ATAN(FNU2)/FNU2)
-     .                         /(1._RKIND -EXP(-2._RKIND*PI/FNU2))
+           SIGHE2(N) = 7.55e-10_RKIND*FNU**(-4)
+     .          * EXP(-4._RKIND*ATAN(FNU2)/FNU2)
+     .          / (1._RKIND -EXP(-2._RKIND*PI/FNU2))
          ELSE
            IF(FNU.EQ.54.4_RKIND) THEN
-             SIGHE2(N) = 1.38d-11*FNU**(-4)
+             SIGHE2(N) = 1.38e-11_RKIND*FNU**(-4)
            ELSE
              SIGHE2(N) = 0._RKIND
            ENDIF
@@ -198,14 +199,14 @@ c-----------------------------------------------------------------------
 C     GENERATE PHOTOIONIZATION SPECTRUM FOR QUASAR
 C
 C     BLACK BODY TEMPERATURE IN KELVIN
-c     TBB     = 2.6e4
-      TBB     = 3.0d4
+c     TBB     = 2.6e4_RKIND
+      TBB     = 3.0e4_RKIND
 C     BLACK BODY TEMPERATURE IN eV
-      TBB     = Tbb/1.16d4
+      TBB     = Tbb/1.16e4_RKIND
       RAT     = 0.3_RKIND
       FLAMRAT = 5450._RKIND
 c     h\nu IN eV
-      FNURAT  = hplanck*c_light/(FLAMRAT*1.d-8)/
+      FNURAT  = hplanck*c_light/(FLAMRAT*1.e-8_RKIND)/
      &     ev2erg
 c
       ALA     = -1.3_RKIND
@@ -213,8 +214,8 @@ c
       A       = RAT/FNURAT**(3._RKIND-ALA)*(EXP(FNURAT/TBB)-1._RKIND) 
 c
 c
-      FNUPOWBK1= 1.d3
-      FNUPOWBK2= 1.d5
+      FNUPOWBK1= 1.e3_RKIND
+      FNUPOWBK2= 1.e5_RKIND
 c
       DO N=1,NFREQ
          FNU = 10._RKIND**((N-1._RKIND)*FREQDEL)
@@ -223,10 +224,12 @@ c
      .                 + FNU**ala
          ELSE
            IF(FNU.LT.FNUPOWBK2) THEN
-             SPSTAR2(N) = FNU**ala*(1._RKIND+(FNU/FNUPOWBK1)**0.7_RKIND)/2._RKIND
+             SPSTAR2(N) = FNU**ala*(1._RKIND+(FNU/FNUPOWBK1)**0.7_RKIND)
+     .             / 2._RKIND
            ELSE
-             SPSTAR2(N) = FNU**ala*(1._RKIND+(FNU/FNUPOWBK1)**0.7_RKIND)/2._RKIND
-     .                /(1._RKIND+(FNU/FNUPOWBK2)**1._RKIND)*2._RKIND
+             SPSTAR2(N) = FNU**ala*(1._RKIND+(FNU/FNUPOWBK1)**0.7_RKIND)
+     .             / 2._RKIND / (1._RKIND+(FNU/FNUPOWBK2)**1._RKIND)
+     .             * 2._RKIND
              ENDIF
          ENDIF
       ENDDO
@@ -280,35 +283,40 @@ C        HYDROGEN RECOMBINATION COEFFICIENT
      .                                    1._RKIND+0.7545_RKIND))
 C
 C        HELIUMN II RECOMBINATION COEFFICIENT
-         CHTERMS(2,NTI) = 3.294d-11/(SQRT(TEMP/15.54_RKIND)
-     .                   *(1._RKIND+SQRT(TEMP/15.54_RKIND))**(1._RKIND-0.691_RKIND)
-     .                   *(1._RKIND+SQRT(TEMP/3.676d7))**(1._RKIND+0.691_RKIND))
+         CHTERMS(2,NTI) = 3.294e-11_RKIND/(SQRT(TEMP/15.54_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/15.54_RKIND))**(1._RKIND-0.691_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/3.676d7))**(1._RKIND+0.691_RKIND))
 C
 C        HELIUMN III RECOMBINATION COEFFICIENT
-         CHTERMS(3,NTI) = 2._RKIND*1.567d-10/(SQRT(TEMP/4._RKIND/1.023_RKIND)
-     .        *(1._RKIND+SQRT(TEMP/4._RKIND/1.023_RKIND))**(1._RKIND-0.7545_RKIND)
-     .        *(1._RKIND+SQRT(TEMP/4._RKIND/6.8628d5))**(1._RKIND0+0.7545_RKIND))
+         CHTERMS(3,NTI) = 2._RKIND*1.567e-10_RKIND / 
+     .        (SQRT(TEMP/4._RKIND/1.023_RKIND)*(1._RKIND +
+     .        SQRT(TEMP/4._RKIND/1.023_RKIND))**(1._RKIND-0.7545_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/4._RKIND/6.8628d5))**(1._RKIND0 +
+     .        0.7545_RKIND))
 C
 C
 C        COLLISIONAL IONIZATION COEFFICIENTS
 C        HYDROGEN COLLISIONAL IONIZATION COEFFICIENT
-         CHTERMS(4,NTI) = 2.91d-8*(157809.1_RKIND/TEMP)**(0.39_RKIND)
-     .                    *EXP(-MIN(50.D0,157809.1_RKIND/TEMP))
-     .                    /(0.232_RKIND+157809.1_RKIND/TEMP)
+         CHTERMS(4,NTI) = 2.91e-8_RKIND *
+     .        (157809.1_RKIND/TEMP)**(0.39_RKIND)
+     .        *EXP(-MIN(50.D0,157809.1_RKIND/TEMP))
+     .        /(0.232_RKIND+157809.1_RKIND/TEMP)
 C
 C        HELIUM I COLLISIONAL IONIZATION COEFFICIENT
-         CHTERMS(5,NTI) = 1.75d-8*(285335.4_RKIND/TEMP)**(0.35_RKIND)
-     .                    *EXP(-MIN(50.D0,285335.4_RKIND/TEMP))
-     .                    /(0.18_RKIND+285335.4_RKIND/TEMP)
+         CHTERMS(5,NTI) = 1.75e-8_RKIND * 
+     .        (285335.4_RKIND/TEMP)**(0.35_RKIND)
+     .        *EXP(-MIN(50.D0,285335.4_RKIND/TEMP))
+     .        /(0.18_RKIND+285335.4_RKIND/TEMP)
 C
 C        HELIUM II COLLISIONAL IONIZATION COEFFICIENT
-         CHTERMS(6,NTI) = 2.05d-9*(1._RKIND+SQRT(631515._RKIND/TEMP))
-     .                    *(631515._RKIND/TEMP)**(0.25_RKIND)
-     .                    *EXP(-MIN(50.D0,631515._RKIND/TEMP))
-     .                    /(0.265_RKIND+631515._RKIND/TEMP)
+         CHTERMS(6,NTI) = 2.05e-9_RKIND *
+     .        (1._RKIND+SQRT(631515._RKIND/TEMP))
+     .        *(631515._RKIND/TEMP)**(0.25_RKIND)
+     .        *EXP(-MIN(50._RKIND,631515._RKIND/TEMP))
+     .        /(0.265_RKIND+631515._RKIND/TEMP)
 C
 C        HELIUMN II DIELECTRIC RECOMBINATION COEFFICIENT
-         CHTERMS(7,NTI) = 1.90d-3/TEMP**1.5_RKIND * 
+         CHTERMS(7,NTI) = 1.9e-3_RKIND/TEMP**1.5_RKIND * 
      .        EXP(-MIN(50._RKIND,470000._RKIND/TEMP)) * 
      .        (1._RKIND+0.3_RKIND *
      .        EXP(-MIN(10._RKIND,94000._RKIND/TEMP)))
@@ -365,9 +373,9 @@ C        THERE WAS A TEMP FACTOR MISSING
 CCCC .                    *ELTR*HEMII
 C
 C        HELIUM II DIELECTRONIC RECOMBINATION COOLING TERM
-         CHTERMS(14,NTI)= 1.24d17/TEMP**1.5_RKIND
-     .                    *EXP(-MIN(40._RKIND,47._RKIND/TEMP4))*(1._RKIND
-     .                      +0.3_RKIND*EXP(-MIN(40._RKIND,9.4_RKIND/TEMP4)))
+         CHTERMS(14,NTI)= 1.24e17_RKIND/TEMP**1.5_RKIND
+     .        *EXP(-MIN(40._RKIND,47._RKIND/TEMP4))*(1._RKIND
+     .        +0.3_RKIND*EXP(-MIN(40._RKIND,9.4_RKIND/TEMP4)))
 CCCC .                    *ELTR*HEMII
 C
 C        HELIUM III RECOMBINATION COOLING TERM
@@ -558,7 +566,7 @@ C
       HH=ABS(X-XA(1))
       DO 11 I=1,N
         H=ABS(X-XA(I))
-        IF (H.EQ.0.)THEN
+        IF (H.EQ.0._RKIND)THEN
           Y=YA(I)
           DY=0._RKIND
           RETURN
@@ -578,7 +586,7 @@ C
           T=(XA(I)-X)*D(I)/H
           DD=T-C(I+1)
 
-          if (dd.eq.0.) then
+          if (dd.eq.0._RKIND) then
             write(0,'("DD = 0 in RATINT")')
             ERROR_MESSAGE
           end if

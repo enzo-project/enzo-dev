@@ -90,7 +90,7 @@ c     Interpolate values from cell centers to cell corners
 c
       do j = 1, pdim2+1
          do i = 1, pdim1+1
-            work(i, j) = 0.25*(
+            work(i, j) = 0.25_RKIND*(
      &           parent(pstart1+i-1, pstart2+j-1) +
      &           parent(pstart1+i-1, pstart2+j  ) +
      &           parent(pstart1+i  , pstart2+j-1) +

@@ -165,38 +165,40 @@ C        PHTH   = \int_nu_0(H)^\infty 4*PI*sigma_H(nu)*I_nu/(h nu) d nu
 C        IN 1.E-21/sec
 C
 C        HYDROGEN PHOTON IONIZATION RATE
-C
-         PHTH   = PHTH   + SIGH(N11)  *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
+C     
+         PHTH = PHTH + SIGH(N11) * 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
 C
 C        HELIUM I PHOTON IONIZATION RATE
 C
-         PHTHE  = PHTHE  + SIGHE(N11) *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
+         PHTHE = PHTHE + SIGHE(N11) * 4._RKIND*PI*INUTOT(N11)
+     &        / AVGNU*FNUDEL
 C
 C        HELIUM II PHOTON IONIZATION RATE
 C
-         PHTHE2 = PHTHE2 + SIGHE2(N11)*4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
+         PHTHE2 = PHTHE2 + SIGHE2(N11)*4._RKIND*PI*INUTOT(N11)
+     &        / AVGNU*FNUDEL
 c
 c        If using approximate radiation-shielding, compute the
 c          mean optical depth
 c
          if (iradshield .eq. 1) then
 c     
-            IF(FNUMNUH0.GE.0.0) THEN
+            IF(FNUMNUH0.GE.0._RKIND) THEN
                FJXRY11  = FJXRY11 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
-               FJXRY21  = FJXRY21 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUH0
-     .                            *FNUDEL
+               FJXRY21  = FJXRY21 + 4._RKIND*PI*INUTOT(N11)/AVGNU
+     .              *FNUMNUH0*FNUDEL
             ENDIF
 C
-            IF(FNUMNUHE0.GE.0.0) THEN
+            IF(FNUMNUHE0.GE.0._RKIND) THEN
                FJXRY12  = FJXRY12 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
-               FJXRY22  = FJXRY22 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE0
-     .                            *FNUDEL
+               FJXRY22  = FJXRY22 + 4._RKIND*PI*INUTOT(N11)/AVGNU
+     .              *FNUMNUHE0*FNUDEL
             ENDIF
 C
-            IF(FNUMNUHE20.GE.0.0) THEN
+            IF(FNUMNUHE20.GE.0._RKIND) THEN
                FJXRY13  = FJXRY13 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUDEL
-               FJXRY23  = FJXRY23 + 4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE20
-     .                            *FNUDEL
+               FJXRY23  = FJXRY23 + 4._RKIND*PI*INUTOT(N11)/AVGNU
+     .              *FNUMNUHE20*FNUDEL
             ENDIF
 c
          endif
@@ -205,30 +207,31 @@ C        3) FOR PHOTOIONIZATION HEATING RATES
 C           PHOTON IONIZATION HEATING RATE IN 1.E-21 erg/sec
 C
          PHTLAMH   = PHTLAMH   + SIGH(N11)
-     .                   *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUH0*FNUDEL
+     .        *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUH0*FNUDEL
          PHTLAMHE  = PHTLAMHE  + SIGHE(N11)
-     .                   *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE0*FNUDEL
+     .        *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE0*FNUDEL
          PHTLAMHE2 = PHTLAMHE2 + SIGHE2(N11)
-     .                   *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE20*FNUDEL
+     .        *4._RKIND*PI*INUTOT(N11)/AVGNU*FNUMNUHE20*FNUDEL
 C
       ENDDO
 C
 C
 C     X-RAY BACKGROUND RADIATION FIELD TEMPERATURE CONVERTED TO IN KELVIN
 C
-      TXRY      = MIN(1.d-7,TXRY/MAX(1.d-10,EXRY))/(4._RKIND*kboltz)
+      TXRY = MIN(1.e-7_RKIND,TXRY/MAX(1.e-10_RKIND,EXRY)) 
+     .     / (4._RKIND*kboltz)
 c
 c     For the approximate radiative shield, compute the
 c        AVERAGE CROSS SECTION
 c
       if (iradshield .eq. 1) then
 c
-         AVGSIGH   = PHTH/(1.d-20+FJXRY11)
-         AVGSIGHE  = PHTHE/(1.d-20+FJXRY12)
-         AVGSIGHE2 = PHTHE2/(1.d-20+FJXRY13)
-         AVGSIGHP  = PHTLAMH/(1.d-20+FJXRY21)
-         AVGSIGHEP = PHTLAMHE/(1.d-20+FJXRY22)
-         AVGSIGHE2P= PHTLAMHE2/(1.d-20+FJXRY23)
+         AVGSIGH   = PHTH/(1.e-20_RKIND+FJXRY11)
+         AVGSIGHE  = PHTHE/(1.e-20_RKIND+FJXRY12)
+         AVGSIGHE2 = PHTHE2/(1.e-20_RKIND+FJXRY13)
+         AVGSIGHP  = PHTLAMH/(1.e-20_RKIND+FJXRY21)
+         AVGSIGHEP = PHTLAMHE/(1.e-20_RKIND+FJXRY22)
+         AVGSIGHE2P= PHTLAMHE2/(1.e-20_RKIND+FJXRY23)
 c         WRITE(40,*)'NCYC,ZR,AVGSIGH,AVGSIGHE,AVGSIGHE2=',
 c     .               NCYC,ZR,AVGSIGH,AVGSIGHE,AVGSIGHE2,
 c     .               AVGSIGHP,AVGSIGHEP,AVGSIGHE2P
@@ -237,17 +240,17 @@ c
 C
 C     X-RAY BACKGROUND RADIATION ENERGY DENSITY IN erg/cm^3
 C
-      EXRY      = EXRY*1.d-21
+      EXRY      = EXRY*1.e-21_RKIND
       EXRY      = MAX(0._RKIND,EXRY)
 C
 C     PHOTO-IONIZATION RATES IN 1/sec
 C       (now in AMR code units -- see calc_rates from more details)
 C
-      PHTH      = PHTH     *1.D-21 * utim
+      PHTH      = PHTH     *1.e-21_RKIND * utim
       PHTH      = MAX(0._RKIND,PHTH)
-      PHTHE     = PHTHE    *1.D-21 * utim
+      PHTHE     = PHTHE    *1.e-21_RKIND * utim
       PHTHE     = MAX(0._RKIND,PHTHE)
-      PHTHE2    = PHTHE2   *1.D-21 * utim
+      PHTHE2    = PHTHE2   *1.e-21_RKIND * utim
       PHTHE2    = MAX(0._RKIND,PHTHE2)
 C
 C     PHOTO-IONIZATION HEATING RATES IN 1.D-30 erg/sec
@@ -257,11 +260,11 @@ C
       xbase1 = uxyz/(aye*uaye)    ! uxyz is [x]*a     
       dbase1 = urho*(aye*uaye)**3 ! urho is [dens]/a^3
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
-      PHTLAMH   = PHTLAMH  *1.D-21 / coolunit
+      PHTLAMH   = PHTLAMH  *1.e-21_RKIND / coolunit
       PHTLAMH   = MAX(0._RKIND,PHTLAMH)
-      PHTLAMHE  = PHTLAMHE *1.D-21 / coolunit
+      PHTLAMHE  = PHTLAMHE *1.e-21_RKIND / coolunit
       PHTLAMHE  = MAX(0._RKIND,PHTLAMHE)
-      PHTLAMHE2 = PHTLAMHE2*1.D-21 / coolunit
+      PHTLAMHE2 = PHTLAMHE2*1.e-21_RKIND / coolunit
       PHTLAMHE2 = MAX(0._RKIND,PHTLAMHE2)
 C
       RETURN

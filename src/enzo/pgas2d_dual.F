@@ -71,7 +71,8 @@ c
 c
 c           Compute the specific energy from the total energy
 c
-            ke = 0.5_RKIND*(uslice(i,j)**2 + vslice(i,j)**2 +wslice(i,j)**2)
+            ke = 0.5_RKIND*(uslice(i,j)**2 + vslice(i,j)**2 
+     &           + wslice(i,j)**2)
             ge1 = eslice(i,j) - ke
 c
 c           Find the maximum nearby total energy (not specific)
@@ -86,10 +87,10 @@ c           If the ratio of the gas energy to the max nearby total energy is
 c             is > eta2 then use the gas energy computed from the total energy
 c             to update the specific energy (total energy is better).
 c
-            if (geslice(i,j) .le. 0.0) write(6,*) 
+            if (geslice(i,j) .le. 0._RKIND) write(6,*) 
      &            'pga:',i,j,geslice(i,j),demax
             if (ge1*dslice(i,j)/demax .gt. eta2) geslice(i,j) = ge1
-            if (geslice(i,j) .le. 0.0) write(6,*) 
+            if (geslice(i,j) .le. 0._RKIND) write(6,*) 
      &            'pgb:',i,j,geslice(i,j),dslice(i,j),demax,eslice(i,j)
 c
 c           If the ratio of the specific gas energy to specific total energy 

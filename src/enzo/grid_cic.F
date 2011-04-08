@@ -83,11 +83,11 @@ c
       do k=1,ddim3
          do j=1,ddim2
             do i=1,ddim1
-               dest(i,j,k) = 0
+               dest(i,j,k) = 0._RKIND
             enddo
             do n=1,ndim+1
                do i=1,ddim1
-                  temp(i,j,k,n) = 0
+                  temp(i,j,k,n) = 0._RKIND
                enddo
             enddo
          enddo
@@ -271,7 +271,7 @@ c
                   temp(i1  ,j1+1,k1+1,1) = temp(i1  ,j1+1,k1+1,1) +
      &                       mass*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,1) = temp(i1+1,j1+1,k1+1,1) +
-     &                       mass*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 mass*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   temp1 = velx(i,j,k)*mass
                   if (ihydro .eq. 2) temp1 = 
@@ -291,7 +291,7 @@ c
                   temp(i1  ,j1+1,k1+1,2) = temp(i1  ,j1+1,k1+1,2) +
      &                       temp1*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,2) = temp(i1+1,j1+1,k1+1,2) +
-     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   temp1 = vely(i,j,k)*mass
                   if (ihydro .eq. 2) temp1 = 
@@ -311,7 +311,7 @@ c
                   temp(i1  ,j1+1,k1+1,3) = temp(i1  ,j1+1,k1+1,3) +
      &                       temp1*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,3) = temp(i1+1,j1+1,k1+1,3) +
-     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   temp1 = velz(i,j,k)*mass
                   if (ihydro .eq. 2) temp1 = 
@@ -331,7 +331,7 @@ c
                   temp(i1  ,j1+1,k1+1,4) = temp(i1  ,j1+1,k1+1,4) +
      &                       temp1*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   temp(i1+1,j1+1,k1+1,4) = temp(i1+1,j1+1,k1+1,4) +
-     &                       temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 temp1*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                enddo
             enddo
@@ -381,7 +381,7 @@ c
                   dest(i1  ,j1+1,k1+1) = dest(i1  ,j1+1,k1+1) +
      &                       mass*      dx *(1._RKIND-dy)*(1._RKIND-dz)
                   dest(i1+1,j1+1,k1+1) = dest(i1+1,j1+1,k1+1) +
-     &                       mass*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 mass*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
                enddo
             enddo
          enddo
@@ -479,9 +479,9 @@ c
                i1 = int(x + 0.5_RKIND,IKIND)
                dx = REAL(i1,RKIND) + 0.5_RKIND - x
                dest(i,j,1) = source(i1  ,j1  ,1)*      dx *      dy  +
-     &                       source(i1+1,j1  ,1)*(1._RKIND-dx)*      dy  +
-     &                       source(i1  ,j1+1,1)*      dx *(1._RKIND-dy) +
-     &                       source(i1+1,j1+1,1)*(1._RKIND-dx)*(1._RKIND-dy)
+     &              source(i1+1,j1  ,1)*(1._RKIND-dx)*      dy  +
+     &              source(i1  ,j1+1,1)*      dx *(1._RKIND-dy) +
+     &              source(i1+1,j1+1,1)*(1._RKIND-dx)*(1._RKIND-dy)
             enddo
          enddo
       endif
@@ -502,14 +502,22 @@ c
                   i1 = int(x + 0.5_RKIND,IKIND)
                   dx = REAL(i1,RKIND) + 0.5_RKIND - x
                   dest(i,j,k) =
-     &             source(i1  ,j1  ,k1  )*      dx *      dy *      dz +
-     &             source(i1+1,j1  ,k1  )*(1._RKIND-dx)*      dy *      dz +
-     &             source(i1  ,j1+1,k1  )*      dx *(1._RKIND-dy)*      dz +
-     &             source(i1+1,j1+1,k1  )*(1._RKIND-dx)*(1._RKIND-dy)*      dz +
-     &             source(i1  ,j1  ,k1+1)*      dx *      dy *(1._RKIND-dz)+
-     &             source(i1+1,j1  ,k1+1)*(1._RKIND-dx)*      dy *(1._RKIND-dz)+
-     &             source(i1  ,j1+1,k1+1)*      dx *(1._RKIND-dy)*(1._RKIND-dz)+
-     &             source(i1+1,j1+1,k1+1)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &                 source(i1  ,j1  ,k1  )
+     &                    *      dx *      dy *      dz +
+     &                 source(i1+1,j1  ,k1  )
+     &                    *(1._RKIND-dx)*      dy *      dz +
+     &                 source(i1  ,j1+1,k1  )
+     &                    *      dx *(1._RKIND-dy)*      dz +
+     &                 source(i1+1,j1+1,k1  )
+     &                    *(1._RKIND-dx)*(1._RKIND-dy)*      dz +
+     &                 source(i1  ,j1  ,k1+1)
+     &                    *      dx *      dy *(1._RKIND-dz)+
+     &                 source(i1+1,j1  ,k1+1)
+     &                    *(1._RKIND-dx)*      dy *(1._RKIND-dz)+
+     &                 source(i1  ,j1+1,k1+1)
+     &                    *      dx *(1._RKIND-dy)*(1._RKIND-dz)+
+     &                 source(i1+1,j1+1,k1+1)
+     &                    *(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
                enddo
             enddo
          enddo

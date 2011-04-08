@@ -51,12 +51,12 @@ c
 
 #ifdef CONFIG_BFLOAT_4
       R_PREC tolerance
-      parameter (tolerance = 1.0e-05)
+      parameter (tolerance = 1.e-52_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
       R_PREC tolerance
-      parameter (tolerance = 1.0d-10)
+      parameter (tolerance = 1.e-10_RKIND)
 #endif
 
 c  Locals
@@ -122,7 +122,7 @@ c
           ttmin = huge
 c
           do i = is+1, ie+1
-             if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
+             if (tgas(i) .le. temstart .and. edot(i) .lt. 0._RKIND) 
      &              edot(i) = tiny
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
              energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
@@ -132,17 +132,18 @@ c
              if (ge(i,j,k) .ne. ge(i,j,k) .or.
      &            e(i,j,k) .ne.  e(i,j,k)) write(6,*)
      &           'solve_cool:',ge(i,j,k),i,j,k,iter,tgas(i),e(i,j,k)
-             if (ge(i,j,k) .le. 0.0)
+             if (ge(i,j,k) .le. 0._RKIND)
      &         write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
-             if (e(i,j,k) .le. 0.0)
+             if (e(i,j,k) .le. 0._RKIND)
      &         write(6,*) 'b',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
 c            if (ge(i,j,k)+edot(i)*dtit(i) .le. 0.0)
 c     &         write(6,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
 c     &              energy,ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 c
-             if (dtit(i)/dt .lt. 1.0e-2 .and. 
-     &           abs(dt-ttot(i)) .gt. 1.0d-5*dt .and. iter .gt. 200)
+             if (dtit(i)/dt .lt. 1.e-2_RKIND .and. 
+     &            abs(dt-ttot(i)) .gt. 1.e-5_RKIND*dt .and. 
+     &            iter .gt. 200)
      &         write(3,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              tgasold(i),energy,ttot(i),d(i,j,k),e(i,j,k)
  1000        format(4(i4,1x),1p,11(e11.2))
@@ -156,7 +157,7 @@ c               ge(i,j,k) = max(ge(i,j,k) + edot(i)*dtit(i),
 c     &                      0.5*ge(i,j,k))
 c            if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 c     &           edot(i)*dtit(i))
-                if (ge(i,j,k) .le. 0.0)
+                if (ge(i,j,k) .le. 0._RKIND)
      &          write(3,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
              endif
 c

@@ -195,11 +195,11 @@ c
 c  Locals
 c
       INTG_PREC i, j, k, n, m, iter, inneriter, imin, ifedtgas
-      R_PREC ttmin, dom, energy(ijk), comp1, comp2, maxchange, fH2, dfH2,
-     &     scaling, prevfH2, HIfrac(ijk), HIIfrac(ijk), H2Ifrac(ijk)
+      R_PREC ttmin, dom, energy(ijk), comp1, comp2, maxchange, fH2, 
+     &     dfH2, scaling, prevfH2, HIfrac(ijk), HIIfrac(ijk), 
+     &     H2Ifrac(ijk)
       double precision coolunit, dbase1, tbase1, xbase1, kunit,
-     &                 kunit_3bdy,
-     &                  chunit, ciHIunit, ciHeIunit, ciHeIIunit
+     &     kunit_3bdy, chunit, ciHIunit, ciHeIunit, ciHeIIunit
 
 c  Stuff for TWOSTEP
       REAL*8 s(ijk,NSPECIES), sp(ijk,NSPECIES), sp1(ijk,NSPECIES),
@@ -340,9 +340,9 @@ c
       kunit    = (uaye**3 * mh) / (dbase1 * tbase1)
       kunit_3bdy  = kunit * (uaye**3 * mh) / dbase1
 c     4.48 eV = 7.17775d-12 ergs
-      chunit = (7.17775d-12)/(2._RKIND*uvel*uvel*mh)
-      ciHIunit    = (2.18d-11)/(uvel*uvel*mh)
-      ciHeIunit   = (3.94d-11)/(4._RKIND*uvel*uvel*mh)
+      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)
+      ciHIunit    = (2.18e-11_RKIND)/(uvel*uvel*mh)
+      ciHeIunit   = (3.94e-11_RKIND)/(4._RKIND*uvel*uvel*mh)
       ciHeIIunit  = (8.72d-11)/(4._RKIND*uvel*uvel*mh)
 
 #ifdef UNUSED_TABULATED_EQ
@@ -419,7 +419,7 @@ c
             dprime(i) = -35._RKIND
             geprime(i) = -35._RKIND
             geprime(i) = log10((ge(i,j,k) +
-     &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2._RKIND))
+     &           (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2._RKIND))
             dprime(i) = log10(d(i,j,k)*dom*fh)
 c            write(0,*) rhostartcode, rhostart, estartcode, estart
             if ((dprime(i).gt.rhostart+3.5_RKIND).and.
@@ -496,7 +496,8 @@ c               dtit(i) = dt(i,j,k)/10._RKIND
          do i = is+1, ie+1
          if ((itmask(i).eqv..true.))then!.and.(eqmask(i).eqv..false.))then
 #ifdef PYFORT
-           dtit(i) = min(dt(i,j,k)/2._RKIND, abs(dt(i,j,k)-ttot(i)),dtit(i))
+           dtit(i) = min(dt(i,j,k)/2._RKIND, 
+     &                   abs(dt(i,j,k)-ttot(i)),dtit(i))
 #else
            dtit(i) = min(dt/2._RKIND, abs(dt-ttot(i)), dtit(i))
 #endif
@@ -647,8 +648,8 @@ c                write(0,*) 'finishing',i,j,k,iter
             if(iter.gt.itmax)then
               do i=is+1,ie+1
                 if(itmask(i).eqv..true.)then
-                  temp1 = ttot(i)/(
-     &                  (1._RKIND/sqrt(1.11d-31*dom*d(i,j,k)))/utim)
+                  temp1 = ttot(i)/((1._RKIND
+     &                  / sqrt(1.11e-31_RKIND*dom*d(i,j,k)))/utim)
 #ifndef PYFORT
 c                  write(0,*)'FAILING?',i,j,k,mins(i),dtit(i),ttot(i),dt,olddtit(i),temp1
 c                  write(0,*)'Tried for:',dt,'but only got',ttot(i)
@@ -677,10 +678,12 @@ c           Guess stepsize for next iteration.
               if(rejected(i).eqv..false.) olddtit(i) = dtit(i)
 #ifdef PYFORT
               dtit(i) = min(dt(i,j,k)-ttot(i),max(
-     &                  0.5_RKIND,min(2._RKIND,0.8_RKIND/sqrt(esterr(i))))*dtit(i))
+     &             0.5_RKIND,min(2._RKIND,0.8_RKIND 
+     &             / sqrt(esterr(i))))*dtit(i))
 #else
               dtit(i) = min(dt-ttot(i),max(
-     &                  0.5_RKIND,min(2._RKIND,0.8_RKIND/sqrt(esterr(i))))*dtit(i))
+     &             0.5_RKIND,min(2._RKIND,0.8_RKIND 
+     &             / sqrt(esterr(i))))*dtit(i))
 #endif
             endif
             enddo
@@ -947,7 +950,8 @@ c
             DI  (i,j,k) = abs(DI  (i,j,k))
             DII (i,j,k) = abs(DII (i,j,k))
             HDI (i,j,k) = abs(HDI (i,j,k))
-            totalD = DI(i,j,k) + DII(i,j,k) + (2._RKIND/3._RKIND)*HDI(i,j,k)
+            totalD = DI(i,j,k) + DII(i,j,k) + 
+     &           (2._RKIND/3._RKIND)*HDI(i,j,k)
             correctD = fh*dtoh*(d(i,j,k)/totalD)
             DI  (i,j,k) = DI (i,j,k)*correctD
             DII (i,j,k) = DII(i,j,k)*correctD
@@ -962,7 +966,8 @@ c
          totalDen(i) = HI(i,j,k) + HII(i,j,k)
          totalDen(i) = totalDen(i) + HeI(i,j,k) + HeII(i,j,k)
      &               + HeIII(i,j,k)
-         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4. + HeIII(i,j,k)/2._RKIND
+         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4. + 
+     &        HeIII(i,j,k)/2._RKIND
          if (ispecies .gt. 1) then 
             de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2._RKIND
             totalDen(i) = totalDen(i) + HM(i,j,k) + H2I(i,j,k) 

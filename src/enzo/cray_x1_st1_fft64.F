@@ -29,7 +29,7 @@
       factor = 1.0/REAL(n1,RKIND)
 
       if( jdir == -1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -65,10 +65,10 @@
       jdir = idir
       i0 = 0
 
-      factor = 1.0d-00/REAL(n1,RKIND)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == -1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if

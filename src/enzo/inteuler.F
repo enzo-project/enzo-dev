@@ -177,8 +177,8 @@ c
             s1 = (d2d(i-1) - d2d(i+1))*(dxb(i-1)**3 + dxb(i)**3)
      &           /((dxb(i) + dxb(i-1))*
      &           (dslice(i+1,j) - dslice(i-1,j) + tiny))
-            if (d2d(i+1)*d2d(i-1) .gt. 0.0) s1 = 0._RKIND
-            if (qc .le. 0.0) s1 = 0._RKIND
+            if (d2d(i+1)*d2d(i-1) .gt. 0._RKIND) s1 = 0._RKIND
+            if (qc .le. 0._RKIND) s1 = 0._RKIND
             s2 = max(0._RKIND, min(20._RKIND*(s1-0.05_RKIND), 1._RKIND))
             qa = abs(dslice(i+1,j) - dslice(i-1,j))/
      &           min(dslice(i+1,j),  dslice(i-1,j))
@@ -327,7 +327,8 @@ c
          f1 = 1._RKIND/cla(i)
          betalp(i) = (ula(i)-ulp(i)) + (pla(i)-plp(i))*f1
          betalm(i) = (ula(i)-ulm(i)) - (pla(i)-plm(i))*f1
-         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1._RKIND/dla(i) - 1._RKIND/dl0(i)
+         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1._RKIND/dla(i) 
+     &        - 1._RKIND/dl0(i)
       enddo
 c
 c     Add gravity component
@@ -336,8 +337,10 @@ c
         do i = i1, i2+1
 c          if (cla(i) .gt. 0.3*ula(i)) then
 c          if (gamma*pla(i)/dla(i) .gt. eta2*ula(i)**2) then
-           betalp(i) = betalp(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
-           betalm(i) = betalm(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
+           betalp(i) = betalp(i)-0.25_RKIND*dt*(grslice(i-1,j) 
+     &          + grslice(i,j))
+           betalm(i) = betalm(i)-0.25_RKIND*dt*(grslice(i-1,j) 
+     &          + grslice(i,j))
 c          endif
         enddo
       endif
@@ -349,9 +352,9 @@ c
       enddo
 c
       do i = i1, i2+1
-         if (cp(i-1) .le. 0) betalp(i) = 0._RKIND
-         if (cm(i-1) .le. 0) betalm(i) = 0._RKIND
-         if (c0(i-1) .le. 0) betal0(i) = 0._RKIND
+         if (cp(i-1) .le. 0._RKIND) betalp(i) = 0._RKIND
+         if (cm(i-1) .le. 0._RKIND) betalm(i) = 0._RKIND
+         if (c0(i-1) .le. 0._RKIND) betal0(i) = 0._RKIND
       enddo
 c
 c     b) right side
@@ -360,7 +363,8 @@ c
          f1 = 1._RKIND/cra(i)
          betarp(i) = (ura(i)-urp(i)) + (pra(i)-prp(i))*f1
          betarm(i) = (ura(i)-urm(i)) - (pra(i)-prm(i))*f1
-         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1._RKIND/dra(i) - 1._RKIND/dr0(i)
+         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1._RKIND/dra(i) - 
+     &        1._RKIND/dr0(i)
       enddo
 c
 c     Add gravity component
@@ -369,8 +373,10 @@ c
         do i = i1, i2+1
 c          if (cra(i) .gt. 0.3*ura(i)) then
 c           if (gamma*pra(i)/dra(i) .gt. eta2*ura(i)**2) then
-           betarp(i) = betarp(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
-           betarm(i) = betarm(i)-0.25_RKIND*dt*(grslice(i-1,j)+grslice(i,j))
+           betarp(i) = betarp(i)-0.25_RKIND*dt*(grslice(i-1,j)
+     &          + grslice(i,j))
+           betarm(i) = betarm(i)-0.25_RKIND*dt*(grslice(i-1,j)
+     &          + grslice(i,j))
 c          endif
         enddo
       endif
@@ -396,14 +402,16 @@ c
          uls(i,j) = ula(i) + (betalp(i)-betalm(i))*cla(i)
          urs(i,j) = ura(i) + (betarp(i)-betarm(i))*cra(i)
 c
-         dls(i,j) = 1._RKIND/(1._RKIND/dla(i) - (betal0(i)+betalp(i)+betalm(i)))
-         drs(i,j) = 1._RKIND/(1._RKIND/dra(i) - (betar0(i)+betarp(i)+betarm(i)))
+         dls(i,j) = 1._RKIND/(1._RKIND/dla(i) - 
+     &        (betal0(i)+betalp(i)+betalm(i)))
+         drs(i,j) = 1._RKIND/(1._RKIND/dra(i) - 
+     &        (betar0(i)+betarp(i)+betarm(i)))
       enddo
 c
 c     Take the appropriate state from the advected variables
 c
       do i=i1,i2+1
-         if (uslice(i-1,j) .le. 0.0) then
+         if (uslice(i-1,j) .le. 0._RKIND) then
             vls(i,j)  = vla(i)
             wls(i,j)  = wla(i)
             gels(i,j) = gela(i)
@@ -413,7 +421,7 @@ c
             gels(i,j) = gel0(i)
          endif
 c
-         if (uslice(i  ,j) .ge. 0.0) then
+         if (uslice(i  ,j) .ge. 0._RKIND) then
             vrs(i,j)  = vra(i)
             wrs(i,j)  = wra(i)
             gers(i,j) = gera(i)
@@ -426,13 +434,13 @@ c
 c
       do ic=1,ncolor
          do i=i1,i2+1
-            if (uslice(i-1,j) .le. 0.0) then
+            if (uslice(i-1,j) .le. 0._RKIND) then
                colls(i,j,ic) = colla(i,ic)
             else
                colls(i,j,ic) = coll0(i,ic)
             endif
 c
-            if (uslice(i  ,j) .ge. 0.0) then
+            if (uslice(i  ,j) .ge. 0._RKIND) then
                colrs(i,j,ic) = colra(i,ic)
             else
                colrs(i,j,ic) = colr0(i,ic)
@@ -445,14 +453,14 @@ c     correction above).
 c
 #ifdef UNUSED
       do i = i1,i2+1
-         if (uslice(i,j) .gt. 0.0) then
+         if (uslice(i,j) .gt. 0._RKIND) then
             c7(i) = dt*dx2i(i) * cs(i)
             c8(i) = 0.5_RKIND*ft*(dt*dx2i(i))**2 * 
      $           (cs(i)**2 + 2._RKIND*uslice(i,j)*cs(i))
             vls(i,j) = vls(i,j) + c7(i)*(dv(i)-v6(i)) + c8(i)*v6(i)
             wls(i,j) = wls(i,j) + c7(i)*(dw(i)-w6(i)) + c8(i)*w6(i)
             gels(i,j) = gels(i,j) + c7(i)*(dge(i)-ge6(i)) + c8(i)*ge6(i)
-         else if (uslice(i,j) .lt. 0.0) then
+         else if (uslice(i,j) .lt. 0._RKIND) then
             c7(i) = -dt*dx2i(i) * cs(i)
             c8(i) = 0.5_RKIND*ft*(dt*dx2i(i))**2 *
      $           (cs(i)**2 - 2._RKIND*uslice(i,j)*cs(i))
@@ -464,10 +472,10 @@ c
  
       do ic = 1,ncolor
          do i = i1,i2+1
-            if (uslice(i,j) .gt. 0.0) then
+            if (uslice(i,j) .gt. 0._RKIND) then
                colls(i,j,ic) = colls(i,j,ic) + 
      $              c7(i)*(dcol(i,ic)-col6(i,ic)) + c8(i)*col6(i,ic)
-            else if (uslice(i,j) .lt. 0.0) then
+            else if (uslice(i,j) .lt. 0._RKIND) then
                colrs(i,j,ic) = colrs(i,j,ic) + 
      $              c7(i)*(dcol(i,ic)+col6(i,ic)) + c8(i)*col6(i,ic)
             endif
@@ -486,7 +494,7 @@ c
 c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
             if (gamma*pla(i)/dla(i) .lt. eta2*ula(i)**2 .or.
      &          max(abs(cm(i-1)),abs(c0(i-1)),abs(cp(i-1))) .lt. 
-     &          1.0e-3
+     &          1.0e-3_RKIND
      &          .or. dls(i,j)/dla(i) .gt. 5._RKIND) then
                pls(i,j) = pla(i)
                uls(i,j) = ula(i)
@@ -494,7 +502,7 @@ c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
             endif
 c            if (gamma*pra(i)/dra(i) .lt. eta1*ura(i)**2) then
             if (gamma*pra(i)/dra(i) .lt. eta2*ura(i)**2 .or.
-     &          max(abs(cm(i)),abs(c0(i)),abs(cp(i))) .lt. 1.0d-3
+     &          max(abs(cm(i)),abs(c0(i)),abs(cp(i))) .lt. 1.0e-3_RKIND
      &          .or. drs(i,j)/dra(i) .gt. 5._RKIND) then
                prs(i,j) = pra(i)
                urs(i,j) = ura(i)

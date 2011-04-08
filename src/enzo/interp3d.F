@@ -102,7 +102,7 @@ c
       do k = 1, pdim3+1
          do j = 1, pdim2+1
             do i = 1, pdim1+1
-               work(i, j, k) = 0.125*(
+               work(i, j, k) = 0.125_RKIND*(
      &                   parent(pstart1+i-1, pstart2+j-1, pstart3+k-1) +
      &                   parent(pstart1+i-1, pstart2+j-1, pstart3+k  ) +
      &                   parent(pstart1+i-1, pstart2+j  , pstart3+k-1) +
@@ -127,8 +127,8 @@ c
                   ierror = 1
                   return
                endif
-               if (work(i,j,k) .le. 0.0 .or.
-     &             parent(pstart1+i, pstart2+j, pstart3+k) .le. 0.0) 
+               if (work(i,j,k) .le. 0._RKIND .or.
+     &             parent(pstart1+i, pstart2+j, pstart3+k).le.0._RKIND) 
      &             nneg = nneg+1
             enddo
          enddo
@@ -151,31 +151,35 @@ c
      &                         abs(fbar - work(i+1, j+1, k+1)) )*
      &                  sign(one, (fbar - work(i  , j  , k  )))
                if ((work(i+1, j+1, k+1) - fbar) *
-     &             (fbar - work(i  , j  , k  )  ) .le. 0.0) delf0 = 0._RKIND
+     &             (fbar - work(i  , j  , k  )  ) .le. 0._RKIND) 
+     &              delf0 = 0._RKIND
 c
                delf1 =     min(abs(fbar - work(i+1, j  , k  )),
      &                         abs(fbar - work(i  , j+1, k+1)) )*
      &                  sign(one, (fbar - work(i+1, j  , k  )))
                if ((work(i  , j+1, k+1) - fbar) *
-     &             (fbar - work(i+1, j  , k  )  ) .le. 0.0) delf1 = 0._RKIND
+     &             (fbar - work(i+1, j  , k  )  ) .le. 0._RKIND) 
+     &              delf1 = 0._RKIND
 c
                delf2 =     min(abs(fbar - work(i  , j+1, k  )),
      &                         abs(fbar - work(i+1, j  , k+1)) )*
      &                  sign(one, (fbar - work(i  , j+1, k  )))
                if ((work(i+1, j  , k+1) - fbar) *
-     &             (fbar - work(i  , j+1, k  )  ) .le. 0.0) delf2 = 0._RKIND
+     &             (fbar - work(i  , j+1, k  )  ) .le. 0._RKIND) 
+     &              delf2 = 0._RKIND
 c
                delf3 =     min(abs(fbar - work(i  , j  , k+1)),
      &                         abs(fbar - work(i+1, j+1, k  )) )*
      &                  sign(one, (fbar - work(i  , j  , k+1)))
                if ((work(i+1, j+1, k  ) - fbar) *
-     &             (fbar - work(i  , j  , k+1)  ) .le. 0.0) delf3 = 0._RKIND
+     &             (fbar - work(i  , j  , k+1)  ) .le. 0._RKIND) 
+     &              delf3 = 0._RKIND
 c
 c              Determine s, the resulting scaled value of delf0 and contain
 c                sprime within the range 0 to 1
 c
-               if (delf0 .eq. 0.0) then
-                  delf0 = 1.d-5*sign(tiny, delf1 + delf2 + delf3)
+               if (delf0 .eq. 0._RKIND) then
+                  delf0 = 1.e-5_RKIND*sign(tiny, delf1 + delf2 + delf3)
                   sprime = 1._RKIND
                else
                   s = (delf1 + delf2 + delf3) / delf0
@@ -188,20 +192,20 @@ c
                chi1 = 1._RKIND
                chi2 = 1._RKIND
                chi3 = 1._RKIND
-               if (delf1/delf0 .gt. 0.0) chi1 = 0._RKIND
-               if (delf2/delf0 .gt. 0.0) chi2 = 0._RKIND
-               if (delf3/delf0 .gt. 0.0) chi3 = 0._RKIND
+               if (delf1/delf0 .gt. 0._RKIND) chi1 = 0._RKIND
+               if (delf2/delf0 .gt. 0._RKIND) chi2 = 0._RKIND
+               if (delf3/delf0 .gt. 0._RKIND) chi3 = 0._RKIND
 c
 c              If sprime is one (i.e. implied delf0 is too high) reverse chi#.
 c
-               chi1 = (1._RKIND - sprime)*chi1 + sprime*(1._RKIND - chi1)
-               chi2 = (1._RKIND - sprime)*chi2 + sprime*(1._RKIND - chi2)
-               chi3 = (1._RKIND - sprime)*chi3 + sprime*(1._RKIND - chi3)
+               chi1 = (1._RKIND - sprime)*chi1 + sprime*(1._RKIND-chi1)
+               chi2 = (1._RKIND - sprime)*chi2 + sprime*(1._RKIND-chi2)
+               chi3 = (1._RKIND - sprime)*chi3 + sprime*(1._RKIND-chi3)
 c
 c              If sprime is not 0 or 1 (i.e. we do not have to adjust delf#) 
 c                   then set chi# to zero.
 c
-               if (sprime .ne. 0.0 .and. sprime .ne. 1.0) then
+               if (sprime .ne. 0._RKIND .and. sprime .ne. 1._RKIND) then
                   chi1 = 0._RKIND
                   chi2 = 0._RKIND
                   chi3 = 0._RKIND
@@ -215,10 +219,10 @@ c
      &           (chi1*delf1 + chi2*delf2 + chi3*delf3 + 1.d-35)
 c
                frac = min(frac, 1._RKIND)
-               if (chi1+chi2+chi3 .eq. 0) frac = 0._RKIND
+               if (chi1+chi2+chi3 .eq. 0._RKIND) frac = 0._RKIND
 c
                frac = max(frac, 0._RKIND)
-               if (frac .lt. 0.0) then
+               if (frac .lt. 0._RKIND) then
                   write(6,*) "INTERP3D: frac = ", frac
                   write(6,*) chi1,chi2,chi3
                   write(6,*) delf0,delf1,delf2,delf3
@@ -240,7 +244,7 @@ c     &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
 c     &               delf1new,delf2new,delf3new,s
                s = delf1new+delf2new+delf3new
                if (nneg .eq. 0 .and. 
-     &             (fbar+s .le. 0.0 .or. fbar-s .le. 0.0)) then
+     &             (fbar+s.le.0._RKIND .or. fbar-s.le.0._RKIND)) then
                    write(6,*) 'abc',delf0,sprime,chi1,chi2,chi3,
      &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
      &               delf1new,delf2new,delf3new,s,work(i,j,k),

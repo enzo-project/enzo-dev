@@ -94,8 +94,8 @@ c
       do i=i1-1,i2+2
          qa    = dxi(i-2) + dxi(i-1) + dxi(i) + dxi(i+1)
          qb    = dxi(i-1)/(dxi(i-1) + dxi(i))
-         qc    = (dxi(i-2) + dxi(i-1))/(2.0*dxi(i-1) + dxi(i  ))
-         qd    = (dxi(i+1) + dxi(i  ))/(2.0*dxi(i  ) + dxi(i-1))
+         qc    = (dxi(i-2) + dxi(i-1))/(2._RKIND*dxi(i-1) + dxi(i  ))
+         qd    = (dxi(i+1) + dxi(i  ))/(2._RKIND*dxi(i  ) + dxi(i-1))
          qb    = qb + 2._RKIND*dxi(i)*qb/qa*(qc-qd)
          c3(i) = 1._RKIND - qb
          c4(i) = qb
@@ -128,19 +128,19 @@ c
          qb = min(abs(dp(i)),2._RKIND*abs(pmnus),2._RKIND*abs(pplus))
          qc = min(abs(du(i)),2._RKIND*abs(umnus),2._RKIND*abs(uplus))
 c     
-         if (dplus*dmnus .gt. 0.0) then
+         if (dplus*dmnus .gt. 0._RKIND) then
            dd(i) = qa * sign(one, dd(i))
          else
            dd(i) = 0._RKIND
          endif
 c     
-         if (pplus*pmnus .gt. 0.0) then
+         if (pplus*pmnus .gt. 0._RKIND) then
            dp(i) = qb * sign(one, dp(i))
          else
            dp(i) = 0._RKIND
          endif
 c     
-         if (uplus*umnus .gt. 0.0) then
+         if (uplus*umnus .gt. 0._RKIND) then
            du(i) = qc * sign(one, du(i))
          else
            du(i) = 0._RKIND
@@ -178,33 +178,33 @@ c
             dl(i) = dslice(i,j)
             dr(i) = dslice(i,j)
          endif
-         if (qd**2-qd*qe .lt. 0.0)
+         if (qd**2-qd*qe .lt. 0._RKIND)
      &      dl(i) = 3._RKIND*dslice(i,j) - 2._RKIND*dr(i)
-         if (qd**2+qd*qe .lt. 0.0)
+         if (qd**2+qd*qe .lt. 0._RKIND)
      &      dr(i) = 3._RKIND*dslice(i,j) - 2._RKIND*dl(i)
 c
          qa = (pr(i)-pslice(i,j))*(pslice(i,j)-pl(i))
          qd = pr(i)-pl(i)
          qe = 6._RKIND*(pslice(i,j)-0.5_RKIND*(pr(i)+pl(i)))
-         if (qa .le. 0.0) then
+         if (qa .le. 0._RKIND) then
             pl(i) = pslice(i,j)
             pr(i) = pslice(i,j)
          endif
-         if (qd**2-qd*qe .lt. 0.0)
+         if (qd**2-qd*qe .lt. 0._RKIND)
      &      pl(i) = 3._RKIND*pslice(i,j) - 2._RKIND*pr(i)
-         if (qd**2+qd*qe .lt. 0.0)
+         if (qd**2+qd*qe .lt. 0._RKIND)
      &      pr(i) = 3._RKIND*pslice(i,j) - 2._RKIND*pl(i)
 c
          qa = (ur(i)-uslice(i,j))*(uslice(i,j)-ul(i))
          qd = ur(i)-ul(i)
          qe = 6._RKIND*(uslice(i,j)-0.5_RKIND*(ur(i)+ul(i)))
-         if (qa .le. 0.0) then
+         if (qa .le. 0._RKIND) then
             ul(i) = uslice(i,j)
             ur(i) = uslice(i,j)
          endif
-         if (qd**2-qd*qe .lt. 0.0)
+         if (qd**2-qd*qe .lt. 0._RKIND)
      &      ul(i) = 3._RKIND*uslice(i,j) - 2._RKIND*ur(i)
-         if (qd**2+qd*qe .lt. 0.0)
+         if (qd**2+qd*qe .lt. 0._RKIND)
      &      ur(i) = 3._RKIND*uslice(i,j) - 2._RKIND*ul(i)
       enddo
 c
@@ -212,12 +212,18 @@ c  If requested, flatten slopes with flatteners calculated in calcdiss (4.1)
 c
       if (iflatten .ne. 0) then
          do i=i1-1,i2+1
-            dl(i) = dslice(i,j)*flatten(i,j) + dl(i)*(1._RKIND-flatten(i,j))
-            dr(i) = dslice(i,j)*flatten(i,j) + dr(i)*(1._RKIND-flatten(i,j))
-            pl(i) = pslice(i,j)*flatten(i,j) + pl(i)*(1._RKIND-flatten(i,j))
-            pr(i) = pslice(i,j)*flatten(i,j) + pr(i)*(1._RKIND-flatten(i,j))
-            ul(i) = uslice(i,j)*flatten(i,j) + ul(i)*(1._RKIND-flatten(i,j))
-            ur(i) = uslice(i,j)*flatten(i,j) + ur(i)*(1._RKIND-flatten(i,j))
+            dl(i) = dslice(i,j)*flatten(i,j) 
+     &           + dl(i)*(1._RKIND-flatten(i,j))
+            dr(i) = dslice(i,j)*flatten(i,j) 
+     &           + dr(i)*(1._RKIND-flatten(i,j))
+            pl(i) = pslice(i,j)*flatten(i,j) 
+     &           + pl(i)*(1._RKIND-flatten(i,j))
+            pr(i) = pslice(i,j)*flatten(i,j) 
+     &           + pr(i)*(1._RKIND-flatten(i,j))
+            ul(i) = uslice(i,j)*flatten(i,j) 
+     &           + ul(i)*(1._RKIND-flatten(i,j))
+            ur(i) = uslice(i,j)*flatten(i,j) 
+     &           + ur(i)*(1._RKIND-flatten(i,j))
          enddo
       endif
 c
@@ -230,18 +236,19 @@ c
          dd(i) = dr(i) - dl(i)
          dp(i) = pr(i) - pl(i)
          du(i) = ur(i) - ul(i)
-         cs(i) = dt*sqrt(gamma*pslice(i,j)/dslice(i,j))/(2._RKIND*dxi(i))
+         cs(i) = dt*sqrt(gamma*pslice(i,j)/dslice(i,j)) / 
+     &        (2._RKIND*dxi(i))
       enddo
 c
       do i=i1,i2+1
-        dls(i,j)= dr(i-1)-cs(i-1)*(dd(i-1)-(1._RKIND-ft*cs(i-1))*d6(i-1))
-        drs(i,j)= dl(i  )+cs(i  )*(dd(i  )+(1._RKIND-ft*cs(i  ))*d6(i  ))
+        dls(i,j)=dr(i-1)-cs(i-1)*(dd(i-1)-(1._RKIND-ft*cs(i-1))*d6(i-1))
+        drs(i,j)=dl(i  )+cs(i  )*(dd(i  )+(1._RKIND-ft*cs(i  ))*d6(i  ))
 c
-        pls(i,j)= pr(i-1)-cs(i-1)*(dp(i-1)-(1._RKIND-ft*cs(i-1))*p6(i-1))
-        prs(i,j)= pl(i  )+cs(i  )*(dp(i  )+(1._RKIND-ft*cs(i  ))*p6(i  ))
+        pls(i,j)=pr(i-1)-cs(i-1)*(dp(i-1)-(1._RKIND-ft*cs(i-1))*p6(i-1))
+        prs(i,j)=pl(i  )+cs(i  )*(dp(i  )+(1._RKIND-ft*cs(i  ))*p6(i  ))
 c
-        uls(i,j)= ur(i-1)-cs(i-1)*(du(i-1)-(1._RKIND-ft*cs(i-1))*u6(i-1))
-        urs(i,j)= ul(i  )+cs(i  )*(du(i  )+(1._RKIND-ft*cs(i  ))*u6(i  ))
+        uls(i,j)=ur(i-1)-cs(i-1)*(du(i-1)-(1._RKIND-ft*cs(i-1))*u6(i-1))
+        urs(i,j)=ul(i  )+cs(i  )*(du(i  )+(1._RKIND-ft*cs(i  ))*u6(i  ))
       enddo
 c
 100   continue

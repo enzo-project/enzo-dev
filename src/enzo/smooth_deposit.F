@@ -94,7 +94,7 @@ c
 c
                      if (rsqr .lt. rsmsqr)
      &                    field(i,j,k) = field(i,j,k) +
-     &                         mass(n)*coef*(1._RKIND - sqrt(rsqr)/rsmooth)
+     &                    mass(n)*coef*(1._RKIND - sqrt(rsqr)/rsmooth)
 c
                   enddo
 c

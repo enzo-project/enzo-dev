@@ -185,10 +185,10 @@ c
      &           iphoto_mol = 0)
 
       double precision everg, evhz, tevk, mh, pi, tiny_cgs, dhuge, kb
-      parameter (everg = ev2erg, evhz  = 2.41838d+14, 
-     &           tevk = 1.1605d+4, mh = mass_h, 
-     &           pi=pi_val, tiny_cgs = 1.0d-37, 
-     &           dhuge = 1.0d+30, kb = kboltz)
+      parameter (everg = ev2erg, evhz  = 2.41838e14_RKIND, 
+     &           tevk = 1.1605e4_RKIND, mh = mass_h, 
+     &           pi=pi_val, tiny_cgs = 1.0e-37_RKIND, 
+     &           dhuge = 1.0e30_RKIND, kb = kboltz)
 
 c
 c         Set various cutoff values in eV.
@@ -391,7 +391,7 @@ c
      &           + 0.03482559773736999_RKIND*logtev**5
      &           - 0.00263197617559_RKIND*logtev**6
      &           + 0.0001119543953861_RKIND*logtev**7
-     &           - 2.039149852002d-6*logtev**8) / kunit
+     &           - 2.039149852002e-6_RKIND*logtev**8) / kunit
 c
           k3a(i) = exp(-44.09864886561001_RKIND
      &           + 23.91596563469_RKIND*logtev
@@ -401,11 +401,12 @@ c
      &           + 0.06795391233790001_RKIND*logtev**5
      &           - 0.005009056101857001_RKIND*logtev**6
      &           + 0.0002067236157507_RKIND*logtev**7
-     &           - 3.649161410833d-6*logtev**8) / kunit
+     &           - 3.649161410833e-6_RKIND*logtev**8) / kunit
 c
-          k4a(i) = (1.54d-9*(1._RKIND+0.3_RKIND/exp(8.099328789667_RKIND/tev))
+          k4a(i) = (1.54e-9_RKIND*(1._RKIND+0.3_RKIND / 
+     &         exp(8.099328789667_RKIND/tev))
      &           / (exp(40.49664394833662_RKIND/tev)*tev**1.5_RKIND)
-     &           + 3.92d-13/tev**0.6353_RKIND) / kunit
+     &           + 3.92e-13_RKIND/tev**0.6353_RKIND) / kunit
 c
           k5a(i) = exp(-68.71040990212001_RKIND
      &           + 43.93347632635_RKIND*logtev
@@ -415,25 +416,25 @@ c
      &           + 0.08113042097303_RKIND*logtev**5
      &           - 0.005324020628287001_RKIND*logtev**6
      &           + 0.0001975705312221_RKIND*logtev**7
-     &           - 3.165581065665d-6*logtev**8) / kunit
+     &           - 3.165581065665e-6_RKIND*logtev**8) / kunit
         else
           k1a(i) = tiny
           k3a(i) = tiny
-          k4a(i) = 3.92d-13/tev**0.6353_RKIND / kunit
+          k4a(i) = 3.92e-13_RKIND/tev**0.6353_RKIND / kunit
           k5a(i) = tiny
         endif
 c
 c       redefine k4a if case B recombination rates are requested
         if (casebrates) then
-           k4a(i) = 1.26d-14 * (5.7067d5/ttt)**(0.75_RKIND)
+           k4a(i) = 1.26e-14_RKIND * (5.7067e5_RKIND/ttt)**(0.75_RKIND)
         endif
 c
 c       compute the HII rec. rate using either the case A or case B formula
         if (casebrates) then
            if (ttt < 1.0d9) then
-              k2a(i) = 4.881357d-6*ttt**(-1.5_RKIND) 
-     &             * (1._RKIND+1.14813d2*ttt**(-0.407_RKIND))**(-2.242_RKIND)
-     &             / kunit
+              k2a(i) = 4.881357e-6_RKIND*ttt**(-1.5_RKIND) 
+     &             * (1._RKIND+1.14813e2_RKIND
+     &             * ttt**(-0.407_RKIND))**(-2.242_RKIND) / kunit
            else
               k2a(i) = tiny
            endif
@@ -445,10 +446,10 @@ c       compute the HII rec. rate using either the case A or case B formula
      &             - 0.002380861877349834_RKIND*logtev**3
      &             - 0.0003212605213188796_RKIND*logtev**4
      &             - 0.00001421502914054107_RKIND*logtev**5
-     &             + 4.989108920299513d-6*logtev**6
-     &             + 5.755614137575758d-7*logtev**7
-     &             - 1.856767039775261d-8*logtev**8
-     &             - 3.071135243196595d-9*logtev**9) / kunit
+     &             + 4.989108920299513e-6_RKIND*logtev**6
+     &             + 5.755614137575758e-7_RKIND*logtev**7
+     &             - 1.856767039775261e-8_RKIND*logtev**8
+     &             - 3.071135243196595e-9_RKIND*logtev**9) / kunit
            else
               k2a(i) = k4a(i)
            endif
@@ -457,20 +458,20 @@ c
 c       compute the HeIII rec. rate using either the case A or case B formula
         if (casebrates) then
            if (ttt < 1.0d9) then
-              k6a(i) = 7.8155d-5*ttt**(-1.5_RKIND) 
-     &             * (1._RKIND+2.0189d2*ttt**(-0.407_RKIND))**(-2.242_RKIND)
-     &             / kunit
+              k6a(i) = 7.8155e-5_RKIND*ttt**(-1.5_RKIND) 
+     &             * (1._RKIND+2.0189e2_RKIND 
+     &             * ttt**(-0.407_RKIND))**(-2.242_RKIND) / kunit
            else
               k6a(i) = tiny
            endif
         else
-           k6a(i) = 3.36d-10/sqrt(ttt)/(ttt/1.d3)**0.2_RKIND
-     &          / (1._RKIND+(ttt/1.d6)**0.7_RKIND) / kunit
+           k6a(i) = 3.36e-10_RKIND/sqrt(ttt)/(ttt/1.e3_RKIND)**0.2_RKIND
+     &          / (1._RKIND+(ttt/1.e6_RKIND)**0.7_RKIND) / kunit
         endif
 c
 c       Molecular hydrogen and associated rates
 c
-        k7a(i) = 6.77d-15*tev**0.8779_RKIND / kunit
+        k7a(i) = 6.77e-15_RKIND*tev**0.8779_RKIND / kunit
 c
         if (tev .gt. 0.1_RKIND) then
           k8a(i) = exp(-20.06913897587003_RKIND
@@ -479,23 +480,23 @@ c
      &           - 0.004555120027032095_RKIND*logtev**3
      &           - 0.0003105115447124016_RKIND*logtev**4
      &           + 0.0001073294010367247_RKIND*logtev**5
-     &           - 8.36671960467864d-6*logtev**6
-     &           + 2.238306228891639d-7*logtev**7) / kunit
+     &           - 8.36671960467864e-6_RKIND*logtev**6
+     &           + 2.238306228891639e-7_RKIND*logtev**7) / kunit
         else
-          k8a(i) = 1.43d-9 / kunit
+          k8a(i) = 1.43e-9_RKIND / kunit
         endif
 c
-        k9a(i) = 1.85d-23*ttt**1.8_RKIND / kunit
-        if(ttt .gt. 6.7d3) 
-     &     k9a(i) = 5.81d-16*(ttt/56200._RKIND)**(-0.6657_RKIND*
+        k9a(i) = 1.85e-23_RKIND*ttt**1.8_RKIND / kunit
+        if(ttt .gt. 6.7e3_RKIND) 
+     &     k9a(i) = 5.81e-16_RKIND*(ttt/56200._RKIND)**(-0.6657_RKIND*
      &       log10(ttt/56200._RKIND)) / kunit
 c
-        k10a(i) = 6.0d-10 / kunit
+        k10a(i) = 6.0e-10_RKIND / kunit
 c
         if (tev .gt. 0.3_RKIND) then
-          k13a(i) = 1.0670825d-10*tev**2.012_RKIND/
-     &              (exp(4.463_RKIND/tev)*(1._RKIND+0.2472_RKIND*tev)**3.512_RKIND) / 
-     &              kunit
+          k13a(i) = 1.0670825e-10_RKIND*tev**2.012_RKIND
+     &          / (exp(4.463_RKIND/tev)
+     &          * (1._RKIND+0.2472_RKIND*tev)**3.512_RKIND) / kunit
 c
           k11a(i) = exp(-24.24914687731536_RKIND
      &            + 3.400824447095291_RKIND*logtev
@@ -505,9 +506,10 @@ c
      &            + 0.0841077503763412_RKIND*logtev**5
      &            - 0.007879026154483455_RKIND*logtev**6
      &            + 0.0004138398421504563_RKIND*logtev**7
-     &            - 9.36345888928611d-6*logtev**8) / kunit
+     &            - 9.36345888928611e-6_RKIND*logtev**8) / kunit
 
-          k12a(i) = 4.38d-10*exp(-102000._RKIND/ttt)*ttt**0.35_RKIND / kunit
+          k12a(i) = 4.38e-10_RKIND*exp(-102000._RKIND/ttt)
+     &         * ttt**0.35_RKIND / kunit
         else
           k13a(i) = tiny
           k11a(i) = tiny
@@ -523,7 +525,7 @@ c
      &            + 0.01178329782711_RKIND*logtev**5
      &            - 0.001656194699504_RKIND*logtev**6
      &            + 0.0001068275202678_RKIND*logtev**7
-     &            - 2.631285809207d-6*logtev**8) / kunit
+     &            - 2.631285809207e-6_RKIND*logtev**8) / kunit
         else
           k14a(i) =  tiny
         endif
@@ -537,20 +539,20 @@ c
      &            + 0.0002012250284791_RKIND*logtev**5
      &            + 0.0000866396324309_RKIND*logtev**6
      &            - 0.00002585009680264_RKIND*logtev**7
-     &            + 2.4555011970392d-6*logtev**8
-     &            - 8.06838246118d-8*logtev**9) / kunit
+     &            + 2.4555011970392e-6_RKIND*logtev**8
+     &            - 8.06838246118e-8_RKIND*logtev**9) / kunit
         else
-          k15a(i) = 2.56d-9*tev**1.78186_RKIND / kunit
+          k15a(i) = 2.56e-9_RKIND*tev**1.78186_RKIND / kunit
         endif
 c
-        k16a(i) = 6.5d-9/sqrt(tev) / kunit
+        k16a(i) = 6.5e-9_RKIND/sqrt(tev) / kunit
 c
-        k17a(i) = 1.0d-8*ttt**(-0.4_RKIND) / kunit
+        k17a(i) = 1.0e-8_RKIND*ttt**(-0.4_RKIND) / kunit
         if(ttt.gt.1.0d4)
-     &     k17a(i)=4.0d-4*ttt**(-1.4_RKIND)*exp(-15100._RKIND/ttt) / kunit
+     &     k17a(i)=4.0e-4_RKIND*ttt**(-1.4_RKIND)*exp(-15100._RKIND/ttt) / kunit
 c
-        k18a(i) = 5.56396d-8/tev**0.6035_RKIND / kunit
-        k19a(i) = 4.64d-8/sqrt(tev) / kunit
+        k18a(i) = 5.56396e-8_RKIND/tev**0.6035_RKIND / kunit
+        k19a(i) = 4.64e-8_RKIND/sqrt(tev) / kunit
 c
 #endif /* USE_NEW_COLLISIONAL_RATES */
 c
@@ -572,32 +574,33 @@ c
 c Our varying threebody rates from Simon
         if(threebody.eq.0)then
           if (ttt .le. 300._RKIND) then
-             k22a(i) = 1.3d-32 * (ttt/300._RKIND)**(-0.38_RKIND)
+             k22a(i) = 1.3e-32_RKIND * (ttt/300._RKIND)**(-0.38_RKIND)
           else
-             k22a(i) = 1.3d-32 * (ttt/300._RKIND)**(-1._RKIND)
+             k22a(i) = 1.3e-32_RKIND * (ttt/300._RKIND)**(-1._RKIND)
           endif
         elseif(threebody.eq.1)then
 c Inverse of PSS83 three-body rate
-          k22a(i) = 5.5d-29 / ttt
-          k13a(i) = (5.24d-7 / ttt**0.485_RKIND) 
-     &                   * exp(-5.2d4 / ttt)
+          k22a(i) = 5.5e-29_RKIND / ttt
+          k13a(i) = (5.24e-7_RKIND / ttt**0.485_RKIND) 
+     &                   * exp(-5.2e4_RKIND / ttt)
         elseif(threebody.eq.2)then
 c Inverse of CW83 rate
-          k22a(i) = 8.8d-33
-          k13a(i) = 8.4d-11 * ttt**0.515_RKIND * exp(-5.2d4 / ttt)
+          k22a(i) = 8.8e-33_RKIND
+          k13a(i) = 8.4e-11_RKIND * ttt**0.515_RKIND
+     &         * exp(-5.2e4_RKIND / ttt)
         elseif(threebody.eq.3)then
 c Rate from JGC67, used by FH07 to construct their three-body rate
-          k22a(i) = 1.44d-26 / ttt**1.54_RKIND
-          k13a(i) = (1.38d-4 / ttt**1.025_RKIND)
-     &                   * exp(-5.2d4 / ttt)
+          k22a(i) = 1.44e-26_RKIND / ttt**1.54_RKIND
+          k13a(i) = (1.38e-4_RKIND / ttt**1.025_RKIND)
+     &         * exp(-5.2e4_RKIND / ttt)
         elseif(threebody.eq.4)then
 c High density rate from MSM96
-          k22a(i) = 7.7d-31 / ttt**0.464_RKIND
-          k13a(i) = 1d1**(-178.4239_RKIND - 68.42243_RKIND * log10(ttt) 
-     &                   + 43.20243_RKIND * log10(ttt)**2
-     &                   - 4.633167_RKIND * log10(ttt)**3 
-     &                   + 69.70086_RKIND * log10(1_RKIND + 40870.38_RKIND / ttt)
-     &                   - (23705.7_RKIND / ttt))
+          k22a(i) = 7.7e-31_RKIND / ttt**0.464_RKIND
+          k13a(i) = 10._RKIND**(-178.4239_RKIND - 68.42243_RKIND 
+     &         * log10(ttt) + 43.20243_RKIND * log10(ttt)**2
+     &         - 4.633167_RKIND * log10(ttt)**3 
+     &         + 69.70086_RKIND * log10(1_RKIND + 40870.38_RKIND / ttt)
+     &         - (23705.7_RKIND / ttt))
         else
             write(0,*) "I didn't understand your threebody rate."
             stop
@@ -605,7 +608,7 @@ c High density rate from MSM96
         k13a(i) = k13a(i) / kunit
         k22a(i) = k22a(i) / kunit_3bdy
         
-        k21a(i) = 2.8d-31 * (ttt**(-0.6_RKIND)) / kunit_3bdy
+        k21a(i) = 2.8e-31_RKIND * (ttt**(-0.6_RKIND)) / kunit_3bdy
 c        write(6,*),'calc_rates: check: ', ttt, k2a(i), k22a(i)
 c
 c       ------ Deuterium rates -----
@@ -619,13 +622,13 @@ c       55) HD  +  H  -> H2 +  D
 c       56) D   +  H- -> HD +  e-
 c      [57) D-  +  H  -> HD +  e-]  included by multiply 56 by 2
 c
-        k50a(i) = 1.0d-9 *exp(-4.1d1/ttt)  / kunit
-        k51a(i) = 1.0d-9                   / kunit
-        k52a(i) = 2.1d-9                   / kunit
-        k53a(i) = 1.0d-9 *exp(-4.57d2/ttt) / kunit
-        k54a(i) = 7.5d-11*exp(-3.82d3/ttt) / kunit
-        k55a(i) = 7.5d-11*exp(-4.24d3/ttt) / kunit
-        k56a(i) = 1.5d-9 *(ttt/300._RKIND)**(-0.1_RKIND) / kunit
+        k50a(i) = 1.0e-9_RKIND *exp(-4.1e1_RKIND/ttt)  / kunit
+        k51a(i) = 1.0e-9_RKIND                   / kunit
+        k52a(i) = 2.1e-9_RKIND                   / kunit
+        k53a(i) = 1.0e-9_RKIND *exp(-4.57e2_RKIND/ttt) / kunit
+        k54a(i) = 7.5e-11_RKIND*exp(-3.82e3_RKIND/ttt) / kunit
+        k55a(i) = 7.5e-11_RKIND*exp(-4.24e3_RKIND/ttt) / kunit
+        k56a(i) = 1.5e-9_RKIND *(ttt/300._RKIND)**(-0.1_RKIND) / kunit
 c
       enddo
 c
@@ -650,12 +653,15 @@ c
 c    a) Collisional excitations (Black 1981; Cen 1992)
 c
       if ( iceco .eq. 1 ) then
-        ceHIa(i)    = 7.5d-19*exp(-min(log(dhuge),118348._RKIND/ttt))
-     &              /(1._RKIND+sqrt(ttt/1.0d5)) / coolunit
-        ceHeIa(i)   = 9.1d-27*exp(-min(log(dhuge),13179._RKIND/ttt))
-     &              *ttt**(-0.1687_RKIND)/(1._RKIND+sqrt(ttt/1.0d5)) / coolunit
-        ceHeIIa(i)  = 5.54d-17*exp(-min(log(dhuge),473638._RKIND/ttt))
-     &              *ttt**(-0.397_RKIND)/(1._RKIND+sqrt(ttt/1.0d5)) / coolunit
+        ceHIa(i) = 7.5e-19_RKIND*exp(-min(log(dhuge),
+     &        118348._RKIND/ttt))/(1._RKIND+sqrt(ttt/1.e5_RKIND)) 
+     &        / coolunit
+        ceHeIa(i) = 9.1e-27_RKIND*exp(-min(log(dhuge),13179._RKIND/ttt))
+     &       *ttt**(-0.1687_RKIND)/(1._RKIND+sqrt(ttt/1.e5_RKIND)) 
+     &       / coolunit
+        ceHeIIa(i) = 5.54e-17_RKIND*exp(-min(log(dhuge),
+     &       473638._RKIND/ttt))*ttt**(-0.397_RKIND) 
+     &       / (1._RKIND+sqrt(ttt/1.0d5)) / coolunit
       else
         ceHIa(i)    = tiny
         ceHeIa(i)   = tiny
@@ -666,21 +672,22 @@ c    b) Collisional ionizations (Cen 1992 or Abel 1996)
 c
       if ( icico .eq. 1 ) then
 c
-c        ciHIa(i)    = 1.27d-21*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
+c        ciHIa(i)    = 1.27e-21_RKIND*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
 c     &              *exp(-min(log(dhuge),157809.1/ttt)) / coolunit
-c        ciHeIa(i)   = 9.38d-22*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
+c        ciHeIa(i)   = 9.38e-22_RKIND*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
 c     &              *exp(-min(log(dhuge),285335.4/ttt)) / coolunit
-c        ciHeIIa(i)  = 4.95d-22*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
+c        ciHeIIa(i)  = 4.95e-22_RKIND*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
 c     &              *exp(-min(log(dhuge),631515.0/ttt)) / coolunit
 c
-        ciHeISa(i)  = 5.01d-27*(ttt)**(-0.1687_RKIND)/(1._RKIND+sqrt(ttt/1.0d5))
-     &              *exp(-min(log(dhuge),55338._RKIND/ttt)) / coolunit
+        ciHeISa(i)  = 5.01e-27_RKIND*(ttt)**(-0.1687_RKIND) 
+     &        / (1._RKIND+sqrt(ttt/1.e5_RKIND))
+     &        *exp(-min(log(dhuge),55338._RKIND/ttt)) / coolunit
 c
 c       Collisional ionizations (polynomial fits from Tom Abel)
 c
-        ciHIa(i)    = 2.18d-11*k1a(i)*kunit / coolunit
-        ciHeIa(i)   = 3.94d-11*k3a(i)*kunit / coolunit
-        ciHeIIa(i)  = 8.72d-11*k5a(i)*kunit / coolunit
+        ciHIa(i)    = 2.18e-11_RKIND*k1a(i)*kunit / coolunit
+        ciHeIa(i)   = 3.94e-11_RKIND*k3a(i)*kunit / coolunit
+        ciHeIIa(i)  = 8.72e-11_RKIND*k5a(i)*kunit / coolunit
       else
         ciHIa(i)    = tiny
         ciHeIa(i)   = tiny
@@ -691,15 +698,17 @@ c
 c    c) Recombinations (Cen 1992)
 c
       if ( ireco .eq. 1 ) then
-        reHIIa(i)   = 8.70d-27*sqrt(ttt)*(ttt/1000._RKIND)**(-0.2_RKIND)
-     &              / (1._RKIND + (ttt/1.0d6)**(0.7_RKIND)) / coolunit
-        reHeII1a(i) = 1.55d-26*ttt**0.3647_RKIND / coolunit
-        reHeII2a(i) = 1.24d-13*ttt**(-1.5_RKIND)
-     &       *exp(-min(log(dhuge),470000._RKIND/ttt))
-     &       *(1._RKIND+0.3_RKIND*exp(-min(log(dhuge),94000._RKIND/ttt))) 
+        reHIIa(i)   = 8.70e-27_RKIND*sqrt(ttt)
+     &        * (ttt/1000._RKIND)**(-0.2_RKIND)
+     &        / (1._RKIND + (ttt/1.0d6)**(0.7_RKIND)) / coolunit
+        reHeII1a(i) = 1.55e-26_RKIND*ttt**0.3647_RKIND / coolunit
+        reHeII2a(i) = 1.24e-13_RKIND*ttt**(-1.5_RKIND) *
+     &       exp(-min(log(dhuge),470000._RKIND/ttt)) *
+     &       (1._RKIND+0.3_RKIND*exp(-min(log(dhuge),94000._RKIND/ttt))) 
      &       / coolunit
-        reHeIIIa(i) = 3.48d-26*sqrt(ttt)*(ttt/1000._RKIND)**(-0.2_RKIND)
-     &              / (1._RKIND + (ttt/1.d6)**(0.7_RKIND)) / coolunit
+        reHeIIIa(i) = 3.48e-26_RKIND*sqrt(ttt)
+     &       * (ttt/1000._RKIND)**(-0.2_RKIND)
+     &       / (1._RKIND + (ttt/1.d6)**(0.7_RKIND)) / coolunit
       else
         reHIIa(i)   = tiny
         reHeII1a(i) = tiny
@@ -710,21 +719,20 @@ c
 c    d) Bremsstrahlung (Black 1981)(Spitzer & Hart 1979)
 c
       if ( ibrco .eq. 1 ) then
-        brema(i)    = 1.43d-27*sqrt(ttt)
-     &              *(1.1_RKIND+0.34_RKIND*exp(-(5.5_RKIND-log10(ttt))**2/3._RKIND)) / 
-     &               coolunit
+        brema(i)    = 1.43e-27_RKIND*sqrt(ttt)*(1.1_RKIND+0.34_RKIND
+     &        *exp(-(5.5_RKIND-log10(ttt))**2/3._RKIND)) / coolunit
       else
         brema(i)    = tiny
       endif
 c
 c         Bremsstrahlung (Shapiro & Kang 1987)(Spitzer 1978)
 c
-c        if(ttt .lt. 1.0*3.2d5) gaunt = 0.79464 + 0.1243*log10(ttt/1.)
-c        if(ttt .ge. 1.0*3.2d5) gaunt = 2.13164 - 0.1240*log10(ttt/1.)
-c        brem1a(i) = 1.426d-27*sqrt(ttt)*gaunt / coolunit
-c        if(ttt .lt. 4.0*3.2d5) gaunt = 0.79464 + 0.1243*log10(ttt/4.)
-c        if(ttt .ge. 4.0*3.2d5) gaunt = 2.13164 - 0.1240*log10(ttt/4.)
-c        brem2a(i) = 1.426d-27*sqrt(ttt)*gaunt / coolunit
+c        if(ttt .lt. 3.2e5_RKIND) gaunt = 0.79464_RKIND + 0.1243_RKIND*log10(ttt)
+c        if(ttt .ge. 3.2e5_RKIND) gaunt = 2.13164 - 0.1240_RKIND*log10(ttt)
+c        brem1a(i) = 1.426e-27_RKIND*sqrt(ttt)*gaunt / coolunit
+c        if(ttt .lt. 4.0*3.2e5_RKIND) gaunt = 0.79464_RKIND + 0.1243_RKIND*log10(ttt/4._RKIND)
+c        if(ttt .ge. 4.0*3.2e5_RKIND) gaunt = 2.13164_RKIND - 0.1240_RKIND*log10(ttt/4._RKIND)
+c        brem2a(i) = 1.426e-27_RKIND*sqrt(ttt)*gaunt / coolunit
 c
 c    e) Molecular hydrogen cooling
 c
@@ -732,51 +740,54 @@ c       (Which one is used is controlled by a flag in cool1d_mulit.src)
 c
 c    e part1) - Lepp & Shull rates
 c
-        xx = log10(ttt/1.0d4)
-        vibha  (i) = 1.1d-18*exp(-min(log(dhuge),6744._RKIND/ttt)) 
+        xx = log10(ttt/1.e4_RKIND)
+        vibha  (i) = 1.1e-18_RKIND*exp(-min(log(dhuge),6744._RKIND/ttt)) 
      &               / coolunit
 c
         if( ttt .gt. 1635._RKIND) then
-           dum = 1.0d-12*sqrt(ttt)*exp(-1000._RKIND/ttt)
+           dum = 1.0e-12_RKIND*sqrt(ttt)*exp(-1000._RKIND/ttt)
         else
-           dum = 1.4d-13*exp((ttt/125._RKIND) - (ttt/577._RKIND)**2)
+           dum = 1.4e-13_RKIND*exp((ttt/125._RKIND)-(ttt/577._RKIND)**2)
         endif
         hyd01ka(i) = dum*exp(-min(log(dhuge),
-     &                            8.152d-13/(kboltz*ttt) )) 
+     &                            8.152e-13_RKIND/(kboltz*ttt) )) 
      &               / coolunit
 c
-        dum = 8.152d-13*(4.2_RKIND/(kboltz*(ttt+1190._RKIND)) +
+        dum = 8.152e-13_RKIND*(4.2_RKIND/(kboltz*(ttt+1190._RKIND)) +
      &       1._RKIND/(kboltz*ttt))
-        h2k01a(i) = 1.45d-12*sqrt(ttt)*exp(-min(log(dhuge),dum)) 
+        h2k01a(i) = 1.45e-12_RKIND*sqrt(ttt)*exp(-min(log(dhuge),dum)) 
      &              / coolunit
 c
         if(ttt .gt. 4031._RKIND)then
-          rotla(i) = 1.38d-22*exp(-9243._RKIND/ttt) / coolunit
+          rotla(i) = 1.38e-22_RKIND*exp(-9243._RKIND/ttt) / coolunit
         else
-          rotla(i) = 10._RKIND**(-22.9_RKIND - 0.553_RKIND*xx - 1.148_RKIND*xx*xx) 
-     &               / coolunit
+          rotla(i) = 10._RKIND**(-22.9_RKIND - 0.553_RKIND*xx 
+     &          - 1.148_RKIND*xx*xx) / coolunit
         endif
 c
         if(ttt .gt. 1087._RKIND)then
-          rotha(i) = 3.9d-19*exp(-6118._RKIND/ttt) / coolunit
+           rotha(i) = 3.9e-19_RKIND*exp(-6118._RKIND/ttt) / coolunit
         else
-          rotha(i) = 10._RKIND**(-19.24_RKIND + 0.474_RKIND*xx - 1.247_RKIND*xx*xx)
-     &               / coolunit
+           rotha(i) = 10._RKIND**(-19.24_RKIND + 0.474_RKIND*xx
+     &          - 1.247_RKIND*xx*xx) / coolunit
         endif
 c
 c     e part2) - Galli and Palla (1999) rates as fit by Tom Abel
 c
         tm = max(ttt, 13._RKIND)       ! no cooling below 13 Kelvin ...
-        tm = min(tm, 1.d5)      ! fixes numerics
+        tm = min(tm, 1.e5_RKIND)       ! fixes numerics
         lt = log10(tm)
 c     low density limit from Galli and Palla
-        gpldl(i)  = 10._RKIND**(-103._RKIND+97.59_RKIND*lt-48.05_RKIND*lt**2 
-     &       +10.8_RKIND*lt*lt*lt-0.9032_RKIND*lt*lt*lt*lt) / coolunit
+        gpldl(i)  = 10._RKIND**(-103._RKIND+97.59_RKIND*lt
+     &       - 48.05_RKIND*lt**2+10.8_RKIND*lt**3-0.9032_RKIND*lt**4) 
+     &       / coolunit
 c     high density limit from HM79 (typo corrected Aug 30/2007)
         t3 = tm/1000._RKIND
-        HDLR = ((9.5e-22*t3**3.76_RKIND)/(1._RKIND+0.12_RKIND*t3**2.1_RKIND)*
-     &            exp(-(0.13_RKIND/t3)**3)+3.d-24*exp(-0.51_RKIND/t3))
-        HDLV = (6.7d-19*exp(-5.86_RKIND/t3) + 1.6d-18*exp(-11.7_RKIND/t3))
+        HDLR = ((9.5e-22_RKIND*t3**3.76_RKIND)
+     &       / (1._RKIND+0.12_RKIND*t3**2.1_RKIND)*
+     &       exp(-(0.13_RKIND/t3)**3)+3.e-24_RKIND*exp(-0.51_RKIND/t3))
+        HDLV = (6.7e-19_RKIND*exp(-5.86_RKIND/t3) + 1.6e-18_RKIND 
+     &       * exp(-11.7_RKIND/t3))
         gphdl(i)  = (HDLR + HDLV) / coolunit
 c
 c     e part 3) - Low density rates from Glover & Abel (2008)
@@ -784,17 +795,17 @@ c
 c  Excitation by HI
 c
       tm  = max(ttt, 10._RKIND)
-      tm  = min(tm, 1.d4)
-      lt3 = log10(tm / 1.d3)  
+      tm  = min(tm, 1.e4_RKIND)
+      lt3 = log10(tm / 1.e3_RKIND)  
 
-      if (tm .lt. 1e2) then
+      if (tm .lt. 1.e2_RKIND) then
         gaHIa(i) = 10._RKIND**(-16.818342_RKIND
      &         + 37.383713_RKIND * lt3
      &         + 58.145166_RKIND * lt3**2
      &         + 48.656103_RKIND * lt3**3
      &         + 20.159831_RKIND * lt3**4
      &         + 3.847961_RKIND * lt3**5) / coolunit
-      elseif (tm .lt. 1e3) then
+      elseif (tm .lt. 1.e3_RKIND) then
         gaHIa(i) = 10._RKIND**(-24.311209_RKIND
      &         + 3.5692468_RKIND * lt3
      &         - 11.33286_RKIND * lt3**2
@@ -839,7 +850,7 @@ c
 c
 c Excitation by electrons
 c
-      if (tm .lt. 200) then
+      if (tm .lt. 200._RKIND) then
         gaela(i) = 10._RKIND**(-34.286155_RKIND
      &          - 48.537163_RKIND  * lt3
      &          - 77.121176_RKIND  * lt3**2
@@ -864,17 +875,20 @@ c
       hdltea(i) = -35.6998_RKIND + 15.35716_RKIND*dlog10(ttt) -
      &            5.58513_RKIND   * (dlog10(ttt))**2 +
      &            0.8561149_RKIND * (dlog10(ttt))**3 - 
-     &            1.75538d-2  * (dlog10(ttt))**4
+     &            1.75538e-2_RKIND  * (dlog10(ttt))**4
       hdltea(i) = (10._RKIND**min(hdltea(i), 0._RKIND)) / coolunit
 c      hdlte=10**lhdlte/den
 c
 c Galli and Palla 1998 low density limit (erg cm3 /s)
 c  uses HD-He collisional data, so reduced by 1.27
 c
-      hdlowa(i) = ((3._RKIND * (4.4d-12 + 3.6d-13*ttt**0.77_RKIND) *
-     &            dexp(-128._RKIND/ttt) * 128._RKIND +
-     &            (5._RKIND/3._RKIND) * (4.1d-12+2.1e-13*ttt**0.92_RKIND) *
-     &            dexp(-255._RKIND/ttt) * 255._RKIND) * kb/1.27_RKIND ) / coolunit
+      hdlowa(i) = ((3._RKIND * (4.4e-12_RKIND 
+     &     + 3.6e-13_RKIND*ttt**0.77_RKIND) *
+     &     dexp(-128._RKIND/ttt) * 128._RKIND +
+     &     (5._RKIND/3._RKIND) * (4.1e-12_RKIND +
+     &     2.1e-13_RKIND*ttt**0.92_RKIND) *
+     &     dexp(-255._RKIND/ttt) * 255._RKIND) * kb/1.27_RKIND ) 
+     &     / coolunit
 c      hdcool=hdlte/(1._RKIND+hdlte/hdlow)
 c
 c     g) CIE cooling as discussed in Ripamonti & Abel (2003)
@@ -901,12 +915,12 @@ c
 c
 c     h) Compton cooling (Peebles 1971)
 c
-      compa     = 5.65d-36 / coolunit
+      compa     = 5.65e-36_RKIND / coolunit
 c
 c     i) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
 c        with epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
 c
-      gammaha   = 8.5d-26 / coolunit
+      gammaha   = 8.5e-26_RKIND / coolunit
 c
 c -------------------------------------------------
 c  3) External radiative processes
@@ -936,7 +950,7 @@ c       24) HI photo-ionization cross-section
 c
         if (nu .gt. e24) then
            dum = sqrt(nu/e24-1._RKIND)
-           sigma24(n) = 6.3d-18 * (e24/nu)**4
+           sigma24(n) = 6.3e-18_RKIND * (e24/nu)**4
      &               *  exp(4._RKIND-4._RKIND*atan(dum)/dum)
      &               / (1._RKIND-exp(-2._RKIND*pi/dum))
         else
@@ -946,8 +960,8 @@ c
 c       25) HeII photo-ionization cross-section
 c
         if (nu .gt. e25) then
-           dum = sqrt(nu/e25-1)
-           sigma25(n) = 1.58d-18 * (e25/nu)**4
+           dum = sqrt(nu/e25-1._RKIND)
+           sigma25(n) = 1.58e-18_RKIND * (e25/nu)**4
      &               * exp(4._RKIND-4._RKIND*atan(dum)/dum)
      &               / (1._RKIND-exp(-2._RKIND*pi/dum))
         else
@@ -957,14 +971,14 @@ c
 c       26) HeI photo-ionization cross-section
 c
         if (nu .gt. e26) then
-c           sigma26(n) = 7.42d-18*(1.66*(nu/e26)**(-2.05)
+c           sigma26(n) = 7.42e-18_RKIND*(1.66*(nu/e26)**(-2.05)
 c     &                          - 0.66*(nu/e26)**(-3.05))
 c
 c            Now From Verland, et al (1996)
 c
            x = nu/13.61_RKIND - 0.4434_RKIND
            y = sqrt(x**2 + 2.136_RKIND**2)
-           sigma26(n) = 9.492d-16*((x-1)**2 + 2.039_RKIND**2) *
+           sigma26(n) = 9.492e-16_RKIND*((x-1)**2 + 2.039_RKIND**2) *
      &                  y**(0.5_RKIND*3.188_RKIND-5.5_RKIND) *
      &                  (1._RKIND + sqrt(y/1.469_RKIND))**(-3.188_RKIND)        
         else
@@ -974,7 +988,7 @@ c
 c       27) HM    + p   -> HI    + e
 c
         if (nu .gt. e27) then
-          sigma27(n) = 2.11d-16*(nu-e27)**1.5_RKIND/nu**3
+          sigma27(n) = 2.11e-16_RKIND*(nu-e27)**1.5_RKIND/nu**3
         else
           sigma27(n) = 0._RKIND
         endif
@@ -982,11 +996,11 @@ c
 c       28) H2II  + p   -> HI    + HII
 c
         if (nu .gt. e28a .and. nu .le. e28b) then
-          sigma28(n) = 10._RKIND**(-40.97_RKIND+6.03_RKIND*nu-0.504_RKIND*nu**2
-     &          +1.387d-2*nu**3)
+          sigma28(n) = 10._RKIND**(-40.97_RKIND+6.03_RKIND*nu
+     &          -0.504_RKIND*nu**2+1.387e-2_RKIND*nu**3)
         elseif (nu .gt. e28b .and. nu .lt. e28c) then
-          sigma28(n) = 10._RKIND**(-30.26_RKIND+2.79_RKIND*nu-0.184_RKIND*nu**2
-     &          +3.535d-3*nu**3)
+           sigma28(n) = 10._RKIND**(-30.26_RKIND+2.79_RKIND*nu
+     &          -0.184_RKIND*nu**2+3.535e-3_RKIND*nu**3)
         else
           sigma28(n) = 0._RKIND
         endif
@@ -994,11 +1008,11 @@ c
 c       29) H2I   + p   -> H2II  + e
 c
         if (nu .gt. e29a .and. nu .le. e29b) then
-          sigma29(n) = 6.2d-18*nu - 9.4d-17
+          sigma29(n) = 6.2e-18_RKIND*nu - 9.4e-17_RKIND
         elseif (nu .gt. e29b .and. nu .le. e29c) then
-          sigma29(n) = 1.4d-18*nu - 1.48d-17
+          sigma29(n) = 1.4e-18_RKIND*nu - 1.48e-17_RKIND
         elseif (nu .gt. e29c) then
-          sigma29(n) = 2.5d-14*nu**(-2.71_RKIND)
+          sigma29(n) = 2.5e-14_RKIND*nu**(-2.71_RKIND)
         else
           sigma29(n) = 0._RKIND
         endif
@@ -1006,8 +1020,8 @@ c
 c       30) H2II  + p   -> 2HII  + e
 c
         if (nu .ge. e30a .and. nu .lt. e30b) then
-          sigma30(n) = 10._RKIND**(-16.926_RKIND-4.528d-2*nu+2.238d-4*nu**2
-     &                      +4.245d-7*nu**3)
+           sigma30(n) = 10._RKIND**(-16.926_RKIND-4.528e-2_RKIND*nu
+     &          +2.238e-4_RKIND*nu**2+4.245e-7_RKIND*nu**3)
         else
           sigma30(n) = 0._RKIND
         endif
@@ -1020,7 +1034,7 @@ C	 BUG FIX: (n) subscripts below were (i)
 C	 reported by Patrick McDonald, modified in revision 2310
 
         if (nu .ge. e28b .and. nu .lt. e24) THEN
-           sigma31(n) = 3.71d-18
+           sigma31(n) = 3.71e-18_RKIND
         else
            sigma31(n) = 0._RKIND
         endif
@@ -1042,7 +1056,8 @@ c         (f3 is the amplitude of flux at the HI ionization edge,
 c          the min is to prevent under-runs).
 c
            fext(n) = f3*(nu/12.86_RKIND)**(-1._RKIND)*exp(-1._RKIND*
-     &       min(1.0d22*(sigma24(n) + 0.08_RKIND*sigma26(n)), 100._RKIND))
+     &       min(1.e22_RKIND*(sigma24(n) + 0.08_RKIND*sigma26(n)), 
+     &           100._RKIND))
         else
 c
 c          otherwise) no radiation field

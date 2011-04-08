@@ -78,7 +78,7 @@ c
             do j = 1, dim2
                do i = 1, dim1
                   tempbuffer(i*2-1, j, k) = buffer(i, j, k)
-                  tempbuffer(i*2  , j, k) = 0.0
+                  tempbuffer(i*2  , j, k) = 0._RKIND
                enddo
             enddo
          enddo

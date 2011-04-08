@@ -105,12 +105,12 @@
 
 #ifdef CONFIG_BFLOAT_4
       R_PREC tolerance
-      parameter (tolerance = 1.0e-05)
+      parameter (tolerance = 1.e-5_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
       R_PREC tolerance
-      parameter (tolerance = 1.0d-10)
+      parameter (tolerance = 1.e-10_RKIND)
 #endif
 
       double precision mh
@@ -259,13 +259,13 @@
 !            one even for H2 since p2d is calculated with this gamma).
 
              if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
-     &              edot(i) = tiny*1.0d-3
+     &              edot(i) = tiny*1.e-3_RKIND
 
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 
              energy = max(p2d(i)/(gamma-1._RKIND), tiny)
 
-c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1.0), 
+c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1._RKIND), 
 c    &                    tiny)
 c            if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
 c    &              0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
@@ -299,10 +299,11 @@ c            endif
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
-             if (ge(i,j,k) .le. 0.0 .and. idual .eq. 1)
+             if (ge(i,j,k) .le. 0._RKIND .and. idual .eq. 1)
      &         write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
 
-             if (e(i,j,k) .le. 0.0 .or. e(i,j,k) .ne. e(i+ih2co-1,j,k))
+             if (e(i,j,k) .le. 0._RKIND .or. e(i,j,k) 
+     &            .ne. e(i+ih2co-1,j,k))
      &         write(6,*) 'mc:e',ge(i,j,k),energy,d(i,j,k),e(i,j,k),
      &                        iter, edot(i), tgas(i)
 
@@ -334,14 +335,14 @@ c            endif
      &           'multi_cool_b:',ge(i,j,k),i,j,k,iter,tgas(i),e(i,j,k)
 
              if (idual .eq. 1 .and.
-     &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0.0)
+     &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0._RKIND)
      &         write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
-             if (((dtit(i)/dt .lt. 1.0d-2) .and. 
+             if (((dtit(i)/dt .lt. 1.e-2_RKIND) .and. 
      &            (iter .gt. 1000) .and.
-     &            (abs((dt-ttot(i))/dt) .gt. 1.0d-3)) .or. 
+     &            (abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND)) .or. 
      &            (iter .gt. 1800)) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!               call open_mpi_error_file( 'F3', 3, 'unknown' )
@@ -374,7 +375,7 @@ c     &                      0.5*ge(i,j,k))
 c            if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 c     &           edot(i)*dtit(i))/d(i,j,k)
 
-                if (ge(i,j,k) .le. 0.0) then
+                if (ge(i,j,k) .le. 0._RKIND) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                   call open_mpi_error_file( 'F3', 3, 'unknown' )
                    write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),

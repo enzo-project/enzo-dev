@@ -102,7 +102,7 @@ c
 c     FIRST, DEFINE SOME CONSTANTS
 c
       PI        = pi_val
-      EV2HZ     = 2.415E14       ! from eV to Hz
+      EV2HZ     = 2.415e14_RKIND       ! from eV to Hz
 c
 c     Set the timestep in seconds
 c
@@ -112,7 +112,7 @@ C     FREE-FREE EMISSION COEFFICIENT IN UNITS OF
 C     1E-21 erg/cm^3/sec/hz/sr * cm/sec
 C     SEE SPITZER "Physical Processes in the Interstellar Medium" PAGE 57
 C
-      UFF       = 1.3_RKIND*5.44d-18*c_light
+      UFF       = 1.3_RKIND*5.44e-18_RKIND*c_light
 C
 C     FREE-BOUND EMISSION COEFFICIENT IN UNITS OF
 C     1E-21 erg/cm^3/sec/hz/sr * cm/sec
@@ -123,16 +123,16 @@ C     COEFICIENT FOR THE MASS BURNING STARS PRODUCING UV
 C     RADIATION RATE IN UNITS 1.0E-21 erg/cm^2/sec/sr
 C
       ZR = 1._RKIND/ANEW - 1._RKIND
-      COEFUV1= 1.88d-8*OMEGA0*H**2*(1._RKIND+ZR)**3
-     .                *2.7d31*EUVSTAR/4._RKIND/PI
+      COEFUV1= 1.88e-8_RKIND*OMEGA0*H**2*(1._RKIND+ZR)**3
+     .                *2.7e31_RKIND*EUVSTAR/4._RKIND/PI
 C
       IF(ZR.LE.2._RKIND) THEN
-      COEFUV2= 1.88d-8*OMEGA0*H**2*(1._RKIND+ZR)**3
-     .                *2.7d31*EUVQUASAR/4._RKIND/PI
+         COEFUV2= 1.88e-8_RKIND*OMEGA0*H**2*(1._RKIND+ZR)**3
+     .        *2.7e31_RKIND*EUVQUASAR/4._RKIND/PI
       ELSE
-      COEFUV2= 1.88d-8*OMEGA0*H**2*(1._RKIND+ZR)**3
-     .                *2.7d31*EUVQUASAR/4._RKIND/PI
-     .                *EXP(-(ZR-2._RKIND)**2)
+         COEFUV2= 1.88e-8_RKIND*OMEGA0*H**2*(1._RKIND+ZR)**3
+     .        *2.7e31_RKIND*EUVQUASAR/4._RKIND/PI
+     .        *EXP(-(ZR-2._RKIND)**2)
 C     NOTE THAT /hz IS HANDLED IN coef.src
       ENDIF
 c
@@ -157,9 +157,9 @@ c
 c           HI recombination emissivity
 c
             IF(FNU.GE.13.6_RKIND) THEN
-              SUB2=EXP(-MIN(50._RKIND,1.16d4*(FNU-13.6_RKIND)/TEMP))
-     .            /TEMP/SQRT(TEMP)
-     .            *SQRT((FNU-13.6_RKIND)*ev2erg)
+              SUB2 = EXP(-MIN(50._RKIND,
+     .              1.16e4_RKIND*(FNU-13.6_RKIND)/TEMP))/TEMP/SQRT(TEMP)
+     .              * SQRT((FNU-13.6_RKIND)*ev2erg)
             ELSE 
               SUB2=0._RKIND
             ENDIF
@@ -167,9 +167,9 @@ c
 c           HeI recombination emissivity
 c
             IF(FNU.GE.24.6_RKIND) THEN
-              SUB3=EXP(-MIN(50._RKIND,1.16d4*(FNU-24.6_RKIND)/TEMP))
-     .            /TEMP/SQRT(TEMP)
-     .            *SQRT((FNU-24.6_RKIND)*ev2erg)
+               SUB3 = EXP(-MIN(50._RKIND,
+     .              1.16e4_RKIND*(FNU-24.6_RKIND)/TEMP))/TEMP/SQRT(TEMP)
+     .              * SQRT((FNU-24.6_RKIND)*ev2erg)
             ELSE 
               SUB3=0._RKIND
             ENDIF
@@ -177,9 +177,9 @@ c
 c           HeII recombination emissivity
 c
             IF(FNU.GE.54.4_RKIND) THEN
-              SUB4=EXP(-MIN(50._RKIND,1.16d4*(FNU-54.4_RKIND)/TEMP))
-     .            /TEMP/SQRT(TEMP)
-     .            *SQRT((FNU-54.4_RKIND)*ev2erg)
+               SUB4 = EXP(-MIN(50._RKIND,
+     .              1.16e4_RKIND*(FNU-54.4_RKIND)/TEMP))/TEMP/SQRT(TEMP)
+     .              * SQRT((FNU-54.4_RKIND)*ev2erg)
             ELSE 
               SUB4=0._RKIND
             ENDIF
@@ -190,26 +190,26 @@ c
 c
 c                          1) free-free
 c
-     .                          + UFF*DENSQ(N22)/SQRT(TEMP)
-     .                           *EXP(-MIN(50._RKIND,FNU*1.16d4/TEMP))
+     .           + UFF*DENSQ(N22)/SQRT(TEMP)
+     .           *EXP(-MIN(50._RKIND,FNU*1.16e4_RKIND/TEMP))
 c
 c                          2) free-bound (HI, HeI, HeII)
 c
-     .                          + UFB*DSH2(N22)*SUB2
-     .                           *FNU*ev2erg
-     .                           *6.63d-11/SQRT(TEMP) 
-     .                            /(TEMP/1.d3)**0.2_RKIND
-     .                            /(1._RKIND+(TEMP/1.d6)**0.7_RKIND)
+     .           + UFB*DSH2(N22)*SUB2
+     .           *FNU*ev2erg
+     .           *6.63e-11_RKIND/SQRT(TEMP) 
+     .           /(TEMP/1.e3_RKIND)**0.2_RKIND
+     .           /(1._RKIND+(TEMP/1.e6_RKIND)**0.7_RKIND)
 C
-     .                          + UFB*DSHE2(N22)*SUB3
-     .                           *FNU*ev2erg
-     .                            *1.5d-10/TEMP**0.6353_RKIND
+     .           + UFB*DSHE2(N22)*SUB3
+     .           *FNU*ev2erg
+     .           *1.5e-10_RKIND/TEMP**0.6353_RKIND
 C
-     .                          + UFB*DSHE3(N22)*SUB4
-     .                           *FNU*ev2erg
-     .                            *2.65d-10/SQRT(TEMP)
-     .                            /(TEMP/1.d3)**0.2_RKIND
-     .                            /(1._RKIND+(TEMP/1.d6)**0.7_RKIND)
+     .           + UFB*DSHE3(N22)*SUB4
+     .           *FNU*ev2erg
+     .           *2.65e-10_RKIND/SQRT(TEMP)
+     .           /(TEMP/1.e3_RKIND)**0.2_RKIND
+     .           /(1._RKIND+(TEMP/1.e6_RKIND)**0.7_RKIND)
 C
          ENDDO
          JNU(N11) = MAX(0._RKIND,JNU(N11))

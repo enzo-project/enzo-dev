@@ -48,7 +48,7 @@ c
       enddo
 
       do i = 1, idim
-         csi = 1.0/cs(i)
+         csi = 1._RKIND/cs(i)
          csq = cs(i)**2
          csqi = 1._RKIND/csq
 c
@@ -59,7 +59,7 @@ c
          lem(i,1,2) = 1._RKIND
          lem(i,5,2) = -csqi
          lem(i,3,3) = 1._RKIND
-         lem(i,4,4) = 1.0
+         lem(i,4,4) = 1._RKIND
          lem(i,2,5) = -lem(i,2,1)
          lem(i,5,5) = lem(i,5,1)
 c

@@ -73,10 +73,10 @@ c
             do j=1, ddim2
                do i=1, ddim1
                   dest1(i,j,k) = fact1*(
-     &                  - 1._RKIND * source(i+start1+2,j+start2,k+start3) 
-     &			+ 8._RKIND * source(i+start1+1,j+start2,k+start3)
-     &			- 8._RKIND * source(i+start1-1,j+start2,k+start3)
-     &                  + 1._RKIND * source(i+start1-2,j+start2,k+start3))
+     &                 - 1._RKIND*source(i+start1+2,j+start2,k+start3) 
+     &                 + 8._RKIND*source(i+start1+1,j+start2,k+start3)
+     &                 - 8._RKIND*source(i+start1-1,j+start2,k+start3)
+     &                 + 1._RKIND*source(i+start1-2,j+start2,k+start3))
                enddo
             enddo
          enddo
@@ -89,18 +89,18 @@ c
             do j=1, ddim2
                do i=1, ddim1
                
-	              dest1(i,j,k) = fact1*(
-     &                  - 1._RKIND * source(i+start1+2,j+start2,k+start3) 
-     &			+ 8._RKIND * source(i+start1+1,j+start2,k+start3)
-     &			- 8._RKIND * source(i+start1-1,j+start2,k+start3)
-     &                  + 1._RKIND * source(i+start1-2,j+start2,k+start3))
+                  dest1(i,j,k) = fact1*(
+     &                 - 1._RKIND*source(i+start1+2,j+start2,k+start3) 
+     &                 + 8._RKIND*source(i+start1+1,j+start2,k+start3)
+     &                 - 8._RKIND*source(i+start1-1,j+start2,k+start3)
+     &                 + 1._RKIND*source(i+start1-2,j+start2,k+start3))
      
      
-     		      dest2(i,j,k) = fact1*(
-     &			- 1._RKIND * source(i+start1,j+start2+2,k+start3)
-     &			+ 8._RKIND * source(i+start1,j+start2+1,k+start3)
-     &		       	- 8._RKIND * source(i+start1,j+start2-1,k+start3)
-     &			+ 1._RKIND * source(i+start1,j+start2-2,k+start3))
+                  dest2(i,j,k) = fact1*(
+     &                 - 1._RKIND*source(i+start1,j+start2+2,k+start3)
+     &                 + 8._RKIND*source(i+start1,j+start2+1,k+start3)
+     &                 - 8._RKIND*source(i+start1,j+start2-1,k+start3)
+     &                 + 1._RKIND*source(i+start1,j+start2-2,k+start3))
      			  		
                enddo
             enddo
@@ -115,24 +115,24 @@ c
                do i=1, ddim1
                          
                   dest1(i,j,k) = fact1*(
-     &                  - 1._RKIND * source(i+start1+2,j+start2,k+start3) 
-     &			+ 8._RKIND * source(i+start1+1,j+start2,k+start3)
-     &			- 8._RKIND * source(i+start1-1,j+start2,k+start3)
-     &                  + 1._RKIND * source(i+start1-2,j+start2,k+start3))
+     &                 - 1._RKIND*source(i+start1+2,j+start2,k+start3) 
+     &                 + 8._RKIND*source(i+start1+1,j+start2,k+start3)
+     &                 - 8._RKIND*source(i+start1-1,j+start2,k+start3)
+     &                 + 1._RKIND*source(i+start1-2,j+start2,k+start3))
      
      
-     		  dest2(i,j,k) = fact1*(
-     &			- 1._RKIND * source(i+start1,j+start2+2,k+start3)
-     &			+ 8._RKIND * source(i+start1,j+start2+1,k+start3)
-     &			- 8._RKIND * source(i+start1,j+start2-1,k+start3)
-     &			+ 1._RKIND * source(i+start1,j+start2-2,k+start3))
+                  dest2(i,j,k) = fact1*(
+     &			- 1._RKIND*source(i+start1,j+start2+2,k+start3)
+     &			+ 8._RKIND*source(i+start1,j+start2+1,k+start3)
+     &			- 8._RKIND*source(i+start1,j+start2-1,k+start3)
+     &			+ 1._RKIND*source(i+start1,j+start2-2,k+start3))
      
      
-     		  dest3(i,j,k) = fact1*(
-     &			- 1._RKIND * source(i+start1,j+start2,k+start3+2) 
-     &                  + 8._RKIND * source(i+start1,j+start2,k+start3+1)
-     &			- 8._RKIND * source(i+start1,j+start2,k+start3-1)
-     &			+ 1._RKIND * source(i+start1,j+start2,k+start3-2))
+                  dest3(i,j,k) = fact1*(
+     &			- 1._RKIND*source(i+start1,j+start2,k+start3+2) 
+     &                  + 8._RKIND*source(i+start1,j+start2,k+start3+1)
+     &			- 8._RKIND*source(i+start1,j+start2,k+start3-1)
+     &			+ 1._RKIND*source(i+start1,j+start2,k+start3-2))
      
                enddo
             enddo
@@ -163,12 +163,12 @@ c
             do j=1, ddim2
                do i=1, ddim1
                   dest1(i,j,k) = fact1*(
-     &                    1._RKIND * source(i+start1+3,j+start2,k+start3) 
-     &			 -9._RKIND * source(i+start1+2,j+start2,k+start3)
-     &			+45._RKIND * source(i+start1+1,j+start2,k+start3)
-     &			-45._RKIND * source(i+start1-1,j+start2,k+start3)
-     &			 +9._RKIND * source(i+start1-2,j+start2,k+start3)
-     &                   -1._RKIND * source(i+start1-3,j+start2,k+start3))
+     &                  1._RKIND * source(i+start1+3,j+start2,k+start3) 
+     &                 -9._RKIND * source(i+start1+2,j+start2,k+start3)
+     &                +45._RKIND * source(i+start1+1,j+start2,k+start3)
+     &                -45._RKIND * source(i+start1-1,j+start2,k+start3)
+     &                 +9._RKIND * source(i+start1-2,j+start2,k+start3)
+     &                 -1._RKIND * source(i+start1-3,j+start2,k+start3))
                enddo
             enddo
          enddo
@@ -181,22 +181,22 @@ c
             do j=1, ddim2
                do i=1, ddim1
                
-	              dest1(i,j,k) = fact1*(
-     &                    1._RKIND * source(i+start1+3,j+start2,k+start3) 
-     &			 -9._RKIND * source(i+start1+2,j+start2,k+start3)
-     &			+45._RKIND * source(i+start1+1,j+start2,k+start3)
-     &			-45._RKIND * source(i+start1-1,j+start2,k+start3)
-     &			 +9._RKIND * source(i+start1-2,j+start2,k+start3)     
-     &                   -1._RKIND * source(i+start1-3,j+start2,k+start3))
+                  dest1(i,j,k) = fact1*(
+     &                  1._RKIND * source(i+start1+3,j+start2,k+start3) 
+     &                 -9._RKIND * source(i+start1+2,j+start2,k+start3)
+     &                +45._RKIND * source(i+start1+1,j+start2,k+start3)
+     &                -45._RKIND * source(i+start1-1,j+start2,k+start3)
+     &                 +9._RKIND * source(i+start1-2,j+start2,k+start3)     
+     &                 -1._RKIND * source(i+start1-3,j+start2,k+start3))
      
      
-     		      dest2(i,j,k) = fact1*(
-     &	  		  1._RKIND * source(i+start1,j+start2+3,k+start3)
-     &			 -9._RKIND * source(i+start1,j+start2+2,k+start3)
-     &			+45._RKIND * source(i+start1,j+start2+1,k+start3)
-     &		 	-45._RKIND * source(i+start1,j+start2-1,k+start3)
-     &		 	 +9._RKIND * source(i+start1,j+start2-2,k+start3)
-     &			 -1._RKIND * source(i+start1,j+start2-3,k+start3))
+                  dest2(i,j,k) = fact1*(
+     &                  1._RKIND * source(i+start1,j+start2+3,k+start3)
+     &                 -9._RKIND * source(i+start1,j+start2+2,k+start3)
+     &                +45._RKIND * source(i+start1,j+start2+1,k+start3)
+     &                -45._RKIND * source(i+start1,j+start2-1,k+start3)
+     &                 +9._RKIND * source(i+start1,j+start2-2,k+start3)
+     &                 -1._RKIND * source(i+start1,j+start2-3,k+start3))
      			  		
                enddo
             enddo
@@ -210,31 +210,31 @@ c
             do j=1, ddim2
                do i=1, ddim1
                          
-			dest1(i,j,k) = fact1*(
-     &                    1._RKIND * source(i+start1+3,j+start2,k+start3) 
-     &			 -9._RKIND * source(i+start1+2,j+start2,k+start3)
-     &			+45._RKIND * source(i+start1+1,j+start2,k+start3)
-     &			-45._RKIND * source(i+start1-1,j+start2,k+start3)
-     &			 +9._RKIND * source(i+start1-2,j+start2,k+start3)
-     &                   -1._RKIND * source(i+start1-3,j+start2,k+start3))
+                  dest1(i,j,k) = fact1*(
+     &                  1._RKIND * source(i+start1+3,j+start2,k+start3) 
+     &                 -9._RKIND * source(i+start1+2,j+start2,k+start3)
+     &                +45._RKIND * source(i+start1+1,j+start2,k+start3)
+     &                -45._RKIND * source(i+start1-1,j+start2,k+start3)
+     &                 +9._RKIND * source(i+start1-2,j+start2,k+start3)
+     &                 -1._RKIND * source(i+start1-3,j+start2,k+start3))
      
      
-     			dest2(i,j,k) = fact1*(
-     &			  1._RKIND * source(i+start1,j+start2+3,k+start3)
-     &			 -9._RKIND * source(i+start1,j+start2+2,k+start3)
-     &			+45._RKIND * source(i+start1,j+start2+1,k+start3)
-     &			-45._RKIND * source(i+start1,j+start2-1,k+start3)
-     &			 +9._RKIND * source(i+start1,j+start2-2,k+start3)
-     &			 -1._RKIND * source(i+start1,j+start2-3,k+start3))
+                  dest2(i,j,k) = fact1*(
+     &                  1._RKIND * source(i+start1,j+start2+3,k+start3)
+     &                 -9._RKIND * source(i+start1,j+start2+2,k+start3)
+     &                +45._RKIND * source(i+start1,j+start2+1,k+start3)
+     &                -45._RKIND * source(i+start1,j+start2-1,k+start3)
+     &                 +9._RKIND * source(i+start1,j+start2-2,k+start3)
+     &                 -1._RKIND * source(i+start1,j+start2-3,k+start3))
      
      
-                        dest3(i,j,k) = fact1*(
-     &			  1._RKIND * source(i+start1,j+start2,k+start3+3) 
-     &                   -9._RKIND * source(i+start1,j+start2,k+start3+2)
-     &                  +45._RKIND * source(i+start1,j+start2,k+start3+1)
-     &			-45._RKIND * source(i+start1,j+start2,k+start3-1)
-     &			 +9._RKIND * source(i+start1,j+start2,k+start3-2)
-     &			 -1._RKIND * source(i+start1,j+start2,k+start3-3))
+                  dest3(i,j,k) = fact1*(
+     &                  1._RKIND * source(i+start1,j+start2,k+start3+3) 
+     &                 -9._RKIND * source(i+start1,j+start2,k+start3+2)
+     &                +45._RKIND * source(i+start1,j+start2,k+start3+1)
+     &                -45._RKIND * source(i+start1,j+start2,k+start3-1)
+     &                 +9._RKIND * source(i+start1,j+start2,k+start3-2)
+     &                 -1._RKIND * source(i+start1,j+start2,k+start3-3))
      
                enddo
             enddo

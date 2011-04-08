@@ -101,7 +101,7 @@ c
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
       double precision msolar, mh
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass, mh=mass_h)
 c
       ii = np
@@ -125,7 +125,7 @@ c
 c
 c              1) finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 c
 c              2) density greater than threshold
 c
@@ -145,7 +145,7 @@ c
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
 c               write(6,*) 'b:', d(i,j,k), div, temp(i,j,k), h2d(i,j,k), h2crit
-               if (div .ge. 0.0) goto 10
+               if (div .ge. 0._RKIND) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
@@ -159,7 +159,7 @@ c               write(6,*) 'b:', i,j,k,d(i,j,k), div, temp(i,j,k),
 c     $              tdyn, cooltime(i,j,k), h2d(i,j,k), h2crit
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1d4) goto 10
+     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -171,8 +171,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k) * m1
 c               isosndsp2 = sndspdC * temp(i,j,k)
-c               jeanmass = pi/(6.0*sqrt(d(i,j,k)*dble(d1))) *
-c     &                    dble(pi * isosndsp2 / G)**1.5 / msolar
+c               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+c     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
 c
 c               if (bmass .lt. jeanmass) 
 c     &            write(40,*) '2',bmass,jeanmass
@@ -201,14 +201,14 @@ c
                if (iradtrans .eq. 0) then
 c                  type(ii) = -ctype
                   mp(ii)   = 0   !starmass / m1
-                  tdp(ii) = 1.5_RKIND*lifetime*3.15d7/t1
+                  tdp(ii) = 1.5_RKIND*lifetime*3.15e7_RKIND/t1
                else
 c              because it's possible that we'll be using an IMF, adjust
 c              these later
                   mp(ii)   = min(0.5_RKIND * bmass, starmass/m1)
-                  tdp(ii) = lifetime*3.15d7/t1
+                  tdp(ii) = lifetime*3.15e7_RKIND/t1
 c                  mp(ii)   = min(0.5_RKIND * bmass, starmass/m1)
-c                  tdp(ii) = lifetime*3.15d7/t1
+c                  tdp(ii) = lifetime*3.15e7_RKIND/t1
                endif
 
                type(ii) = -ctype
@@ -432,7 +432,8 @@ c
       R_PREC energy, lum, sn_nrg, m_eject, yield, dratio, m1
       R_PREC lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
       double precision msolar
-      parameter (lower_pisn = 140.0, upper_pisn = 260.0, lsun = 2.d33)
+      parameter (lower_pisn = 140._RKIND, upper_pisn = 260._RKIND, 
+     $           lsun = 2.e33_RKIND)
       parameter (msolar = SolarMass)
       logical death, pisn
 c
@@ -463,7 +464,7 @@ c
             if (t - tcp(n) .gt. life(n)) goto 10
             if (t + dt - tcp(n) .gt. life(n)) then
                energy = (life(n) - (t - tcp(n))) * t1 * lum * lsun + 
-     $              sn_nrg * 1.d51
+     $              sn_nrg * 1.e51_RKIND
                death = .true.
             else
                energy = dt * t1 * lum * lsun
@@ -510,7 +511,7 @@ c     STELLAR ENDPOINT: BH FORMATION
 c
             if (death .and. .not. pisn) then
                m_eject = 0._RKIND 
-               yield = 0.
+               yield = 0._RKIND
                type(n) = 2         ! BH formation
                life(n) = 0._RKIND      ! no dynamical time
             endif

@@ -101,7 +101,7 @@ c
       R_PREC dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
       R_PREC min_color
-      parameter(min_color=1d-05*tiny)
+      parameter(min_color=1e-5_RKIND*tiny)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -160,7 +160,7 @@ c            write(6,*) dueb(i),dueb(i+1),db(i),db(i+1)
 c            write(6,*) eb(i),eb(i+1),ub(i),ub(i+1)
 c          endif
           eold = eslice(i,j)
-          eslice(i,j) = max(0.1*eslice(i,j),
+          eslice(i,j) = max(0.1_RKIND*eslice(i,j),
      &                  (eslice(i,j)*dslice(i,j) +
      &         (ef(i,j) - ef(i+1,j))) * dnuinv(i))
        enddo
@@ -186,13 +186,13 @@ c            for the source term in the gas energy equation.
 c
        if (idual .eq. 1) then
           do i=i1, i2
-             if (geslice(i,j) .lt. 0.0) 
+             if (geslice(i,j) .lt. 0._RKIND) 
      $            write(6,*) 'euler: geslice<0:', i,j,geslice(i,j)
              geslice(i,j) = max((geslice(i,j)*dslice(i,j) +
      $            (gef(i,j) - gef(i+1,j))/dx(i) + ges(i,j)) * dnuinv(i)
      $            ,0.5_RKIND*geslice(i,j))
 c             if (geslice(i,j) .lt. tiny) geslice(i,j) = tiny
-             if (geslice(i,j) .lt. 0.0) then
+             if (geslice(i,j) .lt. 0._RKIND) then
                 write(6,*) i,j,dslice(i,j),dnu(i),pcent(i),eslice(i,j),
      &               gef(i,j), gef(i+1,j), ges(i,j),
      &               geslice(i,j)*dslice(i,j),
@@ -221,14 +221,14 @@ c
              dddx(i) =  dslice(i+1,j) -  dslice(i-1,j)
 c
              dddx(i) = 2._RKIND*( dslice(i,j) - max(dslice(i,j) -
-     &                  0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i-1,j))))
+     &            0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i-1,j))))
              dddx(i) = 2._RKIND*(-dslice(i,j) + max(dslice(i,j) +
-     &                  0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i+1,j))))
+     &            0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i+1,j))))
           enddo
 c
           do i=i1, i2
              grslice(i,j) = grslice(i,j) + 
-     &                      0.5_RKIND*dadx(i)*dddx(i)/(12._RKIND*dslice(i,j))
+     &            0.5_RKIND*dadx(i)*dddx(i)/(12._RKIND*dslice(i,j))
           enddo
        endif
 c
@@ -243,13 +243,14 @@ c
 #define GRAVITY_METHOD1
 
 #ifdef GRAVITY_METHOD1 /* (right) */
-             uslice(i,j) = uslice(i,j) + 
-     &            dt*grslice(i,j)*0.5_RKIND*(dslice(i,j)*dnuinv(i)+1._RKIND)
+             uslice(i,j) = uslice(i,j) + dt*grslice(i,j)*0.5_RKIND*
+     &            (dslice(i,j)*dnuinv(i)+1._RKIND)
              eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5_RKIND*
      &            (uslice(i,j) + uold(i)*dslice(i,j)*dnuinv(i))
              if (eslice(i,j) .le. 0) write(6,*) 'eu1',i,j,eslice(i,j),
      &            dslice(i,j),dnu(i),uslice(i,j),grslice(i,j),
-     &            dt*grslice(i,j)*0.5_RKIND*(dslice(i,j)/dnu(i)+1._RKIND),
+     &            dt*grslice(i,j)*0.5_RKIND*
+     &            (dslice(i,j)/dnu(i)+1._RKIND),
      &            dt*grslice(i,j)*0.5_RKIND*
      &            (uslice(i,j) + uold(i)*dslice(i,j)/dnu(i))
              eslice(i,j) = max(eslice(i,j), tiny)

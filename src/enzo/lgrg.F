@@ -135,7 +135,7 @@ c  Compute new Lagrangean grid positions
 c
       do i=i1, i2
          dxnslice(i,j) = dx(i) + dt*(ubar(i+1,j) - ubar(i,j))
-         if (dxnslice(i,j) .le. 0.0) then
+         if (dxnslice(i,j) .le. 0._RKIND) then
             write(6,*) 'lgrg1',i,j,i2,j2,dx(i),dt
             write(6,*) dxnslice(i-1,j),dxnslice(i,j),dxnslice(i+1,j)
             write(6,*) ubar(i-1,j),ubar(i+1,j),ubar(i,j)
@@ -176,9 +176,9 @@ c
             dddx(i) =  dslice(i+1,j) -  dslice(i-1,j)
 c     
             dddx(i) = 2._RKIND*( dslice(i,j) - max(dslice(i,j) -
-     &                  0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i-1,j))))
+     &           0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i-1,j))))
             dddx(i) = 2._RKIND*(-dslice(i,j) + max(dslice(i,j) +
-     &                  0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i+1,j))))
+     &           0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i+1,j))))
          enddo
 c
          do i=i1, i2
@@ -220,7 +220,7 @@ c  Set new density
 c
       do i=i1, i2
          dslice(i,j) = dslice(i,j)*dx(i)/dxnslice(i,j)
-         if (dslice(i,j) .le. 0.0) then
+         if (dslice(i,j) .le. 0._RKIND) then
             write(6,*) 'lgrg',i,j,i2,dslice(i,j),dx(i),dxnslice(i,j)
             write(6,*) ubar(i-1,j),ubar(i+1,j),ubar(i,j)
             write(6,*) dslice(i-1,j),dslice(i,j),dslice(i+1,j)

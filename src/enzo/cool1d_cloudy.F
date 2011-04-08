@@ -188,7 +188,8 @@
 !           Get extra electrons contributed by metals
 
                cl_e_frac(i) = e_frac(i) * 
-     &              (1._RKIND + (2._RKIND * clEleFra * big_Z(i) * h_mass_fr(i))/
+     &              (1._RKIND + (2._RKIND * clEleFra * big_Z(i) 
+     &                * h_mass_fr(i))/
      &              (1._RKIND + h_mass_fr(i)))
 
             endif

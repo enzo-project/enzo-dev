@@ -156,14 +156,22 @@ c           Interpolate from field into sumfield
 c 
     
             sumfield(n) = sumfield(n) +
-     &              field(i1  ,j1  ,k1  )*      dx *      dy *      dz +
-     &              field(i1+1,j1  ,k1  )*(1._RKIND-dx)*      dy *      dz +
-     &              field(i1  ,j1+1,k1  )*      dx *(1._RKIND-dy)*      dz +
-     &              field(i1+1,j1+1,k1  )*(1._RKIND-dx)*(1._RKIND-dy)*      dz +
-     &              field(i1  ,j1  ,k1+1)*      dx *      dy *(1._RKIND-dz)+
-     &              field(i1+1,j1  ,k1+1)*(1._RKIND-dx)*      dy *(1._RKIND-dz)+
-     &              field(i1  ,j1+1,k1+1)*      dx *(1._RKIND-dy)*(1._RKIND-dz)+
-     &              field(i1+1,j1+1,k1+1)*(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
+     &           field(i1  ,j1  ,k1  )
+     &              *      dx *      dy *      dz +
+     &           field(i1+1,j1  ,k1  )
+     &              *(1._RKIND-dx)*      dy *      dz +
+     &           field(i1  ,j1+1,k1  )
+     &              *      dx *(1._RKIND-dy)*      dz +
+     &           field(i1+1,j1+1,k1  )
+     &              *(1._RKIND-dx)*(1._RKIND-dy)*      dz +
+     &           field(i1  ,j1  ,k1+1)
+     &              *      dx *      dy *(1._RKIND-dz)+
+     &           field(i1+1,j1  ,k1+1)
+     &              *(1._RKIND-dx)*      dy *(1._RKIND-dz)+
+     &           field(i1  ,j1+1,k1+1)
+     &              *      dx *(1._RKIND-dy)*(1._RKIND-dz)+
+     &           field(i1+1,j1+1,k1+1)
+     &              *(1._RKIND-dx)*(1._RKIND-dy)*(1._RKIND-dz)
 c
 
          enddo

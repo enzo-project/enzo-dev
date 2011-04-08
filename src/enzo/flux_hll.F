@@ -266,7 +266,7 @@ c     If in the star region (sm<0), add flux from the intermediate waves
 c
 #ifdef UNUSED
       do i = i1,i2+1
-         if (sm(i) .lt. 0.0) then
+         if (sm(i) .lt. 0._RKIND) then
             df(i,j) = df(i,j) + sm(i) * (drs(i,j) - dls(i,j))
             uf(i,j) = uf(i,j) + sm(i) * 
      $           (drs(i,j)*urs(i,j) - dls(i,j)*uls(i,j))
@@ -284,7 +284,7 @@ c
 
       do n = 1, ncolor
          do i = i1,i2+1
-            if (sm(i) .lt. 0.0) then
+            if (sm(i) .lt. 0._RKIND) then
                colf(i,j,n) = colf(i,j,n) + sm(i) *
      $              (colrs(i,j,n) - colls(i,j,n))
             endif
@@ -334,9 +334,9 @@ c
 c     Check here for negative densities and energies
 c
       do i=i1, i2
-         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0 .or.
-     $        eslice(i,j) .lt. 0.0) then
-            if (eslice(i,j) .lt. 0.0) then
+         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0._RKIND .or.
+     $        eslice(i,j) .lt. 0._RKIND) then
+            if (eslice(i,j) .lt. 0._RKIND) then
                write (6,*) 'flux_hllc: eslice < 0: ', i, j
                write (6,*) qc*(ef(i,j)-ef(i+1,j)),
      &              eslice(i,j)*dslice(i,j)
@@ -388,7 +388,7 @@ c
          do i=i1, i2
             if (colslice(i,j,n) +
      $           (colf(i,j,n)-colf(i+1,j,n))/dx(i)
-     $           .lt. 0.0) then
+     $           .lt. 0._RKIND) then
                write(6,*) 'flux_hll: negative color',i,j,n
                write(6,*) 'a', dx(i), colf(i-1,j,n),colf(i,j,n),
      $              colf(i+1,j,n)

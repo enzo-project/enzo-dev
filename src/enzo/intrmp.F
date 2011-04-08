@@ -142,37 +142,37 @@ c
 c     
 c  Monotonize (eqn 1.8)
 c
-         if (dplus*dmnus .gt. 0.0) then
-            dd(i) = min(abs(dd(i)),2._RKIND*abs(dmnus),2._RKIND*abs(dplus))*
-     &              sign(one, dd(i))
+         if (dplus*dmnus .gt. 0._RKIND) then
+            dd(i) = min(abs(dd(i)),2._RKIND*abs(dmnus),
+     &           2._RKIND*abs(dplus))* sign(one, dd(i))
          else
             dd(i) = 0._RKIND
          endif
 c
-         if (pplus*pmnus .gt. 0.0) then
-            dp(i) = min(abs(dp(i)),2._RKIND*abs(pmnus),2._RKIND*abs(pplus))*
-     &              sign(one, dp(i))
+         if (pplus*pmnus .gt. 0._RKIND) then
+            dp(i) = min(abs(dp(i)),2._RKIND*abs(pmnus),
+     &           2._RKIND*abs(pplus))* sign(one, dp(i))
          else
             dp(i) = 0._RKIND
          endif
 c
-         if (uplus*umnus .gt. 0.0) then
-            du(i) = min(abs(du(i)),2._RKIND*abs(umnus),2._RKIND*abs(uplus))*
-     &              sign(one, du(i))
+         if (uplus*umnus .gt. 0._RKIND) then
+            du(i) = min(abs(du(i)),2._RKIND*abs(umnus),
+     &           2._RKIND*abs(uplus))* sign(one, du(i))
          else
             du(i) = 0._RKIND
          endif
 c
-         if (vplus*vmnus .gt. 0.0) then
-            dv(i) = min(abs(dv(i)),2._RKIND*abs(vmnus),2._RKIND*abs(vplus))*
-     &              sign(one, dv(i))
+         if (vplus*vmnus .gt. 0._RKIND) then
+            dv(i) = min(abs(dv(i)),2._RKIND*abs(vmnus),
+     &           2._RKIND*abs(vplus))* sign(one, dv(i))
          else
             dv(i) = 0._RKIND
          endif
 c
-         if (wplus*wmnus .gt. 0.0) then
-            dw(i) = min(abs(dw(i)),2._RKIND*abs(wmnus),2._RKIND*abs(wplus))*
-     &              sign(one, dw(i))
+         if (wplus*wmnus .gt. 0._RKIND) then
+            dw(i) = min(abs(dw(i)),2._RKIND*abs(wmnus),
+     &           2._RKIND*abs(wplus))* sign(one, dw(i))
          else
             dw(i) = 0._RKIND
          endif
@@ -204,9 +204,9 @@ c
       do i=i1-1, i2+1
          eplus = eslice(i+1,j)-eslice(i  ,j)
          emnus = eslice(i  ,j)-eslice(i-1,j)
-         if (eplus*emnus .gt. 0.0) then
-            de(i) = min(abs(de(i)),2._RKIND*abs(eplus),2._RKIND*abs(emnus))*
-     &              sign(one, de(i))
+         if (eplus*emnus .gt. 0._RKIND) then
+            de(i) = min(abs(de(i)),2._RKIND*abs(eplus),
+     &           2._RKIND*abs(emnus))* sign(one, de(i))
          else
             de(i) = 0._RKIND
          endif
@@ -232,7 +232,7 @@ c
          do i=i1-1, i2+1
             geplus = geslice(i+1,j)-geslice(i  ,j)
             gemnus = geslice(i  ,j)-geslice(i-1,j)
-            if (geplus*gemnus .gt. 0.0) then
+            if (geplus*gemnus .gt. 0._RKIND) then
                dge(i) = min(abs(dge(i)),2._RKIND*abs(geplus),
      &                  2._RKIND*abs(gemnus)) * sign(one, dge(i))
             else
@@ -319,15 +319,18 @@ c
             s1 = (d2d(i-1)-d2d(i+1))*(dxb(i-1)**3+dxb(i)**3)
      &           /((dxb(i)+dxb(i-1))*(dslice(i+1,j)-dslice(i-1,j)+
      &           tiny))
-            if (d2d(i+1)*d2d(i-1) .gt. 0.0 .or. qc .le. 0.0) s1 = 0.0
+            if (d2d(i+1)*d2d(i-1) .gt. 0._RKIND .or. qc .le. 0._RKIND) 
+     &           s1 = 0._RKIND
             s2 = max(0._RKIND,min(20._RKIND*(s1-0.05_RKIND), 1._RKIND))
             qa = abs(dslice(i+1,j)-dslice(i-1,j))/
      &           min(dslice(i+1,j),dslice(i-1,j))
             qb = abs(pslice(i+1,j)-pslice(i-1,j))/
      &           min(pslice(i+1,j),pslice(i-1,j))
             if (gamma*0.1_RKIND*qa .lt. qb) s2 = 0._RKIND
-            dl(i) = (1._RKIND-s2)*dl(i) + s2*(dslice(i-1,j)+0.5_RKIND*dd(i-1))
-            dr(i) = (1._RKIND-s2)*dr(i) + s2*(dslice(i+1,j)-0.5_RKIND*dd(i+1))
+            dl(i) = (1._RKIND-s2)*dl(i) + 
+     &           s2*(dslice(i-1,j)+0.5_RKIND*dd(i-1))
+            dr(i) = (1._RKIND-s2)*dr(i) + 
+     &           s2*(dslice(i+1,j)-0.5_RKIND*dd(i+1))
          enddo
       endif
 c
@@ -432,8 +435,8 @@ c
         udtim1 = abs(yy/(2._RKIND*dxi(i-1,j)))
         udti   = abs(yy/(2._RKIND*dxi(i  ,j)))
 c
-        qa = dr(i-1)-udtim1*(dr(i-1)-dl(i-1)-(1._RKIND-ft*udtim1)*d6(i-1))
-        qb = dl(i  )+udti  *(dr(i  )-dl(i  )+(1._RKIND-ft*udti  )*d6(i  ))
+        qa=dr(i-1)-udtim1*(dr(i-1)-dl(i-1)-(1._RKIND-ft*udtim1)*d6(i-1))
+        qb=dl(i  )+udti  *(dr(i  )-dl(i  )+(1._RKIND-ft*udti  )*d6(i  ))
         if (yy .ge. 0._RKIND) then
            df(i,j) = yy*qa
         else
@@ -444,9 +447,9 @@ c
         udtim1 = abs(yy/(2._RKIND*dxi(i-1,j)*dslice(i-1,j)))
         udti   = abs(yy/(2._RKIND*dxi(i  ,j)*dslice(i  ,j)))
 c
-        qc = er(i-1)-udtim1*(er(i-1)-el(i-1)-(1._RKIND-ft*udtim1)*e6(i-1))
-        qd = el(i  )+udti  *(er(i  )-el(i  )+(1._RKIND-ft*udti  )*e6(i  ))
-        if (yy .ge. 0.0) then
+        qc=er(i-1)-udtim1*(er(i-1)-el(i-1)-(1._RKIND-ft*udtim1)*e6(i-1))
+        qd=el(i  )+udti  *(er(i  )-el(i  )+(1._RKIND-ft*udti  )*e6(i  ))
+        if (yy .ge. 0._RKIND) then
            ef(i,j) = yy*qc
         else
            ef(i,j) = yy*qd
@@ -457,32 +460,32 @@ c
      &          udtim1*(ger(i-1)-gel(i-1)-(1._RKIND-ft*udtim1)*ge6(i-1))
            qd = gel(i  )+
      &          udti  *(ger(i  )-gel(i  )+(1._RKIND-ft*udti  )*ge6(i  ))
-           if (yy .ge. 0.0) then
+           if (yy .ge. 0._RKIND) then
               gef(i,j) = yy*qc
            else
               gef(i,j) = yy*qd
            endif
         endif
 c
-        qc = ur(i-1)-udtim1*(ur(i-1)-ul(i-1)-(1._RKIND-ft*udtim1)*u6(i-1))
-        qd = ul(i  )+udti  *(ur(i  )-ul(i  )+(1._RKIND-ft*udti  )*u6(i  ))
-        if (yy .ge. 0.0) then
+        qc=ur(i-1)-udtim1*(ur(i-1)-ul(i-1)-(1._RKIND-ft*udtim1)*u6(i-1))
+        qd=ul(i  )+udti  *(ur(i  )-ul(i  )+(1._RKIND-ft*udti  )*u6(i  ))
+        if (yy .ge. 0._RKIND) then
            uf(i,j) = yy*qc
         else
            uf(i,j) = yy*qd
         endif
 c
-        qc = vr(i-1)-udtim1*(vr(i-1)-vl(i-1)-(1._RKIND-ft*udtim1)*v6(i-1))
-        qd = vl(i  )+udti  *(vr(i  )-vl(i  )+(1._RKIND-ft*udti  )*v6(i  ))
-        if (yy .ge. 0.0) then
+        qc=vr(i-1)-udtim1*(vr(i-1)-vl(i-1)-(1._RKIND-ft*udtim1)*v6(i-1))
+        qd=vl(i  )+udti  *(vr(i  )-vl(i  )+(1._RKIND-ft*udti  )*v6(i  ))
+        if (yy .ge. 0._RKIND) then
            vf(i,j) = yy*qc
         else
            vf(i,j) = yy*qd
         endif
 c
-        qc = wr(i-1)-udtim1*(wr(i-1)-wl(i-1)-(1._RKIND-ft*udtim1)*w6(i-1))
-        qd = wl(i  )+udti  *(wr(i  )-wl(i  )+(1._RKIND-ft*udti  )*w6(i  ))
-        if (yy .ge. 0.0) then
+        qc=wr(i-1)-udtim1*(wr(i-1)-wl(i-1)-(1._RKIND-ft*udtim1)*w6(i-1))
+        qd=wl(i  )+udti  *(wr(i  )-wl(i  )+(1._RKIND-ft*udti  )*w6(i  ))
+        if (yy .ge. 0._RKIND) then
            wf(i,j) = yy*qc
         else
            wf(i,j) = yy*qd

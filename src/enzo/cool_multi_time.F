@@ -116,8 +116,8 @@
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), cieco(ijk)
-      R_PREC hy_RKIND1k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
-     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
+      R_PREC hy_RKIND1k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), 
+     &     rotl(ijk), gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
           
 !  Iteration mask for multi_cool
 

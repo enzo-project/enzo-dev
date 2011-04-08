@@ -28,7 +28,7 @@
       factor = 1.0/REAL(n1,RKIND)
 
       if( jdir == -1 ) then
-        scale = 1.0
+        scale = 1.0_RKIND
       else
         scale = factor
       end if
@@ -67,7 +67,7 @@
       factor = 1.0/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == -1 ) then
-        scale = 1.0
+        scale = 1.0_RKIND
       else
         scale = factor
       end if
@@ -107,7 +107,7 @@
       factor = 1.0/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == -1 ) then
-        scale = 1.0
+        scale = 1.0_RKIND
       else
         scale = factor
       end if
@@ -148,7 +148,7 @@
       factor = 1.0d-00/REAL(n1,RKIND)
 
       if( jdir == -1 ) then
-        scale = 1.0d-00
+        scale = 1.0_RKIND
       else
         scale = factor
       end if
@@ -187,7 +187,7 @@
       factor = 1.0d-00/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == -1 ) then
-        scale = 1.0d-00
+        scale = 1.0_RKIND
       else
         scale = factor
       end if
@@ -230,7 +230,7 @@
       factor = 1.0d-00/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == -1 ) then
-        scale = 1.0d-00
+        scale = 1.0_RKIND
       else
         scale = factor
       end if

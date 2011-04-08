@@ -125,10 +125,10 @@ c
 c         Initialize for the trigonometric recurrence.
 c
              theta = isign*twopi/(ifp2/ip1)
-             wpr   = -2.0*sin(0.5*theta)**2
+             wpr   = -2._RKIND*sin(0.5_RKIND*theta)**2
              wpi   = sin(theta)
-             wr    = 1.0
-             wi    = 0.0
+             wr    = 1._RKIND
+             wi    = 0._RKIND
              do i3 = 1, ifp1, ip1
                 do i1 = i3, i3+ip1-2, 2
                    do i2 = i1, ip3, ifp2

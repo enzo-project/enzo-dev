@@ -101,7 +101,7 @@ c
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
       double precision msolar, mh
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass, mh=mass_h)
 c
       ii = np
@@ -126,7 +126,7 @@ c
 c              1) finest level of refinement?
 c
 c               write(0,*) d(i,j,k)
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 c
 c              2) density greater than threshold
 c

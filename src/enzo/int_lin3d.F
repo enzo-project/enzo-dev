@@ -125,10 +125,10 @@ c
 c
 c              Compute the minimum delta f across all four diagonals
 c
-               delf0 = 0.5_RKIND*(work(i+1, j+1, k+1) - work(i  , j  , k  ))
-               delf1 = 0.5_RKIND*(work(i  , j+1, k+1) - work(i+1, j  , k  ))
-               delf2 = 0.5_RKIND*(work(i+1, j  , k+1) - work(i  , j+1, k  ))
-               delf3 = 0.5_RKIND*(work(i+1, j+1, k  ) - work(i  , j  , k+1))
+               delf0=0.5_RKIND*(work(i+1, j+1, k+1)-work(i  , j  , k  ))
+               delf1=0.5_RKIND*(work(i  , j+1, k+1)-work(i+1, j  , k  ))
+               delf2=0.5_RKIND*(work(i+1, j  , k+1)-work(i  , j+1, k  ))
+               delf3=0.5_RKIND*(work(i+1, j+1, k  )-work(i  , j  , k+1))
 c
 c              Enforce positivity if requested
 c               (the value 0.8 is arbitrary, it should be in the range 0-1)
@@ -150,7 +150,7 @@ c
 c              Determine s, the resulting scaled value of delf0 and contain
 c                sprime within the range 0 to 1
 c
-               if (delf0 .eq. 0.0) 
+               if (delf0 .eq. 0._RKIND) 
      &              delf0 = sign(tiny, delf0 + delf1 + delf2)
                s = (delf1 + delf2 + delf3) / delf0
                sprime = min(max(s, 0._RKIND), 1._RKIND)
@@ -161,20 +161,20 @@ c
                chi1 = 1._RKIND
                chi2 = 1._RKIND
                chi3 = 1._RKIND
-               if (delf1/delf0 .ge. 0.0) chi1 = 0._RKIND
-               if (delf2/delf0 .ge. 0.0) chi2 = 0._RKIND
-               if (delf3/delf0 .ge. 0.0) chi3 = 0._RKIND
+               if (delf1/delf0 .ge. 0._RKIND) chi1 = 0._RKIND
+               if (delf2/delf0 .ge. 0._RKIND) chi2 = 0._RKIND
+               if (delf3/delf0 .ge. 0._RKIND) chi3 = 0._RKIND
 c
 c              If sprime is one (i.e. implied delf0 is too high) reverse chi#.
 c
-               chi1 = (1._RKIND - sprime)*chi1 + sprime*(1._RKIND - chi1)
-               chi2 = (1._RKIND - sprime)*chi2 + sprime*(1._RKIND - chi2)
-               chi3 = (1._RKIND - sprime)*chi3 + sprime*(1._RKIND - chi3)
+               chi1 = (1._RKIND-sprime)*chi1 + sprime*(1._RKIND-chi1)
+               chi2 = (1._RKIND-sprime)*chi2 + sprime*(1._RKIND-chi2)
+               chi3 = (1._RKIND-sprime)*chi3 + sprime*(1._RKIND-chi3)
 c
 c              If sprime is not 0 or 1 (i.e. we do not have to adjust delf#) 
 c                   then set chi# to zero.
 c
-               if (sprime .ne. 0.0 .and. sprime .ne. 1.0) then
+               if (sprime .ne. 0._RKIND .and. sprime .ne. 1._RKIND) then
                   chi1 = 0._RKIND
                   chi2 = 0._RKIND
                   chi3 = 0._RKIND

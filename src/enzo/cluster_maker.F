@@ -107,7 +107,7 @@ c
       R_PREC   isosndsp2, bmass, jeanmass, lum, min_temp
       P_PREC this_pos(3)
       double precision msolar, mh
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass, mh=mass_h)
 c
 c      if (iradtrans .eq. 0) then
@@ -125,8 +125,8 @@ c     calculate how many solar masses are in d1*x1^3
       m1 = dble(x1*dx)**3 * dble(d1) / msolar
 c
 c     Different minimum temperature when to ignore tcool < tdyn
-      if (imulti.le.1) min_temp = 1e4
-      if (imulti.ge.2) min_temp = 1e3
+      if (imulti.le.1) min_temp = 1.e4_RKIND
+      if (imulti.ge.2) min_temp = 1.e3_RKIND
 c
 c
 c  for each zone, : a primordial "star" particle is created if answers
@@ -168,7 +168,7 @@ c
      &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
-               if (div .ge. 0.0) goto 10
+               if (div .ge. 0._RKIND) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 8000.0 skip this check)
 c
@@ -235,10 +235,10 @@ c
                ii = ii + 1
 c               mp(ii)   = efficiency*bmass
                mp(ii)  = efficiency*d(i,j,k)
-               if (lifetime.lt.0.0) then
+               if (lifetime.lt.0._RKIND) then
                   tdp(ii) = 4._RKIND*tdyn
                else
-                  tdp(ii) = lifetime*3.15d7/t1 ! yr -> code
+                  tdp(ii) = lifetime*3.15e7_RKIND/t1 ! yr -> code
                endif
 
                type(ii) = -ctype

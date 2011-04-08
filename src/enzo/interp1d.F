@@ -98,7 +98,8 @@ c
          delf0 =     min(abs(fbar - work(i  )),
      &                   abs(fbar - work(i+1)) )*
      &            sign(one, (fbar - work(i  )))
-         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0.0) delf0=0._RKIND
+         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0._RKIND) 
+     &        delf0=0._RKIND
 c
 c        Now, find the the interpolation coefficients.
 c

@@ -149,7 +149,7 @@ c        Compute the cooling function (assuming completely ionized)
 c              (the factors of mh have been incorporated into coolinit).
 c              (rate of change of specific energy)
 c
-         edot(i) = -cool(i)*(0.4*(fh+1)*d(i,j,k))
+         edot(i) = -cool(i)*(0.4_RKIND*(fh+1)*d(i,j,k))
 c
 c        Photoelectric heating  
 c

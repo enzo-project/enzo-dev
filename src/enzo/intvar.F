@@ -81,7 +81,7 @@ c
          if (qplus*qmnus .gt. 0) then
             qcent = c1(i)*qplus + c2(i)*qmnus
             qvanl = 2._RKIND*qplus*qmnus/(qmnus+qplus)
-            temp1 = min(abs(qcent), abs(qvanl), 2.0*abs(qmnus), 
+            temp1 = min(abs(qcent), abs(qvanl), 2._RKIND*abs(qmnus), 
      $           2._RKIND*abs(qplus))
             dq(i) = temp1*sign(one, qcent)
          else
@@ -114,7 +114,7 @@ c
          temp1 = (qr(i)-qslice(i))*(qslice(i)-ql(i))
          temp2 = qr(i)-ql(i)
          temp3 = 6._RKIND*(qslice(i)-0.5_RKIND*(qr(i)+ql(i)))
-         if (temp1 .le. 0.0) then
+         if (temp1 .le. 0._RKIND) then
             ql(i) = qslice(i)
             qr(i) = qslice(i)
          endif
@@ -156,13 +156,17 @@ c
       enddo
 c
       do i = i1, i2+1
-        qla(i)=qr(i-1)-char1(i-1)*(dq(i-1)-(1._RKIND-ft*char1(i-1))*q6(i-1))
-        qra(i)=ql(i  )+char2(i  )*(dq(i  )+(1._RKIND-ft*char2(i  ))*q6(i  ))
+        qla(i) = qr(i-1)-char1(i-1)*(dq(i-1) - 
+     .        (1._RKIND-ft*char1(i-1))*q6(i-1))
+        qra(i) = ql(i  )+char2(i  )*(dq(i  ) + 
+     .       (1._RKIND-ft*char2(i  ))*q6(i  ))
       enddo
 c
       do i=i1,i2+1
-         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1)-(1._RKIND-ft*c0(i-1))*q6(i-1))
-         qr0(i) = ql(i  )-c0(i  )*(dq(i  )+(1._RKIND+ft*c0(i  ))*q6(i  ))
+         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1) - 
+     .        (1._RKIND-ft*c0(i-1))*q6(i-1))
+         qr0(i) = ql(i  )-c0(i  )*(dq(i  ) +
+     .        (1._RKIND+ft*c0(i  ))*q6(i  ))
       enddo
 c
 c

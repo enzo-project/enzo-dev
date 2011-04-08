@@ -84,7 +84,7 @@ c
          do i=i1, i2
             dm(i)       = dslice(i,j)*dxnslice(i,j)
             dmnu(i)     = dm(i) - (df(i+1,j)-df(i,j))
-            if (dmnu(i) .le. 0.0) then
+            if (dmnu(i) .le. 0._RKIND) then
                write(6,*) 'remap',i,j,i2,dslice(i,j),dxnslice(i,j)
                write(6,*) df(i+1,j),df(i,j)
                write(6,*) dslice(i-1,j),dslice(i,j),dslice(i+1,j)
@@ -104,11 +104,11 @@ c
 c
          if (idual .eq. 1) then
             do i=i1, i2
-               if (geslice(i,j) .le. 0.0) write(6,*) 'remap_a',i
+               if (geslice(i,j) .le. 0._RKIND) write(6,*) 'remap_a',i
                geslice(i,j) = max(0.5_RKIND*geslice(i,j), 
      &                         (dm(i)*geslice(i,j) - 
      &                         (gef(i+1,j)-gef(i,j)))/ dmnu(i) )
-               if (geslice(i,j) .le. 0.0) write(6,*) 'remap_b',i
+               if (geslice(i,j) .le. 0._RKIND) write(6,*) 'remap_b',i
             enddo
          endif
 c

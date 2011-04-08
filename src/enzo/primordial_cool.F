@@ -134,7 +134,8 @@ c     Iteration mask
       R_PREC g2p(10)
       data g2p/0.0493452_RKIND, 2.28021_RKIND, 0.115357_RKIND,
      &         0.114188_RKIND,  2.90778_RKIND, 0.689708_RKIND,
-     &         64.2416_RKIND, -9.36334_RKIND, -0.377266_RKIND, 69.8091_RKIND/
+     &         64.2416_RKIND, -9.36334_RKIND, -0.377266_RKIND, 
+     &         69.8091_RKIND/
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -223,7 +224,7 @@ c
       if (ispecies .gt. 1) then
          do i = is+1, ie+1
          if (itmask(i).eqv..true.) then
-           nH2 = 0.5*(H2I(i) + H2II(i))
+           nH2 = 0.5_RKIND*(H2I(i) + H2II(i))
            nother = (HeI(i) + HeII(i) + HeIII(i))/4._RKIND +
      &          HI(i) + HII(i) + de(i) + HM(i)
            if(ispecies.gt.2)then
@@ -236,26 +237,27 @@ c
            do inneriter=1,1
              if (nH2/nother .gt. 1.0d-3) then
                x = 6100/tgas(i) ! not quite self-consistent
-               if (x .gt. 10.0) then
+               if (x .gt. 10._RKIND) then
                  gamma2(i) = 0.5_RKIND*5._RKIND
                else
-                 gamma2(i) = 0.5_RKIND*(5._RKIND + 2._RKIND*x**2 * exp(x)
-     &                     /(exp(x)-1._RKIND)**2)
+                 gamma2(i) = 0.5_RKIND*(5._RKIND + 2._RKIND*x**2 
+     &                 * exp(x)/(exp(x)-1._RKIND)**2)
                endif
              else
                gamma2(i) = 2.5_RKIND
              endif
              gamma2(i) = 1._RKIND + (nH2 + nother)/
      &            (nH2*gamma2(i) + nother/(gamma-1._RKIND))
-             tgas(i) = tgas(i) * (gamma2(i) - 1._RKIND)/(oldgamma2(i) -1._RKIND)
+             tgas(i) = tgas(i) * (gamma2(i) - 1._RKIND) 
+     &            / (oldgamma2(i) -1._RKIND)
              oldgamma2(i) = gamma2(i)
            enddo
 #else
            oldgamma2(i) = gamma
            do inneriter=1,1
              x = log10(tgas(i))
-             if(nH2/nother.lt.-1.0d-3.or.tgas(i).lt.-50._RKIND)then
-               gamma2(i) = 2.5 !gamma
+             if(nH2/nother.lt.-1.e-3_RKIND.or.tgas(i).lt.-50._RKIND)then
+               gamma2(i) = 2.5_RKIND !gamma
              else
                gamma2(i) = g2p(1)*exp(-(x-g2p(2))**2._RKIND/g2p(3))
      &                   + g2p(4)*exp(-(x-g2p(5))**2._RKIND/g2p(6))
@@ -266,7 +268,8 @@ c
              gamma2(i) = 1._RKIND + (nH2 + nother)/
      &            (nH2/(gamma2(i)-1._RKIND) + nother/(gamma-1._RKIND))
              x = tgas(i)
-             tgas(i) = tgas(i) * (gamma2(i) - 1._RKIND)/(oldgamma2(i) - 1._RKIND)
+             tgas(i) = tgas(i) * (gamma2(i) - 1._RKIND) 
+     &            / (oldgamma2(i) - 1._RKIND)
              oldgamma2(i) = gamma2(i)
              if(tgas(i).ne.tgas(i).or.tgas(i).lt.0._RKIND)then
                write(0,*)'tgas issue', tgas(i), gamma2(i), x, nH2,
@@ -319,7 +322,7 @@ c
 c        Lookup cooling values and do a linear temperature in log(T)
 c
          turnoff = 1._RKIND
-         if(d(i,j,k)*dom.gt.1e18)turnoff=0._RKIND
+         if(d(i,j,k)*dom.gt.1.e18_RKIND)turnoff=0._RKIND
          ceHI(i) = turnoff*(ceHIa(indixe(i)) + (logtem(i) - t1(i))
      .         *(ceHIa(indixe(i)+1) -ceHIa(indixe(i)))*tdef_inv(i))
          ceHeI(i) = turnoff*(ceHeIa(indixe(i)) + (logtem(i) - t1(i))
@@ -465,7 +468,7 @@ c            fH2 = nH2/(nH2 + nother)
 c            fudge = sqrt((40._RKIND * 10**(4.8_RKIND * 
 c     .               sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
 c     .               ((nH2 + nother)*dom) )
-              fudge = (0.76_RKIND*d(i,j,k)*dom/8.0d9)**(-0.45_RKIND)
+              fudge = (.76_RKIND*d(i,j,k)*dom/8.e9_RKIND)**(-0.45_RKIND)
               fudge = min(fudge, 1._RKIND)
             endif
 
@@ -511,19 +514,19 @@ c            fH2 = nH2/(nH2 + nother)
 c            fudge = sqrt((40.0 * 10**(4.8 * 
 c     .               sqrt(max(log10(tgas(i)),2.0)-2.0)) / fH2**2)/
 c     .               ((nH2 + nother)*dom) )
-              fudge = (0.76_RKIND*d(i,j,k)*dom/8.0d9)**(-0.45_RKIND)
+              fudge = (.76_RKIND*d(i,j,k)*dom/8.e9_RKIND)**(-0.45_RKIND)
               fudge = min(fudge, 1._RKIND)
               ciefudge = 1._RKIND
-              tau = ((d(i,j,k)/2d16)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
-              tau = max(tau, 1.d-5)
+              tau = ((d(i,j,k)/2.e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
+              tau = max(tau, 1.e-5_RKIND)
               ciefudge = min((1._RKIND-exp(-tau))/tau,1._RKIND)
               fudge = fudge * ciefudge
 c              ciefudge = 1._RKIND
-c              tau = ((d(i,j,k)/2.d16)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
-c              tau = max(tau, 1.d-5)
+c              tau = ((d(i,j,k)/2.e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
+c              tau = max(tau, 1.e-5_RKIND)
 c              ciefudge = min((1._RKIND-exp(-tau))/tau,1._RKIND)
 c              fudge = fudge! * ciefudge
-c              if (fudge.lt.1.d-2)
+c              if (fudge.lt.1.e-2_RKIND)
 c     .          write(6,*) 'fudge:', fudge
             endif
 c
@@ -531,7 +534,7 @@ c
 !         if(omask(i))write(0,*)i,j,k,'e',edotminus(i),edotplus(i),tgas(i)
             edotminus(i) = edotminus(i) + abs(
      .           float(ih2co)*fudge*H2I(i)*
-     .                 gphdl(i)/(1._RKIND + gphdl1/gpldl(i)) / (2._RKIND*dom) )
+     .           gphdl(i)/(1._RKIND + gphdl1/gpldl(i)) / (2._RKIND*dom))
 !         if(omask(i))write(0,*)i,j,k,'e2',edotminus(i),edotplus(i),tgas(i),gphdl(i),gphdl1,gpldl(i),H2I(i)
             endif
          enddo
@@ -571,7 +574,7 @@ c            fH2 = nH2/(nH2 + nother)
 c            fudge = sqrt((40._RKIND * 10._RKIND**(4.8_RKIND * 
 c     .               sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
 c     .               ((nH2 + nother)*dom) )
-              fudge = (0.76_RKIND*d(i,j,k)*dom/8.0d9)**(-0.45_RKIND)
+              fudge = (.76_RKIND*d(i,j,k)*dom/8.e9_RKIND)**(-0.45_RKIND)
               fudge = min(fudge, 1._RKIND)
             endif
 c
@@ -579,7 +582,7 @@ c
             edotminus(i)=edotminus(i) + float(ih2co)*fudge*H2I(i)*(
      .          vibh(i)/(1._RKIND+vibh(i)/max(   vibl     ,tiny)) +
      .          roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
-     .                                                      )/2._RKIND/dom
+     .                                                   )/2._RKIND/dom
             endif
          enddo
 c
@@ -595,14 +598,14 @@ C     Ripamonti & Abel 2003
             do i = is+1, ie+1
             if (itmask(i)) then
 c     Only calculate if H2I(i) is a substantial fraction
-              if (d(i,j,k)*dom.gt.1.d10) then
+              if (d(i,j,k)*dom.gt.1.e10_RKIND) then
                 ciefudge = 1._RKIND
-                tau = ((d(i,j,k)/2e16)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
-                tau = max(tau, 1.d-5)
+                tau = ((d(i,j,k)/2.e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
+                tau = max(tau, 1.e-5_RKIND)
                 ciefudge = min((1._RKIND-exp(-tau))/tau,1._RKIND)
 c               Matt's attempt at a second exponentialier cutoff
-                tau = ((d(i,j,k)/2.d18)*dom)**8._RKIND  ! 2e16 is in units of cm^-3
-                tau = max(tau, 1.d-5)
+                tau = ((d(i,j,k)/2.e18_RKIND)*dom)**8._RKIND  ! 2e16 is in units of cm^-3
+                tau = max(tau, 1.e-5_RKIND)
                 ciefudge = ciefudge*min((1.-exp(-tau))/tau,1._RKIND)
 c We apply the ciefudge factor at the end, because it should apply to the
 c entire continuum
@@ -653,15 +656,15 @@ c   Note that, as per Flower 2000, we do not include H2 collisions
      .                          *(log10(HI(i))*dom)**(m-1))
                 enddo
                 ciefudge = 1.
-                tau = ((d(i,j,k)/2.d16)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
-                tau = max(tau, 1.d-5)
+                tau = ((d(i,j,k)/2.e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
+                tau = max(tau, 1.e-5_RKIND)
                 ciefudge = min((1._RKIND-exp(-tau))/tau,1._RKIND)
 c                omask(i) = .true.
 !         if(omask(i))write(0,*)i,'h',edotminus(i),edotplus(i),tgas(i),
 !     .                               (HDI(i)*10**hdcoolval(i)/coolunit)*ciefudge
 c                omask(i) = .false.
-                edotminus(i) = edotminus(i)
-     .                   + 0*HDI(i)*(10**hdcoolval(i)/coolunit)*ciefudge
+                edotminus(i) = edotminus(i) + 0._RKIND*HDI(i) 
+     .               * (10**hdcoolval(i)/coolunit)*ciefudge
             endif
             omask(i) = .false.
          enddo
@@ -683,8 +686,9 @@ c              electrons which do the heating (Shull & Steenberg, 1985).
 c
             do i = is+1, ie+1
                if (itmask(i)) then
-               x = max(HII(i)/(HI(i)+HII(i)), 1.d-4)
-               factor = 0.9971_RKIND*(1._RKIND-(1._RKIND-x**0.2663_RKIND)**1.3163_RKIND)
+               x = max(HII(i)/(HI(i)+HII(i)), 1.e-4_RKIND)
+               factor = 0.9971_RKIND*(1._RKIND
+     .              - (1._RKIND-x**0.2663_RKIND)**1.3163_RKIND)
                edotplus(i) = edotplus(i) + float(ipiht)*factor*(
      .                + piHI  *HI  (i)            ! pi of HI
      .                + piHeI *HeI (i)*0.25_RKIND     ! pi of HeI
