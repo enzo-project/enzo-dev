@@ -55,7 +55,7 @@
 #define INEXACT_NEWTON_SOLVER_DEFINED__
 
 #include "preincludes.h"
-#include <stdlib.h>
+/* #include <stdlib.h> */
 #include <stdio.h>
 
 #include "macros_and_parameters.h"
