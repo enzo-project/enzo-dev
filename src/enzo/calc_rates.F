@@ -753,7 +753,8 @@ c
      &                            8.152e-13_RKIND/(kboltz*ttt) )) 
      &               / coolunit
 c
-        dum = 8.152e-13_RKIND*(4.2_RKIND/(kboltz*(ttt+1190._RKIND)) +
+        dum = 8.152e-13_RKIND*(4.2_RKIND /
+     &       (kboltz*(ttt+1190._RKIND)) +
      &       1._RKIND/(kboltz*ttt))
         h2k01a(i) = 1.45e-12_RKIND*sqrt(ttt)*exp(-min(log(dhuge),dum)) 
      &              / coolunit

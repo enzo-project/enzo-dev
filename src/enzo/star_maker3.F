@@ -101,7 +101,8 @@ c
       R_PREC   pi, G, sndspdC
       R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
       double precision msolar
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8_RKIND,
+      parameter (pi=pi_val, G=GravConst, 
+     &           sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass)
 c
       ii = np

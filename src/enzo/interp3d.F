@@ -179,7 +179,7 @@ c              Determine s, the resulting scaled value of delf0 and contain
 c                sprime within the range 0 to 1
 c
                if (delf0 .eq. 0._RKIND) then
-                  delf0 = 1.e-5_RKIND*sign(tiny, delf1 + delf2 + delf3)
+                  delf0 = 1.e-5_RKIND*sign(tiny,delf1+delf2+delf3)
                   sprime = 1._RKIND
                else
                   s = (delf1 + delf2 + delf3) / delf0

@@ -913,7 +913,8 @@ c -------------------------------------------------------------------
 !     Parameters
 
       double precision everg, e24, e26
-      parameter(everg = ev2erg, e24 = 13.6_RKIND, e26 = 24.6_RKIND)
+      parameter(everg = ev2erg, e24 = 13.6_RKIND, 
+     &          e26 = 24.6_RKIND)
 
 !     locals
 

@@ -74,7 +74,8 @@ c
 c     Parameters
 c
       double precision everg, e24, e26, temp
-      parameter(everg = ev2erg, e24 = 13.6_RKIND, e26 = 24.6_RKIND)
+      parameter(everg = ev2erg, e24 = 13.6_RKIND, 
+     &          e26 = 24.6_RKIND)
 c
 c     locals
 c

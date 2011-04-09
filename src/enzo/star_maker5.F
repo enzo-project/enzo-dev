@@ -112,8 +112,9 @@ c
       R_PREC   mproton, RandomSeed, beta,x ,y, kb
       R_PREC   starfraction, bmass, densthresh 
       double precision msolar
-      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1_RKIND,
-     &     sqrtepssn=2.d24, RandomSeed=-123456, kb=kboltz)
+      parameter (msolar=SolarMass, mproton=mass_h, 
+     &           beta=0.1_RKIND, sqrtepssn=2.d24, 
+     &           RandomSeed=-123456, kb=kboltz)
 
       R_PREC random
 

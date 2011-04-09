@@ -273,7 +273,8 @@ c
 
       double precision everg, e24, e26
       R_PREC dlogrho, dloge
-      parameter(everg = ev2erg, e24 = 13.6_RKIND, e26 = 24.6_RKIND)
+      parameter(everg = ev2erg, e24 = 13.6_RKIND, 
+     &          e26 = 24.6_RKIND)
       INTG_PREC totalit
       parameter(iHI=1,iHII=2,iHeI=3,iHeII=4,iHeIII=5,
      &          iH2I=6,ige=7,iDI=8,iDII=9,iHDI=10,
