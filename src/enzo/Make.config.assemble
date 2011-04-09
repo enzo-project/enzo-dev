@@ -23,7 +23,8 @@
 #                      
 # Preprocessor defines
 #
-#    DEFINES            Preprocessor defines for C, C++, and Fortran
+#    CDEFINES           Preprocessor defines for C, C++.
+#    FDEFINES           Preprocessor defines for Fortran.
 #
 # Object files
 #
@@ -43,10 +44,10 @@
 #-----------------------------------------------------------------------
 
     ASSEMBLE_PARAMETER_DEFINES = \
-          -D__max_subgrids=$(PARAMETER_MAX_SUBGRIDS) \
-          -D__max_baryons=$(PARAMETER_MAX_BARYONS) \
-          -D__max_cpu_per_node=$(PARAMETER_MAX_TASKS_PER_NODE) \
-          -D__memory_pool_size=$(PARAMETER_MEMORY_POOL_SIZE)
+          __max_subgrids=$(PARAMETER_MAX_SUBGRIDS) \
+          __max_baryons=$(PARAMETER_MAX_BARYONS) \
+          __max_cpu_per_node=$(PARAMETER_MAX_TASKS_PER_NODE) \
+          __memory_pool_size=$(PARAMETER_MEMORY_POOL_SIZE)
 
 #-----------------------------------------------------------------------
 # DETERMINE INTEGER SIZE SETTINGS FOR PARTICLE INDICES
@@ -58,14 +59,14 @@
 
     ifeq ($(CONFIG_PARTICLE_IDS),32)
         ERROR_IDS = 0
-        ASSEMBLE_IDS_DEFINES = -DCONFIG_PINT_4
+        ASSEMBLE_IDS_DEFINES = CONFIG_PINT_4
     endif
 
     # Settings for 64-bit integers
 
     ifeq ($(CONFIG_PARTICLE_IDS),64)
         ERROR_IDS = 0
-        ASSEMBLE_IDS_DEFINES = -DCONFIG_PINT_8
+        ASSEMBLE_IDS_DEFINES = CONFIG_PINT_8
     endif
 
     # error if CONFIG_INTEGERS is incorrect
@@ -86,7 +87,7 @@
 
     ifeq ($(CONFIG_INTEGERS),32)
         ERROR_INTEGERS = 0
-        ASSEMBLE_INTEGER_DEFINES = -DSMALL_INTS
+        ASSEMBLE_INTEGER_DEFINES = SMALL_INTS
         ASSEMBLE_INTEGER_FFLAGS = $(MACH_FFLAGS_INTEGER_32)
     endif
 
@@ -94,7 +95,7 @@
 
     ifeq ($(CONFIG_INTEGERS),64)
         ERROR_INTEGERS = 0
-        ASSEMBLE_INTEGER_DEFINES = -DLARGE_INTS
+        ASSEMBLE_INTEGER_DEFINES = LARGE_INTS
         ASSEMBLE_INTEGER_FFLAGS = $(MACH_FFLAGS_INTEGER_64)
     endif
 
@@ -116,7 +117,7 @@
 
     ifeq ($(CONFIG_PRECISION),32)
         ERROR_PRECISION = 0
-        ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_4
+        ASSEMBLE_PRECISION_DEFINES = CONFIG_BFLOAT_4
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
         ASSEMBLE_PRECISION_NUMBER = 4
     endif
@@ -125,7 +126,7 @@
 
     ifeq ($(CONFIG_PRECISION),64)
         ERROR_PRECISION = 0
-        ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_8
+        ASSEMBLE_PRECISION_DEFINES = CONFIG_BFLOAT_8
         ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_64)
         ASSEMBLE_PRECISION_NUMBER = 8
     endif
@@ -148,7 +149,7 @@
 
     ifeq ($(CONFIG_PARTICLES),32)
         ERROR_PARTICLES = 0
-        ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_4
+        ASSEMBLE_PARTICLES_DEFINES = CONFIG_PFLOAT_4
         ASSEMBLE_PARTICLE_NUMBER = 4
     endif
 
@@ -156,7 +157,7 @@
 
     ifeq ($(CONFIG_PARTICLES),64)
         ERROR_PARTICLES = 0
-        ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_8
+        ASSEMBLE_PARTICLES_DEFINES = CONFIG_PFLOAT_8
         ASSEMBLE_PARTICLE_NUMBER = 8
     endif
 
@@ -164,7 +165,7 @@
 
     ifeq ($(CONFIG_PARTICLES),128)
         ERROR_PARTICLES = 0
-        ASSEMBLE_PARTICLES_DEFINES = -DCONFIG_PFLOAT_16
+        ASSEMBLE_PARTICLES_DEFINES = CONFIG_PFLOAT_16
         ASSEMBLE_PARTICLE_NUMBER = 16
     endif
 
@@ -186,14 +187,14 @@
 
     ifeq ($(CONFIG_INITS),32)
         ERROR_INITS = 0
-        ASSEMBLE_INITS_DEFINES = -DINITS32
+        ASSEMBLE_INITS_DEFINES = INITS32
     endif
 
     # Settings for 64-bit inits
 
     ifeq ($(CONFIG_INITS),64)
         ERROR_INITS = 0
-        ASSEMBLE_INITS_DEFINES = -DINITS64
+        ASSEMBLE_INITS_DEFINES = INITS64
     endif
 
     # error if CONFIG_INITS is incorrect
@@ -213,14 +214,14 @@
 
     ifeq ($(CONFIG_IO),32)
         ERROR_IO = 0
-        ASSEMBLE_IO_DEFINES = -DIO_32
+        ASSEMBLE_IO_DEFINES = IO_32
     endif
 
     # Settings for 64-bit io
 
     ifeq ($(CONFIG_IO),64)
         ERROR_IO = 0
-        ASSEMBLE_IO_DEFINES = -DIO_64
+        ASSEMBLE_IO_DEFINES = IO_64
     endif
 
     # error if CONFIG_IO is incorrect
@@ -248,7 +249,7 @@
         ASSEMBLE_FC  = $(MACH_FC_MPI)
         ASSEMBLE_F90 = $(MACH_F90_MPI)
         ASSEMBLE_LD  = $(MACH_LD_MPI)
-        ASSEMBLE_MPI_DEFINES  = -DUSE_MPI
+        ASSEMBLE_MPI_DEFINES  = USE_MPI
         ASSEMBLE_MPI_INCLUDES = $(MACH_INCLUDES_MPI)
         ASSEMBLE_MPI_LIBS     = $(MACH_LIBS_MPI)
     endif
@@ -314,7 +315,7 @@
 
     ifeq ($(CONFIG_TASKMAP),yes)
         ERROR_TASKMAP = 0
-        ASSEMBLE_TASKMAP_DEFINES = -DTASKMAP -DENABLE_TASKMAP
+        ASSEMBLE_TASKMAP_DEFINES = TASKMAP ENABLE_TASKMAP
     endif
 
     # Settings for not using TASKMAP mods
@@ -343,8 +344,8 @@
     ifeq ($(CONFIG_PACKED_AMR),yes)
         ERROR_PACKED_AMR = 0
         ASSEMBLE_PACKED_AMR_DEFINES = \
-                 -DUSE_HDF5_GROUPS
-#                 -DSINGLE_HDF5_OPEN_ON_INPUT
+                 USE_HDF5_GROUPS
+#                 SINGLE_HDF5_OPEN_ON_INPUT
     endif
 
     # Settings for not using PACKED_AMR mods
@@ -372,7 +373,7 @@
 
     ifeq ($(CONFIG_PACKED_MEM),yes)
         ERROR_PACKED_MEM = 0
-        ASSEMBLE_PACKED_MEM_DEFINES = -DUSE_HDF5_OUTPUT_BUFFERING
+        ASSEMBLE_PACKED_MEM_DEFINES = USE_HDF5_OUTPUT_BUFFERING
     endif
 
     # Settings for not using PACKED_MEM mods
@@ -400,7 +401,7 @@
 
     ifeq ($(CONFIG_LCAPERF),yes)
         ERROR_LCAPERF = 0
-        ASSEMBLE_LCAPERF_DEFINES = -DUSE_LCAPERF
+        ASSEMBLE_LCAPERF_DEFINES = USE_LCAPERF
         ASSEMBLE_LCAPERF_INCLUDES = $(MACH_INCLUDES_LCAPERF)
         ASSEMBLE_LCAPERF_LIBS     = $(MACH_LIBS_LCAPERF)
 	OBJS_LCAPERF_LIB = lcaperf.o
@@ -431,7 +432,7 @@
 
     ifeq ($(CONFIG_PYTHON),yes)
         ERROR_PYTHON = 0
-        ASSEMBLE_PYTHON_DEFINES = -DUSE_PYTHON
+        ASSEMBLE_PYTHON_DEFINES = USE_PYTHON
         ASSEMBLE_PYTHON_INCLUDES = $(MACH_INCLUDES_PYTHON)
         ASSEMBLE_PYTHON_LIBS     = $(MACH_LIBS_PYTHON)
     endif
@@ -460,7 +461,7 @@
 
     ifeq ($(CONFIG_NEW_PROBLEM_TYPES),yes)
         ERROR_NEW_PROBLEM_TYPES = 0
-        ASSEMBLE_NEW_PROBLEM_TYPES_DEFINES = -DNEW_PROBLEM_TYPES
+        ASSEMBLE_NEW_PROBLEM_TYPES_DEFINES = NEW_PROBLEM_TYPES
         ASSEMBLE_NEW_PROBLEM_TYPES_INCLUDES = $(MACH_INCLUDES_NEW_PROBLEM_TYPES)
         ASSEMBLE_NEW_PROBLEM_TYPES_LIBS     = $(MACH_LIBS_NEW_PROBLEM_TYPES)
         ifeq ($(CONFIG_PYTHON),yes)
@@ -493,7 +494,7 @@
 
     ifeq ($(CONFIG_CVODE),yes)
         ERROR_CVODE = 0
-        ASSEMBLE_CVODE_DEFINES = -DUSE_CVODE
+        ASSEMBLE_CVODE_DEFINES = USE_CVODE
         ASSEMBLE_CVODE_INCLUDES = $(MACH_INCLUDES_CVODE)
         ASSEMBLE_CVODE_LIBS     = $(MACH_LIBS_CVODE)
     endif
@@ -522,7 +523,7 @@
 
     ifeq ($(CONFIG_PAPI),yes)
         ERROR_PAPI = 0
-        ASSEMBLE_PAPI_DEFINES = -DUSE_PAPI
+        ASSEMBLE_PAPI_DEFINES = USE_PAPI
         ASSEMBLE_PAPI_INCLUDES = $(MACH_INCLUDES_PAPI)
         ASSEMBLE_PAPI_LIBS     = $(MACH_LIBS_PAPI)
     endif
@@ -551,7 +552,7 @@
 
     ifeq ($(CONFIG_OOC_BOUNDARY),yes)
         ERROR_OOC_BOUNDARY = 0
-        ASSEMBLE_OOC_BOUNDARY_DEFINES = -DOOC_BOUNDARY
+        ASSEMBLE_OOC_BOUNDARY_DEFINES = OOC_BOUNDARY
     endif
 
     # Settings to turn out-of-core boundary conditions OFF
@@ -579,7 +580,7 @@
 
     ifeq ($(CONFIG_ACCELERATION_BOUNDARY),yes)
         ERROR_ACCELERATION_BOUNDARY = 0
-        ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES = -DSET_ACCELERATION_BOUNDARY
+        ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES = SET_ACCELERATION_BOUNDARY
     endif
 
     # Settings to turn OFF the setting of Acceleration Boundary
@@ -624,7 +625,7 @@
         ERROR_OPT = 0
         ASSEMBLE_OPT_FLAGS = $(MACH_OPT_DEBUG)
         ASSEMBLE_CUDAFLAGS = $(MACH_OPT_CUDADEBUG)
-	ASSEMBLE_CUDADEBUG_DEFINES = -DECUDADEBUG
+	ASSEMBLE_CUDADEBUG_DEFINES = ECUDADEBUG
     endif
 
     # Settings for high conservative optimization
@@ -659,7 +660,7 @@
 
     ifeq ($(CONFIG_TESTING),yes)
         ERROR_TESTING = 0
-        ASSEMBLE_TESTING_DEFINES = -DCONFIG_TESTING
+        ASSEMBLE_TESTING_DEFINES = CONFIG_TESTING
     endif
 
     # Settings for test suite hooks off
@@ -687,7 +688,7 @@
 
     ifeq ($(CONFIG_TPVEL),yes)
         ERROR_TPVEL = 0
-        ASSEMBLE_TPVEL_DEFINES = -DTP_VELOCITY
+        ASSEMBLE_TPVEL_DEFINES = TP_VELOCITY
     endif
 
     # Settings to turn isolated gravity boundary conditions OFF
@@ -715,7 +716,7 @@
 
     ifeq ($(CONFIG_PHOTON),yes)
         ERROR_PHOTON = 0
-        ASSEMBLE_PHOTON_DEFINES = -DTRANSFER
+        ASSEMBLE_PHOTON_DEFINES = TRANSFER
 	OBJS_PHOTON_LIB = $(POBJS_CONFIG_LIB)
     endif
 
@@ -745,7 +746,7 @@
 
     ifeq ($(CONFIG_EMISSIVITY),yes)
         ERROR_EMISSIVITY = 0
-        ASSEMBLE_EMISSIVITY_DEFINES = -DEMISSIVITY
+        ASSEMBLE_EMISSIVITY_DEFINES = EMISSIVITY
     endif
 
     # Settings to turn emissivity field OFF
@@ -773,7 +774,7 @@
 
     ifeq ($(CONFIG_NEW_GRID_IO),yes)
         ERROR_NEW_GRID_IO = 0
-        ASSEMBLE_NEW_GRID_IO_DEFINES = -DNEW_GRID_IO
+        ASSEMBLE_NEW_GRID_IO_DEFINES = NEW_GRID_IO
     endif
 
     # Settings to turn new grid IO OFF
@@ -801,7 +802,7 @@
 
     ifeq ($(CONFIG_HYPRE),yes)
         ERROR_HYPRE = 0
-        ASSEMBLE_HYPRE_DEFINES = -DUSE_HYPRE
+        ASSEMBLE_HYPRE_DEFINES = USE_HYPRE
         ASSEMBLE_HYPRE_INCLUDES = $(MACH_INCLUDES_HYPRE)
         ASSEMBLE_HYPRE_LIBS     = $(MACH_LIBS_HYPRE)
     endif
@@ -834,7 +835,7 @@
 
     ifeq ($(CONFIG_FAST_SIB),yes)
         ERROR_FAST_SIB = 0
-        ASSEMBLE_FAST_SIB_DEFINES = -DFAST_SIB
+        ASSEMBLE_FAST_SIB_DEFINES = FAST_SIB
     endif
 
     # Settings to turn fast sibling search OFF
@@ -863,7 +864,7 @@
 
     ifeq ($(CONFIG_BITWISE_IDENTICALITY),yes)
         ERROR_BITWISE_IDENTICALITY = 0
-        ASSEMBLE_BITWISE_IDENTICALITY_DEFINES = -DBITWISE_IDENTICALITY
+        ASSEMBLE_BITWISE_IDENTICALITY_DEFINES = BITWISE_IDENTICALITY
     endif
 
     # Settings to turn blocking gravity OFF
@@ -894,7 +895,7 @@
 
     ifeq ($(CONFIG_ECUDA),yes)
         ERROR_ECUDA = 0
-	    ASSEMBLE_ECUDA_DEFINES = -DECUDA
+	    ASSEMBLE_ECUDA_DEFINES = ECUDA
 	    ASSEMBLE_CUDA_LIBS = $(MACH_LIBS_CUDA)
 	    ASSEMBLE_CUDA_INCLUDES = $(MACH_LIBS_INCLUDES)
 	    OBJS_ECUDA_LIB = $(OBJS_ECUDA_ALL)
@@ -927,7 +928,7 @@
 
     ifeq ($(CONFIG_FLUX_FIX),yes)
         ERROR_FLUX_FIX = 0
-        ASSEMBLE_FLUX_FIX_DEFINES = -DFLUX_FIX
+        ASSEMBLE_FLUX_FIX_DEFINES = FLUX_FIX
     endif
 
     # Settings to turn FLUX FIX off
@@ -955,7 +956,7 @@
 
     ifeq ($(CONFIG_USE_HDF4),yes)
         ERROR_USE_HDF4 = 0
-        ASSEMBLE_HDF4_DEFINES  = -DUSE_HDF4
+        ASSEMBLE_HDF4_DEFINES  = USE_HDF4
     endif
 
     # compilers and settings if USE_HDF4 is no
@@ -983,7 +984,7 @@
 
     ifeq ($(CONFIG_GRAVITY_4S),yes)
         ERROR_GRAVITY_4S = 0
-        ASSEMBLE_GRAVITY_4S_DEFINES  = -DGRAVITY_4S 
+        ASSEMBLE_GRAVITY_4S_DEFINES  = GRAVITY_4S 
     endif
 
     # compilers and settings if GRAVITY_4S is no
@@ -1064,6 +1065,14 @@
               $(ASSEMBLE_HDF4_DEFINES) \
               $(ASSEMBLE_GRAVITY_4S_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
+    ifeq ($(MACH_FDEF),)
+       MACH_FDEF = -D
+    endif
+    ifeq ($(MACH_CDEF),)
+       MACH_CDEF = -D
+    endif
+    CDEFINES = $(addprefix $(MACH_CDEF),$(DEFINES))                             
+    FDEFINES = $(addprefix $(MACH_FDEF),$(DEFINES))  
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \
