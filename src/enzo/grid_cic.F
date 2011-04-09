@@ -145,8 +145,8 @@ c
 c        Use velocity and mass field to generate mass field advanced by dt
 c
          do i=1,ddim1
-            shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),REAL(tiny,RKIND))
-     &           * coef1
+            shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),
+     &           REAL(tiny,RKIND)) * coef1
             x = min(max((i - 0.5_RKIND + shift1), half), edge1)
             i1 = int(x + 0.5_RKIND,IKIND)
             dx = REAL(i1,RKIND) + 0.5_RKIND - x

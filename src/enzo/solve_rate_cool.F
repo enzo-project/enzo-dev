@@ -531,7 +531,8 @@
 !              (the gamma used here is the right one even for H2 since p2d 
 !               is calculated with this gamma).
 
-               energy = max(p2d(i)/(gamma-1._RKIND), REAL(tiny,RKIND))
+               energy = max(p2d(i)/(gamma-1._RKIND), 
+     &                 REAL(tiny,RKIND))
 
 !              This is an alternate energy calculation, based directly on
 !              the code's specific energy field, which differs from the above
@@ -801,7 +802,8 @@ c -------------------------------------------------------------------
                HII(i,j,k)   = max(HII(i,j,k), REAL(tiny,RKIND))
                HeI(i,j,k)   = max(HeI(i,j,k), REAL(tiny,RKIND))
                HeII(i,j,k)  = max(HeII(i,j,k), REAL(tiny,RKIND))
-               HeIII(i,j,k) = max(HeIII(i,j,k), REAL(1.e-5*tiny,RKIND))
+               HeIII(i,j,k) = max(HeIII(i,j,k), 
+     &                            REAL(1.e-5*tiny,RKIND))
             enddo
          enddo
       enddo
@@ -831,8 +833,9 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  metal(i,j,k) = min(max(metal(i,j,k),REAL(tiny,RKIND)),
-     $                               0.9_RKIND*d(i,j,k))
+                  metal(i,j,k) = min(max(metal(i,j,k),
+     &                               REAL(tiny,RKIND)),
+     &                               0.9_RKIND*d(i,j,k))
                enddo
             enddo
          enddo
@@ -1092,7 +1095,8 @@ c -------------------------------------------------------------------
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                     + k13dd(i,3)-k13dd(i,4)/
      &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10._RKIND**k13(i), REAL(tiny,RKIND))
+                     k13(i) = max(10._RKIND**k13(i), 
+     &                            REAL(tiny,RKIND))
                   endif
                endif
                enddo

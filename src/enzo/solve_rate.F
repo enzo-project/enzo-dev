@@ -332,7 +332,8 @@ c
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                     + k13dd(i,3)-k13dd(i,4)/
      &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10._RKIND**k13(i), REAL(tiny,RKIND))
+                     k13(i) = max(10._RKIND**k13(i), 
+     &                            REAL(tiny,RKIND))
                   endif
                enddo
             endif

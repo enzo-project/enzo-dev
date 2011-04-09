@@ -370,7 +370,8 @@ c   We assume that the charge exchange with the H/H+ species will completely
 c   regulate the abundance of D/D+
 c Recall:
 c   nD = (nDTot - nHD) * (nH * k51) / (nH*k51 + nH*k50)
-        temp1 = max(1.d0*tiny, dtot(i) - (2._RKIND/3._RKIND) * s(i,HDI))
+        temp1 = max(1.d0*tiny, dtot(i) - (2._RKIND/3._RKIND) 
+     &       * s(i,HDI))
 c        s(i,DI)  = max(tiny*rtot(i), temp1 * 
 c     &     (s(i,HI) * k51(i)) / (s(i,HI)*k51(i) + s(i,HII)*k50(i)))
 c        s(i,DI) = s(i,DI) * (r62 + r51 + r55) / (r61 + r50 + r54)

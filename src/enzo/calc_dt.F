@@ -82,7 +82,8 @@ c
             do i = i1+1, i2+1
                dtviscous = min(dtviscous,
      &              REAL(dx(i)*aye/(4._RKIND*C2*
-     &              max(-u(i+1,1,1)+u(i,1,1),REAL(tiny,RKIND))),RKIND))
+     &              max(-u(i+1,1,1)+u(i,1,1),REAL(tiny,RKIND))),
+     &              RKIND))
             enddo
          endif
       endif
@@ -92,7 +93,8 @@ c
       if (rank .eq. 2) then
          do j = j1+1, j2+1
             do i = i1+1, i2+1
-               cs = max(sqrt(gamma*p(i,j,1)/d(i,j,1)), REAL(tiny,RKIND))
+               cs = max(sqrt(gamma*p(i,j,1)/d(i,j,1)), 
+     &              REAL(tiny,RKIND))
                if (ipfree .eq. 1) cs = tiny
                if (ihydro .eq. 0) then
 c
@@ -115,9 +117,11 @@ c
                do i = i1+1, i2+1
                   dtviscous = min(dtviscous, 
      &                 REAL(dx(i)*aye/(4._RKIND*C2*max(
-     &                 -u(i+1,j,1)+u(i,j,1),REAL(tiny,RKIND))), RKIND),
+     &                 -u(i+1,j,1)+u(i,j,1),REAL(tiny,RKIND))), 
+     &                 RKIND),
      &                 REAL(dy(j)*aye/(4._RKIND*C2*max(
-     &                 -v(i,j+1,1)+v(i,j,1),REAL(tiny,RKIND))), RKIND))
+     &                 -v(i,j+1,1)+v(i,j,1),REAL(tiny,RKIND))), 
+     &                 RKIND))
                enddo
             endif
          enddo
@@ -164,11 +168,14 @@ c
                   do i = i1+1, i2+1
 	            dt1 = min(
      &                    dx(i)*aye/(4._RKIND*C2*max(
-     &                        -u(i+1,j,k)+u(i,j,k),REAL(tiny,RKIND))),
+     &                        -u(i+1,j,k)+u(i,j,k),
+     &                        REAL(tiny,RKIND))),
      &                    dy(j)*aye/(4._RKIND*C2*max(
-     &                        -v(i,j+1,k)+v(i,j,k),REAL(tiny,RKIND))),
+     &                        -v(i,j+1,k)+v(i,j,k),
+     &                        REAL(tiny,RKIND))),
      &                    dz(k)*aye/(4._RKIND*C2*max(
-     &                        -w(i,j,k+1)+w(i,j,k),REAL(tiny,RKIND))))
+     &                        -w(i,j,k+1)+w(i,j,k),
+     &                        REAL(tiny,RKIND))))
                      dtviscous = min(dtviscous, dt1)
                   enddo
                endif
