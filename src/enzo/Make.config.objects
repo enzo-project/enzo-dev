@@ -1018,6 +1018,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/HLL_PLM_MHD.o \
         hydro_rk/LLF_PLM_MHD.o \
         hydro_rk/HLL_PPM_MHD.o \
+        hydro_rk/HLLD_PLM_MHD.o \
         hydro_rk/MHD1DTestInitialize.o \
         hydro_rk/MHD2DTestInitialize.o \
         hydro_rk/MHD3DTestInitialize.o \
@@ -1027,6 +1028,7 @@ OBJS_HYDRO_RK = \
 	hydro_rk/MHDSweepZ.o \
 	hydro_rk/MHDTurbulenceInitialize.o \
 	hydro_rk/Riemann_HLL_MHD.o \
+	hydro_rk/Riemann_HLLD_MHD.o \
 	hydro_rk/Riemann_LLF_MHD.o
 
 # Objects for the CUDA GPU-computing support
