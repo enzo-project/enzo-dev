@@ -40,8 +40,7 @@ LOCAL_ZLIB_INSTALL  = /usr/lib
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CDEF      = -D
-MACH_FDEF      = "-WF,-D"
+MACH_FDEF      = "-WF,"
 
 MACH_CPP       = /usr/bin/cpp
 
@@ -65,7 +64,7 @@ MACH_LD_NOMPI  = xlC_r
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES = LINUX_IBM_XL HAVE_GNUPLOT H5_USE_16_API NO_IO_LOG
+MACH_DEFINES = -DLINUX_IBM_XL -DHAVE_GNUPLOT -DH5_USE_16_API -DNO_IO_LOG
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
