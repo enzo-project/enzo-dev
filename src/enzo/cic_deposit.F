@@ -51,9 +51,9 @@ c  locals
 c
       INTG_PREC iii, jjj, kkk
       INTG_PREC i1, j1, k1, n
-      R_PREC    xpos, ypos, zpos, dx, dy, dz, fact
-      P_PREC edge1, edge2, edge3, half
-      parameter (half = 0.5001_RKIND)
+      R_PREC    xpos, ypos, zpos, dx, dy, dz
+      P_PREC edge1, edge2, edge3, fact, half
+      parameter (half = 0.5001_PKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -61,10 +61,10 @@ c
 
 !     write(0,*) npositions, leftedge, dim1, dim2, dim3, cellsize
 
-      fact = 1._RKIND/cellsize
-      edge1 = REAL(dim1,RKIND) - half
-      edge2 = REAL(dim2,RKIND) - half
-      edge3 = REAL(dim3,RKIND) - half
+      fact = 1._PKIND/cellsize
+      edge1 = REAL(dim1,PKIND) - half
+      edge2 = REAL(dim2,PKIND) - half
+      edge3 = REAL(dim3,PKIND) - half
 c
 c     1D
 c
@@ -159,9 +159,9 @@ c           Interpolate from field into sumfield
 
 c     Compute the position of the central cell
 c     
-               xpos =min(max((posx(n)-leftedge(1))*fact,0._RKIND),edge1)
-               ypos =min(max((posy(n)-leftedge(2))*fact,0._RKIND),edge2)
-               zpos =min(max((posz(n)-leftedge(3))*fact,0._RKIND),edge3)
+               xpos =min(max((posx(n)-leftedge(1))*fact,0._PKIND),edge1)
+               ypos =min(max((posy(n)-leftedge(2))*fact,0._PKIND),edge2)
+               zpos =min(max((posz(n)-leftedge(3))*fact,0._PKIND),edge3)
 c     
 c     Convert this into an INTG_PREC index
 c     

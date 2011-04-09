@@ -211,7 +211,7 @@
 !           in cool1d_multi)
 
          do i = is+1, ie+1
-            energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
+            energy = max(p2d(i)/(gamma-1._RKIND), REAL(tiny,RKIND))   
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 

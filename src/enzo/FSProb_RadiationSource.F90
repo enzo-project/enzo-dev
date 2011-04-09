@@ -66,7 +66,8 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   
 !--------------
 ! locals
-  INTG_PREC :: i, j, k, l, nsrc, seed(8)
+  INTEGER   :: seed(8)
+  INTG_PREC :: i, j, k, l, nsrc
   R_PREC    :: h_nu0, etaconst, rnums(10)
   R_PREC    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
   R_PREC    :: cellXc, cellYc, cellZc
@@ -104,9 +105,9 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 
         ! get 4 random numbers for each source (3 location, 1 strength)
         call random_number(rnums)
-        i = max(min(int(rnums(4)*Nx,IKIND), Nx-1), 2)
-        j = max(min(int(rnums(6)*Ny,IKIND), Ny-1), 2)
-        k = max(min(int(rnums(8)*Nz,IKIND), Nz-1), 2)
+        i = max(min(int(rnums(4)*Nx,IKIND), Nx-1), 2_IKIND)
+        j = max(min(int(rnums(6)*Ny,IKIND), Ny-1), 2_IKIND)
+        k = max(min(int(rnums(8)*Nz,IKIND), Nz-1), 2_IKIND)
 !        eta(i,j,k) = rnums(10)*h_nu0*REAL(NGammaDot/dV,RKIND)
         eta(i,j,k) = rnums(10)*h_nu0*NGammaDot/dV
 !        print '(A,3(i2,1x),A,es9.2)', '   setting source at ',i,j,k,' with strength ',eta(i,j,k)

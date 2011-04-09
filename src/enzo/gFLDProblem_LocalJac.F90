@@ -572,7 +572,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHII = max(nH - nHI, 0._RKIND)
               ne  = nHII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
@@ -586,7 +586,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               dmu_dHI = -rho/mp*(dnHI_dHI + dnHII_dHI + dne_dHI) &
                    / (nHI + nHII + ne)**2
               T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
-              T = max(1._RKIND*T,1._RKIND*min_temp)
+              T = max(T,min_temp)
               dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
               dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
               lamT = 3.15614e5_RKIND/T
@@ -594,7 +594,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
               ! look up rates, derivatives
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+              Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -701,11 +701,11 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHII = max(nH - nHI, 0._RKIND)
               nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
               nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
               nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
-              nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
+              nHeIII = max(nHe - nHeI - nHeII, 0._RKIND)
               ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
@@ -728,7 +728,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
               dmu_dHeII = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
                    * (0.25_RKIND*(dnHeII_dHeII+dnHeIII_dHeII) + dne_dHeII)
               T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
-              T = max(1._RKIND*T,1._RKIND*min_temp)
+              T = max(T,min_temp)
               dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
               dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
               dT_dHeI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHeI
@@ -738,7 +738,7 @@ subroutine gFLDProblem_LocalJac1(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI, &
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+              Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -1223,7 +1223,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHII = max(nH - nHI, 0._RKIND)
               ne  = nHII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
@@ -1237,13 +1237,13 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               dmu_dHI = -rho/mp*(dnHI_dHI + dnHII_dHI + dne_dHI) &
                    / (nHI + nHII + ne)**2
               T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
-              T = max(1._RKIND*T,1._RKIND*min_temp)
+              T = max(T,min_temp)
               dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
               dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
 
               ! look up rates, derivatives
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+              Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -1339,11 +1339,11 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHII = max(nH - nHI, 0._RKIND)
               nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
               nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
               nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
-              nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
+              nHeIII = max(nHe - nHeI - nHeII, 0._RKIND)
               ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
               dnHI_dHI = NiUnits
               dnHII_dHI = -dnHI_dHI
@@ -1366,7 +1366,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
               dmu_dHeII = -rho/mp/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)**2 &
                    * (0.25_RKIND*(dnHeII_dHeII+dnHeIII_dHeII) + dne_dHeII)
               T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
-              T = max(1._RKIND*T,1._RKIND*min_temp)
+              T = max(T,min_temp)
               dT_dec = ecUnits*(gamma-1._RKIND)*mol_weight*mp/kb
               dT_dHI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHI
               dT_dHeI = (gamma-1._RKIND)*mp*eint/kb*dmu_dHeI
@@ -1374,7 +1374,7 @@ subroutine gFLDProblem_LocalJac2(Erjac_Er, Erjac_ec, Erjac_HI, Erjac_HeI,   &
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+              Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -1747,7 +1747,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
            rho = rhoa(i,j,k)*DenUnits
            nHI = n_HIa(i,j,k)*NiUnits
            nH = Hfrac*rho/mp
-           nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+           nHII = max(nH - nHI, 0._RKIND)
            ne = nHII
            dnHI_dHI = NiUnits
            dnHII_dHI = -dnHI_dHI
@@ -1759,7 +1759,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
               eint = eca(i,j,k)*ecUnits + VelUnits*VelUnits*(eha(i,j,k)  &
                    - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
               T = (gamma-1._RKIND)*mol_weight*mp*eint/kb
-              T = max(1._RKIND*T,1._RKIND*min_temp)
+              T = max(T,min_temp)
            else
               T = ecScale
            endif
@@ -1767,7 +1767,7 @@ subroutine gFLDProblem_LocalJac4(Erjac_Er, Erjac_ec, Erjac_HI, ecjac_Er,  &
 
            ! look up rates
            lTemp = min(max(log(T), lTempS), lTempE)
-           Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+           Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
            Tidxp = Tidx+1
            Tl = lTempS + (Tidx-1)*dlTemp
            Tr = lTempS +  Tidx*dlTemp
@@ -2111,7 +2111,7 @@ subroutine gFLDProblem_LocalJac10(Erjac_Er, Erjac_ec, ecjac_Er, ecjac_ec, &
               dT_dec = ecUnits/Cv
            endif
            
-           T = max(1._RKIND*T,1._RKIND*min_temp)
+           T = max(T,min_temp)
            
            ! compute opacities and derivatives
            kappaP = PmC0 * (rho/PmC1)**PmC2 * (T/PmC3)**PmC4

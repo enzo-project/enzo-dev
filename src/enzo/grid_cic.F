@@ -145,7 +145,8 @@ c
 c        Use velocity and mass field to generate mass field advanced by dt
 c
          do i=1,ddim1
-            shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),tiny)*coef1
+            shift1 = temp(i,1,1,2)/max(temp(i,1,1,1),REAL(tiny,RKIND))
+     &           * coef1
             x = min(max((i - 0.5_RKIND + shift1), half), edge1)
             i1 = int(x + 0.5_RKIND,IKIND)
             dx = REAL(i1,RKIND) + 0.5_RKIND - x
@@ -213,12 +214,12 @@ c
          do j=1, ddim2
             do i=1, ddim1
                shift2 = temp(i,j,1,3)/
-     &                  max(temp(i,j,1,1),tiny)*coef2
+     &                  max(temp(i,j,1,1),REAL(tiny,RKIND))*coef2
                y = min(max((j - 0.5_RKIND + shift2), half), edge2)
                j1 = int(y + 0.5_RKIND,IKIND)
                dy = REAL(j1,RKIND) + 0.5_RKIND - y
                shift1 = temp(i,j,1,2)/
-     &                  max(temp(i,j,1,1),tiny)*coef1
+     &                  max(temp(i,j,1,1),REAL(tiny,RKIND))*coef1
                x = min(max((i - 0.5_RKIND + shift1), half), edge1)
                i1 = int(x + 0.5_RKIND,IKIND)
                dx = REAL(i1,RKIND) + 0.5_RKIND - x
@@ -343,19 +344,19 @@ c
             do j=1, ddim2
                do i=1, ddim1
                   shift3 = temp(i,j,k,4)/
-     &                     max(temp(i,j,k,1),tiny)*coef3
+     &                     max(temp(i,j,k,1),REAL(tiny,RKIND))*coef3
                   z = min(max((k - 0.5_RKIND + shift3), half), edge3)
                   k1 = int(z + 0.5_RKIND,IKIND)
                   dz = REAL(k1,RKIND) + 0.5_RKIND - z
 c
                   shift2 = temp(i,j,k,3)/
-     &                     max(temp(i,j,k,1),tiny)*coef2
+     &                     max(temp(i,j,k,1),REAL(tiny,RKIND))*coef2
                   y = min(max((j - 0.5_RKIND + shift2), half), edge2)
                   j1 = int(y + 0.5_RKIND,IKIND)
                   dy = REAL(j1,RKIND) + 0.5_RKIND - y
 c
                   shift1 = temp(i,j,k,2)/
-     &                     max(temp(i,j,k,1),tiny)*coef1
+     &                     max(temp(i,j,k,1),REAL(tiny,RKIND))*coef1
                   x = min(max((i - 0.5_RKIND + shift1), half), edge1)
                   i1 = int(x + 0.5_RKIND,IKIND)
                   dx = REAL(i1,RKIND) + 0.5_RKIND - x

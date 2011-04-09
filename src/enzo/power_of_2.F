@@ -30,7 +30,7 @@
 
         if( n .gt. 2 ) then
 
-          m = mod(n,2)
+          m = mod(n,2_8)
 
           if ( m .ne. 0 ) then
             power_of_2 = 1

@@ -35,8 +35,8 @@ c
 #ifdef UNUSED_TABULATED_EQ
             do i=is+1,ie+1
             if(itmask(i).eqv..true..and.eqmask(i).eqv..true.)then
-              geprime(i) = log10((ge(i,j,k) +
-     &                   (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.0))
+              geprime(i) = log10((ge(i,j,k) + (fh-H2I(i,j,k)/d(i,j,k))
+     &              * chunit)*(uvel**2._RKIND))
             endif
             enddo
 #endif
@@ -85,7 +85,7 @@ c
      &                h2heatp, h2heatm, hiheatp, heiheatp, heiiheatp,
      &                tsc, esterr, tgas,
      &                rejected, itererror, eqmask, dom, dt, ttot )
-            if(inneriter.gt.1.and.itererror.lt.1e-4) return
+            if(inneriter.gt.1.and.itererror.lt.1.e-4_RKIND) return
             enddo
 #ifdef UNUSED_TABULATED_EQ
             if(eqflag.eqv..true.)then
@@ -103,11 +103,14 @@ c
      &                dprime, geprime, H2Ifrac, is, ie, in )
               do i=is+1, ie+1
               if((eqmask(i).eqv..true.).and.(itmask(i).eqv..true.))then
-                  temp1 = fd(i) - (s(i,iHII)+0*s(i,iH2II)+0*s(i,iHM))
+                  temp1 = fd(i) - (s(i,iHII)+0._RKIND*s(i,iH2II)
+     &                + 0._RKIND*s(i,iHM))
                   if(iter.eq.1)write(4,*)
      &                  dprime(i),geprime(i),H2Ifrac(i),s(i,iH2I)/temp1
-                  s(i,iH2I) = max(temp1*(H2Ifrac(i)),1e-10*d(i,j,k))
-                  s(i,iHI) = max(temp1*(1.0-H2Ifrac(i)),1e-10*d(i,j,k))
+                  s(i,iH2I) = max(temp1*(H2Ifrac(i)),
+     &                            1.e-10_rkIND*d(i,j,k))
+                  s(i,iHI) = max(temp1*(1._RKIND-H2Ifrac(i)),
+     &                 1.e-10_RKIND*d(i,j,k))
 c                  write(0,*) H2Ifrac(i), 1.0-H2Ifrac(i)
               endif
               enddo
@@ -119,22 +122,23 @@ c            write(0,*) iter,inneriter
             do i=is+1, ie+1
             if(itmask(i).eqv..true.)then
             if(doupdate.eqv..true.)then
-              correctHe(i) = (1.0-fh) * d(i,j,k)
+              correctHe(i) = (1._RKIND-fh) * d(i,j,k)
      &                    / ( s(i,iHeI) + s(i,iHeII) + s(i,iHeIII) )
               s(i,iHeI) = s(i,iHeI) * correctHe(i)
               s(i,iHeII) = s(i,iHeII) * correctHe(i)
               s(i,iHeIII) = s(i,iHeIII) * correctHe(i)
               correctD(i) = dtoh * fh * d(i,j,k)
      &                    / ( s(i,iDI) + s(i,iDII)
-     &                      + 2.0d0*s(i,iHDI)/3.0d0 )
+     &                      + 2._RKIND*s(i,iHDI)/3._RKIND )
               s(i,iDI) = s(i,iDI) * correctD(i)
               s(i,iDII) = s(i,iDII) * correctD(i)
               s(i,iHDI) = s(i,iHDI) * correctD(i)
               correctH(i) = fh * d(i,j,k)
      &                    / ( s(i,iHI) + s(i,iHII)
      &                      + s(i,iHM) + s(i,iH2I) + s(i,iH2II)
-     &                      + 0*s(i,iHDI)/3.0d0 )
-            if (abs(correctH(i)-1.0).gt.0.5.and.d(i,j,k)*dom.gt.1d9)then
+     &                      + 0._RKIND*s(i,iHDI)/3._RKIND )
+            if (abs(correctH(i)-1._RKIND).gt.0.5_RKIND
+     &             .and. d(i,j,k)*dom.gt.1.e9_RKIND)then
                  write(6,*) "correctH1:",iter,correctH(i),d(i,j,k),
      &                      s(i,iHI), s(i,iHII), s(i,iHM), s(i,iH2I),
      &                      s(i,iH2II)!, s(i,iDI), s(i,iDII), s(i,iHDI)
@@ -142,7 +146,8 @@ c            write(0,*) iter,inneriter
      &                     sp(i,iHI), sp(i,iHII), sp(i,iHM), sp(i,iH2I),
      &                     sp(i,iH2II)!, sp(i,iDI), sp(i,iDII), sp(i,iHDI)
                  write(6,*) "correctH3:",eqmask(i),10**HIfrac(i)+
-     &                     10**H2Ifrac(i)+10**HIIfrac(i), tgas(i)
+     &                     10._RKIND**H2Ifrac(i)+10._RKIND**HIIfrac(i), 
+     &                     tgas(i)
 c                 stop
             endif
               s(i,iHI) = s(i,iHI) * correctH(i)
@@ -151,12 +156,12 @@ c                 stop
               s(i,iH2I) = s(i,iH2I) * correctH(i)
               s(i,iH2II) = s(i,iH2II) * correctH(i)
               s(i,ide) = s(i,iHII) 
-     &                 + s(i,iHeII)/4.0d0 
-     &                 + s(i,iHeIII)/2.0d0
-     &                 + s(i,iH2II)/2.0d0 
+     &                 + s(i,iHeII)/4._RKIND 
+     &                 + s(i,iHeIII)/2._RKIND
+     &                 + s(i,iH2II)/2._RKIND 
      &                 - s(i,iHM) 
-     &                 + s(i,iDII)/2.0d0
-              s(i,ide) = max(tiny,s(i,ide))
+     &                 + s(i,iDII)/2._RKIND
+              s(i,ide) = max(1.d0*tiny,s(i,ide))
               dsq(i,ige) = dsq(i,ige)/d(i,j,k) 
               dsp(i,ige) = dsp(i,ige)/d(i,j,k)
               dsqge = dsq(i,ige)
@@ -164,9 +169,9 @@ c                 stop
 c              if((eqmask(i).eqv..true.))then
 c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
               dsq(i,ige) = (dsq(i,ige) + chunit*h2heatp(i)/d(i,j,k) 
-     &                             + 0*ciHIunit*hiheatp(i)/d(i,j,k)
-     &                             + 0*ciHeIunit*heiheatp(i)/d(i,j,k)
-     &                             + 0*ciHeIIunit*heiiheatp(i)/d(i,j,k))
+     &             + 0._RKIND*ciHIunit*hiheatp(i)/d(i,j,k)
+     &             + 0._RKIND*ciHeIunit*heiheatp(i)/d(i,j,k)
+     &             + 0._RKIND*ciHeIIunit*heiiheatp(i)/d(i,j,k))
               dsp(i,ige) = (dsp(i,ige) + chunit*h2heatm(i)/d(i,j,k))
               n = ige
 #ifdef PYFORT
@@ -174,15 +179,15 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
 #endif
               n = ige
               miscflag = .false.
-              if(dom*d(i,j,k).gt.1e16.and.tgas(i).gt.4000)then
+              if(dom*d(i,j,k).gt.1.e16_RKIND.and.tgas(i).gt.4000)then
                 miscflag = .true.
               endif
               s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
-     &                / (1.0d0+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
+     &             / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
               if(miscflag.eqv..true.)then
                 temp1 = (dsqge-dspge) + 
      &              chunit*(s(i,iH2I)-sp(i,iH2I))/(dtit(i)*d(i,j,k))
-                if(temp1.gt.0.0d0)then
+                if(temp1.gt.0._RKIND)then
                   s(i,ige) = max(sp(i,ige), min(sp(i,ige) +
      &              dtit(i)*temp1, s(i,ige)))
                 else
@@ -190,9 +195,9 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
      &              dtit(i)*temp1, s(i,ige)))
                 endif
               endif
-              temp2 = abs((2.0d0/(tsc(i)+1.0d0)) *
-     &        (tsc(i)*s(i,n) - (1.0d0+tsc(i))*sp(i,n) + sm1(i,n)))
-     &              /  (1e-2*dtcoef(n)*sp(i,n))
+              temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
+     &        (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
+     &              /  (1.e-2_RKIND*dtcoef(n)*sp(i,n))
               if(eulermask(i).eqv..true.)
      &          s(i,ige) = s(i,ige) +
      &              chunit*(s(i,iH2I)-sp(i,iH2I))/d(i,j,k)
@@ -201,9 +206,10 @@ c              write(0,*) hiheatp(i), heiheatp(i), heiiheatp(i)
                 mins(i) = n
               endif
               rejected(i) = .false.
-              if(esterr(i).gt.1.0.or.abs(1.0d0-correctH(i)).gt.0.1)then
+              if(esterr(i).gt.1._RKIND .or. 
+     &           abs(1._RKIND-correctH(i)).gt.0.1_RKIND)then
                 rejected(i)=.true.
-                esterr(i) = max(esterr(i), 1.01)
+                esterr(i) = max(esterr(i), 1.01d0)
               endif
             endif
             endif

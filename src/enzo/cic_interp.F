@@ -51,21 +51,21 @@ c
 c  locals
 c
       INTG_PREC i1, j1, k1, n
-      R_PREC    xpos, ypos, zpos, dx, dy, dz, fact
-      P_PREC half, edge1, edge2, edge3
+      R_PREC    xpos, ypos, zpos, dx, dy, dz
+      P_PREC half, edge1, edge2, edge3, fact
 c
 c  constants (half is slightly more than 1/2 to make sure rounding is
 c             performed in the correct direction)
 c
-      parameter (half = 0.5001_RKIND)
+      parameter (half = 0.5001_PKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1._RKIND/cellsize
-      edge1 = REAL(dim1,RKIND) - half
-      edge2 = REAL(dim2,RKIND) - half
-      edge3 = REAL(dim3,RKIND) - half
+      fact = 1._PKIND/cellsize
+      edge1 = REAL(dim1,PKIND) - half
+      edge2 = REAL(dim2,PKIND) - half
+      edge3 = REAL(dim3,PKIND) - half
 c
 c     1D
 c

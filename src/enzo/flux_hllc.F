@@ -129,7 +129,8 @@ c
 c
 c     Compute characteristics using Roe-averaged values
 c
-         cs(i) = sqrt(gamma1*max((hroe - 0.5_RKIND*v2), tiny))
+         cs(i) = sqrt(gamma1*max((hroe - 0.5_RKIND*v2), 
+     &        REAL(tiny,RKIND)))
          char1(i) = vroe1 - cs(i)
          char2(i) = vroe1 + cs(i)
       enddo
@@ -292,7 +293,7 @@ c
       if (idual .eq. 1) then
          do i=i1, i2+1
             pcent(i) = max((gamma-1._RKIND)*geslice(i,j)*dslice(i,j), 
-     $           tiny)
+     $           REAL(tiny,RKIND))
          enddo
          do i=i1, i2+1
             qc = dt/dx(i)

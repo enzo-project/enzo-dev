@@ -401,7 +401,7 @@ c
      &     m_eject, yield, minitial, xv1, xv2, dratio
       parameter (clight = c_light, msolar_e51 = 1800._RKIND)
 c
-#define NO_KINETIC_FEEDBACK  !#####
+#define NO_KINETIC_FEEDBACK  
 #ifdef KINETIC_FEEDBACK
       INTG_PREC nn
       INTG_PREC ind_x(7), ind_y(7), ind_z(7)

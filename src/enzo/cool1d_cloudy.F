@@ -374,8 +374,8 @@
 
 !     Calculate interpolation index
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
+      index1 = min(gridDim(1)-1, max(1_IKIND,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1_IKIND))
 
 !     Interpolate over parameter 1
 
@@ -417,10 +417,10 @@
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
+      index1 = min(gridDim(1)-1, max(1_IKIND,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1_IKIND))
+      index2 = min(gridDim(2)-1, max(1_IKIND,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1_IKIND))
 
       do q=1, 2
 
@@ -478,12 +478,12 @@
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
-      index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
+      index1 = min(gridDim(1)-1_IKIND, max(1_IKIND,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1_IKIND))
+      index2 = min(gridDim(2)-1_IKIND, max(1_IKIND,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1_IKIND))
+      index3 = min(gridDim(3)-1_IKIND, max(1_IKIND,
+     &     int((input3-gridPar3(1))/dgridPar3,IKIND)+1_IKIND))
 
       do q=1, 2
 
@@ -556,14 +556,14 @@
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
-      index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
-      index4 = min(gridDim(4)-1,
-     &     max(1,int((input4-gridPar4(1))/dgridPar4,IKIND)+1))
+      index1 = min(gridDim(1)-1_IKIND, max(1_IKIND,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1_IKIND))
+      index2 = min(gridDim(2)-1_IKIND, max(1_IKIND,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1_IKIND))
+      index3 = min(gridDim(3)-1_IKIND, max(1_IKIND,
+     &     int((input3-gridPar3(1))/dgridPar3,IKIND)+1_IKIND))
+      index4 = min(gridDim(4)-1_IKIND, max(1_IKIND,
+     &     int((input4-gridPar4(1))/dgridPar4,IKIND)+1_IKIND))
 
       do q=1, 2
 
@@ -631,7 +631,7 @@
 !  General Arguments
 
       INTG_PREC dataSize
-      INTG_PREC gridDim(4)
+      INTG_PREC gridDim(5)
       R_PREC input1, input2, input3, input4, input5, value
       R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
@@ -651,12 +651,12 @@
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
-      index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
+      index1 = min(gridDim(1)-1_IKIND, max(1_IKIND,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1_IKIND))
+      index2 = min(gridDim(2)-1_IKIND, max(1_IKIND,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1_IKIND))
+      index3 = min(gridDim(3)-1_IKIND, max(1_IKIND,
+     &     int((input3-gridPar3(1))/dgridPar3,IKIND)+1_IKIND))
 #define INDEX_4_BISECTION
 #ifdef INDEX_4_BISECTION
 !     get index 4 with bisection, since not evenly spaced
@@ -677,11 +677,11 @@
          enddo
       endif
 #else
-      index4 = min(gridDim(4)-1,
-     &     max(1,int((input4-gridPar4(1))/dgridPar4,IKIND)+1))
+      index4 = min(gridDim(4)-1_IKIND, max(1_IKIND,
+     &     int((input4-gridPar4(1))/dgridPar4,IKIND)+1_IKIND))
 #endif /* INDEX_4_BISECTION */
-      index5 = min(gridDim(5)-1,
-     &     max(1,int((input5-gridPar5(1))/dgridPar5,IKIND)+1))
+      index5 = min(gridDim(5)-1_IKIND, max(1_IKIND,
+     &     int((input5-gridPar5(1))/dgridPar5,IKIND)+1_IKIND))
 
       do q=1, 2
 

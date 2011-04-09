@@ -141,24 +141,8 @@ MODULE singleton
   PRIVATE
   PUBLIC:: fft, fftn, fftkind
 
-#ifdef CONFIG_BFLOAT_4
-  REAL*4 :: TYPE_DUMMY
-#endif
-
-#ifdef CONFIG_BFLOAT_8
-  REAL*8 :: TYPE_DUMMY
-#endif
-
-#ifdef SMALL_INTS
-  INTEGER*4 :: ITYPE_DUMMY
-#endif
-
-#ifdef LARGE_INTS
-  INTEGER*8 :: ITYPE_DUMMY
-#endif
-
-  INTEGER, PARAMETER:: fftkind = KIND(TYPE_DUMMY)  !--- adjust here for other precisions
-  INTEGER, PARAMETER:: fftintk = KIND(ITYPE_DUMMY) !--- adjust here for other precisions
+  INTEGER, PARAMETER:: fftkind = RKIND  !--- adjust here for other precisions
+  INTEGER, PARAMETER:: fftintk = IKIND  !--- adjust here for other precisions
 
   REAL(fftkind), PARAMETER:: sin60 = 0.86602540378443865_fftkind
   REAL(fftkind), PARAMETER:: cos72 = 0.30901699437494742_fftkind
@@ -453,7 +437,7 @@ CONTAINS
     SUBROUTINE factorize
       nfactor = 0
       k = npass
-      DO WHILE (MOD(k, 16) == 0) 
+      DO WHILE (MOD(k, 16_fftintk) == 0) 
          nfactor = nfactor + 1
          factor (nfactor) = 4
          k = k / 16

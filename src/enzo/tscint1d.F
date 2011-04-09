@@ -119,7 +119,7 @@ c
          del2left = parent((i-1)/refine1+1)/REAL(refine1,RKIND) - 
      &              grid(i-start1+gstart1)
          if (abs(del2left) .lt. tiny) 
-     &        del2left = sign(tiny, del2left)
+     &        del2left = sign(REAL(tiny,RKIND), del2left)
          fraction((i-start1)/refine1 + 1) = 
      &             min(max(del1left/del2left, 0._RKIND), 1._RKIND)
       enddo
@@ -137,7 +137,7 @@ c
          del2right = parent((i-1)/refine1+1)/REAL(refine1,RKIND) - 
      &              grid(i-start1+gstart1+refine1-1)
          if (abs(del2right) .lt. tiny) del2right = 
-     &        sign(tiny, del2right)
+     &        sign(REAL(tiny,RKIND), del2right)
          fraction((i-start1)/refine1 + 1) = max(
      &                    min(max(del1right/del2right, 0._RKIND), 
      &                    1._RKIND), fraction((i-start1)/refine1 + 1) )

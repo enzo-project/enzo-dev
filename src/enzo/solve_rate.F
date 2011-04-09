@@ -184,8 +184,8 @@ c           logtem(i) = log(0.5_RKIND*(tgas(i,j,k)+tgasold(i,j,k)))
 c
 c           Find index into tble and precompute interpolation values
 c
-            indixe(i) = min(nratec-1,
-     &                max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
+            indixe(i) = min(nratec-1, max(1_IKIND,
+     &           int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
             t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
             t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
             tdef(i) = t2(i) - t1(i)
@@ -294,7 +294,7 @@ c          (see calc_rate.src)
 c
          if (iradtype .eq. 8) then
             do i = is+1, ie+1
-               x = max(HII(i,j,k)/(HI(i,j,k)+HII(i,j,k)), 1.0d-4)
+               x = max(HII(i,j,k)/(HI(i,j,k)+HII(i,j,k)), 1.e-4_RKIND)
                factor = 0.3908_RKIND*(1._RKIND - 
      &              x**0.4092_RKIND)**1.7592_RKIND
                k24shield(i) = k24shield(i) + 
@@ -332,7 +332,7 @@ c
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                     + k13dd(i,3)-k13dd(i,4)/
      &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10._RKIND**k13(i), tiny)
+                     k13(i) = max(10._RKIND**k13(i), REAL(tiny,RKIND))
                   endif
                enddo
             endif
@@ -805,7 +805,7 @@ c
                HII(i,j,k)   = HIIp(i)
                HeI(i,j,k)   = HeIp(i)
                HeII(i,j,k)  = HeIIp(i)
-               HeIII(i,j,k) = max(HeIIIp(i), 1.0d-25)
+               HeIII(i,j,k) = max(HeIIIp(i), 1.e-25_RKIND)
 c
 c               de(i,j,k)    = dep(i)
 c

@@ -263,7 +263,7 @@
 
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 
-             energy = max(p2d(i)/(gamma-1._RKIND), tiny)
+             energy = max(p2d(i)/(gamma-1._RKIND), REAL(tiny,RKIND))
 
 c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1._RKIND), 
 c    &                    tiny)

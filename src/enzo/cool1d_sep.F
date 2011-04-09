@@ -198,7 +198,7 @@ c
                   if (idim .gt. 2) 
      &                 p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
                   p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), 
-     &                         tiny)
+     &                         REAL(tiny,RKIND))
                endif
             enddo
          endif
@@ -282,8 +282,8 @@ c
 c
 c        Compute index into the table and precompute parts of linear interp
 c
-         indixe(i) = min(nratec-1,
-     .                  max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
+         indixe(i) = min(nratec-1, max(1_IKIND,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = 1._RKIND/(t2(i) - t1(i))
@@ -486,7 +486,7 @@ c
          do i = is+1, ie+1
             if (itmask(i)) then
                hdlte1 = hdlte(i)/(HDI(i,j,k)*dom/2._RKIND)
-               hdlow1 = max(hdlow(i), tiny)
+               hdlow1 = max(hdlow(i), REAL(tiny,RKIND))
                edot(i,17) = -HDI(i,j,k)*
      .              (hdlte1/(1._RKIND + hdlte1/hdlow1)/(2._RKIND*dom))
             endif
@@ -509,7 +509,8 @@ c  Determine temperature for CMB temperature so we can subtract metal
 c  cooling at T=T_cmb
 c
          logtcmb = log(comp2)
-         tcmb_idx = max(1, int((logtcmb-logtem0)/dlogtem,IKIND)+1)
+         tcmb_idx = max(1_IKIND, 
+     $        int((logtcmb-logtem0)/dlogtem,IKIND)+1_IKIND)
          dlogTcmb = (logtcmb - (logtem0 + (tcmb_idx-1)*dlogtem)) 
      $	/ dlogtem
          do i = is+1, ie+1
@@ -521,8 +522,8 @@ c
      $                         xe_min)
                   log_xe = min(log_xe, xe_max)
                endif
-               xe_idx = min(n_xe-1,
-     $              max(1, int((log_xe - logxe0)/dlogxea,IKIND)+1))
+               xe_idx = min(n_xe-1, max(1_IKIND, 
+     $              int((log_xe - logxe0)/dlogxea,IKIND)+1_IKIND))
                xe1 = logxe0 + (xe_idx - 1)*dlogxea
                dlogT = (logtem(i) - t1(i)) * tdef(i)
                dlogxe = (log_xe - xe1) / dlogxea

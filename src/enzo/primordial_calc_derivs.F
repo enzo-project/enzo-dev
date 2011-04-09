@@ -187,7 +187,7 @@ c        s(i,n) = (dsq(i,n)*dtit(i)+s(i,n))
 c     &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
         s(i,de) = s(i,HII) + s(i,HeII)/4._RKIND + s(i,HeIII)/2._RKIND
      &           + s(i,H2II)/2._RKIND - s(i,HM) + s(i,DII)/2._RKIND
-        s(i,de) = max(tiny,s(i,de))
+        s(i,de) = max(1.d0*tiny,s(i,de))
 #include "primordial_reactions.inc"
         endif
 
@@ -296,7 +296,7 @@ c
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
      &          / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-        s(i,n) = max(s(i,n), tiny)
+        s(i,n) = max(s(i,n), 1.d0*tiny)
 #include "primordial_reactions.inc"
         temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
      &       (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
@@ -326,7 +326,7 @@ c
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
      &          / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-        s(i,n) = max(tiny,s(i,n))
+        s(i,n) = max(1.d0*tiny,s(i,n))
 #include "primordial_reactions.inc"
         temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
      &       (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
@@ -353,7 +353,7 @@ c
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*tsgamma(i)*dtit(i)+tscapy(i,n))
      &          / (1._RKIND+tsgamma(i)*dtit(i)*dsp(i,n)/s(i,n))
-        s(i,n) = max(tiny,s(i,n))
+        s(i,n) = max(1.d0*tiny,s(i,n))
 #include "primordial_reactions.inc"
         temp2 = abs((2._RKIND/(tsc(i)+1._RKIND)) *
      &       (tsc(i)*s(i,n) - (1._RKIND+tsc(i))*sp(i,n) + sm1(i,n)))
@@ -370,7 +370,7 @@ c   We assume that the charge exchange with the H/H+ species will completely
 c   regulate the abundance of D/D+
 c Recall:
 c   nD = (nDTot - nHD) * (nH * k51) / (nH*k51 + nH*k50)
-        temp1 = max(tiny, dtot(i) - (2._RKIND/3._RKIND) * s(i,HDI))
+        temp1 = max(1.d0*tiny, dtot(i) - (2._RKIND/3._RKIND) * s(i,HDI))
 c        s(i,DI)  = max(tiny*rtot(i), temp1 * 
 c     &     (s(i,HI) * k51(i)) / (s(i,HI)*k51(i) + s(i,HII)*k50(i)))
 c        s(i,DI) = s(i,DI) * (r62 + r51 + r55) / (r61 + r50 + r54)
@@ -396,7 +396,7 @@ c
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*dtit(i)+sp(i,n))
      &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
-        s(i,n) = max(tiny, s(i,n))
+        s(i,n) = max(1.d0*tiny, s(i,n))
 #include "primordial_reactions.inc"
         endif
 
@@ -417,7 +417,7 @@ c
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*dtit(i)+sp(i,n))
      &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
-        s(i,n) = max(tiny, s(i,n))
+        s(i,n) = max(1.d0*tiny, s(i,n))
 #include "primordial_reactions.inc"
         endif
 
@@ -436,7 +436,7 @@ c
         if(doupdate.eqv..true.)then
         s(i,n) = (dsq(i,n)*dtit(i)+sp(i,n))
      &         / (1._RKIND+dtit(i)*dsp(i,n)/s(i,n))
-        s(i,n) = max(tiny, s(i,n))
+        s(i,n) = max(1.d0*tiny, s(i,n))
 #include "primordial_reactions.inc"
         endif
 
@@ -446,7 +446,7 @@ c done.
         if(doupdate.eqv..true.)then
           s(i,de) = s(i,HII) + s(i,HeII)/4._RKIND + s(i,HeIII)/2._RKIND
      &            + s(i,H2II)/2._RKIND - s(i,HM)
-          s(i,de) = max(s(i,de),tiny)
+          s(i,de) = max(s(i,de),1.d0*tiny)
         endif
 
         if(flipdmask.and.(itererror.lt.ITERTOL))dmask(i)=.false.

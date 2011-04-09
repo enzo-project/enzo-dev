@@ -103,7 +103,8 @@ c
                p2d(i) = e(i,j,k) - 0.5_RKIND*u(i,j,k)**2
                if (idim .gt. 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
                if (idim .gt. 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
-               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), tiny)
+               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), 
+     &              REAL(tiny,RKIND))
             enddo
          endif
       endif
@@ -134,8 +135,8 @@ c
 c
 c        Compute index into the table and precompute parts of linear interp
 c
-         indixe(i) = min(nratec-1,
-     .                  max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
+         indixe(i) = min(nratec-1, max(1_IKIND,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)

@@ -701,7 +701,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
      eint = VelUnits*VelUnits*(eh(1,1,1)                        &
           - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
      T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
-     T = max(1.d0*T,1.d0)
+     T = max(T,1.d0)
   else
      T = ecScale
   endif
@@ -712,7 +712,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
   lTempE = log(TempEnd)
   dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
   lTemp = min(max(log(T), lTempS), lTempE)
-  Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+  Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
   Tidxp = Tidx+1
   Tl = lTempS + (Tidx-1)*dlTemp
   Tr = lTempS +  Tidx*dlTemp
@@ -1084,7 +1084,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
         eint = vUn*vUn*(eh(1,1,1)                                  &
              - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
         T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
-        T = max(1.d0*T,1.d0)
+        T = max(T,1.d0)
      else
         T = ecScale
      endif
@@ -1095,7 +1095,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+     Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1603,7 +1603,7 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
         T = (gamma-1.0)*0.6d0*mp*(eint+ecval)/kb
      endif
   endif
-  T = max(1.d0*T, 1.d0*min_temp)
+  T = max(T, min_temp)
   eta = 4.d0*kappa*NiUnits*StBz*T**4
 
   ! compute radiation ODE rates

@@ -263,11 +263,11 @@ c
          INFO = 4
       ELSE IF( K  .LT.0               )THEN
          INFO = 5
-      ELSE IF( LDA.LT.MAX( 1, NROWA ) )THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, NROWA ) )THEN
          INFO = 8
-      ELSE IF( LDB.LT.MAX( 1, NROWB ) )THEN
+      ELSE IF( LDB.LT.MAX( 1_IKIND, NROWB ) )THEN
          INFO = 10
-      ELSE IF( LDC.LT.MAX( 1, M     ) )THEN
+      ELSE IF( LDC.LT.MAX( 1_IKIND, M     ) )THEN
          INFO = 13
       END IF
       IF( INFO.NE.0 )THEN
@@ -526,7 +526,7 @@ c
          INFO = 2
       ELSE IF( N.LT.0 )THEN
          INFO = 3
-      ELSE IF( LDA.LT.MAX( 1, M ) )THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, M ) )THEN
          INFO = 6
       ELSE IF( INCX.EQ.0 )THEN
          INFO = 8
@@ -766,7 +766,7 @@ c
          INFO = 5
       ELSE IF( INCY.EQ.0 )THEN
          INFO = 7
-      ELSE IF( LDA.LT.MAX( 1, M ) )THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, M ) )THEN
          INFO = 9
       END IF
       IF( INFO.NE.0 )THEN
@@ -912,7 +912,7 @@ c
          INFO = -1
       ELSE IF( N.LT.0 ) THEN
          INFO = -2
-      ELSE IF( LDA.LT.MAX( 1, M ) ) THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, M ) ) THEN
          INFO = -4
       END IF
       IF( INFO.NE.0 ) THEN
@@ -1052,7 +1052,7 @@ c
          INFO = -1
       ELSE IF( N.LT.0 ) THEN
          INFO = -2
-      ELSE IF( LDA.LT.MAX( 1, M ) ) THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, M ) ) THEN
          INFO = -4
       END IF
       IF( INFO.NE.0 ) THEN
@@ -1225,9 +1225,9 @@ c
          INFO = -2
       ELSE IF( NRHS.LT.0 ) THEN
          INFO = -3
-      ELSE IF( LDA.LT.MAX( 1, N ) ) THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, N ) ) THEN
          INFO = -5
-      ELSE IF( LDB.LT.MAX( 1, N ) ) THEN
+      ELSE IF( LDB.LT.MAX( 1_IKIND, N ) ) THEN
          INFO = -8
       END IF
       IF( INFO.NE.0 ) THEN
@@ -1445,7 +1445,7 @@ c
 c
 c       clean-up loop
 c
-   20 m = mod(n,3)
+   20 m = mod(n,3_IKIND)
       if( m .eq. 0 ) go to 40
       do 30 i = 1,m
         dtemp = dx(i)
@@ -1499,7 +1499,7 @@ c
 c
 c        clean-up loop
 c
-   20 m = mod(n,5)
+   20 m = mod(n,5_IKIND)
       if( m .eq. 0 ) go to 40
       do 30 i = 1,m
         dx(i) = da*dx(i)
@@ -1695,9 +1695,9 @@ c
          INFO = 5
       ELSE IF( N  .LT.0               )THEN
          INFO = 6
-      ELSE IF( LDA.LT.MAX( 1, NROWA ) )THEN
+      ELSE IF( LDA.LT.MAX( 1_IKIND, NROWA ) )THEN
          INFO = 9
-      ELSE IF( LDB.LT.MAX( 1, M     ) )THEN
+      ELSE IF( LDB.LT.MAX( 1_IKIND, M     ) )THEN
          INFO = 11
       END IF
       IF( INFO.NE.0 )THEN

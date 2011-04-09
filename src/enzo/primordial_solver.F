@@ -195,8 +195,8 @@ c
 c  Locals
 c
       INTG_PREC i, j, k, n, m, iter, inneriter, imin, ifedtgas
-      R_PREC ttmin, dom, energy(ijk), comp1, comp2, maxchange, fH2, 
-     &     dfH2, scaling, prevfH2, HIfrac(ijk), HIIfrac(ijk), 
+      double precision ttmin, dom, energy(ijk), comp1, comp2, maxchange, 
+     &     fH2, dfH2, scaling, prevfH2, HIfrac(ijk), HIIfrac(ijk), 
      &     H2Ifrac(ijk)
       double precision coolunit, dbase1, tbase1, xbase1, kunit,
      &     kunit_3bdy, chunit, ciHIunit, ciHeIunit, ciHeIIunit
@@ -433,19 +433,19 @@ c                write(0,*) (geprime(i).gt.estartcode)
 c                stop
             endif
 #endif
-            s(i,iHI) = max(HI(i,j,k),tiny)
-            s(i,iHII) = max(HII(i,j,k),tiny)
-            s(i,ide) = max(de(i,j,k),tiny)
-            s(i,iHeI) = max(HeI(i,j,k),tiny)
-            s(i,iHeII) = max(HeII(i,j,k),tiny)
-            s(i,iHeIII) = max(HeIII(i,j,k),tiny)
-            s(i,iH2I) = max(H2I(i,j,k),tiny)
-            s(i,iH2II) = max(H2II(i,j,k),tiny)
-            s(i,iHM) = max(HM(i,j,k),tiny)
-            s(i,ige) = max(ge(i,j,k),tiny)
-            s(i,iDI) = max(DI(i,j,k),tiny)
-            s(i,iDII) = max(DII(i,j,k),tiny)
-            s(i,iHDI) = max(HDI(i,j,k),tiny)
+            s(i,iHI) = max(HI(i,j,k),REAL(tiny,RKIND))
+            s(i,iHII) = max(HII(i,j,k),REAL(tiny,RKIND))
+            s(i,ide) = max(de(i,j,k),REAL(tiny,RKIND))
+            s(i,iHeI) = max(HeI(i,j,k),REAL(tiny,RKIND))
+            s(i,iHeII) = max(HeII(i,j,k),REAL(tiny,RKIND))
+            s(i,iHeIII) = max(HeIII(i,j,k),REAL(tiny,RKIND))
+            s(i,iH2I) = max(H2I(i,j,k),REAL(tiny,RKIND))
+            s(i,iH2II) = max(H2II(i,j,k),REAL(tiny,RKIND))
+            s(i,iHM) = max(HM(i,j,k),REAL(tiny,RKIND))
+            s(i,ige) = max(ge(i,j,k),REAL(tiny,RKIND))
+            s(i,iDI) = max(DI(i,j,k),REAL(tiny,RKIND))
+            s(i,iDII) = max(DII(i,j,k),REAL(tiny,RKIND))
+            s(i,iHDI) = max(HDI(i,j,k),REAL(tiny,RKIND))
             dtot(i) = fh*dtoh*d(i,j,k)
             rtot(i) = d(i,j,k)
             h2heatm(i) = tiny
@@ -479,8 +479,9 @@ c                stop
              do i = is+1, ie+1
              if((itmask(i).eqv..true.).and.(eqmask(i).eqv..false.))then
                ! Figure out our dtit here
-               kws = min(abs(dsq(i,n)-dsp(i,n)),huge)
-               qt = max(s(i,n),tiny) / max(tiny, kws)
+               kws = min(abs(dsq(i,n)-dsp(i,n)),1.d0*huge)
+               qt = max(s(i,n),REAL(tiny,8)) 
+     &              / max(REAL(tiny,8), kws)
                temp1 = 0.1_RKIND*abs(dtcoef(n)*qt)
                if(temp1.lt.dtit(i).and.temp1.gt.tiny)then
                  dtit(i) = temp1
@@ -678,13 +679,11 @@ c           Guess stepsize for next iteration.
             if(itmask(i).eqv..true.)then
               if(rejected(i).eqv..false.) olddtit(i) = dtit(i)
 #ifdef PYFORT
-              dtit(i) = min(dt(i,j,k)-ttot(i),max(
-     &             0.5_RKIND,min(2._RKIND,0.8_RKIND 
-     &             / sqrt(esterr(i))))*dtit(i))
+              dtit(i) = min( 1.d0*(dt(i,j,k)-ttot(i)), max( 0.5d0, 
+     &             min(2.d0, 0.8d0 / sqrt(esterr(i))))*dtit(i))
 #else
-              dtit(i) = min(dt-ttot(i),max(
-     &             0.5_RKIND,min(2._RKIND,0.8_RKIND 
-     &             / sqrt(esterr(i))))*dtit(i))
+              dtit(i) = min( 1.d0*(dt-ttot(i)), max( 0.5d0, 
+     &             min(2.d0, 0.8d0 / sqrt(esterr(i))))*dtit(i) )
 #endif
             endif
             enddo

@@ -84,7 +84,8 @@ c
 c        Compute the cooling time on the slice
 c
          do i = is+1, ie+1
-            energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
+            energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), 
+     &           REAL(tiny,RKIND))
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 c

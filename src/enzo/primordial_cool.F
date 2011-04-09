@@ -312,8 +312,8 @@ c Changed to be non-time-centered
 c
 c        Compute index into the table and precompute parts of linear interp
 c
-         indixe(i) = min(nratec-1,
-     .                  max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
+         indixe(i) = min(nratec-1, max(1_IKIND,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)
@@ -686,7 +686,7 @@ c              electrons which do the heating (Shull & Steenberg, 1985).
 c
             do i = is+1, ie+1
                if (itmask(i)) then
-               x = max(HII(i)/(HI(i)+HII(i)), 1.e-4_RKIND)
+               x = max(HII(i)/(HI(i)+HII(i)), 1.d-4)
                factor = 0.9971_RKIND*(1._RKIND
      .              - (1._RKIND-x**0.2663_RKIND)**1.3163_RKIND)
                edotplus(i) = edotplus(i) + float(ipiht)*factor*(

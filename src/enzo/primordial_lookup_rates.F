@@ -103,7 +103,7 @@ c
 c        Find index into table and precompute interpolation values
 c
          indixe(i) = min(nratec-1,
-     &                max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
+     &        max(1_IKIND,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)
@@ -231,7 +231,7 @@ c
       if (iradtype .eq. 8) then
          do i = is+1, ie+1
          if (itmask(i).eqv..true.) then
-            x = max(HII(i)/(HI(i)+HII(i)), 1.e-4_RKIND)
+            x = max(HII(i)/(HI(i)+HII(i)), 1.d-4)
             factor = 0.3908_RKIND*(1._RKIND - 
      &           x**0.4092_RKIND)**1.7592_RKIND
             k24shield(i) = k24shield(i) + factor*(piHI + 
@@ -257,7 +257,7 @@ c
             if ((ispecies .gt. 1).and.(threebody.eq.0)) then
                do i = is+1, ie+1
                if (itmask(i).eqv..true.) then
-                  nh = min(HI(i)*dom, 1.e9_RKIND)
+                  nh = min(HI(i)*dom, 1.d9)
                   k13(i) = tiny
                   if (tgas1d(i) .ge. 500._RKIND .and.
      &                tgas1d(i) .lt. 1.e6_RKIND) then
@@ -265,7 +265,7 @@ c
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                      + k13dd(i,3)-k13dd(i,4)/
      &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10._RKIND**k13(i), tiny)
+                     k13(i) = max(10._RKIND**k13(i), REAL(tiny,RKIND))
                   endif
                endif
                enddo

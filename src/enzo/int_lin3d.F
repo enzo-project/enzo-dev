@@ -151,7 +151,7 @@ c              Determine s, the resulting scaled value of delf0 and contain
 c                sprime within the range 0 to 1
 c
                if (delf0 .eq. 0._RKIND) 
-     &              delf0 = sign(tiny, delf0 + delf1 + delf2)
+     &              delf0 = sign(REAL(tiny,RKIND), delf0+delf1+delf2)
                s = (delf1 + delf2 + delf3) / delf0
                sprime = min(max(s, 0._RKIND), 1._RKIND)
 c

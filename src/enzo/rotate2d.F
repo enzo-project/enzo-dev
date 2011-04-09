@@ -13,8 +13,8 @@
       INTG_PREC bs
 
       bs = 64
-      ib = n1/max(n1/bs,1)
-      jb = n2/max(n2/bs,1)
+      ib = n1/max(n1/bs,1_IKIND)
+      jb = n2/max(n2/bs,1_IKIND)
 
 !     do i=1,n1
 !     do j=1,n2

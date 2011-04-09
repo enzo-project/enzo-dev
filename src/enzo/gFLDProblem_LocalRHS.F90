@@ -400,7 +400,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+              nHII = max(nH - nHI, 0._RKIND)
               ne = nHII
 
               ! opacity
@@ -417,7 +417,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+              Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -529,7 +529,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho = rhoa(i,j,k)*DenUnits
                  nHI = n_HIa(i,j,k)*NiUnits
                  nH = Hfrac*rho/mp
-                 nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+                 nHII = max(nH - nHI, 0._RKIND)
                  ne  = nHII
                  
                  ! opacity
@@ -540,7 +540,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+                 Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -604,11 +604,11 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho    = rhoa(i,j,k)*DenUnits
                  nHI    = n_HIa(i,j,k)*NiUnits
                  nH     = Hfrac*rho/mp
-                 nHII   = max(1._RKIND*(nH - nHI), 0._RKIND)
+                 nHII   = max(nH - nHI, 0._RKIND)
                  nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
                  nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
                  nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
-                 nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
+                 nHeIII = max(nHe - nHeI - nHeII, 0._RKIND)
                  ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
                  
                  ! opacity
@@ -619,7 +619,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+                 Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -748,7 +748,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho = rhoa(i,j,k)*DenUnits
                  nHI = n_HIa(i,j,k)*NiUnits
                  nH = Hfrac*rho/mp
-                 nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+                 nHII = max(nH - nHI, 0._RKIND)
                  ne  = nHII
                  
                  ! opacity
@@ -760,7 +760,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+                 Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -863,11 +863,11 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho    = rhoa(i,j,k)*DenUnits
                  nHI    = n_HIa(i,j,k)*NiUnits
                  nH     = Hfrac*rho/mp
-                 nHII   = max(1._RKIND*(nH - nHI), 0._RKIND)
+                 nHII   = max(nH - nHI, 0._RKIND)
                  nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
                  nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
                  nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
-                 nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
+                 nHeIII = max(nHe - nHeI - nHeII, 0._RKIND)
                  ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
                  
                  ! opacity
@@ -879,7 +879,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+                 Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1_IKIND))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp

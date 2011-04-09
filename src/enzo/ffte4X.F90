@@ -18,36 +18,29 @@
       implicit none
 #include "fortran_types.def"
 
-#ifdef CONFIG_BFLOAT_4
-      REAL*4 :: TYPE_DUMMY
-#endif
-
-#ifdef CONFIG_BFLOAT_8
-      REAL*8 :: TYPE_DUMMY
-#endif
-
-      INTG_PREC, parameter :: fftkind = KIND(TYPE_DUMMY)
+      INTEGER, parameter :: fftkind = RKIND
+      INTEGER, parameter :: fftintk = IKIND
 
 ! the maximum supported 2-d transform length is 65536.
-      INTG_PREC, parameter :: nda2=65536
+      INTEGER(fftintk), parameter :: nda2=65536
 
 ! the maximum supported 3-d transform length is 4096.
-      INTG_PREC, parameter :: nda3=4096
-      INTG_PREC, parameter :: nda4=256
+      INTEGER(fftintk), parameter :: nda3=4096
+      INTEGER(fftintk), parameter :: nda4=256
 
 ! the parameter nblk is a blocking parameter.
-!     INTG_PREC, parameter :: nblk=8  !(for pentiumiii and athlon)
-      INTG_PREC, parameter :: nblk=16 !(for pentium4, athlon xp, opteron,
+!     INTEGER(fftintk), parameter :: nblk=8  !(for pentiumiii and athlon)
+      INTEGER(fftintk), parameter :: nblk=16 !(for pentium4, athlon xp, opteron,
                                     ! itanium and itanium2)
 
 ! the parameter np is a padding parameter to avoid cache
 ! conflicts in the fft routines.
-!     INTG_PREC, parameter :: np=2 !(for pentiumiii)
-!     INTG_PREC, parameter :: np=4 !(for athlon, athlon xp, opteron and itanium)
-      INTG_PREC, parameter :: np=8 !(for pentium4 and itanium2)
+!     INTEGER(fftintk), parameter :: np=2 !(for pentiumiii)
+!     INTEGER(fftintk), parameter :: np=4 !(for athlon, athlon xp, opteron and itanium)
+      INTEGER(fftintk), parameter :: np=8 !(for pentium4 and itanium2)
 
 ! size of l2 cache
-      INTG_PREC, parameter :: l2size=1048576
+      INTEGER(fftintk), parameter :: l2size=1048576
 
       end module ffte_param
 
@@ -154,7 +147,7 @@
       end if
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/REAL(n,RKIND)
+        dn = 1.0_fftkind/REAL(n,fftkind)
         do i = 1,n
           a(i) = conjg(a(i))*dn
         end do
@@ -256,28 +249,28 @@
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(REAL(n1,RKIND)*REAL(n2,RKIND))
+      px = -pi2/(REAL(n1,fftkind)*REAL(n2,fftkind))
 
 !$omp parallel
 !$omp do
       do k = 1,m2
         do j = 1,m1
-          w1(1,j,k) = cos(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
-          w1(2,j,k) = sin(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
+          w1(1,j,k) = cos(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
+          w1(2,j,k) = sin(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
         end do
         do ir = 1,n1/m1
-          w3(1,k,ir) = cos(px*REAL(k-1,RKIND)*REAL(ir-1,RKIND)*REAL(m1,RKIND))
-          w3(2,k,ir) = sin(px*REAL(k-1,RKIND)*REAL(ir-1,RKIND)*REAL(m1,RKIND))
+          w3(1,k,ir) = cos(px*REAL(k-1,fftkind)*REAL(ir-1,fftkind)*REAL(m1,fftkind))
+          w3(2,k,ir) = sin(px*REAL(k-1,fftkind)*REAL(ir-1,fftkind)*REAL(m1,fftkind))
         end do
       end do
       do is = 1,n2/m2
         do j = 1,m1
-          w2(1,j,is) = cos(px*REAL(j-1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
-          w2(2,j,is) = sin(px*REAL(j-1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
+          w2(1,j,is) = cos(px*REAL(j-1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
+          w2(2,j,is) = sin(px*REAL(j-1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
         end do
         do ir = 1,n1/m1
-          w4(1,ir,is) = cos(px*REAL(ir-1,RKIND)*REAL(m1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
-          w4(2,ir,is) = sin(px*REAL(ir-1,RKIND)*REAL(m1,RKIND)*REAL(is-1,RKIND)*REAL(m2,RKIND))
+          w4(1,ir,is) = cos(px*REAL(ir-1,fftkind)*REAL(m1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
+          w4(2,ir,is) = sin(px*REAL(ir-1,fftkind)*REAL(m1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
         end do
       end do
 !$omp end parallel
@@ -355,7 +348,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(REAL(nx,RKIND)*REAL(ny,RKIND))
+        dn = 1.0_fftkind/(REAL(nx,fftkind)*REAL(ny,fftkind))
         do i = 1,nx*ny
           a(i) = conjg(a(i))*dn
         end do
@@ -479,7 +472,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(REAL(nx,RKIND)*REAL(ny,RKIND)*REAL(nz,RKIND))
+        dn = 1.0_fftkind/(REAL(nx,fftkind)*REAL(ny,fftkind)*REAL(nz,fftkind))
         do i = 1,nx*ny*nz
           a(i) = conjg(a(i))*dn
         end do
@@ -584,7 +577,7 @@
       INTG_PREC :: kp4, kp8
 
       if (ip(1) .ne. 1) then
-        kp4 = 2-mod(ip(1)+2,3)
+        kp4 = 2-mod(ip(1)+2,3_fftintk)
         kp8 = (ip(1)-kp4)/3
       else
         kp4 = 0
@@ -779,7 +772,7 @@
       call factor(n,ip)
 
       if (ip(1) .ne. 1) then
-        kp4 = 2-mod(ip(1)+2,3)
+        kp4 = 2-mod(ip(1)+2,3_fftintk)
         kp8 = (ip(1)-kp4)/3
       else
         kp4 = 0
@@ -829,11 +822,11 @@
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(REAL(m,RKIND)*REAL(l,RKIND))
+      px = -pi2/(REAL(m,fftkind)*REAL(l,fftkind))
 
       do 10 i = 1,l
-        w(1,i) = cos(px*REAL(i-1,RKIND))
-        w(2,i) = sin(px*REAL(i-1,RKIND))
+        w(1,i) = cos(px*REAL(i-1,fftkind))
+        w(2,i) = sin(px*REAL(i-1,fftkind))
    10 continue
 
       return
@@ -852,12 +845,12 @@
       R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(REAL(n1,RKIND)*REAL(n2,RKIND))
+      px = -pi2/(REAL(n1,fftkind)*REAL(n2,fftkind))
 
       do 20 k = 1,n2
         do 10 j = 1,n1
-          w(1,j,k) = cos(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
-          w(2,j,k) = sin(px*REAL(j-1,RKIND)*REAL(k-1,RKIND))
+          w(1,j,k) = cos(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
+          w(2,j,k) = sin(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
    10   continue
    20 continue
 
@@ -879,21 +872,22 @@
       ip(3) = 0
       n2 = n
 
-      if (mod(n,2) .ne. 0 .and. mod(n,3) .ne. 0 .and.&
-     &    mod(n,5) .ne. 0) return
+      if (mod(n,2_fftintk) .ne. 0 .and. &
+          mod(n,3_fftintk) .ne. 0 .and. &
+     &    mod(n,5_fftintk) .ne. 0) return
 
    10 continue
 
       if (n2 .le. 1) return
-      if (mod(n2,2) .eq. 0) then
+      if (mod(n2,2_fftintk) .eq. 0) then
         ip(1) = ip(1)+1
         n2 = n2/2
         go to 10
-      else if (mod(n2,3) .eq. 0) then
+      else if (mod(n2,3_fftintk) .eq. 0) then
         ip(2) = ip(2)+1
         n2 = n2/3
         go to 10
-      else if (mod(n2,5) .eq. 0) then
+      else if (mod(n2,5_fftintk) .eq. 0) then
         ip(3) = ip(3)+1
         n2 = n2/5
         go to 10

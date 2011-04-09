@@ -60,17 +60,17 @@ c  locals
 c
       INTG_PREC i1, j1, k1, n, ii, jj, kk
       INTG_PREC istart, iend, jstart, jend, kstart, kend
-      R_PREC    xpos, ypos, zpos, fact
-      P_PREC edge1, edge2, edge3, half
-      parameter (half = 0.5001_RKIND)
+      R_PREC    xpos, ypos, zpos
+      P_PREC edge1, edge2, edge3, half, fact
+      parameter (half = 0.5001_PKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1._RKIND/cellsize
-      edge1 = REAL(dim1,RKIND) - half
-      edge2 = REAL(dim2,RKIND) - half
-      edge3 = REAL(dim3,RKIND) - half
+      fact = 1._PKIND/cellsize
+      edge1 = REAL(dim1,PKIND) - half
+      edge2 = REAL(dim2,PKIND) - half
+      edge3 = REAL(dim3,PKIND) - half
 c
 c     1D
 c
@@ -101,7 +101,7 @@ c             keep default option unrolled!
                  ffield(i1  ,1,1) = 1
                  ffield(i1+1,1,1) = 1
               else
-                 istart = max(i1-buffersize+1, 1)
+                 istart = max(i1-buffersize+1, 1_IKIND)
                  iend = min(i1+buffersize, dim1)
                  do ii = istart, iend
                     ffield(ii,1,1) = 1
@@ -148,9 +148,9 @@ c             keep default option unrolled!
                  ffield(i1  ,j1+1,1) = 1
                  ffield(i1+1,j1+1,1) = 1
               else
-                 istart = max(i1-buffersize+1, 1)
+                 istart = max(i1-buffersize+1, 1_IKIND)
                  iend = min(i1+buffersize, dim1)
-                 jstart = max(j1-buffersize+1, 1)
+                 jstart = max(j1-buffersize+1, 1_IKIND)
                  jend = min(j1+buffersize, dim2)
                  do jj = jstart, jend
                     do ii = istart, iend
@@ -205,11 +205,11 @@ c             keep default option unrolled!
                  ffield(i1  ,j1+1,k1+1) = 1
                  ffield(i1+1,j1+1,k1+1) = 1
               else
-                 istart = max(i1-buffersize+1, 1)
+                 istart = max(i1-buffersize+1, 1_IKIND)
                  iend = min(i1+buffersize, dim1)
-                 jstart = max(j1-buffersize+1, 1)
+                 jstart = max(j1-buffersize+1, 1_IKIND)
                  jend = min(j1+buffersize, dim2)
-                 kstart = max(k1-buffersize+1, 1)
+                 kstart = max(k1-buffersize+1, 1_IKIND)
                  kend = min(k1+buffersize, dim3)
 c	         print*,'cic_flag: buffersize is:',buffersize
                  do kk = kstart, kend

@@ -218,7 +218,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+     Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -659,7 +659,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
         eint = vUn*vUn*(eh(1,1,1)                                  &
              - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
         T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
-        T = max(1.d0*T,1.d0)
+        T = max(T,1.d0)
      else
         T = ecScale
      endif
@@ -670,7 +670,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+     Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1160,15 +1160,15 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      rhoval = rho*DenUnits
      nH = Hfrac*rhoval/mp
      nHI = HIval*NiUnits
-     nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+     nHII = max(nH - nHI, 0.d0)
      ne = nHII
 
      ! compute temperature and ODE terms
      T = (gamma-1._RKIND)*rhoval/(nHI+nHII+ne)*(eint+ecval*ecUnits)/kb
-     T = max(1._RKIND*T,1._RKIND*min_temp)
+     T = max(T,min_temp)
      lamT = 3.15614e5_RKIND/T
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+     Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1304,7 +1304,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
      ! enforce bounds
      Eranal = max(Eranal, min_rad/ErUnits)
-     T = (gamma-1._RKIND)*rhoval/(nHI+nHII+ne)*(eint+ecanal*ecUnits)/kb
+     T = (gamma-1.d0)*rhoval/(nHI+nHII+ne)*(eint+ecanal*ecUnits)/kb
      if (T < min_temp)  &
           ecanal = (min_temp/(gamma-1._RKIND)/rhoval*(nHI+nHII+ne)*kb-eint)/ecUnits
      HIanal = min(HIanal, nH/NiUnits)
@@ -1374,20 +1374,20 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      rhoval = rho*DenUnits
      nH = Hfrac*rhoval/mp
      nHI = HIval*NiUnits
-     nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
-     nHe = (1._RKIND-Hfrac)*rhoval/mp
+     nHII = max(nH - nHI, 0.d0)
+     nHe = (1.d0-Hfrac)*rhoval/mp
      nHeI = HeIval*NiUnits
      nHeII = HeIIval*NiUnits
-     nHeIII = max(1._RKIND*(nHe - nHeI - nHeII), 0._RKIND)
-     ne = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
+     nHeIII = max(nHe - nHeI - nHeII, 0.d0)
+     ne = nHII + 0.25d0*nHeII + 0.5d0*nHeIII
 
      ! compute temperature and ODE terms
      T = (gamma-1._RKIND)*rhoval/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne) &
           * (eint+ecval*ecUnits)/kb
-     T = max(1._RKIND*T,1._RKIND*min_temp)
-     lamT = 3.15614e5_RKIND/T
+     T = max(T,min_temp)
+     lamT = 3.15614d5/T
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
+     Tidx = min(NTempBins-1, max(1_IKIND, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1839,12 +1839,12 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
 
 
   ! get shortcut values time-centered variables
-  Erval = (Er0 + Er)*0.5_RKIND
-  HIval = (HI0 + HI)*0.5_RKIND
+  Erval = (Er0 + Er)*0.5d0
+  HIval = (HI0 + HI)*0.5d0
   rhoval = rho*DenUnits
   nH = Hfrac*rhoval/mp
   nHI = HIval*NiUnits
-  nHII = max(1._RKIND*(nH - nHI), 0._RKIND)
+  nHII = max(nH - nHI, 0.d0)
   ne = nHII
 
   ! compute radiation ODE rates

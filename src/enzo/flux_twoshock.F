@@ -102,9 +102,10 @@ c             vb(i) = vrs(i,j)
 c             wb(i) = wrs(i,j)
 c             geb(i) = gers(i,j)
           endif
-          c0(i)    = sqrt(max(gamma*p0(i)/d0(i), tiny))
+          c0(i)    = sqrt(max(gamma*p0(i)/d0(i), REAL(tiny,RKIND)))
           z0(i)    = c0(i)*d0(i)*sqrt(max(
-     &               1._RKIND + qa*(pbar(i,j)/p0(i)-1._RKIND), tiny))
+     &               1._RKIND + qa*(pbar(i,j)/p0(i)-1._RKIND), 
+     &         REAL(tiny,RKIND)))
 c          write(24,*) i, u0(i), uls(i,j), urs(i,j), c0(i)
        enddo
 c
@@ -127,8 +128,9 @@ c    and sound speed
 c
        do i=i1, i2+1
           dbar(i)  = 1._RKIND/(1._RKIND/d0(i) - (pbar(i,j)-p0(i))/
-     &                                max(z0(i)**2, tiny))
-          cbar(i)  = sqrt(max(gamma*pbar(i,j)/dbar(i), tiny))
+     &         max(z0(i)**2, REAL(tiny,RKIND)))
+          cbar(i)  = sqrt(max(gamma*pbar(i,j)/dbar(i), 
+     &         REAL(tiny,RKIND)))
        enddo
 c
 c
@@ -387,7 +389,7 @@ c
        if (idual .eq. 1) then
           do i=i1, i2+1
              pcent(i) = max((gamma-1._RKIND)*geslice(i,j)*dslice(i,j), 
-     $            tiny)
+     $            REAL(tiny,RKIND))
           enddo
           do i=i1, i2+1
              qc = dt/dx(i)

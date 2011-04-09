@@ -212,10 +212,10 @@
       INTG_PREC i, j, k, iter
       INTG_PREC clGridDim1, clGridDim2, clGridDim3, clGridDim4, 
      &     clGridDim5
-      R_PREC ttmin, dom, energy, comp1, comp2
+      R_PREC ttmin, dom, energy, comp1, comp2, dlogtem
       double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
       double precision heq1, heq2, eqk221, eqk222, eqk131, eqk132,
-     &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem
+     &                 eqt1, eqt2, eqtdef, dheq, heq
 
 !  row temporaries
 
@@ -411,9 +411,9 @@
 !              Bound from below to prevent numerical errors
                
 	       if (abs(dedot(i)) .lt. tiny) 
-     &             dedot(i) = min(tiny,de(i,j,k))
+     &             dedot(i) = min(REAL(tiny,RKIND),de(i,j,k))
 	       if (abs(HIdot(i)) .lt. tiny)
-     &             HIdot(i) = min(tiny,HI(i,j,k))
+     &             HIdot(i) = min(REAL(tiny,RKIND),HI(i,j,k))
 
 !              If the net rate is almost perfectly balanced then set
 !                  it to zero (since it is zero to available precision)
@@ -485,7 +485,7 @@
 !     &                     edot(i)
                 if(d(i,j,k)*dom.gt.1e18.and.i.eq.4)write(0, *)
      &              HI(i,j,k)/heq, edot(i),tgas(i)
-                dtit(i) = min(dtit(i), 0.1_RKIND*heq/dheq)
+                dtit(i) = min(1.d0*dtit(i), 0.1d0*heq/dheq)
               endif
               if (iter.gt.10) dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
 
@@ -531,7 +531,7 @@
 !              (the gamma used here is the right one even for H2 since p2d 
 !               is calculated with this gamma).
 
-               energy = max(p2d(i)/(gamma-1._RKIND), tiny)
+               energy = max(p2d(i)/(gamma-1._RKIND), REAL(tiny,RKIND))
 
 !              This is an alternate energy calculation, based directly on
 !              the code's specific energy field, which differs from the above
@@ -796,12 +796,12 @@ c -------------------------------------------------------------------
       do k = ks+1, ke+1
          do j = js+1, je+1
             do i = is+1, ie+1
-               de(i,j,k)    = max(de(i,j,k), tiny)
-               HI(i,j,k)    = max(HI(i,j,k), tiny)
-               HII(i,j,k)   = max(HII(i,j,k), tiny)
-               HeI(i,j,k)   = max(HeI(i,j,k), tiny)
-               HeII(i,j,k)  = max(HeII(i,j,k), tiny)
-               HeIII(i,j,k) = max(HeIII(i,j,k), 1e-5_RKIND*tiny)
+               de(i,j,k)    = max(de(i,j,k), REAL(tiny,RKIND))
+               HI(i,j,k)    = max(HI(i,j,k), REAL(tiny,RKIND))
+               HII(i,j,k)   = max(HII(i,j,k), REAL(tiny,RKIND))
+               HeI(i,j,k)   = max(HeI(i,j,k), REAL(tiny,RKIND))
+               HeII(i,j,k)  = max(HeII(i,j,k), REAL(tiny,RKIND))
+               HeIII(i,j,k) = max(HeIII(i,j,k), REAL(1.e-5*tiny,RKIND))
             enddo
          enddo
       enddo
@@ -809,9 +809,9 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  HM(i,j,k)   = max(HM(i,j,k), tiny)
-                  H2I(i,j,k)  = max(H2I(i,j,k), tiny)
-                  H2II(i,j,k) = max(H2II(i,j,k), tiny)
+                  HM(i,j,k)   = max(HM(i,j,k), REAL(tiny,RKIND))
+                  H2I(i,j,k)  = max(H2I(i,j,k), REAL(tiny,RKIND))
+                  H2II(i,j,k) = max(H2II(i,j,k), REAL(tiny,RKIND))
                enddo
             enddo
          enddo
@@ -820,9 +820,9 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  DI(i,j,k)  = max(DI(i,j,k), tiny)
-                  DII(i,j,k) = max(DII(i,j,k), tiny)
-                  HDI(i,j,k) = max(HDI(i,j,k), tiny)
+                  DI(i,j,k)  = max(DI(i,j,k), REAL(tiny,RKIND))
+                  DII(i,j,k) = max(DII(i,j,k), REAL(tiny,RKIND))
+                  HDI(i,j,k) = max(HDI(i,j,k), REAL(tiny,RKIND))
                enddo
             enddo
          enddo
@@ -831,7 +831,7 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  metal(i,j,k) = min(max(metal(i,j,k), tiny),
+                  metal(i,j,k) = min(max(metal(i,j,k),REAL(tiny,RKIND)),
      $                               0.9_RKIND*d(i,j,k))
                enddo
             enddo
@@ -938,8 +938,8 @@ c -------------------------------------------------------------------
 
 !        Find index into tble and precompute interpolation values
 
-         indixe(i) = min(nratec-1,
-     &        max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
+         indixe(i) = min(nratec-1, max(1_IKIND,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))
@@ -1092,7 +1092,7 @@ c -------------------------------------------------------------------
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                     + k13dd(i,3)-k13dd(i,4)/
      &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10._RKIND**k13(i), tiny)
+                     k13(i) = max(10._RKIND**k13(i), REAL(tiny,RKIND))
                   endif
                endif
                enddo
@@ -1662,12 +1662,13 @@ c
 
       do i = is+1, ie+1
          if (itmask(i)) then
-         HIdot_prev(i) = abs(HI(i,j,k)-HIp(i))/max(dtit(i),tiny)
-         HI(i,j,k)    = max(HIp(i), tiny)
-         HII(i,j,k)   = max(HIIp(i), tiny)
-         HeI(i,j,k)   = max(HeIp(i), tiny)
-         HeII(i,j,k)  = max(HeIIp(i), tiny)
-         HeIII(i,j,k) = max(HeIIIp(i), 1d-5*tiny)
+         HIdot_prev(i) = abs(HI(i,j,k)-HIp(i))/max(dtit(i),
+     &           REAL(tiny,RKIND))
+         HI(i,j,k)    = max(HIp(i), REAL(tiny,RKIND))
+         HII(i,j,k)   = max(HIIp(i), REAL(tiny,RKIND))
+         HeI(i,j,k)   = max(HeIp(i), REAL(tiny,RKIND))
+         HeII(i,j,k)  = max(HeIIp(i), REAL(tiny,RKIND))
+         HeIII(i,j,k) = max(HeIIIp(i), REAL(1.e-5*tiny,RKIND))
 
 !        de(i,j,k)    = dep(i)
 
@@ -1679,18 +1680,18 @@ c
          if (ispecies .gt. 1) 
      &      de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2._RKIND
          dedot_prev(i) = abs(de(i,j,k)-dedot_prev(i))/
-     &                         max(dtit(i),tiny)
+     &                         max(dtit(i),REAL(tiny,RKIND))
 
          if (ispecies .gt. 1) then
-            HM(i,j,k)    = max(HMp(i), tiny)
-            H2I(i,j,k)   = max(H2Ip(i), tiny)
-            H2II(i,j,k)  = max(H2IIp(i), tiny)
+            HM(i,j,k)    = max(HMp(i), REAL(tiny,RKIND))
+            H2I(i,j,k)   = max(H2Ip(i), REAL(tiny,RKIND))
+            H2II(i,j,k)  = max(H2IIp(i), REAL(tiny,RKIND))
          endif
 
          if (ispecies .gt. 2) then
-            DI(i,j,k)    = max(DIp(i), tiny)
-            DII(i,j,k)   = max(DIIp(i), tiny)
-            HDI(i,j,k)   = max(HDIp(i), tiny)
+            DI(i,j,k)    = max(DIp(i), REAL(tiny,RKIND))
+            DII(i,j,k)   = max(DIIp(i), REAL(tiny,RKIND))
+            HDI(i,j,k)   = max(HDIp(i), REAL(tiny,RKIND))
          endif
       endif                     ! itmask
 !     

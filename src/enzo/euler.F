@@ -138,7 +138,7 @@ c     A small cheat: if idual is on, assume a cosmo sim, and institute a
 c     minimum density.  This should be a parameter and pased in.
 c
           if (idual .eq. 1 .and. gravity .eq. 1) 
-     &         dnu(i) = max(dnu(i),1.d-3)
+     &         dnu(i) = max(dnu(i),1.e-3_RKIND)
 
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
@@ -253,7 +253,7 @@ c
      &            (dslice(i,j)/dnu(i)+1._RKIND),
      &            dt*grslice(i,j)*0.5_RKIND*
      &            (uslice(i,j) + uold(i)*dslice(i,j)/dnu(i))
-             eslice(i,j) = max(eslice(i,j), tiny)
+             eslice(i,j) = max(eslice(i,j), REAL(tiny,RKIND))
 #endif /* GRAVITY_METHOD1 */
 
 #ifdef GRAVITY_METHOD2 /* (wrong) */

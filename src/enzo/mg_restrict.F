@@ -106,7 +106,7 @@ c
          enddo
          do i=1, ddim1
             i1 = min(max(int(REAL(i-1,RKIND)*fact1 + 0.5_RKIND,IKIND)+1, 
-     &           1), sdim1)
+     &           1_IKIND), sdim1)
             dest(i,    1,1) = source(i1,    1,1)
             dest(i,ddim2,1) = source(i1,sdim2,1)
          enddo
@@ -169,17 +169,17 @@ c
             enddo
             do i=1, ddim1
                i1 = min(max(int(REAL(i-1,RKIND)*fact1 + 0.5_RKIND,IKIND) 
-     &              + 1, 1), sdim1)
+     &              + 1, 1_IKIND), sdim1)
                dest(i,    1,k) = source(i1,    1,k1)
                dest(i,ddim2,k) = source(i1,sdim2,k1)
             enddo
          enddo
          do j=1, ddim2
             j1 = min(max(int(REAL(j-1,RKIND)*fact2 + 0.5_RKIND,IKIND)+1, 
-     &           1), sdim2)
+     &           1_IKIND), sdim2)
             do i=1, ddim1
                i1 = min(max(int(REAL(i-1,RKIND)*fact1 + 0.5_RKIND,IKIND) 
-     &              + 1, 1), sdim1)
+     &              + 1, 1_IKIND), sdim1)
                dest(i,j,    1) = source(i1,j1,    1)
                dest(i,j,ddim3) = source(i1,j1,sdim3)
             enddo

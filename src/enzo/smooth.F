@@ -59,7 +59,7 @@ c
                enddo
                do n=-nsmooth,+nsmooth
                   do i=1, sdim1
-                     i1 = min(max(i+n, 2), sdim1)
+                     i1 = min(max(i+n, 2_IKIND), sdim1)
                      temp(i) = temp(i) + source1(i1,j,k)
                   enddo
                enddo
@@ -80,7 +80,7 @@ c
                enddo
                do n=-nsmooth,+nsmooth
                   do j=1, sdim2
-                     j1 = min(max(j+n, 2), sdim2)
+                     j1 = min(max(j+n, 2_IKIND), sdim2)
                      temp(j) = temp(j) + source2(i,j1,k)
                   enddo
                enddo
@@ -101,7 +101,7 @@ c
                enddo
                do n=-nsmooth,+nsmooth
                   do k=1, sdim3
-                     k1 = min(max(k+n, 2), sdim3)
+                     k1 = min(max(k+n, 2_IKIND), sdim3)
                      temp(k) = temp(k) + source3(i,j,k1)
                   enddo
                enddo

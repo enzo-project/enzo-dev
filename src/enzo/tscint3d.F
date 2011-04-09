@@ -278,7 +278,7 @@ c
      &                 grid((i-1)*refine1+gstart1  , jgrid, kgrid)
 c
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
             fraction(i) = min(max(del1left/del2left, 0._RKIND),1._RKIND)
          enddo
 c
@@ -293,7 +293,7 @@ c
      &                  grid( i   *refine1+gstart1-1, jgrid, kgrid)
 c
             if (abs(del2right) .lt. tiny) 
-     &           del2right = sign(tiny, del2right)
+     &           del2right = sign(REAL(tiny,RKIND), del2right)
             fraction(i) =  max(max(min(del1right/del2right, 0._RKIND),
      &           1._RKIND), fraction(i)                             )
          enddo
@@ -355,7 +355,7 @@ c
      &                 grid(igrid, (j-1)*refine2+gstart2  , kgrid)
 c
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
             fraction(j) = min(max(del1left/del2left, 0._RKIND),1._RKIND)
          enddo
 c
@@ -370,7 +370,7 @@ c
      &                  grid(igrid,  j   *refine2+gstart2-1, kgrid)
 c
             if (abs(del2right) .lt. tiny) 
-     &           del2right = sign(tiny, del2right)
+     &           del2right = sign(REAL(tiny,RKIND), del2right)
             fraction(j) =  max(max(min(del1right/del2right, 0._RKIND),
      &                         1._RKIND), fraction(j)               )
          enddo
@@ -424,7 +424,7 @@ c
      &                 grid(igrid, jgrid, (k-1)*refine3+gstart3  )
 c
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
             fraction(k) = min(max(del1left/del2left, 0._RKIND),1._RKIND)
          enddo
 c
@@ -439,7 +439,7 @@ c
      &                  grid(igrid, jgrid,  k   *refine3+gstart3-1)
 c
             if (abs(del2right) .lt. tiny) 
-     &           del2right = sign(tiny, del2right)
+     &           del2right = sign(REAL(tiny,RKIND), del2right)
             fraction(k) =  max(max(min(del1right/del2right, 0._RKIND),
      &                         1._RKIND), fraction(k)                )
          enddo

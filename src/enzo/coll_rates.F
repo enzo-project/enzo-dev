@@ -117,7 +117,7 @@ C     ------- Compute various values of T.
      &        + 0.0001975705312221_RKIND*log_T_eV**7
      &        - 3.165581065665e-6_RKIND*log_T_eV**8) / kunit
       ELSE
-         k1 = max(tiny, k1)
+         k1 = max(REAL(tiny,RKIND), k1)
          k3 = tiny
          k4 = 3.92e-13_RKIND/T_eV**0.6353_RKIND / kunit
          k5 = tiny
@@ -268,7 +268,7 @@ C     k18 = 5.56396e-8_RKIND/T_eV**0.6035_RKIND / kunit
       k23 = ((8.125e-8_RKIND / sqrt(T))
      $     * exp(-52000._RKIND/T)
      $     * (1._RKIND - exp(-6000._RKIND/T))) / kunit
-      k23 = max(k23, tiny)
+      k23 = max(k23, REAL(tiny,RKIND))
       
       RETURN
       END

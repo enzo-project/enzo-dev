@@ -14,9 +14,9 @@
 
       bs = 64
 
-      ib=n1/max(n1/bs,1)
-      jb=n2/max(n2/bs,1)
-      kb=n3/max(n3/bs,1)
+      ib=n1/max(n1/bs,1_IKIND)
+      jb=n2/max(n2/bs,1_IKIND)
+      kb=n3/max(n3/bs,1_IKIND)
 
 !     do i=1,n1
 !     do k=1,n3

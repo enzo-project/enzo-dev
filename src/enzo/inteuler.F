@@ -529,10 +529,10 @@ c
 c     Enforce minimum values.
 c
       do i=i1, i2+1
-         pls(i,j) = max(pls(i,j), tiny)
-         prs(i,j) = max(prs(i,j), tiny)
-         dls(i,j) = max(dls(i,j), tiny)
-         drs(i,j) = max(drs(i,j), tiny)
+         pls(i,j) = max(pls(i,j), REAL(tiny,RKIND))
+         prs(i,j) = max(prs(i,j), REAL(tiny,RKIND))
+         dls(i,j) = max(dls(i,j), REAL(tiny,RKIND))
+         drs(i,j) = max(drs(i,j), REAL(tiny,RKIND))
       enddo
 c
 c     If approximating pressure free conditions, then the density should be

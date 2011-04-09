@@ -73,7 +73,8 @@ c
                p2d(i) = e(i,j,k) - 0.5_RKIND*u(i,j,k)**2
                if (idim .gt. 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
                if (idim .gt. 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
-               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), tiny)
+               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), 
+     &              REAL(tiny,RKIND))
             enddo
          endif
       endif
