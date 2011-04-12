@@ -2525,19 +2525,37 @@ Cosmology Simulation (30)
 ``CosmologySimulationParticleVelocityName`` (external)
     This is the name of the file which contains initial data for
     particle velocities. Default: none
-``CosmologySimulationParticleVelocity[123]Name`` (external)
-    This is the name of the file which contains initial data for
-    particle velocities but only has one component per file. This is
-    more useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
-    can only use in conjunction with ``CosmologySimulationCalculatePositions``.
-    because it expects a 3D grid structure instead of a 1D list of particles.
-    Default: None.
+``CosmologySimulationParticleVelocity[123]Name`` (external) This is
+    the name of the file which contains initial data for particle
+    velocities but only has one component per file. This is more
+    useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
+    one can only use this in conjunction with
+    ``CosmologySimulationCalculatePositions``.  because it expects a
+    3D grid structure instead of a 1D list of particles.  Default:
+    None.
 ``CosmologySimulationCalculatePositions`` (external)
-    If set to 1, Enzo will calculate the particle positions from a
-    Zeldo'vich approximation based on the particle velocities and a
-    displacement factor [dln(growth factor) / dtau, where tau is the
-    conformal time], which is stored as an attribute in the initial
-    condition files. Default: 0.
+    If set to 1, Enzo will calculate the particle positions in one of
+    two ways: 1) By using a linear Zeldo'vich approximation based on
+    the particle velocities and a displacement factor [dln(growth
+    factor) / dtau, where tau is the conformal time], which is stored
+    as an attribute in the initial condition files, or 2) if the user
+    has also defined either
+    CosmologySimulationParticleDisplacementName or
+    CosmologySimulationParticleDisplacement[123]Name, by reading in
+    particle displacements from an external code and applying those
+    directly.  The latter allows the use of non-linear displacements.
+    Default: 0.
+``CosmologySimulationParticleDisplacementName`` (external)
+    This is the name of the file which contains initial data for
+    particle displacements. Default: none
+``CosmologySimulationParticleDisplacement[123]Name`` (external) This
+    is the name of the file which contains initial data for particle
+    displacements but only has one component per file. This is more
+    useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
+    one can only use this in conjunction with
+    ``CosmologySimulationCalculatePositions``.  because it expects a
+    3D grid structure instead of a 1D list of particles.  Default:
+    None.
 ``CosmologySimulationNumberOfInitialGrids`` (external)
     The number of grids at startup. 1 means top grid only. If >1, then
     nested grids are to be defined by the following parameters.
