@@ -115,8 +115,8 @@ c         write(6,*) 'Check parameter file.'
 c         stop
 c      endif
 
-      write(6,*) 'cluster maker:'
-      write(6,*) odthresh
+c      write(6,*) 'cluster maker:'
+c      write(6,*) odthresh
 
       ii = np
 c

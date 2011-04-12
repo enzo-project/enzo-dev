@@ -108,12 +108,12 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
       proc = Grids[lvl][i]->GridData->ReturnProcessorNumber();
       Grids[lvl][i]->GridData->SetOriginalProcessorNumber(proc);
       if (MyProcessorNumber == proc) {
-	if (FirstTimeAfterRestart)  // Possible to have no ray segment data
-	  ComputeTime[index] = Grids[lvl][i]->GridData->
-	    CountRadiationCells();
-	else
-	  ComputeTime[index] = Grids[lvl][i]->GridData->
-	    ReturnTotalNumberOfRaySegments(RaySegNum);
+//	if (FirstTimeAfterRestart)  // Possible to have no ray segment data
+//	  ComputeTime[index] = Grids[lvl][i]->GridData->
+//	    CountRadiationCells();
+//	else
+	ComputeTime[index] = Grids[lvl][i]->GridData->
+	  ReturnTotalNumberOfRaySegments(RaySegNum);
 	if (ComputeTime[index] > 0) Nonzero++;
       } else
 	ComputeTime[index] = 0.0;
