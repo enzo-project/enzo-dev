@@ -115,8 +115,6 @@ MACH_OPT_DEBUG       = -g -O0 -Minfo=all
 MACH_OPT_HIGH        = -O2 -Minfo=all
 MACH_OPT_AGGRESSIVE  = -O3 -Mfptrap -Mflushz -fastsse -Mdaz -Mnontemporal -Mnofprelaxed -Mvect=altcode,assoc,prefetch -Kieee -tp barcelona-64
 
-LDR_OPT      = -Mdaz -Mflushz -fastsse -Mnontemporal -Mnofprelaxed -Mvect=altcode,assoc,prefetch -Kieee -tp barcelona-64
-
 #-----------------------------------------------------------------------
 # Includes
 #-----------------------------------------------------------------------
