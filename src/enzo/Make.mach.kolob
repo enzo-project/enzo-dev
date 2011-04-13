@@ -38,7 +38,7 @@ MACH_CPP       = /usr/bin/cpp
 # With MPI
 
 MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
-MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpicxx -DMPICH_IGNORE_CXX_SEEK
+MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpicxx 
 MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif77
 MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90
 MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
@@ -56,7 +56,6 @@ MACH_LD_NOMPI  = /usr/bin/gcc
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 MACH_DEFINES = -DLINUX -DH5_USE_16_API 
 
 #-----------------------------------------------------------------------
@@ -65,7 +64,7 @@ MACH_DEFINES = -DLINUX -DH5_USE_16_API
 
 MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = 
-MACH_CXXFLAGS = 
+MACH_CXXFLAGS = -DMPICH_IGNORE_CXX_SEEK
 MACH_FFLAGS   = -132
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl

@@ -59,7 +59,6 @@ MACH_LD_NOMPI  = CC
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
 MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
