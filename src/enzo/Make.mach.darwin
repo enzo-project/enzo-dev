@@ -33,7 +33,6 @@ LOCAL_PACKAGES       = /usr/local
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_FC_INSTALL     = /usr/local
 LOCAL_HDF5_INSTALL   = $(LOCAL_PACKAGES)
-LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
 LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
