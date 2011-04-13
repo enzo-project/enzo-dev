@@ -65,8 +65,6 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = 
-#MACH_OPENMP   = -mp
-MACH_OPENMP   = -openmp
 
 #-----------------------------------------------------------------------
 # Precision-related flags
