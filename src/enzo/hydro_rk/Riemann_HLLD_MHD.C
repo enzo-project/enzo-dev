@@ -28,6 +28,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
   float vy_ss, vz_ss, By_ss, Bz_ss, Bv_ss, eint_lss, eint_rss, etot_lss, etot_rss;
   float Zero = 0.0;
   float S_l, S_r, S_ls, S_rs, S_M; // wave speeds
+  float cf_l, cf_r; // fast speeds
 
   for (int n = 0; n < ActiveSize+1; n++) {
     // First, compute Fl and Ul
@@ -40,13 +41,14 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     By_l   = priml[6][n];
     Bz_l   = priml[7][n];
     Phi  = priml[8][n];
-    B2 = Bx*Bx + By_l*By_l + Bz_l*Bz_l;
-    Bv_l = Bx*vx_l + By_l*vy_l + Bz_l*vz_l;
+    B2 = Bx * Bx + By_l * By_l + Bz_l * Bz_l;
+    Bv_l = Bx * vx_l + By_l * vy_l + Bz_l * vz_l;
 
-    v2 = vx_l*vx_l + vy_l*vy_l + vz_l*vz_l;
-    etot_l = eint_l + 0.5*v2 + 0.5*B2/rho_l;
+    v2 = vx_l * vx_l + vy_l * vy_l + vz_l * vz_l;
+    etot_l = eint_l + 0.5 * v2 + 0.5 * B2 / rho_l;
     EOS(p_l, rho_l, eint_l, h, cs_l, dpdrho, dpde, EOSType, 2);
-    pt_l = p_l + 0.5*B2;
+    pt_l = p_l + 0.5 * B2;
+    cf_l = sqrt((Gamma * p_l + B2 + sqrt((Gamma * p_l + B2) * (Gamma * p_l + B2) - 4. * Gamma * p_l * Bx * Bx))/(2. * rho_l));
     Ul[iD   ] = rho_l;
     Ul[iS1  ] = rho_l * vx_l;
     Ul[iS2  ] = rho_l * vy_l;
@@ -96,6 +98,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     // }
     //float pr=p;
     //cs2 = cs*cs;
+    cf_r = sqrt((Gamma * p_r+ B2 + sqrt((Gamma * p_r + B2) * (Gamma * p_r + B2) - 4. * Gamma * p_r * Bx * Bx))/(2. * rho_r));
 
     Ur[iD   ] = rho_r;
     Ur[iS1  ] = rho_r * vx_r;
@@ -128,14 +131,9 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     //
 
     // first, outermost wave speeds
-    // These are not right! Fix!
-    float c_p, c_m, c_l;
-    c_p = vx_r + cs_r;  
-    c_m = vx_r - cs_r;
-    S_l = Max(Zero, c_p, c_m);
-    c_p = vx_l + cs_l;
-    c_l = vx_l - cs_l;
-    S_r = Max(Zero, -c_p, -c_m);
+    // simplest choice from Miyoshi & Kusano (2005)
+    S_l = min(vx_l, vx_r) - max(cf_l, cf_r);
+    S_r = max(vx_l, vx_r) + max(cf_l, cf_r);
 
     if (S_l > 0) {
       for (int field = 0; field < NEQ_MHD - 1; field++) {
@@ -158,8 +156,8 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     S_M = ((S_r - vx_r)*rho_r*vx_r - (S_l - vx_l)*rho_l*vx_l - pt_r + pt_l)/((S_r * vx_r)*rho_r - (S_l - vx_l)*rho_l);
 
     // finally, the intermediate (Alfven) waves
-    rho_ls = (S_l * vx_l - rho_l * vx_l)/(S_l = S_M);
-    rho_rs = (S_r * vx_r - rho_r * vx_r)/(S_r = S_M);
+    rho_ls = rho_l * (S_l - vx_l)/(S_l - S_M);
+    rho_rs = rho_r * (S_r - vx_r)/(S_r - S_M);
     S_ls = S_M - abs(Bx)/sqrt(rho_ls);
     S_rs = S_M + abs(Bx)/sqrt(rho_rs);
 
