@@ -47,11 +47,9 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
     ENZO_FAIL("SphericalInfall only works for Omega = 1");
   }
  
+  NumberOfBaryonFields = 0;
   if (UseBaryons) {
- 
-    /* create fields */
- 
-    NumberOfBaryonFields = 0;
+     /* create fields */
     FieldType[NumberOfBaryonFields++] = Density;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
     if (DualEnergyFormalism)
@@ -63,7 +61,11 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
     if (GridRank > 2)
       FieldType[NumberOfBaryonFields++] = Velocity3;
   }
- 
+
+   if (WritePotential)
+    FieldType[NumberOfBaryonFields++] = GravPotential;
+
+   NumberOfParticles = 1000;
   /* Return if this doesn't concern us. */
  
   if (ProcessorNumber != MyProcessorNumber)
@@ -108,14 +110,17 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
                 ParticleCenter - index of the particle at the center of pert.
 		DelCenter   - the amount to shift all particles to insure
 		              the center particle is exactly at center. */
- 
+    float volume = 1.;
+
     for (dim = 0; dim < GridRank; dim++) {
       DelParticle[dim]    = (GridRightEdge[dim]-GridLeftEdge[dim])/
 	float(ParticleDimension[dim]);
+      volume *= (GridRightEdge[dim]-GridLeftEdge[dim]);
       ParticleCenter[dim] = int((SphericalInfallCenter[dim]/
 				 DelParticle[dim] - 0.5     ) );
       DelCenter[dim]  = ((SphericalInfallCenter[dim]/DelParticle[dim] - 0.5) -
 			  float(ParticleCenter[dim]))*DelParticle[dim];
+      DelCenter[dim] = 0.; // <- TA make it uniform
     }
     if (debug) {
       printf("SphericalInfallInitialize: DelCenter = %"FSYM" %"FSYM" %"FSYM"\n",
@@ -149,16 +154,26 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
 	  for (dim = 0; dim < GridRank; dim++)
 	    ParticleVelocity[dim][n] = 0.0;
  
+	  
 	  ParticleMass[n] = SphericalInfallOmegaCDMNow*float(size)/
 	    float(NumberOfParticles);
  
+	  if (SubgridIsStatic == TRUE && 
+	      ParticlePosition[0][n] > 0.2 && ParticlePosition[0][n] < 0.7 &&
+	      ParticlePosition[1][n] > 0.2 && ParticlePosition[1][n] < 0.7 &&
+	      ParticlePosition[2][n] > 0.2 && ParticlePosition[2][n] < 0.7 )
+	    ParticleMass[n] = tiny_number;
+
+	  // if (( i % 2) == 0.)
+	  //   ParticleMass[n] = tiny_number;
+
 	  ParticleNumber[n] = n;
 	  ParticleType[n]   = PARTICLE_TYPE_DARK_MATTER;
 	}
  
     /* Give the central particle density it's perturbation. */
  
- 
+
     ParticleMass[  (ParticleCenter[2])*ParticleDimension[0]
                                       *ParticleDimension[1]
                  + (ParticleCenter[1])*ParticleDimension[0]

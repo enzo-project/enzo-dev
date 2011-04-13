@@ -3,7 +3,7 @@ ytcfg["yt","loglevel"] = '50'
 ytcfg["yt","suppressStreamLogging"] = 'True'
 
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest, run
+from yt.utilities.answer_testing.api import YTStaticOutputTest, create_test, run_main
 import matplotlib.pyplot as plt
 
 class TestPhotonTest(YTStaticOutputTest):

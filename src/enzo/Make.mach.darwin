@@ -33,9 +33,7 @@ LOCAL_PACKAGES       = /usr/local
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_FC_INSTALL     = /usr/local
 LOCAL_HDF5_INSTALL   = $(LOCAL_PACKAGES)
-LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
-LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
 LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
 LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
 LOCAL_CVODE_INSTALL  = /usr/local/
@@ -72,7 +70,6 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # -DH5_USE_16_API.
 
 MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
-#-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
 
 #-----------------------------------------------------------------------
 # Compiler flag settings

@@ -89,7 +89,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.CycleSkipRestartDump = 0;
   MetaData.CycleLastDataDump    = INT_UNDEFINED;
   MetaData.CycleSkipDataDump    = 0;
-  MetaData.SubcycleLastDataDump    = INT_UNDEFINED;
+  MetaData.SubcycleLastDataDump    = 0;
   MetaData.SubcycleSkipDataDump    = 0;
   MetaData.CycleLastHistoryDump = INT_UNDEFINED;
   MetaData.CycleSkipHistoryDump = 0;
@@ -537,7 +537,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SmallT		     = 1e-10;
   MaximumAlvenSpeed	     = 1e30;
   RiemannSolver		     = INT_UNDEFINED;
-  RiemannSolverFallback      = FALSE;
+  RiemannSolverFallback      = 1;
   ReconstructionMethod	     = INT_UNDEFINED;
   PositiveReconstruction     = FALSE;
   ConservativeReconstruction = 0;

@@ -28,7 +28,7 @@ so read these pages carefully.
 
 We strongly recommend reading everything that proceeds this page on
 the :doc:`../tutorials/index` page and the page about version control
-and regression testing, :doc:`DiffVersions`.
+and regression testing, :doc:`ModificationIntro`.
 
 Lastly, please give your problem a reasonable name. I'll be using
 ``MyProblem`` throughout this tutorial. Please change this to something
@@ -44,7 +44,9 @@ and ``MyProblemInitializeGrid`` and store it in
 
 You'll need to install your code in three places.
 
-#. ``public/trunk/src/enzo/Make.config.objects``
+.. highlight:: none
+
+#. ``Make.config.objects``
     is the file that lists all the source file objects needed to build Enzo. Put
 
     ::
@@ -56,16 +58,16 @@ You'll need to install your code in three places.
     clean, you can add your own variable to the Makefile and have it
     driven by a command line switch, but this isn't necessary.
 
-#. ``src/enzo/Grid.h``. You'll need to put
+#. ``Grid.h``. You'll need to put
     ``MyProblemInitializeGrid`` in this the grid class definition. Put it
     with the rest of the ``*InitializeGrid`` routines.
 
-#. ``src/enzo/InitializeNew.C``. Put
+#. ``InitializeNew.C``. Put
     ``MyProblemInitialize`` in ``InitializeNew``. At the end of the large block
     of ``*Initialize``, take the next unused ProblemType number and
     install your code. It should look something like this:
 
-    ::
+    .. code-block:: c
 
           // 61) Protostellar Collapse                                                                                 
           if (ProblemType == 61)
@@ -92,7 +94,7 @@ next section.
 
 Also, don't forget to put the proto type at the top:
 
-::
+.. code-block:: c
 
     int MyProblemInitialize(FILE *fptr, FILE *Outfptr,
                                        HierarchyEntry &TopGrid,
@@ -118,11 +120,11 @@ need, and one additional argument that only rare problems will
 need. You won't likely have any need to add any other arguments. In
 order, they are:
 
-#. ``FILE \*fptr`` This is the pointer to the parameter file argument to
+#. ``FILE *fptr`` This is the pointer to the parameter file argument to
     Enzo. It's opened and closed in InitializeNew You can read
     parameters if you like, see below.
 
-#. ``FILE \*Outfptr`` This is the output pointer, a file called "amr.out."
+#. ``FILE *Outfptr`` This is the output pointer, a file called "amr.out."
     This file contains the derived details of your problem setup for
     your record. There is no necessary output for this, it's for the
     users convenience.
@@ -139,11 +141,11 @@ order, they are:
 #. ``TopGridData &MetaData`` This is the structure that contains the meta
     data describing the Top Grid. Things like boundary condition,
     problem domain size, rank, and dimension are stored here.
-    See ``src/enzo/TopGridData.h`` for a complete list of the contents.
+    See ``TopGridData.h`` for a complete list of the contents.
 
 If you want to write a problem with Dirichlet boundary conditions,
 for instance jet inflow, you will need to add a fifth argument to
-the function (and, of course, it's call in InitializeNew). This is
+the function (and, of course, it's called in ``InitializeNew``). This is
 the external boundary, ``ExternalBoundary &Exterior``. This is the
 External Boundary object, which you will need to deal with.  We will
 not be discussing this here. If you need to be
@@ -159,7 +161,7 @@ Necessary Headers
 The essential header files for ``MyProblemInitialize`` are the
 following:
 
-::
+.. code-block:: c
 
     #include <stdio.h>
     #include <string.h>
@@ -179,33 +181,33 @@ standard headers <stdio.h> and <string.h>
 
 In brief, these are:
 
-- ``src/enzo/macros_and_parameters.h`` The standard set of macros. This takes
+- ``macros_and_parameters.h`` The standard set of macros. This takes
     care of the float promotion so its inclusion is
     **ABSOLUTELY ESSENTIAL**
 
-- ``src/enzo/typedefs.h`` This takes
+- ``typedefs.h`` This takes
     care of enumerates for parameters like the hydro method.
 
-- ``src/enzo/global_data.h`` There
+- ``global_data.h`` There
     are a lot of global parameters in Enzo. This houses them.
 
-- ``src/enzo/Fluxes.h`` Definition of the
+- ``Fluxes.h`` Definition of the
     flux object. Not necessary for your objects, but I think its
     necessary for the later
 
-- ``src/enzo/GridList.h`` I don't think
+- ``GridList.h`` I don't think
     this is necessary, but it's usually included.
 
-- ``src/enzo/ExternalBoundary.h`` This defines the external boundary object. Even
+- ``ExternalBoundary.h`` This defines the external boundary object. Even
     if you're not including the external boundary, it's
     necessary for the following headers.
 
-- ``src/enzo/Grid.h`` This defines the grid
+- ``Grid.h`` This defines the grid
     class, which you'll definitely need.
 
-- ``src/enzo/Hierarchy.h`` This defines the Hierarchy Entry linked list.
+- ``Hierarchy.h`` This defines the Hierarchy Entry linked list.
 
-- ``src/enzo/TopGridData.h`` This defines the meta data object.
+- ``TopGridData.h`` This defines the meta data object.
 
 More information can be found in :doc:`../reference/Headers`.
 
@@ -229,10 +231,10 @@ up is asking for trouble. If you're not using chemistry, you'll
 want something that looks like this. If you change the actual
 names, you guarantee that an analysis tool somewhere will break, so
 don't do it. See
-``src/enzo/CosmologySimulationInitialize.C`` for
+``CosmologySimulationInitialize.C`` for
 a more complete list, including extra chemical species.
 
-::
+.. code-block:: c
 
       char *DensName = "Density";
       char *TEName   = "TotalEnergy";
@@ -266,7 +268,7 @@ to match each line with a parameter. This allows the parameter file
 to be independent of of order. The typical pattern looks like
 this:
 
-::
+.. code-block:: c
 
       float MyVelocity, MyDensity;
       char line[MAX_LINE_LENGTH];
@@ -287,7 +289,7 @@ this:
       }
 
 If you're not familiar with these functions,
-`read this webpage <http://www.cppreference.com/all_c_functions.html>`_
+`here is a good list of standard C functions <http://www.cppreference.com/all_c_functions.html>`_.
 
 The last line checks for errors in parameters that start with
 ``MyProblem``. Everything involving this routine should be prepended
@@ -295,14 +297,15 @@ with ``MyProblem``. In the file ``ReadParameterFile.C``, the parameter file
 is read and any lines not recognized are thrown as errors; this is
 the section identified with
 
-::
+.. code-block:: c
+
     \* check to see if the line belongs to one of the test problems \*/.
     
 You must add your prefix (in this
 case, ``MyProblem``) to the list of test problem prefixes considered in
 this section:
 
-::
+.. code-block:: c
 
         if (strstr(line, "MyProblem")           ) ret++;
 
@@ -316,7 +319,7 @@ Calling the Grid Initializer: Unigrid
 For a small, unigrid problem, the problem initializer is called
 using the standard Enzo function call procedure.
 
-::
+.. code-block:: c
 
     if( TopGrid.GridData->MyProblemInitializeGrid(MyVelocity, MyDensity) == FAIL ){
       fprintf(stderr,"MyProblemInitialize: Error in MyProblemInitializeGrid\n");
@@ -331,8 +334,6 @@ parallel startup later.
 
 .. _InitializeGrid:
 
-.. _InitializeGrid:
-
 MyProblemInitializeGrid
 -----------------------
 
@@ -341,7 +342,7 @@ As a member function, it can access the private data, most
 importantly ``BaryonField``. ``BaryonField`` is an array of pointers that
 stores the actual data that the simulator is interested in.
 
-::
+.. code-block:: c
 
     float *BaryonField[MAX_NUMBER_OF_BARYON_FIELDS];
 
@@ -363,7 +364,7 @@ they MUST BE DONE IN THIS ORDER.
 
     A typical pattern looks like this:
 
-    ::
+    .. code-block:: c
 
       NumberOfBaryonFields = 0;
       FieldType[NumberOfBaryonFields++] = Density;
@@ -378,7 +379,7 @@ they MUST BE DONE IN THIS ORDER.
         FieldType[NumberOfBaryonFields++] = Velocity3;
 
     All the right hand side of those assigns can be found in
-    ``src/enzo/typedefs.h``.
+    ``typedefs.h``.
 
     Note that all processors must have this information defined for all
     grids, so this MUST come before step 2.
@@ -390,7 +391,7 @@ they MUST BE DONE IN THIS ORDER.
     data can do. Usually, the routine simply exits if the processor
     doesn't own the data:
 
-    ::
+    .. code-block:: c
 
       if (ProcessorNumber != MyProcessorNumber)
         return SUCCESS;
@@ -403,7 +404,7 @@ they MUST BE DONE IN THIS ORDER.
 
 #. Allocate the BaryonFields
 
-    ::
+    .. code-block:: c
     
         this->AllocateGrids()
     

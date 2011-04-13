@@ -1,0 +1,8 @@
+This directory stores templates for running the test simulations on various 
+machines.  After adding a template, you must add an entry to the machines 
+dictionary in test_runner.py.  Each entry in the dictionary must be also be a 
+dictionary that contains the entried 'script' and 'command'.  The script entry 
+should be the name of the script file you have just added here.  The command 
+entry gives the command required to run that script.  Locally, this would be 
+something like bash.  On a supercomputer with a queueing system, this would 
+likely be 'qsub'.

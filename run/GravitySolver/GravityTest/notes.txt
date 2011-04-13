@@ -21,7 +21,7 @@ of the measured force, as computed by the code,
 the radial component of the computed force, and finally
 the "true" (unsoftened) force.  
 
-The trangential component of the force should be zero; the
+The tangential component of the force should be zero; the
 radial component should follow the r^-2 law, but is softened
 for radii less than about one cell length (or slightly larger).
 It also falls below r^-2 are large distances because this
@@ -39,5 +39,3 @@ conceivably escape undetected (e.g. those having to do
 with force errors at small and large radii); however, the problem
 with a bitwise comparison is that the positions of
 the 5000 particles are random (with no setable seed).
-
-

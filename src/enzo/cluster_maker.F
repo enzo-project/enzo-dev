@@ -115,6 +115,9 @@ c         write(6,*) 'Check parameter file.'
 c         stop
 c      endif
 
+c      write(6,*) 'cluster maker:'
+c      write(6,*) odthresh
+
       ii = np
 c
 c     calculate how many solar masses are in d1*x1^3

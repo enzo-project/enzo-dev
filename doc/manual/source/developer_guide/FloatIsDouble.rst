@@ -21,19 +21,19 @@ information (baryon density, temperature, velocity, etc.) Any variables that
 deal with position information should be declared as the ``FLOAT`` data type. For
 example:
 
-::
+.. code-block:: c
 
     FLOAT xpos, ypos, zpos;
 
 A quantity that deals with non-positional information would be
 declared using the ``float`` data type:
 
-::
+.. code-block:: c
 
     float cell_HI_density, cell_H2I_density, cell_temperature;
 
 The actual precision of ``float`` and ``FLOAT`` are controlled by the
-Makefile system (see :ref:`UserGuide/BuildingEnzo`.) To set the
+Makefile system (see :ref:`obtaining_and_building_enzo`.) To set the
 non-positional precision to 64-bit (double), you would issue this
 command:
 
@@ -101,14 +101,14 @@ literal statement.
 An example of this usage macro in a printf statement to write out a
 float is:
 
-::
+.. code-block:: c
 
     printf("Hello there, your float value is %"FSYM".\n", some_float);
 
 and to read in a set of three position coordinates using scanf out
 of a string named line:
 
-::
+.. code-block:: c
 
     sscanf(line,"PartPos  = %"PSYM" %"PSYM" %"PSYM, &XPOS, &YPOS, &ZPOS);
 
@@ -139,9 +139,9 @@ If you need more details…
 If you need more detailed information on this particular subject,
 there is no substitute for looking at the source code. All of these
 macros are defined in the Enzo source code file
-``macros\_and\_parameters.h``. Just look for this comment:
+``macros_and_parameters.h``. Just look for this comment:
 
-::
+.. code-block:: c
 
     /* Precision-dependent definitions */
 

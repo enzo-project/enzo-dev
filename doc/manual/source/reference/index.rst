@@ -19,3 +19,4 @@ Reference Information
    ProblemSizeEsimates.rst
    SetAccelerationBoundary.rst
    StarParticleClass.rst
+   BuildingDocumentation.rst

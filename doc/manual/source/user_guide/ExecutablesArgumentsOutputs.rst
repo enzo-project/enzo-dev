@@ -42,7 +42,7 @@ each for each datadump.  For more information on the format of Enzo output, see
 inits
 -----
 
-This is the initial conditions generator. See :ref:`RunningInits` for more
+This is the initial conditions generator. See :ref:`using_inits` for more
 detailed information. Initial conditions with a single initial grid or multiple
 nested grids can be created with this executable.  Output file names are
 user-specified, but in a standard cosmology simulation with a single initial
@@ -112,7 +112,7 @@ information.
 anyl
 ----
 
-anyl is the analysis package written in C, previously known as enzo\_anyl.
+anyl is the analysis package written in C, previously known as enzo_anyl.
 Although the analysis toolkit for enzo that's being constantly updated is YT,
 anyl has its own value for some users. It creates radial, disk, vertical
 profiles for baryon (each species), dark matter, and star particles. Works with

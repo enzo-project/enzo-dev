@@ -7,6 +7,8 @@ while somewhat obtuse at first -- reflects that context. Each grid
 entry has a set number of fields that describe its position in
 space, as well as the fields that are affiliated with that grid:
 
+.. highlight:: none
+
 ::
 
     Grid = 1

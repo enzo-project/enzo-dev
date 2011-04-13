@@ -345,7 +345,6 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeHeat.o \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
-	Grid_ComputePressureDualEnergyFormalism.o \
 	Grid_ComputePressure.o \
 	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \

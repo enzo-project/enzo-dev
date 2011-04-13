@@ -184,8 +184,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
   // update conserved variables
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
 
-  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				   Vel3Num, TENum);
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
 
   float rho_old, vx_old, vy_old, vz_old, e_old, etot_old, Tau_old, eint_old,
     rho, vx, vy, vz, e, etot, Tau, eint, p, v2,

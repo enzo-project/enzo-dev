@@ -26,7 +26,7 @@ MACHINE_NOTES = "***** MACHINE_NOTES for Orange at KIPAC/Stanford: \
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
-INT_DIR              = /afs/slac.stanford.edu/package/intel_tools/compiler11.1/
+LOCAL_COMPILER_DIR   = /afs/slac.stanford.edu/package/intel_tools/compiler11.1/
 LOCAL_MPI_INSTALL    = /afs/slac/package/OpenMPI/1.3.4/@sys
 LOCAL_HDF5_INSTALL   = /u/ki/mturk/Research/local/yt-x86_64/
 LOCAL_HDF4_INSTALL   = /afs/slac/g/ki/software/hdf4/amd64_linux26/
@@ -40,11 +40,11 @@ MACH_CPP       = /usr/bin/cpp
 
 # With MPI
 
-MACH_CC_MPI  = $(INT_DIR)/bin/@sys/icc
-MACH_CXX_MPI = $(INT_DIR)/bin/@sys/icc
-MACH_FC_MPI  = $(INT_DIR)/bin/@sys/ifort
-MACH_F90_MPI = $(INT_DIR)/bin/@sys/ifort
-MACH_LD_MPI  = $(INT_DIR)/bin/@sys/icc
+MACH_CC_MPI  = $(LOCAL_COMPILER_DIR)/bin/@sys/icc
+MACH_CXX_MPI = $(LOCAL_COMPILER_DIR)/bin/@sys/icc
+MACH_FC_MPI  = $(LOCAL_COMPILER_DIR)/bin/@sys/ifort
+MACH_F90_MPI = $(LOCAL_COMPILER_DIR)/bin/@sys/ifort
+MACH_LD_MPI  = $(LOCAL_COMPILER_DIR)/bin/@sys/icc
 
 # Without MPI
 
@@ -99,7 +99,7 @@ LOCAL_INCLUDES_HDF4   = -I$(LOCAL_HDF4_INSTALL)/include
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) $(LOCAL_INCLUDES_SPRNG)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) 
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -113,7 +113,7 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
 
-LOCAL_LIBS_MACH   =  -L$(INT_DIR)/lib/intel64/ -limf -lifcore -lifport -lstdc++
+LOCAL_LIBS_MACH   =  -L$(LOCAL_COMPILER_DIR)/lib/intel64/ -limf -lifcore -lifport -lstdc++
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

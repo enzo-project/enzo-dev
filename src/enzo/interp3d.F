@@ -298,11 +298,11 @@ c
                         grid(gstart1+(i-1)*refine1+i1,
      &                       gstart2+(j-1)*refine2+j1,
      &                       gstart3+(k-1)*refine3+k1) = (fbar_save(i) +
-     &                       (real(i1)+0.d5 - 
+     &                       (real(i1) + 0.5d0 - 
      &                       0.5d0*real(refine1))/real(refine1)*fx(i) +
-     &                       (real(j1)+0.d5 - 
+     &                       (real(j1) + 0.5d0 - 
      &                       0.5d0*real(refine2))/real(refine2)*fy(i) +
-     &                       (real(k1)+0.d5 - 
+     &                       (real(k1) + 0.5d0 - 
      &                       0.5d0*real(refine3))/real(refine3)*fz(i) )
                      enddo
                   enddo

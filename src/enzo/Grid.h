@@ -1124,6 +1124,19 @@ public:
    int GetGridDimension(int Dimension) {return GridDimension[Dimension];}
    int GetGridStartIndex(int Dimension) {return GridStartIndex[Dimension];}
    int GetGridEndIndex(int Dimension) {return GridEndIndex[Dimension];}
+   int GetActiveSize() {
+     int dim, size;
+     for (dim = 0, size = 1; dim < GridRank; dim++) {
+       size *= GridEndIndex[dim] - GridStartIndex[dim] + 1;
+     }
+     return size;
+   }
+   int GetGridSize() {
+     int dim, size;
+     for (dim = 0, size = 1; dim < GridRank; dim++)
+       size *= GridDimension[dim];
+     return size;
+   }
    FLOAT GetGridLeftEdge(int Dimension) {return GridLeftEdge[Dimension];}
    FLOAT GetGridRightEdge(int Dimension) {return GridRightEdge[Dimension];}
 
@@ -1632,15 +1645,15 @@ int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
 int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 int yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		int GravityOn, int NumberOfColours, int colnum[]);
+		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
 // AccelerationHack
 
@@ -1717,6 +1730,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                float SedovBlastInnerTotalEnergy);
 
   int SedovBlastInitializeGrid3D(char * fname);
+
+  int SedovBlastInitializeGrid3DFixedR(float dr);
+
 
 /* Initialize a grid for RadiatingShock (Sedov+Cooling) Explosion */
 

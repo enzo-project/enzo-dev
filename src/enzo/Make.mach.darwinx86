@@ -36,9 +36,7 @@ LOCAL_PACKAGES       = /usr/local
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_FC_INSTALL     = /usr/local
 LOCAL_HDF5_INSTALL   = $(HDF5_DIR)
-LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
-LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
 LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
 LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
 LOCAL_CVODE_INSTALL  = /usr/local/
@@ -74,9 +72,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # compile HDF5 with --with-default-api-version=v16, or Enzo with
 # -DH5_USE_16_API.
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API #-DNEW_PROBLEM_TYPES
-
-#-DOPTIMIZED_CTP -DSTATIC_SIBLING_LIST
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
 
 #-----------------------------------------------------------------------
 # Compiler flag settings

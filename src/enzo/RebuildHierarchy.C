@@ -54,8 +54,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
-int DetermineSubgridSizeExtrema(LevelHierarchyEntry *LevelArray[],
-				int level);
+int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
@@ -156,6 +155,19 @@ int RebuildHierarchy(TopGridData *MetaData,
   for (i = 0; i < MAX_STATIC_REGIONS; i++)
     MaximumStaticSubgridLevel = max(MaximumStaticSubgridLevel,
 				    StaticRefineRegionLevel[i]);
+
+  /* Calculate number of cells on each level */
+
+  long_int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
+  if (SubgridSizeAutoAdjust == TRUE) {
+    for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+      NumberOfCells[i] = 0;
+      for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
+	if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
+	  NumberOfCells[i] += Temp->GridData->GetActiveSize();
+    }
+    CommunicationAllSumValues(NumberOfCells, MAX_DEPTH_OF_HIERARCHY);
+  }
 
   for (i = MAX_DEPTH_OF_HIERARCHY-1; i > level; i--) {
 
@@ -305,21 +317,32 @@ int RebuildHierarchy(TopGridData *MetaData,
     } // end: loop over levels
  
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
+
+      /* Find maximum level that exists right now. */
+ 
+      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) 
+	if (TempLevelArray[i] == NULL) break;
+
+      int MaximumLevelNow = i;
  
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */
 
-    for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
+      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
+	    //for (i = level; i < MaximumLevelNow; i++) {
  
+
       /* If there are no grids on this level, exit. */
  
       if (LevelArray[i] == NULL)
 	break;
 
+
       /* Determine the subgrid minimum and maximum sizes, if
 	 requested. */
 
-      DetermineSubgridSizeExtrema(LevelArray, i);
+      DetermineSubgridSizeExtrema(NumberOfCells[i+1], i+1, 
+				  MaximumStaticSubgridLevel+1);
  
       /* 3a) Generate an array of grids on this level. */
  

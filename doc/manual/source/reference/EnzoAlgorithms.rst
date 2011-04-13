@@ -1,3 +1,5 @@
+.. _EnzoAlgorithms:
+
 Enzo Algorithms
 ===============
 
@@ -22,8 +24,8 @@ files in a platform-independent format.
 .. |AMR2003| replace:: 2003 University of Chicago AMR conference
 .. _AMR2003: http://flash.uchicago.edu/amr2003
 
-.. _MPI: http://www-unix.mcs.anl.gov/mpi/
-.. _HDF5: http://hdf.ncsa.uiuc.edu/HDF5/
+.. _MPI: http://www.mcs.anl.gov/research/projects/mpi/
+.. _HDF5: http://www.hdfgroup.org/HDF5/
 
 Adaptive Mesh Refinement
 ------------------------

@@ -184,7 +184,7 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
   for (level = 0; level <= MaximumRefinementLevel; level++) {
 
     if (isRoot) {
-      fprintf(fptr, "  Level %"ISYM"  Grids %"ISYM"  Memory(MB) %"GSYM"  Coverage %"GSYM"  Ratio %"GSYM"  Flagged %"GSYM"  Active %" ISYM"\n",
+      fprintf(fptr, "  Level %"ISYM"  Grids %"ISYM"  Memory(MB) %"GSYM"  Coverage %"GSYM"  Ratio %"GSYM"  Flagged %"GSYM"  Active %lld\n",
       level, Grids[level], float(Memory[level])/1.049e6,
       Coverage[level], MeanAxialRatio[level], FractionFlagged[level],
       CellsActive[level]);

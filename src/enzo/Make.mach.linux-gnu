@@ -49,9 +49,7 @@ MACH_LD_NOMPI  = g++ # Linker when not using MPI
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-MACH_DEFINES   = -DLINUX -DH5_USE_16_API -DFAST_SIB \
-	        -DSTATIC_SIBLING_LIST -DFLUX_FIX -DNO_IO_LOG \
-		-DENABLE_LOAD_BALANCE -DOPTIMIZED_CTP
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API 
 
 #-----------------------------------------------------------------------
 # Compiler flag settings

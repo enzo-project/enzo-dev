@@ -377,6 +377,32 @@ machine-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
+load-config-%:
+	@if [ -e $(HOME)/.enzo/Make.settings.$* ]; then \
+           @tmp=.config.temp; \
+	   cat $(HOME)/.enzo/Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
+           echo; \
+           echo "   CONFIG SETTINGS: $*"; \
+	   $(MAKE) show-config; \
+	   $(MAKE) suggest-clean; \
+        else \
+           echo; \
+           echo "   No such settings file "'"'"$(HOME)/.enzo/Make.settings.$*"'"'; \
+           echo; \
+        fi;
+
+#-----------------------------------------------------------------------
+
+save-config-%:
+	@tmp=.config.temp; \
+	cat $(MAKE_CONFIG_OVERRIDE) > $(HOME)/.enzo/Make.settings.$*; \
+	echo; \
+	echo "   Settings saved to $(HOME)/.enzo/Make.settings.$*."; \
+	echo "   Type "'"'"$(MAKE) load-config-$*"'"'" to reload settings."; \
+	echo;
+
+#-----------------------------------------------------------------------
+
 VALID_INTEGERS = integers-32 integers-64
 .PHONY: $(VALID_INTEGERS)
 
