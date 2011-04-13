@@ -9,6 +9,7 @@ syntax: glob
 
 bin/enzo
 bin/inits
+TAGS
 DEPEND
 DEPEND.bak
 auto_show_*.C

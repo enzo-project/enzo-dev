@@ -45,6 +45,7 @@ OUTPUT   = out.compile
 ENZO_DIR = .
 MODULES  = 
 VERBOSE  = 0
+ETAGS_COMMAND = "0"
 
 SVN      = hg
 
@@ -119,10 +120,12 @@ lib: lib$(EXE)_p$(ASSEMBLE_PARTICLE_NUMBER)_b$(ASSEMBLE_PRECISION_NUMBER).$(MACH
 #-----------------------------------------------------------------------
 
 MAKETAGS:
-	@echo -e "Making Tags with $(ETAGS_COMMAND)"
-	@rm TAGS
-	@$(ETAGS_COMMAND)
-	@echo -e "Done updating TAGS"
+	@(if [ "$(ETAGS_COMMAND)" != "0" ]; then \
+	   	echo -e "Making Tags with $(ETAGS_COMMAND)" ; \
+		rm -f TAGS ; \
+		$(ETAGS_COMMAND) ; \
+		echo -e "Done updating TAGS" ; \
+	fi)
 MACHNOTES: 
 	@echo -e $(MACHINE_NOTES)
 
@@ -214,6 +217,7 @@ verbose: $(EXE).exe
 #	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
 .F90.o:
 	@rm -f $@
+	@echo "Compiling $<"
 	@(if [ $(VERBOSE) -eq 0 ]; then \
 	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
@@ -397,7 +401,7 @@ help:
 clean:
 	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
           auto_show*.C svn_version.def hydro_rk/*.o *.oo hydro_rk/*.oo \
-          uuid/*.oo DEPEND \
+          uuid/*.oo DEPEND TAGS \
           python_bridge/problemtype_handler.C \
           python_bridge/problemtype_handler.h \
           python_bridge/problemtype_handler.o

@@ -54,7 +54,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
-int DetermineSubgridSizeExtrema(int NumberOfCells, int level, int MaximumStaticSubgridLevel);
+int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
@@ -158,7 +158,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
   /* Calculate number of cells on each level */
 
-  int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
+  long_int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
   if (SubgridSizeAutoAdjust == TRUE) {
     for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
       NumberOfCells[i] = 0;

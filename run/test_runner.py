@@ -1,9 +1,29 @@
 # This is the object that locates all *.enzo_test directories
 
-import os.path
+import imp
 import optparse
+import os.path
 import sys
 import shutil
+import time
+
+known_categories = [
+    "Cooling",
+    "Cosmology",
+    "DrivenTurbulence3D",
+    "FLD",
+    "GravitySolver",
+    "Hydro",
+    "MHD",
+    "RadiationTransport",
+    "RadiationTransportFLD",
+]
+
+try:
+    from yt.utilities.answer_testing.api import \
+        RegressionTestRunner, clear_registry
+except ImportError:
+    RegressionTestRunner = None
 
 varspec = dict(
     name = (str, ''),
@@ -60,7 +80,8 @@ class EnzoTestCollection(object):
         if tests is None:
             # Now we look for all our *.enzotest files
             fns = []
-            os.path.walk(".", add_files, fns)
+            for cat in known_categories:
+                os.path.walk(cat, add_files, fns)
             self.tests = []
             for fn in sorted(fns):
                 print "HANDLING", fn
@@ -69,17 +90,28 @@ class EnzoTestCollection(object):
             self.tests = tests
         self.test_container = []
 
-    def go(self, output_dir, interleaved, machine, exe_path):
+    def go(self, output_dir, interleaved, machine, exe_path, compare_dir,
+           sim_only=False, test_only=False):
+        go_start_time = time.time()
+        self.output_dir = output_dir
+        total_tests = len(self.tests)
         if interleaved:
-            for my_test in self.tests:
+            for i, my_test in enumerate(self.tests):
                 print "Preparing test: %s." % my_test['name']
                 self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
-                self.test_container[-1].run_sim()
-                self.test_container[-1].run_test()
+                if not test_only:
+                    print "Running simulation: %d of %d." % (i, total_tests)
+                    self.test_container[i].run_sim()
+                if not sim_only:
+                    print "Running test: %d of %d." % (i, total_tests)
+                    self.test_container[-1].run_test(compare_dir)
         else:
             self.prepare_all_tests(output_dir, machine, exe_path)
-            self.run_all_sims()
-            self.run_all_tests()
+            if not test_only: self.run_all_sims()
+            if not sim_only: self.run_all_tests(compare_dir)
+        if not sim_only: self.save_test_summary()
+        go_stop_time = time.time()
+        print "Total test time: %f seconds." % (go_stop_time - go_start_time)
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
@@ -88,14 +120,18 @@ class EnzoTestCollection(object):
             self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
 
     def run_all_sims(self):
+        total_tests = len(self.test_container)
         print "Running all simulations."
-        for my_test in self.test_container:
+        for i, my_test in enumerate(self.test_container):
+            print "Running simulation: %d of %d." % (i, total_tests)
             my_test.run_sim()
 
-    def run_all_tests(self):
+    def run_all_tests(self, compare_dir):
+        total_tests = len(self.test_container)
         print "Running all tests."
-        for my_test in self.test_container:
-            my_test.run_test()
+        for i, my_test in enumerate(self.test_container):
+            print "Running test: %d of %d." % (i, total_tests)
+            my_test.run_test(compare_dir)
 
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
@@ -151,6 +187,42 @@ class EnzoTestCollection(object):
         print
         print "NUMBER OF TESTS", len(self.tests)
 
+    def save_test_summary(self):
+        all_passes = all_failures = 0
+        run_passes = run_failures = 0
+        dnfs = finished_no_test = 0
+        f = open(os.path.join(self.output_dir, 'test_results.txt'), 'w')
+        for my_test in self.test_container:
+            if my_test.run_finished:
+                if my_test.test_data['answer_testing_script'] == 'None' or \
+                        my_test.test_data['answer_testing_script'] is None:
+                    finished_no_test += 1
+                    f.write("%-70sRun finished, no test available.\n" % my_test.test_data['fulldir'])
+                    continue
+                t_passes = 0
+                t_failures = 0
+                for t_result in my_test.results.values():
+                    t_passes += int(t_result)
+                    t_failures += int(not t_result)
+                f.write("%-70sPassed: %4d, Failed: %4d.\n" % (my_test.test_data['fulldir'], 
+                                                              t_passes, t_failures))
+                all_passes += t_passes
+                all_failures += t_failures
+                run_passes += int(not (t_failures > 0))
+                run_failures += int(t_failures > 0)
+            else:
+                dnfs += 1
+                f.write("%-70sPassed: DID NOT FINISH\n" % my_test.test_data['fulldir'])
+
+        f.write("\n")
+        f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
+                                                      all_passes, all_failures))
+        f.write("Runs finished with all tests passed: %d.\n" % run_passes)
+        f.write("Runs finished with at least one failure: %d.\n" % run_failures)
+        f.write("Runs failed to complete: %d.\n" % dnfs)
+        f.write("Runs finished with no tests to perform: %d.\n" % finished_no_test)
+        f.close()
+
 class EnzoTestRun(object):
     def __init__(self, test_dir, test_data, machine, exe_path):
         self.machine = machine
@@ -202,22 +274,67 @@ class EnzoTestRun(object):
         print "Running test simulation: %s." % self.test_data['name']
         cur_dir = os.getcwd()
         # Check for existence
-        if os.path.exists(self.run_dir+'/RunFinished'):
+        if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             print "%s run already completed, continuing..." % self.test_data['name']
             return
         
-        os.chdir(self.run_dir) 
+        os.chdir(self.run_dir)
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
         print "Executing \"%s\"." % command
+        sim_start_time = time.time()
         os.system(command)
+        sim_stop_time = time.time()
+        if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
+            f = open(os.path.join(self.run_dir, 'run_time'), 'w')
+            f.write("%f seconds.\n" % (sim_stop_time - sim_start_time))
+            f.close()
         os.chdir(cur_dir)
 
-    def run_test(self):
+    def run_test(self, compare_dir):
         cur_dir = os.getcwd()
+        if compare_dir is None:
+            compare_id = None
+        else:
+            compare_id = ""
+            compare_dir = os.path.join(cur_dir, compare_dir,
+                            self.test_data['fulldir'])
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['name']
+        fn = self.test_data['answer_testing_script']
+        if fn is None or RegressionTestRunner is None:
+            print "NO ANSWER TESTING PROVIDED"
+            return
+        self.run_finished = os.path.exists(os.path.join(self.run_dir, 'RunFinished'))
+        clear_registry()
+
+        if self.run_finished and \
+                self.test_data['answer_testing_script'] != 'None' and \
+                self.test_data['answer_testing_script'] is not None:
+            if fn.endswith(".py"): fn = fn[:-3]
+            print "Loading module %s" % (fn)
+            f, filename, desc = imp.find_module(fn, ["."])
+            project = imp.load_module(fn, f, filename, desc)
+            rtr = RegressionTestRunner("", compare_id,
+                        compare_results_path = compare_dir)
+            rtr.run_all_tests()
+            self.results = rtr.passed_tests.copy()
+
         os.chdir(cur_dir)
+        self.save_results()
+
+    def save_results(self):
+        if self.test_data['answer_testing_script'] == 'None' \
+                or self.test_data['answer_testing_script'] is None: return
+        f = open(os.path.join(self.run_dir, 'test_results.txt'), 'w')
+        if self.run_finished:
+            my_tests = self.results.keys()
+            my_tests.sort()
+            for my_test in my_tests:
+                f.write("%-70s%s\n" % (my_test, self.results[my_test]))
+        else:
+            f.write("All tests failed because simulation did not finish.\n")
+        f.close()
 
 class UnspecifiedParameter(object):
     pass
@@ -226,6 +343,9 @@ unknown = UnspecifiedParameter()
 if __name__ == "__main__":
     etc = EnzoTestCollection()
     parser = optparse.OptionParser()
+    parser.add_option("-c", "--compare-dir", dest='compare_dir',
+                      default=None,
+                      help="The directory structure to compare against")
     parser.add_option("-o", "--output-dir", dest='output_dir',
                       help="Where to place the run directory")
     parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
@@ -237,7 +357,12 @@ if __name__ == "__main__":
                       help="Recopies tests and tests from scratch.")
     parser.add_option("--repo", dest='repository', default="../",
                       help="Path to repository being tested.")
-
+    parser.add_option("--json", dest='json', action="store_true",
+                      default=False, help="Store the results in a JSON catalog?")
+    parser.add_option("--sim-only", dest='sim_only', action="store_true", 
+                      default=False, help="Only run simulations.")
+    parser.add_option("--test-only", dest='test_only', action="store_true", 
+                      default=False, help="Only perform tests.")
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
@@ -265,6 +390,9 @@ if __name__ == "__main__":
     print "Total: %s" % len(etc2.tests)
 
     # get current revision
+    options.repository = os.path.expanduser(options.repository)
+    if options.compare_dir is not None:
+        options.compare_dir = os.path.expanduser(options.compare_dir)
     hg_current = _get_hg_version(options.repository)
     rev_hash = hg_current.split()[0]
     options.output_dir = os.path.join(options.output_dir, rev_hash)
@@ -277,4 +405,19 @@ if __name__ == "__main__":
     exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
 
     # Make it happen
-    etc2.go(options.output_dir, options.interleave, options.machine, exe_path)
+    etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
+            options.compare_dir, sim_only=options.sim_only, 
+            test_only=options.test_only)
+    if options.json:
+        import json
+        f = open("results.js", "w")
+        results = []
+        for test in etc2.test_container:
+            # This is to avoid any sorting code in JS
+            vals = test.results.items()
+            vals.sort()
+            results.append( dict(name = test.test_data['name'],
+                             results = vals) )
+        f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
+        f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
+                  options.compare_dir.strip(), hg_current.strip()))

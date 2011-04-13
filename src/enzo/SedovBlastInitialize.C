@@ -273,12 +273,12 @@ const  char *Vel3Name = "z-velocity";
 		== FAIL) {
 	      ENZO_FAIL("Error in SedovBlastInitialize3D[Sub]Grid.");
 	    }
-	  */
 	  if (SedovBlastType == 2 || SedovBlastType == 3)  // 3D fixed R deposit
 	    if (Subgrid[lev]->GridData->SedovBlastInitializeGrid3DFixedR(dr) 
 		== FAIL) {
 	      ENZO_FAIL("Error in SedovBlastInitializeFixedR[Sub]Grid.");
-	  }
+	    }
+	  */
 	}
       }
       else
@@ -316,11 +316,11 @@ const  char *Vel3Name = "z-velocity";
       if (TopGrid.GridData->SedovBlastInitializeGrid3D("sedov.in") == FAIL) {
 		ENZO_FAIL("Error in SedovBlastInitializeGrid3D.");
       }
-    */
     if (SedovBlastType == 2 || SedovBlastType == 3)  // 3D fixed radius
       if (TopGrid.GridData->SedovBlastInitializeGrid3DFixedR(dr) == FAIL) {
 	ENZO_FAIL("Error in SedovBlastInitializeFixedRGrid.");
       }
+    */
   }
 
   /* set up field names and units */

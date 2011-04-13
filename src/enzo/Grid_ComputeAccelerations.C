@@ -60,6 +60,7 @@ int grid::ComputeAccelerations(int level)
 */
     /* Clear particle accelerations. */
  
+    this->DeleteParticleAcceleration();
     this->ClearParticleAccelerations();
  
     /* Move particles 1/2 step forward in preparation for interpolation. */
