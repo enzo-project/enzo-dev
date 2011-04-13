@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # This is the object that locates all *.enzo_test directories
 
 import imp
@@ -21,7 +22,8 @@ known_categories = [
 
 try:
     from yt.utilities.answer_testing.api import \
-        RegressionTestRunner, clear_registry
+        RegressionTestRunner, clear_registry, create_test, \
+        TestFieldStatistics, TestAllProjections
 except ImportError:
     RegressionTestRunner = None
 
@@ -302,19 +304,22 @@ class EnzoTestRun(object):
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['name']
         fn = self.test_data['answer_testing_script']
-        if fn is None or RegressionTestRunner is None:
-            print "NO ANSWER TESTING PROVIDED"
+        if RegressionTestRunner is None:
+            print "ANSWER TESTING NOT AVAILABLE"
             return
-        self.run_finished = os.path.exists(os.path.join(self.run_dir, 'RunFinished'))
+        self.run_finished = os.path.exists("RunFinished")
         clear_registry()
 
-        if self.run_finished and \
-                self.test_data['answer_testing_script'] != 'None' and \
-                self.test_data['answer_testing_script'] is not None:
-            if fn.endswith(".py"): fn = fn[:-3]
-            print "Loading module %s" % (fn)
-            f, filename, desc = imp.find_module(fn, ["."])
-            project = imp.load_module(fn, f, filename, desc)
+        if self.run_finished:
+            if self.test_data['answer_testing_script'] != 'None' and \
+               self.test_data['answer_testing_script'] is not None:
+                if fn.endswith(".py"): fn = fn[:-3]
+                print "Loading module %s" % (fn)
+                f, filename, desc = imp.find_module(fn, ["."])
+                project = imp.load_module(fn, f, filename, desc)
+            if fn is None or fn == "None":
+                create_test(TestFieldStatistics, "field_stats", tolerance = 1e-10)
+                create_test(TestAllProjections, "all_projs", tolerance = 1e-10)
             rtr = RegressionTestRunner("", compare_id,
                         compare_results_path = compare_dir)
             rtr.run_all_tests()
