@@ -212,6 +212,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     
     /* ==== METHOD 16: Refine on total Jeans length ==== */
   case 16: 
+    //    this->SolveForPotential(level);
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByTotalJeansLength();
     if (NumberOfFlaggedCells < 0) {
       fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByTotalJeansLength.\n");

@@ -653,7 +653,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     
     if (SelfGravity && WritePotential) {
       CopyGravPotential = TRUE;
-      When = 0.;
+      When = 0.5;
  
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);

@@ -44,6 +44,9 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
+  if (GravitatingMassField == NULL)  // if this is not set we have nothing to do.
+    return SUCCESS;
+
   LCAPERF_START("grid_SolveForPotential");
  
   /* declarations */

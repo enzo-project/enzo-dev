@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <vector>
 
 #ifdef CONFIG_USE_LIBCONFIG
 #include <libconfig.h++>
