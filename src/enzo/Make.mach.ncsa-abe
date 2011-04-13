@@ -27,7 +27,7 @@ LOCAL_MPI_INSTALL    = /usr/local/ofed-1.2/mpi/intel/openmpi-1.2.2-1
 LOCAL_HDF5_INSTALL   = /usr/local/hdf5-1.6.5-r1
 LOCAL_HDF4_INSTALL   = /usr/local/hdf4-4.2r1-r1
 LOCAL_HYPRE_INSTALL  = 
-LOCAL_INTEL_INSTALL  = /usr/local/intel/10.1.017
+LOCAL_COMPILER_DIR  = /usr/local/intel/10.1.017
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -55,11 +55,11 @@ MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicxx
 
 # Without MPI
 #Also using softenv.
-MACH_CC_NOMPI  = $(LOCAL_INTEL_INSTALL)/bin/icc 
-MACH_CXX_NOMPI = $(LOCAL_INTEL_INSTALL)/bin/icpc
-MACH_FC_NOMPI  = $(LOCAL_INTEL_INSTALL)/bin/ifort
-MACH_F90_NOMPI = $(LOCAL_INTEL_INSTALL)/bin/ifort
-MACH_LD_NOMPI  = $(LOCAL_INTEL_INSTALL)/bin/icpc
+MACH_CC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/icc 
+MACH_CXX_NOMPI = $(LOCAL_COMPILER_DIR)/bin/icpc
+MACH_FC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/ifort
+MACH_F90_NOMPI = $(LOCAL_COMPILER_DIR)/bin/ifort
+MACH_LD_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/icpc
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
@@ -76,7 +76,7 @@ MACH_CFLAGS   = -lmpl
 MACH_CXXFLAGS = -lmpl -DPRGIO_HACK -Wuninitialized
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
-MACH_LDFLAGS  = -L$(LOCAL_INTEL_INSTALL)/lib -lifcore
+MACH_LDFLAGS  = -L$(LOCAL_COMPILER_DIR)/lib -lifcore
 
 #-----------------------------------------------------------------------
 # Precision-related flags

@@ -54,8 +54,6 @@ LOCAL_MPI_INSTALL    = /opt/apps/intel10_1/mvapich/1.0.1
 #LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
 LOCAL_HDF5_INSTALL    = /opt/apps/intel10_1/hdf5/1.6.5
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
-LOCAL_SPRNG_INSTALL = /share/home/00332/tg456084/enzo/Enzo/opt/sprng
-LOCAL_PNG_INSTALL    = 
 LOCAL_HYPRE_INSTALL  = /opt/apps/intel10_1/mvapich1_1_0_1/hypre/2.4.0b/
 LOCAL_ACML_INSTALL   = /share/apps/intel10_1/acml/4.1.0/ifort64
 #-----------------------------------------------------------------------
@@ -84,9 +82,7 @@ MACH_LD_NOMPI  = mpicxx
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
-MACH_DEFINES   = -DLINUX -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG -DSFGEN_PERF
+MACH_DEFINES   = -DLINUX -DNO_IO_LOG -DSYSCALL 
 
 #-----------------------------------------------------------------------
 # Compiler flag settings
@@ -130,11 +126,8 @@ LDR_OPT      = -Mdaz -Mflushz -fastsse -Mnontemporal -Mnofprelaxed -Mvect=altcod
 LOCAL_INCLUDES_MPI    = -I/opt/apps/intel10_1/mvapich/1.0.1/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
-LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
-LOCAL_INCLUDES_PNG    =
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
-#MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -152,8 +145,6 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
-LOCAL_LIBS_SPRNG = -L$(LOCAL_SPRNG_INSTALL)/lib -llcg64
-LOCAL_LIBS_PNG    = 
 
 #LOCAL_LIBS_MACH   = -L/share/apps/intel10_1/acml/4.1.0/ifort64/lib -lacml_mv -lacml -lm \
 #                    -L/opt/apps/pgi/7.1/linux86-64/7.1-2/lib \
@@ -162,6 +153,6 @@ LOCAL_LIBS_PNG    =
 LOCAL_LIBS_MACH   = -L/share/apps/intel10_1/acml/4.1.0/ifort64/lib -lacml_mv -lacml -lm #\
 #                    -lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_SPRNG)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)

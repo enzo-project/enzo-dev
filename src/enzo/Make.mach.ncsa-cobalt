@@ -23,7 +23,7 @@ LOCAL_MPI_INSTALL    =
 LOCAL_HDF5_INSTALL   = $(HDF5_HOME)
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_HYPRE_INSTALL  = 
-LOCAL_INTEL_INSTALL  = /usr/local/intel/10.1.017
+LOCAL_COMPILER_DIR  = /usr/local/intel/10.1.017
 
 # email jobordner@ucsd.edu if the following doesn't work:
 
@@ -38,19 +38,19 @@ MACH_CPP       = /usr/bin/cpp
 
 # With MPI
 
-MACH_CC_MPI    = $(LOCAL_INTEL_INSTALL)/bin/icc
-MACH_CXX_MPI   = $(LOCAL_INTEL_INSTALL)/bin/icpc
-MACH_FC_MPI    = $(LOCAL_INTEL_INSTALL)/bin/ifort
-MACH_F90_MPI   = $(LOCAL_INTEL_INSTALL)/bin/ifort
-MACH_LD_MPI    = $(LOCAL_INTEL_INSTALL)/bin/icpc
+MACH_CC_MPI    = $(LOCAL_COMPILER_DIR)/bin/icc
+MACH_CXX_MPI   = $(LOCAL_COMPILER_DIR)/bin/icpc
+MACH_FC_MPI    = $(LOCAL_COMPILER_DIR)/bin/ifort
+MACH_F90_MPI   = $(LOCAL_COMPILER_DIR)/bin/ifort
+MACH_LD_MPI    = $(LOCAL_COMPILER_DIR)/bin/icpc
 
 # Without MPI
 
-MACH_CC_NOMPI  = $(LOCAL_INTEL_INSTALL)/bin/icc
-MACH_CXX_NOMPI = $(LOCAL_INTEL_INSTALL)/bin/icpc
-MACH_FC_NOMPI  = $(LOCAL_INTEL_INSTALL)/bin/ifort
-MACH_F90_NOMPI = $(LOCAL_INTEL_INSTALL)/bin/ifort
-MACH_LD_NOMPI  = $(LOCAL_INTEL_INSTALL)/bin/icpc
+MACH_CC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/icc
+MACH_CXX_NOMPI = $(LOCAL_COMPILER_DIR)/bin/icpc
+MACH_FC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/ifort
+MACH_F90_NOMPI = $(LOCAL_COMPILER_DIR)/bin/ifort
+MACH_LD_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/icpc
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
