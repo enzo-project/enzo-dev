@@ -2,7 +2,7 @@
 #include "mpi.h"
 #endif
 
-#if defined(SP2)
+#if defined(SP2) || defined(__APPLE__)
 
 // Memory usage from getrusage
 #include <stdio.h>
@@ -20,12 +20,16 @@ Eint64 mused(void)
 
 #ifdef MEM_TRACE
   struct rusage temp;
-  Eint64 bytes;
+#if defined (__APPLE__)
+  Eint64 bytes = 1;
+#else
+  Eint64 bytes = 1024;
+#endif
   int result;
 
   result = getrusage(RUSAGE_SELF, &temp);
   if( result == 0 ) {
-    bytes = ((Eint64) (1024)) * ((Eint64) temp.ru_maxrss);
+    bytes *= (Eint64) temp.ru_maxrss;
   } else {
     bytes = ((Eint64) (0));
   }
