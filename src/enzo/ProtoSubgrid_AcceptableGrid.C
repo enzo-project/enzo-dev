@@ -42,7 +42,7 @@ int ProtoSubgrid::AcceptableSubgrid()
        (this->GetLevel() <= CosmologySimulationNumberOfInitialGrids-1) ) {
     return TRUE;
   }
-
+ 
   /* If NumberFlagged hasn't been computed yet, then compute it. */
  
   if (NumberFlagged == INT_UNDEFINED) {
@@ -59,27 +59,25 @@ int ProtoSubgrid::AcceptableSubgrid()
     size *= GridDimension[dim];
  
   float efficiency = float(NumberFlagged)/float(size);
-  size *= 8;
+
+  /* For size restrictions, use the number of child cells */
  
+  //size *= 8;
+
   /* Subgrid is acceptable if it is efficient enough or small enough,
      but if we are using multiple processors, then make sure it is
      not too big (for good load balancing). */
-
-  int result;
-
-  //printf("P%d, size = %d, max = %d\n", MyProcessorNumber, size, MaximumSubgridSize);
+ 
+  if (size <= POW(float(MinimumSubgridEdge), GridRank))
+    return TRUE;
+ 
   if (size > MaximumSubgridSize && NumberOfProcessors > 1)
     return FALSE;
  
-  if ((size <= POW(float(MinimumSubgridEdge), GridRank)) ||
-      (efficiency > MinimumEfficiency) ||
-      (size <= MaximumSubgridSize && NumberOfProcessors > 1) ||
-      (size > MaximumSubgridSize && NumberOfProcessors == 1))
-    result = TRUE;
-  else
-    result = FALSE;
+  if (efficiency > MinimumEfficiency)
+    return TRUE;
  
   /* Not acceptable yet -- keep refining. */
  
-  return result;
+  return FALSE;
 }
