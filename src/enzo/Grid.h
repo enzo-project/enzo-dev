@@ -1527,7 +1527,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			       int EndIndex, particle_data* &List, 
 			       bool KeepLocal, bool ParticlesAreLocal,
 			       int CopyDirection,
-			       int IncludeGhostZones = FALSE);
+			       int IncludeGhostZones = FALSE,
+			       int CountOnly = FALSE);
 
   int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
 			   int* &NumberToMove, int StartIndex, 

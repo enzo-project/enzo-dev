@@ -24,6 +24,7 @@ Eint32 compare_grid(const void *a, const void *b)
     return 1;
   return 0;
 }
+
 /***********************************************************************/
 
 Eint32 compare_proc(const void *a, const void *b)

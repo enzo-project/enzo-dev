@@ -169,6 +169,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     CommunicationAllSumValues(NumberOfCells, MAX_DEPTH_OF_HIERARCHY);
   }
 
+  tt0 = ReturnWallTime();
   for (i = MAX_DEPTH_OF_HIERARCHY-1; i > level; i--) {
 
     Temp = LevelArray[i];
@@ -188,7 +189,6 @@ int RebuildHierarchy(TopGridData *MetaData,
     /* Collect all the grids with the same parent and pass them all to
        MoveAllParticles (marking which ones have already been passed). */
 
-    tt0 = ReturnWallTime();
     for (j = 0; j < grids; j++)
       if (GridPointer[j] != NULL) {
 	grids2 = 0;
