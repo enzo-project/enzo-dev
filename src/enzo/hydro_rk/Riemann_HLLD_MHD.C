@@ -28,7 +28,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
   float vy_ss, vz_ss, By_ss, Bz_ss, Bv_ss, eint_lss, eint_rss, etot_lss, etot_rss, rho_savg;
   float Zero = 0.0;
   float S_l, S_r, S_ls, S_rs, S_M; // wave speeds
-  float cf_l, cf_r; // fast speeds
+  float cf_l, cf_r, sam, sap; // fast speeds
 
   for (int n = 0; n < ActiveSize+1; n++) {
     // First, compute Fl and Ul
@@ -163,21 +163,45 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
 
     pt_s = ((S_r -  vx_r) * rho_r*pt_l - (S_l - vx_l) * rho_l * pt_r + rho_l*rho_r*(S_r - vx_r)*(S_l - vx_l)*(vx_r - vx_l))/((S_r - vx_r)*rho_r - (S_l - vx_l)*rho_l);
 
-    vv_ls = (S_M - vx_l)/(rho_l*(S_l - vx_l)*(S_l - S_M) - Bx*Bx);
-    vv_rs = (S_M - vx_r)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
-    bb_ls = (rho_l*(S_l - vx_l)*(S_l - vx_l) - Bx*Bx)/(rho_l*(S_l - vx_l)*(S_l - S_M) - Bx*Bx);
-    bb_rs = (rho_r*(S_r - vx_r)*(S_r - vx_r) - Bx*Bx)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
+    sam = vx_l - cf_l;
+    sap = vx_l + cf_l;
+      
+    if ((abs(S_M - vx_l) <= BFLOAT_EPSILON) and 
+        (abs(By_l) <= BFLOAT_EPSILON) and 
+        (abs(Bz_l) <= BFLOAT_EPSILON) and 
+        (Bx*Bx >= Gamma * p_l) and
+        ((abs(S_l - sam) <= BFLOAT_EPSILON) or (abs(S_l - sap) <= BFLOAT_EPSILON)) ) {
+      vy_ls = vy_l;
+      vz_ls = vz_l;
+      By_ls = By_l;
+      Bz_ls = By_l;
+    } else {
+      vv_ls = (S_M - vx_l)/(rho_l*(S_l - vx_l)*(S_l - S_M) - Bx*Bx);
+      bb_ls = (rho_l*(S_l - vx_l)*(S_l - vx_l) - Bx*Bx)/(rho_l*(S_l - vx_l)*(S_l - S_M) - Bx*Bx);
+      vy_ls = vy_l - Bx * By_l * vv_ls;
+      By_ls = By_l*bb_ls;
+      vz_ls = vz_l - Bx * Bz_l * vv_ls;
+      Bz_ls = Bz_l * bb_ls;
+    }
 
-    vy_ls = vy_l - Bx * By_l * vv_ls;
-    vy_rs = vy_r - Bx * By_r * vv_rs;
-    By_ls = By_l*bb_ls;
-    By_rs = By_r*bb_rs;
+    if ((abs(S_M - vx_r) <= BFLOAT_EPSILON) and 
+        (abs(By_r) <= BFLOAT_EPSILON) and 
+        (abs(Bz_r) <= BFLOAT_EPSILON) and 
+        (Bx*Bx >= Gamma * p_r) and
+        ((abs(S_r - sam) <= BFLOAT_EPSILON) or (abs(S_r - sap) <= BFLOAT_EPSILON)) ) {
+      vy_rs = vy_r;
+      vz_rs = vz_r;
+      By_rs = By_r;
+      Bz_rs = By_r;
 
-    vz_ls = vz_l - Bx * Bz_l * vv_ls;
-    vz_rs = vz_r - Bx * Bz_r * vv_rs;
-    Bz_ls = Bz_l * bb_ls;
-    Bz_rs = Bz_r * bb_rs;
-
+    } else {
+      vv_rs = (S_M - vx_r)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
+      bb_rs = (rho_r*(S_r - vx_r)*(S_r - vx_r) - Bx*Bx)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
+      vy_rs = vy_r - Bx * By_r * vv_rs;
+      vz_rs = vz_r - Bx * Bz_r * vv_rs;
+      By_rs = By_r*bb_rs;
+      Bz_rs = Bz_r * bb_rs;
+    }
     Bv_ls = S_M * Bx + vy_ls * By_ls + vz_ls * Bz_ls;
     Bv_rs = S_M * Bx + vy_rs * By_rs + vz_rs * Bz_rs;
 
