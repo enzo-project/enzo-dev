@@ -176,8 +176,8 @@ int grid::MergePausedPhotonPackages() {
 	     TempPP[i].CurrentSource);
   }
 
-  //qsort(TempPP, nphotons, sizeof(PhotonPackageEntry), compare_ss);
-  std::sort(TempPP, TempPP+nphotons, cmp_ss());
+  qsort(TempPP, nphotons, sizeof(PhotonPackageEntry), compare_ss);
+  //std::sort(TempPP, TempPP+nphotons, cmp_ss());
 
   if (DEBUG) {
     printf("========== AFTER ALL SORTING ==========\n");
