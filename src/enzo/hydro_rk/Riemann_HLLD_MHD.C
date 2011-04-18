@@ -184,6 +184,9 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Bz_ls = Bz_l * bb_ls;
     }
 
+    sam = vx_r - cf_r;
+    sap = vx_r + cf_r;
+      
     if ((abs(S_M - vx_r) <= BFLOAT_EPSILON) and 
         (abs(By_r) <= BFLOAT_EPSILON) and 
         (abs(Bz_r) <= BFLOAT_EPSILON) and 
@@ -193,7 +196,6 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       vz_rs = vz_r;
       By_rs = By_r;
       Bz_rs = By_r;
-
     } else {
       vv_rs = (S_M - vx_r)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
       bb_rs = (rho_r*(S_r - vx_r)*(S_r - vx_r) - Bx*Bx)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
@@ -329,7 +331,6 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       FluxLine[iPhi][n] = C_h * C_h * Bx;
       continue;
     }
-    
   }
   return SUCCESS;
 }
