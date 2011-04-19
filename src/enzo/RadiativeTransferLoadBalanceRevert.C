@@ -66,6 +66,7 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
 
   CommunicationAllSumValues(RadiationPresent, TotalNumberOfGrids);
 
+  index = 0;
   for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (i = 0; i < NumberOfGrids[level]; i++)
       Grids[level][i]->GridData->SetRadiation(RadiationPresent[index++]);
