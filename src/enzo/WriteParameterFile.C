@@ -459,10 +459,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
-  
-  fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
+
+  // Negative number means that it was flagged from the command line.  Don't propagate.
+  if (OutputCoolingTime < 0)
+    fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", 0);
+  else
+    fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
 
+  // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputSmoothedDarkMatter < 0)
     fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 0);
   else

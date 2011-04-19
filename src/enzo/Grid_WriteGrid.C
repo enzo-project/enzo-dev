@@ -587,7 +587,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 
 
 
-    if (OutputCoolingTime) {
+    if (OutputCoolingTime != FALSE) {
  
       /* Allocate field and compute cooling time. */
 

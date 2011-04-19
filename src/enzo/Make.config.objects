@@ -650,6 +650,7 @@ OBJS_CONFIG_LIB = \
 	OneZoneFreefallTestInitialize.o \
         Options.o \
         OutputAsParticleData.o \
+	OutputCoolingTimeOnly.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
 	OutputPotentialFieldOnly.o \

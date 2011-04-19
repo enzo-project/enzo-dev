@@ -121,6 +121,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &Level, int &HaloFinderOnly, 
 			 int &WritePotentialOnly,
 			 int &SmoothedDarkMatterOnly,
+			 int &WriteCoolingTimeOnly,
 			 int MyProcessorNumber);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -199,6 +200,16 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 		       , ImplicitProblemABC *ImplicitSolver
 #endif
                  );
+int OutputCoolingTimeOnly(char *ParameterFile,
+			  LevelHierarchyEntry *LevelArray[], 
+			  HierarchyEntry *TopGrid,
+			  TopGridData &MetaData,
+			  ExternalBoundary &Exterior
+#ifdef TRANSFER
+			  , ImplicitProblemABC *ImplicitSolver
+#endif
+			  );
+
 
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
@@ -346,6 +357,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     HaloFinderOnly           = FALSE,
     WritePotentialOnly       = FALSE,
     SmoothedDarkMatterOnly   = FALSE,
+    WriteCoolingTimeOnly     = FALSE,
     project                  = FALSE,
     ProjectionDimension      = INT_UNDEFINED,
     ProjectionSmooth         = FALSE,
@@ -441,7 +453,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 			   RegionStartCoordinates, RegionEndCoordinates,
 			   RegionLevel, HaloFinderOnly,
 			   WritePotentialOnly, SmoothedDarkMatterOnly,
-			   MyProcessorNumber) == FAIL) {
+			   WriteCoolingTimeOnly, MyProcessorNumber) == FAIL) {
     if(int_argc==1){
       my_exit(EXIT_SUCCESS);
     } else {
@@ -592,6 +604,16 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 		       , ImplicitSolver
 #endif
                );
+    my_exit(EXIT_SUCCESS);
+  }
+
+  if (WriteCoolingTimeOnly) {
+    OutputCoolingTimeOnly(ParameterFile, LevelArray, &TopGrid,
+			  MetaData, Exterior, 
+#ifdef TRANSFER
+			  ImplicitSolver
+#endif
+			  );
     my_exit(EXIT_SUCCESS);
   }
 
