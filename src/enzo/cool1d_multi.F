@@ -892,9 +892,9 @@ c
 c        MKRJ 12/18/06
 c        Use the previous metal cooling/heating rate if T >= 10^4 K
          if (tgas(i) .gt. 1.e4) then
-            metal_cool = cbovcool(nti,ndi) * xi / dom *
+            metal_cool = cbovcool(nti,ndi) * xi * dom_inv *
      &           (HI(i,j,k)+HII(i,j,k))
-            metal_heat = cbovheat(nti,ndi) * xi / dom *
+            metal_heat = cbovheat(nti,ndi) * xi * dom_inv *
      &           (HI(i,j,k)+HII(i,j,k))
          else
 
@@ -928,15 +928,14 @@ c           Dalgarno & McCray 1972
 
 c	    MKRJ 1/3/06 -- convert metal_cool (n^2 Lambda) from cgs to sim units 
             metal_cool = metal_cool/coolunit * xi * 
-     &           ((HI(i,j,k)+HII(i,j,k)) / dom)**2
+     &           ((HI(i,j,k)+HII(i,j,k)) * dom_inv)**2
 
 c	    MKRJ 12/18/06 -- Photoelectric heating rate (Gamma_pe)
 c            8.5e-26 came from Gamma_pe, assuming epsilon=0.05, G_0=1.7
 c            (see Gerritsen & Icke '97, or Joung & Mac Low '06, Sec. 2.2)
 c
 	    metal_heat = float(igammah) * boost_factor * 
-     &           8.5e-26/coolunit * xi *
-     &           (HI(i,j,k)+HII(i,j,k)) / dom
+     &           gammaha * xi * (HI(i,j,k)+HII(i,j,k)) * dom_inv
 c
 c           MKRJ 10/15/08 -- Gamma (in erg/s) should weakly depend on 
 c            the gas density. The value 8.5e-26 is really for the solar 
