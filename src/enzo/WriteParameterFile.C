@@ -435,6 +435,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
   fprintf(fptr, "TabulatedLWBackground          = %"ISYM"\n", TabulatedLWBackground);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
+  fprintf(fptr, "AdjustUVBackgroundHighRedshift = %"ISYM"\n", AdjustUVBackgroundHighRedshift);
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
   fprintf(fptr, "SetHeIIHeatingScale            = %"GSYM"\n", SetHeIIHeatingScale);
   fprintf(fptr, "RadiationFieldLevelRecompute   = %"ISYM"\n", RadiationFieldLevelRecompute);

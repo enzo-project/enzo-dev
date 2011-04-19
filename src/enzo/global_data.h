@@ -354,6 +354,7 @@ EXTERN int StorePreShockFields;
 
 EXTERN int RadiationFieldType;
 EXTERN int AdjustUVBackground; 
+EXTERN int AdjustUVBackgroundHighRedshift; 
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;

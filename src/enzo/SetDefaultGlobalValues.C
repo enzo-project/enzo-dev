@@ -334,6 +334,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
   AdjustUVBackground          = 1;
+  AdjustUVBackgroundHighRedshift = 0;
   SetUVBAmplitude             = 1.0;
   SetHeIIHeatingScale         = 1.8;
   PhotoelectricHeating	      = 0;

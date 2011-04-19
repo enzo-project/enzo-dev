@@ -435,6 +435,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "TabulatedLWBackground = %"ISYM, &TabulatedLWBackground);
     ret += sscanf(line, "AdjustUVBackground = %"ISYM, &AdjustUVBackground);
+    ret += sscanf(line, "AdjustUVBackgroundHighRedshift = %"ISYM, &AdjustUVBackgroundHighRedshift);
     ret += sscanf(line, "SetUVBAmplitude = %"FSYM, &SetUVBAmplitude);
     ret += sscanf(line, "SetHeIIHeatingScale = %"FSYM, &SetHeIIHeatingScale);
     ret += sscanf(line, "RadiationFieldLevelRecompute = %"ISYM, &RadiationFieldLevelRecompute);    
