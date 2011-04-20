@@ -169,7 +169,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       vy_ls = vy_l;
       vz_ls = vz_l;
       By_ls = By_l;
-      Bz_ls = By_l;
+      Bz_ls = Bz_l;
     } else {
       vv_ls = (S_M - vx_l)/(rho_l*(S_l - vx_l)*(S_l - S_M) - Bx*Bx);
       bb_ls = (rho_l*(S_l - vx_l)*(S_l - vx_l) - Bx*Bx)/(rho_l*(S_l - vx_l)*(S_l - S_M) - Bx*Bx);
@@ -190,13 +190,13 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       vy_rs = vy_r;
       vz_rs = vz_r;
       By_rs = By_r;
-      Bz_rs = By_r;
+      Bz_rs = Bz_r;
     } else {
       vv_rs = (S_M - vx_r)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
       bb_rs = (rho_r*(S_r - vx_r)*(S_r - vx_r) - Bx*Bx)/(rho_r*(S_r - vx_r)*(S_r - S_M) - Bx*Bx);
       vy_rs = vy_r - Bx * By_r * vv_rs;
       vz_rs = vz_r - Bx * Bz_r * vv_rs;
-      By_rs = By_r*bb_rs;
+      By_rs = By_r * bb_rs;
       Bz_rs = Bz_r * bb_rs;
     }
     Bv_ls = S_M * Bx + vy_ls * By_ls + vz_ls * Bz_ls;
@@ -267,7 +267,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     etot_lss = etot_ls - sqrt(rho_ls) * (Bv_ls - Bv_ss) * sign(Bx);
     etot_rss = etot_rs + sqrt(rho_rs) * (Bv_rs - Bv_ss) * sign(Bx);
 
-    if (S_ls <= 0 && S_M > 0) {
+    if (S_ls <= 0 && S_M >= 0) {
       // USE F_lss
       Us[iD   ] = rho_ls;
       Us[iS1  ] = rho_ls * S_M;
