@@ -28,6 +28,9 @@ int LLF_PLM_MHD(float **prim, float **priml, float **primr,
 int HLL_PPM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
 		char direc, int jj, int kk);
+int HLLD_Zero_MHD(float **prim, float **priml, float **primr,
+		float **species, float **colors,  float **FluxLine, int ActiveSize,
+		char direc, int jj, int kk);
 int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
 		char direc, int jj, int kk);
@@ -64,6 +67,12 @@ int MHDLine(float **Prim, float **priml, float **primr,
   else if (RiemannSolver == HLL && ReconstructionMethod == PPM) {
     if (HLL_PPM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
       printf("HydroLineMHD: HLL_PPM failed\n");
+      return FAIL;
+    }
+  }
+  else if (RiemannSolver == HLLD && ReconstructionMethod == ZERO) {
+    if (HLLD_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
+      printf("HydroLineMHD: HLLD_Zero failed\n");
       return FAIL;
     }
   }

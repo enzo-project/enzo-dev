@@ -206,7 +206,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     etot_rs = ((S_r - vx_r)*etot_r - pt_r*vx_r + pt_s * S_M + Bx*(Bv_r - Bv_rs))/(S_r - S_M);
     
     // compute the fluxes based on the wave speeds
-    if (S_l <= 0 && S_ls > 0) {
+    if (S_l <= 0 && S_ls >= 0) {
       // USE F_ls
       Us[iD   ] = rho_ls;
       Us[iS1  ] = rho_ls * S_M;
