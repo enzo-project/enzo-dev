@@ -374,7 +374,7 @@ transfer in a cosmological medium \cite{ReynoldsHayesPaschosNorman2009},
 \begin{equation}
 \label{eq:radiation_PDE}
   \partial_{t} E + \frac1a \nabla\cdot\(E\vb\) =
-    \nabla\cdot\(D\,\nabla E\) - \frac{\dot{a}}{a} E - c\kappa E + 4\pi\eta,
+    \nabla\cdot\(D\,\nabla E\) - \frac{\dot{a}}{a} E - c\kappa E + \eta,
 \end{equation}
 where here the comoving radiation energy density $E$, emissivity
 $\eta$ and opacity $\kappa$ are functions of space and time.  In this
@@ -473,7 +473,7 @@ couplings.  Here $G$ is the local heating rate,
 and $\Lambda$ corresponds to the local cooling rate,
 \begin{align}
 \label{eq:Lambda_LTE}
-  \Lambda = \frac{4\pi}{\rhob} \eta.
+  \Lambda = \frac{\eta}{\rhob}.
 \end{align}
 The user-defined energy mean opacity $\kappa$ is
 spatially-homogeneous, and is given by the formula
@@ -486,7 +486,7 @@ spatially-homogeneous, and is given by the formula
 a black-body emissivity given by 
 \begin{align}
 \label{eq:etaBB}
-  \eta = \frac{\kappa_P\,\sigma_{SB}\,T^4}{\pi},
+  \eta = 4\kappa_P\,\sigma_{SB}\,T^4,
 \end{align}
 where the user-defined Planck-mean opacity $\kappa_P$ is defined
 similarly to the energy-mean opacity \eqref{eq:opacityE},
@@ -617,10 +617,10 @@ equations to compute the time-evolved solution $(E^n,e_c^n,\mn_{HI}^n)$,
 \begin{align}
   \label{eq:radiation_PDE_theta}
   E^n - E^{n-1} &- \theta\dt\left(\nabla\cdot\(D\,\nabla E^n\) - \frac{\dot{a}}{a} E^n -
-    c\kappa^n E^n + 4\pi\eta^n\right) \\ 
+    c\kappa^n E^n + \eta^n\right) \\ 
   \notag
   & - (1-\theta)\dt\left(\nabla\cdot\(D\,\nabla E^{n-1}\) - \frac{\dot{a}}{a} E^{n-1} -
-    c\kappa^{n-1} E^{n-1} + 4\pi\eta^{n-1}\right) = 0, \\ 
+    c\kappa^{n-1} E^{n-1} + \eta^{n-1}\right) = 0, \\ 
   \label{eq:energy_correction_theta}
   e_c^n - e_c^{n-1} &- \theta\dt\left(-\frac{2\dot{a}}{a}e_c^{n} + G^{n} -
     \Lambda^{n}\right) - (1-\theta)\dt\left(-\frac{2\dot{a}}{a}e_c^{n-1} + G^{n-1} -
@@ -700,10 +700,10 @@ equations
 \begin{align}
   \label{eq:radiation_PDE_iqss}
   E^n - E^{n-1} &- \theta\dt\left(\nabla\cdot\(D\,\nabla E^n\) - \frac{\dot{a}}{a} E^n -
-    c\kappa^n E^n + 4\pi\eta^n\right) \\ 
+    c\kappa^n E^n + \eta^n\right) \\ 
   \notag
   & - (1-\theta)\dt\left(\nabla\cdot\(D\,\nabla E^{n-1}\) - \frac{\dot{a}}{a} E^{n-1} -
-    c\kappa^{n-1} E^{n-1} + 4\pi\eta^{n-1}\right) = 0, \\ 
+    c\kappa^{n-1} E^{n-1} + \eta^{n-1}\right) = 0, \\ 
   \label{eq:energy_correction_iqss}
   e_c^n &- \text{sol}_e\left(\frac{E^{n-1}+E^n}{2},\frac{\mn_{HI}^{n-1}+\mn_{HI}^n}{2},e_c^{n-1},t\right) = 0, \\
   \label{eq:hydrogen_iqss}

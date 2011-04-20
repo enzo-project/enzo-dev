@@ -28,6 +28,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+//#define BH_ACCRETION_ONLY
+
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
@@ -110,6 +112,12 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     E[1] = 0.0;
     E[2] = 0.0;
     E[3] = 12.8;
+#ifdef BH_ACCRETION_ONLY
+    Q[0] = 0.0;
+    Q[1] = 0.0;
+    Q[2] = 0.0;
+    Q[3] = 0.0;
+#else
     Q[0] = 1.12e66 * PopIIIBHLuminosityEfficiency * XrayLuminosityFraction *
       this->last_accretion_rate / E[0];
 //    Below is wrong!
@@ -118,6 +126,7 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     Q[1] = 0.0;
     Q[2] = 0.0;
     Q[3] = EnergyFractionLW * (E[0]/MeanEnergy) * Q[0];
+#endif
     break;
 
     /* Average quasar SED by Sazonov et al.(2004), where associated 

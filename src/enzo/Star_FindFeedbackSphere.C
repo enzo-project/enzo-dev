@@ -192,12 +192,10 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	ShellVelocity[dim];
 
-#ifdef UNUSED
     if (MassEnclosed == 0) {
       SphereContained = FALSE;
       return SUCCESS;
     }
-#endif
 
     Metallicity2 /= MassEnclosed;
     Metallicity3 /= MassEnclosed;

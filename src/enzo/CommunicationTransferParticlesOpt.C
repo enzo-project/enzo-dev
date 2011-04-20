@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -30,6 +31,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "SortCompareFunctions.h"
 void my_exit(int status);
  
 // function prototypes
@@ -174,7 +176,8 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
   SharedList = SendList;
   NumberOfReceives = TotalNumberToMove;
   int particle_data_size = sizeof(particle_data);
-  qsort(SharedList, TotalNumberToMove, particle_data_size, compare_grid);
+  //qsort(SharedList, TotalNumberToMove, particle_data_size, compare_grid);
+  std::sort(SharedList, SharedList+TotalNumberToMove, cmp_grid());
 
 #else
 

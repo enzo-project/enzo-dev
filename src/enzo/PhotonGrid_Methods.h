@@ -96,6 +96,7 @@ int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove,
 
 int ElectronFractionEstimate(float dt);
 int RadiationPresent(void) { return HasRadiation; }
+void SetRadiation(char value) { HasRadiation = value; }
 
 void InitializePhotonPackages(void) {
   if (PhotonPackages == NULL) {

@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -23,6 +24,7 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
+#include "SortCompareFunctions.h"
 
 #define MAX_HEALPIX_LEVEL 13
 
@@ -175,6 +177,7 @@ int grid::MergePausedPhotonPackages() {
   }
 
   qsort(TempPP, nphotons, sizeof(PhotonPackageEntry), compare_ss);
+  //std::sort(TempPP, TempPP+nphotons, cmp_ss());
 
   if (DEBUG) {
     printf("========== AFTER ALL SORTING ==========\n");

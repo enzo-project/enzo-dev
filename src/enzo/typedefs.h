@@ -297,4 +297,10 @@ struct hilbert_data {
   int grid_num;
 };
 
+// Used in DepositParticleMassFlaggingField.C
+struct two_int {
+  int grid;
+  int proc;
+};
+
 #endif
