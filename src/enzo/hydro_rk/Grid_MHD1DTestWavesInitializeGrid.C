@@ -1,9 +1,9 @@
 /***********************************************************************
 /
-/  GRID CLASS (INITIALIZE MHD 1D TEST)
+/  GRID CLASS (INITIALIZE MHD 1D WAVE TEST)
 /
-/  written by: Peng Wang
-/  date:       June, 2007
+/  written by: J. S. Oishi
+/  date:       April 2011
 /  modified1:
 /
 /
@@ -100,6 +100,7 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
     /* Compute position */
     x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 
+    // the following is for a sine wave
     BaryonField[iden ][i] = rhobg + rhol * ampl * sin(2*PI*x);
     BaryonField[ivx  ][i] = vxl * ampl * sin(2*PI*x);
     BaryonField[ivy  ][i] = vyl * ampl * sin(2*PI*x);
@@ -116,6 +117,8 @@ int grid::MHD1DTestWavesInitializeGrid(float rhol,
       BaryonField[iPhi ][i] = 0.0;
     }
   }
+
+  // the following is for a square wave test
 
     // BaryonField[iden ][i] = rhobg;
     // BaryonField[ivx  ][i] = 0.;
