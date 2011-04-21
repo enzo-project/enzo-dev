@@ -609,9 +609,9 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   if (WriteCoolingTimeOnly) {
     OutputCoolingTimeOnly(ParameterFile, LevelArray, &TopGrid,
-			  MetaData, Exterior, 
+			  MetaData, Exterior
 #ifdef TRANSFER
-			  ImplicitSolver
+			  , ImplicitSolver
 #endif
 			  );
     my_exit(EXIT_SUCCESS);

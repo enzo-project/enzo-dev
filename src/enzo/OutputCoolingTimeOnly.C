@@ -41,15 +41,17 @@ int Group_WriteAllData(char *basename, int filenumber,
 
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
+#ifdef TRANSFER
 int RadiativeTransferReadParameters(FILE *fptr);
+#endif
 
 int OutputCoolingTimeOnly(char *ParameterFile,
 			  LevelHierarchyEntry *LevelArray[], 
 			  HierarchyEntry *TopGrid,
 			  TopGridData &MetaData,
-			  ExternalBoundary &Exterior,
+			  ExternalBoundary &Exterior
 #ifdef TRANSFER
-			  ImplicitProblemABC *ImplicitSolver
+			  , ImplicitProblemABC *ImplicitSolver
 #endif
 			  )
 {
@@ -100,6 +102,7 @@ int OutputCoolingTimeOnly(char *ParameterFile,
 
   /* Initialize radiative transfer parameters, if needed */
 
+#ifdef TRANSFER
   FILE *fptr;
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {
@@ -109,6 +112,7 @@ int OutputCoolingTimeOnly(char *ParameterFile,
   RadiativeTransferReadParameters(fptr);
 
   fclose(fptr);
+#endif /* TRANSFER */
 
   // Negative number to indicate that this won't propagate to the
   // parameter, and only compute the cooling time.
