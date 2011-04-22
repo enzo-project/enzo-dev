@@ -66,6 +66,8 @@ template_vars = {'N_PROCS': 'nprocs',
                  'PAR_FILE': 'run_par_file',
                  'TEST_NAME': 'name'}
 
+results_filename = 'test_results.txt'
+
 def _get_hg_version(path):
     print "Getting current revision."
     from mercurial import hg, ui, commands 
@@ -102,7 +104,8 @@ class EnzoTestCollection(object):
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print "Preparing test: %s." % my_test['name']
-                self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
+                self.test_container.append(EnzoTestRun(output_dir, my_test, 
+                                                       machine, exe_path))
                 if not test_only:
                     print "Running simulation: %d of %d." % (i, total_tests)
                     self.test_container[i].run_sim()
@@ -115,13 +118,17 @@ class EnzoTestCollection(object):
             if not sim_only: self.run_all_tests(compare_dir)
         if not sim_only: self.save_test_summary()
         go_stop_time = time.time()
-        print "Total test time: %f seconds." % (go_stop_time - go_start_time)
+        print "\n\nComplete!"
+        print "Total time: %f seconds." % (go_stop_time - go_start_time)
+        print "See %s/%s for a summary of all tests." % \
+            (self.output_dir, results_filename)
 
     def prepare_all_tests(self, output_dir, machine, exe_path):
         print "Preparing all tests."
         for my_test in self.tests:
             print "Preparing test: %s." % my_test['name']
-            self.test_container.append(EnzoTestRun(output_dir, my_test, machine, exe_path))
+            self.test_container.append(EnzoTestRun(output_dir, my_test, 
+                                                   machine, exe_path))
 
     def run_all_sims(self):
         total_tests = len(self.test_container)
@@ -195,7 +202,7 @@ class EnzoTestCollection(object):
         all_passes = all_failures = 0
         run_passes = run_failures = 0
         dnfs = finished_no_test = 0
-        f = open(os.path.join(self.output_dir, 'test_results.txt'), 'w')
+        f = open(os.path.join(self.output_dir, results_filename), 'w')
         for my_test in self.test_container:
             if my_test.run_finished:
                 if my_test.test_data['answer_testing_script'] == 'None' or \
@@ -275,7 +282,7 @@ class EnzoTestRun(object):
         f.close()
 
     def run_sim(self):
-        print "Running test simulation: %s." % self.test_data['name']
+        print "Running test simulation: %s." % self.test_data['fulldir']
         cur_dir = os.getcwd()
         # Check for existence
         if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
@@ -306,6 +313,8 @@ class EnzoTestRun(object):
             f = open(os.path.join(self.run_dir, 'run_time'), 'w')
             f.write("%f seconds.\n" % (sim_stop_time - sim_start_time))
             f.close()
+            print "Simulation completed in %f seconds." % \
+                (sim_stop_time - sim_start_time)
         os.chdir(cur_dir)
 
     def run_test(self, compare_dir):
