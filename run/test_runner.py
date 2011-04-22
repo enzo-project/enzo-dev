@@ -4,8 +4,10 @@
 import imp
 import optparse
 import os.path
-import sys
 import shutil
+import signal
+import subprocess
+import sys
 import time
 
 known_categories = [
@@ -214,7 +216,7 @@ class EnzoTestCollection(object):
                 run_failures += int(t_failures > 0)
             else:
                 dnfs += 1
-                f.write("%-70sPassed: DID NOT FINISH\n" % my_test.test_data['fulldir'])
+                f.write("%-70sDID NOT FINISH\n" % my_test.test_data['fulldir'])
 
         f.write("\n")
         f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
@@ -283,9 +285,22 @@ class EnzoTestRun(object):
         os.chdir(self.run_dir)
         command = "%s %s" % (machines[self.machine]['command'], 
                              machines[self.machine]['script'])
-        print "Executing \"%s\"." % command
         sim_start_time = time.time()
-        os.system(command)
+        # Run the command.
+        proc = subprocess.Popen(command, shell=True, close_fds=True, 
+                                preexec_fn=os.setsid)
+
+        print "Simulation started on %s with maximum run time of %d seconds." % \
+            (time.ctime(), (self.test_data['max_time_minutes'] * 60))
+        running = 0
+        # Kill the script if the max run time exceeded.
+        while proc.poll() is None:
+            if running > (self.test_data['max_time_minutes'] * 60):
+                print "Simulation exceeded maximum run time."
+                os.killpg(proc.pid, signal.SIGUSR1)
+            running += 1
+            time.sleep(1)
+        
         sim_stop_time = time.time()
         if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             f = open(os.path.join(self.run_dir, 'run_time'), 'w')
