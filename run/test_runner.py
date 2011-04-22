@@ -48,7 +48,7 @@ varspec = dict(
     fullpath = (str, '.'),
     run_par_file = (str, None),
     fulldir = (str, '.'),
-    max_time_minutes = (float, 1),
+    max_time_minutes = (float, 60),
     radiation = (str, None),
 )
 
