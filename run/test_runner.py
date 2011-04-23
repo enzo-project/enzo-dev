@@ -29,6 +29,7 @@ try:
 except ImportError:
     RegressionTestRunner = None
 
+# Test keyword types and default values.
 varspec = dict(
     name = (str, ''),
     answer_testing_script = (str, None),
@@ -45,9 +46,6 @@ varspec = dict(
     AMR = (bool, False),
     dimensionality = (int, 1),
     author = (str, ''),
-    fullpath = (str, '.'),
-    run_par_file = (str, None),
-    fulldir = (str, '.'),
     max_time_minutes = (float, 60),
     radiation = (str, None),
 )
@@ -55,6 +53,7 @@ varspec = dict(
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )
 variable_defaults = dict( [(k, v[1]) for k, v in varspec.items()] )
 
+# Machine specific job scripts.
 run_template_dir = 'run_templates'
 machines = {'local':       dict(script = 'local.run',
                                 command = 'bash'),
@@ -62,9 +61,11 @@ machines = {'local':       dict(script = 'local.run',
             'nics-kraken': dict(script = 'nics-kraken.run',
                                 command = 'qsub')}
 
-template_vars = {'N_PROCS': 'nprocs',
-                 'PAR_FILE': 'run_par_file',
-                 'TEST_NAME': 'name'}
+# Map between job script variables and test keywords.
+template_vars = {'N_PROCS'   : 'nprocs',
+                 'PAR_FILE'  : 'run_par_file',
+                 'TEST_NAME' : 'name',
+                 'WALL_TIME' : 'run_walltime'}
 
 results_filename = 'test_results.txt'
 
@@ -77,12 +78,18 @@ def _get_hg_version(path):
     commands.identify(u, repo) 
     return u.popbuffer()
 
+def _to_walltime(ts):
+    return "%02d:%02d:%02d" % \
+        ((ts / 3600), ((ts % 3600) / 60), 
+         (ts % 60))
+
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
 
 class EnzoTestCollection(object):
-    def __init__(self, tests = None, machine = 'local'):
+    def __init__(self, tests = None, verbose=True):
+        self.verbose = verbose
         if tests is None:
             # Now we look for all our *.enzotest files
             fns = []
@@ -90,7 +97,7 @@ class EnzoTestCollection(object):
                 os.path.walk(cat, add_files, fns)
             self.tests = []
             for fn in sorted(fns):
-                print "HANDLING", fn
+                if self.verbose: print "HANDLING", fn
                 self.add_test(fn)
         else:
             self.tests = tests
@@ -153,6 +160,7 @@ class EnzoTestCollection(object):
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
         test_spec['run_par_file'] = os.path.basename(test_spec['fulldir']) + ".enzo"
+        test_spec['run_walltime'] = _to_walltime(60 * test_spec['max_time_minutes'])
         for var, val in local_vars.items():
             if var in known_variables:
                 caster = known_variables[var]
@@ -370,32 +378,35 @@ class UnspecifiedParameter(object):
 unknown = UnspecifiedParameter()
 
 if __name__ == "__main__":
-    etc = EnzoTestCollection()
     parser = optparse.OptionParser()
     parser.add_option("-c", "--compare-dir", dest='compare_dir',
                       default=None,
                       help="The directory structure to compare against")
-    parser.add_option("-o", "--output-dir", dest='output_dir',
-                      help="Where to place the run directory")
-    parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
-                      help="Option to interleave preparation, running, and testing.")
-    parser.add_option("-m", "--machine", dest='machine', default='local', 
-                      help="Machine to run tests on.")
     parser.add_option("--clobber", dest='clobber', default=False,
                       action="store_true", 
                       help="Recopies tests and tests from scratch.")
-    parser.add_option("--repo", dest='repository', default="../",
-                      help="Path to repository being tested.")
+    parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
+                      help="Option to interleave preparation, running, and testing.")
     parser.add_option("--json", dest='json', action="store_true",
                       default=False, help="Store the results in a JSON catalog?")
+    parser.add_option("-m", "--machine", dest='machine', default='local', 
+                      help="Machine to run tests on.")
+    parser.add_option("-o", "--output-dir", dest='output_dir',
+                      help="Where to place the run directory")
+    parser.add_option("--repo", dest='repository', default="../",
+                      help="Path to repository being tested.")
     parser.add_option("--sim-only", dest='sim_only', action="store_true", 
                       default=False, help="Only run simulations.")
     parser.add_option("--test-only", dest='test_only', action="store_true", 
                       default=False, help="Only perform tests.")
+    parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
+                      default=False, help="Slightly more verbose output.")
     for var, caster in sorted(known_variables.items()):
         parser.add_option("", "--%s" % (var),
                           type=str, default = unknown)
     options, args = parser.parse_args()
+
+    etc = EnzoTestCollection(verbose=options.verbose)
 
     # Break out if output directory not specified.
     if options.output_dir is None:
