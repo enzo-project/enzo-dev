@@ -343,7 +343,7 @@ class EnzoTestRun(object):
             return
         clear_registry()
 
-        ytf = open("test.log")
+        ytf = open("test.log", 'w')
         orig_stdout = sys.stdout
         orig_stderr = sys.stderr
         sys.stdout = ytf
