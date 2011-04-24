@@ -343,6 +343,11 @@ class EnzoTestRun(object):
             return
         clear_registry()
 
+        ytf = open("test.log")
+        orig_stdout = sys.stdout
+        orig_stderr = sys.stderr
+        sys.stdout = ytf
+        sys.stderr = ytf
         if self.run_finished:
             if self.test_data['answer_testing_script'] != 'None' and \
                self.test_data['answer_testing_script'] is not None:
@@ -357,6 +362,9 @@ class EnzoTestRun(object):
                         compare_results_path = compare_dir)
             rtr.run_all_tests()
             self.results = rtr.passed_tests.copy()
+        ytf.close()
+        sys.stdout = orig_stdout
+        sys.stderr = orig_stderr
 
         os.chdir(cur_dir)
         self.save_results()
