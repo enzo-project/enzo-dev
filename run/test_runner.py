@@ -335,11 +335,11 @@ class EnzoTestRun(object):
                             self.test_data['fulldir'])
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['name']
+        self.run_finished = os.path.exists("RunFinished")
         fn = self.test_data['answer_testing_script']
         if RegressionTestRunner is None:
             print "ANSWER TESTING NOT AVAILABLE"
             return
-        self.run_finished = os.path.exists("RunFinished")
         clear_registry()
 
         if self.run_finished:
