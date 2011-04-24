@@ -248,6 +248,7 @@ class EnzoTestRun(object):
         self.test_dir = test_dir
         self.test_data = test_data
         self.exe_path = exe_path
+        self.results = {}
         if self.exe_path is None:
             self.local_exe = None
         else:
