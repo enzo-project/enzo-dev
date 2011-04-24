@@ -339,7 +339,7 @@ class EnzoTestRun(object):
         self.run_finished = os.path.exists("RunFinished")
         fn = self.test_data['answer_testing_script']
         if RegressionTestRunner is None:
-            print "ANSWER TESTING NOT AVAILABLE"
+            print "This installation of yt does not support testing, please update."
             return
         clear_registry()
 
