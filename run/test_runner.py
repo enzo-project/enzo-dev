@@ -29,6 +29,11 @@ try:
 except ImportError:
     RegressionTestRunner = None
 
+import yt.utilities.logger
+yt.utilities.logger.disable_stream_logging()
+import numpy
+numpy.seterr(all='ignore')
+
 # Test keyword types and default values.
 varspec = dict(
     name = (str, ''),
