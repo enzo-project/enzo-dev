@@ -82,6 +82,16 @@ template_vars = {'N_PROCS'   : 'nprocs',
 
 results_filename = 'test_results.txt'
 
+# If we are able to, let's grab the ~/.enzo/machine_config.py file.
+try:
+    f, filename, desc = imp.find_module("machine_config",
+                          [os.path.expanduser("~/.enzo/")])
+    machine_config = imp.load_module("machine_config", f, filename, desc)
+except ImportError:
+    class EmptyModule(object):
+        pass
+    machine_config = EmptyModule()
+
 def _get_hg_version(path):
     print "Getting current revision."
     from mercurial import hg, ui, commands 
@@ -303,6 +313,8 @@ class EnzoTestRun(object):
             template = template.replace(('${%s}' % var), 
                                         str(self.test_data[template_vars[var]]))
         template = template.replace('${EXECUTABLE}', "./%s" % self.local_exe)
+        for var, value in sorted(getattr(machine_config, self.machine, {})):
+            template = template.replace('$(%s}' % var, value)
         f = open(template_dest, 'w')
         f.write(template)
         f.close()
