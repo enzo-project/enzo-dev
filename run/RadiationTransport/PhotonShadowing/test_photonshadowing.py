@@ -7,7 +7,6 @@ from yt.utilities.answer_testing.api import YTStaticOutputTest, run_main, create
 import matplotlib.pyplot as plt
 
 class TestPhotonShadowing1(YTStaticOutputTest):
-    name = "photon_shadow_hii_plot"
 
     def run(self):
         # self.pf already exists

@@ -482,6 +482,9 @@ if __name__ == "__main__":
             test_only=options.test_only)
     try:
         import json
+    except ImportError:
+        json = None
+    if json is not None and options.compare_dir is not None:
         f = open("results.js", "w")
         results = []
         for test in etc2.test_container:
@@ -493,5 +496,3 @@ if __name__ == "__main__":
         f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
         f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
                   options.compare_dir.strip(), hg_current.strip()))
-    except ImportError:
-        pass
