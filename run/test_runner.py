@@ -222,22 +222,26 @@ class EnzoTestCollection(object):
     def save_test_summary(self):
         all_passes = all_failures = 0
         run_passes = run_failures = 0
-        dnfs = finished_no_test = 0
+        dnfs = default_test = 0
         f = open(os.path.join(self.output_dir, results_filename), 'w')
         for my_test in self.test_container:
+            default_only = False
             if my_test.run_finished:
                 if my_test.test_data['answer_testing_script'] == 'None' or \
                         my_test.test_data['answer_testing_script'] is None:
-                    finished_no_test += 1
-                    f.write("%-70sRun finished, no test available.\n" % my_test.test_data['fulldir'])
-                    continue
+                    default_only = True
+                    default_test += 1
                 t_passes = 0
                 t_failures = 0
                 for t_result in my_test.results.values():
                     t_passes += int(t_result)
                     t_failures += int(not t_result)
-                f.write("%-70sPassed: %4d, Failed: %4d.\n" % (my_test.test_data['fulldir'], 
-                                                              t_passes, t_failures))
+                f.write("%-70sPassed: %4d, Failed: %4d" % (my_test.test_data['fulldir'], 
+                                                           t_passes, t_failures))
+                if default_only:
+                    f.write(" (default tests).\n")
+                else:
+                    f.write(".\n")
                 all_passes += t_passes
                 all_failures += t_failures
                 run_passes += int(not (t_failures > 0))
@@ -252,7 +256,7 @@ class EnzoTestCollection(object):
         f.write("Runs finished with all tests passed: %d.\n" % run_passes)
         f.write("Runs finished with at least one failure: %d.\n" % run_failures)
         f.write("Runs failed to complete: %d.\n" % dnfs)
-        f.write("Runs finished with no tests to perform: %d.\n" % finished_no_test)
+        f.write("Runs finished with only default tests available: %d.\n" % default_test)
         f.close()
 
 class EnzoTestRun(object):
@@ -361,8 +365,7 @@ class EnzoTestRun(object):
         handler.setFormatter(f)
         mylog.addHandler(handler)
         if self.run_finished:
-            if self.test_data['answer_testing_script'] != 'None' and \
-               self.test_data['answer_testing_script'] is not None:
+            if fn != 'None' and fn is not None:
                 if fn.endswith(".py"): fn = fn[:-3]
                 print "Loading module %s" % (fn)
                 f, filename, desc = imp.find_module(fn, ["."])
@@ -381,10 +384,11 @@ class EnzoTestRun(object):
         self.save_results()
 
     def save_results(self):
-        if self.test_data['answer_testing_script'] == 'None' \
-                or self.test_data['answer_testing_script'] is None: return
         f = open(os.path.join(self.run_dir, 'test_results.txt'), 'w')
         if self.run_finished:
+            if self.test_data['answer_testing_script'] == 'None' \
+                    or self.test_data['answer_testing_script'] is None:
+                f.write("Ran default binary tests since no others were available.\n")
             my_tests = self.results.keys()
             my_tests.sort()
             for my_test in my_tests:
