@@ -29,11 +29,6 @@ try:
 except ImportError:
     RegressionTestRunner = None
 
-import yt.utilities.logger
-yt.utilities.logger.disable_stream_logging()
-import numpy
-numpy.seterr(all='ignore')
-
 # Test keyword types and default values.
 varspec = dict(
     name = (str, ''),
@@ -340,7 +335,7 @@ class EnzoTestRun(object):
             compare_dir = os.path.join(cur_dir, compare_dir,
                             self.test_data['fulldir'])
         os.chdir(self.run_dir)
-        print "Running test: %s" % self.test_data['name']
+        print "Running test: %s" % self.test_data['fulldir']
         self.run_finished = os.path.exists("RunFinished")
         fn = self.test_data['answer_testing_script']
         if RegressionTestRunner is None:
