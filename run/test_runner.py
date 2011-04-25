@@ -71,7 +71,7 @@ run_template_dir = 'run_templates'
 machines = {'local':       dict(script = 'local.run',
                                 command = 'bash'),
 
-            'nics-kraken': dict(script = 'nics-kraken.run',
+            'nics_kraken': dict(script = 'nics_kraken.run',
                                 command = 'qsub')}
 
 # Map between job script variables and test keywords.
@@ -311,8 +311,8 @@ class EnzoTestRun(object):
             template = template.replace(('${%s}' % var), 
                                         str(self.test_data[template_vars[var]]))
         template = template.replace('${EXECUTABLE}', "./%s" % self.local_exe)
-        for var, value in sorted(getattr(machine_config, self.machine, {})):
-            template = template.replace('$(%s}' % var, value)
+        for var, value in sorted(getattr(machine_config, self.machine, {}).items()):
+            template = template.replace('${%s}' % var, value)
         f = open(template_dest, 'w')
         f.write(template)
         f.close()
