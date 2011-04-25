@@ -88,9 +88,7 @@ try:
                           [os.path.expanduser("~/.enzo/")])
     machine_config = imp.load_module("machine_config", f, filename, desc)
 except ImportError:
-    class EmptyModule(object):
-        pass
-    machine_config = EmptyModule()
+    machine_config = None
 
 def _get_hg_version(path):
     print "Getting current revision."
