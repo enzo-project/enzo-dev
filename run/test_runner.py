@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import time
+import logging
 
 known_categories = [
     "Cooling",
@@ -23,11 +24,23 @@ known_categories = [
 ]
 
 try:
+    from yt.config import ytcfg
     from yt.utilities.answer_testing.api import \
         RegressionTestRunner, clear_registry, create_test, \
         TestFieldStatistics, TestAllProjections
+    from yt.utilities.logger import ytLogger as mylog
+    from yt.utilities.logger import \
+        disable_stream_logging, ufstring
+    disable_stream_logging()
+    ytcfg["yt","suppressStreamLogging"] = "True"
 except ImportError:
     RegressionTestRunner = None
+
+try:
+    import numpy
+    numpy.seterr(all = "ignore")
+except ImportError:
+    pass
 
 # Test keyword types and default values.
 varspec = dict(
@@ -342,7 +355,10 @@ class EnzoTestRun(object):
             print "This installation of yt does not support testing, please update."
             return
         clear_registry()
-
+        handler = logging.FileHandler("testing.log")
+        f = logging.Formatter(ufstring)
+        handler.setFormatter(f)
+        mylog.addHandler(handler)
         if self.run_finished:
             if self.test_data['answer_testing_script'] != 'None' and \
                self.test_data['answer_testing_script'] is not None:
@@ -357,6 +373,8 @@ class EnzoTestRun(object):
                         compare_results_path = compare_dir)
             rtr.run_all_tests()
             self.results = rtr.passed_tests.copy()
+        mylog.removeHandler(handler)
+        handler.close()
 
         os.chdir(cur_dir)
         self.save_results()
