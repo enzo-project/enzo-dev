@@ -421,8 +421,6 @@ if __name__ == "__main__":
                       help="Recopies tests and tests from scratch.")
     parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
                       help="Option to interleave preparation, running, and testing.")
-    parser.add_option("--json", dest='json', action="store_true",
-                      default=False, help="Store the results in a JSON catalog?")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
     parser.add_option("-o", "--output-dir", dest='output_dir',
@@ -482,7 +480,7 @@ if __name__ == "__main__":
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             options.compare_dir, sim_only=options.sim_only, 
             test_only=options.test_only)
-    if options.json:
+    try:
         import json
         f = open("results.js", "w")
         results = []
@@ -495,3 +493,5 @@ if __name__ == "__main__":
         f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
         f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
                   options.compare_dir.strip(), hg_current.strip()))
+    except ImportError:
+        pass
