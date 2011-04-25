@@ -113,8 +113,8 @@ cdef extern from "typedefs.h" nogil:
 
 cdef field_enums = {
     "Density" : Density,
-    "Total_Energy" : TotalEnergy,
-    "Gas_Energy" : InternalEnergy,
+    "TotalEnergy" : TotalEnergy,
+    "GasEnergy" : InternalEnergy,
     "Pressure" : Pressure,
     "x-velocity" : Velocity1,
     "y-velocity" : Velocity2,
