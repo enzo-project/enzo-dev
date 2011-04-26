@@ -515,6 +515,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  ResetMagneticFieldAmplitude[1],
 	  ResetMagneticFieldAmplitude[2]);
 
+  for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
+    if (AvoidRefineRegionLevel[dim] != INT_UNDEFINED) {
+      fprintf(fptr, "AvoidRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
+	      AvoidRefineRegionLevel[dim]);
+      fprintf(fptr, "AvoidRefineRegionLeftEdge[%"ISYM"] = ", dim);
+      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionLeftEdge[dim]);
+      fprintf(fptr, "AvoidRefineRegionRightEdge[%"ISYM"] = ", dim);
+      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionRightEdge[dim]);
+    }
 
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
@@ -610,8 +619,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumMassForRefinementLevelExponent[5],
 	  MinimumMassForRefinementLevelExponent[6]);
 
-  fprintf(fptr, "MinimumSlopeForRefinement             = %e\n",
-	  MinimumSlopeForRefinement);
   fprintf(fptr, "MinimumShearForRefinement             = %e\n",
 	  MinimumShearForRefinement);
   fprintf(fptr, "MinimumPressureJumpForRefinement      = %e\n",

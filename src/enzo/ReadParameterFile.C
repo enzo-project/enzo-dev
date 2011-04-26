@@ -337,7 +337,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RefineRegionRightEdge = %"PSYM" %"PSYM" %"PSYM,
 		  RefineRegionRightEdge, RefineRegionRightEdge+1,
 		  RefineRegionRightEdge+2);
-     ret += sscanf(line, "MustRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MustRefineRegionLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
 		  MustRefineRegionLeftEdge, MustRefineRegionLeftEdge+1,
 		  MustRefineRegionLeftEdge+2);
     ret += sscanf(line, "MustRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
@@ -492,6 +492,25 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM,
                   &ParticleTypeInFile);
 
+    if (sscanf(line, "AvoidRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
+      if (dim > MAX_STATIC_REGIONS-1) {
+        ENZO_VFAIL("AvoidRegion number %"ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim)
+      }
+      ret++;
+      AvoidRefineRegionLevel[dim] = int_dummy;
+    }
+    if (sscanf(line, "AvoidRefineRegionLeftEdge[%"ISYM"] = ", &dim) == 1)
+      ret += sscanf(line,
+		    "AvoidRefineRegionLeftEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    &dim, AvoidRefineRegionLeftEdge[dim],
+		    AvoidRefineRegionLeftEdge[dim]+1,
+		    AvoidRefineRegionLeftEdge[dim]+2);
+    if (sscanf(line, "AvoidRefineRegionRightEdge[%"ISYM"] = ", &dim) == 1)
+      ret += sscanf(line,
+		    "AvoidRefineRegionRightEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    &dim, AvoidRefineRegionRightEdge[dim],
+		    AvoidRefineRegionRightEdge[dim]+1,
+		    AvoidRefineRegionRightEdge[dim]+2);
  
     if (sscanf(line, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM,&dim,&int_dummy) == 2){
       if (dim > MAX_STATIC_REGIONS-1) {
