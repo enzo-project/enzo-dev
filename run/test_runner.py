@@ -364,37 +364,46 @@ class EnzoTestRun(object):
         os.chdir(self.run_dir)
         print "Running test: %s" % self.test_data['fulldir']
         self.run_finished = os.path.exists("RunFinished")
-        fn = self.test_data['answer_testing_script']
-        if RegressionTestRunner is None:
-            print "This installation of yt does not support testing, please update."
-            return
-        clear_registry()
 
-        handler = logging.FileHandler("testing.log")
-        f = logging.Formatter(ufstring)
-        handler.setFormatter(f)
-        mylog.addHandler(handler)
-        if self.run_finished:
-            if fn != 'None' and fn is not None:
-                if fn.endswith(".py"): fn = fn[:-3]
-                print "Loading module %s" % (fn)
-                f, filename, desc = imp.find_module(fn, ["."])
-                project = imp.load_module(fn, f, filename, desc)
-            if fn is None or fn == "None":
-                create_test(TestFieldStatistics, "field_stats", tolerance = 1e-10)
-                create_test(TestAllProjections, "all_projs", tolerance = 1e-10)
-            rtr = RegressionTestRunner("", compare_id,
-                        compare_results_path = compare_dir)
-            rtr.run_all_tests()
-            self.results = rtr.passed_tests.copy()
-        mylog.removeHandler(handler)
-        handler.close()
+        if os.path.exists(results_filename):
+            print "Reading test results from file."
+            res_lines = file(results_filename)
+            for line in res_lines:
+                this_test, this_result = line.split()
+                self.results[this_test] = bool(this_result)
+
+        else:
+            fn = self.test_data['answer_testing_script']
+            if RegressionTestRunner is None:
+                print "This installation of yt does not support testing, please update."
+                return
+            clear_registry()
+
+            handler = logging.FileHandler("testing.log")
+            f = logging.Formatter(ufstring)
+            handler.setFormatter(f)
+            mylog.addHandler(handler)
+            if self.run_finished:
+                if fn != 'None' and fn is not None:
+                    if fn.endswith(".py"): fn = fn[:-3]
+                    print "Loading module %s" % (fn)
+                    f, filename, desc = imp.find_module(fn, ["."])
+                    project = imp.load_module(fn, f, filename, desc)
+                if fn is None or fn == "None":
+                    create_test(TestFieldStatistics, "field_stats", tolerance = 1e-10)
+                    create_test(TestAllProjections, "all_projs", tolerance = 1e-10)
+                rtr = RegressionTestRunner("", compare_id,
+                            compare_results_path = compare_dir)
+                rtr.run_all_tests()
+                self.results = rtr.passed_tests.copy()
+            mylog.removeHandler(handler)
+            handler.close()
 
         os.chdir(cur_dir)
         self.save_results()
 
     def save_results(self):
-        f = open(os.path.join(self.run_dir, 'test_results.txt'), 'w')
+        f = open(os.path.join(self.run_dir, results_filename), 'w')
         if self.run_finished:
             if self.test_data['answer_testing_script'] == 'None' \
                     or self.test_data['answer_testing_script'] is None:
