@@ -789,6 +789,10 @@ public:
 
    int FlagCellsToAvoidRefinement();
 
+/* Flag all points in a region where refinement is not needed */
+
+   int FlagCellsToAvoidRefinementRegion(int level);
+
 /* Flag all points that require refining  (and delete Mass Flagging Field).
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
