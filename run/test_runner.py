@@ -370,8 +370,9 @@ class EnzoTestRun(object):
                 print "Reading test results from file."
                 res_lines = file(results_filename)
                 for line in res_lines:
-                    this_test, this_result = line.split()
-                    self.results[this_test] = bool(this_result)
+                    if len(line.split()) == 2:
+                        this_test, this_result = line.split()
+                        self.results[this_test] = bool(this_result)
 
         else:
             fn = self.test_data['answer_testing_script']
