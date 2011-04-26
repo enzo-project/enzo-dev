@@ -366,11 +366,12 @@ class EnzoTestRun(object):
         self.run_finished = os.path.exists("RunFinished")
 
         if os.path.exists(results_filename):
-            print "Reading test results from file."
-            res_lines = file(results_filename)
-            for line in res_lines:
-                this_test, this_result = line.split()
-                self.results[this_test] = bool(this_result)
+            if self.run_finished:
+                print "Reading test results from file."
+                res_lines = file(results_filename)
+                for line in res_lines:
+                    this_test, this_result = line.split()
+                    self.results[this_test] = bool(this_result)
 
         else:
             fn = self.test_data['answer_testing_script']
