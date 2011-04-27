@@ -541,8 +541,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
  
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
-    ret += sscanf(line, "StaticPartitionNestedGrids = %"ISYM, 
-		  &StaticPartitionNestedGrids);
  
     ret += sscanf(line, "ExtractFieldsOnly = %"ISYM, &ExtractFieldsOnly);
  
