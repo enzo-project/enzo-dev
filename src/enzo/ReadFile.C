@@ -245,24 +245,13 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
     slab_block[0] = 1;
  
     xfer_size = 1;
-
-    /* JHW (April 2011) Leave the ordering in C-style.  Will not
-       affect cubical IC files, but this change was needed for
-       consistency in non-cubical static regions. */
  
-//    for (dim=0; dim < Rank; dim++) {
-//      slab_offset[Rank-dim] = BufferOffset[dim];
-//      slab_stride[Rank-dim] = 1;
-//      slab_count[Rank-dim] = EndIndex[dim]-StartIndex[dim]+1;
-//      slab_block[Rank-dim] = 1;
-//      xfer_size = xfer_size * slab_count[Rank-dim];
-//    }
     for (dim=0; dim < Rank; dim++) {
-      slab_offset[dim+1] = BufferOffset[dim];
-      slab_stride[dim+1] = 1;
-      slab_count[dim+1] = EndIndex[dim]-StartIndex[dim]+1;
-      slab_block[dim+1] = 1;
-      xfer_size = xfer_size * slab_count[dim+1];
+      slab_offset[Rank-dim] = BufferOffset[dim];
+      slab_stride[Rank-dim] = 1;
+      slab_count[Rank-dim] = EndIndex[dim]-StartIndex[dim]+1;
+      slab_block[Rank-dim] = 1;
+      xfer_size = xfer_size * slab_count[Rank-dim];
     }
  
     for (dim=0; dim < Slab_Rank; dim++) {
