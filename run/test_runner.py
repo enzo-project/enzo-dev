@@ -81,6 +81,7 @@ template_vars = {'N_PROCS'   : 'nprocs',
                  'WALL_TIME' : 'run_walltime'}
 
 results_filename = 'test_results.txt'
+version_filename = 'version.txt'
 
 # If we are able to, let's grab the ~/.enzo/machine_config.py file.
 try:
@@ -291,12 +292,18 @@ class EnzoTestRun(object):
                 print "%s exists, but clobber == True, so overwriting it." % self.test_data['name']
                 shutil.rmtree(self.run_dir)
                 shutil.copytree(self.test_data['fulldir'], self.run_dir)
+                # Copy version file into run directory
+                shutil.copy(os.path.join(self.test_dir, version_filename),
+                            os.path.join(self.run_dir, version_filename))
                 if self.exe_path is not None:
                     shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
             else:
                 print "%s already exists. Skipping directory." % self.test_data['name']
         else:
             shutil.copytree(self.test_data['fulldir'], self.run_dir)
+            # Copy version file into run directory
+            shutil.copy(os.path.join(self.test_dir, version_filename),
+                        os.path.join(self.run_dir, version_filename))
             if self.exe_path is not None:
                 shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
 
@@ -480,7 +487,7 @@ if __name__ == "__main__":
     rev_hash = hg_current.split()[0]
     options.output_dir = os.path.join(options.output_dir, rev_hash)
     if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
-    f = open(os.path.join(options.output_dir, 'version.txt'), 'w')
+    f = open(os.path.join(options.output_dir, version_filename), 'w')
     f.write(hg_current)
     f.close()
 
