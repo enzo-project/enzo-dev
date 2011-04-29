@@ -174,8 +174,7 @@ Problem Type Description and Parameter List
     must be periodic. Note that self gravity will not be consistent
     with shearing boundary conditions. Default: 0 0 0
 ``ShearingVelocityDirection`` (external)
-    When a shearing boundary is used and the other two boundary pairs
-    are both periodic, selected the direction of the shearing velocity.
+    Select direction of shearing boundary. Default is x direction. Changing this is probably not a good idea.
 ``AngularVelocity`` (external)
     The value of the angular velocity in the shearing boundary.
     Default: 0.001
