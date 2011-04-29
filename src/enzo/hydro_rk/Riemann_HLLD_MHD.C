@@ -23,7 +23,7 @@
 int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int ActiveSize)
 {
   float Ul[NEQ_MHD], Ur[NEQ_MHD], Fl[NEQ_MHD], Fr[NEQ_MHD], Us[NEQ_MHD], Uss[NEQ_MHD];
-  float etot_l,etot_r, eint_l, eint_r, h, dpdrho, dpde, rho_l, rho_r, vx_l, vy_l, vz_l, vx_r, vy_r, vz_r, Bx, By_l, Bz_l, By_r, Bz_r, Phi, v2, B2, Bv_l, Bv_r, p_l, p_r, cs_l, cs_r, pt_l, pt_r;
+  float etot_l,etot_r, eint_l, eint_r, h, dpdrho, dpde, rho_l, rho_r, vx_l, vy_l, vz_l, vx_r, vy_r, vz_r, Bx_l, Bx_r,Bx, By_l, Bz_l, By_r, Bz_r, Phi_l, Phi_r, v2, B2, Bv_l, Bv_r, p_l, p_r, cs_l, cs_r, pt_l, pt_r;
   float rho_ls, rho_rs, vy_ls, vy_rs, vz_ls, vz_rs, vv_ls, vv_rs, By_ls, By_rs, Bz_ls, Bz_rs, Bv_ls, Bv_rs, bb_ls, bb_rs, eint_ls, eint_rs, etot_ls, etot_rs, pt_s;
   float vy_ss, vz_ss, By_ss, Bz_ss, Bv_ss, eint_lss, eint_rss, etot_lss, etot_rss, rho_savg;
   float Zero = 0.0;
@@ -37,18 +37,18 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     vx_l   = priml[2][n];
     vy_l   = priml[3][n];
     vz_l   = priml[4][n];    
-    Bx     = priml[5][n];
+    Bx_l   = priml[5][n];
     By_l   = priml[6][n];
     Bz_l   = priml[7][n];
-    Phi    = priml[8][n];
-    B2 = Bx * Bx + By_l * By_l + Bz_l * Bz_l;
-    Bv_l = Bx * vx_l + By_l * vy_l + Bz_l * vz_l;
+    Phi_l   = priml[8][n];
+    B2 = Bx_l * Bx_l + By_l * By_l + Bz_l * Bz_l;
+    Bv_l = Bx_l * vx_l + By_l * vy_l + Bz_l * vz_l;
 
     v2 = vx_l * vx_l + vy_l * vy_l + vz_l * vz_l;
     etot_l = rho_l * (eint_l + 0.5 * v2) + 0.5 * B2;
     EOS(p_l, rho_l, eint_l, h, cs_l, dpdrho, dpde, EOSType, 2);
     pt_l = p_l + 0.5 * B2;
-    cf_l = sqrt((Gamma * p_l + B2 + sqrt((Gamma * p_l + B2) * (Gamma * p_l + B2) - 4. * Gamma * p_l * Bx * Bx))/(2. * rho_l));
+    cf_l = sqrt((Gamma * p_l + B2 + sqrt((Gamma * p_l + B2) * (Gamma * p_l + B2) - 4. * Gamma * p_l * Bx_l * Bx_l))/(2. * rho_l));
 
     Ul[iD   ] = rho_l;
     Ul[iS1  ] = rho_l * vx_l;
@@ -58,22 +58,22 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     if (DualEnergyFormalism) {
       Ul[iEint] = rho_l * eint_l;
     }
-    Ul[iBx ] = Bx;
+    Ul[iBx ] = Bx_l;
     Ul[iBy ] = By_l;
     Ul[iBz ] = Bz_l;
-    Ul[iPhi] = Phi;
+    Ul[iPhi] = Phi_l;
 
     Fl[iD   ] = rho_l * vx_l;
-    Fl[iS1  ] = Ul[iS1] * vx_l + pt_l - Bx * Bx;
-    Fl[iS2  ] = Ul[iS2] * vx_l - Bx * By_l;
-    Fl[iS3  ] = Ul[iS3] * vx_l - Bx * Bz_l;
-    Fl[iEtot] = (etot_l + pt_l) * vx_l - Bx * Bv_l;
+    Fl[iS1  ] = Ul[iS1] * vx_l + pt_l - Bx_l * Bx_l;
+    Fl[iS2  ] = Ul[iS2] * vx_l - Bx_l * By_l;
+    Fl[iS3  ] = Ul[iS3] * vx_l - Bx_l * Bz_l;
+    Fl[iEtot] = (etot_l + pt_l) * vx_l - Bx_l * Bv_l;
     if (DualEnergyFormalism) {
       Fl[iEint] = Ul[iEint] * vx_l;
     }
     Fl[iBx] = 0.0;
-    Fl[iBy] = vx_l*By_l - vy_l*Bx;
-    Fl[iBz] = -vz_l*Bx + vx_l*Bz_l;
+    Fl[iBy] = vx_l*By_l - vy_l*Bx_l;
+    Fl[iBz] = -vz_l*Bx_l + vx_l*Bz_l;
 
     //compute Ur and Fr
     rho_r   = primr[0][n];
@@ -81,18 +81,18 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     vx_r    = primr[2][n];
     vy_r    = primr[3][n];
     vz_r    = primr[4][n];
-    Bx      = primr[5][n];
+    Bx_r    = primr[5][n];
     By_r    = primr[6][n];
     Bz_r    = primr[7][n];
-    Phi     = primr[8][n];
-    B2 = Bx * Bx + By_r * By_r + Bz_r * Bz_r;
-    Bv_r = Bx * vx_r + By_r * vy_r + Bz_r * vz_r;
+    Phi_r   = primr[8][n];
+    B2 = Bx_r * Bx_r + By_r * By_r + Bz_r * Bz_r;
+    Bv_r = Bx_r * vx_r + By_r * vy_r + Bz_r * vz_r;
 
     v2 = vx_r * vx_r + vy_r * vy_r + vz_r * vz_r;
     etot_r = rho_r * (eint_r + 0.5 * v2) + 0.5 * B2;
     EOS(p_r, rho_r, eint_r, h, cs_r, dpdrho, dpde, EOSType, 2);
     pt_r = p_r + 0.5 * B2;
-    cf_r = sqrt((Gamma * p_r + B2 + sqrt((Gamma * p_r + B2) * (Gamma * p_r + B2) - 4. * Gamma * p_r * Bx * Bx))/(2. * rho_r));
+    cf_r = sqrt((Gamma * p_r + B2 + sqrt((Gamma * p_r + B2) * (Gamma * p_r + B2) - 4. * Gamma * p_r * Bx_r * Bx_r))/(2. * rho_r));
 
     Ur[iD   ] = rho_r;
     Ur[iS1  ] = rho_r * vx_r;
@@ -102,27 +102,28 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
     if (DualEnergyFormalism) {
       Ur[iEint] = rho_r * eint_r;
     }
-    Ur[iBx ] = Bx;
+    Ur[iBx ] = Bx_r;
     Ur[iBy ] = By_r;
     Ur[iBz ] = Bz_r;
-    Ur[iPhi] = Phi;
+    Ur[iPhi] = Phi_r;
 
     Fr[iD   ] = rho_r * vx_r;
-    Fr[iS1  ] = Ur[iS1] * vx_r + pt_r - Bx * Bx;
-    Fr[iS2  ] = Ur[iS2] * vx_r - Bx * By_r;
-    Fr[iS3  ] = Ur[iS3] * vx_r - Bx * Bz_r;
-    Fr[iEtot] = (etot_r + pt_r) * vx_r - Bx * Bv_r;
+    Fr[iS1  ] = Ur[iS1] * vx_r + pt_r - Bx_r * Bx_r;
+    Fr[iS2  ] = Ur[iS2] * vx_r - Bx_r * By_r;
+    Fr[iS3  ] = Ur[iS3] * vx_r - Bx_r * Bz_r;
+    Fr[iEtot] = (etot_r + pt_r) * vx_r - Bx_r * Bv_r;
     if (DualEnergyFormalism) {
       Fr[iEint] = Ur[iEint] * vx_l;
     }
     Fr[iBx ] = 0.0;
-    Fr[iBy ] = vx_r * By_r - vy_r * Bx;
-    Fr[iBz ] = -vz_r * Bx + vx_r * Bz_r;
+    Fr[iBy ] = vx_r * By_r - vy_r * Bx_r;
+    Fr[iBz ] = -vz_r * Bx_r + vx_r * Bz_r;
 
     //
     //wave speeds
     //
 
+    Bx = 0.5*(Bx_l + Bx_r);
     // first, outermost wave speeds
     // simplest choice from Miyoshi & Kusano (2005)
     S_l = min(vx_l, vx_r) - max(cf_l, cf_r);
@@ -132,16 +133,20 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       for (int field = 0; field < NEQ_MHD - 1; field++) {
 	FluxLine[field][n] = Fl[field];
       }
-      FluxLine[iBx][n] = Phi;
-      FluxLine[iPhi][n] = C_h * C_h * Bx;
+      FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
+      FluxLine[iPhi][n] = Ul[iBx] + 0.5*(Ur[iBx]-Ul[iBx]) - 0.5/C_h*(Ur[iPhi]-Ul[iPhi]);
+      FluxLine[iPhi][n] *= (C_h*C_h);
+
       continue;
     } 
     if (S_r < 0) {
       for (int field = 0; field < NEQ_MHD - 1; field++) {
 	FluxLine[field][n] = Fr[field];
       }
-      FluxLine[iBx][n] = Phi;
-      FluxLine[iPhi][n] = C_h * C_h * Bx;
+      FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
+      FluxLine[iPhi][n] = Ul[iBx] + 0.5*(Ur[iBx]-Ul[iBx]) - 0.5/C_h*(Ur[iPhi]-Ul[iPhi]);
+      FluxLine[iPhi][n] *= (C_h*C_h);
+
       continue;
     } 
 
@@ -218,17 +223,15 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Us[iBx  ] = Bx;
       Us[iBy  ] = By_ls;
       Us[iBz  ] = Bz_ls;
-      Us[iPhi ] = Phi;
+      Us[iPhi ] = Phi_l;
 
       for (int field = 0; field < NEQ_MHD - 1; field++) {
 	FluxLine[field][n] = Fl[field] + S_l*(Us[field] - Ul[field]);
       }
-      FluxLine[iBx][n] += Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
+      FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
       FluxLine[iPhi][n] = Ul[iBx] + 0.5*(Ur[iBx]-Ul[iBx]) - 0.5/C_h*(Ur[iPhi]-Ul[iPhi]);
       FluxLine[iPhi][n] *= (C_h*C_h);
 
-      //FluxLine[iBx][n] = Phi;
-      //FluxLine[iPhi][n] = C_h * C_h * Bx;
       continue;
     } 
     if (S_rs <= 0 && S_r >= 0) {
@@ -243,17 +246,15 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Us[iBx  ] = Bx;
       Us[iBy  ] = By_rs;
       Us[iBz  ] = Bz_rs;
-      Us[iPhi ] = Phi;
+      Us[iPhi ] = Phi_r;
 
       for (int field = 0; field < NEQ_MHD - 1; field++) {
 	FluxLine[field][n] = Fr[field] + S_r*(Us[field] - Ur[field]);
       }
-      FluxLine[iBx][n] += Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
+      FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
       FluxLine[iPhi][n] = Ul[iBx] + 0.5*(Ur[iBx]-Ul[iBx]) - 0.5/C_h*(Ur[iPhi]-Ul[iPhi]);
       FluxLine[iPhi][n] *= (C_h*C_h);
 
-      //FluxLine[iBx][n] = Phi;
-      //FluxLine[iPhi][n] = C_h * C_h * Bx;
       continue;
     } 
 
@@ -279,7 +280,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Us[iBx  ] = Bx;
       Us[iBy  ] = By_ls;
       Us[iBz  ] = Bz_ls;
-      Us[iPhi ] = Phi;
+      Us[iPhi ] = Phi_l;
 
       Uss[iD   ] = rho_ls;
       Uss[iS1  ] = rho_ls * S_M;
@@ -291,16 +292,14 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Uss[iBx  ] = Bx;
       Uss[iBy  ] = By_ss;
       Uss[iBz  ] = Bz_ss;
-      Uss[iPhi ] = Phi;
+      Uss[iPhi ] = Phi_l;
       
       for (int field = 0; field < NEQ_MHD - 1; field++) {
 	FluxLine[field][n] = Fl[field] + S_ls*Uss[field] - (S_ls - S_l)*Us[field] - S_l*Ul[field];
       }
-      FluxLine[iBx][n] += Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
+      FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
       FluxLine[iPhi][n] = Ul[iBx] + 0.5*(Ur[iBx]-Ul[iBx]) - 0.5/C_h*(Ur[iPhi]-Ul[iPhi]);
       FluxLine[iPhi][n] *= (C_h*C_h);
-      //FluxLine[iBx][n] = Phi;
-      //FluxLine[iPhi][n] = C_h * C_h * Bx;
       continue;
     } 
     if (S_M <= 0 && S_rs >= 0) {
@@ -315,7 +314,7 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Us[iBx  ] = Bx;
       Us[iBy  ] = By_rs;
       Us[iBz  ] = Bz_rs;
-      Us[iPhi ] = Phi;
+      Us[iPhi ] = Phi_r;
 
       Uss[iD   ] = rho_rs;
       Uss[iS1  ] = rho_rs * S_M;
@@ -327,16 +326,14 @@ int hlld_mhd(float **FluxLine, float **priml, float **primr, float **prim, int A
       Uss[iBx  ] = Bx;
       Uss[iBy  ] = By_ss;
       Uss[iBz  ] = Bz_ss;
-      Uss[iPhi ] = Phi;
+      Uss[iPhi ] = Phi_r;
       
       for (int field = 0; field < NEQ_MHD - 1; field++) {
 	FluxLine[field][n] = Fr[field] + S_rs*Uss[field] - (S_rs - S_r)*Us[field] - S_r*Ur[field];
       }
-      FluxLine[iBx][n] += Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
+      FluxLine[iBx][n]  = Ul[iPhi] + 0.5*(Ur[iPhi]-Ul[iPhi]) - 0.5*C_h*(Ur[iBx]-Ul[iBx]);
       FluxLine[iPhi][n] = Ul[iBx] + 0.5*(Ur[iBx]-Ul[iBx]) - 0.5/C_h*(Ur[iPhi]-Ul[iPhi]);
       FluxLine[iPhi][n] *= (C_h*C_h);
-      //FluxLine[iBx][n] = Phi;
-      //FluxLine[iPhi][n] = C_h * C_h * Bx;
       continue;
     }
   }
