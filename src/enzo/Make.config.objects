@@ -398,6 +398,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FinishFFT.o \
 	Grid_FlagBufferZones.o \
         Grid_FlagCellsToAvoidRefinement.o \
+        Grid_FlagCellsToAvoidRefinementRegion.o \
 	Grid_FlagCellsToBeRefinedByCoolingTime.o \
 	Grid_FlagCellsToBeRefinedByJeansLength.o \
 	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \

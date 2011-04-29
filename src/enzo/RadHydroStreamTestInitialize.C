@@ -45,7 +45,7 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stdout,"Entering RadHydroStreamTestInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";

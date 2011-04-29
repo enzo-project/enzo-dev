@@ -35,14 +35,6 @@
 int ProtoSubgrid::AcceptableSubgrid()
 {
  
- /* If we are doing nested cosmology with partitioned nested grids,
-    we don't set limits on the nested, permanent subgrids. */
-
-  if ( (PartitionNestedGrids && StaticPartitionNestedGrids) && 
-       (this->GetLevel() <= CosmologySimulationNumberOfInitialGrids-1) ) {
-    return TRUE;
-  }
- 
   /* If NumberFlagged hasn't been computed yet, then compute it. */
  
   if (NumberFlagged == INT_UNDEFINED) {

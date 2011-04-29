@@ -428,6 +428,8 @@ Hierarchy Control Parameters
        4 - refine by particle mass	       12 - refine by defined region "MustRefineRegion"
        5 - refine by baryon overdensity	       13 - refine by metallicity
        	  (currently disabled)
+       101 - avoid refinement in regions
+             defined in "AvoidRefineRegion"
 
 ``RefineRegionLeftEdge``, ``RefineRegionRightEdge`` (external)
     These two parameters control the region in which refinement is
@@ -642,6 +644,13 @@ Hierarchy Control Parameters
 ``StaticRefineRegionLeftEdge[#]``, ``StaticRefineRegionRightEdge[#]`` (external)
     These two parameters specify the two corners of a statically
     refined region (see the previous parameter). Default: none
+``AvoidRefineRegionLevel[#]`` (external)
+    This parameter is used to limit the refinement to this level in a
+    rectangular region.  Up to MAX_STATIC_REGIONS regions can be used.
+``AvoidRefineRegionLeftEdge[#]``, ``AvoidRefineRegionRightEdge[#]`` (external) 
+    These two parameters specify the two corners of a region that
+    limits refinement to a certain level (see the previous
+    parameter). Default: none
 ``RefineByResistiveLength`` (external)
     Resistive length is defined as the curl of the magnetic field over
     the magnitude of the magnetic field. We make sure this length is
