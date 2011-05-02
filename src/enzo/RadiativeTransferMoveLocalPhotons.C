@@ -50,7 +50,10 @@ int RadiativeTransferMoveLocalPhotons(ListOfPhotonsToMove **AllPhotons,
       Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
       Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
 
-      ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
+      if (Mover->PausedPhoton)
+	ToGridPackages = Mover->ToGrid->ReturnPausedPackagePointer();
+      else
+	ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
       Mover->PhotonPackage->NextPackage = ToGridPackages->NextPackage;
       if (ToGridPackages->NextPackage != NULL) 
 	ToGridPackages->NextPackage->PreviousPackage = Mover->PhotonPackage;

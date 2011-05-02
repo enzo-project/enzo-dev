@@ -89,11 +89,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     return SUCCESS;
   }
 
-  if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP)) {
+  if ((*PP) == NULL || (*PP)->PreviousPackage == NULL ||
+      (*PP)->PreviousPackage->NextPackage != (*PP)) {
     ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
-	    "\t %x %x %x %x\n",
-	    (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
-	    PhotonPackages)
+	    "\t %p %p %p\n",
+	    (*PP), (*PP)->PreviousPackage, PhotonPackages)
   }
 
   /* This controls the splitting condition, where this many rays must

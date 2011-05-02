@@ -916,6 +916,7 @@ POBJS_CONFIG_LIB = \
         Grid_InitializeSource.o \
 	Grid_InterpolateRadiationFromParent.o \
         Grid_MergePausedPhotonPackages.o \
+        Grid_RegridPausedPhotonPackage.o \
         Grid_MoveAllPhotonPackages.o \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
