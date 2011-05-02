@@ -96,7 +96,7 @@ int grid::MergePausedPhotonPackages() {
   float length;
   FLOAT original_vec[MAX_DIMENSION], vec[MAX_DIMENSION];
   PhotonPackageEntry *PP = PausedPhotonPackages->NextPackage;
-  float dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
+  float dx2_inv = 1.0/ (this->CellWidth[0][0] * this->CellWidth[0][0]);
   const float ln2_inv = 1.0/M_LN2;
   
   nphotons = 0;
@@ -120,9 +120,9 @@ int grid::MergePausedPhotonPackages() {
     } // ENDFOR dim
     PP->SourcePositionDiff = 0.0;
 
-    //      printf("before %x: lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
-    //	     PP, PP->level, PP->ipix, PP->Radius,
-    //	     original_vec[0], original_vec[1], original_vec[2]);
+//    printf("before %x: lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
+//	   PP, PP->level, PP->ipix, PP->Radius,
+//	   original_vec[0], original_vec[1], original_vec[2]);
 
     length = sqrt(length);
     for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -131,8 +131,7 @@ int grid::MergePausedPhotonPackages() {
     // With the new radius, calculate new HEALPix level
     PP->Radius = length;
     PP->level = (int) (0.5*ln2_inv * 
-		       logf(3 * M_1_PI * (PP->Radius*PP->Radius/dx2) * 
-			    RadiativeTransferRaysPerCell));
+		       logf(3 * M_1_PI * (PP->Radius*PP->Radius * dx2_inv)));
     PP->level = min(max(PP->level, 0), MAX_HEALPIX_LEVEL);
 
     // Calculate new pixel number with the super source
@@ -140,9 +139,9 @@ int grid::MergePausedPhotonPackages() {
       ENZO_VFAIL("grid::MergePausedPhotonPackages -- vec2pix_nest %"ISYM" %"ISYM" %"GSYM"\n",
 	      (long) (1 << PP->level), PP->ipix, PP->Photons)
     }
-    //      printf("after %x:  lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
-    //	     PP, PP->level, PP->ipix, PP->Radius,
-    //	     vec[0], vec[1], vec[2]);
+//    printf("after %x:  lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
+//	   PP, PP->level, PP->ipix, PP->Radius,
+//	   vec[0], vec[1], vec[2]);
 
     nphotons++;
     PP = PP->NextPackage;
