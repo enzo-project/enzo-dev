@@ -7,15 +7,22 @@
 #       System OpenMPI (mpicc, mpic++)
 #       HDF5 installed to /usr/local/ with no additional 'configure'
 #           arguments
-#       gfortran from http://hpc.sf.net/
+#       gfortran from http://r.research.att.com/gfortran-4.2.3.dmg
+#
 #
 # AUTHOR:      Matthew Turk (mturk@slac.stanford.edu)
+#              David Collins (dcollins4096@gmail.com)
 #
 # DATE:        2008-10-30
 #
+# Update: 2011-05-02
+#         Default compilation in newer Xcode is now x86_64, rather than i386.
+#         Updated fortran flags to reperesent change.
+#         Changed suggested gfortran, hpc.sf.net version only build for i386.  
+#
 #=======================================================================
 
-MACH_TEXT  = Darwin (OSX Leopard)
+MACH_TEXT  = Darwin (OSX Leopard) 
 MACH_VALID = 1
 MACH_FILE  = Make.mach.darwin
 
@@ -32,7 +39,7 @@ LOCAL_PACKAGES       = /usr/local
 
 LOCAL_MPI_INSTALL    = /usr
 LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = $(LOCAL_PACKAGES)
+LOCAL_HDF5_INSTALL   = $(HOME)/local
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
@@ -49,10 +56,10 @@ MACH_CPP       = /usr/bin/cpp
 # With MPI
 
 MACH_CC_MPI    = mpicc
-MACH_CXX_MPI   = mpic++
-MACH_FC_MPI    = gfortran
+MACH_CXX_MPI   = mpic++ 
+MACH_FC_MPI    = gfortran 
 MACH_F90_MPI   = gfortran
-MACH_LD_MPI    = mpic++
+MACH_LD_MPI    = mpic++ 
 MACH_CUDACOMPILER = /usr/local/cuda/bin/nvcc
 
 # Without MPI
@@ -79,10 +86,10 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 #-----------------------------------------------------------------------
 
 MACH_CPPFLAGS = -P -traditional 
-MACH_CFLAGS   = 
+MACH_CFLAGS   =
 MACH_CXXFLAGS =
-MACH_FFLAGS   = -fno-second-underscore
-MACH_F90FLAGS = -fno-second-underscore
+MACH_FFLAGS   = -fno-second-underscore -m64
+MACH_F90FLAGS = -fno-second-underscore -m64
 MACH_LDFLAGS  = 
 MACH_SHARED_FLAGS = -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup
 MACH_SHARED_EXT   = dylib
@@ -116,7 +123,8 @@ LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
-LOCAL_INCLUDES_CVODE  = -I$(LOCAL_CVODE_INSTALL)/include/cvode/
+LOCAL_INCLUDES_CVODE  = 
+#-I$(LOCAL_CVODE_INSTALL)/include/cvode/
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA) \
                         $(LOCAL_INCLUDES_CVODE)
@@ -134,8 +142,9 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_PYTHON = -lpython2.6
 LOCAL_LIBS_PYTHON = -framework Python 
 LOCAL_LIBS_CUDA   = -L/usr/local/cuda/lib/ -lcudart
-LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
-                    -lsundials_nvecserial -lhdf5_hl
+LOCAL_LIBS_CVODE  = 
+#-L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
+#                    -lsundials_nvecserial -lhdf5_hl
 
 MACH_LIBS        = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_CVODE)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
