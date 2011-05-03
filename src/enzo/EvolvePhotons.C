@@ -368,6 +368,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Transport the rays! */
 
+    PrintMemoryUsage("EvolvePhotons -- before loop");
+
     while (secondary_kt_check == TRUE && iteration++ < MAX_ITERATIONS) {
 
 #ifdef NONBLOCKING_RT
@@ -383,7 +385,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
-      PrintMemoryUsage("EvolvePhotons -- loop");
       START_PERF();
 #ifndef NONBLOCKING_RT
       keep_transporting = 1;
