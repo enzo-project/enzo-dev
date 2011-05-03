@@ -459,10 +459,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
-  
-  fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
+
+  // Negative number means that it was flagged from the command line.  Don't propagate.
+  if (OutputCoolingTime < 0)
+    fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", 0);
+  else
+    fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
 
+  // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputSmoothedDarkMatter < 0)
     fprintf(fptr, "OutputSmoothedDarkMatter       = %"ISYM"\n", 0);
   else
@@ -510,6 +515,15 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  ResetMagneticFieldAmplitude[1],
 	  ResetMagneticFieldAmplitude[2]);
 
+  for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
+    if (AvoidRefineRegionLevel[dim] != INT_UNDEFINED) {
+      fprintf(fptr, "AvoidRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
+	      AvoidRefineRegionLevel[dim]);
+      fprintf(fptr, "AvoidRefineRegionLeftEdge[%"ISYM"] = ", dim);
+      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionLeftEdge[dim]);
+      fprintf(fptr, "AvoidRefineRegionRightEdge[%"ISYM"] = ", dim);
+      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionRightEdge[dim]);
+    }
 
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
@@ -528,8 +542,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM"\n", 
 	  NumberOfRootGridTilesPerDimensionPerProcessor);
   fprintf(fptr, "PartitionNestedGrids            = %"ISYM"\n", PartitionNestedGrids);
-  fprintf(fptr, "StaticPartitionNestedGrids      = %"ISYM"\n", 
-	  StaticPartitionNestedGrids);
   fprintf(fptr, "ExtractFieldsOnly               = %"ISYM"\n", ExtractFieldsOnly);
   fprintf(fptr, "CubeDumpEnabled                 = %"ISYM"\n", CubeDumpEnabled);
  
@@ -605,8 +617,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
 	  MinimumMassForRefinementLevelExponent[5],
 	  MinimumMassForRefinementLevelExponent[6]);
 
-  fprintf(fptr, "MinimumSlopeForRefinement             = %e\n",
-	  MinimumSlopeForRefinement);
   fprintf(fptr, "MinimumShearForRefinement             = %e\n",
 	  MinimumShearForRefinement);
   fprintf(fptr, "MinimumPressureJumpForRefinement      = %e\n",

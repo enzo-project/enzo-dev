@@ -789,6 +789,10 @@ public:
 
    int FlagCellsToAvoidRefinement();
 
+/* Flag all points in a region where refinement is not needed */
+
+   int FlagCellsToAvoidRefinementRegion(int level);
+
 /* Flag all points that require refining  (and delete Mass Flagging Field).
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
@@ -2513,6 +2517,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			      float Bxl,  float Bxr,
 			      float Byl,  float Byr,
 			      float Bzl,  float Bzr);
+  int MHD1DTestWavesInitializeGrid(float rhol, 
+                                   float vxl,
+                                   float vyl,
+                                   float vzl,
+                                   float etotl,
+                                   float Bxl,
+                                   float Byl,
+                                   float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
 			      float RampWidth,
 			      float rhol, float rhou,

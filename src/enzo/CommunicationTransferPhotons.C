@@ -77,7 +77,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
       Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
 
-      ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
+      if (Mover->PausedPhoton == FALSE)
+	ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
+      else
+	ToGridPackages = Mover->ToGrid->ReturnPausedPackagePointer();
       Mover->PhotonPackage->NextPackage = ToGridPackages->NextPackage;
       if (ToGridPackages->NextPackage != NULL) 
 	ToGridPackages->NextPackage->PreviousPackage = Mover->PhotonPackage;
@@ -184,7 +187,10 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
       Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
       Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
 
-      ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
+      if (Mover->PausedPhoton == FALSE)
+	ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
+      else
+	ToGridPackages = Mover->ToGrid->ReturnPausedPackagePointer();
       Mover->PhotonPackage->NextPackage = ToGridPackages->NextPackage;
       if (ToGridPackages->NextPackage != NULL) 
 	ToGridPackages->NextPackage->PreviousPackage = Mover->PhotonPackage;
@@ -204,6 +210,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 
       SendList[ToProc][ToCount].ToLevel	       = TempLevel;
       SendList[ToProc][ToCount].ToGrid	       = TempGridNum;
+      SendList[ToProc][ToCount].PausedPhoton   = Mover->PausedPhoton;
       SendList[ToProc][ToCount].buffer.Photons = Mover->PhotonPackage->Photons;
       SendList[ToProc][ToCount].buffer.Type    = Mover->PhotonPackage->Type;
       SendList[ToProc][ToCount].buffer.Energy  = Mover->PhotonPackage->Energy;

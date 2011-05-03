@@ -174,8 +174,7 @@ Problem Type Description and Parameter List
     must be periodic. Note that self gravity will not be consistent
     with shearing boundary conditions. Default: 0 0 0
 ``ShearingVelocityDirection`` (external)
-    When a shearing boundary is used and the other two boundary pairs
-    are both periodic, selected the direction of the shearing velocity.
+    Select direction of shearing boundary. Default is x direction. Changing this is probably not a good idea.
 ``AngularVelocity`` (external)
     The value of the angular velocity in the shearing boundary.
     Default: 0.001
@@ -429,6 +428,8 @@ Hierarchy Control Parameters
        4 - refine by particle mass	       12 - refine by defined region "MustRefineRegion"
        5 - refine by baryon overdensity	       13 - refine by metallicity
        	  (currently disabled)
+       101 - avoid refinement in regions
+             defined in "AvoidRefineRegion"
 
 ``RefineRegionLeftEdge``, ``RefineRegionRightEdge`` (external)
     These two parameters control the region in which refinement is
@@ -643,6 +644,13 @@ Hierarchy Control Parameters
 ``StaticRefineRegionLeftEdge[#]``, ``StaticRefineRegionRightEdge[#]`` (external)
     These two parameters specify the two corners of a statically
     refined region (see the previous parameter). Default: none
+``AvoidRefineRegionLevel[#]`` (external)
+    This parameter is used to limit the refinement to this level in a
+    rectangular region.  Up to MAX_STATIC_REGIONS regions can be used.
+``AvoidRefineRegionLeftEdge[#]``, ``AvoidRefineRegionRightEdge[#]`` (external) 
+    These two parameters specify the two corners of a region that
+    limits refinement to a certain level (see the previous
+    parameter). Default: none
 ``RefineByResistiveLength`` (external)
     Resistive length is defined as the curl of the magnetic field over
     the magnitude of the magnetic field. We make sure this length is

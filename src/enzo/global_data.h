@@ -133,8 +133,14 @@ EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
    for CellFlaggingMethod = 10 */
 
 EXTERN FLOAT MustRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
-
 EXTERN FLOAT MustRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+
+/* left and right boundaries of the 'avoid refine region'
+   for CellFlaggingMethod = 101 */
+
+EXTERN int   AvoidRefineRegionLevel[MAX_STATIC_REGIONS];
+EXTERN FLOAT AvoidRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
+EXTERN FLOAT AvoidRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 
 /* specifies the level to which FlagCellsToBeRefinedByMustRefineRegion
    will refine up to (does not prevent refinement to higher levels) */

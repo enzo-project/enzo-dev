@@ -193,6 +193,8 @@ int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
                         HierarchyEntry &TopGrid, TopGridData &MetaData);
+int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
+                        HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
                         HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHD3DTestInitialize(FILE *fptr, FILE *Outfptr, 
@@ -601,6 +603,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   /* 208) AGN Disk */
   if (ProblemType == 208) {
     ret = AGNDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 209) MHD 1D Waves */
+  if (ProblemType == 209) {
+    ret = MHD1DTestWavesInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
   /* ???? */

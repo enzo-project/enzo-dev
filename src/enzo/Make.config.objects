@@ -398,6 +398,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FinishFFT.o \
 	Grid_FlagBufferZones.o \
         Grid_FlagCellsToAvoidRefinement.o \
+        Grid_FlagCellsToAvoidRefinementRegion.o \
 	Grid_FlagCellsToBeRefinedByCoolingTime.o \
 	Grid_FlagCellsToBeRefinedByJeansLength.o \
 	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
@@ -650,6 +651,7 @@ OBJS_CONFIG_LIB = \
 	OneZoneFreefallTestInitialize.o \
         Options.o \
         OutputAsParticleData.o \
+	OutputCoolingTimeOnly.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
 	OutputPotentialFieldOnly.o \
@@ -914,6 +916,7 @@ POBJS_CONFIG_LIB = \
         Grid_InitializeSource.o \
 	Grid_InterpolateRadiationFromParent.o \
         Grid_MergePausedPhotonPackages.o \
+        Grid_RegridPausedPhotonPackage.o \
         Grid_MoveAllPhotonPackages.o \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
@@ -1003,6 +1006,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_AddResistivity.o \
         hydro_rk/Grid_CollapseMHD3DInitializeGrid.o \
         hydro_rk/Grid_MHD1DTestInitializeGrid.o \
+        hydro_rk/Grid_MHD1DTestWavesInitializeGrid.o \
         hydro_rk/Grid_MHD2DTestInitializeGrid.o \
         hydro_rk/Grid_MHD3DTestInitializeGrid.o \
         hydro_rk/Grid_MHD3D.o \
@@ -1017,7 +1021,10 @@ OBJS_HYDRO_RK = \
         hydro_rk/HLL_PLM_MHD.o \
         hydro_rk/LLF_PLM_MHD.o \
         hydro_rk/HLL_PPM_MHD.o \
+        hydro_rk/HLLD_PLM_MHD.o \
+        hydro_rk/HLLD_Zero_MHD.o \
         hydro_rk/MHD1DTestInitialize.o \
+        hydro_rk/MHD1DTestWavesInitialize.o \
         hydro_rk/MHD2DTestInitialize.o \
         hydro_rk/MHD3DTestInitialize.o \
         hydro_rk/MHDLine.o \
@@ -1026,6 +1033,7 @@ OBJS_HYDRO_RK = \
 	hydro_rk/MHDSweepZ.o \
 	hydro_rk/MHDTurbulenceInitialize.o \
 	hydro_rk/Riemann_HLL_MHD.o \
+	hydro_rk/Riemann_HLLD_MHD.o \
 	hydro_rk/Riemann_LLF_MHD.o
 
 # Objects for the CUDA GPU-computing support

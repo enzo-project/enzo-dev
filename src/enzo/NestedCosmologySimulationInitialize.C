@@ -1127,8 +1127,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
 	match = true;
 	for (dim = 0; dim < Rank; dim++)
-	  match &= (GridCenter[dim] > LeftParent[dim]) &&
-	    (GridCenter[dim] < RightParent[dim]);
+	  match &= (GridCenter[dim] >= LeftParent[dim]) &&
+	    (GridCenter[dim] <= RightParent[dim]);
 
 	if (match) {
 	  Current->ParentGrid = Parent;

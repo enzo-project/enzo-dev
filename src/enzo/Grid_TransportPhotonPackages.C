@@ -99,6 +99,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
+  float DomainWidth[MAX_DIMENSION];
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+
   if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
   if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
 		     GridStartIndex[0], GridEndIndex[0]);
@@ -150,6 +154,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   while (PP != NULL) {
 
+    if (PP->PreviousPackage == NULL)
+      printf("Bad package.\n");
     DeleteMe = FALSE;
     PauseMe = FALSE;
     MoveToGrid = NULL;
@@ -181,22 +187,24 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if (DEBUG > 1) 
       fprintf(stdout, "photon #%"ISYM" %x %x %x\n",
 	      tcount,  PP,  PhotonPackages, 
-	       MoveToGrid); 
+	      MoveToGrid); 
 
     if (PauseMe == TRUE) {
       if (DEBUG > 1) fprintf(stdout, "paused photon %x\n", PP);
-      SavedPP = PopPhoton(PP);
-//      printf("paused photon %x lvl %"ISYM" ipix %"ISYM" CSRC %x leafID %"ISYM"\n",
-//	     SavedPP, SavedPP->level, SavedPP->ipix, SavedPP->CurrentSource,
-//	     SavedPP->CurrentSource->LeafID);
-      PP = PP->NextPackage;
-      InsertPhotonAfter(PausedPP, SavedPP);
-      AdvancePhotonPointer = FALSE;
-      MoveToGrid = NULL;
+      this->RegridPausedPhotonPackage(&PP, ParentGrid, &MoveToGrid, DeltaLevel,
+				      DeleteMe, DomainWidth);
+
+      // Insert in paused photon list if it belongs in this grid.
+      if (MoveToGrid == NULL && DeleteMe == FALSE) {
+	SavedPP = PopPhoton(PP);
+	PP = PP->NextPackage;
+	InsertPhotonAfter(PausedPP, SavedPP);
+	AdvancePhotonPointer = FALSE;
+      }
       pcount++;
     }
 
-    if (DeleteMe == TRUE) {   
+    if (DeleteMe == TRUE) {
       if (DEBUG > 1) fprintf(stdout, "delete photon %x\n", PP);
       dcount++;
       PP = DeletePhotonPackage(PP);
@@ -220,7 +228,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
       NewEntry->ToGridNum= MoveToGrid->GetGridID();
       NewEntry->ToLevel  = level + DeltaLevel;
       NewEntry->ToProcessor = MoveToGrid->ReturnProcessorNumber();
-
+      if (PauseMe)
+	NewEntry->PausedPhoton = TRUE;
+      else
+	NewEntry->PausedPhoton = FALSE;
       if (NewEntry->ToProcessor >= NumberOfProcessors ||
 	  NewEntry->ToProcessor < 0) {
 	PP->PrintInfo();
@@ -238,19 +249,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if (AdvancePhotonPointer == TRUE)
       PP = PP->NextPackage;
 
-    // Merge "paused" photons only when all photons have been transported
-    if (PP == NULL && PausedPP->NextPackage != NULL) {
-      if (this->MergePausedPhotonPackages() == FAIL) {
-	ENZO_FAIL("Error in grid::MergePausedPhotonPackages.\n");
-      }
-      // Reset temp pointers
-      PP = PhotonPackages->NextPackage;
-      //FPP = this->FinishedPhotonPackages;
-      PausedPP = this->PausedPhotonPackages;
-      this->PausedPhotonPackages->NextPackage = NULL;
-      this->PausedPhotonPackages->PreviousPackage = NULL;
-    }
-
   } // ENDWHILE photons
 
   if (DEBUG)
@@ -258,20 +256,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
 	    tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
-
-  /* For safety, clean up paused photon list */
-
-#ifdef UNUSED
-  if (PausedPhotonPackages->NextPackage != NULL) {
-    PausedPP = PausedPhotonPackages->NextPackage;
-    while (PausedPP != NULL) {
-      PausedPP = DeletePhotonPackage(PausedPP);
-      PausedPP = PausedPP->NextPackage;
-    }
-    PausedPhotonPackages->NextPackage = NULL;
-    PausedPhotonPackages->PreviousPackage = NULL;
-  }
-#endif
 
 #ifdef UNUSED
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {

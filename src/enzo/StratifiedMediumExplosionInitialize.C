@@ -233,8 +233,8 @@ int StratifiedMediumExplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntr
   // set up field names and units
   i = 0;
   DataLabel[i++] = "Density";
-  DataLabel[i++] = "Total_Energy";
-  if (DualEnergyFormalism) {DataLabel[i++] = "Gas_Energy";}
+  DataLabel[i++] = "TotalEnergy";
+  if (DualEnergyFormalism) {DataLabel[i++] = "GasEnergy";}
   if (MetaData.TopGridRank > 0) {DataLabel[i++] = "x-velocity";}
   if (MetaData.TopGridRank > 1 || HydroMethod > 2) {DataLabel[i++] = "y-velocity";}
   if (MetaData.TopGridRank > 2 || HydroMethod > 2) {DataLabel[i++] = "z-velocity";}
