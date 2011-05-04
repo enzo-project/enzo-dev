@@ -230,16 +230,16 @@ int ReturnRealPhotonCount(void) {
 int CountPhotonNumber(void) {
 
   if (MyProcessorNumber != ProcessorNumber)
-    return SUCCESS;
+    return 0;
 
-  NumberOfPhotonPackages = 0;
+  int nphotons = 0;
   PhotonPackageEntry *PP = PhotonPackages->NextPackage;
   while (PP != NULL) {
-    NumberOfPhotonPackages++;
+    nphotons++;
     PP = PP->NextPackage;
   }
 
-  return SUCCESS;
+  return nphotons;
 
 }
 
