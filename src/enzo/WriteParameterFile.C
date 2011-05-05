@@ -126,8 +126,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
  
   fprintf(fptr, "MaximumTopGridTimeStep = %"GSYM"\n", MetaData.MaximumTopGridTimeStep);
 
-  fprintf(fptr, "TimeLastRestartDump = %"GOUTSYM"\n", MetaData.TimeLastRestartDump);
-  fprintf(fptr, "dtRestartDump       = %"GOUTSYM"\n", MetaData.dtRestartDump);
+  fprintf(fptr, "TimeLastRestartDump = %"GSYM"\n", MetaData.TimeLastRestartDump);
+  fprintf(fptr, "dtRestartDump       = %"GSYM"\n", MetaData.dtRestartDump);
   fprintf(fptr, "TimeLastDataDump    = %"GOUTSYM"\n", MetaData.TimeLastDataDump);
   fprintf(fptr, "dtDataDump          = %"GOUTSYM"\n", MetaData.dtDataDump);
   fprintf(fptr, "TimeLastHistoryDump = %"GOUTSYM"\n", MetaData.TimeLastHistoryDump);
