@@ -7,3 +7,4 @@ cadence = 'nightly'
 gravity = True
 dimensionality = 3
 author = 'Greg Bryan'
+max_time_minutes = 1
