@@ -1,7 +1,7 @@
 name = 'GravityStripTest'
 answer_testing_script = None
 nprocs = 1
-runtime = 'long'
+runtime = 'unknown'
 critical = True
 cadence = 'nightly'
 hydro = True
