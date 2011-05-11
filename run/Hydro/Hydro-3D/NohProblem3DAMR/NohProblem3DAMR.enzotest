@@ -1,7 +1,7 @@
 name = 'NohProblem3DAMR'
 answer_testing_script = 'test_noh3damr.py'
 nprocs = 8
-runtime = 'long'
+runtime = 'medium'
 critical = True
 cadence = 'nightly'
 hydro = True

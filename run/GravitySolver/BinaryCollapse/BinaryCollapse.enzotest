@@ -1,7 +1,7 @@
 name = 'BinaryCollapse'
 answer_testing_script = 'binary_test_collapse.py'
 nprocs = 1
-runtime = 'medium'
+runtime = 'short'
 critical = True
 cadence = 'nightly'
 hydro = True
