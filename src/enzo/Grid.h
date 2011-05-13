@@ -2185,12 +2185,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Star Particle handler routine. */
 
-  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level
-#ifdef EMISSIVITY
-			  // pass in dtLevelAbove for calculation of Geoffrey's Emissivity0 baryon field 
-			  , float dtLevelAbove
-#endif
-                         );
+  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
+			  float dtLevelAbove);
 
 /* Particle splitter routine. */
 

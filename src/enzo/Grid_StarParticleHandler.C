@@ -331,12 +331,8 @@ extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
 	      float *justburn, float *EmissivityArray, float dtLevelAbove);
 #endif 
  
-int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
-// pass in dtLevelAbove for calculation of Geoffrey's Emissivity0 baryon field 
-#ifdef EMISSIVITY
-			     , float dtLevelAbove
-#endif
-                             )
+int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
+			     float dtLevelAbove)
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)

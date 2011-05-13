@@ -500,12 +500,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level
-#ifdef EMISSIVITY
-	/* adding the changed StarParticleHandler prototype */
-							,dtLevelAbove
-#endif
-        );
+	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove);
 
       /* Include shock-finding and cosmic ray acceleration */
 
