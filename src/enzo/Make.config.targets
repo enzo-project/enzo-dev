@@ -75,6 +75,11 @@ help-config:
 	@echo "      gmake use-mpi-yes"
 	@echo "      gmake use-mpi-no"
 	@echo
+	@echo "   Set whether to use OpenMP"
+	@echo
+	@echo "      gmake openmp-yes"
+	@echo "      gmake openmp-no"
+	@echo
 	@echo "   Set address/pointer size"
 	@echo
 	@echo "      gmake object-mode-32"
@@ -224,6 +229,7 @@ show-flags:
 	@echo "FC  = `which $(FC)`"
 	@echo "F90 = `which $(F90)`"
 	@echo "LD  = `which $(LD)`"
+	@echo "OMP = $(OMP)"
 	@echo ""
 	@echo "DEFINES = $(DEFINES)"
 	@echo ""
@@ -258,6 +264,7 @@ show-config:
 	@echo "   CONFIG_INITS  [inits-{32,64}]                             : $(CONFIG_INITS)"
 	@echo "   CONFIG_IO  [io-{32,64}]                                   : $(CONFIG_IO)"
 	@echo "   CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : $(CONFIG_USE_MPI)"
+	@echo "   CONFIG_OPENMP  [openmp-{yes,no}]                          : $(CONFIG_OPENMP)"
 	@echo "   CONFIG_OBJECT_MODE  [object-mode-{32,64}]                 : $(CONFIG_OBJECT_MODE)"
 	@echo "   CONFIG_TASKMAP  [taskmap-{yes,no}]                        : $(CONFIG_TASKMAP)"
 	@echo "   CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : $(CONFIG_PACKED_AMR)"
@@ -521,6 +528,22 @@ CONFIG_USE-MPI-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_USE_MPI = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_USE_MPI; \
+	echo
+
+#-----------------------------------------------------------------------
+VALID_OPENMP = openmp-yes openmp-no
+.PHONY: $(VALID_OPENMP)
+
+openmp-yes: CONFIG_OPENMP-yes
+openmp-no: CONFIG_OPENMP-no
+use-mpi-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_OPENMP)]\n\n"
+CONFIG_OPENMP-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_OPENMP $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_OPENMP = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_OPENMP; \
 	echo
 
 #-----------------------------------------------------------------------

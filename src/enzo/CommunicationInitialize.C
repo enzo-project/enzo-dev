@@ -14,6 +14,9 @@
 #include "mpi.h"
 #include <stdlib.h>
 #endif /* USE_MPI */
+#ifdef _OPENMP
+#include "omp.h"
+#endif /* _OPENMP */
 
 #include <stdio.h>
 #include <string.h>
@@ -44,7 +47,24 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   MPI_Arg mpi_rank;
   MPI_Arg mpi_size;
 
-  MPI_Init(argc, argv);
+#ifdef _OPENMP
+  MPI_Arg desired = MPI_THREAD_FUNNELED;
+  MPI_Arg provided;
+  MPI_Arg thread;
+  MPI_Init_thread(argc, argv, desired, &provided);
+  if (desired != provided) {
+    thread = omp_get_thread_num();
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    if (mpi_rank == ROOT_PROCESSOR && thread == 0) {
+      fprintf(stderr, "desired = %d, provided = %d\n", desired, provided);
+      fprintf(stderr, "WARNING: Cannot get proper OpenMP/MPI setting MPI_THREAD_FUNNELED!\n"
+	      "--> Hybrid MPI/OpenMPI mode may fail.\n"
+	      "--> Set environment variable MPICH_MAX_THREAD_SAFETY to funneled.\n");
+    }
+  }
+#else
+   MPI_Init(argc, argv);
+#endif
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
 
@@ -60,6 +80,17 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
   NumberOfProcessors = 1;
  
 #endif /* USE_MPI */
+
+#ifdef _OPENMP
+  int CoresPerProcessor;
+#pragma omp parallel
+  CoresPerProcessor = omp_get_num_threads();
+  NumberOfCores = CoresPerProcessor * NumberOfProcessors;
+  if (MyProcessorNumber == ROOT_PROCESSOR)
+    printf("MPI_Init: NumberOfCores = %"ISYM"\n", NumberOfCores);
+#else
+  NumberOfCores = NumberOfProcessors;
+#endif  
  
   CommunicationTime = 0;
  

@@ -272,6 +272,42 @@
 	$(error Illegal value '$(CONFIG_USE_MPI)' for $$(CONFIG_USE_MPI))
     endif
 
+#=======================================================================
+# DETERMINE OPENMP USAGE
+#=======================================================================
+
+    ERROR_OPENMP = 1
+
+    ifeq ($(CONFIG_OPENMP),yes)
+      ifeq ($(strip $(MACH_OPENMP)),)
+         ERROR_OPENMP = 2
+      else
+         ERROR_OPENMP = 0
+         ASSEMBLE_OPENMP = $(MACH_OPENMP)
+      endif
+    endif
+
+    # Settings for not using OPENMP mods
+
+    ifeq ($(CONFIG_OPENMP),no)
+        ERROR_OPENMP = 0
+	ASSEMBLE_OPENMP =
+    endif
+
+    # error if CONFIG_OPENMP is incorrect
+
+    ifeq ($(ERROR_OPENMP),1)
+       .PHONY: error_openmp
+       error_openmp:
+	$(error Illegal value '$(CONFIG_OPENMP)' for $$(CONFIG_OPENMP))
+    endif
+
+    ifeq ($(ERROR_OPENMP),2)
+       .PHONY: error_openmp2
+       error_openmp2:
+	$(error MACH_OPENMP undefined with openmp-yes)
+    endif
+
 #-----------------------------------------------------------------------
 # Determine CUDA compiler
 #-----------------------------------------------------------------------
@@ -1012,24 +1048,30 @@
     FC       = $(ASSEMBLE_FC)
     F90      = $(ASSEMBLE_F90)
     LD       = $(ASSEMBLE_LD)
+    OMP      = $(ASSEMBLE_OPENMP)
     CUDACOMPILER = $(ASSEMBLE_CUDACOMPILER)
     CUDACOMPFLAGS = $(ASSEMBLE_CUDAFLAGS)
 
     CPPFLAGS = $(MACH_CPPFLAGS)
     CFLAGS   = $(MACH_CFLAGS) \
-               $(ASSEMBLE_OPT_FLAGS)
+               $(ASSEMBLE_OPT_FLAGS) \
+	       $(ASSEMBLE_OPENMP)
     CXXFLAGS = $(MACH_CXXFLAGS) \
-               $(ASSEMBLE_OPT_FLAGS)
+               $(ASSEMBLE_OPT_FLAGS) \
+	       $(ASSEMBLE_OPENMP)
     FFLAGS   = $(MACH_FFLAGS) \
                $(ASSEMBLE_PRECISION_FFLAGS) \
                $(ASSEMBLE_INTEGER_FFLAGS) \
-               $(ASSEMBLE_OPT_FLAGS)
+               $(ASSEMBLE_OPT_FLAGS) \
+	       $(ASSEMBLE_OPENMP)
     F90FLAGS = $(MACH_F90FLAGS) \
                $(ASSEMBLE_PRECISION_FFLAGS) \
                $(ASSEMBLE_INTEGER_FFLAGS) \
-               $(ASSEMBLE_OPT_FLAGS)
+               $(ASSEMBLE_OPT_FLAGS) \
+	       $(ASSEMBLE_OPENMP)
     LDFLAGS  = $(MACH_LDFLAGS) \
-               $(ASSEMBLE_OPT_FLAGS)
+               $(ASSEMBLE_OPT_FLAGS) \
+	       $(ASSEMBLE_OPENMP)
 
     DEFINES = $(MACH_DEFINES) \
               $(MAKEFILE_DEFINES) \
