@@ -29,11 +29,8 @@
 int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 				   int &NumberOfSubgrids);
  
-static ProtoSubgrid *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
- 
- 
-int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
-		 int &FlaggedGrids)
+int FindSubgrids(HierarchyEntry *Grid, ProtoSubgrid *SubgridList[],
+		 int level, int &TotalFlaggedCells, int &FlaggedGrids)
 {
  
   /* declarations */
@@ -113,9 +110,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
     /* Recursively break up this ProtoSubgrid and add new ones based on the
        flagged cells. */
  
-    if (IdentifyNewSubgridsBySignature(SubgridList, NumberOfSubgrids) == FAIL){
-      ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
-    }
+#pragma omp critical 
+    IdentifyNewSubgridsBySignature(SubgridList, NumberOfSubgrids);
  
     /* For each subgrid, create a new grid based on the current grid (i.e.
        same parameters, etc.) */

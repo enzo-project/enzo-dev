@@ -85,20 +85,27 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   MassDecrease = 1.0/MassDecrease;
  
   /* Copy this grid's particles to the new space. */
+
+#pragma omp parallel private(dim,j)
+  {
  
+#pragma omp for nowait schedule(static)
   for (i = 0; i < NumberOfParticles; i++) {
     Mass[i]   = ParticleMass[i];
     Number[i] = ParticleNumber[i];
     Type[i]   = ParticleType[i];
   }
   for (dim = 0; dim < GridRank; dim++)
+#pragma omp for nowait schedule(static)
     for (i = 0; i < NumberOfParticles; i++) {
       Position[dim][i] = ParticlePosition[dim][i];
       Velocity[dim][i] = ParticleVelocity[dim][i];
     }
   for (j = 0; j < NumberOfParticleAttributes; j++)
+#pragma omp for nowait schedule(static)
     for (i = 0; i < NumberOfParticles; i++)
       Attribute[j][i] = ParticleAttribute[j][i];
+  } // END omp parallel
  
   /* Delete this grid's particles (now copied). */
  
@@ -114,6 +121,9 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   int Index = NumberOfParticles;
   for (grid = 0; grid < NumberOfGrids; grid++) {
 
+#pragma omp parallel private(dim,j)
+    {
+#pragma omp for nowait schedule(static)
     for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
       Mass[Index+i] = FromGrid[grid]->ParticleMass[i] * MassDecrease;
       Number[Index+i] = FromGrid[grid]->ParticleNumber[i];
@@ -121,14 +131,17 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
     }
     
     for (dim = 0; dim < GridRank; dim++)
+#pragma omp for nowait schedule(static)
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++) {
 	Position[dim][Index+i] = FromGrid[grid]->ParticlePosition[dim][i];
 	Velocity[dim][Index+i] = FromGrid[grid]->ParticleVelocity[dim][i];
       }
 
     for (j = 0; j < NumberOfParticleAttributes; j++)
+#pragma omp for nowait schedule(static)
       for (i = 0; i < FromGrid[grid]->NumberOfParticles; i++)
 	Attribute[j][Index+i] = FromGrid[grid]->ParticleAttribute[j][i];
+    } // END omp parallel
     
     Index += FromGrid[grid]->NumberOfParticles;
 
@@ -139,7 +152,8 @@ int grid::MoveAllParticles(int NumberOfGrids, grid* FromGrid[])
   NumberOfParticles = TotalNumberOfParticles;
  
   /* Delete FromGrid's particles (and set number of particles to zero). */
- 
+
+#pragma omp parallel for schedule(static) 
   for (grid = 0; grid < NumberOfGrids; grid++) {
     FromGrid[grid]->NumberOfParticles = 0;
     FromGrid[grid]->DeleteParticles();

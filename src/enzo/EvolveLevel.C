@@ -331,6 +331,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      put them into the SubgridFluxesEstimate array. */
  
   if(CheckpointRestart == TRUE) {
+#pragma omp parallel for schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       if (Grids[grid1]->GridData->FillFluxesFromStorage(
         &NumberOfSubgrids[grid1],
@@ -340,6 +341,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
   } else {
+#pragma omp parallel for schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->ClearBoundaryFluxes();
   }
@@ -412,6 +414,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
+#pragma omp parallel for schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
       CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
@@ -459,6 +462,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
     
+#pragma omp parallel for schedule(static)    
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
@@ -559,6 +563,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
+#pragma omp parallel for schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
