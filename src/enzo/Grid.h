@@ -1660,6 +1660,15 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
 		int GravityOn, int NumberOfColours, int colnum[], float *pressure);
 
+int inteuler(int idim,
+	     float *dslice, float *pslice, int gravity, float *grslice,
+	     float *geslice, float *uslice, float *vslice, float *wslice, 
+	     float *dxi, float *flatten, 
+	     float *dls, float *drs, float *pls, float *prs, float *gels,
+	     float *gers, float *uls, float *urs, float *vls, float *vrs,
+	     float *wls, float *wrs, int ncolors, float *colslice,
+	     float *colls, float *colrs);
+
 // AccelerationHack
 
   int AccelerationHack;
