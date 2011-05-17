@@ -237,9 +237,9 @@ int Zeus_xTransport(float *d, float *e, float *u, float *v, float *w,
 
 	  offset = j-fistart + (k-fjstart)*(fiend - fistart + 1);
 	  i1 = lface;
-	  i2 = rface+1;
-	  SubgridFluxes[n]->LeftFluxes[DensNum][0][offset]  = f1[IDX(i1,j,k)]*dt;
-	  SubgridFluxes[n]->RightFluxes[DensNum][0][offset] = f1[IDX(i2,j,k)]*dt;
+	  i2 = rface;
+	  SubgridFluxes[n]->LeftFluxes[DensNum][0][offset]  = f1[IDX(i1,j,k)]*dt/dx[i1];
+	  SubgridFluxes[n]->RightFluxes[DensNum][0][offset] = f1[IDX(i2,j,k)]*dt/dx[i2];
 //	  SubgridFluxes[n]->LeftFluxes[TENum][0][offset]    = f5[i1]*dt;
 //        SubgridFluxes[n]->RightFluxes[TENum][0][offset]   = f5[i2]*dt;
 //	  SubgridFluxes[n]->LeftFluxes[Vel1Num][0][offset]  = f2[i1]*dt;
