@@ -429,7 +429,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      + (k - GridFluxStartIndex[2])*GridFluxDim[1]*GridFluxDim[0];
 		
 		
-		    if (CorrectLeftBoundaryFlux)
+//		    if (CorrectLeftBoundaryFlux)
 //		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
 //			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
 		
@@ -451,7 +451,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      }
 		    }
 		
-		    if (CorrectRightBoundaryFlux)
+//		    if (CorrectRightBoundaryFlux)
 //		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
 //			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
 		
