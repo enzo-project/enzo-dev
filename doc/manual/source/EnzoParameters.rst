@@ -918,16 +918,44 @@ Gravity Parameters
     completely baryon dominated. It is used to remove the discreteness
     effects of the few remaining dark matter particles. Not used if set
     to a value less than 0. Default: -1
+
+External Gravity Source
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+These parameters set-up an external static background gravity source that is
+added to the acceleration field for the baryons and particles.
+
 ``PointSourceGravity`` (external)
-    This flag (1 - on, 0 - off) indicates if there is to be a
-    (constant) point source gravitational field. Default: 0
+    This parameter indicates that there is to be a
+    (constant) gravitational field with a point source profile (``PointSourceGravity`` =
+    1) or NFW profile (``PointSourceGravity`` = 2). Default: 0
 ``PointSourceGravityConstant`` (external)
-    The magnitude of the point source acceleration at a distance of 1
-    length unit. Default: 1
+    If ``PointSourceGravity`` = 1, this is the magnitude of the point
+    source acceleration at a distance of 1
+    length unit (i.e. GM in code units). If ``PointSourceGravity`` =
+    2, then it takes the mass of the dark matter halo in CGS
+    units. ``ProblemType`` = 31 (galaxy disk simulation) automatically calculates
+    values for ``PointSourceGravityConstant`` and
+    ``PointSourceGravityCoreRadius``. Default: 1
+``PointSourceGravityCoreRadius`` (external)
+    For ``PointSourceGravity`` = 1, this is the radius inside which
+    the acceleration field is smoothed in code units. With ``PointSourceGravity`` =
+    2, it is the scale radius, rs, in CGS units (see Navarro, Frank & White,
+    1997). Default: 0
 ``PointSourceGravityPosition`` (external)
     If the ``PointSourceGravity`` flag is turned on, this parameter
-    specifies the center of the point-source gravitational field.
-    Default: 0 0 0
+    specifies the center of the point-source gravitational field in
+    code units. Default: 0 0 0
+``ExternalGravity`` (external)
+   This fulfills the same purpose as ``PointSourceGravity`` but is
+   more aptly named. Currently, it has only a single option
+   ``ExternalGravity = 1`` which turns on an alternative
+   implementation of the NFW profile. The profile properties are
+   defined via the parameters ``HaloCentralDensity``, ``HaloConcentration`` and ``HaloVirialRadius``. Default: 0 
+``ExternalGravityDensity`` 
+   Reserved for future use.
+``ExternalGravityRadius``
+   Reserved for future use.
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
