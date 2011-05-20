@@ -1,3 +1,5 @@
+.. _parameters:
+
 Enzo Parameter List
 ===================
 
@@ -1019,7 +1021,8 @@ Parameters for Additional Physics
 ``RadiativeCooling`` (external)
     This flag (1 - on, 0 - off) controls whether or not a radiative
     cooling module is called for each grid. There are currently several
-    possibilities, controlled by the value of another flag. Default: 0
+    possibilities, controlled by the value of another flag. See :ref:`cooling` 
+    for more information on the various cooling methods.  Default: 0
     
     -  If the ``MultiSpecies`` flag is off, then equilibrium cooling is
        assumed and one of the following two will happen. If the parameter

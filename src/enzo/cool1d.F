@@ -1,7 +1,7 @@
 #include "fortran.def"
 #include "phys_const.def"
 c=======================================================================
-c////////////////////////  SUBROUTINE COOL2D  \\\\\\\\\\\\\\\\\\\\\\\\\\
+c////////////////////////  SUBROUTINE COOL1D  \\\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cool1d(
      &                d, e, ge, u, v, w,
