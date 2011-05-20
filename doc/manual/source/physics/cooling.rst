@@ -125,7 +125,19 @@ parameter to 1, 2, or 3.
    #. Density, metallicity, electron fraction, redshift of UV
       background, and temperature.
 
-   Additional parameters control the behavior of the Cloudy cooling.
-   See the Cloudy Cooling section of :ref:`parameters`.
-   For more information on obtaining or creating Cloudy cooling
-   datasets, contact Britton Smith (brittonsmith@gmail.com).
+   See :ref:`cloudy_cooling` for additional parameters that control
+   the behavior of the Cloudy cooling.  For more information on
+   obtaining or creating Cloudy cooling datasets, contact Britton
+   Smith (brittonsmith@gmail.com).
+
+UV Meta-galactic Backgrounds
+----------------------------
+*Source: RadiationFieldCalculateRates.C*
+
+A variety of spatially uniform photoionizing and photodissociating
+backgrounds are available, mainly by setting the parameter
+``RadiationFieldType``.  These radiation backgrounds are redshift
+dependent and work by setting the photoionization and photoheating
+coeffiecients for H, He, and He\ :sup:`+`\.  See
+:ref:`radiation_backgrounds` for the additional parameters that
+control the UV backgrounds.
