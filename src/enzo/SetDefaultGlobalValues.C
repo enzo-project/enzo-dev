@@ -242,6 +242,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  DatabaseLocation = NULL;
+
  
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;

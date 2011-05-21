@@ -352,6 +352,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
+    if (sscanf(line, "DatabaseLocation = %s", dummy) == 1) {
+      DatabaseLocation = dummy;
+      ret++;
+    }
+
     if (sscanf(line, "DataLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
       DataLabel[dim] = dummy;
     if (sscanf(line, "DataUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
