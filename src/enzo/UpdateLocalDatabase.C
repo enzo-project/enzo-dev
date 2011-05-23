@@ -31,16 +31,25 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "TopGridData.h"
+#include "CosmologyParameters.h"
 
 const char creation_query[] = 
 "CREATE TABLE IF NOT EXISTS enzo_outputs ("\
 "dset_uuid TEXT PRIMARY KEY, "\
 "pf_path TEXT NOT NULL, "\
 "creation_time INTEGER NOT NULL, "\
-"simulation_uuid TEXT)";
+"simulation_uuid TEXT NOT NULL, "\
+"redshift REAL, time REAL, "\
+"topgrid0 INTEGER, topgrid1 INTEGER, topgrid2 INTEGER)";
  
 /* function prototypes */
- 
+
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+int  GetUnits(float *DensityUnits, float *LengthUnits,
+	      float *TemperatureUnits, float *TimeUnits,
+	      float *VelocityUnits, double *MAssUnits, FLOAT Time);
+
+
 int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
                         char *dset_uuid, char *Filename)
 {
@@ -72,13 +81,44 @@ int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
   } else if (DatabaseInitialized == -1) {
     return SUCCESS;
   }
+  /* Compute some quantities. */
+  
+  /* Compute the current redshift if we're using cosmology. */
+  FLOAT a, dadt, CurrentRedshift;
+  if (ComovingCoordinates) {
+      CosmologyComputeExpansionFactor(MetaData.Time, &a, &dadt);
+      CurrentRedshift = (1 + InitialRedshift)/a - 1;
+  } else {
+      CurrentRedshift = -1.;
+  }
+  
+  /* Get the current simulation time in seconds. */
+  float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
+    VelocityUnits = 1;
+  double MassUnits = 1;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits,  MetaData.Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.\n");
+  }
+  float this_time = MetaData.Time * TimeUnits;
+  
+  /* Top Grid Dimensions. */
+  int topgrid[3], dim;
+  for (dim = 0; dim < 3; dim++) topgrid[dim] = 0;
+  for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      topgrid[dim] = MetaData.TopGridDims[dim];
+  }
+  
   char *errmsg;
   char *Fullpath = realpath(Filename, NULL);
   char insertion_query[1024];
   snprintf(insertion_query, 1023,
            "INSERT INTO enzo_outputs VALUES ('%s',"
-           "'%s', %"ISYM", '%s')",
-           dset_uuid, Fullpath, CurrentTimeID, MetaData.SimulationUUID);
+           "'%s', %"ISYM", '%s', %"GOUTSYM", %"ESYM","
+           "%"ISYM", %"ISYM", %"ISYM")",
+           dset_uuid, Fullpath, CurrentTimeID, MetaData.SimulationUUID,
+           CurrentRedshift, this_time,
+           topgrid[0], topgrid[1], topgrid[2]);
   free(Fullpath);
   retval = sqlite3_exec(handle, insertion_query, 0,0,&errmsg);
   if(retval){
