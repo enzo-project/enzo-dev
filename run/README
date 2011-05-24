@@ -13,7 +13,7 @@ execute:
 
 Usage: ./test_runner.py -o <TEST_DEST_DIR> --<TEST_TAG>=<TEST_TAG_VAL> 
 
-Example: ./test_runner.py -o ~/temp --AMR=True --Author="John Wise"
+Example: ./test_runner.py -o ~/temp --AMR=True --author="John Wise"
 
 The test tags are (with defaults first followed by alternatives):
 
