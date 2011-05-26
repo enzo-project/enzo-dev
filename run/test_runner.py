@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import logging
+sys.path.insert(0,'/Users/dccollins/local/src/yt-yt')
 
 known_categories = [
     "Cooling",
@@ -33,7 +34,9 @@ try:
         disable_stream_logging, ufstring
     disable_stream_logging()
     ytcfg["yt","suppressStreamLogging"] = "True"
-except ImportError:
+except:
+    raise
+
     RegressionTestRunner = None
 
 try:
@@ -384,7 +387,7 @@ class EnzoTestRun(object):
         else:
             fn = self.test_data['answer_testing_script']
             if RegressionTestRunner is None:
-                print "This installation of yt does not support testing, please update."
+                print "This installation of yt does not support testing, please update to the branch 'yt'."
                 return
             clear_registry()
 
