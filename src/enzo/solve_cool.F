@@ -11,7 +11,7 @@ c
      &                is, js, ks, ie, je, ke, 
      &                dt, aye, temstart, temend, fh,
      &                utem, uxyz, uaye, urho, utim,
-     &                eta1, eta2, gamma, coola, gammaha)
+     &                eta1, eta2, gamma, coola, gammaha, mu)
 c
 c  SOLVE RADIATIVE COOLING/HEATING EQUATIONS (NON-MULTI SPECIES VERSION)
 c
@@ -39,7 +39,7 @@ c
      &       idual, iexpand, nratec, idim, imethod, igammah, cool_method
       real    dt, aye, temstart, temend, fh, gammaha,
      &        utem, uxyz, uaye, urho, utim,
-     &        eta1, eta2, gamma, coola(nratec)
+     &        eta1, eta2, gamma, coola(nratec), mu
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
@@ -99,7 +99,7 @@ c
      &                  temstart, temend, fh, utem,
      &                  eta1, eta2, gamma, coola, gammaha,
      &                  indixe, t1, t2, logtem, tdef, edot,
-     &                  tgas, tgasold, p2d, cool
+     &                  tgas, tgasold, p2d, cool, mu
      &                     )
         else if ( cool_method .eq. 3) then
             call cool1d_koyama(d,e,ge,u,v,w, 

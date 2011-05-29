@@ -428,7 +428,7 @@ int grid::FindShocks()
 		 sqrt( (7.0e0 - 8.0e0*temprat)*(7.0e0 - 8.0e0*temprat)
 		       + 15.0e0) )/5.0e0);
 	//Speed of sound in code units of velocity
-	Csound = sqrt(Gamma*kboltz*preT/(DEFAULT_MU*mh))/VelocityUnits;
+	Csound = sqrt(Gamma*kboltz*preT/(Mu*mh))/VelocityUnits;
 
 	/*-------------Lots of Extra Crap------------/
 	sarea = CellWidth[0][0] * CellWidth[0][0];
@@ -953,7 +953,7 @@ int grid::FindVelShocks()
 	//Figure out which one is the pre-shock cell:
 	prei = ( (temperature[prei] < temperature[posti]) ? prei : posti);
 
-	Csound = sqrt(Gamma*kboltz*temperature[prei]/(DEFAULT_MU*mh))/VelocityUnits;
+	Csound = sqrt(Gamma*kboltz*temperature[prei]/(Mu*mh))/VelocityUnits;
 
 	velmach = (1.0/3.0)*(2.0*thisjump/Csound + 
 			     sqrt(9.0+4.0*thisjump*thisjump/Csound/Csound));
@@ -1231,7 +1231,7 @@ int grid::FindVelSplitShocks()
 	  prei = index;
 	
 	Csound = sqrt(Gamma*kboltz*temperature[prei]/
-		      (DEFAULT_MU*mh))/VelocityUnits;
+		      (Mu*mh))/VelocityUnits;
 	mach[prei] = (1.0/3.0)*(2.0*v1jump/Csound + 
 				sqrt(9.0+4.0*v1jump*v1jump/Csound/Csound));
       	if(flowdivergence[prei] >= 0.0)
@@ -1246,7 +1246,7 @@ int grid::FindVelSplitShocks()
 	  else
 	    prei = index;
 	  Csound = sqrt(Gamma*kboltz*temperature[prei]/
-			(DEFAULT_MU*mh))/VelocityUnits;
+			(Mu*mh))/VelocityUnits;
 	  mach[prei] = sqrt(mach[prei]*mach[prei] + 
 			    (1.0/3.0)*(2.0*v2jump/Csound + 
 				       sqrt(9.0+4.0*v2jump*v2jump/Csound/Csound))*
@@ -1266,7 +1266,7 @@ int grid::FindVelSplitShocks()
 	  else
 	    prei = index;
 	  Csound = sqrt(Gamma*kboltz*temperature[prei]/
-			(DEFAULT_MU*mh))/VelocityUnits;
+			(Mu*mh))/VelocityUnits;
 	  mach[prei] = sqrt(mach[prei]*mach[prei] + 
 			    (1.0/3.0)*(2.0*v3jump/Csound + 
 				       sqrt(9.0+4.0*v3jump*v3jump/Csound/Csound))*
@@ -1284,7 +1284,7 @@ int grid::FindVelSplitShocks()
 	
  	index = i + GridDimension[0]*(j + GridDimension[1]*k);	
 	Csound = sqrt(Gamma*kboltz*temperature[index]/
-		      (DEFAULT_MU*mh))/VelocityUnits;	
+		      (Mu*mh))/VelocityUnits;	
 	//Energy Injection
 	energyin = 0.5e0*pow(Csound*mach[index],3.0)*
 	  (density[index]/density[index])*dtFixed*
@@ -1790,7 +1790,7 @@ int grid::FindTempSplitShocks()
 	
  	index = i + GridDimension[0]*(j + GridDimension[1]*k);	
 	Csound = sqrt(Gamma*kboltz*temperature[index]/
-		      (DEFAULT_MU*mh))/VelocityUnits;	
+		      (Mu*mh))/VelocityUnits;	
 	//Energy Injection
 	energyin = 0.5e0*pow(Csound*mach[index],3.0)*
 	  (density[index]/density[index])*dtFixed*

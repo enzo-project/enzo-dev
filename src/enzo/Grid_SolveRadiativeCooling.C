@@ -91,7 +91,7 @@ extern "C" void FORTRAN_NAME(solve_cool)(
 	float *dt, float *aye, float *temstart, float *temend,
 	   float *fh,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
-	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha);
+	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
  
 int grid::SolveRadiativeCooling()
@@ -346,7 +346,7 @@ int grid::SolveRadiativeCooling()
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
        &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
-          CoolData.EquilibriumRate, &CoolData.gammah);
+       CoolData.EquilibriumRate, &CoolData.gammah, &Mu);
   }
 
   if (HydroMethod == MHD_RK) {

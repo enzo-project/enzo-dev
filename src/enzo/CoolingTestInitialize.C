@@ -133,6 +133,14 @@ int CoolingTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
   } // end input from parameter file
 
+
+  /* error checking */
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting Mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // Use metallicity field.
   TestProblemData.UseMetallicityField = 1;
 

@@ -121,6 +121,13 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
+  }
+
   // ensure that we're performing only Hydrogen chemistry
   if (RadHydroChemistry != 1) 
     ENZO_FAIL("RHIonizationClumpInitialize error: RadHydroChemistry must equal 1!");
