@@ -121,7 +121,7 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
   // initial cloud by hand below. Should be changed in the future
   // Initialize field without turbulent velocity field
   float eint, h, dpdrho, dpde, cs;
-  eint = cs_medium*cs_medium/(Gamma-1.0);
+  eint = cs_medium*cs_medium;
   n=0;
   for (int k = 0; k < GridDimension[2]; k++) {
     for (int j = 0; j < GridDimension[1]; j++) {
@@ -160,7 +160,7 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
           BaryonField[ietot][igrid] += 
 	    0.5*(RandomBField[0][n]*RandomBField[0][n] + 
 		 RandomBField[1][n]*RandomBField[1][n] + 
-		 RandomBField[2][n]*RandomBField[2][n])/BaryonField[iden ][n];
+		 RandomBField[2][n]*RandomBField[2][n])/BaryonField[iden ][igrid];
 
       } 
     }

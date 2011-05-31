@@ -122,7 +122,7 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
 
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
-      if (CurrentGrid->GridData->PrepareVelocityNormalization(&v_rms, &Volume) == FAIL) {
+      if (CurrentGrid->GridData->PrepareAlfvenVelocityNormalization(&v_rms, &Volume) == FAIL) {
 	fprintf(stderr, "Error in PrepareVelocityNormalization.\n");
 	return FAIL;
       }
@@ -143,7 +143,7 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
 
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {
-      if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
+      if (CurrentGrid->GridData->NormalizeMagneticFields(fac) == FAIL) {
 	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
 	return FAIL;
       }
