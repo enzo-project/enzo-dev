@@ -128,10 +128,10 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
       for (int i = 0; i < GridDimension[0]; i++, n++) {
 
 	BaryonField[iden ][n] = rho_medium;
-	BaryonField[ivx  ][n] = 0.0;
+	BaryonField[ivx  ][n] = 1.0;
 	BaryonField[ivy  ][n] = 0.0;
 	BaryonField[ivz  ][n] = 0.0;
-	BaryonField[ietot][n] = eint;
+	BaryonField[ietot][n] = eint + 0.5*(BaryonField[ivx  ][n]*BaryonField[ivx  ][n]);
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
