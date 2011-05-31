@@ -744,6 +744,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   VelAnyl                     = 0;
   BAnyl                     = 0;
 
+  /* Gas drag parameters */
+  UseGasDrag = 0;
   GasDragCoefficient = FLOAT_UNDEFINED;
 
   return SUCCESS;

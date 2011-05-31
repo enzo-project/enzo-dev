@@ -946,6 +946,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ResetMagneticFieldAmplitude+1,
 		  ResetMagneticFieldAmplitude+2);
 
+    ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
     ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
 
 
@@ -1060,6 +1061,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (HydroMethod != MHD_RK)
     BAnyl = 0; // set this to zero no matter what unless we have a magnetic field to analyze.
+
+  if ((HydroMethod != MHD_RK) && (UseGasDrag != 0))
+    {
+      if(MyProcessorNumber == ROOT_PROCESSOR ) {
+	fprintf(stderr, "WARNING:  UseGasDrag != 0 yet HM=MHD_RK \n");
+	fprintf(stderr, "WARNING:  setting UseGasDrag = 0. I.e no Gas drag included. \n");
+	UseGasDrag = 0; 
+      }
+    }
+
 
   /* Count static nested grids since this isn't written in the
      parameter file */

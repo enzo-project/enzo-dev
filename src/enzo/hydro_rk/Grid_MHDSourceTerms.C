@@ -204,7 +204,7 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
-  if (GasDragCoefficient != FLOAT_UNDEFINED) {
+  if ((UseGasDrag != 0) && (GasDragCoefficient != 0.)) {
     int igrid;
     float rho;
     float vx, vy, vz, vx_old, vy_old, vz_old;
