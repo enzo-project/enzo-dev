@@ -848,6 +848,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "PoissonBoundaryType    = %d\n", 
 	  PoissonBoundaryType);
 
+  /* Gas Drag */ 
+  fprintf(fptr, "GasDragCoefficient               = %"FSYM"\n",GasDragCoefficient);
 
   /* Shearing Box Boundary parameters */
   fprintf(fptr, "AngularVelocity              = %"FSYM"\n",AngularVelocity);

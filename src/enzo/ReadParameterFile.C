@@ -946,6 +946,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ResetMagneticFieldAmplitude+1,
 		  ResetMagneticFieldAmplitude+2);
 
+    ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
+
+
     /* If the dummy char space was used, then make another. */
  
     if (*dummy != 0) {
