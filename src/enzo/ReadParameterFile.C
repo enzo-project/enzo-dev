@@ -1004,8 +1004,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
-
 #endif
+    if (strstr(line, "MHDDRF")              ) ret++;
 
     if (strstr(line, "\"\"\"")              ) comment_count++;
 

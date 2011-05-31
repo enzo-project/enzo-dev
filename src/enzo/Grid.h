@@ -2556,6 +2556,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int PrepareVelocityNormalization(double *v_rms, double *Volume);
   int NormalizeVelocities(Eflt factor);
 
+  int PrepareAlfvenVelocityNormalization(double *v_rms, double *Volume);
+  int NormalizeMagneticFields(Eflt factor);
+
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
 			       FLOAT HaloRadius[MAX_SPHERES],
 			       FLOAT HaloCoreRadius[MAX_SPHERES],
