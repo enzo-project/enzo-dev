@@ -33,8 +33,8 @@ int grid::NormalizeMagneticFields(Eflt fac)
   if (ProcessorNumber != MyProcessorNumber)
       return SUCCESS;
 
-  if (fac == 0.) 
-    return SUCCESS; // wouldn't call this a normalization
+  //  if (fac == 0.) 
+  //    return SUCCESS; // wouldn't call this a normalization
 
   /* Find fields: density, total energy, velocity1-3. */
  
