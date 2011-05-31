@@ -236,13 +236,13 @@ float grid::ComputeTimeStep()
 	  By  = BaryonField[B2Num][n];
 	  Bz  = BaryonField[B3Num][n];
 
+	  B2 = Bx*Bx + By*By + Bz*Bz;
 	  if (DualEnergyFormalism) {
 	    eint = BaryonField[GENum][n];
 	  }
 	  else {
 	    etot = BaryonField[TENum][n];
 	    v2 = vx*vx + vy*vy + vz*vz;
-	    B2 = Bx*Bx + By*By + Bz*Bz;
 	    eint = etot - 0.5*v2 - 0.5*B2/rho;
 	  }
 

@@ -236,6 +236,13 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	}
 	NewPack->SourcePositionDiff = sqrt(NewPack->SourcePositionDiff);
 	NewPack->CurrentSource = RS->SuperSource;
+
+	/* Consider the first super source with a leaf size greater
+	   than the cell size. */
+
+	while (NewPack->CurrentSource != NULL && NewPack->CurrentSource->ClusteringRadius < 2.*CellWidth[0][0])
+	  NewPack->CurrentSource = NewPack->CurrentSource->ParentSource;
+
 	count++;
       } // if enough photons
     } // Loop over BasePackages

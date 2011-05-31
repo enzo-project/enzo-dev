@@ -883,7 +883,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   } // if MHD2DProblemType == 11
 
   /* MHD2DProblemType == 12: Uniform density with two spherical central
-   overpressured regions launching sound waves. Perioidc boundaries. */
+   overpressured regions launching sound waves. Periodic boundaries. */
   /* Domain goes from 0 0 to 1 1 */
   if (MHD2DProblemType == 12) { 
     float pres, eintl, eintu, h, cs, dpdrho, dpde;
@@ -1019,8 +1019,6 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 14
-
-
 
   return SUCCESS;
 }

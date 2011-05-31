@@ -129,9 +129,11 @@ int grid::MergePausedPhotonPackages() {
     // With the new radius, calculate new HEALPix level
     PP->Radius = length;
     PP->level = (int) (0.5*ln2_inv * 
-		       logf(3 * M_1_PI * (PP->Radius*PP->Radius/dx2) * 
-			    RadiativeTransferRaysPerCell));
+		       logf(3 * M_1_PI * (PP->Radius*PP->Radius/dx2)  ))  ;
+    //			    * RadiativeTransferRaysPerCell));
+    //    PP->level = (int) length/sqrt(dx2);
     PP->level = min(max(PP->level, 0), MAX_HEALPIX_LEVEL);
+    printf("%i\n",PP->level);
 
     // Calculate new pixel number with the super source
     if (vec2pix_nest( (long) (1 << PP->level), vec, &(PP->ipix) ) == FAIL) {

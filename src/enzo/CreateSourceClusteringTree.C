@@ -71,6 +71,9 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       nShine++;
       RadSource = RadSource->NextSource;
     }
+    if (nShine <= 1) 
+	return SUCCESS;
+
     SourceList = new SuperSourceData[nShine];
     RadSource = GlobalRadiationSources->NextSource;
     for (i = 0; i < nShine; i++) {
@@ -80,6 +83,8 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       SourceList[i].Source = RadSource;
       RadSource = RadSource->NextSource;
     }
+
+
 
     // Copy clustering tree from previous timestep
     // TODO: Rebuild only branches that have changed.
@@ -198,7 +203,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     nleft = (nShine+1)/2;
     nright = nShine-nleft;
   }
-  /* Divide into children if there are more than one particle */
+  /* Divide into children if there are more than one source */
   
   if (nShine > 2) {
 

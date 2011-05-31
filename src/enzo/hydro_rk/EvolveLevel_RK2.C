@@ -336,7 +336,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* compute wave speed Reference: Matsumoto, PASJ, 2007, 59, 905 */
 
-    if (HydroMethod == MHD_RK) 
+    if ((HydroMethod == MHD_RK) && (level == 0))
       ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
 	
     if (debug1 && HydroMethod == MHD_RK) 

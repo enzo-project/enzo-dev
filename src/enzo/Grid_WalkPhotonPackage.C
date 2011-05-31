@@ -188,8 +188,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      d := vector between current and super source
   */
 
-  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL) {
-    r_merge = 2*RadiativeTransferPhotonMergeRadius *
+  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL ) {
+    r_merge = RadiativeTransferPhotonMergeRadius *
       (*PP)->CurrentSource->ClusteringRadius;
     d2_ss = 0.0;
     u_dot_d = 0.0;

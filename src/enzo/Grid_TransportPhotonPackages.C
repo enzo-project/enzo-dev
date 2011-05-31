@@ -99,14 +99,14 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
-  if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
-  if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
+  if (debug1) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
+  if (debug1) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
 		     GridStartIndex[0], GridEndIndex[0]);
 
   PhotonPackageEntry *PP, *FPP, *SavedPP, *PausedPP;
   PP = PhotonPackages;
 
-  if (DEBUG) {
+  if (debug1) {
     count = 0;
     while ((PP->NextPackage) != NULL) { 
       count++;
@@ -253,7 +253,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   } // ENDWHILE photons
 
-  if (DEBUG)
+  if (debug1)
     fprintf(stdout, "grid::TransportPhotonPackage: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
 	    tcount, dcount, pcount, trcount);
