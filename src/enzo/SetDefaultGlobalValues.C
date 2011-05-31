@@ -222,8 +222,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim] = 1.0;
   }
  
-  for (i = 0; i < MAX_STATIC_REGIONS; i++)
+  for (i = 0; i < MAX_STATIC_REGIONS; i++) {
     StaticRefineRegionLevel[i] = INT_UNDEFINED;
+    AvoidRefineRegionLevel[i]  = INT_UNDEFINED;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      AvoidRefineRegionLeftEdge[i][dim] = FLOAT_UNDEFINED;
+      AvoidRefineRegionRightEdge[i][dim] = FLOAT_UNDEFINED;
+    }
+  }
 
   /* For evolving refinement regions. */
   RefineRegionFile = NULL;
@@ -236,6 +242,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  DatabaseLocation = NULL;
+
  
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
@@ -243,7 +251,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UnigridTranspose            = FALSE;
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
-  StaticPartitionNestedGrids  = TRUE;
   ExtractFieldsOnly           = TRUE;
 
   ExternalBoundaryIO          = FALSE;

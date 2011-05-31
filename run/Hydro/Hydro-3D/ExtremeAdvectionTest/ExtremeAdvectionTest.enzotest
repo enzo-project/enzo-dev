@@ -7,6 +7,4 @@ cadence = 'nightly'
 hydro = True
 gravity = False
 dimensionality = 3
-
-
-
+max_time_minutes = 1

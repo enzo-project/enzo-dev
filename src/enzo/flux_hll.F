@@ -333,8 +333,7 @@ c
 c     Check here for negative densities and energies
 c
       do i=i1, i2
-         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0 .or.
-     $        eslice(i,j) .lt. 0.0) then
+         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0) then
             if (eslice(i,j) .lt. 0.0) then
                write (6,*) 'flux_hll: eslice < 0: ', i, j
                write (6,*) qc*(ef(i,j)-ef(i+1,j)),
@@ -379,7 +378,7 @@ c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
             if (ifallback .eq. 1) 
      $           write(0,*) 'Cannot fallback anymore.  Already in HLL.'
             write(0,*) 'stop in euler with e < 0'
-c            ERROR_MESSAGE
+            ERROR_MESSAGE
          endif
       enddo
 c

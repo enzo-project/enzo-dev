@@ -192,7 +192,10 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 	continue;
       }
       ToGrid = Grids[lvl][gi]->GridData;
-      ToPP	 = ToGrid->ReturnPhotonPackagePointer();
+      if (RecvBuffer[i].PausedPhoton == FALSE)
+	ToPP	 = ToGrid->ReturnPhotonPackagePointer();
+      else
+	ToPP	 = ToGrid->ReturnPausedPackagePointer();
 
       NewPack = new PhotonPackageEntry;
       NewPack->Photons		= RecvBuffer[i].buffer.Photons;

@@ -1,7 +1,7 @@
 name = 'CosmologyFLD_RT'
 answer_testing_script = None
 nprocs = 8
-runtime = 'long' 
+runtime = 'unknown' 
 critical = True
 cadence = 'nightly'
 hydro = True
@@ -9,4 +9,3 @@ gravity = True
 cosmology = True
 dimensionality = 3
 radiation = 'fld'
-max_time_minutes = 10

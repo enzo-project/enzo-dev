@@ -37,6 +37,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &RegionLevel, int &HaloFinderOnly,
 			 int &WritePotentialOnly,
 			 int &SmoothedDarkMatterOnly,
+			 int &WriteCoolingTimeOnly,
 			 int MyProcessorNumber)
 {
  
@@ -75,6 +76,12 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 	}
 	break;
  
+	/* Add cooling time to data */
+
+      case 'C':
+	WriteCoolingTimeOnly = TRUE;
+	break;
+
 	/* debug */
  
       case 'd':
@@ -285,6 +292,7 @@ void PrintUsage(char *myname)
 	          "      -g (Write Potential field only)\n"
 	          "      -M (Write smoothed DM field only)\n"
 	          "      -F(riends-of-friends halo finder only)\n"
+	          "      -C(ooling time write only)\n"
                   "      -h(elp)\n"
 	          "      -i(nformation output)\n"
 	          "      -s(tart  index region) dim0 [dim1] [dim2]\n"

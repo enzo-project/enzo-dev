@@ -72,7 +72,7 @@ int WriteMemoryMap(FILE *fptr, HierarchyEntry *TopGrid,
 int WriteConfigure(FILE *optr);
 int WriteTaskMap(FILE *fptr, HierarchyEntry *TopGrid,
 		 char *gridbasename, int &GridID, FLOAT WriteTime);
-int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
+int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *Filename);
 int WriteStarParticleData(FILE *fptr, TopGridData &MetaData);
 int WriteRadiationData(FILE *fptr);
  
@@ -607,7 +607,7 @@ int Group_WriteAllData(char *basename, int filenumber,
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
     }
-    if (WriteParameterFile(fptr, MetaData) == FAIL)
+    if (WriteParameterFile(fptr, MetaData, name) == FAIL)
       ENZO_FAIL("Error in WriteParameterFile");
     fclose(fptr);
   

@@ -43,7 +43,35 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids)
 {
 
-  int i, index, level, temp_proc, ori_proc, nph, GridsMoved;
+  int i, index, level, temp_proc, ori_proc, nph, GridsMoved, TotalNumberOfGrids;
+
+  /* Send RadiationPresent fields */
+
+  TotalNumberOfGrids = 0;
+  for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    TotalNumberOfGrids += NumberOfGrids[level];
+  
+  index = 0;
+  int *RadiationPresent = new int[TotalNumberOfGrids];
+  for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (i = 0; i < NumberOfGrids[level]; i++) {
+      temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+      if (MyProcessorNumber == temp_proc)
+	RadiationPresent[index] = 
+	  Grids[level][i]->GridData->RadiationPresent();
+      else
+	RadiationPresent[index] = 0;
+      index++;
+    } // ENDFOR grids
+
+  CommunicationAllSumValues(RadiationPresent, TotalNumberOfGrids);
+
+  index = 0;
+  for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    for (i = 0; i < NumberOfGrids[level]; i++)
+      Grids[level][i]->GridData->SetRadiation(RadiationPresent[index++]);
+
+  delete [] RadiationPresent;
 
   /* Send updated baryon fields (species and energy in particular)
      back to the original processor */

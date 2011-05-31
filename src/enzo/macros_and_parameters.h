@@ -524,8 +524,6 @@ typedef int            HDF5_hid_t;
 #define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
 
-#define DEFAULT_MU 0.6
-
 /* Maximum number of leafs per parent in radiation source tree. */
 
 #define MAX_LEAF 2

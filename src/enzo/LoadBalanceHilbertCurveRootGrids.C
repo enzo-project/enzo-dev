@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <algorithm>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -32,6 +33,7 @@
 #include "LevelHierarchy.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#include "SortCompareFunctions.h"
 
 double HilbertCurve3D(FLOAT *coord);
 Eint32 compare_hkey(const void *a, const void *b);
@@ -75,7 +77,8 @@ int LoadBalanceHilbertCurveRootGrids(FLOAT *GridCenters[], int *CellCount,
   /* Sort the grids along the curve and partition it into pieces with
      equal amounts of work. */
 
-  qsort(HilbertData, NumberOfGrids, sizeof(hilbert_data), compare_hkey);
+  //qsort(HilbertData, NumberOfGrids, sizeof(hilbert_data), compare_hkey);
+  std::sort(HilbertData, HilbertData+NumberOfGrids, cmp_hkey());
   TotalWork = 0;
   for (i = 0; i < NumberOfGrids; i++) {
     GridWork[i] = CellCount[HilbertData[i].grid_num];

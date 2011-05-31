@@ -44,7 +44,7 @@ int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
-int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
+int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *Filename=NULL);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);
@@ -192,6 +192,8 @@ int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
+                        HierarchyEntry &TopGrid, TopGridData &MetaData);
+int MHD1DTestWavesInitialize(FILE *fptr, FILE *Outfptr,
                         HierarchyEntry &TopGrid, TopGridData &MetaData);
 int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
                         HierarchyEntry &TopGrid, TopGridData &MetaData);
@@ -601,6 +603,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   /* 208) AGN Disk */
   if (ProblemType == 208) {
     ret = AGNDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
+  /* 209) MHD 1D Waves */
+  if (ProblemType == 209) {
+    ret = MHD1DTestWavesInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
 
   /* ???? */

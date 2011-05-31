@@ -18,10 +18,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
+#include "SortCompareFunctions.h"
 
 void my_exit(int status);
 
@@ -48,7 +50,8 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   int particle_data_size = sizeof(particle_data);
   for (proc = 0; proc < NumberOfProcessors; proc++)
     TotalNumberToMove += NumberToMove[proc];
-  qsort(SendList, TotalNumberToMove, particle_data_size, compare_proc);
+  //qsort(SendList, TotalNumberToMove, particle_data_size, compare_proc);
+  std::sort(SendList, SendList+TotalNumberToMove, cmp_proc());
 
   SharedList = NULL;
 
@@ -164,7 +167,8 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
   
   // First sort the list by destination grid, so the searching for
   // grids is more efficient.
-  qsort(SharedList, NumberOfReceives, particle_data_size, compare_grid);
+  //qsort(SharedList, NumberOfReceives, particle_data_size, compare_grid);
+  std::sort(SharedList, SharedList+NumberOfReceives, cmp_grid());
 
   return SUCCESS;
 

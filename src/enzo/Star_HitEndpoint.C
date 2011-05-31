@@ -47,8 +47,12 @@ int Star::HitEndpoint(FLOAT Time)
     // applied its feedback sphere
     if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
 	(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass)) {
+
+      // Needs to be non-zero (multiply by a small number to retain
+      // memory of mass)
       if (this->FeedbackFlag == DEATH) {
-	this->Mass = 1e-10;  // Needs to be non-zero
+	this->Mass *= tiny_number;  
+
 
 	// Set lifetime so the time of death is exactly now.
 	this->LifeTime = Time - this->BirthTime;

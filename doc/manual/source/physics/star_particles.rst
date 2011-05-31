@@ -144,6 +144,82 @@ Method 7: Springel & Hernquist
 ------------------------------
 *Source: star_maker5.F*
 
+This method is based on the Springel & Hernquist method
+of star formation described in
+`MNRAS, 339, 289, 2003. <http://adsabs.harvard.edu/cgi-bin/nph-data_query?bibcode=2003MNRAS.339..289S&link_type=ABSTRACT>`_
+A star may be formed from
+a cell of gas if all of the following conditions are met:
+
+#. The cell is the most-refined cell at that point in space.
+  
+#. The density of the cell is above a threshold.
+  
+#. The cell of gas is in the region of refinement. For unigrid, or
+   AMR-everywhere simulations, this corresponds to the whole volume. But for
+   zoom-in simulations, this prevents star particles from forming in areas
+   that are not being simulated at high resolution.
+
+If a cell has met these conditions, then these quantities are calculated for
+the cell:
+
+* Cell star formation timescale (Eqn 21 from Springel & Hernquist).
+     :math:`t_0^{\ast}` and :math:`\rho_{\mathrm{th}}` are inputs to the model,
+     and are the star formation time scale and density scaling value,
+     respectively. Note that :math:`\rho_{\mathrm{th}}` is not the same as the
+     critical density for star formation listed above. :math:`\rho` is the
+     gas density of the cell.
+     .. math::
+     
+        t_{\ast}(\rho)=t_0^{\ast}\left(\frac{\rho}{\rho_{\mathrm{th}}}\right)^{-1/2}
+  
+* Mass fraction in cold clouds, :math:`x` (see Eqns. 16 and 18).
+     :math:`y` is a dimensionless quantity
+     calculated as part of the formulation;
+     :math:`u_{\textrm{SN}}\equiv(1-\beta)\beta^{-1}\epsilon_{\textrm{SN}}` is
+     the energy released from supernovae back into the gas (note that whether
+     or not the energy is *actually* returned to the gas depends on if
+     ``StarFormationFeedback`` is turned on or not); :math:`\beta` is the
+     fraction of stars that go supernova soon after formation;
+     :math:`\epsilon_{\textrm{SN}}` is the energy released from a nominal
+     supernova and is set to 4e48 ergs; and finally :math:`\Lambda(\rho, T, z)`
+     is the cooling rate of the cell of gas.
+     .. math::
+     
+        y\equiv\frac{t_{\ast}\Lambda(\rho,T,z)}{\rho[\beta u_{\mathrm{SN}}-(1-\beta)u_{\mathrm{SN}}]}
+        
+        x=1+\frac{1}{2y}-\sqrt{\frac{1}{y}+\frac{1}{4y^2}}
+
+Finally, a star particle of mass :math:`m_{\ast}` is created with probability
+:math:`p_{\ast}` (see
+Eqn. 39). For a cell, the quantity :math:`p_{\ast}` is calculated (below) and
+compared to a random number :math:`p` drawn evenly from [0, 1).
+If :math:`p_{\ast} > p`, a star is created. :math:`m_{\ast}` is a parameter of
+the model and is the minimum and only star mass allowed;
+:math:`m` is the mass of gas in the cell;
+:math:`\Delta t` is the size of the simulation time step that
+is operative for the cell (which changes over AMR levels, of course).
+.. math::
+
+   p_{\ast}=\frac{m}{m_{\ast}}\left\{1-\exp\left[-\frac{(1-\beta)x\Delta t}{t_{\ast}}\right]\right\}\
+
+If this star formula is used with AMR, some caution is required. Primarily,
+the AMR refinement can not be too aggressive. Values of ``OverDensityThreshold``
+below 8 are not recommended. This is because if refinement is more aggressive
+than 8 (i.e. smaller), the most-refined cells, where star formation should
+happen, can have less mass than a root-grid cell, and for a deep AMR hierarchy
+the most refined cells can have mass below :math:`m_{\ast}`. Put another way,
+with aggressive refinement the densest cells where stars *should* form may be
+prevented from forming stars simply because their total mass is too low.
+Keeping ``OverDensityThreshold`` at 8 or above ensures that refined cells have
+at least a mass similar to a root-grid cell.
+
+Another reason for concern is in AMR, :math:`\Delta t` changes with AMR level.
+Adding a level of AMR generally halves the value of :math:`\Delta t`, which
+affects the probability of making a star. In a similar way, a small value of
+``CourantSafetyFactor`` can also negatively affect the function of this
+star formula.
+
+
 Method 8: Massive Black Holes
 -----------------------------
 *Source: mbh_maker.C*

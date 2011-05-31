@@ -55,12 +55,8 @@ int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[])
 
   i = 0;
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel, i++) {
-      if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
-	NumberOfPhotons[i] = Temp->GridData->ReturnNumberOfPhotonPackages();
-      else
-	NumberOfPhotons[i] = 0;
-    } // ENDFOR grids
+    for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel, i++)
+      NumberOfPhotons[i] = Temp->GridData->CountPhotonNumber();
 
   /* Sum up numbers */
   

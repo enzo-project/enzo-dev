@@ -49,7 +49,7 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stdout,"Entering RHIonizationSteepInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";
@@ -112,6 +112,13 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   // ensure that we're performing only Hydrogen chemistry
   if (RadHydroChemistry != 1) 
     ENZO_FAIL("RHIonizationSteepInitialize error: RadHydroChemistry must equal 1!");
+
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
+  }
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 

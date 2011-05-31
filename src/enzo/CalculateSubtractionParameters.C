@@ -129,8 +129,8 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
     density = star_CurrentGrid->ReturnBaryonField(DensNum)[index];
     
     if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (DEFAULT_MU * m_h);
-      mu = DEFAULT_MU;
+      number_density = density * DensityUnits / (Mu * m_h);
+      mu = Mu;
     } else {
       number_density = 
 	star_CurrentGrid->ReturnBaryonField(HINum)[index] + 
@@ -182,7 +182,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
   /* When calculating Bondi radius, let's not bother to get accurate temperature and mu 
      just use the MBHAccretionFixedTemperature and default mu */
 
-    c_s = (int)(sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (DEFAULT_MU * m_h)));
+    c_s = (int)(sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (Mu * m_h)));
 #endif
 
 

@@ -8,3 +8,4 @@ hydro = True
 gravity = True
 cosmology = True
 dimensionality = 3
+max_time_minutes = 1

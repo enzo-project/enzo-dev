@@ -31,7 +31,11 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 
 /* Photons: return PhotonPackage pointer. */
 
-   PhotonPackageEntry *ReturnPhotonPackagePointer(void) {return PhotonPackages;};
+   PhotonPackageEntry *ReturnPhotonPackagePointer(void) 
+   {return PhotonPackages;};
+
+   PhotonPackageEntry *ReturnPausedPackagePointer(void) 
+   {return PausedPhotonPackages;};
 
 /* Photons: set number of photons. */
 
@@ -96,6 +100,7 @@ int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove,
 
 int ElectronFractionEstimate(float dt);
 int RadiationPresent(void) { return HasRadiation; }
+void SetRadiation(char value) { HasRadiation = value; }
 
 void InitializePhotonPackages(void) {
   if (PhotonPackages == NULL) {
@@ -225,16 +230,16 @@ int ReturnRealPhotonCount(void) {
 int CountPhotonNumber(void) {
 
   if (MyProcessorNumber != ProcessorNumber)
-    return SUCCESS;
+    return 0;
 
-  NumberOfPhotonPackages = 0;
+  int nphotons = 0;
   PhotonPackageEntry *PP = PhotonPackages->NextPackage;
   while (PP != NULL) {
-    NumberOfPhotonPackages++;
+    nphotons++;
     PP = PP->NextPackage;
   }
 
-  return SUCCESS;
+  return nphotons;
 
 }
 
@@ -336,6 +341,14 @@ int DetectIonizationFrontApprox(float TemperatureUnits);
    radius */
 
 int MergePausedPhotonPackages(void);
+
+
+/* Regrid a paused photon into its new spherical (HEALPix) grid
+   point in preparation for merging. */
+
+int RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
+			      grid** MoveToGrid, int &DeltaLevel,
+			      int &DeleteMe, const float *DomainWidth);
 
 /* Trace a line thorugh the grid */
 

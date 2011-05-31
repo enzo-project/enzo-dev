@@ -328,11 +328,10 @@ c
 c     Check here for negative densities and energies
 c
       do i=i1, i2
-         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0 .or.
-     $        eslice(i,j) .lt. 0.0) then
+         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0) then
             if (eslice(i,j) .lt. 0.0) then
                write (6,*) 'flux_hllc: eslice < 0: ', i, j
-               write (6,*) qc*(ef(i,j)-ef(i+1,j)),
+               write (6,*) ef(i,j)-ef(i+1,j),
      &              eslice(i,j)*dslice(i,j)
             else
                write (6,*) 'flux_hllc: dnu <= 0:', i, j

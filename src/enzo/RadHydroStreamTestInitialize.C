@@ -45,7 +45,7 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stdout,"Entering RadHydroStreamTestInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";
@@ -84,6 +84,14 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
       } // end input from parameter file
       fclose(RHfptr);
     }
+  }
+
+
+  // ensure molecular weight is consistent
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
   }
 
   // ensure that streaming dimension is active for this rank

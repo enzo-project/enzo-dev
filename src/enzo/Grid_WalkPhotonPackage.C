@@ -89,11 +89,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     return SUCCESS;
   }
 
-  if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP)) {
+  if ((*PP) == NULL || (*PP)->PreviousPackage == NULL ||
+      (*PP)->PreviousPackage->NextPackage != (*PP)) {
     ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
-	    "\t %x %x %x %x\n",
-	    (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
-	    PhotonPackages)
+	    "\t %p %p %p\n",
+	    (*PP), (*PP)->PreviousPackage, PhotonPackages)
   }
 
   /* This controls the splitting condition, where this many rays must
@@ -188,7 +188,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      d := vector between current and super source
   */
 
-  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL ) {
+  if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL) {
     r_merge = RadiativeTransferPhotonMergeRadius *
       (*PP)->CurrentSource->ClusteringRadius;
     d2_ss = 0.0;

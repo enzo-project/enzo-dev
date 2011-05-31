@@ -10,3 +10,4 @@ AMR = True
 cosmology = True
 dimensionality = 1
 author = 'John Wise'
+max_time_minutes = 1

@@ -240,6 +240,12 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinement");
     break;
 
+  case 101:
+    this->FlagCellsToAvoidRefinementRegion(level);
+    if (NumberOfFlaggedCells < 0)
+      ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinementRegion");
+    break;
+
   case INT_UNDEFINED:
     break;
  

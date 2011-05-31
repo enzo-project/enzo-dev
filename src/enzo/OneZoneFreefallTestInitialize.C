@@ -41,8 +41,8 @@ int OneZoneFreefallTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &Top
   fprintf(stderr,"Initializing one-zone free-fall test.\n");
 
   char *DensName = "Density";
-  char *TEName   = "Total_Energy";
-  char *GEName   = "Gas_Energy";
+  char *TEName   = "TotalEnergy";
+  char *GEName   = "GasEnergy";
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";

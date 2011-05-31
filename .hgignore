@@ -23,6 +23,8 @@ Make.config.override
 *.mod
 
 src/inits/inits.exe
+src/anyl/anyl.exe
+src/enzohop/enzohop.exe
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h
 src/mpgrafic/degraf/config.log
@@ -46,3 +48,5 @@ src/mpgrafic/degraf/autom4te.cache/
 src/P-GroupFinder/P-GroupFinder
 
 doc/manual/build
+
+run/results.js
