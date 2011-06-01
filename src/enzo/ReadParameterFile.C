@@ -1543,6 +1543,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #ifdef _OPENMP
   if (ConservativeReconstruction == TRUE)
     ENZO_FAIL("ConservativeReconstruction not supported yet with openmp-yes.\n");
+  if (PositiveReconstruction == TRUE)
+    ENZO_FAIL("PositiveReconstruction not supported yet with openmp-yes.\n");
 #endif
 
   CheckShearingBoundaryConsistency(MetaData);

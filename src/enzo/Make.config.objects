@@ -448,6 +448,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InitializeGravitatingMassField.o \
 	Grid_InitializeGravitatingMassFieldParticles.o \
 	Grid_InitializeUniformGrid.o \
+	Grid_inteuler.o \
 	Grid_InterpolateAccelerations.o \
 	Grid_InterpolateBoundaryFromParent.o \
 	Grid_InterpolateFieldValues.o \
@@ -616,6 +617,7 @@ OBJS_CONFIG_LIB = \
 	intpos.o \
 	intprim.o \
         intvar.o \
+        intvarC.o \
         Isdigit.o \
         KHInitialize.o \
         LevelHierarchy_AddLevel.o \

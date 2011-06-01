@@ -101,7 +101,7 @@ int grid::inteuler(int idim,
 
   int i, j, ic, index, cindex, scindex;
   float steepen[NN], tmp1[NN], tmp2[NN], tmp3[NN], tmp4[NN];
-  float qa,qb,qc,qd,qe,s1,s2; 
+  float qa,qb,qc,qd,qe,s1,s2,f1; 
   float c1[NN], c2[NN], c3[NN], c4[NN], c5[NN], c6[NN], dxinv[NN],
     dp[NN],  pl[NN],  pr[NN],  p6[NN],  du[NN],  ul[NN],  ur[NN], u6[NN],
     dla[NN], dra[NN], pla[NN], pra[NN], ula[NN], ura[NN], vla[NN],
@@ -111,7 +111,7 @@ int grid::inteuler(int idim,
     cs[NN],  d2d[NN], dxb[NN], cm[NN],  c0[NN],  cp[NN],  char1[NN],
     char2[NN], betalp[NN], betalm[NN], betal0[NN], cla[NN], betarp[NN], 
     betarm[NN], betar0[NN], cra[NN], gela[NN], gera[NN], gel0[NN], ger0[NN],
-    clainv[NN], crainv[NN];
+    clainv[NN], crainv[NN], dx2i[NN], dxdt2[NN];
   float colla[NC], colra[NC], coll0[NC], colr0[NC];
   //float colla[MAX_COLOR][NN], colra[MAX_COLOR][NN], coll0[MAX_COLOR][NN],
   //  colr0[MAX_COLOR][NN];
@@ -137,6 +137,7 @@ int grid::inteuler(int idim,
     c1[i] = qa*(2.0*dxi[i-1] + dxi[i])/(dxi[i+1] + dxi[i]);
     c2[i] = qa*(2.0*dxi[i+1] + dxi[i])/(dxi[i-1] + dxi[i]);
     dxinv[i] = 1.0f/dxi[i];
+    dxdt2[i] = 0.5f*dtFixed*dxinv[i];
   }
 
   for (i = is-1; i <= ie+2; i++) {
@@ -149,6 +150,7 @@ int grid::inteuler(int idim,
     c4[i] = qb;
     c5[i] =  dxi[i  ]/qa*qd;
     c6[i] = -dxi[i-1]/qa*qc;
+    dx2i[i] = 0.5f*dxinv[i];
   }
 
 //
@@ -187,14 +189,14 @@ int grid::inteuler(int idim,
 //     Precompute left and right characteristic distances
 //
 
-    for (i = is-1, index = in*j+is-1; i <= ie+1; i++, index++) {
+    for (i = 0, index = in*j; i < in; i++, index++) {
       cs[i] = sqrtf(Gamma * pslice[index] / dslice[index]);
       if (PressureFree) cs[i] = tiny_number;
-      char1[i] = max(0.0f,  dtFixed * (uslice[index] + cs[i])) * (0.5f*dxinv[i]);
-      char2[i] = max(0.0f, -dtFixed * (uslice[index] - cs[i])) * (0.5f*dxinv[i]);
+      char1[i] = max(0.0f,  dtFixed * (uslice[index] + cs[i])) * dx2i[i];
+      char2[i] = max(0.0f, -dtFixed * (uslice[index] - cs[i])) * dx2i[i];
     } // ENDFOR i
 
-    for (i = is-1, index = in*j+is-1; i <= ie+1; i++, index++) {
+    for (i = is-2, index = in*j+is-2; i <= ie+2; i++, index++) {
       cm[i] = dtFixed*(uslice[index]-cs[i])*(0.5f*dxinv[i]);
       c0[i] = dtFixed*(uslice[index]      )*(0.5f*dxinv[i]);
       cp[i] = dtFixed*(uslice[index]+cs[i])*(0.5f*dxinv[i]);

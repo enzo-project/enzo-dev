@@ -58,7 +58,7 @@ void intvarC(float *qslice, int in, int is, int ie, int j, int isteep,
 
   const float ft = 4.0/3.0;
   int i, index, indexm1, indexm2;
-  float qplus, qmnus, temp1, temp2, temp3, temp22, temp23;
+  float qplus, qmnus, qvanl, temp1, temp2, temp3, temp22, temp23;
   indexm1 = j*in+is-1;
   indexm2 = indexm1-1;
 //
@@ -68,8 +68,10 @@ void intvarC(float *qslice, int in, int is, int ie, int j, int isteep,
   for (i = is-2, index = indexm2; i <= ie+2; i++, index++) {
     qplus = qslice[index+1] - qslice[index];
     qmnus = qslice[index  ] - qslice[index-1];
+    qvanl = 2.0 * qplus * qmnus / (qmnus + qplus);
     dq[i] = c1[i] * qplus + c2[i] * qmnus;
-    temp1 = min(min(fabsf(dq[i]), 2.0f*fabsf(qmnus)), 2.0f*fabsf(qplus));
+    temp1 = min(min(min(fabsf(dq[i]), 2.0f*fabsf(qmnus)), 2.0f*fabsf(qplus)),
+		fabsf(qvanl));
     dq[i] = (qplus*qmnus > 0) ? temp1*sign(dq[i]) : 0.0;
   }
 //     
@@ -114,6 +116,19 @@ void intvarC(float *qslice, int in, int is, int ie, int j, int isteep,
       ql[i] = qslice[index]*flatten[i] + ql[i]*(1.0f-flatten[i]);
       qr[i] = qslice[index]*flatten[i] + qr[i]*(1.0f-flatten[i]);
     }
+//
+//     Ensure that the L/R values lie between neighboring cell-centered 
+//     values (Taken from ATHENA, lr_states)
+//
+#define CHECK_LR
+#ifdef CHECK_LR
+  for (i = is-1, index = indexm1; i <= ie+1; i++, index++) {
+    ql[i] = max(min(qslice[index], qslice[index-1]), ql[i]);
+    ql[i] = min(max(qslice[index], qslice[index-1]), ql[i]);
+    qr[i] = max(min(qslice[index], qslice[index+1]), qr[i]);
+    qr[i] = min(max(qslice[index], qslice[index+1]), qr[i]);
+  }
+#endif
 //
 //    Now construct left and right interface values (eqn 1.12 and 3.3)
 //
