@@ -63,6 +63,7 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
   int RefineAtStart   = TRUE;
   int RandomSeed = 1;
   float rho_medium=1.0, cs=1.0, mach=1.0, Bnaught=0.0;
+  float Skmin = 1.0, Skmax=4., Sindex = 11./3.; // Spectrum defaults
 
   /* read input from file */
   rewind(fptr);
@@ -75,15 +76,20 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "RefineAtStart = %"ISYM, &RefineAtStart);
     ret += sscanf(line, "MHDDRF-Density = %"FSYM, &rho_medium);
     ret += sscanf(line, "MHDDRF-SoundVelocity = %"FSYM, &cs);
-    ret += sscanf(line, "MHDDRF-AlfvenMachNumber = %"FSYM, &mach);
     ret += sscanf(line, "MHDDRF-InitialBfield = %"FSYM, &Bnaught);
     ret += sscanf(line, "MHDDRF-RandomSeed = %"ISYM, &RandomSeed);
+    // parameters that specify the spectrum. See Turbulence_Generator.C for definitions.
+    ret += sscanf(line, "MHDDRF-AlfvenMachNumber = %"FSYM, &mach);
+    ret += sscanf(line, "MHDDRF-MinimumWaveNumber = %"FSYM, &Skmin);
+    ret += sscanf(line, "MHDDRF-MaximumWaveNumber = %"FSYM, &Skmax);
+    ret += sscanf(line, "MHDDRF-SpectralIndex = %"FSYM, &Sindex);
 
   } // end input from parameter file
 
   /* Convert to code units */
   
-  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
+  if (MyProcessorNumber == ROOT_PROCESSOR)  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
+   if (MyProcessorNumber == ROOT_PROCESSOR) printf(" Magnetic spectrum: n = %"GSYM",kmin = %"GSYM", kmax = %"GSYM" \n", Sindex, Skmin, Skmax);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
     presu = 1.0, bfieldu = 1.0;
@@ -96,9 +102,9 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
   cs /= velu;
   Bnaught /= bfieldu;
 
-  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM",presu=%"GSYM",bfieldu=%"GSYM", tempu=%"GSYM"\n", 
+ if (MyProcessorNumber == ROOT_PROCESSOR)  printf("rhou=%"GSYM",velu=%"GSYM",lenu=%"GSYM",tu=%"GSYM",presu=%"GSYM",bfieldu=%"GSYM", tempu=%"GSYM"\n", 
 	 rhou, velu,lenu,tu,presu,bfieldu, tempu);
-  printf("rho_medium=%"GSYM", cs=%"GSYM", Bnaught=%"GSYM"\n", rho_medium, cs, Bnaught);
+  if (MyProcessorNumber == ROOT_PROCESSOR) printf("rho_medium=%"GSYM", cs=%"GSYM", Bnaught=%"GSYM"\n", rho_medium, cs, Bnaught);
 
 
   HierarchyEntry *CurrentGrid;
@@ -106,7 +112,9 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
   CurrentGrid = &TopGrid;
   while (CurrentGrid != NULL) {
     if (CurrentGrid->GridData->MHDDecayingRandomFieldInitializeGrid(rho_medium, cs, mach, 
-				   Bnaught, RandomSeed, 0, SetBaryonFields) == FAIL) {
+								    Bnaught, RandomSeed, 
+								    Sindex, Skmin, Skmax,
+								    0, SetBaryonFields) == FAIL) {
       fprintf(stderr, "Error in MHDDecayingRandomFieldInitializeGrid.\n");
       return FAIL;
     }
@@ -134,10 +142,10 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
     CommunicationAllReduceValues(&v_rms, 1, MPI_SUM);
     CommunicationAllReduceValues(&Volume, 1, MPI_SUM);
 #endif
-    fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
+     if (MyProcessorNumber == ROOT_PROCESSOR) fprintf(stderr, "v_alfven_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
     // Carry out the Normalization
 
-    // Normalize Velocities now
+    // Normalize Magnetic Fields now
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
     fac = cs*mach/v_rms;
 
@@ -186,7 +194,9 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
 	if (Temp->GridData->MHDDecayingRandomFieldInitializeGrid(rho_medium, cs, fac, 
-							Bnaught, RandomSeed, level, SetBaryonFields) == FAIL) {
+								 Bnaught, RandomSeed, 
+								 Sindex, Skmin, Skmax,
+								 level, SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in MHDDecayingRandomFieldInitializeGrid.\n");
 	  return FAIL;
 	}
@@ -202,7 +212,7 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
     for (level = MaximumRefinementLevel; level > 0; level--) {
       LevelHierarchyEntry *Temp = LevelArray[level];
       while (Temp != NULL) {
-	if (Temp->GridData->NormalizeVelocities(fac) == FAIL) {
+	if (Temp->GridData->NormalizeMagneticFields(fac) == FAIL) {
 	  fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
 	  return FAIL;
 	}
@@ -241,11 +251,6 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = ByName;
     DataLabel[count++] = BzName;
     DataLabel[count++] = PhiName;
-  }
-  if (UseDrivingField) {
-    DataLabel[count++] = Drive1Name;
-    DataLabel[count++] = Drive2Name;
-    DataLabel[count++] = Drive3Name;
   }
 
   for (i = 0; i < count; i++) {

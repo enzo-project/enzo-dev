@@ -25,7 +25,8 @@ double Gaussian(double cs);
    /* 
       vel[3][ActiveSize]
       size: the grid dimension
-      ind: index of the velocity power spectrum v_k^2 ~ k^{-n}, n = 11/3 for Kolmogorov turbulence,
+      ind: index of the velocity power spectrum v_k^2 ~ k^{-n}, 
+           n = 11/3 for Kolmogorov turbulence,
 	   n = 4 for Larson relation
       kmin: the lower wave number cutoff
       kmax: the upper wave number cutoff 

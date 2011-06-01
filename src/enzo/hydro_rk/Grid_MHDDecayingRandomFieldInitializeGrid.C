@@ -32,7 +32,9 @@ void Turbulence_Generator(float **vel, int dim0, int dim1, int dim2, int ind,
 			  FLOAT **LeftEdge, FLOAT **CellWidth, int seed);
 
 int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium, float mach, 
-				      float Bnaught, int seed, int level, int SetBaryonFields)
+					       float Bnaught, int seed, 
+					       float Sindex, float Skmin, float Skmax, 
+					       int level, int SetBaryonFields)
 {
 
   NumberOfBaryonFields = 0;
@@ -89,7 +91,7 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
     }
   }
 
-  if (debug) 
+  if (debug && (MyProcessorNumber == ROOT_PROCESSOR)) 
     printf("Begin generating random magnetic field  spectrum... %"ISYM" %"ISYM" %"ISYM"\n", 
 	   GridDimension[0]-2*DEFAULT_GHOST_ZONES,
 	   GridDimension[1]-2*DEFAULT_GHOST_ZONES,
@@ -98,9 +100,9 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
   Turbulence_Generator(RandomBField, GridDimension[0]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
 		       GridDimension[2]-2*DEFAULT_GHOST_ZONES,
-		       4.0, 1, 5, 1,
+		       Sindex, Skmin, Skmax, 1,
 		       CellLeftEdge, CellWidth, seed);
-  printf("Random B field spectrum generated\n");
+  if (MyProcessorNumber == ROOT_PROCESSOR) printf("Random B field spectrum generated\n");
 
   float BFieldNormalization = 1;
 // for level > 0 grids the MachNumber passed in is actuall the Bfield normalization factor
@@ -128,10 +130,10 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
       for (int i = 0; i < GridDimension[0]; i++, n++) {
 
 	BaryonField[iden ][n] = rho_medium;
-	BaryonField[ivx  ][n] = 1.0;
+	BaryonField[ivx  ][n] = 0.0;
 	BaryonField[ivy  ][n] = 0.0;
 	BaryonField[ivz  ][n] = 0.0;
-	BaryonField[ietot][n] = eint + 0.5*(BaryonField[ivx  ][n]*BaryonField[ivx  ][n]);
+	BaryonField[ietot][n] = eint; // + 0.5*(BaryonField[ivx  ][n]*BaryonField[ivx  ][n]);
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
