@@ -1,7 +1,7 @@
 #include "fortran.def"
 #include "phys_const.def"
 c=======================================================================
-c////////////////////////  SUBROUTINE COOL2D  \\\\\\\\\\\\\\\\\\\\\\\\\\
+c////////////////////////  SUBROUTINE COOL1D  \\\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cool1d(
      &                d, e, ge, u, v, w,
@@ -11,7 +11,7 @@ c
      &                temstart, temend, fh, utem,
      &                eta1, eta2, gamma, coola, gammaha,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d, cool
+     &                tgas, tgasold, p2d, cool, mu
      &                     )
 c
 c  COMPUTE RADIATIVE COOLING/HEATING RATE (DE/DT IN CODE UNITS)
@@ -38,7 +38,7 @@ c
       integer in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter, igammah
       real    temstart, temend, fh, utem, gammaha,
-     &        eta1, eta2, gamma, coola(nratec)
+     &        eta1, eta2, gamma, coola(nratec), mu
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
@@ -66,7 +66,6 @@ c
 c  Set the mean molecular mass
 c     (see also Grid_ComputeTemperatureField.C)
 c
-#define DEFAULT_MU 0.6d0
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -110,7 +109,7 @@ c
 c     Compute temperature
 c
       do i = is+1, ie+1
-         tgas(i) = max(p2d(i)*utem*DEFAULT_MU/d(i,j,k), temstart)
+         tgas(i) = max(p2d(i)*utem*mu/d(i,j,k), temstart)
       enddo
 c
 c     If this is the first time through, just set tgasold to tgas

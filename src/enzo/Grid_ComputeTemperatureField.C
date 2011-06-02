@@ -30,7 +30,6 @@
  
 /* Set the mean molecular mass. */
  
-//#define DEFAULT_MU 0.6
 #define MU_METAL 16.0
  
 /* This is minimum returned temperature. (K) */

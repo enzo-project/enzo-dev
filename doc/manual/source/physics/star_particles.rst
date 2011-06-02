@@ -150,19 +150,19 @@ of star formation described in
 A star may be formed from
 a cell of gas if all of the following conditions are met:
 
-  *. The cell is the most-refined cell at that point in space.
+#. The cell is the most-refined cell at that point in space.
   
-  *. The density of the cell is above a threshold.
+#. The density of the cell is above a threshold.
   
-  *. The cell of gas is in the region of refinement. For unigrid, or
-     AMR-everywhere simulations, this corresponds to the whole volume. But for
-     zoom-in simulations, this prevents star particles from forming in areas
-     that are not being simulated at high resolution.
+#. The cell of gas is in the region of refinement. For unigrid, or
+   AMR-everywhere simulations, this corresponds to the whole volume. But for
+   zoom-in simulations, this prevents star particles from forming in areas
+   that are not being simulated at high resolution.
 
 If a cell has met these conditions, then these quantities are calculated for
 the cell:
 
-  *. Cell star formation timescale (Eqn 21 from Springel & Hernquist).
+* Cell star formation timescale (Eqn 21 from Springel & Hernquist).
      :math:`t_0^{\ast}` and :math:`\rho_{\mathrm{th}}` are inputs to the model,
      and are the star formation time scale and density scaling value,
      respectively. Note that :math:`\rho_{\mathrm{th}}` is not the same as the
@@ -172,7 +172,7 @@ the cell:
      
         t_{\ast}(\rho)=t_0^{\ast}\left(\frac{\rho}{\rho_{\mathrm{th}}}\right)^{-1/2}
   
-  *. Mass fraction in cold clouds, :math:`x` (see Eqns. 16 and 18).
+* Mass fraction in cold clouds, :math:`x` (see Eqns. 16 and 18).
      :math:`y` is a dimensionless quantity
      calculated as part of the formulation;
      :math:`u_{\textrm{SN}}\equiv(1-\beta)\beta^{-1}\epsilon_{\textrm{SN}}` is

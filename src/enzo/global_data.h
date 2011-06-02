@@ -899,4 +899,7 @@ EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
+/* For the database */
+EXTERN char *DatabaseLocation;
+
 #endif

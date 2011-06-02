@@ -11,9 +11,9 @@ will be run.
 In order to run the test_runner suite, go to the enzo/run subdirectory and 
 execute:
 
-Usage: python test_runner.py -o <TEST_DEST_DIR> --<TEST_TAG>=<TEST_TAG_VAL> 
+Usage: ./test_runner.py -o <TEST_DEST_DIR> --<TEST_TAG>=<TEST_TAG_VAL> 
 
-Example: python test_runner.py -o ~/temp --AMR=True --Author="John Wise"
+Example: ./test_runner.py -o ~/temp --AMR=True --author="John Wise"
 
 The test tags are (with defaults first followed by alternatives):
 

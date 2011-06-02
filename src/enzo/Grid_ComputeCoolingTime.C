@@ -95,7 +95,7 @@ extern "C" void FORTRAN_NAME(cool_time)(
 	int *is, int *js, int *ks, int *ie, int *je, int *ke,
 	float *dt, float *aye, float *temstart, float *temend,
 	   float *fh, float *utem,
-	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha);
+	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
 int grid::ComputeCoolingTime(float *cooling_time)
 {
@@ -312,7 +312,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
           &TemperatureUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
-          CoolData.EquilibriumRate, &CoolData.gammah);
+       CoolData.EquilibriumRate, &CoolData.gammah, &Mu);
   }
 
   delete [] TotalMetals;

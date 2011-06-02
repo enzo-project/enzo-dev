@@ -95,7 +95,7 @@ int grid::FlagCellsToBeRefinedByShockwaves(int level)
   }
   float Csound;
   for(i=0; i<size; i++){
-    Csound = sqrt(Gamma*kboltz*temperature[i]/(DEFAULT_MU*mh));
+    Csound = sqrt(Gamma*kboltz*temperature[i]/(Mu*mh));
     if( (BaryonField[MachNum][i]*Csound >= ShockwaveRefinementMinVelocity) &&
 	(level < ShockwaveRefinementMaxLevel) && 
 	(BaryonField[MachNum][i] >= ShockwaveRefinementMinMach)){

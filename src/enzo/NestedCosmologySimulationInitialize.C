@@ -336,6 +336,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ENZO_FAIL("CosmologySimulation: 1-component files only valid for use with "
 	    "CosmologySimulationCalculatePositions.\n");
   }
+
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)

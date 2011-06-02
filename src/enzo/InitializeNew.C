@@ -44,7 +44,7 @@ int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
 int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
                         char* base_name, int &GridID, FLOAT WriteTime);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
-int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
+int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *Filename=NULL);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
 int SetDefaultGlobalValues(TopGridData &MetaData);
 int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum);

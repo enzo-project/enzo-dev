@@ -76,7 +76,7 @@ extern "C" void FORTRAN_NAME(cool_time)(
 	int *is, int *js, int *ks, int *ie, int *je, int *ke,
 	float *dt, float *aye, float *temstart, float *temend,
 	   float *fh, float *utem,
-	float *eta1, float *eta2, float *gamma, float *coola);
+	float *eta1, float *eta2, float *gamma, float *coola, float *mu);
 
 
 int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
@@ -254,7 +254,7 @@ int grid::ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields)
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
           &TemperatureUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
-          CoolData.EquilibriumRate);
+       CoolData.EquilibriumRate, &Mu);
 #endif
 
     // TODO: Convert cooling time to luminosity

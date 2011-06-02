@@ -90,6 +90,12 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
+  }
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 

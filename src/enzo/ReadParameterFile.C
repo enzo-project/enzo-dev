@@ -352,6 +352,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
+    if (sscanf(line, "DatabaseLocation = %s", dummy) == 1) {
+      DatabaseLocation = dummy;
+      ret++;
+    }
+
     if (sscanf(line, "DataLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
       DataLabel[dim] = dummy;
     if (sscanf(line, "DataUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
@@ -421,7 +426,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CMBTemperatureFloor = %"ISYM, &CloudyCoolingData.CMBTemperatureFloor);
     ret += sscanf(line, "CloudyMetallicityNormalization = %"FSYM,&CloudyCoolingData.CloudyMetallicityNormalization);
     ret += sscanf(line, "CloudyElectronFractionFactor = %"FSYM,&CloudyCoolingData.CloudyElectronFractionFactor);
-    ret += sscanf(line, "MetalCooling = %d", &MetalCooling);
+    ret += sscanf(line, "MetalCooling = %"ISYM"", &MetalCooling);
     if (sscanf(line, "MetalCoolingTable = %s", dummy) == 1) {
       MetalCoolingTable = dummy;
       ret++;
@@ -877,28 +882,28 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
     /* Read MHD Paramters */
-    ret += sscanf(line, "UseDivergenceCleaning = %d", &UseDivergenceCleaning);
-    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %d", &DivergenceCleaningBoundaryBuffer);
+    ret += sscanf(line, "UseDivergenceCleaning = %"ISYM"", &UseDivergenceCleaning);
+    ret += sscanf(line, "DivergenceCleaningBoundaryBuffer = %"ISYM"", &DivergenceCleaningBoundaryBuffer);
     ret += sscanf(line, "DivergenceCleaningThreshold = %"FSYM, &DivergenceCleaningThreshold);
     ret += sscanf(line, "PoissonApproximationThreshold = %"FSYM, &PoissonApproximationThreshold);
-    ret += sscanf(line, "PoissonBoundaryType = %d", &PoissonBoundaryType);
+    ret += sscanf(line, "PoissonBoundaryType = %"ISYM"", &PoissonBoundaryType);
    
 
     ret += sscanf(line, "AngularVelocity = %"FSYM, &AngularVelocity);
     ret += sscanf(line, "VelocityGradient = %"FSYM, &VelocityGradient);
-    ret += sscanf(line, "UseDrivingField = %d", &UseDrivingField);
+    ret += sscanf(line, "UseDrivingField = %"ISYM"", &UseDrivingField);
     ret += sscanf(line, "DrivingEfficiency = %"FSYM, &DrivingEfficiency);
 
     ret += sscanf(line, "StringKick = %"FSYM, &StringKick);
     ret += sscanf(line, "StringKickDimension = %"ISYM, &StringKickDimension);
-    ret += sscanf(line, "UsePhysicalUnit = %d", &UsePhysicalUnit);
+    ret += sscanf(line, "UsePhysicalUnit = %"ISYM"", &UsePhysicalUnit);
     ret += sscanf(line, "Theta_Limiter = %"FSYM, &Theta_Limiter);
-    ret += sscanf(line, "RKOrder = %d", &RKOrder);
-    ret += sscanf(line, "UseFloor = %d", &UseFloor);
-    ret += sscanf(line, "UseViscosity = %d", &UseViscosity);
+    ret += sscanf(line, "RKOrder = %"ISYM"", &RKOrder);
+    ret += sscanf(line, "UseFloor = %"ISYM"", &UseFloor);
+    ret += sscanf(line, "UseViscosity = %"ISYM"", &UseViscosity);
     ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);  
-    ret += sscanf(line, "UseAmbipolarDiffusion = %d", &UseAmbipolarDiffusion);
-    ret += sscanf(line, "UseResistivity = %d", &UseResistivity);
+    ret += sscanf(line, "UseAmbipolarDiffusion = %"ISYM"", &UseAmbipolarDiffusion);
+    ret += sscanf(line, "UseResistivity = %"ISYM"", &UseResistivity);
     ret += sscanf(line, "SmallRho = %g", &SmallRho);
     ret += sscanf(line, "SmallP = %g", &SmallP);
     ret += sscanf(line, "SmallT = %g", &SmallT);

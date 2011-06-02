@@ -1,3 +1,5 @@
+.. _parameters:
+
 Enzo Parameter List
 ===================
 
@@ -734,6 +736,8 @@ Hydrodynamic Parameters
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
     this value is ignored in favor of a direct calculation (except for
     PPM LR) Default: 5/3.
+``Mu`` (external)
+    The molecular weight. Default: 0.6.
 ``ConservativeReconstruction`` (external)
     Experimental.  This option turns on the reconstruction of the
     left/right interfaces in the Riemann problem in the conserved
@@ -918,16 +922,44 @@ Gravity Parameters
     completely baryon dominated. It is used to remove the discreteness
     effects of the few remaining dark matter particles. Not used if set
     to a value less than 0. Default: -1
+
+External Gravity Source
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+These parameters set-up an external static background gravity source that is
+added to the acceleration field for the baryons and particles.
+
 ``PointSourceGravity`` (external)
-    This flag (1 - on, 0 - off) indicates if there is to be a
-    (constant) point source gravitational field. Default: 0
+    This parameter indicates that there is to be a
+    (constant) gravitational field with a point source profile (``PointSourceGravity`` =
+    1) or NFW profile (``PointSourceGravity`` = 2). Default: 0
 ``PointSourceGravityConstant`` (external)
-    The magnitude of the point source acceleration at a distance of 1
-    length unit. Default: 1
+    If ``PointSourceGravity`` = 1, this is the magnitude of the point
+    source acceleration at a distance of 1
+    length unit (i.e. GM in code units). If ``PointSourceGravity`` =
+    2, then it takes the mass of the dark matter halo in CGS
+    units. ``ProblemType`` = 31 (galaxy disk simulation) automatically calculates
+    values for ``PointSourceGravityConstant`` and
+    ``PointSourceGravityCoreRadius``. Default: 1
+``PointSourceGravityCoreRadius`` (external)
+    For ``PointSourceGravity`` = 1, this is the radius inside which
+    the acceleration field is smoothed in code units. With ``PointSourceGravity`` =
+    2, it is the scale radius, rs, in CGS units (see Navarro, Frank & White,
+    1997). Default: 0
 ``PointSourceGravityPosition`` (external)
     If the ``PointSourceGravity`` flag is turned on, this parameter
-    specifies the center of the point-source gravitational field.
-    Default: 0 0 0
+    specifies the center of the point-source gravitational field in
+    code units. Default: 0 0 0
+``ExternalGravity`` (external)
+   This fulfills the same purpose as ``PointSourceGravity`` but is
+   more aptly named. Currently, it has only a single option
+   ``ExternalGravity = 1`` which turns on an alternative
+   implementation of the NFW profile. The profile properties are
+   defined via the parameters ``HaloCentralDensity``, ``HaloConcentration`` and ``HaloVirialRadius``. Default: 0 
+``ExternalGravityDensity`` 
+   Reserved for future use.
+``ExternalGravityRadius``
+   Reserved for future use.
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
@@ -991,7 +1023,8 @@ Parameters for Additional Physics
 ``RadiativeCooling`` (external)
     This flag (1 - on, 0 - off) controls whether or not a radiative
     cooling module is called for each grid. There are currently several
-    possibilities, controlled by the value of another flag. Default: 0
+    possibilities, controlled by the value of another flag. See :ref:`cooling` 
+    for more information on the various cooling methods.  Default: 0
     
     -  If the ``MultiSpecies`` flag is off, then equilibrium cooling is
        assumed and one of the following two will happen. If the parameter
@@ -1055,12 +1088,17 @@ Parameters for Additional Physics
     ``MultiSpecies`` and ``RadiationFieldType`` are forced to 0 and
     ``RadiativeCooling`` is forced to 1.
     [Not in public release version]
-
+``PhotoelectricHeating`` (external)
+    If set to be 1, Gamma_pe = 5.1e-26 erg/s will be added uniformly
+    to the gas without any shielding (Tasker & Bryan 2008). At the
+    moment this is still experimental. Default: 0
 ``MultiMetals`` (external)
     This was added so that the user could turn on or off additional
     metal fields - currently there is the standard metallicity field
     (Metal_Density) and two additional metal fields (Z_Field1 and
     Z_Field2). Acceptable values are 1 or 0, Default: 0 (off).
+
+.. _cloudy_cooling:
 
 Cloudy Cooling
 ~~~~~~~~~~~~~~
@@ -1356,15 +1394,17 @@ The parameters below are considered in StarParticleCreation method 9.
         #order: MBH mass (in Ms), MBH location[3], MBH creation time
         100000.0      0.48530579      0.51455688      0.51467896      0.0
 
+.. _radiation_backgrounds:
 
 Background Radiation Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RadiationFieldType`` (external)
     This integer parameter specifies the type of radiation field that
-    is to be used. It can currently only be used if ``MultiSpecies`` = 1
-    (i.e. no molecular H support). The following values are used.
-    Default: 0
+    is to be used. Except for ``RadiationFieldType`` = 9, which should
+    be used with ``MultiSpecies`` = 2, UV backgrounds can currently
+    only be used with ``MultiSpecies`` = 1 (i.e. no molecular H
+    support). The following values are used. Default: 0
 
    ::
   
@@ -1398,6 +1438,17 @@ Background Radiation Parameters
     approximate radiative-shielding. This parameter will be
     automatically turned on when RadiationFieldType is set to 11. See
     ``calc_photo_rates.src``. Default: 0
+``RadiationRedshiftOn`` (external) The redshift at which the UV 
+    background turns on. Default: 7.0.
+``RadiationRedshiftFullOn`` (external) The redshift at which the UV
+    background is at full strength.  Between z =
+    ``RadiationRedshiftOn`` and z = ``RadiationRedshiftFullOn``, the 
+    background is gradually ramped up to full strength. Default: 6.0.
+``RadiationRedshiftDropOff`` (external) The redshift at which the 
+    strength of the UV background is begins to gradually reduce,
+    reaching zero by ``RadiationRedshiftOff``. Default: 0.0.
+``RadiationRedshiftOff`` (external) The redshift at which the UV 
+    background is fully off. Default: 0.0.
 ``AdjustUVBackground`` (external)
     Add description. Default: 1.
 ``SetUVAmplitude`` (external)
@@ -1406,10 +1457,6 @@ Background Radiation Parameters
     Add description. Default: 1.8.
 ``RadiationSpectrumSlope`` (external)
     Add description. Default: 1.5.
-``PhotoelectricHeating`` (external)
-    If set to be 1, Gamma_pe = 5.1e-26 erg/s will be added uniformly
-    to the gas without any shielding (Tasker & Bryan 2008). At the
-    moment this is still experimental. Default: 0
 
 Minimum Pressure Support Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

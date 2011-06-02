@@ -84,6 +84,13 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     }
   }
 
+  /* error checking */
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting Mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   ConductionBubbleGasEnergy = ConductionBubbleTotalEnergy;
 
   float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, TimeUnits=1.0,

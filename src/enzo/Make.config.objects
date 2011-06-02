@@ -828,6 +828,7 @@ OBJS_CONFIG_LIB = \
 	turboinit.o\
         twoshock.o \
 	UpdateFromFinerGrids.o \
+	UpdateLocalDatabase.o \
         UpdateParticlePositions.o \
         utilities.o \
         uuid.o \

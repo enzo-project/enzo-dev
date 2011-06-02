@@ -46,8 +46,10 @@ void get_uuid(char *buffer);
 int RadiativeTransferWriteParameters(FILE *fptr);
 int WritePhotonSources(FILE *fptr, FLOAT CurrentTime);
 #endif /* TRANSFER */
+int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
+                        char *dset_uuid, char *Filename);
  
-int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
+int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 {
  
   MustRefineParticlesMinimumMass *= POW(1/(float(MetaData.TopGridDims[0])
@@ -335,6 +337,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   fprintf(fptr, "RefineRegionTimeType   = %d\n", RefineRegionTimeType);
   if (RefineRegionFile != NULL)
     fprintf(fptr, "RefineRegionFile       = %s\n", RefineRegionFile);
+  fprintf(fptr, "\n");
+  fprintf(fptr, "\n");
+
+  if (DatabaseLocation != NULL)
+    fprintf(fptr, "DatabaseLocation       = %s\n", DatabaseLocation);
   fprintf(fptr, "\n");
   fprintf(fptr, "\n");
  
@@ -954,6 +961,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData)
   /* write version info */
  
   fprintf(fptr, "VersionNumber              = %"FSYM"\n\n", VERSION);
+
+  if (name != NULL)
+    UpdateLocalDatabase(MetaData, ID, dset_uuid, name);
  
   return SUCCESS;
 }
