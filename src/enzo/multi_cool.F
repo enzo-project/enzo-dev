@@ -10,7 +10,7 @@
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod, igammah,
      &                idual, ispecies, imetal, imcool, idim,
-     &                is, js, ks, ie, je, ke, ih2co, ipiht,
+     &                is, js, ks, ie, je, ke, imax, ih2co, ipiht,
      &                dt, aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
@@ -59,7 +59,7 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, n_xe, iradtrans,
-     &        imcool, igammah
+     &        imcool, igammah, imax
       real    dt, aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end
@@ -100,7 +100,8 @@
 !  Parameters
 
       integer itmax, ijk
-      parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
+!      parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      parameter (itmax = 10000)
 
 #ifdef CONFIG_BFLOAT_4
       real tolerance
@@ -123,23 +124,24 @@
 
 !  Row locals
  
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
-     &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
-      double precision edot(ijk)
+      integer indixe(imax)
+      real t1(imax), t2(imax), logtem(imax), tdef(imax), p2d(imax),
+     &     dtit(imax), ttot(imax), tgas(imax), tgasold(imax)
+      double precision edot(imax)
 
 !  Cooling/heating row locals
 
-      double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
-     &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
-     &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
-     &     brem(ijk), cieco(ijk)
-      real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
-     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
+      double precision ceHI(imax), ceHeI(imax), ceHeII(imax),
+     &     ciHI(imax), ciHeI(imax), ciHeIS(imax), ciHeII(imax),
+     &     reHII(imax), reHeII1(imax), reHeII2(imax), reHeIII(imax),
+     &     brem(imax), cieco(imax)
+      real hyd01k(imax), h2k01(imax), vibh(imax), roth(imax), 
+     &     rotl(imax), gpldl(imax), gphdl(imax), hdlte(imax), 
+     &     hdlow(imax)
 
 !  Iteration mask
 
-      logical itmask(ijk)
+      logical itmask(imax)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================

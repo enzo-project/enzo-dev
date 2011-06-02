@@ -8,7 +8,7 @@ c
       subroutine solve_rate(
      &                de, HI, HII, HeI, HeII, HeIII, tgas, d,
      &                in, jn, kn, nratec, ispecies,
-     &                is, js, ks, ie, je, ke,
+     &                is, js, ks, ie, je, ke, imax,
      &                dt, aye, temstart, temend, 
      &                uaye, utim, urho, uxyz, fh, dtoh,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
@@ -46,7 +46,7 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, ispecies,
-     &        iradshield, iradtype, iradtrans, irt_honly
+     &        iradshield, iradtype, iradtrans, irt_honly, imax
       real    dt, aye, temstart, temend, utim, uaye, urho, uxyz,
      &        fh, dtoh
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
@@ -69,8 +69,9 @@ c
 c
 c  Parameters
 c
-      integer itmax, ijk
-      parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      integer itmax
+!      parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      parameter (itmax = 5000)
 
 #ifdef CONFIG_BFLOAT_4
       real tolerance
@@ -91,30 +92,30 @@ c
       integer i, j, k, n, iter, n1
       real qq, vibl, logtem0, logtem9, dlogtem
       real ttmin, comp1, comp2, c2, scoef, acoef, nh, dom, factor, x
-      real HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
-     &     HMp(ijk), H2Ip(ijk), H2IIp(ijk),
-     &     dep(ijk), dedot(ijk),HIdot(ijk),
-     &     DIp(ijk), DIIp(ijk), HDIp(ijk),
-     &     k24shield(ijk), k25shield(ijk), k26shield(ijk),
-     &     totalH(ijk), totalHe(ijk), totalD, 
+      real HIp(imax), HIIp(imax), HeIp(imax), HeIIp(imax), HeIIIp(imax),
+     &     HMp(imax), H2Ip(imax), H2IIp(imax),
+     &     dep(imax), dedot(imax),HIdot(imax),
+     &     DIp(imax), DIIp(imax), HDIp(imax),
+     &     k24shield(imax), k25shield(imax), k26shield(imax),
+     &     totalH(imax), totalHe(imax), totalD, 
      &     correctH, correctHe, correctD, metalfree
 
       double precision coolunit, dbase1, tbase1, xbase1
 c
 c  Slice temporaries (passed in)
 c 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
-     &     dtit(ijk), ttot(ijk)
+      integer indixe(imax)
+      real t1(imax), t2(imax), logtem(imax), tdef(imax), 
+     &     dtit(imax), ttot(imax)
 c
 c  Rate equation slice temporaries (passed in)
 c
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
-     &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
-     &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
-     &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
-     &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
-     &     k55(ijk), k56(ijk), k13dd(ijk, 7)
+      real k1 (imax), k2 (imax), k3 (imax), k4 (imax), k5 (imax),
+     &     k6 (imax), k7 (imax), k8 (imax), k9 (imax), k10(imax),
+     &     k11(imax), k12(imax), k13(imax), k14(imax), k15(imax),
+     &     k16(imax), k17(imax), k18(imax), k19(imax), k22(imax),
+     &     k50(imax), k51(imax), k52(imax), k53(imax), k54(imax),
+     &     k55(imax), k56(imax), k13dd(imax, 7)
 c
 c      real tgas(in,jn,kn), tgasold(in,jn,kn)
 c

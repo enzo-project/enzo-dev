@@ -9,7 +9,8 @@
      &                HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, ispecies, imetal, imcool, idim,
-     &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
+     &                is, js, ks, ie, je, ke, imax, ih2co, ipiht, 
+     &                igammah,
      &                dt, aye, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma, fh, dtoh,
@@ -129,7 +130,7 @@
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
-     &        igammah, ih2optical, iciecool, ithreebody
+     &        igammah, ih2optical, iciecool, ithreebody, imax
       real    dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
 
@@ -190,8 +191,9 @@
 
 !  Parameters
 
-      integer itmax, ijk
-      parameter (itmax = 10000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      integer itmax
+!      parameter (itmax = 10000, imax = MAX_ANY_SINGLE_DIRECTION)
+      parameter (itmax = 10000)
 
 #ifdef CONFIG_BFLOAT_4
       real tolerance
@@ -217,37 +219,38 @@
 
 !  row temporaries
 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
-     &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
+      integer indixe(imax)
+      real t1(imax), t2(imax), logtem(imax), tdef(imax), 
+     &     dtit(imax), ttot(imax), p2d(imax), tgas(imax), tgasold(imax),
      &     olddtit
 
 !  Rate equation row temporaries
 
-      real HIp(ijk), HIIp(ijk), HeIp(ijk), HeIIp(ijk), HeIIIp(ijk),
-     &     HMp(ijk), H2Ip(ijk), H2IIp(ijk),
-     &     dep(ijk), dedot(ijk),HIdot(ijk), dedot_prev(ijk),
-     &     DIp(ijk), DIIp(ijk), HDIp(ijk), HIdot_prev(ijk),
-     &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
-     &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
-     &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
-     &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
-     &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
-     &     k55(ijk), k56(ijk), k13dd(ijk, 7)
+      real HIp(imax), HIIp(imax), HeIp(imax), HeIIp(imax), HeIIIp(imax),
+     &     HMp(imax), H2Ip(imax), H2IIp(imax),
+     &     dep(imax), dedot(imax),HIdot(imax), dedot_prev(imax),
+     &     DIp(imax), DIIp(imax), HDIp(imax), HIdot_prev(imax),
+     &     k24shield(imax), k25shield(imax), k26shield(imax)
+      real k1 (imax), k2 (imax), k3 (imax), k4 (imax), k5 (imax),
+     &     k6 (imax), k7 (imax), k8 (imax), k9 (imax), k10(imax),
+     &     k11(imax), k12(imax), k13(imax), k14(imax), k15(imax),
+     &     k16(imax), k17(imax), k18(imax), k19(imax), k22(imax),
+     &     k50(imax), k51(imax), k52(imax), k53(imax), k54(imax),
+     &     k55(imax), k56(imax), k13dd(imax, 7)
 
 !  Cooling/heating row locals
 
-      double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
-     &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
-     &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
-     &     brem(ijk), edot(ijk)
-      real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
-     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), cieco(ijk)
+      double precision ceHI(imax), ceHeI(imax), ceHeII(imax),
+     &     ciHI(imax), ciHeI(imax), ciHeIS(imax), ciHeII(imax),
+     &     reHII(imax), reHeII1(imax), reHeII2(imax), reHeIII(imax),
+     &     brem(imax), edot(imax)
+      real hyd01k(imax), h2k01(imax), vibh(imax), roth(imax), 
+     &     rotl(imax), gpldl(imax), gphdl(imax), hdlte(imax), 
+     &     hdlow(imax), cieco(imax)
 
 !  Iteration mask
 
-      logical itmask(ijk)
+      logical itmask(imax)
 !
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -370,7 +373,7 @@
 !         (maybe should add itmask to this call)
 
             call lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &               is, ie, ijk, iradtype, iradshield, ithreebody,
+     &               is, ie, imax, iradtype, iradshield, ithreebody,
      &               in, jn, kn,
      &               ispecies, tgas, HI, HII, HeI, HeII,
      &               k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
@@ -675,7 +678,7 @@
       call make_consistent(de, HI, HII, HeI, HeII, HeIII,
      &                     HM, H2I, H2II, DI, DII, HDI, metal, 
      &                     d, is, ie, js, je, ks, ke,
-     &                     in, jn, kn, ispecies, imetal, fh, dtoh)
+     &                     in, jn, kn, imax, ispecies, imetal, fh, dtoh)
 
       return
       end
@@ -839,7 +842,7 @@ c -------------------------------------------------------------------
 !   of temperature.
 
       subroutine lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &                is, ie, ijk, iradtype, iradshield, ithreebody,
+     &                is, ie, imax, iradtype, iradshield, ithreebody,
      &                in, jn, kn,
      &                ispecies, tgas1d, HI, HII, HeI, HeII,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
@@ -860,11 +863,11 @@ c -------------------------------------------------------------------
 
 !     Arguments
 
-      integer is, ie, ijk, iradtype, iradshield, nratec, 
+      integer is, ie, imax, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, ithreebody, j, k
       real temstart, temend, tgas1d(in), dom
       double precision coolunit, tbase1
-      logical itmask(ijk)
+      logical itmask(imax)
 
 !     Chemistry rates as a function of temperature
 
@@ -886,18 +889,18 @@ c -------------------------------------------------------------------
 
 !     Returned rate values
 
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
-     &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
-     &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
-     &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
-     &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
-     &     k55(ijk), k56(ijk), k13dd(ijk, 7),
-     &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
+      real k1 (imax), k2 (imax), k3 (imax), k4 (imax), k5 (imax),
+     &     k6 (imax), k7 (imax), k8 (imax), k9 (imax), k10(imax),
+     &     k11(imax), k12(imax), k13(imax), k14(imax), k15(imax),
+     &     k16(imax), k17(imax), k18(imax), k19(imax), k22(imax),
+     &     k50(imax), k51(imax), k52(imax), k53(imax), k54(imax),
+     &     k55(imax), k56(imax), k13dd(imax, 7),
+     &     k24shield(imax), k25shield(imax), k26shield(imax)
 
 !     1D temporaries (passed in)
 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
+      integer indixe(imax)
+      real t1(imax), t2(imax), logtem(imax), tdef(imax)
 
 !     Parameters
 
@@ -1685,9 +1688,9 @@ c
 !     insure conservation of particle number and charge.
 
       subroutine make_consistent(de, HI, HII, HeI, HeII, HeIII,
-     &                        HM, H2I, H2II, DI, DII, HDI, metal, d,
-     &                        is, ie, js, je, ks, ke,
-     &                        in, jn, kn, ispecies, imetal, fh, dtoh)
+     &     HM, H2I, H2II, DI, DII, HDI, metal, d,
+     &     is, ie, js, je, ks, ke, in, jn, kn, imax, 
+     &     ispecies, imetal, fh, dtoh)
 ! -------------------------------------------------------------------
 
       implicit NONE
@@ -1704,15 +1707,14 @@ c
 
 !     Parameters
 
-      integer ijk
-      parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
+      integer imax
 
 !     locals
 
       integer i, j, k
-      real totalH(ijk), totalHe(ijk), 
+      real totalH(imax), totalHe(imax), 
      &     totalD, correctH, correctHe, correctD
-      real metalfree(ijk)
+      real metalfree(imax)
 
 !     Loop over all zones
 

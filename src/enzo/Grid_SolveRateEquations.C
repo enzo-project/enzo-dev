@@ -37,7 +37,7 @@ extern "C" void FORTRAN_NAME(solve_rate)(
 	float *de, float *HI, float *HII, float *HeI, float *HeII,
 	   float *HeIII, float *tgas, float *dens,
 	int *in, int *jn, int *kn, int *nratec, int *iuse_hm,
-	int *is, int *js, int *ks, int *ie, int *je, int *ke,
+	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *imax,
 	float *dt, float *aye, float *temstart, float *temend,
 	float *uaye, float *utim, float *urho, float *uxyz,
            float *fh, float *dtoh,
@@ -155,8 +155,11 @@ int grid::SolveRateEquations()
   float *temperature = new float[size];
   if (this->ComputeTemperatureField(temperature) == FAIL) {
     ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
-
   }
+
+  int dim, MaxDimension = 0;
+  for (dim = 0; dim < GridRank; dim++)
+    MaxDimension = max(MaxDimension, GridDimension[dim]);
  
   /* Call the fortran routine to solve cooling equations. */
  
@@ -167,7 +170,7 @@ int grid::SolveRateEquations()
        GridDimension, GridDimension+1, GridDimension+2,
           &CoolData.NumberOfTemperatureBins, &MultiSpecies,
        GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-          GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+          GridEndIndex, GridEndIndex+1, GridEndIndex+2, &MaxDimension,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd,
        &aUnits, &TimeUnits, &DensityUnits, &LengthUnits,

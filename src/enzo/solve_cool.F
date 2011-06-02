@@ -8,7 +8,7 @@ c
      &                d, e, ge, u, v, w,
      &                in, jn, kn, nratec, iexpand, imethod, cool_method,
      &                idual, idim, igammah,
-     &                is, js, ks, ie, je, ke, 
+     &                is, js, ks, ie, je, ke, imax,
      &                dt, aye, temstart, temend, fh,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma, coola, gammaha, mu)
@@ -35,7 +35,7 @@ c
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke,
+      integer in, jn, kn, is, js, ks, ie, je, ke, imax,
      &       idual, iexpand, nratec, idim, imethod, igammah, cool_method
       real    dt, aye, temstart, temend, fh, gammaha,
      &        utem, uxyz, uaye, urho, utim,
@@ -45,8 +45,9 @@ c
 c
 c  Parameters
 c
-      integer itmax, ijk
-      parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      integer itmax
+!      parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
+      parameter (itmax = 5000)
 
 #ifdef CONFIG_BFLOAT_4
       real tolerance
@@ -65,10 +66,10 @@ c
 c
 c  Slice locals
 c 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
-     &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk),
-     &     cool(ijk), edot(ijk)
+      integer indixe(imax)
+      real t1(imax), t2(imax), logtem(imax), tdef(imax), p2d(imax),
+     &     dtit(imax), ttot(imax), tgas(imax), tgasold(imax),
+     &     cool(imax), edot(imax)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
