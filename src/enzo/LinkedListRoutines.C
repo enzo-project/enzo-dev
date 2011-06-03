@@ -12,13 +12,19 @@
 
 void MergePhotonLists(PhotonPackageEntry * &Node1, PhotonPackageEntry * &Node2)
 {
-  // Find the end of list 1;
-  PhotonPackageEntry *Temp = Node1;
-  while (Temp->NextPackage != NULL)
-    Temp = Temp->NextPackage;
-  // Now we can link them together (tail to head)
-  Temp->NextPackage = Node2;
-  Node2->PreviousPackage = Temp;
+  // Find the end of list 2 (list 1 should be the main list)
+  PhotonPackageEntry *Tail2 = Node2;
+  while (Tail2->NextPackage != NULL)
+    Tail2 = Tail2->NextPackage;
+  // Now we can link them together
+  Node2->PreviousPackage = Node1;  // head2 back to node1
+  Tail2->NextPackage = Node1->NextPackage; // tail2 to node1->next
+  // tail1 back to tail2
+  if (Node1->NextPackage != NULL)
+    Node1->NextPackage->PreviousPackage = Tail2;
+  Node1->NextPackage = Node2;
+  //Tail2->NextPackage = Node2;
+  //Node2->PreviousPackage = Tail2;
   return;
 }
 

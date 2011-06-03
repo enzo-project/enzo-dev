@@ -194,8 +194,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 #pragma omp single
     {
       this->PhotonPackages->NextPackage = NULL;
+#ifdef UNUSED
       this->FinishedPhotonPackages->NextPackage = NULL;
       this->PausedPhotonPackages->NextPackage = NULL;
+#endif
     }
 
   }
@@ -320,9 +322,9 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   } // ENDWHILE photons
 
   if (DEBUG)
-    fprintf(stdout, "T%d: grid::TransportPhotonPackage: "
+    fprintf(stdout, "T%d: grid::TransportPhotonPackage (Grid %d): "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
-	    ThreadNum, tcount, dcount, pcount, trcount);
+	    ThreadNum, this->ID, tcount, dcount, pcount, trcount);
 
   /* All of the work is finished.  Now we merge the linked lists,
      including the photon move list, on each thread together again.
