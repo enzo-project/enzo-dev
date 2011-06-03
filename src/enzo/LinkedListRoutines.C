@@ -10,9 +10,33 @@
 #include "GridList.h"
 #include "Grid.h"
 
+void MergePhotonLists(PhotonPackageEntry * &Node1, PhotonPackageEntry * &Node2)
+{
+  // Find the end of list 1;
+  PhotonPackageEntry *Temp = Node1;
+  while (Temp->NextPackage != NULL)
+    Temp = Temp->NextPackage;
+  // Now we can link them together (tail to head)
+  Temp->NextPackage = Node2;
+  Node2->PreviousPackage = Temp;
+  return;
+}
+
+void MergePhotonMoveLists(ListOfPhotonsToMove * &Node1, 
+			  ListOfPhotonsToMove * &Node2)
+{
+  // Find the end of list 2 (list 1 should be the main list)
+  ListOfPhotonsToMove *Temp = Node2;
+  while (Temp->NextPackageToMove != NULL)
+    Temp = Temp->NextPackageToMove;
+  // Now we can link them together (tail to head)
+  Temp->NextPackageToMove = Node1->NextPackageToMove;
+  Node1->NextPackageToMove = Node2;
+  return;
+}
+
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode)
 {
-
   NewNode->PreviousPackage = Node;
   NewNode->NextPackage = Node->NextPackage;
   if (Node->NextPackage != NULL)

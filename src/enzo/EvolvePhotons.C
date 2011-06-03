@@ -640,7 +640,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     
     FirstTime = false;
 
-#ifdef REPORT_PERF
+#ifdef UNUSED//REPORT_PERF
   if (!FirstTime) {
     if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
     for (int i = 0; i < 1; i++) {  // Only report on ROOT, not all

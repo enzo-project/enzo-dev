@@ -16,6 +16,9 @@
 /  RETURNS: FAIL or SUCCESS
 /
 ************************************************************************/
+#ifdef _OPENMP
+#include <omp.h>
+#endif /* _OPENMP */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -29,6 +32,9 @@
 #include "Grid.h"
 
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
+void MergePhotonLists(PhotonPackageEntry * &Node1, PhotonPackageEntry * &Node2);
+void MergePhotonMoveLists(ListOfPhotonsToMove * &Node1, 
+			  ListOfPhotonsToMove * &Node2);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
 PhotonPackageEntry *DeletePhotonPackage(PhotonPackageEntry *PP);
 int FindField(int field, int farray[], int numfields);
@@ -42,7 +48,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 {
 
   int i,j,k, dim, index, count;
-  grid *MoveToGrid;
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -110,16 +115,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   PhotonPackageEntry *PP, *FPP, *SavedPP, *PausedPP;
   PP = PhotonPackages;
 
-  if (DEBUG) {
-    count = 0;
-    while ((PP->NextPackage) != NULL) { 
-      count++;
-      PP=PP->NextPackage;
-    }
-    fprintf(stdout, "TransportPhotonPackage: done initializing.\n");
-    fprintf(stdout, "counted %"ISYM" packages\n", count);
-  }
-
   /* If requested, make vertex centered field (only when it doesn't
      exist ... see inside routine). */
 
@@ -132,16 +127,87 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 	}
 
   count = 0;
+  while (PP->NextPackage != NULL) { 
+    count++;
+    PP = PP->NextPackage;
+  }
+  if (DEBUG) {
+    fprintf(stdout, "TransportPhotonPackage: done initializing.\n");
+    fprintf(stdout, "counted %"ISYM" packages\n", count);
+  }
+
+#pragma omp parallel private(PP, FPP, PausedPP, SavedPP)
+  {
+
+  int ii, pstart, pend, photons_per_thread;
+  int CoresPerProcess = NumberOfCores / NumberOfProcessors;
+  int ThreadNum = 0;
+#ifdef _OPENMP
+  ThreadNum = omp_get_thread_num();
+#endif
+
+  /* Manually split linked list of photons into separate links for
+     each thread */
+
+  PhotonPackageEntry *HeadPointer = new PhotonPackageEntry;
   PP = PhotonPackages->NextPackage;
-  FPP = this->FinishedPhotonPackages;
-  PausedPP = this->PausedPhotonPackages;
-  
+
+  if (CoresPerProcess == 1) {
+    FPP = this->FinishedPhotonPackages;
+    PausedPP = this->PausedPhotonPackages;
+  } else {
+    PhotonPackageEntry *TempPP;
+    FPP = new PhotonPackageEntry;
+    PausedPP = new PhotonPackageEntry;
+    photons_per_thread = count / CoresPerProcess;
+    pstart = photons_per_thread * ThreadNum;
+    pend = min(count, photons_per_thread * (ThreadNum+1))-1;
+    if (DEBUG)
+      printf("PP threading: thread %d, %d/%d photons, %d -> %d\n", 
+	     ThreadNum, photons_per_thread, count, pstart, pend);
+    for (ii = 0; ii < pstart; ii++)
+      PP = PP->NextPackage;
+
+    // Save the first photon pointer
+    MergePhotonLists(HeadPointer, PP);
+
+    // Set NextPackage of the last photon in the list to NULL to
+    // terminate the list.
+    TempPP = PP;
+    for (ii = pstart; ii < pend; ii++)
+      TempPP = TempPP->NextPackage;
+
+    // Need the barrier, so we don't break the list before all of the
+    // threads have their own list from the main list.
+#pragma omp barrier
+    TempPP->NextPackage = NULL;
+
+    // The first photon package to calculate the one linked by
+    // HeadPointer
+    PP = HeadPointer->NextPackage;
+
+    /* Detach linked lists from the grid pointers.  Only one thread
+       needs to do this because the grid data are shared. */
+
+#pragma omp single
+    {
+      this->PhotonPackages->NextPackage = NULL;
+      this->FinishedPhotonPackages->NextPackage = NULL;
+      this->PausedPhotonPackages->NextPackage = NULL;
+    }
+
+  }
+
   int dcount = 0;
   int tcount = 0;
   int pcount = 0;
   int trcount = 0;
   int AdvancePhotonPointer;
   int DeleteMe, DeltaLevel, PauseMe;
+
+  grid *MoveToGrid;
+  ListOfPhotonsToMove *ThreadedMoveList = new ListOfPhotonsToMove;
+  ThreadedMoveList->NextPackageToMove = NULL;
 
   const float clight = 2.9979e10;
   float LightCrossingTime = 1.7320508 * (VelocityUnits) /
@@ -220,8 +286,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 		 PP->NextPackage,  PhotonPackages);
       }
       ListOfPhotonsToMove *NewEntry = new ListOfPhotonsToMove;
-      NewEntry->NextPackageToMove = (*PhotonsToMove)->NextPackageToMove;
-      (*PhotonsToMove)->NextPackageToMove = NewEntry;
+      NewEntry->NextPackageToMove = ThreadedMoveList->NextPackageToMove;
+      ThreadedMoveList->NextPackageToMove = NewEntry;
       NewEntry->PhotonPackage = PP;
       NewEntry->FromGrid = CurrentGrid;
       NewEntry->ToGrid   = MoveToGrid;
@@ -252,10 +318,45 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   } // ENDWHILE photons
 
   if (DEBUG)
-    fprintf(stdout, "grid::TransportPhotonPackage: "
+    fprintf(stdout, "T%d: grid::TransportPhotonPackage: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
-	    tcount, dcount, pcount, trcount);
-  NumberOfPhotonPackages -= dcount;
+	    ThreadNum, tcount, dcount, pcount, trcount);
+
+  /* All of the work is finished.  Now we merge the linked lists,
+     including the photon move list, on each thread together again.
+     This section is critical because we'll be modifying the grid
+     pointers. */
+
+  ListOfPhotonsToMove *PM = ThreadedMoveList->NextPackageToMove;
+
+#pragma omp critical
+  {
+    if (CoresPerProcess > 1) {
+      if (HeadPointer->NextPackage != NULL)
+	MergePhotonLists(this->PhotonPackages, HeadPointer->NextPackage);
+      if (FPP->NextPackage != NULL)
+	MergePhotonLists(this->FinishedPhotonPackages, FPP->NextPackage);
+      if (PausedPP->NextPackage != NULL)
+	MergePhotonLists(this->PausedPhotonPackages, PausedPP->NextPackage);
+    } // ENDIF multicore
+
+    if (PM != NULL)
+      MergePhotonMoveLists(*PhotonsToMove, PM);
+
+    this->NumberOfPhotonPackages -= dcount;
+
+  } // END critical
+
+  /* Cleanup */
+
+  delete ThreadedMoveList;
+  delete HeadPointer;
+  if (CoresPerProcess > 1) {
+    delete FPP;
+    delete PausedPP;
+  }
+
+  } // END parallel
 
 #ifdef UNUSED
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {

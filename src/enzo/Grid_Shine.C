@@ -36,15 +36,17 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
   RadiationSourceEntry *RS = RadiationSource;
   FLOAT min_beam_zvec, vec[3];
-  int BasePackages, NumberOfNewPhotonPackages;
+  int BasePackages, NumberOfNewPhotonPackages, PackagesPerThread;
   int i, j, dim;
   int count=0;
   int min_level = RadiativeTransferInitialHEALPixLevel;
+  int NumberOfThreads = NumberOfCores / NumberOfProcessors;
 
   /* base number of rays to star with: for min_level=2 this is 192
      photon packages per source */
 
   BasePackages = 12*(int)pow(4,min_level);
+  PackagesPerThread = nint(ceil(float(BasePackages) / NumberOfThreads));
 
   /* If using a beamed source, calculate the minimum z-component of
      the ray normal (always beamed in the polar coordinate). */
@@ -87,7 +89,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   
   if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
-  int ebin;
+  int ebin, base_ipix, mod_ipix;
   FLOAT FuzzyLength;
   FLOAT ShakeSource[3];
   double RampPercent = 1;
@@ -168,8 +170,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	FieldsToInterpolate[H2INum] = TRUE;
 	break;
       } // ENDSWITCH ebin
-      
-    // DEBUG fudge
+
     for (j=0; j<BasePackages; j++) {
 
       if (RS->Type == Beamed) {
@@ -208,8 +209,13 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->EmissionTime = PhotonTime;
 	NewPack->CurrentTime  = PhotonTime;
 	NewPack->ColumnDensity = 0;
-	NewPack->Radius = 0.;
-	NewPack->ipix = j;
+	NewPack->Radius = 0.0;
+	// Distribute pixel numbers by number of threads for better
+	// OpenMP load balancing
+	// e.g. 0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11
+	base_ipix = (j % PackagesPerThread) * NumberOfThreads;
+	mod_ipix = j / PackagesPerThread;
+	NewPack->ipix = base_ipix + mod_ipix;
 	NewPack->level = min_level;
 	NewPack->Energy = RS->Energy[ebin];
 	FLOAT dir_vec[3];
