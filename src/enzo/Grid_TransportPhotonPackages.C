@@ -142,6 +142,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int ii, pstart, pend, photons_per_thread;
   int CoresPerProcess = NumberOfCores / NumberOfProcessors;
   int ThreadNum = 0;
+  bool SingleThread = (CoresPerProcess == 1 || count < CoresPerProcess);
 #ifdef _OPENMP
   ThreadNum = omp_get_thread_num();
 #endif
@@ -152,9 +153,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   PhotonPackageEntry *HeadPointer = new PhotonPackageEntry;
   PP = PhotonPackages->NextPackage;
 
-  if (CoresPerProcess == 1) {
+  if (SingleThread) {
     FPP = this->FinishedPhotonPackages;
     PausedPP = this->PausedPhotonPackages;
+    if (ThreadNum > 0) PP = NULL; // Other cores are idle if not enough work
   } else {
     PhotonPackageEntry *TempPP;
     FPP = new PhotonPackageEntry;
@@ -331,7 +333,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
 #pragma omp critical
   {
-    if (CoresPerProcess > 1) {
+    if (!SingleThread) {
       if (HeadPointer->NextPackage != NULL)
 	MergePhotonLists(this->PhotonPackages, HeadPointer->NextPackage);
       if (FPP->NextPackage != NULL)
@@ -351,7 +353,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   delete ThreadedMoveList;
   delete HeadPointer;
-  if (CoresPerProcess > 1) {
+  if (!SingleThread) {
     delete FPP;
     delete PausedPP;
   }
