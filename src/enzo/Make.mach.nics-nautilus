@@ -1,0 +1,123 @@
+#=======================================================================
+#
+# FILE:        Make.mach.nics-nautilus
+#
+# DESCRIPTION: Makefile settings for NICS' Nautilus
+#
+# AUTHOR:      Brian O'Shea	
+#
+# DATE:        2011-may-26
+# MODIFIED1:   
+#
+#=======================================================================
+
+MACH_TEXT  = NICS Nautilus
+MACH_VALID = 1
+MACH_FILE  = Make.mach.nics-nautilus
+
+MACHINE_NOTES = "MACHINE_NOTES for Nautilus at NICS: \\n\
+	Unload the default hdf5 and mpt modules, and then load the following modules:\\n\
+	1) mercurial/1.6.4 \\n\
+	2) hdf5/1.8.5 \\n\
+	3) mpt/2.04" \\n
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL    = 
+LOCAL_HDF5_INSTALL   = /sw/analysis/hdf5/1.8.5/sles11.1_intel11.1
+
+LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
+LOCAL_HYPRE_INSTALL  = 
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = icpc
+
+# With MPI
+
+MACH_CC_MPI    = icc -lmpi
+MACH_CXX_MPI   = icpc -lmpi
+MACH_FC_MPI    = ifort -lmpi
+MACH_F90_MPI   = ifort -lmpi
+MACH_LD_MPI    = icpc -lmpi 
+
+# Without MPI
+
+MACH_CC_NOMPI  = icc
+MACH_CXX_NOMPI = icpc
+MACH_FC_NOMPI  = ifort
+MACH_F90_NOMPI = ifort
+MACH_LD_NOMPI  = icpc
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   =  -DIA64 -DNO_IO_LOG -DSYSCALL -DH5_USE_16_API 
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   =  
+MACH_CXXFLAGS =  
+MACH_FFLAGS   = 
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = -L/opt/sgi/mpt/mpt-2.04/lib -lmpi
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = -i4
+MACH_FFLAGS_INTEGER_64 = -i8
+MACH_FFLAGS_REAL_32    = -r4
+MACH_FFLAGS_REAL_64    = -r8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -w2 -g
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = 
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = 
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
+LOCAL_LIBS_HYPRE  = 
+
+LOCAL_LIBS_MACH   = -L/usr/local/lib -lz -lm -lsz -L/opt/intel/Compiler/11.1/038/lib/intel64 -lifcore -lifport -lpthread -ldl
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
