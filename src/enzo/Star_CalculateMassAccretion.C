@@ -102,8 +102,8 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
       igrid[0] + CurrentGrid->GridStartIndex[0];
     density = CurrentGrid->BaryonField[DensNum][index];
     if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (DEFAULT_MU * m_h);
-      mu = DEFAULT_MU;
+      number_density = density * DensityUnits / (Mu * m_h);
+      mu = Mu;
     } else {
       number_density = 
 	CurrentGrid->BaryonField[HINum][index] + 
@@ -179,8 +179,8 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 // 	    CurrentGrid->GridDimension[0], CurrentGrid->GridDimension[1], CurrentGrid->GridDimension[2]);
 
     if (MultiSpecies == 0) {
-      number_density = density * DensityUnits / (DEFAULT_MU * m_h);
-      mu = DEFAULT_MU;
+      number_density = density * DensityUnits / (Mu * m_h);
+      mu = Mu;
     } else {
       /*
       printf("star::CMA: HI, HII, De, HeI, HeII, HeIII, index = %d %d %d %d %d %d %d\n",

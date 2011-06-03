@@ -86,6 +86,14 @@ int RadHydroStreamTestInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+
+  // ensure molecular weight is consistent
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // ensure that streaming dimension is active for this rank
   if (RadStreamDim >= MetaData.TopGridRank) {
     fprintf(stderr,"RadStreamDim = %"ISYM" illegal for rank = %"ISYM"!\n",

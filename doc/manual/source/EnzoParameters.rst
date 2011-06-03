@@ -736,6 +736,8 @@ Hydrodynamic Parameters
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
     this value is ignored in favor of a direct calculation (except for
     PPM LR) Default: 5/3.
+``Mu`` (external)
+    The molecular weight. Default: 0.6.
 ``ConservativeReconstruction`` (external)
     Experimental.  This option turns on the reconstruction of the
     left/right interfaces in the Riemann problem in the conserved

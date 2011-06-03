@@ -89,6 +89,13 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
   }
 
 
+  /* error checking */
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting Mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 
     if (InitializeRateData(MetaData.Time) == FAIL) {
