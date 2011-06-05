@@ -183,7 +183,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
     strcpy(logname, hdfname);
     strcat(logname, ".log2");
     if (io_log) log_fptr = fopen(logname, "a");
-    delete logname;
+    delete [] logname;
  
     if (io_log) fprintf(log_fptr, "ReadEB start\n");
     if (io_log) fprintf(log_fptr, "  NumberOfBaryonFields %"ISYM"\n", NumberOfBaryonFields);
@@ -418,10 +418,10 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
         delete [] bv_buffer;
 #endif
  
-	delete buffer;
-        delete nfile;
-        delete dname1;
-        delete dname2;
+	delete [] buffer;
+        delete [] nfile;
+        delete [] dname1;
+        delete [] dname2;
  
         h5_status = H5Dclose(dset_id1);
 	if (io_log) fprintf(log_fptr,"H5Dclose 1: %"ISYM"\n", h5_status);
