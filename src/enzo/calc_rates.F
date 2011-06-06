@@ -903,9 +903,9 @@ c
       compa     = 5.65d-36 / coolunit
 c
 c     i) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
-c        with epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
+c        Default is 8.5e-26 for epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
 c
-      gammaha   = 8.5d-26 / coolunit
+      gammaha   = gammaha / coolunit
 c
 c -------------------------------------------------
 c  3) External radiative processes

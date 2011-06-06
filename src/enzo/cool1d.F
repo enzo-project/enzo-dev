@@ -151,7 +151,7 @@ c
 c
 c        Photoelectric heating  
 c
-         edot(i) = edot(i) + float(igammah)*gammaha*d(i,j,k)
+         edot(i) = edot(i) + float(igammah)*gammaha*mh
 c
       enddo
 c
