@@ -9,7 +9,8 @@ c
      &             utem, uxyz, uaye, urho, utim,
      &             ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &             ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &             reHeII2a, reHeIIIa, brema, compa, gammaha,
+     &             reHeII2a, reHeIIIa, brema, compa, 
+     &             gammahacgs, gammaha,
      &             piHI, piHeI, piHeII,
      &             hyd01ka, h2k01a, vibha, rotha, rotla, 
      &             gpldl, gphdl, hdltea, hdlowa, hdcool, ciecoa,
@@ -162,7 +163,7 @@ c
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
      &        gaHpa(nratec), gaela(nratec),
      &        ciecoa(nratec)
-      real    compa, gammaha, piHI, piHeI, piHeII
+      real    compa, gammaha, gammahacgs, piHI, piHeI, piHeII
       real    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &        k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &        k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
@@ -905,7 +906,7 @@ c
 c     i) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
 c        Default is 8.5e-26 for epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
 c
-      gammaha   = gammaha / coolunit
+      gammaha   = gammahacgs / coolunit
 c
 c -------------------------------------------------
 c  3) External radiative processes

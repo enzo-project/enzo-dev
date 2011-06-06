@@ -344,7 +344,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SetUVBAmplitude             = 1.0;
   SetHeIIHeatingScale         = 1.8;
   PhotoelectricHeating	      = 0;
-  CoolData.gammah             = 8.5e-26;           // ergs cm-3 s-1
+  PhotoelectricHeatingRate    = 8.5e-26;           // ergs cm-3 s-1
   RadiationXRaySecondaryIon   = 0;
   RadiationXRayComptonHeating = 0;
 
