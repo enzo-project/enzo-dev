@@ -130,7 +130,7 @@ int InitializeEquilibriumCoolData(FLOAT Time)
  
   /*  Photoelectric heating by UV-irradiated dust (Wolfire 1995)
       Default is 8.5e-26 for epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3) 
-      The extra factor of */
+      The extra factor of dbase1/mh is taken out when used in cool1d.F */
 
   CoolData.gammah = PhotoelectricHeatingRate / CoolUnit;
 
