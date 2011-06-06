@@ -889,6 +889,10 @@ EXTERN int OutputWhenJetsHaveNotEjected;
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
 
+/* Gas drag */
+EXTERN int UseGasDrag;
+EXTERN float GasDragCoefficient;
+
 EXTERN char current_error[255];
 
 /* Thermal conduction */

@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <vector>
 
 #ifdef CONFIG_USE_LIBCONFIG
 #include <libconfig.h++>
@@ -922,7 +923,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "UseConstantAcceleration = %"ISYM, &UseConstantAcceleration);
     ret += sscanf(line, "ConstantAcceleration = %"GSYM" %"GSYM" %"GSYM, &ConstantAcceleration[0],
 		  &ConstantAcceleration[1], &ConstantAcceleration[2]);
-    ret += sscanf(line, "Mu = %"GSYM, &Mu);
+    ret += sscanf(line, "Mu = %"FSYM, &Mu);
     ret += sscanf(line, "DivBDampingLength = %"FSYM, &DivBDampingLength);
     ret += sscanf(line, "CoolingCutOffDensity1 = %"GSYM, &CoolingCutOffDensity1);
     ret += sscanf(line, "CoolingCutOffDensity2 = %"GSYM, &CoolingCutOffDensity2);
@@ -944,6 +945,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ResetMagneticFieldAmplitude,
 		  ResetMagneticFieldAmplitude+1,
 		  ResetMagneticFieldAmplitude+2);
+
+    ret += sscanf(line, "UseGasDrag = %"ISYM, &UseGasDrag);
+    ret += sscanf(line, "GasDragCoefficient = %"GSYM, &GasDragCoefficient);
+
 
     /* If the dummy char space was used, then make another. */
  
@@ -1003,8 +1008,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #ifdef TRANSFER
     if (strstr(line, "Radiative")           ) ret++;
     if (strstr(line, "PhotonTest")          ) ret++;
-
 #endif
+    if (strstr(line, "MHDDRF")              ) ret++;
 
     if (strstr(line, "\"\"\"")              ) comment_count++;
 
@@ -1056,6 +1061,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (HydroMethod != MHD_RK)
     BAnyl = 0; // set this to zero no matter what unless we have a magnetic field to analyze.
+
+  if ((HydroMethod != MHD_RK) && (UseGasDrag != 0))
+    {
+      if(MyProcessorNumber == ROOT_PROCESSOR ) {
+	fprintf(stderr, "WARNING:  UseGasDrag != 0 yet HM=MHD_RK \n");
+	fprintf(stderr, "WARNING:  setting UseGasDrag = 0. I.e no Gas drag included. \n");
+	UseGasDrag = 0; 
+      }
+    }
+
 
   /* Count static nested grids since this isn't written in the
      parameter file */

@@ -359,12 +359,15 @@ c
             write (6,*) 't', prs(i-1,j), prs(i,j), prs(i+1,j)
             write (6,*) 'u', dslice(i-1,j), dslice(i,j), dslice(i+1,j)
             write (6,*) 'v', uslice(i-1,j), uslice(i,j), uslice(i+1,j)
-            write (6,*) 'w', geslice(i-1,j), geslice(i,j), 
-     $           geslice(i+1,j)
-            write (6,*) 'x', eslice(i-1,j), eslice(i,j), eslice(i+1,j)
-            write (6,*) 'y', geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
-     &           geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
-     &           geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
+            if (idual .gt. 0) then
+               write (6,*) 'w', geslice(i-1,j), geslice(i,j), 
+     $              geslice(i+1,j)
+               write (6,*) 'x', geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
+     &              geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
+     &              geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
+
+            endif
+            write (6,*) 'y', eslice(i-1,j), eslice(i,j), eslice(i+1,j)
 c     if (gravity .eq. 1) 
 c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
             if (ifallback.eq.0) then

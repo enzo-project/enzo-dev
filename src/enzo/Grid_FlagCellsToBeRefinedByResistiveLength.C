@@ -60,9 +60,9 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
     }
 
       
-  for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-    for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-      for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {	
+  for (int k = GridStartIndex[2]; k < GridEndIndex[2]; k++) {
+    for (int j = GridStartIndex[1]; j < GridEndIndex[1]; j++) {
+      for (int i = GridStartIndex[0]; i < GridEndIndex[0]; i++) {	
 	igrid = (j + k*GridDimension[1])*GridDimension[0]+i;
 	xpo = (j + k*GridDimension[1])*GridDimension[0]+(i+1);
 	xmo = (j + k*GridDimension[1])*GridDimension[0]+(i-1);
@@ -73,11 +73,11 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
 	rho = BaryonField[DensNum][igrid];
 
 	curlBx   = ((BaryonField[iBz  ][ypo] - BaryonField[iBz  ][ymo]) -
-		    (BaryonField[iBy  ][zpo] - BaryonField[iBy  ][zmo]))/2.;
-	curlBy   = ((BaryonField[iBz  ][xpo] - BaryonField[iBz  ][xmo]) -
-		    (BaryonField[iBx  ][zpo] - BaryonField[iBx  ][zmo]))/2.;
+		    (BaryonField[iBy  ][zpo] - BaryonField[iBy  ][zmo]))/2.;	
+	curlBy   =  ((BaryonField[iBz  ][xpo] - BaryonField[iBz  ][xmo]) -
+		     (BaryonField[iBx  ][zpo] - BaryonField[iBx  ][zmo]))/2. ;
 	curlBz   = ((BaryonField[iBy  ][zpo] - BaryonField[iBy  ][zmo]) -
-		    (BaryonField[iBz  ][ypo] - BaryonField[iBz  ][ymo]))/2.;
+		    (BaryonField[iBz  ][ypo] - BaryonField[iBz  ][ymo]))/2.  ;
 
 
 	absB2 = BaryonField[iBx  ][igrid]*BaryonField[iBx  ][igrid] + 

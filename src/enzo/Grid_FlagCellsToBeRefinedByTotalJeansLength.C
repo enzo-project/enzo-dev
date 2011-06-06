@@ -43,7 +43,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   /* declarations */
  
   int i, dim;
- 
+
   /* error check */
  
   if (FlaggingField == NULL) {
@@ -117,7 +117,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   if (PotentialField != NULL)
     for (k = 0; k < GridDimension[2]; k++)
       for (j = 0; j < GridDimension[1]; j++) {
-	index = (((k+Off[2])*GravitatingMassFieldDimension[1]) + (j+Off[1]))*GravitatingMassFieldDimension[0] + Off[0];
+	index = (((k+Off[2])*GravitatingMassFieldDimension[1]) + (j+Off[1]))*GravitatingMassFieldDimension[0] + Off[0] ;
 	for (i = 0; i < GridDimension[0]; i++, index++)
 	  Phi[jj++] = PotentialField[index];
       }
@@ -131,23 +131,17 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   for (k = GridStartIndex[2]+1; k < GridEndIndex[2]; k++) {
     for (j = GridStartIndex[1]+1; j < GridEndIndex[1]; j++) {
       for (i = GridStartIndex[0]+1; i < GridEndIndex[0]; i++) {
-	ci = max(i,GridStartIndex[0]+1);
-	ci = min(ci, GridEndIndex[0]-1);
-	cj = max(j,GridStartIndex[1]+1);
-	cj = min(cj, GridEndIndex[1]-1);
-	ck = max(k,GridStartIndex[2]+1);
-	ck = min(ck, GridEndIndex[2]-1);
-	cind = GRIDINDEX_NOGHOST(ci,cj,ck);
+
 	index = GRIDINDEX_NOGHOST(i,j,k);
 
-	//	ci = i; cj= j; ck = k; cind = index; //  <-  would do this if BC would be correct
+	ci = i; cj= j; ck = k; cind = index; //  <-  would do this if BC would be correct
 
-	rhox = Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck)] 
-	     + Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck)] - 2.*Phi[cind];
-	rhoy = Phi[GRIDINDEX_NOGHOST(ci,cj+1,ck)]
-	     + Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck)] - 2.*Phi[cind];
-	rhoz = Phi[GRIDINDEX_NOGHOST(ci,cj,ck+1)] 
-	     + Phi[GRIDINDEX_NOGHOST(ci,cj,ck-1)] - 2.*Phi[cind];
+	rhox = (Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck)] 
+		+ Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck)] - 2.*Phi[cind]);
+	rhoy = (Phi[GRIDINDEX_NOGHOST(ci,cj+1,ck)]
+		+ Phi[GRIDINDEX_NOGHOST(ci,cj-1,ck)] - 2.*Phi[cind]);
+	rhoz = (Phi[GRIDINDEX_NOGHOST(ci,cj,ck+1)] 
+		+ Phi[GRIDINDEX_NOGHOST(ci,cj,ck-1)] - 2.*Phi[cind]);
 	rhoxy = (Phi[GRIDINDEX_NOGHOST(ci+1,cj+1,ck)] +
 		 Phi[GRIDINDEX_NOGHOST(ci-1,cj-1,ck)] -
 		 Phi[GRIDINDEX_NOGHOST(ci+1,cj-1,ck)] -
@@ -161,42 +155,21 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 		 Phi[GRIDINDEX_NOGHOST(ci+1,cj,ck-1)] -
 		 Phi[GRIDINDEX_NOGHOST(ci-1,cj,ck+1)])/4; 
 	
-	MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
+	double det = 0.;
+	det = rhox*rhoy*rhoz + rhoxy*rhoyz*rhoxz + rhoxz*rhoxy*rhoyz 
+	   - rhoxz*rhoy*rhoxz - rhoxy*rhoxy*rhoz - rhox*rhoyz*rhoyz; 
+	//	MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
+	if (det > 0.) 
+	  MaxDensity[index] = pow(det, 0.33334)/ GravitationalConstant/CellWidthSquared;
 
+	// divergence without negative values
+	//	MaxDensity[index] = (max(rhox, 0)+max(rhoy, 0)+max(rhoz, 0))/ GravitationalConstant/CellWidthSquared ;
+	
 	// largest component
 	//MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)),tiny_number))))/ GravitationalConstant/CellWidthSquared ;
 	
-	// eigenvalues of tidal tensor instead of maximal component
-#if 0
-	double m ,c0,c1,sqrt_p,w1,w2,w0, phi,p,q,c,s;
-	m = rhox+rhoy+rhoz;
-	c1 = rhox*rhoy+rhox*rhoz+rhoy*rhoz - rhoxy*rhoxy - rhoyz*rhoyz - rhoxz*rhoxz;
-	c0 = rhoz*rhoxy*rhoxy + rhox*rhoyz*rhoyz + rhoy*rhoxz*rhoxz -
-	  rhox*rhoy*rhoz - 2.0*rhoxz*rhoxy*rhoyz;
-	p = m*m - 3.0*c1;
-	q = m*(p - (3.0/2.0)*c1) - (27.0/2.0)*c0;
-	sqrt_p = sqrt(fabs(p));
-
-	phi = 27.0 * ( 0.25*c1*c1*(p - c1) + c0*(q + 27.0/4.0*c0));
-	phi = (1.0/3.0) * atan2(sqrt(fabs(phi)), q);
-	
-#define M_SQRT3    1.73205080756887729352744634151   // sqrt(3)	  	  
-	c = sqrt_p*cos(phi);
-	q  s = (1.0/M_SQRT3)*sqrt_p*sin(phi);
-	
-	w1  = (1.0/3.0)*(m - c);
-	w2  = w1 + s;
-	w0  = w1 + c;
-	w1 -= s;
-	
-	printf("%g %g \n",  max(w2, max( w1, max(w0, tiny_number))),
-	       max(rhoxz, max(rhoyz, max(rhoxy, max(max(rhox, max(rhoy, rhoz)), tiny_number)))));
-	// using maximal eigenvalue for density estimate
-	MaxDensity[index] = max(w2, max( w1, max(w0, tiny_number)))
-	  / GravitationalConstant/CellWidthSquared;
-#endif // use eigenvalues 
-
-	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging	
+	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging copy into Debug field	
+	//	BaryonField[NumberOfBaryonFields-1][index] = Phi[index]; // for debugging copy into Debug field	
 	MaxDensity[index] = max(MaxDensity[index], BaryonField[DensNum][index]);
       }
     }
