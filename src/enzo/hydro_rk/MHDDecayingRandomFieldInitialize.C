@@ -79,16 +79,21 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "MHDDRF-InitialBfield = %"FSYM, &Bnaught);
     ret += sscanf(line, "MHDDRF-RandomSeed = %"ISYM, &RandomSeed);
     // parameters that specify the spectrum. See Turbulence_Generator.C for definitions.
-    ret += sscanf(line, "MHDDRF-AlfvenMachNumber = %"FSYM, &mach);
+    ret += sscanf(line, "MHDDRF-RMSAlfvenSpeed = %"FSYM, &mach);
     ret += sscanf(line, "MHDDRF-MinimumWaveNumber = %"FSYM, &Skmin);
     ret += sscanf(line, "MHDDRF-MaximumWaveNumber = %"FSYM, &Skmax);
     ret += sscanf(line, "MHDDRF-SpectralIndex = %"FSYM, &Sindex);
 
   } // end input from parameter file
 
+  if (EOSType == 3) 
+    cs = EOSSoundSpeed; // for an isothermal equations of state this is the speed of sound, no matter what. 
+
+  mach = mach/cs;
+
   /* Convert to code units */
   
-  if (MyProcessorNumber == ROOT_PROCESSOR)  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
+  if (MyProcessorNumber == ROOT_PROCESSOR)  printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", v_alfven_RMS = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
    if (MyProcessorNumber == ROOT_PROCESSOR) printf(" Magnetic spectrum: n = %"GSYM",kmin = %"GSYM", kmax = %"GSYM" \n", Sindex, Skmin, Skmax);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
@@ -147,7 +152,7 @@ int MHDDecayingRandomFieldInitialize(FILE *fptr, FILE *Outfptr,
 
     // Normalize Magnetic Fields now
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
-    fac = cs*mach/v_rms;
+    fac = cs*mach*rho_medium/v_rms;
 
     CurrentGrid = &TopGrid;
     while (CurrentGrid != NULL) {

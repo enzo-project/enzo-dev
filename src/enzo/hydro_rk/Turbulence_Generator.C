@@ -85,6 +85,9 @@ double Gaussian(double cs);
 	 phiz = rand();
 	 phiz = phiz / RAND_MAX * 2.0 * pi;
 
+	 /* no helicity ( in the case of magnetic fields) */ 
+	 phix = phiy = phiz = 0.;
+
 	 /* Fourier transform A_k to v(x) 
 	  v(x) = Sum_k{Re(ik x A_k)}*/
 
