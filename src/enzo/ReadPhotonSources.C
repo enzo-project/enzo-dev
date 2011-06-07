@@ -222,6 +222,8 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       sum = sqrt(sum);
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	RadSources->Orientation[dim] /= sum;
+    } else {
+      RadSources->Orientation = NULL;
     }
 
     if (RadSources->Type != Isotropic && RadSources->Type != Beamed &&
