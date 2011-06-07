@@ -371,6 +371,7 @@ EXTERN int TabulatedLWBackground;
 /* Photoelectric cooling turn on/off */
 
 EXTERN int PhotoelectricHeating;
+EXTERN float PhotoelectricHeatingRate;
 
 /* Output cooling time with grid data. */
 

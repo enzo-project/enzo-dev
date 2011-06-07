@@ -40,7 +40,8 @@ extern "C" void FORTRAN_NAME(calc_rates)(
      float *utem, float *uxyz, float *uaye, float *urho, float *utim,
      float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, float *ciHeIa,
      float *ciHeISa, float *ciHeIIa, float *reHIIa, float *reHeII1a,
-     float *reHeII2a, float *reHeIIIa, float *brema, float *compa, float *gammaha,
+     float *reHeII2a, float *reHeIIIa, float *brema, float *compa, 
+     float *gammahacgs, float *gammaha,
      float *piHI, float *piHeI, float *piHeII,
      float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
      float *gpldl, float *gphdl, float *hdlte, float *hdlow, float *hdcool, float *cieco,
@@ -109,7 +110,8 @@ int InitializeRateData(FLOAT Time)
   RateData.NumberOfTemperatureBins = CoolData.NumberOfTemperatureBins;
   RateData.TemperatureStart        = CoolData.TemperatureStart;
   RateData.TemperatureEnd          = CoolData.TemperatureEnd;
- 
+
+   
   /* Allocate space in RateData for rates. */
  
   RateData.k1 = new float[RateData.NumberOfTemperatureBins];
@@ -178,7 +180,8 @@ int InitializeRateData(FLOAT Time)
         CoolData.ciHeI,
      CoolData.ciHeIS, CoolData.ciHeII, CoolData.reHII,
         CoolData.reHeII1,
-     CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp, &CoolData.gammah,
+     CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp, 
+     &PhotoelectricHeatingRate, &CoolData.gammah,
      &CoolData.piHI, &CoolData.piHeI, &CoolData.piHeII,
      CoolData.hyd01k, CoolData.h2k01, CoolData.vibh, CoolData.roth,
         CoolData.rotl,
