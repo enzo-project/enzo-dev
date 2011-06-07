@@ -43,6 +43,8 @@ int WritePhotonSources(FILE *fptr, FLOAT CurrentTime)
     fprintf(fptr, "PhotonTestSourceType[%"ISYM"]         = %"ISYM"\n", i, RS->Type);
     fprintf(fptr, "PhotonTestSourcePosition[%"ISYM"]     = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
 	    i, RS->Position[0], RS->Position[1], RS->Position[2]);
+    fprintf(fptr, "PhotonTestSourceOrientation[%"ISYM"]     = %"GSYM" %"GSYM" %"GSYM"\n",
+	    i, RS->Orientation[0], RS->Orientation[1], RS->Orientation[2]);
     fprintf(fptr, "PhotonTestSourceLuminosity[%"ISYM"]   = %"GSYM"\n",
 	    i, RS->Luminosity/TimeUnits*pow(LengthUnits,3));
     fprintf(fptr, "PhotonTestSourceLifeTime[%"ISYM"]     = %"GSYM"\n", i, RS->LifeTime);

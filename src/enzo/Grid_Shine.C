@@ -35,7 +35,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     return SUCCESS;
 
   RadiationSourceEntry *RS = RadiationSource;
-  FLOAT min_beam_zvec, vec[3];
+  FLOAT min_beam_zvec, dot_prod, vec[3];
   int BasePackages, NumberOfNewPhotonPackages;
   int i, j, dim;
   int count=0;
@@ -175,7 +175,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       if (RS->Type == Beamed) {
 	if (pix2vec_nest((long) (1 << min_level), (long) j, vec) == FAIL)
 	  ENZO_FAIL("Error in pix2vec_nested: beamed source");
-	if (fabs(vec[2]) < min_beam_zvec)
+	// Dot product of the source orientation (already normalized
+	// to 1) and ray normal must be greater than cos(beaming angle)
+	dot_prod = 0.0;
+	for (dim = 0; dim < MAX_DIMENSION; dim++)
+	  dot_prod += RS->Orientation[dim] * vec[dim];
+	if (fabs(dot_prod) < min_beam_zvec)
 	  continue;
       }
 
