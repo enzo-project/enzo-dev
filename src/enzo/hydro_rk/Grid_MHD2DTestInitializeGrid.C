@@ -883,7 +883,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   } // if MHD2DProblemType == 11
 
   /* MHD2DProblemType == 12: Uniform density with two spherical central
-   overpressured regions launching sound waves. Perioidc boundaries. */
+   overpressured regions launching sound waves. Periodic boundaries. */
   /* Domain goes from 0 0 to 1 1 */
   if (MHD2DProblemType == 12) { 
     float pres, eintl, eintu, h, cs, dpdrho, dpde;
@@ -1020,7 +1020,55 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     } // endfor j 
   } // if MHD2DProblemType == 14
 
+  /* Tom Abel June 2011 */
+  /* Simple Sinusoidal B field */
 
+
+  if (MHD2DProblemType == 15) { 
+
+    float pres, eintl, eintu, h, cs, dpdrho, dpde,ramp,rhot, bx ,by;
+
+    for (int j = 0; j < GridDimension[1]; j++) {
+      for (int i = 0; i < GridDimension[0]; i++) {
+	/* Compute position */
+	igrid = i + j*GridDimension[0];
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	ramp =  1. ;
+	float rho, vx, vy, f;
+	rho = rhol;
+
+	pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // isothermal sound speed = 0.112611
+	  rho/Gamma ; // for ideal equation of state set sounds speed = 1 
+	EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
+	// impose mode perturbation
+	f = (cos(2.*M_PI*x) + 1.);
+
+	vx = 0.;
+	vy = 0.;
+	bx = Bxl * f ;
+	by = Byl * f ;
+
+	etotl = eintl + 0.5*(vx*vx + vy*vy) + 0.5*(bx*bx+by*by)/rho;
+
+	BaryonField[iden ][igrid] = rho;
+	BaryonField[ivx  ][igrid] = vx ;
+	BaryonField[ivy  ][igrid] = vy;
+	BaryonField[ivz  ][igrid] = 0.0;
+	
+	BaryonField[ietot][igrid] = etotl;
+	if (DualEnergyFormalism) {
+	  BaryonField[ieint][igrid] = pres / ((Gamma-1.0)*rho);
+	}
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx  ][igrid] = bx;
+	  BaryonField[iBy  ][igrid] = by;
+	  BaryonField[iBz  ][igrid] = 0.0;
+	  BaryonField[iPhi ][igrid] = 0.0;
+	}
+      } // endfor i
+    } // endfor j 
+  } // if MHD2DProblemType == 15
 
   return SUCCESS;
 }

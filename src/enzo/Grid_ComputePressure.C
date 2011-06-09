@@ -12,9 +12,8 @@
 /
 ************************************************************************/
  
-// Compute the pressure at the requested time. 
-// For polytropic equations of state we also reset the energy. 
-// 
+// Compute the pressure at the requested time.  The pressure here is
+//   just the ideal-gas equation-of-state.
  
 #include <stdlib.h>
 #include <stdio.h>
@@ -97,6 +96,16 @@ int grid::ComputePressure(FLOAT time, float *pressure)
       if (GridRank > 2)
 	velocity3   = BaryonField[Vel3Num][i];
 
+      float B2 = 0.;
+      if (HydroMethod == MHD_RK) {
+	B2 = pow(BaryonField[B1Num][i],2) + 
+	     pow(BaryonField[B2Num][i],2) +
+	     pow(BaryonField[B3Num][i],2);
+      }
+      float kineticE = OneHalf*(velocity1*velocity1 +
+				velocity2*velocity2 +
+				velocity3*velocity3);
+
       if (EOSType > 0){
 
 	/* If using polytropic EOS, calculate pressure directly from density */
@@ -104,24 +113,22 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	float e, h, cs, dpdrho, dpde;
 	EOS(pressure[i], density, e, h, cs, dpdrho, dpde, EOSType, 0);
 
+	/* also reset energy */
+	BaryonField[TENum][i] = e + kineticE + OneHalf*B2/density;
+
       } else { 
       /* gas energy = E - 1/2 v^2. */
-	if (DualEnergyFormalism == 0) 
-	  {
-	    gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-						    velocity2*velocity2 +
-						    velocity3*velocity3);
-	    if (HydroMethod == MHD_RK) {
-	      float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
-		pow(BaryonField[B3Num][i],2);
-	      gas_energy -= OneHalf*B2/density;
-	    }
-	  
-	  } else
-	  gas_energy = BaryonField[GENum][i];
-	
+	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
+						velocity2*velocity2 +
+						velocity3*velocity3);
+ 	if (HydroMethod == MHD_RK) {
+	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
+	    pow(BaryonField[B3Num][i],2);
+	  gas_energy -= OneHalf*B2/density;
+	}
+
 	pressure[i] = (Gamma - 1.0)*density*gas_energy;
-	
+ 
 	if (pressure[i] < tiny_number)
 	  pressure[i] = tiny_number;
       }

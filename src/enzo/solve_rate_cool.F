@@ -486,7 +486,7 @@
               if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
 
 !              Output some debugging information if required
-
+#ifndef _OPENMP
                if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
      &             abs((dt-ttot(i))/dt) .gt. 1.0d-3) then
                   write(4,1000) iter,i,j,k,dtit(i),
@@ -512,6 +512,7 @@
      &               + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0,
      &               +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
                endif
+#endif /* _OPENMP */
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
             else               ! itmask
@@ -572,11 +573,13 @@
 
 !              If the timestep is too small, then output some debugging info
 
+#ifndef _OPENMP
                if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) 
      &               .or. iter .gt. itmax-100) .and.
      &              abs((dt-ttot(i))/dt) .gt. 1.0d-3)
      &           write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &             energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
+#endif /* _OPENMP */
  2000          format(4(i4,1x),1p,10(e14.3))
             endif   ! itmask
             enddo   ! end loop over i
@@ -586,8 +589,10 @@
             do i = is+1, ie+1
                if (itmask(i)) then
                e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
+#ifndef _OPENMP
                if (e(i,j,k) .ne. e(i,j,k)) 
      &              write(3,*) edot(i),d(i,j,k),dtit(i)
+#endif
 
 !              If using the dual energy formalism, there are 2 energy fields
 
@@ -600,8 +605,10 @@
 !     &                      0.5d0*ge(i,j,k))
 !                 if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 !     &              edot(i)*dtit(i))/d(i,j,k)
+#ifndef _OPENMP
                   if (ge(i,j,k) .le. 0.d0) write(3,*)
      &                 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
+#endif /* _OPENMP */
                endif
             endif               ! itmask
             enddo

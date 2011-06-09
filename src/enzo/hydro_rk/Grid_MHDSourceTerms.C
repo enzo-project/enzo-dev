@@ -204,6 +204,35 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
+  if ((UseGasDrag != 0) && (GasDragCoefficient != 0.)) {
+    int igrid;
+    float rho;
+    float vx, vy, vz, vx_old, vy_old, vz_old;
+    int n = 0;
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+	  rho = BaryonField[DensNum][igrid];
+	  
+	  vx = BaryonField[Vel1Num][igrid];
+	  vy = BaryonField[Vel2Num][igrid];
+	  vz = BaryonField[Vel3Num][igrid];
+	  
+	  dU[iS1][n] -= dtFixed*GasDragCoefficient*vx*rho;
+	  dU[iS2][n] -= dtFixed*GasDragCoefficient*vy*rho;
+	  dU[iS3][n] -= dtFixed*GasDragCoefficient*vz*rho;
+	  dU[iEtot][n] -= dtFixed*rho*(GasDragCoefficient*vx*vx + 
+				       GasDragCoefficient*vy*vy + 
+				       GasDragCoefficient*vz*vz);
+
+	if (i==3 && j==3 && k==4 && GridLeftEdge[0]==0.0 && GridLeftEdge[1]==1.0)
+	  printf("StermStart4 old %"GSYM" \n", dU[iS2][n])  ;
+	}
+      }
+    }
+  }
+
 
   if ((SelfGravity) || ExternalGravity || UniformGravity || PointSourceGravity) {
     int igrid;

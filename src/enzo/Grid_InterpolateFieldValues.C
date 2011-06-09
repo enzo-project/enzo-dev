@@ -280,8 +280,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 
-	    //	   && FieldType[field] != DebugField 
-	    	   && FieldType[field] != GravPotential
+	    && FieldType[field] != DebugField 
+	    && FieldType[field] != GravPotential
 	    )
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
@@ -384,8 +384,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 
-	    //	    FieldType[field] != DebugField 
-	    // &&  FieldType[field] != GravPotential
+	    && FieldType[field] != DebugField 
+	    &&  FieldType[field] != GravPotential
 	    )
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,

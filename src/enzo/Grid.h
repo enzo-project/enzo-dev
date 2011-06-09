@@ -12,7 +12,6 @@
 
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
-
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -2560,9 +2559,16 @@ int inteuler(int idim,
 				  float rho_medium, float p_medium, int level, int SetBaryonFields);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
 				  float Bnaught, int seed, int level, int SetBaryonFields);
+  int MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium, float mach, 
+					   float Bnaught, int seed, 
+					   float Sindex, float Skmin, float Skmax, 
+					   int level, int SetBaryonFields);
 
   int PrepareVelocityNormalization(double *v_rms, double *Volume);
   int NormalizeVelocities(Eflt factor);
+
+  int PrepareAlfvenVelocityNormalization(double *v_rms, double *Volume);
+  int NormalizeMagneticFields(Eflt factor);
 
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
 			       FLOAT HaloRadius[MAX_SPHERES],

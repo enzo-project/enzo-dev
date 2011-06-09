@@ -985,7 +985,9 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_UpdatePrim.o \
         hydro_rk/Grid_ZeroFluxes.o \
 	hydro_rk/Grid_PrepareVelocityNormalization.o \
+	hydro_rk/Grid_PrepareAlfvenVelocityNormalization.o \
 	hydro_rk/Grid_NormalizeVelocities.o \
+	hydro_rk/Grid_NormalizeMagneticFields.o \
         hydro_rk/Turbulence_Generator.o \
         hydro_rk/HLL_PLM.o \
         hydro_rk/HLL_PPM.o \
@@ -1017,6 +1019,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/Grid_MHDRK2_2ndStep.o \
         hydro_rk/Grid_MHDSourceTerms.o \
         hydro_rk/Grid_MHDTurbulenceInitializeGrid.o \
+        hydro_rk/Grid_MHDDecayingRandomFieldInitializeGrid.o \
         hydro_rk/Grid_ReduceWindBoundary.o \
         hydro_rk/Grid_SaveMHDSubgridFluxes.o \
         hydro_rk/Grid_UpdateMHDPrim.o \
@@ -1035,6 +1038,7 @@ OBJS_HYDRO_RK = \
         hydro_rk/MHDSweepY.o \
 	hydro_rk/MHDSweepZ.o \
 	hydro_rk/MHDTurbulenceInitialize.o \
+	hydro_rk/MHDDecayingRandomFieldInitialize.o \
 	hydro_rk/Riemann_HLL_MHD.o \
 	hydro_rk/Riemann_HLLD_MHD.o \
 	hydro_rk/Riemann_LLF_MHD.o

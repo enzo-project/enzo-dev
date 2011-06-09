@@ -336,10 +336,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* compute wave speed Reference: Matsumoto, PASJ, 2007, 59, 905 */
 
-    if (HydroMethod == MHD_RK) 
+    if ((HydroMethod == MHD_RK) && (level == 0))
       ComputeDednerWaveSpeeds(MetaData, LevelArray, level, dt0);
 	
-    if (debug1 && HydroMethod == MHD_RK) 
+    if (debug1 && HydroMethod == MHD_RK && (MyProcessorNumber == ROOT_PROCESSOR)) 
       fprintf(stderr, "wave speeds: timestep: %"GSYM"  C_h: %"GSYM"  C_p: %"GSYM"\n ", 
 	       dt0, C_h, C_p);
 
@@ -649,7 +649,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     
     if (SelfGravity && WritePotential) {
       CopyGravPotential = TRUE;
-      When = 0.;
+      When = 0.5;
  
 #ifdef FAST_SIB
       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);

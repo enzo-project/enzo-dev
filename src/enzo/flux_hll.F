@@ -335,8 +335,8 @@ c
       do i=i1, i2
          if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0) then
             if (eslice(i,j) .lt. 0.0) then
-               write (6,*) 'flux_hllc: eslice < 0: ', i, j
-               write (6,*) ef(i,j)-ef(i+1,j),
+               write (6,*) 'flux_hll: eslice < 0: ', i, j
+               write (6,*) qc*(ef(i,j)-ef(i+1,j)),
      &              eslice(i,j)*dslice(i,j)
             else
                write (6,*) 'flux_hll: dnu <= 0:', i, j
@@ -365,12 +365,14 @@ c
             write (6,*) 't', prs(i-1,j), prs(i,j), prs(i+1,j)
             write (6,*) 'u', dslice(i-1,j), dslice(i,j), dslice(i+1,j)
             write (6,*) 'v', uslice(i-1,j), uslice(i,j), uslice(i+1,j)
-            write (6,*) 'w', geslice(i-1,j), geslice(i,j), 
-     $           geslice(i+1,j)
-            write (6,*) 'x', eslice(i-1,j), eslice(i,j), eslice(i+1,j)
-            write (6,*) 'y', geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
-     &           geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
-     &           geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
+            write (6,*) 'w', eslice(i-1,j), eslice(i,j), eslice(i+1,j)
+            if (idual .gt. 0) then
+               write (6,*) 'x', geslice(i-1,j), geslice(i,j), 
+     $              geslice(i+1,j)
+               write (6,*) 'y', geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
+     &              geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
+     &              geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
+            endif
 c     if (gravity .eq. 1) 
 c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
             if (ifallback .eq. 1) 

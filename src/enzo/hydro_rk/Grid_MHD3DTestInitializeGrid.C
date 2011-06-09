@@ -319,6 +319,91 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     } // ENDFOR k
   } // ENDIF type == 2||3
 
+
+  /* Magnetic explosion */
+  /* Tom Abel May 2011 */
+
+
+  if (MHD3DProblemType == 4) { 
+
+    float pres, eintl, eintu, h, cs, dpdrho, dpde,rhot, bx ,by, bz;
+
+
+    float *ax = new float[size];
+    float *ay = new float[size];
+    float *az = new float[size];
+    for (int k = 0; k < GridDimension[2]; k++) {
+      for (int j = 0; j < GridDimension[1]; j++) {
+	for (int i = 0; i < GridDimension[0]; i++) {
+	/* Compute position */
+	  igrid =  GRIDINDEX_NOGHOST(i,j,k);
+	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - 0.5;
+	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - 0.5;
+	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - 0.5;
+	  float r2 = x*x+y*y+z*z;
+	  float R2 = 1./16. * 1./16.;
+	  float  f;
+	  f = exp(-r2/2/R2);
+	  ax[igrid] = - y*f * CellWidth[0][i];;  //Vector potential
+	  ay[igrid] =   x*f * CellWidth[1][j];;
+	  az[igrid] =   0.  * CellWidth[2][k];;
+	}
+      }
+    }
+
+
+    for (int k = 1; k < GridDimension[2]-1; k++) {
+      for (int j = 1; j < GridDimension[1]-1; j++) {
+	for (int i = 1; i < GridDimension[0]-1; i++) {
+	  float rho;
+	  rho = rhol;
+	  float vx=0.,vy=0.,vz=0.;
+	  int  igridyp1, igridym1, igridzp1, igridzm1;
+
+	  igrid    = GRIDINDEX_NOGHOST(i,j,k);
+	  igridyp1 = GRIDINDEX_NOGHOST(i,j+1,k);
+	  igridym1 = GRIDINDEX_NOGHOST(i,j-1,k);
+	  igridzp1 = GRIDINDEX_NOGHOST(i,j,k+1);
+	  igridzm1 = GRIDINDEX_NOGHOST(i,j,k-1);
+	  // B = Curl A              gives divergence free B-field from vector potential
+	  bx = Bxl * ((az[igridyp1]-az[igridym1])/2/CellWidth[1][j] -
+		      (ay[igridzp1]-ay[igridzm1])/2/CellWidth[2][k]);
+	  by = Bxl * ((ax[igridzp1]-ax[igridzm1])/2/CellWidth[2][k] -
+		      (az[igrid +1]-az[igrid -1])/2/CellWidth[0][i]);
+	  bz = Bxl * ((ay[igrid +1]-ay[igrid -1])/2/CellWidth[0][i] -
+		      (ax[igridyp1]-ax[igridym1])/2/CellWidth[1][j]);
+
+	  pres = (EOSType > 0) ? EOSSoundSpeed*EOSSoundSpeed*rho : // isothermal sound speed 
+	    EOSSoundSpeed*EOSSoundSpeed*rho ; 
+	  EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
+
+	  etotl = eintl + 0.5*(vx*vx + vy*vy + vz*vz) + 0.5*(bx*bx+by*by+bz*bz)/rho;
+	  BaryonField[iden ][igrid] = rho;
+	  BaryonField[ivx  ][igrid] = 0.0 ;
+	  BaryonField[ivy  ][igrid] = 0.0;
+	  BaryonField[ivz  ][igrid] = 0.0;
+	  
+	  BaryonField[ietot][igrid] = etotl;
+	  if (DualEnergyFormalism) {
+	    BaryonField[ieint][igrid] = pres / ((Gamma-1.0)*rho);
+	  }
+	  if (HydroMethod == MHD_RK) {
+	    BaryonField[iBx  ][igrid] = bx;
+	    BaryonField[iBy  ][igrid] = by;
+	    BaryonField[iBz  ][igrid] = bz;
+	    BaryonField[iPhi ][igrid] = 0.0;
+	  }
+	} // endfor i
+      } // endfor j 
+    } // endfor k 
+
+    delete [] ax;
+    delete [] ay;
+    delete [] az;
+
+  } // if MHD3DProblemType == 4
+  
+  
   /* Set uniform species fractions */
 
   if (MultiSpecies > 0) {
