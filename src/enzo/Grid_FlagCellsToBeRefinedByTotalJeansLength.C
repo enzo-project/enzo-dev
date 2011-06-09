@@ -168,7 +168,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 	// largest component
 	//MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)),tiny_number))))/ GravitationalConstant/CellWidthSquared ;
 	
-	//	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging copy into Debug field	
+	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging copy into Debug field	
 	//	BaryonField[NumberOfBaryonFields-1][index] = Phi[index]; // for debugging copy into Debug field	
 	MaxDensity[index] = max(MaxDensity[index], BaryonField[DensNum][index]);
       }
