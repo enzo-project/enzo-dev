@@ -378,7 +378,9 @@ c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
             if (ifallback .eq. 1) 
      $           write(0,*) 'Cannot fallback anymore.  Already in HLL.'
             write(0,*) 'stop in euler with e < 0'
-            ERROR_MESSAGE
+            if(gamma .gt. 1.01) then ! if not isothermal
+               ERROR_MESSAGE
+            endif
          endif
       enddo
 c

@@ -122,6 +122,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
+  UseSingleGlobalTimeStep = 0; // off. I.e. by defaul use adaptive timestepping.
+
   LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
   ResetLoadBalancing = FALSE;

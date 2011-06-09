@@ -626,7 +626,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
       GridLeftEdge[1] < ppos[1] && GridRightEdge[1] > ppos[1] &&
       GridLeftEdge[2] < ppos[2] && GridRightEdge[2] > ppos[2]) {
 
-    double mass_p = 1.*1.989e32;
+    double mass_p = 0.1*1.989e32;
     mass_p /= MassUnits;
     double dx = CellWidth[0][0];
     double den_p = mass_p / pow(dx,3);

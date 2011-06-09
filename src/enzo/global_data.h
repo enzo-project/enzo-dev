@@ -34,10 +34,12 @@
 class EnzoProblemType;
 #endif
 
+EXTERN int UseSingleGlobalTimeStep; // use the finest timestep computed over all grids
+
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
                           1 = Equalize processor memory count
-                         2 = Load balance only on a node
+			  2 = Load balance only on a node
 */
 EXTERN int LoadBalancing;
 EXTERN int LoadBalancingCycleSkip;

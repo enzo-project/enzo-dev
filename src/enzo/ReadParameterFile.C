@@ -219,6 +219,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
     }
 
+    ret += sscanf(line, "UseSingleGlobalTimeStep = %"ISYM, &UseSingleGlobalTimeStep);
+
     ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
     ret += sscanf(line, "ResetLoadBalancing = %"ISYM, &ResetLoadBalancing);
     ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);

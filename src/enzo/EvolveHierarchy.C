@@ -367,11 +367,18 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     // Start skipping
     if(CheckpointRestart == FALSE) {
+      int clevel = 0;
       while (Temp != NULL) {
-        dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
-        Temp = Temp->NextGridThisLevel;
+	dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
+	  Temp = Temp->NextGridThisLevel;
+	  if (Temp == NULL && UseSingleGlobalTimeStep) {
+	    Temp = LevelArray[clevel++];
+	    if (debug1 && (MyProcessorNumber == ROOT_PROCESSOR))
+	      printf("compute global timestep: level %"ISYM" : dtProc=%"GSYM"\n", clevel, dtProc);
+	  }
       }
 
+	
       dt = RootGridCourantSafetyNumber*CommunicationMinValue(dtProc);
       dt = min(MetaData.MaximumTopGridTimeStep, dt);
 

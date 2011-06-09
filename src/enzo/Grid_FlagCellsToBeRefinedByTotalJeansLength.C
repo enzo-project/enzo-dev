@@ -159,8 +159,8 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 	det = rhox*rhoy*rhoz + rhoxy*rhoyz*rhoxz + rhoxz*rhoxy*rhoyz 
 	   - rhoxz*rhoy*rhoxz - rhoxy*rhoxy*rhoz - rhox*rhoyz*rhoyz; 
 	//	MaxDensity[index] = max(max(rhox, max(rhoy, rhoz)), tiny_number)/ GravitationalConstant/CellWidthSquared;
-	if (det > 0.) 
-	  MaxDensity[index] = pow(det, 0.33334)/ GravitationalConstant/CellWidthSquared;
+	//	if (det > 0.) 
+	MaxDensity[index] = pow(fabs(det), 0.33334)/ GravitationalConstant/CellWidthSquared;
 
 	// divergence without negative values
 	//	MaxDensity[index] = (max(rhox, 0)+max(rhoy, 0)+max(rhoz, 0))/ GravitationalConstant/CellWidthSquared ;
@@ -168,7 +168,7 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
 	// largest component
 	//MaxDensity[index] = max(rhoxz, max(rhoyz, max(rhoxy,max(max(rhox, max(rhoy, rhoz)),tiny_number))))/ GravitationalConstant/CellWidthSquared ;
 	
-	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging copy into Debug field	
+	//	BaryonField[NumberOfBaryonFields-1][index] = MaxDensity[index]; // for debugging copy into Debug field	
 	//	BaryonField[NumberOfBaryonFields-1][index] = Phi[index]; // for debugging copy into Debug field	
 	MaxDensity[index] = max(MaxDensity[index], BaryonField[DensNum][index]);
       }
