@@ -367,10 +367,12 @@ EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 EXTERN int RadiationXRayComptonHeating;
 EXTERN int TabulatedLWBackground;
+EXTERN float RadiationFieldRedshift;
 
 /* Photoelectric cooling turn on/off */
 
 EXTERN int PhotoelectricHeating;
+EXTERN float PhotoelectricHeatingRate;
 
 /* Output cooling time with grid data. */
 

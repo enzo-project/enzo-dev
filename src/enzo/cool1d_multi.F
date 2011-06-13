@@ -189,7 +189,7 @@
          comp1 = compa  * (1.d0 + zr)**4
          comp2 = 2.73d0 * (1.d0 + zr)
       else
-         comp1 = tiny
+         comp1 = 1e-35  ! tiny was too large in comparison with compa
          comp2 = tiny
       endif
 
@@ -392,7 +392,7 @@
 
      &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))
      &             *dom_inv)
-        
+
          if (edot(i) .ne. edot(i)) then
             write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
      &           HI(i,j,k), HII(i,j,k), HeI(i,j,k), HeII(i,j,k), 

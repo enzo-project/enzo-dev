@@ -134,6 +134,9 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 	RadSource->SED[j]    = Q[j];
       }
 
+      // if the source needs a beaming direction, define it here
+      RadSource->Orientation    = NULL;
+
       if (GlobalRadiationSources->NextSource != NULL)
 
 	GlobalRadiationSources->NextSource->PreviousSource = RadSource;

@@ -31,6 +31,7 @@ RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS)
     delete [] RS->Position;
     delete [] RS->SED;
     delete [] RS->Energy;
+    delete [] RS->Orientation;
     delete RS;
   } 
   // beginning
@@ -44,6 +45,7 @@ RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS)
     delete [] RS->Position;
     delete [] RS->SED;
     delete [] RS->Energy;
+    delete [] RS->Orientation;
     delete RS;
   }
   return dummy;

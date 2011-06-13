@@ -337,6 +337,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
   RadiationFieldType          = 0;
+  RadiationFieldRedshift      = 0.0;
   TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
@@ -344,6 +345,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SetUVBAmplitude             = 1.0;
   SetHeIIHeatingScale         = 1.8;
   PhotoelectricHeating	      = 0;
+  PhotoelectricHeatingRate    = 8.5e-26;           // ergs cm-3 s-1
   RadiationXRaySecondaryIon   = 0;
   RadiationXRayComptonHeating = 0;
 
