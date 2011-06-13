@@ -91,10 +91,10 @@ int RadiationFieldCalculateRates(FLOAT Time)
     aUnits = 1.0/(1.0 + InitialRedshift);
     Redshift = 1.0/(a*aUnits) - 1;
   } else {  
-    Redshift = 0.0;   
-    CoolData.RadiationRedshiftOn = 0.1;
+    Redshift = RadiationFieldRedshift;   
+    CoolData.RadiationRedshiftOn = RadiationFieldRedshift+0.2;
     CoolData.RadiationRedshiftOff = 0.0;
-    CoolData.RadiationRedshiftFullOn = 0.0;
+    CoolData.RadiationRedshiftFullOn = RadiationFieldRedshift+0.1;
     CoolData.RadiationRedshiftDropOff = 0.0;
   }
     
@@ -239,7 +239,8 @@ int RadiationFieldCalculateRates(FLOAT Time)
     CoolData.piHI *= KP_mod ; 
     CoolData.piHeI *= KP_mod ;
     CoolData.piHeII *= KP_mod ;
-                                                                                                                                                                
+
+                                                                            
 }
 
   /* ------------------------------------------------------------------ */
@@ -443,6 +444,14 @@ int RadiationFieldCalculateRates(FLOAT Time)
 /* All rates are computed at their theoretical values */
     return SUCCESS;
   }
+
+#ifdef NO_HEII_UVB
+  if (MyProcessorNumber == ROOT_PROCESSOR)
+    printf("WARNING: Not using a radiation background for HeIII\n");
+  RateData.k25 = 0.0;
+  CoolData.piHeII = 0.0;
+#endif /* NO_HEII_UVB */
+
   if (RadiationFieldType == 1 || RadiationFieldType == 2 || 
    RadiationFieldType == 3 || RadiationFieldType == 4 || 
    RadiationFieldType == 12) {
