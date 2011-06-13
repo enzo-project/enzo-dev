@@ -362,7 +362,7 @@ c
             if (idual .gt. 0) then
                write (6,*) 'w', geslice(i-1,j), geslice(i,j), 
      $              geslice(i+1,j)
-               write (6,*) 'x', geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
+               write (6,*) 'x',geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0),
      &              geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
      &              geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
 
