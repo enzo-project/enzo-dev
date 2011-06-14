@@ -168,9 +168,10 @@ the cell:
      respectively. Note that :math:`\rho_{\mathrm{th}}` is not the same as the
      critical density for star formation listed above. :math:`\rho` is the
      gas density of the cell.
+
      .. math::
-     
-        t_{\ast}(\rho)=t_0^{\ast}\left(\frac{\rho}{\rho_{\mathrm{th}}}\right)^{-1/2}
+
+     t_{\ast}(\rho)=t_0^{\ast}\left(\frac{\rho}{\rho_{\mathrm{th}}}\right)^{-1/2}
   
 * Mass fraction in cold clouds, :math:`x` (see Eqns. 16 and 18).
      :math:`y` is a dimensionless quantity
@@ -183,6 +184,7 @@ the cell:
      :math:`\epsilon_{\textrm{SN}}` is the energy released from a nominal
      supernova and is set to 4e48 ergs; and finally :math:`\Lambda(\rho, T, z)`
      is the cooling rate of the cell of gas.
+
      .. math::
      
         y\equiv\frac{t_{\ast}\Lambda(\rho,T,z)}{\rho[\beta u_{\mathrm{SN}}-(1-\beta)u_{\mathrm{SN}}]}
@@ -198,9 +200,10 @@ the model and is the minimum and only star mass allowed;
 :math:`m` is the mass of gas in the cell;
 :math:`\Delta t` is the size of the simulation time step that
 is operative for the cell (which changes over AMR levels, of course).
+
 .. math::
 
-   p_{\ast}=\frac{m}{m_{\ast}}\left\{1-\exp\left[-\frac{(1-\beta)x\Delta t}{t_{\ast}}\right]\right\}\
+   p_{\ast}=\frac{m}{m_{\ast}}\left\{1-\exp\left[-\frac{(1-\beta)x\Delta t}{t_{\ast}}\right]\right\}
 
 If this star formula is used with AMR, some caution is required. Primarily,
 the AMR refinement can not be too aggressive. Values of ``OverDensityThreshold``
