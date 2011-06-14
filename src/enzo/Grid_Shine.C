@@ -91,7 +91,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   
   if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
-  int ebin, this_type, type_count, base_ipix, mod_ipix;
+  int ebin, this_type, type_count, base_ipix, mod_ipix, ipix;
   FLOAT FuzzyLength;
   FLOAT ShakeSource[3];
   double RampPercent = 1;
@@ -185,8 +185,15 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
     for (j=0; j<BasePackages; j++) {
 
+      // Distribute pixel numbers by number of threads for better
+      // OpenMP load balancing
+      // e.g. 0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11
+      base_ipix = (j % PackagesPerThread) * NumberOfThreads;
+      mod_ipix = j / PackagesPerThread;
+      ipix = base_ipix + mod_ipix;
+
       if (RS->Type == Beamed) {
-	if (pix2vec_nest((long) (1 << min_level), (long) j, vec) == FAIL)
+	if (pix2vec_nest((long) (1 << min_level), (long) ipix, vec) == FAIL)
 	  ENZO_FAIL("Error in pix2vec_nested: beamed source");
 	// Dot product of the source orientation (already normalized
 	// to 1) and ray normal must be greater than cos(beaming angle)
@@ -226,12 +233,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->CurrentTime  = PhotonTime;
 	NewPack->ColumnDensity = 0;
 	NewPack->Radius = 0.0;
-	// Distribute pixel numbers by number of threads for better
-	// OpenMP load balancing
-	// e.g. 0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11
-	base_ipix = (j % PackagesPerThread) * NumberOfThreads;
-	mod_ipix = j / PackagesPerThread;
-	NewPack->ipix = base_ipix + mod_ipix;
+	NewPack->ipix = ipix;
 	NewPack->level = min_level;
 	NewPack->Energy = RS->Energy[ebin];
 	FLOAT dir_vec[3];
