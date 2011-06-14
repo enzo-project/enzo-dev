@@ -463,7 +463,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
   fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
-  fprintf(fptr, "PhotoelectricHeatingRate       = %"FSYM"\n", PhotoelectricHeatingRate);
+  fprintf(fptr, "PhotoelectricHeatingRate       = %"GSYM"\n", PhotoelectricHeatingRate);
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
