@@ -1597,3 +1597,8 @@
         PyObject *rv = PyFloat_FromDouble((double) StarMassEjectionFraction);
         return rv;
     }
+
+    if (strncmp(parameter_name, "RadiationRedshiftOn", 24) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) CoolData.RadiationRedshiftOn);
+        return rv;
+    }
