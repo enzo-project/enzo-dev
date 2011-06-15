@@ -713,6 +713,7 @@ OBJS_CONFIG_LIB = \
         RadiationFieldCalculateRates.o \
         RadiationFieldLymanWernerTable.o \
         RadiationFieldUpdate.o \
+	rate_cool_routines.o \
         ReadAllData.o \
         ReadAttr.o \
         ReadEvolveRefineFile.o \
