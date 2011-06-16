@@ -29,6 +29,8 @@ for file in matches:
             key, value = line.split("=")
             if value[-1]=='\n':
                 value = value[:-1]
+            if value.count("#") > 0:
+                value = value[0:value.index("#")]
             key=key.strip()
             value=value.strip()
             if key not in attribute_list:  
