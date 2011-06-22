@@ -94,7 +94,7 @@ extern "C" void FORTRAN_NAME(cool_time)(
 	hydro_method *imethod, int *idual, int *idim, int *igammah,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke,
 	float *dt, float *aye, float *temstart, float *temend,
-	   float *fh, float *utem,
+	float *fh, float *utem, float *urho, 
 	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
 int grid::ComputeCoolingTime(float *cooling_time)
@@ -310,7 +310,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
           GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
-          &TemperatureUnits,
+       &TemperatureUnits, &DensityUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
        CoolData.EquilibriumRate, &CoolData.gammah, &Mu);
   }

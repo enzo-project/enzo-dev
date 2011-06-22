@@ -1433,6 +1433,9 @@ Background Radiation Parameters
     hydrogen (H2) dissociation rate. There a normalization is performed
     on the rate by multiplying it with ``RadiationSpectrumNormalization``.
     Default: 1e-21
+``RadiationFieldRedshift`` (external)
+    This parameter specifies the redshift at which the radiation field
+    is calculated.  Default: 0
 ``RadiationShield`` (external)
     This parameter specifies whether the user wants to employ
     approximate radiative-shielding. This parameter will be
