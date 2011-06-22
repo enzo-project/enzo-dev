@@ -652,30 +652,30 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //     //dcc cut second potential cut: Duplicate?
  
-//     if (SelfGravity && WritePotential) {
-//       CopyGravPotential = TRUE;
-//       When = 0.0;
+    if (SelfGravity && WritePotential) {
+      CopyGravPotential = TRUE;
+      When = 0.0;
  
-// #ifdef FAST_SIB
-//       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
-// #else   // !FAST_SIB
-//       PrepareDensityField(LevelArray, level, MetaData, When);
-// #endif  // end FAST_SIB
+#ifdef FAST_SIB
+      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+#else   // !FAST_SIB
+      PrepareDensityField(LevelArray, level, MetaData, When);
+#endif  // end FAST_SIB
  
  
-//       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-//         if (level <= MaximumGravityRefinementLevel) {
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        if (level <= MaximumGravityRefinementLevel) {
  
-//           /* Compute the potential. */
+          /* Compute the potential. */
  
-//           if (level > 0)
-//             Grids[grid1]->GridData->SolveForPotential(level);
-//           Grids[grid1]->GridData->CopyPotentialToBaryonField();
-//         }
-//       } //  end loop over grids
-//        CopyGravPotential = FALSE;
+          if (level > 0)
+            Grids[grid1]->GridData->SolveForPotential(level);
+          Grids[grid1]->GridData->CopyPotentialToBaryonField();
+        }
+      } //  end loop over grids
+       CopyGravPotential = FALSE;
 
-//     } // if WritePotential
+    } // if WritePotential
  
 
     /* Rebuild the Grids on the next level down.

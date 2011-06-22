@@ -1042,8 +1042,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  rho/Gamma ; // for ideal equation of state set sounds speed = 1 
 	EOS(pres, rho, eintl, h, cs, dpdrho, dpde, 0, 1);
 	// impose mode perturbation
-	f = (cos(2.*M_PI*x) + 1.);
-	float fy = (cos(2.*M_PI*y) + 1.);
+	f = sqrt(2.)*(cos(2.*M_PI*x) );
+	float fy = sqrt(2.)*(cos(2.*M_PI*y) );
 	vx = 0.;
 	vy = 0.;
 	bx = 0. ;

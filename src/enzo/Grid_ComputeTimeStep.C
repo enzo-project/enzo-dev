@@ -438,7 +438,7 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtSafetyVelocity);
 
 
-  /* 9) FLD Radiative Transfer timestep limitation */
+  /* 11) FLD Radiative Transfer timestep limitation */
   if (RadiativeTransferFLD)
     dt = min(dt, MaxRadiationDt);
   

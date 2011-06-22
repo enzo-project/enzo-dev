@@ -393,6 +393,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Radiation Pressure: add to acceleration field */
       Grids[grid1]->GridData->AddRadiationPressureAcceleration();
 #endif /* TRANSFER */
+#ifdef SAB    
+    } // End of loop over grids
+    //Ensure the consistency of the AccelerationField
+    SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
+			    Exterior, LevelArray[level], LevelCycleCount[level]);
+    
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+#endif //SAB.    
+
 
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
@@ -435,7 +444,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
 
-
+    }
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       /* Gravity: compute acceleration field for grid and particles. */
@@ -450,19 +459,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       Grids[grid1]->GridData->ComputeAccelerationFieldExternal() ;
 
+#ifdef SAB    
     } // End of loop over grids
 
-
-#ifdef SAB    
     //Ensure the consistency of the AccelerationField
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
-
-#endif //SAB.    
-
-    }
-
+    
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+#endif //SAB.    
 
       if (UseHydro) {
 	if (HydroMethod == HD_RK)

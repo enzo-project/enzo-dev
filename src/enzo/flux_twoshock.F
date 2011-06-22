@@ -429,19 +429,21 @@ c
              write (6,*) 'o', prs(i-1,j), prs(i,j), prs(i+1,j)
              write (6,*) 'p', dslice(i-1,j), dslice(i,j), dslice(i+1,j)
              write (6,*) 'q', uslice(i-1,j), uslice(i,j), uslice(i+1,j)
-             write (6,*) 'r', geslice(i-1,j), geslice(i,j), 
-     $            geslice(i+1,j)
              write (6,*) 's', eslice(i-1,j), eslice(i,j), eslice(i+1,j)
-             write (6,*) 't', geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
-     &                   geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
-     &                   geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
+             if (idual.eq.1) then
+                write(6,*) 'r', geslice(i-1,j), geslice(i,j), 
+     $               geslice(i+1,j)
+                write(6,*) 't',geslice(i-1,j)*dslice(i-1,j)*(gamma-1.0), 
+     &               geslice(i  ,j)*dslice(i  ,j)*(gamma-1.0), 
+     &               geslice(i+1,j)*dslice(i+1,j)*(gamma-1.0)
+             endif
 c             if (gravity .eq. 1) 
 c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
              if (ifallback.eq.0) then
-                write(0,*) 'stop in euler with e < 0'
+                write(6,*) 'stop in euler with e < 0'
                 ERROR_MESSAGE
              else
-                write(0,*) 'Falling back to a more diffusive Riemann',
+                write(6,*) 'Falling back to a more diffusive Riemann',
      $               'solver, HLL'
                 WARNING_MESSAGE
                 call flux_hll(dslice, eslice, geslice, 
