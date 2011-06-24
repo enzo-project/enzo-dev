@@ -533,14 +533,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete [] Grids0;
     delete [] Temp0;
 
-
     /* Delete baryon fields on temporary "fake" grid on
        ProcessorNumber and revert it back to OriginalProcessorNumber,
        which was saved in CommunicationLoadBalancePhotonGrids.  Photon
        packages must be moved back, too. */
 
-    if (RadiativeTransferLoadBalance)
-      RadiativeTransferLoadBalanceRevert(Grids, nGrids);
+    RadiativeTransferLoadBalanceRevert(Grids, nGrids);
 
     /************************************************************************/
     /********************* Coupled rate & energy solver *********************/
