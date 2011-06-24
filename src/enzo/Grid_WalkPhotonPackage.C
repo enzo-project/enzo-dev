@@ -49,7 +49,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
-			    float TimeUnits) {
+			    float TimeUnits, float LightSpeed) {
 
   const float erg_eV = 1.602176e-12;
   const float c_cgs = 2.99792e10;
@@ -112,11 +112,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       RadiativeTransferPhotonEscapeRadius * (3.086e21f / LengthUnits);
 
   // speed of light in code units. note this one is independent of a(t)
-  c = c_cgs/VelocityUnits;
-
-  // Modify the photon propagation speed by this parameter
-  c *= RadiativeTransferPropagationSpeedFraction;
-  c_inv = 1.0 / c;
+  c = LightSpeed;
+  c_inv = 1.0 / LightSpeed;
 
   /* Calculate the normal direction (HEALPix) */
 
