@@ -59,12 +59,12 @@ c     Locals
 c
       integer i, j, n
       real qa, qb, qc, frac, one
-      real sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
-     $     dbar(ijkn), cbar(ijkn), l0(ijkn), lbar(ijkn), 
-     $     ub(ijkn), vb(ijkn), wb(ijkn), db(ijkn), pb(ijkn), 
-     $     cb(ijkn), eb(ijkn), geb(ijkn), colb(ijkn,MAX_COLOR),
-     $     upb(ijkn), dub(ijkn), duub(ijkn), duvb(ijkn), duwb(ijkn),
-     $     dueb(ijkn), dugeb(ijkn), pcent(ijkn)
+      real sn(idim), u0(idim), p0(idim), d0(idim), c0(idim), z0(idim),
+     $     dbar(idim), cbar(idim), l0(idim), lbar(idim), 
+     $     ub(idim), vb(idim), wb(idim), db(idim), pb(idim), 
+     $     cb(idim), eb(idim), geb(idim), colb(idim,MAX_COLOR),
+     $     upb(idim), dub(idim), duub(idim), duvb(idim), duwb(idim),
+     $     dueb(idim), dugeb(idim), pcent(idim)
       parameter (one=1.d0)
 c
 c-----------------------------------------------------------------------

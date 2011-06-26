@@ -96,8 +96,8 @@ c  local declarations
 c
       integer i, j, n
       real qa, qb, qc, frac, uadvect, eold
-      real dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
-     &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
+      real dnu(idim), dnuinv(idim), uold(idim), pcent(idim), 
+     &     eratio(idim), dadx(idim),  dddx(idim)
       real min_color
       parameter(min_color=1d-05*tiny)
 c
