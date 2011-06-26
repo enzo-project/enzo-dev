@@ -74,14 +74,14 @@ c
 c  local declarations
 c
       integer i, j, n
-      real     cl(ijkn),    cr(ijkn), dpdul(ijkn), dpdur(ijkn),
-     &         ps(ijkn),    ubl(ijkn),   ubr(ijkn),
-     &         qa      ,     zl(ijkn),    zr(ijkn)
+      real     cl(idim),    cr(idim), dpdul(idim), dpdur(idim),
+     &         ps(idim),    ubl(idim),   ubr(idim),
+     &         qa      ,     zl(idim),    zr(idim)
 
       integer itok, jjj
-      integer mask(ijkn), jfail(ijkn)
-      real    old_ps(ijkn), delta_ps(ijkn)
-      real    fails(ijkn)
+      integer mask(idim), jfail(idim)
+      real    old_ps(idim), delta_ps(idim)
+      real    fails(idim)
 
 !     To reduce this to the old fixed iteration count method
 !     simply set tolerance = 1.0e-50

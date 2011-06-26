@@ -85,16 +85,16 @@ c
       real sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
      $     hroe, tl, tr, dl, dr, q1, dub, delu, energy, qc,
      $     gamma1i, csl0, csr0
-      real cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
-     $     cw(ijkn), cp(ijkn), diffd(ijkn), diffuu(ijkn), diffuv(ijkn),
-     $     diffuw(ijkn), diffue(ijkn), diffuge(ijkn), 
-     $     bp(ijkn), bm(ijkn), el(ijkn), er(ijkn), pcent(ijkn)
-      real dfl(ijkn), dfr(ijkn), ufl(ijkn), ufr(ijkn), 
-     $     vfl(ijkn), vfr(ijkn), wfl(ijkn), wfr(ijkn),
-     $     efl(ijkn), efr(ijkn), gefl(ijkn), gefr(ijkn),
-     $     gesl(ijkn), gesr(ijkn),
-     $     colfl(ijkn,MAX_COLOR), colfr(ijkn,MAX_COLOR)
-      real sl(ijkn), sr(ijkn), sm(ijkn)
+      real cs(idim), char1(idim), char2(idim), csl(idim), csr(idim),
+     $     cw(idim), cp(idim), diffd(idim), diffuu(idim), diffuv(idim),
+     $     diffuw(idim), diffue(idim), diffuge(idim), 
+     $     bp(idim), bm(idim), el(idim), er(idim), pcent(idim)
+      real dfl(idim), dfr(idim), ufl(idim), ufr(idim), 
+     $     vfl(idim), vfr(idim), wfl(idim), wfr(idim),
+     $     efl(idim), efr(idim), gefl(idim), gefr(idim),
+     $     gesl(idim), gesr(idim),
+     $     colfl(idim,MAX_COLOR), colfr(idim,MAX_COLOR)
+      real sl(idim), sr(idim), sm(idim)
       real dubl, dubr
 
       gamma1 = gamma - 1.d0
