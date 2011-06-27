@@ -631,11 +631,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
-  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMinMach            = %"FSYM"\n",
          ShockwaveRefinementMinMach);
-  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMinVelocity        = %"FSYM"\n",
          ShockwaveRefinementMinVelocity);
-  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMaxLevel           = %"ISYM"\n",
          ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);

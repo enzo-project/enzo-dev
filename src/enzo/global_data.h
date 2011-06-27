@@ -521,7 +521,7 @@ EXTERN float RefineByResistiveLengthSafetyFactor;
 
 EXTERN float ShockwaveRefinementMinMach;
 EXTERN float ShockwaveRefinementMinVelocity;
-EXTERN float ShockwaveRefinementMaxLevel;
+EXTERN int ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
