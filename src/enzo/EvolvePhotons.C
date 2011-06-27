@@ -559,7 +559,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     START_PERF();
     for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(guided)
       for (i = 0; i < nGrids[lvl]; i++)
 	if (Grids[lvl][i]->GridData->RadiationPresent() == TRUE) {
 

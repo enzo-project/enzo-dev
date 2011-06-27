@@ -462,7 +462,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
     
-#pragma omp parallel for schedule(static)    
+#pragma omp parallel for schedule(guided)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields

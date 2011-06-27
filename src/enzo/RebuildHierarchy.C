@@ -375,7 +375,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       tt0 = ReturnWallTime();
       TotalFlaggedCells = FlaggedGrids = 0;
-#pragma omp parallel for schedule(static) private(SubgridList)	\
+#pragma omp parallel for schedule(guided) private(SubgridList)	\
   reduction(+:TotalFlaggedCells, FlaggedGrids)
       for (j = 0; j < grids; j++)
 	FindSubgrids(GridHierarchyPointer[j], SubgridList, i,
@@ -451,7 +451,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 	 Overlap counter, deleting the grid which it reaches zero. */
       
       tt0 = ReturnWallTime();
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(guided)
       for (j = 0; j < subgrids; j++) {
 	SubgridHierarchyPointer[j]->ParentGrid->GridData->
 	  DebugCheck("Rebuild parent");
@@ -604,7 +604,8 @@ int RebuildHierarchy(TopGridData *MetaData,
  
       /* 3g) loop over parent, and copy particles to new grids. */
  
-      grid *ToGrids[MAX_NUMBER_OF_SUBGRIDS];
+      grid *ToGrids[MAX_NUMBER_OF_SUBGRIDS/10];
+#pragma omp parallel for schedule(guided) private(k, ToGrids)
       for (j = 0; j < grids; j++)
  
 	if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {

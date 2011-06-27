@@ -400,7 +400,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 	CopyPotentialFieldAverage = 2;
 
  
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(guided)
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 	Grids[grid1]->GridData->SolveForPotential(level, EvaluateTime);
 	if (CopyGravPotential)
