@@ -402,11 +402,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "CRModel", 8) == 0) {
-        PyObject *rv = PyLong_FromLong((long) CRModel);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "ShockMethod", 12) == 0) {
         PyObject *rv = PyLong_FromLong((long) ShockMethod);
         return rv;

@@ -123,7 +123,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int iTE = ietot;
   int ExtraField[2];
   int ForbidNum;
-  int CRNum, MachNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -391,13 +391,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
       fprintf(stderr, "Initializing Forbidden Refinement color field\n");
       FieldType[ForbidNum = NumberOfBaryonFields++] = ForbiddenRefinement;
     }
-    if(CRModel){
+    if(ShockMethod){
       FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
       if(StorePreShockFields){
 	FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
-      FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
 
@@ -643,14 +642,13 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
 
 	//Shock/Cosmic Ray Model
-	if (CRModel && ReadData) {
+	if (ShockMethod && ReadData) {
 	  BaryonField[MachNum][i] = tiny_number;
-	  BaryonField[CRNum][i] = tiny_number;
 	  if (StorePreShockFields) {
 	    BaryonField[PSTempNum][i] = tiny_number;
 	    BaryonField[PSDenNum][i] = tiny_number;
 	  }
-	} // end: if (CRModel && ReadData)
+	} // end: if (ShockMethod && ReadData)
  
       } // end: if (CosmologySimulationDensityName != NULL)
 
