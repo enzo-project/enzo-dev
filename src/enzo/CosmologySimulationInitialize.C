@@ -753,6 +753,11 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;  
 
+#ifdef EMISSIVITY
+  if (StarMakerEmissivityField > 0)
+    DataLabel[i++] = EtaName;
+#endif
+ 
   if (ShockMethod) {
     DataLabel[i++] = MachName;
     if(StorePreShockFields){
@@ -761,11 +766,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     }
   } 
 
-#ifdef EMISSIVITY
-  if (StarMakerEmissivityField > 0)
-    DataLabel[i++] = EtaName;
-#endif
- 
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
  
