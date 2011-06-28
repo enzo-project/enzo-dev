@@ -477,6 +477,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Clean up allocated fields. */
 
+    if (HydroMethod == Zeus_Hydro && MultiSpecies > 1)
+      delete [] GammaField;
+    else
+      delete GammaField;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];
@@ -492,7 +496,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
   }  // end: if (NumberOfBaryonFields > 0)
-
 
   this->DebugCheck("SolveHydroEquations (after)");
 
