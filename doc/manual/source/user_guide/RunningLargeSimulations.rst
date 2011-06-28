@@ -44,7 +44,7 @@ Important Parameters
   curve.  This results in a grouped set of grids, requiring less
   communication from other processors (and even other compute nodes).
 
-* ``SubgridAutoAdjust`` and ``OptimalSubgridsPerProcessor``: **New for
+* ``SubgridSizeAutoAdjust`` and ``OptimalSubgridsPerProcessor``: **New for
   v2.1** Default is ON and 16, respectively.  The maximum subgrid size
   and edge length will be dynamically adjusted on each AMR level
   according to the number of cells on the level and number of
