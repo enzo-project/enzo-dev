@@ -637,20 +637,18 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	      }
 	    }
 	}
+      } // end: if (CosmologySimulationDensityName != NULL)
 
-	  
-
-
-	//Shock/Cosmic Ray Model
-	if (ShockMethod && ReadData) {
+      // Shock/Cosmic Ray Model
+      if (ShockMethod && ReadData) {
+	for (i = 0; i < size; i++) {
 	  BaryonField[MachNum][i] = tiny_number;
 	  if (StorePreShockFields) {
 	    BaryonField[PSTempNum][i] = tiny_number;
 	    BaryonField[PSDenNum][i] = tiny_number;
-	  }
-	} // end: if (ShockMethod && ReadData)
- 
-      } // end: if (CosmologySimulationDensityName != NULL)
+	    }
+	}
+      } // end: if (ShockMethod && ReadData)
 
     } // end: if (NumberOfBaryonFields > 0)
 
