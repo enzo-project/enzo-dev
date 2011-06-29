@@ -1466,23 +1466,21 @@ Minimum Pressure Support Parameters
 
 ``UseMinimumPressureSupport`` (external)
     When radiative cooling is turned on, and objects are allowed to
-    collapse to very small sizes (i.e. a few cells), and they are
-    evolved for many, many dynamical times, then unfortunate things
-    happen. Primarily, there is some spurious angular momentum
-    generation, and possible some resulting momentum non-conservation.
-    To alleviate this problem, a very simple fudge was introduced: if
-    this flag is turned on, then a minimum temperature is applied to
-    grids with level == ``MaximumRefinementLevel``. This minimum
-    temperature is that required to make each cell Jeans stable
-    multiplied by the parameter below. If you use this, it is advisable
-    to also set the gravitational smoothing length in the form of
-    ``MaximumGravityRefineLevel`` to 2 or 3 less than
-    ``MaximumRefinementLevel``. Default: 0
+    collapse to very small sizes so that their Jeans length is no
+    longer resolved, then they may undergo artificial fragmentation
+    and angular momentum non-conservation.  To alleviate this problem,
+    as discussed in more detail in Machacek, Bryan & Abel (2001), a
+    very simple fudge was introduced: if this flag is turned on, then
+    a minimum temperature is applied to grids with level ==
+    ``MaximumRefinementLevel``. This minimum temperature is that
+    required to make each cell Jeans stable multiplied by the
+    parameter below.  More precisely, the temperature of a cell is set
+    such that the resulting Jeans length is the square-root of the
+    parameter ``MinimumPressureSupportParameter``.  So, for the
+    default value of 100 (see below), this insures that the ratio of
+    the Jeans length/cell size is at least 10.  Default: 0
 ``MinimumPressureSupportParameter`` (external)
-    This is the parameter alluded to above. Very roughly speaking, is
-    the number of cells over which a gravitationally bound small cold
-    clump, on the most refined level, will be spread over. Default:
-    100
+    This is the numerical parameter discussed above. Default: 100
 
 Radiative Transfer (Ray Tracing) Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
