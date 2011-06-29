@@ -1051,18 +1051,18 @@ Parameters for Additional Physics
     is valid for temperatures greater than 10,000 K. This requires the
     file ``TREECOOL`` to execute. Default: 0
 ``MetalCooling`` (external)
-    This flag (0 - off, 1 - metal cooling from Glover & Jappsen 2007, 2
-    - Cen, 3 - Cloudy cooling from Smith, Sigurdsson, & Abel 2008)
-    turns on metal cooling for runs that track metallicity. Option 1 is
-    valid for temperatures between 100 K and 10\ :sup:`8`\  K because
-    it considers fine-structure line emission from carbon, oxygen, and
-    silicon and includes the additional metal cooling rates from
-    Sutherland & Dopita (1993). Option 2 is only valid for temperatures
-    above 10\ :sup:`4`\  K. Option 3 uses multi-dimensional tables of
-    heating/cooling values created with Cloudy and optionally coupled
-    to the ``MultiSpecies`` chemistry/cooling solver. This method is valid
-    from 10 K to 10\ :sup:`8`\  K. See the Cloudy Cooling parameters below.
-    Default: 0.
+    This flag (0 - off, 1 - metal cooling from Glover & Jappsen 2007,
+    2 - Cen et al (1995), 3 - Cloudy cooling from Smith, Sigurdsson, &
+    Abel 2008) turns on metal cooling for runs that track
+    metallicity. Option 1 is valid for temperatures between 100 K and
+    10\ :sup:`8`\ K because it considers fine-structure line emission
+    from carbon, oxygen, and silicon and includes the additional metal
+    cooling rates from Sutherland & Dopita (1993). Option 2 is only
+    valid for temperatures above 10\ :sup:`4`\ K. Option 3 uses
+    multi-dimensional tables of heating/cooling values created with
+    Cloudy and optionally coupled to the ``MultiSpecies``
+    chemistry/cooling solver. This method is valid from 10 K to 10\
+    :sup:`8`\ K. See the Cloudy Cooling parameters below.  Default: 0.
 ``MetalCoolingTable`` (internal)
     This field contains the metal cooling table required for
     ``MetalCooling`` option 1. In the top level directory input/, there are
@@ -2034,7 +2034,7 @@ independently for the isotropic and anisotropic conduction.
     Default: 0.5
 
 Shock Finding Parameters
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 For details on shock finding in Enzo see :ref:`shock_finding`.
 
 ``ShockMethod`` (external)

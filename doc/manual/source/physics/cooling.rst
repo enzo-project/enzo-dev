@@ -93,7 +93,10 @@ parameter to 1, 2, or 3.
 
    ``MetalCooling`` = 1
 
-#. Cen cooling.
+#. Cen et al (1995) cooling. This uses output from a Raymond-Smith
+   code to determine cooling rates from T > 10\ :sup:`4`\ K.  No ionizing
+   background is used in computing cooling rates.  This method has
+   not been extensively tested in the context of Enzo.
 
    ``RadiativeCooling`` = 1
 
