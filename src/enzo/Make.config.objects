@@ -436,7 +436,7 @@ OBJS_CONFIG_LIB = \
         New_Grid_ReadGrid.o \
 	Grid_IdentifyColourFields.o \
 	Grid_HydroShockTubesInitializeGrid.o \
-	Grid_IdentifyCRSpeciesFields.o \
+	Grid_IdentifyShockSpeciesFields.o \
 	Grid_IdentifyGloverSpeciesFields.o \
         Grid_IdentifyNewSubgrids.o \
         Grid_IdentifyNewSubgridsSmall.o \
@@ -592,7 +592,6 @@ OBJS_CONFIG_LIB = \
 	InexactNewton_LinesearchStepSize.o \
 	InexactNewton_Solve.o \
         InitializeCloudyCooling.o \
-	InitializeCosmicRayData.o \
 	InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \

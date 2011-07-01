@@ -1051,18 +1051,18 @@ Parameters for Additional Physics
     is valid for temperatures greater than 10,000 K. This requires the
     file ``TREECOOL`` to execute. Default: 0
 ``MetalCooling`` (external)
-    This flag (0 - off, 1 - metal cooling from Glover & Jappsen 2007, 2
-    - Cen, 3 - Cloudy cooling from Smith, Sigurdsson, & Abel 2008)
-    turns on metal cooling for runs that track metallicity. Option 1 is
-    valid for temperatures between 100 K and 10\ :sup:`8`\  K because
-    it considers fine-structure line emission from carbon, oxygen, and
-    silicon and includes the additional metal cooling rates from
-    Sutherland & Dopita (1993). Option 2 is only valid for temperatures
-    above 10\ :sup:`4`\  K. Option 3 uses multi-dimensional tables of
-    heating/cooling values created with Cloudy and optionally coupled
-    to the ``MultiSpecies`` chemistry/cooling solver. This method is valid
-    from 10 K to 10\ :sup:`8`\  K. See the Cloudy Cooling parameters below.
-    Default: 0.
+    This flag (0 - off, 1 - metal cooling from Glover & Jappsen 2007,
+    2 - Cen et al (1995), 3 - Cloudy cooling from Smith, Sigurdsson, &
+    Abel 2008) turns on metal cooling for runs that track
+    metallicity. Option 1 is valid for temperatures between 100 K and
+    10\ :sup:`8`\ K because it considers fine-structure line emission
+    from carbon, oxygen, and silicon and includes the additional metal
+    cooling rates from Sutherland & Dopita (1993). Option 2 is only
+    valid for temperatures above 10\ :sup:`4`\ K. Option 3 uses
+    multi-dimensional tables of heating/cooling values created with
+    Cloudy and optionally coupled to the ``MultiSpecies``
+    chemistry/cooling solver. This method is valid from 10 K to 10\
+    :sup:`8`\ K. See the Cloudy Cooling parameters below.  Default: 0.
 ``MetalCoolingTable`` (internal)
     This field contains the metal cooling table required for
     ``MetalCooling`` option 1. In the top level directory input/, there are
@@ -1466,23 +1466,21 @@ Minimum Pressure Support Parameters
 
 ``UseMinimumPressureSupport`` (external)
     When radiative cooling is turned on, and objects are allowed to
-    collapse to very small sizes (i.e. a few cells), and they are
-    evolved for many, many dynamical times, then unfortunate things
-    happen. Primarily, there is some spurious angular momentum
-    generation, and possible some resulting momentum non-conservation.
-    To alleviate this problem, a very simple fudge was introduced: if
-    this flag is turned on, then a minimum temperature is applied to
-    grids with level == ``MaximumRefinementLevel``. This minimum
-    temperature is that required to make each cell Jeans stable
-    multiplied by the parameter below. If you use this, it is advisable
-    to also set the gravitational smoothing length in the form of
-    ``MaximumGravityRefineLevel`` to 2 or 3 less than
-    ``MaximumRefinementLevel``. Default: 0
+    collapse to very small sizes so that their Jeans length is no
+    longer resolved, then they may undergo artificial fragmentation
+    and angular momentum non-conservation.  To alleviate this problem,
+    as discussed in more detail in Machacek, Bryan & Abel (2001), a
+    very simple fudge was introduced: if this flag is turned on, then
+    a minimum temperature is applied to grids with level ==
+    ``MaximumRefinementLevel``. This minimum temperature is that
+    required to make each cell Jeans stable multiplied by the
+    parameter below.  More precisely, the temperature of a cell is set
+    such that the resulting Jeans length is the square-root of the
+    parameter ``MinimumPressureSupportParameter``.  So, for the
+    default value of 100 (see below), this insures that the ratio of
+    the Jeans length/cell size is at least 10.  Default: 0
 ``MinimumPressureSupportParameter`` (external)
-    This is the parameter alluded to above. Very roughly speaking, is
-    the number of cells over which a gravitationally bound small cold
-    clump, on the most refined level, will be spread over. Default:
-    100
+    This is the numerical parameter discussed above. Default: 100
 
 Radiative Transfer (Ray Tracing) Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2003,7 +2001,7 @@ Feedback Physics
     ``mbh_particle_io.dat``
 
 Conduction
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~
 
 Isotropic and anisotropic thermal conduction are implemented using the
 method of Parrish and Stone: namely, using an explicit, forward
@@ -2032,6 +2030,29 @@ independently for the isotropic and anisotropic conduction.
     algorithm.  In its current explicit formulation, it must be set to
     a value of 0.5 or less.
     Default: 0.5
+
+Shock Finding Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~
+For details on shock finding in Enzo see :ref:`shock_finding`.
+
+``ShockMethod`` (external)
+    This parameter controls the use and type of shock finding. Default: 0
+    
+    ::
+
+	0 - Off
+	1 - Temperature Dimensionally Unsplit Jumps
+	2 - Temperature Dimensionally Split Jumps
+	1 - Velocity Dimensionally Unsplit Jumps
+	2 - Velocity Dimensionally Split Jumps
+
+``ShockTemperatureFloor`` (external)
+    When calculating the mach number using temperature jumps, set the
+    temperature floor in the calculation to this value.
+
+``StorePreShockFields`` (external)
+    Optionally store the Pre-shock Density and Temperature during data output.
+
 
 .. _testproblem_param:
 

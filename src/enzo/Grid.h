@@ -713,7 +713,7 @@ public:
    float GadgetCoolingRateFromU(float u, float rho, float *ne_guess, 
 				float redshift);
 
-// Functions for shock finding and cosmic ray acceleration
+// Functions for shock finding
 //
    int FindShocks();
    int FindTempSplitShocks();
@@ -1617,9 +1617,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
-/* Identify shock/cosmic ray fields. */
-  int IdentifyCRSpeciesFields(int &MachNum, int&CRNum, 
-			      int &PSTempNum, int &PSDenNum);
+  /* Identify shock fields. */
+  int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
+
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,

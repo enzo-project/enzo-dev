@@ -11,6 +11,5 @@ physics modules.
    hydro_methods.rst
    cooling.rst
    radiative_transfer.rst
-   cosmic_rays.rst
    shock_finding.rst
 

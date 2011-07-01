@@ -435,7 +435,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiativeTransfer              = %"ISYM"\n", RadiativeTransfer);
   fprintf(fptr, "RadiationXRaySecondaryIon      = %"ISYM"\n", RadiationXRaySecondaryIon);
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
-  fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
@@ -464,7 +463,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
   fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
-  fprintf(fptr, "PhotoelectricHeatingRate       = %"FSYM"\n", PhotoelectricHeatingRate);
+  fprintf(fptr, "PhotoelectricHeatingRate       = %"GSYM"\n", PhotoelectricHeatingRate);
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
@@ -632,11 +631,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
-  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMinMach            = %"FSYM"\n",
          ShockwaveRefinementMinMach);
-  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMinVelocity        = %"FSYM"\n",
          ShockwaveRefinementMinVelocity);
-  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMaxLevel           = %"ISYM"\n",
          ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);

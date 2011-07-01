@@ -245,8 +245,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 		  NewPack->Photons, NewPack )
 	}
 
-	NewPack->CrossSection = 
-	  FindCrossSection(NewPack->Type, NewPack->Energy);
+	if (NewPack->Type < 4)
+	  NewPack->CrossSection = 
+	    FindCrossSection(NewPack->Type, NewPack->Energy);
+	else
+	  NewPack->CrossSection = tiny_number;
 
 	/* Set the photon origin to the source radius (0 = point src) */
 
