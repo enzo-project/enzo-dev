@@ -1560,6 +1560,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ENZO_FAIL("PositiveReconstruction not supported yet with openmp-yes.\n");
 #endif
 
+  /* Turn off reseting LB if we're running serially */
+
+  if (NumberOfProcessors == 1 && ResetLoadBalancing)
+    ResetLoadBalancing = FALSE;
+
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;
 #endif /* ndef CONFIG_USE_LIBCONFIG */
