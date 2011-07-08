@@ -49,6 +49,10 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 
    int DeletePhotonPackages(int DeleteHeadPointer=FALSE);
 
+/* sort photon linked lists */
+
+   int PhotonSortLinkedLists(void);
+
 /* Set Subgrid Marker field */
 
    int SetSubgridMarkerFromSubgrid(grid *Subgrid);
