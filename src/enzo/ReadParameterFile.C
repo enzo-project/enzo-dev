@@ -156,7 +156,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MetaData.OutputFirstTimeAtLevel);
     ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
- 
+    ret += sscanf(line, "NumberOfOutputsBeforeExit = %"ISYM,
+		  &MetaData.NumberOfOutputsBeforeExit);
+
     /* Maximum density directed output */
     ret += sscanf(line, "OutputOnDensity = %"ISYM,
            &OutputOnDensity);
@@ -1486,6 +1488,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (WritePotential && SelfGravity) {
     CopyGravPotential = TRUE;
   }
+
+  // Keep track of number of outputs left until exit.
+  MetaData.OutputsLeftBeforeExit = MetaData.NumberOfOutputsBeforeExit;
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
  
