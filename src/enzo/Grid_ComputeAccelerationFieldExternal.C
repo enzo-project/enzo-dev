@@ -251,9 +251,14 @@ int grid::ComputeAccelerationFieldExternal()
 
 	  
 	  radius = sqrt(rsquared);
-	  rcore = PointSourceGravityCoreRadius/LengthUnits;
+	  
+	  if(ProblemType == 31){
+	    rcore = PointSourceGravityCoreRadius;  // already in code units                                                      
+	  } else {
+	    rcore = PointSourceGravityCoreRadius/LengthUnits;  // convert from CGS to code                                       
+	  }
 	  FLOAT x = radius/rcore;
-	  accel = GravConst*PointSourceGravityConstant*
+	  accel = GravConst*PointSourceGravityConstant*MassUnitsDouble*
 	    ((log(1.0+x  )-x  /(1.0+x  )) /
 	     (log(1.0+1.0)-1.0/(1.0+1.0))) / 
 	    POW(radius*LengthUnits, 2) / AccelUnits;

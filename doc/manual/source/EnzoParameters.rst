@@ -55,6 +55,9 @@ Stopping Parameters
     Causes the simulation to immediately stop when a specified level is
     reached. Default value 0 (off), possible values are levels 1
     through maximum number of levels in a given simulation.
+``NumberOfOutputsBeforeExit`` (external)
+    After this many datadumps have been written, the code will exit.  If 
+    set to 0 (default), this option will not be used.  Default: 0.
 ``StopCPUTime`` (external)
     Causes the simulation to stop if the wall time exceeds ``StopCPUTime``.
     The simulation will output if the wall time after the next
