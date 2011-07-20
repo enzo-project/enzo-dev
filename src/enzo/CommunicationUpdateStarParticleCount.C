@@ -152,6 +152,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
  
   delete [] TotalParticleCount;
   delete [] PartialParticleCount;
+  delete [] TotalStarParticleCount;
+  delete [] PartialStarParticleCount;
  
   return SUCCESS;
 }
@@ -257,6 +259,8 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
  
   delete [] TotalParticleCount;
   delete [] PartialParticleCount;
+  delete [] TotalStarParticleCount;
+  delete [] PartialStarParticleCount;
  
   return SUCCESS;
 }
