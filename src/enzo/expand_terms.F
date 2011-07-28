@@ -3,7 +3,7 @@ c=======================================================================
 c///////////////////////  SUBROUTINE EXPAND_TERMS  \\\\\\\\\\\\\\\\\\\\\
 c
       subroutine expand_terms(rank, isize, idual, coef, imethod, gamma,
-     &                        p, pdual, d, e, ge, u, v, w,
+     &                        p, d, e, ge, u, v, w,
      &                        dold, eold, geold, uold, vold, wold)
 c
 c  ADDS THE COMOVING EXPANSION TERMS TO THE PHYSICAL VARIABLES
@@ -21,7 +21,6 @@ c    idual   - dual energy flag (1 = on, 0 = off)
 c    coef    - coefficent (dt * adot / a)
 c    d       - density field
 c    p       - pressure field (from total energy - 0.5v^2)
-c    pdual   - pressure field (from gas energy, if available)
 c    e,ge    - total energy and gas energy (specific)
 c    u,v,w   - velocities
 c
@@ -39,7 +38,7 @@ c
       integer isize, idual, imethod, rank
       real    gamma, coef
       real    d(isize), p(isize), e(isize), ge(isize),
-     &        u(isize), v(isize), w(isize), pdual(isize)
+     &        u(isize), v(isize), w(isize)
       real    dold(isize), eold(isize), geold(isize),
      &        uold(isize), vold(isize), wold(isize)
 c
@@ -64,19 +63,19 @@ c
       if (idual .eq. 1) then
          do i = 1, isize
 #ifdef ENERGY_METHOD1
-            ge(i) = max(ge(i) - coef*6.0*pdual(i)/(d(i) + dold(i)),
-     &                  0.5*ge(i))
+            ge(i) = max(ge(i) - coef*6.d0*p(i)/(d(i) + dold(i)),
+     &                  0.5d0*ge(i))
 #endif /* ENERGY_METHOD1 */
 #ifdef ENERGY_METHOD2
-            ge(i) = max(ge(i) - coef*3.0*pdual(i)/d(i), 0.5*ge(i))
+            ge(i) = max(ge(i) - coef*3.d0*p(i)/d(i), 0.5d0*ge(i))
 #endif /* ENERGY_METHOD2 */
 #ifdef ENERGY_METHOD3
-            ge(i) = ge(i)*(1.0-coef)/(1.0+coef)
-c            if (ge(i)-coef*(3.0-2.0/(gamma-1.0))*pdual(i)/d(i).le.0)
+            ge(i) = ge(i)*(1.d0-coef)/(1.d0+coef)
+c            if (ge(i)-coef*(3.0-2.0/(gamma-1.0))*p(i)/d(i).le.0)
 c     &         write(6,*) 'get:',i,ge(i),p(i),d(i)
 c
 c  this line should be there if gamma != 5/3:
-c            ge(i) = ge(i) - coef*(3.0 - 2.0/(gamma-1.0))*pdual(i)/d(i)
+c            ge(i) = ge(i) - coef*(3.d0 - 2.d0/(gamma-1.d0))*p(i)/d(i)
 c
 #endif /* ENERGY_METHOD3 */
          enddo
@@ -87,32 +86,32 @@ c       (for zeus method (imethod=2), only use 3*p/d term)
 c
       if (imethod .eq. 2) then
          do i = 1, isize
-            e(i) = max(e(i) - coef*6.0*p(i)/(d(i)+dold(i)), 0.5*e(i))
+            e(i) = max(e(i) - coef*6.d0*p(i)/(d(i)+dold(i)), 0.5d0*e(i))
          enddo
       else
          do i = 1, isize
 #ifdef ENERGY_METHOD1
-            p(i) = 6.0*p(i)/(d(i)+dold(i))
-                             p(i) = p(i) + 0.25*(u(i)+uold(i))**2
-            if (rank .gt. 1) p(i) = p(i) + 0.25*(v(i)+vold(i))**2
-            if (rank .gt. 2) p(i) = p(i) + 0.25*(w(i)+wold(i))**2
-            if (e(i)-coef*p(i) .lt. 0.5*e(i)) write(6,1000)
+            p(i) = 6.d0*p(i)/(d(i)+dold(i))
+                             p(i) = p(i) + 0.25d0*(u(i)+uold(i))**2
+            if (rank .gt. 1) p(i) = p(i) + 0.25d0*(v(i)+vold(i))**2
+            if (rank .gt. 2) p(i) = p(i) + 0.25d0*(w(i)+wold(i))**2
+            if (e(i)-coef*p(i) .lt. 0.5d0*e(i)) write(6,1000)
      &         i,e(i),coef*p(i),d(i),dold(i),u(i),uold(i),
      &         v(i),vold(i),w(i),wold(i),
      &         e(i+1),coef*p(i+1),e(i+2),coef*p(i+2)
  1000       format(i10,20(1pe10.2))
-            e(i) = max(e(i) - coef*p(i), 0.5*e(i))
+            e(i) = max(e(i) - coef*p(i), 0.5d0*e(i))
 #endif /* ENERGY_METHOD1 */
 #ifdef ENERGY_METHOD2
-            p(i) = 3.0*p(i)/d(i) + u(i)**2
+            p(i) = 3.d0*p(i)/d(i) + u(i)**2
             if (rank .gt. 1) p(i) = p(i) + v(i)**2
             if (rank .gt. 2) p(i) = p(i) + w(i)**2
-            e(i) = max(e(i) - coef*p(i), 0.5*e(i))
+            e(i) = max(e(i) - coef*p(i), 0.5d0*e(i))
 #endif /* ENERGY_METHOD2 */
 #ifdef ENERGY_METHOD3
-            e(i) = e(i)*(1.0-coef)/(1.0+coef)
-            e(i) = max(e(i) - coef*(3.0 - 2.0/(gamma-1.0))*p(i)/d(i),
-     &                 0.5*e(i))
+            e(i) = e(i)*(1.d0-coef)/(1.d0+coef)
+            e(i) = max(e(i) - coef*(3.d0 - 2.d0/(gamma-1.d0))*p(i)/d(i),
+     &                 0.5d0*e(i))
 #endif /* ENERGY_METHOD3 */
          enddo
       endif
@@ -125,9 +124,9 @@ c        i) sortof time-centered: */
 c
 #ifdef VELOCITY_METHOD1
       do i = 1, isize
-                          u(i) = u(i) - coef*0.5*(u(i) + uold(i))
-         if (rank .gt. 1) v(i) = v(i) - coef*0.5*(v(i) + vold(i))
-         if (rank .gt. 2) w(i) = w(i) - coef*0.5*(w(i) + wold(i))
+                          u(i) = u(i) - coef*0.5d0*(u(i) + uold(i))
+         if (rank .gt. 1) v(i) = v(i) - coef*0.5d0*(v(i) + vold(i))
+         if (rank .gt. 2) w(i) = w(i) - coef*0.5d0*(w(i) + wold(i))
 c                          u(i) = u(i) - coef*uold(i)
 c         if (rank .gt. 1) v(i) = v(i) - coef*vold(i)
 c         if (rank .gt. 2) w(i) = w(i) - coef*wold(i)
@@ -148,9 +147,9 @@ c        iii) semi-implicit way: */
 c
 #ifdef VELOCITY_METHOD3
       do i = 1, isize
-                          u(i) = u(i)*(1.0 - 0.5*coef)/(1.0 + 0.5*coef)
-         if (rank .gt. 1) v(i) = v(i)*(1.0 - 0.5*coef)/(1.0 + 0.5*coef)
-         if (rank .gt. 2) w(i) = w(i)*(1.0 - 0.5*coef)/(1.0 + 0.5*coef)
+                          u(i) = u(i)*(1.d0-0.5d0*coef)/(1.0 + 0.5*coef)
+         if (rank .gt. 1) v(i) = v(i)*(1.d0-0.5d0*coef)/(1.0 + 0.5*coef)
+         if (rank .gt. 2) w(i) = w(i)*(1.d0-0.5d0*coef)/(1.0 + 0.5*coef)
       enddo
 #endif /*  VELOCITY_METHOD3 */
 c

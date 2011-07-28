@@ -162,6 +162,7 @@ int InitializeCloudyCooling(FLOAT Time)
     fprintf(stderr,"Failed to close Dimension attribute in Cooling dataset.\n");
     return FAIL;
   }
+  delete [] temp_int_arr;
 
   // Read Cooling data.
   CloudyCoolingData.CloudyDataSize = 1;

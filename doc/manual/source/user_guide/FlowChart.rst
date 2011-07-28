@@ -27,6 +27,6 @@ code and has not been made perfect. Issues may remain.
 Return CPU Time
 ~~~~~~~~~~~~~~~
 
-This used to be an Enzo routine. Now, it's an MPI call, MPI\_Wtime
+This used to be an Enzo routine. Now, it's an MPI call, MPI_Wtime
 
 

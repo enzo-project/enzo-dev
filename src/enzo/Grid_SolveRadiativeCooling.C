@@ -86,12 +86,12 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 extern "C" void FORTRAN_NAME(solve_cool)(
 	float *d, float *e, float *ge, float *u, float *v, float *w,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
-	hydro_method *imethod, int *idual, int *idim, int *igammah,
+	hydro_method *imethod, int *cool_method, int *idual, int *idim, int *igammah,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke,
 	float *dt, float *aye, float *temstart, float *temend,
 	   float *fh,
-	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
-	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha);
+	float *utem, float *uxyz, float *urho, float *utim,
+	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
  
 int grid::SolveRadiativeCooling()
@@ -338,15 +338,15 @@ int grid::SolveRadiativeCooling()
        density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
        GridDimension, GridDimension+1, GridDimension+2,
           &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
-          &HydroMethod,
+          &HydroMethod,&RadiativeCoolingModel,
        &DualEnergyFormalism, &GridRank, &PhotoelectricHeating,
        GridStartIndex, GridStartIndex+1, GridStartIndex+2,
           GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
-       &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
+       &TemperatureUnits, &LengthUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
-          CoolData.EquilibriumRate, &CoolData.gammah);
+       CoolData.EquilibriumRate, &CoolData.gammah, &Mu);
   }
 
   if (HydroMethod == MHD_RK) {

@@ -10,12 +10,12 @@ and by no means a replacement to the documentation.
 NICS: Kraken
 ------------
 
-` http://www.nics.tennessee.edu/table-of-contents <http://www.nics.tennessee.edu/table-of-contents>`_
+`http://www.nics.tennessee.edu/computing-resources/kraken <http://www.nics.tennessee.edu/computing-resources/kraken>`_
 
 Important
 ~~~~~~~~~
 
-Serious errors have been found with a few enzo routines when using
+Serious errors have been found with a few Enzo routines when using
 -O2 and the PGI compilers on Kraken. Use with caution.
 
 Trace Trap Flags

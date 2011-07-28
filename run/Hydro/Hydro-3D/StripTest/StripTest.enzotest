@@ -1,0 +1,9 @@
+name = 'StripTest'
+answer_testing_script = None
+nprocs = 1
+runtime = 'unknown'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+dimensionality = 3

@@ -2,22 +2,18 @@ Writing Enzo Parameter Files
 ============================
 
 Putting together a parameter file for Enzo is possibly the most
-critical step when setting up a simulation, and is certainly the
-step which is most fraught with peril. There are over 200
-parameters that one can set - see
-`the parameter list? </wiki/UserGuide/EnzoParameters>`_ for a
-complete listing. For the most part, defaults are set to be sane
-values for cosmological simulations, and most physics packages are
-turned off by default, so that you have to explicitly turn on
-modules. All physics packages are compiled into Enzo (unlike codes
-such as ZEUS-MP 1.0, where you have to recompile the code in order
-to enable new physics).
+critical step when setting up a simulation, and is certainly the step
+which is most fraught with peril. There are over 200 parameters that
+one can set - see :doc:`../EnzoParameters` for a complete listing. For
+the most part, defaults are set to be sane values for cosmological
+simulations, and most physics packages are turned off by default, so
+that you have to explicitly turn on modules. All physics packages are
+compiled into Enzo (unlike codes such as ZEUS-MP 1.0, where you have
+to recompile the code in order to enable new physics).
 
-It is inadvisable for a novice to put together a parameter file
-from scratch. Several parameter files are available for download at
-`this site? </wiki/Tutorials/SampleParameterFiles>`_. The
-simulations include:
-
+It is inadvisable for a novice to put together a parameter file from
+scratch. Several parameter files are available for download at
+:doc:`SampleParameterFiles`. The simulations include:
 
 -  dark matter-only unigrid and AMR simulations,
 -  dark matter + hydro unigrid and AMR simulations,
@@ -35,6 +31,8 @@ line), the name of which is fed into Enzo at execution time at the
 command line. Typically, a parameter is set by writing the
 parameter name, an equals sign, and then the parameter value or
 values, like this:
+
+.. highlight:: none
 
 ::
 
@@ -113,7 +111,7 @@ Complete descriptions of all cosmology parameters are given here
 and here. ``ComovingCoordinates`` determines whether comoving
 coordinates are used or not. In practice, turning this off turns
 off all of the cosmology machinery, so you want to leave it set to
-1 for a cosmology simulation. ``CosmologyInitialRedshif``t and
+1 for a cosmology simulation. ``CosmologyInitialRedshift`` and
 ``CosmologyFinalRedshift`` control the start and end times of the
 simulation, respectively. ``CosmologyHubbleConstantNow`` sets the
 Hubble parameter, and is specified at z=0 in units of 100 km/s/Mpc.
@@ -173,18 +171,17 @@ The parameter listing section on hydro parameters can be found
 here. The most fundamental hydro parameter that you can set is
 ``HydroMethod``, which lets you decide between the Piecewise Parabolic
 Method (aka PPM; option 0), or the finite-difference method used in
-the Zeus astrophysics code (option 2). PPM is the more advanced
-and optimized method. The Zeus method uses an
-artificial viscosity-based scheme and may not be suited for some
-types of work. When using PPM in a cosmological simulation, it is
-important to turn ``DualEnergyFormalism`` on (1), which makes
-total-energy schemes such as PPM stable in a regime where there are
-hypersonic fluid flows, which is quite common in cosmology. The
-final parameter that one must set is ``Gamma``, the ratio of specific
-heats for an ideal gas. If `MultiSpecies? </wiki/MultiSpecies>`_
-(discussed later in this tutorial) is on, this is ignored. For a
-cosmological simulation where we wish to use PPM and have ``Gamma`` =
-5/3, we use the following parameters:
+the Zeus astrophysics code (option 2). PPM is the more advanced and
+optimized method. The Zeus method uses an artificial viscosity-based
+scheme and may not be suited for some types of work. When using PPM in
+a cosmological simulation, it is important to turn
+``DualEnergyFormalism`` on (1), which makes total-energy schemes such
+as PPM stable in a regime where there are hypersonic fluid flows,
+which is quite common in cosmology. The final parameter that one must
+set is ``Gamma``, the ratio of specific heats for an ideal gas. If
+``MultiSpecies`` (discussed later in :ref:`Cooling`) is on, this is
+ignored. For a cosmological simulation where we wish to use PPM and
+have ``Gamma`` = 5/3, we use the following parameters:
 
 ::
 
@@ -387,32 +384,32 @@ should only have the file name to the left of the period the period
 Nested Grids and Particles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When initializing a nested grid problem, there can arise an issue
-of lost particles as a result of running ring. Please see
-`this page? </wiki/Tutorials/NestedGridParticles>`_ for more
-information.
+When initializing a nested grid problem, there can arise an issue of
+lost particles as a result of running ring. Please see
+:doc:`../reference/NestedGridParticles` for more information.
 
 I/O Parameters
 --------------
 
-These parameters, defined in more detail (here), control all
-aspects of Enzo's data output. One can output data in a
-cosmological simulation in both a time-based and redshift-based
-manner. To output data regularly in time, one sets ``dtDataDump`` to a
-value greater than zero. The size of this number, which is in units
-of enzo's internal time variable, controls the output frequency.
-See the Enzo user's manual section on output format for more
-information on physical units. Data can be output at specific
-redshifts as controlled by ``CosmologyOutputRedshift[#]``, where # is
-the number of the output dump (with a maximum of 10,000 zero-based
-numbers). The name of the time-based output files are controlled by
-the parameter ``DataDumpName`` and the redshift-based output files have
-filenames controlled by ``RedshiftDumpName``. For example, if we want
-to output data every time the code advances by dt=2.0 (in code
-units) with file hierarchiess named ``time\_0000, ``time\_0001``, etc.,
-and ALSO output explicitly at redshifts 10, 5, 3 and 1 with file
-hierarchy names ``RedshiftOutput0000``, ``RedshiftOutput0001``, etc., we
-would set these parameters as follows:
+These parameters, defined in more detail in
+:doc:`ControllingDataOutput`, control all aspects of Enzo's data
+output. One can output data in a cosmological simulation in both a
+time-based and redshift-based manner. To output data regularly in
+time, one sets ``dtDataDump`` to a value greater than zero. The size
+of this number, which is in units of Enzo's internal time variable,
+controls the output frequency.  See the Enzo user's manual section on
+output format for more information on physical units. Data can be
+output at specific redshifts as controlled by
+``CosmologyOutputRedshift[#]``, where # is the number of the output
+dump (with a maximum of 10,000 zero-based numbers). The name of the
+time-based output files are controlled by the parameter
+``DataDumpName`` and the redshift-based output files have filenames
+controlled by ``RedshiftDumpName``. For example, if we want to output
+data every time the code advances by dt=2.0 (in code units) with file
+hierarchiess named ``time_0000``, ``time_0001``, etc., and ALSO output
+explicitly at redshifts 10, 5, 3 and 1 with file hierarchy names
+``RedshiftOutput0000``, ``RedshiftOutput0001``, etc., we would set
+these parameters as follows:
 
 ::
 
@@ -427,6 +424,8 @@ would set these parameters as follows:
 Note that Enzo always outputs outputs data at the end of the
 simulation, regardless of the settings of ``dtDataDump`` and
 ``CosmologyOutputRedshift``.
+
+.. _Cooling:
 
 Radiative Cooling and UV Physics Parameters
 -------------------------------------------
@@ -458,16 +457,24 @@ with q\ :sub:`alpha`\ = -1.8, we would set these parameters as follows:
 Star Formation and Feedback Physics Parameters
 ----------------------------------------------
 
-Enzo has multiple routines for star formation and feedback.
-Star particle formation and feedback are controlled separately, by
-the parameters ``StarParticleCreation`` and ``StarParticleFeedback``. These
-routines are disabled when these parameters are set equal to 0, and
-are turned on when they are equal to 1, 2, 3 or 4. The value of 2
-is the recommended value. The most commonly used routines (2) are
-based upon an algorithm by Cen & Ostriker, and there are a number
-of free parameters. Note that it is possible to turn star particle
-formation on while leaving feedback off, but not the other way
-around.
+Enzo has multiple routines for star formation and feedback.  Star
+particle formation and feedback are controlled separately, by the
+parameters ``StarParticleCreation`` and ``StarParticleFeedback``.
+Multiple types of star formation and feedback can be used, e.g. models
+for Pop III stars for metal-free gas and models for Pop II stars for
+metal-enriched gas.  These routines are disabled when these parameters
+are set equal to 0.  These parameters are bitwise to allow multiple
+types of star formation routines can be used in a single
+simulation. For example if methods 1 and 3 are desired, the user would
+specify 10 (2\ :sup:`1`\ + 2\ :sup:`3`\ ), or if methods 0, 1 and 4
+are wanted, this would be 19 (2\ :sup:`0`\ + 2\ :sup:`1`\ + 2\
+:sup:`4`\ ).  See :ref:`StarParticleParameters` for more details.
+
+They are turned on when the i-th bit is flagged.  The value of 2 is
+the recommended value. The most commonly used routines (2) are based
+upon an algorithm by Cen & Ostriker, and there are a number of free
+parameters. Note that it is possible to turn star particle formation
+on while leaving feedback off, but not the other way around.
 
 For the star particle creation algorithm, stars are allowed to form
 only in cells where a minimum overdensity is reached, as defined by
@@ -542,7 +549,7 @@ total dataset size! This is possible because the reading of initial
 conditions and writing out of data dumps is fully parallelized - at
 startup, when the parameter ``ParallelRootGridIO`` is turned on each
 processor only reads the portion of the root grid which is within
-its computational domain, and when ``ParallelParticleIO ``is turned on
+its computational domain, and when ``ParallelParticleIO`` is turned on
 each processor only reads in the particles within its domain
 (though preprocessing is needed - see below). Additionally, the
 parameter ``Unigrid`` should be turned on for simulations without AMR,
@@ -561,8 +568,8 @@ parameters:
 AMR simulations can be run with ``ParallelRootGridIO`` and
 ``ParallelParticleIO`` on, though you must be careful to turn off the
 ``Unigrid`` parameter. In addition, it is important to note that in the
-current version of enzo you must run the program called "ring" on
-the particle position and velocity files before enzo is started in
+current version of Enzo you must run the program called "ring" on
+the particle position and velocity files before Enzo is started in
 order to take advantage of the parallel particle IO. Assuming the
 particle position and velocity files are named ``ParticlePositions``
 and ``ParticleVelocities``, respectively, this is done by running:
@@ -573,19 +580,18 @@ and ``ParticleVelocities``, respectively, this is done by running:
 
 Where mpirun is the executable responsible for running MPI programs
 and "-np [N]" tells the machine that there are [N] processors. This
-number of processors must be the same as the number which enzo will
+number of processors must be the same as the number which Enzo will
 be run with!
 
 Notes
 -----
 
-This page is intended to help novice Enzo users put together
-parameter files for their first simulation and therefore is not
-intended to be an exhaustive list of parameters nor a complete
-description of each parameter mentioned. It would be wise to refer
-to the Enzo user guide's
-`parameter list? </wiki/UserGuide/EnzoParameters>`_ page for a
-more-or-less complete list of AMR parameters, some of which may be
-extremely useful for your specific application.
+This page is intended to help novice Enzo users put together parameter
+files for their first simulation and therefore is not intended to be
+an exhaustive list of parameters nor a complete description of each
+parameter mentioned. It would be wise to refer to the Enzo user
+guide's :doc:`../EnzoParameters` for a more-or-less complete list of
+AMR parameters, some of which may be extremely useful for your
+specific application.
 
 

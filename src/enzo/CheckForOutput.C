@@ -65,53 +65,22 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 	           ImplicitProblemABC *ImplicitSolver,
 #endif
-		   int &WroteData, int Restart)
+		   int Restart)
 {
  
   /* Declarations. */
  
   char *Name;
   int i, Number;
-  WroteData = FALSE;
+  MetaData.WroteData = FALSE;
   double SavedCPUTime;
-
-  /* Check for output: CPU time-based.  
-
-     If there is less time until (StopCPUTime - LastCycleCPUTime) than
-     the last cycle's CPU time, output the data to ensure we get the
-     last data dump for restarting! */
-
-  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
-
-  if (debug)
-    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
-	   "Last = %lg\n",
-	   FractionalCPUTime, ReturnWallTime()-MetaData.StartCPUTime, 
-	   MetaData.CPUTime, 
-	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
-  if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
-      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
-      WroteData == FALSE) {
-    MetaData.CycleLastDataDump = MetaData.CycleNumber;
-    SavedCPUTime = MetaData.CPUTime;
-    MetaData.CPUTime = 0.0;
-    if (debug) printf("CPUtime-based output!\n");
-    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		       TopGrid, MetaData, Exterior
-#ifdef TRANSFER
-		       , ImplicitSolver
-#endif
-		       );
-    MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
-  } // ENDIF
 
   /* Check for output: restart-based. */
 
   char *param;
   FILE *pfptr;
 
-  if (Restart == TRUE && WroteData == FALSE) {
+  if (Restart == TRUE && MetaData.WroteData == FALSE) {
 
     MetaData.CycleLastRestartDump = MetaData.CycleNumber;
 
@@ -122,6 +91,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 		       , ImplicitSolver
 #endif
 		       );
+
 
     /* On the root processor, write the restart parameter filename to
        a file that will be read by a (batch) script to restart enzo.
@@ -145,14 +115,46 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
       delete [] param;
     } // ENDIF ROOT_PROCESSOR
 
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
     return SUCCESS;
   }
     
+  /* Check for output: CPU time-based.  
+
+     If there is less time until (StopCPUTime - LastCycleCPUTime) than
+     the last cycle's CPU time, output the data to ensure we get the
+     last data dump for restarting! */
+
+  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
+
+  if (debug)
+    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
+	   "Last = %lg\n",
+	   FractionalCPUTime, ReturnWallTime()-MetaData.StartCPUTime, 
+	   MetaData.CPUTime, 
+	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
+  if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
+      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
+      MetaData.WroteData == FALSE) {
+    MetaData.CycleLastDataDump = MetaData.CycleNumber;
+    SavedCPUTime = MetaData.CPUTime;
+    MetaData.CPUTime = 0.0;
+    if (debug) printf("CPUtime-based output!\n");
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
+    MetaData.CPUTime = SavedCPUTime;
+    MetaData.WroteData = TRUE;
+  } // ENDIF
+
   /* Check for output: time-based. */
  
   if (MetaData.Time >= MetaData.TimeLastDataDump + MetaData.dtDataDump
       && MetaData.dtDataDump > 0.0) {
+    SavedCPUTime = MetaData.CPUTime;
     MetaData.CPUTime = 0.0;
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
@@ -174,7 +176,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //     }
 // #endif
 
-    WroteData = TRUE;
+    MetaData.CPUTime = SavedCPUTime;
+    MetaData.WroteData = TRUE;
   }
  
   /* Check for output: cycle-based. */
@@ -205,7 +208,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
     MetaData.CPUTime = SavedCPUTime;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
   }
  
   /* Check for output: redshift-based. */
@@ -243,15 +246,14 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 // #endif
 
 	  MetaData.CPUTime = SavedCPUTime;
-	  WroteData = TRUE;
+	  MetaData.WroteData = TRUE;
 	}
 
 #ifdef UNUSED
   /* Check for output: when the MBH jets haven't been ejected for too long 
                        this is currently a test - Ji-hoon Kim, Mar.2010 */  
  
-  if ((MBHFeedback == 2 || MBHFeedback == 3) && 
-
+  if ((MBHFeedback >= 2 && MBHFeedback <= 5) && 
       OutputWhenJetsHaveNotEjected == TRUE) {
 
     fprintf(stdout, "CheckForOutput: MBH_JETS - file output complete; restart with the dump!\n");
@@ -259,11 +261,22 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 		       TopGrid, MetaData, Exterior);
 
     OutputWhenJetsHaveNotEjected = FALSE;
-    WroteData = TRUE;
+    MetaData.WroteData = TRUE;
     my_exit(EXIT_SUCCESS);
 
   }
 #endif   
+
+  if (MetaData.NumberOfOutputsBeforeExit && MetaData.WroteData) {
+    MetaData.OutputsLeftBeforeExit--;
+    if (MetaData.OutputsLeftBeforeExit <= 0) {
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+	fprintf(stderr, "Exiting after writing %"ISYM" datadumps.\n",
+		MetaData.NumberOfOutputsBeforeExit);
+      }      
+      my_exit(EXIT_SUCCESS);
+    }
+  }
 
   return SUCCESS;
 }

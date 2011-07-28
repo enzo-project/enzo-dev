@@ -23,8 +23,9 @@ extern "C" void FORTRAN_NAME(inteuler)(
 		float *geslice, float *uslice, float *vslice, float *wslice, 
 		float *dxi, float *flatten, int *idim, int *jdim, int *i1, 
 		int *i2, int *j1, int *j2, int *idual, float *eta1, 
-		float *eta2, int *isteep, int *iflatten, float *dt, 
-		float *gamma, int *ipresfree, float *dls, float *drs, 
+		float *eta2, int *isteep, int *iflatten,
+		int *iconsrec, int *iposrec,
+		float *dt, float *gamma, int *ipresfree, float *dls, float *drs, 
 		float *pls, float *prs, float *gels, float *gers, float *uls, 
 		float *urs, float *vls, float *vrs, float *wls, float *wrs, 
 		int *ncolor, float *colslice, float *colls, float *colrs);
@@ -36,15 +37,52 @@ extern "C" void FORTRAN_NAME(twoshock)(
 		float *pmin, int *ipresfree, float *pbar, float *ubar,
 		int *gravity, float *grslice, int *idual, float *eta1);
 
+extern "C" void FORTRAN_NAME(flux_twoshock)(
+           float *dslice, float *eslice, float *geslice, float *uslice, 
+	   float *vslice, float *wslice, float *dx,
+           float *diffcoef, int *idim, int *jdim, int *i1, int *i2, 
+	   int *j1, int *j2, float *dt, float *gamma, int *idiff,
+           int *idual, float *eta1, int *ifallback,
+           float *dls, float *drs, float *pls, float *prs, 
+	   float *gels, float *gers, 
+           float *uls, float *urs, float *vls, float *vrs, 
+	   float *wls, float *wrs, float *pbar, float *ubar,
+           float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
+	   float *ges,
+           int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
+
+extern "C" void FORTRAN_NAME(flux_hll)(
+           float *dslice, float *eslice, float *geslice, float *uslice, 
+	   float *vslice, float *wslice, float *dx,
+           float *diffcoef, int *idim, int *jdim, int *i1, int *i2, 
+	   int *j1, int *j2, float *dt, float *gamma,
+	   int *idiff, int *idual, float *eta1, int *ifallback,
+           float *dls, float *drs, float *pls, float *prs, 
+           float *uls, float *urs, float *vls, float *vrs, 
+	   float *wls, float *wrs, float *gels, float *gers, 
+           float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
+	   float *ges,
+           int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
+
+extern "C" void FORTRAN_NAME(flux_hllc)(
+           float *dslice, float *eslice, float *geslice, float *uslice, 
+	   float *vslice, float *wslice, float *dx,
+           float *diffcoef, int *idim, int *jdim, int *i1, int *i2, 
+	   int *j1, int *j2, float *dt, float *gamma,
+	   int *idiff, int *idual, float *eta1, int *ifallback,
+           float *dls, float *drs, float *pls, float *prs, 
+           float *uls, float *urs, float *vls, float *vrs, 
+	   float *wls, float *wrs, float *gels, float *gers, 
+           float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
+	   float *ges,
+           int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
+
 extern "C" void FORTRAN_NAME(euler)(
 		float *dslice, float *pslice, float *grslice, 
 		float *geslice, float *uslice, float *vslice, float *wslice, 
 		float *dx, float *diffcoef, int *idim, int *jdim, int *i1, 
 		int *i2, int *j1, int *j2, float *dt, float *gamma, int *idiff, 
-		int *gravity, int *idual, float *eta1, float *eta2, 
-		float *dls, float *drs, float *pls, float *prs, float *gels, 
-		float *gers, float *uls, float *urs, float *vls, float *vrs, 
-		float *wls, float *wrs, float *pbar, float *ubar, float *df,
+		int *gravity, int *idual, float *eta1, float *eta2, float *df, 
 		float *ef, float *uf, float *vf, float *wf, float *gef,
-		int *ncolor, float *colslice, float *colls, float *colrs,
-		float *colf);
+		float *ges,
+		int *ncolor, float *colslice, float *colf);

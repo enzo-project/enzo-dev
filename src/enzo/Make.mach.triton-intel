@@ -23,6 +23,7 @@ MACH_FILE  = Make.mach.triton-intel
 MACH_CPP       = cpp # C preprocessor command
 LOCAL_MPI_INSTALL = /opt/mpich/intel/mx/
 LOCAL_PYTHON_INSTALL = /projects/lca-group/local-dev/
+LOCAL_PYTHON_INSTALL = /home/mjturk/yt-x86_64-libenzo-intel/
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072/bin/intel64/
 LOCAL_HYPRE_INSTALL = /home/mjturk/intel_mx/
 LOCAL_CVODE_INSTALL = /projects/lca-group/local-dev/
@@ -88,7 +89,7 @@ MACH_OPT_AGGRESSIVE  = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-d
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = 
-LOCAL_INCLUDES_HDF5   = -I/projects/lca-group/local-dev/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I/home/mjturk/yt-x86_64-libenzo-intel/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
@@ -107,11 +108,13 @@ MACH_INCLUDES_CVODE   = $(LOCAL_INCLUDES_CVODE)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = 
-LOCAL_LIBS_HDF5   = -L/projects/lca-group/local-dev/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L/home/mjturk/yt-x86_64-libenzo-intel/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = $(LOCAL_HYPRE_INSTALL)/lib/libHYPRE.a
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a \
-                     -lreadline -ltermcap -lutil -lpython2.6
+#LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a \
+#                     -lreadline -ltermcap -lutil -lpython2.6 -ldl
+LOCAL_LIBS_PYTHON = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.6 \
+                     -lreadline -ltermcap -lutil -ldl
 LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
                     -lsundials_nvecserial -lhdf5_hl \
                     /projects/lca-group/local-dev/lib/liblapack.a \

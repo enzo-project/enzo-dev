@@ -1,3 +1,5 @@
+.. _NewLocalOperator:
+
 Adding a new Local Operator.
 ============================
 
@@ -17,32 +19,33 @@ more significant undertakings, and should be discussed with the
 Enzo development team.
 
 
-#. `Read all the supporting documents found here.? </wiki/EnzoPrimaryReferences>`_
-   This is not a simple piece of software.
+#. Read all the supporting documents found in
+   :doc:`../reference/EnzoPrimaryReferences`.  This is not a simple
+   piece of software.
 
 It's really in your best interest to understand the basic
 algorithms before trying to write code to extend it. It's much more
 complex than Gadget or Zeus, and much much easier to break.
 
 
-2. Open ``FastSib\_EvolveHierarchy.C``
+#. Open ``EvolveHierarchy.C``
 
 
-3. Read it, and understand the structure. The flowcharts can help,
-   they can be found HEY FIND THE LINK.
+#. Read it, and understand the structure. The flowcharts can help,
+   they can be found in :doc:`../user_guide/FlowChart`.
 
 
-4. `Add a parameter to drive your code ? </wiki/Tutorials/AdddingNewParameters>`_
+#. Add a parameter to drive your code in :doc:`AddingNewParameters`
 
 
-5. Write your new routine. This can either be a grid member
-   function (old style) or a non-member function that accesses the
-   enzo data using the `Field Array? </wiki/GridFieldArrays>`_ objects
-   (prefered method.)
+#. Write your new routine. This can either be a grid member function
+   (old style) or a non-member function that accesses the Enzo data
+   using the :doc:`GridFieldArrays` objects (prefered method.)
 
 
-6. Locate this block of code:
-   ::
+#. Locate this block of code:
+
+   .. code-block:: c
 
              if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {
@@ -60,9 +63,10 @@ complex than Gadget or Zeus, and much much easier to break.
 This is in the primary grid loop on this level.
 
 
-6. Insert your new grid operation right before the last comment. It
+#. Insert your new grid operation right before the last comment. It
    should look something like this:
-   ::
+   
+   .. code-block:: c
 
              if (Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
                 NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level) == FAIL) {

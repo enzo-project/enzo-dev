@@ -6,7 +6,8 @@ c
      &            dslice, pslice, gravity, grslice, geslice,
      &            uslice, vslice, wslice, dxi, flatten,
      &            idim, jdim, i1, i2, j1, j2, idual, eta1, eta2,
-     &            isteep, iflatten, dt, gamma, ipresfree,
+     &            isteep, iflatten, iconsrec, iposrec, 
+     &            dt, gamma, ipresfree,
      &            dls, drs, pls, prs, gels, gers,
      &            uls, urs, vls, vrs, wls, wrs,
      &            ncolor, colslice, colls, colrs
@@ -40,6 +41,7 @@ c    i1,i2  - starting and ending addresses for dimension 1
 c    idim   - declared leading dimension of slices
 c    idual  - dual energy formalism flag (0 = off)
 c    iflatten - integer flag for flattener (eq. A1, A2) (0 = off)
+c    iconsrec - integer flag for conservative reconstruction (0 = off)
 c    isteep - integer flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
 c    ipresfree - pressure free flag (0 = off, 1 = on, i.e. p=0)
 c    j1,j2  - starting and ending addresses for dimension 2
@@ -75,7 +77,7 @@ c
 c  argument declarations
 c
       integer gravity, i1, i2, idim, idual, iflatten, ipresfree, isteep,
-     &        j1, j2, jdim, ncolor
+     &        j1, j2, jdim, ncolor, iconsrec, iposrec
       real    dt, eta1, eta2, gamma
       real   dslice(idim,jdim),     dxi(idim     ),  pslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
@@ -90,12 +92,17 @@ c
 c
 c  local declarations
 c
-      integer i, j, ic
+      integer i, j, n, m, ic
       real steepen(ijkn),tmp1(ijkn),tmp2(ijkn),tmp3(ijkn),tmp4(ijkn)
       real qa,qb,qc,qd,qe,s1,s2,f1
       real  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
+     &    ,c7(ijkn), c8(ijkn)
+     &    ,dd(ijkn),dl(ijkn),dr(ijkn),d6(ijkn)
      &    ,dp(ijkn),pl(ijkn),pr(ijkn),p6(ijkn)
      &    ,du(ijkn),ul(ijkn),ur(ijkn),u6(ijkn)
+     &    ,dv(ijkn),vl(ijkn),vr(ijkn),v6(ijkn)
+     &    ,dw(ijkn),wl(ijkn),wr(ijkn),w6(ijkn)
+     &    ,dge(ijkn),gel(ijkn),ger(ijkn),ge6(ijkn)
      &    ,dla(ijkn),dra(ijkn),pla(ijkn),pra(ijkn),ula(ijkn),ura(ijkn)
      &    ,vla(ijkn),vra(ijkn),wla(ijkn),wra(ijkn)
      &    ,plm(ijkn),prm(ijkn),ulm(ijkn),urm(ijkn)
@@ -109,11 +116,14 @@ c
      &    ,gela(ijkn),gera(ijkn),gel0(ijkn),ger0(ijkn)
      &    ,colla(ijkn,MAX_COLOR),colra(ijkn,MAX_COLOR)
      &    ,coll0(ijkn,MAX_COLOR),colr0(ijkn,MAX_COLOR)
+     &    ,dcol(ijkn,MAX_COLOR),coll(ijkn,MAX_COLOR)
+     &    ,colr(ijkn,MAX_COLOR),col6(ijkn,MAX_COLOR)
+      real lem(idim,5,5),rem(idim,5,5), dxdt2(ijkn)
 c
 c  parameters
 c
       real ft
-      parameter(ft = 4.0/3.0)
+      parameter(ft = 4.d0/3.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -128,21 +138,22 @@ c     Compute coefficients used in interpolation formulae (from eq. 1.6)
 c
       do i=i1-2,i2+2
          qa    = dxi(i)/(dxi(i-1) + dxi(i) + dxi(i+1))
-         c1(i) = qa*(2.0*dxi(i-1) + dxi(i))/(dxi(i+1) + dxi(i))
-         c2(i) = qa*(2.0*dxi(i+1) + dxi(i))/(dxi(i-1) + dxi(i))
+         c1(i) = qa*(2.d0*dxi(i-1) + dxi(i))/(dxi(i+1) + dxi(i))
+         c2(i) = qa*(2.d0*dxi(i+1) + dxi(i))/(dxi(i-1) + dxi(i))
+         dxdt2(i) = 0.5d0*dt/dxi(i)
       enddo
 c
       do i=i1-1,i2+2
          qa    = dxi(i-2) + dxi(i-1) + dxi(i) + dxi(i+1)
          qb    = dxi(i-1)/(dxi(i-1) + dxi(i))
-         qc    = (dxi(i-2) + dxi(i-1))/(2.0*dxi(i-1) + dxi(i  ))
-         qd    = (dxi(i+1) + dxi(i  ))/(2.0*dxi(i  ) + dxi(i-1))
-         qb    = qb + 2.0*dxi(i)*qb/qa*(qc-qd)
-         c3(i) = 1.0 - qb
+         qc    = (dxi(i-2) + dxi(i-1))/(2.d0*dxi(i-1) + dxi(i  ))
+         qd    = (dxi(i+1) + dxi(i  ))/(2.d0*dxi(i  ) + dxi(i-1))
+         qb    = qb + 2.d0*dxi(i)*qb/qa*(qc-qd)
+         c3(i) = 1.d0 - qb
          c4(i) = qb
          c5(i) =  dxi(i  )/qa*qd
          c6(i) = -dxi(i-1)/qa*qc
-         dx2i(i) = 0.5/dxi(i)
+         dx2i(i) = 0.5d0/dxi(i)
       enddo
 c
 c    Loop over sweep lines (in this slice)
@@ -157,82 +168,120 @@ c
             d2d(i) = (dslice(i+1,j) - dslice(i,j))/(dxi(i+1) + dxi(i))
             d2d(i) = (d2d(i) - (dslice(i,j)-dslice(i-1,j))
      &               /(dxi(i)+dxi(i-1)))/qa
-            dxb(i) = 0.5*(dxi(i) + dxi(i+1))
+            dxb(i) = 0.5d0*(dxi(i) + dxi(i+1))
          enddo
          do i=i1-1,i2+1
             qc = abs(dslice(i+1,j) - dslice(i-1,j))
-     &           - 0.01*min(abs(dslice(i+1,j)),abs(dslice(i-1,j)))
+     &           - 0.01d0*min(abs(dslice(i+1,j)),abs(dslice(i-1,j)))
             s1 = (d2d(i-1) - d2d(i+1))*(dxb(i-1)**3 + dxb(i)**3)
      &           /((dxb(i) + dxb(i-1))*
      &           (dslice(i+1,j) - dslice(i-1,j) + tiny))
-            if (d2d(i+1)*d2d(i-1) .gt. 0.0) s1 = 0.0
-            if (qc .le. 0.0) s1 = 0.0
-            s2 = max(0.0, min(20.0*(s1-0.05), 1.0))
+            if (d2d(i+1)*d2d(i-1) .gt. 0.0) s1 = 0.d0
+            if (qc .le. 0.0) s1 = 0.d0
+            s2 = max(0.d0, min(20.d0*(s1-0.05d0), 1.d0))
             qa = abs(dslice(i+1,j) - dslice(i-1,j))/
      &           min(dslice(i+1,j),  dslice(i-1,j))
             qb = abs(pslice(i+1,j) - pslice(i-1,j))/
      &           min(pslice(i+1,j),  pslice(i-1,j))
-            if (gamma*0.1*qa .ge. qb) then
+            if (gamma*0.1d0*qa .ge. qb) then
                steepen(i) = s2
             else
-               steepen(i) = 0.0
+               steepen(i) = 0.d0
             endif
          enddo
       endif
 c
 c     Precompute left and right characteristic distances
 c
-      do i=i1-1,i2+1
+      do i=1,idim
          cs(i) = sqrt(gamma*pslice(i,j)/dslice(i,j))
          if (ipresfree .eq. 1) cs(i) = tiny
-         char1(i) = max(0.0, dt*(uslice(i,j)+cs(i)))*dx2i(i)
-         char2(i) = max(0.0,-dt*(uslice(i,j)-cs(i)))*dx2i(i)
+         char1(i) = max(0.d0, dt*(uslice(i,j)+cs(i)))*dx2i(i)
+         char2(i) = max(0.d0,-dt*(uslice(i,j)-cs(i)))*dx2i(i)
       enddo
 c
-      do i=i1-1,i2+1
+      do i=i1-2,i2+2
         cm(i) = dt*(uslice(i,j)-cs(i))*dx2i(i)
         c0(i) = dt*(uslice(i,j)      )*dx2i(i)
         cp(i) = dt*(uslice(i,j)+cs(i))*dx2i(i)
       enddo
 c
+c     Compute the left and right eigenmatrices in order to calculate the
+c     differences in the characteristic variables.  This causes the
+c     reconstruction to be total variation diminishing (TVD; LeVeque
+c     2002).
+c
+      if (iconsrec .eq. 1) then
+
+         call calc_eigen(dslice(1,j), cs, i1, i2, idim, lem, rem)
+c
 c     Compute left and right states for each variable
 c       (steepening, if requested, is only applied to density)
 c
-      call intvar(dslice(1,j), idim, i1, i2, isteep, steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            tmp1, tmp2, tmp3, tmp4, dla, dra, dl0, dr0)
+         call intprim(dslice(1,j), uslice(1,j), vslice(1,j), 
+     &        wslice(1,j), pslice(1,j), 
+     &        idim, i1, i2, isteep, steepen, iflatten, flatten, 
+     &        iposrec, c1, c2, c3, c4, c5, c6, char1, char2, c0,
+     &        tmp1, tmp2, tmp3, tmp4, dla, dra, dl0, dr0, 
+     &        du, ul, ur, u6, ula, ura, ul0, ur0,
+     &        dv, vl, vr, v6, vla, vra, vl0, vr0,
+     &        dw, wl, wr, w6, wla, wra, wl0, wr0,
+     &        dp, pl, pr, p6, pla, pra, pl0, pr0,
+     &        lem, rem, dxdt2, gamma)
+
+      else                      ! iconsrec
+
+         call intvar(dslice(1,j), idim, i1, i2, isteep, steepen, 
+     &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
+     &        char1, char2, c0,
+     &        tmp1, tmp2, tmp3, tmp4, dla, dra, dl0, dr0)
 c
-      call intvar(pslice(1,j), idim, i1, i2, 0     , steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            dp, pl, pr, p6, pla, pra, pl0, pr0)
+         call intvar(pslice(1,j), idim, i1, i2, 0     , steepen, 
+     &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
+     &        char1, char2, c0,
+     &        dp, pl, pr, p6, pla, pra, pl0, pr0)
 c
-      call intvar(uslice(1,j), idim, i1, i2, 0     , steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            du, ul, ur, u6, ula, ura, ul0, ur0)
+         call intvar(uslice(1,j), idim, i1, i2, 0     , steepen, 
+     &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
+     &        char1, char2, c0,
+     &        du, ul, ur, u6, ula, ura, ul0, ur0)
 c
-      call intvar(vslice(1,j), idim, i1, i2, 0     , steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            tmp1, tmp2, tmp3, tmp4, vla, vra, vl0, vr0)
+         call intvar(vslice(1,j), idim, i1, i2, 0     , steepen, 
+     &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
+     &        char1, char2, c0,
+     &        dv, vl, vr, v6, vla, vra, vl0, vr0)
 c
-      call intvar(wslice(1,j), idim, i1, i2, 0     , steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            tmp1, tmp2, tmp3, tmp4, wla, wra, wl0, wr0)
+         call intvar(wslice(1,j), idim, i1, i2, 0     , steepen, 
+     &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
+     &        char1, char2, c0,
+     &        dw, wl, wr, w6, wla, wra, wl0, wr0)
+
+         if (iposrec .eq. 1) then
+            call intpos(dslice(1,j), uslice(1,j), pslice(1,j), 
+     &           idim, i1, i2, dxdt2, gamma,
+     &           tmp1, tmp2, tmp3, dla, dra, dl0, dr0,
+     &           du, ul, ur, ula, ura, ul0, ur0,
+     &           dp, pl, pr, pla, pra, pl0, pr0)
+         endif
+
+      endif                     ! iconsrec
+
 c
       if (idual .eq. 1)
      & call intvar(geslice(1,j), idim, i1, i2, 0   , steepen, iflatten, 
      &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            tmp1, tmp2, tmp3, tmp4, gela, gera, gel0, ger0)
+     &            dge, gel, ger, ge6, gela, gera, gel0, ger0)
 c
       do ic=1,ncolor
         call intvar(colslice(1,j,ic), idim, i1,i2, 0, steepen, iflatten, 
      &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            tmp1, tmp2, tmp3, tmp4, colla(1,ic), colra(1,ic),
-     &            coll0(1,ic), colr0(1,ic))
+     &            dcol(1,ic), coll(1,ic), colr(1,ic), col6(1,ic),
+     &            colla(1,ic), colra(1,ic), coll0(1,ic), colr0(1,ic))
       enddo
 c
 #ifdef UNUSED
       do i=i1,i2+1
-         if (dla(i)/dslice(i-1,j) .gt. 4.0) then
+         if (dla(i)/dslice(i-1,j) .gt. 4.d0) then
             write(6,*) 'inteuler left:',i,j
             write(6,*) dla(i-1),dla(i),dla(i+1)
             write(6,*) dslice(i-1,j),dslice(i,j),dslice(i+1,j)
@@ -251,33 +300,33 @@ c     First, compute averge over characteristic domain of dependance (3.5)
 c
 c
       do i=i1,i2+1
-        plm(i)= pr(i-1)-cm(i-1)*(dp(i-1)-(1.0-ft*cm(i-1))*p6(i-1))
-        prm(i)= pl(i  )-cm(i  )*(dp(i  )+(1.0+ft*cm(i  ))*p6(i  ))
-        plp(i)= pr(i-1)-cp(i-1)*(dp(i-1)-(1.0-ft*cp(i-1))*p6(i-1))
-        prp(i)= pl(i  )-cp(i  )*(dp(i  )+(1.0+ft*cp(i  ))*p6(i  ))
+        plm(i)= pr(i-1)-cm(i-1)*(dp(i-1)-(1.d0-ft*cm(i-1))*p6(i-1))
+        prm(i)= pl(i  )-cm(i  )*(dp(i  )+(1.d0+ft*cm(i  ))*p6(i  ))
+        plp(i)= pr(i-1)-cp(i-1)*(dp(i-1)-(1.d0-ft*cp(i-1))*p6(i-1))
+        prp(i)= pl(i  )-cp(i  )*(dp(i  )+(1.d0+ft*cp(i  ))*p6(i  ))
       enddo
 c
       do i=i1,i2+1
-        ulm(i)= ur(i-1)-cm(i-1)*(du(i-1)-(1.0-ft*cm(i-1))*u6(i-1))
-        urm(i)= ul(i  )-cm(i  )*(du(i  )+(1.0+ft*cm(i  ))*u6(i  ))
-        ulp(i)= ur(i-1)-cp(i-1)*(du(i-1)-(1.0-ft*cp(i-1))*u6(i-1))
-        urp(i)= ul(i  )-cp(i  )*(du(i  )+(1.0+ft*cp(i  ))*u6(i  ))
+        ulm(i)= ur(i-1)-cm(i-1)*(du(i-1)-(1.d0-ft*cm(i-1))*u6(i-1))
+        urm(i)= ul(i  )-cm(i  )*(du(i  )+(1.d0+ft*cm(i  ))*u6(i  ))
+        ulp(i)= ur(i-1)-cp(i-1)*(du(i-1)-(1.d0-ft*cp(i-1))*u6(i-1))
+        urp(i)= ul(i  )-cp(i  )*(du(i  )+(1.d0+ft*cp(i  ))*u6(i  ))
       enddo
 c
 c     Compute correction terms (3.7)
 c
       do i = i1, i2+1
-         cla(i) = sqrt(max(gamma*pla(i)*dla(i), 0.0))
-         cra(i) = sqrt(max(gamma*pra(i)*dra(i), 0.0))
+         cla(i) = sqrt(max(gamma*pla(i)*dla(i), 0.d0))
+         cra(i) = sqrt(max(gamma*pra(i)*dra(i), 0.d0))
       enddo
 c
 c     a) left side
 c
       do i = i1, i2+1
-         f1 = 1.0/cla(i)
+         f1 = 1.d0/cla(i)
          betalp(i) = (ula(i)-ulp(i)) + (pla(i)-plp(i))*f1
          betalm(i) = (ula(i)-ulm(i)) - (pla(i)-plm(i))*f1
-         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1.0/dla(i) - 1.0/dl0(i)
+         betal0(i) = (pla(i)-pl0(i))*f1**2 + 1.d0/dla(i) - 1.d0/dl0(i)
       enddo
 c
 c     Add gravity component
@@ -286,31 +335,31 @@ c
         do i = i1, i2+1
 c          if (cla(i) .gt. 0.3*ula(i)) then
 c          if (gamma*pla(i)/dla(i) .gt. eta2*ula(i)**2) then
-           betalp(i) = betalp(i) - 0.25*dt*(grslice(i-1,j)+grslice(i,j))
-           betalm(i) = betalm(i) - 0.25*dt*(grslice(i-1,j)+grslice(i,j))
+           betalp(i) = betalp(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
+           betalm(i) = betalm(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
 c          endif
         enddo
       endif
 c
       do i = i1, i2+1
-         f1 = 0.5/cla(i)
+         f1 = 0.5d0/cla(i)
          betalp(i) = -betalp(i)*f1
          betalm(i) = +betalm(i)*f1
       enddo
 c
       do i = i1, i2+1
-         if (cp(i-1) .le. 0) betalp(i) = 0
-         if (cm(i-1) .le. 0) betalm(i) = 0
-         if (c0(i-1) .le. 0) betal0(i) = 0
+         if (cp(i-1) .le. 0) betalp(i) = 0.d0
+         if (cm(i-1) .le. 0) betalm(i) = 0.d0
+         if (c0(i-1) .le. 0) betal0(i) = 0.d0
       enddo
 c
 c     b) right side
 c
       do i = i1, i2+1
-         f1 = 1.0/cra(i)
+         f1 = 1.d0/cra(i)
          betarp(i) = (ura(i)-urp(i)) + (pra(i)-prp(i))*f1
          betarm(i) = (ura(i)-urm(i)) - (pra(i)-prm(i))*f1
-         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1.0/dra(i) - 1.0/dr0(i)
+         betar0(i) = (pra(i)-pr0(i))*f1**2 + 1.d0/dra(i) - 1.d0/dr0(i)
       enddo
 c
 c     Add gravity component
@@ -319,22 +368,22 @@ c
         do i = i1, i2+1
 c          if (cra(i) .gt. 0.3*ura(i)) then
 c           if (gamma*pra(i)/dra(i) .gt. eta2*ura(i)**2) then
-           betarp(i) = betarp(i) - 0.25*dt*(grslice(i-1,j)+grslice(i,j))
-           betarm(i) = betarm(i) - 0.25*dt*(grslice(i-1,j)+grslice(i,j))
+           betarp(i) = betarp(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
+           betarm(i) = betarm(i)-0.25d0*dt*(grslice(i-1,j)+grslice(i,j))
 c          endif
         enddo
       endif
 c
       do i = i1, i2+1
-         f1 = 0.5/cra(i)
+         f1 = 0.5d0/cra(i)
          betarp(i) = -betarp(i)*f1
          betarm(i) = +betarm(i)*f1
       enddo
 c
       do i = i1, i2+1
-         if (cp(i) .ge. 0) betarp(i) = 0
-         if (cm(i) .ge. 0) betarm(i) = 0
-         if (c0(i) .ge. 0) betar0(i) = 0
+         if (cp(i) .ge. 0) betarp(i) = 0.d0
+         if (cm(i) .ge. 0) betarm(i) = 0.d0
+         if (c0(i) .ge. 0) betar0(i) = 0.d0
       enddo
 c
 c     Finally, combine to create corrected left/right states (eq. 3.6)
@@ -346,8 +395,8 @@ c
          uls(i,j) = ula(i) + (betalp(i)-betalm(i))*cla(i)
          urs(i,j) = ura(i) + (betarp(i)-betarm(i))*cra(i)
 c
-         dls(i,j) = 1.0/(1.0/dla(i) - (betal0(i)+betalp(i)+betalm(i)))
-         drs(i,j) = 1.0/(1.0/dra(i) - (betar0(i)+betarp(i)+betarm(i)))
+         dls(i,j) = 1.d0/(1.d0/dla(i) - (betal0(i)+betalp(i)+betalm(i)))
+         drs(i,j) = 1.d0/(1.d0/dra(i) - (betar0(i)+betarp(i)+betarm(i)))
       enddo
 c
 c     Take the appropriate state from the advected variables
@@ -390,6 +439,41 @@ c
          enddo
       enddo
 c
+c     Correct advected quantities for wave subtraction (similar as d,p,u
+c     correction above).
+c
+#ifdef UNUSED
+      do i = i1,i2+1
+         if (uslice(i,j) .gt. 0.0) then
+            c7(i) = dt*dx2i(i) * cs(i)
+            c8(i) = 0.5d0*ft*(dt*dx2i(i))**2 * 
+     $           (cs(i)**2 + 2.d0*uslice(i,j)*cs(i))
+            vls(i,j) = vls(i,j) + c7(i)*(dv(i)-v6(i)) + c8(i)*v6(i)
+            wls(i,j) = wls(i,j) + c7(i)*(dw(i)-w6(i)) + c8(i)*w6(i)
+            gels(i,j) = gels(i,j) + c7(i)*(dge(i)-ge6(i)) + c8(i)*ge6(i)
+         else if (uslice(i,j) .lt. 0.0) then
+            c7(i) = -dt*dx2i(i) * cs(i)
+            c8(i) = 0.5d0*ft*(dt*dx2i(i))**2 *
+     $           (cs(i)**2 - 2.d0*uslice(i,j)*cs(i))
+            vrs(i,j) = vrs(i,j) + c7(i)*(dv(i)+v6(i)) + c8(i)*v6(i)
+            wrs(i,j) = wrs(i,j) + c7(i)*(dw(i)+w6(i)) + c8(i)*w6(i)
+            gers(i,j) = gers(i,j) + c7(i)*(dge(i)+ge6(i)) + c8(i)*ge6(i)
+         endif
+      enddo
+ 
+      do ic = 1,ncolor
+         do i = i1,i2+1
+            if (uslice(i,j) .gt. 0.0) then
+               colls(i,j,ic) = colls(i,j,ic) + 
+     $              c7(i)*(dcol(i,ic)-col6(i,ic)) + c8(i)*col6(i,ic)
+            else if (uslice(i,j) .lt. 0.0) then
+               colrs(i,j,ic) = colrs(i,j,ic) + 
+     $              c7(i)*(dcol(i,ic)+col6(i,ic)) + c8(i)*col6(i,ic)
+            endif
+         enddo
+      enddo
+#endif
+c
 c  Dual energy formalism: if sound speed squared is less than eta1*v^2 
 c    then discard the corrections and use pla, ula, dla.  This amounts
 c     to assuming that we are outside the shocked region but the flow is
@@ -402,15 +486,15 @@ c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
             if (gamma*pla(i)/dla(i) .lt. eta2*ula(i)**2 .or.
      &          max(abs(cm(i-1)),abs(c0(i-1)),abs(cp(i-1))) .lt. 
      &          1.0e-3
-     &          .or. dls(i,j)/dla(i) .gt. 5.0) then
+     &          .or. dls(i,j)/dla(i) .gt. 5.d0) then
                pls(i,j) = pla(i)
                uls(i,j) = ula(i)
                dls(i,j) = dla(i)
             endif
 c            if (gamma*pra(i)/dra(i) .lt. eta1*ura(i)**2) then
             if (gamma*pra(i)/dra(i) .lt. eta2*ura(i)**2 .or.
-     &          max(abs(cm(i)),abs(c0(i)),abs(cp(i))) .lt. 1.0e-3
-     &          .or. drs(i,j)/dra(i) .gt. 5.0) then
+     &          max(abs(cm(i)),abs(c0(i)),abs(cp(i))) .lt. 1.0d-3
+     &          .or. drs(i,j)/dra(i) .gt. 5.d0) then
                prs(i,j) = pra(i)
                urs(i,j) = ura(i)
                drs(i,j) = dra(i)

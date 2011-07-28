@@ -30,8 +30,6 @@ LOCAL_MPI_INSTALL    =
 LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_pgi9.0.1/
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
-LOCAL_SPRNG_INSTALL  = /sw/xt5/sprng/2.0b/cnl2.1_pgi7.2.3
-LOCAL_PNG_INSTALL    = 
 LOCAL_HYPRE_INSTALL  = 
 
 #-----------------------------------------------------------------------
@@ -60,8 +58,6 @@ MACH_LD_NOMPI  = CC
 # Machine-dependent defines
 #-----------------------------------------------------------------------
 
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DENZO_ANALYSIS
-#MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DHAVE_SPRNG
 MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DH5_USE_16_API
 
 #-----------------------------------------------------------------------
@@ -74,7 +70,6 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl,-static 
-MACH_OPENMP   = -mp
 
 #-----------------------------------------------------------------------
 # Precision-related flags
@@ -114,13 +109,9 @@ MACH_OPT_AGGRESSIVE  = -fast -Kieee -Mfptrap
 
 LOCAL_INCLUDES_MPI    = 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
-LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
 LOCAL_INCLUDES_HYPRE  = 
-LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
-LOCAL_INCLUDES_PNG    =
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
-#MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
@@ -129,19 +120,13 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 # Libraries
 #-----------------------------------------------------------------------
 #
-# make sure to "load module iobuf" before compiling, only then IOBUF environment
-# variables will be properly set
-#
 
 LOCAL_LIBS_MPI    = 
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = 
-LOCAL_LIBS_SPRNG  = -L$(LOCAL_SPRNG_INSTALL)/lib -lsprng
-#LOCAL_LIBS_SPRNG  =
-LOCAL_LIBS_PNG    = 
 
-LOCAL_LIBS_MACH   = -L/sw/xt5/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
+LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
 		    -L/usr/local/lib -lz \
 		    -L/opt/acml/4.3.0/pgi64/lib -lacml -lm \
                     -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \

@@ -61,7 +61,7 @@ c     solve block system
       endif
 c
       return
-      end subroutine BlockSolve
+      end
 c
 c=======================================================================
 c

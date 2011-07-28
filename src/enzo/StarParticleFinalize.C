@@ -71,6 +71,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     NumberOfStars++;
   bool *AddedFeedback = new bool[NumberOfStars];
 
+  BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
+
   LCAPERF_START("StarParticleFinalize");
 
   /* Update the star particle counters. */
@@ -128,15 +130,17 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   int count = 0;
   int mbh_particle_io_count = 0;
+  float Timestep;
+  TimeNow = LevelArray[level]->GridData->ReturnTime();
+  Timestep = LevelArray[level]->GridData->ReturnTimeStep();
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
-    TimeNow = LevelArray[level]->GridData->ReturnTime();
 //    if (debug) {
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
 //    } 
     if (AddedFeedback[count])
-      ThisStar->ActivateNewStar(TimeNow);
+      ThisStar->ActivateNewStar(TimeNow, Timestep);
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();

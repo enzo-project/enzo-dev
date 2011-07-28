@@ -82,7 +82,12 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   } // end input from parameter file
 
   /* Convert to code units */
-  
+  if (HydroMethod != MHD_RK) {// if its not with B-field make sure it is zero
+    if (Bnaught != 0.) 
+      printf("InitialBField was non-zero in paramterfile but hydromethod does not support a magnetic field. Proceeding with setting the initial field to zero.\n");
+    Bnaught = 0.0;
+  }
+
   printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 
@@ -136,6 +141,19 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
 #endif
     fprintf(stderr, "v_rms, Volume: %"GSYM"  %"GSYM"\n", v_rms, Volume);
     // Carry out the Normalization
+
+    // Normalize Velocities now
+    v_rms = sqrt(v_rms/Volume); // actuall v_rms
+    fac = cs*mach/v_rms;
+
+    CurrentGrid = &TopGrid;
+    while (CurrentGrid != NULL) {
+      if (CurrentGrid->GridData->NormalizeVelocities(fac) == FAIL) {
+	fprintf(stderr, "Error in grid::NormalizeVelocities.\n");
+	return FAIL;
+      }
+      CurrentGrid = CurrentGrid->NextGridThisLevel;
+    }
     
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -186,7 +204,7 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
     v_rms = sqrt(v_rms/Volume); // actuall v_rms
     fac = cs*mach/v_rms;
 
-    for (level = MaximumRefinementLevel; level >= 0; level--) {
+    for (level = MaximumRefinementLevel; level > 0; level--) {
       LevelHierarchyEntry *Temp = LevelArray[level];
       while (Temp != NULL) {
 	if (Temp->GridData->NormalizeVelocities(fac) == FAIL) {

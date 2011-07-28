@@ -48,8 +48,8 @@ c
 c     These coefficients modify the restricted values for 1 and 2D problems
 c       to speed up convergence.
 c
-      coef1 = 2.0
-      coef3 = 0.52
+      coef1 = 2.d0
+      coef3 = 0.52d0
 c
 c     Precompute some things
 c
@@ -61,11 +61,11 @@ c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=2, ddim1-1
-            x = real(i-1)*fact1 + 0.5
+            x = real(i-1)*fact1 + 0.5d0
             i1 = int(x) + 1
-            dxm = 0.5*(   -x+real(i1))
-            dxp = 0.5*(1.0+x-real(i1))
-            dx0 = 1.0 - dxp - dxm
+            dxm = 0.5d0*(   -x+real(i1))
+            dxp = 0.5d0*(1.d0+x-real(i1))
+            dx0 = 1.d0 - dxp - dxm
             dest(i,1,1) = source(i1-1,1,1)*dxm + 
      &                    source(i1  ,1,1)*dx0 +
      &                    source(i1+1,1,1)*dxp
@@ -79,17 +79,17 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=2, ddim2-1
-            y = real(j-1)*fact2 + 0.5
+            y = real(j-1)*fact2 + 0.5d0
             j1 = int(y) + 1
-            dym = 0.5*(   -y+real(j1))
-            dyp = 0.5*(1.0+y-real(j1))
-            dy0 = 1.0 - dyp - dym
+            dym = 0.5d0*(   -y+real(j1))
+            dyp = 0.5d0*(1.d0+y-real(j1))
+            dy0 = 1.d0 - dyp - dym
             do i=2, ddim1-1
-               x = real(i-1)*fact1 + 0.5
+               x = real(i-1)*fact1 + 0.5d0
                i1 = int(x) + 1
-               dxm = 0.5*(   -x+real(i1))
-               dxp = 0.5*(1.0+x-real(i1))
-               dx0 = 1.0 - dxp - dxm
+               dxm = 0.5d0*(   -x+real(i1))
+               dxp = 0.5d0*(1.d0+x-real(i1))
+               dx0 = 1.d0 - dxp - dxm
                dest(i,j,1) = source(i1-1,j1-1,1)*dxm*dym + 
      &                       source(i1  ,j1-1,1)*dx0*dym +
      &                       source(i1+1,j1-1,1)*dxp*dym +
@@ -104,7 +104,7 @@ c
             dest(ddim1,j,1) = source(sdim1,j1,1)
          enddo
          do i=1, ddim1
-            i1 = min(max(int(real(i-1)*fact1 + 0.5) + 1, 1), sdim1)
+            i1 = min(max(int(real(i-1)*fact1 + 0.5d0) + 1, 1), sdim1)
             dest(i,    1,1) = source(i1,    1,1)
             dest(i,ddim2,1) = source(i1,sdim2,1)
          enddo
@@ -114,23 +114,23 @@ c     c) 3D
 c
       if (ndim .eq. 3) then
          do k=2, ddim3-1
-            z = real(k-1)*fact3 + 0.5
+            z = real(k-1)*fact3 + 0.5d0
             k1 = int(z) + 1
-            dzm = 0.5*(   -z+real(k1))**2
-            dzp = 0.5*(1.0+z-real(k1))**2
-            dz0 = 1.0 - dzp - dzm
+            dzm = 0.5d0*(   -z+real(k1))**2
+            dzp = 0.5d0*(1.d0+z-real(k1))**2
+            dz0 = 1.d0 - dzp - dzm
             do j=2, ddim2-1
-               y = real(j-1)*fact2 + 0.5
+               y = real(j-1)*fact2 + 0.5d0
                j1 = int(y) + 1
-               dym = 0.5*(   -y+real(j1))**2
-               dyp = 0.5*(1.0+y-real(j1))**2
-               dy0 = 1.0 - dyp - dym
+               dym = 0.5d0*(   -y+real(j1))**2
+               dyp = 0.5d0*(1.d0+y-real(j1))**2
+               dy0 = 1.d0 - dyp - dym
                do i=2, ddim1-1
-                  x = real(i-1)*fact1 + 0.5
+                  x = real(i-1)*fact1 + 0.5d0
                   i1 = int(x) + 1
-                  dxm = 0.5*(   -x+real(i1))**2
-                  dxp = 0.5*(1.0+x-real(i1))**2
-                  dx0 = 1.0 - dxp - dxm
+                  dxm = 0.5d0*(   -x+real(i1))**2
+                  dxp = 0.5d0*(1.d0+x-real(i1))**2
+                  dx0 = 1.d0 - dxp - dxm
                   dest(i,j,k) = source(i1-1,j1-1,k1-1)*dxm*dym*dzm + 
      &                          source(i1  ,j1-1,k1-1)*dx0*dym*dzm +
      &                          source(i1+1,j1-1,k1-1)*dxp*dym*dzm +
@@ -166,15 +166,15 @@ c
                dest(ddim1,j,k) = source(sdim1,j1,k1)
             enddo
             do i=1, ddim1
-               i1 = min(max(int(real(i-1)*fact1 + 0.5) + 1, 1), sdim1)
+               i1 = min(max(int(real(i-1)*fact1 + 0.5d0) + 1, 1), sdim1)
                dest(i,    1,k) = source(i1,    1,k1)
                dest(i,ddim2,k) = source(i1,sdim2,k1)
             enddo
          enddo
          do j=1, ddim2
-            j1 = min(max(int(real(j-1)*fact2 + 0.5) + 1, 1), sdim2)
+            j1 = min(max(int(real(j-1)*fact2 + 0.5d0) + 1, 1), sdim2)
             do i=1, ddim1
-               i1 = min(max(int(real(i-1)*fact1 + 0.5) + 1, 1), sdim1)
+               i1 = min(max(int(real(i-1)*fact1 + 0.5d0) + 1, 1), sdim1)
                dest(i,j,    1) = source(i1,j1,    1)
                dest(i,j,ddim3) = source(i1,j1,sdim3)
             enddo

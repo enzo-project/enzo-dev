@@ -61,12 +61,12 @@ c
       integer istart, iend, jstart, jend, kstart, kend
       real    xpos, ypos, zpos, fact
       REALSUB edge1, edge2, edge3, half
-      parameter (half = 0.5001)
+      parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1.0/cellsize
+      fact = 1.d0/cellsize
       edge1 = real(dim1) - half
       edge2 = real(dim2) - half
       edge3 = real(dim3) - half
@@ -85,15 +85,13 @@ c	    only for particles above minimum mass
 c
 	      if (partmass(n) .gt. minmassmust) then
 c
-	      write(6,*) 'found imatch1, imatch2 = ', imatch1, imatch2    
-c
 c             Compute the position of the central cell
 c
               xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
 c
 c             Convert this into an integer index
 c
-              i1  = int(xpos + 0.5)
+              i1  = int(xpos + 0.5d0)
 c
 c             set flagging field
 c
@@ -137,8 +135,8 @@ c
 c
 c             Convert this into an integer index
 c
-              i1  = int(xpos + 0.5)
-              j1  = int(ypos + 0.5)
+              i1  = int(xpos + 0.5d0)
+              j1  = int(ypos + 0.5d0)
 c
 c             Interpolate from field into sumfield
 c
@@ -189,9 +187,9 @@ c
 c  
 c             Convert this into an integer index
 c  
-              i1  = int(xpos + 0.5)
-              j1  = int(ypos + 0.5)
-              k1  = int(zpos + 0.5)
+              i1  = int(xpos + 0.5d0)
+              j1  = int(ypos + 0.5d0)
+              k1  = int(zpos + 0.5d0)
 c
 c             Set flagging field
 c     

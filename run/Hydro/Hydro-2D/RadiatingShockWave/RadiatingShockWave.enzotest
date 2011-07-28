@@ -1,0 +1,9 @@
+name = 'RadiatingShockWave'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+dimensionality = 2
+max_time_minutes = 10

@@ -14,22 +14,11 @@ enzo
 This is the main simulation code executable. See :ref:`RunningEnzo`
 for more detailed information.
 
-When an Enzo simulation is run, at every datastep several files are
-output. There is an ascii file which has no extension (ie, if your
-output dumps are named RedshiftOutput then the first parameter file
-output will be RedshiftOutput0000). This file contains all of the
-parameters that Enzo needs to be able to restart the simulation,
-such as cosmology information, redshift, information on box volume,
-and which physics modules are turned on. Another file, which has
-the same root and the extension '.hierarchy', contains ascii
-information on all of the Enzo AMR grids, such as their positions,
-sizes, number of particles per grid, etc. There are two files with
-extensions '.boundary' and '.boundary.hdf' which contain
-information on boundary conditions. And then there will be at least
-one file with the extension '.gridNNNN', where NNNN is a number
-between 0 and 9999. For simulations with more than 10,000 files,
-the numbering will have 5 digits and start from 10000. These files
-are where all of the simulation data is actually contained.
+When an Enzo simulation is run, at every datastep several files are output,
+inserted into subdirectories.  The most important of these are the files with
+no extension and those ending in ``.hierarchy``, of which there will be one of
+each for each datadump.  For more information on the format of Enzo output, see
+:ref:`EnzoOutputFormats`.
 
 ::
 
@@ -53,7 +42,7 @@ are where all of the simulation data is actually contained.
 inits
 -----
 
-This is the initial conditions generator. See :ref:`RunningInits` for more
+This is the initial conditions generator. See :ref:`using_inits` for more
 detailed information. Initial conditions with a single initial grid or multiple
 nested grids can be created with this executable.  Output file names are
 user-specified, but in a standard cosmology simulation with a single initial
@@ -70,6 +59,7 @@ set of these files for each level, appended with numbers to make them unique.
           -s(ubgrid) param_file
 
 
+.. _ring:
 
 ring
 ----
@@ -122,7 +112,7 @@ information.
 anyl
 ----
 
-anyl is the analysis package written in C, previously known as enzo\_anyl.
+anyl is the analysis package written in C, previously known as enzo_anyl.
 Although the analysis toolkit for enzo that's being constantly updated is YT,
 anyl has its own value for some users. It creates radial, disk, vertical
 profiles for baryon (each species), dark matter, and star particles. Works with

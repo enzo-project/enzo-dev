@@ -26,24 +26,25 @@
  
 int grid::ShocksHandler()
 {
-  if (!CRModel) return SUCCESS; 
+  if (!ShockMethod) return SUCCESS; 
   int shock_status;
 
   switch(ShockMethod){
-  case 0:
+  case 1:
     shock_status = this->FindShocks();
     break;
-  case 1:
+  case 2:
     shock_status = this->FindTempSplitShocks();
     break;
-  case 2:
+  case 3:
     shock_status = this->FindVelShocks();
     break;
-  case 3:
+  case 4:
     shock_status = this->FindVelSplitShocks();
     break;
   default:
-    shock_status = this->FindShocks();
+    shock_status = FAIL;
+    fprintf(stderr,"Invalid ShockMethod Value %"ISYM"\n",ShockMethod);
   }
 
   if(shock_status == FAIL){

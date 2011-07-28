@@ -5,8 +5,11 @@ syntax: glob
 *.f
 *.f90
 *~
+*.pyc
 
 bin/enzo
+bin/inits
+TAGS
 DEPEND
 DEPEND.bak
 auto_show_*.C
@@ -20,6 +23,8 @@ Make.config.override
 *.mod
 
 src/inits/inits.exe
+src/anyl/anyl.exe
+src/enzohop/enzohop.exe
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h
 src/mpgrafic/degraf/config.log
@@ -41,3 +46,7 @@ src/mpgrafic/mpgrafic-0.2/stamp-h1
 src/mpgrafic/degraf/autom4te.cache/
 
 src/P-GroupFinder/P-GroupFinder
+
+doc/manual/build
+
+run/results.js

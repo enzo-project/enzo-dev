@@ -14,7 +14,6 @@ struct CoolDataType
 
   /* Radiation parameters (should be put in own spot). */
 
-  char *ParameterFilename;
   float alpha0;
   float f3;
   float f0to3;
@@ -22,7 +21,6 @@ struct CoolDataType
   float RadiationRedshiftOff;
   float RadiationRedshiftFullOn;
   float RadiationRedshiftDropOff;
-  int   UseHaardtAndMadau;
   float HydrogenFractionByMass;
   float DeuteriumToHydrogenRatio;
 

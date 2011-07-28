@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -23,8 +24,7 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
-
-#define MAX_HEALPIX_LEVEL 13
+#include "SortCompareFunctions.h"
 
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
@@ -84,81 +84,21 @@ Eint32 compare_ss (const void *a, const void *b)
 int grid::MergePausedPhotonPackages() {
 
   if (PausedPhotonPackages->NextPackage == NULL)
-    return SUCCESS;
+    return 0;
 
-  /* Reassign source position and recalculate HEALPix pixel number
-     based on the normal vector between the ray and new super
-     source.  Assign super source to the parent. */
+  int i, dim, nphotons;
+  PhotonPackageEntry *PP, *TempPP;
   
-  int i, dim, nphotons, count;
-  float length;
-  FLOAT original_vec[MAX_DIMENSION], vec[MAX_DIMENSION];
-  PhotonPackageEntry *PP = PausedPhotonPackages->NextPackage;
-  float dx2 = this->CellWidth[0][0] * this->CellWidth[0][0];
-  const float ln2_inv = 1.0/M_LN2;
-  
-  nphotons = 0;
-  while (PP != NULL) {
-
-    // Calculate original unit directional vector
-    if (pix2vec_nest((long) (1 << PP->level), PP->ipix, original_vec) == FAIL) {
-      ENZO_VFAIL("grid::MergePausedPhotonPackages -- pix2vec_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	      (long) (1 << PP->level), PP->ipix, PP->Photons)
-    }
-
-    length = 0.0;
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      // Unnormalized vector from super source to this package
-      vec[dim] = (PP->SourcePosition[dim] + PP->Radius * original_vec[dim])
-	- PP->CurrentSource->Position[dim];
-      length += vec[dim] * vec[dim];
-	
-      // Change source to super source.
-      PP->SourcePosition[dim] = PP->CurrentSource->Position[dim];
-    } // ENDFOR dim
-    PP->SourcePositionDiff = 0.0;
-
-    //      printf("before %x: lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
-    //	     PP, PP->level, PP->ipix, PP->Radius,
-    //	     original_vec[0], original_vec[1], original_vec[2]);
-
-    length = sqrt(length);
-    for (dim = 0; dim < MAX_DIMENSION; dim++)
-      vec[dim] /= length;
-
-    // With the new radius, calculate new HEALPix level
-    PP->Radius = length;
-    PP->level = (int) (0.5*ln2_inv * 
-		       logf(3 * M_1_PI * (PP->Radius*PP->Radius/dx2) * 
-			    RadiativeTransferRaysPerCell));
-    PP->level = min(max(PP->level, 0), MAX_HEALPIX_LEVEL);
-
-    // Calculate new pixel number with the super source
-    if (vec2pix_nest( (long) (1 << PP->level), vec, &(PP->ipix) ) == FAIL) {
-      ENZO_VFAIL("grid::MergePausedPhotonPackages -- vec2pix_nest %"ISYM" %"ISYM" %"GSYM"\n",
-	      (long) (1 << PP->level), PP->ipix, PP->Photons)
-    }
-    //      printf("after %x:  lvl %"ISYM" pix %"ISYM" :: r=%"GSYM", u=%"GSYM" %"GSYM" %"GSYM"\n", 
-    //	     PP, PP->level, PP->ipix, PP->Radius,
-    //	     vec[0], vec[1], vec[2]);
-
-    nphotons++;
-    PP = PP->NextPackage;
-
-  } // ENDWHILE photons
-
-  if (nphotons < 2)
-    return SUCCESS;
-
   /* It's easier to sort an array with qsort rather than a linked
      list, so let's put the photons in a temp. array.  After sorting
      we should reassign the links. */
 
-  int min_level = 99999, max_level = -99999;
-  PhotonPackageEntry *TempPP;
-  int ilvl, level, cumulative_sum1, cumulative_sum2;
-  int photons_this_level, photons_this_source;
-  int count_ss, count_lvl;
+  nphotons = 0;
+  PP = PausedPhotonPackages->NextPackage;
+  while (PP != NULL) {
+    PP = PP->NextPackage;
+    nphotons++;
+  }
 
   PP = PausedPhotonPackages->NextPackage;
   TempPP = LinkedListToArray(PP, nphotons);
@@ -175,6 +115,7 @@ int grid::MergePausedPhotonPackages() {
   }
 
   qsort(TempPP, nphotons, sizeof(PhotonPackageEntry), compare_ss);
+  //std::sort(TempPP, TempPP+nphotons, cmp_ss());
 
   if (DEBUG) {
     printf("========== AFTER ALL SORTING ==========\n");
@@ -280,9 +221,8 @@ int grid::MergePausedPhotonPackages() {
   delete [] TempPP;
 
   if (DEBUG)
-
     printf("P%d: MergePausedPhotonPackages: %"ISYM" => %"ISYM" photons\n", 
 	   MyProcessorNumber, nphotons, merges);
 
-  return SUCCESS;
+  return merges;
 }

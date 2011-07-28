@@ -535,13 +535,13 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(Outfptr, "PhotonTestSphereVelocity[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			PhotonTestSphereVelocity[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHIIFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereHIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHeIIFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHeIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereHeIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHeIIIFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHeIIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereHeIIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereH2IFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereH2IFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereH2IFraction[sphere]);
       fprintf(Outfptr, "PhotonTestFracKeplerianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
               PhotonTestFracKeplerianRot[sphere]);

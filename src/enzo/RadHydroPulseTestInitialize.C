@@ -43,7 +43,7 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stdout,"Entering RadHydroPulseTestInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";
@@ -88,6 +88,13 @@ int RadHydroPulseTestInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+
+  /* error checking */
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting Mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 

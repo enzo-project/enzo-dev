@@ -201,14 +201,24 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
 
       /* ==== METHOD 14: Refine around Shockwaves ==== */
-    case 14:
-      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByShockwaves(level);
-      if (NumberOfFlaggedCells < 0) {
-        fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByShockwaves.\n");
-        return FAIL;
-      }
-      break;
+  case 14:
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByShockwaves(level);
+    if (NumberOfFlaggedCells < 0) {
+      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByShockwaves.\n");
+      return FAIL;
+    }
+    break;
     /* ==== undefined ==== */
+    
+    /* ==== METHOD 16: Refine on total Jeans length ==== */
+  case 16: 
+    //    this->SolveForPotential(level);
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByTotalJeansLength();
+    if (NumberOfFlaggedCells < 0) {
+      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByTotalJeansLength.\n");
+      return FAIL;
+    }
+    break;
 
     /* ==== METHOD 18: BY POSITION OF MUST-REFINE PARTICLES ONLY ABOVE A CERTAIN MASS  ==== */
   case 18:
@@ -228,6 +238,12 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     this->FlagCellsToAvoidRefinement();
     if (NumberOfFlaggedCells < 0)
       ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinement");
+    break;
+
+  case 101:
+    this->FlagCellsToAvoidRefinementRegion(level);
+    if (NumberOfFlaggedCells < 0)
+      ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinementRegion");
     break;
 
   case INT_UNDEFINED:

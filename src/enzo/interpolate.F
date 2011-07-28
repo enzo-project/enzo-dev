@@ -4,7 +4,7 @@ c//////////////////////  SUBROUTINE INTERPOLATE  \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine interpolate(ndim, parent, pdims, pstart, pend, refine,
      &                       grid, gdims, gstart, work, imethod,
-     &                       iposflag)
+     &                       iposflag, ierror)
 c
 c  PERFORMS A TSC-LIKE INTERPOLATION FROM THE FIELD PARENT TO GRID
 c
@@ -45,7 +45,7 @@ c-----------------------------------------------------------------------
 c
 c  arguements
 c
-      integer imethod, iposflag, ndim
+      integer imethod, iposflag, ndim, ierror
       integer pdims(ndim), pstart(ndim), pend(ndim), refine(ndim),
      &        gdims(ndim), gstart(ndim)
       real    grid(1), parent(1), work(1)
@@ -152,7 +152,7 @@ c
      &                            gstart(1)+1, gstart(2)+1, gstart(3)+1,
      &                            gdims(1)/refine(1)+1, 
      &                            gdims(2)/refine(2)+1,
-     &                            gdims(3)/refine(3)+1)
+     &                            gdims(3)/refine(3)+1, ierror)
 c
       endif
 c

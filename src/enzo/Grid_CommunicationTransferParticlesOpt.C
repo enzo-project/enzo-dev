@@ -12,8 +12,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#ifdef OPTIMIZED_CTP
- 
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
@@ -326,4 +324,3 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
   return SUCCESS;
 }
-#endif /* OPTIMIZED_CTP */

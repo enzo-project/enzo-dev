@@ -278,10 +278,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
       delete ToGrid->GravitatingMassField;
       ToGrid->GravitatingMassField = new float[RegionSize];
       FORTRAN_NAME(copy3d)(buffer, ToGrid->GravitatingMassField,
-			   RegionDim, RegionDim+1, RegionDim+2,
-			   RegionDim, RegionDim+1, RegionDim+2,
-			   Zero, Zero+1, Zero+2,
-			   Zero, Zero+1, Zero+2);
+    			   RegionDim, RegionDim+1, RegionDim+2,
+    			   RegionDim, RegionDim+1, RegionDim+2,
+    			   Zero, Zero+1, Zero+2,
+    			   Zero, Zero+1, Zero+2);
     }
  
     if (SendField == POTENTIAL_FIELD) {

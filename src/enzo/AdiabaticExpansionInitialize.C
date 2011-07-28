@@ -42,6 +42,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
+int CosmologyComputeTimeFromRedshift(FLOAT Redshift, FLOAT *TimeCodeUnits);
+
 int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid)
 {
@@ -57,7 +59,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   char *PhiName = "Phi";
   char *DebugName = "Debug";
   char *Phi_pName = "Phip";
- 
+  char *GPotName  = "Grav_Potential";
+
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
@@ -110,6 +113,14 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }
+
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
+  }
+
  
   /* Get the units so we can convert temperature later. */
  
@@ -169,7 +180,10 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = Phi_pName;
     DataLabel[i++] = DebugName;
   }
+  if (WritePotential)
+    DataLabel[i++] = GPotName;  
  
+
   DataUnits[0] = NULL;
   DataUnits[1] = NULL;
   DataUnits[2] = NULL;

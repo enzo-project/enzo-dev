@@ -3,7 +3,6 @@ import pylab
 
 ### define problem name
 problem_name = 'Toro-5-ShockTube'
-#problem_name = 'Toro-5-ShockTubeAMR'
 
 
 ### define simulation output directory and filename base

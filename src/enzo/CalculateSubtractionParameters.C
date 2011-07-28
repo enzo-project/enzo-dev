@@ -30,14 +30,17 @@
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
 
+int CommunicationBroadcastValue(int *Value, int BroadcastProcessor);   
+
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level, FLOAT star_pos[],
-				    double star_mass, float star_last_accretion_rate,
-				    float StarLevelCellWidth, float dtForThisStar,
-				    float &Radius, double &Subtraction)
+				   double star_mass, float star_last_accretion_rate, star_type star_type,
+				   grid *star_CurrentGrid,
+				   float StarLevelCellWidth, float dtForThisStar,
+				   float &Radius, double &Subtraction)
 {
 
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
@@ -45,16 +48,16 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   float mdot, AccretedMass, SafetyFactor;
   float MassEnclosed = 0, Metallicity = 0, ColdGasMass = 0, OneOverRSquaredSum, AvgVelocity[MAX_DIMENSION];
-  float *temperature, density, old_mass, c_s, mu, number_density;
+  float *temperature, density, old_mass, mu, number_density;
   
-  int igrid[MAX_DIMENSION], dim, l, index;
+  int igrid[MAX_DIMENSION], dim, l, index, c_s;
   int size=1, FirstLoop = TRUE;
   LevelHierarchyEntry *Temp, *Temp2;
   FLOAT Time;
 
   /* This routine is invoked only when there is a MBH accretion */
 
-  if (MBHAccretion <= 0 || MBHAccretionRadius == 0) {
+  if (star_type != MBH || MBHAccretion <= 0 || MBHAccretionRadius == 0) {
     fprintf(stderr, "You're not supposed to be coming in here; something's wrong!\n");
     return SUCCESS;
   }
@@ -71,88 +74,122 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
   Subtraction = 0.0;
   AccretedMass = 0.0;
 
-#ifdef ACCURATE_TEMPERATURE_AND_MU
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+
+
+#ifdef UNUSED
+  /* If star_CurrentGrid is on the current processor, 
+     find mu, temperature[], and c_s so that we can eventually calculate Bondi radius.
+     One has to broadcast c_s to other processors */
+  
+  if (star_CurrentGrid->ReturnProcessorNumber() ==  MyProcessorNumber) {
+    
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+    int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
-
-  /* Find fields: density, total energy, velocity1-3. */
-
-  if (CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					      Vel3Num, TENum) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-  }
-
-  /* Find Multi-species fields. */
-
-  if (MultiSpecies)
-    if (CurrentGrid->
-	IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
-			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
-	== FAIL) {
-      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+    
+    /* Find fields: density, total energy, velocity1-3. */
+    
+    if (star_CurrentGrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+						     Vel3Num, TENum) == FAIL) {
+      fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+      ENZO_FAIL("");
     }
 
-  /* Find temperature */
+    /* Find Multi-species fields. */
+    
+    if (MultiSpecies)
+      if (star_CurrentGrid->
+	  IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, 
+				HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) 
+	  == FAIL) {
+	fprintf(stderr, "Error in grid->IdentifySpeciesFields.\n");
+	ENZO_FAIL("");
+      }
+    
+    /* Find temperature */
+    
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      size *= star_CurrentGrid->ReturnGridDimension()[dim];
+      igrid[dim] = (int) ((star_pos[dim] - star_CurrentGrid->ReturnGridLeftEdge()[dim]) /
+			  StarLevelCellWidth);
+    }
+    
+    temperature = new float[size];
+    if (star_CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
+      fprintf(stderr, "Error in ComputeTemperatureField.\n");
+      ENZO_FAIL("");
+    }
 
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    size *= CurrentGrid->GridDimension[dim];
-    igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-      CurrentGrid->CellWidth[0][0];
-  }
+    /* Calculate mu inside cell */
+    
+    index = 
+      ((igrid[2] + star_CurrentGrid->ReturnGridStartIndex()[2]) * star_CurrentGrid->ReturnGridDimension()[1] + 
+       igrid[1] + star_CurrentGrid->ReturnGridStartIndex()[1]) * star_CurrentGrid->ReturnGridDimension()[0] + 
+      igrid[0] + star_CurrentGrid->ReturnGridStartIndex()[0];
+    density = star_CurrentGrid->ReturnBaryonField(DensNum)[index];
+    
+    if (MultiSpecies == 0) {
+      number_density = density * DensityUnits / (Mu * m_h);
+      mu = Mu;
+    } else {
+      number_density = 
+	star_CurrentGrid->ReturnBaryonField(HINum)[index] + 
+	star_CurrentGrid->ReturnBaryonField(HIINum)[index] +
+	star_CurrentGrid->ReturnBaryonField(DeNum)[index] +
+	0.25 * (star_CurrentGrid->ReturnBaryonField(HeINum)[index] +
+		star_CurrentGrid->ReturnBaryonField(HeIINum)[index] +
+		star_CurrentGrid->ReturnBaryonField(HeIIINum)[index]);
+      if (MultiSpecies > 1)
+	number_density += 
+	  star_CurrentGrid->ReturnBaryonField(HMNum)[index] +
+	  0.5 * (star_CurrentGrid->ReturnBaryonField(H2INum)[index] +
+		 star_CurrentGrid->ReturnBaryonField(H2IINum)[index]);
+      mu = density / number_density;
+    }
 
-  temperature = new float[size];
-  if (CurrentGrid->ComputeTemperatureField(temperature) == FAIL) {
-    ENZO_FAIL("Error in ComputeTemperatureField.\n");
-  }
+    /* If requested, fix the temperature */
+    
+    if (star_type == MBH && (MBHAccretion == 2 || MBHAccretion == 12)) {
+      temperature[index] = MBHAccretionFixedTemperature;   
+    }
 
-  /* Calculate mu inside cell */
+    /* Calculate c_s, Here I boldly typecast c_s into an integer 
+       because only integer can be broadcasted at the moment;
+       anyway, this shouldn't make a huge difference overall. */
+    
+    c_s = (int)(sqrt(Gamma * k_b * temperature[index] / (mu * m_h)));
 
-  index = 
-    ((igrid[2] + CurrentGrid->GridStartIndex[2]) * CurrentGrid->GridDimension[1] + 
-     igrid[1] + CurrentGrid->GridStartIndex[1]) * CurrentGrid->GridDimension[0] + 
-    igrid[0] + CurrentGrid->GridStartIndex[0];
-  density = CurrentGrid->BaryonField[DensNum][index];
+    fprintf(stdout, "index = %d, temp = %g, mu = %g, density = %g, number_density = %g, c_s = %d\n",
+	    index, temperature[index], mu, density, number_density, c_s);  
 
-  if (MultiSpecies == 0) {
-    number_density = density * DensityUnits / (DEFAULT_MU * m_h);
-    mu = DEFAULT_MU;
-  } else {
-    number_density = 
-      CurrentGrid->BaryonField[HINum][index] + 
-      CurrentGrid->BaryonField[HIINum][index] +
-      CurrentGrid->BaryonField[DeNum][index] +
-      0.25 * (CurrentGrid->BaryonField[HeINum][index] +
-	      CurrentGrid->BaryonField[HeIINum][index] +
-	      CurrentGrid->BaryonField[HeIIINum][index]);
-    if (MultiSpecies > 1)
-      number_density += 
-	CurrentGrid->BaryonField[HMNum][index] +
-	0.5 * (CurrentGrid->BaryonField[H2INum][index] +
-	       CurrentGrid->BaryonField[H2IINum][index]);
-    mu = density / number_density;
-  }
+    delete [] temperature;
 
-  /* If requested, fix the temperature */
+  }  // END OF if (star_CurrentGrid->ReturnProcessorNumber() ==  MyProcessorNumber) 
 
-  if (this->type == MBH && (MBHAccretion == 2 || MBHAccretion == 12)) {
-    temperature[index] = MBHAccretionFixedTemperature;   
-  }
 
-  /* Calculate c_s */
+  /* Now broadcast c_s to other processors */
 
-  c_s = sqrt(Gamma * k_b * temperature[index] / (mu * m_h));
+  CommunicationBroadcastValue(&c_s, star_CurrentGrid->ReturnProcessorNumber());
+
+  fprintf(stdout, "MyProc = %d, star_CurrentGrid_ProcNum = %d, c_s = %d\n", 
+	  MyProcessorNumber, star_CurrentGrid->ReturnProcessorNumber(), c_s);
+#endif // UNUSED
+
+
+
+#define APPROXIMATE_TEMPERATURE_AND_MU
+#ifdef APPROXIMATE_TEMPERATURE_AND_MU
+  /* When calculating Bondi radius, let's not bother to get accurate temperature and mu 
+     just use the MBHAccretionFixedTemperature and default mu */
+
+    c_s = (int)(sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (Mu * m_h)));
 #endif
 
 
 
-  /* Find mdot and Radius;
+  /* Find mdot and Radius (from c_s);
      for negative MBHAccretionRadius, then use Bondi accretion radius instead */
 
-  /* When calculating Bondi radius, let's not bother to get accurate temperature and mu 
-     just use the MBHAccretionFixedTemperature and default mu */
-
-  c_s = sqrt(Gamma * k_b * MBHAccretionFixedTemperature / (DEFAULT_MU * m_h));
   old_mass = (float)(star_mass);
   mdot = isnan(star_last_accretion_rate) ? 0.0 : star_last_accretion_rate;  
   AccretedMass = mdot * dtForThisStar * TimeUnits; //in Msun
@@ -220,7 +257,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
     CommunicationAllSumValues(AvgVelocity, 3);
     
     if (MassEnclosed == 0) {
-      ENZO_FAIL("CSP: MassEnclosed = 0, something is wrong!\n");
+      ENZO_FAIL("CSP: MassEnclosed = 0; something is wrong!\n");
     }
 
     Metallicity /= MassEnclosed;
@@ -239,7 +276,6 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
   if (Subtraction < 0) {
     ENZO_FAIL("CSP: parameters (most likely MBHAccretionRadius) set wrongly.\n");
-
   }
 
 
@@ -254,12 +290,7 @@ int CalculateSubtractionParameters(LevelHierarchyEntry *LevelArray[], int level,
 
 
 
-#ifdef ACCURATE_TEMPERATURE_AND_MU
-  delete [] temperature;
-#endif 
-
-
-//  fprintf(stdout, "CSP: mdot = %g, Subtraction=%g, Radius=%g\n", mdot, Subtraction, Radius);  
+//  fprintf(stdout, "CSP: mdot = %g, Subtraction=%g, Radius=%g\n", mdot, Subtraction, Radius);   
 //  fprintf(stdout, "CSP: star - old_mass = %lf  ->  new_mass = %lf\n", star_mass - AccretedMass, star_mass);  
 
   return SUCCESS;

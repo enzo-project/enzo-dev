@@ -67,7 +67,7 @@ things, to the redefinition of float which is done in
 ``macros_and_parameters.h``. This must be done before Enzo headers, but after
 external libraries. The order should be as follows:
 
-::
+.. code-block:: c
 
     #include "ErrorExceptions.h"
     #include "svn_version.def"
@@ -108,7 +108,7 @@ should be used instead. This also has the added advantage of making
 explicit the values of parameters that are also used in parameter
 files. The typical idiom should be:
 
-::
+.. code-block:: c
 
     #ifdef SMALL_INTS
     typedef int hydro_method;

@@ -1,5 +1,5 @@
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest
+from yt.utilities.answer_testing.api import YTStaticOutputTest
 
 class TestOrbitPosition(YTStaticOutputTest):
     name = "test_orbit_position"

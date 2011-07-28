@@ -30,7 +30,7 @@
 int grid::CopyOverlappingMassField(grid *OtherGrid,
 				   FLOAT EdgeOffset[MAX_DIMENSION])
 {
- 
+  //  return SUCCESS;
   if (MyProcessorNumber != ProcessorNumber &&
       MyProcessorNumber != OtherGrid->ProcessorNumber)
     return SUCCESS;
@@ -40,7 +40,7 @@ int grid::CopyOverlappingMassField(grid *OtherGrid,
   }
 
   this->DebugCheck("CopyOverlappingMassField");
- 
+
   /* declarations */
  
   int i, j, k, dim, thisindex, otherindex;

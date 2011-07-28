@@ -187,4 +187,5 @@ int ppm(float **prim, float **priml, float **primr, int ActiveSize, int Neq)
 {
   ppm_quartic(prim, priml, primr, ActiveSize, Neq);
   ppm_dissipation(prim, priml, primr, ActiveSize, Neq);
+  return SUCCESS;
 }

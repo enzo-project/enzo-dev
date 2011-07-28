@@ -1,52 +1,53 @@
+.. _EnzoOutputFormats:
+
 Enzo Output Formats
 ===================
 
 Although there are a number of ways of specifying when (and how
-often) enzo outputs information, there is only one type of output
+often) Enzo outputs information, there is only one type of output
 'dump' (well, not quite -- there are now movie dumps, see below),
 which can also be used to restart the simulation. The output format
 uses the following files, each of which begins with the output
-name, here we use the example base\_name, and are then followed by
+name, here we use the example base_name, and are then followed by
 the output number, ranging from 0000 to 9999 (if more than 10000
 grids are generated then the number goes to 10000, etc.). When
 restarting, or other times when an output filename needs to be
-specified, use the name without any extension (e.g. enzo -r
-base\_name0000).
+specified, use the name without any extension (e.g. ``enzo -r
+base_name0000``).
 
 Summary of Files
 ----------------
 
-**base\_name0000**
+**base_name0000**
     This ascii file contains a complete listing of all the parameter
     settings, both those specified in the initial parameter file, as
     well as all those for which default values were assumed. The
-    parameters (see the
-    `page on parameters? </wiki/Devel/UserGuide/EnzoParameters>`_ for a
-    discussion) are in the same format as that used in the input file:
-    parameter\_name = value. This file is modifiable if you would like
-    to restart from a certain point with different parameter values.
-**base\_name0000.hierarchy**
+    parameters (see :doc:`../EnzoParameters`) are in the same format
+    as that used in the input file: parameter_name = value. This file
+    is modifiable if you would like to restart from a certain point
+    with different parameter values.
+**base_name0000.hierarchy**
     This ascii file specifies the hierarchy structure as well as the
     names of the grid files, their sizes, and what they contain. It
     should not be modified.
-**base\_name0000.cpu00001**
+**base_name0000.cpu00001**
     The field information for each cpu (padded with zeros) is contained
     in separate files with a root 'Node' for each grid, padded with
     zeros to be eight digits. The format is the Hierarchy Data Format
     (HDF) version 5, a self-describing machine-independent data format
     developed and supported by the National Center for Supercomputing
     Applications (NCSA). More information can be found on their
-    `home page <http://www.hdfgroup.org>`_. Most scientific
+    `home page <http://www.hdfgroup.org/>`_. Most scientific
     visualization packages support this format. Each field is stored as
     it's own one-, two- or three-dimensional Scientific Data Set (SDS),
     and is named for identification. Particles (if any) are included
     with a set of one-dimensional datasets under the top 'grid' node.
-**base\_name0000.boundary**
+**base_name0000.boundary**
     An ascii file which specifies boundary information. It is not
     generally useful to modify.
-**base\_name0000.boundary.hdf**
+**base_name0000.boundary.hdf**
     Contains field-specific boundary information, in HDF format.
-**base\_name0000.radiation**
+**base_name0000.radiation**
     This ascii file is only generated if using the self-consistent
     radiation field.
 
@@ -71,23 +72,13 @@ km/s/Mpc)\ :sup:`2`\ /(8\*Pi\*G)).
    independent)
 
 The conversion factor is also given in the ascii output file
-(base\_name0000): search for ``DataCGSConversionFactor``. Each field
+(base_name0000): search for ``DataCGSConversionFactor``. Each field
 has its own conversation factor, which converts that field to cgs
 units. Users can also set completely arbitrary internal units, as
 long as they are self-consistent: to see how to do this, go to
-`EnzoInternalUnits? </wiki/Devel/UserGuide/EnzoInternalUnits>`_.
+:ref:`EnzoInternalUnits`.
 
-File Schema
------------
-
-Parameter Files
-~~~~~~~~~~~~~~~
-
-Hierarchy
-~~~~~~~~~
-
-Grid Files
-~~~~~~~~~~
+.. _StreamingDataFormat:
 
 Streaming Data Format
 ---------------------
@@ -98,23 +89,21 @@ level.
 Method
 ~~~~~~
 
-We keep track of the elapsed timesteps on every AMR level.
-Every N-th timestep on a particular level L, all grids on levels >= L
-are written for the baryon fields (specified by the user in
-`MovieDataField? </wiki/MovieDataField>`_) and particles. The
-integers in `MovieDataField? </wiki/MovieDataField>`_
-correspond to the field element in
-`BaryonField? </wiki/BaryonField>`_, i.e. 0 = Density, 7 =
-HII density. Temperature has a special value of 1000.
+We keep track of the elapsed timesteps on every AMR level.  Every N-th
+timestep on a particular level L, all grids on levels >= L are written
+for the baryon fields (specified by the user in ``MovieDataField``)
+and particles. The integers in ``MovieDataField`` correspond to the
+field element in ``BaryonField``, i.e. 0 = Density, 7 = HII
+density. Temperature has a special value of 1000.
 
-See the parameter index for a full description of the streaming
+See :ref:`streaming_param` for a full description of the streaming
 data format parameters.
 
 File format
 ~~~~~~~~~~~
 
 All files are written in HDF5 with one file per processor per
-top-level timestep. The filename is named AmiraDataXXXX\_PYYY.hdf5
+top-level timestep. The filename is named AmiraDataXXXX_PYYY.hdf5
 where XXXX is the file counter, which should equal the cycle
 number, and YYY is the processor number. Each file has a header
 indicating
@@ -167,12 +156,6 @@ For every grid written, an index entry is created with
 -  grid dimensions [short]
 -  number of particles [int]
 
-Lastly, we output an ASCII file with the code times and redshifts
-of
-every top level timestep for convenience when choosing files to
-read
-afterwards.
-
-**Current readers:** local KIPAC version of Amira and Jacques
-
+Lastly, we output an ASCII file with the code times and redshifts of every top
+level timestep for convenience when choosing files to read afterwards.
 

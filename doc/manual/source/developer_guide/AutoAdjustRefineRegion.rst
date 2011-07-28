@@ -20,7 +20,10 @@ been sheared and have an arbitrary shape. We adjust the refine region to have
 faces just inside of the innermost, relative to the center of the refine
 region, massive particles. Below is an illustration of this new region.
 
-`Image(refine\_region.jpg, 33%)? </wiki/Image(refine_region.jpg,%2033%)>`_
+.. image:: images/refine_region.jpg
+   :width: 640
+   :height: 640
+   :alt: optimal refine region with particles
 
 Here is the logic that we have taken to adjust the refine region because it is
 not a trivial min/max of the positions of the massive particles. If we were to
@@ -30,8 +33,8 @@ resolution particles, which is not desired. We will incrementally shrink the
 region by a cell width on the level with the finest nested initial grid.
 
 
-#. Find the mass of the highest resolution particle, M\_min.
-#. Create a list of any particles with a mass > M\_min inside the current
+#. Find the mass of the highest resolution particle, M\ :sub:`min`.
+#. Create a list of any particles with a mass > M\ :sub:`min` inside the current
    refine region. This list is unique on each processor.
 #. Because we will incrementally reduce the refine region by cell
    widths, it is convenient to convert the massive particle positions to
@@ -63,4 +66,5 @@ region by a cell width on the level with the finest nested initial grid.
 Below in the attachments (region.mov) is an animation showing the
 above process.
 
+.. youtube:: 0LgyJ1HcrQM
 

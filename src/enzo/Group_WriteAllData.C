@@ -72,7 +72,7 @@ int WriteMemoryMap(FILE *fptr, HierarchyEntry *TopGrid,
 int WriteConfigure(FILE *optr);
 int WriteTaskMap(FILE *fptr, HierarchyEntry *TopGrid,
 		 char *gridbasename, int &GridID, FLOAT WriteTime);
-int WriteParameterFile(FILE *fptr, TopGridData &MetaData);
+int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *Filename);
 int WriteStarParticleData(FILE *fptr, TopGridData &MetaData);
 int WriteRadiationData(FILE *fptr);
  
@@ -83,10 +83,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
- 
- 
-int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
-
+  
 void InitializeHierarchyArrayStorage(int grid_count);
 void WriteHierarchyArrayStorage(const char* name);
 void FinalizeHierarchyArrayStorage();
@@ -610,7 +607,7 @@ int Group_WriteAllData(char *basename, int filenumber,
       fprintf(fptr, "# WARNING! Interpolated output: level = %"ISYM"\n",
 	      MetaData.OutputFirstTimeAtLevel-1);
     }
-    if (WriteParameterFile(fptr, MetaData) == FAIL)
+    if (WriteParameterFile(fptr, MetaData, name) == FAIL)
       ENZO_FAIL("Error in WriteParameterFile");
     fclose(fptr);
   
@@ -858,7 +855,7 @@ int Group_WriteAllData(char *basename, int filenumber,
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
-    fprintf(sptr, "DATASET WRITTEN %s \n", name);
+    fprintf(sptr, "DATASET WRITTEN %s %8"ISYM" %18.16e\n", name, MetaData.CycleNumber, MetaData.Time);
     fclose(sptr);
   }
  

@@ -56,9 +56,10 @@ EXTERN int RadiativeTransferSourceClustering;
 
 EXTERN float RadiativeTransferPhotonMergeRadius;
 
-/* Radiative pressure flag */
+/* Radiative pressure flag and scale factor */
 
 EXTERN int RadiationPressure;
+EXTERN float RadiationPressureScale;
 
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
 
@@ -98,3 +99,8 @@ EXTERN char *RadiativeTransferTraceSpectrumTable;
 /* Flag for temporary load balancing for the ray tracing */
 
 EXTERN int RadiativeTransferLoadBalance;
+
+/* Flux threshold when rays are deleted in units of the UV background
+   flux (RadiationFieldType > 0) */
+
+EXTERN float RadiativeTransferFluxBackgroundLimit;

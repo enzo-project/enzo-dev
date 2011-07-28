@@ -13,119 +13,36 @@ Enzo can be compiled on any POSIX-compatible operating system, such as Linux,
 BSD (including Mac OS X), and AIX.  In addition to a C/C++ and Fortran-90
 compiler, the following libraries are necessary:
 
-   * `HDF5 <http://hdf.ncsa.uiuc.edu/HDF5/>`_, the hierarchical data format.
+   * `HDF5 <http://www.hdfgroup.org/HDF5/>`_, the hierarchical data format.
      Note that HDF5 also may require the szip and zlib libraries, which can be
      found at the HDF5 website.  Note that compiling with HDF5 1.8 or greater
      requires that the compiler directive ``H5_USE_16_API`` be specified;
      typically this is done with ``-DH5_USE_16_API`` and it's set in most of
      the provided makefiles.
-   * `MPI <http://www-unix.mcs.anl.gov/mpi/>`_, for multi-processor parallel
+   * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run oon a single processor.
 
-Subversion Check Out Instructions
----------------------------------
+Mercurial Check Out Instructions
+--------------------------------
 
-The latest public version of Enzo is available for anonymous
-checkout using `Subversion <http://subversion.tigris.org/>`_. This
-is where bug fixes and new features will appear between releases.
+Enzo is provided in both a stable and an unstable form.  **It is highly
+recommended that for any production run the stable version is used.**
+Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
+List <http://groups.google.com/group/enzo-users>`_.  A source
+browser is also available.
 
-You also browse the source tree, either through the
-`default Subversion HTTP interface <http://mngrid.ucsd.edu/svn/Enzo/public>`_,
-or the nicer [browser:public Trac browser].
+Please visit the Google Code project website to access the Enzo source tree and
+read the latest source checkout instructions.
 
-*A hint*: Before you try to build Enzo, you might want to make sure
-you meet the
-`compilation requirements? </wiki/Devel/UserGuide/CompilationRequirements>`_.
+http://enzo.googlecode.com/
 
-Subversion Clients
-++++++++++++++++++
+Updating a source tree with Mercurial is beyond the scope of this document; for
+more information, please peruse :ref:`developers_guide` and the Mercurial
+documentation.  The `mercurial <http://mercurial.selenic.com/>`_ commands of
+most use are ``pull``, ``update`` and ``incoming``.
 
-To check out a local copy of the Enzo source, you need a
-`Subversion <http://subversion.tigris.org/>`_ client. These are
-available as part of all recent Linux distributions; for other
-operating systems (OS X, AIX, etc.), binaries are available
-(there's a list of third-party clients on the
-`Subversion front page <http://subversion.tigris.org/>`_), or the
-client can be built from source. GUI clients are available, but
-these instructions assume you're using a command line client.
-
-To see if you already have the client installed, use which.
-
-::
-
-    $ which svn
-    /usr/local/bin/svn
-
-If you don't have the client, and are a shared shared resource (a
-cluster, or supercomputer), please ask the system administrator to
-install Subversion for everyone. This will make things easier for
-the next user who comes along.
-
-Getting a Copy
-++++++++++++++
-
-FYI: Checking out Enzo will also get you a copy
-`YT <http://yt.enzotools.org/>`_, the
-`Python <http://www.python.org>`_ based analysis toolkit. Check
-the `YT website <http://yt.enzotools.org/>`_ for instructions on
-compiling and using `YT <http://yt.enzotools.org/>`_.
-
-Once you have the client, you can use it *checkout* a local copy.
-
-::
-
-    $ svn checkout http://mngrid.ucsd.edu/svn/Enzo/public/trunk enzo
-    A    enzo/configure
-    A    enzo/doc
-    A    enzo/doc/flowchart
-    ...
-    A    enzo/src/enzo/Grid_FastSiblingLocatorFindSiblings.C
-    A    enzo/src/enzo/AnalyzeClusters.h
-    A    enzo/src/Makefile
-    A    enzo/bin
-    
-    Fetching external item into 'enzo/src/yt'
-    A    enzo/src/yt/LICENSE.txt
-    A    enzo/src/yt/epydoc.cfg
-    A    enzo/src/yt/tests
-    ...
-    A    enzo/src/yt/examples/test_parallel_projection.py
-    A    enzo/src/yt/setup.cfg
-     U   enzo/src/yt
-    Checked out external at revision 731.
-    
-    Checked out revision 1761.
-
-And now you have a copy of the latest public version. Time to work
-on `building Enzo? </wiki/Devel/UserGuide/BuildingEnzo>`_.
-
-Updating
-++++++++
-
-To update your local copy, you can use svn to pull down only the
-latest changes.
-
-*Note*: If you've modified any files in your copy, this will merge
-changes from the trunk in to your working copy, which may generate
-conflicts. If you're doing development on Enzo itself, you may want
-to check the [log:public/trunk revision log] before doing an
-update.
-
-::
-
-    $ cd enzo/
-    $ svn update
-    A    README
-    
-    Fetching external item into 'src/yt'
-    Updated external to revision 731.
-    
-    Updated to revision 1762.
-
-Now, you can do a make clean; make and get back to work.
-
-Building enzo
+Building Enzo
 -------------
 
 This is a quick, line by line example of checking out and building
@@ -135,13 +52,15 @@ system arguments can be found in :ref:`MakeOptions`.
 This assumes that we're working from a checkout from the Enzo project page,
 located at http://enzo.googlecode.com/ .  Checkout instructions can be found
 there, and for more detailed information about the structure of the Enzo source
-control repository, see :ref:`CheckOutInstructions`.
+control repository, see :ref:`enzo_modification`.
 
 Initializing the Build System
 +++++++++++++++++++++++++++++
 
 This just clears any existing configurations left over from a previous machine,
 and creates a couple of files for building.
+
+.. highlight:: none
 
 ::
 
@@ -213,14 +132,14 @@ to run Enzo on. The basic steps are as follows:
 #. Edit the machine-specific settings (compilers, libraries, etc.).
 #. Build and test.
 
-If you expect that you will have multiple checkouts of the enzo source code,
+If you expect that you will have multiple checkouts of the Enzo source code,
 you should feel free to create the directory $HOME/.enzo/ and place your custom
 makefiles there, and Enzo's build system will use any machine name-matching
 Makefile in that directory to provide or override Make settings.
 
 Make sure you save your configuration file! If you're on a big system (multiple
 Enzo users), please post your file to `the Enzo mailing list
-<http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_, and it will be
+<http://groups.google.com/group/enzo-users>`_, and it will be
 considered for inclusion with the base Enzo distribution.
 
 HDF5 Versions
@@ -229,7 +148,7 @@ HDF5 Versions
 If your system uses a version of HDF5 greater than or equal to 1.8, you
 probably need to add a flag to your compile settings, unless your HDF5 library
 was compiled using --with-default-api-version=v16. The simplest thing to do is
-to find the line in your Make.mach file that sets up MACH\_DEFINES, which may
+to find the line in your Make.mach file that sets up MACH_DEFINES, which may
 look like this
 
 ::
@@ -310,7 +229,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
 Build Enzo
 ++++++++++
 
-The default build target is the main executable, enzo.
+The default build target is the main executable, Enzo.
 
 ::
 
@@ -326,17 +245,6 @@ The default build target is the main executable, enzo.
     ~/enzo/src/enzo $ 
 
 After compiling, you will have ``enzo.exe`` in the current directory.
-
-::
-
-    ~/enzo/src/enzo $ make install 
-    if [ ! -e ../../bin ]; then mkdir ../../bin; fi
-    make -s show-flags   >& ../../bin/enzo.show-flags
-    make -s show-config  >& ../../bin/enzo.show-config
-    make -s show-version >& ../../bin/enzo.show-version
-    make -s show-diff    >& ../../bin/enzo.show-diff
-    ~/enzo/src/enzo $
-
 
 Building other Tools
 ++++++++++++++++++++
@@ -377,9 +285,11 @@ Ring
 
 This will produce ``ring.exe``.
 
+.. _build_yt:
+
 YT
 ~~
 
 To install yt, you can use the installation script provided with the yt source
-distribution.  See :ref:`installation` or :ref:`installation_script` for more
+distribution.  See `the yt homepage <http://yt.enzotools.org/>`_ for more
 information.

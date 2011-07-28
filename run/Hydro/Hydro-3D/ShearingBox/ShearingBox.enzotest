@@ -1,0 +1,9 @@
+name = 'ShearingBox'
+answer_testing_script = None
+nprocs = 1
+runtime = 'long'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+dimensionality = 3

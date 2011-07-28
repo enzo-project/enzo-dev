@@ -2,6 +2,7 @@
 
 
  int     ThisTask, NTask;
+ int     CycleNumber;
 
  double  Time;
  double  BoxSize;
@@ -10,6 +11,7 @@
 
  double  SearchRadius;
 
+ int     ParticleTypeInFile;
  PINT    NumPart;   /* total particle number */
  int     *NpartInGrids;
 

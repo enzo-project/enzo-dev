@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c
 c -----------------------------------------------------------
 c This routine uses the temperature to look up the chemical
@@ -72,7 +73,7 @@ c
 c     Parameters
 c
       double precision everg, e24, e26, temp
-      parameter(everg = 1.60184d-12, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
 c
 c     locals
 c
@@ -228,13 +229,13 @@ c
       if (iradtype .eq. 8) then
          do i = is+1, ie+1
          if (itmask(i).eqv..true.) then
-            x = max(HII(i)/(HI(i)+HII(i)), 1.0e-4)
-            factor = 0.3908*(1.0 - x**0.4092)**1.7592
+            x = max(HII(i)/(HI(i)+HII(i)), 1.0d-4)
+            factor = 0.3908d0*(1.d0 - x**0.4092d0)**1.7592d0
             k24shield(i) = k24shield(i) + 
-     &         factor*(piHI + 0.08*piHeI)/(e24*everg) * coolunit*tbase1
-            factor = 0.0554*(1.0 - x**0.4614)**1.6660
+     &         factor*(piHI + 0.08d0*piHeI)/(e24*everg) *coolunit*tbase1
+            factor = 0.0554d0*(1.d0 - x**0.4614d0)**1.6660d0
             k26shield(i) = k26shield(i) + 
-     &         factor*(piHI/0.08 + piHeI)/(e26*everg) * coolunit*tbase1
+     &         factor*(piHI/0.08d0 + piHeI)/(e26*everg) *coolunit*tbase1
          endif
          enddo
       endif
@@ -252,15 +253,15 @@ c
             if ((ispecies .gt. 1).and.(threebody.eq.0)) then
                do i = is+1, ie+1
                if (itmask(i).eqv..true.) then
-                  nh = min(HI(i)*dom, 1.0e9)
+                  nh = min(HI(i)*dom, 1.0d9)
                   k13(i) = tiny
-                  if (tgas1d(i) .ge. 500.0 .and.
-     &                tgas1d(i) .lt. 1.0e6) then
+                  if (tgas1d(i) .ge. 500.d0 .and.
+     &                tgas1d(i) .lt. 1.0d6) then
                      k13(i) = k13dd(i,1)-k13dd(i,2)/
-     &                          (1.0+(nh/k13dd(i,5))**k13dd(i,7))
+     &                          (1.d0+(nh/k13dd(i,5))**k13dd(i,7))
      &                      + k13dd(i,3)-k13dd(i,4)/
-     &                          (1.0+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10.0**k13(i), tiny)
+     &                          (1.d0+(nh/k13dd(i,6))**k13dd(i,7))
+                     k13(i) = max(10.d0**k13(i), tiny)
                   endif
                endif
                enddo

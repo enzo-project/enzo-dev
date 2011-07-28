@@ -16,14 +16,15 @@ files you'll need to edit to make this happen.
 
 -  ``global_data.h`` holds all the global data. It's included in
    almost all Enzo files. Your parameter should be added like this:
-   ::
+   
+   .. code-block:: c
 
        EXTERN int MyInt;
        EXTERN float MyFloat;
 
-   EXTERN is a macro that either maps to extern if ``USE\_STORAGE`` is
-   defined, or nothing if ``USE\_STORAGE`` is not defined. ``USE\_STORAGE`` is
-   defined in ``enzo.C`` before the inclusion of ``global\_data.h``, and
+   EXTERN is a macro that either maps to extern if ``USE_STORAGE`` is
+   defined, or nothing if ``USE_STORAGE`` is not defined. ``USE_STORAGE`` is
+   defined in ``enzo.C`` before the inclusion of ``global_data.h``, and
    undefined after.
 
 
@@ -34,7 +35,8 @@ files you'll need to edit to make this happen.
 -  ``ReadParameterFile.C`` reads the parameter file. In this routine,
    each line is read from the file and is compared to the given
    parameters with ``sscanf()``. Your line should look like this:
-   ::
+   
+   .. code-block:: c
 
         ret += sscanf(line, "MyFloat      = %"FSYM, &MyFloat);
         ret += sscanf(line, "MyInt        = %"ISYM, &MyInteger);
@@ -43,7 +45,7 @@ files you'll need to edit to make this happen.
    relevant. Note that ``ISYM`` and ``FSYM`` are the generalized integer and
    float I/O macro, which exist to take care of the dynamic hijacking
    of 'float'.
-   `See this page for more information? </wiki/Tutorials/FloatIsDouble>`_.
+   See this page for more information: :ref:`FloatIsDouble`.
    The ``ret +=`` controls whether the line has been read, or if Enzo
    should issue a warning about the line. Note also that ``sscanf()`` is
    neutral to the amount of consecutive whitespace in the format
@@ -53,7 +55,8 @@ files you'll need to edit to make this happen.
 -  ``WriteParameterFile.C`` writes the restart parameter file.
    Somewhere before the end of the routine, you should add something
    that looks like
-   ::
+   
+   .. code-block:: c
 
          fprintf(fptr, "MyFloat       = %"GSYM"\n", MyFloat);
          fprintf(fptr, "MyInt         = %"ISYM"\n", MyInt);
@@ -64,7 +67,7 @@ files you'll need to edit to make this happen.
 For testing purposes you can verify that your new parameter is being correctly read in by 
 adding a line like this at the bottom of ``ReadParameterFile.C``:
 
-::
+.. code-block:: c
 
       fprintf(stdout, "MyFloat %f MyInt %d\n", MyFloat, MyInt);
       return SUCCESS;

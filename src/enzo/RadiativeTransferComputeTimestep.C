@@ -59,7 +59,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   }
 
   // Restrict the increase in dtPhoton to this factor
-  const float MaxDTChange = 3.0;
+  const float MaxDTChange = 30.0;
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;

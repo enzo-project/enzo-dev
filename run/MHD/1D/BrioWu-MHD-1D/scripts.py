@@ -10,7 +10,7 @@ output_dir_base = 'DD'
 datafile_base = 'data'
 
 ### define output to be plotted
-dumpid = '0011'
+dumpid = '0007'
 
 ### construct input filename
 filename = './' + output_dir_base + dumpid + '/' + datafile_base + dumpid

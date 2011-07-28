@@ -112,8 +112,7 @@ struct TestProblemDataType
   float MaximumTemperature;
   int ResetEnergies;
 
-  /* Shock/Cosmic Ray Fields */
-  int CRModel;
+  /* Shock Fields */
   int ShockMethod;
   int StorePreShockFields;
   float ShockTemperatureFloor;

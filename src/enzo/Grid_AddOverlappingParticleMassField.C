@@ -34,9 +34,11 @@ int grid::AddOverlappingParticleMassField(grid *OtherGrid,
   if (MyProcessorNumber != ProcessorNumber &&
       MyProcessorNumber != OtherGrid->ProcessorNumber)
     return SUCCESS;
- 
+
+  //  fprintf(stderr, "AddOverlappiongMassField: %i %i", this, OtherGrid);
+
   /* declarations */
- 
+
   int i, j, k, dim, thisindex, otherindex;
   FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
  
@@ -147,7 +149,7 @@ int grid::AddOverlappingParticleMassField(grid *OtherGrid,
                    (j + Start[1])              )*ThisDim[0] +
 	           (0 + Start[0]);
       otherindex = ((k + StartOther[2])*OtherDim[1] +
-		    (j + StartOther[1])               )*OtherDim[0] +
+		    (j + StartOther[1])        )*OtherDim[0] +
 		    (0 + StartOther[0]);
       for (i = 0; i < Dim[0]; i++, thisindex++, otherindex++)
 	GravitatingMassField[thisindex] +=

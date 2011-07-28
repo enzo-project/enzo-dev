@@ -7,27 +7,27 @@ different compilers, or when new versions of compilers and
 libraries are introduced. Also, all the test problems should run to
 completion, which is generally not a guarantee!
 
-At the top of each enzo parameter file is a line like ``ProblemType =
-23``, which tells enzo the type of problem. You can see how this
-affects enzo by inspecting ``src/enzo/InitializeNew.C``. In this
+At the top of each Enzo parameter file is a line like ``ProblemType =
+23``, which tells Enzo the type of problem. You can see how this
+affects Enzo by inspecting ``InitializeNew.C``. In this
 example, this gets called:
 
-::
+.. code-block:: c
 
       if (ProblemType == 23)
         ret = TestGravityInitialize(fptr, Outfptr, TopGrid, MetaData);
 
-which then calls the routine in ``src/enzo/TestGravityInitialize.C``,
+which then calls the routine in ``TestGravityInitialize.C``,
 and so on. By inspecting the initializing routine for each kind of
 problem, you can see what and how things are being included in the
 simulation.
 
 The test problem parameter files are inside doc/examples.
-`Here is the full list? </wiki/UserGuide/EnzoTestSuite>`_ of test
-problems. The files that end in .enzo are the enzo parameter files,
+Please see :ref:`EnzoTestSuite` for a full list of test
+problems. The files that end in .enzo are the Enzo parameter files,
 and .inits are inits parameter files. inits files are only used for
 cosmology simulations, and you can see an example of how to run
-that `here? </wiki/Tutorials/RunCosmologySimulation>`_. Let's try a
+that in :ref:`RunCosmologySimulation`. Let's try a
 couple of the non-cosmology test problems.
 
 ShockPool3D test
@@ -35,12 +35,14 @@ ShockPool3D test
 
 The ShockPool3D is a purely hydrodynamical simulation testing a
 shock with non-periodic boundary conditions. Once you've
-`compiled enzo? </wiki/UserGuide/BuildingEnzo>`_, make a directory
+built enzo (:ref:`obtaining_and_building_enzo`), make a directory
 to run the test problem in. Copy enzo.exe and ShockPool3D.enzo into
 that directory.
 This example test will be run using an interactive session.
 On `Kraken <http://www.nics.tennessee.edu/computing-resources/kraken>`_,
 to run in an interactive queue, type:
+
+.. highlight:: none
 
 ::
 
@@ -113,7 +115,7 @@ PressurelessCollapse
 ~~~~~~~~~~~~~~~~~~~~
 
 The PressurelessCollapse test required isolated boundary
-conditions, so you need to compile enzo with that turned on (gmake
+conditions, so you need to compile Enzo with that turned on (gmake
 isolated-bcs-yes). You will also need to turn off the top grid
 bookkeeping (gmake unigrid-transpose-no).
 

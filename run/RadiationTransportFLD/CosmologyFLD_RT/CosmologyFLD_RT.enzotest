@@ -1,0 +1,11 @@
+name = 'CosmologyFLD_RT'
+answer_testing_script = None
+nprocs = 8
+runtime = 'unknown' 
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+cosmology = True
+dimensionality = 3
+radiation = 'fld'

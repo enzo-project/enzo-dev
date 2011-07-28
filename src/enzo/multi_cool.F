@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 !=======================================================================
@@ -108,11 +109,11 @@
 
 #ifdef CONFIG_BFLOAT_8
       real tolerance
-      parameter (tolerance = 1.0e-10)
+      parameter (tolerance = 1.0d-10)
 #endif
 
       double precision mh
-      parameter (mh = 1.67d-24)
+      parameter (mh = mass_h)
 
 !  Locals
 
@@ -198,7 +199,7 @@
 !       Set time elapsed to zero for each cell
 
         do i = is+1, ie+1
-           ttot(i) = 0.0
+           ttot(i) = 0.d0
         enddo
 
 !       Loop over cooling subcycles
@@ -247,7 +248,7 @@
 !         Then, use each cell~s individual timestep tp update it~s energy
 !         Find minimum elapsed timestep (ttot)
 
-          dt2 = dt/2.0
+          dt2 = dt/2.d0
           ttmin = huge
 	  write(0,*) 'is=',is, ie
 	  write(81,*) 'is=',is, ie
@@ -257,33 +258,33 @@
 !            one even for H2 since p2d is calculated with this gamma).
 
              if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
-     &              edot(i) = tiny*1.0e-3
+     &              edot(i) = tiny*1.0d-3
 
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 
-             energy = max(p2d(i)/(gamma-1.0), tiny)
+             energy = max(p2d(i)/(gamma-1.d0), tiny)
 
 c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1.0), 
 c    &                    tiny)
 c            if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
-c    &              0.5*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
-c            energy = p(i,j,k)/(gamma-1.0)
+c    &              0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
+c            energy = p(i,j,k)/(gamma-1.d0)
 
 
 !            Compute timestep for 10% change
 
 c            if (iter .gt. 100) then
-c               dtit(i) = min(real(abs(0.01*energy/edot(i))), 
+c               dtit(i) = min(real(abs(0.01d0*energy/edot(i))), 
 c    &                        dt-ttot(i), dt2)
 c            else
-c               dtit(i) = min(real(abs(0.1*energy/edot(i))), 
+c               dtit(i) = min(real(abs(0.1d0*energy/edot(i))), 
 c    &                        dt-ttot(i), dt2)
 c            endif
 
-             dtit(i) = min(real(abs(0.1*energy/edot(i))),
+             dtit(i) = min(real(abs(0.1d0*energy/edot(i))),
      &                     dt-ttot(i), dt2)
 
-             if ( dt-ttot(i) <= tolerance*dt ) then
+             if ( dt-ttot(i) .le. tolerance*dt ) then
                 itmask(i) = .false.
              end if
 
@@ -308,7 +309,7 @@ c            endif
      &           d(i,j,k) .ne. d(i+ih2co-1,j,k) .or.
      &           e(i,j,k) .ne. e(i+ih2co-1,j,k) .or.
      &           dtit(i) .ne. dtit(i+ih2co-1) .or. 
-     &           d(i,j,k) .eq. 0.0) 
+     &           d(i,j,k) .eq. 0.d0) 
      &           then 
                 write(6,*) 'multi_cool_a:',
      &          edot(i),d(i,j,k),dtit(i),i,j,k,iter,p2d(i),
@@ -337,9 +338,9 @@ c            endif
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
-             if (((dtit(i)/dt .lt. 1.0e-2) .and. 
+             if (((dtit(i)/dt .lt. 1.0d-2) .and. 
      &            (iter .gt. 1000) .and.
-     &            (abs((dt-ttot(i))/dt) .gt. 1.0e-3)) .or. 
+     &            (abs((dt-ttot(i))/dt) .gt. 1.0d-3)) .or. 
      &            (iter .gt. 1800)) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!               call open_mpi_error_file( 'F3', 3, 'unknown' )
@@ -356,7 +357,7 @@ c            endif
 
              e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
-             if (e(i,j,k) < 0.0) then
+             if (e(i,j,k) .lt. 0.0) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                call open_mpi_error_file( 'F3', 3, 'unknown' )
                 write(6,*) 'Eijk < 0', e(i,j,k)

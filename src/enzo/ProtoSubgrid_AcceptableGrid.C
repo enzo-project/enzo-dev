@@ -35,14 +35,6 @@
 int ProtoSubgrid::AcceptableSubgrid()
 {
  
- /* If we are doing nested cosmology with partitioned nested grids,
-    we don't set limits on the nested, permanent subgrids. */
-
-  if ( (PartitionNestedGrids && StaticPartitionNestedGrids) && 
-       (this->GetLevel() <= CosmologySimulationNumberOfInitialGrids-1) ) {
-    return TRUE;
-  }
- 
   /* If NumberFlagged hasn't been computed yet, then compute it. */
  
   if (NumberFlagged == INT_UNDEFINED) {
@@ -59,7 +51,11 @@ int ProtoSubgrid::AcceptableSubgrid()
     size *= GridDimension[dim];
  
   float efficiency = float(NumberFlagged)/float(size);
+
+  /* For size restrictions, use the number of child cells */
  
+  //size *= 8;
+
   /* Subgrid is acceptable if it is efficient enough or small enough,
      but if we are using multiple processors, then make sure it is
      not too big (for good load balancing). */

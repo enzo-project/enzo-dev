@@ -11,8 +11,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#ifdef OPTIMIZED_CTP
- 
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -20,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -33,6 +32,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "SortCompareFunctions.h"
 void my_exit(int status);
  
 // function prototypes
@@ -166,7 +166,8 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
   SharedList = SendList;
   NumberOfReceives = TotalNumberToMove;
   int star_data_size = sizeof(star_data);
-  qsort(SharedList, TotalNumberToMove, star_data_size, compare_star_grid);
+  //qsort(SharedList, TotalNumberToMove, star_data_size, compare_star_grid);
+  std::sort(SharedList, SharedList+TotalNumberToMove, cmp_star_grid());
 
   /* Copy stars back to grids */
 
@@ -226,4 +227,3 @@ int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
   return SUCCESS;
 }
 
-#endif /* OPTIMIZED_CTP */

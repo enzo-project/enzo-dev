@@ -137,22 +137,11 @@ int main(int argc, char **argv)
     sprintf(subhalos_fname,  "%s/groups/groups_%03d.subcat", path, Snapshot);
     sprintf(subprop_fname,   "%s/groups/groups_%03d.subprop", path, Snapshot);
     sprintf(fofprop_fname,   "%s/groups/groups_%03d.fofprop", path, Snapshot);
+    sprintf(buf, "%s/groups", path);  mkdir(buf, 0xffff);
   } else if (formatType == ENZO) {
     sprintf(input_fname,     "%s/%s%4.4d", path, basename, Snapshot);
-    sprintf(particles_fname, "%s/groups/groups_%4.4d.pos", path, Snapshot);
-    sprintf(parttypes_fname, "%s/groups/groups_%4.4d.types", path, Snapshot);
-    sprintf(partids_fname, "%s/groups/groups_%4.4d.ids", path, Snapshot);
-    sprintf(catalogue_fname, "%s/groups/groups_%4.4d.fofcat", path, Snapshot);
-    sprintf(cataloguetxt, "%s/groups/groups_%4.4d.dat", path, Snapshot);
-    sprintf(scataloguetxt, "%s/groups/subgroups_%4.4d.dat", path, Snapshot);
-    sprintf(particles_fname5, "%s/groups/particles_%4.4d.h5", path, Snapshot);
-    sprintf(sparticles_fname5, "%s/groups/subparticles_%4.4d.h5", path, Snapshot);
-    sprintf(subhalos_fname,  "%s/groups/groups_%4.4d.subcat", path, Snapshot);
-    sprintf(subprop_fname,   "%s/groups/groups_%4.4d.subprop", path, Snapshot);
-    sprintf(fofprop_fname,   "%s/groups/groups_%4.4d.fofprop", path, Snapshot);
+    mkdir("FOF", 0xffff);
   }
-  
-  sprintf(buf, "%s/groups", path);  mkdir(buf, 0xffff);
 
   set_units();
 
@@ -161,6 +150,20 @@ int main(int argc, char **argv)
   else if (formatType == ENZO) {
     Files = enzoFindFiles(input_fname);
     //MarkInteriorParticles(input_fname, Files);
+  }
+
+  if (formatType == ENZO) {
+    sprintf(particles_fname, "FOF/groups_%5.5d.pos", CycleNumber);
+    sprintf(parttypes_fname, "FOF/groups_%5.5d.types", CycleNumber);
+    sprintf(partids_fname, "FOF/groups_%5.5d.ids", CycleNumber);
+    sprintf(catalogue_fname, "FOF/groups_%5.5d.fofcat", CycleNumber);
+    sprintf(cataloguetxt, "FOF/groups_%5.5d.dat", CycleNumber);
+    sprintf(scataloguetxt, "FOF/subgroups_%5.5d.dat", CycleNumber);
+    sprintf(particles_fname5, "FOF/particles_%5.5d.h5", CycleNumber);
+    sprintf(sparticles_fname5, "FOF/subparticles_%5.5d.h5", CycleNumber);
+    sprintf(subhalos_fname,  "FOF/groups_%5.5d.subcat", CycleNumber);
+    sprintf(subprop_fname,   "FOF/groups_%5.5d.subprop", CycleNumber);
+    sprintf(fofprop_fname,   "FOF/groups_%5.5d.fofprop", CycleNumber);
   }
 
   SearchRadius= LinkLength*BoxSize/pow(NumPart,1.0/3);
@@ -1005,7 +1008,7 @@ void exchange_shadow(void)
 
       if(slab!=ThisTask)
 	MPI_Abort(MPI_COMM_WORLD, 11);
-		  
+
       if(P[i].Pos[0] < slab*(BoxSize/NTask)+SearchRadius)
 	buftoleft[nl++]= P[i];
       

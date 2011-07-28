@@ -45,6 +45,7 @@
 #include "CosmologyParameters.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#include "EventHooks.h"
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
@@ -120,6 +121,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &Level, int &HaloFinderOnly, 
 			 int &WritePotentialOnly,
 			 int &SmoothedDarkMatterOnly,
+			 int &WriteCoolingTimeOnly,
 			 int MyProcessorNumber);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -198,6 +200,16 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 		       , ImplicitProblemABC *ImplicitSolver
 #endif
                  );
+int OutputCoolingTimeOnly(char *ParameterFile,
+			  LevelHierarchyEntry *LevelArray[], 
+			  HierarchyEntry *TopGrid,
+			  TopGridData &MetaData,
+			  ExternalBoundary &Exterior
+#ifdef TRANSFER
+			  , ImplicitProblemABC *ImplicitSolver
+#endif
+			  );
+
 
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
@@ -228,8 +240,13 @@ void PrintMemoryUsage(char *str);
  
 //  ENZO Main Program
 
- 
-Eint32 main(Eint32 argc, char *argv[])
+#ifdef SHARED_LIBRARY
+#define MAIN_NAME enzo_main
+#else
+#define MAIN_NAME main
+#endif
+
+Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 {
 
 
@@ -340,6 +357,7 @@ Eint32 main(Eint32 argc, char *argv[])
     HaloFinderOnly           = FALSE,
     WritePotentialOnly       = FALSE,
     SmoothedDarkMatterOnly   = FALSE,
+    WriteCoolingTimeOnly     = FALSE,
     project                  = FALSE,
     ProjectionDimension      = INT_UNDEFINED,
     ProjectionSmooth         = FALSE,
@@ -435,7 +453,7 @@ Eint32 main(Eint32 argc, char *argv[])
 			   RegionStartCoordinates, RegionEndCoordinates,
 			   RegionLevel, HaloFinderOnly,
 			   WritePotentialOnly, SmoothedDarkMatterOnly,
-			   MyProcessorNumber) == FAIL) {
+			   WriteCoolingTimeOnly, MyProcessorNumber) == FAIL) {
     if(int_argc==1){
       my_exit(EXIT_SUCCESS);
     } else {
@@ -564,7 +582,7 @@ Eint32 main(Eint32 argc, char *argv[])
  
   if (HaloFinderOnly) {
     InlineHaloFinder = TRUE;
-    HaloFinderSubfind = TRUE;
+    HaloFinderSubfind = FALSE;
     FOF(&MetaData, LevelArray, TRUE, TRUE);
     my_exit(EXIT_SUCCESS);
   }
@@ -586,6 +604,16 @@ Eint32 main(Eint32 argc, char *argv[])
 		       , ImplicitSolver
 #endif
                );
+    my_exit(EXIT_SUCCESS);
+  }
+
+  if (WriteCoolingTimeOnly) {
+    OutputCoolingTimeOnly(ParameterFile, LevelArray, &TopGrid,
+			  MetaData, Exterior
+#ifdef TRANSFER
+			  , ImplicitSolver
+#endif
+			  );
     my_exit(EXIT_SUCCESS);
   }
 

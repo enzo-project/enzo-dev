@@ -41,13 +41,15 @@ int ReadIntFile(char *name, int Rank, int Dims[], int StartIndex[],
 		int EndIndex[], int BufferOffset[], int *buffer,
 		int **tempbuffer, int Part, int Npart);
 
-#define ICPART_SHIFT8
+//#define ICPART_SHIFT8
 
 int grid::CosmologyInitializeParticles(
 		   char *CosmologySimulationParticleVelocityName,
+		   char *CosmologySimulationParticleDisplacementName,
 		   char *CosmologySimulationParticleMassName,
 		   char *CosmologySimulationParticleTypeName,
 		   char *CosmologySimulationParticleVelocityNames[],
+		   char *CosmologySimulationParticleDisplacementNames[],
 		   float CosmologySimulationOmegaBaryonNow,
 		   int *Offset, int level)
 {
@@ -142,7 +144,9 @@ int grid::CosmologyInitializeParticles(
 
   float32 vfact;
   float disp_factor;
-  err |= readAttribute(file_id, H5T_NATIVE_FLOAT, "vfact", &vfact);
+  hid_t grp_id = H5Gopen(file_id,"/");
+  err |= readAttribute(grp_id, H5T_NATIVE_FLOAT, "vfact", &vfact);
+  H5Gclose(grp_id);
   assert(err == 0);
   H5Fclose(file_id);
 
@@ -203,6 +207,13 @@ int grid::CosmologyInitializeParticles(
   if (int_tempbuffer != NULL)
     delete [] int_tempbuffer;
 
+  /* Note that this block of code uses the Zel'Dovich approximation to
+     extrapolate particle displacements (and thus particle positions) from
+     the particle velocity file(s).  This is doable only because it's a linear
+     perturbation.  The piece of code right after this will over-write these 
+     particle positions if the user has specified a file or files for particle
+     displacements.  --BWO, 12 April 2011 */
+
   // Store positions and velocities
   FLOAT this_pos[3];
   count = 0;
@@ -225,6 +236,62 @@ int grid::CosmologyInitializeParticles(
       } // ENDFOR i
     } // ENDFOR j
   } // ENDFOR k
+	
+
+  /* If the user has specified a particle displacement file (or files), 
+     then calculate the particle positions directly from this.  Note that if
+     this is done, it writes over the positions calculated previously (in the 
+     code directly above this comment).  --BWO, 12 April 2011 */
+
+  if( CosmologySimulationParticleDisplacementName != NULL ||
+      CosmologySimulationParticleDisplacementNames[0] != NULL )
+    {
+      if (CosmologySimulationParticleDisplacementName != NULL &&
+	  CosmologySimulationParticleDisplacementNames[0] != NULL) {
+	ENZO_FAIL("grid::CosmologyInitializeParticles: Both 3-component and 1-component "
+		  "particle displacement files are defined.  Choose one or the other!\n");
+      }
+		
+		
+      inits_type *tempbuffer = new inits_type[size];
+		
+      for (dim = 0; dim < GridRank; dim++) {
+	if (CosmologySimulationParticleDisplacementNames[dim] != NULL) {
+	  if (ReadFile(CosmologySimulationParticleDisplacementNames[dim], GridRank,
+		       GridDimension, GridStartIndex, GridEndIndex, Offset,
+		       NULL, &tempbuffer, 0, 1) == FAIL) {
+	    ENZO_VFAIL("Error reading particle displacement field %"ISYM".\n", dim)
+	      }
+	} else {
+	  if (ReadFile(CosmologySimulationParticleDisplacementName, GridRank,
+		       GridDimension, GridStartIndex, GridEndIndex, Offset,
+		       NULL, &tempbuffer, dim, 3) == FAIL) {
+	    ENZO_VFAIL("Error reading particle displacement field %"ISYM".\n", dim)
+	      }
+	} // ENDELSE OneComponentPerFile
+
+	// Write over the particle positions that were calculated previously!
+	count = 0;
+	for (k = 0; k < ActiveDim[2]; k++) {
+	  this_pos[2] = GridLeftEdge[2] + (k+0.5)*CellWidth[2][0];
+	  for (j = 0; j < ActiveDim[1]; j++) {
+	    this_pos[1] = GridLeftEdge[1] + (j+0.5)*CellWidth[1][0];
+	    index = (k*ActiveDim[1] + j)*ActiveDim[0];
+	    for (i = 0; i < ActiveDim[0]; i++, index++) {
+	      if (mask[index]) {
+		this_pos[0] = GridLeftEdge[0] + (i+0.5)*CellWidth[0][0];
+		ParticlePosition[dim][count] = this_pos[dim] + tempbuffer[index];
+		count++;
+	      } // ENDIF mask
+	    } // ENDFOR i
+	  } // ENDFOR j
+	} // ENDFOR k
+			
+			
+      } //ENDFOR dim
+		
+      delete[] tempbuffer;
+    }
 
   // If provided, store masses
   count = 0;

@@ -27,6 +27,8 @@ struct StarBuffer {
   float		DeltaMass;
   float		BirthTime;
   float		LifeTime;
+  float         Metallicity;
+  float         deltaZ;
   int		FeedbackFlag;
   int		Identifier;
   int		level;

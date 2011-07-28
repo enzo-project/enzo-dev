@@ -122,6 +122,10 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     this->ReduceWindBoundary();
 
   float *dU[NEQ_MHD+NSpecies+NColor];
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
@@ -147,6 +151,28 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
   /* Update primitive variables */
 
   if (this->UpdateMHDPrim(dU, 0.5, 0.5) == FAIL) {
+    // fall back to zero order scheme
+    fprintf(stderr,"Grid_MHDRK2_2ndStep: Falling back to zero order at RK 2nd step\n");
+
+    this->CopyOldBaryonFieldToBaryonField();
+    // change species from density to mass fraction
+    for (int ns = NEQ_MHD; ns < NEQ_MHD+NSpecies+NColor; ns++) {
+      for (int n = 0; n < size; n++) {
+	Prim[ns][n] /= Prim[iden][n];
+      }
+    }
+
+    this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);
+    fallback = 1;
+    if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
+                    0.5, fallback) == FAIL) {
+      return FAIL;
+    }
+    this->MHDSourceTerms(dU);
+    if (this->UpdateMHDPrim(dU, 0.5, 0.5) == FAIL) {
+      fprintf(stderr, "Grid_MHDRK2_2ndStep: Fallback failed, give up...\n");
+      return FAIL;
+    }
     return FAIL;
   }
 

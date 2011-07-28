@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -47,6 +48,8 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
      Compute corners of cube that contains a sphere of r=Radius
 
    **************************************************************/
+
+  LCAPERF_START("star_SphereContained");
 
   for (i = 0; i < 8; i++) {
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -92,6 +95,7 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
     cornersContained += cornerDone[i];
 
   result = (cornersContained == 8);
+  LCAPERF_STOP("star_SphereContained");
   return result;
 
 }

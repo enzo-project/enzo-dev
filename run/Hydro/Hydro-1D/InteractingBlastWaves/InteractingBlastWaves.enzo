@@ -1,0 +1,88 @@
+#
+# PROBLEM DEFINITION FILE: 
+#
+#  Two interacting blast waves
+#
+#  This is the first test problem in Woodward & Colella (1984), 
+#  JCP, 54, 115.  With the outer tenths of the domain 
+#  overpressurized, two blast waves move in toward the center.  The
+#  boundaries are reflecting.  One can see the solution by ATHENA in 
+#  Stone et al. (2008), ApJS, 178, 137.
+#
+
+#
+#  define problem
+#
+ProblemType            = 1
+TopGridRank            = 1
+TopGridDimensions      = 100
+
+#  Use this for the original PPM-DirectEulerian method
+#
+HydroMethod            = 0
+RiemannSolver          = 4
+ConservativeReconstruction = 1
+ReconstructionMethod   = 1
+PositiveReconstruction = 0
+
+
+
+#  Use this for the newer Runge-Kutta solvers (supporting PLM or PPM
+#  reconstruction, and several different Riemann solvers)
+#
+# HydroMethod            = 3
+# RiemannSolver          = 1
+# ReconstructionMethod   = 1
+# Theta_Limiter          = 1.5
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 0.038
+dtDataDump             = 0.001
+DataDumpName           = data
+
+#
+#  Boundary conditions are typically set to be transmissive for shock tubes
+#
+LeftFaceBoundaryCondition    = 0 0 0
+RightFaceBoundaryCondition   = 0 0 0
+
+#  set hydro parameters
+#
+Gamma                  = 1.4
+CourantSafetyNumber    = 0.4
+DualEnergyFormalism = 0
+
+#
+#  set grid refinement parameters
+#
+#StaticHierarchy        = 1    // static hierarchy
+# use this for AMR 
+StaticHierarchy             = 0
+FluxCorrection              = 1
+MaximumRefinementLevel      = 2
+RefineBy                    = 2
+CellFlaggingMethod          = 1
+#SlopeFlaggingFields         = 0
+MinimumOverDensityForRefinement = 8.
+MinimumSlopeForRefinement   = .5
+MinimumEfficiency           = 0.8
+InterpolationMethod         = 1
+ConservativeInterpolation   = 0
+NumberOfBufferZones         = 2
+
+#
+# The following parameters define the shock tube problem
+#
+HydroShockTubesInitialDiscontinuity  = 0.1
+HydroShockTubesSecondDiscontinuity   = 0.9
+HydroShockTubesLeftDensity           = 1.0
+HydroShockTubesLeftVelocityX         = 0.0
+HydroShockTubesLeftPressure          = 1000
+HydroShockTubesCenterDensity         = 1.0
+HydroShockTubesCenterVelocityX       = 0.0
+HydroShockTubesCenterPressure        = 0.01
+HydroShockTubesRightDensity          = 1.0
+HydroShockTubesRightVelocityX        = 0.0
+HydroShockTubesRightPressure         = 100
