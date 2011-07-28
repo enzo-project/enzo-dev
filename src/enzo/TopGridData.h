@@ -80,6 +80,9 @@ struct TopGridData
   int OutputFirstTimeAtLevel; // Outputs when a new level is generated
   int StopFirstTimeAtLevel;   // Stops when this level is first reached
 
+  int NumberOfOutputsBeforeExit; // Number of datadumps to write before exiting (0 = never)
+  int OutputsLeftBeforeExit;     // Number of datadumps actually left before exiting
+
   int WroteData;              // Flag if data dump written this iteration.
 
   /* Parameters governing output names. */

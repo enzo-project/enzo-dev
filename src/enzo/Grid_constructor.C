@@ -73,6 +73,7 @@ grid::grid()
     InterpolatedField[i]    = NULL;
     FieldType[i]            = FieldUndefined;
   }
+  YT_TemperatureField       = NULL;
 
 /*
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
