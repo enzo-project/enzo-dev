@@ -924,6 +924,7 @@ POBJS_CONFIG_LIB = \
 	Grid_PhotonPeriodicBoundary.o \
         Grid_PhotonTestInitializeGrid.o \
         Grid_PhotonTestRestartInitializeGrid.o \
+        Grid_PhotonSortLinkedLists.o \
         Grid_ReassignSuperSources.o \
         Grid_ReturnSubgridMarker.o \
         Grid_SetSubgridMarkerFromParent.o \

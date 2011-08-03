@@ -996,6 +996,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "ConductionBubble")) ret++;
     if (strstr(line, "ConductionCloud")) ret++;
     if (strstr(line, "CoolingTest")) ret++;
+    if (strstr(line, "OneZoneFreefall")) ret++;
     if (strstr(line, "ShearingBox")) ret++;
     if (strstr(line, "PoissonSolverTest")) ret++;
     /* 7.22.10 - CBH: Added 5 following lines to avoid runtime warnings from 
