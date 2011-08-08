@@ -92,11 +92,12 @@ ConservativeInterpolation    = 0
 #  set grid refinement parameters
 #
 StaticHierarchy                 = 0
-MaximumRefinementLevel          = 6
-MaximumGravityRefinementLevel   = 6
+MaximumRefinementLevel          = 12
+MaximumGravityRefinementLevel   = 12
 OutputFirstTimeAtLevel          = 6
+StopFirstTimeAtLevel            = 12
 RefineBy                        = 2
-CellFlaggingMethod              = 2 4 
+CellFlaggingMethod              = 2 4 7
 MinimumEfficiency               = 0.35
 MinimumOverDensityForRefinement = 0.125 0.125
 RefineRegionLeftEdge            = 0.375 0.375 0.375
