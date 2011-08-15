@@ -12,7 +12,6 @@
 
 #ifndef GRID_DEFINED__
 #define GRID_DEFINED__
-
 #include "ProtoSubgrid.h"
 #include "ListOfParticles.h"
 #include "region.h"
@@ -94,6 +93,8 @@ class grid
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
+  float *YT_TemperatureField;                         // place to store temperature field
+                                                      // for call to yt.
 
   // For restart dumps
 
@@ -714,7 +715,7 @@ public:
    float GadgetCoolingRateFromU(float u, float rho, float *ne_guess, 
 				float redshift);
 
-// Functions for shock finding and cosmic ray acceleration
+// Functions for shock finding
 //
    int FindShocks();
    int FindTempSplitShocks();
@@ -788,6 +789,10 @@ public:
 /* Flag all points where we are forbidding refinement from a color field */
 
    int FlagCellsToAvoidRefinement();
+
+/* Flag all points in a region where refinement is not needed */
+
+   int FlagCellsToAvoidRefinementRegion(int level);
 
 /* Flag all points that require refining  (and delete Mass Flagging Field).
      Returns the number of flagged cells.  Returns the number of flagged cells
@@ -1614,9 +1619,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
-/* Identify shock/cosmic ray fields. */
-  int IdentifyCRSpeciesFields(int &MachNum, int&CRNum, 
-			      int &PSTempNum, int &PSDenNum);
+  /* Identify shock fields. */
+  int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
+
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,
@@ -2181,12 +2186,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Star Particle handler routine. */
 
-  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level
-#ifdef EMISSIVITY
-			  // pass in dtLevelAbove for calculation of Geoffrey's Emissivity0 baryon field 
-			  , float dtLevelAbove
-#endif
-                         );
+  int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
+			  float dtLevelAbove);
 
 /* Particle splitter routine. */
 
@@ -2513,6 +2514,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			      float Bxl,  float Bxr,
 			      float Byl,  float Byr,
 			      float Bzl,  float Bzr);
+  int MHD1DTestWavesInitializeGrid(float rhol, 
+                                   float vxl,
+                                   float vyl,
+                                   float vzl,
+                                   float etotl,
+                                   float Bxl,
+                                   float Byl,
+                                   float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
 			      float RampWidth,
 			      float rhol, float rhou,
@@ -2543,9 +2552,16 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				  float rho_medium, float p_medium, int level, int SetBaryonFields);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
 				  float Bnaught, int seed, int level, int SetBaryonFields);
+  int MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium, float mach, 
+					   float Bnaught, int seed, 
+					   float Sindex, float Skmin, float Skmax, 
+					   int level, int SetBaryonFields);
 
   int PrepareVelocityNormalization(double *v_rms, double *Volume);
   int NormalizeVelocities(Eflt factor);
+
+  int PrepareAlfvenVelocityNormalization(double *v_rms, double *Volume);
+  int NormalizeMagneticFields(Eflt factor);
 
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
 			       FLOAT HaloRadius[MAX_SPHERES],

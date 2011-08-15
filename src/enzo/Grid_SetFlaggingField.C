@@ -212,6 +212,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     
     /* ==== METHOD 16: Refine on total Jeans length ==== */
   case 16: 
+    //    this->SolveForPotential(level);
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByTotalJeansLength();
     if (NumberOfFlaggedCells < 0) {
       fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByTotalJeansLength.\n");
@@ -237,6 +238,12 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     this->FlagCellsToAvoidRefinement();
     if (NumberOfFlaggedCells < 0)
       ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinement");
+    break;
+
+  case 101:
+    this->FlagCellsToAvoidRefinementRegion(level);
+    if (NumberOfFlaggedCells < 0)
+      ENZO_FAIL("Error in grid->FlagCellsToAvoidRefinementRegion");
     break;
 
   case INT_UNDEFINED:

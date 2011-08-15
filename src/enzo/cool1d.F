@@ -1,17 +1,17 @@
 #include "fortran.def"
 #include "phys_const.def"
 c=======================================================================
-c////////////////////////  SUBROUTINE COOL2D  \\\\\\\\\\\\\\\\\\\\\\\\\\
+c////////////////////////  SUBROUTINE COOL1D  \\\\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine cool1d(
      &                d, e, ge, u, v, w,
      &                in, jn, kn, nratec, idual, idim, imethod, 
      &                iter, igammah,
      &                is, ie, j, k, 
-     &                temstart, temend, fh, utem,
+     &                temstart, temend, fh, utem, urho, aye,
      &                eta1, eta2, gamma, coola, gammaha,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d, cool
+     &                tgas, tgasold, p2d, cool, mu
      &                     )
 c
 c  COMPUTE RADIATIVE COOLING/HEATING RATE (DE/DT IN CODE UNITS)
@@ -37,8 +37,8 @@ c  Arguments
 c
       integer in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter, igammah
-      real    temstart, temend, fh, utem, gammaha,
-     &        eta1, eta2, gamma, coola(nratec)
+      real    temstart, temend, fh, utem, urho, aye, gammaha,
+     &        eta1, eta2, gamma, coola(nratec), mu
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
@@ -54,7 +54,7 @@ c
 c  Locals
 c
       integer i
-      real logtem0, logtem9, dlogtem
+      real logtem0, logtem9, dlogtem, dom, dom_inv
 c
 c  Slice locals
 c 
@@ -66,7 +66,6 @@ c
 c  Set the mean molecular mass
 c     (see also Grid_ComputeTemperatureField.C)
 c
-#define DEFAULT_MU 0.6d0
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -76,6 +75,12 @@ c
       logtem0 = log(temstart)
       logtem9 = log(temend)
       dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+
+c
+c     Set units
+c
+      dom = urho*(aye**3)/mh
+      dom_inv  = 1.0/dom
 c
 c     Compute Pressure
 c
@@ -110,7 +115,7 @@ c
 c     Compute temperature
 c
       do i = is+1, ie+1
-         tgas(i) = max(p2d(i)*utem*DEFAULT_MU/d(i,j,k), temstart)
+         tgas(i) = max(p2d(i)*utem*mu/d(i,j,k), temstart)
       enddo
 c
 c     If this is the first time through, just set tgasold to tgas
@@ -152,7 +157,7 @@ c
 c
 c        Photoelectric heating  
 c
-         edot(i) = edot(i) + float(igammah)*gammaha*d(i,j,k)
+         edot(i) = edot(i) + float(igammah)*gammaha*dom_inv
 c
       enddo
 c

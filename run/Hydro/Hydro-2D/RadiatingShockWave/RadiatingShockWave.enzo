@@ -68,7 +68,7 @@ MultiSpecies = 3
 
 TestProblemUseMetallicityField = 1
 TestProblemInitialMetallicityFraction = 1.0e-4
-TestProblemMultiMetals = 1
+TestProblemMultiMetals = 0
 TestProblemInitialMultiMetalsField1Fraction = 5.0e-5
 TestProblemInitialMultiMetalsField2Fraction = 5.0e-5
 

@@ -98,6 +98,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.OutputFirstTimeAtLevel = 0; // zero is off
   MetaData.StopFirstTimeAtLevel   = 0; // zero is off
  
+  MetaData.NumberOfOutputsBeforeExit = 0;
+  MetaData.OutputsLeftBeforeExit     = 0;
+
   MetaData.RestartDumpNumber   = 0;            // starting restart id number
   MetaData.RestartDumpName     = DefaultRestartName;
   MetaData.RestartDumpDir      = DefaultRestartDir;
@@ -222,8 +225,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim] = 1.0;
   }
  
-  for (i = 0; i < MAX_STATIC_REGIONS; i++)
+  for (i = 0; i < MAX_STATIC_REGIONS; i++) {
     StaticRefineRegionLevel[i] = INT_UNDEFINED;
+    AvoidRefineRegionLevel[i]  = INT_UNDEFINED;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      AvoidRefineRegionLeftEdge[i][dim] = FLOAT_UNDEFINED;
+      AvoidRefineRegionRightEdge[i][dim] = FLOAT_UNDEFINED;
+    }
+  }
 
   /* For evolving refinement regions. */
   RefineRegionFile = NULL;
@@ -236,6 +245,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     }
   }
 
+  DatabaseLocation = NULL;
+
  
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
@@ -243,7 +254,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UnigridTranspose            = FALSE;
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
-  StaticPartitionNestedGrids  = TRUE;
   ExtractFieldsOnly           = TRUE;
 
   ExternalBoundaryIO          = FALSE;
@@ -325,11 +335,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
-  CRModel                     = 0;                 // off
-  ShockMethod                 = 0;                 // temperature unsplit
+  ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
   RadiationFieldType          = 0;
+  RadiationFieldRedshift      = 0.0;
   TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
@@ -338,6 +348,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SetUVBAmplitude             = 1.0;
   SetHeIIHeatingScale         = 1.8;
   PhotoelectricHeating	      = 0;
+  PhotoelectricHeatingRate    = 8.5e-26;           // ergs cm-3 s-1
   RadiationXRaySecondaryIon   = 0;
   RadiationXRayComptonHeating = 0;
 
@@ -737,6 +748,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   VelAnyl                     = 0;
   BAnyl                     = 0;
+
+  /* Gas drag parameters */
+  UseGasDrag = 0;
+  GasDragCoefficient = 0.;
 
   return SUCCESS;
 }

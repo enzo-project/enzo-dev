@@ -85,7 +85,8 @@ int OutputSmoothedDarkMatterOnly(char *ParameterFile,
 
   // Negative number means that it'll be reset to zero after
   // calculating the DM field so it doesn't propagate to later runs
-  OutputSmoothedDarkMatter = -2;
+  if (OutputSmoothedDarkMatter == FALSE)
+    OutputSmoothedDarkMatter = -2;
 
   Group_WriteAllData(DumpName, DumpNumber, TopGrid, MetaData, &Exterior
 #ifdef TRANSFER

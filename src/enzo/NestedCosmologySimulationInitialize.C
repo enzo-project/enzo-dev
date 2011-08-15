@@ -122,7 +122,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalName = "Metal_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
-  char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *BxName = "Bx";
@@ -336,6 +335,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ENZO_FAIL("CosmologySimulation: 1-component files only valid for use with "
 	    "CosmologySimulationCalculatePositions.\n");
   }
+
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
@@ -711,13 +717,12 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;
  
-  if (CRModel) {
+  if (ShockMethod) {
     DataLabel[i++] = MachName;
     if(StorePreShockFields){
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-    DataLabel[i++] = CRName;
   } 
  
 
@@ -1127,8 +1132,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
 	match = true;
 	for (dim = 0; dim < Rank; dim++)
-	  match &= (GridCenter[dim] > LeftParent[dim]) &&
-	    (GridCenter[dim] < RightParent[dim]);
+	  match &= (GridCenter[dim] >= LeftParent[dim]) &&
+	    (GridCenter[dim] <= RightParent[dim]);
 
 	if (match) {
 	  Current->ParentGrid = Parent;

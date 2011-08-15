@@ -123,7 +123,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
   char *MachName   = "Mach";
-  char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -387,7 +386,13 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	      "CosmologySimulationCalculatePositions or 1-component particle "
 	      "position files.\n");
   }
- 
+
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
@@ -748,20 +753,19 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;  
 
-  if (CRModel) {
-    DataLabel[i++] = MachName;
-    if(StorePreShockFields){
-      DataLabel[i++] = PSTempName;
-      DataLabel[i++] = PSDenName;
-    }
-    DataLabel[i++] = CRName;
-  } 
-
 #ifdef EMISSIVITY
   if (StarMakerEmissivityField > 0)
     DataLabel[i++] = EtaName;
 #endif
  
+  if (ShockMethod) {
+    DataLabel[i++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[i++] = PSTempName;
+      DataLabel[i++] = PSDenName;
+    }
+  } 
+
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
  

@@ -113,6 +113,14 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }
+
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
+  }
+
  
   /* Get the units so we can convert temperature later. */
  

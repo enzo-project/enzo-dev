@@ -368,6 +368,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Transport the rays! */
 
+    PrintMemoryUsage("EvolvePhotons -- before loop");
+
     while (secondary_kt_check == TRUE && iteration++ < MAX_ITERATIONS) {
 
 #ifdef NONBLOCKING_RT
@@ -383,7 +385,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
-      PrintMemoryUsage("EvolvePhotons -- loop");
       START_PERF();
 #ifndef NONBLOCKING_RT
       keep_transporting = 1;
@@ -402,6 +403,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  else
 	    Helper = NULL;
 
+#ifdef BITWISE_IDENTICALITY
+	  Temp->GridData->PhotonSortLinkedLists();
+#endif
 	  Temp->GridData->TransportPhotonPackages
 	    (lvl, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
 	     Temp->GridData);
@@ -419,7 +423,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	keep_transporting = 0;
 
 //    printf("EvoPH[P%"ISYM"]: keep_transporting = %"ISYM", PhotonsToMove = %x\n",
-//	   MyProcessorNumber, keep_transporting, PhotonsToMove->NextPackageToMove);
+//	     MyProcessorNumber, keep_transporting, PhotonsToMove->NextPackageToMove);
 
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
@@ -427,6 +431,18 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
 				   keep_transporting);
       END_PERF(5);
+
+      /* When all photons have been traced, all of the paused (to be
+	 merged) photons are in their correct grid, merge them */
+
+      int nmerges = 0;
+      if (RadiativeTransferSourceClustering && keep_transporting == 0) {
+	for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--)
+	  for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) {
+	    nmerges += Temp->GridData->MergePausedPhotonPackages();
+	  } // ENDFOR grids
+	if (nmerges > 0) keep_transporting = TRUE;
+      }
 
       /* Receive keep_transporting messages and take the MAX */
 

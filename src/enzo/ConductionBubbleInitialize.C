@@ -84,6 +84,13 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     }
   }
 
+  /* error checking */
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting Mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   ConductionBubbleGasEnergy = ConductionBubbleTotalEnergy;
 
   float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, TimeUnits=1.0,
@@ -134,8 +141,8 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   // set up field names and units
   i = 0;
   DataLabel[i++] = "Density";
-  DataLabel[i++] = "Total_Energy";
-  if (DualEnergyFormalism) {DataLabel[i++] = "Gas_Energy";}
+  DataLabel[i++] = "TotalEnergy";
+  if (DualEnergyFormalism) {DataLabel[i++] = "GasEnergy";}
   if (MetaData.TopGridRank > 0) {DataLabel[i++] = "x-velocity";}
   if (MetaData.TopGridRank > 1 || HydroMethod > 2) {DataLabel[i++] = "y-velocity";}
   if (MetaData.TopGridRank > 2 || HydroMethod > 2) {DataLabel[i++] = "z-velocity";}

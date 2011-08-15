@@ -394,7 +394,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     } // end: if (OutputTemperature)
 
-    if (OutputCoolingTime) {
+    if (OutputCoolingTime != FALSE) {
  
       /* Allocate field and compute cooling time. */
 

@@ -142,7 +142,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   MetaData.Time         = 0.0;
   FreeExpansionGasEnergy = FreeExpansionTemperature / TemperatureUnits / 
-    ((Gamma-1.0)*DEFAULT_MU);
+    ((Gamma-1.0)*Mu);
 
   V2 = 0;
   for (dim = 0; dim < MetaData.TopGridRank; dim++)

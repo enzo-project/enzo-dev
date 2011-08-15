@@ -7,8 +7,9 @@ c
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, idim, igammah,
      &                is, js, ks, ie, je, ke, 
-     &                dt, aye, temstart, temend, fh, utem,
-     &                eta1, eta2, gamma, coola, gammaha)
+     &                dt, aye, temstart, temend, fh, 
+     &                utem, urho,
+     &                eta1, eta2, gamma, coola, gammaha, mu)
 c
 c  CALCULATE COOLING TIME IN CODE UNITS (NON-MULTI SPECIES VERSION)
 c
@@ -32,8 +33,8 @@ c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke, 
      &        idual, iexpand, nratec, idim, imethod, igammah
-      real    dt, aye, temstart, temend, fh, utem, gammaha,
-     &        eta1, eta2, gamma, coola(nratec)
+      real    dt, aye, temstart, temend, fh, utem, urho, gammaha,
+     &        eta1, eta2, gamma, coola(nratec), mu
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &        cooltime(in,jn,kn)
@@ -75,15 +76,15 @@ c
      &               in, jn, kn, nratec, idual, idim, imethod, 
      &               1, igammah,
      &               is, ie, j, k, 
-     &               temstart, temend, fh, utem,
+     &               temstart, temend, fh, utem, urho, aye,
      &               eta1, eta2, gamma, coola, gammaha,
      &               indixe, t1, t2, logtem, tdef, edot,
-     &               tgas, tgasold, p2d, cool)
+     &               tgas, tgasold, p2d, cool, mu)
 c
 c        Compute the cooling time on the slice
 c
          do i = is+1, ie+1
-            energy = max(p2d(i)/d(i,j,k)/(gamma-1.d0), tiny)
+            energy = max(p2d(i)/d(i,j,k)/(gamma-1.0d0), tiny)
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 c

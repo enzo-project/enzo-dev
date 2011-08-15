@@ -34,8 +34,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
+  const float EnergyThresholds[] = {13.6, 24.6, 54.4, 100.0};
+
   RadiationSourceEntry *RS = RadiationSource;
-  FLOAT min_beam_zvec, vec[3];
+  FLOAT min_beam_zvec, dot_prod, vec[3];
   int BasePackages, NumberOfNewPhotonPackages;
   int i, j, dim;
   int count=0;
@@ -87,7 +89,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   
   if (DEBUG) fprintf(stdout, "grid::Shine: Loop over sources and packages \n");
 
-  int ebin;
+  int ebin, this_type, type_count;
   FLOAT FuzzyLength;
   FLOAT ShakeSource[3];
   double RampPercent = 1;
@@ -137,8 +139,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     float photons_per_package;
 
     // Type 3 = H2I_LW
-    if (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1)
-      ebin = (i == stype-1) ? 3 : i;
+    if (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1 &&
+	RS->Energy[ebin] < 13.6)
+      ebin = 3;
     else
       ebin = i;
 
@@ -147,6 +150,15 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
     if (ebin == 0)
       EscapedPhotonCount[0] += photons_per_package * BasePackages;
+
+    if (RS->Energy[ebin] < 100.0) {
+      for (type_count = 0; type_count < 3; type_count++)
+	if (RS->Energy[ebin] >= EnergyThresholds[type_count] &&
+	    RS->Energy[ebin] <  EnergyThresholds[type_count+1]) {
+	  this_type = type_count;
+	  break;
+	}
+    }
 
     if (DEBUG)
       printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n", 
@@ -175,7 +187,12 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
       if (RS->Type == Beamed) {
 	if (pix2vec_nest((long) (1 << min_level), (long) j, vec) == FAIL)
 	  ENZO_FAIL("Error in pix2vec_nested: beamed source");
-	if (fabs(vec[2]) < min_beam_zvec)
+	// Dot product of the source orientation (already normalized
+	// to 1) and ray normal must be greater than cos(beaming angle)
+	dot_prod = 0.0;
+	for (dim = 0; dim < MAX_DIMENSION; dim++)
+	  dot_prod += RS->Orientation[dim] * vec[dim];
+	if (fabs(dot_prod) < min_beam_zvec)
 	  continue;
       }
 
@@ -191,18 +208,17 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	NewPack->Photons = photons_per_package;
 
 	// Type 4 = X-Ray
-	NewPack->Type = (((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ||
-			 RS->Energy[ebin] > 100) ? 4 : ebin;
+	if (((RS->Type == BlackHole || RS->Type == MBH) && i == 0) ||
+	    RS->Energy[ebin] > 100)
+	  NewPack->Type = 4;
+	else
+	  NewPack->Type = this_type;
 
 	// Type 5 = tracing spectrum (check Grid_WalkPhotonPackage)
 	if (RadiativeTransferTraceSpectrum) NewPack->Type = 5;  //#####
 
 	// Override if we're only doing hydrogen ionization
 	if (RadiativeTransferHydrogenOnly) NewPack->Type = 0;
-
-	//if (DEBUG)
-	//  printf("Shine: MBH = %d, RS->Type = %d, NewPack->Type = %d\n", 
-	//         MBH, RS->Type, NewPack->Type);  
 
 	NewPack->EmissionTimeInterval = dtPhoton;
 	NewPack->EmissionTime = PhotonTime;
@@ -221,8 +237,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 		  NewPack->Photons, NewPack )
 	}
 
-	NewPack->CrossSection = 
-	  FindCrossSection(NewPack->Type, NewPack->Energy);
+	if (NewPack->Type < 4)
+	  NewPack->CrossSection = 
+	    FindCrossSection(NewPack->Type, NewPack->Energy);
+	else
+	  NewPack->CrossSection = tiny_number;
 
 	/* Set the photon origin to the source radius (0 = point src) */
 
@@ -236,6 +255,20 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	}
 	NewPack->SourcePositionDiff = sqrt(NewPack->SourcePositionDiff);
 	NewPack->CurrentSource = RS->SuperSource;
+
+	/* Consider the first super source with a leaf size greater
+	   than the cell size. */
+
+	while (NewPack->CurrentSource != NULL &&
+	       NewPack->CurrentSource->ClusteringRadius < CellWidth[0][0])
+	  NewPack->CurrentSource = NewPack->CurrentSource->ParentSource;
+
+	if (DEBUG) {
+	  printf("Shine: MBH = %d, RS->Type = %d, E=%g, NewPack->Type = %d\n", 
+	         MBH, RS->Type, RS->Energy[ebin], NewPack->Type);  
+	  NewPack->PrintInfo();
+	}
+
 	count++;
       } // if enough photons
     } // Loop over BasePackages

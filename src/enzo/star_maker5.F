@@ -111,8 +111,9 @@ c
       real   mproton, RandomSeed, beta,x ,y, kb
       real   starfraction, bmass, densthresh 
       double precision msolar
-      parameter (msolar=SolarMass, mproton=mass_h, beta=0.1d0,
-     &     sqrtepssn=2.d24, RandomSeed=-123456, kb=kboltz)
+      parameter (msolar=SolarMass, mproton=mass_h, 
+     &     beta=0.1d0, sqrtepssn=2.d24, RandomSeed=-123456, 
+     &     kb=kboltz)
 
       real random
 
