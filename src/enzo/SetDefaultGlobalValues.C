@@ -136,6 +136,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   FileDirectedOutput = 1;
   WriteBinaryHierarchy = 0;
 
+  for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
+    RebuildHierarchyCycleSkip[i] = 1;
+  }
+
   for (i = 0; i < MAX_TIME_ACTIONS; i++) {
     TimeActionType[i]      = 0;
     TimeActionRedshift[i]  = -1;

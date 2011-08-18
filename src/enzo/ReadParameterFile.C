@@ -227,11 +227,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "LoadBalancingMinLevel = %"ISYM, &LoadBalancingMinLevel);
     ret += sscanf(line, "LoadBalancingMaxLevel = %"ISYM, &LoadBalancingMaxLevel);
  
+    if (sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] =", &int_dummy) == 1) {
+      if (int_dummy > MAX_DEPTH_OF_HIERARCHY) {
+	ENZO_VFAIL("Cannot set RebuildHierarchyCycleSkip[%"ISYM"], max hierarchy depth = %"ISYM".\n", int_dummy, MAX_DEPTH_OF_HIERARCHY);
+      }
+      ret += sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] = %"ISYM,
+		    &int_dummy, &RebuildHierarchyCycleSkip[int_dummy]);
+    }
+
     if (sscanf(line, "TimeActionType[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) {
-      ret++; TimeActionType[dim] = int_dummy;
+      ret++;
       if (dim >= MAX_TIME_ACTIONS-1) {
 	ENZO_VFAIL("Time action %"ISYM" > maximum allowed.\n", dim)
       }
+      TimeActionType[dim] = int_dummy;
     }
     if (sscanf(line, "TimeActionRedshift[%"ISYM"] = ", &dim) == 1)
       ret += sscanf(line, "TimeActionRedshift[%"ISYM"] = %"PSYM, &dim,
