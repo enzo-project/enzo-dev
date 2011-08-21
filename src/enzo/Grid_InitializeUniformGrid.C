@@ -34,7 +34,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int dim, i, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum, B1Num, B2Num, B3Num, PhiNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum;
 
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
@@ -95,6 +95,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
   // as two extra fields
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+
+    if (StarMakerTypeIaSNe)
+      FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
     if(TestProblemData.MultiMetals){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
@@ -271,6 +274,10 @@ int grid::InitializeUniformGrid(float UniformDensity,
     // metallicity fields (including 'extra' metal fields)
     if(TestProblemData.UseMetallicityField){
       BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
+
+      if (StarMakerTypeIaSNe)
+	BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*
+	  UniformDensity;
 
       if(TestProblemData.MultiMetals){
       BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;

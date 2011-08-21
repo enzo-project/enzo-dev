@@ -170,6 +170,7 @@ OBJS_CONFIG_LIB = \
         FastSiblingLocatorFinalize.o \
         FastSiblingLocatorInitialize.o \
         FastSiblingLocatorInitializeStaticChainingMesh.o \
+	feedback_formulae.o \
         fft66.o \
         fft90.o \
         ffte4X.o \
@@ -798,6 +799,7 @@ OBJS_CONFIG_LIB = \
         Star_SetFeedbackFlag.o \
 	Star_SphereContained.o \
 	Star_SubtractAccretedMassFromCell.o \
+	star_feedback_PN_SNIa.o \
         star_maker1.o \
         star_maker2.o \
         star_maker3.o \

@@ -413,6 +413,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BigStarSeparation                = 0.25;
   SimpleQ                          = 1e50;
   SimpleRampTime                   = 0.1;
+  StarMakerTypeIaSNe               = FALSE;
+  StarMakerPlanetaryNebulae        = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;

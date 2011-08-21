@@ -80,7 +80,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* declarations */
 
- int dim, i, j, k, m, field, disk, size, MetalNum, vel;
+ int dim, i, j, k, m, field, disk, size, vel;
  float DiskDensity, DiskVelocityMag,dens2;
 
  // BWO: little indexing hack used near the end of this routine 
@@ -128,6 +128,16 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  for (field = 0; field < NumberOfBaryonFields; field++)
    if (BaryonField[field] == NULL)
      BaryonField[field] = new float[size];
+
+ /* Identify colour fields */
+
+ int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+   MetalIaNum; 
+
+ if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+				Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+   ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
+
 
  /* Loop over the mesh. */
 
@@ -261,10 +271,16 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	/* Set density. */
 
 	BaryonField[0][n] = density*BaryonMeanDensity;
+
+
+	/* Set initially low metallicities */
 	
 	if (UseMetallicityField)
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalNum][i] = 1.0e-10;
+	if (StarMakerTypeIaSNe)
+	  for (i = 0; i < size; i++)
+	    BaryonField[MetalIaNum][i] = 1.0e-10;
 
 	/* Set Velocities. */
 

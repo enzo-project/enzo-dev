@@ -54,6 +54,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *MetalName = "Metal_Density";
+  char *MetalIaName = "MetalSNIa_Density";
 
   /* declarations */
 
@@ -354,6 +355,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel3Name;
  if (GalaxySimulationUseMetallicityField)
    DataLabel[count++] = MetalName;
+ if (StarMakerTypeIaSNe)
+   DataLabel[count++] = MetalIaName;
 
  for (i = 0; i < count; i++)
    DataUnits[i] = NULL;
