@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -92,7 +94,6 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -130,8 +131,8 @@ subroutine gFLDProblem_DiffRHS_3D(rhs, EgCur, EgOld, Temp, kappaE,     &
   dxi = a/dx/LenUnits
   dyi = a/dy/LenUnits
   dzi = a/dz/LenUnits
-  c = 2.99792458d10  ! speed of light [cm/s]
-  pi = 4.d0*atan(1.d0)
+  c = c_light        ! speed of light [cm/s]
+  pi = pi_val
   StBz = 5.6704d-5   ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   Rmin = 1.0d-20
 
@@ -498,7 +499,6 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -532,8 +532,8 @@ subroutine gFLDProblem_DiffRHS_2D(rhs, EgCur, EgOld, Temp, kappaE,      &
   ! set shortcut values
   dxi = a/dx/LenUnits
   dyi = a/dy/LenUnits
-  c = 2.99792458d10  ! speed of light [cm/s]
-  pi = 4.d0*atan(1.d0)
+  c = c_light        ! speed of light [cm/s]
+  pi = pi_val
   StBz = 5.6704d-5   ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   Rmin = 1.0d-20
 
@@ -812,7 +812,6 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -843,8 +842,8 @@ subroutine gFLDProblem_DiffRHS_1D(rhs, EgCur, EgOld, Temp, kappaE, &
 
   ! set shortcut values
   dxi = a/dx/LenUnits
-  c = 2.99792458d10  ! speed of light [cm/s]
-  pi = 4.d0*atan(1.d0)
+  c = c_light        ! speed of light [cm/s]
+  pi = pi_val
   StBz = 5.6704d-5   ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   Rmin = 1.0d-20
 

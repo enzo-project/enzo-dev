@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE COLH2DISS  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -59,9 +60,9 @@ c
       f2 = tiny
       f3 = tiny
       f4 = tiny
-      f5 = 1.0
-      f6 = 1.0
-      f7 = 0.0
+      f5 = 1.d0
+      f6 = 1.d0
+      f7 = 0.d0
 c
 c     do not use tiny values for temperatures below 500 K also do not
 c     return values for temperatures above 1 million Kelvin. Note that     
@@ -69,13 +70,13 @@ c     data and fits are only accurate for t< 5 10^5. However,
 c     collisional dissociation by electrons will be dominant above this
 c     temperature, anyhow. 
 c
-      if (tgas .le. 500.) then
-         t=500.
-c         CID = -60.
+      if (tgas .le. 500.d0) then
+         t=500.d0
+c         CID = -60.d0
       endif
-      if (t .ge. 1.e6) then
+      if (t .ge. 1.d6) then
          t = 1.d6
-c         CID = -60.
+c         CID = -60.d0
       endif
 c
 c     fitting parameters
@@ -113,7 +114,7 @@ c low density limit
 c critical density
       c =   y(14)+y(15)*tl+y(16)*tl*tl+y(17)/t
       c1 =  y(18)+c
-      d =   y(19)+y(20)*exp(-t/1850.d0)+y(21)*exp(-t/440.0)    
+      d =   y(19)+y(20)*exp(-t/1850.d0)+y(21)*exp(-t/440.d0)    
 c     tabulate the following temperature dependent coefficients:
       f1 = a
       f2 = (a-b)

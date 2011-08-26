@@ -23,6 +23,9 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+int search_lower_bound(float *arr, float value, int low, int high, 
+		       int total);
+
 void Star::CalculateFeedbackParameters(float &Radius, 
 				       float RootCellWidth,
 				       float SNe_dt, double &EjectaDensity,
@@ -30,7 +33,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       double &EjectaMetalDensity,
 				       float DensityUnits, float LengthUnits, 
 				       float TemperatureUnits, float TimeUnits,
-				       float VelocityUnits, float dtForThisStar)
+				       float VelocityUnits, float dtForThisStar,
+				       FLOAT Time)
 {
 
   // Parameters for the Stroemgen sphere in Whalen et al. (2004)
@@ -42,14 +46,22 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
     k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
-  float StarLevelCellWidth;
-  double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
+  const float PISNLowerMass = 140, PISNUpperMass = 260;
+
+  // From Nomoto et al. (2006)
+  const float HypernovaMass[] = {19.99, 25, 30, 35, 40.01};  // Msun
+  const float HypernovaMetals[] = {3.36, 3.53, 5.48, 7.03, 8.59}; // Msun
+  const float HypernovaEnergy[] = {10, 10, 20, 25, 30};  // 1e51 erg
+
+  float StarLevelCellWidth, tdyn, frac;
+  double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum;
 
-  int igrid[MAX_DIMENSION], dim, index;
+  int igrid[MAX_DIMENSION], dim, index, bin;
   int size=1;
   float mdot;
 
@@ -60,15 +72,36 @@ void Star::CalculateFeedbackParameters(float &Radius,
   StarLevelCellWidth = RootCellWidth / powf(float(RefineBy), float(this->level));
 
   switch (this->FeedbackFlag) {
-  case SUPERNOVA:  // pair-instability SNe
+  case SUPERNOVA:  // Single thermal bubble of SN feedback
     Radius = PopIIISupernovaRadius * pc / LengthUnits;
     Radius = max(Radius, 3.5*StarLevelCellWidth);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(PopIIISupernovaRadius*pc, 3);
     EjectaDensity = Mass * Msun / EjectaVolume / DensityUnits;
-    HeliumCoreMass = (13./24.) * (Mass - 20);
-    SNEnergy = (5.0 + 1.304 * (HeliumCoreMass - 64)) * 1e51;
-    EjectaMetalDensity = HeliumCoreMass * Msun / EjectaVolume / 
-      DensityUnits;
+
+    // pair-instability SNe
+    if (this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) {
+      HeliumCoreMass = (13./24.) * (Mass - 20);
+      SNEnergy = (5.0 + 1.304 * (HeliumCoreMass - 64)) * 1e51;
+      EjectaMetalDensity = HeliumCoreMass * Msun / EjectaVolume / 
+	DensityUnits;
+    } 
+    
+    // Type II SNe
+    else if (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) {
+      if (this->Mass < 20.0) { // Normal Type II
+	SNEnergy = 1e51;
+	MetalMass = 0.1077 + 0.3383 * (this->Mass - 11.0);  // Fit to Nomoto+06
+      } else { // Hypernova (should we add the "failed" SNe?)
+	bin = search_lower_bound((float*)HypernovaMass, this->Mass, 0, 5, 5);
+	frac = (HypernovaMass[bin+1] - this->Mass) / 
+	  (HypernovaMass[bin+1] - HypernovaMass[bin]);
+	SNEnergy = 1e51 * (HypernovaEnergy[bin] + 
+			   frac * (HypernovaEnergy[bin+1] - HypernovaEnergy[bin]));
+	MetalMass = (HypernovaMetals[bin] + 
+		     frac * (HypernovaMetals[bin+1] - HypernovaMetals[bin]));
+      }
+      EjectaMetalDensity = MetalMass * Msun / EjectaVolume / DensityUnits;
+    }
     EjectaThermalEnergy = SNEnergy / (Mass * Msun) / VelocityUnits /
       VelocityUnits;
 
@@ -97,8 +130,19 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     //Delta_SF = StarMassEjectionFraction * Mass * SNe_dt * TimeUnits / (16.0*Myr);
-    Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
-      TimeUnits / (16.0*Myr);
+    if (StarClusterUnresolvedModel) {
+      // lifetime = 5*tdyn
+      tdyn = 0.2 * LifeTime;
+      frac = (Time-BirthTime) / tdyn;
+      Delta_SF = dtForThisStar * StarMassEjectionFraction * (Mass/tdyn) *
+	frac * exp(-frac);
+//      if (debug)
+//	printf("Star %d: Delta_SF = %g, Mass = %g, frac = %g (%f %f)\n", 
+//	       Identifier, Delta_SF, Mass, frac, Time, BirthTime);
+    } else {
+      Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
+	TimeUnits / (16.0*Myr);
+    }
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);   
     EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;   
     EjectaMetalDensity = EjectaDensity * StarMetalYield;

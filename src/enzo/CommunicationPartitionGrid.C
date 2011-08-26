@@ -542,7 +542,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
  
 	FLOAT Zero[] = {0,0,0};
  
-        if (PartitionNestedGrids == FALSE) {
+        if (ParallelRootGridIO == FALSE) {
 	  if (MyProcessorNumber == ROOT_PROCESSOR)
 	    NewGrid->AllocateGrids();
  

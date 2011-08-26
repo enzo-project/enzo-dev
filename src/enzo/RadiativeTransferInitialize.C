@@ -58,6 +58,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*RadAccel3Name = "RadAccel3";
   const char	*MetalName     = "Metal_Density";
   const char	*ColourName    = "SN_Colour";
+  const char    *RaySegName    = "Ray_Segments";
   const char    *Rad0Name      = "Radiation0";
   const char    *Rad1Name      = "Radiation1";
   const char    *Rad2Name      = "Radiation2";
@@ -66,6 +67,31 @@ int RadiativeTransferInitialize(char *ParameterFile,
   int i, j, k, level;
   FILE *fptr;
   LevelHierarchyEntry *Temp;
+  int NumberOfObsoleteFields;
+  int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
+
+  if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE) {
+
+    /* Check for radiation fields and delete them */
+
+    NumberOfObsoleteFields = 7;
+    ObsoleteFields[0] = kphHI;
+    ObsoleteFields[1] = PhotoGamma;
+    ObsoleteFields[2] = kphHeI;
+    ObsoleteFields[3] = kphHeII;
+    ObsoleteFields[4] = gammaHeI;
+    ObsoleteFields[5] = gammaHeII;
+    ObsoleteFields[6] = kdissH2I;
+
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+	Temp->GridData->DeleteObsoleteFields(ObsoleteFields, 
+					     NumberOfObsoleteFields);
+
+    Exterior.DeleteObsoleteFields(ObsoleteFields, NumberOfObsoleteFields);
+
+    return SUCCESS;
+  }
 
   /* Read and set parameter values and static radiation sources */
 
@@ -126,14 +152,20 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	  TypesToAdd[FieldsToAdd++] = i;
       if (PopIIISupernovaUseColour)
 	TypesToAdd[FieldsToAdd++] = SNColour;
-      if (StarClusterUseMetalField) {
+      if (StarClusterUseMetalField &&
+	  StarParticleFeedback > 0 &&
+	  StarParticleFeedback != (1 << POP3_STAR)) {
 	TypesToAdd[FieldsToAdd++] = Metallicity;
 	AddedMetallicity = true;
       }
+      if (RadiativeTransferLoadBalance)
+	TypesToAdd[FieldsToAdd++] = RaySegments;
     }
-
-    if (StarParticleFeedback && !AddedMetallicity)
-	TypesToAdd[FieldsToAdd++] = Metallicity;
+    // Add metallicity if Pop II star feedback
+    if (StarParticleFeedback > 0 && 
+	StarParticleFeedback != (1 << POP3_STAR) && 
+	!AddedMetallicity)
+      TypesToAdd[FieldsToAdd++] = Metallicity;      //#####
 
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
       TypesToAdd[i] = FieldUndefined;
@@ -262,15 +294,16 @@ int RadiativeTransferInitialize(char *ParameterFile,
     case RadiationFreq3:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) Rad3Name;
       break;
+    case RaySegments:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) RaySegName;
+      break;
     } // ENDSWITCH
   } // ENDFOR fields
 
   /* Check for old gammaHeI and gammaHeII fields.  Delete if they
      exist. */
 
-  int NumberOfObsoleteFields = 2;
-  int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
-
+  NumberOfObsoleteFields = 2;
   ObsoleteFields[0] = gammaHeI;
   ObsoleteFields[1] = gammaHeII;
   if (RadiativeTransferHydrogenOnly == TRUE) {
@@ -278,6 +311,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     ObsoleteFields[2] = kphHeI;
     ObsoleteFields[3] = kphHeII;
   }
+  if (RadiativeTransferLoadBalance == FALSE)
+    ObsoleteFields[NumberOfObsoleteFields++] = RaySegments;
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
@@ -329,8 +364,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
     if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  
       ENZO_FAIL("Error in InitializeRadiativeTransferSpectrumTable.");
     }
-  }
-
+  
+}
   // if using the FLD solver, initialize it here
 #ifdef USE_HYPRE
   if (RadiativeTransferFLD) {

@@ -62,10 +62,10 @@ c
       do j=j1,j2
          do i=i1,i2
             pslice(i,j) =
-     &           (gamma-1.0)*dslice(i,j)*(
-     &              eslice(i,j) - 0.5*(uslice(i,j)**2 +
-     &                                 vslice(i,j)**2 +
-     &                                 wslice(i,j)**2  )
+     &           (gamma-1.d0)*dslice(i,j)*(
+     &              eslice(i,j) - 0.5d0*(uslice(i,j)**2 +
+     &                                   vslice(i,j)**2 +
+     &                                   wslice(i,j)**2  )
      &                                   )
             if (pslice(i,j) .lt. pmin) pslice(i,j) = pmin
          enddo

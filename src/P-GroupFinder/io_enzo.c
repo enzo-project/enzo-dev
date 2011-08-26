@@ -112,6 +112,7 @@ int enzoFindFiles (char *fname)
     exit(1);
   }
 
+  ParticleTypeInFile = 0;
   for (dim = 0; dim < 3; dim++) {
     leftEdge[dim] = 0.0;
     rightEdge[dim] = 1.0;
@@ -120,6 +121,7 @@ int enzoFindFiles (char *fname)
   while (fgets(line, 200, fptr) != NULL) {
 
     sscanf(line, "InitialTime        = %lf", &Time);
+    sscanf(line, "InitialCycleNumber = %d", &CycleNumber);
     sscanf(line, "TopGridDimensions   = %d %d %d", 
 	   TopGrid, TopGrid+1, TopGrid+2);
     sscanf(line, "CosmologyHubbleConstantNow = %f", &HubbleConstantNow);
@@ -130,6 +132,7 @@ int enzoFindFiles (char *fname)
     sscanf(line, "CosmologyCurrentRedshift = %f", &redshift);
     sscanf(line, "#DataCGSConversionFactor[3] = %lg %*s", &EnzoVelocityUnit);
     sscanf(line, "StaticRefineRegionLevel[%*d] = %d", &staticLevel);
+    sscanf(line, "ParticleTypeInFile = %d", &ParticleTypeInFile);
 
     // Get finest static grid, and only perform analysis there
 
@@ -157,6 +160,10 @@ int enzoFindFiles (char *fname)
     Omega * (3.0 * pow(HUBBLE*HubbleConstantNow, 2) / 8.0 / PI / GRAVITY) *
     pow(BoxSize/HubbleConstantNow*CM_PER_MPC,3) /
     (TopGrid[0] * TopGrid[1] * TopGrid[2]);
+  // Critical density in units of Msun / kpc^3
+  RhoCritical0 = 1.4775867e31 * 
+    ((3 * pow(100 * HubbleConstantNow / 3.086e19, 2)) / (8 * M_PI * GRAVITY));
+
 
   EnzoTimeUnit = CM_PER_MPC * (BoxSize/HubbleConstantNow/(1+initialRedshift)) / 
     EnzoVelocityUnit;
@@ -172,14 +179,18 @@ int enzoFindFiles (char *fname)
 	    "--) Time    = %lg\n"
 	    "--) z       = %f\n",
 	    BoxSize, Omega, OmegaLambda, Time, redshift);
-    if (finestStaticLevel != -1)
+    if (finestStaticLevel != -1) {
       fprintf(stdout, "Looking only in finest grid:\n"
 	      "\t level %d\n"
 	      "\t left edge  = (%f, %f, %f)\n"
 	      "\t right edge = (%f, %f, %f)\n",
 	      finestStaticLevel+1, leftEdge[0], leftEdge[1], leftEdge[2],
 	      rightEdge[0], rightEdge[1], rightEdge[2]);
+    }
   }
+
+  if (finestStaticLevel != -1)
+    BoxSize *= (rightEdge[0] - leftEdge[0]);
 
   /******* Get number of files and particles from .hierarchy file *******/
 
@@ -252,6 +263,7 @@ void enzoCountLocalParticles (char *fname, int files)
   float          ln2 = log(2.0);
   double 	*pos[3];
   float         *vel[3], *mass;
+  int           *ptype;
 
   // Particle HDF labels
   char *ParticlePositionLabel[] = 
@@ -260,6 +272,7 @@ void enzoCountLocalParticles (char *fname, int files)
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   char *ParticleMassLabel = "particle_mass";
   char *ParticleIDLabel = "particle_index";
+  char *ParticleTypeLabel = "particle_type";
 
   // HDF variables
 #ifdef USE_HDF4
@@ -360,7 +373,7 @@ void enzoCountLocalParticles (char *fname, int files)
   for(i=0; i<files; i++) {
 
     if (i % (files/20) == 0 && ThisTask == 0) {
-      fprintf(stdout, "Read %d out of %d files.\n", i, files);
+      fprintf(stdout, "Read %d out of %d grids.\n", i, files);
       fflush(stdout);
     }
 
@@ -386,6 +399,8 @@ void enzoCountLocalParticles (char *fname, int files)
     ReadParticleField_FLOAT32(sd_id, ParticleMassLabel, NpartInGrids[i],
 			      &mass);
     ReadParticleField_INT(sd_id, ParticleIDLabel, NpartInGrids[i], &id);
+    if (ParticleTypeInFile == 1)
+      ReadParticleField_INT(sd_id, ParticleTypeLabel, NpartInGrids[i], &ptype);
 #endif
 
 #ifdef USE_HDF5
@@ -395,7 +410,7 @@ void enzoCountLocalParticles (char *fname, int files)
       MPI_Finalize();
       exit(1);
     }
-    if ((group_id = H5Gopen(h5_file, buf, H5P_DEFAULT)) < 0) {
+    if ((group_id = H5Gopen(h5_file, buf)) < 0) {
       fprintf(stderr, "enzoCountLoadParticles: error opening %s in %s\n", 
 	      buf, filename[i]);
       MPI_Finalize();
@@ -409,6 +424,9 @@ void enzoCountLocalParticles (char *fname, int files)
     }  // ENDFOR dimension
     ReadParticleFieldHDF5_FLOAT(group_id, ParticleMassLabel, NpartInGrids[i], &mass);
     ReadParticleFieldHDF5_INT(group_id, ParticleIDLabel, NpartInGrids[i], &id);
+    if (ParticleTypeInFile == 1)
+      ReadParticleFieldHDF5_INT(group_id, ParticleTypeLabel, NpartInGrids[i], 
+				&ptype);
 #endif
 
     for(n=0; n<NpartInGrids[i]; n++) {
@@ -428,15 +446,6 @@ void enzoCountLocalParticles (char *fname, int files)
       slab = (int) ((pos[0][n]-leftEdge[0])/(rightEdge[0]-leftEdge[0])*NTask);
       PbufPlace = Nlocal_in_file;
       Nslab_local[slab]++;
-      Pbuf_local[PbufPlace].Pos[0] = 0;
-	
-      if ((pos[0][n]-leftEdge[0])*BoxSize / (rightEdge[0]-leftEdge[0]) < 
-	  slab*BoxSize/NTask + SearchRadius)
-	NtoLeft_local[slab]++; 
-
-      if ((pos[0][n]-leftEdge[0])*BoxSize / (rightEdge[0]-leftEdge[0]) > 
-	  (slab+1)*BoxSize/NTask - SearchRadius)
-	NtoRight_local[slab]++; 
 
       for (dim = 0; dim < 3; dim++) {
 	Pbuf_local[PbufPlace].Pos[dim] = (pos[dim][n] - leftEdge[dim]) * 
@@ -445,11 +454,23 @@ void enzoCountLocalParticles (char *fname, int files)
 	  vel[dim][n] * EnzoVelocityUnit / UnitVelocity_in_cm_per_s;
       }  // ENDFOR dimension
 	
+	
+      if (Pbuf_local[PbufPlace].Pos[0] <
+	  slab*BoxSize/NTask + SearchRadius)
+	NtoLeft_local[slab]++; 
+
+      if (Pbuf_local[PbufPlace].Pos[0] > 
+	  (slab+1)*BoxSize/NTask - SearchRadius)
+	NtoRight_local[slab]++; 
+
       Pbuf_local[PbufPlace].Mass =
 	mass[n] * EnzoMassUnit / pow(8.0, level[i]) / UnitMass_in_g;
 
       Pbuf_local[PbufPlace].PartID 	= id[n];
-      Pbuf_local[PbufPlace].Type 	= 1;
+      if (ParticleTypeInFile == 1)
+	Pbuf_local[PbufPlace].Type 	= ptype[n];
+      else
+	Pbuf_local[PbufPlace].Type 	= 1;
       Pbuf_local[PbufPlace].Mfs 	= 0;
       Pbuf_local[PbufPlace].Sfr 	= 0;
       Pbuf_local[PbufPlace].Energy 	= 0;
@@ -481,6 +502,8 @@ void enzoCountLocalParticles (char *fname, int files)
     }
     free(id);
     free(mass);
+    if (ParticleTypeInFile == 1)
+      free(ptype);
     
     filecount_local++;
 

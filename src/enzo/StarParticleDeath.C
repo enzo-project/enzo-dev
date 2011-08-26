@@ -15,6 +15,7 @@
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -45,6 +46,7 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
   FLOAT TimeNow;
   Star *ThisStar, *MoveStar, *LastStar;
 
+  LCAPERF_START("StarParticleDeath");
   ThisStar = AllStars;
   AllStars = NULL;
   LastStar = NULL;
@@ -58,6 +60,8 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
       MoveStar->DeleteCopyInGridGlobal(LevelArray);
       DeleteStar(MoveStar);
     } else if (death == KILL_ALL) {
+      // Never should be done.  Deleting particles messing the star
+      // particle counts up.
       MoveStar->DeleteCopyInGrid();
       MoveStar->DeleteParticle(LevelArray);
       DeleteStar(MoveStar);
@@ -73,6 +77,7 @@ int StarParticleDeath(LevelHierarchyEntry *LevelArray[], int level,
 
   } // ENDWHILE stars
 
+  LCAPERF_STOP("StarParticleDeath");
   return SUCCESS;
 
 }

@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -94,15 +95,16 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
   /* Find Metallicity or SNColour field and set flag. */
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
+    Galaxy2ColourNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   }
 
-  MetalNum = max(MetalNum, SNColourNum);
+  MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
@@ -162,9 +164,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     if (cstar->FeedbackFlag != SUPERNOVA) {
       float old_mass = (float)(cstar->Mass);
       cstar->Mass -= EjectaDensity * DensityUnits * BubbleVolume * pow(LengthUnits,3.0) / Msun;  
-      cstar->vel[0] *= old_mass / cstar->Mass; 
-      cstar->vel[1] *= old_mass / cstar->Mass;
-      cstar->vel[2] *= old_mass / cstar->Mass;
+      float frac = old_mass / cstar->Mass;
+      cstar->vel[0] *= frac;
+      cstar->vel[1] *= frac;
+      cstar->vel[2] *= frac;
     } // ENDIF !Supernova
 
 //    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
@@ -201,7 +204,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    r1 = sqrt(radius2) / radius;
 	    norm = 0.98;
 	    ramp = norm*(0.5 - 0.5 * tanh(10.0*(r1-1.0)));
-	    //	     ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
+//	    ramp = min(max(1.0 - (r1 - 0.8)/0.4, 0.01), 1.0);
 
 	    /* 1/1.2^3 factor to dilute the density since we're
 	       depositing a uniform ejecta in a sphere of 1.2*radius
@@ -560,19 +563,47 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     EjectaMetalMass = EjectaMass * MBHFeedbackMetalYield;
     OutputWhenJetsHaveNotEjected = FALSE; 
 
-    /* Find the the direction n_L of angular momentum accreted thus far */
+    /* Find the directional vector n_L of angular momentum accreted thus far */
 
     L_x = cstar->accreted_angmom[0];
     L_y = cstar->accreted_angmom[1];
     L_z = cstar->accreted_angmom[2]; 
     L_s = sqrt(pow(L_x,2) + pow(L_y,2) + pow(L_z,2));
-    nx_L = L_x/L_s;  //directional vector
+    nx_L = L_x/L_s;  //normalized directional vector
     ny_L = L_y/L_s;
     nz_L = L_z/L_s;
+
+    // if MBHFeedback = 3, direct the jets always along the z-axis
     if (MBHFeedback == 3) {
       nx_L = 0.0;
       ny_L = 0.0;
       nz_L = 1.0;
+    }
+
+    // if MBHFeedback = 4 or 5, provide the jet direction with a random noise
+    if (MBHFeedback == 4 || MBHFeedback == 5) {
+
+      float theta, phi, MaximumNoiseAngle;
+      if (MBHFeedback == 4) MaximumNoiseAngle = 10.0;
+      if (MBHFeedback == 5) MaximumNoiseAngle = 90.0; //launching in random direction
+
+      //find angles in spherical coordinate; n_L's are already normalized
+      theta = atan(ny_L/nx_L);  
+      phi   = acos(nz_L);
+      printf("before: n_L = (%g, %g, %g) with theta,phi = (%g, %g)\n", nx_L, ny_L, nz_L, theta, phi);
+
+      //add random noise to theta and phi
+      srand(time(NULL));
+      theta += MaximumNoiseAngle * M_PI / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);  
+      phi   += MaximumNoiseAngle * M_PI / 180.0 * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0);
+
+      //get back to Cartesian coordinate; some tricks needed to preserve the signs of nx_L and ny_L
+      nx_L = sign(nx_L) * fabs(cos(theta))*sin(phi);  
+      ny_L = sign(ny_L) * fabs(sin(theta))*sin(phi);
+      nz_L = cos(phi);
+      printf("after : n_L = (%g, %g, %g) with theta,phi = (%g, %g) and random angle example = %g deg\n", 
+	     nx_L, ny_L, nz_L, theta, phi,
+	     MaximumNoiseAngle * ((2.0*(float)rand()/((float)(RAND_MAX)+(float)(1))) - 1.0));
     }
 
     /* Loop over the supercell around the MBH particle (5 * 5 * 5 = 125 cells, 
@@ -661,8 +692,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
     if (MBHJetsVelocity * VelocityUnits > 0.99*c) {
       ENZO_VFAIL("grid::AddFS: MBHJetsVelocity is ultra-relativistic! (%g/ %g/ %g/ %g c)\n",
-	      MBHFeedbackEnergyCoupling, MBHFeedbackRadiativeEfficiency, 
-	      MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c)
+		 MBHFeedbackEnergyCoupling, MBHFeedbackRadiativeEfficiency, 
+		 MBHFeedbackMassEjectionFraction, MBHJetsVelocity * VelocityUnits / c);
     }
 
     /* Finally, add the jet feedback at the edges (outer part of the supercell) */
@@ -872,7 +903,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
 
-	    factor = EjectaDensity / BaryonField[DensNum][index];
+            //if (abs(cstar->type) == SimpleSource) {
+	    //  factor = PopIIIStarMass/EjectaDensity;
+	    //}
+	    //else
+	      factor = EjectaDensity / BaryonField[DensNum][index];
 	    BaryonField[DensNum][index] *= factor;
 
 	    if (MultiSpecies) {
@@ -895,8 +930,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      BaryonField[HDINum][index] *= factor;
 	    }
 
-	    if (MetallicityField == TRUE)
-	      BaryonField[MetalNum][index] *= factor;
+	    if (SNColourNum > 0)
+	      BaryonField[SNColourNum][index] *= factor;
+	    if (Metal2Num > 0)
+	      BaryonField[Metal2Num][index] *= factor;
 
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star
@@ -960,7 +997,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
-
 
 	    BaryonField[ColorField][index] =
             BaryonField[DensNum][index];

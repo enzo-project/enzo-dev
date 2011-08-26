@@ -54,7 +54,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
     }
  
     /* Iterate on this grid until it is acceptable. */
- 
+
     while (Subgrid->AcceptableSubgrid() == FALSE) {
  
       /* Loop over the dimensions (longest to shortest), compute the

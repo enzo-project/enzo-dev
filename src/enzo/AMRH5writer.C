@@ -601,13 +601,13 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
       "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
 
   /* if there's no particle, don't bother,
-     but if this is a root-level grid, print them anyway */
+     but if this is a root-level grid, print them anyway --> for Ralf's visualization purpose! */
   if (nPart == 0 && levelIndex != 0)
     return 0;
 
   sprintf(gridDataName, "/particlegrid-%d", particlegridId);
-  fprintf(stdout, "AMRH5writer: nPart = %d, alreadyopenedentry = %d, gridDataName = %s\n",
-	  nPart, alreadyopenedentry, gridDataName); //#####
+  fprintf(stdout, "AMRH5writer: nPart = %d (NofSP_OnProcOnLvl = %d), alreadyopenedentry = %d, gridDataName = %s\n",
+	  nPart, NumberOfStarParticlesOnProcOnLvlEntry, alreadyopenedentry, gridDataName); //#####
 
   if (alreadyopenedentry == FALSE) {
     gridGrp = H5Gcreate(fileId_particle, gridDataName, 0);
@@ -728,7 +728,7 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
 
     H5Sclose(dataspace);
 
-    alreadyopenedentry = TRUE;  //now it is fully open
+//    alreadyopenedentry = TRUE;  //now it is fully open   //#####
 
   } else {
 

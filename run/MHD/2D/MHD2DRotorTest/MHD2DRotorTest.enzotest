@@ -1,0 +1,11 @@
+name = 'MHD2DRotorTest'
+answer_testing_script = 'test_rotor.py'  # or None
+nprocs = 1
+runtime = 'short'   # short, medium, long
+critical = True
+cadence = 'nightly'
+hydro = False
+mhd = True
+gravity = False
+dimensionality = 2
+max_time_minutes = 2

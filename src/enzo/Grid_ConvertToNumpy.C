@@ -13,8 +13,12 @@
 /
 ************************************************************************/
 
+#include <string>
+#include <map>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -94,6 +98,24 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             Py_DECREF(dataset);
         }
 
+	/* Get grid temperature field. */
+	int size = 1;
+	for (dim = 0; dim < GridRank; dim++)
+	  size *= GridDimension[dim];
+	if (YT_TemperatureField != NULL) {
+	  delete [] YT_TemperatureField;
+	  YT_TemperatureField = NULL;
+	}
+	YT_TemperatureField = new float[size];
+	if (this->ComputeTemperatureField(YT_TemperatureField) == FAIL) {
+	  ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
+	}
+	dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+	        3, dims, ENPY_BFLOAT, YT_TemperatureField);
+	dataset->flags &= NPY_OWNDATA;
+	PyDict_SetItemString(grid_data, "Temperature", (PyObject*) dataset);
+	Py_DECREF(dataset);
+
         /* Now we do our particle fields */
 
         if(this->NumberOfParticles > 0) {
@@ -129,6 +151,14 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
                   1, dims, ENPY_PINT, ParticleNumber);
           dataset->flags &= ~NPY_OWNDATA;
           PyDict_SetItemString(grid_data, "particle_index",
+              (PyObject*) dataset);
+          Py_DECREF(dataset);
+
+          /* Type */
+          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+                  1, dims, ENPY_INT, ParticleType);
+          dataset->flags &= ~NPY_OWNDATA;
+          PyDict_SetItemString(grid_data, "particle_type",
               (PyObject*) dataset);
           Py_DECREF(dataset);
 

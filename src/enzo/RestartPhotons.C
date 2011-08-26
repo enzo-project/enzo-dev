@@ -37,7 +37,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
+		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		   Star *AllStars)
@@ -66,7 +66,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   const float clight = 2.9979e10;
 
-  float LightCrossingTime = (LengthUnits/TimeUnits) / 
+  float LightCrossingTime = (VelocityUnits) / 
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT SavedPhotonTime = PhotonTime;
   float SavedPhotonTimestep = dtPhoton;
@@ -124,6 +124,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   } /* ENDWHILE evolve photon */
   
   RadiativeTransferCoupledRateSolver = savedCoupledChemistrySolver;
+  dtPhoton = SavedPhotonTimestep;
 
   /* Optically thin Lyman-Werner (H2) radiation field */
 

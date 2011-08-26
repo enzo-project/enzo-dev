@@ -49,7 +49,8 @@ static float PhotonTestInitialFractionH2I   = 2.0e-20;
 static float PhotonTestInitialFractionH2II  = 3.0e-14;
 
 int PhotonTestInitialize(FILE *fptr, FILE *Outfptr, 
-			  HierarchyEntry &TopGrid, TopGridData &MetaData)
+			 HierarchyEntry &TopGrid, TopGridData &MetaData,
+			 bool Reinitialize)
 {
   const char *DensName = "Density";
   const char *TEName   = "TotalEnergy";
@@ -84,6 +85,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   char  line[MAX_LINE_LENGTH];
   char *dummy = new char[MAX_LINE_LENGTH];
   int   dim, ret, level, sphere, i, source;
+  int   TotalRefinement;
 
   /* set default parameters */
 
@@ -114,8 +116,16 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   float PhotonTestOmegaBaryonNow=0.05;
   int   PhotonTestRefineAtStart = 0;
 
+  rewind(fptr);
+
   // Set default values
-  if (debug) fprintf(stderr, "PhotonTestInitialize: Set up test problem.\n");
+  if (debug)
+    if (Reinitialize)
+      fprintf(stderr, "PhotonTestInitialize: Reinitializing after root "
+	      "grid split.\n");
+    else
+      fprintf(stderr, "PhotonTestInitialize: Set up test problem.\n");
+
   for (sphere = 0; sphere < MAX_SPHERES; sphere++) {
     PhotonTestSphereRadius[sphere]     = 0.5;
     PhotonTestSphereCoreRadius[sphere] = 0.1;
@@ -260,15 +270,20 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     }
   
   PhotonTime = InitialTimeInCodeUnits;
-  
-  /* update SubgridMarker for topgrid */
-  //  TopGrid.GridData->SetSubgridMarkerFromSubgrid(TopGrid.GridData,TopGrid.GridData);
 
+  if (PhotonTestDensityFilename != NULL &&
+      ParallelRootGridIO == TRUE)
+    ENZO_FAIL("PRGIO and external density files aren't supported yet.");
+  
   /* set up grid */
 
   int RefineByOpticalDepth = FALSE;
+  TotalRefinement = (ParallelRootGridIO == TRUE && Reinitialize) ? -1 : 1;
 
-  if (TopGrid.GridData->PhotonTestInitializeGrid(
+  HierarchyEntry *CurrentGrid = &TopGrid;
+
+  while (CurrentGrid) {
+    CurrentGrid->GridData->PhotonTestInitializeGrid(
 	     PhotonTestNumberOfSpheres, PhotonTestSphereRadius,
 	     PhotonTestSphereCoreRadius, PhotonTestSphereDensity,
 	     PhotonTestSphereTemperature,
@@ -285,9 +300,11 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II, 
-	     RefineByOpticalDepth, PhotonTestDensityFilename) == FAIL) {
-    ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
-  }
+	     RefineByOpticalDepth, TotalRefinement, PhotonTestDensityFilename);
+
+    CurrentGrid = CurrentGrid->NextGridThisLevel;
+
+  } // ENDWHILE
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -302,7 +319,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* If requested, refine the grid to the desired level. */
 
-  if (PhotonTestRefineAtStart) {
+  if (PhotonTestRefineAtStart &&
+      ((ParallelRootGridIO == FALSE) ||
+       (ParallelRootGridIO == TRUE && Reinitialize))) {
 
     if (PhotonTestDensityFilename != NULL)
       ENZO_FAIL("External density field not supported with RefineAtStart yet.");
@@ -324,6 +343,12 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       if (LevelArray[level+1] == NULL)
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
+
+      if (Reinitialize) 
+	TotalRefinement = -1;
+      else
+	TotalRefinement = nint(POW(RefineBy, level+1));
+
       while (Temp != NULL) {
 	if (Temp->GridData->PhotonTestInitializeGrid(
 	     PhotonTestNumberOfSpheres, PhotonTestSphereRadius,
@@ -342,7 +367,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
-	     RefineByOpticalDepth, NULL) == FAIL) {
+	     RefineByOpticalDepth, TotalRefinement, NULL) == FAIL) {
 	  ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
 	}
 	Temp = Temp->NextGridThisLevel;
@@ -370,6 +395,12 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	if (LevelArray[level2+1] == NULL)
 	  break;
 	LevelHierarchyEntry *Temp = LevelArray[level2+1];
+
+	if (Reinitialize) 
+	  TotalRefinement = -1;
+	else
+	  TotalRefinement = nint(POW(RefineBy, level2+1));
+
 	while (Temp != NULL) {
 	  
 	  if (Temp->GridData->PhotonTestInitializeGrid(
@@ -389,7 +420,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 		    PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
-		    RefineByOpticalDepth, NULL) == FAIL) {
+		    RefineByOpticalDepth, TotalRefinement, NULL) == FAIL) {
 	    ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
 	  }
 	  Temp = Temp->NextGridThisLevel;
@@ -421,6 +452,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up field names and units */
 
+  if (!Reinitialize) {
   int count = 0;
   DataLabel[count++] = (char*) DensName;
   DataLabel[count++] = (char*) TEName;
@@ -503,13 +535,13 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       fprintf(Outfptr, "PhotonTestSphereVelocity[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			PhotonTestSphereVelocity[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHIIFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereHIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHeIIFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHeIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereHeIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereHeIIIFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereHeIIIFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereHeIIIFraction[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereH2IFraction[%"ISYM"] = %"FSYM"\n", sphere,
+      fprintf(Outfptr, "PhotonTestSphereH2IFraction[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereH2IFraction[sphere]);
       fprintf(Outfptr, "PhotonTestFracKeplerianRot[%"ISYM"] = %"GOUTSYM"\n", sphere,
               PhotonTestFracKeplerianRot[sphere]);
@@ -525,6 +557,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
               PhotonTestSphereNumShells[sphere]);
     }
   }
+  } // ENDIF !Reinitialize
 
   delete [] dummy;
 

@@ -117,6 +117,10 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   float *dU[NEQ_MHD+NSpecies+NColor];
 
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+  
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
@@ -125,6 +129,7 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     dU[field] = new float[activesize];
 
   this->ReturnHydroRKPointers(Prim, true); //##### added! because Hydro3D needs fractions for species
+
 
   /* Compute dU */
 
@@ -141,7 +146,26 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   /* Update primitive variables */
 
   if (this->UpdateMHDPrim(dU, 1, 1) == FAIL) {
-    return FAIL;
+    fprintf(stderr, "Grid_MHDRK2_1stStep: Falling back to zero order at RK 1st step\n");
+        // fall back to zero order scheme
+    this->CopyOldBaryonFieldToBaryonField();
+    for (int ns = NEQ_HYDRO; ns < NEQ_HYDRO+NSpecies+NColor; ns++) {
+      // change species from density to mass fraction
+      for (int n = 0; n < size; n++) {
+	Prim[ns][n] /= Prim[iden][n];
+      }
+    }
+    this->ZeroFluxes(SubgridFluxes, NumberOfSubgrids);
+    fallback = 1;
+    if (this->MHD3D(Prim, dU, dtFixed, SubgridFluxes, NumberOfSubgrids, 
+                    0.5, fallback) == FAIL) {
+      return FAIL;
+    }
+    this->MHDSourceTerms(dU);
+    if (this->UpdateMHDPrim(dU, 1, 1) == FAIL) {
+      fprintf(stderr, "Grid_MHDRK2_1stStep: Fallback failed, give up...\n");
+      return FAIL;
+    }
   }
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {

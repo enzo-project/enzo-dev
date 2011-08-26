@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -92,7 +94,6 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
     
 !--------------
@@ -204,7 +205,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
      if (adot == 0.d0) then
         eint = vUn*vUn*(eh(1,1,1)                                  &
              - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
-        T = eint*(gamma-1.d0)*0.6d0*1.67262171d-24/1.3806504d-16
+        T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
         T = max(1.d0*T,1.d0)
      else
         T = ecScale
@@ -548,7 +549,6 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
     
 !--------------
@@ -656,7 +656,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
      if (adot == 0.d0) then
         eint = vUn*vUn*(eh(1,1,1)                                  &
              - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
-        T = eint*(gamma-1.d0)*0.6d0*1.67262171d-24/1.3806504d-16
+        T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
         T = max(1.d0*T,1.d0)
      else
         T = ecScale
@@ -1055,7 +1055,6 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -1080,7 +1079,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   !--------------
   ! locals
   integer :: Tidx, Tidxp
-  real*8 :: afac, ev2erg, c, hp, kb, mp, lTempS, lTempE, dlTemp
+  real*8 :: afac, c, hp, kb, mp, lTempS, lTempE, dlTemp
   real*8 :: nu0_HI, nu0_HeI, nu0_HeII, HIconst, HeIconst, HeIIconst
   real*8 :: min_temp, min_ni, min_rad
   real*8 :: HIval, HeIval, HeIIval, ecval, Erval, rhoval
@@ -1119,11 +1118,10 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   ! initialize constants
   afac = adot/a
   dx_sc = dx*LenUnits/a
-  ev2erg = 1.60217653e-12      ! conversion constant from eV to ergs
-  c  = 2.99792458d10           ! speed of light [cm/s]
-  hp = 6.6260693d-27           ! Planck's constant [ergs*s]
-  kb = 1.3806504e-16           ! boltzmann constant [erg/K]
-  mp = 1.67262171d-24          ! Mass of a proton [g]
+  c  = c_light                 ! speed of light [cm/s]
+  hp = hplanck                 ! Planck's constant [ergs*s]
+  kb = kboltz                  ! boltzmann constant [erg/K]
+  mp = mass_h                  ! Mass of a proton [g]
   nu0_HI = 13.6d0*ev2erg/hp    ! ionization frequency of HI   [hz]
   nu0_HeI = 24.6d0*ev2erg/hp   ! ionization frequency of HeI  [hz]
   nu0_HeII = 54.4d0*ev2erg/hp  ! ionization frequency of HeII [hz]
@@ -1799,7 +1797,6 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   !  LOCALS:
   !
   !=======================================================================
-#include "fortran.def"
   implicit none
 
   !--------------
@@ -1813,7 +1810,7 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
 
   !--------------
   ! locals
-  real*8 :: afac, ev2erg, c, hp, mp, nu0_HI, nu0_HeI, nu0_HeII, HIconst
+  real*8 :: afac, c, hp, mp, nu0_HI, nu0_HeI, nu0_HeII, HIconst
   real*8 :: min_ni, min_rad, HIval, Erval, rhoval, nH, nHI, nHII, ne
   real*8 :: HIanal, Eranal, grey, kE, P1, Q1, G_HI
   real*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
@@ -1826,10 +1823,9 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
 
   ! initialize constants
   afac = adot/a
-  ev2erg = 1.60217653e-12      ! conversion constant from eV to ergs
-  c  = 2.99792458d10           ! speed of light [cm/s]
-  hp = 6.6260693d-27           ! Planck's constant [ergs*s]
-  mp = 1.67262171d-24          ! Mass of a proton [g]
+  c  = c_light                 ! speed of light [cm/s]
+  hp = hplanck                 ! Planck's constant [ergs*s]
+  mp = mass_h                  ! Mass of a proton [g]
   nu0_HI = 13.6d0*ev2erg/hp    ! ionization frequency of HI   [hz]
   min_ni   = 0.d0              ! minimum chem number density [cm^{-3}]
   min_rad  = 0.d0              ! minimum radiation density [ergs/cm^3]

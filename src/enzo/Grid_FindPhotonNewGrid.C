@@ -25,7 +25,7 @@
 #include "GridList.h"
 #include "Grid.h"
 
-int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
+int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 			    PhotonPackageEntry* &PP,
 			    grid* &MoveToGrid, int &DeltaLevel,
 			    const float *DomainWidth, int &DeleteMe,
@@ -43,6 +43,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r,
   RayInsideGrid = this->PointInGridNB(r);
   MoveToGrid = SubgridMarker[cindex];
   PP->Radius += PFLOAT_EPSILON;
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    r[dim] += u[dim] * PFLOAT_EPSILON;
 
   /***** Root grids *****/
 

@@ -107,12 +107,14 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     GridOffset[dim] = nint((GridLeftEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			   TargetGrid->GravitatingMassFieldCellSize) - 1;
+
+			   TargetGrid->GravitatingMassFieldCellSize); 
+
     if (TargetGrid == this)
       GridOffset[dim] = max(GridOffset[dim],
 	nint((TargetGrid->GridLeftEdge[dim] -
 	      TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-	     TargetGrid->GravitatingMassFieldCellSize)   );
+	     TargetGrid->GravitatingMassFieldCellSize) );
  
     /* GridStart is the distance (float) in target grid cell units between
        the exact value of GridOffset and it's integer version. */
@@ -128,21 +130,28 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     GridOffsetEnd[dim] = nint((GridRightEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			   TargetGrid->GravitatingMassFieldCellSize);
+			   TargetGrid->GravitatingMassFieldCellSize) - 1;
+
     if (TargetGrid == this)
       GridOffsetEnd[dim] = min(GridOffsetEnd[dim],
 	nint((TargetGrid->GridRightEdge[dim] -
 	      TargetGrid->GravitatingMassFieldLeftEdge[dim])/
 	     TargetGrid->GravitatingMassFieldCellSize)-1 );
+
     RegionDim[dim] = GridOffsetEnd[dim] - GridOffset[dim] + 1;
 		
     size *= RegionDim[dim];
  
-    if (TargetGrid != this && GridStart[dim] < 0) {
-      ENZO_VFAIL("GridStart[%"ISYM"] = %"GSYM" < 0.\n", dim,GridStart[dim])
+    if (TargetGrid != this && GridOffset[dim] < 0) {
+      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" \n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" \n", dim, GridOffset[dim]);
+      ENZO_VFAIL("GridOffset[%"ISYM"] = %"GSYM" < 0.\n", dim,GridOffset[dim])
     }
  
     if (RegionDim[dim] < 2) {
+      return SUCCESS;
+      fprintf(stderr, "this[%"ISYM"] = target%"ISYM"\n", this, TargetGrid);
+      fprintf(stderr, "GridStart[%"ISYM"] = %"ISYM" \n", dim, GridStart[dim]);
       fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffsetEnd[dim]);
       fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffset[dim]);
       ENZO_VFAIL("RegionDim[%"ISYM"] = %"ISYM" < 2!\n", dim, RegionDim[dim])
@@ -171,8 +180,8 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
       ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
     }
     float dt = (DepositTime - Time)/a;
-    //    if (HydroMethod < 3) dt = 0;
-    dt = 0;
+    if (HydroMethod < 3) dt = 0;
+    //    dt = 0;
 
     /* Set up a float version of cell size to pass to fortran. */
  

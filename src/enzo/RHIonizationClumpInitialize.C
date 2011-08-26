@@ -46,7 +46,7 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
     printf("Entering RHIonizationClumpInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";
@@ -119,6 +119,13 @@ int RHIonizationClumpInitialize(FILE *fptr, FILE *Outfptr,
       } // end input from parameter file
       fclose(RHfptr);
     }
+  }
+
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
   }
 
   // ensure that we're performing only Hydrogen chemistry

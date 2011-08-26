@@ -61,5 +61,10 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 	      DMCofM[0], DMCofM[1], DMCofM[2]);
     }
 
+  /* Solve analytical free-fall */
+  if (ProblemType == 63) {
+    ThisGrid->GridData->SolveOneZoneFreefall();
+  }
+
   return SUCCESS;
 }

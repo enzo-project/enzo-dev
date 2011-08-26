@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c////////////////////////  SUBROUTINE POP3_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -99,8 +100,8 @@ c
       real   pi, G, sndspdC, m1
       real   isosndsp2, bmass, jeanmass, lum
       double precision msolar, mh
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33, mh=1.673e-24)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+     &           msolar=SolarMass, mh=mass_h)
 c
       ii = np
 c
@@ -148,7 +149,7 @@ c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
+               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. 1.1e4) 
 c     &            write(40,*) '1',tdyn,cooltime(i,j,k),temp(i,j,k)
@@ -157,7 +158,7 @@ c               write(6,*) 'b:', i,j,k,d(i,j,k), div, temp(i,j,k),
 c     $              tdyn, cooltime(i,j,k), h2d(i,j,k), h2crit
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4) goto 10
+     &             temp(i,j,k) .gt. 1.1d4) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -199,21 +200,21 @@ c
                if (iradtrans .eq. 0) then
 c                  type(ii) = -ctype
                   mp(ii)   = 0   !starmass / m1
-                  tdp(ii) = 1.5*lifetime*3.15e7/t1
+                  tdp(ii) = 1.5d0*lifetime*3.15d7/t1
                else
 c              because it's possible that we'll be using an IMF, adjust
 c              these later
-                  mp(ii)   = min(0.5 * bmass, starmass/m1)
-                  tdp(ii) = lifetime*3.15e7/t1
-c                  mp(ii)   = min(0.5 * bmass, starmass/m1)
-c                  tdp(ii) = lifetime*3.15e7/t1
+                  mp(ii)   = min(0.5d0 * bmass, starmass/m1)
+                  tdp(ii) = lifetime*3.15d7/t1
+c                  mp(ii)   = min(0.5d0 * bmass, starmass/m1)
+c                  tdp(ii) = lifetime*3.15d7/t1
                endif
 
                type(ii) = -ctype
                tcp(ii) = t
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = xstart + (float(i)-0.5d0)*dx
+               yp(ii) = ystart + (float(j)-0.5d0)*dx
+               zp(ii) = zstart + (float(k)-0.5d0)*dx
 c
 c     Record amount of star formation
                justburn = justburn + mp(ii)
@@ -223,39 +224,39 @@ c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 c
                if (imethod .eq. 2) then
-c                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-c                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-c                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+c                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
+c                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
+c                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
 
-              up(ii) = ( 0.5*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
-     &          0.5*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
-     &          0.5*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
-     &          0.5*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
-     &          0.5*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
-     &          0.5*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
+              up(ii) = ( 0.5d0*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
+     &          0.5d0*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
+     &          0.5d0*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5d0*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
+     &          0.5d0*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
+     &          0.5d0*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
+     &          0.5d0*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) ) 
 
-              vp(ii) = ( 0.5*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
-     &          0.5*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
-     &          0.5*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
+              vp(ii) = ( 0.5d0*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
+     &          0.5d0*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
+     &          0.5d0*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5d0*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5d0*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5d0*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5d0*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
 
-              wp(ii) = ( 0.5*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
-     &          0.5*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
-     &          0.5*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
+              wp(ii) = ( 0.5d0*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
+     &          0.5d0*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
+     &          0.5d0*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5d0*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5d0*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5d0*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5d0*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
@@ -306,12 +307,12 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
                endif
 c
 c              Remove mass from grid
 
-               d(i,j,k) = 0.5 * d(i,j,k)
+c               d(i,j,k) = 0.5d0 * d(i,j,k)
 
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k
@@ -429,8 +430,8 @@ c
       real energy, lum, sn_nrg, m_eject, yield, dratio, m1
       real lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
       double precision msolar
-      parameter (lower_pisn = 140.0, upper_pisn = 260.0, lsun = 2e33)
-      parameter (msolar = 1.989e33)
+      parameter (lower_pisn = 140.0, upper_pisn = 260.0, lsun = 2.d33)
+      parameter (msolar = SolarMass)
       logical death, pisn
 c
 c-----------------------------------------------------------------------
@@ -448,8 +449,8 @@ c      write(6,*) 'star_feedback2: start'
 c
 c     Based on the stellar mass, calculate its luminosity, SN energy,
 c     and ejecta mass
-            he_core = (13./24.) * (mp(n)*m1 - 20.0)
-            sn_nrg = 5.0 + 1.304 * (he_core - 64.0)
+            he_core = (13.d0/24.d0) * (mp(n)*m1 - 20.d0)
+            sn_nrg = 5.d0 + 1.304d0 * (he_core - 64.d0)
             starmass = mp(n)*m1
             call pop3_properties(starmass, lum, lifetime)
 c
@@ -460,7 +461,7 @@ c
             if (t - tcp(n) .gt. life(n)) goto 10
             if (t + dt - tcp(n) .gt. life(n)) then
                energy = (life(n) - (t - tcp(n))) * t1 * lum * lsun + 
-     $              sn_nrg * 1d51
+     $              sn_nrg * 1.d51
                death = .true.
             else
                energy = dt * t1 * lum * lsun
@@ -491,8 +492,8 @@ c
 c     DURING THE STELLAR LIFETIME
 c
             if (.not. death) then
-               m_eject = 0.
-               yield = 0.
+               m_eject = 0.d0
+               yield = 0.d0
             endif
 c
 c     STELLAR ENDPOINT: PISN
@@ -500,16 +501,16 @@ c
             if (death .and. pisn) then
                m_eject = mp(n)
                yield = m_eject
-               mp(n) = 0.       ! totally disrupted
+               mp(n) = 0.d0       ! totally disrupted
             endif
 c
 c     STELLAR ENDPOINT: BH FORMATION
 c
             if (death .and. .not. pisn) then
-               m_eject = 0. 
+               m_eject = 0.d0 
                yield = 0.
-               type(n) = 2      ! BH formation
-               life(n) = 0.      ! no dynamical time
+               type(n) = 2         ! BH formation
+               life(n) = 0.d0      ! no dynamical time
             endif
 c
 c           Add energy to energy field
@@ -545,8 +546,8 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
-     &                          w(i,j,k)**2) + ge(i,j,k)
+               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + 
+     &                            w(i,j,k)**2) + ge(i,j,k)
             endif
 c
  10         continue

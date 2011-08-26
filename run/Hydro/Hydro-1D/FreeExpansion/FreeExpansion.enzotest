@@ -1,0 +1,10 @@
+name = 'FreeExpansion'
+answer_testing_script = 'test_free_expansion.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 1
+max_time_minutes = 1

@@ -16,6 +16,7 @@ OBJS_PGROUP_LIB = \
 		io_enzo.o \
 		io_hdf.o \
 		io_hdf5.o \
+		h5utilities.o \
 		cmpfunc.o \
 		allvars.o \
 		allocate.o \

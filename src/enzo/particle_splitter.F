@@ -1,11 +1,12 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 c
 c=======================================================================
 c/////////////////  SUBROUTINE PARTICLE_SPLITTER  \\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine particle_splitter(nx, ny, nz,
-     &                      idual, imetal, imethod, dt, dx, t, z,
+     &                      idual, imetal, imethod, dt, r, dx, t, z,
      &                      d1, x1, v1, t1,
      &                      xstart, ystart, zstart, ibuff,
      &                      npart,
@@ -75,6 +76,7 @@ c
       integer  idual, imetal, imethod, iterations
       real    dt, dx, z, separation
       real    d1, x1, v1, t1
+      real    r(nx,ny,nz)
       REALSUB xstart, ystart, zstart, t
       REALSUB xpold(npart), ypold(npart), zpold(npart)
       real    upold(npart), vpold(npart), wpold(npart)
@@ -92,12 +94,12 @@ c  Locals
 c
       integer n, m, ii, i, j, k
       real    xp0(children), yp0(children), zp0(children)
-      real    r, pi
+      real    rad, pi
       real    alpha(3)
       real    l11, l12, l13
       real    l21, l22, l23
       real    l31, l32, l33      
-      parameter (pi=3.14159265)
+      parameter (pi=pi_val)
 c
 c-----------------------------------------------------------------------
 c
@@ -110,11 +112,11 @@ c
          ran1_init = 1
       endif
 c
-c     The distance to the children particles r is the same for all. It is 
+c     The distance to the children particles rad is the same for all. It is 
 c     currently set to be dx (=CellWidth), but can be changed. 
 c     (i.e. ParticleSplitterChildrenParticleSeparation = 1 by default)
 c
-      r = dx * separation**float(iterations)
+      rad = dx * separation**float(iterations)
 c
 c
 c     Loop over existing (parent) particles; It implicitly assumes that 
@@ -125,7 +127,7 @@ c
       ii = 0
 c
       do n = 1, npart
-         if (mpold(n) .gt. 0 .and. typeold(n) .le. 2) then
+         if (mpold(n) .gt. 0 .and. typeold(n) .le. 2) then    
 c
 c           Check bounds [1] - if the particle is outside of RefineRegion
 c           then give a warning and exit.
@@ -136,8 +138,9 @@ c
      &          ypold(n) .gt. rr_rightedge(2) .or.
      &          zpold(n) .lt. rr_leftedge(3) .or. 
      &          zpold(n) .gt. rr_rightedge(3)) then
-c               write(6,*) 'part_spl: parent particle out of grid :',
-c     &                     xpold(n), ypold(n), zpold(n), level
+c               write(6,*) 'part_spl: parent particle outside RR :',
+c     &                     xpold(n), ypold(n), zpold(n), 
+c     &                     rr_leftedge(1), rr_leftedge(2), level
                goto 100
             endif
 c
@@ -148,15 +151,27 @@ c
             k = int((zpold(n) - zstart)/dx) + 1
 c
 c           Check bounds [2] - if the particle is outside of this grid
-c           then give a warning, but not exit.
+c           then give a warning and exit.  (This is very possible when 
+c           particles are not properly distributed to the right grids)
 c
-            if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
-     &          .or. k .lt. 1 .or. k .gt. nz) then
-               write(6,*) 'part_spl: parent particle out of grid :',
-     &                     i,j,k,nx,ny,nz,level
-c               goto 100
+            if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. 
+     &          j .gt. ny .or. k .lt. 1 .or. k .gt. nz) then
+c               write(6,*) 'part_spl: parent particle out of grid :',
+c     &                     i,j,k,nx,ny,nz, 
+c     &                     xpold(n),ypold(n),zpold(n),
+c     &                     xstart, ystart, zstart, dx, level
+               goto 100
             endif
-cc
+c
+c           Check bounds [3] - is this finest level of refinement?
+c           if the particles are not yet inside the finest grids 
+c           then give a warning and exit
+c
+c            if (r(i,j,k) .ne. 0.0) then
+c               write(6,*) 'part_spl: parent particle not at finest :',
+c     &                     i,j,k,nx,ny,nz,level
+c               goto 100
+c            endif
 c
 c
 c
@@ -195,7 +210,7 @@ c
 c           First reduce the mass of the parent down to 1/(children+parent) = 1/13
 c 
 c            mpold(n) = mpold(n) / 13.0
-            mpold(n) = mpold(n) / (children + 1.0)
+            mpold(n) = mpold(n) / (children + 1.d0)
 c
 c
 c           ===================================
@@ -205,64 +220,64 @@ c
 c           Now carefully set the position.  Populate 12 children particles 
 c           around the parent at (0,0,0) assuming HCP (hexagonal closed-packed) 
 c           structure in an xyz space.  Keep in mind that Any three neighboring 
-c           children and the parent will form a tetrahedron of edge length r.  
+c           children and the parent will form a tetrahedron of edge length rad.  
 c
 c
 c           Step[I-1]: 6 children on the same x-y plane as the parent 
 c                      (counter-clockwise; again, here we assume the parent is at the origin)
 c
-            xp0(1) = r
-            yp0(1) = 0.0 
-            zp0(1) = 0.0 
+            xp0(1) = rad
+            yp0(1) = 0.d0 
+            zp0(1) = 0.d0 
 c
-            xp0(2) = 0.5000*r
-            yp0(2) = 0.8660*r
-            zp0(2) = 0.0
+            xp0(2) = 0.5000d0*rad
+            yp0(2) = 0.8660d0*rad
+            zp0(2) = 0.d0
 c
-            xp0(3) = -0.5000*r
-            yp0(3) = 0.8660*r
-            zp0(3) = 0.0
+            xp0(3) = -0.5000d0*rad
+            yp0(3) = 0.8660d0*rad
+            zp0(3) = 0.d0
 c
-            xp0(4) = -r
-            yp0(4) = 0.0
-            zp0(4) = 0.0
+            xp0(4) = -rad
+            yp0(4) = 0.d0
+            zp0(4) = 0.d0
 c
-            xp0(5) = -0.5000*r
-            yp0(5) = -0.8660*r
-            zp0(5) = 0.0
+            xp0(5) = -0.5000d0*rad
+            yp0(5) = -0.8660d0*rad
+            zp0(5) = 0.d0
 c
-            xp0(6) = 0.5000*r
-            yp0(6) = -0.8660*r
-            zp0(6) = 0.0
+            xp0(6) = 0.5000d0*rad
+            yp0(6) = -0.8660d0*rad
+            zp0(6) = 0.d0
 c
 c           Step[I-2]: 3 children above the parent plane (x-y)
 c                      (the height of the tetrahedron of edge r = sqrt(2/3)*r)
 c
-            xp0(7) = 0.5000*r
-            yp0(7) = 0.2887*r
-            zp0(7) = 0.8165*r
+            xp0(7) = 0.5000d0*rad
+            yp0(7) = 0.2887d0*rad
+            zp0(7) = 0.8165d0*rad
 c
-            xp0(8) = -0.5000*r
-            yp0(8) = 0.2887*r
-            zp0(8) = 0.8165*r
+            xp0(8) = -0.5000d0*rad
+            yp0(8) = 0.2887d0*rad
+            zp0(8) = 0.8165*rad
 c
-            xp0(9) = 0.0
-            yp0(9) = -0.5774*r
-            zp0(9) = +0.8165*r
+            xp0(9) = 0.d0
+            yp0(9) = -0.5774d0*rad
+            zp0(9) = +0.8165d0*rad
 c
 c           Step[I-3]: 3 children below the parent plane (x-y)
 c
-            xp0(10) = 0.5000*r
-            yp0(10) = 0.2887*r
-            zp0(10) = -0.8165*r
+            xp0(10) = 0.5000d0*rad
+            yp0(10) = 0.2887d0*rad
+            zp0(10) = -0.8165d0*rad
 c
-            xp0(11) = -0.5000*r
-            yp0(11) = 0.2887*r
-            zp0(11) = -0.8165*r
+            xp0(11) = -0.5000d0*rad
+            yp0(11) = 0.2887d0*rad
+            zp0(11) = -0.8165d0*rad
 c
-            xp0(12) = 0.0
-            yp0(12) = -0.5774*r
-            zp0(12) = -0.8165*r
+            xp0(12) = 0.d0
+            yp0(12) = -0.5774d0*rad
+            zp0(12) = -0.8165d0*rad
 c
 c
 c           ===================================
@@ -288,7 +303,7 @@ c           Step[II-1]: First generate random numbers which will be in the range
 c
             call random_number(alpha)
             do m = 1, 3
-               alpha(m) = alpha(m) * pi * 2.0
+               alpha(m) = alpha(m) * pi * 2.d0
             enddo
 c
 c            write(6,*) 'random number:', alpha(1), alpha(2), alpha(3)
@@ -346,7 +361,7 @@ c
                if (imetal .eq. 1) then
                   metalf(ii+m) = metalfold(n)    !in here metal is a fraction
                else
-                  metalf(ii+m) = 0.0
+                  metalf(ii+m) = 0.d0
                endif
             enddo
 c
@@ -363,7 +378,7 @@ c
 c
  100     continue
 c
-      enddo
+      enddo 
 c
 c
  20   if (ii .gt. nmax) then

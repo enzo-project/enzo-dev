@@ -94,7 +94,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       /* Here, we just generate the calls to generate the receive buffers,
 	 without actually doing anything. */
       
-   
+      LCAPERF_START("SetBC_Parent");
 	
       CommunicationDirection = COMMUNICATION_POST_RECEIVE;
       CommunicationReceiveIndex = 0;
@@ -145,8 +145,11 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
       
     } // ENDFOR grid batches
-     }
+
+    LCAPERF_STOP("SetBC_Parent");
+    }
     TIME_MSG("Copying zones in SetBoundaryConditions");
+    LCAPERF_START("SetBC_Siblings");
     for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
       EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
 
@@ -201,6 +204,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       if (CommunicationReceiveHandler() == FAIL)
 	ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
       
+    LCAPERF_STOP("SetBC_Siblings");
 
     } // end loop over batchs of grids
 

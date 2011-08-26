@@ -12,15 +12,11 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#ifdef OPTIMIZED_CTP
- 
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
 #include <stdio.h>
 #include <string.h>
-#include <algorithm>
-using namespace std;
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -31,7 +27,9 @@ using namespace std;
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
- 
+
+int search_lower_bound(int *arr, int value, int low, int high, 
+		       int total);
  
 int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 					 int ThisGridNum, int TopGridDims[],
@@ -105,22 +103,25 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 		 (ParticlePosition[dim][i] - DomainLeftEdge[dim]) *
 		 DomainWidthInv[dim]);
 
-	  pbin = lower_bound(GStartIndex[dim], GStartIndex[dim]+Layout[dim]+1,
-			     CenterIndex);
-	  GridPosition[dim] = pbin-GStartIndex[dim];
-	  if (*pbin != CenterIndex) GridPosition[dim]--;
+	  GridPosition[dim] = 
+	    search_lower_bound(GStartIndex[dim], CenterIndex, 0, Layout[dim],
+			       Layout[dim]);
 	  GridPosition[dim] = min(GridPosition[dim], Layout[dim]-1);
-	    
+	  
 	} // ENDELSE
 
       } // ENDFOR dim
 
       grid_num = GridPosition[0] + 
 	Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
+
       grid = GridMap[grid_num];
       if (grid != ThisGridNum) {
 	proc = Grids[grid]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
+//	printf("grid %d->%d: Pos = %f %f %f\n", ThisGridNum, grid, 
+//	       ParticlePosition[0][i], ParticlePosition[1][i], 
+//	       ParticlePosition[2][i]);
       }
 
       ToGrid[i] = grid;
@@ -323,4 +324,3 @@ int grid::CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
 
   return SUCCESS;
 }
-#endif /* OPTIMIZED_CTP */

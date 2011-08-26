@@ -6,7 +6,7 @@
 /  date:       November, 2009
 /  modified1: 
 /
-/  purpose:  For MBHFeedback=2 or 3 (FeedbackFlag=MBH_JETS) calculate 
+/  purpose:  For MBHFeedback = 2 to 5 (FeedbackFlag=MBH_JETS) calculate 
 /            angular momentum accreted onto MBH; this will not affect 
 /            Star_Accrete.  
 /
@@ -37,11 +37,11 @@ int Star::AccreteAngularMomentum(void)
 
   if (CurrentGrid == NULL || 
       type != MBH || 
-      (MBHFeedback != 2 && MBHFeedback != 3))
+      (MBHFeedback < 2 || MBHFeedback > 5))
     return SUCCESS;
 
   if (CurrentGrid->GridRank != MAX_DIMENSION) {
-    ENZO_FAIL("star:AccreteAngularMomentum: 1 or 2 dimension is not implemented\n");
+    ENZO_FAIL("star:AccreteAngularMomentum: 1 or 2 dimension is not implemented! \n");
   }
 
   int dim, i, j, k, index, ibuff = DEFAULT_GHOST_ZONES;
@@ -73,34 +73,34 @@ int Star::AccreteAngularMomentum(void)
   for (dim = 0; dim < MAX_DIMENSION; dim++) 
     CellVolume *= CellWidthTemp*BoxSize; // in Mpc^3
 
-
-  /* Check whether the current grid contains the whole 27 cells */
+  /* indices for Star particle */
 
   i = (int)((pos[0] - CurrentGrid->CellLeftEdge[0][0]) / CellWidthTemp);
   j = (int)((pos[1] - CurrentGrid->CellLeftEdge[1][0]) / CellWidthTemp);
   k = (int)((pos[2] - CurrentGrid->CellLeftEdge[2][0]) / CellWidthTemp);
 
-  if (i < ibuff+1 || i > CurrentGrid->GridDimension[0]-ibuff-2 || 
+  /* Check whether the current grid contains the whole 27 cells */
 
-      j < ibuff+1 || j > CurrentGrid->GridDimension[1]-ibuff-2 ||
-      k < ibuff+1 || k > CurrentGrid->GridDimension[2]-ibuff-2) {
-    fprintf(stdout, "star::AAM: 27 cells around MBH not contained; moving on.\n"); 
-    return SUCCESS;
-  }
+//   if (i < ibuff+1 || i > CurrentGrid->GridDimension[0]-ibuff-2 || 
+//       j < ibuff+1 || j > CurrentGrid->GridDimension[1]-ibuff-2 ||
+//       k < ibuff+1 || k > CurrentGrid->GridDimension[2]-ibuff-2) {
+//     fprintf(stdout, "star::AAM: 27 cells around MBH not contained; moving on.\n"); 
+//     return SUCCESS;
+//   }
   
   /* Find angular momentum in 27 cells */
 
   for (int kk = -1; kk <= 1; kk++) {
     // relative position
-    delz = (CurrentGrid->CellLeftEdge[2][k+kk] + 0.5*CurrentGrid->CellWidth[2][k+kk] 
-	    - pos[2]) * BoxSize; //in Mpc
+    delz = (CurrentGrid->CellLeftEdge[2][k+kk] + 0.5*CurrentGrid->CellWidth[2][0] 
+	    - pos[2]) * BoxSize; // in Mpc
 
     for (int jj = -1; jj <= 1; jj++) {
-      dely = (CurrentGrid->CellLeftEdge[1][j+jj] + 0.5*CurrentGrid->CellWidth[1][j+jj] 
+      dely = (CurrentGrid->CellLeftEdge[1][j+jj] + 0.5*CurrentGrid->CellWidth[1][0] 
 	      - pos[1]) * BoxSize;
 
       for (int ii = -1; ii <= 1; ii++) {
-	delx = (CurrentGrid->CellLeftEdge[0][i+ii] + 0.5*CurrentGrid->CellWidth[0][i+ii] 
+	delx = (CurrentGrid->CellLeftEdge[0][i+ii] + 0.5*CurrentGrid->CellWidth[0][0] 
 		- pos[0]) * BoxSize;
 
 	index = i+ii+(j+jj+(k+kk)*CurrentGrid->GridDimension[1])*CurrentGrid->GridDimension[0];

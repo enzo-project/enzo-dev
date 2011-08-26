@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -36,6 +37,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "SortCompareFunctions.h"
 void my_exit(int status);
  
 // function prototypes
@@ -97,7 +99,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
   star_data *StarSendList = NULL;
   star_data *StarSharedList = NULL;
 
-  int NumberOfReceives, StarNumberOfReceives;
+  int NumberOfReceives, StarNumberOfReceives, TotalNumber;
   int *NumberToMove = new int[NumberOfProcessors];
   int *StarsToMove = new int[NumberOfProcessors];
 
@@ -151,8 +153,15 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
        subgrids. */
 
     int ZeroOnAllProcs = (ParticlesAreLocal) ? FALSE : TRUE;
+
+    /* Count number of particles to move first to allocate memory */
+
     for (j = 0; j < NumberOfGrids; j++)
       if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {
+
+	if (GridHierarchyPointer[j]->GridData->ReturnNumberOfParticles() == 0 &&
+	    GridHierarchyPointer[j]->GridData->ReturnNumberOfStars() == 0)
+	  continue;
 
 	GridHierarchyPointer[j]->GridData->
 	  ZeroSolutionUnderSubgrid(NULL, ZERO_UNDER_SUBGRID_FIELD, 1.0, 
@@ -173,10 +182,31 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
 	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
 	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
-	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT);  
+	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, TRUE);
  
       } // ENDIF subgrids exist
 
+    /* Now allocate the memory once and store the particles to move */
+
+    TotalNumber = 0;
+    for (j = 0; j < NumberOfProcessors; j++) {
+      TotalNumber += NumberToMove[j];
+      NumberToMove[j] = 0;  // Zero-out to use in the next step
+    }
+    SendList = new particle_data[TotalNumber];
+
+    for (j = 0; j < NumberOfGrids; j++)
+      if (GridHierarchyPointer[j]->NextGridNextLevel != NULL) {
+
+	if (GridHierarchyPointer[j]->GridData->ReturnNumberOfParticles() == 0 &&
+	    GridHierarchyPointer[j]->GridData->ReturnNumberOfStars() == 0)
+	  continue;
+
+	GridHierarchyPointer[j]->GridData->TransferSubgridParticles
+	    (SubgridPointers, NumberOfSubgrids, NumberToMove, Zero, Zero, 
+	     SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, FALSE, FALSE);
+ 
+      } // ENDIF subgrids exist
 
     /* Now we have a list of particles to move to subgrids.  If
        specified, we communicate them with all processors.  If not,
@@ -188,17 +218,20 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 
       SharedList = SendList;
       NumberOfReceives = NumberToMove[MyProcessorNumber];
-      particle_data_size = sizeof(particle_data);
-      qsort(SharedList, NumberOfReceives, particle_data_size, compare_grid);
+      //particle_data_size = sizeof(particle_data);
+      //qsort(SharedList, NumberOfReceives, particle_data_size, compare_grid);
+      std::sort(SharedList, SharedList+NumberOfReceives, cmp_grid());
 
       /* stars second */
 
       if (MoveStars) {
 	StarSharedList = StarSendList;
 	StarNumberOfReceives = StarsToMove[MyProcessorNumber];
-	star_data_size = sizeof(star_data);
-	qsort(StarSharedList, StarNumberOfReceives, star_data_size, 
-	      compare_star_grid);
+	//star_data_size = sizeof(star_data);
+	//qsort(StarSharedList, StarNumberOfReceives, star_data_size, 
+	//      compare_star_grid);
+	std::sort(StarSharedList, StarSharedList+StarNumberOfReceives,
+		  cmp_star_grid());
       }
 
     } // ENDIF local
@@ -266,7 +299,7 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
        If the particles and stars are only on the grid's host
        processor, set number of particles so everybody agrees. 
     ************************************************************************/
- 
+
     if ((!KeepLocal && NumberOfProcessors > 1) || 
 	(ParticlesAreLocal && SyncNumberOfParticles)) {
 
@@ -295,8 +328,8 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
     /* Cleanup. */
 
     if (SendList != SharedList)
-      delete [] SendList;
-    delete [] SharedList;
+      delete [] SharedList;
+    delete [] SendList;
     if (StarSendList != StarSharedList)
       delete [] StarSendList;
     delete [] StarSharedList;
@@ -364,8 +397,14 @@ int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
       AllMovedParticles = TotalNumberToMove;
       AllMovedStars = TotalStarsToMove;
 #ifdef USE_MPI
-      CommunicationAllReduceValues(&AllMovedParticles, 1, MPI_SUM);
-      CommunicationAllReduceValues(&AllMovedStars, 1, MPI_SUM);
+      int ibuffer[2];
+      if (NumberOfProcessors > 1) {
+	ibuffer[0] = AllMovedParticles;
+	ibuffer[1] = AllMovedStars;
+	CommunicationAllReduceValues(ibuffer, 2, MPI_SUM);
+	AllMovedParticles = ibuffer[0];
+	AllMovedStars = ibuffer[1];
+      }
 #endif
 
 #ifdef DEBUG_CCP

@@ -162,6 +162,7 @@ int FinalizePhotonCommunication(void)
   /* If there are any leftover MPI_Irecv calls from the photon
      "nPhoton" and keep_transporting calls, cancel them. */
 
+#ifdef NONBLOCKING_RT
   for (i = 0; i < PhotonMessageMaxIndex; i++)
     if (PhotonMessageRequest[i] != MPI_REQUEST_NULL)
       MPI_Cancel(PhotonMessageRequest+i);
@@ -169,6 +170,7 @@ int FinalizePhotonCommunication(void)
   for (i = 0; i < KeepTransMessageMaxIndex; i++)
     if (KeepTransMessageRequest[i] != MPI_REQUEST_NULL)
       MPI_Cancel(KeepTransMessageRequest+i);
+#endif /* NONBLOCKING_RT */
 
   for (i = 0; i < PH_CommunicationReceiveMaxIndex; i++)
     if (PH_CommunicationReceiveMPI_Request[i] != MPI_REQUEST_NULL)
@@ -178,6 +180,7 @@ int FinalizePhotonCommunication(void)
 
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
 
+#ifdef NONBLOCKING_RT
   MPI_Waitall(PhotonMessageMaxIndex, PhotonMessageRequest, 
 	      PH_ListOfStatuses);
   CommunicationCheckForErrors(PhotonMessageMaxIndex, PH_ListOfStatuses,
@@ -186,6 +189,7 @@ int FinalizePhotonCommunication(void)
 	      PH_ListOfStatuses);
   CommunicationCheckForErrors(KeepTransMessageMaxIndex, PH_ListOfStatuses,
 			      "Waitall KT message cancels");
+#endif /* NONBLOCKING_RT */
 
   MPI_Waitall(PH_CommunicationReceiveMaxIndex, 
 	      PH_CommunicationReceiveMPI_Request,

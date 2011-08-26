@@ -27,8 +27,12 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 
   fprintf(fptr, "dtPhoton                                  = %"GOUTSYM"\n",
 	  dtPhoton);
+  fprintf(fptr, "RadiativeTransferLoadBalance              = %"ISYM"\n", 
+	  RadiativeTransferLoadBalance);
   fprintf(fptr, "RadiativeTransferRadiationPressure        = %"ISYM"\n", 
 	  RadiationPressure);
+  fprintf(fptr, "RadiativeTransferRadiationPressureScale   = %"FSYM"\n", 
+	  RadiationPressureScale);
   fprintf(fptr, "RadiativeTransferSourceRadius             = %"GSYM"\n", 
 	  RadiativeTransferSourceRadius);
   fprintf(fptr, "RadiativeTransferPropagationSpeedFraction = %"GSYM"\n", 
@@ -45,6 +49,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferPeriodicBoundary);
   fprintf(fptr, "RadiativeTransferSplitPhotonRadius        = %"FSYM"\n", 
 	  RadiativeTransferSplitPhotonRadius);
+  fprintf(fptr, "RadiativeTransferFluxBackgroundLimit      = %"FSYM"\n", 
+	  RadiativeTransferFluxBackgroundLimit);
   fprintf(fptr, "RadiativeTransferRaysPerCell              = %"FSYM"\n", 
 	  RadiativeTransferRaysPerCell);
   fprintf(fptr, "RadiativeTransferTimestepVelocityLimit    = %"FSYM"\n", 

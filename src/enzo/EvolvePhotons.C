@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -41,6 +42,7 @@
 
 /* function prototypes */
 void my_exit(int status);
+int RadiationFieldCalculateRates(FLOAT Time);
 int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
 				 bool local_transport,
 				 int &keep_transporting);
@@ -48,6 +50,11 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 				 ListOfPhotonsToMove **AllPhotons, 
 				 char *kt_global,
 				 int &keep_transporting);
+int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGrids);
+int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfGrids,
+					int FirstTimeAfterRestart);
+int RadiativeTransferMoveLocalPhotons(ListOfPhotonsToMove **AllPhotons,
+				      int &keep_transporting);
 int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 		      HierarchyEntry **Grids[]);
 int InitializePhotonMessages(void);
@@ -66,6 +73,10 @@ int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
 				     int level);
+int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int SetSubgridMarker(TopGridData &MetaData, 
+		     LevelHierarchyEntry *LevelArray[], int level,
+		     int UpdateReplicatedGridsOnly);
 void PrintMemoryUsage(char *str);
 void fpcol(Eflt64 *x, int n, int m, FILE *log_fptr);
 double ReturnWallTime();
@@ -78,7 +89,7 @@ static MPI_Datatype MPI_PhotonList;
 #endif
 
 //#define NONBLOCKING_RT_OFF  // moved to a compile-time define
-#define REPORT_PERF_OFF
+#define REPORT_PERF
 #define MAX_ITERATIONS 5
 
 #ifdef REPORT_PERF
@@ -96,8 +107,14 @@ static MPI_Datatype MPI_PhotonList;
 
 /* EvolvePhotons function */
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, FLOAT GridTime, int level, int LoopTime)
+		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime)
 {
+
+  struct ThinGridList
+  {
+    grid *ThisGrid;
+    ThinGridList *NextGrid;
+  };
 
   bool FirstTime = true;
 
@@ -122,6 +139,11 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   if (dtPhoton < 0)
     return SUCCESS;  
 
+  if (GridTime <= PhotonTime)
+    return SUCCESS;
+
+  LCAPERF_START("EvolvePhotons");
+
   /* Declarations */
 
 #ifdef USE_MPI
@@ -132,12 +154,77 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 #endif
 
-  int lvl;
+  /* For early termination with a background, calculate background
+     intensities */
+
+  RadiationFieldCalculateRates(PhotonTime+0.5*dtPhoton);
+
+  int i, lvl, GridNum;
   grid *Helper;
   LevelHierarchyEntry *Temp;
+  RadiationSourceEntry *RS;
+
+  /* Find the finest grid that hosts each radiation source, and store
+     them in a GridList */
+
+  ThinGridList *RS_GridList, *NewNode, *TempGridList, *TailNode, *LastNode, 
+    *Destroyer;
+  HierarchyEntry **Grids[MAX_DEPTH_OF_HIERARCHY];
+  int nGrids[MAX_DEPTH_OF_HIERARCHY];
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (LevelArray[lvl] != NULL)
+      nGrids[lvl] = GenerateGridArray(LevelArray, lvl, &Grids[lvl]);
+    else
+      nGrids[lvl] = 0;
+
+  RS_GridList = new ThinGridList;
+  RS_GridList->NextGrid = NULL;
+  TailNode = RS_GridList;
+  for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
+    // Search for grid, if not defined. Skip sources that aren't born
+    // for PhotonTest
+    if (RS->GridID == INT_UNDEFINED && 
+	!(RS->CreationTime > PhotonTime && ProblemType == 50)) {
+      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--) {
+	for (GridNum = 0; GridNum < nGrids[lvl]; GridNum++) {
+	  if (MyProcessorNumber == Grids[lvl][GridNum]->GridData->
+	      ReturnProcessorNumber())
+	    if (Grids[lvl][GridNum]->GridData->PointInGrid(RS->Position)) {
+	      RS->GridID = GridNum;
+	      RS->GridLevel = lvl;
+	    } // ENDIF PointInGrid
+	} // ENDFOR grids
+      } // ENDFOR level
+    } // ENDIF undefined grid
+
+    /* Now we know which grid, we can add to the GridList */
+
+    NewNode = new ThinGridList;
+    if (RS->GridLevel != INT_UNDEFINED)
+      NewNode->ThisGrid = Grids[RS->GridLevel][RS->GridID]->GridData;
+    else
+      NewNode->ThisGrid = NULL;
+    NewNode->NextGrid = NULL;
+    TailNode->NextGrid = NewNode;
+    TailNode = NewNode;
+
+  } // ENDFOR RS
+
+  /**********************************************************************
+                       MAIN RADIATION TRANSPORT LOOP
+   **********************************************************************/
     
-  //while (GridTime >= PhotonTime) {
   while (GridTime > PhotonTime) {
+
+  /* Temporarily load balance grids according to the number of ray
+     segments.  We'll move the grids back at the end of this
+     routine */
+
+    if (RadiativeTransferLoadBalance) {
+      CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
+					  MetaData->FirstTimestepAfterRestart);
+      SetSubgridMarker(*MetaData, LevelArray, 1, TRUE);
+    }
 
     /* Recalculate timestep if this isn't the first loop.  We already
        did this in RadiativeTransferPrepare */
@@ -152,25 +239,35 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       printf("EvolvePhotons[%"ISYM"]: dt = %"GSYM", Time = %"FSYM", ", 
 	     level, dtPhoton, PhotonTime);
       
-    int i, GridNum = 0;
+    /* delete source if we are passed (or before) their lifetime (only
+       if not restarting).  We must remove the host grid from the grid
+       list as well. */
 
-    // delete source if we are passed (or before) their lifetime (only
-    // if not restarting)
-    RadiationSourceEntry *RS;
     RS = GlobalRadiationSources->NextSource;
+    LastNode = RS_GridList;
+    TempGridList = RS_GridList->NextGrid;
     int NumberOfSources = 0;
     while (RS != NULL) {
-      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime ||
-	    (RS->CreationTime > PhotonTime + dtPhoton)) && LoopTime == TRUE) {  
+      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime) && LoopTime == TRUE) {  
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
 	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
 		  RS->CreationTime, RS->LifeTime, PhotonTime);
 	}
 	RS = DeleteRadiationSource(RS);
+	
+	// Remove the grid from the list
+	LastNode->NextGrid = TempGridList->NextGrid;
+	Destroyer = TempGridList;
+	TempGridList = TempGridList->NextGrid;
+	delete Destroyer;
+
       } else {
-	NumberOfSources++;                 // count sources
+	if (RS->CreationTime < PhotonTime)
+	  NumberOfSources++;                 // count sources
 	RS = RS->NextSource;
+	LastNode = TempGridList;
+	TempGridList = TempGridList->NextGrid;
       }
     }
 
@@ -219,30 +316,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     // first identify sources and let them radiate 
     RS = GlobalRadiationSources->NextSource;
+    TempGridList = RS_GridList->NextGrid;
 
     START_PERF(); 
     while (RS != NULL) {
-      int Continue = 1;
-      for (lvl = MAX_DEPTH_OF_HIERARCHY-1; (lvl >= 0 && Continue); lvl--) {
-	for (Temp = LevelArray[lvl]; (Temp && Continue); 
-	     Temp = Temp->NextGridThisLevel)
-	  if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
-	    if (Temp->GridData->PointInGrid(RS->Position)) {
-	      Temp->GridData->Shine(RS);
-	      Continue = FALSE; // do not continue with this source
-	    } // If source in grid
-
-	/* For MPI, communicate to minimum value of Continue to ensure
-	   that the source's host grid was found. */
-
-	Continue = CommunicationMinValue(Continue);
-
-	if (lvl == 0 && Continue) {  // this should never happen ... 
-	  ENZO_VFAIL("Could not find grid for source %x: "
-		  "Pos: %"FSYM" %"FSYM" %"FSYM"\n",
-		  RS, RS->Position[0], RS->Position[1], RS->Position[2])
-	}
-      }    // Loop through levels 
+      if (TempGridList->ThisGrid != NULL)
+	TempGridList->ThisGrid->Shine(RS);
+      TempGridList = TempGridList->NextGrid;
       RS = RS->NextSource;
     }    // while still sources 
     END_PERF(2);
@@ -261,6 +341,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     //	if (Temp->GridData->AllocateInterpolatedRadiation() == FAIL) {
     //	  ENZO_FAIL("Error in grid->AllocateInterpolatedRadiation.\n");
     //	}
+
 
     /* Evolve all photons by fixed timestep. */
   
@@ -287,6 +368,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Transport the rays! */
 
+    PrintMemoryUsage("EvolvePhotons -- before loop");
+
     while (secondary_kt_check == TRUE && iteration++ < MAX_ITERATIONS) {
 
 #ifdef NONBLOCKING_RT
@@ -302,8 +385,11 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       last_keep_transporting = local_keep_transporting;
       keep_transporting = 0;
       PhotonsToMove->NextPackageToMove = NULL;
-      PrintMemoryUsage("EvolvePhotons -- loop");
       START_PERF();
+#ifndef NONBLOCKING_RT
+      keep_transporting = 1;
+#endif /* !NONBLOCKING_RT */
+
       if (local_keep_transporting)
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
@@ -317,6 +403,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  else
 	    Helper = NULL;
 
+#ifdef BITWISE_IDENTICALITY
+	  Temp->GridData->PhotonSortLinkedLists();
+#endif
 	  Temp->GridData->TransportPhotonPackages
 	    (lvl, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
 	     Temp->GridData);
@@ -330,17 +419,30 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       if (PhotonsToMove->NextPackageToMove != NULL)
 	keep_transporting = 1;
+      else
+	keep_transporting = 0;
 
 //    printf("EvoPH[P%"ISYM"]: keep_transporting = %"ISYM", PhotonsToMove = %x\n",
-//	   MyProcessorNumber, keep_transporting, PhotonsToMove->NextPackageToMove);
+//	     MyProcessorNumber, keep_transporting, PhotonsToMove->NextPackageToMove);
 
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
       START_PERF();
       CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
-
 				   keep_transporting);
       END_PERF(5);
+
+      /* When all photons have been traced, all of the paused (to be
+	 merged) photons are in their correct grid, merge them */
+
+      int nmerges = 0;
+      if (RadiativeTransferSourceClustering && keep_transporting == 0) {
+	for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0; lvl--)
+	  for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel) {
+	    nmerges += Temp->GridData->MergePausedPhotonPackages();
+	  } // ENDFOR grids
+	if (nmerges > 0) keep_transporting = TRUE;
+      }
 
       /* Receive keep_transporting messages and take the MAX */
 
@@ -386,6 +488,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->MoveFinishedPhotonsBack();
     END_PERF(7);
+    PrintMemoryUsage("EvolvePhotons -- deleted photons");
 
     /* If we're keeping track of photon escape fractions on multiple
        processors, collect photon counts from all processors */
@@ -430,6 +533,15 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     delete PhotonsToMove;
     delete [] Grids0;
     delete [] Temp0;
+
+
+    /* Delete baryon fields on temporary "fake" grid on
+       ProcessorNumber and revert it back to OriginalProcessorNumber,
+       which was saved in CommunicationLoadBalancePhotonGrids.  Photon
+       packages must be moved back, too. */
+
+    if (RadiativeTransferLoadBalance)
+      RadiativeTransferLoadBalanceRevert(Grids, nGrids);
 
     /************************************************************************/
     /********************* Coupled rate & energy solver *********************/
@@ -551,7 +663,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef REPORT_PERF
   if (!FirstTime) {
     if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
-    for (int i = 0; i < NumberOfProcessors; i++) {
+    for (int i = 0; i < 1; i++) {  // Only report on ROOT, not all
       CommunicationBarrier();
       if (MyProcessorNumber == i) {
 
@@ -563,7 +675,22 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 #endif
 
+  /* Delete GridList */
 
+  ThinGridList *Orphan;
+  TempGridList = RS_GridList;
+  while (TempGridList != NULL) {
+    Orphan = TempGridList;
+    TempGridList = TempGridList->NextGrid;
+    if (Orphan != NULL) delete Orphan;
+  }
+
+  /* Delete grid lists */
+
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    if (nGrids[lvl] > 0) delete [] Grids[lvl];
+
+  LCAPERF_STOP("EvolvePhotons");
   return SUCCESS;
 
 }

@@ -45,11 +45,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int kphHINum, int gammaNum, int kphHeINum, 
 			    int kphHeIINum, 
 			    int kdissH2INum, int RPresNum1, int RPresNum2, 
-			    int RPresNum3, int &DeleteMe, int &PauseMe, 
-			    int &DeltaLevel, float LightCrossingTime,
+			    int RPresNum3, int RaySegNum, int &DeleteMe, 
+			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
-			    float TimeUnits) {
+			    float TimeUnits, float LightSpeed) {
 
   const float erg_eV = 1.602176e-12;
   const float c_cgs = 2.99792e10;
@@ -70,7 +70,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float MinTauIfront, PhotonEscapeRadius[3], c, c_inv, tau;
   float DomainWidth[3], dx, dx2, dxhalf, fraction, dColumnDensity;
   float shield1, shield2, solid_angle, midpoint, nearest_edge;
-  float tau_delete;
+  float tau_delete, flux_floor;
   double dN;
   FLOAT radius, oldr, cdt, dr;
   FLOAT CellVolume = 1, Volume_inv, Area_inv, SplitCriteron, SplitWithinRadius;
@@ -89,11 +89,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     return SUCCESS;
   }
 
-  if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP)) {
+  if ((*PP) == NULL || (*PP)->PreviousPackage == NULL ||
+      (*PP)->PreviousPackage->NextPackage != (*PP)) {
     ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
-	    "\t %x %x %x %x\n",
-	    (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
-	    PhotonPackages)
+	    "\t %p %p %p\n",
+	    (*PP), (*PP)->PreviousPackage, PhotonPackages)
   }
 
   /* This controls the splitting condition, where this many rays must
@@ -112,11 +112,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       RadiativeTransferPhotonEscapeRadius * (3.086e21f / LengthUnits);
 
   // speed of light in code units. note this one is independent of a(t)
-  c = c_cgs/VelocityUnits;
-
-  // Modify the photon propagation speed by this parameter
-  c *= RadiativeTransferPropagationSpeedFraction;
-  c_inv = 1.0 / c;
+  c = LightSpeed;
+  c_inv = 1.0 / LightSpeed;
 
   /* Calculate the normal direction (HEALPix) */
 
@@ -153,8 +150,12 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
-    if (g[dim] < 0 || g[dim] >= GridDimension[dim])
-      ENZO_FAIL("Ray out of grid?");
+    if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
+      printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
+      DeleteMe = TRUE;
+      return SUCCESS;
+      //ENZO_FAIL("Ray out of grid?");
+    }
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions
@@ -168,7 +169,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   if (SubgridMarker[cindex] != this) {
-    FindPhotonNewGrid(cindex, r, *PP, *MoveToGrid,
+    FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
 		      DeltaLevel, DomainWidth, DeleteMe, 
 		      ParentGrid);
     return SUCCESS;
@@ -185,7 +186,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   */
 
   if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL) {
-    r_merge = 2*RadiativeTransferPhotonMergeRadius *
+    r_merge = RadiativeTransferPhotonMergeRadius *
       (*PP)->CurrentSource->ClusteringRadius;
     d2_ss = 0.0;
     u_dot_d = 0.0;
@@ -281,6 +282,26 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       factor2[i] = factor1 * ((*PP)->Energy - EnergyThresholds[i]);
   }
 
+  /* Calculate minimum photo-ionization rate (*dOmega) before ray
+     termination with a radiation background.  Probably only accurate
+     with ray merging. */
+
+  if (RadiationFieldType > 0 && RadiativeTransferSourceClustering > 0) {
+    flux_floor = dtPhoton * RadiativeTransferFluxBackgroundLimit / sigma[type];
+    switch (type) {
+    case iHI:
+      flux_floor *= RateData.k24;
+      break;
+    case iHeI:
+      flux_floor *= RateData.k25;
+      break;
+    case iHeII:
+      flux_floor *= RateData.k26;
+      break;
+    default:
+      flux_floor = 0;
+    } // ENDSWITCH
+  } // ENDIF
 
   /* Calculate conversion factor for radiation pressure.  In cgs, we
      actually calculate acceleration due to radiation pressure, (all
@@ -327,7 +348,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
        DeltaLevel, and DeleteMe, and exit the loop. */
 
     if (SubgridMarker[cindex] != this) {
-      FindPhotonNewGrid(cindex, r, *PP, *MoveToGrid,
+      FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
 			DeltaLevel, DomainWidth, DeleteMe, 
 			ParentGrid);
       break;
@@ -730,14 +751,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	(*PP)->Radius > (*PP)->SourcePositionDiff)
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	BaryonField[RPresNum1+dim][index] += 
-	  RadiationPressureConversion * dP * (*PP)->Energy / 
+	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy / 
 	  density[index] * dir_vec[dim];
     
     (*PP)->CurrentTime += cdt;
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
 
-    //BaryonField[kphHeIINum][index] += 1;
+    if (RadiativeTransferLoadBalance)
+      BaryonField[RaySegNum][index] += 1.0;
 
     // return in case we're pausing to merge
     if (PauseMe)
@@ -757,12 +779,28 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       DeleteMe = TRUE;
       return SUCCESS;
     }
+
+    // If we are using a radiation background, check if the
+    // optically-thin flux has dropped below 1% of the background.
+    // Only can be used accurately with ray merging.
+    // Ray photon flux < dOmega * 0.01 * photo-ionization(background)
+    //   dOmega = 4*pi*r^2/N_pixels
+    //   flux_floor = 0.01 * photon-ionization(background) / cross-section
+    if (RadiationFieldType > 0 && RadiativeTransferSourceClustering > 0)
+      if ((*PP)->Photons < flux_floor * solid_angle) {
+//	printf("Deleting photon %p: r=%g, P=%g, limit=%g\n", *PP, radius,
+//	       (*PP)->Photons, flux_floor*solid_angle);
+	(*PP)->Photons = -1;
+	DeleteMe = TRUE;
+	return SUCCESS;
+      }
     
     // are we done ? 
     if (((*PP)->CurrentTime) >= EndTime) {
-
-      (*PP)->Photons = -1;
-      DeleteMe = TRUE;
+      if (RadiativeTransferAdaptiveTimestep) {
+	(*PP)->Photons = -1;
+	DeleteMe = TRUE;
+      }
       return SUCCESS;
     }
 

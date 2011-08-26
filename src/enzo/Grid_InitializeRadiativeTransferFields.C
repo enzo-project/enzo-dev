@@ -24,6 +24,8 @@
 #include "GridList.h"
 #include "Grid.h"
 
+int FindField(int field, int farray[], int numfields);
+
 int grid::InitializeRadiativeTransferFields() 
 {
 
@@ -36,6 +38,8 @@ int grid::InitializeRadiativeTransferFields()
   int kphHINum, gammaNum, kphHeINum, kphHeIINum, kdissH2INum;
   IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, 
 				  kphHeIINum, kdissH2INum);
+
+  int RaySegNum = FindField(RaySegments, FieldType, NumberOfBaryonFields);
 
   int i,j,k, index;
 
@@ -58,8 +62,7 @@ int grid::InitializeRadiativeTransferFields()
 	    BaryonField[kphHeIINum][index] = 0.0;
       }  // loop over grid
 
-  if (MultiSpecies > 1 && !RadiativeTransferOpticallyThinH2 &&
-      !RadiativeTransferFLD)
+  if (MultiSpecies > 1 && !RadiativeTransferFLD)
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];
@@ -84,6 +87,14 @@ int grid::InitializeRadiativeTransferFields()
       }  // loop over grid
     
   }  /* ENDIF RadiationPressure */
+
+  if (RadiativeTransferLoadBalance)
+    for (k = 0; k < GridDimension[2]; k++)
+      for (j = 0; j < GridDimension[1]; j++) {
+	index = (k*GridDimension[1] + j)*GridDimension[0];
+	for (i = 0; i < GridDimension[0]; i++, index++)
+	  BaryonField[RaySegNum][index] = 0.0;
+      }  // loop over grid
 
   HasRadiation = FALSE;
   MaximumkphIfront = 0;

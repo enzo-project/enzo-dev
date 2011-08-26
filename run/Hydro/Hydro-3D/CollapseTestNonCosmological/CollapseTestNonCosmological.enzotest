@@ -1,0 +1,10 @@
+name = 'CollapseTestNonCosmological'
+answer_testing_script = 'test_collapse.py'
+nprocs = 1
+runtime = 'medium'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+dimensionality = 3
+max_time_minutes = 90

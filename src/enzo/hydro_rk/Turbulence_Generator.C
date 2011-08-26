@@ -25,7 +25,8 @@ double Gaussian(double cs);
    /* 
       vel[3][ActiveSize]
       size: the grid dimension
-      ind: index of the velocity power spectrum v_k^2 ~ k^{-n}, n = 11/3 for Kolmogorov turbulence,
+      ind: index of the velocity power spectrum v_k^2 ~ k^{-n}, 
+           n = 11/3 for Kolmogorov turbulence,
 	   n = 4 for Larson relation
       kmin: the lower wave number cutoff
       kmax: the upper wave number cutoff 
@@ -43,7 +44,8 @@ double Gaussian(double cs);
      }
    }
 
-   printf("Turbulence_Generator: seed=%"ISYM", kmin=%"GSYM", kmax=%"GSYM"\n", seed, kmin, kmax);
+   printf("Turbulence_Generator: seed=%"ISYM", kmin=%"GSYM", kmax=%"GSYM", dk = %"GSYM"\n", 
+	  seed, kmin, kmax, dk);
    srand(seed);
 
    double phix, phiy, phiz, Ax, Ay, Az, AA, Ak0;
@@ -82,6 +84,9 @@ double Gaussian(double cs);
 	 phiy = phiy / RAND_MAX * 2.0 * pi;
 	 phiz = rand();
 	 phiz = phiz / RAND_MAX * 2.0 * pi;
+
+	 /* no helicity ( in the case of magnetic fields) */ 
+	 phix = phiy = phiz = 0.;
 
 	 /* Fourier transform A_k to v(x) 
 	  v(x) = Sum_k{Re(ik x A_k)}*/

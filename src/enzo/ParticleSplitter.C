@@ -56,16 +56,19 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
 		     TopGridData *MetaData)
 {
 
-  /* Return if this does not concern us */
-
-  if (ParticleSplitterIterations <= 0 || 
-      ParticleSplitterChildrenParticleSeparation <=0 ||
-      !(MetaData->FirstTimestepAfterRestart)) 
-    return SUCCESS;
-
   int level, i, grid1;
   HierarchyEntry **Grids;
   int NumberOfGrids;
+
+  /* First, rebuild the hierarchy */
+  
+  RebuildHierarchy(MetaData, LevelArray, 0);  
+
+  /* Return if this does not concern us */
+
+  if (ParticleSplitterIterations <= 0 || 
+      ParticleSplitterChildrenParticleSeparation <=0) 
+    return SUCCESS;
 
   /* Find total NumberOfParticles in all grids; this is needed in 
      CommunicationUpdateStarParticleCount below */
@@ -129,7 +132,7 @@ int ParticleSplitter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
     /* Redistribute the particles as the newly created particles 
        might have crossed the grid boundaries */
   
-    RebuildHierarchy(MetaData, LevelArray, 0);
+    RebuildHierarchy(MetaData, LevelArray, 0);  
     
     /* Set MetaData->NumberOfParticles again; might be needed somewhere */
 
@@ -197,7 +200,6 @@ void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
   for (grid = 0; grid < NumberOfGrids; grid++) {
     TotalStarParticleCountPrevious[grid] = 0;
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
-
       PartialStarParticleCountPrevious[grid] =
 	Grids[grid]->GridData->ReturnNumberOfStarParticles();
     }

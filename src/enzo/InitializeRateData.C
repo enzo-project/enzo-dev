@@ -5,6 +5,8 @@
 /  written by: Greg Bryan
 /  date:       October, 1996
 /  modified1:  Dan Reynolds, July 2010; added case-B recombination rates
+/  modified2:  Britton Smith, October 2010; moved reading/writing of 
+/              parameters to Read/WriteParameterFile.
 /
 /  PURPOSE:
 /    For multi-species runs (with cooling), initialize both the
@@ -27,6 +29,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+int InitializeCloudyCooling(FLOAT Time);
+int InitializeLymanWernerTable();
 int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits, 
 			  float aUnits, float DensityUnits, float TimeUnits, 
 			  float aye);
@@ -36,7 +40,8 @@ extern "C" void FORTRAN_NAME(calc_rates)(
      float *utem, float *uxyz, float *uaye, float *urho, float *utim,
      float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, float *ciHeIa,
      float *ciHeISa, float *ciHeIIa, float *reHIIa, float *reHeII1a,
-     float *reHeII2a, float *reHeIIIa, float *brema, float *compa, float *gammaha,
+     float *reHeII2a, float *reHeIIIa, float *brema, float *compa, 
+     float *gammahacgs, float *gammaha,
      float *piHI, float *piHeI, float *piHeII,
      float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
      float *gpldl, float *gphdl, float *hdlte, float *hdlow, float *hdcool, float *cieco,
@@ -62,94 +67,10 @@ int InitializeRateData(FLOAT Time)
   /* Declarations. */
  
   FLOAT a = 1, dadt;
- 
-  /* Set radiation parameters (ignored if RadiationFieldType = 10 or 11).
-     Note: defaults are over-written by CoolData.ParameterFile entries. */
- 
-  // NOTE: these two are already in the main parameter file
-  //  CoolData.alpha0                   = 1.5;     // spectral slope
-  //  CoolData.f3                       = 1.0e-21; // spectrum normalization
-  CoolData.f0to3                    = 0.1;
-  CoolData.RadiationRedshiftOn      = 7.0;
-  CoolData.RadiationRedshiftOff     = 0.0;
-  CoolData.RadiationRedshiftFullOn  = 6.0;
-  CoolData.RadiationRedshiftDropOff = 0.0;
-  CoolData.HydrogenFractionByMass   = 0.76;
-  /* The DToHRatio is by mass in the code, so multiply by 2. */
-  CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
-  CoolData.NumberOfTemperatureBins = 600;
-  CoolData.ih2co                   = 1;
-  CoolData.ipiht                   = 1;
-  CoolData.TemperatureStart        = 1.0;
-  CoolData.TemperatureEnd          = 1.0e8;
-  CoolData.comp_xray               = 0;
-  CoolData.temp_xray               = 0;
-  RateData.CaseBRecombination      = 0;   // default to case A rates
-
-
-  // over-write defaults if CoolData Parameter file is provided
-  if (CoolData.ParameterFilename != NULL) {
-
-    // open parameter file
-    FILE *fptr;
-    if ((fptr = fopen(CoolData.ParameterFilename, "r")) == NULL) 
-      fprintf(stderr,"Error opening CoolData file, keeping defaults.\n");
-
-    else {
-
-      char line[MAX_LINE_LENGTH];
-      int ret;
-
-      // read until out of lines
-      while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-	ret = 0;
-	ret += sscanf(line, "RadiationSpectrumNormalization = %"FSYM,
-		      &CoolData.f3);
-	ret += sscanf(line, "RadiationSpectrumSlope = %"FSYM,
-		      &CoolData.alpha0);
-	ret += sscanf(line, "CoolDataf0to3 = %"FSYM,
-		      &CoolData.f0to3);
-	ret += sscanf(line, "RadiationRedshiftOn = %"FSYM,
-		      &CoolData.RadiationRedshiftOn);
-	ret += sscanf(line, "RadiationRedshiftOff = %"FSYM,
-		      &CoolData.RadiationRedshiftOff);
-	ret += sscanf(line, "RadiationRedshiftFullOn = %"FSYM,
-		      &CoolData.RadiationRedshiftFullOn);
-	ret += sscanf(line, "RadiationRedshiftDropOff = %"FSYM,
-		      &CoolData.RadiationRedshiftDropOff);
-	ret += sscanf(line, "HydrogenFractionByMass = %"FSYM,
-		      &CoolData.HydrogenFractionByMass);
-	ret += sscanf(line, "DeuteriumToHydrogenRatio = %"FSYM,
-		      &CoolData.DeuteriumToHydrogenRatio);
-	ret += sscanf(line, "NumberOfTemperatureBins = %"ISYM,
-		      &CoolData.NumberOfTemperatureBins);
-	ret += sscanf(line, "CoolDataIh2co = %"ISYM, &CoolData.ih2co);
-	ret += sscanf(line, "CoolDataIpiht = %"ISYM, &CoolData.ipiht);
-	ret += sscanf(line, "TemperatureStart = %"FSYM,
-		      &CoolData.TemperatureStart);
-	ret += sscanf(line, "TemperatureEnd = %"FSYM,
-		      &CoolData.TemperatureEnd);
-	ret += sscanf(line, "CoolDataCompXray = %"FSYM,
-		      &CoolData.comp_xray);
-	ret += sscanf(line, "CoolDataTempXray = %"FSYM,
-		      &CoolData.temp_xray);
-	ret += sscanf(line, "RateDataCaseBRecombination = %"ISYM,
-		      &RateData.CaseBRecombination);
-      }
-
-      // clean up
-      rewind(fptr);
-
-      // close parameter file
-      fclose(fptr);
-    }
-  }  // end reading cooldata parameter file 
- 
+  
   if (debug) printf("InitializeRateData: NumberOfTemperatureBins = %"ISYM"\n",
 		    CoolData.NumberOfTemperatureBins);
 
-  
- 
   /* Allocate CoolData space for rates. */
  
   CoolData.ceHI    = new float[CoolData.NumberOfTemperatureBins];
@@ -189,7 +110,8 @@ int InitializeRateData(FLOAT Time)
   RateData.NumberOfTemperatureBins = CoolData.NumberOfTemperatureBins;
   RateData.TemperatureStart        = CoolData.TemperatureStart;
   RateData.TemperatureEnd          = CoolData.TemperatureEnd;
- 
+
+   
   /* Allocate space in RateData for rates. */
  
   RateData.k1 = new float[RateData.NumberOfTemperatureBins];
@@ -258,7 +180,8 @@ int InitializeRateData(FLOAT Time)
         CoolData.ciHeI,
      CoolData.ciHeIS, CoolData.ciHeII, CoolData.reHII,
         CoolData.reHeII1,
-     CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp, &CoolData.gammah,
+     CoolData.reHeII2, CoolData.reHeIII, CoolData.brem, &CoolData.comp, 
+     &PhotoelectricHeatingRate, &CoolData.gammah,
      &CoolData.piHI, &CoolData.piHeI, &CoolData.piHeII,
      CoolData.hyd01k, CoolData.h2k01, CoolData.vibh, CoolData.roth,
         CoolData.rotl,
@@ -275,50 +198,21 @@ int InitializeRateData(FLOAT Time)
         &RateData.k29, &RateData.k30, &RateData.k31,
      RateData.k50, RateData.k51, RateData.k52, RateData.k53, RateData.k54,
         RateData.k55, RateData.k56, &ioutput);
- 
 
-  // output CoolData parameters to output log file 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
-    FILE *outfptr;
-    if ((outfptr = fopen(outfilename, "a")) == NULL) {
-      ENZO_VFAIL("Error opening parameter output file %s.\n", 
-	      outfilename)
+  /* If using tabulated J21 values for Lyman-Werner, initialize. */
+  if (TabulatedLWBackground) {
+    if (InitializeLymanWernerTable() == FAIL) {
+      ENZO_FAIL("Error in InitializeLymanWernerTable.\n");
     }
+  }
 
-    fprintf(outfptr,"RadiationSpectrumNormalization = %"FSYM"\n",
-	    CoolData.f3);
-    fprintf(outfptr,"RadiationSpectrumSlope = %"FSYM"\n",
-	    CoolData.alpha0);
-    fprintf(outfptr,"CoolDataf0to3 = %"FSYM"\n", CoolData.f0to3);
-    fprintf(outfptr,"RadiationRedshiftOn = %"FSYM"\n",
-	    CoolData.RadiationRedshiftOn);
-    fprintf(outfptr,"RadiationRedshiftOff = %"FSYM"\n",
-	    CoolData.RadiationRedshiftOff);
-    fprintf(outfptr,"RadiationRedshiftFullOn = %"FSYM"\n",
-	    CoolData.RadiationRedshiftFullOn);
-    fprintf(outfptr,"RadiationRedshiftDropOff = %"FSYM"\n",
-	    CoolData.RadiationRedshiftDropOff);
-    fprintf(outfptr,"HydrogenFractionByMass = %"FSYM"\n",
-	    CoolData.HydrogenFractionByMass);
-    fprintf(outfptr,"DeuteriumToHydrogenRatio = %"FSYM"\n",
-	    CoolData.DeuteriumToHydrogenRatio);
-    fprintf(outfptr,"NumberOfTemperatureBins = %"ISYM"\n",
-	    CoolData.NumberOfTemperatureBins);
-    fprintf(outfptr,"CoolDataIh2co = %"ISYM"\n", CoolData.ih2co);
-    fprintf(outfptr,"CoolDataIpiht = %"ISYM"\n", CoolData.ipiht);
-    fprintf(outfptr,"TemperatureStart = %"FSYM"\n",
-	    CoolData.TemperatureStart);
-    fprintf(outfptr,"TemperatureEnd = %"FSYM"\n",
-	    CoolData.TemperatureEnd);
-    fprintf(outfptr,"CoolDataCompXray = %"FSYM"\n", CoolData.comp_xray);
-    fprintf(outfptr,"CoolDataTempXray = %"FSYM"\n", CoolData.temp_xray);
-    
-    // close parameter file
-    fclose(outfptr);
+  /* Initialize Cloudy cooling, even if not being used. */
+  /* If not used, this will just initialize some data structues. */
+  if (InitializeCloudyCooling(Time) == FAIL) {
+    ENZO_FAIL("Error in InitializeCloudyCooling.");
   }
 
   /* If table exists, read metal cooling rates */
-
   if (MetalCooling == JHW_METAL_COOLING)
     if (ReadMetalCoolingRates(TemperatureUnits, LengthUnits, aUnits, 
 			      DensityUnits, TimeUnits, afloat) == FAIL) {

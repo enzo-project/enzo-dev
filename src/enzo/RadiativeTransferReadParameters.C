@@ -30,6 +30,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   /* Set defaults. */
 
   RadiationPressure           = FALSE;             // off
+  RadiationPressureScale      = 1.0;
   PhotonTime                  = 0; 
   dtPhoton                    = FLOAT_UNDEFINED;
   for (i = 0; i < 4; i++) {
@@ -48,6 +49,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPropagationDistance        = 0.1;
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
+  RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
   RadiativeTransferRaysPerCell                = 5.1;
   RadiativeTransferInitialHEALPixLevel        = 3;
@@ -64,6 +66,10 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTraceSpectrum              = FALSE;
   RadiativeTransferTraceSpectrumTable         = (char*) "spectrum_table.dat";
   RadiativeTransferSourceBeamAngle            = 30.0;
+  RadiativeTransferLoadBalance                = FALSE;
+
+  if (MultiSpecies == 0)
+    RadiativeTransferOpticallyThinH2 = FALSE;
 
   /* read input from file */
 
@@ -75,6 +81,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
     
     ret += sscanf(line, "RadiativeTransferRadiationPressure = %"ISYM, 
 		  &RadiationPressure);
+    ret += sscanf(line, "RadiativeTransferRadiationPressureScale = %"FSYM, 
+		  &RadiationPressureScale);
     ret += sscanf(line, "RadiativeTransferSourceRadius = %"FSYM, 
 		  &RadiativeTransferSourceRadius);
     ret += sscanf(line, "RadiativeTransferPropagationSpeedFraction = %"FSYM, 
@@ -89,6 +97,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferPeriodicBoundary);
     ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %"FSYM, 
 		  &RadiativeTransferSplitPhotonRadius);
+    ret += sscanf(line, "RadiativeTransferFluxBackgroundLimit = %"FSYM, 
+		  &RadiativeTransferFluxBackgroundLimit);
     ret += sscanf(line, "RadiativeTransferRaysPerCell = %"FSYM, 
 		  &RadiativeTransferRaysPerCell);
     ret += sscanf(line, "RadiativeTransferTimestepVelocityLimit = %"FSYM, 
@@ -115,6 +125,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferHydrogenOnly);
     ret += sscanf(line, "RadiativeTransferTraceSpectrum = %"ISYM, 
 		  &RadiativeTransferTraceSpectrum);
+    ret += sscanf(line, "RadiativeTransferLoadBalance = %"ISYM, 
+		  &RadiativeTransferLoadBalance);
     if (sscanf(line, "RadiativeTransferTraceSpectrumTable = %s", dummy) == 1)
       RadiativeTransferTraceSpectrumTable = dummy;  
     ret += sscanf(line, "dtPhoton = %"FSYM, &dtPhoton);

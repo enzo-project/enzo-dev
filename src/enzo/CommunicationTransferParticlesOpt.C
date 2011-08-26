@@ -10,8 +10,6 @@
 /  PURPOSE:
 /
 ************************************************************************/
-#ifdef OPTIMIZED_CTP
- 
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -20,7 +18,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <algorithm>
-using namespace std;
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -34,6 +31,7 @@ using namespace std;
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "SortCompareFunctions.h"
 void my_exit(int status);
  
 // function prototypes
@@ -43,6 +41,8 @@ int Enzo_Dims_create(int nnodes, int ndims, int *dims);
 int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 				int &NumberOfReceives,
 				particle_data* &SharedList);
+int search_lower_bound(int *arr, int value, int low, int high, 
+		       int total);
 
 #define NO_DEBUG_CTP
 #define KEEP_PARTICLES_LOCAL
@@ -121,14 +121,16 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 	      (0.5*(Right[dim]+Left[dim]) - DomainLeftEdge[dim]) /
 	      (DomainRightEdge[dim] - DomainLeftEdge[dim]));
       
-	pbin = lower_bound(StartIndex[dim], StartIndex[dim]+Layout[dim]+1,
-			   CenterIndex);
-	GridPosition[dim] = pbin-StartIndex[dim];
-	if (*pbin != CenterIndex) GridPosition[dim]--;
+	GridPosition[dim] = 
+	  search_lower_bound(StartIndex[dim], CenterIndex, 0, Layout[dim],
+			     Layout[dim]);
 
       } // ENDELSE
 
     } // ENDFOR dim
+//    if (debug)
+//      printf("grid %d: GPos = %d %d %d\n", grid, GridPosition[0],
+//	     GridPosition[1], GridPosition[2]);
     grid_num = GridPosition[0] + 
       Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
     GridMap[grid_num] = grid;
@@ -174,7 +176,8 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
   SharedList = SendList;
   NumberOfReceives = TotalNumberToMove;
   int particle_data_size = sizeof(particle_data);
-  qsort(SharedList, TotalNumberToMove, particle_data_size, compare_grid);
+  //qsort(SharedList, TotalNumberToMove, particle_data_size, compare_grid);
+  std::sort(SharedList, SharedList+TotalNumberToMove, cmp_grid());
 
 #else
 
@@ -275,4 +278,3 @@ int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
   return SUCCESS;
 }
 
-#endif /* OPTIMIZED_CTP */

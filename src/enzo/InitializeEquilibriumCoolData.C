@@ -41,6 +41,8 @@ int InitializeEquilibriumCoolData(FLOAT Time)
  
   /* Open input file for data. */
  
+  if( RadiativeCoolingModel == 1){
+      
   FILE *fptr = fopen("cool_rates.in", "r");
   if (fptr == NULL) {
     ENZO_FAIL("Error opening cool_rates.in\n");
@@ -126,6 +128,13 @@ int InitializeEquilibriumCoolData(FLOAT Time)
   for (index = 0; index < CoolData.NumberOfTemperatureBins; index++)
     CoolData.EquilibriumRate[index] /= CoolUnit;
  
+  /*  Photoelectric heating by UV-irradiated dust (Wolfire 1995)
+      Default is 8.5e-26 for epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3) 
+      The extra factor of dbase1/mh is taken out when used in cool1d.F */
+
+  CoolData.gammah = PhotoelectricHeatingRate / CoolUnit;
+
+
   /* Output cooling rate in code units. */
  
   fptr = fopen("cool_rates.out", "w");
@@ -136,6 +145,12 @@ int InitializeEquilibriumCoolData(FLOAT Time)
 	   float(CoolData.NumberOfTemperatureBins-1),
 	   CoolData.EquilibriumRate[index]);
   fclose(fptr);
+  }else if( RadiativeCoolingModel == 3){
+      CoolData.NumberOfTemperatureBins = 2;
+      CoolData.EquilibriumRate = new float[CoolData.NumberOfTemperatureBins];
+      CoolData.TemperatureEnd = 1e4  ;
+      CoolData.TemperatureStart = 18;
+  }
  
   return SUCCESS;
 }

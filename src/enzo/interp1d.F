@@ -54,7 +54,8 @@ c
 c  locals
 c
       integer i, i1, pstart1, pdim1
-      real    delf0, fbar, fx
+      real    delf0, fbar, fx, one
+      parameter (one=1.d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -77,7 +78,7 @@ c
 c     Interpolate values from cell centers to cell corners
 c
       do i = 1, pdim1+1
-         work(i) = 0.5*(
+         work(i) = 0.5d0*(
      &           parent(pstart1+i-1) +
      &           parent(pstart1+i  )
      &                 )
@@ -95,18 +96,18 @@ c        Compute the minimum delta f across the cell
 c
          delf0 =     min(abs(fbar - work(i  )),
      &                   abs(fbar - work(i+1)) )*
-     &            sign(1.0, (fbar - work(i  )))
-         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0.0) delf0 = 0.0
+     &            sign(one, (fbar - work(i  )))
+         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0.0) delf0=0.d0
 c
 c        Now, find the the interpolation coefficients.
 c
-         fx = 2.0*delf0
+         fx = 2.d0*delf0
 c
 c        And interpolate to the subgrid.
 c
          do i1 = 0, refine1-1
             grid(gstart1+(i-1)*refine1+i1) = (fbar +
-     &            (real(i1)+0.5-0.5*real(refine1))/real(refine1)*fx)
+     &            (real(i1)+0.5d0-0.5d0*real(refine1))/real(refine1)*fx)
          enddo
 c
       enddo

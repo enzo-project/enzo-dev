@@ -60,7 +60,6 @@ int grid::AddRadiationPressureAcceleration()
   }
 
   /* Add acceleration fields from radiation pressure */
-
   index = 0;
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
     for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {

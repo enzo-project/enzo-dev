@@ -38,6 +38,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   float PhotonTestSourceRampTime[MAX_SOURCES];
   float *PhotonTestSourceSED[MAX_SOURCES];
   float *PhotonTestSourceEnergy[MAX_SOURCES];
+  float PhotonTestSourceOrientation[MAX_SOURCES][MAX_DIMENSION];
 
   // Set defaults
 
@@ -54,6 +55,9 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       PhotonTestSourcePosition[source][dim] =
 	0.5*(DomainLeftEdge[dim] + DomainRightEdge[dim]);
     }
+    PhotonTestSourceOrientation[source][0] =
+      PhotonTestSourceOrientation[source][1] = 0.0;
+    PhotonTestSourceOrientation[source][2] = 1.0;
   }
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
@@ -72,10 +76,10 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    ret = 0;
+     ret = 0;
     ret += sscanf(line, "PhotonTestNumberOfSources = %"ISYM,
 		  &PhotonTestNumberOfSources);
-    if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
+     if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceType[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceType[source]);
       if (debug)
@@ -99,6 +103,11 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceRampTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceRampTime[source]);
+    if (sscanf(line, "PhotonTestSourceOrientation[%"ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceOrientation[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+		    &source, &PhotonTestSourceOrientation[source][0],
+		    &PhotonTestSourceOrientation[source][1],
+		    &PhotonTestSourceOrientation[source][2]);
     if (sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceEnergyBins[source]);
@@ -160,7 +169,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   // normalize SED
 
-  float totSED;
+  float totSED, sum;
   for (source = 0; source < PhotonTestNumberOfSources; source++) {
     totSED = 0.;  
     for (i=0; i<PhotonTestSourceEnergyBins[source]; i++) 
@@ -184,6 +193,8 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     RadSources->PreviousSource = GlobalRadiationSources;
     RadSources->NextSource     = GlobalRadiationSources->NextSource;
     RadSources->SuperSource    = NULL;
+    RadSources->GridID         = INT_UNDEFINED;
+    RadSources->GridLevel      = INT_UNDEFINED;
     RadSources->Type           = PhotonTestSourceType[i]; 
     RadSources->Luminosity     = PhotonTestSourceLuminosity[i]; 
     RadSources->LifeTime       = PhotonTestSourceLifeTime[i]; 
@@ -201,10 +212,24 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       RadSources->Energy[j] = PhotonTestSourceEnergy[i][j];
       RadSources->SED[j]    = PhotonTestSourceSED[i][j];
     }
+    if (RadSources->Type == Beamed) {
+      RadSources->Orientation = new float[3];
+      sum = 0;  // for normalization
+      for (dim = 0; dim < MAX_DIMENSION; dim++) {
+	RadSources->Orientation[dim] = PhotonTestSourceOrientation[i][dim];
+	sum += PhotonTestSourceOrientation[i][dim] * PhotonTestSourceOrientation[i][dim];
+      }
+      sum = sqrt(sum);
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	RadSources->Orientation[dim] /= sum;
+    } else {
+      RadSources->Orientation = NULL;
+    }
 
-    if (RadSources->Type < Isotropic || RadSources->Type > Beamed) {
+    if (RadSources->Type != Isotropic && RadSources->Type != Beamed &&
+	RadSources->Type != Episodic) {
       if (MyProcessorNumber == ROOT_PROCESSOR)
-	fprintf(stderr, "PhotonTestSourceType must be 1 or 2\n",
+	fprintf(stderr, "PhotonTestSourceType must be 1, -2, -3.\n",
 		"\tChanging to 1 (isotropic)\n");
       RadSources->Type = Isotropic;
     }

@@ -33,7 +33,8 @@
  
  
  
-int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
+int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles, 
+				int DeleteAllFields)
 {
 
   int dim;
@@ -77,7 +78,7 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
     /* Copy photon packages */
 
 #ifdef TRANSFER
-    PhotonPackageEntry *PP = PhotonPackages->NextPackage;    
+    PhotonPackageEntry *PP = PhotonPackages->NextPackage;
     if (PP != NULL)
       this->CommunicationSendPhotonPackages(this, ToProcessor, 
 					    NumberOfPhotonPackages, 
@@ -88,11 +89,16 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles)
  
     if (MyProcessorNumber == ProcessorNumber && ProcessorNumber != ToProcessor &&
 	(CommunicationDirection == COMMUNICATION_SEND ||
-	 CommunicationDirection == COMMUNICATION_SEND_RECEIVE))
-      if (MoveParticles == TRUE)
-	this->DeleteAllFields();
-      else
-	this->DeleteAllButParticles();
+	 CommunicationDirection == COMMUNICATION_SEND_RECEIVE)) {
+      if (DeleteAllFields == TRUE) {
+	if (MoveParticles == TRUE)
+	  this->DeleteAllFields();
+	else
+	  this->DeleteAllButParticles();
+      } else {
+	this->DeleteBaryonFields();
+      }
+    }
     
   } // ENDIF right processor
  

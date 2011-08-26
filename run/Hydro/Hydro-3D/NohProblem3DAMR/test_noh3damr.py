@@ -1,5 +1,5 @@
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest
+from yt.utilities.answer_testing.api import YTStaticOutputTest
 import pylab as pl
 class TestShockImage(YTStaticOutputTest):
     name = "noh3damr_image"

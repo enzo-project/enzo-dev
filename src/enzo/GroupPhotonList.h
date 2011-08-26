@@ -16,6 +16,7 @@ struct PhotonBuffer {
 };
 
 struct GroupPhotonList {
+  char PausedPhoton;
   int ToLevel;
   int ToGrid;
   //  int FromLevel;

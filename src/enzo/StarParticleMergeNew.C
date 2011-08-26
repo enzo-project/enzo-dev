@@ -32,6 +32,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+Star *PopStar(Star * &Node);
+void InsertStarAfter(Star * &Node, Star * &NewNode);
 void DeleteStar(Star * &Node);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -40,7 +42,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
-  Star *ThisStar, *OtherStar, *PrevStar;
+  Star *ThisStar, *OtherStar, *LastStar, *MoveStar;
   LevelHierarchyEntry *Temp;
   float rmerge2, rmerge2o, dx, dx2;
   FLOAT TimeNow;
@@ -88,8 +90,8 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 	}
 	ENZO_FAIL("Merging Duplicate Particle!?\n");
       }
-      if (ThisStar->Mergable(OtherStar))
-	if (ThisStar->Separation2(OtherStar) <= rmerge2) {
+      if (ThisStar->Mergable(*OtherStar))
+	if (ThisStar->Separation2(*OtherStar) <= rmerge2) {
 	  ThisStar->Merge(OtherStar);
 	  OtherStar->MarkForDeletion();
 //	  printf("Merging stars %"ISYM" and %"ISYM"\n", ThisStar->ReturnID(),
@@ -98,18 +100,88 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
     } // ENDFOR OtherStar
   } // ENDFOR ThisStar
 
+  /* For Pop III stars, don't allow stars to form if a protostar (Star
+     is still is ramping up its luminosity) is nearby.  Not good for
+     binaries.  Set StarClusterCombineRadius => 0 to ignore this. */
+
+  // Should be a parameter (50 kyr).  Used in StarParticleRadTransfer.C.
+  const float PopIIIRampTime = 1.57785e12 / TimeUnits;
+
+#define NO_POP3_BINARIES
+#ifdef NO_POP3_BINARIES
+  for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar) {
+
+    // If Pop III protostar
+    if (ABS(ThisStar->ReturnType()) == PopIII && 
+	!ThisStar->MarkedToDelete() &&
+	(TimeNow < ThisStar->ReturnBirthTime()+PopIIIRampTime ||
+	 ThisStar->IsUnborn())) {
+
+      for (OtherStar = ThisStar->NextStar; OtherStar; 
+	   OtherStar = OtherStar->NextStar) {
+
+	// If Pop III protostar
+	if (ABS(OtherStar->ReturnType()) == PopIII &&
+	    !OtherStar->MarkedToDelete() &&
+	    (TimeNow < OtherStar->ReturnBirthTime()+PopIIIRampTime ||
+	     OtherStar->IsUnborn())) {
+
+	  // Separations less than a StarClusterCombineRadius or a
+	  // cell width
+	  dx = TopGridDx[0] * POW(RefineBy, -ThisStar->ReturnLevel());
+	  dx2 = dx*dx;
+	  rmerge2 = max(rmerge2o, dx2);
+
+	  if (OtherStar->Separation2(*ThisStar) < rmerge2) {
+
+	    // Delete the unborn one.
+	    if (ThisStar ->IsUnborn()) ThisStar ->MarkForDeletion();
+	    if (OtherStar->IsUnborn()) OtherStar->MarkForDeletion();
+
+	  } // ENDIF close
+	} // ENDIF OtherStar Pop III
+      } // ENDFOR OtherStar
+    } // ENDIF ThisStar PopIII
+  } // ENDFOR ThisStar
+#endif /* NO_POP3_BINARIES */
+
   /* Delete all marked star particles and their associated normal
      particles */
   
   ThisStar = AllStars;
-  while (ThisStar)
-    if (ThisStar->MarkedToDelete()) {
+  AllStars = NULL;
+  LastStar = NULL;
+  while (ThisStar) {
+    MoveStar = PopStar(ThisStar);  // ThisStar becomes the next star in PopStar()
+    if (MoveStar->MarkedToDelete()) {
+      MoveStar->DeleteCopyInGrid();
+      MoveStar->DisableParticle(LevelArray); // convert to a massless particle
+      DeleteStar(MoveStar);
+    } else {
+      // Re-insert at the end of the list to keep the ordering the
+      // same
+      if (LastStar == NULL)
+	InsertStarAfter(AllStars, MoveStar);
+      else
+	InsertStarAfter(LastStar, MoveStar);
+      LastStar = MoveStar;
+    }
+  } // ENDWHILE
 
-      ThisStar->DeleteCopyInGrid();
-      ThisStar->DisableParticle(LevelArray); // convert to a massless particle
-      DeleteStar(ThisStar); // ThisStar becomes the next star in DeleteStar()
-    } else
+  /* After we've merged new star particles, we can assign the masses
+     to Pop III stars, if using an IMF.  Only assign the mass once.
+     The only time a Pop III star particle has a negative type and no
+     feedback flag is the first timestep it exists. */
+
+  if (PopIIIInitialMassFunction == TRUE) {
+    ThisStar = AllStars;
+    while (ThisStar) {
+      if (ThisStar->ReturnType() == -PopIII &&
+	  ThisStar->ReturnFeedbackFlag() == NO_FEEDBACK)
+	ThisStar->AssignFinalMassFromIMF(TimeUnits);
       ThisStar = ThisStar->NextStar;
+    }
+  }
 
   return SUCCESS;
 

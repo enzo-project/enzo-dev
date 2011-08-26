@@ -58,6 +58,7 @@ int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
+void CommunicationBroadcastValues(int *Value, int Number, int BroadcastProcessor);
 
 #define TIME_MESSAGING 
 
@@ -131,6 +132,8 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
     int outputNow = -1, stopNow = -1, subcycleCount=-1, checkpointDumpNow=-1;
     if( FileDirectedOutput == TRUE){
 
+    int OutputFlagArray[5] = {-1, -1, -1, -1, -1};
+
     if(MyProcessorNumber == ROOT_PROCESSOR) {
       
       outputNow = access("outputNow", F_OK);
@@ -178,32 +181,40 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 	}
       }
       
-      if (MyProcessorNumber == ROOT_PROCESSOR){
-	if( outputNow != -1 )
-	  if (unlink("outputNow")) {
- 	    ENZO_FAIL("Error deleting 'outputNow'");
-	  }
-	if( subcycleCount != -1 )
-	  if (unlink("subcycleCount")) {
-	    fprintf(stderr, "Error deleting subcycleCount.\n");
-	  }
-	if( stopNow != -1 )
-	  if (unlink("stopNow")) {
-   	    ENZO_FAIL("Error deleting stopNow");
-	  } 
-	if( checkpointDumpNow != -1 )
-	  if (unlink("checkpointDump")) {
-   	    ENZO_FAIL("Error deleting checkpointDump");
-	  } 
-      } 
+      if( outputNow != -1 )
+	if (unlink("outputNow")) {
+	  ENZO_FAIL("Error deleting 'outputNow'");
+	}
+      if( subcycleCount != -1 )
+	if (unlink("subcycleCount")) {
+	  fprintf(stderr, "Error deleting subcycleCount.\n");
+	}
+      if( stopNow != -1 )
+	if (unlink("stopNow")) {
+	  ENZO_FAIL("Error deleting stopNow");
+	} 
+      if( checkpointDumpNow != -1 )
+	if (unlink("checkpointDump")) {
+	  ENZO_FAIL("Error deleting checkpointDump");
+	} 
 
+    // Now we fill the array we're going to broadcast
+    OutputFlagArray[0] = WriteOutput;
+    OutputFlagArray[1] = ExitEnzo;
+    OutputFlagArray[2] = CheckpointDump;
+    OutputFlagArray[3] = MetaData->SubcycleSkipDataDump;
+    OutputFlagArray[4] = MetaData->SubcycleLastDataDump;
+    
     }//Root Processor only
 
-    /* This should be packed up */
+    /* This packs up a broadcast for all the flags */
 
-    WriteOutput = CommunicationMaxValue(WriteOutput);
-    ExitEnzo = CommunicationMaxValue(ExitEnzo);
-    CheckpointDump = CommunicationMaxValue(CheckpointDump);
+    CommunicationBroadcastValues(OutputFlagArray, 5, ROOT_PROCESSOR);
+    WriteOutput = OutputFlagArray[0];
+    ExitEnzo = OutputFlagArray[1];
+    CheckpointDump = OutputFlagArray[2];
+    MetaData->SubcycleSkipDataDump = OutputFlagArray[3];
+    MetaData->SubcycleLastDataDump = OutputFlagArray[4];
 
     }//File Directed Output
     

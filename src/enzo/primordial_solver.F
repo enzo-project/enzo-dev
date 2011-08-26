@@ -1,7 +1,8 @@
 #include "fortran.def"
-#define EQOFFSET 1.5
-#define EQOVERLAP 3.0
-#define TOLERANCE 1e-20
+#include "phys_const.def"
+#define EQOFFSET 1.5d0
+#define EQOVERLAP 3.d0
+#define TOLERANCE 1d-20
 c=======================================================================
 c/////////////////////  SUBROUTINE SOLVE_RATE  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -188,7 +189,7 @@ c
       integer itmax, ijk
       parameter (itmax = 1e8, ijk = MAX_ANY_SINGLE_DIRECTION)
       double precision mh
-      parameter (mh = 1.67d-24)
+      parameter (mh = mass_h)
 c
 c  Locals
 c
@@ -271,7 +272,7 @@ c
 
       double precision everg, e24, e26
       real dlogrho, dloge
-      parameter(everg = 1.60184d-12, e24 = 13.6d0, e26 = 24.6d0)
+      parameter(everg = ev2erg, e24 = 13.6d0, e26 = 24.6d0)
       integer totalit
       parameter(iHI=1,iHII=2,iHeI=3,iHeII=4,iHeIII=5,
      &          iH2I=6,ige=7,iDI=8,iDII=9,iHDI=10,
@@ -297,19 +298,32 @@ c to do this second-order BDF
       eqable(iH2II)     =  .false.
       eqable(iHM)       =  .false.
 
-      dtcoef(iHI   )    =  0.1; capycare(iHI   )    = .true.
-      dtcoef(iHII  )    =  0.1; capycare(iHII  )    = .true.
-      dtcoef(ide   )    =  0.1; capycare(ide   )    = .false.
-      dtcoef(iHeI  )    =  0.1; capycare(iHeI  )    = .false. !
-      dtcoef(iHeII)     =  0.1; capycare(iHeII)     = .false. !
-      dtcoef(iHeIII)    =  0.1; capycare(iHeIII)    = .false.
-      dtcoef(iH2I)      =  0.01; capycare(iH2I)      = .true.
-      dtcoef(ige)       =  0.01; capycare(ige)       = .true.
-      dtcoef(iDI)       =  1.0; capycare(iDI)       = .false.
-      dtcoef(iDII)      =  1.0; capycare(iDII)      = .false.
-      dtcoef(iHDI)      =  1.0; capycare(iHDI)      = .false. ! Off for now; should track H2 directly
-      dtcoef(iH2II)     =  1.0; capycare(iH2II)     = .false.
-      dtcoef(iHM)       =  1.0; capycare(iHM)       = .false.
+      dtcoef(iHI)      =  0.1d0
+      capycare(iHI)    = .true.
+      dtcoef(iHII)     =  0.1d0
+      capycare(iHII)   = .true.
+      dtcoef(ide)      =  0.1d0
+      capycare(ide)    = .false.
+      dtcoef(iHeI)     =  0.1d0
+      capycare(iHeI)   = .false.
+      dtcoef(iHeII)    =  0.1d0
+      capycare(iHeII)  = .false.
+      dtcoef(iHeIII)   =  0.1d0
+      capycare(iHeIII) = .false.
+      dtcoef(iH2I)     =  0.01d0
+      capycare(iH2I)   = .true.
+      dtcoef(ige)      =  0.01d0
+      capycare(ige)    = .true.
+      dtcoef(iDI)      =  1.0d0
+      capycare(iDI)    = .false.
+      dtcoef(iDII)     =  1.0d0
+      capycare(iDII)   = .false.
+      dtcoef(iHDI)     =  1.0d0
+      capycare(iHDI)   = .false. ! Off for now; should track H2 directly
+      dtcoef(iH2II)    =  1.0d0
+      capycare(iH2II)  = .false.
+      dtcoef(iHM)      =  1.0d0
+      capycare(iHM)    = .false.
 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -324,19 +338,19 @@ c
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       kunit    = (uaye**3 * mh) / (dbase1 * tbase1)
       kunit_3bdy  = kunit * (uaye**3 * mh) / dbase1
-c     4.48 eV = 7.17775e-12 ergs
-      chunit = (7.17775e-12)/(2.0*uvel*uvel*mh)
-      ciHIunit    = (2.18e-11)/(uvel*uvel*mh)
-      ciHeIunit   = (3.94e-11)/(4.0*uvel*uvel*mh)
-      ciHeIIunit  = (8.72e-11)/(4.0*uvel*uvel*mh)
+c     4.48 eV = 7.17775d-12 ergs
+      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
+      ciHIunit    = (2.18d-11)/(uvel*uvel*mh)
+      ciHeIunit   = (3.94d-11)/(4.d0*uvel*uvel*mh)
+      ciHeIIunit  = (8.72d-11)/(4.d0*uvel*uvel*mh)
 
 #ifdef UNUSED_TABULATED_EQ
-c      rhostartcode = log10((10**rhostart)/(urho*aye**3.0))
-c      rhoendcode = log10((10**rhoend)/(urho*aye**3.0))
-      estartcode = log10((10**estart)/(uvel**2.0))
-      eendcode = log10((10**eend)/(uvel**2.0))
-      rhostartcode = log10(10**rhostart/(fh*dom))
-      rhoendcode = log10(10**rhoend/(fh*dom))
+c      rhostartcode = log10((10**rhostart)/(urho*aye**3.d0))
+c      rhoendcode = log10((10**rhoend)/(urho*aye**3.d0))
+      estartcode = log10((10.d0**estart)/(uvel**2.d0))
+      eendcode = log10((10.d0**eend)/(uvel**2.d0))
+      rhostartcode = log10(10.d0**rhostart/(fh*dom))
+      rhoendcode = log10(10.d0**rhoend/(fh*dom))
 #endif
 
 #ifdef PYFORT_OFF
@@ -382,7 +396,7 @@ c        Initialize variables
 c
          iter = 1
          do i = is+1, ie+1
-            ttot(i) = 0.0
+            ttot(i) = 0.d0
             omask(i) = .false.
             rejected(i) = .false.
             fd(i) = fh*d(i,j,k)
@@ -393,7 +407,7 @@ c
             else
                itmask(i)=.false.
             endif
-            dtit(i) = dt(i,j,k)/5.0
+            dtit(i) = dt(i,j,k)/5.d0
 #else
             dtit(i) = dt
             subgridmask = 1
@@ -401,13 +415,14 @@ c
 #endif
             eqmask(i) = .false.
 #ifdef UNUSED_TABULATED_EQ
-            dprime(i) = -35
-            geprime(i) = -35
+            dprime(i) = -35.d0
+            geprime(i) = -35.d0
             geprime(i) = log10((ge(i,j,k) +
-     &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.0))
+     &                 (fh - H2I(i,j,k)/d(i,j,k))*chunit)*(uvel**2.d0))
             dprime(i) = log10(d(i,j,k)*dom*fh)
 c            write(0,*) rhostartcode, rhostart, estartcode, estart
-            if ((dprime(i).gt.rhostart+3.5).and.(geprime(i).gt.estart))then
+            if ((dprime(i).gt.rhostart+3.5d0).and.
+     &           (geprime(i).gt.estart))then
                 totaleq = totaleq + 1
 c                eqmask(i) = .true.
 c                eqflag = .true.
@@ -458,20 +473,20 @@ c                stop
 #include "primordial_derivstep.inc"
 
          do n = 1, ncspecies
-           if(dtcoef(n).gt.0.0) then
+           if(dtcoef(n).gt.0.d0) then
              do i = is+1, ie+1
              if((itmask(i).eqv..true.).and.(eqmask(i).eqv..false.))then
                ! Figure out our dtit here
                kws = min(abs(dsq(i,n)-dsp(i,n)),huge)
                qt = max(s(i,n),tiny) / max(tiny, kws)
-               temp1 = 0.1*abs(dtcoef(n)*qt)
+               temp1 = 0.1d0*abs(dtcoef(n)*qt)
                if(temp1.lt.dtit(i).and.temp1.gt.tiny)then
                  dtit(i) = temp1
                  mins(i) = n
                endif
 #ifdef PYFORT
                tgasouti(i,j,k) = tgas(i)
-c               dtit(i) = dt(i,j,k)/10.0
+c               dtit(i) = dt(i,j,k)/10.d0
 #endif
              endif
              enddo   ! end loop over i
@@ -480,9 +495,9 @@ c               dtit(i) = dt(i,j,k)/10.0
          do i = is+1, ie+1
          if ((itmask(i).eqv..true.))then!.and.(eqmask(i).eqv..false.))then
 #ifdef PYFORT
-           dtit(i) = min(dt(i,j,k)/2.0, abs(dt(i,j,k)-ttot(i)), dtit(i))
+           dtit(i) = min(dt(i,j,k)/2.d0, abs(dt(i,j,k)-ttot(i)),dtit(i))
 #else
-           dtit(i) = min(dt/2.0, abs(dt-ttot(i)), dtit(i))
+           dtit(i) = min(dt/2.d0, abs(dt-ttot(i)), dtit(i))
 #endif
            olddtit(i) = dtit(i) ! First iteration!
          endif
@@ -609,9 +624,9 @@ c         omaskflag = 0
             if((itmask(i).eqv..true.).and.(rejected(i).eqv..false.))then
               ttot(i) = ttot(i) + dtit(i)
 #ifdef PYFORT
-              if(dt(i,j,k).le.1.001*ttot(i))then
+              if(dt(i,j,k).le.1.001d0*ttot(i))then
 #else
-              if(dt.le.1.001*ttot(i))then
+              if(dt.le.1.001d0*ttot(i))then
 #endif
                 itmask(i) = .false.
 c                write(0,*) d(i,j,k),s(i,iH2I)/d(i,j,k)
@@ -632,7 +647,7 @@ c                write(0,*) 'finishing',i,j,k,iter
               do i=is+1,ie+1
                 if(itmask(i).eqv..true.)then
                   temp1 = ttot(i)/(
-     &                  (1.0d0/sqrt(1.11e-31*dom*d(i,j,k)))/utim)
+     &                  (1.0d0/sqrt(1.11d-31*dom*d(i,j,k)))/utim)
 #ifndef PYFORT
 c                  write(0,*)'FAILING?',i,j,k,mins(i),dtit(i),ttot(i),dt,olddtit(i),temp1
 c                  write(0,*)'Tried for:',dt,'but only got',ttot(i)
@@ -661,10 +676,10 @@ c           Guess stepsize for next iteration.
               if(rejected(i).eqv..false.) olddtit(i) = dtit(i)
 #ifdef PYFORT
               dtit(i) = min(dt(i,j,k)-ttot(i),max(
-     &                  0.5,min(2.0,0.8/sqrt(esterr(i))))*dtit(i))
+     &                  0.5d0,min(2.d0,0.8d0/sqrt(esterr(i))))*dtit(i))
 #else
               dtit(i) = min(dt-ttot(i),max(
-     &                  0.5,min(2.0,0.8/sqrt(esterr(i))))*dtit(i))
+     &                  0.5d0,min(2.d0,0.8d0/sqrt(esterr(i))))*dtit(i))
 #endif
             endif
             enddo
@@ -908,7 +923,7 @@ c         endif
          HI(i,j,k)  = HI(i,j,k)*correctH(i)
          HII(i,j,k) = HII(i,j,k)*correctH(i)
 c
-         correctHe(i) = (1.0 - fh)*(d(i,j,k)/totalHe(i))
+         correctHe(i) = (1.d0 - fh)*(d(i,j,k)/totalHe(i))
          HeI(i,j,k)   = HeI(i,j,k)*correctHe(i)
          HeII(i,j,k)  = HeII(i,j,k)*correctHe(i)
          HeIII(i,j,k) = HeIII(i,j,k)*correctHe(i)
@@ -929,11 +944,11 @@ c
             DI  (i,j,k) = abs(DI  (i,j,k))
             DII (i,j,k) = abs(DII (i,j,k))
             HDI (i,j,k) = abs(HDI (i,j,k))
-            totalD = DI(i,j,k) + DII(i,j,k) + (2.0/3.0)*HDI(i,j,k)
+            totalD = DI(i,j,k) + DII(i,j,k) + (2.d0/3.d0)*HDI(i,j,k)
             correctD = fh*dtoh*(d(i,j,k)/totalD)
             DI  (i,j,k) = DI (i,j,k)*correctD
             DII (i,j,k) = DII(i,j,k)*correctD
-c            HDI (i,j,k) = HDI(i,j,k)*(3.0/2.0)*correctD
+c            HDI (i,j,k) = HDI(i,j,k)*(3.d0/2.d0)*correctD
             HDI (i,j,k) = HDI(i,j,k)*correctD
          enddo
       endif
@@ -944,9 +959,9 @@ c
          totalDen(i) = HI(i,j,k) + HII(i,j,k)
          totalDen(i) = totalDen(i) + HeI(i,j,k) + HeII(i,j,k)
      &               + HeIII(i,j,k)
-         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4. + HeIII(i,j,k)/2.
+         de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4. + HeIII(i,j,k)/2.d0
          if (ispecies .gt. 1) then 
-            de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2.
+            de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2.d0
             totalDen(i) = totalDen(i) + HM(i,j,k) + H2I(i,j,k) 
      &                  + H2II(i,j,k)
          endif

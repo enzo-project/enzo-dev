@@ -53,7 +53,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level)
 {
 
-  int proc, i, j, k, jstart, jend;
+  int proc, i, j, k, jstart, jend, TotalNumber;
   int particle_data_size, star_data_size;
   int Zero = 0;
 
@@ -104,8 +104,9 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
     Grids[grid1]->GridData->FastSiblingLocatorAddGrid(&ChainingMesh);
 
-  /* Loop over grids and find particles that need transferring to
-     sibling grids */
+  /* Loop over grids and count particles that need transferring to
+     sibling grids.  In the next step, we will allocate the memory and
+     transfer them. */
 
   for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
@@ -154,9 +155,26 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
     Grids[grid1]->GridData->TransferSubgridParticles
       (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
-       SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE);
+       SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, TRUE);
 
     delete [] SiblingList.GridList;
+
+  } // ENDFOR grid1
+
+  /* Allocate the memory for the move list and transfer the particles */
+
+  TotalNumber = 0;
+  for (j = 0; j < NumberOfProcessors; j++) {
+    TotalNumber += NumberToMove[j];
+    NumberToMove[j] = 0;  // Zero-out to use in the next step
+  }
+  SendList = new particle_data[TotalNumber];
+
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+    Grids[grid1]->GridData->TransferSubgridParticles
+      (GridPointers, NumberOfGrids, NumberToMove, Zero, Zero, 
+       SendList, KeepLocal, ParticlesAreLocal, COPY_OUT, TRUE, FALSE);
 
   } // ENDFOR grid1
 
@@ -206,7 +224,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
       GridPointers[j]->TransferSubgridParticles
 	(GridPointers, NumberOfGrids, NumberToMove, jstart, jend, 
-	 SharedList, KeepLocal, ParticlesAreLocal, COPY_IN);
+	 SharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
       
       jstart = jend;
     } // ENDFOR grids
@@ -229,7 +247,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       
       GridPointers[j]->TransferSubgridStars
 	(GridPointers, NumberOfGrids, StarsToMove, jstart, jend, 
-	 StarSharedList, KeepLocal, ParticlesAreLocal, COPY_IN);
+	 StarSharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
       
       jstart = jend;
     } // ENDFOR grids
@@ -238,7 +256,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
      Since the particles and stars are only on the grid's host
      processor, set number of particles so everybody agrees.
   ************************************************************************/
- 
+
   CommunicationSyncNumberOfParticles(Grids, NumberOfGrids);
 
   /* Cleanup. */

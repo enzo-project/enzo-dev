@@ -65,6 +65,7 @@ grid::~grid()
     delete [] OldBaryonField[i];
     delete [] InterpolatedField[i];
   }
+   delete [] YT_TemperatureField;
 
 #ifdef SAB
   for (i = 0; i < MAX_DIMENSION; i++) {

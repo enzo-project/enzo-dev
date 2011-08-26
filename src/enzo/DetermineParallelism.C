@@ -24,6 +24,8 @@
 #endif /* USE_MPI */
 
 #include <stdio.h>
+#include <map>
+#include <string>
 #include <math.h>
 
 /* Original includes for Enzo */

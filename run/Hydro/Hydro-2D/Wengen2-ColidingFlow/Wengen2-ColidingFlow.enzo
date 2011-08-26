@@ -1,0 +1,74 @@
+#
+# AMR PROBLEM DEFINITION FILE: Wengen 2 colliding flow
+#   Reference: http://www-theorie.physik.unizh.ch/~agertz/Wengen_2/Code_tests.html
+#   Tom Abel September 2010
+#
+#  Also works with magnetic fields. 
+#
+#  define problem
+#
+ProblemType                =  201
+MHD2DProblemType = 14
+TopGridRank                = 2
+TopGridDimensions          = 100 100
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 2 3 
+RightFaceBoundaryCondition = 3 2 3
+#
+#  set I/O and stop/start parameters
+#
+StopTime = 10.
+#StopCycle = 5
+dtDataDump             = 0.05
+DataDumpName           = data
+#
+#  set grid refinement parameters
+#
+StaticHierarchy             = 0
+FluxCorrection              = 0
+MaximumRefinementLevel      = 2
+RefineBy                    = 2
+CellFlaggingMethod          = 1  // or 2
+SlopeFlaggingFields         = 0
+MinimumOverDensityForRefinement = 20.
+MinimumSlopeForRefinement   = .5
+MinimumEfficiency           = 0.8
+InterpolationMethod         = 4
+ConservativeInterpolation   = 0
+NumberOfBufferZones         = 2
+#
+#  set hydro parameters
+#
+Gamma                       = 1.1
+Mu                          = 1
+HydroMethod                 = 4
+CourantSafetyNumber         = 0.3
+Theta_Limiter               = 1.5
+RiemannSolver               = 1
+ReconstructionMethod        = 1
+DualEnergyFormalism         = 0
+RKOrder                     = 2
+SmallRho                    = 1e-4
+SmallP                      = 1e-10
+SmallT                      = 5
+EOSType                     = 4             // special EOS for this test is 4 and 5
+
+EOSSoundSpeed               = 0.1
+#
+# problem parameters
+#
+UsePhysicalUnit = 0
+RefineAtStart = 1
+
+RampWidth    = 0.2
+LowerDensity = 1
+UpperDensity = 1
+LowerVelocityX = -0.3
+UpperVelocityX =  0.2
+LowerVelocityY =   0.4
+UpperVelocityY =  -0.4
+LowerBx        = 0.01
+LowerBy        = 0.01
+UpperBx        = -0.01
+UpperBy        = 0.01

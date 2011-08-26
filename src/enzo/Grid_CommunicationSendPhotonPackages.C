@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 /***********************************************************************
 /
 /  GRID CLASS (SEND PHOTONS FROM REAL GRID TO 'FAKE' (REPLICATED) GRID)
@@ -29,6 +29,7 @@
 #include "Grid.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#include "GroupPhotonList.h"
 
 #ifdef USE_MPI
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
@@ -48,23 +49,6 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 					  int ToNumber, int FromNumber, 
 					  PhotonPackageEntry **ToPP)
 {
-
-  struct PhotonBuffer {
-    float	Photons;
-    int		Type;                     
-    float	Energy;                   
-    FLOAT	EmissionTimeInterval;     
-    FLOAT	EmissionTime;             
-    FLOAT	CurrentTime;              
-    FLOAT	Radius;                 
-    long	ipix;                    
-    int		level;                   
-    double	CrossSection;
-    float	ColumnDensity;
-    FLOAT	SourcePosition[3];        
-    float	SourcePositionDiff;
-    int		SuperSourceID;
-  };
 
   int index, dim, temp_int;
   PhotonPackageEntry *PP;

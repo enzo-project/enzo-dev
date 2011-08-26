@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 C     NAME MTLCLHT
@@ -594,7 +595,7 @@ C
                G = GAUNT(T,E3(JBB),N,IL,L,DENO,REDUC,PM)
 C
                ALPHAD=ALPHADI(NO,N,IL,L,JBB,T)
-               PW = ABUND*1.0E23*(ALPHAD*E3(JBB)*1.602E-12
+               PW = ABUND*1.0E23*(ALPHAD*E3(JBB)*ev2erg
      .         +2.72E-15*F(JBB)*EXP(-MIN(50.0,11590*E3(JBB)/T))*G/ST)
      .         *12398./(WAVE(JBB)*E3(JBB))
 C
@@ -837,7 +838,7 @@ C
 C
          CHI    = CHI + EFFN(N-J,ZEFF,T) * P(BETA,STARN)
      .                 /(2.*STARN*STARN)
-         C6(J+1)= EJ(NO,J)*1.6027E-12*(C2(J+1)
+         C6(J+1)= EJ(NO,J)*ev2erg*(C2(J+1)
      .          + 4.22E-22*SQRT(T/1.037E-11)*CHI)
 C  
 C        DIELECTRONIC RECOMBINATION ***** DENSITY DEPENDENCE 

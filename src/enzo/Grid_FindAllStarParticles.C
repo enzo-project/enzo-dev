@@ -28,7 +28,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 #define RESET_BH_LIFETIMES
-#define NO_RESET_MBH_MASS 
+#define NO_RESET_MBH_MASS  //#####
 
 int grid::FindAllStarParticles(int level)
 {
@@ -51,7 +51,8 @@ int grid::FindAllStarParticles(int level)
 	ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE ||
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
         ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
-	ParticleType[i] == PARTICLE_TYPE_MBH) {
+	ParticleType[i] == PARTICLE_TYPE_MBH ||
+	ParticleType[i] == PARTICLE_TYPE_SIMPLE_SOURCE) {
 
       if (this->Time >= ParticleAttribute[0][i] &&
 	  this->Time <= ParticleAttribute[0][i]+ParticleAttribute[1][i]) {
@@ -80,14 +81,14 @@ int grid::FindAllStarParticles(int level)
 	InsertStarAfter(Stars, NewStar);
 	NumberOfStars++;
 
-	/* For MBHFeedback = 2 or 3 (FeedbackFlag=MBH_JETS), you need
+	/* For MBHFeedback = 2 to 5 (FeedbackFlag=MBH_JETS), you need
 	   the angular momentum; if no file to read in, assume zero
 	   angular momentum accreted so far.  -Ji-hoon Kim, Nov.2009 */
 
-	if((MBHFeedback == 2 || MBHFeedback ==3) && 
+	if((MBHFeedback >= 2 && MBHFeedback <= 5) && 
 	   ParticleType[i] == PARTICLE_TYPE_MBH) {
 	  NewStar->AssignAccretedAngularMomentum();
-	  printf("MBH particle info (for MBHFeedback=2, check angular momentum): \n"); 
+	  printf("MBH particle info (for MBHFeedback=2 to 5, check angular momentum): \n"); 
 	  NewStar->PrintInfo();
 	}
       } // ENDIF during lifetime
