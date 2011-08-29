@@ -41,7 +41,8 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
-int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
+int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
+				   int TopGridDims[]);
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[],
 				  int level, bool ParticlesAreLocal, 
 				  bool SyncNumberOfParticles, 
@@ -119,7 +120,7 @@ void FOF_Finalize(FOFData &D, LevelHierarchyEntry *LevelArray[],
 				SyncNumberOfParticles, MoveStars,
 				SIBLINGS_ONLY);
 
-  CommunicationTransferParticles(GridPointer, ngrids);
+  CommunicationTransferParticles(GridPointer, ngrids, MetaData->TopGridDims);
 
   ParticlesAreLocal = false;
   SyncNumberOfParticles = true;
