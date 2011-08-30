@@ -52,8 +52,10 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
 				  int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
-int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
-int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
+int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
+				   int TopGridDims[]);
+int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
+			       int TopGridDims[]);
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -228,8 +230,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
-    CommunicationTransferParticles(GridPointer, grids);
-    CommunicationTransferStars(GridPointer, grids);
+    CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
+    CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
 
     /* We need to collect particles again */
 
