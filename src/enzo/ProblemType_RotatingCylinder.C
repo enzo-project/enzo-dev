@@ -66,6 +66,12 @@ class ProblemType_RotatingCylinder : public EnzoProblemType
     {
     }
 
+    virtual int InitializeFromRestart(
+            HierarchyEntry &TopGrid, TopGridData &MetaData)
+    {
+       return SUCCESS;
+    }
+
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {
