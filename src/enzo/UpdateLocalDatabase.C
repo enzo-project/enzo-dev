@@ -36,8 +36,10 @@
 const char creation_query[] = 
 "CREATE TABLE IF NOT EXISTS enzo_outputs ("\
 "dset_uuid TEXT PRIMARY KEY, "\
+"output_type TEXT NOT NULL, "\
 "pf_path TEXT NOT NULL, "\
 "creation_time INTEGER NOT NULL, "\
+"last_seen_time INTEGER NOT NULL, "\
 "simulation_uuid TEXT NOT NULL, "\
 "redshift REAL, time REAL, "\
 "topgrid0 INTEGER, topgrid1 INTEGER, topgrid2 INTEGER)";
@@ -114,9 +116,11 @@ int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
   char insertion_query[1024];
   snprintf(insertion_query, 1023,
            "INSERT INTO enzo_outputs VALUES ('%s',"
-           "'%s', %"ISYM", '%s', %"GOUTSYM", %"ESYM","
+           "'EnzoStaticOutput',"
+           "'%s', %"ISYM", %"ISYM", '%s', %"GOUTSYM", %"ESYM","
            "%"ISYM", %"ISYM", %"ISYM")",
-           dset_uuid, Fullpath, CurrentTimeID, MetaData.SimulationUUID,
+           dset_uuid, Fullpath, CurrentTimeID, CurrentTimeID,
+           MetaData.SimulationUUID,
            CurrentRedshift, this_time,
            topgrid[0], topgrid[1], topgrid[2]);
   free(Fullpath);
