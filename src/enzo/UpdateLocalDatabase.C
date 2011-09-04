@@ -34,7 +34,7 @@
 #include "CosmologyParameters.h"
 
 const char creation_query[] = 
-"CREATE TABLE IF NOT EXISTS enzo_outputs ("\
+"CREATE TABLE IF NOT EXISTS simulation_outputs ("\
 "dset_uuid TEXT PRIMARY KEY, "\
 "output_type TEXT NOT NULL, "\
 "pf_path TEXT NOT NULL, "\
@@ -115,7 +115,7 @@ int UpdateLocalDatabase(TopGridData &MetaData, int CurrentTimeID,
   char *Fullpath = realpath(Filename, NULL);
   char insertion_query[1024];
   snprintf(insertion_query, 1023,
-           "INSERT INTO enzo_outputs VALUES ('%s',"
+           "INSERT INTO simulation_outputs VALUES ('%s',"
            "'EnzoStaticOutput',"
            "'%s', %"ISYM", %"ISYM", '%s', %"GOUTSYM", %"ESYM","
            "%"ISYM", %"ISYM", %"ISYM")",
