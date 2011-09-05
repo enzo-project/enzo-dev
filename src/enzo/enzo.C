@@ -55,7 +55,7 @@
 int InitializePythonInterface(int argc, char **argv);
 int FinalizePythonInterface();
 #endif
- 
+
 // Function prototypes
  
 int InitializeNew(  char *filename, HierarchyEntry &TopGrid, TopGridData &tgd,
@@ -490,6 +490,17 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
       }
 #ifdef USE_HDF5_GROUPS
     }
+#endif
+
+#ifdef NEW_PROBLEM_TYPES
+  if (ProblemType == -978)
+  {
+    CurrentProblemType = select_problem_type(ProblemTypeName);
+    /* This gives us the poblem type, but we do not yet have
+       our event hooks set up.  When the day comes that event hooks are all
+       stored in parameter files, this will not be necessary. */
+    CurrentProblemType->InitializeFromRestart(TopGrid, MetaData);
+  }
 #endif
 
     // TA: Changed this:
