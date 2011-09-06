@@ -2523,6 +2523,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                    float Byl,
                                    float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
+			      int UseColour,
 			      float RampWidth,
 			      float rhol, float rhou,
 			      float vxl,  float vxu,

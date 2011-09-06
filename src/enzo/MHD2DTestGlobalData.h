@@ -35,4 +35,4 @@ MHD2DEXTERN float LowerBx;
 MHD2DEXTERN float UpperBx;
 MHD2DEXTERN float LowerBy;
 MHD2DEXTERN float UpperBy;
-  
+MHD2DEXTERN int UseColour;
