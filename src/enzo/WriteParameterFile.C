@@ -652,7 +652,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
-  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+  fprintf(fptr, "SimpleQ                               = %lg\n",
 	  SimpleQ);
   fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
 	  SimpleRampTime);
