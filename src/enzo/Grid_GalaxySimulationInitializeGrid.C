@@ -125,7 +125,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   if (UseMetallicityField)
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
   if (StarMakerTypeIaSNe)
-    FieldType[MetalIaNum = NumberOfBaryonField++] = MetalSNIaDensity;
+    FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
  /* Return if this doesn't concern us. */
 
