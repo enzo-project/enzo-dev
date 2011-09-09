@@ -72,24 +72,65 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxySimulationInflowDensity,
 					 int level)
 {
+ /* declarations */
+
+  int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
+ int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
+   DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
+ float DiskDensity, DiskVelocityMag,dens2;
+
+  
+  /* create fields */
+
+  NumberOfBaryonFields = 0;
+  FieldType[NumberOfBaryonFields++] = Density;
+  FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  if (DualEnergyFormalism)
+    FieldType[NumberOfBaryonFields++] = InternalEnergy;
+  vel = NumberOfBaryonFields;
+  FieldType[NumberOfBaryonFields++] = Velocity1;
+  if (GridRank > 1) 
+    FieldType[NumberOfBaryonFields++] = Velocity2;
+  if (GridRank > 2)
+    FieldType[NumberOfBaryonFields++] = Velocity3;
+  if (HydroMethod == MHD_RK) {
+    FieldType[B1Num = NumberOfBaryonFields++] = Bfield1;
+    FieldType[B2Num = NumberOfBaryonFields++] = Bfield2;
+    FieldType[B3Num = NumberOfBaryonFields++] = Bfield3;
+    FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
+    if (UseDivergenceCleaning) {
+      FieldType[NumberOfBaryonFields++] = Phi_pField;
+    }
+  }
+
+  if (MultiSpecies) {
+    FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
+    FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
+    FieldType[HIINum   = NumberOfBaryonFields++] = HIIDensity;
+    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
+    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;
+    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+    if (MultiSpecies > 1) {
+      FieldType[HMNum    = NumberOfBaryonFields++] = HMDensity;
+      FieldType[H2INum   = NumberOfBaryonFields++] = H2IDensity;
+      FieldType[H2IINum  = NumberOfBaryonFields++] = H2IIDensity;
+    }
+    if (MultiSpecies > 2) {
+      FieldType[DINum   = NumberOfBaryonFields++] = DIDensity;
+      FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
+      FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
+    }
+  }
+
+  if (UseMetallicityField)
+    FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+  if (StarMakerTypeIaSNe)
+    FieldType[MetalIaNum = NumberOfBaryonField++] = MetalSNIaDensity;
 
  /* Return if this doesn't concern us. */
 
  if (ProcessorNumber != MyProcessorNumber) 
    return SUCCESS;
-
- /* declarations */
-
- int dim, i, j, k, m, field, disk, size, vel;
- float DiskDensity, DiskVelocityMag,dens2;
-
- // BWO: little indexing hack used near the end of this routine 
- if(DualEnergyFormalism){
-   vel = 3;
- } else {
-   vel = 2;
- }
-
 
  /* Set various units. */
 
@@ -111,8 +152,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    TimeActionTime[0] = GalaxySimulationInflowTime*1e9/TimeUnits;
  }
 
-
-
  /* Set densities */
 
  float BaryonMeanDensity = 1.0;
@@ -128,16 +167,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  for (field = 0; field < NumberOfBaryonFields; field++)
    if (BaryonField[field] == NULL)
      BaryonField[field] = new float[size];
-
- /* Identify colour fields */
-
- int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-   MetalIaNum; 
-
- if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
-				Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
-   ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-
 
  /* Loop over the mesh. */
 

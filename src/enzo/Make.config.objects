@@ -680,6 +680,7 @@ OBJS_CONFIG_LIB = \
         ProblemType.o \
         ProblemType_RotatingCylinder.o \
         ProblemType_CollapsingCoolingCloud.o \
+	ProblemType_ExplodingCloud.o \
         ProcMap.o \
         project.o \
         projectbool.o \

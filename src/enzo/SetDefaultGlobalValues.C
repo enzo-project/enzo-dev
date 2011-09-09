@@ -328,6 +328,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
 
   MultiSpecies                = FALSE;             // off
+  NoMultiSpeciesButColors     = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
   CIECooling                  = 1;

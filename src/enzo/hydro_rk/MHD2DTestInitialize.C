@@ -73,6 +73,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   LowerPressure = 1.0; UpperPressure = 1.0;
   LowerBx = 0.0; UpperBx = 0.0;
   LowerBy = 0.0; UpperBy = 0.0;
+  UseColour = FALSE;
   
   /* read input from file */
 
@@ -112,6 +113,9 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &MHD2DProblemType);
     ret += sscanf(line, "RampWidth = %"FSYM,
 		  &RampWidth);
+    ret += sscanf(line, "UseColour = %"ISYM, 
+		  &UseColour);
+    
     //        fprintf(stderr, "%"ISYM" MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
@@ -135,7 +139,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up grid */
 
-  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType, RampWidth,
+  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
+						RampWidth,
 						LowerDensity, UpperDensity,
 						LowerVelocityX,  UpperVelocityX,
 						LowerVelocityY,  UpperVelocityY,
@@ -180,7 +185,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, RampWidth,
+	if (Temp->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
+						    RampWidth,
 						    LowerDensity, UpperDensity,
 						    LowerVelocityX,  UpperVelocityX,
 						    LowerVelocityY,  UpperVelocityY,
@@ -236,6 +242,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = DebugName;
     }
   }
+  if (UseColour == TRUE)
+    DataLabel[count++] = ColourName;
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
