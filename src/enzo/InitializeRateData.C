@@ -45,7 +45,7 @@ extern "C" void FORTRAN_NAME(calc_rates)(
      float *piHI, float *piHeI, float *piHeII,
      float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
      float *gpldl, float *gphdl, float *hdlte, float *hdlow, float *hdcool, float *cieco,
-     float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela,
+     float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela, float *gasgr, 
      float *k1a, float *k2a, float *k3a, float *k4a, float *k5a, float *k6a,
         float *k7a, float *k8a, float *k9a, float *k10a,
      float *k11a, float *k12a, float *k13a, float *k13dda, float *k14a,
@@ -101,7 +101,8 @@ int InitializeRateData(FLOAT Time)
   CoolData.GAHe    = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAHp    = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAel    = new float[CoolData.NumberOfTemperatureBins];
- 
+  CoolData.gas_grain = new float[CoolData.NumberOfTemperatureBins]; 
+
   /* Set RateData parameters. */
   // NOTE: calc_rates expects these to be the same size as CoolData
   //   RateData.NumberOfTemperatureBins = 600;
@@ -188,7 +189,7 @@ int InitializeRateData(FLOAT Time)
      CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit,
         CoolData.HDlte, CoolData.HDlow, CoolData.HDcool, CoolData.cieco,
      CoolData.GAHI, CoolData.GAH2, CoolData.GAHe, CoolData.GAHp,
-        CoolData.GAel,
+        CoolData.GAel, CoolData.gas_grain, 
      RateData.k1, RateData.k2, RateData.k3, RateData.k4, RateData.k5,
         RateData.k6, RateData.k7, RateData.k8, RateData.k9, RateData.k10,
      RateData.k11, RateData.k12, RateData.k13, RateData.k13dd, RateData.k14,

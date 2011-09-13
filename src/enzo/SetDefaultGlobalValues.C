@@ -380,6 +380,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
+  OutputDustTemperature = FALSE;
 
   OutputSmoothedDarkMatter = FALSE;
   SmoothedDarkMatterNeighbors = 32;

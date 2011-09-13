@@ -476,6 +476,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   else
     fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
+  fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", OutputDustTemperature);
 
   // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputSmoothedDarkMatter < 0)
