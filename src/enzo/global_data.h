@@ -375,6 +375,10 @@ EXTERN int OutputCoolingTime;
 
 EXTERN int OutputTemperature;
 
+/* Output dust temperature with grid data. */
+
+EXTERN int OutputDustTemperature;
+
 /* Output smoothed dark matter fields. */
 
 EXTERN int OutputSmoothedDarkMatter;

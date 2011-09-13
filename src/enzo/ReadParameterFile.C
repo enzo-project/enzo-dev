@@ -469,6 +469,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
     ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
+    ret += sscanf(line, "OutputDustTemperature = %"ISYM, &OutputDustTemperature);
 
     ret += sscanf(line, "OutputSmoothedDarkMatter = %"ISYM, 
 		  &OutputSmoothedDarkMatter);

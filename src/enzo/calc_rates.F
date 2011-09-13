@@ -14,7 +14,7 @@ c
      &             piHI, piHeI, piHeII,
      &             hyd01ka, h2k01a, vibha, rotha, rotla, 
      &             gpldl, gphdl, hdltea, hdlowa, hdcool, ciecoa,
-     &             gaHIa, gaH2a, gaHea, gaHpa, gaela,
+     &             gaHIa, gaH2a, gaHea, gaHpa, gaela, gasgr,
      &             k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &             k11a, k12a, k13a, k13dda, k14a, k15a, k16a, k17a,
      &             k18a, k19a, k20a, k21a, k22a, k23a,
@@ -161,7 +161,7 @@ c
      &        rotha(nratec), rotla(nratec), gpldl(nratec),
      &        gphdl(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
-     &        gaHpa(nratec), gaela(nratec),
+     &        gaHpa(nratec), gaela(nratec), gasgr(nratec),
      &        ciecoa(nratec)
       real    compa, gammaha, gammahacgs, piHI, piHeI, piHeII
       real    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
@@ -214,7 +214,8 @@ c
       integer i,j,n
       double precision nu, delnu, hnu, logttt, ttt, tev, logtev, 
      &                 xx, dum, tbase1, xbase1, kunit, coolunit,
-     &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate
+     &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate,
+     &                 grain_coef
       double precision sigma24(nnu), sigma25(nnu), sigma26(nnu), 
      &                 sigma27(nnu), sigma28(nnu), sigma29(nnu), 
      &                 sigma30(nnu), sigma31(nnu), fext(nnu)
@@ -278,6 +279,16 @@ c         (some have three powers of n and they are different by the
 c          reciprocal of the above factor multiplying [L]).
 c
 c  3) the units for the radiative rate coefficients is just 1/[time]
+c
+c  4) Energy transfer from gas to dust grains, following Omukai 
+c       (2000), who follows Hollenbach & McKee (1979, 1989).
+c       Assumes f_gr/rho_gr = 5.3e-3 and f_gr(Z = Zsun) = 0.934e-2
+c       Here we are setting the coefficient for rho_grain * L_grain.
+c       L_grain is given by equation 19 of Omukai (2000).
+c
+c      grain_coef = 1.1d-5 * 5.3d-3 * 0.934d-2 * mh * 1.0d3**(-0.5d0)
+c     Hollenbach & McKee (1989)
+      grain_coef = 1.2d-31 * 1.0d3**-0.5d0
 c
 c  Compute log spacing in temperature
 c
@@ -351,6 +362,7 @@ c
         gaHea(i)    = tiny
         gaHpa(i)    = tiny
         gaela(i)    = tiny
+        gasgr(i)    = tiny
       enddo
 c
 c  Fill in tables over the range temstart to temend
@@ -896,14 +908,22 @@ c
       ciecoa(i) = cierate * (mh/2.0d0) / coolunit
 c      write(6,*), "thin: ", ttt, cierate * 1e14*mh*2
 c
-
+c     h) Energy transfer from gas to dust grains, following the form 
+c        of equation 19 of Omukai (2000) with the coefficient computed
+c        above.
+c
+c
+c     Equation 2.15 of Hollenbach & McKee (1989)
+      gasgr(i) = grain_coef * (ttt**0.5d0) * 
+     &     (1.0d0 - (0.8d0 * exp(-75.0d0 / ttt))) / coolunit
+c
       enddo
 c
-c     h) Compton cooling (Peebles 1971)
+c     i) Compton cooling (Peebles 1971)
 c
       compa     = 5.65d-36 / coolunit
 c
-c     i) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
+c     j) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
 c        Default is 8.5e-26 for epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
 c
       gammaha   = gammahacgs / coolunit
