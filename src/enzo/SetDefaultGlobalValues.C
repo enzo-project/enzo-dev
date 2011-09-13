@@ -564,7 +564,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolingCutOffTemperature   = 0.0;
   CoolingPowerCutOffDensity1 = 0;
   CoolingPowerCutOffDensity2 = 1e10;
-  UseH2OnDust		     = 0;
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;

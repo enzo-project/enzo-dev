@@ -692,7 +692,6 @@ EXTERN int UseResistivity;
 
 /* Chemistry & cooling parameters */
 
-EXTERN int UseH2OnDust;
 EXTERN float CoolingCutOffDensity1;
 EXTERN float CoolingCutOffDensity2;
 EXTERN float CoolingPowerCutOffDensity1;
