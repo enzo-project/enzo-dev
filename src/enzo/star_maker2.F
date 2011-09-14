@@ -13,9 +13,7 @@ c
      &                      imetal, imethod, mintdyn,
      &                      odthresh, masseff, smthresh, level, np, 
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf,
-     &                      imetalSNIa, metalSNIa, metalfSNIa)
-
+     &                      mp, tdp, tcp, metalf)
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -32,8 +30,6 @@ c    the various bugs that Greg Bryan and I discovered in April 2002
 c  modified4: 13 November 2002 by BWO
 c    turned OFF stochastic star formation (changed ifdef) and cleaned
 c    up code, added comments.
-c  modified5: 20 Feb 2008 by M. Ryan Joung
-c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
 c
 c
 c  INPUTS:
@@ -59,7 +55,6 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
-c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
 c
@@ -71,7 +66,6 @@ c    mp       - mass of new particles
 c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
-c    metalfSNIa - metallicity fraction of particle (from SN Ia)
 c    nmax     - particle array size specified by calling routine
 c
 c
@@ -82,18 +76,16 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer imetalSNIa, procnum
+      integer procnum
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    metalSNIa(nx,ny,nz)
       real    dt, dx, z
       real    d1, x1, v1, t1
       REALSUB xstart, ystart, zstart, t
       REALSUB xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax),
-     &     metalfSNIa(nmax)
+      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
       real    odthresh, masseff, smthresh, mintdyn
 c
       real   sformsum
@@ -228,14 +220,6 @@ c
                else
                   metalf(ii) = 0.d0
                endif
-
-c              Metallicity from Type Ia SNe
-
-               if (imetalSNIa .eq. 1) then
-                  metalfSNIa(ii) = metalSNIa(i,j,k)    ! in here metal is a fraction
-               else
-                  metalfSNIa(ii) = 0.0
-               endif
 c
 c              Remove mass from grid
 c
@@ -281,7 +265,6 @@ c
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn)
-
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c

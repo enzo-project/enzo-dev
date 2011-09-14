@@ -153,25 +153,20 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   float exp_arg = -1.0 * POW(Redshift-2.3, 2);
 
-  /* Above z = 2.3, increase the width of the Gaussian by a factor of
-     3 for HI and HeI. */
-
-  float beta2 = (AdjustUVBackgroundHighRedshift && Redshift > 2.3) ? 9.0 : 1.0;
-
   /* ------------------------------------------------------------------ */
   /* 1) For the Haardt and Madau (1996) quasar spectrum (alpha_q = 1.5) */
 
   if (RadiationFieldType == 1) {
 
-    RateData.k24 = 6.7e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
+    RateData.k24 = 6.7e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
                      * TimeUnits * Ramp;
     RateData.k25 = 6.3e-15 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
                      * TimeUnits * Ramp;
-    RateData.k26 = 3.2e-13 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00/beta2) 
+    RateData.k26 = 3.2e-13 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
                      * TimeUnits * Ramp;
-    CoolData.piHI   = 4.7e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2) 
+    CoolData.piHI   = 4.7e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95) 
                      / CoolingUnits * Ramp;
-    CoolData.piHeI  = 8.2e-24 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00/beta2) 
+    CoolData.piHeI  = 8.2e-24 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
                      / CoolingUnits * Ramp;
     CoolData.piHeII = 1.6e-25 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
                      / CoolingUnits * Ramp;
@@ -181,15 +176,15 @@ int RadiationFieldCalculateRates(FLOAT Time)
   /* 2) For the Haardt and Madau (1996) quasar spectrum (alpha_q = 1.8) */
 
   if (RadiationFieldType == 2) {
-    RateData.k24 = 5.6e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
+    RateData.k24 = 5.6e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
                  * TimeUnits * Ramp;
     RateData.k25 = 3.2e-15 * POW(1.0+Redshift, 0.30) * exp(exp_arg/2.60)
                  * TimeUnits * Ramp;
-    RateData.k26 = 4.8e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
+    RateData.k26 = 4.8e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
                  * TimeUnits * Ramp;
-    CoolData.piHI   = 3.9e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
+    CoolData.piHI   = 3.9e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
                  / CoolingUnits * Ramp;
-    CoolData.piHeI  = 6.4e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/2.10/beta2)
+    CoolData.piHeI  = 6.4e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/2.10)
                  / CoolingUnits * Ramp;
     CoolData.piHeII = 8.7e-26 * POW(1.0+Redshift, 0.30) * exp(exp_arg/2.70)
                  / CoolingUnits * Ramp;

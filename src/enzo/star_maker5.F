@@ -157,9 +157,9 @@ c	       Calculate star formation timescale
      &              shdens)**(-0.5d0)			!Eq(21)
             
             
-c     note: minus sign is because 'coolrate' is actual backwards: when
-c     coolrate is negative, gas is cooling (which is the opposite of how
-c     it's defined in springel & Hernquist 2003, MNRAS, 339, 289, eqn. 16
+c		note: minus sign is because 'coolrate' is actual backwards: when coolrate is 
+c		negative, gas is cooling (which is the opposite of how it's defined in springel
+c		& Hernquist 2003, MNRAS, 339, 289, eqtn. 16
                y = -1.0*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
      &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton) !Eq(16)
 

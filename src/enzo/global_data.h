@@ -353,8 +353,7 @@ EXTERN int StorePreShockFields;
    10 - homogenous internal radiation field (a la Renyue's work) */
 
 EXTERN int RadiationFieldType;
-EXTERN int AdjustUVBackground;
-EXTERN int AdjustUVBackgroundHighRedshift;
+EXTERN int AdjustUVBackground; 
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
@@ -705,11 +704,8 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
-EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
-EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
-EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 
