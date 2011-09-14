@@ -332,6 +332,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ThreeBodyRate               = 0;                 // ABN02
   CIECooling                  = 1;
   H2OpticalDepthApproximation = 1;
+  H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
@@ -361,6 +362,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass   = 0.76;
   /* The DToHRatio is by mass in the code, so multiply by 2. */
   CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
+  CoolData.SolarMetalFractionByMass = 0.02041;
   CoolData.NumberOfTemperatureBins = 600;
   CoolData.ih2co                   = 1;
   CoolData.ipiht                   = 1;
@@ -637,7 +639,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
-  TestProblemData.MetallicityNormalization = 0.0204;
+  TestProblemData.MetallicityNormalization = 0.02041;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

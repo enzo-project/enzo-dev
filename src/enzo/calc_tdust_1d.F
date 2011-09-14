@@ -7,7 +7,7 @@
 
       subroutine calc_tdust(
      &     tdust, tgas, nh, gasgr, itmask, 
-     &     trad, in, jn, kn, is, ie, j, k)
+     &     trad, in, is, ie, j, k)
 
 !  CALCULATE EQUILIBRIUM DUST TEMPERATURE
 !
@@ -19,7 +19,7 @@
 !    Calculate dust temperature.
 !
 !  INPUTS:
-!     in,jn,kn - dimensions of 3D fields
+!     in       - dimension of 1D slice
 !
 !     tdust    - dust temperature
 !
@@ -42,10 +42,9 @@
 
 !  Arguments
 
-      integer in, jn, kn, is, ie, j, k
+      integer in, is, ie, j, k
 
-      real tdust(in,jn,kn)
-      real tgas(in), nh(in), gasgr(in)
+      real tdust(in), tgas(in), nh(in), gasgr(in)
       real trad
 
 !  Iteration mask
@@ -267,7 +266,7 @@
 
  666  continue
 
-!     Copy values back to grid
+!     Copy values back to thrown slice
       do i = is+1, ie+1
          if ( itmask(i) ) then
 
@@ -281,7 +280,7 @@
                ERROR_MESSAGE
             endif
 
-            tdust(i,j,k) = tdustnow(i)
+            tdust(i) = tdustnow(i)
          endif
       enddo
 

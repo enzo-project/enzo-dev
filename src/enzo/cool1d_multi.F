@@ -8,9 +8,9 @@
       subroutine cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim, 
+     &                iexpand, ispecies, imetal, imcool, idust, idim, 
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend,
+     &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -24,11 +24,11 @@
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end, 
+     &                gasgra, metala, n_xe, xe_start, xe_end, 
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d,
+     &                tgas, tgasold, p2d, tdust, 
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
@@ -64,10 +64,10 @@
 !  Arguments
 
       integer in, jn, kn, is, ie, j, k, nratec, imethod, idim,
-     &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
+     &        idual, iexpand, ih2co, ipiht, ispecies, imcool, idust, 
      &        nfreq, iradshield, iradtype, imetalregen, iradtrans,
      &        n_xe, imetal, igammah, ih2optical, iciecool
-      real    aye, temstart, temend,
+      real    aye, temstart, temend, z_solar,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
@@ -83,7 +83,8 @@
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      &        metala(nratec, n_xe)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec), 
+     &        ciecoa(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -106,9 +107,8 @@
 !  Parameters
 
       double precision mh
-      real    ZSOLAR, mu_metal
+      real mu_metal
       parameter (mh = mass_h)      !DPC
-      parameter (ZSOLAR = 0.02041d0)
       parameter (mu_metal = 16.d0)    ! approx. mean molecular weight of metals
 
 !  Locals
@@ -124,7 +124,8 @@
  
       integer indixe(in)
       real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
-     &     tgas(in), tgasold(in)
+     &     tgas(in), tgasold(in), tdust(in), rhoH(in), nh(in),
+     &     metallicity(in)
       double precision edot(in)
 
 !  Cooling/heating slice locals
@@ -136,7 +137,7 @@
       real hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), metalc(in)
       real gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
-     &     galdl(in)
+     &     galdl(in), gasgr(in), gasgr_tdust(in)
 
 !  Metal cooling locals
 
@@ -229,13 +230,14 @@
          endif
       endif
 
-!     Compute temperature
+!     Compute temperature and H number density
 
       do i = is+1, ie+1
          if ( itmask(i) ) then
-         tgas(i) = 
+            tgas(i) = 
      &           (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4.d0 +
-     &            HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+     &           HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            rhoH(i) = HI(i,j,k) + HII(i,j,k)
          end if
       enddo
 
@@ -244,23 +246,26 @@
       if (ispecies .gt. 1) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
-            tgas(i) = tgas(i) +
-     &            HM(i,j,k) + (H2I(i,j,k) + H2II(i,j,k))/2.d0
+               tgas(i) = tgas(i) +
+     &              HM(i,j,k) + (H2I(i,j,k) + H2II(i,j,k))/2.d0
+               rhoH(i) = rhoH(i) + H2I(i,j,k) + H2II(i,j,k)
             end if
          enddo
       endif
 
-!     Include metal species
+!     Include metal species and calculate metallicity
       
       if (imetal .eq. 1) then
          do i = is+1, ie+1
             tgas(i) = tgas(i) + metal(i,j,k)/mu_metal
+            metallicity(i) = metal(i,j,k) / d(i,j,k) / z_solar
          enddo
       endif
 
       do i = is+1, ie+1
          if ( itmask(i) ) then
-         tgas(i) = max(p2d(i)*utem/tgas(i), temstart)
+            tgas(i) = max(p2d(i)*utem/tgas(i), temstart)
+            nh(i) = rhoH(i) * dom
          end if
       enddo
 
@@ -615,6 +620,37 @@ c  new (correct) way: (april 4, 2007)
          enddo
       endif
 
+!     --- Gas to grain heat transfer ---
+
+      if (idust .gt. 0) then
+
+!     Look up gas/grain heat transfer rates
+
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+               gasgr(i) = gasgra(indixe(i)) + tdef(i)
+     &              *(gasgra(indixe(i)+1) -gasgra(indixe(i)))
+               gasgr_tdust(i) = gasgr(i) * coolunit / mh
+            endif
+         enddo
+
+!     Compute dust temperature
+
+         call calc_tdust(tdust, tgas, nh, gasgr_tdust, 
+     &           itmask, comp2, in, is, ie, j, k)
+
+!     Calculate cooling rate
+
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+               edot(i) = edot(i) - 
+     &              gasgr(i) * (tgas(i) - tdust(i)) * 
+     &              metallicity(i) * rhoH(i) * rhoH(i)
+            endif
+         enddo
+
+      endif
+
 !     --- Compute (external) radiative heating terms ---
 
 !                       Photoionization heating
@@ -762,7 +798,7 @@ c
      $       metala(tcmb_idx+1, xe_idx+1)*(dlogxe  )*(dlogTcmb)
                metalc(i) = metalc(i) - metalc_cmb
 
-               xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
+               xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*z_solar))
                edot(i) = edot(i) - 
      $              metalc(i) * d(i,j,k) * (xi/JHW_METALS_NORMZ) / dom
 #ifdef UNUSED
@@ -882,7 +918,7 @@ c
          ndi = min(max(1, ndi), NID)
          nti = (log10(0.5d0*(tgas(i)+tgasold(i)))-TEMMIN)/DELT + 1
          nti = min(max(1, nti), NIT)
-         xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
+         xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*z_solar))
          metal_cool = cbovcool(nti,ndi) * xi / dom *
      &                (HI(i,j,k)+HII(i,j,k))
          metal_heat = cbovheat(nti,ndi) * xi / dom *

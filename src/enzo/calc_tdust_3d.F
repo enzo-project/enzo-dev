@@ -63,7 +63,7 @@
  
       integer indixe(in)
       real t1(in), t2(in), logtem(in), tdef(in), 
-     &     tgas(in), nh(in)
+     &     tgas(in), tdust(in), nh(in)
 
 !  Cooling/heating slice locals
 
@@ -146,8 +146,14 @@
 
 !     --- Compute dust temperature in a slice ---
 
-         call calc_tdust(dust_temp, tgas, nh, gasgr, 
-     &           itmask, trad, in, jn, kn, is, ie, j, k)
+            call calc_tdust(tdust, tgas, nh, gasgr, 
+     &           itmask, trad, in, is, ie, j, k)
+
+!     Copy slice values back to grid
+
+            do i = is+1, ie+1
+               gas_temp(i,j,k) = tdust(i)
+            enddo
 
          enddo
       enddo

@@ -8,11 +8,11 @@
       subroutine solve_rate_cool(d, e, ge, u, v, w, de,
      &                HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod,
-     &                idual, ispecies, imetal, imcool, idim,
+     &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
      &                dt, aye, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim,
-     &                eta1, eta2, gamma, fh, dtoh,
+     &                eta1, eta2, gamma, fh, dtoh, z_solar,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &                k11a, k12a, k13a, k13dda, k14a, k15a,
      &                k16a, k17a, k18a, k19a, k22a,
@@ -25,8 +25,8 @@
      &                HM, H2I, H2II, DI, DII, HDI, metal,
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
      &                gpldla, gphdla, hdltea, hdlowa,
-     &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gaHIa, gaH2a, gaHea, gaHpa, gaela, 
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, iradcoupled, iradstep, ierr,
@@ -78,6 +78,7 @@
 !    iradtype - type of radiative field (only used if = 8)
 !    imetal   - flag if metal field is active (0 = no, 1 = yes)
 !    imcool   - flag if there is metal cooling
+!    idust    - flag for H2 formation on dust grains
 !    imethod  - Hydro method (0 = PPMDE, 2 = ZEUS-type)
 !    ih2co    - flag to include H2 cooling (1 = on, 0 = off)
 !    ipiht    - flag to include photoionization heating (1 = on, 0 = off)
@@ -87,6 +88,7 @@
 !
 !    fh       - Hydrogen mass fraction (typically 0.76)
 !    dtoh     - Deuterium to H mass ratio
+!    z_solar  - Solar metal mass fraction
 !    dt       - timestep to integrate over
 !    aye      - expansion factor (in code units)
 !
@@ -128,10 +130,11 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
-     &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
-     &        igammah, ih2optical, iciecool, ithreebody
+     &        iradcoupled, iradstep, n_xe, ierr, imcool, idust, 
+     &        irt_honly, igammah, ih2optical, iciecool, ithreebody
       real    dt, aye, temstart, temend, eta1, eta2, gamma,
-     &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
+     &        utim, uxyz, uaye, urho, utem, fh, dtoh, z_solar, 
+     &        xe_start, xe_end
 
 !  Density, energy and velocity fields fields
 
@@ -155,7 +158,8 @@
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec), 
+     &        ciecoa(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -220,7 +224,7 @@
       integer indixe(ijk)
       real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
      &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
-     &     olddtit
+     &     tdust(ijk), olddtit
 
 !  Rate equation row temporaries
 
@@ -335,9 +339,9 @@
             call cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim,
+     &                iexpand, ispecies, imetal, imcool, idust, idim,
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend,
+     &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -351,11 +355,11 @@
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d,
+     &                tgas, tgasold, p2d, tdust, 
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,

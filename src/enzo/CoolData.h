@@ -23,6 +23,7 @@ struct CoolDataType
   float RadiationRedshiftDropOff;
   float HydrogenFractionByMass;
   float DeuteriumToHydrogenRatio;
+  float SolarMetalFractionByMass;
 
   /* Equilibrium rates */
 

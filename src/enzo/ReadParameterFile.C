@@ -420,6 +420,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
     ret += sscanf(line, "H2OpticalDepthApproximation = %"ISYM, &H2OpticalDepthApproximation);
     ret += sscanf(line, "ThreeBodyRate = %"ISYM, &ThreeBodyRate);
+    ret += sscanf(line, "H2FormationOnDust = %"ISYM, &H2FormationOnDust);
     if (sscanf(line, "CloudyCoolingGridFile = %s", dummy) == 1) {
       CloudyCoolingData.CloudyCoolingGridFile = dummy;
       ret++;
@@ -456,6 +457,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiationRedshiftDropOff = %"FSYM, &CoolData.RadiationRedshiftDropOff);
     ret += sscanf(line, "HydrogenFractionByMass = %"FSYM, &CoolData.HydrogenFractionByMass);
     ret += sscanf(line, "DeuteriumToHydrogenRatio = %"FSYM, &CoolData.DeuteriumToHydrogenRatio);
+    ret += sscanf(line, "SolarMetalFractionByMass = %"FSYM, &CoolData.SolarMetalFractionByMass);
     ret += sscanf(line, "NumberOfTemperatureBins = %"ISYM, &CoolData.NumberOfTemperatureBins);
     ret += sscanf(line, "CoolDataIh2co = %"ISYM, &CoolData.ih2co);
     ret += sscanf(line, "CoolDataIpiht = %"ISYM, &CoolData.ipiht);
