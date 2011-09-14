@@ -580,8 +580,8 @@
                       +      k15(i)*HM(i,j,k)    *HI(i,j,k),       &
                       + 2.d0*k16(i)*HM(i,j,k)    *HII(i,j,k),      &
                       + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0,  &
-                      +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0   &
-               endif
+                      +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
+              endif
 #endif /* _OPENMP */
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
