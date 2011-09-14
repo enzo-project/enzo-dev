@@ -152,7 +152,7 @@
 !     Copy slice values back to grid
 
             do i = is+1, ie+1
-               gas_temp(i,j,k) = tdust(i)
+               dust_temp(i,j,k) = tdust(i)
             enddo
 
          enddo
