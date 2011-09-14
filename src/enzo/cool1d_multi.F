@@ -106,14 +106,10 @@
 !  Parameters
 
       double precision mh
-      real    ZSOLAR, mu_metal, boost_factor
-! MKRJ 12/21/07 boost gammaha by this factor (JHW reduced by 1.0 because
-! it has been included in v2.0
-      parameter (boost_factor = 3.5) 
+      real    ZSOLAR, mu_metal
       parameter (mh = mass_h)      !DPC
       parameter (ZSOLAR = 0.02041d0)
       parameter (mu_metal = 16.d0)    ! approx. mean molecular weight of metals
-
 
 !  Locals
 
@@ -887,68 +883,14 @@ c
          nti = (log10(0.5d0*(tgas(i)+tgasold(i)))-TEMMIN)/DELT + 1
          nti = min(max(1, nti), NIT)
          xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
-
-c
-c        MKRJ 12/18/06
-c        Use the previous metal cooling/heating rate if T >= 10^4 K
-         if (tgas(i) .gt. 1.e4) then
-            metal_cool = cbovcool(nti,ndi) * xi * dom_inv *
-     &           (HI(i,j,k)+HII(i,j,k))
-            metal_heat = cbovheat(nti,ndi) * xi * dom_inv *
-     &           (HI(i,j,k)+HII(i,j,k))
-         else
-
-c           MKRJ: For low T, adopt the x=10^-2 cooling curve from
-c           Dalgarno & McCray 1972
-	    if (tgas(i) .ge. 1.e3) then
-               if (tgas(i) .ge. 6.31e3) then
-                  metal_cool = 3.13e-27*(tgas(i)**0.396)
-               else
-                  if (tgas(i) .ge. 3.16e3) then
-                     metal_cool = 2.64e-26*(tgas(i)**0.152)
-                  else
-                     metal_cool = 5.28e-27*(tgas(i)**0.352)
-                  endif
-               endif
-            else
-               if (tgas(i) .ge. 3.98e1) then
-                  if (tgas(i) .ge. 2.00e2) then
-                     metal_cool = 3.06e-27*(tgas(i)**0.431)
-                  else
-                     metal_cool = 1.52e-28*(tgas(i)**0.997)
-                  endif
-               else
-                  if (tgas(i) .ge. 2.51e1) then
-                     metal_cool = 2.39e-29*(tgas(i)**1.50)
-                  else
-                     metal_cool = 1.095e-32*(tgas(i)**3.885)
-                  endif
-               endif
-            endif
-
-c	    MKRJ 1/3/06 -- convert metal_cool (n^2 Lambda) from cgs to sim units 
-            metal_cool = metal_cool/coolunit * xi * 
-     &           ((HI(i,j,k)+HII(i,j,k)) * dom_inv)**2
-
-c	    MKRJ 12/18/06 -- Photoelectric heating rate (Gamma_pe)
-c            8.5e-26 came from Gamma_pe, assuming epsilon=0.05, G_0=1.7
-c            (see Gerritsen & Icke '97, or Joung & Mac Low '06, Sec. 2.2)
-c
-	    metal_heat = float(igammah) * boost_factor * 
-     &           gammaha * xi * (HI(i,j,k)+HII(i,j,k)) * dom_inv
-c
-c           MKRJ 10/15/08 -- Gamma (in erg/s) should weakly depend on 
-c            the gas density. The value 8.5e-26 is really for the solar 
-c            neighborhood, where n \approx 0.5 cm^-3.
-c            So assume:  emissivity \propto rho^1.4 &  
-c                        F_uv = emissivity*l_mfp \propto rho^0.4
-c            (n_H = 0.76*d(i,j,k)*dom)
-c
-            if (0.76*d(i,j,k)*dom .gt. 5.0e-1) then
-	       metal_heat = metal_heat * 
-     &                     (0.76*d(i,j,k)*dom/5.0e-1)**0.4
-            endif
-         endif ! tgas(i) .gt. 1.e4
+         metal_cool = cbovcool(nti,ndi) * xi / dom *
+     &                (HI(i,j,k)+HII(i,j,k))
+         metal_heat = cbovheat(nti,ndi) * xi / dom *
+     &                (HI(i,j,k)+HII(i,j,k))
+         if (tgas(i) .le. 1e4) then
+            metal_cool = metal_cool*(tgas(i)/1.d4)**3
+            metal_heat = 0.d0
+         endif
 
          edot(i) = edot(i) + metal_heat - metal_cool
 
