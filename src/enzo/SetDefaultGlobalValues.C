@@ -221,6 +221,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
+    ExternalGravityPosition[dim]    = 0.0;
+    ExternalGravityOrientation[dim] = 0.0;
     MustRefineRegionLeftEdge[dim] = 0.0;
     MustRefineRegionRightEdge[dim] = 1.0;
   }
@@ -283,6 +285,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MemoryLimit                 = 4000000000L;
  
   ExternalGravity             = FALSE;             // off
+  ExternalGravityConstant = 0.0;
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
@@ -414,8 +417,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BigStarSeparation                = 0.25;
   SimpleQ                          = 1e50;
   SimpleRampTime                   = 0.1;
-  StarMakerTypeIaSNe               = FALSE;
-  StarMakerPlanetaryNebulae        = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerMassEfficiency          = 1;

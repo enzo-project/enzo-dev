@@ -380,6 +380,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  PointSourceGravityCoreRadius);
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity); 
+  fprintf(fptr, "ExternalGravityConstant     = %"FSYM"\n",ExternalGravityConstant);
+  fprintf(fptr, "ExternalGravityRadius     = %"FSYM"\n",ExternalGravityRadius); 
+  fprintf(fptr, "ExternalGravityDensity     = %"FSYM"\n",ExternalGravityDensity);
+  fprintf(fptr, "ExternalGravityPosition   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityPosition);
+  fprintf(fptr, "ExternalGravityOrientation   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityOrientation);
 
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
   fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);
@@ -653,7 +660,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
-  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+  fprintf(fptr, "SimpleQ                               = %lg\n",
 	  SimpleQ);
   fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
 	  SimpleRampTime);
@@ -695,17 +702,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarEnergyToThermalFeedback);
   fprintf(fptr, "StarEnergyToStellarUV                 = %"GSYM"\n",
           StarEnergyToStellarUV);
-  fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n",
+  fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n\n",
           StarEnergyToQuasarUV);
-  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n",
+  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n\n",
           StarFeedbackDistRadius);
-  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",
+  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n\n",
           StarFeedbackDistCellStep);
-  fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
-	  StarMakerTypeIaSNe);
-  fprintf(fptr, "StarMakerPlanetaryNebulae             = %"ISYM"\n",
-	  StarMakerPlanetaryNebulae);
-  fprintf(fptr, "MultiMetals                           = %"ISYM"\n\n",
+  fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
           MultiMetals);
   fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);
   fprintf(fptr, "AnisotropicConduction                 = %"ISYM"\n", AnisotropicConduction);
