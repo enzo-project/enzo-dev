@@ -96,13 +96,13 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Find Metallicity or SNColour field and set flag. */
 
   int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
-    Galaxy2ColourNum;
+    Galaxy2ColourNum, MetalIaNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MBHColourNum, 
-				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MetalIaNum, 
+				 MBHColourNum, Galaxy1ColourNum, 
+				 Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
 
   MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
