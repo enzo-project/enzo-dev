@@ -955,14 +955,19 @@ added to the acceleration field for the baryons and particles.
     code units. Default: 0 0 0
 ``ExternalGravity`` (external)
    This fulfills the same purpose as ``PointSourceGravity`` but is
-   more aptly named. Currently, it has only a single option
-   ``ExternalGravity = 1`` which turns on an alternative
-   implementation of the NFW profile. The profile properties are
-   defined via the parameters ``HaloCentralDensity``, ``HaloConcentration`` and ``HaloVirialRadius``. Default: 0 
+   more aptly named. ``ExternalGravity = 1`` turns on an alternative
+   implementation of the NFW profile with properties
+   defined via the parameters ``HaloCentralDensity``, ``HaloConcentration`` and ``HaloVirialRadius``. Boxsize is assumed to be 1.0 in this case. ``ExternalGravity = 10`` gives a gravitational field defined by the logarithmic potential in Binney & Tremaine, corresponding to a disk with constant circular velocity.  Default: 0 
+``ExternalGravityConstant`` (external)
+    If ``ExternalGravity = 10``, this is the circular velocity of the disk in code units. Default: 0.0
 ``ExternalGravityDensity`` 
    Reserved for future use.
-``ExternalGravityRadius``
-   Reserved for future use.
+``ExternalGravityPosition`` (external)
+    If ``ExternalGravity = 10``, this parameter specifies the center of the gravitational field in code units. Default: 0 0 0
+``ExternalGravityOrientation`` (external)
+    For ``ExternalGravity = 10``, this is the unit vector of the disk's angular momentum (e.g. a disk whose face-on view is oriented in the x-y plane would have ``ExternalGravityOrientation = 0 0 1``). Default: 0 0 0 
+``ExternalGravityRadius`` (external)
+   If ``ExternalGravity = 10``, this marks the inner radius of the disk in code units within which the velocity drops to zero. Default: 0.0
 ``UniformGravity`` (external)
     This flag (1 - on, 0 - off) indicates if there is to be a uniform
     gravitational field. Default: 0
