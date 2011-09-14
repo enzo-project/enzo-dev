@@ -291,6 +291,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AccessBaryonFields.o \
 	Grid_AddBaryonsToGravitatingMassField.o \
 	Grid_AddExternalAcceleration.o \
+	Grid_AddExternalPotentialField.o \
 	Grid_AddFeedbackSphere.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
@@ -335,6 +336,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeAccelerationFieldExternal.o \
 	Grid_ComputeAccelerationField.o \
 	Grid_ComputeAccelerations.o \
+	Grid_ComputeAccelerationsFromExternalPotential.o \
 	Grid_ComputeCellCenteredField.o \
 	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
