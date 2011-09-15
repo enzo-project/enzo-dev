@@ -52,8 +52,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor,
 	     float DMConcentration, FLOAT Time);
 float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, 
 	     FLOAT cellwidth, FLOAT z,FLOAT xpos, FLOAT ypos, FLOAT zpos);
-float gauss_mass(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, 
-		 FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos);
+
 
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits;
 
@@ -78,7 +77,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  int dim, i, j, k, m, field, disk, size, MetalNum, vel;
  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
    DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
- float DiskDensity, DiskVelocityMag,dens2;
+ float DiskDensity, DiskVelocityMag;
 
   
   /* create fields */
@@ -201,7 +200,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	if (r < DiskRadius) {
 
-	  FLOAT xpos, ypos, zpos, xpos1, ypos1, zpos1, zheight, drad, CellMass;
+	  FLOAT xpos, ypos, zpos, xpos1, ypos1, zpos1, zheight, drad;
 
 	  /* Loop over dims if using Zeus (since vel's face-centered). */
 
@@ -248,11 +247,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
 	    if (dim == 0)
-	      {
-		CellMass = gauss_mass(drad*LengthUnits,DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits, zheight*LengthUnits,xpos1*drad*LengthUnits,ypos1*drad*LengthUnits,zpos1*drad*LengthUnits);
 
-		dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
-	      }
+	      dens1=av_den(drad*LengthUnits, DiskDensity*DensityUnits, ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits, zheight*LengthUnits,xpos1*drad*LengthUnits,ypos1*drad*LengthUnits,zpos1*drad*LengthUnits);
 
 	    if (dens1 < density)
 	      break;
@@ -279,7 +275,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
 
-	  if (dens1 > density) {
+	  if (dens1 >= density) {
 	    density = dens1;
 	    if (temp1 == InitialTemperature)
 	      temp1 = DiskTemperature;
@@ -405,27 +401,29 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
      return (V_Circ/VelocityUnits);  //code units
 }
 
-
-// Computes the total mass in a given cell by integrating the density profile using 5-point Gaussian quadrature
-float gauss_mass(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos)
+float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos)
 {
-  
-  double EvaluationPoints [5] = {-0.90617985,-0.53846931,0.0,0.53846931,0.90617985};
-  double Weights [5] = {0.23692689,0.47862867,0.56888889,0.47862867,0.23692689};
-  double TempResult [5];
-  double Mass;
-  int i,j;
+ // routine to return the average gas density in a grid cell
+ // Routine samples density in r plane of grid and averages
+ // Assumes all input units are CGS!!
 
-  for (i=0;i<5;i++)
-    {
-      TempResult[i] = 0.0;
-      for (j=0;j<5;j++)
-	{
-	  TempResult[i] += cellwidth/2.0*Weights[j]*PEXP(-sqrt(POW((cellwidth/2.0)*EvaluationPoints[i]+ypos,2)+
-							       POW((cellwidth/2.0)*EvaluationPoints[j]+zpos,2))/ScaleHeightR);
-	}
-      Mass += cellwidth/2.0*Weights[i]*TempResult[i];
-    }  
-  Mass *= DiskDensity*2.0*ScaleHeightz*(tanh((z+cellwidth/2.0)/(2.0*ScaleHeightz)) - tanh((z-cellwidth/2.0)/(2.0*ScaleHeightz)));
-  return Mass;
+ int i,points;
+ double den,r1,nx,ny,nz;
+
+ points = 100;
+ den = DiskDensity*PEXP(-r/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
+
+ for (i=0;i<points;i++)
+   {
+     nx = drand48()*cellwidth-cellwidth/2.0;
+     ny = drand48()*cellwidth-cellwidth/2.0;
+     nz = drand48()*cellwidth-cellwidth/2.0;
+     r1 = sqrt(POW((xpos+nx),2)+POW((ypos+ny),2)+POW((zpos+nz),2)); 
+     den = den+DiskDensity*PEXP(-r1/ScaleHeightR)*2.0*ScaleHeightz/cellwidth*(tanh((z+cellwidth/2.0)/(2.0*ScaleHeightz)) - tanh((z-cellwidth/2.0)/(2.0*ScaleHeightz)));
+   }
+
+ double av_den = den/(points+1);
+
+ return (av_den/DensityUnits); //code unites
+
 }
