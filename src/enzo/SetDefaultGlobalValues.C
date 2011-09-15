@@ -371,6 +371,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.comp_xray               = 0;
   CoolData.temp_xray               = 0;
   RateData.CaseBRecombination      = 0;   // default to case A rates
+  RateData.NumberOfDustTemperatureBins = 250;
+  RateData.DustTemperatureStart    = 1.0;
+  RateData.DustTemperatureEnd      = 1500.0;
 
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";

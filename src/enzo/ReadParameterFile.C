@@ -466,6 +466,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolDataCompXray = %"FSYM, &CoolData.comp_xray);
     ret += sscanf(line, "CoolDataTempXray = %"FSYM, &CoolData.temp_xray);
     ret += sscanf(line, "RateDataCaseBRecombination = %"ISYM, &RateData.CaseBRecombination);
+    ret += sscanf(line, "NumberOfDustTemperatureBins = %"ISYM, &RateData.NumberOfDustTemperatureBins);
+    ret += sscanf(line, "DustTemperatureStart = %"FSYM, &RateData.DustTemperatureStart);
+    ret += sscanf(line, "DustTemperatureEnd = %"FSYM, &RateData.DustTemperatureEnd);
     ret += sscanf(line, "PhotoelectricHeating  = %"ISYM, &PhotoelectricHeating);
     ret += sscanf(line, "PhotoelectricHeatingRate = %"FSYM, &PhotoelectricHeatingRate);
 

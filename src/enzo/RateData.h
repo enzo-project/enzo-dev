@@ -66,4 +66,17 @@ struct RateDataType
   float *k54;
   float *k55;
   float *k56;
+
+  /* H2 formation on dust. */
+
+  int NumberOfDustTemperatureBins;   
+  float DustTemperatureStart;        // range of temperature in K
+  float DustTemperatureEnd;
+  float *h2dust;                     // function of Tgas and Tdust
+
+  /* Chemical heating from H2 formation. */
+  /* numerator and denominator of Eq 23 of Omukai ea. 2000. */
+  float *n_cr_n;
+  float *n_cr_d1;
+  float *n_cr_d2;
 };

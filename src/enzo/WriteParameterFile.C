@@ -466,6 +466,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "TemperatureEnd                 = %"FSYM"\n", CoolData.TemperatureEnd);
   fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
   fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
+  fprintf(fptr, "NumberOfDustTemperatureBins    = %"ISYM"\n", RateData.NumberOfDustTemperatureBins);
+  fprintf(fptr, "DustTemperatureStart           = %"FSYM"\n", RateData.DustTemperatureStart);
+  fprintf(fptr, "DustTemperatureEnd             = %"FSYM"\n", RateData.DustTemperatureEnd);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
   fprintf(fptr, "PhotoelectricHeatingRate       = %"GSYM"\n", PhotoelectricHeatingRate);
   

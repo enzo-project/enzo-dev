@@ -28,7 +28,7 @@
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d, tdust, 
+     &                tgas, tgasold, p2d, tdust, metallicity, rhoH, 
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,

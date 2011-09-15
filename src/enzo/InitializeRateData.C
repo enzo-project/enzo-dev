@@ -54,7 +54,8 @@ extern "C" void FORTRAN_NAME(calc_rates)(
      float *k24, float *k25, float *k26, float *k27, float *k28, float *k29,
         float *k30, float *k31,
      float *k50, float *k51, float *k52, float *k53, float *k54, float *k55,
-        float *k56, int *ioutput);
+        float *k56, int *ndratec, float *dtemstart, float *dtemend, float *h2dusta, 
+     float *ncrca, float *ncrd1a, float *ncrd2a, int *ioutput);
 
 
 // character strings
@@ -146,7 +147,12 @@ int InitializeRateData(FLOAT Time)
   RateData.k54 = new float[RateData.NumberOfTemperatureBins];
   RateData.k55 = new float[RateData.NumberOfTemperatureBins];
   RateData.k56 = new float[RateData.NumberOfTemperatureBins];
- 
+  RateData.h2dust = new float[RateData.NumberOfTemperatureBins * 
+			      RateData.NumberOfDustTemperatureBins];
+  RateData.n_cr_n = new float[RateData.NumberOfTemperatureBins];
+  RateData.n_cr_d1 = new float[RateData.NumberOfTemperatureBins];
+  RateData.n_cr_d2 = new float[RateData.NumberOfTemperatureBins]; 
+
   /* If using cosmology, compute the expansion factor and get units. */
  
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
@@ -198,7 +204,10 @@ int InitializeRateData(FLOAT Time)
      &RateData.k24, &RateData.k25, &RateData.k26, &RateData.k27, &RateData.k28,
         &RateData.k29, &RateData.k30, &RateData.k31,
      RateData.k50, RateData.k51, RateData.k52, RateData.k53, RateData.k54,
-        RateData.k55, RateData.k56, &ioutput);
+        RateData.k55, RateData.k56, 
+     &RateData.NumberOfDustTemperatureBins, &RateData.DustTemperatureStart, 
+     &RateData.DustTemperatureEnd, RateData.h2dust, 
+     RateData.n_cr_n, RateData.n_cr_d1, RateData.n_cr_d2, &ioutput);
 
   /* If using tabulated J21 values for Lyman-Werner, initialize. */
   if (TabulatedLWBackground) {
