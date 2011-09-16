@@ -249,8 +249,6 @@ c              MKRJ 2/20/08 Do the same for particle metal fraction from SN Ia
 c
                if (imetalSNIa .eq. 1) then
                   metalfSNIa(ii) = metalSNIa(i,j,k)    ! in here metal is a fraction
-               else
-                  metalfSNIa(ii) = 0.0
                endif
 c
 c              Remove mass from grid
