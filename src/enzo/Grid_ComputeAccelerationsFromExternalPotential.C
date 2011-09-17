@@ -15,9 +15,6 @@
 ************************************************************************/
 
 #include <stdio.h>
-#include <math.h>
-#include "ErrorExceptions.h"
-#include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -25,7 +22,9 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "phys_constants.h"
+#include "Hierarchy.h"
+#include "LevelHierarchy.h"
+#include "TopGridData.h"
 
 /* function prototypes */
 
@@ -104,15 +103,12 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
 
 
  
-  //int j, k, index1, Skip = 1;
     
-  if (DifferenceType != PARTICLES){
+  if (DifferenceType != PARTICLES) {
     
     for (dim = 0; dim < GridRank; dim++)
       for (i = 0; i < size; i++)
 	Field[dim][i] = Acceleration[dim][i];
-
-
   }
 
   /* Interpolate acceleration field to get ParticleAcceleration */
@@ -129,7 +125,6 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
       float *PartAccel[GridRank];
       for (dim = 0; dim < GridRank; dim++){		
 
-	//	float *AccelPoints = Acceleration[dim];
 	PartAccel[dim] = new float[NumberOfParticles];
 	
 	for (i = 0; i < NumberOfParticles; i++)
@@ -149,10 +144,12 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
 				 Acceleration[dim], LeftEdge, GridDimension, 
 				 GridDimension+1, GridDimension+2, 
 				 &GravitatingMassFieldCellSize);	
-     
-	Field[dim] = PartAccel[dim];
-
       }
+
+      for (dim = 0; dim < GridRank; dim++)
+	for (i = 0; i < NumberOfParticles; i++)
+	  Field[dim][i] = PartAccel[dim][i];
+
       this->UpdateParticlePosition(-0.5*dtFixed);
      
 
@@ -172,7 +169,7 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
   for (dim = 0; dim < GridRank; dim++){
     delete [] Acceleration[dim];
     Acceleration[dim] = NULL;
-    }
+  }
    
 
   return SUCCESS;
