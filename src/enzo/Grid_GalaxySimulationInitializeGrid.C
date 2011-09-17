@@ -434,7 +434,7 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
   FLOAT Weights [5] = {0.23692689,0.47862867,0.56888889,0.47862867,0.23692689};
   FLOAT xResult [5];
   FLOAT yResult [5];
-  float Mass;
+  float Mass = 0;
   FLOAT xrot,yrot,zrot;
   int i,j,k;
 
