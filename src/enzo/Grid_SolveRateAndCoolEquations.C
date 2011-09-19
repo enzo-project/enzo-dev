@@ -260,7 +260,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCooling, 
     &H2FormationOnDust, 
     &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2, 
-       GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+    GridEndIndex, GridEndIndex+1, GridEndIndex+2,
     &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
     &dtCool, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
     &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
