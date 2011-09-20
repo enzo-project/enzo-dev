@@ -286,6 +286,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   /* write global Parameters */
  
   fprintf(fptr, "ProblemType                    = %"ISYM"\n", ProblemType);
+#ifdef NEW_PROBLEM_TYPES
+  fprintf(fptr, "ProblemTypeName                = %s\n", ProblemTypeName);
+#endif
   fprintf(fptr, "HydroMethod                    = %"ISYM"\n", HydroMethod);
   fprintf(fptr, "huge_number                    = %e\n", huge_number);
   fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
@@ -655,7 +658,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
-  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+  fprintf(fptr, "SimpleQ                               = %lg\n",
 	  SimpleQ);
   fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
 	  SimpleRampTime);

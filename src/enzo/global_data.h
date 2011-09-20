@@ -322,6 +322,7 @@ EXTERN fpos_t  BaryonFileNamePosition;
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
@@ -546,7 +547,7 @@ EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
-EXTERN float SimpleQ;
+EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
 
 
