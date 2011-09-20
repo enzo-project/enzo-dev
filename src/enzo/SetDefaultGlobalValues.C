@@ -98,6 +98,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.OutputFirstTimeAtLevel = 0; // zero is off
   MetaData.StopFirstTimeAtLevel   = 0; // zero is off
  
+  MetaData.NumberOfOutputsBeforeExit = 0;
+  MetaData.OutputsLeftBeforeExit     = 0;
+
   MetaData.RestartDumpNumber   = 0;            // starting restart id number
   MetaData.RestartDumpName     = DefaultRestartName;
   MetaData.RestartDumpDir      = DefaultRestartDir;
@@ -220,6 +223,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
+    ExternalGravityPosition[dim]    = 0.0;
+    ExternalGravityOrientation[dim] = 0.0;
     MustRefineRegionLeftEdge[dim] = 0.0;
     MustRefineRegionRightEdge[dim] = 1.0;
   }
@@ -282,6 +287,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MemoryLimit                 = 4000000000L;
  
   ExternalGravity             = FALSE;             // off
+  ExternalGravityConstant = 0.0;
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
@@ -327,6 +333,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
 
   MultiSpecies                = FALSE;             // off
+  NoMultiSpeciesButColors     = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
   CIECooling                  = 1;
@@ -334,8 +341,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
-  CRModel                     = 0;                 // off
-  ShockMethod                 = 0;                 // temperature unsplit
+  ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
   RadiationFieldType          = 0;

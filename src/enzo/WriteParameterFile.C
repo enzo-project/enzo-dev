@@ -183,10 +183,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "SubcycleNumber          = %"ISYM"\n", MetaData.SubcycleNumber);
   fprintf(fptr, "SubcycleSkipDataDump    = %"ISYM"\n", MetaData.SubcycleSkipDataDump);
   fprintf(fptr, "SubcycleLastDataDump    = %"ISYM"\n", MetaData.SubcycleLastDataDump);
-   fprintf(fptr, "OutputFirstTimeAtLevel = %"ISYM"\n",
+  fprintf(fptr, "OutputFirstTimeAtLevel = %"ISYM"\n",
 	  MetaData.OutputFirstTimeAtLevel);
-  fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n\n",
+  fprintf(fptr, "StopFirstTimeAtLevel    = %"ISYM"\n",
 	  MetaData.StopFirstTimeAtLevel);
+  fprintf(fptr, "NumberOfOutputsBeforeExit = %"ISYM"\n\n",
+	  MetaData.NumberOfOutputsBeforeExit);
 
   fprintf(fptr, "OutputOnDensity = %"ISYM"\n", OutputOnDensity);
   fprintf(fptr, "StartDensityOutputs = %"GSYM"\n", StartDensityOutputs);
@@ -286,6 +288,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   /* write global Parameters */
  
   fprintf(fptr, "ProblemType                    = %"ISYM"\n", ProblemType);
+#ifdef NEW_PROBLEM_TYPES
+  fprintf(fptr, "ProblemTypeName                = %s\n", ProblemTypeName);
+#endif
   fprintf(fptr, "HydroMethod                    = %"ISYM"\n", HydroMethod);
   fprintf(fptr, "huge_number                    = %e\n", huge_number);
   fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
@@ -377,6 +382,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  PointSourceGravityCoreRadius);
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity); 
+  fprintf(fptr, "ExternalGravityConstant     = %"FSYM"\n",ExternalGravityConstant);
+  fprintf(fptr, "ExternalGravityRadius     = %"FSYM"\n",ExternalGravityRadius); 
+  fprintf(fptr, "ExternalGravityDensity     = %"FSYM"\n",ExternalGravityDensity);
+  fprintf(fptr, "ExternalGravityPosition   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityPosition);
+  fprintf(fptr, "ExternalGravityOrientation   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityOrientation);
 
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
   fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);
@@ -437,7 +449,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiativeTransfer              = %"ISYM"\n", RadiativeTransfer);
   fprintf(fptr, "RadiationXRaySecondaryIon      = %"ISYM"\n", RadiationXRaySecondaryIon);
   fprintf(fptr, "RadiationXRayComptonHeating    = %"ISYM"\n", RadiationXRayComptonHeating);
-  fprintf(fptr, "CRModel                        = %"ISYM"\n", CRModel);
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
@@ -634,11 +645,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
 	  MinimumEnergyRatioForRefinement);
-  fprintf(fptr, "ShockwaveRefinementMinMach             = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMinMach            = %"FSYM"\n",
          ShockwaveRefinementMinMach);
-  fprintf(fptr, "ShockwaveRefinementMinVelocity             = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMinVelocity        = %"FSYM"\n",
          ShockwaveRefinementMinVelocity);
-  fprintf(fptr, "ShockwaveRefinementMaxLevel            = %e\n",
+  fprintf(fptr, "ShockwaveRefinementMaxLevel           = %"ISYM"\n",
          ShockwaveRefinementMaxLevel);
   fprintf(fptr, "ComovingCoordinates                   = %"ISYM"\n",
 	  ComovingCoordinates);
@@ -650,7 +661,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
-  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+  fprintf(fptr, "SimpleQ                               = %lg\n",
 	  SimpleQ);
   fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
 	  SimpleRampTime);

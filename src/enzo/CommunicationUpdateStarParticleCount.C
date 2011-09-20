@@ -154,6 +154,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
  
   delete [] TotalParticleCount;
   delete [] PartialParticleCount;
+  delete [] TotalStarParticleCount;
+  delete [] PartialStarParticleCount;
  
   LCAPERF_STOP("UpdateStarParticleCount");
  
@@ -261,6 +263,8 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
  
   delete [] TotalParticleCount;
   delete [] PartialParticleCount;
+  delete [] TotalStarParticleCount;
+  delete [] PartialStarParticleCount;
 
   return SUCCESS;
 }

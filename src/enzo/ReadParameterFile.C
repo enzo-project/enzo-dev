@@ -156,7 +156,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MetaData.OutputFirstTimeAtLevel);
     ret += sscanf(line, "StopFirstTimeAtLevel = %"ISYM,
 		  &MetaData.StopFirstTimeAtLevel);
- 
+    ret += sscanf(line, "NumberOfOutputsBeforeExit = %"ISYM,
+		  &MetaData.NumberOfOutputsBeforeExit);
+
     /* Maximum density directed output */
     ret += sscanf(line, "OutputOnDensity = %"ISYM,
            &OutputOnDensity);
@@ -381,6 +383,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PointSourceGravityCoreRadius);
  
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
+    ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
+    ret += sscanf(line, "ExternalGravityRadius   = %"FSYM,&ExternalGravityRadius);
+    ret += sscanf(line, "ExternalGravityDensity  = %"FSYM,&ExternalGravityDensity);
+    ret += sscanf(line, "ExternalGravityPosition = %"PSYM" %"PSYM" %"PSYM,
+		  ExternalGravityPosition, ExternalGravityPosition+1,
+		  ExternalGravityPosition+2);
+    ret += sscanf(line, "ExternalGravityOrientation = %"FSYM" %"FSYM" %"FSYM, 
+		  ExternalGravityOrientation, ExternalGravityOrientation+1, 
+		  ExternalGravityOrientation+2);
 
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
@@ -435,7 +446,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
-    ret += sscanf(line, "CRModel = %"ISYM, &CRModel);
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
@@ -646,14 +656,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                  &ShockwaveRefinementMinMach);
     ret += sscanf(line, "ShockwaveRefinementMinVelocity = %"FSYM,
                  &ShockwaveRefinementMinVelocity);
-    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"FSYM,
+    ret += sscanf(line, "ShockwaveRefinementMaxLevel = %"ISYM,
                  &ShockwaveRefinementMaxLevel);
     ret += sscanf(line, "ComovingCoordinates = %"ISYM,&ComovingCoordinates);
     ret += sscanf(line, "StarParticleCreation = %"ISYM, &StarParticleCreation);
     ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
     ret += sscanf(line, "BigStarFormationDone = %"ISYM, &BigStarFormationDone);
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
-    ret += sscanf(line, "SimpleQ = %"FSYM, &SimpleQ);
+    ret += sscanf(line, "SimpleQ = %lf", &SimpleQ);
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
@@ -997,6 +1007,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "ConductionBubble")) ret++;
     if (strstr(line, "ConductionCloud")) ret++;
     if (strstr(line, "CoolingTest")) ret++;
+    if (strstr(line, "OneZoneFreefall")) ret++;
     if (strstr(line, "ShearingBox")) ret++;
     if (strstr(line, "PoissonSolverTest")) ret++;
     /* 7.22.10 - CBH: Added 5 following lines to avoid runtime warnings from 
@@ -1223,14 +1234,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       RadiativeCooling          > 0) {
     if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
       ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
-    }
-  }
-
-  /* If set, initialze Cosmic Ray Efficiency Models */
-
-  if (CRModel){
-    if (InitializeCosmicRayData() == FAIL){
-      ENZO_FAIL("Error in Initialize CosmicRayData.");
     }
   }
 
@@ -1497,6 +1500,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (WritePotential && SelfGravity) {
     CopyGravPotential = TRUE;
   }
+
+  // Keep track of number of outputs left until exit.
+  MetaData.OutputsLeftBeforeExit = MetaData.NumberOfOutputsBeforeExit;
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
  

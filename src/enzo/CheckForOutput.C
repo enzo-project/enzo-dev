@@ -267,5 +267,16 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   }
 #endif   
 
+  if (MetaData.NumberOfOutputsBeforeExit && MetaData.WroteData) {
+    MetaData.OutputsLeftBeforeExit--;
+    if (MetaData.OutputsLeftBeforeExit <= 0) {
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+	fprintf(stderr, "Exiting after writing %"ISYM" datadumps.\n",
+		MetaData.NumberOfOutputsBeforeExit);
+      }      
+      my_exit(EXIT_SUCCESS);
+    }
+  }
+
   return SUCCESS;
 }

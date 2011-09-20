@@ -122,7 +122,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MetalName = "Metal_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
-  char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *BxName = "Bx";
@@ -718,13 +717,12 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;
  
-  if (CRModel) {
+  if (ShockMethod) {
     DataLabel[i++] = MachName;
     if(StorePreShockFields){
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-    DataLabel[i++] = CRName;
   } 
  
 

@@ -126,7 +126,7 @@ int grid::CosmologySimulationInitializeGrid(
 #ifdef EMISSIVITY
   int EtaNum;
 #endif
-  int CRNum, MachNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
  
   int ExtraField[2];
   int ForbidNum, iTE;
@@ -282,13 +282,12 @@ int grid::CosmologySimulationInitializeGrid(
     if (StarMakerEmissivityField > 0)
       FieldType[EtaNum = NumberOfBaryonFields++] = Emissivity0;
 #endif
-    if(CRModel){
+    if(ShockMethod){
       FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
       if(StorePreShockFields){
 	FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
-      FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
  
@@ -466,9 +465,8 @@ int grid::CosmologySimulationInitializeGrid(
       }
  
       //Shock/Cosmic Ray Model
-      if (CRModel && ReadData) {
+      if (ShockMethod && ReadData) {
 	BaryonField[MachNum][i] = tiny_number;
-	BaryonField[CRNum][i] = tiny_number;
 	if (StorePreShockFields) {
 	  BaryonField[PSTempNum][i] = tiny_number;
 	  BaryonField[PSDenNum][i] = tiny_number;

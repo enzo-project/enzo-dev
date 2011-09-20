@@ -99,6 +99,15 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
+  /* speed of light in code units. note this one is independent of
+     a(t), and Modify the photon propagation speed by this
+     parameter */
+
+  const float c_cgs = 2.99792e10;
+  float LightSpeed;
+  LightSpeed = RadiativeTransferPropagationSpeedFraction * 
+    (c_cgs/VelocityUnits);
+
   float DomainWidth[MAX_DIMENSION];
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
@@ -170,7 +179,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 			RPresNum2, RPresNum3, RaySegNum,
 			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 
-			LengthUnits, TimeUnits);
+			LengthUnits, TimeUnits, LightSpeed);
       tcount++;
     } else {
 
@@ -192,7 +201,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     if (PauseMe == TRUE) {
       if (DEBUG > 1) fprintf(stdout, "paused photon %x\n", PP);
       this->RegridPausedPhotonPackage(&PP, ParentGrid, &MoveToGrid, DeltaLevel,
-				      DeleteMe, DomainWidth);
+				      DeleteMe, DomainWidth, LightSpeed);
 
       // Insert in paused photon list if it belongs in this grid.
       if (MoveToGrid == NULL && DeleteMe == FALSE) {

@@ -155,19 +155,25 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   int i1, j1, k1, pindex, gindex;
   if (ProcessorNumber == MyProcessorNumber)
-    for (field = 0; field < NumberOfBaryonFields; field++)
+    for (field = 0; field < NumberOfBaryonFields; field++){
+      // Do not zero out fields that won't be projected to parent.
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE){
+	continue;
+      }
       for (k = ParentStartIndex[2]; k <= ParentEndIndex[2]; k++)
 	for (j = ParentStartIndex[1]; j <= ParentEndIndex[1]; j++) {
 	  pindex = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
 	  for (i = ParentStartIndex[0]; i <= ParentEndIndex[0]; i++, pindex++)
 	    ParentGrid.BaryonField[field][pindex] = 0.0;
 	}
- 
+    }
   /* For each field, accumulate it's conserved quantities in the parent
      grid. */
  
   if (ProcessorNumber == MyProcessorNumber)
     for (field = 0; field < NumberOfBaryonFields; field++) {
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
+	continue;
       skipi = skipj = skipk = 1;
       float weight = RelativeVolume;
       if (HydroMethod == Zeus_Hydro) {
@@ -192,9 +198,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
 	  for (i = 0; i < Dim[0]; i += skipi) {
 	    i1 = i/Refinement[0];
-	    if (FieldTypeNoInterpolate(FieldType[field]) == FALSE)
-	      ParentGrid.BaryonField[field][pindex+i1] +=
-		BaryonField[field][gindex+i]*weight;
+	    ParentGrid.BaryonField[field][pindex+i1] +=
+	      BaryonField[field][gindex+i]*weight;
 	  }
 	}
       }

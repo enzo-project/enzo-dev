@@ -49,6 +49,10 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 
    int DeletePhotonPackages(int DeleteHeadPointer=FALSE);
 
+/* sort photon linked lists */
+
+   int PhotonSortLinkedLists(void);
+
 /* Set Subgrid Marker field */
 
    int SetSubgridMarkerFromSubgrid(grid *Subgrid);
@@ -348,7 +352,8 @@ int MergePausedPhotonPackages(void);
 
 int RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
 			      grid** MoveToGrid, int &DeltaLevel,
-			      int &DeleteMe, const float *DomainWidth);
+			      int &DeleteMe, const float *DomainWidth,
+			      const float LightSpeed);
 
 /* Trace a line thorugh the grid */
 
@@ -374,7 +379,7 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 		      float DensityUnits, 
 		      float TemperatureUnits, float VelocityUnits, 
-		      float LengthUnits, float TimeUnits);
+		      float LengthUnits, float TimeUnits, float LightSpeed);
 
 int FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 		      PhotonPackageEntry* &PP,

@@ -93,6 +93,8 @@ class grid
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
+  float *YT_TemperatureField;                         // place to store temperature field
+                                                      // for call to yt.
 
   // For restart dumps
 
@@ -713,7 +715,7 @@ public:
    float GadgetCoolingRateFromU(float u, float rho, float *ne_guess, 
 				float redshift);
 
-// Functions for shock finding and cosmic ray acceleration
+// Functions for shock finding
 //
    int FindShocks();
    int FindTempSplitShocks();
@@ -1076,6 +1078,17 @@ public:
 
    int ComputeAccelerationFieldExternal();
 
+/* Gravity: Set the external acceleration fields from external potential. */
+
+   int ComputeAccelerationsFromExternalPotential(int DifferenceType,
+                                                 float *ExternalPotential,
+                                                 float *Field[]);
+
+/* Gravity: Add fixed, external potential to baryons & particles. */
+
+   int AddExternalPotentialField(float *field);
+   
+
 /* Particles + Gravity: Clear ParticleAccleration. */
 
    int ClearParticleAccelerations();
@@ -1105,7 +1118,7 @@ public:
 /* Gravity: Delete AccelerationField. */
 
    void DeleteAccelerationField() {
-     if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
+     if (!((SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity))) return;
      for (int dim = 0; dim < GridRank; dim++) {
        delete [] AccelerationField[dim];
        AccelerationField[dim] = NULL;
@@ -1635,9 +1648,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			    int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
-/* Identify shock/cosmic ray fields. */
-  int IdentifyCRSpeciesFields(int &MachNum, int&CRNum, 
-			      int &PSTempNum, int &PSDenNum);
+  /* Identify shock fields. */
+  int IdentifyShockSpeciesFields(int &MachNum,int &PSTempNum, int &PSDenNum);
+
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
 				  int &DINum,int &DIINum,int &HDINum,
@@ -2539,6 +2552,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                    float Byl,
                                    float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
+			      int UseColour,
 			      float RampWidth,
 			      float rhol, float rhou,
 			      float vxl,  float vxu,

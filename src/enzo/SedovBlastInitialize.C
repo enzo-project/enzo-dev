@@ -262,6 +262,18 @@ const  char *Vel3Name = "z-velocity";
 	/* set up the initial explosion area on the finest resolution subgrid */
 
 	if (lev == MaximumRefinementLevel - 1) {
+	  if (SedovBlastInitialTime == 0.0) {
+	    if (Subgrid[lev]->GridData->SedovBlastInitializeGrid(dr,
+								 SedovBlastInnerTotalEnergy) 
+		== FAIL) {
+	      ENZO_FAIL("Error in SedovBlastInitialize[Sub]Grid.");
+	    }
+	  }
+	  else
+	    if (Subgrid[lev]->GridData->SedovBlastInitializeGrid3D("sedov.in") 
+		== FAIL) {
+	      ENZO_FAIL("Error in SedovBlastInitialize3D[Sub]Grid.");
+	    }
 	  /*
 	  if (SedovBlastType == 0) { // 2D
 	    if (Subgrid[lev]->GridData->SedovBlastInitializeGrid(dr) == FAIL) {
@@ -307,6 +319,17 @@ const  char *Vel3Name = "z-velocity";
     }
   }
   else {
+    if (SedovBlastInitialTime == 0.0) {
+      if (TopGrid.GridData->SedovBlastInitializeGrid(dr,
+						     SedovBlastInnerTotalEnergy) == FAIL) {
+	ENZO_FAIL("Error in SedovBlastInitializeGrid.");
+      }
+    }
+    else
+      if (TopGrid.GridData->SedovBlastInitializeGrid3D("sedov.in") == FAIL) {
+	ENZO_FAIL("Error in SedovBlastInitializeGrid3D.");
+      }
+    
     /*
     if (SedovBlastType == 0)  // 2D fixed radius
       if (TopGrid.GridData->SedovBlastInitializeGrid(dr) == FAIL) {

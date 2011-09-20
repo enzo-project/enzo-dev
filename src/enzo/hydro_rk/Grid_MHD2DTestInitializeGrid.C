@@ -28,6 +28,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
+				  int UseColour,
 				  float RampWidth,
 				  float rhol, float rhou,
 				  float vxl,  float vxu,
@@ -36,6 +37,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 				  float Bxl,  float Bxu,
 				  float Byl,  float Byu)
 {  
+
+  int iZ;
 
   /* create fields */
 
@@ -57,6 +60,9 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (UseDivergenceCleaning) {
     FieldType[NumberOfBaryonFields++] = Phi_pField;
     //FieldType[NumberOfBaryonFields++] = DebugField;  
+  }
+  if (UseColour) {
+    FieldType[iZ = NumberOfBaryonFields++] = Metallicity;
   }
 
   /* Return if this doesn't concern us. */
@@ -140,6 +146,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = 1.0;
 	} else {  // endif y<0
 	  /* calculate pressure from hydro equilibrium */
 	  float g = ConstantAcceleration[1];
@@ -162,6 +170,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = tiny_number;
 	}
       } // endfor i
     } // endfor j 
@@ -205,6 +215,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBy ][igrid] = 0.0;
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = 1.0;
 
 	}
 	else if (r < r1) {
@@ -228,6 +240,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iBy ][igrid] = 0.0;
           BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = tiny_number;
 
         }
 	else {
@@ -246,6 +260,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iBy ][igrid] = 0.0;
           BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = tiny_number;
 
 	}
       }
@@ -288,19 +304,24 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
-	
 	if (r < r0) {
           EOS(pres0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * (Bx0 * Bx0 + By0 * By0) / rho0;
 	  BaryonField[ietot][igrid] = etot;
 	  if (DualEnergyFormalism) 
 	    BaryonField[ieint][igrid] = eint;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = 1.0;
+
 	} else {
 	  EOS(pres1, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * (Bx0 * Bx0 + By0 * By0) / rho0;
 	  BaryonField[ietot][igrid] = etot;
 	  if (DualEnergyFormalism) 
 	    BaryonField[ieint][igrid] = eint;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = tiny_number;
+	
 	}
 
       }
@@ -346,6 +367,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ietot][igrid] = etot;
 	  if (DualEnergyFormalism) 
 	    BaryonField[ieint][igrid] = eint;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = 1.0;
 	} else {
 	  BaryonField[iden][igrid] = rho1;
 	  BaryonField[ivx ][igrid] = vx1 + eps1;
@@ -360,6 +383,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ietot][igrid] = etot;
 	  if (DualEnergyFormalism) 
 	    BaryonField[ieint][igrid] = eint;
+	  if (UseColour)
+	    BaryonField[iZ][igrid] = tiny_number;
 	}
 
       }

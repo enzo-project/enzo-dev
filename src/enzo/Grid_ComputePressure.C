@@ -117,10 +117,15 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	BaryonField[TENum][i] = e + kineticE + OneHalf*B2/density;
 
       } else { 
-      /* gas energy = E - 1/2 v^2. */
-	gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
-						velocity2*velocity2 +
-						velocity3*velocity3);
+	if (DualEnergyFormalism == 0){ 
+	  /* gas energy = E - 1/2 v^2. */
+	  gas_energy    = total_energy - OneHalf*(velocity1*velocity1 +
+						  velocity2*velocity2 +
+						  velocity3*velocity3);
+	} else {
+	  gas_energy = BaryonField[GENum][i];
+	}
+
  	if (HydroMethod == MHD_RK) {
 	  float B2 = pow(BaryonField[B1Num][i],2) + pow(BaryonField[B2Num][i],2) +
 	    pow(BaryonField[B3Num][i],2);

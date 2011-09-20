@@ -324,6 +324,7 @@ EXTERN fpos_t  BaryonFileNamePosition;
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
@@ -337,21 +338,14 @@ EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 
 EXTERN int MultiMetals;
 
-/* Cosmic Ray Model 
+/* Shock Finding Method
  * 0: Off - default
- * 1: On, Let CRs accululate on Grid
- * 2: On, Zero out CRs each step to only look at instantaneous acceleration
- * 3: Highly experimental, takes energy out of gas.  Unstable.
- */
-EXTERN int CRModel; 
-/* Shock Finding Method: Always on when CRModel nonzero
- * 0: temperature unsplit - default
- * 1: temperature split 
- * 2: velocity unsplit
- * 3: velocity split
+ * 1: temperature unsplit 
+ * 2: temperature split 
+ * 3: velocity unsplit
+ * 4: velocity split
  */
 EXTERN int ShockMethod; 
-EXTERN CosmicRayDataType CosmicRayData;
 EXTERN float ShockTemperatureFloor;
 EXTERN int StorePreShockFields;
 
@@ -530,7 +524,7 @@ EXTERN float RefineByResistiveLengthSafetyFactor;
 
 EXTERN float ShockwaveRefinementMinMach;
 EXTERN float ShockwaveRefinementMinVelocity;
-EXTERN float ShockwaveRefinementMaxLevel;
+EXTERN int ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -550,7 +544,7 @@ EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
-EXTERN float SimpleQ;
+EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
 
 
@@ -712,8 +706,11 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
+EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
+EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 

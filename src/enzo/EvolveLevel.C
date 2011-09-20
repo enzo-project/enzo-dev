@@ -38,7 +38,7 @@
 /                Cleaned up error handling and created new routines for
 /                computing the timestep, output, handling fluxes
 /  modified10: July, 2009 by Sam Skillman
-/                Added shock and cosmic ray analysis
+/                Added shock analysis
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -502,7 +502,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->StarParticleHandler
 	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove);
 
-      /* Include shock-finding and cosmic ray acceleration */
+      /* Include shock-finding */
 
       Grids[grid1]->GridData->ShocksHandler();
 
@@ -515,10 +515,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: clean up AccelerationField. */
 
+#ifndef SAB
       if ((level != MaximumGravityRefinementLevel ||
 	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
 	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
+#endif //!SAB
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
