@@ -276,7 +276,7 @@
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       uvel     = uxyz / utim
-      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
+      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
 c      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
 
       dlogtem = (log(temend) - log(temstart))/real(nratec-1)

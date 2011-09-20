@@ -674,12 +674,12 @@ c
 c
 c     k23 from Omukai (2000).
 c
-           h2dusta(i,j) = 6.0d-17 * (ttt / 300.0d0)**(0.5d0) * 
-     &          (1.0d0 + exp(7.5d2 * ((1.0d0 / 75.0d0) - 
-     &                                (1.0d0 / d_ttt))))**(-1.0d0) *
-     &          (1.0d0 + (4.0d-2 * (ttt + d_ttt)**(0.5d0)) + 
+           h2dusta(i,j) = 6.0d-17 * (ttt / 300.0d0)**(0.5d0) *
+     &          ((1.0d0 + exp(7.5d2 * ((1.0d0 / 75.0d0) - 
+     &                                (1.0d0 / d_ttt))))**(-1.0d0)) *
+     &          ((1.0d0 + (4.0d-2 * (ttt + d_ttt)**(0.5d0)) + 
      &           (2.0d-3 * ttt) + 
-     &           (8.0d-6 * ttt**(2.0d0)))**(-1.0d0) / kunit
+     &           (8.0d-6 * ttt**(2.0d0)))**(-1.0d0)) / kunit
 c
 c     Equation 3.8 from Hollenbach & McKee (1979).
 c
@@ -691,7 +691,8 @@ c     &           (8.0d-2 * ttt2**2.0d0)) / kunit
 c
         enddo
 c
-c       H2 formation heating
+c       H2 formation heating terms from Equation 23 of Omukai (2000).
+c
         ncrna(i)  = 1.0d6 * (ttt**(-0.5d0))
         ncrd1a(i) = 1.6d0 * exp(-(400.0d0 / ttt)**(2.d0))
         ncrd2a(i) = 1.4d0 * exp(-12000.0d0 / (ttt + 1200.0d0))
