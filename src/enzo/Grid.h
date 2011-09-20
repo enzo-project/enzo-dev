@@ -1078,6 +1078,17 @@ public:
 
    int ComputeAccelerationFieldExternal();
 
+/* Gravity: Set the external acceleration fields from external potential. */
+
+   int ComputeAccelerationsFromExternalPotential(int DifferenceType,
+                                                 float *ExternalPotential,
+                                                 float *Field[]);
+
+/* Gravity: Add fixed, external potential to baryons & particles. */
+
+   int AddExternalPotentialField(float *field);
+   
+
 /* Particles + Gravity: Clear ParticleAccleration. */
 
    int ClearParticleAccelerations();
@@ -1107,7 +1118,7 @@ public:
 /* Gravity: Delete AccelerationField. */
 
    void DeleteAccelerationField() {
-     if (!((SelfGravity || UniformGravity || PointSourceGravity))) return;
+     if (!((SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity))) return;
      for (int dim = 0; dim < GridRank; dim++) {
        delete [] AccelerationField[dim];
        AccelerationField[dim] = NULL;
@@ -2523,6 +2534,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                    float Byl,
                                    float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
+			      int UseColour,
 			      float RampWidth,
 			      float rhol, float rhou,
 			      float vxl,  float vxu,

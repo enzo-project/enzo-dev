@@ -46,13 +46,11 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 /* Internal routines */
 
-float gasdev();
 float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, 
 	     float GalaxyMass, FLOAT ScaleHeightR, FLOAT ScaleHeightz, 
 	     float DMConcentration, FLOAT Time);
-float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, 
-	     FLOAT cellwidth, FLOAT z,FLOAT xpos, FLOAT ypos, FLOAT zpos);
-
+float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv [3][3], float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, FLOAT cellwidth);
+void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, FLOAT &zrot, FLOAT inv [3][3]);
 
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits;
 
@@ -77,7 +75,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  int dim, i, j, k, m, field, disk, size, MetalNum, vel;
  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
    DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
- float DiskDensity, DiskVelocityMag,dens2;
+ float DiskDensity, DiskVelocityMag;
 
   
   /* create fields */
@@ -151,10 +149,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    TimeActionTime[0] = GalaxySimulationInflowTime*1e9/TimeUnits;
  }
 
- /* Set densities */
-
- float BaryonMeanDensity = 1.0;
-
  /* compute size of fields */
 
  size = 1;
@@ -170,7 +164,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  /* Loop over the mesh. */
 
  float density, dens1, Velocity[MAX_DIMENSION],
-   temperature, temp1, sigma, sigma1;
+   temperature, temp1;
  FLOAT r, x, y = 0, z = 0;
  int n = 0;
 
@@ -188,7 +182,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	density = 1.0;
 	temperature = temp1 = InitialTemperature;
-	sigma = sigma1 = 0;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
 
@@ -201,7 +194,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	if (r < DiskRadius) {
 
-	  FLOAT xpos, ypos, zpos, xpos1, ypos1, zpos1, zheight, drad;
+	  FLOAT xpos, ypos, zpos, zheight, drad; 
+	  float CellMass;
+	  FLOAT xhat[3];
+	  FLOAT yhat[3];
 
 	  /* Loop over dims if using Zeus (since vel's face-centered). */
 
@@ -228,40 +224,58 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	    /* position in plane of disk */
 
-	    xpos1 = xpos - zheight*AngularMomentum[0];
-	    ypos1 = ypos - zheight*AngularMomentum[1];
-	    zpos1 = zpos - zheight*AngularMomentum[2];
-	    drad = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
+	    xhat[0] = xpos - zheight*AngularMomentum[0];
+	    xhat[1] = ypos - zheight*AngularMomentum[1];
+	    xhat[2] = zpos - zheight*AngularMomentum[2];
+	    drad = sqrt(xhat[0]*xhat[0] + xhat[1]*xhat[1] + xhat[2]*xhat[2]);
 
 
 	    /* Normalize the vector r_perp = unit vector pointing along plane of disk */
 
-	    xpos1 = xpos1/drad;
-	    ypos1 = ypos1/drad;
-	    zpos1 = zpos1/drad;
+	    xhat[0] = xhat[0]/drad;
+	    xhat[1] = xhat[1]/drad;
+	    xhat[2] = xhat[2]/drad;
+
+	    /* Find another vector perpendicular to r_perp and AngularMomentum */
+
+	    yhat[0] = AngularMomentum[1]*xhat[2] - AngularMomentum[2]*xhat[1];
+	    yhat[1] = AngularMomentum[2]*xhat[0] - AngularMomentum[0]*xhat[2];
+	    yhat[2] = AngularMomentum[0]*xhat[1] - AngularMomentum[1]*xhat[0];
+
+	    /* generate rotation matrix */
+	    FLOAT inv[3][3],temp;
+	    int i,j;
+	    
+	    // matrix of basis vectors in coordinate system defined by the galaxy
+	    inv[0][0] = xhat[0]; inv[0][1] = yhat[0]; inv[0][2] = AngularMomentum[0];
+	    inv[1][0] = xhat[1]; inv[1][1] = yhat[1]; inv[1][2] = AngularMomentum[1];
+	    inv[2][0] = xhat[2]; inv[2][1] = yhat[2]; inv[2][2] = AngularMomentum[2];
+	    
+	    // Matrix is orthogonal by construction so inverse = transpose
+	    for (i=0;i<3;i++)
+	      for (j=i+1;j<3;j++)
+		{
+		  temp = inv[i][j];
+		  inv[i][j] = inv[j][i];
+		  inv[j][i] = temp;
+		}
 
 	    /* If we're above the disk, then exit. */
-	    
 	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0)
 
 	    DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
 
 
 	    if (dim == 0)
+	      {
+		CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
+				      DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
 
-	      if (ScaleHeightz*Mpc/LengthUnits > CellWidth[0][0])
-		{
 
-		  dens1=av_den(drad*LengthUnits, DiskDensity*DensityUnits, ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits, zheight*LengthUnits,xpos1*drad*LengthUnits,ypos1*drad*LengthUnits,zpos1*drad*LengthUnits);
+		dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+	      }
 
-		}
-	      else
-		{
-		  dens1 = DiskDensity*PEXP(-drad/(ScaleHeightR*Mpc/LengthUnits))/POW(cosh(zheight/CellWidth[0][0]), 2);
-		}	  
-	    dens2 = DiskDensity*PEXP(-drad/(ScaleHeightR*Mpc/LengthUnits))/POW(cosh(zheight/max((ScaleHeightz*Mpc/LengthUnits), CellWidth[0][0])), 2);
-	    
-	    if (dens2 < density)
+	    if (dens1 < density)
 	      break;
 
 	    /* Compute velocity magnitude (divided by drad). 
@@ -271,34 +285,32 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    /* Compute velocty: L x r_perp. */
 
 	    if (dim == 0 || dim == 1)
-	      Velocity[0] = DiskVelocityMag*(AngularMomentum[1]*zpos1 -
-					     AngularMomentum[2]*ypos1);
+	      Velocity[0] = DiskVelocityMag*(AngularMomentum[1]*xhat[2] -
+					     AngularMomentum[2]*xhat[1]);
 	    if (dim == 0 || dim == 2)
-	      Velocity[1] = DiskVelocityMag*(AngularMomentum[2]*xpos1 -
-					     AngularMomentum[0]*zpos1);
+	      Velocity[1] = DiskVelocityMag*(AngularMomentum[2]*xhat[0] -
+					     AngularMomentum[0]*xhat[2]);
 	    if (dim == 0 || dim == 3)
-	      Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*ypos1 -
-					     AngularMomentum[1]*xpos1);
+	      Velocity[2] = DiskVelocityMag*(AngularMomentum[0]*xhat[1] -
+					     AngularMomentum[1]*xhat[0]);
 	    
 	  } // end: loop over dims
 
 	   	    
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
-
-	  if (dens2 > density) {
+	  if (dens1 > density) {
 	    density = dens1;
 	    if (temp1 == InitialTemperature)
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
-	    sigma = sigma1;
 	  }
 
 	} // end: if (r < DiskRadius)
 	
 	/* Set density. */
 
-	BaryonField[0][n] = density*BaryonMeanDensity;
+	BaryonField[0][n] = density;
 	
 	if (UseMetallicityField)
 	  for (i = 0; i < size; i++)
@@ -413,29 +425,42 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
      return (V_Circ/VelocityUnits);  //code units
 }
 
-float av_den(FLOAT r, float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos)
+
+// Computes the total mass in a given cell by integrating the density profile using 5-point Gaussian quadrature
+float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv [3][3], float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, FLOAT cellwidth)
 {
- // routine to return the average gas density in a grid cell
- // Routine samples density in r plane of grid and averages
- // Assumes all input units are CGS!!
+  
+  FLOAT EvaluationPoints [5] = {-0.90617985,-0.53846931,0.0,0.53846931,0.90617985};
+  FLOAT Weights [5] = {0.23692689,0.47862867,0.56888889,0.47862867,0.23692689};
+  FLOAT xResult [5];
+  FLOAT yResult [5];
+  float Mass = 0;
+  FLOAT xrot,yrot,zrot;
+  int i,j,k;
 
- int i,points;
- double den,r1,nx,ny,nz;
+  for (i=0;i<5;i++)
+    {
+      xResult[i] = 0.0;
+      for (j=0;j<5;j++)
+	{
+	  yResult[j] = 0.0;
+	  for (k=0;k<5;k++)
+	    {
+	      rot_to_disk(xpos+EvaluationPoints[i]*cellwidth/2.0,ypos+EvaluationPoints[j]*cellwidth/2.0,zpos+EvaluationPoints[k]*cellwidth/2.0,xrot,yrot,zrot,inv);
+	      yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-sqrt(POW(xrot,2)+POW(yrot,2))/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
+	    }
+	  xResult[i] += cellwidth/2.0*Weights[j]*yResult[j];
+	}
+      Mass += cellwidth/2.0*Weights[i]*xResult[i];
+    }  
+  Mass *= DiskDensity;
+  return Mass;
+}
 
- points = 100;
- den = DiskDensity*PEXP(-r/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
-
- for (i=0;i<points;i++)
-   {
-     nx = drand48()*cellwidth-cellwidth/2.0;
-     ny = drand48()*cellwidth-cellwidth/2.0;
-     nz = drand48()*cellwidth-cellwidth/2.0;
-     r1 = sqrt(POW((xpos+nx),2)+POW((ypos+ny),2)+POW((zpos+nz),2)); 
-     den = den+DiskDensity*PEXP(-r1/ScaleHeightR)/(POW(cosh(z/(2.0*ScaleHeightz)),2));
-   }
-
- double av_den = den/points;
-
- return (av_den/DensityUnits); //code unites
-
+//Finds coordinates in rotated coordinate system
+void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, FLOAT &zrot, FLOAT inv [3][3])
+{
+  xrot = xpos*inv[0][0] + ypos*inv[0][1] + zpos*inv[0][2];
+  yrot = xpos*inv[1][0] + ypos*inv[1][1] + zpos*inv[1][2];
+  zrot = xpos*inv[2][0] + ypos*inv[2][1] + zpos*inv[2][2];
 }

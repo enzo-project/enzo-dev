@@ -322,6 +322,7 @@ EXTERN fpos_t  BaryonFileNamePosition;
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
@@ -541,7 +542,7 @@ EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
-EXTERN float SimpleQ;
+EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
 
 
@@ -703,8 +704,11 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
+EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
+EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 
