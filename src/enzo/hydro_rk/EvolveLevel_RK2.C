@@ -585,7 +585,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 			  ImplicitSolver, 
 #endif
-			  dt0) 
+			  dt0)
 	  == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel_RK2 (%"ISYM").\n", level);
 	ENZO_FAIL("");

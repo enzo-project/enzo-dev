@@ -805,6 +805,7 @@ EXTERN SuperSourceEntry *SourceClusteringTree;
 EXTERN SuperSourceEntry *OldSourceClusteringTree;
 #ifdef MEMORY_POOL
 EXTERN MPool::MemoryPool *PhotonMemoryPool;
+EXTERN MPool::MemoryPool *ParticleMemoryPool;
 #endif
 
 /* [0]: Emitted photons

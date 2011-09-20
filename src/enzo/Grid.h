@@ -1350,13 +1350,22 @@ public:
      ParticleNumber = NULL;
      ParticleType = NULL;
      for (int dim = 0; dim < GridRank; dim++) {
+#ifdef MEMORY_POOL 
+       if (ParticlePosition[dim] != NULL) ParticleMemoryPool->FreeMemory(ParticlePosition[dim]);
+       if (ParticleVelocity[dim] != NULL) ParticleMemoryPool->FreeMemory(ParticleVelocity[dim]);
+#else
        if (ParticlePosition[dim] != NULL) delete [] ParticlePosition[dim];
        if (ParticleVelocity[dim] != NULL) delete [] ParticleVelocity[dim];
+#endif
        ParticlePosition[dim] = NULL;
        ParticleVelocity[dim] = NULL;
      }
      for (int i = 0; i < NumberOfParticleAttributes; i++) {
+#ifdef MEMORY_POOL 
+       if (ParticleAttribute[i] != NULL) ParticleMemoryPool->FreeMemory(ParticleAttribute[i]);
+#else
        if (ParticleAttribute[i] != NULL) delete [] ParticleAttribute[i];
+#endif
        ParticleAttribute[i] = NULL;
      }   
    };
@@ -1368,11 +1377,20 @@ public:
      ParticleNumber = new PINT[NumberOfNewParticles];
      ParticleType = new int[NumberOfNewParticles];
      for (int dim = 0; dim < GridRank; dim++) {
+#ifdef MEMORY_POOL
+       ParticlePosition[dim] = static_cast<FLOAT*>(ParticleMemoryPool->GetMemory(sizeof(FLOAT)*NumberOfNewParticles));
+       ParticleVelocity[dim] = static_cast<float*>(ParticleMemoryPool->GetMemory(sizeof(float)*NumberOfNewParticles));
+#else
        ParticlePosition[dim] = new FLOAT[NumberOfNewParticles];
        ParticleVelocity[dim] = new float[NumberOfNewParticles];
+#endif
      }
      for (int i = 0; i < NumberOfParticleAttributes; i++)
+#ifdef MEMORY_POOL
+       ParticleAttribute[i] = static_cast<float*>(ParticleMemoryPool->GetMemory(sizeof(float)*NumberOfNewParticles));
+#else
        ParticleAttribute[i] = new float[NumberOfNewParticles];
+#endif
    };
 
 /* Particles: Copy pointers passed into into grid. */

@@ -32,7 +32,7 @@
 #include "CommunicationUtilities.h"
 
 #define MINIMUM_EDGE 4
-#define MINIMUM_SIZE 2000
+#define MINIMUM_SIZE 64
 
 int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel)
 {
