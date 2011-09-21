@@ -225,6 +225,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
+    ExternalGravityPosition[dim]    = 0.0;
+    ExternalGravityOrientation[dim] = 0.0;
     MustRefineRegionLeftEdge[dim] = 0.0;
     MustRefineRegionRightEdge[dim] = 1.0;
   }
@@ -287,6 +289,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MemoryLimit                 = 4000000000L;
  
   ExternalGravity             = FALSE;             // off
+  ExternalGravityConstant = 0.0;
   ExternalGravityDensity      = 0.0;
   ExternalGravityRadius       = 0.0;
 
@@ -332,10 +335,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
 
   MultiSpecies                = FALSE;             // off
+  NoMultiSpeciesButColors     = FALSE;             // off
   PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
   CIECooling                  = 1;
   H2OpticalDepthApproximation = 1;
+  H2FormationOnDust           = FALSE;
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
@@ -365,6 +370,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass   = 0.76;
   /* The DToHRatio is by mass in the code, so multiply by 2. */
   CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
+  CoolData.SolarMetalFractionByMass = 0.02041;
   CoolData.NumberOfTemperatureBins = 600;
   CoolData.ih2co                   = 1;
   CoolData.ipiht                   = 1;
@@ -373,6 +379,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.comp_xray               = 0;
   CoolData.temp_xray               = 0;
   RateData.CaseBRecombination      = 0;   // default to case A rates
+  RateData.NumberOfDustTemperatureBins = 250;
+  RateData.DustTemperatureStart    = 1.0;
+  RateData.DustTemperatureEnd      = 1500.0;
 
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";
@@ -384,6 +393,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
+  OutputDustTemperature = FALSE;
 
   OutputSmoothedDarkMatter = FALSE;
   SmoothedDarkMatterNeighbors = 32;
@@ -567,7 +577,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolingCutOffTemperature   = 0.0;
   CoolingPowerCutOffDensity1 = 0;
   CoolingPowerCutOffDensity2 = 1e10;
-  UseH2OnDust		     = 0;
   UseCUDA		     = 0;
   UseFloor		     = 0;
   UseViscosity		     = 0;
@@ -641,7 +650,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
-  TestProblemData.MetallicityNormalization = 0.0204;
+  TestProblemData.MetallicityNormalization = 0.02041;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

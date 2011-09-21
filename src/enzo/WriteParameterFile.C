@@ -293,6 +293,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   /* write global Parameters */
  
   fprintf(fptr, "ProblemType                    = %"ISYM"\n", ProblemType);
+#ifdef NEW_PROBLEM_TYPES
+  fprintf(fptr, "ProblemTypeName                = %s\n", ProblemTypeName);
+#endif
   fprintf(fptr, "HydroMethod                    = %"ISYM"\n", HydroMethod);
   fprintf(fptr, "huge_number                    = %e\n", huge_number);
   fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
@@ -384,6 +387,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  PointSourceGravityCoreRadius);
 
   fprintf(fptr, "ExternalGravity           = %"ISYM"\n",ExternalGravity); 
+  fprintf(fptr, "ExternalGravityConstant     = %"FSYM"\n",ExternalGravityConstant);
+  fprintf(fptr, "ExternalGravityRadius     = %"FSYM"\n",ExternalGravityRadius); 
+  fprintf(fptr, "ExternalGravityDensity     = %"FSYM"\n",ExternalGravityDensity);
+  fprintf(fptr, "ExternalGravityPosition   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityPosition);
+  fprintf(fptr, "ExternalGravityOrientation   = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ExternalGravityOrientation);
 
   fprintf(fptr, "SelfGravity                    = %"ISYM"\n", SelfGravity);
   fprintf(fptr, "SelfGravityGasOff              = %"ISYM"\n", SelfGravityGasOff);
@@ -433,6 +443,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CIECooling                     = %"ISYM"\n", CIECooling);
   fprintf(fptr, "H2OpticalDepthApproximation    = %"ISYM"\n", H2OpticalDepthApproximation);
   fprintf(fptr, "ThreeBodyRate                  = %"ISYM"\n", ThreeBodyRate);
+  fprintf(fptr, "H2FormationOnDust              = %"ISYM"\n", H2FormationOnDust);
   fprintf(fptr, "CloudyCoolingGridFile          = %s\n", CloudyCoolingData.CloudyCoolingGridFile);
   fprintf(fptr, "IncludeCloudyHeating           = %"ISYM"\n", CloudyCoolingData.IncludeCloudyHeating);
   fprintf(fptr, "IncludeCloudyMMW               = %"ISYM"\n", CloudyCoolingData.IncludeCloudyMMW);
@@ -464,6 +475,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiationRedshiftDropOff       = %"FSYM"\n", CoolData.RadiationRedshiftDropOff);
   fprintf(fptr, "HydrogenFractionByMass         = %"FSYM"\n", CoolData.HydrogenFractionByMass);
   fprintf(fptr, "DeuteriumToHydrogenRatio       = %"FSYM"\n", CoolData.DeuteriumToHydrogenRatio);
+  fprintf(fptr, "SolarMetalFractionByMass       = %"FSYM"\n", CoolData.SolarMetalFractionByMass);
   fprintf(fptr, "NumberOfTemperatureBins        = %"ISYM"\n", CoolData.NumberOfTemperatureBins);
   fprintf(fptr, "CoolDataIh2co                  = %"ISYM"\n", CoolData.ih2co);
   fprintf(fptr, "CoolDataIpiht                  = %"ISYM"\n", CoolData.ipiht);
@@ -471,6 +483,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "TemperatureEnd                 = %"FSYM"\n", CoolData.TemperatureEnd);
   fprintf(fptr, "CoolDataCompXray               = %"FSYM"\n", CoolData.comp_xray);
   fprintf(fptr, "CoolDataTempXray               = %"FSYM"\n", CoolData.temp_xray);
+  fprintf(fptr, "NumberOfDustTemperatureBins    = %"ISYM"\n", RateData.NumberOfDustTemperatureBins);
+  fprintf(fptr, "DustTemperatureStart           = %"FSYM"\n", RateData.DustTemperatureStart);
+  fprintf(fptr, "DustTemperatureEnd             = %"FSYM"\n", RateData.DustTemperatureEnd);
   fprintf(fptr, "PhotoelectricHeating           = %"ISYM"\n", PhotoelectricHeating);
   fprintf(fptr, "PhotoelectricHeatingRate       = %"GSYM"\n", PhotoelectricHeatingRate);
   
@@ -483,6 +498,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   else
     fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
+  fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", OutputDustTemperature);
 
   // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputSmoothedDarkMatter < 0)
@@ -656,7 +672,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  BigStarFormationDone);
   fprintf(fptr, "BigStarSeparation                     = %"FSYM"\n",
 	  BigStarSeparation);
-  fprintf(fptr, "SimpleQ                               = %"FSYM"\n",
+  fprintf(fptr, "SimpleQ                               = %lg\n",
 	  SimpleQ);
   fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
 	  SimpleRampTime);

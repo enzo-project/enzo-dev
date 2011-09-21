@@ -6,6 +6,8 @@
 /  date:       June, 1996
 /  modified1:  Brian O'Shea  (fixed NFW profile stuff)
 /  date:       July  2009
+/  modified2:  Elizabeth Tasker (added in call for external potential)
+/  date:      September 2011
 /
 /  PURPOSE: Certain problems required external acceleration fields.
 /    This routine adds them to the existing self-gravitating fields, or
@@ -279,6 +281,13 @@ int grid::ComputeAccelerationFieldExternal()
   } // end: if (PointSourceGravity)
 
 
+  if (ExternalGravity) {
+
+    if (PointSourceGravity)
+      ENZO_FAIL("Cannot have both PointSourceGravity and ExternalGravity");
+    /* Actually, you can, but it seems like a bad idea. 
+       Correct if there is an exception to this */
+
   /* -----------------------------------------------------------------
      ExternalGravity 1: another similar way for a NFW profile
      ----------------------------------------------------------------- */
@@ -383,7 +392,96 @@ int grid::ComputeAccelerationFieldExternal()
     }
     
 
-  }
+  } // end if (ExternalGravity == 1)
+
+  /* -----------------------------------------------------------------
+     ExternalGravity > 9 : Acceleration from specified potential field.
+
+     ExternalGravity == 10 : Flat rotation curve from Binney+Tremaine
+     ExternalGravity == 20 : Point source gravity
+
+     see Grid_AddExternalPotentialField.C for details.
+     ----------------------------------------------------------------- */
+
+  else if (ExternalGravity > 9) {
+
+      /* Potential field size */
+      int size1 = 1;
+      for (dim = 0; dim < GridRank; dim++)
+	size1 *= GravitatingMassFieldDimension[dim];
+
+      /* Array for storying the external potential field */
+      float *expotential = new float[size1];
+      for (i = 0; i < size1; i++)
+	expotential[i] = 0.0;
+
+      /* Get external potential field for grid */
+      if (this->AddExternalPotentialField(expotential) == FAIL) {
+	fprintf(stderr, "Error in grid->AddExternalPotentialField().\n");
+	return FAIL;
+      }
+
+      float *accel_field[MAX_DIMENSION];
+
+      if (NumberOfBaryonFields > 0) {
+    
+	for (dim = 0; dim < GridRank; dim++)
+	  accel_field[dim] = new float[size];   
+
+	if (this->ComputeAccelerationsFromExternalPotential(
+		  (HydroMethod == Zeus_Hydro) ? ZEUS_GRIDS : GRIDS, 
+		  expotential, accel_field)  == FAIL) {
+	  fprintf(stderr, "Error in grid->ComputeAccelerationForExternalPotential.\n");
+	  return FAIL;
+	}   
+
+	for (dim = 0; dim < GridRank; dim++)
+	  for (i = 0; i < size; i++)
+	    AccelerationField[dim][i] += accel_field[dim][i];
+
+	for (dim = 0; dim < GridRank; dim++) {
+          delete [] accel_field[dim];
+          accel_field[dim] = NULL;
+	}
+
+      } // end if (NumberOfBaryonFields)
+ 
+      if (NumberOfParticles > 0) {
+
+	for (dim = 0; dim < GridRank; dim++)
+          accel_field[dim] = new float[NumberOfParticles];
+
+	if (this->ComputeAccelerationsFromExternalPotential(PARTICLES, 
+				  expotential, accel_field) == FAIL) {
+	  fprintf(stderr, "Error in grid->ComputeAccelerationForExternalPotential.\n");
+	  return FAIL;
+	}  
+
+	for (i = 0; i < NumberOfParticles; i++){
+	  ParticleAcceleration[0][i] += accel_field[0][i];
+	  ParticleAcceleration[1][i] += accel_field[1][i];
+	  ParticleAcceleration[2][i] += accel_field[2][i];
+	}
+
+	for (dim = 0; dim < GridRank; dim++) {
+          delete [] accel_field[dim];
+          accel_field[dim] = NULL;
+        }
+
+      } // end if (NumberOfParticles)
+
+      /* Cleanup */
+      delete [] expotential;
+      
+   } // end if (ExternalGravity > 9)
+
+  else {
+      /* this is only reached if there are two types of external gravities - 
+	 when you add a new one, this changes */
+      ENZO_FAIL("should never get here! in Grid::ComputeAccelFieldExternal // ExternalGravity");
+    }
+
+  } // end if (ExternalGravity)
 
 
   /* -----------------------------------------------------------------

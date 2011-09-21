@@ -8,16 +8,18 @@
       subroutine solve_rate_cool(d, e, ge, u, v, w, de,
      &                HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod,
-     &                idual, ispecies, imetal, imcool, idim,
+     &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
      &                dt, aye, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim,
-     &                eta1, eta2, gamma, fh, dtoh,
+     &                eta1, eta2, gamma, fh, dtoh, z_solar,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &                k11a, k12a, k13a, k13dda, k14a, k15a,
      &                k16a, k17a, k18a, k19a, k22a,
      &                k24, k25, k26, k27, k28, k29, k30, k31,
      &                k50a, k51a, k52a, k53a, k54a, k55a, k56a,
+     &                ndratec, dtemstart, dtemend, h2dusta,
+     &                ncrna, ncrd1a, ncrd2a,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
      &                reHeII2a, reHeIIIa, brema, compa, gammaha,
@@ -25,8 +27,8 @@
      &                HM, H2I, H2II, DI, DII, HDI, metal,
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
      &                gpldla, gphdla, hdltea, hdlowa,
-     &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gaHIa, gaH2a, gaHea, gaHpa, gaela, 
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, iradcoupled, iradstep, ierr,
@@ -78,6 +80,7 @@
 !    iradtype - type of radiative field (only used if = 8)
 !    imetal   - flag if metal field is active (0 = no, 1 = yes)
 !    imcool   - flag if there is metal cooling
+!    idust    - flag for H2 formation on dust grains
 !    imethod  - Hydro method (0 = PPMDE, 2 = ZEUS-type)
 !    ih2co    - flag to include H2 cooling (1 = on, 0 = off)
 !    ipiht    - flag to include photoionization heating (1 = on, 0 = off)
@@ -87,6 +90,7 @@
 !
 !    fh       - Hydrogen mass fraction (typically 0.76)
 !    dtoh     - Deuterium to H mass ratio
+!    z_solar  - Solar metal mass fraction
 !    dt       - timestep to integrate over
 !    aye      - expansion factor (in code units)
 !
@@ -98,6 +102,8 @@
 !
 !    temstart, temend - start and end of temperature range for rate table
 !    nratec   - dimensions of chemical rate arrays (functions of temperature)
+!    dtemstart, dtemend - start and end of dust temperature range
+!    ndratec  - extra dimension for H2 formation on dust rate (dust temperature)
 !
 !    icmbTfloor - flag to include temperature floor from cmb
 !    iClHeat    - flag to include cloudy heating
@@ -128,10 +134,13 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
-     &        iradcoupled, iradstep, n_xe, ierr, imcool, irt_honly,
-     &        igammah, ih2optical, iciecool, ithreebody
+     &        iradcoupled, iradstep, n_xe, ierr, imcool, idust, 
+     &        irt_honly, igammah, ih2optical, iciecool, ithreebody,
+     &        ndratec
       real    dt, aye, temstart, temend, eta1, eta2, gamma,
-     &        utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
+     &        utim, uxyz, uaye, urho, utem, fh, dtoh, z_solar, 
+     &        xe_start, xe_end,
+     &        dtemstart, dtemend
 
 !  Density, energy and velocity fields fields
 
@@ -155,7 +164,8 @@
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec), 
+     &        ciecoa(nratec)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -174,7 +184,8 @@
      &     k17a(nratec), k18a(nratec), k19a(nratec), k22a(nratec),
      &     k50a(nratec), k51a(nratec), k52a(nratec), k53a(nratec),
      &     k54a(nratec), k55a(nratec), k56a(nratec),
-     &     k13dda(nratec, 7),
+     &     k13dda(nratec, 7), h2dusta(nratec, ndratec),
+     &     ncrna(nratec), ncrd1a(nratec), ncrd2a(nratec),
      &     k24, k25, k26, k27, k28, k29, k30, k31
 
 !  Cloudy cooling data
@@ -220,7 +231,7 @@
       integer indixe(ijk)
       real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), 
      &     dtit(ijk), ttot(ijk), p2d(ijk), tgas(ijk), tgasold(ijk),
-     &     olddtit
+     &     tdust(ijk), metallicity(ijk), rhoH(ijk), olddtit
 
 !  Rate equation row temporaries
 
@@ -234,7 +245,8 @@
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
      &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
      &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
-     &     k55(ijk), k56(ijk), k13dd(ijk, 7)
+     &     k55(ijk), k56(ijk), k13dd(ijk, 7), h2dust(ijk),
+     &     ncrn(ijk), ncrd1(ijk), ncrd2(ijk)
 
 !  Cooling/heating row locals
 
@@ -264,7 +276,8 @@
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       uvel     = uxyz / utim
-      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
+      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
+c      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
 
       dlogtem = (log(temend) - log(temstart))/real(nratec-1)
 
@@ -330,14 +343,14 @@
 
          do iter = 1, itmax
 
-!           Compute the cooling rate (and tgas) for this row
+!           Compute the cooling rate, tgas, tdust, and metallicity for this row
 
             call cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim,
+     &                iexpand, ispecies, imetal, imcool, idust, idim,
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend,
+     &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -351,11 +364,11 @@
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d,
+     &                tgas, tgasold, p2d, tdust, metallicity, rhoH, 
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
@@ -371,33 +384,37 @@
 
             call lookup_cool_rates1d(temstart, temend, nratec, j, k,
      &               is, ie, ijk, iradtype, iradshield, ithreebody,
-     &               in, jn, kn,
-     &               ispecies, tgas, HI, HII, HeI, HeII,
+     &               in, jn, kn, ispecies, idust, 
+     &               tgas, HI, HII, HeI, HeII, tdust, metallicity, 
      &               k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &               k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
      &               k17a, k18a, k19a, k22a,
      &               k50a, k51a, k52a, k53a, k54a, k55a, k56a,
+     &               ndratec, dtemstart, dtemend, h2dusta, 
+     &               ncrna, ncrd1a, ncrd2a, 
      &               avgsighp, avgsighep, avgsighe2p, piHI, piHeI,
      &               k1, k2, k3, k4, k5, k6, k7, k8, k9, k10,
      &               k11, k12, k13, k14, k15, k16, k17, k18,
      &               k19, k22, k24, k25, k26, 
      &               k50, k51, k52, k53, k54, k55,
      &               k56, k13dd, k24shield, k25shield, k26shield,
+     &               h2dust, ncrn, ncrd1, ncrd2, 
      &               t1, t2, tdef, logtem, indixe, 
      &               dom, coolunit, tbase1, itmask)
 
 !           Compute dedot and HIdot, the rates of change of de and HI
 !             (should add itmask to this call)
 
-            call rate_timestep(dedot, HIdot, ispecies,
+            call rate_timestep(dedot, HIdot, ispecies, idust,
      &                     de, HI, HII, HeI, HeII, HeIII, d,
      &                     HM, H2I, H2II,
      &                     in, jn, kn, is, ie, j, k, 
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
      &                     k24, k25, k26, k27, k28, k29, k30, k31,
-     &                     k50, k51, k52, k53, k54, k55,
-     &                     k56, k24shield, k25shield, k26shield,
+     &                     k50, k51, k52, k53, k54, k55, k56, 
+     &                     h2dust, ncrn, ncrd1, ncrd2, rhoH, 
+     &                     k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
      &                     kdissH2I, itmask, edot, chunit)
 
@@ -608,12 +625,13 @@
 
             call step_rate(de, HI, HII, HeI, HeII, HeIII, d,
      &                     HM, H2I, H2II, DI, DII, HDI, dtit,
-     &                     in, jn, kn, is, ie, j, k, ispecies,
+     &                     in, jn, kn, is, ie, j, k, ispecies, idust,
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
      &                     k24, k25, k26, k27, k28, k29, k30, k31,
-     &                     k50, k51, k52, k53, k54, k55,
-     &                     k56, k24shield, k25shield, k26shield,
+     &                     k50, k51, k52, k53, k54, k55, k56, 
+     &                     h2dust, rhoH,
+     &                     k24shield, k25shield, k26shield,
      &                     HIp, HIIp, HeIp, HeIIp, HeIIIp, dep,
      &                     HMp, H2Ip, H2IIp, DIp, DIIp, HDIp,
      &                     dedot_prev, HIdot_prev,
@@ -840,18 +858,21 @@ c -------------------------------------------------------------------
 
       subroutine lookup_cool_rates1d(temstart, temend, nratec, j, k,
      &                is, ie, ijk, iradtype, iradshield, ithreebody,
-     &                in, jn, kn,
-     &                ispecies, tgas1d, HI, HII, HeI, HeII,
+     &                in, jn, kn, ispecies, idust,
+     &                tgas1d, HI, HII, HeI, HeII, tdust, metallicity, 
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &                k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
      &                k17a, k18a, k19a, k22a,
      &                k50a, k51a, k52a, k53a, k54a, k55a, k56a,
+     &                ndratec, dtemstart, dtemend, h2dusta, 
+     &                ncrna, ncrd1a, ncrd2a,
      &                avgsighp, avgsighep, avgsighe2p, piHI, piHeI,
      &                k1, k2, k3, k4, k5, k6, k7, k8, k9, k10,
      &                k11, k12, k13, k14, k15, k16, k17, k18,
      &                k19, k22, k24, k25, k26,
      &                k50, k51, k52, k53, k54, k55,
      &                k56, k13dd, k24shield, k25shield, k26shield,
+     &                h2dust, ncrn, ncrd1, ncrd2,
      &                t1, t2, tdef, logtem, indixe, 
      &                dom, coolunit, tbase1, itmask)
 ! -------------------------------------------------------------------
@@ -861,8 +882,10 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer is, ie, ijk, iradtype, iradshield, nratec, 
-     &        in, jn, kn, ispecies, ithreebody, j, k
-      real temstart, temend, tgas1d(in), dom
+     &        in, jn, kn, ispecies, ithreebody, j, k,
+     &        idust, ndratec
+      real temstart, temend, tgas1d(in), dom,
+     &        dtemstart, dtemend
       double precision coolunit, tbase1
       logical itmask(ijk)
 
@@ -875,7 +898,8 @@ c -------------------------------------------------------------------
      &     k17a(nratec), k18a(nratec), k19a(nratec), k22a(nratec),
      &     k50a(nratec), k51a(nratec), k52a(nratec), k53a(nratec),
      &     k54a(nratec), k55a(nratec), k56a(nratec),
-     &     k13dda(nratec, 7),
+     &     k13dda(nratec, 7), h2dusta(nratec, ndratec), 
+     &     ncrna(nratec), ncrd1a(nratec), ncrd2a(nratec),
      &     k24, k25, k26,
      &     avgsighp, avgsighep, avgsighe2p, piHI, piHeI
 
@@ -891,13 +915,21 @@ c -------------------------------------------------------------------
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
      &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
      &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
-     &     k55(ijk), k56(ijk), k13dd(ijk, 7),
+     &     k55(ijk), k56(ijk), k13dd(ijk, 7), h2dust(ijk), 
+     &     ncrn(ijk), ncrd1(ijk), ncrd2(ijk),
      &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
 
 !     1D temporaries (passed in)
 
       integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk)
+      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk),
+     &     tdust(ijk), metallicity(ijk)
+
+!     1D temporaries (not passed in)
+
+      integer d_indixe(ijk)
+      real d_t1(ijk), d_t2(ijk), d_logtem(ijk), d_tdef(ijk),
+     &     dusti1(ijk), dusti2(ijk)
 
 !     Parameters
 
@@ -907,7 +939,8 @@ c -------------------------------------------------------------------
 !     locals
 
       integer i, n1
-      real factor, x, logtem0, logtem9, dlogtem, nh
+      real factor, x, logtem0, logtem9, dlogtem, nh,
+     &     d_logtem0, d_logtem9, d_dlogtem
 
 !     Set log values of start and end of lookup tables
 
@@ -1019,6 +1052,53 @@ c -------------------------------------------------------------------
          enddo
       endif
 
+!     Look-up for H2 formation on dust
+
+      if (idust .gt. 0) then
+         do i = is+1, ie+1
+            if (itmask(i)) then
+
+!              Assume dust melting at T > 1500 K
+
+               if (tdust(i) .gt. dtemend) then
+                  h2dust(i) = tiny
+               else
+
+!                 Get log dust temperature
+
+                  d_logtem(i) = log(tdust(i))
+                  d_logtem(i) = max(d_logtem(i), d_logtem0)
+                  d_logtem(i) = min(d_logtem(i), d_logtem9)
+
+!                 Find index into table and precompute interpolation values
+
+                  d_indixe(i) = min(ndratec-1,
+     &                 max(1,int((d_logtem(i)-d_logtem0)/d_dlogtem)+1))
+                  d_t1(i) = (d_logtem0 + (d_indixe(i) - 1)*d_dlogtem)
+                  d_t2(i) = (d_logtem0 + (d_indixe(i)    )*d_dlogtem)
+                  d_tdef(i) = (d_logtem(i) - d_t1(i)) / 
+     &                 (d_t2(i) - d_t1(i))
+
+!                 Get rate from 2D interpolation
+
+                  dusti1(i) = h2dusta(indixe(i), d_indixe(i)) +
+     &                 (h2dusta(indixe(i)+1, d_indixe(i)) - 
+     &                 h2dusta(indixe(i),   d_indixe(i)))*tdef(i)
+                  dusti2(i) = h2dusta(indixe(i), d_indixe(i)+1) +
+     &                 (h2dusta(indixe(i)+1, d_indixe(i)+1) - 
+     &                 h2dusta(indixe(i),   d_indixe(i)+1))*tdef(i)
+                  h2dust(i) = dusti1(i) + 
+     &                 (dusti2(i) - dusti1(i))*d_tdef(i)
+
+!                 Multiply by metallicity
+
+                  h2dust(i) = h2dust(i) * metallicity(i)
+
+               endif
+            endif
+         enddo
+      endif
+
 !        Include approximate self-shielding factors if requested
 
 #ifdef RADIATION
@@ -1092,17 +1172,18 @@ c -------------------------------------------------------------------
 !  This routine calculates the electron and HI rates of change in
 !    order to determine the maximum permitted timestep
 
-      subroutine rate_timestep(dedot, HIdot, ispecies,
+      subroutine rate_timestep(dedot, HIdot, ispecies, idust,
      &                     de, HI, HII, HeI, HeII, HeIII, d,
      &                     HM, H2I, H2II,
      &                     in, jn, kn, is, ie, j, k, 
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
      &                     k24, k25, k26, k27, k28, k29, k30, k31,
-     &                     k50, k51, k52, k53, k54, k55,
-     &                     k56, k24shield, k25shield, k26shield,
+     &                     k50, k51, k52, k53, k54, k55, k56, 
+     &                     h2dust, ncrn, ncrd1, ncrd2, rhoH, 
+     &                     k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask, edot, chunit)
+     &                     kdissH2I, itmask, edot, chunit, dom)
 
 ! -------------------------------------------------------------------
 
@@ -1110,8 +1191,9 @@ c -------------------------------------------------------------------
 
 !     arguments
 
-      integer ispecies, is, ie, j, k, in, jn, kn, iradtrans, irt_honly
-      real dedot(in), HIdot(in), edot(in)
+      integer ispecies, idust, is, ie, j, k, in, jn, kn, 
+     &     iradtrans, irt_honly
+      real dedot(in), HIdot(in), edot(in), dom
       logical itmask(in)
 
 !     Density fields
@@ -1135,14 +1217,15 @@ c -------------------------------------------------------------------
      &     k11(in), k12(in), k13(in), k14(in), k15(in),
      &     k16(in), k17(in), k18(in), k19(in), k22(in),
      &     k50(in), k51(in), k52(in), k53(in), k54(in),
-     &     k55(in), k56(in), 
+     &     k55(in), k56(in), h2dust(in), 
+     &     ncrn(in), ncrd1(in), ncrd2(in), rhoH(in), 
      &     k24shield(in), k25shield(in), k26shield(in),
      &     k24, k25, k26, k27, k28, k29, k30, k31
 
 !     locals
 
       integer i
-      double precision H2delta, H2dmag, atten, tau
+      double precision h2heatfac(in), H2delta(in), H2dmag, atten, tau
 
       if (ispecies .eq. 1) then
 
@@ -1180,7 +1263,7 @@ c -------------------------------------------------------------------
 
          do i = is+1, ie+1
             if (itmask(i)) then
-            HIdot(i) = 
+               HIdot(i) = 
      &               -      k1(i) *de(i,j,k)    *HI(i,j,k)  
      &               -      k7(i) *de(i,j,k)    *HI(i,j,k)
      &               -      k8(i) *HM(i,j,k)    *HI(i,j,k)
@@ -1199,6 +1282,13 @@ c -------------------------------------------------------------------
 #ifdef RADIATION
      &               -      k24shield(i)*HI(i,j,k)
 #endif /* RADIATION */
+
+!     Add H2 formation on dust grains
+
+            if (idust .gt. 0) then
+               HIdot(i) = HIdot(i) 
+     &              - 2.d0 * h2dust(i) * HI(i,j,k) * rhoH(i)
+            endif
 
 !     Compute the electron density rate-of-change
 
@@ -1222,17 +1312,29 @@ c -------------------------------------------------------------------
      &               +  k26shield(i)*HeI(i,j,k)/4.e0)
 #endif /* RADIATION */
 
-            H2delta = 
+!     H2 formation heating
+
+c            h2heatfac(i) = (1.d0 + (ncrn(i) / (dom *
+c     &           (HI(i,j,k) * ncrd1(i) +
+c     &           H2I(i,j,k) * 0.5d0 * ncrd2(i)))))**(-1.d0)
+
+            H2delta(i) = 
      &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.d0
      &                    - k13(i) * H2I(i,j,k)/2.d0)
-            H2dmag = abs(H2delta)/(
-     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.d0
-     &                    + k13(i) * H2I(i,j,k)/2.d0))
+
+            if (idust .gt. 0) then
+               H2delta(i) = H2delta(i) + 
+     &              h2dust(i) * HI(i,j,k) * rhoH(i)
+            endif
+
+!            H2dmag = abs(H2delta)/(
+!     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.d0
+!     &                    + k13(i) * H2I(i,j,k)/2.d0))
 !            tau = (H2dmag/1e-5)**-1.0d0
 !            tau = max(tau, 1.e-5)
 !            atten = min((1.-exp(-tau))/tau,1.0)
             atten = 1.d0
-            edot(i) = edot(i) + chunit * H2delta * atten
+            edot(i) = edot(i) + chunit * H2delta(i) * atten
 !     &       + H2I(i,j,k)*( k21(i) * HI(i,j,k)**2.0d0
 !     &                    - k23(i) * H2I(i,j,k))
 !H * (k22 * H^2 - k13 * H_2) + H_2 * (k21 * H^2 - k23 * H_2) */
@@ -1275,12 +1377,13 @@ c -------------------------------------------------------------------
 
       subroutine step_rate(de, HI, HII, HeI, HeII, HeIII, d,
      &                     HM, H2I, H2II, DI, DII, HDI, dtit,
-     &                     in, jn, kn, is, ie, j, k, ispecies,
+     &                     in, jn, kn, is, ie, j, k, ispecies, idust, 
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
      &                     k24, k25, k26, k27, k28, k29, k30, k31,
-     &                     k50, k51, k52, k53, k54, k55,
-     &                     k56, k24shield, k25shield, k26shield,
+     &                     k50, k51, k52, k53, k54, k55, k56, 
+     &                     h2dust, rhoH,
+     &                     k24shield, k25shield, k26shield,
      &                     HIp, HIIp, HeIp, HeIIp, HeIIIp, dep,
      &                     HMp, H2Ip, H2IIp, DIp, DIIp, HDIp,
      &                     dedot_prev, HIdot_prev,
@@ -1292,7 +1395,8 @@ c -------------------------------------------------------------------
 
 !     arguments
 
-      integer ispecies, in, jn, kn, is, ie, j, k, iradtrans, irt_honly
+      integer ispecies, idust, in, jn, kn, is, ie, j, k, 
+     &     iradtrans, irt_honly
       real    dtit(in), dedot_prev(in), HIdot_prev(in)
       logical itmask(in)
 
@@ -1316,7 +1420,7 @@ c -------------------------------------------------------------------
      &     k11(in), k12(in), k13(in), k14(in), k15(in),
      &     k16(in), k17(in), k18(in), k19(in), k22(in),
      &     k50(in), k51(in), k52(in), k53(in), k54(in),
-     &     k55(in), k56(in), 
+     &     k55(in), k56(in), h2dust(in), rhoH(in),
      &     k24shield(in), k25shield(in), k26shield(in),
      &     k24, k25, k26, k27, k28, k29, k30, k31
 
@@ -1482,6 +1586,11 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             + k24shield(i)
             if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
+
+            if (idust .gt. 0) then
+               acoef = acoef + 2.d0 * h2dust(i) * rhoH(i)
+            endif
+
             HIp(i)  = ( scoef*dtit(i) + HI(i,j,k) ) / 
      &                      ( 1. + acoef*dtit(i) )
             if (HIp(i) .ne. HIp(i)) then
@@ -1544,6 +1653,10 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &              + k29 + k31
             if (iradtrans.eq.1) acoef = acoef + kdissH2I(i,j,k)
 #endif /* RADIATION */
+
+            if (idust .gt. 0) then
+               scoef = scoef + 2.d0 * h2dust(i) * HI(i,j,k) * rhoH(i)
+            endif
 
             H2Ip(i) = ( scoef*dtit(i) + H2I(i,j,k) )
      &                / ( 1.d0 + acoef*dtit(i) )

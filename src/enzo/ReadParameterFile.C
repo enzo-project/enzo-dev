@@ -390,6 +390,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PointSourceGravityCoreRadius);
  
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
+    ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
+    ret += sscanf(line, "ExternalGravityRadius   = %"FSYM,&ExternalGravityRadius);
+    ret += sscanf(line, "ExternalGravityDensity  = %"FSYM,&ExternalGravityDensity);
+    ret += sscanf(line, "ExternalGravityPosition = %"PSYM" %"PSYM" %"PSYM,
+		  ExternalGravityPosition, ExternalGravityPosition+1,
+		  ExternalGravityPosition+2);
+    ret += sscanf(line, "ExternalGravityOrientation = %"FSYM" %"FSYM" %"FSYM, 
+		  ExternalGravityOrientation, ExternalGravityOrientation+1, 
+		  ExternalGravityOrientation+2);
 
     ret += sscanf(line, "SelfGravity           = %"ISYM, &SelfGravity);
     ret += sscanf(line, "SelfGravityGasOff     = %"ISYM, &SelfGravityGasOff);
@@ -429,6 +438,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
     ret += sscanf(line, "H2OpticalDepthApproximation = %"ISYM, &H2OpticalDepthApproximation);
     ret += sscanf(line, "ThreeBodyRate = %"ISYM, &ThreeBodyRate);
+    ret += sscanf(line, "H2FormationOnDust = %"ISYM, &H2FormationOnDust);
     if (sscanf(line, "CloudyCoolingGridFile = %s", dummy) == 1) {
       CloudyCoolingData.CloudyCoolingGridFile = dummy;
       ret++;
@@ -465,6 +475,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiationRedshiftDropOff = %"FSYM, &CoolData.RadiationRedshiftDropOff);
     ret += sscanf(line, "HydrogenFractionByMass = %"FSYM, &CoolData.HydrogenFractionByMass);
     ret += sscanf(line, "DeuteriumToHydrogenRatio = %"FSYM, &CoolData.DeuteriumToHydrogenRatio);
+    ret += sscanf(line, "SolarMetalFractionByMass = %"FSYM, &CoolData.SolarMetalFractionByMass);
     ret += sscanf(line, "NumberOfTemperatureBins = %"ISYM, &CoolData.NumberOfTemperatureBins);
     ret += sscanf(line, "CoolDataIh2co = %"ISYM, &CoolData.ih2co);
     ret += sscanf(line, "CoolDataIpiht = %"ISYM, &CoolData.ipiht);
@@ -473,11 +484,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolDataCompXray = %"FSYM, &CoolData.comp_xray);
     ret += sscanf(line, "CoolDataTempXray = %"FSYM, &CoolData.temp_xray);
     ret += sscanf(line, "RateDataCaseBRecombination = %"ISYM, &RateData.CaseBRecombination);
+    ret += sscanf(line, "NumberOfDustTemperatureBins = %"ISYM, &RateData.NumberOfDustTemperatureBins);
+    ret += sscanf(line, "DustTemperatureStart = %"FSYM, &RateData.DustTemperatureStart);
+    ret += sscanf(line, "DustTemperatureEnd = %"FSYM, &RateData.DustTemperatureEnd);
     ret += sscanf(line, "PhotoelectricHeating  = %"ISYM, &PhotoelectricHeating);
     ret += sscanf(line, "PhotoelectricHeatingRate = %"FSYM, &PhotoelectricHeatingRate);
 
     ret += sscanf(line, "OutputCoolingTime = %"ISYM, &OutputCoolingTime);
     ret += sscanf(line, "OutputTemperature = %"ISYM, &OutputTemperature);
+    ret += sscanf(line, "OutputDustTemperature = %"ISYM, &OutputDustTemperature);
 
     ret += sscanf(line, "OutputSmoothedDarkMatter = %"ISYM, 
 		  &OutputSmoothedDarkMatter);
@@ -661,7 +676,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "BigStarFormation = %"ISYM, &BigStarFormation);
     ret += sscanf(line, "BigStarFormationDone = %"ISYM, &BigStarFormationDone);
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
-    ret += sscanf(line, "SimpleQ = %"FSYM, &SimpleQ);
+    ret += sscanf(line, "SimpleQ = %lf", &SimpleQ);
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
@@ -942,7 +957,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingCutOffTemperature = %"GSYM, &CoolingCutOffTemperature);
     ret += sscanf(line, "CoolingPowerCutOffDensity1 = %"GSYM, &CoolingPowerCutOffDensity1);
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
-    ret += sscanf(line, "UseH2OnDust           = %"ISYM, &UseH2OnDust);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,

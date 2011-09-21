@@ -72,11 +72,12 @@ include $(ENZO_DIR)/Make.config.machine
 MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
 include $(MAKE_CONFIG_OVERRIDE)
 
-# These may be necessary, so we manually override them here.
-CONFIG_USE_MPI   = yes
-CONFIG_PHOTON    = yes
-CONFIG_FAST_SIB  = yes
-CONFIG_LCAPERF   = no
+# These may be necessary, so we manually override them here. --JHK
+# No, we do not want to override defaults. --CBH
+#CONFIG_USE_MPI   = yes
+#CONFIG_PHOTON    = yes
+#CONFIG_FAST_SIB  = yes
+#CONFIG_LCAPERF   = no
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
