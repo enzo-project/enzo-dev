@@ -326,6 +326,7 @@ EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
+EXTERN int H2FormationOnDust;
 
 /* Glover chemistry/cooling network flags */
 EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
@@ -375,6 +376,10 @@ EXTERN int OutputCoolingTime;
 /* Output temperature with grid data. */
 
 EXTERN int OutputTemperature;
+
+/* Output dust temperature with grid data. */
+
+EXTERN int OutputDustTemperature;
 
 /* Output smoothed dark matter fields. */
 
@@ -689,13 +694,11 @@ EXTERN int UseResistivity;
 
 /* Chemistry & cooling parameters */
 
-EXTERN int UseH2OnDust;
 EXTERN float CoolingCutOffDensity1;
 EXTERN float CoolingCutOffDensity2;
 EXTERN float CoolingPowerCutOffDensity1;
 EXTERN float CoolingPowerCutOffDensity2;
 EXTERN float CoolingCutOffTemperature;
-EXTERN int CoolingModel;
 
 /* Gravity parameters */
 

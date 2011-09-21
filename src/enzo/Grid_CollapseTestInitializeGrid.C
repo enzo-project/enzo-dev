@@ -141,7 +141,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
   /* Set various units. */
 
-  const float Zsolar = 0.02041;
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
     pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16, LightSpeed = 2.9979e10;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
@@ -895,7 +894,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	  /* If there are metals, set it. */
 
 	  if (SphereUseMetals)
-	    BaryonField[MetalNum][n] = metallicity * Zsolar * BaryonField[0][n];
+	    BaryonField[MetalNum][n] = metallicity * CoolData.SolarMetalFractionByMass * 
+	      BaryonField[0][n];
 
 	  /* If there is a colour field, set it. */
 
