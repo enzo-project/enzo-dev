@@ -276,8 +276,8 @@
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       uvel     = uxyz / utim
-      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
-c      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
+c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
+      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
 
       dlogtem = (log(temend) - log(temstart))/real(nratec-1)
 
@@ -416,7 +416,7 @@ c      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
      &                     h2dust, ncrn, ncrd1, ncrd2, rhoH, 
      &                     k24shield, k25shield, k26shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask, edot, chunit)
+     &                     kdissH2I, itmask, edot, chunit, dom)
 
 !           Find timestep that keeps relative chemical changes below 10%
 
@@ -1015,6 +1015,16 @@ c -------------------------------------------------------------------
      &            (k19a(indixe(i)+1) -k19a(indixe(i)))*tdef(i)
             k22(i) = k22a(indixe(i)) +
      &            (k22a(indixe(i)+1) -k22a(indixe(i)))*tdef(i)
+
+!     H2 formation heating terms.
+
+            ncrn(i) = ncrna(indixe(i)) +
+     &           (ncrna(indixe(i)+1) -ncrna(indixe(i)))*tdef(i)
+            ncrd1(i) = ncrd1a(indixe(i)) +
+     &           (ncrd1a(indixe(i)+1) -ncrd1a(indixe(i)))*tdef(i)
+            ncrd2(i) = ncrd2a(indixe(i)) +
+     &           (ncrd2a(indixe(i)+1) -ncrd2a(indixe(i)))*tdef(i)
+
          endif
          enddo
 
@@ -1026,7 +1036,8 @@ c -------------------------------------------------------------------
      &               k13dda(indixe(i)  ,n1) )*tdef(i)
             endif
             enddo
-         enddo
+         enddo         
+
       endif
 
 !     Look-up for 12-species model
@@ -1314,17 +1325,20 @@ c -------------------------------------------------------------------
 
 !     H2 formation heating
 
-c            h2heatfac(i) = (1.d0 + (ncrn(i) / (dom *
-c     &           (HI(i,j,k) * ncrd1(i) +
-c     &           H2I(i,j,k) * 0.5d0 * ncrd2(i)))))**(-1.d0)
+!     Equation 23 from Omukai (2000)
+            h2heatfac(i) = (1.d0 + (ncrn(i) / (dom *
+     &           (HI(i,j,k) * ncrd1(i) +
+     &           H2I(i,j,k) * 0.5d0 * ncrd2(i)))))**(-1.d0)
 
             H2delta(i) = 
-     &          HI(i,j,k)*( k22(i) * HI(i,j,k)**2.d0
-     &                    - k13(i) * H2I(i,j,k)/2.d0)
+     &          HI(i,j,k) *
+     &           (  4.48 * h2heatfac(i) * k22(i) * HI(i,j,k)**2.d0
+     &            - 4.48 * k13(i) * H2I(i,j,k)/2.d0)
 
             if (idust .gt. 0) then
                H2delta(i) = H2delta(i) + 
-     &              h2dust(i) * HI(i,j,k) * rhoH(i)
+     &              h2dust(i) * HI(i,j,k) * rhoH(i) * 
+     &              (0.2 + 4.2 * h2heatfac(i))
             endif
 
 !            H2dmag = abs(H2delta)/(
