@@ -1588,7 +1588,6 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
 #endif /* RADIATION */
 
             if (idust .gt. 0) then
-c               acoef = acoef + 2.d0 * h2dust(i) * HI(i,j,k) * rhoH(i)
                acoef = acoef + 2.d0 * h2dust(i) * rhoH(i)
             endif
 
