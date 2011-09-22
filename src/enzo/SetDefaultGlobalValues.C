@@ -386,9 +386,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CloudyCoolingGridRank          = 0;
   CloudyCoolingData.CloudyCoolingGridFile          = "";
   CloudyCoolingData.IncludeCloudyHeating           = 0;
-  CloudyCoolingData.IncludeCloudyMMW               = 0;
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
-  CloudyCoolingData.CloudyMetallicityNormalization = 0.018477;  // calculated using Cloudy 07.02 abundances
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
   OutputCoolingTime = FALSE;
@@ -650,7 +648,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
-  TestProblemData.MetallicityNormalization = 0.02041;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

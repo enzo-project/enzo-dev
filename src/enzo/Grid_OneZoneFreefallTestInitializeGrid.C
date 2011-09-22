@@ -145,7 +145,7 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
 	/* set metallicity */
 	if (TestProblemData.UseMetallicityField && (GridRank > 1)) {
 	  BaryonField[MetalNum][index] = BaryonField[0][index] * 
-	    TestProblemData.MetallicityNormalization *
+	    CoolData.SolarMetalFractionByMass *
 	    MinimumMetallicity * POW((MaximumMetallicity / MinimumMetallicity), 
 				     (float(j - GridStartIndex[1]) / 
 				      (GridEndIndex[1] - GridStartIndex[1])));

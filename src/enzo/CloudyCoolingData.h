@@ -15,19 +15,6 @@ struct CloudyCoolingDataType
   // Flag to control whether or not to include heating from Cloudy.
   int IncludeCloudyHeating;
 
-  // Flag to control whether or not to include mean molecular weight from Cloudy.
-  int IncludeCloudyMMW;
-
-  // To convert from mass fraction to metallicity.
-  /*
-    x = SUM { A_i * m_i}, for i = 3 to N.
-    A_i = solar number abundance with respect H.
-    m_i = atomic weight.
-    N = Atomic number of heaviest element in cooling model.
-     For solar abundance patters and N = 30 (Zn), x = 0.018477.
-   */
-  float CloudyMetallicityNormalization;
-
   // Factor to account for extra electrons from metals.
   /* 
      f = SUM { A_i * i }, for i = 3 to N.
@@ -54,9 +41,6 @@ struct CloudyCoolingDataType
 
   // Cooling values
   float *CloudyCooling;
-
-  // Array holding mean molecular weight values
-  float *CloudyMeanMolecularWeight;
 
   // Length of 1D flattened Cloudy data
   int CloudyDataSize;

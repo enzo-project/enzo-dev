@@ -36,10 +36,10 @@
      &                kphHI, kphHeI, kphHeII, kdissH2I, 
      &                photogamma, 
      &                ih2optical, iciecool, ithreebody, ciecoa, 
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW)
+     &                clDataSize, clCooling, clHeating)
 
 !
 !  SOLVE MULTI-SPECIES RATE EQUATIONS AND RADIATIVE COOLING
@@ -107,8 +107,6 @@
 !
 !    icmbTfloor - flag to include temperature floor from cmb
 !    iClHeat    - flag to include cloudy heating
-!    iClMMW     - flag to include addition to mean molecular weight from metals
-!    clMetNorm  - parameter to convert metal density to metallicty (see CloudyCoolingData.h)
 !    clEleFra   - parameter to account for additional electrons from metals 
 !    clGridRank - rank of cloudy cooling data grid
 !    clGridDim  - array containing dimensions of cloudy data
@@ -116,7 +114,6 @@
 !    clDataSize - total size of flattened 1D cooling data array
 !    clCooling  - cloudy cooling data
 !    clHeating  - cloudy heating data
-!    clMMW      - cloudy mean molecular weight data
 !
 !  OUTPUTS:
 !    update chemical rate densities (HI, HII, etc)
@@ -190,14 +187,13 @@
 
 !  Cloudy cooling data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer icmbTfloor, iClHeat, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
+      real clEleFra
       real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
-     &     clMMW(clDataSize)
+      real clCooling(clDataSize), clHeating(clDataSize)
 
 !  Parameters
 
@@ -373,10 +369,10 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
      &                ih2optical, iciecool, ciecoa, cieco,
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW,
+     &                clDataSize, clCooling, clHeating,
      &                itmask)
 
 !        Look-up rates as a function of temperature for 1D set of zones

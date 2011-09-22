@@ -78,10 +78,10 @@ extern "C" void FORTRAN_NAME(multi_cool)(
 	int *iradshield, float *avgsighp, float *avgsighep, float *avgsighe2p,
 	int *iradtrans, float *photogamma,
 	int *ih2optical, int *iciecool, float *ciecoa,
- 	int *icmbTfloor, int *iClHeat, int *iClMMW,
- 	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
+ 	int *icmbTfloor, int *iClHeat,
+ 	float *clEleFra, int *clGridRank, int *clGridDim,
  	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
- 	int *clDataSize, float *clCooling, float *clHeating, float *clMMW);
+ 	int *clDataSize, float *clCooling, float *clHeating);
  
 extern "C" void FORTRAN_NAME(solve_cool)(
 	float *d, float *e, float *ge, float *u, float *v, float *w,
@@ -299,8 +299,7 @@ int grid::SolveRadiativeCooling()
        &RadiativeTransfer, BaryonField[gammaNum],
        &H2OpticalDepthApproximation, &CIECooling, CoolData.cieco,
        &CloudyCoolingData.CMBTemperatureFloor,
-       &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
-       &CloudyCoolingData.CloudyMetallicityNormalization,
+       &CloudyCoolingData.IncludeCloudyHeating,
        &CloudyCoolingData.CloudyElectronFractionFactor,
        &CloudyCoolingData.CloudyCoolingGridRank,
        CloudyCoolingData.CloudyCoolingGridDimension,
@@ -310,8 +309,7 @@ int grid::SolveRadiativeCooling()
        CloudyCoolingData.CloudyCoolingGridParameters[3],
        CloudyCoolingData.CloudyCoolingGridParameters[4],
        &CloudyCoolingData.CloudyDataSize,
-       CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating,
-       CloudyCoolingData.CloudyMeanMolecularWeight);
+       CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating);
   } else if (GadgetEquilibriumCooling==1) {
 
     // Gadget cooling

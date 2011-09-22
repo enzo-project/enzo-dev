@@ -83,10 +83,10 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
 	float *kphHI, float *kphHeI, float *kphHeII, 
 	float *kdissH2I, float *photogamma,
 	int *ih2optical, int *iciecool, int *ithreebody, float *ciecoa,
- 	int *icmbTfloor, int *iClHeat, int *iClMMW,
- 	float *clMetNorm, float *clEleFra, int *clGridRank, int *clGridDim,
+ 	int *icmbTfloor, int *iClHeat,
+ 	float *clEleFra, int *clGridRank, int *clGridDim,
  	float *clPar1, float *clPar2, float *clPar3, float *clPar4, float *clPar5,
- 	int *clDataSize, float *clCooling, float *clHeating, float *clMMW);
+ 	int *clDataSize, float *clCooling, float *clHeating);
 
 
 int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
@@ -306,8 +306,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     BaryonField[kdissH2INum], BaryonField[gammaNum],
     &H2OpticalDepthApproximation, &CIECooling, &ThreeBodyRate, CoolData.cieco,
     &CloudyCoolingData.CMBTemperatureFloor,
-    &CloudyCoolingData.IncludeCloudyHeating, &CloudyCoolingData.IncludeCloudyMMW,
-    &CloudyCoolingData.CloudyMetallicityNormalization,
+    &CloudyCoolingData.IncludeCloudyHeating,
     &CloudyCoolingData.CloudyElectronFractionFactor,
     &CloudyCoolingData.CloudyCoolingGridRank,
     CloudyCoolingData.CloudyCoolingGridDimension,
@@ -317,8 +316,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     CloudyCoolingData.CloudyCoolingGridParameters[3],
     CloudyCoolingData.CloudyCoolingGridParameters[4],
     &CloudyCoolingData.CloudyDataSize,
-    CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating,
-    CloudyCoolingData.CloudyMeanMolecularWeight);
+    CloudyCoolingData.CloudyCooling, CloudyCoolingData.CloudyHeating);
 
   if (ierr) {
       fprintf(stdout, "GridLeftEdge = %"FSYM" %"FSYM" %"FSYM"\n",
