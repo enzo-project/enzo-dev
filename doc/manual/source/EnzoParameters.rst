@@ -1134,30 +1134,12 @@ creating Cloudy datasets.
     are made with the intention that only the cooling rates are to be
     used. Default: 0 (off).
 
-``IncludeCloudyMMW`` (external)
-    An integer (0 or 1) specifying whether the additional mean
-    molecular weight contributed by the metals be used in the
-    conversion from internal energy to temperature. These values will
-    come from the Cloudy dataset. For metallicities less than solar,
-    this addition will be negligible. Default: 0 (off).
-
 ``CMBTemperatureFloor`` (external)
     An integer (0 or 1) specifying whether a temperature floor is
     created at the temperature of the cosmic microwave background
     (T\ :sub:`CMB`\  = 2.72 (1 + z) K). This is accomplished in the
     code by subtracting the cooling rate at T\ :sub:`CMB`\  such that
     Cooling = Cooling(T) - Cooling(T\ :sub:`CMB`\ ). Default: 1 (on).
-
-``CloudyMetallicityNormalization`` (external)
-    A float value used in the conversion of metal density into
-    metallicity. This value will change depending on the specific
-    abundance patterns used to make the Cloudy dataset. The value of
-    this factor is calculated as the sum of (A\ :sub:`i`\  \*
-    m\ :sub:`i`\ ) over all elements i heavier than He, where
-    A\ :sub:`i`\  is the solar number abundance relative to H and
-    m\ :sub:`i`\  is the atomic mass. For the solar abundance pattern
-    from the latest version of Cloudy, using all metals through Zn,
-    this value is 0.018477. Default: 0.018477.
 
 ``CloudyElectronFractionFactor`` (external)
     A float value to account for additional electrons contributed by
