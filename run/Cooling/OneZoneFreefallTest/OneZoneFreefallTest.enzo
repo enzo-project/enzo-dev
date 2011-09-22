@@ -73,12 +73,10 @@ MultiSpecies              = 2
 H2FormationOnDust         = 1
 MetalCooling              = 3             // cloudy cooling
 CloudyCoolingGridFile     = solar_2008_3D_metals.h5 // 3D metals only
-CloudyMetallicityNormalization = 0.018477 // Solar pattern, all metals
 CMBTemperatureFloor       = 0
 IncludeCloudyHeating      = 0
-
+SolarMetalFractionByMass  = 0.02041
 TestProblemUseMetallicityField = 1
-TestProblemMetallicityNormalization = 0.02041
 
 # Initial species fractions, fiddle at own risk,
 TestProblemInitialHIFraction      = 0.999
