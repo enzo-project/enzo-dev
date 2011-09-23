@@ -52,7 +52,6 @@ struct TestProblemDataType
   /*  metallicity fields */
   int UseMetallicityField;
   float MetallicityField_Fraction;
-  float MetallicityNormalization;
 
   float InitialMetalMass;
 

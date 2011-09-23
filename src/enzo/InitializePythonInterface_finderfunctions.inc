@@ -1186,11 +1186,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "UseH2OnDust", 12) == 0) {
-        PyObject *rv = PyLong_FromLong((long) UseH2OnDust);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "CoolingCutOffDensity1", 22) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) CoolingCutOffDensity1);
         return rv;

@@ -494,6 +494,10 @@ public:
 
    int GadgetComputeTemperatureDEF(FLOAT time, float *temperature);
 
+/* Baryons: compute the dust temperature. */
+
+   int ComputeDustTemperatureField(float *temperature, float *dust_temperature);
+
 /* Baryons: compute X-ray emissivity in specified band. */
 
    int ComputeXrayEmissivity(float *temperature,

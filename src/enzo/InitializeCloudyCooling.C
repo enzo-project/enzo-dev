@@ -68,7 +68,6 @@ int InitializeCloudyCooling(FLOAT Time)
     fprintf(stderr,"Initializing Cloudy cooling.\n");
     fprintf(stderr,"CloudyCoolingGridFile: %s.\n",CloudyCoolingData.CloudyCoolingGridFile);
     fprintf(stderr,"IncludingCloudyHeating: %"ISYM".\n",CloudyCoolingData.IncludeCloudyHeating);
-    fprintf(stderr,"IncludingCloudyMMW: %"ISYM".\n",CloudyCoolingData.IncludeCloudyMMW);
     fprintf(stderr,"CMBTemperatureFloor: %"ISYM".\n",CloudyCoolingData.CMBTemperatureFloor);
   }
 
@@ -227,39 +226,7 @@ int InitializeCloudyCooling(FLOAT Time)
     }
   }
 
-  // Read Mean Molecular Weight data.
-  if (CloudyCoolingData.IncludeCloudyMMW > 0) {
-
-    temp_data = new float64[CloudyCoolingData.CloudyDataSize];
-
-    dset_id =  H5Dopen(file_id, "/MMW");
-    if (dset_id == h5_error) {
-      fprintf(stderr,"Can't open MMW in %s.\n",CloudyCoolingData.CloudyCoolingGridFile);
-      return FAIL;
-    }
-
-    status = H5Dread(dset_id, HDF5_R8, H5S_ALL, H5S_ALL, H5P_DEFAULT, temp_data);
-    if (debug) fprintf(stderr,"Reading Cloudy MMW dataset.\n");
-    if (status == h5_error) {
-      fprintf(stderr,"Failed to read MMW dataset.\n");
-      return FAIL;
-    }
-
-    CloudyCoolingData.CloudyMeanMolecularWeight = new float[CloudyCoolingData.CloudyDataSize];
-    for (q = 0;q < CloudyCoolingData.CloudyDataSize;q++) {
-      CloudyCoolingData.CloudyMeanMolecularWeight[q] = (float) temp_data[q];
-    }
-    delete [] temp_data;
-
-    status = H5Dclose(dset_id);
-    if (status == h5_error) {
-      fprintf(stderr,"Failed to close MMW dataset.\n");
-      return FAIL;
-    }
-  }
-
   // Read in grid parameters.
-  //CloudyCoolingData.CloudyCoolingGridParameters = new float*[CloudyCoolingData.CloudyCoolingGridRank];
   for (q = 0;q < CloudyCoolingData.CloudyCoolingGridRank;q++) {
 
     if (q < CloudyCoolingData.CloudyCoolingGridRank - 1) {
