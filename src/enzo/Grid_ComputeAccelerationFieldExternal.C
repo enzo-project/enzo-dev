@@ -422,11 +422,12 @@ int grid::ComputeAccelerationFieldExternal()
       }
 
       float *accel_field[MAX_DIMENSION];
-      for (dim = 0; dim < GridRank; dim++)
-	accel_field[dim] = new float[size];
-      
+
       if (NumberOfBaryonFields > 0) {
     
+	for (dim = 0; dim < GridRank; dim++)
+	  accel_field[dim] = new float[size];   
+
 	if (this->ComputeAccelerationsFromExternalPotential(
 		  (HydroMethod == Zeus_Hydro) ? ZEUS_GRIDS : GRIDS, 
 		  expotential, accel_field)  == FAIL) {
@@ -438,9 +439,17 @@ int grid::ComputeAccelerationFieldExternal()
 	  for (i = 0; i < size; i++)
 	    AccelerationField[dim][i] += accel_field[dim][i];
 
+	for (dim = 0; dim < GridRank; dim++) {
+          delete [] accel_field[dim];
+          accel_field[dim] = NULL;
+	}
+
       } // end if (NumberOfBaryonFields)
  
       if (NumberOfParticles > 0) {
+
+	for (dim = 0; dim < GridRank; dim++)
+          accel_field[dim] = new float[NumberOfParticles];
 
 	if (this->ComputeAccelerationsFromExternalPotential(PARTICLES, 
 				  expotential, accel_field) == FAIL) {
@@ -454,14 +463,17 @@ int grid::ComputeAccelerationFieldExternal()
 	  ParticleAcceleration[2][i] += accel_field[2][i];
 	}
 
+	for (dim = 0; dim < GridRank; dim++) {
+          delete [] accel_field[dim];
+          accel_field[dim] = NULL;
+        }
+
       } // end if (NumberOfParticles)
 
       /* Cleanup */
       delete [] expotential;
-      for (dim = 0; dim < GridRank; dim++)
-	delete [] accel_field[dim];
-
-  } // end if (ExternalGravity > 9)
+      
+   } // end if (ExternalGravity > 9)
 
   else {
       /* this is only reached if there are two types of external gravities - 

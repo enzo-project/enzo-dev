@@ -159,7 +159,14 @@ Be sure to read the output of ``hg help email`` before doing this.
 The Patch Directory
 --------------------
 
-If you are experimenting with a code change or just debugging, then the patch directory, found in the top level of your Enzo directory, may be of use. Files put in here are compiled in preference to those in ``/src/enzo``, so you can implement changes without overwriting the original code. To use this feature, run ``make`` from inside ``/patch``.
+If you are experimenting with a code change or just debugging, then
+the patch directory, found in the top level of your Enzo directory,
+may be of use. Files put in here are compiled in preference to those
+in ``/src/enzo``, so you can implement changes without overwriting the
+original code. To use this feature, run ``make`` from inside
+``/patch``. You may need to add ``-I../src/enzo`` to the
+``MACH_INCLUDES`` line of your machine makefile
+(e.g. ``Make.mach.triton``) to ensure the .h files are found when compiling.
 
 As an example, suppose you wish to check the first few values of the acceleration field as Enzo runs through ``EvolveLevel.C``. Copy ``EvolveLevel.C`` from ``/src/enzo`` into ``/patch`` and put the appropriate print statements throughout that copy of the routine. Then recompile Enzo from inside the patch directory. When you no longer want those changes, simply delete EvolveLevel.C from ``/patch`` and the next compile of the code will revert to using the original ``/src/enzo/EvolveLevel.C``. If you make adjustments you wish to keep, just copy the patch version of the code into ``/src/enzo`` to replace the original.
 

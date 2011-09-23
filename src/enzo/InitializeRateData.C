@@ -45,7 +45,7 @@ extern "C" void FORTRAN_NAME(calc_rates)(
      float *piHI, float *piHeI, float *piHeII,
      float *hyd01ka, float *h2k01a, float *vibha, float *rotha, float *rotla,
      float *gpldl, float *gphdl, float *hdlte, float *hdlow, float *hdcool, float *cieco,
-     float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela,
+     float *gaHIa, float *gaH2a, float *gaHea, float *gaHpa, float *gaela, float *gasgr, 
      float *k1a, float *k2a, float *k3a, float *k4a, float *k5a, float *k6a,
         float *k7a, float *k8a, float *k9a, float *k10a,
      float *k11a, float *k12a, float *k13a, float *k13dda, float *k14a,
@@ -54,7 +54,8 @@ extern "C" void FORTRAN_NAME(calc_rates)(
      float *k24, float *k25, float *k26, float *k27, float *k28, float *k29,
         float *k30, float *k31,
      float *k50, float *k51, float *k52, float *k53, float *k54, float *k55,
-        float *k56, int *ioutput);
+        float *k56, int *ndratec, float *dtemstart, float *dtemend, float *h2dusta, 
+     float *ncrca, float *ncrd1a, float *ncrd2a, int *ioutput);
 
 
 // character strings
@@ -67,6 +68,10 @@ int InitializeRateData(FLOAT Time)
   /* Declarations. */
  
   FLOAT a = 1, dadt;
+
+  if (H2FormationOnDust && !RadiativeCooling) {
+    ENZO_FAIL("For H2FormationOnDust = 1, must have RadiativeCooling = 1 and MultiSpecies > 0.");
+  }
   
   if (debug) printf("InitializeRateData: NumberOfTemperatureBins = %"ISYM"\n",
 		    CoolData.NumberOfTemperatureBins);
@@ -101,7 +106,8 @@ int InitializeRateData(FLOAT Time)
   CoolData.GAHe    = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAHp    = new float[CoolData.NumberOfTemperatureBins];
   CoolData.GAel    = new float[CoolData.NumberOfTemperatureBins];
- 
+  CoolData.gas_grain = new float[CoolData.NumberOfTemperatureBins]; 
+
   /* Set RateData parameters. */
   // NOTE: calc_rates expects these to be the same size as CoolData
   //   RateData.NumberOfTemperatureBins = 600;
@@ -145,7 +151,12 @@ int InitializeRateData(FLOAT Time)
   RateData.k54 = new float[RateData.NumberOfTemperatureBins];
   RateData.k55 = new float[RateData.NumberOfTemperatureBins];
   RateData.k56 = new float[RateData.NumberOfTemperatureBins];
- 
+  RateData.h2dust = new float[RateData.NumberOfTemperatureBins * 
+			      RateData.NumberOfDustTemperatureBins];
+  RateData.n_cr_n = new float[RateData.NumberOfTemperatureBins];
+  RateData.n_cr_d1 = new float[RateData.NumberOfTemperatureBins];
+  RateData.n_cr_d2 = new float[RateData.NumberOfTemperatureBins]; 
+
   /* If using cosmology, compute the expansion factor and get units. */
  
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
@@ -188,7 +199,7 @@ int InitializeRateData(FLOAT Time)
      CoolData.GP99LowDensityLimit, CoolData.GP99HighDensityLimit,
         CoolData.HDlte, CoolData.HDlow, CoolData.HDcool, CoolData.cieco,
      CoolData.GAHI, CoolData.GAH2, CoolData.GAHe, CoolData.GAHp,
-        CoolData.GAel,
+        CoolData.GAel, CoolData.gas_grain, 
      RateData.k1, RateData.k2, RateData.k3, RateData.k4, RateData.k5,
         RateData.k6, RateData.k7, RateData.k8, RateData.k9, RateData.k10,
      RateData.k11, RateData.k12, RateData.k13, RateData.k13dd, RateData.k14,
@@ -197,7 +208,10 @@ int InitializeRateData(FLOAT Time)
      &RateData.k24, &RateData.k25, &RateData.k26, &RateData.k27, &RateData.k28,
         &RateData.k29, &RateData.k30, &RateData.k31,
      RateData.k50, RateData.k51, RateData.k52, RateData.k53, RateData.k54,
-        RateData.k55, RateData.k56, &ioutput);
+        RateData.k55, RateData.k56, 
+     &RateData.NumberOfDustTemperatureBins, &RateData.DustTemperatureStart, 
+     &RateData.DustTemperatureEnd, RateData.h2dust, 
+     RateData.n_cr_n, RateData.n_cr_d1, RateData.n_cr_d2, &ioutput);
 
   /* If using tabulated J21 values for Lyman-Werner, initialize. */
   if (TabulatedLWBackground) {
