@@ -35,83 +35,21 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 				  float Byl,  float Byu)
 {  
 
-  // Neutral
-  const float HIIFraction = 1.2e-5;
-  const float HeIIFraction = 1.0e-14;
-  const float HeIIIFraction = 1.0e-17;
-  const float HMFraction = 2.0e-9;
-  const float H2IFraction = 2.0e-20;
-  const float H2IIFraction = 3.0e-14;
-
-  // Ionized
-  const float HIIFractionIon = 0.99 * CoolData.HydrogenFractionByMass;
-  const float HeIIFractionIon = 1.0e-14;
-  const float HeIIIFractionIon = 0.99 * (1.0-CoolData.HydrogenFractionByMass);
-
-  float HIFraction, HeIFraction, eFraction;
-  float HIFractionIon, HeIFractionIon, eFractionIon;
-  HIFraction = CoolData.HydrogenFractionByMass - HIIFraction;
-  HIFractionIon = CoolData.HydrogenFractionByMass - HIIFractionIon;
-  if (MultiSpecies > 1)
-    HIFraction -= HMFraction + H2IFraction + H2IIFraction;
-  HeIFraction = 1.0 - CoolData.HydrogenFractionByMass - 
-    HeIIFraction - HeIIIFraction;
-  HeIFractionIon = 1.0 - CoolData.HydrogenFractionByMass - 
-    HeIIFractionIon - HeIIIFractionIon;
-  eFraction = HIIFraction + 0.25*HeIIFraction + 0.5*HeIIIFraction;
-  eFractionIon = HIIFractionIon + 0.25*HeIIFractionIon + 0.5*HeIIIFractionIon;
-  if (MultiSpecies > 1)
-    eFraction += 0.5*H2IIFraction - HMFraction;
-
-  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits,
-    VelocityUnits;
-  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, &TimeUnits, 
-	   &VelocityUnits, Time);
-  const float IonizedThreshold = 1e4 / TemperatureUnits / (Gamma-1.0);
-
   /* create fields */
-
-  int GENum, TENum;
-
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
-  FieldType[TENum = NumberOfBaryonFields++] = TotalEnergy;
+  FieldType[NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism) {
-    FieldType[GENum = NumberOfBaryonFields++] = InternalEnergy;
+    FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
+  FieldType[NumberOfBaryonFields++] = Bfield1;
+  FieldType[NumberOfBaryonFields++] = Bfield2;
+  FieldType[NumberOfBaryonFields++] = Bfield3;
+  FieldType[NumberOfBaryonFields++] = PhiField;
 
-  if (HydroMethod == MHD_RK) {
-    FieldType[NumberOfBaryonFields++] = Bfield1;
-    FieldType[NumberOfBaryonFields++] = Bfield2;
-    FieldType[NumberOfBaryonFields++] = Bfield3;
-    FieldType[NumberOfBaryonFields++] = PhiField;
-  }
-
-  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, 
-    H2INum, H2IINum, DINum, DIINum, HDINum;
-
-  if (MultiSpecies) {
-    FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
-    FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
-    FieldType[HIINum   = NumberOfBaryonFields++] = HIIDensity;
-    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
-    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;
-    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
-    if (MultiSpecies > 1) {
-      FieldType[HMNum    = NumberOfBaryonFields++] = HMDensity;
-      FieldType[H2INum   = NumberOfBaryonFields++] = H2IDensity;
-      FieldType[H2IINum  = NumberOfBaryonFields++] = H2IIDensity;
-    }
-    if (MultiSpecies > 2) {
-      FieldType[DINum   = NumberOfBaryonFields++] = DIDensity;
-      FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
-      FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
-    }
-  }
-  
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber) {
@@ -235,6 +173,7 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     }
   }
   
+<<<<<<< local
   /* Rayleigh-Taylor problem with a single-mode (2) or multiple modes
      (3) */
 
@@ -402,8 +341,11 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
     delete [] az;
 
   } // if MHD3DProblemType == 4
+=======
+>>>>>>> other
   
   
+<<<<<<< local
   /* Set uniform species fractions */
 
   if (MultiSpecies > 0) {
@@ -454,5 +396,8 @@ int grid::MHD3DTestInitializeGrid(int MHD3DProblemType,
 	}
   }
 
+=======
+  
+>>>>>>> other
   return SUCCESS;
 }

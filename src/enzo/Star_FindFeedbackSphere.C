@@ -44,13 +44,18 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   const double pc = 3.086e18, Msun = 1.989e33, pMass = 1.673e-24, 
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
-  float values[7];
+  float values[6];
   float AccretedMass, DynamicalTime = 0, AvgDensity, AvgVelocity[MAX_DIMENSION];
   int StarType, i, l, dim, FirstLoop = TRUE, SphereTooSmall, 
     MBHFeedbackThermalRadiusTooSmall;
+<<<<<<< local
   float MassEnclosed, Metallicity2, Metallicity3, ColdGasMass, 
     ColdGasFraction, initialRadius, tdyn_code;
   float ShellMass, ShellMetallicity2, ShellMetallicity3, ShellColdGasMass, 
+=======
+  float MassEnclosed, Metallicity, ColdGasMass, ColdGasFraction, initialRadius;
+  float ShellMass, ShellMetallicity, ShellColdGasMass, 
+>>>>>>> other
     ShellVelocity[MAX_DIMENSION];
   LevelHierarchyEntry *Temp;
   HierarchyEntry *Temp2;
@@ -96,8 +101,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   initialRadius = Radius;
 
   MassEnclosed = 0;
-  Metallicity2 = 0;
-  Metallicity3 = 0;
+  Metallicity = 0;
   ColdGasMass = 0;
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     AvgVelocity[dim] = 0.0;
@@ -122,8 +126,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       break;
 
     ShellMass = 0;
-    ShellMetallicity2 = 0;
-    ShellMetallicity3 = 0;
+    ShellMetallicity = 0;
     ShellColdGasMass = 0;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       ShellVelocity[dim] = 0.0;
@@ -149,8 +152,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
 	/* Sum enclosed mass in this grid */
 
 	Temp->GridData->GetEnclosedMassInShell(this, Radius-CellWidth, Radius, 
-					       ShellMass, ShellMetallicity2, 
-					       ShellMetallicity3,
+					       ShellMass, ShellMetallicity, 
 					       ShellColdGasMass, ShellVelocity);
 
 	Temp = Temp->NextGridThisLevel;
@@ -161,23 +163,25 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     MarkedSubgrids = true;
     LCAPERF_STOP("star_FindFeedbackSphere_Zero");
 
-    values[0] = ShellMetallicity2;
-    values[1] = ShellMetallicity3;
-    values[2] = ShellMass;
-    values[3] = ShellColdGasMass;
+    values[0] = ShellMetallicity;
+    values[1] = ShellMass;
+    values[2] = ShellColdGasMass;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
-      values[4+dim] = ShellVelocity[dim];
+      values[3+dim] = ShellVelocity[dim];
 
+<<<<<<< local
     LCAPERF_START("star_FindFeedbackSphere_Sum");
     CommunicationAllSumValues(values, 7);
     LCAPERF_STOP("star_FindFeedbackSphere_Sum");
+=======
+    CommunicationAllSumValues(values, 6);
+>>>>>>> other
 
-    ShellMetallicity2 = values[0];
-    ShellMetallicity3 = values[1];
-    ShellMass = values[2];
-    ShellColdGasMass = values[3];
+    ShellMetallicity = values[0];
+    ShellMass = values[1];
+    ShellColdGasMass = values[2];
     for (dim = 0; dim < MAX_DIMENSION; dim++)
-      ShellVelocity[dim] = values[4+dim];
+      ShellVelocity[dim] = values[3+dim];
 
     MassEnclosed += ShellMass;
     ColdGasMass += ShellColdGasMass;
@@ -186,8 +190,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // (already done in GetEnclosedMassInShell) velocity and
     // metallicity.  We divide out the mass after checking if mass is
     // non-zero.
-    Metallicity2 = Metallicity2 * (MassEnclosed - ShellMass) + ShellMetallicity2;
-    Metallicity3 = Metallicity3 * (MassEnclosed - ShellMass) + ShellMetallicity3;
+    Metallicity = Metallicity * (MassEnclosed - ShellMass) + ShellMetallicity;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       AvgVelocity[dim] = AvgVelocity[dim] * (MassEnclosed - ShellMass) +
 	ShellVelocity[dim];
@@ -197,8 +200,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       return SUCCESS;
     }
 
-    Metallicity2 /= MassEnclosed;
-    Metallicity3 /= MassEnclosed;
+    Metallicity /= MassEnclosed;
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       AvgVelocity[dim] /= MassEnclosed;
 
@@ -309,10 +311,8 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
   if (SphereContained && FeedbackFlag == FORMATION) {
 
     if (debug) {
-      printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM
-	     ", Z2/Z3 = %"GSYM"/%"GSYM"\n",
-	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity2,
-	     Metallicity3);
+      printf("StarParticle[birth]: L%"ISYM", r = %"GSYM" pc, M = %"GSYM", Z = %"GSYM"\n",
+	     level, Radius*LengthUnits/pc, MassEnclosed, Metallicity);
       if (StarType == PopII || StarType == PopIII)
 	printf("\t mass = %"GSYM" (%"GSYM"%% cold) Msun, \n"
 	       "\t rho = %"GSYM" g/cm3, tdyn = %"GSYM" Myr\n"
@@ -333,12 +333,20 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // HERE DENSITY is actually a mass so factor is calculated correctly in Grid_AddFeedbackSphere
     //}
 
+<<<<<<< local
 
     // If the star hasn't accreted enough mass after a dynamical time,
     // then turn it on.
     //#ifdef UNUSED
     if (StarType == PopII && this->Mass < StarClusterMinimumMass &&
 	Time-this->BirthTime > tdyn_code) {
+=======
+    // If there is little cold gas, then give up hope of accreting
+    // more gas and form the star.  If more gas is accreted, another
+    // star particle will form.
+    if (StarType == PopII && 
+	AccretedMass < 0.01*StarClusterMinimumMass) {
+>>>>>>> other
       if (debug) 
 	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
@@ -346,9 +354,13 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       this->BirthTime = Time;
       this->type = PopII;
     }
+<<<<<<< local
     //#endif
 
     deltaZ = Metallicity2 + Metallicity3;
+=======
+      
+>>>>>>> other
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delta_vel[dim] = AvgVelocity[dim];
 

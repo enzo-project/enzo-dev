@@ -688,11 +688,19 @@ Hydrodynamic Parameters
     Hydro method Description
     ============ =============================
     0            PPM DE (a direct-Eulerian version of PPM)
+<<<<<<< local
     1            [reserved]
     2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
     3            Runge Kutta second-order based MUSCL solvers.
     4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
     ============ =============================
+=======
+    1            PPM LR (a Lagrange-Remap version of PPM). **The PPM LR version is not recommended.**
+    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags. 
+    3            Runge Kutta third order based MUSCL solvers. 
+    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set. 
+    ============ ===========================
+>>>>>>> other
 
     Default: 0
 
@@ -708,9 +716,13 @@ Hydrodynamic Parameters
     2              [reserved]
     3              LLF (Local Lax-Friedrichs)
     4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+<<<<<<< local
     5              TwoShock
+=======
+>>>>>>> other
     ============== ===========================
 
+<<<<<<< local
     Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
     ``HydroMethod`` = 0
 
@@ -719,6 +731,9 @@ Hydrodynamic Parameters
     solver will fallback to the HLL Riemann solver that is more
     diffusive only for the failing cell.  Only active when using the
     HLLC or TwoShock Riemann solver.  Default: OFF.
+=======
+    Default: 1 (HLL)
+>>>>>>> other
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
@@ -732,8 +747,12 @@ Hydrodynamic Parameters
     4                     [reserved]
     ===================== ====================
 
+<<<<<<< local
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 
+=======
+    Default: 0 (PLM)
+>>>>>>> other
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then

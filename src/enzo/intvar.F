@@ -63,8 +63,7 @@ c
 c  local declarations (arrays passed as temps)
 c
       integer i
-      real qplus, qmnus, qcent, qvanl
-      real temp1, temp2, temp3, temp22, temp23
+      real qplus, qmnus, temp1, temp2, temp3, temp22, temp23
       real dq(idim), ql(idim), qr(idim), q6(idim)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
@@ -72,17 +71,22 @@ c=======================================================================
 c
 c     Compute average linear slopes (eqn 1.7)
 c      Monotonize (eqn 1.8)
-c      JHW (June 2010): Added van Leer slopes (idea taken ATHENA)
 c
       do i = i1-2, i2+2
          qplus = qslice(i+1)-qslice(i  )
          qmnus = qslice(i  )-qslice(i-1)
+         dq(i) = c1(i)*qplus + c2(i)*qmnus
+         temp1 = min(abs(dq(i)), 2.0*abs(qmnus), 2.0*abs(qplus))
          if (qplus*qmnus .gt. 0) then
+<<<<<<< local
             qcent = c1(i)*qplus + c2(i)*qmnus
             qvanl = 2.d0*qplus*qmnus/(qmnus+qplus)
             temp1 = min(abs(qcent), abs(qvanl), 2.0*abs(qmnus), 
      $           2.d0*abs(qplus))
             dq(i) = temp1*sign(one, qcent)
+=======
+            dq(i) = temp1*sign(1.0, dq(i))
+>>>>>>> other
          else
             dq(i) = 0.d0
          endif
@@ -133,19 +137,6 @@ c
             qr(i) = qslice(i)*flatten(i) + qr(i)*(1.d0-flatten(i))
          enddo
       endif
-c
-c     Ensure that the L/R values lie between neighboring cell-centered 
-c     values (Taken from ATHENA, lr_states)
-c
-#define CHECK_LR
-#ifdef CHECK_LR
-      do i = i1-1, i2+2
-         ql(i) = max(min(qslice(i), qslice(i-1)), ql(i))
-         ql(i) = min(max(qslice(i), qslice(i-1)), ql(i))
-         qr(i) = max(min(qslice(i), qslice(i+1)), qr(i))
-         qr(i) = min(max(qslice(i), qslice(i+1)), qr(i))
-      enddo
-#endif
 c
 c    Now construct left and right interface values (eqn 1.12 and 3.3)
 c

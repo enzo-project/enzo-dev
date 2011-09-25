@@ -4,8 +4,8 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1: Tom Abel 2010 
-/            added many new tests including the Wengen Coliding Flow test
+/  modified1:
+/
 /
 ************************************************************************/
 
@@ -23,9 +23,6 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
-#define DEFINE_STORAGE
-#include "MHD2DTestGlobalData.h"
-#undef DEFINE_STORAGE
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData, 
@@ -66,6 +63,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = FALSE;
   int MHD2DProblemType = 0;
+<<<<<<< local
   RampWidth = 0.05;
   LowerDensity = 1.0; UpperDensity = 1.0;
   LowerVelocityX = 0; UpperVelocityX = 0;
@@ -74,6 +72,15 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   LowerBx = 0.0; UpperBx = 0.0;
   LowerBy = 0.0; UpperBy = 0.0;
   UseColour = FALSE;
+=======
+  float RampWidth = 0.05;
+  float  LowerDensity = 1.0, UpperDensity = 1.0,
+    LowerVelocityX = 0, UpperVelocityX = 0, 
+    LowerVelocityY = 0, UpperVelocityY = 0, 
+    LowerPressure = 1.0, UpperPressure = 1.0,
+    LowerBx = 0.0, UpperBx = 0.0,
+    LowerBy = 0.0, UpperBy = 0.0;
+>>>>>>> other
   
   /* read input from file */
 

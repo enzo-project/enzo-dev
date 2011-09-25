@@ -193,9 +193,7 @@ int grid::TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids,
 	MoveStar = StarBufferToList(List[i].data);
 	MoveStar->GridID = List[i].grid;
 	MoveStar->CurrentGrid = this;
-	// FALSE if going to a subgrid
-	if (IncludeGhostZones == FALSE)
-	  MoveStar->IncreaseLevel();
+	MoveStar->IncreaseLevel();
 	InsertStarAfter(this->Stars, MoveStar);
       } // ENDFOR stars
  

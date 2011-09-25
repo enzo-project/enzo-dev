@@ -62,7 +62,8 @@ int grid::InitializeRadiativeTransferFields()
 	    BaryonField[kphHeIINum][index] = 0.0;
       }  // loop over grid
 
-  if (MultiSpecies > 1 && !RadiativeTransferFLD)
+  if (MultiSpecies > 1 && !RadiativeTransferOpticallyThinH2 &&
+      !RadiativeTransferFLD)
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
       for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	index = (k*GridDimension[1] + j)*GridDimension[0] + GridStartIndex[0];

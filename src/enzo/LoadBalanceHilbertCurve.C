@@ -576,6 +576,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   return SUCCESS;
 
 }
+<<<<<<< local
 
 /************************************************************************
    Version where you give the amount of work per grid.  Returns the
@@ -832,3 +833,5 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
   return SUCCESS;
 
 }
+=======
+>>>>>>> other

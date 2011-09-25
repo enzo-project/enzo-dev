@@ -75,6 +75,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   MetaData.WroteData = FALSE;
   double SavedCPUTime;
 
+<<<<<<< local
   /* Check for output: restart-based. */
 
   char *param;
@@ -119,6 +120,8 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     return SUCCESS;
   }
     
+=======
+>>>>>>> other
   /* Check for output: CPU time-based.  
 
      If there is less time until (StopCPUTime - LastCycleCPUTime) than
@@ -150,11 +153,53 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     MetaData.WroteData = TRUE;
   } // ENDIF
 
+  /* Check for output: restart-based. */
+
+  char *param;
+  FILE *pfptr;
+
+  if (Restart == TRUE && WroteData == FALSE) {
+
+    MetaData.CycleLastRestartDump = MetaData.CycleNumber;
+
+    if (debug) printf("Writing restart dump.\n");
+    Group_WriteAllData(MetaData.RestartDumpName, MetaData.RestartDumpNumber++,
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
+
+    /* On the root processor, write the restart parameter filename to
+       a file that will be read by a (batch) script to restart enzo.
+       We cannot call another MPI application from here. */
+
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      param = new char[512];
+      if (MetaData.RestartDumpDir != NULL)
+	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM"/%s%"CYCLE_TAG_FORMAT""ISYM,
+		MetaData.RestartDumpDir, MetaData.RestartDumpNumber-1,
+		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
+      else
+	sprintf(param, "%s%"CYCLE_TAG_FORMAT""ISYM,
+		MetaData.RestartDumpName, MetaData.RestartDumpNumber-1);
+
+      if ((pfptr = fopen("RestartParamFile", "w")) == NULL)
+	ENZO_FAIL("Error opening RestartParamFile");
+      fprintf(pfptr, "%s", param);
+      fclose(pfptr);
+      
+      delete [] param;
+    } // ENDIF ROOT_PROCESSOR
+
+    WroteData = TRUE;
+    return SUCCESS;
+  }
+    
   /* Check for output: time-based. */
  
   if (MetaData.Time >= MetaData.TimeLastDataDump + MetaData.dtDataDump
       && MetaData.dtDataDump > 0.0) {
-    SavedCPUTime = MetaData.CPUTime;
     MetaData.CPUTime = 0.0;
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
@@ -176,8 +221,12 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //     }
 // #endif
 
+<<<<<<< local
     MetaData.CPUTime = SavedCPUTime;
     MetaData.WroteData = TRUE;
+=======
+    WroteData = TRUE;
+>>>>>>> other
   }
  
   /* Check for output: cycle-based. */

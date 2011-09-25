@@ -177,15 +177,7 @@ c               if (tdyn .gt. cooltime(i,j,k) .or.
 c     &            temp(i,j,k) .lt. 1.1e4) 
 c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
 c               if (tdyn .lt. cooltime(i,j,k)) goto 10
-
-c     Lifetime > 0 (resolved SF. Don't use tdyn)
-               if (temp(i,j,k) .gt. min_temp .and. 
-     &              lifetime.gt.0) goto 10
-c     Lifetime < 0 means unresolved SF.  Use tcool<tdyn.
-               if (lifetime.lt.0 .and.
-     &              tdyn .lt. cooltime(i,j,k) .and. 
-     &              temp(i,j,k) .gt. min_temp) goto 10
-
+               if (temp(i,j,k) .gt. min_temp) goto 10
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. min_temp) goto 10
 c
@@ -234,11 +226,15 @@ c
                ii = ii + 1
 c               mp(ii)   = efficiency*bmass
                mp(ii)  = efficiency*d(i,j,k)
+<<<<<<< local
                if (lifetime.lt.0.0) then
                   tdp(ii) = 4.d0*tdyn
                else
                   tdp(ii) = lifetime*3.15d7/t1 ! yr -> code
                endif
+=======
+               tdp(ii) = lifetime*3.15e7/t1  ! yr -> code
+>>>>>>> other
 
                type(ii) = -ctype
                tcp(ii) = t

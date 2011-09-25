@@ -47,9 +47,6 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
-int GetUnits(float *DensityUnits, float *LengthUnits,
-	     float *TemperatureUnits, float *TimeUnits,
-	     float *VelocityUnits, FLOAT Time);
  
 // Cosmology Parameters (that need to be shared)
  
@@ -86,8 +83,6 @@ static float CosmologySimulationManualParticleMassRatio = 1.0;
 
 static int   CosmologySimulationCalculatePositions   = FALSE; 
 
-static float CosmologySimulationInitialUniformBField[MAX_DIMENSION];  // in proper Gauss
-
 #define MAX_INITIAL_GRIDS 10
  
 static  int   CosmologySimulationGridDimension[MAX_INITIAL_GRIDS][MAX_DIMENSION];
@@ -95,7 +90,6 @@ static  int   CosmologySimulationGridLevel[MAX_INITIAL_GRIDS];
 static  FLOAT CosmologySimulationGridLeftEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
 static  FLOAT CosmologySimulationGridRightEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
  
-
  
 int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			       		HierarchyEntry &TopGrid, TopGridData &MetaData)
@@ -124,13 +118,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
-  char *BxName = "Bx";
-  char *ByName = "By";
-  char *BzName = "Bz";
-  char *PhiName = "Phi";
-  char *DebugName = "Debug";
-  char *Phi_pName = "Phip";
-
  
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
@@ -153,9 +140,12 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ParticlePositionNames[dim] = NULL;
     ParticleDisplacementNames[dim] = NULL;
     CosmologySimulationParticleVelocityNames[dim] = NULL;
+<<<<<<< local
     CosmologySimulationInitialUniformBField[dim] = 0.0;
     CosmologySimulationParticlePositionNames[dim] = NULL;
     CosmologySimulationParticleDisplacementNames[dim] = NULL;
+=======
+>>>>>>> other
   }
  
   // Set default parameters: parameters, names and subgrid info
@@ -286,11 +276,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "CosmologySimulationCalculatePositions = %"ISYM,
 		  &CosmologySimulationCalculatePositions);
 
-    ret += sscanf(line, "CosmologySimulationInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
-		  CosmologySimulationInitialUniformBField,
-		  CosmologySimulationInitialUniformBField+1,
-		  CosmologySimulationInitialUniformBField+2);
-
     // If the dummy char space was used, then make another
  
     if (dummy[0] != 0) {
@@ -348,6 +333,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     CosmologySimulationInitialTemperature = 550.0 *
       POW((1.0 + InitialRedshift)/(1.0 + 200), 2);
  
+<<<<<<< local
   /* Convert from Gauss */
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
     VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
@@ -364,6 +350,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
 	     CosmologySimulationInitialUniformBField[dim]);
   }
+=======
+>>>>>>> other
   // Generate the grids and set-up the hierarchy
  
   HierarchyEntry *GridsList[MAX_INITIAL_GRIDS];
@@ -623,8 +611,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions,
 			     CosmologySimulationGridLeftEdge[gridnum],
-			     CosmologySimulationGridRightEdge[gridnum],
-			     CosmologySimulationInitialUniformBField
+			     CosmologySimulationGridRightEdge[gridnum]
 						       ) == FAIL) {
       ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
     }
@@ -665,25 +652,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
-  DataLabel[i++] = Vel1Name;
-  if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
-    DataLabel[i++] = Vel2Name;
-  if (MetaData.TopGridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
-    DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
-  if (HydroMethod == MHD_RK) {
-    DataLabel[i++] = BxName;
-    DataLabel[i++] = ByName;
-    DataLabel[i++] = BzName;
-    DataLabel[i++] = PhiName;
-    if(UseDivergenceCleaning){
-      DataLabel[i++] = Phi_pName;
-      DataLabel[i++] = DebugName;
-    }
-  }
-   if (MultiSpecies) {
+  DataLabel[i++] = Vel1Name;
+  DataLabel[i++] = Vel2Name;
+  DataLabel[i++] = Vel3Name;
+  if (MultiSpecies) {
     DataLabel[i++] = ElectronName;
     DataLabel[i++] = HIName;
     DataLabel[i++] = HIIName;
@@ -821,6 +796,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionMetal);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
+<<<<<<< local
 
     float CSBField[MAX_DIMENSION];  // in proper Gauss
     for (int dim = 0; dim < MAX_DIMENSION; dim++) 
@@ -828,6 +804,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(Outfptr, "CosmologySimulationInitialUniformBField = ");
     WriteListOfFloats(Outfptr, 3, CSBField);
 
+=======
+>>>>>>> other
   }
  
   // Clean up
@@ -960,6 +938,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = CurrentGrid;
     while (Temp != NULL) {
       ParticleTempCount = ParticleCount; // set particle count to beginning of this level (not used for ring IO)
+<<<<<<< local
       if (Temp->GridData->NestedCosmologySimulationInitializeGrid
 	  (gridnum, CosmologySimulationOmegaBaryonNow,
 	   CosmologySimulationOmegaCDMNow,
@@ -987,6 +966,33 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 	   CosmologySimulationGridRightEdge[gridnum],
 	   CosmologySimulationInitialUniformBField
 	   ) == FAIL) {
+=======
+      if (Temp->GridData->NestedCosmologySimulationInitializeGrid(gridnum,
+			     CosmologySimulationOmegaBaryonNow,
+			       CosmologySimulationOmegaCDMNow,
+			       CosmologySimulationInitialTemperature,
+			     DensityName, TotalEnergyName,
+			       GasEnergyName, VelocityNames,
+			       ParticlePositionName, ParticleVelocityName,
+			       ParticleMassName, ParticleTypeName,
+			     ParticleVelocityNames,
+			     SubgridsAreStatic, TotalRefinement,
+			     CosmologySimulationInitialFractionHII,
+			     CosmologySimulationInitialFractionHeII,
+			     CosmologySimulationInitialFractionHeIII,
+			     CosmologySimulationInitialFractionHM,
+			     CosmologySimulationInitialFractionH2I,
+			     CosmologySimulationInitialFractionH2II,
+			     CosmologySimulationInitialFractionMetal,
+			     CosmologySimulationUseMetallicityField,
+			     ParticleTempCount,
+			     CosmologySimulationManuallySetParticleMassRatio,
+			     CosmologySimulationManualParticleMassRatio,
+			     CosmologySimulationCalculatePositions,
+			     CosmologySimulationGridLeftEdge[gridnum],
+			     CosmologySimulationGridRightEdge[gridnum]
+						       ) == FAIL) {
+>>>>>>> other
 	ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
       }
  

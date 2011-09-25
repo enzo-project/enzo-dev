@@ -284,7 +284,7 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
      &                  is, ie, js, je, ks, ke,
      &                  in, jn, kn, ispecies, imetal, aye**(-3))
 
-      call ceiling_species(d, de, HI, HII, HeI, HeII, HeIII,
+      call ceiling_species(de, HI, HII, HeI, HeII, HeIII,
      &                     HM, H2I, H2II, DI, DII, HDI, metal,
      &                     is, ie, js, je, ks, ke,
      &                     in, jn, kn, ispecies, imetal)
@@ -551,7 +551,11 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
 !              If the temperature is at the bottom of the temperature look-up 
 !              table and edot < 0, then shut off the cooling.
 
+<<<<<<< local
                if (tgas(i) .le. 1.01d0*temstart .and. edot(i) .lt. 0.d0) 
+=======
+               if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
+>>>>>>> other
      &              edot(i) = tiny
 	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !
@@ -773,7 +777,7 @@ c -------------------------------------------------------------------
 c -----------------------------------------------------------
 !   This routine ensures that the species aren't below tiny.
 
-      subroutine ceiling_species(d, de, HI, HII, HeI, HeII, HeIII,
+      subroutine ceiling_species(de, HI, HII, HeI, HeII, HeIII,
      &                           HM, H2I, H2II, DI, DII, HDI, metal,
      &                           is, ie, js, je, ks, ke,
      &                           in, jn, kn, ispecies, imetal)
@@ -784,7 +788,6 @@ c -------------------------------------------------------------------
 !     Arguments
 
       integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
-      real     d(in,jn,kn)
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn)
       real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn)
@@ -805,7 +808,11 @@ c -------------------------------------------------------------------
                HII(i,j,k)   = max(HII(i,j,k), tiny)
                HeI(i,j,k)   = max(HeI(i,j,k), tiny)
                HeII(i,j,k)  = max(HeII(i,j,k), tiny)
+<<<<<<< local
                HeIII(i,j,k) = max(HeIII(i,j,k), 1d-5*tiny)
+=======
+               HeIII(i,j,k) = max(HeIII(i,j,k), tiny)
+>>>>>>> other
             enddo
          enddo
       enddo
@@ -835,8 +842,12 @@ c -------------------------------------------------------------------
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
+<<<<<<< local
                   metal(i,j,k) = min(max(metal(i,j,k), tiny),
      $                               0.9d0*d(i,j,k))
+=======
+                  metal(i,j,k) = max(metal(i,j,k), tiny)
+>>>>>>> other
                enddo
             enddo
          enddo
@@ -1767,7 +1778,11 @@ c
          HII(i,j,k)   = max(HIIp(i), tiny)
          HeI(i,j,k)   = max(HeIp(i), tiny)
          HeII(i,j,k)  = max(HeIIp(i), tiny)
+<<<<<<< local
          HeIII(i,j,k) = max(HeIIIp(i), 1d-5*tiny)
+=======
+         HeIII(i,j,k) = max(HeIIIp(i), tiny)
+>>>>>>> other
 
 !        de(i,j,k)    = dep(i)
 

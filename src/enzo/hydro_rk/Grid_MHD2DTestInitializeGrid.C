@@ -998,6 +998,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     } // endfor j 
   } // if MHD2DProblemType == 13
 
+<<<<<<< local
   /* Wengen 2 test */
   /* Tom Abel Sept 2010 */
 
@@ -1047,6 +1048,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
   /* Tom Abel June 2011 */
   /* Simple Sinusoidal B field */
+=======
+>>>>>>> other
 
 
   if (MHD2DProblemType == 15) { 

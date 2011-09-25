@@ -27,8 +27,12 @@
 #include "LevelHierarchy.h"
 
 unsigned_long_int mt_random(void);
+Eint32 compare_flt(const void *a, const void *b);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
 
-int Star::AssignFinalMassFromIMF(float TimeUnits)
+int Star::AssignFinalMassFromIMF(void)
 {
 
   unsigned_long_int random_int = mt_random();
@@ -36,6 +40,13 @@ int Star::AssignFinalMassFromIMF(float TimeUnits)
   float x = (float) (random_int%max_random) / (float) (max_random);
   float dm = log10(PopIIIUpperMassCutoff / PopIIILowerMassCutoff) / 
     (float) (IMF_TABLE_ENTRIES-1);
+
+  /* Set the units. */
+
+  float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
+    VelocityUnits;
+  GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	   &TimeUnits, &VelocityUnits, this->CurrentGrid->ReturnTime());
 
   /* (binary) search for the mass bin corresponding to the random
      number */
@@ -67,8 +78,6 @@ int Star::AssignFinalMassFromIMF(float TimeUnits)
 
 //  printf("random_num = %f, mass = %f Msun, lifetime = %f Myr\n",
 //	 x, this->FinalMass, this->LifeTime * TimeUnits / 3.1557e13);
-
-  PopIIIInitialMassFunctionCalls++;
 
   return SUCCESS;
 

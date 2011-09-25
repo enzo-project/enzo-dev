@@ -224,7 +224,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 
       GridPointers[j]->TransferSubgridParticles
 	(GridPointers, NumberOfGrids, NumberToMove, jstart, jend, 
-	 SharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
+	 SharedList, KeepLocal, ParticlesAreLocal, COPY_IN);
       
       jstart = jend;
     } // ENDFOR grids
@@ -247,7 +247,7 @@ int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
       
       GridPointers[j]->TransferSubgridStars
 	(GridPointers, NumberOfGrids, StarsToMove, jstart, jend, 
-	 StarSharedList, KeepLocal, ParticlesAreLocal, COPY_IN, TRUE);
+	 StarSharedList, KeepLocal, ParticlesAreLocal, COPY_IN);
       
       jstart = jend;
     } // ENDFOR grids

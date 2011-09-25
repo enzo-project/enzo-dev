@@ -71,9 +71,8 @@ int grid::AddH2Dissociation(Star *AllStars)
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  // Now done in Grid_InitializeRadiativeTransferFields.C
-//  for (i = 0; i < size; i++)
-//    BaryonField[kdissH2INum][i] = 0;
+  for (i = 0; i < size; i++)
+    BaryonField[kdissH2INum][i] = 0;
   
   /* Exit if no star particles and not Photon Test */
 

@@ -38,9 +38,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 				      float ZeldovichPancakeOmegaBaryonNow,
 				      float ZeldovichPancakeOmegaCDMNow,
 				      float ZeldovichPancakeCollapseRedshift,
-				      float ZeldovichPancakeInitialTemperature,
-				      float ZeldovichPancakeInitialUniformBField[]
-					 )
+				      float ZeldovichPancakeInitialTemperature)
 {
   /* declarations */
  
@@ -61,23 +59,15 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
-  int vel = NumberOfBaryonFields;
-  FieldType[NumberOfBaryonFields++] = Velocity1;
-  if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
-    FieldType[NumberOfBaryonFields++] = Velocity2;
-  if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
-    FieldType[NumberOfBaryonFields++] = Velocity3;
-  int iTE = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism)
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
-  if (HydroMethod == MHD_RK) {
-    FieldType[NumberOfBaryonFields++] = Bfield1;
-    FieldType[NumberOfBaryonFields++] = Bfield2;
-    FieldType[NumberOfBaryonFields++] = Bfield3;
-    FieldType[NumberOfBaryonFields++] = PhiField;
-  }
-
+  FieldType[NumberOfBaryonFields++] = Velocity1;
+  int vel = NumberOfBaryonFields - 1;
+  if (GridRank > 1)
+    FieldType[NumberOfBaryonFields++] = Velocity2;
+  if (GridRank > 2)
+    FieldType[NumberOfBaryonFields++] = Velocity3;
  
   /* Return if this doesn't concern us. */
  
@@ -147,50 +137,48 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
     }
  
     /* Set density. */
+<<<<<<< local
     // correct Zeldovich test: 
+=======
+ 
+>>>>>>> other
     BaryonField[0][i] = ZeldovichPancakeOmegaBaryonNow/
+<<<<<<< local
 	  (1 - Amplitude*cos(kx*xEulerian));
     // terribly fudge since the folks that do B field tests
     // did not set up the density fields consistently ...
     // MATCH RYU 1993 et al paper ..... 
     //      BaryonField[0][i] = 1.;
 
+=======
+                        (1 - Amplitude*cos(kx*xEulerian));
+ 
+>>>>>>> other
     /* Set total energy, gas energy. */
  
-    BaryonField[iTE][i] = ZeldovichPancakeInitialTemperature/TemperatureUnits *
+    BaryonField[1][i] = ZeldovichPancakeInitialTemperature/TemperatureUnits *
           POW(BaryonField[0][i]/ZeldovichPancakeOmegaBaryonNow,Gamma-1)
 	                  / (Gamma-1);
     if (DualEnergyFormalism)
-      BaryonField[iTE+1][i] = BaryonField[iTE][i];
+      BaryonField[2][i] = BaryonField[1][i];
     if (HydroMethod != Zeus_Hydro)
-      BaryonField[iTE][i]  += 0.5*POW(AmplitudeVel*sin(kx*xEulerian),2);
+      BaryonField[1][i]  += 0.5*POW(AmplitudeVel*sin(kx*xEulerian),2);
  
     /* Set velocities (some may be set to zero later -- see below). */
  
     if (HydroMethod == Zeus_Hydro) xEulerian -= 0.5; // only approximate
     BaryonField[vel][i]     = AmplitudeVel * sin(kx*xEulerian);
-    if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if (GridRank > 1)
       BaryonField[vel+1][i] = AmplitudeVel * sin(kx*xEulerian);
-    if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if (GridRank > 2)
       BaryonField[vel+2][i] = AmplitudeVel * sin(kx*xEulerian);
-
-    if (HydroMethod == MHD_RK) {
-      BaryonField[iBx  ][i] = ZeldovichPancakeInitialUniformBField[0];
-      BaryonField[iBy  ][i] = ZeldovichPancakeInitialUniformBField[1];
-      BaryonField[iBz  ][i] = ZeldovichPancakeInitialUniformBField[2];
-      BaryonField[iPhi ][i] = 0.0;
-      BaryonField[ietot][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
-				    BaryonField[iBy][i] * BaryonField[iBy][i]+
-				    BaryonField[iBz][i] * BaryonField[iBz][i])/
-	BaryonField[iden][i];
-    }
   }
  
-
   /* set transverse velocities (i.e. erase any incorrectly set velocities). */
  
-  for (field = vel; field < vel+((HydroMethod == MHD_RK  || (HydroMethod == HD_RK) ) ? 3 : GridRank); field++)
+  for (field = vel; field < vel+GridRank; field++)
     if (field != ZeldovichPancakeDirection+vel)
+
       for (i = 0; i < size; i++)
 	BaryonField[field][i] = 0.0;
  

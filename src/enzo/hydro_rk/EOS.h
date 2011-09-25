@@ -11,12 +11,15 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
        1: polytropic EOS
        2: another polytropic EOS
        3: isothermal 
+<<<<<<< local
        4: pseudocooling for Wengen 2 test
        5: Wengen 2 the original
        6: minimum pressure similar (but not equal to)
           http://adsabs.harvard.edu/abs/2004ApJ...606...32R
           equation 4
 
+=======
+>>>>>>> other
      mode:  
        1: given p and rho, calculate others.
        2: given rho and e, calculate others.
@@ -94,6 +97,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     h = e + p/rho;
   }
 
+<<<<<<< local
   if (eostype == 4) { // Wengen 2 test wants pseudocooling
     cs = EOSSoundSpeed;
     // cooling only to 100 should reduce the resolution requirements
@@ -146,6 +150,8 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
 
   }
 
+=======
+>>>>>>> other
 
 
 }

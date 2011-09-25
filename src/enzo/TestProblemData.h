@@ -115,9 +115,4 @@ struct TestProblemDataType
   int ShockMethod;
   int StorePreShockFields;
   float ShockTemperatureFloor;
-
-  /* constant for analytical solution to free-fall collapse */
-  float OneZoneFreefallConstant;
-  /* fraction of free-fall time for timestep */
-  float OneZoneFreefallTimestepFraction;
 };

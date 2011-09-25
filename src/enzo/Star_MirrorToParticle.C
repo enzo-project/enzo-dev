@@ -75,7 +75,6 @@ void Star::MirrorToParticle(void)
   CurrentGrid->ParticleType[place] = this->type;
   CurrentGrid->ParticleAttribute[0][place] = this->BirthTime;
   CurrentGrid->ParticleAttribute[1][place] = this->LifeTime;
-  CurrentGrid->ParticleAttribute[2][place] = this->Metallicity;
   
   return;
 }
