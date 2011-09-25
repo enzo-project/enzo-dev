@@ -55,8 +55,7 @@ int grid::SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
     }
   }
 
-  
-  /* Start: subgrid left flux start index relative to this grid
+    /* Start: subgrid left flux start index relative to this grid
      End: subgrid left flux start index relative to this grid */
 
   for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {

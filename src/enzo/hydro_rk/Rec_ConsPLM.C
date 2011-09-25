@@ -38,7 +38,7 @@ int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq
 {
   int iprim, iv;
   int idual = (DualEnergyFormalism) ? 1 : 0;
-  float *dv[NEQ_MHD+idual];
+  float *dv[NEQ_MHD-idual];
   for (int field = 0; field < NEQ_MHD-idual; field++) 
     dv[field] = new float[ActiveSize+1];
 

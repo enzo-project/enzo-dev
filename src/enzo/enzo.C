@@ -593,7 +593,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
  
   if (HaloFinderOnly) {
     InlineHaloFinder = TRUE;
-    HaloFinderSubfind = TRUE;
+    HaloFinderSubfind = FALSE;
     FOF(&MetaData, LevelArray, TRUE, TRUE);
     my_exit(EXIT_SUCCESS);
   }

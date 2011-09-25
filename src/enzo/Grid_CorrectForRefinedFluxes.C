@@ -220,7 +220,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
-	      FieldType[field] < FieldUndefined &&
+	      FieldType[field] <= Metallicity &&
 	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {
@@ -290,7 +290,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 		  
-		  ENZO_FAIL("New density or energy is < 0!\n");
+		  //ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 		/* Right side */
@@ -326,7 +326,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 
-		  ENZO_FAIL("New density or energy is < 0!\n");
+		  //ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 	      }
@@ -345,8 +345,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		FieldType[field] != DrivingField2 &&
 		FieldType[field] != DrivingField3 &&
 		FieldType[field] != GravPotential)
-	      //		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-	      //	 			 FieldType[field] != InternalEnergy)))
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {
 		  index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
@@ -408,7 +406,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
 
-	      FieldType[field] < FieldUndefined &&
+	      FieldType[field] <= Metallicity &&
 	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {

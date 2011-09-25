@@ -731,6 +731,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           
   fprintf(fptr, "StarClusterUseMetalField              = %"ISYM"\n",
 	  StarClusterUseMetalField);
+  fprintf(fptr, "StarClusterUnresolvedModel            = %"ISYM"\n",
+	  StarClusterUnresolvedModel);
   fprintf(fptr, "StarClusterMinDynamicalTime           = %"GSYM"\n",
           StarClusterMinDynamicalTime);
   fprintf(fptr, "StarClusterIonizingLuminosity         = %lg\n",
@@ -759,6 +761,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIInitialMassFunction);
   fprintf(fptr, "PopIIIInitialMassFunctionSeed         = %"ISYM"\n",
           PopIIIInitialMassFunctionSeed);
+  fprintf(fptr, "PopIIIInitialMassFunctionCalls        = %"ISYM"\n",
+          PopIIIInitialMassFunctionCalls);
   fprintf(fptr, "PopIIIMassRange                       = %"FSYM" %"FSYM"\n",
           PopIIILowerMassCutoff, PopIIIUpperMassCutoff);
   fprintf(fptr, "PopIIIInitialMassFunctionSlope        = %"FSYM"\n",
@@ -819,7 +823,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);
   fprintf(fptr, "Theta_Limiter              = %f\n", Theta_Limiter);
   fprintf(fptr, "RiemannSolver              = %d\n", RiemannSolver);
+  fprintf(fptr, "RiemannSolverFallback      = %d\n", RiemannSolverFallback);
   fprintf(fptr, "ConservativeReconstruction = %d\n", ConservativeReconstruction);
+  fprintf(fptr, "PositiveReconstruction     = %d\n", PositiveReconstruction);
   fprintf(fptr, "ReconstructionMethod       = %d\n", ReconstructionMethod);
   fprintf(fptr, "RKOrder                    = %d\n", RKOrder);
   fprintf(fptr, "UsePhysicalUnit            = %d\n", UsePhysicalUnit);

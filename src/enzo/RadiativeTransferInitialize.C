@@ -70,7 +70,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
   int NumberOfObsoleteFields;
   int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
 
-<<<<<<< local
   if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE) {
 
     /* Check for radiation fields and delete them */
@@ -94,8 +93,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
     return SUCCESS;
   }
 
-=======
->>>>>>> other
   /* Read and set parameter values and static radiation sources */
 
   if ((fptr = fopen(ParameterFile, "r")) == NULL) {

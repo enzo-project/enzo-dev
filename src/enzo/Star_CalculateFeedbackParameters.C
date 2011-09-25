@@ -33,7 +33,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       double &EjectaMetalDensity,
 				       float DensityUnits, float LengthUnits, 
 				       float TemperatureUnits, float TimeUnits,
-				       float VelocityUnits, float dtForThisStar)
+				       float VelocityUnits, float dtForThisStar,
+				       FLOAT Time)
 {
 
   // Parameters for the Stroemgen sphere in Whalen et al. (2004)
@@ -45,7 +46,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
     k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
-<<<<<<< local
   const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
@@ -56,10 +56,6 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
-=======
-  float StarLevelCellWidth;
-  double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF;
->>>>>>> other
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
@@ -134,8 +130,19 @@ void Star::CalculateFeedbackParameters(float &Radius,
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     //Delta_SF = StarMassEjectionFraction * Mass * SNe_dt * TimeUnits / (16.0*Myr);
-    Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
-      TimeUnits / (16.0*Myr);
+    if (StarClusterUnresolvedModel) {
+      // lifetime = 5*tdyn
+      tdyn = 0.2 * LifeTime;
+      frac = (Time-BirthTime) / tdyn;
+      Delta_SF = dtForThisStar * StarMassEjectionFraction * (Mass/tdyn) *
+	frac * exp(-frac);
+//      if (debug)
+//	printf("Star %d: Delta_SF = %g, Mass = %g, frac = %g (%f %f)\n", 
+//	       Identifier, Delta_SF, Mass, frac, Time, BirthTime);
+    } else {
+      Delta_SF = StarMassEjectionFraction * Mass * dtForThisStar * 
+	TimeUnits / (16.0*Myr);
+    }
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);   
     EjectaDensity = Delta_SF * Msun / EjectaVolume / DensityUnits;   
     EjectaMetalDensity = EjectaDensity * StarMetalYield;

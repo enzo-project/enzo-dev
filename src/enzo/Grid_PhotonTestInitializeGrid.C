@@ -304,18 +304,23 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   int n = 0;
 
   float SphereRotationalPeriod[MAX_SPHERES];
+  float HydrostaticTemperature[MAX_SPHERES];
   float VelocityKep = 0;
   float VelocitySound[MAX_SPHERES];
-  float SphereMass, SphereCoreMass, SphereCoreDens;
+  double SphereMass, SphereCoreMass, SphereCoreDens;
   float alpha, beta, theta;
-  float SphereCritMass;
   float Scale_Factor[MAX_SPHERES];
 
   /* Pre-compute cloud properties before looping over mesh */
 
   for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
     Scale_Factor[sphere] = SphereCutOff[sphere] / SphereRadius[sphere];
+    HydrostaticTemperature[sphere] = (2*M_PI * GravConst * mh) / 
+      (3.0*kboltz) * (SphereDensity[sphere] * DensityUnits) * 
+      pow(SphereRadius[sphere] * LengthUnits, 2.0);
     if (SphereFracKeplerianRot[sphere] > 0.0) {
+//      if (SphereType[sphere] == 7)
+//	HydrostaticTemperature[sphere] *= 1.0 - SphereFracKeplerianRot[sphere];
       if (SphereType[sphere] == 5) {
 	SphereCoreDens = (SphereDensity[sphere]*DensityUnits) * 
 	  pow(SphereCoreRadius[sphere] / SphereRadius[sphere], -2);
@@ -327,9 +332,10 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		       LengthUnits)) + SphereCoreMass;
 	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
       }
-      else if (SphereType[sphere] == 1) {
-	SphereMass = (4*pi/3)*pow((SphereRadius[sphere]*LengthUnits), 3) *
-	  (SphereDensity[sphere]*DensityUnits);
+      else if (SphereType[sphere] == 1 || SphereType[sphere] == 7) {
+	SphereMass = double(4*pi/3) *
+	  pow((SphereRadius[sphere]*LengthUnits), 3) *
+	  double(SphereDensity[sphere]*DensityUnits);
 	printf("\nSphere Mass (M_sun): %"FSYM"\n", SphereMass/SolarMass);
       } 
       else if (SphereType[sphere] == 6) {
@@ -353,6 +359,8 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	     * TimeUnits);
     } else
       SphereRotationalPeriod[sphere] = 0.0;
+
+
 
     // Calculate speed of sound for this sphere
     VelocitySound[sphere] = sqrt((SphereTemperature[sphere] * Gamma)/mu);
@@ -505,6 +513,54 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	      }
 	    }
 
+	    /* 6) Free expansion blastwave (see FreeExpansionInitialize) */
+
+	    if (SphereType[sphere] == 6) {
+
+	      const float DensitySlope = 9.0;
+	      double M_ej, E_ej, r_max, v_max, BlastTime, v_core, normalization,
+		speed;
+
+	      M_ej = SphereDensity[sphere] * (4.0*M_PI/3.0) * 
+		POW(SphereRadius[sphere]*LengthUnits, 3.0) * DensityUnits;
+	      E_ej = M_ej * kboltz * SphereTemperature[sphere] / (mh*mu);
+	      r_max = LengthUnits * SphereRadius[sphere];
+
+	      // Temperature parameter is a proxy for total energy
+	      // (convert to velocity)
+	      v_max = 0.333333 * sqrt(2.0 * SphereTemperature[sphere] / 
+				      TemperatureUnits / ((Gamma-1.0)*mu));
+	      BlastTime = SphereRadius[sphere] / v_max;
+	      v_core = sqrt( (10.0 * E_ej * (DensitySlope-5)) /
+			     (3.0 * M_ej * (DensitySlope-3)) );
+	      normalization = (10.0 * (DensitySlope-5) * E_ej) / 
+		(4.0 * M_PI * DensitySlope) / POW(v_core, 5.0);
+	      printf("v_max = %g\n", v_max * VelocityUnits * 1e-5);
+	      
+	      v_core /= VelocityUnits;
+	      speed = r / BlastTime;
+	      if (speed <= v_core)
+		dens1 = normalization / POW(BlastTime*TimeUnits, 3.0) / DensityUnits;
+	      else
+		dens1 = normalization / POW(BlastTime*TimeUnits, 3.0) /
+		  POW(speed/v_core, DensitySlope) / DensityUnits;
+	      dens1 = max(dens1, SphereDensity[sphere]);
+	      Velocity[0] = speed * xpos / r;
+	      Velocity[1] = speed * ypos / r;
+	      Velocity[2] = speed * zpos / r;
+	      temp1 = 10.0;
+
+	    } // ENDIF SphereType 6
+
+	    /* 7) Uniform density in hydrostatic equilbrium */
+
+	    if (SphereType[sphere] == 7) {
+	      dens1 = SphereDensity[sphere];
+	      temp1 = HydrostaticTemperature[sphere] *
+		pow(r / SphereRadius[sphere], 2.0);
+	      temp1 = max(temp1, 1.0);
+	    } // ENDIF type 7
+
 	    /* 10) disk (ok, it's not a sphere, so shoot me) */
 
 	    if (SphereType[sphere] == 10) {
@@ -596,7 +652,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		temp1 = SphereTemperature[sphere];
 	      temperature = temp1;
 	      sigma = sigma1;
-	      if (SphereType[sphere] != 10)
+	      if (SphereType[sphere] != 6 &&
+		  SphereType[sphere] != 10 &&
+		  SphereRotationalPeriod[sphere] <= 0)
 		for (dim = 0; dim < GridRank; dim++)
 		  Velocity[dim] = SphereVelocity[sphere][dim];
 	      if (sphere == 0)
@@ -632,11 +690,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    BaryonField[HIINum][n]* pow(temperature,float(0.88));
 	  BaryonField[H2IINum][n] = PhotonTestInitialFractionH2II*
 	    2.0*BaryonField[HIINum][n]* pow(temperature,float(1.8));
-	  BaryonField[H2INum][n] = H2I_Fraction *
-	    BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
-	    pow(OmegaMatterNow, float(1.5))/
-	    (OmegaMatterNow*BaryonMeanDensity)/
-	    HubbleConstantNow*2.0;
+	  if (ComovingCoordinates)
+	    BaryonField[H2INum][n] = H2I_Fraction *
+	      BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
+	      pow(OmegaMatterNow, float(1.5))/
+	      (OmegaMatterNow*BaryonMeanDensity)/
+	      HubbleConstantNow*2.0;
+	  else
+	    BaryonField[H2INum][n] = H2I_Fraction *
+	      BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)/
+	      (2.0*BaryonMeanDensity);
 	}
 	
 	BaryonField[HINum][n] = 

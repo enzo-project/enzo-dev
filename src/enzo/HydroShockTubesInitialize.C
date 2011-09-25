@@ -45,12 +45,12 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   /* set default parameters */
 
   int RefineAtStart   = FALSE;
-  float  InitialDiscontinuity = 0.5, 
-    LeftDensity = 1.0, RightDensity = 1.0, 
-    LeftVelocityX = 0.0, RightVelocityX = 0.0, 
-    LeftVelocityY = 0.0, RightVelocityY = 0.0, 
-    LeftVelocityZ = 0.0, RightVelocityZ = 0.0, 
-    LeftPressure = 1.0, RightPressure = 1.0;
+  float  InitialDiscontinuity = 0.5, SecondDiscontinuity = 0.5,
+    LeftDensity = 1.0, RightDensity = 1.0, CenterDensity = 1.0, 
+    LeftVelocityX = 0.0, RightVelocityX = 0.0, CenterVelocityX = 1.0,
+    LeftVelocityY = 0.0, RightVelocityY = 0.0, CenterVelocityY = 1.0,
+    LeftVelocityZ = 0.0, RightVelocityZ = 0.0, CenterVelocityZ = 1.0,
+    LeftPressure = 1.0, RightPressure = 1.0, CenterPressure = 1.0;
   
   /* read input from file */
 
@@ -64,6 +64,8 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 		  &RefineAtStart);
     ret += sscanf(line, "HydroShockTubesInitialDiscontinuity = %"FSYM, 
 		  &InitialDiscontinuity);
+    ret += sscanf(line, "HydroShockTubesSecondDiscontinuity = %"FSYM, 
+		  &SecondDiscontinuity);
     ret += sscanf(line, "HydroShockTubesLeftVelocityX = %"FSYM,
 		  &LeftVelocityX);
     ret += sscanf(line, "HydroShockTubesLeftVelocityY = %"FSYM,
@@ -84,6 +86,16 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 		  &RightPressure);
     ret += sscanf(line, "HydroShockTubesRightDensity = %"FSYM,
                   &RightDensity);
+    ret += sscanf(line, "HydroShockTubesCenterVelocityX = %"FSYM, 
+		  &CenterVelocityX);
+    ret += sscanf(line, "HydroShockTubesCenterVelocityY = %"FSYM, 
+		  &CenterVelocityY);
+    ret += sscanf(line, "HydroShockTubesCenterVelocityZ = %"FSYM, 
+		  &CenterVelocityZ);
+    ret += sscanf(line, "HydroShockTubesCenterPressure = %"FSYM, 
+		  &CenterPressure);
+    ret += sscanf(line, "HydroShockTubesCenterDensity = %"FSYM,
+                  &CenterDensity);
 
     /* if the line is suspicious, issue a warning */
 
@@ -103,16 +115,14 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up grid */
 
-  if (TopGrid.GridData->
-      HydroShockTubesInitializeGrid(InitialDiscontinuity, 
-				    LeftDensity, RightDensity,
-				    LeftVelocityX,  RightVelocityX,
-				    LeftVelocityY,  RightVelocityY,
-				    LeftVelocityZ,  RightVelocityZ,
-				    LeftPressure,   RightPressure)  == FAIL) {
-    fprintf(stderr, "Error in HydroShockTubesInitializeGrid.\n");
-    return FAIL;
-  }
+  TopGrid.GridData->
+    HydroShockTubesInitializeGrid(InitialDiscontinuity, 
+				  SecondDiscontinuity,
+				  LeftDensity, RightDensity, CenterDensity,
+				  LeftVelocityX,  RightVelocityX, CenterVelocityX,
+				  LeftVelocityY,  RightVelocityY, CenterVelocityY,
+				  LeftVelocityZ,  RightVelocityZ, CenterVelocityZ,
+				  LeftPressure,   RightPressure,  CenterPressure);
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -148,16 +158,14 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->
-	    HydroShockTubesInitializeGrid(InitialDiscontinuity, 
-					  LeftDensity, RightDensity,
-					  LeftVelocityX,  RightVelocityX,
-					  LeftVelocityY,  RightVelocityY,
-					  LeftVelocityZ,  RightVelocityZ,
-					  LeftPressure,   RightPressure) == FAIL) {
-	  fprintf(stderr, "Error in HydroShockTubesInitializeGrid.\n");
-	  return FAIL;
-	}
+	Temp->GridData->
+	  HydroShockTubesInitializeGrid
+	  (InitialDiscontinuity, SecondDiscontinuity,
+	   LeftDensity, RightDensity, CenterDensity,
+	   LeftVelocityX,  RightVelocityX, CenterVelocityX,
+	   LeftVelocityY,  RightVelocityY, CenterVelocityY,
+	   LeftVelocityZ,  RightVelocityZ, CenterVelocityZ,
+	   LeftPressure,   RightPressure,  CenterPressure);
 	Temp = Temp->NextGridThisLevel;
       }
     } // end: loop over levels
@@ -225,6 +233,20 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
             LeftPressure);
     fprintf(Outfptr, "HydroShockTubesRightPressure        = %"FSYM"\n",
             RightPressure);
+
+    fprintf(Outfptr, "HydroShockTubesSecondDiscontinuity = %"FSYM"\n",
+	    SecondDiscontinuity);
+    fprintf(Outfptr, "HydroShockTubesCenterDensity       = %"FSYM"\n",
+	    CenterDensity);
+    fprintf(Outfptr, "HydroShockTubesCenterVelocityX     = %"FSYM"\n",
+	    CenterVelocityX);
+    fprintf(Outfptr, "HydroShockTubesCenterVelocityY     = %"FSYM"\n",
+	    CenterVelocityY);
+    fprintf(Outfptr, "HydroShockTubesCenterVelocityZ     = %"FSYM"\n",
+	    CenterVelocityZ);
+    fprintf(Outfptr, "HydroShockTubesCenterPressure      = %"FSYM"\n",
+	    CenterPressure);
+
   }
   //return FAIL;
   return SUCCESS;

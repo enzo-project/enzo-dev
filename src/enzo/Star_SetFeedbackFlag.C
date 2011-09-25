@@ -85,7 +85,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
   case PopII:
     AgeInMyr = (Time - BirthTime) * TimeUnits / 3.15e13;
     if (this->type > 0)
-      if (AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd)
+      if ((AgeInMyr > StarClusterSNeStart && AgeInMyr < StarClusterSNeEnd) ||
+	  StarClusterUnresolvedModel)
 	this->FeedbackFlag = CONT_SUPERNOVA;
       else
 	this->FeedbackFlag = NO_FEEDBACK;

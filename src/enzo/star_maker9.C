@@ -258,35 +258,8 @@ int star_maker9(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	} // ENDFOR j
       } // ENDFOR k
 
-<<<<<<< local
     } // if (level == maxlevel)
   } // if BigStarForm
-=======
-		/* Set creation time */
-	      
-		tcp[ii] = (float) *t;
-		tdp[ii] = 1.0e20;
-		dm[ii]  = adddens*POW(*dx,3);
-
-		ii++;
-
-
-
-	      }
-	      else {
-		printf("star_maker 9 called but not BigStarFormation \n");
-	      }
-
-	    } // ENDIF create a new sink
-	    
-	  } // ENDIF make sink particle
-
-	} // ENDFOR i
-      } // ENDFOR j
-    } // ENDFOR k
-
-  } // if (level == maxlevel)
->>>>>>> other
 
   if (ii > 0)
     printf("P(%"ISYM"): star_maker9[add]: %"ISYM" new sink particles\n", *nproc, ii);

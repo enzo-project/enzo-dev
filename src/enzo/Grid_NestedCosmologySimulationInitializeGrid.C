@@ -109,7 +109,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           float CosmologySimulationManualParticleMassRatio,
                           int CosmologySimulationCalculatePositions,
 			  FLOAT SubDomainLeftEdge[],
-			  FLOAT SubDomainRightEdge[])
+			  FLOAT SubDomainRightEdge[],
+			  float CosmologySimulationInitialUniformBField[])
 
 { 
  
@@ -119,6 +120,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum;
  
+  int iTE = ietot;
   int ExtraField[2];
   int ForbidNum;
   int MachNum, PSTempNum, PSDenNum;
@@ -341,7 +343,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
     //  fprintf(stderr, "Create baryon fields for %s on CPU %"ISYM"\n", CosmologySimulationDensityName, MyProcessorNumber);
  
     FieldType[NumberOfBaryonFields++] = Density;
-<<<<<<< local
   vel = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Velocity1;
   if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
@@ -359,17 +360,6 @@ int grid::NestedCosmologySimulationInitializeGrid(
     FieldType[NumberOfBaryonFields++] = Bfield3;
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
-=======
-    FieldType[NumberOfBaryonFields++] = TotalEnergy;
-    if (DualEnergyFormalism)
-      FieldType[NumberOfBaryonFields++] = InternalEnergy;
-    FieldType[NumberOfBaryonFields++] = Velocity1;
-    vel = NumberOfBaryonFields - 1;
-    if (GridRank > 1)
-      FieldType[NumberOfBaryonFields++] = Velocity2;
-    if (GridRank > 2)
-      FieldType[NumberOfBaryonFields++] = Velocity3;
->>>>>>> other
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
       FieldType[HINum    = NumberOfBaryonFields++] = HIDensity;
@@ -409,7 +399,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
       }
     }    
   }
- 
+
+
   //  fprintf(stderr, "Total Baryon Fields in VVV: %"ISYM" on CPU %"ISYM"\n", NumberOfBaryonFields, MyProcessorNumber);
  
   // Set the subgrid static flag
@@ -478,7 +469,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
       if (CosmologySimulationTotalEnergyName != NULL && ReadData)
 	if (READFILE(CosmologySimulationTotalEnergyName, GridRank,
 		     GridDimension, GridStartIndex, GridEndIndex, Offset,
-		     BaryonField[1], &tempbuffer, 0, 1) == FAIL) {
+		     BaryonField[iTE], &tempbuffer, 0, 1) == FAIL) {
 	  ENZO_FAIL("Error reading total energy field.\n");
 	}
  
@@ -617,7 +608,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
 	if (CosmologySimulationTotalEnergyName == NULL)
 	  for (i = 0; i < size; i++)
-	    BaryonField[1][i] = CosmologySimulationInitialTemperature/
+	    BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
 	      TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
  
 	/*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
@@ -625,20 +616,14 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
 	if (CosmologySimulationGasEnergyName == NULL && DualEnergyFormalism)
 	  for (i = 0; i < size; i++)
-	    BaryonField[2][i] = BaryonField[1][i];
+	    BaryonField[iTE+1][i] = BaryonField[iTE][i];
  
 	if (CosmologySimulationTotalEnergyName == NULL &&
-	    HydroMethod != Zeus_Hydro)
+	    HydroMethod != Zeus_Hydro) {
 	  for (dim = 0; dim < GridRank; dim++)
-<<<<<<< local
 	    for (i = 0; i < size; i++) {
 	      BaryonField[iTE][i] +=
-=======
-	    for (i = 0; i < size; i++)
-	      BaryonField[1][i] +=
->>>>>>> other
 		0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
-<<<<<<< local
 	      
 	      if (HydroMethod == MHD_RK) {
 		BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
@@ -653,17 +638,10 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	    }
 	}
       } // end: if (CosmologySimulationDensityName != NULL)
-=======
->>>>>>> other
 
-<<<<<<< local
       // Shock/Cosmic Ray Model
       if (ShockMethod && ReadData) {
 	for (i = 0; i < size; i++) {
-=======
-	//Shock/Cosmic Ray Model
-	if (CRModel && ReadData) {
->>>>>>> other
 	  BaryonField[MachNum][i] = tiny_number;
 	  if (StorePreShockFields) {
 	    BaryonField[PSTempNum][i] = tiny_number;
