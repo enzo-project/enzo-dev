@@ -121,6 +121,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *HDIName   = "HDI_Density";
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
+  char *MetalIaName = "MetalSNIa_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
   char *PSTempName = "PreShock_Temperature";
@@ -708,6 +709,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
+    if (StarMakerTypeIaSNe)
+      DataLabel[i++] = MetalIaName;
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];

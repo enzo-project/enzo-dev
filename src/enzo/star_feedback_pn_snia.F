@@ -109,7 +109,7 @@ c
       integer i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio,
-     &     distmass
+     &     distmass, delta_z
       parameter (clight = c_light, msolar_e51 = 1800.d0)
 c     TSK variables for stellar feedback fitting formula      
       real EdotSNII, EdotSNIa, EdotPN
@@ -132,6 +132,9 @@ c
 c     Loop over particles
 c
 c      write(6,*) 'star_feedback2: start'
+c
+c     Conversion from mass units to solar masses
+c
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
@@ -189,9 +192,8 @@ c        Now update the mass of star particles and  get the energy
 c        and mass changed per volume in code unit,
 c        madd (mass density increment), delta_e (energy density increment)
 c
-         dvol = dx**3
          mform = MdotSNIa + MdotPN
-         delta_e = (EdotSNIa + EdotPN) / dvol
+         delta_e = EdotSNIa + EdotPN
 c
 c        Compute index of the cell that the star particle resides in.
 c 
@@ -241,6 +243,9 @@ c        Calculate how much of the star formation in this
 c        timestep would have gone into supernova energy.
 c
          energy = delta_e / distcells
+
+c         write(6,*) 'feed:', t, n, mform, mp(n), tnow, dtt, MdotSNIa,
+c     &        energy, d(i,j,k), te(i,j,k), ge(i,j,k)
 c
 c        Add energy to energy field
 c
@@ -271,18 +276,21 @@ c
                         metal(ic,jc,kc) = 
      &                       (metal(ic,jc,kc)*d(ic,jc,kc) + 
      &                       (MdotPN / distcells) * 
-     &                       (yield * (1.d0-metalf(n)) + 
-     &                       m_eject * metalf(n))) * dratio
+     &                       (m_eject * metalf(n))) * dratio
                      endif
 c
 c         Type Ia SNe ejecta are nearly all metals, i.e. yield = 1.0
 c
                      if (imetalSNIa .eq. 1) then
+                        delta_z = (mdotSNIa / distcells) * 
+     &                       (1.d0 * (1.d0-metalf(n)) + 
+     &                       m_eject * metalf(n))
                         metalSNIa(ic,jc,kc) = 
      &                       (metalSNIa(ic,jc,kc)*d(ic,jc,kc) + 
-     &                       (mdotSNIa / distcells) * 
-     &                       (1.d0 * (1.d0-metalf(n)) + 
-     &                       m_eject * metalf(n))) * dratio
+     &                       delta_z) * dratio
+                        metal(ic,jc,kc) = 
+     &                       (metal(ic,jc,kc)*d(ic,jc,kc) +
+     &                       delta_z) * dratio
                      endif
 c
 c           Mass and momentum feedback

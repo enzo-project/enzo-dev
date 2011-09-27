@@ -57,6 +57,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   const char	*RadAccel2Name = "RadAccel2";
   const char	*RadAccel3Name = "RadAccel3";
   const char	*MetalName     = "Metal_Density";
+  const char    *MetalIaName = "MetalSNIa_Density";
   const char	*ColourName    = "SN_Colour";
   const char    *RaySegName    = "Ray_Segments";
   const char    *Rad0Name      = "Radiation0";
@@ -70,7 +71,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
   int NumberOfObsoleteFields;
   int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
 
-  if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE) {
+  if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE &&
+      StarParticleFeedback == 0) {
 
     /* Check for radiation fields and delete them */
 
@@ -166,6 +168,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	StarParticleFeedback != (1 << POP3_STAR) && 
 	!AddedMetallicity)
       TypesToAdd[FieldsToAdd++] = Metallicity;      //#####
+
+    if (StarMakerTypeIaSNe && StarParticleFeedback > 0)
+      TypesToAdd[FieldsToAdd++] = MetalSNIaDensity;
 
     for (i = FieldsToAdd; i < MAX_NUMBER_OF_BARYON_FIELDS; i++)
       TypesToAdd[i] = FieldUndefined;
@@ -278,6 +283,9 @@ int RadiativeTransferInitialize(char *ParameterFile,
       break;
     case Metallicity:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) MetalName;
+      break;
+    case MetalSNIaDensity:
+      DataLabel[OldNumberOfBaryonFields+i] = (char*) MetalIaName;
       break;
     case SNColour:
       DataLabel[OldNumberOfBaryonFields+i] = (char*) ColourName;

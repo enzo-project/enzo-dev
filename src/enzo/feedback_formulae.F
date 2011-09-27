@@ -55,19 +55,23 @@ c  Locals:
 c
        real tt, At
 c
-       tt = age/3.16E6       
-c       if ( age .le. 0 ) stop !!Hope this never happens.
-       if (age .lt. 3.16E6) then
-          At = tt * exp(1-tt)
-       else if (age .lt. 3.16E7) then
-          At = tt**(-1.1)
-       else
-          At = 0.
-       endif
+       if (age .gt. 0.0) then
+          tt = age/3.16E6       
+          if (age .lt. 3.16E6) then
+             At = tt * exp(1-tt)
+          else if (age .lt. 3.16E7) then
+             At = tt**(-1.1)
+          else
+             At = 0.
+          endif
 c
-       Edot = 1.D41 * mtot * At        !ergs/yr
-       !!Mdot = 2.851E-8 * mtot * At     !Msun/yr,  25% return at tt=10
-       Mdot = 1.71D-8 * mtot * At      !Msun/yr, 15% return at tt=10
+          Edot = 1.D41 * mtot * At !ergs/yr
+c     Mdot = 2.851E-8 * mtot * At     !Msun/yr,  25% return at tt=10
+          Mdot = 1.71D-8 * mtot * At !Msun/yr, 15% return at tt=10
+       else
+          Edot = 0.0
+          Mdot = 0.0
+       endif
        return
        end
 c       
@@ -206,27 +210,33 @@ c
 c
 c      cumulative mass loss due to SNe II, 15% mass loss when x=10 
 c
-       x = age/3.16E6
-       e = exp(1.0)
-       if ( x .le. 1.0) then
-          mlossSNII = 0.054 * e * (1 - (x+1)/exp(x))
-       else if (x .le. 10.0) then
-          mlossSNII = 0.054 * (e*(1-2/e) + 10*(1-x**(-0.1)))
+       if (age .gt. 0.0) then
+          x = age/3.16E6
+          e = exp(1.0)
+          if ( x .le. 1.0) then
+             mlossSNII = 0.054 * e * (1 - (x+1)/exp(x))
+          else if (x .le. 10.0) then
+             mlossSNII = 0.054 * (e*(1-2/e) + 10*(1-x**(-0.1)))
+          else
+             mlossSNII = 0.1498
+          endif
+c     
+c     cumulative mass loss due to PN
+c
+          x = alog10(age)
+          if ( x .le. 7.5) then
+             mlossPN = 0
+          else if ( x .le. 9.2) then
+             mlossPN = 10**(-1.3) * (age**0.1 - 10**0.75)
+          else
+             mlossPN = 0.239 - 498.82 * age**(-0.4)
+          endif
+c
+          rmf = 1.0 - mlossSNII - mlossPN
        else
-          mlossSNII = 0.1498
+          mlossSNII = 0.0
+          mlossPN = 0.0
+          rmf = 1.0
        endif
-c
-c      cumulative mass loss due to PN
-c
-       x = alog10(age)
-       if ( x .le. 7.5) then
-          mlossPN = 0
-       else if ( x .le. 9.2) then
-          mlossPN = 10**(-1.3) * (age**0.1 - 10**0.75)
-       else
-          mlossPN = 0.239 - 498.82 * age**(-0.4)
-       endif
-c
-       rmf = 1.0 - mlossSNII - mlossPN
        return
        end       
