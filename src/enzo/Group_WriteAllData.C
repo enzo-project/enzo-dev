@@ -143,7 +143,8 @@ int Group_WriteAllData(char *basename, int filenumber,
   int local, global;
   int file_status;
   int ii, pe, nn;
- 
+  double twrite0, twrite1;
+
   char pid[MAX_TASK_TAG_SIZE];
  
   FILE *fptr;
@@ -405,6 +406,9 @@ int Group_WriteAllData(char *basename, int filenumber,
 //  Synchronization point for directory creation
  
   CommunicationBarrier();
+#ifdef USE_MPI
+  twrite0 = MPI_Wtime();
+#endif
  
 //  Get cwd
 //  Generate command
@@ -852,10 +856,14 @@ int Group_WriteAllData(char *basename, int filenumber,
   ContinueExecution();
  
   CommunicationBarrier();
+#ifdef USE_MPI
+  twrite1 = MPI_Wtime();
+#endif
 
   if ( MyProcessorNumber == ROOT_PROCESSOR ){
     sptr = fopen("OutputLog", "a");
-    fprintf(sptr, "DATASET WRITTEN %s %8"ISYM" %18.16e\n", name, MetaData.CycleNumber, MetaData.Time);
+    fprintf(sptr, "DATASET WRITTEN %s %8"ISYM" %18.16"GSYM" %18.8"FSYM" %18.8"FSYM"\n", 
+	    name, MetaData.CycleNumber, MetaData.Time, twrite0, (twrite1-twrite0));
     fclose(sptr);
   }
  
