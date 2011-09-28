@@ -495,6 +495,8 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
               endif
               if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
 
+#define DONT_WRITE_COOLING_DEBUG
+#ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
 
                if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and.
@@ -524,6 +526,7 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
                endif
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
+#endif /* WRITE_COOLING_DEBUG */
             else               ! itmask
                dtit(i) = dt;
             endif
@@ -580,6 +583,7 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
+#ifdef WRITE_COOLING_DEBUG
 !              If the timestep is too small, then output some debugging info
 
                if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) 
@@ -588,6 +592,7 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
      &           write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &             energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
  2000          format(4(i4,1x),1p,10(e14.3))
+#endif /* WRITE_COOLING_DEBUG */
             endif   ! itmask
             enddo   ! end loop over i
 
@@ -596,8 +601,10 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
             do i = is+1, ie+1
                if (itmask(i)) then
                e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
+#ifdef WRITE_COOLING_DEBUG
                if (e(i,j,k) .ne. e(i,j,k)) 
      &              write(3,*) edot(i),d(i,j,k),dtit(i)
+#endif /* WRITE_COOLING_DEBUG */
 
 !              If using the dual energy formalism, there are 2 energy fields
 
@@ -610,8 +617,10 @@ c      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
 !     &                      0.5d0*ge(i,j,k))
 !                 if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 !     &              edot(i)*dtit(i))/d(i,j,k)
+#ifdef WRITE_COOLING_DEBUG
                   if (ge(i,j,k) .le. 0.d0) write(3,*)
      &                 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
+#endif WRITE_COOLING_DEBUG
                endif
             endif               ! itmask
             enddo
