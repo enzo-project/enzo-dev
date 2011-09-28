@@ -72,7 +72,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 {
  /* declarations */
 
- int dim, i, j, k, m, field, disk, size, MetalNum, vel;
+  int dim, i, j, k, m, field, disk, size, MetalNum, MetalIaNum, vel;
  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
    DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
  float DiskDensity, DiskVelocityMag;
@@ -122,12 +122,13 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
   if (UseMetallicityField)
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity; /* fake it with metals */
+  if (StarMakerTypeIaSNe)
+    FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
  /* Return if this doesn't concern us. */
 
  if (ProcessorNumber != MyProcessorNumber) 
    return SUCCESS;
-
 
  /* Set various units. */
 
@@ -315,6 +316,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	if (UseMetallicityField)
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalNum][i] = 1.0e-10;
+	if (StarMakerTypeIaSNe)
+	  for (i = 0; i < size; i++)
+	    BaryonField[MetalIaNum][i] = 1.0e-10;
 
 	/* Set Velocities. */
 

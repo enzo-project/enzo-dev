@@ -459,6 +459,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
   fprintf(fptr, "TabulatedLWBackground          = %"ISYM"\n", TabulatedLWBackground);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
+  fprintf(fptr, "AdjustUVBackgroundHighRedshift = %"ISYM"\n", AdjustUVBackgroundHighRedshift);
   fprintf(fptr, "SetUVBAmplitude                = %"GSYM"\n", SetUVBAmplitude);
   fprintf(fptr, "SetHeIIHeatingScale            = %"GSYM"\n", SetHeIIHeatingScale);
   fprintf(fptr, "RadiationFieldLevelRecompute   = %"ISYM"\n", RadiationFieldLevelRecompute);
@@ -712,13 +713,17 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarEnergyToThermalFeedback);
   fprintf(fptr, "StarEnergyToStellarUV                 = %"GSYM"\n",
           StarEnergyToStellarUV);
-  fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n\n",
+  fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n",
           StarEnergyToQuasarUV);
-  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n\n",
+  fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n",
           StarFeedbackDistRadius);
-  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n\n",
+  fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",
           StarFeedbackDistCellStep);
-  fprintf(fptr, "MultiMetals                           = %"ISYM"\n",
+  fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
+	  StarMakerTypeIaSNe);
+  fprintf(fptr, "StarMakerPlanetaryNebulae             = %"ISYM"\n",
+	  StarMakerPlanetaryNebulae);
+  fprintf(fptr, "MultiMetals                           = %"ISYM"\n\n",
           MultiMetals);
   fprintf(fptr, "IsotropicConduction                   = %"ISYM"\n", IsotropicConduction);
   fprintf(fptr, "AnisotropicConduction                 = %"ISYM"\n", AnisotropicConduction);
