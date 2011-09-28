@@ -33,8 +33,9 @@ c  modified1:  20 Dec 2002 by BWO
 c       Stochastic star formation is added again.
 c       The particle masses are averaged over several cells to avoid
 c       the "runaway star particle" phenomenon
-c  modified2: 20 Feb 2008 by M. Ryan Joung
+c  modified2: 27 Sept 2011 by JHW
 c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c

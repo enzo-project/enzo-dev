@@ -136,7 +136,8 @@ c
 c     Conversion from mass units to solar masses
 c
       do n=1, npart
-         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
+         if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and.
+     &        (type(n) .eq. 2 .or. type(n) .eq. 7)) then
 c
          tnow = (t-tcp(n))*t1/3.15E7 ! tnow is in yr
          dtt = dt*t1/3.15e7

@@ -306,6 +306,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
       DataLabel[OldNumberOfBaryonFields+i] = (char*) RaySegName;
       break;
     } // ENDSWITCH
+    if (debug) 
+      printf("Adding new field %s\n", DataLabel[OldNumberOfBaryonFields+i]);
   } // ENDFOR fields
 
   /* Check for old gammaHeI and gammaHeII fields.  Delete if they
