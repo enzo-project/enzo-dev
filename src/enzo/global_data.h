@@ -354,7 +354,8 @@ EXTERN int StorePreShockFields;
    10 - homogenous internal radiation field (a la Renyue's work) */
 
 EXTERN int RadiationFieldType;
-EXTERN int AdjustUVBackground; 
+EXTERN int AdjustUVBackground;
+EXTERN int AdjustUVBackgroundHighRedshift;
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;

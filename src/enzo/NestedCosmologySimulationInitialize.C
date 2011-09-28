@@ -79,6 +79,7 @@ static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 static float CosmologySimulationInitialFractionMetal = 1.0e-10;
+static float CosmologySimulationInitialFractionMetalIa = 1.0e-12;
 static int   CosmologySimulationUseMetallicityField  = FALSE;
  
 static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
@@ -275,6 +276,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &CosmologySimulationInitialFractionH2II);
     ret += sscanf(line, "CosmologySimulationInitialFractionMetal = %"FSYM,
 		  &CosmologySimulationInitialFractionMetal);
+    ret += sscanf(line, "CosmologySimulationInitialFractionMetalIa = %"FSYM,
+		  &CosmologySimulationInitialFractionMetalIa);
     ret += sscanf(line, "CosmologySimulationUseMetallicityField = %"ISYM,
 		  &CosmologySimulationUseMetallicityField);
  
@@ -617,6 +620,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationInitialFractionMetal,
+			     CosmologySimulationInitialFractionMetalIa,
 			     CosmologySimulationUseMetallicityField,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,
@@ -819,6 +823,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionH2II);
     fprintf(Outfptr, "CosmologySimulationInitialFractionMetal = %"GSYM"\n",
 	    CosmologySimulationInitialFractionMetal);
+    fprintf(Outfptr, "CosmologySimulationInitialFractionMetalIa = %"GSYM"\n",
+	    CosmologySimulationInitialFractionMetalIa);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
 
@@ -978,6 +984,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 	   CosmologySimulationInitialFractionH2I,
 	   CosmologySimulationInitialFractionH2II,
 	   CosmologySimulationInitialFractionMetal,
+	   CosmologySimulationInitialFractionMetalIa,
 	   CosmologySimulationUseMetallicityField,
 	   ParticleTempCount,
 	   CosmologySimulationManuallySetParticleMassRatio,

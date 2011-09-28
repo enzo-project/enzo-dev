@@ -29,7 +29,7 @@
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
        	      float *TemperatureUnits, float *TimeUnits,
-       	      float *VelocityUnits, double *MassUnits, FLOAT Time);
+       	      float *VelocityUnits, float *MassUnits, FLOAT Time);
 
 int grid::AddExternalPotentialField(float *potential)
 {
@@ -49,8 +49,7 @@ int grid::AddExternalPotentialField(float *potential)
   /* Get unit conversions */
 
   float DensityUnits = 1 , LengthUnits = 1, TemperatureUnits, 
-    TimeUnits = 1, VelocityUnits = 1, PotentialUnits = 1;
-  double MassUnits = 1;
+    TimeUnits = 1, VelocityUnits = 1, MassUnits = 1, PotentialUnits = 1;
 
    GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 			&TimeUnits, &VelocityUnits, &MassUnits, Time);

@@ -101,7 +101,6 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
 
 
  
-    
   if (DifferenceType != PARTICLES) {
     
     for (dim = 0; dim < GridRank; dim++)
@@ -168,7 +167,6 @@ int grid::ComputeAccelerationsFromExternalPotential(int DifferenceType,
     delete [] Acceleration[dim];
     Acceleration[dim] = NULL;
   }
-   
 
   return SUCCESS;
 }
