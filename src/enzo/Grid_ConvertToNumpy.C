@@ -158,13 +158,42 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
               (PyObject*) dataset);
           Py_DECREF(dataset);
 
-          /* Type */
-          dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
-                  1, dims, ENPY_INT, ParticleType);
-          dataset->flags &= ~NPY_OWNDATA;
-          PyDict_SetItemString(grid_data, "particle_type",
-              (PyObject*) dataset);
-          Py_DECREF(dataset);
+	  /* Star particle attributes */
+	  if (StarParticleCreation > 0) {
+
+	    /* Type */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_INT, ParticleType);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "particle_type",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	    /* creation time */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_BFLOAT, ParticleAttribute[0]);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "creation_time",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	    /* dynamical time */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_BFLOAT, ParticleAttribute[1]);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "dynamical_time",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	    /* dynamical time */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_BFLOAT, ParticleAttribute[2]);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "metallicity_fraction",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	  }
 
         }
 

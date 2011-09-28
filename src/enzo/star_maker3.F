@@ -224,16 +224,13 @@ c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 
                if (imethod .eq. 2) then
-                  up(ii) = 1.0d-20
-                  vp(ii) = 1.0d-20
-                  wp(ii) = 1.0d-20
-
+                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
                else
-
-                  up(ii) = 1.0d-20
-                  vp(ii) = 1.0d-20
-                  wp(ii) = 1.0d-20
-
+                  up(ii) = u(i,j,k)
+                  vp(ii) = v(i,j,k)
+                  wp(ii) = w(i,j,k)
                endif
 c
 c              Set the particle metal fraction

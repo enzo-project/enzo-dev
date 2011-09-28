@@ -598,8 +598,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 		   Restart);
 
     /* Call inline analysis. */
+
 #ifdef USE_PYTHON
+    LCAPERF_START("CallPython");
     CallPython(LevelArray, &MetaData, 0, 1);
+    LCAPERF_STOP("CallPython");
 #endif
 
     /* Check for resubmission */
