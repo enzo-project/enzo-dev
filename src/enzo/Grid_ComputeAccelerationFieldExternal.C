@@ -391,7 +391,6 @@ int grid::ComputeAccelerationFieldExternal()
       ParticleAcceleration[2][i] += -g*zpos/r;
     }
     
-
   } // end if (ExternalGravity == 1)
 
   /* -----------------------------------------------------------------

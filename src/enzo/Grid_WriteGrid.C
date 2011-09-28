@@ -84,10 +84,14 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction"};*/
+#ifdef WINDS
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};

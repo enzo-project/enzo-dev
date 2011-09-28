@@ -35,10 +35,14 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
        {"particle_position_x", "particle_position_y", "particle_position_z"};
     char *ParticleVelocityLabel[] =
        {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-    /*    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-	  "metallicity_fraction", "alpha_fraction", "p5", "p6"};*/
+#ifdef WINDS
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
     this->DebugCheck("Converting to NumPy arrays");
 

@@ -33,8 +33,9 @@ c  modified1:  20 Dec 2002 by BWO
 c       Stochastic star formation is added again.
 c       The particle masses are averaged over several cells to avoid
 c       the "runaway star particle" phenomenon
-c  modified2: 20 Feb 2008 by M. Ryan Joung
+c  modified2: 27 Sept 2011 by JHW
 c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
@@ -249,8 +250,6 @@ c              MKRJ 2/20/08 Do the same for particle metal fraction from SN Ia
 c
                if (imetalSNIa .eq. 1) then
                   metalfSNIa(ii) = metalSNIa(i,j,k)    ! in here metal is a fraction
-               else
-                  metalfSNIa(ii) = 0.0
                endif
 c
 c              Remove mass from grid

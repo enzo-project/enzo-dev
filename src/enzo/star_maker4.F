@@ -13,7 +13,9 @@ c
      &                      imetal, imethod, mintdyn,
      &                      odthresh, masseff, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf)
+     &                      mp, tdp, tcp, metalf,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES STAR PARTICLES
 c
@@ -48,6 +50,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
 c
@@ -60,7 +63,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
-c
+c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
 c
 c-----------------------------------------------------------------------
        implicit none
@@ -69,7 +72,7 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
+      integer procnum, imetalSNIa
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -79,6 +82,7 @@ c
       REALSUB xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    odthresh, masseff, smthresh, mintdyn
 c
       real   sformsum
@@ -175,7 +179,10 @@ c
                else
                   metalf(ii) = 0.d0
                endif
-c
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
+               endif
+
 c              Remove mass from grid
 c
                d(i,j,k) = (1.d0 - gasfrac)*d(i,j,k)
@@ -192,7 +199,7 @@ c
  20   continue
 c
       if (ii .ge. nmax) then
-         write(6,*) 'star_maker2: reached max new particle count'
+         write(6,*) 'star_maker4: reached max new particle count'
          ERROR_MESSAGE
       endif
       np = ii

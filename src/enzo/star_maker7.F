@@ -16,7 +16,9 @@ c
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, 
      &                      xpold, ypold, zpold, 
-     &                      typeold, ctype, option)
+     &                      typeold, ctype, option,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -44,6 +46,9 @@ c        - item [4] was still a test as of Nov.2009.
 c    [5] when in cosmological sim, StarMakerOverDensity is in particles/cc, 
 c        not the ratio with respect to the DensityUnits, unlike others
 c        this should be taken care of in Grid_StarParticleHandler.C
+c  modified6: 27 Sept 2011 by JHW
+c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
@@ -93,10 +98,11 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
-      integer procnum, ctype, option
+      integer procnum, ctype, option, imetalSNIa
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    dt, dx, z
       real    d1, x1, v1, t1
       REALSUB xstart, ystart, zstart, t
@@ -272,6 +278,9 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
                else
                   metalf(ii) = 0.d0
+               endif
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
                endif
 c
 c              Remove mass from grid

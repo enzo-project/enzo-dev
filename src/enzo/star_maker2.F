@@ -233,8 +233,6 @@ c              Metallicity from Type Ia SNe
 
                if (imetalSNIa .eq. 1) then
                   metalfSNIa(ii) = metalSNIa(i,j,k)    ! in here metal is a fraction
-               else
-                  metalfSNIa(ii) = 0.0
                endif
 c
 c              Remove mass from grid
