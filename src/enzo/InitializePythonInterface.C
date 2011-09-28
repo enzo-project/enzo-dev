@@ -12,12 +12,14 @@
 /    SUCCESS or FAIL
 /
 ************************************************************************/
-#ifdef USE_PYTHON
+
+#ifndef ENZO_PYTHON_IMPORTED
 #define PY_ARRAY_UNIQUE_SYMBOL enzo_ARRAY_API
-#include <Python.h>
-#include "numpy/arrayobject.h"
 #define ENZO_PYTHON_IMPORTED
 #endif
+
+#include <Python.h>
+#include "numpy/arrayobject.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -67,29 +69,32 @@ static PyMethodDef _EnzoModuleMethods[] = {
 int InitializePythonInterface(int argc, char *argv[])
 {
 #undef int
-
-  Py_SetProgramName("embed_enzo");
-
-  Py_Initialize();
-
-  PySys_SetArgv(argc, argv);
-  PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
-  PyObject *enzo_module, *enzo_module_dict; 
-  enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
-  enzo_module_dict = PyModule_GetDict(enzo_module);
-  if(enzo_module == NULL) ENZO_FAIL("Failed on Enzo Module!");
-  if(enzo_module_dict == NULL) ENZO_FAIL("Failed on Dict!");
-  PyDict_SetItemString(enzo_module_dict, "grid_data", grid_dictionary);
-  PyDict_SetItemString(enzo_module_dict, "old_grid_data", old_grid_dictionary);
-  PyDict_SetItemString(enzo_module_dict, "hierarchy_information", hierarchy_information);
-  PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
-  PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
-  PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
-  _parameterFindingError = PyErr_NewException("enzo.ParameterFindingError", NULL, NULL);
-  PyDict_SetItemString(enzo_module_dict, "ParameterFindingError", _parameterFindingError);
-  import_array1(FAIL);
-  if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
-  if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
+  static int PythonInterpreterInitialized = 0;
+  if(PythonInterpreterInitialized == 0){
+    Py_SetProgramName("embed_enzo");
+    Py_Initialize();
+    PySys_SetArgv(argc, argv);
+    import_array1(FAIL);
+    PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
+    PythonInterpreterInitialized = 1;
+  }
+  static int PythonEnzoModuleInitialized = 0;
+  if (PythonEnzoModuleInitialized == 0){
+    PyObject *enzo_module, *enzo_module_dict; 
+    enzo_module = Py_InitModule("enzo", _EnzoModuleMethods);
+    enzo_module_dict = PyModule_GetDict(enzo_module);
+    if(enzo_module == NULL) ENZO_FAIL("Failed on Enzo Module!");
+    if(enzo_module_dict == NULL) ENZO_FAIL("Failed on Dict!");
+    PyDict_SetItemString(enzo_module_dict, "grid_data", grid_dictionary);
+    PyDict_SetItemString(enzo_module_dict, "old_grid_data", old_grid_dictionary);
+    PyDict_SetItemString(enzo_module_dict, "hierarchy_information", hierarchy_information);
+    PyDict_SetItemString(enzo_module_dict, "yt_parameter_file", yt_parameter_file);
+    PyDict_SetItemString(enzo_module_dict, "conversion_factors", conversion_factors);
+    PyDict_SetItemString(enzo_module_dict, "my_processor", my_processor);
+    if (PyRun_SimpleString("import user_script\n")) ENZO_FAIL("Importing user_script failed!");
+    if(debug)fprintf(stdout, "Completed Python interpreter initialization\n");
+    PythonEnzoModuleInitialized = 1;
+  }
   return SUCCESS;
 }
 
@@ -206,6 +211,12 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime
   TEMP_PYFLOAT(CurrentMaximumDensity);
   PyDict_SetItemString(yt_parameter_file, "CurrentMaximumDensity", temp_float);
 
+  TEMP_PYFLOAT(AngularVelocity);
+  PyDict_SetItemString(yt_parameter_file, "AngularVelocity", temp_float);
+
+  TEMP_PYFLOAT(VelocityGradient);
+  PyDict_SetItemString(yt_parameter_file, "VelocityGradient", temp_float);
+
   TEMP_PYFLOAT(MetaData->dtDataDump);
   PyDict_SetItemString(yt_parameter_file, "dtDataDump", temp_float);
 
@@ -218,16 +229,16 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime
   PyObject *tgd_tuple, *tgd0, *tgd1, *tgd2;
   
   /* Construct a tuple */
-  tgd0 = PyLong_FromLong((long) DomainLeftEdge[0]);
-  tgd1 = PyLong_FromLong((long) DomainLeftEdge[1]);
-  tgd2 = PyLong_FromLong((long) DomainLeftEdge[2]);
+  tgd0 = PyFloat_FromDouble((double) DomainLeftEdge[0]);
+  tgd1 = PyFloat_FromDouble((double) DomainLeftEdge[1]);
+  tgd2 = PyFloat_FromDouble((double) DomainLeftEdge[2]);
   tgd_tuple = PyTuple_Pack(3, tgd0, tgd1, tgd2);
   PyDict_SetItemString(yt_parameter_file, "DomainLeftEdge", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);
 
-  tgd0 = PyLong_FromLong((long) DomainRightEdge[0]);
-  tgd1 = PyLong_FromLong((long) DomainRightEdge[1]);
-  tgd2 = PyLong_FromLong((long) DomainRightEdge[2]);
+  tgd0 = PyFloat_FromDouble((double) DomainRightEdge[0]);
+  tgd1 = PyFloat_FromDouble((double) DomainRightEdge[1]);
+  tgd2 = PyFloat_FromDouble((double) DomainRightEdge[2]);
   tgd_tuple = PyTuple_Pack(3, tgd0, tgd1, tgd2);
   PyDict_SetItemString(yt_parameter_file, "DomainRightEdge", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);

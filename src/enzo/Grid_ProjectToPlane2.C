@@ -173,7 +173,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
         VelocityUnits, TimeUnits;
   double sigma_thompson = 6.65e-25, mh = 1.67e-24, me = 9.11e-28,
     kboltz = 1.38e-16, clight = 3.00e10, csquared = 8.99e20;
-  const double SolarMass = 1.989e33, Mpc = 3.0824e24, zsolar = 0.0204;
+  const double SolarMass = 1.989e33, Mpc = 3.0824e24;
   
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, Time);
@@ -313,7 +313,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     second_field = BaryonField[0];
     //second_field = NULL;
     ProjType = 3;
-    ConversionFactor = DensityConversion*DensityConversion/zsolar;
+    ConversionFactor = DensityConversion*DensityConversion/CoolData.SolarMetalFractionByMass;
     //ConversionFactor = One;
 
     FORTRAN_NAME(projplane)(first_field, second_field,

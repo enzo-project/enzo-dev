@@ -32,7 +32,7 @@
 
 int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		      Elong_int GridGlobalStart[], float *CellWidthTemp[], 
-		      int GravityOn, int NumberOfColours, int colnum[])
+		      int GravityOn, int NumberOfColours, int colnum[], float *pressure)
 {
 
   int dim = 0, idim = 1, jdim = 2;
@@ -86,6 +86,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
       index3 = (k*GridDimension[1] + j) * GridDimension[0] + i;
       dslice[index2+i] = BaryonField[DensNum][index3];
       eslice[index2+i] = BaryonField[TENum][index3];
+      pslice[index2+i] = pressure[index3];
       uslice[index2+i] = BaryonField[Vel1Num][index3];
     } // ENDFOR i
 
@@ -135,7 +136,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   float *dls, *drs, *flatten, *pbar, *pls, *prs, *ubar, *uls, *urs, *vls, 
     *vrs, *gels, *gers, *wls, *wrs, *diffcoef, *df, *ef, *uf, *vf, *wf, *gef,
-    *colf, *colls, *colrs;
+    *ges, *colf, *colls, *colrs;
 
   dls = new float[size];	
   drs = new float[size];	
@@ -159,6 +160,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   vf = new float[size];		
   wf = new float[size];		
   gef = new float[size];	
+  ges = new float[size];	
   colf = new float[NumberOfColours*size];  
   colls = new float[NumberOfColours*size];  
   colrs = new float[NumberOfColours*size];  
@@ -177,7 +179,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   k_p1 = k + 1;
 
   /* Compute the pressure on a slice */
-
+  /*
   if (DualEnergyFormalism)
     FORTRAN_NAME(pgas2d_dual)(dslice, eslice, geslice, pslice, uslice, vslice, 
 			      wslice, &DualEnergyFormalismEta1, 
@@ -188,7 +190,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     FORTRAN_NAME(pgas2d)(dslice, eslice, pslice, uslice, vslice, 
 			 wslice, &GridDimension[0], &GridDimension[1], 
 			 &is_m3, &ie_p3, &js, &je, &Gamma, &MinimumPressure);
-
+  */
   /* If requested, compute diffusion and slope flattening coefficients */
 
   if (PPMDiffusionParameter != 0 || PPMFlatteningParameter != 0)
@@ -204,24 +206,71 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Compute Eulerian left and right states at zone edges via interpolation */
 
-  FORTRAN_NAME(inteuler)(dslice, pslice, &GravityOn, grslice, geslice, uslice,
-			 vslice, wslice, CellWidthTemp[0], flatten,
-			 &GridDimension[0], &GridDimension[1],
-			 &is, &ie, &js, &je, &DualEnergyFormalism, 
-			 &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
-			 &PPMSteepeningParameter, &PPMFlatteningParameter,
-			 &dtFixed, &Gamma, &PressureFree, 
-			 dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
-			 wls, wrs, &NumberOfColours, colslice, colls, colrs);
+  if (ReconstructionMethod == PPM)
+    FORTRAN_NAME(inteuler)(dslice, pslice, &GravityOn, grslice, geslice, uslice,
+			   vslice, wslice, CellWidthTemp[0], flatten,
+			   &GridDimension[0], &GridDimension[1],
+			   &is, &ie, &js, &je, &DualEnergyFormalism, 
+			   &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
+			   &PPMSteepeningParameter, &PPMFlatteningParameter,
+			   &ConservativeReconstruction, &PositiveReconstruction,
+			   &dtFixed, &Gamma, &PressureFree, 
+			   dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
+			   wls, wrs, &NumberOfColours, colslice, colls, colrs);
 
   /* Compute (Lagrangian part of the) Riemann problem at each zone boundary */
 
-  FORTRAN_NAME(twoshock)(dls, drs, pls, prs, uls, urs,
-			 &GridDimension[0], &GridDimension[1],
-			 &is, &ie_p1, &js, &je,
-			 &dtFixed, &Gamma, &MinimumPressure, &PressureFree,
-			 pbar, ubar, &GravityOn, grslice,
-			 &DualEnergyFormalism, &DualEnergyFormalismEta1);
+  switch (RiemannSolver) {
+  case TwoShock:
+    FORTRAN_NAME(twoshock)(dls, drs, pls, prs, uls, urs,
+			   &GridDimension[0], &GridDimension[1],
+			   &is, &ie_p1, &js, &je,
+			   &dtFixed, &Gamma, &MinimumPressure, &PressureFree,
+			   pbar, ubar, &GravityOn, grslice,
+			   &DualEnergyFormalism, &DualEnergyFormalismEta1);
+    
+    FORTRAN_NAME(flux_twoshock)(dslice, eslice, geslice, uslice, vslice, wslice,
+				CellWidthTemp[0], diffcoef, 
+				&GridDimension[0], &GridDimension[1],
+				&is, &ie, &js, &je, &dtFixed, &Gamma,
+				&PPMDiffusionParameter, &DualEnergyFormalism,
+				&DualEnergyFormalismEta1,
+				&RiemannSolverFallback,
+				dls, drs, pls, prs, gels, gers, uls, urs,
+				vls, vrs, wls, wrs, pbar, ubar,
+				df, ef, uf, vf, wf, gef, ges,
+				&NumberOfColours, colslice, colls, colrs, colf);
+    break;
+
+  case HLL:
+    FORTRAN_NAME(flux_hll)(dslice, eslice, geslice, uslice, vslice, wslice,
+			   CellWidthTemp[0], diffcoef, 
+			   &GridDimension[0], &GridDimension[1],
+			   &is, &ie, &js, &je, &dtFixed, &Gamma,
+			   &PPMDiffusionParameter, &DualEnergyFormalism,
+			   &DualEnergyFormalismEta1,
+			   &RiemannSolverFallback,
+			   dls, drs, pls, prs, uls, urs,
+			   vls, vrs, wls, wrs, gels, gers,
+			   df, uf, vf, wf, ef, gef, ges,
+			   &NumberOfColours, colslice, colls, colrs, colf);
+    break;
+
+  case HLLC:
+    FORTRAN_NAME(flux_hllc)(dslice, eslice, geslice, uslice, vslice, wslice,
+			    CellWidthTemp[0], diffcoef, 
+			    &GridDimension[0], &GridDimension[1],
+			    &is, &ie, &js, &je, &dtFixed, &Gamma,
+			    &PPMDiffusionParameter, &DualEnergyFormalism,
+			    &DualEnergyFormalismEta1,
+			    &RiemannSolverFallback,
+			    dls, drs, pls, prs, uls, urs,
+			    vls, vrs, wls, wrs, gels, gers,
+			    df, uf, vf, wf, ef, gef, ges,
+			    &NumberOfColours, colslice, colls, colrs, colf);
+    break;
+
+  } // ENDCASE
 
   /* Compute Eulerian fluxes and update zone-centered quantities */
 
@@ -231,9 +280,8 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &is, &ie, &js, &je, &dtFixed, &Gamma, 
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
-		      dls, drs, pls, prs, gels, gers, uls, urs, vls, vrs,
-		      wls, wrs, pbar, ubar, df, ef, uf, vf, wf, gef,
-		      &NumberOfColours, colslice, colls, colrs, colf);
+		      df, ef, uf, vf, wf, gef, ges,
+		      &NumberOfColours, colslice, colf);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
 
@@ -393,6 +441,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   delete [] vf;
   delete [] wf;
   delete [] gef;
+  delete [] ges;
   delete [] colf;
   delete [] colls;
   delete [] colrs;

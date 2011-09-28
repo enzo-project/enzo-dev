@@ -74,7 +74,7 @@
 #define sign(A)  ((A) >  0  ?  1  : -1 )
 #define nint(A) (int) ((A) + 0.5*sign(A))
 
-extern int     ThisTask, NTask;
+extern int     ThisTask, NTask, CycleNumber;
 
 extern double  Time;
 extern double  RhoCritical0;
@@ -110,6 +110,7 @@ extern struct  gr_data
 } *GroupDat, *GroupDatAll;
 
 extern int    Nx,Ny,Nz;
+extern int    ParticleTypeInFile;
 
 /* Quantities for all particles */
 

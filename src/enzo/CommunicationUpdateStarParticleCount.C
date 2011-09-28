@@ -28,7 +28,7 @@
  
 #include <stdio.h>
 #include <string.h>
- 
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -46,7 +46,9 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 int NumberOfGrids, 
 					 int TotalStarParticleCountPrevious[])
 {
- 
+
+  LCAPERF_START("UpdateStarParticleCount");
+
   int grid, *TotalParticleCount = new int[NumberOfGrids],
           *PartialParticleCount = new int[NumberOfGrids],
         *TotalStarParticleCount = new int[NumberOfGrids],
@@ -155,6 +157,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
   delete [] TotalStarParticleCount;
   delete [] PartialStarParticleCount;
  
+  LCAPERF_STOP("UpdateStarParticleCount");
+ 
   return SUCCESS;
 }
 
@@ -261,7 +265,7 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
   delete [] PartialParticleCount;
   delete [] TotalStarParticleCount;
   delete [] PartialStarParticleCount;
- 
+
   return SUCCESS;
 }
 #endif //UNUSED

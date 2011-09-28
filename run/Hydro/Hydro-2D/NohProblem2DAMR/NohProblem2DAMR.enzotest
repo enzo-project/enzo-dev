@@ -1,0 +1,10 @@
+name = 'NohProblem2DAMR'
+answer_testing_script = 'test_noh2damr.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 2
+max_time_minutes = 2

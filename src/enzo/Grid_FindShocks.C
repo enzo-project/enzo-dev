@@ -1,13 +1,12 @@
 /***********************************************************************
 /
-/  GRID CLASS (Find Shocks and Accelerate Cosmic Rays)
+/  GRID CLASS (Find Shocks)
 /
 /  written by: Sam Skillman
 /  date:       May, 2008
 /  modified1: 
 /
-/  PURPOSE:Finds all shock mach numbers and injects energy into CR color 
-/  fields
+/  PURPOSE:Finds all shock mach numbers 
 /
 /  RETURNS:
 /    SUCCESS or FAIL
@@ -43,9 +42,7 @@ int grid::FindShocks()
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
-  this->DebugCheck("FindShocks");
-
-  long shockcounter, stopcounter;
+  this->DebugCheck((char *)"FindShocks");
 
   float invdx = 1./(CellWidth[0][0]);
   float inv2dx = 1./(2.*CellWidth[0][0]);
@@ -60,22 +57,15 @@ int grid::FindShocks()
 
   int i, j, k, index,
     tempi, posti, prei;
-  float mu,
-    preT, postT, tempjumpmag,
+  float preT, postT, tempjumpmag,
     gradtx, gradty, gradtz,
     maxdiv, temprat, tempmach;
-  float sarea,vol,
-    Csound;
   float num;
-  double energyin;
-
-  float prepop,CRfraction;
-  int thisprepopbin,thismachbin;
 
   int DensNum, TENum, GENum, 
     Vel1Num, Vel2Num, Vel3Num;
 
-  int MachNum, CRNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
 
   /* Compute size (in floats) of the current grid. */
   int size = 1;
@@ -87,22 +77,18 @@ int grid::FindShocks()
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
    
-  // Get CR species fields.
-
-  if (IdentifyCRSpeciesFields(MachNum,CRNum,PSTempNum,PSDenNum) == FAIL) {
-      ENZO_FAIL("Error in IdentifyCRSpeciesFields.");
+  // Get Shock species fields.
+  if (IdentifyShockSpeciesFields(MachNum,PSTempNum,PSDenNum) == FAIL) {
+      ENZO_FAIL("Error in IdentifyShockSpeciesFields.");
   }
 
   /* Get easy to handle pointers for each variable. */
  
   float *density     = BaryonField[DensNum];
-  float *totalenergy = BaryonField[TENum];
-  float *gasenergy   = BaryonField[GENum];
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
   float *mach        = BaryonField[MachNum];
-  float *cr          = BaryonField[CRNum];
   float *pstemp      = BaryonField[PSTempNum];
   float *psden       = BaryonField[PSDenNum];
 
@@ -118,7 +104,7 @@ int grid::FindShocks()
   }
   
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+    VelocityUnits = 1, TimeUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -126,11 +112,7 @@ int grid::FindShocks()
   }
  
   // calculate cell temperature, set default values for mach
-  float energy;
   for (i=0;i<size;i++){
-    if(CRModel == 2)
-      cr[i] = 0.0;
-
     entropy[i] = tempgrad_dot_entropygrad[i] = mach[i] = 0.0;
     flowdivergence[i] = (double)(0.0);
     entropy[i] = temperature[i] / (pow(density[i],(Gamma - 1.0)));
@@ -140,10 +122,6 @@ int grid::FindShocks()
       psden[i] = 0.0;
     }
   }
-
-  //  fprintf(stdout, "ShockTemperatureFloor= %e TemperatureUnits= %e\n",ShockTemperatureFloor,
-  //  TemperatureUnits);
-
 
   //Calculate temperature gradient dotted with entropy gradient
   //Calculate the flow divergence.
@@ -213,7 +191,6 @@ int grid::FindShocks()
       cell, and stop looking
    Make sure that the temperature/density keep increasing or decreasing
    After the ends are found, compute the mach number.
-   Then compute the CR energy injected, multiplied by the timestep!
 
    In order to get statistics in terms of pre-shock quantities later, put 
      the shock in the pre-shock cell(i.e. mach number, cr...)
@@ -420,87 +397,6 @@ int grid::FindShocks()
 
 	mach[index] = tempmach;
 
-
-	//Calculate mass flux self-consistently
-	temprat = postT/preT;
-	tempmach = 
-	  sqrt(( 8.0*temprat - 7.0e0 + 
-		 sqrt( (7.0e0 - 8.0e0*temprat)*(7.0e0 - 8.0e0*temprat)
-		       + 15.0e0) )/5.0e0);
-	//Speed of sound in code units of velocity
-	Csound = sqrt(Gamma*kboltz*preT/(DEFAULT_MU*mh))/VelocityUnits;
-
-	/*-------------Lots of Extra Crap------------/
-	sarea = CellWidth[0][0] * CellWidth[0][0];
-	vol = CellWidth[0][0] * sarea;
-	//For now calculate the kinetic energy flux through the shock.
-
-	//This is in code units of energy.  
-	//Should multiply by vol*DensityUnits*VelUnits^2
-	//to get units of ergs
-	energyin = 0.5*1.19*sarea*density[prei]*
-	  pow(Csound*mach[index],3.0)*dtFixed;
-
-	//Now in honest to god ergs per cell
-	energyin *= LengthUnits*LengthUnits*DensityUnits*
-	  VelocityUnits*VelocityUnits*VelocityUnits*TimeUnits;
-
-	//Now convert to the same as gas_energy:
-	energyin /= vol*LengthUnits*LengthUnits*LengthUnits;
-	energyin /= density[index]*DensityUnits;
-	energyin /= VelocityUnits*VelocityUnits;
-	/--------------------------------------------*/
-	//*1.19e0
-	//Put energy in postshock cell
-	energyin = 0.5e0*pow(Csound*tempmach,3.0)*
-	  (density[prei]/density[posti])*dtFixed*
-	  TimeUnits*VelocityUnits/LengthUnits/CellWidth[0][0];
-
-	//Put energy in middle cell
-// 	energyin = 0.5e0*pow(Csound*tempmach,3.0)*
-// 	  (density[prei]/density[index])*dtFixed*
-// 	  TimeUnits*VelocityUnits/LengthUnits/CellWidth[0][0];
-	
-	prepop = cr[prei]/gasenergy[prei];
-	
-	thismachbin = (int)((float)(CosmicRayData.CRNumberMachValues)*
-			    (log10(tempmach) - CosmicRayData.CRMinMach)/
-			    (CosmicRayData.CRMaxMach - CosmicRayData.CRMinMach));
-	
-	thisprepopbin = (int)((float)(CosmicRayData.CRNumberPrePopValues)*
-			      (prepop - CosmicRayData.CRMinPrePop)/
-			      (CosmicRayData.CRMaxPrePop - CosmicRayData.CRMinPrePop));
-	
-	thismachbin = max(0, (int)(thismachbin));
-	thismachbin = min((CosmicRayData.CRNumberMachValues -1),
-			  (int)(thismachbin));			 
-	
-	thisprepopbin = max(0, (int)(thisprepopbin));
-	thisprepopbin = min((CosmicRayData.CRNumberPrePopValues -1),
-			  (int)(thisprepopbin));			 
-
-	CRfraction = CosmicRayData.CREfficiency[thisprepopbin][thismachbin];
-
-	//Want this in Code Units
-	if(CRModel == 1)
-	  cr[posti]+= CRfraction*energyin;
-	//	  cr[index]+= CRfraction*energyin;
-
-	if(CRModel == 2)
-	  cr[index] = CRfraction*energyin/(dtFixed*TimeUnits);
-	
-	if(CRModel == 3){
-	  if(CRfraction*energyin > gasenergy[index] || 
-	     CRfraction*energyin > totalenergy[index]){
-	    gasenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    totalenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    cr[index] += 0.9*min(gasenergy[index],totalenergy[index]);
-	  } else {
-	    cr[index] += CRfraction*energyin;
-	    gasenergy[index] -= CRfraction*energyin;
-	    totalenergy[index] -= CRfraction*energyin;
-	  }
-	}
 	if(StorePreShockFields){
 	  pstemp[index] = max(temperature[prei],ShockTemperatureFloor);
 	  psden[index] = density[prei];
@@ -509,7 +405,7 @@ int grid::FindShocks()
     }
   }
   
-  /* deallocate temporary space for solver */
+  /* deallocate temporary space */
   
   delete [] temperature;
   delete [] flowdivergence;
@@ -530,13 +426,9 @@ int grid::FindVelShocks()
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
-  this->DebugCheck("FindShocks");
+  this->DebugCheck((char *)"FindShocks");
 
-  long shockcounter, stopcounter;
-
-  float invdx = 1./(CellWidth[0][0]);
   float inv2dx = 1./(2.*CellWidth[0][0]);
-  float inv2dx2 = invdx*invdx;
 
   int is=GridStartIndex[0];
   int js=GridStartIndex[1];
@@ -547,23 +439,17 @@ int grid::FindVelShocks()
 
   int i, j, k, index,
     tempi, posti, prei;
-  float mu,centervelx,centervely,centervelz,
+  float Csound, centervelx,centervely,centervelz,
     preV, postV,veljumpmag,
     v1jump,v2jump,v3jump,
     gradvx, gradvy, gradvz,
     maxdiv, thisjump, oldjump, velmach;
-  float sarea,vol,
-    Csound;
   float num;
-  double energyin;
-
-  float prepop,CRfraction;
-  int thisprepopbin,thismachbin;
 
   int DensNum, TENum, GENum, 
     Vel1Num, Vel2Num, Vel3Num;
 
-  int MachNum, CRNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
 
   /* Compute size (in floats) of the current grid. */
   int size = 1;
@@ -577,20 +463,17 @@ int grid::FindVelShocks()
    
   // Get CR species fields.
 
-  if (IdentifyCRSpeciesFields(MachNum,CRNum,PSTempNum,PSDenNum) == FAIL) {
+  if (IdentifyShockSpeciesFields(MachNum,PSTempNum,PSDenNum) == FAIL) {
     ENZO_FAIL("Error in IdentifyCRSpeciesFields.");
   }
 
   /* Get easy to handle pointers for each variable. */
  
   float *density     = BaryonField[DensNum];
-  float *totalenergy = BaryonField[TENum];
-  float *gasenergy   = BaryonField[GENum];
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
   float *mach        = BaryonField[MachNum];
-  float *cr          = BaryonField[CRNum];
   float *pstemp      = BaryonField[PSTempNum];
   float *psden       = BaryonField[PSDenNum];
 
@@ -607,7 +490,7 @@ int grid::FindVelShocks()
   }
   
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1,  aUnits = 1;
+    VelocityUnits = 1, TimeUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -615,11 +498,7 @@ int grid::FindVelShocks()
   }
  
   // calculate cell temperature, set default values for mach
-  float energy;
   for (i=0;i<size;i++){
-    if(CRModel == 2)
-      cr[i] = 0.0;
-
     entropy[i] = tempgrad_dot_entropygrad[i] = mach[i] = 0.0;
     flowdivergence[i] = (double)(0.0);
     entropy[i] = temperature[i] / (pow(density[i],(Gamma - 1.0)));
@@ -808,11 +687,11 @@ int grid::FindVelShocks()
 	    break;
 	  }
 	  //Make sure density/temperature keeps increasing
-// 	  if(temperature[posti] < temperature[tempi] ||
-// 	     density[posti] < density[tempi]){
-// 	    posti = tempi;
-// 	    break;
-// 	  }
+	  if(temperature[posti] < temperature[tempi] ||
+	     density[posti] < density[tempi]){
+	    posti = tempi;
+	    break;
+	  }
 	  oldjump = thisjump;
 	  //Check for a shock in the current cell.  If not, set postV
 	  //and break out. Use last actual shocked cell as cell, not
@@ -893,11 +772,11 @@ int grid::FindVelShocks()
 	    break;
 	  }
 	  //Make sure density/temperature keeps decreasing
-// 	  if(temperature[prei] > temperature[tempi] ||
-// 	     density[prei] > density[tempi]){
-// 	    posti = tempi;
-// 	    break;
-// 	  }
+	  if(temperature[prei] > temperature[tempi] ||
+	     density[prei] > density[tempi]){
+	    posti = tempi;
+	    break;
+	  }
 	  //Check for a shock in the current cell.  If not, set preV
 	  //and break out.
 	  if(flowdivergence[prei] >= 0.0){
@@ -926,14 +805,14 @@ int grid::FindVelShocks()
 	if(num == -1)
 	  continue;
 
-// 	temprat = max(ShockTemperatureFloor,postV)/(max(ShockTemperatureFloor,preV));
-// 	//temprat = max(postV,ShockTemperatureFloor)/(max(preV,ShockTemperatureFloor));
+	//temprat = max(ShockTemperatureFloor,postV)/(max(ShockTemperatureFloor,preV));
+	//temprat = max(postV,ShockTemperatureFloor)/(max(preV,ShockTemperatureFloor));
 	
-//  	if(max(temperature[posti],ShockTemperatureFloor) <= max(temperature[prei],ShockTemperatureFloor))
-//  	  continue;
+ 	if(max(temperature[posti],ShockTemperatureFloor) <= max(temperature[prei],ShockTemperatureFloor))
+ 	  continue;
 
-//  	if(density[posti] <= density[prei])
-//  	  continue;
+ 	if(density[posti] <= density[prei])
+ 	  continue;
 
 	v1jump = gradvx*(velocity1[posti] - velocity1[prei]);
 	if(GridRank > 1)
@@ -953,7 +832,7 @@ int grid::FindVelShocks()
 	//Figure out which one is the pre-shock cell:
 	prei = ( (temperature[prei] < temperature[posti]) ? prei : posti);
 
-	Csound = sqrt(Gamma*kboltz*temperature[prei]/(DEFAULT_MU*mh))/VelocityUnits;
+	Csound = sqrt(Gamma*kboltz*temperature[prei]/(Mu*mh))/VelocityUnits;
 
 	velmach = (1.0/3.0)*(2.0*thisjump/Csound + 
 			     sqrt(9.0+4.0*thisjump*thisjump/Csound/Csound));
@@ -963,59 +842,6 @@ int grid::FindVelShocks()
 
 	mach[index] = velmach; 
 
-	energyin = 0.5e0*pow(thisjump,3.0)*
-	  (density[prei]/density[index])*dtFixed*
-	  TimeUnits*VelocityUnits/LengthUnits/CellWidth[0][0];
-	
-	//Energy Injection
-	energyin = 0.5e0*pow(Csound*mach[index],3.0)*
-	  (density[prei]/density[index])*dtFixed*
-	  TimeUnits*VelocityUnits/LengthUnits/CellWidth[0][0];
-
-	prepop = cr[prei]/gasenergy[prei];
-	
-	thismachbin = (int)((float)(CosmicRayData.CRNumberMachValues)*
-			    (log10(velmach) - CosmicRayData.CRMinMach)/
-			    (CosmicRayData.CRMaxMach - CosmicRayData.CRMinMach));
-	
-	thisprepopbin = (int)((float)(CosmicRayData.CRNumberPrePopValues)*
-			      (prepop - CosmicRayData.CRMinPrePop)/
-			      (CosmicRayData.CRMaxPrePop - CosmicRayData.CRMinPrePop));
-	
-	thismachbin = max(0, (int)(thismachbin));
-	thismachbin = min((CosmicRayData.CRNumberMachValues -1),
-			  (int)(thismachbin));			 
-	
-	thisprepopbin = max(0, (int)(thisprepopbin));
-	thisprepopbin = min((CosmicRayData.CRNumberPrePopValues -1),
-			  (int)(thisprepopbin));			 
-
-	CRfraction = CosmicRayData.CREfficiency[thisprepopbin][thismachbin];
-
-//  	fprintf(stdout,"thisprepopbin: %i thismachbin: %i energyin: %e s
-//  	CRfraction:
-//  	%e\n",thisprepopbin,thismachbin,energyin,CRfraction);
-//  	fflush(stdout);
-	
-	//Want this in Code Units
-	if(CRModel == 1)
-	  cr[index]+= CRfraction*energyin;
-
-	if(CRModel == 2)
-	  cr[index] = CRfraction*energyin/(dtFixed*TimeUnits);
-	
-	if(CRModel == 3){
-	  if(CRfraction*energyin > gasenergy[index] || 
-	     CRfraction*energyin > totalenergy[index]){
-	    gasenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    totalenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    cr[index] += 0.9*min(gasenergy[index],totalenergy[index]);
-	  } else {
-	    cr[index] += CRfraction*energyin;
-	    gasenergy[index] -= CRfraction*energyin;
-	    totalenergy[index] -= CRfraction*energyin;
-	  }
-	}
 	if(StorePreShockFields){
 	  pstemp[index] = max(temperature[prei],ShockTemperatureFloor);
 	  psden[index] = density[prei];
@@ -1024,7 +850,7 @@ int grid::FindVelShocks()
     }
   }
   
-  /* deallocate temporary space for solver */
+  /* deallocate temporary space */
   
   delete [] temperature;
   delete [] flowdivergence;
@@ -1045,13 +871,9 @@ int grid::FindVelSplitShocks()
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
-  this->DebugCheck("FindShocks");
+  this->DebugCheck((char *)"FindShocks");
 
-  long shockcounter, stopcounter;
-
-  float invdx = 1./(CellWidth[0][0]);
   float inv2dx = 1./(2.*CellWidth[0][0]);
-  float inv2dx2 = invdx*invdx;
 
   int is=GridStartIndex[0];
   int js=GridStartIndex[1];
@@ -1061,24 +883,13 @@ int grid::FindVelSplitShocks()
   int ke=GridEndIndex[2];
 
   int i, j, k, index,
-    tempi, posti, prei;
-  float mu,centervelx,centervely,centervelz,
-    preV, postV,veljumpmag,
-    v1jump,v2jump,v3jump,
-    gradvx, gradvy, gradvz,
-    maxdiv, thisjump, oldjump, velmach;
-  float sarea,vol,
-    Csound;
-  float num;
-  double energyin;
-
-  float prepop,CRfraction;
-  int thisprepopbin,thismachbin;
+    prei;
+  float v1jump, v2jump, v3jump, Csound;
 
   int DensNum, TENum, GENum, 
     Vel1Num, Vel2Num, Vel3Num;
 
-  int MachNum, CRNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
 
   /* Compute size (in floats) of the current grid. */
   int size = 1;
@@ -1092,20 +903,17 @@ int grid::FindVelSplitShocks()
    
   // Get CR species fields.
 
-  if (IdentifyCRSpeciesFields(MachNum,CRNum,PSTempNum,PSDenNum) == FAIL) {
-    ENZO_FAIL("Error in IdentifyCRSpeciesFields.");
+  if (IdentifyShockSpeciesFields(MachNum,PSTempNum,PSDenNum) == FAIL) {
+    ENZO_FAIL("Error in IdentifyShockSpeciesFields.");
   }
 
   /* Get easy to handle pointers for each variable. */
  
   float *density     = BaryonField[DensNum];
-  float *totalenergy = BaryonField[TENum];
-  float *gasenergy   = BaryonField[GENum];
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
   float *mach        = BaryonField[MachNum];
-  float *cr          = BaryonField[CRNum];
   float *pstemp      = BaryonField[PSTempNum];
   float *psden       = BaryonField[PSDenNum];
 
@@ -1122,7 +930,7 @@ int grid::FindVelSplitShocks()
   }
   
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+    VelocityUnits = 1, TimeUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -1130,11 +938,7 @@ int grid::FindVelSplitShocks()
   }
  
   // calculate cell temperature, set default values for mach
-  float energy;
   for (i=0;i<size;i++){
-    if(CRModel == 2)
-      cr[i] = 0.0;
-
     entropy[i] = tempgrad_dot_entropygrad[i] = mach[i] = 0.0;
     flowdivergence[i] = (double)(0.0);
     entropy[i] = temperature[i] / (pow(density[i],(Gamma - 1.0)));
@@ -1223,121 +1027,63 @@ int grid::FindVelSplitShocks()
 	  continue;
 
 	//x-direction
-
-	v1jump = fabs(velocity1[index]-velocity1[index-1]);
-	if(velocity1[index] > velocity1[index-1])
+	v1jump = fabs(velocity1[index+1]-velocity1[index-1]);
+	if(velocity1[index+1] > velocity1[index-1])
 	  prei = index-1;
 	else
-	  prei = index;
+	  prei = index+1;
 	
 	Csound = sqrt(Gamma*kboltz*temperature[prei]/
-		      (DEFAULT_MU*mh))/VelocityUnits;
+		      (Mu*mh))/VelocityUnits;
 	mach[prei] = (1.0/3.0)*(2.0*v1jump/Csound + 
 				sqrt(9.0+4.0*v1jump*v1jump/Csound/Csound));
-      	if(flowdivergence[prei] >= 0.0)
-	  mach[prei]=0.0;
 	
 	//y-direction
 
 	if (GridRank > 1){
-	  v2jump = fabs(velocity2[index]-velocity2[index-GridDimension[0]]);
-	  if(velocity2[index] > velocity2[index-GridDimension[0]])
+	  v2jump = fabs(velocity2[index+GridDimension[0]]-velocity2[index-GridDimension[0]]);
+	  if(velocity2[index+GridDimension[0]] > velocity2[index-GridDimension[0]])
 	    prei = index-GridDimension[0];
 	  else
-	    prei = index;
+	    prei = index+GridDimension[0];
 	  Csound = sqrt(Gamma*kboltz*temperature[prei]/
-			(DEFAULT_MU*mh))/VelocityUnits;
+			(Mu*mh))/VelocityUnits;
 	  mach[prei] = sqrt(mach[prei]*mach[prei] + 
 			    (1.0/3.0)*(2.0*v2jump/Csound + 
 				       sqrt(9.0+4.0*v2jump*v2jump/Csound/Csound))*
 			    (1.0/3.0)*(2.0*v2jump/Csound + 
 				       sqrt(9.0+4.0*v2jump*v2jump/Csound/Csound)));
-	  if(flowdivergence[prei] >= 0.0)
-	    mach[prei]=0.0;
 	}	
 	
 	//z-direction
 
 	if (GridRank > 2){
-	  v3jump = fabs(velocity3[index]-velocity3[index-GridDimension[0]]);
-	  if(velocity3[index] > velocity3[index-
-					  GridDimension[0]*GridDimension[1]])
+	  v3jump = fabs(velocity3[index+GridDimension[0]*GridDimension[1]]-
+			velocity3[index-GridDimension[0]*GridDimension[1]]);
+	  if(velocity3[index+GridDimension[0]*GridDimension[1]] > 
+	     velocity3[index-GridDimension[0]*GridDimension[1]])
 	    prei = index-GridDimension[0]*GridDimension[1];
 	  else
-	    prei = index;
+	    prei = index+GridDimension[0]*GridDimension[1];
 	  Csound = sqrt(Gamma*kboltz*temperature[prei]/
-			(DEFAULT_MU*mh))/VelocityUnits;
+			(Mu*mh))/VelocityUnits;
 	  mach[prei] = sqrt(mach[prei]*mach[prei] + 
 			    (1.0/3.0)*(2.0*v3jump/Csound + 
 				       sqrt(9.0+4.0*v3jump*v3jump/Csound/Csound))*
 			    (1.0/3.0)*(2.0*v3jump/Csound + 
 				       sqrt(9.0+4.0*v3jump*v3jump/Csound/Csound)));
-	  if(flowdivergence[prei] >= 0.0)
-	    mach[prei]=0.0;
 	}	
-      }
-    }
-  }
-  for(k=ks; k<=ke;k++){
-    for(j=js; j<=je;j++){
-      for(i=is; i<=ie;i++){
-	
- 	index = i + GridDimension[0]*(j + GridDimension[1]*k);	
-	Csound = sqrt(Gamma*kboltz*temperature[index]/
-		      (DEFAULT_MU*mh))/VelocityUnits;	
-	//Energy Injection
-	energyin = 0.5e0*pow(Csound*mach[index],3.0)*
-	  (density[index]/density[index])*dtFixed*
-	  TimeUnits*VelocityUnits/LengthUnits/CellWidth[0][0];
-	
-	prepop = cr[index]/gasenergy[index];
-	
-	thismachbin = (int)((float)(CosmicRayData.CRNumberMachValues)*
-			    (log10(mach[index]) - CosmicRayData.CRMinMach)/
-			    (CosmicRayData.CRMaxMach - CosmicRayData.CRMinMach));
-	
-	thisprepopbin = (int)((float)(CosmicRayData.CRNumberPrePopValues)*
-			      (prepop - CosmicRayData.CRMinPrePop)/
-			      (CosmicRayData.CRMaxPrePop - CosmicRayData.CRMinPrePop));
-	
-	thismachbin = max(0, (int)(thismachbin));
-	thismachbin = min((CosmicRayData.CRNumberMachValues -1),
-			  (int)(thismachbin));			 
-	
-	thisprepopbin = max(0, (int)(thisprepopbin));
-	thisprepopbin = min((CosmicRayData.CRNumberPrePopValues -1),
-			    (int)(thisprepopbin));			 
-	
-	CRfraction = CosmicRayData.CREfficiency[thisprepopbin][thismachbin];
-	
-	//Want this in Code Units
-	if(CRModel == 1)
-	  cr[index]+= CRfraction*energyin;	
-	
-	if(CRModel == 2)
-	  cr[index] = CRfraction*energyin/(dtFixed*TimeUnits);
-	
-	if(CRModel == 3){
-	  if(CRfraction*energyin > gasenergy[index] || 
-	     CRfraction*energyin > totalenergy[index]){
-	    gasenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    totalenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    cr[index] += 0.9*min(gasenergy[index],totalenergy[index]);
-	  } else {
-	    cr[index] += CRfraction*energyin;
-	    gasenergy[index] -= CRfraction*energyin;
-	    totalenergy[index] -= CRfraction*energyin;
-	  }
-	}
+
 	if(StorePreShockFields){
 	  pstemp[index] = max(temperature[prei],ShockTemperatureFloor);
 	  psden[index] = density[prei];
 	}	
+	
       }
     }
   }
   
-  /* deallocate temporary space for solver */
+  /* deallocate temporary space */
   
   delete [] temperature;
   delete [] flowdivergence;
@@ -1358,9 +1104,7 @@ int grid::FindTempSplitShocks()
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
-  this->DebugCheck("FindShocks");
-
-  long shockcounter, stopcounter;
+  this->DebugCheck((char *)"FindShocks");
 
   float invdx = 1./(CellWidth[0][0]);
   float inv2dx = 1./(2.*CellWidth[0][0]);
@@ -1373,31 +1117,19 @@ int grid::FindTempSplitShocks()
   int je=GridEndIndex[1];
   int ke=GridEndIndex[2];
 
-  int i, j, k, index,
-    tempi, posti, prei;
-  float mu,centervelx,centervely,centervelz,
-    preV, postV,veljumpmag,
-    v1jump,v2jump,v3jump,
-    gradvx, gradvy, gradvz,
-    maxdiv, thisjump, oldjump, velmach;
-  float sarea,vol,
-    Csound;
-  float num;
-  double energyin;
-
-  float prepop,CRfraction;
-  int thisprepopbin,thismachbin;
+  int i, j, k, index,posti, prei;
+  float maxdiv;
 
   //Specific for Split Temperature:
   float tempden, temptemp, mach1,
-    postden, preden, postT, preT,
+    postT, preT,
     temprat;
   int centerfound;
 
   int DensNum, TENum, GENum, 
     Vel1Num, Vel2Num, Vel3Num;
 
-  int MachNum, CRNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
 
   /* Compute size (in floats) of the current grid. */
   int size = 1;
@@ -1411,20 +1143,17 @@ int grid::FindTempSplitShocks()
    
   // Get CR species fields.
 
-  if (IdentifyCRSpeciesFields(MachNum,CRNum,PSTempNum,PSDenNum) == FAIL) {
-    ENZO_FAIL("Error in IdentifyCRSpeciesFields.");
+  if (IdentifyShockSpeciesFields(MachNum,PSTempNum,PSDenNum) == FAIL) {
+    ENZO_FAIL("Error in IdentifyShockSpeciesFields.");
   }
 
   /* Get easy to handle pointers for each variable. */
  
   float *density     = BaryonField[DensNum];
-  float *totalenergy = BaryonField[TENum];
-  float *gasenergy   = BaryonField[GENum];
   float *velocity1   = BaryonField[Vel1Num];
   float *velocity2   = BaryonField[Vel2Num];
   float *velocity3   = BaryonField[Vel3Num];
   float *mach        = BaryonField[MachNum];
-  float *cr          = BaryonField[CRNum];
   float *pstemp      = BaryonField[PSTempNum];
   float *psden       = BaryonField[PSDenNum];
 
@@ -1441,7 +1170,7 @@ int grid::FindTempSplitShocks()
   }
   
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-    VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
+    VelocityUnits = 1, TimeUnits = 1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
@@ -1449,11 +1178,7 @@ int grid::FindTempSplitShocks()
   }
  
   // calculate cell temperature, set default values for mach
-  float energy;
   for (i=0;i<size;i++){
-    if(CRModel == 2)
-      cr[i] = 0.0;
-
     entropy[i] = tempgrad_dot_entropygrad[i] = mach[i] = 0.0;
     flowdivergence[i] = (double)(0.0);
     entropy[i] = temperature[i] / (pow(density[i],(Gamma - 1.0)));
@@ -1557,11 +1282,11 @@ int grid::FindTempSplitShocks()
 
 	//x-direction
 
+	posti = index;
+	tempden = density[index];
+	maxdiv = flowdivergence[index];
+	temptemp = temperature[index];
 	while(true){
-	  posti = index;
-	  tempden = density[index];
-	  maxdiv = flowdivergence[index];
-	  temptemp = temperature[index];
 	  if(temperature[index+1] >= temperature[index-1]){
 	    posti++;
 	  }else{
@@ -1587,10 +1312,10 @@ int grid::FindTempSplitShocks()
 	  }
 	  maxdiv = flowdivergence[posti];
 	}
+	prei = index;
+	tempden = density[index];
+	temptemp = temperature[index];
 	while(true){
-	  prei = index;
-	  tempden = density[index];
-	  temptemp = temperature[index];
 	  if(temperature[index+1] < temperature[index-1]){
 	    prei++;
 	  }else{
@@ -1630,10 +1355,10 @@ int grid::FindTempSplitShocks()
 	
 	//y-direction
 	if(GridRank > 1){
+	  posti = index;
+	  tempden = density[index];
+	  temptemp = temperature[index];
 	  while(true){
-	    posti = index;
-	    tempden = density[index];
-	    temptemp = temperature[index];
 	    maxdiv = flowdivergence[index];
 	    if(temperature[index+GridDimension[0]] >= 
 	       temperature[index-GridDimension[0]]){
@@ -1661,10 +1386,10 @@ int grid::FindTempSplitShocks()
 	    }
 	    maxdiv = flowdivergence[posti];
 	  }
+	  prei = index;
+	  tempden = density[index];
+	  temptemp = temperature[index];
 	  while(true){
-	    prei = index;
-	    tempden = density[index];
-	    temptemp = temperature[index];
 	    if(temperature[index+GridDimension[0]] < 
 	       temperature[index-GridDimension[0]]){
 	      prei+=GridDimension[0];
@@ -1707,10 +1432,10 @@ int grid::FindTempSplitShocks()
 	
 	//z-direction
 	if(GridRank > 2){
+	  posti = index;
+	  tempden = density[index];
+	  temptemp = temperature[index];
 	  while(true){
-	    posti = index;
-	    tempden = density[index];
-	    temptemp = temperature[index];
 	    maxdiv = flowdivergence[index];
 	    if(temperature[index+GridDimension[0]*GridDimension[1]] >= 
 	       temperature[index-GridDimension[0]*GridDimension[1]]){
@@ -1738,10 +1463,10 @@ int grid::FindTempSplitShocks()
 	    }
 	    maxdiv = flowdivergence[posti];
 	  }
+	  prei = index;
+	  tempden = density[index];
+	  temptemp = temperature[index];
 	  while(true){
-	    prei = index;
-	    tempden = density[index];
-	    temptemp = temperature[index];
 	    if(temperature[index+GridDimension[0]*GridDimension[1]] < 
 	       temperature[index-GridDimension[0]*GridDimension[1]]){
 	      prei+=GridDimension[0]*GridDimension[1];
@@ -1781,74 +1506,20 @@ int grid::FindTempSplitShocks()
 	      mach[index]=mach1;
 	  }
 	}  // GridRank > 2
-      } // for i
-    } // for j
-  } // for k
-  for(k=ks; k<=ke;k++){
-    for(j=js; j<=je;j++){
-      for(i=is; i<=ie;i++){
-	
- 	index = i + GridDimension[0]*(j + GridDimension[1]*k);	
-	Csound = sqrt(Gamma*kboltz*temperature[index]/
-		      (DEFAULT_MU*mh))/VelocityUnits;	
-	//Energy Injection
-	energyin = 0.5e0*pow(Csound*mach[index],3.0)*
-	  (density[index]/density[index])*dtFixed*
-	  TimeUnits*VelocityUnits/LengthUnits/CellWidth[0][0];
-	
-	prepop = cr[index]/gasenergy[index];
-	
-	thismachbin = (int)((float)(CosmicRayData.CRNumberMachValues)*
-			    (log10(mach[index]) - CosmicRayData.CRMinMach)/
-			    (CosmicRayData.CRMaxMach - CosmicRayData.CRMinMach));
-	
-	thisprepopbin = (int)((float)(CosmicRayData.CRNumberPrePopValues)*
-			      (prepop - CosmicRayData.CRMinPrePop)/
-			      (CosmicRayData.CRMaxPrePop - CosmicRayData.CRMinPrePop));
-	
-	thismachbin = max(0, (int)(thismachbin));
-	thismachbin = min((CosmicRayData.CRNumberMachValues -1),
-			  (int)(thismachbin));			 
-	
-	thisprepopbin = max(0, (int)(thisprepopbin));
-	thisprepopbin = min((CosmicRayData.CRNumberPrePopValues -1),
-			    (int)(thisprepopbin));			 
-	
-	CRfraction = CosmicRayData.CREfficiency[thisprepopbin][thismachbin];
-	
-	//Want this in Code Units
-	if(CRModel == 1)
-	  cr[index]+= CRfraction*energyin;	
-	
-	if(CRModel == 2)
-	  cr[index] = CRfraction*energyin/(dtFixed*TimeUnits);
-	
-	if(CRModel == 3){
-	  if(CRfraction*energyin > gasenergy[index] || 
-	     CRfraction*energyin > totalenergy[index]){
-	    gasenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    totalenergy[index] -= 0.9*min(gasenergy[index],totalenergy[index]);
-	    cr[index] += 0.9*min(gasenergy[index],totalenergy[index]);
-	  } else {
-	    cr[index] += CRfraction*energyin;
-	    gasenergy[index] -= CRfraction*energyin;
-	    totalenergy[index] -= CRfraction*energyin;
-	  }
-	}
 	if(StorePreShockFields){
 	  pstemp[index] = max(temperature[prei],ShockTemperatureFloor);
 	  psden[index] = density[prei];
 	}
-      }
-    }
-  }
+      } // for i
+    } // for j
+  } // for k
   
-  /* deallocate temporary space for solver */
+  /* deallocate temporary space */
   
   delete [] temperature;
   delete [] flowdivergence;
   delete [] tempgrad_dot_entropygrad;
   delete [] entropy;
-  
+
   return SUCCESS;
 }

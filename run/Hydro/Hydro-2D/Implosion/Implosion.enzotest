@@ -1,0 +1,10 @@
+name = 'Implosion'
+answer_testing_script = None
+nprocs = 1
+runtime = 'medium'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 2
+max_time_minutes = 300

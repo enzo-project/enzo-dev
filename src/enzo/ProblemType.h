@@ -18,18 +18,24 @@ class EnzoProblemType
 {
 /* These will be overridden in the public namespace by implementations */
 public:
+
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
-    {}
+    {return SUCCESS;}
+    virtual int InitializeFromRestart(HierarchyEntry &TopGrid,
+            TopGridData &MetaData)
+    {return SUCCESS;}
     virtual int InitializeGrid(grid *thisgrid,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
-    {}
+    {return SUCCESS;}
+    int AddDataLabel(const char *FieldName);
+
 protected:
     //.. constructor
-    EnzoProblemType( )
-    {}
+    EnzoProblemType();
     virtual ~EnzoProblemType()
     {}
+    int DataLabelCount;
 
     grid *CreateNewUniformGrid(grid *ParentGrid,
             int Rank, int Dimensions[], 
@@ -50,6 +56,10 @@ protected:
 
     void FinalizeGrids(HierarchyEntry **RefLevels, HierarchyEntry &TopGrid,
                        TopGridData &MetaData);
+
+    protected:
+
+    private:
 };
 
 /*!
@@ -64,8 +74,10 @@ struct EnzoProblemType_creator
     virtual ~EnzoProblemType_creator() { }
 };
 
+typedef std::map<std::string, EnzoProblemType_creator *> EnzoProblemMap;
+
 //! maps the name of a plug-in to a pointer of the factory pattern 
-std::map<std::string, EnzoProblemType_creator *>& get_problem_types();
+EnzoProblemMap &get_problem_types();
 
 /*!
  * @brief concrete factory pattern for plug-ins

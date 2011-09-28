@@ -54,17 +54,11 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
-int DetermineSubgridSizeExtrema(LevelHierarchyEntry *LevelArray[],
-				int level);
-#ifdef OPTIMIZED_CTP
+int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
 			       int TopGridDims[]);
-#else
-int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids);
-int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids);
-#endif
 int CommunicationCollectParticles(LevelHierarchyEntry *LevelArray[], int level,
 				  bool ParticlesAreLocal,
 				  bool SyncNumberOfParticles, 
@@ -79,7 +73,8 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
 			  ChainingMeshStructure ChainingMesh);
 #ifdef TRANSFER
 int SetSubgridMarker(TopGridData &MetaData, 
-		     LevelHierarchyEntry *LevelArray[], int level);
+		     LevelHierarchyEntry *LevelArray[], int level,
+		     int UpdateReplicatedGridsOnly);
 #endif
 double ReturnWallTime(void);
 
@@ -95,6 +90,10 @@ static double RHperf[16];
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level)
 {
+
+  if (LevelCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
+    return SUCCESS;
+  }
 
   double tt0, tt1, tt2, tt3;
  
@@ -161,6 +160,20 @@ int RebuildHierarchy(TopGridData *MetaData,
     MaximumStaticSubgridLevel = max(MaximumStaticSubgridLevel,
 				    StaticRefineRegionLevel[i]);
 
+  /* Calculate number of cells on each level */
+
+  long_int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
+  if (SubgridSizeAutoAdjust == TRUE) {
+    for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
+      NumberOfCells[i] = 0;
+      for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel)
+	if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
+	  NumberOfCells[i] += Temp->GridData->GetActiveSize();
+    }
+    CommunicationAllSumValues(NumberOfCells, MAX_DEPTH_OF_HIERARCHY);
+  }
+
+  tt0 = ReturnWallTime();
   for (i = MAX_DEPTH_OF_HIERARCHY-1; i > level; i--) {
 
     Temp = LevelArray[i];
@@ -180,7 +193,6 @@ int RebuildHierarchy(TopGridData *MetaData,
     /* Collect all the grids with the same parent and pass them all to
        MoveAllParticles (marking which ones have already been passed). */
 
-    tt0 = ReturnWallTime();
     for (j = 0; j < grids; j++)
       if (GridPointer[j] != NULL) {
 	grids2 = 0;
@@ -239,13 +251,8 @@ int RebuildHierarchy(TopGridData *MetaData,
       Temp = Temp->NextGridThisLevel;
     }
 
-#ifdef OPTIMIZED_CTP
     CommunicationTransferParticles(GridPointer, grids, MetaData->TopGridDims);
     CommunicationTransferStars(GridPointer, grids, MetaData->TopGridDims);
-#else
-    CommunicationTransferParticles(GridPointer, grids);
-    CommunicationTransferStars(GridPointer, grids);
-#endif
 
     /* We need to collect particles again */
 
@@ -314,21 +321,32 @@ int RebuildHierarchy(TopGridData *MetaData,
     } // end: loop over levels
  
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
+
+      /* Find maximum level that exists right now. */
+ 
+      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) 
+	if (TempLevelArray[i] == NULL) break;
+
+      int MaximumLevelNow = i;
  
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */
 
-    for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
+      //      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
+      for (i = level; i < MaximumLevelNow; i++) {
  
+
       /* If there are no grids on this level, exit. */
  
       if (LevelArray[i] == NULL)
 	break;
 
+
       /* Determine the subgrid minimum and maximum sizes, if
 	 requested. */
 
-      DetermineSubgridSizeExtrema(LevelArray, i);
+      DetermineSubgridSizeExtrema(NumberOfCells[i+1], i+1, 
+				  MaximumStaticSubgridLevel+1);
  
       /* 3a) Generate an array of grids on this level. */
  
@@ -638,9 +656,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* update all SubgridMarkers */
 
 #ifdef TRANSFER
-  if (RadiativeTransferLoadBalance == FALSE || MetaData->FirstTimestepAfterRestart)
-    if (SetSubgridMarker(*MetaData, LevelArray, level) == FAIL)
-      ENZO_FAIL("Error in SetSubgridMarker from RebuildHierarchy.");
+  SetSubgridMarker(*MetaData, LevelArray, level, FALSE);
 #endif /* TRANSFER  */
  
 #ifdef MPI_INSTRUMENTATION

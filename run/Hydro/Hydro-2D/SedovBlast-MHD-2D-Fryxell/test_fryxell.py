@@ -1,6 +1,6 @@
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest
-from yt.extensions.enzo_test.output_tests import create_test
+from yt.utilities.answer_testing.api import \
+    YTStaticOutputTest, create_test
 import pylab
 class TestFryxellImage(YTStaticOutputTest):
     field = None

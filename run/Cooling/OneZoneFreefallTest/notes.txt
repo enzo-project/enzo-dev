@@ -1,0 +1,15 @@
+OneZoneFreefallTest
+----------------
+
+This test problem will set up a 2D grid varying in energy and metallicity.  
+All points have the same density, which evolves according to the analytical 
+solution for free-fall collapse.  The timestep is calculated as a fraction of 
+the free-fall time.  Since the timestep continually decreases, outputs are 
+done on cycles.  This test problem can be used to test chemistry and 
+cooling routines.
+
+The script, plot.py, will create plots of n vs. T (and Tdust), n
+vs. f_H2, and n vs. t_cool/t_dyn.  If using H2 formation on 
+dust grains, set dust=True on line 10.  Run this script like this:
+
+python plot.py OneZoneFreefallTest.enzo

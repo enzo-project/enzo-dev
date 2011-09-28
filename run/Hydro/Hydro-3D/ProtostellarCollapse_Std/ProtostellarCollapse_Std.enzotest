@@ -1,0 +1,10 @@
+name = 'ProtostellarCollapse_Std'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+dimensionality = 3
+max_time_minutes = 1

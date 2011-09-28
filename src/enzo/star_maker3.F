@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -13,7 +14,9 @@ c
      &                      imetal, imethod, mintdyn,
      &                      odthresh, masseff, smthresh, level, np, 
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf)
+     &                      mp, tdp, tcp, metalf,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -30,6 +33,9 @@ c  modified1:  20 Dec 2002 by BWO
 c       Stochastic star formation is added again.
 c       The particle masses are averaged over several cells to avoid
 c       the "runaway star particle" phenomenon
+c  modified2: 27 Sept 2011 by JHW
+c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
@@ -54,6 +60,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
 c
@@ -66,6 +73,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
+c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
 c
 c
 c-----------------------------------------------------------------------
@@ -75,7 +83,7 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
+      integer procnum, imetalSNIa
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz)
@@ -86,6 +94,7 @@ c
       REALSUB xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    odthresh, masseff, smthresh, mintdyn
 c
       real   sformsum
@@ -99,8 +108,8 @@ c
       real   pi, G, sndspdC
       real   isosndsp2, starmass, starfraction, bmass, jeanmass
       double precision msolar
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+     &           msolar=SolarMass)
 c
       ii = np
 
@@ -122,7 +131,7 @@ c
 c
 c              1) is this finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0.d0) goto 10
 c
 c              2) is density greater than threshold?
 c
@@ -141,15 +150,15 @@ c
      &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
-               if (div .ge. 0.0) goto 10
+               if (div .ge. 0.d0) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
+               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4) goto 10
+     &             temp(i,j,k) .gt. 1.1d4) goto 10
 c
 c              5) is M > M_Jeans? (this definition involves only baryons under
 c                 the assumption that the dark matter is stable, which
@@ -159,8 +168,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6.0*sqrt(d(i,j,k)*dble(d1))) *
-     &                    dble(pi * isosndsp2 / G)**1.5 / msolar
+               jeanmass = pi/(6.d0*sqrt(d(i,j,k)*dble(d1))) *
+     &                    dble(pi * isosndsp2 / G)**1.5d0 / msolar
 
 c
 c  THIS IS COMMENTED OUT - NO JEANS MASS CRITERION IN THIS ALGORITHM!!!
@@ -170,8 +179,8 @@ c
 c              6) Check to see if star is above threshold (given
 c                 in units of M_solar)
 c
-               starfraction = min(masseff*dt/tdyn, 0.9)
-               tdyn = max(tdyn, mintdyn*3.15e7/t1)
+               starfraction = min(masseff*dt/tdyn, 0.9d0)
+               tdyn = max(tdyn, mintdyn*3.15d7/t1)
 
 c
 c  STOCHASTIC STAR FORMATION HAS BEEN ADDED AGAIN - BWO 20 Dec 2002
@@ -188,7 +197,7 @@ c
                if (starfraction*bmass .lt. smthresh) then
                   sformsum = sformsum + starfraction*bmass
                   if (sformsum .lt. smthresh) goto 10
-                  starfraction = min(smthresh/bmass, 0.5)
+                  starfraction = min(smthresh/bmass, 0.5d0)
                   sformsum = sformsum - starfraction*bmass
                endif
 #else
@@ -206,9 +215,9 @@ c
                mp(ii)  = starfraction * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = xstart + (float(i)-0.5d0)*dx
+               yp(ii) = ystart + (float(j)-0.5d0)*dx
+               zp(ii) = zstart + (float(k)-0.5d0)*dx
 c
 c              Star velocities averaged over multiple cells to
 c              avoid "runaway star particle" phenomenon
@@ -231,12 +240,18 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
                else
 !                 write(*,'("Zero metal fraction")')
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
+               endif
+c
+c              MKRJ 2/20/08 Do the same for particle metal fraction from SN Ia
+c
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)    ! in here metal is a fraction
                endif
 c
 c              Remove mass from grid
 c
-               d(i,j,k) = (1.0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
 c
 c               write(7+procnum,1000) level,bmass*starfraction,tcp(ii),
 c     &                           tdp(ii)*t1,d(i,j,k)*d1,z,metalf(ii)
@@ -280,6 +295,7 @@ c
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn)
+
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -365,7 +381,7 @@ c
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio,
      &     distmass
-      parameter (clight = 3e10, msolar_e51 = 1800.0)
+      parameter (clight = c_light, msolar_e51 = 1800.d0)
 c
 c-----------------------------------------------------------------------
 c
@@ -390,20 +406,20 @@ c          which should have formed during this timestel dt using the integral
 c          form of the Cen & Ostriker formula.
 
             xv1 = (t      - tcp(n))/tdp(n)
-            if (xv1 .gt. 12.0) goto 10     ! t-tcp >> tdp so ignore
+            if (xv1 .gt. 12.d0) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
 
 c        First calculate the initial mass of the star particle 
 c          in question.
             minitial = mp(n) / 
-     &              (1.0 - m_eject*(1.0 - (1.0 + xv1)*exp(-xv1)))
+     &              (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
 c
 c       Then, calculate the amount of mass that would have formed in
 c         this timestep.
 c
-            mform = minitial * ((1.0 + xv1)*exp(-xv1) - 
-     &                          (1.0 + xv2)*exp(-xv2))
-            mform = max(min(mform, mp(n)), 0.0)
+            mform = minitial * ((1.d0 + xv1)*exp(-xv1) - 
+     &                          (1.d0 + xv2)*exp(-xv2))
+            mform = max(min(mform, mp(n)), 0.d0)
 c
 c         Compute index of the cell that the star particle
 c           resides in.
@@ -423,7 +439,7 @@ c
 c
 c          skip if very little mass is formed.
 c
-            if (mform/d(i,j,k) .lt. 1.0e-10) goto 10
+            if (mform/d(i,j,k) .lt. 1.0d-10) goto 10
 c
 c          calculate mass added to each cell
 c
@@ -461,7 +477,7 @@ c
 #define NO_SHARE_ENERGY
 #ifdef SHARE_ENERGY
             energy = energy*mform*m_eject/
-     &              (mform*m_eject + minitial*exp(-xv2)*(1.0 + xv2))
+     &              (mform*m_eject + minitial*exp(-xv2)*(1.d0 + xv2))
 #endif /* SHARE_ENERGY */
 c
 c           Add energy to energy field
@@ -473,7 +489,7 @@ c
                   do ic = i-distrad,i+distrad
                      cellstep = stepj + abs(ic-i)
                      if (cellstep .le. diststep) then
-                        dratio = 1.0/(d(ic,jc,kc) + distmass)
+                        dratio = 1.d0/(d(ic,jc,kc) + distmass)
                         te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
      &                       energy) * dratio
                         if (idual .eq. 1)
@@ -492,7 +508,7 @@ c
                            metal(ic,jc,kc) = 
      &                          (metal(ic,jc,kc)*d(ic,jc,kc) + 
      &                          (mform / distcells) * 
-     &                          (yield * (1.0-metalf(n)) + 
+     &                          (yield * (1.d0-metalf(n)) + 
      &                          m_eject * metalf(n))) * dratio
             !metal is a fraction
 c
@@ -520,7 +536,7 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
                         if (imethod .ne. 2 .and. idual .eq. 1) then
-                           te(ic,jc,kc) = 0.5*(u(ic,jc,kc)**2 + 
+                           te(ic,jc,kc) = 0.5d0*(u(ic,jc,kc)**2 + 
      &                          v(ic,jc,kc)**2 + w(ic,jc,kc)**2) +
      &                          ge(ic,jc,kc)
                         endif

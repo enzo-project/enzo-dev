@@ -67,9 +67,9 @@
 #define MAX_REFINE_REGIONS               150
 
 #ifdef WINDS 
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  3
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
 #endif
 
 #define MAX_TIME_ACTIONS                   10
@@ -80,7 +80,7 @@
 
 #define MAX_MOVIE_FIELDS                    6
 
-#define MAX_POTENTIAL_ITERATIONS            8
+#define MAX_POTENTIAL_ITERATIONS            80
 
 #define MAX_ENERGY_BINS                    10
 
@@ -501,6 +501,11 @@ typedef int            HDF5_hid_t;
 #define BONDI_ACCRETION 1
 #define RADIAL_ACCRETION 2 // accrete based on a radial profile of dM/dt
 
+/* Correcting Bondi accretion rate */
+
+#define BONDI_ACCRETION_CORRECT_ANALYTIC -1   // by using R^-1.5 profile
+#define BONDI_ACCRETION_CORRECT_NUMERICAL -2  // by stepping outwards
+
 /* Type of metal cooling */
 
 #define JHW_METAL_COOLING 1
@@ -518,8 +523,6 @@ typedef int            HDF5_hid_t;
 #define NON_DM_PARTICLES_MERGED_LEVEL 3
 #define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
-
-#define DEFAULT_MU 0.6
 
 /* Maximum number of leafs per parent in radiation source tree. */
 

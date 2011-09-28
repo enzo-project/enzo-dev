@@ -42,6 +42,8 @@ SPEXTERN int G_TotalNumberOfStars;
 /* Star particle parameters. */
 
 SPEXTERN int StarFeedbackType;
+SPEXTERN int StarMakerTypeIaSNe;
+SPEXTERN int StarMakerPlanetaryNebulae;
 SPEXTERN float StarMakerOverDensityThreshold;
 SPEXTERN float StarMakerSHDensityThreshold;
 SPEXTERN float StarMakerMassEfficiency;
@@ -60,6 +62,7 @@ SPEXTERN int StarFeedbackDistTotalCells;
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
 SPEXTERN int   PopIIIInitialMassFunctionSeed;
+SPEXTERN int   PopIIIInitialMassFunctionCalls;
 SPEXTERN float PopIIILowerMassCutoff;
 SPEXTERN float PopIIIUpperMassCutoff;
 SPEXTERN float PopIIIInitialMassFunctionSlope;
@@ -85,6 +88,7 @@ SPEXTERN float  StarClusterSNRadius;
 SPEXTERN float  StarClusterFormEfficiency;
 SPEXTERN float  StarClusterMinimumMass;
 SPEXTERN float  StarClusterCombineRadius;
+SPEXTERN int    StarClusterUnresolvedModel;
 SPEXTERN float  StarClusterRegionLeftEdge[3];
 SPEXTERN float  StarClusterRegionRightEdge[3];
 

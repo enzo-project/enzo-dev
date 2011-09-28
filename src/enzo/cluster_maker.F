@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 c=======================================================================
 c//////////////////////  SUBROUTINE CLUSTER_MAKER \\\\\\\\\\\\\\\\\\\\\\
 c
@@ -11,7 +12,8 @@ c
      &                      metalcrit, odthresh, lifetime, level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
-     &                      type, ctype, justburn, iradtrans)
+     &                      type, ctype, justburn, iradtrans,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
 c
 c  CREATES JEANS-RESOLVED STAR PARTICLES
 c
@@ -31,6 +33,9 @@ c  modified4: 30 August 2005 by John Wise
 c    modified star_maker2 for single primordial star formation
 c  modified5: 26 July 2007 by John Wise
 c    modified pop3_maker to model stellar clusters using radiative feedback
+c  modified6: 20 Feb 2008 by JHW
+c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
@@ -53,7 +58,7 @@ c    odthresh - overdensity threshold (some number * avg. density)
 c    lifetime - lifetime of a stellar particle
 c    h2crit   - critical value for primordial star formation
 c    metalcrit- critical value for primordial star formation
-
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c
@@ -71,6 +76,7 @@ c    nmax     - particle array size specified by calling routine
 c    type     - particle types
 c    ctype    - current type to set the particles to
 c    justburn     - time-weighted mass of star formation (code units)
+c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
 c
 c
 c-----------------------------------------------------------------------
@@ -80,11 +86,12 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, ctype, iradtrans, imulti
+      integer procnum, ctype, iradtrans, imulti, imetalSNIa
       real    formleft(3), formright(3)
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    dt, dx, z
       real    d1, x1, v1, t1, justburn
       REALSUB xstart, ystart, zstart, t
@@ -105,14 +112,17 @@ c
       real   isosndsp2, bmass, jeanmass, lum, min_temp
       REALSUB this_pos(3)
       double precision msolar, mh
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33, mh=1.673e-24)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+     &           msolar=SolarMass, mh=mass_h)
 c
-      if (iradtrans .eq. 0) then
-         write(6,*) 'Radiative transfer required for cluster_maker!'
-         write(6,*) 'Check parameter file.'
-         stop
-      endif
+c      if (iradtrans .eq. 0) then
+c         write(6,*) 'Radiative transfer required for cluster_maker!'
+c         write(6,*) 'Check parameter file.'
+c         stop
+c      endif
+
+c      write(6,*) 'cluster maker:'
+c      write(6,*) odthresh
 
       ii = np
 c
@@ -138,9 +148,9 @@ c
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 
-               this_pos(1) = xstart + (float(i)-0.5)*dx
-               this_pos(2) = ystart + (float(j)-0.5)*dx
-               this_pos(3) = zstart + (float(k)-0.5)*dx
+               this_pos(1) = xstart + (float(i)-0.5d0)*dx
+               this_pos(2) = ystart + (float(j)-0.5d0)*dx
+               this_pos(3) = zstart + (float(k)-0.5d0)*dx
 c
 c              1) finest level of refinement?
 c
@@ -168,12 +178,20 @@ c
 c              4) t_cool < t_free-fall (if T < 8000.0 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
+               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
 c               if (tdyn .gt. cooltime(i,j,k) .or.
 c     &            temp(i,j,k) .lt. 1.1e4) 
 c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
 c               if (tdyn .lt. cooltime(i,j,k)) goto 10
-               if (temp(i,j,k) .gt. min_temp) goto 10
+
+c     Lifetime > 0 (resolved SF. Don't use tdyn)
+               if (temp(i,j,k) .gt. min_temp .and. 
+     &              lifetime.gt.0) goto 10
+c     Lifetime < 0 means unresolved SF.  Use tcool<tdyn.
+               if (lifetime.lt.0 .and.
+     &              tdyn .lt. cooltime(i,j,k) .and. 
+     &              temp(i,j,k) .gt. min_temp) goto 10
+
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. min_temp) goto 10
 c
@@ -222,7 +240,11 @@ c
                ii = ii + 1
 c               mp(ii)   = efficiency*bmass
                mp(ii)  = efficiency*d(i,j,k)
-               tdp(ii) = lifetime*3.15e7/t1  ! yr -> code
+               if (lifetime.lt.0.0) then
+                  tdp(ii) = 4.d0*tdyn
+               else
+                  tdp(ii) = lifetime*3.15d7/t1 ! yr -> code
+               endif
 
                type(ii) = -ctype
                tcp(ii) = t
@@ -238,39 +260,39 @@ c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 c
                if (imethod .eq. 2) then
-c                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-c                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-c                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+c                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
+c                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
+c                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
 
-              up(ii) = ( 0.5*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
-     &          0.5*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
-     &          0.5*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
-     &          0.5*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
-     &          0.5*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
-     &          0.5*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
+              up(ii) = ( 0.5d0*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
+     &          0.5d0*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
+     &          0.5d0*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5d0*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
+     &          0.5d0*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
+     &          0.5d0*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
+     &          0.5d0*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) ) 
 
-              vp(ii) = ( 0.5*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
-     &          0.5*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
-     &          0.5*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
+              vp(ii) = ( 0.5d0*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
+     &          0.5d0*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
+     &          0.5d0*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5d0*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5d0*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5d0*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5d0*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
 
-              wp(ii) = ( 0.5*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
-     &          0.5*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
-     &          0.5*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
+              wp(ii) = ( 0.5d0*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
+     &          0.5d0*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
+     &          0.5d0*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5d0*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5d0*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5d0*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5d0*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
@@ -321,12 +343,15 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
+               endif
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
                endif
 c
 c              Remove mass from grid
 
-               d(i,j,k) = (1.0 - efficiency) * d(i,j,k)
+               d(i,j,k) = (1.d0 - efficiency) * d(i,j,k)
 
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k

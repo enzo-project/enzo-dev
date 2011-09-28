@@ -82,3 +82,6 @@ MinimumMassForRefinementLevelExponent = -0.3  // see definition in user guide
 #  set some global parameters
 #
 GreensFunctionMaxNumber   = 10         // # of greens function at any one time
+
+
+DatabaseLocation = /home/mturk/.enzo/my_runs.db

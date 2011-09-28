@@ -1,0 +1,122 @@
+<HTML>
+<HEAD>
+<TITLE>Answer Testing Results</TITLE>
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Crimson+Text">
+<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Inconsolata">
+<link rel="stylesheet" type="text/css" media="all" href="dashboard/960.css" />
+<link rel="stylesheet" type="text/css" media="all" href="dashboard/style.css" />
+<style type="text/css">
+/* 960.gs styles */
+.container_6 { margin-left: auto; margin-right: auto; width: 960px; }
+.alpha { margin-left: 0 !important; } 
+.omega { margin-right: 0 !important; }
+.grid_1, .grid_2, .grid_3, .grid_4, .grid_5, .grid_6{
+	display:inline; float: left; position: relative; margin-left: 10.0px; margin-right: 10.0px;
+}
+.container_6 .grid_1{ width:140px; } 
+.container_6 .grid_2{ width:300px; } 
+.container_6 .grid_3{ width:460px; } 
+.container_6 .grid_4{ width:620px; } 
+.container_6 .grid_5{ width:780px; } 
+.container_6 .grid_6{ width:940px; } 
+    .container_6 .prefix_1 { padding-left:160px; } 
+    .container_6 .prefix_2 { padding-left:320px; } 
+    .container_6 .prefix_3 { padding-left:480px; }
+    .container_6 .prefix_4 { padding-left:640px; }
+    .container_6 .prefix_5 { padding-left:800px; }
+    .container_6 .suffix_1 { padding-right:160px; } 
+    .container_6 .suffix_2 { padding-right:320px; } 
+    .container_6 .suffix_3 { padding-right:480px; } 
+    .container_6 .suffix_4 { padding-right:640px; } 
+    .container_6 .suffix_5 { padding-right:800px; } 
+    .container_6 .push_1 { left:160px; } 
+    .container_6 .push_2 { left:320px; } 
+    .container_6 .push_3 { left:480px; } 
+    .container_6 .push_4 { left:640px; } 
+    .container_6 .push_5 { left:800px; } 
+    .container_6 .pull_1 { right:160px; } 
+    .container_6 .pull_2 { right:320px; } 
+    .container_6 .pull_3 { right:480px; } 
+    .container_6 .pull_4 { right:640px; } 
+    .container_6 .pull_5 { right:800px; } 
+.clear { clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height: 0; }
+.clearfix:after { clear: both; content: ' '; display: block; font-size: 0; line-height: 0; visibility: hidden; width: 0; height: 0; }
+.clearfix { display: inline-block; }
+* html .clearfix { height: 1%; }
+.clearfix { display: block; }
+
+/* Now our styles */
+
+body {
+    font-family: "Crimson Text";
+}
+
+h2 { padding: 0px; margin: 0.2em; }
+h3 { padding: 0px; margin: 0.2em; }
+
+h2 a {
+    text-decoration: none;
+    color: #000000;
+}
+
+span.success {
+    font-family: "Inconsolata", monospace;
+    color: #00FF00;
+}
+
+span.failure {
+    font-family: "Inconsolata", monospace;
+    color: #FF0000;
+}
+
+</style>
+<SCRIPT type="text/javascript" src="results.js"></SCRIPT>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+<script type="text/javascript">
+
+ $(document).ready(function() {
+    $("#current_set").html(current_set);
+    $("#compare_set").html(compare_set);
+    var test_list = $("#enzo_test_names");
+    $.each(test_data, function(intIndex, testValue) {
+        var list_id = "test_list_" + testValue['name'];
+        var onclick_function = "onClick='$(\"#" + list_id + "\").toggle();'";
+        test_list.append("<li " + onclick_function + ">" + testValue['name'] + "<ul id='" + list_id + "'>");
+        var new_list = $("#" + list_id);
+        //new_list.toggle();
+        $.each(testValue['results'], function(intIndex, testResultValue) {
+            var stat;
+            var testName = testResultValue[0];
+            var success = testResultValue[1];
+            if (success == true) {
+              stat = "<span class='success'>PASSED: </span>";
+            } else {
+              stat = "<span class='failure'>FAILED: </span>";
+            }
+            new_list.append("<li>" + stat + testName + "</li>");
+        });
+        test_list.append("</ul></li>");
+    });
+ });
+</script>
+</HEAD>
+<body>
+
+<div id="header" class="container_6">
+  <div class="grid_6">
+    <h1>Enzo Results Testing</h1>
+    Comparing <span id="current_set">$(CURRENT)</span> against previous results
+        <span id="compare_set">$(OLD)</span>.
+  </div>
+</div>
+
+<div id="content" class="container_6">
+  <div class="grid_6">
+    <h3>Test Names</h3>
+    <ul id="enzo_test_names">
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

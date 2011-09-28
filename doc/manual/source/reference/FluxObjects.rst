@@ -13,22 +13,21 @@ Purpose
 
 In order to keep the change in zone size across grid boundaries
 consistent with the underlying conservation law, Flux Correction is
-used. Basically, it makes sure that the change in Total Energy
-inside a subgrid (or mass, momentum, or any other conserved
-quantitiy) is equal to the flux across the boundary
-*as seen by both levels.* This means that the coarse grid, which
-gets its solution in that space replaced by the fine grid data,
-also needs to have the zones right outside that space updated so
-they also see that same flux.
+used. Basically, it makes sure that the change in Total Energy inside
+a subgrid (or mass, momentum, or any other conserved quantitiy) is
+equal to the flux across the boundary **as seen by both levels**. This
+means that the coarse grid, which gets its solution in that space
+replaced by the fine grid data, also needs to have the zones right
+outside that space updated so they also see that same flux.
 
 To facilitate this operation, the Fluxes object is used.
 
 For each subgrid, there are two Fluxes objects, that store the flux
-computed in the solver (typically ``PPM\_DirectEueler`` or ``ppm\_de``.)
-One stored the fluxes that the fine grid computes, and one stores
-the fluxes that the coarse grid computes. These are stored in two
-objects: a grid member fluxes ``BoundaryFluxes`` for the fine data, and
-fluxes ``\*\*\*SubgridFluxesEstimate`` for the coarse data.
+computed in the solver (typically ``Grid_[xyz]EulerSweep``).  One
+stores the fluxes that the fine grid computes, and one stores the
+fluxes that the coarse grid computes. These are stored in two objects:
+a grid member fluxes ``BoundaryFluxes`` for the fine data, and fluxes
+``***SubgridFluxesEstimate`` for the coarse data.
 
 Fluxes.h
 --------
@@ -60,9 +59,9 @@ SubgridFluxesEstimate
 ---------------------
 
 ``SubgridFluxesEstimate`` is a 2 dimensional array of pointers to
-Fluxes objects that a given grid patch will fill. Its indexing is
-like ``\*SubgridFluxesEstimate[ Grid ][ Subgrid ]`` , where ``Grid`` goes
-over all the grids on a level, and ``Subgrid`` goes over that grid's
+Fluxes objects that a given grid patch will fill. Its indexing is like
+``*SubgridFluxesEstimate[Grid][Subgrid]`` , where ``Grid`` goes over
+all the grids on a level, and ``Subgrid`` goes over that grid's
 subgrids PLUS ONE for the grid itself, as each grid needs to keep
 track of its own boundary flux for when it communicates with the
 parent. (This last element is used in conjunction with the
@@ -106,30 +105,37 @@ array allocated, and a fluxes object is allocated for each subgrid
           }
         } // end loop over grids (create Subgrid list)
 
-Note that in older versions of enzo are missing the processor
+Note that in older versions of Enzo are missing the processor
 check, so fluxes objects are allocated for each grid and subgrid on
 each processor, causing a bit of waste. This has been fixed since Enzo
 1.5.
 
 The ``LeftFluxes`` and ``RightFluxes`` are allocated in
-``Grid\_SolveHydroEquations.C``
+``Grid_SolveHydroEquations.C``
 
 Assignment
 ~~~~~~~~~~
 
 After the ``LeftFluxes`` and ``RightFluxes`` are allocated in
-``Grid\_SolveHydroEquations.C``, they are filled with fluxes from the
-solver. This is done with one of three mechanisms, depending on the
-hydro solver. The old Fortran version of PPM-DE, ppm\_de.src used
-some pointer juggling and passing a single element array to the
-fortran. The new C wrapper PPM\_DirectEuler.C replaced this, but I
-don't know how it works. The MHD solver Grid\_SolveMHDEquations and
-mhd\_li.src allocates the flux data in a single array for each
-fluid quantity, and addresses the 7 dimensional (non-rectangular)
-array in much the same way that BaryonField is accessed. This
-doesn't resort to any questionable pointer arithmetic like the
-original ppm\_de.src, though it hasn't been as stringently vetted.
-For more details, one should refer to the source code.
+``Grid_SolveHydroEquations.C``, they are filled with fluxes from the
+solver.  In v2.0, the C++ and FORTRAN interface with the hydrodynamics
+solver was improved to avoid the previous method that juggled pointers
+to a temporary array for the fluxes returned from the FORTRAN hydro
+solver.  Now ``Grid_[xyz]EulerSweep.C`` allocates memory for each of
+the flux variables and passes them into each of the FORTRAN hydro
+routines.  This removes any size limitations that the old wrappers had
+when the temporary array was too large.
+
+.. This should be included when the EnzoMHD is implemented in the
+.. public version
+..
+.. The MHD solver Grid_SolveMHDEquations and mhd_li.src allocates the
+.. flux data in a single array for each fluid quantity, and addresses the
+.. 7 dimensional (non-rectangular) array in much the same way that
+.. BaryonField is accessed. This doesn't resort to any questionable
+.. pointer arithmetic like the original ppm_de.src, though it hasn't been
+.. as stringently vetted.  For more details, one should refer to the
+.. source code.
 
 Flux Correction
 ~~~~~~~~~~~~~~~
@@ -138,7 +144,7 @@ After being filled with coarse grid fluxes, ``SubgridFluxesEstimate``
 is then passed into ``UpdateFromFinerGrids``, where it is used to
 correct the coarse grid cells and boundary fluxes. For each
 grid/subgrid, ``SubgridFluxesEstimate`` is passed into
-``Grid\_CorrectForRefinedFluxes`` as ``InitialFluxes``. The difference of
+``Grid_CorrectForRefinedFluxes`` as ``InitialFluxes``. The difference of
 ``InitialFluxes`` and ``RefinedFluxes`` is used to update the appropriate
 zones. (Essentially, the coarse grid flux is removed from the
 update of those zones ex post facto, and replaced by the average of
@@ -154,7 +160,7 @@ The last thing to be done with ``SubgridFluxesEstimate`` is to update
 the ``BoundaryFluxes`` object for each grid on the current level. Since
 multiple fine grid timesteps are taken for each parent timestep,
 the **total** flux must be stored on the grids boundary. This is
-done in ``Grid\_AddToBoundaryFluxes``, at the end of the EvolveLevel
+done in ``Grid_AddToBoundaryFluxes``, at the end of the EvolveLevel
 timestep loop.
 
 Deallocation
@@ -169,14 +175,15 @@ the pointers themselves are freed.
        for (grid = 0; grid < NumberOfGrids; grid++) {
           if (MyProcessorNumber == Grids[grid]->GridData->ReturnProcessorNumber()) {
     
-           Grids[grid]->GridData->AddToBoundaryFluxes(SubgridFluxesEstimate[grid][NumberOfSubgrids[grid] - 1])
+           Grids[grid]->GridData->AddToBoundaryFluxes
+               (SubgridFluxesEstimate[grid][NumberOfSubgrids[grid] - 1])
     
     
            for (subgrid = 0; subgrid < NumberOfSubgrids[grid]; subgrid++) {
     
             DeleteFluxes(SubgridFluxesEstimate[grid][subgrid]);
     
-            delete       SubgridFluxesEstimate[grid][subgrid];
+            delete SubgridFluxesEstimate[grid][subgrid];
            } 
           delete [] SubgridFluxesEstimate[grid];
          }
@@ -257,22 +264,22 @@ Allocation
 ~~~~~~~~~~
 
 ``SubgridFluxesRefined`` is declared in ``UpdateFromFinerGrids``. The
-actual allocation occurs in ``Grid\_GetProjectedBoundaryFluxes``, where
+actual allocation occurs in ``Grid_GetProjectedBoundaryFluxes``, where
 it's passed in as ``ProjectedFluxes``.
 
 Usage
 ~~~~~
 
 ``SubgridFluxesRefined`` is also filled in
-``Grid\_GetProjectedBoundaryFluxes``, as the area weighted average of
+``Grid_GetProjectedBoundaryFluxes``, as the area weighted average of
 the subgrid boundary flux.
 
-It is then passed into ``Grid\_CorrectForRefinedFluxes``, Here, it is
+It is then passed into ``Grid_CorrectForRefinedFluxes``, Here, it is
 used to update the coarse grid zones that need updating.
 
 Deallocation
 ~~~~~~~~~~~~
 
 ``SubgridFluxesRefined`` is deleted after it is used in
-``Grid\_CorrectForRefinedFluxes``.
+``Grid_CorrectForRefinedFluxes``.
 

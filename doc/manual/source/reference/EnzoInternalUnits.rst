@@ -1,3 +1,5 @@
+.. _EnzoInternalUnits:
+
 Enzo Internal Unit System
 =========================
 
@@ -6,7 +8,7 @@ run. For most test problems there is no physical length or time specified, so
 the units can be be simply scaled. For cosmology, there are a set of units
 designed to make most quantities of order unity so that single precision
 floating-point variables can be used. These units are defined in
-:ref:`EnzoOutputFormat`.  Additionally, discussion of how particle masses are
+:ref:`EnzoOutputFormats`.  Additionally, discussion of how particle masses are
 stored in Enzo can be found at :ref:`EnzoParticleMass`.  However, with the
 broader use of Enzo for non-cosmological astrophysics applications, it has
 become necessary to add a new set of units into the code. This page describes
@@ -17,8 +19,8 @@ appropriate length, time, and mass OR density scales.  Simulations that include
 gravity also need to have a self-consistent gravitational constant that is
 scaled to the other variables. The four parameters that the user can set are
 ``LengthUnits``, ``TimeUnits``, ``DensityUnits``, and ``MassUnits``. Only one of ``DensityUnits``
-or ``MassUnits`` needs to be set, since ``MassUnits = DensityUnits \* LengthUnits\
-:sup:`3`\`` . Additionally, if the parameter ``SelfGravity`` is turned on (set to 1),
+or ``MassUnits`` needs to be set, since ``MassUnits`` = ``DensityUnits`` * ``LengthUnits``
+:sup:`3` . Additionally, if the parameter ``SelfGravity`` is turned on (set to 1),
 the parameter ``GravitationalConstant`` must be set to 4\*pi\*G, where G is
 Newton's gravitational constant as a dimensionless quantity (that is, with all
 units scaled out).
@@ -42,7 +44,7 @@ appropriate settings of the parameters would be as follows:
 If we then wish to use gravity, the gravitational constant must be set
 explicitly to 4\*pi\*G expressed in a unitless fashion. Since the gravitational
 constant in CGS has units of cm\ :sup:`3`\ /(g\*s\ :sup:`2`\ ), this means that
-the value should be 4\*pi\*G\_{cgs}\*``DensityUnits``\*``TimeUnits``\ :sup:`2`\ . So,
+the value should be 4\*pi\*G\ :sub:`cgs` \* ``DensityUnits`` * ``TimeUnits`` :sup:`2`\ . So,
 in the units expressed above, that means the gravity parameters must be set as
 follows:
 

@@ -56,12 +56,12 @@ c
 c  constants (half is slightly more than 1/2 to make sure rounding is
 c             performed in the correct direction)
 c
-      parameter (half = 0.5001)
+      parameter (half = 0.5001d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1.0/cellsize
+      fact = 1.d0/cellsize
       edge1 = real(dim1) - half
       edge2 = real(dim2) - half
       edge3 = real(dim3) - half
@@ -78,17 +78,17 @@ c
 c
 c           Convert this into an integer index
 c
-            i1  = int(xpos + 0.5)
+            i1  = int(xpos + 0.5d0)
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5 - xpos
+            dx = real(i1) + 0.5d0 - xpos
 c
 c           Interpolate from field into sumfield
 c
             sumfield(n) = sumfield(n) +
      &              field(i1  ,1,1)*     dx  +
-     &              field(i1+1,1,1)*(1.0-dx)
+     &              field(i1+1,1,1)*(1.d0-dx)
 c
          enddo
 c
@@ -107,21 +107,21 @@ c
 c
 c           Convert this into an integer index
 c
-            i1  = int(xpos + 0.5)
-            j1  = int(ypos + 0.5)
+            i1  = int(xpos + 0.5d0)
+            j1  = int(ypos + 0.5d0)
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5 - xpos
-            dy = real(j1) + 0.5 - ypos
+            dx = real(i1) + 0.5d0 - xpos
+            dy = real(j1) + 0.5d0 - ypos
 c
 c           Interpolate from field into sumfield
 c
             sumfield(n) = sumfield(n) +
-     &              field(i1  ,j1  ,1)*     dx *     dy  +
-     &              field(i1+1,j1  ,1)*(1.0-dx)*     dy  +
-     &              field(i1  ,j1+1,1)*     dx *(1.0-dy) +
-     &              field(i1+1,j1+1,1)*(1.0-dx)*(1.0-dy)
+     &              field(i1  ,j1  ,1)*      dx *      dy  +
+     &              field(i1+1,j1  ,1)*(1.d0-dx)*      dy  +
+     &              field(i1  ,j1+1,1)*      dx *(1.d0-dy) +
+     &              field(i1+1,j1+1,1)*(1.d0-dx)*(1.d0-dy)
 c
          enddo
 c
@@ -141,32 +141,35 @@ c
 c
 c           Convert this into an integer index
 c
-            i1  = int(xpos + 0.5)
-            j1  = int(ypos + 0.5)
-            k1  = int(zpos + 0.5)
+            i1  = int(xpos + 0.5d0)
+            j1  = int(ypos + 0.5d0)
+            k1  = int(zpos + 0.5d0)
 c
 c           Compute the weights
 c
-            dx = real(i1) + 0.5 - xpos
-            dy = real(j1) + 0.5 - ypos
-            dz = real(k1) + 0.5 - zpos
+            dx = real(i1) + 0.5d0 - xpos
+            dy = real(j1) + 0.5d0 - ypos
+            dz = real(k1) + 0.5d0 - zpos
 c
 c           Interpolate from field into sumfield
-c     
+c 
+    
             sumfield(n) = sumfield(n) +
-     &              field(i1  ,j1  ,k1  )*     dx *     dy *     dz  +
-     &              field(i1+1,j1  ,k1  )*(1.0-dx)*     dy *     dz  +
-     &              field(i1  ,j1+1,k1  )*     dx *(1.0-dy)*     dz  +
-     &              field(i1+1,j1+1,k1  )*(1.0-dx)*(1.0-dy)*     dz  +
-     &              field(i1  ,j1  ,k1+1)*     dx *     dy *(1.0-dz) +
-     &              field(i1+1,j1  ,k1+1)*(1.0-dx)*     dy *(1.0-dz) +
-     &              field(i1  ,j1+1,k1+1)*     dx *(1.0-dy)*(1.0-dz) +
-     &              field(i1+1,j1+1,k1+1)*(1.0-dx)*(1.0-dy)*(1.0-dz)
+     &              field(i1  ,j1  ,k1  )*      dx *      dy *      dz +
+     &              field(i1+1,j1  ,k1  )*(1.d0-dx)*      dy *      dz +
+     &              field(i1  ,j1+1,k1  )*      dx *(1.d0-dy)*      dz +
+     &              field(i1+1,j1+1,k1  )*(1.d0-dx)*(1.d0-dy)*      dz +
+     &              field(i1  ,j1  ,k1+1)*      dx *      dy *(1.d0-dz)+
+     &              field(i1+1,j1  ,k1+1)*(1.d0-dx)*      dy *(1.d0-dz)+
+     &              field(i1  ,j1+1,k1+1)*      dx *(1.d0-dy)*(1.d0-dz)+
+     &              field(i1+1,j1+1,k1+1)*(1.d0-dx)*(1.d0-dy)*(1.d0-dz)
 c
+
          enddo
 c
       endif
 c
+
       return
 #endif
       end

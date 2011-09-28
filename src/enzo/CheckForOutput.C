@@ -123,6 +123,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 #endif
 		       );
 
+
     /* On the root processor, write the restart parameter filename to
        a file that will be read by a (batch) script to restart enzo.
        We cannot call another MPI application from here. */
@@ -149,10 +150,42 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
     return SUCCESS;
   }
     
+  /* Check for output: CPU time-based.  
+
+     If there is less time until (StopCPUTime - LastCycleCPUTime) than
+     the last cycle's CPU time, output the data to ensure we get the
+     last data dump for restarting! */
+
+  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
+
+  if (debug)
+    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
+	   "Last = %lg\n",
+	   FractionalCPUTime, ReturnWallTime()-MetaData.StartCPUTime, 
+	   MetaData.CPUTime, 
+	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
+  if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
+      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
+      MetaData.WroteData == FALSE) {
+    MetaData.CycleLastDataDump = MetaData.CycleNumber;
+    SavedCPUTime = MetaData.CPUTime;
+    MetaData.CPUTime = 0.0;
+    if (debug) printf("CPUtime-based output!\n");
+    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
+		       TopGrid, MetaData, Exterior
+#ifdef TRANSFER
+		       , ImplicitSolver
+#endif
+		       );
+    MetaData.CPUTime = SavedCPUTime;
+    MetaData.WroteData = TRUE;
+  } // ENDIF
+
   /* Check for output: time-based. */
  
   if (MetaData.Time >= MetaData.TimeLastDataDump + MetaData.dtDataDump
       && MetaData.dtDataDump > 0.0) {
+    SavedCPUTime = MetaData.CPUTime;
     MetaData.CPUTime = 0.0;
     MetaData.TimeLastDataDump += MetaData.dtDataDump;
 
@@ -174,6 +207,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 //     }
 // #endif
 
+    MetaData.CPUTime = SavedCPUTime;
     MetaData.WroteData = TRUE;
   }
  
@@ -250,8 +284,7 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* Check for output: when the MBH jets haven't been ejected for too long 
                        this is currently a test - Ji-hoon Kim, Mar.2010 */  
  
-  if ((MBHFeedback == 2 || MBHFeedback == 3) && 
-
+  if ((MBHFeedback >= 2 && MBHFeedback <= 5) && 
       OutputWhenJetsHaveNotEjected == TRUE) {
 
     fprintf(stdout, "CheckForOutput: MBH_JETS - file output complete; restart with the dump!\n");
@@ -264,6 +297,17 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   }
 #endif   
+
+  if (MetaData.NumberOfOutputsBeforeExit && MetaData.WroteData) {
+    MetaData.OutputsLeftBeforeExit--;
+    if (MetaData.OutputsLeftBeforeExit <= 0) {
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+	fprintf(stderr, "Exiting after writing %"ISYM" datadumps.\n",
+		MetaData.NumberOfOutputsBeforeExit);
+      }      
+      my_exit(EXIT_SUCCESS);
+    }
+  }
 
   return SUCCESS;
 }

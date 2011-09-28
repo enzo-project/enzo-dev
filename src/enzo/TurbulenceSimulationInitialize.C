@@ -53,14 +53,18 @@ int CommunicationAllSumIntegerValues(int *Values, int Number);
 /* Turbulence Parameters (that need to be shared) */
  
 static float TurbulenceSimulationInitialDensity       = FLOAT_UNDEFINED;
+static float TurbulenceSimulationInitialDensityPerturbationAmplitude    = FLOAT_UNDEFINED;
 static float TurbulenceSimulationInitialTemperature   = FLOAT_UNDEFINED;
+static float TurbulenceSimulationInitialPressure   = FLOAT_UNDEFINED;
+static float TurbulenceSimulationInitialMagneticField[3] = {5.0,5.0,5.0};
  
 static char *TurbulenceSimulationDensityName          = NULL;
 static char *TurbulenceSimulationTotalEnergyName      = NULL;
+static char *TurbulenceSimulationGasPressureName      = NULL;
 static char *TurbulenceSimulationGasEnergyName        = NULL;
 static char *TurbulenceSimulationVelocityNames[MAX_DIMENSION];
 static char *TurbulenceSimulationRandomForcingNames[MAX_DIMENSION];
- 
+static char *TurbulenceSimulationMagneticNames[MAX_DIMENSION];
 static int   TurbulenceSimulationSubgridsAreStatic    = TRUE;
 static int   TurbulenceSimulationNumberOfInitialGrids = 1;
  
@@ -76,6 +80,14 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
+  char *Drive1Name = "DrivingField1";
+  char *Drive2Name = "DrivingField2";
+  char *Drive3Name = "DrivingField3";
+  char *GravPotName = "GravPotential";
  
   /* declarations */
  
@@ -83,12 +95,14 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   int i, j, dim, gridnum, ret, SubgridsAreStatic, region;
   HierarchyEntry *Subgrid;
  
-  char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
+  char *DensityName = NULL, *TotalEnergyName = NULL, *GasPressureName = NULL, *GasEnergyName = NULL,
        *VelocityNames[MAX_DIMENSION],
-       *RandomForcingNames[MAX_DIMENSION];
+       *RandomForcingNames[MAX_DIMENSION],
+       *MagneticNames[MAX_DIMENSION];
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     VelocityNames[dim] = NULL;
     RandomForcingNames[dim] = NULL;
+    MagneticNames[dim] = NULL;
   }
  
   /* Set default parameters and names */
@@ -107,9 +121,12 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     TurbulenceSimulationGridRightEdge[0][dim] = DomainRightEdge[dim];
     TurbulenceSimulationGridDimension[0][dim] = MetaData.TopGridDims[dim];
   }
+
+  int InitialMagneticFieldDefined = FALSE;
   TurbulenceSimulationGridLevel[0] = 0;
  
- 
+  float TurbulenceSimulationSoundSpeed = 1.0;
+
   /* Error check. */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -137,6 +154,8 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
       TurbulenceSimulationDensityName = dummy;
     if (sscanf(line, "TurbulenceSimulationTotalEnergyName = %s", dummy) == 1)
       TurbulenceSimulationTotalEnergyName = dummy;
+    if (sscanf(line, "TurbulenceSimulationGasPressureName = %s", dummy) == 1)
+      TurbulenceSimulationGasPressureName = dummy;
     if (sscanf(line, "TurbulenceSimulationGasEnergyName = %s", dummy) == 1)
       TurbulenceSimulationGasEnergyName = dummy;
     if (sscanf(line, "TurbulenceSimulationVelocity1Name = %s", dummy) == 1)
@@ -151,11 +170,23 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
       TurbulenceSimulationRandomForcingNames[1] = dummy;
     if (sscanf(line, "TurbulenceSimulationRandomForcing3Name = %s", dummy) ==1)
       TurbulenceSimulationRandomForcingNames[2] = dummy;
- 
+    if (sscanf(line, "TurbulenceSimulationMagnetic1Name = %s", dummy) ==1)
+      TurbulenceSimulationMagneticNames[0] = dummy;
+    if (sscanf(line, "TurbulenceSimulationMagnetic2Name = %s", dummy) ==1)
+      TurbulenceSimulationMagneticNames[1] = dummy;
+    if (sscanf(line, "TurbulenceSimulationMagnetic3Name = %s", dummy) ==1)
+      TurbulenceSimulationMagneticNames[2] = dummy;
+
     ret += sscanf(line, "TurbulenceSimulationInitialTemperature = %"FSYM,
                   &TurbulenceSimulationInitialTemperature);
     ret += sscanf(line, "TurbulenceSimulationInitialDensity = %"FSYM,
                   &TurbulenceSimulationInitialDensity);
+    ret += sscanf(line, "TurbulenceSimulationSoundSpeed = %"FSYM,
+                  &TurbulenceSimulationSoundSpeed);
+    ret += sscanf(line, "TurbulenceSimulationInitialPressure = %"FSYM,
+                  &TurbulenceSimulationInitialPressure);
+    ret += sscanf(line, "TurbulenceSimulationInitialDensityPerturbationAmplitude = %"FSYM,
+                  &TurbulenceSimulationInitialDensityPerturbationAmplitude);
     ret += sscanf(line, "TurbulenceSimulationNumberOfInitialGrids = %"ISYM,
                   &TurbulenceSimulationNumberOfInitialGrids);
     ret += sscanf(line, "TurbulenceSimulationSubgridsAreStatic = %"ISYM,
@@ -181,8 +212,15 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (sscanf(line, "TurbulenceSimulationGridLevel[%"ISYM"]", &gridnum) > 0)
       ret += sscanf(line, "TurbulenceSimulationGridLevel[%"ISYM"] = %"ISYM,
                     &gridnum, &TurbulenceSimulationGridLevel[gridnum]);
- 
- 
+                                                                                
+    if( sscanf(line, "TurbulenceSimulationInitialMagneticField = %"PSYM" %"PSYM" %"PSYM,
+		  TurbulenceSimulationInitialMagneticField,
+		  TurbulenceSimulationInitialMagneticField+1,
+	       TurbulenceSimulationInitialMagneticField+2) > 0){
+      ret++;
+      InitialMagneticFieldDefined = TRUE;
+    }
+
     /* If the dummy char space was used, then make another. */
  
     if (dummy[0] != 0) {
@@ -200,11 +238,11 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
  
   /* More error checking. */
- 
+  /* dcc removed in favor of in house generation.
   if (TurbulenceSimulationVelocityNames[0] == NULL) {
     ENZO_FAIL("Missing initial data.\n");
   }
- 
+  */
   if (CellFlaggingMethod[0] != 3)
       fprintf(stderr, "TurbulenceSimulation: check CellFlaggingMethod.\n");
  
@@ -212,9 +250,21 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (TurbulenceSimulationInitialDensity == FLOAT_UNDEFINED)
     TurbulenceSimulationInitialDensity = 1.0;
-  if (TurbulenceSimulationInitialTemperature == FLOAT_UNDEFINED)
+  if (TurbulenceSimulationInitialDensityPerturbationAmplitude == FLOAT_UNDEFINED)
+    TurbulenceSimulationInitialDensityPerturbationAmplitude= 0.0;
+  if (TurbulenceSimulationInitialTemperature == FLOAT_UNDEFINED &&
+		  TurbulenceSimulationInitialPressure == FLOAT_UNDEFINED){
     TurbulenceSimulationInitialTemperature = 1.0;
- 
+  }
+
+  if( HydroMethod == MHD_RK) {
+    if( InitialMagneticFieldDefined != TRUE) {
+      TurbulenceSimulationInitialMagneticField[0] = 1e-8;
+      TurbulenceSimulationInitialMagneticField[1] = 1e-8;
+      TurbulenceSimulationInitialMagneticField[2] = 1e-8;
+    }
+  }
+  
   /* Check/define RandomForcing parameters [Mac Low 1999, ApJ 524, 169]. */
  
   if (RandomForcing)
@@ -236,7 +286,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     float BoxMass = (BoxSize*BoxSize*BoxSize)*
                     TurbulenceSimulationInitialDensity;
     float Vrms    = RandomForcingMachNumber/
-      sqrt(TurbulenceSimulationInitialTemperature);
+      sqrt(1);//Sound speed is one.
     RandomForcingEdot = 0.81/BoxSize*BoxMass*Vrms*Vrms*Vrms;
  
   /* Approximate correction to the MacLow's factor (see eqs (7) - (8))
@@ -261,10 +311,13 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   DensityName            = TurbulenceSimulationDensityName;
   TotalEnergyName        = TurbulenceSimulationTotalEnergyName;
+  GasPressureName        = TurbulenceSimulationGasPressureName;
   GasEnergyName          = TurbulenceSimulationGasEnergyName;
   for (dim = 0; dim < MetaData.TopGridRank; dim++) {
     VelocityNames[dim]   = TurbulenceSimulationVelocityNames[dim];
     RandomForcingNames[dim] = TurbulenceSimulationRandomForcingNames[dim];
+    MagneticNames[dim] = TurbulenceSimulationMagneticNames[dim];
+
   }
  
   /* Initialize the root grid by reading in data. */
@@ -273,8 +326,12 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
                                    TurbulenceSimulationGridLevel[gridnum]));
   if (GridsList->GridData->TurbulenceSimulationInitializeGrid(
 			   TurbulenceSimulationInitialDensity,
+			   TurbulenceSimulationInitialDensityPerturbationAmplitude,
 			   TurbulenceSimulationInitialTemperature,
-			   DensityName, TotalEnergyName,
+			   TurbulenceSimulationInitialPressure,
+			   TurbulenceSimulationInitialMagneticField,
+			   MagneticNames,
+			   DensityName, TotalEnergyName,GasPressureName,
 			   GasEnergyName, VelocityNames, RandomForcingNames,
 			   TurbulenceSimulationSubgridsAreStatic,
 			   TotalRefinement) == FAIL) {
@@ -295,7 +352,20 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[i++] = Vel1Name;
   DataLabel[i++] = Vel2Name;
   DataLabel[i++] = Vel3Name;
- 
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = BxName;
+    DataLabel[i++] = ByName;
+    DataLabel[i++] = BzName;
+    DataLabel[i++] = PhiName;
+  }
+  if (UseDrivingField) {
+    DataLabel[i++] = Drive1Name;
+    DataLabel[i++] = Drive2Name;
+    DataLabel[i++] = Drive3Name;
+  }
+  if(WritePotential)
+      DataLabel[i++] = GravPotName;
+
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
  
@@ -305,9 +375,13 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(Outfptr, "TurbulenceSimulationInitialDensity   = %"FSYM"\n\n",
 	    TurbulenceSimulationInitialTemperature);
+    fprintf(Outfptr, "TurbulenceSimulationInitialDensityPerturbationAmplitude = %f\n\n", 
+	    TurbulenceSimulationInitialDensityPerturbationAmplitude);
  
     fprintf(Outfptr, "TurbulenceSimulationInitialTemperature   = %"FSYM"\n\n",
 	    TurbulenceSimulationInitialTemperature);
+    fprintf(Outfptr, "TurbulenceSimulationInitialPressure   = %f\n\n", 
+	    TurbulenceSimulationInitialPressure);
  
     if (TurbulenceSimulationDensityName)
     fprintf(Outfptr, "TurbulenceSimulationDensityName          = %s\n",
@@ -315,6 +389,9 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     if (TurbulenceSimulationTotalEnergyName)
     fprintf(Outfptr, "TurbulenceSimulationTotalEnergyName      = %s\n",
 	    TurbulenceSimulationTotalEnergyName);
+    if (TurbulenceSimulationGasPressureName)
+    fprintf(Outfptr, "TurbulenceSimulationGasPressureName      = %s\n",
+	    TurbulenceSimulationGasPressureName);
     if (TurbulenceSimulationGasEnergyName)
     fprintf(Outfptr, "TurbulenceSimulationGasEnergyName        = %s\n",
 	    TurbulenceSimulationGasEnergyName);
@@ -354,13 +431,16 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
   /* Declarations. */
  
   int dim, gridnum = 0;
-  char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
-       *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
-       *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
-       *RandomForcingNames[MAX_DIMENSION];
+  char *DensityName = NULL, *TotalEnergyName = NULL,*GasPressureName = NULL, *GasEnergyName = NULL,
+       *ParticlePositionName = NULL, *ParticleVelocityName = NULL, 
+       *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION], 
+    *RandomForcingNames[MAX_DIMENSION],
+    *MagneticNames[MAX_DIMENSION];
+
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     VelocityNames[dim] = NULL;
     RandomForcingNames[dim] = NULL;
+    MagneticNames[dim] = NULL;
   }
  
   if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -376,6 +456,9 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
     if (TurbulenceSimulationTotalEnergyName)
       sprintf(TotalEnergyName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      TurbulenceSimulationTotalEnergyName, gridnum);
+    if (TurbulenceSimulationGasPressureName)
+      sprintf(GasPressureName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+	      TurbulenceSimulationGasPressureName, gridnum);
     if (TurbulenceSimulationGasEnergyName)
       sprintf(GasEnergyName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      TurbulenceSimulationGasEnergyName, gridnum);
@@ -392,10 +475,13 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
  
     DensityName            = TurbulenceSimulationDensityName;
     TotalEnergyName        = TurbulenceSimulationTotalEnergyName;
+    GasPressureName        = TurbulenceSimulationGasPressureName;
     GasEnergyName          = TurbulenceSimulationGasEnergyName;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       VelocityNames[dim]   = TurbulenceSimulationVelocityNames[dim];
       RandomForcingNames[dim] = TurbulenceSimulationRandomForcingNames[dim];
+      MagneticNames[dim] = TurbulenceSimulationMagneticNames[dim];
+
     }
  
   }
@@ -411,8 +497,12 @@ int TurbulenceSimulationReInitialize(HierarchyEntry *TopGrid,
  
     if (Temp->GridData->TurbulenceSimulationInitializeGrid(
 		        TurbulenceSimulationInitialDensity,
+			TurbulenceSimulationInitialDensityPerturbationAmplitude,
 		        TurbulenceSimulationInitialTemperature,
-		        DensityName, TotalEnergyName,
+		        TurbulenceSimulationInitialPressure,
+		        TurbulenceSimulationInitialMagneticField,
+			MagneticNames,
+		        DensityName, TotalEnergyName,GasPressureName,
 		        GasEnergyName, VelocityNames, RandomForcingNames,
 			TurbulenceSimulationSubgridsAreStatic,
 			TotalRefinement) == FAIL) {

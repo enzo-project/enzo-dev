@@ -1,0 +1,10 @@
+name = 'NohProblem3DAMR'
+answer_testing_script = 'test_noh3damr.py'
+nprocs = 8
+runtime = 'medium'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 3
+max_time_minutes = 300

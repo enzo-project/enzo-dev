@@ -352,7 +352,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  FieldType[field] != DrivingField2 &&
 		  FieldType[field] != DrivingField3 &&
 		  FieldType[field] != GravPotential &&
-		// TA: double check whether this next condition reall is a good idea (06/09) 
+		  FieldType[field] != DebugField &&
 		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && 
 					   FieldType[field] != InternalEnergy))) {
 		for (k = Start[2]; k <= End[2]; k++) {
@@ -377,7 +377,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldType[field] >= ElectronDensity &&
-		FieldType[field] < FieldUndefined &&
+		FieldType[field] < Metallicity &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -401,12 +401,13 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  for (field = 0; field < NumberOfBaryonFields; field++){
 	    if ((FieldTypeNoInterpolate(FieldType[field]) == FALSE) &&
 		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-					   FieldType[field] != InternalEnergy))
-		&& (FieldType[field] < ElectronDensity) && 
+					   FieldType[field] != InternalEnergy)) &&
+		(FieldType[field] < ElectronDensity) && 
 		FieldType[field] != DrivingField1 &&
 		FieldType[field] != DrivingField2 &&
 		FieldType[field] != DrivingField3 &&
-		FieldType[field] != GravPotential) {
+		FieldType[field] != GravPotential &&
+		FieldType[field] != DebugField) {
 	      for (k = Start[2]; k <= End[2]; k++){
 		for (j = Start[1]; j <= End[1]; j++){
 		  for (i = Start[0]; i <= End[0]; i++) {
@@ -491,24 +492,26 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			BaryonField[field][FieldIndex] -= CorrectionAmountLeft;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
-				 CorrectionAmountLeft,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFl warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
+				   CorrectionAmountLeft,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
-				 CorrectionAmountLeft,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				   CorrectionAmountLeft,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
@@ -520,24 +523,26 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			BaryonField[field][FieldIndex+Offset] -= CorrectionAmountRight;
 
 			if (SUBlingGrid == FALSE) {
-			  printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->RightFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->RightFluxes[field][dim][FluxIndex],
-				 CorrectionAmountRight,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFr warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->RightFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
+				   CorrectionAmountRight,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 			} else {
-			  printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
-				 " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
-				 MyProcessorNumber, BaryonField[field][FieldIndex],
-				 InitialFluxes->LeftFluxes[field][dim][FluxIndex],
-				 RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
-				 CorrectionAmountRight,
-				 i, j, k, dim, field);
+			  if (debug)
+			    printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
+				   " %"ISYM" %"ISYM" %"ISYM" [%"ISYM"]\n",
+				   MyProcessorNumber, BaryonField[field][FieldIndex],
+				   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
+				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
+				   CorrectionAmountRight,
+				   i, j, k, dim, field);
 			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
@@ -562,7 +567,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      FieldType[field] != DrivingField1 &&
 	      FieldType[field] != DrivingField2 &&
 	      FieldType[field] != DrivingField3 &&
-	      FieldType[field] != GravPotential) {
+	      FieldType[field] != GravPotential &&
+	      FieldType[field] != DebugField
+	      ) {
 	  for (k = Start[2]; k <= End[2]; k++) {
 	    for (j = Start[1]; j <= End[1]; j++) {
 	      for (i = Start[0]; i <= End[0]; i++) {
@@ -742,7 +749,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (FieldType[field] >= ElectronDensity &&
-		FieldType[field] < FieldUndefined &&
+		FieldType[field] < Metallicity &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)

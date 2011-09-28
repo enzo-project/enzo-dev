@@ -35,12 +35,14 @@ extern "C" void FORTRAN_NAME(interpolate)
                              (int *rank, float *pfield, int pdim[],
 			      int pis[], int pie[], int r[],
 			      float *field, int dim[], int is[], float *work,
-			      interpolation_type *imethod, int *posflag);
+			      interpolation_type *imethod, int *posflag,
+			      int *ierror);
 extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
 				     int *sdim1, int *sdim2, int *sdim3,
 				     int *ddim1, int *ddim2, int *ddim3,
 				     int *sstart1, int *sstart2, int *sstart3,
-				     int *dstart1, int *dstart2, int *dstart3);extern "C" void FORTRAN_NAME(mult3d)(float *source, float *dest,
+				     int *dstart1, int *dstart2, int *dstart3);
+extern "C" void FORTRAN_NAME(mult3d)(float *source, float *dest,
 				     int *sdim1, int *sdim2, int *sdim3,
 				     int *ddim1, int *ddim2, int *ddim3,
 				     int *sstart1, int *sstart2, int *sstart3,
@@ -84,12 +86,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
   int ParentTempDim[MAX_DIMENSION], TempDim[MAX_DIMENSION];
   int ParentDim[MAX_DIMENSION];
   int ParentTempSize, WorkSize, TempSize, GridSize, One = 1, Zero = 0;
-  int dim, field;
+  int dim, field, interp_error;
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
  
-  int MyInterpolationMethod = InterpolationMethod;   
   if (NumberOfBaryonFields > 0) {
+
+    interp_error = FALSE;
  
     /* Compute refinement factors and set zero. */
  
@@ -213,7 +216,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
     if (ProcessorNumber != ParentGrid->ProcessorNumber) {
       ParentGrid->CommunicationSendRegion(ParentGrid, ProcessorNumber,
-			ALL_FIELDS, NEW_ONLY, ParentStartIndex, ParentTempDim);
+					  ALL_FIELDS, NEW_ONLY, ParentStartIndex, ParentTempDim);
       for (dim = 0; dim < GridRank; dim++) {
 	ParentDim[dim] = ParentTempDim[dim];
 	ParentStartIndex[dim] = 0;
@@ -238,12 +241,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
  
     //    if (HydroMethod != Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	FORTRAN_NAME(copy3d)(ParentGrid->BaryonField[field], ParentTemp[field],
-			     ParentDim, ParentDim+1, ParentDim+2,
-			     ParentTempDim, ParentTempDim+1, ParentTempDim+2,
-			     &Zero, &Zero, &Zero,
-			     ParentStartIndex, ParentStartIndex+1,
-			     ParentStartIndex+2);
+	  FORTRAN_NAME(copy3d)(ParentGrid->BaryonField[field], ParentTemp[field],
+			       ParentDim, ParentDim+1, ParentDim+2,
+			       ParentTempDim, ParentTempDim+1, ParentTempDim+2,
+			       &Zero, &Zero, &Zero,
+			       ParentStartIndex, ParentStartIndex+1,
+			       ParentStartIndex+2);
+
 /*
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++) {
@@ -274,8 +278,10 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != PhiField &&
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != GravPotential)
+	    FieldType[field] != DrivingField3 
+	    && FieldType[field] != DebugField 
+	    && FieldType[field] != GravPotential
+	    )
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
@@ -295,7 +301,26 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
                                  Refinement,
 			      TemporaryDensityField, TempDim, ZeroVector, Work,
 			      &InterpolationMethod,
-			      &SecondOrderBFlag[densfield]);
+			      &SecondOrderBFlag[densfield], &interp_error);
+    if (interp_error) {
+      printf("P%d: Error interpolating density.\n"
+		 "ParentGrid ID = %d\n"
+		 "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
+		 "ThisGrid ID = %d\n"
+		 "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+		 MyProcessorNumber, ParentGrid->ID, 
+		 ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
+		 ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
+		 ParentGrid->GridRightEdge[1], ParentGrid->GridRightEdge[2],
+		 this->ID, 
+		 this->GridLeftEdge[0], this->GridLeftEdge[1], 
+		 this->GridLeftEdge[2], this->GridRightEdge[0], 
+	     this->GridRightEdge[1], this->GridRightEdge[2]);
+      ENZO_FAIL("");
+    }
+
  
     /* Loop over all the fields. */
  
@@ -305,26 +330,40 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        is done for the entire current grid, not just it's boundaries.
        (skip density since we did it already) */
  
-      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE){
-        if (HydroMethod == Zeus_Hydro){
-	        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	            SecondOrderA : SecondOrderC;
-        }
-      } else {
-        /* Use nearest grid point interpolation for fields that 
-           shouldn't ever be averaged. */ 
-        MyInterpolationMethod = FirstOrderA; 
+      if (HydroMethod == Zeus_Hydro){
+	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+	  SecondOrderA : SecondOrderC;
       }
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
-      if (FieldType[field] != Density)
+      if (FieldType[field] != Density && FieldType[field] != DebugField) {
+	//      if (FieldType[field] != Density) {
 	FORTRAN_NAME(interpolate)(&GridRank,
 				  ParentTemp[field], ParentTempDim,
 				  ParentTempStartIndex, ParentTempEndIndex,
                                      Refinement,
 				  TemporaryField, TempDim, ZeroVector, Work,
 				  &InterpolationMethod,
-				  &SecondOrderBFlag[field]);
+				  &SecondOrderBFlag[field], &interp_error);
+	if (interp_error) {
+	  printf("P%d: Error interpolating field %d (%s).\n"
+		     "ParentGrid ID = %d\n"
+		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
+		     "ThisGrid ID = %d\n"
+		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
+		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+		     MyProcessorNumber, field, DataLabel[field], ParentGrid->ID, 
+		     ParentGrid->GridLeftEdge[0], ParentGrid->GridLeftEdge[1], 
+		     ParentGrid->GridLeftEdge[2], ParentGrid->GridRightEdge[0], 
+		     ParentGrid->GridRightEdge[1], ParentGrid->GridRightEdge[2],
+		     this->ID, 
+		     this->GridLeftEdge[0], this->GridLeftEdge[1], 
+		 this->GridLeftEdge[2], this->GridRightEdge[0],
+		 this->GridRightEdge[1], this->GridRightEdge[2]);
+	  ENZO_FAIL("");
+	}
+      }
  
       /* Divide by density field to convert from conserved to physical
          variables (skipping density). */
@@ -337,8 +376,10 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != PhiField &&
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != GravPotential)
+	    FieldType[field] != DrivingField3 
+	    && FieldType[field] != DebugField 
+	    &&  FieldType[field] != GravPotential
+	    )
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,

@@ -1,0 +1,11 @@
+name = 'RadiationStreamX1'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 3
+radiation = 'fld'
+max_time_minutes = 20

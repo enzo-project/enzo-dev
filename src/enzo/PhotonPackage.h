@@ -12,6 +12,8 @@
 /  PURPOSE: Constructs a Linked List of Photon Packages including data
 /
 ************************************************************************/
+#ifndef __PHOTONPACKAGE_H
+#define __PHOTONPACKAGE_H
 #include "RadiationSource.h"
 #include "RadiativeTransferHealpixRoutines.h"
 
@@ -54,9 +56,9 @@ public:
     pix2vec_nest((long)(1 << level), ipix, u);
     for (int dim = 0; dim < 3; dim++) 
       r[dim] = SourcePosition[dim] + u[dim] * Radius;
-    printf("Photons = %g, Type = %d, Radius = %"PSYM"\n", Photons, Type, Radius);
-    printf("ipix = %ld, level = %d\n", ipix, level);
-    printf("normal = %lf %lf %lf\n", u[0], u[1], u[2]);
+    printf("Photons = %g, Type = %"ISYM", Radius = %"PSYM"\n", Photons, Type, Radius);
+    printf("ipix = %ld, level = %"ISYM"\n", ipix, level);
+    printf("normal = %"PSYM" %"PSYM" %"PSYM"\n", u[0], u[1], u[2]);
     printf("SourcePosition = %"PSYM" %"PSYM" %"PSYM"\n",
 	   SourcePosition[0], SourcePosition[1], SourcePosition[2]);
     printf("RayPosition = %"PSYM" %"PSYM" %"PSYM"\n", r[0], r[1], r[2]);
@@ -64,3 +66,4 @@ public:
   };
 
 };
+#endif /* PHOTONPACKAGE_H */

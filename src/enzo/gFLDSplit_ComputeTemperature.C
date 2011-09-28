@@ -14,6 +14,8 @@
 /  written by: Daniel Reynolds
 /  date:       July 2009
 /
+/  modified1:  Elizabeth Tasker, May 2011: DEFAULT_MU changed to parameter Mu
+/
 /  PURPOSE: Takes in EnzoVector and returns temperature field at 
 /           desired time.  This routine will be called repeatedly, so 
 /           it should NOT result in any net allocation of memory.
@@ -30,7 +32,6 @@
 
 
 /* default constants */
-#define DEFAULT_MU 0.6   // mean molecular mass
 #define MIN_TEMP 1.0     // minimum temperature [K]
 
 
@@ -108,7 +109,7 @@ int gFLDSplit::ComputeTemperature(float *TempArr, EnzoVector *u)
     // general LTE case
     else {
       for (i=0; i<size; i++)
-	TempArr[i] = max((Gamma-1.0)*DEFAULT_MU*mp*TempArr[i]/kb, MIN_TEMP);
+	TempArr[i] = max((Gamma-1.0)*Mu*mp*TempArr[i]/kb, MIN_TEMP);
     }
   }
   //  Chemistry case: non-LTE physics => 0 'Temperature'

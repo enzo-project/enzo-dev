@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 !=======================================================================
@@ -8,11 +9,11 @@
       subroutine multi_cool(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod, igammah,
-     &                idual, ispecies, imetal, imcool, idim,
+     &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht,
      &                dt, aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
-     &                eta1, eta2, gamma,
+     &                eta1, eta2, gamma, z_solar,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
      &                reHeII2a, reHeIIIa, brema, compa, gammaha,
@@ -21,14 +22,15 @@
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
      &                gpldla, gphdla, hdltea, hdlowa,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma, 
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                ih2optical, iciecool, ciecoa, 
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW)
+     &                clDataSize, clCooling, clHeating)
 
 
 !  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
@@ -57,9 +59,9 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, n_xe, iradtrans,
-     &        imcool, igammah
+     &        imcool, idust, igammah
       real    dt, aye, temstart, temend,
-     &        utem, uxyz, uaye, urho, utim,
+     &        utem, uxyz, uaye, urho, utim, z_solar,
      &        eta1, eta2, gamma, xe_start, xe_end
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
@@ -69,11 +71,13 @@
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
       real    photogamma(in,jn,kn)
+      integer ih2optical, iciecool
       real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec)
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec),
+     &        ciecoa(nratec)
       real    metala(nratec, n_xe)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
@@ -85,14 +89,13 @@
 
 !  Cloudy cooling data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer icmbTfloor, iClHeat, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
+      real clEleFra
       real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
-     &     clMMW(clDataSize)
+      real clCooling(clDataSize), clHeating(clDataSize)
 
 !  Parameters
 
@@ -106,11 +109,11 @@
 
 #ifdef CONFIG_BFLOAT_8
       real tolerance
-      parameter (tolerance = 1.0e-10)
+      parameter (tolerance = 1.0d-10)
 #endif
 
       double precision mh
-      parameter (mh = 1.67d-24)
+      parameter (mh = mass_h)
 
 !  Locals
 
@@ -122,7 +125,8 @@
  
       integer indixe(ijk)
       real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
-     &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
+     &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk),
+     &     tdust(ijk), metallicity(ijk), rhoH(ijk)
       double precision edot(ijk)
 
 !  Cooling/heating row locals
@@ -130,7 +134,7 @@
       double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
-     &     brem(ijk)
+     &     brem(ijk), cieco(ijk)
       real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
 
@@ -196,7 +200,7 @@
 !       Set time elapsed to zero for each cell
 
         do i = is+1, ie+1
-           ttot(i) = 0.0
+           ttot(i) = 0.d0
         enddo
 
 !       Loop over cooling subcycles
@@ -208,9 +212,9 @@
           call cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim,
+     &                iexpand, ispecies, imetal, imcool, idust, idim,
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend,
+     &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -224,18 +228,19 @@
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d,
+     &                tgas, tgasold, p2d, tdust, metallicity, rhoH,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma, 
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                ih2optical, iciecool, ciecoa, cieco,
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW,
+     &                clDataSize, clCooling, clHeating,
      &                itmask
      &                     )
 
@@ -244,7 +249,7 @@
 !         Then, use each cell~s individual timestep tp update it~s energy
 !         Find minimum elapsed timestep (ttot)
 
-          dt2 = dt/2.0
+          dt2 = dt/2.d0
           ttmin = huge
 	  write(0,*) 'is=',is, ie
 	  write(81,*) 'is=',is, ie
@@ -254,33 +259,33 @@
 !            one even for H2 since p2d is calculated with this gamma).
 
              if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
-     &              edot(i) = tiny*1.0e-3
+     &              edot(i) = tiny*1.0d-3
 
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 
-             energy = max(p2d(i)/(gamma-1.0), tiny)
+             energy = max(p2d(i)/(gamma-1.d0), tiny)
 
 c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1.0), 
 c    &                    tiny)
 c            if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
-c    &              0.5*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
-c            energy = p(i,j,k)/(gamma-1.0)
+c    &              0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
+c            energy = p(i,j,k)/(gamma-1.d0)
 
 
 !            Compute timestep for 10% change
 
 c            if (iter .gt. 100) then
-c               dtit(i) = min(real(abs(0.01*energy/edot(i))), 
+c               dtit(i) = min(real(abs(0.01d0*energy/edot(i))), 
 c    &                        dt-ttot(i), dt2)
 c            else
-c               dtit(i) = min(real(abs(0.1*energy/edot(i))), 
+c               dtit(i) = min(real(abs(0.1d0*energy/edot(i))), 
 c    &                        dt-ttot(i), dt2)
 c            endif
 
-             dtit(i) = min(real(abs(0.1*energy/edot(i))),
+             dtit(i) = min(real(abs(0.1d0*energy/edot(i))),
      &                     dt-ttot(i), dt2)
 
-             if ( dt-ttot(i) <= tolerance*dt ) then
+             if ( dt-ttot(i) .le. tolerance*dt ) then
                 itmask(i) = .false.
              end if
 
@@ -305,7 +310,7 @@ c            endif
      &           d(i,j,k) .ne. d(i+ih2co-1,j,k) .or.
      &           e(i,j,k) .ne. e(i+ih2co-1,j,k) .or.
      &           dtit(i) .ne. dtit(i+ih2co-1) .or. 
-     &           d(i,j,k) .eq. 0.0) 
+     &           d(i,j,k) .eq. 0.d0) 
      &           then 
                 write(6,*) 'multi_cool_a:',
      &          edot(i),d(i,j,k),dtit(i),i,j,k,iter,p2d(i),
@@ -334,9 +339,9 @@ c            endif
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
-             if (((dtit(i)/dt .lt. 1.0e-2) .and. 
+             if (((dtit(i)/dt .lt. 1.0d-2) .and. 
      &            (iter .gt. 1000) .and.
-     &            (abs((dt-ttot(i))/dt) .gt. 1.0e-3)) .or. 
+     &            (abs((dt-ttot(i))/dt) .gt. 1.0d-3)) .or. 
      &            (iter .gt. 1800)) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!               call open_mpi_error_file( 'F3', 3, 'unknown' )
@@ -353,7 +358,7 @@ c            endif
 
              e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
-             if (e(i,j,k) < 0.0) then
+             if (e(i,j,k) .lt. 0.0) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                call open_mpi_error_file( 'F3', 3, 'unknown' )
                 write(6,*) 'Eijk < 0', e(i,j,k)

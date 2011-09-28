@@ -5,15 +5,19 @@ syntax: glob
 *.f
 *.f90
 *~
+*.pyc
 
 bin/enzo
 bin/inits
+TAGS
 DEPEND
 DEPEND.bak
 auto_show_*.C
 enzo.exe
 inits.exe
 ring.exe
+anyl.exe
+enzohop.exe
 out.compile
 out.make.DEPEND
 svn_version.def
@@ -43,3 +47,7 @@ src/mpgrafic/mpgrafic-0.2/stamp-h1
 src/mpgrafic/degraf/autom4te.cache/
 
 src/P-GroupFinder/P-GroupFinder
+
+doc/manual/build
+
+run/results.js

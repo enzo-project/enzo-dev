@@ -52,6 +52,8 @@ struct TestProblemDataType
   /*  metallicity fields */
   int UseMetallicityField;
   float MetallicityField_Fraction;
+  float MetallicitySNIaField_Fraction;
+  float MetallicityNormalization;
 
   float InitialMetalMass;
 
@@ -111,9 +113,13 @@ struct TestProblemDataType
   float MaximumTemperature;
   int ResetEnergies;
 
-  /* Shock/Cosmic Ray Fields */
-  int CRModel;
+  /* Shock Fields */
   int ShockMethod;
   int StorePreShockFields;
   float ShockTemperatureFloor;
+
+  /* constant for analytical solution to free-fall collapse */
+  float OneZoneFreefallConstant;
+  /* fraction of free-fall time for timestep */
+  float OneZoneFreefallTimestepFraction;
 };

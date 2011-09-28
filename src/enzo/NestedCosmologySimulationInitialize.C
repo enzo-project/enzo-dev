@@ -47,6 +47,9 @@ void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
 int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
  
 // Cosmology Parameters (that need to be shared)
  
@@ -59,10 +62,13 @@ static char *CosmologySimulationTotalEnergyName      = NULL;
 static char *CosmologySimulationGasEnergyName        = NULL;
 static char *CosmologySimulationParticlePositionName = NULL;
 static char *CosmologySimulationParticleVelocityName = NULL;
+static char *CosmologySimulationParticleDisplacementName = NULL;
 static char *CosmologySimulationParticleMassName     = NULL;
 static char *CosmologySimulationParticleTypeName     = NULL;
 static char *CosmologySimulationVelocityNames[MAX_DIMENSION];
 static char *CosmologySimulationParticleVelocityNames[MAX_DIMENSION];
+static char *CosmologySimulationParticlePositionNames[MAX_DIMENSION];
+static char *CosmologySimulationParticleDisplacementNames[MAX_DIMENSION];
  
 static int   CosmologySimulationSubgridsAreStatic    = TRUE;
  
@@ -73,12 +79,15 @@ static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 static float CosmologySimulationInitialFractionMetal = 1.0e-10;
+static float CosmologySimulationInitialFractionMetalIa = 1.0e-12;
 static int   CosmologySimulationUseMetallicityField  = FALSE;
  
 static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
 static float CosmologySimulationManualParticleMassRatio = 1.0;
 
 static int   CosmologySimulationCalculatePositions   = FALSE; 
+
+static float CosmologySimulationInitialUniformBField[MAX_DIMENSION];  // in proper Gauss
 
 #define MAX_INITIAL_GRIDS 10
  
@@ -87,6 +96,7 @@ static  int   CosmologySimulationGridLevel[MAX_INITIAL_GRIDS];
 static  FLOAT CosmologySimulationGridLeftEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
 static  FLOAT CosmologySimulationGridRightEdge[MAX_INITIAL_GRIDS][MAX_DIMENSION];
  
+
  
 int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			       		HierarchyEntry &TopGrid, TopGridData &MetaData)
@@ -111,11 +121,18 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *HDIName   = "HDI_Density";
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
+  char *MetalIaName = "MetalSNIa_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
-  char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
+  char *DebugName = "Debug";
+  char *Phi_pName = "Phip";
+
  
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
  
@@ -126,20 +143,27 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   HierarchyEntry *Subgrid;
  
   char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
-    *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
-    *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
-    *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION];
+    *ParticlePositionName = NULL, *ParticleVelocityName = NULL, 
+    *ParticleDisplacementName = NULL, *ParticleMassName = NULL, 
+    *VelocityNames[MAX_DIMENSION], *ParticleTypeName = NULL, 
+    *ParticlePositionNames[MAX_DIMENSION],
+    *ParticleVelocityNames[MAX_DIMENSION], *ParticleDisplacementNames[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     VelocityNames[dim] = NULL;
     ParticleVelocityNames[dim] = NULL;
+    ParticlePositionNames[dim] = NULL;
+    ParticleDisplacementNames[dim] = NULL;
     CosmologySimulationParticleVelocityNames[dim] = NULL;
+    CosmologySimulationInitialUniformBField[dim] = 0.0;
+    CosmologySimulationParticlePositionNames[dim] = NULL;
+    CosmologySimulationParticleDisplacementNames[dim] = NULL;
   }
  
   // Set default parameters: parameters, names and subgrid info
  
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    CosmologySimulationVelocityNames[dim]       = NULL;
+    CosmologySimulationVelocityNames[dim] = NULL;
  
   for (i = 0; i < MAX_INITIAL_GRIDS; i++)
     CosmologySimulationGridLevel[i] = 1;
@@ -196,6 +220,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       CosmologySimulationParticlePositionName = dummy;
     if (sscanf(line, "CosmologySimulationParticleVelocityName = %s", dummy) == 1)
       CosmologySimulationParticleVelocityName = dummy;
+    if (sscanf(line, "CosmologySimulationParticleDisplacementName = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementName = dummy;
     if (sscanf(line, "CosmologySimulationParticleMassName = %s", dummy) == 1)
       CosmologySimulationParticleMassName = dummy;
     if (sscanf(line, "CosmologySimulationParticleTypeName = %s", dummy) == 1)
@@ -206,7 +232,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       CosmologySimulationParticleVelocityNames[1] = dummy;
     if (sscanf(line, "CosmologySimulationParticleVelocity3Name = %s", dummy) == 1)
       CosmologySimulationParticleVelocityNames[2] = dummy;    
-
+    if (sscanf(line, "CosmologySimulationParticleDisplacement1Name = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementNames[0] = dummy;
+    if (sscanf(line, "CosmologySimulationParticleDisplacement2Name = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementNames[1] = dummy;
+    if (sscanf(line, "CosmologySimulationParticleDisplacement3Name = %s", dummy) == 1)
+      CosmologySimulationParticleDisplacementNames[2] = dummy;
+	  
     ret += sscanf(line, "CosmologySimulationNumberOfInitialGrids = %"ISYM,
 		  &CosmologySimulationNumberOfInitialGrids);
     ret += sscanf(line, "CosmologySimulationSubgridsAreStatic = %"ISYM,
@@ -245,6 +277,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &CosmologySimulationInitialFractionH2II);
     ret += sscanf(line, "CosmologySimulationInitialFractionMetal = %"FSYM,
 		  &CosmologySimulationInitialFractionMetal);
+    ret += sscanf(line, "CosmologySimulationInitialFractionMetalIa = %"FSYM,
+		  &CosmologySimulationInitialFractionMetalIa);
     ret += sscanf(line, "CosmologySimulationUseMetallicityField = %"ISYM,
 		  &CosmologySimulationUseMetallicityField);
  
@@ -255,6 +289,11 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
     ret += sscanf(line, "CosmologySimulationCalculatePositions = %"ISYM,
 		  &CosmologySimulationCalculatePositions);
+
+    ret += sscanf(line, "CosmologySimulationInitialUniformBField = %"FSYM" %"FSYM" %"FSYM,
+		  CosmologySimulationInitialUniformBField,
+		  CosmologySimulationInitialUniformBField+1,
+		  CosmologySimulationInitialUniformBField+2);
 
     // If the dummy char space was used, then make another
  
@@ -275,6 +314,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (CosmologySimulationDensityName == NULL &&
       (CosmologySimulationParticlePositionName == NULL &&
+       CosmologySimulationParticleDisplacementName == NULL &&
        !CosmologySimulationCalculatePositions)) {
     ENZO_FAIL("Missing initial data.\n");
   }
@@ -299,12 +339,35 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ENZO_FAIL("CosmologySimulation: 1-component files only valid for use with "
 	    "CosmologySimulationCalculatePositions.\n");
   }
+
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
     CosmologySimulationInitialTemperature = 550.0 *
       POW((1.0 + InitialRedshift)/(1.0 + 200), 2);
  
+  /* Convert from Gauss */
+  float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
+    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
+        ENZO_FAIL("Error in GetUnits.");
+  }
+  PressureUnits = DensityUnits * VelocityUnits*VelocityUnits;
+  MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+
+  for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
+	     CosmologySimulationInitialUniformBField[dim]);
+  }
   // Generate the grids and set-up the hierarchy
  
   HierarchyEntry *GridsList[MAX_INITIAL_GRIDS];
@@ -483,16 +546,26 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       if (CosmologySimulationParticleVelocityName)
 	sprintf(ParticleVelocityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticleVelocityName, gridnum);
+      if (CosmologySimulationParticleDisplacementName)
+	sprintf(ParticleDisplacementName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		CosmologySimulationParticleDisplacementName, gridnum);
       if (CosmologySimulationParticleMassName)
 	sprintf(ParticleMassName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticleMassName, gridnum);
       if (CosmologySimulationParticleTypeName)
         sprintf(ParticleTypeName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
                 CosmologySimulationParticleTypeName, gridnum);
-      for (dim = 0; dim < MetaData.TopGridRank; dim++)
+      for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+	if (CosmologySimulationParticlePositionNames[dim])
+	  sprintf(ParticlePositionNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		  CosmologySimulationParticlePositionNames[dim], gridnum);
 	if (CosmologySimulationParticleVelocityNames[dim])
 	  sprintf(ParticleVelocityNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		  CosmologySimulationParticleVelocityNames[dim], gridnum);
+	if (CosmologySimulationParticleDisplacementNames[dim])
+	  sprintf(ParticleDisplacementNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		  CosmologySimulationParticleDisplacementNames[dim], gridnum);
+      }
 	  
  
     } else {
@@ -504,10 +577,14 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	VelocityNames[dim]   = CosmologySimulationVelocityNames[dim];
       ParticlePositionName   = CosmologySimulationParticlePositionName;
       ParticleVelocityName   = CosmologySimulationParticleVelocityName;
+      ParticleDisplacementName = CosmologySimulationParticleDisplacementName;
       ParticleMassName       = CosmologySimulationParticleMassName;
       ParticleTypeName       = CosmologySimulationParticleTypeName;
-      for (dim = 0; dim < MetaData.TopGridRank; dim++)
-	ParticleVelocityNames[dim]   = CosmologySimulationParticleVelocityNames[dim];
+      for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+	ParticlePositionNames[dim] = CosmologySimulationParticlePositionNames[dim];
+	ParticleVelocityNames[dim] = CosmologySimulationParticleVelocityNames[dim];
+	ParticleDisplacementNames[dim] = CosmologySimulationParticleDisplacementNames[dim];
+      }
 
     }
  
@@ -532,9 +609,10 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			       CosmologySimulationInitialTemperature,
 			     DensityName, TotalEnergyName,
 			       GasEnergyName, VelocityNames,
-			       ParticlePositionName, ParticleVelocityName,
-			       ParticleMassName, ParticleTypeName,
-			     ParticleVelocityNames,
+			       ParticlePositionName, ParticleVelocityName, 
+			       ParticleDisplacementName,
+			       ParticleMassName, ParticleTypeName, 
+			       ParticleVelocityNames, ParticleDisplacementNames,
 			     SubgridsAreStatic, TotalRefinement,
 			     CosmologySimulationInitialFractionHII,
 			     CosmologySimulationInitialFractionHeII,
@@ -543,13 +621,15 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationInitialFractionMetal,
+			     CosmologySimulationInitialFractionMetalIa,
 			     CosmologySimulationUseMetallicityField,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,
 			     CosmologySimulationManualParticleMassRatio,
 			     CosmologySimulationCalculatePositions,
 			     CosmologySimulationGridLeftEdge[gridnum],
-			     CosmologySimulationGridRightEdge[gridnum]
+			     CosmologySimulationGridRightEdge[gridnum],
+			     CosmologySimulationInitialUniformBField
 						       ) == FAIL) {
       ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
     }
@@ -590,13 +670,25 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
+  DataLabel[i++] = Vel1Name;
+  if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    DataLabel[i++] = Vel2Name;
+  if (MetaData.TopGridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
-  DataLabel[i++] = Vel1Name;
-  DataLabel[i++] = Vel2Name;
-  DataLabel[i++] = Vel3Name;
-  if (MultiSpecies) {
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = BxName;
+    DataLabel[i++] = ByName;
+    DataLabel[i++] = BzName;
+    DataLabel[i++] = PhiName;
+    if(UseDivergenceCleaning){
+      DataLabel[i++] = Phi_pName;
+      DataLabel[i++] = DebugName;
+    }
+  }
+   if (MultiSpecies) {
     DataLabel[i++] = ElectronName;
     DataLabel[i++] = HIName;
     DataLabel[i++] = HIIName;
@@ -617,6 +709,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
+    if (StarMakerTypeIaSNe)
+      DataLabel[i++] = MetalIaName;
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
@@ -630,13 +724,12 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;
  
-  if (CRModel) {
+  if (ShockMethod) {
     DataLabel[i++] = MachName;
     if(StorePreShockFields){
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-    DataLabel[i++] = CRName;
   } 
  
 
@@ -671,21 +764,31 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(Outfptr, "CosmologySimulationParticlePositionName = %s\n",
 	    CosmologySimulationParticlePositionName);
     if (CosmologySimulationParticleVelocityName)
-    fprintf(Outfptr, "CosmologySimulationParticleVelocityName = %s\n",
-	    CosmologySimulationParticleVelocityName);
+      fprintf(Outfptr, "CosmologySimulationParticleVelocityName = %s\n",
+	      CosmologySimulationParticleVelocityName);
+    if (CosmologySimulationParticleDisplacementName)
+	fprintf(Outfptr, "CosmologySimulationParticleDisplacementName = %s\n",
+	    CosmologySimulationParticleDisplacementName);
     if (CosmologySimulationParticleMassName)
-    fprintf(Outfptr, "CosmologySimulationParticleMassName     = %s\n",
-	    CosmologySimulationParticleMassName);
+      fprintf(Outfptr, "CosmologySimulationParticleMassName     = %s\n",
+	      CosmologySimulationParticleMassName);
     if (CosmologySimulationParticleTypeName)
-    fprintf(Outfptr, "CosmologySimulationParticleTypeName     = %s\n\n",
-            CosmologySimulationParticleTypeName);
+      fprintf(Outfptr, "CosmologySimulationParticleTypeName     = %s\n\n",
+	      CosmologySimulationParticleTypeName);
     fprintf(Outfptr, "CosmologySimulationParticleVelocity1Name = %s\n",
 	    CosmologySimulationVelocityNames[0]);
     fprintf(Outfptr, "CosmologySimulationParticleVelocity2Name = %s\n",
 	    CosmologySimulationVelocityNames[1]);
     fprintf(Outfptr, "CosmologySimulationParticleVelocity3Name = %s\n",
 	    CosmologySimulationVelocityNames[2]);
- 
+    if (CosmologySimulationParticleDisplacementNames) {	
+      fprintf(Outfptr, "CosmologySimulationParticleDisplacement1Name = %s\n",
+	      CosmologySimulationParticleDisplacementNames[0]);
+      fprintf(Outfptr, "CosmologySimulationParticleDisplacement2Name = %s\n",
+	      CosmologySimulationParticleDisplacementNames[1]);
+      fprintf(Outfptr, "CosmologySimulationParticleDisplacement3Name = %s\n",
+	      CosmologySimulationParticleDisplacementNames[2]);
+    }
     fprintf(Outfptr, "CosmologySimulationNumberOfInitialGrids = %"ISYM"\n",
 	    CosmologySimulationNumberOfInitialGrids);
     fprintf(Outfptr, "CosmologySimulationSubgridsAreStatic    = %"ISYM"\n",
@@ -723,8 +826,17 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionH2II);
     fprintf(Outfptr, "CosmologySimulationInitialFractionMetal = %"GSYM"\n",
 	    CosmologySimulationInitialFractionMetal);
+    fprintf(Outfptr, "CosmologySimulationInitialFractionMetalIa = %"GSYM"\n",
+	    CosmologySimulationInitialFractionMetalIa);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
+
+    float CSBField[MAX_DIMENSION];  // in proper Gauss
+    for (int dim = 0; dim < MAX_DIMENSION; dim++) 
+      CSBField[dim] = CosmologySimulationInitialUniformBField[dim] * MagneticUnits;
+    fprintf(Outfptr, "CosmologySimulationInitialUniformBField = ");
+    WriteListOfFloats(Outfptr, 3, CSBField);
+
   }
  
   // Clean up
@@ -733,8 +845,6 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   return SUCCESS;
 }
- 
- 
  
  
 void NestedRecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
@@ -756,11 +866,15 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
   char *DensityName = NULL, *TotalEnergyName = NULL, *GasEnergyName = NULL,
     *ParticlePositionName = NULL, *ParticleVelocityName = NULL,
+    *ParticleDisplacementName = NULL,
     *ParticleMassName = NULL, *VelocityNames[MAX_DIMENSION],
-    *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION];;
+    *ParticleTypeName = NULL, *ParticleVelocityNames[MAX_DIMENSION],
+    *ParticleDisplacementNames[MAX_DIMENSION], *ParticlePositionNames[MAX_DIMENSION];
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     ParticleVelocityNames[dim] = NULL;
+    ParticlePositionNames[dim] = NULL;
+    ParticleDisplacementNames[dim] = NULL;
     VelocityNames[dim] = NULL;
   }
  
@@ -796,6 +910,9 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       if (CosmologySimulationParticlePositionName)
 	sprintf(ParticlePositionName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticlePositionName, gridnum);
+      if (CosmologySimulationParticleDisplacementName)
+	sprintf(ParticleDisplacementName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+	      CosmologySimulationParticleDisplacementName, gridnum);
       if (CosmologySimulationParticleVelocityName)
 	sprintf(ParticleVelocityName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 	      CosmologySimulationParticleVelocityName, gridnum);
@@ -805,10 +922,17 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       if (CosmologySimulationParticleTypeName)
 	sprintf(ParticleTypeName = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
               CosmologySimulationParticleTypeName, gridnum);
-      for (dim = 0; dim < MAX_DIMENSION; dim++)
+      for (dim = 0; dim < MAX_DIMENSION; dim++) {
 	if (CosmologySimulationParticleVelocityNames[dim])
 	  sprintf(ParticleVelocityNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
 		CosmologySimulationParticleVelocityNames[dim], gridnum);
+	if (CosmologySimulationParticlePositionNames[dim])
+	  sprintf(ParticlePositionNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		CosmologySimulationParticlePositionNames[dim], gridnum);
+	if (CosmologySimulationParticleDisplacementNames[dim])
+	  sprintf(ParticleDisplacementNames[dim] = new char[MAX_LINE_LENGTH], "%s.%1"ISYM,
+		CosmologySimulationParticleDisplacementNames[dim], gridnum);
+      }
  
     } else {
  
@@ -818,11 +942,15 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	VelocityNames[dim]   = CosmologySimulationVelocityNames[dim];
       ParticlePositionName   = CosmologySimulationParticlePositionName;
+      ParticleDisplacementName = CosmologySimulationParticleDisplacementName;
       ParticleVelocityName   = CosmologySimulationParticleVelocityName;
       ParticleMassName       = CosmologySimulationParticleMassName;
       ParticleTypeName       = CosmologySimulationParticleTypeName;
-      for (dim = 0; dim < MAX_DIMENSION; dim++)
+      for (dim = 0; dim < MAX_DIMENSION; dim++) {
 	ParticleVelocityNames[dim]   = CosmologySimulationParticleVelocityNames[dim];
+	ParticlePositionNames[dim]   = CosmologySimulationParticlePositionNames[dim];
+	ParticleDisplacementNames[dim] = CosmologySimulationParticleDisplacementNames[dim];
+      }
  
     }
  
@@ -841,31 +969,34 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     Temp = CurrentGrid;
     while (Temp != NULL) {
       ParticleTempCount = ParticleCount; // set particle count to beginning of this level (not used for ring IO)
-      if (Temp->GridData->NestedCosmologySimulationInitializeGrid(gridnum,
-			     CosmologySimulationOmegaBaryonNow,
-			       CosmologySimulationOmegaCDMNow,
-			       CosmologySimulationInitialTemperature,
-			     DensityName, TotalEnergyName,
-			       GasEnergyName, VelocityNames,
-			       ParticlePositionName, ParticleVelocityName,
-			       ParticleMassName, ParticleTypeName,
-			     ParticleVelocityNames,
-			     SubgridsAreStatic, TotalRefinement,
-			     CosmologySimulationInitialFractionHII,
-			     CosmologySimulationInitialFractionHeII,
-			     CosmologySimulationInitialFractionHeIII,
-			     CosmologySimulationInitialFractionHM,
-			     CosmologySimulationInitialFractionH2I,
-			     CosmologySimulationInitialFractionH2II,
-			     CosmologySimulationInitialFractionMetal,
-			     CosmologySimulationUseMetallicityField,
-			     ParticleTempCount,
-			     CosmologySimulationManuallySetParticleMassRatio,
-			     CosmologySimulationManualParticleMassRatio,
-			     CosmologySimulationCalculatePositions,
-			     CosmologySimulationGridLeftEdge[gridnum],
-			     CosmologySimulationGridRightEdge[gridnum]
-						       ) == FAIL) {
+      if (Temp->GridData->NestedCosmologySimulationInitializeGrid
+	  (gridnum, CosmologySimulationOmegaBaryonNow,
+	   CosmologySimulationOmegaCDMNow,
+	   CosmologySimulationInitialTemperature,
+	   DensityName, TotalEnergyName,
+	   GasEnergyName, VelocityNames,
+	   ParticlePositionName, ParticleVelocityName, 
+	   ParticleDisplacementName,
+	   ParticleMassName, ParticleTypeName, 
+	   ParticleVelocityNames, ParticleDisplacementNames,
+	   SubgridsAreStatic, TotalRefinement,
+	   CosmologySimulationInitialFractionHII,
+	   CosmologySimulationInitialFractionHeII,
+	   CosmologySimulationInitialFractionHeIII,
+	   CosmologySimulationInitialFractionHM,
+	   CosmologySimulationInitialFractionH2I,
+	   CosmologySimulationInitialFractionH2II,
+	   CosmologySimulationInitialFractionMetal,
+	   CosmologySimulationInitialFractionMetalIa,
+	   CosmologySimulationUseMetallicityField,
+	   ParticleTempCount,
+	   CosmologySimulationManuallySetParticleMassRatio,
+	   CosmologySimulationManualParticleMassRatio,
+	   CosmologySimulationCalculatePositions,
+	   CosmologySimulationGridLeftEdge[gridnum],
+	   CosmologySimulationGridRightEdge[gridnum],
+	   CosmologySimulationInitialUniformBField
+	   ) == FAIL) {
 	ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
       }
  
@@ -1011,8 +1142,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
 	match = true;
 	for (dim = 0; dim < Rank; dim++)
-	  match &= (GridCenter[dim] > LeftParent[dim]) &&
-	    (GridCenter[dim] < RightParent[dim]);
+	  match &= (GridCenter[dim] >= LeftParent[dim]) &&
+	    (GridCenter[dim] <= RightParent[dim]);
 
 	if (match) {
 	  Current->ParentGrid = Parent;

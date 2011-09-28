@@ -103,15 +103,16 @@ int plm_species(float **prim, int is, float **species, float *flux0, int ActiveS
       }
     }
 
-    /* renormalize species field */  
-    float sum = 0;
-    for (int field = 0; field < NSpecies; field++) {
-      sum += species[field][n];
+    /* renormalize species field */
+    if (NoMultiSpeciesButColors != TRUE) {
+      float sum = 0;
+      for (int field = 0; field < NSpecies; field++) {
+        sum += species[field][n];
+      }
+      for (int field = 0; field < NSpecies; field++) {
+        species[field][n] /= sum;
+      }
     }
-    for (int field = 0; field < NSpecies; field++) {
-      species[field][n] /= sum;
-    }
-
   }
 
   return SUCCESS;

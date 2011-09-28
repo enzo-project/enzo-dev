@@ -1,3 +1,5 @@
+#include "fortran.def"
+#include "phys_const.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -100,7 +102,6 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -171,7 +172,6 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !
 !  PURPOSE: 3D version of the routine
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -224,8 +224,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   dxi0  = a0/dx/lUn0
   dyi0  = a0/dy/lUn0
   dzi0  = a0/dz/lUn0
-  c     = 2.99792458d10     ! speed of light [cm/s]
-  pi    = 4.d0*atan(1.d0)
+  c     = c_light           ! speed of light [cm/s]
+  pi    = pi_val
 !  Rmin  = dxi+dyi+dzi
   Rmin  = 1.0d-20
   StBz  = 5.6704d-5         ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
@@ -569,7 +569,6 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !
 !  PURPOSE: 2D version of the routine
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -618,8 +617,8 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   dyi   = a/dy/lUn
   dxi0  = a0/dx/lUn0
   dyi0  = a0/dy/lUn0
-  c     = 2.99792458d10     ! speed of light [cm/s]
-  pi    = 4.d0*atan(1.d0)
+  c     = c_light           ! speed of light [cm/s]
+  pi    = pi_val
 !  Rmin  = (dxi+dyi)*1.5d0
   Rmin  = 1.0d-20
   StBz  = 5.6704d-5         ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
@@ -845,7 +844,6 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
 !
 !  PURPOSE: 1D version of the routine
 !=======================================================================
-#include "fortran.def"
   implicit none
   
   !--------------
@@ -889,8 +887,8 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   endif
   dxi   = a/dx/lUn
   dxi0  = a0/dx/lUn0
-  c     = 2.99792458d10     ! speed of light [cm/s]
-  pi    = 4.d0*atan(1.d0)
+  c     = c_light           ! speed of light [cm/s]
+  pi    = pi_val
 !  Rmin  = dxi*3.d0
   Rmin  = 1.0d-20
   StBz  = 5.6704d-5         ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]

@@ -1,0 +1,10 @@
+name = 'AMRShockPool2D'
+answer_testing_script = 'test_shock_pool.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 2
+max_time_minutes = 2

@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -12,7 +13,9 @@ c
      &                      imetal, imethod, mintdyn,
      &                      odthresh, masseff, smthresh, level, np,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf)
+     &                      mp, tdp, tcp, metalf,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES STAR PARTICLES
 c
@@ -47,6 +50,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
 c
@@ -59,7 +63,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
-c
+c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
 c
 c-----------------------------------------------------------------------
        implicit none
@@ -68,7 +72,7 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
+      integer procnum, imetalSNIa
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -78,6 +82,7 @@ c
       REALSUB xp(nmax), yp(nmax), zp(nmax)
       real    up(nmax), vp(nmax), wp(nmax)
       real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    odthresh, masseff, smthresh, mintdyn
 c
       real   sformsum
@@ -92,8 +97,8 @@ c
       real   isosndsp2, starmass, starfraction, bmass, jeanmass
       real   densthresh, timeconstant, gasfrac
       double precision msolar
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33,mproton=1.67e-24)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+     &           msolar=SolarMass,mproton=mass_h)
 c
       ii = np
 c
@@ -109,7 +114,7 @@ c  calculate time constant for star formation.  This assumes that the
 c  user input is in units of years
 c
 
-      timeconstant = mintdyn * 3.156e7 / t1
+      timeconstant = mintdyn * 3.156d7 / t1
 c
 c  for each zone, : "star" particle is created if the density exceeds
 c  some threshold and this is the highest level of refinement.  That's
@@ -121,7 +126,7 @@ c
 c
 c              1) is this finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0.d0) goto 10
 c
 c              2) is density greater than threshold?
 c
@@ -130,7 +135,7 @@ c
 c            make sure that we never give put than 90% of the cell's mass
 c            into a star particle
 
-               gasfrac = min( 0.9, dt / timeconstant )
+               gasfrac = min( 0.9d0, dt / timeconstant )
 
 c            calculate star mass in solar masses.  If this is less than the
 c            user-defined threshold mass, do NOT make a star in this cell.
@@ -154,13 +159,13 @@ c            fill in star particle attributes
                mp(ii)  = gasfrac * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = timeconstant
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = xstart + (float(i)-0.5d0)*dx
+               yp(ii) = ystart + (float(j)-0.5d0)*dx
+               zp(ii) = zstart + (float(k)-0.5d0)*dx
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -172,12 +177,15 @@ c
                if (imetal .eq. 1) then
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
                endif
-c
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
+               endif
+
 c              Remove mass from grid
 c
-               d(i,j,k) = (1.0 - gasfrac)*d(i,j,k)
+               d(i,j,k) = (1.d0 - gasfrac)*d(i,j,k)
 c
 c              Do not generate more star particles than available
 c
@@ -191,7 +199,7 @@ c
  20   continue
 c
       if (ii .ge. nmax) then
-         write(6,*) 'star_maker2: reached max new particle count'
+         write(6,*) 'star_maker4: reached max new particle count'
          ERROR_MESSAGE
       endif
       np = ii
@@ -283,7 +291,7 @@ c
       integer i, j, k, n
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (clight = 3e10, msolar_e51 = 1800.0)
+      parameter (clight = c_light, msolar_e51 = 1800.0)
 c
 c-----------------------------------------------------------------------
 c
@@ -361,7 +369,7 @@ c                          / ((old metal density)  +
 c                             (gas density added from star))
 c
                metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-     &              (yield * (1.0-metalf(n)) + metalf(n)))
+     &              (yield * (1.d0-metalf(n)) + metalf(n)))
      &              / (d(i,j,k)+mform)  ! metal is a fraction
 c
             endif
@@ -380,7 +388,7 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
+               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + 
      &                          w(i,j,k)**2) + ge(i,j,k)
             endif
 c

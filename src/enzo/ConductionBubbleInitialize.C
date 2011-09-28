@@ -4,9 +4,13 @@
 //
 //  written by: David A. Ventimiglia, Brian O'Shea
 //  date:       June 2009
-//  modified:  
+//  modified:  February 10, 2011 by BWO
 //
-//  PURPOSE: 
+//  PURPOSE: This initializes a bubble with user-controlled entropy in an 
+//     ambient medium that is initially in hydrostatic equilibrium
+//     (with density, temperature profile controlled by the user).  The
+//     bubble then does its thing based on its entropy relative to the 
+//     ambient medium.
 //
 //  RETURNS: SUCCESS or FAIL
 //
@@ -26,6 +30,10 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, double *MassUnits, FLOAT Time);
+
 // Problem Initializer
 int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid, TopGridData &MetaData){
 
@@ -40,8 +48,9 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   float ConductionBubbleDensity = 1.0;
   float ConductionBubbleTotalEnergy = 1.0;
+  float ConductionBubbleGasEnergy = 1.0;
   float ConductionBubbleVelocity[3] = {0.0,0.0,0.0};
-  float ConductionBubbleInitialUniformBField[MAX_DIMENSION];  // in Gauss
+  float ConductionBubbleInitialUniformBField[3] = {0.0,0.0,0.0};  // in Gauss
 
   FLOAT ConductionBubbleRadiusOfBubble = 0.1;  // units of box size
   int   ConductionBubblePulseType = 1;  // pulse type
@@ -50,7 +59,6 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float ConductionBubbleEntropyGradient = 1.0;   // kev*cm^2 / kpc
   float ConductionBubbleMidpointTemperature = 5.0e+7;  // Kelvin
   FLOAT ConductionBubbleCenter[MAX_DIMENSION] = {0.5,0.5,0.5};
-
 
   // Read parameters
 
@@ -62,11 +70,12 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     ret += sscanf(line, "ConductionBubbleMidpointEntropy = %"FSYM, &ConductionBubbleMidpointEntropy);
     ret += sscanf(line, "ConductionBubbleEntropyGradient = %"FSYM, &ConductionBubbleEntropyGradient);
     ret += sscanf(line, "ConductionBubbleMidpointTemperature = %"FSYM, &ConductionBubbleMidpointTemperature);
-
     ret += sscanf(line, "ConductionBubbleCenter = %"PSYM" %"PSYM" %"PSYM, &ConductionBubbleCenter[0],
 		  &ConductionBubbleCenter[1],&ConductionBubbleCenter[2]);
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
     ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+    ret += sscanf(line, "ConductionBubbleBField = %"FSYM" %"FSYM" %"FSYM,&ConductionBubbleInitialUniformBField[0],
+		  &ConductionBubbleInitialUniformBField[1], &ConductionBubbleInitialUniformBField[2]);
 
     if (ret == 0 && 
 	strstr(line, "=") && strstr(line, "ConductionBubble") &&
@@ -75,10 +84,44 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     }
   }
 
+  /* error checking */
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting Mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
+  ConductionBubbleGasEnergy = ConductionBubbleTotalEnergy;
+
+  float DensityUnits=1.0, LengthUnits=1.0, TemperatureUnits=1.0, TimeUnits=1.0,
+    VelocityUnits=1.0;
+  double MassUnits=1.0;
+
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+	       &TimeUnits, &VelocityUnits, &MassUnits, 0.0) == FAIL) {
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
+
+  /* if we're using MHD, we assume the user inputs values of the B-field.
+     Convert to internal units, and add the magnetic field energy to the 
+     total energy (that's not done automatically, since we don't know for sure
+     what the user is going to do). */
+  if (HydroMethod == MHD_RK){
+    float MagneticUnits = sqrt(DensityUnits*4.0*M_PI)*VelocityUnits;
+    ConductionBubbleInitialUniformBField[0] /= MagneticUnits;
+    ConductionBubbleInitialUniformBField[1] /= MagneticUnits;
+    ConductionBubbleInitialUniformBField[2] /= MagneticUnits;
+
+    ConductionBubbleTotalEnergy += 0.5*(ConductionBubbleInitialUniformBField[0]*ConductionBubbleInitialUniformBField[0] + 
+				      ConductionBubbleInitialUniformBField[1]*ConductionBubbleInitialUniformBField[1] + 
+				      ConductionBubbleInitialUniformBField[2]*ConductionBubbleInitialUniformBField[2])/ConductionBubbleDensity;
+  }
+
   // Create a uniform grid
   if (TopGrid.GridData->InitializeUniformGrid(ConductionBubbleDensity,
 					      ConductionBubbleTotalEnergy,
-					      ConductionBubbleTotalEnergy,
+					      ConductionBubbleGasEnergy,
 					      ConductionBubbleVelocity,
 					      ConductionBubbleInitialUniformBField) == FAIL) {
     ENZO_FAIL("Error in InitializeUniformGrid.");
@@ -98,11 +141,20 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   // set up field names and units
   i = 0;
   DataLabel[i++] = "Density";
-  DataLabel[i++] = "Total_Energy";
-  if (DualEnergyFormalism) {DataLabel[i++] = "Gas_Energy";}
+  DataLabel[i++] = "TotalEnergy";
+  if (DualEnergyFormalism) {DataLabel[i++] = "GasEnergy";}
   if (MetaData.TopGridRank > 0) {DataLabel[i++] = "x-velocity";}
-  if (MetaData.TopGridRank > 1) {DataLabel[i++] = "y-velocity";}
-  if (MetaData.TopGridRank > 2) {DataLabel[i++] = "z-velocity";}
+  if (MetaData.TopGridRank > 1 || HydroMethod > 2) {DataLabel[i++] = "y-velocity";}
+  if (MetaData.TopGridRank > 2 || HydroMethod > 2) {DataLabel[i++] = "z-velocity";}
+  if (HydroMethod == MHD_RK) {
+    DataLabel[i++] = "Bx";
+    DataLabel[i++] = "By";
+    DataLabel[i++] = "Bz";
+    DataLabel[i++] = "Phi";
+    if(UseDivergenceCleaning){
+      DataLabel[i++] = "Phip";
+    }
+  }
 
   if (TestProblemData.UseMetallicityField)
     DataLabel[i++] = "Metal_Density";
@@ -123,6 +175,8 @@ int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  ConductionBubbleCenter+1,ConductionBubbleCenter+2);
     fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
     fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+    fprintf(Outfptr, "ConductionBubbleBField = %"FSYM" %"FSYM" %"FSYM"\n",ConductionBubbleInitialUniformBField[0],
+	    ConductionBubbleInitialUniformBField[1],ConductionBubbleInitialUniformBField[2]);
   }
 
   if(debug){

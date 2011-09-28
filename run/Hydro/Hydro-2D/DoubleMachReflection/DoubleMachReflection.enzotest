@@ -1,0 +1,10 @@
+name = 'DoubleMachReflection'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 2
+max_time_minutes = 5

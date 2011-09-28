@@ -95,7 +95,7 @@ c
 
 #ifdef CONFIG_BFLOAT_8
       real tolerance
-      parameter (tolerance = 1.0e-14)
+      parameter (tolerance = 1.0d-14)
 #endif
 
 c
@@ -111,7 +111,7 @@ c     write(6,*) 'TWOSHOCK: dt =',dt,'  idim =',idim,'  jdim=',jdim
 c     write(6,*) 'TWOSHOCK: i1 =',i1,'  i2   =',i2
 c     write(6,*) 'TWOSHOCK: j1 =',j1,'  j2   =',j2
 
-      qa = (gamma + 1.0)/(2.0*gamma)
+      qa = (gamma + 1.d0)/(2.d0*gamma)
 c
 c  Loop through this slice, doing 1 sweep at a time
 c
@@ -123,7 +123,7 @@ c
        if (ipresfree .eq. 1) then
         do i=i1, i2
            pbar(i,j) = pmin
-           ubar(i,j) = 0.5*(uls(i,j)+urs(i,j))
+           ubar(i,j) = 0.5d0*(uls(i,j)+urs(i,j))
            pls(i,j)  = pmin
            prs(i,j)  = pmin
         enddo
@@ -143,7 +143,7 @@ c       if (gravity .eq. 1) then
           cr  (i) = sqrt(gamma*prs(i,j)*drs(i,j))
           ps(i) = (cr(i)*pls(i,j) + cl(i)*prs(i,j)
      &          +  cr(i)*cl(i)*(uls(i,j) - urs(i,j)
-     &                        + 0.5*dt*(grslice(i-1,j)-grslice(i,j)) 
+     &                        + 0.5d0*dt*(grslice(i-1,j)-grslice(i,j)) 
      &                                           ) )/(cr(i)+cl(i))
 
 !               ^
@@ -187,20 +187,20 @@ c
 !       dpdul, dpdur depend on ps only
 
           do i=i1,i2
-            if ( mask(i) > 0 ) then
-            zl (i) = cl(i)*sqrt((1.0+qa*(ps(i)/pls(i,j)-1.0)))
-            zr (i) = cr(i)*sqrt((1.0+qa*(ps(i)/prs(i,j)-1.0)))
+            if ( mask(i) .gt. 0 ) then
+            zl (i) = cl(i)*sqrt((1.d0+qa*(ps(i)/pls(i,j)-1.d0)))
+            zr (i) = cr(i)*sqrt((1.d0+qa*(ps(i)/prs(i,j)-1.d0)))
             ubl(i) = uls(i,j) - (ps(i)-pls(i,j))/zl(i)
             ubr(i) = urs(i,j) + (ps(i)-prs(i,j))/zr(i)
             end if
           enddo
 
           do i=i1,i2
-            if ( mask(i) > 0 ) then
-            dpdul(i) = -4.0*zl(i)**3/dls(i,j)
-     &        /(4.0*zl(i)**2/dls(i,j) - (gamma+1.0)*(ps(i)-pls(i,j)))
-            dpdur(i) =  4.0*zr(i)**3/drs(i,j)
-     &        /(4.0*zr(i)**2/drs(i,j) - (gamma+1.0)*(ps(i)-prs(i,j)))
+            if ( mask(i) .gt. 0 ) then
+            dpdul(i) = -4.d0*zl(i)**3/dls(i,j)
+     &        /(4.d0*zl(i)**2/dls(i,j) - (gamma+1.d0)*(ps(i)-pls(i,j)))
+            dpdur(i) =  4.d0*zr(i)**3/drs(i,j)
+     &        /(4.d0*zr(i)**2/drs(i,j) - (gamma+1.d0)*(ps(i)-prs(i,j)))
             ps (i) = ps(i) + (ubr(i)-ubl(i))*dpdur(i)*dpdul(i)
      &                      /(dpdur(i)-dpdul(i))
 c            if (ps(i) .lt. pmin) ps(i) = min(pls(i,j),prs(i,j))
@@ -208,7 +208,7 @@ c            if (ps(i) .lt. pmin) ps(i) = min(pls(i,j),prs(i,j))
 
             delta_ps(i) = ps(i) - old_ps(i)
             old_ps(i) = ps(i)
-            if ( abs(delta_ps(i) / ps(i)) < tolerance ) then
+            if ( abs(delta_ps(i) / ps(i)) .lt. tolerance ) then
               mask(i) = 0
             end if
             end if
@@ -258,8 +258,8 @@ c
            do i=i1, i2
               if (gamma*ps(i)/min(dls(i,j),drs(i,j)) .lt.
      &             eta1*ubar(i,j)**2) then
-                 pbar(i,j) = 0.5*(pls(i,j) + prs(i,j))
-                 ubar(i,j) = 0.5*(uls(i,j) + urs(i,j))
+                 pbar(i,j) = 0.5d0*(pls(i,j) + prs(i,j))
+                 ubar(i,j) = 0.5d0*(uls(i,j) + urs(i,j))
               endif
            enddo
         endif

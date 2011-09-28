@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -54,6 +55,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     gravConst = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13;
 
   Star *cstar;
+  bool MarkedSubgrids = false;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy, count;
   float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar;
@@ -63,6 +65,8 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   if (AllStars == NULL)
     return SUCCESS;
+
+  LCAPERF_START("StarParticleAddFeedback");
 
   /* Get time and SNe timestep */
 
@@ -99,7 +103,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
            SNe_dt, EjectaDensity, EjectaThermalEnergy, EjectaMetalDensity, 
 	   DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-	   VelocityUnits, dtForThisStar);
+           VelocityUnits, dtForThisStar, Time);
 
     /* Recalibrate MBHFeedbackThermalRadius if requested */
 
@@ -110,13 +114,12 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     /* Determine if a sphere with enough mass (or equivalently radius
        for SNe) is enclosed within grids on this level */
 
-    if (cstar->FindFeedbackSphere(LevelArray, level, influenceRadius, 
-	       EjectaDensity, EjectaThermalEnergy, 
-	       SphereContained, SkipMassRemoval, DensityUnits, 
-	       LengthUnits, TemperatureUnits, TimeUnits, 
-	       VelocityUnits, Time) == FAIL) {
-            ENZO_FAIL("Error in star::FindFeedbackSphere");
-    }
+    LCAPERF_START("star_FindFeedbackSphere");
+    cstar->FindFeedbackSphere
+      (LevelArray, level, influenceRadius, EjectaDensity, EjectaThermalEnergy, 
+       SphereContained, SkipMassRemoval, DensityUnits, LengthUnits, 
+       TemperatureUnits, TimeUnits, VelocityUnits, Time, MarkedSubgrids);
+    LCAPERF_STOP("star_FindFeedbackSphere");
 
     /* If the particle already had sufficient mass, we still want to
        mark this particle to activate it. */
@@ -139,18 +142,16 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     SphereContainedNextLevel = FALSE;
 
+    LCAPERF_START("star_FindFeedbackSphere2");
     if ((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	 cstar->ReturnFeedbackFlag() == MBH_JETS ||
 	 cstar->ReturnFeedbackFlag() == CONT_SUPERNOVA) &&
-	LevelArray[level+1] != NULL) {
-      if (cstar->FindFeedbackSphere(LevelArray, level+1, influenceRadius, 
-				    EjectaDensity, EjectaThermalEnergy, 
-				    SphereContainedNextLevel, dummy, DensityUnits, 
-				    LengthUnits, TemperatureUnits, TimeUnits, 
-				    VelocityUnits, Time) == FAIL) {
-	ENZO_FAIL("Error in star::FindFeedbackSphere\n");
-      }
-    }
+	LevelArray[level+1] != NULL)
+      cstar->FindFeedbackSphere
+	(LevelArray, level+1, influenceRadius, EjectaDensity, EjectaThermalEnergy, 
+	 SphereContainedNextLevel, dummy, DensityUnits, LengthUnits, 
+	 TemperatureUnits, TimeUnits, VelocityUnits, Time, MarkedSubgrids);
+    LCAPERF_STOP("star_FindFeedbackSphere2");
 
 //    if (debug) {
 //      fprintf(stdout, "EjectaDensity=%g, influenceRadius=%g\n", EjectaDensity, influenceRadius); 
@@ -231,6 +232,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     
   } // ENDFOR stars
 
+  LCAPERF_STOP("StarParticleAddFeedback");
   return SUCCESS;
 
 }

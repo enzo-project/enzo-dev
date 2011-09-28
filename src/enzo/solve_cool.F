@@ -6,12 +6,12 @@ c//////////////////////  SUBROUTINE SOLVE_COOL  \\\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine solve_cool(
      &                d, e, ge, u, v, w,
-     &                in, jn, kn, nratec, iexpand, imethod,
+     &                in, jn, kn, nratec, iexpand, imethod, cool_method,
      &                idual, idim, igammah,
      &                is, js, ks, ie, je, ke, 
      &                dt, aye, temstart, temend, fh,
-     &                utem, uxyz, uaye, urho, utim,
-     &                eta1, eta2, gamma, coola, gammaha)
+     &                utem, uxyz, urho, utim,
+     &                eta1, eta2, gamma, coola, gammaha, mu)
 c
 c  SOLVE RADIATIVE COOLING/HEATING EQUATIONS (NON-MULTI SPECIES VERSION)
 c
@@ -36,10 +36,10 @@ c
 c  Arguments
 c
       integer in, jn, kn, is, js, ks, ie, je, ke,
-     &        idual, iexpand, nratec, idim, imethod, igammah
+     &       idual, iexpand, nratec, idim, imethod, igammah, cool_method
       real    dt, aye, temstart, temend, fh, gammaha,
-     &        utem, uxyz, uaye, urho, utim,
-     &        eta1, eta2, gamma, coola(nratec)
+     &        utem, uxyz, urho, utim,
+     &        eta1, eta2, gamma, coola(nratec), mu
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
@@ -55,7 +55,7 @@ c
 
 #ifdef CONFIG_BFLOAT_8
       real tolerance
-      parameter (tolerance = 1.0e-10)
+      parameter (tolerance = 1.0d-10)
 #endif
 
 c  Locals
@@ -81,7 +81,7 @@ c
 c        Set time elapsed to zero for each cell (and convert dens to abs)
 c
          do i = is+1, ie+1
-            ttot(i) = 0.0
+            ttot(i) = 0.d0
             d(i,j,k) = d(i,j,k)/aye**3
          enddo
 c
@@ -91,30 +91,41 @@ c
 c
 c        Compute the cooling rate on a slice
 c
+         if( cool_method .eq. 1 ) then
             call cool1d(d, e, ge, u, v, w,
      &                  in, jn, kn, nratec, idual, idim, imethod, 
      &                  iter, igammah,
      &                  is, ie, j, k, 
-     &                  temstart, temend, fh, utem,
+     &                  temstart, temend, fh, utem, urho, aye,
      &                  eta1, eta2, gamma, coola, gammaha,
      &                  indixe, t1, t2, logtem, tdef, edot,
-     &                  tgas, tgasold, p2d, cool
+     &                  tgas, tgasold, p2d, cool, mu
      &                     )
+        else if ( cool_method .eq. 3) then
+            call cool1d_koyama(d,e,ge,u,v,w, 
+     &                  in,jn, kn, nratec, idual, idim, imethod, iter,
+     &                  is, ie, j,k,temstart, temend,
+     &                  utem, uxyz, urho, utim, gamma, coola,
+     &                  edot, tgas, tgasold, p2d, cool
+     &                  )
+
+        endif
+            
 c
 c         Compute maximim timstep that keeps any fractional change to 10%
 c              (maximum timestep is 1/2 hydro step).
 c         Then, use each cell~s individual timestep tp update it~s energy
 c         Find minimum elapsed timestep (ttot)
 c
-          dt2 = dt/2.0
+          dt2 = dt/2.d0
           ttmin = huge
 c
           do i = is+1, ie+1
              if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
      &              edot(i) = tiny
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
-             energy = max(p2d(i)/d(i,j,k)/(gamma-1.0), tiny)
-             dtit(i) = min(abs(0.1*energy/edot(i)), 
+             energy = max(p2d(i)/d(i,j,k)/(gamma-1.d0), tiny)
+             dtit(i) = min(abs(0.1d0*energy/edot(i)), 
      &                      dt-ttot(i), dt2)
 #ifdef FORTRAN_DEBUG
              if (ge(i,j,k) .ne. ge(i,j,k) .or.
@@ -130,7 +141,7 @@ c     &              energy,ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 c
              if (dtit(i)/dt .lt. 1.0e-2 .and. 
-     &           abs(dt-ttot(i)) .gt. 1.0e-5*dt .and. iter .gt. 200)
+     &           abs(dt-ttot(i)) .gt. 1.0d-5*dt .and. iter .gt. 200)
      &         write(3,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              tgasold(i),energy,ttot(i),d(i,j,k),e(i,j,k)
  1000        format(4(i4,1x),1p,11(e11.2))

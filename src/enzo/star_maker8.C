@@ -94,9 +94,9 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
     ny_cell[MAX_SUPERCELL_NUMBER], nz_cell[MAX_SUPERCELL_NUMBER];
 
 
-  /*printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
+  printf("Star Maker 8 running - SinkMergeDistance = %g\n", SinkMergeDistance);
   printf("Star Maker 8: massthresh=%g, jlrefine=%g\n", *massthresh,*jlrefine);
-  printf("Star Maker 8: time = %g\n", *t); */
+  printf("Star Maker 8: time = %g\n", *t); 
 
 
   /* Compute Units. */
@@ -128,12 +128,19 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
   /* Look for existing sink particles */
 
   nsinks = 0;
-  int *sink_index = new int[50000];
+  for (n = 0; n < *npold; n++)
+    if (typeold[n] == *ctype)
+      nsinks++;
+
+  int *sink_index = new int[nsinks];
+
+  nsinks = 0;
   for (n = 0; n < *npold; n++) {
     if (typeold[n] == *ctype) {
       sink_index[nsinks++] = n;
     }
   }
+
   /*printf("star_maker8: nsinks = %"ISYM"\n", nsinks);
 
   for (n=0; n<nsinks; n++){

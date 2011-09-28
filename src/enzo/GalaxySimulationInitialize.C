@@ -54,6 +54,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *MetalName = "Metal_Density";
+  char *MetalIaName = "MetalSNIa_Density";
 
   /* declarations */
 
@@ -69,7 +70,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   /* set default parameters */
 
   float GalaxySimulationGasMass,
-    GalaxySimulationGalaxyMass,    
+    GalaxySimulationGalaxyMass,
     GalaxySimulationDiskTemperature,
     GalaxySimulationAngularMomentum[MAX_DIMENSION],
     GalaxySimulationUniformVelocity[MAX_DIMENSION],
@@ -87,20 +88,14 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationInflowDensity;
 
   int   GalaxySimulationRefineAtStart,
-    GalaxySimulationInitialRefinementLevel,
     GalaxySimulationUseMetallicityField;
   
-  FLOAT GalaxySimulationSubgridLeft, GalaxySimulationSubgridRight;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
-
-  int NumberOfSubgridZones[MAX_DIMENSION],
-    SubgridDims[MAX_DIMENSION];
 
   /* Default Values */
 
   GalaxySimulationRefineAtStart      = TRUE;
-  GalaxySimulationInitialRefinementLevel = 0;
   GalaxySimulationUseMetallicityField  = FALSE;
   GalaxySimulationInitialTemperature = 1000.0;
   GalaxySimulationDiskRadius         = 0.2;      // [Mpc]
@@ -121,11 +116,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
   GalaxySimulationUniformDensity = 1.0;
   GalaxySimulationUniformEnergy = 1.0;
-  
-  /* set no subgrids by default. */
-  
-  GalaxySimulationSubgridLeft         = 0.0;    // start of subgrid(s)
-  GalaxySimulationSubgridRight        = 0.0;    // end of subgrid(s)
 
   /* read input from file */
 
@@ -135,8 +125,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    
     ret += sscanf(line, "GalaxySimulationRefineAtStart = %"ISYM,
 		  &GalaxySimulationRefineAtStart);
-    ret += sscanf(line, "GalaxySimulationInitialRefinementLevel = %"ISYM,
-		  &GalaxySimulationInitialRefinementLevel);
     ret += sscanf(line, "GalaxySimulationUseMetallicityField = %"ISYM,
 		  &GalaxySimulationUseMetallicityField);
     ret += sscanf(line, "GalaxySimulationInitialTemperature = %"FSYM,
@@ -170,10 +158,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
-    ret += sscanf(line, "GalaxySimulationSubgridLeft = %"PSYM,
-		  &GalaxySimulationSubgridLeft);
-    ret += sscanf(line, "GalaxySimulationSubgridRight = %"PSYM,
-		  &GalaxySimulationSubgridRight);
     
     /* if the line is suspicious, issue a warning */
     
@@ -183,96 +167,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end input from parameter file
 
+  /* set up grid */
 
-  // do a couple of quick error checks
-  
-  if(GalaxySimulationInitialRefinementLevel > MaximumRefinementLevel){
-    ENZO_VFAIL("GalaxySimulationInitialRefinementLevel (%"ISYM") > MaximumRefinementLevel (%"ISYM")!\n",GalaxySimulationInitialRefinementLevel,MaximumRefinementLevel)
-  }
-
-  if(GalaxySimulationSubgridLeft > GalaxySimulationSubgridRight){
-    ENZO_VFAIL("GalaxySimulationSubgridLeft (%"GOUTSYM") > GalaxySimulationSubgridRight (%"GOUTSYM")!\n")
-  }
- 
-  // Initialize the top grid
-  if (TopGrid.GridData->InitializeUniformGrid(GalaxySimulationUniformDensity,
-					      GalaxySimulationUniformEnergy,
-					      GalaxySimulationUniformEnergy,
-					      GalaxySimulationUniformVelocity,
-                          ZeroBField) == FAIL) {
-        ENZO_FAIL("Error in InitializeUniformGrid.");
-  }
-
-  /* Create as many subgrids as there are refinement levels
-     needed to resolve the initial explosion region upon the start-up. */
- 
-  HierarchyEntry ** Subgrid;
-  if ((MaximumRefinementLevel > 0) && GalaxySimulationRefineAtStart)
-    Subgrid   = new HierarchyEntry*[GalaxySimulationInitialRefinementLevel];
-  
-  /* Create new HierarchyEntries. */
- 
-  int lev;
-  if(GalaxySimulationRefineAtStart)
-    for (lev = 0; lev < GalaxySimulationInitialRefinementLevel; lev++)
-      Subgrid[lev] = new HierarchyEntry;
-  
-  if(GalaxySimulationRefineAtStart)
-  for (lev = 0; lev < GalaxySimulationInitialRefinementLevel; lev++) {
- 
-    for (dim = 0; dim < MetaData.TopGridRank; dim++)
-      NumberOfSubgridZones[dim] =
-	nint((GalaxySimulationSubgridRight - GalaxySimulationSubgridLeft)/
-	     ((DomainRightEdge[dim] - DomainLeftEdge[dim] )/
-	      float(MetaData.TopGridDims[dim])))
-        *int(POW(RefineBy, lev + 1));
- 
-    if (debug)
-      printf("GalaxySimulation:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
-	     NumberOfSubgridZones[0]);
- 
-    if (NumberOfSubgridZones[0] > 0) {
-
-      /* fill them out */
- 
-      if (lev == 0)
-	TopGrid.NextGridNextLevel  = Subgrid[0];
-      Subgrid[lev]->NextGridThisLevel = NULL;
-      if (lev == GalaxySimulationInitialRefinementLevel-1)
-	Subgrid[lev]->NextGridNextLevel = NULL;
-      else
-	Subgrid[lev]->NextGridNextLevel = Subgrid[lev+1];
-      if (lev == 0)
-	Subgrid[lev]->ParentGrid        = &TopGrid;
-      else
-	Subgrid[lev]->ParentGrid        = Subgrid[lev-1];
- 
-      /* compute the dimensions and left/right edges for the subgrid */
- 
-      for (dim = 0; dim < MetaData.TopGridRank; dim++) {
-	SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*DEFAULT_GHOST_ZONES;
-	LeftEdge[dim]    = GalaxySimulationSubgridLeft;
-	RightEdge[dim]   = GalaxySimulationSubgridRight;
-      }
-
-      /* create a new subgrid and initialize it */
- 
-      Subgrid[lev]->GridData = new grid;
-      Subgrid[lev]->GridData->InheritProperties(TopGrid.GridData);
-      Subgrid[lev]->GridData->PrepareGrid(MetaData.TopGridRank, SubgridDims,
-				     LeftEdge, RightEdge, 0);
-      if (Subgrid[lev]->GridData->InitializeUniformGrid(GalaxySimulationUniformDensity,
-                           GalaxySimulationUniformEnergy,
-                           GalaxySimulationUniformEnergy,
-                           GalaxySimulationUniformVelocity,
-                           ZeroBField) == FAIL) {
-		ENZO_FAIL("Error in InitializeUniformGrid (subgrid).");
-      }
-
-      /* set up the initial galaxy area on the finest resolution subgrid */
- 
-      if (lev == GalaxySimulationInitialRefinementLevel - 1)
-	if (Subgrid[lev]->GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
+  if (TopGrid.GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
 						       GalaxySimulationGalaxyMass, 
 						       GalaxySimulationGasMass,
 						       GalaxySimulationDiskPosition, 
@@ -286,49 +183,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,0)
-	    == FAIL) {
-	  	  ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
-	}
-    }
-    else{
-      printf("GalaxySimulation: single grid start-up.\n");
-    }
-  }
-
-  /* set up subgrids from level 1 to max refinement level -1 */
- 
-  for (lev = GalaxySimulationInitialRefinementLevel - 1; lev > 0; lev--)
-    if (Subgrid[lev]->GridData->ProjectSolutionToParentGrid(
-				       *(Subgrid[lev-1]->GridData))
-	== FAIL) {
-            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
-    }
-
-  /* set up the root grid */
- 
-  if (GalaxySimulationInitialRefinementLevel > 0) {
-    if (Subgrid[0]->GridData->ProjectSolutionToParentGrid(*(TopGrid.GridData))
-	== FAIL) {
-            ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
-    }
-  }
-  else
-    if (TopGrid.GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
-							 GalaxySimulationGalaxyMass, 
-							 GalaxySimulationGasMass,
-							 GalaxySimulationDiskPosition, 
-							 GalaxySimulationDiskScaleHeightz,
-							 GalaxySimulationDiskScaleHeightR, 
-							 GalaxySimulationDarkMatterConcentrationParameter,
-							 GalaxySimulationDiskTemperature, 
-							 GalaxySimulationInitialTemperature,
-							 GalaxySimulationAngularMomentum,
-							 GalaxySimulationUniformVelocity,
-							 GalaxySimulationUseMetallicityField,
-							 GalaxySimulationInflowTime,
-							 GalaxySimulationInflowDensity,0) == FAIL) {
-            ENZO_FAIL("Error in RotatingCylinderInitializeGrid.");
-    }
+	      == FAIL) {
+      ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
+  }// end subgrid if
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -339,6 +196,68 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       MinimumMassForRefinement[0] *=(DomainRightEdge[dim]-DomainLeftEdge[dim])/
 	float(MetaData.TopGridDims[dim]);
   }
+
+  /* If requested, refine the grid to the desired level. */
+
+  if (GalaxySimulationRefineAtStart) {
+
+    /* Declare, initialize and fill out the LevelArray. */
+
+    LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      LevelArray[level] = NULL;
+    AddLevel(LevelArray, &TopGrid, 0);
+
+    /* Add levels to the maximum depth or until no new levels are created,
+       and re-initialize the level after it is created. */
+
+    for (level = 0; level < MaximumRefinementLevel; level++) {
+      if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
+	fprintf(stderr, "Error in RebuildHierarchy.\n");
+	return FAIL;
+      }
+      if (LevelArray[level+1] == NULL)
+	break;
+      LevelHierarchyEntry *Temp = LevelArray[level+1];
+      while (Temp != NULL) {
+
+	if (Temp->GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
+						       GalaxySimulationGalaxyMass, 
+						       GalaxySimulationGasMass,
+						       GalaxySimulationDiskPosition, 
+						       GalaxySimulationDiskScaleHeightz,
+						       GalaxySimulationDiskScaleHeightR, 
+						       GalaxySimulationDarkMatterConcentrationParameter,
+						       GalaxySimulationDiskTemperature, 
+						       GalaxySimulationInitialTemperature,
+						       GalaxySimulationAngularMomentum,
+						       GalaxySimulationUniformVelocity,
+						       GalaxySimulationUseMetallicityField,
+						       GalaxySimulationInflowTime,
+						       GalaxySimulationInflowDensity,0)
+	      == FAIL) {
+	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
+	}// end subgrid if
+
+	Temp = Temp->NextGridThisLevel;
+      }
+    } // end: loop over levels
+
+    /* Loop back from the bottom, restoring the consistency among levels. */
+
+    for (level = MaximumRefinementLevel; level > 0; level--) {
+      LevelHierarchyEntry *Temp = LevelArray[level];
+      while (Temp != NULL) {
+	if (Temp->GridData->ProjectSolutionToParentGrid(
+				   *LevelArray[level-1]->GridData) == FAIL) {
+	  fprintf(stderr, "Error in grid->ProjectSolutionToParentGrid.\n");
+	  return FAIL;
+	}
+	Temp = Temp->NextGridThisLevel;
+      }
+    }
+
+  } // end: if (GalaxySimulationRefineAtStart)
 
  /* set up field names and units */
 
@@ -354,6 +273,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel3Name;
  if (GalaxySimulationUseMetallicityField)
    DataLabel[count++] = MetalName;
+ if (StarMakerTypeIaSNe)
+   DataLabel[count++] = MetalIaName;
 
  for (i = 0; i < count; i++)
    DataUnits[i] = NULL;
@@ -364,8 +285,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
    fprintf(Outfptr, "GalaxySimulationRefineAtStart      = %"ISYM"\n",
 	   GalaxySimulationRefineAtStart);
-   fprintf(Outfptr, "GalaxySimulationInitialRefinementLevel      = %"ISYM"\n",
-	   GalaxySimulationInitialRefinementLevel);
    fprintf(Outfptr, "GalaxySimulationUseMetallicityField          = %"ISYM"\n",
 	   GalaxySimulationUseMetallicityField);
    fprintf(Outfptr, "GalaxySimulationInitialTemperature = %"GOUTSYM"\n",

@@ -36,18 +36,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int FindField(int field, int farray[], int numfields);
  
-extern "C" void FORTRAN_NAME(particle_splitter)(int *nx, int *ny, int *nz,
-             int *idual, int *imetal, hydro_method *imethod, float *dt, 
-		       float *dx, FLOAT *t, float *z, 
-             float *d1, float *x1, float *v1, float *t1,
-	     FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff,
-             int *npart,
-             FLOAT *xpold, FLOAT *ypold, FLOAT *zpold, float *upold, float *vpold, float *wpold,
-	     float *mpold, float *tdpold, float *tcpold, float *metalfold, int *typeold,
-	     int *nmax, int *npartnew, int *children, int *level,
-             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-	     float *mp, float *tdp, float *tcp, float *metalf, int *type, 
-             int *iterations, float *separation, int *ran1_init); 
 
   
 int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
@@ -193,7 +181,7 @@ int grid::InterpolateStarParticlesToGrid(int NumberOfSPFields)
     if (OutputGriddedStarParticle > 1 && NumberOfStarParticlesInGrid > 0) 
       for (i = 0; i < size; i++) {
 	
-	// (12) (code density unit  ->  Ms/yr/kpc^3)
+	// (12) SFR density (code density unit  ->  Ms/yr/kpc^3)
 	InterpolatedField[SFRDensNum][i] *= 
 	  DensityUnits / Msun * pow(kpc, 3) / ( dtForSFR * TimeUnits / yr );
 	

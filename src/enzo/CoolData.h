@@ -23,6 +23,7 @@ struct CoolDataType
   float RadiationRedshiftDropOff;
   float HydrogenFractionByMass;
   float DeuteriumToHydrogenRatio;
+  float SolarMetalFractionByMass;
 
   /* Equilibrium rates */
 
@@ -90,6 +91,9 @@ struct CoolDataType
   float ElectronFracStart;
   float ElectronFracEnd;
   float *metals;
+
+  /* Energy transfer to grains. */
+  float *gas_grain;
 
   /* For analysis, ratios of metal fine structure line emission is
      desired sometimes. */

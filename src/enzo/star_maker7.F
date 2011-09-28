@@ -1,4 +1,5 @@
 #include "fortran.def"
+#include "phys_const.def"
 #include "error.def"
 
 c=======================================================================
@@ -15,7 +16,9 @@ c
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, 
      &                      xpold, ypold, zpold, 
-     &                      typeold, ctype, option)
+     &                      typeold, ctype, option,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -43,6 +46,9 @@ c        - item [4] was still a test as of Nov.2009.
 c    [5] when in cosmological sim, StarMakerOverDensity is in particles/cc, 
 c        not the ratio with respect to the DensityUnits, unlike others
 c        this should be taken care of in Grid_StarParticleHandler.C
+c  modified6: 27 Sept 2011 by JHW
+c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
@@ -92,10 +98,11 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, npart, level, imetal, imethod
-      integer procnum, ctype, option
+      integer procnum, ctype, option, imetalSNIa
       real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    dt, dx, z
       real    d1, x1, v1, t1
       REALSUB xstart, ystart, zstart, t
@@ -117,8 +124,8 @@ c
       real   pi, G, sndspdC
       real   isosndsp2, starmass, starfraction, bmass, jeanmass
       double precision msolar
-      parameter (pi=3.14159265, G=6.67e-8, sndspdC=1.3095e8,
-     &           msolar=1.989e33)
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+     &           msolar=SolarMass)
 c
       ii = np
 c
@@ -185,10 +192,10 @@ c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.0*pi/32.0/G/dtot)/t1
+               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4) goto 10   
+     &             temp(i,j,k) .gt. 1.1d4) goto 10   
 c
 c  NO JEANS MASS CRITERION IN THIS ALGORITHM!!!
 c  JHK, 12 JUN 09 (fix [1] jun 09)
@@ -201,8 +208,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6.0*sqrt(d(i,j,k)*dble(d1))) *
-     &                    dble(pi * isosndsp2 / G)**1.5 / msolar
+               jeanmass = pi/(6.d0*sqrt(d(i,j,k)*dble(d1))) *
+     &                    dble(pi * isosndsp2 / G)**1.5d0 / msolar
 c
 c               if (bmass .lt. jeanmass) goto 10
 c
@@ -213,8 +220,8 @@ c  NO dt DEPENDENCE, DON'T WAIT FOR ~tdyn TO TURN THE GAS TO STARS!!!
 c  JHK, 12 JUN 09 (fix [3] jun 09)
 c
 c               starfraction = min(masseff*dt/tdyn, 0.9)
-               starfraction = min(masseff, 0.9)
-               tdyn = max(tdyn, mintdyn*3.15e7/t1)
+               starfraction = min(masseff, 0.9d0)
+               tdyn = max(tdyn, mintdyn*3.15d7/t1)
 c
 c  13 Nov. 2002:  stochastic star formation has been turned OFF by
 c    bwo, since the algorithm is a bit suspect.  This encourages
@@ -235,7 +242,7 @@ c
                if (starfraction*bmass .lt. smthresh) then
                   sformsum = sformsum + starfraction*bmass
                   if (sformsum .lt. smthresh) goto 10
-                  starfraction = min(smthresh/bmass, 0.5)
+                  starfraction = min(smthresh/bmass, 0.5d0)
                   sformsum = sformsum - starfraction*bmass
                endif
 #else
@@ -252,13 +259,13 @@ c
                mp(ii)  = starfraction * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = xstart + (float(i)-0.5d0)*dx
+               yp(ii) = ystart + (float(j)-0.5d0)*dx
+               zp(ii) = zstart + (float(k)-0.5d0)*dx
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -270,7 +277,10 @@ c
                if (imetal .eq. 1) then
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0.d0
+               endif
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
                endif
 c
 c              Remove mass from grid
@@ -396,7 +406,17 @@ c
       integer i, j, k, n
       real mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (clight = 3e10, msolar_e51 = 1800.0)
+      parameter (clight = c_light, msolar_e51 = 1800.d0)
+c
+#define NO_KINETIC_FEEDBACK  !#####
+#ifdef KINETIC_FEEDBACK
+      integer nn
+      integer ind_x(7), ind_y(7), ind_z(7)
+      data ind_x/0, 1, 0, 0,-1, 0, 0/
+      data ind_y/0, 0, 1, 0, 0,-1, 0/
+      data ind_z/0, 0, 0, 1, 0, 0,-1/
+      real speed_shock
+#endif /*KINETIC_FEEDBACK */
 c
 c-----------------------------------------------------------------------
 c
@@ -437,14 +457,14 @@ c          form of the Cen & Ostriker formula.
 c        First calculate the initial mass of the star particle 
 c          in question.
             minitial = mp(n) / 
-     &              (1.0 - m_eject*(1.0 - (1.0 + xv1)*exp(-xv1)))
+     &              (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
 c
 c       Then, calculate the amount of mass that would have formed in
 c         this timestep.
 c
-            mform = minitial * ((1.0 + xv1)*exp(-xv1) - 
-     &                          (1.0 + xv2)*exp(-xv2))
-            mform = max(min(mform, mp(n)), 0.0)
+            mform = minitial * ((1.d0 + xv1)*exp(-xv1) - 
+     &                          (1.d0 + xv2)*exp(-xv2))
+            mform = max(min(mform, mp(n)), 0.d0)
 c
 c         Compute index of the cell that the star particle
 c           resides in.
@@ -465,7 +485,7 @@ c
 c
 c          skip if very little mass is formed.
 c
-            if (mform/d(i,j,k) .lt. 1.0e-10) goto 10
+            if (mform/d(i,j,k) .lt. 1.0d-10) goto 10
 c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
@@ -495,48 +515,179 @@ c
 #define NO_SHARE_ENERGY
 #ifdef SHARE_ENERGY
             energy = energy*mform*m_eject/
-     &              (mform*m_eject + minitial*exp(-xv2)*(1.0 + xv2))
+     &              (mform*m_eject + minitial*exp(-xv2)*(1.d0 + xv2))
 #endif /* SHARE_ENERGY */
 c
-c           Add energy to energy field
 c
-            dratio = d(i,j,k)/(d(i,j,k) + mform * m_eject)
-            te(i,j,k) = te(i,j,k)*dratio + energy
-            if (idual .eq. 1) 
-     &          ge(i,j,k) = ge(i,j,k)*dratio + energy
+c
+c  INTRODUCE KINETIC FEEDBACK, EJECT THE MASS INTO 6 NEARBY CELLS WITH VELOCITY
+c  IF 3^3 SUPERCELL IS NOT CONTAINED, STICK WITH THE THERMAL FEEDBACK MODEL
+c  JHK, 12 Nov 10 
+c           
+c
+#ifdef KINETIC_FEEDBACK
+            if (i .lt. 5 .or. i .gt. nx-4 .or. j .lt. 5 .or. 
+     &          j .gt. ny-4 .or. k .lt. 5 .or. k .gt. nz-4) then
+#endif /*KINETIC_FEEDBACK */
+c
+c              Add energy to energy field
+c
+               dratio = d(i,j,k)/(d(i,j,k) + mform * m_eject)
+               te(i,j,k) = te(i,j,k)*dratio + energy
+               if (idual .eq. 1) 
+     &            ge(i,j,k) = ge(i,j,k)*dratio + energy
 
 c
-c           Metal feedback (note that in this function gas metal is
-c             a fraction (rho_metal/rho_gas) rather than a density.
-c             The conversion has been done in the handling routine)
+c              Metal feedback (note that in this function gas metal is
+c              a fraction (rho_metal/rho_gas) rather than a density.
+c              The conversion has been done in the handling routine)
 c
-            if (imetal .eq. 1) then
+               if (imetal .eq. 1) then
 c
-c           "Cen method".  This takes into account gas recycling.
+c              "Cen method".  This takes into account gas recycling.
 c
-               metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-     &              (yield * (1.0-metalf(n)) + m_eject * metalf(n)))
-     &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
+                  metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
+     &                 (yield * (1.d0-metalf(n)) + m_eject * metalf(n)))
+     &                 / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
+c
+               endif
+c
+c              Mass and momentum feedback
+c
+               u(i,j,k) = u(i,j,k)*d(i,j,k) + mform * m_eject * up(n)
+               v(i,j,k) = v(i,j,k)*d(i,j,k) + mform * m_eject * vp(n)
+               w(i,j,k) = w(i,j,k)*d(i,j,k) + mform * m_eject * wp(n)
+               d(i,j,k) = d(i,j,k) + mform * m_eject
+               u(i,j,k) = u(i,j,k)/d(i,j,k)
+               v(i,j,k) = v(i,j,k)/d(i,j,k)
+               w(i,j,k) = w(i,j,k)/d(i,j,k)
+c
+c              If te is really total energy (and it is unless imethod=2),
+c              then just set this value
+c
+               if (imethod .ne. 2 .and. idual .eq. 1) then
+                  te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + 
+     &                               w(i,j,k)**2) + ge(i,j,k)
+               endif
+c
+c
+#ifdef KINETIC_FEEDBACK
+            else
+c               if (n .le. 100) then
+c                  write(6,*) 'star_maker7: particle in active zone'
+c                  write(6,*) 'apply kinetic feedback: i,j,k,level = ',
+c     &                        i,j,k,level
+c                  write(6,*) 'd,u,te = ', d(i,j,k), u(i,j,k), te(i,j,k)
+c                  write(6,*) 'd1,u1,te1 = ', d(i+1,j,k), u(i+1,j,k), 
+c     &                        te(i+1,j,k)
+c               endif
+c
+c              LOOP THROUGH 7 NEARBY CELLS 
+c
+               do nn = 1, 7
+c
+                  if (nn .eq. 1) then
+c
+c                    Add energy to energy field (only for the central cell)
+c
+                     dratio = d(i,j,k)/(d(i,j,k) + 
+     &                    1.d0/7.d0*mform*m_eject)
+                     te(i,j,k) = te(i,j,k)*dratio + energy
+                     if (idual .eq. 1) 
+     &                    ge(i,j,k) = ge(i,j,k)*dratio + energy
+c
+                  else
+c
+c                    Mass and momentum feedback (for the nearby 6 cells)
+c
+                     speed_shock = sqrt(sn_param * mform * 
+     &                             (clight/v1)**2 / (0.5d0*mform*m_eject))
+c
+C                      if (n .le. 100 .and. nn .eq. 2) then
+C                         write(6,*) 'u, d, m*m, up+i*s = ', 
+C      &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)),
+C      &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)),
+C      &                        1./7. * mform * m_eject,
+C      &                        up(n) + ind_x(nn) * speed_shock
+C                      endif
+
+                     u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) *
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1.d0/7.d0 * mform * m_eject * 
+     &                        (up(n) + ind_x(nn) * speed_shock)
+                     v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) *
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1.d0/7.d0 * mform * m_eject * 
+     &                        (vp(n) + ind_y(nn) * speed_shock)
+                     w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) *
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1.d0/7.d0 * mform * m_eject * 
+     &                        (wp(n) + ind_z(nn) * speed_shock)
+                     d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                        1.d0/7.d0 * mform * m_eject
+                     u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) /
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+                     v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) /
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+                     w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                        w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) /
+     &                        d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+
+C                      if (n .le. 100 .and. nn .eq. 2) then
+C                         write(6,*) 'u-2 = ', 
+C      &                        u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))
+C                      endif
+c
+                  endif              
+c
+c                 Metal feedback (note that in this function gas metal is
+c                 a fraction (rho_metal/rho_gas) rather than a density.
+c                 The conversion has been done in the handling routine)
+c
+                  if (imetal .eq. 1) then
+c
+c                 "Cen method".  This takes into account gas recycling.
+c
+                     metal(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 
+     &                  (metal(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) * 
+     &                  d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                  1.d0/7.d0 * mform * (yield * (1.d0-metalf(n)) + 
+     &                  m_eject * metalf(n))) / 
+     &                  (d(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) + 
+     &                  1.d0/7.d0 * mform * m_eject)  ! metal is a fraction
+c
+                  endif
+c
+c                 If te is really total energy (and it is unless imethod=2),
+c                 then just set this value
+c
+                  if (imethod .ne. 2 .and. idual .eq. 1) then
+                     te(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn)) = 0.5d0 * 
+     &                  (u(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))**2 + 
+     &                   v(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))**2 + 
+     &                   w(i+ind_x(nn),j+ind_y(nn),k+ind_z(nn))**2) + 
+     &                   ge(i,j,k)
+                  endif
+c
+               enddo
+c   
+c               if (n .le. 100) then
+c                  write(6,*) 'after kinetic feedback: i,j,k,level = ',
+c     &                        i,j,k,level
+c                  write(6,*) 'd,u,te = ', d(i,j,k), u(i,j,k), te(i,j,k)
+c                  write(6,*) 'd1,u1,te1 = ', d(i+1,j,k), u(i+1,j,k), 
+c     &                        te(i+1,j,k)
+c               endif
 c
             endif
+#endif /*KINETIC_FEEDBACK */
 c
-c           Mass and momentum feedback
-c
-            u(i,j,k) = u(i,j,k)*d(i,j,k) + mform * m_eject * up(n)
-            v(i,j,k) = v(i,j,k)*d(i,j,k) + mform * m_eject * vp(n)
-            w(i,j,k) = w(i,j,k)*d(i,j,k) + mform * m_eject * wp(n)
-            d(i,j,k) = d(i,j,k) + mform * m_eject
-            u(i,j,k) = u(i,j,k)/d(i,j,k)
-            v(i,j,k) = v(i,j,k)/d(i,j,k)
-            w(i,j,k) = w(i,j,k)/d(i,j,k)
-c
-c           If te is really total energy (and it is unless imethod=2),
-c             then just set this value
-c
-            if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5*(u(i,j,k)**2 + v(i,j,k)**2 + 
-     &                          w(i,j,k)**2) + ge(i,j,k)
-            endif
 c
  10         continue
          endif

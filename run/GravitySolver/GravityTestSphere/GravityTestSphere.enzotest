@@ -1,0 +1,12 @@
+name = 'GravityTestSphere'
+answer_testing_script = 'test_gravity_sphere.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = True
+AMR = True
+dimensionality = 3
+author = 'Greg Bryan'
+max_time_minutes = 1

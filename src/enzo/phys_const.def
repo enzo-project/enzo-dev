@@ -1,0 +1,35 @@
+
+#ifdef CONFIG_BFLOAT_4
+
+#define kboltz       1.3806504e-16
+#define mass_h       1.67262171e-24   
+#define mass_e       9.10938215e-28
+#define pi_val       3.14159265
+#define hplanck      6.6260693e-27
+#define ev2erg       1.60217653e-12
+#define c_light      2.99792458e10
+#define GravConst    6.67428e-8
+#define sigma_sb     5.670373e-5
+#define SolarMass    1.9891e33
+#define Mpc          3.0857e24
+#define kpc          3.0857e21
+#define pc           3.0857e18
+
+#else
+
+#define kboltz       1.3806504d-16
+#define mass_h       1.67262171d-24   
+#define mass_e       9.10938215d-28
+#define pi_val       3.141592653589793d0
+#define hplanck      6.6260693d-27
+#define ev2erg       1.60217653d-12
+#define c_light      2.99792458d10
+#define GravConst    6.67428d-8
+#define sigma_sb     5.670373d-5
+#define SolarMass    1.9891d33
+#define Mpc          3.0857d24
+#define kpc          3.0857d21
+#define pc           3.0857d18
+
+#endif
+

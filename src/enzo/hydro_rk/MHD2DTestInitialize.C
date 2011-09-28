@@ -4,8 +4,8 @@
 /
 /  written by: Peng Wang
 /  date:       June, 2007
-/  modified1:
-/
+/  modified1: Tom Abel 2010 
+/            added many new tests including the Wengen Coliding Flow test
 /
 ************************************************************************/
 
@@ -23,6 +23,9 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#define DEFINE_STORAGE
+#include "MHD2DTestGlobalData.h"
+#undef DEFINE_STORAGE
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData, 
@@ -63,13 +66,14 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   int RefineAtStart   = FALSE;
   int MHD2DProblemType = 0;
-  float RampWidth = 0.05;
-  float  LowerDensity = 1.0, UpperDensity = 1.0,
-    LowerVelocityX = 0, UpperVelocityX = 0, 
-    LowerVelocityY = 0, UpperVelocityY = 0, 
-    LowerPressure = 1.0, UpperPressure = 1.0,
-    LowerBx = 0.0, UpperBx = 0.0,
-    LowerBy = 0.0, UpperBy = 0.0;
+  RampWidth = 0.05;
+  LowerDensity = 1.0; UpperDensity = 1.0;
+  LowerVelocityX = 0; UpperVelocityX = 0;
+  LowerVelocityY = 0; UpperVelocityY = 0; 
+  LowerPressure = 1.0; UpperPressure = 1.0;
+  LowerBx = 0.0; UpperBx = 0.0;
+  LowerBy = 0.0; UpperBy = 0.0;
+  UseColour = FALSE;
   
   /* read input from file */
 
@@ -109,15 +113,21 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &MHD2DProblemType);
     ret += sscanf(line, "RampWidth = %"FSYM,
 		  &RampWidth);
-
+    ret += sscanf(line, "UseColour = %"ISYM, 
+		  &UseColour);
+    
     //        fprintf(stderr, "%"ISYM" MHD2DTestInitialize !!!!!!!!!!\n", RefineAtStart);
     /* if the line is suspicious, issue a warning */
 
+    /*
     if (ret == 0 && strstr(line, "=") && strstr(line, "CollapseTest") 
 	&& line[0] != '#')
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
+    */
 
   } // end input from parameter file
+
+
 
   float DensityUnits = 1, LengthUnits = 1,
     TemperatureUnits = 1, TimeUnits = 1, VelocityUnits = 1;
@@ -127,10 +137,10 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     return FAIL;
   }
 
-
   /* set up grid */
 
-  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType, RampWidth,
+  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
+						RampWidth,
 						LowerDensity, UpperDensity,
 						LowerVelocityX,  UpperVelocityX,
 						LowerVelocityY,  UpperVelocityY,
@@ -175,7 +185,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 	break;
       LevelHierarchyEntry *Temp = LevelArray[level+1];
       while (Temp != NULL) {
-	if (Temp->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, RampWidth,
+	if (Temp->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
+						    RampWidth,
 						    LowerDensity, UpperDensity,
 						    LowerVelocityX,  UpperVelocityX,
 						    LowerVelocityY,  UpperVelocityY,
@@ -231,6 +242,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
       DataLabel[count++] = DebugName;
     }
   }
+  if (UseColour == TRUE)
+    DataLabel[count++] = ColourName;
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;

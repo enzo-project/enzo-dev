@@ -54,9 +54,9 @@ c
       start2 = max(sstart2, dstart2)
       start3 = max(sstart3, dstart3)
 c
-      end1 = min(sstart1+sdim1, dstart1+ddim1) - 1
-      end2 = min(sstart2+sdim2, dstart2+ddim2) - 1
-      end3 = min(sstart3+sdim3, dstart3+ddim3) - 1
+      end1 = min(sstart1+sdim1, dstart1+ddim1)  - 1
+      end2 = min(sstart2+sdim2, dstart2+ddim2)  - 1
+      end3 = min(sstart3+sdim3, dstart3+ddim3)  - 1
 c
       do k = start3, end3
          do j = start2, end2

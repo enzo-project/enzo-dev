@@ -1,0 +1,10 @@
+name = 'SedovBlast-MHD-2D-Fryxell'
+answer_testing_script = 'test_fryxell.py'
+nprocs = 1
+runtime = 'short'
+critical = True
+cadence = 'nightly'
+hydro = True
+gravity = False
+dimensionality = 2
+max_time_minutes = 5

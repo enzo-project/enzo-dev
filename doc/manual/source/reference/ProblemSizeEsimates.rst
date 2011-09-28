@@ -1,8 +1,8 @@
-Estimate of processor counts needed for different Enzo simulations and problem sizes
-====================================================================================
+Estimated Simulation Resource Requirements
+==========================================
 
 Estimating problem sizes for most Enzo calculations is at best an
-inexact science, given the nature of adaptive mesh refinement
+inexact science, given the nature of Adaptive Mesh Refinement (AMR)
 simulations. The fundamental issue with an AMR calculation in
 cosmology or in many astrophysical situations where gravitational
 collapse is important has to do with memory. The amount of memory
@@ -24,7 +24,7 @@ of parameter space to operate in.
 
 This page contains some rules of thumb that will help you along
 your way, based on data collected up to the release of
-`Enzo v1.5? </wiki/Enzo1.5>`_ (so up to Fall 2008), when
+Enzo v1.5 (so up to Fall 2008), when
 supercomputers typically have 1GB-2GB of memory per processing unit
 (a dual-processor node with two cores per processor would have 4-8
 GB of memory, for example).
@@ -46,11 +46,11 @@ failure). Unigrid cosmology runs have a further complication due to
 the dark matter particles - these move around in space, and thus
 move from processor to processor. Areas where halos and other
 cosmological structures form will correspond to regions with
-greater than average memory consumption. Keeping 128\ :sup:`3`\ 
-cells and particles per core seems to scale extremely efficiently
+greater than average memory consumption. Keeping 128\ :sup:`3`\ cells
+and particles per core seems to scale extremely efficiently
 up to thousands of processors, though if one is using a machine
 like an
-` IBM Blue Gene <http://domino.research.ibm.com/comm/research_projects.nsf/pages/bluegene.index.html>`_,
+`IBM Blue Gene <http://domino.research.ibm.com/comm/research_projects.nsf/pages/bluegene.index.html>`_,
 which typically has far less memory per core than other computers,
 one might have to go to 64\ :sup:`3`\  cells/particles per core so
 that nodes corresponding to dense regions of the universe don't run
@@ -70,15 +70,16 @@ that it had to be run on a system where half of the cores per node
 were kept this particle mass field over these processors. For each
 grid, only processors with particles contribute to this sum to
 reduce the amount of computation and communication. In short, this
-routine performs a non-blocking MPI\_SUM over a select number of
+routine performs a non-blocking ``MPI_SUM`` over a select number of
 processors.
-CommunicationCollectParticles(SUBGRIDS\_LOCAL) -- This routine
-replaces grid::MoveSubgridParticlesFast. It keeps the particles on
+
+``CommunicationCollectParticles(SUBGRIDS_LOCAL)`` -- This routine
+replaces ``grid::MoveSubgridParticlesFast()``. It keeps the particles on
 the same processor, but this doesn't matter here because the
 children grids are always created on the same processor as its
 parent and then moved to another processor during load balancing.
-CommunicationCollectParticles(SIBLINGS\_ONLY) -- After load
-balancing is complete on level L\_sub\_, we can safely move the
+``CommunicationCollectParticles(SIBLINGS_ONLY)`` -- After load
+balancing is complete on level L\ :sub:`sub`\, we can safely move the
 particles to their host processor without the worry of running out
 of memory.
 

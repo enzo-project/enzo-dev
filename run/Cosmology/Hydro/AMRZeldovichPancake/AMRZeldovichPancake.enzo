@@ -10,6 +10,9 @@ SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3       // same for fluid
 RightFaceBoundaryCondition = 3
+
+
+StopCycle = 5
 #
 #  problem parameters
 #

@@ -40,9 +40,7 @@ LOCAL_MPI_INSTALL    = /usr/local/intel/mpi/3.2.2.006
 #LOCAL_MPI_INSTALL    = /usr/local/other/mvapich2/1.4.1_intel-11.1.056
 LOCAL_FC_INSTALL     = /usr/local/intel/Compiler/11.1/056/
 LOCAL_HDF5_INSTALL   = /home/jhwise/local/hdf5/1.8.4s
-LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
-LOCAL_PNG_INSTALL    = $(LOCAL_PACKAGES)
 
 #-----------------------------------------------------------------------
 # Compiler settings

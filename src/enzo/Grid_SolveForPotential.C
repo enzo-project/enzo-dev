@@ -30,16 +30,11 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int MultigridSolver(float *RHS, float *Solution, int Rank, int TopDims[],
 		    float &norm, float &mean, int start_depth,
 		    float tolerance, int max_iter);
-extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
-                                   int *sdim1, int *sdim2, int *sdim3,
-                                   int *ddim1, int *ddim2, int *ddim3,
-                                   int *sstart1, int *sstart2, int *sstart3,
-                                   int *dstart1, int *dstart2, int *dststart3);
 extern "C" void FORTRAN_NAME(smooth2)(float *source, float *dest, int *ndim,
                                    int *sdim1, int *sdim2, int *sdim3);
  
-#define TOLERANCE 5.0e-4
-#define MAX_ITERATION 10
+#define TOLERANCE 2.0e-6
+#define MAX_ITERATION 20
  
 int grid::SolveForPotential(int level, FLOAT PotentialTime)
 {
@@ -47,6 +42,9 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   /* Return if this grid is not on this processor. */
  
   if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  if (GravitatingMassField == NULL)  // if this is not set we have nothing to do.
     return SUCCESS;
 
   LCAPERF_START("grid_SolveForPotential");
@@ -73,7 +71,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   float InverseVolumeElement = 1;
   for (dim = 0; dim < GridRank; dim++) {
     size *= GravitatingMassFieldDimension[dim];
-    InverseVolumeElement *= (GravitatingMassFieldDimension[dim]-1);
+    InverseVolumeElement *= (GravitatingMassFieldDimension[dim]);
   }
   tol_dim = max(sqrt(float(size))*1e-6, tol_dim);
  
@@ -145,17 +143,22 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
  
   delete [] rhs;
 
+#define NO_POTENTIALDEBUGOUTPUT
 #ifdef POTENTIALDEBUGOUTPUT
   for (int i=0;i<GridDimension[0]; i++) {
     int igrid = GRIDINDEX_NOGHOST(i,(GridEndIndex[0]+GridStartIndex[0])/2,(GridEndIndex[0]+GridStartIndex[0])/2);
     printf("i: %i \t SolvedSub %g\n", i, PotentialField[igrid]);
   }
   float maxPot=-1e30, minPot=1e30;    
+  float maxGM=-1e30, minGM=1e30;
   for (int i=0;i<size; i++) {
     maxPot = max(maxPot,PotentialField[i]);
     minPot = min(minPot,PotentialField[i]);
+    maxGM = max(maxGM,GravitatingMassField[i]);
+    minGM = min(minGM,GravitatingMassField[i]);
   }
   if (debug1) printf("SolvedPotential: Potential minimum: %g \t maximum: %g\n", minPot, maxPot);
+  if (debug1) printf("SolvedPotential: GM minimum: %g \t maximum: %g\n", minGM, maxGM);
 
 #endif
  
