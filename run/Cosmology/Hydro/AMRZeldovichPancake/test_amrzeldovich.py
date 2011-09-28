@@ -5,7 +5,7 @@ ytcfg["yt","suppressStreamLogging"] = 'True'
 from yt.mods import *
 from yt.utilities.answer_testing.api import YTStaticOutputTest, run_main
 
-class TestMARZeldovich(YTStaticOutputTest):
+class TestAMRZeldovich(YTStaticOutputTest):
     name = "amr_zeldovich_plot"
 
     def run(self):
