@@ -1176,11 +1176,6 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "CoolingModel", 13) == 0) {
-        PyObject *rv = PyLong_FromLong((long) CoolingModel);
-        return rv;
-    }
-
     if (strncmp(parameter_name, "HaloConcentration", 18) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) HaloConcentration);
         return rv;

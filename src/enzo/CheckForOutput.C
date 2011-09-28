@@ -75,37 +75,6 @@ int CheckForOutput(HierarchyEntry *TopGrid, TopGridData &MetaData,
   MetaData.WroteData = FALSE;
   double SavedCPUTime;
 
-  /* Check for output: CPU time-based.  
-
-     If there is less time until (StopCPUTime - LastCycleCPUTime) than
-     the last cycle's CPU time, output the data to ensure we get the
-     last data dump for restarting! */
-
-  float FractionalCPUTime = 1.0 - MetaData.LastCycleCPUTime / MetaData.StopCPUTime;
-
-  if (debug)
-    printf("CPUTime-output: Frac = %"FSYM", Current = %lg (%lg), Stop = %"FSYM", "
-	   "Last = %lg\n",
-	   FractionalCPUTime, ReturnWallTime()-MetaData.StartCPUTime, 
-	   MetaData.CPUTime, 
-	   MetaData.StopCPUTime, MetaData.LastCycleCPUTime);
-  if (MetaData.CPUTime + MetaData.LastCycleCPUTime > 
-      FractionalCPUTime*MetaData.StopCPUTime && MetaData.StartCPUTime > 0 &&
-      MetaData.WroteData == FALSE) {
-    MetaData.CycleLastDataDump = MetaData.CycleNumber;
-    SavedCPUTime = MetaData.CPUTime;
-    MetaData.CPUTime = 0.0;
-    if (debug) printf("CPUtime-based output!\n");
-    Group_WriteAllData(MetaData.DataDumpName, MetaData.DataDumpNumber++,
-		       TopGrid, MetaData, Exterior
-#ifdef TRANSFER
-		       , ImplicitSolver
-#endif
-		       );
-    MetaData.CPUTime = SavedCPUTime;
-    MetaData.WroteData = TRUE;
-  } // ENDIF
-
   /* Check for output: restart-based. */
 
   char *param;
