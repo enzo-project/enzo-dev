@@ -14,6 +14,10 @@ DEPEND
 DEPEND.bak
 auto_show_*.C
 enzo.exe
+inits.exe
+ring.exe
+anyl.exe
+enzohop.exe
 out.compile
 out.make.DEPEND
 svn_version.def
@@ -22,9 +26,6 @@ Make.config.machine
 Make.config.override
 *.mod
 
-src/inits/inits.exe
-src/anyl/anyl.exe
-src/enzohop/enzohop.exe
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h
 src/mpgrafic/degraf/config.log

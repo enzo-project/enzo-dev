@@ -65,7 +65,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   
 !--------------
 ! locals
-  integer :: i, j, k, l, nsrc, seed(8)
+  integer :: i, j, k, l, nsrc, seed(12)
   real    :: h_nu0, etaconst, rnums(10)
   real    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
   real    :: cellXc, cellYc, cellZc

@@ -9,16 +9,18 @@
        d, e, ge, u, v, w, de, &
        HI, HII, HeI, HeII, HeIII, &
        in, jn, kn, nratec, iexpand, imethod, &
-       idual, ispecies, imetal, imcool, idim, &
+       idual, ispecies, imetal, imcool, idust, idim, &
        is, js, ks, ie, je, ke, imax, ih2co, ipiht, igammah, &
        dt, aye, temstart, temend, &
        utem, uxyz, uaye, urho, utim, &
-       eta1, eta2, gamma, fh, dtoh, &
+       eta1, eta2, gamma, fh, dtoh, z_solar, &
        k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a, &
        k11a, k12a, k13a, k13dda, k14a, k15a, &
        k16a, k17a, k18a, k19a, k22a, &
        k24, k25, k26, k27, k28, k29, k30, k31, &
        k50a, k51a, k52a, k53a, k54a, k55a, k56a, &
+       ndratec, dtemstart, dtemend, h2dusta, &
+       ncrna, ncrd1a, ncrd2a, &
        ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,  &
        ciHeISa, ciHeIIa, reHIIa, reHeII1a, &
        reHeII2a, reHeIIIa, brema, compa, gammaha, &
@@ -27,17 +29,16 @@
        hyd01ka, h2k01a, vibha, rotha, rotla, & 
        gpldla, gphdla, hdltea, hdlowa, &
        gaHIa, gaH2a, gaHea, gaHpa, gaela, &
-       metala, n_xe, xe_start, xe_end, &
+       gasgra, metala, n_xe, xe_start, xe_end, &
        inutot, iradtype, nfreq, imetalregen, &
        iradshield, avgsighp, avgsighep, avgsighe2p, &
        iradtrans, iradcoupled, iradstep, ierr, irt_honly, &
        kphHI, kphHeI, kphHeII, kdissH2I, photogamma, &
        ih2optical, iciecool, ithreebody, ciecoa,  &
-       icmbTfloor, iClHeat, iClMMW, &
-       clMetNorm, clEleFra, clGridRank, clGridDim, &
+       icmbTfloor, iClHeat, &
+       clEleFra, clGridRank, clGridDim, &
        clPar1, clPar2, clPar3, clPar4, clPar5, &
-       clDataSize, clCooling, clHeating, clMMW)
-
+       clDataSize, clCooling, clHeating)
 !
 !  SOLVE MULTI-SPECIES RATE EQUATIONS AND RADIATIVE COOLING
 !
@@ -78,6 +79,7 @@
 !    iradtype - type of radiative field (only used if = 8)
 !    imetal   - flag if metal field is active (0 = no, 1 = yes)
 !    imcool   - flag if there is metal cooling
+!    idust    - flag for H2 formation on dust grains
 !    imethod  - Hydro method (0 = PPMDE, 2 = ZEUS-type)
 !    ih2co    - flag to include H2 cooling (1 = on, 0 = off)
 !    ipiht    - flag to include photoionization heating (1 = on, 0 = off)
@@ -87,6 +89,7 @@
 !
 !    fh       - Hydrogen mass fraction (typically 0.76)
 !    dtoh     - Deuterium to H mass ratio
+!    z_solar  - Solar metal mass fraction
 !    dt       - timestep to integrate over
 !    aye      - expansion factor (in code units)
 !
@@ -98,11 +101,11 @@
 !
 !    temstart, temend - start and end of temperature range for rate table
 !    nratec   - dimensions of chemical rate arrays (functions of temperature)
+!    dtemstart, dtemend - start and end of dust temperature range
+!    ndratec  - extra dimension for H2 formation on dust rate (dust temperature)
 !
 !    icmbTfloor - flag to include temperature floor from cmb
 !    iClHeat    - flag to include cloudy heating
-!    iClMMW     - flag to include addition to mean molecular weight from metals
-!    clMetNorm  - parameter to convert metal density to metallicty (see CloudyCoolingData.h)
 !    clEleFra   - parameter to account for additional electrons from metals 
 !    clGridRank - rank of cloudy cooling data grid
 !    clGridDim  - array containing dimensions of cloudy data
@@ -110,7 +113,6 @@
 !    clDataSize - total size of flattened 1D cooling data array
 !    clCooling  - cloudy cooling data
 !    clHeating  - cloudy heating data
-!    clMMW      - cloudy mean molecular weight data
 !
 !  OUTPUTS:
 !    update chemical rate densities (HI, HII, etc)
@@ -128,10 +130,12 @@
     integer, intent(in) :: in, jn, kn, is, js, ks, ie, je, ke, nratec, &
          imethod, idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,&
          iradtype, nfreq, imetalregen, iradshield, iradtrans, &
-         iradcoupled, iradstep, n_xe, imcool, irt_honly, &
-         igammah, ih2optical, iciecool, ithreebody, imax
+         iradcoupled, iradstep, n_xe, imcool, idust, irt_honly, &
+         igammah, ih2optical, iciecool, ithreebody, imax, &
+         ndratec
     real, intent(in) :: dt, aye, temstart, temend, eta1, eta2, gamma, &
-         utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end
+         utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end, &
+         dtemstart, dtemend, z_solar
     integer, intent(out) :: ierr
     
 !  Density, energy and velocity fields fields
@@ -151,7 +155,7 @@
          hyd01ka, h2k01a, vibha, rotha, rotla, gpldla, gphdla, hdltea, &
          hdlowa, gaHIa, gaH2a, gaHea, gaHpa, gaela, ciecoa, ceHIa, &
          ceHeIa, ceHeIIa, ciHIa, ciHeIa, ciHeISa, ciHeIIa, reHIIa, &
-         reHeII1a, reHeII2a, reHeIIIa, brema
+         reHeII1a, reHeII2a, reHeIIIa, brema, gasgra
     real, intent(in), dimension(nratec, n_xe) :: metala
     real, intent(in) :: inutot(nfreq)
     real, intent(in) :: compa, piHI, piHeI, piHeII, comp_xraya, comp_temp, &
@@ -162,21 +166,21 @@
     real, intent(in), dimension(nratec) :: &
          k1a , k2a , k3a , k4a , k5a , k6a , k7a , k8a , k9a , &
          k10a, k11a, k12a, k13a, k14a, k15a, k16a, k17a, k18a, &
-         k19a, k22a, k50a, k51a, k52a, k53a, k54a, k55a, k56a
+         k19a, k22a, k50a, k51a, k52a, k53a, k54a, k55a, k56a, &
+         ncrna, ncrd1a, ncrd2a
     real, intent(in) :: k13dda(nratec, 7)
     real, intent(in) :: k24, k25, k26, k27, k28, k29, k30, k31
+    real, intent(in) :: h2dusta(nratec, ndratec)
 
 !  Cloudy cooling data
 
-    integer, intent(in) :: icmbTfloor, iClHeat, iClMMW, clGridRank, &
-         clDataSize
+    integer, intent(in) :: icmbTfloor, iClHeat, clGridRank, clDataSize
     integer, intent(in) :: clGridDim(clGridRank)
-    real, intent(in) :: clMetNorm, clEleFra
+    real, intent(in) :: clEleFra
     real, intent(in) :: clPar1(clGridDim(1)), clPar2(clGridDim(2)), &
          clPar3(clGridDim(3)), clPar4(clGridDim(4)), &
          clPar5(clGridDim(5))
-    real, intent(in), dimension(clDataSize) :: &
-         clCooling, clHeating, clMMW
+    real, intent(in), dimension(clDataSize) :: clCooling, clHeating
     
 !  Parameters
 
@@ -209,14 +213,16 @@
 
     integer, dimension(:), allocatable :: indixe
     real, dimension(:), allocatable :: &
-         t1, t2, logtem, tdef, dtit, ttot, p2d, tgas, tgasold
+         t1, t2, logtem, tdef, dtit, ttot, p2d, tgas, tgasold, &
+         tdust, metallicity, rhoH
 
     !  Rate equation row temporaries
 
     real, dimension(:), allocatable :: &
          HIp, HIIp, HeIp, HeIIp, HeIIIp, HMp, H2Ip, H2IIp, dep, &
          dedot, HIdot, dedot_prev, DIp, DIIp, HDIp, HIdot_prev, &
-         k24shield, k25shield, k26shield
+         k24shield, k25shield, k26shield, &
+         h2dust, ncrn, ncrd1, ncrd2
     real, dimension(:), allocatable :: &
          k1 , k2 , k3 , k4 , k5 , k6 , k7 , k8 , k9 , k10, k11, &
          k12, k13, k14, k15, k16, k17, k18, k19, k22, k50, k51, &
@@ -321,6 +327,13 @@
     allocate(hdlte(imax))
     allocate(hdlow(imax))
     allocate(itmask(imax))
+    allocate(tdust(imax))
+    allocate(metallicity(imax))
+    allocate(rhoH(imax))
+    allocate(h2dust(imax))
+    allocate(ncrn(imax))
+    allocate(ncrd1(imax))
+    allocate(ncrd2(imax))
 !
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -337,7 +350,8 @@
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       uvel     = uxyz / utim
-      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)
+!      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
+      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
 
       dlogtem = (log(temend) - log(temstart))/real(nratec-1)
 
@@ -403,76 +417,80 @@
 
          do iter = 1, itmax
 
-!           Compute the cooling rate (and tgas) for this row
+!           Compute the cooling rate, tgas, tdust, and metallicity for this row
 
             call cool1d_multi( &
-                 d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,&
-                 in, jn, kn, nratec, idual, imethod,              &
-                 iexpand, ispecies, imetal, imcool, idim,         &
-                 is, ie, j, k, ih2co, ipiht, iter, igammah,       &
-                 aye, temstart, temend,                           &
-                 utem, uxyz, uaye, urho, utim,                    &
-                 eta1, eta2, gamma,                               &
-                 ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,           &
-                 ciHeISa, ciHeIIa, reHIIa, reHeII1a,              &
-                 reHeII2a, reHeIIIa, brema, compa, gammaha,       &
-                 comp_xraya, comp_temp,                           &
-                 piHI, piHeI, piHeII, comp1, comp2,               &
-                 HM, H2I, H2II, DI, DII, HDI, metal,              &
-                 hyd01ka, h2k01a, vibha, rotha, rotla,            &
-                 hyd01k, h2k01, vibh, roth, rotl,                 &
-                 gpldla, gphdla, gpldl, gphdl,                    &
-                 hdltea, hdlowa, hdlte, hdlow,                    &
-                 gaHIa, gaH2a, gaHea, gaHpa, gaela,               &
-                 metala, n_xe, xe_start, xe_end,                  &
-                 ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,&
-                 reHII, reHeII1, reHeII2, reHeIII, brem,          &
-                 indixe, t1, t2, logtem, tdef, edot,              &
-                 tgas, tgasold, p2d,                              &
-                 inutot, iradtype, nfreq, imetalregen,            &
-                 iradshield, avgsighp, avgsighep, avgsighe2p,     &
-                 iradtrans, photogamma,                           &
-                 ih2optical, iciecool, ciecoa, cieco,             &
-                 icmbTfloor, iClHeat, iClMMW,                     &
-                 clMetNorm, clEleFra, clGridRank, clGridDim,      &
-                 clPar1, clPar2, clPar3, clPar4, clPar5,          &
-                 clDataSize, clCooling, clHeating, clMMW,         &
+                 d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII, &
+                 in, jn, kn, nratec, idual, imethod,               &
+                 iexpand, ispecies, imetal, imcool, idust, idim,   &
+                 is, ie, j, k, ih2co, ipiht, iter, igammah,        &
+                 aye, temstart, temend, z_solar,                   &
+                 utem, uxyz, uaye, urho, utim,                     &
+                 eta1, eta2, gamma,                                &
+                 ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,            &
+                 ciHeISa, ciHeIIa, reHIIa, reHeII1a,               &
+                 reHeII2a, reHeIIIa, brema, compa, gammaha,        &
+                 comp_xraya, comp_temp,                            &
+                 piHI, piHeI, piHeII, comp1, comp2,                &
+                 HM, H2I, H2II, DI, DII, HDI, metal,               &
+                 hyd01ka, h2k01a, vibha, rotha, rotla,             &
+                 hyd01k, h2k01, vibh, roth, rotl,                  &
+                 gpldla, gphdla, gpldl, gphdl,                     &
+                 hdltea, hdlowa, hdlte, hdlow,                     &
+                 gaHIa, gaH2a, gaHea, gaHpa, gaela,                &
+                 metala, n_xe, xe_start, xe_end,                   &
+                 ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII, &
+                 reHII, reHeII1, reHeII2, reHeIII, brem,           &
+                 indixe, t1, t2, logtem, tdef, edot,               &
+                 tgas, tgasold, p2d, tdust, metallicity, rhoH,     &
+                 inutot, iradtype, nfreq, imetalregen,             &
+                 iradshield, avgsighp, avgsighep, avgsighe2p,      &
+                 iradtrans, photogamma,                            &
+                 ih2optical, iciecool, ciecoa, cieco,              &
+                 icmbTfloor, iClHeat,                              &
+                 clEleFra, clGridRank, clGridDim,                  &
+                 clPar1, clPar2, clPar3, clPar4, clPar5,           &
+                 clDataSize, clCooling, clHeating,                 &
                  itmask)
 
 !        Look-up rates as a function of temperature for 1D set of zones
 !         (maybe should add itmask to this call)
 
-            call lookup_cool_rates1d(temstart, temend, nratec, j, k,&
-                 is, ie, imax, iradtype, iradshield, ithreebody,    &
-                 in, jn, kn,                                        &
-                 ispecies, tgas, HI, HII, HeI, HeII,                &
-                 k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a, &
-                 k11a, k12a, k13a, k13dda, k14a, k15a, k16a,        &
-                 k17a, k18a, k19a, k22a,                            &
-                 k50a, k51a, k52a, k53a, k54a, k55a, k56a,          &
-                 avgsighp, avgsighep, avgsighe2p, piHI, piHeI,      &
-                 k1, k2, k3, k4, k5, k6, k7, k8, k9, k10,           &
-                 k11, k12, k13, k14, k15, k16, k17, k18,            &
-                 k19, k22, k24, k25, k26,                           &
-                 k50, k51, k52, k53, k54, k55,                      &
-                 k56, k13dd, k24shield, k25shield, k26shield,       &
-                 t1, t2, tdef, logtem, indixe,                      &
+            call lookup_cool_rates1d(temstart, temend, nratec, j, k, &
+                 is, ie, imax, iradtype, iradshield, ithreebody,     &
+                 in, jn, kn, ispecies, idust,                        &
+                 tgas, HI, HII, HeI, HeII, tdust, metallicity,       &
+                 k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,  &
+                 k11a, k12a, k13a, k13dda, k14a, k15a, k16a,         &
+                 k17a, k18a, k19a, k22a,                             &
+                 k50a, k51a, k52a, k53a, k54a, k55a, k56a,           &
+                 ndratec, dtemstart, dtemend, h2dusta,               &
+                 ncrna, ncrd1a, ncrd2a,                              &
+                 avgsighp, avgsighep, avgsighe2p, piHI, piHeI,       &
+                 k1, k2, k3, k4, k5, k6, k7, k8, k9, k10,            &
+                 k11, k12, k13, k14, k15, k16, k17, k18,             &
+                 k19, k22, k24, k25, k26,                            &
+                 k50, k51, k52, k53, k54, k55,                       &
+                 k56, k13dd, k24shield, k25shield, k26shield,        &
+                 h2dust, ncrn, ncrd1, ncrd2,                         &
+                 t1, t2, tdef, logtem, indixe,                       &
                  dom, coolunit, tbase1, itmask)
 
 !           Compute dedot and HIdot, the rates of change of de and HI
 !             (should add itmask to this call)
 
-            call rate_timestep(dedot, HIdot, ispecies,         &
+            call rate_timestep(dedot, HIdot, ispecies, idust,         &
                  de, HI, HII, HeI, HeII, HeIII, d,             &
                  HM, H2I, H2II,                                &
                  in, jn, kn, is, ie, j, k,                     &
                  k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, &
                  k12, k13, k14, k15, k16, k17, k18, k19, k22,  &
                  k24, k25, k26, k27, k28, k29, k30, k31,       &
-                 k50, k51, k52, k53, k54, k55,                 &
+                 k50, k51, k52, k53, k54, k55, k56,                 &
+                 h2dust, ncrn, ncrd1, ncrd2, rhoH, &
                  k56, k24shield, k25shield, k26shield,         &
                  iradtrans, irt_honly, kphHI, kphHeI, kphHeII, & 
-                 kdissH2I, itmask, edot, chunit)
+                 kdissH2I, itmask, edot, chunit, dom)
 
 !           Find timestep that keeps relative chemical changes below 10%
 
@@ -555,6 +573,8 @@
               endif
               if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
 
+#define DONT_WRITE_COOLING_DEBUG
+#ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
 #ifndef _OPENMP
               if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and. &
@@ -585,6 +605,7 @@
 #endif /* _OPENMP */
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
+#endif /* WRITE_COOLING_DEBUG */
             else               ! itmask
                dtit(i) = dt;
             endif
@@ -641,6 +662,7 @@
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
+#ifdef WRITE_COOLING_DEBUG
 !              If the timestep is too small, then output some debugging info
 
 #ifndef _OPENMP
@@ -651,6 +673,7 @@
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
 #endif /* _OPENMP */
  2000          format(4(i4,1x),1p,10(e14.3))
+#endif /* WRITE_COOLING_DEBUG */
             endif   ! itmask
             enddo   ! end loop over i
 
@@ -659,10 +682,10 @@
             do i = is+1, ie+1
                if (itmask(i)) then
                e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
-#ifndef _OPENMP
+#ifdef WRITE_COOLING_DEBUG
                if (e(i,j,k) .ne. e(i,j,k)) &
                     write(3,*) edot(i),d(i,j,k),dtit(i)
-#endif
+#endif /* WRITE_COOLING_DEBUG */
 
 !              If using the dual energy formalism, there are 2 energy fields
 
@@ -675,10 +698,10 @@
 !     &                      0.5d0*ge(i,j,k))
 !                 if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 !     &              edot(i)*dtit(i))/d(i,j,k)
-#ifndef _OPENMP
+#ifdef WRITE_COOLING_DEBUG
                   if (ge(i,j,k) .le. 0.d0) write(3,*) &
                        'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
-#endif /* _OPENMP */
+#endif WRITE_COOLING_DEBUG
                endif
             endif               ! itmask
             enddo
@@ -688,12 +711,13 @@
 
             call step_rate(de, HI, HII, HeI, HeII, HeIII, d,   &
                  HM, H2I, H2II, DI, DII, HDI, dtit,            &
-                 in, jn, kn, is, ie, j, k, ispecies,           &
+                 in, jn, kn, is, ie, j, k, ispecies, idust,          &
                  k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, &
                  k12, k13, k14, k15, k16, k17, k18, k19, k22,  &
                  k24, k25, k26, k27, k28, k29, k30, k31,       &
-                 k50, k51, k52, k53, k54, k55,                 &
-                 k56, k24shield, k25shield, k26shield,         &
+                 k50, k51, k52, k53, k54, k55, k56,                 &
+                 h2dust, rhoH, &
+                 k24shield, k25shield, k26shield,         &
                  HIp, HIIp, HeIp, HeIIp, HeIIIp, dep,          &
                  HMp, H2Ip, H2IIp, DIp, DIIp, HDIp,            &
                  dedot_prev, HIdot_prev,                       &
@@ -763,89 +787,95 @@
 ! Deallocations
 !=======================================================================
 
-    deallocate(indixe)
-    deallocate(t1)
-    deallocate(t2)
-    deallocate(logtem)
-    deallocate(tdef)
-    deallocate(dtit)
-    deallocate(ttot)
-    deallocate(p2d)
-    deallocate(tgas)
-    deallocate(tgasold)
-    deallocate(HIp)
-    deallocate(HIIp)
-    deallocate(HeIp)
-    deallocate(HeIIp)
-    deallocate(HeIIIp)
-    deallocate(HMp)
-    deallocate(H2Ip)
-    deallocate(H2IIp)
-    deallocate(dep)
-    deallocate(dedot)
-    deallocate(HIdot)
-    deallocate(dedot_prev)
-    deallocate(DIp)
-    deallocate(DIIp)
-    deallocate(HDIp)
-    deallocate(HIdot_prev)
-    deallocate(k24shield)
-    deallocate(k25shield)
-    deallocate(k26shield)
-    deallocate(k1)
-    deallocate(k2)
-    deallocate(k3)
-    deallocate(k4)
-    deallocate(k5)
-    deallocate(k6)
-    deallocate(k7)
-    deallocate(k8)
-    deallocate(k9)
-    deallocate(k10)
-    deallocate(k11)
-    deallocate(k12)
-    deallocate(k13)
-    deallocate(k14)
-    deallocate(k15)
-    deallocate(k16)
-    deallocate(k17)
-    deallocate(k18)
-    deallocate(k19)
-    deallocate(k22)
-    deallocate(k50)
-    deallocate(k51)
-    deallocate(k52)
-    deallocate(k53)
-    deallocate(k54)
-    deallocate(k55)
-    deallocate(k56)
-    deallocate(k13dd)
-    deallocate(ceHI)
-    deallocate(ceHeI)
-    deallocate(ceHeII)
-    deallocate(ciHI)
-    deallocate(ciHeI)
-    deallocate(ciHeIS)
-    deallocate(ciHeII)
-    deallocate(reHII)
-    deallocate(reHeII1)
-    deallocate(reHeII2)
-    deallocate(reHeIII)
-    deallocate(brem)
-    deallocate(edot)
-    deallocate(hyd01k)
-    deallocate(h2k01)
-    deallocate(vibh)
-    deallocate(roth)
-    deallocate(rotl)
-    deallocate(cieco)
-    deallocate(gpldl)
-    deallocate(gphdl)
-    deallocate(hdlte)
-    deallocate(hdlow)
-    deallocate(itmask)
+      deallocate(indixe)
+      deallocate(t1)
+      deallocate(t2)
+      deallocate(logtem)
+      deallocate(tdef)
+      deallocate(dtit)
+      deallocate(ttot)
+      deallocate(p2d)
+      deallocate(tgas)
+      deallocate(tgasold)
+      deallocate(HIp)
+      deallocate(HIIp)
+      deallocate(HeIp)
+      deallocate(HeIIp)
+      deallocate(HeIIIp)
+      deallocate(HMp)
+      deallocate(H2Ip)
+      deallocate(H2IIp)
+      deallocate(dep)
+      deallocate(dedot)
+      deallocate(HIdot)
+      deallocate(dedot_prev)
+      deallocate(DIp)
+      deallocate(DIIp)
+      deallocate(HDIp)
+      deallocate(HIdot_prev)
+      deallocate(k24shield)
+      deallocate(k25shield)
+      deallocate(k26shield)
+      deallocate(k1)
+      deallocate(k2)
+      deallocate(k3)
+      deallocate(k4)
+      deallocate(k5)
+      deallocate(k6)
+      deallocate(k7)
+      deallocate(k8)
+      deallocate(k9)
+      deallocate(k10)
+      deallocate(k11)
+      deallocate(k12)
+      deallocate(k13)
+      deallocate(k14)
+      deallocate(k15)
+      deallocate(k16)
+      deallocate(k17)
+      deallocate(k18)
+      deallocate(k19)
+      deallocate(k22)
+      deallocate(k50)
+      deallocate(k51)
+      deallocate(k52)
+      deallocate(k53)
+      deallocate(k54)
+      deallocate(k55)
+      deallocate(k56)
+      deallocate(k13dd)
+      deallocate(ceHI)
+      deallocate(ceHeI)
+      deallocate(ceHeII)
+      deallocate(ciHI)
+      deallocate(ciHeI)
+      deallocate(ciHeIS)
+      deallocate(ciHeII)
+      deallocate(reHII)
+      deallocate(reHeII1)
+      deallocate(reHeII2)
+      deallocate(reHeIII)
+      deallocate(brem)
+      deallocate(edot)
+      deallocate(hyd01k)
+      deallocate(h2k01)
+      deallocate(vibh)
+      deallocate(roth)
+      deallocate(rotl)
+      deallocate(cieco)
+      deallocate(gpldl)
+      deallocate(gphdl)
+      deallocate(hdlte)
+      deallocate(hdlow)
+      deallocate(itmask)
+      deallocate(tdust)
+      deallocate(metallicity)
+      deallocate(rhoH)
+      deallocate(h2dust)
+      deallocate(ncrn)
+      deallocate(ncrd1)
+      deallocate(ncrd2)
 
 
       return
     end subroutine solve_rate_cool
-

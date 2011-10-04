@@ -91,6 +91,10 @@ int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level)
 {
 
+  if (LevelCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
+    return SUCCESS;
+  }
+
   double tt0, tt1, tt2, tt3;
  
   /* declarations */

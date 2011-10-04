@@ -153,20 +153,25 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   float exp_arg = -1.0 * POW(Redshift-2.3, 2);
 
+  /* Above z = 2.3, increase the width of the Gaussian by a factor of
+     3 for HI and HeI. */
+
+  float beta2 = (AdjustUVBackgroundHighRedshift && Redshift > 2.3) ? 9.0 : 1.0;
+
   /* ------------------------------------------------------------------ */
   /* 1) For the Haardt and Madau (1996) quasar spectrum (alpha_q = 1.5) */
 
   if (RadiationFieldType == 1) {
 
-    RateData.k24 = 6.7e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
+    RateData.k24 = 6.7e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
                      * TimeUnits * Ramp;
     RateData.k25 = 6.3e-15 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
                      * TimeUnits * Ramp;
-    RateData.k26 = 3.2e-13 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
+    RateData.k26 = 3.2e-13 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00/beta2) 
                      * TimeUnits * Ramp;
-    CoolData.piHI   = 4.7e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95) 
+    CoolData.piHI   = 4.7e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2) 
                      / CoolingUnits * Ramp;
-    CoolData.piHeI  = 8.2e-24 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00) 
+    CoolData.piHeI  = 8.2e-24 * POW(1.0+Redshift, 0.50) * exp(exp_arg/2.00/beta2) 
                      / CoolingUnits * Ramp;
     CoolData.piHeII = 1.6e-25 * POW(1.0+Redshift, 0.51) * exp(exp_arg/2.35) 
                      / CoolingUnits * Ramp;
@@ -176,15 +181,15 @@ int RadiationFieldCalculateRates(FLOAT Time)
   /* 2) For the Haardt and Madau (1996) quasar spectrum (alpha_q = 1.8) */
 
   if (RadiationFieldType == 2) {
-    RateData.k24 = 5.6e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
+    RateData.k24 = 5.6e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
                  * TimeUnits * Ramp;
     RateData.k25 = 3.2e-15 * POW(1.0+Redshift, 0.30) * exp(exp_arg/2.60)
                  * TimeUnits * Ramp;
-    RateData.k26 = 4.8e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
+    RateData.k26 = 4.8e-13 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
                  * TimeUnits * Ramp;
-    CoolData.piHI   = 3.9e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95)
+    CoolData.piHI   = 3.9e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/1.95/beta2)
                  / CoolingUnits * Ramp;
-    CoolData.piHeI  = 6.4e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/2.10)
+    CoolData.piHeI  = 6.4e-24 * POW(1.0+Redshift, 0.43) * exp(exp_arg/2.10/beta2)
                  / CoolingUnits * Ramp;
     CoolData.piHeII = 8.7e-26 * POW(1.0+Redshift, 0.30) * exp(exp_arg/2.70)
                  / CoolingUnits * Ramp;
@@ -406,6 +411,45 @@ int RadiationFieldCalculateRates(FLOAT Time)
                  / CoolingUnits * Ramp;
     }
 
+ /* 13) Fits to the (unpublished) Haardt & Madau (2005) model that
+        ships with Cloudy v8.00 (Michael Kuhlen, 06/02/2010).
+
+        Like RadiationFieldType=4, this model includes both a quasar
+        and a galaxy contribution, but no X-ray Compton heating. */
+
+  if (RadiationFieldType == 13) {
+
+    RateData.k24 = 4.68e-12 * POW(1.0+Redshift, -0.592) * 
+      exp( -0.7156 * POW(Redshift-2.292, 2.0) / 
+	   (1.0 + 0.2009 * POW(Redshift+0.548, 2.0)) ) *
+      TimeUnits * Ramp;
+
+    RateData.k25 = 3.67e-14 * POW(1.0+Redshift, -0.258) * 
+      exp( -1.1378 * POW(Redshift-1.875, 2.0) / 
+	   (1.0 + 0.1727 * POW(Redshift-0.607, 2.0)) ) *
+      TimeUnits * Ramp;
+
+    RateData.k26 = 1.11e-11 * POW(1.0+Redshift, -1.451) * 
+      exp( -0.7552 * POW(Redshift-2.954, 2.0) / 
+	   (1.0 + 0.2625 * POW(Redshift+0.918, 2.0)) ) *
+      TimeUnits * Ramp;
+
+    CoolData.piHI = 4.09e-23 * POW(1.0+Redshift, -0.746) * 
+      exp( -0.7469 * POW(Redshift-2.419, 2.0) / 
+	   (1.0 + 0.2120 * POW(Redshift+0.686, 2.0)) )
+      / CoolingUnits * Ramp;
+
+    CoolData.piHeII = 1.28e-24 * POW(1.0+Redshift, -0.504) * 
+      exp( -1.0742 * POW(Redshift-1.889, 2.0) / 
+	   (1.0 + 0.1919 * POW(Redshift-0.518,2.0)) ) 
+      / CoolingUnits * Ramp;
+
+    CoolData.piHeI = 4.86e-22 * POW(1.0+Redshift, -2.302) * 
+      exp( -0.5250 * POW(Redshift-3.900, 2.0) / 
+	   (1.0 + 0.3452 * POW(Redshift+0.673, 2.0)) )
+      / CoolingUnits * Ramp;
+
+ }
 
   /* ------------------------------------------------------------------ */
   /* 14) molecular hydrogen photo-dissociation only with a fit from
@@ -453,21 +497,21 @@ int RadiationFieldCalculateRates(FLOAT Time)
 #endif /* NO_HEII_UVB */
 
   if (RadiationFieldType == 1 || RadiationFieldType == 2 || 
-   RadiationFieldType == 3 || RadiationFieldType == 4 || 
-   RadiationFieldType == 12) {
+      RadiationFieldType == 3 || RadiationFieldType == 4 || 
+      RadiationFieldType == 12 || RadiationFieldType == 13) {
   
-  if (AdjustUVBackground == 1 ) {
-/* Increases the HM-type HeII photoheating rates by the default value of 1.8 */
-  SetUVBAmplitude = 1.0 ;
-  SetHeIIHeatingScale = 1.8 ;
-  CoolData.piHeII *= (SetUVBAmplitude * SetHeIIHeatingScale);
-  }
-  if (AdjustUVBackground == 2) {
+    if (AdjustUVBackground == 1 ) {
+      /* Increases the HM-type HeII photoheating rates by the default value of 1.8 */
+      SetUVBAmplitude = 1.0 ;
+      SetHeIIHeatingScale = 1.8 ;
+      CoolData.piHeII *= (SetUVBAmplitude * SetHeIIHeatingScale);
+    }
+    if (AdjustUVBackground == 2) {
 
-/* Alters the HM-type rates by the user supplied values.
-If some are not supplied then it uses the default 
-values defined in the previous if statement and set
-in the SetDefaultGlobalValues.C  */
+      /* Alters the HM-type rates by the user supplied values.
+	 If some are not supplied then it uses the default 
+	 values defined in the previous if statement and set
+	 in the SetDefaultGlobalValues.C  */
 
 /*
   fprintf(fp, "In Loop with RadiationFieldType = %"ISYM"\n", RadiationFieldType);
@@ -483,13 +527,13 @@ in the SetDefaultGlobalValues.C  */
   output<<"In Loop with SetHeIIHeatingScale="<<SetHeIIHeatingScale<<'\n';
 */
 
-  RateData.k24    *= SetUVBAmplitude ;
-  RateData.k25    *= SetUVBAmplitude ;
-  RateData.k26    *= SetUVBAmplitude ;
-  CoolData.piHI   *= SetUVBAmplitude ;
-  CoolData.piHeI  *= SetUVBAmplitude ;
-  CoolData.piHeII *= (SetUVBAmplitude * SetHeIIHeatingScale);
-  }
+      RateData.k24    *= SetUVBAmplitude ;
+      RateData.k25    *= SetUVBAmplitude ;
+      RateData.k26    *= SetUVBAmplitude ;
+      CoolData.piHI   *= SetUVBAmplitude ;
+      CoolData.piHeI  *= SetUVBAmplitude ;
+      CoolData.piHeII *= (SetUVBAmplitude * SetHeIIHeatingScale);
+    }
 
   }
 

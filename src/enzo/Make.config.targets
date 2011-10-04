@@ -272,7 +272,7 @@ show-config:
 	@echo "   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : $(CONFIG_LCAPERF)"
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
-	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_PYTHON)"
+	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
 	@echo "   CONFIG_CVODE  [cvode-{yes,no}]                            : $(CONFIG_CVODE)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
@@ -667,8 +667,8 @@ CONFIG_PYTHON-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_PYTHON = new-problem-types-yes new-problem-types-no
-.PHONY: $(VALID_PYTHON)
+VALID_PROBLEM_TYPES = new-problem-types-yes new-problem-types-no
+.PHONY: $(VALID_PROBLEM_TYPES)
 
 new-problem-types-yes: CONFIG_NEW_PROBLEM_TYPES-yes
 new-problem-types-no: CONFIG_NEW_PROBLEM_TYPES-no

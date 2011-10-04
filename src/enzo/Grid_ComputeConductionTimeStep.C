@@ -51,6 +51,21 @@ int grid::ComputeConductionTimeStep (float &dt) {
   float dt_est;
   double all_units;
 
+  float SpitzerFraction;
+  if (IsotropicConduction && AnisotropicConduction) {
+    SpitzerFraction = max(IsotropicConductionSpitzerFraction, 
+			  AnisotropicConductionSpitzerFraction);
+  }
+  else if (IsotropicConduction) {
+    SpitzerFraction = IsotropicConductionSpitzerFraction;
+  }
+  else if (AnisotropicConduction) {
+    SpitzerFraction = AnisotropicConductionSpitzerFraction;
+  }
+  else {
+    return SUCCESS;
+  }
+
   int size = 1, grid_index, right_side_index; 
   for (int dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
@@ -218,7 +233,7 @@ int grid::ComputeConductionTimeStep (float &dt) {
   // units, scaled correctly. Note that this does NOT contain a factor
   // of 1/mu, since we don't necessarily know anything about the gas in question.
   all_units = POW(dx,2.0)*POW(LengthUnits,2.0)*DensityUnits*kboltz /
-    ( 6.0e-7 * max(IsotropicConductionSpitzerFraction, AnisotropicConductionSpitzerFraction) * mh * TimeUnits );
+    ( 6.0e-7 * SpitzerFraction * mh * TimeUnits );
   
   dt *= float(all_units);
 

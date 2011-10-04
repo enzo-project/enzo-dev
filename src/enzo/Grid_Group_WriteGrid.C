@@ -56,6 +56,9 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
 
+  float *temperature, *dust_temperature,
+    *cooling_time;
+
 #ifdef IO_64
 #define io_type float64
 #else
@@ -82,8 +85,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+#ifdef WINDS
+  char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};
@@ -356,14 +365,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     }   // end of loop over fields
  
-    /* If this is cosmology, compute the temperature field as well since
-       its such a pain to compute after the fact. */
+    /* If requested, compute and output the temperature field 
+       as well since its such a pain to compute after the fact. */
  
     if (OutputTemperature) {
  
       /* Allocate field and compute temperature. */
  
-      float *temperature = new float[size];
+      temperature = new float[size];
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 	ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
@@ -414,12 +423,89 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      delete [] temperature;
+	// If outputing dust temperature, keep temperature field for the calculation.
+	if (!OutputDustTemperature) {
+	  delete [] temperature;
+	}
  
     } // end: if (OutputTemperature)
 
 
+    /* If requested, compute and output the dust temperature field 
+       as well since its such a pain to compute after the fact. */
 
+    if (OutputDustTemperature) {
+ 
+      /* Get temperature field if we do not already have it. */
+
+      if (!OutputTemperature) {
+	temperature = new float[size];
+
+	if (this->ComputeTemperatureField(temperature) == FAIL) {
+	  ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
+	}
+      }
+
+      /* Allocate field and compute dust temperature. */
+ 
+      dust_temperature = new float[size];
+ 
+      if (this->ComputeDustTemperatureField(temperature, 
+					    dust_temperature) == FAIL) {
+	ENZO_FAIL("Error in grid->ComputeDustTemperatureField.\n");
+      }
+ 
+      /* Copy active part of field into grid */
+ 
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
+	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
+	    temp[(i-GridStartIndex[0])                           +
+	         (j-GridStartIndex[1])*ActiveDim[0]              +
+	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+		     io_type(
+		   dust_temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
+			     );
+ 
+ 
+      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+        if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
+        if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = Dust_Temperature\n");
+ 
+      dset_id = H5Dcreate(group_id, "Dust_Temperature", file_type_id, file_dsp_id, H5P_DEFAULT);
+        if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
+        if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if ( DataUnits[field] == NULL )
+      {
+        DataUnits[field] = "none";
+      }
+ 
+      WriteStringAttr(dset_id, "Label", "Dust_Temperature", log_fptr);
+      WriteStringAttr(dset_id, "Units", "K", log_fptr);
+      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+ 
+      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+        if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Sclose(file_dsp_id);
+        if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      h5_status = H5Dclose(dset_id);
+        if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+        if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+ 
+      if (!OutputTemperature) {
+	delete [] temperature;
+      }
+      delete [] dust_temperature;
+    
+    } // end: if (OutputDustTemperature)
 
 
     if (VelAnyl) {
@@ -613,7 +699,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
       /* Allocate field and compute cooling time. */
 
-      float *cooling_time = new float[size];
+      cooling_time = new float[size];
  
       float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
 	VelocityUnits = 1, TimeUnits = 1, aUnits = 1;

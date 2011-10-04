@@ -142,7 +142,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 
     // Type 3 = H2I_LW
     if (!RadiativeTransferOpticallyThinH2 && MultiSpecies > 1 &&
-	RS->Energy[ebin] < 13.6)
+	RS->Energy[i] < 13.6)
       ebin = 3;
     else
       ebin = i;

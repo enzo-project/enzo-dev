@@ -9,11 +9,11 @@
       subroutine multi_cool(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod, igammah,
-     &                idual, ispecies, imetal, imcool, idim,
+     &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, imax, ih2co, ipiht,
      &                dt, aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
-     &                eta1, eta2, gamma,
+     &                eta1, eta2, gamma, z_solar,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &                ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
      &                reHeII2a, reHeIIIa, brema, compa, gammaha,
@@ -22,15 +22,15 @@
      &                hyd01ka, h2k01a, vibha, rotha, rotla, 
      &                gpldla, gphdla, hdltea, hdlowa,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma, 
      &                ih2optical, iciecool, ciecoa, 
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW)
+     &                clDataSize, clCooling, clHeating)
 
 
 !  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
@@ -59,9 +59,9 @@
       integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, n_xe, iradtrans,
-     &        imcool, igammah, imax
+     &        imcool, idust, igammah, imax
       real    dt, aye, temstart, temend,
-     &        utem, uxyz, uaye, urho, utim,
+     &        utem, uxyz, uaye, urho, utim, z_solar,
      &        eta1, eta2, gamma, xe_start, xe_end
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
@@ -76,7 +76,8 @@
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec),
+     &        ciecoa(nratec)
       real    metala(nratec, n_xe)
       real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
@@ -88,14 +89,13 @@
 
 !  Cloudy cooling data
 
-      integer icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      integer icmbTfloor, iClHeat, clGridRank, clDataSize
       integer clGridDim(clGridRank)
-      real clMetNorm, clEleFra
+      real clEleFra
       real clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize), 
-     &     clMMW(clDataSize)
+      real clCooling(clDataSize), clHeating(clDataSize)
 
 !  Parameters
 
@@ -126,7 +126,8 @@
  
       integer indixe(imax)
       real t1(imax), t2(imax), logtem(imax), tdef(imax), p2d(imax),
-     &     dtit(imax), ttot(imax), tgas(imax), tgasold(imax)
+     &     dtit(imax), ttot(imax), tgas(imax), tgasold(imax),
+     &     tdust(imax), metallicity(imax), rhoH(imax)
       double precision edot(imax)
 
 !  Cooling/heating row locals
@@ -213,9 +214,9 @@
           call cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim,
+     &                iexpand, ispecies, imetal, imcool, idust, idim,
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend,
+     &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -229,19 +230,19 @@
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end,
+     &                gasgra, metala, n_xe, xe_start, xe_end,
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d,
+     &                tgas, tgasold, p2d, tdust, metallicity, rhoH,
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma, 
      &                ih2optical, iciecool, ciecoa, cieco,
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW,
+     &                clDataSize, clCooling, clHeating,
      &                itmask
      &                     )
 

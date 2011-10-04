@@ -322,9 +322,11 @@ EXTERN fpos_t  BaryonFileNamePosition;
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
+EXTERN int H2FormationOnDust;
 
 /* Glover chemistry/cooling network flags */
 EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
@@ -353,6 +355,7 @@ EXTERN int StorePreShockFields;
 
 EXTERN int RadiationFieldType;
 EXTERN int AdjustUVBackground; 
+EXTERN int AdjustUVBackgroundHighRedshift; 
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
@@ -374,6 +377,10 @@ EXTERN int OutputCoolingTime;
 /* Output temperature with grid data. */
 
 EXTERN int OutputTemperature;
+
+/* Output dust temperature with grid data. */
+
+EXTERN int OutputDustTemperature;
 
 /* Output smoothed dark matter fields. */
 
@@ -542,7 +549,7 @@ EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
-EXTERN float SimpleQ;
+EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
 
 
@@ -689,13 +696,11 @@ EXTERN int UseResistivity;
 
 /* Chemistry & cooling parameters */
 
-EXTERN int UseH2OnDust;
 EXTERN float CoolingCutOffDensity1;
 EXTERN float CoolingCutOffDensity2;
 EXTERN float CoolingPowerCutOffDensity1;
 EXTERN float CoolingPowerCutOffDensity2;
 EXTERN float CoolingCutOffTemperature;
-EXTERN int CoolingModel;
 
 /* Gravity parameters */
 
@@ -704,8 +709,11 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
+EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
+EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 
@@ -817,6 +825,9 @@ EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
+
+/* RebuildHierarchy on this level every N cycles. */
+EXTERN int RebuildHierarchyCycleSkip[MAX_DEPTH_OF_HIERARCHY];
 
 /* Coupled radiative transfer, cooling, and rate solver */
 EXTERN int RadiativeTransferCoupledRateSolver;

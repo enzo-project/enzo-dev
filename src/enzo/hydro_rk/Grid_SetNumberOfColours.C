@@ -38,9 +38,10 @@ int grid::SetNumberOfColours(void)
 
   /* Count colours */  
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, MetalIaNum, MBHColourNum, Galaxy1ColourNum, 
+    Galaxy2ColourNum; 
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;
@@ -53,6 +54,7 @@ int grid::SetNumberOfColours(void)
 
   if (MetalNum != -1) {
     _nc++;
+    if (StarMakerTypeIaSNe) _nc++;
     if (MultiMetals || TestProblemData.MultiMetals) {
       _nc += 2;
     }
@@ -71,7 +73,8 @@ int grid::SetNumberOfColours(void)
 
   NColor = 0;  
   NSpecies += _nc;
-
+  if (NSpecies != 0 && MultiSpecies == 0)
+    NoMultiSpeciesButColors = 1;
   /*
   fprintf(stdout, "grid:SetNumberOfColours: NEQ_HYDRO = %"ISYM", NSpecies = %"ISYM", NColor = %"ISYM"\n", 
   	  NEQ_HYDRO, NSpecies, NColor); 

@@ -96,18 +96,20 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Find Metallicity or SNColour field and set flag. */
 
   int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
-    Galaxy2ColourNum;
+    Galaxy2ColourNum, MetalIaNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MBHColourNum, 
-				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+  if (this->IdentifyColourFields(SNColourNum, Metal2Num, MetalIaNum, 
+				 MBHColourNum, Galaxy1ColourNum, 
+				 Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
 
   MetalNum = max(Metal2Num, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
   if (MetalNum > 0 && SNColourNum > 0 && cstar->type == PopIII)
     MetalNum = SNColourNum;
+
+  float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
 
   /***********************************************************************
                                 SUPERNOVAE
@@ -124,11 +126,15 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
   float outerRadius2;
 
+  if (cstar->FeedbackFlag == SUPERNOVA || 
+      cstar->FeedbackFlag == CONT_SUPERNOVA) {
+
   // Correct for exaggerated influence radius for pair-instability supernovae
-  if (cstar->FeedbackFlag == SUPERNOVA)
-    radius /= 1.0;
+    if (cstar->FeedbackFlag == SUPERNOVA)
+      radius /= 1.0;
 
   // Correct if the volume with 27 cells is larger than the energy bubble volume
+#ifdef UNUSED
   float BoxVolume = 27 * CellWidth[0][0] * CellWidth[0][0] * CellWidth[0][0];
   float BubbleVolume = (4.0 * M_PI / 3.0) * radius * radius * radius;
   //printf("BoxVolume = %lg, BubbleVolume = %lg\n", BoxVolume, BubbleVolume);
@@ -138,6 +144,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     EjectaMetalDensity *= BubbleVolume / BoxVolume;
     EjectaThermalEnergy *= BubbleVolume / BoxVolume;
   }
+#endif
 //  if (cstar->level > level) {
 //    printf("Reducing ejecta density and energy by 10%% on "
 //	   "level %"ISYM" to avoid crashing.\n", level);
@@ -152,9 +159,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   fh = CoolData.HydrogenFractionByMass;
   MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
   outerRadius2 = 1.2 * 1.2 * radius * radius;
-
-  if (cstar->FeedbackFlag == SUPERNOVA || 
-      cstar->FeedbackFlag == CONT_SUPERNOVA) {
 
     /* Remove mass from the star that will now be added to grids. 
        Also, because EjectaDensity will be added with zero net momentum, 

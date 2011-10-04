@@ -111,7 +111,7 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (FLOAT).5 - xpos;
+	    dx = (FLOAT) i1 + (FLOAT).5 - xpos;
 
 /*           Interpolate from field into sumfield */
 
@@ -150,8 +150,8 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (FLOAT).5 - xpos;
-	    dy = (float) j1 + (FLOAT).5 - ypos;
+	    dx = (FLOAT) i1 + (FLOAT).5 - xpos;
+	    dy = (FLOAT) j1 + (FLOAT).5 - ypos;
 
 /*           Interpolate from field into sumfield */
 
@@ -160,7 +160,7 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 		     field_dim1] * ((FLOAT)1. - dx) * dy + field[i1 + (j1 + 1 
 		    + field_dim2) * field_dim1] * dx * ((FLOAT)1. - dy) + 
 		    field[i1 + 1 + (j1 + 1 + field_dim2) * field_dim1] * ((
-		    float)1. - dx) * ((FLOAT)1. - dy);
+		    FLOAT)1. - dx) * ((FLOAT)1. - dy);
 
 	}
 
@@ -199,9 +199,9 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (FLOAT).5 - xpos;
-	    dy = (float) j1 + (FLOAT).5 - ypos;
-	    dz = (float) k1 + (FLOAT).5 - zpos;
+	    dx = (FLOAT) i1 + (FLOAT).5 - xpos;
+	    dy = (FLOAT) j1 + (FLOAT).5 - ypos;
+	    dz = (FLOAT) k1 + (FLOAT).5 - zpos;
 
 /*           Interpolate from field into sumfield */
 

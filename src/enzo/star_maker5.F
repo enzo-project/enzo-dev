@@ -16,7 +16,9 @@ c
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
      &                      rr_left0, rr_left1, rr_left2,
-     &                      rr_right0, rr_right1, rr_right2)
+     &                      rr_right0, rr_right1, rr_right2,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES STAR PARTICLES
 c
@@ -60,6 +62,7 @@ c    mintdyn  - timescale for star formation ~= 2.1e9 (yrs)
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    rr_left, rr_right - refinement region left and right edges
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
 c
@@ -72,6 +75,7 @@ c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
 c    nmax     - particle array size specified by calling routine
+c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
 c
 c
 c-----------------------------------------------------------------------
@@ -81,11 +85,12 @@ c
 c  Arguments
 c
       integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
+      integer procnum, imetalSNIa
       real    d(nx,ny,nz), dm(nx,ny,nz)
       real    temp(nx,ny,nz), coolrate(nx,ny,nz)
       real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       real    dt, dx, z
       real    d1, x1, v1, t1, msolar1
       REALSUB xstart, ystart, zstart, t
@@ -157,9 +162,9 @@ c	       Calculate star formation timescale
      &              shdens)**(-0.5d0)			!Eq(21)
             
             
-c		note: minus sign is because 'coolrate' is actual backwards: when coolrate is 
-c		negative, gas is cooling (which is the opposite of how it's defined in springel
-c		& Hernquist 2003, MNRAS, 339, 289, eqtn. 16
+c     note: minus sign is because 'coolrate' is actual backwards: when
+c     coolrate is negative, gas is cooling (which is the opposite of how
+c     it's defined in springel & Hernquist 2003, MNRAS, 339, 289, eqn. 16
                y = -1.0*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
      &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton) !Eq(16)
 
@@ -219,6 +224,10 @@ c	       Set metal Fraction
                else
                   metalf(ii) = 0.d0
                endif
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
+               endif
+
 c	       Remove mass from grid
                d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
 c

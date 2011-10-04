@@ -519,10 +519,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: clean up AccelerationField. */
 
+#ifndef SAB
       if ((level != MaximumGravityRefinementLevel ||
 	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
 	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
+#endif //!SAB
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
@@ -597,7 +599,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
+#ifdef USE_PYTHON
+    LCAPERF_START("CallPython");
     CallPython(LevelArray, MetaData, level, 0);
+    LCAPERF_STOP("CallPython");
+#endif
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note

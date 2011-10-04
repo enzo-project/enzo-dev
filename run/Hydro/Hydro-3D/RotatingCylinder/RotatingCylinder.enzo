@@ -75,10 +75,8 @@ RotatingCylinderCenterPosition = 0.5 0.5 0.5
 RotatingCylinderSubgridLeft = 0.375
 RotatingCylinderSubgridRight = 0.625
 RotatingCylinderTotalEnergy = 0.5
-InitialRefinementDepth Do This Bitch.
+InitialRefinementDepth = 0
 TestProblemUseMetallicityField = 0
 TestProblemInitialMetallicityFraction = 0.1
-
-Gravity Iteration Bitch.
 
 #####
