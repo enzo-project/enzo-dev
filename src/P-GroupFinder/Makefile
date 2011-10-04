@@ -172,7 +172,7 @@ endif
 #=======================================================================
 
 # Override previous defines with the exception of particle id size
-DEFINES = -DUSE_HDF5 -DH5_USE_16_API $(ASSEMBLE_IDS_DEFINES)
+DEFINES = -DUSE_HDF5 -DFOF_ONLY -DH5_USE_16_API $(ASSEMBLE_IDS_DEFINES)
 
 #-----------------------------------------------------------------------
 # Implicit rules
