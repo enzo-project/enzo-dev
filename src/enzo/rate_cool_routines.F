@@ -160,7 +160,7 @@ c -------------------------------------------------------------------
 !   of temperature.
 
       subroutine lookup_cool_rates1d(temstart, temend, nratec, j, k,
-     &                is, ie, ijk, iradtype, iradshield, ithreebody,
+     &                is, ie, imax, iradtype, iradshield, ithreebody,
      &                in, jn, kn, ispecies, idust,
      &                tgas1d, HI, HII, HeI, HeII, tdust, metallicity, 
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
@@ -184,13 +184,13 @@ c -------------------------------------------------------------------
 
 !     Arguments
 
-      integer is, ie, ijk, iradtype, iradshield, nratec, 
+      integer is, ie, imax, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, ithreebody, j, k,
      &        idust, ndratec
       real temstart, temend, tgas1d(in), dom,
      &        dtemstart, dtemend
       double precision coolunit, tbase1
-      logical itmask(ijk)
+      logical itmask(imax)
 
 !     Chemistry rates as a function of temperature
 
@@ -213,26 +213,26 @@ c -------------------------------------------------------------------
 
 !     Returned rate values
 
-      real k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
-     &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
-     &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
-     &     k16(ijk), k17(ijk), k18(ijk), k19(ijk), k22(ijk),
-     &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
-     &     k55(ijk), k56(ijk), k13dd(ijk, 7), h2dust(ijk), 
-     &     ncrn(ijk), ncrd1(ijk), ncrd2(ijk),
-     &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
+      real k1 (imax), k2 (imax), k3 (imax), k4 (imax), k5 (imax),
+     &     k6 (imax), k7 (imax), k8 (imax), k9 (imax), k10(imax),
+     &     k11(imax), k12(imax), k13(imax), k14(imax), k15(imax),
+     &     k16(imax), k17(imax), k18(imax), k19(imax), k22(imax),
+     &     k50(imax), k51(imax), k52(imax), k53(imax), k54(imax),
+     &     k55(imax), k56(imax), k13dd(imax, 7), h2dust(imax), 
+     &     ncrn(imax), ncrd1(imax), ncrd2(imax),
+     &     k24shield(imax), k25shield(imax), k26shield(imax)
 
 !     1D temporaries (passed in)
 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk),
-     &     tdust(ijk), metallicity(ijk)
+      integer indixe(imax)
+      real t1(imax), t2(imax), logtem(imax), tdef(imax),
+     &     tdust(imax), metallicity(imax)
 
 !     1D temporaries (not passed in)
 
-      integer d_indixe(ijk)
-      real d_t1(ijk), d_t2(ijk), d_logtem(ijk), d_tdef(ijk),
-     &     dusti1(ijk), dusti2(ijk)
+      integer d_indixe(imax)
+      real d_t1(imax), d_t2(imax), d_logtem(imax), d_tdef(imax),
+     &     dusti1(imax), dusti2(imax)
 
 !     Parameters
 
@@ -369,6 +369,11 @@ c -------------------------------------------------------------------
 !     Look-up for H2 formation on dust
 
       if (idust .gt. 0) then
+
+         d_logtem0 = log(dtemstart)
+         d_logtem9 = log(dtemend)
+         d_dlogtem = (log(dtemend) - log(dtemstart))/real(ndratec-1)
+
          do i = is+1, ie+1
             if (itmask(i)) then
 
@@ -1117,14 +1122,16 @@ c
       subroutine make_consistent(de, HI, HII, HeI, HeII, HeIII,
      &                        HM, H2I, H2II, DI, DII, HDI, metal, d,
      &                        is, ie, js, je, ks, ke,
-     &                        in, jn, kn, ispecies, imetal, fh, dtoh)
+     &                        in, jn, kn, imax, ispecies, imetal, fh, 
+     &                        dtoh)
 ! -------------------------------------------------------------------
 
       implicit NONE
 
 !     Arguments
 
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal, 
+     &     imax
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &         d(in,jn,kn), metal(in,jn,kn)
@@ -1132,17 +1139,12 @@ c
       real    DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)  
       real    fh, dtoh
 
-!     Parameters
-
-      integer ijk
-      parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
-
 !     locals
 
       integer i, j, k
-      real totalH(ijk), totalHe(ijk), 
+      real totalH(imax), totalHe(imax), 
      &     totalD, correctH, correctHe, correctD
-      real metalfree(ijk)
+      real metalfree(imax)
 
 !     Loop over all zones
 

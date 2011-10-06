@@ -420,37 +420,37 @@
 !           Compute the cooling rate, tgas, tdust, and metallicity for this row
 
             call cool1d_multi( &
-                 d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII, &
-                 in, jn, kn, nratec, idual, imethod,               &
-                 iexpand, ispecies, imetal, imcool, idust, idim,   &
-                 is, ie, j, k, ih2co, ipiht, iter, igammah,        &
-                 aye, temstart, temend, z_solar,                   &
-                 utem, uxyz, uaye, urho, utim,                     &
-                 eta1, eta2, gamma,                                &
-                 ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,            &
-                 ciHeISa, ciHeIIa, reHIIa, reHeII1a,               &
-                 reHeII2a, reHeIIIa, brema, compa, gammaha,        &
-                 comp_xraya, comp_temp,                            &
-                 piHI, piHeI, piHeII, comp1, comp2,                &
-                 HM, H2I, H2II, DI, DII, HDI, metal,               &
-                 hyd01ka, h2k01a, vibha, rotha, rotla,             &
-                 hyd01k, h2k01, vibh, roth, rotl,                  &
-                 gpldla, gphdla, gpldl, gphdl,                     &
-                 hdltea, hdlowa, hdlte, hdlow,                     &
-                 gaHIa, gaH2a, gaHea, gaHpa, gaela,                &
-                 metala, n_xe, xe_start, xe_end,                   &
-                 ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII, &
-                 reHII, reHeII1, reHeII2, reHeIII, brem,           &
-                 indixe, t1, t2, logtem, tdef, edot,               &
-                 tgas, tgasold, p2d, tdust, metallicity, rhoH,     &
-                 inutot, iradtype, nfreq, imetalregen,             &
-                 iradshield, avgsighp, avgsighep, avgsighe2p,      &
-                 iradtrans, photogamma,                            &
-                 ih2optical, iciecool, ciecoa, cieco,              &
-                 icmbTfloor, iClHeat,                              &
-                 clEleFra, clGridRank, clGridDim,                  &
-                 clPar1, clPar2, clPar3, clPar4, clPar5,           &
-                 clDataSize, clCooling, clHeating,                 &
+                 d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,&
+                 in, jn, kn, nratec, idual, imethod,              &
+                 iexpand, ispecies, imetal, imcool, idust, idim,  &
+                 is, ie, j, k, ih2co, ipiht, iter, igammah,       &
+                 aye, temstart, temend, z_solar,                  &
+                 utem, uxyz, uaye, urho, utim,                    &
+                 eta1, eta2, gamma,                               &
+                 ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,           &
+                 ciHeISa, ciHeIIa, reHIIa, reHeII1a,              &
+                 reHeII2a, reHeIIIa, brema, compa, gammaha,       &
+                 comp_xraya, comp_temp,                           &
+                 piHI, piHeI, piHeII, comp1, comp2,               &
+                 HM, H2I, H2II, DI, DII, HDI, metal,              &
+                 hyd01ka, h2k01a, vibha, rotha, rotla,            &
+                 hyd01k, h2k01, vibh, roth, rotl,                 &
+                 gpldla, gphdla, gpldl, gphdl,                    &
+                 hdltea, hdlowa, hdlte, hdlow,                    &
+                 gaHIa, gaH2a, gaHea, gaHpa, gaela,               &
+                 gasgra, metala, n_xe, xe_start, xe_end,          &
+                 ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,&
+                 reHII, reHeII1, reHeII2, reHeIII, brem,          &
+                 indixe, t1, t2, logtem, tdef, edot,              &
+                 tgas, tgasold, p2d, tdust, metallicity, rhoH,    &
+                 inutot, iradtype, nfreq, imetalregen,            &
+                 iradshield, avgsighp, avgsighep, avgsighe2p,     &
+                 iradtrans, photogamma,                           &
+                 ih2optical, iciecool, ciecoa, cieco,             &
+                 icmbTfloor, iClHeat,                             &
+                 clEleFra, clGridRank, clGridDim,                 &
+                 clPar1, clPar2, clPar3, clPar4, clPar5,          &
+                 clDataSize, clCooling, clHeating,                &
                  itmask)
 
 !        Look-up rates as a function of temperature for 1D set of zones
@@ -478,18 +478,18 @@
 
 !           Compute dedot and HIdot, the rates of change of de and HI
 !             (should add itmask to this call)
-
-            call rate_timestep(dedot, HIdot, ispecies, idust,         &
+            
+            call rate_timestep(dedot, HIdot, ispecies, idust,  &
                  de, HI, HII, HeI, HeII, HeIII, d,             &
                  HM, H2I, H2II,                                &
                  in, jn, kn, is, ie, j, k,                     &
                  k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, &
                  k12, k13, k14, k15, k16, k17, k18, k19, k22,  &
                  k24, k25, k26, k27, k28, k29, k30, k31,       &
-                 k50, k51, k52, k53, k54, k55, k56,                 &
-                 h2dust, ncrn, ncrd1, ncrd2, rhoH, &
-                 k56, k24shield, k25shield, k26shield,         &
-                 iradtrans, irt_honly, kphHI, kphHeI, kphHeII, & 
+                 k50, k51, k52, k53, k54, k55, k56,            &
+                 h2dust, ncrn, ncrd1, ncrd2, rhoH,             &
+                 k24shield, k25shield, k26shield,              &
+                 iradtrans, irt_honly, kphHI, kphHeI, kphHeII, &
                  kdissH2I, itmask, edot, chunit, dom)
 
 !           Find timestep that keeps relative chemical changes below 10%
@@ -708,20 +708,20 @@
 
 !           Solve rate equations with one linearly implicit Gauss-Seidel 
 !           sweep of a backward Euler method ---
-
+            
             call step_rate(de, HI, HII, HeI, HeII, HeIII, d,   &
                  HM, H2I, H2II, DI, DII, HDI, dtit,            &
-                 in, jn, kn, is, ie, j, k, ispecies, idust,          &
+                 in, jn, kn, is, ie, j, k, ispecies, idust,    &
                  k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, &
                  k12, k13, k14, k15, k16, k17, k18, k19, k22,  &
                  k24, k25, k26, k27, k28, k29, k30, k31,       &
-                 k50, k51, k52, k53, k54, k55, k56,                 &
-                 h2dust, rhoH, &
-                 k24shield, k25shield, k26shield,         &
+                 k50, k51, k52, k53, k54, k55, k56,            &
+                 h2dust, rhoH,                                 &
+                 k24shield, k25shield, k26shield,              &
                  HIp, HIIp, HeIp, HeIIp, HeIIIp, dep,          &
                  HMp, H2Ip, H2IIp, DIp, DIIp, HDIp,            &
                  dedot_prev, HIdot_prev,                       &
-                 iradtrans, irt_honly, kphHI, kphHeI, kphHeII, & 
+                 iradtrans, irt_honly, kphHI, kphHeI, kphHeII, &
                  kdissH2I, itmask)
 
 !           Add the timestep to the elapsed time for each cell and find
