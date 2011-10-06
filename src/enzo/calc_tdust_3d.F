@@ -63,11 +63,7 @@
  
       integer indixe(in)
       real t1(in), t2(in), logtem(in), tdef(in), 
-     &     tgas(in), tdust(in), nh(in)
-
-!  Cooling/heating slice locals
-
-      double precision gasgr(in)
+     &     tgas(in), tdust(in), nh(in), gasgr(in)
           
 !  Iteration mask for multi_cool
 
