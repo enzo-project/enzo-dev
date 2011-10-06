@@ -1071,6 +1071,11 @@ c -------------------------------------------------------------------
 !     Look-up for H2 formation on dust
 
       if (idust .gt. 0) then
+
+         d_logtem0 = log(dtemstart)
+         d_logtem9 = log(dtemend)
+         d_dlogtem = (log(dtemend) - log(dtemstart))/real(ndratec-1)
+
          do i = is+1, ie+1
             if (itmask(i)) then
 
