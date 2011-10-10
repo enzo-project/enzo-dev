@@ -46,8 +46,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
     k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
-  const float PISNLowerMass = 140, PISNUpperMass = 260;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.01;
+  const float PISNLowerMass = 140, PISNUpperMass = 260.01;
 
   // From Nomoto et al. (2006)
   const float HypernovaMass[] = {19.99, 25, 30, 35, 40.01};  // Msun
