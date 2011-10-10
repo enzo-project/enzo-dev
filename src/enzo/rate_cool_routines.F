@@ -512,7 +512,8 @@ c -------------------------------------------------------------------
 
       integer ispecies, idust, is, ie, j, k, in, jn, kn, 
      &     iradtrans, irt_honly
-      real dedot(in), HIdot(in), edot(in), dom
+      real dedot(in), HIdot(in), dom
+      double precision edot(in)
       logical itmask(in)
 
 !     Density fields
@@ -606,7 +607,7 @@ c -------------------------------------------------------------------
 
             if (idust .gt. 0) then
                HIdot(i) = HIdot(i) 
-     &              - 2.d0 * h2dust(i) * HI(i,j,k) * rhoH(i)
+     &              - 2.d0 * h2dust(i) * rhoH(i)
             endif
 
 !     Compute the electron density rate-of-change
@@ -640,13 +641,13 @@ c -------------------------------------------------------------------
 
             H2delta(i) = 
      &          HI(i,j,k) *
-     &           (  4.48 * h2heatfac(i) * k22(i) * HI(i,j,k)**2.d0
-     &            - 4.48 * k13(i) * H2I(i,j,k)/2.d0)
+     &           (  4.48d0 * h2heatfac(i) * k22(i) * HI(i,j,k)**2.d0
+     &            - 4.48d0 * k13(i) * H2I(i,j,k)/2.d0)
 
             if (idust .gt. 0) then
                H2delta(i) = H2delta(i) + 
      &              h2dust(i) * HI(i,j,k) * rhoH(i) * 
-     &              (0.2 + 4.2 * h2heatfac(i))
+     &              (0.2d0 + 4.2d0 * h2heatfac(i))
             endif
 
 !            H2dmag = abs(H2delta)/(
@@ -968,7 +969,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
             scoef = 2.d0*(k8(i)  * HM(i,j,k)   * HI(i,j,k)
      &            +       k10(i) * H2II(i,j,k) * HI(i,j,k)/2.d0
      &            +       k19(i) * H2II(i,j,k) * HM(i,j,k)/2.d0
-     &            +       k22(i) * HI(i,j,k)**3)
+     &            +       k22(i) * HI(i,j,k) * (HI(i,j,k)**2))
             acoef = ( k13(i)*HI(i,j,k) + k11(i)*HII(i,j,k)
      &              + k12(i)*de(i,j,k) )
 #ifdef RADIATION

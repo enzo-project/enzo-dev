@@ -67,7 +67,7 @@
 
 !  Cooling/heating slice locals
 
-      double precision gasgr(in)
+      real gasgr(in)
           
 !  Iteration mask for multi_cool
 

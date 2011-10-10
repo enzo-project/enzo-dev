@@ -119,9 +119,10 @@
       integer i, j1, iter, iradfield
       real dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
       real dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
-     &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
+     &     hdlte1, hdlow1, gamma2, x, fudge, fH2,
      &     gphdl1, factor, dom_inv, tau, ciefudge
-      double precision coolunit, dbase1, tbase1, xbase1, rtunits
+      double precision coolunit, dbase1, tbase1, xbase1, rtunits, 
+     &     nH2, nother
 
 !  Slice locals
  
@@ -193,7 +194,7 @@
          comp1 = compa  * (1.d0 + zr)**4
          comp2 = 2.73d0 * (1.d0 + zr)
       else
-         comp1 = 1e-35  ! tiny was too large in comparison with compa
+         comp1 = 1d-35  ! tiny was too large in comparison with compa
          comp2 = tiny
       endif
 
@@ -280,7 +281,7 @@
             nH2 = 0.5d0*(H2I(i,j,k) + H2II(i,j,k))
             nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4.d0 +
      &           HI(i,j,k) + HII(i,j,k) + de(i,j,k)
-            if (nH2/nother .gt. 1.0e-3) then
+            if (nH2/nother .gt. 1.0d-3) then
                x = 6100.d0/tgas(i) ! not quite self-consistent
                if (x .gt. 10.d0) then
                   gamma2 = 0.5d0*5.d0
