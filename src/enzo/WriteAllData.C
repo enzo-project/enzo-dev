@@ -9,8 +9,9 @@
 /              October, 2004
 /              Direct or indirect SRB driver
 /              Local or Global file system, or cwd
-/ modified2:   Robert HArkness
-/ date:        April 2008
+/  modified2:  Robert HArkness
+/  date:       April 2008
+/  modified3:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -49,10 +50,12 @@ void my_exit(int status);
 // function prototypes
  
 int SysMkdir(char *startdir, char *directory);
- 
+
+void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int WriteDataCubes(HierarchyEntry *TopGrid, int TDdims[], char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *TopGrid,
 		       char *gridbasename, int &GridID, FLOAT WriteTime);
+int WriteHDF5HierarchyFile(char *base_name, HierarchyEntry *TopGrid, TopGridData MetaData, LevelHierarchyEntry *LevelArray[]);
 int WriteMemoryMap(FILE *fptr, HierarchyEntry *TopGrid,
 		   char *gridbasename, int &GridID, FLOAT WriteTime);
 int WriteConfigure(FILE *optr);
@@ -137,6 +140,20 @@ int WriteAllData(char *basename, int filenumber,
   /* If we're writing interpolated dark matter fields, create them now. */
 
   CreateSmoothedDarkMatterFields(MetaData, TopGrid);
+
+  /* Combine the top level grids into a single grid for output
+     (TempTopGrid is the top of an entirely new hierarchy). */
+ 
+  HierarchyEntry *TempTopGrid;
+  CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime);
+
+  LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+  if (HierarchyFileOutputFormat % 2 == 0) {
+    /* Create LevelArray */
+    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      LevelArray[level] = NULL;
+    AddLevel(LevelArray, TempTopGrid, 0);
+  }
 
   // Global or local filesystem?
  
@@ -486,18 +503,18 @@ int WriteAllData(char *basename, int filenumber,
   strcpy(configurename, name);
   strcat(configurename, ConfigureSuffix);
  
-  /* Combine the top level grids into a single grid for output
-     (TempTopGrid is the top of an entirely new hierarchy). */
- 
-  HierarchyEntry *TempTopGrid;
-  CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime);
  
   // Output Data Hierarchy
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
-    if ((fptr = fopen(hierarchyname, "w")) == NULL) {
-      ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname)
-    }
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
+    if (HierarchyFileOutputFormat % 2 == 0)
+      WriteHDF5HierarchyFile(name, TempTopGrid, MetaData, LevelArray);
+
+    if (HierarchyFileOutputFormat > 0)
+      if ((fptr = fopen(hierarchyname, "w")) == NULL)
+	ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);
+  }
  
   if (WriteDataHierarchy(fptr, MetaData, TempTopGrid, gridbasename, GridID, WriteTime) == FAIL) {
     ENZO_FAIL("Error in WriteDataHierarchy\n");
@@ -508,7 +525,29 @@ int WriteAllData(char *basename, int filenumber,
   if (WriteStarParticleData(fptr, MetaData) == FAIL) {
     ENZO_FAIL("Error in WriteStarParticleData\n");
   }
- 
+
+  // Output MBH particle data
+  
+  if (MBHParticleIO == TRUE && MyProcessorNumber == ROOT_PROCESSOR) {
+    FILE *MBHfptr;
+    
+    if ((MBHfptr = fopen(MBHParticleIOFilename, "a")) == NULL) {
+      ENZO_VFAIL("Error opening file %s\n", MBHParticleIOFilename)
+	}
+    
+    // printing order: time, regular star count, MBH id, MBH mass, MBH angular momentum
+    for (int i = 0; i < G_TotalNumberOfStars; i++) { 
+      fprintf(MBHfptr, " %"FSYM"  %"ISYM"  %"ISYM"  %lf  %"FSYM"  %"FSYM"  %"FSYM"  %lf\n", 
+	      MetaData.Time, NumberOfStarParticles, (int)(MBHParticleIOTemp[i][0]), 
+	      MBHParticleIOTemp[i][1], (float)(MBHParticleIOTemp[i][2]), 
+	      (float)(MBHParticleIOTemp[i][3]), (float)(MBHParticleIOTemp[i][4]),
+	      MBHParticleIOTemp[i][5]);
+    }
+    
+    fclose(MBHfptr);
+    
+  }
+   
   // Output memory map
 
   if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -590,7 +629,8 @@ int WriteAllData(char *basename, int filenumber,
   }
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    fclose(fptr);
+    if (HierarchyFileOutputFormat > 0)
+      fclose(fptr);
     fclose(mptr);
   }
 

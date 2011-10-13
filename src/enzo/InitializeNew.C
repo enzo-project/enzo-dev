@@ -41,8 +41,6 @@
 // Function prototypes
  
 int InitializeMovieFile(TopGridData &MetaData, HierarchyEntry &TopGrid);
-int WriteHierarchyStuff(FILE *fptr, HierarchyEntry *Grid,
-                        char* base_name, int &GridID, FLOAT WriteTime);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
 int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *Filename=NULL);
 void ConvertTotalEnergyToGasEnergy(HierarchyEntry *Grid);
@@ -856,8 +854,6 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
  
   while (CurrentGrid != NULL) {
-    
-    // WriteHierarchyStuff(stderr, CurrentGrid, "UUUU", GP, WT);
     
     if (debug)
       printf("InitializeNew: Partition Initial Grid %"ISYM"\n", gridcounter);
