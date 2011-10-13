@@ -90,6 +90,12 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
     {
     }
 
+    virtual int InitializeFromRestart(
+            HierarchyEntry &TopGrid, TopGridData &MetaData)
+    {
+        return SUCCESS;
+    }
+
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {
@@ -99,8 +105,8 @@ class ProblemType_CollapsingCoolingCloud : public EnzoProblemType
       }
 
       char *DensName = "Density";
-      char *TEName   = "Total_Energy";
-      char *GEName   = "Gas_Energy";
+      char *TEName   = "TotalEnergy";
+      char *GEName   = "GasEnergy";
       char *Vel1Name = "x-velocity";
       char *Vel2Name = "y-velocity";
       char *Vel3Name = "z-velocity";

@@ -54,7 +54,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 			    int NumberOfGrids, int MoveParticles = TRUE);
 int CommunicationTransferSubgridParticles(LevelHierarchyEntry *LevelArray[],
 					  TopGridData *MetaData, int level);
-int DetermineSubgridSizeExtrema(int NumberOfCells, int level, int MaximumStaticSubgridLevel);
+int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel);
 int CommunicationTransferParticles(grid *GridPointer[], int NumberOfGrids,
 				   int TopGridDims[]);
 int CommunicationTransferStars(grid *GridPointer[], int NumberOfGrids,
@@ -90,6 +90,10 @@ static double RHperf[16];
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level)
 {
+
+  if (LevelCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
+    return SUCCESS;
+  }
 
   double tt0, tt1, tt2, tt3;
  
@@ -158,7 +162,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
   /* Calculate number of cells on each level */
 
-  int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
+  long_int NumberOfCells[MAX_DEPTH_OF_HIERARCHY];
   if (SubgridSizeAutoAdjust == TRUE) {
     for (i = level; i < MAX_DEPTH_OF_HIERARCHY; i++) {
       NumberOfCells[i] = 0;
@@ -169,6 +173,7 @@ int RebuildHierarchy(TopGridData *MetaData,
     CommunicationAllSumValues(NumberOfCells, MAX_DEPTH_OF_HIERARCHY);
   }
 
+  tt0 = ReturnWallTime();
   for (i = MAX_DEPTH_OF_HIERARCHY-1; i > level; i--) {
 
     Temp = LevelArray[i];
@@ -188,7 +193,6 @@ int RebuildHierarchy(TopGridData *MetaData,
     /* Collect all the grids with the same parent and pass them all to
        MoveAllParticles (marking which ones have already been passed). */
 
-    tt0 = ReturnWallTime();
     for (j = 0; j < grids; j++)
       if (GridPointer[j] != NULL) {
 	grids2 = 0;
@@ -328,8 +332,8 @@ int RebuildHierarchy(TopGridData *MetaData,
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */
 
-      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
-	    //for (i = level; i < MaximumLevelNow; i++) {
+      //      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
+      for (i = level; i < MaximumLevelNow; i++) {
  
 
       /* If there are no grids on this level, exit. */

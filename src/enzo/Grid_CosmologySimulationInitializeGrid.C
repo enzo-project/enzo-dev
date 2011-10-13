@@ -105,6 +105,7 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialFractionH2I,
 			  float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
+			  float CosmologySimulationInitialFractionMetalIa,
 #ifdef TRANSFER
 			  float RadHydroRadiation,
 #endif
@@ -119,14 +120,14 @@ int grid::CosmologySimulationInitializeGrid(
  
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-      DINum, DIINum, HDINum, MetalNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
 #ifdef TRANSFER
   int EgNum;
 #endif
 #ifdef EMISSIVITY
   int EtaNum;
 #endif
-  int CRNum, MachNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
  
   int ExtraField[2];
   int ForbidNum, iTE;
@@ -267,6 +268,8 @@ int grid::CosmologySimulationInitializeGrid(
     }
     if (UseMetallicityField) {
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+      if (StarMakerTypeIaSNe)
+	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
@@ -282,13 +285,12 @@ int grid::CosmologySimulationInitializeGrid(
     if (StarMakerEmissivityField > 0)
       FieldType[EtaNum = NumberOfBaryonFields++] = Emissivity0;
 #endif
-    if(CRModel){
+    if(ShockMethod){
       FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
       if(StorePreShockFields){
 	FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
-      FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
  
@@ -466,9 +468,8 @@ int grid::CosmologySimulationInitializeGrid(
       }
  
       //Shock/Cosmic Ray Model
-      if (CRModel && ReadData) {
+      if (ShockMethod && ReadData) {
 	BaryonField[MachNum][i] = tiny_number;
-	BaryonField[CRNum][i] = tiny_number;
 	if (StorePreShockFields) {
 	  BaryonField[PSTempNum][i] = tiny_number;
 	  BaryonField[PSDenNum][i] = tiny_number;
@@ -479,21 +480,31 @@ int grid::CosmologySimulationInitializeGrid(
   
   // If using metallicity, set the field
  
-  if (UseMetallicityField && ReadData)
-    for (i = 0; i < size; i++) {
+  if (UseMetallicityField && ReadData) {
+    for (i = 0; i < size; i++)
       BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
-	* BaryonField[0][i];  
-      if(MultiMetals){
+	* BaryonField[0][i];
+
+    if (StarMakerTypeIaSNe)
+      for (i = 0; i < size; i++)
+	BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
+	  * BaryonField[0][i];
+
+    if (MultiMetals) {
+      for (i = 0; i < size; i++) {
 	BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
 	  * BaryonField[0][i];
 	BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
 	  * BaryonField[0][i];
       }
     }
-    if(STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData){
+
+    if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
       for (i = 0; i < size; i++)
         BaryonField[ForbidNum][i] = 0.0;
     }
+  } // ENDIF UseMetallicityField
+  
 
 #ifdef EMISSIVITY
     // If using an emissivity field, initialize to zero

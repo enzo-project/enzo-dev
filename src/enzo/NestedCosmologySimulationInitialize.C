@@ -79,6 +79,7 @@ static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 static float CosmologySimulationInitialFractionMetal = 1.0e-10;
+static float CosmologySimulationInitialFractionMetalIa = 1.0e-12;
 static int   CosmologySimulationUseMetallicityField  = FALSE;
  
 static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
@@ -120,9 +121,9 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *HDIName   = "HDI_Density";
   char *GPotName  = "Grav_Potential";
   char *MetalName = "Metal_Density";
+  char *MetalIaName = "MetalSNIa_Density";
   char *ForbidName = "ForbiddenRefinement";
   char *MachName   = "Mach";
-  char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *BxName = "Bx";
@@ -276,6 +277,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &CosmologySimulationInitialFractionH2II);
     ret += sscanf(line, "CosmologySimulationInitialFractionMetal = %"FSYM,
 		  &CosmologySimulationInitialFractionMetal);
+    ret += sscanf(line, "CosmologySimulationInitialFractionMetalIa = %"FSYM,
+		  &CosmologySimulationInitialFractionMetalIa);
     ret += sscanf(line, "CosmologySimulationUseMetallicityField = %"ISYM,
 		  &CosmologySimulationUseMetallicityField);
  
@@ -336,6 +339,13 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ENZO_FAIL("CosmologySimulation: 1-component files only valid for use with "
 	    "CosmologySimulationCalculatePositions.\n");
   }
+
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
@@ -611,6 +621,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationInitialFractionMetal,
+			     CosmologySimulationInitialFractionMetalIa,
 			     CosmologySimulationUseMetallicityField,
 			     MetaData.NumberOfParticles,
 			     CosmologySimulationManuallySetParticleMassRatio,
@@ -698,6 +709,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
+    if (StarMakerTypeIaSNe)
+      DataLabel[i++] = MetalIaName;
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
@@ -711,13 +724,12 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;
  
-  if (CRModel) {
+  if (ShockMethod) {
     DataLabel[i++] = MachName;
     if(StorePreShockFields){
       DataLabel[i++] = PSTempName;
       DataLabel[i++] = PSDenName;
     }
-    DataLabel[i++] = CRName;
   } 
  
 
@@ -814,6 +826,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionH2II);
     fprintf(Outfptr, "CosmologySimulationInitialFractionMetal = %"GSYM"\n",
 	    CosmologySimulationInitialFractionMetal);
+    fprintf(Outfptr, "CosmologySimulationInitialFractionMetalIa = %"GSYM"\n",
+	    CosmologySimulationInitialFractionMetalIa);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
 
@@ -973,6 +987,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 	   CosmologySimulationInitialFractionH2I,
 	   CosmologySimulationInitialFractionH2II,
 	   CosmologySimulationInitialFractionMetal,
+	   CosmologySimulationInitialFractionMetalIa,
 	   CosmologySimulationUseMetallicityField,
 	   ParticleTempCount,
 	   CosmologySimulationManuallySetParticleMassRatio,
@@ -1127,8 +1142,8 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
 	match = true;
 	for (dim = 0; dim < Rank; dim++)
-	  match &= (GridCenter[dim] > LeftParent[dim]) &&
-	    (GridCenter[dim] < RightParent[dim]);
+	  match &= (GridCenter[dim] >= LeftParent[dim]) &&
+	    (GridCenter[dim] <= RightParent[dim]);
 
 	if (match) {
 	  Current->ParentGrid = Parent;

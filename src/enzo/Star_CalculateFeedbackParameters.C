@@ -109,6 +109,16 @@ void Star::CalculateFeedbackParameters(float &Radius,
     // into some of the surrounding parent grids within the next
     // timestep if we inject the energy into a small radius.
     Radius *= 1.0;
+    
+#define DEBUG
+#ifdef DEBUG
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      if (Radius > 10*PopIIISupernovaRadius * pc / LengthUnits) {
+	printf("WARNING: Inserting PISN into a large radius!  %g pc\n",
+	       Radius * LengthUnits / pc);
+      }
+#endif    
+
     break;
 
   case STROEMGREN:

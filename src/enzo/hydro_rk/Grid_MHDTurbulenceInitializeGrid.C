@@ -160,7 +160,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
           BaryonField[ivx  ][n] = 0.0;
           BaryonField[ivy  ][n] = 0.0;
           BaryonField[ivz  ][n] = 0.0;
-          BaryonField[ietot][n] = eint + 0.5*Bnaught*Bnaught/rho_medium;
+	  BaryonField[ietot][n] = eint + 0.5*Bnaught*Bnaught/rho_medium;
           if (DualEnergyFormalism) {
             BaryonField[ieint][n] = eint;
           }
@@ -172,7 +172,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
           BaryonField[ivx  ][n] = 0.0;
           BaryonField[ivy  ][n] = 0.0;
           BaryonField[ivz  ][n] = 0.0;
-          BaryonField[ietot][n] = eint_out + 0.5*Bnaught*Bnaught/rho_out;
+	  BaryonField[ietot][n] = eint_out + 0.5*Bnaught*Bnaught/rho_out;
           if (DualEnergyFormalism) {
             BaryonField[ieint][n] = eint_out;
           }
@@ -183,7 +183,7 @@ int grid::MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float m
 	  BaryonField[iBy ][n] = 0.0;
 	  BaryonField[iBz ][n] = Bnaught;
 	  BaryonField[iPhi][n] = 0.0;
-	  BaryonField[ietot][n] += 0.5 * Bnaught*Bnaught / BaryonField[iden ][n] ;
+	  //	  BaryonField[ietot][n] += 0.5 * Bnaught*Bnaught / BaryonField[iden ][n] ;
 	}
 	if (UseDrivingField && (HydroMethod == HD_RK || HydroMethod == MHD_RK)) {
 	  BaryonField[idrivex][n] = 0.0;

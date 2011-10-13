@@ -50,20 +50,24 @@ int RadiativeTransferMoveLocalPhotons(ListOfPhotonsToMove **AllPhotons,
       Mover->ToGrid->SetNumberOfPhotonPackages(ToGridNumber+1);
       Mover->FromGrid->SetNumberOfPhotonPackages(FromGridNumber-1);
 
-      ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
+      if (Mover->PausedPhoton)
+	ToGridPackages = Mover->ToGrid->ReturnPausedPackagePointer();
+      else
+	ToGridPackages = Mover->ToGrid->ReturnPhotonPackagePointer();
       Mover->PhotonPackage->NextPackage = ToGridPackages->NextPackage;
       if (ToGridPackages->NextPackage != NULL) 
 	ToGridPackages->NextPackage->PreviousPackage = Mover->PhotonPackage;
       ToGridPackages->NextPackage = Mover->PhotonPackage;
       Mover->PhotonPackage->PreviousPackage = ToGridPackages;
 
+      if (Mover->PausedPhoton == FALSE)
+	keep_transporting = TRUE;
+
       // Remove the photon from the move list and free memory
       Last->NextPackageToMove = Mover->NextPackageToMove;
       Destroyer = Mover;
       Mover = Mover->NextPackageToMove;
       delete Destroyer;
-
-      keep_transporting = TRUE;
 
     } // ENDIF same processor
     else {

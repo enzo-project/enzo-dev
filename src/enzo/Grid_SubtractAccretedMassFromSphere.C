@@ -83,13 +83,13 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 
   /* Find Metallicity or SNColour field and set flag. */
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
-				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
 
   MetalNum = max(MetalNum, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;

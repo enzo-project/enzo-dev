@@ -169,12 +169,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Add "real" colour fields (metallicity, etc.) as colour variables. */
 
-    int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+    int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+      MetalIaNum; 
 
-    if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
-				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-    }
 
     if (MetalNum != -1) {
       colnum[NumberOfColours++] = MetalNum;
@@ -184,6 +184,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       }
     }
 
+    if (MetalIaNum       != -1) colnum[NumberOfColours++] = MetalIaNum;
     if (SNColourNum      != -1) colnum[NumberOfColours++] = SNColourNum;
     if (MBHColourNum     != -1) colnum[NumberOfColours++] = MBHColourNum;
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
@@ -257,11 +258,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Add shock/cosmic ray variables as a colour variable. */
 
-    if(CRModel){
-      int MachNum, CRNum, PSTempNum,PSDenNum;
+    if(ShockMethod){
+      int MachNum, PSTempNum,PSDenNum;
       
-      if (IdentifyCRSpeciesFields(MachNum,CRNum,PSTempNum,PSDenNum) == FAIL) {
-	ENZO_FAIL("Error in IdentifyCRSpeciesFields.")
+      if (IdentifyShockSpeciesFields(MachNum,PSTempNum,PSDenNum) == FAIL) {
+	ENZO_FAIL("Error in IdentifyShockSpeciesFields.")
       }
       
       colnum[NumberOfColours++] = MachNum;
@@ -269,28 +270,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	colnum[NumberOfColours++] = PSTempNum;
 	colnum[NumberOfColours++] = PSDenNum;
       }
-      colnum[NumberOfColours++] = CRNum;
-      
-      /*  Zero out Mach number array so that we don't get strange advection */
-      
-      float *mach = BaryonField[MachNum];
-      if(StorePreShockFields){
-	float *pstemp = BaryonField[PSTempNum];
-	float *psden = BaryonField[PSDenNum];
-	for (i = 0; i < size; i++){
-	  pstemp[i] = tiny_number;
-	  psden[i] = tiny_number;
-	}
-      }
-      for (i = 0; i < size; i++)
-	mach[i] = tiny_number;
-      if(CRModel == 2){  //zero out CR to get instantanous injection
-	float *cr = BaryonField[CRNum];
-	for (i = 0; i < size; i++)
-	  cr[i] = tiny_number;
-      }
     }
-    
     /* Determine if Gamma should be a scalar or a field. */
     
     int UseGammaField = FALSE;
@@ -304,8 +284,9 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     } else {
       GammaField = new float;
       GammaField[0] = Gamma;
-    }
 
+    }
+    
     /* Set lowest level flag (used on Zeus hydro). */
 
     int LowestLevel = (level > MaximumRefinementLevel-1) ? TRUE : FALSE;

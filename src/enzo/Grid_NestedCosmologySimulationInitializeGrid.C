@@ -103,6 +103,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
                           float CosmologySimulationInitialFractionH2I,
                           float CosmologySimulationInitialFractionH2II,
 			  float CosmologySimulationInitialFractionMetal,
+			  float CosmologySimulationInitialFractionMetalIa,
                           int   UseMetallicityField,
                           PINT &CurrentParticleNumber,
                           int CosmologySimulationManuallySetParticleMassRatio,
@@ -118,12 +119,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
   int idim, ndim, dim, i, j, vel, OneComponentPerFile, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
-    DINum, DIINum, HDINum, MetalNum;
+    DINum, DIINum, HDINum, MetalNum, MetalIaNum;
  
   int iTE = ietot;
   int ExtraField[2];
   int ForbidNum;
-  int CRNum, MachNum, PSTempNum, PSDenNum;
+  int MachNum, PSTempNum, PSDenNum;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -380,6 +381,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
     }
     if (UseMetallicityField) {
       FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
+      if (StarMakerTypeIaSNe)
+	FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
       if(MultiMetals){
 	FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
 	FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
@@ -391,13 +394,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
       fprintf(stderr, "Initializing Forbidden Refinement color field\n");
       FieldType[ForbidNum = NumberOfBaryonFields++] = ForbiddenRefinement;
     }
-    if(CRModel){
+    if(ShockMethod){
       FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
       if(StorePreShockFields){
 	FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
 	FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
       }
-      FieldType[CRNum     = NumberOfBaryonFields++] = CRDensity;
     }    
   }
 
@@ -570,11 +572,18 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
       // If using metallicity, set the field
       
-      if (UseMetallicityField && ReadData)
-	for (i = 0; i < size; i++) {
+      if (UseMetallicityField && ReadData) {
+	for (i = 0; i < size; i++)
 	  BaryonField[MetalNum][i] = CosmologySimulationInitialFractionMetal
 	    * BaryonField[0][i];
-	  if(MultiMetals){
+
+	if (StarMakerTypeIaSNe)
+	  for (i = 0; i < size; i++)
+	    BaryonField[MetalIaNum][i] = CosmologySimulationInitialFractionMetalIa
+	      * BaryonField[0][i];
+	
+	if (MultiMetals) {
+	  for (i = 0; i < size; i++) {
 	    BaryonField[ExtraField[0]][i] = CosmologySimulationInitialFractionMetal
 	      * BaryonField[0][i];
 	    BaryonField[ExtraField[1]][i] = CosmologySimulationInitialFractionMetal
@@ -582,10 +591,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  }
 	}
 
-      if(STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData){
-	for (i = 0; i < size; i++)
-	  BaryonField[ForbidNum][i] = 0.0;
-      }
+	if (STARMAKE_METHOD(COLORED_POP3_STAR) && ReadData) {
+	  for (i = 0; i < size; i++)
+	    BaryonField[ForbidNum][i] = 0.0;
+	}
+      } // ENDIF UseMetallicityField
  
       // If they were not read in above, set the total & gas energy fields now
  
@@ -638,21 +648,18 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	      }
 	    }
 	}
+      } // end: if (CosmologySimulationDensityName != NULL)
 
-	  
-
-
-	//Shock/Cosmic Ray Model
-	if (CRModel && ReadData) {
+      // Shock/Cosmic Ray Model
+      if (ShockMethod && ReadData) {
+	for (i = 0; i < size; i++) {
 	  BaryonField[MachNum][i] = tiny_number;
-	  BaryonField[CRNum][i] = tiny_number;
 	  if (StorePreShockFields) {
 	    BaryonField[PSTempNum][i] = tiny_number;
 	    BaryonField[PSDenNum][i] = tiny_number;
-	  }
-	} // end: if (CRModel && ReadData)
- 
-      } // end: if (CosmologySimulationDensityName != NULL)
+	    }
+	}
+      } // end: if (ShockMethod && ReadData)
 
     } // end: if (NumberOfBaryonFields > 0)
 

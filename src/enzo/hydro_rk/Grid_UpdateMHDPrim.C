@@ -54,17 +54,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   float *D, *sum;
   float SmallX = 1e-20;
 
-  /*
-  if ( (NSpecies+NColor) > 0) {
-    D = new float[size];
-    sum = new float[size];
-    for (i = 0; i < size; i++) {
-      D[i] = 0.0;
-      sum[i] = 0.0;
-    }
-  }
-  */
-
   // ORIGINAL
   if ( (NSpecies+NColor) > 0) {
     D = new float[activesize];
@@ -83,9 +72,11 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   //##### Want to mix species and colors for renormalization?  Normally you don't
   int MixSpeciesAndColors = 0;
   int NSpecies_renorm;
-
   if (MixSpeciesAndColors) 
     NSpecies_renorm = NSpecies+NColor;
+  else if (NoMultiSpeciesButColors) {
+    NSpecies_renorm = NSpecies;
+  }
   else
     switch (MultiSpecies) { //update pure species! not colours!
     case 0:  NSpecies_renorm = 0;  break;
@@ -96,59 +87,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
     }
   
   // update species
-  /*
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) { 
-    n = 0;
-    n_dU = 0;
-    for (k = 0; k < GridDimension[2]; k++) {
-      for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, n++, igrid++) {
-	  // dU exists only for active region
-          if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
-	      j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
-	      k >= GridStartIndex[2] && k <= GridEndIndex[2]) 
-	    Prim[field][igrid] = c1*OldPrim[field][igrid] +
-	      (1-c1)*Prim[field][igrid]*Prim[iden][igrid] + c2*dU[field][n_dU++];
-          D[n] += Prim[field][igrid];
-        }
-      }
-    }
-  }
-
-  // renormalize species
-
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
-    n = 0;
-    for (k = 0; k < GridDimension[2]; k++) {
-      for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, n++, igrid++) {
-          Prim[field][igrid] = min(1.0, max((Prim[field][igrid]/D[n]), SmallX));
-	  Prim[field][igrid] = Prim[field][igrid]/D[n];
-          sum[n] += Prim[field][igrid];
-        }
-      }
-    }
-  }
-
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
-    n = 0;
-    for (k = 0; k < GridDimension[2]; k++) {
-      for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, n++, igrid++)
-          Prim[field][igrid] /= sum[n];
-      }
-    }
-  }
-
-  */
-
-  // ORIGINAL   //#####
-
-  // update species
-
   for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {  
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -157,39 +95,40 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
         for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
           Prim[field][igrid] = c1*OldPrim[field][igrid] +
             (1-c1)*Prim[field][igrid]*Prim[iden][igrid] + c2*dU[field][n];
-          D[n] += Prim[field][igrid];
+          if (NoMultiSpeciesButColors != 1)
+            D[n] += Prim[field][igrid];
         }
       }
     }
   }
 
   // renormalize species 
-
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
-    n = 0;
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
-        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
-          Prim[field][igrid] = min(1.0, max((Prim[field][igrid]/D[n]), SmallX));
-	  Prim[field][igrid] = Prim[field][igrid]/D[n];
-          sum[n] += Prim[field][igrid];
+  if (NoMultiSpeciesButColors != 1) {
+    for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
+      n = 0;
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+          igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
+            Prim[field][igrid] = min(1.0, max((Prim[field][igrid]/D[n]), SmallX));
+            Prim[field][igrid] = Prim[field][igrid]/D[n];
+            sum[n] += Prim[field][igrid];
+          }
         }
       }
     }
-  }
-
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
-    n = 0;
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
-        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++)
-          Prim[field][igrid] /= sum[n];
+    
+    for (field = NEQ_MHD; field < NEQ_MHD+NSpecies_renorm; field++) {
+      n = 0;
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+          igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++)
+            Prim[field][igrid] /= sum[n];
+        }
       }
     }
-  }
-
+  } //close if (NoMultiSpeciesButColors == 1)
   /* Update conserved variables */
 
   float rho_old, vx_old, vy_old, vz_old, e_old, etot_old, Tau_old, eint_old,
@@ -320,8 +259,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	      eint1 > 0.5*eint) {
 	    eint = eint1;
 	  }
-	  /*if (eint1 > eint) 
-	    eint = eint1;*/
 	  eint = max(eint, emin);
 	  BaryonField[GENum][igrid] = eint;
 	  BaryonField[TENum][igrid] = eint + 0.5*v2 + 0.5*B2/D_new;
@@ -337,9 +274,10 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   }
 
   // Convert species from mass fraction to density  
-  for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)  
-    for (n = 0; n < size; n++) 
-      Prim[field][n] *= Prim[iden][n];
+  if (NoMultiSpeciesButColors != 1)
+    for (field = NEQ_MHD; field < NEQ_MHD+NSpecies+NColor; field++)  
+      for (n = 0; n < size; n++) 
+        Prim[field][n] *= Prim[iden][n];
 
   this->UpdateElectronDensity();
 

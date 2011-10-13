@@ -52,6 +52,7 @@ struct TestProblemDataType
   /*  metallicity fields */
   int UseMetallicityField;
   float MetallicityField_Fraction;
+  float MetallicitySNIaField_Fraction;
   float MetallicityNormalization;
 
   float InitialMetalMass;
@@ -112,8 +113,7 @@ struct TestProblemDataType
   float MaximumTemperature;
   int ResetEnergies;
 
-  /* Shock/Cosmic Ray Fields */
-  int CRModel;
+  /* Shock Fields */
   int ShockMethod;
   int StorePreShockFields;
   float ShockTemperatureFloor;

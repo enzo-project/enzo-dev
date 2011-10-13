@@ -8,9 +8,9 @@
       subroutine cool1d_multi(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
-     &                iexpand, ispecies, imetal, imcool, idim, 
+     &                iexpand, ispecies, imetal, imcool, idust, idim, 
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend,
+     &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -24,19 +24,19 @@
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
-     &                metala, n_xe, xe_start, xe_end, 
+     &                gasgra, metala, n_xe, xe_start, xe_end, 
      &                ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII,
      &                reHII, reHeII1, reHeII2, reHeIII, brem,
      &                indixe, t1, t2, logtem, tdef, edot,
-     &                tgas, tgasold, p2d,
+     &                tgas, tgasold, p2d, tdust, metallicity, rhoH, 
      &                inutot, iradtype, nfreq, imetalregen,
      &                iradshield, avgsighp, avgsighep, avgsighe2p,
      &                iradtrans, photogamma,
      &                ih2optical, iciecool, ciecoa, cieco,
-     &                icmbTfloor, iClHeat, iClMMW,
-     &                clMetNorm, clEleFra, clGridRank, clGridDim,
+     &                icmbTfloor, iClHeat,
+     &                clEleFra, clGridRank, clGridDim,
      &                clPar1, clPar2, clPar3, clPar4, clPar5,
-     &                clDataSize, clCooling, clHeating, clMMW,
+     &                clDataSize, clCooling, clHeating,
      &                itmask)
 
 !  SOLVE RADIATIVE COOLING/HEATING EQUATIONS
@@ -65,10 +65,10 @@
 !  Arguments
 
       INTG_PREC in, jn, kn, is, ie, j, k, nratec, imethod, idim,
-     &        idual, iexpand, ih2co, ipiht, ispecies, imcool, 
+     &        idual, iexpand, ih2co, ipiht, ispecies, imcool, idust, 
      &        nfreq, iradshield, iradtype, imetalregen, iradtrans,
      &        n_xe, imetal, igammah, ih2optical, iciecool
-      R_PREC    aye, temstart, temend,
+      R_PREC    aye, temstart, temend, z_solar,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma
       R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
@@ -84,7 +84,8 @@
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      &        metala(nratec, n_xe)
       R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
-     &        gaHpa(nratec), gaela(nratec), ciecoa(nratec)
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec), 
+     &        ciecoa(nratec)
       R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
@@ -95,37 +96,41 @@
 
 !  Cloudy cooling data
 
-      INTG_PREC icmbTfloor, iClHeat, iClMMW, clGridRank, clDataSize
+      INTG_PREC icmbTfloor, iClHeat, clGridRank, clDataSize
       INTG_PREC clGridDim(clGridRank)
-      R_PREC clMetNorm, clEleFra
+      R_PREC clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
      &     clPar5(clGridDim(5))
-      R_PREC clCooling(clDataSize), clHeating(clDataSize), 
-     &     clMMW(clDataSize)
+      R_PREC clCooling(clDataSize), clHeating(clDataSize)
 
 !  Parameters
 
       double precision mh
-      R_PREC    ZSOLAR, mu_metal
+      R_PREC    ZSOLAR, mu_metal, boost_factor
+! MKRJ 12/21/07 boost gammaha by this factor (JHW reduced by 1.0 because
+! it has been included in v2.0
+      parameter (boost_factor = 3.5_RKIND) 
       parameter (mh = mass_h)      !DPC
-      parameter (ZSOLAR = 0.02041_RKIND)
       parameter (mu_metal = 16._RKIND)    ! approx. mean molecular weight of metals
+
 
 !  Locals
 
       INTG_PREC i, j1, iter, iradfield
       R_PREC dom, qq, vibl, logtem0, logtem9, dlogtem, energy, zr
       R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
-     &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
+     &     hdlte1, hdlow1, gamma2, x, fudge, fH2,
      &     gphdl1, factor, dom_inv, tau, ciefudge
-      double precision coolunit, dbase1, tbase1, xbase1, rtunits
+      double precision coolunit, dbase1, tbase1, xbase1, rtunits,
+     &     nH2, nother
 
 !  Slice locals
  
       INTG_PREC indixe(in)
       R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
-     &     tgas(in), tgasold(in)
+     &     tgas(in), tgasold(in), tdust(in), rhoH(in), nh(in),
+     &     metallicity(in)
       double precision edot(in)
 
 !  Cooling/heating slice locals
@@ -137,7 +142,7 @@
       R_PREC hyd01k(in), h2k01(in), vibh(in), roth(in), rotl(in),
      &     gpldl(in), gphdl(in), hdlte(in), hdlow(in), metalc(in)
       R_PREC gaHI(in), gaH2(in), gaHe(in), gaHp(in), gael(in),
-     &     galdl(in)
+     &     galdl(in), gasgr(in), gasgr_tdust(in)
 
 !  Metal cooling locals
 
@@ -190,7 +195,7 @@
          comp1 = compa  * (1._RKIND + zr)**4
          comp2 = 2.73_RKIND * (1._RKIND + zr)
       else
-         comp1 = tiny
+         comp1 = 1d-35  ! tiny was too large in comparison with compa
          comp2 = tiny
       endif
 
@@ -231,13 +236,14 @@
          endif
       endif
 
-!     Compute temperature
+!     Compute temperature and H number density
 
       do i = is+1, ie+1
          if ( itmask(i) ) then
-         tgas(i) = 
+            tgas(i) = 
      &           (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND +
-     &            HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+     &           HI(i,j,k) + HII(i,j,k) + de(i,j,k)
+            rhoH(i) = HI(i,j,k) + HII(i,j,k)
          end if
       enddo
 
@@ -246,23 +252,26 @@
       if (ispecies .gt. 1) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
-            tgas(i) = tgas(i) +
-     &            HM(i,j,k) + (H2I(i,j,k) + H2II(i,j,k))/2._RKIND
+               tgas(i) = tgas(i) +
+     &              HM(i,j,k) + (H2I(i,j,k) + H2II(i,j,k))/2._RKIND
+               rhoH(i) = rhoH(i) + H2I(i,j,k) + H2II(i,j,k)
             end if
          enddo
       endif
 
-!     Include metal species
+!     Include metal species and calculate metallicity
       
       if (imetal .eq. 1) then
          do i = is+1, ie+1
             tgas(i) = tgas(i) + metal(i,j,k)/mu_metal
+            metallicity(i) = metal(i,j,k) / d(i,j,k) / z_solar
          enddo
       endif
 
       do i = is+1, ie+1
          if ( itmask(i) ) then
-         tgas(i) = max(p2d(i)*utem/tgas(i), temstart)
+            tgas(i) = max(p2d(i)*utem/tgas(i), temstart)
+            nh(i) = rhoH(i) * dom
          end if
       enddo
 
@@ -394,7 +403,7 @@
 
      &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))
      &             *dom_inv)
-        
+
          if (edot(i) .ne. edot(i)) then
             write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
      &           HI(i,j,k), HII(i,j,k), HeI(i,j,k), HeII(i,j,k), 
@@ -620,6 +629,37 @@ c  new (correct) way: (april 4, 2007)
          enddo
       endif
 
+!     --- Gas to grain heat transfer ---
+
+      if (idust .gt. 0) then
+
+!     Look up gas/grain heat transfer rates
+
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+               gasgr(i) = gasgra(indixe(i)) + tdef(i)
+     &              *(gasgra(indixe(i)+1) -gasgra(indixe(i)))
+               gasgr_tdust(i) = gasgr(i) * coolunit / mh
+            endif
+         enddo
+
+!     Compute dust temperature
+
+         call calc_tdust(tdust, tgas, nh, gasgr_tdust, 
+     &           itmask, comp2, in, is, ie, j, k)
+
+!     Calculate cooling rate
+
+         do i = is+1, ie+1
+            if ( itmask(i) ) then
+               edot(i) = edot(i) - 
+     &              gasgr(i) * (tgas(i) - tdust(i)) * 
+     &              metallicity(i) * rhoH(i) * rhoH(i)
+            endif
+         enddo
+
+      endif
+
 !     --- Compute (external) radiative heating terms ---
 
 !                       Photoionization heating
@@ -776,7 +816,7 @@ c
      $                *(dlogxe  )*(dlogTcmb)
                metalc(i) = metalc(i) - metalc_cmb
 
-               xi = min(3._RKIND, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
+               xi = min(3._RKIND, metal(i,j,k)/(d(i,j,k)*z_solar))
                edot(i) = edot(i) - 
      $              metalc(i) * d(i,j,k) * (xi/JHW_METALS_NORMZ) / dom
 #ifdef UNUSED
@@ -897,14 +937,68 @@ c
          nti = (log10(0.5_RKIND*(tgas(i)+tgasold(i)))-TEMMIN)/DELT + 1
          nti = min(max(1, nti), NIT)
          xi = min(3._RKIND, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
-         metal_cool = cbovcool(nti,ndi) * xi / dom *
-     &                (HI(i,j,k)+HII(i,j,k))
-         metal_heat = cbovheat(nti,ndi) * xi / dom *
-     &                (HI(i,j,k)+HII(i,j,k))
-         if (tgas(i) .le. 1e4) then
-            metal_cool = metal_cool*(tgas(i)/1.e4_RKIND)**3
-            metal_heat = 0._RKIND
-         endif
+
+c
+c        MKRJ 12/18/06
+c        Use the previous metal cooling/heating rate if T >= 10^4 K
+         if (tgas(i) .gt. 1.e4) then
+            metal_cool = cbovcool(nti,ndi) * xi * dom_inv *
+     &           (HI(i,j,k)+HII(i,j,k))
+            metal_heat = cbovheat(nti,ndi) * xi * dom_inv *
+     &           (HI(i,j,k)+HII(i,j,k))
+         else
+
+c           MKRJ: For low T, adopt the x=10^-2 cooling curve from
+c           Dalgarno & McCray 1972
+	    if (tgas(i) .ge. 1.e3) then
+               if (tgas(i) .ge. 6.31e3) then
+                  metal_cool = 3.13e-27*(tgas(i)**0.396_RKIND)
+               else
+                  if (tgas(i) .ge. 3.16e3) then
+                     metal_cool = 2.64e-26*(tgas(i)**0.152_RKIND)
+                  else
+                     metal_cool = 5.28e-27*(tgas(i)**0.352_RKIND)
+                  endif
+               endif
+            else
+               if (tgas(i) .ge. 39.8_RKIND) then
+                  if (tgas(i) .ge. 200._RKIND) then
+                     metal_cool = 3.06e-27*(tgas(i)**0.431_RKIND)
+                  else
+                     metal_cool = 1.52e-28*(tgas(i)**0.997_RKIND)
+                  endif
+               else
+                  if (tgas(i) .ge. 25.1_RKIND) then
+                     metal_cool = 2.39e-29*(tgas(i)**1.5_RKIND)
+                  else
+                     metal_cool = 1.095e-32*(tgas(i)**3.885_RKIND)
+                  endif
+               endif
+            endif
+
+c	    MKRJ 1/3/06 -- convert metal_cool (n^2 Lambda) from cgs to sim units 
+            metal_cool = metal_cool/coolunit * xi * 
+     &           ((HI(i,j,k)+HII(i,j,k)) * dom_inv)**2
+
+c	    MKRJ 12/18/06 -- Photoelectric heating rate (Gamma_pe)
+c            8.5e-26 came from Gamma_pe, assuming epsilon=0.05, G_0=1.7
+c            (see Gerritsen & Icke '97, or Joung & Mac Low '06, Sec. 2.2)
+c
+	    metal_heat = float(igammah) * boost_factor * 
+     &           gammaha * xi * (HI(i,j,k)+HII(i,j,k)) * dom_inv
+c
+c           MKRJ 10/15/08 -- Gamma (in erg/s) should weakly depend on 
+c            the gas density. The value 8.5e-26 is really for the solar 
+c            neighborhood, where n \approx 0.5 cm^-3.
+c            So assume:  emissivity \propto rho^1.4 &  
+c                        F_uv = emissivity*l_mfp \propto rho^0.4
+c            (n_H = 0.76*d(i,j,k)*dom)
+c
+            if (0.76_RKIND*d(i,j,k)*dom .gt. 0.5_RKIND) then
+	       metal_heat = metal_heat * 
+     &                   (0.76_RKIND*d(i,j,k)*dom/0.5_RKIND)**0.4_RKIND
+            endif
+         endif ! tgas(i) .gt. 1.e4
 
          edot(i) = edot(i) + metal_heat - metal_cool
 
@@ -919,14 +1013,13 @@ c
 
       if (imcool .eq. 3) then
 
-         call cool1D_cloudy(d, de, HI, HII, HeI, HeII, HeIII,
-     &        HM, H2I, H2II, DI, DII, HDI, metal,
+         call cool1D_cloudy(d, de, rhoH, metallicity,
      &        in, jn, kn, is, ie, j, k,
      &        logtem, edot, comp2, ispecies, dom, zr,
-     &        icmbTfloor, iClHeat, iClMMW,
-     &        clMetNorm, clEleFra, clGridRank, clGridDim,
+     &        icmbTfloor, iClHeat, 
+     &        clEleFra, clGridRank, clGridDim,
      &        clPar1, clPar2, clPar3, clPar4, clPar5,
-     &        clDataSize, clCooling, clHeating, clMMW,
+     &        clDataSize, clCooling, clHeating,
      &        itmask)
 
       endif

@@ -31,7 +31,11 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 
 /* Photons: return PhotonPackage pointer. */
 
-   PhotonPackageEntry *ReturnPhotonPackagePointer(void) {return PhotonPackages;};
+   PhotonPackageEntry *ReturnPhotonPackagePointer(void) 
+   {return PhotonPackages;};
+
+   PhotonPackageEntry *ReturnPausedPackagePointer(void) 
+   {return PausedPhotonPackages;};
 
 /* Photons: set number of photons. */
 
@@ -44,6 +48,10 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 /* remove all photon packages */ 
 
    int DeletePhotonPackages(int DeleteHeadPointer=FALSE);
+
+/* sort photon linked lists */
+
+   int PhotonSortLinkedLists(void);
 
 /* Set Subgrid Marker field */
 
@@ -96,6 +104,7 @@ int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove,
 
 int ElectronFractionEstimate(float dt);
 int RadiationPresent(void) { return HasRadiation; }
+void SetRadiation(char value) { HasRadiation = value; }
 
 void InitializePhotonPackages(void) {
   if (PhotonPackages == NULL) {
@@ -225,16 +234,16 @@ int ReturnRealPhotonCount(void) {
 int CountPhotonNumber(void) {
 
   if (MyProcessorNumber != ProcessorNumber)
-    return SUCCESS;
+    return 0;
 
-  NumberOfPhotonPackages = 0;
+  int nphotons = 0;
   PhotonPackageEntry *PP = PhotonPackages->NextPackage;
   while (PP != NULL) {
-    NumberOfPhotonPackages++;
+    nphotons++;
     PP = PP->NextPackage;
   }
 
-  return SUCCESS;
+  return nphotons;
 
 }
 
@@ -337,6 +346,15 @@ int DetectIonizationFrontApprox(float TemperatureUnits);
 
 int MergePausedPhotonPackages(void);
 
+
+/* Regrid a paused photon into its new spherical (HEALPix) grid
+   point in preparation for merging. */
+
+int RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
+			      grid** MoveToGrid, int &DeltaLevel,
+			      int &DeleteMe, const float *DomainWidth,
+			      const float LightSpeed);
+
 /* Trace a line thorugh the grid */
 
 int TraceRay(int NumberOfSegments,
@@ -361,7 +379,7 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 		      float DensityUnits, 
 		      float TemperatureUnits, float VelocityUnits, 
-		      float LengthUnits, float TimeUnits);
+		      float LengthUnits, float TimeUnits, float LightSpeed);
 
 int FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 		      PhotonPackageEntry* &PP,

@@ -90,7 +90,6 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
  
-  int MyInterpolationMethod = InterpolationMethod;   
   if (NumberOfBaryonFields > 0) {
 
     interp_error = FALSE;
@@ -280,8 +279,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 
-	    //	   && FieldType[field] != DebugField 
-	    	   && FieldType[field] != GravPotential
+	    && FieldType[field] != DebugField 
+	    && FieldType[field] != GravPotential
 	    )
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
@@ -331,15 +330,9 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        is done for the entire current grid, not just it's boundaries.
        (skip density since we did it already) */
  
-      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE){
-        if (HydroMethod == Zeus_Hydro){
-	        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	            SecondOrderA : SecondOrderC;
-        }
-      } else {
-        /* Use nearest grid point interpolation for fields that 
-           shouldn't ever be averaged. */ 
-        MyInterpolationMethod = FirstOrderA; 
+      if (HydroMethod == Zeus_Hydro){
+	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+	  SecondOrderA : SecondOrderC;
       }
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
@@ -384,8 +377,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 	    FieldType[field] != DrivingField1 &&
 	    FieldType[field] != DrivingField2 &&
 	    FieldType[field] != DrivingField3 
-	    //	    FieldType[field] != DebugField 
-	    // &&  FieldType[field] != GravPotential
+	    && FieldType[field] != DebugField 
+	    &&  FieldType[field] != GravPotential
 	    )
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,

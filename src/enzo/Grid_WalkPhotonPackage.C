@@ -49,7 +49,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
-			    float TimeUnits) {
+			    float TimeUnits, float LightSpeed) {
 
   const float erg_eV = 1.602176e-12;
   const float c_cgs = 2.99792e10;
@@ -89,11 +89,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     return SUCCESS;
   }
 
-  if ((*PP) == NULL || (*PP)->PreviousPackage->NextPackage != (*PP)) {
+  if ((*PP) == NULL || (*PP)->PreviousPackage == NULL ||
+      (*PP)->PreviousPackage->NextPackage != (*PP)) {
     ENZO_VFAIL("Called grid::WalkPhotonPackage with an invalid pointer.\n"
-	    "\t %x %x %x %x\n",
-	    (*PP), (*PP)->PreviousPackage, (*PP)->PreviousPackage->NextPackage,
-	    PhotonPackages)
+	    "\t %p %p %p\n",
+	    (*PP), (*PP)->PreviousPackage, PhotonPackages)
   }
 
   /* This controls the splitting condition, where this many rays must
@@ -112,11 +112,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       RadiativeTransferPhotonEscapeRadius * (3.086e21f / LengthUnits);
 
   // speed of light in code units. note this one is independent of a(t)
-  c = c_cgs/VelocityUnits;
-
-  // Modify the photon propagation speed by this parameter
-  c *= RadiativeTransferPropagationSpeedFraction;
-  c_inv = 1.0 / c;
+  c = LightSpeed;
+  c_inv = 1.0 / LightSpeed;
 
   /* Calculate the normal direction (HEALPix) */
 
@@ -189,7 +186,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   */
 
   if (RadiativeTransferSourceClustering && (*PP)->CurrentSource != NULL) {
-    r_merge = 2*RadiativeTransferPhotonMergeRadius *
+    r_merge = RadiativeTransferPhotonMergeRadius *
       (*PP)->CurrentSource->ClusteringRadius;
     d2_ss = 0.0;
     u_dot_d = 0.0;

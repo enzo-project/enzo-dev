@@ -13,7 +13,9 @@ c
      &                      imetal, imethod, mintdyn,
      &                      odthresh, masseff, smthresh, level, np, 
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf)
+     &                      mp, tdp, tcp, metalf,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
+
 c
 c  CREATES GALAXY PARTICLES
 c
@@ -30,6 +32,8 @@ c    the various bugs that Greg Bryan and I discovered in April 2002
 c  modified4: 13 November 2002 by BWO
 c    turned OFF stochastic star formation (changed ifdef) and cleaned
 c    up code, added comments.
+c  modified5: 20 Feb 2008 by M. Ryan Joung
+c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
 c
 c
 c  INPUTS:
@@ -55,6 +59,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    mintdyn  - minimum dynamical time, in years
 c    level - current level of refinement
 c    procnum - processor number (for output)
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c
 c  OUTPUTS:
 c
@@ -66,6 +71,7 @@ c    mp       - mass of new particles
 c    tdp      - dynamical time of zone in which particle created
 c    tcp      - creation time of particle
 c    metalf   - metallicity fraction of particle
+c    metalfSNIa - metallicity fraction of particle (from SN Ia)
 c    nmax     - particle array size specified by calling routine
 c
 c
@@ -77,16 +83,18 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC procnum
+      INTG_PREC imetalSNIa, procnum
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    metalSNIa(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1
       P_PREC xstart, ystart, zstart, t
       P_PREC xp(nmax), yp(nmax), zp(nmax)
       R_PREC    up(nmax), vp(nmax), wp(nmax)
-      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax),
+     &     metalfSNIa(nmax)
       R_PREC    odthresh, masseff, smthresh, mintdyn
 c
       R_PREC   sformsum
@@ -222,6 +230,12 @@ c
                else
                   metalf(ii) = 0._RKIND
                endif
+
+c              Metallicity from Type Ia SNe
+
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)    ! in here metal is a fraction
+               endif
 c
 c              Remove mass from grid
 c
@@ -267,6 +281,7 @@ c
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf, type, justburn)
+
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c

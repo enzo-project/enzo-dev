@@ -82,7 +82,12 @@ int MHDTurbulenceInitialize(FILE *fptr, FILE *Outfptr,
   } // end input from parameter file
 
   /* Convert to code units */
-  
+  if (HydroMethod != MHD_RK) {// if its not with B-field make sure it is zero
+    if (Bnaught != 0.) 
+      printf("InitialBField was non-zero in paramterfile but hydromethod does not support a magnetic field. Proceeding with setting the initial field to zero.\n");
+    Bnaught = 0.0;
+  }
+
   printf(" RAW:  rho_medium = %"GSYM",cs = %"GSYM", mach = %"GSYM", Bnaught = %"GSYM" \n",rho_medium,cs,mach,Bnaught);
 
   float rhou = 1.0, lenu = 1.0, tempu = 1.0, tu = 1.0, velu = 1.0, 

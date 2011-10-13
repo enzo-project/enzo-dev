@@ -12,4 +12,5 @@ struct ListOfPhotonsToMove {
   int ToLevel;
   int ToProcessor;
   int ToGridNum;
+  char PausedPhoton;
 };

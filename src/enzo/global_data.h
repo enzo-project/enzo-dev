@@ -133,8 +133,14 @@ EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
    for CellFlaggingMethod = 10 */
 
 EXTERN FLOAT MustRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
-
 EXTERN FLOAT MustRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+
+/* left and right boundaries of the 'avoid refine region'
+   for CellFlaggingMethod = 101 */
+
+EXTERN int   AvoidRefineRegionLevel[MAX_STATIC_REGIONS];
+EXTERN FLOAT AvoidRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
+EXTERN FLOAT AvoidRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 
 /* specifies the level to which FlagCellsToBeRefinedByMustRefineRegion
    will refine up to (does not prevent refinement to higher levels) */
@@ -316,9 +322,11 @@ EXTERN fpos_t  BaryonFileNamePosition;
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
+EXTERN int H2FormationOnDust;
 
 /* Glover chemistry/cooling network flags */
 EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
@@ -329,21 +337,14 @@ EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 
 EXTERN int MultiMetals;
 
-/* Cosmic Ray Model 
+/* Shock Finding Method
  * 0: Off - default
- * 1: On, Let CRs accululate on Grid
- * 2: On, Zero out CRs each step to only look at instantaneous acceleration
- * 3: Highly experimental, takes energy out of gas.  Unstable.
- */
-EXTERN int CRModel; 
-/* Shock Finding Method: Always on when CRModel nonzero
- * 0: temperature unsplit - default
- * 1: temperature split 
- * 2: velocity unsplit
- * 3: velocity split
+ * 1: temperature unsplit 
+ * 2: temperature split 
+ * 3: velocity unsplit
+ * 4: velocity split
  */
 EXTERN int ShockMethod; 
-EXTERN CosmicRayDataType CosmicRayData;
 EXTERN float ShockTemperatureFloor;
 EXTERN int StorePreShockFields;
 
@@ -354,6 +355,7 @@ EXTERN int StorePreShockFields;
 
 EXTERN int RadiationFieldType;
 EXTERN int AdjustUVBackground; 
+EXTERN int AdjustUVBackgroundHighRedshift; 
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
@@ -361,10 +363,12 @@ EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 EXTERN int RadiationXRayComptonHeating;
 EXTERN int TabulatedLWBackground;
+EXTERN float RadiationFieldRedshift;
 
 /* Photoelectric cooling turn on/off */
 
 EXTERN int PhotoelectricHeating;
+EXTERN float PhotoelectricHeatingRate;
 
 /* Output cooling time with grid data. */
 
@@ -373,6 +377,10 @@ EXTERN int OutputCoolingTime;
 /* Output temperature with grid data. */
 
 EXTERN int OutputTemperature;
+
+/* Output dust temperature with grid data. */
+
+EXTERN int OutputDustTemperature;
 
 /* Output smoothed dark matter fields. */
 
@@ -520,7 +528,7 @@ EXTERN float RefineByResistiveLengthSafetyFactor;
 
 EXTERN float ShockwaveRefinementMinMach;
 EXTERN float ShockwaveRefinementMinVelocity;
-EXTERN float ShockwaveRefinementMaxLevel;
+EXTERN int ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -540,7 +548,7 @@ EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
 EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
-EXTERN float SimpleQ;
+EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
 
 
@@ -687,13 +695,11 @@ EXTERN int UseResistivity;
 
 /* Chemistry & cooling parameters */
 
-EXTERN int UseH2OnDust;
 EXTERN float CoolingCutOffDensity1;
 EXTERN float CoolingCutOffDensity2;
 EXTERN float CoolingPowerCutOffDensity1;
 EXTERN float CoolingPowerCutOffDensity2;
 EXTERN float CoolingCutOffTemperature;
-EXTERN int CoolingModel;
 
 /* Gravity parameters */
 
@@ -702,8 +708,11 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
+EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
+EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 
@@ -816,6 +825,9 @@ EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
 
+/* RebuildHierarchy on this level every N cycles. */
+EXTERN int RebuildHierarchyCycleSkip[MAX_DEPTH_OF_HIERARCHY];
+
 /* Coupled radiative transfer, cooling, and rate solver */
 EXTERN int RadiativeTransferCoupledRateSolver;
 
@@ -882,6 +894,10 @@ EXTERN int OutputWhenJetsHaveNotEjected;
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
 
+/* Gas drag */
+EXTERN int UseGasDrag;
+EXTERN float GasDragCoefficient;
+
 EXTERN char current_error[255];
 
 /* Thermal conduction */
@@ -891,5 +907,8 @@ EXTERN int AnisotropicConduction;  // TRUE OR FALSE
 EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
+
+/* For the database */
+EXTERN char *DatabaseLocation;
 
 #endif

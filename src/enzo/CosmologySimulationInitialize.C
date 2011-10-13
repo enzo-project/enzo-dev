@@ -80,6 +80,7 @@ static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
 static float CosmologySimulationInitialFractionMetal = 1.0e-10;
+static float CosmologySimulationInitialFractionMetalIa = 1.0e-12;
 static int   CosmologySimulationUseMetallicityField  = FALSE;
  
 static int CosmologySimulationManuallySetParticleMassRatio = FALSE;
@@ -120,10 +121,10 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *DIIName   = "DII_Density";
   char *HDIName   = "HDI_Density";
   char *MetalName = "Metal_Density";
+  char *MetalIaName = "MetalSNIa_Density";
   char *GPotName  = "Grav_Potential";
   char *ForbidName  = "ForbiddenRefinement";
   char *MachName   = "Mach";
-  char *CRName     = "CR_Density";
   char *PSTempName = "PreShock_Temperature";
   char *PSDenName  = "PreShock_Density";
   char *ExtraNames[2] = {"Z_Field1", "Z_Field2"};
@@ -291,6 +292,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &CosmologySimulationInitialFractionH2II);
     ret += sscanf(line, "CosmologySimulationInitialFractionMetal = %"FSYM,
 		  &CosmologySimulationInitialFractionMetal);
+    ret += sscanf(line, "CosmologySimulationInitialFractionMetalIa = %"FSYM,
+		  &CosmologySimulationInitialFractionMetalIa);
     ret += sscanf(line, "CosmologySimulationUseMetallicityField = %"ISYM,
 		  &CosmologySimulationUseMetallicityField);
  
@@ -387,7 +390,13 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	      "CosmologySimulationCalculatePositions or 1-component particle "
 	      "position files.\n");
   }
- 
+
+  if (Mu != 0.6) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu = 0.6 assumed in initialization; setting mu = 0.6 for consistency.\n");
+    Mu = 0.6;
+  }
+
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
@@ -641,6 +650,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationInitialFractionMetal,
+			     CosmologySimulationInitialFractionMetalIa,
 #ifdef TRANSFER
 			     RadHydroInitialRadiationEnergy,
 #endif
@@ -736,6 +746,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
   if (CosmologySimulationUseMetallicityField) {
     DataLabel[i++] = MetalName;
+    if (StarMakerTypeIaSNe)
+      DataLabel[i++] = MetalIaName;
     if(MultiMetals){
       DataLabel[i++] = ExtraNames[0];
       DataLabel[i++] = ExtraNames[1];
@@ -748,20 +760,19 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (WritePotential)
     DataLabel[i++] = GPotName;  
 
-  if (CRModel) {
-    DataLabel[i++] = MachName;
-    if(StorePreShockFields){
-      DataLabel[i++] = PSTempName;
-      DataLabel[i++] = PSDenName;
-    }
-    DataLabel[i++] = CRName;
-  } 
-
 #ifdef EMISSIVITY
   if (StarMakerEmissivityField > 0)
     DataLabel[i++] = EtaName;
 #endif
  
+  if (ShockMethod) {
+    DataLabel[i++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[i++] = PSTempName;
+      DataLabel[i++] = PSDenName;
+    }
+  } 
+
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
  
@@ -855,6 +866,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	    CosmologySimulationInitialFractionH2II);
     fprintf(Outfptr, "CosmologySimulationInitialFractionMetal = %"GSYM"\n",
 	    CosmologySimulationInitialFractionMetal);
+    fprintf(Outfptr, "CosmologySimulationInitialFractionMetalIa = %"GSYM"\n",
+	    CosmologySimulationInitialFractionMetalIa);
     fprintf(Outfptr, "CosmologySimulationUseMetallicityField  = %"ISYM"\n\n",
 	    CosmologySimulationUseMetallicityField);
 
@@ -1000,6 +1013,7 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 			     CosmologySimulationInitialFractionH2I,
 			     CosmologySimulationInitialFractionH2II,
 			     CosmologySimulationInitialFractionMetal,
+			     CosmologySimulationInitialFractionMetalIa,
 #ifdef TRANSFER
 			     RadHydroInitialRadiationEnergy,
 #endif

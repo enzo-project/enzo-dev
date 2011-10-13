@@ -58,11 +58,14 @@ void AMRHDF5Writer::AMRHDF5Create( const char*      fileName,
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   const char *ParticleOtherLabel[] =
     {"particle_type", "particle_index", "particle_mass"};
-  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", 
-				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+#ifdef WINDS
+  const char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  const char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
   int i;
     
@@ -428,12 +431,14 @@ herr_t AMRHDF5Writer::writeParticles ( const int nPart,
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   const char *ParticleVelocityLabel[] = 
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", 
-				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-
-  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
+#ifdef WINDS
+  const char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  const char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
   sprintf(gridDataName, "/grid-%d", gridId);
   if (nBaryonFields > 0) 
@@ -593,12 +598,14 @@ herr_t AMRHDF5Writer::writeParticles2( const int nPart,
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   const char *ParticleVelocityLabel[] = 
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", 
-				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-
-  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
+#ifdef WINDS
+  const char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  const char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
   /* if there's no particle, don't bother,
      but if this is a root-level grid, print them anyway --> for Ralf's visualization purpose! */
@@ -838,11 +845,14 @@ void AMRHDF5Writer::AMRHDF5CreateSeparateParticles( const char*      fileName,
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
   const char *ParticleOtherLabel[] =
     {"particle_type", "particle_index", "particle_mass"};
-  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", 
-				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
+#ifdef WINDS
+  const char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  const char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
   int i;
     
@@ -933,11 +943,14 @@ herr_t AMRHDF5Writer::writeSeparateParticles ( const int nPart,
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   const char *ParticleVelocityLabel[] = 
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", 
-				    "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-  /*  const char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction", "p5", "p6"}; */
+#ifdef WINDS
+  const char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  const char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
   if (nPart == 0) 
     return 0;

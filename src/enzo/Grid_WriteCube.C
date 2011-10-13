@@ -119,10 +119,14 @@ int grid::WriteCube(char *base_name, int grid_id, int TGdims[])
   char *ParticleMassLabel = "particle_mass";
   char *ParticleTypeLabel = "particle_type";
   char *ParticleIndexLabel = "particle_index";
-   char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction"};*/
+#ifdef WINDS
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 #ifdef IO_LOG
   int         io_log = 1;
 #else

@@ -63,6 +63,12 @@ void ProblemType_Python::GetGridInformation(
     return;
 }
 
+int ProblemType_Python::InitializeSimulation(
+    HierarchyEntry &TopGrid, TopGridData &MetaData)
+{
+    return SUCCESS;
+}
+
 // All methods must go above this method
 
 int ProblemType_Python::InitializeSimulation(FILE *pftr, FILE *Outfptr,

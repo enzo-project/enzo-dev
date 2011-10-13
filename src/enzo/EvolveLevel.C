@@ -38,7 +38,7 @@
 /                Cleaned up error handling and created new routines for
 /                computing the timestep, output, handling fluxes
 /  modified10: July, 2009 by Sam Skillman
-/                Added shock and cosmic ray analysis
+/                Added shock analysis
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -500,14 +500,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level
-#ifdef EMISSIVITY
-	/* adding the changed StarParticleHandler prototype */
-							,dtLevelAbove
-#endif
-        );
+	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove);
 
-      /* Include shock-finding and cosmic ray acceleration */
+      /* Include shock-finding */
 
       Grids[grid1]->GridData->ShocksHandler();
 
@@ -520,10 +515,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: clean up AccelerationField. */
 
+#ifndef SAB
       if ((level != MaximumGravityRefinementLevel ||
 	   MaximumGravityRefinementLevel == MaximumRefinementLevel) &&
 	  !PressureFree)
 	Grids[grid1]->GridData->DeleteAccelerationField();
+#endif //!SAB
 
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
@@ -597,7 +594,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
+#ifdef USE_PYTHON
+    LCAPERF_START("CallPython");
     CallPython(LevelArray, MetaData, level, 0);
+    LCAPERF_STOP("CallPython");
+#endif
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note

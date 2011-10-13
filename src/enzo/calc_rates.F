@@ -9,16 +9,19 @@ c
      &             utem, uxyz, uaye, urho, utim,
      &             ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
      &             ciHeISa, ciHeIIa, reHIIa, reHeII1a, 
-     &             reHeII2a, reHeIIIa, brema, compa, gammaha,
+     &             reHeII2a, reHeIIIa, brema, compa, 
+     &             gammahacgs, gammaha,
      &             piHI, piHeI, piHeII,
      &             hyd01ka, h2k01a, vibha, rotha, rotla, 
      &             gpldl, gphdl, hdltea, hdlowa, hdcool, ciecoa,
-     &             gaHIa, gaH2a, gaHea, gaHpa, gaela,
+     &             gaHIa, gaH2a, gaHea, gaHpa, gaela, gasgra,
      &             k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &             k11a, k12a, k13a, k13dda, k14a, k15a, k16a, k17a,
      &             k18a, k19a, k20a, k21a, k22a, k23a,
      &             k24, k25, k26, k27, k28, k29, k30, k31, 
-     &             k50a, k51a, k52a, k53a, k54a, k55a, k56a, ioutput
+     &             k50a, k51a, k52a, k53a, k54a, k55a, k56a, 
+     &             ndratec, dtemstart, dtemend, h2dusta, 
+     &             ncrna, ncrd1a, ncrd2a, ioutput
      &                     )
 c
 c  COMPUTE MULTISPECIES RATE LOOKUP TABLE
@@ -52,6 +55,8 @@ c    evhz     = everg / h
 c    mh       = mass of hydrogen atom
 c    temstart = table start temperature (K)
 c    temend   = table end temperature (K)
+c    dtemstart = dust table start temperature (K)
+c    dtemend  = dust table end temperature (K)
 c    tevk     = conversion constant [eV] = [K] / tevk
 c    ireco    = Recombination cooling flag (1 = on)
 c    ibrco    = Brehmmstrahlung cooling flag (1 = on)
@@ -61,6 +66,7 @@ c    iphoto_mol = Molecular photo-dissociation flag (1 = on)
 c
 c  INPUTS
 c    nratec   = number of temperature bins in rate equations
+c    ndratec  = number of dust temperature bins for H2+dust rate
 c
 c    tbase1   = code time units
 c    xbase1   = code length units
@@ -138,6 +144,11 @@ C ------- 31:   H2I   + p   -> 2HI
 C
 c ------- 50-56: deuterium rates (given below)
 c
+c ------- h2dust: 2H  + grain -> H2  + grain (eq 3.8 from Hollenbach & McKee 1989)
+c
+c ncrn, ncrd1, ncrd1: numerator and denominator terms in Eq 23 of Omukai ea 2000
+c               for H2 formation heating.
+c
 c-----------------------------------------------------------------------
 c
 c  This define indicates if the Tom Abels new (as of Feb/2000) collisional
@@ -150,21 +161,21 @@ c
 c
 c  Arguments
 c
-      INTG_PREC nratec, iradtype, casebrates, threebody
-      R_PREC    aye, temstart, temend, alpha0, f3,
+      INTG_PREC nratec, iradtype, casebrates, threebody, ndratec
+      R_PREC  aye, temstart, temend, alpha0, f3, dtemstart, dtemend,
      &        utem, uxyz, uaye, urho, utim
-      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC  ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC  hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldl(nratec),
      &        gphdl(nratec), hdltea(nratec), hdlowa(nratec)
-      R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
-     &        gaHpa(nratec), gaela(nratec),
+      R_PREC  gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
+     &        gaHpa(nratec), gaela(nratec), gasgra(nratec),
      &        ciecoa(nratec)
-      R_PREC    compa, gammaha, piHI, piHeI, piHeII
-      R_PREC    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC  compa, gammaha, gammahacgs, piHI, piHeI, piHeII
+      R_PREC  k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &        k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &        k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &        k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -174,7 +185,9 @@ c
      &        k22a(nratec), k50a(nratec), k51a(nratec), k52a(nratec), 
      &        k53a(nratec), k54a(nratec), k55a(nratec), k56a(nratec)
       INTG_PREC ioutput
-      R_PREC    k13dda(nratec, 7), hdcool(nratec, 5)
+      R_PREC  k13dda(nratec, 7), hdcool(nratec, 5),
+     &        h2dusta(nratec, ndratec),
+     &        ncrna(nratec), ncrd1a(nratec), ncrd2a(nratec)
 c
 c  Parameters
 c
@@ -214,7 +227,9 @@ c
       INTG_PREC i,j,n
       double precision nu, delnu, hnu, logttt, ttt, tev, logtev, 
      &                 xx, dum, tbase1, xbase1, kunit, coolunit,
-     &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate
+     &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate,
+     &                 grain_coef, d_ttt, d_logttt, d_dlogtem,
+     &                 ttt2, d_ttt2
       double precision sigma24(nnu), sigma25(nnu), sigma26(nnu), 
      &                 sigma27(nnu), sigma28(nnu), sigma29(nnu), 
      &                 sigma30(nnu), sigma31(nnu), fext(nnu)
@@ -279,11 +294,21 @@ c          reciprocal of the above factor multiplying [L]).
 c
 c  3) the units for the radiative rate coefficients is just 1/[time]
 c
+c  4) Energy transfer from gas to dust grains, following equation 2.15
+c     of Hollenbach & McKee (1989).
+      grain_coef = 1.2d-31 * 1.0d3**-0.5d0
+c
 c  Compute log spacing in temperature
 c
       ttt    = temstart
       logttt = log(ttt)
       dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,8)
+c
+c  Compute log spacing in dust temperature
+c
+      d_ttt     = dtemstart
+      d_logttt  = log(d_ttt)
+      d_dlogtem = (log(dtemend) - log(dtemstart))/real(ndratec-1)
 c
 c  Initialize constants to tiny
 c
@@ -323,6 +348,14 @@ c
            k13dda(i,j) = tiny
         enddo
 c
+        do j = 1, ndratec
+           h2dusta(i,j) = tiny
+        enddo
+c
+        ncrna(i)  = tiny
+        ncrd1a(i) = tiny
+        ncrd2a(i) = tiny
+c
         ceHIa(i)    = tiny
         ceHeIa(i)   = tiny
         ceHeIIa(i)  = tiny
@@ -351,6 +384,7 @@ c
         gaHea(i)    = tiny
         gaHpa(i)    = tiny
         gaela(i)    = tiny
+        gasgra(i)    = tiny
       enddo
 c
 c  Fill in tables over the range temstart to temend
@@ -364,6 +398,7 @@ c       Compute temperature of this bin (in eV)
 c
         logttt = log(temstart) + REAL(i-1,8)*dlogtem
         ttt = exp(logttt)
+        ttt2 = ttt / 1.0d2
         tev = ttt/tevk
         logtev = log(tev)
 c
@@ -629,6 +664,42 @@ c
         k54a(i) = 7.5d-11*exp(-3.82d3/ttt) / kunit
         k55a(i) = 7.5d-11*exp(-4.24d3/ttt) / kunit
         k56a(i) = 1.5d-9 *(ttt/300.d0)**(-0.1d0) / kunit
+c
+c     H2 formation on dust grains.
+c     Loop over dust temperature.
+c
+        do j = 1, ndratec
+c
+c     Compute dust temperature of this bin
+c
+           d_logttt = log(dtemstart) + real(j-1)*d_dlogtem
+           d_ttt = exp(d_logttt)
+           d_ttt2 = d_ttt / 1.0d2
+c
+c     k23 from Omukai (2000).
+c
+           h2dusta(i,j) = 6.0d-17 * (ttt / 300.0d0)**(0.5d0) *
+     &          ((1.0d0 + exp(7.5d2 * ((1.0d0 / 75.0d0) - 
+     &                                (1.0d0 / d_ttt))))**(-1.0d0)) *
+     &          ((1.0d0 + (4.0d-2 * (ttt + d_ttt)**(0.5d0)) + 
+     &           (2.0d-3 * ttt) + 
+     &           (8.0d-6 * ttt**(2.0d0)))**(-1.0d0)) / kunit
+c
+c     Equation 3.8 from Hollenbach & McKee (1979).
+c
+c           h2dusta(i,j) = 3.0d-17 * ttt2**0.5d0 /
+c     &          (1.0d0 + 
+c     &           (0.4d0 * (ttt2 + d_ttt2)**0.5d0) +
+c     &           (0.2d0 * ttt2) +
+c     &           (8.0d-2 * ttt2**2.0d0)) / kunit
+c
+        enddo
+c
+c       H2 formation heating terms from Equation 23 of Omukai (2000).
+c
+        ncrna(i)  = 1.0d6 * (ttt**(-0.5d0))
+        ncrd1a(i) = 1.6d0 * exp(-(400.0d0 / ttt)**(2.d0))
+        ncrd2a(i) = 1.4d0 * exp(-12000.0d0 / (ttt + 1200.0d0))
 c
       enddo
 c
@@ -911,17 +982,21 @@ c
       ciecoa(i) = cierate * (mh/2.d0) / coolunit
 c      write(6,*), "thin: ", ttt, cierate * 1e14*mh*2
 c
-
+c     h) Energy transfer from gas to dust grains, following 
+c        equation 2.15 of Hollenbach & McKee (1989)
+      gasgra(i) = grain_coef * (ttt**0.5d0) * 
+     &     (1.0d0 - (0.8d0 * exp(-75.0d0 / ttt))) / coolunit
+c
       enddo
 c
-c     h) Compton cooling (Peebles 1971)
+c     i) Compton cooling (Peebles 1971)
 c
       compa     = 5.65d-36 / coolunit
 c
-c     i) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
-c        with epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
+c     j) Photoelectric heating by UV-irradiated dust (Wolfire 1995)
+c        Default is 8.5e-26 for epsilon=0.05, G_0=1.7 (rate in erg s^-1 cm^-3)
 c
-      gammaha   = 8.5d-26 / coolunit
+      gammaha   = gammahacgs / coolunit
 c
 c -------------------------------------------------
 c  3) External radiative processes

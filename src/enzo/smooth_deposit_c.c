@@ -21,7 +21,7 @@ void my_exit(int status);
 /* Subroutine */ 
 int smooth_deposit_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim, 
 		   int *npositions, float *mass, float *field, FLOAT *leftedge, 
-		   int *dim1, int *dim2, int *dim3, FLOAT *cellsize, 
+		   int *dim1, int *dim2, int *dim3, float *cellsize, 
 		   float *rsmooth)
 {
 
@@ -36,7 +36,7 @@ int smooth_deposit_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
     /* Local variables */
     static int i__, j, k, n;
-    static float coef;
+    static FLOAT coef;
     static FLOAT xpos, ypos, zpos, rsqr, rsmsqr;
 
 /*  PERFORMS 3D SMOOTHED INTERPOLATION FROM FIELD TO SUMFIELD */
@@ -96,7 +96,7 @@ int smooth_deposit_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
     rsmsqr = r__1 * r__1;
 /* Computing 3rd power */
     r__1 = *cellsize / *rsmooth;
-    coef = r__1 * (r__1 * r__1) * .9549304651466296f;
+    coef = r__1 * (r__1 * r__1) * ((FLOAT).9549304651466296);
 
     if (*ndim != 3) {
       fprintf(stderr, "SMOOTH_DEPOSIT: only ndim=3 supported.");
@@ -110,13 +110,13 @@ int smooth_deposit_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 	i__1 = *dim3;
 	for (k = 1; k <= i__1; ++k) {
-	    zpos = leftedge[3] + ((float) k - .5f) * *cellsize;
+	    zpos = leftedge[3] + ((FLOAT) k - .5f) * *cellsize;
 	    i__2 = *dim2;
 	    for (j = 1; j <= i__2; ++j) {
-		ypos = leftedge[2] + ((float) j - .5f) * *cellsize;
+		ypos = leftedge[2] + ((FLOAT) j - .5f) * *cellsize;
 		i__3 = *dim1;
 		for (i__ = 1; i__ <= i__3; ++i__) {
-		    xpos = leftedge[1] + ((float) i__ - .5f) * *cellsize;
+		    xpos = leftedge[1] + ((FLOAT) i__ - .5f) * *cellsize;
 
 /*                 Loop over particles */
 
@@ -135,7 +135,7 @@ int smooth_deposit_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 			if (rsqr < rsmsqr) {
 			    field[i__ + (j + k * field_dim2) * field_dim1] += 
-				    mass[n] * coef * (1.f - sqrt(rsqr) / *
+				    mass[n] * coef * (((FLOAT)1.0) - sqrtl(rsqr) / *
 				    rsmooth);
 			}
 

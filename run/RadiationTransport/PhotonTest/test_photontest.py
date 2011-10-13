@@ -7,7 +7,6 @@ from yt.utilities.answer_testing.api import YTStaticOutputTest, create_test, run
 import matplotlib.pyplot as plt
 
 class TestPhotonTest(YTStaticOutputTest):
-    name = "photon_plot"
 
     def run(self):
         # self.pf already exists

@@ -12,7 +12,8 @@ c
      &                      metalcrit, odthresh, lifetime, level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
-     &                      type, ctype, justburn, iradtrans)
+     &                      type, ctype, justburn, iradtrans,
+     &                      imetalSNIa, metalSNIa, metalfSNIa)
 c
 c  CREATES JEANS-RESOLVED STAR PARTICLES
 c
@@ -32,6 +33,9 @@ c  modified4: 30 August 2005 by John Wise
 c    modified star_maker2 for single primordial star formation
 c  modified5: 26 July 2007 by John Wise
 c    modified pop3_maker to model stellar clusters using radiative feedback
+c  modified6: 20 Feb 2008 by JHW
+c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
+c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
@@ -54,7 +58,7 @@ c    odthresh - overdensity threshold (some number * avg. density)
 c    lifetime - lifetime of a stellar particle
 c    h2crit   - critical value for primordial star formation
 c    metalcrit- critical value for primordial star formation
-
+c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c
@@ -72,6 +76,7 @@ c    nmax     - particle array size specified by calling routine
 c    type     - particle types
 c    ctype    - current type to set the particles to
 c    justburn     - time-weighted mass of star formation (code units)
+c    metalfSNIa - metallicity fraction of particle (from SN Ia) ! MKRJ
 c
 c
 c-----------------------------------------------------------------------
@@ -82,11 +87,12 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC procnum, ctype, iradtrans, imulti
+      INTG_PREC procnum, ctype, iradtrans, imulti, imetalSNIa
       R_PREC    formleft(3), formright(3)
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1, justburn
       P_PREC xstart, ystart, zstart, t
@@ -116,8 +122,8 @@ c         write(6,*) 'Check parameter file.'
 c         stop
 c      endif
 
-      write(6,*) 'cluster maker:'
-      write(6,*) odthresh
+c      write(6,*) 'cluster maker:'
+c      write(6,*) odthresh
 
       ii = np
 c
@@ -339,6 +345,9 @@ c
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
                   metalf(ii) = 0._RKIND
+               endif
+               if (imetalSNIa .eq. 1) then
+                  metalfSNIa(ii) = metalSNIa(i,j,k)
                endif
 c
 c              Remove mass from grid

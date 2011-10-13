@@ -12,6 +12,8 @@
 /  PURPOSE: Constructs a Linked List of Photon Packages including data
 /
 ************************************************************************/
+#ifndef __PHOTONPACKAGE_H
+#define __PHOTONPACKAGE_H
 #include "RadiationSource.h"
 #include "RadiativeTransferHealpixRoutines.h"
 
@@ -64,3 +66,4 @@ public:
   };
 
 };
+#endif /* PHOTONPACKAGE_H */

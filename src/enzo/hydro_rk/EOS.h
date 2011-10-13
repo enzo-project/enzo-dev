@@ -99,7 +99,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     // cooling only to 100 should reduce the resolution requirements
     // for the initial tests
     //    cs  = sqrt(1.e-3 + 1./(1.+pow(rho, 1.5)));
-    cs *= sqrt(1.e-1 + 1./(1.+pow(rho, 1.5)));
+    cs *= sqrt(EOSCriticalDensity + 1./(1.+pow(rho, 1.5)));
     p = rho * cs*cs;
     e = p / ((Gamma-1.0)*rho);
     dpdrho = 1;
