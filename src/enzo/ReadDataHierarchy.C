@@ -9,6 +9,7 @@
 /              Read Unigrid Grid-to-MPI task map
 /              This is necessary only for ultra-large grids on
 /              node memory challenged systems
+/  modified3:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -40,37 +41,38 @@ static int ReadDataGridCounter = 0;
 
 
  
-int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
-		      HierarchyEntry *ParentGrid)
+int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *Grid, int GridID, HierarchyEntry *ParentGrid, FILE *log_fptr)
 {
  
   int TestGridID, NextGridThisLevelID, NextGridNextLevelID;
   int Task = 0;
  
-  /* Read header info for this grid */
- 
-  if (fscanf(fptr, "\nGrid = %"ISYM"\n", &TestGridID) != 1) {
-    ENZO_VFAIL("Error reading Grid # in grid %"ISYM".\n", GridID)
-  }
-  if (TestGridID != GridID) {
-    ENZO_VFAIL("Unexpected GridID = %"ISYM" while reading grid %"ISYM".\n",
-	    TestGridID, GridID)
-  }
+  char DataFilename[MAX_LINE_LENGTH];
 
   //dcollins, August 5 2009.  Updated failsafe for old files that don't have Task defined.
   int NewProc = ReadDataGridCounter % NumberOfProcessors;
   int ProcMap = ABS(NewProc - NumberOfProcessors) % NumberOfProcessors;
-
+  
   FILE * ptr_task_check = fptr;
   
-  if( fscanf(fptr, "Task = %"ISYM"\n", &Task) != 1){
-    Task = NewProc;
-    fptr = ptr_task_check;
-  }
+  if (HierarchyFileInputFormat == 1) {
 
-  if ( MyProcessorNumber == 0 )
-    fprintf(stderr, "Reading Grid %"ISYM" assigned to Task %"ISYM"\n", TestGridID, Task);
- 
+    /* Read header info for this grid */
+    
+    if (fscanf(fptr, "\nGrid = %"ISYM"\n", &TestGridID) != 1) {
+      ENZO_VFAIL("Error reading Grid # in grid %"ISYM".\n", GridID)
+	}
+    if (TestGridID != GridID) {
+      ENZO_VFAIL("Unexpected GridID = %"ISYM" while reading grid %"ISYM".\n",
+		 TestGridID, GridID)
+	}
+        
+    if( fscanf(fptr, "Task = %"ISYM"\n", &Task) != 1){
+      Task = NewProc;
+      fptr = ptr_task_check;
+    }
+  }    
+
   /* Create new grid and fill out hierarchy entry. */
  
   Grid->GridData          = new grid;
@@ -78,6 +80,17 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
   Grid->NextGridNextLevel = NULL;
   Grid->ParentGrid        = ParentGrid;
 
+
+  if (HierarchyFileInputFormat % 2 == 0) {
+    TestGridID = GridID;
+    
+    Grid->GridData->ReadHierarchyInformationHDF5(Hfile_id, TestGridID, Task, NextGridThisLevelID, NextGridNextLevelID, DataFilename, log_fptr);
+    
+  }
+
+  if ( MyProcessorNumber == 0 )
+      fprintf(stderr, "Reading Grid %"ISYM" assigned to Task %"ISYM"\n", TestGridID, Task);
+ 
 
 // If explicit task mapping is enabled (for Unigrid) then use that map
 
@@ -141,11 +154,11 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
   /* Read grid data for this grid. */
 
   if(LoadGridDataAtStart){    
-    if (Grid->GridData->ReadGrid(fptr, GridID) == FAIL) {
+    if (Grid->GridData->ReadGrid(fptr, GridID, DataFilename) == FAIL) {
       ENZO_VFAIL("Error in grid->ReadGrid (grid %"ISYM").\n", GridID)
     }
   }else{
-    if (Grid->GridData->ReadGrid(fptr, GridID, TRUE, FALSE) == FAIL) {
+    if (Grid->GridData->ReadGrid(fptr, GridID, DataFilename, TRUE, FALSE) == FAIL) {
       ENZO_VFAIL("Error in grid->ReadGrid (grid %"ISYM").\n", GridID)
     }
     // Store grid id for later grid opening
@@ -157,50 +170,53 @@ int ReadDataHierarchy(FILE *fptr, HierarchyEntry *Grid, int GridID,
  
   if (RandomForcing && ParentGrid == NULL && extract != TRUE
       && LoadGridDataAtStart )
-    if (Grid->GridData->ReadRandomForcingFields(fptr) == FAIL) {
+    if (Grid->GridData->ReadRandomForcingFields(fptr, DataFilename) == FAIL) {
       ENZO_VFAIL("Error in grid->ReadRandomForcingFields (grid %"ISYM").\n",
               GridID)
     }
  
-  /* Read pointer information for the next grid this level. */
- 
-  if (fscanf(fptr, "Pointer: Grid[%"ISYM"]->NextGridThisLevel = %"ISYM"\n",
-	     &TestGridID, &NextGridThisLevelID) != 2) {
-    ENZO_VFAIL("Error reading NextGridThisLevel pointer for grid %"ISYM".\n",
-	    GridID)
+  if (HierarchyFileInputFormat == 1) {
+    /* Read pointer information for the next grid this level. */
+    
+    if (fscanf(fptr, "Pointer: Grid[%"ISYM"]->NextGridThisLevel = %"ISYM"\n",
+	       &TestGridID, &NextGridThisLevelID) != 2) {
+      ENZO_VFAIL("Error reading NextGridThisLevel pointer for grid %"ISYM".\n",
+		 GridID)
+	}
+    if (TestGridID != GridID) {
+      ENZO_VFAIL("GridID = %"ISYM" does not match grid(1) %"ISYM".\n",
+		 TestGridID, GridID)
+	}
   }
-  if (TestGridID != GridID) {
-    ENZO_VFAIL("GridID = %"ISYM" does not match grid(1) %"ISYM".\n",
-	    TestGridID, GridID)
-  }
- 
+
   /* If the pointer was non-zero, then read that grid. */
  
   if (NextGridThisLevelID != 0) {
     Grid->NextGridThisLevel = new HierarchyEntry;
-    if (ReadDataHierarchy(fptr, Grid->NextGridThisLevel, NextGridThisLevelID,
-			  ParentGrid) == FAIL) {
+    if (ReadDataHierarchy(fptr, Hfile_id, Grid->NextGridThisLevel, NextGridThisLevelID, ParentGrid, log_fptr) == FAIL) {
       ENZO_FAIL("Error in ReadDataHierarchy(1).\n");
     }
   }
  
-  /* Read pointer information for the next grid next level. */
- 
-  if (fscanf(fptr, "Pointer: Grid[%"ISYM"]->NextGridNextLevel = %"ISYM"\n",
-	     &TestGridID, &NextGridNextLevelID) != 2) {
-    ENZO_VFAIL("Error reading NextGridNextLevel pointer for grid %"ISYM".\n",
-	    GridID)
+  if (HierarchyFileInputFormat == 1) {
+    /* Read pointer information for the next grid next level. */
+    
+    if (fscanf(fptr, "Pointer: Grid[%"ISYM"]->NextGridNextLevel = %"ISYM"\n",
+	       &TestGridID, &NextGridNextLevelID) != 2) {
+      ENZO_VFAIL("Error reading NextGridNextLevel pointer for grid %"ISYM".\n",
+		 GridID)
+	}
+    if (TestGridID != GridID) {
+      ENZO_VFAIL("GridID = %"ISYM" does not match grid(2) %"ISYM".\n",
+		 TestGridID, GridID)
+	}
   }
-  if (TestGridID != GridID) {
-    ENZO_VFAIL("GridID = %"ISYM" does not match grid(2) %"ISYM".\n",
-	    TestGridID, GridID)
-  }
- 
+
   /* If the pointer was non-zero, then read that grid. */
  
   if (NextGridNextLevelID != 0) {
     Grid->NextGridNextLevel = new HierarchyEntry;
-    if (ReadDataHierarchy(fptr, Grid->NextGridNextLevel, NextGridNextLevelID,Grid)
+    if (ReadDataHierarchy(fptr, Hfile_id, Grid->NextGridNextLevel, NextGridNextLevelID,Grid, log_fptr)
 	== FAIL) {
       ENZO_FAIL("Error in ReadDataHierarchy(2).\n");
 

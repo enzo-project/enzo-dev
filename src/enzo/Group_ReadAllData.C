@@ -14,6 +14,7 @@
 /              Read group file in-core
 /  modified4:  Robert Harkness
 /              April 2008
+/  modified5:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -50,15 +51,15 @@ void my_exit(int status);
 
 /* function prototypes */
  
-int Group_ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
+int Group_ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *TopGrid, int GridID,
 			    HierarchyEntry *ParentGrid, hid_t file_id,
 			    int NumberOfRootGrids, int *RootGridProcessors,
-			    bool ReadParticlesOnly=false);
+			    bool ReadParticlesOnly=false, FILE *log_fptr=NULL);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
-int ReadStarParticleData(FILE *fptr);
+int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
-int InitialLoadBalanceRootGrids(FILE *fptr, int TopGridRank,
+int InitialLoadBalanceRootGrids(FILE *fptr, hid_t Hfile_id, int TopGridRank,
 				int TopGridDim, int &NumberOfRootGrids,
 				int* &RootProcessors);
  
@@ -69,7 +70,14 @@ extern char TaskMapSuffix[];
 extern char MemoryMapSuffix[];
 extern char CPUSuffix[];
 
- 
+
+#define IO_LOG
+
+// the following HDF5 helper routines are defined in
+// Grid_ReadHierarchyInformationHDF5.C
+int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, int &Attribute, FILE *log_fptr);
+int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, int Dataset[], FILE *log_fptr);
+
 int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 		      ExternalBoundary *Exterior, float *Initialdt,
 		      bool ReadParticlesOnly)
@@ -79,17 +87,20 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   /* declarations */
  
   char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
+  char HDF5hierarchyname[MAX_LINE_LENGTH];
   // Code shrapnel. See comments below. --Rick
   //  char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
   char groupfilename[MAX_LINE_LENGTH];
   char line[MAX_LINE_LENGTH];
 
+  FILE *log_fptr;
   FILE *fptr;
   FILE *tptr;
   FILE *mptr;
 
-  hid_t       file_id;
+  hid_t       file_id, Hfile_id;
+  hid_t       attr_id, dset_id;
   hid_t       file_acc_template;
   size_t      memory_increment; // in bytes
   hbool_t     dump_flag;
@@ -100,10 +111,16 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   int GridID = 1;
   int GridKD = 1;
 
+
   float dummy;
   int dummy_int;
 
   int *NumberOfSubgridCells;
+
+  int io_log = 0;
+#ifdef IO_LOG
+  io_log = 1;
+#endif
 
   // store the original parameter file name, in case we need it later
   strcpy(PrevParameterFileName, name);
@@ -214,17 +231,53 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   strcpy(hierarchyname, name);
   strcat(hierarchyname, HierarchySuffix);
 
-  /* scan data hierarchy for maximum task number */
- 
-  if ((fptr = fopen(hierarchyname, "r")) == NULL) {
-    ENZO_VFAIL("Error opening hierarchy file %s.\n", hierarchyname)
+  //  if (HierarchyFileInputFormat == 0) {
+  if (HierarchyFileInputFormat % 2 == 0) {
+    sprintf(HDF5hierarchyname,"%s.hdf5",hierarchyname);
+
+    if (io_log) {
+      char logname[MAX_LINE_LENGTH];
+      sprintf(logname,"%s.in_log",HDF5hierarchyname);
+      
+      log_fptr = fopen(logname,"w");
+    }
+    
+    Hfile_id = H5Fopen(HDF5hierarchyname, H5F_ACC_RDONLY, H5P_DEFAULT);
+    if( Hfile_id == h5_error )
+      ENZO_VFAIL("Error opening HDF5 hierarchy file: %s",HDF5hierarchyname)
+
+    // read NumberOfProcessors attribute
+    HDF5_ReadAttribute(Hfile_id, "NumberOfProcessors", PreviousMaxTask, log_fptr);
+    PreviousMaxTask--;
+    
+    // read TotalNumberOfGrids attribute
+    HDF5_ReadAttribute(Hfile_id, "TotalNumberOfGrids", TotalNumberOfGrids, log_fptr);
+
+    // read LevelLookupTable
+    LevelLookupTable = new int[TotalNumberOfGrids];
+    HDF5_ReadDataset(Hfile_id, "LevelLookupTable", LevelLookupTable, log_fptr);
+
+//     if(MyProcessorNumber == ROOT_PROCESSOR)
+//       for(int i=0;i<TotalNumberOfGrids;i++)
+// 	fprintf(stderr,"LevelLookupTable[%d] = %d\n",i,LevelLookupTable[i]);
+
+  } 
+
+  if (HierarchyFileInputFormat == 1) {
+    if ((fptr = fopen(hierarchyname, "r")) == NULL) {
+      ENZO_VFAIL("Error opening hierarchy file %s.\n", hierarchyname)
+    }
+
+    /* scan data hierarchy for maximum task number */
+    
+    while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
+      if (sscanf(line, "Task = %"ISYM, &dummy_int) > 0)
+	PreviousMaxTask = max(PreviousMaxTask, dummy_int);
+
+    rewind(fptr);
+
   }
 
-  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
-    if (sscanf(line, "Task = %"ISYM, &dummy_int) > 0)
-      PreviousMaxTask = max(PreviousMaxTask, dummy_int);
-
-  rewind(fptr);
 
   /* If we're load balancing only within nodes, count level-1 cells in
      each level-0 grid and load balance the entire nodes. */
@@ -233,8 +286,7 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     LoadBalancing = 1;
 
   int *RootGridProcessors = NULL, NumberOfRootGrids = 1;
-  InitialLoadBalanceRootGrids(fptr, MetaData.TopGridRank, MetaData.TopGridDims[0], 
-			      NumberOfRootGrids, RootGridProcessors);
+  InitialLoadBalanceRootGrids(fptr, Hfile_id, MetaData.TopGridRank, MetaData.TopGridDims[0], NumberOfRootGrids, RootGridProcessors);
 
   /* Read Data Hierarchy. */
 
@@ -267,23 +319,25 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
 #else
 
-    if (debug) fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
-    //printf("P%d: OPEN data hierarchy %s\n", MyProcessorNumber, hierarchyname);
+    if (debug && HierarchyFileInputFormat == 1)
+      fprintf(stdout, "OPEN data hierarchy %s\n", hierarchyname);
+    if (debug && HierarchyFileInputFormat % 2 == 0)
+      fprintf(stdout, "OPEN data hierarchy %s\n", HDF5hierarchyname);
     file_id = h5_error;
 
 #endif /* SINGLE OPEN */
   }
 
   GridID = 1;
-  if (Group_ReadDataHierarchy(fptr, TopGrid, GridID, NULL, file_id,
+  if (Group_ReadDataHierarchy(fptr, Hfile_id, TopGrid, GridID, NULL, file_id,
 			      NumberOfRootGrids, RootGridProcessors,
-			      ReadParticlesOnly) == FAIL) {
+			      ReadParticlesOnly, log_fptr) == FAIL) {
     fprintf(stderr, "Error in ReadDataHierarchy (%s).\n", hierarchyname);
     return FAIL;
   }
 
-  //printf("P%d: out of Group_RDH\n", MyProcessorNumber);
-  //CommunicationBarrier();
+//   printf("P%d: out of Group_RDH\n", MyProcessorNumber);
+//   CommunicationBarrier();
   
   if(LoadGridDataAtStart){
     // can close HDF5 file here
@@ -365,14 +419,14 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
 
   /* Read StarParticle data. */
  
-  if (ReadStarParticleData(fptr) == FAIL) {
+  if (ReadStarParticleData(fptr, Hfile_id, log_fptr) == FAIL) {
         ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
  
   if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) || 
-      RadiationData.RadiationShield == TRUE) {
+      (RadiationData.RadiationShield == TRUE && RadiationFieldType != 12)) {
     FILE *Radfptr;
     strcpy(radiationname, name);
     strcat(radiationname, RadiationSuffix);
@@ -385,7 +439,17 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     fclose(Radfptr);
   }
  
-  fclose(fptr);
+  //  if (HierarchyFileInputFormat == 0) {
+  if (HierarchyFileInputFormat % 2 == 0) {
+    h5_status = H5Fclose(Hfile_id);
+    if (h5_status == h5_error)
+      ENZO_FAIL("Error closing HDF5 hierarchy file.");    
+
+    delete [] LevelLookupTable;
+  }
+
+  if (HierarchyFileInputFormat == 1)
+    fclose(fptr);
 
   /* If we added new particle attributes, unset flag so we don't carry
      this parameter to later data. */
@@ -401,6 +465,10 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
     ResetLoadBalancing = FALSE;
 
   delete [] RootGridProcessors;
+
+  if (HierarchyFileInputFormat % 2 == 0 && io_log) 
+      fclose(log_fptr);
+  
 
   return SUCCESS;
 }

@@ -9,3 +9,6 @@ gravity = True
 AMR = True
 cosmology = True
 dimensionality = 3
+fullsuite = False
+pushsuite = False
+quicksuite = False

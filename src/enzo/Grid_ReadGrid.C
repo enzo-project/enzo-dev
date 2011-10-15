@@ -6,6 +6,7 @@
 /  date:       November, 1994
 /  modified1:  Robert Harkness, July 2002
 /  modified2:  Alexei Kritsuk, Jan 2004   a trick for RandomForcing //AK
+/  modified3:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -46,8 +47,8 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int ReadField(float *temp, int Dims[], int Rank, char *name, char *field_name);
 static Eint32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
- 
-int grid::ReadGrid(FILE *fptr, int GridID, 
+
+int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[], 
 		   int ReadText, int ReadData)
 {
   bool TryHDF5 = TRUE; 
@@ -104,7 +105,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 #define io_type float32
 #endif
  
-  if(ReadText){
+  if(ReadText && HierarchyFileInputFormat == 1){
 
     /* Read general grid class data */
 
@@ -228,9 +229,14 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 				dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
       }
     } // end Adjusting Grid Size with different Ghostzones
-  } /* end if (ReadText) */
+  } /* end if (ReadText && HierarchyFileInputFormat == 1) */
 
 
+  // if HDF5 Hierarchy file, then copy DataFilename (read in
+  // Grid::ReadHierarchyInformationHDF5.C) to procfilename
+  if (HierarchyFileInputFormat % 2 == 0) {
+    strcpy(name, DataFilename);
+  }
 
   this->PrepareGridDerivedQuantities();
  

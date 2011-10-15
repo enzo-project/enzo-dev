@@ -28,7 +28,6 @@ OBJS_CONFIG_LIB = \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
-        BinaryHierarchy.o \
         BlockSolve.o \
         calcdiss.o \
         calc_dt.o \
@@ -503,6 +502,7 @@ OBJS_CONFIG_LIB = \
 	Grid_RadiatingShockInitializeGrid.o \
 	Grid_ReadGrid.o \
         Grid_CosmologyReadParticles3D.o \
+        Grid_ReadHierarchyInformationHDF5.o \
 	Grid_ReadRandomForcingFields.o \
 	Grid_RemoveForcingFromBaryonFields.o \
 	Grid_RemoveParticle.o \
@@ -566,6 +566,7 @@ OBJS_CONFIG_LIB = \
         Grid_WriteGridInterpolate.o \
         Grid_WriteGrid.o \
         Grid_WriteGridX.o \
+        Grid_WriteHierarchyInformationHDF5.o \
         Grid_WriteMemoryMap.o \
         Grid_WriteNewMovieData.o \
         Grid_WriteNewMovieDataSeparateParticles.o \
@@ -864,8 +865,8 @@ OBJS_CONFIG_LIB = \
         WriteConfigure.o \
         WriteDataCubes.o \
         WriteDataHierarchy.o \
-        WriteHierarchyStuff.o \
-        WriteMemoryMap.o \
+        WriteHDF5HierarchyFile.o \
+	WriteMemoryMap.o \
         WriteParameterFile.o \
         WriteRadiationData.o \
         WriteStarParticleData.o \

@@ -11,6 +11,7 @@
 /              I/O performance on input
 /  modified3:  Robert Harkness
 /              April 2008
+/  modified4:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -41,10 +42,9 @@ void my_exit(int status);
  
 /* function prototypes */
  
-int ReadDataHierarchy(FILE *fptr, HierarchyEntry *TopGrid, int GridID,
-		      HierarchyEntry *ParentGrid);
+int ReadDataHierarchy(FILE *fptr, hid_t Hfile_id, HierarchyEntry *TopGrid, int GridID, HierarchyEntry *ParentGrid, FILE *log_fptr);
 int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
-int ReadStarParticleData(FILE *fptr);
+int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
  
@@ -53,7 +53,18 @@ extern char HierarchySuffix[];
 extern char hdfsuffix[];
 extern char TaskMapSuffix[];
 extern char MemoryMapSuffix[]; 
+ 
+//#define IO_LOG
+#ifdef IO_LOG
+int io_log = 1;
+#else
+int io_log = 0;
+#endif
 
+// the following HDF5 helper routines are defined in
+// Grid_ReadHierarchyInformationHDF5.C
+int HDF5_ReadAttribute(hid_t group_id, const char *AttributeName, int &Attribute, FILE *log_fptr);
+int HDF5_ReadDataset(hid_t group_id, const char *DatasetName, int Dataset[], FILE *log_fptr);
 
 int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 		ExternalBoundary *Exterior, float *Initialdt)
@@ -64,13 +75,19 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   char pid[MAX_TASK_TAG_SIZE];
   char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
+  char HDF5hierarchyname[MAX_LINE_LENGTH];
   // Code shrapnel. See comments below. --Rick
   // char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
 
+  FILE *log_fptr;
   FILE *fptr;
   FILE *tptr;
   FILE *mptr;
+
+  hid_t Hfile_id;
+  herr_t h5_status;
+  herr_t h5_error = -1;
 
   int GridID = 1;
   int GridKD = 1;
@@ -174,13 +191,44 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   strcpy(hierarchyname, name);
   strcat(hierarchyname, HierarchySuffix);
  
-  /* Read Data Hierarchy. */
- 
-  if ((fptr = fopen(hierarchyname, "r")) == NULL) {
-    ENZO_VFAIL("Error opening hierarchy file %s.\n", hierarchyname)
+  //  if (HierarchyFileInputFormat == 0) {
+  if (HierarchyFileInputFormat % 2 == 0) {
+    sprintf(HDF5hierarchyname,"%s.hdf5",hierarchyname);
+    
+    if (io_log) {
+      char logname[MAX_LINE_LENGTH];
+      sprintf(logname,"%s.in_log",HDF5hierarchyname);
+      
+      log_fptr = fopen(logname,"w");
+    }
+    
+    Hfile_id = H5Fopen(HDF5hierarchyname, H5F_ACC_RDONLY, H5P_DEFAULT);
+    if( Hfile_id == h5_error )
+      ENZO_VFAIL("Error opening HDF5 hierarchy file: %s",HDF5hierarchyname)
+
+    // read TotalNumberOfGrids attribute
+    HDF5_ReadAttribute(Hfile_id, "TotalNumberOfGrids", TotalNumberOfGrids, log_fptr);
+
+    
+    // read LevelLookupTable
+    LevelLookupTable = new int[TotalNumberOfGrids];
+    HDF5_ReadDataset(Hfile_id, "LevelLookupTable", LevelLookupTable, log_fptr);
+    
+//     if(MyProcessorNumber == ROOT_PROCESSOR)
+//       for(int i=0;i<TotalNumberOfGrids;i++)
+// 	fprintf(stderr,"LevelLookupTable[%d] = %d\n",i,LevelLookupTable[i]);
+  } 
+
+  if (HierarchyFileInputFormat == 1) {
+    if ((fptr = fopen(hierarchyname, "r")) == NULL) {
+      ENZO_VFAIL("Error opening hierarchy file %s.\n", hierarchyname)
+	}
   }
+
+  /* Read Data Hierarchy. */ 
+
   GridID = 1;
-  if (ReadDataHierarchy(fptr, TopGrid, GridID, NULL) == FAIL) {
+  if (ReadDataHierarchy(fptr, Hfile_id, TopGrid, GridID, NULL, log_fptr) == FAIL) {
     ENZO_VFAIL("Error in ReadDataHierarchy (%s).\n", hierarchyname)
   }
 
@@ -235,14 +283,14 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   /* Read StarParticle data. */
  
-  if (ReadStarParticleData(fptr) == FAIL) {
+  if (ReadStarParticleData(fptr, Hfile_id, log_fptr) == FAIL) {
         ENZO_FAIL("Error in ReadStarParticleData.");
   }
  
   /* Create radiation name and read radiation data. */
  
   if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) || 
-      RadiationData.RadiationShield == TRUE) {
+      (RadiationData.RadiationShield == TRUE && RadiationFieldType != 12)) {
     FILE *Radfptr;
     strcpy(radiationname, name);
     strcat(radiationname, RadiationSuffix);
@@ -256,12 +304,26 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     fclose(Radfptr);
   }
  
-  fclose(fptr);
+ 
+  //  if (HierarchyFileInputFormat == 0) {
+  if (HierarchyFileInputFormat % 2 == 0) {
+    h5_status = H5Fclose(Hfile_id);
+    if (h5_status == h5_error)
+      ENZO_FAIL("Error closing HDF5 hierarchy file.");    
 
+    delete [] LevelLookupTable;
+  }
+  
+  if (HierarchyFileInputFormat == 1)
+    fclose(fptr);
+  
   /* If we added new particle attributes, unset flag so we don't carry
      this parameter to later data. */
 
   AddParticleAttributes = FALSE;
+
+  if (io_log)
+    fclose(log_fptr);
 
   return SUCCESS;
 }

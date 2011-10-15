@@ -9,3 +9,6 @@ gravity = True
 cosmology = True
 dimensionality = 3
 radiation = 'fld'
+fullsuite = False
+pushsuite = False
+quicksuite = False

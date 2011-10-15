@@ -9,3 +9,6 @@ gravity = True
 dimensionality = 3
 author = 'Stephen Skory'
 max_time_minutes = 60
+fullsuite = True
+pushsuite = False
+quicksuite = False

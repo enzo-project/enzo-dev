@@ -5,6 +5,7 @@
 /  written by: Greg Bryan
 /  date:       November, 1994
 /  modified1:  Robert Harkness, July 2002
+/  modified2:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -120,7 +121,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   /* ------------------------------------------------------------------- */
   /* 1) Save general grid class data */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0) {
 
     fprintf(fptr, "Task              = %"ISYM"\n", ProcessorNumber);
  
@@ -234,7 +235,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
   if (NumberOfBaryonFields > 0) {
  
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
+    if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0) {
  
       fprintf(fptr, "FieldType = ");
  
@@ -903,12 +904,12 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
   /* ------------------------------------------------------------------- */
   /* 3) Save particle quantities. */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
  
   if (NumberOfParticles > 0) {
  
-    if (MyProcessorNumber == ROOT_PROCESSOR)
+    if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
       fprintf(fptr, "ParticleFileName = %s\n", name); // must be same as above
  
     if (MyProcessorNumber == ProcessorNumber) {
@@ -1174,7 +1175,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 
  
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     if (SelfGravity)
 
       fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
