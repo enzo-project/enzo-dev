@@ -36,7 +36,8 @@
 #endif
  
 #include <stdio.h>
- 
+
+#include "Enzo_Timing.h" 
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -164,6 +165,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LevelHierarchyEntry *Temp;
   double LastCPUTime;
 
+  // Create enzo timer
+  my_enzo_timer = new enzo_timing::enzo_timer();
+  hydro_timer = new enzo_timing::enzo_timer((char*)("chronos_hydro.out"));
+  section_timer = new enzo_timing::enzo_timer((char*)("chronos_section.out"));
+  
   LCAPERF_BEGIN("EL");
   LCAPERF_START("EvolveHierarchy");
 
@@ -681,10 +687,17 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 #endif
 
+    my_enzo_timer->write_out(MetaData.CycleNumber);
+    hydro_timer->write_out(MetaData.CycleNumber);
+    section_timer->write_out(MetaData.CycleNumber);
+
     FirstLoop = false;
  
   } // ===== end of main loop ====
- 
+
+  delete [] my_enzo_timer;
+  delete [] hydro_timer;
+
 #ifdef USE_LCAPERF
   if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");
   lcaperf.attribute ("timestep",0, LCAPERF_NULL);
