@@ -2,7 +2,7 @@
 #define ENZO_TIMING__
 #include <stdio.h>
 #include <math.h>
-#include <string>
+//#include <string>
 
 #define min(A,B) ((A) < (B) ? (A) : (B))
 #define max(A,B) ((A) > (B) ? (A) : (B))
@@ -12,50 +12,50 @@ void Reduce_Times(double time, double *time_array);
 
 namespace enzo_timing{
 
-  class section_performance
-  {
-  public:
+/*   class section_performance */
+/*   { */
+/*   public: */
     
-    section_performance(string myname){
-      name = myname;
-      next = NULL;
-      total_time = 0.0;
-      current_time = 0.0;
-    }
+/*     section_performance(string myname){ */
+/*       name = myname; */
+/*       next = NULL; */
+/*       total_time = 0.0; */
+/*       current_time = 0.0; */
+/*     } */
     
-    string myname;
+/*     string myname; */
 
-    void start_timer(void){
-      t0 = ReturnWallTime();
-    }
+/*     void start_timer(void){ */
+/*       t0 = ReturnWallTime(); */
+/*     } */
 
-    void stop_and_add_timer(void){
-      t1 = ReturnWallTime();
-      current_time += t1-t0;
-      total_time += t1-t0;
-    }
+/*     void stop_and_add_timer(void){ */
+/*       t1 = ReturnWallTime(); */
+/*       current_time += t1-t0; */
+/*       total_time += t1-t0; */
+/*     } */
 
-    double get_total_time(void){
-      return total_time;
-    }
-    double get_current_time(void){
-      return current_time;
-    }
-    void reset_current_time(void){
-      current_time = 0.0;  
-    }
+/*     double get_total_time(void){ */
+/*       return total_time; */
+/*     } */
+/*     double get_current_time(void){ */
+/*       return current_time; */
+/*     } */
+/*     void reset_current_time(void){ */
+/*       current_time = 0.0;   */
+/*     } */
 
-    section_performance *next;
+/*     section_performance *next; */
   
-  private:
-    double t0;
-    double t1; 
-    double total_time;
-    double current_time;
-    int ngrids;
-    long int ncells;
+/*   private: */
+/*     double t0; */
+/*     double t1;  */
+/*     double total_time; */
+/*     double current_time; */
+/*     int ngrids; */
+/*     long int ncells; */
     
-  };
+/*   }; */
 
  
 

@@ -27,6 +27,7 @@
 #include <unistd.h>
  
 #define DEFINE_STORAGE
+#include "Enzo_Timing.h"
 #include "ErrorExceptions.h"
 #include "svn_version.def"
 #include "performance.h"
