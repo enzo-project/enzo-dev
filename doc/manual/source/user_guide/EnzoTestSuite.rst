@@ -209,7 +209,8 @@ are have multiple Enzo repositories, you can specify the one you want:
 
 ::
 
-    ./test_runner.py --repo=/path/to/desired/enzo/repo --output-dir=/path/to/new/reference/directory
+    ./test_runner.py --repo=/path/to/desired/enzo/repo \\
+         --output-dir=/path/to/new/reference/directory
 
 Note that you should only use the top-level directory in the
 repository, not src/enzo, and if you simply want to use the current

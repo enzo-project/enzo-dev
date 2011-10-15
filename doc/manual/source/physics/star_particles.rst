@@ -171,8 +171,8 @@ details.  It can be used to represent single molecular clouds.
 * If there is a massive black hole particle in the same cell, the star
   particle will not be created.
 
-**Note:** The ``StarMakerOverDensity`` is in units of particles/cm^3
-  and not in overdensity like the other methods.
+The ``StarMakerOverDensity`` is in units of particles/cm\ :sup:`3` and
+not in overdensity like the other methods.
 
 Method 7: Springel & Hernquist
 ------------------------------
