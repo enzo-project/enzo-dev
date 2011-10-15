@@ -10,7 +10,6 @@ import subprocess
 import sys
 import time
 import logging
-sys.path.insert(0,'/Users/dccollins/local/src/yt-yt')
 
 known_categories = [
     "Cooling",
@@ -64,6 +63,9 @@ varspec = dict(
     author = (str, ''),
     max_time_minutes = (float, 60),
     radiation = (str, None),
+    quicksuite = (bool, False),
+    pushsuite = (bool, False),
+    fullsuite = (bool, False)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )

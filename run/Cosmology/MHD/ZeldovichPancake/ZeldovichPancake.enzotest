@@ -9,3 +9,6 @@ cosmology = True
 dimensionality = 1
 author = 'John Wise'
 max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

@@ -8,3 +8,6 @@ hydro = True
 gravity = True
 cooling = True
 dimensionality = 3
+fullsuite = False
+pushsuite = False
+quicksuite = False
