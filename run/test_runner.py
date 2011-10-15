@@ -63,6 +63,9 @@ varspec = dict(
     author = (str, ''),
     max_time_minutes = (float, 60),
     radiation = (str, None),
+    quicksuite = (bool, False),
+    pushsuite = (bool, False),
+    fullsuite = (bool, False)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )

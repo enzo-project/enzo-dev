@@ -7,6 +7,6 @@ cadence = 'nightly'
 cooling = True
 chemistry = True
 dimensionality = 2
-
-
-
+fullsuite = False
+pushsuite = False
+quicksuite = False
