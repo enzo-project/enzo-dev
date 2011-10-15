@@ -161,7 +161,7 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
   // re-calculating positions in long double precision (which is not
   // universally supported by HDF5) at runtime.
 
-  for (int i=0; i<MAX_DIMENSION; i++)
+  for (int i=0; i<GridRank; i++)
     GridGlobalPosition[i] = (int) ( (GridLeftEdge[i] - DomainLeftEdge[i]) / CellWidth[i][0] );
 
   HDF5_WriteDataset(group_id, "GridGlobalPosition", GridGlobalPosition, GridRank, log_fptr);
