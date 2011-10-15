@@ -159,6 +159,21 @@ Method 6: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
 *Source: star_maker7.F*
 
+This method relaxes the following criteria from the original Cen &
+Ostriker prescription.  See Kim et al. (2011, ApJ 738, 54) for more
+details.  It can be used to represent single molecular clouds.
+
+* No Jeans unstable check
+
+* No Stochastic star formation prescription that is implemented in
+  Method 1.
+
+* If there is a massive black hole particle in the same cell, the star
+  particle will not be created.
+
+**Note:** The ``StarMakerOverDensity`` is in units of particles/cm^3
+  and not in overdensity like the other methods.
+
 Method 7: Springel & Hernquist
 ------------------------------
 *Source: star_maker5.F*
