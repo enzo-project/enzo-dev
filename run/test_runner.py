@@ -10,7 +10,6 @@ import subprocess
 import sys
 import time
 import logging
-sys.path.insert(0,'/Users/dccollins/local/src/yt-yt')
 
 known_categories = [
     "Cooling",
