@@ -7,6 +7,9 @@ while somewhat obtuse at first -- reflects that context. Each grid
 entry has a set number of fields that describe its position in
 space, as well as the fields that are affiliated with that grid:
 
+Note: We are in the process of transitioning to an `HDF5-formatted
+Hierarchy File`_.
+
 .. highlight:: none
 
 ::
@@ -130,3 +133,162 @@ complicated and will be discussed below.
 
 
 
+HDF5-formatted Hierarchy File
+-----------------------------
+
+We are transitioning to an HDF5-formatted hierarchy file. This is an
+improvement because reading a large (many thousand grid) ASCII
+hierarchy file take a long time. [Other improvements?]
+
+The structure of the file:
+
+Although HDF5 tools like 'h5ls' and 'h5dump' can be used to explore
+the structure of the file, it's probably easiest to use python and
+h5py. This is how to open an example hierarchy file (from
+run/Cosmology/Hydro/AMRCosmologySimulation) in python.
+
+::
+
+     >>> import h5py
+     >>> f = h5py.File('RD0007/RedshiftOutput0007.hierarchy.hdf5','r')
+
+The root group ('/') contains a number of attributes.
+
+::
+
+     >>> f.attrs.keys()
+     ['Redshift', 'NumberOfProcessors', 'TotalNumberOfGrids']
+     >>> f.attrs['Redshift']
+     0.0
+     >>> f.attrs['NumberOfProcessors']
+     1
+     >>> f.attrs['TotalNumberOfGrids']
+     44
+
+So we see that this is a z=0 output from a simulation run on a single
+core and it contains a total of 44 grids.
+
+Now let's look at the groups contained in this file.
+
+::
+
+     >>> f.keys()
+     ['Level0', 'Level1', 'Level2', 'LevelLookupTable']
+
+The simulation has two levels of refinement, so there are a total of
+three HDF5 groups that contain information about the grids at each
+level. Additionally, there is one more dataset ('LevelLookupTable')
+that is useful for finding which level a given grid belongs to. Let's
+have a closer look.
+
+::
+
+     >>> level_lookup = f['LevelLookupTable']
+     >>> level_lookup.shape
+     (44,)
+     >>> level_lookup[:]
+     array([0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
+
+This shows you that the first grid is on level 0, the second on level
+1, and all the remaining grids on level 2. Let's have a look at the
+'Level2' group.
+
+::
+
+     >>> g = f['Level2']
+     >>> g.keys()
+    ['Grid00000003', 'Grid00000004', 'Grid00000005', ..., 'Grid00000043', 'Grid00000044']
+
+Each level group also has one attribute, 'NumberOfGrids'.
+
+::
+
+     >>> g.attrs['NumberOfGrids']
+     42
+
+The hierarchy information about each of the grids is stored as both
+attributes and datasets.
+
+::
+
+     >>> grid = g['Grid00000003']
+     >>> grid.attrs.keys()
+     ['Task', 'GridRank', 'Time', 'OldTime', 'SubgridsAreStatic', 'NumberOfBaryonFields', 'FieldType',
+      'BaryonFileName', 'CourantSafetyNumber', 'PPMFlatteningParameter', 'PPMDiffusionParameter',
+      'PPMSteepeningParameter', 'ParticleFileName', 'GravityBoundaryType', 'NumberOfDaughterGrids',
+      'NextGridThisLevelID', 'NextGridNextLevelID']
+     >>> grid.keys()
+     ['GridDimension', 'GridEndIndex', 'GridGlobalPosition',
+      'GridLeftEdge', 'GridRightEdge', 'GridStartIndex', 'NumberOfParticles']
+
+Besides the parameters that have been described above, there are few
+new elements:
+
+``GridGlobalPosition`` is LeftGridEdge[] expressed in integer indices
+of this level, i.e. running from 0 to RootGridDimension[] *
+RefinementFactors[]**level - 1. This may be useful for re-calculating
+positions in long double precision (which is not universally supported
+by HDF5) at runtime.
+
+
+``NumberOfDaughterGrids`` gives you the number of daughter grids.
+
+
+``DaughterGrids`` is a group that contains HDF5-internal soft links to
+the daugher datasets. Example:
+
+::
+
+     >>> daughters = grid['DaughterGrids']
+     >>> daughters.keys()
+     ['DaughterGrid0000', 'DaughterGrid0001', 'DaughterGrid0002', ..., 'DaughterGrid0041']
+     >>> daughters.get('DaughterGrid0000', getlink=True)
+     <SoftLink to "/Level2/Grid00000003">
+
+In this case there are 42 daughter grids.
+
+
+``ParentGrids`` is a group that contains HDF5-internal soft links to
+parent grids on all levels above the present grid's level. Example for
+a level 2 grid:
+
+::
+
+     >>> grid = f['Level2']['Grid00000044']
+     >>> parents = grid['ParentGrids']
+     >>> parents.keys()
+     ['ParentGrid_Level0', 'ParentGrid_Level1']
+     >>> parents.get('ParentGrid_Level0', getlink=True)
+     <SoftLink to "/Level0/Grid00000001">
+
+Lastly, there's one additional (experimental) feature that is
+available only if you've compiled with verson 1.8+ of HDF5. In that
+case you can set '#define HAVE_HDF5_18' in
+Grid_WriteHierarchyInformationHDF5.C [perhaps this should become a
+Makefile configuration option?], and then there will be an external
+HDF5 link to the HDF5 file containing the actual data for that grid. Example:
+
+::
+
+     >>> grid.get('GridData', getlink=True)
+     >>> <ExternalLink to "Grid00000002" in file "./RD0007/RedshiftOutput0007.cpu0000"
+
+
+Controlling the Hierarchy File Output Format
+--------------------------------------------
+
+There are two new parameters governing the format of the hierarchy
+format:
+
+``[OutputControl.]HierarchyFileInputFormat = 0, 1``
+
+  This specifies the format of the hierarchy file to be read in: 0 =
+  ASCII, 1 = HDF5. Default set to 0 for now, but will change to 1 in the
+  future.
+
+``[OutputControl.]HierarchyFileOutputFormat = 0, 1, 2``  [OutputControl.HierarchyFileOutputFormat in new-config]
+
+  This specifies the format of the hierarchy file to be written out: 0
+  = ASCII, 1 = HDF5, 2 = both. Default set to 2 for now, but will change
+  to 1 in the future.

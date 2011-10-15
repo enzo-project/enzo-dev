@@ -386,15 +386,15 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 
            ! set the matrix entries.  Note: the diffusive component 
            ! need not be rescaled, since scaling and chain rule cancel 
-           matentries(:,i,j,k) = (/  &
-                -dtfac*dzi*dzi*D_zl, &         ! z-left
-                -dtfac*dyi*dyi*D_yl, &         ! y-left
-                -dtfac*dxi*dxi*D_xl, &         ! x-left
+           matentries(1,i,j,k) = -dtfac*dzi*dzi*D_zl         ! z-left
+           matentries(2,i,j,k) = -dtfac*dyi*dyi*D_yl         ! y-left
+           matentries(3,i,j,k) = -dtfac*dxi*dxi*D_xl         ! x-left
+           matentries(4,i,j,k) = &
                  1.d0 + dtfac*(afac + c*kap + dxi*dxi*(D_xl+D_xr)   &   ! self
-                      + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr)), &
-                -dtfac*dxi*dxi*D_xr, &         ! x-right
-                -dtfac*dyi*dyi*D_yr, &         ! y-right
-                -dtfac*dzi*dzi*D_zr /)         ! z-right
+                      + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr))
+           matentries(5,i,j,k) = -dtfac*dxi*dxi*D_xr         ! x-right
+           matentries(6,i,j,k) = -dtfac*dyi*dyi*D_yr         ! y-right
+           matentries(7,i,j,k) = -dtfac*dzi*dzi*D_zr         ! z-right
 
            ! set the rhs entries
            rhsentries(i,j,k) = ( (dtfac/rUn + dtfac0/rUn0)*src(i,j,k)          &
@@ -729,13 +729,12 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 
         ! set the matrix entries.  Note: the diffusive component 
         ! need not be rescaled, since scaling and chain rule cancel 
-        matentries(:,i,j) = (/    &
-             -dtfac*dyi*dyi*D_yl, &         ! y-left
-             -dtfac*dxi*dxi*D_xl, &         ! x-left
-              1.d0 + dtfac*(afac + c*kap                   &         ! self
-              + dxi*dxi*(D_xl+D_xr)+dyi*dyi*(D_yl+D_yr)),  &
-             -dtfac*dxi*dxi*D_xr, &         ! x-right
-             -dtfac*dyi*dyi*D_yr /)         ! y-right
+        matentries(1,i,j) = -dtfac*dyi*dyi*D_yl         ! y-left
+        matentries(2,i,j) = -dtfac*dxi*dxi*D_xl         ! x-left
+        matentries(3,i,j) = 1.d0 + dtfac*(afac + c*kap     &         ! self
+              + dxi*dxi*(D_xl+D_xr)+dyi*dyi*(D_yl+D_yr))
+        matentries(4,i,j) = -dtfac*dxi*dxi*D_xr         ! x-right
+        matentries(5,i,j) = -dtfac*dyi*dyi*D_yr         ! y-right
 
         ! set the rhs entries
         rhsentries(i,j) = ( (dtfac/rUn + dtfac0/rUn0)*src(i,j)            &
@@ -952,11 +951,10 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
 
      ! set the matrix entries.  Note: the diffusive component 
      ! need not be rescaled, since scaling and chain rule cancel 
-     matentries(:,i) = (/              &
-          -dtfac*dxi*dxi*D_xl,         &  ! x-left
-           1.d0 + dtfac*(afac + c*kap  &  ! self
-           + dxi*dxi*(D_xl+D_xr)),     &
-          -dtfac*dxi*dxi*D_xr /)          ! x-right
+     matentries(1,i) = -dtfac*dxi*dxi*D_xl            ! x-left
+     matentries(2,i) = 1.d0 + dtfac*(afac + c*kap  &  ! self
+                            + dxi*dxi*(D_xl+D_xr))
+     matentries(3,i) = -dtfac*dxi*dxi*D_xr            ! x-right
 
      ! set the rhs entries
      rhsentries(i) = ( (dtfac/rUn + dtfac0/rUn0)*src(i)              &
