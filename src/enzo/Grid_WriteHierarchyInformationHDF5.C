@@ -161,7 +161,7 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
   // re-calculating positions in long double precision (which is not
   // universally supported by HDF5) at runtime.
 
-  for (int i=0; i<MAX_DIMENSION; i++)
+  for (int i=0; i<GridRank; i++)
     GridGlobalPosition[i] = (int) ( (GridLeftEdge[i] - DomainLeftEdge[i]) / CellWidth[i][0] );
 
   HDF5_WriteDataset(group_id, "GridGlobalPosition", GridGlobalPosition, GridRank, log_fptr);
@@ -298,6 +298,38 @@ int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, int Attribute
 
   return SUCCESS;
 }
+
+// int
+#ifdef SMALL_INTS
+int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, Eint64 Attribute, FILE *log_fptr) {
+
+  hid_t dspace_id, attr_id;
+
+  herr_t h5_status;
+
+  int io_log = 0;
+#ifdef IO_LOG
+  io_log = 1;
+#endif
+
+  dspace_id = H5Screate(H5S_SCALAR);
+  if (io_log) fprintf(log_fptr, "H5Screate: dspace_id = %"ISYM"\n", (int) dspace_id);
+
+  attr_id = H5Acreate(group_id, AttributeName, HDF5_FILE_I8, dspace_id, H5P_DEFAULT);
+  if (io_log) fprintf(log_fptr, "H5Acreate: attr_id = %"ISYM"\n", (int) attr_id);
+
+  h5_status = H5Awrite(attr_id,  HDF5_I8, &Attribute);
+  if (io_log) fprintf(log_fptr, "H5Awrite: status = %"ISYM"\n", (int) h5_status);
+
+  h5_status = H5Aclose(attr_id);
+  if (io_log) fprintf(log_fptr, "H5Aclose: status = %"ISYM"\n", (int) h5_status);
+  
+  h5_status = H5Sclose(dspace_id);
+  if (io_log) fprintf(log_fptr, "H5Sclose: status = %"ISYM"\n", (int) h5_status);
+
+  return SUCCESS;
+}
+#endif
 
 // FLOAT
 int HDF5_WriteAttribute(hid_t group_id, const char *AttributeName, FLOAT Attribute, FILE *log_fptr) {
