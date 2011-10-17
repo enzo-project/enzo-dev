@@ -1,4 +1,4 @@
-name = 'Wengen2-ColidingFlow'
+name = 'Wengen2-CollidingFlow'
 answer_testing_script = None
 nprocs = 1
 runtime = 'long'
