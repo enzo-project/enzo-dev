@@ -409,8 +409,7 @@ int grid::AddToDiskProfile(FLOAT SphereCenter[MAX_DIMENSION],
           /* Determine if particle is a star particle. */
 
           StarParticle = FALSE;
-          if (NumberOfParticleAttributes > 0 && StarParticleCreation > 0)
-            if (ParticleAttribute[0][i] > 0) /* creation time */
+          if (NumberOfParticleAttributes > 0 && ParticleType[i] == 2) 
               StarParticle = TRUE;
 
 	  /* a) Dark matter particles */

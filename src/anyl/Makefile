@@ -72,11 +72,12 @@ include $(ENZO_DIR)/Make.config.machine
 MAKE_CONFIG_OVERRIDE = $(ENZO_DIR)/Make.config.override
 include $(MAKE_CONFIG_OVERRIDE)
 
-# These may be necessary, so we manually override them here.
-CONFIG_USE_MPI   = yes
-CONFIG_PHOTON    = yes
-CONFIG_FAST_SIB  = yes
-CONFIG_LCAPERF   = no
+# These may be necessary, so we manually override them here. --JHK
+# No, we do not want to override defaults. --CBH
+#CONFIG_USE_MPI   = yes
+#CONFIG_PHOTON    = yes
+#CONFIG_FAST_SIB  = yes
+#CONFIG_LCAPERF   = no
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -112,8 +113,6 @@ $(EXE).exe: $(MODULES) dep $(OBJS_ANYL_LIB) purge_main
              $(ENZO_DIR)/hydro_rk/*.o $(ENZO_DIR)/uuid/*.o $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
              echo "Success!"; \
-             if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
-             cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
          else \
              echo "$(LD) $(LDFLAGS) -o $(EXE).exe $(OBJS_ANYL_LIB) $(ENZO_DIR)/*.o $(ENZO_DIR)/hydro_rk/*.o $(ENZO_DIR)/uuid/*.o $(LIBS)" >> temp1; \
              cat temp1 $(OUTPUT) > temp2; \
@@ -213,6 +212,20 @@ dep:
 include DEPEND
 
 #-----------------------------------------------------------------------
+# INSTALL TARGET
+#-----------------------------------------------------------------------
+
+install: $(TOP_DIR)/bin
+	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
+	-@cp $(EXE).exe $(TOP_DIR)/bin/$(EXE)
+	-$(MAKE) show-flags >& $(TOP_DIR)/bin/$(EXE).show-flags
+	-$(MAKE) show-config >& $(TOP_DIR)/bin/$(EXE).show-config
+	-$(MAKE) show-version >& $(TOP_DIR)/bin/$(EXE).show-version
+
+$(TOP_DIR)/bin:
+	mkdir $(TOP_DIR)/bin
+
+#-----------------------------------------------------------------------
 # HELP TARGET
 #-----------------------------------------------------------------------
 
@@ -223,6 +236,7 @@ help:
 	@echo "========================================================================"
 	@echo
 	@echo "   gmake                Compile and generate the executable 'anyl.exe'"
+	@echo "   gmake install        Copy the executable to bin"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"

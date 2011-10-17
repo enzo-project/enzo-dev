@@ -38,11 +38,12 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
   float PhotonTestSourceRampTime[MAX_SOURCES];
   float *PhotonTestSourceSED[MAX_SOURCES];
   float *PhotonTestSourceEnergy[MAX_SOURCES];
+  float PhotonTestSourceOrientation[MAX_SOURCES][MAX_DIMENSION];
 
   // Set defaults
 
   for (source = 0; source < MAX_SOURCES; source++) {
-    PhotonTestSourceType[source] = 0;
+    PhotonTestSourceType[source] = Isotropic;
     PhotonTestSourceLuminosity[source] = 0.;
     PhotonTestSourceLifeTime[source] = 0.;
     PhotonTestSourceCreationTime[source] = CurrentTime;
@@ -54,6 +55,9 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       PhotonTestSourcePosition[source][dim] =
 	0.5*(DomainLeftEdge[dim] + DomainRightEdge[dim]);
     }
+    PhotonTestSourceOrientation[source][0] =
+      PhotonTestSourceOrientation[source][1] = 0.0;
+    PhotonTestSourceOrientation[source][2] = 1.0;
   }
 
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
@@ -72,10 +76,10 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   /* read input from file */
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
-    ret = 0;
+     ret = 0;
     ret += sscanf(line, "PhotonTestNumberOfSources = %"ISYM,
 		  &PhotonTestNumberOfSources);
-    if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
+     if (sscanf(line, "PhotonTestSourceType[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceType[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceType[source]);
       if (debug)
@@ -99,6 +103,11 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceRampTime[%"ISYM"]", &source) > 0)
       ret += sscanf(line, "PhotonTestSourceRampTime[%"ISYM"] = %"FSYM, &source,
 		    &PhotonTestSourceRampTime[source]);
+    if (sscanf(line, "PhotonTestSourceOrientation[%"ISYM"]", &source) > 0)
+      ret += sscanf(line, "PhotonTestSourceOrientation[%"ISYM"] = %"FSYM" %"FSYM" %"FSYM, 
+		    &source, &PhotonTestSourceOrientation[source][0],
+		    &PhotonTestSourceOrientation[source][1],
+		    &PhotonTestSourceOrientation[source][2]);
     if (sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"]", &source) > 0) {
       ret += sscanf(line, "PhotonTestSourceEnergyBins[%"ISYM"] = %"ISYM, &source,
 		    &PhotonTestSourceEnergyBins[source]);
@@ -107,7 +116,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceSED[%"ISYM"]", &source) > 0) {
       if (!EnergyBinsDefined)
 	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before SED!");
-      PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]];
+      PhotonTestSourceSED[source] = new float[PhotonTestSourceEnergyBins[source]+1];
       numbers = strstr(line, "=")+2;
       value = strtok(numbers, delims);
       count = 0;
@@ -120,7 +129,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     if (sscanf(line, "PhotonTestSourceEnergy[%"ISYM"]", &source) > 0) {
       if (!EnergyBinsDefined)
 	ENZO_FAIL("Must define PhotonTestSourceEnergyBins before Energies!");
-      PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]];
+      PhotonTestSourceEnergy[source] = new float[PhotonTestSourceEnergyBins[source]+1];
       numbers = strstr(line, "=")+2;
       value = strtok(numbers, delims);
       count = 0;
@@ -160,7 +169,7 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 
   // normalize SED
 
-  float totSED;
+  float totSED, sum;
   for (source = 0; source < PhotonTestNumberOfSources; source++) {
     totSED = 0.;  
     for (i=0; i<PhotonTestSourceEnergyBins[source]; i++) 
@@ -178,13 +187,14 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
 		       i, PhotonTestSourceLuminosity[i], TimeUnits, LengthUnits);
     PhotonTestSourceLuminosity[i] *= TimeUnits/pow(LengthUnits,3);
     if (debug) fprintf(stdout, "ReadPhotonSources: %"ISYM"  %"GSYM"\n", 
-
 		       i, PhotonTestSourceLuminosity[i]);
     RadiationSourceEntry *RadSources;
     RadSources = new RadiationSourceEntry;
     RadSources->PreviousSource = GlobalRadiationSources;
     RadSources->NextSource     = GlobalRadiationSources->NextSource;
     RadSources->SuperSource    = NULL;
+    RadSources->GridID         = INT_UNDEFINED;
+    RadSources->GridLevel      = INT_UNDEFINED;
     RadSources->Type           = PhotonTestSourceType[i]; 
     RadSources->Luminosity     = PhotonTestSourceLuminosity[i]; 
     RadSources->LifeTime       = PhotonTestSourceLifeTime[i]; 
@@ -202,7 +212,30 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
       RadSources->Energy[j] = PhotonTestSourceEnergy[i][j];
       RadSources->SED[j]    = PhotonTestSourceSED[i][j];
     }
+    if (RadSources->Type == Beamed) {
+      RadSources->Orientation = new float[3];
+      sum = 0;  // for normalization
+      for (dim = 0; dim < MAX_DIMENSION; dim++) {
+	RadSources->Orientation[dim] = PhotonTestSourceOrientation[i][dim];
+	sum += PhotonTestSourceOrientation[i][dim] * PhotonTestSourceOrientation[i][dim];
+      }
+      sum = sqrt(sum);
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	RadSources->Orientation[dim] /= sum;
+    } else {
+      RadSources->Orientation = NULL;
+    }
+
+    if (RadSources->Type != Isotropic && RadSources->Type != Beamed &&
+	RadSources->Type != Episodic) {
+      if (MyProcessorNumber == ROOT_PROCESSOR)
+	fprintf(stderr, "PhotonTestSourceType must be 1, -2, -3.\n",
+		"\tChanging to 1 (isotropic)\n");
+      RadSources->Type = Isotropic;
+    }
+
     GlobalRadiationSources->NextSource = RadSources;
+
   }  
 
   /* Delete allocated memory for temporary (for I/O) photon sources */
@@ -212,6 +245,17 @@ int ReadPhotonSources(FILE *fptr, FLOAT CurrentTime)
     delete [] PhotonTestSourceSED[source];
   }
 
+  /* Create tree that clusters the sources if requested */
+
+  /* While creating tree (type SuperSource), compute position of the
+     super source in each leaf. */
+  
+  if (RadiativeTransferSourceClustering == TRUE)
+    if (CreateSourceClusteringTree(NULL, NULL, NULL) == FAIL) {
+      ENZO_FAIL("Error in CreateSourceClusteringTree.\n");
+
+    }
+  
   return SUCCESS;
 
 }

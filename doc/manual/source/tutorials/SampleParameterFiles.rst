@@ -1,3 +1,5 @@
+.. _sample-parameter-files:
+
 Sample inits and Enzo parameter files
 =====================================
 
@@ -8,6 +10,8 @@ tinkering. They can be downloaded separately below, or as a single
 tarball.
 
 Note: unless otherwise specified, inits is run by calling
+
+.. highlight:: none
 
 ::
 

@@ -95,8 +95,6 @@
 #define TESTS
 #endif
 
-#include <stdio.h>
-
 #ifndef USE_MPI
 #define MyProcessorNumber 0
 #define ROOT_PROCESSOR 0

@@ -101,6 +101,8 @@ Univ. Press */
  
 #define NR_END 1
 #define FREE_ARG char*
+
+#ifdef NOT_USED
  
 float *vector(long nl, long nh)
 /* allocate a float vector with subscript range v[nl..nh] */
@@ -132,6 +134,8 @@ void free_ivector(int *v, long nl, long nh)
 {
         free((FREE_ARG) (v+nl-NR_END));
 }
+
+#endif /* NOT_USED */
  
 #ifdef NOT_USED
 /* =================================================================== */

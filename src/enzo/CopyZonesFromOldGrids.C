@@ -33,12 +33,10 @@
 #include "CommunicationUtilities.h"
 #include "communication.h"
 
-#define GRIDS_PER_LOOP 20000
+#define GRIDS_PER_LOOP 100000
 #define CELLS_PER_LOOP 100000000
 
-#ifdef USE_MPI
 int CommunicationBufferPurge(void);
-#endif
 int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 				int NumberOfSubgrids[] = NULL,
 				int FluxFlag = FALSE,
@@ -145,6 +143,7 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
     if (CommunicationReceiveHandler() == FAIL)
       ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
 
+
     /* Delete old grids and increase total grid count and then advance
        FirstGrid pointer */
 
@@ -159,8 +158,7 @@ int CopyZonesFromOldGrids(LevelHierarchyEntry *OldGrids,
     FirstGrid = Temp;
 #ifdef USE_MPI
     CommunicationBufferPurge();
-#endif
-
+#endif /* USE_MPI */
   } // ENDWHILE grid batches
 
   return SUCCESS;

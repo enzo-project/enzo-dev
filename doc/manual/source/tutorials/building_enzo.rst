@@ -13,13 +13,13 @@ Enzo can be compiled on any POSIX-compatible operating system, such as Linux,
 BSD (including Mac OS X), and AIX.  In addition to a C/C++ and Fortran-90
 compiler, the following libraries are necessary:
 
-   * `HDF5 <http://hdf.ncsa.uiuc.edu/HDF5/>`_, the hierarchical data format.
+   * `HDF5 <http://www.hdfgroup.org/HDF5/>`_, the hierarchical data format.
      Note that HDF5 also may require the szip and zlib libraries, which can be
      found at the HDF5 website.  Note that compiling with HDF5 1.8 or greater
      requires that the compiler directive ``H5_USE_16_API`` be specified;
      typically this is done with ``-DH5_USE_16_API`` and it's set in most of
      the provided makefiles.
-   * `MPI <http://www-unix.mcs.anl.gov/mpi/>`_, for multi-processor parallel
+   * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run oon a single processor.
 
@@ -29,7 +29,7 @@ Mercurial Check Out Instructions
 Enzo is provided in both a stable and an unstable form.  **It is highly
 recommended that for any production run the stable version is used.**
 Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
-List <https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_.  A source
+List <http://groups.google.com/group/enzo-users>`_.  A source
 browser is also available.
 
 Please visit the Google Code project website to access the Enzo source tree and
@@ -37,12 +37,9 @@ read the latest source checkout instructions.
 
 http://enzo.googlecode.com/
 
-Before you try to build Enzo, you may wish to verify your system meets the
-`compilation requirements? </wiki/Devel/UserGuide/CompilationRequirements>`_.
-
 Updating a source tree with Mercurial is beyond the scope of this document; for
-more information, please peruse :ref:`HowToDevelopEnzo` and the Mercurial
-documentation.  The `mercurial <http://mercurial.selenic.com/`_ commands of
+more information, please peruse :ref:`developers_guide` and the Mercurial
+documentation.  The `mercurial <http://mercurial.selenic.com/>`_ commands of
 most use are ``pull``, ``update`` and ``incoming``.
 
 Building Enzo
@@ -55,13 +52,15 @@ system arguments can be found in :ref:`MakeOptions`.
 This assumes that we're working from a checkout from the Enzo project page,
 located at http://enzo.googlecode.com/ .  Checkout instructions can be found
 there, and for more detailed information about the structure of the Enzo source
-control repository, see :ref:`CheckOutInstructions`.
+control repository, see :ref:`enzo_modification`.
 
 Initializing the Build System
 +++++++++++++++++++++++++++++
 
 This just clears any existing configurations left over from a previous machine,
 and creates a couple of files for building.
+
+.. highlight:: none
 
 ::
 
@@ -140,7 +139,7 @@ Makefile in that directory to provide or override Make settings.
 
 Make sure you save your configuration file! If you're on a big system (multiple
 Enzo users), please post your file to `the Enzo mailing list
-<http://mailman.ucsd.edu/mailman/listinfo/enzo-users-l>`_, and it will be
+<http://groups.google.com/group/enzo-users>`_, and it will be
 considered for inclusion with the base Enzo distribution.
 
 HDF5 Versions
@@ -149,7 +148,7 @@ HDF5 Versions
 If your system uses a version of HDF5 greater than or equal to 1.8, you
 probably need to add a flag to your compile settings, unless your HDF5 library
 was compiled using --with-default-api-version=v16. The simplest thing to do is
-to find the line in your Make.mach file that sets up MACH\_DEFINES, which may
+to find the line in your Make.mach file that sets up MACH_DEFINES, which may
 look like this
 
 ::
@@ -286,9 +285,11 @@ Ring
 
 This will produce ``ring.exe``.
 
+.. _build_yt:
+
 YT
 ~~
 
 To install yt, you can use the installation script provided with the yt source
-distribution.  See :ref:`installation` or :ref:`installation_script` for more
+distribution.  See `the yt homepage <http://yt.enzotools.org/>`_ for more
 information.

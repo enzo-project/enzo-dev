@@ -44,8 +44,6 @@ void Star::MirrorToParticle(void)
   double dx = LengthUnits * CurrentGrid->CellWidth[0][0];
   MassConversion = (float) (dx*dx*dx * double(DensityUnits) / Msun);
 
-  //  printf("CurrentGrid->NumberOfParticles = %d\n", CurrentGrid->NumberOfParticles); 
-
   // Find where this star particle is stored in main arrays
   for (i = 0; i < CurrentGrid->NumberOfParticles; i++) 
     if (CurrentGrid->ParticleNumber[i] == this->Identifier) {
@@ -54,19 +52,19 @@ void Star::MirrorToParticle(void)
     }
 
   if (place < 0) {
-    ENZO_VFAIL("Star_MirrorToParticle: Cannot find matching particle.\n"
-	   "StarID = %d, grid::NumberOfParticles = %d\n"
-	   "Position        = %"FSYM" %"FSYM" %"FSYM"\n"
-	   "Grid Left Edge  = %"FSYM" %"FSYM" %"FSYM"\n"
-	   "Grid Right Edge = %"FSYM" %"FSYM" %"FSYM"\n",
-	   this->Identifier, CurrentGrid->NumberOfParticles,
-	   this->pos[0], this->pos[1], this->pos[2],
-	   CurrentGrid->GridLeftEdge[0], CurrentGrid->GridLeftEdge[1],
-	   CurrentGrid->GridLeftEdge[2],
-	   CurrentGrid->GridRightEdge[0], CurrentGrid->GridRightEdge[1],
-	   CurrentGrid->GridRightEdge[2])
-
+    printf("star::MTP: CurrentGrid->NumberOfParticles = %d, level = %d, "
+	   "place =%d, Mass = %d, GridID = %d\n", 
+	   CurrentGrid->NumberOfParticles, level, place, Mass, GridID); 
+    printf("star::MTP: LeftEdge // RightEdge = %"PSYM" %"PSYM" %"PSYM
+	   " // %"PSYM" %"PSYM" %"PSYM"\n",
+	   CurrentGrid->GridLeftEdge[0], CurrentGrid->GridLeftEdge[1], 
+	   CurrentGrid->GridLeftEdge[2], 
+	   CurrentGrid->GridRightEdge[0], CurrentGrid->GridRightEdge[1], 
+	   CurrentGrid->GridRightEdge[2]);
+    this->PrintInfo();
+    ENZO_FAIL("Cannot find matching particle for this star.");
   }
+  //assert(place >= 0);
 
   // Change all particle data in favor of updated Star particle
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -77,6 +75,7 @@ void Star::MirrorToParticle(void)
   CurrentGrid->ParticleType[place] = this->type;
   CurrentGrid->ParticleAttribute[0][place] = this->BirthTime;
   CurrentGrid->ParticleAttribute[1][place] = this->LifeTime;
+  CurrentGrid->ParticleAttribute[2][place] = this->Metallicity;
   
   return;
 }

@@ -32,6 +32,8 @@ command line. Typically, a parameter is set by writing the
 parameter name, an equals sign, and then the parameter value or
 values, like this:
 
+.. highlight:: none
+
 ::
 
     NumberOfBufferZones = 3
@@ -547,7 +549,7 @@ total dataset size! This is possible because the reading of initial
 conditions and writing out of data dumps is fully parallelized - at
 startup, when the parameter ``ParallelRootGridIO`` is turned on each
 processor only reads the portion of the root grid which is within
-its computational domain, and when ``ParallelParticleIO ``is turned on
+its computational domain, and when ``ParallelParticleIO`` is turned on
 each processor only reads in the particles within its domain
 (though preprocessing is needed - see below). Additionally, the
 parameter ``Unigrid`` should be turned on for simulations without AMR,

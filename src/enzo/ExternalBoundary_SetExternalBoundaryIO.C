@@ -634,7 +634,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (z-left).\n",btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Unrecognized IO BoundaryType!\n");
+            ENZO_FAIL("Unrecognized IO BoundaryType");
           }
         }
 
@@ -738,7 +738,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
             fprintf(stderr, "IO BoundaryType %"ISYM" not recognized (z-right).\n",btb);
             fprintf(stderr, "field %"ISYM" dim %"ISYM" face %"ISYM" slab %"ISYM" bindex %"ISYM" btb %"ISYM"\n",
               field, dim, face, slabsize, bindex, bt_buffer[bindex]);
-            ENZO_FAIL("Unrecognized IO BoundaryType!\n");
+            ENZO_FAIL("Unrecognized IO BoundaryType");
           }
 
         }
@@ -778,7 +778,7 @@ int ExternalBoundary::SetExternalBoundary(int FieldRank, int GridDims[],
 		    BoundaryType[field][2][1][bindex]);
             fprintf(stderr, "field %"ISYM" dim %"ISYM"\n",field, dim);
 
-            ENZO_FAIL("Unrecognized IO BoundaryType!\n");
+	    ENZO_FAIL("Unrecognized IO BoundaryType!\n");
 	  }
 
 	}

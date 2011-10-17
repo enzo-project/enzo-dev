@@ -38,8 +38,8 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   }
 
   char *DensName = "Density";
-  char *TEName   = "Total_Energy";
-  char *GEName   = "Gas_Energy";
+  char *TEName   = "TotalEnergy";
+  char *GEName   = "GasEnergy";
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
@@ -47,7 +47,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   /* parameter declarations */
  
-  FLOAT RotatingCylinderSubgridLeft, RotatingCylinderSubgridRight;
+  FLOAT RotatingCylinderSubgridLeft[MAX_DIMENSION], RotatingCylinderSubgridRight[MAX_DIMENSION];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   FLOAT RotatingCylinderCenterPosition[MAX_DIMENSION];
 
@@ -77,8 +77,11 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
   /* set no subgrids by default. */
  
-  RotatingCylinderSubgridLeft         = 0.0;    // start of subgrid(s)
-  RotatingCylinderSubgridRight        = 0.0;    // end of subgrid(s)
+  RotatingCylinderSubgridLeft[0] = RotatingCylinderSubgridLeft[1] = 
+    RotatingCylinderSubgridLeft[2] = 0.0;    // start of subgrid(s)
+
+  RotatingCylinderSubgridRight[0] = RotatingCylinderSubgridRight[1] = 
+    RotatingCylinderSubgridRight[2] = 0.0;    // end of subgrid(s)
 
   /* read input from file */
  
@@ -89,10 +92,10 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     /* read parameters specifically for radiating shock problem*/
 
     ret += sscanf(line, "RotatingCylinderOverdensity  = %"FSYM, &RotatingCylinderOverdensity);
-    ret += sscanf(line, "RotatingCylinderSubgridLeft = %"PSYM,
-		        &RotatingCylinderSubgridLeft);
-    ret += sscanf(line, "RotatingCylinderSubgridRight = %"PSYM,
-		        &RotatingCylinderSubgridRight);
+    ret += sscanf(line, "RotatingCylinderSubgridLeft = %"PSYM" %"PSYM" %"PSYM,
+		  RotatingCylinderSubgridLeft,RotatingCylinderSubgridLeft+1,RotatingCylinderSubgridLeft+2);
+    ret += sscanf(line, "RotatingCylinderSubgridRight = %"PSYM" %"PSYM" %"PSYM,
+		  RotatingCylinderSubgridRight,RotatingCylinderSubgridRight+1,RotatingCylinderSubgridRight+2);
     ret += sscanf(line, "RotatingCylinderLambda = %"FSYM,
 		        &RotatingCylinderLambda);
 
@@ -144,7 +147,7 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       NumberOfSubgridZones[dim] =
-	nint((RotatingCylinderSubgridRight - RotatingCylinderSubgridLeft)/
+	nint((RotatingCylinderSubgridRight[dim] - RotatingCylinderSubgridLeft[dim])/
 	     ((DomainRightEdge[dim] - DomainLeftEdge[dim] )/
 	      float(MetaData.TopGridDims[dim])))
         *int(POW(RefineBy, lev + 1));
@@ -173,8 +176,8 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
  
       for (dim = 0; dim < MetaData.TopGridRank; dim++) {
 	SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*DEFAULT_GHOST_ZONES;
-	LeftEdge[dim]    = RotatingCylinderSubgridLeft;
-	RightEdge[dim]   = RotatingCylinderSubgridRight;
+	LeftEdge[dim]    = RotatingCylinderSubgridLeft[dim];
+	RightEdge[dim]   = RotatingCylinderSubgridRight[dim];
       }
  
       /* create a new subgrid and initialize it */

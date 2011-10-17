@@ -23,6 +23,8 @@
 /  modified2:  September 11, 2007 by John Hayes, added some flexibility in how
 /              the mean molecular weight is evaluated so that radiating shock
 /              problems can be accommodated properly.
+/  modified3:  Elizabeth Tasker, May 2011: changed DEFAULT_MU to parameter Mu
+/              (default still 0.6).
 /
 /  PURPOSE: Takes in EnzoVector and returns temperature field at 
 /           desired time.  This routine will be called repeatedly, so 
@@ -35,7 +37,6 @@
 
 
 /* default constants */
-#define DEFAULT_MU 0.6   // mean molecular mass
 #define MIN_TEMP 1.0     // minimum temperature [K]
 
 
@@ -136,7 +137,7 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
 	// special case for the astrophysical radiating shock
 	mmw = 0.5;
       } else {
-	mmw = DEFAULT_MU;
+	mmw = Mu;
       }
       if ( ProblemType != 405 ) {
 	for (i=0; i<size; i++)
@@ -153,10 +154,10 @@ int gFLDProblem::ComputeTemperature(float *TempArr, float time,
     for (int i=1; i<=Nchem; i++)  ni[i-1] = u->GetData(1+i);
 
     //   If performing Ionization test 0 or 1, decouple the gas energy from 
-    //   the chemistry: use DEFAULT_MU as in standard approach
+    //   the chemistry: use variable Mu (default 0.6) as in standard approach
     if ((Model == 4) || (Model == 5)) {
       for (i=0; i<size; i++)
-        TempArr[i] = max((Gamma-1.0)*DEFAULT_MU*mp*TempArr[i]/kb, MIN_TEMP);
+        TempArr[i] = max((Gamma-1.0)*Mu*mp*TempArr[i]/kb, MIN_TEMP);
     }
     else {
       // Hydrogen only

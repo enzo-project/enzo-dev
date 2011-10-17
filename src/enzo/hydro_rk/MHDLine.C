@@ -28,7 +28,15 @@ int LLF_PLM_MHD(float **prim, float **priml, float **primr,
 int HLL_PPM_MHD(float **prim, float **priml, float **primr,
 		float **species, float **colors,  float **FluxLine, int ActiveSize,
 		char direc, int jj, int kk);
-
+int HLLD_Zero_MHD(float **prim, float **priml, float **primr,
+		float **species, float **colors,  float **FluxLine, int ActiveSize,
+		char direc, int jj, int kk);
+int HLLD_PLM_MHD(float **prim, float **priml, float **primr,
+		float **species, float **colors,  float **FluxLine, int ActiveSize,
+		char direc, int jj, int kk);
+int LLF_Zero_MHD(float **prim, float **priml, float **primr,
+                 float **species, float **colors,  float **FluxLine, int ActiveSize,
+                 char direc, int ij, int ik);
 double ReturnWallTime();
 
 int MHDLine(float **Prim, float **priml, float **primr,
@@ -36,7 +44,13 @@ int MHDLine(float **Prim, float **priml, float **primr,
 	    float dtdx, char direc, int jj, int kk, int fallback)
 {
 
-
+  if (fallback > 0) {
+    if (LLF_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
+      printf("HydroLine: LLF_Zero failed\n");
+      return FAIL;
+    }
+    return SUCCESS;
+  }
 
   if (RiemannSolver == HLL && ReconstructionMethod == PLM) {
     if (HLL_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
@@ -52,10 +66,29 @@ int MHDLine(float **Prim, float **priml, float **primr,
   }
   else if (RiemannSolver == HLL && ReconstructionMethod == PPM) {
     if (HLL_PPM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
-      printf("HydroLineMHD: HLL_PLM failed\n");
+      printf("HydroLineMHD: HLL_PPM failed\n");
       return FAIL;
     }
   }
+  else if (RiemannSolver == HLLD && ReconstructionMethod == ZERO) {
+    if (HLLD_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
+      printf("HydroLineMHD: HLLD_Zero failed\n");
+      return FAIL;
+    }
+  }
+  else if (RiemannSolver == HLLD && ReconstructionMethod == PLM) {
+    if (HLLD_PLM_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
+      printf("HydroLineMHD: HLLD_PLM failed\n");
+      return FAIL;
+    }
+  }
+  else if (RiemannSolver == LLF && ReconstructionMethod == ZERO) {
+    if (LLF_Zero_MHD(Prim, priml, primr, species, colors, FluxLine, ActiveSize, direc, jj, kk) == FAIL) {
+      printf("HydroLine: LLF_Zero failed\n");
+      return FAIL;
+    }
+  }
+
   else {
     printf("MHD solver undefined\n");
     return FAIL;

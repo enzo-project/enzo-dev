@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GRID CLASS (SOLVE POISSON EQUATION IN CARDASSIAN COORDINATE USING
+/  GRID CLASS (SOLVE POISSON EQUATION IN CARTESIAN COORDINATE USING
 /              CONJUGATE GRADIENT METHOD WITH JACOBI PRECONDITIONER)
 /
 /  written by: Peng Wang & Fen Zhao
@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -371,7 +372,7 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
   
  
   if (r_norm < threshold){
-    printf("r_norm1  %g < threshold %g\n", r_norm, threshold);
+//    printf("r_norm1  %g < threshold %g\n", r_norm, threshold);  
     delete [] x;
     delete [] Ax;
     delete [] r_old;
@@ -468,7 +469,7 @@ int grid::PoissonSolverCGA(int difftype, double *divB_p)
 
 
   if (debug){
-    printf("Iteration times = %d\n", counter);
+//    printf("Iteration times = %d\n", counter); 
   
     if (counter == size)
       printf("Iterations reached limit, maxnr = %g\n", dotnr);

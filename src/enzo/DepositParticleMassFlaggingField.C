@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
  
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -31,14 +32,15 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "communication.h"
+#include "SortCompareFunctions.h"
 
 /* Because we're basically doing a non-blocking MPI_Reduce(MPI_SUM),
    we need to allocate buffers for each on all processors.  Split up
    the work by summing over batches of processors, determined by the
    total number of cells on the level. */
 
-#define CELLS_PER_LOOP 1e8
-#define GRIDS_PER_LOOP 20000
+#define CELLS_PER_LOOP 3e8
+#define GRIDS_PER_LOOP 100000
 
 void my_exit(int status);
 double ReturnWallTime(void);
@@ -56,11 +58,6 @@ Eint32 compare_grid1(const void *a, const void *b);
 static int FirstTimeCalled = TRUE;
 static MPI_Datatype MPI_TwoInt;
 #endif
-
-struct two_int {
-  int grid;
-  int proc;
-};
 
 int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 				     int level, bool AllLocal)
@@ -207,7 +204,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
     t0 = ReturnWallTime();
 #endif
 
-    qsort(SendList, TotalNumberOfSends, sizeof_twoint, compare_proc1);
+    //qsort(SendList, TotalNumberOfSends, sizeof_twoint, compare_proc1);
+    std::sort(SendList, SendList+TotalNumberOfSends, cmp_proc1());
 
 #ifdef TIMING
     t1 = ReturnWallTime();
@@ -278,7 +276,8 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 
     // For easier searching for the sending processors for each grid,
     // sort by grid number
-    qsort(SharedList, TotalNumberOfRecv, sizeof_twoint, compare_grid1);
+    //qsort(SharedList, TotalNumberOfRecv, sizeof_twoint, compare_grid1);
+    std::sort(SharedList, SharedList+TotalNumberOfRecv, cmp_grid1());
 
     /* Determine how many processors will participate in each
        communication loop to reduce memory usage (see note at the top
@@ -366,7 +365,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 
 	if (CommunicationReceiveHandler() == FAIL)
 	  ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
-
+	
 #ifdef TIMING
 	tt1 = ReturnWallTime();
 	if (MyProcessorNumber == ROOT_PROCESSOR)

@@ -376,6 +376,7 @@ function pbar(ak,a)
   double precision y(nkmax,nt),dy(nkmax,nt),dk,akminl
   double precision y1(nkmax,nt),dy1(nkmax,nt)
   double precision y2(nkmax,nt),dy2(nkmax,nt)
+  real ljeans2
   common /cosmoparms/ omegam,omegav,h0
   common /pstuff/ atab,an,pnorm,icase,ilog,ntab
   common /splin2/ y1,dy1,y2,dy2,y,dy,dk,akminl,nk
@@ -404,7 +405,8 @@ function pbar(ak,a)
      !  Two subcases: BBKS transfer function or tabulated transfer function
      !  from linger.dat.
      !**************************************
-     pbar=p(ak,a)
+     ljeans2 = 1.5e-6 / (omegam*(h0/100.0)**2)  ! Mpc^2
+     pbar=p(ak,a) / (1.0+ljeans2*ak**2)**2  ! Jeans smoothing at small scales
      return
   end if
   !  Use tabulated matter transfer function.
@@ -822,13 +824,22 @@ subroutine pini
   dlkp=log(ak2/ak1)/(nkplot-1)
   
   if (myid==0) then
-     open(11,file='power.dat',form='formatted',status='unknown')
+     open(11,file='power_cdm.dat',form='formatted',status='unknown')
      rewind 11
      write(11,*) an,anorml
      do i=1,nkplot
         ak0=ak1*exp((i-1)*dlkp)
-        write(11,*) ak0/(h0/100.0),p(ak0,1.0)*(h0/100.0)**3, &
-             &                fourpi*ak0*ak0*ak0*p(ak0,1.0)
+        write(11,*) ak0/(h0/100.0),pcdm(ak0,1.0)*(h0/100.0)**3, &
+             &                fourpi*ak0*ak0*ak0*pcdm(ak0,1.0)
+     end do
+     close(11)
+     open(11,file='power_bar.dat',form='formatted',status='unknown')
+     rewind 11
+     write(11,*) an,anorml
+     do i=1,nkplot
+        ak0=ak1*exp((i-1)*dlkp)
+        write(11,*) ak0/(h0/100.0),pbar(ak0,1.0)*(h0/100.0)**3, &
+             &                fourpi*ak0*ak0*ak0*pbar(ak0,1.0)
      end do
      close(11)
   endif

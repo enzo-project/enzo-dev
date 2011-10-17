@@ -12,20 +12,34 @@
 ************************************************************************/
 
 #ifdef DEFINE_STORAGE
-# define SEDOV_BLAST_EXTERN
+# define SEDEXTERN
 #else /* DEFINE_STORAGE */
-# define SEDOV_BLAST_EXTERN extern
+# define SEDEXTERN extern
 #endif /* DEFINE_STORAGE */
+
+/* Type of Sedov blast: 
+ 0) 2D with energy injected into multiple cells
+ 1) 3D with initial energy distribution from analytical start
+ 2) 3D with energy injected into multiple cells
+ 3) 3D with energy injected into a single cell
+*/
+
+SEDEXTERN int SedovBlastType;
 
 /* Density and total energy in the ambient medium. */
 
-SEDOV_BLAST_EXTERN int   SedovBlastFullBox;
-SEDOV_BLAST_EXTERN float SedovBlastDensity;
-SEDOV_BLAST_EXTERN float SedovBlastTotalEnergy;
+SEDEXTERN int   SedovBlastFullBox;
+SEDEXTERN float SedovBlastDensity;
+SEDEXTERN float SedovBlastTotalEnergy;
+SEDEXTERN float SedovBlastInputEnergy;
 
 /* Density and total energy in the "inner" state. */
 
-SEDOV_BLAST_EXTERN float SedovBlastInnerTotalEnergy;
+SEDEXTERN float SedovBlastInnerTotalEnergy;
 
-
+/* Radius in cell lengths (on finest level) that energy is 
+   injected into (type 0 and 2) and 
+   the total number of cells this equates to. */
  
+SEDEXTERN float SedovBlastEnergyZones;
+SEDEXTERN int SedovBlastEnergyZonesUsed;

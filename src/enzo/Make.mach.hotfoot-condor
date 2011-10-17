@@ -1,0 +1,107 @@
+#=======================================================================
+#
+# FILE:        Make.mach.hotfoot-condor
+#
+# DESCRIPTION: Hotfoot Cluster using Condor at ColumbiaU
+#
+# AUTHOR:      Matthew Turk (matthewturk@gmail.com)
+#
+# DATE:        2011-01-28
+#
+#=======================================================================
+
+MACH_TEXT  = Hotfoot with Condor
+MACH_VALID = 0
+MACH_FILE  = Make.mach.hotfoot-condor
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /usr/bin/cpp # C preprocessor command
+
+# With MPI
+
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpic++ # C++ compiler when using MPI
+MACH_FC_MPI    = mpif77 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpic++ # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = g++ # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+# Note: When compiling against HDF5 version 1.8 or greater, you need to
+# compile HDF5 with --with-default-api-version=v16, or Enzo with
+# -DH5_USE_16_API.
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API # Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional # C preprocessor flags
+MACH_CFLAGS   = # C compiler flags
+MACH_CXXFLAGS = # C++ compiler flags
+MACH_FFLAGS   = -fno-second-underscore # Fortran 77 compiler flags
+MACH_F90FLAGS = -fno-second-underscore # Fortran 90 compiler flags
+MACH_LDFLAGS  = # Linker flags
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = # Flag to force Fortran to use 32-bit integers
+MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8 # Flag to force Fortran to use 32-bit integers
+MACH_FFLAGS_REAL_32    = # Flag to force Fortran to use 32-bit REALs
+MACH_FFLAGS_REAL_64    = -fdefault-real-8 # Flag to force Fortran to use 64-bit REALs
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g # Flags for verbose compiler warnings
+MACH_OPT_DEBUG       = -g # Flags for debugging
+MACH_OPT_HIGH        = -O2 # Flags for high conservative optimization
+MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = # MPI includes
+LOCAL_INCLUDES_HDF5   = # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = # hypre includes
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HYPRE  = # hypre libraries
+LOCAL_LIBS_PAPI   = # PAPI libraries
+
+LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)

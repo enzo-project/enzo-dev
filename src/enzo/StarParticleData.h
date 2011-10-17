@@ -42,6 +42,8 @@ SPEXTERN int G_TotalNumberOfStars;
 /* Star particle parameters. */
 
 SPEXTERN int StarFeedbackType;
+SPEXTERN int StarMakerTypeIaSNe;
+SPEXTERN int StarMakerPlanetaryNebulae;
 SPEXTERN float StarMakerOverDensityThreshold;
 SPEXTERN float StarMakerSHDensityThreshold;
 SPEXTERN float StarMakerMassEfficiency;
@@ -53,13 +55,23 @@ SPEXTERN float StarEnergyToThermalFeedback;
 SPEXTERN float StarEnergyFeedbackRate;
 SPEXTERN float StarEnergyToStellarUV;
 SPEXTERN float StarEnergyToQuasarUV;
+SPEXTERN int StarFeedbackDistRadius;
+SPEXTERN int StarFeedbackDistCellStep;
+SPEXTERN int StarFeedbackDistTotalCells;
 
 SPEXTERN float PopIIIStarMass;
+SPEXTERN int   PopIIIInitialMassFunction;
+SPEXTERN int   PopIIIInitialMassFunctionSeed;
+SPEXTERN int   PopIIIInitialMassFunctionCalls;
+SPEXTERN float PopIIILowerMassCutoff;
+SPEXTERN float PopIIIUpperMassCutoff;
+SPEXTERN float PopIIIInitialMassFunctionSlope;
 SPEXTERN int   PopIIIBlackHoles;
 SPEXTERN float PopIIIBHLuminosityEfficiency;
 SPEXTERN float PopIIIOverDensityThreshold;
 SPEXTERN float PopIIIH2CriticalFraction;
 SPEXTERN float PopIIIMetalCriticalFraction;
+SPEXTERN int   PopIIIHeliumIonization;
 SPEXTERN float PopIIISupernovaRadius;
 SPEXTERN int   PopIIISupernovaUseColour;
 SPEXTERN int   PopIIISupernovaMustRefine;
@@ -76,10 +88,30 @@ SPEXTERN float  StarClusterSNRadius;
 SPEXTERN float  StarClusterFormEfficiency;
 SPEXTERN float  StarClusterMinimumMass;
 SPEXTERN float  StarClusterCombineRadius;
+SPEXTERN int    StarClusterUnresolvedModel;
 SPEXTERN float  StarClusterRegionLeftEdge[3];
 SPEXTERN float  StarClusterRegionRightEdge[3];
 
+SPEXTERN float  MBHMinDynamicalTime;
+SPEXTERN float  MBHMinimumMass;
+SPEXTERN int    MBHAccretion;
+SPEXTERN float  MBHAccretionRadius;
+SPEXTERN float  MBHAccretingMassRatio;
+SPEXTERN float  MBHAccretionFixedTemperature;
+SPEXTERN float  MBHAccretionFixedRate;
+SPEXTERN int    MBHTurnOffStarFormation;
+SPEXTERN float  MBHCombineRadius;
+
+SPEXTERN int    MBHFeedback;
+SPEXTERN float  MBHFeedbackRadiativeEfficiency;
+SPEXTERN float  MBHFeedbackEnergyCoupling;
+SPEXTERN float  MBHFeedbackMassEjectionFraction;
+SPEXTERN float  MBHFeedbackMetalYield;
+SPEXTERN float  MBHFeedbackThermalRadius;
+SPEXTERN float  MBHFeedbackJetsThresholdMass;
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
+SPEXTERN float *IMFData;
 
 #endif

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include "h5utilities.h"
 
 
 #include "allvars.h"
@@ -14,22 +15,34 @@
 
 void subfind(char *particles_fname, char *catalogue_fname, 
 	     char *subhalo_fname, char *parttypes_fname, char *partids_fname, 
-	     char *subprop_fname, char *prop_fname)
+	     char *subprop_fname, char *prop_fname, char *sparticles_fname5,
+	     char *scataloguetxt)
 {
   MPI_Status status;
   FILE   *fd, *fdpart, *fdlen, *fdoffset, *fdparent, *fdtypes, *fdids;
   FILE   *fdsubcenter, *fdsubmtot, *fdsubmgas, *fdsubmstars, *fdsubsfr, *fdsubmcloud;
   FILE   *fdcenter, *fdmtot, *fdmgas, *fdmstars, *fdsfr, *fdmcloud;
+  FILE   *fdtxt;
   char   buflen[500], bufoffset[500], bufparent[500], bufcount[500], command[2000];
   char   bufsubcenter[500], bufsubmtot[500], bufsubmgas[500], bufsubmstars[500], bufsubsfr[500], bufsubmcloud[500], commandsubprop[2000];
   char   bufcenter[500], bufmtot[500], bufmgas[500], bufmstars[500], bufsfr[500], bufmcloud[500], commandprop[2000];
-  int    i, k, gr, task, head, len, nsubs, offset, start=0, NSubGroupsAll=0;
-  int    parent, ntot;
+  int    i, k, dim, gr, task, head, len, nsubs, offset, start=0, NSubGroupsAll=0;
+  int    parent, ntot, _idx;
   char   ctype;
-  float  cm[3], mtot, mgas, mstars, sfr, mcloud;
+  float  cm[3], cmv[3], AM[3], mtot, mgas, mstars, sfr, mcloud, redshift, spin, vrms;
+  float  mvir, rvir;
   float  corner[3];
   struct particle_data *Pbuf, *partbuf;
   int    *sublen, *suboffset, *bufsublen, *bufsuboffset;
+  int    *fsuboffset, *fbufsuboffset;
+
+  char   halo_name[200];
+  PINT    *TempPINT;
+  double *temp;
+  float  *msub, *bufmsub;
+
+  hid_t  file_id, dset_id, dspace_id, group_id;
+  hsize_t hdims[2];
 
   sprintf(buflen,    "%s.len",    subhalo_fname);
   sprintf(bufoffset, "%s.offset", subhalo_fname);
@@ -117,7 +130,70 @@ void subfind(char *particles_fname, char *catalogue_fname,
 	}
 
       fwrite(&NgroupsAll, sizeof(int), 1, fdcenter);
-    }
+
+      fprintf(stdout, "Saving subhalo list to %s\n", scataloguetxt);
+      fprintf(stdout, "Saving (sub)halo particle list to %s\n", 
+	      sparticles_fname5);
+
+      if ((fdtxt = fopen(scataloguetxt, "w")) == NULL) {
+	printf("can't open file `%s`\n", scataloguetxt);
+	MPI_Abort(MPI_COMM_WORLD, 1); exit(1);
+      }
+
+      // Write header
+
+      redshift = 1.0 / Time - 1.0;
+      fprintf(fdtxt, "# Scale factor = %lg\n", Time);
+      fprintf(fdtxt, "# Redshift = %f\n", redshift);
+      //fprintf(fdtxt, "# Number of subhalos = %"ISYM"\n", AllVars.NgroupsAll);
+      fprintf(fdtxt, "#\n");
+      fprintf(fdtxt, "# Column 1.  Center of mass (x)\n");
+      fprintf(fdtxt, "# Column 2.  Center of mass (y)\n");
+      fprintf(fdtxt, "# Column 3.  Center of mass (z)\n");
+      fprintf(fdtxt, "# Column 4.  Subhalo number\n");
+      fprintf(fdtxt, "# Column 5.  Parent halo number\n");
+      fprintf(fdtxt, "# Column 6.  First particle in halo particle list\n");
+      fprintf(fdtxt, "#            --> All subgroup particles are consecutively listed in\n");
+      fprintf(fdtxt, "#                particle list (if written)\n");
+      fprintf(fdtxt, "# Column 7.  Number of particles\n");
+      fprintf(fdtxt, "# Column 8.  Halo mass [solar masses]\n");
+      fprintf(fdtxt, "# Column 9.  Stellar mass [solar masses]\n");
+      fprintf(fdtxt, "# Column 10. Mean x-velocity [km/s]\n");
+      fprintf(fdtxt, "# Column 11. Mean y-velocity [km/s]\n");
+      fprintf(fdtxt, "# Column 12. Mean z-velocity [km/s]\n");
+      fprintf(fdtxt, "# Column 13. Velocity dispersion [km/s]\n");
+      fprintf(fdtxt, "# Column 14. Mean x-angular momentum [Mpc * km/s]\n");
+      fprintf(fdtxt, "# Column 15. Mean y-angular momentum [Mpc * km/s]\n");
+      fprintf(fdtxt, "# Column 16. Mean z-angular momentum [Mpc * km/s]\n");
+      fprintf(fdtxt, "# Column 17. Spin parameter\n");
+      fprintf(fdtxt, "#\n");
+      fprintf(fdtxt, "# datavar lines are for partiview.  Ignore them if you're not partiview.\n");
+      fprintf(fdtxt, "#\n");
+      fprintf(fdtxt, "datavar 1 subhalo_number\n");
+      fprintf(fdtxt, "datavar 2 parent_number\n");
+      fprintf(fdtxt, "datavar 3 particle_offset\n");
+      fprintf(fdtxt, "datavar 4 number_of_particles\n");
+      fprintf(fdtxt, "datavar 5 halo_mass\n");
+      fprintf(fdtxt, "datavar 6 stellar_mass\n");
+      fprintf(fdtxt, "datavar 7 x_velocity\n");
+      fprintf(fdtxt, "datavar 8 y_velocity\n");
+      fprintf(fdtxt, "datavar 9 z_velocity\n");
+      fprintf(fdtxt, "datavar 10 velocity_dispersion\n");
+      fprintf(fdtxt, "datavar 11 x_angular_momentum\n");
+      fprintf(fdtxt, "datavar 12 y_angular_momentum\n");
+      fprintf(fdtxt, "datavar 13 z_angular_momentum\n");
+      fprintf(fdtxt, "datavar 14 spin\n");
+      fprintf(fdtxt, "\n");
+
+      file_id = H5Fcreate(sparticles_fname5, H5F_ACC_TRUNC, H5P_DEFAULT, 
+			  H5P_DEFAULT);
+      group_id = H5Gcreate(file_id, "/Parameters", 0);
+      writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Redshift", &redshift);
+      writeScalarAttribute(group_id, H5T_NATIVE_DOUBLE, "Scale Factor", &Time);
+      writeScalarAttribute(group_id, H5T_NATIVE_INT, "Number of groups", &NgroupsAll);
+      H5Gclose(group_id);
+
+    } // ENDIF TASK 0
 
 
   if(ThisTask==0)
@@ -217,6 +293,8 @@ void subfind(char *particles_fname, char *catalogue_fname,
 	      len=  GroupDatAll[gr-task].Len;
 	      sublen=    mymalloc(len/DesLinkNgb*sizeof(int));
 	      suboffset= mymalloc(len/DesLinkNgb*sizeof(int));
+	      fsuboffset= mymalloc(len/DesLinkNgb*sizeof(int));
+	      msub= mymalloc(len/DesLinkNgb*sizeof(float));
 	      Pbuf=      mymalloc(sizeof(struct particle_data)*len);
 	    }
 	  get_particles(task, head, len, Pbuf);
@@ -242,22 +320,55 @@ void subfind(char *particles_fname, char *catalogue_fname,
 
       for(task=0; task<NTask && (gr-task)>=0; task++)
 	{
+	  parent = NgroupsAll-(gr-task)-1;
 	  if(ThisTask==0)
 	    {
 	      if(task==0)
 		{
 		  for(i=0; i<nsubs; i++)
 		    {
-		      get_properties(Pbuf+suboffset[i], sublen[i], cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
+		      get_properties(Pbuf+suboffset[i], sublen[i], cm, 
+				     &mtot, &mgas, &mstars, &sfr, &mcloud,
+				     1, &cmv[0], &mvir, &rvir, AM, &vrms,
+				     &spin);
+		      msub[i] = mtot;
 		      fwrite(cm,      sizeof(float), 3, fdsubcenter);
 		      fwrite(&mtot,   sizeof(float), 1, fdsubmtot);
 		      fwrite(&mgas,   sizeof(float), 1, fdsubmgas);
 		      fwrite(&mstars, sizeof(float), 1, fdsubmstars);
 		      fwrite(&sfr,    sizeof(float), 1, fdsubsfr);
 		      fwrite(&mcloud,    sizeof(float), 1, fdsubmcloud);
+
+		      /* Write to ASCII halo catalog */
+
+		      fprintf(fdtxt, "%12.6g %12.6g %12.6g %12d %12d %12d %12d "
+			      "%12.6g %12.6g %12.6g %12.6g %12.6g %12.6g %12.6g "
+			      "%12.6g %12.6g %12.6g\n",
+			      cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
+			      mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
+			      AM[1], AM[2], spin);
+
 		    }
 
-		  get_properties(Pbuf, GroupDatAll[gr-task].Len, cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
+		  for(i=0; i<nsubs; i++) {
+		    fsuboffset[i] = suboffset[i];
+		    suboffset[i]+= start;
+		  }
+		  start+= GroupDatAll[gr-task].Len;
+
+		  len = GroupDatAll[gr-task].Len;
+		  temp = (double*) malloc(3*len*sizeof(double));
+		  TempPINT = (PINT*) malloc(len*sizeof(PINT));
+		  _idx = 0;
+		  for (dim = 0; dim < 3; dim++)
+		    for (i = 0; i < len; i++, _idx++)
+		      temp[_idx] = Pbuf[i].Pos[dim] / BoxSize;
+		  for (i = 0; i < len; i++)
+		    TempPINT[i] = Pbuf[i].PartID;
+
+		  get_properties(Pbuf, GroupDatAll[gr-task].Len, cm, &mtot, 
+				 &mgas, &mstars, &sfr, &mcloud, 1,
+				 &cmv[0], &mvir, &rvir, AM, &vrms, &spin);
 		  fwrite(cm,      sizeof(float), 3, fdcenter);
 		  fwrite(&mtot,   sizeof(float), 1, fdmtot);
 		  fwrite(&mgas,   sizeof(float), 1, fdmgas);
@@ -265,9 +376,74 @@ void subfind(char *particles_fname, char *catalogue_fname,
 		  fwrite(&sfr,    sizeof(float), 1, fdsfr);
 		  fwrite(&mcloud,    sizeof(float), 1, fdmcloud);
 
-		  for(i=0; i<nsubs; i++)
-		    suboffset[i]+= start;
-		  start+= GroupDatAll[gr-task].Len;
+		  /* Write to HDF5 particle list */
+
+		  sprintf(halo_name, "Halo%8.8d", parent);
+		  group_id = H5Gcreate(file_id, halo_name, 0);
+		  writeScalarAttribute(group_id, H5T_NATIVE_INT, "NumberOfSubhalos", &nsubs);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Total Mass", &mtot);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Stellar Mass", &mstars);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Spin parameter", &spin);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Velocity dispersion", &vrms);
+		  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Center of mass", cm);
+		  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Mean velocity [km/s]", cmv);
+		  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Angular momentum [Mpc * km/s]", AM);
+
+		  if (nsubs > 0) {
+		    hdims[0] = (hsize_t) nsubs;
+		    hdims[1] = 1;
+		    dspace_id = H5Screate_simple(1, hdims, NULL);
+		    dset_id = H5Dcreate(group_id, "Subhalo Mass", H5T_NATIVE_FLOAT, dspace_id,
+					H5P_DEFAULT);
+		    H5Dwrite(dset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			     (void*) msub);
+		    H5Sclose(dspace_id);
+		    H5Dclose(dset_id);
+
+		    dspace_id = H5Screate_simple(1, hdims, NULL);
+		    dset_id = H5Dcreate(group_id, "Subhalo Size", H5T_NATIVE_INT, dspace_id,
+					H5P_DEFAULT);
+		    H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			     (void*) sublen);
+		    H5Sclose(dspace_id);
+		    H5Dclose(dset_id);
+
+		    dspace_id = H5Screate_simple(1, hdims, NULL);
+		    dset_id = H5Dcreate(group_id, "Subhalo Offset", H5T_NATIVE_INT, dspace_id,
+					H5P_DEFAULT);
+		    H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			     (void*) fsuboffset);
+		    H5Sclose(dspace_id);
+		    H5Dclose(dset_id);
+
+		  } // ENDIF nsubs>0
+
+		  hdims[0] = 3;
+		  hdims[1] = (hsize_t) len;
+		  dspace_id = H5Screate_simple(2, hdims, NULL);
+		  dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE,
+				      dspace_id, H5P_DEFAULT);
+		  H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, 
+			   H5P_DEFAULT, (void*) temp);
+		  H5Sclose(dspace_id);
+		  H5Dclose(dset_id);
+	
+		  hdims[0] = (hsize_t) len;
+		  hdims[1] = 1;
+		  dspace_id = H5Screate_simple(1, hdims, NULL);
+		  dset_id = H5Dcreate(group_id, "Particle ID", HDF5_PINT, dspace_id,
+				      H5P_DEFAULT);
+		  H5Dwrite(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			   (void*) TempPINT);
+		  H5Sclose(dspace_id);
+		  H5Dclose(dset_id);
+
+		  H5Gclose(group_id);
+
+		  free(temp);
+		  free(TempPINT);
+
+		  /* END HDF5 writing */
 
 		  fwrite(sublen, sizeof(int), nsubs, fdlen);
 		  fwrite(suboffset, sizeof(int), nsubs, fdoffset);
@@ -292,12 +468,16 @@ void subfind(char *particles_fname, char *catalogue_fname,
 		  MPI_Recv(&nsubs, 1, MPI_INT, task, task, MPI_COMM_WORLD, &status);
 		  if(nsubs)
 		    {
+		      bufmsub=      mymalloc(nsubs*sizeof(float));
 		      bufsublen=    mymalloc(nsubs*sizeof(int));
 		      bufsuboffset= mymalloc(nsubs*sizeof(int));
+		      fbufsuboffset= mymalloc(nsubs*sizeof(int));
 		      MPI_Recv(bufsublen,    nsubs, MPI_INT, task, task, MPI_COMM_WORLD, &status);
 		      MPI_Recv(bufsuboffset, nsubs, MPI_INT, task, task, MPI_COMM_WORLD, &status);
-		      for(i=0; i<nsubs; i++)
+		      for(i=0; i<nsubs; i++) {
+			fbufsuboffset[i] = bufsuboffset[i];
 			bufsuboffset[i]+= start;
+		      }
 		      fwrite(bufsublen,    sizeof(int), nsubs, fdlen);
 		      fwrite(bufsuboffset, sizeof(int), nsubs, fdoffset);
 		    }
@@ -322,16 +502,31 @@ void subfind(char *particles_fname, char *catalogue_fname,
 		  
 		  for(i=0; i<nsubs; i++)
 		    {
-		      get_properties(partbuf+bufsuboffset[i]-start, bufsublen[i], cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
+		      get_properties(partbuf+bufsuboffset[i]-start, bufsublen[i], cm, &mtot, 
+				     &mgas, &mstars, &sfr, &mcloud,
+				     1, cmv, &mvir, &rvir, AM, &vrms, &spin);
+		      bufmsub[i] = mtot;
 		      fwrite(cm,      sizeof(float), 3, fdsubcenter);
 		      fwrite(&mtot,   sizeof(float), 1, fdsubmtot);
 		      fwrite(&mgas,   sizeof(float), 1, fdsubmgas);
 		      fwrite(&mstars, sizeof(float), 1, fdsubmstars);
 		      fwrite(&sfr,    sizeof(float), 1, fdsubsfr);
 		      fwrite(&mcloud,    sizeof(float), 1, fdsubmcloud);
+
+		      /* Write to ASCII halo catalog */
+
+		      fprintf(fdtxt, "%12.6g %12.6g %12.6g %12d %12d %12d %12d "
+			      "%12.6g %12.6g %12.6g %12.6g %12.6g %12.6g %12.6g "
+			      "%12.6g %12.6g %12.6g\n",
+			      cm[0], cm[1], cm[2], i, parent, suboffset[i], sublen[i], 
+			      mtot, mstars, cmv[0], cmv[1], cmv[2], vrms, AM[0], 
+			      AM[1], AM[2], spin);
+
 		    }
 
-		  get_properties(partbuf, GroupDatAll[gr-task].Len, cm, &mtot, &mgas, &mstars, &sfr, &mcloud);
+		  get_properties(partbuf, GroupDatAll[gr-task].Len, cm, &mtot, 
+				 &mgas, &mstars, &sfr, &mcloud, 1,
+				 cmv, &mvir, &rvir, AM, &vrms, &spin);
 		  fwrite(cm,      sizeof(float), 3, fdcenter);
 		  fwrite(&mtot,   sizeof(float), 1, fdmtot);
 		  fwrite(&mgas,   sizeof(float), 1, fdmgas);
@@ -339,18 +534,100 @@ void subfind(char *particles_fname, char *catalogue_fname,
 		  fwrite(&sfr,    sizeof(float), 1, fdsfr);
 		  fwrite(&mcloud,    sizeof(float), 1, fdmcloud);
 
+		  /* Write to HDF5 particle list */
+
+		  len = GroupDatAll[gr-task].Len;
+		  parent = NgroupsAll-(gr-task)-1;
+		  temp = (double*) malloc(3*len*sizeof(double));
+		  TempPINT = (PINT*) malloc(len*sizeof(PINT));
+		  _idx = 0;
+		  for (dim = 0; dim < 3; dim++)
+		    for (i = 0; i < len; i++, _idx++)
+		      temp[_idx] = Pbuf[i].Pos[dim] / BoxSize;
+		  for (i = 0; i < len; i++)
+		    TempPINT[i] = Pbuf[i].PartID;
+
+		  sprintf(halo_name, "Halo%8.8d", parent);
+		  group_id = H5Gcreate(file_id, halo_name, 0);
+		  writeScalarAttribute(group_id, H5T_NATIVE_INT, "NumberOfSubhalos", &nsubs);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Total Mass", &mtot);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Stellar Mass", &mstars);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Spin parameter", &spin);
+		  writeScalarAttribute(group_id, H5T_NATIVE_FLOAT, "Velocity dispersion", &vrms);
+		  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Center of mass", cm);
+		  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Mean velocity [km/s]", cmv);
+		  writeArrayAttribute(group_id, H5T_NATIVE_FLOAT, 3, "Angular momentum [Mpc * km/s]", AM);
+
+		  if (nsubs > 0) {
+		    hdims[0] = (hsize_t) nsubs;
+		    hdims[1] = 1;
+		    dspace_id = H5Screate_simple(1, hdims, NULL);
+		    dset_id = H5Dcreate(group_id, "Subhalo Mass", H5T_NATIVE_FLOAT, dspace_id,
+					H5P_DEFAULT);
+		    H5Dwrite(dset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			     (void*) bufmsub);
+		    H5Sclose(dspace_id);
+		    H5Dclose(dset_id);
+
+		    dspace_id = H5Screate_simple(1, hdims, NULL);
+		    dset_id = H5Dcreate(group_id, "Subhalo Size", H5T_NATIVE_INT, dspace_id,
+					H5P_DEFAULT);
+		    H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			     (void*) sublen);
+		    H5Sclose(dspace_id);
+		    H5Dclose(dset_id);
+
+		    dspace_id = H5Screate_simple(1, hdims, NULL);
+		    dset_id = H5Dcreate(group_id, "Subhalo Offset", H5T_NATIVE_INT, dspace_id,
+					H5P_DEFAULT);
+		    H5Dwrite(dset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			     (void*) fsuboffset);
+		    H5Sclose(dspace_id);
+		    H5Dclose(dset_id);
+
+		  } // ENDIF nsubs>0
+
+		  hdims[0] = 3;
+		  hdims[1] = (hsize_t) len;
+		  dspace_id = H5Screate_simple(2, hdims, NULL);
+		  dset_id = H5Dcreate(group_id, "Particle Position", H5T_NATIVE_DOUBLE,
+				      dspace_id, H5P_DEFAULT);
+		  H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, 
+			   H5P_DEFAULT, (void*) temp);
+		  H5Sclose(dspace_id);
+		  H5Dclose(dset_id);
+	
+		  hdims[0] = (hsize_t) len;
+		  hdims[1] = 1;
+		  dspace_id = H5Screate_simple(1, hdims, NULL);
+		  dset_id = H5Dcreate(group_id, "Particle ID", HDF5_PINT, dspace_id,
+				      H5P_DEFAULT);
+		  H5Dwrite(dset_id, HDF5_PINT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			   (void*) TempPINT);
+		  H5Sclose(dspace_id);
+		  H5Dclose(dset_id);
+
+		  H5Gclose(group_id);
+
+		  free(temp);
+		  free(TempPINT);
+
+		  /* END HDF5 writing */
+
 		  start+= GroupDatAll[gr-task].Len;
 
 		  if(nsubs)
 		    {
+		      free(bufmsub);
 		      free(bufsuboffset);
+		      free(fbufsuboffset);
 		      free(bufsublen);
 		    }
 		  free(partbuf);
 
 		  NSubGroupsAll+= nsubs; 
 		}
-	    }
+	    } // ENDIF ThisTask==0
 	  else
 	    {
 	      if(task==ThisTask) 
@@ -373,7 +650,9 @@ void subfind(char *particles_fname, char *catalogue_fname,
 	    {
 	      free(Pbuf);
 	      free(suboffset);
+	      free(fsuboffset);
 	      free(sublen);
+	      free(msub);
 	    }
 	}
 
@@ -382,6 +661,8 @@ void subfind(char *particles_fname, char *catalogue_fname,
 
   if(ThisTask==0)
     {
+      H5Fclose(file_id);
+      fclose(fdtxt);
       fclose(fdpart);
       fclose(fdids);
       fclose(fdlen);

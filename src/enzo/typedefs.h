@@ -117,42 +117,52 @@ const field_type
 
   Galaxy1Colour          = 61,
   Galaxy2Colour          = 62,
+/* these are required for Sam Skillman's Shock/Cosmic ray models. */
+  Mach            = 63,
+  PreShockTemperature = 64,
+  PreShockDensity = 65,  
 
 /* these are required for Simon Glover's chemistry (which also needs some of the
    other fields, which are used for MultiSpecies) */
-  CIDensity       = 63,
-  CIIDensity      = 64, 
-  OIDensity       = 65, 
-  OIIDensity      = 66,
-  SiIDensity      = 77,
-  SiIIDensity     = 68,
-  SiIIIDensity    = 69,
-  CHIDensity      = 70,
-  CH2IDensity     = 71,
-  CH3IIDensity    = 72,
-  C2IDensity      = 73,
-  COIDensity      = 74,
-  HCOIIDensity    = 75,
-  OHIDensity      = 76,
-  H2OIDensity     = 77,
-  O2IDensity      = 78,
+  CIDensity       = 66,
+  CIIDensity      = 67, 
+  OIDensity       = 68, 
+  OIIDensity      = 69,
+  SiIDensity      = 70,
+  SiIIDensity     = 71,
+  SiIIIDensity    = 72,
+  CHIDensity      = 73,
+  CH2IDensity     = 74,
+  CH3IIDensity    = 75,
+  C2IDensity      = 76,
+  COIDensity      = 77,
+  HCOIIDensity    = 78,
+  OHIDensity      = 79,
+  H2OIDensity     = 80,
+  O2IDensity      = 81,
 
-  MBHColour       = 79,
-  ForbiddenRefinement = 80,
+  MBHColour       = 82,
+  ForbiddenRefinement = 83,
 
 /* FLD radiation module stuff (D. Reynolds) */ 
-  RadiationFreq0  = 85,
-  RadiationFreq1  = 86,
-  RadiationFreq2  = 87,
-  RadiationFreq3  = 88,
-  RadiationFreq4  = 89,
-  RadiationFreq5  = 90,
-  RadiationFreq6  = 91,
-  RadiationFreq7  = 92,
-  RadiationFreq8  = 93,
-  RadiationFreq9  = 94,
+  RadiationFreq0  = 84,
+  RadiationFreq1  = 85,
+  RadiationFreq2  = 86,
+  RadiationFreq3  = 87,
+  RadiationFreq4  = 88,
+  RadiationFreq5  = 89,
+  RadiationFreq6  = 90,
+  RadiationFreq7  = 91,
+  RadiationFreq8  = 92,
+  RadiationFreq9  = 93,
 
-  FieldUndefined  = 95;
+  /* Number of ray segments for ray tracing load balancing */
+  RaySegments     = 94,
+
+/* Metals from Type Ia SNe */
+  MetalSNIaDensity = 95,
+
+  FieldUndefined  = 96;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
@@ -165,8 +175,9 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
                  FieldUndefined};
 */
 
-#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? FALSE : TRUE)
+#define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
+#define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential)) ? TRUE : FALSE)
 
 /* These are the different types of fluid boundary conditions. */
 
@@ -219,11 +230,11 @@ const hydro_method
 
 const enum_type iHI = 0, iHeI = 1, iHeII = 2, iH2I = 3, iHII = 4;
 const enum_type Cartesian = 0, Spherical = 1, Cylindrical = 2;
-const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4;
+const enum_type PLM = 0, PPM = 1, CENO = 2, WENO3 = 3, WENO5 = 4, ZERO = 5;
 const enum_type FluxReconstruction = 0, HLL = 1, Marquina = 2,
-  LLF = 3, HLLC = 4;
+  LLF = 3, HLLC = 4, TwoShock = 5, HLLD = 6;
 const enum_type Neumann = 0, Dirichlet = 1;
-
+const enum_type Isotropic = 1, Beamed = -2, Episodic = -3;
 
 /* Stanford RK MUSCL solvers support */ 
 //enum {Cartesian, Spherical, Cylindrical};
@@ -243,6 +254,7 @@ const fieldtype SCALAR = 1, VECTOR = 3;
 const star_type
   PopIII = PARTICLE_TYPE_SINGLE_STAR,
   PopII = PARTICLE_TYPE_CLUSTER,
+  SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE,
   BlackHole = PARTICLE_TYPE_BLACK_HOLE,
   PopIII_CF = PARTICLE_TYPE_COLOR_STAR, // Non-radiating PopIII
   MBH = PARTICLE_TYPE_MBH;
@@ -277,6 +289,17 @@ struct particle_data {
 #include "StarBuffer.h"
 struct star_data {
   StarBuffer data;
+  int grid;
+  int proc;
+};
+
+struct hilbert_data {
+  double hkey;
+  int grid_num;
+};
+
+// Used in DepositParticleMassFlaggingField.C
+struct two_int {
   int grid;
   int proc;
 };

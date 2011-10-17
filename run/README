@@ -1,0 +1,52 @@
+The test_runner suite will run a series of tests with the current version of 
+enzo.  It compares these new outputs against a set of existing "good" outputs 
+(either from analytical solutions or from previous versions of enzo).  It 
+returns how the current version of enzo performed on these tests.
+
+You must specify a test destination directory outside of the enzo file 
+structure where the tests will executed and tested.  You can also specify 
+invididual test tags for choosing the tests to run.  By default, all the tests 
+will be run.
+
+In order to run the test_runner suite, go to the enzo/run subdirectory and 
+execute:
+
+Usage: ./test_runner.py -o <TEST_DEST_DIR> --<TEST_TAG>=<TEST_TAG_VAL> 
+
+Example: ./test_runner.py -o ~/temp --AMR=True --author="John Wise"
+
+The test tags are (with defaults first followed by alternatives):
+
+name = ''
+answer_testing_script = None  'my_test_file.py'
+nprocs = 1
+runtime = 'short', 'medium', 'long'
+critical = True False
+cadence = 'nightly'
+hydro = False, True
+mhd = False, True
+gravity = False, True
+cosmology = False, True
+chemistry = False, True
+cooling = False, True
+AMR = False, True
+dimensionality = 1, 2, 3
+author = 'John Wise'
+radiation = None, 'fld', 'ray'
+max_time_minutes = 1  
+
+Additional flags are:
+  -h, --help            show this help message and exit
+  -c COMPARE_DIR, --compare-dir=COMPARE_DIR
+                        The directory structure to compare against
+  --clobber             Recopies tests and tests from scratch.
+  --interleave          Option to interleave preparation, running, and
+                        testing.
+  -m MACHINE, --machine=MACHINE
+                        Machine to run tests on.
+  -o OUTPUT_DIR, --output-dir=OUTPUT_DIR
+                        Where to place the run directory
+  --repo=REPOSITORY     Path to repository being tested.
+  --sim-only            Only run simulations.
+  --test-only           Only perform tests.
+  -v, --verbose         Slightly more verbose output.

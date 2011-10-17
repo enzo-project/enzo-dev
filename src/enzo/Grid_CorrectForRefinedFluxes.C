@@ -78,11 +78,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
        to multiply against the CellWidth. */
 
 //    DC revision 16th September 2005 
-//    FLOAT a = 1, dadt;
-//    if (ComovingCoordinates)
-//      if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
-//        ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
-//      }
+//     FLOAT a = 1, dadt;
+//     if (ComovingCoordinates)
+//       if (CosmologyComputeExpansionFactor(Time, &a, &dadt) == FAIL) {
+//         ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+//       }
  
     /* Main loop over all faces. */
  
@@ -220,7 +220,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
-	      FieldType[field] < FieldUndefined &&
+	      FieldType[field] <= Metallicity &&
 	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {
@@ -240,7 +240,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	    total number density summed over ionization, etc.) */
  
 	for (field = 0; field < NumberOfBaryonFields; field++)
- 	  if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+ 	  if (FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
+ 	      (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 					 FieldType[field] != InternalEnergy))
 	      && (FieldType[field] < ElectronDensity)) {
 	  for (k = Start[2]; k <= End[2]; k++)
@@ -278,18 +279,18 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   InitialFluxes->LeftFluxes[field][dim][FluxIndex],
 			   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 			   i, j, k, dim, field);
-
+		  
 		  /* If new density is < 0 then stop the flux correction. */
  
 		  BaryonField[field][FieldIndex] -=
-		     (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
-		      RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
+		    (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
+		     RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
 
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
-
-		  ENZO_FAIL("New density or energy is < 0!\n");
+		  
+		  //ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 		/* Right side */
@@ -314,18 +315,18 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   InitialFluxes->RightFluxes[field][dim][FluxIndex],
 			   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 			   i, j, k, dim, Offset, field);
-		  
+ 
 		  /* If new density is < 0 then stop the flux correction. */
  
 		  BaryonField[field][FieldIndex + Offset] +=
-		    (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
-		     RefinedFluxes->RightFluxes[field][dim][FluxIndex] );
+		     (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
+		      RefinedFluxes->RightFluxes[field][dim][FluxIndex] );
 
 		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
 		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
 
-		  ENZO_FAIL("New density or energy is < 0!\n");
+		  //ENZO_FAIL("New density or energy is < 0!\n");
 		}
  
 	      }
@@ -344,8 +345,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		FieldType[field] != DrivingField2 &&
 		FieldType[field] != DrivingField3 &&
 		FieldType[field] != GravPotential)
-	      //		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-	      //	 			 FieldType[field] != InternalEnergy)))
 	      for (k = Start[2]; k <= End[2]; k++)
 		for (j = Start[1]; j <= End[1]; j++) {
 		  index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
@@ -407,7 +406,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	for (field = 0; field < NumberOfBaryonFields; field++)
 	  if (FieldType[field] >= ElectronDensity &&
 
-	      FieldType[field] < FieldUndefined &&
+	      FieldType[field] <= Metallicity &&
 	      FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {

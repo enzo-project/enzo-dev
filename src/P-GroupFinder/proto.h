@@ -23,7 +23,10 @@ void   find_groups(void);
 void   find_minids(void);
 void   find_subgroups(void);
 int    get_particles(int dest, int minid, int len, struct particle_data *buf);
-void   get_properties(struct particle_data *p, int len, float *pcm, float *pmtot, float *pmgas, float *pmstars, float *sfr, float *mcloud);
+void get_properties(struct particle_data *p, int len, float *pcm, float *pmtot, 
+		    float *pmgas, float *pmstars, float *pmsfr, float *pmcold,
+		    int subgroup, float *pcmv, float *pmvir, float *prvir,
+		    float *pL, float *pvrms, float *pspin);
 int    get_slab(int index);
 void   iindexx(unsigned int n, int arr[], unsigned int indx[]);
 void   indexx(unsigned long n, float arr[], int indx[]);
@@ -38,13 +41,18 @@ int    number_of_unbound(int head, int len);
 void   order_subgroups_by_potential(void);
 double periodic_wrap(double x);
 double periodic(double x);
-void   save_groups(char *particles_fname, char *catalogue_fname, char *parttypes_fname, char *partids_fname);
+void save_groups(char *particles_fname, char *particles_fname5, 
+		 char *catalogue_fname, char *parttypes_fname, 
+		 char *partids_fname, char *cataloguetxt);
 float  selectb(unsigned long k, unsigned long n, float arr[], int ind[]);
 void   sort2_flt_int(unsigned long n, float arr[], int brr[]);
 void   sort2_int(unsigned long n, int arr[], int brr[]);
 void   set_sph_kernel(void);
 void   stitch_together(void);
-void   subfind(char *particles_fname, char *catalogue_fname, char *subhalo_fname, char *parttypes_fname, char *partids_fname, char *subprop_fname, char *prop_fname);
+void subfind(char *particles_fname, char *catalogue_fname, 
+	     char *subhalo_fname, char *parttypes_fname, char *partids_fname, 
+	     char *subprop_fname, char *prop_fname, char *sparticles_fname5,
+	     char *scataloguetxt);
 int    unbind(int head, int len);
 void   unbind_node(int k);
 void   walk_tree_and_unbind(void);

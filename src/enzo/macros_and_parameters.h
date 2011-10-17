@@ -67,9 +67,9 @@
 #define MAX_REFINE_REGIONS               150
 
 #ifdef WINDS 
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  6
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  7
 #else
-#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  3
+#define MAX_NUMBER_OF_PARTICLE_ATTRIBUTES  4
 #endif
 
 #define MAX_TIME_ACTIONS                   10
@@ -80,7 +80,9 @@
 
 #define MAX_MOVIE_FIELDS                    6
 
-#define MAX_POTENTIAL_ITERATIONS            8
+#define MAX_POTENTIAL_ITERATIONS            80
+
+#define MAX_ENERGY_BINS                    10
 
 #define ROOT_PROCESSOR                      0
 
@@ -235,6 +237,7 @@ typedef int            HDF5_hid_t;
 #define float double
 #define TEMP_HOLD_NAME float32
 #define HDF5_REAL HDF5_R8
+#define HDF5_FILE_REAL HDF5_FILE_R8
 #ifdef USE_PYTHON
 #define ENPY_BFLOAT NPY_DOUBLE
 #define enpy_bfloat npy_double
@@ -437,6 +440,8 @@ typedef int            HDF5_hid_t;
 #define MPI_SENDSTAR_TAG 21
 #define MPI_SENDPMFLAG_TAG 22
 #define MPI_SENDPART_TAG 23
+#define MPI_SENDMARKER_TAG 24
+#define MPI_SGMARKER_TAG 25
 
 // There are 5 tags related to this (1000-1004)
 #define MPI_SENDPARTFIELD_TAG 1000
@@ -447,19 +452,20 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 10
+#define NUM_PARTICLE_TYPES 11
 
-#define PARTICLE_TYPE_RESET       -1
-#define PARTICLE_TYPE_GAS          0
-#define PARTICLE_TYPE_DARK_MATTER  1
-#define PARTICLE_TYPE_STAR         2
-#define PARTICLE_TYPE_TRACER       3
-#define PARTICLE_TYPE_MUST_REFINE  4
-#define PARTICLE_TYPE_SINGLE_STAR  5
-#define PARTICLE_TYPE_BLACK_HOLE   6
-#define PARTICLE_TYPE_CLUSTER      7
-#define PARTICLE_TYPE_MBH          8
-#define PARTICLE_TYPE_COLOR_STAR   9
+#define PARTICLE_TYPE_RESET         -1
+#define PARTICLE_TYPE_GAS            0
+#define PARTICLE_TYPE_DARK_MATTER    1
+#define PARTICLE_TYPE_STAR           2
+#define PARTICLE_TYPE_TRACER         3
+#define PARTICLE_TYPE_MUST_REFINE    4
+#define PARTICLE_TYPE_SINGLE_STAR    5
+#define PARTICLE_TYPE_BLACK_HOLE     6
+#define PARTICLE_TYPE_CLUSTER        7
+#define PARTICLE_TYPE_MBH            8
+#define PARTICLE_TYPE_COLOR_STAR     9
+#define PARTICLE_TYPE_SIMPLE_SOURCE 10
 
 /* Star particle handling */
 
@@ -470,6 +476,7 @@ typedef int            HDF5_hid_t;
 #define SINK_PARTICLE	4
 #define STAR_CLUSTER    5
 #define INSTANT_STAR    7
+#define SPRINGEL_HERNQUIST_STAR 8
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
@@ -495,28 +502,41 @@ typedef int            HDF5_hid_t;
 #define BONDI_ACCRETION 1
 #define RADIAL_ACCRETION 2 // accrete based on a radial profile of dM/dt
 
+/* Correcting Bondi accretion rate */
+
+#define BONDI_ACCRETION_CORRECT_ANALYTIC -1   // by using R^-1.5 profile
+#define BONDI_ACCRETION_CORRECT_NUMERICAL -2  // by stepping outwards
+
 /* Type of metal cooling */
 
 #define JHW_METAL_COOLING 1
 #define CEN_METAL_COOLING 2
 #define CLOUDY_METAL_COOLING 3
 
+/* Definitions for grid::ComputeHeat, grid::ComputeConductionTimeStep, and grid::ConductHeat */
+
+#define ELT(a,b,c) ( (a) + GridDimension[0]*((b) + GridDimension[1]*(c)) )
+
 /* Streaming format parameters */
 
 #define ALL_PARTICLES 1
 #define NON_DM_PARTICLES 2
+#define NON_DM_PARTICLES_MERGED_LEVEL 3
+#define NON_DM_PARTICLES_MERGED_ALL 4
 #define TEMPERATURE_FIELD 1000
-
-#define DEFAULT_MU 0.6
 
 /* Maximum number of leafs per parent in radiation source tree. */
 
 #define MAX_LEAF 2
 
+/* Number of entries in the Pop III IMF lookup table */
+
+#define IMF_TABLE_ENTRIES 1000
+
 #ifdef USE_MPI
 #define MPI_INSTRUMENTATION
 #else /* USE_MPI */
-#undef MEM_TRACE
+//#undef MEM_TRACE
 #undef MPI_TRACE
 #endif
 

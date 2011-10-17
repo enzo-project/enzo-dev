@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -98,7 +99,7 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
   float rho = 1.0;
   float cs = 1e-3;
   float pres = rho*cs*cs;
-  float B0 = 0.0;
+  float Bnaught = 0.0;
   float c_s=1e-3;
 
   float rhou, lenu, tempu, tu, velu;
@@ -241,12 +242,12 @@ int grid::ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction
 	  float pressure=c_s*c_s*rhoActual/Gamma;
 	  float realpressure=pressure*PressureUnits;  
 	  float InitialBField=sqrt((8*3.14159*realpressure/(ThermalMagneticRatio)))/bunit;
-	  if (InitialMagneticFieldConfiguration == 0) B0 = InitialBField;
-	  else if (InitialMagneticFieldConfiguration == 1) B0 = InitialBField*sin(2*3.14159*x);
+	  if (InitialMagneticFieldConfiguration == 0) Bnaught = InitialBField;
+	  else if (InitialMagneticFieldConfiguration == 1) Bnaught = InitialBField*sin(2*3.14159*x);
 
 
-	  BaryonField[iBz][n] = B0;
-	  BaryonField[ietot][n] += 0.5 * pow(B0,2) / rho;
+	  BaryonField[iBz][n] = Bnaught;
+	  BaryonField[ietot][n] += 0.5 * pow(Bnaught,2) / rho;
 	}	
 
       } // end loop over grid

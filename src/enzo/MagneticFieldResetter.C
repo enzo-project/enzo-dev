@@ -42,7 +42,7 @@ int MagneticFieldResetter(LevelHierarchyEntry *LevelArray[], int ThisLevel,
   /* Return if this does not concern us */
 
   if (ResetMagneticField != TRUE || 
-      HydroMethod != MHD_RK ||
+      (HydroMethod != MHD_RK && HydroMethod != HD_RK) ||
       !(MetaData->FirstTimestepAfterRestart)) 
     return SUCCESS;
 

@@ -253,8 +253,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 			    NumberOfColours, colnum);
 
     if (ret == FAIL) {
-      fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", MyProcessorNumber, n % GridRank, nhy, dtFixed);
-      fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
+      fprintf(stderr, "P(%"ISYM"): Error on ZeusTransport dim=%"ISYM" (Cycle = %"ISYM", dt=%"GSYM")\n", 
+	      MyProcessorNumber, n % GridRank, nhy, dtFixed);
+    fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
       ENZO_FAIL("Error in ZeusSource!\n");
     }
   

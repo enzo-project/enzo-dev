@@ -35,7 +35,7 @@ begun on this project at the LCA, but has not yet been finished.
 As an intermediate step, Enzo was hacked a little bit. Initially,
 the main loop in ``EvolveLevel.C`` looked like this:
 
-::
+.. code-block:: c
 
      for( grid=0, grid< NumberOfGrids, grid++){
         Grid[grid]->SolvePotential
@@ -46,7 +46,7 @@ Among, of course, many other physics and support routines. This was
 broken into two loops, and a call to ``SetBoundaryConditions()`` as
 inserted between the two.
 
-::
+.. code-block:: c
 
      for( grid=0, grid< NumberOfGrids, grid++){
         Grid[grid]->SolvePotential

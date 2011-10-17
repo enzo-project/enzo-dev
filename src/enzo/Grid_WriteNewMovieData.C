@@ -43,6 +43,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -70,7 +71,9 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			    AMRHDF5Writer &AmiraGrid,
 			    int lastMovieStep, int TopGridCycle, 
 			    int WriteMe, int MovieTimestepCounter, int open, 
-			    FLOAT WriteTime)
+			    FLOAT WriteTime, 
+			    int alreadyopened[][MAX_DEPTH_OF_HIERARCHY], 
+			    int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY])
 {
 
   static char suffix[] = ".mdat";
@@ -180,7 +183,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
     sprintf(Amira_pid, "_P%3.3d", MyProcessorNumber);
     sprintf(Amira_fileID, "%4.4d", NewMovieDumpNumber);
 
-    strcpy(AmiraFileName, "AmiraData");
+    strcpy(AmiraFileName, NewMovieName);
     strcat(AmiraFileName, Amira_fileID);
     strcat(AmiraFileName, Amira_pid);
     strcat(AmiraFileName, ".hdf5");
@@ -191,15 +194,40 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
 			      DataType, stag, field_type, TopGridCycle,
 			      Time, CurrentRedshift, root_dx, 0, 
 			      (MyProcessorNumber == ROOT_PROCESSOR),
-			      nFields, (NewMovieParticleOn > 0),
+			      nFields, 
+			      (NewMovieParticleOn > 0 &&
+			       NewMovieParticleOn < 3),
 			      NumberOfParticleAttributes, FieldNames, 
 			      error);
       //printf("NewMovie: Opened movie data file %s\n", AmiraFileName);
-    }
 
-    if (error) {
-      fprintf(stderr, "Error in AMRHDF5Writer %s.\n", AmiraFileName);
-      return FAIL;
+      if (error) {
+	fprintf(stderr, "Error in AMRHDF5Writer %s.\n", AmiraFileName);
+	return FAIL;
+      }
+
+      if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL ||
+	  NewMovieParticleOn == NON_DM_PARTICLES_MERGED_ALL) {   
+
+	char *AmiraParticleFileName = new char[80];
+	strcpy(AmiraParticleFileName, NewMovieName);
+	strcat(AmiraParticleFileName, "Particle");
+	strcat(AmiraParticleFileName, Amira_fileID);
+	strcat(AmiraParticleFileName, Amira_pid);
+	strcat(AmiraParticleFileName, ".hdf5");
+	
+	AmiraGrid.AMRHDF5CloseSeparateParticles();
+	AmiraGrid.AMRHDF5CreateSeparateParticles(AmiraParticleFileName, 
+						 (NewMovieParticleOn > 0),
+						 NumberOfParticleAttributes,  
+						 error);
+	if (error) {
+	  fprintf(stderr, "Error in AMRHDF5Writer.\n");
+	  return FAIL;
+	}
+	delete [] AmiraParticleFileName;
+      }
+
     }
 
     for (field = 0; field < nFields; field++)
@@ -430,6 +458,7 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
       TempNumber[i] = ParticleNumber[j];
     } // ENDFOR non-DM particles
 
+    /* Write */
 
     if (AmiraGrid.writeParticles(NumberOfNonDMParticles, NumberOfParticleAttributes,
 				 NumberOfBaryonFields, GridRank, 
@@ -461,6 +490,121 @@ int grid::WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
   } // ENDIF Non-DM particles
 
   AmiraGrid.IncreaseGridCount();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /* Print out particles merged by level if requested.
+     - Ji-hoon Kim, Apr.2010 */
+
+  if (NewMovieParticleOn == NON_DM_PARTICLES_MERGED_LEVEL) {
+
+    int *NonDMParticleIndices = new int[NumberOfParticles];
+    int NumberOfNonDMParticles = 0, filled_upto_here = 0;
+    int ii, iattr;
+
+    for (i = 0; i < NumberOfParticles; i++)
+      NonDMParticleIndices[i] = -1;
+    for (i = 0; i < NumberOfParticles; i++)
+      if (ParticleType[i] == PARTICLE_TYPE_STAR)
+	NonDMParticleIndices[NumberOfNonDMParticles++] = i;
+
+
+    /* Figure out upto which index the particles are filled by previous grids */
+
+    if (NumberOfNonDMParticles > 0) {
+      filled_upto_here = 0;
+      while (StarParticlesOnProcOnLvl_Type[ProcessorNumber][filled_upto_here] != 0 &&
+	     filled_upto_here < NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel])
+	filled_upto_here++;
+    }
+
+    /* Move star particles into temp arrays */
+
+    for (i = 0; i < NumberOfNonDMParticles; i++) {
+      j = NonDMParticleIndices[i];
+      for (dim = 0; dim < GridRank; dim++) {
+	StarParticlesOnProcOnLvl_Position[ProcessorNumber][dim][filled_upto_here+i] 
+	  = ParticlePosition[dim][j];
+	StarParticlesOnProcOnLvl_Velocity[ProcessorNumber][dim][filled_upto_here+i] 
+	  = ParticleVelocity[dim][j];
+      }
+      StarParticlesOnProcOnLvl_Mass[ProcessorNumber][filled_upto_here+i] = ParticleMass[j];
+      for (iattr = 0; iattr < NumberOfParticleAttributes; iattr++)
+	StarParticlesOnProcOnLvl_Attr[ProcessorNumber][iattr][filled_upto_here+i] 
+	  = ParticleAttribute[iattr][j];
+      StarParticlesOnProcOnLvl_Type[ProcessorNumber][filled_upto_here+i] = ParticleType[j];
+      StarParticlesOnProcOnLvl_Number[ProcessorNumber][filled_upto_here+i] = ParticleNumber[j];
+    } // ENDFOR non-DM particles
+
+
+
+
+    /* Check whether we are doen with collecting the particles */
+
+    if (NumberOfNonDMParticles > 0) {
+      filled_upto_here = 0;
+      while (StarParticlesOnProcOnLvl_Type[ProcessorNumber][filled_upto_here] != 0 &&
+	     filled_upto_here < NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel])
+	filled_upto_here++;
+    }
+
+
+
+    /*
+    int NumStar = 0;
+    for (i = 0; i < NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel]; i++)
+      NumStar += StarParticlesOnProcOnLvl_Type[ProcessorNumber][i]/2;
+
+    if (NumStar == NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel]) {
+    */
+
+
+
+    /* Write (printing star particles when one level is done on a processor) */
+
+    if (filled_upto_here == NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel]) {
+
+      alreadyopened[ProcessorNumber][thislevel] = FALSE;  //##### nothing hasn't been written
+
+      if (AmiraGrid.writeParticles2(NumberOfNonDMParticles, NumberOfParticleAttributes,
+				    NumberOfBaryonFields, GridRank, 
+				    (void **) StarParticlesOnProcOnLvl_Position[ProcessorNumber], 
+				    (void **) StarParticlesOnProcOnLvl_Velocity[ProcessorNumber],
+				    (void *) StarParticlesOnProcOnLvl_Type[ProcessorNumber], 
+				    (void *) StarParticlesOnProcOnLvl_Number[ProcessorNumber], 
+				    (void *) StarParticlesOnProcOnLvl_Mass[ProcessorNumber],
+				    (void **) StarParticlesOnProcOnLvl_Attr[ProcessorNumber],
+				    alreadyopened[ProcessorNumber][thislevel],
+				    NumberOfStarParticlesOnProcOnLvl[ProcessorNumber][thislevel],
+				    MovieTimestepCounter, doubleTime, doubleRedshift, 
+				    thislevel, delta, doubleGridLeftEdge,
+				    integerOrigin, ghostzoneFlags, numGhostzones) != 0) {
+	fprintf(stderr, "Error in AMRHDF5Writer->writeParticles2\n");
+	return FAIL;
+      }
+
+    }
+
+
+
+
+
+    delete [] NonDMParticleIndices;
+
+  } // ENDIF NON_DM_PARTICLES_MERGED_LEVEL
 
   /* Clean up */
 

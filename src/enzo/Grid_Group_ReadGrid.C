@@ -8,6 +8,7 @@
 /  modified2:  Alexei Kritsuk, Jan 2004   a trick for RandomForcing //AK
 /  modified3:  Robert Harkness, Jan 2007 for HDF5 memory buffering
 /  modified4:  Robert Harkness, April 2008
+/  modified5:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -50,6 +51,7 @@ static int GridReadDataGridCounter = 0;
  
 #ifndef NEW_GRID_IO
 int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
+			 char DataFilename[],
 			 int ReadText, int ReadData, bool ReadParticlesOnly)
 {
  
@@ -84,10 +86,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     {"particle_position_x", "particle_position_y", "particle_position_z"};
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-  /*char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-    "metallicity_fraction", "alpha_fraction", "p5", "p6"};*/
+#ifdef WINDS
+  char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
  
 #ifdef IO_LOG
   int         io_log = 1;
@@ -101,7 +107,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 #define io_type float32
 #endif
  
-  if(ReadText){
+  if(ReadText && HierarchyFileInputFormat == 1){
 
     /* Read general grid class data */
 
@@ -227,6 +233,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
 
   } // (if (ReadText) )
+
+  // if HDF5 Hierarchy file, then copy DataFilename (read in
+  // Grid::ReadHierarchyInformationHDF5.C) to procfilename
+  if (HierarchyFileInputFormat % 2 == 0) {
+    strcpy(procfilename, DataFilename);
+  }
  
 
   int ii = sizeof(io_type);
@@ -647,7 +659,9 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     }H5E_END_TRY
  
     if (ParticleTypeInFile == TRUE && dset_id != h5_error) {
- 
+
+      H5Dclose(dset_id);
+
       /* Read ParticleType into temporary buffer and Copy to ParticleType. */
 
       int *tempint = new int[NumberOfParticles];
@@ -708,6 +722,14 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       }
     } else {
     for (j = 0; j < NumberOfParticleAttributes; j++) {
+
+      H5E_BEGIN_TRY{
+	dset_id = H5Dopen(group_id, ParticleAttributeLabel[j]);
+      }H5E_END_TRY;
+
+      if (dset_id != h5_error) {
+       
+      H5Dclose(dset_id);
  
       file_dsp_id = H5Screate_simple((Eint32) 1, TempIntArray, NULL);
       if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
@@ -733,6 +755,15 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
       for (i = 0; i < NumberOfParticles; i++)
 	ParticleAttribute[j][i] = float(temp[i]);
+
+      } // ENDIF dset_id != h5_error
+      else {
+	
+	ParticleAttribute[j] = new float[NumberOfParticles];
+	for (i=0; i < NumberOfParticles; i++)
+	  ParticleAttribute[j][i] = 0;
+
+      } // ENDELSE
  
     }
     } // ENDELSE add particle attributes

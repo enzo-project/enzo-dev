@@ -1,0 +1,122 @@
+#=======================================================================
+#
+# FILE:        Make.mach.nics-kraken-gnu
+#
+# DESCRIPTION: Makefile settings for NICS' Kraken using GNU
+#
+# AUTHOR:      Alexei Kritsuk
+#
+# DATE:        2008-05-31
+# MODIFIED1:   John Wise (April 2010)
+# MODIFIED1:   Matthew Turk (January 2011)
+#
+#=======================================================================
+
+MACH_TEXT  = NICS Kraken
+MACH_VALID = 1
+MACH_FILE  = Make.mach.nics-kraken-gnu
+
+MACHINE_NOTES = "Building with GNU requires PrgEnv-gnu"
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL    = 
+LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_gnu4.4.3/
+
+LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
+LOCAL_HYPRE_INSTALL  = 
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /lib/cpp 
+
+# With MPI
+
+MACH_CC_MPI    = cc
+MACH_CXX_MPI   = CC
+MACH_FC_MPI    = ftn
+MACH_F90_MPI   = ftn
+MACH_LD_MPI    = CC
+
+# Without MPI
+
+MACH_CC_NOMPI  = cc
+MACH_CXX_NOMPI = CC
+MACH_FC_NOMPI  = ftn
+MACH_F90_NOMPI = ftn
+MACH_LD_NOMPI  = CC
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DXT3 -DNO_IO_LOG -DSYSCALL -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   = 
+MACH_CXXFLAGS = 
+MACH_FFLAGS   = 
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = -Wl,-static 
+
+#-----------------------------------------------------------------------
+# Precision-related flags
+#-----------------------------------------------------------------------
+
+MACH_FFLAGS_INTEGER_32 = 
+MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
+MACH_FFLAGS_REAL_32    = 
+MACH_FFLAGS_REAL_64    = -fdefault-real-8
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = 
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
+LOCAL_LIBS_HYPRE  = 
+
+LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles10.1_gnu4.4.3/lib -lsz \
+		    -L/opt/acml/4.3.0/gnu64/lib -lacml -lm \
+		    -L/usr/local/lib -lz 
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)

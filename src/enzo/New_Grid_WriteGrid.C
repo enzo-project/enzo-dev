@@ -8,6 +8,7 @@
 /  modified2:  Robert Harkness, July 2006
 /  modified3:  Robert Harkness, April 2008
 /  modified4:  Matthew Turk, September 2009
+/  modified5:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -33,7 +34,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "BinaryHierarchy.h"
+
 void my_exit(int status);
  
 // HDF5 function prototypes
@@ -60,6 +61,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   int file_status;
  
   float *temp, *temp_VelAnyl;
+  float *temperature, *dust_temperature,
+    *cooling_time;
  
   FILE *log_fptr;
   FILE *procmap_fptr;
@@ -89,10 +92,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
      {"particle_position_x", "particle_position_y", "particle_position_z"};
   char *ParticleVelocityLabel[] =
      {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction"};*/
+#ifdef WINDS
+  char *ParticleAttributeLabel[] =
+    {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+     "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+  char *ParticleAttributeLabel[] = 
+    {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
   char *SmoothedDMLabel[] = {"Dark_Matter_Density", "Velocity_Dispersion",
 			     "Particle_x-velocity", "Particle_y-velocity",
 			     "Particle_z-velocity"};
@@ -135,7 +142,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   strcpy(name, "/Grid");
   strcat(name, id);
 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0) {
 
     fprintf(fptr, "Task              = %"ISYM"\n", ProcessorNumber);
  
@@ -186,26 +193,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     if (SelfGravity)
       fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);
-
-    if(WriteBinaryHierarchy == TRUE) {
-        int pi = 0;
-        for(dim = 0; dim < MAX_DIMENSION; dim++)
-        {
-            pi = (grid_id - 1) * 3 + dim;
-            HierarchyArrays.ActiveDimensions[pi] = (this->GridEndIndex[dim] - this->GridStartIndex[dim] + 1);
-            HierarchyArrays.LeftEdges[pi] = this->GridLeftEdge[dim];
-            HierarchyArrays.RightEdges[pi] = this->GridRightEdge[dim];
-        }
-        pi = grid_id - 1;
-        if (HierarchyArrays.current_parent == -1) {
-            HierarchyArrays.Level[pi] = 0;
-        } else {
-            HierarchyArrays.Level[pi] = HierarchyArrays.Level[HierarchyArrays.current_parent - 1] + 1;
-        }
-        HierarchyArrays.ParentIDs[pi] = HierarchyArrays.current_parent;
-        HierarchyArrays.Processor[pi] = this->ProcessorNumber;
-        HierarchyArrays.NumberOfParticles[pi] = this->NumberOfParticles;
-    }
 
   }
 
@@ -259,11 +246,13 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     for (field = 0; field < NumberOfBaryonFields; field++) {
 
       if(WriteEverything == FALSE) {
+      if (debug1)
+	fprintf(stdout, "field = %i %s\n", field, DataLabel[field]);
 
         this->write_dataset(GridRank, OutDims, DataLabel[field],
             group_id, file_type_id, (VOIDP) BaryonField[field],
             CopyOnlyActive, temp);
-
+	//	fprintf(stderr, "%i field\n", field);
       } else {
 
         this->write_dataset(GridRank, FullOutDims, DataLabel[field],
@@ -370,14 +359,14 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
    
 
-    /* If this is cosmology, compute the temperature field as well since
-       its such a pain to compute after the fact. */
+    /* If requested, compute and output the temperature field 
+       as well since its such a pain to compute after the fact. */
  
     if (OutputTemperature) {
  
       /* Allocate field and compute temperature. */
  
-      float *temperature = new float[size];
+      temperature = new float[size];
  
       if (this->ComputeTemperatureField(temperature) == FAIL) {
 		ENZO_FAIL("Error in grid->ComputeTemperatureField.");
@@ -388,15 +377,55 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
       /* Copy active part of field into grid */
  
-      delete [] temperature;
+      // If outputing dust temperature, keep temperature field for the calculation.
+      if (!OutputDustTemperature) {
+	delete [] temperature;
+      }
  
     } // end: if (OutputTemperature)
 
-    if (OutputCoolingTime) {
+    /* If requested, compute and output the dust temperature field 
+       as well since its such a pain to compute after the fact. */
+ 
+    if (OutputDustTemperature) {
+ 
+      /* Get temperature field if we do not already have it. */
+
+      if (!OutputTemperature) {
+	temperature = new float[size];
+
+	if (this->ComputeTemperatureField(temperature) == FAIL) {
+	  ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
+	}
+      }
+
+      /* Allocate field and compute temperature. */
+ 
+      dust_temperature = new float[size];
+ 
+      if (this->ComputeDustTemperatureField(temperature,
+					    dust_temperature) == FAIL) {
+		ENZO_FAIL("Error in grid->ComputeDustTemperatureField.");
+      }
+ 
+      this->write_dataset(GridRank, OutDims, "Dust_Temperature",
+                    group_id, file_type_id, (VOIDP) dust_temperature, TRUE, temp);
+
+      /* Copy active part of field into grid */
+ 
+      // If outputing dust temperature, keep temperature field for the calculation.
+      if (!OutputTemperature) {
+	delete [] temperature;
+      }
+      delete [] dust_temperature;
+ 
+    } // end: if (OutputDustTemperature)
+
+    if (OutputCoolingTime != FALSE) {
  
       /* Allocate field and compute cooling time. */
 
-      float *cooling_time = new float[size];
+      cooling_time = new float[size];
  
       float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
 	VelocityUnits = 1, TimeUnits = 1, aUnits = 1;
@@ -506,7 +535,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     for (field = 0; field < NumberOfDMFields; field++) {
 
       // Only the active part was calculated, so no copying in the routine
-
+      if (debug1)
+	fprintf(stdout, "DM field = %i\n", field);
       this->write_dataset(GridRank, OutDims, SmoothedDMLabel[field],
                     group_id, file_type_id, (VOIDP) InterpolatedField[field], FALSE);
 

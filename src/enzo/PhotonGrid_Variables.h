@@ -1,4 +1,4 @@
-#define MAX_SOURCES 1000
+#define MAX_SOURCES 3000
 // Photons
 int    NumberOfPhotonPackages;
 //int    NumberOfRenderingPackages;
@@ -25,4 +25,4 @@ int HasRadiation;
 // through with a cumulative optical depth >0.1.
 float MaximumkphIfront;
 int IndexOfMaximumkph;
-
+int OriginalProcessorNumber;

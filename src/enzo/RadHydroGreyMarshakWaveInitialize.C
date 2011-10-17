@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -42,7 +43,7 @@ int RadHydroGreyMarshakWaveInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stdout,"Entering RadHydroGreyMarshakWaveInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";

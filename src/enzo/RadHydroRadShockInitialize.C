@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -26,7 +27,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
-#define DEF_MU 0.5  // fully ionized hydrogen gas
+#define DEFAULT_MU 0.5  // fully ionized hydrogen gas
 
 // function prototypes
 int InitializeRateData(FLOAT Time);
@@ -43,7 +44,7 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
     fprintf(stdout,"Entering RadHydroRadShockInitialize routine\n");
 
   char *DensName  = "Density";
-  char *TEName    = "Total_Energy";
+  char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
   char *Vel0Name  = "x-velocity";
   char *Vel1Name  = "y-velocity";
@@ -89,6 +90,12 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
     }
   }
 
+  /* error checking */
+  if (Mu != DEFAULT_MU) {
+    if (MyProcessorNumber == ROOT_PROCESSOR)
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
+    Mu = DEFAULT_MU;
+  }
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 
@@ -108,7 +115,7 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
   // density (erg/cc) from input temperatures
   float gas_pressure;
   if ( CGSType == 1 ) 
-    gas_pressure  = DensityConstant * kb * GasTempConstant / DEF_MU / mp;
+    gas_pressure  = DensityConstant * kb * GasTempConstant / DEFAULT_MU / mp;
   if ( CGSType == 2 ) 
     gas_pressure  = (Gamma - 1.0) * Cv * DensityConstant * GasTempConstant;
 

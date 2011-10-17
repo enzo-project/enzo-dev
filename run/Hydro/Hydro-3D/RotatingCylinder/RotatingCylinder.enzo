@@ -55,12 +55,14 @@ tiny_number               = 1.0e-10
 #
 
 DensityUnits = 1.67e-23   # box density in g/cm^3 (10 ptcles per cc mean)
-LengthUnits = 3.0857e+18   # box size in cm (one parsec)
-TimeUnits = 3.1557e+13    # one megayear in seconds 
+LengthUnits = 3.0857e+24   # box size in cm (one Mega parsec)
+TimeUnits = 3.1557e+13    # one megayear in seconds (Per Mass, Don't Forget.)
 
 SelfGravity                = 1
 GravitationalConstant      = 0.0139394         # 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
-TopGridGravityBoundary = 0       // Periodic BCs
+TopGridGravityBoundary = 1 //Topgrid Isolated
+LeftFaceBoundaryCondition = 1 1 1
+RightFaceBoundaryCondition = 1 1 1
 
 # other stuff (controlling chemistry, etc.)
 
@@ -73,7 +75,7 @@ RotatingCylinderCenterPosition = 0.5 0.5 0.5
 RotatingCylinderSubgridLeft = 0.375
 RotatingCylinderSubgridRight = 0.625
 RotatingCylinderTotalEnergy = 0.5
-
+InitialRefinementDepth = 0
 TestProblemUseMetallicityField = 0
 TestProblemInitialMetallicityFraction = 0.1
 

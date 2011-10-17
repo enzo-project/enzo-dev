@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -38,7 +39,7 @@ int HLL_PLM_MHD(float **prim, float **priml, float **primr,
 {
 
   // compute priml and primr
-  if (ConservativeReconstruction)
+  if (ConservativeReconstruction == 1)
     cons_plm(prim, priml, primr, ActiveSize, 9, direc);
   else
     plm(prim, priml, primr, ActiveSize, 9);

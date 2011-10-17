@@ -89,12 +89,13 @@ int grid::CheckForSharedFace(grid *OtherGrid,
   bool ycheck, zcheck;
   FLOAT DomainWidth[MAX_DIMENSION];
 
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+  for (dim = 0; dim < GridRank; dim++) {
     BoundaryCheck[2*dim] = false;
     BoundaryCheck[2*dim+1] = false;
   }
 
   for (dim = 0; dim < GridRank; dim++) {
+
     BoundaryCheck[2*dim] = 
       ((LeftFaceBoundaryCondition[dim] == periodic || 
 	LeftFaceBoundaryCondition[dim] == shearing) &&

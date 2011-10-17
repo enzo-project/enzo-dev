@@ -13,8 +13,12 @@
 /
 ************************************************************************/
 
+#include <string>
+#include <map>
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -31,10 +35,14 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
        {"particle_position_x", "particle_position_y", "particle_position_z"};
     char *ParticleVelocityLabel[] =
        {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-    /*    char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-	  "metallicity_fraction", "alpha_fraction", "p5", "p6"};*/
+#ifdef WINDS
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
     this->DebugCheck("Converting to NumPy arrays");
 
@@ -94,6 +102,24 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             Py_DECREF(dataset);
         }
 
+	/* Get grid temperature field. */
+	int size = 1;
+	for (dim = 0; dim < GridRank; dim++)
+	  size *= GridDimension[dim];
+	if (YT_TemperatureField != NULL) {
+	  delete [] YT_TemperatureField;
+	  YT_TemperatureField = NULL;
+	}
+	YT_TemperatureField = new float[size];
+	if (this->ComputeTemperatureField(YT_TemperatureField) == FAIL) {
+	  ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
+	}
+	dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+	        3, dims, ENPY_BFLOAT, YT_TemperatureField);
+	dataset->flags &= NPY_OWNDATA;
+	PyDict_SetItemString(grid_data, "Temperature", (PyObject*) dataset);
+	Py_DECREF(dataset);
+
         /* Now we do our particle fields */
 
         if(this->NumberOfParticles > 0) {
@@ -131,6 +157,43 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
           PyDict_SetItemString(grid_data, "particle_index",
               (PyObject*) dataset);
           Py_DECREF(dataset);
+
+	  /* Star particle attributes */
+	  if (StarParticleCreation > 0) {
+
+	    /* Type */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_INT, ParticleType);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "particle_type",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	    /* creation time */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_BFLOAT, ParticleAttribute[0]);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "creation_time",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	    /* dynamical time */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_BFLOAT, ParticleAttribute[1]);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "dynamical_time",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	    /* dynamical time */
+	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
+		    1, dims, ENPY_BFLOAT, ParticleAttribute[2]);
+	    dataset->flags &= ~NPY_OWNDATA;
+	    PyDict_SetItemString(grid_data, "metallicity_fraction",
+	       (PyObject*) dataset);
+	    Py_DECREF(dataset);
+
+	  }
 
         }
 

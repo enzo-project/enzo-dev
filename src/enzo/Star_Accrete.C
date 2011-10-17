@@ -33,6 +33,7 @@ int Star::Accrete(void)
   if (this->CurrentGrid == NULL || this->naccretions == 0)
     return SUCCESS;
 
+  const double Msun = 1.989e33, yr = 3.1557e7;
   int dim, i, n, count;
   FLOAT time = CurrentGrid->Time;
   float dt = CurrentGrid->dtFixed;
@@ -57,7 +58,7 @@ int Star::Accrete(void)
 //  printf("star::Accrete: old_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
   double old_mass = Mass;
   Mass += (double)(DeltaMass);
-  FinalMass += (double)(DeltaMass);
+//  FinalMass += (double)(DeltaMass);
 //  printf("star::Accrete: new_Mass = %lf, DeltaMass = %f\n", Mass, DeltaMass); 
 
 
@@ -71,25 +72,42 @@ int Star::Accrete(void)
 
   double ratio1, ratio2, new_vel;
 
-  if (type != BlackHole) {
+  if (type != MBH || type != BlackHole) {
     ratio2 = DeltaMass / Mass;
     ratio1 = 1.0 - ratio2;
+    Metallicity = ratio1 * Metallicity + ratio2 * deltaZ;
+    deltaZ = 0.0;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       vel[dim] = ratio1 * vel[dim] + ratio2 * delta_vel[dim];
       delta_vel[dim] = 0.0;
     }
   } else {
+    deltaZ = 0.0;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       delta_vel[dim] = 0.0;
     }
   }
 
+  /* [3] For MBH, 
+     because gas mass is added to MBH from many cells with zero net momentum,
+     just decrease the particle's velocity accordingly. */
+
+  if (type == MBH) {
+//    printf("star::Accrete: old_vel[1] = %g\n", vel[1]);
+    vel[0] *= old_mass / Mass; 
+    vel[1] *= old_mass / Mass;
+    vel[2] *= old_mass / Mass; 
+//    printf("star::Accrete: old_mass = %lf  ->  Mass = %lf\n", old_mass, Mass); 
+//    printf("star::Accrete: new_vel[1] = %g\n", vel[1]);
+  }
+
+
   /* Keep the last accretion_rate for future use */
 
   if (n > 0)  last_accretion_rate = accretion_rate[n-1]; 
 
-//  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g, time = %g, accretion_time[0] = %g, this_dt = %e, 
-//          DeltaMass = %g, Mass = %lf\n", last_accretion_rate, time, accretion_time[0], this_dt, DeltaMass, Mass); 
+  fprintf(stdout, "star::Accrete:  last_accretion_rate = %g Msun/yr, time = %g, accretion_time[0] = %g, this_dt = %e, DeltaMass = %g, Mass = %lf\n", 
+	  last_accretion_rate*yr, time, accretion_time[0], this_dt, DeltaMass, Mass); //#####
 
   /* Remove these entries in the accretion table */
 

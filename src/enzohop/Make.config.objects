@@ -11,10 +11,11 @@
 #=======================================================================
 
 OBJS_CONFIG_LIB = \
-	enzohop.o \
+	HopAnalysis.o \
 	hop_hop.o \
 	hop_regroup.o \
 	hop_kd.o \
 	hop_slice.o \
-	hop_smooth.o \
-	InterpretCommandLine.o
+	hop_smooth.o 
+#	InterpretCommandLine.o
+#	enzohop.o \

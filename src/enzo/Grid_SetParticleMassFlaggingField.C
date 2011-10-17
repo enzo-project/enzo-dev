@@ -42,6 +42,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 				       int NumberOfSends)
 {
 
+  //printf("grid::SetParticleMassFlaggingField called \n");
   int i, irecv, dim, size, proc, MPI_Tag;
 
   /* Return if we're not needed here */
@@ -49,6 +50,8 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 //  if (MyProcessorNumber == ProcessorNumber &&
 //      CommunicationDirection == COMMUNICATION_SEND)
 //    return SUCCESS;
+
+  //printf("    grid::SetParticleMassFlaggingField   \n");
 
   if (MyProcessorNumber != ProcessorNumber &&
       (CommunicationDirection == COMMUNICATION_RECEIVE ||
@@ -131,6 +134,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	if (level < MustRefineParticlesRefineToLevel) {
 	  NumberOfFlaggedCells = 
 	    this->DepositMustRefineParticles(ParticleMassMethod, level);
+	  //printf(" Level <  MustRefineParticlesRefineToLevel = %d   \n",MustRefineParticlesRefineToLevel );
 	  if (NumberOfFlaggedCells < 0) {
 	    ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");
 	  }

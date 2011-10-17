@@ -10,6 +10,8 @@
 /           for Star particle type BlackHole..
 /           Note that accretion_rate is calculted in Star_CalculateMassAccretion.C
 /           but DeltaMass is calculated in Star_Accrete.C.
+/           At the moment, this method is used only for BlackHole;
+/           for MBH, the job is done in Grid_SubtractAccretedMassFromSphere.C
 /
 ************************************************************************/
 #include <stdlib.h>
@@ -72,13 +74,13 @@ int Star::SubtractAccretedMassFromCell(void)
 
   /* Find Metallicity or SNColour field and set flag. */
 
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum;
   int MetallicityField = FALSE;
 
-  if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
-					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+  if (CurrentGrid->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+					Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
 
   MetalNum = max(MetalNum, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
@@ -88,8 +90,8 @@ int Star::SubtractAccretedMassFromCell(void)
 
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     size *= CurrentGrid->GridDimension[dim];
-    igrid[dim] = (int) ((pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
-			CurrentGrid->CellWidth[0][0]);
+    igrid[dim] = (int) (pos[dim] - CurrentGrid->GridLeftEdge[dim]) /
+      CurrentGrid->CellWidth[0][0];
   }
 
   index = 

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -22,6 +23,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "phys_constants.h"
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -89,6 +91,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     HaloAngVel[MAX_SPHERES],
     DiskDensity[MAX_SPHERES],
     DiskTemperature[MAX_SPHERES],
+    DiskMassFraction[MAX_SPHERES],
+    DiskFlaringParameter[MAX_SPHERES],
     UniformVelocity[MAX_DIMENSION];
   FLOAT HaloRadius[MAX_SPHERES],
     HaloCoreRadius[MAX_SPHERES],
@@ -109,6 +113,8 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       HaloVelocity[sphere][dim] = 0;
     }
     GalaxyType[sphere]       = 0;
+    DiskMassFraction[sphere] = 0.;
+    DiskFlaringParameter[sphere] = 10.;
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     UniformVelocity[dim] = 0;
@@ -142,10 +148,10 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
       ret += sscanf(line, "GalaxyType[%"ISYM"] = %"ISYM, &sphere,
 		    &GalaxyType[sphere]);
     if (sscanf(line, "HaloRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloRadius[%"ISYM"] = %"FSYM, &sphere,
+      ret += sscanf(line, "HaloRadius[%"ISYM"] = %"PSYM, &sphere,
 		    &HaloRadius[sphere]);
     if (sscanf(line, "HaloCoreRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "HaloCoreRadius[%"ISYM"] = %"FSYM, &sphere,
+      ret += sscanf(line, "HaloCoreRadius[%"ISYM"] = %"PSYM, &sphere,
 		    &HaloCoreRadius[sphere]);
     if (sscanf(line, "HaloDensity[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "HaloDensity[%"ISYM"] = %"FSYM, &sphere,
@@ -170,7 +176,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 		    &HaloVelocity[sphere][1],
 		    &HaloVelocity[sphere][2]);
     if (sscanf(line, "DiskRadius[%"ISYM"]", &sphere) > 0)
-      ret += sscanf(line, "DiskRadius[%"ISYM"] = %"FSYM, &sphere,
+      ret += sscanf(line, "DiskRadius[%"ISYM"] = %"PSYM, &sphere,
 		    &DiskRadius[sphere]);
     if (sscanf(line, "DiskHeight[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "DiskHeight[%"ISYM"] = %"FSYM, &sphere,
@@ -181,6 +187,15 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     if (sscanf(line, "DiskTemperature[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "DiskTemperature[%"ISYM"] = %"FSYM, &sphere,
 		    &DiskTemperature[sphere]);
+
+    if (sscanf(line, "DiskMassFraction[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskMassFraction[%"ISYM"] = %"FSYM, &sphere,
+		    &DiskMassFraction[sphere]);
+
+    if (sscanf(line, "DiskFlaringParameter[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "DiskFlaringParameter[%"ISYM"] = %"FSYM, &sphere,
+		    &DiskFlaringParameter[sphere]);
+
 
     /* if the line is suspicious, issue a warning */
 
@@ -201,9 +216,9 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	 DensityUnits, VelocityUnits, TimeUnits, TemperatureUnits, LengthUnits, 
 	 MagneticUnits, PressureUnits);
 
-  printf("timeu=%"GSYM"(year)\n", TimeUnits/3.1558e7);
-  //printf("temp=%"GSYM", radius=%"GSYM", height=%"GSYM", density=%"GSYM"\n",
-  // DiskTemperature[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
+  printf("timeu=%g(year)\n", TimeUnits/3.1558e7);
+  printf("temp=%g, diskmassf=%g diskflarF=%g radius=%g, height=%g, density=%g\n",
+	 DiskTemperature[0], DiskMassFraction[0], DiskFlaringParameter[0], DiskRadius[0], DiskHeight[0], DiskDensity[0]);
 
   if (UsePhysicalUnit) {
     MediumDensity /= DensityUnits;
@@ -216,6 +231,21 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
     printf("halodensity=%"GSYM"\n", HaloDensity[0]);
   }
 
+  HaloVirialRadius  = HaloRadius[0]*LengthUnits;
+  HaloConcentration = HaloVirialRadius/HaloCoreRadius[0]/LengthUnits;
+  HaloCentralDensity = HaloDensity[0]*DensityUnits;
+
+  if (DiskTemperature[0] > 0 && EOSSoundSpeed <= 0) {
+    double tgamma = Gamma;
+    if (EOSType == 3)
+      tgamma = 1.;
+    double c_s = sqrt(tgamma/Mu/mh * kboltz * DiskTemperature[0])/VelocityUnits;
+    printf("EOSSoundSpeed was not set.\n");
+    printf("Setting EOSSoundSpeed based on DiskTemperature[0]=%g K to %g (%g in code units)\n",
+	   DiskTemperature[0], c_s*VelocityUnits, c_s);
+    EOSSoundSpeed = c_s;
+  }
+
   /* set up grid */
 
   if (TopGrid.GridData->GalaxyDiskInitializeGrid(
@@ -225,7 +255,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	     HaloPosition, HaloSpin,
 	     HaloVelocity, HaloAngVel, HaloMagneticField,
 	     DiskRadius, DiskHeight, 
-	     DiskDensity, DiskTemperature,
+	     DiskDensity, DiskTemperature, DiskMassFraction, DiskFlaringParameter, 
 	     GalaxyType, UseParticles,
 	     UseGas,
              UniformVelocity,
@@ -274,7 +304,7 @@ int GalaxyDiskInitialize(FILE *fptr, FILE *Outfptr,
 	     HaloPosition, HaloSpin,
 	     HaloVelocity, HaloAngVel, HaloMagneticField,
 	     DiskRadius, DiskHeight, 
-	     DiskDensity, DiskTemperature,
+	     DiskDensity, DiskTemperature, DiskMassFraction, DiskFlaringParameter, 
 	     GalaxyType, UseParticles,
 	     UseGas,
 	     UniformVelocity,

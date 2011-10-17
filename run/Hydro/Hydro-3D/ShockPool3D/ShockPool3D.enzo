@@ -17,7 +17,7 @@ ShockPoolMachNumber     = 2.0
 #  set I/O and stop/start parameters
 #
 StopTime               = 0.4
-#dtDataDump             = 0.05
+dtDataDump             = 0.05
 #
 #  set Hydro parameters
 #

@@ -1,4 +1,4 @@
-#define DEBUG 1
+#define DEBUG 0
 /***********************************************************************
 /
 /  GRID CLASS (SEND PHOTONS FROM REAL GRID TO 'FAKE' (REPLICATED) GRID)
@@ -29,6 +29,7 @@
 #include "Grid.h"
 #include "communication.h"
 #include "CommunicationUtilities.h"
+#include "GroupPhotonList.h"
 
 #ifdef USE_MPI
 int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, 
@@ -39,6 +40,8 @@ static MPI_Datatype PhotonBufferType;
 #endif /* USE_MPI */
 
 void my_exit(int status);
+int FindSuperSource(PhotonPackageEntry **PP, int &LeafID, 
+		    int SearchNewTree = TRUE);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 
@@ -46,23 +49,6 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 					  int ToNumber, int FromNumber, 
 					  PhotonPackageEntry **ToPP)
 {
-
-  struct PhotonBuffer {
-    float	Photons;
-    int		Type;                     
-    float	Energy;                   
-    FLOAT	EmissionTimeInterval;     
-    FLOAT	EmissionTime;             
-    FLOAT	CurrentTime;              
-    FLOAT	Radius;                 
-    long	ipix;                    
-    int		level;                   
-    double	CrossSection;
-    float	ColumnDensity;
-    FLOAT	SourcePosition[3];        
-    float	SourcePositionDiff;
-    int		SuperSourceID;
-  };
 
   int index, dim, temp_int;
   PhotonPackageEntry *PP;
@@ -266,10 +252,15 @@ int grid::CommunicationSendPhotonPackages(grid *ToGrid, int ToProcessor,
 		"(%"ISYM" of %"ISYM") Bad photon time %"GSYM"\n",
 		ProcessorNumber, ToProcessor, index, FromNumber, 
 		NewPP->CurrentTime)
-
       }
 
-      NewPP->CurrentSource = NULL;
+      if (RadiativeTransferSourceClustering) {
+	if (FindSuperSource(&NewPP, buffer[index].SuperSourceID) == FAIL) {
+	  ENZO_FAIL("Error in FindSuperSource.\n");
+
+	}
+      } else
+	NewPP->CurrentSource = NULL;
 
       // Move pointer to the next photon
       //      *ToPP = (*ToPP)->NextPackage;

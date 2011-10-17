@@ -3,11 +3,11 @@ ytcfg["yt","loglevel"] = '50'
 ytcfg["yt","suppressStreamLogging"] = 'True'
 
 from yt.mods import *
-from yt.extensions.enzo_test import YTStaticOutputTest, run
+from yt.utilities.answer_testing.api import \
+    YTStaticOutputTest, create_test, run_main
 import matplotlib.pyplot as plt
 
 class TestAMRPhotonTest(YTStaticOutputTest):
-    name = "amr_photon_plot"
 
     def run(self):
         # self.pf already exists
@@ -31,4 +31,4 @@ class TestAMRPhotonTest(YTStaticOutputTest):
         return [fn]
 
 for f in ['Density', 'HI_Fraction', 'HII_Fraction', 'HI_kph']:
-    create_test(TestPhotonTest, 'amr_photon_test_%s' % f, field=f)
+    create_test(TestAMRPhotonTest, 'amr_photon_test_%s' % f, field=f)

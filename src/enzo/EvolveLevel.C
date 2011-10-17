@@ -37,6 +37,8 @@
 /  modified9:  June, 2009 by MJT, DC, JHW, TA
 /                Cleaned up error handling and created new routines for
 /                computing the timestep, output, handling fluxes
+/  modified10: July, 2009 by Sam Skillman
+/                Added shock analysis
 /
 /  PURPOSE:
 /    This routine is the main grid evolution function.  It assumes that the
@@ -91,6 +93,11 @@
 #include "CommunicationUtilities.h"
 #ifdef TRANSFER
 #include "ImplicitProblemABC.h"
+#endif
+#ifdef NEW_PROBLEM_TYPES
+#include "EventHooks.h"
+#else
+void RunEventHooks(char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
 #endif
  
 /* function prototypes */
@@ -206,15 +213,11 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int TotalStarParticleCountPrevious[]);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
-int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
-		     float *dtThisLevelSoFar, float *dtThisLevel,
-		     float dtLevelAbove);
-int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
+int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
 
 #ifdef TRANSFER
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		  Star *AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
+		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
 int RadiativeTransferPrepare(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *&AllStars,
 			     float dtLevelAbove);
@@ -222,10 +225,16 @@ int RadiativeTransferCallFLD(LevelHierarchyEntry *LevelArray[], int level,
 			     TopGridData *MetaData, Star *AllStars, 
 			     ImplicitProblemABC *ImplicitSolver);
 #endif
+
+int SetLevelTimeStep(HierarchyEntry *Grids[],
+        int NumberOfGrids, int level,
+        float *dtThisLevelSoFar, float *dtThisLevel,
+        float dtLevelAbove);
+
 void my_exit(int status);
  
 int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
-               int level);
+               int level, int from_topgrid);
 int MovieCycleCount[MAX_DEPTH_OF_HIERARCHY];
 double LevelWallTime[MAX_DEPTH_OF_HIERARCHY];
 double LevelZoneCycleCount[MAX_DEPTH_OF_HIERARCHY];
@@ -274,6 +283,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *NumberOfSubgrids = new int[NumberOfGrids];
   fluxes ***SubgridFluxesEstimate = new fluxes **[NumberOfGrids];
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
+  RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
@@ -286,13 +296,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
   
-  /* On the top grid, adjust the refine region so that only the finest
-     particles are included.  We don't want the more massive particles
+  /* Adjust the refine region so that only the finest particles 
+     are included.  We don't want the more massive particles
      to contaminate the high-resolution region. */
 
   AdjustRefineRegion(LevelArray, MetaData, level);
 
   //EMISSIVITY if cleared here will not reach the FLD solver in 2.0, finding better place
+  /* Adjust MustRefineParticlesRefineToLevel parameter if requested */
+  AdjustMustRefineParticlesRefineToLevel(MetaData, level);
 
   /* ================================================================== */
   /* For each grid: a) interpolate boundaries from its parent.
@@ -361,13 +373,19 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
 
+#ifdef TRANSFER
     /* Initialize the radiative transfer */
 
-#ifdef TRANSFER
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
 			     dtLevelAbove);
     RadiativeTransferCallFLD(LevelArray, level, MetaData, AllStars, 
 			     ImplicitSolver);
+
+    /* Solve the radiative transfer */
+	
+    GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
+    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+ 
 #endif /* TRANSFER */
 
     /* trying to clear Emissivity here after FLD uses it, doesn't work */
@@ -378,7 +396,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Prepare the density field (including particle density). */
 
     When = 0.5;
- 
+
 #ifdef FAST_SIB
      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else   // !FAST_SIB
@@ -391,13 +409,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
 
-    /* Solve the radiative transfer */
-	
-#ifdef TRANSFER
-    GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
-    EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
-#endif /* TRANSFER */
- 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
@@ -416,6 +427,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (level > 0)
 	    Grids[grid1]->GridData->SolveForPotential(level);
 	  Grids[grid1]->GridData->ComputeAccelerations(level);
+	  Grids[grid1]->GridData->CopyPotentialToBaryonField();
 	}
 	  /* otherwise, interpolate potential from coarser grid, which is
 	     now done in PrepareDensity. */
@@ -437,8 +449,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComputePotential)
 	if (CheckEnergyConservation(Grids, grid, NumberOfGrids, level,
 				    dtThisLevel) == FAIL) {
-	  fprintf(stderr, "Error in CheckEnergyConservation.\n");
-	  ENZO_FAIL("");
+	  ENZO_FAIL("Error in CheckEnergyConservation.\n");
 	}
 */
 #ifdef SAB
@@ -489,12 +500,18 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level
-#ifdef EMISSIVITY
-	/* adding the changed StarParticleHandler prototype */
-							,dtLevelAbove
-#endif
-        );
+	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove);
+
+      /* Include shock-finding */
+
+      Grids[grid1]->GridData->ShocksHandler();
+
+      /* Compute and apply thermal conduction. */
+      if(IsotropicConduction || AnisotropicConduction){
+	if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+	  ENZO_FAIL("Error in grid->ConductHeat.\n");
+	}
+      }
 
       /* Gravity: clean up AccelerationField. */
 
@@ -518,6 +535,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     }  // end loop over grids
  
+    /* Finalize (accretion, feedback, etc.) star particles */
+
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			 level, AllStars, TotalStarParticleCountPrevious);
+
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
@@ -529,40 +551,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  Exterior, LevelArray[level]);
 #endif
 
-    /* Finalize (accretion, feedback, etc.) star particles */
-
-    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
-
     /* If cosmology, then compute grav. potential for output if needed. */
 
-    //dcc cut second potential cut: Duplicate?
- 
-    if (SelfGravity && WritePotential) {
-      CopyGravPotential = TRUE;
-      When = 0.0;
- 
-#ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
-#else   // !FAST_SIB
-      PrepareDensityField(LevelArray, level, MetaData, When);
-#endif  // end FAST_SIB
- 
- 
-      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        if (level <= MaximumGravityRefinementLevel) {
- 
-          /* Compute the potential. */
- 
-          if (level > 0)
-            Grids[grid1]->GridData->SolveForPotential(level);
-          Grids[grid1]->GridData->CopyPotentialToBaryonField();
-        }
-      } //  end loop over grids
-      CopyGravPotential = FALSE;
-
-    } // if WritePotential
- 
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
@@ -589,8 +579,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		      , ImplicitSolver
 #endif
 		      ) == FAIL) {
-	fprintf(stderr, "Error in EvolveLevel (%"ISYM").\n", level);
-	ENZO_FAIL("");
+	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
     }
 
@@ -605,7 +594,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 			  , ImplicitSolver
 #endif
 			  );
-    CallPython(LevelArray, MetaData, level);
+#ifdef USE_PYTHON
+    LCAPERF_START("CallPython");
+    CallPython(LevelArray, MetaData, level, 0);
+    LCAPERF_STOP("CallPython");
+#endif
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note
@@ -615,6 +608,13 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (LevelArray[level+1] == NULL) {
       MetaData->SubcycleNumber++;
       MetaData->MovieTimestepCounter++;
+    }
+
+    /* Once MBH particles are inserted throughout the whole grid hierarchy,
+       turn off MBH creation (at the bottom of the hierarchy) */
+
+    if (STARMAKE_METHOD(MBH_PARTICLE) && (LevelArray[level+1] == NULL)) { 
+      StarParticleCreation -= pow(2, MBH_PARTICLE);  
     }
 
     /* ------------------------------------------------------- */
@@ -656,6 +656,34 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Recompute radiation field, if requested. */
     RadiationFieldUpdate(LevelArray, level, MetaData);
  
+//     //dcc cut second potential cut: Duplicate?
+ 
+//     if (SelfGravity && WritePotential) {
+//       CopyGravPotential = TRUE;
+//       When = 0.0;
+ 
+// #ifdef FAST_SIB
+//       PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+// #else   // !FAST_SIB
+//       PrepareDensityField(LevelArray, level, MetaData, When);
+// #endif  // end FAST_SIB
+ 
+ 
+//       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+//         if (level <= MaximumGravityRefinementLevel) {
+ 
+//           /* Compute the potential. */
+ 
+//           if (level > 0)
+//             Grids[grid1]->GridData->SolveForPotential(level);
+//           Grids[grid1]->GridData->CopyPotentialToBaryonField();
+//         }
+//       } //  end loop over grids
+//        CopyGravPotential = FALSE;
+
+//     } // if WritePotential
+ 
+
     /* Rebuild the Grids on the next level down.
        Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
@@ -702,7 +730,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   /* Clean up the sibling list. */
 
-  if (( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+
+  if ((NumberOfGrids >1) || ( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       delete [] SiblingList[grid1].GridList;
     delete [] SiblingList;

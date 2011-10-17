@@ -10,7 +10,7 @@
 /  modified2:  Ji-hoon Kim
 /  date:       November, 2009
 /
-/              Now this new routines can correctly assigns the new 
+/              Now this new routines can correctly assigns indices to new 
 /              particles (whether they are star or DM) and keep track 
 /              of NumberOfStarParticles and NumberOfOtherParticles.
 /              This function has to have the arguments 
@@ -28,7 +28,7 @@
  
 #include <stdio.h>
 #include <string.h>
- 
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -46,7 +46,9 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 					 int NumberOfGrids, 
 					 int TotalStarParticleCountPrevious[])
 {
- 
+
+  LCAPERF_START("UpdateStarParticleCount");
+
   int grid, *TotalParticleCount = new int[NumberOfGrids],
           *PartialParticleCount = new int[NumberOfGrids],
         *TotalStarParticleCount = new int[NumberOfGrids],
@@ -152,6 +154,10 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
  
   delete [] TotalParticleCount;
   delete [] PartialParticleCount;
+  delete [] TotalStarParticleCount;
+  delete [] PartialStarParticleCount;
+ 
+  LCAPERF_STOP("UpdateStarParticleCount");
  
   return SUCCESS;
 }
@@ -257,7 +263,9 @@ int CommunicationUpdateStarParticleCountOld(HierarchyEntry *Grids[],
  
   delete [] TotalParticleCount;
   delete [] PartialParticleCount;
- 
+  delete [] TotalStarParticleCount;
+  delete [] PartialStarParticleCount;
+
   return SUCCESS;
 }
 #endif //UNUSED

@@ -13,7 +13,7 @@ in order to reduce memory consumption. */
 
 #define DIFFERENT_MASSES
 
-#include "macros.h"
+//#include "macros.h"
 
 #ifndef KD_HINCLUDED
 #define KD_HINCLUDED
@@ -182,7 +182,7 @@ typedef struct kdContext {
 
 
 void kdTime(KD,int *,int *);
-int kdInit(KD *,int);
+//int kdInit(KD *,int);
 int kdReadTipsy(KD,FILE *,int,int,int);
 void kdInMark(KD,char *);
 int kdBuildTree(KD);

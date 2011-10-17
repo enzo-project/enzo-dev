@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -54,8 +55,7 @@ int grid::SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
     }
   }
 
-  
-  /* Start: subgrid left flux start index relative to this grid
+    /* Start: subgrid left flux start index relative to this grid
      End: subgrid left flux start index relative to this grid */
 
   for (int subgrid = 0; subgrid < NumberOfSubgrids; subgrid++) {

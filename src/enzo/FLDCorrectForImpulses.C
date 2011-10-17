@@ -44,9 +44,10 @@ int FLDCorrectForImpulses(int field, LevelHierarchyEntry *LevelArray[],
   RadiationSourceEntry *RS = NULL;
   Star *cstar = NULL;
 
+  int nbins;
   FLOAT TimeNow, BirthTime, *Position;
-  double Luminosity, LConv, LL[4], sigma;
-  float TimeFraction, Lifetime, energies[4];
+  double Luminosity, LConv, LL[MAX_ENERGY_BINS], sigma;
+  float TimeFraction, Lifetime, energies[MAX_ENERGY_BINS];
   LevelHierarchyEntry *Temp;
 
   TimeNow = LevelArray[level]->GridData->ReturnTime();
@@ -99,7 +100,7 @@ int FLDCorrectForImpulses(int field, LevelHierarchyEntry *LevelArray[],
 	continue;
       Lifetime = cstar->ReturnLifetime();
       Position = cstar->ReturnPosition();
-      cstar->ComputePhotonRates(energies, LL);
+      cstar->ComputePhotonRates(nbins, energies, LL);
       Luminosity = LL[3];
       TimeFraction = (min(BirthTime + Lifetime, FLDTime) -
 		      max(BirthTime, FLDTime-dtFLD)) / dtFLD;

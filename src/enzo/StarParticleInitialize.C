@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -24,8 +25,10 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+int StarParticlePopIII_IMFInitialize(void);
 int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
+int StarParticleMergeMBH(LevelHierarchyEntry *LevelArray[], Star *&AllStars);
 int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 				  int TotalStarParticleCountPrevious[]);
@@ -40,6 +43,8 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   if (!(StarParticleCreation || StarParticleFeedback)) 
     return SUCCESS;
 
+  LCAPERF_START("StarParticleInitialize");
+
   /* Set MetaData->NumberOfParticles and prepare TotalStarParticleCountPrevious
      these are to be used in CommunicationUpdateStarParticleCount 
      in StarParticleFinalize */  
@@ -48,6 +53,11 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   NumberOfOtherParticles = MetaData->NumberOfParticles - NumberOfStarParticles;
   RecordTotalStarParticleCount(Grids, NumberOfGrids, 
 			       TotalStarParticleCountPrevious);
+
+  /* Initialize the IMF lookup table if requested and not defined */
+
+  if (PopIIIInitialMassFunction)
+    StarParticlePopIII_IMFInitialize();
 
   int level, grids;
   Star *cstar;
@@ -70,11 +80,21 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
         ENZO_FAIL("Error in StarParticleFindAll.");
   }
 
-  /* Merge any newly created, clustered particles */
+  if (MetaData->FirstTimestepAfterRestart == FALSE) {
 
-  if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
+    /* Merge any newly created, clustered particles */
+
+    if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
-  }
+    }
+
+  /* Merge MBH particles that are close enough.  Ji-hoon Kim, Sep.2009 */
+
+    if (StarParticleMergeMBH(LevelArray, AllStars) == FAIL) {
+      ENZO_FAIL("Error in StarParticleMergeMBH.\n");
+    }
+
+  } // ENDIF !restart
 
   /* 
      Set feedback flags.  
@@ -85,6 +105,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
   */
 
 //  if (MyProcessorNumber == ROOT_PROCESSOR) {
+
 //    for (cstar = AllStars; cstar; cstar = cstar->NextStar)
 //      cstar->PrintInfo();
 //  }
@@ -101,6 +122,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //  fprintf(stdout, "NumberOfOtherParticles now = %d\n", NumberOfOtherParticles);
 
 
+  LCAPERF_STOP("StarParticleInitialize");
   return SUCCESS;
 
 }

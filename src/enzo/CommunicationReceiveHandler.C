@@ -54,7 +54,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 //  	 CommunicationReceiveIndex);
 
   MPI_Arg NumberOfCompleteRequests, TotalReceives;
-  int ReceivesCompletedToDate = 0, index, errcode, SUBling,
+  int ReceivesCompletedToDate = 0, index, errcode, SUBling, level,
     igrid, isubgrid, dim, FromStart, FromNumber, ToStart, ToNumber;
   int GridDimension[MAX_DIMENSION];
   FLOAT EdgeOffset[MAX_DIMENSION];
@@ -267,6 +267,13 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  errcode = grid_one->CommunicationSendStars(grid_two, 
 						     MyProcessorNumber);
 	  break;
+
+#ifdef TRANSFER
+	case 19:
+	  level = CommunicationReceiveArgumentInt[0][index];
+	  errcode = grid_one->SetSubgridMarkerFromParent(grid_two, level);
+	  break;
+#endif
 
 	default:
 	  ENZO_VFAIL("Unrecognized call type %"ISYM"\n", 

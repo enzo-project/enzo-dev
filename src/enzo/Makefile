@@ -45,6 +45,9 @@ OUTPUT   = out.compile
 ENZO_DIR = .
 MODULES  = 
 VERBOSE  = 0
+ETAGS_COMMAND = "0"
+
+LFLAGS=--header-file=libconfig/scanner.h --prefix=libconfig_yy
 
 SVN      = hg
 
@@ -89,6 +92,8 @@ include Make.config.assemble
 # Make.mach.<machine-name> defines all machine-dependent settings.
 #-----------------------------------------------------------------------
 
+MACH_SHARED_EXT=so
+
 -include $(ENZO_DIR)/Make.mach.$(CONFIG_MACHINE)
 -include $(HOME)/.enzo/Make.mach.$(CONFIG_MACHINE)
 
@@ -102,35 +107,72 @@ include Make.config.objects
 # MAKE ENZO BY DEFAULT
 #-----------------------------------------------------------------------
 
-all: MACHNOTES $(EXE).exe
+all: MACHNOTES MAKETAGS $(EXE).exe
+
+# I believe this has to be done here, as it is target-specific.
+lib: CFLAGS   += $(MACH_SHARED_FLAGS) 
+lib: CXXFLAGS += $(MACH_SHARED_FLAGS) -DSHARED_LIBRARY
+lib: FFLAGS   += $(MACH_SHARED_FLAGS)
+lib: F90FLAGS += $(MACH_SHARED_FLAGS)
+lib: LDFLAGS  += $(MACH_SHARED_FLAGS)
+lib: lib$(EXE)_p$(ASSEMBLE_PARTICLE_NUMBER)_b$(ASSEMBLE_PRECISION_NUMBER).$(MACH_SHARED_EXT)
 
 #-----------------------------------------------------------------------
 # MAKE AN EXECUTABLE
 #-----------------------------------------------------------------------
 
+MAKETAGS:
+	@(if [ "$(ETAGS_COMMAND)" != "0" ]; then \
+	   	echo -e "Making Tags with $(ETAGS_COMMAND)" ; \
+		rm -f TAGS ; \
+		$(ETAGS_COMMAND) ; \
+		echo -e "Done updating TAGS" ; \
+	fi)
 MACHNOTES: 
 	@echo -e $(MACHINE_NOTES)
 
 %.exe: $(MODULES) autogen dep %.o $(OBJS_LIB) MACHNOTES
 	@rm -f $@
-	@echo "Linking"
+	@echo "Linking enzo executable. Type  cat $(OUTPUT)  in case it fails."
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
+		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT) ; \
 	else \
-	  $(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
-	    2>&1 ; \
+		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
+		2>&1 ; \
+	fi)  
+	@(if [ -e $@ ] ; then  \
+		echo "Success!" ; \
+                if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+		if [ "$(CONFIG_OPT)" == "debug" ]; then \
+		echo "Compiled with opt-debug (OPT_FLAGS = $(ASSEMBLE_OPT_FLAGS))."; \
+		echo "May run much faster while still accurate with make opt-high (OPT_FLAGS = $(MACH_OPT_HIGH))"; \
+		fi; \
+                cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
+	else \
+		echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" > temp1; \
+		cat temp1 $(OUTPUT) > temp2 ;\
+		mv -f temp2 $(OUTPUT); \
+		rm -f temp1 temp2; \
+		echo "Failed! See $(OUTPUT) for error messages"; \
 	fi)
+
+lib%.$(MACH_SHARED_EXT): $(MODULES) autogen dep enzo.o $(OBJS_LIB)
+	@rm -f $@
+	@echo "Linking"
+	-@$(LD) $(LDFLAGS) $(SHARED_OPT) -o $@ enzo.o $(OBJS_LIB) $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
-	   echo "Success!  You have built Enzo from source tree revision `$(SVN) identify -i`"; \
-           if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
-           cp $(EXE).exe $(TOP_DIR)/bin/$(EXE); \
+	   echo "Success!"; \
 	else \
-	   echo "$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
+	   echo "$(LD) $(LDFLAGS) $(SHARED_OPT) -o $*.so $*.o $(OBJS_LIB) $(LIBS)" >> temp1; \
 	   cat temp1 $(OUTPUT) > temp2; \
 	   rm -f temp1; \
 	   mv -f temp2 $(OUTPUT); \
 	   echo "Failed! See $(OUTPUT) for error messages"; \
 	fi)
+
+.pyx.C: 
+	@cython --cplus $*.pyx -o $*.C 
+ProblemType_Python.o: python_bridge/problemtype_handler.o
 
 #-----------------------------------------------------------------------
 # WRITE ALL COMPILER OUTPUT TO FILE
@@ -147,67 +189,58 @@ verbose: $(EXE).exe
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90 .o .cu
+.SUFFIXES: .c .C .F .F90 .o .cu .pyx
 
 # Inhibit removing any *.o files after compiling
 
-.PRECIOUS: %.o %.f %.f90
+.PRECIOUS: %.o %.C
 
-.src.f:
-	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
-.f.o:
+#.src.f:
+#	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f
+.F.o:
 	@echo "Compiling $<"
 	@rm -f $@
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(FC) -c -o $@ $(FFLAGS) $*.f >& $(OUTPUT) ; \
+	  $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f"; \
-             echo "$(FC) -c -o $@ $(FFLAGS) $*.f"; \
+             echo "$(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F"; \
              echo; \
-             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src > $*.f; \
-             $(FC) -c -o $@ $(FFLAGS) $*.f; \
+             $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F; \
              echo; \
              exit 1; \
           fi ; \
 	else \
-	  $(FC) -c -o $@ $(FFLAGS) $*.f >> $(OUTPUT) 2>&1 ; \
+	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $*.f >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
 	  fi ; \
 	fi)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f; \
-          fi)
 
-.src90.f90:
-	@echo "Compiling $<"
-	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
-.f90.o:
+#.src90.f90:
+#	@echo "Compiling $<"
+#	@$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90
+.F90.o:
 	@rm -f $@
+	@echo "Compiling $<"
 	@(if [ $(VERBOSE) -eq 0 ]; then \
-	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >& $(OUTPUT) ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >& $(OUTPUT) ; \
 	  if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90"; \
-             echo "$(F90) -c -o $@ $(F90FLAGS) $*.f90"; \
+             echo "$(F90) -c -o $@ $(DEFINES) $(F90FLAGS) $*.F90"; \
              echo; \
-             $(CPP) $(DEFINES) $(CPPFLAGS) $*.src90 > $*.f90; \
-             $(F90) -c -o $@ $(F90FLAGS) $*.f90; \
+             $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
              echo; \
              exit 1; \
 	  fi ; \
 	else \
-	  $(F90) -c -o $@ $(F90FLAGS) $*.f90 >> $(OUTPUT) 2>&1 ; \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
 	  fi ; \
 	fi)
-	@(if [ -e $@ ]; then \
-             rm -f $*.f90; \
-          fi)
 
 .c.o:
 	@rm -f $@
@@ -328,7 +361,7 @@ svn_version.def:
 .PHONY: dep
 dep:
 	@echo "Updating DEPEND"
-	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- *.C *.c *.src *src90 *.h) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- */*.C  *.C *.c *.F *.F90 */*.h *.h) >& out.make.DEPEND
 
 include DEPEND
 
@@ -355,6 +388,7 @@ help:
 	@echo "========================================================================"
 	@echo
 	@echo "   gmake                Compile and generate the executable 'enzo.exe'"
+	@echo "   gmake install        Copy the executable to bin/enzo"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"
@@ -371,11 +405,18 @@ help:
 #-----------------------------------------------------------------------
 
 clean:
-	-@rm -f *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
-          auto_show*.C svn_version.def hydro_rk/*.o
+	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
+          auto_show*.C svn_version.def hydro_rk/*.o *.oo hydro_rk/*.oo \
+          uuid/*.oo DEPEND TAGS \
+          libconfig/*.o \
+          python_bridge/problemtype_handler.C \
+          python_bridge/problemtype_handler.h \
+          python_bridge/problemtype_handler.o
+	-@touch DEPEND
 
 #-----------------------------------------------------------------------
 # Include configuration targets
 #-----------------------------------------------------------------------
 
 include $(ENZO_DIR)/Make.config.targets
+# DO NOT DELETE

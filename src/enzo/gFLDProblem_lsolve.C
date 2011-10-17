@@ -310,42 +310,6 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
   HYPRE_StructVectorAssemble(solvec);
   HYPRE_StructVectorAssemble(rhsvec);
 
-  //       for periodic dims, only coarsen until grid no longer divisible by 2
-  Eint32 max_levels, level=-1;
-  int Ndir;
-  if (BdryType[0][0] == 0) {
-    level = 0;
-    Ndir = GlobDims[0];
-    while ( Ndir%2 == 0 ) {
-      level++;
-      Ndir /= 2;
-    }
-  }
-  max_levels = level;
-  if (rank > 1) {
-    if (BdryType[1][0] == 0) {
-      level = 0;
-      Ndir = GlobDims[0];
-      while ( Ndir%2 == 0 ) {
-	level++;
-	Ndir /= 2;
-      }
-    }
-    max_levels = min(level,max_levels);
-  }
-  if (rank > 2) {
-    if (BdryType[2][0] == 0) {
-      level = 0;
-      Ndir = GlobDims[0];
-      while ( Ndir%2 == 0 ) {
-	level++;
-	Ndir /= 2;
-      }
-    }
-    max_levels = min(level,max_levels);
-  }
-  max_levels = min(level,max_levels);
-
   //       set up the solver [PCG] and preconditioner [PFMG]
   //          create the solver & preconditioner
   HYPRE_StructSolver solver;
@@ -357,8 +321,6 @@ int gFLDProblem::lsolve(EnzoVector *s, EnzoVector *b,
 
   //          set preconditioner options
 //   if (debug)  printf("lsolve: calling HYPRE_StructPFMGSet*\n");
-  if (max_levels > -1) 
-    HYPRE_StructPFMGSetMaxLevels(preconditioner, max_levels);
   HYPRE_StructPFMGSetMaxIter(preconditioner, sol_maxit/5);
 //   HYPRE_StructPFMGSetMaxIter(preconditioner, 10);
 //   HYPRE_StructPFMGSetRelChange(preconditioner, sol_relch);

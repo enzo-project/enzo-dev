@@ -23,23 +23,30 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-void Star::ActivateNewStar(FLOAT Time)
+void Star::ActivateNewStar(FLOAT Time, float Timestep)
 {
   int StarType;
   FILE *fptr;
   if (this->IsUnborn()) {  // unborn
     StarType = ABS(type);
     switch (StarType) {
+    case SimpleSource:
+      type = StarType;
+      break;
     case PopII:
       if (Mass >= StarClusterMinimumMass) {
 	type = StarType;
-	BirthTime = Time;
+	if (StarClusterUnresolvedModel)
+	  BirthTime = Time-Timestep;
+	else
+	  // slightly before to avoid round-off errors in comparisons
+	  BirthTime = (1-1e-6)*Time;
       }
       break;
     case PopIII:
-      if (Mass >= PopIIIStarMass) {
-	type = StarType;  // No minimum mass now.  User-specified mass.
-	BirthTime = Time;
+      if (Mass >= this->FinalMass) {
+	type = StarType;
+	BirthTime = (1-1e-6)*Time;
       }
       break;
     case PopIII_CF:
@@ -47,6 +54,9 @@ void Star::ActivateNewStar(FLOAT Time)
       break;
     case BlackHole:
       // nothing to do
+      break;
+    case MBH:  // probably you wouldn't need this activation routine anyway (see mbh_maker)
+      type = StarType;  
       break;
     } // ENDSWITCH type
   } // ENDIF FORMATION

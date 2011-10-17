@@ -113,8 +113,6 @@ $(EXE): $(MODULES) dep $(OBJS_PGROUP_LIB)
 	-@$(LD) $(LDFLAGS) -o $(EXE) $(OBJS_PGROUP_LIB) $(LIBS) >& $(OUTPUT)
 	@(if [ -e $@ ]; then \
              echo "Success!"; \
-             if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
-             cp $(EXE) $(TOP_DIR)/bin/$(EXE); \
          else \
              echo "$(LD) $(LDFLAGS) -o $(EXE) $(OBJS_PGROUP_LIB) $(LIBS)" >> temp1; \
              cat temp1 $(OUTPUT) > temp2; \
@@ -174,7 +172,7 @@ endif
 #=======================================================================
 
 # Override previous defines with the exception of particle id size
-DEFINES = -DUSE_HDF5 $(ASSEMBLE_IDS_DEFINES)
+DEFINES = -DUSE_HDF5 -DFOF_ONLY -DH5_USE_16_API $(ASSEMBLE_IDS_DEFINES)
 
 #-----------------------------------------------------------------------
 # Implicit rules
@@ -226,9 +224,9 @@ DEFINES = -DUSE_HDF5 $(ASSEMBLE_IDS_DEFINES)
 	-@($(CC) -c -o $@ $(DEFINES) $(CFLAGS) $(INCLUDES) $*.c) >& $(OUTPUT)
 	@(if [ ! -e $@ ]; then \
              echo; \
-             echo "$(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
+             echo "$(CC) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c"; \
              echo; \
-             $(CXX) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
+             $(CC) -c -o $@ $(DEFINES) $(CXXFLAGS) $(INCLUDES) $*.c;\
              echo; \
              exit 1; \
           fi)
@@ -258,6 +256,17 @@ dep:
 include DEPEND
 
 #-----------------------------------------------------------------------
+# INSTALL TARGET
+#-----------------------------------------------------------------------
+
+install: $(TOP_DIR)/bin
+	if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi
+	-@cp $(EXE) $(TOP_DIR)/bin/$(EXE)
+
+$(TOP_DIR)/bin:
+	mkdir $(TOP_DIR)/bin
+
+#-----------------------------------------------------------------------
 # HELP TARGET
 #-----------------------------------------------------------------------
 
@@ -268,6 +277,7 @@ help:
 	@echo "========================================================================"
 	@echo
 	@echo "   gmake                Compile and generate the executable 'anyl.exe'"
+	@echo "   gmake install        Copy the executable to bin"
 	@echo "   gmake help           Display this help information"
 	@echo "   gmake clean          Remove object files, executable, etc."
 	@echo "   gmake dep            Create make dependencies in DEPEND file"

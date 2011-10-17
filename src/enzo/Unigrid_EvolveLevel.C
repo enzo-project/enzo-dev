@@ -367,11 +367,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
 //      fprintf(stderr, "%"ISYM": Calling SolveCoolAndRateEquations\n", MyProcessorNumber);
 
-      if (MultiSpecies && RadiativeCooling) {
+      if (MultiSpecies && RadiativeCooling && GadgetEquilibriumCooling == 0) {
  
 	LCAPERF_START("evolve-level-14"); // change this?
 
-	if (Grids[grid1]->GridData->SolveRateAndCoolEquations() == FAIL) {
+	int RTCoupledSolverIntermediateStep = FALSE;
+	if (Grids[grid1]->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep) == FAIL) {
 	  ENZO_FAIL("Error in grid->SolveRateEquations.\n");
 	}
  
@@ -515,7 +516,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			  Exterior, LevelArray[level]) == FAIL)
   ENZO_FAIL("Error in SetBoundaryConditions()!\n");
- 
+  
 
 #ifdef USE_LCAPERF
     LCAPERF_STOP("evolve-level-21"); // SetBoundaryConditions()
@@ -531,7 +532,7 @@ if (SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
       if (CommunicationUpdateStarParticleCount(Grids, MetaData,
 					       NumberOfGrids) == FAIL)
 	ENZO_FAIL("Error in CommunicationUpdateStarParticleCount()!\n");
- 
+  
 #ifdef USE_LCAPERF
     LCAPERF_STOP("evolve-level-22"); // CommunicationUpdateStarParticleCount()
 #endif

@@ -94,6 +94,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 
 
 #ifdef FAST_SIB
+
 int ComputePotentialFieldLevelZero(TopGridData *MetaData,
 				   SiblingGridList SiblingList[],
 				   HierarchyEntry *Grids[],
@@ -411,7 +412,7 @@ int ComputePotentialFieldLevelZeroPer(TopGridData *MetaData,
 
   if (CommunicationReceiveHandler() == FAIL)
     ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
-
+  
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
  
   /* Clean up. */

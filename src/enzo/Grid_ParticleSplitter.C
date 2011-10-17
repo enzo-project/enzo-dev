@@ -42,7 +42,7 @@ int FindField(int field, int farray[], int numfields);
  
 extern "C" void FORTRAN_NAME(particle_splitter)(int *nx, int *ny, int *nz,
              int *idual, int *imetal, hydro_method *imethod, float *dt, 
-		       float *dx, FLOAT *t, float *z, 
+	     float *r, float *dx, FLOAT *t, float *z, 
              float *d1, float *x1, float *v1, float *t1,
 	     FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff,
              int *npart,
@@ -51,7 +51,8 @@ extern "C" void FORTRAN_NAME(particle_splitter)(int *nx, int *ny, int *nz,
 	     int *nmax, int *npartnew, int *children, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type, 
-             int *iterations, float *separation, int *ran1_init); 
+	     int *iterations, float *separation, int *ran1_init, 
+	     FLOAT *rr_leftedge, FLOAT *rr_rightedge); 
 
   
 int grid::ParticleSplitter(int level)
@@ -66,7 +67,10 @@ int grid::ParticleSplitter(int level)
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
  
-  /* initialize */
+  if (GridRank <=2)
+    ENZO_FAIL("GridRank <= 2 has never been tested; do you really want to continue?");
+
+  /* Initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
@@ -89,13 +93,13 @@ int grid::ParticleSplitter(int level)
  
   /* Find metallicity field and set flag. */
  
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
-				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum,
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
 
   MetalNum = max(MetalNum, SNColourNum);
   MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
@@ -140,11 +144,11 @@ int grid::ParticleSplitter(int level)
 #ifdef DEBUG_PS
   fprintf(stdout, "grid::ParticleSplitter:  NumberOfParticles before splitting = %d, MyProcessorNumber = %d\n", 
 	  NumberOfParticles, MyProcessorNumber); 
-#endif DEBUG_PS
+#endif
  
   if (NumberOfParticles > 0) {
 
-#define PARTICLE_IN_GRID_CHECK 
+#define NO_PARTICLE_IN_GRID_CHECK 
 
 #ifdef PARTICLE_IN_GRID_CHECK
     int xindex, yindex, zindex;
@@ -154,10 +158,10 @@ int grid::ParticleSplitter(int level)
       yindex = (int)((ParticlePosition[1][i] - CellLeftEdge[1][0]) / CellWidthTemp); 
       zindex = (int)((ParticlePosition[2][i] - CellLeftEdge[2][0]) / CellWidthTemp); 
 
-      if (xindex < 0 || xindex > GridDimension[0] || 
-	  yindex < 0 || yindex > GridDimension[1] || 
-	  zindex < 0 || zindex > GridDimension[2])
-	fprintf(stdout, "particle out of grid (C level); xind, yind, zind, level = %d, %d, %d, %d\n",
+      if (xindex < 0 || xindex >= GridDimension[0] || 
+	  yindex < 0 || yindex >= GridDimension[1] || 
+	  zindex < 0 || zindex >= GridDimension[2])
+	fprintf(stdout, "grid::PS: parent particle out of grid (C level): xind, yind, zind, level = %d, %d, %d, %d\n",
 		xindex, yindex, zindex, level); 
     }
 #endif
@@ -165,7 +169,7 @@ int grid::ParticleSplitter(int level)
     FORTRAN_NAME(particle_splitter)(
        GridDimension, GridDimension+1, GridDimension+2,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
-       &dtFixed, &CellWidthTemp,
+       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
@@ -184,7 +188,7 @@ int grid::ParticleSplitter(int level)
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
        tg->ParticleAttribute[2], tg->ParticleType, 
        &ParticleSplitterIterations, &ParticleSplitterChildrenParticleSeparation, 
-       &ran1_init);
+       &ran1_init, RefineRegionLeftEdge, RefineRegionRightEdge);
 
   }
 
@@ -227,7 +231,6 @@ int grid::ParticleSplitter(int level)
 #endif
     
   } // end: if (NumberOfNewParticles > 0)
-
 
 
   /* Clean up. */

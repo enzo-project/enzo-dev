@@ -15,9 +15,9 @@ Class Description
 
 The array class is pretty simple: just enough to represent an
 N-dimensional grid, without any spatial information. Here is the
-heart of it, from ``/public/trunk/src/enzo/EnzoArray.h``:
+heart of it, from ``EnzoArray.h``:
 
-::
+.. code-block:: c
 
     template<typename T>
     class EnzoArray
@@ -74,10 +74,10 @@ Access Methods
 --------------
 
 There are six accessor methods declared in
-``public/trunk/src/enzo/Grid.h``, two per data type
+``Grid.h``, two per data type
 (``float``, ``int``, and ``FLOAT``).
 
-::
+.. code-block:: c
 
        EnzoArrayInt *CreateFieldArrayInt(field_type field);
        EnzoArrayInt *CreateFieldArrayInt(char *field_name);
@@ -89,7 +89,7 @@ There are six accessor methods declared in
        EnzoArrayFLOAT *CreateFieldArrayFLOAT(char *field_name);
 
 These methods are defined in
-``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+``Grid_CreateFieldArray.C``.
 Basically, they allocate a new
 ``EnzoArray``, fill in the dimensions, attach the relevant pointers,
 and hand it back to. All you need to do is delete the return
@@ -99,19 +99,19 @@ Field Numbers and Names
 -----------------------
 
 The arguments to are either a field number, defined in
-``/public/trunk/src/enzo/typedefs.h``, or the
+``typedefs.h``, or the
 string version of the same. The string versions are defined in a
-``long`` array, named ``field\_map`` in
-``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+``long`` array, named ``field_map`` in
+``Grid_CreateFieldArray.C``.
 This means you can access something as
 
-::
+.. code-block:: c
 
        EnzoArrayFloat *density_array = mygrid->CreateFieldArrayFloat(Density);
 
 or
 
-::
+.. code-block:: c
 
        EnzoArrayFloat *density_array = mygrid->CreateFieldArrayFloat("Density");
 
@@ -121,13 +121,13 @@ namespace conflict, these have field numbers prefixed with a "g",
 e.g., ``gParticlePosition``. The string called is still just
 "ParticlePosition", like
 
-::
+.. code-block:: c
 
        EnzoArrayFloat *ppos = mygrid->CreateFieldArrayFloat(gParticlePosition);
 
 or
 
-::
+.. code-block:: c
 
        EnzoArrayFloat *ppos = mygrid->CreateFieldArrayFloat("ParticlePosition");
 
@@ -136,8 +136,8 @@ fields, which you need to know, so you can call the right method.
 This is really pretty simple, since just about everything returned
 is a ``float``. For a complete list of the (hopefully current) fields,
 see the section **Field List Reference**. For the best reference,
-check in ``/public/trunk/src/enzo/typedefs.h``,
-and ``/public/trunk/src/enzo/Grid\_CreateFieldArray.C``.
+check in ``typedefs.h``,
+and ``Grid_CreateFieldArray.C``.
 
 Using the Methods
 -----------------
@@ -145,7 +145,7 @@ Using the Methods
 Here's a somewhat long-winded example of how to use the arrays.
 First, here's function to create a non-uniform grid
 
-::
+.. code-block:: c
 
     grid *Linear3DGrid(){
       // Create a new 3D grid                                                                                                        
@@ -195,7 +195,7 @@ values of the density array.
 Now, here's a program that creates a uniform grid, and looks at
 some of the attributes:
 
-::
+.. code-block:: c
 
     Eint32 main(Eint32 argc, char *argv[]) {
     
@@ -223,17 +223,17 @@ some of the attributes:
     }
 
 This is a complete program,
-``/public/trunk/src/enzo/field\_array\_example.C``;
+``field_array_example.C``;
 what this snippet lacks is the fairly
 long list of header files that need to be included. You can compile
-this by calling ``make field\_array\_example.exe`` in source directory.
+this by calling ``make field_array_example.exe`` in source directory.
 
 Field List Reference
 --------------------
 
-=====================  =====================  ==========  ===============
-Field Number            Field Name             Data Type   Array or Vector
-=====================  =====================  ==========  ===============
+======================  ======================  ==========  ===============
+Field Number            Field Name              Data Type   Array or Vector
+======================  ======================  ==========  ===============
 Density                 "Density"               float       Array
 TotalEnergy             "TotalEnergy"           float       Array
 InternalEnergy          "InternalEnergy"        float       Array
@@ -272,5 +272,5 @@ gAccelerationField      "AccelerationField"     float       Vector
 gGravitatingMassField   "GravitatingMassField"  float       Array
 gFlaggingField          "FlaggingField"         int         Array
 gVelocity               "Velocity"              float       Vector
-======================  ====================   =========  ===============
+======================  ======================  ==========  ===============
 

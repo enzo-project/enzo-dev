@@ -45,9 +45,16 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   /* If the copy function is AddOverlappingParticleMassField, then
      apply to self, otherwise don't. */
- 
+  
+#ifndef TRANSFER
   int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField)?
     TRUE : FALSE;
+#else 
+  int DoSelf = (CopyFunction == &grid::AddOverlappingParticleMassField ||
+		CopyFunction == &grid::SetSubgridMarkerFromSibling)?
+    TRUE : FALSE;
+#endif
+
   int FullPeriod = (CopyFunction == &grid::CopyPotentialField)?
     TRUE : FALSE;
  
@@ -56,7 +63,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   //  Mod by RH - always check full periodic
  
-  FullPeriod = TRUE;
+   FullPeriod = TRUE;
  
   /*
     if (CopyFunction == &grid::AddOverlappingParticleMassField) {
@@ -73,7 +80,11 @@ int grid::CheckForOverlap(grid *OtherGrid,
   */
  
   // Check for overlap & do copy
- 
+
+   // TA HACK   This seems to get the correct GravitatingMassField .... ! 
+   //           velocities look weird now ... more checking!
+   //      DoSelf = FALSE;
+
   if (this != OtherGrid || DoSelf)
     if ((this->*CopyFunction)(OtherGrid, EdgeOffset) == FAIL) {
       ENZO_FAIL("Error in grid->*CopyFunction\n");

@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -53,15 +54,15 @@ void grid::RemoveMergedParticles(ParticleEntry *List, const int &Size, int *Flag
     for (int j = 0; j < Size; j++) {
       if (id == List[j].Number) {
 	if (Flag[j] >= 0) {
+	  if (ParticleType[i] ==  PARTICLE_TYPE_MUST_REFINE) 
+	    ParticleMass[i] = FLOAT_UNDEFINED;
+	  else 
+	    ParticleMass[i] = tiny_number;	  
 	  ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
-	  ParticleMass[i] = tiny_number;
 	}
-//	if (Flag[j] >= 0) {
-//	  ParticleMass[i] = FLOAT_UNDEFINED;
-	break;
       }
+      
     }
-
+    
   }
-
 }

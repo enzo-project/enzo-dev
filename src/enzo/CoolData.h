@@ -14,7 +14,6 @@ struct CoolDataType
 
   /* Radiation parameters (should be put in own spot). */
 
-  char *ParameterFilename;
   float alpha0;
   float f3;
   float f0to3;
@@ -22,9 +21,9 @@ struct CoolDataType
   float RadiationRedshiftOff;
   float RadiationRedshiftFullOn;
   float RadiationRedshiftDropOff;
-  int   UseHaardtAndMadau;
   float HydrogenFractionByMass;
   float DeuteriumToHydrogenRatio;
+  float SolarMetalFractionByMass;
 
   /* Equilibrium rates */
 
@@ -92,6 +91,9 @@ struct CoolDataType
   float ElectronFracStart;
   float ElectronFracEnd;
   float *metals;
+
+  /* Energy transfer to grains. */
+  float *gas_grain;
 
   /* For analysis, ratios of metal fine structure line emission is
      desired sometimes. */

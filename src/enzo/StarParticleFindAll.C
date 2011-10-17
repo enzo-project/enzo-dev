@@ -45,7 +45,7 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
 {
 
   int i, level, GridNum, TotalNumberOfStars, LocalNumberOfStars;
-  LevelHierarchyEntry *Temp;
+  int SavedP3IMFCalls;
   Star *LocalStars = NULL, *GridStars = NULL, *cstar = NULL, *lstar = NULL;
   HierarchyEntry **Grids;
   int NumberOfGrids, *NumberOfStarsInGrids;
@@ -187,7 +187,8 @@ int StarParticleFindAll(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   /* Find minimum stellar lifetime */
   
   for (cstar = AllStars; cstar; cstar = cstar->NextStar)
-    minStarLifetime = min(minStarLifetime, cstar->ReturnLifetime());
+    if (cstar->ReturnMass() > 1e-9)
+      minStarLifetime = min(minStarLifetime, cstar->ReturnLifetime());
 
   /* Store in global variable */
   

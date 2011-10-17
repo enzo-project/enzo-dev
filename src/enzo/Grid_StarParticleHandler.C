@@ -28,8 +28,6 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 
-#define  PROTONMASS  1.6726e-24
-
 /* function prototypes */
  
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -66,7 +64,8 @@ extern "C" void FORTRAN_NAME(star_maker2)(int *nx, int *ny, int *nz,
              float *odthresh, float *massff, float *smthrest, int *level,
 		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-             float *mp, float *tdp, float *tcp, float *metalf);
+		float *mp, float *tdp, float *tcp, float *metalf,
+	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
  
 extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
@@ -81,8 +80,9 @@ extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
              float *odthresh, float *massff, float *smthrest, int *level,
 		 int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-             float *mp, float *tdp, float *tcp, float *metalf);
- 
+		 float *mp, float *tdp, float *tcp, float *metalf,
+ 	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
+
 extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
                 float *cooltime,
@@ -95,7 +95,9 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
              float *odthresh, float *massff, float *smthrest, int *level,
 	         int *np, 
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
-             float *mp, float *tdp, float *tcp, float *metalf);
+	     float *mp, float *tdp, float *tcp, float *metalf,
+ 	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
+
 
  extern "C" void FORTRAN_NAME(star_maker7)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
@@ -111,9 +113,48 @@ extern "C" void FORTRAN_NAME(star_maker4)(int *nx, int *ny, int *nz,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, 
 	     FLOAT *xpold, FLOAT *ypold, FLOAT *zpold, 
-		 int *type);
+		   int *type, int *ctype, int *option,
+	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
+
+
+extern "C" void FORTRAN_NAME(star_maker5)
+  (int *nx, int *ny, int *nz,
+   float *d, float *dm, float *temp, float *coolrate, float *u, 
+        float *v, float *w, float *cooltime,
+   float *dt, float *r, float *metal, float *dx, FLOAT *t, float *z, 
+        int *procnum,
+   float *d1, float *x1, float *v1, float *t1,
+   int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff, 
+   int *imetal, hydro_method *imethod, float *mintdyn,
+   float *odthresh, float *shdens, 
+   float *massff, float *smthrest, int *level, int *np,
+   FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+   float *mp, float *tdp, float *tcp, float *metalf,
+   FLOAT *rr_left0, FLOAT *rr_left1, FLOAT *rr_left2, 
+   FLOAT *rr_right0, FLOAT *rr_right1, FLOAT *rr_right2,
+   int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
+
 
 int star_maker8(int *nx, int *ny, int *nz, int *size,
+		float *d, float *te, float *ge, float *u, float *v, float *w,
+		float *bx, float *by, float *bz, float *dt, float *r, float *dx, FLOAT *t, float *z, 
+		int *procnum,
+		float *d1, float *x1, float *v1, float *t1,
+		int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
+		int *ibuff, 
+		int *imethod, int *idual, float *massthresh, int *level, int *np,
+		FLOAT *xp, FLOAT *yp, FLOAT *zp, 
+		float *up, float *vp, float *wp, float *mp, 
+		float *tcp, float *tdp, float *dm, int *type,
+		int *npold, FLOAT *xpold, FLOAT *ypold, FLOAT *zpold, 
+		float *upold, float *vpold, float *wpold, float *mpold,
+		float *tcpold, float *tdpold, float *dmold, 
+		float *nx_jet, float *ny_jet, float *nz_jet,
+		int *typeold, PINT *idold, int *ctype,
+		float *jlrefine, float *temp, float *gamma, float *mu,
+		int *nproc, int *nstar);
+
+int star_maker9(int *nx, int *ny, int *nz, int *size,
 		float *d, float *te, float *ge, float *u, float *v, float *w,
 		float *bx, float *by, float *bz, float *dt, float *r, float *dx, FLOAT *t, float *z, 
 		int *procnum,
@@ -152,6 +193,7 @@ extern "C" void FORTRAN_NAME(star_feedback2)(int *nx, int *ny, int *nz,
 		       float *r, float *dx, FLOAT *t, float *z,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
+	     int *distrad, int *diststep, int *distcells,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
@@ -165,6 +207,7 @@ extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
 		       float *dt, float *r, float *dx, FLOAT *t, float *z,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
+	     int *distrad, int *diststep, int *distcells,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
@@ -208,7 +251,21 @@ extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
 		       int *ibuff, int *level,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
-			float *justburn);
+			float *justburn, int *ctype, float *mbhradius);
+
+extern "C" void FORTRAN_NAME(star_feedback_pn_snia)
+  (int *nx, int *ny, int *nz,
+   float *d, float *dm, float *te, float *ge, float *u, float *v,
+       float *w, float *metal,
+   int *idual, int *imetal, hydro_method *imethod, float *dt,
+       float *r, float *dx, FLOAT *t, float *z,
+   float *d1, float *x1, float *v1, float *t1,
+       float *sn_param, float *m_eject, float *yield,
+   int *distrad, int *diststep, int *distcells,
+       int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, int *ibuff,
+   FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+       float *mp, float *tdp, float *tcp, float *metalf, int *type,
+   float *justburn, int *iPN, int *imetalSNIa, float *metalSNIa);
 
 extern "C" void FORTRAN_NAME(pop3_maker)
   (int *nx, int *ny, int *nz, 
@@ -247,7 +304,9 @@ extern "C" void FORTRAN_NAME(cluster_maker)
    float *metalcrit, float *odthresh, float *lifetime, int *level, int *np, 
    FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp, 
    float *mp, float *tdp, float *tcp, float *metalf, 
-   int *type, int *ctype, float *justburn, int *iradtrans);
+   int *type, int *ctype, float *justburn, int *iradtrans,
+   int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
+
 
 int sink_maker(int *nx, int *ny, int *nz, int *size,
              float *d, float *u, float *v, float *w,
@@ -264,6 +323,15 @@ int sink_maker(int *nx, int *ny, int *nz, int *size,
 	     float *upold, float *vpold, float *wpold, float *mpold,
 		 float *tcpold, float *tdpold, int *typeold, int *ctype,
 	     float *jlrefine, float *temp, float *JRCT);
+
+int mbh_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u, 
+	      float *v, float *w, float *dt, float *r, float *dx, FLOAT *t, 
+	      float *d1, float *x1, float *v1, float *t1, 
+	      int *nmax, FLOAT *xstart, FLOAT *ystart, 
+	      FLOAT *zstart, int *ibuff, 
+	      int *level, int *np, FLOAT *xp, FLOAT *yp, 
+	      FLOAT *zp, float *up, float *vp, float *wp, float *mp, 
+	      float *tcp, float *tdp, int *type, int *ctype);
  
 extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
                                    int *sdim1, int *sdim2, int *sdim3,
@@ -287,18 +355,12 @@ extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
 	      float *justburn, float *EmissivityArray, float dtLevelAbove);
 #endif 
  
-int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
-// pass in dtLevelAbove for calculation of Geoffrey's Emissivity0 baryon field 
-#ifdef EMISSIVITY
-			     , float dtLevelAbove
-#endif
-                             )
+int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
+			     float dtLevelAbove)
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)
     return SUCCESS;
-  //printf("\n XXXX StarParticleHandler Called XXXX \n \n");
-
 
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -316,7 +378,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
- 
+  const double m_h = 1.673e-24;
+
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
 
@@ -367,16 +430,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 
   /* Find metallicity field and set flag. */
  
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum; 
-  int MetallicityField = FALSE;
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MBHColourNum, 
-				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  }
-
-  MetalNum = max(MetalNum, SNColourNum);
-  MetallicityField = (MetalNum > 0) ? TRUE : FALSE;
 
   /* Set variables to type defines to pass to FORTRAN routines */
 
@@ -384,7 +443,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
   int SinkParticleType = PARTICLE_TYPE_MUST_REFINE;
   int SingleStarType = PARTICLE_TYPE_SINGLE_STAR;
   int StarClusterType = PARTICLE_TYPE_CLUSTER;
+  int MBHParticleType = PARTICLE_TYPE_MBH;
   int ColorStar = PARTICLE_TYPE_COLOR_STAR;
+  int SimpleSource = PARTICLE_TYPE_SIMPLE_SOURCE;
 
   /* Compute the redshift. */
  
@@ -428,7 +489,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
      density so that species fractions are maintained. */
  
   for (field = 0; field < NumberOfBaryonFields; field++)
-    if (FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1)
+    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+	FieldType[field] == MetalSNIaDensity)
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -457,6 +519,28 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
   }
+
+  /* If both metal fields exist, make a total metal field */
+
+  float *MetalPointer;
+  float *TotalMetals = NULL;
+  int MetallicityField;
+
+  MetallicityField = (MetalNum != -1 || SNColourNum != -1);
+
+  if (MetalNum != -1 && SNColourNum != -1) {
+    TotalMetals = new float[size];
+    for (i = 0; i < size; i++)
+      TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+    MetalPointer = TotalMetals;
+  } // ENDIF both metal types
+  else {
+    if (MetalNum != -1)
+      MetalPointer = BaryonField[MetalNum];
+    else if (SNColourNum != -1)
+      MetalPointer = BaryonField[SNColourNum];
+  } // ENDELSE both metal types
+
   //printf("Star type \n");
   /* Set the units. */
  
@@ -482,6 +566,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
     OverDensityThreshold = PopIIIOverDensityThreshold;
  
   float CellWidthTemp = float(CellWidth[0][0]);
+  float PopIIIMass = (PopIIIInitialMassFunction == TRUE) ? 
+    PopIIILowerMassCutoff : PopIIIStarMass;
  
   /* ------------------------------------------------------------------- */
   /* 1) StarParticle creation. */
@@ -543,7 +629,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -556,7 +642,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2]);
+       tg->ParticleAttribute[2],
+       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -586,7 +673,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        tg->ParticleVelocity[0], tg->ParticleVelocity[1],
           tg->ParticleVelocity[2],
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2]);
+       tg->ParticleAttribute[2],
+       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -602,7 +690,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum], 
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer, 
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -615,7 +703,9 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
           tg->ParticleVelocity[2], 
        tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-          tg->ParticleAttribute[2]);
+       tg->ParticleAttribute[2],
+       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
@@ -631,13 +721,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	(GridDimension, GridDimension+1, GridDimension+2, BaryonField[DensNum], 
 	 dmfield, h2field, temperature, BaryonField[Vel1Num], 
 	 BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time, &dtFixed, 
-	 BaryonField[NumberOfBaryonFields], BaryonField[MetalNum], 
+	 BaryonField[NumberOfBaryonFields], MetalPointer, 
 	 &CellWidthTemp, &Time, &zred, &MyProcessorNumber, &DensityUnits, 
 	 &LengthUnits, &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles, 
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
 	 &MetallicityField, &HydroMethod, &PopIIIH2CriticalFraction, 
 	 &PopIIIMetalCriticalFraction, &OverDensityThreshold, 
-	 &PopIIIStarMass, &level, &NumberOfNewParticles, 
+	 &PopIIIMass, &level, &NumberOfNewParticles, 
 	 tg->ParticlePosition[0], tg->ParticlePosition[1],
 	 tg->ParticlePosition[2], tg->ParticleVelocity[0], 
 	 tg->ParticleVelocity[1], tg->ParticleVelocity[2], tg->ParticleMass, 
@@ -677,6 +767,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
       // Convert into a parameter!
       float StarClusterLifeTime = 20e6;  // yr
 
+      // will be assigned lifetime = 4*tdyn
+      if (StarClusterUnresolvedModel == TRUE)
+	StarClusterLifeTime = FLOAT_UNDEFINED;
+
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
       FORTRAN_NAME(cluster_maker)
@@ -685,7 +779,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	 BaryonField[DensNum], dmfield, temperature, 
 	 BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], 
 	 cooling_time, &dtFixed, BaryonField[NumberOfBaryonFields], 
-	 BaryonField[MetalNum], &CellWidthTemp, 
+	 MetalPointer, &CellWidthTemp, 
 	 &Time, &zred, &MyProcessorNumber, &DensityUnits, 
 	 &LengthUnits, &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles, 
 	 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
@@ -698,21 +792,58 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	 tg->ParticleVelocity[1], tg->ParticleVelocity[2], tg->ParticleMass, 
 	 tg->ParticleAttribute[1], tg->ParticleAttribute[0], 
 	 tg->ParticleAttribute[2], tg->ParticleType, &StarClusterType, 
-	 &RadiationData.IntegratedStarFormation, &RadiativeTransfer);
+	 &RadiationData.IntegratedStarFormation, &RadiativeTransfer,
+	 &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
 
+
+    }
+
+    if (STARMAKE_METHOD(MBH_PARTICLE)) {
+
+      //---- MASSIVE BLACK HOLE PARTICLE 
+      //     (particles are put by hand; location picked at MBHInsertLocationFilename, 
+      //      once MBH particles are inserted throughout the whole grid hierarchy,
+      //      turn off MBH creation --> this is done in EvolveLevel at the bottom of the hierarchy)
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      if (mbh_maker(GridDimension, GridDimension+1, GridDimension+2, &size, 
+		    BaryonField[DensNum], BaryonField[Vel1Num],
+		    BaryonField[Vel2Num], BaryonField[Vel3Num],
+		    &dtFixed, BaryonField[NumberOfBaryonFields],
+		    &CellWidthTemp, &Time, 
+		    &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+		    &MaximumNumberOfNewParticles, CellLeftEdge[0], 
+		    CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
+		    &level, &NumberOfNewParticles, tg->ParticlePosition[0], 
+		    tg->ParticlePosition[1], tg->ParticlePosition[2], 
+		    tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+		    tg->ParticleVelocity[2], tg->ParticleMass, 
+		    tg->ParticleAttribute[0], tg->ParticleAttribute[1], 
+		    tg->ParticleType, &MBHParticleType) == FAIL) {
+	ENZO_FAIL("Error in mbh_maker.");
+      }
+      
     }
 
     if (STARMAKE_METHOD(INSTANT_STAR)) {
 
-      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
+      //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF, 
+      //                            can reconsider star formation or feedback when MBH exists,
+      //                            when in cosmological sim, StarMakerOverDensity is in particles/cc, 
+      //                            not the ratio with respect to the DensityUnits, unlike others)
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      // change the unit for StarMakerOverDensity for cosmological run
+      if (ComovingCoordinates)
+	StarMakerOverDensityThreshold *= m_h / DensityUnits;   
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
-       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
           &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
@@ -728,17 +859,69 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
           tg->ParticleAttribute[2], 
        ParticlePosition[0], ParticlePosition[1],
           ParticlePosition[2],
-       ParticleType);
+       ParticleType, &MBHParticleType, &MBHTurnOffStarFormation,
+       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+
+      // make it back to original 
+      if (ComovingCoordinates)
+	StarMakerOverDensityThreshold /= m_h / DensityUnits;  
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
     } 
 
+    if (STARMAKE_METHOD(SPRINGEL_HERNQUIST_STAR)) {
+
+      //---- Springel & Hernquist 2003 SF algorithm
+
+      float *coolingrate = new float[size];
+      for(int coolindex=0; coolindex<size; coolindex++){
+
+        float cgsdensity = BaryonField[DensNum][coolindex]*DensityUnits;
+        float *electronguessptr;
+        float electronguess = 0.01;
+        electronguessptr = &electronguess;
+        coolingrate[coolindex] = GadgetCoolingRate
+          (log10(temperature[coolindex]), cgsdensity, electronguessptr, zred);
+      }
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      FORTRAN_NAME(star_maker5)(
+       GridDimension, GridDimension+1, GridDimension+2,
+       BaryonField[DensNum], dmfield, temperature, coolingrate,
+          BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
+       &dtFixed, BaryonField[NumberOfBaryonFields], MetalPointer,
+          &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+       &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
+          CellLeftEdge[2], &GhostZones, 
+       &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime, 
+       &StarMakerOverDensityThreshold, &StarMakerSHDensityThreshold, &StarMakerMassEfficiency,
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles,
+       tg->ParticlePosition[0], tg->ParticlePosition[1], 
+          tg->ParticlePosition[2], 
+       tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+          tg->ParticleVelocity[2], 
+       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
+          tg->ParticleAttribute[2],
+       &RefineRegionLeftEdge[0], &RefineRegionLeftEdge[1], &RefineRegionLeftEdge[2],
+       &RefineRegionRightEdge[0], &RefineRegionRightEdge[1], &RefineRegionRightEdge[2],
+       &StarMakerTypeIaSNe, BaryonField[MetalIaNum], tg->ParticleAttribute[3]);
+
+
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = NormalStarType;
+
+      delete [] coolingrate;
+
+    }
+
     /* This creates sink particles which suck up mass off the grid. */
 
-    //if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
+    //    if (STARMAKE_METHOD(SINK_PARTICLE))     printf("   Sink Particle\n"); 
     //if (level == MaximumRefinementLevel)     printf("   Max Refinement\n"); 
-    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {
+    if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel || BigStarFormation > 0) {
       /* Set the density threshold by using the mass in a cell which
 	 would have caused another refinement. */
  
@@ -749,11 +932,50 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 	if (CellFlaggingMethod[method] == 2)
 	  SinkParticleMassThreshold = MinimumMassForRefinement[method]*
 	    pow(RefineBy, level*MinimumMassForRefinementLevelExponent[method]);
-	if (CellFlaggingMethod[method] == 6)
+	if (CellFlaggingMethod[method] == 6) { 
 	  JeansLengthRefinement = RefineByJeansLengthSafetyFactor;
+	}
       }
 
-      if(StellarWindFeedback|| HydroMethod == MHD_RK || HydroMethod == HD_RK ){
+      if(BigStarFormation > 0){
+	/* set pointer to the wind direction if wind feedback is used*/
+
+	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
+	/*printf("Grid_StarParticleHandler l479 - just made nx_jet etc.\n");*/
+	if (StellarWindFeedback) {
+	  nx_jet = ParticleAttribute[3];
+	  ny_jet = ParticleAttribute[4];
+	  nz_jet = ParticleAttribute[5];
+	}
+	//printf("      test line\n");
+	if (star_maker9(GridDimension, GridDimension+1, GridDimension+2, &size, 
+			BaryonField[DensNum], BaryonField[TENum], BaryonField[GENum],
+			BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
+			Bfieldx, Bfieldy, Bfieldz,
+			&dtFixed, BaryonField[NumberOfBaryonFields],
+			&CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+			&DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+			&MaximumNumberOfNewParticles, CellLeftEdge[0], 
+			CellLeftEdge[1], CellLeftEdge[2], &GhostZones, 
+			&ihydro, &DualEnergyFormalism, &SinkParticleMassThreshold, &level, 
+			&NumberOfNewParticles, tg->ParticlePosition[0], 
+			tg->ParticlePosition[1], tg->ParticlePosition[2], 
+			tg->ParticleVelocity[0], tg->ParticleVelocity[1], 
+			tg->ParticleVelocity[2], tg->ParticleMass, 
+			tg->ParticleAttribute[0], tg->ParticleAttribute[1], tg->ParticleAttribute[2],
+			tg->ParticleType, &NumberOfParticles, ParticlePosition[0],
+			ParticlePosition[1], ParticlePosition[2], 
+			ParticleVelocity[0], ParticleVelocity[1], 
+			ParticleVelocity[2], ParticleMass, ParticleAttribute[0], 
+			ParticleAttribute[1], ParticleAttribute[2], nx_jet, ny_jet, nz_jet,
+			ParticleType, ParticleNumber, &SimpleSource, 
+			&JeansLengthRefinement, temperature, &Gamma, &Mu,
+			&MyProcessorNumber, &NumberOfStarParticles) == FAIL) {
+	  ENZO_FAIL("Error in star_maker9.\n");
+
+	}
+      }
+      else if(StellarWindFeedback || HydroMethod == MHD_RK || HydroMethod == HD_RK || ProblemType == 107){
 	/* set pointer to the wind direction if wind feedback is used*/
 
 	float *nx_jet = NULL, *ny_jet = NULL, *nz_jet = NULL;
@@ -829,8 +1051,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
  
     /* If not set in the above routine, then set the metal fraction to zero. */
 
-    int NoMetallicityAttribute = 
-      (STARMAKE_METHOD(SINK_PARTICLE));
+    int NoMetallicityAttribute = STARMAKE_METHOD(SINK_PARTICLE);
     if (MetallicityField == FALSE || NoMetallicityAttribute)
       for (i = 0; i < NumberOfNewParticles; i++)
 	tg->ParticleAttribute[2][i] = 0.0;
@@ -946,13 +1167,14 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
-          &StarMetalYield,
+          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
+       &StarFeedbackDistTotalCells,
        &NumberOfParticles,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
        ParticlePosition[0], ParticlePosition[1],
@@ -960,7 +1182,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  
   } // end: if NORMAL_STAR
  
@@ -979,7 +1201,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
-          &StarMetalYield,
+          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
+       &StarFeedbackDistTotalCells,
        &NumberOfParticles,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
        ParticlePosition[0], ParticlePosition[1],
@@ -987,7 +1210,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
  
   } // end: if UNIGRID_STAR
  
@@ -999,7 +1222,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield, 
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod, 
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp, 
           &Time, &zred,
@@ -1042,11 +1265,14 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
 
     //---- MODIFIED SF ALGORITHM (NO-JEANS MASS, NO dt DEPENDENCE, NO STOCHASTIC SF)
 
+      double pc = 3.086e18;
+      float mbhradius = MBHFeedbackThermalRadius * pc / LengthUnits; 
+ 
       FORTRAN_NAME(star_feedback7)(
        GridDimension, GridDimension+1, GridDimension+2,
           BaryonField[DensNum], dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
-          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
        &DualEnergyFormalism, &MetallicityField, &HydroMethod,
        &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
           &Time, &zred,
@@ -1060,15 +1286,70 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2], 
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation, 
+       &MBHParticleType, &mbhradius);
  
   } 
+
+
+  if (STARFEED_METHOD(SPRINGEL_HERNQUIST_STAR)) {  
+
+    //---- SPRINGEL & HERNQUIST ALGORITHM
+
+      FORTRAN_NAME(star_feedback5)(
+       GridDimension, GridDimension+1, GridDimension+2,
+          BaryonField[DensNum], dmfield, 
+          BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
+       &DualEnergyFormalism, &MetallicityField, &HydroMethod, 
+       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp, 
+          &Time, &zred,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+          &StarEnergyToThermalFeedback, &StarMassEjectionFraction, 
+          &StarMetalYield,
+       &NumberOfParticles,
+          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       ParticlePosition[0], ParticlePosition[1], 
+          ParticlePosition[2], 
+       ParticleVelocity[0], ParticleVelocity[1], 
+          ParticleVelocity[2], 
+       ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+      //fprintf(stderr,"After feedback is called");
+
+  } // end: if (StarParticleFeedback == 5)
+
+  if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {
+
+      FORTRAN_NAME(star_feedback_pn_snia)(
+       GridDimension, GridDimension+1, GridDimension+2,
+          BaryonField[DensNum], dmfield,
+          BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], MetalPointer,
+       &DualEnergyFormalism, &MetallicityField, &HydroMethod,
+       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
+          &Time, &zred,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+          &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
+          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
+       &StarFeedbackDistTotalCells,
+       &NumberOfParticles,
+          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       ParticlePosition[0], ParticlePosition[1],
+          ParticlePosition[2],
+       ParticleVelocity[0], ParticleVelocity[1],
+          ParticleVelocity[2],
+       ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
+       &StarMakerPlanetaryNebulae, &StarMakerTypeIaSNe, BaryonField[MetalIaNum]);
+
+  }
 
   /* Convert the species back from fractional densities to real densities. */
  
   for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (FieldType[field] >= ElectronDensity && 
-	FieldType[field] <= ExtraType1 ) {
+    if ((FieldType[field] >= ElectronDensity && FieldType[field] <= ExtraType1) ||
+	FieldType[field] == MetalSNIaDensity) {
 #ifdef EMISSIVITY
       /* 
          it used to be set to  FieldType[field] < GravPotential if Geoffrey's Emissivity0
@@ -1090,7 +1371,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level
  
   /* Clean up. */
  
-  if (h2field != NULL) delete [] h2field;
+  delete [] h2field;
+  delete [] TotalMetals;
   delete [] temperature;
   delete [] dmfield;
   delete [] BaryonField[NumberOfBaryonFields];   // refinement flag field

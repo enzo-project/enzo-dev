@@ -16,6 +16,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -141,7 +142,7 @@ int grid::PoissonSolver(int level)
       }
     }
     
-    printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
+//    printf("Initial divB_p: %g (%g/%d) \n", divSum/size, divSum, size); 
    }
     
  
@@ -292,7 +293,7 @@ int grid::PoissonCleanStep(int level)
   }  
 
   
-  printf("End divB_p: %g (%g/%d) \n", divSum/size, divSum, size);
+//  printf("End divB_p: %g (%g/%d) \n", divSum/size, divSum, size);   //#####
   
   delete [] divB_p;
   }
@@ -728,14 +729,12 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
     fail=true;
   }
 
-  if (fail){
-     printf("\n\n\n\n");
-     //printf(display); 	  
-     printf("Grid Edges %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
+   if (fail){
+    printf("\n\n\n\n");
+    printf("%s\n", display); 	  
+    printf("Grid Edges %g %g %g\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
     printf( "\n\n*******Processor # %d ********\n", ProcessorNumber);
     printf( "\n\n*******Displaying Data (Slice in %d on cell %d) (TopGrid %d)  ********\n", direction, slice, isTopGrid() );
-
-    
     
     bool intertemp;
     
@@ -762,10 +761,10 @@ int grid::PrintToScreenBoundaries(float *field, char *display, int direction, in
 	 //printf( "%d\t%d\t%g\t1.0\t1.0\n", ijk[ind1],ijk[ind2], field[index]);
        }
       printf( "\n");
-    }
+     }
     
    
-  }
+   }
   //fclose(fptr);
  
  return true;

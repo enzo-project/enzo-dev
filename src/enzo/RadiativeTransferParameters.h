@@ -46,7 +46,20 @@ EXTERN int RadiativeTransferInterpolateField;
 
 EXTERN float RadiativeTransferTimestepVelocityLimit;
 
+/* Flag whether to cluster sources on a binary tree and merge rays at
+   a certain radii with associated SuperSources */
+
+EXTERN int RadiativeTransferSourceClustering;
+
+/* Radius to merge rays in units of separation of the two sources
+   associated with a super source. */
+
+EXTERN float RadiativeTransferPhotonMergeRadius;
+
+/* Radiative pressure flag and scale factor */
+
 EXTERN int RadiationPressure;
+EXTERN float RadiationPressureScale;
 
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
 
@@ -73,8 +86,21 @@ EXTERN int RadiativeTransferAdaptiveTimestep;
 
 EXTERN float GlobalMaximumkphIfront;
 
+/* Angle (in degrees) to collimate radiation for PhotonSourceType = 2 */
+
+EXTERN float RadiativeTransferSourceBeamAngle;
+
 /* Flag to trace the spectrum in ray tracing */
 
 EXTERN int RadiativeTransferTraceSpectrum;
 
 EXTERN char *RadiativeTransferTraceSpectrumTable;
+
+/* Flag for temporary load balancing for the ray tracing */
+
+EXTERN int RadiativeTransferLoadBalance;
+
+/* Flux threshold when rays are deleted in units of the UV background
+   flux (RadiationFieldType > 0) */
+
+EXTERN float RadiativeTransferFluxBackgroundLimit;

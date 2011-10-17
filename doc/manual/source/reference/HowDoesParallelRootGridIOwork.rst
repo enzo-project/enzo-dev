@@ -45,8 +45,8 @@ order)
 
 
 -  :doc:`Input/Restart </user_guide/RunningEnzo>`
--  Output
--  Initialization
+-  :ref:`PRGIO_Output`
+-  :ref:`PRGIO_Initialization`
 
 Input and Restarting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,6 +57,8 @@ data files.  For restarts, each grid is read by one processor that
 owns the data (``ProcessorNumber == MyProcessorNumber``) from the HDF5
 file containing it.
 
+.. _PRGIO_Output:
+
 Output
 ~~~~~~
 
@@ -64,6 +66,8 @@ Unlike early versions of Enzo that collected all the grid data on one
 processor before writing to disk, with PRGIO each processor writes an
 HDF5 file for each grid it owns. In the packed AMR output mode, each
 processor writes one HDF5 file, and in it go all the grids it owns.
+
+.. _PRGIO_Initialization:
 
 Initialization
 ~~~~~~~~~~~~~~
@@ -160,7 +164,7 @@ More on that in a moment.
 
 ``CommunicationPartitionGrid()`` is the routine that takes the ``TopGrid``
 (or, any grid) and breaks it across the processors. It first sorts
-out the layout of the processors with ``MPI\_Dims\_create()``. It then
+out the layout of the processors with ``MPI_Dims_create()``. It then
 evenly splits the initial grid over those processors by first
 creating a new grid on each tile, linking them to the Hierarchy
 linked list. It then (and here's the tricky part)

@@ -6,6 +6,7 @@
 /  date:       November, 1994
 /  modified1:  Robert Harkness, July 2002
 /  modified2:  Alexei Kritsuk, Jan 2004   a trick for RandomForcing //AK
+/  modified3:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -46,8 +47,8 @@ int ReadListOfInts(FILE *fptr, int N, int nums[]);
 int ReadField(float *temp, int Dims[], int Rank, char *name, char *field_name);
 static Eint32 sd_id, sds_index; // HDF4 (SD) handlers                                               
 #endif 
- 
-int grid::ReadGrid(FILE *fptr, int GridID, 
+
+int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[], 
 		   int ReadText, int ReadData)
 {
   bool TryHDF5 = TRUE; 
@@ -77,15 +78,19 @@ int grid::ReadGrid(FILE *fptr, int GridID,
     {"particle_position_x", "particle_position_y", "particle_position_z"};
   char *ParticleVelocityLabel[] =
     {"particle_velocity_x", "particle_velocity_y", "particle_velocity_z"};
-  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-				    "metallicity_fraction", "particle_jet_x", "particle_jet_y", "particle_jet_z", "alpha_fraction"};
-  /*  char *ParticleAttributeLabel[] = {"creation_time", "dynamical_time",
-      "metallicity_fraction", "alpha_fraction"};*/
+#ifdef WINDS
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "particle_jet_x", 
+       "particle_jet_y", "particle_jet_z", "typeia_fraction"};
+#else
+    char *ParticleAttributeLabel[] = 
+      {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
+#endif
 
 #ifdef USE_HDF4
   Eint32 TempIntArray2[MAX_DIMENSION];
   Eint32 sds_id, num_type2, attributes, TempInt;  
-  sds_index = 0;  // start at first SDS                                                                            
+  sds_index = 0;  // start at first SDS
 #endif 
  
 #ifdef IO_LOG
@@ -100,7 +105,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 #define io_type float32
 #endif
  
-  if(ReadText){
+  if(ReadText && HierarchyFileInputFormat == 1){
 
     /* Read general grid class data */
 
@@ -224,9 +229,14 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 				dim, GridStartIndex[dim], GridEndIndex[dim], GridDimension[dim]);
       }
     } // end Adjusting Grid Size with different Ghostzones
-  } /* end if (ReadText) */
+  } /* end if (ReadText && HierarchyFileInputFormat == 1) */
 
 
+  // if HDF5 Hierarchy file, then copy DataFilename (read in
+  // Grid::ReadHierarchyInformationHDF5.C) to procfilename
+  if (HierarchyFileInputFormat % 2 == 0) {
+    strcpy(name, DataFilename);
+  }
 
   this->PrepareGridDerivedQuantities();
  
@@ -330,9 +340,13 @@ int grid::ReadGrid(FILE *fptr, int GridID,
       /* allocate temporary space */
  
 #ifdef USE_HDF4 // will use float also for HDF5 if USE_HDF4
-      float32 *temp = new float32[active_size];  // not general but good enough?
+      float *temp = NULL;
+      if (sizeof(Eflt) == 4)
+	temp = new float[active_size]; 
+      else
+	temp = new float[active_size*2];  	
 #else
-	io_type *temp = new io_type[active_size];
+      io_type *temp = new io_type[active_size];
 #endif
       /* loop over fields, reading each one */
  
@@ -530,15 +544,15 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	
       /* Create a temporary buffer (32 bit or twice the size for 64). */
       
-      float32 *temp = NULL;
+      float *temp = NULL;
       if (num_type2 != HDFDataType) {
 	if (num_type2 == DFNT_FLOAT64)
-	  temp = new float32[NumberOfParticles*2];
+	  temp = new float[NumberOfParticles*2];
 	if (num_type2 == DFNT_FLOAT128)
-	  temp = new float32[NumberOfParticles*4];
+	  temp = new float[NumberOfParticles*4];
       }
       if (temp == NULL)
-	temp = new float32[NumberOfParticles];
+	temp = new float[NumberOfParticles];
 
 	/* Read ParticlePosition (use temporary buffer). */ 
 	
@@ -576,6 +590,10 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    if (num_type2 == DFNT_FLOAT128)
 	      for (i = 0; i < NumberOfParticles; i++)
 		ParticlePosition[dim][i] = FLOAT(temp128[i]);
+
+	    //delete [] temp64;
+	    //delete [] temp128;
+
 	  }
 	} // end: loop over dims
 	
@@ -648,7 +666,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	    ParticleType[i] = ReturnParticleType(i);
       } // (!TryHDF5)
 
-#endif
+#endif  // USE_HDF4
 
       if (TryHDF5) {
 	/* Create a temporary buffer (32 bit or twice the size for 64). */
@@ -657,7 +675,7 @@ int grid::ReadGrid(FILE *fptr, int GridID,
 	
 	switch(sizeof(FLOAT))
 	  {
-	  case 4: temp = new io_type[NumberOfParticles];	  break;
+	  case 4: temp = new io_type[NumberOfParticles];    break;
 	  case 8: temp = new io_type[NumberOfParticles*2];  break;
 	  case 16:temp = new io_type[NumberOfParticles*4];  break;
 	  default: printf("INCORRECT FLOAT DEFINITION\n");

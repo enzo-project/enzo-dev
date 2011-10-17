@@ -86,9 +86,9 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
     /* Function Body */
     fact = (FLOAT)1. / *cellsize;
-    edge1 = (FLOAT) (*dim1) - (FLOAT).5001;
-    edge2 = (FLOAT) (*dim2) - (FLOAT).5001;
-    edge3 = (FLOAT) (*dim3) - (FLOAT).5001;
+    edge1 = (FLOAT) (*dim1) - (FLOAT).500;
+    edge2 = (FLOAT) (*dim2) - (FLOAT).500;
+    edge3 = (FLOAT) (*dim3) - (FLOAT).500;
 
 /*     1D */
 
@@ -102,7 +102,7 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 /* Computing min */
 /* Computing max */
 	    r__2 = (posx[n] - leftedge[1]) * fact;
-	    r__1 = max(r__2,(FLOAT).5001);
+	    r__1 = max(r__2,(FLOAT).500);
 	    xpos = min(r__1,edge1);
 
 /*           Convert this into an integer index */
@@ -111,7 +111,7 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (FLOAT).5 - xpos;
+	    dx = (FLOAT) i1 + (FLOAT).5 - xpos;
 
 /*           Interpolate from field into sumfield */
 
@@ -135,12 +135,12 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 /* Computing min */
 /* Computing max */
 	    r__2 = (posx[n] - leftedge[1]) * fact;
-	    r__1 = max(r__2,(FLOAT).5001);
+	    r__1 = max(r__2,(FLOAT).500);
 	    xpos = min(r__1,edge1);
 /* Computing min */
 /* Computing max */
 	    r__2 = (posy[n] - leftedge[2]) * fact;
-	    r__1 = max(r__2,(FLOAT).5001);
+	    r__1 = max(r__2,(FLOAT).500);
 	    ypos = min(r__1,edge2);
 
 /*           Convert this into an integer index */
@@ -150,8 +150,8 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (FLOAT).5 - xpos;
-	    dy = (float) j1 + (FLOAT).5 - ypos;
+	    dx = (FLOAT) i1 + (FLOAT).5 - xpos;
+	    dy = (FLOAT) j1 + (FLOAT).5 - ypos;
 
 /*           Interpolate from field into sumfield */
 
@@ -160,7 +160,7 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 		     field_dim1] * ((FLOAT)1. - dx) * dy + field[i1 + (j1 + 1 
 		    + field_dim2) * field_dim1] * dx * ((FLOAT)1. - dy) + 
 		    field[i1 + 1 + (j1 + 1 + field_dim2) * field_dim1] * ((
-		    float)1. - dx) * ((FLOAT)1. - dy);
+		    FLOAT)1. - dx) * ((FLOAT)1. - dy);
 
 	}
 
@@ -178,17 +178,17 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 /* Computing min */
 /* Computing max */
 	    r__2 = (posx[n] - leftedge[1]) * fact;
-	    r__1 = max(r__2,(FLOAT).5001);
+	    r__1 = max(r__2,(FLOAT).500);
 	    xpos = min(r__1,edge1);
 /* Computing min */
 /* Computing max */
 	    r__2 = (posy[n] - leftedge[2]) * fact;
-	    r__1 = max(r__2,(FLOAT).5001);
+	    r__1 = max(r__2,(FLOAT).500);
 	    ypos = min(r__1,edge2);
 /* Computing min */
 /* Computing max */
 	    r__2 = (posz[n] - leftedge[3]) * fact;
-	    r__1 = max(r__2,(FLOAT).5001);
+	    r__1 = max(r__2,(FLOAT).500);
 	    zpos = min(r__1,edge3);
 
 /*           Convert this into an integer index */
@@ -199,9 +199,9 @@ int cic_interp_c(FLOAT *posx, FLOAT *posy, FLOAT *posz, int *ndim,
 
 /*           Compute the weights */
 
-	    dx = (float) i1 + (FLOAT).5 - xpos;
-	    dy = (float) j1 + (FLOAT).5 - ypos;
-	    dz = (float) k1 + (FLOAT).5 - zpos;
+	    dx = (FLOAT) i1 + (FLOAT).5 - xpos;
+	    dy = (FLOAT) j1 + (FLOAT).5 - ypos;
+	    dz = (FLOAT) k1 + (FLOAT).5 - zpos;
 
 /*           Interpolate from field into sumfield */
 

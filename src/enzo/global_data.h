@@ -30,6 +30,10 @@
 # define EXTERN extern
 #endif
 
+#ifdef NEW_PROBLEM_TYPES
+class EnzoProblemType;
+#endif
+
 /* Load Balancing.  Currently only memory count method implemented
                           0 = off
                           1 = Equalize processor memory count
@@ -41,13 +45,34 @@ EXTERN int ResetLoadBalancing;
 EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 EXTERN int LoadBalancingMinLevel;
+EXTERN int LoadBalancingMaxLevel;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
 EXTERN int FileDirectedOutput;
-/* This governs whether or not we'll be writing out a supplemental binary
-   hierarchy file in HDF5. */
-EXTERN int WriteBinaryHierarchy;
+
+/* These two flags determine the format of the hierarchy file for
+   input and output:
+
+   HierarchyFileInputFormat  = 0 -- HDF5 (default)
+   HierarchyFileInputFormat  = 1 -- ASCII
+
+   HierarchyFileOutputFormat = 0 -- HDF5 (default)
+   HierarchyFileOutputFormat = 1 -- ASCII
+   HierarchyFileOutputFormat = 2 -- both HDF5 and ASCII
+*/
+EXTERN int HierarchyFileInputFormat;
+EXTERN int HierarchyFileOutputFormat;
+
+/* LevelLookupTable is read in from the HDF5 hierarchy file. Its
+   purpose is to allow one to quickly determine while level an input
+   grid is on from its grid ID. This is needed to access the
+   corresponding hierarchy dataset. The array is only valid during the
+   reading of the HDF5 hierarchy file (i.e. in ReadAllData and
+   below). */
+EXTERN int *LevelLookupTable;
+/* This is useful for loops over all grids. */
+EXTERN int TotalNumberOfGrids;
 
 /* debugging, extraction flags */
 
@@ -73,6 +98,10 @@ EXTERN int extract;
 	                                                                  */
 EXTERN int CheckpointRestart;
 EXTERN int ProblemType;
+#ifdef NEW_PROBLEM_TYPES
+EXTERN char *ProblemTypeName;
+EXTERN EnzoProblemType *CurrentProblemType;
+#endif
 
 /* Hydrodynamics method:
        0 - PPM_DE      1 - PPM_LR (not working)    2 - ZEUS    3 - RK hydro   4 - RK MHD    */
@@ -124,8 +153,14 @@ EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
    for CellFlaggingMethod = 10 */
 
 EXTERN FLOAT MustRefineRegionLeftEdge[MAX_DIMENSION];  // left edge
-
 EXTERN FLOAT MustRefineRegionRightEdge[MAX_DIMENSION];  // right edge
+
+/* left and right boundaries of the 'avoid refine region'
+   for CellFlaggingMethod = 101 */
+
+EXTERN int   AvoidRefineRegionLevel[MAX_STATIC_REGIONS];
+EXTERN FLOAT AvoidRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
+EXTERN FLOAT AvoidRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 
 /* specifies the level to which FlagCellsToBeRefinedByMustRefineRegion
    will refine up to (does not prevent refinement to higher levels) */
@@ -136,9 +171,9 @@ EXTERN int MustRefineRegionMinRefinementLevel;
    will refine up to (does not prevent refinement to higher levels) */
 EXTERN int MetallicityRefinementMinLevel;
 
-/* threshold metallicity for FlagGridCellsToBeRefinedByMetallicity */
+/* threshold metallicity and density for FlagGridCellsToBeRefinedByMetallicity */
 EXTERN float MetallicityRefinementMinMetallicity;
-
+EXTERN float MetallicityRefinementMinDensity;
 
 /* Velocity to limit timesteps */
 
@@ -157,6 +192,13 @@ EXTERN int ConservativeInterpolation;
    order to be considered better than the two grids from which it formed. */
 
 EXTERN float MinimumEfficiency;
+
+/* This flag will automatically adjust MinimumSubgridEdge and
+   MaximumSubgridSize.  It will select MaximumSubgridSize from
+   OptimalSubgridPerProcessor. */
+
+EXTERN int SubgridSizeAutoAdjust;
+EXTERN int OptimalSubgridsPerProcessor;
 
 /* This is the minimum allowable edge size for a new subgrid (>=4) */
 
@@ -205,6 +247,8 @@ EXTERN float PointSourceGravityCoreRadius;
 /* SelfGravity (TRUE or FALSE) */
 
 EXTERN int SelfGravity;
+EXTERN int SelfGravityGasOff;
+EXTERN int AccretionKernal;
 
 /* CopyGravPotential (TRUE or FALSE) */
 
@@ -278,24 +322,31 @@ EXTERN float RootGridCourantSafetyNumber;
 
 EXTERN int RadiativeCooling;
 EXTERN CoolDataType CoolData;
+EXTERN int RadiativeCoolingModel;
 
 /* Cloudy cooling parameters and data. */
 
 EXTERN CloudyCoolingDataType CloudyCoolingData;
 
+/* Gadget Equilibrium cooling on/off flag */
+
+EXTERN int GadgetEquilibriumCooling;
+
 /* Random Forcing on/off flag and associated data. */ //AK
 
 EXTERN int     RandomForcing;
 EXTERN FLOAT   RandomForcingEdot;
-EXTERN FLOAT   RandomForcingMachNumber;
+EXTERN FLOAT   RandomForcingMachNumber;  //#####
 EXTERN fpos_t  BaryonFileNamePosition;
 
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;
+EXTERN int NoMultiSpeciesButColors;
 EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
+EXTERN int H2FormationOnDust;
 
 /* Glover chemistry/cooling network flags */
 EXTERN int GloverChemistryModel;  // 0 is off, on is 1-7, excluding 6
@@ -306,6 +357,17 @@ EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 
 EXTERN int MultiMetals;
 
+/* Shock Finding Method
+ * 0: Off - default
+ * 1: temperature unsplit 
+ * 2: temperature split 
+ * 3: velocity unsplit
+ * 4: velocity split
+ */
+EXTERN int ShockMethod; 
+EXTERN float ShockTemperatureFloor;
+EXTERN int StorePreShockFields;
+
 /* Type of radiation field. 
    0 - none,                    1 - Haardt & Madau alpha=-1.5
    2 - H&M alpha = -1.8       
@@ -313,16 +375,20 @@ EXTERN int MultiMetals;
 
 EXTERN int RadiationFieldType;
 EXTERN int AdjustUVBackground; 
+EXTERN int AdjustUVBackgroundHighRedshift; 
 EXTERN float SetUVBAmplitude;
 EXTERN float SetHeIIHeatingScale;
 EXTERN RadiationFieldDataType RadiationData;
 EXTERN int RadiationFieldLevelRecompute;
 EXTERN int RadiationXRaySecondaryIon;
 EXTERN int RadiationXRayComptonHeating;
+EXTERN int TabulatedLWBackground;
+EXTERN float RadiationFieldRedshift;
 
 /* Photoelectric cooling turn on/off */
 
 EXTERN int PhotoelectricHeating;
+EXTERN float PhotoelectricHeatingRate;
 
 /* Output cooling time with grid data. */
 
@@ -331,6 +397,10 @@ EXTERN int OutputCoolingTime;
 /* Output temperature with grid data. */
 
 EXTERN int OutputTemperature;
+
+/* Output dust temperature with grid data. */
+
+EXTERN int OutputDustTemperature;
 
 /* Output smoothed dark matter fields. */
 
@@ -393,6 +463,7 @@ EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
 
 /* Parameter(s) for embedded python execution */
+EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
 
 /* Parameters to control inline halo finding */
@@ -449,10 +520,20 @@ EXTERN float JeansRefinementColdTemperature;
 
 EXTERN int   MustRefineParticlesRefineToLevel;
 
+/* For CellFlaggingMethod = 8,
+   The physical length (in pc) to which the must refine particles apply 
+   The above parameter will be automatically adjusted to match this length */
+
+EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
+
+/* For CellFlaggingMethod = 8,
+   For new particle system only refine around particles above the minimum mass */
+
+EXTERN float MustRefineParticlesMinimumMass;
+
 /* For CellFlaggingMethod = 9,   
    The minimum shear (roughly, dv accross two zones) required for 
    refinement.    */
-
 
 EXTERN float MinimumShearForRefinement;
 
@@ -461,6 +542,13 @@ EXTERN float MinimumShearForRefinement;
    should be resolved. */
 
 EXTERN float RefineByResistiveLengthSafetyFactor;
+
+/* For CellFlaggingMethod = 14,   
+   Minimum mach number required for refinement.    */
+
+EXTERN float ShockwaveRefinementMinMach;
+EXTERN float ShockwaveRefinementMinVelocity;
+EXTERN int ShockwaveRefinementMaxLevel;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
@@ -477,6 +565,12 @@ EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
+EXTERN int   BigStarFormation;
+EXTERN int   BigStarFormationDone;
+EXTERN float BigStarSeparation;
+EXTERN double SimpleQ;
+EXTERN float SimpleRampTime;
+
 
 /* Parameters governing certain time or redshift-dependent actions. */
 
@@ -532,9 +626,6 @@ EXTERN double timer[MAX_COUNTERS];
 EXTERN int counter[MAX_COUNTERS];
 EXTERN FILE *filePtr;
 EXTERN char tracename[MAX_NAME_LENGTH];
-EXTERN char memtracename[MAX_NAME_LENGTH];
-EXTERN FILE *memtracePtr;
-EXTERN int traceMEM;
 EXTERN double starttime, endtime;
 EXTERN double Start_Wall_Time, End_Wall_Time, WallTime;
 EXTERN int flagging_count, in_count, out_count, moving_count;
@@ -543,6 +634,11 @@ EXTERN float flagging_pct, moving_pct;
 EXTERN char name[MAX_NAME_LENGTH];
 EXTERN FILE *tracePtr;
 EXTERN int traceMPI;
+#ifdef MEM_TRACE
+EXTERN FILE *memtracePtr;
+EXTERN int traceMEM;
+EXTERN char memtracename[MAX_NAME_LENGTH];
+#endif
 
 /* New Movie Data */
 
@@ -553,6 +649,11 @@ EXTERN int MovieVertexCentered;
 EXTERN char *NewMovieName;
 EXTERN int NewMovieDumpNumber;
 EXTERN int NewMovieParticleOn;
+EXTERN FLOAT *StarParticlesOnProcOnLvl_Position[128][3]; 
+EXTERN float *StarParticlesOnProcOnLvl_Velocity[128][3], *StarParticlesOnProcOnLvl_Mass[128];
+EXTERN float *StarParticlesOnProcOnLvl_Attr[128][MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+EXTERN int *StarParticlesOnProcOnLvl_Type[128];
+EXTERN PINT *StarParticlesOnProcOnLvl_Number[128];
 
 /* Stanford Hydro Solver variables */
 
@@ -589,6 +690,8 @@ EXTERN float MaximumAlvenSpeed;
 EXTERN int NEQ_HYDRO;
 EXTERN int NEQ_MHD;
 EXTERN int ReconstructionMethod;
+EXTERN int PositiveReconstruction;
+EXTERN int RiemannSolverFallback;
 EXTERN int RiemannSolver;
 EXTERN int ConservativeReconstruction;
 EXTERN int EOSType;
@@ -597,11 +700,13 @@ EXTERN float EOSCriticalDensity;
 EXTERN float EOSGamma;
 EXTERN float C_h;
 EXTERN float C_p;
+EXTERN float DivBDampingLength;
 EXTERN int UseConstantAcceleration;
 EXTERN float ConstantAcceleration[3];
 EXTERN float Mu;
 EXTERN int ExternalGravity;
-EXTERN int StringKick;
+EXTERN float StringKick;
+EXTERN int StringKickDimension;
 EXTERN int UseFloor;
 EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;
@@ -610,13 +715,11 @@ EXTERN int UseResistivity;
 
 /* Chemistry & cooling parameters */
 
-EXTERN int UseH2OnDust;
 EXTERN float CoolingCutOffDensity1;
 EXTERN float CoolingCutOffDensity2;
 EXTERN float CoolingPowerCutOffDensity1;
 EXTERN float CoolingPowerCutOffDensity2;
 EXTERN float CoolingCutOffTemperature;
-EXTERN int CoolingModel;
 
 /* Gravity parameters */
 
@@ -625,8 +728,11 @@ EXTERN float HaloConcentration;
 EXTERN float HaloRedshift;
 EXTERN double HaloCentralDensity;
 EXTERN double HaloVirialRadius;
+EXTERN float ExternalGravityConstant;
 EXTERN float ExternalGravityDensity;
+EXTERN FLOAT ExternalGravityPosition[MAX_DIMENSION];
 EXTERN double ExternalGravityRadius;
+EXTERN FLOAT ExternalGravityOrientation[MAX_DIMENSION];
 
 /* Poisson Clean */
 
@@ -659,9 +765,13 @@ EXTERN int UseCUDA;
 /* End of Stanford block */
 
 
-/* ran1 initialization flag for random numbers */
+/* ran1 initialization flag for star_maker5 */
 
 EXTERN int ran1_init;
+
+/* random number initialization flag */
+
+EXTERN int rand_init;
 
 /* test problem stuff */
 EXTERN TestProblemDataType TestProblemData;
@@ -680,6 +790,8 @@ EXTERN char GlobalPath[MAX_LINE_LENGTH];
 
 #ifdef USE_PYTHON
 EXTERN int NumberOfPythonCalls;
+EXTERN int NumberOfPythonTopGridCalls;
+EXTERN int NumberOfPythonSubcycleCalls;
 EXTERN PyObject *grid_dictionary;
 EXTERN PyObject *old_grid_dictionary;
 EXTERN PyObject *hierarchy_information;
@@ -732,6 +844,9 @@ EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
+
+/* RebuildHierarchy on this level every N cycles. */
+EXTERN int RebuildHierarchyCycleSkip[MAX_DEPTH_OF_HIERARCHY];
 
 /* Coupled radiative transfer, cooling, and rate solver */
 EXTERN int RadiativeTransferCoupledRateSolver;
@@ -786,11 +901,34 @@ EXTERN float ParticleSplitterChildrenParticleSeparation;
 EXTERN int ResetMagneticField;
 EXTERN float ResetMagneticFieldAmplitude[MAX_DIMENSION];
 
+/* Star Class MBH Particle IO (PARTICLE_TYPE_MBH) */
+
+EXTERN int MBHParticleIO;
+EXTERN char *MBHParticleIOFilename;
+EXTERN double MBHParticleIOTemp[30][5+MAX_DIMENSION];
+EXTERN char *MBHInsertLocationFilename;
+EXTERN int OutputWhenJetsHaveNotEjected;
+
 /* Vorticity Calculations */
 
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
 
+/* Gas drag */
+EXTERN int UseGasDrag;
+EXTERN float GasDragCoefficient;
+
 EXTERN char current_error[255];
+
+/* Thermal conduction */
+
+EXTERN int IsotropicConduction;  // TRUE OR FALSE
+EXTERN int AnisotropicConduction;  // TRUE OR FALSE
+EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
+EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
+EXTERN float ConductionCourantSafetyNumber;
+
+/* For the database */
+EXTERN char *DatabaseLocation;
 
 #endif

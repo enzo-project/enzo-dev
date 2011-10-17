@@ -1,3 +1,5 @@
+.. _controlling_data_output:
+
 Controlling Enzo data output
 ============================
 
@@ -20,6 +22,8 @@ to write in 32 bit format if you're computing in 64, though, as
 you'll lose all the extra precision when you restart. (These are
 makefile flags.)
 
+.. highlight:: none
+
 basenameNNNN::
 
     The parameter file. This contains general simulation parameters,
@@ -27,9 +31,9 @@ basenameNNNN::
     your time to be familiar with what's in this file.
 
 
-basenameNNNN::
+basenameNNNN.hierarchy::
 
-    The hierarchy file. Contains a description of the hierarchy. One
+    The hierarchy file in text format. Contains a description of the hierarchy. One
     entry for each grid, including information like the Grid Size, the
     position in the volume, it's position in the hierarchy.
 
@@ -44,9 +48,9 @@ basenameNNNN.boundary.hdf5::
 
     Actually contains the boundary information.
 
+basenameNNNN.harrays::
 
-Other versions may output other files. It would be nice to have a
-description of them.
+    The hierarchy of grids stored in HDF5 binary format.
 
 Packed AMR
 ~~~~~~~~~~

@@ -15,6 +15,7 @@
  
 #include <stdio.h>
 #include <math.h>
+#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -47,15 +48,16 @@ int grid::FlagCellsToBeRefinedByMetallicity(int level)
   if(MetallicityRefinementMinLevel <= level) return NumberOfFlaggedCells;
 
 
-  /* Find metallicity field.  If no metallicity field exists, quit and yell at user. */
-  int MetallicityField = FALSE, MetalNum;
-  if ((MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields))
-      != -1){
-    MetallicityField = TRUE;
-  } else{
+  /* Find metallicity field.  If no metallicity field exists, quit and
+     yell at user. */
+  int MetalNum, SNColourNum;
+  MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
+  SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+
+  if (MetalNum < 0 && SNColourNum < 0) {
     fprintf(stderr,"FlagCellsToBeRefinedByMetallicity: no metallicity field!\n");
     return -1;
-  } 
+  }
 
   /* Find fields: density, total energy, velocity1-3. */
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -71,10 +73,19 @@ int grid::FlagCellsToBeRefinedByMetallicity(int level)
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
-  for(i=0; i<size; i++)
-    if( (BaryonField[MetalNum][i]/BaryonField[DensNum][i])/0.022 
-	>= MetallicityRefinementMinMetallicity )
-      FlaggingField[i]++;
+  if (MetalNum > 0)
+    for(i=0; i<size; i++)
+      if( (BaryonField[MetalNum][i]/BaryonField[DensNum][i])/0.022 
+	  >= MetallicityRefinementMinMetallicity &&
+	  (BaryonField[DensNum][i] > MetallicityRefinementMinDensity))
+	FlaggingField[i]++;
+  if (SNColourNum > 0)
+    for(i=0; i<size; i++)
+      if( (BaryonField[SNColourNum][i]/BaryonField[DensNum][i])/0.022 
+	  >= MetallicityRefinementMinMetallicity &&
+	  (BaryonField[DensNum][i] > MetallicityRefinementMinDensity))
+	FlaggingField[i]++;
+
 
   /* Count number of flagged Cells. */ 
   for (i = 0; i < size; i++) {

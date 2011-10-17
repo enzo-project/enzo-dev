@@ -1,6 +1,6 @@
 /***********************************************************************
 /
-/  GRID CLASS (FIND maxIMUM BARYON DENSITY)
+/  GRID CLASS (FIND MAXIMUM BARYON DENSITY)
 /
 /  written by: Greg Bryan
 /  date:       February, 1996
