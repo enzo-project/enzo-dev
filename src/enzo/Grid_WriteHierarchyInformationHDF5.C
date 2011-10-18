@@ -30,8 +30,6 @@ void my_exit(int status);
 // grids, and external links to the data file
 #define WITH_HDF5_LINKS
 
-// set this if you're using HDF5 1.8+ (regardless of H5_USE_16_API)
-#define HAVE_HDF5_18
 
 //#define IO_LOG
 
@@ -62,6 +60,15 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
 #ifdef IO_LOG
   io_log = 1;
 #endif
+
+  // Determine whether we are using HDF5 version 1.8+ (in which case
+  // we can use the external link feature).
+  int HAVE_HDF5_18 = 0;
+  unsigned HDF5_majnum, HDF5_minnum, HDF5_relnum;
+  H5get_libversion(&HDF5_majnum, &HDF5_minnum, &HDF5_relnum);
+  if( (HDF5_majnum >= 1) && (HDF5_minnum >= 8) )
+    HAVE_HDF5_18 = 1;
+
 
   sprintf(BaryonFileName,"%s.cpu%"TASK_TAG_FORMAT""ISYM, base_name,ProcessorNumber);
 
@@ -174,15 +181,17 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
   // (only supported under HDF5 1.8+)
 
 #ifdef WITH_HDF5_LINKS
-#ifdef HAVE_HDF5_18
-  sprintf(TargetName,"Grid%"GROUP_TAG_FORMAT""ISYM, ID);
-  sprintf(LinkName,"GridData");
-  if (io_log) fprintf(log_fptr,"H5Lcreate_external: %s:%s -> %s\n", BaryonFileName, TargetName, LinkName);
-  h5_status = H5Lcreate_external(BaryonFileName, TargetName, group_id, LinkName, H5P_DEFAULT, H5P_DEFAULT);
+
+  if(HAVE_HDF5_18) {
+    sprintf(TargetName,"Grid%"GROUP_TAG_FORMAT""ISYM, ID);
+    sprintf(LinkName,"GridData");
+    if (io_log) fprintf(log_fptr,"H5Lcreate_external: %s:%s -> %s\n", BaryonFileName, TargetName, LinkName);
+    h5_status = H5Lcreate_external(BaryonFileName, TargetName, group_id, LinkName, H5P_DEFAULT, H5P_DEFAULT);
 
 
-  if (io_log) fprintf(log_fptr, "H5Lcreate_external: status = %"ISYM"\n", (int) h5_status);
-#endif  
+    if (io_log) fprintf(log_fptr, "H5Lcreate_external: status = %"ISYM"\n", (int) h5_status);
+  }
+
 #endif
 
   // ***** Links to daughter grids *****
@@ -204,16 +213,15 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
       sprintf(LinkName,"DaughterGrid%"GRID_TAG_FORMAT""ISYM,i);
       sprintf(TargetName,"/Level%"ISYM"/Grid%"GROUP_TAG_FORMAT""ISYM,level+1,DaughterGridIDs[i]);
 
-#ifdef HAVE_HDF5_18
-      if (io_log) fprintf(log_fptr,"H5Lcreate_soft: %s -> %s\n", TargetName, LinkName);
-      h5_status = H5Lcreate_soft(TargetName, subgroup_id, LinkName, H5P_DEFAULT, H5P_DEFAULT);
-      if (io_log) fprintf(log_fptr, "H5Lcreate_soft: status = %"ISYM"\n", (int) h5_status);
-#else
-      if (io_log) fprintf(log_fptr,"H5Glink: %s -> %s\n", TargetName, LinkName);
-      h5_status = H5Glink(subgroup_id, H5G_LINK_SOFT, TargetName, LinkName);
-      if (io_log) fprintf(log_fptr, "H5Glink: status = %"ISYM"\n", (int) h5_status);
-#endif      
-
+      if(HAVE_HDF5_18) {
+	if (io_log) fprintf(log_fptr,"H5Lcreate_soft: %s -> %s\n", TargetName, LinkName);
+	h5_status = H5Lcreate_soft(TargetName, subgroup_id, LinkName, H5P_DEFAULT, H5P_DEFAULT);
+	if (io_log) fprintf(log_fptr, "H5Lcreate_soft: status = %"ISYM"\n", (int) h5_status);
+      } else {
+	if (io_log) fprintf(log_fptr,"H5Glink: %s -> %s\n", TargetName, LinkName);
+	h5_status = H5Glink(subgroup_id, H5G_LINK_SOFT, TargetName, LinkName);
+	if (io_log) fprintf(log_fptr, "H5Glink: status = %"ISYM"\n", (int) h5_status);
+      }
     }
 #endif
 
@@ -237,15 +245,15 @@ int grid::WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, i
       sprintf(LinkName,"ParentGrid_Level%"ISYM,i);
       sprintf(TargetName,"/Level%"ISYM"/Grid%"GROUP_TAG_FORMAT""ISYM,i,ParentGridIDs[level-1-i]);
 
-#ifdef HAVE_HDF5_18
-      if (io_log) fprintf(log_fptr,"H5Lcreate_soft: %s -> %s\n", TargetName, LinkName);
-      h5_status = H5Lcreate_soft(TargetName, subgroup_id, LinkName, H5P_DEFAULT, H5P_DEFAULT);
-      if (io_log) fprintf(log_fptr, "H5Lcreate_soft: status = %"ISYM"\n", (int) h5_status);
-#else
-      if (io_log) fprintf(log_fptr,"H5Glink: %s -> %s\n", TargetName, LinkName);
-      h5_status = H5Glink(subgroup_id, H5G_LINK_SOFT, TargetName, LinkName);
-      if (io_log) fprintf(log_fptr, "H5Glink: status = %"ISYM"\n", (int) h5_status);
-#endif      
+      if(HAVE_HDF5_18) {
+	if (io_log) fprintf(log_fptr,"H5Lcreate_soft: %s -> %s\n", TargetName, LinkName);
+	h5_status = H5Lcreate_soft(TargetName, subgroup_id, LinkName, H5P_DEFAULT, H5P_DEFAULT);
+	if (io_log) fprintf(log_fptr, "H5Lcreate_soft: status = %"ISYM"\n", (int) h5_status);
+      } else {
+	if (io_log) fprintf(log_fptr,"H5Glink: %s -> %s\n", TargetName, LinkName);
+	h5_status = H5Glink(subgroup_id, H5G_LINK_SOFT, TargetName, LinkName);
+	if (io_log) fprintf(log_fptr, "H5Glink: status = %"ISYM"\n", (int) h5_status);
+      }
 
     }
 
