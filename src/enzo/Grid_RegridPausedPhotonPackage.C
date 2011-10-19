@@ -48,7 +48,7 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
 
   int dim, index;
   int int_pos[MAX_DIMENSION];
-  float length;
+  FLOAT length, length2, length_inv;
   FLOAT new_pos[MAX_DIMENSION];
   FLOAT original_vec[MAX_DIMENSION], vec[MAX_DIMENSION], 
     new_vec[MAX_DIMENSION];
@@ -66,12 +66,12 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     new_pos[dim] = (*PP)->SourcePosition[dim] + original_vec[dim]*(*PP)->Radius;
 
-  length = 0.0;
+  length2 = 0.0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     // Unnormalized vector from super source to this package
     vec[dim] = ((*PP)->SourcePosition[dim] + (*PP)->Radius * original_vec[dim])
       - (*PP)->CurrentSource->Position[dim];
-    length += vec[dim] * vec[dim];
+    length2 += vec[dim] * vec[dim];
 	
     // Change source to super source.
     (*PP)->SourcePosition[dim] = (*PP)->CurrentSource->Position[dim];
@@ -83,9 +83,10 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
 //	 (*PP), (*PP)->level, (*PP)->ipix, (*PP)->Radius,
 //	 new_pos[0], new_pos[1], new_pos[2]);
   
-  length = sqrt(length);
+  length = sqrt(length2);
+  length_inv = 1.0 / length;
   for (dim = 0; dim < MAX_DIMENSION; dim++)
-    vec[dim] /= length;
+    vec[dim] *= length_inv;
 
   // With the new radius, calculate new HEALPix level
   (*PP)->Radius = length;
