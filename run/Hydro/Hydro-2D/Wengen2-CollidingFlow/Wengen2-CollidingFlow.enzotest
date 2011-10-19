@@ -1,7 +1,7 @@
-name = 'RampedKelvinHelmholtz2D'
+name = 'Wengen2-CollidingFlow'
 answer_testing_script = None
 nprocs = 1
-runtime = 'medium'
+runtime = 'long'
 critical = True
 cadence = 'nightly'
 hydro = True

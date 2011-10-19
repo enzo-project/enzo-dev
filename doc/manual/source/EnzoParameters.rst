@@ -1549,14 +1549,14 @@ Radiative Transfer (Ray Tracing) Parameters
     depth. To interpolate, we need to calculate the vertex interpolated
     density fields. Default: 0.
 ``RadiativeTransferSourceClustering`` (internal)
-    Set to 1 to turn on ray merging. Not fully tested and may still be
-    buggy. Default: 0.
+    Set to 1 to turn on ray merging from combined virtual sources on a
+    binary tree. Default: 0.
 ``RadiativeTransferPhotonMergeRadius`` (internal)
     The radius at which the rays will merge from their SuperSource,
     which is the luminosity weighted center of two sources. This radius
     is in units of the separation of two sources associated with one
     SuperSource. If set too small, there will be angular artifacts in
-    the radiation field. Default: 10.
+    the radiation field. Default: 2.5
 ``RadiativeTransferTimestepVelocityLimit`` (external)
     Limits the radiative transfer timestep to a minimum value that is
     determined by the cell width at the finest level divided by this

@@ -8,3 +8,6 @@ hydro = True
 gravity = False
 dimensionality = 2
 max_time_minutes = 2
+fullsuite = True
+pushsuite = True
+quicksuite = True

@@ -227,14 +227,14 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
            kap0 = kap * delta_nU
 
            ! initialize matrix/rhs at this point
-           mat(:,i,j,k) = (/ -dtfac*c*mu*dzi*dzi, &
-                             -dtfac*c*mu*dyi*dyi, &
-                             -dtfac*c*mu*dxi*dxi, &
-                             1.d0 + dtfac*(afac + kap + c*mu*2.d0* &
-                               (dxi*dxi + dyi*dyi + dzi*dzi)),     &
-                             -dtfac*c*mu*dxi*dxi, &
-                             -dtfac*c*mu*dyi*dyi, &
-                             -dtfac*c*mu*dzi*dzi /)
+           mat(1,i,j,k) = -dtfac*c*mu*dzi*dzi
+           mat(2,i,j,k) = -dtfac*c*mu*dyi*dyi
+           mat(3,i,j,k) = -dtfac*c*mu*dxi*dxi
+           mat(4,i,j,k) = 1.d0 + dtfac*(afac + kap + c*mu*2.d0* &
+                               (dxi*dxi + dyi*dyi + dzi*dzi))
+           mat(5,i,j,k) = -dtfac*c*mu*dxi*dxi
+           mat(6,i,j,k) = -dtfac*c*mu*dyi*dyi
+           mat(7,i,j,k) = -dtfac*c*mu*dzi*dzi
            rhs(i,j,k) = (dtfac/rUn + dtfac0/rUn0)*eta(i,j,k)       &
                         + (1.d0 - dtfac0*(afac0+kap0))*E0(i,j,k)   &
                         - (1.d0 + dtfac*(afac+kap))*E(i,j,k)
@@ -535,12 +535,12 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
         kap0 = kap * delta_nU
         
         ! initialize matrix/rhs at this point
-        mat(:,i,j) = (/ -dtfac*c*mu*dyi*dyi, &
-                        -dtfac*c*mu*dxi*dxi, &
-                        1.d0 + dtfac*(afac + kap  &
-                             + c*mu*2.d0*(dxi*dxi + dyi*dyi)), &
-                        -dtfac*c*mu*dxi*dxi, &
-                        -dtfac*c*mu*dyi*dyi /)
+        mat(1,i,j) = -dtfac*c*mu*dyi*dyi
+        mat(2,i,j) = -dtfac*c*mu*dxi*dxi
+        mat(3,i,j) = 1.d0 + dtfac*(afac + kap  &
+             + c*mu*2.d0*(dxi*dxi + dyi*dyi))
+        mat(4,i,j) = -dtfac*c*mu*dxi*dxi
+        mat(5,i,j) = -dtfac*c*mu*dyi*dyi
         rhs(i,j) = (dtfac/rUn + dtfac0/rUn0)*eta(i,j)     &
                  + (1.d0 - dtfac0*(afac0+kap0))*E0(i,j)   &
                  - (1.d0 + dtfac*(afac+kap))*E(i,j)
@@ -709,7 +709,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   integer :: i
   real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
   real*8  :: c, dxi, dxi0
-  real*8  :: afac, afac0, Edir, delta_nU
+  real*8  :: afac, afac0, Edir, delta_nU, ONE
   real*8  :: E0d_x, Ed_x
 
 !=======================================================================
@@ -730,6 +730,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
   eps    = 1.d-12
   mu     = 1.d-2/dxi         ! artificial viscosity (multiplied by c)
   delta_nU = nUn0/nUn
+  ONE    = 1.d0
 
   ! iterate over the active domain
   do i=1,Nx,1
@@ -738,7 +739,7 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
      ! correcting for case of zero gradients (need at least 
      ! a bit of diffusion in each direction for MG solver)
      Edir = (E0(i+1) - E0(i-1))*0.5d0*dxi / abs(E0(i))
-     Edir = sign(1.d0, Edir)
+     Edir = sign(ONE, Edir)
 
      ! compute the cell-centered opacity
      if (kappa_h2on == 1) then
@@ -749,10 +750,10 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
      kap0 = kap * delta_nU
      
      ! initialize matrix/rhs at this point
-     mat(:,i) = (/ -dtfac*c*mu*dxi*dxi, &
-                   1.d0 + dtfac*(afac + kap   &
-                        + c*mu*2.d0*dxi*dxi), &
-                   -dtfac*c*mu*dxi*dxi /)
+     mat(1,i) = -dtfac*c*mu*dxi*dxi
+     mat(2,i) = 1.d0 + dtfac*(afac + kap   &
+          + c*mu*2.d0*dxi*dxi)
+     mat(3,i) = -dtfac*c*mu*dxi*dxi
      rhs(i) = (dtfac/rUn + dtfac0/rUn0)*eta(i)     &
               + (1.d0 - dtfac0*(afac0+kap0))*E0(i) &
               - (1.d0 + dtfac*(afac+kap))*E(i)

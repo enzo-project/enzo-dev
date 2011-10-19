@@ -199,20 +199,22 @@ class grid
 
 /* Read grid data from a file (returns: success/failure) */
 
-   int ReadGrid(FILE *main_file_pointer, int GridID, 
+   int ReadGrid(FILE *main_file_pointer, int GridID, char DataFilename[], 
 		int ReadText = TRUE, int ReadData = TRUE);
 
 /* Read grid data from a group file (returns: success/failure) */
 
 #ifndef NEW_GRID_IO
-  int Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
-		     int ReadText, int ReadData, bool ReadParticlesOnly=false);
+   int Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
+		      char DataFilename[],
+		      int ReadText, int ReadData, bool ReadParticlesOnly=false);
 #else
    int Group_ReadGrid(FILE *main_file_pointer, int GridID, HDF5_hid_t file_id, 
+		      char DataFilename[],
 		      int ReadText = TRUE, int ReadData = TRUE, 
 		      bool ReadParticlesOnly=false, int ReadEverything = FALSE);
 #endif
-
+   
 /* Get field or particle data based on name or integer 
    defined in typedefs.h. Details are in Grid_CreateFieldArray.C. */
 
@@ -261,6 +263,13 @@ class grid
         if(ProcessorNumber != MyProcessorNumber) return -1;
         return 0;
     }
+   
+/* Routines for writing/reading grid hierarchy information to/from
+   HDF5 hierarchy file */
+   int WriteHierarchyInformationHDF5(char *base_name, hid_t level_group_id, int level, int ParentGridIDs[], int NumberOfDaughterGrids, int DaughterGridIDs[], int NextGridThisLevelID, int NextGridNextLevelID, FILE *log_fptr);
+   
+   int ReadHierarchyInformationHDF5(hid_t Hfile_id, int GridID, int &Task, int &NextGridThisLevelID, int &NextGridNextLevelID, char DataFilename[], FILE *log_fptr);
+
 
 /* Write grid data to separate files (returns: success/failure) */
 
@@ -2144,7 +2153,7 @@ int inteuler(int idim,
   int RemoveForcingFromBaryonFields();
   int AddRandomForcing(float * norm, float dtTopGrid);
   int PrepareRandomForcingNormalization(float * GlobVal, int GlobNum);
-  int ReadRandomForcingFields(FILE *main_file_pointer);
+  int ReadRandomForcingFields(FILE *main_file_pointer, char DataFilename[]);
 
   int AddFields(int TypesToAdd[], int NumberOfFields);
   int DeleteObsoleteFields(int *ObsoleteFields, 

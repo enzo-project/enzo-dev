@@ -7,6 +7,7 @@
 /  modified1:  Robert Harkness, July 2002
 /  modified2:  Robert Harkness, July 2006
 /  modified3:  Robert Harkness, April 2008
+/  modified4:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -123,7 +124,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   /* ------------------------------------------------------------------- */
   /* 1) Save general grid class data */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0) {
 
     fprintf(fptr, "Task              = %"ISYM"\n", ProcessorNumber);
  
@@ -267,7 +268,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   if (NumberOfBaryonFields > 0) {
  
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
+    if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0) {
  
       fprintf(fptr, "FieldType = ");
  
@@ -1007,15 +1008,16 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   /* ------------------------------------------------------------------- */
   /* 4) Save particle quantities. */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "NumberOfParticles   = %"ISYM"\n", NumberOfParticles);
   if (MyProcessorNumber == ROOT_PROCESSOR && 
+      HierarchyFileOutputFormat > 0 && 
       OutputSmoothedDarkMatter > 0 && NumberOfParticles == 0)
     fprintf(fptr, "ParticleFileName = %s\n", procfilename);
  
   if (NumberOfParticles > 0) {
  
-    if (MyProcessorNumber == ROOT_PROCESSOR)
+    if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
       fprintf(fptr, "ParticleFileName = %s\n", procfilename); // must be same as above
  
     if (MyProcessorNumber == ProcessorNumber) {
@@ -1280,7 +1282,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   /* 5) Save Gravity info. */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     if (SelfGravity)
 
       fprintf(fptr, "GravityBoundaryType = %"ISYM"\n", GravityBoundaryType);

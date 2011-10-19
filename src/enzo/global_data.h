@@ -50,9 +50,29 @@ EXTERN int LoadBalancingMaxLevel;
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */
 EXTERN int FileDirectedOutput;
-/* This governs whether or not we'll be writing out a supplemental binary
-   hierarchy file in HDF5. */
-EXTERN int WriteBinaryHierarchy;
+
+/* These two flags determine the format of the hierarchy file for
+   input and output:
+
+   HierarchyFileInputFormat  = 0 -- HDF5 (default)
+   HierarchyFileInputFormat  = 1 -- ASCII
+
+   HierarchyFileOutputFormat = 0 -- HDF5 (default)
+   HierarchyFileOutputFormat = 1 -- ASCII
+   HierarchyFileOutputFormat = 2 -- both HDF5 and ASCII
+*/
+EXTERN int HierarchyFileInputFormat;
+EXTERN int HierarchyFileOutputFormat;
+
+/* LevelLookupTable is read in from the HDF5 hierarchy file. Its
+   purpose is to allow one to quickly determine while level an input
+   grid is on from its grid ID. This is needed to access the
+   corresponding hierarchy dataset. The array is only valid during the
+   reading of the HDF5 hierarchy file (i.e. in ReadAllData and
+   below). */
+EXTERN int *LevelLookupTable;
+/* This is useful for loops over all grids. */
+EXTERN int TotalNumberOfGrids;
 
 /* debugging, extraction flags */
 

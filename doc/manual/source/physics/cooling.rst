@@ -69,6 +69,8 @@ consult *calc_rates.F*.
    Abel, Bryan, and Norman (2002, Science, 295, 93) is also included.
    This method is valid in the temperature range of 1 K to 10\
    :sup:`8`\  K and up to number densities of roughly 10\ :sup:`9`\  cm\ :sup:`-3`\.
+   Additionally, three-body heating (4.48eV per molecule formed or dissociated)
+   is added as appropriate.
 
 #. Deuterium
 

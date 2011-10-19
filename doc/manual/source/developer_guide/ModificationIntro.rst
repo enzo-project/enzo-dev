@@ -90,20 +90,70 @@ Enzo Source Trees
 -----------------
 
 Enzo has two primary repositories, the "stable" repository which is curated and
-carefully modified, and the "unstable" repository which is where active
+carefully modified, and the "development" repository which is where active
 development occurs.  Please note that while we test and verify the results of
 the "stable" repository, the "unstable" repository is not guaranteed to be
 tested, verified, or even to provide correct answers.
 
-Checkout instructions for the source tree can be found on the Enzo project page
-on Google Code at http://enzo.googlecode.com/ .
+.. note:: The "stable" Enzo source tree is *not* for general development.  If
+   you want to contribute to Enzo, make your changes to a fork of the
+   development repository!
+
+To conceptually -- and technically! -- separate these two repositories, they
+also live in different places.  We keep the stable repository at Google Code,
+and the development repository at BitBucket.  Enzo is (as of 2.1) developed in
+a relatively simple fashion:
+
+  #. On BitBucket, developers "fork" the primary development repository.
+  #. When a piece of work is ready to be shared, a "pull request" is issued.
+     This notifies the current set of Enzo curators that a new feature has been
+     suggested for inclusion.
+  #. After these features have been accepted, they are pulled into the
+     development branch.  New features will be aggregated into patch
+     releases on the "stable" branch.
+  #. When a new patch release is issued, the current development branch is
+     pushed to the "stable" branch on Google Code.
+
+The idea here is that there is a double firewall: the development repository is
+very high-cadence and with high-turnover, but the stable repository is much
+slower, more carefully curated, and inclusions in it are well-tested.
+
+ * Stable code lives at: http://enzo.googlecode.com/
+ * Development code lives at: http://bitbucket.org/enzo/
+
+How To Share Changes
+--------------------
+
+Sharing your changes to Enzo is easy with Mercurial and the BitBucket
+repository.
+
+Go here:
+
+http://bitbucket.org/enzo/enzo-dev/fork
+
+Now, clone your new repository.  Make your changes there.  Now go back and
+issue a pull request.  For instance, you might do something like this:
+
+ #. Clone Enzo, make a few changes, commit them, and decide you want to share.
+ #. Fork the main enzo repository at that link.
+ #. Now, edit ``.hg/hgrc`` to add a new path, and push to that path.
+ #. Go to the BitBucket URL for your new repository and click "Pull Request".
+    Fill it out, including a summary of your changes, and then submit.  It will
+    get evaluted -- and it might not get accepted right away, but the response
+    will definitely include comments and suggestions.
+
+That's it!  If you run into any problems, drop us a line on the `Enzo Users'
+Mailing List <http://groups.google.com/group/enzo-users>`_.
 
 How To Use Branching
 --------------------
 
+.. warning:: In most cases, you do *not* need to make a new named branch!  Do
+   so with care, as it lives forever.
+
 If you are planning on making a large change to the code base that may not be
-ready for many commits, or if you are planning on breaking some functionality
-and rewriting it, you are encouraged to create a new named branch.  You can
+ready for many, many commits, or if you are planning on breaking some
+functionality and rewriting it, you can create a new named branch.  You can
 mark the current repository as a new named branch by executing: ::
 
    $ hg branch new_feature_name
@@ -134,27 +184,6 @@ conflicts in a file, you can mark it as resolved by doing: ::
 Please be careful when resolving conflicts in files.
 
 Once your branch has been merged in, mark it as closed on the wiki page.
-
-How To Share Changes
---------------------
-
-If you do not have "push" rights on the primary mercurial repository, set up
-and use the "patchbomb" extension in mercurial to email a bundle of changes to
-the developer mailing list:
-
-http://groups.google.com/group/enzo-dev
-
-The patchbomb extension is documented here:
-
-http://mercurial.selenic.com/wiki/PatchbombExtension
-
-Please be sure to specify that you wish to send a bundle.  This can be
-accomplished by setting up your hgrc to email the ``enzo-l`` mailing list and
-executing the command: ::
-
-   $ hg email -b
-
-Be sure to read the output of ``hg help email`` before doing this.
 
 The Patch Directory
 --------------------

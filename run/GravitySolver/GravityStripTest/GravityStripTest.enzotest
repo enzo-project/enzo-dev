@@ -7,3 +7,6 @@ cadence = 'nightly'
 hydro = True
 gravity = True
 dimensionality = 3
+fullsuite = False
+pushsuite = False
+quicksuite = False
