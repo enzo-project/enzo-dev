@@ -1,5 +1,4 @@
 Radiating Shock Test (Lab Frame)
-[Subcritical radiating shock waves]
 
 
 In this problem we couple E and e together in a test where we examine
