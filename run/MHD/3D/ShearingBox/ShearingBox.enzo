@@ -70,7 +70,7 @@ CellFlaggingMethod        = 2 11
 RefineByResistiveLengthSafetyFactor = 16
 
 
-StopTime = 62800
+StopTime = 6280
 dtDataDump             = 62.8
 DataDumpName           = data
 
