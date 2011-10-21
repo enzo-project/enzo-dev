@@ -1,4 +1,5 @@
 name = 'ZeldovichPancake'
+answer_testing_script = None
 nprocs = 1
 runtime = 'short'
 hydro = True

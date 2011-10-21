@@ -5,6 +5,7 @@ runtime = 'unknown'
 hydro = True
 gravity = True
 dimensionality = 3
+max_time_minutes = 99999
 fullsuite = False
 pushsuite = False
 quicksuite = False
