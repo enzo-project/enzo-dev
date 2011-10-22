@@ -1,7 +1,7 @@
 name = 'RadiationStreamY0'
 answer_testing_script = None
 nprocs = 1
-runtime = 'short'
+runtime = 'medium'
 hydro = True
 gravity = False
 dimensionality = 3

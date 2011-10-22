@@ -1,7 +1,7 @@
 name = 'CosmologyFLD_RT'
 answer_testing_script = None
 nprocs = 8
-runtime = 'unknown' 
+runtime = 'medium'
 hydro = True
 gravity = True
 cosmology = True
@@ -9,8 +9,5 @@ dimensionality = 3
 radiation = 'fld'
 max_time_minutes = 99999
 fullsuite = False
-pushsuite = False
-quicksuite = False
-fullsuite = True
 pushsuite = False
 quicksuite = False
