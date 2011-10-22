@@ -1,4 +1,5 @@
 name = 'CoolingTest_Cloudy'
+author = 'Britton Smith'
 answer_testing_script = 'test_cooling.py'
 nprocs = 1
 runtime = 'short'

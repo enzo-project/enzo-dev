@@ -2,6 +2,7 @@ name = 'GravityTest'
 answer_testing_script = 'test_gravity.py'
 nprocs = 1
 runtime = 'short'
+hydro = False
 gravity = True
 dimensionality = 3
 author = 'Greg Bryan'
