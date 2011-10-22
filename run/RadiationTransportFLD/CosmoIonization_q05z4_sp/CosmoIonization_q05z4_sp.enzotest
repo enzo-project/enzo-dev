@@ -8,3 +8,6 @@ dimensionality = 3
 radiation = 'fld'
 cosmology = True
 max_time_minutes = 10
+fullsuite = True
+pushsuite = False
+quicksuite = False

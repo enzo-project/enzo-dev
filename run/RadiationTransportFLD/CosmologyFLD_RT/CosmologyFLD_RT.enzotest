@@ -11,3 +11,6 @@ max_time_minutes = 99999
 fullsuite = False
 pushsuite = False
 quicksuite = False
+fullsuite = True
+pushsuite = False
+quicksuite = False

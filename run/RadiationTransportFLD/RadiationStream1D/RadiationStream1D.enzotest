@@ -7,3 +7,6 @@ gravity = False
 dimensionality = 1
 radiation = 'fld'
 max_time_minutes = 30
+fullsuite = True
+pushsuite = False
+quicksuite = False
