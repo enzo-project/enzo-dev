@@ -47,4 +47,6 @@ Additional flags are:
   --repo=REPOSITORY     Path to repository being tested.
   --sim-only            Only run simulations.
   --test-only           Only perform tests.
+  --time-multiplier=TIME_MULTIPLIER
+                        Multiply simulation time limit by this factor.
   -v, --verbose         Slightly more verbose output.
