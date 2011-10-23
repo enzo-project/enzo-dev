@@ -1,7 +1,7 @@
 name = 'CosmologyFLD_RT'
 answer_testing_script = None
-nprocs = 8
-runtime = 'medium'
+nprocs = 1
+runtime = 'unknown'
 hydro = True
 gravity = True
 cosmology = True

@@ -1,7 +1,7 @@
 name = 'RHIonization1'
 answer_testing_script = None
 nprocs = 1
-runtime = 'medium'
+runtime = 'short'
 hydro = False
 gravity = False
 dimensionality = 3
