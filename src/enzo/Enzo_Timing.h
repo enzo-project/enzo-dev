@@ -2,7 +2,11 @@
 #define ENZO_TIMING__
 #include <stdio.h>
 #include <math.h>
-//#include <string>
+#include <string.h>
+#include <iostream>
+#include <map>
+#include <utility>
+
 
 #define min(A,B) ((A) < (B) ? (A) : (B))
 #define max(A,B) ((A) > (B) ? (A) : (B))
@@ -11,53 +15,59 @@ double ReturnWallTime(void);
 void Reduce_Times(double time, double *time_array);
 
 namespace enzo_timing{
-
-/*   class section_performance */
-/*   { */
-/*   public: */
-    
-/*     section_performance(string myname){ */
-/*       name = myname; */
-/*       next = NULL; */
-/*       total_time = 0.0; */
-/*       current_time = 0.0; */
-/*     } */
-    
-/*     string myname; */
-
-/*     void start_timer(void){ */
-/*       t0 = ReturnWallTime(); */
-/*     } */
-
-/*     void stop_and_add_timer(void){ */
-/*       t1 = ReturnWallTime(); */
-/*       current_time += t1-t0; */
-/*       total_time += t1-t0; */
-/*     } */
-
-/*     double get_total_time(void){ */
-/*       return total_time; */
-/*     } */
-/*     double get_current_time(void){ */
-/*       return current_time; */
-/*     } */
-/*     void reset_current_time(void){ */
-/*       current_time = 0.0;   */
-/*     } */
-
-/*     section_performance *next; */
   
-/*   private: */
-/*     double t0; */
-/*     double t1;  */
-/*     double total_time; */
-/*     double current_time; */
-/*     int ngrids; */
-/*     long int ncells; */
-    
-/*   }; */
+  struct cmp_str
+  {
+    bool operator()(char const *a, char const *b)
+    {
+      return std::strcmp(a, b) < 0;
+    }
+  };
 
- 
+  class section_performance
+  {
+  public:
+    
+    section_performance(char* myname){
+      name = myname;
+      next = NULL;
+      total_time = 0.0;
+      current_time = 0.0;
+    }
+    
+    char* name;
+
+    void start_timer(void){
+      t0 = ReturnWallTime();
+    }
+
+    void stop_and_add_timer(void){
+      t1 = ReturnWallTime();
+      current_time += t1-t0;
+      total_time += t1-t0;
+    }
+
+    double get_total_time(void){
+      return total_time;
+    }
+    double get_current_time(void){
+      return current_time;
+    }
+    void reset_current_time(void){
+      current_time = 0.0;
+    }
+
+    section_performance *next;
+  
+  private:
+    double t0;
+    double t1;
+    double total_time;
+    double current_time;
+    int ngrids;
+    long int ncells;
+    
+  };
 
   class level_performance
   {
@@ -151,6 +161,8 @@ namespace enzo_timing{
       my_rank = 0;
 #endif
     }
+
+    std::map<char *, section_performance, cmp_str> timers;
 
     level_performance *level_zero_performance;
     level_performance *temp_performance;
@@ -297,6 +309,7 @@ namespace enzo_timing{
 #else /* DEFINE_STORAGE */
 # define EXTERN extern
 #endif
+
 EXTERN enzo_timing::enzo_timer *my_enzo_timer;                                                         
 EXTERN enzo_timing::enzo_timer *hydro_timer;  
 EXTERN enzo_timing::enzo_timer *section_timer;

@@ -697,6 +697,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   delete [] my_enzo_timer;
   delete [] hydro_timer;
+  delete [] section_timer;
 
 #ifdef USE_LCAPERF
   if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");
