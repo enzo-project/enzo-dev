@@ -38,7 +38,7 @@ NumberOfBufferZones         = 3
 Gamma  = 1.0001
 Mu                          = 2
 CourantSafetyNumber         = 0.2
-DualEnergyFormalism         = 1
+DualEnergyFormalism         = 0
 Theta_Limiter               = 1.5
 RKOrder                     = 2
 
