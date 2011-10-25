@@ -363,7 +363,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
 
- 
+    enzo_timer->get(level_name)->start();
+  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
@@ -417,8 +418,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
 
-    my_enzo_timer->get_or_add_new(level_name)->start_timer();
- 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
       CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
@@ -474,10 +473,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       /* Call hydro solver and save fluxes around subgrids. */
-      my_enzo_timer->get_or_add_new("SolveHydroEquations")->start_timer();
+      enzo_timer->get("SolveHydroEquations")->start();
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      my_enzo_timer->get_or_add_new("SolveHydroEquations")->stop_and_add_timer();
+      enzo_timer->get("SolveHydroEquations")->stop();
 
       /* Solve the cooling and species rate equations. */
  
@@ -567,9 +566,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
-    //sprintf(timer_name, "Level_%"ISYM, level);
-    my_enzo_timer->get_or_add_new(level_name)->stop_and_add_timer();
-    //my_enzo_timer->timers[timer_name]->set_ngrids(NumberOfGrids);
+    enzo_timer->get(level_name)->stop();
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */

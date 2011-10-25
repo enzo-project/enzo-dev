@@ -21,7 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
- 
+
+#include "Enzo_Timing.h" 
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
@@ -101,6 +102,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 
   int dbx = 0;
  
+  enzo_timer->get("RebuildHierarchy")->start();
   LCAPERF_START("RebuildHierarchy");
 
   if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
@@ -676,6 +678,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 #endif /* RH_PERF */
   ReportMemoryUsage("Rebuild pos 4");
   LCAPERF_STOP("RebuildHierarchy");
+  enzo_timer->get("RebuildHierarchy")->stop();
   return SUCCESS;
  
 }

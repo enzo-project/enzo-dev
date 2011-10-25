@@ -18,7 +18,6 @@
 //   (allocate old baryon fields if they don't exist).
  
 #include <stdio.h>
-#include "Enzo_Timing.h"
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
@@ -43,7 +42,6 @@ int grid::CopyBaryonFieldToOldBaryonField()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  my_enzo_timer->get_or_add_new("grid_CopyBaryonFieldToOldBaryonField")->start_timer();
   LCAPERF_START("grid_CopyBaryonFieldToOldBaryonField");
 
   /* compute the field size */
@@ -108,7 +106,6 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
 #endif /* SAB */
  
-  my_enzo_timer->get_or_add_new("grid_CopyBaryonFieldToOldBaryonField")->stop_and_add_timer();
   LCAPERF_STOP("grid_CopyBaryonFieldToOldBaryonField");
   return SUCCESS;
  
