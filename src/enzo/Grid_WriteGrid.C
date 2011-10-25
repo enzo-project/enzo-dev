@@ -468,7 +468,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
     /* If requested compute and output the dust temperature field
        as well since its such a pain to compute after the fact. */
   
-    if (OutputDustTemperature) {
+    if (OutputDustTemperature != FALSE) {
  
       /* Get temperature field if we do not already have it. */
 
