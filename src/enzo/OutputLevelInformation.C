@@ -11,7 +11,7 @@
 /
 ************************************************************************/
  
-#include "Enzo_Timing.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include <string.h>
 #include <stdio.h>

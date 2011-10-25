@@ -22,7 +22,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "Enzo_Timing.h" 
+#include "EnzoTiming.h" 
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"

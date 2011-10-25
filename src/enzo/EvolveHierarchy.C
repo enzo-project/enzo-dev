@@ -37,7 +37,7 @@
  
 #include <stdio.h>
 
-#include "Enzo_Timing.h" 
+#include "EnzoTiming.h" 
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"

@@ -1,5 +1,6 @@
 #ifndef ENZO_TIMING__
 #define ENZO_TIMING__
+
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
@@ -296,5 +297,8 @@ namespace enzo_timing{
 #endif
 
 EXTERN enzo_timing::enzo_timer *enzo_timer;                                                         
+
+#define TIMER_START(section_name) enzo_timer->get(section_name)->start()
+#define TIMER_STOP(section_name) enzo_timer->get(section_name)->stop()
 
 #endif //ENZO_TIMING
