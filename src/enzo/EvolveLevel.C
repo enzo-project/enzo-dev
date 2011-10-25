@@ -77,6 +77,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+#include <string.h>
 
 #include "Enzo_Timing.h"
 #include "performance.h"
@@ -269,8 +270,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   HierarchyEntry *NextGrid;
   int dummy_int;
 
+  char level_name[MAX_LINE_LENGTH];
+  sprintf(level_name, "Level_%"ISYM, level);
+    
   // Update lcaperf "level" attribute
-
   Eint32 lcaperf_level = level;
 #ifdef USE_LCAPERF
   lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
@@ -414,7 +417,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
 
-    my_enzo_timer->get_level_performance(level)->start_timer();
+    my_enzo_timer->get_or_add_new(level_name)->start_timer();
  
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
@@ -471,10 +474,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       /* Call hydro solver and save fluxes around subgrids. */
-      hydro_timer->get_level_performance(level)->start_timer();
+      my_enzo_timer->get_or_add_new("SolveHydroEquations")->start_timer();
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      hydro_timer->get_level_performance(level)->stop_and_add_timer();
+      my_enzo_timer->get_or_add_new("SolveHydroEquations")->stop_and_add_timer();
 
       /* Solve the cooling and species rate equations. */
  
@@ -564,9 +567,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
-
-    my_enzo_timer->get_level_performance(level)->stop_and_add_timer();
-    my_enzo_timer->get_level_performance(level)->set_ngrids(NumberOfGrids);
+    //sprintf(timer_name, "Level_%"ISYM, level);
+    my_enzo_timer->get_or_add_new(level_name)->stop_and_add_timer();
+    //my_enzo_timer->timers[timer_name]->set_ngrids(NumberOfGrids);
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -728,9 +731,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 
   
-  // double this_time = my_enzo_timer->get_level_performance(level)->get_total_time();
-  // fprintf(stderr, "I spend %"GSYM" time on level %"ISYM"\n", this_time, level);
-
   /* Clean up. */
  
   delete [] NumberOfSubgrids;

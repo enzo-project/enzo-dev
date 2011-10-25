@@ -167,8 +167,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   // Create enzo timer
   my_enzo_timer = new enzo_timing::enzo_timer();
-  hydro_timer = new enzo_timing::enzo_timer((char*)("chronos_hydro.out"));
-  section_timer = new enzo_timing::enzo_timer((char*)("chronos_section.out"));
   
   LCAPERF_BEGIN("EL");
   LCAPERF_START("EvolveHierarchy");
@@ -688,16 +686,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     my_enzo_timer->write_out(MetaData.CycleNumber);
-    hydro_timer->write_out(MetaData.CycleNumber);
-    section_timer->write_out(MetaData.CycleNumber);
 
     FirstLoop = false;
  
   } // ===== end of main loop ====
 
-  delete [] my_enzo_timer;
-  delete [] hydro_timer;
-  delete [] section_timer;
+  delete my_enzo_timer;
 
 #ifdef USE_LCAPERF
   if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");

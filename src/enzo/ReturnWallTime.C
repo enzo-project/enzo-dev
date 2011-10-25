@@ -30,7 +30,8 @@ double ReturnWallTime()
 
 #else /* USE_MPI */
 
-  return 0.0//(double)(clock()) / ((double)CLOCKS_PER_SEC);
-
+  return (double)(clock()) / ((double)CLOCKS_PER_SEC);
+  //return 0.0;
+  
 #endif /* USE_MPI */
 }
