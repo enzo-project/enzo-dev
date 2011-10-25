@@ -758,7 +758,5 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   texit = MPI_Wtime();
 #endif
  
-  //delete enzo_timer;
-
   return SUCCESS;
 }
