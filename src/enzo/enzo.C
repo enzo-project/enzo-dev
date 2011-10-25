@@ -122,6 +122,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &WritePotentialOnly,
 			 int &SmoothedDarkMatterOnly,
 			 int &WriteCoolingTimeOnly,
+			 int &WriteDustTemperatureOnly,
 			 int MyProcessorNumber);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -207,6 +208,15 @@ int OutputCoolingTimeOnly(char *ParameterFile,
 			  ExternalBoundary &Exterior
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
+#endif
+			  );
+int OutputDustTemperatureOnly(char *ParameterFile,
+			      LevelHierarchyEntry *LevelArray[], 
+			      HierarchyEntry *TopGrid,
+			      TopGridData &MetaData,
+			      ExternalBoundary &Exterior
+#ifdef TRANSFER
+			      , ImplicitProblemABC *ImplicitSolver
 #endif
 			  );
 
@@ -358,6 +368,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     WritePotentialOnly       = FALSE,
     SmoothedDarkMatterOnly   = FALSE,
     WriteCoolingTimeOnly     = FALSE,
+    WriteDustTemperatureOnly = FALSE,
     project                  = FALSE,
     ProjectionDimension      = INT_UNDEFINED,
     ProjectionSmooth         = FALSE,
@@ -453,7 +464,8 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 			   RegionStartCoordinates, RegionEndCoordinates,
 			   RegionLevel, HaloFinderOnly,
 			   WritePotentialOnly, SmoothedDarkMatterOnly,
-			   WriteCoolingTimeOnly, MyProcessorNumber) == FAIL) {
+			   WriteCoolingTimeOnly, WriteDustTemperatureOnly,
+			   MyProcessorNumber) == FAIL) {
     if(int_argc==1){
       my_exit(EXIT_SUCCESS);
     } else {
@@ -623,6 +635,16 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 			  MetaData, Exterior
 #ifdef TRANSFER
 			  , ImplicitSolver
+#endif
+			  );
+    my_exit(EXIT_SUCCESS);
+  }
+
+  if (WriteDustTemperatureOnly) {
+    OutputDustTemperatureOnly(ParameterFile, LevelArray, &TopGrid,
+			      MetaData, Exterior
+#ifdef TRANSFER
+			      , ImplicitSolver
 #endif
 			  );
     my_exit(EXIT_SUCCESS);

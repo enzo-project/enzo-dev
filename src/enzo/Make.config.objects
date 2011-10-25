@@ -658,6 +658,7 @@ OBJS_CONFIG_LIB = \
         Options.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
+	OutputDustTemperatureOnly.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
 	OutputPotentialFieldOnly.o \
