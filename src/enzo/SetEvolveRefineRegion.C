@@ -81,7 +81,6 @@ int SetEvolveRefineRegion (FLOAT time)
   for (int flag_method = 0; flag_method < MAX_FLAGGING_METHODS; flag_method++) {
     if( CellFlaggingMethod[flag_method] == 12 ){
       for (int dim = 0; dim < MAX_DIMENSION; dim++){
-        fprintf(stderr,"CLOWN srsly does this work?\n");
         MustRefineRegionLeftEdge[dim]=EvolveRefineRegionLeftEdge[timestep][dim];
         MustRefineRegionRightEdge[dim]=EvolveRefineRegionRightEdge[timestep][dim];
       }
