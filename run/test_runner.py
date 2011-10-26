@@ -435,6 +435,10 @@ class UnspecifiedParameter(object):
     pass
 unknown = UnspecifiedParameter()
 
+testsuites = {'quicksuite': "37 tests that run in 5 minutes or less.  Total runtime: 25 minutes.",
+              'pushsuite': "All quicksuite tests plus 11 more 10-minute tests.  Total runtime: 90 minutes.",
+              'fullsuite': "All pushsuite tests, FLD tests, and some longer tests taking up to 10 hours.  Total runtime: 36 hours."}
+
 if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("-c", "--compare-dir", dest='compare_dir',
@@ -461,9 +465,17 @@ if __name__ == "__main__":
                       help="Multiply simulation time limit by this factor.")
     parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
                       default=False, help="Slightly more verbose output.")
+
+    testsuite_group = optparse.OptionGroup(parser, "Test suites:")
     for var, caster in sorted(known_variables.items()):
-        parser.add_option("", "--%s" % (var),
-                          type=str, default = unknown)
+        if var in testsuites:
+            testsuite_group.add_option("", "--%s" % (var),
+                                       type=str, default=unknown,
+                                       help=testsuites[var])
+        else:
+            parser.add_option("", "--%s" % (var),
+                              type=str, default = unknown)
+    parser.add_option_group(testsuite_group)
     options, args = parser.parse_args()
 
     etc = EnzoTestCollection(verbose=options.verbose)
