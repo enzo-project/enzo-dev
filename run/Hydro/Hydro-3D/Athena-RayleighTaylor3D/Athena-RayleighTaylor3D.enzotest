@@ -1,12 +1,11 @@
 name = 'Athena-RayleighTaylor3D'
 answer_testing_script = None
 nprocs = 1
-runtime = 'unknown'
-critical = True
-cadence = 'nightly'
+runtime = 'long'
 hydro = True
-gravity = True
+gravity = False
 dimensionality = 3
+max_time_minutes = 600
 fullsuite = True
 pushsuite = False
 quicksuite = False
