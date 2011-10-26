@@ -60,6 +60,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   // Restrict the increase in dtPhoton to this factor
   const float MaxDTChange = 30.0;
+  // Restrict the decrease in dtPhoton to this factor
+  const float MaxDTDecrease = 1e-10;
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;
@@ -67,6 +69,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   FLOAT HydroTime;
   float ThisPhotonDT;
   const float unchangedLimit = 0.1*PhotonCourantFactor*huge_number;
+  const float lowerLimit = MaxDTDecrease * LastPhotonDT[0];
 
   // Search for the maximum level
   for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
@@ -107,7 +110,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 	  ThisPhotonDT = Temp->GridData->
 	    ComputePhotonTimestepHII(DensityUnits, LengthUnits, VelocityUnits, 
 				     afloat, MetaData->GlobalMaximumkphIfront);
-	  dtPhoton = min(dtPhoton, ThisPhotonDT);
+	  if (ThisPhotonDT > lowerLimit)
+	    dtPhoton = min(dtPhoton, ThisPhotonDT);
 	}
 
   // Calculate timestep by limiting to a max change in intensity
@@ -118,7 +122,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 	  ThisPhotonDT = Temp->GridData->
 	    ComputePhotonTimestepTau(DensityUnits, LengthUnits, VelocityUnits, 
 				     afloat);
-	  dtPhoton = min(dtPhoton, ThisPhotonDT);
+	  if (ThisPhotonDT > lowerLimit)
+	    dtPhoton = min(dtPhoton, ThisPhotonDT);
 	}
 
     dtPhoton = PhotonCourantFactor * CommunicationMinValue(dtPhoton);
