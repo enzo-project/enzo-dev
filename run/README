@@ -38,6 +38,9 @@ Additional flags are:
   -c COMPARE_DIR, --compare-dir=COMPARE_DIR
                         The directory structure to compare against
   --clobber             Recopies tests and tests from scratch.
+  -g GATHER_DIR, --gather=GATHER_DIR
+                        Gather test results from this directory into a tar
+                        file.
   --interleave          Option to interleave preparation, running, and
                         testing.
   -m MACHINE, --machine=MACHINE
