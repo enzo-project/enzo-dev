@@ -1,6 +1,6 @@
 name = 'ShockPool3D'
 answer_testing_script = None
-nprocs = 1
+nprocs = 2
 runtime = 'long'
 hydro = True
 gravity = False
