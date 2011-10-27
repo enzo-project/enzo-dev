@@ -1,13 +1,11 @@
 name = 'NohProblem3D'
 answer_testing_script = 'test_noh3d.py'
-nprocs = 8
-runtime = 'medium'
-critical = True
-cadence = 'nightly'
+nprocs = 2
+runtime = 'long'
 hydro = True
 gravity = False
 dimensionality = 3
-max_time_minutes = 30
+max_time_minutes = 60
 fullsuite = True
 pushsuite = False
 quicksuite = False

@@ -18,7 +18,7 @@ for root, dirnames, filenames in os.walk('.'):
 
 #Generate dictionary, make list of attributes
 tests={}
-attribute_list=['name','nprocs','max_time_minutes','dimensionality','runtime','critical','cadence','answer_testing_script','hydro','gravity','cooling','chemistry','cosmology','author','mhd','radiation','AMR']
+attribute_list=['name','nprocs','max_time_minutes','dimensionality','runtime','answer_testing_script','hydro','gravity','cooling','chemistry','cosmology','author','mhd','radiation','AMR']
 for file in matches:
     if dbg > 0:
         print file

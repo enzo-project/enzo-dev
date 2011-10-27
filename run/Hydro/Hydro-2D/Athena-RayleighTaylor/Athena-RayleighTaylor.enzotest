@@ -1,9 +1,7 @@
 name = 'Athena-RayleighTaylor'
 answer_testing_script = None
 nprocs = 1
-runtime = 'short'
-critical = True
-cadence = 'nightly'
+runtime = 'medium'
 hydro = True
 gravity = False
 dimensionality = 2

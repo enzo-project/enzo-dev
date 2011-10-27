@@ -37,12 +37,19 @@ int SetEvolveRefineRegion (FLOAT time)
   /* Set time=redshift if that's what we're doing. */
   if (RefineRegionTimeType == 1) {
     time = redshift;
-  }
   timestep = 0;
   while (timestep < MAX_REFINE_REGIONS && 
 	 EvolveRefineRegionTime[timestep] >= FLOAT_UNDEFINED &&
 	 time < EvolveRefineRegionTime[timestep])
     timestep++;
+  }else{
+    timestep = 0;
+    while (timestep < MAX_REFINE_REGIONS && 
+     EvolveRefineRegionTime[timestep] >= FLOAT_UNDEFINED &&
+     time > EvolveRefineRegionTime[timestep])
+      timestep++;
+
+  }
   timestep -= 1;
   if (timestep < 0) return SUCCESS;
 
@@ -71,6 +78,14 @@ int SetEvolveRefineRegion (FLOAT time)
 	    RefineRegionLeftEdge[2], RefineRegionRightEdge[0],
 	    RefineRegionRightEdge[1], RefineRegionRightEdge[2]);
 
+  for (int flag_method = 0; flag_method < MAX_FLAGGING_METHODS; flag_method++) {
+    if( CellFlaggingMethod[flag_method] == 12 ){
+      for (int dim = 0; dim < MAX_DIMENSION; dim++){
+        MustRefineRegionLeftEdge[dim]=EvolveRefineRegionLeftEdge[timestep][dim];
+        MustRefineRegionRightEdge[dim]=EvolveRefineRegionRightEdge[timestep][dim];
+      }
+    }
+  }
   return SUCCESS;
 
 }
