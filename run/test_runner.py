@@ -510,16 +510,27 @@ if __name__ == "__main__":
         top_dir = os.path.dirname(options.gather_dir)
         basename = os.path.basename(options.gather_dir)
         tar_filename = "%s.tar.bz2" % basename
-        print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
         os.chdir(top_dir)
-        my_tar = tarfile.open(name=tar_filename, mode='w:bz2')
+        file_list = []
+        missing_file_list = []
         for test in etc2.tests:
             for gather in results_gather:
                 my_addition = os.path.join(basename, test['fulldir'], gather)
-                print "Adding %s." % my_addition
-                my_tar.add(my_addition)
+                if os.path.exists(my_addition):
+                    file_list.append(my_addition)
+                else:
+                    missing_file_list.append(my_addition)
+        if len(missing_file_list) > 0:
+            print "\nError: could not gather test results because the following files are missing."
+            print '\n'.join(missing_file_list)
+            print 'Total: %d files missing.' % len(missing_file_list)
+            sys.exit(1)
+        print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
+        my_tar = tarfile.open(name=tar_filename, mode='w:bz2')
+        for my_addition in file_list:
+            print "Adding %s." % my_addition
+            my_tar.add(my_addition)
         my_tar.close()
-        os.chdir(cur_dir)
         print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
         sys.exit(0)
 
