@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import time
+import tarfile
 import logging
 
 known_categories = [
@@ -508,14 +509,16 @@ if __name__ == "__main__":
             options.gather_dir = options.gather_dir[:-1]
         top_dir = os.path.dirname(options.gather_dir)
         basename = os.path.basename(options.gather_dir)
-        file_list = []
+        tar_filename = "%s.tar.bz2" % basename
+        print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
+        os.chdir(top_dir)
+        my_tar = tarfile.open(name=tar_filename, mode='w:bz2')
         for test in etc2.tests:
             for gather in results_gather:
-                file_list.append(os.path.join(basename, test['fulldir'], gather))
-        tar_filename = "%s.tar.bz2" % basename
-        os.chdir(top_dir)
-        my_command = "tar cvfj %s %s" % (tar_filename, " ".join(file_list))
-        os.system(my_command)
+                my_addition = os.path.join(basename, test['fulldir'], gather)
+                print "Adding %s." % my_addition
+                my_tar.add(my_addition)
+        my_tar.close()
         os.chdir(cur_dir)
         print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
         sys.exit(0)
