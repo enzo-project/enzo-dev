@@ -4,6 +4,7 @@ nprocs = 1
 runtime = 'short'
 hydro = True
 gravity = True
+AMR = True
 cosmology = True
 dimensionality = 3
 max_time_minutes = 1

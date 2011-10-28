@@ -47,8 +47,7 @@ HydroMethod               = 0
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 0    // dynamic hierarchy
-#MaximumRefinementLevel    = 2
+StaticHierarchy           = 0
 MaximumRefinementLevel    = 0
 RefineBy                  = 4    // refinement factor
 CellFlaggingMethod        = 6
