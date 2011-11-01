@@ -321,7 +321,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   bool FirstLoop = true;
   while (!Stop) {
 
-  enzo_timer->get("Total")->start();
+  TIMER_START("Total");
 
 #ifdef USE_LCAPERF
     lcaperf_iter = MetaData.CycleNumber;
@@ -684,7 +684,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 #endif
 
-    enzo_timer->get("Total")->stop();
+    TIMER_STOP("Total");
     enzo_timer->write_out(MetaData.CycleNumber);
 
     FirstLoop = false;

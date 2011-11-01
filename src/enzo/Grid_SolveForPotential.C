@@ -48,6 +48,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
     return SUCCESS;
 
   LCAPERF_START("grid_SolveForPotential");
+  TIMER_STOP("SolveForPotential");
  
   /* declarations */
  
@@ -162,6 +163,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
 
 #endif
  
+  TIMER_STOP("SolveForPotential");
   LCAPERF_STOP("grid_SolveForPotential");
   return SUCCESS;
 }

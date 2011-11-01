@@ -127,6 +127,24 @@ namespace enzo_timing{
       return timers[name];
     }
 
+    void start(char *name){
+      iter = timers.find(name);
+      if (iter == timers.end()){
+	fprintf(stderr, "%s Being Created\n", name);
+	timers[name] = new section_performance(name);
+      }
+      timers[name]->start();
+    }
+
+    void stop(char *name){
+      iter = timers.find(name);
+      if (iter == timers.end()){
+	fprintf(stderr, "%s Being Created\n", name);
+	timers[name] = new section_performance(name);
+      }
+      timers[name]->stop();
+    }
+
     section_performance * get_level(int level){
       char level_name[256];
       sprintf(level_name, "Level_%d", level);
@@ -298,7 +316,7 @@ namespace enzo_timing{
 
 EXTERN enzo_timing::enzo_timer *enzo_timer;                                                         
 
-#define TIMER_START(section_name) enzo_timer->get(section_name)->start()
-#define TIMER_STOP(section_name) enzo_timer->get(section_name)->stop()
+#define TIMER_START(section_name) enzo_timer->start(section_name)
+#define TIMER_STOP(section_name) enzo_timer->stop(section_name)
 
 #endif //ENZO_TIMING
