@@ -137,7 +137,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // Default Hierarchy File IO settings (1 = ASCII; 2 = HDF5+ASCII)
   HierarchyFileInputFormat = 1;
-  HierarchyFileOutputFormat = 1;
+  HierarchyFileOutputFormat = 2;
 
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
