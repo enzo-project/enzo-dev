@@ -103,7 +103,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   int dbx = 0;
  
   LCAPERF_START("RebuildHierarchy");
-  TIMER_START->start("RebuildHierarchy");
+  TIMER_START("RebuildHierarchy");
 
   if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
   ReportMemoryUsage("Rebuild pos 1");

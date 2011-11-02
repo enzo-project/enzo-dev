@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
