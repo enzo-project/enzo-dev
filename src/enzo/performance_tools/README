@@ -1,0 +1,50 @@
+The chronos timing function can ...
+
+The format of the filename for chronos files is:
+
+chronos_PROCEDURE_STARTTIME.txt
+
+The format of the output chronos files are:
+
+Each timestep is an array of space-delimited text.  The first line of the array is the timing information from the simulation as a whole.  It is the step number, the total number of cells, and then information about the number of cells evolved per second per processor.  This information is the average, the standard deviation, the minimum and the maximum of the processor distribution respectively.  If the additional verbose flag is true, the total time spent on each processor is included for the entire distribution of processors.
+
+Each subsequent line follows the same specification, except that it is broken down to each level of refinement on the simulation.  At the end of a timestep, there is a blank line.
+
+If the simulation reached its end point, the last entry should be global timing statistics for the entire run.  This follows the protocol from above, but averages it globally.
+
+Laid out explicitly, it follows this format:
+
+Step step_num num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
+Level level0 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
+Level level1 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
+...
+Level levelN num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
+
+
+When the verbose flag is set:
+
+Step step_num num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
+Level level0 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
+Level level1 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
+...
+Level levelN num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
+
+Total total_time proc0 proc1 ... procN
+
+Example:
+
+Step 534 1000 1000 100 500 1500
+Level 0 300 50 200 600
+Level 1 700 50 300 900
+
+Step 535 1000 1000 100 500 1500
+Level 0 300 50 200 600
+Level 1 700 50 300 900
+
+Step 536 1000 1000 100 500 1500
+Level 0 300 50 200 600
+Level 1 700 50 300 900
+
+Total 3 3000 1000 100 500 1500
+Level 0 300 50 200 600
+Level 1 700 50 300 900
