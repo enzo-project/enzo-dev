@@ -291,7 +291,7 @@ namespace enzo_timing{
       }
 
       if (my_rank == 0){
-	fprintf(chronos_file, "Total_Cells/Sec/Processor: %e\n", (double)(total_cells/total_time/nprocs));
+	fprintf(chronos_file, "Total_Cells/Sec/Processor %e\n", (double)(total_cells/total_time/nprocs));
 	fprintf(chronos_file, "\n");
 	fclose(chronos_file);	  
 	delete [] time_array;
