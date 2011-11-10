@@ -164,7 +164,7 @@ namespace enzo_timing{
       std::string keyname;
       for( iter=timers.begin(); iter!=timers.end(); ++iter){
 	keyname = iter->first;
-	if (std::strncmp(keyname.c_str(), "Level", 5) == 0){
+	if (strncmp(keyname.c_str(), "Level", 5) == 0){
 	    total_time += iter->second->get_total_time();
 	  }
 	}
@@ -196,7 +196,7 @@ namespace enzo_timing{
       std::string keyname;
       for( iter=timers.begin(); iter!=timers.end(); ++iter){
 	keyname = iter->first;
-	if (std::strncmp(keyname.c_str(), "Level", 5) == 0){
+	if (strncmp(keyname.c_str(), "Level", 5) == 0){
 	  total_time += iter->second->get_current_time();
 	}
       }
@@ -271,10 +271,10 @@ namespace enzo_timing{
       	  fprintf(chronos_file, "%s %e %e %e %e",
       		  iter->first.c_str(), mean_time, stddev_time, min_time, max_time);
 	  keyname = iter->first;
-	  if (std::strncmp(keyname.c_str(), "Total", 5) == 0){
+	  if (strncmp(keyname.c_str(), "Total", 5) == 0){
 	    total_time = mean_time;
 	  }
-	  if (std::strncmp(keyname.c_str(), "Level", 5) == 0){
+	  if (strncmp(keyname.c_str(), "Level", 5) == 0){
 	    total_cells += iter->second->get_cells();
 	    fprintf(chronos_file, "% ld %ld %e", 
 		    iter->second->get_cells(),
