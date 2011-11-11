@@ -534,6 +534,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           MustRefineParticlesMinimumMass);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
+  fprintf(fptr, "WriteGhostZones                  = %"ISYM"\n",
+          WriteGhostZones);
+  fprintf(fptr, "ReadGhostZones                   = %"ISYM"\n",
+          ReadGhostZones);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
           OutputParticleTypeGrouping);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
