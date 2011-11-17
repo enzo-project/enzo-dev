@@ -79,6 +79,8 @@ c
 !     write(0,'("grid_cic: ",9i4)') sdim1,sdim2,sdim3,ddim1,ddim2,ddim3,
 !    &                              offset1,offset2,offset3
 
+
+!$omp parallel do private(i,j,n) schedule(static)
       do k=1,ddim3
          do j=1,ddim2
             do i=1,ddim1

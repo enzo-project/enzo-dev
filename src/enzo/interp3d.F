@@ -98,6 +98,8 @@ c
 c     Interpolate values from cell centers to cell corners
 c
       nneg = 0
+
+!$omp parallel do private(i,j) schedule(static)
       do k = 1, pdim3+1
          do j = 1, pdim2+1
             do i = 1, pdim1+1
@@ -124,7 +126,6 @@ c
      &                 parent(pstart1+i  ,pstart2+j-1,pstart3+k  ),
      &                 parent(pstart1+i  ,pstart2+j  ,pstart3+k-1)
                   ierror = 1
-                  return
                endif
                if (work(i,j,k) .le. 0.0 .or.
      &             parent(pstart1+i, pstart2+j, pstart3+k) .le. 0.0) 
@@ -132,10 +133,17 @@ c
             enddo
          enddo
       enddo
+      if (ierror .eq. 1) return
 c      write(6,*) 'nneg =', nneg
 c
 c     Loop over coarse cells and compute the interpolation coefficients.
 c
+c$omp parallel do private(i, j)
+c$omp+ private(fbar, delf0, delf1, delf2, delf3, sprime, s)
+c$omp+ private(chi1, chi2, chi3, frac, delf1new, delf2new, delf3new)
+c$omp+ private(fx, fy, fz, fbar_save)
+c$omp+ private(k1, j1, i1)
+c$omp+ schedule(static)
       do k = 1, pdim3
          do j = 1, pdim2
             do i = 1, pdim1
@@ -268,7 +276,6 @@ c     &               delf1new,delf2new,delf3new,s
      &                   parent(pstart1+i+1, pstart2+j+1, pstart3+k  ),
      &                   parent(pstart1+i+1, pstart2+j+1, pstart3+k+1)
                    ierror = 1
-                   return
                 endif
                 if (s .ne. s) then
                    write(6,*) 'int2',delf0,sprime,chi1,chi2,chi3,
@@ -276,7 +283,6 @@ c     &               delf1new,delf2new,delf3new,s
      &               delf1new,delf2new,delf3new,s,work(i,j,k),
      &               work(i+1,j+1,k+1)
                    ierror = 1
-                   return
                 endif
 c
 c              Now, find the the interpolation coefficients.
@@ -311,6 +317,7 @@ c
 c
          enddo
       enddo
+      if (ierror .eq. 1) return
 c
       return
       end
