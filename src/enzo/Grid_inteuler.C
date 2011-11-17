@@ -136,8 +136,8 @@ int grid::inteuler(int idim,
     qa = dxi[i] / (dxi[i-1] + dxi[i] + dxi[i+1]);
     c1[i] = qa*(2.0*dxi[i-1] + dxi[i])/(dxi[i+1] + dxi[i]);
     c2[i] = qa*(2.0*dxi[i+1] + dxi[i])/(dxi[i-1] + dxi[i]);
-    dxinv[i] = 1.0f/dxi[i];
-    dxdt2[i] = 0.5f*dtFixed*dxinv[i];
+    dxinv[i] = 1.0/dxi[i];
+    dxdt2[i] = 0.5*dtFixed*dxinv[i];
   }
 
   for (i = is-1; i <= ie+2; i++) {
@@ -150,7 +150,7 @@ int grid::inteuler(int idim,
     c4[i] = qb;
     c5[i] =  dxi[i  ]/qa*qd;
     c6[i] = -dxi[i-1]/qa*qc;
-    dx2i[i] = 0.5f*dxinv[i];
+    dx2i[i] = 0.5*dxinv[i];
   }
 
 //
@@ -192,14 +192,14 @@ int grid::inteuler(int idim,
     for (i = 0, index = in*j; i < in; i++, index++) {
       cs[i] = sqrtf(Gamma * pslice[index] / dslice[index]);
       if (PressureFree) cs[i] = tiny_number;
-      char1[i] = max(0.0f,  dtFixed * (uslice[index] + cs[i])) * dx2i[i];
-      char2[i] = max(0.0f, -dtFixed * (uslice[index] - cs[i])) * dx2i[i];
+      char1[i] = max(0.0,  dtFixed * (uslice[index] + cs[i])) * dx2i[i];
+      char2[i] = max(0.0, -dtFixed * (uslice[index] - cs[i])) * dx2i[i];
     } // ENDFOR i
 
     for (i = is-2, index = in*j+is-2; i <= ie+2; i++, index++) {
-      cm[i] = dtFixed*(uslice[index]-cs[i])*(0.5f*dxinv[i]);
-      c0[i] = dtFixed*(uslice[index]      )*(0.5f*dxinv[i]);
-      cp[i] = dtFixed*(uslice[index]+cs[i])*(0.5f*dxinv[i]);
+      cm[i] = dtFixed*(uslice[index]-cs[i])*(0.5*dxinv[i]);
+      c0[i] = dtFixed*(uslice[index]      )*(0.5*dxinv[i]);
+      cp[i] = dtFixed*(uslice[index]+cs[i])*(0.5*dxinv[i]);
     } // ENDFOR i    
 
 //
@@ -245,26 +245,26 @@ int grid::inteuler(int idim,
 //
 //
     for (i = is; i <= ie+1; i++) {
-      plm[i]= pr[i-1]-cm[i-1]*(dp[i-1]-(1.0f-ft*cm[i-1])*p6[i-1]);
-      prm[i]= pl[i  ]-cm[i  ]*(dp[i  ]+(1.0f+ft*cm[i  ])*p6[i  ]);
-      plp[i]= pr[i-1]-cp[i-1]*(dp[i-1]-(1.0f-ft*cp[i-1])*p6[i-1]);
-      prp[i]= pl[i  ]-cp[i  ]*(dp[i  ]+(1.0f+ft*cp[i  ])*p6[i  ]);
+      plm[i]= pr[i-1]-cm[i-1]*(dp[i-1]-(1.0-ft*cm[i-1])*p6[i-1]);
+      prm[i]= pl[i  ]-cm[i  ]*(dp[i  ]+(1.0+ft*cm[i  ])*p6[i  ]);
+      plp[i]= pr[i-1]-cp[i-1]*(dp[i-1]-(1.0-ft*cp[i-1])*p6[i-1]);
+      prp[i]= pl[i  ]-cp[i  ]*(dp[i  ]+(1.0+ft*cp[i  ])*p6[i  ]);
     }
 
     for (i = is; i <= ie+1; i++) {
-      ulm[i]= ur[i-1]-cm[i-1]*(du[i-1]-(1.0f-ft*cm[i-1])*u6[i-1]);
-      urm[i]= ul[i  ]-cm[i  ]*(du[i  ]+(1.0f+ft*cm[i  ])*u6[i  ]);
-      ulp[i]= ur[i-1]-cp[i-1]*(du[i-1]-(1.0f-ft*cp[i-1])*u6[i-1]);
-      urp[i]= ul[i  ]-cp[i  ]*(du[i  ]+(1.0f+ft*cp[i  ])*u6[i  ]);
+      ulm[i]= ur[i-1]-cm[i-1]*(du[i-1]-(1.0-ft*cm[i-1])*u6[i-1]);
+      urm[i]= ul[i  ]-cm[i  ]*(du[i  ]+(1.0+ft*cm[i  ])*u6[i  ]);
+      ulp[i]= ur[i-1]-cp[i-1]*(du[i-1]-(1.0-ft*cp[i-1])*u6[i-1]);
+      urp[i]= ul[i  ]-cp[i  ]*(du[i  ]+(1.0+ft*cp[i  ])*u6[i  ]);
     }
 //
 //     Compute correction terms (3.7)
 //
     for (i = is; i <= ie+1; i++) {
-      cla[i] = sqrtf(max(Gamma*pla[i]*dla[i], 0.0f));
-      clainv[i] = 1.0f/cla[i];
-      cra[i] = sqrtf(max(Gamma*pra[i]*dra[i], 0.0f));
-      crainv[i] = 1.0f/cra[i];
+      cla[i] = sqrtf(max(Gamma*pla[i]*dla[i], 0.0));
+      clainv[i] = 1.0/cla[i];
+      cra[i] = sqrtf(max(Gamma*pra[i]*dra[i], 0.0));
+      crainv[i] = 1.0/cra[i];
     }
 //
 //     a) left side
@@ -273,20 +273,20 @@ int grid::inteuler(int idim,
       betalp[i] = (ula[i]-ulp[i]) + (pla[i]-plp[i])*clainv[i];
       betalm[i] = (ula[i]-ulm[i]) - (pla[i]-plm[i])*clainv[i];
       betal0[i] = (pla[i]-pl0[i])*clainv[i]*clainv[i] + 
-	1.0f/dla[i] - 1.0f/dl0[i];
+	1.0/dla[i] - 1.0/dl0[i];
     }
 //
 //     Add gravity component
 //      
     if (gravity)
       for (i = is, index = j*in+is; i <= ie+1; i++, index++) {
-	betalp[i] = betalp[i] - 0.25f*dtFixed*(grslice[index-1]+grslice[index]);
-	betalm[i] = betalm[i] - 0.25f*dtFixed*(grslice[index-1]+grslice[index]);
+	betalp[i] = betalp[i] - 0.25*dtFixed*(grslice[index-1]+grslice[index]);
+	betalm[i] = betalm[i] - 0.25*dtFixed*(grslice[index-1]+grslice[index]);
       } // ENDFOR i
 
     for (i = is; i <= ie+1; i++) {
-      betalp[i] = -betalp[i]*(0.5f*clainv[i]);
-      betalm[i] = +betalm[i]*(0.5f*clainv[i]);
+      betalp[i] = -betalp[i]*(0.5*clainv[i]);
+      betalm[i] = +betalm[i]*(0.5*clainv[i]);
     }
 
     for (i = is; i <= ie+1; i++) {
@@ -301,18 +301,18 @@ int grid::inteuler(int idim,
       betarp[i] = (ura[i]-urp[i]) + (pra[i]-prp[i])*crainv[i];
       betarm[i] = (ura[i]-urm[i]) - (pra[i]-prm[i])*crainv[i];
       betar0[i] = (pra[i]-pr0[i])*crainv[i]*crainv[i] + 
-	1.0f/dra[i] - 1.0f/dr0[i];
+	1.0/dra[i] - 1.0/dr0[i];
     }
     
     if (gravity)
       for (i = is, index = j*in+is; i <= ie+1; i++, index++) {
-	betarp[i] = betarp[i] - 0.25f*dtFixed*(grslice[index-1]+grslice[index]);
-	betarm[i] = betarm[i] - 0.25f*dtFixed*(grslice[index-1]+grslice[index]);
+	betarp[i] = betarp[i] - 0.25*dtFixed*(grslice[index-1]+grslice[index]);
+	betarm[i] = betarm[i] - 0.25*dtFixed*(grslice[index-1]+grslice[index]);
       }
 
     for (i = is; i <= ie+1; i++) {
-      betarp[i] = -betarp[i]*(0.5f*crainv[i]);
-      betarm[i] = +betarm[i]*(0.5f*crainv[i]);
+      betarp[i] = -betarp[i]*(0.5*crainv[i]);
+      betarm[i] = +betarm[i]*(0.5*crainv[i]);
     }
 
     for (i = is; i <= ie+1; i++) {
@@ -330,8 +330,8 @@ int grid::inteuler(int idim,
       uls[index] = ula[i] + (betalp[i]-betalm[i])*cla[i];
       urs[index] = ura[i] + (betarp[i]-betarm[i])*cra[i];
 
-      dls[index] = 1.0f/(1.0f/dla[i] - (betal0[i]+betalp[i]+betalm[i]));
-      drs[index] = 1.0f/(1.0f/dra[i] - (betar0[i]+betarp[i]+betarm[i]));
+      dls[index] = 1.0/(1.0/dla[i] - (betal0[i]+betalp[i]+betalm[i]));
+      drs[index] = 1.0/(1.0/dra[i] - (betar0[i]+betarp[i]+betarm[i]));
     } // ENDFOR i
 //
 //     Take the appropriate state from the advected variables
@@ -374,6 +374,7 @@ int grid::inteuler(int idim,
 	  colrs[cindex] = colr0[scindex];
       } // ENDFOR i
     } // ENDFOR ic
+
 //
 //  Dual energy formalism: if sound speed squared is less than eta1*v^2 
 //    then discard the corrections and use pla, ula, dla.  This amounts
