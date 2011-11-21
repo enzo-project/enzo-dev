@@ -516,7 +516,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
        (but only if there is at least a subgrid -- it should be only
        if there is a subgrrid on reallevel, but this is ok). */
  
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(guided)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       if (Grids[grid1]->NextGridNextLevel != NULL) {
 	Grids[grid1]->GridData->SolveForPotential(MaximumGravityRefinementLevel);
