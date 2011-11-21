@@ -32,9 +32,6 @@
 #define DEBUG_CHECK_OFF
 #define TRACE_OFF
  
- 
- 
- 
 int grid::DebugCheck(char *message)
 {
  
