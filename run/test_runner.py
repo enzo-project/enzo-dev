@@ -9,8 +9,8 @@ import signal
 import subprocess
 import sys
 import time
+import tarfile
 import logging
-sys.path.insert(0,'/Users/dccollins/local/src/yt-yt')
 
 known_categories = [
     "Cooling",
@@ -51,8 +51,6 @@ varspec = dict(
     answer_testing_script = (str, None),
     nprocs = (int, 1),
     runtime = (str, 'short'),
-    critical = (bool, True),
-    cadence = (str, 'nightly'),
     hydro = (bool, False),
     mhd = (bool, False),
     gravity = (bool, False),
@@ -62,8 +60,11 @@ varspec = dict(
     AMR = (bool, False),
     dimensionality = (int, 1),
     author = (str, ''),
-    max_time_minutes = (float, 60),
+    max_time_minutes = (float, 1),
     radiation = (str, None),
+    quicksuite = (bool, False),
+    pushsuite = (bool, False),
+    fullsuite = (bool, False)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )
@@ -85,6 +86,9 @@ template_vars = {'N_PROCS'   : 'nprocs',
 
 results_filename = 'test_results.txt'
 version_filename = 'version.txt'
+
+# Files to be included when gathering results.
+results_gather = ['results', version_filename]
 
 # If we are able to, let's grab the ~/.enzo/machine_config.py file.
 try:
@@ -185,7 +189,8 @@ class EnzoTestCollection(object):
         test_spec['fullpath'] = fn
         test_spec['fulldir'] = os.path.dirname(fn)
         test_spec['run_par_file'] = os.path.basename(test_spec['fulldir']) + ".enzo"
-        test_spec['run_walltime'] = _to_walltime(60 * test_spec['max_time_minutes'])
+        test_spec['run_walltime'] = _to_walltime(60 * test_spec['max_time_minutes'] * 
+                                                 options.time_multiplier)
         for var, val in local_vars.items():
             if var in known_variables:
                 caster = known_variables[var]
@@ -344,11 +349,13 @@ class EnzoTestRun(object):
                                 preexec_fn=os.setsid)
 
         print "Simulation started on %s with maximum run time of %d seconds." % \
-            (time.ctime(), (self.test_data['max_time_minutes'] * 60))
+            (time.ctime(), (self.test_data['max_time_minutes'] * 60 *
+                            options.time_multiplier))
         running = 0
         # Kill the script if the max run time exceeded.
         while proc.poll() is None:
-            if running > (self.test_data['max_time_minutes'] * 60):
+            if running > (self.test_data['max_time_minutes'] * 60 *
+                          options.time_multiplier):
                 print "Simulation exceeded maximum run time."
                 os.killpg(proc.pid, signal.SIGUSR1)
             running += 1
@@ -432,6 +439,10 @@ class UnspecifiedParameter(object):
     pass
 unknown = UnspecifiedParameter()
 
+testsuites = {'quicksuite': "37 tests that run in 5 minutes or less.  Total runtime: 25 minutes.",
+              'pushsuite': "All quicksuite tests plus 11 more 10-minute tests.  Total runtime: 90 minutes.",
+              'fullsuite': "All pushsuite tests, FLD tests, and some longer tests taking up to 10 hours.  Total runtime: 36 hours."}
+
 if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("-c", "--compare-dir", dest='compare_dir',
@@ -440,7 +451,10 @@ if __name__ == "__main__":
     parser.add_option("--clobber", dest='clobber', default=False,
                       action="store_true", 
                       help="Recopies tests and tests from scratch.")
-    parser.add_option("--interleave", action='store_true', dest='interleave', default=False,
+    parser.add_option("-g", "--gather", dest='gather_dir', default=None,
+                      help="Gather test results from this directory into a tar file.")
+    parser.add_option("--interleave", action='store_true', dest='interleave', 
+                      default=False,
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
@@ -452,20 +466,26 @@ if __name__ == "__main__":
                       default=False, help="Only run simulations.")
     parser.add_option("--test-only", dest='test_only', action="store_true", 
                       default=False, help="Only perform tests.")
+    parser.add_option("--time-multiplier", dest='time_multiplier',
+                      default=1.0, type=float,
+                      help="Multiply simulation time limit by this factor.")
     parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
                       default=False, help="Slightly more verbose output.")
+
+    testsuite_group = optparse.OptionGroup(parser, "Test suites:")
     for var, caster in sorted(known_variables.items()):
-        parser.add_option("", "--%s" % (var),
-                          type=str, default = unknown)
+        if var in testsuites:
+            testsuite_group.add_option("", "--%s" % (var),
+                                       type=str, default=unknown,
+                                       help=testsuites[var])
+        else:
+            parser.add_option("", "--%s" % (var),
+                              type=str, default = unknown)
+    parser.add_option_group(testsuite_group)
     options, args = parser.parse_args()
 
     etc = EnzoTestCollection(verbose=options.verbose)
 
-    # Break out if output directory not specified.
-    if options.output_dir is None:
-        print 'Please enter an output directory with -o option'
-        sys.exit(1)
-    
     construct_selection = {}
     for var, caster in known_variables.items():
         if getattr(options, var) != unknown:
@@ -481,6 +501,43 @@ if __name__ == "__main__":
     print
     print "\n".join(list(etc2.unique('name')))
     print "Total: %s" % len(etc2.tests)
+
+    # Gather results and version files for all test and tar them.
+    if options.gather_dir is not None:
+        cur_dir = os.getcwd()
+        if options.gather_dir.endswith('/'):
+            options.gather_dir = options.gather_dir[:-1]
+        top_dir = os.path.dirname(options.gather_dir)
+        basename = os.path.basename(options.gather_dir)
+        tar_filename = "%s.tar.bz2" % basename
+        os.chdir(top_dir)
+        file_list = []
+        missing_file_list = []
+        for test in etc2.tests:
+            for gather in results_gather:
+                my_addition = os.path.join(basename, test['fulldir'], gather)
+                if os.path.exists(my_addition):
+                    file_list.append(my_addition)
+                else:
+                    missing_file_list.append(my_addition)
+        if len(missing_file_list) > 0:
+            print "\nError: could not gather test results because the following files are missing."
+            print '\n'.join(missing_file_list)
+            print 'Total: %d files missing.' % len(missing_file_list)
+            sys.exit(1)
+        print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
+        my_tar = tarfile.open(name=tar_filename, mode='w:bz2')
+        for my_addition in file_list:
+            print "Adding %s." % my_addition
+            my_tar.add(my_addition)
+        my_tar.close()
+        print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
+        sys.exit(0)
+
+    # Break out if output directory not specified.
+    if options.output_dir is None:
+        print 'Please enter an output directory with -o option'
+        sys.exit(1)
 
     # get current revision
     options.repository = os.path.expanduser(options.repository)

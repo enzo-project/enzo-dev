@@ -1,0 +1,13 @@
+name = 'Wengen2-CollidingFlow'
+answer_testing_script = None
+nprocs = 1
+runtime = 'long'
+hydro = False
+mhd = True
+gravity = False
+AMR = True
+dimensionality = 2
+max_time_minutes = 120
+fullsuite = True
+pushsuite = False
+quicksuite = False

@@ -196,7 +196,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n\n", IncrementDensityOutput);
 
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
-  fprintf(fptr, "WriteBinaryHierarchy = %"ISYM"\n", WriteBinaryHierarchy);
+
+  fprintf(fptr, "HierarchyFileInputFormat = %"ISYM"\n", HierarchyFileInputFormat);
+  fprintf(fptr, "HierarchyFileOutputFormat = %"ISYM"\n", HierarchyFileOutputFormat);
  
   fprintf(fptr, "RestartDumpNumber   = %"ISYM"\n", MetaData.RestartDumpNumber);
   fprintf(fptr, "DataDumpNumber      = %"ISYM"\n", MetaData.DataDumpNumber);
@@ -532,6 +534,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           MustRefineParticlesMinimumMass);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
+  fprintf(fptr, "WriteGhostZones                  = %"ISYM"\n",
+          WriteGhostZones);
+  fprintf(fptr, "ReadGhostZones                   = %"ISYM"\n",
+          ReadGhostZones);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
           OutputParticleTypeGrouping);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",

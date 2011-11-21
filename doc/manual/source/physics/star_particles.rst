@@ -136,9 +136,43 @@ Method 5: Radiative Stellar Clusters
 ------------------------------------
 *Source: cluster_maker.F*
 
+This method is based on method 1 (Cen & Ostriker) with the Jeans
+unstable requirement relaxed.  It is described in Wise & Cen (2009,
+ApJ 693, 984).  The star particles created with this method use the
+adaptive ray tracing to model stellar radiative feedback.  It
+considers both cases of Jeans-resolved and Jeans unresolved
+simulations.  The additional criteria are
+
+* The cell must have a minimum temperature of 10,000 K if the
+  6-species chemistry model (``MultiSpecies == 1``) is used and 1,000
+  K if the 9-species chemistry model is used.
+
+* The metallicity must be above a critical metallicity
+  (``PopIIIMetalCriticalFraction``) in absolute fraction.
+
+When the simulation is Jeans resolved, the stellar mass is
+instantaneously created and returns its luminosity for 20 Myr.  In the
+case when it's Jeans unresolved, the stellar mass follows the Cen &
+Ostriker prescription.
+
 Method 6: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
 *Source: star_maker7.F*
+
+This method relaxes the following criteria from the original Cen &
+Ostriker prescription.  See Kim et al. (2011, ApJ 738, 54) for more
+details.  It can be used to represent single molecular clouds.
+
+* No Jeans unstable check
+
+* No Stochastic star formation prescription that is implemented in
+  Method 1.
+
+* If there is a massive black hole particle in the same cell, the star
+  particle will not be created.
+
+The ``StarMakerOverDensity`` is in units of particles/cm\ :sup:`3` and
+not in overdensity like the other methods.
 
 Method 7: Springel & Hernquist
 ------------------------------

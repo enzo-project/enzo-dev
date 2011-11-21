@@ -9,6 +9,7 @@
 /  modified3:  Robert Harkness, Jan 2007 for HDF5 memory buffering
 /  modified4:  Robert Harkness, April 2008
 /  modified5:  Matthew Turk, September 2009 for refactoring and removing IO_TYPE
+/  modified6:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -53,6 +54,7 @@ static int GridReadDataGridCounter = 0;
  
 #ifdef NEW_GRID_IO
 int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id, 
+			 char DataFilename[],
 			 int ReadText, int ReadData, bool ReadParticlesOnly,
 			 int ReadEverything)
 {
@@ -95,8 +97,15 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   char *ParticleAttributeLabel[] = 
     {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
 #endif
+
+  int ReadOnlyActive = TRUE;
+  if ((ReadEverything == TRUE) || (ReadGhostZones == TRUE)) {
+    fprintf(stderr, "ReadOnlyActive == FALSE\n");
+    ReadOnlyActive == FALSE;
+    } else 
+    fprintf(stderr, "ReadOnlyActive == TRUE\n");
  
-  if(ReadText){
+  if(ReadText && HierarchyFileInputFormat == 1){
 
     /* Read general grid class data */
 
@@ -218,7 +227,13 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       }
     }
 
-  } // (if (ReadText) )
+  } // (if (ReadText && HierarchyFileInputFormat == 1) )
+
+  // if HDF5 Hierarchy file, then copy DataFilename (read in
+  // Grid::ReadHierarchyInformationHDF5.C) to procfilename
+  if (HierarchyFileInputFormat % 2 == 0) {
+    strcpy(procfilename, DataFilename);
+  }
 
   snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
 
@@ -227,7 +242,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
 #ifndef SINGLE_HDF5_OPEN_ON_INPUT
     file_id = H5Fopen(procfilename,  H5F_ACC_RDONLY, H5P_DEFAULT);
-    if( file_id == h5_error )ENZO_VFAIL("Error opening %s", procfilename)
+    if( file_id == h5_error ) ENZO_VFAIL("Error opening %s", procfilename)
 #endif
  
     group_id = H5Gopen(file_id, name);
@@ -276,12 +291,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for (i = 0; i < size; i++)
         BaryonField[field][i] = 0;
 
-      if(ReadEverything == FALSE) {
+      if(ReadOnlyActive == FALSE) {
         this->read_dataset(GridRank, OutDims, DataLabel[field],
             group_id, HDF5_REAL, (VOIDP) temp,
             TRUE, BaryonField[field], ActiveDim);
       } else {
-        this->read_dataset(GridRank, OutDims, DataLabel[field],
+        this->read_dataset(GridRank, FullOutDims, DataLabel[field],
             group_id, HDF5_REAL, BaryonField[field],
             FALSE, NULL, NULL);
 
@@ -289,6 +304,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
         for (i = 0; i < size; i++)
           OldBaryonField[field][i] = 0;
 
+       if(ReadEverything)
         this->read_dataset(GridRank, OutDims, DataLabel[field],
             old_fields, HDF5_REAL, OldBaryonField[field],
             FALSE, NULL, NULL);
@@ -499,7 +515,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 }
 #endif
 
-int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+int grid::read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
                   hid_t data_type, void *read_to, int copy_back_active,
                   float *copy_to, int *active_dims)
 {

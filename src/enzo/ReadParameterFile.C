@@ -118,6 +118,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
     ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
+    ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
+    ret += sscanf(line, "ReadGhostZones = %"ISYM, &ReadGhostZones);
     ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
                         &OutputParticleTypeGrouping);
     ret += sscanf(line, "TimeLastTracerParticleDump = %"PSYM,
@@ -179,8 +181,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line,"FileDirectedOutput = %"ISYM,
 		  &FileDirectedOutput);
-    ret += sscanf(line,"WriteBinaryHierarchy = %"ISYM,
-		  &WriteBinaryHierarchy);
+
+    ret += sscanf(line,"HierarchyFileInputFormat = %"ISYM,
+		  &HierarchyFileInputFormat);    
+    ret += sscanf(line,"HierarchyFileOutputFormat = %"ISYM,
+		  &HierarchyFileOutputFormat);    
 
     ret += sscanf(line, "RestartDumpNumber = %"ISYM, &MetaData.RestartDumpNumber);
     ret += sscanf(line, "DataDumpNumber    = %"ISYM, &MetaData.DataDumpNumber);
@@ -1050,6 +1055,18 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s", line);
  
   }
+
+  // HierarchyFile IO sanity check
+
+  // Note that although I only do not allow HierarchyFileInputFormat=2
+  // (both ASCII and HDF5 input), it is supported internally for
+  // debugging purpose.
+  if ((HierarchyFileInputFormat < 0) || (HierarchyFileInputFormat > 1))
+    ENZO_FAIL("Invalid HierarchyFileInputFormat. Must be 0 (HDF5) or 1 (ASCII).")
+
+  if ((HierarchyFileOutputFormat < 0) || (HierarchyFileOutputFormat > 2))
+    ENZO_FAIL("Invalid HierarchyFileOutputFormat. Must be 0 (HDF5), 1 (ASCII), or 2 (both).")
+  
 
   /* clean up */
  

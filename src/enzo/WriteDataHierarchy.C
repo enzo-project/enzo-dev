@@ -5,6 +5,7 @@
 /  written by: Greg Bryan
 /  date:       November, 1994
 /  modified1:  Robert Harkness, August 12th 2006
+/  modified2:  Michael Kuhlen, October 2010, HDF5 hierarchy
 /
 /  PURPOSE:
 /
@@ -37,7 +38,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
  
   /* Write out header info for this grid */
  
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "\nGrid = %"ISYM"\n", GridID);
 
   OriginalID = GridID;
@@ -70,7 +71,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
  
   NextGridThisLevelID = GridID + 1;
   if (Grid->NextGridThisLevel == NULL) NextGridThisLevelID = 0;
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "Pointer: Grid[%"ISYM"]->NextGridThisLevel = %"ISYM"\n", OriginalID,
 	    NextGridThisLevelID);
  
@@ -86,7 +87,7 @@ int WriteDataHierarchy(FILE *fptr, TopGridData &MetaData, HierarchyEntry *Grid,
  
   NextGridNextLevelID = GridID + 1;
   if (Grid->NextGridNextLevel == NULL) NextGridNextLevelID = 0;
-  if (MyProcessorNumber == ROOT_PROCESSOR)
+  if (MyProcessorNumber == ROOT_PROCESSOR && HierarchyFileOutputFormat > 0)
     fprintf(fptr, "Pointer: Grid[%"ISYM"]->NextGridNextLevel = %"ISYM"\n", OriginalID,
 	    NextGridNextLevelID);
  

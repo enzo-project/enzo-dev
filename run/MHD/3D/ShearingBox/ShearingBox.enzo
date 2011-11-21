@@ -38,7 +38,7 @@ NumberOfBufferZones         = 3
 Gamma  = 1.0001
 Mu                          = 2
 CourantSafetyNumber         = 0.2
-DualEnergyFormalism         = 1
+DualEnergyFormalism         = 0
 Theta_Limiter               = 1.5
 RKOrder                     = 2
 
@@ -70,7 +70,7 @@ CellFlaggingMethod        = 2 11
 RefineByResistiveLengthSafetyFactor = 16
 
 
-StopTime = 62800
+StopTime = 6280
 dtDataDump             = 62.8
 DataDumpName           = data
 
@@ -81,34 +81,3 @@ InitialMagneticFieldConfiguration = 0
 
 ThermalMagneticRatio=20.05
 FluctuationAmplitudeFraction=0.005 
-
-
-### Advecting Sphere
-
-#ShearingBoxProblemType = 0
-
-
-#TopGridDimensions          = 16 16 32
-##TopGridDimensions          = 64 64 128
-#LeftFaceBoundaryCondition  = 4 3 3
-#RightFaceBoundaryCondition = 4 3 3
-#ShearingVelocityDirection = 1
-#DomainLeftEdge=0 0 0
-#DomainRightEdge= 1 1 2
-
-
-#HydroMethod                 = 3
-#EOSType                     = 3
-#EOSSoundSpeed = 0.001
-#RiemannSolver = 1
-#ShearingBoxRefineAtStart = 1
-#CellFlaggingMethod        = 2 
-
-
-#StopTime = 62800
-#dtDataDump             = 3.14
-#DataDumpName           = data
-
-#AngularVelocity = 0.001
-#VelocityGradient = 1.5
-#ShearingBoxGeometry = 0.25

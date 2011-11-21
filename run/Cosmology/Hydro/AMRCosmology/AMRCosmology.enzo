@@ -73,6 +73,10 @@ MinimumMassForRefinementLevelExponent = -0.3
 MinimumEnergyRatioForRefinement = 0.4 // min Egas/Etot for shock refinement
 #RefineRegionLeftEdge            = 0.15 0.20 0.41
 #RefineRegionRightEdge           = 0.35 0.45 0.79
+
+HierarchyFileInputFormat = 1;   // ASCII
+HierarchyFileOutputFormat = 2 ; // both HDF5 and ASCII
+
 #
 #  set some global parameters
 #
