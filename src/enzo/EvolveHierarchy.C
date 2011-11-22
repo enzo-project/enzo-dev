@@ -685,7 +685,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     TIMER_STOP("Total");
-    enzo_timer->write_out(MetaData.CycleNumber);
+		TIMER_WRITE(MetaData.CycleNumber);
 
     FirstLoop = false;
  
