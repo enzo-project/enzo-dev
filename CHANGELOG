@@ -1,0 +1,36 @@
+= Enzo Changelog =
+
+== Version 2.1.1 ==
+_Release date - Oct 27, 2011_
+
+  * Enhancement: Test suite is now fully operational.  See run/README for more details.
+  * Enhancement: The “must refine” region can move with a user-defined, time-dependent refine region (parameter RefineRegionFile and refinement option 12)
+  * Bugfix: Enzo now compiles with HDF5 v1.6.x (Michael Kuhlen)
+  * Bugfix: User-defined time-dependent refine region now works with code time (David Collins)
+  * Bugfix: Photon timesteps no longer go to tiny numbers (~1e-20) in certain situations when using the HII-restricted timestepping algortihm.
+
+== Version 2.1.0 ==
+_Release date - Oct 17, 2011_
+
+  * New feature: Isotropic and anisotropic heat conduction
+  * New feature: X-ray ionization and heating
+  * New feature: Massive black hole particles
+  * New feature: Testing suite
+  * New feature: Shock tracking
+  * New feature: Distributed stellar feedback across multiple cells
+  * Enhancement: Improved molecular hydrogen chemistry at high densities
+  * Enhancement: Fourth-order accurate gravity solver
+  * Enhancement: HDF5 based hierarchy file (off by default)
+  * Enhancement: Dust cooling -- Molecular hydrogen formation on dust grains
+  * Enhancement: Time-dependent Lyman-Werner radiation backgrounds
+  * Enhancement: Type Ia SNe and planetary nebulae feedback
+  * Enhancement: HLLC and HLL Riemann solvers for HD (HydroMethod=0)
+  * Enhancement: HLLD Riemann solver for MHD
+  * Enhancement: Improved inline analysis with yt
+  * Enhancement: Simplifed multi-mesh cosmological initial conditions with inits.
+  * Enhancement: Improved and expanded documentation
+  * Performance improvement: Load balancing on a space-filling curve
+  * Performance improvement: Parallel ray tracing
+  * Performance improvement: Ray tracing load balancing
+  * Changed all FORTRAN files to .F instead of .src to remove the pre-processing step.
+  * Various bugfixes over the past year.

@@ -54,7 +54,7 @@ Mu = 0.6
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 0  // static hierarchy
+StaticHierarchy           = 0
 MaximumRefinementLevel    = 1
 RefineBy                  = 2
 CellFlaggingMethod        = 2

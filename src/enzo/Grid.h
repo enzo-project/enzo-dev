@@ -309,10 +309,10 @@ class grid
                                    float* &div);
 
 private:
-   int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
+   int write_dataset(int ndims, hsize_t *dims, const char *name, hid_t group, 
        hid_t data_type, void *data, int active_only = TRUE,
        float *temp=NULL);
-   int read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+   int read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
        hid_t data_type, void *read_to, int copy_back_active=FALSE,
        float *copy_to=NULL, int *active_dims=NULL);
    int ReadExtraFields(hid_t group_id);

@@ -97,6 +97,8 @@ EXTERN int extract;
 	    60 = TurbulenceSimulation
 	                                                                  */
 EXTERN int CheckpointRestart;
+EXTERN int WriteGhostZones;
+EXTERN int ReadGhostZones;
 EXTERN int ProblemType;
 #ifdef NEW_PROBLEM_TYPES
 EXTERN char *ProblemTypeName;

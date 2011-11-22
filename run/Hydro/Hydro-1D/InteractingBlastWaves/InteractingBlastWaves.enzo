@@ -57,7 +57,6 @@ DualEnergyFormalism = 0
 #
 #  set grid refinement parameters
 #
-#StaticHierarchy        = 1    // static hierarchy
 # use this for AMR 
 StaticHierarchy             = 0
 FluxCorrection              = 1

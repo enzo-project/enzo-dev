@@ -108,7 +108,9 @@ a relatively simple fashion:
   #. When a piece of work is ready to be shared, a "pull request" is issued.
      This notifies the current set of Enzo curators that a new feature has been
      suggested for inclusion.
-  #. These features
+  #. After these features have been accepted, they are pulled into the
+     development branch.  New features will be aggregated into patch
+     releases on the "stable" branch.
   #. When a new patch release is issued, the current development branch is
      pushed to the "stable" branch on Google Code.
 

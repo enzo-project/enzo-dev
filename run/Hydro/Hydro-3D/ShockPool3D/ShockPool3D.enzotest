@@ -1,11 +1,10 @@
 name = 'ShockPool3D'
 answer_testing_script = None
-nprocs = 1
+nprocs = 2
 runtime = 'long'
-critical = True
-cadence = 'nightly'
 hydro = True
 gravity = False
+AMR = True
 dimensionality = 3
 max_time_minutes = 900
 fullsuite = True

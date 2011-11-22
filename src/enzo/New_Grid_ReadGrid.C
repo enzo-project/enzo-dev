@@ -97,6 +97,13 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
   char *ParticleAttributeLabel[] = 
     {"creation_time", "dynamical_time", "metallicity_fraction", "typeia_fraction"};
 #endif
+
+  int ReadOnlyActive = TRUE;
+  if ((ReadEverything == TRUE) || (ReadGhostZones == TRUE)) {
+    fprintf(stderr, "ReadOnlyActive == FALSE\n");
+    ReadOnlyActive == FALSE;
+    } else 
+    fprintf(stderr, "ReadOnlyActive == TRUE\n");
  
   if(ReadText && HierarchyFileInputFormat == 1){
 
@@ -284,12 +291,12 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for (i = 0; i < size; i++)
         BaryonField[field][i] = 0;
 
-      if(ReadEverything == FALSE) {
+      if(ReadOnlyActive == FALSE) {
         this->read_dataset(GridRank, OutDims, DataLabel[field],
             group_id, HDF5_REAL, (VOIDP) temp,
             TRUE, BaryonField[field], ActiveDim);
       } else {
-        this->read_dataset(GridRank, OutDims, DataLabel[field],
+        this->read_dataset(GridRank, FullOutDims, DataLabel[field],
             group_id, HDF5_REAL, BaryonField[field],
             FALSE, NULL, NULL);
 
@@ -297,6 +304,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
         for (i = 0; i < size; i++)
           OldBaryonField[field][i] = 0;
 
+       if(ReadEverything)
         this->read_dataset(GridRank, OutDims, DataLabel[field],
             old_fields, HDF5_REAL, OldBaryonField[field],
             FALSE, NULL, NULL);
@@ -507,7 +515,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 }
 #endif
 
-int grid::read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+int grid::read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
                   hid_t data_type, void *read_to, int copy_back_active,
                   float *copy_to, int *active_dims)
 {

@@ -1,11 +1,11 @@
 name = 'RotatingCylinder'
+author = 'Brian OShea'
 answer_testing_script = 'test_rotating_cylinder.py'
 nprocs = 1
-runtime = 'medium'
-critical = True
-cadence = 'nightly'
+runtime = 'long'
 hydro = True
 gravity = True
+AMR = True
 dimensionality = 3
 max_time_minutes = 120
 fullsuite = True

@@ -135,9 +135,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   FileDirectedOutput = 1;
 
-  // Default Hierarchy File IO settings
-  HierarchyFileInputFormat = 1; // ASCII
-  HierarchyFileOutputFormat = 2 ; // both HDF5 and ASCII
+  // Default Hierarchy File IO settings (1 = ASCII; 2 = HDF5+ASCII)
+  HierarchyFileInputFormat = 1;
+  HierarchyFileOutputFormat = 1;
 
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
@@ -443,6 +443,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+  ReadGhostZones                   = FALSE;
+  WriteGhostZones                  = FALSE;
   OutputParticleTypeGrouping       = FALSE;
 
   IsotropicConduction = FALSE;

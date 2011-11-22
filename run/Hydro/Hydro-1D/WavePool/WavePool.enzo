@@ -30,7 +30,7 @@ PPMDiffusionParameter  = 0       // diffusion off
 ### CHANGED TO 0 BECAUSE ENZO DIES     StaticHierarchy           = 1    // static hierarchy
 ### FOR PARALLEL RUN:  SEE BUG EB-009  RefineBy                  = 4    // refinement factor
 #-----------------------------------------------------------------------
-StaticHierarchy           = 0    // "static" hierarchy
+StaticHierarchy           = 0
 MaximumRefinementLevel    = 0   
 #-----------------------------------------------------------------------
 

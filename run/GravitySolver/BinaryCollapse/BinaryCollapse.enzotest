@@ -1,11 +1,10 @@
 name = 'BinaryCollapse'
 answer_testing_script = 'binary_test_collapse.py'
 nprocs = 1
-runtime = 'medium'
-critical = True
-cadence = 'nightly'
+runtime = 'long'
 hydro = True
 gravity = True
+AMR = True
 dimensionality = 3
 author = 'Stephen Skory'
 max_time_minutes = 60

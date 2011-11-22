@@ -21,8 +21,6 @@ name = ''
 answer_testing_script = None  'my_test_file.py'
 nprocs = 1
 runtime = 'short', 'medium', 'long'
-critical = True False
-cadence = 'nightly'
 hydro = False, True
 mhd = False, True
 gravity = False, True
@@ -40,6 +38,9 @@ Additional flags are:
   -c COMPARE_DIR, --compare-dir=COMPARE_DIR
                         The directory structure to compare against
   --clobber             Recopies tests and tests from scratch.
+  -g GATHER_DIR, --gather=GATHER_DIR
+                        Gather test results from this directory into a tar
+                        file.
   --interleave          Option to interleave preparation, running, and
                         testing.
   -m MACHINE, --machine=MACHINE
@@ -49,4 +50,30 @@ Additional flags are:
   --repo=REPOSITORY     Path to repository being tested.
   --sim-only            Only run simulations.
   --test-only           Only perform tests.
+  --time-multiplier=TIME_MULTIPLIER
+                        Multiply simulation time limit by this factor.
   -v, --verbose         Slightly more verbose output.
+
+TEST SUITES:
+Three test suites exist: quick (37 tests), push (48 tests), and full (95 tests).  
+The larger test suites encompass all tests of the smaller test suites.
+
+QUICK
+The quick suite is designed to be run periodically as one works on the code.  The 
+estimated run time is 25 minutes.
+Run with --quicksuite=True
+Gold standard available at: http://enzo-project.org/tests/gold_standard_quick.tar.bz2
+
+PUSH
+The push suite should be run immediately prior to pushing changes or issuing a pull 
+request.  The estimated run time is 90 minutes.
+Run with --pullsuite=True
+Gold standard available at: http://enzo-project.org/tests/gold_standard_push.tar.bz2
+
+FULL
+The full suite is designed to be run monthly or whenever major changes have been pushed.  
+The full suite contains tests that may take up to 10 hours to complete and also 
+includes all the FLD tests which require the hypre-yes compile option and HYPRE libraries 
+to be installed.  The estimated run time is about 36 hours.
+Run with --fullsuite=True
+Gold standard available at: http://enzo-project.org/tests/gold_standard_full.tar.bz2
