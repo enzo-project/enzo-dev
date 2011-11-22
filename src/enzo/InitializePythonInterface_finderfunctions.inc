@@ -45,8 +45,18 @@
         return rv;
     }
 
-    if (strncmp(parameter_name, "WriteBinaryHierarchy", 21) == 0) {
-        PyObject *rv = PyLong_FromLong((long) WriteBinaryHierarchy);
+    if (strncmp(parameter_name, "HierarchyFileInputFormat", 25) == 0) {
+        PyObject *rv = PyLong_FromLong((long) HierarchyFileInputFormat);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "HierarchyFileOutputFormat", 26) == 0) {
+        PyObject *rv = PyLong_FromLong((long) HierarchyFileOutputFormat);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "TotalNumberOfGrids", 19) == 0) {
+        PyObject *rv = PyLong_FromLong((long) TotalNumberOfGrids);
         return rv;
     }
 
@@ -72,6 +82,16 @@
 
     if (strncmp(parameter_name, "CheckpointRestart", 18) == 0) {
         PyObject *rv = PyLong_FromLong((long) CheckpointRestart);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "WriteGhostZones", 16) == 0) {
+        PyObject *rv = PyLong_FromLong((long) WriteGhostZones);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "ReadGhostZones", 15) == 0) {
+        PyObject *rv = PyLong_FromLong((long) ReadGhostZones);
         return rv;
     }
 
@@ -372,6 +392,11 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "NoMultiSpeciesButColors", 24) == 0) {
+        PyObject *rv = PyLong_FromLong((long) NoMultiSpeciesButColors);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "PrimordialChemistrySolver", 26) == 0) {
         PyObject *rv = PyLong_FromLong((long) PrimordialChemistrySolver);
         return rv;
@@ -379,6 +404,11 @@
 
     if (strncmp(parameter_name, "ThreeBodyRate", 14) == 0) {
         PyObject *rv = PyLong_FromLong((long) ThreeBodyRate);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "H2FormationOnDust", 18) == 0) {
+        PyObject *rv = PyLong_FromLong((long) H2FormationOnDust);
         return rv;
     }
 
@@ -427,6 +457,11 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "AdjustUVBackgroundHighRedshift", 31) == 0) {
+        PyObject *rv = PyLong_FromLong((long) AdjustUVBackgroundHighRedshift);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "SetUVBAmplitude", 16) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) SetUVBAmplitude);
         return rv;
@@ -457,8 +492,18 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "RadiationFieldRedshift", 23) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) RadiationFieldRedshift);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "PhotoelectricHeating", 21) == 0) {
         PyObject *rv = PyLong_FromLong((long) PhotoelectricHeating);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "PhotoelectricHeatingRate", 25) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) PhotoelectricHeatingRate);
         return rv;
     }
 
@@ -469,6 +514,11 @@
 
     if (strncmp(parameter_name, "OutputTemperature", 18) == 0) {
         PyObject *rv = PyLong_FromLong((long) OutputTemperature);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "OutputDustTemperature", 22) == 0) {
+        PyObject *rv = PyLong_FromLong((long) OutputDustTemperature);
         return rv;
     }
 
@@ -723,7 +773,7 @@
     }
 
     if (strncmp(parameter_name, "ShockwaveRefinementMaxLevel", 28) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) ShockwaveRefinementMaxLevel);
+        PyObject *rv = PyLong_FromLong((long) ShockwaveRefinementMaxLevel);
         return rv;
     }
 
@@ -762,8 +812,18 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "BigStarFormationDone", 21) == 0) {
+        PyObject *rv = PyLong_FromLong((long) BigStarFormationDone);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "BigStarSeparation", 18) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) BigStarSeparation);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "SimpleRampTime", 15) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) SimpleRampTime);
         return rv;
     }
 
@@ -1066,6 +1126,16 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "PositiveReconstruction", 23) == 0) {
+        PyObject *rv = PyLong_FromLong((long) PositiveReconstruction);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "RiemannSolverFallback", 22) == 0) {
+        PyObject *rv = PyLong_FromLong((long) RiemannSolverFallback);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "RiemannSolver", 14) == 0) {
         PyObject *rv = PyLong_FromLong((long) RiemannSolver);
         return rv;
@@ -1106,6 +1176,11 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "DivBDampingLength", 18) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) DivBDampingLength);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "UseConstantAcceleration", 24) == 0) {
         PyObject *rv = PyLong_FromLong((long) UseConstantAcceleration);
         return rv;
@@ -1123,6 +1198,11 @@
 
     if (strncmp(parameter_name, "StringKick", 11) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) StringKick);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "StringKickDimension", 20) == 0) {
+        PyObject *rv = PyLong_FromLong((long) StringKickDimension);
         return rv;
     }
 
@@ -1183,6 +1263,11 @@
 
     if (strncmp(parameter_name, "HaloRedshift", 13) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) HaloRedshift);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "ExternalGravityConstant", 24) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) ExternalGravityConstant);
         return rv;
     }
 
@@ -1414,6 +1499,11 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "RadiationPressureScale", 23) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) RadiationPressureScale);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "RadiativeTransferOpticallyThinH2", 33) == 0) {
         PyObject *rv = PyLong_FromLong((long) RadiativeTransferOpticallyThinH2);
         return rv;
@@ -1459,6 +1549,10 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "RadiativeTransferFluxBackgroundLimit", 37) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) RadiativeTransferFluxBackgroundLimit);
+        return rv;
+    }
 #ifdef MEMORY_POOL
 #endif /* MEMORY_POOL */ 
 
@@ -1572,6 +1666,16 @@
         return rv;
     }
 
+    if (strncmp(parameter_name, "UseGasDrag", 11) == 0) {
+        PyObject *rv = PyLong_FromLong((long) UseGasDrag);
+        return rv;
+    }
+
+    if (strncmp(parameter_name, "GasDragCoefficient", 19) == 0) {
+        PyObject *rv = PyFloat_FromDouble((double) GasDragCoefficient);
+        return rv;
+    }
+
     if (strncmp(parameter_name, "current_error", 14) == 0) {
         PyObject *rv = PyString_FromString((char *) current_error);
         return rv;
@@ -1599,15 +1703,5 @@
 
     if (strncmp(parameter_name, "ConductionCourantSafetyNumber", 30) == 0) {
         PyObject *rv = PyFloat_FromDouble((double) ConductionCourantSafetyNumber);
-        return rv;
-    }
-
-    if (strncmp(parameter_name, "StarMassEjectionFraction", 24) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) StarMassEjectionFraction);
-        return rv;
-    }
-
-    if (strncmp(parameter_name, "RadiationRedshiftOn", 24) == 0) {
-        PyObject *rv = PyFloat_FromDouble((double) CoolData.RadiationRedshiftOn);
         return rv;
     }
