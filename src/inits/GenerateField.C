@@ -30,7 +30,8 @@ extern "C" void FORTRAN_NAME(make_field)
              (FLOAT *field, int *nx, int *ny, int *nz,
 	      int *nxmax, int *nymax, int *nzmax,
 	      int *in, int *jn, int *kn, int *itype, int *iseed, FLOAT *box,
-	      FLOAT *PSTable, FLOAT *PSMin, FLOAT *PSStep, int *kfcutoff, int *irangen);
+	      FLOAT *PSTable, FLOAT *PSMin, FLOAT *PSStep, int *kfcutoff, 
+	      int *irangen, int *irank);
  
 #ifdef SHIFT_FOR_LARS
 extern "C" void FORTRAN_NAME(shift)
@@ -100,7 +101,7 @@ int GenerateField(int Rank, int Dims[3], int MaxDims[3], int WaveNumberCutoff,
 			   RealDims, RealDims+1, RealDims+2, &FieldType,
 			      &RandomSeed, &box,
 			   PSLookUpTable[Species], &k1, &delk,
-			     &WaveNumberCutoff, &RandomNumberGenerator);
+			     &WaveNumberCutoff, &RandomNumberGenerator, &Rank);
  
   // Perform an inverse FFT
  
