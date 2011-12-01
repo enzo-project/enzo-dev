@@ -17,13 +17,13 @@ MACH_FILE  = Make.mach.trestles
 
 MACHINE_NOTES = "MACHINE_NOTES for Trestles at SDSC/UCSD: \
 	Load these modules, \
-	'module add intel/11.1 mvapich2/1.5.1p1'"
+	'module add intel/11.1 openmpi/1.4.3'"
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel
+LOCAL_MPI_INSTALL = /home/diag/opt/openmpi/1.4.3/intel/
 LOCAL_PYTHON_INSTALL = /home/mturk/yt-x86_64/
 #LOCAL_COMPILER_DIR = /opt/pgi/linux86-64/10.5
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072
