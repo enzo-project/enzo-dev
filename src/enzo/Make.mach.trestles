@@ -116,7 +116,8 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L/home/mturk/yt-x86_64/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib -lpython2.7 -lutil
+LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \
+                     -lreadline -ltermcap -lutil
 LOCAL_LIBS_CVODE  = 
 
 #LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER_DIR)/lib \
