@@ -173,6 +173,9 @@ lib%.$(MACH_SHARED_EXT): $(MODULES) autogen dep enzo.o $(OBJS_LIB)
 .pyx.C: 
 	@cython --cplus $*.pyx -o $*.C 
 ProblemType_Python.o: python_bridge/problemtype_handler.o
+InitializePythonInterface.C: $(PYTHON_INTERFACE_TARGETS)
+InitializePythonInterface_finderfunctions.inc: global_data.h
+	@python create_dictionary_mapping.py 
 
 #-----------------------------------------------------------------------
 # WRITE ALL COMPILER OUTPUT TO FILE
