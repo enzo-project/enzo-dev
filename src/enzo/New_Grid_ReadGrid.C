@@ -289,7 +289,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       for (i = 0; i < size; i++)
         BaryonField[field][i] = 0;
 
-      if(ReadOnlyActive == FALSE) {
+      if(ReadOnlyActive == TRUE) {
         this->read_dataset(GridRank, OutDims, DataLabel[field],
             group_id, HDF5_REAL, (VOIDP) temp,
             TRUE, BaryonField[field], ActiveDim);
