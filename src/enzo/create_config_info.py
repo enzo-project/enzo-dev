@@ -61,6 +61,10 @@ if __name__ == "__main__":
     output.write('   fprintf(opf, "### either src/enzo or .enzo in your home directory.\\n");\n')
     output.write('   fprintf(opf, "### Then, type \\\"make load-config-<keyword>\\\" to load\\n");\n')
     output.write('   fprintf(opf, "### compiler options.\\n");\n')
+    output.write('   fprintf(opf, "###\\n");\n')
+    output.write('   fprintf(opf, "### The current compile options are shown below.\\n");\n')
+    output.write('   fprintf(opf, "### For more information on the meaning of the\\n");\n')
+    output.write('   fprintf(opf, "### options, consult src/enzo/Make.config.settings.\\n");\n')
     output.write('   fprintf(opf, "\\n");\n')
     for key in option_list:
         output.write('   fprintf(opf, "%s = %s\\n");\n' % (key, my_options[key]))
