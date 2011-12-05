@@ -213,6 +213,7 @@ int OutputCoolingTimeOnly(char *ParameterFile,
 
 void CommunicationAbort(int);
 int ENZO_OptionsinEffect(void);
+void auto_show_compile_options(void);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
 	int WroteData=1, int FOFOnly=FALSE);
 
@@ -339,7 +340,8 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 #endif
 
   ENZO_OptionsinEffect();
-
+  if (MyProcessorNumber == ROOT_PROCESSOR)
+    auto_show_compile_options();
 
   // Main declarations
  

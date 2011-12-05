@@ -25,6 +25,7 @@ OBJS_CONFIG_LIB = \
         arccosh.o \
         arcsinh.o \
         AssignGridToTaskMap.o \
+        auto_show_compile_options.o \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
