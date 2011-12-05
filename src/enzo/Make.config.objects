@@ -656,7 +656,6 @@ OBJS_CONFIG_LIB = \
         nr_st1.o \
 	NullProblem.o \
 	OneZoneFreefallTestInitialize.o \
-        Options.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
         OutputFromEvolveLevel.o\

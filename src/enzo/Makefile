@@ -319,7 +319,7 @@ verbose: $(EXE).exe
 #-----------------------------------------------------------------------
 
 .PHONY: autogen
-autogen: svn_version.def auto_show_config.C auto_show_flags.C auto_show_version.C auto_show_compile_options.C
+autogen: auto_show_config.C auto_show_flags.C auto_show_version.C auto_show_compile_options.C
 
 # Force update of auto_show_config.C
 
@@ -347,21 +347,6 @@ auto_show_version.C:
 .PHONY: auto_show_compile_options.C
 auto_show_compile_options.C:
 	-@python create_config_info.py
-
-#-----------------------------------------------------------------------
-# Generate SVN version source file 'svn_version.def'
-#-----------------------------------------------------------------------
-
-# Force update of svn_version.def
-.PHONY: svn_version.def
-svn_version.def:
-	-@$(SVN) identify -i | \
-           awk '{print "#define ENZO_SVN_REVISION","\""$$1"\""}' > svn_version.def
-	-@$(SVN) identify -b | awk '{print "#define ENZO_SVN_BRANCH","\""$$1"\""};' >> svn_version.def 
-	-@if [ ! -s svn_version.def ]; then \
-	printf "#define ENZO_SVN_REVISION 0\n" > svn_version.def; \
-	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \
-	fi
 
 #-----------------------------------------------------------------------
 # Generate dependency file
@@ -415,7 +400,7 @@ help:
 
 clean:
 	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
-          auto_show*.C svn_version.def hydro_rk/*.o *.oo hydro_rk/*.oo \
+          auto_show*.C hydro_rk/*.o *.oo hydro_rk/*.oo \
           uuid/*.oo DEPEND TAGS \
           libconfig/*.o \
           python_bridge/problemtype_handler.C \

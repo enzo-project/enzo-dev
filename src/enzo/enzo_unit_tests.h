@@ -62,7 +62,6 @@
 #ifdef TRANSFER
 #include "preincludes.h"
 #endif
-#include "svn_version.def"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"

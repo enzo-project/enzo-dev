@@ -28,7 +28,6 @@
  
 #define DEFINE_STORAGE
 #include "ErrorExceptions.h"
-#include "svn_version.def"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -212,7 +211,6 @@ int OutputCoolingTimeOnly(char *ParameterFile,
 
 
 void CommunicationAbort(int);
-int ENZO_OptionsinEffect(void);
 void auto_show_compile_options(void);
 int FOF(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
 	int WroteData=1, int FOFOnly=FALSE);
@@ -274,16 +272,6 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   int int_argc;
   int_argc = argc;
  
- //  if (MyProcessorNumber == ROOT_PROCESSOR &&
-//       ENZO_SVN_REVISION != 0) {
-//     printf("=========================\n");
-//     printf("Enzo SVN Branch   %s\n",ENZO_SVN_BRANCH);
-//     printf("Enzo SVN Revision %s\n",ENZO_SVN_REVISION);
-//     printf("=========================\n");
-//     fflush(stdout);
-//   }
-  // Performance Monitoring
-
 #ifdef USE_MPI
   double t_init0, t_init1;
 
@@ -339,7 +327,6 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   ExternalBoundaryValueIO = FALSE;
 #endif
 
-  ENZO_OptionsinEffect();
   if (MyProcessorNumber == ROOT_PROCESSOR)
     auto_show_compile_options();
 
