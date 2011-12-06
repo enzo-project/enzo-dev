@@ -59,6 +59,7 @@ OBJS_CONFIG_LIB = \
         cicinterp.o \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
+        ClusterInitializeGrid.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
@@ -321,6 +322,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearMassFlaggingField.o \
 	Grid_ClearParticleAccelerations.o \
 	Grid_ClearParticleMassFlaggingField.o \
+	Grid_ClusterInitializeGrid.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \
