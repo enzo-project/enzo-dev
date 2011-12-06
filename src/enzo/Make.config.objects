@@ -59,7 +59,7 @@ OBJS_CONFIG_LIB = \
         cicinterp.o \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
-        ClusterInitializeGrid.o \
+        ClusterInitialize.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
