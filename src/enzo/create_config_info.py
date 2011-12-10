@@ -1,9 +1,11 @@
 """
 This script gets enzo version information and all compile options and 
-generates a source file to be included in enzo that will print out this 
-information when the code is run.  All information is written to the 
-Enzo_Build file, which can be used as a loadable compiler settings 
-file.
+generates a source file (auto_show_compile_options.C) to be included 
+in enzo that will print out this information when the code is run.  
+All information is written to the Enzo_Build file, which can be used 
+as a loadable compiler settings file.  If uncommitted changes exist 
+when Enzo is built, the output of 'hg diff' is written to 
+Enzo_Build_Diff.
 
 Author: Britton Smith <brittonsmith@gmail.com>
 Date: December, 2011
@@ -15,15 +17,18 @@ import time
 def get_hg_info():
     try:
         from mercurial import hg, ui, commands 
-        u = ui.ui() 
-        u.pushbuffer() 
-        repo = hg.repository(u, os.path.expanduser('../..')) 
-        commands.identify(u, repo) 
+        u = ui.ui()
+        u.pushbuffer()
+        repo = hg.repository(u, os.path.expanduser('../..'))
+        commands.identify(u, repo)
         my_info = u.popbuffer().strip().split()
-        return my_info[:2]
+        u.pushbuffer()
+        commands.diff(u, repo)
+        my_diff = u.popbuffer()
+        return (my_info[0], my_info[1], my_diff)
     except ImportError:
         print "WARNING: could not get version information."
-        return ('unknown', 'unknown')
+        return ('unknown', 'unknown', None)
 
 def get_options(filename, my_options=None, get_list_order=False):
     if my_options is None: my_options = {}
@@ -41,20 +46,30 @@ def get_options(filename, my_options=None, get_list_order=False):
         return my_options
 
 if __name__ == "__main__":
+    # get default compile options
     my_options, option_list = get_options('Make.config.settings', get_list_order=True)
+    # override defaults with custom settings
     my_options = get_options('Make.config.override', my_options=my_options)
+    # get machine name
     machine_info = get_options('Make.config.machine')
-    changeset, branch = get_hg_info()
+    # get mercurial version information and any uncommitted changes
+    changeset, branch, diff = get_hg_info()
+    output_file = 'Enzo_Build'
+    diff_file = '%s_Diff' % output_file
     output = open('auto_show_compile_options.C', 'w')
     output.write('#include <stdio.h>\n')
     output.write('void auto_show_compile_options(void) {\n')
     output.write('   FILE *opf;\n')
-    output.write('   opf = fopen("Enzo_Build", "w");\n')
+    output.write('   opf = fopen("%s", "w");\n' % output_file)
     output.write('   fprintf(opf, "### Enzo build information:\\n");\n')
     output.write('   fprintf(opf, "### Compiled: %s\\n");\n' % time.ctime())
     output.write('   fprintf(opf, "### Machine name: %s\\n");\n' % machine_info['CONFIG_MACHINE'])
-    output.write('   fprintf(opf, "### Changeset: %s\\n");\n' % changeset)
     output.write('   fprintf(opf, "### Branch: %s\\n");\n' % branch)
+    output.write('   fprintf(opf, "### Changeset: %s\\n");\n' % changeset)
+    if diff:
+        output.write('   fprintf(opf, "###\\n");\n')
+        output.write('   fprintf(opf, "### Enzo was built with uncommitted changes.\\n");\n')
+        output.write('   fprintf(opf, "### Check %s to see the output of hg diff.\\n");\n' % diff_file)
     output.write('   fprintf(opf, "###\\n");\n')
     output.write('   fprintf(opf, "### Use this as a compile settings file by renaming\\n");\n')
     output.write('   fprintf(opf, "### it Make.settings.<keyword> and moving it to\\n");\n')
@@ -69,5 +84,16 @@ if __name__ == "__main__":
     for key in option_list:
         output.write('   fprintf(opf, "%s = %s\\n");\n' % (key, my_options[key]))
     output.write('   fclose(opf);\n')
+    if diff:
+        output.write('\n')
+        output.write('   opf = fopen("%s", "w");\n' % diff_file)
+        for line in diff.split('\n'):
+            line = line.replace('\\', '\\\\')
+            line = line.replace('"', '\\"')
+            line = line.replace('%', '%%')
+            output.write('   fprintf(opf, "')
+            output.write(r"%s" % line)
+            output.write('\\n");\n')
+        output.write('   fclose(opf);\n')
     output.write('}\n')
     output.close()
