@@ -25,6 +25,7 @@ OBJS_CONFIG_LIB = \
         arccosh.o \
         arcsinh.o \
         AssignGridToTaskMap.o \
+        auto_show_compile_options.o \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
@@ -655,7 +656,6 @@ OBJS_CONFIG_LIB = \
         nr_st1.o \
 	NullProblem.o \
 	OneZoneFreefallTestInitialize.o \
-        Options.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
         OutputFromEvolveLevel.o\

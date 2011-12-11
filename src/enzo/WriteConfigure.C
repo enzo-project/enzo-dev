@@ -12,8 +12,6 @@
  
 #include <stdio.h>
 
-#include "svn_version.def" 
-
 void auto_show_version (FILE *fp);
 void auto_show_config (FILE *fp);
 void auto_show_flags (FILE *fp);
