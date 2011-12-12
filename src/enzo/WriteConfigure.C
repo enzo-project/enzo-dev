@@ -34,9 +34,4 @@ void WriteConfigure(FILE *fp)
 
   fprintf (fp, DIVIDER "gmake show-flags\n" DIVIDER);
   auto_show_flags (fp);
-
-  // Print output of "svn diff"
-
-  //  fprintf (fp, DIVIDER "svn diff\n" DIVIDER);
-
 }
