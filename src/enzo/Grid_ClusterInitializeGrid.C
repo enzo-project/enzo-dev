@@ -1,9 +1,9 @@
 /***********************************************************************
 /
-/  GRID CLASS (INITIALIZE THE GRID FOR A COLLAPSE TEST)
+/  GRID CLASS (INITIALIZE THE GRID FOR A Cool Core Cluster
 /
-/  written by: Greg Bryan
-/  date:       May, 1998
+/  written by: Yuan Li and Greg Bryan
+/  date:       Dec 2011 
 /  modified1:
 /
 /  PURPOSE:
@@ -155,15 +155,13 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
      NFWDensity[i] = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
 }
   NFWPressure[0] = 1.0 * kboltz * InitialTemperature / (mu * mh);
-    //    NFWDensity[i] = SphereDensity[sphere]/pow(1.0+x1,3);  /* Yuan edited in Feb 2010*/
   if (SphereType[sphere]==6) {
     NFWDensity[i]=mh*(0.0192/(1.0+pow(NFWRadius[i]*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(NFWRadius[i]*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(NFWRadius[i]*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits/0.88;
-//     NFWPressure[0] = (mh*mu*(0.0192/(1.0+pow(SphereRadius[sphere]*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(SphereRadius[sphere]*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(SphereRadius[sphere]*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits/0.88)* kboltz * InitialTemperature / (mu * mh);
 }
     NFWTemp[i] = 8.12e7*(1.0+pow(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc*71),3))/(2.3 + pow(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc*71),3));   // in K
     NFWPressure[i] = (1.9*(0.0192/(1.0+pow(NFWRadius[i]*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(NFWRadius[i]*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(NFWRadius[i]*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits)* kboltz * NFWTemp[i];
     NFWMass[i] = 4.0*pi*1891.3*(CriticalDensity/pow(ExpansionFactor, 3))
-                  * pow(0.02446*BoxLength, 3) * (log(1.0+x1) - x1/(x1+1.0))+ 3.4e8; //My mass + BH mass (3.4e8)
+                  * pow(0.02446*BoxLength, 3) * (log(1.0+x1) - x1/(x1+1.0))+ 3.4e8; //DM mass + BH mass (3.4e8)
     NFWSigma[i] = sqrt(kboltz * NFWTemp[i] / (mu * mh));  // in cm/s
     float mean_overdensity = 3.0*SphereDensity[sphere] / (x1*x1*x1) *
         (log(1.0+x1) - x1/(x1+1.0));
@@ -183,28 +181,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
   for (SetupLoopCount = 0; SetupLoopCount < 1+min(SphereUseParticles, 1);
        SetupLoopCount++) {
 
-
-  /* Set particles. */
-
-  if (SphereUseParticles > 0 && SetupLoopCount > 0) {
-
-    /* If particles already exist (coarse particles), then delete. */
-
-    if (NumberOfParticles > 0)
-      this->DeleteParticles();
-
-    /* Use count from previous loop to set particle number. */
-
-    NumberOfParticles = npart;
-    npart = 0;
-
-    /* Allocate space. */
-
-    this->AllocateNewParticles(NumberOfParticles);
-
-    /* Particle values will be set below. */
-
-  } // end: particle initialization
 
   /* Set up the baryon field. */
 
@@ -353,88 +329,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
             } // end: Perseus
 
 
-            /* 10) disk (ok, it's not a sphere, so shoot me) */
-
-            if (SphereType[sphere] == 10) {
-
-              FLOAT xpos, ypos, zpos, xpos1, ypos1, zpos1, zheight, drad;
-              FLOAT ScaleHeightz = SphereCoreRadius[sphere]/6.0,
-                    ScaleHeightR = SphereCoreRadius[sphere];
-
-              /* Loop over dims if using Zeus (since vel's face-centered). */
-
-              for (dim = 0; dim < 1+(HydroMethod == Zeus_Hydro ? GridRank : 0);
-                   dim++) {
-
-                /* Compute position. */
-
-                xpos = x-SpherePosition[sphere][0] -
-                  (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
-                ypos = y-SpherePosition[sphere][1] -
-                  (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
-                zpos = z-SpherePosition[sphere][2] -
-                  (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
-
-                /* Compute z and r_perp (SphereVelocity is angular momentum
-                   and must have unit length). */
-
-                zheight = SphereVelocity[sphere][0]*xpos +
-                          SphereVelocity[sphere][1]*ypos +
-                          SphereVelocity[sphere][2]*zpos;
-                xpos1 = xpos - zheight*SphereVelocity[sphere][0];
-                ypos1 = ypos - zheight*SphereVelocity[sphere][1];
-                zpos1 = zpos - zheight*SphereVelocity[sphere][2];
-                drad = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
-
-                /* If we're above the disk, then exit. */
-
-//              if (zheight > max(5.0*ScaleHeightz, 2.0*CellWidth[0][0]))
-//                continue;
-
-                /* Compute density (Kruit & Searle 1982). */
-
-                if (dim == 0)
-                  dens1 = SphereDensity[sphere]*exp(-drad/ScaleHeightR)/
-                    pow(cosh(zheight/max(ScaleHeightz, CellWidth[0][0])), 2);
-
-                if (dens1 < density)
-                  break;
-
-                /* Compute velocity magnitude (divided by drad).
-                   This assumes PointSourceGravityPosition and Sphere center
-                   are the same.  This should be fixed to use the disk mass
-                   as well, but that's a bit tricky. */
-
-//              float vel = sqrt(PointSourceGravityConstant/drad)/drad;
-
-                float accel = 0;
-                if (PointSourceGravity == 1)
-                  accel = PointSourceGravityConstant/
-                    (pow(drad,3) + pow(PointSourceGravityCoreRadius, 3));
-                if (PointSourceGravity == 2) {
-                  x1 = drad/PointSourceGravityCoreRadius;
-                  accel = PointSourceGravityConstant*(log(1+x1)-x1/(1+x1))/
-                           pow(drad, 3);
-                }
-
-                float vel = sqrt(accel);
-
-                /* Compute velocty: L x r_perp. */
-
-                if (dim == 0 || dim == 1)
-                  Velocity[0] = vel*(SphereVelocity[sphere][1]*zpos1 -
-                                     SphereVelocity[sphere][2]*ypos1);
-                if (dim == 0 || dim == 2)
-                  Velocity[1] = vel*(SphereVelocity[sphere][2]*xpos1 +
-                                     SphereVelocity[sphere][0]*zpos1);
-                if (dim == 0 || dim == 3)
-                  Velocity[2] = vel*(SphereVelocity[sphere][0]*ypos1 -
-                                     SphereVelocity[sphere][1]*xpos1);
-
-              } // end: loop over dims
-
-            } // end: disk
-
             /* If the density is larger than the background (or the previous
                sphere), then set the velocity. */
 
@@ -465,69 +359,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 }
 
 
-
-	/* If doing multi-species (HI, etc.), set these. */
-
-	if (MultiSpecies > 0) {
-	  
-	  BaryonField[HIINum][n] = CosmologySimulationInitialFractionHII *
-	    CoolData.HydrogenFractionByMass * BaryonField[0][n] *
-	    sqrt(OmegaMatterNow)/
-	    (OmegaMatterNow*BaryonMeanDensity*HubbleConstantNow);
-	    //	    (CosmologySimulationOmegaBaryonNow*HubbleConstantNow);
-      
-	  BaryonField[HeIINum][n] = CosmologySimulationInitialFractionHeII*
-	    BaryonField[0][n] * 4.0 * (1.0-CoolData.HydrogenFractionByMass);
-	  BaryonField[HeIIINum][n] = CosmologySimulationInitialFractionHeIII*
-	    BaryonField[0][n] * 4.0 * (1.0-CoolData.HydrogenFractionByMass);
-	  BaryonField[HeINum][n] = 
-	    (1.0 - CoolData.HydrogenFractionByMass)*BaryonField[0][n] -
-	    BaryonField[HeIINum][n] - BaryonField[HeIIINum][n];
-
-	  if (MultiSpecies > 1) {
-	    BaryonField[HMNum][n] = CosmologySimulationInitialFractionHM*
-	      BaryonField[HIINum][n]* pow(temperature,float(0.88));
-	    BaryonField[H2IINum][n] = CosmologySimulationInitialFractionH2II*
-	      2.0*BaryonField[HIINum][n]* pow(temperature,float(1.8));
-	    BaryonField[H2INum][n] = CosmologySimulationInitialFractionH2I*
-	      BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
-	      pow(OmegaMatterNow, float(1.5))/
-	      (OmegaMatterNow*BaryonMeanDensity)/
-	    //	      CosmologySimulationOmegaBaryonNow/
-	      HubbleConstantNow*2.0;
-	  }
-
-	  BaryonField[HINum][n] = 
-	    CoolData.HydrogenFractionByMass*BaryonField[0][n]
-	    - BaryonField[HIINum][n];
-	  if (MultiSpecies > 1)
-	    BaryonField[HINum][n] -= BaryonField[HMNum][n]
-	      + BaryonField[H2IINum][n]
-	      + BaryonField[H2INum][n];
-
-	  BaryonField[DeNum][n] = BaryonField[HIINum][n] + 
-	    0.25*BaryonField[HeIINum][n] + 0.5*BaryonField[HeIIINum][n];
-	  if (MultiSpecies > 1)
-	    BaryonField[DeNum][n] += 0.5*BaryonField[H2IINum][n] - 
-	      BaryonField[HMNum][n];
-
-	  /* Set Deuterium species (assumed to be negligible). */
-
-	  if (MultiSpecies > 2) {
-	    BaryonField[DINum][n] = CoolData.DeuteriumToHydrogenRatio*
-	                              BaryonField[HINum][n];
-	    BaryonField[DIINum][n] = CoolData.DeuteriumToHydrogenRatio*
-	                             BaryonField[HIINum][n];
-	    BaryonField[HDINum][n] = CoolData.DeuteriumToHydrogenRatio*
-	                             BaryonField[H2INum][n];
-	  }
-	}
-
-	/* If there is a colour field, set it. */
-
-	if (SphereUseColour)
-	  BaryonField[ColourNum][n] = colour;
-
 	/* Set Velocities. */
 
 	for (dim = 0; dim < GridRank; dim++)
@@ -544,49 +375,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 	if (HydroMethod != Zeus_Hydro)
 	  for (dim = 0; dim < GridRank; dim++)
 	    BaryonField[1][n] += 0.5*pow(BaryonField[ivel+dim][n], 2);
-
-	/* Set particles if being used (generate a number of particle
-	   proportional to density). */
-
-	if (SphereUseParticles)
-	  if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
-	      j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
-	      k >= GridStartIndex[2] && k <= GridEndIndex[2]  ) {
-	    ParticleCount += density/pow(float(RefineBy), GridRank*level);
-	    while (ParticleCount > 1) {
-	      if (SetupLoopCount > 0) {
-		ParticleMass[npart] = ParticleMeanDensity*
-		                      pow(float(RefineBy), GridRank*level);
-		ParticleNumber[npart] = ClusterParticleCount++;
-		ParticleType[npart] = PARTICLE_TYPE_DARK_MATTER;
-
-		/* Set random position within cell. */
-
-		ParticlePosition[0][npart] = x + 
-		        CellWidth[0][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		ParticlePosition[1][npart] = y +
-		        CellWidth[1][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-		ParticlePosition[2][npart] = z +
-		        CellWidth[2][0]*(FLOAT(rand())/FLOAT(RAND_MAX) - 0.5);
-
-		/* Set bulk velocity. */
-
-		for (dim = 0; dim < GridRank; dim++)
-		  ParticleVelocity[dim][npart] = 
-		    Velocity[dim]+UniformVelocity[dim];
-
-		/* Add random velocity; */
-
-		if (sigma != 0)
-		  for (dim = 0; dim < GridRank; dim++)
-		    ParticleVelocity[dim][npart] += 
-		      gasdev()*sigma/VelocityUnits;
-
-	      }
-	      npart++;
-	      ParticleCount -= 1.0;
-	    }
-	  } // end: if statement
 
       } // end loop over grid
 

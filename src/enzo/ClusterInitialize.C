@@ -1,13 +1,12 @@
 /***********************************************************************
 /
-/  INITIALIZE A COLLAPSE TEST
+/  INITIALIZE A Cool Core Cluster 
 /
-/  written by: Greg Bryan
-/  date:       May, 1998
+/  written by: Yuan Li and Greg Bryan
+/  date:       Dec 2011 
 /  modified1:
 /
 /  PURPOSE:
-/    Set up a number of spherical objects
 /
 /  RETURNS: SUCCESS or FAIL
 /
