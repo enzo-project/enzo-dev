@@ -17,10 +17,10 @@ TopGridRank = 3
 # Dim 0 - H number density
 # Dim 1 - metallicity
 # Dim 2 - temperature
-TopGridDimensions = 3 5 71
+TopGridDimensions = 5 5 71
 
-CoolingTestMinimumHNumberDensity = 1
-CoolingTestMaximumHNumberDensity = 1
+CoolingTestMinimumHNumberDensity = 0.1
+CoolingTestMaximumHNumberDensity = 1000
 CoolingTestMinimumMetallicity    = 1e-4
 CoolingTestMaximumMetallicity    = 1
 CoolingTestMinimumTemperature    = 10

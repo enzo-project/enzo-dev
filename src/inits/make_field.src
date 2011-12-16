@@ -3,7 +3,8 @@
 
       subroutine make_field(field, nx, ny, nz, nxmax, nymax, nzmax,
      &                      in, jn, kn, itype, iseed, box,
-     &                      PSTable, PSMin, PSStep, kfcutoff, irangen)
+     &                      PSTable, PSMin, PSStep, kfcutoff, 
+     &                      irangen, irank)
 
 !  COMPUTES RANDOM GAUSSIAN FIELD FROM SPECIFIED POWER SPECTRUM
 !
@@ -26,6 +27,7 @@
 !        PSStep      = x step in PSTable
 !        kfcutoff    = high k filter (sharp) in units of the fundamental
 !        irangen     = random number generator (0=drand48, 1=ran1)
+!        irank        = rank or dimensionality of field
 !
 !  Outputs:
 !        field       = gaussian random field
@@ -40,7 +42,7 @@
 !     Arguments
 
       integer :: in, jn, kn, nx, ny, nz, nxmax, nymax, nzmax, 
-     &           itype, iseed, kfcutoff, irangen
+     &           itype, iseed, kfcutoff, irangen, irank
       real ::    field(in, jn, kn), box, 
      &           PSMin, PSPart, PSStep, PSTable(*)
 
@@ -74,7 +76,8 @@
       dkx    = twopi/box
       dky    = twopi/(ny*box/nx)
       dkz    = twopi/(nz*box/nx)
-      d3k    = (twopi/box)**3
+      d3k    = (twopi/box)**irank
+      write(6,*) "rank =",irank, "d3k =",d3k
       kcutoffsq = 1.0e+30
 
       if (kfcutoff .gt. 0) kcutoffsq = (kfcutoff*dkx)**2
@@ -108,8 +111,11 @@
 !           If this j corresponds to a wavenumber vector that is not
 !           inside field then just skip over it (& eat the random nums).
 
-            if (jj .ge. nymid .or. jj .lt. -ny/2+1 .or.
-     &          kk .ge. nzmid .or. kk .lt. -nz/2+1     ) then
+!            if (jj .ge. nymid .or. jj .lt. -ny/2+1 .or.
+!     &          kk .ge. nzmid .or. kk .lt. -nz/2+1     ) then
+            if (jj .ge. nymid .or. jj .lt. -ny/2+1 .or. ! change to check if its 2D for which nzmax = 1
+     &           ((nzmax .gt. 1) .and. 
+     &           (kk .ge. nzmid .or. kk .lt. -nz/2+1))) then
 
                do i=1,nxmax/2+1
                   dummy = enzo_ranf(irangen)
@@ -162,7 +168,7 @@
                   if (itype .eq. 1) kdir = kx
                   if (itype .eq. 2) kdir = ky
                   if (itype .eq. 3) kdir = kz
-                  z = z * cmplx(0.0,1.0) * kdir / (kmodsq**2 * box)
+                  z = z * cmplx(0.0,1.0) * kdir / (kmodsq * box)
                endif
 
 !              Set the complex field
@@ -182,6 +188,14 @@
 
  100        continue
 
+         enddo
+      enddo
+
+      do i=1, in
+         do j=1, jn
+            do k=1, kn
+               field(i,j,k) = field(i,j,k) * real(nx*ny*nz)
+            enddo
          enddo
       enddo
 

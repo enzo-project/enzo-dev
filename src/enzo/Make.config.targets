@@ -392,6 +392,13 @@ load-config-%:
            echo "   CONFIG SETTINGS: $*"; \
 	   $(MAKE) show-config; \
 	   $(MAKE) suggest-clean; \
+	elif [ -e Make.settings.$* ]; then \
+           @tmp=.config.temp; \
+	   cat Make.settings.$* > $(MAKE_CONFIG_OVERRIDE); \
+           echo; \
+           echo "   CONFIG SETTINGS: $*"; \
+	   $(MAKE) show-config; \
+	   $(MAKE) suggest-clean; \
         else \
            echo; \
            echo "   No such settings file "'"'"$(HOME)/.enzo/Make.settings.$*"'"'; \

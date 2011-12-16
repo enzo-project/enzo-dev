@@ -470,6 +470,7 @@
         ASSEMBLE_PYTHON_DEFINES = -DUSE_PYTHON
         ASSEMBLE_PYTHON_INCLUDES = $(MACH_INCLUDES_PYTHON)
         ASSEMBLE_PYTHON_LIBS     = $(MACH_LIBS_PYTHON)
+        PYTHON_INTERFACE_TARGETS += InitializePythonInterface_finderfunctions.inc
     endif
 
     # Settings to turn PYTHON OFF

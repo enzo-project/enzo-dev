@@ -27,7 +27,7 @@ MACHINE_NOTES = "Building on NICS's Kraken requires no special modules"
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_pgi9.0.1/
+LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.5/cnl2.2_pgi10.4.0/
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_HYPRE_INSTALL  = 
