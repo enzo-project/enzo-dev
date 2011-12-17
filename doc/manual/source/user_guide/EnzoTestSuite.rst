@@ -22,29 +22,34 @@ estimated runtime of the test, and the dimensionality.  For
 convenience, three pre-created, overlapping sets of tests are
 provided:
 
-1.  The "quick suite" (``--quicksuite=True``).  This set of tests should
-run in a few minutes on a single core of a laptop.  It is composed of
-one-dimensional calculations that test critical physics packages both
+1.  The "quick suite" (``--quicksuite=True``).  This is composed of
+small calculations that test critical physics packages both
 alone and in combination.  The intent of this package is to be run
 relatively frequently (multiple times a day) to ensure that bugs have
-not been introduced during the code development process. 
+not been introduced during the code development process.  All runs 
+in the quick suite use no more than a single processor.  The total 
+run time should be about 25 minutes.  The gold standard results for 
+the quick suite alone can be downloaded 
+`here <http://enzo-project.org/tests/gold_standard_quick.tar.gz>`_.
 
-2.  The "push suite" (``--pushsuite=True``).  This set of tests should run
-in roughly an hour or two on a single core of a laptop or desktop
-machine.  It is composed of one-, two- and three-dimensional
-calculations that test a wider variety of physics modules, both alone
-and in combination, than the "quick suite" described above.  The
-intent of this package is to provide a thorough validation of the code
-prior to changes being pushed to the Google Code mercurial repository.
+2.  The "push suite" (``--pushsuite=True``).  This is a slightly 
+large set of tests, encompassing all of the quick suite and 
+some additional larger simulations that test a wider variety of physics 
+modules.  The intent of this package is to provide a thorough validation 
+of the code prior to changes being pushed to the main repository.  The 
+total run time is roughly 90 minutes and all simulations use only a single 
+processor.  The gold standard results for the push suite can be downloaded 
+`here <http://enzo-project.org/tests/gold_standard_push.tar.gz>`_.
 
-3.  The "full suite" (``--fullsuite=True``).  This set of tests should run in
-no more than 24 hours on 8-16 cores of a Linux cluster, and includes a
-variety of 3D, multiphysics tests that are not in the "quick" and
-"push" suites.  This suite provides the most rigorous possible
-validation of the code in many different situations, and is intended
-to be run prior to major changes being pushed to the Google Code
-repository and prior to public releases of the code.  
-
+3.  The "full suite" (``--fullsuite=True``).  This encompasses essentially 
+all of test simulations contained within the run directory.  This suite 
+provides the most rigorous possible validation of the code in many different 
+situations, and is intended to be run prior to major changes being pushed 
+to the stable branch of the code.  A small number of simulations in the full 
+suite are designed to be run on 2 processors and will take multiple hours to 
+complete.  The total run time is roughly 36 hours.  The gold standard results
+for the full suite can be downloaded 
+`here <http://enzo-project.org/tests/gold_standard_full.tar.gz>`_.
 
 How to run the test suite
 -------------------------
@@ -54,13 +59,15 @@ Enzo source distribution, using the ``test_runner.py`` file.  To
 run the test suite, follow these instructions:
 
 1.  Before running the test suite, you should download the "gold
-standard" datasets from http://enzo-project.org/tests/gold_standard.tar.gz, and untar that file into a
-convenient directory.
+standard" results for the 
+`quick <http://enzo-project.org/tests/gold_standard_quick.tar.gz>`_, 
+`push <http://enzo-project.org/tests/gold_standard_push.tar.gz>`_, or 
+`full <http://enzo-project.org/tests/gold_standard_full.tar.gz>`_ 
+suites and untar that file into a convenient directory.
 
-2.  Compile Enzo.  The gold standard calculations use opt-debug and
-64-bit precision everywhere (``make opt-debug``, ``make
-precision-64``, ``make particles-64``, and ``make
-integers-64``).  If you use significantly different compilation options
+2.  Compile Enzo.  The gold standard calculations use the default 
+compiler settings that can be restored with ``make default``.  
+If you use significantly different compilation options
 (higher-level optimization in particular) you may see somewhat
 different outputs that will result in failed tests.
 
@@ -69,19 +76,20 @@ type the following command:
 
 ::
 
-    ./test_runner.py --quicksuite=True  --compare-dir=/path/to/gold_standard \\
+    ./test_runner.py --quicksuite=True  --compare-dir=/path/to/gold_standard \
             --output-dir=/enzo/test/directory
 
 In this comand, ``--quicksuite=True`` instructs the test runner to
 use the quick suite (other possible keyboards here are
-'--pushsuite=True' and '--fullsuite=True').
+``--pushsuite=True`` and ``--fullsuite=True``).
 ``--output-dir=/enzo/test/directory`` instructs the test runner to
 write output to the user-specified directory, and
 ``--compare-dir=/path/to/gold_standard`` instructs the test runner
 to use the set of data files in the listed directory as a gold
-standard for comparison. It is also possible to choose sets of tests
+standard for comparison.  It is also possible to choose sets of tests
 that are sorted by dimensionality, physics modules, runtime, number of
-processors required, and other criteria.  Type ``./test_runner.py
+processors required, and other criteria.  A single named test can be run 
+by giving ``--name=<name of test>``.  Type ``./test_runner.py
 --help`` for a more complete listing.
 
 
@@ -125,8 +133,10 @@ This allows the user to specify the dimensionality, physics used, the
 runtime (both in terms of 'short', 'medium', and 'long' calculations,
 and also in terms of an actual wall clock time), and whether the test
 problem is critical (i.e., tests a fundamental piece of the code) or
-not.  A full listing of options can be found in the ``run/README``
-file.
+not.  A general rule for choosing the runtime value is 'short' for runs 
+taking less than 5 minutes, 'medium' for run taking between 5 and 30 minutes, 
+and 'long' for runs taking more than 30 minutes.  A full listing of options 
+can be found in the ``run/README`` file.
 
 Once you have created a new problem type in Enzo and thoroughly
 documented the parameters in the Enzo parameter list, you should
@@ -144,8 +154,8 @@ for your test problem to that subdirectory.
 described in the ``run/README`` file).
 
 4.  Create a "gold standard" set of data for your test problem, by
-running with opt-debug and 64-bit precision for floats and
-integers. Contact Britton Smith (brittonsmith@gmail.com) and arrange
+running with the default compile options. Contact Britton Smith 
+(brittonsmith@gmail.com) and arrange 
 to send him this data.  Please try to minimize the quantity of data
 generated by your calculation by only writing out data at the end of
 the calculation, not during the interim (unless evolution of a
@@ -187,7 +197,7 @@ problem datasets, following the instructions in the next section.
 
 5.  After these datasets are created, send the new gold standard
 datasets to Britton Smith (brittonsmith@gmail.com), who will update
-the gold standard dataset tarball (http://enzo-project.org/tests/gold_standard.tar.gz).
+the gold standards.
 
 6.  Push your Enzo changes to the repository.
 
@@ -198,10 +208,8 @@ How to create a new set of reference calculations
 It may be necessary for you to generate a set of reference
 calculations for some reason.  If so, here is how you do this.
 
-1.  First, build Enzo using the recommended set of compile options,
-which includes the debug optimization level (``make opt-debug``),
-and 64-bit precision everywhere (``make precision-64``,
-``make particles-64``, and ``make integers-64``).  You will
+1.  First, build Enzo using the default set of compile options.  
+Type ``make default`` to restore the defaults.  You will 
 now have an enzo binary in the ``src/enzo`` directory.
 
 2.  Go into the ``run/`` directory and call test_runner.py without the ``--compare-dir`` directory.  If you
@@ -209,7 +217,7 @@ are have multiple Enzo repositories, you can specify the one you want:
 
 ::
 
-    ./test_runner.py --repo=/path/to/desired/enzo/repo \\
+    ./test_runner.py --repo=/path/to/desired/enzo/repo \
          --output-dir=/path/to/new/reference/directory
 
 Note that you should only use the top-level directory in the
@@ -223,8 +231,8 @@ the following command:
 
 ::
 
-    ./test_runner.py --repo=/path/to/desired/enzo/repo  \\
-         --compare-dir=/path/to/new/reference/directory  \\
+    ./test_runner.py --repo=/path/to/desired/enzo/repo  \
+         --compare-dir=/path/to/new/reference/directory \
          --output-dir=/path/to/output/directory
 
 
