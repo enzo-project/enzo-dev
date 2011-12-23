@@ -95,7 +95,7 @@ int grid::inteuler(int idim,
 
   /* Local variables */
 
-  const int NN = MAX_ANY_SINGLE_DIRECTION;
+  const int NN = GridDimension[idim];
   const int NC = GridDimension[idim]*MAX_COLOR;
   const float ft = 4.0/3.0;
 

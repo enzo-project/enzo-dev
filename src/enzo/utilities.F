@@ -123,6 +123,7 @@ c=======================================================================
 c
 c     determine the overlap area in global coordinates
 c
+!$omp do private(i,j)
       do k = 1, dim3
          do j = 1, dim2
             do i = 1, dim1

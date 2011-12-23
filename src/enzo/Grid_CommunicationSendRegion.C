@@ -239,7 +239,9 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
     index = 0;
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
-      for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
+#pragma omp parallel for schedule(static) private(index)
+      for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++) {
+	index = (field != ALL_FIELDS) ? 0 : field*RegionSize;
 	if (field == SendField || SendField == ALL_FIELDS) {
 	  delete ToGrid->BaryonField[field];
 	  ToGrid->BaryonField[field] = new float[RegionSize];
@@ -248,11 +250,13 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       RegionDim, RegionDim+1, RegionDim+2,
 			       Zero, Zero+1, Zero+2,
 			       Zero, Zero+1, Zero+2);
-	  index += RegionSize;
 	}
+      }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
-      for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
+#pragma omp parallel for schedule(static) private(index)
+      for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++) {
+	index = (field != ALL_FIELDS) ? 0 : field*RegionSize;
 	if (field == SendField || SendField == ALL_FIELDS) {
 	  delete ToGrid->OldBaryonField[field];
 	  ToGrid->OldBaryonField[field] = new float[RegionSize];
@@ -261,8 +265,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       RegionDim, RegionDim+1, RegionDim+2,
 			       Zero, Zero+1, Zero+2,
 			       Zero, Zero+1, Zero+2);
-	  index += RegionSize;
 	}
+      }
  
     if (SendField == GRAVITATING_MASS_FIELD_PARTICLES) {
       delete ToGrid->GravitatingMassFieldParticles;

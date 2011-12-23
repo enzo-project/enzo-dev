@@ -82,6 +82,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
     int *subgrid = NULL;
     subgrid = new int[NumberOfParticles];
 
+#pragma omp parallel for schedule(static) private(i0,j0,k0,index,proc)
     for (i = 0; i < NumberOfParticles; i++) {
 
       /* Compute index of particle position. */
@@ -102,6 +103,14 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	 count. */
  
       subgrid[i] = nint(BaryonField[NumberOfBaryonFields][index])-1;
+      if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
+	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", 
+		subgrid[i], NumberOfSubgrids)
+      }
+      
+    } // ENDFOR particles
+
+    for (i = 0; i < NumberOfParticles; i++)
       if (subgrid[i] >= 0) {
 	if (KeepLocal)
 	  proc = MyProcessorNumber;
@@ -109,12 +118,6 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	  proc = Subgrids[subgrid[i]]->ReturnProcessorNumber();
 	NumberToMove[proc]++;
       }
-      if (subgrid[i] < -1 || subgrid[i] > NumberOfSubgrids-1) {
-	ENZO_VFAIL("particle subgrid (%"ISYM"/%"ISYM") out of range\n", 
-		subgrid[i], NumberOfSubgrids)
-      }
-      
-    } // ENDFOR particles
 
     if (CountOnly == TRUE) {
       delete [] subgrid;

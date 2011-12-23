@@ -67,7 +67,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   /* declarations */
  
-  int dim;
+  int i,j,k,field,dim;
 
   bool shiftPos, shiftNeg; float delta; FLOAT L;
 
@@ -297,7 +297,8 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   int Zero[3] = {0,0,0};
 
   if (!isShearing)
-    for (int field = 0; field < NumberOfBaryonFields; field++)
+    //#pragma omp parallel for schedule(static)
+    for (field = 0; field < NumberOfBaryonFields; field++)
       FORTRAN_NAME(copy3drel)(OtherGrid->BaryonField[field], BaryonField[field],
 			      Dim, Dim+1, Dim+2,
 			      OtherDim, OtherDim+1, OtherDim+2,
@@ -306,14 +307,14 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 			      Start, Start+1, Start+2);
 
   if (isShearing) {
-    for (int field = 0; field < NumberOfBaryonFields; field++)
-      for (int k = 0; k < Dim[2]; k++)
-	for (int j = 0; j < Dim[1]; j++) {
+    for (field = 0; field < NumberOfBaryonFields; field++)
+      for (k = 0; k < Dim[2]; k++)
+	for (j = 0; j < Dim[1]; j++) {
 	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
 	    (k + Start[2])*GridDimension[0]*GridDimension[1];
 	  otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] +
 	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
-	  for (int i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
+	  for (i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
 
 	    int otherindexB=otherindex+ addDim[ShearingVelocityDirection];
 	    
@@ -370,11 +371,11 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
    //Update the energys due to sheared boundaries
   if (isShearing){
     
-    for (int k = 0; k < Dim[2]; k++)
-      for (int j = 0; j < Dim[1]; j++) {
+    for (k = 0; k < Dim[2]; k++)
+      for (j = 0; j < Dim[1]; j++) {
 	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
 	  (k + Start[2])*GridDimension[0]*GridDimension[1];
-	for (int i = 0; i < Dim[0]; i++, thisindex++){
+	for (i = 0; i < Dim[0]; i++, thisindex++){
 	  float vx, vy, vz, v2, rho, bx, by, bz, b2;
 	  rho= BaryonField[iden][thisindex];  
 	  vx= BaryonField[ivx][thisindex];
