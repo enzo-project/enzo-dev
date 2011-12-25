@@ -25,6 +25,7 @@
 !     end do
 !     go to 666
 
+!$omp parallel do private(i,j,k,ii,jj,kk) schedule(static)
       do ii=1,n1,ib
         do kk=1,n3,kb
           do jj=1,n2,jb
@@ -40,6 +41,7 @@
           end do
         end do
       end do
+!$omp end parallel do
 
   666 continue
 
