@@ -345,7 +345,6 @@ subroutine dep_grid_cic(source, dest, velx, vely, velz,&
         enddo
      enddo
 !$omp end parallel do
-     print*, temp(5,5,2,1), temp(5,5,3,1)
 
 !
 !        Use velocity and mass field to generate mass field advanced by dt
@@ -404,7 +403,6 @@ subroutine dep_grid_cic(source, dest, velx, vely, velz,&
         enddo
      enddo
 !$omp end parallel do
-     print*, 'bb', dest(5,5,2), dest(5,5,3)
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     END PARALLEL REGION
