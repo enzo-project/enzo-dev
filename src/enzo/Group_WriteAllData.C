@@ -657,41 +657,52 @@ int Group_WriteAllData(char *basename, int filenumber,
   /* Combine the top level grids into a single grid for output
      (TempTopGrid is the top of an entirely new hierarchy). */
  
+  int level;
   HierarchyEntry *TempTopGrid;
   CommunicationCombineGrids(TopGrid, &TempTopGrid, WriteTime, CheckpointDump);
  
   LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
-  if ((HierarchyFileOutputFormat % 2) == 0  || VelAnyl==1 || BAnyl==1) {
-    /* Create LevelArray */
-    for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-      LevelArray[level] = NULL;
-    AddLevel(LevelArray, TempTopGrid, 0);
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    LevelArray[level] = NULL;
 
 #ifndef FAST_SIB
-    if(VelAnyl==1||BAnyl==1){
-      for (int level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
+    if (VelAnyl==1 || BAnyl==1) {
+      AddLevel(LevelArray, TempTopGrid, 0);
+      for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
 	HierarchyEntry **Grids;
 	int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
-	if (LevelArray[level] != NULL) {
-	  
-	  if (SetBoundaryConditions(Grids, NumberOfGrids, level, &MetaData, 
-				    Exterior, LevelArray[level]) == FAIL) {
-	    printf("error setboundary");
-	  }}}}
+	if (LevelArray[level] != NULL)
+	  SetBoundaryConditions(Grids, NumberOfGrids, level, &MetaData, 
+				Exterior, LevelArray[level]);
+      }
+    }
 #endif
-  }
   
   // Output Data Hierarchy
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-    if( HierarchyFileOutputFormat % 2 == 0 )
+    if( HierarchyFileOutputFormat % 2 == 0 ) {
+      AddLevel(LevelArray, TempTopGrid, 0);
       WriteHDF5HierarchyFile(name, TempTopGrid, MetaData, LevelArray);      
+    }
     
     if (HierarchyFileOutputFormat > 0)
       if ((fptr = fopen(hierarchyname, "w")) == NULL) 
 	ENZO_VFAIL("Error opening hierarchy file %s\n", hierarchyname);
   }
+
+  /* Clean-up LevelArray */
+
+  if (LevelArray[0] != NULL) {
+    LevelHierarchyEntry *Temp;
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      while (LevelArray[level] != NULL) {
+	Temp = LevelArray[level]->NextGridThisLevel;
+	delete LevelArray[level];
+	LevelArray[level] = Temp;
+      } // ENDWHILE
+  } // ENDIF
 
   if (Group_WriteDataHierarchy(fptr, MetaData, TempTopGrid,
             gridbasename, GridID, WriteTime, file_id, CheckpointDump) == FAIL)

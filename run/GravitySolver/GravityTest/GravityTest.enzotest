@@ -4,6 +4,7 @@ nprocs = 1
 runtime = 'short'
 hydro = False
 gravity = True
+AMR = True
 dimensionality = 3
 author = 'Greg Bryan'
 max_time_minutes = 1

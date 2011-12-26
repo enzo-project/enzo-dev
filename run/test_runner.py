@@ -9,6 +9,7 @@ import signal
 import subprocess
 import sys
 import time
+import tarfile
 import logging
 
 known_categories = [
@@ -85,6 +86,9 @@ template_vars = {'N_PROCS'   : 'nprocs',
 
 results_filename = 'test_results.txt'
 version_filename = 'version.txt'
+
+# Files to be included when gathering results.
+results_gather = ['results', version_filename]
 
 # If we are able to, let's grab the ~/.enzo/machine_config.py file.
 try:
@@ -447,6 +451,8 @@ if __name__ == "__main__":
     parser.add_option("--clobber", dest='clobber', default=False,
                       action="store_true", 
                       help="Recopies tests and tests from scratch.")
+    parser.add_option("-g", "--gather", dest='gather_dir', default=None,
+                      help="Gather test results from this directory into a tar file.")
     parser.add_option("--interleave", action='store_true', dest='interleave', 
                       default=False,
                       help="Option to interleave preparation, running, and testing.")
@@ -480,11 +486,6 @@ if __name__ == "__main__":
 
     etc = EnzoTestCollection(verbose=options.verbose)
 
-    # Break out if output directory not specified.
-    if options.output_dir is None:
-        print 'Please enter an output directory with -o option'
-        sys.exit(1)
-    
     construct_selection = {}
     for var, caster in known_variables.items():
         if getattr(options, var) != unknown:
@@ -500,6 +501,43 @@ if __name__ == "__main__":
     print
     print "\n".join(list(etc2.unique('name')))
     print "Total: %s" % len(etc2.tests)
+
+    # Gather results and version files for all test and tar them.
+    if options.gather_dir is not None:
+        cur_dir = os.getcwd()
+        if options.gather_dir.endswith('/'):
+            options.gather_dir = options.gather_dir[:-1]
+        top_dir = os.path.dirname(options.gather_dir)
+        basename = os.path.basename(options.gather_dir)
+        tar_filename = "%s.tar.bz2" % basename
+        os.chdir(top_dir)
+        file_list = []
+        missing_file_list = []
+        for test in etc2.tests:
+            for gather in results_gather:
+                my_addition = os.path.join(basename, test['fulldir'], gather)
+                if os.path.exists(my_addition):
+                    file_list.append(my_addition)
+                else:
+                    missing_file_list.append(my_addition)
+        if len(missing_file_list) > 0:
+            print "\nError: could not gather test results because the following files are missing."
+            print '\n'.join(missing_file_list)
+            print 'Total: %d files missing.' % len(missing_file_list)
+            sys.exit(1)
+        print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
+        my_tar = tarfile.open(name=tar_filename, mode='w:bz2')
+        for my_addition in file_list:
+            print "Adding %s." % my_addition
+            my_tar.add(my_addition)
+        my_tar.close()
+        print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
+        sys.exit(0)
+
+    # Break out if output directory not specified.
+    if options.output_dir is None:
+        print 'Please enter an output directory with -o option'
+        sys.exit(1)
 
     # get current revision
     options.repository = os.path.expanduser(options.repository)

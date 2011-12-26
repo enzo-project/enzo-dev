@@ -147,9 +147,11 @@ int Star::CalculateMassAccretion(float &BondiRadius, float &density)
 
     if (mdot > 0.0)
       fprintf(stdout, "BH Accretion[%"ISYM"]: time = %"FSYM", mdot = %"GSYM" Msun/yr, "
-	      "M_BH = %lf Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s\n",
+	      "M_BH = %lf Msun, rho = %"GSYM" g/cm3, T = %"GSYM" K, v_rel = %"GSYM" cm/s, "
+	      "pos = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM", vel = %f %f %f\n",
 	      Identifier, time, mdot*yr, Mass, density*DensityUnits,
-	      temperature[index], v_rel);
+	      temperature[index], v_rel,
+	      pos[0], pos[1], pos[2], vel[0], vel[1], vel[2]);
 
   } // ENDIF LOCAL_ACCRETION with type != MBH
 

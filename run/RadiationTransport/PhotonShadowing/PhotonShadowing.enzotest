@@ -5,6 +5,7 @@ runtime = 'short'
 hydro = False
 gravity = False
 radiation = 'ray'
+AMR = True
 dimensionality = 3
 max_time_minutes = 1
 fullsuite = True
