@@ -379,7 +379,7 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 	Units = "";
 	break;
       case 1:
-	Rho2Weighted = TRUE;
+	RhoWeighted = TRUE;
 	FieldName = "projected_rho2_weighted_temperature";
 	Units = "K";
 	break;
@@ -389,7 +389,7 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 	Units = "";
 	break;
       case 3:
-	Rho2Weighted = TRUE;
+	RhoWeighted = TRUE;
 	FieldName = "projected_metallicity";
 	Units = "relative to solar";
 	break;
@@ -398,12 +398,12 @@ int ProjectToPlane2(char *ParameterFile, HierarchyEntry &TopGrid,
 	Units = "";
 	break;
       case 5:
-	Rho2Weighted = TRUE;
+	RhoWeighted = TRUE;
 	FieldName = "projected_electron_fraction";
 	Units = "";
 	break;
       case 6:
-	Rho2Weighted = TRUE;
+	RhoWeighted = TRUE;
 	FieldName = "projected_H2_fraction";
 	Units = "";
 	break;
