@@ -53,6 +53,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
           *PartialParticleCount = new int[NumberOfGrids],
         *TotalStarParticleCount = new int[NumberOfGrids],
       *PartialStarParticleCount = new int[NumberOfGrids];
+  int *buffer = new int[2*NumberOfGrids];
+  int *rbuffer = new int[2*NumberOfGrids];
  
   /* Set ParticleCount to zero and record number of particles for grids
      on this processor. */
@@ -84,10 +86,17 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
 
   MPI_Arg GridCount = NumberOfGrids;
    
-  MPI_Allreduce(PartialParticleCount, TotalParticleCount, GridCount,
+  int index;
+  for (grid = 0, index = 0; grid < NumberOfGrids; index += 2, grid++) {
+    buffer[index] = PartialParticleCount[grid];
+    buffer[index+1] = PartialStarParticleCount[grid];
+  }
+  MPI_Allreduce(buffer, rbuffer, 2*GridCount,
 		DataTypeInt, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(PartialStarParticleCount, TotalStarParticleCount, GridCount,
-		DataTypeInt, MPI_SUM, MPI_COMM_WORLD);
+  for (grid = 0, index = 0; grid < NumberOfGrids; index += 2, grid++) {
+    TotalParticleCount[grid] = rbuffer[index];
+    TotalStarParticleCount[grid] = rbuffer[index+1];
+  }
 
 #ifdef UNUSED
   if (MyProcessorNumber == ROOT_PROCESSOR)
@@ -156,6 +165,8 @@ int CommunicationUpdateStarParticleCount(HierarchyEntry *Grids[],
   delete [] PartialParticleCount;
   delete [] TotalStarParticleCount;
   delete [] PartialStarParticleCount;
+  delete [] buffer;
+  delete [] rbuffer;
  
   LCAPERF_STOP("UpdateStarParticleCount");
  
