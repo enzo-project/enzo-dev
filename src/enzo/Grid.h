@@ -167,7 +167,13 @@ class grid
 //
   int TimestepsSinceCreation; 	// Not really since creation anymore... 
   				// resets everytime the grid outputs
-
+//
+// Performance counters for load balancing
+//
+  float ParentCostPerCell;
+  float SiblingAddedCost;
+  float ObservedCost;
+  float EstimatedCost;
 
 //
 // Friends
@@ -1500,6 +1506,23 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int ReturnProcessorNumber() {
     return ProcessorNumber;
   }
+
+  /* Performance counter for load balancing */
+
+  void ResetCost() { ObservedCost = 0.0; };
+  void ResetSiblingCost() { SiblingAddedCost = 0.0; };
+  float ReturnCost() { return ObservedCost; };
+  void SetEstimatedCost(float a) { EstimatedCost = a; };
+  void AddToCost(double a) { 
+    if (MyProcessorNumber == ProcessorNumber)
+      ObservedCost += a;
+  };
+  void SetParentCost(grid *Parent) {
+    if (MyProcessorNumber == ProcessorNumber) {
+      this->ParentCostPerCell = Parent->ReturnCost() / Parent->GetGridSize();
+      this->ObservedCost = this->ParentCostPerCell * this->GetGridSize();
+    }
+  };
 
 /* Send a region from a real grid to a 'fake' grid on another processor. */
 

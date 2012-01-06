@@ -116,6 +116,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
 				int GridNum, float *norm, float TopGridTimeStep, 
 				int level, int LevelCycleCount[]);  //moo
+double ReturnWallTime(void);
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
@@ -262,8 +263,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int dbx = 0;
 
   FLOAT When, GridTime;
-  //float dtThisLevelSoFar = 0.0, dtThisLevel, dtGrid, dtActual, dtLimit;
-  //float dtThisLevelSoFar = 0.0, dtThisLevel;
+  double _mpi_time;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
   int dummy_int;
@@ -289,6 +289,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
 #endif
+
+  /* Reset performance counter for load balancer */
+
+  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    Grids[grid1]->GridData->ResetCost();
 
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
@@ -414,8 +419,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
  
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+      _mpi_time = ReturnWallTime();
  
       CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
 				  TopGridTimeStep, level, LevelCycleCount);
@@ -456,14 +463,18 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
 */
 #ifdef SAB
+
+      Grids[grid1]->GridData->AddToCost(ReturnWallTime() - _mpi_time);
+
     } // End of loop over grids
     
     //Ensure the consistency of the AccelerationField
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
     
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      _mpi_time = ReturnWallTime();
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
@@ -482,24 +493,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Update particle positions (if present). */
  
       UpdateParticlePositions(Grids[grid1]->GridData);
-
-    /*Trying after solving for radiative transfer */
-#ifdef EMISSIVITY
-    /*                                                                                                           
-        clear the Emissivity of the level below, after the level below                                            
-        updated the current level (it's parent) and before the next
-        timestep at the current level.                                                                            
-    */
-      /*    if (StarMakerEmissivityField > 0) {
-    LevelHierarchyEntry *Temp;
-    Temp = LevelArray[level];
-    while (Temp != NULL) {
-      Temp->GridData->ClearEmissivity();
-      Temp = Temp->NextGridThisLevel;
-      }
-      }*/
-#endif
-
 
       /* Include 'star' particle creation and feedback. */
 
@@ -536,8 +529,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
+
+      Grids[grid1]->GridData->AddToCost(ReturnWallTime() - _mpi_time);
  
     }  // end loop over grids
+
+    float tot = 0;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
+	tot += Grids[grid1]->GridData->ReturnCost();
+    }
+    printf("P%d: total time in grid loop = %g\n", MyProcessorNumber, tot);
  
     /* Finalize (accretion, feedback, etc.) star particles */
 

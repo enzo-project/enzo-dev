@@ -475,6 +475,9 @@ int RebuildHierarchy(TopGridData *MetaData,
 	    RemoveForcingFromBaryonFields();
         }
 
+	SubgridHierarchyPointer[j]->GridData->SetParentCost
+	  (SubgridHierarchyPointer[j]->ParentGrid->GridData);
+
 	SubgridHierarchyPointer[j]->GridData->DebugCheck("Rebuild child");
       }
       tt1 = ReturnWallTime();

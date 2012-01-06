@@ -261,6 +261,11 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       size *= GridDimension[dim];
       active_size *= ActiveDim[dim];
     }
+
+    /* Estimated cost for load balancing of first timestep */
+
+    const float spc = 1e-5;  // seconds per cell
+    this->ObservedCost = size * spc;
  
     //  CAUTION - are the coordinates reversed?
  

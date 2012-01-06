@@ -57,13 +57,13 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 
   /* Initialize */
   
-  int *GridWork = new int[NumberOfGrids];
+  float *GridWork = new float[NumberOfGrids];
   int *NewProcessorNumber = new int[NumberOfGrids];
   hilbert_data *HilbertData = new hilbert_data[NumberOfGrids];
   int *BlockDivisions = new int[NumberOfProcessors];
-  int *ProcessorWork = new int[NumberOfProcessors];
+  float *ProcessorWork = new float[NumberOfProcessors];
 
-  int TotalWork, WorkThisProcessor, WorkPerProcessor, WorkLeft;
+  float TotalWork, WorkThisProcessor, WorkPerProcessor, WorkLeft;
   int i, dim, grid_num, Rank, block_num, Dims[MAX_DIMENSION];
   FLOAT GridCenter[MAX_DIMENSION];
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
@@ -118,17 +118,29 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   } // ENDFOR grids
 
   /* Sort the grids along the curve and partition it into pieces with
-     equal amounts of work. */
+     equal amounts of work.  Only the host processor knows about the
+     work. */
 
   //qsort(HilbertData, NumberOfGrids, sizeof(hilbert_data), compare_hkey);
   std::sort(HilbertData, HilbertData+NumberOfGrids, cmp_hkey());
-  TotalWork = 0;
   for (i = 0; i < NumberOfGrids; i++) {
-    GridHierarchyPointer[HilbertData[i].grid_num]->GridData->
-      CollectGridInformation(GridMemory, GridVolume, NumberOfCells, 
-			     AxialRatio, CellsTotal, NumberOfParticles);
-    GridWork[i] = CellsTotal;
-    TotalWork += CellsTotal;
+    grid_num = HilbertData[i].grid_num;
+    if (MyProcessorNumber == GridHierarchyPointer[grid_num]->GridData->ReturnProcessorNumber())
+      GridWork[i] = GridHierarchyPointer[grid_num]->GridData->ReturnCost();
+    else
+      GridWork[i] = 0.0;
+  }
+  CommunicationAllSumValues(GridWork, NumberOfGrids);
+  TotalWork = 0;
+  for (i = 0; i < NumberOfGrids; i++)
+    TotalWork += GridWork[i];
+
+  if (debug) {
+    for (i = 0; i < NumberOfGrids; i++) {
+      printf("%10.4g", GridWork[i]);
+      if (i % 8 == 0 || i == NumberOfGrids-1) printf("\n");
+    }
+    printf("Total work = %g\n", TotalWork);
   }
 
   /* Partition into nearly equal workloads */
@@ -163,12 +175,12 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   BlockDivisions[i] = NumberOfGrids-1;
   ProcessorWork[i] = WorkLeft;
 
-//  if (debug) {
-//    printf("BlockDivisions = ");
-//    for (i = 0; i < NumberOfProcessors; i++)
-//      printf("%d ", BlockDivisions[i]);
-//    printf("\n");
-//  }
+  if (debug) {
+    printf("BlockDivisions = ");
+    for (i = 0; i < NumberOfProcessors; i++)
+      printf("%d ", BlockDivisions[i]);
+    printf("\n");
+  }
 
   /* Mark the new processor numbers with the above divisions. */
 
@@ -257,7 +269,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 
   } // ENDFOR iterations
 
-#ifdef UNUSED
+  //#ifdef UNUSED
   float *ww = new float[NumberOfProcessors];
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
@@ -270,7 +282,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
     fpcol(ww, NumberOfProcessors, 16, stdout);
   }
   delete [] ww;
-#endif /* UNUSED */
+  //#endif /* UNUSED */
 
   /* Intermediate cleanup */
   

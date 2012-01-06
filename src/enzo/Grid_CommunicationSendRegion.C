@@ -76,6 +76,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
  
   int RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
   int TransferSize = RegionSize * NumberOfFields;
+
+  // +1 for the observed performance cost
+  if (SendField == ALL_FIELDS, NewOrOld == NEW_ONLY)
+    TransferSize += 1;
  
   // Allocate buffer
  
@@ -93,7 +97,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
  
     index = 0;
  
-    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
+    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY) {
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
 	if (field == SendField || SendField == ALL_FIELDS) {
 	  FORTRAN_NAME(copy3d)(BaryonField[field], &buffer[index],
@@ -103,6 +107,11 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       RegionStart, RegionStart+1, RegionStart+2);
 	  index += RegionSize;
 	}
+
+      // Send the observed cost for load balancing
+      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS)
+	buffer[index] = this->ObservedCost;
+    }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++)
@@ -238,7 +247,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
     index = 0;
  
-    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
+    if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY) {
 #pragma omp parallel for schedule(static) private(index)
       for (field = 0; field < max(NumberOfBaryonFields, SendField+1); field++) {
 	index = (SendField != ALL_FIELDS) ? 0 : field*RegionSize;
@@ -252,6 +261,9 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       Zero, Zero+1, Zero+2);
 	}
       }
+      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS)
+	this->ObservedCost = buffer[TransferSize-1];
+    }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
 #pragma omp parallel for schedule(static) private(index)

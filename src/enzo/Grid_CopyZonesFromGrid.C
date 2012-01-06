@@ -290,8 +290,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   /* Copy zones */
 
- 
-
   int addDim[3] = {1, OtherDim[0], OtherDim[0]*OtherDim[1]};
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
   int Zero[3] = {0,0,0};
@@ -406,8 +404,18 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	  }
 	  
 	}}}
- 
-  
+
+  /* Adjust the observed cost for these grids */
+
+  if (this->ParentCostPerCell > 0) {
+    int other_size = OtherGrid->GetGridSize();
+    float other_partial_size = 1.0;
+    for (dim = 0; dim < GridRank; dim++)
+      other_partial_size *= Dim[dim];
+    this->ObservedCost += OtherGrid->ObservedCost * (other_partial_size / other_size) -
+      this->ParentCostPerCell * other_partial_size;
+  }
+
 
   /* Clean up if we have transfered data. */
   
