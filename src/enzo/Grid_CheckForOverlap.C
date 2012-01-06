@@ -15,7 +15,9 @@
 // This routine checks the other grid for any overlapping zones (including
 //   periodic boundary conditions).  If any are found, CopyZonesFromGrid
 //   is called.
- 
+
+#include "preincludes.h" 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "ErrorExceptions.h"
@@ -39,6 +41,8 @@ int grid::CheckForOverlap(grid *OtherGrid,
  
   if (this->CommunicationMethodShouldExit(OtherGrid))
     return SUCCESS;
+
+  START_GRID_TIMER;
  
   int i, j, k, dim;
   FLOAT EdgeOffset[MAX_DIMENSION] = {0.0,0.0,0.0};
@@ -212,11 +216,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   } // end: loop of k
 
 
+  END_GRID_TIMER;
   return SUCCESS;
  
 }
-
-
-
-
- 

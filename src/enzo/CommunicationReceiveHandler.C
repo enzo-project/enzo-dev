@@ -144,6 +144,8 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  
 	/* Handle the buffers received, calling the appropriate method. */
 
+	START_LOAD_TIMER;
+
 	switch (CommunicationReceiveCallType[index]) {
 
 	case 1:
@@ -280,6 +282,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 		  CommunicationReceiveCallType[index])
 
 	} // end: switch on call type
+	END_LOAD_TIMER(grid_one);
 
 	/* Report error if there has been one in any of the above calls. */
 

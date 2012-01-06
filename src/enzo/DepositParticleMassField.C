@@ -9,6 +9,8 @@
 /  PURPOSE:
 /
 ************************************************************************/
+
+#include "preincludes.h"
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -30,6 +32,8 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
  
 int DepositParticleMassField(HierarchyEntry *Grid, FLOAT TimeMidStep)
 {
+
+  START_LOAD_TIMER;
  
   /* Get the time and dt for this grid.  Compute time+1/2 dt. */
  
@@ -69,6 +73,8 @@ int DepositParticleMassField(HierarchyEntry *Grid, FLOAT TimeMidStep)
 				 GRAVITATING_MASS_FIELD_PARTICLES) == FAIL) {
     ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
+
+  END_LOAD_TIMER(Grid->GridData);
  
   /* Recursively deposit particles in children (at TimeMidStep). */
  
@@ -90,12 +96,16 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
 {
  
   /* Deposit particles in Grid into DepositGrid at the given time. */
+
+  START_LOAD_TIMER;
  
   if (Grid->GridData->DepositParticlePositions(DepositGrid->GridData,
 		     DepositTime, GRAVITATING_MASS_FIELD_PARTICLES) == FAIL) {
     ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
  
+  END_LOAD_TIMER(Grid->GridData);
+
   /* Next grid on this level. */
  
   if (Grid->NextGridThisLevel != NULL)

@@ -11,6 +11,8 @@
 /  NOTE:
 /
 ************************************************************************/
+
+#include "preincludes.h"
  
 #include <stdio.h>
 #include <math.h>
@@ -48,6 +50,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
     return SUCCESS;
 
   LCAPERF_START("grid_SolveForPotential");
+  START_GRID_TIMER;
  
   /* declarations */
  
@@ -163,6 +166,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
 #endif
  
   LCAPERF_STOP("grid_SolveForPotential");
+  END_GRID_TIMER;
   return SUCCESS;
 }
  
