@@ -79,7 +79,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
   // +1 for the observed performance cost
   if (SendField == ALL_FIELDS, NewOrOld == NEW_ONLY)
-    TransferSize += 1;
+    TransferSize += 2;
  
   // Allocate buffer
  
@@ -109,8 +109,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 	}
 
       // Send the observed cost for load balancing
-      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS)
-	buffer[index] = this->ObservedCost;
+      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS) {
+	buffer[index++] = this->ObservedCost;
+	buffer[index] = this->EstimatedCost;
+      }
     }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
@@ -261,8 +263,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       Zero, Zero+1, Zero+2);
 	}
       }
-      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS)
-	this->ObservedCost = buffer[TransferSize-1];
+      if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS) {
+	this->ObservedCost = buffer[TransferSize-2];
+	this->EstimatedCost = buffer[TransferSize-1];
+      }
     }
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)

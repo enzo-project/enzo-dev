@@ -44,6 +44,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 double ReturnWallTime(void);
 void fpcol(float *x, int n, int m, FILE *fptr);
 
+#define ALPHA_FADE 0.1
 #define FUZZY_BOUNDARY 0.1
 #define FUZZY_ITERATIONS 10
 #define NO_SYNC_TIMING
@@ -70,6 +71,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   FLOAT BoundingBox[2][MAX_DIMENSION];
   FLOAT BoundingBoxWidthInv[MAX_DIMENSION];
   float GridVolume, AxialRatio;
+  float ObservedCost, EstimatedCost, NewEstimatedCost;
   int GridMemory, NumberOfCells, CellsTotal, NumberOfParticles;
   int iter;
 
@@ -125,10 +127,16 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   std::sort(HilbertData, HilbertData+NumberOfGrids, cmp_hkey());
   for (i = 0; i < NumberOfGrids; i++) {
     grid_num = HilbertData[i].grid_num;
-    if (MyProcessorNumber == GridHierarchyPointer[grid_num]->GridData->ReturnProcessorNumber())
-      GridWork[i] = GridHierarchyPointer[grid_num]->GridData->ReturnCost();
-    else
+    if (MyProcessorNumber == GridHierarchyPointer[grid_num]->GridData->ReturnProcessorNumber()) {
+      ObservedCost = GridHierarchyPointer[grid_num]->GridData->ReturnCost();
+      EstimatedCost = GridHierarchyPointer[grid_num]->GridData->ReturnEstimatedCost();
+      NewEstimatedCost = ALPHA_FADE * (ObservedCost - EstimatedCost) + EstimatedCost;
+      //printf("P%d/G%d: %g %g %g\n", MyProcessorNumber, i, ObservedCost, EstimatedCost, NewEstimatedCost);
+      GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost);
+      GridWork[i] = NewEstimatedCost;
+    } else {
       GridWork[i] = 0.0;
+    }
   }
   CommunicationAllSumValues(GridWork, NumberOfGrids);
   TotalWork = 0;

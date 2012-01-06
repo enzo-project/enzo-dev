@@ -422,7 +422,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #pragma omp parallel for schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
-      _mpi_time = ReturnWallTime();
+      START_LOAD_TIMER;
  
       CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
 				  TopGridTimeStep, level, LevelCycleCount);
@@ -464,7 +464,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 */
 #ifdef SAB
 
-      Grids[grid1]->GridData->AddToCost(ReturnWallTime() - _mpi_time);
+      END_LOAD_TIMER(Grids[grid1]->GridData);
 
     } // End of loop over grids
     
@@ -474,7 +474,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     
 #pragma omp parallel for schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-      _mpi_time = ReturnWallTime();
+      START_LOAD_TIMER;
 #endif //SAB.
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
@@ -530,17 +530,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
 
-      Grids[grid1]->GridData->AddToCost(ReturnWallTime() - _mpi_time);
+      END_LOAD_TIMER(Grids[grid1]->GridData);
  
     }  // end loop over grids
 
-    float tot = 0;
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
-	tot += Grids[grid1]->GridData->ReturnCost();
-    }
-    printf("P%d: total time in grid loop = %g\n", MyProcessorNumber, tot);
- 
     /* Finalize (accretion, feedback, etc.) star particles */
 
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
@@ -579,6 +572,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
     }
+
+    float tot = 0;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
+	tot += Grids[grid1]->GridData->ReturnCost();
+    }
+    printf("P%d: total time in grid loop = %g\n", MyProcessorNumber, tot);
+ 
 
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior

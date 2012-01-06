@@ -266,6 +266,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
     const float spc = 1e-5;  // seconds per cell
     this->ObservedCost = size * spc;
+    this->EstimatedCost = this->ObservedCost;
  
     //  CAUTION - are the coordinates reversed?
  

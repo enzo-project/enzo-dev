@@ -171,7 +171,7 @@ class grid
 // Performance counters for load balancing
 //
   float ParentCostPerCell;
-  float SiblingAddedCost;
+  float ParentEstimatedCostPerCell;
   float ObservedCost;
   float EstimatedCost;
 
@@ -1510,8 +1510,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   /* Performance counter for load balancing */
 
   void ResetCost() { ObservedCost = 0.0; };
-  void ResetSiblingCost() { SiblingAddedCost = 0.0; };
   float ReturnCost() { return ObservedCost; };
+  float ReturnEstimatedCost() { return EstimatedCost; };
   void SetEstimatedCost(float a) { EstimatedCost = a; };
   void AddToCost(double a) { 
     if (MyProcessorNumber == ProcessorNumber)
@@ -1520,7 +1520,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   void SetParentCost(grid *Parent) {
     if (MyProcessorNumber == ProcessorNumber) {
       this->ParentCostPerCell = Parent->ReturnCost() / Parent->GetGridSize();
+      this->ParentEstimatedCostPerCell = Parent->ReturnEstimatedCost() / Parent->GetGridSize();
       this->ObservedCost = this->ParentCostPerCell * this->GetGridSize();
+      this->EstimatedCost = this->ParentEstimatedCostPerCell * this->GetGridSize();
     }
   };
 
