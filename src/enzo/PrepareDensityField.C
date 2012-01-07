@@ -100,7 +100,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   LCAPERF_START("PrepareDensityField");
 
   int grid1, grid2, StartGrid, EndGrid;
- 
+
   /* Set the time for evaluation of the fields, etc. */
  
   FLOAT EvaluateTime = LevelArray[level]->GridData->ReturnTime() +
@@ -117,6 +117,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   typedef HierarchyEntry* HierarchyEntryPointer;
   HierarchyEntry **Grids;
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+ 
 
   /************************************************************************/
   /* Grids: Deposit particles in their GravitatingMassFieldParticles.
@@ -217,7 +218,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (traceMPI) 
     fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): PGMF2 (receive)\n", 
 	    MyProcessorNumber);
- 
+
   TIME_MSG("PrepareGravitatingMassField2");
   LCAPERF_START("PrepareGravitatingMassField2a");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -306,7 +307,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (traceMPI) 
     fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): COMF1 (send)\n", 
 	    MyProcessorNumber);
- 
+
   TIME_MSG("CopyOverlappingMassField");
   LCAPERF_START("CopyOverlappingMassField");
   for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
@@ -368,7 +369,6 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #endif
 
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
- 
   /************************************************************************/
   /* Compute the potential for the top grid. */
  
@@ -505,7 +505,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
     CopyPotentialFieldAverage = 0;
     LCAPERF_STOP("SolveForPotential");
   } // ENDIF level > 0
-  
+
   /* if level > MaximumGravityRefinementLevel, then do final potential
      solve (and acceleration interpolation) here rather than in the main
      EvolveLevel since it involves communications. */

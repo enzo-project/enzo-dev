@@ -104,7 +104,7 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
     ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
  
-  END_LOAD_TIMER(Grid->GridData);
+  END_LOAD_TIMER(DepositGrid->GridData);
 
   /* Next grid on this level. */
  

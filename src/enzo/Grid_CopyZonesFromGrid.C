@@ -408,14 +408,17 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   /* Adjust the observed cost for these grids */
 
   if (this->ParentCostPerCell > 0) {
+    int size = this->GetGridSize();
     int other_size = OtherGrid->GetGridSize();
     float other_partial_size = 1.0;
+    float per_cell = this->ObservedCost / size;
+    float est_per_cell = this->EstimatedCost / size;
     for (dim = 0; dim < GridRank; dim++)
       other_partial_size *= Dim[dim];
     this->ObservedCost += OtherGrid->ObservedCost * (other_partial_size / other_size) -
-      this->ParentCostPerCell * other_partial_size;
+      per_cell * other_partial_size;
     this->EstimatedCost += OtherGrid->EstimatedCost * (other_partial_size / other_size) -
-      this->ParentEstimatedCostPerCell * other_partial_size;
+      est_per_cell * other_partial_size;
   }
 
 

@@ -143,6 +143,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   for (i = 0; i < NumberOfGrids; i++)
     TotalWork += GridWork[i];
 
+#ifdef UNUSED
   if (debug) {
     for (i = 0; i < NumberOfGrids; i++) {
       printf("%10.4g", GridWork[i]);
@@ -150,6 +151,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
     }
     printf("Total work = %g\n", TotalWork);
   }
+#endif
 
   /* Partition into nearly equal workloads */
 
@@ -158,7 +160,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   for (i = 0; i < NumberOfProcessors-1; i++) {
     WorkThisProcessor = 0;
     WorkPerProcessor = WorkLeft / (NumberOfProcessors-i);
-    while (WorkThisProcessor < WorkPerProcessor) {
+    while (WorkThisProcessor < WorkPerProcessor && grid_num < NumberOfGrids-1) {
       WorkThisProcessor += GridWork[grid_num];
       grid_num++;
     } // ENDWHILE
@@ -183,12 +185,14 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   BlockDivisions[i] = NumberOfGrids-1;
   ProcessorWork[i] = WorkLeft;
 
+#ifdef UNUSED
   if (debug) {
     printf("BlockDivisions = ");
     for (i = 0; i < NumberOfProcessors; i++)
       printf("%d ", BlockDivisions[i]);
     printf("\n");
   }
+#endif
 
   /* Mark the new processor numbers with the above divisions. */
 
@@ -209,12 +213,11 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   double div_hkey, min_hkey, max_hkey, global_min_hkey;
   double hkey_boundary;
   char direction;
-  int LoadedBlock, UnloadedBlock, WorkDifference;
-  int MinWork, MaxWork;
-  float WorkImbalance;
+  int LoadedBlock, UnloadedBlock;
+  float WorkDifference, MinWork, MaxWork, WorkImbalance;
 
   for (iter = 0; iter < FUZZY_ITERATIONS; iter++) {
-    MinWork = 0x7FFFFFFF;
+    MinWork = 1e20;
     MaxWork = -1;
     for (i = 0; i < NumberOfProcessors-1; i++) {
 
@@ -257,7 +260,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 	if (2*GridWork[grid_num] < WorkDifference &&
 	    NewProcessorNumber[HilbertData[grid_num].grid_num] == LoadedBlock) {
 //	  if (debug)
-//	    printf("Moving grid %d (work=%d) from P%d -> P%d\n",
+//	    printf("Moving grid %d (work=%g) from P%d -> P%d\n",
 //		   grid_num, GridWork[grid_num], LoadedBlock, UnloadedBlock);
 	  ProcessorWork[LoadedBlock] -= GridWork[grid_num];
 	  ProcessorWork[UnloadedBlock] += GridWork[grid_num];
@@ -277,7 +280,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 
   } // ENDFOR iterations
 
-  //#ifdef UNUSED
+#ifdef UNUSED
   float *ww = new float[NumberOfProcessors];
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     printf("LoadBalance (grids=%"ISYM"): \n", NumberOfGrids);
@@ -290,7 +293,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
     fpcol(ww, NumberOfProcessors, 16, stdout);
   }
   delete [] ww;
-  //#endif /* UNUSED */
+#endif /* UNUSED */
 
   /* Intermediate cleanup */
   

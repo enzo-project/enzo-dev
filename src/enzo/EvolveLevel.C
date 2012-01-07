@@ -290,11 +290,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   LevelHierarchyEntry **SUBlingList;
 #endif
 
-  /* Reset performance counter for load balancer */
-
-  for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-    Grids[grid1]->GridData->ResetCost();
-
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
   if (dbx) fprintf(stderr, "EL: Initialize FSL \n"); 
@@ -365,6 +360,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   while ((CheckpointRestart == TRUE)
         || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
+
+    /* Reset performance counter for load balancer */
+
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+      Grids[grid1]->GridData->ResetCost();
  
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
@@ -418,7 +418,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
- 
+
 #pragma omp parallel for schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
@@ -573,13 +573,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
           Grids[grid1]->GridData->SetTimeStep(dtThisLevel[level]);
     }
 
+#ifdef UNUSED
     float tot = 0;
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
 	tot += Grids[grid1]->GridData->ReturnCost();
     }
     printf("P%d: total time in grid loop = %g\n", MyProcessorNumber, tot);
- 
+#endif
 
     if (LevelArray[level+1] != NULL) {
       if (EvolveLevel(MetaData, LevelArray, level+1, dtThisLevel[level], Exterior
