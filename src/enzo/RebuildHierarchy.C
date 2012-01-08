@@ -655,6 +655,8 @@ int RebuildHierarchy(TopGridData *MetaData,
  
   } // end: if (StaticHierarchy == TRUE)
 
+  /* Reset */
+
   /* set grid IDs */
 
   for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++)

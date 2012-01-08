@@ -71,7 +71,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   FLOAT BoundingBox[2][MAX_DIMENSION];
   FLOAT BoundingBoxWidthInv[MAX_DIMENSION];
   float GridVolume, AxialRatio;
-  float ObservedCost, EstimatedCost, NewEstimatedCost;
+  float ObservedCost, EstimatedCost, NewEstimatedCost, ErrorCost;
   int GridMemory, NumberOfCells, CellsTotal, NumberOfParticles;
   int iter;
 
@@ -130,9 +130,26 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
     if (MyProcessorNumber == GridHierarchyPointer[grid_num]->GridData->ReturnProcessorNumber()) {
       ObservedCost = GridHierarchyPointer[grid_num]->GridData->ReturnCost();
       EstimatedCost = GridHierarchyPointer[grid_num]->GridData->ReturnEstimatedCost();
-      NewEstimatedCost = ALPHA_FADE * (ObservedCost - EstimatedCost) + EstimatedCost;
-      //printf("P%d/G%d: %g %g %g\n", MyProcessorNumber, i, ObservedCost, EstimatedCost, NewEstimatedCost);
-      GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost);
+
+      // First timestep (use # of cells)
+      if (ObservedCost < 0 && EstimatedCost < 0) {
+	NewEstimatedCost = GridHierarchyPointer[grid_num]->GridData->GetGridSize();
+	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(FLOAT_UNDEFINED);
+      }
+      // Second timestep (first with timing data)
+      else if (ObservedCost > 0 && EstimatedCost < 0) {
+	NewEstimatedCost = ObservedCost;
+	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost);
+      } 
+      // All later timesteps (fading memory filter)
+      else {
+	NewEstimatedCost = ALPHA_FADE * (ObservedCost - EstimatedCost) + EstimatedCost;
+	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost);
+      }
+
+//      if (grid_num == 0)
+//	printf("P%d/G%d: %g %g %g\n", MyProcessorNumber, grid_num, ObservedCost, 
+//	       EstimatedCost, NewEstimatedCost);
       GridWork[i] = NewEstimatedCost;
     } else {
       GridWork[i] = 0.0;
