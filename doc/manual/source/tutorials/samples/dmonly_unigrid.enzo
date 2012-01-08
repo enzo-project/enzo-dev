@@ -1,0 +1,79 @@
+#
+# ENZO PROBLEM DEFINITION FILE: Unigrid cosmology Simulation
+#   including only dark matter (no gas)
+#
+#  Written by Brian O'Shea (oshea@msu.edu)
+#
+#  Note: This file is used by Enzo with the command line
+#    'enzo.exe -d dmonly_unigrid.enzo'.  Enzo also requires
+#    two binary files that have been generated with inits.exe
+#    and the file dmonly.inits prior to executing Enzo.  
+#    These files are named ParticlePositions and ParticleVelocities.
+
+#
+#  define problem
+#
+ProblemType                = 30      // cosmology simulation
+TopGridRank                = 3
+TopGridDimensions          = 128 128 128
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+
+#
+#  problem parameters
+#
+CosmologySimulationOmegaBaryonNow       = 0.0    // turn off 
+CosmologySimulationOmegaCDMNow		= 0.27 
+CosmologyOmegaMatterNow			= 0.27 
+CosmologyOmegaLambdaNow			= 0.73  
+CosmologySimulationParticlePositionName = ParticlePositions
+CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationNumberOfInitialGrids = 1
+
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyHubbleConstantNow = 0.7    // in km/s/Mpc
+CosmologyComovingBoxSize   = 20.0  // in Mpc/h
+CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 60.0      // 
+CosmologyFinalRedshift     = 0.0     //
+GravitationalConstant      = 1.0       // this must be true for cosmology
+
+#
+#  set I/O and stop/start parameters
+#
+RedshiftDumpName = RD
+RedshiftDumpDir = RD
+DataDumpName = DD
+DataDumpDir = DD
+GlobalDir = /Users/bwoshea/Desktop/testrun
+dtDataDump             = 2.0
+CosmologyOutputRedshift[0] = 60.0
+CosmologyOutputRedshift[1] = 10.0
+CosmologyOutputRedshift[2] = 4.0  
+CosmologyOutputRedshift[3] = 3.0
+CosmologyOutputRedshift[4] = 2.0
+CosmologyOutputRedshift[5] = 1.0
+CosmologyOutputRedshift[6] = 0.75
+CosmologyOutputRedshift[7] = 0.5
+CosmologyOutputRedshift[8] = 0.25
+CosmologyOutputRedshift[9] = 0.0
+
+#
+#  set evolution parameters
+#
+ParticleCourantSafetyNumber = 0.8
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1    // AMR = OFF
+
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 100   // # of greens function at any one time
