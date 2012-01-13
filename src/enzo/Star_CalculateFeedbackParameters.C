@@ -34,7 +34,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       float DensityUnits, float LengthUnits, 
 				       float TemperatureUnits, float TimeUnits,
 				       float VelocityUnits, float dtForThisStar,
-				       FLOAT Time)
+				       FLOAT Time, bool &SphereCheck)
 {
 
   // Parameters for the Stroemgen sphere in Whalen et al. (2004)
@@ -65,6 +65,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   int size=1;
   float mdot;
 
+  SphereCheck = true;
   Radius = 0.0;
   EjectaDensity = 0.0;
   EjectaThermalEnergy = 0.0;
@@ -136,7 +137,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case CONT_SUPERNOVA:
     // Inject energy into a sphere
     Radius = StarClusterSNRadius * pc / LengthUnits;
-    Radius = max(Radius, 2*StarLevelCellWidth);
+    if (Radius < 2*StarLevelCellWidth) {
+      Radius = 2*StarLevelCellWidth;
+      SphereCheck = false;
+    }
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     //Delta_SF = StarMassEjectionFraction * Mass * SNe_dt * TimeUnits / (16.0*Myr);

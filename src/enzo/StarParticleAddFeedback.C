@@ -56,6 +56,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
   Star *cstar;
   bool MarkedSubgrids = false;
+  bool SphereCheck;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy, count;
   float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar;
@@ -100,10 +101,13 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	  
     /* Compute some parameters */
 
-    cstar->CalculateFeedbackParameters(influenceRadius, RootCellWidth, 
-           SNe_dt, EjectaDensity, EjectaThermalEnergy, EjectaMetalDensity, 
-	   DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-           VelocityUnits, dtForThisStar, Time);
+    cstar->CalculateFeedbackParameters
+      (influenceRadius, RootCellWidth, SNe_dt, EjectaDensity, 
+       EjectaThermalEnergy, EjectaMetalDensity, DensityUnits, LengthUnits, 
+       TemperatureUnits, TimeUnits, VelocityUnits, dtForThisStar, 
+       Time, SphereCheck);
+
+    if (SphereCheck) {
 
     /* Recalibrate MBHFeedbackThermalRadius if requested */
 
@@ -165,6 +169,17 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if ((SphereContained == FALSE) ||
 	(SphereContained == TRUE && SphereContainedNextLevel == TRUE))
       continue;
+
+    } // ENDIF SphereCheck
+    else {
+      
+      /* When the sphere is completely confined in a grid, only apply
+	 feedback at the level at which the star exists. */
+
+      if (level != cstar->ReturnLevel()) 
+	continue;
+
+    }
     
     /* Now set cells within the radius to their values after feedback.
        While walking through the hierarchy, look for particle to
