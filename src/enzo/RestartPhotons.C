@@ -33,6 +33,8 @@
 
 #define CONVERGE 0.001
 
+int GenerateGridArray(LevelHierarchyEntry *LevelArray[], int level,
+		      HierarchyEntry **Grids[]);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -43,7 +45,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		   Star *AllStars)
 {
 
-  int level;
+  int ig, level;
   LevelHierarchyEntry *Temp;
 
   //MetaData->FirstTimestepAfterRestart = FALSE;
@@ -53,6 +55,14 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (!RadiativeTransfer)
     return SUCCESS;
+
+  HierarchyEntry **Grids[MAX_DEPTH_OF_HIERARCHY];
+  int nGrids[MAX_DEPTH_OF_HIERARCHY];
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    if (LevelArray[level] != NULL)
+      nGrids[level] = GenerateGridArray(LevelArray, level, &Grids[level]);
+    else
+      nGrids[level] = 0;
 
   /* Get units. */
 
@@ -93,12 +103,10 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     PhotonCount = 0;
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
-      Temp = LevelArray[level];
-      while (Temp != NULL) {
-	Temp->GridData->CountPhotonNumber();
-	if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
-	  PhotonCount += Temp->GridData->ReturnNumberOfPhotonPackages();
-	Temp = Temp->NextGridThisLevel;
+      for (ig = 0; ig < nGrids[level]; ig++) {
+	Grids[level][ig]->GridData->CountPhotonNumber();
+	if (MyProcessorNumber == Grids[level][ig]->GridData->ReturnProcessorNumber())
+	  PhotonCount += Grids[level][ig]->GridData->ReturnNumberOfPhotonPackages();
       }
     }
 
@@ -130,8 +138,14 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (RadiativeTransferOpticallyThinH2)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-	Temp->GridData->AddH2Dissociation(AllStars);
+#pragma omp parallel for schedule(guided)
+      for (ig = 0; ig < nGrids[level]; ig++)
+	Grids[level][ig]->GridData->AddH2Dissociation(AllStars);
+
+  /* Delete grid lists */
+
+  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+    if (nGrids[level] > 0) delete [] Grids[level];
 
   return SUCCESS;
 

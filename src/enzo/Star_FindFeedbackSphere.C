@@ -300,7 +300,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
      checking in this case, doesn't hurt...), check if the sphere is
      contained within grids on this level.  */
 
-  if (SphereContained == TRUE)
+  if (SphereContained == TRUE && FeedbackFlag != FORMATION)
     SphereContained = this->SphereContained(LevelArray, level, Radius);
 
   /* If contained and this is for star formation, we record how much

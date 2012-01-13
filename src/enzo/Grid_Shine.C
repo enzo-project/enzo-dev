@@ -99,7 +99,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   if (RS->Type == Episodic) {
     const float sigma_inv = 4.0;
     float t = PhotonTime - RS->CreationTime + dtPhoton;
-    float frac = 2.0 * fabs(t - round(t/RS->RampTime) * RS->RampTime) /
+    float frac = 2.0 * fabs(t - nint(t/RS->RampTime) * RS->RampTime) /
       RS->RampTime;
     RampPercent = exp((frac-1)*sigma_inv);
   } // ENDIF episodic

@@ -536,6 +536,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Finalize (accretion, feedback, etc.) star particles */
 
+    CommunicationBarrier();
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
 			 level, AllStars, TotalStarParticleCountPrevious);
 
