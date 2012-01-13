@@ -338,7 +338,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // then turn it on.
     //#ifdef UNUSED
     if (StarType == PopII && this->Mass < StarClusterMinimumMass &&
-	Time-this->BirthTime > tdyn_code) {
+	Time-this->BirthTime > 0.1*tdyn_code) {
       if (debug) 
 	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
