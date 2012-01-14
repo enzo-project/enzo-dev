@@ -81,7 +81,7 @@ The YT papers can be found here:
   Using Python and NumPy
   <http://conference.scipy.org/proceedings/SciPy2008/paper_11/>`_ in Proceedings
   of the 7th Python in Science conference (!SciPy 2008), G Varoquaux, T Vaught, J
-  Millman (Eds.), pp. 46-50 (`Bibtex entry <http://yt.enzotools.org/wiki/Citation>`_)
+  Millman (Eds.), pp. 46-50 (`Bibtex entry <http://hg.yt-project.org/yt/wiki/Citation>`_)
 
 * `yt: A Multi-code Analysis Toolkit for Astrophysical Simulation Data
   <http://adsabs.harvard.edu/abs/2011ApJS..192....9T>`_, by Turk, M. J.;
