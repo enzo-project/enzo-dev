@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <xmmintrin.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -145,5 +146,59 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
   *result = temp;
   
   return SUCCESS;
+
+}
+
+/* SSE intrinsic approximate inverse sqrt.  IEEE precision isn't
+   required to choose the correct leafs. */
+
+inline void vrsqrt(float* __x, float* __outrsqrt)
+{
+	__m128 x = _mm_set_ss(*__x);
+	__m128 recip = _mm_rsqrt_ss(x);
+	_mm_store_ss(__outrsqrt, recip);
+//	__m128* precip = (__m128 *)__outrsqrt;
+//	*precip = _mm_mul_ss(_mm_set_ss(0.5f), _mm_add_ss(recip, _mm_rcp_ss(_mm_mul_ss(x, recip))));
+}
+
+float CalculateLWFromTree(const FLOAT pos[], const float angle, 
+			  const SuperSourceEntry *Leaf, float result0)
+{
+
+  int dim;
+  FLOAT dx, radius2;
+  float radius_inv, tan_angle, result, temp;
+
+  if (Leaf == NULL) 
+    return result0;
+
+  result = result0;
+  radius2 = 0.0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    dx = Leaf->Position[dim] - pos[dim];
+    radius2 += dx*dx;
+  }
+
+  temp = (float)radius2;
+  vrsqrt(&temp, &radius_inv);
+  //radius_inv = 1.0 / sqrtf((float)radius2);
+  tan_angle = Leaf->ClusteringRadius * radius_inv;
+
+//  int pid = (Leaf->ParentSource == NULL) ? -1 : Leaf->ParentSource->LeafID;
+//  printf("Leaf->ID = %d (%d), cradius = %g, radius = %g, tan_angle = %g, result0 = %g\n",
+//	 Leaf->LeafID, pid, Leaf->ClusteringRadius, sqrt(radius2), tan_angle, result0);
+
+  // Larger than opening angle -> go to children
+  if (tan_angle > angle) {
+    result = CalculateLWFromTree(pos, angle, Leaf->ChildSource[0], result);
+    result = CalculateLWFromTree(pos, angle, Leaf->ChildSource[1], result);
+  }
+
+  // Smaller than opening angle -> use this in the calculation
+  else {
+    result += Leaf->LWLuminosity * radius_inv * radius_inv;
+  }
+
+  return result;
 
 }

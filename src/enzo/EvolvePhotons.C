@@ -310,7 +310,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
       CreateSourceClusteringTree(NULL, NULL, LevelArray);
-      PrintSourceClusteringTree(SourceClusteringTree);
+      //PrintSourceClusteringTree(SourceClusteringTree);
     }
     END_PERF(1);
 
@@ -572,10 +572,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	      Temp->GridData->AddH2Dissociation(AllStars);
 	  } // ENDIF coupled & thinH2
 
-	  if (RadiativeTransferCoupledRateSolver) {
-	    int RTCoupledSolverIntermediateStep = TRUE;
-	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
-	  }
+//	  if (RadiativeTransferCoupledRateSolver) {
+//	    int RTCoupledSolverIntermediateStep = TRUE;
+//	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+//	  }
 
 	  if (RadiativeTransferCoupledRateSolver &&
 	      RadiativeTransferInterpolateField)
@@ -597,6 +597,9 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    else
 	      Temp->GridData->AddH2Dissociation(AllStars);
     END_PERF(10);
+    fptr = fopen("timing.dat", "a");
+    fprintf(fptr, "%d %g\n", NumberOfSources, PerfCounter[10]);
+    fclose(fptr);
 
     /* Clean up temperature field */
 

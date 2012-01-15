@@ -187,12 +187,12 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   } // ENDSWITCH
   loop_count++;
 
-  printf("%"ISYM" (%"ISYM", %"ISYM") :: %"FSYM" %"FSYM" %"FSYM"\n", 
-	 loop_count-1, sort_dim, nShine,
-	 center[0], center[1], center[2]);
-  for (i = 0; i < nShine; i++)
-    printf("==> %"FSYM" %"FSYM" %"FSYM"\n", SourceList[i].Position[0], 
-	   SourceList[i].Position[1], SourceList[i].Position[2]);
+//  printf("%"ISYM" (%"ISYM", %"ISYM") :: %"FSYM" %"FSYM" %"FSYM"\n", 
+//	 loop_count-1, sort_dim, nShine,
+//	 center[0], center[1], center[2]);
+//  for (i = 0; i < nShine; i++)
+//    printf("==> %"FSYM" %"FSYM" %"FSYM"\n", SourceList[i].Position[0], 
+//	   SourceList[i].Position[1], SourceList[i].Position[2]);
 
   FLOAT leftdiff, rightdiff;
 
