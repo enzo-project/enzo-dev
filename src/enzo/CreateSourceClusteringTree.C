@@ -55,7 +55,9 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   if (GlobalRadiationSources == NULL)
     return SUCCESS;
 
-  int i, dim, sort_dim, median, nleft, nright;
+  const int LymanWernerBin = 3;
+
+  int i, j, num[2], dim, sort_dim, median, nleft, nright;
   bool top_level = false;
   SuperSourceData *temp = NULL; // workspace
 
@@ -80,6 +82,11 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	SourceList[i].Position[dim] = RadSource->Position[dim];
       SourceList[i].Luminosity = RadSource->Luminosity;
+      if (RadSource->EnergyBins > LymanWernerBin)
+	SourceList[i].LWLuminosity = RadSource->Luminosity *
+	  RadSource->SED[LymanWernerBin];
+      else
+	SourceList[i].LWLuminosity = 0.0;
       SourceList[i].Source = RadSource;
       RadSource = RadSource->NextSource;
     }
@@ -96,12 +103,13 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 //    if (SourceClusteringTree != NULL)
 //      DeleteSourceClusteringTree(SourceClusteringTree);
 
-  } // ENDIF SourceList == NULL (first time)  
+  } // ENDIF SourceList == NULL (first time)
 
   /* Calculate "center of light" first and assign it to the tree. */
 
   FLOAT center[MAX_DIMENSION];
   double weight = 0.0;
+  float lw_lum = 0.0;
   
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     center[dim] = 0.0;
@@ -110,6 +118,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       center[dim] += SourceList[i].Position[dim] * SourceList[i].Luminosity;
     weight += SourceList[i].Luminosity;
+    lw_lum += SourceList[i].LWLuminosity;
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     center[dim] /= weight;
@@ -138,6 +147,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     new_leaf->Position[dim] = center[dim];
   new_leaf->ClusteringRadius = max_separation;
   new_leaf->LeafID = loop_count;
+  new_leaf->LWLuminosity = lw_lum;
 
   if (SourceClusteringTree == NULL) // top-grid (first time through)
     SourceClusteringTree = new_leaf;
@@ -177,10 +187,12 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
   } // ENDSWITCH
   loop_count++;
 
-//  printf("%"ISYM" (%"ISYM") :: %"FSYM" %"FSYM" %"FSYM"\n", level-1, sort_dim, 
-//	 center[0], center[1], center[2]);
-//  for (i = 0; i < nShine; i++)
-//    printf("==> %"FSYM" %"FSYM" %"FSYM"\n", Shine[i].pos[0], Shine[i].pos[1], Shine[i].pos[2]);
+  printf("%"ISYM" (%"ISYM", %"ISYM") :: %"FSYM" %"FSYM" %"FSYM"\n", 
+	 loop_count-1, sort_dim, nShine,
+	 center[0], center[1], center[2]);
+  for (i = 0; i < nShine; i++)
+    printf("==> %"FSYM" %"FSYM" %"FSYM"\n", SourceList[i].Position[0], 
+	   SourceList[i].Position[1], SourceList[i].Position[2]);
 
   FLOAT leftdiff, rightdiff;
 
@@ -201,6 +213,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     nleft = (nShine+1)/2;
     nright = nShine-nleft;
   }
+
   /* Divide into children if there are more than one source */
   
   if (nShine > 2) {
@@ -229,6 +242,37 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       delete temp;
     }
   } // ENDIF nShine > 1
+
+  else {
+
+    sort_dim = SourceClusteringTree->LeafID % MAX_DIMENSION;
+    if (nShine > 1) {
+      if (SourceList[0].Position[sort_dim] <
+	  SourceList[1].Position[sort_dim]) {
+	num[0] = 0;
+	num[1] = 1;
+      } else {
+	num[0] = 1;
+	num[1] = 0;
+      }
+    } else {
+      num[0] = 0;
+    }
+    for (i = 0; i < nShine; i++) {
+      new_leaf = new SuperSourceEntry;
+      new_leaf->ParentSource = NULL;
+      for (j = 0; j < MAX_LEAF; j++)
+	new_leaf->ChildSource[j] = NULL;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	new_leaf->Position[dim] = SourceList[i].Position[dim];
+      new_leaf->ClusteringRadius = 0;
+      new_leaf->LeafID = INT_UNDEFINED;
+      new_leaf->LWLuminosity = SourceList[i].LWLuminosity;
+      new_leaf->ParentSource = SourceClusteringTree;
+      SourceClusteringTree->ChildSource[num[i]] = new_leaf;
+    } // ENDFOR i
+
+  }
 
   if (top_level)
     delete [] SourceList;

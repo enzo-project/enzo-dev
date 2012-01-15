@@ -903,6 +903,7 @@ POBJS_CONFIG_LIB = \
 	FindSuperSourceByPosition.o \
 	FLDCorrectForImpulses.o \
 	Grid_AddH2Dissociation.o \
+	Grid_AddH2DissociationFromTree.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \

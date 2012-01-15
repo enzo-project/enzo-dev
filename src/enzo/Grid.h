@@ -2408,6 +2408,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int AddH2Dissociation(Star *AllStars);
 
+  int AddH2DissociationFromTree(void);
+
   int ReturnStarStatistics(int &Number, float &minLife);
 
 //------------------------------------------------------------------------
