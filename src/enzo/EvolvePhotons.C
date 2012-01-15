@@ -566,10 +566,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	  if (RadiativeTransferCoupledRateSolver && 
 	      RadiativeTransferOpticallyThinH2) {
-	    if (RadiativeTransferSourceClustering == TRUE)
-	      Temp->GridData->AddH2DissociationFromTree();
-	    else
-	      Temp->GridData->AddH2Dissociation(AllStars);
+	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
 	  } // ENDIF coupled & thinH2
 
 //	  if (RadiativeTransferCoupledRateSolver) {
@@ -592,10 +589,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == FALSE)
-	    if (RadiativeTransferSourceClustering == TRUE)
-	      Temp->GridData->AddH2DissociationFromTree();
-	    else
-	      Temp->GridData->AddH2Dissociation(AllStars);
+	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
     END_PERF(10);
     fptr = fopen("timing.dat", "a");
     fprintf(fptr, "%d %g\n", NumberOfSources, PerfCounter[10]);
