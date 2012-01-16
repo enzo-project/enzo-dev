@@ -147,6 +147,10 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
     else
       ebin = i;
 
+    // Don't create LW photon packages if we're doing an optically-thin approx.
+    if (ebin == 3 && RadiativeTransferOpticallyThinH2)
+      continue;
+
     photons_per_package = RampPercent * RS->Luminosity * 
       RS->SED[ebin] * dtPhoton / float(BasePackages);
 
@@ -271,11 +275,11 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	       NewPack->CurrentSource->ClusteringRadius < CellWidth[0][0])
 	  NewPack->CurrentSource = NewPack->CurrentSource->ParentSource;
 
-	if (DEBUG) {
-	  printf("Shine: MBH = %d, RS->Type = %d, E=%g, NewPack->Type = %d\n", 
-	         MBH, RS->Type, RS->Energy[ebin], NewPack->Type);  
-	  NewPack->PrintInfo();
-	}
+//	if (DEBUG) {
+//	  printf("Shine: MBH = %d, RS->Type = %d, E=%g, NewPack->Type = %d\n", 
+//	         MBH, RS->Type, RS->Energy[ebin], NewPack->Type);  
+//	  NewPack->PrintInfo();
+//	}
 
 	count++;
       } // if enough photons

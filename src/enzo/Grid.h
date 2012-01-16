@@ -2440,7 +2440,10 @@ int inteuler(int idim,
 
   int UpdateStarParticles(int level);
 
-  int AddH2Dissociation(Star *AllStars);
+  int AddH2Dissociation(Star *AllStars, int NumberOfSources);
+
+  int AddH2DissociationFromTree(void);
+  int AddH2DissociationFromSources(Star *AllStars);
 
   int ReturnStarStatistics(int &Number, float &minLife);
 

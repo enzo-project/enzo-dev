@@ -1,0 +1,117 @@
+#
+# ENZO PROBLEM DEFINITION FILE: AMR Cosmology Simulation including
+#   dark matter and gas, as well as radiative cooling, primordial
+#   hydrogen+helium chemistry (no molecular hydrogen), a uniform
+#   metagalactic radiation background, and star formation and feedback
+#   using an AMR version of the Cen & Ostriker algorithm.
+#
+#  Written by Brian O'Shea (oshea@msu.edu)
+#
+#  Note: This file is used by Enzo with the command line
+#    'enzo.exe -d gas_plus_dm_amr_multiphys.enzo'.  Enzo also requires
+#    four binary files that have been generated with inits.exe
+#    and the file gas_plus_dm.inits prior to executing Enzo.  
+#    These files are named GridDensity, GridVelocities, 
+#    ParticlePositions, and ParticleVelocities.
+
+#
+#  define problem
+#
+ProblemType                = 30      // cosmology simulation
+TopGridRank                = 3
+TopGridDimensions          = 128 128 128
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+
+#
+#  problem parameters
+#
+CosmologySimulationOmegaBaryonNow       = 0.04
+CosmologySimulationOmegaCDMNow		= 0.23 
+CosmologyOmegaMatterNow			= 0.27 
+CosmologyOmegaLambdaNow			= 0.73  
+CosmologySimulationDensityName          = GridDensity
+CosmologySimulationVelocity1Name        = GridVelocities
+CosmologySimulationVelocity2Name        = GridVelocities
+CosmologySimulationVelocity3Name        = GridVelocities
+CosmologySimulationParticlePositionName = ParticlePositions
+CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationNumberOfInitialGrids = 1
+
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyHubbleConstantNow = 0.71    // in km/s/Mpc
+CosmologyComovingBoxSize   = 20.0   // in Mpc/h
+CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 99.0      // 
+CosmologyFinalRedshift     = 0.0     //
+GravitationalConstant      = 1       // this must be true for cosmology
+
+#
+#  set I/O and stop/start parameters
+#
+CosmologyOutputRedshift[0] = 99.0 
+CosmologyOutputRedshift[1] = 10.0
+CosmologyOutputRedshift[2] = 5.0  
+CosmologyOutputRedshift[3] = 4.0
+CosmologyOutputRedshift[4] = 3.0
+CosmologyOutputRedshift[5] = 2.0
+CosmologyOutputRedshift[6] = 1.5
+CosmologyOutputRedshift[7] = 1.0
+CosmologyOutputRedshift[8] = 0.75
+CosmologyOutputRedshift[9] = 0.5
+CosmologyOutputRedshift[10] = 0.25
+CosmologyOutputRedshift[11] = 0.0
+
+#
+#  set hydro parameters
+#
+Gamma                  = 1.6667
+HydroMethod            = 0
+DualEnergyFormalism    = 1     // use total & internal energy
+InterpolationMethod    = 1     // SecondOrderA
+PPMDiffusionParameter  = 0     // diffusion off
+CourantSafetyNumber    = 0.5
+FluxCorrection         = 1  // necessary for mass conservation in AMR
+ConservativeInterpolation = 0
+ParticleCourantSafetyNumber = 0.8
+
+#
+#  set cooling and feedback parameters
+#
+RadiativeCooling       = 1   // radiative cooling turned on
+MultiSpecies           = 1   // 6-species H+He chem/cooling turned on
+RadiationFieldType     = 2   // Haardt & Madau w/q=-1.8
+StarParticleCreation   = 2   // star particle creation turned on, using model #2 
+StarParticleFeedback   = 2   // stellar feedback turned on, using model #2
+
+StarMakerOverDensityThreshold = 1000.0  // can create stars when density is this times mean
+StarMakerMassEfficiency = 0.05          // fraction of gas in cell that can turn into stars
+StarMakerMinimumMass = 1.0e7            // minimum stellar mass in Msun
+StarMakerMinimumDynamicalTime = 1.0e+7  // minimum dynamical time in years
+
+StarMassEjectionFraction = 0.25   // fraction of star particle mass returned to gas
+StarMetalYield = 0.02             // fractional metal yield (in mass)
+StarEnergyToThermalFeedback = 3.0e-6  // portion of star particle rest energy returned as thermal energy
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0     // AMR turned on
+MaximumRefinementLevel    = 6       // 6 levels of AMR
+MaximumGravityRefinementLevel = 6   // gravity calculated on all levels
+MaximumParticleRefinementLevel = 6  // particle densities not smoothed
+RefineBy                  = 2
+CellFlaggingMethod        = 2 4   // refine on dark matter and baryon mass 
+MinimumEfficiency         = 0.35
+MinimumOverDensityForRefinement = 8.0 8.0   // refine when cell mass = 8 times original cell mass
+MinimumMassForRefinementLevelExponent = 0.0 0.0  // refinement is approximately lagrangian
+
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 100   // # of greens function at any one time

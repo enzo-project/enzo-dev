@@ -136,11 +136,18 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Optically thin Lyman-Werner (H2) radiation field */
 
+  int NumberOfSources = 0;
+  Star *cstar = AllStars->NextStar;
+  while (cstar != NULL) {
+    cstar = cstar->NextStar;
+    NumberOfSources++;
+  }
+
   if (RadiativeTransferOpticallyThinH2)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
 #pragma omp parallel for schedule(guided)
       for (ig = 0; ig < nGrids[level]; ig++)
-	Grids[level][ig]->GridData->AddH2Dissociation(AllStars);
+	Grids[level][ig]->GridData->AddH2Dissociation(AllStars, NumberOfSources);
 
   /* Delete grid lists */
 

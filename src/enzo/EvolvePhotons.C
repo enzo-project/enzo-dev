@@ -159,8 +159,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   RadiationFieldCalculateRates(PhotonTime+0.5*dtPhoton);
 
-  int i, lvl, GridNum;
   grid *Helper;
+  int i, lvl, GridNum;
   LevelHierarchyEntry *Temp;
   RadiationSourceEntry *RS;
 
@@ -568,7 +568,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 	  if (RadiativeTransferCoupledRateSolver && 
 	      RadiativeTransferOpticallyThinH2)
-	    Grids[lvl][i]->GridData->AddH2Dissociation(AllStars);
+	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
 
 	  if (RadiativeTransferCoupledRateSolver) {
 	    int RTCoupledSolverIntermediateStep = TRUE;
@@ -592,7 +592,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #pragma omp parallel for schedule(guided)
 	for (i = 0; i < nGrids[lvl]; i++)
 	  if (Grids[lvl][i]->GridData->RadiationPresent() == FALSE)
-	    Grids[lvl][i]->GridData->AddH2Dissociation(AllStars);
+	    Grids[lvl][i]->GridData->AddH2Dissociation(AllStars, NumberOfSources);
     END_PERF(10);
 
     /* Clean up temperature field */
