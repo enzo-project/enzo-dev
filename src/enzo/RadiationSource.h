@@ -31,6 +31,8 @@ struct RadiationSourceEntry  {
   int   Type;                     // Type allows for beaming etc.      
   float Luminosity;               // Bolometric photon number luminosity
 				  // in [#/s] * TimeUnits/LengthUnits^3
+  float LWLuminosity;             // Lyman-Werner photon number luminosity 
+                                  // (only used in optically-thin case)
   float CreationTime;             // When Source is formed in code units
   float LifeTime;                 // LifeTime of source in code units
   float RampTime;                 // Time for the source to reach full luminosity
