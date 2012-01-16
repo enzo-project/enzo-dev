@@ -154,6 +154,14 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
       n1 = PreviousTotalToMove;
 
+#pragma omp parallel 
+    {
+
+      int ti = 0;
+      int ParticlesToMove = TotalToMove - PreviousTotalToMove;
+      particle_data *tlist = new particle_data[ParticlesToMove];
+
+#pragma omp for schedule(static) private(j,dim,proc)
       for (i = 0; i < NumberOfParticles; i++) {
 	if (subgrid[i] >= 0) {
 	  if (KeepLocal)
@@ -161,20 +169,32 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	  else
 	    proc = Subgrids[subgrid[i]]->ReturnProcessorNumber();
 	  for (dim = 0; dim < GridRank; dim++) {
-	    List[n1].pos[dim] = ParticlePosition[dim][i];
-	    List[n1].vel[dim] = ParticleVelocity[dim][i];
+	    tlist[ti].pos[dim] = ParticlePosition[dim][i];
+	    tlist[ti].vel[dim] = ParticleVelocity[dim][i];
 	  }
-	  List[n1].mass = ParticleMass[i] * MassIncrease;
-	  List[n1].id = ParticleNumber[i];
-	  List[n1].type = ParticleType[i];
+	  tlist[ti].mass = ParticleMass[i] * MassIncrease;
+	  tlist[ti].id = ParticleNumber[i];
+	  tlist[ti].type = ParticleType[i];
 	  for (j = 0; j < NumberOfParticleAttributes; j++)
-	    List[n1].attribute[j] = ParticleAttribute[j][i];
-	  List[n1].grid = subgrid[i];
-	  List[n1].proc = proc;
+	    tlist[ti].attribute[j] = ParticleAttribute[j][i];
+	  tlist[ti].grid = subgrid[i];
+	  tlist[ti].proc = proc;
 	  ParticleMass[i] = FLOAT_UNDEFINED;
-	  n1++;
+	  ti++;
 	} // ENDIF move to subgrid
       } // ENDFOR particles
+
+      /* Add to the global list one thread at a time */
+
+#pragma omp critical
+      {
+	memcpy(List+n1, tlist, ti*sizeof(particle_data));
+	n1 += ti;
+      }
+
+      delete[] tlist;
+
+    } // END parallel
 
       if (TotalToMove != PreviousTotalToMove)
 	this->CleanUpMovedParticles();
