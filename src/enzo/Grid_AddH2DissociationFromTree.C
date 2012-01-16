@@ -27,7 +27,8 @@
 #define MIN_OPENING_ANGLE 0.2  // 0.2 = arctan(11.3 deg)
 
 float CalculateLWFromTree(const FLOAT pos[], const float angle, 
-			  const SuperSourceEntry *Leaf, float result0);
+			  const SuperSourceEntry *Leaf, const float min_radius, 
+			  float result0);
 int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 			      int DEBUG);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -76,8 +77,8 @@ int grid::AddH2DissociationFromTree(void)
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
 
   // Dilution factor (prevent breaking in the rate solver near the star)
-//  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
-//  float dilRadius2 = dilutionRadius * dilutionRadius;
+  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilRadius2 = dilutionRadius * dilutionRadius;
 
   // Convert from #/s to RT units
   double LConv = (double) TimeUnits / pow(LengthUnits,3);

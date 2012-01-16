@@ -86,7 +86,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 	SourceList[i].LWLuminosity = RadSource->Luminosity *
 	  RadSource->SED[LymanWernerBin];
       else
-	SourceList[i].LWLuminosity = 0.0;
+	SourceList[i].LWLuminosity = RadSource->LWLuminosity;
       SourceList[i].Source = RadSource;
       RadSource = RadSource->NextSource;
     }

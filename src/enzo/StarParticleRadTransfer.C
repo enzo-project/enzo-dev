@@ -128,6 +128,10 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->EnergyBins     = nbins;
       RadSource->Energy         = new float[nbins];
       RadSource->SED            = new float[nbins];
+      if (RadiativeTransferOpticallyThinH2)
+	RadSource->LWLuminosity = Q[3] * LConv;
+      else
+	RadSource->LWLuminosity = 0.0;
       
       for (j = 0; j < nbins; j++) {
 	RadSource->Energy[j] = energies[j];
@@ -138,7 +142,6 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       RadSource->Orientation    = NULL;
 
       if (GlobalRadiationSources->NextSource != NULL)
-
 	GlobalRadiationSources->NextSource->PreviousSource = RadSource;
       GlobalRadiationSources->NextSource = RadSource;
       

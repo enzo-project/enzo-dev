@@ -154,15 +154,18 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 
 inline void vrsqrt(float* __x, float* __outrsqrt)
 {
-	__m128 x = _mm_set_ss(*__x);
-	__m128 recip = _mm_rsqrt_ss(x);
-	_mm_store_ss(__outrsqrt, recip);
-//	__m128* precip = (__m128 *)__outrsqrt;
-//	*precip = _mm_mul_ss(_mm_set_ss(0.5f), _mm_add_ss(recip, _mm_rcp_ss(_mm_mul_ss(x, recip))));
+  __m128 x = _mm_set_ss(*__x);
+  __m128 recip = _mm_rsqrt_ss(x);
+  _mm_store_ss(__outrsqrt, recip);
+// _m128* precip = (__m128 *)__outrsqrt;
+// *precip = _mm_mul_ss(_mm_set_ss(0.5f), _mm_add_ss(recip, _mm_rcp_ss(_mm_mul_ss(x, recip))));
 }
 
-float CalculateLWFromTree(const FLOAT pos[], const float angle, 
-			  const SuperSourceEntry *Leaf, float result0)
+float CalculateLWFromTree(const FLOAT pos[], 
+			  const float angle, 
+			  const SuperSourceEntry *Leaf, 
+			  const float min_radius, 
+			  float result0)
 {
 
   int dim;
@@ -180,6 +183,7 @@ float CalculateLWFromTree(const FLOAT pos[], const float angle,
   }
 
   temp = (float)radius2;
+  temp = max(min_radius, temp);
   vrsqrt(&temp, &radius_inv);
   //radius_inv = 1.0 / sqrtf((float)radius2);
   tan_angle = Leaf->ClusteringRadius * radius_inv;
@@ -190,14 +194,16 @@ float CalculateLWFromTree(const FLOAT pos[], const float angle,
 
   // Larger than opening angle -> go to children
   if (tan_angle > angle) {
-    result = CalculateLWFromTree(pos, angle, Leaf->ChildSource[0], result);
-    result = CalculateLWFromTree(pos, angle, Leaf->ChildSource[1], result);
+    result = CalculateLWFromTree(pos, angle, Leaf->ChildSource[0], min_radius, result);
+    result = CalculateLWFromTree(pos, angle, Leaf->ChildSource[1], min_radius, result);
   }
 
   // Smaller than opening angle -> use this in the calculation
   else {
     result += Leaf->LWLuminosity * radius_inv * radius_inv;
   }
+
+  //printf("\t after[%d] -- result = %g\n", Leaf->LeafID, result);
 
   return result;
 
