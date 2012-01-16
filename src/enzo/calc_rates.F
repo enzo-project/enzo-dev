@@ -295,7 +295,7 @@ c  3) the units for the radiative rate coefficients is just 1/[time]
 c
 c  4) Energy transfer from gas to dust grains, following equation 2.15
 c     of Hollenbach & McKee (1989).
-      grain_coef = 1.2d-31 * 1.0d3**-0.5d0
+      grain_coef = 1.2d-31 * 1.0d3**(-0.5d0)
 c
 c  Compute log spacing in temperature
 c

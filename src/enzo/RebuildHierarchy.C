@@ -134,10 +134,11 @@ int RebuildHierarchy(TopGridData *MetaData,
   /* For each grid on this level collect all the particles below it.
      Notice that this must be done even for static hierarchy's.  */
  
-  HierarchyEntry *GridParent[MAX_NUMBER_OF_SUBGRIDS];
-  grid           *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
-  grid           *ContigiousGridList[MAX_NUMBER_OF_SUBGRIDS];
-  ProtoSubgrid   *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
+  static HierarchyEntry *GridParent[MAX_NUMBER_OF_SUBGRIDS];
+  static grid           *GridPointer[MAX_NUMBER_OF_SUBGRIDS];
+  static grid           *ContigiousGridList[MAX_NUMBER_OF_SUBGRIDS];
+  static ProtoSubgrid   *SubgridList[MAX_NUMBER_OF_SUBGRIDS];
+  static grid           *ToGrids[MAX_NUMBER_OF_SUBGRIDS/10];
 
   /* Because we're storing particles in "empty" grids that are local
      to the subgrid, keep track of the number of particles stored
@@ -611,7 +612,6 @@ int RebuildHierarchy(TopGridData *MetaData,
  
       /* 3g) loop over parent, and copy particles to new grids. */
  
-      grid *ToGrids[MAX_NUMBER_OF_SUBGRIDS/10];
 #pragma omp parallel for schedule(guided) private(k, ToGrids)
       for (j = 0; j < grids; j++)
  
