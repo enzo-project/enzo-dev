@@ -92,6 +92,9 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
       for (j = 0; j < nbins; j++) QTotal += Q[j];
       for (j = 0; j < nbins; j++) Q[j] /= QTotal;
 
+      // Don't create a source if the luminosity is zero
+      if (QTotal == 0.0) continue;
+
 #ifdef USE_MEAN_ENERGY
       double meanEnergy = 0;
       nbins = 1;
