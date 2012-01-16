@@ -560,29 +560,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Grids[lvl][i]->GridData->FinalizeRadiationFields();
     END_PERF(8);
 
-    START_PERF();
-    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
-#pragma omp parallel for schedule(guided)
-      for (i = 0; i < nGrids[lvl]; i++)
-	if (Grids[lvl][i]->GridData->RadiationPresent() == TRUE) {
-
-	  if (RadiativeTransferCoupledRateSolver && 
-	      RadiativeTransferOpticallyThinH2)
-	    Grids[lvl][i]->GridData->AddH2Dissociation(AllStars, NumberOfSources);
-
-	  if (RadiativeTransferCoupledRateSolver) {
-	    int RTCoupledSolverIntermediateStep = TRUE;
-	    Grids[lvl][i]->GridData->SolveRateAndCoolEquations
-	      (RTCoupledSolverIntermediateStep);
-	  }
-
-	  if (RadiativeTransferCoupledRateSolver &&
-	      RadiativeTransferInterpolateField)
-	    Grids[lvl][i]->GridData->DeleteInterpolatedFields();
-
-	} /* ENDIF radiation */
-    END_PERF(9);
-
     /* For the non-coupled (i.e. cells without radiation) rate & energy
        solver, we have to set the H2 dissociation rates */
 
@@ -591,9 +568,22 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 #pragma omp parallel for schedule(guided)
 	for (i = 0; i < nGrids[lvl]; i++)
-	  if (Grids[lvl][i]->GridData->RadiationPresent() == FALSE)
-	    Grids[lvl][i]->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+	  Grids[lvl][i]->GridData->AddH2Dissociation(AllStars, NumberOfSources);
     END_PERF(10);
+
+    START_PERF();
+    int RTCoupledSolverIntermediateStep = TRUE;
+    if (RadiativeTransferCoupledRateSolver)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+#pragma omp parallel for schedule(guided)
+	for (i = 0; i < nGrids[lvl]; i++)
+	  if (Grids[lvl][i]->GridData->RadiationPresent() == TRUE) {
+
+	    Grids[lvl][i]->GridData->SolveRateAndCoolEquations
+	      (RTCoupledSolverIntermediateStep);
+
+	  } /* ENDIF radiation */
+    END_PERF(9);
 
     /* Clean up temperature field */
 
