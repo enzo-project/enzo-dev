@@ -86,27 +86,19 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
   if (MyProcessorNumber == ProcessorNumber) {
 
     int FromEnd = FromStart + FromNumber;
-
-    for (dim = 0; dim < GridRank; dim++) {
-      index = 0;
-      for (i = FromStart; i < FromEnd; i++, index++) {
+#pragma omp parallel for schedule(static) private(index, dim, j)    
+    for (i = FromStart; i < FromEnd; i++) {
+      index = i - FromStart;
+      for (dim = 0; dim < GridRank; dim++) {
 	buffer[index].pos[dim] = ParticlePosition[dim][i];
 	buffer[index].vel[dim] = ParticleVelocity[dim][i];
       }
-    }
-
-    index = 0;
-    for (i = FromStart; i < FromEnd; i++, index++) {
       buffer[index].mass = ParticleMass[i];
       buffer[index].id = ParticleNumber[i];
       buffer[index].type = ParticleType[i];
-    } // ENDFOR particles
-
-    for (j = 0; j < NumberOfParticleAttributes; j++) {
-      index = 0;
-      for (i = FromStart; i < FromEnd; i++, index++)
+      for (j = 0; j < NumberOfParticleAttributes; j++)
 	buffer[index].attribute[j] = ParticleAttribute[j][i];
-    }
+    } // ENDFOR particles
  
   } // end: if (MyProcessorNumber)
  
@@ -150,19 +142,29 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
     /* If adding to end, then copy and delete old fields. */
  
     if (ToStart == -1) {
+
+#pragma omp parallel private(dim,j)
+    {
+#pragma omp for nowait schedule(static)
       for (i = 0; i < ToGrid->NumberOfParticles; i++) {
 	ToGrid->ParticleNumber[i] = TempNumber[i];
 	ToGrid->ParticleMass[i]   = TempMass[i];
 	ToGrid->ParticleType[i]   = TempType[i];
       }
+
       for (dim = 0; dim < GridRank; dim++)
+#pragma omp for nowait schedule(static)
 	for (i = 0; i < ToGrid->NumberOfParticles; i++) {
 	  ToGrid->ParticlePosition[dim][i] = TempPos[dim][i];
 	  ToGrid->ParticleVelocity[dim][i] = TempVel[dim][i];
 	}
+
       for (j = 0; j < NumberOfParticleAttributes; j++)
+#pragma omp for nowait schedule(static)
 	for (i = 0; i < ToGrid->NumberOfParticles; i++)
 	  ToGrid->ParticleAttribute[j][i] = TempAttribute[j][i];
+
+    } // END parallel
 	
       delete [] TempNumber;
       delete [] TempMass;
@@ -257,27 +259,35 @@ int grid::CommunicationSendParticles(grid *ToGrid, int ToProcessor,
        CommunicationDirection == COMMUNICATION_RECEIVE)) {
 
     int ToEnd = ToStart + FromNumber;
-    
-    index = 0;
-    for (i = ToStart; i < ToEnd; i++, index++) {
+
+#pragma omp parallel private(dim,j)
+ {
+
+#pragma omp for nowait schedule(static) private(index)
+    for (i = ToStart; i < ToEnd; i++) {
+      index = i-ToStart;
       ToGrid->ParticleMass[i] = buffer[index].mass;
       ToGrid->ParticleType[i] = buffer[index].type;
       ToGrid->ParticleNumber[i] = buffer[index].id;
     }
 
     for (dim = 0; dim < GridRank; dim++) {
-      index = 0;
-      for (i = ToStart; i < ToEnd; i++, index++) {
+#pragma omp for nowait schedule(static) private(index)
+      for (i = ToStart; i < ToEnd; i++) {
+	index = i-ToStart;
 	ToGrid->ParticlePosition[dim][i] = buffer[index].pos[dim];
 	ToGrid->ParticleVelocity[dim][i] = buffer[index].vel[dim];
       }
     }
 
     for (j = 0; j < NumberOfParticleAttributes; j++) {
-      index = 0;
-      for (i = ToStart; i < ToEnd; i++, index++)
+#pragma omp for nowait schedule(static) private(index)
+      for (i = ToStart; i < ToEnd; i++) {
+	index = i-ToStart;
 	ToGrid->ParticleAttribute[j][i] = buffer[index].attribute[j];
+      }
     }
+ } // END parallel
 
     /* Only delete the buffer if we're in receive mode (in send mode
        it will be deleted by CommunicationBufferedSend and if we're in
