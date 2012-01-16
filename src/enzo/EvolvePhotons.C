@@ -159,8 +159,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   RadiationFieldCalculateRates(PhotonTime+0.5*dtPhoton);
 
-  int i, lvl, GridNum;
   grid *Helper;
+  int i, lvl, GridNum;
   LevelHierarchyEntry *Temp;
   RadiationSourceEntry *RS;
 
@@ -569,10 +569,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
 	  } // ENDIF coupled & thinH2
 
-//	  if (RadiativeTransferCoupledRateSolver) {
-//	    int RTCoupledSolverIntermediateStep = TRUE;
-//	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
-//	  }
+	  if (RadiativeTransferCoupledRateSolver) {
+	    int RTCoupledSolverIntermediateStep = TRUE;
+	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+	  }
 
 	  if (RadiativeTransferCoupledRateSolver &&
 	      RadiativeTransferInterpolateField)
@@ -591,9 +591,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  if (Temp->GridData->RadiationPresent() == FALSE)
 	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
     END_PERF(10);
-    fptr = fopen("timing.dat", "a");
-    fprintf(fptr, "%d %g\n", NumberOfSources, PerfCounter[10]);
-    fclose(fptr);
 
     /* Clean up temperature field */
 

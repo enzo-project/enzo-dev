@@ -27,7 +27,8 @@
 #define MIN_OPENING_ANGLE 0.2  // 0.2 = arctan(11.3 deg)
 
 float CalculateLWFromTree(const FLOAT pos[], const float angle, 
-			  const SuperSourceEntry *Leaf, float result0);
+			  const SuperSourceEntry *Leaf, const float min_radius, 
+			  float result0);
 int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 			      int DEBUG);
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -76,8 +77,8 @@ int grid::AddH2DissociationFromTree(void)
   H2ISigma *= (double)TimeUnits / ((double)LengthUnits * (double)LengthUnits);
 
   // Dilution factor (prevent breaking in the rate solver near the star)
-//  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
-//  float dilRadius2 = dilutionRadius * dilutionRadius;
+  float dilutionRadius = 10.0 * pc / (double) LengthUnits;
+  float dilRadius2 = dilutionRadius * dilutionRadius;
 
   // Convert from #/s to RT units
   double LConv = (double) TimeUnits / pow(LengthUnits,3);
@@ -96,36 +97,24 @@ int grid::AddH2DissociationFromTree(void)
   // so we multiply the angle by merge radius.
   angle = MIN_OPENING_ANGLE * RadiativeTransferPhotonMergeRadius;
 
-  if (ProblemType == 50) {
+  for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+    pos[2] = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
+    for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+      pos[1] = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+      index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+      for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
+	pos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      pos[2] = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-	pos[1] = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
-	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) {
-	  pos[0] = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	/* Find the leaves that have an opening angle smaller than
+	   the specified minimum and only include those in the
+	   calculation */
 
-	  /* Find the leaves that have an opening angle smaller than
-	     the specified minimum and only include those in the
-	     calculation */
+	H2Luminosity = CalculateLWFromTree(pos, angle, Leaf, dilRadius2, 0);
+	BaryonField[kdissH2INum][index] = H2Luminosity * factor;
 
-	  H2Luminosity = CalculateLWFromTree(pos, angle, Leaf, 0);
-	  BaryonField[kdissH2INum][index] = H2Luminosity * factor;
-
-	} // ENDFOR i
-      } // ENDFOR j
-    } // ENDFOR k
-
-      
-
-  } // ENDIF ProblemType == 50
-
-  else {
-
-    ENZO_FAIL("Not implemented for star particles yet.")
-
-  } // ENDELSE ProblemType == 50
+      } // ENDFOR i
+    } // ENDFOR j
+  } // ENDFOR k
 
   return SUCCESS;
 
