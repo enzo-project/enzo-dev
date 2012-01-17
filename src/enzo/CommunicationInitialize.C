@@ -39,6 +39,7 @@
 /* function prototypes */
 void my_exit(int exit_status);
 
+#ifndef __APPLE__
 static char *cpuset_to_cstr(cpu_set_t *mask, char *str)
 {
   char *ptr = str;
@@ -67,7 +68,7 @@ static char *cpuset_to_cstr(cpu_set_t *mask, char *str)
   *ptr = 0;
   return(str);
 }
-
+#endif /* __APPLE__ */
 
 int CommunicationInitialize(Eint32 *argc, char **argv[])
 {
@@ -128,6 +129,7 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
  
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
 
+#ifndef __APPLE__
 #ifdef _OPENMP
   int rank, _thread;
   cpu_set_t coremask;
@@ -146,6 +148,7 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
 	   mpi_rank, _thread, hnbuf, clbuf);
   }
 #endif /* _OPENMP */
+#endif /* __APPLE__ */
  
   return SUCCESS;
 }
