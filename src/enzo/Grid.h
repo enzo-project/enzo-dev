@@ -1543,6 +1543,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
 			    int DeleteAllFields = TRUE);
 
+/* Move only the fields from the grids */
+
+  int CommunicationMoveGrid1(int ToProcessor);
+
+/* Move the stars, particles, and photons from the grids */
+
+  int CommunicationMoveGrid2(int ToProcessor, int MoveParticles = TRUE);
+
 /* Send particles from one grid to another. */
 
   int CommunicationSendParticles(grid *ToGrid, int ToProcessor, 

@@ -355,6 +355,12 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 
     if (nGrids == 0) break;
 
+    /* Split into two stages: fields then particles+ */
+
+    /************************************************/
+    /******************** FIELDS ********************/
+    /************************************************/
+
     /* Post receives */
 
     CommunicationReceiveIndex = 0;
@@ -365,7 +371,7 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
       if (GridHierarchyPointer[i]->GridData->ReturnProcessorNumber() !=
 	  NewProcessorNumber[i]) {
 	GridHierarchyPointer[i]->GridData->
-	  CommunicationMoveGrid(NewProcessorNumber[i], MoveParticles);
+	  CommunicationMoveGrid1(NewProcessorNumber[i]);
 	GridsMoved++;
       }
 
@@ -379,14 +385,55 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 	if (RandomForcing)  //AK
 	  GridHierarchyPointer[i]->GridData->AppendForcingToBaryonFields();
 	GridHierarchyPointer[i]->GridData->
-	  CommunicationMoveGrid(NewProcessorNumber[i], MoveParticles);
+	  CommunicationMoveGrid1(NewProcessorNumber[i]);
       }
 
     /* Receive grids */
 
-    if (CommunicationReceiveHandler() == FAIL)
-      ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
-  
+    CommunicationReceiveHandler();
+    CommunicationBufferPurge();
+
+    if (debug && GridsMoved > 0) {
+      tt1 = ReturnWallTime();
+      printf("LoadBalance[fields]: Number of grids moved = %"ISYM" out of %"ISYM" "
+	     "(%lg seconds elapsed)\n", GridsMoved, NumberOfGrids, tt1-tt0);
+    }  
+
+    /****************************************************/
+    /******************** PARTICLES+ ********************/
+    /****************************************************/
+
+    /* Post receives */
+
+    CommunicationReceiveIndex = 0;
+    CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
+    CommunicationDirection = COMMUNICATION_POST_RECEIVE;
+
+    for (i = StartGrid; i < EndGrid; i++) 
+      if (GridHierarchyPointer[i]->GridData->ReturnProcessorNumber() !=
+	  NewProcessorNumber[i]) {
+	GridHierarchyPointer[i]->GridData->
+	  CommunicationMoveGrid2(NewProcessorNumber[i], MoveParticles);
+      }
+
+    /* Send grids */
+
+    CommunicationDirection = COMMUNICATION_SEND;
+
+    for (i = StartGrid; i < EndGrid; i++)
+      if (GridHierarchyPointer[i]->GridData->ReturnProcessorNumber() !=
+	  NewProcessorNumber[i]) {
+	if (RandomForcing)  //AK
+	  GridHierarchyPointer[i]->GridData->AppendForcingToBaryonFields();
+	GridHierarchyPointer[i]->GridData->
+	  CommunicationMoveGrid2(NewProcessorNumber[i], MoveParticles);
+      }
+
+    /* Receive grids */
+
+    CommunicationReceiveHandler();
+    CommunicationBufferPurge();
+
     /* Update processor numbers */
   
     for (i = StartGrid; i < EndGrid; i++) {
@@ -395,7 +442,6 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
 	GridHierarchyPointer[i]->GridData->RemoveForcingFromBaryonFields();
     }
 
-    CommunicationBufferPurge();
     StartGrid = EndGrid;
 
   } // ENDWHILE

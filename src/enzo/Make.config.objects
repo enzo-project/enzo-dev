@@ -328,6 +328,8 @@ OBJS_CONFIG_LIB = \
         Grid_CollectParticleMassFlaggingField.o \
         Grid_CollectStars.o \
 	Grid_CommunicationMoveGrid.o \
+	Grid_CommunicationMoveGrid1.o \
+	Grid_CommunicationMoveGrid2.o \
 	Grid_CommunicationReceiveRegion.o \
 	Grid_CommunicationSendParticles.o \
 	Grid_CommunicationSendStars.o \
