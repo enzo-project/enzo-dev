@@ -1,0 +1,20 @@
+The NFW Cool-Core Cluster is a simulation of the cooling flow in an idealized
+cool-core cluster that resembles Perseus cluster. It can be a test for cooling, and
+maybe gravity too. 
+
+The default set up is with a root grid of 64^3, a maximum refinement level of 12,
+and MinimumMassForRefinementLevelExponent of -0.2 (for better resolution, use -1.2)
+which can be changed based on the resolution one needs.
+
+The default set up has a static gravity and no self-gravity of the gas since the latter
+is much smaller than the gravity of the dark matter and does not change much during the 
+early stage of the cooling flow evolution.
+
+As the cooling catastrophe happens, the temperature drops to the bottom of the cooling 
+function ~ 10^4 K in the center within ~1kpc with the default resolution. The size of 
+the region becomes smaller with higher resolution.
+
+The projected gas density shows a disk of size ~ 1kpc (inside the cooling catastrophe
+region) at late times along z axis which is the direction of 
+the initial angular momentum of the gas.  
+
