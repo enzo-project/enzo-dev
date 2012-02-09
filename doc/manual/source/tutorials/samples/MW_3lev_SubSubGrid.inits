@@ -1,0 +1,63 @@
+#  Generates initial grid and particle fields for the 
+#    second-level static subgrid in a CDM cosmology simulation
+#    with nested-grid initial conditions.
+#
+#  Note:  This file is used by inits.exe with the command line:
+#    'inits.exe -d MW_3lev_SubSubGrid.inits'
+#    and outputs four files, called GridDensity.2, GridVelocities.2,
+#    ParticlePositions.2 and ParticleVelocities.2.  Enzo then reads 
+#    in these files, as well as the ones created for the other grids,
+#    along with its own parameter file.
+#
+#  Written by Brian O'Shea (oshea@msu.edu)
+#
+
+#
+#  Cosmology Parameters
+#
+CosmologyOmegaMatterNow      = 0.27
+CosmologyOmegaLambdaNow      = 0.73
+CosmologyOmegaBaryonNow      = 0.044
+CosmologyComovingBoxSize     = 54.528       // in Mpc/h
+CosmologyHubbleConstantNow   = 0.71      // in units of 100 km/s/Mpc
+CosmologyInitialRedshift     = 60
+
+#
+#  Power spectrum Parameters
+#
+PowerSpectrumType            = 11             // Eisenstein & Hu
+PowerSpectrumSigma8          = 0.9
+PowerSpectrumPrimordialIndex = 1.0
+PowerSpectrumRandomSeed      = -123456789
+
+#
+#  Grid info
+#
+Rank                = 3
+InitializeGrids     = 1
+GridRefinement      = 1
+GridDims = 160 160 160
+
+#
+#  Particle info
+#
+InitializeParticles = 1
+ParticleRefinement  = 1
+ParticleDims = 160 160 160
+
+#
+#  Overall field parameters
+#
+MaxDims = 640 640 640
+NewCenterFloat = 0.118373 0.412982 0.554482  // recenters volume on a halo of interest
+StartIndexInNewCenterTopGridSystem = 60 60 60
+EndIndexInNewCenterTopGridSystem   = 99 99 99
+RootGridDims = 160 160 160
+
+#
+#  Names
+#
+ParticlePositionName = ParticlePositions.2
+ParticleVelocityName = ParticleVelocities.2
+GridDensityName      = GridDensity.2
+GridVelocityName     = GridVelocities.2

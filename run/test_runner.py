@@ -509,7 +509,7 @@ if __name__ == "__main__":
             options.gather_dir = options.gather_dir[:-1]
         top_dir = os.path.dirname(options.gather_dir)
         basename = os.path.basename(options.gather_dir)
-        tar_filename = "%s.tar.bz2" % basename
+        tar_filename = "%s.tar.gz" % basename
         os.chdir(top_dir)
         file_list = []
         missing_file_list = []
@@ -526,7 +526,7 @@ if __name__ == "__main__":
             print 'Total: %d files missing.' % len(missing_file_list)
             sys.exit(1)
         print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
-        my_tar = tarfile.open(name=tar_filename, mode='w:bz2')
+        my_tar = tarfile.open(name=tar_filename, mode='w:gz')
         for my_addition in file_list:
             print "Adding %s." % my_addition
             my_tar.add(my_addition)
