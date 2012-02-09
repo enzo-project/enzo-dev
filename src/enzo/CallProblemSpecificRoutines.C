@@ -66,5 +66,10 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
     ThisGrid->GridData->SolveOneZoneFreefall();
   }
 
+  /* Add radio-mode jet feedback */
+  if (ClusterSMBHFeedback == TRUE)
+    ThisGrid->ClusterSMBHFeedback(level);
+ 
+
   return SUCCESS;
 }

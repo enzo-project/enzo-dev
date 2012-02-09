@@ -49,7 +49,7 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
   /* Loop over static regions. */
  
   for (region = 0; region < MAX_STATIC_REGIONS; region++)
-    if (StaticRefineRegionLevel[region] == level) {
+    if (StaticRefineRegionLevel[region] >= level) {
  
       /* Check if there is any overlap. */
  
@@ -81,7 +81,7 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
 	
       } // end: if (Overlap)
  
-    } // end: if (StaticRefineRegionLevel[dim] == level)
+    } // end: if (StaticRefineRegionLevel[dim] >= level)
 
  
   /* Count up the number of flagged cells & report. */
