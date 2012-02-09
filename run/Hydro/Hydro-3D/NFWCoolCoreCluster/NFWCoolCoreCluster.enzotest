@@ -1,6 +1,6 @@
 name = 'NFWCoolCoreCluster'
 author = 'Yuan Li and Greg Bryan'
-answer_testing_script = 'test_NFWCoolCore.py'
+answer_testing_script = 'make_plots.py'
 nprocs = 1
 runtime = 'long'
 hydro = True
