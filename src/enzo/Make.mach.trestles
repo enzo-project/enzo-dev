@@ -23,7 +23,7 @@ MACHINE_NOTES = "MACHINE_NOTES for Trestles at SDSC/UCSD: \
 # Compiler settings
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel
+LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel/
 LOCAL_PYTHON_INSTALL = /home/mturk/yt-x86_64/
 #LOCAL_COMPILER_DIR = /opt/pgi/linux86-64/10.5
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072
@@ -116,12 +116,13 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L/home/mturk/yt-x86_64/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib -lpython2.7 -lutil
+LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \
+                     -lreadline -ltermcap -lutil
 LOCAL_LIBS_CVODE  = 
 
 #LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER_DIR)/lib \
 #			-lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl -lrt
-LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport
+LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport 
 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)

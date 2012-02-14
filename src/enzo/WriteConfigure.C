@@ -12,8 +12,6 @@
  
 #include <stdio.h>
 
-#include "svn_version.def" 
-
 void auto_show_version (FILE *fp);
 void auto_show_config (FILE *fp);
 void auto_show_flags (FILE *fp);
@@ -36,9 +34,4 @@ void WriteConfigure(FILE *fp)
 
   fprintf (fp, DIVIDER "gmake show-flags\n" DIVIDER);
   auto_show_flags (fp);
-
-  // Print output of "svn diff"
-
-  //  fprintf (fp, DIVIDER "svn diff\n" DIVIDER);
-
 }

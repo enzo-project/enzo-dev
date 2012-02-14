@@ -25,6 +25,7 @@ OBJS_CONFIG_LIB = \
         arccosh.o \
         arcsinh.o \
         AssignGridToTaskMap.o \
+        auto_show_compile_options.o \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
@@ -59,6 +60,7 @@ OBJS_CONFIG_LIB = \
         cicinterp.o \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
+        ClusterInitialize.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
@@ -321,6 +323,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearMassFlaggingField.o \
 	Grid_ClearParticleAccelerations.o \
 	Grid_ClearParticleMassFlaggingField.o \
+	Grid_ClusterInitializeGrid.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \
@@ -655,7 +658,6 @@ OBJS_CONFIG_LIB = \
         nr_st1.o \
 	NullProblem.o \
 	OneZoneFreefallTestInitialize.o \
-        Options.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
         OutputFromEvolveLevel.o\

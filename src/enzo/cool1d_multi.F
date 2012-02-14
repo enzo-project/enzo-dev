@@ -803,8 +803,8 @@ c
                metalc(i) = metalc(i) - metalc_cmb
 
                xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*z_solar))
-               edot(i) = edot(i) - 
-     $              metalc(i) * d(i,j,k) * (xi/JHW_METALS_NORMZ) / dom
+               edot(i) = edot(i) - metalc(i) * d(i,j,k) * d(i,j,k) * 
+     $              (xi/JHW_METALS_NORMZ) / dom
 #ifdef UNUSED
                if (xi .gt. 1d-4 .and. tgas(i) .lt. 1e4) then
                   write(6,'(a,3i5,2e12.4)') 'a0', i,j,k, exp(log_xe),

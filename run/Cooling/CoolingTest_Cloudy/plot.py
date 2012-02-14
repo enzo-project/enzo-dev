@@ -87,7 +87,7 @@ pyplot.clf()
 axes = pyplot.axes()
 axes.set_xlabel('T [K]')
 axes.set_ylabel('$\Lambda/n_{H}^{2}$ [erg s$^{-1}$ cm$^{3}$]')
-plot_cooling_rate('DD0001/DD0001', [(0, 4)], axes, 
+plot_cooling_rate('DD0001/DD0001', [(1, 4)], axes, 
                   labels=['Cloudy, Z = Z$_{\odot}$'])
 plot_cooling_solutions(axes)
 axes.set_xlim(10, 1e8)

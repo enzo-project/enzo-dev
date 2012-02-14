@@ -173,6 +173,9 @@ lib%.$(MACH_SHARED_EXT): $(MODULES) autogen dep enzo.o $(OBJS_LIB)
 .pyx.C: 
 	@cython --cplus $*.pyx -o $*.C 
 ProblemType_Python.o: python_bridge/problemtype_handler.o
+InitializePythonInterface.C: $(PYTHON_INTERFACE_TARGETS)
+InitializePythonInterface_finderfunctions.inc: global_data.h
+	@python create_dictionary_mapping.py 
 
 #-----------------------------------------------------------------------
 # WRITE ALL COMPILER OUTPUT TO FILE
@@ -316,7 +319,7 @@ verbose: $(EXE).exe
 #-----------------------------------------------------------------------
 
 .PHONY: autogen
-autogen: svn_version.def auto_show_config.C auto_show_flags.C auto_show_version.C
+autogen: auto_show_config.C auto_show_flags.C auto_show_version.C auto_show_compile_options.C
 
 # Force update of auto_show_config.C
 
@@ -339,20 +342,11 @@ auto_show_version.C:
 	-@$(MAKE) -s show-version  >& temp.show-version
 	-@awk 'BEGIN {print "#include <stdio.h>\nvoid auto_show_version(FILE *fp) {"}; {print "   fprintf (fp,\""$$0"\\n\");"}; END {print "}"}' < temp.show-version > auto_show_version.C
 
-#-----------------------------------------------------------------------
-# Generate SVN version source file 'svn_version.def'
-#-----------------------------------------------------------------------
+# Force update of auto_show_compile_options.C
 
-# Force update of svn_version.def
-.PHONY: svn_version.def
-svn_version.def:
-	-@$(SVN) identify -i | \
-           awk '{print "#define ENZO_SVN_REVISION","\""$$1"\""}' > svn_version.def
-	-@$(SVN) identify -b | awk '{print "#define ENZO_SVN_BRANCH","\""$$1"\""};' >> svn_version.def 
-	-@if [ ! -s svn_version.def ]; then \
-	printf "#define ENZO_SVN_REVISION 0\n" > svn_version.def; \
-	printf "#define ENZO_SVN_BRANCH \"\"\n" >> svn_version.def; \
-	fi
+.PHONY: auto_show_compile_options.C
+auto_show_compile_options.C:
+	-@python create_config_info.py
 
 #-----------------------------------------------------------------------
 # Generate dependency file
@@ -406,7 +400,7 @@ help:
 
 clean:
 	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
-          auto_show*.C svn_version.def hydro_rk/*.o *.oo hydro_rk/*.oo \
+          auto_show*.C hydro_rk/*.o *.oo hydro_rk/*.oo \
           uuid/*.oo DEPEND TAGS \
           libconfig/*.o \
           python_bridge/problemtype_handler.C \

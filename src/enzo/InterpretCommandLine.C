@@ -20,6 +20,7 @@
  
 void PrintUsage(char *myname);
 void my_exit(int status);
+void auto_show_compile_options(void);
 void WriteConfigure(FILE *fp);
 
 Eint32 hide_isdigit(Eint32 c);
@@ -140,10 +141,12 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
     /* */
 
       case 'V':
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      WriteConfigure(stdout);
-    my_exit(EXIT_SUCCESS);
-    break;
+	if (MyProcessorNumber == ROOT_PROCESSOR) {
+	  WriteConfigure(stdout);
+	  auto_show_compile_options();
+	}
+	my_exit(EXIT_SUCCESS);
+	break;
  
 	/* Information output */
  
@@ -295,6 +298,7 @@ void PrintUsage(char *myname)
 	          "      -C(ooling time write only)\n"
                   "      -h(elp)\n"
 	          "      -i(nformation output)\n"
+	          "      -V (show compiler options and flags)\n"
 	          "      -s(tart  index region) dim0 [dim1] [dim2]\n"
 	          "      -e(nd    index region) dim0 [dim1] [dim2]\n"
 	          "      -b(egin  coordinate region) dim0 [dim1] [dim2]\n"
