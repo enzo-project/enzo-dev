@@ -10,18 +10,6 @@ from optparse import OptionParser
 
 usage = "usage: %prog [options] <XXX file>"
 parser = OptionParser(usage)
-#parser.add_option("-t", "--title", dest="title", action="store", 
-#                  default=None, type="string", help="set title in plot")
-#parser.add_option("-x", "--x-title", dest="x_title", action="store", 
-#                  default=None, type="string", help="set x-axis title in plot")
-#parser.add_option("-y", "--y-title", dest="y_title", action="store", 
-#                  default=None, type="string", help="set y-axis title in plot")
-#parser.add_option("-l", "--log-type", dest="log_type", action="store", 
-#                  help="set plot-type 0=lin, 1=log-lin, 2=lin-log, 3=log-log",
-#                  default=0, type="int")
-#parser.add_option("-w", "--write", dest="write_fig", action="store", 
-#                  default=None, type="string", 
-#                  help="write fig to an output .png file instead of to screen")
 (opts, args) = parser.parse_args()
 if len(args) != 1:
         parser.error("incorrect number of arguments")
@@ -37,123 +25,104 @@ import numpy as np
 from matplotlib.patches import Polygon
 from matplotlib import cm
 
-#def fill_between(ax, x, y1, y2, **kwargs):
-#    # add x,y2 in reverse order for proper polygon filling
-#    verts = zip(x,y1) + [(x[i], y2[i]) for i in range(len(x)-1,-1,-1)]
-#    poly = Polygon(verts, **kwargs)
-#    ax.add_patch(poly)
-#    ax.autoscale_view()
-#    return poly
-
 filename = args[0]
 
 ### Create empty lists
-#x = []
-#y = []
-time_list = []
-data_list = []
+cycle_list = []
+data_dict = {}
 
-### Open the filename, and for each non-comment line pull the x and y 
-### column values out and append them to our lists: x and y
+### Open the file, and pull out the data.  
+### Comments are ignored.  Each block of multiline text is treated individually.
+### The first line is expected to be the cycle_number, which is stored into an
+### array.  Each subsequent line uses the first string as a dictionary key, 
+### with the remaining columns the data for that key.  
+
 input = open(filename, "r")
-
-#import pdb; pdb.set_trace()
 for line in input:
-    data_sublist = []
     if not line.startswith("#") and line.strip():
         linelist = line.split()
-        if linelist[0] == 'Total':
-            break
-        time_list.append(linelist[1])
-        data_sublist.append(linelist[2:7])
-        ### XXX Poll data for individual processors in verbose case
+        if linelist[0] != 'Cycle_Number':
+            exit("Expected Cycle_Number at beginning of output block")
+        cycle = linelist[1]
+        cycle_list.append(cycle)
+        cycle = [int(cycle)]
+        # Start to parse individual lines of data block until empty line
         for line in input:
             if line.strip() == '':
                 break
             if not line.startswith("#"):
                 linelist = line.split()
-                data_sublist.append(linelist[2:7])
-        data_list.append(data_sublist)            
-
-### XXX Poll data for last paragraph "Total" 
-#for line in input:
-#    if not line.startswith("#"):
-#        linelist = line.split()
-#        data_sublist.append(linelist[2:7])
-#    data_list.append(data_sublist)            
-
+                line_key = linelist[0]
+                ### Convert line_key's underscores to spaces
+                line_key = " ".join(line_key.split('_'))
+                line_value = np.array(cycle + linelist[1:],dtype='float64')
+                ### If existing key, then append this, otherwise make new entry in dict
+                if data_dict.__contains__(line_key):
+                    data_dict[line_key] = np.column_stack((data_dict[line_key],line_value))
+                else:
+                    data_dict[line_key] = line_value
 
 input.close()
 
-times = np.array(time_list,dtype='int32')
-data = np.array(data_list,dtype='float32')
+times = np.array(cycle_list,dtype='int32')
 
-### data is an array of dimension timesteps x levels+1 x 5 
+### data_dict is a dictionary with keys representing different timing processes 
+### (e.g. level information, rebuild_hierarchy, timed chunks of codes, etc.) 
 
-### the first dimension is over timesteps
-### the second dimension is over levels (but the first entry is the sum over all levels)
-
-### the 5 values in the 3rd dimension are: 
-### (num_cells, mean_cells/sec/proc, stddev_cells/sec/proc, min_cells/sec/proc, max_cells/sec/proc)
+### the payload of the dictionary for each key is an (N+1)xM array, where N = the
+### number of columns of data associated with each timing process (the first is 
+### the cycle number), and M represents the number of cycles.
 
 pl.figure(1)
 
-# plot total timestep vs mean cells / sec / proc
-# with min/max/stddev plotted over
-#pl.plot(times, data[:,0,1])
-#    pylab.xlabel(opts.x_title)
+# can remove in final, but makes more readable.  for all levels.
+cycle = data_dict['Total'][0,:]
+mean = data_dict['Total'][1,:]
+stddev = data_dict['Total'][2,:]
+min = data_dict['Total'][3,:]
+max = data_dict['Total'][4,:]
 
-# plot time on each level vs timestep
-#for i in range(data.shape[1]):  
-#    pl.plot(times, data[:,i,0])
+# plot cycle vs mean walltime / proc
+# with min/max plotted over
+pl.plot(cycle, mean)
+minmax = pl.fill_between(cycle,min,max,facecolor='g')
+pl.xlim([np.min(cycle),np.max(cycle)])
+pl.ylim([0,1.1*np.max(max)])
+minmax.set_alpha(0.5)
+#sigmax = pl.fill_between(cycle,sigmin,sigmax,facecolor='b')
+#sigmax.set_alpha(0.5)
+pl.xlabel("Cycle Number")
+pl.ylabel("Average Walltime Spent (seconds)")
+pl.suptitle("Aggragate Walltime Spent with min/max per Processor") 
+#pl.savefig("time_total.png")
+pl.show()
+pl.clf()
 
-# plot time on each processsor vs timestep
-#for i in range(data.shape[2]):  
-#    pl.plot(times, data[:,0,i])
+# plot total cells/sec/processor processed over time
+pl.plot(cycle, data_dict['Total Cells/Sec/Processor:'][1,:])
+pl.xlabel("Cycle Number")
+pl.ylabel("Total Cells/Sec/Processor")
+pl.suptitle("Cells Processed")
+#pl.savefig("time_total.png")
+pl.show()
+pl.clf()
 
-#for level in range(data.shape[2])
-#    pl.plot(timesteps, data[,:,level], 'b-')
+### Now plot up time taken per level, stacked to get cumulative time
+cumulate_grids = np.zeros((2,len(cycle_list)))
 
-# Add extras to the plot and save or display it?
-#if not opts.title:
-#    opts.title = "%s -- Column %i vs Column %i\n" % (filename,x_column,y_column)
-#pylab.suptitle(opts.title) 
-# perhaps I need to check if x_title is defined before doing the following line
-#if opts.x_title:
-#    pylab.xlabel(opts.x_title)
-#if opts.y_title:
-#    pylab.ylabel(opts.y_title)
-#
-#if opts.write_fig:
-#    pylab.savefig(opts.write_fig)
-#else:
-
-input.close()
-
-
-### data is an array of dimension timesteps x levels+1 x 5 
-
-### the first dimension is over timesteps
-### the second dimension is over levels (but the first entry is the sum over all levels)
-
-### the 5 values in the 3rd dimension are: 
-### (num_cells, mean_cells/sec/proc, stddev_cells/sec/proc, min_cells/sec/proc, max_cells/sec/proc)
-
-#pl.figure(1)
-
-cumulate_grids = np.zeros((2,len(time_list)))
-
-cumulate_grids[1,:] += data[:,1,0]
-#import pdb;pdb.set_trace()
-# plot timestep vs num_cells on diff levels
+### Figure out how many Levels of refinement have been recorded
+i = 0
 legend_list = []
-levels = range(2,data.shape[1])
-pl.fill_between(times,cumulate_grids[0,:],cumulate_grids[1,:],color=cm.jet(0))
-pl.plot(times,cumulate_grids[1,:],color=cm.jet(0))
-legend_list.append('Level %i' % 0)
-cumulate_grids[0,:] = cumulate_grids[1,:]
+while data_dict.has_key('Level %i' % i):
+    cumulate_grids[1,:] += data_dict['Level %i' % i]
+    i += 1
+#XXX
+    # plot timestep vs num_cells on diff levels
+    pl.fill_between(times,cumulate_grids[0,:],cumulate_grids[1,:],color=cm.jet(0))
+    pl.plot(times,cumulate_grids[1,:],color=cm.jet(0))
+    legend_list.append('Level %i' % 0)
+    cumulate_grids[0,:] = cumulate_grids[1,:]
 
-for i in levels:
 #    pl.plot(times, data[:,i,0])
     #pl.fill_between(ax,times,data[:,i-1,0],data[:,i,0])
     cumulate_grids[1,:] += data[:,i,0]
@@ -170,18 +139,11 @@ pl.suptitle("Number of Grids vs Cycle")
 pl.savefig("grids.png")
 pl.clf()
 
-# can remove in final, but makes more readable.  for all levels.
-mean = data[:,0,1]
-stddev = data[:,0,2]
-min = data[:,0,3]
-max = data[:,0,4]
-sigmin = mean - stddev
-sigmax = mean + stddev
 
 
 # plot total timestep vs mean cells / sec / proc
 # with min/max/stddev plotted over
-cumulate_grids = np.zeros((2,len(time_list)))
+cumulate_grids = np.zeros((2,len(cycle_list)))
 
 cumulate_grids[1,:] += data[:,1,1]
 legend_list = []
@@ -213,44 +175,4 @@ pl.suptitle("Walltime Spent on Levels")
 pl.savefig("time_levels.png")
 pl.clf()
 
-# plot total timestep vs mean cells / sec / proc
-# with min/max/stddev plotted over
-pl.plot(times, mean)
-minmax = pl.fill_between(times,min,max,facecolor='g')
-pl.xlim([np.min(times),np.max(times)])
-pl.ylim([0,1.1*np.max(max)])
-minmax.set_alpha(0.5)
-#sigmax = pl.fill_between(times,sigmin,sigmax,facecolor='b')
-#sigmax.set_alpha(0.5)
-pl.xlabel("Cycle Number")
-pl.ylabel("Walltime Spent (seconds)")
-pl.suptitle("Aggragate Walltime Spent with min/max for Processors") 
-pl.savefig("time_total.png")
-pl.clf()
-#pl.show()
-
-# plot times on each level vs timestep
-#for i in range(data.shape[1]):  
-#    pl.plot(timesteps, data[:,i,0])
-
-# plot times on each processsor vs timestep
-#for i in range(data.shape[2]):  
-#    pl.plot(timesteps, data[:,0,i])
-
-#for level in range(data.shape[2])
-#    pl.plot(timesteps, data[,:,level], 'b-')
-
-# Add extras to the plot and save or display it?
-#if not opts.title:
-#    opts.title = "%s -- Column %i vs Column %i\n" % (filename,x_column,y_column)
-#pylab.suptitle(opts.title) 
-# perhaps I need to check if x_title is defined before doing the following line
-#if opts.x_title:
-#    pylab.xlabel(opts.x_title)
-#if opts.y_title:
-#    pylab.ylabel(opts.y_title)
-#
-#if opts.write_fig:
-#    pylab.savefig(opts.write_fig)
-#else:
 pl.close()
