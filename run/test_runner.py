@@ -29,6 +29,7 @@ try:
     from yt.utilities.answer_testing.api import \
         RegressionTestRunner, clear_registry, create_test, \
         TestFieldStatistics, TestAllProjections
+    from yt.utilities.command_line import get_yt_version
     from yt.utilities.logger import ytLogger as mylog
     from yt.utilities.logger import \
         disable_stream_logging, ufstring
@@ -44,6 +45,12 @@ try:
     numpy.seterr(all = "ignore")
 except ImportError:
     pass
+
+try:
+    yt_version = get_yt_version()
+except:
+    print "ERROR: cannot get yt version, install yt in develop mode if you want the test runner to record the yt version."
+    yt_version = None
 
 # Test keyword types and default values.
 varspec = dict(
@@ -548,7 +555,8 @@ if __name__ == "__main__":
     options.output_dir = os.path.join(options.output_dir, rev_hash)
     if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     f = open(os.path.join(options.output_dir, version_filename), 'w')
-    f.write(hg_current)
+    f.write('Enzo: %s' % hg_current)
+    f.write('yt: %s\n' % yt_version)
     f.close()
 
     # the path to the executable we're testing
