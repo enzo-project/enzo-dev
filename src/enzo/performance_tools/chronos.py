@@ -6,16 +6,12 @@
 # description: plots performance information from chronos.out
 
 from optparse import OptionParser
-
 usage = "usage: %prog <.out file>"
 parser = OptionParser(usage)
 (opts, args) = parser.parse_args()
 if len(args) != 1:
         parser.error("incorrect number of arguments")
 
-# If we're just writing the figure (and not displaying it), then don't use
-# x-windows backend to render the image (or else it will break if it doesn't
-# have $display set).
 #if opts.write_fig:
 import matplotlib as mpl
 #matplotlib.use('Agg')
@@ -25,8 +21,7 @@ from matplotlib import cm
 
 filename = args[0]
 
-### Create empty lists
-cycle_list = []
+### Create empty data structure which will store all input
 data_dict = {}
 
 ########
@@ -46,9 +41,11 @@ data_dict = {}
 
 ### Open the file, and pull out the data.  
 ### Comments are ignored.  Each block of multiline text is treated individually.
-### The first line is expected to be the cycle_number, which is stored into an
+### The first line of each text block is expected to be the cycle_number, 
+### which is stored into an
 ### array.  Each subsequent line uses the first string as a dictionary key, 
 ### with the remaining columns the data for that key.  
+### A blank line signifies the end of a text block
 
 new_block = True
 input = open(filename, "r")
@@ -71,7 +68,6 @@ for line in input:
             else:
                 cycle = int(linelist[1])
                 new_block = False
-                cycle_list.append(cycle)
                 continue
 
         # if we've made it this far, cycle is defined and we're
@@ -82,6 +78,7 @@ for line in input:
         line_key = " ".join(line_key.split('_'))
 
         line_value = np.array([cycle] + linelist[1:],dtype='float64') 
+        line_value = np.nan_to_num(line_value)  # error checking
 
         ### If line_key is not already in our dictionary, then we create
         ### a new array as the dictionary payload
