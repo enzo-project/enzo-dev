@@ -21,6 +21,63 @@ from matplotlib import cm
 
 filename = args[0]
 
+def is_iterable(obj):
+    """
+    Checks to see if an object is iterable (i.e. if it is a list-like object)
+    """
+    return isinstance(obj, basestring) or getattr(obj, '__iter__', False)
+
+def preserve_extrema(extrema, xdata, ydata):
+    """
+    Keep track of the universal extrema over multiple x-y datasets
+    """
+    minx = np.min([extrema[0], np.min(xdata)])
+    maxx = np.max([extrema[1], np.max(xdata)])
+    miny = np.min([extrema[2], np.min(ydata)])
+    maxy = np.max([extrema[3], np.max(ydata)])
+    return [minx,maxx,miny,maxy]
+
+def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
+                  x_field_output=0, x_field_axis_label="Cycle Number",
+                  display=True, filename=""):
+    """
+    Produce a plot for the given label/output from the input file.
+
+    Example:
+    plot_quantity("RebuildHierarchy", 1, "Mean Time (sec)", filename="text.png")
+    """
+    extrema = [0.,0.,0.,0.]
+    legend_list = []
+#    import pdb; pdb.set_trace()
+    if is_iterable(field_label) and is_iterable(y_field_output):
+        assert len(field_label) == len(y_field_output)
+        for i in range(len(field_label)):
+            xdata = data[field_label[i]][x_field_output]
+            ydata = data[field_label[i]][y_field_output[i]]
+            pl.plot(xdata,ydata)
+            extrema = preserve_extrema(extrema,xdata,ydata)
+            legend_list.append(field_label[i])
+    else:
+        xdata = data[field_label][x_field_output]
+        ydata = data[field_label][y_field_output]
+        pl.plot(xdata,ydata)
+        extrema = preserve_extrema(extrema,xdata,ydata)
+    pl.xlim(extrema[0:2])
+    pl.ylim([extrema[2],1.1*extrema[3]])
+    if len(legend_list) > 0:
+        pl.legend(legend_list)
+    #zerodata = np.zeros(len(ydata))
+    #fillin = pl.fill_between(cycles,zerodata,ydata,facecolor='g')
+    #fillin.set_alpha(0.5)
+    pl.xlabel(x_field_axis_label)
+    pl.ylabel(y_field_axis_label)
+    if filename:
+        pl.savefig(filename)
+    if display:
+        pl.show()
+    pl.clf()
+    
+
 ### Create empty data structure which will store all input
 data_dict = {}
 
@@ -32,8 +89,8 @@ data_dict = {}
 ### giving specific handles on data entries.
 
 ### XXX 
-### Need to make functions for all plotting.  Some modular ones
-### for user defined datasets.
+### Need to make functions for plotting stacks.  Some modular ones
+### for user defined datasets.  Overplotting min/max over means.
 
 ### Will all user-defined datasets give mean, sigma, min, max by default?
 ### Anything else?
@@ -108,6 +165,17 @@ stddev = data_dict['Total'][2]
 min = data_dict['Total'][3]
 max = data_dict['Total'][4]
 
+#####
+# testing plot quantity
+#####
+
+#plot_quantity(data_dict, ['Total', 'Level 0'], [1,1], "Total Time")
+plot_quantity(data_dict, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time")
+plot_quantity(data_dict, 'Total', 1, "Total Time")
+#def plot_quantity(field_label, y_field_output, y_field_axis_label="",
+#                  x_field_output=0, x_field_axis_label="Cycle Number",
+#                  data=data_dict, display=True, filename=""):
+
 ######
 # plot cycle vs mean walltime / proc
 # with min/max plotted over in translucent green
@@ -121,7 +189,7 @@ pl.xlabel("Cycle Number")
 pl.ylabel("Average Walltime Spent (seconds)")
 pl.suptitle("Aggregate Walltime Spent with min/max per Processor") 
 #pl.savefig("time_total.png")
-#pl.show()
+pl.show()
 pl.clf()
 
 ######
@@ -136,7 +204,7 @@ pl.xlabel("Cycle Number")
 pl.ylabel("Total Cells/Sec/Processor")
 pl.suptitle("Cells Processed")
 #pl.savefig("cell_total.png")
-#pl.show()
+pl.show()
 pl.clf()
 
 ######
@@ -173,8 +241,8 @@ pl.ylim([0.,np.max(cumulate_grids[1])*1.1])
 pl.legend(legend_list)
 pl.suptitle("Grids vs Cycle") 
 
-pl.show()
 #pl.savefig("grids.png")
+pl.show()
 pl.clf()
 
 
@@ -212,6 +280,6 @@ pl.ylim([0.,np.max(cumulate_grids[1])*1.1])
 pl.legend(legend_list)
 pl.suptitle("Mean Time Spent vs Cycle") 
 
-pl.show()
 #pl.savefig("grids.png")
+pl.show()
 pl.clf()
