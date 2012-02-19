@@ -44,11 +44,11 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
     Produce a plot for the given label/output from the input file.
 
     Example:
-    plot_quantity("RebuildHierarchy", 1, "Mean Time (sec)", filename="text.png")
+    plot_quantity(data, "RebuildHierarchy", 1, "Mean Time (sec)")
+                  
     """
-    extrema = [0.,0.,0.,0.]
+    extrema = np.zeros(4)
     legend_list = []
-#    import pdb; pdb.set_trace()
     if is_iterable(field_label) and is_iterable(y_field_output):
         assert len(field_label) == len(y_field_output)
         for i in range(len(field_label)):
@@ -77,9 +77,55 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
         pl.show()
     pl.clf()
     
+def plot_stack(data, field_label, y_field_output, y_field_axis_label="",
+               x_field_output=0, x_field_axis_label="Cycle Number",
+               display=True, filename="", repeated_field=""):
+    """
+    Produce a plot for the given label/outputs where each quantity is stacked
+    on top of the previous quantity.
 
+    Example:
+    plot_stack(data, ["Level 0", "Level 1", "Level 2"], 1, "Mean Time (sec)")
+    """
+    extrema = np.zeros(4)
+    legend_list = []
+
+    ### If a repeated_field, figure out how many repeated fields there are.
+    ### including any that were defined in the original field_label arg.
+    if repeated_field:
+        i = 0
+        while data.has_key(repeated_field + ' %i' % i):
+            field_label.append(repeated_field + ' %i' % i)
+            i += 1
+    num_fields = len(field_label)
+
+    xdata = data[field_label[0]][x_field_output]
+    cumulate_fields = np.zeros((2,len(xdata)))
+
+    for i in range(0,num_fields):
+        cumulate_fields[1] += data[field_label[i]][y_field_output]
+        color = cm.jet(1.*i/num_fields)
+        pl.fill_between(xdata,cumulate_fields[0],cumulate_fields[1],color=color)
+        pl.plot(xdata,cumulate_fields[1],color=color)
+        legend_list.append(field_label[i])
+        extrema = preserve_extrema(extrema,xdata,cumulate_fields[1])
+        # Move level down and repeat for new level
+        cumulate_fields[0] = cumulate_fields[1]
+
+    pl.xlim(extrema[0:2])
+    pl.ylim([extrema[2],1.1*extrema[3]])
+    if len(legend_list) > 0:
+        pl.legend(legend_list)
+    pl.xlabel(x_field_axis_label)
+    pl.ylabel(y_field_axis_label)
+    if filename:
+        pl.savefig(filename)
+    if display:
+        pl.show()
+    pl.clf()
+    
 ### Create empty data structure which will store all input
-data_dict = {}
+data = {}
 
 ########
 ### XXX
@@ -89,8 +135,8 @@ data_dict = {}
 ### giving specific handles on data entries.
 
 ### XXX 
-### Need to make functions for plotting stacks.  Some modular ones
-### for user defined datasets.  Overplotting min/max over means.
+### Need to add overplotting min/max over means.
+### Better docstrings and better examples.
 
 ### Will all user-defined datasets give mean, sigma, min, max by default?
 ### Anything else?
@@ -140,12 +186,12 @@ for line in input:
         ### If line_key is not already in our dictionary, then we create
         ### a new array as the dictionary payload
 
-        if not data_dict.__contains__(line_key):
-            data_dict[line_key] = line_value
+        if not data.__contains__(line_key):
+            data[line_key] = line_value
 
         ### Otherwise, add a new row to the existing dataset
         else:
-            data_dict[line_key] = np.column_stack((data_dict[line_key],
+            data[line_key] = np.column_stack((data[line_key],
                                                    line_value))
 
 input.close()
@@ -159,22 +205,20 @@ input.close()
 pl.figure(1)
 
 # can remove in final, but makes more readable.  for all levels (ie Total).
-cycles = data_dict['Total'][0]
-mean = data_dict['Total'][1]
-stddev = data_dict['Total'][2]
-min = data_dict['Total'][3]
-max = data_dict['Total'][4]
+cycles = data['Total'][0]
+mean = data['Total'][1]
+stddev = data['Total'][2]
+min = data['Total'][3]
+max = data['Total'][4]
 
 #####
-# testing plot quantity
+# testing 
 #####
-
-#plot_quantity(data_dict, ['Total', 'Level 0'], [1,1], "Total Time")
-plot_quantity(data_dict, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time")
-plot_quantity(data_dict, 'Total', 1, "Total Time")
-#def plot_quantity(field_label, y_field_output, y_field_axis_label="",
-#                  x_field_output=0, x_field_axis_label="Cycle Number",
-#                  data=data_dict, display=True, filename=""):
+plot_quantity(data, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time")
+plot_quantity(data, 'Total', 1, "Total Time")
+plot_stack(data, [], 1, "Mean Time (sec)", repeated_field="Level")
+plot_stack(data, ['Total'], 1, "Mean Time (sec)", repeated_field="Level")
+plot_stack(data, ['RebuildHierarchy','SolveHydroEquations'], 1, "Mean Time (sec)" )
 
 ######
 # plot cycle vs mean walltime / proc
@@ -195,8 +239,8 @@ pl.clf()
 ######
 # plot total cells/sec/processor processed over time
 ######
-xdata = data_dict['Total Cells/Sec/Processor'][0]
-ydata = data_dict['Total Cells/Sec/Processor'][1]
+xdata = data['Total Cells/Sec/Processor'][0]
+ydata = data['Total Cells/Sec/Processor'][1]
 pl.plot(xdata, ydata)
 pl.xlim([np.min(xdata),np.max(xdata)])
 pl.ylim([np.min(ydata),np.max(ydata)*1.1])
@@ -216,7 +260,7 @@ pl.clf()
 ### level, then the 1st to the 2nd, etc.
 i = 0
 legend_list = []
-while data_dict.has_key('Level %i' % i):
+while data.has_key('Level %i' % i):
     i += 1
 num_levels = i
 
@@ -226,7 +270,7 @@ num_levels = i
 cumulate_grids = np.zeros((2,len(cycles)))
 
 for i in range(0,num_levels):
-    cumulate_grids[1] += data_dict['Level %i' % i][6]
+    cumulate_grids[1] += data['Level %i' % i][6]
     color = cm.jet(1.*i/num_levels)
     pl.fill_between(cycles,cumulate_grids[0],cumulate_grids[1],color=color)
     pl.plot(cycles,cumulate_grids[1],color=color)
@@ -255,7 +299,7 @@ pl.clf()
 ### level, then the 1st to the 2nd, etc.
 i = 0
 legend_list = []
-while data_dict.has_key('Level %i' % i):
+while data.has_key('Level %i' % i):
     i += 1
 num_levels = i
 
@@ -265,7 +309,7 @@ num_levels = i
 cumulate_grids = np.zeros((2,len(cycles)))
 
 for i in range(0,num_levels):
-    cumulate_grids[1] += data_dict['Level %i' % i][1]
+    cumulate_grids[1] += data['Level %i' % i][1]
     color = cm.jet(1.*i/num_levels)
     pl.fill_between(cycles,cumulate_grids[0],cumulate_grids[1],color=color)
     pl.plot(cycles,cumulate_grids[1],color=color)
