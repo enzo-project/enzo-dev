@@ -21,11 +21,11 @@ from matplotlib import cm
 
 filename = args[0]
 
-def is_iterable(obj):
+def is_listlike(obj):
     """
-    Checks to see if an object is iterable (i.e. if it is a list-like object)
+    Checks to see if an object is listlike (but not a string)
     """
-    return isinstance(obj, basestring) or getattr(obj, '__iter__', False)
+    return not isinstance(obj, basestring)
 
 def preserve_extrema(extrema, xdata, ydata):
     """
@@ -39,21 +39,85 @@ def preserve_extrema(extrema, xdata, ydata):
 
 def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
                   x_field_output=0, x_field_axis_label="Cycle Number",
-                  display=True, filename=""):
+                  display=True, filename="", repeated_field=""):
     """
-    Produce a plot for the given label/output from the input file.
+    Produce a plot for the given quantity(s) from the input file.
 
-    Example:
-    plot_quantity(data, "RebuildHierarchy", 1, "Mean Time (sec)")
-                  
+    Parameters
+    ----------
+    data : dictionary of recarrays
+        The dictionary containing all of the data for use in plotting.
+    field_label : string or array_like of strings
+        The label of the field you wish to plot.  If you wish to plot
+        multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
+    y_field_output : int or array_like of ints
+        The index of the field you wish to plot. Ex: 1 for mean time.
+    y_field_axis_label : string, optional
+        The y axis label on the resulting plot. Default = ""
+    x_field_output : int, optional
+        The index of the x data you wish to plot. Default = 0 (Cycles)
+    x_field_axis_label : string, optional
+        The x axis label on the resulting plot. Default = "Cycle Number"
+    display : bool, optional
+        Do you wish to display the data to the screen?
+    filename : string, optional
+        The filename where I will store your plotted data.
+    repeated_field : string, optional
+        If you have a regularly named set of fields you wish to plot 
+        against each other (e.g. "Level 0", "Level 1", "Level 2"), then
+        include the string here and they will all be included automatically
+        and in order (e.g. "Level").
+
+    See Also
+    --------
+    plot_stack
+
+    Examples
+    --------
+    To produce a simple plot of the mean time taken over the course of the
+    simulation and display it to the screen:
+
+    >>> plot_quantity(data, "RebuildHierarchy", 1, "Mean Time (sec)")
+
+    To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
+    maximum time taken over the course of the simulation and save it 
+    to a file: "test.png"
+
+    >>> plot_quantity(data, ["RebuildHierarchy", "SolveHydroEquations"],
+    4, "Maximum Time (sec)", display=False, filename="test.png")
+
+    To produce a plot comparing the maximum time from RebuildHiearchy and 
+    the minimum time from SolveHydroEquations taken over the course of the 
+    simulation and save it to a file: "test.png"
+
+    >>> plot_quantity(data, ["RebuildHierarchy", "SolveHydroEquations"],
+    [4,3], "Time (sec)", display=False, filename="test.png")
+
+    To produce a plot comparing the mean time taken by all of the different
+    levels over the course of the simulation and save it to a file: "test.png"
+
+    >>> plot_quantity(data, [], 1, "Mean Time (sec)", display=False, 
+                      filename="test.png", repated_field="Level")
     """
     extrema = np.zeros(4)
     legend_list = []
-    if is_iterable(field_label) and is_iterable(y_field_output):
-        assert len(field_label) == len(y_field_output)
+    ### If a repeated_field, figure out how many repeated fields there are.
+    ### including any that were defined in the original field_label arg.
+    if repeated_field:
+        if not is_listlike(field_label):
+            field_label = [field_label]
+        i = 0
+        while data.has_key(repeated_field + ' %i' % i):
+            field_label.append(repeated_field + ' %i' % i)
+            i += 1
+    num_fields = len(field_label)
+    if is_listlike(field_label):
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]]
+            if is_listlike(y_field_output):
+                ydata = data[field_label[i]][y_field_output[i]]
+            else:
+                ydata = data[field_label[i]][y_field_output]
             pl.plot(xdata,ydata)
             extrema = preserve_extrema(extrema,xdata,ydata)
             legend_list.append(field_label[i])
