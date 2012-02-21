@@ -1,50 +1,89 @@
-The chronos timing function can ...
+Usage Overview
+##############
 
-The format of the filename for chronos files is:
+We have added support for a simple, lightweight, timing and performance
+measurements.  This allows one to examine which functions are using the majority
+of the simulation runtime, and how this varies across multiple processors. We
+have built in a number of default timers, such as EvolveLevel for each level,
+RebuildHierarchy, SolveHydroEquations, and Gravity. Below, we will outline how
+to add additional timers.
 
-chronos_PROCEDURE_STARTTIME.txt
+File Format
+###########
 
-The format of the output chronos files are:
+At each cycle, information is printed out to a file named chronos.txt (default
+filename may change).  By default, for each timing section the times spent on
+each processor are collected, and the mean, standard deviation, minimum, and
+maximum values are presented.  This is meant to give the user a sense of how
+well load-balanced their simulation is across processors, as well as pinpoint
+where the majority of the time is being spent.  To explain the output, we show
+an example cycle:
 
-Each timestep is an array of space-delimited text.  The first line of the array is the timing information from the simulation as a whole.  It is the step number, the total number of cells, and then information about the number of cells evolved per second per processor.  This information is the average, the standard deviation, the minimum and the maximum of the processor distribution respectively.  If the additional verbose flag is true, the total time spent on each processor is included for the entire distribution of processors.
+--------------------------example chronos.txt---------------------------------
+Cycle_Number 2
+Level_0 6.520748e-05 8.344650e-07 6.389618e-05 6.604195e-05 100 4 3.833916e+05
+Level_1 3.254414e-05 2.804866e-05 1.406670e-05 8.106232e-05 10 1 7.681875e+04
+Level_2 1.159906e-04 2.678922e-05 9.965897e-05 1.623631e-04 14 1 3.017485e+04
+Level_3 2.477765e-04 7.348677e-05 2.028942e-04 3.750324e-04 16 1 1.614358e+04
+Level_4 5.816817e-04 1.630557e-04 4.820824e-04 8.640289e-04 24 1 1.031492e+04
+Level_5 1.266718e-03 3.594168e-04 1.056910e-03 1.889229e-03 26 1 5.131371e+03
+Level_6 2.686501e-03 7.197988e-04 2.262831e-03 3.933191e-03 40 1 3.722315e+03
+RebuildHierarchy 5.715549e-03 1.371242e-04 5.478144e-03 5.801201e-03
+SolveHydroEquations 1.436710e-03 2.407243e-03 4.386902e-05 5.606174e-03
+Total 1.499003e-02 3.440975e-05 1.494408e-02 1.503992e-02 230 10 3.835882e+03
+------------------------------------------------------------------------------
 
-Each subsequent line follows the same specification, except that it is broken down to each level of refinement on the simulation.  At the end of a timestep, there is a blank line.
+Each of the Level_N and Total lines have:
+Level_N, time_mean, time_stddev, time_min, time_max, n_cells, n_grids, mean cells/s/processor
 
-If the simulation reached its end point, the last entry should be global timing statistics for the entire run.  This follows the protocol from above, but averages it globally.
+Each non-level line (Rebuild Hierarchy, SolveHydroEquations, etc.) have:
+Section Name, time_mean, time_stddev, time_min, time_max, 
 
-Laid out explicitly, it follows this format:
+In this case we see that more time is being spent in RebuildHierarchy than in
+SolveHydroEquations, and that the load balance is quite poor for the
+SolveHydroEquations where the mean is 1.4 ms, with a standard deviation of
+2.4 ms. 
 
-Step step_num num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
-Level level0 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
-Level level1 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
-...
-Level levelN num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc 
+At the beginning of each simulation (on Cycle 1), we print out a header to the
+chronos.txt file:
+
+# This file contains timing information
+# For instructions on how to decipher this information,
+# see http://enzo-project.org/docs/somewhere
+# Times are collected across MPI processes and presented as:
+# Level_N/Total, mean time, std_dev time, min time, max time, cells, grids,
+# cells/processor/sec
+# Routine, mean time, std_dev time, min time, max time
+
+Then, at the start of each simulation (whether the beginning or a restart), we
+print out the MPI processor count:
+
+# Starting performance log. MPI processes: 4
+
+This is done in case the number of processors changes over time.
+
+Adding new Timers
+#################
+
+While there are a number of default timers, it is easy to add new timers to any
+section of code in Enzo.
+
+It has a number of timers built in such as EvolveHierarchy (Total), EvolveLevel
+(for each level), Gravity, Hydro, RebuildHierarchy.  Adding new times should be
+as simple as doing two things:
+
+1) Add #include "EnzoTiming.h" to the top of the file you want to profile,
+making sure it is before macros_and_parameters.
+
+2) Adding 
+TIMER_START("YourTimerName");
+and 
+TIMER_STOP("YourTimerName");
+around the code you want to time.  
+
+The string that you pass in gets collected in a map which is then iterated over
+at the end of each evolve hierarchy.  At that time it prints into a file named
+chronos.txt.
 
 
-When the verbose flag is set:
 
-Step step_num num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
-Level level0 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
-Level level1 num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
-...
-Level levelN num_cells avg_cells/sec/proc stddev_cells/sec/proc min_cells/sec/proc max_cells/sec/proc time_proc0 time_proc1 ... time_procM
-
-Total total_time proc0 proc1 ... procN
-
-Example:
-
-Step 534 1000 1000 100 500 1500
-Level 0 300 50 200 600
-Level 1 700 50 300 900
-
-Step 535 1000 1000 100 500 1500
-Level 0 300 50 200 600
-Level 1 700 50 300 900
-
-Step 536 1000 1000 100 500 1500
-Level 0 300 50 200 600
-Level 1 700 50 300 900
-
-Total 3 3000 1000 100 500 1500
-Level 0 300 50 200 600
-Level 1 700 50 300 900
