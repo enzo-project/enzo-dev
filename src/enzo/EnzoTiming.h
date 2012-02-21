@@ -110,7 +110,7 @@ namespace enzo_timing{
     long int ncells;      // Number of Cells (For Level Timers)
     
   };
-
+  typedef std::map<std::string, section_performance *> SectionMap;
 
   /* --------------------------------------------------------- */
 
@@ -128,6 +128,7 @@ namespace enzo_timing{
       current_time = 0.0;
       filename = (char *)("chronos.out");
       set_mpi_environment();
+      first_write = true;
     }
 
     // Constructor, accepts non-standard filename
@@ -136,11 +137,12 @@ namespace enzo_timing{
       current_time = 0.0;
       filename = performance_name;
       set_mpi_environment();
+      first_write = true;
     }
 
     // Destructor, erases each timer.
     ~enzo_timer(void){
-      for( iter=timers.begin(); iter!=timers.end(); ++iter){
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         delete [] iter->second;
         timers.erase(iter);
       }
@@ -158,14 +160,13 @@ namespace enzo_timing{
 #endif
     }
 
-    // Use std::map objects and iterators to store timers
+    // Use SectionMap std::map objects to store timers
     // in a linked list.
-    std::map<std::string, section_performance *> timers;
-    std::map<std::string, section_performance *>::iterator iter;
+    SectionMap timers;
 
     // Accessor for section performance object
     section_performance * get(char *name){
-      iter = timers.find(name);
+      SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
         fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
@@ -175,7 +176,7 @@ namespace enzo_timing{
 
     // Start a timer by name
     void start(char *name){
-      iter = timers.find(name);
+      SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
         fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
@@ -185,7 +186,7 @@ namespace enzo_timing{
 
     // Stop a timer by name
     void stop(char *name){
-      iter = timers.find(name);
+      SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
         fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
@@ -203,7 +204,7 @@ namespace enzo_timing{
     // Access total_time by summing from timers
     double get_total_time(void){
       total_time = 0.0;
-      for( iter=timers.begin(); iter!=timers.end(); ++iter){
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         total_time += iter->second->get_total_time();
       }
       return total_time;
@@ -213,7 +214,7 @@ namespace enzo_timing{
     double get_total_levels_time(void){
       total_time = 0.0;
       std::string keyname;
-      for( iter=timers.begin(); iter!=timers.end(); ++iter){
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         keyname = iter->first;
         if (strncmp(keyname.c_str(), "Level", 5) == 0){
           total_time += iter->second->get_total_time();
@@ -222,23 +223,36 @@ namespace enzo_timing{
       return total_time;
     }
 
-    // Not implemented.
-    int get_total_grids(void){
-      return 0;
-      /* temp_performance = level_zero_performance; */
-      /* int total_grids = 0; */
-      /* while(temp_performance != NULL){ */
-      /*     total_grids += temp_performance->get_ngrids(); */
-      /*     temp_performance = temp_performance->next; */
-      /* } */
-      
-      /* return total_grids; */
+    // Get sum of number of grids
+    long int get_total_grids(void){
+      long int total_grids = 0;
+      std::string keyname;
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
+        keyname = iter->first;
+        if (strncmp(keyname.c_str(), "Level", 5) == 0){
+          total_grids += iter->second->get_grids();
+        }
+      }
+      return total_grids; 
+    }
+
+    // Get sum of number of cells
+    long int get_total_cells(void){
+      long int total_cells = 0;
+      std::string keyname;
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
+        keyname = iter->first;
+        if (strncmp(keyname.c_str(), "Level", 5) == 0){
+          total_cells += iter->second->get_cells();
+        }
+      }
+      return total_cells; 
     }
 
     // Get sum of current_time's
     double get_current_time(void){
       current_time = 0.0;
-      for( iter=timers.begin(); iter!=timers.end(); ++iter){
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         current_time += iter->second->get_current_time();
       }
       return current_time;
@@ -248,7 +262,7 @@ namespace enzo_timing{
     double get_current_levels_time(void){
       total_time = 0.0;
       std::string keyname;
-      for( iter=timers.begin(); iter!=timers.end(); ++iter){
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         keyname = iter->first;
         if (strncmp(keyname.c_str(), "Level", 5) == 0){
           total_time += iter->second->get_current_time();
@@ -266,7 +280,13 @@ namespace enzo_timing{
           fprintf(chronos_file, "# This file contains timing information\n");
           fprintf(chronos_file, "# For instructions on how to decipher this information,\n");
           fprintf(chronos_file, "# see http://enzo-project.org/docs/somewhere\n");
-          fprintf(chronos_file, "\n");
+          fprintf(chronos_file, "# Times are collected across MPI processes and presented as:\n"\
+                                "# Level_N/Total, mean time, std_dev time, min time, max time, cells, grids, cells/processor/sec\n"\
+                                "# Routine, mean time, std_dev time, min time, max time \n");
+        }
+        if (first_write){
+          first_write = false;
+          fprintf(chronos_file, "# Starting performance log. MPI processes: %d\n\n", nprocs);
         }
       }
       
@@ -305,7 +325,7 @@ namespace enzo_timing{
       long int total_cells = 0;
       
       // Print out info for each timer.
-      for( iter=timers.begin(); iter!=timers.end(); ++iter){
+      for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         current_time = iter->second->get_current_time();
         iter->second->reset_current_time();
         Reduce_Times(current_time, time_array);
@@ -331,10 +351,14 @@ namespace enzo_timing{
           keyname = iter->first;
           if (strncmp(keyname.c_str(), "Total", 5) == 0){
             total_time = mean_time;
+            total_cells = get_total_cells();
+            fprintf(chronos_file, " %ld %ld %e",
+                    total_cells,
+                    get_total_grids(),
+                    (double)(total_cells/total_time/nprocs)); 
           }
           if (strncmp(keyname.c_str(), "Level", 5) == 0){
-            total_cells += iter->second->get_cells();
-            fprintf(chronos_file, "% ld %ld %e", 
+            fprintf(chronos_file, " %ld %ld %e", 
                     iter->second->get_cells(),
                     iter->second->get_grids(),
                     (double)(iter->second->get_cells()/mean_time/nprocs));
@@ -350,7 +374,6 @@ namespace enzo_timing{
 
       // Write out total cells divided by processor-seconds.
       if (my_rank == 0){
-        fprintf(chronos_file, "Total_Cells/Sec/Processor %e\n", (double)(total_cells/total_time/nprocs));
         fprintf(chronos_file, "\n");
         fclose(chronos_file);      
         delete [] time_array;
@@ -364,6 +387,7 @@ namespace enzo_timing{
     char * filename;        // Filename
     int my_rank;            // MPI Rank
     int nprocs;             // MPI Size
+    bool first_write;       // Is this the first time we've written out?
   };
 }
 
@@ -372,6 +396,7 @@ namespace enzo_timing{
 #else /* DEFINE_STORAGE */
 # define EXTERN extern
 #endif
+
 
 EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer                                                         
 
