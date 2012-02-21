@@ -30,16 +30,35 @@ def is_listlike(obj):
 def preserve_extrema(extrema, xdata, ydata):
     """
     Keep track of the universal extrema over multiple x-y datasets
+
+    Parameters
+    ----------
+    extrema : 5-element list
+        This keeps track of the current min/max for x and y datasets.  It
+        has a 5th element to keep track whether the extrema have yet been
+        set. [xmin, xmax, ymin, ymax, already_set_bit]
+        For already_set_bit, 0=no, 1=yes.
+    xdata,ydata : array-like
+        The dataset you wish to set add to your minima/maxima
     """
-    minx = np.min([extrema[0], np.min(xdata)])
-    maxx = np.max([extrema[1], np.max(xdata)])
-    miny = np.min([extrema[2], np.min(ydata)])
-    maxy = np.max([extrema[3], np.max(ydata)])
-    return [minx,maxx,miny,maxy]
+    ### If setting extrema for the first time, just use xdata/ydata min/max
+    if extrema[4] == 0:
+        minx = np.min(xdata)
+        maxx = np.max(xdata)
+        miny = np.min(ydata[np.nonzero(ydata)])
+        maxy = np.max(ydata[np.nonzero(ydata)])
+    ### Otherwise, preserve the existing extrema
+    else:
+        minx = np.min([extrema[0], np.min(xdata)])
+        maxx = np.max([extrema[1], np.max(xdata)])
+        miny = np.min([extrema[2], np.min(ydata[np.nonzero(ydata)])])
+        maxy = np.max([extrema[3], np.max(ydata[np.nonzero(ydata)])])
+    return [minx,maxx,miny,maxy,1]
 
 def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
                   x_field_output=0, x_field_axis_label="Cycle Number",
-                  display=True, filename="", repeated_field=""):
+                  display=True, filename="", repeated_field="", 
+                  log_y_axis="Auto"):
     """
     Produce a plot for the given quantity(s) from the input file.
 
@@ -67,6 +86,13 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
         against each other (e.g. "Level 0", "Level 1", "Level 2"), then
         include the string here and they will all be included automatically
         and in order (e.g. "Level").
+    log_y_axis : string, optional
+        This controls whether the plot will use logarithmic units for the
+        y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
+        used, the code automatically recognizes when you have a maximum 
+        y value more than 3 orders of magnitude greater than your minimum y
+        value (for non-zero values) at which point it plots the y axis in 
+        log units.
 
     See Also
     --------
@@ -97,9 +123,9 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
     levels over the course of the simulation and save it to a file: "test.png"
 
     >>> plot_quantity(data, [], 1, "Mean Time (sec)", display=False, 
-                      filename="test.png", repated_field="Level")
+                      filename="test.png", repeated_field="Level")
     """
-    extrema = np.zeros(4)
+    extrema = np.zeros(5)
     legend_list = []
     ### If a repeated_field, figure out how many repeated fields there are.
     ### including any that were defined in the original field_label arg.
@@ -111,14 +137,37 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
             field_label.append(repeated_field + ' %i' % i)
             i += 1
     num_fields = len(field_label)
+
+    ### If the field_label is a list, plot a quantity for each of the list 
+    ### elements
     if is_listlike(field_label):
+
+        ### If log_y_axis="Auto", then loop through the y datasets to figure 
+        ### out if we need to plot as log or not 
+        if log_y_axis=="Auto":
+            for i in range(len(field_label)):
+                xdata = data[field_label[i]][x_field_output]
+                if is_listlike(y_field_output):
+                    ydata = data[field_label[i]][y_field_output[i]]
+                else:
+                    ydata = data[field_label[i]][y_field_output]
+                extrema = preserve_extrema(extrema,xdata,ydata)
+                if extrema[3]/extrema[2] > 1e3:
+                    log_y_axis="On"
+                else:
+                    log_y_axis="Off"
+
+        ### Now for the actual plotting
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
             if is_listlike(y_field_output):
                 ydata = data[field_label[i]][y_field_output[i]]
             else:
                 ydata = data[field_label[i]][y_field_output]
-            pl.plot(xdata,ydata)
+            if log_y_axis=="On":
+                pl.semilogy(xdata,ydata)
+            else:
+                pl.plot(xdata,ydata)
             extrema = preserve_extrema(extrema,xdata,ydata)
             legend_list.append(field_label[i])
     else:
@@ -127,7 +176,12 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
         pl.plot(xdata,ydata)
         extrema = preserve_extrema(extrema,xdata,ydata)
     pl.xlim(extrema[0:2])
-    pl.ylim([extrema[2],1.1*extrema[3]])
+    if log_y_axis=="On":
+        import pdb; pdb.set_trace()
+        y_log_range = 1.1*np.log10(extrema[3]/extrema[2])
+        pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+    else:
+        pl.ylim([0.,1.1*extrema[3]])
     if len(legend_list) > 0:
         pl.legend(legend_list)
     #zerodata = np.zeros(len(ydata))
@@ -151,7 +205,7 @@ def plot_stack(data, field_label, y_field_output, y_field_axis_label="",
     Example:
     plot_stack(data, ["Level 0", "Level 1", "Level 2"], 1, "Mean Time (sec)")
     """
-    extrema = np.zeros(4)
+    extrema = np.zeros(5)
     legend_list = []
 
     ### If a repeated_field, figure out how many repeated fields there are.
@@ -278,42 +332,12 @@ max = data['Total'][4]
 #####
 # testing 
 #####
+print "yes"
 plot_quantity(data, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time")
 plot_quantity(data, 'Total', 1, "Total Time")
 plot_stack(data, [], 1, "Mean Time (sec)", repeated_field="Level")
 plot_stack(data, ['Total'], 1, "Mean Time (sec)", repeated_field="Level")
 plot_stack(data, ['RebuildHierarchy','SolveHydroEquations'], 1, "Mean Time (sec)" )
-
-######
-# plot cycle vs mean walltime / proc
-# with min/max plotted over in translucent green
-######
-pl.plot(cycles, mean)
-minmax = pl.fill_between(cycles,min,max,facecolor='g')
-pl.xlim([np.min(cycles),np.max(cycles)])
-pl.ylim([0,1.1*np.max(max)])
-minmax.set_alpha(0.5)
-pl.xlabel("Cycle Number")
-pl.ylabel("Average Walltime Spent (seconds)")
-pl.suptitle("Aggregate Walltime Spent with min/max per Processor") 
-#pl.savefig("time_total.png")
-pl.show()
-pl.clf()
-
-######
-# plot total cells/sec/processor processed over time
-######
-xdata = data['Total Cells/Sec/Processor'][0]
-ydata = data['Total Cells/Sec/Processor'][1]
-pl.plot(xdata, ydata)
-pl.xlim([np.min(xdata),np.max(xdata)])
-pl.ylim([np.min(ydata),np.max(ydata)*1.1])
-pl.xlabel("Cycle Number")
-pl.ylabel("Total Cells/Sec/Processor")
-pl.suptitle("Cells Processed")
-#pl.savefig("cell_total.png")
-pl.show()
-pl.clf()
 
 ######
 # Now plot up time taken per level, stacked to get cumulative time
@@ -350,7 +374,7 @@ pl.legend(legend_list)
 pl.suptitle("Grids vs Cycle") 
 
 #pl.savefig("grids.png")
-pl.show()
+pl.show(block=False)
 pl.clf()
 
 
