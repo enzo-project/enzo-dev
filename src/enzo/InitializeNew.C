@@ -864,8 +864,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     
     if (debug)
       printf("InitializeNew: Partition Initial Grid %"ISYM"\n", gridcounter);
-    
-    CommunicationPartitionGrid(CurrentGrid, gridcounter);
+
+    if (CurrentGrid->NextGridThisLevel == NULL)     
+      CommunicationPartitionGrid(CurrentGrid, gridcounter);
     
     gridcounter++;
     
