@@ -25,7 +25,8 @@ def is_listlike(obj):
     """
     Checks to see if an object is listlike (but not a string)
     """
-    return not isinstance(obj, basestring)
+    import types
+    return not (isinstance(obj, basestring) or type(obj) is types.IntType)
 
 def preserve_extrema(extrema, xdata, ydata):
     """
@@ -127,63 +128,60 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
     """
     extrema = np.zeros(5)
     legend_list = []
-    ### If a repeated_field, figure out how many repeated fields there are.
-    ### including any that were defined in the original field_label arg.
+
+    ### Convert plots of single quantities to list format for homogenous 
+    ### processing.
+    if not is_listlike(field_label):
+        field_label = [field_label]
+    if not is_listlike(y_field_output):
+        y_field_output = [y_field_output]
+
+    ### If there is a repeated_field, figure out how many fields 
+    ### there are including any that were defined in the original 
+    ### field_label argument.
     if repeated_field:
-        if not is_listlike(field_label):
-            field_label = [field_label]
         i = 0
         while data.has_key(repeated_field + ' %i' % i):
             field_label.append(repeated_field + ' %i' % i)
             i += 1
     num_fields = len(field_label)
 
-    ### If the field_label is a list, plot a quantity for each of the list 
-    ### elements
-    if is_listlike(field_label):
-
-        ### If log_y_axis="Auto", then loop through the y datasets to figure 
-        ### out if we need to plot as log or not 
-        if log_y_axis=="Auto":
-            for i in range(len(field_label)):
-                xdata = data[field_label[i]][x_field_output]
-                if is_listlike(y_field_output):
-                    ydata = data[field_label[i]][y_field_output[i]]
-                else:
-                    ydata = data[field_label[i]][y_field_output]
-                extrema = preserve_extrema(extrema,xdata,ydata)
-                if extrema[3]/extrema[2] > 1e3:
-                    log_y_axis="On"
-                else:
-                    log_y_axis="Off"
-
-        ### Now for the actual plotting
+    ### If log_y_axis="Auto", then loop through the y datasets to figure 
+    ### out if we need to plot as log or not 
+    if log_y_axis=="Auto":
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
-            if is_listlike(y_field_output):
+            if len(y_field_output) > 1:
                 ydata = data[field_label[i]][y_field_output[i]]
             else:
-                ydata = data[field_label[i]][y_field_output]
-            if log_y_axis=="On":
-                pl.semilogy(xdata,ydata)
-            else:
-                pl.plot(xdata,ydata)
+                ydata = data[field_label[i]][y_field_output[0]]
             extrema = preserve_extrema(extrema,xdata,ydata)
-            legend_list.append(field_label[i])
-    else:
-        xdata = data[field_label][x_field_output]
-        ydata = data[field_label][y_field_output]
-        pl.plot(xdata,ydata)
+            if extrema[3]/extrema[2] > 1e3:
+                log_y_axis="On"
+            else:
+                log_y_axis="Off"
+
+    ### Now for the actual plotting
+    for i in range(len(field_label)):
+        xdata = data[field_label[i]][x_field_output]
+        if len(y_field_output) > 1:
+            ydata = data[field_label[i]][y_field_output[i]]
+        else:
+            ydata = data[field_label[i]][y_field_output[0]]
+        if log_y_axis=="On":
+            pl.semilogy(xdata,ydata)
+        else:
+            pl.plot(xdata,ydata)
         extrema = preserve_extrema(extrema,xdata,ydata)
+        legend_list.append(field_label[i])
+
     pl.xlim(extrema[0:2])
     if log_y_axis=="On":
-        import pdb; pdb.set_trace()
-        y_log_range = 1.1*np.log10(extrema[3]/extrema[2])
+        y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
         pl.ylim([extrema[2],extrema[2]*10**y_log_range])
     else:
-        pl.ylim([0.,1.1*extrema[3]])
-    if len(legend_list) > 0:
-        pl.legend(legend_list)
+        pl.ylim([0.,1.2*extrema[3]])
+    pl.legend(legend_list,2)
     #zerodata = np.zeros(len(ydata))
     #fillin = pl.fill_between(cycles,zerodata,ydata,facecolor='g')
     #fillin.set_alpha(0.5)
@@ -231,9 +229,9 @@ def plot_stack(data, field_label, y_field_output, y_field_axis_label="",
         cumulate_fields[0] = cumulate_fields[1]
 
     pl.xlim(extrema[0:2])
-    pl.ylim([extrema[2],1.1*extrema[3]])
+    pl.ylim([extrema[2],1.2*extrema[3]])
     if len(legend_list) > 0:
-        pl.legend(legend_list)
+        pl.legend(legend_list,2)
     pl.xlabel(x_field_axis_label)
     pl.ylabel(y_field_axis_label)
     if filename:
@@ -320,98 +318,10 @@ input.close()
 # each dictionary key is an NxM array where N is the number of cycles
 # and M is the number of fields outputted for that "function".
 
-pl.figure(1)
-
-# can remove in final, but makes more readable.  for all levels (ie Total).
-cycles = data['Total'][0]
-mean = data['Total'][1]
-stddev = data['Total'][2]
-min = data['Total'][3]
-max = data['Total'][4]
-
 #####
 # testing 
 #####
-print "yes"
-plot_quantity(data, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time")
-plot_quantity(data, 'Total', 1, "Total Time")
+plot_quantity(data, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time", log_y_axis="On")
+plot_quantity(data, 'Total', 1, "Total Time", log_y_axis="On")
 plot_stack(data, [], 1, "Mean Time (sec)", repeated_field="Level")
-plot_stack(data, ['Total'], 1, "Mean Time (sec)", repeated_field="Level")
 plot_stack(data, ['RebuildHierarchy','SolveHydroEquations'], 1, "Mean Time (sec)" )
-
-######
-# Now plot up time taken per level, stacked to get cumulative time
-######
-
-### Figure out how many Levels of refinement have been recorded
-### And cycle through them, plotting a fill_between from the 0th to the 1st
-### level, then the 1st to the 2nd, etc.
-i = 0
-legend_list = []
-while data.has_key('Level %i' % i):
-    i += 1
-num_levels = i
-
-# this temporarily stores the data from the ith to the i+1th level to be plotted
-# plots from the cumulate_grids[0] to the cumulate_grids[1]
-# starts at 0.
-cumulate_grids = np.zeros((2,len(cycles)))
-
-for i in range(0,num_levels):
-    cumulate_grids[1] += data['Level %i' % i][6]
-    color = cm.jet(1.*i/num_levels)
-    pl.fill_between(cycles,cumulate_grids[0],cumulate_grids[1],color=color)
-    pl.plot(cycles,cumulate_grids[1],color=color)
-    legend_list.append('Level %i' % i)
-    # Move level down and repeat for new level
-    cumulate_grids[0] = cumulate_grids[1]
-
-pl.xlabel("Cycle Number")
-pl.ylabel("Grids")
-pl.xlim([np.min(cycles),np.max(cycles)])
-pl.ylim([0.,np.max(cumulate_grids[1])*1.1])
-pl.legend(legend_list)
-pl.suptitle("Grids vs Cycle") 
-
-#pl.savefig("grids.png")
-pl.show(block=False)
-pl.clf()
-
-
-######
-# Now plot total timestep vs mean cells / sec / proc
-######
-
-### Figure out how many Levels of refinement have been recorded
-### And cycle through them, plotting a fill_between from the 0th to the 1st
-### level, then the 1st to the 2nd, etc.
-i = 0
-legend_list = []
-while data.has_key('Level %i' % i):
-    i += 1
-num_levels = i
-
-# this temporarily stores the data from the ith to the i+1th level to be plotted
-# plots from the cumulate_grids[0] to the cumulate_grids[1]
-# starts at 0.
-cumulate_grids = np.zeros((2,len(cycles)))
-
-for i in range(0,num_levels):
-    cumulate_grids[1] += data['Level %i' % i][1]
-    color = cm.jet(1.*i/num_levels)
-    pl.fill_between(cycles,cumulate_grids[0],cumulate_grids[1],color=color)
-    pl.plot(cycles,cumulate_grids[1],color=color)
-    legend_list.append('Level %i' % i)
-    # Move level down and repeat for new level
-    cumulate_grids[0] = cumulate_grids[1]
-
-pl.xlabel("Cycle Number")
-pl.ylabel("Mean Time Spent")
-pl.xlim([np.min(cycles),np.max(cycles)])
-pl.ylim([0.,np.max(cumulate_grids[1])*1.1])
-pl.legend(legend_list)
-pl.suptitle("Mean Time Spent vs Cycle") 
-
-#pl.savefig("grids.png")
-pl.show()
-pl.clf()
