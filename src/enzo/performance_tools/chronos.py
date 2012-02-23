@@ -21,6 +21,83 @@ from matplotlib import cm
 
 filename = args[0]
 
+def build_struct(filename):
+    """
+    Build the internal data structure which holds all of the data from
+    your external textfile outputted by chronos.
+
+    Parameters
+    ----------
+    filename : string
+        The name of the file used as input
+
+    Returns
+    -------
+    out : dictionary
+        A dictionary of arrays.  Each "label" (e.g. "Total") within the input 
+        text file is represented as a key in the dictionary.  The payload
+        for each key is an NxM array where N is the number of cycles over which
+        that label appeared, and M is the number of fields for each label.
+        The first field for each label is the cycle number.
+    """
+
+    ### Open the file, and pull out the data.  
+    ### Comments are ignored.  Each block of multiline text is treated 
+    ### individually.
+    ### The first line of each text block is expected to be the cycle_number, 
+    ### which is stored into an
+    ### array.  Each subsequent line uses the first string as a dictionary key, 
+    ### with the remaining columns the data for that key.  
+    ### A blank line signifies the end of a text block
+
+    ### Create empty data structure which will store all input
+    data = {}
+
+    new_block = True
+    input = open(filename, "r")
+
+    ### Parse individual lines of data block until empty line, which signifies 
+    ### new block of text
+    for line in input:
+        if line.strip() == '':
+            new_block = True
+            continue
+
+        if not line.startswith("#") and line.strip():
+            linelist = line.split()
+    
+            ### If we're starting a new block of text
+            if new_block:
+                if linelist[0] != 'Cycle_Number':
+                    exit("Expected Cycle_Number at beginning of output block")
+                else:
+                    cycle = int(linelist[1])
+                    new_block = False
+                    continue
+    
+            ### If we've made it this far, cycle is defined and we're
+            ### populating our dictionary with data for cycle #x.
+            line_key = linelist[0]
+    
+            ### Convert line_key's underscores to spaces
+            line_key = " ".join(line_key.split('_'))
+    
+            line_value = np.array([cycle] + linelist[1:],dtype='float64') 
+            line_value = np.nan_to_num(line_value)  # error checking
+    
+            ### If line_key is not already in our dictionary, then we create
+            ### a new array as the dictionary payload
+    
+            if not data.__contains__(line_key):
+                data[line_key] = line_value
+    
+            ### Otherwise, add a new row to the existing dataset
+            else:
+                data[line_key] = np.column_stack((data[line_key],
+                                                    line_value))
+    input.close()
+    return data
+
 def is_listlike(obj):
     """
     Checks to see if an object is listlike (but not a string)
@@ -41,6 +118,7 @@ def preserve_extrema(extrema, xdata, ydata):
         For already_set_bit, 0=no, 1=yes.
     xdata,ydata : array-like
         The dataset you wish to set add to your minima/maxima
+
     """
     ### If setting extrema for the first time, just use xdata/ydata min/max
     if extrema[4] == 0:
@@ -305,9 +383,6 @@ def plot_stack(data, field_label, y_field_output, y_field_axis_label="",
         pl.show()
     pl.clf()
     
-### Create empty data structure which will store all input
-data = {}
-
 ########
 ### XXX
 ### Need to play with more efficient manner of loading in data:
@@ -323,69 +398,10 @@ data = {}
 ### Anything else?
 ########
 
-### Open the file, and pull out the data.  
-### Comments are ignored.  Each block of multiline text is treated individually.
-### The first line of each text block is expected to be the cycle_number, 
-### which is stored into an
-### array.  Each subsequent line uses the first string as a dictionary key, 
-### with the remaining columns the data for that key.  
-### A blank line signifies the end of a text block
-
-new_block = True
-input = open(filename, "r")
-
-for line in input:
-
-# parse individual lines of data block until empty line, which signifies new
-# block of text
-    if line.strip() == '':
-        new_block = True
-        continue
-
-    if not line.startswith("#") and line.strip():
-        linelist = line.split()
-
-        # if we're starting a new block of text
-        if new_block:
-            if linelist[0] != 'Cycle_Number':
-                exit("Expected Cycle_Number at beginning of output block")
-            else:
-                cycle = int(linelist[1])
-                new_block = False
-                continue
-
-        # if we've made it this far, cycle is defined and we're
-        # populating our dictionary with data for cycle #x.
-        line_key = linelist[0]
-
-        ### Convert line_key's underscores to spaces
-        line_key = " ".join(line_key.split('_'))
-
-        line_value = np.array([cycle] + linelist[1:],dtype='float64') 
-        line_value = np.nan_to_num(line_value)  # error checking
-
-        ### If line_key is not already in our dictionary, then we create
-        ### a new array as the dictionary payload
-
-        if not data.__contains__(line_key):
-            data[line_key] = line_value
-
-        ### Otherwise, add a new row to the existing dataset
-        else:
-            data[line_key] = np.column_stack((data[line_key],
-                                                   line_value))
-
-input.close()
-
-# Time to plot something with our data.  Data is now stored as a single
-# dictionary, and each key represents a different "function" (ie the first
-# string for a line in the chronos output file).  The payload for
-# each dictionary key is an NxM array where N is the number of cycles
-# and M is the number of fields outputted for that "function".
-
 #####
 # testing 
 #####
+data = build_struct(filename)
 plot_quantity(data, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time", log_y_axis="On")
 plot_quantity(data, 'Total', 1, "Total Time")
 plot_stack(data, [], 1, "Mean Time (sec)", repeated_field="Level",log_y_axis="Off")
