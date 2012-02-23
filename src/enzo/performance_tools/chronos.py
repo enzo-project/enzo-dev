@@ -133,8 +133,6 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
     ### processing.
     if not is_listlike(field_label):
         field_label = [field_label]
-    if not is_listlike(y_field_output):
-        y_field_output = [y_field_output]
 
     ### If there is a repeated_field, figure out how many fields 
     ### there are including any that were defined in the original 
@@ -146,33 +144,30 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
             i += 1
     num_fields = len(field_label)
 
-    ### If log_y_axis="Auto", then loop through the y datasets to figure 
-    ### out if we need to plot as log or not 
+    ### If y_field_output is a single index, then replace it with a list of
+    ### identical indices
+    if not is_listlike(y_field_output):
+        y_field_output = num_fields*[y_field_output]
+
+    ### Loop through the y datasets to figure out the extrema
+    for i in range(len(field_label)):
+        xdata = data[field_label[i]][x_field_output]
+        ydata = data[field_label[i]][y_field_output[i]]
+        extrema = preserve_extrema(extrema,xdata,ydata)
     if log_y_axis=="Auto":
-        for i in range(len(field_label)):
-            xdata = data[field_label[i]][x_field_output]
-            if len(y_field_output) > 1:
-                ydata = data[field_label[i]][y_field_output[i]]
-            else:
-                ydata = data[field_label[i]][y_field_output[0]]
-            extrema = preserve_extrema(extrema,xdata,ydata)
-            if extrema[3]/extrema[2] > 1e3:
-                log_y_axis="On"
-            else:
-                log_y_axis="Off"
+        if extrema[3]/extrema[2] > 1e3:
+            log_y_axis="On"
+        else:
+            log_y_axis="Off"
 
     ### Now for the actual plotting
     for i in range(len(field_label)):
         xdata = data[field_label[i]][x_field_output]
-        if len(y_field_output) > 1:
-            ydata = data[field_label[i]][y_field_output[i]]
-        else:
-            ydata = data[field_label[i]][y_field_output[0]]
+        ydata = data[field_label[i]][y_field_output[i]]
         if log_y_axis=="On":
             pl.semilogy(xdata,ydata)
         else:
             pl.plot(xdata,ydata)
-        extrema = preserve_extrema(extrema,xdata,ydata)
         legend_list.append(field_label[i])
 
     pl.xlim(extrema[0:2])
@@ -195,17 +190,54 @@ def plot_quantity(data, field_label, y_field_output, y_field_axis_label="",
     
 def plot_stack(data, field_label, y_field_output, y_field_axis_label="",
                x_field_output=0, x_field_axis_label="Cycle Number",
-               display=True, filename="", repeated_field=""):
+               display=True, filename="", repeated_field="",
+               log_y_axis="Auto"):
     """
     Produce a plot for the given label/outputs where each quantity is stacked
     on top of the previous quantity.
+
+    Parameters
+    ----------
+    data : dictionary of recarrays
+        The dictionary containing all of the data for use in plotting.
+    field_label : array_like of strings
+        The labels of the fields you wish to plot.  If you wish to plot
+        a single field, then use plot_quantity instead.
+    y_field_output : int or array_like of ints
+        The index of the field you wish to plot. Ex: 1 for mean time.
+        If you have a single value for many field_labels, it is assumed
+        that such a value will index all of them.  If you have an array_like
+        structure of ints, each one will index the corresponding key in 
+        field_lable.  
+    y_field_axis_label : string, optional
+        The y axis label on the resulting plot. Default = ""
+    x_field_output : int, optional
+        The index of the x data you wish to plot. Default = 0 (Cycles)
+    x_field_axis_label : string, optional
+        The x axis label on the resulting plot. Default = "Cycle Number"
+    display : bool, optional
+        Do you wish to display the data to the screen?
+    filename : string, optional
+        The filename where I will store your plotted data.
+    repeated_field : string, optional
+        If you have a regularly named set of fields you wish to plot 
+        against each other (e.g. "Level 0", "Level 1", "Level 2"), then
+        include the string here and they will all be included automatically
+        and in order (e.g. "Level").
+    log_y_axis : string, optional
+        This controls whether the plot will use logarithmic units for the
+        y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
+        used, the code automatically recognizes when you have a maximum 
+        y value more than 3 orders of magnitude greater than your minimum y
+        value (for non-zero values) at which point it plots the y axis in 
+        log units.
 
     Example:
     plot_stack(data, ["Level 0", "Level 1", "Level 2"], 1, "Mean Time (sec)")
     """
     extrema = np.zeros(5)
     legend_list = []
-
+    
     ### If a repeated_field, figure out how many repeated fields there are.
     ### including any that were defined in the original field_label arg.
     if repeated_field:
@@ -215,21 +247,54 @@ def plot_stack(data, field_label, y_field_output, y_field_axis_label="",
             i += 1
     num_fields = len(field_label)
 
+    ### If y_field_output is a single index, then replace it with a list of
+    ### identical indices
+    if not is_listlike(y_field_output):
+        y_field_output = num_fields*[y_field_output]
+
+    ### Since we're stacking (and making plots from a bottom bound to an
+    ### upper bound for each y value, we need to cumulate it as we stack.
+    ### ydata_cum is the same size as xdata, but it has two indices, one
+    ### for the bottom bound of each stacked quantity and one for the top bound.
     xdata = data[field_label[0]][x_field_output]
-    cumulate_fields = np.zeros((2,len(xdata)))
+    ydata_cum = np.zeros((2,len(xdata)))
+
+    ### Loop through the y datasets to figure out the extrema
+    for i in range(len(field_label)):
+        xdata = data[field_label[i]][x_field_output]
+        ydata_cum[1] += data[field_label[i]][y_field_output[i]]
+        extrema = preserve_extrema(extrema,xdata,ydata_cum[1])
+    if log_y_axis=="Auto":
+        if extrema[3]/extrema[2] > 1e3:
+            log_y_axis="On"
+        else:
+            log_y_axis="Off"
+
+    ### Reset the cumulative ydata array to have the lowest value found
+    ### or zero (for linear plots)
+    if log_y_axis == "On":
+        ydata_cum = np.zeros((2,len(xdata)))+extrema[2]
+    else:
+        ydata_cum = np.zeros((2,len(xdata)))
 
     for i in range(0,num_fields):
-        cumulate_fields[1] += data[field_label[i]][y_field_output]
+        ydata_cum[1] += data[field_label[i]][y_field_output[i]]
         color = cm.jet(1.*i/num_fields)
-        pl.fill_between(xdata,cumulate_fields[0],cumulate_fields[1],color=color)
-        pl.plot(xdata,cumulate_fields[1],color=color)
+        pl.fill_between(xdata,ydata_cum[0],ydata_cum[1],color=color)
+        if log_y_axis=="On":
+            pl.semilogy(xdata,ydata_cum[1],color=color)
+        else:
+            pl.plot(xdata,ydata_cum[1],color=color)
         legend_list.append(field_label[i])
-        extrema = preserve_extrema(extrema,xdata,cumulate_fields[1])
-        # Move level down and repeat for new level
-        cumulate_fields[0] = cumulate_fields[1]
+        # Move our top bound to the bottom bound for our next iteration
+        ydata_cum[0] = ydata_cum[1]
 
     pl.xlim(extrema[0:2])
-    pl.ylim([extrema[2],1.2*extrema[3]])
+    if log_y_axis=="On":
+        y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
+        pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+    else:
+        pl.ylim([0.,1.2*extrema[3]])
     if len(legend_list) > 0:
         pl.legend(legend_list,2)
     pl.xlabel(x_field_axis_label)
@@ -322,6 +387,6 @@ input.close()
 # testing 
 #####
 plot_quantity(data, ['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time", log_y_axis="On")
-plot_quantity(data, 'Total', 1, "Total Time", log_y_axis="On")
-plot_stack(data, [], 1, "Mean Time (sec)", repeated_field="Level")
-plot_stack(data, ['RebuildHierarchy','SolveHydroEquations'], 1, "Mean Time (sec)" )
+plot_quantity(data, 'Total', 1, "Total Time")
+plot_stack(data, [], 1, "Mean Time (sec)", repeated_field="Level",log_y_axis="Off")
+plot_stack(data, ['RebuildHierarchy','SolveHydroEquations'], 1, "Mean Time (sec)",log_y_axis="On" )
