@@ -41,11 +41,15 @@ int grid::ClusterSMBHFeedback(int level)
      (assume jet launched from PointSourceGravityPosition) */
 
   FLOAT JetLeftCorner[MAX_DIMENSION], LeftRightCorner[MAX_DIMENSION];
+  FLOAT JetCenter[MAX_DIMENSION];
   int jet_dim = 2;  // z-axis (should make parameter?)
+  int JetLaunchOffset = 10; // 10 cellwidth
+  int JetRadius = 3; // cellwidths
 
   for (dim = 0; dim < GridRank; dim++) {
-    JetLeftCorner[dim] = PointSourceGravityPosition[dim];
-    JetRightCorner[dim] = PointSourceGravityPosition[dim];
+    JetCenter[dim] = PointSourceGravityPosition[dim];
+    JetLeftCorner[dim] = JetCenter[dim];
+    JetRightCorner[dim] = JetCenter[dim];
     if (dim != jet_dim) {
       JetLeftCorner[dim] -= JetRadius*CellWidth[dim][0];
       JetRightCorner[dim] += JetRadius*CellWidth[dim][0];
@@ -82,9 +86,25 @@ int grid::ClusterSMBHFeedback(int level)
 
   /* Compute mass and momentum to be put into cells in code units. */
 
-  /* Loop over launch disks and set cell values. */
+  
 
-  if (JetStartIndex[jet_dim] > 0 && JetStartIndex[jet_dim] < GridDimension[jet_dim]-1) 
+  /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
+
+  if (JetStartIndex[jet_dim] >= 0) {
+    k = JetStartIndex[jet_dim];
+    for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
+      for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+	radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
+		      pow((CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1]), 2))
+	  /CellWidth[0][0]; // in cell widths
+	
+	BaryonField[DensNum][GRIDINDEX(i,j,k)] += XXX*exp(radius/JetRadius);
+	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] += XXX;
+	//	BaryonField[GENum][GRIDINDEX(i,j,k)] += XXX;
+      }
+    }
+  }
+
     
 
   /* loop over cells to be modified, add jet mass, momentum, and energy. */
