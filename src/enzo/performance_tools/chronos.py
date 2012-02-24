@@ -1,31 +1,20 @@
 #!/usr/bin/env python
+### chronos.py
+### date: 10.13.11
+### author: Cameron Hummels
+### description: plots performance information from chronos.out
 
-# chronos.py
-# date: 10.13.11
-# author: Cameron Hummels
-# description: plots performance information from chronos.out
-
-from optparse import OptionParser
-usage = "usage: %prog <.out file>"
-parser = OptionParser(usage)
-(opts, args) = parser.parse_args()
-if len(args) != 1:
-        parser.error("incorrect number of arguments")
-
-#if opts.write_fig:
 import matplotlib as mpl
-#matplotlib.use('Agg')
 import pylab as pl
 import numpy as np
 from matplotlib import cm
-
-filename = args[0]
 
 class chronos:
 
     def __init__(self, filename):
         self.filename = filename
         self.data = self.build_struct(filename)
+        self.fields = self.data.keys()
  
     def build_struct(self, filename):
         """
@@ -106,8 +95,7 @@ class chronos:
 
     def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
                       x_field_output=0, x_field_axis_label="Cycle Number",
-                      display=True, filename="", repeated_field="", 
-                      log_y_axis="Auto"):
+                      filename="chronos.png", repeated_field="", log_y_axis="Auto"):
         """
         Produce a plot for the given quantity(s) from the input file.
     
@@ -126,8 +114,6 @@ class chronos:
             The index of the x data you wish to plot. Default = 0 (Cycles)
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
-        display : bool, optional
-            Do you wish to display the data to the screen?
         filename : string, optional
             The filename where I will store your plotted data.
         repeated_field : string, optional
@@ -150,29 +136,29 @@ class chronos:
         Examples
         --------
         To produce a simple plot of the mean time taken over the course of the
-        simulation and display it to the screen:
+        simulation and save it to chronos.png:
     
         >>> plot_quantity(data, "RebuildHierarchy", 1, "Mean Time (sec)")
     
         To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
         maximum time taken over the course of the simulation and save it 
-        to a file: "test.png"
+        to file "test.png":
     
         >>> plot_quantity(data, ["RebuildHierarchy", "SolveHydroEquations"],
-        4, "Maximum Time (sec)", display=False, filename="test.png")
+        4, "Maximum Time (sec)", filename="test.png")
     
         To produce a plot comparing the maximum time from RebuildHiearchy and 
         the minimum time from SolveHydroEquations taken over the course of the 
-        simulation and save it to a file: "test.png"
+        simulation and save it to file "test.png":
     
         >>> plot_quantity(data, ["RebuildHierarchy", "SolveHydroEquations"],
-        [4,3], "Time (sec)", display=False, filename="test.png")
+        [4,3], "Time (sec)", filename="test.png")
     
         To produce a plot comparing the mean time taken by all of the different
-        levels over the course of the simulation and save it to a file: 
+        levels over the course of the simulation and save it to file "test.png": 
     
-        >>> plot_quantity(data, [], 1, "Mean Time (sec)", display=False, 
-                          filename="test.png", repeated_field="Level")
+        >>> plot_quantity(data, [], 1, "Mean Time (sec)", filename="test.png", 
+        repeated_field="Level")
         """
         data = self.data
         extrema = np.zeros(5)
@@ -231,19 +217,16 @@ class chronos:
         #fillin.set_alpha(0.5)
         pl.xlabel(x_field_axis_label)
         pl.ylabel(y_field_axis_label)
-        if filename:
-            pl.savefig(filename)
-        if display:
-            pl.show()
+        pl.savefig(filename)
         pl.clf()
         
     def plot_stack(self, field_label, y_field_output, y_field_axis_label="",
                    x_field_output=0, x_field_axis_label="Cycle Number",
-                   display=True, filename="", repeated_field="",
+                   filename="chronos.png", repeated_field="", 
                    log_y_axis="Auto"):
         """
-        Produce a plot for the given label/outputs where each quantity is stacked
-        on top of the previous quantity.
+        Produce a plot for the given label/outputs where each quantity is 
+        stacked on top of the previous quantity.
     
         Parameters
         ----------
@@ -264,8 +247,6 @@ class chronos:
             The index of the x data you wish to plot. Default = 0 (Cycles)
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
-        display : bool, optional
-            Do you wish to display the data to the screen?
         filename : string, optional
             The filename where I will store your plotted data.
         repeated_field : string, optional
@@ -305,7 +286,8 @@ class chronos:
         ### Since we're stacking (and making plots from a bottom bound to an
         ### upper bound for each y value, we need to cumulate it as we stack.
         ### ydata_cum is the same size as xdata, but it has two indices, one
-        ### for the bottom bound of each stacked quantity and one for the top bound.
+        ### for the bottom bound of each stacked quantity and one for the top 
+        ### bound.
         xdata = data[field_label[0]][x_field_output]
         ydata_cum = np.zeros((2,len(xdata)))
     
@@ -349,10 +331,7 @@ class chronos:
             pl.legend(legend_list,2)
         pl.xlabel(x_field_axis_label)
         pl.ylabel(y_field_axis_label)
-        if filename:
-            pl.savefig(filename)
-        if display:
-            pl.show()
+        pl.savefig(filename)
         pl.clf()
         
 def is_listlike(obj):
@@ -390,27 +369,46 @@ def preserve_extrema(extrema, xdata, ydata):
         miny = np.min([extrema[2], np.min(ydata[np.nonzero(ydata)])])
         maxy = np.max([extrema[3], np.max(ydata[np.nonzero(ydata)])])
     return [minx,maxx,miny,maxy,1]
+
     
 ########
-### XXX
-### Need to play with more efficient manner of loading in data:
-### Perhaps reading it all into memory first, then creating the dicts
-### and the arrays before filling them.  Also, look into recarrays for
-### giving specific handles on data entries.
+### XXX -- Things left to do:
 
-### XXX 
-### Need to add overplotting min/max over means.
-### Better docstrings and better examples.
+### Perhaps reading the data all into memory first, then creating the dicts
+### and the arrays before filling them  
+    
+### Look into recarrays for giving specific handles on data entries
 
-### Will all user-defined datasets give mean, sigma, min, max by default?
-### Anything else?
+### Need to add overplotting min/max over means
+
+### Better docstrings and better examples
+
+### Add smoothing function
+
+### Add fractional mode
 ########
 
-#####
-# testing 
-#####
-c = chronos(filename)
-c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], "Total Time", log_y_axis="On")
-c.plot_quantity('Total', 1, "Total Time")
-c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level",log_y_axis="Off")
-c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, "Mean Time (sec)",log_y_axis="On" )
+
+### If chronos.py is invoked from the command line, these are its default
+### behaviors:
+### -- Build a chronos object from the provided filename
+### -- Make some handy plots and write them out
+
+if __name__ == "__main__":
+    from optparse import OptionParser
+    usage = "usage: %prog <.out file>"
+    parser = OptionParser(usage)
+    (opts, args) = parser.parse_args()
+    if len(args) != 1:
+        parser.error("incorrect number of arguments")
+    filename = args[0]
+
+    ### Build a chronos object from the data and generate some plots
+    c = chronos(filename)
+    c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], 
+                    "Total Time", log_y_axis="On", filename='c1.png')
+    c.plot_quantity('Total', 1, "Total Time", filename='c2.png')
+    c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
+                 log_y_axis="Off", filename='c3.png')
+    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
+                 "Mean Time (sec)",log_y_axis="On", filename='c4.png')
