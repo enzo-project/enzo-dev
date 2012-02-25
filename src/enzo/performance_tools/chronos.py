@@ -9,6 +9,41 @@ import pylab as pl
 import numpy as np
 from matplotlib import cm
 
+def is_listlike(obj):
+    """
+    Checks to see if an object is listlike (but not a string)
+    """
+    import types
+    return not (isinstance(obj, basestring) or type(obj) is types.IntType)
+    
+def preserve_extrema(extrema, xdata, ydata):
+    """
+    Keep track of the universal extrema over multiple x-y datasets
+
+    Parameters
+    ----------
+    extrema : 5-element list
+        This keeps track of the current min/max for x and y datasets.  It
+        has a 5th element to keep track whether the extrema have yet been
+        set. [xmin, xmax, ymin, ymax, already_set_bit]
+        For already_set_bit, 0=no, 1=yes.
+    xdata,ydata : array-like
+        The dataset you wish to set add to your minima/maxima
+    """
+    ### If setting extrema for the first time, just use xdata/ydata min/max
+    if extrema[4] == 0:
+        minx = np.min(xdata)
+        maxx = np.max(xdata)
+        miny = np.min(ydata[np.nonzero(ydata)])
+        maxy = np.max(ydata[np.nonzero(ydata)])
+    ### Otherwise, preserve the existing extrema
+    else:
+        minx = np.min([extrema[0], np.min(xdata)])
+        maxx = np.max([extrema[1], np.max(xdata)])
+        miny = np.min([extrema[2], np.min(ydata[np.nonzero(ydata)])])
+        maxy = np.max([extrema[3], np.max(ydata[np.nonzero(ydata)])])
+    return [minx,maxx,miny,maxy,1]
+
 def smooth(x, window_len=11, window='hanning'):
     """
     Smooth the data using a window with requested size.
@@ -434,43 +469,6 @@ class chronos:
         pl.savefig(filename)
         pl.clf()
         
-def is_listlike(obj):
-    """
-    Checks to see if an object is listlike (but not a string)
-    """
-    import types
-    return not (isinstance(obj, basestring) or type(obj) is types.IntType)
-    
-def preserve_extrema(extrema, xdata, ydata):
-    """
-    Keep track of the universal extrema over multiple x-y datasets
-
-    Parameters
-    ----------
-    extrema : 5-element list
-        This keeps track of the current min/max for x and y datasets.  It
-        has a 5th element to keep track whether the extrema have yet been
-        set. [xmin, xmax, ymin, ymax, already_set_bit]
-        For already_set_bit, 0=no, 1=yes.
-    xdata,ydata : array-like
-        The dataset you wish to set add to your minima/maxima
-
-    """
-    ### If setting extrema for the first time, just use xdata/ydata min/max
-    if extrema[4] == 0:
-        minx = np.min(xdata)
-        maxx = np.max(xdata)
-        miny = np.min(ydata[np.nonzero(ydata)])
-        maxy = np.max(ydata[np.nonzero(ydata)])
-    ### Otherwise, preserve the existing extrema
-    else:
-        minx = np.min([extrema[0], np.min(xdata)])
-        maxx = np.max([extrema[1], np.max(xdata)])
-        miny = np.min([extrema[2], np.min(ydata[np.nonzero(ydata)])])
-        maxy = np.max([extrema[3], np.max(ydata[np.nonzero(ydata)])])
-    return [minx,maxx,miny,maxy,1]
-
-    
 ########
 ### XXX -- Things left to do:
 
@@ -483,11 +481,8 @@ def preserve_extrema(extrema, xdata, ydata):
 
 ### Better docstrings and better examples
 
-### Add smoothing function
-
 ### Add fractional mode
 ########
-
 
 ### If chronos.py is invoked from the command line, these are its default
 ### behaviors:
