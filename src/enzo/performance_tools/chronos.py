@@ -9,6 +9,75 @@ import pylab as pl
 import numpy as np
 from matplotlib import cm
 
+def smooth(x, window_len=11, window='hanning'):
+    """
+    Smooth the data using a window with requested size.
+
+    This function taken from http://www.scipy.org/Cookbook/SignalSmooth
+    
+    CBH modified it to cutoff the (window_len-1)/2 values at each end of the
+    final 1D array (the reflected part's remnants), so that the final
+    array size is the same as the original array size.
+
+    This method is based on the convolution of a scaled window with the signal.
+    The signal is prepared by introducing reflected copies of the signal 
+    (with the window size) in both ends so that transient parts are minimized
+    in the begining and end part of the output signal.
+    
+    Parameters
+    ----------
+    x : 1D array_like
+        The input signal 
+    window_len: int, optional
+        The dimension of the smoothing window; should be an odd integer
+    window: string
+        the type of smoothing window to use: 'flat', 'hanning', 'hamming', 
+        'bartlett', 'blackman'. flat window will produce a moving 
+        average smoothing.
+
+    Returns
+    -------
+    out : 1D array
+        The smoothed version of input x
+
+    See Also
+    --------
+    np.hanning, np.hamming, np.bartlett, np.blackman, np.convolve
+    scipy.signal.lfilter
+ 
+    Examples
+    --------
+    >>> t = np.linspace(-4,4,100)
+    >>> x = np.sin(t)
+    >>> x_noisy = x + pl.randn(len(t))*0.1
+    >>> x_smooth = smooth(x_noisy)
+    """
+    if x.ndim != 1:
+        raise ValueError, "smooth only accepts 1 dimension arrays."
+
+    if x.size < window_len:
+        raise ValueError, "Input vector needs to be bigger than window size."
+
+    if window_len<3:
+        return x
+
+    if window_len%2 == 0:
+        raise ValueError, "smooth requires an odd-valued window_len." 
+
+    if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
+        raise ValueError, "Window is one of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+
+    s = np.r_[x[window_len-1:0:-1], x, x[-1:-window_len:-1]]
+    if window == 'flat': # moving average
+        w = np.ones(window_len, 'd')
+    else:
+        w = eval('np.'+window+'(window_len)')
+
+    y = np.convolve(w/w.sum(), s, mode='valid')
+    clip_len = (window_len-1)/2
+    return y[clip_len:len(y)-clip_len]
+
+
 class chronos:
 
     def __init__(self, filename):
@@ -95,7 +164,8 @@ class chronos:
 
     def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
                       x_field_output=0, x_field_axis_label="Cycle Number",
-                      filename="chronos.png", repeated_field="", log_y_axis="Auto"):
+                      filename="chronos.png", repeated_field="", 
+                      log_y_axis="Auto", smooth_len=0):
         """
         Produce a plot for the given quantity(s) from the input file.
     
@@ -128,6 +198,10 @@ class chronos:
             y value more than 3 orders of magnitude greater than your minimum y
             value (for non-zero values) at which point it plots the y axis in 
             log units.
+        smooth_len : int, optional
+            This value controls the amount by which smoothing occurs over
+            N consecutive cycles of data.  Default = 0 (i.e. None). 
+            Must be an odd number (recommended 5-11)
     
         See Also
         --------
@@ -188,6 +262,8 @@ class chronos:
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
             ydata = data[field_label[i]][y_field_output[i]]
+            if smooth_len:
+                ydata = smooth(ydata,smooth_len)
             extrema = preserve_extrema(extrema,xdata,ydata)
         if log_y_axis=="Auto":
             if extrema[3]/extrema[2] > 1e3:
@@ -199,6 +275,8 @@ class chronos:
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
             ydata = data[field_label[i]][y_field_output[i]]
+            if smooth_len:
+                ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
                 pl.semilogy(xdata,ydata)
             else:
@@ -223,7 +301,7 @@ class chronos:
     def plot_stack(self, field_label, y_field_output, y_field_axis_label="",
                    x_field_output=0, x_field_axis_label="Cycle Number",
                    filename="chronos.png", repeated_field="", 
-                   log_y_axis="Auto"):
+                   log_y_axis="Auto", smooth_len=0):
         """
         Produce a plot for the given label/outputs where each quantity is 
         stacked on top of the previous quantity.
@@ -261,13 +339,27 @@ class chronos:
             y value more than 3 orders of magnitude greater than your minimum y
             value (for non-zero values) at which point it plots the y axis in 
             log units.
+        smooth_len : int, optional
+            This value controls the amount by which smoothing occurs over
+            N consecutive cycles of data.  Default = 0 (i.e. None)
+            Must be an odd number (recommended 5-11)
     
-        Example:
-        plot_stack(["Level 0", "Level 1", "Level 2"], 1, "Mean Time (sec)")
+        See Also
+        --------
+        plot_quantity
+    
+        Examples
+        --------
+        >>> plot_stack(["Level 0", "Level 1", "Level 2"], 1, "Mean Time (sec)")
         """
         data = self.data
         extrema = np.zeros(5)
         legend_list = []
+
+        ### Convert plots of single quantities to list format for homogenous 
+        ### processing.
+        if not is_listlike(field_label):
+            field_label = [field_label]
         
         ### If a repeated_field, figure out how many repeated fields there are.
         ### including any that were defined in the original field_label arg.
@@ -294,7 +386,11 @@ class chronos:
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
-            ydata_cum[1] += data[field_label[i]][y_field_output[i]]
+            if smooth_len:
+                ydata_cum[1] += smooth(data[field_label[i]][y_field_output[i]],
+                                       smooth_len)
+            else:
+                ydata_cum[1] += data[field_label[i]][y_field_output[i]]
             extrema = preserve_extrema(extrema,xdata,ydata_cum[1])
         if log_y_axis=="Auto":
             if extrema[3]/extrema[2] > 1e3:
@@ -310,7 +406,11 @@ class chronos:
             ydata_cum = np.zeros((2,len(xdata)))
     
         for i in range(0,num_fields):
-            ydata_cum[1] += data[field_label[i]][y_field_output[i]]
+            if smooth_len:
+                ydata_cum[1] += smooth(data[field_label[i]][y_field_output[i]],
+                                       smooth_len)
+            else:
+                ydata_cum[1] += data[field_label[i]][y_field_output[i]]
             color = cm.jet(1.*i/num_fields)
             pl.fill_between(xdata,ydata_cum[0],ydata_cum[1],color=color)
             if log_y_axis=="On":
@@ -407,8 +507,18 @@ if __name__ == "__main__":
     c = chronos(filename)
     c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], 
                     "Total Time", log_y_axis="On", filename='c1.png')
+    c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], 
+                    "Total Time", log_y_axis="On", filename='c1s.png',
+                    smooth_len=11)
     c.plot_quantity('Total', 1, "Total Time", filename='c2.png')
+    c.plot_quantity('Total', 1, "Total Time", filename='c2s.png',
+                    smooth_len=15)
     c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
                  log_y_axis="Off", filename='c3.png')
+    c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
+                 log_y_axis="Off", filename='c3s.png', smooth_len=11)
     c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
                  "Mean Time (sec)",log_y_axis="On", filename='c4.png')
+    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
+                 "Mean Time (sec)",log_y_axis="On", filename='c4s.png',
+                 smooth_len=15)
