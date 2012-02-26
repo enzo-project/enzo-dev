@@ -46,7 +46,7 @@ def preserve_extrema(extrema, xdata, ydata):
 
 def smooth(x, window_len=11, window='hanning'):
     """
-    Smooth the data using a window with requested size.
+    Smooth a 1D array using a window with requested size.
 
     This function taken from http://www.scipy.org/Cookbook/SignalSmooth
     
@@ -200,14 +200,12 @@ class chronos:
     def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
                       x_field_output=0, x_field_axis_label="Cycle Number",
                       filename="chronos.png", repeated_field="", 
-                      log_y_axis="Auto", smooth_len=0):
+                      log_y_axis="Auto", smooth_len=0, bounds="Off"):
         """
-        Produce a plot for the given quantity(s) from the input file.
+        Produce a plot for the given quantity(s) from the chronos data.
     
         Parameters
         ----------
-        data : dictionary of recarrays
-            The dictionary containing all of the data for use in plotting.
         field_label : string or array_like of strings
             The label of the field you wish to plot.  If you wish to plot
             multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
@@ -237,6 +235,11 @@ class chronos:
             This value controls the amount by which smoothing occurs over
             N consecutive cycles of data.  Default = 0 (i.e. None). 
             Must be an odd number (recommended 5-11)
+        bounds : string, optional
+            This controls whether to overplot additional bounding data over
+            the existing plotted quantities.  Valid values of this variable
+            are "minmax", "sigma" and "Off".  "minmax" overplots the minima and
+            maxima bounds, whereas "sigma" plots the mean +/- 1 sigma bounds.
     
         See Also
         --------
@@ -247,26 +250,26 @@ class chronos:
         To produce a simple plot of the mean time taken over the course of the
         simulation and save it to chronos.png:
     
-        >>> plot_quantity(data, "RebuildHierarchy", 1, "Mean Time (sec)")
+        >>> plot_quantity("RebuildHierarchy", 1, "Mean Time (sec)")
     
         To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
         maximum time taken over the course of the simulation and save it 
         to file "test.png":
     
-        >>> plot_quantity(data, ["RebuildHierarchy", "SolveHydroEquations"],
+        >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
         4, "Maximum Time (sec)", filename="test.png")
     
         To produce a plot comparing the maximum time from RebuildHiearchy and 
         the minimum time from SolveHydroEquations taken over the course of the 
         simulation and save it to file "test.png":
     
-        >>> plot_quantity(data, ["RebuildHierarchy", "SolveHydroEquations"],
+        >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
         [4,3], "Time (sec)", filename="test.png")
     
         To produce a plot comparing the mean time taken by all of the different
         levels over the course of the simulation and save it to file "test.png": 
     
-        >>> plot_quantity(data, [], 1, "Mean Time (sec)", filename="test.png", 
+        >>> plot_quantity([], 1, "Mean Time (sec)", filename="test.png", 
         repeated_field="Level")
         """
         data = self.data
@@ -316,6 +319,20 @@ class chronos:
                 pl.semilogy(xdata,ydata)
             else:
                 pl.plot(xdata,ydata)
+            if not bounds == "Off":
+                zerodata = np.zeros(len(ydata))
+                if bounds == "minmax":
+                    min_bound = data[field_label[i]][3]
+                    max_bound = data[field_label[i]][4]
+                else:
+                    min_bound = ydata - data[field_label[i]][2]
+                    max_bound = ydata + data[field_label[i]][2]
+                if smooth_len:
+                    min_bound = smooth(min_bound, smooth_len)
+                    max_bound = smooth(max_bound, smooth_len)
+                fillin = pl.fill_between(xdata,min_bound,max_bound,
+                                         facecolor='0.5')
+                fillin.set_alpha(0.5)
             legend_list.append(field_label[i])
     
         pl.xlim(extrema[0:2])
@@ -325,9 +342,6 @@ class chronos:
         else:
             pl.ylim([0.,1.2*extrema[3]])
         pl.legend(legend_list,2)
-        #zerodata = np.zeros(len(ydata))
-        #fillin = pl.fill_between(cycles,zerodata,ydata,facecolor='g')
-        #fillin.set_alpha(0.5)
         pl.xlabel(x_field_axis_label)
         pl.ylabel(y_field_axis_label)
         pl.savefig(filename)
@@ -477,8 +491,6 @@ class chronos:
     
 ### Look into recarrays for giving specific handles on data entries
 
-### Need to add overplotting min/max over means
-
 ### Better docstrings and better examples
 
 ### Add fractional mode
@@ -504,10 +516,10 @@ if __name__ == "__main__":
                     "Total Time", log_y_axis="On", filename='c1.png')
     c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], 
                     "Total Time", log_y_axis="On", filename='c1s.png',
-                    smooth_len=11)
-    c.plot_quantity('Total', 1, "Total Time", filename='c2.png')
+                    smooth_len=11, bounds="minmax")
+    c.plot_quantity('Total', 1, "Total Time", filename='c2.png', bounds="minmax")
     c.plot_quantity('Total', 1, "Total Time", filename='c2s.png',
-                    smooth_len=15)
+                    smooth_len=15, bounds="minmax")
     c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
                  log_y_axis="Off", filename='c3.png')
     c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
