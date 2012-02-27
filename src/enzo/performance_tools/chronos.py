@@ -200,7 +200,8 @@ class chronos:
     def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
                       x_field_output=0, x_field_axis_label="Cycle Number",
                       filename="chronos.png", repeated_field="", 
-                      log_y_axis="Auto", smooth_len=0, bounds="Off"):
+                      log_y_axis="Auto", smooth_len=0, bounds="Off",
+                      fractional=False):
         """
         Produce a plot for the given quantity(s) from the chronos data.
     
@@ -240,6 +241,9 @@ class chronos:
             the existing plotted quantities.  Valid values of this variable
             are "minmax", "sigma" and "Off".  "minmax" overplots the minima and
             maxima bounds, whereas "sigma" plots the mean +/- 1 sigma bounds.
+        fractional : bool, optional
+            When set to true, the plotted values shown in fractions of the 
+            equivalent field in "Total".
     
         See Also
         --------
@@ -296,10 +300,18 @@ class chronos:
         if not is_listlike(y_field_output):
             y_field_output = num_fields*[y_field_output]
     
+        ### Create a normalization vector to use on each vector
+        ### before plotting.  In non-fractional case, this vector is 1.
+        if fractional:
+            norm = 1./data['Total']
+        else:
+            norm = np.ones(data['Total'].shape)    
+
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]]
+            ydata = data[field_label[i]][y_field_output[i]] * \
+                    norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             extrema = preserve_extrema(extrema,xdata,ydata)
@@ -311,8 +323,10 @@ class chronos:
     
         ### Now for the actual plotting
         for i in range(len(field_label)):
+
             xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]]
+            ydata = data[field_label[i]][y_field_output[i]] * \
+                    norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
@@ -322,11 +336,15 @@ class chronos:
             if not bounds == "Off":
                 zerodata = np.zeros(len(ydata))
                 if bounds == "minmax":
-                    min_bound = data[field_label[i]][3]
-                    max_bound = data[field_label[i]][4]
+                    min_bound = data[field_label[i]][3] * \
+                    norm[3]
+                    max_bound = data[field_label[i]][4] * \
+                    norm[4]
                 else:
-                    min_bound = ydata - data[field_label[i]][2]
-                    max_bound = ydata + data[field_label[i]][2]
+                    min_bound = ydata - data[field_label[i]][2] * \
+                    norm[2]
+                    max_bound = ydata + data[field_label[i]][2] * \
+                    norm[2]
                 if smooth_len:
                     min_bound = smooth(min_bound, smooth_len)
                     max_bound = smooth(max_bound, smooth_len)
@@ -341,16 +359,24 @@ class chronos:
             pl.ylim([extrema[2],extrema[2]*10**y_log_range])
         else:
             pl.ylim([0.,1.2*extrema[3]])
-        pl.legend(legend_list,2)
+
+        ### Set up the legend with smaller text to allow for more entries
+        legend = pl.legend(legend_list,2)
+        ltext  = legend.get_texts()
+        pl.setp(ltext, fontsize='small')
+
         pl.xlabel(x_field_axis_label)
-        pl.ylabel(y_field_axis_label)
+        if fractional:
+            pl.ylabel(y_field_axis_label + ", as Fraction of Total")
+        else:
+            pl.ylabel(y_field_axis_label)
         pl.savefig(filename)
         pl.clf()
         
     def plot_stack(self, field_label, y_field_output, y_field_axis_label="",
                    x_field_output=0, x_field_axis_label="Cycle Number",
                    filename="chronos.png", repeated_field="", 
-                   log_y_axis="Auto", smooth_len=0):
+                   log_y_axis="Auto", smooth_len=0, fractional=False):
         """
         Produce a plot for the given label/outputs where each quantity is 
         stacked on top of the previous quantity.
@@ -392,6 +418,9 @@ class chronos:
             This value controls the amount by which smoothing occurs over
             N consecutive cycles of data.  Default = 0 (i.e. None)
             Must be an odd number (recommended 5-11)
+        fractional : bool, optional
+            When set to true, the plotted values shown in fractions of the 
+            equivalent field in "Total".
     
         See Also
         --------
@@ -428,18 +457,27 @@ class chronos:
         ### upper bound for each y value, we need to cumulate it as we stack.
         ### ydata_cum is the same size as xdata, but it has two indices, one
         ### for the bottom bound of each stacked quantity and one for the top 
-        ### bound.
+        ### bound.  It is cumulatively added as we loop through the plotted
+        ### quantities.
         xdata = data[field_label[0]][x_field_output]
         ydata_cum = np.zeros((2,len(xdata)))
+
+        ### Create a normalization vector to use on each vector
+        ### before plotting.  In non-fractional case, this vector is 1.
+        if fractional:
+            norm = 1./data['Total']
+        else:
+            norm = np.ones(data['Total'].shape)    
     
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
+            ydata = data[field_label[i]][y_field_output[i]] * \
+                    norm[y_field_output[i]]
             if smooth_len:
-                ydata_cum[1] += smooth(data[field_label[i]][y_field_output[i]],
-                                       smooth_len)
+                ydata_cum[1] += smooth(ydata, smooth_len)
             else:
-                ydata_cum[1] += data[field_label[i]][y_field_output[i]]
+                ydata_cum[1] += ydata
             extrema = preserve_extrema(extrema,xdata,ydata_cum[1])
         if log_y_axis=="Auto":
             if extrema[3]/extrema[2] > 1e3:
@@ -455,11 +493,12 @@ class chronos:
             ydata_cum = np.zeros((2,len(xdata)))
     
         for i in range(0,num_fields):
+            ydata = data[field_label[i]][y_field_output[i]] * \
+                    norm[y_field_output[i]]
             if smooth_len:
-                ydata_cum[1] += smooth(data[field_label[i]][y_field_output[i]],
-                                       smooth_len)
+                ydata_cum[1] += smooth(ydata, smooth_len)
             else:
-                ydata_cum[1] += data[field_label[i]][y_field_output[i]]
+                ydata_cum[1] += ydata
             color = cm.jet(1.*i/num_fields)
             pl.fill_between(xdata,ydata_cum[0],ydata_cum[1],color=color)
             if log_y_axis=="On":
@@ -477,9 +516,15 @@ class chronos:
         else:
             pl.ylim([0.,1.2*extrema[3]])
         if len(legend_list) > 0:
-            pl.legend(legend_list,2)
+            legend = pl.legend(legend_list,2)
+            ltext  = legend.get_texts()
+            pl.setp(ltext, fontsize='small')
+
         pl.xlabel(x_field_axis_label)
-        pl.ylabel(y_field_axis_label)
+        if fractional:
+            pl.ylabel(y_field_axis_label + ", as Fraction of Total")
+        else:
+            pl.ylabel(y_field_axis_label)
         pl.savefig(filename)
         pl.clf()
         
@@ -492,8 +537,6 @@ class chronos:
 ### Look into recarrays for giving specific handles on data entries
 
 ### Better docstrings and better examples
-
-### Add fractional mode
 ########
 
 ### If chronos.py is invoked from the command line, these are its default
@@ -512,20 +555,32 @@ if __name__ == "__main__":
 
     ### Build a chronos object from the data and generate some plots
     c = chronos(filename)
-    c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], 
-                    "Total Time", log_y_axis="On", filename='c1.png')
-    c.plot_quantity(['Total', 'Level 0', 'Level 1', 'Level 2'], [1,1,1,1], 
-                    "Total Time", log_y_axis="On", filename='c1s.png',
-                    smooth_len=11, bounds="minmax")
-    c.plot_quantity('Total', 1, "Total Time", filename='c2.png', bounds="minmax")
+    c.plot_quantity(['Total'], 1, "Total Time", repeated_field="Level", 
+                    log_y_axis="On", filename='c1.png')
+    c.plot_quantity(['Total'], 1, "Total Time", repeated_field="Level",
+                    log_y_axis="On", filename='c1f.png', 
+                    fractional=True)
+    c.plot_quantity(['Total'], 1, "Total Time", repeated_field="Level",
+                    log_y_axis="Auto", filename='c1s.png',
+                    smooth_len=11, bounds="minmax", fractional=True)
+    c.plot_quantity('Total', 1, "Total Time", filename='c2.png', 
+                    bounds="minmax", fractional=True)
     c.plot_quantity('Total', 1, "Total Time", filename='c2s.png',
-                    smooth_len=15, bounds="minmax")
+                    smooth_len=15, bounds="minmax", fractional=True)
     c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
                  log_y_axis="Off", filename='c3.png')
+    c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
+                 log_y_axis="Off", filename='c3f.png', fractional=True)
     c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
                  log_y_axis="Off", filename='c3s.png', smooth_len=11)
     c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
                  "Mean Time (sec)",log_y_axis="On", filename='c4.png')
-    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
+    c.plot_stack(['Total','RebuildHierarchy','SolveHydroEquations'], 1, 
                  "Mean Time (sec)",log_y_axis="On", filename='c4s.png',
-                 smooth_len=15)
+                 smooth_len=19)
+    c.plot_stack(['Total','RebuildHierarchy','SolveHydroEquations'], 1, 
+                 "Mean Time (sec)",log_y_axis="On", filename='c4sf.png',
+                 smooth_len=19, fractional=True)
+    c.plot_stack(['Total','RebuildHierarchy','SolveHydroEquations'],1, "Mean Time",
+                 filename='c4sfa.png',smooth_len=19,fractional=True, log_y_axis="On",
+                 repeated_field="Level")
