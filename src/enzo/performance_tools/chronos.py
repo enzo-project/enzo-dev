@@ -323,16 +323,16 @@ class chronos:
     
         ### Now for the actual plotting
         for i in range(len(field_label)):
-
+            color = cm.jet(1.*i/num_fields)
             xdata = data[field_label[i]][x_field_output]
             ydata = data[field_label[i]][y_field_output[i]] * \
                     norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
-                pl.semilogy(xdata,ydata)
+                pl.semilogy(xdata,ydata,color=color)
             else:
-                pl.plot(xdata,ydata)
+                pl.plot(xdata,ydata,color=color)
             if not bounds == "Off":
                 zerodata = np.zeros(len(ydata))
                 if bounds == "minmax":
@@ -558,32 +558,17 @@ if __name__ == "__main__":
 
     ### Build a chronos object from the data and generate some plots
     c = chronos(filename)
-    c.plot_quantity(['Total'], 1, "Total Time", repeated_field="Level", 
-                    log_y_axis="On", filename='c1.png')
-    c.plot_quantity(['Total'], 1, "Total Time", repeated_field="Level",
-                    log_y_axis="On", filename='c1f.png', 
+    c.plot_quantity(['Total'], 1, "Mean Time (sec)", repeated_field="Level",
+                    filename='c1.png',smooth_len=11,bounds='minmax')
+    c.plot_quantity(['Total'], 1, "Mean Time (sec)", repeated_field="Level",
+                    filename='c2.png',smooth_len=11,bounds='minmax',
                     fractional=True)
-    c.plot_quantity(['Total'], 1, "Total Time", repeated_field="Level",
-                    log_y_axis="Auto", filename='c1s.png',
-                    smooth_len=11, bounds="minmax", fractional=True)
-    c.plot_quantity('Total', 1, "Total Time", filename='c2.png', 
-                    bounds="minmax", fractional=True)
-    c.plot_quantity('Total', 1, "Total Time", filename='c2s.png',
-                    smooth_len=15, bounds="minmax", fractional=True)
     c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
-                 log_y_axis="Off", filename='c3.png')
-    c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
-                 log_y_axis="Off", filename='c3f.png', fractional=True)
-    c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
-                 log_y_axis="Off", filename='c3s.png', smooth_len=11)
+                 filename='c3.png', smooth_len=11)
     c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
-                 "Mean Time (sec)",log_y_axis="On", filename='c4.png')
-    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
-                 "Mean Time (sec)",log_y_axis="On", filename='c4s.png',
-                 smooth_len=19)
-    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
-                 "Mean Time (sec)",log_y_axis="On", filename='c4sf.png',
-                 smooth_len=19, fractional=True)
-    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'],1, "Mean Time",
-                 filename='c4sfa.png',smooth_len=19,fractional=True, log_y_axis="On",
-                 repeated_field="Level")
+                 "Mean Time", filename='c4.png', smooth_len=11, 
+                 fractional=True)
+    c.plot_stack([],5,'Number of Cells', repeated_field="Level",
+                 filename='c5.png', smooth_len=11)
+    c.plot_quantity(['Total'],7,'Cells/sec/processor', repeated_field='Level',
+                 filename='c6.png', smooth_len=11)
