@@ -356,6 +356,9 @@ class chronos:
         pl.xlim(extrema[0:2])
         if log_y_axis=="On":
             y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
+            ### To assure there is a labeled tick mark on the y-axis
+            if y_log_range < 1.:
+                y_log_range = 1.
             pl.ylim([extrema[2],extrema[2]*10**y_log_range])
         else:
             pl.ylim([0.,1.2*extrema[3]])
@@ -475,9 +478,8 @@ class chronos:
             ydata = data[field_label[i]][y_field_output[i]] * \
                     norm[y_field_output[i]]
             if smooth_len:
-                ydata_cum[1] += smooth(ydata, smooth_len)
-            else:
-                ydata_cum[1] += ydata
+                ydata = smooth(ydata, smooth_len)
+            ydata_cum[1] += ydata
             extrema = preserve_extrema(extrema,xdata,ydata_cum[1])
         if log_y_axis=="Auto":
             if extrema[3]/extrema[2] > 1e3:
@@ -487,18 +489,16 @@ class chronos:
     
         ### Reset the cumulative ydata array to have the lowest value found
         ### or zero (for linear plots)
+        ydata_cum = np.zeros((2,len(xdata)))
         if log_y_axis == "On":
-            ydata_cum = np.zeros((2,len(xdata)))+extrema[2]
-        else:
-            ydata_cum = np.zeros((2,len(xdata)))
+            ydata_cum[0] += extrema[2]
     
         for i in range(0,num_fields):
             ydata = data[field_label[i]][y_field_output[i]] * \
                     norm[y_field_output[i]]
             if smooth_len:
-                ydata_cum[1] += smooth(ydata, smooth_len)
-            else:
-                ydata_cum[1] += ydata
+                ydata = smooth(ydata, smooth_len)
+            ydata_cum[1] += ydata
             color = cm.jet(1.*i/num_fields)
             pl.fill_between(xdata,ydata_cum[0],ydata_cum[1],color=color)
             if log_y_axis=="On":
@@ -512,6 +512,9 @@ class chronos:
         pl.xlim(extrema[0:2])
         if log_y_axis=="On":
             y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
+            ### To assure there is a labeled tick mark on the y-axis
+            if y_log_range < 1.:
+                y_log_range = 1.
             pl.ylim([extrema[2],extrema[2]*10**y_log_range])
         else:
             pl.ylim([0.,1.2*extrema[3]])
@@ -575,12 +578,12 @@ if __name__ == "__main__":
                  log_y_axis="Off", filename='c3s.png', smooth_len=11)
     c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
                  "Mean Time (sec)",log_y_axis="On", filename='c4.png')
-    c.plot_stack(['Total','RebuildHierarchy','SolveHydroEquations'], 1, 
+    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
                  "Mean Time (sec)",log_y_axis="On", filename='c4s.png',
                  smooth_len=19)
-    c.plot_stack(['Total','RebuildHierarchy','SolveHydroEquations'], 1, 
+    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
                  "Mean Time (sec)",log_y_axis="On", filename='c4sf.png',
                  smooth_len=19, fractional=True)
-    c.plot_stack(['Total','RebuildHierarchy','SolveHydroEquations'],1, "Mean Time",
+    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'],1, "Mean Time",
                  filename='c4sfa.png',smooth_len=19,fractional=True, log_y_axis="On",
                  repeated_field="Level")
