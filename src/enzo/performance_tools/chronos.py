@@ -1,8 +1,28 @@
 #!/usr/bin/env python
-### chronos.py
-### date: 10.13.11
-### author: Cameron Hummels
-### description: plots performance information from chronos.out
+### Chronos.py
+### Date: 10.13.11
+### Author: Cameron Hummels and Sam Skillman
+### Description: 
+
+### Chronos is a module for plotting the performance information which 
+### comes out of Enzo.  It consists of a few universal helper functions
+### and a new class: chronos.  You can use it one of two ways.  You can
+### import this library in python, create a chronos object, and then
+### create a few plots using the plot_quantity and plot_stack functions,
+### like this:
+
+### $ python
+### >>> import chronos as c
+### >>> object = c.chronos('chronos.out')
+### >>> object.plot_quantity('Total','mean time','Mean Time (sec)')
+### >>> object.plot_stack([],'mean time','Mean Time (sec)', \ 
+###                       repeated_field='Level')
+
+### Or you can just call this python file from the command line after
+### editing the source file to have it print out whatever plots you want
+### it to generate (some defaults are included) like this:
+
+### $ python chronos.py chronos.out
 
 import matplotlib as mpl
 import pylab as pl
@@ -114,7 +134,40 @@ def smooth(x, window_len=11, window='hanning'):
 
 
 class chronos:
+    """
+    This simple class stores the performance information collected by Enzo.
+    Enzo puts this information in an ASCII file typically called "chronos.out".
+    That file is called by the constructor for this class and converted
+    into the internal "data" structure.  
+    
+    "data" is a dictionary, where each key is one of the field labels 
+    from "chronos.out" (i.e. the first word from a line, e.g. "Level 0").  
+    The payload for each value is a python record array of N dimension, 
+    where N is the number of cycles for that key.
 
+    For each cycle, there are M entries. In the case of the "Level X" and 
+    "Total" keys, these M entries are:
+
+    "cycle"
+    "mean time", 
+    "std_dev time", 
+    "min time", 
+    "max time", 
+    "cells", 
+    "grids", 
+    "cells/processor/sec"
+
+    In all other cases, these M entries are:
+    "cycle"
+    "mean time", 
+    "std_dev time", 
+    "min time", 
+    "max time"
+
+    Since this is a record array, you can use these entries as the index 
+    when indexing the array (e.g. data['Total']['cycle']).
+
+    """
     def __init__(self, filename):
         self.filename = filename
         self.data = self.build_struct_eff(filename)
@@ -123,7 +176,7 @@ class chronos:
     def build_struct(self, filename):
         """
         Build the internal data structure which holds all of the data from
-        your external textfile outputted by chronos.
+        your external textfile outputted by enzo.
 
         Parameters
         ----------
@@ -133,12 +186,11 @@ class chronos:
         Returns
         -------
         out : dictionary
-            A dictionary of arrays.  Each "label" (e.g. "Total") within the 
+            A dictionary of recarrays.  Each "label" (e.g. "Total") within the 
             input text file is represented as a key in the dictionary.  The 
-            payload for each key is an NxM array where N is the number of 
-            cycles over which that label appeared, and M is the number of 
-            fields for each label.  The first field for each label is the 
-            cycle number.
+            payload for each key is an N-dim record array where N is the 
+            number of cycles over which that label appeared. See the
+            docstrings for the chronos class for more information.
         """
 
         ### Open the file, and pull out the data.  
@@ -200,7 +252,7 @@ class chronos:
     def build_struct_eff(self, filename):
         """
         Build the internal data structure which holds all of the data from
-        your external textfile outputted by chronos.  This is a more efficient
+        your external textfile outputted by enzo.  This is a more efficient
         method for constructing the structure than build_struct, in that
         it allocates the memory all at once instead of building the structure
         line by line.
@@ -213,12 +265,11 @@ class chronos:
         Returns
         -------
         out : dictionary
-            A dictionary of arrays.  Each "label" (e.g. "Total") within the 
+            A dictionary of recarrays.  Each "label" (e.g. "Total") within the 
             input text file is represented as a key in the dictionary.  The 
-            payload for each key is an NxM array where M is the number of 
-            cycles over which that label appeared, and N is the number of 
-            fields for each label.  The first field for each label is the 
-            cycle number.
+            payload for each key is an N-dim record array where N is the 
+            number of cycles over which that label appeared. See the
+            docstrings for the chronos class for more information.
         """
 
         ### Open the file, and pull out the data.  
@@ -287,8 +338,8 @@ class chronos:
                 key_counter[line_key] += 1
         return data
 
-    def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
-                      x_field_output='cycle', x_field_axis_label="Cycle Number",
+    def plot_quantity(self, field_label, y_field_index, y_field_axis_label="",
+                      x_field_index='cycle', x_field_axis_label="Cycle Number",
                       filename="chronos.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
                       fractional=False):
@@ -300,8 +351,8 @@ class chronos:
         field_label : string or array_like of strings
             The label of the field you wish to plot.  If you wish to plot
             multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
-        y_field_output : string
-            The quantity of the field you wish to plot on the y axis. 
+        y_field_index : string
+            The index of the field you wish to plot on the y axis. 
             Ex: "mean time", "std_dev time", "min time", "max time",
             "cells", "grids", "cells/processor/sec".
             If you have a single value for many field_labels, it is assumed
@@ -310,8 +361,8 @@ class chronos:
             field_lable.  
         y_field_axis_label : string, optional
             The y axis label on the resulting plot. Default = ""
-        x_field_output : string, optional
-            The quantity of the field you wish to plot on the x axis.
+        x_field_index : string, optional
+            The index of the field you wish to plot on the x axis.
             Default = "cycle"
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
@@ -391,10 +442,10 @@ class chronos:
                 i += 1
         num_fields = len(field_label)
     
-        ### If y_field_output is a single index, then replace it with a list of
+        ### If y_field_index is a single index, then replace it with a list of
         ### identical indices
-        if not is_listlike(y_field_output):
-            y_field_output = num_fields*[y_field_output]
+        if not is_listlike(y_field_index):
+            y_field_index = num_fields*[y_field_index]
     
         ### Create a normalization vector to use on each vector
         ### before plotting.  In non-fractional case, this vector is 1.
@@ -409,9 +460,9 @@ class chronos:
 
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
-            xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]] / \
-                    norm[y_field_output[i]]
+            xdata = data[field_label[i]][x_field_index]
+            ydata = data[field_label[i]][y_field_index[i]] / \
+                    norm[y_field_index[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             extrema = preserve_extrema(extrema,xdata,ydata)
@@ -424,9 +475,9 @@ class chronos:
         ### Now for the actual plotting
         for i in range(len(field_label)):
             color = cm.jet(1.*i/num_fields)
-            xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]] / \
-                    norm[y_field_output[i]]
+            xdata = data[field_label[i]][x_field_index]
+            ydata = data[field_label[i]][y_field_index[i]] / \
+                    norm[y_field_index[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
@@ -476,12 +527,12 @@ class chronos:
         pl.savefig(filename)
         pl.clf()
         
-    def plot_stack(self, field_label, y_field_output, y_field_axis_label="",
-                   x_field_output='cycle', x_field_axis_label="Cycle Number",
+    def plot_stack(self, field_label, y_field_index, y_field_axis_label="",
+                   x_field_index='cycle', x_field_axis_label="Cycle Number",
                    filename="chronos.png", repeated_field="", 
                    log_y_axis="Auto", smooth_len=0, fractional=False):
         """
-        Produce a plot for the given label/outputs where each quantity is 
+        Produce a plot for the given label/indices where each quantity is 
         stacked on top of the previous quantity.
     
         Parameters
@@ -491,8 +542,8 @@ class chronos:
         field_label : array_like of strings
             The labels of the fields you wish to plot.  If you wish to plot
             a single field, then use plot_quantity instead.
-        y_field_output : string or array_like of strings
-            The quantity of the field you wish to plot on the y axis. 
+        y_field_index : string or array_like of strings
+            The index of the field you wish to plot on the y axis. 
             Ex: "mean time", "std_dev time", "min time", "max time",
             "cells", "grids", "cells/processor/sec".
             If you have a single value for many field_labels, it is assumed
@@ -501,8 +552,8 @@ class chronos:
             field_lable.  
         y_field_axis_label : string, optional
             The y axis label on the resulting plot. Default = ""
-        x_field_output : string, optional
-            The quantity of the field you wish to plot on the x axis.
+        x_field_index : string, optional
+            The index of the field you wish to plot on the x axis.
             Default = "cycle"
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
@@ -555,10 +606,10 @@ class chronos:
                 i += 1
         num_fields = len(field_label)
     
-        ### If y_field_output is a single index, then replace it with a list of
+        ### If y_field_index is a single index, then replace it with a list of
         ### identical indices
-        if not is_listlike(y_field_output):
-            y_field_output = num_fields*[y_field_output]
+        if not is_listlike(y_field_index):
+            y_field_index = num_fields*[y_field_index]
     
         ### Since we're stacking (and making plots from a bottom bound to an
         ### upper bound for each y value, we need to cumulate it as we stack.
@@ -566,7 +617,7 @@ class chronos:
         ### for the bottom bound of each stacked quantity and one for the top 
         ### bound.  It is cumulatively added as we loop through the plotted
         ### quantities.
-        xdata = data[field_label[0]][x_field_output]
+        xdata = data[field_label[0]][x_field_index]
         ydata_cum = np.zeros((2,len(xdata)))
 
         ### Create a normalization vector to use on each vector
@@ -582,9 +633,9 @@ class chronos:
     
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
-            xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]] / \
-                    norm[y_field_output[i]]
+            xdata = data[field_label[i]][x_field_index]
+            ydata = data[field_label[i]][y_field_index[i]] / \
+                    norm[y_field_index[i]]
             if smooth_len:
                 ydata = smooth(ydata, smooth_len)
             ydata_cum[1] += ydata
@@ -602,8 +653,8 @@ class chronos:
             ydata_cum[0] += extrema[2]
     
         for i in range(0,num_fields):
-            ydata = data[field_label[i]][y_field_output[i]] / \
-                    norm[y_field_output[i]]
+            ydata = data[field_label[i]][y_field_index[i]] / \
+                    norm[y_field_index[i]]
             if smooth_len:
                 ydata = smooth(ydata, smooth_len)
             ydata_cum[1] += ydata
@@ -653,12 +704,12 @@ if __name__ == "__main__":
         parser.error("incorrect number of arguments")
     filename = args[0]
 
-    ### Build a chronos object from the data and generate some plots
+    ### Build a chronos object from the data and generate some default plots
     c = chronos(filename)
-    c.plot_quantity(['Total'], 'mean time', "Mean Time (sec)", 
+    c.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
                     repeated_field="Level", filename='c1.png',smooth_len=11,
                     bounds='minmax')
-    c.plot_quantity(['Total'], 'mean time', "Mean Time (sec)", 
+    c.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
                     repeated_field="Level", filename='c2.png',smooth_len=11,
                     bounds='minmax', fractional=True)
     c.plot_stack([], 'mean time', "Mean Time (sec)", repeated_field="Level", 
