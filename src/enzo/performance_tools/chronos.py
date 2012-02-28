@@ -117,7 +117,7 @@ class chronos:
 
     def __init__(self, filename):
         self.filename = filename
-        self.data = self.build_struct(filename)
+        self.data = self.build_struct_eff(filename)
         self.fields = self.data.keys()
  
     def build_struct(self, filename):
@@ -163,25 +163,25 @@ class chronos:
                 continue
     
             if not line.startswith("#") and line.strip():
-                linelist = line.split()
+                line_list = line.split()
         
                 ### If we're starting a new block of text
                 if new_block:
-                    if linelist[0] != 'Cycle_Number':
+                    if line_list[0] != 'Cycle_Number':
                         exit("Expected Cycle_Number at start of output block")
                     else:
-                        cycle = int(linelist[1])
+                        cycle = int(line_list[1])
                         new_block = False
                         continue
         
                 ### If we've made it this far, cycle is defined and we're
                 ### populating our dictionary with data for cycle #x.
-                line_key = linelist[0]
+                line_key = line_list[0]
         
                 ### Convert line_key's underscores to spaces
                 line_key = " ".join(line_key.split('_'))
         
-                line_value = np.array([cycle] + linelist[1:],dtype='float64') 
+                line_value = np.array([cycle] + line_list[1:],dtype='float64') 
                 line_value = np.nan_to_num(line_value)  # error checking
         
                 ### If line_key is not already in our dictionary, then we 
@@ -195,6 +195,87 @@ class chronos:
                     data[line_key] = np.column_stack((data[line_key],
                                                       line_value))
         input.close()
+        return data
+
+    def build_struct_eff(self, filename):
+        """
+        Build the internal data structure which holds all of the data from
+        your external textfile outputted by chronos.  This is a more efficient
+        method for constructing the structure than build_struct, in that
+        it allocates the memory all at once instead of building the structure
+        line by line.
+
+        Parameters
+        ----------
+        filename : string
+            The name of the file used as input
+
+        Returns
+        -------
+        out : dictionary
+            A dictionary of arrays.  Each "label" (e.g. "Total") within the 
+            input text file is represented as a key in the dictionary.  The 
+            payload for each key is an NxM array where N is the number of 
+            cycles over which that label appeared, and M is the number of 
+            fields for each label.  The first field for each label is the 
+            cycle number.
+        """
+
+        ### Open the file, and pull out the data.  
+        ### Comments are ignored.  Each block of multiline text is treated 
+        ### individually.  The first line of each text block is expected to 
+        ### be the cycle_number, which is stored into an array.  Each 
+        ### subsequent line uses the first string as a dictionary key, 
+        ### with the remaining columns the data for that key.  
+        ### A blank line signifies the end of a text block
+        key_tally = {}
+        key_counter = {}
+        data = {}
+
+        input = open(filename, "r")
+        input_list = input.readlines()
+        input.close()
+
+        ### First run through the file contents counting up all instances of 
+        ### each key (first word of each line) so as to allocate sufficiently
+        ### big arrays in the structure to house the data.
+        for line in input_list:
+            if not line.startswith("#") and line.strip():
+                line_list = line.split()
+                line_key = line_list[0]
+                line_key = " ".join(line_key.split('_'))
+                if not key_tally.__contains__(line_key):
+                    key_tally[line_key] = [len(line_list), 1]
+                else:
+                    key_tally[line_key][1] += 1
+        del key_tally['Cycle Number'] # Don't want it as a key
+
+        ### Now build the dictionary with the appropriate memory and 
+        ### retraverse the input file to fill it with the input information
+        for key in key_tally.keys():
+            data[key] = np.zeros(key_tally[key])
+            key_counter[key] = 0
+
+        for line in input_list:
+            if not line.startswith("#") and line.strip():
+                line_list = line.split()
+   
+                if line_list[0] == 'Cycle_Number':
+                    cycle = int(line_list[1])
+                    continue
+    
+                ### If we've made it this far, cycle is defined and we're
+                ### populating our dictionary with data for cycle #x.
+                line_key = line_list[0]
+    
+                ### Convert line_key's underscores to spaces
+                line_key = " ".join(line_key.split('_'))
+        
+                line_value = np.array([cycle] + line_list[1:],dtype='float64') 
+                line_value = np.nan_to_num(line_value)  # error checking
+    
+                data[line_key][:,key_counter[line_key]] = line_value
+                key_counter[line_key] += 1
         return data
 
     def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
@@ -534,12 +615,7 @@ class chronos:
 ########
 ### XXX -- Things left to do:
 
-### Perhaps reading the data all into memory first, then creating the dicts
-### and the arrays before filling them  
-    
 ### Look into recarrays for giving specific handles on data entries
-
-### Better docstrings and better examples
 ########
 
 ### If chronos.py is invoked from the command line, these are its default
