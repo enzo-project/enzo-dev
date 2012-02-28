@@ -43,8 +43,12 @@ int grid::ClusterSMBHFeedback(int level)
   FLOAT JetLeftCorner[MAX_DIMENSION], LeftRightCorner[MAX_DIMENSION];
   FLOAT JetCenter[MAX_DIMENSION];
   int jet_dim = 2;  // z-axis (should make parameter?)
+
   int JetLaunchOffset = 10; // 10 cellwidth
-  int JetRadius = 3; // cellwidths
+  int JetRadius = 6; // cellwidths
+  float JetScaleRadius = 3.0; // cellwidths
+
+  float JetMdot = 0.0; // Jet mass flow (need to convert units)
 
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
@@ -75,18 +79,31 @@ int grid::ClusterSMBHFeedback(int level)
     if (JetStartIndex[dim] > GridDimension[dim]-1 || JetEndIndex[dim] < 0)
       return SUCCESS;
 
-    /* Clip edge of jet launching disk */
-
-    if (dim != jet_dim) {
-      JetStartIndex[dim] = max(JetStartIndex[dim], 0);
-      JetEndIndex[dim] = min(JetStartIndex[dim], GridDimension[dim]-1);
-    }
-
   } // end: loop over dim
 
   /* Compute mass and momentum to be put into cells in code units. */
 
-  
+  JetNormalization = 1.0;
+  for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
+    for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+      radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
+		    pow((CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1]), 2))
+	/CellWidth[0][0]; // in cell widths
+	
+      JetNormalization += exp(-pow(radius/JetScaleRadius,2));
+    }
+  }
+  density_normalization = JetMdot/JetNormalization;
+
+  /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
+
+
+  for (dim = 0; dim < GridRank; dim++) {
+    if (dim != jet_dim) {
+      JetStartIndex[dim] = max(JetStartIndex[dim], 0);
+      JetEndIndex[dim] = min(JetEndIndex[dim], GridDimension[dim]-1);
+    }
+  }
 
   /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
 
@@ -98,7 +115,7 @@ int grid::ClusterSMBHFeedback(int level)
 		      pow((CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1]), 2))
 	  /CellWidth[0][0]; // in cell widths
 	
-	BaryonField[DensNum][GRIDINDEX(i,j,k)] += XXX*exp(radius/JetRadius);
+	BaryonField[DensNum][GRIDINDEX(i,j,k)] += density_normalization*exp(-pow(radius/JetScaleRadius,2));
 	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] += XXX;
 	//	BaryonField[GENum][GRIDINDEX(i,j,k)] += XXX;
       }
