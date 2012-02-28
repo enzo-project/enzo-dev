@@ -57,7 +57,7 @@ def smooth(x, window_len=11, window='hanning'):
     This method is based on the convolution of a scaled window with the signal.
     The signal is prepared by introducing reflected copies of the signal 
     (with the window size) in both ends so that transient parts are minimized
-    in the begining and end part of the output signal.
+    in the beginning and end part of the output signal.
     
     Parameters
     ----------
@@ -215,8 +215,8 @@ class chronos:
         out : dictionary
             A dictionary of arrays.  Each "label" (e.g. "Total") within the 
             input text file is represented as a key in the dictionary.  The 
-            payload for each key is an NxM array where N is the number of 
-            cycles over which that label appeared, and M is the number of 
+            payload for each key is an NxM array where M is the number of 
+            cycles over which that label appeared, and N is the number of 
             fields for each label.  The first field for each label is the 
             cycle number.
         """
@@ -245,16 +245,25 @@ class chronos:
                 line_key = line_list[0]
                 line_key = " ".join(line_key.split('_'))
                 if not key_tally.__contains__(line_key):
-                    key_tally[line_key] = [len(line_list), 1]
-                else:
-                    key_tally[line_key][1] += 1
+                    key_tally[line_key] = 0
+                key_tally[line_key] += 1
         del key_tally['Cycle Number'] # Don't want it as a key
 
         ### Now build the dictionary with the appropriate memory and 
         ### retraverse the input file to fill it with the input information
         for key in key_tally.keys():
-            data[key] = np.zeros(key_tally[key])
             key_counter[key] = 0
+            if key == "Total" or key.startswith('Level'):
+                records = [('cycle', 'float'), ('mean time', 'float'),
+                           ('std_dev time', 'float'), ('min time', 'float'),
+                           ('max time', 'float'), ('cells', 'float'),
+                           ('grids', 'float'), ('cells/processor/sec', 'float')]
+            else:
+                records = [('cycle', 'float'), ('mean time', 'float'),
+                           ('std_dev time', 'float'), ('min time', 'float'),
+                           ('max time', 'float')]
+
+            data[key] = np.zeros(key_tally[key], dtype=records)
 
         for line in input_list:
             if not line.startswith("#") and line.strip():
@@ -274,12 +283,12 @@ class chronos:
                 line_value = np.array([cycle] + line_list[1:],dtype='float64') 
                 line_value = np.nan_to_num(line_value)  # error checking
     
-                data[line_key][:,key_counter[line_key]] = line_value
+                data[line_key][key_counter[line_key]] = line_value
                 key_counter[line_key] += 1
         return data
 
     def plot_quantity(self, field_label, y_field_output, y_field_axis_label="",
-                      x_field_output=0, x_field_axis_label="Cycle Number",
+                      x_field_output='cycle', x_field_axis_label="Cycle Number",
                       filename="chronos.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
                       fractional=False):
@@ -291,12 +300,19 @@ class chronos:
         field_label : string or array_like of strings
             The label of the field you wish to plot.  If you wish to plot
             multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
-        y_field_output : int or array_like of ints
-            The index of the field you wish to plot. Ex: 1 for mean time.
+        y_field_output : string
+            The quantity of the field you wish to plot on the y axis. 
+            Ex: "mean time", "std_dev time", "min time", "max time",
+            "cells", "grids", "cells/processor/sec".
+            If you have a single value for many field_labels, it is assumed
+            that such a value will index all of them.  If you have an array_like
+            structure of ints, each one will index the corresponding key in 
+            field_lable.  
         y_field_axis_label : string, optional
             The y axis label on the resulting plot. Default = ""
-        x_field_output : int, optional
-            The index of the x data you wish to plot. Default = 0 (Cycles)
+        x_field_output : string, optional
+            The quantity of the field you wish to plot on the x axis.
+            Default = "cycle"
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
         filename : string, optional
@@ -335,27 +351,26 @@ class chronos:
         To produce a simple plot of the mean time taken over the course of the
         simulation and save it to chronos.png:
     
-        >>> plot_quantity("RebuildHierarchy", 1, "Mean Time (sec)")
+        >>> plot_quantity("RebuildHierarchy", "mean time", "Mean Time (sec)")
     
         To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
         maximum time taken over the course of the simulation and save it 
         to file "test.png":
     
         >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-        4, "Maximum Time (sec)", filename="test.png")
+        "max time", "Maximum Time (sec)", filename="test.png")
     
         To produce a plot comparing the maximum time from RebuildHiearchy and 
         the minimum time from SolveHydroEquations taken over the course of the 
         simulation and save it to file "test.png":
     
         >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-        [4,3], "Time (sec)", filename="test.png")
+        ["max time", "min time"], "Time (sec)", filename="test.png")
     
         To produce a plot comparing the mean time taken by all of the different
         levels over the course of the simulation and save it to file "test.png": 
-    
-        >>> plot_quantity([], 1, "Mean Time (sec)", filename="test.png", 
-        repeated_field="Level")
+        >>> plot_quantity([], "mean time", "Mean Time (sec)", 
+        filename="test.png", repeated_field="Level")
         """
         data = self.data
         extrema = np.zeros(5)
@@ -384,14 +399,18 @@ class chronos:
         ### Create a normalization vector to use on each vector
         ### before plotting.  In non-fractional case, this vector is 1.
         if fractional:
-            norm = 1./data['Total']
+            norm = data['Total']
         else:
-            norm = np.ones(data['Total'].shape)    
+            records = [('cycle', 'float'), ('mean time', 'float'),
+                       ('std_dev time', 'float'), ('min time', 'float'),
+                       ('max time', 'float'), ('cells', 'float'),
+                       ('grids', 'float'), ('cells/processor/sec', 'float')]
+            norm = np.ones(data['Total'].shape, dtype=records)    
 
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]] * \
+            ydata = data[field_label[i]][y_field_output[i]] / \
                     norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
@@ -406,7 +425,7 @@ class chronos:
         for i in range(len(field_label)):
             color = cm.jet(1.*i/num_fields)
             xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]] * \
+            ydata = data[field_label[i]][y_field_output[i]] / \
                     norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
@@ -417,15 +436,15 @@ class chronos:
             if not bounds == "Off":
                 zerodata = np.zeros(len(ydata))
                 if bounds == "minmax":
-                    min_bound = data[field_label[i]][3] * \
-                    norm[3]
-                    max_bound = data[field_label[i]][4] * \
-                    norm[4]
+                    min_bound = data[field_label[i]]["min time"] / \
+                    norm["min time"]
+                    max_bound = data[field_label[i]]["max time"] / \
+                    norm["max time"]
                 else:
-                    min_bound = ydata - data[field_label[i]][2] * \
-                    norm[2]
-                    max_bound = ydata + data[field_label[i]][2] * \
-                    norm[2]
+                    min_bound = ydata - data[field_label[i]]["std_dev time"] / \
+                    norm["std_dev time"]
+                    max_bound = ydata + data[field_label[i]]["std_dev time"] / \
+                    norm["std_dev time"]
                 if smooth_len:
                     min_bound = smooth(min_bound, smooth_len)
                     max_bound = smooth(max_bound, smooth_len)
@@ -458,7 +477,7 @@ class chronos:
         pl.clf()
         
     def plot_stack(self, field_label, y_field_output, y_field_axis_label="",
-                   x_field_output=0, x_field_axis_label="Cycle Number",
+                   x_field_output='cycle', x_field_axis_label="Cycle Number",
                    filename="chronos.png", repeated_field="", 
                    log_y_axis="Auto", smooth_len=0, fractional=False):
         """
@@ -472,16 +491,19 @@ class chronos:
         field_label : array_like of strings
             The labels of the fields you wish to plot.  If you wish to plot
             a single field, then use plot_quantity instead.
-        y_field_output : int or array_like of ints
-            The index of the field you wish to plot. Ex: 1 for mean time.
+        y_field_output : string or array_like of strings
+            The quantity of the field you wish to plot on the y axis. 
+            Ex: "mean time", "std_dev time", "min time", "max time",
+            "cells", "grids", "cells/processor/sec".
             If you have a single value for many field_labels, it is assumed
             that such a value will index all of them.  If you have an array_like
             structure of ints, each one will index the corresponding key in 
             field_lable.  
         y_field_axis_label : string, optional
             The y axis label on the resulting plot. Default = ""
-        x_field_output : int, optional
-            The index of the x data you wish to plot. Default = 0 (Cycles)
+        x_field_output : string, optional
+            The quantity of the field you wish to plot on the x axis.
+            Default = "cycle"
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
         filename : string, optional
@@ -512,7 +534,8 @@ class chronos:
     
         Examples
         --------
-        >>> plot_stack(["Level 0", "Level 1", "Level 2"], 1, "Mean Time (sec)")
+        >>> plot_stack(["Level 0", "Level 1", "Level 2"], "mean time", 
+                       "Mean Time (sec)")
         """
         data = self.data
         extrema = np.zeros(5)
@@ -549,14 +572,18 @@ class chronos:
         ### Create a normalization vector to use on each vector
         ### before plotting.  In non-fractional case, this vector is 1.
         if fractional:
-            norm = 1./data['Total']
+            norm = data['Total']
         else:
-            norm = np.ones(data['Total'].shape)    
+            records = [('cycle', 'float'), ('mean time', 'float'),
+                       ('std_dev time', 'float'), ('min time', 'float'),
+                       ('max time', 'float'), ('cells', 'float'),
+                       ('grids', 'float'), ('cells/processor/sec', 'float')]
+            norm = np.ones(data['Total'].shape, dtype=records)    
     
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_output]
-            ydata = data[field_label[i]][y_field_output[i]] * \
+            ydata = data[field_label[i]][y_field_output[i]] / \
                     norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata, smooth_len)
@@ -575,7 +602,7 @@ class chronos:
             ydata_cum[0] += extrema[2]
     
         for i in range(0,num_fields):
-            ydata = data[field_label[i]][y_field_output[i]] * \
+            ydata = data[field_label[i]][y_field_output[i]] / \
                     norm[y_field_output[i]]
             if smooth_len:
                 ydata = smooth(ydata, smooth_len)
@@ -612,12 +639,6 @@ class chronos:
         pl.savefig(filename)
         pl.clf()
         
-########
-### XXX -- Things left to do:
-
-### Look into recarrays for giving specific handles on data entries
-########
-
 ### If chronos.py is invoked from the command line, these are its default
 ### behaviors:
 ### -- Build a chronos object from the provided filename
@@ -634,17 +655,18 @@ if __name__ == "__main__":
 
     ### Build a chronos object from the data and generate some plots
     c = chronos(filename)
-    c.plot_quantity(['Total'], 1, "Mean Time (sec)", repeated_field="Level",
-                    filename='c1.png',smooth_len=11,bounds='minmax')
-    c.plot_quantity(['Total'], 1, "Mean Time (sec)", repeated_field="Level",
-                    filename='c2.png',smooth_len=11,bounds='minmax',
-                    fractional=True)
-    c.plot_stack([], 1, "Mean Time (sec)", repeated_field="Level", 
+    c.plot_quantity(['Total'], 'mean time', "Mean Time (sec)", 
+                    repeated_field="Level", filename='c1.png',smooth_len=11,
+                    bounds='minmax')
+    c.plot_quantity(['Total'], 'mean time', "Mean Time (sec)", 
+                    repeated_field="Level", filename='c2.png',smooth_len=11,
+                    bounds='minmax', fractional=True)
+    c.plot_stack([], 'mean time', "Mean Time (sec)", repeated_field="Level", 
                  filename='c3.png', smooth_len=11)
-    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 1, 
+    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'mean time', 
                  "Mean Time", filename='c4.png', smooth_len=11, 
                  fractional=True)
-    c.plot_stack([],5,'Number of Cells', repeated_field="Level",
+    c.plot_stack([], 'cells' ,'Number of Cells', repeated_field="Level",
                  filename='c5.png', smooth_len=11)
-    c.plot_quantity(['Total'],7,'Cells/sec/processor', repeated_field='Level',
-                 filename='c6.png', smooth_len=11)
+    c.plot_quantity(['Total'], 'cells/processor/sec', 'Cells/sec/processor', 
+                    repeated_field='Level', filename='c6.png', smooth_len=11)
