@@ -346,9 +346,9 @@ class perform:
         >>> plot_quantity([], "Mean Time", "Mean Time (sec)", 
         filename="test.png", repeated_field="Level")
         """
+        ax = pl.subplot(111)
         data = self.data
         extrema = np.zeros(5)
-        legend_list = []
     
         ### Convert plots of single quantities to list format for homogenous 
         ### processing.
@@ -404,9 +404,9 @@ class perform:
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
-                pl.semilogy(xdata,ydata,color=color)
+                pl.semilogy(xdata,ydata,color=color,label=field_label[i])
             else:
-                pl.plot(xdata,ydata,color=color)
+                pl.plot(xdata,ydata,color=color,label=field_label[i])
             if not bounds == "Off":
                 zerodata = np.zeros(len(ydata))
                 if bounds == "minmax":
@@ -425,7 +425,6 @@ class perform:
                 fillin = pl.fill_between(xdata,min_bound,max_bound,
                                          facecolor='0.5')
                 fillin.set_alpha(0.5)
-            legend_list.append(field_label[i])
     
         pl.xlim(extrema[0:2])
         if log_y_axis=="On":
@@ -437,11 +436,23 @@ class perform:
         else:
             pl.ylim([0.,1.2*extrema[3]])
 
-        ### Set up the legend with smaller text to allow for more entries
-        legend = pl.legend(legend_list,loc='best')
+
+        ### Make a legend
+        ### Shink current plot by 20% to make room for external legend
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+        ### Put a legend to the right of the current axis
+        ### Reverse the order of the entries, so colors match order plotted
+        handles, labels = ax.get_legend_handles_labels()
+        legend = ax.legend(handles[::-1], labels[::-1],
+                          loc='center left', bbox_to_anchor=(1, 0.5))
+
+        ### Make the legend small
         ltext  = legend.get_texts()
         pl.setp(ltext, fontsize='xx-small')
 
+        ### Set the axis labels and save
         pl.xlabel(x_field_axis_label)
         if not y_field_axis_label:
             y_field_axis_label=y_field_index[0]
@@ -512,9 +523,9 @@ class perform:
         --------
         >>> plot_stack(["Level 0", "Level 1", "Level 2"], "Mean Time")
         """
+        ax = pl.subplot(111)
         data = self.data
         extrema = np.zeros(5)
-        legend_list = []
 
         ### Convert plots of single quantities to list format for homogenous 
         ### processing.
@@ -585,10 +596,9 @@ class perform:
             color = cm.jet(1.*i/num_fields)
             pl.fill_between(xdata,ydata_cum[0],ydata_cum[1],color=color)
             if log_y_axis=="On":
-                pl.semilogy(xdata,ydata_cum[1],color=color)
+                pl.semilogy(xdata,ydata_cum[1],color=color,label=field_label[i])
             else:
-                pl.plot(xdata,ydata_cum[1],color=color)
-            legend_list.append(field_label[i])
+                pl.plot(xdata,ydata_cum[1],color=color,label=field_label[i])
             # Move our top bound to the bottom bound for our next iteration
             ydata_cum[0] = ydata_cum[1]
     
@@ -601,11 +611,23 @@ class perform:
             pl.ylim([extrema[2],extrema[2]*10**y_log_range])
         else:
             pl.ylim([0.,1.2*extrema[3]])
-        if len(legend_list) > 0:
-            legend = pl.legend(legend_list,loc='best')
-            ltext  = legend.get_texts()
-            pl.setp(ltext, fontsize='xx-small')
 
+        ### Make a legend
+        ### Shink current plot by 20% to make room for external legend
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+        ### Put a legend to the right of the current axis
+        ### Reverse the order of the entries, so colors match order plotted
+        handles, labels = ax.get_legend_handles_labels()
+        legend = ax.legend(handles[::-1], labels[::-1],
+                          loc='center left', bbox_to_anchor=(1, 0.5))
+
+        ### Make the legend small
+        ltext  = legend.get_texts()
+        pl.setp(ltext, fontsize='xx-small')
+
+        ### Set the axis labels and save
         pl.xlabel(x_field_axis_label)
         if not y_field_axis_label:
             y_field_axis_label=y_field_index[0]
@@ -681,4 +703,3 @@ if __name__ == "__main__":
                     y_field_axis_label='Efficiency (cells/sec/processor)', 
                     repeated_field='Level', filename='p6.png', 
                     smooth_len=opts.nsmooth)
-    p.plot_quantity('Total','Mean Time')
