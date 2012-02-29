@@ -34,11 +34,11 @@ an example cycle:
 | ------------------------------------------------------------------------------
 
 | Each of the Level_N and Total lines have:
-| Level_N, mean time, std_dev time, min time, max time, number of cells, 
+| Level_N, mean time, stddev time, min time, max time, number of cells, 
 | number of grids, mean cells/s/processor
 
 | Each non-level line (Rebuild Hierarchy, SolveHydroEquations, etc.) have:
-| Section Name, mean time, std_dev time, min time, max time. 
+| Section Name, mean time, stddev time, min time, max time. 
 
 Time is measured in seconds of wall time for each of the processors.
 
@@ -54,9 +54,9 @@ performance.out file:
 | # For instructions on how to decipher this information,
 | # see http://enzo-project.org/docs/somewhere
 | # Times are collected across MPI processes and presented as:
-| # Level_N/Total, mean time, std_dev time, min time, max time, cells, grids,
-| # cells/processor/sec
-| # Routine, mean time, std_dev time, min time, max time
+| # Level_N/Total, Mean Time, Stddev Time, Min Time, Max Time, Num Cells, 
+| # Num Grids, Cells/processor/sec
+| # Routine, Mean Time, Stddev Time, Min Time, Max Time
 
 Then, at the start of each simulation (whether the beginning or a restart), we
 print out the MPI processor count:
@@ -143,16 +143,16 @@ performance_tools.py.
 
 This can be as simple as adding a line:
 
-| $ p.plot_quantity("Level 0", "mean time")
+| $ p.plot_quantity("Level 0", "Mean Time")
 | 
 | or
 | 
-| $ p.plot_stack("Level 0", "mean time")
+| $ p.plot_stack("Level 0", "Mean Time")
 
 Here follows the full documentation for plot_quantity and plot_stack:
 
 | def plot_quantity(self, field_label, y_field_index,
-|                   y_field_axis_label="", x_field_index='cycle',
+|                   y_field_axis_label="", x_field_index='Cycle',
 |                   x_field_axis_label="Cycle Number",
 |                   filename="performance.png", repeated_field="",
 |                   log_y_axis="Auto", smooth_len=0, bounds="Off",
@@ -167,18 +167,18 @@ Here follows the full documentation for plot_quantity and plot_stack:
 |         multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
 |     y_field_index : string
 |         The index of the field you wish to plot on the y axis. 
-|         Ex: "mean time", "std_dev time", "min time", "max time",
-|         "cells", "grids", "cells/processor/sec".
+|         Ex: "Mean Time", "Stddev Time", "Min Time", "Max Time",
+|         "Num Cells", "Num Grids", "Cells/processor/sec".
 |         If you have a single value for many field_labels, it is assumed
 |         that such a value will index all of them.  If you have an array_like
-|         structure of ints, each one will index the corresponding key in 
+|         structure of strings, each one will index the corresponding key in 
 |         field_lable.  
 |     y_field_axis_label : string, optional
 |         The y axis label on the resulting plot. Default = the y_field_index
 |         of the recarray.
 |     x_field_index : string, optional
 |         The index of the field you wish to plot on the x axis.
-|         Default = "cycle"
+|         Default = "Cycle"
 |     x_field_axis_label : string, optional
 |         The x axis label on the resulting plot. Default = "Cycle Number"
 |     filename : string, optional
@@ -214,29 +214,29 @@ Here follows the full documentation for plot_quantity and plot_stack:
 |     the simulation to run the RebuildHierarchy section of code.
 |     Save this plot to performance.png:
 | 
-|     >>> plot_quantity("RebuildHierarchy", "mean time")
+|     >>> plot_quantity("RebuildHierarchy", "Mean Time")
 | 
 |     To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
 |     maximum time taken over the course of the simulation and save it 
 |     to file "test.png":
 | 
 |     >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-|     "max time", "Maximum Time (sec)", filename="test.png")
+|     "Max Time", "Maximum Time (sec)", filename="test.png")
 | 
 |     To produce a plot comparing the maximum time from RebuildHiearchy and 
 |     the minimum time from SolveHydroEquations taken over the course of the 
 |     simulation and save it to file "test.png":
 | 
 |     >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-|     ["max time", "min time"], "Time (sec)", filename="test.png")
+|     ["Max Time", "Min Time"], "Time (sec)", filename="test.png")
 | 
 |     To produce a plot comparing the mean time taken by all of the different
 |     levels over the course of the simulation and save it to file "test.png": 
-|     >>> plot_quantity([], "mean time", "Mean Time (sec)", 
-|     filename="test.png", repeated_field="Level")
+|     >>> plot_quantity([], "Mean Time", filename="test.png", 
+|     repeated_field="Level")
 |
 | def plot_stack(self, field_label, y_field_index,
-|                y_field_axis_label="", x_field_index='cycle',
+|                y_field_axis_label="", x_field_index='Cycle',
 |                x_field_axis_label="Cycle Number",
 |                filename="performance.png", repeated_field="",
 |                log_y_axis="Auto", smooth_len=0, fractional=False):
@@ -251,18 +251,18 @@ Here follows the full documentation for plot_quantity and plot_stack:
 |         a single field, then use plot_quantity instead.
 |     y_field_index : string or array_like of strings
 |         The index of the field you wish to plot on the y axis. 
-|         Ex: "mean time", "std_dev time", "min time", "max time",
-|         "cells", "grids", "cells/processor/sec".
+|         Ex: "Mean Time", "Stddev Time", "Min Time", "Max Time",
+|         "Num Cells", "Num Grids", "Cells/processor/sec".
 |         If you have a single value for many field_labels, it is assumed
 |         that such a value will index all of them.  If you have an array_like
-|         structure of ints, each one will index the corresponding key in 
+|         structure of strings, each one will index the corresponding key in 
 |         field_lable.  
 |     y_field_axis_label : string, optional
 |         The y axis label on the resulting plot. Default = the y_field_index
 |         of the recarray.
 |     x_field_index : string, optional
 |         The index of the field you wish to plot on the x axis.
-|         Default = "cycle"
+|         Default = "Cycle"
 |     x_field_axis_label : string, optional
 |         The x axis label on the resulting plot. Default = "Cycle Number"
 |     filename : string, optional
@@ -293,4 +293,4 @@ Here follows the full documentation for plot_quantity and plot_stack:
 | 
 |     Examples
 |     --------
-|     >>> plot_stack(["Level 0", "Level 1", "Level 2"], "mean time")
+|     >>> plot_stack(["Level 0", "Level 1", "Level 2"], "Mean Time")

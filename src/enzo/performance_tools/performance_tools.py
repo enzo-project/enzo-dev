@@ -14,8 +14,8 @@
 ### $ python
 ### >>> import performance_tools as pt
 ### >>> p = pt.perform('performance.out')
-### >>> p.plot_quantity('Total','mean time')
-### >>> p.plot_stack([],'mean time',repeated_field='Level')
+### >>> p.plot_quantity('Total','Mean Time')
+### >>> p.plot_stack([],'Mean Time',repeated_field='Level')
 
 ### Or you can just call this python file from the command line after
 ### editing the source file to have it print out whatever plots you want
@@ -146,24 +146,24 @@ class perform:
     For each cycle, there are M entries. In the case of the "Level X" and 
     "Total" keys, these M entries are:
 
-    "cycle"
-    "mean time", 
-    "std_dev time", 
-    "min time", 
-    "max time", 
-    "cells", 
-    "grids", 
-    "cells/processor/sec"
+    "Cycle"
+    "Mean Time", 
+    "Stddev Time", 
+    "Min Time", 
+    "Max Time", 
+    "Num Cells", 
+    "Num Grids", 
+    "Cells/processor/sec"
 
     In all other cases, these M entries are:
-    "cycle"
-    "mean time", 
-    "std_dev time", 
-    "min time", 
-    "max time"
+    "Cycle"
+    "Mean Time", 
+    "Stddev Time", 
+    "Min Time", 
+    "Max Time"
 
     Since this is a record array, you can use these entries as the indices
-    when indexing the array (e.g. data['Total']['cycle']).
+    when indexing the array (e.g. data['Total']['Cycle']).
     """
     def __init__(self, filename):
         self.filename = filename
@@ -224,14 +224,15 @@ class perform:
         for key in key_tally.keys():
             key_counter[key] = 0
             if key == "Total" or key.startswith('Level'):
-                records = [('cycle', 'float'), ('mean time', 'float'),
-                           ('std_dev time', 'float'), ('min time', 'float'),
-                           ('max time', 'float'), ('cells', 'float'),
-                           ('grids', 'float'), ('cells/processor/sec', 'float')]
+                records = [('Cycle', 'float'), ('Mean Time', 'float'),
+                           ('Stddev Time', 'float'), ('Min Time', 'float'),
+                           ('Max Time', 'float'), ('Num Cells', 'float'),
+                           ('Num Grids', 'float'), 
+                           ('Cells/processor/sec', 'float')]
             else:
-                records = [('cycle', 'float'), ('mean time', 'float'),
-                           ('std_dev time', 'float'), ('min time', 'float'),
-                           ('max time', 'float')]
+                records = [('Cycle', 'float'), ('Mean Time', 'float'),
+                           ('Stddev Time', 'float'), ('Min Time', 'float'),
+                           ('Max Time', 'float')]
 
             data[key] = np.zeros(key_tally[key], dtype=records)
 
@@ -258,7 +259,7 @@ class perform:
         return data
 
     def plot_quantity(self, field_label, y_field_index, 
-                      y_field_axis_label="", x_field_index='cycle', 
+                      y_field_axis_label="", x_field_index='Cycle', 
                       x_field_axis_label="Cycle Number",
                       filename="performance.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
@@ -273,18 +274,18 @@ class perform:
             multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
         y_field_index : string
             The index of the field you wish to plot on the y axis. 
-            Ex: "mean time", "std_dev time", "min time", "max time",
-            "cells", "grids", "cells/processor/sec".
+            Ex: "Cycle", "Mean Time", "Stddev Time", "Min Time", "Max Time",
+            "Num Cells", "Num Grids", "Cells/processor/sec".
             If you have a single value for many field_labels, it is assumed
             that such a value will index all of them.  If you have an array_like
-            structure of ints, each one will index the corresponding key in 
+            structure of strings, each one will index the corresponding key in 
             field_lable.  
         y_field_axis_label : string, optional
             The y axis label on the resulting plot. Default = the y_field_index
             of the recarray.
         x_field_index : string, optional
             The index of the field you wish to plot on the x axis.
-            Default = "cycle"
+            Default = "Cycle"
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
         filename : string, optional
@@ -324,25 +325,25 @@ class perform:
         the simulation to run the RebuildHierarchy section of code.
         Save this plot to performance.png:
     
-        >>> plot_quantity("RebuildHierarchy", "mean time")
+        >>> plot_quantity("RebuildHierarchy", "Mean Time")
     
         To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
         maximum time taken over the course of the simulation and save it 
         to file "test.png":
     
         >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-        "max time", "Maximum Time (sec)", filename="test.png")
+        "Max Time", "Maximum Time (sec)", filename="test.png")
     
         To produce a plot comparing the maximum time from RebuildHiearchy and 
         the minimum time from SolveHydroEquations taken over the course of the 
         simulation and save it to file "test.png":
     
         >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-        ["max time", "min time"], "Time (sec)", filename="test.png")
+        ["Max Time", "Min Time"], "Time (sec)", filename="test.png")
     
         To produce a plot comparing the mean time taken by all of the different
         levels over the course of the simulation and save it to file "test.png": 
-        >>> plot_quantity([], "mean time", "Mean Time (sec)", 
+        >>> plot_quantity([], "Mean Time", "Mean Time (sec)", 
         filename="test.png", repeated_field="Level")
         """
         data = self.data
@@ -374,10 +375,10 @@ class perform:
         if fractional:
             norm = data['Total']
         else:
-            records = [('cycle', 'float'), ('mean time', 'float'),
-                       ('std_dev time', 'float'), ('min time', 'float'),
-                       ('max time', 'float'), ('cells', 'float'),
-                       ('grids', 'float'), ('cells/processor/sec', 'float')]
+            records = [('Cycle', 'float'), ('Mean Time', 'float'),
+                       ('Stddev Time', 'float'), ('Min Time', 'float'),
+                       ('Max Time', 'float'), ('Num Cells', 'float'),
+                       ('Num Grids', 'float'), ('Cells/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
 
         ### Loop through the y datasets to figure out the extrema
@@ -409,15 +410,15 @@ class perform:
             if not bounds == "Off":
                 zerodata = np.zeros(len(ydata))
                 if bounds == "minmax":
-                    min_bound = data[field_label[i]]["min time"] / \
-                    norm["min time"]
-                    max_bound = data[field_label[i]]["max time"] / \
-                    norm["max time"]
+                    min_bound = data[field_label[i]]["Min Time"] / \
+                    norm["Min Time"]
+                    max_bound = data[field_label[i]]["Max Time"] / \
+                    norm["Max Time"]
                 else:
-                    min_bound = ydata - data[field_label[i]]["std_dev time"] / \
-                    norm["std_dev time"]
-                    max_bound = ydata + data[field_label[i]]["std_dev time"] / \
-                    norm["std_dev time"]
+                    min_bound = ydata - data[field_label[i]]["Stddev Time"] / \
+                    norm["Stddev Time"]
+                    max_bound = ydata + data[field_label[i]]["Stddev Time"] / \
+                    norm["Stddev Time"]
                 if smooth_len:
                     min_bound = smooth(min_bound, smooth_len)
                     max_bound = smooth(max_bound, smooth_len)
@@ -452,7 +453,7 @@ class perform:
         pl.clf()
         
     def plot_stack(self, field_label, y_field_index, 
-                   y_field_axis_label="", x_field_index='cycle', 
+                   y_field_axis_label="", x_field_index='Cycle', 
                    x_field_axis_label="Cycle Number", 
                    filename="performance.png", repeated_field="", 
                    log_y_axis="Auto", smooth_len=0, fractional=False):
@@ -467,18 +468,18 @@ class perform:
             a single field, then use plot_quantity instead.
         y_field_index : string or array_like of strings
             The index of the field you wish to plot on the y axis. 
-            Ex: "mean time", "std_dev time", "min time", "max time",
-            "cells", "grids", "cells/processor/sec".
+            Ex: "Mean Time", "Stddev Time", "Min Time", "Max Time",
+            "Num Cells", "Num Grids", "Cells/processor/sec".
             If you have a single value for many field_labels, it is assumed
             that such a value will index all of them.  If you have an array_like
-            structure of ints, each one will index the corresponding key in 
+            structure of strings, each one will index the corresponding key in 
             field_lable.  
         y_field_axis_label : string, optional
             The y axis label on the resulting plot. Default = the y_field_index
             of the recarray.
         x_field_index : string, optional
             The index of the field you wish to plot on the x axis.
-            Default = "cycle"
+            Default = "Cycle"
         x_field_axis_label : string, optional
             The x axis label on the resulting plot. Default = "Cycle Number"
         filename : string, optional
@@ -509,7 +510,7 @@ class perform:
     
         Examples
         --------
-        >>> plot_stack(["Level 0", "Level 1", "Level 2"], "mean time")
+        >>> plot_stack(["Level 0", "Level 1", "Level 2"], "Mean Time")
         """
         data = self.data
         extrema = np.zeros(5)
@@ -548,10 +549,10 @@ class perform:
         if fractional:
             norm = data['Total']
         else:
-            records = [('cycle', 'float'), ('mean time', 'float'),
-                       ('std_dev time', 'float'), ('min time', 'float'),
-                       ('max time', 'float'), ('cells', 'float'),
-                       ('grids', 'float'), ('cells/processor/sec', 'float')]
+            records = [('Cycle', 'float'), ('Mean Time', 'float'),
+                       ('Stddev Time', 'float'), ('Min Time', 'float'),
+                       ('Max Time', 'float'), ('Num Cells', 'float'),
+                       ('Num Grids', 'float'), ('Cells/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
     
         ### Loop through the y datasets to figure out the extrema
@@ -642,7 +643,7 @@ if __name__ == "__main__":
     ### Plot the mean time taken per processor on each level and on the 
     ### simulation as a whole (Total).  Overplot in gray the minimum and 
     ### maximum time taken on a processor for each of these quantities.
-    p.plot_quantity('Total', 'mean time', y_field_axis_label="Mean Time (sec)", 
+    p.plot_quantity('Total', 'Mean Time', y_field_axis_label="Mean Time (sec)", 
                     repeated_field="Level", filename='p1.png',
                     smooth_len=opts.nsmooth, bounds='minmax')
 
@@ -650,13 +651,13 @@ if __name__ == "__main__":
     ### simulation as a whole (Total).  Overplot in gray the minimum and 
     ### maximum time taken on a processor for each of these quantities
     ### Scale everything to be as a fraction of the total time taken.
-    p.plot_quantity('Total', 'mean time', y_field_axis_label="Mean Time (sec)", 
+    p.plot_quantity('Total', 'Mean Time', y_field_axis_label="Mean Time (sec)", 
                     repeated_field="Level", filename='p2.png',
                     smooth_len=opts.nsmooth, bounds='minmax', fractional=True)
 
     ### Plot the mean time taken per processor on each level.  Stack each 
     ### level on the previous layer cumulatively.  
-    p.plot_stack([], 'mean time', y_field_axis_label="Mean Time (sec)", 
+    p.plot_stack([], 'Mean Time', y_field_axis_label="Mean Time (sec)", 
                  repeated_field="Level", filename='p3.png', 
                  smooth_len=opts.nsmooth)
 
@@ -664,19 +665,19 @@ if __name__ == "__main__":
     ### and SolveHydroEquations tasks.  Stack each level on the previous 
     ### layer cumulatively.  Scale everything to be as a fraction of the
     ### total time taken.
-    p.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'mean time', 
+    p.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'Mean Time', 
                  y_field_axis_label="Mean Time (sec)", filename='p4.png', 
                  smooth_len=opts.nsmooth, fractional=True)
 
     ### Plot the number of cells generated at each level and stack them
     ### cumulatively.
-    p.plot_stack([], 'cells', y_field_axis_label='Number of Cells', 
+    p.plot_stack([], 'Num Cells', y_field_axis_label='Number of Cells', 
                  repeated_field="Level", filename='p5.png', 
                  smooth_len=opts.nsmooth)
 
     ### Plot the efficiency (cells/processor/sec) for each level and for
     ### the simulation as a whole versus time.
-    p.plot_quantity(['Total'], 'cells/processor/sec', 
-                    y_field_axis_label='Cells/sec/processor', 
+    p.plot_quantity(['Total'], 'Cells/processor/sec', 
+                    y_field_axis_label='Efficiency (cells/sec/processor)', 
                     repeated_field='Level', filename='p6.png', 
                     smooth_len=opts.nsmooth)
