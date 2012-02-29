@@ -444,7 +444,7 @@ class perform:
 
         pl.xlabel(x_field_axis_label)
         if not y_field_axis_label:
-            y_field_axis_label=y_field_index
+            y_field_axis_label=y_field_index[0]
         if fractional:
             pl.ylabel(y_field_axis_label + ", as Fraction of Total")
         else:
@@ -608,7 +608,7 @@ class perform:
 
         pl.xlabel(x_field_axis_label)
         if not y_field_axis_label:
-            y_field_axis_label=y_field_index
+            y_field_axis_label=y_field_index[0]
         if fractional:
             pl.ylabel(y_field_axis_label + ", as Fraction of Total")
         else:
@@ -681,3 +681,4 @@ if __name__ == "__main__":
                     y_field_axis_label='Efficiency (cells/sec/processor)', 
                     repeated_field='Level', filename='p6.png', 
                     smooth_len=opts.nsmooth)
+    p.plot_quantity('Total','Mean Time')
