@@ -1,28 +1,27 @@
 #!/usr/bin/env python
-### Chronos.py
+### performance_tools.py
 ### Date: 10.13.11
 ### Author: Cameron Hummels and Sam Skillman
 ### Description: 
 
-### Chronos is a module for plotting the performance information which 
-### comes out of Enzo.  It consists of a few universal helper functions
-### and a new class: chronos.  You can use it one of two ways.  You can
-### import this library in python, create a chronos object, and then
+### performance_tools is a module for plotting the performance information 
+### which comes out of Enzo.  It consists of a few universal helper functions
+### and a new class: perform.  You can use it one of two ways.  You can
+### import this library in python, create a perform object, and then
 ### create a few plots using the plot_quantity and plot_stack functions,
 ### like this:
 
 ### $ python
-### >>> import chronos as c
-### >>> object = c.chronos('chronos.out')
-### >>> object.plot_quantity('Total','mean time','Mean Time (sec)')
-### >>> object.plot_stack([],'mean time','Mean Time (sec)', \ 
-###                       repeated_field='Level')
+### >>> import performance_tools as pt
+### >>> p = pt.perform('performance.out')
+### >>> p.plot_quantity('Total','mean time')
+### >>> p.plot_stack([],'mean time',repeated_field='Level')
 
 ### Or you can just call this python file from the command line after
 ### editing the source file to have it print out whatever plots you want
 ### it to generate (some defaults are included) like this:
 
-### $ python chronos.py chronos.out
+### $ python performance_tools.py performance.out
 
 import matplotlib as mpl
 import pylab as pl
@@ -131,16 +130,15 @@ def smooth(x, window_len=11, window='hanning'):
     clip_len = (window_len-1)/2
     return y[clip_len:len(y)-clip_len]
 
-
-class chronos:
+class perform:
     """
     This simple class stores the performance information collected by Enzo.
-    Enzo puts this information in an ASCII file typically called "chronos.out".
-    That file is called by the constructor for this class and converted
-    into the internal structure called "data".  
+    Enzo puts this information in an ASCII file typically called 
+    "performance.out".  That file is called by the constructor for this 
+    class and converted into the internal structure called "data".  
     
     "data" is a dictionary, where each key is one of the field labels 
-    from "chronos.out" (i.e. the first word from a line, e.g. "Level 0").  
+    from "performance.out" (i.e. the first word from a line, e.g. "Level 0").  
     The payload for each value is a python record array of N dimension, 
     where N is the number of cycles for that key.
 
@@ -165,7 +163,6 @@ class chronos:
 
     Since this is a record array, you can use these entries as the indices
     when indexing the array (e.g. data['Total']['cycle']).
-
     """
     def __init__(self, filename):
         self.filename = filename
@@ -190,7 +187,7 @@ class chronos:
             input text file is represented as a key in the dictionary.  The 
             payload for each key is an N-dim record array where N is the 
             number of cycles over which that label appeared. See the
-            docstrings for the chronos class for more information.
+            docstrings for the perform class for more information.
         """
 
         ### Open the file, and pull out the data.  
@@ -262,11 +259,11 @@ class chronos:
     def plot_quantity(self, field_label, y_field_index, 
                       y_field_axis_label="", x_field_index='cycle', 
                       x_field_axis_label="Cycle Number",
-                      filename="chronos.png", repeated_field="", 
+                      filename="performance.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
                       fractional=False):
         """
-        Produce a plot for the given quantity(s) from the chronos data.
+        Produce a plot for the given quantity(s) from the performance data.
     
         Parameters
         ----------
@@ -322,10 +319,11 @@ class chronos:
     
         Examples
         --------
-        To produce a simple plot of the mean time taken over the course of the
-        simulation and save it to chronos.png:
+        To produce a simple plot of the mean time taken over the course of 
+        the simulation to run the RebuildHierarchy section of code.
+        Save this plot to performance.png:
     
-        >>> plot_quantity("RebuildHierarchy", "mean time", "Mean Time (sec)")
+        >>> plot_quantity("RebuildHierarchy", "mean time")
     
         To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
         maximum time taken over the course of the simulation and save it 
@@ -454,9 +452,9 @@ class chronos:
         
     def plot_stack(self, field_label, y_field_index, 
                    y_field_axis_label="", x_field_index='cycle', 
-                   x_field_axis_label="Cycle Number", filename="chronos.png", 
-                   repeated_field="", log_y_axis="Auto", smooth_len=0, 
-                   fractional=False):
+                   x_field_axis_label="Cycle Number", 
+                   filename="performance.png", repeated_field="", 
+                   log_y_axis="Auto", smooth_len=0, fractional=False):
         """
         Produce a plot for the given label/indices where each quantity is 
         stacked on top of the previous quantity.
@@ -510,8 +508,7 @@ class chronos:
     
         Examples
         --------
-        >>> plot_stack(["Level 0", "Level 1", "Level 2"], "mean time", 
-                       "Mean Time (sec)")
+        >>> plot_stack(["Level 0", "Level 1", "Level 2"], "mean time")
         """
         data = self.data
         extrema = np.zeros(5)
@@ -617,9 +614,10 @@ class chronos:
         pl.savefig(filename)
         pl.clf()
         
-### If chronos.py is invoked from the command line, these are its default
-### behaviors:
-### -- Build a chronos object from the provided filename
+### If performance_tools.py is invoked from the command line, these are its 
+### default behaviors:
+###
+### -- Build a perform object from the provided filename
 ### -- Make some handy plots and write them out
 
 if __name__ == "__main__":
@@ -633,21 +631,21 @@ if __name__ == "__main__":
         parser.error("incorrect number of arguments")
     filename = args[0]
 
-    ### Build a chronos object from the data and generate some default plots
-    c = chronos(filename)
-    c.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
-                    repeated_field="Level", filename='c1.png',
+    ### Build a perform object from the data and generate some default plots
+    p = perform(filename)
+    p.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
+                    repeated_field="Level", filename='p1.png',
                     smooth_len=opts.nsmooth, bounds='minmax')
-    c.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
-                    repeated_field="Level", filename='c2.png',
+    p.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
+                    repeated_field="Level", filename='p2.png',
                     smooth_len=opts.nsmooth, bounds='minmax', fractional=True)
-    c.plot_stack([], 'mean time', "Mean Time (sec)", repeated_field="Level", 
-                 filename='c3.png', smooth_len=opts.nsmooth)
-    c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'mean time', 
-                 "Mean Time", filename='c4.png', smooth_len=opts.nsmooth,
+    p.plot_stack([], 'mean time', "Mean Time (sec)", repeated_field="Level", 
+                 filename='p3.png', smooth_len=opts.nsmooth)
+    p.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'mean time', 
+                 "Mean Time", filename='p4.png', smooth_len=opts.nsmooth,
                  fractional=True)
-    c.plot_stack([], 'cells' ,'Number of Cells', repeated_field="Level",
-                 filename='c5.png', smooth_len=opts.nsmooth)
-    c.plot_quantity(['Total'], 'cells/processor/sec', 'Cells/sec/processor', 
-                    repeated_field='Level', filename='c6.png', 
+    p.plot_stack([], 'cells' ,'Number of Cells', repeated_field="Level",
+                 filename='p5.png', smooth_len=opts.nsmooth)
+    p.plot_quantity(['Total'], 'cells/processor/sec', 'Cells/sec/processor', 
+                    repeated_field='Level', filename='p6.png', 
                     smooth_len=opts.nsmooth)

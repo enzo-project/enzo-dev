@@ -1,7 +1,7 @@
 Usage Overview
 ##############
 
-We have added support for a simple, lightweight, timing and performance
+We have added support for simple, lightweight, timing and performance
 measurements.  This allows one to examine which functions are using the majority
 of the simulation runtime, and how this varies across multiple processors. We
 have built in a number of default timers, such as EvolveLevel for each level,
@@ -11,15 +11,15 @@ to add additional timers.
 File Format
 ###########
 
-At each cycle, information is printed out to a file named chronos.txt (default
-filename may change).  By default, for each timing section the times spent on
-each processor are collected, and the mean, standard deviation, minimum, and
-maximum values are presented.  This is meant to give the user a sense of how
-well load-balanced their simulation is across processors, as well as pinpoint
+At each cycle, information is printed out to a file named performance.out.
+By default, for each timing section the times spent on each processor are 
+collected, and the mean, standard deviation, minimum, and maximum values 
+are presented.  This is meant to give the user a sense of how well 
+load-balanced their simulation is across processors, as well as pinpoint
 where the majority of the time is being spent.  To explain the output, we show
 an example cycle:
 
-| --------------------------example chronos.txt---------------------------------
+| --------------------------example performance.out-----------------------------
 | Cycle_Number 2
 | Level_0 6.520748e-05 8.344650e-07 6.389618e-05 6.604195e-05 100 4 3.833916e+05
 | Level_1 3.254414e-05 2.804866e-05 1.406670e-05 8.106232e-05 10 1 7.681875e+04
@@ -34,18 +34,21 @@ an example cycle:
 | ------------------------------------------------------------------------------
 
 | Each of the Level_N and Total lines have:
-| Level_N, time_mean, time_stddev, time_min, time_max, n_cells, n_grids, mean cells/s/processor
+| Level_N, mean time, std_dev time, min time, max time, number of cells, 
+| number of grids, mean cells/s/processor
 
 | Each non-level line (Rebuild Hierarchy, SolveHydroEquations, etc.) have:
-| Section Name, time_mean, time_stddev, time_min, time_max, 
+| Section Name, mean time, std_dev time, min time, max time. 
 
-In this case we see that more time is being spent in RebuildHierarchy than in
-SolveHydroEquations, and that the load balance is quite poor for the
+Time is measured in seconds of wall time for each of the processors.
+
+In the example above, we see that more time is being spent in RebuildHierarchy 
+than in SolveHydroEquations, and that the load balance is quite poor for the
 SolveHydroEquations where the mean is 1.4 ms, with a standard deviation of
 2.4 ms. 
 
 At the beginning of each simulation (on Cycle 1), we print out a header to the
-chronos.txt file:
+performance.out file:
 
 | # This file contains timing information
 | # For instructions on how to decipher this information,
@@ -68,14 +71,14 @@ Adding new Timers
 While there are a number of default timers, it is easy to add new timers to any
 section of code in Enzo.
 
-It has a number of timers built in such as EvolveHierarchy (Total), EvolveLevel
-(for each level), Gravity, Hydro, RebuildHierarchy.  Adding new times should be
-as simple as doing two things:
+The built-in timers include: EvolveHierarchy (Total), EvolveLevel (for each 
+level), Gravity, Hydro, RebuildHierarchy.  Adding new times should be as 
+simple as doing two things:
 
 1) Add #include "EnzoTiming.h" to the top of the file you want to profile,
 making sure it is before macros_and_parameters.
 
-| 2) Adding 
+2) Adding 
 | TIMER_START("YourTimerName");
 | and 
 | TIMER_STOP("YourTimerName");
@@ -83,7 +86,4 @@ making sure it is before macros_and_parameters.
 
 The string that you pass in gets collected in a map which is then iterated over
 at the end of each evolve hierarchy.  At that time it prints into a file named
-chronos.txt.
-
-
-
+performance.out.
