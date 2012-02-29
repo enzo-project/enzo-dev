@@ -65,7 +65,7 @@ print out the MPI processor count:
 
 This is done in case the number of processors changes over time.
 
-Adding new Timers
+Adding New Timers
 #################
 
 While there are a number of default timers, it is easy to add new timers to any
@@ -87,3 +87,210 @@ making sure it is before macros_and_parameters.
 The string that you pass in gets collected in a map which is then iterated over
 at the end of each evolve hierarchy.  At that time it prints into a file named
 performance.out.
+
+Generating Plots
+################
+
+performance_tools.py is a python module for plotting the performance 
+information stored in performance.out.  The easiest way to generate plots
+from performance.out is to call performance_tools.py from the command line:
+
+| $ python performance_tools.py performance.out
+| 
+| or 
+| 
+| $ python performance_tools.py -s 11 performance.out
+
+to do the same while applying a smoothing kernel to your data 11 cycles in 
+width.
+
+By default, performance_tools.py will output 6 plots: 
+
+--p1.png
+Plot the mean time taken per processor on each level and on the 
+simulation as a whole (Total) versus cycle number.  Overplot in 
+gray the minimum and maximum time taken on a processor for each 
+of these quantities.
+
+--p2.png
+Same as p1.png except scale everything to be as a fraction of the 
+total time taken.
+
+--p3.png
+Plot the mean time taken per processor on each level versus cycle number.  
+Stack each level on the previous layer cumulatively.  
+
+--p4.png
+Plot the mean time taken per processor performing the RebuildHiearchy
+and SolveHydroEquations tasks versus cycle number.  Stack each level on 
+the previous layer cumulatively.  Scale everything to be as a fraction of the
+total time taken.
+
+--p5.png
+Plot the number of cells generated at each level versus cycle number and 
+stack them cumulatively.
+
+--p6.png
+Plot the efficiency (cells/processor/sec) for each level and for
+the simulation as a whole versus cycle number.
+
+Generating Additional Plots
+###########################
+
+If you want to create additional plots of your data beyond the defaults, 
+simply add new plot_quantities() and plot_stack() calls to the bottom of 
+performance_tools.py.
+
+This can be as simple as adding a line:
+
+| $ p.plot_quantity("Level 0", "mean time")
+| 
+| or
+| 
+| $ p.plot_stack("Level 0", "mean time")
+
+Here follows the full documentation for plot_quantity and plot_stack:
+
+| def plot_quantity(self, field_label, y_field_index,
+|                   y_field_axis_label="", x_field_index='cycle',
+|                   x_field_axis_label="Cycle Number",
+|                   filename="performance.png", repeated_field="",
+|                   log_y_axis="Auto", smooth_len=0, bounds="Off",
+|                   fractional=False):
+|  
+|     Produce a plot for the given quantity(s) from the performance data.
+| 
+|     Parameters
+|     ----------
+|     field_label : string or array_like of strings
+|         The label of the field you wish to plot.  If you wish to plot
+|         multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
+|     y_field_index : string
+|         The index of the field you wish to plot on the y axis. 
+|         Ex: "mean time", "std_dev time", "min time", "max time",
+|         "cells", "grids", "cells/processor/sec".
+|         If you have a single value for many field_labels, it is assumed
+|         that such a value will index all of them.  If you have an array_like
+|         structure of ints, each one will index the corresponding key in 
+|         field_lable.  
+|     y_field_axis_label : string, optional
+|         The y axis label on the resulting plot. Default = the y_field_index
+|         of the recarray.
+|     x_field_index : string, optional
+|         The index of the field you wish to plot on the x axis.
+|         Default = "cycle"
+|     x_field_axis_label : string, optional
+|         The x axis label on the resulting plot. Default = "Cycle Number"
+|     filename : string, optional
+|         The filename where I will store your plotted data.
+|     repeated_field : string, optional
+|         If you have a regularly named set of fields you wish to plot 
+|         against each other (e.g. "Level 0", "Level 1", "Level 2"), then
+|         include the string here and they will all be included automatically
+|         and in order (e.g. "Level").
+|     log_y_axis : string, optional
+|         This controls whether the plot will use logarithmic units for the
+|         y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
+|         used, the code automatically recognizes when you have a maximum 
+|         y value more than 3 orders of magnitude greater than your minimum y
+|         value (for non-zero values) at which point it plots the y axis in 
+|         log units.
+|     smooth_len : int, optional
+|         This value controls the amount by which smoothing occurs over
+|         N consecutive cycles of data.  Default = 0 (i.e. None). 
+|         Must be an odd number (recommended 5-11)
+|     bounds : string, optional
+|         This controls whether to overplot additional bounding data over
+|         the existing plotted quantities.  Valid values of this variable
+|         are "minmax", "sigma" and "Off".  "minmax" overplots the minima and
+|         maxima bounds, whereas "sigma" plots the mean +/- 1 sigma bounds.
+|     fractional : bool, optional
+|         When set to true, the plotted values shown in fractions of the 
+|         equivalent field in "Total".
+| 
+|     Examples
+|     --------
+|     To produce a simple plot of the mean time taken over the course of 
+|     the simulation to run the RebuildHierarchy section of code.
+|     Save this plot to performance.png:
+| 
+|     >>> plot_quantity("RebuildHierarchy", "mean time")
+| 
+|     To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
+|     maximum time taken over the course of the simulation and save it 
+|     to file "test.png":
+| 
+|     >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
+|     "max time", "Maximum Time (sec)", filename="test.png")
+| 
+|     To produce a plot comparing the maximum time from RebuildHiearchy and 
+|     the minimum time from SolveHydroEquations taken over the course of the 
+|     simulation and save it to file "test.png":
+| 
+|     >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
+|     ["max time", "min time"], "Time (sec)", filename="test.png")
+| 
+|     To produce a plot comparing the mean time taken by all of the different
+|     levels over the course of the simulation and save it to file "test.png": 
+|     >>> plot_quantity([], "mean time", "Mean Time (sec)", 
+|     filename="test.png", repeated_field="Level")
+|
+| def plot_stack(self, field_label, y_field_index,
+|                y_field_axis_label="", x_field_index='cycle',
+|                x_field_axis_label="Cycle Number",
+|                filename="performance.png", repeated_field="",
+|                log_y_axis="Auto", smooth_len=0, fractional=False):
+| 
+|     Produce a plot for the given label/indices where each quantity is 
+|     stacked on top of the previous quantity.
+| 
+|     Parameters
+|     ----------
+|     field_label : array_like of strings
+|         The labels of the fields you wish to plot.  If you wish to plot
+|         a single field, then use plot_quantity instead.
+|     y_field_index : string or array_like of strings
+|         The index of the field you wish to plot on the y axis. 
+|         Ex: "mean time", "std_dev time", "min time", "max time",
+|         "cells", "grids", "cells/processor/sec".
+|         If you have a single value for many field_labels, it is assumed
+|         that such a value will index all of them.  If you have an array_like
+|         structure of ints, each one will index the corresponding key in 
+|         field_lable.  
+|     y_field_axis_label : string, optional
+|         The y axis label on the resulting plot. Default = the y_field_index
+|         of the recarray.
+|     x_field_index : string, optional
+|         The index of the field you wish to plot on the x axis.
+|         Default = "cycle"
+|     x_field_axis_label : string, optional
+|         The x axis label on the resulting plot. Default = "Cycle Number"
+|     filename : string, optional
+|         The filename where I will store your plotted data.
+|     repeated_field : string, optional
+|         If you have a regularly named set of fields you wish to plot 
+|         against each other (e.g. "Level 0", "Level 1", "Level 2"), then
+|         include the string here and they will all be included automatically
+|         and in order (e.g. "Level").
+|     log_y_axis : string, optional
+|         This controls whether the plot will use logarithmic units for the
+|         y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
+|         used, the code automatically recognizes when you have a maximum 
+|         y value more than 3 orders of magnitude greater than your minimum y
+|         value (for non-zero values) at which point it plots the y axis in 
+|         log units.
+|     smooth_len : int, optional
+|         This value controls the amount by which smoothing occurs over
+|         N consecutive cycles of data.  Default = 0 (i.e. None)
+|         Must be an odd number (recommended 5-11)
+|     fractional : bool, optional
+|         When set to true, the plotted values shown in fractions of the 
+|         equivalent field in "Total".
+| 
+|     See Also
+|     --------
+|     plot_quantity
+| 
+|     Examples
+|     --------
+|     >>> plot_stack(["Level 0", "Level 1", "Level 2"], "mean time")
