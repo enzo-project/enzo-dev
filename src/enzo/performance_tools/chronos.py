@@ -260,7 +260,7 @@ class chronos:
         return data
 
     def plot_quantity(self, field_label, y_field_index, 
-                      y_field_axis_label=y_field_index, x_field_index='cycle', 
+                      y_field_axis_label="", x_field_index='cycle', 
                       x_field_axis_label="Cycle Number",
                       filename="chronos.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
@@ -438,11 +438,13 @@ class chronos:
             pl.ylim([0.,1.2*extrema[3]])
 
         ### Set up the legend with smaller text to allow for more entries
-        legend = pl.legend(legend_list,2)
+        legend = pl.legend(legend_list,loc='best')
         ltext  = legend.get_texts()
-        pl.setp(ltext, fontsize='small')
+        pl.setp(ltext, fontsize='xx-small')
 
         pl.xlabel(x_field_axis_label)
+        if not y_field_axis_label:
+            y_field_axis_label=y_field_index
         if fractional:
             pl.ylabel(y_field_axis_label + ", as Fraction of Total")
         else:
@@ -451,7 +453,7 @@ class chronos:
         pl.clf()
         
     def plot_stack(self, field_label, y_field_index, 
-                   y_field_axis_label=y_field_index, x_field_index='cycle', 
+                   y_field_axis_label="", x_field_index='cycle', 
                    x_field_axis_label="Cycle Number", filename="chronos.png", 
                    repeated_field="", log_y_axis="Auto", smooth_len=0, 
                    fractional=False):
@@ -601,11 +603,13 @@ class chronos:
         else:
             pl.ylim([0.,1.2*extrema[3]])
         if len(legend_list) > 0:
-            legend = pl.legend(legend_list,2)
+            legend = pl.legend(legend_list,loc='best')
             ltext  = legend.get_texts()
-            pl.setp(ltext, fontsize='small')
+            pl.setp(ltext, fontsize='xx-small')
 
         pl.xlabel(x_field_axis_label)
+        if not y_field_axis_label:
+            y_field_axis_label=y_field_index
         if fractional:
             pl.ylabel(y_field_axis_label + ", as Fraction of Total")
         else:
@@ -622,6 +626,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     usage = "usage: %prog <.out file>"
     parser = OptionParser(usage)
+    parser.add_option("-s","--smooth",dest="nsmooth",type='int',
+                      default=0,help="Set number of cycles over which to smooth (odd)")
     (opts, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("incorrect number of arguments")
@@ -630,17 +636,18 @@ if __name__ == "__main__":
     ### Build a chronos object from the data and generate some default plots
     c = chronos(filename)
     c.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
-                    repeated_field="Level", filename='c1.png',smooth_len=11,
-                    bounds='minmax')
+                    repeated_field="Level", filename='c1.png',
+                    smooth_len=opts.nsmooth, bounds='minmax')
     c.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
-                    repeated_field="Level", filename='c2.png',smooth_len=11,
-                    bounds='minmax', fractional=True)
+                    repeated_field="Level", filename='c2.png',
+                    smooth_len=opts.nsmooth, bounds='minmax', fractional=True)
     c.plot_stack([], 'mean time', "Mean Time (sec)", repeated_field="Level", 
-                 filename='c3.png', smooth_len=11)
+                 filename='c3.png', smooth_len=opts.nsmooth)
     c.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'mean time', 
-                 "Mean Time", filename='c4.png', smooth_len=11, 
+                 "Mean Time", filename='c4.png', smooth_len=opts.nsmooth,
                  fractional=True)
     c.plot_stack([], 'cells' ,'Number of Cells', repeated_field="Level",
-                 filename='c5.png', smooth_len=11)
+                 filename='c5.png', smooth_len=opts.nsmooth)
     c.plot_quantity(['Total'], 'cells/processor/sec', 'Cells/sec/processor', 
-                    repeated_field='Level', filename='c6.png', smooth_len=11)
+                    repeated_field='Level', filename='c6.png', 
+                    smooth_len=opts.nsmooth)
