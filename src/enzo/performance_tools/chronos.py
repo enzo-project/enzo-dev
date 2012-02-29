@@ -33,8 +33,7 @@ def is_listlike(obj):
     """
     Checks to see if an object is listlike (but not a string)
     """
-    import types
-    return not (isinstance(obj, basestring) or type(obj) is types.IntType)
+    return not isinstance(obj, basestring)
     
 def preserve_extrema(extrema, xdata, ydata):
     """
@@ -138,7 +137,7 @@ class chronos:
     This simple class stores the performance information collected by Enzo.
     Enzo puts this information in an ASCII file typically called "chronos.out".
     That file is called by the constructor for this class and converted
-    into the internal "data" structure.  
+    into the internal structure called "data".  
     
     "data" is a dictionary, where each key is one of the field labels 
     from "chronos.out" (i.e. the first word from a line, e.g. "Level 0").  
@@ -164,98 +163,20 @@ class chronos:
     "min time", 
     "max time"
 
-    Since this is a record array, you can use these entries as the index 
+    Since this is a record array, you can use these entries as the indices
     when indexing the array (e.g. data['Total']['cycle']).
 
     """
     def __init__(self, filename):
         self.filename = filename
-        self.data = self.build_struct_eff(filename)
+        self.data = self.build_struct(filename)
         self.fields = self.data.keys()
  
     def build_struct(self, filename):
         """
         Build the internal data structure which holds all of the data from
-        your external textfile outputted by enzo.
-
-        Parameters
-        ----------
-        filename : string
-            The name of the file used as input
-
-        Returns
-        -------
-        out : dictionary
-            A dictionary of recarrays.  Each "label" (e.g. "Total") within the 
-            input text file is represented as a key in the dictionary.  The 
-            payload for each key is an N-dim record array where N is the 
-            number of cycles over which that label appeared. See the
-            docstrings for the chronos class for more information.
-        """
-
-        ### Open the file, and pull out the data.  
-        ### Comments are ignored.  Each block of multiline text is treated 
-        ### individually.  The first line of each text block is expected to 
-        ### be the cycle_number, which is stored into an array.  Each 
-        ### subsequent line uses the first string as a dictionary key, 
-        ### with the remaining columns the data for that key.  
-        ### A blank line signifies the end of a text block
-
-        ### Create empty data structure which will store all input
-        data = {}
-
-        new_block = True
-        input = open(filename, "r")
-
-        ### Parse individual lines of data block until empty line, which 
-        ### signifies new block of text
-        for line in input:
-            if line.strip() == '':
-                new_block = True
-                continue
-    
-            if not line.startswith("#") and line.strip():
-                line_list = line.split()
-        
-                ### If we're starting a new block of text
-                if new_block:
-                    if line_list[0] != 'Cycle_Number':
-                        exit("Expected Cycle_Number at start of output block")
-                    else:
-                        cycle = int(line_list[1])
-                        new_block = False
-                        continue
-        
-                ### If we've made it this far, cycle is defined and we're
-                ### populating our dictionary with data for cycle #x.
-                line_key = line_list[0]
-        
-                ### Convert line_key's underscores to spaces
-                line_key = " ".join(line_key.split('_'))
-        
-                line_value = np.array([cycle] + line_list[1:],dtype='float64') 
-                line_value = np.nan_to_num(line_value)  # error checking
-        
-                ### If line_key is not already in our dictionary, then we 
-                ### create a new array as the dictionary payload
-        
-                if not data.__contains__(line_key):
-                    data[line_key] = line_value
-        
-                ### Otherwise, add a new row to the existing dataset
-                else:
-                    data[line_key] = np.column_stack((data[line_key],
-                                                      line_value))
-        input.close()
-        return data
-
-    def build_struct_eff(self, filename):
-        """
-        Build the internal data structure which holds all of the data from
-        your external textfile outputted by enzo.  This is a more efficient
-        method for constructing the structure than build_struct, in that
-        it allocates the memory all at once instead of building the structure
-        line by line.
+        your external textfile outputted by enzo.  It allocates the memory 
+        all at once instead of building the structure line by line.
 
         Parameters
         ----------
@@ -338,8 +259,9 @@ class chronos:
                 key_counter[line_key] += 1
         return data
 
-    def plot_quantity(self, field_label, y_field_index, y_field_axis_label="",
-                      x_field_index='cycle', x_field_axis_label="Cycle Number",
+    def plot_quantity(self, field_label, y_field_index, 
+                      y_field_axis_label=y_field_index, x_field_index='cycle', 
+                      x_field_axis_label="Cycle Number",
                       filename="chronos.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
                       fractional=False):
@@ -360,7 +282,8 @@ class chronos:
             structure of ints, each one will index the corresponding key in 
             field_lable.  
         y_field_axis_label : string, optional
-            The y axis label on the resulting plot. Default = ""
+            The y axis label on the resulting plot. Default = the y_field_index
+            of the recarray.
         x_field_index : string, optional
             The index of the field you wish to plot on the x axis.
             Default = "cycle"
@@ -527,18 +450,17 @@ class chronos:
         pl.savefig(filename)
         pl.clf()
         
-    def plot_stack(self, field_label, y_field_index, y_field_axis_label="",
-                   x_field_index='cycle', x_field_axis_label="Cycle Number",
-                   filename="chronos.png", repeated_field="", 
-                   log_y_axis="Auto", smooth_len=0, fractional=False):
+    def plot_stack(self, field_label, y_field_index, 
+                   y_field_axis_label=y_field_index, x_field_index='cycle', 
+                   x_field_axis_label="Cycle Number", filename="chronos.png", 
+                   repeated_field="", log_y_axis="Auto", smooth_len=0, 
+                   fractional=False):
         """
         Produce a plot for the given label/indices where each quantity is 
         stacked on top of the previous quantity.
     
         Parameters
         ----------
-        data : dictionary of recarrays
-            The dictionary containing all of the data for use in plotting.
         field_label : array_like of strings
             The labels of the fields you wish to plot.  If you wish to plot
             a single field, then use plot_quantity instead.
@@ -551,7 +473,8 @@ class chronos:
             structure of ints, each one will index the corresponding key in 
             field_lable.  
         y_field_axis_label : string, optional
-            The y axis label on the resulting plot. Default = ""
+            The y axis label on the resulting plot. Default = the y_field_index
+            of the recarray.
         x_field_index : string, optional
             The index of the field you wish to plot on the x axis.
             Default = "cycle"
