@@ -19,7 +19,8 @@
 
 ### Or you can just call this python file from the command line after
 ### editing the source file to have it print out whatever plots you want
-### it to generate (some defaults are included) like this:
+### it to generate (some defaults are included at the bottom of this file) 
+### like this:
 
 ### $ python performance_tools.py performance.out
 
@@ -614,11 +615,13 @@ class perform:
         pl.savefig(filename)
         pl.clf()
         
+### *** DEFAULT COMMAND LINE BEHAVIOR ***
+
 ### If performance_tools.py is invoked from the command line, these are its 
 ### default behaviors:
 ###
 ### -- Build a perform object from the provided filename
-### -- Make some handy plots and write them out
+### -- Make some handy plots and save them
 
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -631,21 +634,49 @@ if __name__ == "__main__":
         parser.error("incorrect number of arguments")
     filename = args[0]
 
-    ### Build a perform object from the data and generate some default plots
+    ### Build a perform object from the data and generate some default plots.
+    ### If you want to generate your own plots of different quantities, 
+    ### add them below.
     p = perform(filename)
-    p.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
+
+    ### Plot the mean time taken per processor on each level and on the 
+    ### simulation as a whole (Total).  Overplot in gray the minimum and 
+    ### maximum time taken on a processor for each of these quantities.
+    p.plot_quantity('Total', 'mean time', y_field_axis_label="Mean Time (sec)", 
                     repeated_field="Level", filename='p1.png',
                     smooth_len=opts.nsmooth, bounds='minmax')
-    p.plot_quantity('Total', 'mean time', "Mean Time (sec)", 
+
+    ### Plot the mean time taken per processor on each level and on the 
+    ### simulation as a whole (Total).  Overplot in gray the minimum and 
+    ### maximum time taken on a processor for each of these quantities
+    ### Scale everything to be as a fraction of the total time taken.
+    p.plot_quantity('Total', 'mean time', y_field_axis_label="Mean Time (sec)", 
                     repeated_field="Level", filename='p2.png',
                     smooth_len=opts.nsmooth, bounds='minmax', fractional=True)
-    p.plot_stack([], 'mean time', "Mean Time (sec)", repeated_field="Level", 
-                 filename='p3.png', smooth_len=opts.nsmooth)
+
+    ### Plot the mean time taken per processor on each level.  Stack each 
+    ### level on the previous layer cumulatively.  
+    p.plot_stack([], 'mean time', y_field_axis_label="Mean Time (sec)", 
+                 repeated_field="Level", filename='p3.png', 
+                 smooth_len=opts.nsmooth)
+
+    ### Plot the mean time taken per processor performing the RebuildHiearchy
+    ### and SolveHydroEquations tasks.  Stack each level on the previous 
+    ### layer cumulatively.  Scale everything to be as a fraction of the
+    ### total time taken.
     p.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'mean time', 
-                 "Mean Time", filename='p4.png', smooth_len=opts.nsmooth,
-                 fractional=True)
-    p.plot_stack([], 'cells' ,'Number of Cells', repeated_field="Level",
-                 filename='p5.png', smooth_len=opts.nsmooth)
-    p.plot_quantity(['Total'], 'cells/processor/sec', 'Cells/sec/processor', 
+                 y_field_axis_label="Mean Time (sec)", filename='p4.png', 
+                 smooth_len=opts.nsmooth, fractional=True)
+
+    ### Plot the number of cells generated at each level and stack them
+    ### cumulatively.
+    p.plot_stack([], 'cells', y_field_axis_label='Number of Cells', 
+                 repeated_field="Level", filename='p5.png', 
+                 smooth_len=opts.nsmooth)
+
+    ### Plot the efficiency (cells/processor/sec) for each level and for
+    ### the simulation as a whole versus time.
+    p.plot_quantity(['Total'], 'cells/processor/sec', 
+                    y_field_axis_label='Cells/sec/processor', 
                     repeated_field='Level', filename='p6.png', 
                     smooth_len=opts.nsmooth)
