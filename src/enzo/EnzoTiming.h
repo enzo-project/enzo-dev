@@ -126,9 +126,10 @@ namespace enzo_timing{
     enzo_timer(void){
       total_time = 0.0;
       current_time = 0.0;
-      filename = (char *)("chronos.out");
+      filename = (char *)("performance.out");
       set_mpi_environment();
       first_write = true;
+      last_cycle = 0;
     }
 
     // Constructor, accepts non-standard filename
@@ -138,6 +139,7 @@ namespace enzo_timing{
       filename = performance_name;
       set_mpi_environment();
       first_write = true;
+      last_cycle = 0;
     }
 
     // Destructor, erases each timer.
@@ -168,7 +170,7 @@ namespace enzo_timing{
     section_performance * get(char *name){
       SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
-        fprintf(stderr, "%s Being Created\n", name);
+        //fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
       }
       return timers[name];
@@ -178,7 +180,7 @@ namespace enzo_timing{
     void start(char *name){
       SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
-        fprintf(stderr, "%s Being Created\n", name);
+        //fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
       }
       timers[name]->start();
@@ -188,7 +190,7 @@ namespace enzo_timing{
     void stop(char *name){
       SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
-        fprintf(stderr, "%s Being Created\n", name);
+        //fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
       }
       timers[name]->stop();
@@ -274,19 +276,21 @@ namespace enzo_timing{
     // Write out performance measures to a file, optionally specifying
     // verbose to get all timers from all processors.
     void write_out(int step, bool verbose=false){
+      int ncycles = step - last_cycle;
+      last_cycle = step;
       if (my_rank == 0){
-        chronos_file = fopen(filename,"a");
+        performance_file = fopen(filename,"a");
         if (step == 1){
-          fprintf(chronos_file, "# This file contains timing information\n");
-          fprintf(chronos_file, "# For instructions on how to decipher this information,\n");
-          fprintf(chronos_file, "# see http://enzo-project.org/docs/somewhere\n");
-          fprintf(chronos_file, "# Times are collected across MPI processes and presented as:\n"\
+          fprintf(performance_file, "# This file contains timing information\n");
+          fprintf(performance_file, "# For instructions on how to decipher this information,\n");
+          fprintf(performance_file, "# see http://enzo-project.org/docs/somewhere\n");
+          fprintf(performance_file, "# Times are collected across MPI processes and presented as:\n"\
                                 "# Level_N/Total, mean time, std_dev time, min time, max time, cells, grids, cells/processor/sec\n"\
                                 "# Routine, mean time, std_dev time, min time, max time \n");
         }
         if (first_write){
           first_write = false;
-          fprintf(chronos_file, "# Starting performance log. MPI processes: %d\n\n", nprocs);
+          fprintf(performance_file, "# Starting performance log. MPI processes: %d\n\n", nprocs);
         }
       }
       
@@ -297,7 +301,7 @@ namespace enzo_timing{
       std::string keyname;
 
       // Collect times from all processors.
-      double thistime = this->get_current_levels_time();
+      double thistime = this->get_current_levels_time()/ncycles;
       Reduce_Times(thistime, time_array);
 
       // Write out Cycle Number and calculate stats on total time
@@ -319,14 +323,14 @@ namespace enzo_timing{
         }
         stddev_time = sqrt(stddev_time/nprocs);
       
-        fprintf(chronos_file, "Cycle_Number %d\n",step);
+        fprintf(performance_file, "Cycle_Number %d\n",step);
       }
       
       long int total_cells = 0;
       
       // Print out info for each timer.
       for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
-        current_time = iter->second->get_current_time();
+        current_time = iter->second->get_current_time()/ncycles;
         iter->second->reset_current_time();
         Reduce_Times(current_time, time_array);
     
@@ -346,47 +350,48 @@ namespace enzo_timing{
           }
           stddev_time = sqrt(stddev_time/nprocs);
 
-          fprintf(chronos_file, "%s %e %e %e %e",
+          fprintf(performance_file, "%s %e %e %e %e",
                   iter->first.c_str(), mean_time, stddev_time, min_time, max_time);
           keyname = iter->first;
           if (strncmp(keyname.c_str(), "Total", 5) == 0){
             total_time = mean_time;
             total_cells = get_total_cells();
-            fprintf(chronos_file, " %ld %ld %e",
+            fprintf(performance_file, " %ld %ld %e",
                     total_cells,
                     get_total_grids(),
                     (double)(total_cells/total_time/nprocs)); 
           }
           if (strncmp(keyname.c_str(), "Level", 5) == 0){
-            fprintf(chronos_file, " %ld %ld %e", 
+            fprintf(performance_file, " %ld %ld %e", 
                     iter->second->get_cells(),
                     iter->second->get_grids(),
                     (double)(iter->second->get_cells()/mean_time/nprocs));
           }
           if(verbose){
             for (int i=0; i<nprocs; i++){
-              fprintf(chronos_file, " %e", time_array[i]);
+              fprintf(performance_file, " %e", time_array[i]);
             }
           }
-          fprintf(chronos_file, "\n");
+          fprintf(performance_file, "\n");
         }
       }
 
       // Write out total cells divided by processor-seconds.
       if (my_rank == 0){
-        fprintf(chronos_file, "\n");
-        fclose(chronos_file);      
+        fprintf(performance_file, "\n");
+        fclose(performance_file);      
         delete [] time_array;
       }
     }
           
   private:
-    FILE * chronos_file;    // File to write stats to
+    FILE * performance_file;    // File to write stats to
     double total_time;      // Total time
     double current_time;    // Current Time since last write_out
     char * filename;        // Filename
     int my_rank;            // MPI Rank
     int nprocs;             // MPI Size
+    int last_cycle;         // The last cycle number that was written out.
     bool first_write;       // Is this the first time we've written out?
   };
 }
@@ -401,8 +406,7 @@ namespace enzo_timing{
 EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer                                                         
 
 // Macros to start, stop, and write timers.
-#define TIMING_ON
-#ifdef TIMING_ON
+#ifdef ENZO_PERFORMANCE
 #define TIMER_START(section_name) enzo_timer->start(section_name)
 #define TIMER_STOP(section_name) enzo_timer->stop(section_name)
 #define TIMER_WRITE(cycle_number) enzo_timer->write_out(cycle_number)

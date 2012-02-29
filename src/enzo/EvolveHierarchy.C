@@ -685,7 +685,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     TIMER_STOP("Total");
-		TIMER_WRITE(MetaData.CycleNumber);
+    if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0)
+		  TIMER_WRITE(MetaData.CycleNumber);
 
     FirstLoop = false;
  
