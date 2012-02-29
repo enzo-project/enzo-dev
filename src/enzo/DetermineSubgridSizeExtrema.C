@@ -31,8 +31,8 @@
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
 
-#define MINIMUM_EDGE 2
-#define MINIMUM_SIZE 64
+#define MINIMUM_EDGE 4
+#define MINIMUM_SIZE 512
 
 int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel)
 {
@@ -43,12 +43,15 @@ int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumSt
   /* Now determine subgrid size parameters */
 
   int grids_per_proc = (level > MaximumStaticSubgridLevel) ?
-    OptimalSubgridsPerProcessor : 2;
+    OptimalSubgridsPerProcessor : 6;
 
   MaximumSubgridSize = NumberOfCells / 
     (NumberOfProcessors * grids_per_proc);
   MaximumSubgridSize = max(MaximumSubgridSize, MINIMUM_SIZE);
-  MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.25);
+  if (level > MaximumStaticSubgridLevel)
+    MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.25);
+  else
+    MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.1);
   MinimumSubgridEdge += MinimumSubgridEdge % 2;
   MinimumSubgridEdge = max(MinimumSubgridEdge, MINIMUM_EDGE);
 

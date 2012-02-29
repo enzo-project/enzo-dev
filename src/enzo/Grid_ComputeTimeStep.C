@@ -382,9 +382,10 @@ float grid::ComputeTimeStep()
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
+  float dtStar = huge_number;
+#ifdef UNUSED
   float mindtNOstars;  // Myr
   const int NumberOfStepsInLifetime = 5;
-  float dtStar = huge_number;
 
   if (STARFEED_METHOD(POP3_STAR))
     mindtNOstars = 3;  // Myr
@@ -398,6 +399,7 @@ float grid::ComputeTimeStep()
       dtStar = 3.1557e13*mindtNOstars/TimeUnits;
 
   dt = min(dt, dtStar);
+#endif /* UNUSED */
 
 
 
@@ -464,6 +466,14 @@ float grid::ComputeTimeStep()
       printf("Cond = %"ESYM" ",(dtConduction));
     if (UseGasDrag)
       printf("Drag = %"ESYM" ",(dtGasDrag));
+#ifdef TRANSFER
+    if (dtStar < huge_number)
+      printf("Stars = %"FSYM" ", dtStar);
+    if (RadiationPressure)
+      printf("RP = %"FSYM" ", dtRadPressure);
+    if (TimestepSafetyVelocity > 0)
+      printf("Saf = %"FSYM" ", dtSafetyVelocity);
+#endif /* TRANSFER */      
     printf(")\n");
   }
  
