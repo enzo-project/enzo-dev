@@ -72,8 +72,8 @@ While there are a number of default timers, it is easy to add new timers to any
 section of code in Enzo.
 
 The built-in timers include: EvolveHierarchy (Total), EvolveLevel (for each 
-level), Gravity, Hydro, RebuildHierarchy.  Adding new times should be as 
-simple as doing two things:
+level), SolveHydroEquations, RebuildHierarchy, and Group_WriteAllData.  Adding 
+new times should be as simple as doing two things:
 
 1) Add #include "EnzoTiming.h" to the top of the file you want to profile,
 making sure it is before macros_and_parameters.
@@ -149,148 +149,10 @@ This can be as simple as adding a line:
 | 
 | $ p.plot_stack("Level 0", "Mean Time")
 
-Here follows the full documentation for plot_quantity and plot_stack:
+Full documentation for the plot_quantity and plot_stack functions can
+be found in the docstrings for the performance_tools.py module.  You can
+view it either by looking at the source code, or by loading it in python:
 
-| def plot_quantity(self, field_label, y_field_index,
-|                   y_field_axis_label="", x_field_index='Cycle',
-|                   x_field_axis_label="Cycle Number",
-|                   filename="performance.png", repeated_field="",
-|                   log_y_axis="Auto", smooth_len=0, bounds="Off",
-|                   fractional=False):
-|  
-|     Produce a plot for the given quantity(s) from the performance data.
-| 
-|     Parameters
-|     ----------
-|     field_label : string or array_like of strings
-|         The label of the field you wish to plot.  If you wish to plot
-|         multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
-|     y_field_index : string
-|         The index of the field you wish to plot on the y axis. 
-|         Ex: "Mean Time", "Stddev Time", "Min Time", "Max Time",
-|         "Num Cells", "Num Grids", "Cells/processor/sec".
-|         If you have a single value for many field_labels, it is assumed
-|         that such a value will index all of them.  If you have an array_like
-|         structure of strings, each one will index the corresponding key in 
-|         field_lable.  
-|     y_field_axis_label : string, optional
-|         The y axis label on the resulting plot. Default = the y_field_index
-|         of the recarray.
-|     x_field_index : string, optional
-|         The index of the field you wish to plot on the x axis.
-|         Default = "Cycle"
-|     x_field_axis_label : string, optional
-|         The x axis label on the resulting plot. Default = "Cycle Number"
-|     filename : string, optional
-|         The filename where I will store your plotted data.
-|     repeated_field : string, optional
-|         If you have a regularly named set of fields you wish to plot 
-|         against each other (e.g. "Level 0", "Level 1", "Level 2"), then
-|         include the string here and they will all be included automatically
-|         and in order (e.g. "Level").
-|     log_y_axis : string, optional
-|         This controls whether the plot will use logarithmic units for the
-|         y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
-|         used, the code automatically recognizes when you have a maximum 
-|         y value more than 3 orders of magnitude greater than your minimum y
-|         value (for non-zero values) at which point it plots the y axis in 
-|         log units.
-|     smooth_len : int, optional
-|         This value controls the amount by which smoothing occurs over
-|         N consecutive cycles of data.  Default = 0 (i.e. None). 
-|         Must be an odd number (recommended 5-11)
-|     bounds : string, optional
-|         This controls whether to overplot additional bounding data over
-|         the existing plotted quantities.  Valid values of this variable
-|         are "minmax", "sigma" and "Off".  "minmax" overplots the minima and
-|         maxima bounds, whereas "sigma" plots the mean +/- 1 sigma bounds.
-|     fractional : bool, optional
-|         When set to true, the plotted values shown in fractions of the 
-|         equivalent field in "Total".
-| 
-|     Examples
-|     --------
-|     To produce a simple plot of the mean time taken over the course of 
-|     the simulation to run the RebuildHierarchy section of code.
-|     Save this plot to performance.png:
-| 
-|     >>> plot_quantity("RebuildHierarchy", "Mean Time")
-| 
-|     To produce a plot comparing the RebuildHiearchy and SolveHydroEquations
-|     maximum time taken over the course of the simulation and save it 
-|     to file "test.png":
-| 
-|     >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-|     "Max Time", "Maximum Time (sec)", filename="test.png")
-| 
-|     To produce a plot comparing the maximum time from RebuildHiearchy and 
-|     the minimum time from SolveHydroEquations taken over the course of the 
-|     simulation and save it to file "test.png":
-| 
-|     >>> plot_quantity(["RebuildHierarchy", "SolveHydroEquations"],
-|     ["Max Time", "Min Time"], "Time (sec)", filename="test.png")
-| 
-|     To produce a plot comparing the mean time taken by all of the different
-|     levels over the course of the simulation and save it to file "test.png": 
-|     >>> plot_quantity([], "Mean Time", filename="test.png", 
-|     repeated_field="Level")
-|
-| def plot_stack(self, field_label, y_field_index,
-|                y_field_axis_label="", x_field_index='Cycle',
-|                x_field_axis_label="Cycle Number",
-|                filename="performance.png", repeated_field="",
-|                log_y_axis="Auto", smooth_len=0, fractional=False):
-| 
-|     Produce a plot for the given label/indices where each quantity is 
-|     stacked on top of the previous quantity.
-| 
-|     Parameters
-|     ----------
-|     field_label : array_like of strings
-|         The labels of the fields you wish to plot.  If you wish to plot
-|         a single field, then use plot_quantity instead.
-|     y_field_index : string or array_like of strings
-|         The index of the field you wish to plot on the y axis. 
-|         Ex: "Mean Time", "Stddev Time", "Min Time", "Max Time",
-|         "Num Cells", "Num Grids", "Cells/processor/sec".
-|         If you have a single value for many field_labels, it is assumed
-|         that such a value will index all of them.  If you have an array_like
-|         structure of strings, each one will index the corresponding key in 
-|         field_lable.  
-|     y_field_axis_label : string, optional
-|         The y axis label on the resulting plot. Default = the y_field_index
-|         of the recarray.
-|     x_field_index : string, optional
-|         The index of the field you wish to plot on the x axis.
-|         Default = "Cycle"
-|     x_field_axis_label : string, optional
-|         The x axis label on the resulting plot. Default = "Cycle Number"
-|     filename : string, optional
-|         The filename where I will store your plotted data.
-|     repeated_field : string, optional
-|         If you have a regularly named set of fields you wish to plot 
-|         against each other (e.g. "Level 0", "Level 1", "Level 2"), then
-|         include the string here and they will all be included automatically
-|         and in order (e.g. "Level").
-|     log_y_axis : string, optional
-|         This controls whether the plot will use logarithmic units for the
-|         y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
-|         used, the code automatically recognizes when you have a maximum 
-|         y value more than 3 orders of magnitude greater than your minimum y
-|         value (for non-zero values) at which point it plots the y axis in 
-|         log units.
-|     smooth_len : int, optional
-|         This value controls the amount by which smoothing occurs over
-|         N consecutive cycles of data.  Default = 0 (i.e. None)
-|         Must be an odd number (recommended 5-11)
-|     fractional : bool, optional
-|         When set to true, the plotted values shown in fractions of the 
-|         equivalent field in "Total".
-| 
-|     See Also
-|     --------
-|     plot_quantity
-| 
-|     Examples
-|     --------
-|     >>> plot_stack(["Level 0", "Level 1", "Level 2"], "Mean Time")
+| $ python
+| >>> import performance_tools as pt
+| >>> help(pt.perform)
