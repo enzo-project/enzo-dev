@@ -294,7 +294,9 @@ class perform:
             If you have a regularly named set of fields you wish to plot 
             against each other (e.g. "Level 0", "Level 1", "Level 2"), then
             include the string here and they will all be included automatically
-            and in order (e.g. "Level").
+            and in order (e.g. "Level").  There are two special cases to this
+            parameter.  "Non-Level" includes all fields without "Level" in the 
+            name (or "Total"), and "All" includes all fields.
         log_y_axis : string, optional
             This controls whether the plot will use logarithmic units for the
             y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
@@ -359,11 +361,21 @@ class perform:
         ### there are including any that were defined in the original 
         ### field_label argument.
         if repeated_field:
-            i = 0
-            while data.has_key(repeated_field + ' %i' % i):
-                field_label.append(repeated_field + ' %i' % i)
-                i += 1
+            key_list = data.keys()
+            if repeated_field == "All":
+                field_label = key_list
+
+            elif repeated_field == "Non-Level":
+                for key in key_list:
+                    if not key.startswith("Level") and \
+                       not key.startswith("Total"):
+                        field_label.append(key)
+            else:
+                for key in key_list:
+                    if key.startswith(repeated_field):
+                        field_label.append(key)
         num_fields = len(field_label)
+        field_label.sort()
     
         ### If y_field_index is a single index, then replace it with a list of
         ### identical indices
@@ -499,7 +511,9 @@ class perform:
             If you have a regularly named set of fields you wish to plot 
             against each other (e.g. "Level 0", "Level 1", "Level 2"), then
             include the string here and they will all be included automatically
-            and in order (e.g. "Level").
+            and in order (e.g. "Level").  There are two special cases to this
+            parameter.  "Non-Level" includes all fields without "Level" in the 
+            name (or "Total"), and "All" includes all fields.
         log_y_axis : string, optional
             This controls whether the plot will use logarithmic units for the
             y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
@@ -535,11 +549,21 @@ class perform:
         ### If a repeated_field, figure out how many repeated fields there are.
         ### including any that were defined in the original field_label arg.
         if repeated_field:
-            i = 0
-            while data.has_key(repeated_field + ' %i' % i):
-                field_label.append(repeated_field + ' %i' % i)
-                i += 1
+            key_list = data.keys()
+            if repeated_field == "All":
+                field_label = key_list
+
+            elif repeated_field == "Non-Level":
+                for key in key_list:
+                    if not key.startswith("Level") and \
+                       not key.startswith("Total"):
+                        field_label.append(key)
+            else:
+                for key in key_list:
+                    if key.startswith(repeated_field):
+                        field_label.append(key)
         num_fields = len(field_label)
+        field_label.sort()
     
         ### If y_field_index is a single index, then replace it with a list of
         ### identical indices
@@ -687,8 +711,8 @@ if __name__ == "__main__":
     ### and SolveHydroEquations tasks.  Stack each level on the previous 
     ### layer cumulatively.  Scale everything to be as a fraction of the
     ### total time taken.
-    p.plot_stack(['RebuildHierarchy','SolveHydroEquations'], 'Mean Time', 
-                 y_field_axis_label="Mean Time (sec)", filename='p4.png', 
+    p.plot_stack([], 'Mean Time', y_field_axis_label="Mean Time", 
+                 repeated_field="Non-Level", filename='p4.png', 
                  smooth_len=opts.nsmooth, fractional=True)
 
     ### Plot the number of cells generated at each level and stack them

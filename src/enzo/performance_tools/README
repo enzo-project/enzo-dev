@@ -5,8 +5,8 @@ We have added support for simple, lightweight, timing and performance
 measurements.  This allows one to examine which functions are using the majority
 of the simulation runtime, and how this varies across multiple processors. We
 have built in a number of default timers, such as EvolveLevel for each level,
-RebuildHierarchy, SolveHydroEquations, and Gravity. Below, we will outline how
-to add additional timers.
+RebuildHierarchy, SolveHydroEquations, and Group_WriteAllData.  Below, we will 
+outline how to add additional timers and how to generate plots of the data.
 
 File Format
 ###########
@@ -37,7 +37,7 @@ an example cycle:
 | Level_N, mean time, stddev time, min time, max time, number of cells, 
 | number of grids, mean cells/s/processor
 
-| Each non-level line (Rebuild Hierarchy, SolveHydroEquations, etc.) have:
+| Each non-level line (RebuildHierarchy, SolveHydroEquations, etc.) have:
 | Section Name, mean time, stddev time, min time, max time. 
 
 Time is measured in seconds of wall time for each of the processors.
@@ -121,10 +121,10 @@ Plot the mean time taken per processor on each level versus cycle number.
 Stack each level on the previous layer cumulatively.  
 
 --p4.png
-Plot the mean time taken per processor performing the RebuildHiearchy
-and SolveHydroEquations tasks versus cycle number.  Stack each level on 
-the previous layer cumulatively.  Scale everything to be as a fraction of the
-total time taken.
+Plot the mean time taken per processor performing any Non-Level fields versus
+cycle number (e.g. the RebuildHiearchy, SolveHydroEquations, and 
+Group_WriteAllData tasks).  Stack each level on the previous layer 
+cumulatively.  Scale everything to be as a fraction of the total time taken.
 
 --p5.png
 Plot the number of cells generated at each level versus cycle number and 
@@ -141,13 +141,17 @@ If you want to create additional plots of your data beyond the defaults,
 simply add new plot_quantities() and plot_stack() calls to the bottom of 
 performance_tools.py.
 
-This can be as simple as adding a line:
+This can be as simple as adding one of these lines:
 
 | $ p.plot_quantity("Level 0", "Mean Time")
 | 
-| or
-| 
 | $ p.plot_stack("Level 0", "Mean Time")
+| 
+| $ p.plot_quantity([], "Mean Time", repeated_field="All")
+| 
+| $ p.plot_stack([], "Num Cells", repeated_field="Level")
+| 
+| $ p.plot_quantity("Total", "Mean Time", repeated_field="Non-Level")
 
 Full documentation for the plot_quantity and plot_stack functions can
 be found in the docstrings for the performance_tools.py module.  You can
