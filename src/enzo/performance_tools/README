@@ -109,8 +109,8 @@ By default, performance_tools.py will output 6 plots:
 --p1.png
 Plot the mean time taken per processor on each level and on the 
 simulation as a whole (Total) versus cycle number.  Overplot in 
-gray the minimum and maximum time taken on a processor for each 
-of these quantities.
+lighter tones are the minimum and maximum time taken on a processor 
+for each of these quantities.
 
 --p2.png
 Same as p1.png except scale everything to be as a fraction of the 
