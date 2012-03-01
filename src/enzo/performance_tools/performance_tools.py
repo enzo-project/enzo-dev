@@ -198,31 +198,31 @@ class perform:
         ### subsequent line uses the first string as a dictionary key, 
         ### with the remaining columns the data for that key.  
         ### A blank line signifies the end of a text block
-        key_tally = {}
-        key_counter = {}
+        key_list = []
         data = {}
+        num_cycles = 0
 
         input = open(filename, "r")
         input_list = input.readlines()
         input.close()
 
-        ### First run through the file contents counting up all instances of 
-        ### each key (first word of each line) so as to allocate sufficiently
+        ### First run through the file contents identifying all possible keys
+        ### and counting the number of cycles so as to allocate sufficiently
         ### big arrays in the structure to house the data.
         for line in input_list:
             if not line.startswith("#") and line.strip():
                 line_list = line.split()
                 line_key = line_list[0]
                 line_key = " ".join(line_key.split('_'))
-                if not key_tally.__contains__(line_key):
-                    key_tally[line_key] = 0
-                key_tally[line_key] += 1
-        del key_tally['Cycle Number'] # Don't want it as a key
+                if not key_list.__contains__(line_key):
+                    key_list.append(line_key)
+                if line_key == 'Cycle Number':
+                    num_cycles += 1
+        key_list.remove('Cycle Number') # Don't want it as a key
 
         ### Now build the dictionary with the appropriate memory and 
         ### retraverse the input file to fill it with the input information
-        for key in key_tally.keys():
-            key_counter[key] = 0
+        for key in key_list:
             if key == "Total" or key.startswith('Level'):
                 records = [('Cycle', 'float'), ('Mean Time', 'float'),
                            ('Stddev Time', 'float'), ('Min Time', 'float'),
@@ -234,14 +234,16 @@ class perform:
                            ('Stddev Time', 'float'), ('Min Time', 'float'),
                            ('Max Time', 'float')]
 
-            data[key] = np.zeros(key_tally[key], dtype=records)
+            data[key] = np.zeros(num_cycles, dtype=records)
 
+        i = -1 
         for line in input_list:
             if not line.startswith("#") and line.strip():
                 line_list = line.split()
    
                 if line_list[0] == 'Cycle_Number':
                     cycle = int(line_list[1])
+                    i += 1
                     continue
     
                 ### If we've made it this far, cycle is defined and we're
@@ -254,8 +256,12 @@ class perform:
                 line_value = np.array([cycle] + line_list[1:],dtype='float64') 
                 line_value = np.nan_to_num(line_value)  # error checking
     
-                data[line_key][key_counter[line_key]] = line_value
-                key_counter[line_key] += 1
+                data[line_key][i] = line_value
+
+        ### Make sure all cycles are set for all keys, even those that 
+        ### didn't output every cycle
+        for key in key_list:
+            data[key]["Cycle"] = data["Total"]["Cycle"]
         return data
 
     def plot_quantity(self, field_label, y_field_index, 
@@ -564,6 +570,13 @@ class perform:
                         field_label.append(key)
         num_fields = len(field_label)
         field_label.sort()
+
+        ### Group WriteAllData is usually very bumpy, so have it at the
+        ### top of the stack, as opposed to the bottom where it makes it 
+        ### difficult to read other quantities
+        if field_label.__contains__("Group WriteAllData"):
+            field_label.remove("Group WriteAllData")
+            field_label.append("Group WriteAllData")
     
         ### If y_field_index is a single index, then replace it with a list of
         ### identical indices
