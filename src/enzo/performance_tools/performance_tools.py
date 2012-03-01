@@ -269,7 +269,7 @@ class perform:
                       x_field_axis_label="Cycle Number",
                       filename="performance.png", repeated_field="", 
                       log_y_axis="Auto", smooth_len=0, bounds="Off",
-                      fractional=False):
+                      fractional=False, xlim=[], ylim=[]):
         """
         Produce a plot for the given quantity(s) from the performance data.
     
@@ -322,6 +322,9 @@ class perform:
         fractional : bool, optional
             When set to true, the plotted values shown in fractions of the 
             equivalent field in "Total".
+        xlim, ylim : array_like, optional
+            Set these variables two 2-element lists/arrays in order to
+            explicitly set your plot limits
     
         See Also
         --------
@@ -444,15 +447,23 @@ class perform:
                                          facecolor='0.5')
                 fillin.set_alpha(0.5)
     
-        pl.xlim(extrema[0:2])
-        if log_y_axis=="On":
-            y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
-            ### To assure there is a labeled tick mark on the y-axis
-            if y_log_range < 1.:
-                y_log_range = 1.
-            pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+        ### If xlim and ylim are set explicitly.  If not, use smart defaults
+        ### using extrema
+        if xlim:
+            pl.xlim(xlim)
         else:
-            pl.ylim([0.,1.2*extrema[3]])
+            pl.xlim(extrema[0:2])
+        if ylim:
+            pl.ylim(ylim)
+        else:
+            if log_y_axis=="On":
+                y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
+                ### To assure there is a labeled tick mark on the y-axis
+                if y_log_range < 1.:
+                    y_log_range = 1.
+                pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+            else:
+                pl.ylim([0.,1.2*extrema[3]])
 
 
         ### Make a legend
@@ -486,7 +497,8 @@ class perform:
                    y_field_axis_label="", x_field_index='Cycle', 
                    x_field_axis_label="Cycle Number", 
                    filename="performance.png", repeated_field="", 
-                   log_y_axis="Auto", smooth_len=0, fractional=False):
+                   log_y_axis="Auto", smooth_len=0, fractional=False,
+                   xlim=[], ylim=[]):
         """
         Produce a plot for the given label/indices where each quantity is 
         stacked on top of the previous quantity.
@@ -535,6 +547,9 @@ class perform:
         fractional : bool, optional
             When set to true, the plotted values shown in fractions of the 
             equivalent field in "Total".
+        xlim, ylim : array_like, optional
+            Set these variables two 2-element lists/arrays in order to
+            explicitly set your plot limits
     
         See Also
         --------
@@ -640,15 +655,23 @@ class perform:
             # Move our top bound to the bottom bound for our next iteration
             ydata_cum[0] = ydata_cum[1]
     
-        pl.xlim(extrema[0:2])
-        if log_y_axis=="On":
-            y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
-            ### To assure there is a labeled tick mark on the y-axis
-            if y_log_range < 1.:
-                y_log_range = 1.
-            pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+        ### If xlim and ylim are set explicitly.  If not, use smart defaults
+        ### using extrema
+        if xlim:
+            pl.xlim(xlim)
         else:
-            pl.ylim([0.,1.2*extrema[3]])
+            pl.xlim(extrema[0:2])
+        if ylim:
+            pl.ylim(ylim)
+        else:
+            if log_y_axis=="On":
+                y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
+                ### To assure there is a labeled tick mark on the y-axis
+                if y_log_range < 1.:
+                    y_log_range = 1.
+                pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+            else:
+                pl.ylim([0.,1.2*extrema[3]])
 
         ### Make a legend
         ### Shink current plot by 20% to make room for external legend
