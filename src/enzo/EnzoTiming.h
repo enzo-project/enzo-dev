@@ -176,23 +176,22 @@ namespace enzo_timing{
       return timers[name];
     }
 
-    // Start a timer by name
-    void start(char *name){
+    void create(char *name){
       SectionMap::iterator iter = timers.find(name);
       if (iter == timers.end()){
-        //fprintf(stderr, "%s Being Created\n", name);
         timers[name] = new section_performance(name);
       }
+      return;
+    }
+
+    // Start a timer by name
+    void start(char *name){
+      this->create(name);
       timers[name]->start();
     }
 
     // Stop a timer by name
     void stop(char *name){
-      SectionMap::iterator iter = timers.find(name);
-      if (iter == timers.end()){
-        //fprintf(stderr, "%s Being Created\n", name);
-        timers[name] = new section_performance(name);
-      }
       timers[name]->stop();
     }
 
@@ -408,10 +407,12 @@ EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer
 #define TIMER_START(section_name) enzo_timer->start(section_name)
 #define TIMER_STOP(section_name) enzo_timer->stop(section_name)
 #define TIMER_WRITE(cycle_number) enzo_timer->write_out(cycle_number)
+#define TIMER_REGISTER(name) enzo_timer->create(name)
 #else
 #define TIMER_START(section_name)
 #define TIMER_STOP(section_name)
 #define TIMER_WRITE(cycle_number)
+#define TIMER_REGISTER(name)
 #endif
 
 #endif //ENZO_TIMING

@@ -40,6 +40,7 @@ extern "C" void FORTRAN_NAME(smooth2)(float *source, float *dest, int *ndim,
 int grid::SolveForPotential(int level, FLOAT PotentialTime)
 {
  
+  TIMER_REGISTER("SolveForPotential");
   /* Return if this grid is not on this processor. */
  
   if (MyProcessorNumber != ProcessorNumber)

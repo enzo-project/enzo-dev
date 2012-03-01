@@ -184,7 +184,9 @@ int OutputLevelInformation(FILE *fptr, TopGridData &MetaData,
 
   for (level = 0; level <= MaximumRefinementLevel; level++) {
 
+#ifdef ENZO_PERFORMANCE
     enzo_timer->get_level(level)->add_stats(Grids[level], CellsActive[level]);
+#endif
 
     if (isRoot) {
       fprintf(fptr, "  Level %"ISYM"  Grids %"ISYM"  Memory(MB) %"GSYM"  Coverage %"GSYM"  Ratio %"GSYM"  Flagged %"GSYM"  Active %lld\n",
