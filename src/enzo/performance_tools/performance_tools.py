@@ -444,7 +444,7 @@ class perform:
                     min_bound = smooth(min_bound, smooth_len)
                     max_bound = smooth(max_bound, smooth_len)
                 fillin = pl.fill_between(xdata,min_bound,max_bound,
-                                         facecolor='0.5')
+                        facecolor=color)
                 fillin.set_alpha(0.5)
     
         ### If xlim and ylim are set explicitly.  If not, use smart defaults
