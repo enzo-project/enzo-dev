@@ -273,6 +273,26 @@ namespace enzo_timing{
       return total_time;
     }
 
+    // Uses a single-pass formula for the standard deviation
+    void analyze_times(double *time_array, int N, double *mean_time, double *stddev_time,
+                       double *min_time, double *max_time){
+      double m, q, sumt, mint, maxt;
+      m = time_array[0]; q = 0.0; sumt = mint = maxt = time_array[0];
+      *stddev_time = *mean_time = *min_time = *max_time = 0.0;
+      for (int i=1; i<N; i++){
+        q += (i*pow((double)(time_array[i] - m), (double)(2.0)))/(i+1);
+        m += (time_array[i] - m)/(i+1);
+        sumt += time_array[i];
+        mint = min(mint,time_array[i]);
+        maxt = max(maxt,time_array[i]); 
+      }
+      *stddev_time = sqrt(q/N);
+      *mean_time = sumt/N;
+      *min_time = mint;
+      *max_time = maxt;
+      return;
+    } 
+
     // Write out performance measures to a file, optionally specifying
     // verbose to get all timers from all processors.
     void write_out(int step, bool verbose=false){
@@ -309,46 +329,20 @@ namespace enzo_timing{
       double mean_time = 0.0;
       double min_time, max_time, stddev_time;
       if (my_rank == 0){
-        min_time = max_time = time_array[0];
-        for (int i=0; i<nprocs; i++){
-          mean_time += time_array[i];
-          min_time = min(min_time, time_array[i]);
-          max_time = max(max_time, time_array[i]);
-        }
-        mean_time /= nprocs;
-
-        stddev_time = 0.0;
-        for (int i=0; i<nprocs; i++){
-          stddev_time += pow((double)(time_array[i]-mean_time),(double)(2.0));
-        }
-        stddev_time = sqrt(stddev_time/nprocs);
-      
+        this->analyze_times(time_array, nprocs, &mean_time, &stddev_time, &min_time, &max_time);
         fprintf(performance_file, "Cycle_Number %d\n",step);
       }
       
       long int total_cells = 0;
-      
+      double cell_rate; 
       // Print out info for each timer.
       for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         current_time = iter->second->get_current_time()/ncycles;
         iter->second->reset_current_time();
         Reduce_Times(current_time, time_array);
-    
+        cell_rate = 0.0;
         if (my_rank == 0){
-          mean_time = 0.0;
-          min_time = max_time = time_array[0];
-          for (int i=0; i<nprocs; i++){
-            mean_time += time_array[i];
-            min_time = min(min_time, time_array[i]);
-            max_time = max(max_time, time_array[i]);
-          }
-          mean_time /= nprocs;
-      
-          stddev_time = 0.0;
-          for (int i=0; i<nprocs; i++){
-            stddev_time += pow(time_array[i]-mean_time,2.0);
-          }
-          stddev_time = sqrt(stddev_time/nprocs);
+          this->analyze_times(time_array, nprocs, &mean_time, &stddev_time, &min_time, &max_time);
 
           fprintf(performance_file, "%s %e %e %e %e",
                   iter->first.c_str(), mean_time, stddev_time, min_time, max_time);
@@ -356,16 +350,20 @@ namespace enzo_timing{
           if (strncmp(keyname.c_str(), "Total", 5) == 0){
             total_time = mean_time;
             total_cells = get_total_cells();
+            if (total_time > 0.0)
+              cell_rate = (double)(total_cells/total_time/nprocs);
             fprintf(performance_file, " %ld %ld %e",
                     total_cells,
                     get_total_grids(),
-                    (double)(total_cells/total_time/nprocs)); 
+                    cell_rate); 
           }
           if (strncmp(keyname.c_str(), "Level", 5) == 0){
+            if (mean_time > 0.0)
+              cell_rate = (double)(iter->second->get_cells()/mean_time/nprocs);
             fprintf(performance_file, " %ld %ld %e", 
                     iter->second->get_cells(),
                     iter->second->get_grids(),
-                    (double)(iter->second->get_cells()/mean_time/nprocs));
+                    cell_rate);
           }
           if(verbose){
             for (int i=0; i<nprocs; i++){
