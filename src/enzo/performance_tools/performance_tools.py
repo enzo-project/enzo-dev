@@ -725,16 +725,18 @@ if __name__ == "__main__":
     p = perform(filename)
 
     ### Plot the mean time taken per processor on each level and on the 
-    ### simulation as a whole (Total).  Overplot in gray the minimum and 
-    ### maximum time taken on a processor for each of these quantities.
+    ### simulation as a whole (Total).  Overplot in lighter tones are the 
+    ### minimum and maximum time taken on a processor for each of these 
+    ### quantities.
     p.plot_quantity('Total', 'Mean Time', y_field_axis_label="Mean Time (sec)", 
                     repeated_field="Level", filename='p1.png',
                     smooth_len=opts.nsmooth, bounds='minmax')
 
     ### Plot the mean time taken per processor on each level and on the 
-    ### simulation as a whole (Total).  Overplot in gray the minimum and 
-    ### maximum time taken on a processor for each of these quantities
-    ### Scale everything to be as a fraction of the total time taken.
+    ### simulation as a whole (Total).  Overplot in lighter tones are the 
+    ### minimum and maximum time taken on a processor for each of these 
+    ### quantities.  Scale everything to be as a fraction of the total 
+    ### time taken.
     p.plot_quantity('Total', 'Mean Time', y_field_axis_label="Mean Time (sec)", 
                     repeated_field="Level", filename='p2.png',
                     smooth_len=opts.nsmooth, bounds='minmax', fractional=True)
