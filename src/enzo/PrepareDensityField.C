@@ -376,6 +376,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (level == 0) {
     TIME_MSG("ComputePotentialFieldLevelZero");
     LCAPERF_START("ComputePotentialFieldLevelZero");
+    TIMER_START("ComputePotentialFieldLevelZero");
     if (traceMPI) 
       fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): CPFLZero "
 	      "(send-receive)\n", MyProcessorNumber);
@@ -385,6 +386,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #else
     ComputePotentialFieldLevelZero(MetaData, Grids, NumberOfGrids);
 #endif
+    TIMER_STOP("ComputePotentialFieldLevelZero");
     LCAPERF_STOP("ComputePotentialFieldLevelZero");
   }
        
