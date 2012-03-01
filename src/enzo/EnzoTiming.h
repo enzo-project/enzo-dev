@@ -168,17 +168,12 @@ namespace enzo_timing{
 
     // Accessor for section performance object
     section_performance * get(char *name){
-      SectionMap::iterator iter = timers.find(name);
-      if (iter == timers.end()){
-        //fprintf(stderr, "%s Being Created\n", name);
-        timers[name] = new section_performance(name);
-      }
+      this->create(name);
       return timers[name];
     }
 
     void create(char *name){
-      SectionMap::iterator iter = timers.find(name);
-      if (iter == timers.end()){
+      if (timers.find(name) == timers.end()){
         timers[name] = new section_performance(name);
       }
       return;

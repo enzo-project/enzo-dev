@@ -15,7 +15,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
-#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -40,7 +39,6 @@ extern "C" void FORTRAN_NAME(smooth2)(float *source, float *dest, int *ndim,
 int grid::SolveForPotential(int level, FLOAT PotentialTime)
 {
  
-  TIMER_REGISTER("SolveForPotential");
   /* Return if this grid is not on this processor. */
  
   if (MyProcessorNumber != ProcessorNumber)
@@ -50,7 +48,6 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
     return SUCCESS;
 
   LCAPERF_START("grid_SolveForPotential");
-  TIMER_START("SolveForPotential");
  
   /* declarations */
  
@@ -165,7 +162,6 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
 
 #endif
  
-  TIMER_STOP("SolveForPotential");
   LCAPERF_STOP("grid_SolveForPotential");
   return SUCCESS;
 }
