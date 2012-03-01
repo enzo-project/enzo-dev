@@ -478,6 +478,7 @@ class perform:
             pl.ylabel(y_field_axis_label + ", as Fraction of Total")
         else:
             pl.ylabel(y_field_axis_label)
+        pl.suptitle("Non-Stacked Quantities for " + self.filename)
         pl.savefig(filename)
         pl.clf()
         
@@ -672,6 +673,7 @@ class perform:
             pl.ylabel(y_field_axis_label + ", as Fraction of Total")
         else:
             pl.ylabel(y_field_axis_label)
+        pl.suptitle("Stacked Quantities for " + self.filename)
         pl.savefig(filename)
         pl.clf()
         
