@@ -25,6 +25,11 @@
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+              float *TemperatureUnits, float *TimeUnits,
+              float *VelocityUnits, double *MassUnits, FLOAT Time);  //need to compute MassUnits?
+
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt); // need this?
 
 int grid::ClusterSMBHFeedback(int level)
 {
@@ -93,6 +98,7 @@ int grid::ClusterSMBHFeedback(int level)
       JetNormalization += exp(-pow(radius/JetScaleRadius,2));
     }
   }
+  JetMdot = JetMdot*SolarMass/MassUnits;
   density_normalization = JetMdot/JetNormalization;
 
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
