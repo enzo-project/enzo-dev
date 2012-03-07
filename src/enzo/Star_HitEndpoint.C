@@ -28,7 +28,7 @@
 int Star::HitEndpoint(FLOAT Time)
 {
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   /* First check if the star's past its lifetime and then check other
@@ -80,6 +80,10 @@ int Star::HitEndpoint(FLOAT Time)
       }
     } else // SN tracers (must refine)
       result = NO_DEATH;
+
+    if (debug) printf("type = %d, mass = %g, result = %d, feedback = %d\n",
+		      this->type, this->Mass, result, this->FeedbackFlag);
+
     break;
     
   case PopII:
