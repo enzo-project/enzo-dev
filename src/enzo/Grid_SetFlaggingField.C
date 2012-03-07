@@ -269,6 +269,10 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
   }
 
+  if (debug1 && NumberOfFlaggedCells > 0)
+    printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
+	   CellFlaggingMethod[method], NumberOfFlaggedCells);
+
   } // ENDFOR methods
  
   /* End of Cell flagging criterion routine                              */
@@ -282,12 +286,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   counter[4]++;
   timer[4] += NumberOfFlaggedCells;
 #endif /* MPI_INSTRUMENTATION */
- 
-  if (debug1)
-
-    printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
-	   method, NumberOfFlaggedCells);
- 
+  
   return SUCCESS;
  
 }
