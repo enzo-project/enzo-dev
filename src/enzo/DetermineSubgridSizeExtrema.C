@@ -65,7 +65,9 @@ int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumSt
   if (NumberOfCells == 0) {
     MaximumSubgridSize = DEFAULT_MAXIMUM_SUBGRID_SIZE;
     MinimumSubgridEdge = DEFAULT_MINIMUM_SUBGRID_EDGE;
-    printf("DetermineSGSize: Warning: NumberOfCells is 0, using defaults.\n");
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      printf("DetermineSGSize: Warning: NumberOfCells is 0, using defaults.\n");
+    }
   }
 
   if (debug)
