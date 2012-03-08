@@ -68,7 +68,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
   /* Add radio-mode jet feedback */
   if (ClusterSMBHFeedback == TRUE)
-   ThisGrid->ClusterSMBHFeedback(level);
+   ThisGrid->GridData->ClusterSMBHFeedback(level);
  
 
   return SUCCESS;
