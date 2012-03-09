@@ -24,7 +24,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
-
+///#include ""
 int GetUnits(float *DensityUnits, float *LengthUnits,
               float *TemperatureUnits, float *TimeUnits,
               float *VelocityUnits, double *MassUnits, FLOAT Time);  //need to compute MassUnits?
@@ -39,14 +39,35 @@ int grid::ClusterSMBHFeedback(int level)
 
   /* Return if not on most-refined level. */
 
-  if (level != MaximumRefnementLevel)
+  if (level != MaximumRefinementLevel)
     return SUCCESS;
+
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                             Vel3Num, TENum) == FAIL)
+     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+
 
   /* Compute the jet launching region
      (assume jet launched from PointSourceGravityPosition) */
 
-  FLOAT JetLeftCorner[MAX_DIMENSION], LeftRightCorner[MAX_DIMENSION];
+  FLOAT JetLeftCorner[MAX_DIMENSION], JetRightCorner[MAX_DIMENSION];
   FLOAT JetCenter[MAX_DIMENSION];
+
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
+    TimeUnits = 1.0, VelocityUnits = 1.0;
+  double MassUnits = 1.0;
+
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, 0.0) == FAIL) {
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
+  MassUnits = DensityUnits*pow(LengthUnits,3);
+
+  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
+               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
+  int i, j, k = 0, size = 1, dim,  cellindex;
   int jet_dim = 2;  // z-axis (should make parameter?)
 
   int JetLaunchOffset = 10; // 10 cellwidth
@@ -88,7 +109,7 @@ int grid::ClusterSMBHFeedback(int level)
 
   /* Compute mass and momentum to be put into cells in code units. */
 
-  JetNormalization = 1.0;
+  float JetNormalization = 1.0, density_normalization = 1.0, radius = 1.0;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
       radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
@@ -98,7 +119,7 @@ int grid::ClusterSMBHFeedback(int level)
       JetNormalization += exp(-pow(radius/JetScaleRadius,2));
     }
   }
-  JetMdot = JetMdot*SolarMass/MassUnits;
+  JetMdot = JetMdot*SolarMass/MassUnits;  // in code units
   density_normalization = JetMdot/JetNormalization;
 
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
