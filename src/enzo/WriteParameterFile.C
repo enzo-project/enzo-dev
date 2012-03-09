@@ -829,6 +829,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   if (MBHInsertLocationFilename != NULL)
     fprintf(fptr, "MBHInsertLocationFilename           = %s\n\n", MBHInsertLocationFilename);
 
+  fprintf(fptr, "ClusterSMBHFeedback         = %"ISYM"\n", ClusterSMBHFeedback);
+
   /* Most Stanford additions: */
 
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);

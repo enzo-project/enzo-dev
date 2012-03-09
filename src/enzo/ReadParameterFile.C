@@ -966,7 +966,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingPowerCutOffDensity1 = %"GSYM, &CoolingPowerCutOffDensity1);
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
-
+    ret += sscanf(line, "ClusterSMBHFeedback = %"ISYM, &ClusterSMBHFeedback);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,

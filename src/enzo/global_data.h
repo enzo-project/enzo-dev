@@ -930,6 +930,10 @@ EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
+/* SMBH Feedback in galaxy clusters*/
+
+EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
+
 /* For the database */
 EXTERN char *DatabaseLocation;
 

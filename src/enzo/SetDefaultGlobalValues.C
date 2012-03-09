@@ -453,6 +453,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AnisotropicConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
+  ClusterSMBHFeedback = FALSE;
+
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
 
