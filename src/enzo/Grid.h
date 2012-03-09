@@ -2508,7 +2508,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 // new hydro & MHD routines
 //------------------------------------------------------------------------
 
-  int ClusterSMBHFeedback(int level)
+  int ClusterSMBHFeedback(int level);
   int SetNumberOfColours(void);
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);
