@@ -26,8 +26,8 @@
 #include "CosmologyParameters.h"
 ///#include ""
 int GetUnits(float *DensityUnits, float *LengthUnits,
-              float *TemperatureUnits, float *TimeUnits,
-              float *VelocityUnits, double *MassUnits, FLOAT Time);  //need to compute MassUnits?
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt); // need this?
 
@@ -43,8 +43,8 @@ int grid::ClusterSMBHFeedback(int level)
     return SUCCESS;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                                             Vel3Num, TENum) == FAIL)
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+                                             Vel3Num, TENum) == FAIL)   ///this or thisgrid
      ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
 
 
@@ -64,6 +64,7 @@ int grid::ClusterSMBHFeedback(int level)
     return FAIL;
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
+  VelocityUnits = LengthUnits/TimeUnits;   // need this??
 
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
                pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
@@ -74,7 +75,8 @@ int grid::ClusterSMBHFeedback(int level)
   int JetRadius = 6; // cellwidths
   float JetScaleRadius = 3.0; // cellwidths
 
-  float JetMdot = 0.0; // Jet mass flow (need to convert units)
+  float JetMdot = 10.0; // Jet mass flow in SolarMass/year (need to convert units)
+  float JetVelocity = 1000.0; // Jet Velocity in km/s (should make parameter)
 
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
@@ -119,8 +121,9 @@ int grid::ClusterSMBHFeedback(int level)
       JetNormalization += exp(-pow(radius/JetScaleRadius,2));
     }
   }
-  JetMdot = JetMdot*SolarMass/MassUnits;  // in code units
-  density_normalization = JetMdot/JetNormalization;
+  JetMdot = (JetMdot*SolarMass/MassUnits)/3.1557e7;  // in code units
+  JetVelocity = JetVelocity*1.0e5/VelocityUnits; //from km/s to code units
+  density_normalization = (JetMdot/JetNormalization)*CellWidth[0][0]/JetVelocity;
 
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
 
@@ -143,7 +146,7 @@ int grid::ClusterSMBHFeedback(int level)
 	  /CellWidth[0][0]; // in cell widths
 	
 	BaryonField[DensNum][GRIDINDEX(i,j,k)] += density_normalization*exp(-pow(radius/JetScaleRadius,2));
-	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] += XXX;
+	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] += JetVelocity;
 	//	BaryonField[GENum][GRIDINDEX(i,j,k)] += XXX;
       }
     }
