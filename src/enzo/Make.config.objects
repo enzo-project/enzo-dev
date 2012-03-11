@@ -424,6 +424,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
+	Grid_FlagCellsToBeRefinedByMetalMass.o \
 	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o \
 	Grid_FlagCellsToBeRefinedByResistiveLength.o \
