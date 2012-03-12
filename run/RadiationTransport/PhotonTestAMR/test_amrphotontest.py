@@ -4,7 +4,7 @@ ytcfg["yt","suppressStreamLogging"] = 'True'
 
 from yt.mods import *
 from yt.utilities.answer_testing.api import \
-    YTStaticOutputTest, create_test, run_main
+    YTStaticOutputTest, create_test
 import matplotlib.pyplot as plt
 
 class TestAMRPhotonTest(YTStaticOutputTest):
