@@ -296,8 +296,8 @@ suggest-clean:
 
 show-version:
 	@echo
-	@echo "Mercurial Branch   `$(SVN) identify -i`"
-	@echo "Mercurial Revision `$(SVN) identify -b`"
+	@echo "Mercurial Branch   `$(SVN) identify -b`"
+	@echo "Mercurial Revision `$(SVN) identify -i`"
 	@echo
 
 #-----------------------------------------------------------------------
