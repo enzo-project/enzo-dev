@@ -24,7 +24,7 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
-///#include ""
+#include "phys_constants.h"
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
@@ -66,9 +66,7 @@ int grid::ClusterSMBHFeedback(int level)
   MassUnits = DensityUnits*pow(LengthUnits,3);
   VelocityUnits = LengthUnits/TimeUnits;   // need this??
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
-  int i, j, k = 0, size = 1, dim,  cellindex;
+  int i, j, k = 0;
   int jet_dim = 2;  // z-axis (should make parameter?)
 
   int JetLaunchOffset = 10; // 10 cellwidth
@@ -76,7 +74,7 @@ int grid::ClusterSMBHFeedback(int level)
   float JetScaleRadius = 3.0; // cellwidths
 
   float JetMdot = 10.0; // Jet mass flow in SolarMass/year (need to convert units)
-  float JetVelocity = 1000.0; // Jet Velocity in km/s (should make parameter)
+  float JetVelocity = 10000.0; // Jet Velocity in km/s (should make parameter)
 
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
@@ -111,7 +109,7 @@ int grid::ClusterSMBHFeedback(int level)
 
   /* Compute mass and momentum to be put into cells in code units. */
 
-  float JetNormalization = 1.0, density_normalization = 1.0, radius = 1.0;
+  float JetNormalization = 0.0, density_normalization = 1.0, radius = 1.0;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
       radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
@@ -122,8 +120,8 @@ int grid::ClusterSMBHFeedback(int level)
     }
   }
   JetMdot = (JetMdot*SolarMass/MassUnits)/3.1557e7;  // in code units
+  density_normalization = (JetMdot/JetNormalization)*ComputeTimeStep/pow(CellWidth[0][0], 3);
   JetVelocity = JetVelocity*1.0e5/VelocityUnits; //from km/s to code units
-  density_normalization = (JetMdot/JetNormalization)*CellWidth[0][0]/JetVelocity;
 
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
 
@@ -136,7 +134,7 @@ int grid::ClusterSMBHFeedback(int level)
   }
 
   /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
-
+  float density_ratio = 1.0;
   if (JetStartIndex[jet_dim] >= 0) {
     k = JetStartIndex[jet_dim];
     for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
@@ -146,7 +144,8 @@ int grid::ClusterSMBHFeedback(int level)
 	  /CellWidth[0][0]; // in cell widths
 	
 	BaryonField[DensNum][GRIDINDEX(i,j,k)] += density_normalization*exp(-pow(radius/JetScaleRadius,2));
-	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] += JetVelocity;
+	density_ratio = density_normalization*exp(-pow(radius/JetScaleRadius,2))/ BaryonField[DensNum][GRIDINDEX(i,j,k)];
+	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] = density_ratio*JetVelocity + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX(i,j,k)];
 	//	BaryonField[GENum][GRIDINDEX(i,j,k)] += XXX;
       }
     }
