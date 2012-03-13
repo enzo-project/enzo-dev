@@ -50,9 +50,9 @@ namespace enzo_timing{
       name = myname;
       next = NULL;
       ngrids = 0;
-      ncells = 0;
       total_time = 0.0;
       current_time = 0.0;
+      ncell_updates = 0;
     }
    
     // Start Timer 
@@ -80,34 +80,39 @@ namespace enzo_timing{
     // Reset the current_time timer.
     void reset_current_time(void){
       current_time = 0.0;
+      ncell_updates = 0.0;
     }
 
-    // Access the ncells counter
-    long int get_cells(void){
-      return ncells;
+    // Access the ncell_updates counter
+    double get_cells(void){
+      return ncell_updates;
     }
 
     // Access the ngrids counter
     long int get_grids(void){
       return ngrids;
     }
-
-    // Add the number of grids, and cells to this timer.
-    void add_stats(long int my_grids, long int my_cells){
+    
+    // Set the number of grids
+    void set_ngrids(long int my_grids){
       ngrids = my_grids;
-      ncells = my_cells;
+    }
+
+    //Add number of cell updates
+    void add_cells(double my_ncell_updates){
+      ncell_updates += my_ncell_updates;
     }
 
     std::string name;           // Name of the timer
     section_performance *next;  // Pointer to the next timer 
   
   private:
+    double ncell_updates; // Number of cell updates since write-out
     double t0;            // Start Time
     double t1;            // End Time
     double total_time;    // Total time during the simulation
     double current_time;  // Time spent in this timer since last write-out
     long int ngrids;      // Number of Grids (For Level Timers)
-    long int ncells;      // Number of Cells (For Level Timers)
     
   };
   typedef std::map<std::string, section_performance *> SectionMap;
@@ -129,7 +134,7 @@ namespace enzo_timing{
       filename = (char *)("performance.out");
       set_mpi_environment();
       first_write = true;
-      last_cycle = 0;
+      //last_cycle = 0;
     }
 
     // Constructor, accepts non-standard filename
@@ -139,7 +144,7 @@ namespace enzo_timing{
       filename = performance_name;
       set_mpi_environment();
       first_write = true;
-      last_cycle = 0;
+      //last_cycle = 0;
     }
 
     // Destructor, erases each timer.
@@ -232,9 +237,9 @@ namespace enzo_timing{
       return total_grids; 
     }
 
-    // Get sum of number of cells
-    long int get_total_cells(void){
-      long int total_cells = 0;
+    // Get sum of number of cell updates
+    double get_total_cells(void){
+      double total_cells = 0;
       std::string keyname;
       for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
         keyname = iter->first;
@@ -270,18 +275,17 @@ namespace enzo_timing{
     // Uses a single-pass formula for the standard deviation
     void analyze_times(double *time_array, int N, double *mean_time, double *stddev_time,
                        double *min_time, double *max_time){
-      double m, q, sumt, mint, maxt;
-      m = time_array[0]; q = 0.0; sumt = mint = maxt = time_array[0];
+      double m, q, mint, maxt;
+      m = time_array[0]; q = 0.0; mint = maxt = time_array[0];
       *stddev_time = *mean_time = *min_time = *max_time = 0.0;
       for (int i=1; i<N; i++){
         q += (i*pow((double)(time_array[i] - m), (double)(2.0)))/(i+1);
         m += (time_array[i] - m)/(i+1);
-        sumt += time_array[i];
         mint = min(mint,time_array[i]);
         maxt = max(maxt,time_array[i]); 
       }
       *stddev_time = sqrt(q/N);
-      *mean_time = sumt/N;
+      *mean_time = m;
       *min_time = mint;
       *max_time = maxt;
       return;
@@ -290,8 +294,6 @@ namespace enzo_timing{
     // Write out performance measures to a file, optionally specifying
     // verbose to get all timers from all processors.
     void write_out(int step, bool verbose=false){
-      int ncycles = step - last_cycle;
-      last_cycle = step;
       if (my_rank == 0){
         performance_file = fopen(filename,"a");
         if (step == 1){
@@ -299,7 +301,7 @@ namespace enzo_timing{
           fprintf(performance_file, "# For instructions on how to decipher this information,\n");
           fprintf(performance_file, "# see http://enzo-project.org/docs/somewhere\n");
           fprintf(performance_file, "# Times are collected across MPI processes and presented as:\n"\
-                                "# Level_N/Total, mean time, std_dev time, min time, max time, cells, grids, cells/processor/sec\n"\
+                                "# Level_N/Total, mean time, std_dev time, min time, max time, cell updates, grids, cell updates/processor/sec\n"\
                                 "# Routine, mean time, std_dev time, min time, max time \n");
         }
         if (first_write){
@@ -314,25 +316,17 @@ namespace enzo_timing{
       }
       std::string keyname;
 
-      // Collect times from all processors.
-      double thistime = this->get_current_levels_time()/ncycles;
-      Reduce_Times(thistime, time_array);
-
-      // Write out Cycle Number and calculate stats on total time
-      // for this cycle.
       double mean_time = 0.0;
       double min_time, max_time, stddev_time;
       if (my_rank == 0){
-        this->analyze_times(time_array, nprocs, &mean_time, &stddev_time, &min_time, &max_time);
         fprintf(performance_file, "Cycle_Number %d\n",step);
       }
       
-      long int total_cells = 0;
+      double total_cells = get_total_cells();
       double cell_rate; 
       // Print out info for each timer.
       for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
-        current_time = iter->second->get_current_time()/ncycles;
-        iter->second->reset_current_time();
+        current_time = iter->second->get_current_time();
         Reduce_Times(current_time, time_array);
         cell_rate = 0.0;
         if (my_rank == 0){
@@ -343,10 +337,10 @@ namespace enzo_timing{
           keyname = iter->first;
           if (strncmp(keyname.c_str(), "Total", 5) == 0){
             total_time = mean_time;
-            total_cells = get_total_cells();
             if (total_time > 0.0)
               cell_rate = (double)(total_cells/total_time/nprocs);
-            fprintf(performance_file, " %ld %ld %e",
+            // Write out total cells divided by processor-seconds.
+            fprintf(performance_file, " %e %ld %e",
                     total_cells,
                     get_total_grids(),
                     cell_rate); 
@@ -354,7 +348,8 @@ namespace enzo_timing{
           if (strncmp(keyname.c_str(), "Level", 5) == 0){
             if (mean_time > 0.0)
               cell_rate = (double)(iter->second->get_cells()/mean_time/nprocs);
-            fprintf(performance_file, " %ld %ld %e", 
+            // Write out level cells divided by processor-seconds.
+            fprintf(performance_file, " %e %ld %e", 
                     iter->second->get_cells(),
                     iter->second->get_grids(),
                     cell_rate);
@@ -366,9 +361,9 @@ namespace enzo_timing{
           }
           fprintf(performance_file, "\n");
         }
+        iter->second->reset_current_time();
       }
 
-      // Write out total cells divided by processor-seconds.
       if (my_rank == 0){
         fprintf(performance_file, "\n");
         fclose(performance_file);      
@@ -383,7 +378,7 @@ namespace enzo_timing{
     char * filename;        // Filename
     int my_rank;            // MPI Rank
     int nprocs;             // MPI Size
-    int last_cycle;         // The last cycle number that was written out.
+    //int last_cycle;         // The last cycle number that was written out.
     bool first_write;       // Is this the first time we've written out?
   };
 }
@@ -403,11 +398,15 @@ EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer
 #define TIMER_STOP(section_name) enzo_timer->stop(section_name)
 #define TIMER_WRITE(cycle_number) enzo_timer->write_out(cycle_number)
 #define TIMER_REGISTER(name) enzo_timer->create(name)
+#define TIMER_ADD_CELLS(level, cells) enzo_timer->get_level(level)->add_cells(cells)
+#define TIMER_SET_NGRIDS(level, grids) enzo_timer->get_level(level)->set_ngrids(grids)
 #else
 #define TIMER_START(section_name)
 #define TIMER_STOP(section_name)
 #define TIMER_WRITE(cycle_number)
 #define TIMER_REGISTER(name)
+#define TIMER_ADD_CELLS(level, cells)
+#define TIMER_SET_NGRIDS(level, grids)
 #endif
 
 #endif //ENZO_TIMING

@@ -686,13 +686,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 //     } // if WritePotential
  
-
-    /* Rebuild the Grids on the next level down.
-       Don't bother on the last cycle, as we'll rebuild this grid soon. */
- 
-    if (dtThisLevelSoFar[level] < dtLevelAbove)
-      RebuildHierarchy(MetaData, LevelArray, level);
-
     /* Count up number of grids on this level. */
 
     int GridMemory, NumberOfCells, CellsTotal, Particles;
@@ -701,10 +694,18 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
       LevelZoneCycleCount[level] += NumberOfCells;
+      TIMER_ADD_CELLS(level, NumberOfCells);
       if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
+    TIMER_SET_NGRIDS(level, NumberOfGrids);
+
+    /* Rebuild the Grids on the next level down.
+       Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
+    if (dtThisLevelSoFar[level] < dtLevelAbove)
+      RebuildHierarchy(MetaData, LevelArray, level);
+
     cycle++;
     LevelCycleCount[level]++;
  
