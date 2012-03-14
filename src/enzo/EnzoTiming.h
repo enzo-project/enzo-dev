@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
+#include <string>
 #include <map>
 
 #define min(A,B) ((A) < (B) ? (A) : (B))
