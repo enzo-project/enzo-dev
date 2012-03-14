@@ -34,8 +34,8 @@ an example cycle:
 | ------------------------------------------------------------------------------
 
 | Each of the Level_N and Total lines have:
-| Level_N, mean time, stddev time, min time, max time, number of cells, 
-| number of grids, mean cells/s/processor
+| Level_N, mean time, stddev time, min time, max time, number of cell updates, 
+| number of grids, mean cell updates/s/processor
 
 | Each non-level line (RebuildHierarchy, SolveHydroEquations, etc.) have:
 | Section Name, mean time, stddev time, min time, max time. 
@@ -127,11 +127,11 @@ Group_WriteAllData tasks).  Stack each level on the previous layer
 cumulatively.  Scale everything to be as a fraction of the total time taken.
 
 --p5.png
-Plot the number of cells generated at each level versus cycle number and 
+Plot the number of cells updated at each level versus cycle number and 
 stack them cumulatively.
 
 --p6.png
-Plot the efficiency (cells/processor/sec) for each level and for
+Plot the efficiency (cell updates/processor/sec) for each level and for
 the simulation as a whole versus cycle number.
 
 Generating Additional Plots
