@@ -69,7 +69,7 @@ int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
   *LengthUnits      = 3.085678e24*ComovingBoxSize/HubbleConstantNow/
                       (1 + CurrentRedshift);
  
-  *TemperatureUnits = 1.88e6*POW(ComovingBoxSize,2)*OmegaMatterNow*
+  *TemperatureUnits = 1.81723e6*POW(ComovingBoxSize,2)*OmegaMatterNow*
                       (1 + InitialRedshift);
  
   *TimeUnits        = 2.519445e17/sqrt(OmegaMatterNow)/HubbleConstantNow/
