@@ -8,7 +8,7 @@
 ### which comes out of Enzo.  It consists of a few universal helper functions
 ### and a new class: perform.  You can use it one of two ways.  You can
 ### import this library in python, create a perform object, and then
-### create a few plots using the plot_quantity and plot_stack functions,
+### create a few plots using the plot_quantity, plot_stack and plot_maxmin functions,
 ### like this:
 
 ### $ python
@@ -16,6 +16,7 @@
 ### >>> p = pt.perform('performance.out')
 ### >>> p.plot_quantity('Total','Mean Time')
 ### >>> p.plot_stack([],'Mean Time',repeated_field='Level')
+### >>> p.plot_maxmin([],repeated_field='Level',fractional=True)
 
 ### Or you can just call this python file from the command line after
 ### editing the source file to have it print out whatever plots you want
@@ -328,7 +329,7 @@ class perform:
     
         See Also
         --------
-        plot_stack
+        plot_stack, plot_maxmin
     
         Examples
         --------
@@ -553,7 +554,7 @@ class perform:
     
         See Also
         --------
-        plot_quantity
+        plot_quantity, plot_maxmin
     
         Examples
         --------
@@ -699,6 +700,173 @@ class perform:
         pl.suptitle("Stacked Quantities for " + self.filename)
         pl.savefig(filename)
         pl.clf()
+
+    def plot_maxmin(self, field_label, y_field_axis_label="Max Time - Min Time (sec)",                    x_field_index='Cycle', x_field_axis_label="Cycle Number",
+                    filename="performance.png", repeated_field="", 
+                    log_y_axis="Auto", smooth_len=0, fractional=False, 
+                    xlim=[], ylim=[]):
+        """
+        Produce a plot showing how well load balancing is working across different
+        sub-processes or levels.  It subtracts the minimum time taken per processor 
+        from the maximum time taken per processor for a task.
+    
+        Parameters
+        ----------
+        field_label : string or array_like of strings
+            The label of the field you wish to plot.  If you wish to plot
+            multiple fields, enumerate them in an array or tuple. Ex: "Level 0"
+        y_field_axis_label : string, optional
+            The y axis label on the resulting plot. 
+            Default = "Max Time - Min Time (sec)"
+        x_field_index : string, optional
+            The index of the field you wish to plot on the x axis.
+            Default = "Cycle"
+        x_field_axis_label : string, optional
+            The x axis label on the resulting plot. Default = "Cycle Number"
+        filename : string, optional
+            The filename where I will store your plotted data.
+        repeated_field : string, optional
+            If you have a regularly named set of fields you wish to plot 
+            against each other (e.g. "Level 0", "Level 1", "Level 2"), then
+            include the string here and they will all be included automatically
+            and in order (e.g. "Level").  There are two special cases to this
+            parameter.  "Non-Level" includes all fields without "Level" in the 
+            name (or "Total"), and "All" includes all fields.
+        log_y_axis : string, optional
+            This controls whether the plot will use logarithmic units for the
+            y axis.  Valid settings are "Auto", "On", and "Off".  When "Auto" is
+            used, the code automatically recognizes when you have a maximum 
+            y value more than 3 orders of magnitude greater than your minimum y
+            value (for non-zero values) at which point it plots the y axis in 
+            log units.
+        smooth_len : int, optional
+            This value controls the amount by which smoothing occurs over
+            N consecutive cycles of data.  Default = 0 (i.e. None). 
+            Must be an odd number (recommended 5-11)
+        fractional : bool, optional
+            When set to true, the plotted values shown in fractions of the 
+            mean time for that field_label.
+        xlim, ylim : array_like, optional
+            Set these variables two 2-element lists/arrays in order to
+            explicitly set your plot limits
+    
+        See Also
+        --------
+        plot_quantity, plot_stack
+    
+        Examples
+        --------
+        To produce a plot of the showing how well the load is balanced on each 
+        level over the course of the simulation, and save this to performance.png:
+    
+        >>> plot_maxmin([], repeated_field="All")
+        """
+        ax = pl.subplot(111)
+        data = self.data
+        extrema = np.zeros(5)
+    
+        ### Convert plots of single quantities to list format for homogenous 
+        ### processing.
+        if not is_listlike(field_label):
+            field_label = [field_label]
+    
+        ### If there is a repeated_field, figure out how many fields 
+        ### there are including any that were defined in the original 
+        ### field_label argument.
+        if repeated_field:
+            key_list = data.keys()
+            if repeated_field == "All":
+                field_label = key_list
+
+            elif repeated_field == "Non-Level":
+                for key in key_list:
+                    if not key.startswith("Level") and \
+                       not key.startswith("Total"):
+                        field_label.append(key)
+            else:
+                for key in key_list:
+                    if key.startswith(repeated_field):
+                        field_label.append(key)
+        num_fields = len(field_label)
+        field_label.sort()
+    
+        ### Loop through the y datasets to figure out the extrema
+        for i in range(len(field_label)):
+            xdata = data[field_label[i]][x_field_index]
+            ydata = data[field_label[i]]["Max Time"] - \
+                    data[field_label[i]]["Min Time"]
+            if fractional:
+                ydata /= data[field_label[i]]["Mean Time"]
+            if smooth_len:
+                ydata = smooth(ydata,smooth_len)
+            extrema = preserve_extrema(extrema,xdata,ydata)
+        if log_y_axis=="Auto":
+            if extrema[3]/extrema[2] > 1e3:
+                log_y_axis="On"
+            else:
+                log_y_axis="Off"
+    
+        ### Now for the actual plotting
+        for i in range(len(field_label)):
+            color = cm.jet(1.*i/num_fields)
+            xdata = data[field_label[i]][x_field_index]
+            ydata = data[field_label[i]]["Max Time"] - \
+                    data[field_label[i]]["Min Time"]
+            if fractional:
+                ydata /= data[field_label[i]]["Mean Time"]
+            if smooth_len:
+                ydata = smooth(ydata,smooth_len)
+            if log_y_axis=="On":
+                pl.semilogy(xdata,ydata,color=color,label=field_label[i])
+            else:
+                pl.plot(xdata,ydata,color=color,label=field_label[i])
+    
+        ### If xlim and ylim are set explicitly.  If not, use smart defaults
+        ### using extrema
+        if xlim:
+            pl.xlim(xlim)
+        else:
+            pl.xlim(extrema[0:2])
+        if ylim:
+            pl.ylim(ylim)
+        else:
+            if log_y_axis=="On":
+                y_log_range = 1.2*np.log10(extrema[3]/extrema[2])
+                ### To assure there is a labeled tick mark on the y-axis
+                if y_log_range < 1.:
+                    y_log_range = 1.
+                pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+            else:
+                pl.ylim([0.,1.2*extrema[3]])
+
+
+        ### Make a legend
+        ### Shink current plot by 20% to make room for external legend
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+        ### Put a legend to the right of the current axis
+        ### Reverse the order of the entries, so colors match order plotted
+        handles, labels = ax.get_legend_handles_labels()
+        legend = ax.legend(handles[::-1], labels[::-1],
+                          loc='center left', bbox_to_anchor=(1, 0.5))
+
+        ### Make the legend small
+        ltext  = legend.get_texts()
+        pl.setp(ltext, fontsize='xx-small')
+
+        ### Set the axis labels and save
+        pl.xlabel(x_field_axis_label)
+        if not y_field_axis_label:
+            y_field_axis_label=y_field_index[0]
+        if fractional:
+            pl.ylabel(y_field_axis_label + ", as Fraction of Mean Time")
+        else:
+            pl.ylabel(y_field_axis_label)
+        pl.suptitle("Variance of Load Balance for " + self.filename)
+        pl.savefig(filename)
+        pl.clf()
+        
         
 ### *** DEFAULT COMMAND LINE BEHAVIOR ***
 
@@ -766,4 +934,10 @@ if __name__ == "__main__":
     p.plot_quantity(['Total'], 'Cells/processor/sec', 
                     y_field_axis_label='Efficiency (cells/sec/processor)', 
                     repeated_field='Level', filename='p6.png', 
+                    smooth_len=opts.nsmooth)
+
+    ### Plot the load balancing (Max Time - Min Time) for all subprocesses and levels
+    ### of the simulation as a whole versus time.  Normalize them by the mean
+    ### time taken for each process.
+    p.plot_maxmin([], repeated_field="All", filename='p7.png', fractional=True,
                     smooth_len=opts.nsmooth)
