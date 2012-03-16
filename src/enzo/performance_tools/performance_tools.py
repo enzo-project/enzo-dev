@@ -152,9 +152,9 @@ class perform:
     "Stddev Time", 
     "Min Time", 
     "Max Time", 
-    "Num Cells", 
+    "Cell Updates", 
     "Num Grids", 
-    "Cells/processor/sec"
+    "Updates/processor/sec"
 
     In all other cases, these M entries are:
     "Cycle"
@@ -227,9 +227,9 @@ class perform:
             if key == "Total" or key.startswith('Level'):
                 records = [('Cycle', 'float'), ('Mean Time', 'float'),
                            ('Stddev Time', 'float'), ('Min Time', 'float'),
-                           ('Max Time', 'float'), ('Num Cells', 'float'),
+                           ('Max Time', 'float'), ('Cell Updates', 'float'),
                            ('Num Grids', 'float'), 
-                           ('Cells/processor/sec', 'float')]
+                           ('Updates/processor/sec', 'float')]
             else:
                 records = [('Cycle', 'float'), ('Mean Time', 'float'),
                            ('Stddev Time', 'float'), ('Min Time', 'float'),
@@ -282,7 +282,7 @@ class perform:
         y_field_index : string
             The index of the field you wish to plot on the y axis. 
             Ex: "Cycle", "Mean Time", "Stddev Time", "Min Time", "Max Time",
-            "Num Cells", "Num Grids", "Cells/processor/sec".
+            "Cell Updates", "Num Grids", "Updates/processor/sec".
             If you have a single value for many field_labels, it is assumed
             that such a value will index all of them.  If you have an array_like
             structure of strings, each one will index the corresponding key in 
@@ -399,8 +399,8 @@ class perform:
         else:
             records = [('Cycle', 'float'), ('Mean Time', 'float'),
                        ('Stddev Time', 'float'), ('Min Time', 'float'),
-                       ('Max Time', 'float'), ('Num Cells', 'float'),
-                       ('Num Grids', 'float'), ('Cells/processor/sec', 'float')]
+                       ('Max Time', 'float'), ('Cell Updates', 'float'),
+                       ('Num Grids', 'float'), ('Updates/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
 
         ### Loop through the y datasets to figure out the extrema
@@ -512,7 +512,7 @@ class perform:
         y_field_index : string or array_like of strings
             The index of the field you wish to plot on the y axis. 
             Ex: "Mean Time", "Stddev Time", "Min Time", "Max Time",
-            "Num Cells", "Num Grids", "Cells/processor/sec".
+            "Cell Updates", "Num Grids", "Updates/processor/sec".
             If you have a single value for many field_labels, it is assumed
             that such a value will index all of them.  If you have an array_like
             structure of strings, each one will index the corresponding key in 
@@ -616,8 +616,8 @@ class perform:
         else:
             records = [('Cycle', 'float'), ('Mean Time', 'float'),
                        ('Stddev Time', 'float'), ('Min Time', 'float'),
-                       ('Max Time', 'float'), ('Num Cells', 'float'),
-                       ('Num Grids', 'float'), ('Cells/processor/sec', 'float')]
+                       ('Max Time', 'float'), ('Cell Updates', 'float'),
+                       ('Num Grids', 'float'), ('Updates/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
     
         ### Loop through the y datasets to figure out the extrema
@@ -923,21 +923,26 @@ if __name__ == "__main__":
                  repeated_field="Non-Level", filename='p4.png', 
                  smooth_len=opts.nsmooth, fractional=True)
 
-    ### Plot the number of cells generated at each level and stack them
+    ### Plot the number of cell updates generated at each level and stack them
     ### cumulatively.
-    p.plot_stack([], 'Num Cells', y_field_axis_label='Number of Cells', 
+    p.plot_stack([], 'Cell Updates', y_field_axis_label='Number of Cell Updates', 
                  repeated_field="Level", filename='p5.png', 
                  smooth_len=opts.nsmooth)
 
-    ### Plot the efficiency (cells/processor/sec) for each level and for
+    ### Plot the efficiency (updates/processor/sec) for each level and for
     ### the simulation as a whole versus time.
-    p.plot_quantity(['Total'], 'Cells/processor/sec', 
-                    y_field_axis_label='Efficiency (cells/sec/processor)', 
+    p.plot_quantity(['Total'], 'Updates/processor/sec', 
+                    y_field_axis_label='Efficiency (cell updates/sec/processor)', 
                     repeated_field='Level', filename='p6.png', 
+                    smooth_len=opts.nsmooth)
+
+    ### Plot the load balancing (Max Time - Min Time) for all subprocesses and levels
+    ### of the simulation as a whole versus time.  
+    p.plot_maxmin([], repeated_field="All", filename='p7.png', fractional=False,
                     smooth_len=opts.nsmooth)
 
     ### Plot the load balancing (Max Time - Min Time) for all subprocesses and levels
     ### of the simulation as a whole versus time.  Normalize them by the mean
     ### time taken for each process.
-    p.plot_maxmin([], repeated_field="All", filename='p7.png', fractional=True,
+    p.plot_maxmin([], repeated_field="All", filename='p8.png', fractional=True,
                     smooth_len=opts.nsmooth)
