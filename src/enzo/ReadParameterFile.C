@@ -1016,6 +1016,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TestGravity"        ) ) ret++;
     if (strstr(line, "SphericalInfall"    ) ) ret++;
     if (strstr(line, "TestGravitySphere"  ) ) ret++;
+    if (strstr(line, "Cluster"            ) ) ret++;
     if (strstr(line, "CollapseTest"       ) ) ret++;
     if (strstr(line, "Cosmology"          ) ) ret++;
     if (strstr(line, "SupernovaRestart"   ) ) ret++;

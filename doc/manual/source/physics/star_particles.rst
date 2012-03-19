@@ -49,16 +49,17 @@ timestep,
 of stars are formed, where M\ :sub:`0` and t\ :sub:`0` are the initial
 star particle mass and creation time, respectively.  
 
-* M\ :sub:`ej` = M\ :sub:`form` * ``StarMakerEjectionFraction`` of gas
+* M\ :sub:`ej` = M\ :sub:`form` * ``StarMassEjectionFraction`` of gas
   are returned to the grid and removed from the particle.
 
 * M\ :sub:`ej` * v\ :sub:`particle` of momentum are added to the cell.
 
-* M\ :sub:`form` * c\ :sup:`2` * ``StarMakerEnergyToThermalFeedback``
+* M\ :sub:`form` * c\ :sup:`2` * ``StarEnergyToThermalFeedback``
   of energy is deposited into the cell.
 
-* M\ :sub:`form` * ((1 - Z\ :sub:`star`) * ``StarMetalYield`` + M\
-  :sub:`ej` * Z\ :sub:`star`) of metals are added to the cell, where
+* M\ :sub:`form` * ((1 - Z\ :sub:`star`) * ``StarMetalYield`` + 
+  ``StarMassEjectionFraction`` * Z\ :sub:`star`) of metals are
+  added to the cell, where
   Z\ :sub:`star` is the star particle metallicity.  This formulation
   accounts for gas recycling back into the stars.
 
