@@ -8,8 +8,8 @@
 ### which comes out of Enzo.  It consists of a few universal helper functions
 ### and a new class: perform.  You can use it one of two ways.  You can
 ### import this library in python, create a perform object, and then
-### create a few plots using the plot_quantity, plot_stack and plot_maxmin functions,
-### like this:
+### create a few plots using the plot_quantity, plot_stack and plot_maxmin 
+### functions, like this:
 
 ### $ python
 ### >>> import performance_tools as pt
@@ -405,7 +405,8 @@ class perform:
             records = [('Cycle', 'float'), ('Mean Time', 'float'),
                        ('Stddev Time', 'float'), ('Min Time', 'float'),
                        ('Max Time', 'float'), ('Cell Updates', 'float'),
-                       ('Num Grids', 'float'), ('Updates/processor/sec', 'float')]
+                       ('Num Grids', 'float'), 
+                       ('Updates/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
 
         ### Loop through the y datasets to figure out the extrema
@@ -622,7 +623,8 @@ class perform:
             records = [('Cycle', 'float'), ('Mean Time', 'float'),
                        ('Stddev Time', 'float'), ('Min Time', 'float'),
                        ('Max Time', 'float'), ('Cell Updates', 'float'),
-                       ('Num Grids', 'float'), ('Updates/processor/sec', 'float')]
+                       ('Num Grids', 'float'), 
+                       ('Updates/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
     
         ### Loop through the y datasets to figure out the extrema
@@ -706,15 +708,17 @@ class perform:
         pl.savefig(filename)
         pl.clf()
 
-    def plot_maxmin(self, field_label, y_field_axis_label="Max Time - Min Time (sec)",
+    def plot_maxmin(self, field_label, 
+                    y_field_axis_label="Max Time - Min Time (sec)",
                     x_field_index='Cycle', x_field_axis_label="Cycle Number",
                     filename="performance.png", repeated_field="", 
                     log_y_axis="Auto", smooth_len=0, fractional=False, 
                     xlim=[], ylim=[]):
         """
-        Produce a plot showing how well load balancing is working across different
-        sub-processes or levels.  It subtracts the minimum time taken per processor 
-        from the maximum time taken per processor for a task.
+        Produce a plot showing how well load balancing is working across 
+        different sub-processes or levels.  It subtracts the minimum time 
+        taken per processor from the maximum time taken per processor for 
+        a task.
     
         Parameters
         ----------
@@ -763,7 +767,8 @@ class perform:
         Examples
         --------
         To produce a plot of the showing how well the load is balanced on each 
-        level over the course of the simulation, and save this to performance.png:
+        level over the course of the simulation, and save this to 
+        performance.png:
     
         >>> plot_maxmin([], repeated_field="All")
         """
@@ -892,7 +897,8 @@ if __name__ == "__main__":
     usage = "usage: %prog <.out file>"
     parser = OptionParser(usage)
     parser.add_option("-s","--smooth",dest="nsmooth",type='int',
-                      default=0,help="Set number of cycles over which to smooth (odd)")
+                      default=0,
+                      help="Set number of cycles over which to smooth (odd)")
     (opts, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("incorrect number of arguments")
@@ -947,13 +953,13 @@ if __name__ == "__main__":
                     repeated_field='Level', filename='p6.png', 
                     smooth_len=opts.nsmooth)
 
-    ### Plot the load balancing (Max Time - Min Time) for all subprocesses and levels
-    ### of the simulation as a whole versus time.  
+    ### Plot the load balancing (Max Time - Min Time) for all subprocesses 
+    ### and levels of the simulation as a whole versus time.  
     p.plot_maxmin([], repeated_field="All", filename='p7.png', fractional=False,
-                    smooth_len=opts.nsmooth)
+                  smooth_len=opts.nsmooth)
 
-    ### Plot the load balancing (Max Time - Min Time) for all subprocesses and levels
-    ### of the simulation as a whole versus time.  Normalize them by the mean
-    ### time taken for each process.
+    ### Plot the load balancing (Max Time - Min Time) for all subprocesses 
+    ### and levels of the simulation as a whole versus time.  Normalize them 
+    ### by the mean time taken for each process.
     p.plot_maxmin([], repeated_field="All", filename='p8.png', fractional=True,
-                    smooth_len=opts.nsmooth)
+                  smooth_len=opts.nsmooth)
