@@ -933,6 +933,9 @@ EXTERN float ConductionCourantSafetyNumber;
 /* SMBH Feedback in galaxy clusters*/
 
 EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
+EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr 
+EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s 
+EXTERN int ClusterSMBHJetRadius;  // JetRadius in cellwidth 
 
 /* For the database */
 EXTERN char *DatabaseLocation;
