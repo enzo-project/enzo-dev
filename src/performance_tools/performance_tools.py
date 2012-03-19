@@ -824,7 +824,10 @@ class perform:
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
-                pl.semilogy(xdata,ydata,color=color,label=field_label[i])
+                try:
+                    pl.semilogy(xdata,ydata,color=color,label=field_label[i])
+                except:
+                    pl.plot(xdata,ydata,color=color,label=field_label[i])
             else:
                 pl.plot(xdata,ydata,color=color,label=field_label[i])
     

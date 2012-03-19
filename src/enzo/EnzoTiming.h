@@ -300,7 +300,7 @@ namespace enzo_timing{
         if (step == 1){
           fprintf(performance_file, "# This file contains timing information\n");
           fprintf(performance_file, "# For instructions on how to decipher this information,\n");
-          fprintf(performance_file, "# see http://enzo-project.org/docs/somewhere\n");
+          fprintf(performance_file, "# see [enzo base directory]/src/performance_tools/README.\n");
           fprintf(performance_file, "# Times are collected across MPI processes and presented as:\n"\
                                 "# Level_N/Total, mean time, std_dev time, min time, max time, cell updates, grids, cell updates/processor/sec\n"\
                                 "# Routine, mean time, std_dev time, min time, max time \n");
