@@ -821,6 +821,7 @@ class perform:
                     data[field_label[i]]["Min Time"]
             if fractional:
                 ydata /= data[field_label[i]]["Mean Time"]
+                ydata[ydata != ydata]=0.0
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
