@@ -28,6 +28,7 @@
 import matplotlib as mpl
 import pylab as pl
 import numpy as np
+np.seterr(all = 'ignore')
 from matplotlib import cm
 
 def is_listlike(obj):
@@ -701,7 +702,8 @@ class perform:
         pl.savefig(filename)
         pl.clf()
 
-    def plot_maxmin(self, field_label, y_field_axis_label="Max Time - Min Time (sec)",                    x_field_index='Cycle', x_field_axis_label="Cycle Number",
+    def plot_maxmin(self, field_label, y_field_axis_label="Max Time - Min Time (sec)",
+                    x_field_index='Cycle', x_field_axis_label="Cycle Number",
                     filename="performance.png", repeated_field="", 
                     log_y_axis="Auto", smooth_len=0, fractional=False, 
                     xlim=[], ylim=[]):
@@ -797,6 +799,7 @@ class perform:
                     data[field_label[i]]["Min Time"]
             if fractional:
                 ydata /= data[field_label[i]]["Mean Time"]
+                ydata[ydata != ydata]=0.0
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             extrema = preserve_extrema(extrema,xdata,ydata)
@@ -921,7 +924,7 @@ if __name__ == "__main__":
     ### total time taken.
     p.plot_stack([], 'Mean Time', y_field_axis_label="Mean Time", 
                  repeated_field="Non-Level", filename='p4.png', 
-                 smooth_len=opts.nsmooth, fractional=True)
+                 smooth_len=opts.nsmooth, fractional=True, ylim=[0.0,1.0])
 
     ### Plot the number of cell updates generated at each level and stack them
     ### cumulatively.
