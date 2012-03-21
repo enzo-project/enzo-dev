@@ -969,7 +969,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ClusterSMBHFeedback = %"ISYM, &ClusterSMBHFeedback);
     ret += sscanf(line, "ClusterSMBHJetMdot = %"FSYM, &ClusterSMBHJetMdot);
     ret += sscanf(line, "ClusterSMBHJetVelocity = %"FSYM, &ClusterSMBHJetVelocity);
-    ret += sscanf(line, "ClusterSMBHJetRadius = %"ISYM, &ClusterSMBHJetRadius);
+    ret += sscanf(line, "ClusterSMBHJetRadius = %"FSYM, &ClusterSMBHJetRadius);
+    ret += sscanf(line, "ClusterSMBHJetLaunchOffset = %"FSYM, &ClusterSMBHJetLaunchOffset);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
