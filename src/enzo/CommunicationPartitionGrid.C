@@ -44,7 +44,7 @@ int LoadBalanceHilbertCurve(grid *GridPointers[], int NumberOfGrids,
 
 /* This option code ensures that in nested grid sims, the children grids are not split between two grids at level-1.
    It is off by default. */
-#define CONTAINED_WITHIN_PARENT_OFF
+#define CONTAINED_WITHIN_PARENT
 
 #ifdef CONTAINED_WITHIN_PARENT
 int *AllStartIndex[MAX_STATIC_REGIONS][MAX_DIMENSION];

@@ -43,7 +43,7 @@ int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumSt
   /* Now determine subgrid size parameters */
 
   int grids_per_proc = (level > MaximumStaticSubgridLevel) ?
-    OptimalSubgridsPerProcessor : 2;
+    OptimalSubgridsPerProcessor : 8;
 
   MaximumSubgridSize = NumberOfCells / 
     (NumberOfProcessors * grids_per_proc);
