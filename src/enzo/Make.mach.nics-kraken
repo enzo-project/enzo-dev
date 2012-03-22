@@ -126,7 +126,7 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = 
 
-LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
+LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles11.1_pgi11.6.0/lib -lsz \
 		    -L/usr/local/lib -lz \
 		    -L/opt/acml/4.3.0/pgi64/lib -lacml -lm \
                     -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \
