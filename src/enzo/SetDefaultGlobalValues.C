@@ -455,6 +455,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
+  
+  // EnzoTiming Dump Frequency
+  TimingCycleSkip                  = 1;
 
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;

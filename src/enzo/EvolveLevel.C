@@ -78,6 +78,7 @@
 #include <unistd.h>
 #include <math.h>
 
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -268,13 +269,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   HierarchyEntry *NextGrid;
   int dummy_int;
 
+  char level_name[MAX_LINE_LENGTH];
+  sprintf(level_name, "Level_%"ISYM, level);
+    
   // Update lcaperf "level" attribute
-
   Eint32 lcaperf_level = level;
 #ifdef USE_LCAPERF
   lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
-
+  
   /* Create an array (Grids) of all the grids. */
 
   typedef HierarchyEntry* HierarchyEntryPointer;
@@ -358,7 +361,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   while ((CheckpointRestart == TRUE)
         || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
- 
+
+    TIMER_START(level_name);
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
@@ -411,7 +415,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
- 
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
  
       CallProblemSpecificRoutines(MetaData, Grids[grid1], grid1, &norm, 
@@ -467,10 +471,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       /* Call hydro solver and save fluxes around subgrids. */
-
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-
+      
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();
@@ -559,7 +562,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
-
+    TIMER_STOP(level_name);
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
  
@@ -683,13 +686,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
 //     } // if WritePotential
  
-
-    /* Rebuild the Grids on the next level down.
-       Don't bother on the last cycle, as we'll rebuild this grid soon. */
- 
-    if (dtThisLevelSoFar[level] < dtLevelAbove)
-      RebuildHierarchy(MetaData, LevelArray, level);
-
     /* Count up number of grids on this level. */
 
     int GridMemory, NumberOfCells, CellsTotal, Particles;
@@ -698,10 +694,18 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
       LevelZoneCycleCount[level] += NumberOfCells;
+      TIMER_ADD_CELLS(level, NumberOfCells);
       if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
 	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
+    TIMER_SET_NGRIDS(level, NumberOfGrids);
+
+    /* Rebuild the Grids on the next level down.
+       Don't bother on the last cycle, as we'll rebuild this grid soon. */
  
+    if (dtThisLevelSoFar[level] < dtLevelAbove)
+      RebuildHierarchy(MetaData, LevelArray, level);
+
     cycle++;
     LevelCycleCount[level]++;
  
@@ -719,6 +723,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   lcaperf.attribute ("level",0,LCAPERF_NULL);
 #endif
 
+  
   /* Clean up. */
  
   delete [] NumberOfSubgrids;

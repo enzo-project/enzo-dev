@@ -933,4 +933,7 @@ EXTERN float ConductionCourantSafetyNumber;
 /* For the database */
 EXTERN char *DatabaseLocation;
 
+/* For EnzoTiming Behavior */
+EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
+
 #endif
