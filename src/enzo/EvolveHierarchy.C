@@ -36,7 +36,8 @@
 #endif
  
 #include <stdio.h>
- 
+
+#include "EnzoTiming.h" 
 #include "performance.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -319,6 +320,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   bool FirstLoop = true;
   while (!Stop) {
+
+  TIMER_START("Total");
 
 #ifdef USE_LCAPERF
     lcaperf_iter = MetaData.CycleNumber;
@@ -681,10 +684,14 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     }
 #endif
 
+    TIMER_STOP("Total");
+    if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0)
+		  TIMER_WRITE(MetaData.CycleNumber);
+
     FirstLoop = false;
  
   } // ===== end of main loop ====
- 
+
 #ifdef USE_LCAPERF
   if (((lcaperf_iter+1) % LCAPERF_DUMP_FREQUENCY)!=0) lcaperf.end("EL");
   lcaperf.attribute ("timestep",0, LCAPERF_NULL);

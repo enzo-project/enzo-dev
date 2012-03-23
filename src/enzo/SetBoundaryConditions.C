@@ -27,6 +27,7 @@
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -71,6 +72,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   int grid1, grid2, StartGrid, EndGrid, loop;
   
   LCAPERF_START("SetBoundaryConditions");
+  TIMER_START("SetBoundaryConditions");
     
   for (loop = 0; loop < loopEnd; loop++){
     
@@ -226,6 +228,7 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
   CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
   }
  
+  TIMER_STOP("SetBoundaryConditions");
   LCAPERF_STOP("SetBoundaryConditions");
 
   return SUCCESS;
