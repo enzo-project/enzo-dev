@@ -27,6 +27,7 @@
 #include "Grid.h"
 #include "fortran.def"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 /* function prototypes */
  
@@ -378,7 +379,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
-  const double m_h = 1.673e-24;
 
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
@@ -558,7 +558,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   float OverDensityThreshold;
   if (PopIIIOverDensityThreshold < 0) {
-    OverDensityThreshold = -PopIIIOverDensityThreshold * 1.673e-24 / DensityUnits;
+    OverDensityThreshold = -PopIIIOverDensityThreshold * mh / DensityUnits;
     if (OverDensityThreshold < 1)
       OverDensityThreshold = huge_number;
   }
@@ -571,7 +571,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
    */
   if(StarMakerUsePhysicalDensityThreshold == TRUE){
-    OverDensityThreshold = StarMakerOverDensityThreshold * 1.22 * 1.673e-24 / DensityUnits;
+    OverDensityThreshold = StarMakerOverDensityThreshold * 1.22 * mh / DensityUnits;
     OverDensityThreshold *= 6.0; // kludge for omegamatter/omegabaryon
   } else {
     OverDensityThreshold = StarMakerOverDensityThreshold;
@@ -849,7 +849,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       // change the unit for StarMakerOverDensity for cosmological run
       if (ComovingCoordinates)
-	StarMakerOverDensityThreshold *= m_h / DensityUnits;   
+	StarMakerOverDensityThreshold *= mh / DensityUnits;   
 
       FORTRAN_NAME(star_maker7)(
        GridDimension, GridDimension+1, GridDimension+2,
@@ -876,7 +876,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       // make it back to original 
       if (ComovingCoordinates)
-	StarMakerOverDensityThreshold /= m_h / DensityUnits;  
+	StarMakerOverDensityThreshold /= mh / DensityUnits;  
 
       for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
           tg->ParticleType[i] = NormalStarType;
