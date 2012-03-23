@@ -564,6 +564,18 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   }
   else
     OverDensityThreshold = PopIIIOverDensityThreshold;
+
+  /* Piggyback on the PopIIIOverDensityThreshold formalism (directly above):
+     If StarMakerUsePhysicalDensityThreshold is set to true, convert from proper
+     hydrogen number density (which is the input parameter) to actual physical units.
+
+   */
+  if(StarMakerUsePhysicalDensityThreshold == TRUE){
+    OverDensityThreshold = StarMakerOverDensityThreshold * 1.22 * 1.673e-24 / DensityUnits;
+    OverDensityThreshold *= 6.0; // kludge for omegamatter/omegabaryon
+  } else {
+    OverDensityThreshold = StarMakerOverDensityThreshold;
+  }
  
   float CellWidthTemp = float(CellWidth[0][0]);
   float PopIIIMass = (PopIIIInitialMassFunction == TRUE) ? 
@@ -635,7 +647,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
           CellLeftEdge[2], &GhostZones,
        &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
-       &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
+       &OverDensityThreshold, &StarMakerMassEfficiency,
        &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
        tg->ParticlePosition[0], tg->ParticlePosition[1],
           tg->ParticlePosition[2],

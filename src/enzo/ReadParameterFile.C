@@ -752,6 +752,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarEnergyToQuasarUV = %"FSYM, &StarEnergyToQuasarUV);
     ret += sscanf(line, "StarFeedbackDistRadius = %"ISYM, &StarFeedbackDistRadius);
     ret += sscanf(line, "StarFeedbackDistCellStep = %"ISYM, &StarFeedbackDistCellStep);
+    ret += sscanf(line, "StarMakerUsePhysicalDensityThreshold = %"ISYM,
+		  &StarMakerUsePhysicalDensityThreshold);
 
     ret += sscanf(line, "StarClusterUseMetalField = %"ISYM, 
 		  &StarClusterUseMetalField);

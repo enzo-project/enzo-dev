@@ -58,6 +58,7 @@ SPEXTERN float StarEnergyToQuasarUV;
 SPEXTERN int StarFeedbackDistRadius;
 SPEXTERN int StarFeedbackDistCellStep;
 SPEXTERN int StarFeedbackDistTotalCells;
+SPEXTERN int StarMakerUsePhysicalDensityThreshold;
 
 SPEXTERN float PopIIIStarMass;
 SPEXTERN int   PopIIIInitialMassFunction;
