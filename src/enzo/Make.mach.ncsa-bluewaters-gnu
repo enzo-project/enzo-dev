@@ -15,7 +15,7 @@ MACH_TEXT  = NCSA Blue Waters
 MACH_VALID = 1
 MACH_FILE  = Make.mach.ncsa-bluewaters-gnu
 
-MACHINE_NOTES = "Building on NICS's Kraken requires PrgEnv-gnu"
+MACHINE_NOTES = "Building on NCSA's Blue Waters requires PrgEnv-gnu, not PrgEnv-cray"
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
