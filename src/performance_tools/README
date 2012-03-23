@@ -14,23 +14,27 @@ analyze the performance data, in src/performance_tools/performance_tools.py.
 Usage Overview
 ##############
 
-We have added support for simple, lightweight, timing and performance
-measurements.  This allows one to examine which functions are using the majority
-of the simulation runtime, and how this varies across multiple processors. We
-have built in a number of default timers, such as EvolveLevel for each level,
-RebuildHierarchy, SolveHydroEquations, and Group_WriteAllData.  Below, we will 
-outline how to add additional timers and how to generate plots of the data.
+We have added support for simple, lightweight measurements for the timing and
+performance of Enzo.  This allows one to examine which functions are using the
+majority of the simulation runtime, and how this varies across multiple
+processors. We have built in a number of default timers, such as EvolveLevel for
+each level, RebuildHierarchy, SolveHydroEquations, and Group_WriteAllData.
+Below, we will outline how to add additional timers and how to generate plots of
+the data.
 
 File Format
 ###########
 
-At each cycle, information is printed out to a file named performance.out.
-By default, for each timing section the times spent on each processor are 
-collected, and the mean, standard deviation, minimum, and maximum values 
-are presented.  This is meant to give the user a sense of how well 
-load-balanced their simulation is across processors, as well as pinpoint
-where the majority of the time is being spent.  To explain the output, we show
-an example cycle from performance.out:
+At each cycle, information is printed out to a file named performance.out.  It
+collects the amount of time taken on each of the processors to complete the
+listed functions (e.g. Level N EvolveLevel, RebuildHiearchy, etc.) over that
+cycle.  Rather than giving all of the values returned by each processor for a
+given function, EnzoTiming only outputs the mean amount of time spent per
+processor, the maximum & minimum amount of time across processors, and the standard
+deviation of this distribution of times.  This is meant to give the user a sense
+of how well load-balanced their simulation is across processors, as well as
+pinpoint where the majority of the time is being spent.  To explain the output,
+we show an example cycle from performance.out:
 
 ::
 
@@ -192,11 +196,24 @@ performance_tools.py.
 This can be as simple as adding one of these lines:
 
 .. code-block:: python
-
+  
+  # Plot the mean time taken per processor on Level 0 EvolveLevel calls versus
+  # Cycle Number.
   p.plot_quantity("Level 0", "Mean Time")
+
+  # Same as above, but stacks the quantity from zero to the mean time.
   p.plot_stack("Level 0", "Mean Time")
+
+  # Plot the mean time take per processor for all defined fields (All levels,
+  # All Functions)
   p.plot_quantity([], "Mean Time", repeated_field="All")
+  
+  # Plot and stack cumulatively on top of each other the number of cell
+  # updates for each level versus cycle number.
   p.plot_stack([], "Cell Updates", repeated_field="Level")
+
+  # Plot the mean time taken per processor for all non-level functions versus
+  # cycle number (including "Total" time taken by everything).
   p.plot_quantity("Total", "Mean Time", repeated_field="Non-Level")
 
 Full documentation for the plot_quantity and plot_stack functions can
