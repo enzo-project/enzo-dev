@@ -567,12 +567,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   /* Piggyback on the PopIIIOverDensityThreshold formalism (directly above):
      If StarMakerUsePhysicalDensityThreshold is set to true, convert from proper
-     hydrogen number density (which is the input parameter) to actual physical units.
-
+     hydrogen number density (which is the input parameter) to actual physical units,
+     and then convert into code density units.
    */
   if(StarMakerUsePhysicalDensityThreshold == TRUE){
     OverDensityThreshold = StarMakerOverDensityThreshold * 1.22 * mh / DensityUnits;
-    OverDensityThreshold *= 6.0; // kludge for omegamatter/omegabaryon
   } else {
     OverDensityThreshold = StarMakerOverDensityThreshold;
   }
