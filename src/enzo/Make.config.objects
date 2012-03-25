@@ -739,6 +739,7 @@ OBJS_CONFIG_LIB = \
         RecalibrateAccretingMass.o \
         RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
+	Reduce_Times.o \
         remap.o \
         ReportMemoryUsage.o \
         ReturnWallTime.o \

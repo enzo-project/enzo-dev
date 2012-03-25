@@ -27,6 +27,7 @@
  
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -375,6 +376,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   if (level == 0) {
     TIME_MSG("ComputePotentialFieldLevelZero");
     LCAPERF_START("ComputePotentialFieldLevelZero");
+    TIMER_START("ComputePotentialFieldLevelZero");
     if (traceMPI) 
       fprintf(tracePtr, "PrepareDensityField: P(%"ISYM"): CPFLZero "
 	      "(send-receive)\n", MyProcessorNumber);
@@ -384,6 +386,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 #else
     ComputePotentialFieldLevelZero(MetaData, Grids, NumberOfGrids);
 #endif
+    TIMER_STOP("ComputePotentialFieldLevelZero");
     LCAPERF_STOP("ComputePotentialFieldLevelZero");
   }
        
@@ -393,6 +396,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   int iterate;
   if (level > 0) {
     LCAPERF_START("SolveForPotential");
+    TIMER_START("SolveForPotential");
     CopyPotentialFieldAverage = 1;
     for (iterate = 0; iterate < PotentialIterations; iterate++) {
       
@@ -502,6 +506,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
       } // ENDFOR grid batches
     } // ENDFOR iterations
     CopyPotentialFieldAverage = 0;
+    TIMER_STOP("SolveForPotential");
     LCAPERF_STOP("SolveForPotential");
   } // ENDIF level > 0
   

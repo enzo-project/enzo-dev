@@ -213,6 +213,11 @@ help-config:
 	@echo "      gmake gravity-4s-yes"
 	@echo "      gmake gravity-4s-no"
 	@echo
+	@echo "   Set whether to use performance/timing measurements"
+	@echo
+	@echo "      gmake enzo-performance-yes"
+	@echo "      gmake enzo-performance-no"
+	@echo
 
 #-----------------------------------------------------------------------
 
@@ -282,6 +287,7 @@ show-config:
 	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : $(CONFIG_FLUX_FIX)"
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
+	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -946,6 +952,24 @@ CONFIG_GRAVITY_4S-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_GRAVITY_4S = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_GRAVITY_4S; \
+	echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_ENZO_PERFORMANCE = enzo-performance-yes enzo-performance-no
+.PHONY: $(VALID_ENZO_PERFORMANCE)
+
+enzo-performance-yes: CONFIG_ENZO_PERFORMANCE-yes
+enzo-performance-no: CONFIG_ENZO_PERFORMANCE-no
+enzo-performance-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ENZO_PERFORMANCE)]\n\n"
+CONFIG_ENZO_PERFORMANCE-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_ENZO_PERFORMANCE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_ENZO_PERFORMANCE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_ENZO_PERFORMANCE; \
 	echo
 
 

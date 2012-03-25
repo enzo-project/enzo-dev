@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -64,6 +65,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     return SUCCESS;
 
   LCAPERF_START("grid_SolveHydroEquations");
+  TIMER_START("SolveHydroEquations");
 
   this->DebugCheck("SolveHydroEquations");
 
@@ -477,6 +479,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
   this->DebugCheck("SolveHydroEquations (after)");
 
+  TIMER_STOP("SolveHydroEquations");
   LCAPERF_STOP("grid_SolveHydroEquations");
   return SUCCESS;
 

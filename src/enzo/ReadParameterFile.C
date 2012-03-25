@@ -888,6 +888,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
 #endif
 
+    /* EnzoTiming Parameters */
+    ret += sscanf(line, "TimingCycleSkip = %"ISYM, &TimingCycleSkip);
+
     /* Inline halo finder */
 
     ret += sscanf(line, "InlineHaloFinder = %"ISYM, &InlineHaloFinder);
