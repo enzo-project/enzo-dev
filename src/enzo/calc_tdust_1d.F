@@ -360,7 +360,7 @@
                kgr(i) = kgr200
             else
                kgr(i) = max(tiny, 
-     &              (kgr200 * (tdust(i) / 1500.0)**-12))
+     &              (kgr200 * (tdust(i) / 1500.0)**(-12)))
             endif
 
          endif
