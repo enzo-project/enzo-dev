@@ -467,6 +467,7 @@ EXTERN float IncrementDensityOutput;
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
+EXTERN int PythonReloadScript;
 
 /* Parameters to control inline halo finding */
 

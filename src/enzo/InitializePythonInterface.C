@@ -89,6 +89,7 @@ int InitializePythonInterface(int argc, char *argv[])
         ENZO_FAIL("Couldn't import numpy.  Dying!");
     }
     PyRun_SimpleString("import sys\nsys.path.insert(0,'.')\nsys._parallel = True\n");
+    PyRun_SimpleString("import gc\n");
     PythonInterpreterInitialized = 1;
   }
   static int PythonEnzoModuleInitialized = 0;
