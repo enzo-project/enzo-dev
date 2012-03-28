@@ -879,6 +879,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Embedded Python */
     ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
+    ret += sscanf(line, "PythonReloadScript = %"ISYM, &PythonReloadScript);
 
 #ifdef USE_PYTHON
     ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
