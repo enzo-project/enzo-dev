@@ -51,6 +51,8 @@ void MergeToNewList(ParticleEntry *List, const int &Size, int *Flag,
 int CheckMergeFlagList(ParticleEntry *List, const int &Size, int *Flag, const int &GroupSize,
 		       const double &MassUnits);
 int CommunicationAllSumValues(int *Values, int Number);
+int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
+				       int NumberOfGrids);
 float ReturnCPUTime();
 double ReturnWallTime();
 
@@ -245,6 +247,8 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
       CheckMergeFlagList(SharedList, NumberOfSharedParticles, MergeFlagList, NumberOfGroups, MassUnits);      
     }
   }
+
+  CommunicationSyncNumberOfParticles(Grids, NumberOfGrids);
 
   delete [] PartialAdded;
   delete [] TotalAdded;

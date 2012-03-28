@@ -30,7 +30,7 @@ void grid::SetNewParticleIndex(int &NumberCount1, PINT &NumberCount2)
     if (ParticleNumber[n] == INT_UNDEFINED) {
       abstype = ABS(ParticleType[n]);
       if (abstype == PARTICLE_TYPE_STAR ||
-	  (abstype >= PARTICLE_TYPE_SINGLE_STAR &&
+	  (abstype >= PARTICLE_TYPE_MUST_REFINE &&
 	   abstype != PARTICLE_TYPE_MBH))
 	ParticleNumber[n] = NumberCount1++ + NumberCount2;
       else 
