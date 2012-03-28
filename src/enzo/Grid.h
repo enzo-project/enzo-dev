@@ -93,8 +93,6 @@ class grid
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
-  float *YT_TemperatureField;                         // place to store temperature field
-                                                      // for call to yt.
 
   // For restart dumps
 

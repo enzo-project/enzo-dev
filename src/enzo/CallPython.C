@@ -95,7 +95,7 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     PyDict_Clear(hierarchy_information);
     PyDict_Clear(yt_parameter_file);
     PyDict_Clear(conversion_factors);
-    PyRun_SimpleString("print 'Collecting', gc.collect()\n");
+    PyRun_SimpleString("gc.collect()\n");
     return SUCCESS;
 #endif
 }
