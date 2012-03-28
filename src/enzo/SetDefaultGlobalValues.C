@@ -454,6 +454,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ConductionCourantSafetyNumber = 0.5;
 
   ClusterSMBHFeedback = FALSE;
+  ClusterSMBHJetMdot = 10.0;
+  ClusterSMBHJetVelocity = 1000.0;
+  ClusterSMBHJetRadius = 6;
+  ClusterSMBHJetLaunchOffset = 10;
+  ClusterSMBHStartTime = 1;
+  ClusterSMBHTramp = 0.1;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;

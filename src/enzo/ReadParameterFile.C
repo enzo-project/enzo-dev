@@ -967,6 +967,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
     ret += sscanf(line, "ClusterSMBHFeedback = %"ISYM, &ClusterSMBHFeedback);
+    ret += sscanf(line, "ClusterSMBHJetMdot = %"FSYM, &ClusterSMBHJetMdot);
+    ret += sscanf(line, "ClusterSMBHJetVelocity = %"FSYM, &ClusterSMBHJetVelocity);
+    ret += sscanf(line, "ClusterSMBHJetRadius = %"FSYM, &ClusterSMBHJetRadius);
+    ret += sscanf(line, "ClusterSMBHJetLaunchOffset = %"FSYM, &ClusterSMBHJetLaunchOffset);
+    ret += sscanf(line, "ClusterSMBHStartTime = %"FSYM, &ClusterSMBHStartTime);
+    ret += sscanf(line, "ClusterSMBHTramp = %"FSYM, &ClusterSMBHTramp);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
@@ -1436,6 +1442,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
 
+
   if ((MetaData.GravityBoundary != TopGridPeriodic) &&
       (UnigridTranspose)) {
     /* it turns out that Robert Harkness' unigrid transpose stuff is incompatible with the top
@@ -1522,6 +1529,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		"PopIIISupernovaMustRefine.  Set the level or turn off"
 		"PopIIISupernovaMustRefine.");
   } // ENDIF PopIIISupernovaMustRefine
+//del
+  fprintf(stdout, "ClusterSMBHJetRadius %d\n", ClusterSMBHJetRadius);
 
   if (TracerParticleOn) {
     ParticleTypeInFile = TRUE;

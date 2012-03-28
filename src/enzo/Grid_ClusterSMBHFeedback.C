@@ -24,12 +24,11 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "CosmologyParameters.h"
-///#include ""
+#include "phys_constants.h"
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
-int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt); // need this?
 
 int grid::ClusterSMBHFeedback(int level)
 {
@@ -59,38 +58,42 @@ int grid::ClusterSMBHFeedback(int level)
   double MassUnits = 1.0;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-               &TimeUnits, &VelocityUnits, 0.0) == FAIL) {
+               &TimeUnits, &VelocityUnits, Time) == FAIL) {
     fprintf(stderr, "Error in GetUnits.\n");
     return FAIL;
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
-  VelocityUnits = LengthUnits/TimeUnits;   // need this??
 
-  const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
-  int i, j, k = 0, size = 1, dim,  cellindex;
+  int i, j, k, dim = 0;
   int jet_dim = 2;  // z-axis (should make parameter?)
 
-  int JetLaunchOffset = 10; // 10 cellwidth
-  int JetRadius = 6; // cellwidths
-  float JetScaleRadius = 3.0; // cellwidths
-
-  float JetMdot = 10.0; // Jet mass flow in SolarMass/year (need to convert units)
-  float JetVelocity = 1000.0; // Jet Velocity in km/s (should make parameter)
-
+//  int JetLaunchOffset = 10; // 10 cellwidth
+//  int ClusterSMBHJetRadius = 6; // cellwidths  epsilon in Omma et al--made papameter
+//  float JetScaleRadius = 3.0; // cellwidths
+  float JetScaleRadius; // cellwidths
+  float JetMdot; // Jet mass flow in SolarMass/year (need to convert units)-- gets value from parameter ClusterSMBHJetMdot
+  float JetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
+//try this and see what the output looks like//
+//  ClusterSMBHJetRadius = 20;  //to be del 
+  JetScaleRadius = ClusterSMBHJetRadius/2.0;  //JetScaleRadius is half the radius of the jet launch region in cellwidths
+  printf("JetRadius in xxx.C = %g\n", ClusterSMBHJetRadius); 
+  printf("JetScaleRadius (jetradius/0.3)= %g\n", JetScaleRadius); 
+//  JetScaleRadius = 3.0;
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
     JetLeftCorner[dim] = JetCenter[dim];
     JetRightCorner[dim] = JetCenter[dim];
     if (dim != jet_dim) {
-      JetLeftCorner[dim] -= JetRadius*CellWidth[dim][0];
-      JetRightCorner[dim] += JetRadius*CellWidth[dim][0];
+      JetLeftCorner[dim] -= ClusterSMBHJetRadius*CellWidth[dim][0];
+      JetRightCorner[dim] += ClusterSMBHJetRadius*CellWidth[dim][0];
     }
   }
 
-  JetLeftCorner[jet_dim] -= JetLaunchOffset*CellWidth[jet_dim][0];
-  JetRightCorner[jet_dim] += JetLaunchOffset*CellWidth[jet_dim][0];
+  JetLeftCorner[jet_dim] -= ClusterSMBHJetLaunchOffset*CellWidth[jet_dim][0];
+  JetRightCorner[jet_dim] += ClusterSMBHJetLaunchOffset*CellWidth[jet_dim][0];
  
+  printf("JetLeftCorner = %g %g %g\n", JetLeftCorner[0],JetLeftCorner[1],JetLeftCorner[2]);
+  printf("JetRightCorner = %g %g %g\n", JetRightCorner[0],JetRightCorner[1],JetRightCorner[2]);
   /* Compute indices of jet launch region. */
 
   int JetStartIndex[MAX_DIMENSION], JetEndIndex[MAX_DIMENSION];
@@ -99,8 +102,8 @@ int grid::ClusterSMBHFeedback(int level)
 
     /* Compute start and end indices of jet */
 
-    JetStartIndex[dim] = nint((JetLeftCorner[dim] - CellLeftEdge[dim][0])/CellWidth[dim][0]);
-    JetEndIndex[dim] = nint((JetRightCorner[dim] - CellLeftEdge[dim][0])/CellWidth[dim][0]);
+    JetStartIndex[dim] = nint((JetLeftCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
+    JetEndIndex[dim] = nint((JetRightCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
 
     /* If Jet is not on this grid, return. */
 
@@ -108,22 +111,32 @@ int grid::ClusterSMBHFeedback(int level)
       return SUCCESS;
 
   } // end: loop over dim
+    printf("JetStartIndex = %d %d %d\n", JetStartIndex[0],JetStartIndex[1],JetStartIndex[2]);
+    printf("JetEndIndex = %d %d %d\n", JetEndIndex[0],JetEndIndex[1],JetEndIndex[2]);
 
   /* Compute mass and momentum to be put into cells in code units. */
 
-  float JetNormalization = 1.0, density_normalization = 1.0, radius = 1.0;
+  float JetNormalization = 0.0, density_normalization, radius, Tramp;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
-      radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
-		    pow((CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1]), 2))
-	/CellWidth[0][0]; // in cell widths
-	
-      JetNormalization += exp(-pow(radius/JetScaleRadius,2));
+      radius = sqrt(pow((CellLeftEdge[0][0] + (i+0.5)*CellWidth[0][0] - JetCenter[0]), 2) +
+                    pow((CellLeftEdge[1][0] + (j+0.5)*CellWidth[1][0] - JetCenter[1]), 2) )/
+               CellWidth[0][0];
+      JetNormalization += exp(-pow(radius/JetScaleRadius,2)/2.0);   //add 2!!!!!!!!!!!!!!, print stqtement
     }
   }
-  JetMdot = (JetMdot*SolarMass/MassUnits)/3.1557e7;  // in code units
-  JetVelocity = JetVelocity*1.0e5/VelocityUnits; //from km/s to code units
-  density_normalization = (JetMdot/JetNormalization)*CellWidth[0][0]/JetVelocity;
+  /* Convert to code units. */
+  JetMdot = (ClusterSMBHJetMdot*SolarMass/3.1557e7)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
+  printf("ClusterSMBHJetMdot= %g\n", ClusterSMBHJetMdot);
+  density_normalization = (JetMdot/JetNormalization)*dtFixed/pow(CellWidth[0][0], 3);
+  Tramp = ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;  // from Myr to code units 
+  /* If Time is earlier than ClusterSMBHStartTime, return. */
+  if (Time-ClusterSMBHStartTime < 0.0)
+    return SUCCESS;
+  JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     ///ClusterSMBHStartTime
+//  JetVelocity *= min((Time-ClusterSMBHStartTime)/ClusterSMBHTramp, 1.0);     ///ClusterSMBHStartTime
+  printf("density_normalization= %g\n", density_normalization);
+  printf("JetVelocity= %g\n", JetVelocity);
 
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
 
@@ -136,23 +149,34 @@ int grid::ClusterSMBHFeedback(int level)
   }
 
   /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
-
-  if (JetStartIndex[jet_dim] >= 0) {
-    k = JetStartIndex[jet_dim];
-    for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
-      for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+  float density_ratio, density_add;
+  for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
+    for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+      ///index = GRIDINDEX_NOGHOST(i,j,k);  ///replace GRIDINDEX(i,j,k)
 	radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
 		      pow((CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1]), 2))
 	  /CellWidth[0][0]; // in cell widths
-	
-	BaryonField[DensNum][GRIDINDEX(i,j,k)] += density_normalization*exp(-pow(radius/JetScaleRadius,2));
-	BaryonField[Vel3Num][GRIDINDEX(i,j,k)] += JetVelocity;
-	//	BaryonField[GENum][GRIDINDEX(i,j,k)] += XXX;
+	density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
+      if (JetStartIndex[jet_dim] >= 0) {
+        k = JetStartIndex[jet_dim];
+	BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
+	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+    printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
+	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = - density_ratio*JetVelocity + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
+	//	BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
+printf("lower jet BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)]);
+      }
+      if (JetEndIndex[jet_dim] <= GridDimension[jet_dim]-1) { 
+        k = JetEndIndex[jet_dim];
+        BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
+        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+    printf("density_add and density_ratio lower jet= %g %g\n", density_add, density_ratio);
+	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio*JetVelocity + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
+        //      BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
+printf("upper jet BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)]);
       }
     }
   }
-
-    
 
   /* loop over cells to be modified, add jet mass, momentum, and energy. */
 
