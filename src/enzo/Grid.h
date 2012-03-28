@@ -1470,6 +1470,7 @@ public:
 /* Particles: append particles belonging to this grid from a list */
 
    int AddParticlesFromList(ParticleEntry *List, const int &Size, int *AddedNewParticleNumber);
+   int AddOneParticleFromList(ParticleEntry *List, const int place);
    int CheckGridBoundaries(FLOAT *Position);
 
 /* Particles: sort particle data in ascending order by number (id) or type. */
