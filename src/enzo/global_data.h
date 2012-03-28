@@ -937,6 +937,8 @@ EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr
 EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s 
 EXTERN float ClusterSMBHJetRadius;  // JetRadius in cellwidth 
 EXTERN float ClusterSMBHJetLaunchOffset;  //in cellwidth
+EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart 
+EXTERN float ClusterSMBHTramp;  // in Myr
 /* For the database */
 EXTERN char *DatabaseLocation;
 
