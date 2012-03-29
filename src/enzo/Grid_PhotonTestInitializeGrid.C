@@ -76,7 +76,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float PhotonTestInitialFractionH2II,
 			     int RefineByOpticalDepth,
 			     int TotalRefinement,
-			     char *DensityFilename)
+			     char *DensityFilename,
+			     char *HIIFractionFilename,
+			     char *HeIIFractionFilename,
+			     char *HeIIIFractionFilename,
+			     char *TemperatureFilename)
 {
   /* declarations */
 
@@ -84,7 +88,8 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum,  kphHINum, gammaNum, kphHeINum,
     kphHeIINum, kdissH2INum, RPresNum1, RPresNum2, RPresNum3; 
-  float *density_field = NULL;
+  float *density_field = NULL, *HII_field = NULL, *HeII_field = NULL, 
+    *HeIII_field = NULL, *Temperature_field = NULL;
 
   /* create fields */
   NumberOfBaryonFields = 0;
@@ -286,7 +291,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     dataset_name = strtok(NULL, delim);
 
     file_id = H5Fopen(data_filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-    if (file_id == -1) ENZO_FAIL("Error closing density field.");
+    if (file_id == -1) ENZO_FAIL("Error opening density field.");
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
     density_field = new float[active_size];
@@ -294,6 +299,66 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		       HDF5_REAL, density_field, FALSE, NULL, NULL);
     h5error = H5Fclose(file_id);
     if (h5error == -1) ENZO_FAIL("Error closing density field.");
+
+    /* HII, HeI, HeII, HeIII density fields */
+
+    if (HIIFractionFilename != NULL) {
+      data_filename = strtok(HIIFractionFilename, delim);
+      dataset_name = strtok(NULL, delim);
+      file_id = H5Fopen(data_filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+      if (file_id == -1) ENZO_FAIL("Error opening HII field.");
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+      HII_field = new float[active_size];
+      this->read_dataset(GridRank, OutDims, dataset_name, file_id,
+			 HDF5_REAL, HII_field, FALSE, NULL, NULL);
+      h5error = H5Fclose(file_id);
+      if (h5error == -1) ENZO_FAIL("Error closing HII field.");
+    }
+
+    if (HeIIFractionFilename != NULL) {
+      data_filename = strtok(HeIIFractionFilename, delim);
+      dataset_name = strtok(NULL, delim);
+      file_id = H5Fopen(data_filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+      if (file_id == -1) ENZO_FAIL("Error opening HeII field.");
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+      HeII_field = new float[active_size];
+      this->read_dataset(GridRank, OutDims, dataset_name, file_id,
+			 HDF5_REAL, HeII_field, FALSE, NULL, NULL);
+      h5error = H5Fclose(file_id);
+      if (h5error == -1) ENZO_FAIL("Error closing HeII field.");
+    }
+
+    if (HeIIIFractionFilename != NULL) {
+      data_filename = strtok(HeIIIFractionFilename, delim);
+      dataset_name = strtok(NULL, delim);
+      file_id = H5Fopen(data_filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+      if (file_id == -1) ENZO_FAIL("Error opening HeIII field.");
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+      HeIII_field = new float[active_size];
+      this->read_dataset(GridRank, OutDims, dataset_name, file_id,
+			 HDF5_REAL, HeIII_field, FALSE, NULL, NULL);
+      h5error = H5Fclose(file_id);
+      if (h5error == -1) ENZO_FAIL("Error closing HeIII field.");
+    }
+
+    if (TemperatureFilename != NULL) {
+      data_filename = strtok(TemperatureFilename, delim);
+      dataset_name = strtok(NULL, delim);
+      file_id = H5Fopen(data_filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+      if (file_id == -1) ENZO_FAIL("Error opening temperature field.");
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	OutDims[GridRank-dim-1] = GridEndIndex[dim] - GridStartIndex[dim] + 1;
+      Temperature_field = new float[active_size];
+      this->read_dataset(GridRank, OutDims, dataset_name, file_id,
+			 HDF5_REAL, Temperature_field, FALSE, NULL, NULL);
+      h5error = H5Fclose(file_id);
+      if (h5error == -1) ENZO_FAIL("Error closing temperature field.");
+    }
+
+
   } // ENDIF DensityFilename
 
   /* Loop over the mesh. */
@@ -385,26 +450,38 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	/* Loop over spheres. */
 
-	if (density_field != NULL && 
-	    i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
+	if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
 	    j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
 	    k >= GridStartIndex[2] && k <= GridEndIndex[2]) {
 	  cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
 	    ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
-	  density = density_field[cindex];
-	} else {
-	  density = 1.0;
+	  if (density_field != NULL)
+	    density = density_field[cindex];
+	  else
+	    density = 1.0;
+	  if (HII_field != NULL)
+	    HII_Fraction = HII_field[cindex];
+	  else
+	    HII_Fraction = PhotonTestInitialFractionHII;
+	  if (HeII_field != NULL)
+	    HeII_Fraction = HeII_field[cindex];
+	  else
+	    HeII_Fraction = PhotonTestInitialFractionHeII;
+	  if (HeIII_field != NULL)
+	    HeIII_Fraction = HeIII_field[cindex];
+	  else
+	    HeIII_Fraction = PhotonTestInitialFractionHeIII;
+	  if (Temperature_field != NULL)
+	    temperature = temp1 = Temperature_field[cindex];
+	  else
+	    temperature = temp1 = InitialTemperature;
 	}
 
-	temperature = temp1 = InitialTemperature;
+	H2I_Fraction = PhotonTestInitialFractionH2I;
 	sigma = sigma1 = 0;
 	colour = 1.0e-10;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
-	HII_Fraction = PhotonTestInitialFractionHII;
-	HeII_Fraction = PhotonTestInitialFractionHeII;
-	HeIII_Fraction = PhotonTestInitialFractionHeIII;
-	H2I_Fraction = PhotonTestInitialFractionH2I;
 
 	for (sphere = 0; sphere < NumberOfSpheres; sphere++) {
 
@@ -839,8 +916,11 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
     printf("PhotonTestInitialize: DM NumberOfParticles = %"ISYM"\n", 
 	   NumberOfParticles);
 
-  if (density_field != NULL)
-    delete [] density_field;
+  delete [] density_field;
+  delete [] HII_field;
+  delete [] HeII_field;
+  delete [] HeIII_field;
+  delete [] Temperature_field;
   
   return SUCCESS;
 }
