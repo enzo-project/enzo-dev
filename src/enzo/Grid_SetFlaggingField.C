@@ -229,7 +229,16 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
        is automatically turned if method #8 is specified. */
 
     break;
- 
+
+    /* ==== METHOD 19: Refine on metal mass ==== */
+
+  case 19:
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetalMass(level);
+    if (NumberOfFlaggedCells < 0) {
+      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMetalMass.\n");
+      return FAIL;
+    }
+    break;
  
     /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
  
