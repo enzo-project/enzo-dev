@@ -127,12 +127,14 @@ int grid::ClusterSMBHFeedback(int level)
   }
   /* Convert to code units. */
   JetMdot = (ClusterSMBHJetMdot*SolarMass/3.1557e7)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
-  printf("ClusterSMBHJetMdot= %g\n", ClusterSMBHJetMdot);
   density_normalization = (JetMdot/JetNormalization)*dtFixed/pow(CellWidth[0][0], 3);
+  printf("ClusterSMBHTramp= %g\n", ClusterSMBHTramp);
   Tramp = ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;  // from Myr to code units 
   /* If Time is earlier than ClusterSMBHStartTime, return. */
+  printf("Time and ClusterSMBHStartTime= %g %g\n", Time, ClusterSMBHStartTime);
   if (Time-ClusterSMBHStartTime < 0.0)
     return SUCCESS;
+  JetVelocity = ClusterSMBHJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
   JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     ///ClusterSMBHStartTime
 //  JetVelocity *= min((Time-ClusterSMBHStartTime)/ClusterSMBHTramp, 1.0);     ///ClusterSMBHStartTime
   printf("density_normalization= %g\n", density_normalization);
