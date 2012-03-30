@@ -135,8 +135,8 @@ int grid::ClusterSMBHFeedback(int level)
   if (Time-ClusterSMBHStartTime < 0.0)
     return SUCCESS;
   JetVelocity = ClusterSMBHJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
-  JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     ///ClusterSMBHStartTime
-//  JetVelocity *= min((Time-ClusterSMBHStartTime)/ClusterSMBHTramp, 1.0);     ///ClusterSMBHStartTime
+  JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
+//  JetVelocity *= 0.5*tanh(5.0*((Time-ClusterSMBHStartTime)/Tramp-0.5)+1.0);     // tanh ramp
   printf("density_normalization= %g\n", density_normalization);
   printf("JetVelocity= %g\n", JetVelocity);
 
