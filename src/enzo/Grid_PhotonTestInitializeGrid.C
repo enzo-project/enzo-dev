@@ -168,7 +168,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
                pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
   float DensityUnits, LengthUnits, TemperatureUnits, TimeUnits, 
-    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
+    VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6, mu_data;
 
   FLOAT a, dadt, ExpansionFactor = 1;
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
@@ -816,9 +816,22 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	  BaryonField[ivel+dim][n] = Velocity[dim] + UniformVelocity[dim];
 	
 	/* Set energy (thermal and then total if necessary). */
-	
+
+	if (MultiSpecies) {
+	  mu_data =  
+	    0.25*(BaryonField[HeINum][n]  + BaryonField[HeIINum][n] +
+		  BaryonField[HeIIINum][n]                        ) +
+	    BaryonField[HINum][n]   + BaryonField[HIINum][n]  +
+	    BaryonField[DeNum][n];
+	  if (MultiSpecies > 1)
+	    mu_data += BaryonField[HMNum][i]   +
+	      0.5*(BaryonField[H2INum][i]  + BaryonField[H2IINum][i]);
+	  mu_data = BaryonField[0][n] / mu_data;
+	} else
+	  mu_data = mu;
+
 	BaryonField[1][n] = temperature/TemperatureUnits/
-	  ((Gamma-1.0)*mu);
+	  ((Gamma-1.0)*mu_data);
 	
 	if (DualEnergyFormalism)
 	  BaryonField[2][n] = BaryonField[1][n];
