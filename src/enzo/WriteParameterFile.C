@@ -836,6 +836,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ClusterSMBHJetLaunchOffset  = %"FSYM"\n", ClusterSMBHJetLaunchOffset);
   fprintf(fptr, "ClusterSMBHStartTime        = %"FSYM"\n", ClusterSMBHStartTime);
   fprintf(fptr, "ClusterSMBHTramp            = %"FSYM"\n", ClusterSMBHTramp);
+  fprintf(fptr, "ClusterSMBHJetAngleRadius   = %"FSYM"\n", ClusterSMBHJetAngleRadius);
 
   /* Most Stanford additions: */
 
