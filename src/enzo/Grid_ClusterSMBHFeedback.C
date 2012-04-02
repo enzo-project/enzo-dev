@@ -151,16 +151,16 @@ int grid::ClusterSMBHFeedback(int level)
   }
 
   /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
-  float density_ratio, density_add;
+  float density_ratio, density_add, xpos, ypos;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
       ///index = GRIDINDEX_NOGHOST(i,j,k);  ///replace GRIDINDEX(i,j,k)
-	radius = sqrt(pow((CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0]), 2) + 
-		      pow((CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1]), 2))
-	  /CellWidth[0][0]; // in cell widths
+        xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0];  //in the cell surface center
+        ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1];
+	radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
 	density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
       if (JetStartIndex[jet_dim] >= 0) {
-        k = JetStartIndex[jet_dim];
+        k = JetStartIndex[jet_dim]-1;  //start from the lower(outer) boundary of the cell
 	BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
 	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
