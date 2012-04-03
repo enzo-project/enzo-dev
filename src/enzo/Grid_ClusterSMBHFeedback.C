@@ -168,7 +168,7 @@ int grid::ClusterSMBHFeedback(int level)
 	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
 	BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (xpos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
-	BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+	BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
 	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
 	//	BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
 printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)]);
@@ -180,7 +180,7 @@ printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", Baryo
         density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio lower jet= %g %g\n", density_add, density_ratio);
         BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (xpos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
-        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
 	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
         //      BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
 printf("upper jet BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)]);
