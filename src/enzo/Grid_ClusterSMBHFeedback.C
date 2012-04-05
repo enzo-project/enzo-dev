@@ -163,7 +163,7 @@ int grid::ClusterSMBHFeedback(int level)
 	JetVelocity_xy = JetVelocity * radius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
 	/*this is the bottom jet: */
       if (JetStartIndex[jet_dim] >= 0) {   
-        k = JetStartIndex[jet_dim]-1;  //start from the lower(outer) boundary of the cell
+        k = JetStartIndex[jet_dim]+1;  //start from the lower(outer) boundary of the cell
 	BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
 	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
