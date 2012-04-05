@@ -159,8 +159,14 @@ int grid::ClusterSMBHFeedback(int level)
         ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1];  //not in cellwidth
 	radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
 	density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
+      if (ClusterSMBHJetAngleRadius = 0) {
+	JetVelocity_z = JetVelocity;
+	JetVelocity_xy = 0;
+	}
+      else {
 	JetVelocity_z = JetVelocity * ClusterSMBHJetAngleRadius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
 	JetVelocity_xy = JetVelocity * radius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
+	}
 	/*this is the bottom jet: */
       if (JetStartIndex[jet_dim] >= 0) {   
         k = JetStartIndex[jet_dim]+1;  //start from the lower(outer) boundary of the cell
