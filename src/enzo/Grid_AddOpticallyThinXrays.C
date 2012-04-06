@@ -3,7 +3,7 @@
 /  (WRAPPER) ADD X-RAY EMISSION FROM RADIATIVE PARTICLES
 /
 /  written by: John Wise
-/  date:       January, 2012
+/  date:       March, 2012
 /  modified1:
 /
 /  PURPOSE:
@@ -32,10 +32,12 @@ int grid::AddOpticallyThinXrays(Star *AllStars, int NumberOfSources)
      have more than 10 sources.  With smaller numbers, the overhead
      makes the direct calculation faster. */
 
+#ifdef UNUSED // Difficult with multiple X-ray energy bins
   if (RadiativeTransferSourceClustering == TRUE && NumberOfSources >= 10)
     this->AddXraysFromTree();
   else
-    this->AddXraysFromSources(AllStars);
+#endif
+  this->AddXraysFromSources(AllStars);
 
   return SUCCESS;
 
