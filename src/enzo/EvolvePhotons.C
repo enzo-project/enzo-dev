@@ -566,6 +566,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+    if (RadiativeTransferOpticallyThinXray)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  Temp->GridData->AddOpticallyThinXrays(AllStars, NumberOfSources);
     END_PERF(10);
 
     START_PERF();

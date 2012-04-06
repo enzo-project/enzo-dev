@@ -62,6 +62,7 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
    int SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids);
    int SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
 				   int *NumberOfGrids);
+   int SetSubgridMarkerIsolatedBoundaries(void);
 
 /* Return Subgrid Marker for a position */
 
@@ -85,6 +86,12 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 /* Add acceleration from radiation pressure */
 
   int AddRadiationPressureAcceleration(void);
+
+/* Add optically thin X-ray field */
+
+  int AddXraysFromSources(Star *AllStars);
+  int AddXraysFromTree(void);
+  int AddOpticallyThinXrays(Star *AllStars, int NumberOfSources);
 
 /* Initialize ionized sphere around a source */
 

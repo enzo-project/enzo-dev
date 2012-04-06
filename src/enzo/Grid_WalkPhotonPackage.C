@@ -151,7 +151,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
     if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
-      //printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
+      printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
       DeleteMe = TRUE;
       return SUCCESS;
       //ENZO_FAIL("Ray out of grid?");
