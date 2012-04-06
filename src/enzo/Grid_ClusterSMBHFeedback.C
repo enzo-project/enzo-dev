@@ -159,16 +159,22 @@ int grid::ClusterSMBHFeedback(int level)
         ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1];  //not in cellwidth
 	radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
 	density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
-	JetVelocity_z = JetVelocity * JetAngleRadius / sqrt(pow(JetAngleRadius, 2) + pow(radius, 2));
-	JetVelocity_xy = JetVelocity * radius / sqrt(pow(JetAngleRadius, 2) + pow(radius, 2));
+      if (ClusterSMBHJetAngleRadius = 0) {
+	JetVelocity_z = JetVelocity;
+	JetVelocity_xy = 0;
+	}
+      else {
+	JetVelocity_z = JetVelocity * ClusterSMBHJetAngleRadius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
+	JetVelocity_xy = JetVelocity * radius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
+	}
 	/*this is the bottom jet: */
       if (JetStartIndex[jet_dim] >= 0) {   
-        k = JetStartIndex[jet_dim]-1;  //start from the lower(outer) boundary of the cell
+        k = JetStartIndex[jet_dim]+1;  //start from the lower(outer) boundary of the cell
 	BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
 	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
 	BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (xpos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
-	BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+	BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
 	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
 	//	BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
 printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)]);
@@ -180,7 +186,7 @@ printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", Baryo
         density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio lower jet= %g %g\n", density_add, density_ratio);
         BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (xpos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
-        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_xy * (ypos/CellWidth[0][0]) / radius + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
 	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
         //      BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
 printf("upper jet BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)]);
