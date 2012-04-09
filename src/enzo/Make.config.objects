@@ -906,8 +906,11 @@ POBJS_CONFIG_LIB = \
 	Grid_AddH2Dissociation.o \
 	Grid_AddH2DissociationFromSources.o \
 	Grid_AddH2DissociationFromTree.o \
+	Grid_AddOpticallyThinXrays.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
+	Grid_AddXraysFromSources.o \
+	Grid_AddXraysFromTree.o \
 	Grid_AllocateInterpolatedRadiation.o \
 	Grid_CommunicationSendPhotonPackages.o \
         Grid_ComputePhotonTimestep.o \
@@ -940,6 +943,7 @@ POBJS_CONFIG_LIB = \
         Grid_SetSubgridMarkerFromParent.o \
         Grid_SetSubgridMarkerFromSibling.o \
         Grid_SetSubgridMarkerFromSubgrid.o \
+	Grid_SetSubgridMarkerIsolatedBoundaries.o \
         Grid_SubgridMarkerPostParallel.o \
         Grid_Shine.o \
         Grid_TransportPhotonPackages.o \

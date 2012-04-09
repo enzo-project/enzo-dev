@@ -151,7 +151,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
     if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
-      //printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
+      printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
       DeleteMe = TRUE;
       return SUCCESS;
       //ENZO_FAIL("Ray out of grid?");
@@ -766,7 +766,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < tiny_number || 
+    if ((*PP)->Photons < 1e-10*tiny_number || 
 	(*PP)->ColumnDensity > tau_delete) {
       if (DEBUG>1) {
 	fprintf(stderr, "PP-Photons: %"GSYM"  PP->Radius: %"GSYM
