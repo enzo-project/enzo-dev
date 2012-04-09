@@ -456,7 +456,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	  cindex = (i-GridStartIndex[0]) + ActiveDims[0] *
 	    ((j-GridStartIndex[1]) + (k-GridStartIndex[2])*ActiveDims[1]);
 	  if (density_field != NULL)
-	    density = density_field[cindex];
+	    density = max(density_field[cindex], 1e-6);
 	  else
 	    density = 1.0;
 	  if (HII_field != NULL)
