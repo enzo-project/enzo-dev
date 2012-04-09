@@ -98,6 +98,7 @@ int grid::AddXraysFromSources(Star *AllStars)
   FLOAT CrossSections[3]; // HI, HeI, HeII
   float xx, heat_factor, ion2_factor[3];
   float nSecondaryHII = 1, nSecondaryHeII = 1;
+  double r2_inv;
 
   ion2_factor[2] = 1.0;
   if (RadiationXRaySecondaryIon == FALSE) {
@@ -147,31 +148,31 @@ int grid::AddXraysFromSources(Star *AllStars)
 
 	double radius2_yz;
 
-	for (a = 0; a < 3; a++) {
-	  kph_r2 = (float) (XrayLuminosity * CrossSections[a] / (4.0 * M_PI));
-	  dE = (RS->Energy[bin] - EnergyThresholds[a]);
-	  for (k = 0; k < ActiveDims[2]; k++) {
-	    for (j = 0; j < ActiveDims[1]; j++) {
-	      radius2_yz = ddr2[1][j] + ddr2[2][k];
-	      index = GRIDINDEX(0, j, k);
-	      for (i = 0; i < ActiveDims[0]; i++, index++) {
-		dkph = kph_r2 / (radius2_yz + ddr2[0][i]);
-		if (RadiationXRaySecondaryIon == TRUE) {
-		  xx = max(BaryonField[HIINum][index] / 
-			   (BaryonField[HINum][index] + BaryonField[HIINum][index]),
-			   1e-4);
-		  heat_factor = 0.9971 * (1.0 - powf(1.0 - powf(xx, 0.2663f), 1.3163));
-		  ion2_factor[0] = 0.3908 * nSecondaryHII * 
-		    powf(1 - powf(xx, 0.4092f), 1.7592f);
-		  ion2_factor[1] = 0.0554 * nSecondaryHeII * 
-		    powf(1 - powf(xx, 0.4614f), 1.6660f);
-		}
+	for (k = 0; k < ActiveDims[2]; k++) {
+	  for (j = 0; j < ActiveDims[1]; j++) {
+	    radius2_yz = ddr2[1][j] + ddr2[2][k];
+	    index = GRIDINDEX(0, j, k);
+	    for (i = 0; i < ActiveDims[0]; i++, index++) {
+	      r2_inv = 1.0 / (radius2_yz + ddr2[0][i]);
+	      if (RadiationXRaySecondaryIon == TRUE) {
+		xx = max(BaryonField[HIINum][index] / 
+			 (BaryonField[HINum][index] + BaryonField[HIINum][index]),
+			 1e-4);
+		heat_factor = 0.9971 * (1.0 - powf(1.0 - powf(xx, 0.2663f), 1.3163));
+		ion2_factor[0] = 0.3908 * nSecondaryHII * 
+		  powf(1 - powf(xx, 0.4092f), 1.7592f);
+		ion2_factor[1] = 0.0554 * nSecondaryHeII * 
+		  powf(1 - powf(xx, 0.4614f), 1.6660f);
+	      }
+	      for (a = 0; a < 3; a++) {
+		dkph = (float) (XrayLuminosity * CrossSections[a] / (4.0 * M_PI)) * r2_inv;
+		dE = (RS->Energy[bin] - EnergyThresholds[a]);
 		BaryonField[kphNum[a]][index] += dkph * ion2_factor[a];
 		BaryonField[gammaNum][index] += dkph * dE * heat_factor;
-	      } // END: i-direction
-	    } // END: j-direction
-	  } // END: k-direction
-	} // END: absorbers (a)
+	      } // END: absorbers (a)
+	    } // END: i-direction
+	  } // END: j-direction
+	} // END: k-direction
 
       } // ENDFOR bin
       
@@ -241,31 +242,31 @@ int grid::AddXraysFromSources(Star *AllStars)
 
 	double radius2_yz;
 
-	for (a = 0; a < 3; a++) {
-	  kph_r2 = (float) (XrayLuminosity * CrossSections[a] / (4.0 * M_PI));
-	  dE = (energies[bin] - EnergyThresholds[a]);
-	  for (k = 0; k < ActiveDims[2]; k++) {
-	    for (j = 0; j < ActiveDims[1]; j++) {
-	      radius2_yz = ddr2[1][j] + ddr2[2][k];
-	      index = GRIDINDEX(0, j, k);
-	      for (i = 0; i < ActiveDims[0]; i++, index++) {
-		dkph = kph_r2 / (radius2_yz + ddr2[0][i]);
-		if (RadiationXRaySecondaryIon == TRUE) {
-		  xx = max(BaryonField[HIINum][index] / 
-			   (BaryonField[HINum][index] + BaryonField[HIINum][index]),
-			   1e-4);
-		  heat_factor = 0.9971 * (1.0 - powf(1.0 - powf(xx, 0.2663f), 1.3163));
-		  ion2_factor[0] = 0.3908 * nSecondaryHII * 
-		    powf(1 - powf(xx, 0.4092f), 1.7592f);
-		  ion2_factor[1] = 0.0554 * nSecondaryHeII * 
-		    powf(1 - powf(xx, 0.4614f), 1.6660f);
-		}
+	for (k = 0; k < ActiveDims[2]; k++) {
+	  for (j = 0; j < ActiveDims[1]; j++) {
+	    radius2_yz = ddr2[1][j] + ddr2[2][k];
+	    index = GRIDINDEX(0, j, k);
+	    for (i = 0; i < ActiveDims[0]; i++, index++) {
+	      r2_inv = 1.0 / (radius2_yz + ddr2[0][i]);
+	      if (RadiationXRaySecondaryIon == TRUE) {
+		xx = max(BaryonField[HIINum][index] / 
+			 (BaryonField[HINum][index] + BaryonField[HIINum][index]),
+			 1e-4);
+		heat_factor = 0.9971 * (1.0 - powf(1.0 - powf(xx, 0.2663f), 1.3163));
+		ion2_factor[0] = 0.3908 * nSecondaryHII * 
+		  powf(1 - powf(xx, 0.4092f), 1.7592f);
+		ion2_factor[1] = 0.0554 * nSecondaryHeII * 
+		  powf(1 - powf(xx, 0.4614f), 1.6660f);
+	      }
+	      for (a = 0; a < 3; a++) {
+		dkph = (float) (XrayLuminosity * CrossSections[a] / (4.0 * M_PI)) * r2_inv;
+		dE = (energies[bin] - EnergyThresholds[a]);
 		BaryonField[kphNum[a]][index] += dkph * ion2_factor[a];
 		BaryonField[gammaNum][index] += dkph * dE * heat_factor;
-	      } // END: i-direction
-	    } // END: j-direction
-	  } // END: k-direction
-	} // END: absorbers (a)
+	      } // END: absorbers (a)
+	    } // END: i-direction
+	  } // END: j-direction
+	} // END: k-direction
 
       } // ENDFOR bin
       

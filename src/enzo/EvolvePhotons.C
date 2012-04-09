@@ -573,12 +573,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     END_PERF(10);
 
     START_PERF();
+    int RTCoupledSolverIntermediateStep = TRUE;
     if (RadiativeTransferCoupledRateSolver)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
 	  if (Temp->GridData->RadiationPresent() == TRUE) {
 
-	    int RTCoupledSolverIntermediateStep = TRUE;
 	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
 
 	  } /* ENDIF radiation */

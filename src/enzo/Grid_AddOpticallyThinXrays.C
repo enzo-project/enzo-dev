@@ -39,6 +39,8 @@ int grid::AddOpticallyThinXrays(Star *AllStars, int NumberOfSources)
 #endif
   this->AddXraysFromSources(AllStars);
 
+  HasRadiation = TRUE;
+
   return SUCCESS;
 
 }
