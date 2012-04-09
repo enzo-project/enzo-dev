@@ -126,19 +126,32 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   RadiativeTransferCoupledRateSolver = savedCoupledChemistrySolver;
   dtPhoton = SavedPhotonTimestep;
 
-  /* Optically thin Lyman-Werner (H2) radiation field */
+  /* Optically thin Lyman-Werner (H2) and X-ray radiation field */
 
   int NumberOfSources = 0;
-  Star *cstar = AllStars->NextStar;
-  while (cstar != NULL) {
-    cstar = cstar->NextStar;
-    NumberOfSources++;
+  if (AllStars != NULL) {
+    Star *cstar = AllStars->NextStar;
+    while (cstar != NULL) {
+      cstar = cstar->NextStar;
+      NumberOfSources++;
+    }
+  } else if (ProblemType == 50) {
+    RadiationSourceEntry *RS = GlobalRadiationSources->NextSource;
+    while (RS != NULL) {
+      RS = RS->NextSource;
+      NumberOfSources++;
+    }
   }
 
   if (RadiativeTransferOpticallyThinH2)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
 	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+
+  if (RadiativeTransferOpticallyThinXray)
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+	Temp->GridData->AddOpticallyThinXrays(AllStars, NumberOfSources);
 
   return SUCCESS;
 

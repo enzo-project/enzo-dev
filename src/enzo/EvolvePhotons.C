@@ -559,38 +559,30 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Temp->GridData->FinalizeRadiationFields();
     END_PERF(8);
 
-    START_PERF();
-    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
-      for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	if (Temp->GridData->RadiationPresent() == TRUE) {
-
-	  if (RadiativeTransferCoupledRateSolver && 
-	      RadiativeTransferOpticallyThinH2) {
-	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
-	  } // ENDIF coupled & thinH2
-
-	  if (RadiativeTransferCoupledRateSolver) {
-	    int RTCoupledSolverIntermediateStep = TRUE;
-	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
-	  }
-
-	  if (RadiativeTransferCoupledRateSolver &&
-	      RadiativeTransferInterpolateField)
-	    Temp->GridData->DeleteInterpolatedFields();
-
-	} /* ENDIF radiation */
-    END_PERF(9);
-
-    /* For the non-coupled (i.e. cells without radiation) rate & energy
-       solver, we have to set the H2 dissociation rates */
+    /* Set the optically-thin H2 dissociation rates */
 
     START_PERF();
     if (RadiativeTransferOpticallyThinH2)
       for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
 	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
-	  if (Temp->GridData->RadiationPresent() == FALSE)
-	    Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+	  Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+    if (RadiativeTransferOpticallyThinXray)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  Temp->GridData->AddOpticallyThinXrays(AllStars, NumberOfSources);
     END_PERF(10);
+
+    START_PERF();
+    int RTCoupledSolverIntermediateStep = TRUE;
+    if (RadiativeTransferCoupledRateSolver)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+	for (Temp = LevelArray[lvl]; Temp; Temp = Temp->NextGridThisLevel)
+	  if (Temp->GridData->RadiationPresent() == TRUE) {
+
+	    Temp->GridData->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
+
+	  } /* ENDIF radiation */
+    END_PERF(9);
 
     /* Clean up temperature field */
 
