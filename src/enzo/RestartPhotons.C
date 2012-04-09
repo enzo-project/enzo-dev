@@ -128,10 +128,17 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   /* Optically thin Lyman-Werner (H2) radiation field */
 
+  int NumberOfSources = 0;
+  Star *cstar = AllStars->NextStar;
+  while (cstar != NULL) {
+    cstar = cstar->NextStar;
+    NumberOfSources++;
+  }
+
   if (RadiativeTransferOpticallyThinH2)
     for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
       for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
-	Temp->GridData->AddH2Dissociation(AllStars);
+	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
 
   return SUCCESS;
 
