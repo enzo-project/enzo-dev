@@ -90,14 +90,12 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
                So we need to decref it after we add it to the dict */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                     3, dims, ENPY_BFLOAT, BaryonField[field]);
-            dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
 
 			/* Now the old grid data */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                     3, dims, ENPY_BFLOAT, OldBaryonField[field]);
-            dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(old_grid_data, DataLabel[field], (PyObject*) dataset);
             Py_DECREF(dataset);
         }
@@ -106,17 +104,14 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	int size = 1;
 	for (dim = 0; dim < GridRank; dim++)
 	  size *= GridDimension[dim];
-	if (YT_TemperatureField != NULL) {
-	  delete [] YT_TemperatureField;
-	  YT_TemperatureField = NULL;
-	}
-	YT_TemperatureField = new float[size];
+    /* NumPy will clean up this memory */
+	float *YT_TemperatureField = new float[size];
 	if (this->ComputeTemperatureField(YT_TemperatureField) == FAIL) {
 	  ENZO_FAIL("Error in grid->ComputeTemperatureField.\n");
 	}
 	dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
 	        3, dims, ENPY_BFLOAT, YT_TemperatureField);
-	dataset->flags &= NPY_OWNDATA;
+	PyArray_ENABLEFLAGS(dataset, NPY_OWNDATA);
 	PyDict_SetItemString(grid_data, "Temperature", (PyObject*) dataset);
 	Py_DECREF(dataset);
 
@@ -128,7 +123,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             /* Position */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                     1, dims, ENPY_PFLOAT, ParticlePosition[dim]);
-            dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, ParticlePositionLabel[dim],
                 (PyObject*) dataset);
             Py_DECREF(dataset);
@@ -136,7 +130,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
             /* Velocity */
             dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                     1, dims, ENPY_BFLOAT, ParticleVelocity[dim]);
-            dataset->flags &= ~NPY_OWNDATA;
             PyDict_SetItemString(grid_data, ParticleVelocityLabel[dim],
                 (PyObject*) dataset);
             Py_DECREF(dataset);
@@ -145,7 +138,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
           /* Mass */
           dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                   1, dims, ENPY_BFLOAT, ParticleMass);
-          dataset->flags &= ~NPY_OWNDATA;
           PyDict_SetItemString(grid_data, "particle_mass",
               (PyObject*) dataset);
           Py_DECREF(dataset);
@@ -153,7 +145,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
           /* Number */
           dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
                   1, dims, ENPY_PINT, ParticleNumber);
-          dataset->flags &= ~NPY_OWNDATA;
           PyDict_SetItemString(grid_data, "particle_index",
               (PyObject*) dataset);
           Py_DECREF(dataset);
@@ -164,7 +155,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	    /* Type */
 	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
 		    1, dims, ENPY_INT, ParticleType);
-	    dataset->flags &= ~NPY_OWNDATA;
 	    PyDict_SetItemString(grid_data, "particle_type",
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);
@@ -172,7 +162,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	    /* creation time */
 	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
 		    1, dims, ENPY_BFLOAT, ParticleAttribute[0]);
-	    dataset->flags &= ~NPY_OWNDATA;
 	    PyDict_SetItemString(grid_data, "creation_time",
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);
@@ -180,7 +169,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	    /* dynamical time */
 	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
 		    1, dims, ENPY_BFLOAT, ParticleAttribute[1]);
-	    dataset->flags &= ~NPY_OWNDATA;
 	    PyDict_SetItemString(grid_data, "dynamical_time",
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);
@@ -188,7 +176,6 @@ void grid::ConvertToNumpy(int GridID, PyArrayObject *container[], int ParentID, 
 	    /* dynamical time */
 	    dataset = (PyArrayObject *) PyArray_SimpleNewFromData(
 		    1, dims, ENPY_BFLOAT, ParticleAttribute[2]);
-	    dataset->flags &= ~NPY_OWNDATA;
 	    PyDict_SetItemString(grid_data, "metallicity_fraction",
 	       (PyObject*) dataset);
 	    Py_DECREF(dataset);

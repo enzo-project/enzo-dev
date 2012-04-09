@@ -468,6 +468,7 @@ EXTERN float IncrementDensityOutput;
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
+EXTERN int PythonReloadScript;
 
 /* Parameters to control inline halo finding */
 
@@ -933,5 +934,8 @@ EXTERN float ConductionCourantSafetyNumber;
 
 /* For the database */
 EXTERN char *DatabaseLocation;
+
+/* For EnzoTiming Behavior */
+EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
 #endif

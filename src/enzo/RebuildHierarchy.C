@@ -21,7 +21,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
- 
+
+#include "EnzoTiming.h" 
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
@@ -102,6 +103,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   int dbx = 0;
  
   LCAPERF_START("RebuildHierarchy");
+  TIMER_START("RebuildHierarchy");
 
   if (debug) printf("RebuildHierarchy: level = %"ISYM"\n", level);
   ReportMemoryUsage("Rebuild pos 1");
@@ -323,20 +325,11 @@ int RebuildHierarchy(TopGridData *MetaData,
  
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
 
-      /* Find maximum level that exists right now. */
- 
-      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) 
-	if (TempLevelArray[i] == NULL) break;
-
-      int MaximumLevelNow = i;
- 
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */
 
-      //      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
-      for (i = level; i < MaximumLevelNow; i++) {
+    for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
  
-
       /* If there are no grids on this level, exit. */
  
       if (LevelArray[i] == NULL)
@@ -685,6 +678,7 @@ int RebuildHierarchy(TopGridData *MetaData,
   if (debug) fpcol(RHperf, 16, 16, stdout);
 #endif /* RH_PERF */
   ReportMemoryUsage("Rebuild pos 4");
+  TIMER_STOP("RebuildHierarchy");
   LCAPERF_STOP("RebuildHierarchy");
   return SUCCESS;
  

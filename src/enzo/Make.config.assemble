@@ -1038,6 +1038,35 @@
 	$(error Illegal value '$(CONFIG_GRAVITY_4S)' for $$(CONFIG_GRAVITY_4S))
     endif
 
+#-----------------------------------------------------------------------
+# DETERMINE ENZO PERFORMANCE
+#-----------------------------------------------------------------------
+
+    ERROR_ENZO_PERFORMANCE = 1
+
+    # compilers and settings if ENZO_PERFORMANCE is yes
+
+    ifeq ($(CONFIG_ENZO_PERFORMANCE),yes)
+        ERROR_ENZO_PERFORMANCE = 0
+        ASSEMBLE_ENZO_PERFORMANCE_DEFINES  = -DENZO_PERFORMANCE 
+    endif
+
+    # compilers and settings if GRAVITY_4S is no
+
+    ifeq ($(CONFIG_ENZO_PERFORMANCE),no)
+        ERROR_ENZO_PERFORMANCE = 0
+        ASSEMBLE_ENZO_PERFORMANCE_DEFINES  =
+    endif
+
+    # error if CONFIG_ENZO_PERFORMANCE is incorrect
+
+    ifeq ($(ERROR_ENZO_PERFORMANCE),1)
+       .PHONY: error_compilers
+       error_compilers:
+	$(error Illegal value '$(CONFIG_ENZO_PERFORMANCE)' for $$(CONFIG_ENZO_PERFORMANCE))
+    endif
+
+
 
 #=======================================================================
 # ASSIGN ALL OUTPUT VARIABLES
@@ -1106,6 +1135,7 @@
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES) \
               $(ASSEMBLE_GRAVITY_4S_DEFINES) \
+              $(ASSEMBLE_ENZO_PERFORMANCE_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \

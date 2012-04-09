@@ -63,7 +63,7 @@ int DetermineNumberOfNodes(void)
       unique = true;
       for (j = 0; j < NumberOfNodes; j++) {
 	memcpy(host2, UniqueHosts+j*MAX_LINE_LENGTH, MAX_LINE_LENGTH);
-	if (strstr(host1, host2) != NULL) {
+	if (strcmp(host1, host2) == 0) {
 	  unique = false;
 	  break;
 	}

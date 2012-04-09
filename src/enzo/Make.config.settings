@@ -43,6 +43,7 @@
 #    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
 #    CONFIG_SET_ACCELERATION_BOUNDARY
+#    CONFIG_ENZO_PERFORMANCE
 #
 #=======================================================================
 
@@ -224,6 +225,14 @@
 
      CONFIG_ACCELERATION_BOUNDARY = yes
 
+#=======================================================================
+# CONFIG_ENZO_PERFORMANCE
+#=======================================================================
+#    yes           Turn on performance/timing measurements
+#    no            Turn off performance/timing measurements
+#-----------------------------------------------------------------------
+
+     CONFIG_ENZO_PERFORMANCE = yes
 
 #=======================================================================
 # CONFIG_OPT

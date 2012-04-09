@@ -853,7 +853,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    }
 
 	    BaryonField[TENum][index] = EjectaThermalEnergy*ramp;
-	    if (GENum >= 0)
+	    if (GENum >= 0 && DualEnergyFormalism)
 	      BaryonField[GENum][index] = EjectaThermalEnergy*ramp;
 	    
 	    for (dim = 0; dim < GridRank; dim++)

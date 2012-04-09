@@ -879,12 +879,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Embedded Python */
     ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
+    ret += sscanf(line, "PythonReloadScript = %"ISYM, &PythonReloadScript);
 
 #ifdef USE_PYTHON
     ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
     ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);
     ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
 #endif
+
+    /* EnzoTiming Parameters */
+    ret += sscanf(line, "TimingCycleSkip = %"ISYM, &TimingCycleSkip);
 
     /* Inline halo finder */
 
@@ -1016,6 +1020,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TestGravity"        ) ) ret++;
     if (strstr(line, "SphericalInfall"    ) ) ret++;
     if (strstr(line, "TestGravitySphere"  ) ) ret++;
+    if (strstr(line, "Cluster"            ) ) ret++;
     if (strstr(line, "CollapseTest"       ) ) ret++;
     if (strstr(line, "Cosmology"          ) ) ret++;
     if (strstr(line, "SupernovaRestart"   ) ) ret++;

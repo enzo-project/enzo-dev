@@ -93,8 +93,6 @@ class grid
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
-  float *YT_TemperatureField;                         // place to store temperature field
-                                                      // for call to yt.
 
   // For restart dumps
 
@@ -1961,6 +1959,21 @@ int inteuler(int idim,
 			     int   SphereUseMetals,
 			     float InitialTemperature, 
 			     float InitialDensity, int level);
+
+/* Cluster: initialize grid. */
+
+  int ClusterInitializeGrid(int NumberOfSpheres,
+                             FLOAT SphereRadius[MAX_SPHERES],
+                             FLOAT SphereCoreRadius[MAX_SPHERES],
+                             float SphereDensity[MAX_SPHERES],
+                             float SphereTemperature[MAX_SPHERES],
+                             FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
+                             float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
+                             int   SphereType[MAX_SPHERES],
+                             int   SphereUseParticles,
+                             float UniformVelocity[MAX_DIMENSION],
+                             int   SphereUseColour,
+                             float InitialTemperature, int level);
 
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(
