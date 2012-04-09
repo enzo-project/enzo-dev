@@ -67,18 +67,10 @@ int grid::ClusterSMBHFeedback(int level)
   int i, j, k, dim = 0;
   int jet_dim = 2;  // z-axis (should make parameter?)
 
-//  int JetLaunchOffset = 10; // 10 cellwidth
-//  int ClusterSMBHJetRadius = 6; // cellwidths  epsilon in Omma et al--made papameter
-//  float JetScaleRadius = 3.0; // cellwidths
   float JetScaleRadius; // cellwidths
   float JetMdot; // Jet mass flow in SolarMass/year (need to convert units)-- gets value from parameter ClusterSMBHJetMdot
-  float JetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
-//try this and see what the output looks like//
-//  ClusterSMBHJetRadius = 20;  //to be del 
+  float JetVelocity, FastJetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
   JetScaleRadius = ClusterSMBHJetRadius/2.0;  //JetScaleRadius is half the radius of the jet launch region in cellwidths
-  printf("JetRadius in xxx.C = %g\n", ClusterSMBHJetRadius); 
-  printf("JetScaleRadius (jetradius/0.3)= %g\n", JetScaleRadius); 
-//  JetScaleRadius = 3.0;
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
     JetLeftCorner[dim] = JetCenter[dim];
@@ -136,6 +128,8 @@ int grid::ClusterSMBHFeedback(int level)
     return SUCCESS;
   JetVelocity = ClusterSMBHJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
   JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
+  FastJetVelocity = ClusterSMBHFastJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
+  FastJetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
 //  JetVelocity *= 0.5*tanh(5.0*((Time-ClusterSMBHStartTime)/Tramp-0.5)+1.0);     // tanh ramp
   printf("density_normalization= %g\n", density_normalization);
   printf("JetVelocity= %g\n", JetVelocity);
@@ -159,7 +153,9 @@ int grid::ClusterSMBHFeedback(int level)
         ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1];  //not in cellwidth
 	radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
 	density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
-      if (ClusterSMBHJetAngleRadius = 0) {
+	JetVelocity = (radius > ClusterSMBHFastJetRadius) ? JetVelocity : FastJetVelocity;
+printf("JetRadius, FastJetRadius and JetVelocity= %g %g \n", ClusterSMBHJetRadius, ClusterSMBHFastJetRadius, JetVelocity);
+      if (ClusterSMBHJetAngleRadius < 0.1) {   // if jet openning angle = 0, set ClusterSMBHJetAngleRadius=0
 	JetVelocity_z = JetVelocity;
 	JetVelocity_xy = 0;
 	}
@@ -169,7 +165,7 @@ int grid::ClusterSMBHFeedback(int level)
 	}
 	/*this is the bottom jet: */
       if (JetStartIndex[jet_dim] >= 0) {   
-        k = JetStartIndex[jet_dim]+1;  //start from the lower(outer) boundary of the cell
+        k = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
 	BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
 	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);

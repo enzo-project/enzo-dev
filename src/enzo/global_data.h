@@ -940,6 +940,8 @@ EXTERN float ClusterSMBHJetLaunchOffset;  //in cellwidth
 EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart 
 EXTERN float ClusterSMBHTramp;  // in Myr
 EXTERN float ClusterSMBHJetAngleRadius;  // in cellwidth 
+EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth 
+EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s 
 
 /* For the database */
 EXTERN char *DatabaseLocation;

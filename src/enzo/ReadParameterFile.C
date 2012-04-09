@@ -974,6 +974,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ClusterSMBHStartTime = %"FSYM, &ClusterSMBHStartTime);
     ret += sscanf(line, "ClusterSMBHTramp = %"FSYM, &ClusterSMBHTramp);
     ret += sscanf(line, "ClusterSMBHJetAngleRadius = %"FSYM, &ClusterSMBHJetAngleRadius);
+    ret += sscanf(line, "ClusterSMBHFastJetRadius = %"FSYM, &ClusterSMBHFastJetRadius);
+    ret += sscanf(line, "ClusterSMBHFastJetVelocity = %"FSYM, &ClusterSMBHFastJetVelocity);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
@@ -1531,7 +1533,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		"PopIIISupernovaMustRefine.");
   } // ENDIF PopIIISupernovaMustRefine
 //del
-  fprintf(stdout, "ClusterSMBHJetRadius %d\n", ClusterSMBHJetRadius);
 
   if (TracerParticleOn) {
     ParticleTypeInFile = TRUE;
