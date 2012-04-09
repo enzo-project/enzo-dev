@@ -766,7 +766,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < tiny_number || 
+    if ((*PP)->Photons < 1e-10*tiny_number || 
 	(*PP)->ColumnDensity > tau_delete) {
       if (DEBUG>1) {
 	fprintf(stderr, "PP-Photons: %"GSYM"  PP->Radius: %"GSYM
