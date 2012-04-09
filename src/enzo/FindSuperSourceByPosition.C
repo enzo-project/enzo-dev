@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#ifdef USE_SSE
 #include <xmmintrin.h>
+#endif
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -152,6 +154,7 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 /* SSE intrinsic approximate inverse sqrt.  IEEE precision isn't
    required to choose the correct leafs. */
 
+#ifdef USE_SSE
 inline void vrsqrt(float* __x, float* __outrsqrt)
 {
   __m128 x = _mm_set_ss(*__x);
@@ -160,6 +163,7 @@ inline void vrsqrt(float* __x, float* __outrsqrt)
 // _m128* precip = (__m128 *)__outrsqrt;
 // *precip = _mm_mul_ss(_mm_set_ss(0.5f), _mm_add_ss(recip, _mm_rcp_ss(_mm_mul_ss(x, recip))));
 }
+#endif
 
 float CalculateLWFromTree(const FLOAT pos[], 
 			  const float angle, 
@@ -184,8 +188,11 @@ float CalculateLWFromTree(const FLOAT pos[],
 
   temp = (float)radius2;
   temp = max(min_radius, temp);
+#ifdef USE_SSE
   vrsqrt(&temp, &radius_inv);
-  //radius_inv = 1.0 / sqrtf((float)radius2);
+#else
+  radius_inv = 1.0 / sqrtf((float)radius2);
+#endif
   tan_angle = Leaf->ClusteringRadius * radius_inv;
 
 //  int pid = (Leaf->ParentSource == NULL) ? -1 : Leaf->ParentSource->LeafID;
