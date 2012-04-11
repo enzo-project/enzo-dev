@@ -308,7 +308,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
                rz = sqrt(pow(fabs(xpos), 2) + pow(fabs(ypos), 2));
                rz = max(rz, 0.1*CellWidth[0][0]);
               
-              if (r > 6.25e-4) {  //10kpc
+              if (r > 6.25e-5) {  //1kpc
                 if (dim == 0 || dim == 1)
                   Velocity[0] = (-ypos*vc/rz+gasdev()*1.0e5*SphereVelocity[0][dim])/VelocityUnits; 
                 if (dim == 0 || dim == 2)
