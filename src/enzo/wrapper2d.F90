@@ -26,18 +26,29 @@
       n(2) = 1
       n(3) = 1
 
+!$omp parallel do
+!$omp-  private(j)
+!$omp-  shared(n2, x, n, dir, method)
+!$omp-  default(none)
       do j=1,n2
       call fftwrap2d( x(1,j), n, dir, method )
       end do
+!$omp end parallel do
 
       allocate( y(n2,n1) )
 
       call rotate2d(x,n1,n2,y)
 
       n(1) = n2
+
+!$omp parallel do
+!$omp-  private(i)
+!$omp-  shared(n1, y, n, dir, method)
+!$omp-  default(none)
       do i=1,n1
       call fftwrap2d( y(1,i), n, dir, method )
       end do
+!$omp end parallel do
 
       call rotate2d(y,n2,n1,x)
 

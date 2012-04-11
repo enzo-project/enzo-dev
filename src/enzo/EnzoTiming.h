@@ -325,10 +325,13 @@ namespace enzo_timing{
       
       double total_cells = get_total_cells();
       double cell_rate; 
+      double mytime, thistime;
       // Print out info for each timer.
       for( SectionMap::iterator iter=timers.begin(); iter!=timers.end(); ++iter){
-        current_time = iter->second->get_current_time();
-        Reduce_Times(current_time, time_array);
+        thistime = 0.0;
+        mytime = iter->second->get_current_time();
+        thistime = mytime;
+        Reduce_Times(thistime, time_array);
         cell_rate = 0.0;
         if (my_rank == 0){
           this->analyze_times(time_array, nprocs, &mean_time, &stddev_time, &min_time, &max_time);
@@ -382,25 +385,47 @@ namespace enzo_timing{
     //int last_cycle;         // The last cycle number that was written out.
     bool first_write;       // Is this the first time we've written out?
   };
+
+  inline void start(enzo_timer *timer, char *name){
+#pragma omp master
+    timer->start(name);
+  };
+
+  inline void stop(enzo_timer *timer, char *name){
+#pragma omp master
+    timer->stop(name);
+  };
+
+  inline void write_out(enzo_timer *timer, int cycle){
+#pragma omp master
+    timer->write_out(cycle);
+  };
+
+  inline void create(enzo_timer *timer, char *name){
+#pragma omp master
+    timer->create(name);
+  };
+
+  inline void add_cells_to_level(enzo_timer *timer, int level, double cells){
+#pragma omp master
+    timer->get_level(level)->add_cells(cells);
+  };
+
+  inline void add_grids_to_level(enzo_timer *timer, int level, long int grids){
+#pragma omp master
+    timer->get_level(level)->set_ngrids(grids);
+  };
+
 }
-
-#ifdef DEFINE_STORAGE
-# define EXTERN
-#else /* DEFINE_STORAGE */
-# define EXTERN extern
-#endif
-
-
-EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer                                                         
 
 // Macros to start, stop, and write timers.
 #ifdef ENZO_PERFORMANCE
-#define TIMER_START(section_name) enzo_timer->start(section_name)
-#define TIMER_STOP(section_name) enzo_timer->stop(section_name)
-#define TIMER_WRITE(cycle_number) enzo_timer->write_out(cycle_number)
-#define TIMER_REGISTER(name) enzo_timer->create(name)
-#define TIMER_ADD_CELLS(level, cells) enzo_timer->get_level(level)->add_cells(cells)
-#define TIMER_SET_NGRIDS(level, grids) enzo_timer->get_level(level)->set_ngrids(grids)
+#define TIMER_START(section_name) enzo_timing::start(enzo_timer, section_name)
+#define TIMER_STOP(section_name) enzo_timing::stop(enzo_timer, section_name)
+#define TIMER_WRITE(cycle_number) enzo_timing::write_out(enzo_timer, cycle_number)
+#define TIMER_REGISTER(name) enzo_timing::create(enzo_timer, name)
+#define TIMER_ADD_CELLS(level, cells) enzo_timing::add_cells_to_level(enzo_timer, level, cells)
+#define TIMER_SET_NGRIDS(level, grids) enzo_timing::add_grids_to_level(enzo_timer, level, grids)
 #else
 #define TIMER_START(section_name)
 #define TIMER_STOP(section_name)
@@ -409,5 +434,14 @@ EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer
 #define TIMER_ADD_CELLS(level, cells)
 #define TIMER_SET_NGRIDS(level, grids)
 #endif
+
+#ifdef DEFINE_STORAGE
+# define EXTERN
+#else /* DEFINE_STORAGE */
+# define EXTERN extern
+#endif
+
+EXTERN enzo_timing::enzo_timer *enzo_timer;   // Add global timer                                                         
+//#pragma omp threadprivate(enzo_timer)
 
 #endif //ENZO_TIMING

@@ -72,6 +72,10 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif /* USE_MPI */
+
+#ifdef _OPENMP
+#include "omp.h"
+#endif
  
 #include <stdlib.h>
 #include <stdio.h>
@@ -291,6 +295,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
   RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
+  bool thread_grid_loop = (level > 0) && 
+    (NumberOfGrids > NumberOfProcessors*omp_get_num_threads());
+
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
@@ -337,7 +344,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      put them into the SubgridFluxesEstimate array. */
  
   if(CheckpointRestart == TRUE) {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for if(thread_grid_loop) schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       if (Grids[grid1]->GridData->FillFluxesFromStorage(
         &NumberOfSubgrids[grid1],
@@ -347,7 +354,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
   } else {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for if(thread_grid_loop) schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->ClearBoundaryFluxes();
   }
@@ -426,7 +433,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
 
-#pragma omp parallel for schedule(guided) private(_mpi_time)
+#pragma omp parallel for if(thread_grid_loop) schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       START_LOAD_TIMER;
@@ -479,7 +486,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
     
-#pragma omp parallel for schedule(guided) private(_mpi_time)
+#pragma omp parallel for if(thread_grid_loop) schedule(guided) private(_mpi_time)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       START_LOAD_TIMER;
 #endif //SAB.
@@ -581,7 +588,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for if(thread_grid_loop) schedule(static)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
