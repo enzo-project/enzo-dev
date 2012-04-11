@@ -64,7 +64,7 @@ int grid::ClusterSMBHFeedback(int level)
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
 
-  int i, j, k, dim = 0;
+  int i, j, k, k1, dim = 0;
   int jet_dim = 2;  // z-axis (should make parameter?)
 
   float JetScaleRadius; // cellwidths
@@ -132,8 +132,8 @@ int grid::ClusterSMBHFeedback(int level)
   FastJetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
 //  JetVelocity *= 0.5*tanh(5.0*((Time-ClusterSMBHStartTime)/Tramp-0.5)+1.0);     // tanh ramp
   printf("density_normalization= %g\n", density_normalization);
-  printf("JetVelocity= %g\n", JetVelocity);
-
+  printf("JetVelocity and Fast JetVelocity = %g %g\n", JetVelocity, FastJetVelocity);
+  
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
 
 
@@ -154,7 +154,7 @@ int grid::ClusterSMBHFeedback(int level)
 	radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
 	density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
 	JetVelocity = (radius > ClusterSMBHFastJetRadius) ? JetVelocity : FastJetVelocity;
-printf("JetRadius, FastJetRadius and JetVelocity= %g %g \n", ClusterSMBHJetRadius, ClusterSMBHFastJetRadius, JetVelocity);
+printf("JetRadius, FastJetRadius and JetVelocity= %g %g %g\n", ClusterSMBHJetRadius, ClusterSMBHFastJetRadius, JetVelocity);
       if (ClusterSMBHJetAngleRadius < 0.1) {   // if jet openning angle = 0, set ClusterSMBHJetAngleRadius=0
 	JetVelocity_z = JetVelocity;
 	JetVelocity_xy = 0;
@@ -166,7 +166,7 @@ printf("JetRadius, FastJetRadius and JetVelocity= %g %g \n", ClusterSMBHJetRadiu
 	/*this is the bottom jet: */
       if (JetStartIndex[jet_dim] >= 0) {   
         k = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
-	k1 = (HydroMethod == Zeus_Hydro) ? (k+1):k
+	k1 = (HydroMethod == Zeus_Hydro) ? (k+1):k;
 	BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
 	density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
     printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
