@@ -97,9 +97,9 @@ int grid::ClusterSMBHFeedback(int level)
     JetStartIndex[dim] = nint((JetLeftCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
     JetEndIndex[dim] = nint((JetRightCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
 
-    /* If Jet velocity surface is not on this grid, return. */
+    /* If Jet is not on this grid, return. */
 
-    if (dim=jet_dim && JetStartIndex[dim]+1 > GridDimension[dim]-1)
+    if (JetStartIndex[dim] > GridDimension[dim]-1 || JetEndIndex[dim] < 0)
       return SUCCESS;
 
   } // end: loop over dim
