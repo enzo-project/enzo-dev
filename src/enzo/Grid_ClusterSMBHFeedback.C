@@ -176,11 +176,8 @@ printf("JetRadius, FastJetRadius and JetVelocity= %g %g %g\n", ClusterSMBHJetRad
 
       if (HydroMethod == Zeus_Hydro) {
     /* If Jet velocity surface is not on this grid, return. */
-	if (JetStartIndex[jet_dim]+1 > GridDimension[dim]-1) {
-          return SUCCESS;
-	  }
-	else {
-          BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k1)];
+	if (JetStartIndex[jet_dim]+1 < GridDimension[jet_dim]-1) {
+          BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)];
 	  }
 	}   //end Zeus
       else{
