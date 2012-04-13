@@ -187,14 +187,6 @@ printf("JetRadius, FastJetRadius and JetVelocity= %g %g %g\n", ClusterSMBHJetRad
         printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)]);
         }
       }
-
-//    /* If Using Zeus */
-//      if (HydroMethod == Zeus_Hydro) {
-//        if (JetStartIndex[jet_dim]+1 = 0) {
-//        k = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
-//        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
-//        BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)];
-
 	/*this is the top jet: */
 
       if (JetEndIndex[jet_dim] <= GridDimension[jet_dim]-1) { 
