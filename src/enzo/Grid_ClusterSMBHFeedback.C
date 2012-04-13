@@ -163,7 +163,9 @@ printf("JetRadius, FastJetRadius and JetVelocity= %g %g %g\n", ClusterSMBHJetRad
 	JetVelocity_z = JetVelocity * ClusterSMBHJetAngleRadius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
 	JetVelocity_xy = JetVelocity * radius / sqrt(pow(ClusterSMBHJetAngleRadius, 2) + pow(radius, 2));
 	}
+
 	/*this is the bottom jet: */
+
       if (JetStartIndex[jet_dim] >= 0) {   
         k = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
         BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
@@ -174,19 +176,27 @@ printf("JetRadius, FastJetRadius and JetVelocity= %g %g %g\n", ClusterSMBHJetRad
 
     /* If Using Zeus, shift the index for z-velocity */
 
-      if (HydroMethod == Zeus_Hydro) {
-    /* If Jet velocity surface is not on this grid, return. */
-	if (JetStartIndex[jet_dim]+1 < GridDimension[jet_dim]-1) {
+      if (HydroMethod == Zeus_Hydro) { 
+ 	 if (JetStartIndex[jet_dim]+1 < GridDimension[jet_dim]-1) { // update velocity if it is still on the grid
           BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)];
-	  }
+	 }   
 	}   //end Zeus
-      else{
+      else {
 	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k1)];
 	//	BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
-printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)]);
+        printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)]);
+        }
       }
-    }
+
+//    /* If Using Zeus */
+//      if (HydroMethod == Zeus_Hydro) {
+//        if (JetStartIndex[jet_dim]+1 = 0) {
+//        k = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
+//        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+//        BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)];
+
 	/*this is the top jet: */
+
       if (JetEndIndex[jet_dim] <= GridDimension[jet_dim]-1) { 
         k = JetEndIndex[jet_dim];
         BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
