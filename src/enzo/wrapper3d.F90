@@ -30,7 +30,7 @@
       n(3) = 1
 
 !$omp parallel do
-!$omp-  collapse(1)
+!$omp-  collapse(2)
 !$omp-  private(j, k)
 !$omp-  shared(n2,n3, x, n, dir, method)
 !$omp-  default(none)
@@ -48,7 +48,7 @@
       n(1) = n2
 
 !$omp parallel do
-!$omp-  collapse(1)
+!$omp-  collapse(2)
 !$omp-  private(i, k)
 !$omp-  shared(n1,n3, x, n, dir, method)
 !$omp-  default(none)
@@ -69,7 +69,7 @@
 
 !$omp parallel do
 !$omp-  private(i, k)
-!$omp-  collapse(1)
+!$omp-  collapse(2)
 !$omp-  shared(n1,n3, x, n, dir, method)
 !$omp-  default(none)
       do j=1,n2

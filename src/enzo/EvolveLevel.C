@@ -344,7 +344,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      put them into the SubgridFluxesEstimate array. */
  
   if(CheckpointRestart == TRUE) {
-#pragma omp parallel for if(thread_grid_loop) schedule(static)
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       if (Grids[grid1]->GridData->FillFluxesFromStorage(
         &NumberOfSubgrids[grid1],
@@ -354,7 +354,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
   } else {
-#pragma omp parallel for if(thread_grid_loop) schedule(static)
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic)
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->ClearBoundaryFluxes();
   }
@@ -433,7 +433,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
 
-#pragma omp parallel for if(thread_grid_loop) schedule(guided) private(_mpi_time)
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic) private(_mpi_time)
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       START_LOAD_TIMER;
@@ -486,7 +487,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetAccelerationBoundary(Grids, NumberOfGrids,SiblingList,level, MetaData,
 			    Exterior, LevelArray[level], LevelCycleCount[level]);
     
-#pragma omp parallel for if(thread_grid_loop) schedule(guided) private(_mpi_time)
+#pragma omp parallel for if(thread_grid_loop) schedule(dynamic) private(_mpi_time)
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       START_LOAD_TIMER;
 #endif //SAB.
@@ -496,6 +498,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       /* Call hydro solver and save fluxes around subgrids. */
+
+//#pragma omp master
+//      fprintf(stderr,"About to solve hydro on level %"ISYM", in parallel:%"ISYM"\n",level,omp_in_parallel());
 
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
@@ -589,6 +594,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* For each grid, delete the GravitatingMassFieldParticles. */
  
 #pragma omp parallel for if(thread_grid_loop) schedule(static)
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
