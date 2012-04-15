@@ -20,3 +20,4 @@ Reference Information
    SetAccelerationBoundary.rst
    StarParticleClass.rst
    BuildingDocumentation.rst
+   PerformanceMeasurement.rst
