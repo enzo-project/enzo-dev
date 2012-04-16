@@ -100,7 +100,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   int ReadOnlyActive = TRUE;
   if ((ReadEverything == TRUE) || (ReadGhostZones == TRUE)) {
-    ReadOnlyActive == FALSE;
+    ReadOnlyActive = FALSE;
   } 
  
   if(ReadText && HierarchyFileInputFormat == 1){
