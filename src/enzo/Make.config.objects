@@ -818,6 +818,7 @@ OBJS_CONFIG_LIB = \
         star_maker7.o \
 	star_maker8.o \
 	star_maker9.o \
+	star_maker_h2reg.o \
 	particle_splitter.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \

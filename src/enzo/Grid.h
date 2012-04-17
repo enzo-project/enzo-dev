@@ -123,6 +123,13 @@ class grid
 //
   int NumberOfStars;
   Star *Stars;
+
+// For once-per-rootgrid-timestep star formation, the following flag
+// determines whether SF is about to occur or not. It's currently
+//(April 2012) only implemented for H2REG_STAR and completely
+// ignored for all other star makers.
+  int MakeStars;
+
 //
 //  Gravity data
 // 
@@ -2228,7 +2235,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Star Particle handler routine. */
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
-			  float dtLevelAbove);
+			  float dtLevelAbove, float TopGridTimeStep);
 
 /* Particle splitter routine. */
 
@@ -2376,6 +2383,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   Star *ReturnStarPointer(void) { return Stars; };
   int ReturnNumberOfStars(void) { return NumberOfStars; };
   void SetNumberOfStars(int value) { NumberOfStars = value; };
+
+// For once-per-rootgrid-timestep star formation.
+  void SetMakeStars(void) { MakeStars = 1; };
 
   /* Calculate enclosed mass within a radius */
 

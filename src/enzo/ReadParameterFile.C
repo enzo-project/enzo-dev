@@ -682,6 +682,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
     ret += sscanf(line, "SimpleQ = %lf", &SimpleQ);
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
+    ret += sscanf(line, "StarFormationOncePerRootGridTimeStep = %"ISYM, &StarFormationOncePerRootGridTimeStep);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
@@ -837,6 +838,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MBHParticleIOFilename = dummy;
     if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
       MBHInsertLocationFilename = dummy;
+
+    ret += sscanf(line, "H2StarMakerEfficiency = %"FSYM,
+		  &H2StarMakerEfficiency);
+    ret += sscanf(line, "H2StarMakerNumberDensityThreshold = %"FSYM,
+		  &H2StarMakerNumberDensityThreshold);
+    ret += sscanf(line, "H2StarMakerMinimumMass = %"FSYM,
+		  &H2StarMakerMinimumMass);
+    ret += sscanf(line, "H2StarMakerMinimumH2FractionForStarFormation = %"FSYM,
+		  &H2StarMakerMinimumH2FractionForStarFormation);
+    ret += sscanf(line, "H2StarMakerStochastic = %"ISYM,
+		  &H2StarMakerStochastic);
+    ret += sscanf(line, "H2StarMakerUseSobolevColumn = %"ISYM,
+		  &H2StarMakerUseSobolevColumn);
+    ret += sscanf(line, "H2StarMakerSigmaOverR = %"FSYM,
+		  &H2StarMakerSigmaOverR);
+    ret += sscanf(line, "H2StarMakerAssumeColdWarmPressureBalance = %"ISYM,
+		  &H2StarMakerAssumeColdWarmPressureBalance);
+    ret += sscanf(line, "H2StarMakerH2DissociationFlux_MW = %"FSYM,
+		  &H2StarMakerH2DissociationFlux_MW);
+    ret += sscanf(line, "H2StarMakerH2FloorInColdGas = %"FSYM,
+		  &H2StarMakerH2FloorInColdGas);
+    ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
+		  &H2StarMakerColdGasTemperature);
 
     /* Read Movie Dump parameters */
 

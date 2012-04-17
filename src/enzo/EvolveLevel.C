@@ -366,6 +366,37 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
+    /* If StarFormationOncePerRootGridTimeStep, stars are only created
+    once per root grid time step and only on MaximumRefinementLevel
+    grids. The following sets the MakeStars flag for all
+    MaximumRefinementLevel grids when level==0. Post star formation,
+    MakeStars is unset in Grid::StarParticleHandler() in order to
+    prevent further star formation until the next root grid time
+    step. */
+
+    /* Currently (April 2012) this is only implemented for H2REG_STAR,
+    and MakeStars is completely ignored in all other star makers. */
+
+    if ( (STARMAKE_METHOD(H2REG_STAR)) && 
+	 (level==0) && 
+	 (StarFormationOncePerRootGridTimeStep) ) {
+      /* At top level, set Grid::MakeStars to 1 for all highest
+	 refinement level grids. */
+      LevelHierarchyEntry *Temp;
+      Temp = LevelArray[MaximumRefinementLevel];
+      int count=0;
+      while (Temp != NULL) {
+	Temp->GridData->SetMakeStars();
+	Temp = Temp->NextGridThisLevel;
+	count++;
+      }
+      // if(MyProcessorNumber == ROOT_PROCESSOR) 
+      // 	fprintf(stderr,"Set MakeStars=1 for %d MaximumRefinementLevel grids.\n",count);
+
+      TopGridTimeStep = LevelArray[0]->GridData->ReturnTimeStep();
+
+    }
+
     /* Streaming movie output (write after all parent grids are
        updated) */
 
@@ -503,7 +534,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove);
+	(Grids[grid1]->NextGridNextLevel, level ,dtLevelAbove, TopGridTimeStep);
 
       /* Include shock-finding */
 

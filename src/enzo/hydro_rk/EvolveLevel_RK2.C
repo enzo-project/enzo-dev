@@ -507,7 +507,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level, dtLevelAbove);
+	(Grids[grid1]->NextGridNextLevel, level, dtLevelAbove, TopGridTimeStep);
  
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){
