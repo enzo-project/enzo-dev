@@ -27,7 +27,7 @@ MACHINE_NOTES = "Building on NCSA's Blue Waters requires PrgEnv-gnu, not PrgEnv-
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /opt/cray/hdf5/1.8.7/gnu/46
+LOCAL_HDF5_INSTALL   = $(HOME)/yt-x86_64/
 LOCAL_HYPRE_INSTALL  = 
 LOCAL_PYTHON_INSTALL = $(HOME)/yt-x86_64/
 
@@ -68,7 +68,7 @@ MACH_CFLAGS   =
 MACH_CXXFLAGS = 
 MACH_FFLAGS   = -fno-second-underscore -m64
 MACH_F90FLAGS = -fno-second-underscore -m64
-MACH_LDFLAGS  = -Wl,-static 
+MACH_LDFLAGS  = -Bdynamic
 
 #-----------------------------------------------------------------------
 # Precision-related flags
