@@ -64,7 +64,7 @@ int grid::ClusterSMBHFeedback(int level)
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
 
-  int i, j, k, k1, dim = 0;
+  int i, j, k, dim = 0;
   int jet_dim = 2;  // z-axis (should make parameter?)
 
   float JetScaleRadius; // cellwidths
@@ -177,12 +177,12 @@ printf("JetRadius, FastJetRadius and JetVelocity= %g %g %g\n", ClusterSMBHJetRad
     /* If Using Zeus, shift the index for z-velocity */
 
       if (HydroMethod == Zeus_Hydro) { 
- 	 if (JetStartIndex[jet_dim]+1 < GridDimension[jet_dim]-1) { // update velocity if it is still on the grid
+ 	 if (k+1 <= GridDimension[jet_dim]-1) { // update velocity if it is still on the grid
           BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k+1)];
 	 }   
 	}   //end Zeus
       else {
-	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k1)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k1)];
+	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = - density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
 	//	BaryonField[GENum][GRIDINDEX_NOGHOST(i,j,k)] += XXX;
         printf("lower jet BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)]);
         }
