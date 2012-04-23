@@ -942,6 +942,8 @@ EXTERN float ClusterSMBHTramp;  // in Myr
 EXTERN float ClusterSMBHJetAngleRadius;  // in cellwidth 
 EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth 
 EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s 
+EXTERN float ClusterSMBHJetEdot;  // Total feedback Edot in 10^44 ergs/s 
+EXTERN float ClusterSMBHKineticFraction;  // fraction of kinetic feedback (0-1)
 
 /* For the database */
 EXTERN char *DatabaseLocation;
