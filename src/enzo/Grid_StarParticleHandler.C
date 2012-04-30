@@ -456,6 +456,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
     }
   }
 
+  if (MultiSpecies > 1) {
+      H2INum   = FindField(H2IDensity, FieldType, NumberOfBaryonFields);
+      H2IINum  = FindField(H2IIDensity, FieldType, NumberOfBaryonFields);
+  }
+
   /* Find metallicity field and set flag. */
  
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
