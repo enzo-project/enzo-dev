@@ -72,7 +72,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
  
   FILE *log_fptr;
  
-  hid_t       group_id, dset_id, old_fields;
+  hid_t       group_id, dset_id, old_fields, attr_id;
   hid_t       file_dsp_id;
   hid_t       num_type;
  
@@ -280,6 +280,18 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       readAttribute(old_fields, HDF5_PREC, "OldTime", &this->OldTime, TRUE);
       readAttribute(old_fields, HDF5_PREC, "dtFixed", &dtFixedCopy, TRUE);
       this->dtFixed = dtFixedCopy;
+    }
+
+    /* Read observed cost */
+
+    H5E_BEGIN_TRY{
+      attr_id = H5Aopen_name(group_id, "ObservedCost");
+    }H5E_END_TRY
+    if (attr_id != h5_error) {
+      H5Aclose(attr_id);
+      readAttribute(group_id, HDF5_REAL, "ObservedCost", &this->ObservedCost, TRUE);
+    } else {
+      this->ObservedCost = FLOAT_UNDEFINED;
     }
  
     /* loop over fields, reading each one */

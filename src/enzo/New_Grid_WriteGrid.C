@@ -302,6 +302,12 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         }
     }
 
+    /* Write observed cost */
+
+    if (this->ObservedCost > 0)
+      writeScalarAttribute(group_id, HDF5_REAL, "ObservedCost", 
+			   &this->ObservedCost);
+
     if (VelAnyl==1){
 
       float *curl_x, *curl_y, *curl_z, *div;
