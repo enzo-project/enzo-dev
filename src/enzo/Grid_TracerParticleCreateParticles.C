@@ -11,7 +11,8 @@
 /  date:       May 2006
 /              this was modified to include non-zero particle masses 
 /              (necessary for MPI stuff)
-/
+/  modified2:  dcollins
+/  date:       reduced count of allocated particles.
 /  PURPOSE:
 /
 /  RETURNS: FAIL or SUCCESS
@@ -39,12 +40,18 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
  
  
   int i, j, k, dim, NumberOfTracerParticles = 1, Dims[] = {1,1,1};
+  int NumberToAllocate = 1, ActiveDims[] = {1,1,1};
   int count;
  
  
   // Compute the (maximum) number of new particles to create
  
+  FLOAT ActiveLeft[MAX_DIMENSION], ActiveRight[MAX_DIMENSION];
   for (dim = 0; dim < GridRank; dim++) {
+    ActiveLeft[dim] = max(GridLeftEdge[dim],LeftEdge[dim]);
+    ActiveRight[dim] = min(GridRightEdge[dim], RightEdge[dim]);
+    ActiveDims[dim] = nint( (ActiveRight[dim]-ActiveLeft[dim])/Spacing );
+    NumberToAllocate *= ActiveDims[dim];
     Dims[dim] = nint((RightEdge[dim] - LeftEdge[dim])/Spacing);
     NumberOfTracerParticles *= Dims[dim];
   }
@@ -98,7 +105,7 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
  
   // Allocate enough space for new particles
  
-  this->AllocateNewParticles(NumberOfParticles + NumberOfTracerParticles);
+  this->AllocateNewParticles(NumberOfParticles + NumberToAllocate);
  
   // Copy and delete old particles
  
