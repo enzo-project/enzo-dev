@@ -299,6 +299,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddFeedbackSphere.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
+	Grid_AddOneParticleFromList.o \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
