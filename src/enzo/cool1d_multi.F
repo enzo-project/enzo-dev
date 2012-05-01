@@ -121,7 +121,7 @@
       real dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, fudge, fH2,
      &     gphdl1, factor, dom_inv, tau, ciefudge
-      double precision coolunit, dbase1, tbase1, xbase1, rtunits,
+      double precision coolunit, dbase1, tbase1, xbase1, rtunits, 
      &     nH2, nother
 
 !  Slice locals
