@@ -77,62 +77,14 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
   if (MixSpeciesAndColors) 
     NSpecies_renorm = NSpecies+NColor;
   else
-    switch (MultiSpecies) {  //update pure species! not colours!
-    case 0:  NSpecies_renorm = 0;  break;
-    case 1:  NSpecies_renorm = 5;  break;
-    case 2:  NSpecies_renorm = 8;  break;
-    case 3:  NSpecies_renorm = 11; break;
-    default: NSpecies_renorm = 0;  break;
-    }
-
-  // update species
-  /*
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) { 
-    n = 0;
-    n_dU = 0;
-    for (k = 0; k < GridDimension[2]; k++) {
-      for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, n++, igrid++) {
-	  // dU exists only for active region
-          if (i >= GridStartIndex[0] && i <= GridEndIndex[0] &&
-	      j >= GridStartIndex[1] && j <= GridEndIndex[1] &&
-	      k >= GridStartIndex[2] && k <= GridEndIndex[2]) 
-	    Prim[field][igrid] = c1*OldPrim[field][igrid] +
-	      (1-c1)*Prim[field][igrid]*Prim[iden][igrid] + c2*dU[field][n_dU++];
-          D[n] += Prim[field][igrid];
-        }
-      }
-    }
-  }
-
-  // renormalize species
-
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) {
-    n = 0;
-    for (k = 0; k < GridDimension[2]; k++) {
-      for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, n++, igrid++) {
-          Prim[field][igrid] = min(1.0, max((Prim[field][igrid]/D[n]), SmallX));
-	  Prim[field][igrid] = Prim[field][igrid]/D[n];
-          sum[n] += Prim[field][igrid];
-        }
-      }
-    }
-  }
-
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) {
-    n = 0;
-    for (k = 0; k < GridDimension[2]; k++) {
-      for (j = 0; j < GridDimension[1]; j++) {
-	igrid = (k * GridDimension[1] + j) * GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, n++, igrid++)
-          Prim[field][igrid] /= sum[n];
-      }
-    }
-  }
-  */
+    NSpecies_renorm = NSpecies;
+//    switch (MultiSpecies) {  //update pure species! not colours!
+//    case 0:  NSpecies_renorm = 0;  break;
+//    case 1:  NSpecies_renorm = 5;  break;
+//    case 2:  NSpecies_renorm = 8;  break;
+//    case 3:  NSpecies_renorm = 11; break;
+//    default: NSpecies_renorm = 0;  break;
+//    }
 
   // ORIGINAL   //#####
   
@@ -146,7 +98,8 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
         for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
           Prim[field][igrid] = c1*OldPrim[field][igrid] +
             (1-c1)*Prim[field][igrid]*Prim[iden][igrid] + c2*dU[field][n];
-          D[n] += Prim[field][igrid];
+          if (NoMultiSpeciesButColors != 1)
+	    D[n] += Prim[field][igrid];
         }
       }
     }
@@ -154,6 +107,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
 
   // renormalize species
 
+  if (NoMultiSpeciesButColors != 1) {
   for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies_renorm; field++) {
     n = 0;
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
@@ -178,7 +132,7 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
       }
     }
   }
-
+  } // ENDIF NoMultiSpeciesButColors != 1
 
 
   // update conserved variables
@@ -321,9 +275,10 @@ int grid::UpdatePrim(float **dU, float c1, float c2)
   }
 
   // convert species from mass fraction to density (this reverts what Grid_ReturnHydroRKPointers did in Grid_RungeKutta_[12]Step)
-  for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)   
-    for (n = 0; n < size; n++) 
-      Prim[field][n] *= Prim[iden][n];
+  if (NoMultiSpeciesButColors != 1)
+    for (field = NEQ_HYDRO; field < NEQ_HYDRO+NSpecies+NColor; field++)   
+      for (n = 0; n < size; n++) 
+	Prim[field][n] *= Prim[iden][n];
 
   this->UpdateElectronDensity();
 

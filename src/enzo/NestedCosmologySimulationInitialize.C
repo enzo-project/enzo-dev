@@ -1012,7 +1012,9 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     // Go down to the grid(s) on the next level
  
     CurrentGrid = CurrentGrid->NextGridNextLevel;
- 
+
+    CommunicationBarrier();
+     
   } // end loop over initial grid levels
 
   // Create tracer particles (on top grid)

@@ -382,6 +382,7 @@ float grid::ComputeTimeStep()
     ENZO_FAIL("Error in GetUnits.\n");
   }
 
+#ifdef UNUSED
   float mindtNOstars;  // Myr
   const int NumberOfStepsInLifetime = 5;
   float dtStar = huge_number;
@@ -398,7 +399,7 @@ float grid::ComputeTimeStep()
       dtStar = 3.1557e13*mindtNOstars/TimeUnits;
 
   dt = min(dt, dtStar);
-
+#endif /* UNUSED */
 
 
   /* 9) If using radiation pressure, calculate minimum dt */

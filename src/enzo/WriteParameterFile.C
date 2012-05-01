@@ -332,6 +332,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MetallicityRefinementMinMetallicity);
   fprintf(fptr, "MetallicityRefinementMinDensity     = %"GSYM"\n", 
 	  MetallicityRefinementMinDensity);
+  fprintf(fptr, "MetallicityForRefinement            = %"GSYM"\n", 
+	  MetallicityForRefinement);
  
   fprintf(fptr, "DomainLeftEdge         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DomainLeftEdge);
@@ -499,7 +501,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   else
     fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
-  fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", OutputDustTemperature);
+  if (OutputDustTemperature < 0)
+    fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", 0);
+  else
+    fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", OutputDustTemperature);
 
   // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputSmoothedDarkMatter < 0)

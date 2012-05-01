@@ -65,6 +65,10 @@ EXTERN float RadiationPressureScale;
 
 EXTERN int RadiativeTransferOpticallyThinH2;
 
+/* Flag to turn on a 1/r^2 X-ray radiation field */
+
+EXTERN int RadiativeTransferOpticallyThinXray;
+
 /* Periodic boundary conditions for the photon packages */
 
 EXTERN int RadiativeTransferPeriodicBoundary;
