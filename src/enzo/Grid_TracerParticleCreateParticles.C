@@ -46,7 +46,7 @@ int grid::TracerParticleCreateParticles(FLOAT LeftEdge[], FLOAT RightEdge[],
  
   // Compute the (maximum) number of new particles to create
  
-  float ActiveLeft[MAX_DIMENSION], ActiveRight[MAX_DIMENSION];
+  FLOAT ActiveLeft[MAX_DIMENSION], ActiveRight[MAX_DIMENSION];
   for (dim = 0; dim < GridRank; dim++) {
     ActiveLeft[dim] = max(GridLeftEdge[dim],LeftEdge[dim]);
     ActiveRight[dim] = min(GridRightEdge[dim], RightEdge[dim]);
