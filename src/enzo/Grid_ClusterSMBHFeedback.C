@@ -128,14 +128,12 @@ int grid::ClusterSMBHFeedback(int level)
   /* If Time is earlier than ClusterSMBHStartTime, return. */
   if (Time-ClusterSMBHStartTime < 0.0)
     return SUCCESS;
-//  JetVelocity = ClusterSMBHJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
+//  SlowJetVelocity = ClusterSMBHJetVelocity*1.0e5/VelocityUnits; //from km/s to code units  //
   JetVelocity = sqrt((ClusterSMBHJetEdot*1.0e44*ClusterSMBHKineticFraction*2)/(ClusterSMBHJetMdot*SolarMass/3.1557e7))/VelocityUnits;
   JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
-  FastJetVelocity = ClusterSMBHFastJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
-  FastJetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
+//  FastJetVelocity = ClusterSMBHFastJetVelocity*1.0e5/VelocityUnits; //from km/s to code units
+//  FastJetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
 //  JetVelocity *= 0.5*tanh(5.0*((Time-ClusterSMBHStartTime)/Tramp-0.5)+1.0);     // tanh ramp
-  printf("density_normalization= %g\n", density_normalization);
-  printf("JetVelocity and Fast JetVelocity = %g %g\n", JetVelocity, FastJetVelocity);
   
   /* Clip edge of jet launching disk so we don't set cell off the edge of the grid. */
 
@@ -157,7 +155,7 @@ int grid::ClusterSMBHFeedback(int level)
       radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
       density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
       energy_add = ((1.0-ClusterSMBHKineticFraction)/ClusterSMBHKineticFraction)*0.5*density_add*pow(JetVelocity, 2.0);
-      //JetVelocity = (radius > ClusterSMBHFastJetRadius) ? JetVelocity : FastJetVelocity;  wrong!!
+      //JetVelocity = (radius > ClusterSMBHFastJetRadius) ? SlowJetVelocity : FastJetVelocity;
       if (ClusterSMBHJetAngleRadius < 0.1) {   // if jet openning angle = 0, set ClusterSMBHJetAngleRadius=0
 	JetVelocity_z = JetVelocity;
 	JetVelocity_xy = 0;
