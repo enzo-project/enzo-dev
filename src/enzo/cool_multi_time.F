@@ -8,7 +8,7 @@
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
-     &                dt, aye, temstart, temend,
+     &                dt, aye, redshift, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma, z_solar,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -55,7 +55,7 @@
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
      &        n_xe, imcool, idust, igammah, ih2optical, iciecool
-      real    dt, aye, temstart, temend,
+      real    dt, aye, temstart, temend, redshift,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end, z_solar
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
@@ -177,7 +177,7 @@
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idust, idim,
      &                is, ie, j, k, ih2co, ipiht, 1, igammah,
-     &                aye, temstart, temend, z_solar,
+     &                aye, redshift, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 

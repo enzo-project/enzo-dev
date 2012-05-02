@@ -10,7 +10,7 @@
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idust, idim, 
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend, z_solar,
+     &                aye, redshift, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
@@ -69,7 +69,7 @@
      &        n_xe, imetal, igammah, ih2optical, iciecool
       real    aye, temstart, temend, z_solar,
      &        utem, uxyz, uaye, urho, utim,
-     &        eta1, eta2, gamma
+     &        eta1, eta2, gamma, redshift
       real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &       de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
@@ -193,6 +193,9 @@
       if (iexpand .eq. 1) then
          comp1 = compa  * (1.d0 + zr)**4
          comp2 = 2.73d0 * (1.d0 + zr)
+      else if (redshift .ge. 0) then
+         comp1 = compa  * (1.d0 + redshift)**4
+         comp2 = 2.73d0 * (1.d0 + redshift)
       else
          comp1 = 1d-35  ! tiny was too large in comparison with compa
          comp2 = tiny
