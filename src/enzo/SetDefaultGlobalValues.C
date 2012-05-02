@@ -456,15 +456,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHFeedback              = FALSE;
   ClusterSMBHJetMdot               = 3.0;
   ClusterSMBHJetVelocity           = 10000.0;
-  ClusterSMBHJetRadius             = 6.0;
-  ClusterSMBHJetLaunchOffset       = 10.0;
+  ClusterSMBHJetRadius             = 12.0;
+  ClusterSMBHJetLaunchOffset       = 20.0;
   ClusterSMBHStartTime             = 1.0;
   ClusterSMBHTramp                 = 0.1;
-  ClusterSMBHJetAngleRadius        = 10.0;
+  ClusterSMBHJetOpenAngleRadius    = 20.0;
   ClusterSMBHFastJetRadius         = 0.1;
   ClusterSMBHFastJetVelocity       = 10000.0;
   ClusterSMBHJetEdot               = 1.0;
   ClusterSMBHKineticFraction       = 1.0;
+  ClusterSMBHJetAngleTheta         = 0.0;
+  ClusterSMBHJetAnglePhi           = 0.0;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;

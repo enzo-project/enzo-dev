@@ -939,11 +939,14 @@ EXTERN float ClusterSMBHJetRadius;  // JetRadius in cellwidth
 EXTERN float ClusterSMBHJetLaunchOffset;  //in cellwidth
 EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart 
 EXTERN float ClusterSMBHTramp;  // in Myr
-EXTERN float ClusterSMBHJetAngleRadius;  // in cellwidth 
+EXTERN float ClusterSMBHJetOpenAngleRadius;  // in cellwidth 
 EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth 
 EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s 
 EXTERN float ClusterSMBHJetEdot;  // Total feedback Edot in 10^44 ergs/s 
 EXTERN float ClusterSMBHKineticFraction;  // fraction of kinetic feedback (0-1)
+EXTERN float ClusterSMBHJetAngleTheta;  // from 0 to 1/2, in pi
+EXTERN float ClusterSMBHJetAnglePhi;  // from 0 to 2, in pi
+
 
 /* For the database */
 EXTERN char *DatabaseLocation;
