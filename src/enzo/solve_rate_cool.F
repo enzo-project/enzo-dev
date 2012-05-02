@@ -10,7 +10,7 @@
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
-     &                dt, aye, temstart, temend, 
+     &                dt, aye, redshift, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma, fh, dtoh, z_solar,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
@@ -137,7 +137,7 @@
      &        ndratec
       R_PREC    dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, z_solar, 
-     &        xe_start, xe_end, dtemstart, dtemend
+     &        xe_start, xe_end, dtemstart, dtemend, redshift
 
 !  Density, energy and velocity fields fields
 
@@ -347,7 +347,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idust, idim,
      &                is, ie, j, k, ih2co, ipiht, iter, igammah,
-     &                aye, temstart, temend, z_solar,
+     &                aye, redshift, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
      &                ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa, 
