@@ -160,6 +160,8 @@ int grid::ClusterSMBHFeedback(int level)
 	JetVelocity_z = JetVelocity*cos(ClusterSMBHJetAngleTheta*pi);
 	JetVelocity_x = JetVelocity;  // mutiplied by sincos later
 	JetVelocity_y = JetVelocity;  // mutiplied by sincos later
+        if (ClusterSMBHJetPrecessionPeriod > 0)
+           ClusterSMBHJetAnglePhi = (Time-ClusterSMBHStartTime)*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
       }
       else {
 	JetVelocity_z = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(pow(ClusterSMBHJetOpenAngleRadius, 2) + pow(radius, 2));

@@ -467,6 +467,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHKineticFraction       = 1.0;
   ClusterSMBHJetAngleTheta         = 0.0;
   ClusterSMBHJetAnglePhi           = 0.0;
+  ClusterSMBHJetPrecessionPeriod   = 0.0;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
