@@ -240,7 +240,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
-  if (OldNumberOfBaryonFields+FieldsToAdd > MAX_NUMBER_OF_BARYON_FIELDS)
+  // Add an extra 1 because we will need it for flagging/marking cells.
+  if (OldNumberOfBaryonFields+FieldsToAdd+1 > MAX_NUMBER_OF_BARYON_FIELDS)
     ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS.  "
         "Please increase and re-compile.");
 
