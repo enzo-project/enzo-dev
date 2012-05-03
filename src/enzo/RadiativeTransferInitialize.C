@@ -241,8 +241,8 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
   if (OldNumberOfBaryonFields+FieldsToAdd > MAX_NUMBER_OF_BARYON_FIELDS)
-  ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS.  "
-  	"Please increase and re-compile.");
+    ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS.  "
+        "Please increase and re-compile.");
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
