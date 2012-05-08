@@ -249,6 +249,7 @@ static int StaticLevelZero = 0;
 #endif
 
 extern int RK2SecondStepBaryonDeposit;
+extern int ClusterSMBHColdGasMass;  //yuan
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -372,6 +373,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     Star *AllStars = NULL;
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
+
+    /* Calculate ClusterSMBHColdGasMass */
+
+    ClusterSMBHColdGasMass = 0;
+    ClusterSMBHCalculateGasMass(level);
 
 #ifdef TRANSFER
     /* Initialize the radiative transfer */

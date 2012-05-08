@@ -947,6 +947,8 @@ EXTERN float ClusterSMBHKineticFraction;  // fraction of kinetic feedback (0-1)
 EXTERN float ClusterSMBHJetAngleTheta;  // from 0 to 1/2, in pi
 EXTERN float ClusterSMBHJetAnglePhi;  // from 0 to 2, in pi
 EXTERN float ClusterSMBHJetPrecessionPeriod;  //in Myr
+EXTERN int ClusterSMBHCalculateGasMass;  // TRUE OR FALSE
+
 
 /* For the database */
 EXTERN char *DatabaseLocation;

@@ -69,6 +69,11 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
   /* Add radio-mode jet feedback */
   if (ClusterSMBHFeedback == TRUE)
    ThisGrid->GridData->ClusterSMBHFeedback(level);
+
+  /* Calculate the total mass of the cold gas around SMBH */
+  if (ClusterSMBHCalculateGasMass == TRUE)
+   ThisGrid->GridData->ClusterSMBHCalculateGasMass(level);
+
  
 
   return SUCCESS;

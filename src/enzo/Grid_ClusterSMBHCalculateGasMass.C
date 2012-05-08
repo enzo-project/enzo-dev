@@ -1,0 +1,112 @@
+/***********************************************************************
+/
+/  GRID: ADD RADIO-MODE JET-LIKE FEEDBACK BASED ON STATIC SMBH
+/
+/  written by: Yuan Li and Greg Bryan
+/  date:       May, 2012
+/  modified1: 
+/
+/  PURPOSE:
+/
+************************************************************************/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "CosmologyParameters.h"
+#include "phys_constants.h"
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
+
+//define global variable here
+float ClusterSMBHColdGasMass
+
+int grid::ClusterSMBHCalculateGasMass(int level)
+{
+  
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  /* Return if not on most-refined level. */
+
+  if (level != MaximumRefinementLevel)
+    return SUCCESS;
+
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
+                                             Vel3Num, TENum) == FAIL)   ///this or thisgrid
+     ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+
+
+  /* Compute the cold disk gas region
+     (assume the center of the disk is PointSourceGravityPosition) */
+
+  FLOAT DiskLeftCorner[MAX_DIMENSION], DiskRightCorner[MAX_DIMENSION];
+  FLOAT DiskCenter[MAX_DIMENSION];
+
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
+    TimeUnits = 1.0, VelocityUnits = 1.0;
+
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, Time) == FAIL) {
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
+
+  DiskRadius = ClusterSMBHDiskRadius*kpc/LengthUnits; //from kpc to codeunits 
+  for (dim = 0; dim < GridRank; dim++) {
+    DiskCenter[dim] = PointSourceGravityPosition[dim];
+    DiskLeftCorner[dim] = DiskCenter[dim];
+    DiskRightCorner[dim] = DiskCenter[dim];
+    DiskLeftCorner[dim] -= ClusterSMBHDiskRadius*CellWidth[dim][0];
+    DiskRightCorner[dim] += ClusterSMBHDiskRadius*CellWidth[dim][0];
+  }
+
+  /* Compute indices of disk region. */
+
+  int DiskStartIndex[MAX_DIMENSION], DiskEndIndex[MAX_DIMENSION];
+
+  for (dim = 0; dim < GridRank; dim++) {
+
+    /* Compute start and end indices of jet */
+
+    DiskStartIndex[dim] = nint((DiskLeftCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
+    DiskEndIndex[dim] = nint((DiskRightCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
+
+    /* If Disk is not on this grid, return. */
+
+    if (DiskStartIndex[dim] > GridDimension[dim]-1 || DiskEndIndex[dim] < 0)
+      return SUCCESS;
+
+  } // end: loop over dim
+
+  int j, j, k;
+  float ColdGasTemperature = 3.0e4;       //in K--parameter?
+  ColdGasTemperature /=TemperatureUnits;  //in codeunits
+  BaryonFieldTemperature = new float[size];  // i.e. temperature
+  this->ComputeTemperatureField(BaryonFieldTemperature);
+  for (k = DiskStartIndex[2]; j <= DiskEndIndex[2]; k++) {
+    for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
+      for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
+      if (BaryonFieldTemperature < ColdGasTemperature)
+        ClusterSMBHColdGasMass += BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)]*pow(CellWidth[0][0],3);
+        //take out part of the mass in ClusterSMBHFeedback?
+      }
+    }
+  }
+ printf("ClusterSMBHColdGasMass = %g \n", ClusterSMBHColdGasMass);
+  return SUCCESS;
+
+}
+ 
