@@ -22,6 +22,7 @@
 
 !     go to 666
 
+!$omp parallel do private(i,j,ii,jj) schedule(static) collapse(2)
       do ii=1,n1,ib
         do jj=1,n2,jb
 
