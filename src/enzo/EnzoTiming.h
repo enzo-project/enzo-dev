@@ -387,32 +387,44 @@ namespace enzo_timing{
   };
 
   inline void start(enzo_timer *timer, char *name){
+#ifdef _OPENMP
 #pragma omp master
+#endif
     timer->start(name);
   };
 
   inline void stop(enzo_timer *timer, char *name){
+#ifdef _OPENMP
 #pragma omp master
+#endif
     timer->stop(name);
   };
 
   inline void write_out(enzo_timer *timer, int cycle){
+#ifdef _OPENMP
 #pragma omp master
+#endif
     timer->write_out(cycle);
   };
 
   inline void create(enzo_timer *timer, char *name){
+#ifdef _OPENMP
 #pragma omp master
+#endif
     timer->create(name);
   };
 
   inline void add_cells_to_level(enzo_timer *timer, int level, double cells){
+#ifdef _OPENMP
 #pragma omp master
+#endif
     timer->get_level(level)->add_cells(cells);
   };
 
   inline void add_grids_to_level(enzo_timer *timer, int level, long int grids){
+#ifdef _OPENMP
 #pragma omp master
+#endif
     timer->get_level(level)->set_ngrids(grids);
   };
 
