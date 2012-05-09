@@ -113,7 +113,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     int SecondOrderBFlag[MAX_NUMBER_OF_BARYON_FIELDS];
 
-    for (int i=0; i<MAX_NUMBER_OF_BARYON_FIELDS; i++) {
+    for (i=0; i<MAX_NUMBER_OF_BARYON_FIELDS; i++) {
       SecondOrderBFlag[i] = 0;
     }
 

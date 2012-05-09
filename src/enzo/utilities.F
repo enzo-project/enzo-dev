@@ -58,7 +58,7 @@ c
       end2 = min(sstart2+sdim2, dstart2+ddim2)  - 1
       end3 = min(sstart3+sdim3, dstart3+ddim3)  - 1
 c
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1
@@ -125,7 +125,7 @@ c=======================================================================
 c
 c     determine the overlap area in global coordinates
 c
-!$omp parallel do private(i,j,k) collapse(3)
+!$omp parallel do private(i,j,k)
       do k = 1, dim3
          do j = 1, dim2
             do i = 1, dim1
@@ -199,7 +199,7 @@ c
       end2 = min(sstart2+sdim2, dstart2+ddim2) - 1
       end3 = min(sstart3+sdim3, dstart3+ddim3) - 1
 c
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1
@@ -272,7 +272,7 @@ c
       end2 = min(sstart2+sdim2, dstart2+ddim2) - 1
       end3 = min(sstart3+sdim3, dstart3+ddim3) - 1
 c
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1
@@ -347,7 +347,7 @@ c
       end2 = min(sstart2+sdim2, dstart2+ddim2) - 1
       end3 = min(sstart3+sdim3, dstart3+ddim3) - 1
 c
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1
@@ -427,7 +427,7 @@ c
       end2 = min(sstart2+sdim2-1, dstart2+ddim2-1, rend2)
       end3 = min(sstart3+sdim3-1, dstart3+ddim3-1, rend3)
 c
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
       do k = start3, end3
          do j = start2, end2
             do i = start1, end1
@@ -511,7 +511,7 @@ c
       fact2 = (real(irefine)-1.0)/(2.0*real(irefine))
 c
       if (ivel_shift .eq. 0) then
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
        do k = start3, end3
           do j = start2, end2
              do i = start1, end1
@@ -525,7 +525,7 @@ c
       endif
 c
       if (ivel_shift .eq. 1) then
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
        do k = start3, end3
           do j = start2, end2
              do i = start1, end1
@@ -542,7 +542,7 @@ c
       endif
 c
       if (ivel_shift .eq. 2) then
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
        do k = start3, end3
           do j = start2, end2
              do i = start1, end1
@@ -559,7 +559,7 @@ c
       endif
 c
       if (ivel_shift .eq. 3) then
-!$omp parallel do private(i,j,k) schedule(static) collapse(3)
+!$omp parallel do private(i,j,k) schedule(static)
        do k = start3, end3
           do j = start2, end2
              do i = start1, end1
