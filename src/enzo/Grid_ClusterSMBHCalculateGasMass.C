@@ -30,7 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 //define global variable here
-float ClusterSMBHColdGasMass
+float ClusterSMBHColdGasMass;
 
 int grid::ClusterSMBHCalculateGasMass(int level)
 {
@@ -91,15 +91,14 @@ int grid::ClusterSMBHCalculateGasMass(int level)
 
   } // end: loop over dim
 
-  int j, j, k;
+  int i, j, k, size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float ColdGasTemperature = 3.0e4;       //in K--parameter?
-  ColdGasTemperature /=TemperatureUnits;  //in codeunits
-  BaryonFieldTemperature = new float[size];  // i.e. temperature
+  float *BaryonFieldTemperature = new float[size];  // i.e. temperature
   this->ComputeTemperatureField(BaryonFieldTemperature);
   for (k = DiskStartIndex[2]; j <= DiskEndIndex[2]; k++) {
     for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
       for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
-      if (BaryonFieldTemperature < ColdGasTemperature)
+      if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
         ClusterSMBHColdGasMass += BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)]*pow(CellWidth[0][0],3);
         //take out part of the mass in ClusterSMBHFeedback?
       }

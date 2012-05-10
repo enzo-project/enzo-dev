@@ -61,6 +61,7 @@ OBJS_CONFIG_LIB = \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
         ClusterInitialize.o \
+	ClusterSMBHSumGasMass.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \

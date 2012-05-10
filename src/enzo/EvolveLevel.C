@@ -185,6 +185,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
                                       float * norm, float * pTopGridTimeStep);
+int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level);
 int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
 		      int StaticLevelZero,TopGridData * MetaData,int level);
 
@@ -249,7 +250,6 @@ static int StaticLevelZero = 0;
 #endif
 
 extern int RK2SecondStepBaryonDeposit;
-extern int ClusterSMBHColdGasMass;  //yuan
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -376,8 +376,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     /* Calculate ClusterSMBHColdGasMass */
 
-    ClusterSMBHColdGasMass = 0;
-    ClusterSMBHCalculateGasMass(level);
+    ClusterSMBHSumGasMass(Grids, NumberOfGrids, level);
 
 #ifdef TRANSFER
     /* Initialize the radiative transfer */
