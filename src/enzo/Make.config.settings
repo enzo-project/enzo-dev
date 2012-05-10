@@ -324,7 +324,7 @@
 #    no            Allow non-blocking, potentially divergent summations
 #----------------------------------------------------------------------- 
  
-     CONFIG_BITWISE_IDENTICALITY = yes
+     CONFIG_BITWISE_IDENTICALITY = no
 
 #======================================================================= 
 # CONFIG_ECUDA
