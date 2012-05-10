@@ -32,7 +32,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 //define global variable here
 float ClusterSMBHColdGasMass;
 
-int grid::ClusterSMBHCalculateGasMass(int level)
+int grid::ClusterSMBHEachGridGasMass(int level)
 {
   
   if (MyProcessorNumber != ProcessorNumber)
@@ -64,6 +64,7 @@ int grid::ClusterSMBHCalculateGasMass(int level)
     return FAIL;
   }
 
+  float DiskRadius;
   DiskRadius = ClusterSMBHDiskRadius*kpc/LengthUnits; //from kpc to codeunits 
   for (dim = 0; dim < GridRank; dim++) {
     DiskCenter[dim] = PointSourceGravityPosition[dim];

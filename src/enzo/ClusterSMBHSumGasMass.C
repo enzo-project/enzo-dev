@@ -34,7 +34,7 @@
 #include "CommunicationUtilities.h"
 
 
-extern int ClusterSMBHColdGasMass;  //yuan
+extern float ClusterSMBHColdGasMass;  //yuan
 
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
@@ -44,7 +44,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
    ClusterSMBHColdGasMass = 0;
    for (grid = 0; grid < NumberOfGrids; grid++) {
-      Grids[grid]->GridData->ClusterSMBHCalculateGasMass(level);
+      Grids[grid]->GridData->ClusterSMBHEachGridGasMass(level);
    }
 
    /* Sum over all processors. */
