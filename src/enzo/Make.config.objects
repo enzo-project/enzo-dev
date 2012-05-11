@@ -326,6 +326,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearParticleMassFlaggingField.o \
 	Grid_ClusterInitializeGrid.o \
 	Grid_ClusterSMBHFeedback.o \
+        Grid_ClusterSMBHEachGridGasMass.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \

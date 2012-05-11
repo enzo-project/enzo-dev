@@ -34,6 +34,10 @@ float ClusterSMBHColdGasMass;
 
 int grid::ClusterSMBHEachGridGasMass(int level)
 {
+
+  /* Return if we do not want to calculate the cold gas mass */
+  if (ClusterSMBHCalculateGasMass != TRUE)
+    return SUCCESS;
   
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
@@ -64,14 +68,13 @@ int grid::ClusterSMBHEachGridGasMass(int level)
     return FAIL;
   }
 
-  float DiskRadius;
+  int dim = 0;
+  float DiskRadius, ClusterSMBHDiskRadius = 0.5;  //ClusterSMBHDiskRadiu make parameter?
   DiskRadius = ClusterSMBHDiskRadius*kpc/LengthUnits; //from kpc to codeunits 
   for (dim = 0; dim < GridRank; dim++) {
     DiskCenter[dim] = PointSourceGravityPosition[dim];
-    DiskLeftCorner[dim] = DiskCenter[dim];
-    DiskRightCorner[dim] = DiskCenter[dim];
-    DiskLeftCorner[dim] -= ClusterSMBHDiskRadius*CellWidth[dim][0];
-    DiskRightCorner[dim] += ClusterSMBHDiskRadius*CellWidth[dim][0];
+    DiskLeftCorner[dim] = PointSourceGravityPosition[dim]- DiskRadius;
+    DiskRightCorner[dim] = PointSourceGravityPosition[dim] + DiskRadius;
   }
 
   /* Compute indices of disk region. */
@@ -96,7 +99,7 @@ int grid::ClusterSMBHEachGridGasMass(int level)
   float ColdGasTemperature = 3.0e4;       //in K--parameter?
   float *BaryonFieldTemperature = new float[size];  // i.e. temperature
   this->ComputeTemperatureField(BaryonFieldTemperature);
-  for (k = DiskStartIndex[2]; j <= DiskEndIndex[2]; k++) {
+  for (k = DiskStartIndex[2]; k <= DiskEndIndex[2]; k++) {
     for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
       for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
       if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
