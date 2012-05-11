@@ -34,11 +34,6 @@ float ClusterSMBHColdGasMass;
 
 int grid::ClusterSMBHEachGridGasMass(int level)
 {
-
-  /* Return if we do not want to calculate the cold gas mass */
-  if (ClusterSMBHCalculateGasMass != TRUE)
-    return SUCCESS;
-  
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
@@ -108,7 +103,7 @@ int grid::ClusterSMBHEachGridGasMass(int level)
       }
     }
   }
- printf("ClusterSMBHColdGasMass = %g \n", ClusterSMBHColdGasMass);
+// printf("ClusterSMBHColdGasMass = %g \n", ClusterSMBHColdGasMass);
   return SUCCESS;
 
 }
