@@ -34,7 +34,7 @@
 #include "CommunicationUtilities.h"
 
 
-extern float ClusterSMBHColdGasMass;  //yuan
+float ClusterSMBHColdGasMass;  //yuan
 
 //int GetUnits(float *DensityUnits, float *LengthUnits,
 //             float *TemperatureUnits, float *TimeUnits,

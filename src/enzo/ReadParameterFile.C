@@ -1624,6 +1624,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
 
   CheckShearingBoundaryConsistency(MetaData);
+
+fprintf(stdout, "ClusterSMBHCalculateGasMass %d\n", ClusterSMBHCalculateGasMass);
   return SUCCESS;
 #endif /* ndef CONFIG_USE_LIBCONFIG */
 }
