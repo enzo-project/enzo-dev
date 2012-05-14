@@ -86,10 +86,11 @@ int grid::ClusterSMBHEachGridGasMass(int level)
 
     DiskStartIndex[dim] = nint((DiskLeftCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
     DiskEndIndex[dim] = nint((DiskRightCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[dim][0]);
-
+    DiskStartIndex[dim] = max(DiskStartIndex[dim], GridStartIndex[dim]);
+    DiskEndIndex[dim] = min(DiskEndIndex[dim], GridEndIndex[dim]);
     /* If Disk is not on this grid, return. */
 
-    if (DiskStartIndex[dim] > GridDimension[dim]-1 || DiskEndIndex[dim] < 0)
+    if (DiskStartIndex[dim] > GridEndIndex[dim] || DiskEndIndex[dim] < GridStartIndex[dim])
       return SUCCESS;
 
   } // end: loop over dim
