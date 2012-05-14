@@ -104,12 +104,13 @@ int grid::ClusterSMBHEachGridGasMass(int level)
   for (k = DiskStartIndex[2]; k <= DiskEndIndex[2]; k++) {
     for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
       for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
-//BaryonField[NumberOfBaryonFields] != 0?? 
-//        index = i + GridDimension[0]*(j + GridDimension[1]*k);
- printf("BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k) = %g \n", BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)]);
-        if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
-          ClusterSMBHColdGasMass += BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)]*pow(CellWidth[0][0],3);
- printf("BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] and ClusterSMBHColdGasMass = %g %g \n", BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)], ClusterSMBHColdGasMass);
+        index = i + GridDimension[0]*(j + GridDimension[1]*k);
+//        if (BaryonField[NumberOfBaryonFields][index] != 0.0)
+//          continue;
+ printf("BaryonFieldTemperature[index] = %g \n", BaryonFieldTemperature[index]);
+        if (BaryonFieldTemperature[index] < ColdGasTemperature)
+          ClusterSMBHColdGasMass += BaryonField[DensNum][index]*pow(CellWidth[0][0],3);
+ printf("BaryonField[DensNum][index] and ClusterSMBHColdGasMass = %g %g \n", BaryonField[DensNum][index], ClusterSMBHColdGasMass);
         //take out part of the mass in ClusterSMBHFeedback?
       }
     }
