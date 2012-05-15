@@ -51,11 +51,14 @@ int grid::ClusterSMBHFeedback(int level)
      ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
 
 
-  /* Compute the jet launching region
+  /* Compute the jet launching region and the disk region
      (assume jet launched from PointSourceGravityPosition) */
 
   FLOAT JetLeftCorner[MAX_DIMENSION], JetRightCorner[MAX_DIMENSION];
   FLOAT JetCenter[MAX_DIMENSION];
+
+  FLOAT DiskLeftCorner[MAX_DIMENSION], DiskRightCorner[MAX_DIMENSION];
+  FLOAT DiskCenter[MAX_DIMENSION];
 
   float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
     TimeUnits = 1.0, VelocityUnits = 1.0;
@@ -75,6 +78,9 @@ int grid::ClusterSMBHFeedback(int level)
   float JetMdot; // Jet mass flow in SolarMass/year (need to convert units)-- gets value from parameter ClusterSMBHJetMdot
   float JetVelocity, FastJetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
   JetScaleRadius = ClusterSMBHJetRadius/2.0;  //JetScaleRadius is half the radius of the jet launch region in cellwidths
+  float DiskRadius, ClusterSMBHDiskRadius = 0.5;  //ClusterSMBHDiskRadiu make parameter?
+  DiskRadius = ClusterSMBHDiskRadius*kpc/LengthUnits; //from kpc to codeunits 
+
   for (dim = 0; dim < GridRank; dim++) {
     JetCenter[dim] = PointSourceGravityPosition[dim];
     JetLeftCorner[dim] = JetCenter[dim];
@@ -83,14 +89,19 @@ int grid::ClusterSMBHFeedback(int level)
       JetLeftCorner[dim] -= ClusterSMBHJetRadius*CellWidth[dim][0];
       JetRightCorner[dim] += ClusterSMBHJetRadius*CellWidth[dim][0];
     }
+    DiskCenter[dim] = PointSourceGravityPosition[dim];
+    DiskLeftCorner[dim] = PointSourceGravityPosition[dim]- DiskRadius;
+    DiskRightCorner[dim] = PointSourceGravityPosition[dim] + DiskRadius;
   }
 
   JetLeftCorner[jet_dim] -= ClusterSMBHJetLaunchOffset*CellWidth[jet_dim][0];
   JetRightCorner[jet_dim] += ClusterSMBHJetLaunchOffset*CellWidth[jet_dim][0];
- 
+
   /* Compute indices of jet launch region. */
 
   int JetStartIndex[MAX_DIMENSION], JetEndIndex[MAX_DIMENSION];
+  bool JetOnGrid = true, DiskOnGrid = true;
+  int DiskStartIndex[MAX_DIMENSION], DiskEndIndex[MAX_DIMENSION];
 
   for (dim = 0; dim < GridRank; dim++) {
 
@@ -102,12 +113,23 @@ int grid::ClusterSMBHFeedback(int level)
     /* If Jet is not on this grid, return. */
 
     if (JetStartIndex[dim] > GridDimension[dim]-1 || JetEndIndex[dim] < 0)
-      return SUCCESS;
+      JetOnGrid = false;
 
+    DiskStartIndex[dim] = nint((DiskLeftCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth
+[dim][0]);
+    DiskEndIndex[dim] = nint((DiskRightCorner[dim] - CellLeftEdge[dim][0] - 0.5*CellWidth[dim][0])/CellWidth[
+dim][0]);
+    DiskStartIndex[dim] = max(DiskStartIndex[dim], GridStartIndex[dim]);
+    DiskEndIndex[dim] = min(DiskEndIndex[dim], GridEndIndex[dim]);
+
+    /* If Disk is not on this grid, return. */
+    if (DiskStartIndex[dim] > GridEndIndex[dim] || DiskEndIndex[dim] < GridStartIndex[dim])
+      DiskOnGrid = false;
   } // end: loop over dim
 
-  /* Compute mass and momentum to be put into cells in code units. */
+  /* Compute mass and momentum to be put into cells in code units if Jet is on this grid. */
 
+if (JetOnGrid == true){
   float JetNormalization = 0.0, density_normalization, radius, Tramp;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
@@ -205,12 +227,31 @@ int grid::ClusterSMBHFeedback(int level)
       } //end top jet
     }
   }
+}
 
   /* loop over cells of disk, remove mass. */
+//ClusterSMBHColdGasMass
+if (DiskOnGrid == true && ClusterSMBHTotalColdGas > 0){
+  float ClusterSMBHAccretionTime = 10.0; //Myr --parameter?  
+  int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
+  float ColdGasTemperature = 3.0e4;       
+  float *BaryonFieldTemperature = new float[size];  // i.e. temperature
+  if (BaryonFieldTemperature == NULL)
+    ENZO_FAIL("Unable to allocate Temperature field in Grid_ClusterSMBHEachGridGasMass.");
+  this->ComputeTemperatureField(BaryonFieldTemperature);
+  for (k = DiskStartIndex[2]; k <= DiskEndIndex[2]; k++) {
+    for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
+      for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
+//        if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
+//          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] = 
+
+//take out part of the mass in ClusterSMBHFeedback?
+      }
+    }
+  }
 
 
-
-
+}
   return SUCCESS;
 
 }
