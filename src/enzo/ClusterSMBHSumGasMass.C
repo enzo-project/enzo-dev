@@ -32,13 +32,14 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
+#include "CosmologyParameters.h"
+#include "phys_constants.h"
 
+int GetUnits(float *DensityUnits, float *LengthUnits,
+             float *TemperatureUnits, float *TimeUnits,
+             float *VelocityUnits, FLOAT Time);
 
 float ClusterSMBHColdGasMass;  //yuan
-
-//int GetUnits(float *DensityUnits, float *LengthUnits,
-//             float *TemperatureUnits, float *TimeUnits,
-//             float *VelocityUnits, FLOAT Time);
 
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
@@ -59,17 +60,17 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   /* Sum over all processors. */
 
   CommunicationAllSumValues(&ClusterSMBHColdGasMass, 1);
+  FLOAT Time = Grids[0]->GridData->ReturnTime();
+  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
+    TimeUnits = 1.0, VelocityUnits = 1.0;
+  double MassUnits = 1.0;
 
-//  float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1,
-//    TimeUnits = 1.0, VelocityUnits = 1.0;
-//  double MassUnits = 1.0;
-
-//  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-//               &TimeUnits, &VelocityUnits, Time) == FAIL) {
-//    fprintf(stderr, "Error in GetUnits.\n");
-//    return FAIL;
-//  }
-//  MassUnits = DensityUnits*pow(LengthUnits,3);
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+               &TimeUnits, &VelocityUnits, Time) == FAIL) {
+    fprintf(stderr, "Error in GetUnits.\n");
+    return FAIL;
+  }
+  MassUnits = DensityUnits*pow(LengthUnits,3);
 
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {

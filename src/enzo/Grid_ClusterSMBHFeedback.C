@@ -88,8 +88,6 @@ int grid::ClusterSMBHFeedback(int level)
   JetLeftCorner[jet_dim] -= ClusterSMBHJetLaunchOffset*CellWidth[jet_dim][0];
   JetRightCorner[jet_dim] += ClusterSMBHJetLaunchOffset*CellWidth[jet_dim][0];
  
-//  printf("JetLeftCorner = %g %g %g\n", JetLeftCorner[0],JetLeftCorner[1],JetLeftCorner[2]);
-//  printf("JetRightCorner = %g %g %g\n", JetRightCorner[0],JetRightCorner[1],JetRightCorner[2]);
   /* Compute indices of jet launch region. */
 
   int JetStartIndex[MAX_DIMENSION], JetEndIndex[MAX_DIMENSION];
@@ -146,6 +144,7 @@ int grid::ClusterSMBHFeedback(int level)
   }
 
   /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
+  /* loop over cells to be modified, add jet mass, momentum, and energy. */
   float density_ratio, density_add, energy_add, xpos, ypos, JetVelocity_z, JetVelocity_xy, JetVelocity_x, JetVelocity_y;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
@@ -176,7 +175,7 @@ int grid::ClusterSMBHFeedback(int level)
         k = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
         BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
         density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
-        printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
+        //printf("density_add and density_ratio upper jet= %g %g \n", density_add, density_ratio);
         BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_x*sin(ClusterSMBHJetAngleTheta*pi)*cos(ClusterSMBHJetAnglePhi*pi+pi) + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
         BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_y*sin(ClusterSMBHJetAngleTheta*pi)*sin(ClusterSMBHJetAnglePhi*pi+pi) + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
 	BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]*(1.0-density_ratio) + energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
@@ -203,12 +202,14 @@ int grid::ClusterSMBHFeedback(int level)
 	BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio*JetVelocity_z + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
 	BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]*(1.0-density_ratio) + energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
         //printf("upper jet BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)]);
-        printf("upper jet BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = %g \n", BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]);
       } //end top jet
     }
   }
 
-  /* loop over cells to be modified, add jet mass, momentum, and energy. */
+  /* loop over cells of disk, remove mass. */
+
+
+
 
   return SUCCESS;
 
