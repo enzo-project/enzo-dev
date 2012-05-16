@@ -231,8 +231,9 @@ if (JetOnGrid == true){
 
   /* loop over cells of disk, remove mass. */
 //ClusterSMBHColdGasMass
-if (DiskOnGrid == true && ClusterSMBHTotalColdGas > 0){
+if (DiskOnGrid == true && ClusterSMBHTotalColdGasMass > 0){
   float ClusterSMBHAccretionTime = 10.0; //Myr --parameter?  
+  float AccretionRate = ClusterSMBHTotalColdGasMass / (ClusterSMBHAccretionTime*1.0e6*3.1557e7/TimeUnits);  // in codeunit
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float ColdGasTemperature = 3.0e4;       
   float *BaryonFieldTemperature = new float[size];  // i.e. temperature
@@ -242,10 +243,8 @@ if (DiskOnGrid == true && ClusterSMBHTotalColdGas > 0){
   for (k = DiskStartIndex[2]; k <= DiskEndIndex[2]; k++) {
     for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
       for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
-//        if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
-//          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] = 
-
-//take out part of the mass in ClusterSMBHFeedback?
+        if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
+          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] *= 1.0 - AccretionRate*dtFixed; //take out part of the mass
       }
     }
   }

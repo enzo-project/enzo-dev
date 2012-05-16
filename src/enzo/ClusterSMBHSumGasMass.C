@@ -39,7 +39,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
-float ClusterSMBHColdGasMass;  //yuan
+//float ClusterSMBHColdGasMass;  //yuan
 
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
