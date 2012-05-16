@@ -74,7 +74,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    printf("Total ClusterSMBGColdGasMass = %g\n", ClusterSMBHColdGasMass); //*MassUnits/SolarMass);
+    printf("Time and Total ClusterSMBGColdGasMass in Msun = %g %g \n", Time, ClusterSMBHColdGasMass*MassUnits/SolarMass);
   }
 
   return SUCCESS;
