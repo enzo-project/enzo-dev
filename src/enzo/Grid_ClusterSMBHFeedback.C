@@ -248,9 +248,9 @@ if (DiskOnGrid == true && ClusterSMBHTotalColdGasMass > 0){
       }
     }
   }
-
-
+  delete [] BaryonFieldTemperature;
 }
+
   return SUCCESS;
 
 }
