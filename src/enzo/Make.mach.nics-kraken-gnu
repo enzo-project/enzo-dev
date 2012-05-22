@@ -16,7 +16,7 @@ MACH_TEXT  = NICS Kraken
 MACH_VALID = 1
 MACH_FILE  = Make.mach.nics-kraken-gnu
 
-MACHINE_NOTES = "Building with GNU requires PrgEnv-gnu"
+MACHINE_NOTES = "Building with GNU requires the PrgEnv-gnu, acml, and szip modules."
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
