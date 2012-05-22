@@ -129,7 +129,7 @@ dim][0]);
   } // end: loop over dim
 
   /* Compute mass and momentum to be put into cells in code units if Jet is on this grid. */
-
+  JetMdot = (ClusterSMBHJetMdot*SolarMass/3.1557e7)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
 if (JetOnGrid == true){
   float JetNormalization = 0.0, density_normalization, radius, Tramp;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
@@ -142,7 +142,6 @@ if (JetOnGrid == true){
   }
 
   /* Convert to code units. */
-  JetMdot = (ClusterSMBHJetMdot*SolarMass/3.1557e7)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
   density_normalization = (JetMdot/JetNormalization)*dtFixed/pow(CellWidth[0][0], 3);
   Tramp = ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;  // from Myr to code units 
 
@@ -231,10 +230,8 @@ if (JetOnGrid == true){
 }
 
   /* loop over cells of disk, remove mass. */
-float ClusterSMBHTotalColdGasMass = -2.0;
-if (DiskOnGrid == true && ClusterSMBHTotalColdGasMass > 0){
-  float ClusterSMBHAccretionTime = 10.0; //Myr --parameter?  
-  float AccretionRate = ClusterSMBHTotalColdGasMass / (ClusterSMBHAccretionTime*1.0e6*3.1557e7/TimeUnits);  // in codeunit
+if (DiskOnGrid == true){
+  float AccretionRate = JetMdot*2.0; // in codeunit 
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float ColdGasTemperature = 3.0e4;       
   float *BaryonFieldTemperature = new float[size];  // i.e. temperature

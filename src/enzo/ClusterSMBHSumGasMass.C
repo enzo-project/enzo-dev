@@ -48,13 +48,18 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   if (ClusterSMBHCalculateGasMass != TRUE)
     return SUCCESS;
 
+  /* Return if not on most-refined level. */
+
+  if (level != MaximumRefinementLevel)
+    return SUCCESS;
+
   int grid;
 
   /* Sum over all grids on this processor. */
 
   ClusterSMBHColdGasMass = 0;
   for (grid = 0; grid < NumberOfGrids; grid++) {
-    if (level == MaximumRefinementLevel)
+//    if (level == MaximumRefinementLevel)
       Grids[grid]->GridData->ClusterSMBHEachGridGasMass(level);
   }
 
@@ -73,10 +78,12 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
 
-
+  float ColdGasMassMsun=ClusterSMBHColdGasMass*MassUnits/SolarMass;
   if (MyProcessorNumber == ROOT_PROCESSOR) {
-    printf("Time and Total ClusterSMBGColdGasMass in Msun = %g %g \n", Time, ClusterSMBHColdGasMass*MassUnits/SolarMass);
+    printf("Time and Total ClusterSMBGColdGasMass in Msun = %g %g \n", Time, ColdGasMassMsun);
   }
+
+  ClusterSMBHFeedback = (ColdGasMassMsun > 1.0e-5) ? TRUE : FALSE;
 
   return SUCCESS;
 }
