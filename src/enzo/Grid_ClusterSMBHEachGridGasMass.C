@@ -30,7 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 //define global variable here
-//extern float ClusterSMBHColdGasMass;
+extern float ClusterSMBHColdGasMass;
 
 int grid::ClusterSMBHEachGridGasMass(int level)
 {

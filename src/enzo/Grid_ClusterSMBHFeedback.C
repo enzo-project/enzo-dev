@@ -28,6 +28,7 @@
 int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
+extern float ClusterSMBHColdGasMass;
 
 
 int grid::ClusterSMBHFeedback(int level)
@@ -230,7 +231,7 @@ if (JetOnGrid == true){
 }
 
   /* loop over cells of disk, remove mass. */
-//ClusterSMBHColdGasMass
+float ClusterSMBHTotalColdGasMass = -2.0;
 if (DiskOnGrid == true && ClusterSMBHTotalColdGasMass > 0){
   float ClusterSMBHAccretionTime = 10.0; //Myr --parameter?  
   float AccretionRate = ClusterSMBHTotalColdGasMass / (ClusterSMBHAccretionTime*1.0e6*3.1557e7/TimeUnits);  // in codeunit

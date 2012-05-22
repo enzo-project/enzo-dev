@@ -39,7 +39,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
-//float ClusterSMBHColdGasMass;  //yuan
+float ClusterSMBHColdGasMass;  //yuan
 
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
@@ -54,7 +54,8 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
   ClusterSMBHColdGasMass = 0;
   for (grid = 0; grid < NumberOfGrids; grid++) {
-    Grids[grid]->GridData->ClusterSMBHEachGridGasMass(level);
+    if (level == MaximumRefinementLevel)
+      Grids[grid]->GridData->ClusterSMBHEachGridGasMass(level);
   }
 
   /* Sum over all processors. */
