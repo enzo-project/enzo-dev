@@ -242,7 +242,7 @@ if (DiskOnGrid == true){
     for (j = DiskStartIndex[1]; j <= DiskEndIndex[1]; j++) {
       for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
         if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
-          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] *= 1.0 - AccretionRate*dtFixed; //take out part of the mass
+          BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] *= 1.0 - AccretionRate*dtFixed/ClusterSMBHColdGasMass; //take out part of the mass
       }
     }
   }
