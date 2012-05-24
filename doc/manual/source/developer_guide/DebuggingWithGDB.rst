@@ -2,12 +2,62 @@ Debugging Enzo with GDB
 =======================
 
 While it is relatively straightforward to debug enzo in parallel with a
-commercial parallel debugger like Totalview or DDT, it is definitely not so
+commercial parallel debugger like Totalview or DDT, it is not quite as 
 straightforward to debug enzo with a free, open source serial debugger like GDB.
-This method works well if you do not have access to a supercomputer or clsuter
+This method works well if you do not have access to a supercomputer or cluster
 with a commercial parallel debugger installed, if you would like to run and
 debug enzo on a small workstation, or if you prefer to use free and open source
 software in your programming life.
+
+There are two general approaches for parallel debugging of Enzo within
+GDB, running multiple GDB processes that each run Enzo, or attaching
+GDB to an existing Enzo process.
+
+
+I. Running multiple GDB processes that each run Enzo
+----------------------------------------------------
+
+This option works best when running on a single workstation, or on a
+cluster to which you have direct access.  The method works best when
+running with only a few processors (as will be seen below).
+
+First, build Enzo with debugging symbols enabled and with compiler
+optimizations turned off.  This can be accomplished on most systems by
+setting ``make opt-debug`` at the command line (see :ref:`MakeOptions`).
+
+Second, launch a number of xterms using ``mpirun`` or ``mpiexec`` that
+each internally launch GDB on the Enzo executable::
+
+  18:16:32 [dreynolds@zeno ~]$  mpirun -np 4 xterm -e gdb ./enzo.exe
+
+This will launch 4 xterms, each of which is running a separate gdb
+process, that in turn is set to run Enzo.
+
+Within each of these xterms, enter the remaining command-line
+arguments needed to run enzo, e.g.::
+
+    (gdb) run -d -r DD0096/DD0096
+
+Once you have hit [enter] in each terminal Enzo will start, with all
+process-specific output displayed in it's own xterm.  If you wish to
+set breakpoints, these GDB commands should be entered at the various
+GDB prompts prior to issuing the ``run`` command.
+
+NOTE: It is possible to insert all of your GDB commands into a GDB
+script file, and then have each process run the same script,
+eliminating the need to type the commands separately within each
+xterm.  To do this, create a file with all of your GDB commands (in
+order, one command per line); let's call this file ``gdb.in``.  Then
+when you start ``mpirun``, you can specify this script to the GDB
+processes::
+  18:16:32 [dreynolds@zeno ~]$  mpirun -np 4 xterm -e gdb -x gdb.in ./enzo.exe
+
+
+
+
+II. Attaching GDB to existing Enzo processes
+--------------------------------------------
+
 
 Modify Enzo to allow GDB to attach to a running Enzo process
 ------------------------------------------------------------
