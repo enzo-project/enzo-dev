@@ -83,7 +83,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
     printf("Time and Total ClusterSMBGColdGasMass in Msun = %g %g \n", Time, ColdGasMassMsun);
   }
 
-  ClusterSMBHFeedback = (ColdGasMassMsun > 1.0e-5) ? TRUE : FALSE;
+  ClusterSMBHFeedback = (ColdGasMassMsun > 1.0e5) ? TRUE : FALSE;
 
   return SUCCESS;
 }
