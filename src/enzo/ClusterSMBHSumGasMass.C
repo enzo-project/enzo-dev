@@ -39,7 +39,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 
-float ClusterSMBHColdGasMass;  //yuan
+float ClusterSMBHColdGasMass;
+int ClusterSMBHFeedbackSwitch;
 
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
@@ -49,7 +50,6 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
     return SUCCESS;
 
   /* Return if not on most-refined level. */
-
   if (level != MaximumRefinementLevel)
     return SUCCESS;
 
@@ -83,7 +83,17 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
     printf("Time and Total ClusterSMBGColdGasMass in Msun = %g %g \n", Time, ColdGasMassMsun);
   }
 
-  ClusterSMBHFeedback = (ColdGasMassMsun > 1.0e5) ? TRUE : FALSE;
+  int LastClusterSMBHFeedbackSwitch = ClusterSMBHFeedbackSwitch;
+  if (ColdGasMassMsun < 1.0e5)
+    ClusterSMBHFeedbackSwitch = FALSE;
+  else
+    ClusterSMBHFeedbackSwitch = (ColdGasMassMsun <= ClusterSMBHEnoughColdGas && LastClusterSMBHFeedbackSwitch == FALSE) ? TRUE : FALSE;
+
+  if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
+    ClusterSMBHStartTime = Time + 0.1*ClusterSMBHTramp;
+    if (ClusterSMBHJetPrecessionPeriod < 0.00001)  //if precession off, change the angle of the jets
+      ClusterSMBHJetAnglePhi += 0.5;
+  }
 
   return SUCCESS;
 }

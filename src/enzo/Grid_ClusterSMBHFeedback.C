@@ -29,7 +29,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 extern float ClusterSMBHColdGasMass;
-
+extern int ClusterSMBHFeedbackSwitch;
 
 int grid::ClusterSMBHFeedback(int level)
 {
@@ -42,8 +42,11 @@ int grid::ClusterSMBHFeedback(int level)
     return SUCCESS;
 
   /* Return if not on most-refined level. */
-
   if (level != MaximumRefinementLevel)
+    return SUCCESS;
+
+  /* Return if Switch is off. */
+  if (ClusterSMBHCalculateGasMass == TRUE && ClusterSMBHFeedbackSwitch == FALSE)
     return SUCCESS;
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -71,6 +74,10 @@ int grid::ClusterSMBHFeedback(int level)
     return FAIL;
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
+
+  /* If Time is earlier than ClusterSMBHStartTime, return. */
+  if (Time-ClusterSMBHStartTime < 0.0)
+    return SUCCESS;
 
   int i, j, k, dim = 0;
   int jet_dim = 2;  // z-axis (should make parameter?)
@@ -145,9 +152,6 @@ if (JetOnGrid == true){
   density_normalization = (JetMdot/JetNormalization)*dtFixed/pow(CellWidth[0][0], 3);
   Tramp = ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;  // from Myr to code units 
 
-  /* If Time is earlier than ClusterSMBHStartTime, return. */
-  if (Time-ClusterSMBHStartTime < 0.0)
-    return SUCCESS;
 //  SlowJetVelocity = ClusterSMBHJetVelocity*1.0e5/VelocityUnits; //from km/s to code units  //
   JetVelocity = sqrt((ClusterSMBHJetEdot*1.0e44*ClusterSMBHKineticFraction*2)/(ClusterSMBHJetMdot*SolarMass/3.1557e7))/VelocityUnits;
   JetVelocity *= min((Time-ClusterSMBHStartTime)/Tramp, 1.0);     //linear ramp
@@ -170,18 +174,17 @@ if (JetOnGrid == true){
   float density_ratio, density_add, energy_add, xpos, ypos, JetVelocity_z, JetVelocity_xy, JetVelocity_x, JetVelocity_y;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
-      ///index = GRIDINDEX_NOGHOST(i,j,k);  ///replace GRIDINDEX(i,j,k)
       xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0];  //in the cell surface center
       ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1];  //not in cellwidth
       radius = sqrt(pow(xpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
       density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
       energy_add = ((1.0-ClusterSMBHKineticFraction)/ClusterSMBHKineticFraction)*0.5*density_add*pow(JetVelocity, 2.0);
       //JetVelocity = (radius > ClusterSMBHFastJetRadius) ? SlowJetVelocity : FastJetVelocity;
-      if (ClusterSMBHJetOpenAngleRadius < 0.1) {   // if jet openning angle = 0, set ClusterSMBHJetOpenAngleRadius=0
+      if (ClusterSMBHJetOpenAngleRadius < 0.00001) {   // if jet openning angle = 0, set ClusterSMBHJetOpenAngleRadius=0
 	JetVelocity_z = JetVelocity*cos(ClusterSMBHJetAngleTheta*pi);
 	JetVelocity_x = JetVelocity;  // mutiplied by sincos later
 	JetVelocity_y = JetVelocity;  // mutiplied by sincos later
-        if (ClusterSMBHJetPrecessionPeriod > 0)
+        if (ClusterSMBHJetPrecessionPeriod > 0.00001)
            ClusterSMBHJetAnglePhi = (Time-ClusterSMBHStartTime)*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
       }
       else {

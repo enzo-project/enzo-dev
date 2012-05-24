@@ -70,11 +70,5 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
   if (ClusterSMBHFeedback == TRUE)
    ThisGrid->GridData->ClusterSMBHFeedback(level);
 
-  /* Calculate the total mass of the cold gas around SMBH */
-//  if (ClusterSMBHCalculateGasMass == TRUE)
-//   ThisGrid->GridData->ClusterSMBHEachGridGasMass(level);
-
- 
-
   return SUCCESS;
 }

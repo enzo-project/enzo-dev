@@ -948,6 +948,7 @@ EXTERN float ClusterSMBHJetAngleTheta;  // from 0 to 1/2, in pi
 EXTERN float ClusterSMBHJetAnglePhi;  // from 0 to 2, in pi
 EXTERN float ClusterSMBHJetPrecessionPeriod;  //in Myr
 EXTERN int ClusterSMBHCalculateGasMass;  // TRUE OR FALSE
+EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass 
 
 /* For the database */
 EXTERN char *DatabaseLocation;
