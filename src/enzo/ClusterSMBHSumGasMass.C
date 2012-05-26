@@ -79,9 +79,6 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   MassUnits = DensityUnits*pow(LengthUnits,3);
 
   float ColdGasMassMsun=ClusterSMBHColdGasMass*MassUnits/SolarMass;
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
-    printf("Time, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %d %g \n", Time, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
-  }
 
   int LastClusterSMBHFeedbackSwitch = ClusterSMBHFeedbackSwitch;
   if (ColdGasMassMsun < 1.0e5)
@@ -93,6 +90,10 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
     ClusterSMBHStartTime = Time + 0.1*ClusterSMBHTramp;
     if (ClusterSMBHJetPrecessionPeriod < 0.00001)  //if precession off, change the angle of the jets
       ClusterSMBHJetAnglePhi += 0.5;
+  }
+
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    printf("Time, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %d %g \n", Time, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
   }
 
   return SUCCESS;
