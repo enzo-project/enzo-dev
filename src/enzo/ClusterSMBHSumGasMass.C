@@ -84,7 +84,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   if (ColdGasMassMsun < 1.0e5)
     ClusterSMBHFeedbackSwitch = FALSE;
   else
-    ClusterSMBHFeedbackSwitch = (ColdGasMassMsun <= ClusterSMBHEnoughColdGas && LastClusterSMBHFeedbackSwitch == FALSE) ? TRUE : FALSE;
+    ClusterSMBHFeedbackSwitch = (ColdGasMassMsun <= ClusterSMBHEnoughColdGas && LastClusterSMBHFeedbackSwitch == FALSE) ? FALSE : TRUE;
 
   if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
     ClusterSMBHStartTime = Time + 0.1*ClusterSMBHTramp;
