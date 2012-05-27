@@ -44,11 +44,12 @@ int grid::ClusterSMBHFeedback(int level)
   /* Return if not on most-refined level. */
   if (level != MaximumRefinementLevel)
     return SUCCESS;
+  //printf("in Feedback ClusterSMBHFeedbackSwitch = %d \n", ClusterSMBHFeedbackSwitch);
 
   /* Return if Switch is off. */
   if (ClusterSMBHCalculateGasMass == TRUE && ClusterSMBHFeedbackSwitch == FALSE)
     return SUCCESS;
-
+  //printf("starting feedback");
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
                                              Vel3Num, TENum) == FAIL)   ///this or thisgrid
@@ -74,7 +75,6 @@ int grid::ClusterSMBHFeedback(int level)
     return FAIL;
   }
   MassUnits = DensityUnits*pow(LengthUnits,3);
-
   /* If Time is earlier than ClusterSMBHStartTime, return. */
   if (Time-ClusterSMBHStartTime < 0.0)
     return SUCCESS;
