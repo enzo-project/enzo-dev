@@ -233,7 +233,7 @@ if (JetOnGrid == true){
 }
 
   /* loop over cells of disk, remove mass. */
-if (DiskOnGrid == true){
+if (DiskOnGrid == true & ClusterSMBHCalculateGasMass == TRUE){
   float AccretionRate = JetMdot*2.0; // in codeunit 
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float ColdGasTemperature = 3.0e4;       
