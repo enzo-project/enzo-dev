@@ -24,20 +24,35 @@ each for each datadump.  For more information on the format of Enzo output, see
 
    usage: ./enzo.exe [options] param_file
       options are:
-         -d(ebug)
-         -r(estart)
-         -x(extract)
-            -l(evel_of_extract) level
-         -p(roject_to_plane) dimension
-         -P(roject_to_plane version 2) dimension
-            -m(smooth projection)
-         -o(utput as particle data)
-         -h(elp)
-         -i(nformation output)
-         -s(tart  index region) dim0 [dim1] [dim2]
-         -e(nd    index region) dim0 [dim1] [dim2]
-         -b(egin  coordinate region) dim0 [dim1] [dim2]
-         -f(inish coordinate region) dim0 [dim1] [dim2]
+      -d(ebug)
+      -r(estart)
+      -x(extract)
+         -l(evel_of_extract) level
+      -p(roject_to_plane) dimension
+      -P(roject_to_plane version 2) dimension
+         -m(smooth projection)
+      -o(utput as particle data)
+      -g (Write Potential field only)
+      -M (Write smoothed DM field only)
+      -F(riends-of-friends halo finder only)
+      -C(ooling time write only)
+      -h(elp)
+      -i(nformation output)
+      -V (show compiler options and flags)
+      -s(tart  index region) dim0 [dim1] [dim2]
+      -e(nd    index region) dim0 [dim1] [dim2]
+      -b(egin  coordinate region) dim0 [dim1] [dim2]
+      -f(inish coordinate region) dim0 [dim1] [dim2]
+
+The -g, -M, and -C flags will read in the dataset given on the command
+line and write additional data fields to the same data files.  When
+running with these flags (or the -F flag), the -r flag must also be
+given so that the code knows to read in a dataset.  For example, to
+write out the cooling time to the output DD0001, do the following:
+
+::
+
+   enzo.exe -r -C DD0001/DD0001
 
 inits
 -----
