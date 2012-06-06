@@ -37,7 +37,9 @@ MACH_FILE  = Make.mach.darwin
 
 LOCAL_PACKAGES       = /usr/local
 
-LOCAL_MPI_INSTALL    = /opt/local/lib/openmpi
+# This will not work on OSX Lion or newer.  You may wany to try installing
+# openmpi via macports.  
+LOCAL_MPI_INSTALL    = /usr/local
 LOCAL_FC_INSTALL     = /usr/local
 LOCAL_HDF5_INSTALL   = $(YT_DEST)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
