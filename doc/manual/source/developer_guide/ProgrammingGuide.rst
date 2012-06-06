@@ -71,6 +71,7 @@ external libraries. The order should be as follows:
 
     #include "ErrorExceptions.h"
     #include "svn_version.def"
+    #include "EnzoTiming.h"
     #include "performance.h"
     #include "macros_and_parameters.h"
     #include "typedefs.h"
