@@ -25,6 +25,7 @@
 #include "mpi.h"
 #endif /* USE_MPI */
 #define DEFINE_STORAGE
+#include "../enzo/EnzoTiming.h"
 #include "../enzo/ErrorExceptions.h"
 #include "../enzo/macros_and_parameters.h"
 #include "../enzo/units.h"
@@ -93,7 +94,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
               float *VelocityUnits, FLOAT Time);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-main(Eint32 argc, char *argv[])
+Eint32 main(Eint32 argc, char *argv[])
 {
   CommunicationInitialize(&argc, &argv);
 

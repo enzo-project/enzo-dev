@@ -37,14 +37,14 @@ MACH_FILE  = Make.mach.darwin
 
 LOCAL_PACKAGES       = /usr/local
 
-LOCAL_MPI_INSTALL    = /usr
+# This will not work on OSX Lion or newer.  You may wany to try installing
+# openmpi via macports.  
+LOCAL_MPI_INSTALL    = /usr/local
 LOCAL_FC_INSTALL     = /usr/local
-LOCAL_HDF5_INSTALL   = $(HOME)/local
+LOCAL_HDF5_INSTALL   = $(YT_DEST)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
-LOCAL_PYTHON_INSTALL = $(HOME)/yt-i386/
-LOCAL_PYTHON_INSTALL = /Library/Frameworks/Python.framework/Versions/Current/
-LOCAL_CVODE_INSTALL  = /usr/local/
+LOCAL_PYTHON_INSTALL = $(YT_DEST)
 
 #-----------------------------------------------------------------------
 # Compiler settings
