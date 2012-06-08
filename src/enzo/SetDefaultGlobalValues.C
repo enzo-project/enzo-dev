@@ -469,6 +469,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHJetAnglePhi           = 0.0;
   ClusterSMBHJetPrecessionPeriod   = 0.0;
   ClusterSMBHCalculateGasMass      = FALSE;
+  ClusterSMBHFeedbackSwitch        = FALSE;
   ClusterSMBHEnoughColdGas         = 1.0e7;
 
   PythonTopGridSkip                = 0;

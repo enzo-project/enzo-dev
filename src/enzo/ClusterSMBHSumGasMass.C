@@ -40,7 +40,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *VelocityUnits, FLOAT Time);
 
 float ClusterSMBHColdGasMass;
-int ClusterSMBHFeedbackSwitch;
 
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {

@@ -29,7 +29,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
              float *TemperatureUnits, float *TimeUnits,
              float *VelocityUnits, FLOAT Time);
 extern float ClusterSMBHColdGasMass;
-extern int ClusterSMBHFeedbackSwitch;
 
 int grid::ClusterSMBHFeedback(int level)
 {
