@@ -378,6 +378,7 @@ machine-%: suggest-clean
            echo; \
 	   echo "   No such machine file "'"'"Make.mach.$*"'"'; \
            echo; \
+	   exit 1; \
         fi; \
 	echo
 
@@ -402,6 +403,7 @@ load-config-%:
            echo; \
            echo "   No such settings file "'"'"$(HOME)/.enzo/Make.settings.$*"'"'; \
            echo; \
+	   exit 1; \
         fi;
 
 #-----------------------------------------------------------------------
