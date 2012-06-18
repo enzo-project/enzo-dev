@@ -345,7 +345,6 @@ EXTERN fpos_t  BaryonFileNamePosition;
 
 EXTERN int MultiSpecies;
 EXTERN int NoMultiSpeciesButColors;
-EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
 EXTERN int H2FormationOnDust;
