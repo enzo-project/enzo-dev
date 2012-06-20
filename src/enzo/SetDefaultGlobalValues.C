@@ -453,6 +453,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AnisotropicConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
+  ClusterInitialSpinParameter      = 0.05;
   ClusterSMBHFeedback              = FALSE;
   ClusterSMBHJetMdot               = 3.0;
   ClusterSMBHJetVelocity           = 10000.0;

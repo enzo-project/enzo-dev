@@ -829,6 +829,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   if (MBHInsertLocationFilename != NULL)
     fprintf(fptr, "MBHInsertLocationFilename           = %s\n\n", MBHInsertLocationFilename);
 
+  fprintf(fptr, "ClusterInitialSpinParameter   = %"FSYM"\n", ClusterInitialSpinParameter);
   fprintf(fptr, "ClusterSMBHFeedback           = %"ISYM"\n", ClusterSMBHFeedback);
   fprintf(fptr, "ClusterSMBHJetMdot            = %"FSYM"\n", ClusterSMBHJetMdot);
   fprintf(fptr, "ClusterSMBHJetVelocity        = %"FSYM"\n", ClusterSMBHJetVelocity);
