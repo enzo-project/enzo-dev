@@ -50,7 +50,9 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 			     int   SphereUseParticles,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
-			     float InitialTemperature, int level)
+			     float InitialTemperature, 
+			     float ClusterInitialSpinParameter,
+			     int level)
 {
   /* declarations */
 

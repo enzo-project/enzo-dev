@@ -1933,7 +1933,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              int   SphereUseParticles,
                              float UniformVelocity[MAX_DIMENSION],
                              int   SphereUseColour,
-                             float InitialTemperature, int level);
+                             float InitialTemperature, 
+			     float ClusterInitialSpinParameter, int level);
 
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(

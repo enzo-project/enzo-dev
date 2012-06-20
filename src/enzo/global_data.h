@@ -931,7 +931,6 @@ EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
 /* SMBH Feedback in galaxy clusters*/
-EXTERN float ClusterInitialSpinParameter;  // Used in Grid_ClusterInitialize
 EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
 EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr 
 EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s 
