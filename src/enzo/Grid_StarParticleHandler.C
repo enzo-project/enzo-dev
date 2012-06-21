@@ -412,10 +412,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum; 
-  if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
-			    HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
-    ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
-  }
 
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
@@ -458,6 +454,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       float B2 = Bx*Bx + By*By + Bz*Bz;
       BaryonField[TENum][n] -= 0.5*B2/den;
     }
+  }
+
+  if (MultiSpecies > 1) {
+      H2INum   = FindField(H2IDensity, FieldType, NumberOfBaryonFields);
+      H2IINum  = FindField(H2IIDensity, FieldType, NumberOfBaryonFields);
   }
 
   /* Find metallicity field and set flag. */
@@ -954,6 +955,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
     if ( STARMAKE_METHOD(H2REG_STAR) && 
 	 ( this->MakeStars || !StarFormationOncePerRootGridTimeStep ) ) {
+
+      if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+                    HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+        ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+      }
 
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
