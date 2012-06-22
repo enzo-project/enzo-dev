@@ -53,7 +53,6 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
     if (List[i].Type != PARTICLE_TYPE_DARK_MATTER)
       star_index[n++] = i;
 
-  printf("EVE: Number of Particles being merged = %d\n", starn);
   /* Loop over star particles only -- June 30 2011 Eve */
   for (int i = 0; i < starn; i++) {
     
@@ -173,7 +172,6 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
 
   fof(xp, yp, zp, NumberOfRemainingSmallParticles, MergeDistance, TempFlag, GroupSize);
   /* copy the results to the output */
-  printf("EVE: Number of Remaining Small Particles = %d\n", NumberOfRemainingSmallParticles);
 
   for (int i = 0; i < NumberOfRemainingSmallParticles; i++)
     if (TempFlag[i] >= 0) 
