@@ -39,51 +39,65 @@ void ParticleMergeSmallToBig(ParticleEntry *List, const int &Size,
 
   FLOAT MergeDist2 = pow(MergeDistance, 2);
   PINT MergeID, MergeIndex;
-  
-  for (int i = 0; i < Size; i++) {
+
+  /* Pick only the star particles  -- June 30 2011 Eve*/
+  int starn = 0;
+  for (int i = 0; i < Size; i++){
+      if (List[i].Type != PARTICLE_TYPE_DARK_MATTER)      
+	starn++;
+  }
+
+  int *star_index = new int[starn];
+  int n = 0;
+  for (int i = 0; i < Size; i++)
+    if (List[i].Type != PARTICLE_TYPE_DARK_MATTER)
+      star_index[n++] = i;
+
+  /* Loop over star particles only -- June 30 2011 Eve */
+  for (int i = 0; i < starn; i++) {
     
-    if (List[i].Mass > MergeMass) continue;
+    if (List[star_index[i]].Mass > MergeMass) continue;
     
     /* Find the nearest big particle */
 
     FLOAT MinDist2 = 1e20;
-    for (int j = 0; j < Size; j++) {
-      if (List[j].Mass <= MergeMass) continue;
+    for (int j = 0; j < starn; j++) {
+      if (List[star_index[j]].Mass <= MergeMass) continue;
 
-      FLOAT dist2 = pow(List[i].Position[0] - List[j].Position[0],2) +
-	pow(List[i].Position[1] - List[j].Position[1],2) +
-	pow(List[i].Position[2] - List[j].Position[2],2);
+      FLOAT dist2 = pow(List[star_index[i]].Position[0] - List[star_index[j]].Position[0],2) +
+	pow(List[star_index[i]].Position[1] - List[star_index[j]].Position[1],2) +
+	pow(List[star_index[i]].Position[2] - List[star_index[j]].Position[2],2);
       if (dist2 < MinDist2) {
 	MinDist2 = dist2;
-	MergeID = List[j].Number;
-	MergeIndex = j;
+	MergeID = List[star_index[j]].Number;
+	MergeIndex = star_index[j];
       }
     }
-
+    
     if (MinDist2 < MergeDist2) {
 
       /* if a group for this MergeID already exist, add to it */
 
-      for (int j = 0; j < i; j++) 
-	if (Center[j] == MergeID) {
-	  Flag[i] = Flag[j];
-	  Center[i] = Center[j];
-	}
+      for (int j = 0; j < i; j++)
+	if (Center[star_index[j]] == MergeID) {
+	   Flag[star_index[i]] = Flag[star_index[j]];
+ 	   Center[star_index[i]] = Center[star_index[j]];
+        }	
 
       /* if no group exists, create a new group */
 
-      if (Center[i] == -1) {
-	Center[i] = MergeID; // remember the big one
-	Flag[i] = GroupSize; // flag the small one
-	Flag[MergeIndex] = GroupSize; // flag the big one
+      if (Center[star_index[i]] == -1) {
+	Center[star_index[i]] = MergeID;
+	Flag[star_index[i]] = GroupSize;
+	Flag[MergeIndex] = GroupSize;
 	GroupSize++;
-      }
+      }	
 
     }
   }
 
   delete [] Center;
-
+  delete [] star_index;
 }
 
 /****************************************************************************
@@ -117,13 +131,14 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
 			     const float &MergeMass, const FLOAT &MergeDistance, 
 			     int *Flag, int &GroupSize)
 {
-  //printf("\n Particle Merge Small group MergeDistance = %g\n \n",MergeDistance);
   /* count the number of remaining small particles */
 
   int NumberOfRemainingSmallParticles = 0;
-  for (int i = 0; i < Size; i++)
-    if (List[i].Mass < MergeMass && Flag[i] == -1)
+  for (int i = 0; i < Size; i++){
+    //if (List[i].Mass < MergeMass && Flag[i] == -1) //Jul 5 2011 Eve
+    if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER)
       NumberOfRemainingSmallParticles++;
+  }
 
   /* nothing needs to be done, return */
 
@@ -135,7 +150,8 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
   int *IndexArray = new int[NumberOfRemainingSmallParticles];
   int n = 0;
   for (int i = 0; i < Size; i++)
-    if (List[i].Mass < MergeMass && Flag[i] == -1)
+    //if (List[i].Mass < MergeMass && Flag[i] == -1) //Jul 5 2011 Eve
+    if (List[i].Mass < MergeMass && Flag[i] == -1 && List[i].Type != PARTICLE_TYPE_DARK_MATTER)
       IndexArray[n++] = i;
 
   FLOAT *xp = new FLOAT[NumberOfRemainingSmallParticles];
@@ -155,7 +171,6 @@ void ParticleMergeSmallGroup(ParticleEntry *List, const int &Size,
   /* call the FOF routine */
 
   fof(xp, yp, zp, NumberOfRemainingSmallParticles, MergeDistance, TempFlag, GroupSize);
-
   /* copy the results to the output */
 
   for (int i = 0; i < NumberOfRemainingSmallParticles; i++)
