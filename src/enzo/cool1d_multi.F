@@ -430,7 +430,7 @@
             gaHp(i) = gaHpa(indixe(i)) + tdef(i)
      &         *(gaHpa(indixe(i)+1) - gaHpa(indixe(i)))
             gael(i) = gaela(indixe(i)) + tdef(i)
-     &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))
+     &         *(gaela(indixe(i)+1) - gaela(indixe(i)))
             gphdl(i) = gphdla(indixe(i)) + tdef(i)
      &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))
             cieco(i) = ciecoa(indixe(i)) + tdef(i)

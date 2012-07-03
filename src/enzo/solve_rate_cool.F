@@ -1343,8 +1343,14 @@ c -------------------------------------------------------------------
 
             H2delta(i) = 
      &          HI(i,j,k) *
-     &           (  4.48d0 * h2heatfac(i) * k22(i) * HI(i,j,k)**2.d0
+     &           (  4.48d0 * k22(i) * HI(i,j,k)**2.d0
      &            - 4.48d0 * k13(i) * H2I(i,j,k)/2.d0)
+
+            ! We only want to apply this if the formation dominates, but we
+            ! need to apply it outside the delta calculation.
+            if(H2delta(i).gt.0.0) then
+              H2delta(i) = H2delta(i) * h2heatfac(i)
+            endif
 
             if (idust .gt. 0) then
                H2delta(i) = H2delta(i) + 
