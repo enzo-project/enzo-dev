@@ -1,4 +1,4 @@
-#define MAX_ANY_SINGLE_DIRECTION 3079
+#define MAX_ANY_SINGLE_DIRECTION 1024
 
 #ifdef CONFIG_PFLOAT_4
 #define tiny 1.0e-20
