@@ -124,6 +124,24 @@ def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
 
+
+def version_swap(repository, changeset, jcompile):
+    """Updates *repository* to *changeset*,
+    then does make; make -j *jcompile* enzo"""
+    print repository, changeset
+    from mercurial import hg, ui, commands, util
+    options.repository = os.path.expanduser(options.repository)
+    u = ui.ui() 
+    u.pushbuffer()
+    repo = hg.repository(u, options.repository)
+    u.popbuffer()
+    commands.update(u,repo,changeset)
+    command = "cd %s/src/enzo; pwd; "%options.repository
+    command += "make clean && make -j %d enzo.exe"%jcompile
+    status = os.system(command)
+    return status
+
+
 def bisector(options,args):
     print options.good
     from mercurial import hg, ui, commands, util
@@ -524,6 +542,8 @@ if __name__ == "__main__":
     parser.add_option("--bad", dest="bad", default=None, help="For bisection, most recent bad revision")
     parser.add_option("-j", "--jcompile", dest="jcompile", type="int", default=1, 
                       help="number of processors with which to compile when running bisect")
+    parser.add_option("--changeset", dest="changeset", default=None,
+                      help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
 
     testsuite_group = optparse.OptionGroup(parser, "Test suites:")
     for var, caster in sorted(known_variables.items()):
@@ -541,6 +561,12 @@ if __name__ == "__main__":
     if options.output_dir is None:
         print 'Please enter an output directory with -o option'
         sys.exit(1)
+
+    if options.changeset is not None:
+        status = version_swap(options.repository, options.changeset, options.jcompile)
+        if status:
+            sys.exit(status)
+
     if options.bisect:
         bisector(options,args)
     else:
