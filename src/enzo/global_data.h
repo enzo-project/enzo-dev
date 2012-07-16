@@ -949,6 +949,7 @@ EXTERN float ClusterSMBHJetPrecessionPeriod;  //in Myr
 EXTERN int ClusterSMBHCalculateGasMass;  // TRUE OR FALSE
 EXTERN int ClusterSMBHFeedbackSwitch;  // TRUE OR FALSE
 EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass 
+EXTERN int ClusterSMBHJetDim;  // Jet dimension
 
 /* For the database */
 EXTERN char *DatabaseLocation;

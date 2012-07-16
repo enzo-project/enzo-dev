@@ -87,8 +87,10 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
   if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
     ClusterSMBHStartTime = Time + ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;
-    if (ClusterSMBHJetPrecessionPeriod < 0.00001)  //if precession off, change the angle of the jets
+    if (ClusterSMBHJetPrecessionPeriod < 0.00001 & ClusterSMBHJetPrecessionPeriod > -0.00001)  //if precession off (set to 0), change the angle of the jets
       ClusterSMBHJetAnglePhi += 0.5;
+    if (ClusterSMBHJetPrecessionPeriod < -0.00001)  //if precession negative, change the jet dimension
+      ClusterSMBHJetDim += 1;
   }
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {

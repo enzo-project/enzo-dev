@@ -79,8 +79,10 @@ int grid::ClusterSMBHFeedback(int level)
     return SUCCESS;
 
   int i, j, k, dim = 0;
-  int jet_dim = 2;  // z-axis (should make parameter?)
-
+  int jet_dim;  // z-axis (should make parameter?)
+//  jet_dim = (int(ClusterSMBHJetAnglePhi/2.0)+2) % 3;
+  jet_dim = ClusterSMBHJetDim % 3;
+  printf("jet_dim= %g \n",jet_dim);
   float JetScaleRadius; // cellwidths
   float JetMdot; // Jet mass flow in SolarMass/year (need to convert units)-- gets value from parameter ClusterSMBHJetMdot
   float JetVelocity, FastJetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
@@ -138,12 +140,34 @@ dim][0]);
   JetMdot = (ClusterSMBHJetMdot*SolarMass/3.1557e7)/(MassUnits/TimeUnits);  // from M_sun/yr to code units
 if (JetOnGrid == true){
   float JetNormalization = 0.0, density_normalization, radius, Tramp;
-  for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
-    for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
-      radius = sqrt(pow((CellLeftEdge[0][0] + (i+0.5)*CellWidth[0][0] - JetCenter[0]), 2) +
-                    pow((CellLeftEdge[1][0] + (j+0.5)*CellWidth[1][0] - JetCenter[1]), 2) )/
-               CellWidth[0][0];
-      JetNormalization += exp(-pow(radius/JetScaleRadius,2)/2.0);   //add 2!!!!!!!!!!!!!!, print stqtement
+  if (jet_dim == 2){
+    for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
+      for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+        radius = sqrt(pow((CellLeftEdge[0][0] + (i+0.5)*CellWidth[0][0] - JetCenter[0]), 2) +
+                      pow((CellLeftEdge[1][0] + (j+0.5)*CellWidth[1][0] - JetCenter[1]), 2) )/
+                 CellWidth[0][0];
+        JetNormalization += exp(-pow(radius/JetScaleRadius,2)/2.0);   //add 2!!!!!!!!!!!!!!, print stqtement
+      }
+    }
+  }
+  else if(jet_dim == 0){
+    for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
+      for (k = JetStartIndex[2]; k <= JetEndIndex[2]; k++) {
+        radius = sqrt(pow((CellLeftEdge[2][0] + (k+0.5)*CellWidth[2][0] - JetCenter[2]), 2) +
+                      pow((CellLeftEdge[1][0] + (j+0.5)*CellWidth[1][0] - JetCenter[1]), 2) )/
+                 CellWidth[0][0];
+        JetNormalization += exp(-pow(radius/JetScaleRadius,2)/2.0);   //add 2!!!!!!!!!!!!!!, print stqtement
+      }
+    }
+  }
+  if (jet_dim == 1){
+    for (k = JetStartIndex[2]; k <= JetEndIndex[2]; k++) {
+      for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+        radius = sqrt(pow((CellLeftEdge[0][0] + (i+0.5)*CellWidth[0][0] - JetCenter[0]), 2) +
+                      pow((CellLeftEdge[2][0] + (k+0.5)*CellWidth[2][0] - JetCenter[2]), 2) )/
+                 CellWidth[0][0];
+        JetNormalization += exp(-pow(radius/JetScaleRadius,2)/2.0);   //add 2!!!!!!!!!!!!!!, print stqtement
+      }
     }
   }
 
@@ -168,9 +192,11 @@ if (JetOnGrid == true){
     }
   }
 
+  float density_ratio, density_add, energy_add, xpos, ypos, zpos, JetVelocity_z, JetVelocity_zy, JetVelocity_x, JetVelocity_y, JetVelocity_xy, JetVelocity_zx;
+
+if (jet_dim == 2){
   /* Loop over launch disks and set cell values (this code assumes jet_dim = 2). */
   /* loop over cells to be modified, add jet mass, momentum, and energy. */
-  float density_ratio, density_add, energy_add, xpos, ypos, JetVelocity_z, JetVelocity_xy, JetVelocity_x, JetVelocity_y;
   for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
     for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
       xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0];  //in the cell surface center
@@ -183,8 +209,8 @@ if (JetOnGrid == true){
 	JetVelocity_z = JetVelocity*cos(ClusterSMBHJetAngleTheta*pi);
 	JetVelocity_x = JetVelocity;  // mutiplied by sincos later
 	JetVelocity_y = JetVelocity;  // mutiplied by sincos later
-        if (ClusterSMBHJetPrecessionPeriod > 0.00001)
-           ClusterSMBHJetAnglePhi = (Time-ClusterSMBHStartTime)*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
+        if (ClusterSMBHJetPrecessionPeriod > 0.00001 || ClusterSMBHJetPrecessionPeriod < -0.00001)
+           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
       }
       else {
 	JetVelocity_z = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(pow(ClusterSMBHJetOpenAngleRadius, 2) + pow(radius, 2));
@@ -229,7 +255,132 @@ if (JetOnGrid == true){
       } //end top jet
     }
   }
+} //end if jet_dim == 2
+
+if (jet_dim == 0){
+  /* Loop over launch disks and set cell values (this code assumes jet_dim = 0). */
+  /* loop over cells to be modified, add jet mass, momentum, and energy. */
+  for (j = JetStartIndex[1]; j <= JetEndIndex[1]; j++) {
+    for (k = JetStartIndex[2]; k <= JetEndIndex[2]; k++) {
+      zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - JetCenter[2];  //in the cell surface center
+      ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j] - JetCenter[1];  //not in cellwidth
+      radius = sqrt(pow(zpos,2) + pow(ypos, 2))/CellWidth[0][0];  //in cell width
+      density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
+      energy_add = ((1.0-ClusterSMBHKineticFraction)/ClusterSMBHKineticFraction)*0.5*density_add*pow(JetVelocity, 2.0);
+      if (ClusterSMBHJetOpenAngleRadius < 0.00001) {   // if jet openning angle = 0, set ClusterSMBHJetOpenAngleRadius=0
+        JetVelocity_x = JetVelocity*cos(ClusterSMBHJetAngleTheta*pi);
+        JetVelocity_z = JetVelocity;  // mutiplied by sincos later
+        JetVelocity_y = JetVelocity;  // mutiplied by sincos later
+        if (ClusterSMBHJetPrecessionPeriod > 0.00001)
+           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
+      }
+      else {
+        JetVelocity_x = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(pow(ClusterSMBHJetOpenAngleRadius, 2) + pow(radius, 2));
+        JetVelocity_zy = JetVelocity * radius / sqrt(pow(ClusterSMBHJetOpenAngleRadius, 2) + pow(radius, 2));
+        JetVelocity_z = JetVelocity_zy * (zpos/CellWidth[0][0]) / radius;
+        JetVelocity_y = JetVelocity_zy * (ypos/CellWidth[0][0]) / radius;
+      }
+
+      /*this is the bottom jet: */
+
+      if (JetStartIndex[jet_dim] >= 0) {
+        i = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
+        BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
+        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_z*sin(ClusterSMBHJetAngleTheta*pi)*cos(ClusterSMBHJetAnglePhi*pi+pi) + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_y*sin(ClusterSMBHJetAngleTheta*pi)*sin(ClusterSMBHJetAnglePhi*pi+pi) + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]*(1.0-density_ratio) + energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+
+       /* If Using Zeus, shift the index for z-velocity */
+
+      if (HydroMethod == Zeus_Hydro) {
+        if (i+1 <= GridDimension[jet_dim]-1) { // update velocity if it is still on the grid
+          BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i+1,j,k)] = - density_ratio*JetVelocity_x + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i+1,j,k)];
+        }
+      }   //end Zeus
+      else {
+        BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = - density_ratio*JetVelocity_x + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+        }
+      }  //end bottom jet
+
+        /*this is the top jet: */
+      if (JetEndIndex[jet_dim] <= GridDimension[jet_dim]-1) {
+        i = JetEndIndex[jet_dim];
+        BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
+        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_z*sin(ClusterSMBHJetAngleTheta*pi)*cos(ClusterSMBHJetAnglePhi*pi) + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_y*sin(ClusterSMBHJetAngleTheta*pi)*sin(ClusterSMBHJetAnglePhi*pi) + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio*JetVelocity_x + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]*(1.0-density_ratio) +
+energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+      } //end top jet
+    }
+  }
+} //end if jet_dim == 0
+
+
+if (jet_dim == 1){
+  /* Loop over launch disks and set cell values (this code assumes jet_dim = 0). */
+  /* loop over cells to be modified, add jet mass, momentum, and energy. */
+  for (i = JetStartIndex[0]; i <= JetEndIndex[0]; i++) {
+    for (k = JetStartIndex[2]; k <= JetEndIndex[2]; k++) {
+      zpos = CellLeftEdge[2][k] + 0.5*CellWidth[2][k] - JetCenter[2];  //in the cell surface center
+      xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - JetCenter[0];  //not in cellwidth
+      radius = sqrt(pow(zpos,2) + pow(xpos, 2))/CellWidth[0][0];  //in cell width
+      density_add = density_normalization*exp(-pow(radius/JetScaleRadius,2)/2.0);
+      energy_add = ((1.0-ClusterSMBHKineticFraction)/ClusterSMBHKineticFraction)*0.5*density_add*pow(JetVelocity, 2.0);
+      if (ClusterSMBHJetOpenAngleRadius < 0.00001) {   // if jet openning angle = 0, set ClusterSMBHJetOpenAngleRadius=0
+        JetVelocity_y = JetVelocity*cos(ClusterSMBHJetAngleTheta*pi);
+        JetVelocity_z = JetVelocity;  // mutiplied by sincos later
+        JetVelocity_x = JetVelocity;  // mutiplied by sincos later
+        if (ClusterSMBHJetPrecessionPeriod > 0.00001)
+           ClusterSMBHJetAnglePhi = Time*2.0/(ClusterSMBHJetPrecessionPeriod*1.0e6*3.1557e7/TimeUnits);  // ClusterSMBHJetPrecessionPeriod from Myr to codeunit; *2.0 instead of 2*pi because pi is used later
+      }
+      else {
+        JetVelocity_y = JetVelocity * ClusterSMBHJetOpenAngleRadius / sqrt(pow(ClusterSMBHJetOpenAngleRadius, 2) + pow(radius, 2));
+        JetVelocity_zx = JetVelocity * radius / sqrt(pow(ClusterSMBHJetOpenAngleRadius, 2) + pow(radius, 2));
+        JetVelocity_z = JetVelocity_zx * (zpos/CellWidth[0][0]) / radius;
+        JetVelocity_x = JetVelocity_zx * (ypos/CellWidth[0][0]) / radius;
+      }
+
+      /*this is the bottom jet: */
+
+      if (JetStartIndex[jet_dim] >= 0) { 
+        j = JetStartIndex[jet_dim];  //start from the lower(outer) boundary of the cell
+        BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
+        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_z*sin(ClusterSMBHJetAngleTheta*pi)*cos(ClusterSMBHJetAnglePhi*pi+pi) + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_x*sin(ClusterSMBHJetAngleTheta*pi)*sin(ClusterSMBHJetAnglePhi*pi+pi) + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]*(1.0-density_ratio) + energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+
+       /* If Using Zeus, shift the index for z-velocity */
+
+      if (HydroMethod == Zeus_Hydro) { 
+        if (j+1 <= GridDimension[jet_dim]-1) { // update velocity if it is still on the grid
+          BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j+1,k)] = - density_ratio*JetVelocity_y + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j+1,k)];
+        }
+      }   //end Zeus
+      else {
+        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = - density_ratio*JetVelocity_y + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
+        }
+      }  //end bottom jet
+
+        /*this is the top jet: */
+      if (JetEndIndex[jet_dim] <= GridDimension[jet_dim]-1) {
+        j = JetEndIndex[jet_dim];
+        BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] += density_add;
+        density_ratio = density_add/ BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_z*sin(ClusterSMBHJetAngleTheta*pi)*cos(ClusterSMBHJetAnglePhi*pi) + (1.0-density_ratio)*BaryonField[Vel3Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio * JetVelocity_x*sin(ClusterSMBHJetAngleTheta*pi)*sin(ClusterSMBHJetAnglePhi*pi) + (1.0-density_ratio)*BaryonField[Vel1Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)] = density_ratio*JetVelocity_y + (1.0-density_ratio)*BaryonField[Vel2Num][GRIDINDEX_NOGHOST(i,j,k)];
+        BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)] = BaryonField[TENum][GRIDINDEX_NOGHOST(i,j,k)]*(1.0-density_ratio) +
+energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
+      } //end top jet
+    }
+  }
+} //end if jet_dim == 1
 }
+
 
   /* loop over cells of disk, remove mass. */
 if (DiskOnGrid == true & ClusterSMBHCalculateGasMass == TRUE){

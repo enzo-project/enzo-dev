@@ -471,6 +471,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHCalculateGasMass      = FALSE;
   ClusterSMBHFeedbackSwitch        = FALSE;
   ClusterSMBHEnoughColdGas         = 1.0e7;
+  ClusterSMBHFeedback              = 2;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
