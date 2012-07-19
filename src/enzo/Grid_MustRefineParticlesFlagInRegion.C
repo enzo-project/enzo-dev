@@ -56,7 +56,8 @@ int grid::MustRefineParticlesFlagInRegion()
       }
     }
   }
-  printf("MustRefineParticlesFlagInRegion:ParticlesFlagged = %d\n", NumberOfParticlesConverted);
+  if (NumberOfParticlesConverted > 0)
+    printf("MustRefineParticlesFlagInRegion:ParticlesFlagged = %d\n", NumberOfParticlesConverted);
 
   return SUCCESS;
 }

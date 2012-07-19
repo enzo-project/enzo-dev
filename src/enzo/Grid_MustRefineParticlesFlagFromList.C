@@ -78,7 +78,8 @@ int grid::MustRefineParticlesFlagFromList()
     } // end: if (index != -1)
 
   } // end: loop over particles
-  printf("MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",ParticlesFlagged);
+  if (ParticlesFlagged > 0)
+    printf("MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",ParticlesFlagged);
   delete [] ParticleNumberList;
   return SUCCESS;
 }
