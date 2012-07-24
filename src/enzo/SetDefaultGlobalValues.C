@@ -468,7 +468,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHJetAngleTheta         = 0.0;
   ClusterSMBHJetAnglePhi           = 0.0;
   ClusterSMBHJetPrecessionPeriod   = 0.0;
-  ClusterSMBHCalculateGasMass      = FALSE;
+  ClusterSMBHCalculateGasMass      = 1;
   ClusterSMBHFeedbackSwitch        = FALSE;
   ClusterSMBHEnoughColdGas         = 1.0e7;
   ClusterSMBHJetDim                = 2;

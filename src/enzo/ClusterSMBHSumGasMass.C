@@ -78,7 +78,11 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   MassUnits = DensityUnits*pow(LengthUnits,3);
 
   float ColdGasMassMsun=ClusterSMBHColdGasMass*MassUnits/SolarMass;
-
+  if (ClusterSMBHCalculateGasMass == 2){
+    float ClusterSMBHAccretionTime = 10.0*1.0e6; //10 Myr --parameter?  
+    ClusterSMBHJetMdot = ColdGasMassMsun/ClusterSMBHAccretionTime;  // reset Mdot, still in Msun/yr
+    ClusterSMBHJetEdot = (ClusterSMBHJetMdot * SolarMass/3.1557e7) * pow(clight,2)/1.0e44;
+  }
   int LastClusterSMBHFeedbackSwitch = ClusterSMBHFeedbackSwitch;
   if (ColdGasMassMsun < 1.0e5)
     ClusterSMBHFeedbackSwitch = FALSE;
