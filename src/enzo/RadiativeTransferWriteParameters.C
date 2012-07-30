@@ -57,6 +57,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferRaysPerCell);
   fprintf(fptr, "RadiativeTransferTimestepVelocityLimit    = %"FSYM"\n", 
 	  RadiativeTransferTimestepVelocityLimit);
+  fprintf(fptr, "RadiativeTransferTimestepVelocityLevel    = %"ISYM"\n", 
+	  RadiativeTransferTimestepVelocityLevel);
   fprintf(fptr, "RadiativeTransferInitialHEALPixLevel      = %"ISYM"\n", 
 	  RadiativeTransferInitialHEALPixLevel);
   fprintf(fptr, "RadiativeTransferPhotonEscapeRadius       = %"FSYM"\n", 
