@@ -1,3 +1,7 @@
+#include "fortran.def"
+#include "phys_const.def"
+#include "error.def"
+
 c -----------------------------------------------------------
 !   This routine scales the density fields from comoving to
 !     proper densities (and back again).
