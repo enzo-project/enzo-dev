@@ -345,7 +345,6 @@ EXTERN fpos_t  BaryonFileNamePosition;
 
 EXTERN int MultiSpecies;
 EXTERN int NoMultiSpeciesButColors;
-EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
 EXTERN int H2FormationOnDust;
@@ -574,6 +573,12 @@ EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
 EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
+
+/* Set this flag to allow star formation only once per root grid time
+   step (at the beginning) and with a SFR proportional to the full
+   root grid time step (as in Kravtsov 2004, for example). Currently
+   only implemented for H2REG_STAR. */
+EXTERN int   StarFormationOncePerRootGridTimeStep;
 
 
 /* Parameters governing certain time or redshift-dependent actions. */

@@ -336,7 +336,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MultiSpecies                = FALSE;             // off
   NoMultiSpeciesButColors     = FALSE;             // off
-  PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
   CIECooling                  = 1;
   H2OpticalDepthApproximation = 1;
@@ -425,6 +424,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BigStarSeparation                = 0.25;
   SimpleQ                          = 1e50;
   SimpleRampTime                   = 0.1;
+  StarFormationOncePerRootGridTimeStep = FALSE;
   StarMakerTypeIaSNe               = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
@@ -530,6 +530,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
   MBHInsertLocationFilename        = (char*) "mbh_insert_location.in";
   OutputWhenJetsHaveNotEjected     = FALSE;
+
+  H2StarMakerEfficiency = 0.01;
+  H2StarMakerNumberDensityThreshold = 0.0;
+  H2StarMakerMinimumMass = 0.0;
+  H2StarMakerMinimumH2FractionForStarFormation = 1e-5;
+  H2StarMakerStochastic = 1;
+  H2StarMakerUseSobolevColumn = 0;
+  H2StarMakerSigmaOverR = 1.0/30.0;
+  H2StarMakerAssumeColdWarmPressureBalance = 0;
+  H2StarMakerH2DissociationFlux_MW = 1.0;
+  H2StarMakerH2FloorInColdGas = 0.0;
+  H2StarMakerColdGasTemperature = 1e4;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

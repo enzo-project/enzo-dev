@@ -31,7 +31,7 @@ int grid::ReturnNumberOfStarParticles(void)
     for (n = 0; n < NumberOfParticles; n++) {
       abstype = ABS(ParticleType[n]);
       if (abstype == PARTICLE_TYPE_STAR ||
-	  (abstype >= PARTICLE_TYPE_SINGLE_STAR &&
+	  (abstype >= PARTICLE_TYPE_MUST_REFINE &&
 	   abstype != PARTICLE_TYPE_MBH)) np++;
     }
   return np;

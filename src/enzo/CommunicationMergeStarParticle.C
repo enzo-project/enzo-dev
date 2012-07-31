@@ -51,6 +51,8 @@ void MergeToNewList(ParticleEntry *List, const int &Size, int *Flag,
 int CheckMergeFlagList(ParticleEntry *List, const int &Size, int *Flag, const int &GroupSize,
 		       const double &MassUnits);
 int CommunicationAllSumValues(int *Values, int Number);
+int CommunicationSyncNumberOfParticles(HierarchyEntry *GridHierarchyPointer[],
+				       int NumberOfGrids);
 float ReturnCPUTime();
 double ReturnWallTime();
 
@@ -67,8 +69,10 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /* count particles on this processor */
 
+  int i, n, dim, grid;
   Eint32 ParticlesToSend = 0;
-  for (int grid = 0; grid < NumberOfGrids; grid++) {
+
+  for (grid = 0; grid < NumberOfGrids; grid++) {
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber)
       ParticlesToSend += Grids[grid]->GridData->ReturnNumberOfParticles();
   }
@@ -82,7 +86,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
     SendList = new ParticleEntry[ParticlesToSend];
 
     int c = 0;
-    for (int grid = 0; grid < NumberOfGrids; grid++) {
+    for (grid = 0; grid < NumberOfGrids; grid++) {
       if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
 	int np = Grids[grid]->GridData->ReturnParticleEntry(&SendList[c]);
 	c += np;
@@ -91,7 +95,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   }
 
-  //for (int i = 0; i < count; i++)
+  //for (i = 0; i < count; i++)
   //printf("P(%"ISYM"): %"ISYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" \n", MyProcessorNumber,
   //     ParticlePartialList[i].Number, 
   //     ParticlePartialList[i].Mass, ParticlePartialList[i].Position[0], 
@@ -114,7 +118,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   MPI_Allgather(&ParticlesToSend, 1, MPI_INT, SendListCount, 1, MPI_INT, MPI_COMM_WORLD);
 
   int NumberOfSharedParticles = 0;
-  for (int i = 0; i < NumberOfProcessors; i++)
+  for (i = 0; i < NumberOfProcessors; i++)
     NumberOfSharedParticles += SendListCount[i];
 
   if (NumberOfSharedParticles == 0) {
@@ -126,7 +130,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   Eint32 *SendListDisplacements = new Eint32[NumberOfProcessors];
   SendListDisplacements[0] = 0;
-  for (int i = 1; i < NumberOfProcessors; i++)
+  for (i = 1; i < NumberOfProcessors; i++)
     SendListDisplacements[i] = SendListDisplacements[i-1] + SendListCount[i-1];
 
   /* gather all particles to every processors */
@@ -149,9 +153,9 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /*
   if (debug) {
-    for (int i = 0; i < NumberOfSharedParticles; i++) {
+    for (i = 0; i < NumberOfSharedParticles; i++) {
       int found = 0;
-      for (int grid = 0; grid < NumberOfGrids; grid++)
+      for (grid = 0; grid < NumberOfGrids; grid++)
 	found += Grids[grid]->GridData->CheckGridBoundaries(SharedList[i].Position);
       if (!found) {
 	float v = sqrt(pow(SharedList[i].Velocity[0],2) + pow(SharedList[i].Velocity[1],2) +
@@ -169,7 +173,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
 
   int *MergeFlagList = new int[NumberOfSharedParticles]; // group ID of every merged particle
-  for (int i = 0; i < NumberOfSharedParticles; i++)
+  for (i = 0; i < NumberOfSharedParticles; i++)
     MergeFlagList[i] = -1; // default is not merged
   int NumberOfGroups = 0;
 
@@ -187,7 +191,7 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 
   /* delete merged old particles */
   //printf("Delete old particles \n");
-  for (int grid = 0; grid < NumberOfGrids; grid++) {
+  for (grid = 0; grid < NumberOfGrids; grid++) {
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
       Grids[grid]->GridData->RemoveMergedParticles(SharedList, NumberOfSharedParticles, 
 						   MergeFlagList);
@@ -204,10 +208,23 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   
   int *PartialAdded = new int[NumberOfGroups]; // flag whether a group is merged
   int *TotalAdded = new int[NumberOfGroups];
-  for (int i = 0; i < NumberOfGroups; i++)
+  for (i = 0; i < NumberOfGroups; i++)
     PartialAdded[i] = 0;
 
-  for (int grid = 0; grid < NumberOfGrids; grid++)
+  /* Adjust for periodic boundary conditions */
+
+  float DomainWidth[MAX_DIMENSION];
+  for (dim = 0; dim < MAX_DIMENSION; dim++)
+    DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+  for (i = 0; i < NumberOfGroups; i++)
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      if (NewList[i].Position[dim] < DomainLeftEdge[dim])
+	NewList[i].Position[dim] += DomainWidth[dim];
+      else if (NewList[i].Position[dim] > DomainRightEdge[dim])
+	NewList[i].Position[dim] -= DomainWidth[dim];
+    }
+
+  for (grid = 0; grid < NumberOfGrids; grid++)
     if (Grids[grid]->GridData->ReturnProcessorNumber() == MyProcessorNumber)
       Grids[grid]->GridData->AddParticlesFromList(NewList, NumberOfGroups, PartialAdded);
 
@@ -216,35 +233,71 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
   MPI_Allreduce(PartialAdded, TotalAdded, NumberOfGroups, IntDataType, MPI_SUM, MPI_COMM_WORLD);
 
   int total = 0;
-  for (int i = 0; i < NumberOfGroups; i++)
+  for (i = 0; i < NumberOfGroups; i++)
     total += TotalAdded[i];
 
+  int Rank, closest, Dims[MAX_DIMENSION];
+  FLOAT Left[MAX_DIMENSION], Right[MAX_DIMENSION];
+  bool found;
+  float r2, r2min, dx[MAX_DIMENSION];
   if (total != NumberOfGroups) {
-    if (debug) {
+    if (debug)
       printf("CommunicationMergeParticle: total %"ISYM" != NumberOfGroups %"ISYM"\n", 
 	     total, NumberOfGroups);
-      for (int i = 0; i < NumberOfGroups; i++) {
-	if (!TotalAdded[i]) {
+    for (i = 0; i < NumberOfGroups; i++) {
+      if (!TotalAdded[i]) {
+	float v = sqrt(pow(NewList[i].Velocity[0],2) + pow(NewList[i].Velocity[1],2) +
+		       pow(NewList[i].Velocity[2],2));
+	if (debug) {
 	  printf("Group %"ISYM" failed to be added.\n", NewList[i].Number);
-	  float v = sqrt(pow(NewList[i].Velocity[0],2) + pow(NewList[i].Velocity[1],2) +
-			 pow(NewList[i].Velocity[2],2));
-	  printf("m=%"GSYM", x=(%"GSYM", %"GSYM", %"GSYM"), v=%"GSYM"\n", NewList[i].Mass*MassUnits, NewList[i].Position[0],
+	  printf("m=%"GSYM", x=(%"GSYM", %"GSYM", %"GSYM"), v=%"GSYM"\n", 
+		 NewList[i].Mass*MassUnits, NewList[i].Position[0],
 		 NewList[i].Position[1], NewList[i].Position[2], v*VelocityUnits/1e5);
-	  int found = 0;
-	  for (int grid = 0; grid < NumberOfGrids; grid++)
-	    found += Grids[grid]->GridData->CheckGridBoundaries(NewList[i].Position);
-	  if (!found)
-	    printf("no fitting grid found!\n");
-	  /* if this is a small problem, ignore it */
-	  if (NewList[i].Mass*MassUnits > 0.1) {
-	    CheckMergeFlagList(SharedList, NumberOfSharedParticles, MergeFlagList, NumberOfGroups, MassUnits);      
-	    return FAIL;
-	  }
 	}
-      }
-      CheckMergeFlagList(SharedList, NumberOfSharedParticles, MergeFlagList, NumberOfGroups, MassUnits);      
+	found = false;
+	for (grid = 0; grid < NumberOfGrids; grid++)
+	  found |= Grids[grid]->GridData->CheckGridBoundaries(NewList[i].Position);
+	if (!found) {
+	  if (debug)
+	    printf("Inserting merged particle into nearest grid.  RebuildHierarchy will place it\n"
+		   "into the correct grid in the next call.\n");
+	  closest = 0;
+	  r2min = huge_number;
+	  for (grid = 0; grid < NumberOfGrids; grid++) {
+	    Grids[grid]->GridData->ReturnGridInfo(&Rank, Dims, Left, Right);
+	    r2 = 0;
+	    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+	      dx[dim] = 0.5*(Left[dim] + Right[dim]) - NewList[i].Position[dim];
+	      r2 += dx[dim] * dx[dim];
+	    }
+	    if (r2 < r2min) {
+	      r2min = r2;
+	      closest = grid;
+	    }
+	  } // ENDFOR grids
+	  if (debug) {
+	    Grids[closest]->GridData->ReturnGridInfo(&Rank, Dims, Left, Right);
+	    printf("Adding particle to grid %"ISYM"\n"
+		   "left edge  = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n"
+		   "right edge = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",		   
+		   closest, Left[0], Left[1], Left[2],
+		   Right[0], Right[1], Right[2]);
+	  }
+	  Grids[closest]->GridData->AddOneParticleFromList(NewList, i);
+	} // ENDIF !found
+
+	  /* if this is a small problem, ignore it */
+//	  if (NewList[i].Mass*MassUnits > 0.1) {
+//	    CheckMergeFlagList(SharedList, NumberOfSharedParticles, MergeFlagList, NumberOfGroups, MassUnits);      
+//	    return FAIL;
+//	  }
+      } // ENDIF !TotalAdded
+      
+      //CheckMergeFlagList(SharedList, NumberOfSharedParticles, MergeFlagList, NumberOfGroups, MassUnits);      
     }
   }
+
+  CommunicationSyncNumberOfParticles(Grids, NumberOfGrids);
 
   delete [] PartialAdded;
   delete [] TotalAdded;
@@ -264,9 +317,10 @@ int CommunicationMergeStarParticle(HierarchyEntry *Grids[],
 int CheckMergeFlagList(ParticleEntry *List, const int &Size, int *Flag, const int &GroupSize,
 		       const double &MassUnits)
 {
-  for (int group = 0; group < GroupSize; group++) {
+  int i, group;
+  for (group = 0; group < GroupSize; group++) {
     printf("group %"ISYM" ", group);
-    for (int i = 0; i < Size; i++) {
+    for (i = 0; i < Size; i++) {
       if (Flag[i] == group)
 	printf("%"GSYM" ", List[i].Mass*MassUnits);
     }

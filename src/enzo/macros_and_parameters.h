@@ -479,6 +479,8 @@ typedef int            HDF5_hid_t;
 #define SPRINGEL_HERNQUIST_STAR 8
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
+#define H2REG_STAR     11
+
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 

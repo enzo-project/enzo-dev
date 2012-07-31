@@ -16,7 +16,7 @@ MACH_TEXT  = NICS Kraken
 MACH_VALID = 1
 MACH_FILE  = Make.mach.nics-kraken-gnu
 
-MACHINE_NOTES = "Building with GNU requires PrgEnv-gnu"
+MACHINE_NOTES = "Building with GNU requires the PrgEnv-gnu, acml, and szip modules."
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -28,7 +28,7 @@ MACHINE_NOTES = "Building with GNU requires PrgEnv-gnu"
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_gnu4.4.3/
+LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.6/cnl3.1_gnu4.6.2/
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_HYPRE_INSTALL  = 
@@ -79,7 +79,7 @@ MACH_LDFLAGS  = -Wl,-static
 MACH_FFLAGS_INTEGER_32 = 
 MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
 MACH_FFLAGS_REAL_32    = 
-MACH_FFLAGS_REAL_64    = -fdefault-real-8
+MACH_FFLAGS_REAL_64    = -fdefault-real-8 -fdefault-double-8
 
 #-----------------------------------------------------------------------
 # Optimization flags
@@ -113,8 +113,8 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = 
 
-LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles10.1_gnu4.4.3/lib -lsz \
-		    -L/opt/acml/4.3.0/gnu64/lib -lacml -lm \
+LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles11.1_gnu4.6.1/ -lsz \
+		    -L/opt/acml/4.4.0/gnu64/lib -lacml -lm \
 		    -L/usr/local/lib -lz 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)

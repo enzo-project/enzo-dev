@@ -430,7 +430,7 @@
             gaHp(i) = gaHpa(indixe(i)) + tdef(i)
      &         *(gaHpa(indixe(i)+1) - gaHpa(indixe(i)))
             gael(i) = gaela(indixe(i)) + tdef(i)
-     &         *(gaela(indixe(i)+1) - gaHIa(indixe(i)))
+     &         *(gaela(indixe(i)+1) - gaela(indixe(i)))
             gphdl(i) = gphdla(indixe(i)) + tdef(i)
      &         *(gphdla(indixe(i)+1) - gphdla(indixe(i)))
             cieco(i) = ciecoa(indixe(i)) + tdef(i)
@@ -804,7 +804,7 @@ c
 
                xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*z_solar))
                edot(i) = edot(i) - metalc(i) * d(i,j,k) * d(i,j,k) * 
-     $              (xi/JHW_METALS_NORMZ) / dom
+     $              (xi/JHW_METALS_NORMZ)
 #ifdef UNUSED
                if (xi .gt. 1d-4 .and. tgas(i) .lt. 1e4) then
                   write(6,'(a,3i5,2e12.4)') 'a0', i,j,k, exp(log_xe),

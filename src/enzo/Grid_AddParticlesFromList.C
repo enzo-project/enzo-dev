@@ -123,6 +123,8 @@ int grid::AddParticlesFromList(ParticleEntry *List, const int &Size,
   return SUCCESS;
 }
 
+/************************************************************************/
+
 int grid::CheckGridBoundaries(FLOAT *Position)
 {
   //printf("x: %g %g y: %g %g z: %g %g\n", GridLeftEdge[0], GridRightEdge[0],

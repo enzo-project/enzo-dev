@@ -541,8 +541,8 @@ c
                metalc(i) = metalc(i) - metalc_cmb
 
                xi = min(3.d0, metal(i,j,k)/(d(i,j,k)*ZSOLAR))
-               edot(i,18) = -metalc(i) * d(i,j,k) * 
-     $              (xi/JHW_METALS_NORMZ) / dom
+               edot(i,18) = -metalc(i) * d(i,j,k) * d(i,j,k) *
+     $              (xi/JHW_METALS_NORMZ)
 #ifdef UNUSED
                if (xi .gt. 1e-06) then
                   write(6,777) i,j,k, exp(log_xe), exp(logtem(i)), 

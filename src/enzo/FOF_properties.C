@@ -72,7 +72,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
     for (i = 0; i < len; i++) {
       radius[i] = 0;
       for (dim = 0; dim < 3; dim++) {
-	del = p[i].Pos[dim] - pcm[dim];
+	del = FOF_periodic(p[i].Pos[dim] - pcm[dim], D.BoxSize);
 	radius[i] += del*del;
       }
       radius[i] = sqrt(radius[i]);

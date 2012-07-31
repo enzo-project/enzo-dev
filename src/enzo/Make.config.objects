@@ -299,6 +299,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddFeedbackSphere.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
+	Grid_AddOneParticleFromList.o \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
@@ -536,8 +537,6 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxStratifiedInitializeGrid.o \
 	Grid_ShocksHandler.o \
 	Grid_SolveForPotential.o \
-        Grid_SolveHighDensityPrimordialChemistry.o \
-        Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolveOneZoneFreefall.o \
 	Grid_SolvePPM_DE.o \
@@ -681,10 +680,6 @@ OBJS_CONFIG_LIB = \
         pop3_properties.o \
         power_of_2.o \
         prefort2.o \
-        primordial_calc_derivs.o \
-        primordial_cool.o \
-        primordial_lookup_rates.o \
-        primordial_solver.o \
 	PrepareDensityField.o \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
@@ -823,6 +818,7 @@ OBJS_CONFIG_LIB = \
         star_maker7.o \
 	star_maker8.o \
 	star_maker9.o \
+	star_maker_h2reg.o \
 	particle_splitter.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \

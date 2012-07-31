@@ -1,6 +1,3 @@
-#include "fortran.def"
-#include "phys_const.def"
-#include "error.def"
 c -----------------------------------------------------------
 !   This routine scales the density fields from comoving to
 !     proper densities (and back again).
@@ -641,8 +638,14 @@ c -------------------------------------------------------------------
 
             H2delta(i) = 
      &          HI(i,j,k) *
-     &           (  4.48d0 * h2heatfac(i) * k22(i) * HI(i,j,k)**2.d0
+     &           (  4.48d0 * k22(i) * HI(i,j,k)**2.d0
      &            - 4.48d0 * k13(i) * H2I(i,j,k)/2.d0)
+
+            ! We only want to apply this if the formation dominates, but we
+            ! need to apply it outside the delta calculation.
+            if(H2delta(i).gt.0.0) then
+              H2delta(i) = H2delta(i) * h2heatfac(i)
+            endif
 
             if (idust .gt. 0) then
                H2delta(i) = H2delta(i) + 
@@ -969,7 +972,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
             scoef = 2.d0*(k8(i)  * HM(i,j,k)   * HI(i,j,k)
      &            +       k10(i) * H2II(i,j,k) * HI(i,j,k)/2.d0
      &            +       k19(i) * H2II(i,j,k) * HM(i,j,k)/2.d0
-     &            +       k22(i) * HI(i,j,k) * (HI(i,j,k)**2))
+     &            +       k22(i) * HI(i,j,k) * (HI(i,j,k))**2.d0)
             acoef = ( k13(i)*HI(i,j,k) + k11(i)*HII(i,j,k)
      &              + k12(i)*de(i,j,k) )
 #ifdef RADIATION
@@ -1123,7 +1126,7 @@ c
       subroutine make_consistent(de, HI, HII, HeI, HeII, HeIII,
      &                        HM, H2I, H2II, DI, DII, HDI, metal, d,
      &                        is, ie, js, je, ks, ke,
-     &                        in, jn, kn, imax, ispecies, imetal, fh, 
+     &                        in, jn, kn, imax, ispecies, imetal, fh,
      &                        dtoh)
 ! -------------------------------------------------------------------
 
@@ -1131,7 +1134,7 @@ c
 
 !     Arguments
 
-      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal, 
+      integer in, jn, kn, is, ie, js, je, ks, ke, ispecies, imetal,
      &     imax
       real    de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &       HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
@@ -1235,3 +1238,4 @@ c
 
       return
       end
+

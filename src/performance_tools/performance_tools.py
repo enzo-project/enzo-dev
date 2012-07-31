@@ -366,7 +366,9 @@ class perform:
         ax = pl.subplot(111)
         data = self.data
         extrema = np.zeros(5)
-    
+        min_bound_extrema = np.zeros(5)
+        max_bound_extrema = np.zeros(5)
+
         ### Convert plots of single quantities to list format for homogenous 
         ### processing.
         if not is_listlike(field_label):
@@ -396,6 +398,9 @@ class perform:
         ### identical indices
         if not is_listlike(y_field_index):
             y_field_index = num_fields*[y_field_index]
+
+        ### Total number of cycles in data.
+        num_cycles = len(data[field_label[0]][x_field_index])
     
         ### Create a normalization vector to use on each vector
         ### before plotting.  In non-fractional case, this vector is 1.
@@ -417,6 +422,11 @@ class perform:
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             extrema = preserve_extrema(extrema,xdata,ydata)
+
+        ### If there's only one cycle, create an artificial xdata
+        if num_cycles == 1:
+            xdata = np.tile(xdata,3) + [-0.1,0.0,0.1]
+ 
         if log_y_axis=="Auto":
             if extrema[3]/extrema[2] > 1e3:
                 log_y_axis="On"
@@ -426,15 +436,20 @@ class perform:
         ### Now for the actual plotting
         for i in range(len(field_label)):
             color = cm.jet(1.*i/num_fields)
-            xdata = data[field_label[i]][x_field_index]
             ydata = data[field_label[i]][y_field_index[i]] / \
                     norm[y_field_index[i]]
+
+            ### If there's only one cycle, tile ydata to match
+            ### artificial xdata
+            if num_cycles == 1:
+                ydata = np.tile(ydata,3)
+            
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
-                pl.semilogy(xdata,ydata,color=color,label=field_label[i])
+                pl.semilogy(xdata,ydata,color=color,label=field_label[i])#, marker='s', ms=5+i, alpha=0.7)
             else:
-                pl.plot(xdata,ydata,color=color,label=field_label[i])
+                pl.plot(xdata,ydata,color=color,label=field_label[i])#, marker='s', ms=5+i, alpha=0.7)
             if not bounds == "Off":
                 zerodata = np.zeros(len(ydata))
                 if bounds == "minmax":
@@ -450,16 +465,39 @@ class perform:
                 if smooth_len:
                     min_bound = smooth(min_bound, smooth_len)
                     max_bound = smooth(max_bound, smooth_len)
+
+                ### also preserve min/max_bound extrema for proper
+                ### yaxis plot range
+                min_bound_extrema = preserve_extrema(min_bound_extrema,xdata,min_bound)
+                max_bound_extrema = preserve_extrema(max_bound_extrema,xdata,max_bound)
+
+                ### If there's only one cycle, tile min/max_bound to
+                ### match artificial xdata
+                if num_cycles == 1:
+                    min_bound = np.tile(min_bound,3)
+                    max_bound = np.tile(max_bound,3)
+
                 fillin = pl.fill_between(xdata,min_bound,max_bound,
                         facecolor=color)
                 fillin.set_alpha(0.5)
+
+        ### Correct y-extrema to reflect extrema of min/max_bound
+        if not bounds == "Off":
+            extrema[2] = min_bound_extrema[2]
+            extrema[3] = max_bound_extrema[3]
     
         ### If xlim and ylim are set explicitly.  If not, use smart defaults
         ### using extrema
         if xlim:
             pl.xlim(xlim)
         else:
-            pl.xlim(extrema[0:2])
+            ### If there's only one cycle, force the xlim to go from
+            ### cycle-1 to cycle+1, and fix number of xticks to 3.
+            if num_cycles == 1:
+                pl.xlim(extrema[0]-1.0,extrema[0]+1.0)
+                pl.xticks((extrema[0]-1.0,extrema[0],extrema[0]+1.0))
+            else:
+                pl.xlim(extrema[0:2])
         if ylim:
             pl.ylim(ylim)
         else:
@@ -468,7 +506,7 @@ class perform:
                 ### To assure there is a labeled tick mark on the y-axis
                 if y_log_range < 1.:
                     y_log_range = 1.
-                pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+                pl.ylim([extrema[2]*0.9,extrema[2]*10**y_log_range])
             else:
                 pl.ylim([0.,1.2*extrema[3]])
 
@@ -482,7 +520,8 @@ class perform:
         ### Reverse the order of the entries, so colors match order plotted
         handles, labels = ax.get_legend_handles_labels()
         legend = ax.legend(handles[::-1], labels[::-1],
-                          loc='center left', bbox_to_anchor=(1, 0.5))
+                          loc='center left', bbox_to_anchor=(1, 0.5),
+                          numpoints=1)
 
         ### Make the legend small
         ltext  = legend.get_texts()
@@ -567,6 +606,9 @@ class perform:
         >>> plot_stack(["Level 0", "Level 1", "Level 2"], "Mean Time")
         """
         ax = pl.subplot(111)
+        ### make figure a little bit wider to allow
+        ### "ComputePotentialFieldLevelZero" to fit into legend.
+        ax.figure.set_figwidth(8.5)
         data = self.data
         extrema = np.zeros(5)
 
@@ -591,6 +633,11 @@ class perform:
                 for key in key_list:
                     if key.startswith(repeated_field):
                         field_label.append(key)
+
+        ### Filter out field_label's for which the data is all zeros
+        ### (e.g. Group_WriteAllData if no cycles had outputs)
+        field_label = filter(lambda x: sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0, field_label)
+    
         num_fields = len(field_label)
         field_label.sort()
 
@@ -600,7 +647,7 @@ class perform:
         if field_label.__contains__("Group WriteAllData"):
             field_label.remove("Group WriteAllData")
             field_label.append("Group WriteAllData")
-    
+
         ### If y_field_index is a single index, then replace it with a list of
         ### identical indices
         if not is_listlike(y_field_index):
@@ -615,6 +662,9 @@ class perform:
         xdata = data[field_label[0]][x_field_index]
         ydata_cum = np.zeros((2,len(xdata)))
 
+        ### Total number of cycles in data.
+        num_cycles = len(data[field_label[0]][x_field_index])
+        
         ### Create a normalization vector to use on each vector
         ### before plotting.  In non-fractional case, this vector is 1.
         if fractional:
@@ -626,7 +676,7 @@ class perform:
                        ('Num Grids', 'float'), 
                        ('Updates/processor/sec', 'float')]
             norm = np.ones(data['Total'].shape, dtype=records)    
-    
+
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_index]
@@ -641,18 +691,29 @@ class perform:
                 log_y_axis="On"
             else:
                 log_y_axis="Off"
+
     
+        ### If there's only one cycle, create an artificial xdata
+        if num_cycles == 1:
+            xdata = np.tile(xdata,3) + [-0.1,0.0,0.1]
+
         ### Reset the cumulative ydata array to have the lowest value found
         ### or zero (for linear plots)
         ydata_cum = np.zeros((2,len(xdata)))
         if log_y_axis == "On":
             ydata_cum[0] += extrema[2]
-    
+ 
         for i in range(0,num_fields):
             ydata = data[field_label[i]][y_field_index[i]] / \
                     norm[y_field_index[i]]
             if smooth_len:
                 ydata = smooth(ydata, smooth_len)
+
+            ### If there's only one cycle, tile ydata to match
+            ### artificial xdata
+            if num_cycles == 1:
+                ydata = np.tile(ydata,3)            
+
             ydata_cum[1] += ydata
             color = cm.jet(1.*i/num_fields)
             pl.fill_between(xdata,ydata_cum[0],ydata_cum[1],color=color)
@@ -668,7 +729,13 @@ class perform:
         if xlim:
             pl.xlim(xlim)
         else:
-            pl.xlim(extrema[0:2])
+            ### If there's only one cycle, force the xlim to go from
+            ### cycle-1 to cycle+1, and fix number of xticks to 3.
+            if num_cycles == 1:
+                pl.xlim(extrema[0]-1.0,extrema[0]+1.0)
+                pl.xticks((extrema[0]-1.0,extrema[0],extrema[0]+1.0))
+            else:
+                pl.xlim(extrema[0:2])
         if ylim:
             pl.ylim(ylim)
         else:
@@ -677,14 +744,14 @@ class perform:
                 ### To assure there is a labeled tick mark on the y-axis
                 if y_log_range < 1.:
                     y_log_range = 1.
-                pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+                pl.ylim([extrema[2]*0.9,extrema[2]*10**y_log_range])
             else:
                 pl.ylim([0.,1.2*extrema[3]])
 
         ### Make a legend
         ### Shink current plot by 20% to make room for external legend
         box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
 
         ### Put a legend to the right of the current axis
         ### Reverse the order of the entries, so colors match order plotted
@@ -773,6 +840,9 @@ class perform:
         >>> plot_maxmin([], repeated_field="All")
         """
         ax = pl.subplot(111)
+        ### make figure a little bit wider to allow
+        ### "ComputePotentialFieldLevelZero" to fit into legend.
+        ax.figure.set_figwidth(8.5)
         data = self.data
         extrema = np.zeros(5)
     
@@ -801,6 +871,13 @@ class perform:
         num_fields = len(field_label)
         field_label.sort()
     
+        ### Total number of cycles in data.
+        num_cycles = len(data[field_label[0]][x_field_index])
+
+        ### Filter out field_label's for which the data is all zeros
+        ### (e.g. Group_WriteAllData if no cycles had outputs)
+        field_label = filter(lambda x: sum(data[x]["Min Time"] + data[x]["Max Time"]) > 0.0, field_label)
+
         ### Loop through the y datasets to figure out the extrema
         for i in range(len(field_label)):
             xdata = data[field_label[i]][x_field_index]
@@ -817,21 +894,31 @@ class perform:
                 log_y_axis="On"
             else:
                 log_y_axis="Off"
-    
+
+        ### If there's only one cycle, create an artificial xdata
+        if num_cycles == 1:
+            xdata = np.tile(xdata,3) + [-0.1,0.0,0.1]
+ 
         ### Now for the actual plotting
         for i in range(len(field_label)):
             color = cm.jet(1.*i/num_fields)
-            xdata = data[field_label[i]][x_field_index]
             ydata = data[field_label[i]]["Max Time"] - \
                     data[field_label[i]]["Min Time"]
             if fractional:
                 ydata /= data[field_label[i]]["Mean Time"]
                 ydata[ydata != ydata]=0.0
+
+            ### If there's only one cycle, tile ydata to match
+            ### artificial xdata
+            if num_cycles == 1:
+                ydata = np.tile(ydata,3)            
+
             if smooth_len:
                 ydata = smooth(ydata,smooth_len)
             if log_y_axis=="On":
                 try:
-                    pl.semilogy(xdata,ydata,color=color,label=field_label[i])
+                    if len(np.nonzero(ydata)[0]) > 0:
+                        pl.semilogy(xdata,ydata,color=color,label=field_label[i])
                 except:
                     pl.plot(xdata,ydata,color=color,label=field_label[i])
             else:
@@ -842,7 +929,13 @@ class perform:
         if xlim:
             pl.xlim(xlim)
         else:
-            pl.xlim(extrema[0:2])
+            ### If there's only one cycle, force the xlim to go from
+            ### cycle-1 to cycle+1, and fix number of xticks to 3.
+            if num_cycles == 1:
+                pl.xlim(extrema[0]-1.0,extrema[0]+1.0)
+                pl.xticks((extrema[0]-1.0,extrema[0],extrema[0]+1.0))
+            else:
+                pl.xlim(extrema[0:2])
         if ylim:
             pl.ylim(ylim)
         else:
@@ -851,15 +944,15 @@ class perform:
                 ### To assure there is a labeled tick mark on the y-axis
                 if y_log_range < 1.:
                     y_log_range = 1.
-                pl.ylim([extrema[2],extrema[2]*10**y_log_range])
+                pl.ylim([extrema[2]*0.9,extrema[2]*10**y_log_range])
             else:
                 pl.ylim([0.,1.2*extrema[3]])
 
 
         ### Make a legend
-        ### Shink current plot by 20% to make room for external legend
+        ### Shink current plot by 25% to make room for external legend
         box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
 
         ### Put a legend to the right of the current axis
         ### Reverse the order of the entries, so colors match order plotted
