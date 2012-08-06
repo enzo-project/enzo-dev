@@ -560,8 +560,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Grids[lvl][i]->GridData->FinalizeRadiationFields();
     END_PERF(8);
 
-    /* For the non-coupled (i.e. cells without radiation) rate & energy
-       solver, we have to set the H2 dissociation rates */
+    /* Set the optically-thin H2 dissociation rates */
 
     START_PERF();
     if (RadiativeTransferOpticallyThinH2)
@@ -569,6 +568,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #pragma omp parallel for schedule(guided)
 	for (i = 0; i < nGrids[lvl]; i++)
 	  Grids[lvl][i]->GridData->AddH2Dissociation(AllStars, NumberOfSources);
+    if (RadiativeTransferOpticallyThinXray)
+      for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY-1; lvl++)
+#pragma omp parallel for schedule(guided)
+	for (i = 0; i < nGrids[lvl]; i++)
+	  Grids[lvl][i]->GridData->
+	    AddOpticallyThinXrays(AllStars, NumberOfSources);
     END_PERF(10);
 
     START_PERF();
@@ -578,10 +583,8 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #pragma omp parallel for schedule(guided)
 	for (i = 0; i < nGrids[lvl]; i++)
 	  if (Grids[lvl][i]->GridData->RadiationPresent() == TRUE) {
-
 	    Grids[lvl][i]->GridData->SolveRateAndCoolEquations
 	      (RTCoupledSolverIntermediateStep);
-
 	  } /* ENDIF radiation */
     END_PERF(9);
 

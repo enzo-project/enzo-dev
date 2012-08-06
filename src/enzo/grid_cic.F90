@@ -245,12 +245,12 @@ subroutine dep_grid_cic(source, dest, velx, vely, velz,&
 !        compute density and mass-weighted velocity field
 !
 
-!$omp parallel do schedule(static) private(i,j,k) &
-!$omp private(x, i1, dx) &
-!$omp private(y, j1, dy) &
-!$omp private(z, k1, dz) &
-!$omp private(mass, temp1, me) &
-!$omp reduction(+:temp)
+!!!!$omp parallel do schedule(static) private(i,j,k) &
+!!!!$omp private(x, i1, dx) &
+!!!!$omp private(y, j1, dy) &
+!!!!$omp private(z, k1, dz) &
+!!!!$omp private(mass, temp1, me) &
+!!!!$omp reduction(+:temp)
      do k=sstart3+1, send3+1
         z = min(max((start3 + k)*fact3, half), edge3)
         k1 = int(z + 0.5d0)
@@ -344,18 +344,18 @@ subroutine dep_grid_cic(source, dest, velx, vely, velz,&
            enddo
         enddo
      enddo
-!$omp end parallel do
+!!!!$omp end parallel do
 
 !
 !        Use velocity and mass field to generate mass field advanced by dt
 !
 
-!$omp parallel do schedule(static) private(i,j) &
-!$omp private(x, i1, dx) &
-!$omp private(y, j1, dy) &
-!$omp private(z, k1, dz) &
-!$omp private(mass, shift1, shift2, shift3) &
-!$omp reduction(+:dest)
+!!!!$omp parallel do schedule(static) private(i,j) &
+!!!!$omp private(x, i1, dx) &
+!!!!$omp private(y, j1, dy) &
+!!!!$omp private(z, k1, dz) &
+!!!!$omp private(mass, shift1, shift2, shift3) &
+!!!!$omp reduction(+:dest)
      do k=1, ddim3
         do j=1, ddim2
            do i=1, ddim1
@@ -402,7 +402,7 @@ subroutine dep_grid_cic(source, dest, velx, vely, velz,&
            enddo
         enddo
      enddo
-!$omp end parallel do
+!!!!$omp end parallel do
 
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !     END PARALLEL REGION

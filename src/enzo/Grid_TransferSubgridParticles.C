@@ -211,6 +211,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	   block, so we know where to start inserting them in the move
 	   list. */
 
+#ifdef _OPENMP
 	move_per_thread = nmove / CoresPerProcess;
 	for (i = 0; i < CoresPerProcess+1; i++)
 	  ThreadCount[i] = 0;
@@ -253,7 +254,7 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	      n1++;
 	    } // ENDIF move to subgrid
 	  } // ENDFOR particles
-
+#endif /* _OPENMP */
       } // ENDELSE SingleThread
 
     } // END parallel
