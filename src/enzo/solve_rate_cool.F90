@@ -570,13 +570,14 @@
                 if(d(i,j,k)*dom.gt.1e18.and.i.eq.4)write(0, *) &
                    HI(i,j,k)/heq, edot(i),tgas(i)
                 dtit(i) = min(dtit(i), 0.1d0*heq/dheq)
+                if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
               endif
-              if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
-#ifndef _OPENMP
+!#ifndef _OPENMP
+!$omp critical
               if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and. &
                    abs((dt-ttot(i))/dt) .gt. 1.0d-3) then
                  write(4,1000) iter,i,j,k,dtit(i), &
@@ -602,7 +603,9 @@
                       + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0,  &
                       +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
               endif
-#endif /* _OPENMP */
+!$omp end critical
+!#endif /* _OPENMP */
+
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
 #endif /* WRITE_COOLING_DEBUG */
@@ -652,7 +655,7 @@
                     dt, ttot(i), abs(0.1d0*energy/edot(i)), &
                     real(abs(0.1d0*energy/edot(i)))
 
-#define NO_FORTRAN_DEBUG
+#define FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
                if (ge(i,j,k) .le. 0.0 .and. idual .eq. 1) &
                     write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
@@ -665,13 +668,15 @@
 #ifdef WRITE_COOLING_DEBUG
 !              If the timestep is too small, then output some debugging info
 
-#ifndef _OPENMP
+!#ifndef _OPENMP
+!$omp critical
                if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) &
                     .or. iter .gt. itmax-100) .and. &
                     abs((dt-ttot(i))/dt) .gt. 1.0d-3) &
                     write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i), &
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
-#endif /* _OPENMP */
+!$omp end critical
+!#endif /* _OPENMP */
  2000          format(4(i4,1x),1p,10(e14.3))
 #endif /* WRITE_COOLING_DEBUG */
             endif   ! itmask
