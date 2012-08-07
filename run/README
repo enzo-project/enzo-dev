@@ -62,6 +62,10 @@ Additional flags are:
   --bad=BAD             For bisection, most recent bad revision
   -j JCOMPILE, --jcompile=JCOMPILE
                         number of processors with which to compile when running bisect.
+  --changeset=CHANGESET
+                        Changeset to use in simulation repo.  If supplied,
+                        make clean && make is also run
+
 
 TEST SUITES:
 Three test suites exist: quick (37 tests), push (48 tests), and full (95 tests).  
