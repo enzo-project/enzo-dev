@@ -107,3 +107,5 @@ echo "problematic = True" >> Cosmology/Hydro/AdiabaticExpansion/AdiabaticExpansi
 ./test_runner.py  --output-dir=/scratch/dcollins/TESTS --repo=/SOMEWHERE_ELSE \
   --compare-dir=$mylar/ac7a5dacd12b --bisect --good=ac7a5dacd12b --bad=30cb5ff3c074 -j 8
 
+To run preliminary tests before bisection, we have also supplied the --changeset option.  If supplied, --repo is updated to 
+--changeset and compiled.  Compile errors cause test_runner.py to return that error, otherwise the tests/bisector is run.  
