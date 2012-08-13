@@ -45,7 +45,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
 
   /* Return if we do not want to calculate the cold gas mass */
-  if (ClusterSMBHCalculateGasMass = 0)
+  if (ClusterSMBHCalculateGasMass == 0)
     return SUCCESS;
 
   /* Return if not on most-refined level. */
