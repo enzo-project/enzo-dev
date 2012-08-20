@@ -82,7 +82,7 @@ int grid::ClusterSMBHFeedback(int level)
   int jet_dim;  // z-axis (should make parameter?)
 //  jet_dim = (int(ClusterSMBHJetAnglePhi/2.0)+2) % 3;
   jet_dim = ClusterSMBHJetDim % 3;
-  printf("jet_dim= %g \n",jet_dim);
+//  printf("jet_dim= %d \n",jet_dim);
   float JetScaleRadius; // cellwidths
   float JetMdot; // Jet mass flow in SolarMass/year (need to convert units)-- gets value from parameter ClusterSMBHJetMdot
   float JetVelocity, FastJetVelocity; // Jet Velocity in km/s (should make parameter)-- gets value from parameter ClusterSMBHJetVelocity
