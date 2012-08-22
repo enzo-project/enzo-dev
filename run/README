@@ -34,6 +34,7 @@ radiation = None, 'fld', 'ray'
 max_time_minutes = 1  
 
 Additional flags are:
+
   -h, --help            show this help message and exit
   -c COMPARE_DIR, --compare-dir=COMPARE_DIR
                         The directory structure to compare against
@@ -53,6 +54,18 @@ Additional flags are:
   --time-multiplier=TIME_MULTIPLIER
                         Multiply simulation time limit by this factor.
   -v, --verbose         Slightly more verbose output.
+  -b, --bisect          Run bisection on test. Requires revisions--good and
+                        --bad.  Best if --repo is different from location of
+                        test_runner.py.Runs  --problematic suite.  See README
+                        for more info
+  --good=GOOD           For bisection, most recent good revision
+  --bad=BAD             For bisection, most recent bad revision
+  -j JCOMPILE, --jcompile=JCOMPILE
+                        number of processors with which to compile when running bisect.
+  --changeset=CHANGESET
+                        Changeset to use in simulation repo.  If supplied,
+                        make clean && make is also run
+
 
 TEST SUITES:
 Three test suites exist: quick (37 tests), push (48 tests), and full (95 tests).  
@@ -77,3 +90,26 @@ includes all the FLD tests which require the hypre-yes compile option and HYPRE 
 to be installed.  The estimated run time is about 36 hours.
 Run with --fullsuite=True
 Gold standard available at: http://enzo-project.org/tests/gold_standard_full.tar.bz2
+
+RUNNING BISECTION
+
+In order to identify changesets that caused problems, we have provied the "--bisect" flag.  
+This runs hg bisect on revisions between --good and --bad.
+
+hg bisect automatically manipulates the repository as runs its course.  In order to keep
+the tests that get run consistent through the course of the bisection, we recommend using 
+a --repo that is distinct from the repository where the test is run.  
+
+In order to minimize the number of tests run, bisection is only run on tests for which 
+"problematic=True".  This must be set by hand by the user before running biset.  It is best
+this is a single problem, though if multiple tests match that flag, failures are combined with "or"
+
+
+An example of using this is:
+
+echo "problematic = True" >> Cosmology/Hydro/AdiabaticExpansion/AdiabaticExpansion.enzotest
+./test_runner.py  --output-dir=/scratch/dcollins/TESTS --repo=/SOMEWHERE_ELSE \
+  --compare-dir=$mylar/ac7a5dacd12b --bisect --good=ac7a5dacd12b --bad=30cb5ff3c074 -j 8
+
+To run preliminary tests before bisection, we have also supplied the --changeset option.  If supplied, --repo is updated to 
+--changeset and compiled.  Compile errors cause test_runner.py to return that error, otherwise the tests/bisector is run.  

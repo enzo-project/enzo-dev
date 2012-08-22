@@ -71,7 +71,8 @@ varspec = dict(
     radiation = (str, None),
     quicksuite = (bool, False),
     pushsuite = (bool, False),
-    fullsuite = (bool, False)
+    fullsuite = (bool, False),
+    problematic = (bool, False)
 )
 
 known_variables = dict( [(k, v[0]) for k, v in varspec.items()] )
@@ -122,6 +123,57 @@ def _to_walltime(ts):
 def add_files(my_list, dirname, fns):
     my_list += [os.path.join(dirname, fn) for
                 fn in fns if fn.endswith(".enzotest")]
+
+
+def version_swap(repository, changeset, jcompile):
+    """Updates *repository* to *changeset*,
+    then does make; make -j *jcompile* enzo"""
+    print repository, changeset
+    from mercurial import hg, ui, commands, util
+    options.repository = os.path.expanduser(options.repository)
+    u = ui.ui() 
+    u.pushbuffer()
+    repo = hg.repository(u, options.repository)
+    u.popbuffer()
+    commands.update(u,repo,changeset)
+    command = "cd %s/src/enzo; pwd; "%options.repository
+    command += "make clean && make -j %d enzo.exe"%jcompile
+    status = os.system(command)
+    return status
+
+
+def bisector(options,args):
+    print options.good
+    from mercurial import hg, ui, commands, util
+    # get current revision
+    options.repository = os.path.expanduser(options.repository)
+    u = ui.ui() 
+    u.pushbuffer()
+    repo = hg.repository(u, options.repository)
+    u.popbuffer()
+    test_directory = os.getcwd()
+    command = "cd %s/src/enzo;"%options.repository
+    command += "make clean;"
+    command += "make -j %d enzo.exe &&"%int(options.jcompile)
+    command += "cd %s;"%test_directory
+    command += "./test_runner.py --problematic=True " #we only run the problematic tests with bisector
+    command += "--output-dir=%s "%options.output_dir
+    command += "--repo=%s "%options.repository
+    command += "--compare-dir=%s "%options.compare_dir
+    def bisection_default_corrector(key,value):
+        """mercurial.commands.bisection has bad default values.  This corrects these values."""
+        correct_defaults={'good':False,'bad':False,'skip':False,'extend':False,                                                         'command':False,'extra':None,'reset':False}
+        correct_defaults[key]=value
+        return correct_defaults
+
+    #should read commands.bisect(u,repo,reset=True), etc.,
+    # but the defaults for this command do not work. This should be updated
+    # when mercurial is.  
+    commands.bisect(u,repo,**bisection_default_corrector("reset",True))
+    commands.bisect(u,repo,rev=options.good,**bisection_default_corrector("good",True))
+    commands.bisect(u,repo,rev=options.bad,**bisection_default_corrector("bad",True))
+    commands.bisect(u,repo,**bisection_default_corrector("command",command))
+
 
 class EnzoTestCollection(object):
     def __init__(self, tests = None, verbose=True):
@@ -282,6 +334,10 @@ class EnzoTestCollection(object):
         f.write("Runs failed to complete: %d.\n" % dnfs)
         f.write("Runs finished with only default tests available: %d.\n" % default_test)
         f.close()
+        if all_failures > 0 or dnfs > 0:
+            self.any_failures = True
+        else:
+            self.any_failures = False
 
 class EnzoTestRun(object):
     def __init__(self, test_dir, test_data, machine, exe_path):
@@ -478,6 +534,16 @@ if __name__ == "__main__":
                       help="Multiply simulation time limit by this factor.")
     parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
                       default=False, help="Slightly more verbose output.")
+    parser.add_option("-b", "--bisect", dest="bisect", action="store_true",
+                      default=False, help="Run bisection on test. Requires revisions" +
+                      "--good and --bad.  Best if --repo is different from location of test_runner.py."+
+                      "Runs  --problematic suite.  See README for more info")
+    parser.add_option("--good", dest="good", default=None, help="For bisection, most recent good revision")
+    parser.add_option("--bad", dest="bad", default=None, help="For bisection, most recent bad revision")
+    parser.add_option("-j", "--jcompile", dest="jcompile", type="int", default=1, 
+                      help="number of processors with which to compile when running bisect")
+    parser.add_option("--changeset", dest="changeset", default=None,
+                      help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
 
     testsuite_group = optparse.OptionGroup(parser, "Test suites:")
     for var, caster in sorted(known_variables.items()):
@@ -491,94 +557,108 @@ if __name__ == "__main__":
     parser.add_option_group(testsuite_group)
     options, args = parser.parse_args()
 
-    etc = EnzoTestCollection(verbose=options.verbose)
-
-    construct_selection = {}
-    for var, caster in known_variables.items():
-        if getattr(options, var) != unknown:
-            val = getattr(options, var)
-            if val == 'None': val = None
-            if val == "False": val = False
-            construct_selection[var] = caster(val)
-    print
-    print "Selecting with:"
-    for k, v in sorted(construct_selection.items()):
-        print "     %s = %s" % (k, v)
-    etc2 = etc.select(**construct_selection)
-    print
-    print "\n".join(list(etc2.unique('name')))
-    print "Total: %s" % len(etc2.tests)
-
-    # Gather results and version files for all test and tar them.
-    if options.gather_dir is not None:
-        cur_dir = os.getcwd()
-        if options.gather_dir.endswith('/'):
-            options.gather_dir = options.gather_dir[:-1]
-        top_dir = os.path.dirname(options.gather_dir)
-        basename = os.path.basename(options.gather_dir)
-        tar_filename = "%s.tar.gz" % basename
-        os.chdir(top_dir)
-        file_list = []
-        missing_file_list = []
-        for test in etc2.tests:
-            for gather in results_gather:
-                my_addition = os.path.join(basename, test['fulldir'], gather)
-                if os.path.exists(my_addition):
-                    file_list.append(my_addition)
-                else:
-                    missing_file_list.append(my_addition)
-        if len(missing_file_list) > 0:
-            print "\nError: could not gather test results because the following files are missing."
-            print '\n'.join(missing_file_list)
-            print 'Total: %d files missing.' % len(missing_file_list)
-            sys.exit(1)
-        print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
-        my_tar = tarfile.open(name=tar_filename, mode='w:gz')
-        for my_addition in file_list:
-            print "Adding %s." % my_addition
-            my_tar.add(my_addition)
-        my_tar.close()
-        print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
-        sys.exit(0)
-
     # Break out if output directory not specified.
     if options.output_dir is None:
         print 'Please enter an output directory with -o option'
         sys.exit(1)
 
-    # get current revision
-    options.repository = os.path.expanduser(options.repository)
-    if options.compare_dir is not None:
-        options.compare_dir = os.path.expanduser(options.compare_dir)
-    hg_current = _get_hg_version(options.repository)
-    rev_hash = hg_current.split()[0]
-    options.output_dir = os.path.join(options.output_dir, rev_hash)
-    if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
-    f = open(os.path.join(options.output_dir, version_filename), 'w')
-    f.write('Enzo: %s' % hg_current)
-    f.write('yt: %s\n' % yt_version)
-    f.close()
+    if options.changeset is not None:
+        status = version_swap(options.repository, options.changeset, options.jcompile)
+        if status:
+            sys.exit(status)
 
-    # the path to the executable we're testing
-    exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+    if options.bisect:
+        bisector(options,args)
+    else:
+        etc = EnzoTestCollection(verbose=options.verbose)
 
-    # Make it happen
-    etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
-            options.compare_dir, sim_only=options.sim_only, 
-            test_only=options.test_only)
-    try:
-        import json
-    except ImportError:
-        json = None
-    if json is not None and options.compare_dir is not None:
-        f = open("results.js", "w")
-        results = []
-        for test in etc2.test_container:
-            # This is to avoid any sorting code in JS
-            vals = test.results.items()
-            vals.sort()
-            results.append( dict(name = test.test_data['name'],
-                             results = vals) )
-        f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
-        f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
-                  options.compare_dir.strip(), hg_current.strip()))
+        construct_selection = {}
+        for var, caster in known_variables.items():
+            if getattr(options, var) != unknown:
+                val = getattr(options, var)
+                if val == 'None': val = None
+                if val == "False": val = False
+                construct_selection[var] = caster(val)
+        print
+        print "Selecting with:"
+        for k, v in sorted(construct_selection.items()):
+            print "     %s = %s" % (k, v)
+        etc2 = etc.select(**construct_selection)
+        print
+        print "\n".join(list(etc2.unique('name')))
+        print "Total: %s" % len(etc2.tests)
+
+        # Gather results and version files for all test and tar them.
+        if options.gather_dir is not None:
+            cur_dir = os.getcwd()
+            if options.gather_dir.endswith('/'):
+                options.gather_dir = options.gather_dir[:-1]
+            top_dir = os.path.dirname(options.gather_dir)
+            basename = os.path.basename(options.gather_dir)
+            tar_filename = "%s.tar.gz" % basename
+            os.chdir(top_dir)
+            file_list = []
+            missing_file_list = []
+            for test in etc2.tests:
+                for gather in results_gather:
+                    my_addition = os.path.join(basename, test['fulldir'], gather)
+                    if os.path.exists(my_addition):
+                        file_list.append(my_addition)
+                    else:
+                        missing_file_list.append(my_addition)
+            if len(missing_file_list) > 0:
+                print "\nError: could not gather test results because the following files are missing."
+                print '\n'.join(missing_file_list)
+                print 'Total: %d files missing.' % len(missing_file_list)
+                sys.exit(1)
+            print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
+            my_tar = tarfile.open(name=tar_filename, mode='w:gz')
+            for my_addition in file_list:
+                print "Adding %s." % my_addition
+                my_tar.add(my_addition)
+            my_tar.close()
+            print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
+            sys.exit(0)
+
+
+        # get current revision
+        options.repository = os.path.expanduser(options.repository)
+        if options.compare_dir is not None:
+            options.compare_dir = os.path.expanduser(options.compare_dir)
+        hg_current = _get_hg_version(options.repository)
+        rev_hash = hg_current.split()[0]
+        options.output_dir = os.path.join(options.output_dir, rev_hash)
+        if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
+        f = open(os.path.join(options.output_dir, version_filename), 'w')
+        f.write('Enzo: %s' % hg_current)
+        f.write('yt: %s\n' % yt_version)
+        f.close()
+
+        # the path to the executable we're testing
+        exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+
+        # Make it happen
+        etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
+                options.compare_dir, sim_only=options.sim_only, 
+                test_only=options.test_only)
+        try:
+            import json
+        except ImportError:
+            json = None
+        if json is not None and options.compare_dir is not None:
+            f = open("results.js", "w")
+            results = []
+            for test in etc2.test_container:
+                # This is to avoid any sorting code in JS
+                vals = test.results.items()
+                vals.sort()
+                results.append( dict(name = test.test_data['name'],
+                                 results = vals) )
+            f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
+            f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
+                      options.compare_dir.strip(), hg_current.strip()))
+
+        if etc2.any_failures:
+            sys.exit(1)
+        else:
+            sys.exit(0)
