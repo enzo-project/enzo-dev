@@ -346,6 +346,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
+  FindShocksOnlyOnOutput      = 0;                 // Find at every cycle by
+                                                   // default
   RadiationFieldType          = 0;
   RadiationFieldRedshift      = 0.0;
   TabulatedLWBackground       = 0;

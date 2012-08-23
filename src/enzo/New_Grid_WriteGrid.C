@@ -474,6 +474,19 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     } // if (OutputCoolingTime)
 
+    if (ShockMethod){
+      // Update the shock fields. 
+      // If FindShocksOnlyOnOutput > 1, don't update shock fields.
+      int temp_shocks_var = FindShocksOnlyOnOutput;
+      if (FindShocksOnlyOnOutput <= 1 ){
+        // Set FindShocksOnlyOnOutput temporarily to 0 so that shocks
+        // are found in the ShockHandler routine.
+        FindShocksOnlyOnOutput = 0;
+        this->ShocksHandler();
+        FindShocksOnlyOnOutput = temp_shocks_var;
+      }
+    }
+
     /* Make sure that there is a copy of dark matter field to save
        (and at the right resolution). */
 

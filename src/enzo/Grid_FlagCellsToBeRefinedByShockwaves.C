@@ -66,7 +66,13 @@ int grid::FlagCellsToBeRefinedByShockwaves(int level)
     return -1;
   } 
 
-
+  if (FindShocksOnlyOnOutput == 1){
+    fprintf(stderr, 
+            "FlagCellsToBeRefinedByShockwaves: Refusing to refine when shocks \n"
+            "are only found during output. Please change FindShocksOnlyOnOutput\n"
+            "to 0 or 2.\n");
+    ENZO_FAIL("Error in FlagCellsToBeRefinedByShockwaves.");
+  } 
 
   /* Compute cell volume */
   
