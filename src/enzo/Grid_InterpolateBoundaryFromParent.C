@@ -84,7 +84,8 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
   int i, j, k, dim, field, fieldindex, tempindex, interp_error;
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
- 
+  int FieldInterpolationMethod;
+
   if (NumberOfBaryonFields > 0) {
 
     interp_error = FALSE;
@@ -119,21 +120,21 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 
     if (InterpolationMethod == SecondOrderB)
       for (field = 0; field < NumberOfBaryonFields; field++) {
-	if (FieldType[field] == TotalEnergy || FieldType[field] == Pressure ||
-	    FieldType[field] == InternalEnergy)
-	  SecondOrderBFlag[field] = 2;   // enforce monotonicity
-	else
-	  SecondOrderBFlag[field] = 2;   // enforce only positivity
-	if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
-	  SecondOrderBFlag[field] = 2;   //  no positivity for velocity
+        if (FieldType[field] == TotalEnergy || FieldType[field] == Pressure ||
+            FieldType[field] == InternalEnergy)
+          SecondOrderBFlag[field] = 2;   // enforce monotonicity
+        else
+          SecondOrderBFlag[field] = 2;   // enforce only positivity
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+          SecondOrderBFlag[field] = 2;   //  no positivity for velocity
       }
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
-	  SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-	else
-	  SecondOrderBFlag[field] = 0;
- 
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+          SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
+        else
+          SecondOrderBFlag[field] = 0;
+
  
     /* Compute coefficient factors for linear interpolation in time.
        Note: interp = coef1*Old + coef2*New. */
@@ -357,8 +358,14 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
     for (field = 0; field < NumberOfBaryonFields; field++) {
  
       if (HydroMethod == Zeus_Hydro)
-	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	  SecondOrderA : SecondOrderC;
+        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+            SecondOrderA : SecondOrderC;
+      
+      // Set FieldInterpolationMethod to be FirstOrderA for 
+      // fields that shouldn't be interpolated.'
+      FieldInterpolationMethod = InterpolationMethod;
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
+        FieldInterpolationMethod = FirstOrderA; 
  
       /* Interpolating from the ParentTemp field to a Temporary field.  This
 	 is done for the entire current grid, not just it's boundaries.
@@ -371,7 +378,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 				  ParentTempStartIndex, ParentTempEndIndex,
                                      Refinement,
 				  TemporaryField, TempDim, ZeroVector, Work,
-				  &InterpolationMethod,
+				  &FieldInterpolationMethod,
 				  &SecondOrderBFlag[field], &interp_error);
 	if (interp_error) {
 	  printf("P%d: Error interpolating field %d (%s).\n"
