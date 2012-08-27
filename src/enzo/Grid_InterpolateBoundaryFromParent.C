@@ -84,7 +84,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
   int i, j, k, dim, field, fieldindex, tempindex, interp_error;
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
-  int FieldInterpolationMethod;
+  interpolation_type FieldInterpolationMethod;
 
   if (NumberOfBaryonFields > 0) {
 
