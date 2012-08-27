@@ -89,6 +89,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
   int dim, field, interp_error;
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
+  int FieldInterpolationMethod;
  
   if (NumberOfBaryonFields > 0) {
 
@@ -114,21 +115,21 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
     int SecondOrderBFlag[MAX_NUMBER_OF_BARYON_FIELDS];
     if (InterpolationMethod == SecondOrderB)
       for (field = 0; field < NumberOfBaryonFields; field++) {
-	if (FieldType[field] == TotalEnergy || FieldType[field] == Pressure ||
-	    FieldType[field] == InternalEnergy)
-	  SecondOrderBFlag[field] = 2;   // enforce monotonicity
-	else
-	  SecondOrderBFlag[field] = 2;   // enforce only positivity
-	if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
-	  SecondOrderBFlag[field] = 2;   //  no positivity for velocity
+        if (FieldType[field] == TotalEnergy || FieldType[field] == Pressure ||
+            FieldType[field] == InternalEnergy)
+          SecondOrderBFlag[field] = 2;   // enforce monotonicity
+        else
+          SecondOrderBFlag[field] = 2;   // enforce only positivity
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+          SecondOrderBFlag[field] = 2;   //  no positivity for velocity
       }
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
-	  SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-	else
-	  SecondOrderBFlag[field] = 0;
- 
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+          SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
+        else
+          SecondOrderBFlag[field] = 0;
+
     /* Compute the start and end indicies (in this grid units) of this grid
        within it's parent */
     /* StartIndex = cells from left edge of parent active region
@@ -331,9 +332,16 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        (skip density since we did it already) */
  
       if (HydroMethod == Zeus_Hydro){
-	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	  SecondOrderA : SecondOrderC;
+        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+            SecondOrderA : SecondOrderC;
       }
+      
+      // Set FieldInterpolationMethod to be FirstOrderA for 
+      // fields that shouldn't be interpolated.'
+      FieldInterpolationMethod = InterpolationMethod;
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
+        FieldInterpolationMethod = FirstOrderA; 
+      
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
       if (FieldType[field] != Density && FieldType[field] != DebugField) {
@@ -343,7 +351,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 				  ParentTempStartIndex, ParentTempEndIndex,
                                      Refinement,
 				  TemporaryField, TempDim, ZeroVector, Work,
-				  &InterpolationMethod,
+				  &FieldInterpolationMethod,
 				  &SecondOrderBFlag[field], &interp_error);
 	if (interp_error) {
 	  printf("P%d: Error interpolating field %d (%s).\n"
