@@ -29,6 +29,8 @@ int grid::ShocksHandler()
   if (!ShockMethod) return SUCCESS; 
   int shock_status;
 
+  if (FindShocksOnlyOnOutput == 1) return SUCCESS;
+  
   switch(ShockMethod){
   case 1:
     shock_status = this->FindShocks();

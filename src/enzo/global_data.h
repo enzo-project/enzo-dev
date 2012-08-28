@@ -368,6 +368,8 @@ EXTERN int MultiMetals;
 EXTERN int ShockMethod; 
 EXTERN float ShockTemperatureFloor;
 EXTERN int StorePreShockFields;
+EXTERN int FindShocksOnlyOnOutput;
+
 
 /* Type of radiation field. 
    0 - none,                    1 - Haardt & Madau alpha=-1.5

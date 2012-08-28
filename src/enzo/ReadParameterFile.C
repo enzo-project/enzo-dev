@@ -459,6 +459,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
+    ret += sscanf(line, "FindShocksOnlyOnOutput = %"ISYM, &FindShocksOnlyOnOutput);
 
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "RadiationFieldRedshift = %"FSYM, &RadiationFieldRedshift);
