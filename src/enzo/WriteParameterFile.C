@@ -781,6 +781,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarMakerOverDensityThreshold);
   fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
       StarMakerSHDensityThreshold);
+  fprintf(fptr, "StarMakerTimeIndependentFormation     = %"ISYM"\n",
+	  StarMakerTimeIndependentFormation);
   fprintf(fptr, "StarMakerMassEfficiency               = %"GSYM"\n",
 	  StarMakerMassEfficiency);
   fprintf(fptr, "StarMakerMinimumMass                  = %"GSYM"\n",
