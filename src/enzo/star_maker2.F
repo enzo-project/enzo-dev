@@ -178,7 +178,7 @@ c
 
                if (tindsf .eq. 1) then
                   starfraction = masseff
-                  tdyn = mintdyn
+                  tdyn = mintdyn*3.15d7/t1
                else
                   starfraction = min(masseff*dt/tdyn, 0.9_RKIND)
                   tdyn = max(tdyn, mintdyn*3.15e7_RKIND/t1)
