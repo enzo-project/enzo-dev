@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "EnzoTiming.h"
 #include "ErrorExceptions.h"
@@ -578,6 +579,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     TIMER_STOP(level_name);
 
+    TIMER_STOP(level_name);
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
 
@@ -692,7 +694,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
     TIMER_SET_NGRIDS(level, NumberOfGrids);
-
 
     cycle++;
     LevelCycleCount[level]++;

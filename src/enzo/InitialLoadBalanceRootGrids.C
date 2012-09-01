@@ -49,7 +49,10 @@ int InitialLoadBalanceRootGrids(FILE *fptr, hid_t Hfile_id, int TopGridRank,
 
   /* Determine number of nodes and thus cores/node */
 
-  int NumberOfNodes = DetermineNumberOfNodes();
+  
+  int NumberOfNodes;
+  //if (LoadBalancing == 2 || LoadBalancing == 3)
+    NumberOfNodes = DetermineNumberOfNodes();
 
   if (NumberOfProcessors == 1 || LoadBalancing == 0)
     return SUCCESS;
