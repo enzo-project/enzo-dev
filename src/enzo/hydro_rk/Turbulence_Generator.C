@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include "macros_and_parameters.h"
+extern int DEFAULT_GHOST_ZONES;
 
 
 double Gaussian(double cs); 

@@ -39,6 +39,7 @@ class EnzoProblemType;
                           1 = Equalize processor memory count
                          2 = Load balance only on a node
 */
+EXTERN int DEFAULT_GHOST_ZONES;
 EXTERN int LoadBalancing;
 EXTERN int LoadBalancingCycleSkip;
 EXTERN int ResetLoadBalancing;
