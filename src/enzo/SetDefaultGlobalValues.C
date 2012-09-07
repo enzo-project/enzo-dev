@@ -214,6 +214,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
     MinimumMassForRefinementLevelExponent[i] = 0;
+    MinimumSecondDerivativeForRefinement[i]= 0.3;
+    SecondDerivativeFlaggingFields[i] = INT_UNDEFINED;
   }
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {

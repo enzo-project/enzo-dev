@@ -1,0 +1,173 @@
+/***********************************************************************
+  /
+  /  GRID CLASS (FLAG CELLS TO BE REFINED BY SLOPE)
+  /
+  /  written by: Greg Bryan
+  /  date:       November, 1994
+  /  modified1:  Alexei Kritsuk, Feb. 2005. Fixed a bug by adding the second
+  /                              fabs() at around L107. Added a switch on
+  /                              ProblemType.
+  /  modified2:  Brian O'Shea, May 2006.  Changed problemtype 30 to just refine
+  /                              on Density and TotalEnergy (as suggested by 
+  /                              Alexei Kritsuk).  This is for supernovae.
+  /
+  /  PURPOSE:
+  /
+  /  RETURNS:
+  /    number of flagged cells, or -1 on failure
+  /
+ ************************************************************************/
+
+#include <stdio.h>
+#include <math.h>
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+
+int grid::FlagCellsToBeRefinedBySecondDerivative()
+{
+  /* declarations */
+
+  int i, j, k, index, dim;
+  int Start[MAX_DIMENSION], End[MAX_DIMENSION];
+
+  /* Return if this grid is not on this processor. */
+
+  if (MyProcessorNumber != ProcessorNumber)
+    return SUCCESS;
+
+  /* error check */
+
+  if (FlaggingField == NULL) {
+    fprintf(stderr, "Flagging Field is undefined.\n");
+    return -1;
+  }
+
+  /* Make sure quantities are defined at least to dim 3 */
+
+  for (dim = GridRank; dim < 3; dim++) {
+    GridDimension[dim] = 1;
+    GridStartIndex[dim] = 0;
+    GridEndIndex[dim] = 0;
+  }
+
+  /* loop over all zones */
+ 
+  for (dim = 0; dim < 3; dim++) {
+    Start[dim] = GridStartIndex[dim];
+    End[dim]   = GridEndIndex[dim];
+  }
+ 
+  /* compute size */
+ 
+  int size = 1;
+  for (dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
+ 
+  /* allocate a temporary slope field. */
+ 
+  float *TopBuffer = new float[size];
+  float *BottomBuffer = new float[size];
+ 
+  /* some problems do not need to check all the fields, in particular
+     the velocity components */
+ 
+  int NumberOfFields = NumberOfBaryonFields;
+
+  // Override NumberOfFields for some specific problems:
+
+  if (ProblemType ==  6) NumberOfFields = 1; // Implosion (AK)
+  if (ProblemType ==  7) NumberOfFields = 2; // SedovBlast (AK)
+  if (ProblemType == 11) NumberOfFields = 2; // RadiatingShock (BWO)
+  if (ProblemType == 30) NumberOfFields = 2; // Cosmology (BWO 23 May 2006)
+
+
+  bool doField=false;
+  float MinimumSecondDerivativeForRefinementThis;
+  int Offset = 1;
+  float sderiv_epsilon = 0.0001;
+  
+  for (int field = 0; field < NumberOfFields; field++) {
+
+    doField = false;
+    if (SecondDerivativeFlaggingFields[0]==INT_UNDEFINED){ 
+      MinimumSecondDerivativeForRefinementThis=MinimumSecondDerivativeForRefinement[0];
+      doField=true;
+    } else {
+      for (int g=0; g<MAX_FLAGGING_METHODS; g++){
+        if (SecondDerivativeFlaggingFields[g]==FieldType[field]){
+          MinimumSecondDerivativeForRefinementThis=MinimumSecondDerivativeForRefinement[g];
+          doField=true;
+        }
+      }
+    }
+
+    if (doField){
+
+      /* loop over active dimensions */
+
+      Offset = 1;
+
+      for (i = 0; i < size; i++){
+        *(TopBuffer + i) = 0.0;
+        *(BottomBuffer + i) = 0.0;
+      }
+
+      for (dim = 0; dim < GridRank; dim++){
+        if (GridDimension[dim] > 1) {
+          /* zero slope */
+
+          /* compute second derivative criteria */
+
+          for (k = Start[2]; k <= End[2]; k++)
+            for (j = Start[1]; j <= End[1]; j++)
+              for (i = Start[0]; i <= End[0]; i++) {
+                index = i + j*GridDimension[0] +
+                    k*GridDimension[1]*GridDimension[0];
+
+                TopBuffer[index] += 
+                    POW(BaryonField[field][index + Offset] -
+                        2.0*BaryonField[field][index] +
+                        BaryonField[field][index - Offset], 2.0);
+                BottomBuffer[index] +=
+                    POW(fabs(BaryonField[field][index + Offset] - 
+                             BaryonField[field][index]) +
+                        fabs(BaryonField[field][index] - 
+                             BaryonField[field][index - Offset]) +
+                        sderiv_epsilon * 
+                        (fabs(BaryonField[field][index + Offset]) +
+                         fabs(2.0*BaryonField[field][index]     ) +
+                         fabs(BaryonField[field][index - Offset])) , 2.0);
+              }
+        } // end loop over do condition
+        Offset *= GridDimension[dim];
+      }  // end loop over dimension
+      /* flag field based on second derivative */
+
+      for (i = 0; i < size; i++){
+        TopBuffer[i] = sqrt(TopBuffer[i]/BottomBuffer[i]);
+        FlaggingField[i] += (TopBuffer[i] > MinimumSecondDerivativeForRefinementThis) ? 1 : 0;
+      }
+    } // doField
+  }  // end loop over field
+
+
+  /* delete buffer */
+
+  delete [] TopBuffer, BottomBuffer;
+
+  /* Count number of flagged Cells. */
+
+  int NumberOfFlaggedCells = 0;
+  for (i = 0; i < size; i++)
+    if (FlaggingField[i] > 0)
+      NumberOfFlaggedCells++;
+
+  return NumberOfFlaggedCells;
+
+}

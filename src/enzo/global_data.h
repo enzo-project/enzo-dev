@@ -147,6 +147,7 @@ EXTERN int FastSiblingLocatorEntireDomain;
 			 11 = FlagCellsToBeRefinedByResistiveLength
                          12 = FlagCellsToBeRefinedByMustRefineRegion
 			 13 = FlagCellsToBeRefinedByMetallicity
+       15 = FlagCellsToBeRefinedBySecondDerivative
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
@@ -553,6 +554,11 @@ EXTERN float RefineByResistiveLengthSafetyFactor;
 EXTERN float ShockwaveRefinementMinMach;
 EXTERN float ShockwaveRefinementMinVelocity;
 EXTERN int ShockwaveRefinementMaxLevel;
+
+/* For CellFlaggingMethod = 15,   
+   Minimum second derivative required for refinement.    */
+EXTERN float MinimumSecondDerivativeForRefinement[MAX_FLAGGING_METHODS];
+EXTERN int SecondDerivativeFlaggingFields[MAX_FLAGGING_METHODS];
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 
