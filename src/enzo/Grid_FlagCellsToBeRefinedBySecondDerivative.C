@@ -93,7 +93,7 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   int Offsets[3];
   for (dim=0; dim<GridRank; dim++)
     Offsets[dim] = 1;
-  float sderiv_epsilon = 0.10;
+  float sderiv_epsilon = 0.2;
   
   for (dim = 0; dim<GridRank-1; dim++){
     Offsets[dim+1] = Offsets[dim]*GridDimension[dim]; 
@@ -116,9 +116,6 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
     if (doField){
 
       /* loop over active dimensions */
-
-      Offset = 2;
-
       for (i = 0; i < size; i++){
         *(TopBuffer + i) = 0.0;
         *(BottomBuffer + i) = 0.0;
@@ -134,17 +131,18 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
               for (int diml = 0; diml < GridRank; diml++){
                 /* zero slope */
                 TopBuffer[index] += 
-                    POW(BaryonField[field][index + Offsets[dimk] + Offsets[diml]] -
-                        BaryonField[field][index + Offsets[dimk] - Offsets[diml]] -
-                        BaryonField[field][index - Offsets[dimk] + Offsets[diml]] +
-                        BaryonField[field][index - Offsets[dimk] - Offsets[diml]], 2.0);
+                    0.125*POW(BaryonField[field][index + Offsets[dimk] + Offsets[diml]] -
+                              BaryonField[field][index + Offsets[dimk] - Offsets[diml]] -
+                              BaryonField[field][index - Offsets[dimk] + Offsets[diml]] +
+                              BaryonField[field][index - Offsets[dimk] - Offsets[diml]], 2.0);
                 BottomBuffer[index] +=
                     POW(0.5*(fabs(BaryonField[field][index + Offsets[dimk]] -
                                   BaryonField[field][index]) +
                              fabs(BaryonField[field][index] -
                                   BaryonField[field][index - Offsets[dimk]])) +
                         sderiv_epsilon * (fabs(BaryonField[field][index + Offsets[dimk] + Offsets[diml]]) +
-                                          fabs(2.0*BaryonField[field][index]     ) +
+                                          fabs(BaryonField[field][index + Offsets[dimk] - Offsets[diml]]) +
+                                          fabs(BaryonField[field][index - Offsets[dimk] + Offsets[diml]]) +
                                           fabs(BaryonField[field][index - Offsets[dimk] - Offsets[dimk]])) , 2.0);
               }
             }
