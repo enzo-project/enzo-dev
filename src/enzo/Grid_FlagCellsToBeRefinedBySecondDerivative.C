@@ -118,7 +118,7 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
       /* loop over active dimensions */
       for (i = 0; i < size; i++){
         *(TopBuffer + i) = 0.0;
-        *(BottomBuffer + i) = 0.0;
+        *(BottomBuffer + i) = 1.0; //Protects from 0.0/0.0 later on.
       }
 
       /* compute second derivative criteria */
@@ -127,6 +127,7 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
           for (i = Start[0]; i <= End[0]; i++) {
             index = i + j*GridDimension[0] +
                 k*GridDimension[1]*GridDimension[0];
+            BottomBuffer[index] = 0.0;
             for (int dimk = 0; dimk < GridRank; dimk++){
               for (int diml = 0; diml < GridRank; diml++){
                 /* zero slope */
