@@ -232,6 +232,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "LoadBalancingMinLevel = %"ISYM, &LoadBalancingMinLevel);
     ret += sscanf(line, "LoadBalancingMaxLevel = %"ISYM, &LoadBalancingMaxLevel);
  
+    ret += sscanf(line, "ConductionDynamicRebuildHierarchy = %"ISYM, 
+                  &ConductionDynamicRebuildHierarchy);
     if (sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] =", &int_dummy) == 1) {
       if (int_dummy > MAX_DEPTH_OF_HIERARCHY) {
 	ENZO_VFAIL("Cannot set RebuildHierarchyCycleSkip[%"ISYM"], max hierarchy depth = %"ISYM".\n", int_dummy, MAX_DEPTH_OF_HIERARCHY);

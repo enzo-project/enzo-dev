@@ -143,6 +143,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HierarchyFileInputFormat = 1;
   HierarchyFileOutputFormat = 2;
 
+  ConductionDynamicRebuildHierarchy = FALSE;
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
   }
@@ -801,6 +802,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   /* Some stateful variables for EvolveLevel */
   for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
     LevelCycleCount[i] = 0;
+    LevelSubCycleCount[i] = 0;
     dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
   }
 

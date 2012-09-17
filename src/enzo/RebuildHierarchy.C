@@ -92,7 +92,7 @@ int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level)
 {
 
-  if (LevelCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
+  if (LevelSubCycleCount[level] % RebuildHierarchyCycleSkip[level]) {
     return SUCCESS;
   }
 

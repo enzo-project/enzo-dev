@@ -782,13 +782,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     cycle++;
     LevelCycleCount[level]++;
+    LevelSubCycleCount[level]++;
+    if ((MetaData->StaticHierarchy == 0) && (level < MaximumRefinementLevel)) {
+      LevelSubCycleCount[level+1] = 0;
+    }
  
   } // end of loop over subcycles
  
     EXTRA_OUTPUT_MACRO(6, "After Subcycle Loop")
   if (debug)
-    fprintf(stdout, "EvolveLevel[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total)\n", level,
-           cycle, LevelCycleCount[level]);
+    fprintf(stdout, "EvolveLevel[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total, %"ISYM" sub)\n", 
+            level, cycle, LevelCycleCount[level], LevelSubCycleCount[level]);
  
   /* If possible & desired, report on memory usage. */
  

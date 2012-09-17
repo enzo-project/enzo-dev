@@ -58,6 +58,21 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
 
     dtActual = *dtThisLevel;
 
+    /* Set rebuild hierarchy cycle skip. */
+    if (ConductionDynamicRebuildHierarchy && LevelSubCycleCount[level] == 0) {
+      float dtRatio, my_dtRatio;
+      dtRatio = huge_number;
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        my_dtRatio = Grids[grid1]->GridData->ComputeTimeStepRatio();
+        dtRatio = min(dtRatio, my_dtRatio);
+      }
+      dtRatio = CommunicationMinValue(dtRatio);
+      int my_cycle_skip = (int) dtRatio;
+      RebuildHierarchyCycleSkip[level] = max(1, my_cycle_skip);
+      if (debug) fprintf(stderr, "AdaptiveRebuildHierarchyCycleSkip[%"ISYM"] = %"ISYM"\n",
+                         level, RebuildHierarchyCycleSkip[level]);
+    }
+
 #ifdef USE_DT_LIMIT
 
     //    dtLimit = LevelZeroDeltaT/(4.0)/POW(RefineBy,level);
