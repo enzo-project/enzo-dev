@@ -58,19 +58,28 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
 
     dtActual = *dtThisLevel;
 
-    /* Set rebuild hierarchy cycle skip. */
+    /* Compute timestep without conduction and use to set the number 
+       of iterations without rebuiding the hierarchy. */
+
     if (ConductionDynamicRebuildHierarchy && LevelSubCycleCount[level] == 0) {
-      float dtRatio, my_dtRatio;
-      dtRatio = huge_number;
+      float dt_no_conduction, my_dt_no_conduction;
+      int my_isotropic_conduction = IsotropicConduction;
+      int my_anisotropic_conduction = AnisotropicConduction;
+      IsotropicConduction = AnisotropicConduction = FALSE;
+
+      dt_no_conduction = huge_number;
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        my_dtRatio = Grids[grid1]->GridData->ComputeTimeStepRatio();
-        dtRatio = min(dtRatio, my_dtRatio);
+        my_dt_no_conduction = Grids[grid1]->GridData->ComputeTimeStep();
+        dt_no_conduction = min(dt_no_conduction, my_dt_no_conduction);
       }
-      dtRatio = CommunicationMinValue(dtRatio);
-      int my_cycle_skip = (int) dtRatio;
+      dt_no_conduction = CommunicationMinValue(dt_no_conduction);
+      int my_cycle_skip = (int) (dt_no_conduction / dtActual);
       RebuildHierarchyCycleSkip[level] = max(1, my_cycle_skip);
       if (debug) fprintf(stderr, "AdaptiveRebuildHierarchyCycleSkip[%"ISYM"] = %"ISYM"\n",
                          level, RebuildHierarchyCycleSkip[level]);
+
+      IsotropicConduction = my_isotropic_conduction;
+      AnisotropicConduction = my_anisotropic_conduction;
     }
 
 #ifdef USE_DT_LIMIT

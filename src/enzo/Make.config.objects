@@ -366,7 +366,6 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
 	Grid_ComputeTimeStep.o \
-	Grid_ComputeTimeStepRatio.o \
         Grid_ComputeVectorAnalysisFields.o \
 	Grid_ComputeVertexCenteredField.o \
 	Grid_ComputeXrayEmissivity.o \
