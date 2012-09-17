@@ -343,10 +343,6 @@ public:
 
    float ComputeTimeStep();
 
-/* Compute ratio of timestep to conduction timestep. */
-
-   float ComputeTimeStepRatio();
-
 /* Set the timestep in this grid to the timestep in the argument
     (for step #3) */
 
