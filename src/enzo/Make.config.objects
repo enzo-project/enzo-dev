@@ -635,6 +635,7 @@ OBJS_CONFIG_LIB = \
         MagneticFieldResetter.o \
         mbh_maker.o \
         mcooling.o \
+        MakeFieldConservative.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \
