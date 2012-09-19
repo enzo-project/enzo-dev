@@ -36,7 +36,7 @@ int LLF_Zero(float **prim, float **priml, float **primr,
   int iprim;
   for (int field = 0; field < 5; field++) {
     for (int i = 0; i < ActiveSize+1; i++) {
-      iprim = i + DEFAULT_GHOST_ZONES - 1;
+      iprim = i + NumberOfGhostZones - 1;
       priml[field][i] = prim[field][iprim];
       primr[field][i] = prim[field][iprim+1];
     }
@@ -50,7 +50,7 @@ int LLF_Zero(float **prim, float **priml, float **primr,
   float sum;
   if (NSpecies > 0) {
     for (int i = 0; i < ActiveSize+1; i++) {
-      iprim = i+DEFAULT_GHOST_ZONES-1;
+      iprim = i+NumberOfGhostZones-1;
       for (int field = 0; field < NSpecies; field++) {
         if (FluxLine[iD][i] >= 0) {
           species[field][i] = prim[field+5][iprim  ];
@@ -73,7 +73,7 @@ int LLF_Zero(float **prim, float **priml, float **primr,
 
   if (NColor > 0) {
     for (int i = 0; i < ActiveSize+1; i++) {
-      iprim = i+DEFAULT_GHOST_ZONES-1;
+      iprim = i+NumberOfGhostZones-1;
       for (int field = 0; field < NColor; field++) {
         if (FluxLine[iD][i] >= 0) {
           colors[field][i] = prim[field+5+NSpecies][iprim  ];

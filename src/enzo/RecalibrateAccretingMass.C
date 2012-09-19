@@ -89,7 +89,7 @@ int RecalibrateAccretingMass(FLOAT star_pos[], LevelHierarchyEntry *LevelArray[]
   float CellWidth;
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   LevelArray[level]->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
-  CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*DEFAULT_GHOST_ZONES);
+  CellWidth = (RightEdge[0] - LeftEdge[0]) / (Dims[0] - 2*NumberOfGhostZones);
 
   RecalibrateAccretingMassRatio = 1.0;
 

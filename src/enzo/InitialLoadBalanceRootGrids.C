@@ -350,7 +350,7 @@ int InitialLoadBalanceRootGrids(FILE *fptr, hid_t Hfile_id, int TopGridRank,
 	  Layout[0] * (GridPosition[1] + Layout[1]*GridPosition[2]);
 	
 	ThisCellWidth = (RightEdge[0] - LeftEdge[0]) /
-	  (GridDims[0] - 2*DEFAULT_GHOST_ZONES);
+	  (GridDims[0] - 2*NumberOfGhostZones);
 	ThisLevel = nint(-logf(TopGridDim * ThisCellWidth) / M_LN2);
 	
 	if (ThisLevel == 1) {	  

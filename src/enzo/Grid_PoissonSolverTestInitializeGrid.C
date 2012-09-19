@@ -65,9 +65,9 @@ int grid::PoissonSolverTestInitializeGrid(int TestType, float GeometryControl)
 
 
 //   if (UseDivergenceCleaning){
-//     //   divB= new float[(GridDimension[0]-2*DEFAULT_GHOST_ZONES)*
-//     // 		    (GridDimension[1]-2*DEFAULT_GHOST_ZONES)*
-//     // 		    (GridDimension[2]-2*DEFAULT_GHOST_ZONES)];
+//     //   divB= new float[(GridDimension[0]-2*NumberOfGhostZones)*
+//     // 		    (GridDimension[1]-2*NumberOfGhostZones)*
+//     // 		    (GridDimension[2]-2*NumberOfGhostZones)];
     
 //     divB= new float[size];
 //     Phi_p= new float[size];
