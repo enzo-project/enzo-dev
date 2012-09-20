@@ -96,6 +96,18 @@ int RebuildHierarchy(TopGridData *MetaData,
     return SUCCESS;
   }
 
+  if (ConductionDynamicRebuildHierarchy) {
+    if (TimeSinceRebuildHierarchy[level] < dtRebuildHierarchy[level]) {
+      return SUCCESS;
+    }
+    else {
+      for (int i = level;i <= MaximumRefinementLevel;i++) {
+        dtRebuildHierarchy[i] = -1.0;
+        TimeSinceRebuildHierarchy[i] = 0.0;
+      }
+    }
+  }
+
   double tt0, tt1, tt2, tt3;
  
   /* declarations */

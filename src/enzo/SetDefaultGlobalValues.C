@@ -478,8 +478,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IsotropicConduction = FALSE;
   AnisotropicConduction = FALSE;
-  IsotropicConductionSpitzerFraction = 1.0;
-  AnisotropicConductionSpitzerFraction = 1.0;
+  IsotropicConductionSpitzerFraction = 0.0;
+  AnisotropicConductionSpitzerFraction = 0.0;
   ConductionCourantSafetyNumber = 0.5;
 
   ClusterSMBHFeedback              = FALSE;
@@ -801,8 +801,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* Some stateful variables for EvolveLevel */
   for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
-    LevelCycleCount[i] = 0;
-    LevelSubCycleCount[i] = 0;
+    LevelCycleCount[i] = LevelSubCycleCount[i] = 0;
+    dtRebuildHierarchy[i] = -1.0;
+    TimeSinceRebuildHierarchy[i] = 0.0;
     dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
   }
 

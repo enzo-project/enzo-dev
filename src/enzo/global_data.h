@@ -889,6 +889,8 @@ EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 EXTERN int LevelSubCycleCount[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtRebuildHierarchy[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float TimeSinceRebuildHierarchy[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
 

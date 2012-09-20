@@ -381,7 +381,7 @@ public:
 /* Member functions for dealing with thermal conduction */
    int ComputeHeat(float dedt[]);	     /* Compute Heat */
    int ConductHeat();			     /* Conduct Heat */
-   int ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
+   float ComputeConductionTimeStep(); /* Estimate conduction time-step */
 
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */

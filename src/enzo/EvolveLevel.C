@@ -376,6 +376,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
+    TimeSinceRebuildHierarchy[level] += dtThisLevel[level];
+
     /* If StarFormationOncePerRootGridTimeStep, stars are only created
     once per root grid time step and only on MaximumRefinementLevel
     grids. The following sets the MakeStars flag for all

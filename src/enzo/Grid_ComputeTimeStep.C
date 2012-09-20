@@ -403,7 +403,6 @@ float grid::ComputeTimeStep()
     if (this->ComputeConductionTimeStep(dtConduction) == FAIL) 
       ENZO_FAIL("Error in ComputeConductionTimeStep.");
 
-    dtConduction *= ConductionCourantSafetyNumber;  // for stability
     dtConduction *= float(NumberOfGhostZones);     // for subcycling 
   }
 

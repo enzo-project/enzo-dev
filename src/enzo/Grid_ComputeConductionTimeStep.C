@@ -9,7 +9,7 @@
 /  on a given grid patch.
 /
 /  RETURNS:
-/    SUCCESS or FAIL
+/    The conduction timestep.
 /
 ************************************************************************/
 
@@ -36,9 +36,9 @@ int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Member functions
-int grid::ComputeConductionTimeStep (float &dt) {
-  if (ProcessorNumber != MyProcessorNumber) {return SUCCESS;}
-  if (NumberOfBaryonFields == 0) {return SUCCESS;}
+float grid::ComputeConductionTimeStep (float &dt) {
+  if (ProcessorNumber != MyProcessorNumber) {return huge_number;}
+  if (NumberOfBaryonFields == 0) {return huge_number;}
   this->DebugCheck("ComputeConductionTimeStep");
 
   // Some locals
@@ -63,7 +63,7 @@ int grid::ComputeConductionTimeStep (float &dt) {
     SpitzerFraction = AnisotropicConductionSpitzerFraction;
   }
   else {
-    return SUCCESS;
+    return huge_number;
   }
 
   int size = 1, grid_index, right_side_index; 
@@ -236,6 +236,7 @@ int grid::ComputeConductionTimeStep (float &dt) {
     ( 6.0e-7 * SpitzerFraction * mh * TimeUnits );
   
   dt *= float(all_units);
+  dt *= ConductionCourantSafetyNumber;  // for stability, this has to be < 0.5
 
   delete [] Temp;
 
