@@ -98,7 +98,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
   /* Set various units. */
 
   const double Mpc = 3.0856e24, SolarMass = 1.989e33, GravConst = 6.67e-8,
-               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16;
+               pi = 3.14159, mh = 1.67e-24, kboltz = 1.381e-16, keV=1.1604e7;
   float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, 
     VelocityUnits, CriticalDensity = 1, BoxLength = 1, mu = 0.6;
   double MassUnits = 1;
@@ -118,7 +118,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
   float ParticleMeanDensity = 1.0 - BaryonMeanDensity, ParticleCount = 0;
 
   /* Set the point source gravity parameters for the NFW profile. */
-  if ((SphereType[0] == 3 || SphereType[0] == 6) && PointSourceGravity == 2) {
+  if ((SphereType[0] == 7 || SphereType[0] == 6) && PointSourceGravity == 2) {
     PointSourceGravityCoreRadius = SphereCoreRadius[0]*LengthUnits; // in CGS
     PointSourceGravityConstant = 4.0*pi*SphereDensity[0]*
                       (CriticalDensity/pow(ExpansionFactor, 3)) *
@@ -142,12 +142,11 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
      dispersion. */
 
 #define NFW_POINTS 500
-  float NFWMass[NFW_POINTS], NFWPressure[NFW_POINTS], NFWTemp[NFW_POINTS], x1,
-        NFWDensity[NFW_POINTS], NFWSigma[NFW_POINTS], m200, GasShellMass[NFW_POINTS], GasMass[NFW_POINTS];
+  float Allg[NFW_POINTS], NFWg[NFW_POINTS], NFWPressure[NFW_POINTS], NFWTemp[NFW_POINTS], x1,
+        NFWDensity[NFW_POINTS], GasDensity[NFW_POINTS],NFWMass[NFW_POINTS], NFWSigma[NFW_POINTS];
   FLOAT NFWRadius[NFW_POINTS];
-  double dpdr = 0, dpdr_old;
+  double dpdr = 0, dpdr_old, rkpc;
   sphere = 0;
-  m200   = 0;
 
   FILE *fptr = fopen("NFWProfile.out", "w");
   for (i = 0; i < NFW_POINTS; i++) {
@@ -157,9 +156,9 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
      NFWDensity[i] = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
 }
   NFWPressure[0] = 1.0 * kboltz * InitialTemperature / (mu * mh);
+
   if (SphereType[sphere]==6) {
     NFWDensity[i]=mh*(0.0192/(1.0+pow(NFWRadius[i]*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(NFWRadius[i]*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(NFWRadius[i]*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits/0.88;
-}
     NFWTemp[i] = 8.12e7*(1.0+pow(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc*71),3))/(2.3 + pow(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc*71),3));   // in K
     NFWPressure[i] = (1.9*(0.0192/(1.0+pow(NFWRadius[i]*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(NFWRadius[i]*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(NFWRadius[i]*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits)* kboltz * NFWTemp[i];
     NFWMass[i] = 4.0*pi*1891.3*(CriticalDensity/pow(ExpansionFactor, 3))
@@ -170,10 +169,35 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
     fprintf(fptr, "%d %"GOUTSYM" %g %g %g %g %g %g\n", i, NFWRadius[i],
          NFWDensity[i], NFWMass[i], NFWPressure[i], NFWTemp[i], NFWSigma[i],
          mean_overdensity);
-    if (mean_overdensity > 200 && m200 == 0)
-      m200 = NFWMass[i];
   }
-  fprintf(fptr, "#m200 = %g\n", m200);
+
+  if (SphereType[sphere]==7 || SphereType[sphere]==8 ) {
+    rkpc=NFWRadius[i]*LengthUnits/(1.0e-3*Mpc);
+    if (rkpc > 300){
+      NFWTemp[i]=7.0594*1.3*pow((1.0+1.5*NFWRadius[i]/SphereRadius[sphere]),-1.6)*keV;  // in K
+    } else{
+      NFWTemp[i]=8.12e7*(1.0+pow(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc*71),3))/(2.3 + pow(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc*71),3));
+      if (SphereType[sphere]==8)
+         NFWTemp[i]=8.12e7;
+    }
+    if (i==0){
+    GasDensity[i]=NFWDensity[i]*DensityUnits*0.15;  // in cgs
+    NFWPressure[i]=kboltz*NFWTemp[i]*GasDensity[i]/ (mu * mh);  // in cgs
+    dpdr = -Allg[i]*GasDensity[i];
+    }
+    Allg[i]=GravConst*PointSourceGravityConstant*SolarMass*
+            ((log(1.0+x1)-x1/(1.0+x1)) /(log(1.0+1.0)-1.0/(1.0+1.0)))/POW(NFWRadius[i]*LengthUnits, 2.0)  +
+            POW((POW(POW(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc),0.5975)/3.206e-7,0.9) + 
+            POW(POW(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) + 
+            GravConst*SolarMass*3.4e8 / POW(NFWRadius[i]*LengthUnits, 2)  ;
+    dpdr_old=dpdr;
+    if (i>0) {
+    NFWPressure[i]= (NFWPressure[i-1] + (NFWRadius[i]-NFWRadius[i-1])*16.0*Mpc*0.5*dpdr_old)/(1.0+(NFWRadius[i]-NFWRadius[i-1])*16.0*Mpc*0.5*Allg[i]/(kboltz*NFWTemp[i]/(mu * mh)));
+    GasDensity[i]=NFWPressure[i]/(kboltz * NFWTemp[i]/(mu * mh));
+    dpdr = -Allg[i]* GasDensity[i];
+    }
+  }
+}
   fclose(fptr);
 
   /* Loop over the set-up twice, once to count the particles, the second
@@ -202,7 +226,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
   /* Loop over the mesh. */
 
   float density, dens1, Velocity[MAX_DIMENSION],
-    temperature, temp1, sigma, sigma1, colour, GasDensity, GasDensity1;
+    temperature, sigma, sigma1, colour, gas_density;
   FLOAT r, x, y = 0, z = 0;
   int n = 0;
 
@@ -222,8 +246,8 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
         density = 1.0;
         dens1   = 0.0;
-        GasDensity = density * BaryonMeanDensity;  //Set Gasdensity!
-        temperature = temp1 = InitialTemperature;
+        gas_density = density * BaryonMeanDensity;  //Set Gasdensity!
+        temperature = InitialTemperature;
         sigma = sigma1 = 0;
         colour = 1.0e-10;
         for (dim = 0; dim < MAX_DIMENSION; dim++)
@@ -239,16 +263,6 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
           if (r < SphereRadius[sphere]) {
 
-            /* 1) Uniform */
-
-            if (SphereType[sphere] == 1)
-              dens1 = SphereDensity[sphere];
-
-            /* 2) r^-2 power law */
-
-            if (SphereType[sphere] == 2)
-              dens1 = SphereDensity[sphere]*pow(r/SphereRadius[sphere], -2);
-
             /* 3) NFW profile (use look-up table for temperature and
                   velocity dispersion)*/
 
@@ -257,7 +271,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
               dens1 = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
               for (m = 1; m < NFW_POINTS; m++)
                 if (r > NFWRadius[m]) {
-                  temp1 = NFWTemp[m] + (NFWTemp[m-1] - NFWTemp[m])*
+                  temperature = NFWTemp[m] + (NFWTemp[m-1] - NFWTemp[m])*
                     (r - NFWRadius[m])/(NFWRadius[m-1] - NFWRadius[m]);
                   sigma1 = NFWSigma[m] + (NFWSigma[m-1] - NFWSigma[m])*
                     (r - NFWRadius[m])/(NFWRadius[m-1] - NFWRadius[m]);
@@ -265,34 +279,29 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
                 }
             }
 
-            /* 4) Gaussian */
+            /* 6-8) Perseus */
 
-            if (SphereType[sphere] == 4) {
-              dens1 = SphereDensity[sphere]*
-                      exp(-0.5*pow(r/SphereCoreRadius[sphere], 2));
-            }
-
-            /* 5) r^-2 power law with core radius */
-
-            if (SphereType[sphere] == 5) {
-              if (r < SphereCoreRadius[sphere])
-                dens1 = SphereDensity[sphere]*pow(SphereCoreRadius[sphere]/
-                                                  SphereRadius[sphere], -2);
-              else
-                dens1 = SphereDensity[sphere]*pow(r/SphereRadius[sphere], -2);
-            }
-
-            /* 6) Perseus */
-
-            if (SphereType[sphere] == 6) {
-
+            if (SphereType[sphere] == 6 || SphereType[sphere] == 7 || SphereType[sphere] == 8) {
               FLOAT xpos, ypos, zpos, vc, rz;
-
               x1 = r/SphereCoreRadius[sphere];
               dens1 = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
-              GasDensity1 =mh*(0.0192/(1.0+pow(r*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(r*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(r*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits/0.88;
+            /* 6) Perseus_old */
+              if (SphereType[sphere] == 6) {
+              gas_density =mh*(0.0192/(1.0+pow(r*LengthUnits/(18.0e-3*Mpc),3.0))+0.046/pow((1.0+pow(r*LengthUnits/(57.0e-3*Mpc), 2.0)), 1.8)+0.00563/pow((1.0+pow(r*LengthUnits/(200.0e-3*Mpc), 2.0)), 1.1))/DensityUnits/0.88;
+              temperature = 8.12e7*(1.0+pow(r*LengthUnits/(1.0e-3*Mpc*71),3))/(2.3 + pow(r*LengthUnits/(1.0e-3*Mpc*71),3));// in K
+              }
+            /* 7) Perseus no gas self-gravity, force HSE */
 
-              temp1 = 8.12e7*(1.0+pow(r*LengthUnits/(1.0e-3*Mpc*71),3))/(2.3 + pow(r*LengthUnits/(1.0e-3*Mpc*71),3));// in K
+            if (SphereType[sphere] == 7 || SphereType[sphere] == 8) {
+              for (m = 1; m < NFW_POINTS; m++)
+                if (r > NFWRadius[m]) {
+                  temperature = NFWTemp[m] + (NFWTemp[m-1] - NFWTemp[m])*
+                    (r - NFWRadius[m])/(NFWRadius[m-1] - NFWRadius[m]);
+                  gas_density = GasDensity[m] + (GasDensity[m-1] - GasDensity[m])*
+                    (r - NFWRadius[m])/(NFWRadius[m-1] - NFWRadius[m]);
+                  //break;  --do I need this? Sep2012
+                }
+            }
 
               /* Loop over dims if using Zeus (since vel's face-centered). */
 
@@ -301,14 +310,14 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
                 /* Compute position. */
 
-                xpos = x-SpherePosition[sphere][0] - (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
-                ypos = y-SpherePosition[sphere][1] - (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
-                zpos = z-SpherePosition[sphere][2] - (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
+              xpos = x-SpherePosition[sphere][0] - (dim == 1 ? 0.5*CellWidth[0][0] : 0.0);
+              ypos = y-SpherePosition[sphere][1] - (dim == 2 ? 0.5*CellWidth[1][0] : 0.0);
+              zpos = z-SpherePosition[sphere][2] - (dim == 3 ? 0.5*CellWidth[2][0] : 0.0);
 
               vc = ClusterInitialSpinParameter*sqrt(GravConst*PointSourceGravityConstant*SolarMass/(PointSourceGravityCoreRadius)); /*in GCS unit*/
 
-               rz = sqrt(pow(fabs(xpos), 2) + pow(fabs(ypos), 2));
-               rz = max(rz, 0.1*CellWidth[0][0]);
+              rz = sqrt(pow(fabs(xpos), 2) + pow(fabs(ypos), 2));
+              rz = max(rz, 0.1*CellWidth[0][0]);
               
               if (r > 6.25e-4) {  //10kpc
                 if (dim == 0 || dim == 1)
@@ -327,38 +336,12 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
                   Velocity[2] = 0;                    
               } 
               } // end: loop over dims
-
             } // end: Perseus
-
-
-            /* If the density is larger than the background (or the previous
-               sphere), then set the velocity. */
-
-            if (dens1 > density) {
-              density = dens1;
-              GasDensity = GasDensity1; //Yuan add
-              if (temp1 == InitialTemperature)
-                temp1 = SphereTemperature[sphere];
-              temperature = temp1;
-              sigma = sigma1;
-              if (SphereType[sphere] != 10 && SphereType[sphere] != 6)
-                for (dim = 0; dim < GridRank; dim++)
-                  Velocity[dim] = SphereVelocity[sphere][dim];
-              if (sphere == 0)
-                colour = dens1; /* only mark first sphere */
-            }
-
           } // end: if (r < SphereRadius)
         } // end: loop over spheres
 
         /* Set density. */
-  if (SphereType[0]!=6) {
-     BaryonField[0][n] = density*BaryonMeanDensity;
-}   /* Yuan edited in Feb 2010*/
-  if (SphereType[0]==6) {
-    BaryonField[0][n] = GasDensity;
-//BaryonField[0][n] = density;
-}
+    BaryonField[0][n] = gas_density;
 
 
 	/* Set Velocities. */
