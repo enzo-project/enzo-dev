@@ -141,7 +141,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
      equation and from this comes the temperature and the dm velocity
      dispersion. */
 
-#define NFW_POINTS 500
+#define NFW_POINTS 5000
   float Allg[NFW_POINTS], NFWg[NFW_POINTS], NFWPressure[NFW_POINTS], NFWTemp[NFW_POINTS], x1,
         NFWDensity[NFW_POINTS], GasDensity[NFW_POINTS],NFWMass[NFW_POINTS], NFWSigma[NFW_POINTS];
   FLOAT NFWRadius[NFW_POINTS];
@@ -150,7 +150,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
 
   FILE *fptr = fopen("NFWProfile.out", "w");
   for (i = 0; i < NFW_POINTS; i++) {
-    NFWRadius[i] = SphereRadius[sphere]*pow(10, -4*(float(i)/NFW_POINTS));
+    NFWRadius[i] = 2.0*SphereRadius[sphere]*pow(10, -5*(float(i)/NFW_POINTS));
     x1 = NFWRadius[i]/SphereCoreRadius[sphere];
   if (SphereType[sphere]!=6) {
      NFWDensity[i] = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
@@ -198,6 +198,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
     fprintf(fptr, "%d %g %g %g %g %g %g\n", i, NFWRadius[i],
          NFWDensity[i], Allg[i], NFWPressure[i], NFWTemp[i], GasDensity[i]);
 }  //end for
+  fprintf(fptr, "CriticalDensity is %g and DensityUnits is %g\n", CriticalDensity, DensityUnits);
   fclose(fptr);
 
   /* Loop over the set-up twice, once to count the particles, the second
