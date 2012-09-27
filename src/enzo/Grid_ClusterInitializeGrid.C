@@ -141,7 +141,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
      equation and from this comes the temperature and the dm velocity
      dispersion. */
 
-#define NFW_POINTS 5000
+#define NFW_POINTS 2000
   float Allg[NFW_POINTS], NFWg[NFW_POINTS], NFWPressure[NFW_POINTS], NFWTemp[NFW_POINTS], x1,
         NFWDensity[NFW_POINTS], GasDensity[NFW_POINTS],NFWMass[NFW_POINTS], NFWSigma[NFW_POINTS];
   FLOAT NFWRadius[NFW_POINTS];
@@ -198,7 +198,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
     fprintf(fptr, "%d %g %g %g %g %g %g\n", i, NFWRadius[i],
          NFWDensity[i], Allg[i], NFWPressure[i], NFWTemp[i], GasDensity[i]);
 }  //end for
-  fprintf(fptr, "CriticalDensity is %g and DensityUnits is %g\n", CriticalDensity, DensityUnits);
+  fprintf(fptr, "CriticalDensity = %g , DensityUnits = %g, LengthUnits= %g\n", CriticalDensity, DensityUnits, LengthUnits);
   fclose(fptr);
 
   /* Loop over the set-up twice, once to count the particles, the second
@@ -263,7 +263,8 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
                    pow(fabs(z-SpherePosition[sphere][2]), 2) );
           r = max(r, 0.1*CellWidth[0][0]);
 
-          if (r < SphereRadius[sphere]) {
+          if (r < 2.0*SphereRadius[sphere]) {
+          //if (r < 0.45) {
 
             /* 3) NFW profile (use look-up table for temperature and
                   velocity dispersion)*/
@@ -345,7 +346,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
                sphere), then set the velocity. */
 
 
-            if (gas_dens1 > gas_density) {
+            if (dens1 > density) {
               gas_density = gas_dens1;
               if (temp1 == InitialTemperature)
                 temp1 = SphereTemperature[sphere];
