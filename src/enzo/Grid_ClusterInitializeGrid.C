@@ -110,7 +110,14 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
     ExpansionFactor = a/(1.0+InitialRedshift);
     CriticalDensity = 2.78e11*pow(HubbleConstantNow, 2); // in Msolar/Mpc^3
     BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
+  } else {
+    CriticalDensity = 2.78e11*pow(0.74,2); // in Msolar/Mpc^3 for h=0.74
+    BoxLength = LengthUnits / 3.086e24;
+    HubbleConstantNow = 1.0;
+    OmegaMatterNow = 1.0;
   }
+
+
   /* Set densities */
 
   float BaryonMeanDensity = SphereUseParticles ? 0.1 : 1.0;
@@ -120,11 +127,12 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
   /* Set the point source gravity parameters for the NFW profile. */
   if (PointSourceGravity == 2) {
     PointSourceGravityCoreRadius = SphereCoreRadius[0]*LengthUnits; // in CGS
-    PointSourceGravityConstant = 4.0*pi*SphereDensity[0]*
-                      (CriticalDensity/pow(ExpansionFactor, 3)) *
-                pow(SphereCoreRadius[0]*BoxLength, 3) *
-                 (log(1.0+1.0) - 1.0/(1.0+1.0));// + 2.43e11 + 3.4e8 ; // in Msolar + BCG mass + BH mass; 
+printf("begin calculating PointSourceGravityConstant");
+    PointSourceGravityConstant = 4.0*pi*SphereDensity[0]*DensityUnits *
+                pow(SphereCoreRadius[0]*LengthUnits, 3) *
+               (log(1.0+1.0) - 1.0/(1.0+1.0))/SolarMass;// + 2.43e11 + 3.4e8 //in Msolar + BCG mass + BH mass//Not Mvir, but Ms.
     BaryonMeanDensity = 0.15; // 15% baryon fraction
+printf("PointSourceGravityConstant= %g\n", PointSourceGravityConstant);
   }
   /* Return if this doesn't concern us. */
 
@@ -184,7 +192,8 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
             POW(POW(NFWRadius[i]*LengthUnits/(1.0e-3*Mpc), 1.849)/1.861e-6, 0.9)), -1.0/0.9) +
             GravConst*SolarMass*3.4e8 / POW(NFWRadius[i]*LengthUnits, 2)  ;
     if (i==0){
-    GasDensity[i]=NFWDensity[i]*(CriticalDensity/pow(ExpansionFactor, 3))*SolarMass/pow(Mpc,3)*0.15;  // in cgs
+//    GasDensity[i]=NFWDensity[i]*(CriticalDensity/pow(ExpansionFactor, 3))*SolarMass/pow(Mpc,3)*0.15;  // in cgs
+    GasDensity[i]=NFWDensity[i]*DensityUnits*0.15;  // in cgs 
     NFWPressure[i]=kboltz*NFWTemp[i]*GasDensity[i]/ (mu * mh);  // in cgs
     dpdr = -Allg[i]*GasDensity[i];
     }
@@ -198,7 +207,7 @@ int grid::ClusterInitializeGrid(int NumberOfSpheres,
     fprintf(fptr, "%d %g %g %g %g %g %g\n", i, NFWRadius[i],
          NFWDensity[i], Allg[i], NFWPressure[i], NFWTemp[i], GasDensity[i]);
 }  //end for
-  fprintf(fptr, "CriticalDensity = %g , DensityUnits = %g, LengthUnits= %g\n", CriticalDensity, DensityUnits, LengthUnits);
+  fprintf(fptr, "CriticalDensity = %g , DensityUnits = %g, TimeUnits=%g, LengthUnits= %g\n", CriticalDensity, DensityUnits, TimeUnits, LengthUnits);
   fclose(fptr);
 
   /* Loop over the set-up twice, once to count the particles, the second
