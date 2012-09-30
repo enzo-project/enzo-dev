@@ -99,6 +99,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   }
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+    printf("Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
     fprintf(fptr,"Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
     fclose(fptr);
   }
