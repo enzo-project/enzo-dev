@@ -144,6 +144,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HierarchyFileOutputFormat = 2;
 
   ConductionDynamicRebuildHierarchy = FALSE;
+  ConductionDynamicRebuildMinLevel = 0;
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
   }

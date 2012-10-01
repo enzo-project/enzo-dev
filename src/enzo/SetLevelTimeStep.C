@@ -52,6 +52,7 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
     int my_isotropic_conduction = IsotropicConduction;
     int my_anisotropic_conduction = AnisotropicConduction;
     int dynamic_hierarchy_rebuild = ConductionDynamicRebuildHierarchy &&
+      level >= ConductionDynamicRebuildMinLevel &&
       dtRebuildHierarchy[level] <= 0.0;
 
     if (dynamic_hierarchy_rebuild) {
