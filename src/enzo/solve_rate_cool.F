@@ -300,9 +300,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !       Set iteration mask to include only cells with radiation in the
 !       intermediate coupled chemistry / energy step
 
-         if (iradcoupled == 1 .and. iradstep == 1) then
+         if (iradcoupled .eq. 1 .and. iradstep .eq. 1) then
             do i = is+1, ie+1
-               if (kphHI(i,j,k) > 0) then 
+               if (kphHI(i,j,k) .gt. 0) then 
                   itmask(i) = .true. 
                else 
                   itmask(i) = .false.
@@ -312,9 +312,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !     Normal rate solver, but don't double-count the cells with radiation
  
-         if (iradcoupled == 1 .and. iradstep == 0) then
+         if (iradcoupled .eq. 1 .and. iradstep .eq. 0) then
             do i = is+1, ie+1
-               if (kphHI(i,j,k) > 0) then 
+               if (kphHI(i,j,k) .gt. 0) then 
                   itmask(i) = .false. 
                else 
                   itmask(i) = .true.
@@ -324,7 +324,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !     No radiation timestep coupling
 
-         if (iradcoupled == 0 .or. iradtrans == 0) then 
+         if (iradcoupled .eq. 0 .or. iradtrans .eq. 0) then 
             do i = is+1, ie+1
                itmask(i) = .true.
             enddo
@@ -432,7 +432,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
                if (min(abs(k1(i)* de(i,j,k)*HI(i,j,k)),
      &                 abs(k2(i)*HII(i,j,k)*de(i,j,k)))/
      &              max(abs(dedot(i)),abs(HIdot(i))) 
-     &              > 1.e6) then
+     &              > 1.e6_RKIND) then
                   dedot(i) = tiny
                   HIdot(i) = tiny
                endif
@@ -498,10 +498,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !     &                     edot(i)
                 if(d(i,j,k)*dom>1e18 .and. i==4)write(0,*)
      &              HI(i,j,k)/heq, edot(i),tgas(i)
-                dtit(i) = min(1.d0*dtit(i), 0.1d0*heq/dheq)
+                dtit(i) = min(dtit(i), 0.1d0*heq/dheq)
+                if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
               endif
-              if (iter>10) 
-     &             dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
