@@ -66,8 +66,8 @@ int grid::FlagCellsToBeRefinedByJeansLength()
     }
     /* This is less efficient, but it avoids too many conditionals */
     if(JeansRefinementColdTemperature > 0.0){
-      for (i = 0; i < size; i++) temperature[i] =
-        JeansRefinementColdTemperature;
+      for (i = 0; i < size; i++) 
+	temperature[i] = max(JeansRefinementColdTemperature, temperature[i]);
     }
   }
  
