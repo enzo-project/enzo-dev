@@ -49,7 +49,7 @@ ETAGS_COMMAND = "0"
 
 LFLAGS=--header-file=libconfig/scanner.h --prefix=libconfig_yy
 
-SVN      = /nv/hp11/jw254/local/bin/hg
+SVN      = hg
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
