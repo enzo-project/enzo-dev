@@ -75,7 +75,7 @@ int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
       //  fprintf(stderr, "Size of StarMoveList %"ISYM"\n", Count);
       stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_StarMoveList);
       stat |= MPI_Type_commit(&MPI_StarMoveList);
-      if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+      if (stat != MPI_SUCCESS) ENZO_FAIL("");
       FirstTimeCalled = FALSE;
     }
 
@@ -116,7 +116,7 @@ int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
     
     stat = MPI_Alltoall(NumberToMove, SendCount, DataTypeInt,
 			RecvListCount, RecvCount, DataTypeInt, MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
     /* Allocate buffers and generated displacement list. */
 
@@ -138,7 +138,7 @@ int CommunicationShareStars(int *NumberToMove, star_data* &SendList,
 			 SharedList, MPI_RecvListCount, MPI_RecvListDisplacements,
 			   MPI_StarMoveList,
 			 MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
 #ifdef MPI_INSTRUMENTATION
     endtime = MPI_Wtime();

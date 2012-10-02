@@ -646,16 +646,14 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   END_PERF(13);
 
 #ifdef REPORT_PERF
-  if (!FirstTime) {
-    if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
-    for (int i = 0; i < 1; i++) {  // Only report on ROOT, not all
-      CommunicationBarrier();
-      if (MyProcessorNumber == i) {
+  if (debug) printf("EvolvePhotons: total time = %g\n", ReturnWallTime()-ep0);
+  for (int i = 0; i < 1; i++) {  // Only report on ROOT, not all
+    CommunicationBarrier();
+    if (MyProcessorNumber == i) {
 
-	printf("P%d:", MyProcessorNumber);
-	fpcol(PerfCounter, 14, 14, stdout);
-	fflush(stdout);
-      }
+      printf("P%d:", MyProcessorNumber);
+      fpcol(PerfCounter, 14, 14, stdout);
+      fflush(stdout);
     }
   }
 #endif

@@ -61,7 +61,7 @@ int CommunicationBufferPurge(void) {
   for (i = 0; i < LastActiveIndex+1; i++) {
     if (RequestBuffer[i] != NULL) {
       stat = MPI_Test(RequestHandle+i, &RequestDone, &Status);
-      if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+      if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
       if (RequestDone) {
 	
 	/* If the request is done, deallocate associated buffer. */
@@ -150,7 +150,7 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
     for (i = 0; i < LastActiveIndex+1; i++) {
       if (RequestBuffer[i] != NULL) {
 	stat = MPI_Test(RequestHandle+i, &RequestDone, &Status);
-          if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+          if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
 	if (RequestDone) {
  
 	  /* If the request is done, deallocate associated buffer. */
@@ -195,7 +195,7 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
   MPI_Arg Mtag = Tag;
  
   stat = MPI_Isend(buffer_send, Count, Type, Dest, Mtag, CommWorld, RequestHandle+index);
-  if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+  if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
   // Uncommenting the next line can improve performance in some cases.
   // MPI_Wait(RequestHandle+index, &Status);
  

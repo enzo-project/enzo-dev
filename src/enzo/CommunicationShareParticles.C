@@ -76,7 +76,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
       //  fprintf(stderr, "Size of ParticleMoveList %"ISYM"\n", Count);
       stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_ParticleMoveList);
       stat |= MPI_Type_commit(&MPI_ParticleMoveList);
-      if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+      if (stat != MPI_SUCCESS) ENZO_FAIL("");
       FirstTimeCalled = FALSE;
     }
 
@@ -117,7 +117,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
     
     stat = MPI_Alltoall(NumberToMove, SendCount, DataTypeInt,
 			RecvListCount, RecvCount, DataTypeInt, MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
     /* Allocate buffers and generated displacement list. */
 
@@ -139,7 +139,7 @@ int CommunicationShareParticles(int *NumberToMove, particle_data* &SendList,
 			 SharedList, MPI_RecvListCount, MPI_RecvListDisplacements,
 			   MPI_ParticleMoveList,
 			 MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
 #ifdef MPI_INSTRUMENTATION
     endtime = MPI_Wtime();

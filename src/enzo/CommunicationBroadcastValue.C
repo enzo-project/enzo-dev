@@ -50,7 +50,7 @@ int CommunicationBroadcastValue(Eint32 *Value, int BroadcastProcessor)
   MPI_Arg stat;
 
   stat = MPI_Bcast((void*) Value, Count, DataTypeInt, Root, MPI_COMM_WORLD);
-    if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+    if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
  
 #ifdef MPI_INSTRUMENTATION
   endtime = MPI_Wtime();
@@ -84,7 +84,7 @@ int CommunicationBroadcastValue(Eint64 *Value, int BroadcastProcessor)
   MPI_Arg stat;
 
   stat = MPI_Bcast((void*) Value, Count, DataTypeInt, Root, MPI_COMM_WORLD);
-    if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+    if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
  
 #ifdef MPI_INSTRUMENTATION
   endtime = MPI_Wtime();
@@ -118,7 +118,7 @@ int CommunicationBroadcastValues(Eint32 *Values, int Number, int BroadcastProces
   MPI_Arg stat;
 
   stat = MPI_Bcast((void*) Values, Count, DataTypeInt, Root, MPI_COMM_WORLD);
-    if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+    if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
  
 #ifdef MPI_INSTRUMENTATION
   endtime = MPI_Wtime();
@@ -152,7 +152,7 @@ int CommunicationBroadcastValues(Eint64 *Values, int Number, int BroadcastProces
   MPI_Arg stat;
 
   stat = MPI_Bcast((void*) Values, Count, DataTypeInt, Root, MPI_COMM_WORLD);
-    if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+    if( stat != MPI_SUCCESS ){ENZO_FAIL("");}
  
 #ifdef MPI_INSTRUMENTATION
   endtime = MPI_Wtime();

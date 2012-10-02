@@ -135,7 +135,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
       Count = sizeof_twoint;
       stat = MPI_Type_contiguous(Count, DataTypeByte, &MPI_TwoInt);
       stat |= MPI_Type_commit(&MPI_TwoInt);
-      if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+      if (stat != MPI_SUCCESS) ENZO_FAIL("");
       FirstTimeCalled = FALSE;
     }
 
@@ -216,7 +216,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 
     stat = MPI_Alltoall(NumberOfSends, 1, DataTypeInt,
 			RecvListCount, 1, DataTypeInt, MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
     TotalNumberOfRecv = 0;
     for (proc = 0; proc < NumberOfProcessors; proc++) {
@@ -254,7 +254,7 @@ int DepositParticleMassFlaggingField(LevelHierarchyEntry* LevelArray[],
 			   MPI_TwoInt,
 			 SharedList, MPI_RecvListCount, MPI_RecvListDisplacements,
 			   MPI_TwoInt, MPI_COMM_WORLD);
-    if (stat != MPI_SUCCESS) my_exit(EXIT_FAILURE);
+    if (stat != MPI_SUCCESS) ENZO_FAIL("");
 
 #ifdef TIMING
     t1 = ReturnWallTime();

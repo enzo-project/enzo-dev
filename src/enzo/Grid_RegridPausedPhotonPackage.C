@@ -95,7 +95,7 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
   (*PP)->level = min(max((*PP)->level, 0), MAX_HEALPIX_LEVEL);
 
   // Adjust CurrentTime to equal (Radius / c)
-  (*PP)->CurrentTime = length / LightSpeed;
+  (*PP)->CurrentTime = PhotonTime + length / LightSpeed;
 
   // Calculate new pixel number with the super source
   if (vec2pix_nest( (long) (1 << (*PP)->level), vec, &((*PP)->ipix) ) == FAIL) {

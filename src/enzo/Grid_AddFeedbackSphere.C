@@ -943,6 +943,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    // For cold gas accretion, set a minimum temperature of
 	    // 1e4 K since it has been accreted onto the star
 
+#ifdef UNUSED
 	    if (DualEnergyFormalism) {
 	      GasEnergy = BaryonField[GENum][index];
 	    } else {
@@ -959,6 +960,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    BaryonField[TENum][index] += AdditionalEnergy;
 	    if (DualEnergyFormalism)
 	      BaryonField[GENum][index] += AdditionalEnergy;
+#endif /* UNUSED */
 
 	    CellsModified++;
 
