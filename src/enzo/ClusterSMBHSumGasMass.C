@@ -41,7 +41,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 float ClusterSMBHColdGasMass;
 
-FILE *fptr=fopen("MT.out","w");
+FILE *fptr=fopen("MT.out","a");
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
 
