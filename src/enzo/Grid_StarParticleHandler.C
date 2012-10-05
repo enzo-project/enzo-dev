@@ -396,6 +396,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
+
+//  printf("Npart = %d\n", NumberOfParticles);
  
   /* First, set under_subgrid field */
   HierarchyEntry *Subgrid;
@@ -412,6 +414,11 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find Multi-species fields. */
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum; 
+  if (STARMAKE_METHOD(H2REG_STAR))
+    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+			      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+    }
 
   /* If only star cluster formation, check now if we're restricting
      formation in a region. */
