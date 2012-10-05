@@ -158,8 +158,7 @@ printf("PointSourceGravityConstant= %g\n", PointSourceGravityConstant);
 
   FILE *fptr = fopen("NFWProfile.out", "w");
   for (i = 0; i < NFW_POINTS; i++) {
-    //NFWRadius[i] = 2.0*SphereRadius[sphere]*pow(10, -5*(float(i)/NFW_POINTS));
-    NFWRadius[i] = 0.5*pow(10, -5*(float(i)/NFW_POINTS));
+    NFWRadius[i] = SphereRadius[sphere]*pow(10, -5*(float(i)/NFW_POINTS));
     x1 = NFWRadius[i]/SphereCoreRadius[sphere];
   if (SphereType[sphere]!=6) {
      NFWDensity[i] = SphereDensity[sphere]/(x1*(1.0+x1)*(1.0+x1));
@@ -273,8 +272,7 @@ printf("PointSourceGravityConstant= %g\n", PointSourceGravityConstant);
                    pow(fabs(z-SpherePosition[sphere][2]), 2) );
           r = max(r, 0.1*CellWidth[0][0]);
 
-          //if (r < 2.0*SphereRadius[sphere]) {
-          if (r < 0.48) {
+          if (r < SphereRadius[sphere]) {
 
             /* 3) NFW profile (use look-up table for temperature and
                   velocity dispersion)*/
