@@ -1,0 +1,42 @@
+#
+# AMR PROBLEM DEFINITION FILE: TestStarParticle
+#
+#  define problem
+#
+ProblemType            = 90        // TestStarParaticle
+TopGridRank            = 3
+TopGridDimensions      = 32 32 32
+StarParticleFeedback   = 2
+TestStarParticleDensity = 1.0
+TestStarParticleEnergy  = 0.1
+#
+#  Units
+#
+LengthUnits            = 3.08e21  // 1 kpc
+TimeUnits              = 3.15e13  // 10 Myr
+DensityUnits           = 1.0e-24  // 1 part/cc
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1
+dtDataDump             = 0.01
+#
+#  set Hydro parameters
+#
+HydroMethod            = 2
+DualEnergyFormalism    = 0
+CourantSafetyNumber    = 0.4
+PPMDiffusionParameter  = 0       // diffusion off
+PPMFlatteningParameter = 0       // flattening on
+PPMSteepeningParameter = 0       // steepening on
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // static hierarchy
+RefineBy                  = 2    // refinement factor
+MaximumRefinementLevel    = 0
+CellFlaggingMethod        = 0
+#
+#  set some misc global parameters
+#
+
