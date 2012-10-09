@@ -41,7 +41,6 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 float ClusterSMBHColdGasMass;
 
-FILE *fptr=fopen("MT.out","a");
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
 
@@ -99,6 +98,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
   }
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
+    FILE *fptr=fopen("MT.out","a");
     printf("Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
     fprintf(fptr,"Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
     fclose(fptr);
