@@ -54,6 +54,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleEnergy      = 1.0;
   float TestStarParticleVelocity[3] = {0.0, 0.0, 0.0};
   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
+  float TestStarParticleStarMass    = 100.0;
 
   /* read input from file */
 
@@ -67,6 +68,9 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  &TestStarParticleDensity);
     ret += sscanf(line, "TestStarParticleEnergy = %"FSYM,
 		  &TestStarParticleEnergy);
+    ret += sscanf(line, "TestStarParticleStarMass = %"FSYM,
+		  &TestStarParticleStarMass);
+            
 
     /* if the line is suspicious, issue a warning */
 
@@ -85,7 +89,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 					      TestStarParticleBField) == FAIL)
     ENZO_FAIL("Error in InitializeUniformGrid.");
 
-  if (TopGrid.GridData->TestStarParticleInitializeGrid() == FAIL)
+  if (TopGrid.GridData->TestStarParticleInitializeGrid(TestStarParticleStarMass) == FAIL)
     ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */

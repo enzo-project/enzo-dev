@@ -28,7 +28,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-int grid::TestStarParticleInitializeGrid()
+int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass)
 {
   /* declarations */
 
@@ -40,6 +40,8 @@ int grid::TestStarParticleInitializeGrid()
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
+  
+
   /* Get Units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
@@ -50,6 +52,12 @@ int grid::TestStarParticleInitializeGrid()
 	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.\n");
   }
+
+  /* Set Central Mass in simulation units */
+
+  CentralMass = TestStarParticleStarMass*1.99e33* pow(LengthUnits*CellWidth[0][0],-3.0)/DensityUnits;
+
+  printf("Central Mass: %f \n",CentralMass);
 
   /* Set number of particles for this grid and allocate space. */
 
@@ -68,7 +76,7 @@ int grid::TestStarParticleInitializeGrid()
   /* Set central particle. */
 
   for (dim = 0; dim < GridRank; dim++) {
-    ParticlePosition[dim][0] = 0.5*(DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5/32;
+    ParticlePosition[dim][0] = 0.5*(DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
     ParticleVelocity[dim][0] = 0;
   }
   ParticleMass[0] = CentralMass;
