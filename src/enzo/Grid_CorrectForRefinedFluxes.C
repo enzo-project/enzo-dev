@@ -192,9 +192,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	if (HydroMethod != Zeus_Hydro)
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (
-                MakeFieldConservative(FieldType[field])
-           )
+	    if ( MakeFieldConservative(FieldType[field]) && (FieldTypeIsRadiation(FieldType[field]) == FALSE) )
                 
 	      //		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
 	      //	 			 FieldType[field] != InternalEnergy)))
@@ -331,8 +329,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
 	if (HydroMethod != Zeus_Hydro)
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-		FieldTypeIsRadiation(FieldType[field]) == FALSE &&
+	    if ( FieldTypeIsRadiation(FieldType[field]) == FALSE &&
         MakeFieldConservative(FieldType[field]))
         
 	      for (k = Start[2]; k <= End[2]; k++)

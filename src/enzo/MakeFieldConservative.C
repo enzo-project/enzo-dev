@@ -27,7 +27,7 @@ int MakeFieldConservative(field_type field){
     FieldUndefined};
 
     if( FieldTypeIsDensity(field) ) MultiplyField = FALSE;
-    if( FieldTypeIsRadiation(field) ) MultiplyField = FALSE;
+    //if( FieldTypeIsRadiation(field) ) MultiplyField = FALSE;
     if( FieldTypeNoInterpolate( field ) ) MultiplyField = FALSE;
     if( (field >= Velocity1 && field <= Velocity3) && HydroMethod == Zeus_Hydro ) {
         MultiplyField = FALSE;
