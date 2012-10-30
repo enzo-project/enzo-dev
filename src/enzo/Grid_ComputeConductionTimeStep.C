@@ -48,7 +48,7 @@ float grid::ComputeConductionTimeStep (float &dt) {
   FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
   float *rho;
-  float dt_est;
+  float dt_est, light_cross_time;
   double all_units;
 
   float SpitzerFraction;
@@ -237,6 +237,11 @@ float grid::ComputeConductionTimeStep (float &dt) {
   
   dt *= float(all_units);
   dt *= ConductionCourantSafetyNumber;  // for stability, this has to be < 0.5
+
+  if (SpeedOfLightTimeStepLimit) {
+    light_cross_time = dx * VelocityUnits / clight;
+    dt = max(dt, light_cross_time);
+  }
 
   delete [] Temp;
 

@@ -964,6 +964,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IsotropicConductionSpitzerFraction = %"FSYM, &IsotropicConductionSpitzerFraction);
     ret += sscanf(line, "AnisotropicConductionSpitzerFraction = %"FSYM, &AnisotropicConductionSpitzerFraction);
     ret += sscanf(line, "ConductionCourantSafetyNumber = %"FSYM, &ConductionCourantSafetyNumber);
+    ret += sscanf(line, "SpeedOfLightTimeStepLimit = %"ISYM, &SpeedOfLightTimeStepLimit);
 
     ret += sscanf(line, "RadiativeTransfer = %"ISYM, &RadiativeTransfer);
     ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, &RadiationXRaySecondaryIon);

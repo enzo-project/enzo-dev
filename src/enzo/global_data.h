@@ -978,6 +978,7 @@ EXTERN int AnisotropicConduction;  // TRUE OR FALSE
 EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
+EXTERN int SpeedOfLightTimeStepLimit; // TRUE OR FALSE
 
 /* SMBH Feedback in galaxy clusters*/
 EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
