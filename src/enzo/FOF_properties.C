@@ -19,7 +19,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
 {
   int i,k,dim, irvir, len4;
   double s[3], sv[3], L[3], delx[3], delv[3], vrms, spin, mvir, rvir, del;
-  double mtot, mtot0, mstars, menc, rho, factor, rho200, r3;
+  double mtot, mtot0, mstars, menc, rho, factor, rho178, r3, e2;
   float *radius;
   int *pindex;
   
@@ -110,13 +110,11 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
       pcm[dim] = FOF_periodic_wrap(pcm[dim] + p[0].Pos[dim], D.BoxSize);
     }
     first = false;
-    printf("CoM = %15.10g %15.10g %15.10g (%g, %d)\n", pcm[0]/D.BoxSize, pcm[1]/D.BoxSize, 
-	   pcm[2]/D.BoxSize, rmax, ninside);
   } // ENDWHILE (ninside > 2)
 
   /* For groups, find the virial radius (r200) and calculate virial mass */
 
-  // Sort by radius and search for an enclosed density of 200 times
+  // Sort by radius and search for an enclosed density of 18*pi^2 times
   // the critical density.  Search outside-in.
 
   if (!subgroup) {
@@ -135,10 +133,12 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
       pindex[i]--;
 
     // Convert to Msun from 1e10 Msun and pre-compute the (4PI/3)
-    // factor.  Rho will be in units of Msun / kpc^3, as is rho_crit.
-    // Radius is comoving.
-    factor = 1e10 / (4*M_PI/3.0);
-    rho200 = 200 * D.RhoCritical0;
+    // factor and comoving factors.  Rho will be in units of Msun /
+    // kpc^3, as is rho_crit.
+    e2 = D.OmegaLambda + D.Omega * pow(D.Time, -3.0);
+    // 1/a^3 factor converts comoving radius to proper.
+    factor = 1e10 / (4*M_PI/3.0) * pow(D.Time, -3.0);
+    rho178 = 178.0 * D.RhoCritical0 * e2;
     len4 = len/4;
 
     mtot = mtot0;
@@ -147,7 +147,7 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
       menc -= p[pindex[i]].Mass;
       r3 = radius[pindex[i]] * radius[pindex[i]] * radius[pindex[i]];
       rho = factor * menc / max(r3, tiny_number);
-      if (rho > rho200) 
+      if (rho > rho178) 
 	break;
     }
 
