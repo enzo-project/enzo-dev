@@ -295,7 +295,8 @@ c
      &               distrad, diststep, distcells,
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
-     &               mp, tdp, tcp, metalf, type, justburn)
+     &               mp, tdp, tcp, metalf, type, justburn,
+     &				 kinf)
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
@@ -311,6 +312,12 @@ c  modified1:  Britton Smith
 c  date:       August 2010
 c              Added distributed feedback where gas, metals, and 
 c              energy are injected evenly over multiple cells.
+c
+c  modified2:  Greg Bryan & Christine Simpson
+c  date:       October 2012
+c			   Added distributed kinetic feedback over a 3x3x3 cell region
+c
+c
 c
 c  INPUTS:
 c
@@ -347,6 +354,7 @@ c    sn_param - fraction of stellar rest mass that goes to feedback
 c    m_eject  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
 c    type     - particle type
+c	 kinf     - fraction of supernova energy that goes into kinetic energy
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -374,6 +382,7 @@ c
       real    up(npart), vp(npart), wp(npart)
       real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       integer type(npart)
+      real 	  kinf
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
@@ -383,7 +392,8 @@ c
       real mform, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, 
      &     dist_mass_cells, dist_mom_cells, mass_per_cell, te_per_cell,
-     &     energy_per_cell, mom_per_cell, face_shift,
+     &     thermal_energy_per_cell, kinetic_energy_per_cell, 
+     &	   mom_per_cell, face_shift,
      &     xface, yface, zface, xpos, ypos, zpos,
      &     energy_before, energy_after, mass_before, mass_after,
      &     asum, bsum, csum
@@ -447,176 +457,201 @@ c
 c           Record amount of star formation in this grid.
 c
             justburn = justburn + mform * dt * dx**3
+
+			if (distrad .ne. 3) then
+				write(6,*) 'star_maker3: currently distrad must be 3'
+         		ERROR_MESSAGE
+			endif
+
+            
+
 c
 c           Assuming 3x3x3 cube, calculate cell distribution
-c
-            distrad = 3
-            dist_mass_cells = distrad**3
-            dist_mom_cells = distrad**2 * 6
+c			
+ 
+c			if (distrad .eq. 3) then
+
+			dist_mass_cells = 1
+			dist_mom_cells = 1
+			if (distrad .gt. 0) then
+				dist_mass_cells = distrad**3
+				dist_mom_cells = distrad**2 * 6
+			endif
 c
 c           Calculate mass per cell ejected
 c
-            mass_per_cell = mform * m_eject / dist_mass_cells
+			mass_per_cell = mform * m_eject / dist_mass_cells
 c
 c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c
-            energy = sn_param * mform * (clight/vunits)**2
-            energy_per_cell = energy / dist_mass_cells
+			energy = sn_param * mform * (clight/vunits)**2
+
+			thermal_energy_per_cell = (1.0 - kinf) * energy / dist_mass_cells
+			kinetic_energy_per_cell = kinf * energy / dist_mass_cells    	
+
 c
 c           Calculate momentum of this much energy spread into cells
-c             mom = sqrt(2 * mform * m_eject * energy)
+c           mom = sqrt(2 * mform * m_eject * energy)
 c
-            mom_per_cell = (clight/vunits) * mform *
-     &           sqrt(2.0 * sn_param * m_eject) / dist_mom_cells
+
+			mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
+
 c
-c         check bounds - if star particle is outside of this grid
-c         then exit and give a warning.
+c         	check bounds - if star particle is outside of this grid
+c         	then exit and give a warning.
 c
-            if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
-     &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
-     &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*ny) then
-               write(6,*) 'warning: star particle out of grid',
-     &              xp(n),yp(n),zp(n), xstart, ystart, zstart
-               goto 100
-            endif
+			if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
+ &          	yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
+ &          	zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*ny) then
+					write(6,*) 'warning: star particle out of grid',
+ &              		xp(n),yp(n),zp(n), xstart, ystart, zstart
+					goto 100
+			endif
+            	
 c
-c           If using zeus, then velocities are face-centered so shift
+c 	       	If using zeus, then velocities are face-centered so shift
 c
-            face_shift = 0.0
-            if (imethod .eq. 2) face_shift = 0.5
+			face_shift = 0.0
+			if (imethod .eq. 2) face_shift = 0.5
 c
-c         Compute index of the first cell to add momentum,
-c             accounting for possible face-centering
+c         	Compute index of the first cell to add momentum,
+c           accounting for possible face-centering
 c
-c            write(6,*) 'xp,yp,zp',xp(n), yp(n), zp(n)
-c            write(6,*) 'xstart,ystart,zstart', xstart, ystart, zstart
-            xface = (xp(n) - xstart)/dx - 0.5 - face_shift
-            yface = (yp(n) - ystart)/dx - 0.5 - face_shift
-            zface = (zp(n) - zstart)/dx - 0.5 - face_shift
-c            write(6,*) 'xface,yface,zface',xface, yface, zface
+c           write(6,*) 'xp,yp,zp',xp(n), yp(n), zp(n)
+c           write(6,*) 'xstart,ystart,zstart', xstart, ystart, zstart
+			xface = (xp(n) - xstart)/dx - 0.5 - face_shift
+			yface = (yp(n) - ystart)/dx - 0.5 - face_shift
+			zface = (zp(n) - zstart)/dx - 0.5 - face_shift
+c           write(6,*) 'xface,yface,zface',xface, yface, zface
 c
-            iface = int(xface + 0.5)
-            jface = int(yface + 0.5)
-            kface = int(zface + 0.5)
-c            write(6,*) 'iface,jface,kface', iface, jface, kface
+			iface = int(xface + 0.5)
+			jface = int(yface + 0.5)
+			kface = int(zface + 0.5)
+c           write(6,*) 'iface,jface,kface', iface, jface, kface
 c
-            dxf = real(iface) + 0.5 - xface
-            dyf = real(jface) + 0.5 - yface
-            dzf = real(kface) + 0.5 - zface
-c            write(6,*) 'dxf, dyf, dzf', dxf, dyf, dzf
+			dxf = real(iface) + 0.5 - xface
+			dyf = real(jface) + 0.5 - yface
+			dzf = real(kface) + 0.5 - zface
+c            		write(6,*) 'dxf, dyf, dzf', dxf, dyf, dzf
 c
-c         Compute index of the first cell to add mass, assuming cell-centering
+c         	Compute index of the first cell to add mass, assuming cell-centering
 c 
-            xpos = (xp(n) - xstart)/dx - 0.5
-            ypos = (yp(n) - ystart)/dx - 0.5
-            zpos = (zp(n) - zstart)/dx - 0.5
-c            write(6,*) 'xpos, ypos, zpos', xpos, ypos, zpos
+			xpos = (xp(n) - xstart)/dx - 0.5
+			ypos = (yp(n) - ystart)/dx - 0.5
+			zpos = (zp(n) - zstart)/dx - 0.5
+c           write(6,*) 'xpos, ypos, zpos', xpos, ypos, zpos
 c
-            ic = int(xpos + 0.5)
-            jc = int(ypos + 0.5)
-            kc = int(zpos + 0.5)
-c            write(6,*) 'ic,jc,kc', ic,jc,kc
+			ic = int(xpos + 0.5)
+			jc = int(ypos + 0.5)
+			kc = int(zpos + 0.5)
+c           write(6,*) 'ic,jc,kc', ic,jc,kc
 c
-            dxc = real(ic) + 0.5 - xpos
-            dyc = real(jc) + 0.5 - ypos
-            dzc = real(kc) + 0.5 - zpos
-c            write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
+			dxc = real(ic) + 0.5 - xpos
+			dyc = real(jc) + 0.5 - ypos
+			dzc = real(kc) + 0.5 - zpos
+c           write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
 c
 c           Zero local dummy field
 c
-            do k = 1, 4
-               do j = 1, 4
-                  do i = 1, 4
-                     u1(i,j,k) = 0.0
-                     v1(i,j,k) = 0.0
-                     w1(i,j,k) = 0.0
-                     d1(i,j,k) = 0.0
-                     ge1(i,j,k) = 0.0
-                     te1(i,j,k) = 0.0
-                     metal1(i,j,k) = 0.0
-                  enddo
-               enddo
-            enddo
+
+
+			
+			do k = 1, 4
+			   do j = 1, 4
+				  do i = 1, 4
+					 u1(i,j,k) = 0.0
+					 v1(i,j,k) = 0.0
+					 w1(i,j,k) = 0.0
+					 d1(i,j,k) = 0.0
+					 ge1(i,j,k) = 0.0
+					 te1(i,j,k) = 0.0
+					 metal1(i,j,k) = 0.0
+				  enddo
+			   enddo
+			enddo
+			
 c
-c           First convert velocities to momenta and transform
-c            into frame comoving with particle
+c           	First convert velocities to momenta and transform
+c            	into frame comoving with particle
 c
-            call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
-     &                    nx, ny, nz, ic, jc, kc, 
-     &                    iface, jface, kface, imethod, imetal, +1)
+			call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
+ &                    	nx, ny, nz, ic, jc, kc, 
+ &                    	iface, jface, kface, imethod, imetal, +1)
 c
-c           Sum mass and energy before
+c           	Sum mass and energy before
 c
-            call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
-     &                           iface, jface, kface, ic, jc, kc,
-     &                           mass_before, energy_before)
-c            write(6,*) "m,e before:", mass_before, energy_before
+			call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
+ &                           	iface, jface, kface, ic, jc, kc,
+ &                           	mass_before, energy_before)
+c           write(6,*) "m,e before:", mass_before, energy_before
 c
-c           Now add mass and momentum terms (normalization 1.0) to
-c              local dummy fields
+c          	Now add mass and momentum terms (normalization 1.0) to
+c           local dummy fields
 c
-            call add_feedback(u1, v1, w1, d1, ge1, te1, metal1, 4, 4, 4, 
-     &                        2, 2, 2, 2, 2, 2,
-     &                        dxf, dyf, dzf, dxc, dyc, dzc,
-     &                        imethod, imetal, imulti_metals, idual,
-     &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, 1.0, 0.0)
+			call add_feedback(u1, v1, w1, d1, ge1, te1, metal1, 4, 4, 4, 
+ &                        	2, 2, 2, 2, 2, 2,
+ &                        	dxf, dyf, dzf, dxc, dyc, dzc,
+ &                        	imethod, imetal, imulti_metals, idual,
+ &                        	m_eject, yield, metalf(n),
+ &                        	mass_per_cell, 1.0, 0.0)
 c
 c           Sum a, b and c terms to get momentum normalization
 c
-            call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
-     &                   nx, ny, nz, iface, jface, kface, ic, jc, kc,
-     &                   asum, bsum, csum)
+			call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
+ &                   	nx, ny, nz, iface, jface, kface, ic, jc, kc,
+ &                   	asum, bsum, csum)
 c
-c           Calculate momentum contribution
+c           	Calculate momentum contribution
 c
-c            write(6,*) 'abc1',asum, bsum, csum
-            asum = asum - (energy_before + energy)
-c            write(6,*) 'abc2',asum, bsum, csum
-            mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
-     &                             (2.0*csum)
+c            	write(6,*) 'abc1',asum, bsum, csum
+			asum = asum - (energy_before + energy)
+c            	write(6,*) 'abc2',asum, bsum, csum
+			mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
+ &                             	(2.0*csum)
 c
-c           Now add mass and momentum, using three-point CIC
+c           	Now add mass and momentum, using three-point CIC
 c
-            te_per_cell = 0.0
-            call add_feedback(u, v, w, d, ge, te, metal, nx, ny, nz, 
-     &                        ic, jc, kc, iface, jface, kface, 
-     &                        dxf, dyf, dzf, dxc, dyc, dzc,
-     &                        imethod, imetal, imulti_metals, idual,
-     &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, mom_per_cell, te_per_cell)
+			
+			call add_feedback(u, v, w, d, ge, te, metal, nx, ny, nz, 
+ &                        	ic, jc, kc, iface, jface, kface, 
+ &                        	dxf, dyf, dzf, dxc, dyc, dzc,
+ &                        	imethod, imetal, imulti_metals, idual,
+ &                        	m_eject, yield, metalf(n),
+ &                        	mass_per_cell, mom_per_cell, thermal_energy_per_cell)
 c
-c           Sum mass and energy before
+c           	Sum mass and energy after
 c
-            call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
-     &                           iface, jface, kface, ic, jc, kc,
-     &                           mass_after, energy_after)
+			call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
+ &      	                     iface, jface, kface, ic, jc, kc,
+ &                           	mass_after, energy_after)
 c
-            write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
-     &           energy_before + energy,energy
-            write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
-     &           mass_before + mform*m_eject,mform*m_eject
+			write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
+ &           	energy_before + energy,energy
+			write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
+ &           	mass_before + mform*m_eject,mform*m_eject
 c
-c           Convert momenta back to velocities and transform back to lab frame
+c           	Convert momenta back to velocities and transform back to lab frame
 c
-            call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
-     &                    nx, ny, nz, ic, jc, kc, 
-     &                    iface, jface, kface, imethod, imetal, -1)
+			call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
+ &                    	nx, ny, nz, ic, jc, kc, 
+ &                    	iface, jface, kface, imethod, imetal, -1)
 c
-c           Still need to fix this:
-c           If te is really total energy (and it is unless imethod=2),
-c             then just set this value
+c           	Still need to fix this:
+c           	If te is really total energy (and it is unless imethod=2),
+c             	then just set this value
 c     
-            if (imethod .ne. 2 .and. idual .eq. 1) then
-               write(6,*) 'star_maker3: imethod not supported'
-               ERROR_MESSAGE
+			if (imethod .ne. 2 .and. idual .eq. 1) then
+				write(6,*) 'star_maker3: imethod not supported'
+					ERROR_MESSAGE
 c                   te(ic+i1,jc+j1,kc+k1) = 
 c     &                  0.5d0*(u(ic+i1,jc+j1,kc+k1)**2 + 
 c     &                         v(ic+i1,jc+j1,kc+k1)**2 + 
 c     &                         w(ic+i1,jc+i1,kc+k1)**2) +
 c     &                  ge(ic+i1,jc+j1,kc+k1)
-                endif
+			endif
+                
+        	endif
 c
  10         continue
          endif
@@ -772,7 +807,7 @@ c
 c              Compute total mass and energy
 c                     
                mass_sum = mass_sum + mass_term
-               energy_sum = energy_sum + mom_term/(2.0*mass_term)
+               energy_sum = energy_sum + mom_term/(2.0*mass_term) + ge
 c
             enddo
          enddo
@@ -867,7 +902,7 @@ c
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf,
-     &                        mass_per_cell, mom_per_cell, te_per_cell)
+     &                        mass_per_cell, mom_per_cell, ge_per_cell)
 c
       implicit none
 c
@@ -925,6 +960,7 @@ c                write(6,*) i,j,k,delme,delta_mass
                 delta_pu   = i*mom_per_cell*dxf1*dyc1*dzc1
                 delta_pv   = j*mom_per_cell*dxc1*dyf1*dzc1
                 delta_pw   = k*mom_per_cell*dxc1*dyc1*dzf1
+                delta_ge	= ge_per_cell*dxc1*dyc1*dzc1
 c
 c               Add mass, momentum
 c                (add thermal energy here)
@@ -937,6 +973,11 @@ c
      &               + delta_pv
                 pw(ic+i1 ,jc+j1 ,kface+k1) = pw(ic+i1 ,jc+j1 ,kface+k1)
      &               + delta_pw
+     
+                ge(ic+i1 ,jc+j1 ,kface+k1) = ge(ic+i1 ,jc+j1 ,kface+k1)
+     &               + delta_ge
+     
+     
 c
 c           Metal feedback (note that in this function gas metal is
 c             a fraction (rho_metal/rho_gas) rather than a density.

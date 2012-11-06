@@ -726,6 +726,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarEnergyToStellarUV);
   fprintf(fptr, "StarEnergyToQuasarUV                  = %"GSYM"\n",
           StarEnergyToQuasarUV);
+  fprintf(fptr, "StarFeedbackKineticFraction           = %"GSYM"\n",
+          StarFeedbackKineticFraction);
   fprintf(fptr, "StarFeedbackDistRadius                = %"ISYM"\n",
           StarFeedbackDistRadius);
   fprintf(fptr, "StarFeedbackDistCellStep              = %"ISYM"\n",

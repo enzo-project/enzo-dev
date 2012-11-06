@@ -439,6 +439,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarEnergyToThermalFeedback      = 1.0e-5;
   StarEnergyToStellarUV            = 3.0e-6;
   StarEnergyToQuasarUV             = 5.0e-6;
+  StarFeedbackKineticFraction 	   = 0.0;
   StarFeedbackDistRadius           = 0;
   StarFeedbackDistCellStep         = 0;
   StarFeedbackDistTotalCells       = 1;

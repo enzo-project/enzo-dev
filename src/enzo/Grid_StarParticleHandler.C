@@ -241,7 +241,7 @@ extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, int *type,
-			float *justburn);
+			float *justburn, float *kinf);
 
 extern "C" void FORTRAN_NAME(star_feedback5)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v, 
@@ -1317,7 +1317,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
+       &StarFeedbackKineticFraction);
  
   } // end: if UNIGRID_STAR
  
