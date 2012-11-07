@@ -1,0 +1,31 @@
+###
+### This is a testing template
+###
+
+from yt.mods import *
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+    VerifySimulationSameTest, \
+    standard_enzo_tests, \
+    sim_dir_load
+
+_base_fields = ("Density",
+                "x-velocity",
+                "y-velocity",
+                "z-velocity",
+                "Gas_Energy",
+                "particle_position_x",
+                "particle_position_y",
+                "particle_position_z")
+
+simulation = load_simulation("%(simname)s")
+@requires_output_log # Verifies that OutputLog exists
+def test_collapse_test():
+    simulation = sim_dir_load("%(filename)s", path="%(simpath)s")
+    ts = simulation.get_time_series()
+    yield VerifySimulationSameTest(simulation)
+    base_pf = ts[0]
+    fields = [f for f in _base_fields if f in in base_pf.h.field_list]
+    for pf in ts:
+        for test in standard_enzo_tests(pf, fields): yield test
+
