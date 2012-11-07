@@ -1,17 +1,14 @@
 /***********************************************************************
   /
-  /  GRID CLASS (FLAG CELLS TO BE REFINED BY SLOPE)
+  /  GRID CLASS (FLAG CELLS TO BE REFINED BY SECOND DERIVATIVE)
   /
-  /  written by: Greg Bryan
-  /  date:       November, 1994
-  /  modified1:  Alexei Kritsuk, Feb. 2005. Fixed a bug by adding the second
-  /                              fabs() at around L107. Added a switch on
-  /                              ProblemType.
-  /  modified2:  Brian O'Shea, May 2006.  Changed problemtype 30 to just refine
-  /                              on Density and TotalEnergy (as suggested by 
-  /                              Alexei Kritsuk).  This is for supernovae.
+  /  written by: Samuel Skillman 
+  /  date:       October, 2012
+  /  modified1:  
   /
-  /  PURPOSE:
+  /  PURPOSE: 
+  /    flag cells based on the second derivative, normalized by an
+  /    average of the first derivatives.
   /
   /  RETURNS:
   /    number of flagged cells, or -1 on failure
@@ -85,7 +82,6 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   if (ProblemType ==  7) NumberOfFields = 2; // SedovBlast (AK)
   if (ProblemType == 11) NumberOfFields = 2; // RadiatingShock (BWO)
   if (ProblemType == 30) NumberOfFields = 2; // Cosmology (BWO 23 May 2006)
-
 
   bool doField=false;
   float MinimumSecondDerivativeForRefinementThis;
