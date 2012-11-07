@@ -296,7 +296,7 @@ c
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
-     &				 kinf)
+     &               kinf)
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
@@ -466,14 +466,14 @@ c           timestep would have gone into supernova energy.
 c            
             energy = sn_param * mform * (clight/vunits)**2
             energy_per_cell = energy / dist_mass_cells
-			thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
-			kinetic_energy_per_cell = kinf * energy_per_cell 
+            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
+            kinetic_energy_per_cell = kinf * energy_per_cell 
 
 c           Calculate momentum of this much energy spread into cells
 c             mom = sqrt(2 * mform * m_eject * energy)
 c
 
-			mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
+            mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
 
 c
 c         check bounds - if star particle is outside of this grid
@@ -592,7 +592,7 @@ c            te_per_cell = 0.0
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
      &                        mass_per_cell, mom_per_cell, 
-     &						  thermal_energy_per_cell)
+     &                        thermal_energy_per_cell)
 c
 c           Sum mass and energy before
 c
@@ -780,8 +780,8 @@ c              Compute total mass and energy
 c                     
                mass_sum = mass_sum + mass_term
                energy_sum = energy_sum + 
-     &						mom_term / (2.0 * mass_term)  
-	 		   energy_sum = energy_sum + ge(ic + i ,jc + j ,kc + k)
+     &			    mom_term / (2.0 * mass_term)  
+               energy_sum = energy_sum + ge(ic + i ,jc + j ,kc + k)
 c
             enddo
          enddo
@@ -856,6 +856,7 @@ c
 c
                mass_sum = mass_sum + mass_term
                energy_sum = energy_sum + mom_term/(2.0*mass_term)
+               energy_sum = energy_sum + ge(ic+1,jc+j,kc+k)
 c
             enddo
          enddo
