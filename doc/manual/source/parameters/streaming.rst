@@ -1,3 +1,5 @@
+.. _streaming_param:
+
 Streaming Data Format
 ~~~~~~~~~~~~~~~~~~~~~
 

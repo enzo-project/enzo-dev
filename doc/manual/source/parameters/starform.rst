@@ -1,3 +1,5 @@
+.. _starparticleparameters:
+
 Star Formation and Feedback Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

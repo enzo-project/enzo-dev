@@ -3,9 +3,9 @@
 Data Analysis Basics
 ====================
 
-Data analysis in Enzo can be complicated. There are excellent premade packages
-available for doing Enzo data analysis (see :ref:`SupportingCodes`.). However,
-it is likely that your data analysis needs will grow beyond these tools.
+Data analysis in Enzo can be complicated. There are excellent premade
+packages available for doing Enzo data analysis.  However, it is likely
+that your data analysis needs will grow beyond these tools.
 
 HDF5 Tools
 ----------

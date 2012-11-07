@@ -1,3 +1,5 @@
+.. _radiation_backgrounds:
+
 Background Radiation Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
