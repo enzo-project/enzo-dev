@@ -18,8 +18,7 @@ _base_fields = ("Density",
                 "particle_position_y",
                 "particle_position_z")
 
-simulation = load_simulation("%(simname)s")
-@requires_output_log # Verifies that OutputLog exists
+@requires_outputlog("%(simpath)s") # Verifies that OutputLog exists
 def test_collapse_test():
     simulation = sim_dir_load("%(filename)s", path="%(simpath)s")
     ts = simulation.get_time_series()
