@@ -436,14 +436,14 @@ c          skip if very little mass is formed.
 c
             if (mform .lt. 1e-2) goto 10
 
-c        First calculate the initial mass of the star particle 
-c          in question.
+c        	First calculate the initial mass of the star particle 
+c          	in question.
 c
             minitial = mp(n) / 
      &              (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
 c
-c         Then, calculate the amount of mass that would have formed in
-c         this timestep.
+c         	Then, calculate the amount of mass that would have formed in
+c         	this timestep.
 c
             mform = minitial * mform
             mform = max(min(mform, mp(n)), 0.d0)
@@ -462,21 +462,12 @@ c
 				write(6,*) 'star_maker3: currently distrad must be 3'
          		ERROR_MESSAGE
 			endif
-
-            
-
 c
 c           Assuming 3x3x3 cube, calculate cell distribution
 c			
- 
-c			if (distrad .eq. 3) then
-
-			dist_mass_cells = 1
-			dist_mom_cells = 1
-			if (distrad .gt. 0) then
-				dist_mass_cells = distrad**3
-				dist_mom_cells = distrad**2 * 6
-			endif
+		
+			dist_mass_cells = distrad**3
+			dist_mom_cells = distrad**2 * 6
 c
 c           Calculate mass per cell ejected
 c
@@ -486,29 +477,24 @@ c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c
 			energy = sn_param * mform * (clight/vunits)**2
-
 			thermal_energy_per_cell = (1.0 - kinf) * energy / dist_mass_cells
 			kinetic_energy_per_cell = kinf * energy / dist_mass_cells    	
-
 c
 c           Calculate momentum of this much energy spread into cells
 c           mom = sqrt(2 * mform * m_eject * energy)
 c
-
 			mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
-
 c
 c         	check bounds - if star particle is outside of this grid
 c         	then exit and give a warning.
 c
 			if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
- &          	yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
- &          	zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*ny) then
+	&          	yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
+	&          	zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*ny) then
 					write(6,*) 'warning: star particle out of grid',
- &              		xp(n),yp(n),zp(n), xstart, ystart, zstart
+	&              		xp(n),yp(n),zp(n), xstart, ystart, zstart
 					goto 100
-			endif
-            	
+			endif           	
 c
 c 	       	If using zeus, then velocities are face-centered so shift
 c
@@ -553,10 +539,7 @@ c
 c           write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
 c
 c           Zero local dummy field
-c
-
-
-			
+c	
 			do k = 1, 4
 			   do j = 1, 4
 				  do i = 1, 4
@@ -569,38 +552,37 @@ c
 					 metal1(i,j,k) = 0.0
 				  enddo
 			   enddo
-			enddo
-			
+			enddo			
 c
 c           	First convert velocities to momenta and transform
 c            	into frame comoving with particle
 c
 			call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
- &                    	nx, ny, nz, ic, jc, kc, 
- &                    	iface, jface, kface, imethod, imetal, +1)
+	&                    	nx, ny, nz, ic, jc, kc, 
+	&                    	iface, jface, kface, imethod, imetal, +1)
 c
-c           	Sum mass and energy before
+c           Sum mass and energy before
 c
 			call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
- &                           	iface, jface, kface, ic, jc, kc,
- &                           	mass_before, energy_before)
+	&                           	iface, jface, kface, ic, jc, kc,
+	&                           	mass_before, energy_before)
 c           write(6,*) "m,e before:", mass_before, energy_before
 c
 c          	Now add mass and momentum terms (normalization 1.0) to
 c           local dummy fields
 c
 			call add_feedback(u1, v1, w1, d1, ge1, te1, metal1, 4, 4, 4, 
- &                        	2, 2, 2, 2, 2, 2,
- &                        	dxf, dyf, dzf, dxc, dyc, dzc,
- &                        	imethod, imetal, imulti_metals, idual,
- &                        	m_eject, yield, metalf(n),
- &                        	mass_per_cell, 1.0, 0.0)
+	&                        	2, 2, 2, 2, 2, 2,
+	&                        	dxf, dyf, dzf, dxc, dyc, dzc,
+	&                        	imethod, imetal, imulti_metals, idual,
+	&                        	m_eject, yield, metalf(n),
+	&                        	mass_per_cell, 1.0, 0.0)
 c
 c           Sum a, b and c terms to get momentum normalization
 c
 			call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
- &                   	nx, ny, nz, iface, jface, kface, ic, jc, kc,
- &                   	asum, bsum, csum)
+	&                   	nx, ny, nz, iface, jface, kface, ic, jc, kc,
+	&                   	asum, bsum, csum)
 c
 c           	Calculate momentum contribution
 c
@@ -608,34 +590,34 @@ c            	write(6,*) 'abc1',asum, bsum, csum
 			asum = asum - (energy_before + energy)
 c            	write(6,*) 'abc2',asum, bsum, csum
 			mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
- &                             	(2.0*csum)
+	&                             	(2.0*csum)
 c
 c           	Now add mass and momentum, using three-point CIC
 c
 			
 			call add_feedback(u, v, w, d, ge, te, metal, nx, ny, nz, 
- &                        	ic, jc, kc, iface, jface, kface, 
- &                        	dxf, dyf, dzf, dxc, dyc, dzc,
- &                        	imethod, imetal, imulti_metals, idual,
- &                        	m_eject, yield, metalf(n),
- &                        	mass_per_cell, mom_per_cell, thermal_energy_per_cell)
+	&                        	ic, jc, kc, iface, jface, kface, 
+	&                        	dxf, dyf, dzf, dxc, dyc, dzc,
+	&                        	imethod, imetal, imulti_metals, idual,
+	&                        	m_eject, yield, metalf(n),
+	&                        	mass_per_cell, mom_per_cell, thermal_energy_per_cell)
 c
 c           	Sum mass and energy after
 c
 			call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
- &      	                     iface, jface, kface, ic, jc, kc,
- &                           	mass_after, energy_after)
+	&      	                     	iface, jface, kface, ic, jc, kc,
+	&                           	mass_after, energy_after)
 c
 			write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
- &           	energy_before + energy,energy
+	&           		energy_before + energy,energy
 			write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
- &           	mass_before + mform*m_eject,mform*m_eject
+	&           		mass_before + mform*m_eject,mform*m_eject
 c
 c           	Convert momenta back to velocities and transform back to lab frame
 c
 			call momentum(u, v, w, d, metal, up(n), vp(n), wp(n),
- &                    	nx, ny, nz, ic, jc, kc, 
- &                    	iface, jface, kface, imethod, imetal, -1)
+	&                    	  nx, ny, nz, ic, jc, kc, 
+	&                    	  iface, jface, kface, imethod, imetal, -1)
 c
 c           	Still need to fix this:
 c           	If te is really total energy (and it is unless imethod=2),
