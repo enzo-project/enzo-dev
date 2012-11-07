@@ -21,7 +21,7 @@ National Science Foundation.
    EnzoLicense.rst
    tutorials/index.rst
    user_guide/index.rst
-   EnzoParameters.rst
+   parameters/index.rst
    physics/index.rst
    developer_guide/index.rst
    reference/index.rst

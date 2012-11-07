@@ -1,0 +1,53 @@
+Initialization Parameters
+-------------------------
+
+``TopGridRank`` (external)
+    This specifies the dimensionality of the root grid and by extension
+    the entire hierarchy. It should be 1,2 or 3. Default: none
+``TopGridDimensions`` (external)
+    This is the dimension of the top or root grid. It should consist of
+    1, 2 or 3 integers separated by spaces. For those familiar with the
+    KRONOS or ZEUS method of specifying dimensions, these values do not
+    include ghost or boundary zones. A dimension cannot be less than 3
+    zones wide and more than ``MAX_ANY_SINGLE_DIRECTION`` -
+    ``NumberOfGhostZones``\*2. ``MAX_ANY_SINGLE_DIRECTION`` is defined in
+    ``fortran.def``. Default: none
+``DomainLeftEdge``, ``DomainRightEdge`` (external)
+    These float values specify the two corners of the problem domain
+    (in code units). The defaults are: 0 0 0 for the left edge and 1 1
+    1 for the right edge.
+``LeftFaceBoundaryCondition``, ``RightFaceBoundaryCondition`` (external)
+    These two parameters each consist of vectors of integers (of length
+    ``TopGridRank``). They specify the boundary conditions for the top grid
+    (and hence the entire hierarchy). The first integer corresponds to
+    the x-direction, the second to the y-direction and the third, the
+    z-direction. The possible values are: 0 - reflecting, 1 - outflow,
+    2 - inflow, 3 - periodic, 4 - shearing. For inflow, the inflow
+    values can be set through the next parameter, or more commonly are
+    controlled by problem-specific code triggered by the ``ProblemType``.
+    For shearing boundaries, the boundary pair in another direction
+    must be periodic. Note that self gravity will not be consistent
+    with shearing boundary conditions. Default: 0 0 0
+``ShearingVelocityDirection`` (external)
+    Select direction of shearing boundary. Default is x direction. Changing this is probably not a good idea.
+``AngularVelocity`` (external)
+    The value of the angular velocity in the shearing boundary.
+    Default: 0.001
+``VelocityGradient`` (external)
+    The value of the per code length gradient in the angular velocity
+    in the shearing boundary. Default: 1.0
+``BoundaryConditionName`` (external)
+    While the above parameters provide an easy way to set an entire
+    side of grid to a given boundary value, the possibility exists to
+    set the boundary conditions on an individual cell basis. This is
+    most often done with problem specific code, but it can also be set
+    by specifying a file which contains the information in the
+    appropriate format. This is too involved to go into here. Default:
+    none
+``InitialTime`` (internal)
+    The time, in code units, of the current step. For cosmology the
+    units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
+``Initialdt`` (internal)
+    The timestep, in code units, for the current step. For cosmology
+    the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
+

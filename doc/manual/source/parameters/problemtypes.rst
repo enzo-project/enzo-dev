@@ -1,0 +1,932 @@
+Problem Type Parameters
+-----------------------
+
+``ProblemType`` (external)
+    This integer specifies the type of problem to be run. Its value
+    causes the correct problem initializer to be called to set up the
+    grid, and also may trigger certain boundary conditions or other
+    problem-dependent routines to be called. The possible values are
+    listed below. Default: none. 
+
+For other problem-specific parameters follow the links below.  The problems
+marked with "hydro_rk" originate from the MUSCL solver package in the enzo installation directory
+``src/enzo/hydro_rk``.  For the 4xx radiation hydrodynamics problem types, see
+the user guides in the installation directory ``doc/implicit_fld`` and ``doc/split_fld``.
+
+============ ====================================
+Problem Type Description and Parameter List
+============ ====================================
+1 	     :ref:`shocktube_param`
+2	     :ref:`wavepool_param`
+3 	     :ref:`shockpool_param`
+4 	     :ref:`doublemach_param`
+5 	     :ref:`shockinabox_param`
+6 	     Implosion
+7 	     SedovBlast
+8 	     KH Instability
+9 	     2D/3D Noh Problem
+10 	     :ref:`rotatingcylinder_param`
+11 	     :ref:`radiatingshock_param`
+12 	     :ref:`freeexpansion_param`
+20 	     :ref:`zeldovichpancake_param`
+21 	     :ref:`pressurelesscollapse_param`
+22 	     :ref:`adiabaticexpansion_param`
+23 	     :ref:`testgravity_param`
+24 	     :ref:`sphericalinfall_param`
+25 	     :ref:`testgravitysphere_param`
+26 	     :ref:`gravityequilibriumtest_param`
+27 	     :ref:`collapsetest_param`
+28 	     TestGravityMotion
+29 	     TestOrbit
+30 	     :ref:`cosmologysimulation_param`
+31 	     :ref:`galaxysimulation_param`
+35 	     :ref:`shearingbox_param`
+40 	     :ref:`supernovarestart_param`
+50 	     :ref:`photontest_param`
+60 	     Turbulence Simulation
+61 	     Protostellar Collapse
+62 	     :ref:`coolingtest_param`
+101	     3D Collapse Test (hydro_rk)
+102	     1D Spherical Collapse Test (hydro_rk)
+106	     Hydro and MHD Turbulence Simulation (hydro_rk)
+107 	     Put Sink from restart
+200	     1D MHD Test
+201	     2D MHD Test
+202	     3D MHD Collapse Test
+203	     MHD Turbulent Collapse Test
+207	     Galaxy disk
+208	     AGN disk
+300	     Poisson solver test
+400 	     Radiation-Hydrodynamics test 1 -- constant fields
+401 	     Radiation-Hydrodynamics test 2 -- stream test
+402 	     Radiation-Hydrodynamics test 3 -- pulse test
+403 	     Radiation-Hydrodynamics test 4 -- grey Marshak test
+404/405	     Radiation-Hydrodynamics test 5 -- radiating shock test
+410/411	     Radiation-Hydrodynamics test 10/11 -- Static HI ionization
+412 	     Radiation-Hydrodynamics test 12 -- HI ionization of a clump
+413 	     Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
+414/415	     Radiation-Hydrodynamics test 14/15 -- Cosmological HI ionization
+450-452	     Free-streaming radiation tests
+============ ====================================
+
+.. _shocktube_param:
+
+Shock Tube (1: unigrid and AMR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Riemann problem or arbitrary discontinuity breakup problem. The
+    discontinuity initially separates two arbitrary constant states:
+    Left and Right. Default values correspond to the so called Sod
+    Shock Tube setup (test 1.1). A table below contains a series of
+    recommended 1D tests for hydrodynamic method, specifically designed
+    to test the performance of the Riemann solver, the treatment of
+    shock waves, contact discontinuities, and rarefaction waves in a
+    variety of situations (Toro 1999, p. 129).
+
+    ::
+
+              Test  LeftDensity LeftVelocity LeftPressure RightDensity RightVelocity RightPressure
+              1.1   1.0         0.0          1.0          0.125        0.0           0.1
+              1.2   1.0         -2.0         0.4          1.0          2.0           0.4
+              1.3   1.0         0.0          1000.0       1.0          0.0           0.01
+              1.4   1.0         0.0          0.01         1.0          0.0           100.0
+              1.5   5.99924     19.5975      460.894      5.99242      -6.19633      46.0950
+
+
+``ShockTubeBoundary`` (external)
+    Discontinuity position. Default: 0.5
+``ShockTubeDirection`` (external)
+    Discontinuity orientation. Type: integer. Default: 0 (shock(s) will
+    propagate in x-direction)
+``ShockTubeLeftDensity``, ``ShockTubeRightDensity`` (external)
+    The initial gas density to the left and to the right of the
+    discontinuity. Default: 1.0 and 0.125, respectively
+``ShockTubeLeftVelocity``, ``ShockTubeRightVelocity`` (external)
+    The same as above but for the velocity component in
+    ``ShockTubeDirection``. Default: 0.0, 0.0
+``ShockTubeLeftPressure``, ``ShockTubeRightPressure`` (external)
+    The same as above but for pressure. Default: 1.0, 0.1
+
+.. _wavepool_param:
+
+Wave Pool (2)
+~~~~~~~~~~~~~
+
+    Wave Pool sets up a simulation with a 1D sinusoidal wave entering
+    from the left boundary. The initial active region is uniform and
+    the wave is entered via inflow boundary conditions.
+
+
+``WavePoolAmplitude`` (external)
+    The amplitude of the wave. Default: 0.01 - a linear wave.
+``WavePoolAngle`` (external)
+    Direction of wave propagation with respect to x-axis. Default: 0.0
+``WavePoolDensity`` (external)
+    Uniform gas density in the pool. Default: 1.0
+``WavePoolNumberOfWaves`` (external)
+    The test initialization will work for one wave only. Default: 1
+``WavePoolPressure`` (external)
+    Uniform gas pressure in the pool. Default: 1.0
+``WavePoolSubgridLeft``, ``WavePoolSubgridRight`` (external)
+    Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
+    subgrids)
+``WavePoolVelocity1(2,3)`` (external)
+    x-,y-, and z-velocities. Default: 0.0 (for all)
+``WavePoolWavelength`` (external)
+    The wavelength. Default: 0.1 (one-tenth of the box)
+
+.. _shockpool_param:
+
+Shock Pool (3: unigrid 2D, AMR 2D and unigrid 3D)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    The Shock Pool test sets up a system which introduces a shock from
+    the left boundary. The initial active region is uniform, and the
+    shock wave enters via inflow boundary conditions. 2D and 3D
+    versions available. (D. Mihalas & B.W. Mihalas, Foundations of
+    Radiation Hydrodynamics, 1984, p. 236, eq. 56-40.)
+
+
+``ShockPoolAngle`` (external)
+    Direction of the shock wave propagation with respect to x-axis.
+    Default: 0.0
+``ShockPoolDensity`` (external)
+    Uniform gas density in the preshock region. Default: 1.0
+``ShockPoolPressure`` (external)
+    Uniform gas pressure in the preshock region. Default: 1.0
+``ShockPoolMachNumber`` (external)
+    The ratio of the shock velocity and the preshock sound speed.
+    Default: 2.0
+``ShockPoolSubgridLeft``, ``ShockPoolSubgridRight`` (external)
+    Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
+    subgrids)
+``ShockPoolVelocity1(2,3)`` (external)
+    Preshock gas velocity (the Mach number definition above assumes a
+    zero velocity in the laboratory reference frame. Default: 0.0 (for
+    all components)
+
+.. _doublemach_param:
+
+Double Mach Reflection (4)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    A test for double Mach reflection of a strong shock (Woodward &
+    Colella 1984). Most of the parameters are "hardwired": d0 = 8.0, e0
+    = 291.25, u0 = 8.25\*sqrt(3.0)/2.0, v0 = -8.25\*0.5, w0 = 0.0
+
+
+``DoubleMachSubgridLeft`` (external)
+    Start position of the subgrid. Default: 0.0
+``DoubleMachSubgridRight`` (external)
+    End positions of the subgrid. Default: 0.0
+
+.. _shockinabox_param:
+
+Shock in a Box (5)
+~~~~~~~~~~~~~~~~~~
+
+    A stationary shock front in a static 3D subgrid (Anninos et al.
+    1994). Initialization is done as in the Shock Tube test.
+
+
+``ShockInABoxBoundary`` (external)
+    Position of the shock. Default: 0.5
+``ShockInABoxLeftDensity``, ``ShockInABoxRightDensity`` (external)
+    Densities to the right and to the left of the shock front. Default:
+    ``dL=1.0`` and ``dR = dL*((Gamma+1)*m^2)/((Gamma-1)*m^2 + 2)``, where
+    ``m=2.0`` and ``speed=0.9*sqrt(Gamma*pL/dL)*m``.
+``ShockInABoxLeftVelocity``, ``ShockInABoxRightVelocity`` (external)
+    Velocities to the right and to the left of the shock front.
+    Default: ``vL=shockspeed`` and
+    ``vR=shockspeed-m*sqrt(Gamma*pL/dL)*(1-dL/dR)``, where ``m=2.0``,
+    ``shockspeed=0.9*sqrt(Gamma*pL/dL)*m``.
+``ShockInABoxLeftPressure``, ``ShockInABoxRightPressure`` (external)
+    Pressures to the Right and to the Left of the shock
+    front. Default: pL=1.0 and pR=pL*(2.0*Gamma*m^2 -
+    (Gamma-1))/(Gamma+1), where m=2.0.
+``ShockInABoxSubgridLeft``, ``ShockInABoxSubgridRight`` (external)
+    Start and end positions of the subgrid. Default: 0.0 (for both)
+
+.. _rotatingcylinder_param:
+
+Rotating Cylinder (10)
+~~~~~~~~~~~~~~~~~~~~~~
+
+    A test for the angular momentum conservation of a collapsing
+    cylinder of gas in an AMR simulation. Written by Brian O'Shea
+    (`oshea@msu.edu <mailto:oshea@msu.edu>`_).
+
+
+``RotatingCylinderOverdensity`` (external)
+    Density of the rotating cylinder with respect to the
+    background. Default: 20.0
+``RotatingCylinderSubgridLeft``, ``RotatingCylinderSubgridRight`` (external)
+    This pair of floating point numbers creates a subgrid region at the
+    beginning of the simulation that will be refined to
+    ``MaximumRefinementLevel``. It should probably encompass the whole
+    cylinder. Positions are in units of the box, and it always creates
+    a cube. No default value (meaning off).
+``RotatingCylinderLambda`` (external)
+    Angular momentum of the cylinder as a dimensionless quantity. This
+    is identical to the angular momentum parameter lambda that is
+    commonly used to describe cosmological halos. A value of 0.0 is
+    non-rotating, and 1.0 means that the gas is already approximately
+    rotating at the Keplerian value. Default: 0.05
+``RotatingCylinderTotalEnergy`` (external)
+    Sets the default gas energy of the ambient medium, in Enzo internal
+    units. Default: 1.0
+``RotatingCylinderRadius`` (external)
+    Radius of the rotating cylinder in units of the box size. Note that
+    the height of the cylinder is equal to the diameter. Default: 0.3
+``RotatingCylinderCenterPosition`` (external)
+    Position of the center of the cylinder as a vector of floats.
+    Default: (0.5, 0.5, 0.5)
+
+.. _radiatingshock_param:
+
+Radiating Shock (11)
+~~~~~~~~~~~~~~~~~~~~
+
+    This is a test problem similar to the Sedov test problem documented
+    elsewhere, but with radiative cooling turned on (and the ability to
+    use ``MultiSpecies`` and all other forms of cooling). The main
+    difference is that there are quite a few extras thrown in,
+    including the ability to initialize with random density
+    fluctuations outside of the explosion region, use a Sedov blast
+    wave instead of just thermal energy, and some other goodies (as
+    documented below).
+
+
+``RadiatingShockInnerDensity`` (external)
+    Density inside the energy deposition area (Enzo internal units).
+    Default: 1.0
+``RadiatingShockOuterDensity`` (external)
+    Density outside the energy deposition area (Enzo internal units).
+    Default: 1.0
+``RadiatingShockPressure`` (external)
+    Pressure outside the energy deposition area (Enzo internal units).
+    Default: 1.0e-5
+``RadiatingShockEnergy`` (external)
+    Total energy deposited (in units of 1e51 ergs). Default: 1.0
+``RadiatingShockSubgridLeft``, ``RadiatingShockSubgridRight`` (external)
+    Pair of floats that defines the edges of the region where the
+    initial conditions are refined to MaximumRefinementLevel. No
+    default value.
+``RadiatingShockUseDensityFluctuation`` (external)
+    Initialize external medium with random density fluctuations.
+    Default: 0
+``RadiatingShockRandomSeed`` (external)
+    Seed for random number geneator (currently using Mersenne Twister).
+    Default: 123456789
+``RadiatingShockDensityFluctuationLevel`` (external)
+    Maximum fractional fluctuation in the density level. Default: 0.1
+``RadiatingShockInitializeWithKE`` (external)
+    Initializes the simulation with some initial kinetic energy if
+    turned on (0 - off, 1 - on). Whether this is a simple sawtooth or a
+    Sedov profile is controlled by the parameter
+    ``RadiatingShockUseSedovProfile``. Default: 0
+``RadiatingShockUseSedovProfile`` (external)
+    If set to 1, initializes simulation with a Sedov blast wave profile
+    (thermal and kinetic energy components). If this is set to 1, it
+    overrides all other kinetic energy-related parameters. Default: 0
+``RadiatingShockSedovBlastRadius`` (external)
+    Maximum radius of the Sedov blast, in units of the box size.
+    Default: 0.05
+``RadiatingShockKineticEnergyFraction`` (external)
+    Fraction of the total supernova energy that is deposited as kinetic
+    energy. This only is used if ``RadiatingShockInitializeWithKE`` is set
+    to 1. Default: 0.0
+``RadiatingShockCenterPosition`` (external)
+    Vector of floats that defines the center of the explosion. Default:
+    (0.5, 0.5, 0.5)
+``RadiatingShockSpreadOverNumZones`` (external)
+    Number of cells that the shock is spread over. This corresponds to
+    a radius of approximately N \* dx, where N is the number of cells
+    and dx is the resolution of the highest level of refinement. This
+    does not have to be an integer value. Default: 3.5
+
+.. _freeexpansion_param:
+
+Free Expansion (12)
+~~~~~~~~~~~~~~~~~~~
+
+This test sets up a blast wave in the free expansion stage. There
+is only kinetic energy in the sphere with the radial velocity
+proportional to radius. If let evolve for long enough, the problem
+should turn into a Sedov-Taylor blast wave.
+
+``FreeExpansionFullBox`` (external)
+    Set to 0 to have the blast wave start at the origin with reflecting
+    boundaries. Set to 1 to center the problem at the domain center
+    with periodic boundaries. Default: 0
+``FreeExpansionMass`` (external)
+    Mass of the ejecta in the blast wave in solar masses. Default: 1
+``FreeExpansionRadius`` (external)
+    Initial radius of the blast wave. Default: 0.1
+``FreeExpansionDensity`` (external)
+    Ambient density of the problem. Default: 1
+``FreeExpansionEnergy`` (external)
+    Total energy of the blast wave in ergs. Default: 1e51
+``FreeExpansionMaxVelocity`` (external)
+    Maximum initial velocity of the blast wave (at the outer radius).
+    If not set, a proper value is calculated using the formula in
+    Draine & Woods (1991). Default: ``FLOAT_UNDEFINED``
+``FreeExpansionTemperature`` (external)
+    Ambient temperature of the problem in K. Default: 100
+``FreeExapnsionBField`` (external)
+    Initial uniform magnetic field. Default: 0 0 0
+``FreeExpansionVelocity`` (external)
+    Initial velocity of the ambient medium. Default: 0 0 0
+``FreeExpansionSubgridLeft`` (external)
+    Leftmost edge of the region to set the initial refinement. Default: 0
+``FreeExpansionSubgridRight`` (external)
+    Rightmost edge of the region to set the initial refinement.
+    Default: 0
+
+.. _zeldovichpancake_param:
+
+Zeldovich Pancake (20)
+~~~~~~~~~~~~~~~~~~~~~~
+
+    A test for gas dynamics, expansion terms and self-gravity in both
+    linear and non-linear regimes [Bryan thesis (1996),
+    Sect. 3.3.4-3.3.5; Norman & Bryan (1998), Sect. 4]
+
+
+``ZeldovichPancakeCentralOffset`` (external)
+    Offset of the pancake plane. Default: 0.0 (no offset)
+``ZeldovichPancakeCollapseRedshift`` (external)
+    A free parameter which determines the epoch of caustic formation.
+    Default: 1.0
+``ZeldovichPancakeDirection`` (external)
+    Orientation of the pancake. Type: integer. Default: 0 (along the
+    x-axis)
+``ZeldovichPancakeInitialTemperature`` (external)
+    Initial gas temperature. Units: degrees Kelvin. Default: 100
+``ZeldovichPancakeOmegaBaryonNow`` (external)
+    Omega Baryon at redshift z=0; standard setting. Default: 1.0
+``ZeldovichPancakeOmegaCDMNow`` (external)
+    Omega CDM at redshift z=0. Default: 0 (assumes no dark matter)
+
+.. _pressurelesscollapse_param:
+
+Pressureless Collapse (21)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    An 1D AMR test for the gravity solver and advection routines: the
+    two-sided one-dimensional collapse of a homogeneous plane parallel
+    cloud in Cartesian coordinates. Isolated boundary conditions.
+    Gravitational constant G=1; free fall time 0.399. The expansion
+    terms are not used in this test. (Bryan thesis 1996, Sect. 3.3.1).
+
+
+``PressurelessCollapseDirection`` (external)
+    Coordinate direction. Default: 0 (along the x-axis).
+``PressurelessCollapseInitialDensity`` (external)
+    Initial density (the fluid starts at rest). Default: 1.0
+
+.. _adiabaticexpansion_param:
+
+Adiabatic Expansion (22)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+    A test for time-integration accuracy of the expansion terms (Bryan
+    thesis 1996, Sect. 3.3.3).
+
+
+``AdiabaticExpansionInitialTemperature`` (external)
+    Initial temperature for Adiabatic Expansion test; test example
+    assumes 1000 K. Default: 200. Units: degrees Kelvin
+``AdiabaticExpansionInitialVelocity`` (external)
+    Initial expansion velocity. Default: 100. Units: km/s
+``AdiabaticExpansionOmegaBaryonNow`` (external)
+    Omega Baryon at redshift z=0; standard value 1.0. Default: 1.0
+``AdiabaticExpansionOmegaCDMNow`` (external)
+    Omega CDM at redshift z=0; default setting assumes no dark matter.
+    Default: 0.0
+
+.. _testgravity_param:
+
+Test Gravity (23)
+~~~~~~~~~~~~~~~~~
+
+    We set up a system in which there is one grid point with mass in
+    order to see the resulting acceleration field. If finer grids are
+    specified, the mass is one grid point on the subgrid as well.
+    Periodic boundary conditions are imposed (gravity).
+
+
+``TestGravityDensity`` (external)
+    Density of the central peak. Default: 1.0
+``TestGravityMotionParticleVelocity`` (external)
+    Initial velocity of test particle(s) in x-direction. Default: 1.0
+``TestGravityNumberOfParticles`` (external)
+    The number of test particles of a unit mass. Default: 0
+``TestGravitySubgridLeft``, ``TestGravitySubgridRight`` (external)
+    Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
+    subgrids)
+``TestGravityUseBaryons`` (external)
+    Boolean switch. Type: integer. Default: 0 (FALSE)
+
+.. _sphericalinfall_param:
+
+Spherical Infall (24)
+~~~~~~~~~~~~~~~~~~~~~
+
+    A test based on Bertschinger's (1985) 3D self-similar spherical
+    infall solution onto an initially overdense perturbation in an
+    Einstein-de Sitter universe.
+
+
+``SphericalInfallCenter`` (external)
+    Coordinate(s) for the accretion center. Default: top grid center
+``SphericalInfallFixedAcceleration`` (external)
+    Boolean flag. Type: integer. Default: 0 (FALSE)
+``SphericalInfallFixedMass`` (external)
+    Mass used to calculate the acceleration from spherical infall
+    (GM/(4*pi*r^3*a)). Default: If SphericalInfallFixedMass is
+    undefined and ``SphericalInfallFixedAcceleration == TRUE``, then
+    ``SphericalInfallFixedMass = SphericalInfallInitialPerturbation * TopGridVolume``
+``SphericalInfallInitialPerturbation`` (external)
+    The perturbation of initial mass density. Default: 0.1
+``SphericalInfallOmegaBaryonNow`` (external)
+    Omega Baryon at redshift z=0; standard setting. Default: 1.0
+``SphericalInfallOmegaCDMNow`` (external)
+    Omega CDM at redshift z=0. Default: 0.0 (assumes no dark matter)
+    Default: 0.0
+``SphericalInfallSubgridIsStatic`` (external)
+    Boolean flag. Type: integer. Default: 0 (FALSE)
+``SphericalInfallSubgridLeft``, ``SphericalInfallSubgridRight`` (external)
+    Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
+    subgrids)
+``SphericalInfallUseBaryons`` (external)
+    Boolean flag. Type: integer. Default: 1 (TRUE)
+
+.. _testgravitysphere_param:
+
+Test Gravity: Sphere (25)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Sets up a 3D spherical mass distribution and follows its evolution
+    to test the gravity solver.
+
+
+``TestGravitySphereCenter`` (external)
+    The position of the sphere center. Default: at the center of the
+    domain
+``TestGravitySphereExteriorDensity`` (external)
+    The mass density outside the sphere. Default: ``tiny_number``
+``TestGravitySphereInteriorDensity`` (external)
+    The mass density at the sphere center. Default: 1.0
+``TestGravitySphereRadius`` (external)
+    Radius of self-gravitating sphere. Default: 0.1
+``TestGravitySphereRefineAtStart`` (external)
+    Boolean flag. Type: integer. Default: 0 (FALSE)
+``TestGravitySphereSubgridLeft``, ``TestGravitySphereSubgridRight`` (external)
+    Start and end positions of the subgrid. Default: 0.0 and 0.0 (no
+    subgrids)
+``TestGravitySphereType`` (external)
+    Type of mass density distribution within the sphere. Options
+    include: (0) uniform density distrubution within the sphere radius;
+    (1) a power law with an index -2.0; (2) a power law with an index
+    -2.25 (the exact power law form is, e.g., r\ :sup:`-2.25`\ , where
+    r is measured in units of ``TestGravitySphereRadius``). Default: 0
+    (uniform density)
+``TestGravitySphereUseBaryons`` (external)
+    Boolean flag. Type: integer . Default: 1 (TRUE)
+
+.. _gravityequilibriumtest_param:
+
+Gravity Equilibrium Test (26)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Sets up a hydrostatic exponential atmosphere with the pressure=1.0
+    and density=1.0 at the bottom. Assumes constant gravitational
+    acceleration (uniform gravity field).
+
+
+``GravityEquilibriumTestScaleHeight`` (external)
+    The scale height for the exponential atmosphere . Default: 0.1
+
+.. _collapsetest_param:
+
+Collapse Test (27)
+~~~~~~~~~~~~~~~~~~
+
+    A self-gravity test.
+
+
+``CollapseTestInitialTemperature`` (external)
+    Initial gas temperature. Default: 1000 K. Units: degrees Kelvin
+``CollapseTestNumberOfSpheres`` (external)
+    Number of spheres to collapse; must be <= ``MAX_SPHERES=10`` (see
+    ``Grid.h`` for definition). Default: 1
+``CollapseTestRefineAtStart`` (external)
+    Boolean flag. Type: integer. If TRUE, then initializing routine
+    refines the grid to the desired level. Default: 1 (TRUE)
+``CollapseTestUseColour`` (external)
+    Boolean flag. Type: integer. Default: 0 (FALSE)
+``CollapseTestUseParticles`` (external)
+    Boolean flag. Type: integer. Default: 0 (FALSE)
+``CollapseTestSphereCoreRadius`` (external)
+    An array of core radii for collapsing spheres. Default: 0.1 (for
+    all spheres)
+``CollapseTestSphereDensity`` (external)
+    An array of density values for collapsing spheres. Default: 1.0
+    (for all spheres)
+``CollapseTestSpherePosition`` (external)
+    A two-dimensional array of coordinates for sphere centers. Type:
+    float[``MAX_SPHERES``][``MAX_DIMENSION``]. Default for all spheres:
+    0.5\*(``DomainLeftEdge[dim]`` + ``DomainRightEdge[dim]``)
+``CollapseTestSphereRadius`` (external)
+    An array of radii for collapsing spheres. Default: 1.0 (for all
+    spheres)
+``CollapseTestSphereTemperature`` (external)
+    An array of temperatures for collapsing spheres. Default: 1.0.
+    Units: degrees Kelvin
+``CollapseTestSphereType`` (external)
+    An integer array of sphere types. Default: 0
+``CollapseTestSphereVelocity`` (external)
+    A two-dimensional array of sphere velocities. Type:
+    float[``MAX_SPHERES``][``MAX_DIMENSION``]. Default: 0.0
+``CollapseTestUniformVelocity`` (external)
+    Uniform velocity. Type: float[``MAX_DIMENSION``]. Default: 0 (for all
+    dimensions)
+``CollapseTestSphereMetallicity`` (external)
+    Metallicity of the sphere in solar metallicity. Default: 0.
+``CollapseTestFracKeplerianRot`` (external)
+    Rotational velocity of the sphere in units of Keplerian velocity,
+    i.e. 1 is rotationally supported. Default: 0.
+``CollapseTestSphereTurbulence`` (external)
+    Turbulent velocity field sampled from a Maxwellian distribution
+    with the temperature specified in
+    ``CollapseTestSphereTemperature``
+    This parameter multiplies the turbulent velocities by its value.
+    Default: 0.
+``CollapseTestSphereDispersion`` (external)
+    If using particles, this parameter multiplies the velocity
+    dispersion of the particles by its value. Only valid in sphere type
+    8 (cosmological collapsing sphere from a uniform density). Default:
+    0.
+``CollapseTestSphereCutOff`` (external)
+    At what radius to terminate a Bonner-Ebert sphere. Units? Default:
+    6.5
+``CollapseTestSphereAng1`` (external)
+    Controls the initial offset (at r=0) of the rotational axis. Units
+    in radians. Default: 0.
+``CollapseTestSphereAng2`` (external)
+    Controls the outer offset (at ``r=SphereRadius`` of the rotational
+    axis. In both ``CollapseTestSphereAng1`` and
+    ``CollapseTestSphereAng2`` are set, the rotational axis linearly
+    changes with radius between ``CollapseTestSphereAng1`` and
+    ``CollapseTestSphereAng2``.  Units in radians. Default: 0.
+``CollapseTestSphereInitialLevel`` (external)
+    Failed experiment to try to force refinement to a specified level.
+    Not working. Default: 0.
+
+.. _cosmologysimulation_param:
+
+Cosmology Simulation (30)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    A sample cosmology simulation.
+
+
+``CosmologySimulationDensityName`` (external)
+    This is the name of the file which contains initial data for baryon
+    density. Type: string. Example: ``GridDensity``. Default: none
+``CosmologySimulationTotalEnergyName`` (external)
+    This is the name of the file which contains initial data for total
+    energy. Default: none
+``CosmologySimulationGasEnergyName`` (external)
+    This is the name of the file which contains initial data for gas
+    energy. Default: none
+``CosmologySimulationVelocity[123]Name`` (external)
+    These are the names of the files which contain initial data for gas
+    velocities. ``Velocity1`` - x-component; ``Velocity2`` - y-component;
+    ``Velocity3`` - z-component. Default: none
+``CosmologySimulationParticleMassName`` (external)
+    This is the name of the file which contains initial data for
+    particle masses. Default: none
+``CosmologySimulationParticlePositionName`` (external)
+    This is the name of the file which contains initial data for
+    particle positions. Default: none
+``CosmologySimulationParticleVelocityName`` (external)
+    This is the name of the file which contains initial data for
+    particle velocities. Default: none
+``CosmologySimulationParticleVelocity[123]Name`` (external) This is
+    the name of the file which contains initial data for particle
+    velocities but only has one component per file. This is more
+    useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
+    one can only use this in conjunction with
+    ``CosmologySimulationCalculatePositions``.  because it expects a
+    3D grid structure instead of a 1D list of particles.  Default:
+    None.
+``CosmologySimulationCalculatePositions`` (external)
+    If set to 1, Enzo will calculate the particle positions in one of
+    two ways: 1) By using a linear Zeldo'vich approximation based on
+    the particle velocities and a displacement factor [dln(growth
+    factor) / dtau, where tau is the conformal time], which is stored
+    as an attribute in the initial condition files, or 2) if the user
+    has also defined either
+    CosmologySimulationParticleDisplacementName or
+    CosmologySimulationParticleDisplacement[123]Name, by reading in
+    particle displacements from an external code and applying those
+    directly.  The latter allows the use of non-linear displacements.
+    Default: 0.
+``CosmologySimulationParticleDisplacementName`` (external)
+    This is the name of the file which contains initial data for
+    particle displacements. Default: none
+``CosmologySimulationParticleDisplacement[123]Name`` (external) This
+    is the name of the file which contains initial data for particle
+    displacements but only has one component per file. This is more
+    useful with very large (>=2048\ :sup:`3`\ ) datasets. Currently
+    one can only use this in conjunction with
+    ``CosmologySimulationCalculatePositions``.  because it expects a
+    3D grid structure instead of a 1D list of particles.  Default:
+    None.
+``CosmologySimulationNumberOfInitialGrids`` (external)
+    The number of grids at startup. 1 means top grid only. If >1, then
+    nested grids are to be defined by the following parameters.
+    Default: 1
+``CosmologySimulationSubgridsAreStatic`` (external)
+    Boolean flag, defines whether the subgrids introduced at the
+    startup are static or not. Type: integer. Default: 1 (TRUE)
+``CosmologySimulationGridLevel`` (external)
+    An array of integers setting the level(s) of nested subgrids. Max
+    dimension ``MAX_INITIAL_GRIDS`` is defined in
+    ``CosmologySimulationInitialize.C`` as 10. Default for all subgrids: 1,
+    0 - for the top grid (grid #0)
+``CosmologySimulationGridDimension[#]`` (external)
+    An array (arrays) of 3 integers setting the dimensions of nested
+    grids. Index starts from 1. Max number of subgrids
+    ``MAX_INITIAL_GRIDS`` is defined in ``CosmologySimulationInitialize.C``
+    as 10. Default: none
+``CosmologySimulationGridLeftEdge[#]`` (external)
+    An array (arrays) of 3 floats setting the left edge(s) of nested
+    subgrids. Index starts from 1. Max number of subgrids
+    ``MAX_INITIAL_GRIDS`` is defined in ``CosmologySimulationInitialize.C``
+    as 10. Default: none
+``CosmologySimulationGridRightEdge[#]`` (external)
+    An array (arrays) of 3 floats setting the right edge(s) of nested
+    subgrids. Index starts from 1. Max number of subgrids
+    ``MAX_INITIAL_GRIDS`` is defined in ``CosmologySimulationInitialize.C``
+    as 10. Default: none
+``CosmologySimulationUseMetallicityField`` (external)
+    Boolean flag. Type: integer. Default: 0 (FALSE)
+``CosmologySimulationInitialFractionH2I`` (external)
+    The fraction of molecular hydrogen (H_2) at ``InitialRedshift``. This
+    and the following chemistry parameters are used if ``MultiSpecies`` is
+    defined as 1 (TRUE). Default: 2.0e-20
+``CosmologySimulationInitialFractionH2II`` (external)
+    The fraction of singly ionized molecular hydrogen (H2+) at
+    ``InitialRedshift``. Default: 3.0e-14
+``CosmologySimulationInitialFractionHeII`` (external)
+    The fraction of singly ionized helium at ``InitialRedshift``. Default:
+    1.0e-14
+``CosmologySimulationInitialFractionHeIII`` (external)
+    The fraction of doubly ionized helium at ``InitialRedshift``. Default:
+    1.0e-17
+``CosmologySimulationInitialFractionHII`` (external)
+    The fraction of ionized hydrogen at ``InitialRedshift``. Default:
+    1.2e-5
+``CosmologySimulationInitialFractionHM`` (external)
+    The fraction of negatively charged hydrogen (H-) at
+    ``InitialRedshift``. Default: 2.0e-9
+``CosmologySimulationInitialFractionMetal`` (external)
+    The fraction of metals at ``InitialRedshift``. Default: 1.0e-10
+``CosmologySimulationInitialTemperature`` (external)
+    A uniform temperature value at ``InitialRedshift`` (needed if the
+    initial gas energy field is not supplied). Default: 550\*((1.0 +
+    ``InitialRedshift``)/201)\ :sup:`2`\ 
+``CosmologySimulationOmegaBaryonNow`` (external)
+    This is the contribution of baryonic matter to the energy density
+    at the current epoch (z=0), relative to the value required to
+    marginally close the universe. Typical value 0.06. Default: 1.0
+``CosmologySimulationOmegaCDMNow`` (external)
+    This is the contribution of CDM to the energy density at the
+    current epoch (z=0), relative to the value required to marginally
+    close the universe. Typical value 0.94. Default: 0.0 (no dark
+    matter)
+``CosmologySimulationManuallySetParticleMassRatio`` (external)
+    This binary flag (0 - off, 1 - on) allows the user to manually set
+    the particle mass ratio in a cosmology simulation. Default: 0 (Enzo
+    automatically sets its own particle mass)
+``CosmologySimulationManualParticleMassRatio`` (external)
+    This manually controls the particle mass in a cosmology simulation,
+    when ``CosmologySimulationManuallySetParticleMassRatio`` is set to 1.
+    In a standard Enzo simulation with equal numbers of particles and
+    cells, the mass of a particle is set to
+    ``CosmologySimulationOmegaCDMNow``/``CosmologySimulationOmegaMatterNow``,
+    or somewhere around 0.85 in a WMAP-type cosmology. When a different
+    number of particles and cells are used (128 particles along an edge
+    and 256 cells along an edge, for example) Enzo attempts to
+    calculate the appropriate particle mass. This breaks down when
+    ``ParallelRootGridIO`` and/or ``ParallelParticleIO`` are turned on,
+    however, so the user must set this by hand. If you have the ratio
+    described above (2 cells per particle along each edge of a 3D
+    simulation) the appropriate value would be 8.0 (in other words,
+    this should be set to (number of cells along an edge) / (number of
+    particles along an edge) cubed. Default: 1.0.
+
+.. _galaxysimulation_param:
+
+Isolated Galaxy Evolution (31)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Initializes an isolated galaxy, as per the Tasker & Bryan series of
+    papers.
+
+
+``GalaxySimulationRefineAtStart`` (external)
+    Controls whether or not the simulation is refined beyond the root
+    grid at initialization. (0 - off, 1 - on). Default: 1
+``GalaxySimulationInitialRefinementLevel`` (external)
+    Level to which the simulation is refined at initialization,
+    assuming ``GalaxySimulationRefineAtStart`` is set to 1. Default: 0
+``GalaxySimulationSubgridLeft``, ``GalaxySimulationSubgridRight`` (external)
+    Vectors of floats defining the edges of the volume which is refined
+    at start. No default value.
+``GalaxySimulationUseMetallicityField`` (external)
+    Turns on (1) or off (0) the metallicity field. Default: 0
+``GalaxySimulationInitialTemperature`` (external)
+    Initial temperature that the gas in the simulation is set to.
+    Default: 1000.0
+``GalaxySimulationUniformVelocity`` (external)
+    Vector that gives the galaxy a uniform velocity in the ambient
+    medium. Default: (0.0, 0.0, 0.0)
+``GalaxySimulationDiskRadius`` (external)
+    Radius (in Mpc) of the galax disk. Default: 0.2
+``GalaxySimulationGalaxyMass`` (external)
+    Dark matter mass of the galaxy, in Msun. Needed to initialize the
+    NFW gravitational potential. Default: 1.0e+12
+``GalaxySimulationGasMass`` (external)
+    Amount of gas in the galaxy, in Msun. Used to initialize the
+    density field in the galactic disk. Default: 4.0e+10
+``GalaxySimulationDiskPosition`` (external)
+    Vector of floats defining the center of the galaxy, in units of the
+    box size. Default: (0.5, 0.5, 0.5)
+``GalaxySimulationDiskScaleHeightz`` (external)
+    Disk scale height, in Mpc. Default: 325e-6
+``GalaxySimulationDiskScaleHeightR`` (external)
+    Disk scale radius, in Mpc. Default: 3500e-6
+``GalaxySimulationDarkMatterConcentrationParameter`` (external)
+    NFW dark matter concentration parameter. Default: 12.0
+``GalaxySimulationDiskTemperature`` (external)
+    Temperature of the gas in the galactic disk. Default: 1.0e+4
+``GalaxySimulationInflowTime`` (external)
+    Controls inflow of gas into the box. It is strongly suggested that
+    you leave this off. Default: -1 (off)
+``GalaxySimulationInflowDensity`` (external)
+    Controls inflow of gas into the box. It is strongly suggested that
+    you leave this off. Default: 0.0
+``GalaxySimulationAngularMomentum`` (external)
+    Unit vector that defines the angular momentum vector of the galaxy
+    (in other words, this and the center position define the plane of
+    the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
+
+.. _shearingbox_param:
+
+Shearing Box Simulation (35)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ShearingBoxProblemType`` (external)
+    Value of 0 starts a sphere advection through the shearing box test.
+    Value of 1 starts a standard Balbus & Hawley shearing box
+    simulation. Default: 0
+``ShearingBoxRefineAtStart`` (external)
+    Refine the simulation at start. Default: 1.0
+``ThermalMagneticRatio`` (external)
+    Plasma beta (Pressure/Magnetic Field
+    Energy) Default: 400.0
+``FluctuationAmplitudeFraction`` (external)
+    The magnitude of the sinusoidal velocity perturbations as a
+    fraction of the angular velocity. Default: 0.1
+``ShearingBoxGeometry`` (external)
+    Defines the radius of the sphere for ``ShearingBoxProblemType`` =
+    0, and the frequency of the velocity fluctuations (in units of
+    2pi) for ``ShearingBoxProblemType`` = 1.  Default: 2.0
+
+.. _supernovarestart_param:
+
+Supernova Restart Simulation (40)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    All of the supernova parameters are to be put into a restart dump
+    parameter file. Note that ProblemType must be reset to 40,
+    otherwise these are ignored.
+
+``SupernovaRestartEjectaCenter[#]`` (external)
+    Input is a trio of coordinates in code units where the supernova's
+    energy and mass ejecta will be centered. Default: ``FLOAT_UNDEFINED``
+``SupernovaRestartEjectaEnergy`` (external)
+    The amount of energy instantaneously output in the simulated
+    supernova, in units of 1e51 ergs. Default: 1.0
+``SupernovaRestartEjectaMass`` (external)
+    The mass of ejecta in the supernova, in units of solar masses.
+    Default: 1.0
+``SupernovaRestartEjectaRadius`` (external)
+    The radius over which the above two parameters are spread. This is
+    important because if it's too small the timesteps basically go to
+    zero and the simulation takes forever, but if it's too big then you
+    loose information. Units are parsecs. Default: 1.0 pc
+``SupernovaRestartName`` (external)
+    This is the name of the restart data dump that the supernova
+    problem is initializing from.
+``SupernovaRestartColourField``
+    Reserved for future use.
+
+.. _photontest_param:
+
+Photon Test (50)
+~~~~~~~~~~~~~~~~
+
+    This test problem is modeled after Collapse Test (27), and thus
+    borrows all of its parameters that control the setup of spheres.
+    Replace CollapseTest with PhotonTest in the sphere parameters, and
+    it will be recognized. However there are parameters that control
+    radiation sources, which makes this problem unique from collapse
+    test. The radiation sources are fixed in space.
+
+
+``PhotonTestNumberOfSources`` (external)
+    Sets the number of radiation sources. Default: 1.
+``PhotonTestSourceType`` (external)
+    Sets the source type. No different types at the moment. Default: 0.
+``PhotonTestSourcePosition`` (external)
+    Sets the source position. Default: 0.5\*(``DomainLeftEdge`` + ``DomainRightEdge``)
+``PhotonTestSourceLuminosity`` (external)
+    Sets the source luminosity in units of photons per seconds.
+    Default: 0.
+``PhotonTestSourceLifeTime`` (external)
+    Sets the lifetime of the source in units of code time. Default: 0.
+``PhotonTestSourceRampTime`` (external)
+    If non-zero, the source will exponentially increase its luminosity
+    until it reaches the full luminosity when the age of the source
+    equals this parameter. Default: 0.
+``PhotonTestSourceEnergyBins`` (external)
+    Sets the number of energy bins in which the photons are emitted
+    from the source. Default: 4.
+``PhotonTestSourceSED`` (external)
+    An array with the fractional luminosity in each energy bin. The sum
+    of this array must equal to one. Default: 1 0 0 0
+``PhotonTestSourceEnergy`` (external)
+    An array with the mean energy in each energy bin. Units are in eV.
+    Default: 14.6 25.6 56.4 12.0 (i.e. HI ionizing, HeI ionizing, HeII
+    ionizing, Lyman-Werner)
+``PhotonTestInitialFractionHII`` (external)
+    Sets the initial ionized fraction of hydrogen. Default: 1.2e-5
+``PhotonTestInitialFractionHeII`` (external)
+    Sets the initial singly-ionized fraction of helium. Default: 1e-14
+``PhotonTestInitialFractionHeIII`` (external)
+    Sets the initial doubly-ionized fraction of helium. Default: 1e-17
+``PhotonTestInitialFractionHM`` (external)
+    Sets the initial fraction of H\ :sup:`-`\ . Default: 2e-9
+``PhotonTestInitialFractionH2I`` (external)
+    Sets the initial neutral fraction of H2. Default: 2e-20
+``PhotonTestInitialFractionH2II`` (external)
+    Sets the initial ionized fraction of H2. Default: 3e-14
+``PhotonTestOmegaBaryonNow`` (obsolete)
+    Default: 0.05.
+
+.. _coolingtest_param:
+
+Cooling Test (62)
+~~~~~~~~~~~~~~~~~
+
+    This test problem sets up a 3D grid varying smoothly in log-space in H
+    number density (x dimension), metallicity (y-dimension), and temperature
+    (z-dimension). The hydro solver is turned off. By varying the
+    ``RadiativeCooling`` and ``CoolingTestResetEnergies`` parameters, two different
+    cooling tests can be run. 1) Keep temperature constant, but iterate
+    chemistry to allow species to converge. This will allow you to make plots
+    of Cooling rate vs. T.  For this, set ``RadiativeCooling`` to 0 and
+    ``CoolingTestResetEnergies`` to 1. 2) Allow gas to cool, allowing one to plot
+    Temperature vs.  time. For this, set ``RadiativeCooling`` to 1 and
+    ``CoolingTestResetEnergies`` to 0.
+
+
+``CoolingTestMinimumHNumberDensity`` (external)
+    The minimum density in code units at x=0. Default: 1
+    [cm\ :sup:`-3`\ ].
+``CoolingTestMaximumHNumberDensity`` (external)
+    The maximum density in code units at
+    x=``DomainRightEdge[0]``. Default: 1e6
+    [cm\ :sup:`-3`\ ].
+``CoolingTestMinimumMetallicity`` (external)
+    The minimum metallicity at y=0. Default: 1e-6 [Z\ :sub:`sun`\ ].
+``CoolingTestMaximumMetallicity`` (external)
+    The maximum metallicity at
+    y=``DomainRightEdge[1]``. Default: 1
+    [Z\ :sub:`sun`\ ].
+``CoolingTestMinimumTemperature`` (external)
+    The minimum temperature in Kelvin at z=0. Default: 10.0 [K].
+``CoolingTestMaximumTemperature`` (external)
+    The maximum temperature in Kelvin at
+    z=``DomainRightEdge[2]``. Default: 1e7 [K].
+``CoolingTestResetEnergies`` (external)
+    An integer flag (0 or 1) to determine whether the grid energies
+    should be continually reset after every iteration of the chemistry
+    solver such that the temperature remains constant as the mean
+    molecular weight varies slightly. Default: 1.
+
