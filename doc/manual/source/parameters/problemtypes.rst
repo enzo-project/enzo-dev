@@ -21,10 +21,10 @@ Problem Type Description and Parameter List
 3 	     :ref:`shockpool_param`
 4 	     :ref:`doublemach_param`
 5 	     :ref:`shockinabox_param`
-6 	     Implosion
-7 	     SedovBlast
-8 	     KH Instability
-9 	     2D/3D Noh Problem
+6 	     :ref:`implosion_param`
+7 	     :ref:`sedovblast_param`
+8 	     :ref:`khinstability_param`
+9 	     :ref:`noh_param`
 10 	     :ref:`rotatingcylinder_param`
 11 	     :ref:`radiatingshock_param`
 12 	     :ref:`freeexpansion_param`
@@ -36,32 +36,32 @@ Problem Type Description and Parameter List
 25 	     :ref:`testgravitysphere_param`
 26 	     :ref:`gravityequilibriumtest_param`
 27 	     :ref:`collapsetest_param`
-28 	     TestGravityMotion
-29 	     TestOrbit
+28 	     :ref:`testgravity_param`
+29 	     :ref:`testorbit_param`
 30 	     :ref:`cosmologysimulation_param`
 31 	     :ref:`galaxysimulation_param`
 35 	     :ref:`shearingbox_param`
 40 	     :ref:`supernovarestart_param`
 50 	     :ref:`photontest_param`
-60 	     Turbulence Simulation
-61 	     Protostellar Collapse
+60 	     :ref:`turbulence_param` 
+61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
-101	     3D Collapse Test (hydro_rk)
-102	     1D Spherical Collapse Test (hydro_rk)
-106	     Hydro and MHD Turbulence Simulation (hydro_rk)
-107 	     Put Sink from restart
-200	     1D MHD Test
-201	     2D MHD Test
-202	     3D MHD Collapse Test
-203	     MHD Turbulent Collapse Test
-207	     Galaxy disk
-208	     AGN disk
-300	     Poisson solver test
-400 	     Radiation-Hydrodynamics test 1 -- constant fields
-401 	     Radiation-Hydrodynamics test 2 -- stream test
-402 	     Radiation-Hydrodynamics test 3 -- pulse test
-403 	     Radiation-Hydrodynamics test 4 -- grey Marshak test
-404/405	     Radiation-Hydrodynamics test 5 -- radiating shock test
+101      :ref:`3dcollapse_param`
+102      :ref:`1dcollapse_param`
+106      :ref:`mhdhydro_param`
+107      :ref:`putsink_param`
+200      :ref:`mhd1d_param`
+201      :ref:`mhd2d_param`
+202      :ref:`mhd3d_param`
+203      :ref:`mhdtcollapse_param`
+207      :ref:`galaxydisk_param`
+208      :ref:`agndisk_param`
+300      :ref:`poissonsolver_param`
+400      :ref:`rdhtest1_param`
+401      :ref:`rdhtest2_param`
+402      :ref:`rdhtest3_param`
+403      :ref:`rdhtest4_param`
+404/405  :ref:`rdhtest5_param`
 410/411	     Radiation-Hydrodynamics test 10/11 -- Static HI ionization
 412 	     Radiation-Hydrodynamics test 12 -- HI ionization of a clump
 413 	     Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
@@ -206,6 +206,97 @@ Shock in a Box (5)
     (Gamma-1))/(Gamma+1), where m=2.0.
 ``ShockInABoxSubgridLeft``, ``ShockInABoxSubgridRight`` (external)
     Start and end positions of the subgrid. Default: 0.0 (for both)
+
+.. _implosion_param:
+
+Implosion (6)
+~~~~~~~~~~~~~
+ 
+    The implosion test sets up a converging shock problem in a square domain
+    (x,y) \in (0, 0.3)x(0, 0.3) with gas initially at rest. Initial
+    pressure and density is 1 everywhere except for a triangular region
+    (0.15,0)(0.15,0) where d=0.125 and p=0.14. Reflecting boundary conditions
+    at all boundaries. Adiabatic index gamma=1.4.
+     
+    If AMR is used, a hierarchy of subgrids (one per level) will be generated
+    at start-up to properly resolve the initial discontinuity.
+                      
+    REFERENCE: Hui Li and Z. Li, JCP 153, 596, 1999.
+               Chang et al. JCP 160, 89, 1999.
+
+
+
+``ImplosionDensity`` (external)
+   Initial density. Default: 1.0
+``ImplosionPressure`` (external)
+   Initial pressure. Default: 1.0
+``ImplosionDimaondDensity`` (external)
+   Initial density within diamond. Default: 0.125
+``ImplosionDimaondPressure`` (external)
+   Initial pressure within diamond. Default: 0.14
+``ImplosionSubgridLeft``, ``ImplosionSubgridRight`` (external)
+   Start and position of the subgrid. Default: 0.0 (for both)
+
+.. _sedovblast_param:
+
+Sedov Blast (7)
+~~~~~~~~~~~~~~~
+
+     Self-similar solution: L.I. Sedov (1946); 
+     see also: Sedov (1959), Similarity and Dimensional Methods
+     in Mechanics, pp. 210, 219, 228;
+     see also: Landau & Lifshitz, Fluid Dynamics, Sect. 99 
+     "The Propagation of Strong Shock Waves" (1959).
+     Experiments, terrestrial/numerical: Taylor (1941, 1949).
+
+
+``SedovBlastFullBox`` (external)
+    Full box or one quadrant. Default: 0
+``SedovBlastType`` (external)
+    2D. Default: 0
+``SedovBlastInitialTime`` (external)
+    Initial time. Default: 0
+``SedovBlastDensity`` (external)
+    Initial density. Default: 1.0
+``SedovBlastPressure`` (external)
+    Initial pressure. Default: 1e-5
+``SedovBlastInputEnergy`` (external)
+    Energy input into system. Default: 1.0
+``SedovBlastEnergyZones`` (external)
+    Default: 3.5
+``SedovBlastSubGridLeft``, ``SedovBlastSubGridRight`` (external)
+    Start and end position of the subgrid. Default: 0.0 (for both)
+
+.. _khinstability_param:
+
+Kelvin-Helmholtz Instability (8)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+``KHInnerDensity``, ``KHOuterDensity`` (external)
+    Initial density. Default: 2.0 (inner) and 1.0 (outer)
+``KHInnerPressure``, ``KHOuterPressure`` (external)
+    Initial pressure. Default: 2.5 (for both)
+``KHVelocityJump`` (external)
+    Default: 1.0
+``KHPerturbationAmplitude`` (external)
+    Default: 0.01
+
+
+.. _noh_param:
+
+2D/3D Noh Problem (9)
+~~~~~~~~~~~~~~~~~~~~~~~~
+     
+    Liska & Wendroff, 2003, SIAM J. Sci. Comput. 25, 995, 
+    Section 4.5, Fig. 4.4.
+
+
+``NohProblemFullBox`` (external)
+    Default: 0
+``NohSubgridLeft``, ``NohSubgridRight`` (external)
+    Start and end positon of the subgrid. Default: 0.0 (for both)
+
 
 .. _rotatingcylinder_param:
 
@@ -584,6 +675,30 @@ Collapse Test (27)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
 
+.. _testgravity_param:
+
+Test Gravity Motion (28)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+``TestGravityMotionParticleVelocity`` (external)
+    Initial velocity for particle. Default: 1.0
+
+.. _testorbit_param:
+
+Test Orbit (29)
+~~~~~~~~~~~~~~
+
+``TestOrbitNumberOfParticles`` (external)
+     Number of test particles. Default: 1
+``TestOrbitRadius`` (external)
+     Initial radius of orbit. Default: 0.2
+``TestOrbitCentralMass`` (external)
+     Central mass. Default: 1.0
+``TestOrbitTestMass`` (external)
+     Mass of the test particle. Default: 1.0e-6
+``TestOrbitUseBaryons`` (external
+     Boolean flag. (not implemented) Default: FALSE
+
 .. _cosmologysimulation_param:
 
 Cosmology Simulation (30)
@@ -889,6 +1004,53 @@ Photon Test (50)
 ``PhotonTestOmegaBaryonNow`` (obsolete)
     Default: 0.05.
 
+.. _turbulence_param:
+
+Turbulence Simulation (60)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Quasi-isothermal forced turbulence.
+
+``TurbulenceSimulationsDensityName`` (external)
+``TurbulenceSimulationTotalEnergyName`` (external)
+``TurbulenceSimulationGasPressureName`` (external)
+``TurbulenceSimulationGasEnergyName`` (external)
+``TurbulenceSimulationVelocityName`` (external)
+``TurbulenceSimulationRandomForcingName`` (external)
+``TurbulenceSimulationMagneticName`` (external)
+``TurbulenceSimulationInitialTemperature`` (external)    
+``TurbulenceSimulationInitialDensity`` (external)
+``TurbulenceSimulationSoundSpeed`` (external)
+``TurbulenceSimulationInitialPressure`` (external)
+``TurbulenceSimulationInitialDensityPerturbationAmplitude`` (external)
+``TurbulenceSimulationNumberOfInitialGrids`` (external)
+     Default: 1
+``TurbulenceSimulationSubgridsAreStatic`` (external)
+     Boolean flag. Default: 1
+``TurbulenceSimulationGridLeftEdge[]`` (external)
+``TurbulenceSimulationGridRightEdge[]`` (external)
+``TurbulenceSimulationGridDimension[]`` (external)
+``TurbulenceSimulationGridLevel[]`` (external)
+``TurbulenceSimulationInitialMagneticField[i]`` (external)
+     Initial magnetic field strength in the ith direction. Default: 5.0 (all)
+
+.. _protostellar_param:
+
+Protostellar Collapse (61)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+     Bate 1998, ApJL 508, L95-L98
+
+``ProtostellarCollapseCoreRadius`` (external)
+     Radius of the core. Default: 0.005
+``ProtostellarCollapseOuterDensity`` (external)
+     Initial density. Default: 1.0
+``ProtostellarCollapseAngularVelocity`` (external)
+     Initial agnular velocity. Default: 0
+``ProtostellarCollapseSubgridLeft``, ``ProtostellarCollapseSubgridRight`` (external)
+     Start and end position of subgrid. Default: 0 (for both)
+
+
 .. _coolingtest_param:
 
 Cooling Test (62)
@@ -930,3 +1092,358 @@ Cooling Test (62)
     solver such that the temperature remains constant as the mean
     molecular weight varies slightly. Default: 1.
 
+
+.. _3dcollapse_param:
+
+3D Collapse Test (101)
+~~~~~~~~~~~~~~~~~~~~~~
+
+``NumberOfSpheres`` (external)
+``RefineAtStart``
+``UseParticles``
+``MediumDensity``
+``MediumPressure``
+``UniformVelocity``
+``SphereType[]``
+``SphereRadius[]``
+``SphereCoreRadius[]``
+``SphereDensity[]``
+``SpherePressure[]``
+``SphereSoundVelocity[]``
+``SpherePosition[]``
+``SphereVelocity[]``
+``SphereAngVel[]``
+``SphereTurbulence[]``
+``SphereCutOff[]``
+``SphereAng1[]``
+``SphereAng2[]``
+``SphereNumShells[]``
+
+
+.. _1dcollapse_param:
+
+1D Spherical Collapse Test (102)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RefineAtStart`` (external)
+    Boolean flag. Default: TRUE
+``UseParticles`` (external)
+    Boolean flag. Default: False
+``MediumDensity`` (external)
+    Initial density of the medium. Default: 1.0
+``MediumPressure`` (external)
+    Initial pressure of the medium. Default: 1.0
+``SphereType`` (external)
+    Default: 0
+``SphereRadius`` (external)
+    Radius of the sphere. Default: 1.0
+``SphereCoreRadius`` (external)
+    Radius of the core. Default: 0
+``SphereDensity`` (external)
+    Initial density of the sphere. Default: 1.0
+``SpherePressure`` (external)
+    Initial pressure of the sphere. Default: 1.0
+``SphereSoundVelocity`` (external)
+    Velocity of sound. Default: 1.0
+``SphereAngVel`` (external)
+    Angular velocity of the sphere. Default: 0.0
+
+.. _mhdhydro_param:
+
+Hydro and MHD Turbulence Simulation (106)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RefineAtStart`` (external)
+    Boolean flag. Default: TRUE
+``PutSink`` (external)
+    Boolean flag. Default: FALSE
+``Density`` (external)
+    Boolean flag. Default: TRUE
+``SoundVelocity`` (external)
+    Velocity of sound. Default: 1.0
+``MachNumber`` (external)
+    Default: 1.0
+``AngularVelocity`` (external)
+    Default: 0
+``CloudRadius`` (external)
+    Initial radius of the cloud. Default: 0.05
+``SetTurbulence`` (external)
+    Boolean flag. Default: TRUE
+``InitialBfield`` (external)
+    Initial magnetic field strength. Default: 0
+``RandomSeed`` (external)
+    Default: 52761
+``CloudType`` (external)
+    Default: 1
+
+
+.. _putsink_param:
+
+Put Sink from Restart (107)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``PutSinkRestartName`` (external)
+     Filename to restart from. 
+
+.. _mhd1d_param:
+
+1D MHD Test (200)
+~~~~~~~~~~~~~~~~~
+
+``RefineAtStart`` (external)
+    Boolean flag. Default: TRUE
+``LeftVelocityX``, ``RightVelocityX`` (external)
+    Initial velocity x-direction. Default: 0 (for both)
+``LeftVelocityY``, ``RightVelocityY`` (external)
+    Initial velocity y-direction. Default: 0 (for both)
+``LeftVelocityZ``, ``RightVelocityZ`` (external)
+    Initial velocity z-direction. Default: 0 (for both)
+``LeftPressure``, ``RightPressure`` (external)
+    Initial pressure. Default: 1.0 (for both)
+``LeftDensity``, ``RightDensity`` (external)
+    Initial density. Default: 1.0 (for both)
+``LeftBx``, ``RightBx`` (external)
+    Initial magnetic field x-direction. Default: 0 (for both)
+``LeftBy``, ``RightBy`` (external)
+    Initial magnetic field y-direction. Default: 0 (for both)
+``LeftBz``, ``RightBz``  (external)
+    Initial magnetic field z-direction. Default: 0 (for both)
+
+.. _mhd2d_param:
+
+2D MHD Test (201)
+~~~~~~~~~~~~~~~~~
+
+``RefineAtStart`` (external)
+    Boolean flag. Default: TRUE
+``LowerVelocityX``, ``UpperVelocityX`` (external)
+    Initial velocity x-direction. Default: 0 (for both)
+``LowerVelocityY``, ``UpperVelocityY`` (external)
+    Initial velocity y-direction. Default: 0 (for both)
+``LowerPressure``, ``UpperPressure`` (external)
+    Initial pressure. Default: 1.0 (for both)
+``LowerDensity``, ``UpperDensity`` (external)
+    Initial density. Default: 1.0 (for both)
+``LowerBx``, ``UpperBx`` (external)
+    Initial magnetic field x-direction. Default: 0 (for both)
+``LowerBy``, ``UpperBy`` (external)
+    Initial magnetic field y-direction. Default: 0 (for both)
+``MHD2DProblemType`` (external)
+    Default: 0
+``RampWidth`` (external)
+    Default: 0.05
+``UserColour`` (external)
+    Boolean flag. Default: FALSE
+
+.. _mhd3d_param:
+
+3D MHD Collapse Test (202)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+``RefineAtStart`` (external)
+    Boolean flag. Default: FALSE
+``LowerVelocityX``, ``UpperVelocityX`` (external)
+    Initial velocity x-direction. Default: 0 (for both)
+``LowerVelocityY``, ``UpperVelocityY`` (external)
+    Initial velocity y-direction. Default: 0 (for both)
+``LowerPressure``, ``UpperPressure`` (external)
+    Initial pressure. Default: 1.0 (for both)
+``LowerDensity``, ``UpperDensity`` (external)
+    Initial density. Default: 1.0 (for both)
+``LowerBx``, ``UpperBx`` (external)
+    Initial magnetic field x-direction. Default: 0 (for both)
+``LowerBy``, ``UpperBy`` (external)
+    Initial magnetic field y-direction. Default: 0 (for both)
+``MHD3DProblemType`` (external)
+    Default: 0
+`
+.. _mhdtcollapse_param:
+
+MHD Turbulent Collapse Test (203)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RefineAtStart`` (external)
+    Boolean flag. Default: TRUE
+``Density`` (external)
+    Initial density. Default: 1.0
+``SoundVelocity`` (external)
+    Speed of sound. Default: 1.0
+``MachNumber`` (external)
+    Default: 1.0
+``InitialBfield`` (external)
+    Initial magnetic field strength. Default: 0
+``RandomSeed`` (external)
+    Default: 0
+
+
+.. _galaxydisk_param:
+
+Galaxy Disk (207)
+~~~~~~~~~~~~~~~~~
+
+``NumberOfHalos`` (external)
+    Number of Halos simulated. Default: 1
+``RefineAtStart`` (external)
+    Boolean flag. Default: TRUE
+``UseParticles`` (external)
+    Boolean flag. Default: FALSE
+``UseGas`` (external)
+    Boolean flag. Default: TRUE
+``MediumTemperature`` (external)
+    Temperature of the medium. Default: 1000
+``MediumDensity`` (external)
+    Density of the medium. Default: 1.0
+``HaloMagneticField`` (external)
+    Magnetic Field Strength. Default: 0
+``UniformVelocity[i]`` (external)
+    Velocity in all 3 dimensions. Default: 0 (all)
+``GalaxyType[i]`` (external)
+    Sppecifying galaxy type for the ith sphere. Default: 0 (all)
+``HaloRadius[i]`` (external)
+    Radius of the halo for the ith sphere. Default: 1 (all)
+``HaloCoreRadius[i]`` (external)
+    Core radius for the ith sphere. Default: 0.1 (all) 
+``HaloDensity[i]`` (external)
+    Density of the halo for the ith sphere. Default: 1 (all)
+``HaloTemperature[i]`` (external)
+    Temperature of the halo for the ith sphere. Default: 1 (all)
+``HaloAngVel[i]`` (external)
+``HaloSpin[i]`` (external)
+``HaloPosition[i][j]`` (external)
+    Position of the Halo. 
+``HaloVelocity[i][j]`` (external)
+    Velocity of the Halo.
+``DiskRadius[i]`` (external)
+``DiskHeight[i]`` (external)
+``DiskDensity[i]`` (external)
+``DiskTemperature[i]`` (external)
+``DiskMassFraction[i]`` (external)
+    Default: 0 (all)
+``DiskFlaringParameter[i]`` (external)
+    Default: 10 (all)
+.. _agndisk_param:
+
+AGN Disk (207)
+~~~~~~~~~~~~~~
+
+``DiskType`` (external)
+    Default: 1
+``RefineAtStart`` (external)
+    Boolean flag. Default: 0
+``BlackHoleMass`` (external)
+    Initial mass of black hole. Default: 0
+``UseGas`` (external)
+    Boolean flag. Default: 1
+``DiskDensity`` (external)
+    Initial density of the disk. Default: 1
+``DiskTemperature`` (external)
+    Initial temperature of the disk. Default: 1
+``DiskRadius`` (external)
+    Initial radius of the disk. Default: 1
+``DiskHeight`` (external)
+    Initial height of the disk. Default: 1
+
+.. _poissonsolver_param:
+
+Poisson Solver Test (300)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+``PoissonSolverTestType`` (external)
+   Default: 0
+``PoissonSolverTestGeometryControl`` (external)
+   Default: 1
+``PoissonSolverTestRefineAtStart`` (external)
+   Boolean flag. Default: 0
+
+.. _rdhtest1_param:
+
+Radiation-Hydrodynamics Test 1 - Constant Fields (400)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RadHydroVelocity`` (external)
+   Initialize velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Example RadHydroVelocity = 0.1 0.1 0.1
+``RadHydroChemistry`` (external)
+   Number of chemical species. Default: 1
+``RadHydroModel`` (external)
+   Mesh spacing. Default: 1
+``RadHydroDensity`` (external)
+   Ambient density. Default: 10
+``RadHydroTemperature`` (external)
+   Ambient temperature. Default: 1
+``RadHydroIEnergy`` (external)
+   Default: -1
+``RadHydroRadiationEnergy`` (external)
+   Ambient radiation energy. Default: 10
+``RadHydroInitialFractionHII`` (external)
+   Default: 0
+``RadHydroHFraction`` (external)
+   Default: 1
+``RadHydroInitialFractionHeII`` (external)
+   Default: 0
+``RadHydroInitialFractionHeIII`` (external)
+   Default: 0
+
+.. _rdhtest2_param:
+
+Radiation-Hydrodynamics Test 2 - Streams (401)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RadHydroDensity`` (external)
+   Ambient density. Default: 1.0
+``RadHydroRadEnergy`` (external)
+   Ambient radiation energy. Default 1.0e-10
+``RadStreamDim`` (external)
+   Number of dimensions for test {0,1,2}. Default: 0
+``RadStreamDir`` (external)
+   Direction for streaming radiation. 0 for left to right. 1 for right to left.
+   Default: 0
+
+.. _rdhtest3_param:
+
+Radiation-Hydrodynamics Test 3 - Pulse (402)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RadHydroDensity`` (external)
+   Ambient density. Default: 1.0
+``RadHydroRadEnergy`` (external)
+   Ambient radiation energy. Default 1.0e-10
+``RadPulseDim`` (external)
+   Number of dimensions for test {0,1,2}. Default: 0
+`
+.. _rdhtest4_param:
+
+Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``RadHydroDensity`` (external)
+   Ambient density. Default: 1.0
+``RadHydroRadEnergy`` (external)
+   Ambient radiation energy. Default 1.0
+``RadHydroGasEnergy`` (external)
+   Gas energy. Default: 1.0
+``GreyMarshDir`` (external)
+   Propagation coordinate for Marshak problem. {0,1,2}. Default: 0
+
+
+.. _rdhtest5_param:
+
+Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``DensityConstant`` (external)
+   Ambient density. Default: 1.0
+``GasTempConstant`` (external)
+   Ambient gas temperature. Default: 1.0
+``RadTempConstant`` (external)
+   Ambient radiation temperature. Default: 1.0
+``VelocityConstant`` (external)
+   Imposed fluid velocity. Default: 1.0
+``ShockDir`` (external)
+   Propagation coordinate for shock. {0,1,2}. Default: 0
+``CGSType`` (external)
+   1 = Astrophysical Setup Parameters
+   2 = "lab" setup parameters, after Lowrie
+   Default: 1
