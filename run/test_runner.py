@@ -29,6 +29,7 @@ numpy.seterr(all = "ignore")
 
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
+ytcfg["yt","__command_line"] = "True" 
 from yt.mods import *
 
 from yt.utilities.command_line import get_yt_version
