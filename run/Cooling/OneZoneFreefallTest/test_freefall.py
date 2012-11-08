@@ -1,38 +1,38 @@
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.api import AnswerTestingTest
+from yt.utilities.answer_testing.framework import \
+    requires_outputlog, \
+    sim_dir_load
 
-class TestFreefallTemperatures(YTStaticOutputTest):
-    name = "freefall_temperatures"
+_rtol = 1.0e-2
+_atol = 1.0e-7
+_fields = ('Temperature', 'Dust_Temperature')
 
+class FieldValuesTest(AnswerTestingTest):
+    _type_name = "FreeFallFieldValues"
+    _attrs = ("field", )
+
+    def __init__(self, sim, field):
+        self.pf = sim
+        self.field = field
+    
     def run(self):
-        # self.pf already exists
-        self.result = self.pf.h.all_data()['Temperature']
+        result = []
+        for my_pf in self.pf:
+            result.append(my_pf.h.all_data()[field])
+        return result
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        for i in range(len(new_result)):
+            assert_allclose(new_result[i], old_result[i], _rtol, _atol)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 1e-6)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-class TestFreefallDustTemperatures(YTStaticOutputTest):
-    name = "freefall_dust_temperatures"
-
-    def run(self):
-        # self.pf already exists
-        self.result = self.pf.h.all_data()['Dust_Temperature']
-
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 1e-6)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
+@requires_outputlog(os.path.dirname(__file__),
+                    "OneZoneFreefallTest.enzo")
+def test_onezone_freefall():
+    sim = sim_dir_load("OneZoneFreefallTest.enzo",
+                       path="./Cooling/OneZoneFreefallTest",
+                       find_outputs=True)
+    sim.get_time_series()
+    for field in _fields:
+        yield FieldValuesTest(sim, field)

@@ -22,7 +22,7 @@ class TestCollapseMaxValue(AnswerTestingTest):
         for i in range(len(new_result)):
             assert_rel_equal(new_result[i], old_result[i], 2)
 
-@requires_outputlog("./Hydro/Hydro-3D/CollapseTestNonCosmological", 
+@requires_outputlog(os.path.dirname(__file__),
                     "CollapseTestNonCosmological.enzo"
 def test_collapse_max_value():
     sim = sim_dir_load("CollapseTestNonCosmological.enzo", 
