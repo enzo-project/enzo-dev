@@ -8,7 +8,7 @@ from yt.testing import *
 from yt.utilities.answer_testing.framework import \
     VerifySimulationSameTest, \
     requires_outputlog, \
-    small_patch_amr, \
+    standard_small_simulation, \
     sim_dir_load
 
 _base_fields = ("Density",
@@ -20,15 +20,16 @@ _base_fields = ("Density",
                 "particle_position_y",
                 "particle_position_z")
 
-@requires_outputlog(os.path.dirname(__file__), "%(filename)s") # Verifies that OutputLog exists
-def test_collapse_test():
-    simulation = sim_dir_load("%(filename)s",
-                              path="%(simpath)s",
-                              find_outputs=True)
-    simulation.get_time_series()
-    yield VerifySimulationSameTest(simulation)
-    base_pf = simulation[0]
+@requires_outputlog(os.path.dirname(__file__), 
+                    "%(filename)s") # Verifies that OutputLog exists
+def test_problem_test():
+    sim = sim_dir_load("%(filename)s",
+                       path="%(simpath)s",
+                       find_outputs=True)
+    sim.get_time_series()
+    yield VerifySimulationSameTest(sim)
+    base_pf = sim[0]
     fields = [f for f in _base_fields if f in base_pf.h.field_list]
-    for pf in simulation:
-        for test in small_patch_amr(pf, fields): yield test
+    for pf in sim:
+        for test in standard_small_simulation(pf, fields): yield test
 
