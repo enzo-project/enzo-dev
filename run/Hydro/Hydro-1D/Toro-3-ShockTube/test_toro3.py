@@ -7,30 +7,39 @@ from yt.utilities.answer_testing.framework import \
     big_patch_amr, \
     data_dir_load
 
-def get_analytical_solution():
-    # Reads in from file 
-    return np.loadtxt('Toro-3-ShockTube_t=0.012_exact.txt', unpack=True)
+_solution_file = 'Toro-3-ShockTube_t=0.012_exact.txt'
+_fields = ['Density','x-velocity','Pressure','ThermalEnergy']
+_les = [0.1, 0.6]
+_res = [0.25, 0.7]
+_rtol = 1.0e-1
+_atol = 1.0e-7
 
-def test_toro2():
+def test_shocktube():
     if not os.path.isfile('DD0001/data0001'):
         return
     # Read in the pf
     pf = load('DD0001/data0001')  
-    pos, dens, vel, pres, inte = get_analytical_solution() 
+    exact = get_analytical_solution(_solution_file) 
+   
+    ad = pf.h.all_data()
+    position = ad['x']
+    for k in _fields:
+        field = ad[k]
+        for xmin, xmax in zip(_les, _res):
+            mask = (position >= xmin)*(position <= xmax)
+            exact_field = np.interp(position[mask], exact['pos'], exact[k]) 
+            # yield test vs analytical solution 
+            yield assert_allclose, field[mask], exact_field, _rtol, _atol
+
+def get_analytical_solution(fname):
+    # Reads in from file 
+    pos, dens, vel, pres, inte = \
+            np.loadtxt(fname, unpack=True)
     exact = {}
     exact['pos'] = pos
     exact['Density'] = dens
     exact['x-velocity'] = vel
     exact['Pressure'] = pres
     exact['ThermalEnergy'] = inte
-   
-    ad = pf.h.all_data()
-    calc_position = ad['x']
-    #for k in ['Density','x-velocity','Pressure','ThermalEnergy']:
-    for k in ['Density']:
-        calc_field = ad[k]
-        for xmin, xmax in zip([0.1, 0.6], [0.25, 0.7]):
-            mask = (calc_position >= xmin)*(calc_position <= xmax)
-            exact_field = np.interp(calc_position[mask], exact['pos'], exact[k]) 
-            # yield Test vs analytical solution (assert_relative_equal)
-            yield assert_rel_equal, calc_field[mask], exact_field, 2
+    return exact
+

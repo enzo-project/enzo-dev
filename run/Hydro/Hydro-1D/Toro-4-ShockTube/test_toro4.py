@@ -7,14 +7,14 @@ from yt.utilities.answer_testing.framework import \
     big_patch_amr, \
     data_dir_load
 
-_solution_file = 'Toro-2-ShockTube_t=0.15_exact.txt'
+_solution_file = 'Toro-4-ShockTube_t=0.035_exact.txt'
 _fields = ['Density','x-velocity','Pressure','ThermalEnergy']
-_les = [0.15, 0.6]
-_res = [0.4, 0.85]
+_les = [0.]
+_res = [1.]
 _rtol = 1.0e-1
 _atol = 1.0e-7
 
-def test_toro2():
+def test_shocktube():
     if not os.path.isfile('DD0001/data0001'):
         return
     # Read in the pf
