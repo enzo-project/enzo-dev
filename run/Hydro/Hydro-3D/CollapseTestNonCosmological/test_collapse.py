@@ -14,8 +14,9 @@ class TestCollapseMaxValue(AnswerTestingTest):
     
     def run(self):
         result = []
-        for my_pf in pf:
-            result.append(self.my_pf.h.find_max("Density")[0])
+        for my_pf in self.pf:
+            result.append(my_pf.h.find_max("Density")[0])
+        return result
 
     def compare(self, new_result, old_result):
         for i in range(len(new_result)):
