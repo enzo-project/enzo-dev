@@ -22,7 +22,9 @@ _base_fields = ("Density",
 
 @requires_outputlog(os.path.dirname(__file__), "%(filename)s") # Verifies that OutputLog exists
 def test_collapse_test():
-    simulation = sim_dir_load("%(filename)s", path="%(simpath)s")
+    simulation = sim_dir_load("%(filename)s",
+                              path="%(simpath)s",
+                              find_outputs=True)
     simulation.get_time_series()
     yield VerifySimulationSameTest(simulation)
     base_pf = simulation[0]

@@ -1,9 +1,9 @@
 from yt.mods import *
 from yt.testing import *
-from yt.utilities.answer_testing.api import AnswerTestingTest
 from yt.utilities.answer_testing.framework import \
-    requires_outputlog, \
-    sim_dir_load
+     AnswerTestingTest, \
+     requires_outputlog, \
+     sim_dir_load
 
 _rtol = 1.0e-2
 _atol = 1.0e-7
@@ -20,7 +20,7 @@ class FieldValuesTest(AnswerTestingTest):
     def run(self):
         result = []
         for my_pf in self.pf:
-            result.append(my_pf.h.all_data()[field])
+            result.append(my_pf.h.all_data()[self.field])
         return result
 
     def compare(self, new_result, old_result):
