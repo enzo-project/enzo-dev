@@ -5,6 +5,9 @@ from yt.utilities.answer_testing.framework import \
     requires_outputlog, \
     sim_dir_load
 
+_pf_name = "CollapseTestNonCosmological.enzo"
+_dir_name = os.path.dirname(__file__)
+
 class TestCollapseMaxValue(AnswerTestingTest):
     _type_name = "MaxValue"
     _attrs = ()
@@ -22,11 +25,9 @@ class TestCollapseMaxValue(AnswerTestingTest):
         for i in range(len(new_result)):
             assert_rel_equal(new_result[i], old_result[i], 2)
 
-@requires_outputlog(os.path.dirname(__file__),
-                    "CollapseTestNonCosmological.enzo"
+@requires_outputlog(_dir_name, _pf_name)
 def test_collapse_max_value():
-    sim = sim_dir_load("CollapseTestNonCosmological.enzo", 
-                       path="./Hydro/Hydro-3D/CollapseTestNonCosmological", 
+    sim = sim_dir_load(_pf_name, path=_dir_name, 
                        find_outputs=True)
     sim.get_time_series()
     
