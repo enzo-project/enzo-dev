@@ -70,9 +70,12 @@ Radiative Cooling Parameters
     ``RadiativeCooling`` is forced to 1.
     [Not in public release version]
 ``PhotoelectricHeating`` (external)
-    If set to be 1, Gamma_pe = 5.1e-26 erg/s will be added uniformly
+    If set to be 1, the following parameter will be added uniformly
     to the gas without any shielding (Tasker & Bryan 2008). At the
     moment this is still experimental. Default: 0
+``PhotoelectricHeatingRate`` (external)
+    This is the parameter used as Gamma_pe for uniform photoelectric heating.
+    Default: 8.5e-26 erg s^-1 cm^-3
 ``MultiMetals`` (external)
     This was added so that the user could turn on or off additional
     metal fields - currently there is the standard metallicity field
