@@ -231,7 +231,6 @@ typedef int            HDF5_hid_t;
 #define BFLOAT_EPSILON 1e-12f
 #define Eflt double
 #define FSYM "lf"
-#define WFSYM ".16lf"
 #define ESYM "le"
 #define FloatDataType MPI_DOUBLE
 #define float32 TEMP_HOLD_NAME
