@@ -426,7 +426,8 @@ class EnzoTestRun(object):
         os.chdir(cur_dir)
 
     def run_test(self):
-        print "RUNNING TEST!"
+        rf = os.path.join(self.run_dir, 'RunFinished')
+        self.run_finished = os.path.exists(rf)
 
 class UnspecifiedParameter(object):
     pass
@@ -536,7 +537,7 @@ if __name__ == "__main__":
         import json
     except ImportError:
         json = None
-    if json is not None and options.compare_dir is not None:
+    if json is not None:
         f = open("results.js", "w")
         results = []
         for test in etc2.test_container:
@@ -546,8 +547,7 @@ if __name__ == "__main__":
             results.append( dict(name = test.test_data['name'],
                              results = vals) )
         f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
-        f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
-                  options.compare_dir.strip(), hg_current.strip()))
+        f.write("current_set = '%s';\n" % (hg_current.strip()))
 
     if etc2.any_failures:
         sys.exit(1)
