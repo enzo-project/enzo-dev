@@ -2,34 +2,21 @@ from yt.mods import *
 from yt.funcs import *
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
-    requires_pf, \
-    small_patch_amr, \
-    big_patch_amr, \
-    data_dir_load
+    requires_outputlog, \
+    ShockTubeTest
+import os
 
-def get_analytical_solution():
-    # Reads in from file 
-    return np.loadtxt('Toro-7-ShockTube_t=2.0_exact.txt', unpack=True)
+_data_file = 'DD0001/data0001'
+_solution_file = 'Toro-7-ShockTube_t=0.2_exact.txt'
+_fields = ['Density','x-velocity','Pressure','ThermalEnergy']
+_les = [0.0]
+_res = [1.0]
+_rtol = 1.0e-3
+_atol = 1.0e-7
 
-def test_toro2():
-    if not os.path.isfile('DD0001/data0001'):
-        return
-    # Read in the pf
-    pf = load('DD0001/data0001')  
-    pos, dens, vel, pres, inte = get_analytical_solution() 
-    exact = {}
-    exact['pos'] = pos
-    exact['Density'] = dens
-    exact['x-velocity'] = vel
-    exact['Pressure'] = pres
-    exact['ThermalEnergy'] = inte
-   
-    ad = pf.h.all_data()
-    calc_position = ad['x']
-    for k in ['Density','Pressure','ThermalEnergy']:
-        calc_field = ad[k]
-        for xmin, xmax in zip([0.0], [1.0]):
-            mask = (calc_position >= xmin)*(calc_position <= xmax)
-            exact_field = np.interp(calc_position[mask], exact['pos'], exact[k]) 
-            # yield Test vs analytical solution (assert_relative_equal)
-            yield assert_rel_equal, calc_field[mask], exact_field, 1
+# Verifies that OutputLog exists
+@requires_outputlog(os.path.dirname(__file__), "Toro-7-ShockTube.enzo")
+def test_toro7():
+    test = ShockTubeTest(_data_file, _solution_file, _fields, 
+                         _les, _res, _rtol, _atol)
+    return test()
