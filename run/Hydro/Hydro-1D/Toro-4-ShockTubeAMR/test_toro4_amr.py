@@ -9,9 +9,9 @@ import os
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-4-ShockTube_t=0.035_exact.txt'
 _fields = ['Density','x-velocity','Pressure','ThermalEnergy']
-_les = [0.]
-_res = [1.]
-_rtol = 1.0e-1
+_les = [0.5, 0.78]
+_res = [0.65, 0.8]
+_rtol = 3.0e-2
 _atol = 1.0e-7
 
 # Verifies that OutputLog exists
