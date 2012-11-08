@@ -1412,7 +1412,7 @@ Radiation-Hydrodynamics Test 3 - Pulse (402)
    Ambient radiation energy. Default 1.0e-10
 ``RadPulseDim`` (external)
    Number of dimensions for test {0,1,2}. Default: 0
-`
+
 .. _rdhtest4_param:
 
 Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
