@@ -169,7 +169,14 @@ instantaneously created and returns its luminosity for 20 Myr.  In the
 case when it's Jeans unresolved, the stellar mass follows the Cen &
 Ostriker prescription.
 
-Method 6: Cen & Ostriker with no delay in formation
+Method 6: Reserved for future use
+---------------------------------
+Reserved for future use.
+
+*Source:*
+
+
+Method 7: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
 Select this method by setting ``StarParticleCreation = 128``.
 
@@ -190,7 +197,7 @@ details.  It can be used to represent single molecular clouds.
 The ``StarMakerOverDensity`` is in units of particles/cm\ :sup:`3` and
 not in overdensity like the other methods.
 
-Method 7: Springel & Hernquist
+Method 8: Springel & Hernquist
 ------------------------------
 Select this method by setting ``StarParticleCreation = 256``.
 
@@ -275,21 +282,24 @@ affects the probability of making a star. In a similar way, a small value of
 star formula.
 
 
-Method 8: Massive Black Holes
+Method 9: Massive Black Holes
 -----------------------------
 Select this method by setting ``StarParticleCreation = 512``.
+
+This simply insert a MBH particle based on the information given by an external file (MBHInsertLocationFilename).
+Also see Massive Black Hole Particle Formation in :ref:`StarParticleParameters`.
 
 *Source: mbh_maker.C*
 
 
-Method 9: Population III stellar tracers
+Method 10: Population III stellar tracers
 -----------------------------------------
 Select this method by setting ``StarParticleCreation = 1024``.
 
 *Source: pop3_color_maker.F*
 
 
-Method 10: Molecular Hydrogen Regulated Star Formation
+Method 11: Molecular Hydrogen Regulated Star Formation
 ------------------------------------------------------
 Select this method by setting ``StarParticleCreation = 2048``.
 
