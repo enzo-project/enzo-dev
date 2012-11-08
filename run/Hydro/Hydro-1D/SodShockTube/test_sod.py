@@ -7,11 +7,11 @@ from yt.utilities.answer_testing.framework import \
     big_patch_amr, \
     data_dir_load
 
-_solution_file = 'Toro-2-ShockTube_t=0.15_exact.txt'
-_fields = ['Density','x-velocity','Pressure','ThermalEnergy']
-_les = [0.15, 0.6]
-_res = [0.4, 0.85]
-_rtol = 1.0e-1
+_solution_file = 'SodShockTube_t=0.25_exact.txt'
+_fields = ['Density','ThermalEnergy']
+_les = [0.25, 0.85]
+_res = [0.4, 0.9]
+_rtol = 1.0e-3
 _atol = 1.0e-7
 
 def test_toro2():
