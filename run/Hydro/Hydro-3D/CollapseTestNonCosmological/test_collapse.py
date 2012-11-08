@@ -1,36 +1,32 @@
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.api import AnswerTestingTest
+from yt.utilities.answer_testing.framework import \
+    requires_outputlog, \
+    sim_dir_load
 
-class TestCollapseProjection(YTStaticOutputTest):
-    name = "collapse_projection"
+class TestCollapseMaxValue(AnswerTestingTest):
+    _type_name = "MaxValue"
+    _attrs = ()
 
+    def __init__(self, sim):
+        self.pf = sim
+    
     def run(self):
-        # self.pf already exists
-        proj = self.pf.h.proj(0, 'Density', center=[0.5, 0.5, 0.5])
-        frb = FixedResolutionBuffer(proj, (0.0, 1.0, 0.0, 1.0), (150, 150))
-        self.result = frb["Density"]
+        result = []
+        for my_pf in pf:
+            result.append(self.my_pf.h.find_max("Density")[0])
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        for i in range(len(new_result)):
+            assert_rel_equal(new_result[i], old_result[i], 2)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-class TestCollapseMaxValue(YTStaticOutputTest):
-    name = "collapse_max"
-
-    def run(self):
-        # self.pf already exists
-        self.result = self.pf.h.find_max("Density")[0]
-
-    def compare(self, old_result):
-        self.compare_value_delta(self.result, old_result, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
+@requires_outputlog("./Hydro/Hydro-3D/CollapseTestNonCosmological", 
+                    "CollapseTestNonCosmological.enzo"
+def test_collapse_max_value():
+    sim = sim_dir_load("CollapseTestNonCosmological.enzo", 
+                       path="./Hydro/Hydro-3D/CollapseTestNonCosmological", 
+                       find_outputs=True)
+    sim.get_time_series()
+    
+    yield TestCollapseMaxValue(sim)
