@@ -36,7 +36,7 @@ Problem Type Description and Parameter List
 25 	     :ref:`testgravitysphere_param`
 26 	     :ref:`gravityequilibriumtest_param`
 27 	     :ref:`collapsetest_param`
-28 	     :ref:`testgravity_param`
+28 	     :ref:`testgravitymotion_param`
 29 	     :ref:`testorbit_param`
 30 	     :ref:`cosmologysimulation_param`
 31 	     :ref:`galaxysimulation_param`
@@ -46,22 +46,22 @@ Problem Type Description and Parameter List
 60 	     :ref:`turbulence_param` 
 61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
-101      :ref:`3dcollapse_param`
-102      :ref:`1dcollapse_param`
-106      :ref:`mhdhydro_param`
-107      :ref:`putsink_param`
-200      :ref:`mhd1d_param`
-201      :ref:`mhd2d_param`
-202      :ref:`mhd3d_param`
-203      :ref:`mhdtcollapse_param`
-207      :ref:`galaxydisk_param`
-208      :ref:`agndisk_param`
-300      :ref:`poissonsolver_param`
-400      :ref:`rdhtest1_param`
-401      :ref:`rdhtest2_param`
-402      :ref:`rdhtest3_param`
-403      :ref:`rdhtest4_param`
-404/405  :ref:`rdhtest5_param`
+101          :ref:`3dcollapse_param`
+102          :ref:`1dcollapse_param`
+106          :ref:`mhdhydro_param`
+107          :ref:`putsink_param`
+200          :ref:`mhd1d_param`
+201          :ref:`mhd2d_param`
+202          :ref:`mhd3d_param`
+203          :ref:`mhdtcollapse_param`
+207          :ref:`galaxydisk_param`
+208          :ref:`agndisk_param`
+300          :ref:`poissonsolver_param`
+400          :ref:`rdhtest1_param`
+401          :ref:`rdhtest2_param`
+402          :ref:`rdhtest3_param`
+403          :ref:`rdhtest4_param`
+404/405      :ref:`rdhtest5_param`
 410/411	     Radiation-Hydrodynamics test 10/11 -- Static HI ionization
 412 	     Radiation-Hydrodynamics test 12 -- HI ionization of a clump
 413 	     Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
@@ -270,7 +270,7 @@ Sedov Blast (7)
 .. _khinstability_param:
 
 Kelvin-Helmholtz Instability (8)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 ``KHInnerDensity``, ``KHOuterDensity`` (external)
@@ -286,7 +286,7 @@ Kelvin-Helmholtz Instability (8)
 .. _noh_param:
 
 2D/3D Noh Problem (9)
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
      
     Liska & Wendroff, 2003, SIAM J. Sci. Comput. 25, 995, 
     Section 4.5, Fig. 4.4.
@@ -675,7 +675,7 @@ Collapse Test (27)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
 
-.. _testgravity_param:
+.. _testgravitymotion_param:
 
 Test Gravity Motion (28)
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -686,7 +686,7 @@ Test Gravity Motion (28)
 .. _testorbit_param:
 
 Test Orbit (29)
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 ``TestOrbitNumberOfParticles`` (external)
      Number of test particles. Default: 1
@@ -1123,7 +1123,7 @@ Cooling Test (62)
 .. _1dcollapse_param:
 
 1D Spherical Collapse Test (102)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
@@ -1151,7 +1151,7 @@ Cooling Test (62)
 .. _mhdhydro_param:
 
 Hydro and MHD Turbulence Simulation (106)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
@@ -1257,7 +1257,7 @@ Put Sink from Restart (107)
     Initial magnetic field y-direction. Default: 0 (for both)
 ``MHD3DProblemType`` (external)
     Default: 0
-`
+
 .. _mhdtcollapse_param:
 
 MHD Turbulent Collapse Test (203)
@@ -1360,7 +1360,7 @@ Poisson Solver Test (300)
 .. _rdhtest1_param:
 
 Radiation-Hydrodynamics Test 1 - Constant Fields (400)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RadHydroVelocity`` (external)
    Initialize velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
@@ -1389,7 +1389,7 @@ Radiation-Hydrodynamics Test 1 - Constant Fields (400)
 .. _rdhtest2_param:
 
 Radiation-Hydrodynamics Test 2 - Streams (401)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RadHydroDensity`` (external)
    Ambient density. Default: 1.0
@@ -1404,7 +1404,7 @@ Radiation-Hydrodynamics Test 2 - Streams (401)
 .. _rdhtest3_param:
 
 Radiation-Hydrodynamics Test 3 - Pulse (402)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RadHydroDensity`` (external)
    Ambient density. Default: 1.0
@@ -1416,7 +1416,7 @@ Radiation-Hydrodynamics Test 3 - Pulse (402)
 .. _rdhtest4_param:
 
 Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``RadHydroDensity`` (external)
    Ambient density. Default: 1.0
@@ -1431,7 +1431,7 @@ Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
 .. _rdhtest5_param:
 
 Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``DensityConstant`` (external)
    Ambient density. Default: 1.0
