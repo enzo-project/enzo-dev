@@ -27,6 +27,9 @@ known_categories = [
 import numpy
 numpy.seterr(all = "ignore")
 
+import nose
+from nose.loader import TestLoader
+
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
 ytcfg["yt","__command_line"] = "True" 
@@ -37,6 +40,8 @@ from yt.utilities.logger import ytLogger as mylog
 from yt.utilities.logger import \
     disable_stream_logging, ufstring
 disable_stream_logging()
+from yt.utilities.answer_testing.framework import \
+    AnswerTesting
 
 try:
     yt_version = get_yt_version()
@@ -166,10 +171,14 @@ def bisector(options,args):
     commands.bisect(u,repo,rev=options.bad,**bisection_default_corrector("bad",True))
     commands.bisect(u,repo,**bisection_default_corrector("command",command))
 
-
 class EnzoTestCollection(object):
-    def __init__(self, tests = None, verbose=True):
+    def __init__(self, tests = None, verbose=True, args = None,
+                 plugins = None):
         self.verbose = verbose
+        if args is None: args = sys.argv[:1]
+        self.args = args
+        if plugins is None: plugins = []
+        self.plugins = plugins
         if tests is None:
             # Now we look for all our *.enzotest files
             fns = []
@@ -215,7 +224,9 @@ class EnzoTestCollection(object):
         for my_test in self.tests:
             print "Preparing test: %s." % my_test['name']
             self.test_container.append(EnzoTestRun(output_dir, my_test, 
-                                                   machine, exe_path))
+                                                   machine, exe_path,
+                                                   args = self.args,
+                                                   plugins = self.plugins))
 
     def run_all_sims(self):
         total_tests = len(self.test_container)
@@ -332,7 +343,12 @@ class EnzoTestCollection(object):
             self.any_failures = False
 
 class EnzoTestRun(object):
-    def __init__(self, test_dir, test_data, machine, exe_path):
+    def __init__(self, test_dir, test_data, machine, exe_path,
+                 args = None, plugins = None):
+        if args is None: args = sys.args[:1]
+        self.args = args
+        if plugins is None: plugins = []
+        self.plugins = plugins
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
@@ -428,6 +444,9 @@ class EnzoTestRun(object):
     def run_test(self):
         rf = os.path.join(self.run_dir, 'RunFinished')
         self.run_finished = os.path.exists(rf)
+        tl = TestLoader()
+        suite = tl.loadTestsFromDir(self.run_dir)
+        nose.run(argv=self.args, suite=suite, plugins = self.plugins)
 
 class UnspecifiedParameter(object):
     pass
@@ -472,6 +491,9 @@ if __name__ == "__main__":
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
 
     testsuite_group = optparse.OptionGroup(parser, "Test suites:")
+    answer_plugin = AnswerTesting()
+    answer_plugin.enabled = True
+    answer_plugin.options(parser)
     for var, caster in sorted(known_variables.items()):
         if var in testsuites:
             testsuite_group.add_option("", "--%s" % (var),
@@ -482,6 +504,7 @@ if __name__ == "__main__":
                               type=str, default = unknown)
     parser.add_option_group(testsuite_group)
     options, args = parser.parse_args()
+    answer_plugin.configure(options, None)
 
     # Break out if output directory not specified.
     if options.output_dir is None:
@@ -496,7 +519,8 @@ if __name__ == "__main__":
     if options.bisect:
         bisector(options,args)
         sys.exit(0)
-    etc = EnzoTestCollection(verbose=options.verbose)
+    etc = EnzoTestCollection(verbose=options.verbose, args=args,
+                             plugins = [answer_plugin])
 
     construct_selection = {}
     for var, caster in known_variables.items():
