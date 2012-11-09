@@ -277,6 +277,7 @@
 #-----------------------------------------------------------------------
 	
     ASSEMBLE_CUDACOMPILER = $(MACH_CUDACOMPILER)
+    ASSEMBLE_CUDAFLAGS = $(MACH_OPT_CUDA)	
 
 #-----------------------------------------------------------------------
 # DETERMINE OBJECT MODE SETTINGS
