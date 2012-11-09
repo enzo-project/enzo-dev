@@ -6,7 +6,7 @@ from yt.utilities.answer_testing.framework import \
      sim_dir_load
 
 _fields = ("Temperature", "Dust_Temperature")
-_pf_name = "OneZoneFreefallTest.enzo"
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
 
 @requires_outputlog(_dir_name, _pf_name)
