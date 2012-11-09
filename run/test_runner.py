@@ -557,6 +557,10 @@ if __name__ == "__main__":
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             sim_only=options.sim_only, 
             test_only=options.test_only)
+
+    # Store the results locally or in the cloud.
+    answer_plugin.finalize()
+
     try:
         import json
     except ImportError:
