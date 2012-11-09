@@ -1,11 +1,11 @@
 from yt.mods import *
 from yt.testing import *
-from yt.utilities.answer_testing.api import AnswerTestingTest
 from yt.utilities.answer_testing.framework import \
-    requires_outputlog, \
-    sim_dir_load
+     AnswerTestingTest, \
+     requires_outputlog, \
+     sim_dir_load
 
-_pf_name = "CollapseTestNonCosmological.enzo"
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
 
 class TestCollapseMaxValue(AnswerTestingTest):
