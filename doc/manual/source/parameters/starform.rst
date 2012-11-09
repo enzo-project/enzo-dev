@@ -5,6 +5,8 @@ Star Formation and Feedback Parameters
 
 For details on each of the different star formation methods available in Enzo see :ref:`star_particles`.
 
+General
+^^^^^^^
 
 ``StarParticleCreation`` (external)
     This parameter is bitwise so that multiple types of star formation
@@ -215,3 +217,10 @@ The parameters below are considered in StarParticleCreation method 9.
 
         #order: MBH mass (in Ms), MBH location[3], MBH creation time
         100000.0      0.48530579      0.51455688      0.51467896      0.0
+
+Massive Black Hole Particle Formation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9 .
+
+``MBHInsertLocationFilename`` (external)

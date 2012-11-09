@@ -1,5 +1,8 @@
+Inline Analysis
+~~~~~~~~~~~~~~~
+
 Inline Halo Finding
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 Enzo can find dark matter (sub)halos on the fly with a
 friends-of-friends (FOF) halo finder and a subfind method,
@@ -30,7 +33,7 @@ written in the directory FOF/.
     Last time of a halo find. Default: 0.
 
 Inline Python
-~~~~~~~~~~~~~
+^^^^^^^^^^^^^
 
 ``PythonSubcycleSkip`` (external)
     The number of times Enzo should reach the bottom of the hierarchy

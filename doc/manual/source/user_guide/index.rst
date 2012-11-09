@@ -52,3 +52,4 @@ inquiries and comments should be directed to the `Enzo Users' List
    EmbeddedPython.rst
    HierarchyFile.rst
    FlowChart.rst
+   TestProblems.rst

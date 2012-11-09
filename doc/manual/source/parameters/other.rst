@@ -1,5 +1,8 @@
+Other Parameters
+~~~~~~~~~~~~~~~~
+
 Other External Parameters
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``huge_number`` (external)
     The largest reasonable number. Rarely used. Default: 1e+20
@@ -23,7 +26,7 @@ Other External Parameters
     Reserved for future use.
 
 Other Internal Parameters
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``TimeLastRestartDump``
     Reserved for future use.

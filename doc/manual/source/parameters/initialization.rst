@@ -1,5 +1,5 @@
 Initialization Parameters
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``TopGridRank`` (external)
     This specifies the dimensionality of the root grid and by extension
@@ -50,4 +50,7 @@ Initialization Parameters
 ``Initialdt`` (internal)
     The timestep, in code units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
-
+``MaximumTopGridTimeStep`` (external)
+    This parameter limits the maximum timestep on the root grid.  Default: huge_number.
+``GridVelocity`` (external)
+    The whole computational domain will have this velocity.  Experimental.  Default: 0 0 0

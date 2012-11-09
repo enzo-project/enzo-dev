@@ -1,7 +1,10 @@
+Radiation Parameters
+~~~~~~~~~~~~~~~~~~~~
+
 .. _radiation_backgrounds:
 
 Background Radiation Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiationFieldType`` (external)
     This integer parameter specifies the type of radiation field that
@@ -67,7 +70,7 @@ Background Radiation Parameters
     Add description. Default: 1.5.
 
 Radiative Transfer (Ray Tracing) Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiativeTransfer`` (external)
     Set to 1 to turn on the adaptive ray tracing following Abel, Wise &
@@ -147,7 +150,7 @@ Radiative Transfer (Ray Tracing) Parameters
     particles emit X-rays. Default: 0.
 
 Radiative Transfer (FLD) Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiativeTransferFLD`` (external)
     Set to 2 to turn on the fld-based radiation solvers following Reynolds,
@@ -176,7 +179,7 @@ Radiative Transfer (FLD) Parameters
     dissociating field from the ray-tracing solver. Default: 1.
 
 Radiative Transfer (FLD) Implicit Solver Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     These parameters should be placed within the file named in
     ``RadHydroParamfile`` in the main parameter file. All are described in
@@ -333,7 +336,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     ``RadHydroModel`` 10. Default: [1 1 0 1 0].
 
 Radiative Transfer (FLD) Split Solver Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     These parameters should be placed within the file named in
     ``RadHydroParamfile`` in the main parameter file. All are described in

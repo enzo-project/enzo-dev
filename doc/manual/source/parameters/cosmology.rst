@@ -1,5 +1,5 @@
 Cosmology Parameters
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 ``ComovingCoordinates`` (external)
     Flag (1 - on, 0 - off) that determines if comoving coordinates are

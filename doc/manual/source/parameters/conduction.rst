@@ -1,5 +1,5 @@
 Conduction
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 Isotropic and anisotropic thermal conduction are implemented using the
 method of Parrish and Stone: namely, using an explicit, forward
