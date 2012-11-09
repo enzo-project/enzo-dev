@@ -48,6 +48,7 @@
  
 int FindField(int f, int farray[], int n);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
+int MakeFieldConservative(field_type field); 
  
 int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				  fluxes *RefinedFluxes,
@@ -342,19 +343,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  if (HydroMethod != Zeus_Hydro) {
 
 	    for (field = 0; field < NumberOfBaryonFields; field++) 
-	      if (FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
-		  FieldTypeIsDensity(FieldType[field]) == FALSE &&
-		  FieldTypeIsRadiation(FieldType[field]) == FALSE &&
-		  FieldType[field] != Bfield1 &&
-		  FieldType[field] != Bfield2 && FieldType[field] != Bfield3 &&
-		  FieldType[field] != PhiField && 
-		  FieldType[field] != DrivingField1 &&
-		  FieldType[field] != DrivingField2 &&
-		  FieldType[field] != DrivingField3 &&
-		  FieldType[field] != GravPotential &&
-		  FieldType[field] != DebugField &&
-		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && 
-					   FieldType[field] != InternalEnergy))) {
+	      if ( MakeFieldConservative(FieldType[field]) ) {
 		for (k = Start[2]; k <= End[2]; k++) {
 		  for (j = Start[1]; j <= End[1]; j++) {
 		    index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
@@ -675,18 +664,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  if (HydroMethod != Zeus_Hydro)
 	    for (field = 0; field < NumberOfBaryonFields; field++)
-	      if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-		  FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
-		  FieldTypeIsRadiation(FieldType[field]) == FALSE &&
-		  (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-					     FieldType[field] != InternalEnergy)) && 
-		  FieldType[field] != Bfield1 &&
-		  FieldType[field] != Bfield2 && FieldType[field] != Bfield3 &&
-		  FieldType[field] != PhiField &&
-		  FieldType[field] != DrivingField1 &&
-		  FieldType[field] != DrivingField2 &&
-		  FieldType[field] != DrivingField3 &&
-		  FieldType[field] != GravPotential)
+	      if ( MakeFieldConservative(FieldType[field]))
 		for (k = Start[2]; k <= End[2]; k++)
 		  for (j = Start[1]; j <= End[1]; j++) {
 		    index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];

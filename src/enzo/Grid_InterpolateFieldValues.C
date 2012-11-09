@@ -62,6 +62,8 @@ extern "C" void FORTRAN_NAME(combine3d)(
 	       int *dstart1, int *dstart2, int *dstart3,
 	       int *ivel_flag, int *irefine);
  
+int MakeFieldConservative(field_type field); 
+
 /* InterpolateBoundaryFromParent function */
  
 int grid::InterpolateFieldValues(grid *ParentGrid)
@@ -271,22 +273,14 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        quantities. */
  
     if (ConservativeInterpolation)
-      for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 
-	    && FieldType[field] != DebugField 
-	    && FieldType[field] != GravPotential
-	    )
+      for (field = 0; field < NumberOfBaryonFields; field++){
+	if (MakeFieldConservative( FieldType[field] ) ){
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
                                &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
+    }
+      }
     
     /* Do the interpolation for the density field. */
  
@@ -377,22 +371,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
          variables (skipping density). */
  
       if (ConservativeInterpolation)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 
-	    && FieldType[field] != DebugField 
-	    &&  FieldType[field] != GravPotential
-	    )
+	if (MakeFieldConservative( FieldType[field] ) ){
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,
 			      &Zero, &Zero, &Zero, &Zero, &Zero, &Zero,
 			      &Zero, &Zero, &Zero, &TempSize, &Zero, &Zero);
+    }
       
       /* Set FieldPointer to either the correct field (density or the one we
 	 just interpolated to). */
