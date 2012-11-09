@@ -24,14 +24,17 @@ Hierarchy Control Parameters
 
     :: 
 
-       1 - refine by slope		       6  - refine by Jeans length
-       2 - refine by baryon mass	       7  - refine if (cooling time < cell width/sound speed)
-       3 - refine by shocks 		       11 - refine by resistive length
+       1 - refine by slope		       9 - refine by shear
+       2 - refine by baryon mass	       10 - refine by optical depth (in radiation calculation)
+       3 - refine by shocks 		       11 - refine by resistive length (in MHD calculation)
        4 - refine by particle mass	       12 - refine by defined region "MustRefineRegion"
        5 - refine by baryon overdensity	       13 - refine by metallicity
-       	  (currently disabled)
-       101 - avoid refinement in regions
-             defined in "AvoidRefineRegion"
+       	  (currently disabled)                 14 - refine around shockwaves
+       6  - refine by Jeans length             16 - refine by Jeans length from the inertial tensor	       
+       7  - refine if (cooling time < cell width/sound speed)
+       8 - refine by must-refine particles
+       100 - avoid refinement based on ForbiddenRefinement field
+       101 - avoid refinement in regions defined in "AvoidRefineRegion" 
 
 ``RefineRegionLeftEdge``, ``RefineRegionRightEdge`` (external)
     These two parameters control the region in which refinement is

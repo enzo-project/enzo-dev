@@ -10,6 +10,8 @@ in Enzo.  There are also methods that include routines for black hole,
 sink, and Pop III stellar tracer formation.  Here we give the details
 of each implementation and the parameters that control them.
 
+
+
 Method 0: Cen & Ostriker
 ------------------------
 Select this method by setting ``StarParticleCreation = 1``.
@@ -143,6 +145,12 @@ Select this method by setting ``StarParticleCreation = 16``.
 
 *Source: sink_maker.C*
 
+
+A couple of variations on this method exist but are not being actively maintained.  
+They require a completely different set of parameters to turn on such as BigStarFormation; 
+see Grid_StarParticleHandler.C and :ref:`StarParticleParameters`.
+
+*Source: star_maker8.C, star_maker9.C*
 
 Method 5: Radiative Stellar Clusters
 ------------------------------------
@@ -287,7 +295,7 @@ Method 9: Massive Black Holes
 Select this method by setting ``StarParticleCreation = 512``.
 
 This simply insert a MBH particle based on the information given by an external file (MBHInsertLocationFilename).
-Also see Massive Black Hole Particle Formation in :ref:`StarParticleParameters`.
+See Massive Black Hole Particle Formation in :ref:`StarParticleParameters`.
 
 *Source: mbh_maker.C*
 
