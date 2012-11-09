@@ -120,7 +120,8 @@ LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
-LOCAL_INCLUDES_CUDA   = -I/Developer/CUDA/common/inc
+LOCAL_INCLUDES_CUDA   = -I/usr/local/cuda/include
+MACH_OPT_CUDA = -m 64 -arch=sm_20 -O3
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_CUDA)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
