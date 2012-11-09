@@ -404,6 +404,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Grids[grid1]->GridData->RungeKutta2_1stStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	else if (HydroMethod == MHD_RK) 
+#ifdef ECUDA
+          if (UseCUDA) 
+            Grids[grid1]->GridData->CudaMHDRK2_1stStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+          else
+#endif
 	  Grids[grid1]->GridData->MHDRK2_1stStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
@@ -470,7 +476,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
-	  
+#ifdef ECUDA
+          if (UseCUDA)
+            Grids[grid1]->GridData->CudaMHDRK2_2ndStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+          else
+#endif 
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	  
