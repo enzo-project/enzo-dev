@@ -1,5 +1,5 @@
 Particle Parameters
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 ``ParticleBoundaryType`` (external)
     The boundary condition imposed on particles. At the moment, this

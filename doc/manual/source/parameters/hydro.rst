@@ -1,5 +1,8 @@
-Hydrodynamic Parameters
------------------------
+Hydrodynamics Parameters
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+General
+^^^^^^^
 
 ``UseHydro`` (external)
     This flag (1 - on, 0 - off) controls whether a hydro solver is used.  
@@ -123,7 +126,7 @@ Hydrodynamic Parameters
     Norman. Default: 0.0
 
 Minimum Pressure Support Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``UseMinimumPressureSupport`` (external)
     When radiative cooling is turned on, and objects are allowed to
@@ -142,4 +145,94 @@ Minimum Pressure Support Parameters
     the Jeans length/cell size is at least 10.  Default: 0
 ``MinimumPressureSupportParameter`` (external)
     This is the numerical parameter discussed above. Default: 100
+
+Magnetohydrodynamics (CT) Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Coming very soon...!
+
+Magnetohydrodynamics (Dedner) Parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``UseDivergenceCleaning`` (external)
+    Method 1 and 2 are a failed experiment to do divergence cleaning
+    using successive over relaxation. Method 3 uses conjugate gradient
+    with a 2 cell stencil and Method 4 uses a 4 cell stencil. 4 is more
+    accurate but can lead to aliasing effects. Default: 0
+``DivergenceCleaningBoundaryBuffer`` (external)
+    Choose to *not* correct in the active zone of a grid by a
+    boundary of cells this thick. Default: 0
+``DivergenceCleaningThreshold`` (external)
+    Calls divergence cleaning on a grid when magnetic field divergence
+    is above this threshold. Default: 0.001
+``PoissonApproximateThreshold`` (external)
+    Controls the accuracy of the resulting solution for divergence
+    cleaning Poisson solver. Default: 0.001
+``UseDrivingField`` (external)
+    This parameter is used to add external driving force as a source term in some test problems; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0
+``DrivingEfficiency`` (external)
+    This parameter is used to define the efficiency of such driving force; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 1.0
+``UseConstantAcceleration`` (external)
+    This parameter is used to add constant acceleration as a source term in some set-ups; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0
+``ConstantAcceleration[]`` (external)
+    This parameter is used to define the value of such acceleration; see hydro_rk/Grid_(MHD)SourceTerms.C. 
+``UseViscosity`` (external)
+    This parameter is used to add viscosity and thereby update velocity in some set-ups (1 - constant viscosity, 2 - alpha viscosity); see ComputeViscosity in hydro_rk/Grid_AddViscosity.C.  Default: 0
+``ViscosityCoefficient`` (external)
+    This parameter is used to define the value of such viscosity for UseViscosity = 1; see ComputeViscosity in hydro_rk/Grid_AddViscosity.C. Default: 0.0
+``UseGasDrag`` (external)
+    This parameter is used to calculate velocity decrease caused by gas drag as a source term in some set-ups; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0
+``GasDragCoefficient`` (external)
+    This parameter is used to define the value of such gas drag; see hydro_rk/Grid_(MHD)SourceTerms.C. Default: 0.0
+``UseFloor`` (external)
+    This parameter is used to impose the minimum energy based on MaximumAlvenSpeed in some set-ups; see hydro_rk/Grid_SetFloor.C. Default: 0
+``MaximumAlvenSpeed`` (external)
+    This parameter is used to define the value of such minimum; see hydro_rk/Grid_SetFloor.C. Default: 1e30
+``UseAmbipolarDiffusion`` (external)
+    This parameter is used to update magnetic fields by ambipolar diffusion in some set-ups; see hydro_rk/Grid_AddAmbipolarDiffusion.C. Default: 0
+``UseResistivity`` (external)
+    This parameter is used to add resistivity and thereby update magnetic fields in some set-ups; see ComputeResistivity in hydro_rk/Grid_AddResistivity.C.  Default: 0
+``UsePhysicalUnit`` (external)
+    For some test problems (mostly in hydro_rk), the relevant parameters could be defined in physical CGS units.  Default: 0
+``SmallRho`` (external)
+    Minimum value for density in hydro_rk/EvolveLevel_RK.C.  Default: 1e-30 (note that the default value assumes UsePhysicalUnit = 1)
+``SmallT`` (external)
+    Minimum value for temperature in hydro_rk/EvolveLevel_RK.C.  Default: 1e-10 (note that the default value assumes UsePhysicalUnit = 1)
+``SmallP``
+    [not used]
+``RKOrder``
+    [not used]
+``Theta_Limiter`` (external)
+    Flux limiter in the minmod Van Leer formulation.  Must be between 1 (most dissipative) and 2 (least dissipative). Default: 1.5
+``Coordinate`` (external)
+    Coordinate systems to be used in hydro_rk/EvolveLevel_RK.C.  Currently implemented are Cartesian and Spherical for HD_RK, and Cartesian and Cylindrical for MHD_RK.  See Grid_(MHD)SourceTerms.C.  Default: Cartesian
+``EOSType`` (external)
+    Types of Equation of State used in hydro_rk/EvolveLevel_RK.C (0 - ideal gas, 1 - polytropic EOS, 2 - another polytropic EOS, 3 - isothermal, 4 - pseudo cooling, 5 - another pseudo cooling, 6 - minimum pressure); see hydro_rk/EOS.h. Default: 0
+``EOSSoundSpeed`` (external)
+    Sound speed to be used in EOS.h for EOSType = 1, 2, 3, 4, 5.  Default: 2.65e4
+``EOSCriticalDensity`` (external)
+    Critical density to be used in EOS.h for EOSType = 1, 2, 4, 6. Default: 1e-13
+``EOSGamma`` (external)
+    Polytropic gamma to be used in EOS.h for EOSType = 1. Default: 1.667
+``DivBDampingLength`` (external)
+    From C_h (the Dedner wave speeds at which the div*B error is isotropically transferred; as defined in e.g. Matsumoto, PASJ, 2007, 59, 905) and this parameter, C_p (the decay rate of the wave) is calculated; see ComputeDednerWaveSpeeds.C  Default: 1.0
+``UseCUDA`` (external)
+    Set to 1 to use the CUDA-accelerated (M)HD solver.  Only works if compiled with cuda-yes. Default: 0
+``ResetMagneticField`` (external)
+    Set to 1 to reset the magnetic field in the regions that are denser
+    than the critical matter density. Very handy when you want to
+    re-simulate or restart the dumps with MHD. Default: 0
+``ResetMagneticFieldAmplitude`` (external)
+    The magnetic field values (in Gauss) that will be used for the
+    above parameter. Default: 0.0 0.0 0.0
+``CoolingCutOffDensity1``
+    Reserved for future use
+``CoolingCutOffDensity2``
+    Reserved for future use
+``CoolingCutOffTemperature``
+    Reserved for future use
+``CoolingPowerCutOffDensity1``
+    Reserved for future use
+``CoolingPowerCutOffDensity2``
+    Reserved for future use
 

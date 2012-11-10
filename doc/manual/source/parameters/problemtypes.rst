@@ -41,21 +41,34 @@ Problem Type Description and Parameter List
 30 	     :ref:`cosmologysimulation_param`
 31 	     :ref:`galaxysimulation_param`
 35 	     :ref:`shearingbox_param`
+36	     Shearing Box 2D Simulation
+37	     Stratifeid Shearing Box Simulation
 40 	     :ref:`supernovarestart_param`
 50 	     :ref:`photontest_param`
+51	     Photon Test Restart
 60 	     :ref:`turbulence_param` 
 61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
+63           One Zone Free Fall Test
+70	     Conduction Test with Hydro Off
+71	     Conduction Test with Hydro On
+72	     Conduction Bubble Test
+73	     Conduction Cloud Test
+80           Explosion in a Stratified Medium Test
 101          :ref:`3dcollapse_param`
 102          :ref:`1dcollapse_param`
 106          :ref:`mhdhydro_param`
 107          :ref:`putsink_param`
+108          Cluster Cooling Flow 
 200          :ref:`mhd1d_param`
 201          :ref:`mhd2d_param`
 202          :ref:`mhd3d_param`
 203          :ref:`mhdtcollapse_param`
+204          3D MHD Test
 207          :ref:`galaxydisk_param`
 208          :ref:`agndisk_param`
+209	     MHD 1D Waves
+210	     MHD Decaying Random Magnetic Fields
 300          :ref:`poissonsolver_param`
 400          :ref:`rdhtest1_param`
 401          :ref:`rdhtest2_param`
@@ -1426,7 +1439,6 @@ Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
    Gas energy. Default: 1.0
 ``GreyMarshDir`` (external)
    Propagation coordinate for Marshak problem. {0,1,2}. Default: 0
-
 
 .. _rdhtest5_param:
 

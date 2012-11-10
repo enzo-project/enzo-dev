@@ -1,5 +1,8 @@
 Gravity Parameters
-------------------
+~~~~~~~~~~~~~~~~~~
+
+General
+^^^^^^^
 
 ``TopGridGravityBoundary`` (external)
     A single integer which specified the type of gravitational boundary
@@ -64,7 +67,7 @@ Gravity Parameters
     to a value less than 0. Default: -1
 
 External Gravity Source
-~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^
 
 These parameters set-up an external static background gravity source that is
 added to the acceleration field for the baryons and particles.

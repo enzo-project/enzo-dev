@@ -25,7 +25,7 @@ Hierarchy Control Parameters
     :: 
 
        1 - refine by slope		       9 - refine by shear
-       2 - refine by baryon mass	       10 - refine by optical depth (in radiation calculation)
+       2 - refine by baryon mass	       10 - refine by optical depth (in RT calculation)
        3 - refine by shocks 		       11 - refine by resistive length (in MHD calculation)
        4 - refine by particle mass	       12 - refine by defined region "MustRefineRegion"
        5 - refine by baryon overdensity	       13 - refine by metallicity

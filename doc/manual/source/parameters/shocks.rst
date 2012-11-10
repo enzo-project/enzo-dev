@@ -1,5 +1,6 @@
 Shock Finding Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
 For details on shock finding in Enzo see :ref:`shock_finding`.
 
 ``ShockMethod`` (external)

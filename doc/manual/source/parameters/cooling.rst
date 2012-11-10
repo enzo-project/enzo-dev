@@ -1,5 +1,8 @@
 Radiative Cooling Parameters
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simple Cooling Options
+^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiativeCooling`` (external)
     This flag (1 - on, 0 - off) controls whether or not a radiative
@@ -85,7 +88,7 @@ Radiative Cooling Parameters
 .. _cloudy_cooling:
 
 Cloudy Cooling
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 
 Cloudy cooling from Smith, Sigurdsson, & Abel (2008) interpolates
 over tables of precomputed cooling data. Cloudy cooling is turned

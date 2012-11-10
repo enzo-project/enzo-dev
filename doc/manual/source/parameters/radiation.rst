@@ -1,7 +1,10 @@
+Radiation Parameters
+~~~~~~~~~~~~~~~~~~~~
+
 .. _radiation_backgrounds:
 
 Background Radiation Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiationFieldType`` (external)
     This integer parameter specifies the type of radiation field that
@@ -67,7 +70,7 @@ Background Radiation Parameters
     Add description. Default: 1.5.
 
 Radiative Transfer (Ray Tracing) Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiativeTransfer`` (external)
     Set to 1 to turn on the adaptive ray tracing following Abel, Wise &
@@ -133,10 +136,16 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferPeriodicBoundary`` (external)
     Set to 1 to turn on periodic boundary conditions for photon
     packages. Default: 0.
-``RadiativeTransferTraceSpectrum`` (external)
-    reserved for experimentation. Default: 0.
-``RadiativeTransferTraceSpectrumTable`` (external)
-    reserved for experimentation. Default: ``spectrum_table.dat``
+``RadiativeTransferSourceBeamAngle`` (external)
+    Rays will be emitted within this angle in degrees of the poles from sources with "Beamed" types.  Default: 30
+``RadiativeTransferHIIRestrictedTimestep`` (external)
+    Adaptive ray tracing timesteps will be restricted by a maximum change of 10% in neutral fraction if this parameter is set to 1.  If set to 2, then the incident flux can change by a maximum of 0.5 between cells.  See Wise & Abel (2011) in Sections 3.4.1 and 3.4.4 for more details.  Default: 0
+``RadiativeTransferAdaptiveTimestep`` (external)
+    Must be 1 when RadiativeTransferHIIRestrictedTimestep is non-zero.  When RadiativeTransferHIIRestrictedTimestep is 0, then the radiative transfer timestep is set to the timestep of the finest AMR level.  Default: 0
+``RadiativeTransferHydrogenOnly`` (external)
+    When turned on, the photo-ionization fields are only created for hydrogen.  Default: 0
+``RadiativeTransferLoadBalance`` (external)
+    When turned on, the grids are load balanced based on the number of ray segments traced.  The grids are moved to different processors only for the radiative transfer solver.  Default: 0
 ``RadiationXRaySecondaryIon`` (external)
     Set to 1 to turn on secondary ionizations and reduce heating from
     X-ray radiation (Shull & van Steenberg 1985). Currently only BH and
@@ -145,9 +154,13 @@ Radiative Transfer (Ray Tracing) Parameters
     Set to 1 to turn on Compton heating on electrons from X-ray
     radiation (Ciotti & Ostriker 2001). Currently only BH and MBH
     particles emit X-rays. Default: 0.
+``RadiativeTransferTraceSpectrum`` (external)
+    reserved for experimentation. Default: 0.
+``RadiativeTransferTraceSpectrumTable`` (external)
+    reserved for experimentation. Default: ``spectrum_table.dat``
 
 Radiative Transfer (FLD) Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``RadiativeTransferFLD`` (external)
     Set to 2 to turn on the fld-based radiation solvers following Reynolds,
@@ -176,7 +189,7 @@ Radiative Transfer (FLD) Parameters
     dissociating field from the ray-tracing solver. Default: 1.
 
 Radiative Transfer (FLD) Implicit Solver Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     These parameters should be placed within the file named in
     ``RadHydroParamfile`` in the main parameter file. All are described in
@@ -333,7 +346,7 @@ Radiative Transfer (FLD) Implicit Solver Parameters
     ``RadHydroModel`` 10. Default: [1 1 0 1 0].
 
 Radiative Transfer (FLD) Split Solver Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     These parameters should be placed within the file named in
     ``RadHydroParamfile`` in the main parameter file. All are described in

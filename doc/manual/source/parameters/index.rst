@@ -41,23 +41,19 @@ This list includes parameters for the Enzo 2.2 release.
 .. toctree::
    :maxdepth: 2
 
-   analysis.rst 
-   bhform.rst   
-   conduction.rst
-   cooling.rst  
-   cosmology.rst
-   gravity.rst  
-   hierarchy.rst
-   hydro.rst    
-   identifier.rst
    initialization.rst
    io.rst       
-   mhd.rst      
-   other.rst    
+   hierarchy.rst
+   gravity.rst  
+   hydro.rst    
+   cooling.rst  
    particles.rst
-   problemtypes.rst
-   radiation.rst
-   shocks.rst   
    starform.rst 
-   stopping.rst 
-   streaming.rst
+   radiation.rst
+   cosmology.rst
+   bhform.rst   
+   shocks.rst   
+   conduction.rst
+   analysis.rst 
+   other.rst    
+   problemtypes.rst
