@@ -1,39 +1,35 @@
-from yt.config import ytcfg
-ytcfg["yt","loglevel"] = '50'
-ytcfg["yt","suppressStreamLogging"] = 'True'
-
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+    requires_outputlog
 
-class TestZeldovich(YTStaticOutputTest):
-    name = "zeldovich_plot"
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
 
+class TestZeldovichMax(AnswerTestingTest):
+    _type_name = "zeldovich_max"
+    _attrs = ()
+
+    def __init__(self, sim):
+        self.pf = sim
+    
     def run(self):
-        # self.pf already exists
-        ray = self.pf.h.ray([0.0,0.5,0.5], [1.0,0.5,0.5])
-        self.result = ray["Density"]
+        result = []
+        for my_pf in self.pf:
+            result.append(my_pf.h.find_max("Density")[0])
+        return result
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        for i in range(len(new_result)):
+            assert_rel_equal(new_result[i], old_result[i], 4)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-class TestZeldovichMax(YTStaticOutputTest):
-    name = "zeldovich_max"
-
-    def run(self):
-        # self.pf already exists
-        self.result = self.pf.h.find_max("Density")[0]
-
-    def compare(self, old_result):
-        self.compare_value_delta(self.result, old_result, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
+@requires_outputlog(_dir_name, _pf_name)
+def test_collapse_max_value():
+    sim = sim_dir_load(_pf_name, path=_dir_name, 
+                       find_outputs=True)
+    sim.get_time_series()
+    
+    yield TestAMRZeldovichMax(sim)
