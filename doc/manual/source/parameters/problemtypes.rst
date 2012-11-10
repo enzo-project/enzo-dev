@@ -1002,6 +1002,12 @@ Photon Test (50)
     An array with the mean energy in each energy bin. Units are in eV.
     Default: 14.6 25.6 56.4 12.0 (i.e. HI ionizing, HeI ionizing, HeII
     ionizing, Lyman-Werner)
+``PhotonTestSourceType`` (external)
+    Indicates what radiation type (1 = isotropic, -2 = Beamed, -3 =
+    Episodic). Default: 0
+``PhotonTestSourceOrientation`` (external)
+    Normal direction in Cartesian axes of beamed radiation (type =
+    -2).  Default = 0 0 1
 ``PhotonTestInitialFractionHII`` (external)
     Sets the initial ionized fraction of hydrogen. Default: 1.2e-5
 ``PhotonTestInitialFractionHeII`` (external)
