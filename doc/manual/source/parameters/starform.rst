@@ -218,9 +218,34 @@ The parameters below are considered in StarParticleCreation method 9.
         #order: MBH mass (in Ms), MBH location[3], MBH creation time
         100000.0      0.48530579      0.51455688      0.51467896      0.0
 
-Massive Black Hole Particle Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Sink Formation and Feedback
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9 .
+The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9.
 
-``MBHInsertLocationFilename`` (external)
+``AccretionKernal`` (external)
+    While this parameter is used to determine the accretion kernel in star_maker8.C, there is no choice other than 1 at the moment: Ruffert, ApJ (1994) 427 342 (a typo in the parameter name...).  Default: 0
+
+``StellarWindFeedback`` (external)
+    This parameter is used to turn on sink particle creation by star_maker8.C and also its feedback.  Currently implemented are: 1 - protostellar jets along the magnetic fields, 2 - protostellar jets along random directions, 3 - isotropic main sequence stellar wind, 4 - not implemented, 5 - not implemented, 6 - methods 2 and 3 combined.  Default: 0
+
+``StellarWindTurnOnMass`` (external)
+    This parameter is used to decide whether mass increase reached the ejection threshold for StellarWindFeedback=1, 2, or 6 in star_maker8.C. Default: 0.1
+
+``MSStellarWindTurnOnMass`` (external)
+    This parameter is used to decide whether mass increase reached the ejection threshold for StellarWindFeedback = 3 or 6 in star_maker8.C. Default: 10.0
+
+``BigStarFormation`` (external)
+    This parameter is used to turn on sink particle creation by star_maker9.C.  
+
+``BigStarFormationDone`` (external)
+    In star_maker9.C, this parameter is used when we do not want to form BigStars any more.
+
+``BigStarSeparation`` (external)
+    In star_maker[89].C, if the newly-created sink particle is within a certain distance from the closest pre-existing sink, then add to it rather than creating a new one.
+
+``SinkMergeDistance``
+    [not used]
+
+``SinkMergeMass``
+    [not used]

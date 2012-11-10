@@ -28,14 +28,6 @@ Initialization Parameters
     For shearing boundaries, the boundary pair in another direction
     must be periodic. Note that self gravity will not be consistent
     with shearing boundary conditions. Default: 0 0 0
-``ShearingVelocityDirection`` (external)
-    Select direction of shearing boundary. Default is x direction. Changing this is probably not a good idea.
-``AngularVelocity`` (external)
-    The value of the angular velocity in the shearing boundary.
-    Default: 0.001
-``VelocityGradient`` (external)
-    The value of the per code length gradient in the angular velocity
-    in the shearing boundary. Default: 1.0
 ``BoundaryConditionName`` (external)
     While the above parameters provide an easy way to set an entire
     side of grid to a given boundary value, the possibility exists to
@@ -50,7 +42,19 @@ Initialization Parameters
 ``Initialdt`` (internal)
     The timestep, in code units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
-``MaximumTopGridTimeStep`` (external)
-    This parameter limits the maximum timestep on the root grid.  Default: huge_number.
+``ShearingVelocityDirection`` (external)
+    Select direction of shearing boundary. Default is x direction. Changing this is probably not a good idea.
+``AngularVelocity`` (external)
+    The value of the angular velocity in the shearing boundary.
+    Default: 0.001
+``VelocityGradient`` (external)
+    The value of the per code length gradient in the angular velocity
+    in the shearing boundary. Default: 1.0
 ``GridVelocity`` (external)
     The whole computational domain will have this velocity.  Experimental.  Default: 0 0 0
+``MaximumTopGridTimeStep`` (external)
+    This parameter limits the maximum timestep on the root grid.  Default: huge_number.
+``StringKick`` (external)
+    While this parameter was initially designed to describe the kick by cosmic strings in CosmologySimulation, it can be used to model the velocity (in km/s) that the baryons should move relative to dark matter at the initial redshift, in order to study the effect discussed by Tseliakhovich & Hirata (astro-ph:1005.2416). Default: 0
+``StringKickDimension`` (external)
+    This parameter is used to control the orthogonal direction of the flow.  Default: 0 (x-axis)

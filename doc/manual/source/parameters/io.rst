@@ -13,9 +13,18 @@ have a look at :ref:`controlling_data_output` for more information.
 ``dtDataDump`` (external)
     The time interval, in code units, between time-based outputs. A
     value of 0 turns off the time-based outputs. Default: 0
+``dtInterpolatedDataDump`` (external)
+    The time interval, in code units, between time-based interpolated outputs. A
+    value of 0 turns off the time-based outputs. Default: 0
 ``CycleSkipDataDump`` (external)
     The number of cycles (top grid timesteps) between cycle-based
     outputs. Zero turns off the cycle-based outputs. Default: 0
+``SubcycleSkipDataDump`` (external)
+    The number of subcycles between subcycle-based
+    outputs. Zero turns off the subcycle-based outputs. Default: 0
+``dtTracerParticleDump`` (external)
+    The time interval, in code units, between time-based tracer particle outputs (defined in ComputeRandomForcingNormalization.C). A
+    value of 0 turns off this output. Default: 0
 ``DataDumpName`` (external)
     The base file name used for both time and cycle based outputs.
     Default: data
@@ -29,6 +38,24 @@ have a look at :ref:`controlling_data_output` for more information.
     will not be appended but the four R's will be converted to a
     redshift with an implied decimal point in the middle (i.e. z=1.24
     becomes 0124). Default: RedshiftOutput
+``TracerParticleDumpName`` (external)
+    The base file name used for tracer particle outputs.
+    Default: 
+``TracerParticleDumpDir`` (external)
+    The dir name used for tracer particle outputs.
+    Default: 
+``dtRestartDump``
+    Reserved for future use.
+``dtHistoryDump``
+    Reserved for future use.
+``CycleSkipRestartDump``
+    Reserved for future use.
+``CycleSkipHistoryDump``
+    Reserved for future use.
+``RestartDumpName``
+    Reserved for future use.
+``HistoryDumpName``
+    Reserved for future use.
 ``CosmologyOutputRedshift[NNNN]`` (external)
     The time and cycle-based outputs occur regularly at constant
     intervals, but the redshift outputs are specified individually.
@@ -44,15 +71,17 @@ have a look at :ref:`controlling_data_output` for more information.
     This parameter overrides the parameter ``RedshiftOutputName`` for this
     (only only this) redshift output. Can be used repeatedly in the
     same manner as the previous parameter. Default: none
+``FileDirectedOutput``
+    If this parameter is set to 1, whenever the finest level has finished
+    evolving Enzo will check for new signal files to output.  (See
+    :ref:`force_output_now`.)  Default 1.
+``TracerParticleOn``
+    This parameter is used to set the velocities of the tracer particles equal to the gas velocities in the current cells.   Tracer particles are massless and can be used to output values of the gas as they advect with the fluid.  Default: 0
 ``OutputFirstTimeAtLevel`` (external)
     This forces Enzo to output when a given level is reached, and at
     every level thereafter. Default is 0 (off). User can usefully
     specify anything up to the maximum number of levels in a given
     simulation.
-``FileDirectedOutput``
-    If this parameter is set to 1, whenever the finest level has finished
-    evolving Enzo will check for new signal files to output.  (See
-    :ref:`force_output_now`.)  Default 1.
 ``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName`` (external)
     These parameters are used in 2D projections (``enzo -p ...``). The
     first two specify the X-ray band (observed at z=0) to be used, and
@@ -67,18 +96,6 @@ have a look at :ref:`controlling_data_output` for more information.
 ``ExtractFieldsOnly`` (external)
     Used for extractions (enzo -x ...) when only field data are needed
     instead of field + particle data. Default is 1 (TRUE).
-``dtRestartDump``
-    Reserved for future use.
-``dtHistoryDump``
-    Reserved for future use.
-``CycleSkipRestartDump``
-    Reserved for future use.
-``CycleSkipHistoryDump``
-    Reserved for future use.
-``RestartDumpName``
-    Reserved for future use.
-``HistoryDumpName``
-    Reserved for future use.
 ``ParallelRootGridIO`` (external)
     Normally for the mpi version, the root grid is read into the root
     processor and then partitioned to separate processors using communication.
