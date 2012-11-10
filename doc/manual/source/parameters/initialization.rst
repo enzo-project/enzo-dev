@@ -80,3 +80,11 @@ Initialization Parameters
     Do NOT change this parameter unless you know exactly what you are doing. Default: 10
 ``TemperatureEnd`` (external)
     Do NOT change this parameter unless you know exactly what you are doing. Default: 1e8
+``ExternalBoundaryIO`` (external)
+    not recommended for use at this point. Only works if compiled with oc-boundary-yes.  Default: 0
+``ExternalBoundaryTypeIO`` (external)
+    not recommended for use at this point. Default: 0
+``ExternalBoundaryValueIO`` (external)
+    not recommended for use at this point. Default: 0
+``SimpleConstantBoundary`` (external)
+    not recommended for use at this point. Default: 0

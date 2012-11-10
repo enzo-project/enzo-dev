@@ -49,19 +49,27 @@ Background Radiation Parameters
     approximate radiative-shielding. This parameter will be
     automatically turned on when RadiationFieldType is set to 11. See
     ``calc_photo_rates.src``. Default: 0
-``RadiationRedshiftOn`` (external) The redshift at which the UV 
+``RadiationRedshiftOn`` (external) 
+    The redshift at which the UV 
     background turns on. Default: 7.0.
-``RadiationRedshiftFullOn`` (external) The redshift at which the UV
+``RadiationRedshiftFullOn`` (external) 
+    The redshift at which the UV
     background is at full strength.  Between z =
     ``RadiationRedshiftOn`` and z = ``RadiationRedshiftFullOn``, the 
     background is gradually ramped up to full strength. Default: 6.0.
-``RadiationRedshiftDropOff`` (external) The redshift at which the 
+``RadiationRedshiftDropOff`` (external) 
+    The redshift at which the 
     strength of the UV background is begins to gradually reduce,
     reaching zero by ``RadiationRedshiftOff``. Default: 0.0.
-``RadiationRedshiftOff`` (external) The redshift at which the UV 
+``RadiationRedshiftOff`` (external) 
+    The redshift at which the UV 
     background is fully off. Default: 0.0.
+``TabulatedLWBackground`` (external)
+    When on, the amplitude of the Lyman-Werner background is read from the file LW_J21.in as a function of redshift.  Each line should have the redshift and LW background in units of 1e-21 erg/cm^3/s/Hz/sr.  Default: 0
 ``AdjustUVBackground`` (external)
     Add description. Default: 1.
+``AdjustUVBackgroundHighRedshift`` (external)
+    Add description. Default: 0.
 ``SetUVAmplitude`` (external)
     Add description. Default: 1.0.
 ``SetHeIIHeatingScale`` (external)
@@ -115,11 +123,6 @@ Radiative Transfer (Ray Tracing) Parameters
     also keeps track of the number of photons passing this radius
     multiplied by 0.5, 1, and 2. Units are in kpc. Not used if set to
     0. Default: 0.
-``RadiativeTransferInterpolateField`` (obsolete)
-    A failed experiment in which we evaluate the density at the
-    midpoint of the ray segment in each cell to calculate the optical
-    depth. To interpolate, we need to calculate the vertex interpolated
-    density fields. Default: 0.
 ``RadiativeTransferSourceClustering`` (internal)
     Set to 1 to turn on ray merging from combined virtual sources on a
     binary tree. Default: 0.
@@ -154,6 +157,15 @@ Radiative Transfer (Ray Tracing) Parameters
     Set to 1 to turn on Compton heating on electrons from X-ray
     radiation (Ciotti & Ostriker 2001). Currently only BH and MBH
     particles emit X-rays. Default: 0.
+``RadiativeTransferInterpolateField`` (obsolete)
+    A failed experiment in which we evaluate the density at the
+    midpoint of the ray segment in each cell to calculate the optical
+    depth. To interpolate, we need to calculate the vertex interpolated
+    density fields. Default: 0.
+``SimpleQ`` (external)
+    Ionizing photon luminosity of a "simple radiating source" that is independent of mass.  In units of photons per second.  Default: 1e50
+``SimpleRampTime`` (external)
+    Time to exponential ramp up the luminosity of a simple radiating source.  In units of 1e6 years.  Default: 0.1
 ``RadiativeTransferTraceSpectrum`` (external)
     reserved for experimentation. Default: 0.
 ``RadiativeTransferTraceSpectrumTable`` (external)
