@@ -35,6 +35,6 @@ def test_problem_test():
 
 # Tests that OutputLog exists and fails otherwise
 def test_exist():
-    testname = os.path.basename(os.path.dirname(__file__))
-    if not os.path.exists(testname):
-        raise EnzoTestOutputFileNonExistent(testname)
+    filename = os.path.dirname(__file__) + "/OutputLog"
+    if not os.path.exists(filename):
+        raise EnzoTestOutputFileNonExistent(filename)
