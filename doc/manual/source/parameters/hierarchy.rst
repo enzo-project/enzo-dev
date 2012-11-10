@@ -136,6 +136,8 @@ Hierarchy Control Parameters
     shock-detection, this is an extra filter which removes weak shocks
     (or noise in the dual energy fields) from triggering the shock
     detection. Default: 0.1
+``MinimumShearForRefinement`` (external)
+    It is the minimum shear above which a refinement occurs if the CellFlaggingMethod is appropriately set. Default: 0
 ``MetallicityRefinementMinLevel`` (external)
     Sets the minimum level (maximum cell size) to which a cell enriched
     with metal above a level set by ``MetallicityRefinementMinMetallicity``
@@ -145,6 +147,16 @@ Hierarchy Control Parameters
     This is the threshold metallicity (in units of solar metallicity)
     above which cells must be refined to a minimum level of
     ``MetallicityRefinementMinLevel``. Default: 1.0e-5
+``MetallicityRefinementMinDensity`` (external)
+    It is the minimum density above which a refinement occurs when the cells are refined on metallicity.  Default: FLOAT_UNDEFINED
+``ShockwaveRefinementMinMach`` (external)
+    The minimum Mach number required to refine a level when using ShockwaveRefinement. Default: 1.3
+``ShockwaveRefinementMinVelocity`` (external)
+    The minimum shock velocity required to refine a level when using ShockwaveRefinement. Default: 1.0e7 (cm/s)
+``ShockwaveRefinementMaxLevel`` (external)
+    The maximum level to refine to using the ShockwaveRefinement criteria. Default: 0 (not used)
+``FindShocksOnlyOnOutput`` (external)
+    0: Finds shocks during Evolve Level and just before writing out data. 1: Only find shocks just before writing out data.  2: Only find shocks during EvolveLevel. Default: 0
 ``MustRefineRegionMinRefinementLevel`` (external)
     Minimum level to which the rectangular solid volume defined by
     ``MustRefineRegionLeftEdge`` and ``MustRefineRegionRightEdge`` will be
@@ -168,6 +180,8 @@ Hierarchy Control Parameters
     = 128 (pc), then the code will automatically calculate
     ``MustRefineParticlesRefineToLevel`` using the boxsize and redshift
     information. Default: 0 (FALSE)
+``MustRefineParticlesMinimumMass`` (external)
+    This was an experimental parameter to set a minimum for MustRefineParticles.  Default: 0.0
 ``FluxCorrection`` (external)
     This flag indicates if the flux fix-up step should be carried out
     around the boundaries of the sub-grid to preserve conservation (1 -
@@ -227,14 +241,20 @@ Hierarchy Control Parameters
     leaving the refined region before the next regrid. This integer
     parameter controls the number required, which should almost always
     be one. Default: 1
-``RefineByJeansLengthSafetyFactor`` (external)
-    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
-    is being used, then this parameter specifies the number of cells
-    which must cover one Jeans length. Default: 4
 ``JeansRefinementColdTemperature`` (external)
     If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
     is being used, and this parameter is greater than zero, it will be
     used in place of the temperature in all cells. Default: -1.0
+``RefineByJeansLengthSafetyFactor`` (external)
+    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
+    is being used, then this parameter specifies the number of cells
+    which must cover one Jeans length. Default: 4
+``RefineByResistiveLength`` (external)
+    Resistive length is defined as the curl of the magnetic field over
+    the magnitude of the magnetic field. We make sure this length is
+    covered by this number of cells. Default: 2
+``RefineByResistiveLengthSafetyFactor`` (external)
+    The resistive length in a MHD simulation should not be smaller than CellWidth * RefineByResistiveLengthSafetyFactor, if the CellFlaggingMethod is appropriately set.  Default: 2.0
 ``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
@@ -256,10 +276,14 @@ Hierarchy Control Parameters
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous
     parameter). Default: none
-``RefineByResistiveLength`` (external)
-    Resistive length is defined as the curl of the magnetic field over
-    the magnitude of the magnetic field. We make sure this length is
-    covered by this number of cells. Default: 2
+``MinimumSubgridEdge`` (external)
+    The minimum length of the edge of a subgrid.  See :ref:`running_large_simulations`. Default: 6
+``MaximumSubgridSize`` (external)
+    The maximum size (volume) of a subgrid.  See :ref:`running_large_simulations`. Default: 32768
+``SubgridSizeAutoAdjust`` (external)
+    See :ref:`running_large_simulations`.  Default: 1 (TRUE)
+``OptimalSubgridsPerProcessor`` (external)
+    See :ref:`running_large_simulations`.  Default: 16
 ``LoadBalancing`` (external)
     Set to 0 to keep child grids on the same processor as their
     parents. Set to 1 to balance the work on one level over all
@@ -268,8 +292,22 @@ Hierarchy Control Parameters
     = (01234567) reside on node (00112233) if there are 4 nodes. Option
     3 assumes round-robin scheduling (proc = (01234567) -> node =
     (01230123)). Set to 4 for load balancing along a Hilbert
-    space-filling curve on each level. Default: 1
+    space-filling curve on each level. See :ref:`running_large_simulations`. Default: 1
 ``LoadBalancingCycleSkip`` (external)
     This sets how many cycles pass before we load balance the root
     grids. Only works with LoadBalancing set to 2 or 3. NOT RECOMMENDED
     for nested grid calculations. Default: 10
+``LoadBalancingMinLevel`` (external)
+    Load balance the grids in levels greater than this parameter.  Default: 0
+``LoadBalancingMaxLevel`` (external)
+    Load balance the grids in levels less than this parameter.  Default: MAX_DEPTH_OF_HIERARCHY
+``ResetLoadBalancing`` (external)
+    When restarting a simulation, this parameter resets the processor number of each root grid to be sequential.  All child grids are assigned to the processor of their parent grid.  Only implemented for LoadBalancing = 1.  Default = 0
+``NumberOfRootGridTilesPerDimensionPerProcessor`` (external)
+    Splits the root grid into 2^(dimensions*this parameter) grids per MPI process.  Default: 1
+``FastSiblingLocatorEntireDomain`` (external)
+    In zoom-in calculations, the fast sibling locator doesn't need to search the entire domain.  Turning this parameter on restricts the finder to the inner nested grid.  Currently broken.  Default: 0
+``MoveParticlesBetweenSiblings`` (external)
+    During RebuildHierarchy, particles that have moved beyond the grid boundaries are moved to the correct grid.  Default: 1
+``RebuildHierarchyCycleSkip`` (external)
+    Set the number of cycles at a given level before rebuilding the hierarchy.  Example: RebuildHierarchyCycleSkip[1] = 4

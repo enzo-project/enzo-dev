@@ -24,6 +24,16 @@ Other External Parameters
     Reserved for future use.
 ``TimeActionType[#]``
     Reserved for future use.
+``StopSteps``
+    Reserved for future use
+``CoolDataf0to3``
+    Reserved for future use
+``StageInput``
+    Reserved for future use
+``LocalPath``
+    Reserved for future use
+``GlobalPath``
+    Reserved for future use
 
 Other Internal Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -52,12 +62,6 @@ Other Internal Parameters
     Reserved for future use.
 ``InitialCycleNumber`` (internal)
     The current cycle
-``DataLabel[#]`` (internal)
-    These are printed out into the restart dump parameter file. One
-    Label is produced per baryon field with the name of that baryon
-    field. The same labels are used to name data sets in HDF files.
-``DataUnits[#]`` 
-    Reserved for future use.
 ``SubcycleNumber`` (internal)
     The current subcycle
 ``DataDumpNumber`` (internal)
@@ -71,6 +75,12 @@ Other Internal Parameters
 ``RestartDumpNumber``
     Reserved for future use.
 ``HistoryDumpNumber``
+    Reserved for future use.
+``DataLabel[#]`` (internal)
+    These are printed out into the restart dump parameter file. One
+    Label is produced per baryon field with the name of that baryon
+    field. The same labels are used to name data sets in HDF files.
+``DataUnits[#]`` 
     Reserved for future use.
 ``VersionNumber`` (internal)
     Sets the version number of the code which is written out to restart

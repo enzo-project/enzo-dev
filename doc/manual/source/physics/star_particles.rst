@@ -307,6 +307,8 @@ Select this method by setting ``StarParticleCreation = 1024``.
 *Source: pop3_color_maker.F*
 
 
+.. _molecular_hydrogen_regulated_star_formation:
+
 Method 11: Molecular Hydrogen Regulated Star Formation
 ------------------------------------------------------
 Select this method by setting ``StarParticleCreation = 2048``.

@@ -27,7 +27,8 @@ Simple Cooling Options
        from the Hercules code written by Peter Anninos and Yu Zhang,
        featuring rates from Tom Abel. Other varieties of cooling are
        controlled by the ``MetalCooling`` parameter, as discused below.
-
+``RadiativeCoolingModel`` (external)
+    This switches between the tabular look up cooling that is standard (RadiativeCoolingModel=1) and an analytic fit to the Wolfire et al 2003, ApJ, 587, 278 made by Koyama and Inutsuka 2006 (RadiativeCoolingModel = 3, arXiv:astro-ph/0605528).  Default: 1
 ``GadgetCooling`` (external)
     This flag (1 - on, 0 - off) turns on (when set to 1) a set of
     routines that calculate cooling rates based on the assumption of a
@@ -74,8 +75,7 @@ Simple Cooling Options
     [Not in public release version]
 ``PhotoelectricHeating`` (external)
     If set to be 1, the following parameter will be added uniformly
-    to the gas without any shielding (Tasker & Bryan 2008). At the
-    moment this is still experimental. Default: 0
+    to the gas without any shielding (Tasker & Bryan 2008). Default: 0
 ``PhotoelectricHeatingRate`` (external)
     This is the parameter used as Gamma_pe for uniform photoelectric heating.
     Default: 8.5e-26 erg s^-1 cm^-3
@@ -84,6 +84,16 @@ Simple Cooling Options
     metal fields - currently there is the standard metallicity field
     (Metal_Density) and two additional metal fields (Z_Field1 and
     Z_Field2). Acceptable values are 1 or 0, Default: 0 (off).
+``H2FormationOnDust`` (external)
+    Turns on H2 formation on dust grains and gas-grain heat transfer following Omukai (2000). Default: 0 (OFF)
+``NumberOfDustTemperatureBins`` (external)
+    Number of dust temperature bins for the dust cooling and H2 formation rates.  Default: 250
+``DustTemperatureStart`` (external)
+    Minimum dust temperature for dust rates.  Default: 1.0
+``DustTemperatureEnd`` (external)
+    Maximum dust temperature for dust rates.  Default: 1500
+``OutputDustTemperature`` (external)
+    Flag to write out the dust temperature field.  Default: 0
 
 .. _cloudy_cooling:
 

@@ -140,12 +140,28 @@ have a look at :ref:`controlling_data_output` for more information.
     ``star_particle_density``; and 2 will dump
     ``actively_forming_stellar_mass_density``, ``SFR_density``, etc.
     Default: 0.
+``ComputePotential`` (external)
+    When turned on, the gravitational potential is computed and stored in memory.  Always done when SelfGravity is on.  Default: 0
+``WritePotential`` (external)
+    When turned on, the gravitational potential is written to file.  Default: 0
 ``VelAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
     velocity. Works in 2D and 3D.
 ``BAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
     ``Bfield``. Works in 2D and 3D.
+``TimingCycleSkip`` (external)
+    Controls how many cycles to skip when timing information is collected, reduced, and written out to performance.out.  Default: 1
+``OutputParticleTypeGrouping`` (external) 	
+    In the grid HDF5 groups, particles are sorted by type, and a reference is created to indicate which particle index range corresponds to each type.  Default: 0
+``HierarchyFileInputFormat`` (external) 
+    See :ref:`controlling_the_hierarhcy_file_output`.
+``HierarchyFileOutputFormat`` (external) 
+    See :ref:`controlling_the_hierarhcy_file_output`.
+``LocalDir`` (external) 
+    See :ref:`controlling_data_output`.
+``GlobalDir`` (external) 
+    See :ref:`controlling_data_output`.
 
 Stopping Parameters
 ^^^^^^^^^^^^^^^^^^^
