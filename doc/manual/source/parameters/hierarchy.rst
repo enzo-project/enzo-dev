@@ -276,8 +276,14 @@ Hierarchy Control Parameters
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous
     parameter). Default: none
-``RebuildHierarchyCycleSkip`` (external)
-    Set the number of cycles at a given level before rebuilding the hierarchy.  Example: RebuildHierarchyCycleSkip[1] = 4
+``MinimumSubgridEdge`` (external)
+    The minimum length of the edge of a subgrid.  See :ref:`running_large_simulations`. Default: 6
+``MaximumSubgridSize`` (external)
+    The maximum size (volume) of a subgrid.  See :ref:`running_large_simulations`. Default: 32768
+``SubgridSizeAutoAdjust`` (external)
+    See :ref:`running_large_simulations`.  Default: 1 (TRUE)
+``OptimalSubgridsPerProcessor`` (external)
+    See :ref:`running_large_simulations`.  Default: 16
 ``LoadBalancing`` (external)
     Set to 0 to keep child grids on the same processor as their
     parents. Set to 1 to balance the work on one level over all
@@ -286,8 +292,22 @@ Hierarchy Control Parameters
     = (01234567) reside on node (00112233) if there are 4 nodes. Option
     3 assumes round-robin scheduling (proc = (01234567) -> node =
     (01230123)). Set to 4 for load balancing along a Hilbert
-    space-filling curve on each level. Default: 1
+    space-filling curve on each level. See :ref:`running_large_simulations`. Default: 1
 ``LoadBalancingCycleSkip`` (external)
     This sets how many cycles pass before we load balance the root
     grids. Only works with LoadBalancing set to 2 or 3. NOT RECOMMENDED
     for nested grid calculations. Default: 10
+``LoadBalancingMinLevel`` (external)
+    Load balance the grids in levels greater than this parameter.  Default: 0
+``LoadBalancingMaxLevel`` (external)
+    Load balance the grids in levels less than this parameter.  Default: MAX_DEPTH_OF_HIERARCHY
+``ResetLoadBalancing`` (external)
+    When restarting a simulation, this parameter resets the processor number of each root grid to be sequential.  All child grids are assigned to the processor of their parent grid.  Only implemented for LoadBalancing = 1.  Default = 0
+``NumberOfRootGridTilesPerDimensionPerProcessor`` (external)
+    Splits the root grid into 2^(dimensions*this parameter) grids per MPI process.  Default: 1
+``FastSiblingLocatorEntireDomain`` (external)
+    In zoom-in calculations, the fast sibling locator doesn't need to search the entire domain.  Turning this parameter on restricts the finder to the inner nested grid.  Currently broken.  Default: 0
+``MoveParticlesBetweenSiblings`` (external)
+    During RebuildHierarchy, particles that have moved beyond the grid boundaries are moved to the correct grid.  Default: 1
+``RebuildHierarchyCycleSkip`` (external)
+    Set the number of cycles at a given level before rebuilding the hierarchy.  Example: RebuildHierarchyCycleSkip[1] = 4

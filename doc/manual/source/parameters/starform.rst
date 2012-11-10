@@ -145,63 +145,121 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Set to 1 to create black hole particles that radiate in X-rays for
     stars that do not go supernova (< 140 solar masses and > 260 solar
     masses). Default: 0.
-``PopIIIBHLuminosityEfficiency`` (internal)
+``PopIIIBHLuminosityEfficiency`` (external)
     The radiative efficiency in which the black holes convert accretion
     to luminosity. Default: 0.1.
-``PopIIIOverDensityThreshold`` (internal)
+``PopIIIOverDensityThreshold`` (external)
     The overdensity threshold (relative to the total mean density)
     before Pop III star formation will be considered. Default: 1e6.
-``PopIIIH2CriticalFraction`` (internal)
+``PopIIIH2CriticalFraction`` (external)
     The H_2 fraction threshold before Pop III star formation will be
     considered. Default: 5e-4.
-``PopIIIMetalCriticalFraction`` (internal)
+``PopIIIMetalCriticalFraction`` (external)
     The metallicity threshold (relative to gas density, not solar)
     before Pop III star formation will be considered. Note: this should
     be changed to be relative to solar! Default: 1e-4.
-``PopIIISupernovaRadius`` (internal)
+``PopIIISupernovaRadius`` (external)
     If the Population III star will go supernova (140<M<260 solar
     masses), this is the radius of the sphere to inject the supernova
     thermal energy at the end of the star's life. Units are in parsecs.
     Default: 1.
-``PopIIISupernovaUseColour`` (internal)
+``PopIIISupernovaUseColour`` (external)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
+``PopIIIInitialMassFunction`` (external)
+    When turned on, each Pop III stellar mass is randomly drawn from an IMF that is Salpeter above some characteristic mass and exponentially cutoff below this mass.  Default: 0
+``PopIIIInitialMassFunctionSeed`` (external)
+    Random initial seed for the Pop III stellar mass randomizer.  Default: INT_UNDEFINED
+``PopIIILowerMassCutoff`` (external)
+    Lower limit of the Pop III IMF.  Default: 1
+``PopIIIUpperMassCutoff`` (external)
+    Upper limit of the Pop III IMF.  Default: 300
+``PopIIIInitialMassFunctionSlope`` (external)
+    Slope of the Salpeter (high-mass) portion of the Pop III IMF.  Default: -1.3
+``PopIIIInitialMassFunctionCalls`` (internal) 
+    Number of times a Pop III mass has been drawn from the IMF.  Used for restarts and reproducibility.  Default: 0
+``PopIIISupernovaMustRefine`` (external)
+    When turned on, the region around a star about to go supernova is refined to the maximum AMR level.  Experimental.  Default: 0
+``PopIIISupernovaMustRefineResolution`` (external)
+    Used with PopIIISupernovaMustRefine.  Minimum number of cells across the blastwave.  Default: 32
+``PopIIIHeliumIonization`` (external)
+    When turned on, Pop III stars will emit helium singly- and doubly-ionizing radiation.  Default: 0
+``PopIIIColorDensityThreshold`` (external)
+    Above this density, a Pop III "color" particle forms, and it will populate the surrounding region with a color field.  Units: mean density. Default: 1e6
+``PopIIIColorMass`` (external)
+    A Pop III "color" particle will populate the surrounding region with a mass of PopIIIColorMass.  Units: solar masses.  Default: 1e6
 
 Radiative Star Cluster Star Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method 5.
 
-``StarClusterUseMetalField`` (internal)
+``StarClusterUseMetalField`` (external)
     Set to 1 to trace ejecta from supernovae. Default: 0.
-``StarClusterMinDynamicalTime`` (internal)
+``StarClusterMinDynamicalTime`` (external)
     When determining the size of a star forming region, one method is
     to look for the sphere with an enclosed average density that
     corresponds to some minimum dynamical time. Observations hint that
     this value should be a few million years. Units are in years.
     Default: 1e7.
-``StarClusterIonizingLuminosity`` (internal)
+``StarClusterIonizingLuminosity`` (external)
     The specific luminosity of the stellar clusters. In units of
     ionizing photons per solar mass. Default: 1e47.
-``StarClusterSNEnergy`` (internal)
+``StarClusterSNEnergy`` (external)
     The specific energy injected into the gas from supernovae in the
     stellar clusters. In units of ergs per solar mass. Default: 6.8e48
     (Woosley & Weaver 1986).
-``StarClusterSNRadius`` (internal)
+``StarClusterSNRadius`` (external)
     This is the radius of the sphere to inject the supernova thermal
     energy in stellar clusters. Units are in parsecs. Default: 10.
-``StarClusterFormEfficiency`` (internal)
+``StarClusterFormEfficiency`` (external)
     Fraction of gas in the sphere to transfer from the grid to the star
     particle. Recall that this sphere has a minimum dynamical time set
     by ``StarClusterMinDynamicalTime``. Default: 0.1.
-``StarClusterMinimumMass`` (internal)
+``StarClusterMinimumMass`` (external)
     The minimum mass of a star cluster particle before the formation is
     considered. Units in solar masses. Default: 1000.
-``StarClusterCombineRadius`` (internal)
+``StarClusterCombineRadius`` (external)
     It is possible to merge star cluster particles together within this
     specified radius. Units in parsecs. This is probably not necessary
     if ray merging is used. Originally this was developed to reduce the
     amount of ray tracing involved from galaxies with hundreds of these
     radiating particles. Default: 10.
+``StarClusterHeliumIonization`` (external)
+    When turned on, stellar clusters will emit helium singly- and doubly-ionizing radiation.  Default: 0
+``StarClusterRegionLeftEdge`` (external)
+    Can restrict the region in which star clusters can form.  Origin of this region.  Default: 0 0 0
+``StarClusterRegionRightEdge`` (external)
+    Can restrict the region in which star clusters can form.  Right corner of this region.  Default: 1 1 1
+``StarClusterUnresolvedModel`` (external)
+    Regular star clusters live for 20 Myr, but this is only valid when molecular clouds are resolved.  When this parameter is on, the star formation rate is the same as the Cen & Ostriker exponential rate.  Default: 0
+
+Molecular Hydrogen Regulated Star Formation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``H2StarMakerEfficiency`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerNumberDensityThreshold`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerMinimumMass`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerMinimumH2FractionForStarFormation`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerStochastic`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerUseSobolevColumn`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerSigmaOverR`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerAssumeColdWarmPressureBalance`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerH2DissociationFlux_MW`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerH2FloorInColdGas`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerColdGasTemperature`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``StarFormationOncePerRootGridTimeStep`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
 
 Massive Black Hole Particle Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -225,27 +283,19 @@ The parameters below are considered in sink creation routines: sink_maker, star_
 
 ``AccretionKernal`` (external)
     While this parameter is used to determine the accretion kernel in star_maker8.C, there is no choice other than 1 at the moment: Ruffert, ApJ (1994) 427 342 (a typo in the parameter name...).  Default: 0
-
 ``StellarWindFeedback`` (external)
     This parameter is used to turn on sink particle creation by star_maker8.C and also its feedback.  Currently implemented are: 1 - protostellar jets along the magnetic fields, 2 - protostellar jets along random directions, 3 - isotropic main sequence stellar wind, 4 - not implemented, 5 - not implemented, 6 - methods 2 and 3 combined.  Default: 0
-
 ``StellarWindTurnOnMass`` (external)
     This parameter is used to decide whether mass increase reached the ejection threshold for StellarWindFeedback=1, 2, or 6 in star_maker8.C. Default: 0.1
-
 ``MSStellarWindTurnOnMass`` (external)
     This parameter is used to decide whether mass increase reached the ejection threshold for StellarWindFeedback = 3 or 6 in star_maker8.C. Default: 10.0
-
 ``BigStarFormation`` (external)
     This parameter is used to turn on sink particle creation by star_maker9.C.  
-
 ``BigStarFormationDone`` (external)
     In star_maker9.C, this parameter is used when we do not want to form BigStars any more.
-
 ``BigStarSeparation`` (external)
     In star_maker[89].C, if the newly-created sink particle is within a certain distance from the closest pre-existing sink, then add to it rather than creating a new one.
-
 ``SinkMergeDistance``
     [not used]
-
 ``SinkMergeMass``
     [not used]

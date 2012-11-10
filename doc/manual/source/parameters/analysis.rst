@@ -29,14 +29,23 @@ written in the directory FOF/.
 ``HaloFinderTimestep`` (external)
     Find halos every dt = (this parameter). Only evaluated at each
     top-level timestep. Not used if negative. Default: -99999.0
+``HaloFinderRunAfterOutput`` (external)
+    When turned on, the inline halo finder is run after an output is written.  Default: 0
 ``HaloFinderLastTime`` (internal)
     Last time of a halo find. Default: 0.
 
 Inline Python
 ^^^^^^^^^^^^^
 
+``PythonTopGridSkip`` (external)
+    How many top grid cycles should we skip between calling python at the top of the hierarchy?  Only works with python-yes in compile settings.
 ``PythonSubcycleSkip`` (external)
-    The number of times Enzo should reach the bottom of the hierarchy
-    before exposing its data and calling Python. Only works with
-    python-yes in compile settings.
-
+    How many subgrid cycles should we skip between calling python at the bottom of the hierarchy?
+``PythonReloadScript`` (external)
+    Should "user_script.py" be reloaded in between Python calls?
+``NumberOfPythonCalls`` (internal)
+    Internal parameter tracked by Enzo
+``NumberOfPythonTopGridCalls`` (internal)
+    Internal parameter tracked by Enzo
+``NumberOfPythonSubcycleCalls`` (internal)
+    Internal parameter tracked by Enzo

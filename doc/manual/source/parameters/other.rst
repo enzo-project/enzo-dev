@@ -24,6 +24,16 @@ Other External Parameters
     Reserved for future use.
 ``TimeActionType[#]``
     Reserved for future use.
+``StopSteps``
+    Reserved for future use
+``CoolDataf0to3``
+    Reserved for future use
+``StageInput``
+    Reserved for future use
+``LocalPath``
+    Reserved for future use
+``GlobalPath``
+    Reserved for future use
 
 Other Internal Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^

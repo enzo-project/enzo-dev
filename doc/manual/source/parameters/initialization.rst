@@ -58,6 +58,8 @@ Initialization Parameters
     While this parameter was initially designed to describe the kick by cosmic strings in CosmologySimulation, it can be used to model the velocity (in km/s) that the baryons should move relative to dark matter at the initial redshift, in order to study the effect discussed by Tseliakhovich & Hirata (astro-ph:1005.2416). Default: 0
 ``StringKickDimension`` (external)
     This parameter is used to control the orthogonal direction of the flow.  Default: 0 (x-axis)
+``MemoryLimit`` (external)
+    If the memory usage on a single MPI process exceeds this number, then the simulation will halt after outputting.  Only used when the compile-time define MEM_TRACE is used. Default: 4e9
 ``HydrogenFractionByMass`` (external)
     This parameter is used to set up initial conditions in some test problems.  Default: 0.76
 ``DeuteriumToHydrogenRatio`` (external)
