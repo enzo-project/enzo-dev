@@ -65,25 +65,17 @@ Simple Cooling Options
     a 12 species model is followed, including D, D+ and HD. This
     routine, like the last one, is based on work done by Abel, Zhang
     and Anninos. Default: 0
-``GadgetEquilibriumCooling`` (external)
-    An implementation of the ionization equilibrium cooling code used
-    in the GADGET code which includes both radiative cooling and a
-    uniform metagalactic UV background specified by the ``TREECOOL`` file
-    (in the ``amr_mpi/exe`` directory). When this parameter is turned on,
-    ``MultiSpecies`` and ``RadiationFieldType`` are forced to 0 and
-    ``RadiativeCooling`` is forced to 1.
-    [Not in public release version]
-``PhotoelectricHeating`` (external)
-    If set to be 1, the following parameter will be added uniformly
-    to the gas without any shielding (Tasker & Bryan 2008). Default: 0
-``PhotoelectricHeatingRate`` (external)
-    This is the parameter used as Gamma_pe for uniform photoelectric heating.
-    Default: 8.5e-26 erg s^-1 cm^-3
 ``MultiMetals`` (external)
     This was added so that the user could turn on or off additional
     metal fields - currently there is the standard metallicity field
     (Metal_Density) and two additional metal fields (Z_Field1 and
     Z_Field2). Acceptable values are 1 or 0, Default: 0 (off).
+``ThreeBodyRate`` (external)
+    Which Three Body rate should be used for H2 formation: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (Turk et al 2011 covers these)
+``CIECooling`` (external)
+    Should CIE (Ripamonti & Abel 2004) cooling be included at high densities
+``H2OpticalDepthApproximation`` (external)
+    Should the H2 cooling be attenuated (RA04)
 ``H2FormationOnDust`` (external)
     Turns on H2 formation on dust grains and gas-grain heat transfer following Omukai (2000). Default: 0 (OFF)
 ``NumberOfDustTemperatureBins`` (external)
@@ -94,6 +86,20 @@ Simple Cooling Options
     Maximum dust temperature for dust rates.  Default: 1500
 ``OutputDustTemperature`` (external)
     Flag to write out the dust temperature field.  Default: 0
+``PhotoelectricHeating`` (external)
+    If set to be 1, the following parameter will be added uniformly
+    to the gas without any shielding (Tasker & Bryan 2008). Default: 0
+``PhotoelectricHeatingRate`` (external)
+    This is the parameter used as Gamma_pe for uniform photoelectric heating.
+    Default: 8.5e-26 erg s^-1 cm^-3
+``GadgetEquilibriumCooling`` (external)
+    An implementation of the ionization equilibrium cooling code used
+    in the GADGET code which includes both radiative cooling and a
+    uniform metagalactic UV background specified by the ``TREECOOL`` file
+    (in the ``amr_mpi/exe`` directory). When this parameter is turned on,
+    ``MultiSpecies`` and ``RadiationFieldType`` are forced to 0 and
+    ``RadiativeCooling`` is forced to 1.
+    [Not in public release version]
 
 .. _cloudy_cooling:
 
@@ -116,20 +122,17 @@ creating Cloudy datasets.
 
 ``CloudyCoolingGridFile`` (external)
     A string specifying the path to the Cloudy cooling dataset.
-
 ``IncludeCloudyHeating`` (external)
     An integer (0 or 1) specifying whether the heating rates are to be
     included in the calculation of the cooling. Some Cloudy datasets
     are made with the intention that only the cooling rates are to be
     used. Default: 0 (off).
-
 ``CMBTemperatureFloor`` (external)
     An integer (0 or 1) specifying whether a temperature floor is
     created at the temperature of the cosmic microwave background
     (T\ :sub:`CMB`\  = 2.72 (1 + z) K). This is accomplished in the
     code by subtracting the cooling rate at T\ :sub:`CMB`\  such that
     Cooling = Cooling(T) - Cooling(T\ :sub:`CMB`\ ). Default: 1 (on).
-
 ``CloudyElectronFractionFactor`` (external)
     A float value to account for additional electrons contributed by
     metals. This is only used with Cloudy datasets with dimension

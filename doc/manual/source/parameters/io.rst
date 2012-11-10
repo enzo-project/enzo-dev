@@ -140,24 +140,44 @@ have a look at :ref:`controlling_data_output` for more information.
     ``star_particle_density``; and 2 will dump
     ``actively_forming_stellar_mass_density``, ``SFR_density``, etc.
     Default: 0.
+``OutputOnDensity`` (external)
+    Should interpolated outputs be generated at varying peak density?  Default: 0
+``StartDensityOutput`` (external)
+    The first density (in log g/cc) at which to output.
+``CurrentDensityOutput`` (external)
+    The most recent density at which output was generated.
+``IncrementDensityOutput`` (external)
+    After a density-directed output, how much should the density be increased by?  Default: 999
 ``ComputePotential`` (external)
     When turned on, the gravitational potential is computed and stored in memory.  Always done when SelfGravity is on.  Default: 0
 ``WritePotential`` (external)
     When turned on, the gravitational potential is written to file.  Default: 0
+``WriteGhostZones`` (external)
+    Should ghost zones be written to disk?  Default: 0 
+``ReadGhostZones`` (external)
+    Are ghost zones present in the files on disk?  Default: 0
 ``VelAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
     velocity. Works in 2D and 3D.
 ``BAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
     ``Bfield``. Works in 2D and 3D.
-``TimingCycleSkip`` (external)
-    Controls how many cycles to skip when timing information is collected, reduced, and written out to performance.out.  Default: 1
+``ParticleTypeInFile`` (external)    
+    Output ParticleType to disk?  Default: 1
 ``OutputParticleTypeGrouping`` (external) 	
     In the grid HDF5 groups, particles are sorted by type, and a reference is created to indicate which particle index range corresponds to each type.  Default: 0
 ``HierarchyFileInputFormat`` (external) 
     See :ref:`controlling_the_hierarhcy_file_output`.
 ``HierarchyFileOutputFormat`` (external) 
     See :ref:`controlling_the_hierarhcy_file_output`.
+``TimingCycleSkip`` (external)
+    Controls how many cycles to skip when timing information is collected, reduced, and written out to performance.out.  Default: 1
+``DatabaseLocation`` (external)
+    (Not recommended for use at this point)  Where should the SQLite database of outputs be placed?
+``CubeDumpEnabled`` (external)
+    not recommended for use at this point. Default: 0
+``CubeDump[]`` (external)
+    not recommended for use at this point
 ``LocalDir`` (external) 
     See :ref:`controlling_data_output`.
 ``GlobalDir`` (external) 
