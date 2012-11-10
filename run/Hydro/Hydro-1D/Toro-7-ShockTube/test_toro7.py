@@ -7,7 +7,7 @@ from yt.utilities.answer_testing.framework import \
 import os
 
 _data_file = 'DD0001/data0001'
-_solution_file = 'Toro-7-ShockTube_t=0.2_exact.txt'
+_solution_file = 'Toro-7-ShockTube_t=2.0_exact.txt'
 _fields = ['Density','x-velocity','Pressure','ThermalEnergy']
 _les = [0.0]
 _res = [1.0]
