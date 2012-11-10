@@ -26,11 +26,10 @@ CosmologyHubbleConstantNow = 0.5
 CosmologyComovingBoxSize   = 64.0    // 64 Mpc/h
 CosmologyMaxExpansionRate  = 0.01    //
 CosmologyInitialRedshift   = 20      // start at z=20
-GravitationalConstant      = 1       // this must be true for cosmology
-CosmologyOmegaMatterNow    = 0.279
-CosmologyOmegaLambdaNow    = 0.721
-CosmologyInitialRedshift   = 20
 CosmologyFinalRedshift     = 0
+CosmologyOmegaMatterNow    = 1
+CosmologyOmegaLambdaNow    = 0
+GravitationalConstant      = 1       // this must be true for cosmology
 
 #
 #  set I/O and stop/start parameters
