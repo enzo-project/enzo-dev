@@ -13,6 +13,8 @@ General
 ``SelfGravity`` (external)
     This flag (1 - on, 0 - off) indicates if the baryons and particles
     undergo self-gravity.
+``SelfGravityGasOff`` (external)
+    This parameter is used in conjuction with SelfGravity so that only particles contribute to potential, not gas. Default = False (i.e. gas does contribute)
 ``GravitationalConstant`` (external)
     This is the gravitational constant to be used in code units. For cgs units it
     should be 4\*pi\*G. For cosmology, this value must be 1 for the

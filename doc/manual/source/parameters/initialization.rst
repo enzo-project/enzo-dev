@@ -42,6 +42,8 @@ Initialization Parameters
 ``Initialdt`` (internal)
     The timestep, in code units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
+``MaximumTopGridTimeStep`` (external)
+    This parameter limits the maximum timestep on the root grid.  Default: huge_number.
 ``ShearingVelocityDirection`` (external)
     Select direction of shearing boundary. Default is x direction. Changing this is probably not a good idea.
 ``AngularVelocity`` (external)
@@ -52,9 +54,27 @@ Initialization Parameters
     in the shearing boundary. Default: 1.0
 ``GridVelocity`` (external)
     The whole computational domain will have this velocity.  Experimental.  Default: 0 0 0
-``MaximumTopGridTimeStep`` (external)
-    This parameter limits the maximum timestep on the root grid.  Default: huge_number.
 ``StringKick`` (external)
     While this parameter was initially designed to describe the kick by cosmic strings in CosmologySimulation, it can be used to model the velocity (in km/s) that the baryons should move relative to dark matter at the initial redshift, in order to study the effect discussed by Tseliakhovich & Hirata (astro-ph:1005.2416). Default: 0
 ``StringKickDimension`` (external)
     This parameter is used to control the orthogonal direction of the flow.  Default: 0 (x-axis)
+``HydrogenFractionByMass`` (external)
+    This parameter is used to set up initial conditions in some test problems.  Default: 0.76
+``DeuteriumToHydrogenRatio`` (external)
+    This parameter is used to set up initial conditions in some test problems.  Default: 2.0*3.4e-5 (Burles & Tytler 1998, the parameter here is by mass, so multiply by 2)
+``SolarMetalFractionByMass`` (external)
+    This parameter is used to set up initial conditions in some test problems. Do NOT change this parameter unless you know exactly what you are doing. Default: 0.02041
+``CoolDataIh2co`` (external)
+    Whether to include molecular hydrogen cooling.  Do NOT change this parameter unless you know exactly what you are doing.  Default: 1
+``CoolDataIpiht`` (external)
+    Whether to include photoionization heating.  Do NOT change this parameter unless you know exactly what you are doing.  Default: 1
+``CoolDataCompXray`` (external)
+    Do NOT change this parameter unless you know exactly what you are doing.  Saved to CoolData.comp_xray. Default: 0
+``CoolDataTempXray`` (external)
+    Do NOT change this parameter unless you know exactly what you are doing.  Saved to CoolData.temp_xray. Default: 0
+``NumberOfTemperatureBins`` (external)
+    Do NOT change this parameter unless you know exactly what you are doing. Default: 600
+``TemperatureStart`` (external)
+    Do NOT change this parameter unless you know exactly what you are doing. Default: 10
+``TemperatureEnd`` (external)
+    Do NOT change this parameter unless you know exactly what you are doing. Default: 1e8

@@ -1046,6 +1046,14 @@ Turbulence Simulation (60)
 ``TurbulenceSimulationGridLevel[]`` (external)
 ``TurbulenceSimulationInitialMagneticField[i]`` (external)
      Initial magnetic field strength in the ith direction. Default: 5.0 (all)
+``RandomForcing`` (external)
+    This parameter is used to add random forcing field to create turbulence; see Mac Low 1999, ApJ 524, 169. Default: 0
+``RandomForcingEdot`` (external)
+    This parameter is used to define the value of such field; see TurbulenceSimulationInitialize.C and ComputeRandomForcingNormalization.C. Default: -1.0
+``RandomForcingMachNumber`` (external)
+    This parameter is used to define the value of such field; see Grid_TurbulenceSimulationInitialize.C and Grid_ComputeRandomForcingFields.C. Default: 0.0
+``CycleSkipGlobalDataDump`` (external)
+    Cycles to skip before global data (defined in ComputeRandomForcingNormalization.C) is dumped.
 
 .. _protostellar_param:
 

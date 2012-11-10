@@ -169,6 +169,7 @@ Radiative Transfer (FLD) Parameters
     hypre-yes``. Note that if FLD is turned on, it will force
     ``RadiativeCooling = 0``, ``GadgetEquilibriumCooling = 0``, and
     ``RadiationFieldType = 0`` to prevent conflicts. Default: 0.
+    IMPORTANT: Set ``RadiativeTransfer = 0`` to avoid conflicts with the ray tracing solver above.
 ``ImplicitProblem`` (external)
     Set to 1 to turn on the implicit FLD solver, or 3 to turn on the
     split FLD solver. Default: 0.
@@ -177,9 +178,6 @@ Radiative Transfer (FLD) Parameters
     solver options for the FLD-based solvers. These are described in
     the relevant User Guides, located in ``doc/implicit_fld`` and
     ``doc/split_fld``. Default: NULL.
-``RadiativeTransfer`` (external)
-    Set to 0 to avoid conflicts with the ray tracing solver above.
-    Default: 0.
 ``RadiativeTransferFLDCallOnLevel`` (reserved)
     The level in the static AMR hierarchy where the unigrid FLD solver
     should be called. Currently only works for 0 (the root grid).
@@ -187,6 +185,10 @@ Radiative Transfer (FLD) Parameters
 ``RadiativeTransferOpticallyThinH2`` (external)
     Set to 0 to avoid conflicts with the built-in optically-thin H_2
     dissociating field from the ray-tracing solver. Default: 1.
+``StarMakerEmissivityField`` (external)
+    When compiled with the FLD radiation transfer >make emissivity-yes; make hypre-yes, setting this to 1 turns on the emissivity field to source the gray radiation. Default: 0
+``uv_param`` (external)
+    When using the FLD radiation transfer and StarMakerEmissivityFIeld = 1, this is the efficiency of mass to UV light ratio. Default: 0
 
 Radiative Transfer (FLD) Implicit Solver Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
