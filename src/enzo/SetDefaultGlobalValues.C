@@ -473,6 +473,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ClusterSMBHEnoughColdGas         = 1.0e7;
   ClusterSMBHAccretionTime         = 5.0;
   ClusterSMBHJetDim                = 2;
+  ClusterSMBHAccretionEpsilon      = 0.001;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;

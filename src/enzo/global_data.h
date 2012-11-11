@@ -951,6 +951,7 @@ EXTERN int ClusterSMBHFeedbackSwitch;  // TRUE OR FALSE
 EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass 
 EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
+EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
 
 /* For the database */
 EXTERN char *DatabaseLocation;
