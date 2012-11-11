@@ -9,7 +9,7 @@ in the astrophysical literature, and we have included several of them
 in Enzo.  There are also methods that include routines for black hole,
 sink, and Pop III stellar tracer formation.  Here we give the details
 of each implementation and the parameters that control them.
-
+For relevant parameters please also see :ref:`StarParticleParameters`.
 
 
 Method 0: Cen & Ostriker

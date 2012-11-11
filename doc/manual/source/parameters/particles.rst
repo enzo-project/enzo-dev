@@ -1,3 +1,5 @@
+.. _particle_parameters:
+
 Particle Parameters
 ~~~~~~~~~~~~~~~~~~~
 
@@ -16,7 +18,7 @@ Particle Parameters
 ``NumberOfParticleAttributes`` (internal)
     It is set to 3 if either ``StarParticleCreation`` or
     ``StarParticleFeedback`` is set to 1 (TRUE). Default: 0
-``AddParticleAttributes`` (internal)
+``AddParticleAttributes`` (external)
     If set to 1, additional particle attributes will be added and
     zeroed. This is handy when restarting a run, and the user wants to
     use star formation afterwards. Default: 0.
@@ -29,6 +31,7 @@ Particle Parameters
     its own part of the particle data. More I/O is required, but it is
     more balanced in terms of memory. ``ParallelRootGridIO`` and
     ``ParallelParticleIO`` MUST be set for runs involving > 64 cpus!
+    See also ``ParallelRootGridIO`` in :ref:`io_parameters`.
     Default: 0 (FALSE).
 ``ParticleSplitterIterations`` (external)
     Set to 1 to split particles into 13 particles (= 12 children+1

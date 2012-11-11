@@ -1,3 +1,5 @@
+.. _initialization_parameters:
+
 Initialization Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -42,6 +44,17 @@ Initialization Parameters
 ``Initialdt`` (internal)
     The timestep, in code units, for the current step. For cosmology
     the units are in free-fall times at the initial epoch (see :ref:`EnzoOutputFormats`). Default: generally 0, depending on problem
+``Unigrid`` (external)
+    This parameter should be set to 1 (TRUE) for large cases--AMR as
+    well as non-AMR--where the root grid is 512\ :sup:`3`\  or larger.
+    This prevents initialization under subgrids at start up, which is
+    unnecessary in cases with simple non-nested initial conditions.
+    Unigrid must be set to 0 (FALSE) for cases with nested initial
+    conditions. Default: 0 (FALSE). See also ``ParallelRootGridIO`` in :ref:`io_parameters`.
+``UnigridTranspose`` (external)
+    This parameter governs the fast FFT bookkeeping for Unigrid runs.
+    Does not work with isolated gravity. Default: 0 (FALSE). See also
+    ``Unigrid`` above.
 ``MaximumTopGridTimeStep`` (external)
     This parameter limits the maximum timestep on the root grid.  Default: huge_number.
 ``ShearingVelocityDirection`` (external)
@@ -81,7 +94,7 @@ Initialization Parameters
 ``TemperatureEnd`` (external)
     Do NOT change this parameter unless you know exactly what you are doing. Default: 1e8
 ``ExternalBoundaryIO`` (external)
-    not recommended for use at this point. Only works if compiled with oc-boundary-yes.  Default: 0
+    not recommended for use at this point. Only works if compiled with ``ooc-boundary-yes``.  Default: 0
 ``ExternalBoundaryTypeIO`` (external)
     not recommended for use at this point. Default: 0
 ``ExternalBoundaryValueIO`` (external)

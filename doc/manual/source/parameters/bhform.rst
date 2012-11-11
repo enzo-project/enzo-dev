@@ -2,8 +2,8 @@ Massive Black Hole Physics Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Following parameters are for the accretion and feedback from the
-massive black hole particle (``PARTICLE_TYPE_MBH``). More details
-will soon be described in Kim et al. (2010).
+massive black hole particle (``PARTICLE_TYPE_MBH``). Details
+are described in Kim, Wise, Alvarez, and Abel (2011).
 
 Accretion Physics
 ^^^^^^^^^^^^^^^^^

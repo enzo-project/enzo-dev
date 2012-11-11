@@ -44,14 +44,6 @@ General
     Number of iterations to solve the potential on the subgrids. Values
     less than 4 sometimes will result in slight overdensities on grid
     boundaries. Default: 4.
-``BaryonSelfGravityApproximation`` (external)
-    This flag indicates if baryon density is derived in a strange,
-    expensive but self-consistent way (0 - off), or by a completely
-    reasonable and much faster approximation (1 - on). This is an
-    experiment gone wrong; leave on. Well, actually, it's important for
-    very dense structures as when radiative cooling is turned on, so
-    set to 0 if using many levels and radiative cooling is on [ignored
-    in current version]. Default: 1
 ``MaximumGravityRefinementLevel`` (external)
     This is the lowest (most refined) depth that a gravitational
     acceleration field is computed. More refined levels interpolate
@@ -67,11 +59,19 @@ General
     completely baryon dominated. It is used to remove the discreteness
     effects of the few remaining dark matter particles. Not used if set
     to a value less than 0. Default: -1
+``BaryonSelfGravityApproximation`` (external)
+    This flag indicates if baryon density is derived in a strange,
+    expensive but self-consistent way (0 - off), or by a completely
+    reasonable and much faster approximation (1 - on). This is an
+    experiment gone wrong; leave on. Well, actually, it's important for
+    very dense structures as when radiative cooling is turned on, so
+    set to 0 if using many levels and radiative cooling is on [ignored
+    in current version]. Default: 1
 
 External Gravity Source
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-These parameters set-up an external static background gravity source that is
+These parameters set up an external static background gravity source that is
 added to the acceleration field for the baryons and particles.
 
 ``PointSourceGravity`` (external)

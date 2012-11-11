@@ -1,5 +1,7 @@
-Radiative Cooling Parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _cooling_parameters:
+
+Cooling Parameters
+~~~~~~~~~~~~~~~~~~
 
 Simple Cooling Options
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -35,6 +37,14 @@ Simple Cooling Options
     six-species primordial gas (H, He, no H2 or D) in equilibrium, and
     is valid for temperatures greater than 10,000 K. This requires the
     file ``TREECOOL`` to execute. Default: 0
+``GadgetEquilibriumCooling`` (external)
+    An implementation of the ionization equilibrium cooling code used
+    in the GADGET code which includes both radiative cooling and a
+    uniform metagalactic UV background specified by the ``TREECOOL`` file
+    (in the ``amr_mpi/exe`` directory). When this parameter is turned on,
+    ``MultiSpecies`` and ``RadiationFieldType`` are forced to 0 and
+    ``RadiativeCooling`` is forced to 1.
+    [Not in public release version]
 ``MetalCooling`` (external)
     This flag (0 - off, 1 - metal cooling from Glover & Jappsen 2007,
     2 - Cen et al (1995), 3 - Cloudy cooling from Smith, Sigurdsson, &
@@ -71,11 +81,11 @@ Simple Cooling Options
     (Metal_Density) and two additional metal fields (Z_Field1 and
     Z_Field2). Acceptable values are 1 or 0, Default: 0 (off).
 ``ThreeBodyRate`` (external)
-    Which Three Body rate should be used for H2 formation: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (Turk et al 2011 covers these)
+    Which Three Body rate should be used for H2 formation?: 0 = Abel, Bryan, Norman 2002, 1 = PSS83, 2= CW83, 3 = FH07, 4= G08.  (Turk et al 2011 covers these)
 ``CIECooling`` (external)
-    Should CIE (Ripamonti & Abel 2004) cooling be included at high densities
+    Should CIE (Ripamonti & Abel 2004) cooling be included at high densities?
 ``H2OpticalDepthApproximation`` (external)
-    Should the H2 cooling be attenuated (RA04)
+    Should the H2 cooling be attenuated (RA04)?
 ``H2FormationOnDust`` (external)
     Turns on H2 formation on dust grains and gas-grain heat transfer following Omukai (2000). Default: 0 (OFF)
 ``NumberOfDustTemperatureBins`` (external)
@@ -92,14 +102,6 @@ Simple Cooling Options
 ``PhotoelectricHeatingRate`` (external)
     This is the parameter used as Gamma_pe for uniform photoelectric heating.
     Default: 8.5e-26 erg s^-1 cm^-3
-``GadgetEquilibriumCooling`` (external)
-    An implementation of the ionization equilibrium cooling code used
-    in the GADGET code which includes both radiative cooling and a
-    uniform metagalactic UV background specified by the ``TREECOOL`` file
-    (in the ``amr_mpi/exe`` directory). When this parameter is turned on,
-    ``MultiSpecies`` and ``RadiationFieldType`` are forced to 0 and
-    ``RadiativeCooling`` is forced to 1.
-    [Not in public release version]
 
 .. _cloudy_cooling:
 
