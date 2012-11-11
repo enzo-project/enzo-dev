@@ -15,16 +15,16 @@ Background Radiation Parameters
 
    ::
   
-     1. Haardt & Madau spectrum with q_alpha=1.5
-     2. Haardt & Madau spectrum with q_alpha = 1.8
-     3. Modified Haardt & Madau spectrum to match observations
-     	(Kirkman & Tytler 2005).
-     4. H&M spectrum (q_alpha=1.5. supplemented with an X-ray Compton heating
-        background from Madau & Efstathiou (see astro-ph/9902080)
-     9. a constant molecular H2 photo-dissociation rate
-     10. internally computed radiation field using the algorithm of Cen & Ostriker
-     11. same as previous, but with very, very simple optical shielding fudge
-     12. Haardt & Madau spectrum with q_alpha=1.57
+     1  - Haardt & Madau spectrum with q_alpha = 1.5
+     2  - Haardt & Madau spectrum with q_alpha = 1.8
+     3  - Modified Haardt & Madau spectrum to match observations
+     	  (Kirkman & Tytler 2005).
+     4  - Haardt & Madau spectrum with q_alpha = 1.5 supplemented with an X-ray Compton heating
+          background from Madau & Efstathiou (see astro-ph/9902080)
+     9  - Constant molecular H2 photo-dissociation rate
+     10 - Internally computed radiation field using the algorithm of Cen & Ostriker
+     11 - Same as previous, but with very, very simple optical shielding fudge
+     12 - Haardt & Madau spectrum with q_alpha = 1.57
 
 ``RadiationFieldLevelRecompute`` (external)
     This integer parameter is used only if the previous parameter is
@@ -41,14 +41,14 @@ Background Radiation Parameters
     hydrogen (H2) dissociation rate. There a normalization is performed
     on the rate by multiplying it with ``RadiationSpectrumNormalization``.
     Default: 1e-21
-``RadiationFieldRedshift`` (external)
-    This parameter specifies the redshift at which the radiation field
-    is calculated.  Default: 0
 ``RadiationShield`` (external)
     This parameter specifies whether the user wants to employ
     approximate radiative-shielding. This parameter will be
     automatically turned on when RadiationFieldType is set to 11. See
     ``calc_photo_rates.src``. Default: 0
+``RadiationFieldRedshift`` (external)
+    This parameter specifies the redshift at which the radiation field
+    is calculated.  Default: 0
 ``RadiationRedshiftOn`` (external) 
     The redshift at which the UV 
     background turns on. Default: 7.0.
@@ -77,6 +77,8 @@ Background Radiation Parameters
 ``RadiationSpectrumSlope`` (external)
     Add description. Default: 1.5.
 
+.. _radiative_transfer_ray_tracing:
+
 Radiative Transfer (Ray Tracing) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -87,7 +89,7 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferRadiationPressure`` (external)
     Set to 1 to turn on radiation pressure created from absorbed photon
     packages. Default: 0
-``RadiativeTransferInitialHEALPixLevel`` (internal)
+``RadiativeTransferInitialHEALPixLevel`` (external)
     Chooses how many rays are emitted from radiation sources. The
     number of rays in Healpix are given through # =
     12x4\ :sup:`level`\ . Default: 3.
@@ -97,13 +99,13 @@ Radiative Transfer (Ray Tracing) Parameters
 ``RadiativeTransferSourceRadius`` (external)
     The radius at which the photons originate from the radiation
     source. A positive value results in a radiating sphere. Default: 0.
-``RadiativeTransferPropagationRadius`` (internal)
+``RadiativeTransferPropagationRadius`` (external)
     The maximum distance a photon package can travel in one timestep.
     Currently unused. Default: 0.
-``RadiativeTransferPropagationSpeed`` (internal)
+``RadiativeTransferPropagationSpeed`` (external)
     The fraction of the speed of light at which the photons travel.
     Default: 1.
-``RadiativeTransferCoupledRateSolver`` (internal)
+``RadiativeTransferCoupledRateSolver`` (external)
     Set to 1 to calculate the new ionization fractions and gas energies
     after every radiative transfer timestep. This option is highly
     recommended to be kept on. If not, ionization fronts will propagate too
@@ -113,42 +115,42 @@ Radiative Transfer (Ray Tracing) Parameters
     (Lyman-Werner) radiation field. Only used if ``MultiSpecies`` > 1. If
     ``MultiSpecies`` > 1 and this option is off, the Lyman-Werner radiation
     field will be calculated with ray tracing. Default: 1.
-``RadiativeTransferSplitPhotonPackage`` (internal)
+``RadiativeTransferSplitPhotonPackage`` (external)
     Once photons are past this radius, they can no longer split. In
     units of kpc. If this value is negative (by default), photons can
     always split. Default: ``FLOAT_UNDEFINED``.
-``RadiativeTransferPhotonEscapeRadius`` (internal)
+``RadiativeTransferPhotonEscapeRadius`` (external)
     The number of photons that pass this distance from its source are
     summed into the global variable ``EscapedPhotonCount[]``. This variable
     also keeps track of the number of photons passing this radius
     multiplied by 0.5, 1, and 2. Units are in kpc. Not used if set to
     0. Default: 0.
-``RadiativeTransferSourceClustering`` (internal)
+``RadiativeTransferSourceClustering`` (external)
     Set to 1 to turn on ray merging from combined virtual sources on a
     binary tree. Default: 0.
-``RadiativeTransferPhotonMergeRadius`` (internal)
+``RadiativeTransferPhotonMergeRadius`` (external)
     The radius at which the rays will merge from their SuperSource,
     which is the luminosity weighted center of two sources. This radius
     is in units of the separation of two sources associated with one
     SuperSource. If set too small, there will be angular artifacts in
     the radiation field. Default: 2.5
+``RadiativeTransferSourceBeamAngle`` (external)
+    Rays will be emitted within this angle in degrees of the poles from sources with "Beamed" types.  Default: 30
+``RadiativeTransferPeriodicBoundary`` (external)
+    Set to 1 to turn on periodic boundary conditions for photon
+    packages. Default: 0.
 ``RadiativeTransferTimestepVelocityLimit`` (external)
     Limits the radiative transfer timestep to a minimum value that is
     determined by the cell width at the finest level divided by this
     velocity. Units are in km/s. Default: 100.
-``RadiativeTransferPeriodicBoundary`` (external)
-    Set to 1 to turn on periodic boundary conditions for photon
-    packages. Default: 0.
-``RadiativeTransferSourceBeamAngle`` (external)
-    Rays will be emitted within this angle in degrees of the poles from sources with "Beamed" types.  Default: 30
 ``RadiativeTransferHIIRestrictedTimestep`` (external)
     Adaptive ray tracing timesteps will be restricted by a maximum change of 10% in neutral fraction if this parameter is set to 1.  If set to 2, then the incident flux can change by a maximum of 0.5 between cells.  See Wise & Abel (2011) in Sections 3.4.1 and 3.4.4 for more details.  Default: 0
 ``RadiativeTransferAdaptiveTimestep`` (external)
     Must be 1 when RadiativeTransferHIIRestrictedTimestep is non-zero.  When RadiativeTransferHIIRestrictedTimestep is 0, then the radiative transfer timestep is set to the timestep of the finest AMR level.  Default: 0
-``RadiativeTransferHydrogenOnly`` (external)
-    When turned on, the photo-ionization fields are only created for hydrogen.  Default: 0
 ``RadiativeTransferLoadBalance`` (external)
     When turned on, the grids are load balanced based on the number of ray segments traced.  The grids are moved to different processors only for the radiative transfer solver.  Default: 0
+``RadiativeTransferHydrogenOnly`` (external)
+    When turned on, the photo-ionization fields are only created for hydrogen.  Default: 0
 ``RadiationXRaySecondaryIon`` (external)
     Set to 1 to turn on secondary ionizations and reduce heating from
     X-ray radiation (Shull & van Steenberg 1985). Currently only BH and
@@ -166,10 +168,12 @@ Radiative Transfer (Ray Tracing) Parameters
     Ionizing photon luminosity of a "simple radiating source" that is independent of mass.  In units of photons per second.  Default: 1e50
 ``SimpleRampTime`` (external)
     Time to exponential ramp up the luminosity of a simple radiating source.  In units of 1e6 years.  Default: 0.1
-``RadiativeTransferTraceSpectrum`` (external)
-    reserved for experimentation. Default: 0.
-``RadiativeTransferTraceSpectrumTable`` (external)
-    reserved for experimentation. Default: ``spectrum_table.dat``
+``RadiativeTransferTraceSpectrum`` (reserved)
+    reserved for future experimentation. Default: 0.
+``RadiativeTransferTraceSpectrumTable`` (reserved)
+    reserved for future experimentation. Default: ``spectrum_table.dat``
+
+.. _radiative_transfer_fld:
 
 Radiative Transfer (FLD) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -181,7 +185,9 @@ Radiative Transfer (FLD) Parameters
     hypre-yes``. Note that if FLD is turned on, it will force
     ``RadiativeCooling = 0``, ``GadgetEquilibriumCooling = 0``, and
     ``RadiationFieldType = 0`` to prevent conflicts. Default: 0.
-    IMPORTANT: Set ``RadiativeTransfer = 0`` to avoid conflicts with the ray tracing solver above.
+
+    *IMPORTANT*: Set ``RadiativeTransfer = 0`` to avoid conflicts with the ray tracing solver above.
+    Set ``RadiativeTransferOpticallyThinH2 = 0`` to avoid conflicts with the built-in optically-thin H_2 dissociating field from the ray-tracing solver. 
 ``ImplicitProblem`` (external)
     Set to 1 to turn on the implicit FLD solver, or 3 to turn on the
     split FLD solver. Default: 0.
@@ -194,9 +200,6 @@ Radiative Transfer (FLD) Parameters
     The level in the static AMR hierarchy where the unigrid FLD solver
     should be called. Currently only works for 0 (the root grid).
     Default: 0.
-``RadiativeTransferOpticallyThinH2`` (external)
-    Set to 0 to avoid conflicts with the built-in optically-thin H_2
-    dissociating field from the ray-tracing solver. Default: 1.
 ``StarMakerEmissivityField`` (external)
     When compiled with the FLD radiation transfer >make emissivity-yes; make hypre-yes, setting this to 1 turns on the emissivity field to source the gray radiation. Default: 0
 ``uv_param`` (external)

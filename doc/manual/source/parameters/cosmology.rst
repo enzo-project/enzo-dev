@@ -17,12 +17,12 @@ Cosmology Parameters
     This is the contribution of the cosmological constant to the energy
     density at the current epoch, in the same units as above. Default:
     0.721
-``CosmologyComovingBoxSize`` (external)
-    The size of the volume to be simulated in Mpc/h (at z=0). Default:
-    64.0
 ``CosmologyHubbleConstantNow`` (external)
     The Hubble constant at z=0, in units of 100 km/s/Mpc. Default:
     0.701
+``CosmologyComovingBoxSize`` (external)
+    The size of the volume to be simulated in Mpc/h (at z=0). Default:
+    64.0
 ``CosmologyInitialRedshift`` (external)
     The redshift for which the initial conditions are to be generated.
     Default: 20.0

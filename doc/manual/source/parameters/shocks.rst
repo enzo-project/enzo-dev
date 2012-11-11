@@ -1,3 +1,5 @@
+.. _shock_finding_parameters:
+
 Shock Finding Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -20,3 +22,6 @@ For details on shock finding in Enzo see :ref:`shock_finding`.
 
 ``StorePreShockFields`` (external)
     Optionally store the Pre-shock Density and Temperature during data output.
+
+``FindShocksOnlyOnOutput`` (external)
+    0: Finds shocks during Evolve Level and just before writing out data. 1: Only find shocks just before writing out data.  2: Only find shocks during EvolveLevel. Default: 0

@@ -1,3 +1,5 @@
+.. _hydrodynamics_parameters:
+
 Hydrodynamics Parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -11,37 +13,80 @@ General
     This integer specifies the hydrodynamics method that will be used.
     Currently implemented are
 
-    ============ =============================
-    Hydro method Description
-    ============ =============================
-    0            PPM DE (a direct-Eulerian version of PPM)
-    1            [reserved]
-    2            ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
-    3            Runge Kutta second-order based MUSCL solvers.
-    4            Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
-    ============ =============================
+    ============== =============================
+    Hydro method   Description
+    ============== =============================
+    0              PPM DE (a direct-Eulerian version of PPM)
+    1              [reserved]
+    2              ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
+    3              Runge Kutta second-order based MUSCL solvers.
+    4              Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
+    ============== =============================
 
     Default: 0
 
     More details on each of the above methods can be found at :ref:`hydro_methods`.
+``FluxCorrection`` (external)
+    This flag indicates if the flux fix-up step should be carried out
+    around the boundaries of the sub-grid to preserve conservation (1 -
+    on, 0 - off). Strictly speaking this should always be used, but we
+    have found it to lead to a less accurate solution for cosmological
+    simulations because of the relatively sharp density gradients
+    involved. However, it does appear to be important when radiative
+    cooling is turned on and very dense structures are created.
+    It does work with the ZEUS
+    hydro method, but since velocity is face-centered, momentum flux is
+    not corrected. Species quantities are not flux corrected directly
+    but are modified to keep the fraction constant based on the density
+    change. Default: 1
+``InterpolationMethod`` (external)
+    There should be a whole section devoted to the interpolation
+    method, which is used to generate new sub-grids and to fill in the
+    boundary zones of old sub-grids, but a brief summary must suffice.
+    The possible values of this integer flag are shown in the table
+    below. The names specify (in at least a rough sense) the order of
+    the leading error term for a spatial Taylor expansion, as well as a
+    letter for possible variants within that order. The basic problem
+    is that you would like your interpolation method to be:
+    multi-dimensional, accurate, monotonic and conservative. There
+    doesn't appear to be much literature on this, so I've had to
+    experiment. The first one (ThirdOrderA) is time-consuming and
+    probably not all that accurate. The second one (SecondOrderA) is
+    the workhorse: it's only problem is that it is not always
+    symmetric. The next one (SecondOrderB) is a failed experiment, and
+    SecondOrderC is not conservative. FirstOrderA is everything except
+    for accurate. If HydroMethod = 2 (ZEUS), this flag is ignored, and
+    the code automatically uses SecondOrderC for velocities and
+    FirstOrderA for cell-centered quantities. Default: 1
+    ::
+
+              0 - ThirdOrderA     3 - SecondOrderC
+              1 - SecondOrderA    4 - FirstOrderA
+              2 - SecondOrderB  
+
+``ConservativeInterpolation`` (external)
+    This flag (1 - on, 0 - off) indicates if the interpolation should
+    be done in the conserved quantities (e.g. momentum rather than
+    velocity). Ideally, this should be done, but it can cause problems
+    when strong density gradients occur. This must(!) be set off for
+    ZEUS hydro (the code does it automatically). Default: 1
 ``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the Riemann solver used by the MUSCL solver. Choice of
 
-    ============== ===========================
-    Riemann solver Description
-    ============== ===========================
-    0              [reserved]
-    1              HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no resolution of contact waves
-    2              [reserved]
-    3              LLF (Local Lax-Friedrichs)
-    4              HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
-    5              TwoShock
-    ============== ===========================
+    ================ ===========================
+    Riemann solver   Description
+    ================ ===========================
+    0                [reserved]
+    1                HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no resolution of contact waves
+    2                [reserved]
+    3                LLF (Local Lax-Friedrichs)
+    4                HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+    5                TwoShock
+    ================ ===========================
 
     Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
     ``HydroMethod`` = 0
-
-``RiemannSolverFallback`` (external)
+``RiemannSolverFallback`` (external; only if ``HydroMethod`` is 3 or 4)
     If the euler update results in a negative density or energy, the
     solver will fallback to the HLL Riemann solver that is more
     diffusive only for the failing cell.  Only active when using the
@@ -60,7 +105,17 @@ General
     ===================== ====================
 
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
-
+``ConservativeReconstruction`` (external; only if ``HydroMethod`` is 3 or 4)
+    Experimental.  This option turns on the reconstruction of the
+    left/right interfaces in the Riemann problem in the conserved
+    variables (density, momentum, and energy) instead of the primitive
+    variables (density, velocity, and pressure).  This generally gives
+    better results in constant-mesh problems has been problematic in
+    AMR simulations.  Default: OFF
+``PositiveReconstruction`` (external; only if ``HydroMethod`` is 3 or 4)
+    Experimental and not working.  This forces the Riemann solver to
+    restrict the fluxes to always give positive pressure.  Attempts to
+    use the Waagan (2009), JCP, 228, 8609 method.  Default: OFF
 ``Gamma`` (external)
     The ratio of specific heats for an ideal gas (used by all hydro
     methods). If using multiple species (i.e. ``MultiSpecies`` > 0), then
@@ -68,17 +123,6 @@ General
     PPM LR) Default: 5/3.
 ``Mu`` (external)
     The molecular weight. Default: 0.6.
-``ConservativeReconstruction`` (external)
-    Experimental.  This option turns on the reconstruction of the
-    left/right interfaces in the Riemann problem in the conserved
-    variables (density, momentum, and energy) instead of the primitive
-    variables (density, velocity, and pressure).  This generally gives
-    better results in constant-mesh problems has been problematic in
-    AMR simulations.  Default: OFF
-``PositiveReconstruction`` (external)
-    Experimental and not working.  This forces the Riemann solver to
-    restrict the fluxes to always give positive pressure.  Attempts to
-    use the Waagan (2009), JCP, 228, 8609 method.  Default: OFF
 ``CourantSafetyNumber`` (external)
     This is the maximum fraction of the CFL-implied timestep that will
     be used to advance any grid. A value greater than 1 is unstable
@@ -153,6 +197,9 @@ Coming very soon...!
 
 Magnetohydrodynamics (Dedner) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The following parameters are considered only when ``HydroMethod`` is 3 or 4 (and occasionally only in some test problems).  
+Because many of the following parameters are not actively being tested and maintained, users are encouraged to carefully examine the code before using it.
 
 ``UseDivergenceCleaning`` (external)
     Method 1 and 2 are a failed experiment to do divergence cleaning

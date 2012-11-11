@@ -17,22 +17,23 @@ General
     
     ::
 
-	0 - Cen & Ostriker (1992)
-	1 - Cen & Ostriker (1992) with stocastic star formation
-	2 - Global Schmidt Law / Kravstov et al. (2003)
-	3 - Population III stars / Abel, Wise & Bryan (2007)
-	4 - Sink particles: Pure sink particle or star particle with wind feedback depending on 
-	    choice for HydroMethod / Wang et al. (2009)
-	5 - Radiative star clusters  / Wise & Cen (2009)
-	6 - [reserved]
-	7 - Cen & Ostriker (1992) with no delay in formation
-	8 - Springel & Hernquist (2003)
-	9 - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
+	0  - Cen & Ostriker (1992)
+	1  - Cen & Ostriker (1992) with stocastic star formation
+	2  - Global Schmidt Law / Kravstov et al. (2003)
+	3  - Population III stars / Abel, Wise & Bryan (2007)
+	4  - Sink particles: Pure sink particle or star particle with wind feedback depending on 
+	     choice for HydroMethod / Wang et al. (2009)
+	5  - Radiative star clusters  / Wise & Cen (2009)
+	6  - [reserved for future use]
+	7  - Cen & Ostriker (1992) with no delay in formation
+	8  - Springel & Hernquist (2003)
+	9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
 	10 - Population III stellar tracers  
+	11 - Molecular hydrogen regulated star formation
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
-    is valid for ``StarParticleCreation`` = 0, 1, 2, 7 and 8 because methods 3, 5 and 9
+    is valid for ``StarParticleCreation`` method = 0, 1, 2, 7 and 8 because methods 3, 5 and 9
     use the radiation transport module and ``Star_*.C`` routines to
     calculate the feedback, 4 has explicit feedback and 10 does not use feedback. Default: 0.
 
@@ -42,7 +43,7 @@ General
     radius.  This results in feedback being distributed to a cube with
     a side of ``StarFeedbackDistRadius+1``. It is in units of cell
     widths of the finest grid which hosts the star particle.  Only
-    implemented for ``StarFeedbackCreation`` = 0 or 1 with ``StarParticleFeedback`` =  1. (If ``StarParticleFeedback`` = 0, stellar feedback is only deposited into the cell in which the star particle lives).  Default: 0.
+    implemented for ``StarParticleCreation`` method = 0 or 1 with ``StarParticleFeedback`` method =  1. (If ``StarParticleFeedback`` = 0, stellar feedback is only deposited into the cell in which the star particle lives).  Default: 0.
 
 ``StarFeedbackDistCellStep`` (external)
     In essence, this parameter controls the shape of the volume where
@@ -50,8 +51,8 @@ General
     that are within ``StarFeedbackDistCellSteps`` cells from the host
     cell, counted in steps in Cartesian directions, are injected with
     stellar feedback.  Its maximum value is ``StarFeedbackDistRadius``
-    * ``TopGridRank``.  Only implemented for ``StarFeedbackCreation`` = 0
-    or 1.  See :ref:`distributed_feedback` for an illustration.
+    * ``TopGridRank``.  Only implemented for ``StarParticleCreation`` method = 0
+    or 1  with ``StarParticleFeedback`` method =  1.  See :ref:`distributed_feedback` for an illustration.
     Default: 0.
 
 ``StarMakerTypeIaSNe`` (external)
@@ -62,7 +63,7 @@ General
     traced in a separate species field, ``MetalSNIa_Density``.  The
     metallicity of star particles that comes from this ejecta is
     stored in the particle attribute ``typeia_fraction``.  Can be used
-    with ``StarParticleCreation`` = 0, 1, 2, 5, 7, and 8.  Default:
+    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, and 8.  Default:
     0.
 
 ``StarMakerPlanetaryNebulae`` (external) 
@@ -73,7 +74,7 @@ General
     feedback injects gas with the same metallicity as the star
     particle, and the thermal feedback equates to a 10 km/s wind.  The
     ejecta are not stored in its own species field.  Can be used
-    with ``StarParticleCreation`` = 0, 1, 2, 5, 7, and 8.  Default: 0.
+    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, and 8.  Default: 0.
 
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +85,7 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarMakerOverDensityThreshold`` (external)
     The overdensity threshold in code units (for cosmological simulations, note that code units are relative to the total mean density, not
     just the dark matter mean density) before star formation will be
-    considered. For ``StarParticleCreation`` = 7 in cosmological
+    considered. For ``StarParticleCreation`` method = 7 in cosmological
     simulations, however, ``StarMakerOverDensityThreshold`` should be in
     particles/cc, so it is not the ratio with respect to the
     ``DensityUnits`` (unlike most other
@@ -94,7 +95,7 @@ The parameters below are considered in ``StarParticleCreation`` method
 ``StarMakerSHDensityThreshold`` (external)
     The critical density of gas used in Springel & Hernquist star
     formation ( \\rho_{th} in the paper) used to determine the star
-    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for ``StarParticleCreation`` = 8. Default: 7e-26.
+    formation timescale in units of g cm\ :sup:`-3`\ . Only valid for ``StarParticleCreation`` method = 8. Default: 7e-26.
 ``StarMakerMassEfficiency`` (external)
     The fraction of identified baryonic mass in a cell
     (Mass\*dt/t_dyn) that is converted into a star particle. Default:
@@ -130,6 +131,36 @@ The parameters below are considered in ``StarParticleCreation`` method
     The fraction of the rest-mass energy of the stars created which is
     returned as UV radiation with a quasar spectrum. This is used when
     calculating the radiation background. Default: 5e-6
+
+Molecular Hydrogen Regulated Star Formation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The parameters below are considered in ``StarParticleCreation`` method 11.
+
+``H2StarMakerEfficiency`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerNumberDensityThreshold`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerMinimumMass`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerMinimumH2FractionForStarFormation`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerStochastic`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerUseSobolevColumn`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerSigmaOverR`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerAssumeColdWarmPressureBalance`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerH2DissociationFlux_MW`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerH2FloorInColdGas`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``H2StarMakerColdGasTemperature`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
+``StarFormationOncePerRootGridTimeStep`` (external)
+    See :ref:`molecular_hydrogen_regulated_star_formation`.
 
 Population III Star Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -188,13 +219,11 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
 ``PopIIIColorMass`` (external)
     A Pop III "color" particle will populate the surrounding region with a mass of PopIIIColorMass.  Units: solar masses.  Default: 1e6
 
-Radiative Star Cluster Star Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Radiative Star Cluster Formation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method 5.
 
-``StarClusterUseMetalField`` (external)
-    Set to 1 to trace ejecta from supernovae. Default: 0.
 ``StarClusterMinDynamicalTime`` (external)
     When determining the size of a star forming region, one method is
     to look for the sphere with an enclosed average density that
@@ -224,6 +253,8 @@ The parameters below are considered in ``StarParticleCreation`` method 5.
     if ray merging is used. Originally this was developed to reduce the
     amount of ray tracing involved from galaxies with hundreds of these
     radiating particles. Default: 10.
+``StarClusterUseMetalField`` (external)
+    Set to 1 to trace ejecta from supernovae. Default: 0.
 ``StarClusterHeliumIonization`` (external)
     When turned on, stellar clusters will emit helium singly- and doubly-ionizing radiation.  Default: 0
 ``StarClusterRegionLeftEdge`` (external)
@@ -233,38 +264,10 @@ The parameters below are considered in ``StarParticleCreation`` method 5.
 ``StarClusterUnresolvedModel`` (external)
     Regular star clusters live for 20 Myr, but this is only valid when molecular clouds are resolved.  When this parameter is on, the star formation rate is the same as the Cen & Ostriker exponential rate.  Default: 0
 
-Molecular Hydrogen Regulated Star Formation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``H2StarMakerEfficiency`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerNumberDensityThreshold`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerMinimumMass`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerMinimumH2FractionForStarFormation`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerStochastic`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerUseSobolevColumn`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerSigmaOverR`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerAssumeColdWarmPressureBalance`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerH2DissociationFlux_MW`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerH2FloorInColdGas`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``H2StarMakerColdGasTemperature`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-``StarFormationOncePerRootGridTimeStep`` (external)
-    See :ref:`molecular_hydrogen_regulated_star_formation`.
-
 Massive Black Hole Particle Formation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in StarParticleCreation method 9.
+The parameters below are considered in ``StarParticleCreation`` method 9.
 
 ``MBHInsertLocationFilename`` (external)
     The mass and location of the MBH particle that has to be inserted.
@@ -279,7 +282,8 @@ The parameters below are considered in StarParticleCreation method 9.
 Sink Formation and Feedback
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9.
+The parameters below are considered in sink creation routines: sink_maker, star_maker8, star_maker9 (and occasionally only in certain set-ups).  
+Because many of the following parameters are not actively being tested and maintained, users are encouraged to carefully examine the code before using it.
 
 ``AccretionKernal`` (external)
     While this parameter is used to determine the accretion kernel in star_maker8.C, there is no choice other than 1 at the moment: Ruffert, ApJ (1994) 427 342 (a typo in the parameter name...).  Default: 0

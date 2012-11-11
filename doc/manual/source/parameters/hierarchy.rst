@@ -1,5 +1,5 @@
 Hierarchy Control Parameters
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``StaticHierarchy`` (external)
     A flag which indicates if the hierarchy is static (1) or dynamic
@@ -138,15 +138,15 @@ Hierarchy Control Parameters
     detection. Default: 0.1
 ``MinimumShearForRefinement`` (external)
     It is the minimum shear above which a refinement occurs if the CellFlaggingMethod is appropriately set. Default: 0
+``MetallicityRefinementMinMetallicity`` (external)
+    This is the threshold metallicity (in units of solar metallicity)
+    above which cells must be refined to a minimum level of
+    ``MetallicityRefinementMinLevel``. Default: 1.0e-5
 ``MetallicityRefinementMinLevel`` (external)
     Sets the minimum level (maximum cell size) to which a cell enriched
     with metal above a level set by ``MetallicityRefinementMinMetallicity``
     will be refined. This can be set to any level up to and including
     ``MaximumRefinementLevel``. (No default setting)
-``MetallicityRefinementMinMetallicity`` (external)
-    This is the threshold metallicity (in units of solar metallicity)
-    above which cells must be refined to a minimum level of
-    ``MetallicityRefinementMinLevel``. Default: 1.0e-5
 ``MetallicityRefinementMinDensity`` (external)
     It is the minimum density above which a refinement occurs when the cells are refined on metallicity.  Default: FLOAT_UNDEFINED
 ``ShockwaveRefinementMinMach`` (external)
@@ -155,18 +155,18 @@ Hierarchy Control Parameters
     The minimum shock velocity required to refine a level when using ShockwaveRefinement. Default: 1.0e7 (cm/s)
 ``ShockwaveRefinementMaxLevel`` (external)
     The maximum level to refine to using the ShockwaveRefinement criteria. Default: 0 (not used)
-``FindShocksOnlyOnOutput`` (external)
-    0: Finds shocks during Evolve Level and just before writing out data. 1: Only find shocks just before writing out data.  2: Only find shocks during EvolveLevel. Default: 0
-``MustRefineRegionMinRefinementLevel`` (external)
-    Minimum level to which the rectangular solid volume defined by
-    ``MustRefineRegionLeftEdge`` and ``MustRefineRegionRightEdge`` will be
-    refined to at all times. (No default setting)
-``MustRefineRegionLeftEdge`` (external)
-    Bottom-left corner of refinement region. Must be within the overall
-    refinement region. Default: 0.0 0.0 0.0
-``MustRefineRegionRightEdge`` (external)
-    Top-right corner of refinement region. Must be within the overall
-    refinement region. Default: 1.0 1.0 1.0
+``RefineByJeansLengthSafetyFactor`` (external)
+    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
+    is being used, then this parameter specifies the number of cells
+    which must cover one Jeans length. Default: 4
+``JeansRefinementColdTemperature`` (external)
+    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
+    is being used, and this parameter is greater than zero, it will be
+    used in place of the temperature in all cells. Default: -1.0
+``RefineByResistiveLengthSafetyFactor`` (external)
+    Resistive length is defined as the curl of the magnetic field over
+    the magnitude of the magnetic field. We make sure this length is
+    covered by this number of cells. i.w. The resistive length in a MHD simulation should not be smaller than CellWidth * RefineByResistiveLengthSafetyFactor.  Default: 2.0
 ``MustRefineParticlesRefineToLevel`` (external)
     The maximum level on which ``MustRefineParticles`` are required to
     refine to. Currently sink particles and MBH particles are required
@@ -181,80 +181,17 @@ Hierarchy Control Parameters
     ``MustRefineParticlesRefineToLevel`` using the boxsize and redshift
     information. Default: 0 (FALSE)
 ``MustRefineParticlesMinimumMass`` (external)
-    This was an experimental parameter to set a minimum for MustRefineParticles.  Default: 0.0
-``FluxCorrection`` (external)
-    This flag indicates if the flux fix-up step should be carried out
-    around the boundaries of the sub-grid to preserve conservation (1 -
-    on, 0 - off). Strictly speaking this should always be used, but we
-    have found it to lead to a less accurate solution for cosmological
-    simulations because of the relatively sharp density gradients
-    involved. However, it does appear to be important when radiative
-    cooling is turned on and very dense structures are created.
-    It does work with the ZEUS
-    hydro method, but since velocity is face-centered, momentum flux is
-    not corrected. Species quantities are not flux corrected directly
-    but are modified to keep the fraction constant based on the density
-    change. Default: 1
-``InterpolationMethod`` (external)
-    There should be a whole section devoted to the interpolation
-    method, which is used to generate new sub-grids and to fill in the
-    boundary zones of old sub-grids, but a brief summary must suffice.
-    The possible values of this integer flag are shown in the table
-    below. The names specify (in at least a rough sense) the order of
-    the leading error term for a spatial Taylor expansion, as well as a
-    letter for possible variants within that order. The basic problem
-    is that you would like your interpolation method to be:
-    multi-dimensional, accurate, monotonic and conservative. There
-    doesn't appear to be much literature on this, so I've had to
-    experiment. The first one (ThirdOrderA) is time-consuming and
-    probably not all that accurate. The second one (SecondOrderA) is
-    the workhorse: it's only problem is that it is not always
-    symmetric. The next one (SecondOrderB) is a failed experiment, and
-    SecondOrderC is not conservative. FirstOrderA is everything except
-    for accurate. If HydroMethod = 2 (ZEUS), this flag is ignored, and
-    the code automatically uses SecondOrderC for velocities and
-    FirstOrderA for cell-centered quantities. Default: 1
-    ::
-
-              0 - ThirdOrderA     3 - SecondOrderC
-              1 - SecondOrderA    4 - FirstOrderA
-              2 - SecondOrderB  
-
-
-``ConservativeInterpolation`` (external)
-    This flag (1 - on, 0 - off) indicates if the interpolation should
-    be done in the conserved quantities (e.g. momentum rather than
-    velocity). Ideally, this should be done, but it can cause problems
-    when strong density gradients occur. This must(!) be set off for
-    ZEUS hydro (the code does it automatically). Default: 1
-``MinimumEfficiency`` (external)
-    When new grids are created during the rebuilding process, each grid
-    is split up by a recursive bisection process that continues until a
-    subgrid is either of a minimum size or has an efficiency higher
-    than this value. The efficiency is the ratio of flagged zones
-    (those requiring refinement) to the total number of zones in the
-    grid. This is a number between 0 and 1 and should probably by
-    around 0.4 for standard three-dimensional runs. Default: 0.2
-``NumberOfBufferZones`` (external)
-    Each flagged cell, during the regridding process, is surrounded by
-    a number of zones to prevent the phenomenon of interest from
-    leaving the refined region before the next regrid. This integer
-    parameter controls the number required, which should almost always
-    be one. Default: 1
-``JeansRefinementColdTemperature`` (external)
-    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
-    is being used, and this parameter is greater than zero, it will be
-    used in place of the temperature in all cells. Default: -1.0
-``RefineByJeansLengthSafetyFactor`` (external)
-    If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
-    is being used, then this parameter specifies the number of cells
-    which must cover one Jeans length. Default: 4
-``RefineByResistiveLength`` (external)
-    Resistive length is defined as the curl of the magnetic field over
-    the magnitude of the magnetic field. We make sure this length is
-    covered by this number of cells. Default: 2
-``RefineByResistiveLengthSafetyFactor`` (external)
-    The resistive length in a MHD simulation should not be smaller than CellWidth * RefineByResistiveLengthSafetyFactor, if the CellFlaggingMethod is appropriately set.  Default: 2.0
+    This was an experimental parameter to set a minimum for ``MustRefineParticles``.  Default: 0.0
+``MustRefineRegionMinRefinementLevel`` (external)
+    Minimum level to which the rectangular solid volume defined by
+    ``MustRefineRegionLeftEdge`` and ``MustRefineRegionRightEdge`` will be
+    refined to at all times. (No default setting)
+``MustRefineRegionLeftEdge`` (external)
+    Bottom-left corner of refinement region. Must be within the overall
+    refinement region. Default: 0.0 0.0 0.0
+``MustRefineRegionRightEdge`` (external)
+    Top-right corner of refinement region. Must be within the overall
+    refinement region. Default: 1.0 1.0 1.0
 ``StaticRefineRegionLevel[#]`` (external)
     This parameter is used to specify regions of the problem that are
     to be statically refined, regardless of other parameters. This is mostly
@@ -276,6 +213,20 @@ Hierarchy Control Parameters
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous
     parameter). Default: none
+``MinimumEfficiency`` (external)
+    When new grids are created during the rebuilding process, each grid
+    is split up by a recursive bisection process that continues until a
+    subgrid is either of a minimum size or has an efficiency higher
+    than this value. The efficiency is the ratio of flagged zones
+    (those requiring refinement) to the total number of zones in the
+    grid. This is a number between 0 and 1 and should probably by
+    around 0.4 for standard three-dimensional runs. Default: 0.2
+``NumberOfBufferZones`` (external)
+    Each flagged cell, during the regridding process, is surrounded by
+    a number of zones to prevent the phenomenon of interest from
+    leaving the refined region before the next regrid. This integer
+    parameter controls the number required, which should almost always
+    be one. Default: 1
 ``MinimumSubgridEdge`` (external)
     The minimum length of the edge of a subgrid.  See :ref:`running_large_simulations`. Default: 6
 ``MaximumSubgridSize`` (external)

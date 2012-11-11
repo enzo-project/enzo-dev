@@ -1,3 +1,5 @@
+.. _io_parameters:
+
 I/O Parameters
 --------------
 
@@ -82,20 +84,6 @@ have a look at :ref:`controlling_data_output` for more information.
     every level thereafter. Default is 0 (off). User can usefully
     specify anything up to the maximum number of levels in a given
     simulation.
-``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName`` (external)
-    These parameters are used in 2D projections (``enzo -p ...``). The
-    first two specify the X-ray band (observed at z=0) to be used, and
-    the last gives the name of an ascii file that contains the X-ray
-    spectral information. A gzipped version of this file good for
-    bands within the 0.1 - 20 keV range is provided in the
-    distribution in ``input/lookup_metal0.3.data``. If these
-    parameters are specified, then the second field is replaced with
-    integrated emissivity along the line of sight in units of 10\
-    :sup:`-23` erg/cm\ :sup:`2`/s. Default: ``XrayLowerCutoffkeV =
-    0.5``, ``XrayUpperCutoffkeV = 2.5``.
-``ExtractFieldsOnly`` (external)
-    Used for extractions (enzo -x ...) when only field data are needed
-    instead of field + particle data. Default is 1 (TRUE).
 ``ParallelRootGridIO`` (external)
     Normally for the mpi version, the root grid is read into the root
     processor and then partitioned to separate processors using communication.
@@ -106,19 +94,9 @@ have a look at :ref:`controlling_data_output` for more information.
     root grid. More I/O is required (to split up the grids and
     particles), but it is more balanced in terms of memory.
     ``ParallelRootGridIO`` and ``ParallelParticleIO`` MUST be set to 1 (TRUE)
-    for runs involving > 64 cpus! Default: 0 (FALSE). See also ``Unigrid``
-    below.
-``Unigrid`` (external)
-    This parameter should be set to 1 (TRUE) for large cases--AMR as
-    well as non-AMR--where the root grid is 512\ :sup:`3`\  or larger.
-    This prevents initialization under subgrids at start up, which is
-    unnecessary in cases with simple non-nested initial conditions.
-    Unigrid must be set to 0 (FALSE) for cases with nested initial
-    conditions. Default: 0 (FALSE). See also ``ParallelRootGridIO`` above.
-``UnigridTranspose`` (external)
-    This parameter governs the fast FFT bookkeeping for Unigrid runs.
-    Does not work with isolated gravity. Default: 0 (FALSE). See also
-    ``Unigrid`` above.
+    for runs involving > 64 cpus! Default: 0 (FALSE). 
+    See ``ParallelParticleIO`` in :ref:`particle_parameters`.    
+    See also ``Unigrid`` in :ref:`initialization_parameters`.
 ``OutputTemperature`` (external)
     Set to 1 if you want to output a temperature field in the datasets.
     Always 1 for cosmology simulations. Default: 0.
@@ -162,6 +140,20 @@ have a look at :ref:`controlling_data_output` for more information.
 ``BAnyl`` (external)
     Set to 1 if you want to output the divergence and vorticity of
     ``Bfield``. Works in 2D and 3D.
+``ExtractFieldsOnly`` (external)
+    Used for extractions (enzo -x ...) when only field data are needed
+    instead of field + particle data. Default is 1 (TRUE).
+``XrayLowerCutoffkeV``, ``XrayUpperCutoffkeV``, ``XrayTableFileName`` (external)
+    These parameters are used in 2D projections (``enzo -p ...``). The
+    first two specify the X-ray band (observed at z=0) to be used, and
+    the last gives the name of an ascii file that contains the X-ray
+    spectral information. A gzipped version of this file good for
+    bands within the 0.1 - 20 keV range is provided in the
+    distribution in ``input/lookup_metal0.3.data``. If these
+    parameters are specified, then the second field is replaced with
+    integrated emissivity along the line of sight in units of 10\
+    :sup:`-23` erg/cm\ :sup:`2`/s. Default: ``XrayLowerCutoffkeV =
+    0.5``, ``XrayUpperCutoffkeV = 2.5``.
 ``ParticleTypeInFile`` (external)    
     Output ParticleType to disk?  Default: 1
 ``OutputParticleTypeGrouping`` (external) 	
