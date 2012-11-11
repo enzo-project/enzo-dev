@@ -6,7 +6,7 @@ from yt.utilities.answer_testing.framework import \
 from yt.frontends.enzo.answer_testing_support import \
     requires_outputlog
 
-_fields = ("By")
+_fields = ("By", )
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
 

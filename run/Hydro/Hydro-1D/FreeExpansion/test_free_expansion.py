@@ -2,13 +2,14 @@ from yt.mods import *
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
      AnswerTestingTest, \
-     requires_outputlog, \
      sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
 
-class TestFreeExpansionDistance(YTStaticOutputTest):
+class TestFreeExpansionDistance(AnswerTestingTest):
     _type_name = "ExpansionDistance"
     _attrs = ()
 
@@ -17,7 +18,7 @@ class TestFreeExpansionDistance(YTStaticOutputTest):
     
     def run(self):
         ray = self.pf.h.ray([0.0,0.5,0.5], [1.0,0.5,0.5])
-        ray_length = np.sqrt(((q.end_point - q.start_point)**2).sum())
+        ray_length = np.sqrt(((ray.end_point - ray.start_point)**2).sum())
         ipos = na.where(ray['VelocityMagnitude'] == 0.0)[0].argmin()
         return ray_length * ray['t'][ipos]
 

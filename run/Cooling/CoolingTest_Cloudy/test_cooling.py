@@ -1,9 +1,10 @@
 from yt.mods import *
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
-     FieldValuesTest, \
-     requires_outputlog, \
+     AnswerTestingTest, \
      sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
 _fields = ("Cooling_Time",)
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"

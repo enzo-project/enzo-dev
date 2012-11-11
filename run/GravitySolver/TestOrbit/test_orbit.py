@@ -4,7 +4,7 @@ from yt.utilities.answer_testing.framework import \
      FieldValuesTest, \
      sim_dir_load
 from yt.frontends.enzo.answer_testing_support import \
-    requires_outputlog
+     requires_outputlog
 
 _fields = ("particle_position_x", "particle_position_y")
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
