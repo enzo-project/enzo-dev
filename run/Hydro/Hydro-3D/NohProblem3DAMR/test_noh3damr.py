@@ -1,41 +1,37 @@
-from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
 import pylab as pl
-class TestShockImage(YTStaticOutputTest):
-    name = "noh3damr_image"
+from yt.mods import *
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     requires_outputlog, \
+     sim_dir_load
 
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+
+class TestShockImage(AnswerTestingTest):
+    _type_name = "noh3damr_image"
+    _attrs = ()
+
+    def __init__(self, pf):
+        self.pf = pf
+        
     def run(self):
         # self.pf already exists
         sl = self.pf.h.slice(2, 0.5)
-        frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (400, 400),antialias=False)
-        self.result = frb["Density"]
+        frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0),
+                                    (400, 400), antialias=False)
+        return frb["Density"]
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        assert_rel_equal(new_result, old_result, 3)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
+class TestRadialDensity(AnswerTestingTest):
+    _type_name = "noh3damr_radial"
+    _attrs = ()
 
-    def plot(self):
-        return []
-
-class TestMaxValue(YTStaticOutputTest):
-    name = "noh3damr_max"
-
-    def run(self):
-        # self.pf already exists
-        self.result = self.pf.h.find_max("Density")[0]
-
-    def compare(self, old_result):
-        self.compare_value_delta(self.result, old_result, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-class TestRadialDensity(YTStaticOutputTest):
-    name = "noh3damr_radial"
+    def __init__(self, pf):
+        self.pf = pf
 
     def run(self):
         # self.pf already exists
@@ -51,14 +47,10 @@ class TestRadialDensity(YTStaticOutputTest):
 
         diag_r = r[(x==y)*(y==z)]
         diag_den = dd['Density'][(x==y)*(y==z)]
-        self.result = na.array(diag_den)
+        return na.array(diag_den)
 
-    def compare(self, old_result):
-        current_buffer = na.array(self.result)
-        old_buffer = na.array(old_result)
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
+    def compare(self, new_result, old_result):
+        assert_rel_equal(new_result, old_result, 3)
 
     def plot(self):
         dd = self.pf.h.all_data()
@@ -87,4 +79,12 @@ class TestRadialDensity(YTStaticOutputTest):
         pl.clf()
         
         return ['%s_density.png'%self.pf]
-        # There's not much to plot, so we just return an empty list.
+
+@requires_outputlog(_dir_name, _pf_name)
+def test_cooling_time():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        yield TestShockImage(pf)
+        yield TestRadialDensity(pf)

@@ -1,52 +1,36 @@
-from yt.config import ytcfg
-ytcfg["yt","loglevel"] = '50'
-ytcfg["yt","suppressStreamLogging"] = 'True'
-
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest, create_test
-import matplotlib.pyplot as plt
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     requires_outputlog, \
+     sim_dir_load
 
-class TestPhotonShadowing1(YTStaticOutputTest):
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+_fields = ('HI_Density', 'HII_Density', 'Temperature', 'HI_kph')
 
-    def run(self):
-        # self.pf already exists
-        sl = self.pf.h.slice(2,0.5)
-        frb = FixedResolutionBuffer(sl, (0,1,0,1), (200,200))
-        self.result = frb["HII_Density"]
+class TestPhotonShadowing(AnswerTestingTest):
+    _type_name = "photon_shadowing_image"
+    _attrs = ("field", )
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        plt.clf()
-        plt.imshow(self.result, interpolation='nearest',
-                   origin='lower')
-        fn = '%s_%s.png' % (self.pf, self.field)
-        plt.savefig(fn)
-        return [fn]
-
-class TestPhotonShadowing2(YTStaticOutputTest):
-    name = "photon_shadow_temp_plot"
+    def __init__(self, pf, field):
+        self.pf = pf
+        self.field = field
 
     def run(self):
         # self.pf already exists
         sl = self.pf.h.slice(2,0.5)
         frb = FixedResolutionBuffer(sl, (0,1,0,1), (200,200))
-        self.result = frb["Temperature"]
+        return frb[self.field]
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        assert_rel_equal(new_result, old_result, 3)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        return []
-
-for f in ['HI_Density', 'HII_Density', 'Temperature', 'HI_kph']:
-    create_test(TestPhotonShadowing1, 'photon_shadow_test_%s' % f, field=f)
+@requires_outputlog(_dir_name, _pf_name)
+def test_cooling_time():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        for field in _fields:
+            yield TestPhotonShadowing(pf)

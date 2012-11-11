@@ -1,29 +1,44 @@
+import pylab as pl
 from yt.mods import *
-from yt.utilities.answer_testing.api import \
-    YTStaticOutputTest, create_test
-import pylab
-class TestShockImage(YTStaticOutputTest):
-    field = None
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     requires_outputlog, \
+     sim_dir_load
+
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+_fields = ('Density', 'Bx','Pressure','MachNumber')
+
+class TestRotorImage(AnswerTestingTest):
+    _type_name = "mhd_rotor_image"
+    _attrs = ("field", )
+
+    def __init__(self, pf, field):
+        self.pf = pf
+        self.field = field
 
     def run(self):
-        # self.pf already exists
         sl = self.pf.h.slice(2, 0.5)
         frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (200,200))
-        self.result = frb[self.field]
+        return frb[self.field]
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 1e-12)
+    def compare(self, new_result, old_result):
+        assert_rel_equal(new_result, old_result, 3)
 
     def plot(self):
-        pylab.clf()
-        pylab.imshow(self.result,
+        pl.clf()
+        pl.imshow(self.result,
             interpolation='nearest', origin='lower')
         fn = "%s_%s_projection.png" % (self.pf, self.field)
-        pylab.savefig(fn)
+        pl.savefig(fn)
         return [fn]
-for field in ['Density','Bx','Pressure','MachNumber']:
-    create_test(TestShockImage,'rotor_test_%s'%field,field=field)
+
+@requires_outputlog(_dir_name, _pf_name)
+def test_cooling_time():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        for field in _fields:
+            yield TestRotorImage(pf)
