@@ -78,7 +78,7 @@ class TestRadialDensity(AnswerTestingTest):
         return ['%s_density.png' % self.pf]
 
 @requires_outputlog(_dir_name, _pf_name)
-def test_cooling_time():
+def test_noh2d():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()

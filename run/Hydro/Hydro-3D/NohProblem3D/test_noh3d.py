@@ -74,13 +74,13 @@ class TestRadialDensity(AnswerTestingTest):
         pl.xlim(0.0,na.sqrt(3.0))
         pl.xlabel('r')
         pl.ylabel('Density')
-        pl.savefig('%s_density.png'%self.pf)
+        pl.savefig('%s_density.png' % self.pf)
         pl.clf()
         
-        return ['%s_density.png'%self.pf]
+        return ['%s_density.png' % self.pf]
 
 @requires_outputlog(_dir_name, _pf_name)
-def test_cooling_time():
+def test_noh3d():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()

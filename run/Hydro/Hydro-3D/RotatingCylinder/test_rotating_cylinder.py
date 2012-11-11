@@ -30,7 +30,7 @@ class TestLVariation(AnswerTestingTest):
         assert_rel_equal(new_result, old_result, 3)
 
 @requires_outputlog(_dir_name, _pf_name)
-def test_cooling_time():
+def test_rotating_cylinder():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()

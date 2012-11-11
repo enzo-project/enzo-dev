@@ -18,7 +18,6 @@ class TestPhotonTest(AnswerTestingTest):
         self.field = field
 
     def run(self):
-        # self.pf already exists
         sl = self.pf.h.slice(2,0.5)
         frb = FixedResolutionBuffer(sl, (0,1,0,1), (200,200))
         return frb[self.field]
@@ -27,7 +26,7 @@ class TestPhotonTest(AnswerTestingTest):
         assert_rel_equal(new_result, old_result, 3)
 
 @requires_outputlog(_dir_name, _pf_name)
-def test_cooling_time():
+def test_photon_test():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()

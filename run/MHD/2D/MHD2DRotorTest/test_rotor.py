@@ -1,4 +1,3 @@
-import pylab as pl
 from yt.mods import *
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
@@ -26,16 +25,8 @@ class TestRotorImage(AnswerTestingTest):
     def compare(self, new_result, old_result):
         assert_rel_equal(new_result, old_result, 3)
 
-    def plot(self):
-        pl.clf()
-        pl.imshow(self.result,
-            interpolation='nearest', origin='lower')
-        fn = "%s_%s_projection.png" % (self.pf, self.field)
-        pl.savefig(fn)
-        return [fn]
-
 @requires_outputlog(_dir_name, _pf_name)
-def test_cooling_time():
+def test_rotor():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
