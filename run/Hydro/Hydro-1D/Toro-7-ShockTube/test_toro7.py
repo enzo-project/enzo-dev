@@ -9,8 +9,8 @@ import os
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-7-ShockTube_t=2.0_exact.txt'
 _fields = ['Density','x-velocity','Pressure','ThermalEnergy']
-_les = [0.0]
-_res = [1.0]
+_les = [0.0, 0.8]
+_res = [0.6, 1.0]
 _rtol = 1.0e-3
 _atol = 1.0e-7
 
