@@ -1,7 +1,7 @@
 from yt.mods import *
 from yt.testing import *
 from yt.utilities.answer_testing.framework import \
-     FieldValuesTest, \
+     AllFieldValuesTest, \
      sim_dir_load
 from yt.frontends.enzo.answer_testing_support import \
      requires_outputlog

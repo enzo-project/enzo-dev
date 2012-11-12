@@ -15,16 +15,19 @@ class TestFreeExpansionDistance(AnswerTestingTest):
 
     def __init__(self, pf):
         self.pf = pf
-    
+
     def run(self):
         ray = self.pf.h.ray([0.0,0.5,0.5], [1.0,0.5,0.5])
         ray_length = np.sqrt(((ray.end_point - ray.start_point)**2).sum())
-        ipos = na.where(ray['VelocityMagnitude'] == 0.0)[0].argmin()
+        ipos = na.argwhere(ray['VelocityMagnitude'] == 0.0)
+        if len(ipos) > 0:
+            ipos = ipos.min()
+        else:
+            ipos = -1
         return ray_length * ray['t'][ipos]
 
     def compare(self, new_result, old_result):
-        assert_rel_equal(new_result, old_result, 2,
-                         verbose=True)
+        assert_allclose(new_result, old_result, 1.0e-2, 0.0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_collapse_max_value():

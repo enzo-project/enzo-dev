@@ -203,10 +203,10 @@ class EnzoTestCollection(object):
                 self.test_container.append(EnzoTestRun(output_dir, my_test, 
                                                        machine, exe_path))
                 if not test_only:
-                    print "Running simulation: %d of %d." % (i, total_tests)
+                    print "Running simulation: %d of %d." % (i+1, total_tests)
                     self.test_container[i].run_sim()
                 if not sim_only:
-                    print "Running test: %d of %d." % (i, total_tests)
+                    print "Running test: %d of %d." % (i+1, total_tests)
                     self.test_container[-1].run_test()
         else:
             self.prepare_all_tests(output_dir, machine, exe_path)
@@ -232,14 +232,14 @@ class EnzoTestCollection(object):
         total_tests = len(self.test_container)
         print "Running all simulations."
         for i, my_test in enumerate(self.test_container):
-            print "Running simulation: %d of %d." % (i, total_tests)
+            print "Running simulation: %d of %d." % (i+1, total_tests)
             my_test.run_sim()
 
     def run_all_tests(self):
         total_tests = len(self.test_container)
         print "Running all tests."
         for i, my_test in enumerate(self.test_container):
-            print "Running test: %d of %d." % (i, total_tests)
+            print "Running test: %d of %d." % (i+1, total_tests)
             my_test.run_test()
 
     def add_test(self, fn):
