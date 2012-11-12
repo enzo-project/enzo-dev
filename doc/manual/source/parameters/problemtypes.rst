@@ -70,16 +70,16 @@ Problem Type Description and Parameter List
 209	     MHD 1D Waves
 210	     MHD Decaying Random Magnetic Fields
 300          :ref:`poissonsolver_param`
-400          :ref:`rdhtest1_param`
-401          :ref:`rdhtest2_param`
-402          :ref:`rdhtest3_param`
-403          :ref:`rdhtest4_param`
-404/405      :ref:`rdhtest5_param`
-410/411	     Radiation-Hydrodynamics test 10/11 -- Static HI ionization
-412 	     Radiation-Hydrodynamics test 12 -- HI ionization of a clump
-413 	     Radiation-Hydrodynamics test 13 -- HI ionization of a steep region
-414/415	     Radiation-Hydrodynamics test 14/15 -- Cosmological HI ionization
-450-452	     Free-streaming radiation tests
+400          :ref:`rhdtest1_param`
+401          :ref:`rhdtest2_param`
+402          :ref:`rhdtest3_param`
+403          :ref:`rhdtest4_param`
+404/405      :ref:`rhdtest5_param`
+410/411	     :ref:`rhdtest10_param`
+412 	     :ref:`rhdtest12_param`
+413 	     :ref:`rhdtest13_param`
+414/415	     :ref:`rhdtest14_param`
+450-452	     Free-streaming radiation tests (to be removed)
 ============ ====================================
 
 .. _shocktube_param:
@@ -1384,51 +1384,76 @@ Poisson Solver Test (300)
 ``PoissonSolverTestRefineAtStart`` (external)
    Boolean flag. Default: 0
 
-.. _rdhtest1_param:
+.. _rhdtest1_param:
 
 Radiation-Hydrodynamics Test 1 - Constant Fields (400)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Basic FLD radiation problem initializer, allowing setup of uniform
+    fields throughout the computational domain, which are useful for
+    testing radiation/material couplings. Test problem used for
+    problem 4.2 in (Reynolds et al., "Self-consistent solution of
+    cosmological radiation-hydrodynamics and chemical ionization,"
+    JCP, 2009).
 
 ``RadHydroVelocity`` (external)
    Initialize velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
-   Number of chemical species. Default: 1
+   Number of chemical species.  1 implies hydrogen only, 3 implies
+   hydrogen and helium. Default: 1.
 ``RadHydroModel`` (external)
-   Mesh spacing. Default: 1
+   Type of radiation/matter coupling: 1 implies a standard
+   chemistry-dependent model, 4 implies an isothermal
+   chemistry-dependent model, 10 implies a chemistry-independent model
+   in thermodynamic equilibrium. Default: 1
 ``RadHydroDensity`` (external)
    Ambient density. Default: 10
 ``RadHydroTemperature`` (external)
    Ambient temperature. Default: 1
 ``RadHydroIEnergy`` (external)
+   Ambient internal energy (replaces temperature, if specified).  
    Default: -1
 ``RadHydroRadiationEnergy`` (external)
    Ambient radiation energy. Default: 10
 ``RadHydroInitialFractionHII`` (external)
+   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
    Default: 0
 ``RadHydroHFraction`` (external)
+   Initial fraction of hydrogen (in relation to the total density).
    Default: 1
 ``RadHydroInitialFractionHeII`` (external)
+   Initial fraction of helium II (in relation to the total helium).
    Default: 0
 ``RadHydroInitialFractionHeIII`` (external)
+   Initial fraction of helium III (in relation to the total helium).
    Default: 0
 
-.. _rdhtest2_param:
+.. _rhdtest2_param:
 
 Radiation-Hydrodynamics Test 2 - Streams (401)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Streaming radiation tests.  The problem utilizes a uniform density
+    and a constant opacity, setting one face of the domain to have a
+    radiation energy density of 1.  The radiation front propagates
+    through the domain at the speed of light.  The sharpness of the
+    radiation front is determined by the spatial resolution.  Test
+    problem used for problem 4.1 in (Reynolds et al.,
+    "Self-consistent solution of cosmological radiation-hydrodynamics
+    and chemical ionization," JCP, 2009).
 
 ``RadHydroDensity`` (external)
    Ambient density. Default: 1.0
 ``RadHydroRadEnergy`` (external)
    Ambient radiation energy. Default 1.0e-10
 ``RadStreamDim`` (external)
-   Number of dimensions for test {0,1,2}. Default: 0
+   Dimension to test {0,1,2}. Default: 0
 ``RadStreamDir`` (external)
    Direction for streaming radiation. 0 for left to right. 1 for right to left.
    Default: 0
 
-.. _rdhtest3_param:
+.. _rhdtest3_param:
 
 Radiation-Hydrodynamics Test 3 - Pulse (402)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1438,26 +1463,34 @@ Radiation-Hydrodynamics Test 3 - Pulse (402)
 ``RadHydroRadEnergy`` (external)
    Ambient radiation energy. Default 1.0e-10
 ``RadPulseDim`` (external)
-   Number of dimensions for test {0,1,2}. Default: 0
+   Dimension to test {0,1,2}. Default: 0
 
-.. _rdhtest4_param:
+.. _rhdtest4_param:
 
 Radiation-Hydrodynamics Test 4 - Grey Marshak Test (403)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Test problem used for problem 4.3 in (Reynolds et al.,
+    "Self-consistent solution of cosmological radiation-hydrodynamics
+    and chemical ionization," JCP, 2009).
 
 ``RadHydroDensity`` (external)
    Ambient density. Default: 1.0
 ``RadHydroRadEnergy`` (external)
    Ambient radiation energy. Default 1.0
 ``RadHydroGasEnergy`` (external)
-   Gas energy. Default: 1.0
+   Ambient gas energy. Default: 1.0
 ``GreyMarshDir`` (external)
    Propagation coordinate for Marshak problem. {0,1,2}. Default: 0
 
-.. _rdhtest5_param:
+.. _rhdtest5_param:
 
 Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Test problem used for problem 4.4 in (Reynolds et al.,
+    "Self-consistent solution of cosmological radiation-hydrodynamics
+    and chemical ionization," JCP, 2009).
 
 ``DensityConstant`` (external)
    Ambient density. Default: 1.0
@@ -1473,3 +1506,185 @@ Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
    1 = Astrophysical Setup Parameters
    2 = "lab" setup parameters, after Lowrie
    Default: 1
+
+.. _rhdtest10_param:
+
+Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Uniform density ionization front test problems.  These tests are
+    used to replicate the isothermal and temperature-dependent I-front
+    tests 1 and 2 from (Iliev et al., "Cosmological Radiative Transfer
+    Codes Comparison Project I: The Static Density Field Tests,"
+    MNRAS, 2006).  This test problem was used for problem 4.5 in
+    (Reynolds et al., "Self-consistent solution of cosmological
+    radiation-hydrodynamics and chemical ionization," JCP, 2009).
+
+``RadHydroVelocity`` (external)
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Example RadHydroVelocity = 0.1 0.1 0.1
+``RadHydroChemistry`` (external)
+   Number of chemical species.  1 implies hydrogen only, 3 implies
+   hydrogen and helium. Default: 1.
+``RadHydroModel`` (external)
+   Type of radiation/matter coupling: 1 implies a standard
+   chemistry-dependent model, 4 implies an isothermal
+   chemistry-dependent model. Default: 1
+``RadHydroDensity`` (external)
+   Ambient density. Default: 10
+``RadHydroTemperature`` (external)
+   Ambient temperature. Default: 1
+``RadHydroIEnergy`` (external)
+   Ambient internal energy (replaces temperature, if specified).  
+   Default: -1
+``RadHydroRadiationEnergy`` (external)
+   Ambient radiation energy. Default: 10
+``RadHydroInitialFractionHII`` (external)
+   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Default: 0
+``RadHydroHFraction`` (external)
+   Initial fraction of hydrogen (in relation to the total density).
+   Default: 1 
+``RadHydroInitialFractionHeII`` (external)
+   Initial fraction of helium II (in relation to the total helium).
+   Default: 0 
+``RadHydroInitialFractionHeIII`` (external)
+   Initial fraction of helium III (in relation to the total helium).
+   Default: 0
+``NGammaDot`` (external)
+   Strength of ionization source, in number of photons per second.
+   Default: 0
+``EtaRadius`` (external)
+   Radius of ionization source, in cells (0 implies a single-cell source).
+   Default: 0
+``EtaCenter`` (external)
+   Location of ionization source, in scaled length units, in the x,y,z
+   directions. Default: 0 (all) 
+   Example EtaCenter = 0.5 0.5 0.5
+
+.. _rhdtest12_param:
+
+Radiation-Hydrodynamics Test 12 - HI ionization of a clump (412)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Ionization of a hydrogen clump, used to investigate I-front
+    trapping in a dense clump, and the formation of a shadow.  This
+    test replicates the test 3.4 from (Iliev et al., "Cosmological
+    Radiative Transfer Codes Comparison Project I: The Static Density
+    Field Tests," MNRAS, 2006).
+
+``RadHydroVelocity`` (external)
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Example RadHydroVelocity = 0.1 0.1 0.1
+``RadHydroChemistry`` (external)
+   Number of chemical species.  1 implies hydrogen only, 3 implies
+   hydrogen and helium. Default: 1.
+``RadHydroModel`` (external)
+   Type of radiation/matter coupling: 1 implies a standard
+   chemistry-dependent model, 4 implies an isothermal
+   chemistry-dependent model. Default: 1
+``RadHydroNumDensityIn`` (external)
+   Number density inside the clump. Default: 0.04
+``RadHydroNumDensityOut`` (external)
+   Number density outside the clump. Default: 0.0002
+``RadHydroTemperatureIn`` (external)
+   Temperature inside the clump. Default: 40
+``RadHydroTemperatureOut`` (external)
+   Temperature outside the clump. Default: 8000
+``RadHydroRadiationEnergy`` (external)
+   Ambient radiation energy. Default: 10
+``RadHydroInitialFractionHII`` (external)
+   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Default: 0
+``ClumpCenter`` (external)
+   Location of clump center, in cm, in the x,y,z directions. 
+   Default: 1.54285e22 1.018281e22 1.018281e22
+``ClumpRadius`` (external)
+   Radius of clump, in cm.
+   Default: 2.46856e21
+``NGammaDot`` (external)
+   Strength of ionization source along left wall, in number of photons
+   per second.  Default: 0
+
+.. _rhdtest13_param:
+
+Radiation-Hydrodynamics Test 13 - HI ionization of a steep region (413)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Ionization of a steep density gradient, used to investigate HII
+    region expansion along a 1/r^2 density profile.  This test
+    replicates the test 3.2 from (Iliev et al., "Cosmological
+    Radiative Transfer Comparison Project II: The
+    Radiation-Hydrodynamic Tests," MNRAS, 2009).
+
+``RadHydroVelocity`` (external)
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Example RadHydroVelocity = 0.1 0.1 0.1
+``RadHydroChemistry`` (external)
+   Number of chemical species.  1 implies hydrogen only, 3 implies
+   hydrogen and helium. Default: 1.
+``RadHydroModel`` (external)
+   Type of radiation/matter coupling: 1 implies a standard
+   chemistry-dependent model, 4 implies an isothermal
+   chemistry-dependent model. Default: 1
+``RadHydroNumDensity`` (external)
+   Number density inside the core of the dense region. Default: 3.2
+``RadHydroDensityRadius`` (external)
+   Radius of the dense region, in cm. Default: 2.8234155e+20
+``RadHydroTemperature`` (external)
+   Ambient temperature. Default: 100
+``RadHydroRadiationEnergy`` (external)
+   Ambient radiation energy. Default: 1e-20
+``RadHydroInitialFractionHII`` (external)
+   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Default: 0
+``EtaCenter`` (external)
+   Center of the dense region (and ionization source), in cm, in the
+   x,y,z directions.  Default: 0 0 0
+``NGammaDot`` (external)
+   Strength of ionization source, in number of photons per second.
+   Default: 0
+
+.. _rhdtest14_param:
+
+Radiation-Hydrodynamics Tests 14/15 - Cosmological HI ionization (414/415)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    HI ionization in a uniform density field.  This test problem was
+    used for problems 4.6 and 4.8 in (Reynolds et al.,
+    "Self-consistent solution of cosmological radiation-hydrodynamics
+    and chemical ionization," JCP, 2009).  Test 4.6 utilized a single
+    ionization source (test 415), whereas 4.8 replicated the test to
+    the center of every processor for performing weak-scaling tests
+    (test 414).
+
+``RadHydroVelocity`` (external)
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Example RadHydroVelocity = 0.1 0.1 0.1
+``RadHydroChemistry`` (external)
+   Number of chemical species.  1 implies hydrogen only, 3 implies
+   hydrogen and helium. Default: 1.
+``RadHydroModel`` (external)
+   Type of radiation/matter coupling: 1 implies a standard
+   chemistry-dependent model, 4 implies an isothermal
+   chemistry-dependent model. Default: 1
+``RadHydroTemperature`` (external)
+   Ambient temperature in K. Default: 10000
+``RadHydroRadiationEnergy`` (external)
+   Ambient radiation energy in erg/cm^3. Default: 1.0e-32
+``RadHydroInitialFractionHII`` (external)
+   Initial fraction of ionized hydrogen (in relation to all hydrogen). 
+   Default: 0
+``RadHydroOmegaBaryonNow`` (external)
+   Default: 0.2
+``NGammaDot`` (external)
+   Strength of ionization source, in number of photons per second.
+   Default: 0
+``EtaRadius`` (external)
+   Radius of ionization source for test 415, in cells (0 implies a
+   single-cell source). 
+   Default: 0
+``EtaCenter`` (external)
+   Location of ionization source for test 415, in scaled length units,
+   in the x,y,z directions. Default: 0 (all) 
+   Example EtaCenter = 0.5 0.5 0.5
