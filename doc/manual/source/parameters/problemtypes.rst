@@ -1397,7 +1397,7 @@ Radiation-Hydrodynamics Test 1 - Constant Fields (400)
     JCP, 2009).
 
 ``RadHydroVelocity`` (external)
-   Initialize velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Initialize velocity of ambient gas in the x,y,z directions. Default: 0 (all).
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
    Number of chemical species.  1 implies hydrogen only, 3 implies
@@ -1503,8 +1503,8 @@ Radiation-Hydrodynamics Test 5 - Radiating Shock (404/405)
 ``ShockDir`` (external)
    Propagation coordinate for shock. {0,1,2}. Default: 0
 ``CGSType`` (external)
-   1 = Astrophysical Setup Parameters
-   2 = "lab" setup parameters, after Lowrie
+   1 = Astrophysical Setup Parameters; 
+   2 = "lab" setup parameters, after Lowrie; 
    Default: 1
 
 .. _rhdtest10_param:
@@ -1521,7 +1521,7 @@ Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
     radiation-hydrodynamics and chemical ionization," JCP, 2009).
 
 ``RadHydroVelocity`` (external)
-   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all). 
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
    Number of chemical species.  1 implies hydrogen only, 3 implies
@@ -1559,7 +1559,7 @@ Radiation-Hydrodynamics Tests 10 and 11 - I-Front Tests (410/411)
    Default: 0
 ``EtaCenter`` (external)
    Location of ionization source, in scaled length units, in the x,y,z
-   directions. Default: 0 (all) 
+   directions. Default: 0 (all). 
    Example EtaCenter = 0.5 0.5 0.5
 
 .. _rhdtest12_param:
@@ -1574,7 +1574,7 @@ Radiation-Hydrodynamics Test 12 - HI ionization of a clump (412)
     Field Tests," MNRAS, 2006).
 
 ``RadHydroVelocity`` (external)
-   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all).
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
    Number of chemical species.  1 implies hydrogen only, 3 implies
@@ -1618,7 +1618,7 @@ Radiation-Hydrodynamics Test 13 - HI ionization of a steep region (413)
     Radiation-Hydrodynamic Tests," MNRAS, 2009).
 
 ``RadHydroVelocity`` (external)
-   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all).
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
    Number of chemical species.  1 implies hydrogen only, 3 implies
@@ -1659,7 +1659,7 @@ Radiation-Hydrodynamics Tests 14/15 - Cosmological HI ionization (414/415)
     (test 414).
 
 ``RadHydroVelocity`` (external)
-   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all) 
+   Initial velocity of ambient gas in the x,y,z directions. Default: 0 (all).
    Example RadHydroVelocity = 0.1 0.1 0.1
 ``RadHydroChemistry`` (external)
    Number of chemical species.  1 implies hydrogen only, 3 implies
@@ -1686,5 +1686,5 @@ Radiation-Hydrodynamics Tests 14/15 - Cosmological HI ionization (414/415)
    Default: 0
 ``EtaCenter`` (external)
    Location of ionization source for test 415, in scaled length units,
-   in the x,y,z directions. Default: 0 (all) 
+   in the x,y,z directions. Default: 0 (all).
    Example EtaCenter = 0.5 0.5 0.5
