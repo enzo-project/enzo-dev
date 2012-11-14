@@ -28,7 +28,7 @@ class TestLVariation(AnswerTestingTest):
         return max(AngMomPercentageChange)
 
     def compare(self, new_result, old_result):
-        assert_rel_equal(new_result, old_result, 3)
+        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_rotating_cylinder():

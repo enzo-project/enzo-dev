@@ -25,7 +25,7 @@ class TestShockImage(AnswerTestingTest):
         return frb["Density"]
 
     def compare(self, new_result, old_result):
-        assert_rel_equal(new_result, old_result, 3)
+        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
     
 class TestRadialDensity(AnswerTestingTest):
     _type_name = "noh3d_radial"
@@ -51,7 +51,7 @@ class TestRadialDensity(AnswerTestingTest):
         return na.array(diag_den)
 
     def compare(self, new_result, old_result):
-        assert_rel_equal(new_result, old_result, 3)
+        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
 
     def plot(self):
         dd = self.pf.h.all_data()
