@@ -31,8 +31,9 @@ def test_problem_test():
     yield VerifySimulationSameTest(sim)
     base_pf = sim[0]
     fields = [f for f in _base_fields if f in base_pf.h.field_list]
-    for pf in sim:
-        for test in standard_small_simulation(pf, fields): yield test
+    # Only test the last output.
+    pf = sim[-1]
+    for test in standard_small_simulation(pf, fields): yield test
 
 # Tests that OutputLog exists and fails otherwise
 def test_exist():
