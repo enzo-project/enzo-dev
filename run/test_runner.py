@@ -504,6 +504,14 @@ if __name__ == "__main__":
                               type=str, default = unknown)
     parser.add_option_group(testsuite_group)
     options, args = parser.parse_args()
+
+    # Get information about the current repository, set it as the version in
+    # the answer testing plugin.
+    options.repository = os.path.expanduser(options.repository)
+    hg_current = _get_hg_version(options.repository)
+    rev_hash = hg_current.split()[0]
+    answer_plugin._my_version = rev_hash
+
     answer_plugin.configure(options, None)
 
     # Break out if output directory not specified.
@@ -540,9 +548,6 @@ if __name__ == "__main__":
 
     # Gather results and version files for all test and tar them.
     # get current revision
-    options.repository = os.path.expanduser(options.repository)
-    hg_current = _get_hg_version(options.repository)
-    rev_hash = hg_current.split()[0]
     options.output_dir = os.path.join(options.output_dir, rev_hash)
     if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     f = open(os.path.join(options.output_dir, version_filename), 'w')
