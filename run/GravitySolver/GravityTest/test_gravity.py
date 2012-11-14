@@ -29,7 +29,7 @@ class TestGravityTest(AnswerTestingTest):
         return rmsError
 
     def compare(self, new_result, old_result):
-        assert_rel_equal(new_result, old_result, 2)
+        assert_allclose(new_result, old_result, rtol=1e-1, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_gravity_test():
