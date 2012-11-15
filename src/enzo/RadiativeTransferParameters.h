@@ -42,9 +42,10 @@ EXTERN float RadiativeTransferPhotonEscapeRadius;
 EXTERN int RadiativeTransferInterpolateField;
 
 /* Associated velocity in km/s to limit the photon timestep.  
-   min(dt) = dx_min / v_limit */
+   min(dt) = dx_min / v_limit on the specified level */
 
 EXTERN float RadiativeTransferTimestepVelocityLimit;
+EXTERN int RadiativeTransferTimestepVelocityLevel;
 
 /* Flag whether to cluster sources on a binary tree and merge rays at
    a certain radii with associated SuperSources */
@@ -64,6 +65,10 @@ EXTERN float RadiationPressureScale;
 /* Flag to turn on a 1/r^2 Lyman-Werner radiation field */
 
 EXTERN int RadiativeTransferOpticallyThinH2;
+
+/* Flag to turn on a 1/r^2 X-ray radiation field */
+
+EXTERN int RadiativeTransferOpticallyThinXray;
 
 /* Periodic boundary conditions for the photon packages */
 

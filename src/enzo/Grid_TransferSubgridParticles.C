@@ -255,7 +255,6 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 	    } // ENDIF move to subgrid
 	  } // ENDFOR particles
 #endif /* _OPENMP */
-
       } // ENDELSE SingleThread
 
     } // END parallel

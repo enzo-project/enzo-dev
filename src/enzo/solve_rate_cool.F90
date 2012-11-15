@@ -11,7 +11,7 @@
        in, jn, kn, nratec, iexpand, imethod, &
        idual, ispecies, imetal, imcool, idust, idim, &
        is, js, ks, ie, je, ke, imax, ih2co, ipiht, igammah, &
-       dt, aye, temstart, temend, &
+       dt, aye, redshift, temstart, temend, &
        utem, uxyz, uaye, urho, utim, &
        eta1, eta2, gamma, fh, dtoh, z_solar, &
        k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a, &
@@ -135,7 +135,7 @@
          ndratec
     real, intent(in) :: dt, aye, temstart, temend, eta1, eta2, gamma, &
          utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end, &
-         dtemstart, dtemend, z_solar
+         dtemstart, dtemend, z_solar, redshift
     integer, intent(out) :: ierr
     
 !  Density, energy and velocity fields fields
@@ -424,7 +424,7 @@
                  in, jn, kn, nratec, idual, imethod,              &
                  iexpand, ispecies, imetal, imcool, idust, idim,  &
                  is, ie, j, k, ih2co, ipiht, iter, igammah,       &
-                 aye, temstart, temend, z_solar,                  &
+                 aye, redshift, temstart, temend, z_solar,        &
                  utem, uxyz, uaye, urho, utim,                    &
                  eta1, eta2, gamma,                               &
                  ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,           &
@@ -578,7 +578,8 @@
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
-#ifndef _OPENMP
+!#ifndef _OPENMP
+!$omp critical
               if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and. &
                    abs((dt-ttot(i))/dt) .gt. 1.0d-3) then
                  write(4,1000) iter,i,j,k,dtit(i), &
@@ -604,7 +605,9 @@
                       + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0,  &
                       +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
               endif
-#endif /* _OPENMP */
+!$omp end critical
+!#endif /* _OPENMP */
+
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
 #endif /* WRITE_COOLING_DEBUG */
@@ -654,7 +657,7 @@
                     dt, ttot(i), abs(0.1d0*energy/edot(i)), &
                     real(abs(0.1d0*energy/edot(i)))
 
-#define NO_FORTRAN_DEBUG
+#define FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
                if (ge(i,j,k) .le. 0.0 .and. idual .eq. 1) &
                     write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
@@ -667,13 +670,15 @@
 #ifdef WRITE_COOLING_DEBUG
 !              If the timestep is too small, then output some debugging info
 
-#ifndef _OPENMP
+!#ifndef _OPENMP
+!$omp critical
                if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) &
                     .or. iter .gt. itmax-100) .and. &
                     abs((dt-ttot(i))/dt) .gt. 1.0d-3) &
                     write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i), &
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
-#endif /* _OPENMP */
+!$omp end critical
+!#endif /* _OPENMP */
  2000          format(4(i4,1x),1p,10(e14.3))
 #endif /* WRITE_COOLING_DEBUG */
             endif   ! itmask

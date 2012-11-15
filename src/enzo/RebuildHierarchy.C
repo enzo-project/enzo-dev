@@ -324,17 +324,19 @@ int RebuildHierarchy(TopGridData *MetaData,
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
 
       /* Find maximum level that exists right now. */
- 
+
+#ifdef UNUSED 
       for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) 
 	if (TempLevelArray[i] == NULL) break;
 
       int MaximumLevelNow = i;
+#endif
  
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */
 
-      //      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
-      for (i = level; i < MaximumLevelNow; i++) {
+      for (i = level; i < MAX_DEPTH_OF_HIERARCHY-1; i++) {
+	//for (i = level; i < MaximumLevelNow; i++) {
  
 
       /* If there are no grids on this level, exit. */

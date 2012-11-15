@@ -49,6 +49,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferPropagationDistance        = 0.1;
   RadiativeTransferCoupledRateSolver          = TRUE;
   RadiativeTransferOpticallyThinH2            = TRUE;
+  RadiativeTransferOpticallyThinXray          = FALSE;
   RadiativeTransferFluxBackgroundLimit        = 0.01;
   RadiativeTransferSplitPhotonRadius          = FLOAT_UNDEFINED; // kpc
   RadiativeTransferRaysPerCell                = 5.1;
@@ -58,6 +59,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferSourceClustering           = FALSE;
   RadiativeTransferPhotonMergeRadius          = 10.0;
   RadiativeTransferTimestepVelocityLimit      = 100.0; // km/s
+  RadiativeTransferTimestepVelocityLevel      = INT_UNDEFINED;
   RadiativeTransferPeriodicBoundary           = FALSE;
   RadiativeTransferFLDCallOnLevel             = 0;
   RadiativeTransferHIIRestrictedTimestep      = FALSE;
@@ -93,6 +95,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferCoupledRateSolver);
     ret += sscanf(line, "RadiativeTransferOpticallyThinH2 = %"ISYM, 
 		  &RadiativeTransferOpticallyThinH2);
+    ret += sscanf(line, "RadiativeTransferOpticallyThinXray = %"ISYM, 
+		  &RadiativeTransferOpticallyThinXray);
     ret += sscanf(line, "RadiativeTransferPeriodicBoundary = %"ISYM, 
 		  &RadiativeTransferPeriodicBoundary);
     ret += sscanf(line, "RadiativeTransferSplitPhotonRadius = %"FSYM, 
@@ -103,6 +107,8 @@ int RadiativeTransferReadParameters(FILE *fptr)
 		  &RadiativeTransferRaysPerCell);
     ret += sscanf(line, "RadiativeTransferTimestepVelocityLimit = %"FSYM, 
 		  &RadiativeTransferTimestepVelocityLimit);
+    ret += sscanf(line, "RadiativeTransferTimestepVelocityLevel = %"ISYM, 
+		  &RadiativeTransferTimestepVelocityLevel);
     ret += sscanf(line, "RadiativeTransferInitialHEALPixLevel = %"ISYM, 
 		  &RadiativeTransferInitialHEALPixLevel);
     ret += sscanf(line, "RadiativeTransferPhotonEscapeRadius = %"FSYM, 

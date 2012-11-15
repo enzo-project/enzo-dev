@@ -164,7 +164,8 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	  this_type = type_count;
 	  break;
 	}
-    }
+    } else if (RadiativeTransferOpticallyThinXray == TRUE) 
+      continue;
 
     if (DEBUG)
       printf("Shine: Photons/package[%"ISYM"]: %"GSYM" eV, %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n", 

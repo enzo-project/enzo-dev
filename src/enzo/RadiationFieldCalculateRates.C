@@ -90,7 +90,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
     aUnits = 1.0/(1.0 + InitialRedshift);
     Redshift = 1.0/(a*aUnits) - 1;
-  } else {  
+  } else if (RadiationFieldRedshift >= 0) {  
     Redshift = RadiationFieldRedshift;   
     CoolData.RadiationRedshiftOn = RadiationFieldRedshift+0.2;
     CoolData.RadiationRedshiftOff = 0.0;

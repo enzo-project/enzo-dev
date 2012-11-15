@@ -869,6 +869,9 @@ public:
 
    int FlagCellsToBeRefinedByMetallicity(int level);
 
+/* Flag all cells which have more than a specified metal mass */
+
+   int FlagCellsToBeRefinedByMetalMass(int level);
 
 /* Flagging all cell adjacent to a previous flagged cell.  Also, remove all
    Flagged cells in the boundary zones and within one zone of the boundary. */

@@ -254,11 +254,18 @@ float grid::ComputePhotonTimestep()
      affect hydro dt). */
 
   // parameter in km/s
+  float dx_level, dx_ratio;
   float dtPhotonSafety = tiny_number;
 
   if (RadiativeTransferTimestepVelocityLimit > 0)
     dtPhotonSafety = a*CellWidth[0][0] / 
       (RadiativeTransferTimestepVelocityLimit*1e5 / VelocityUnits);
+  if (RadiativeTransferTimestepVelocityLevel >= 0) {
+    dx_level = TopGridDx[0] * POW(RefineBy, -RadiativeTransferTimestepVelocityLevel);
+    dx_ratio = dx_level / CellWidth[0][0];
+    if (dx_ratio > 1)
+      dtPhotonSafety *= dx_ratio;
+  }
   dt = max(dt, dtPhotonSafety);
 
   /* Debugging info. */
