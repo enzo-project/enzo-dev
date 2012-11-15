@@ -29,6 +29,7 @@ numpy.seterr(all = "ignore")
 
 import nose
 from nose.loader import TestLoader
+from nose.plugins import Plugin
 
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
@@ -170,6 +171,27 @@ def bisector(options,args):
     commands.bisect(u,repo,rev=options.good,**bisection_default_corrector("good",True))
     commands.bisect(u,repo,rev=options.bad,**bisection_default_corrector("bad",True))
     commands.bisect(u,repo,**bisection_default_corrector("command",command))
+
+class ResultsSummary(Plugin):
+    def configure(self, options, conf):
+        super(ResultsSummary, self).configure(options, conf)
+        if not self.enabled:
+            return
+        self.errors = []
+        self.failures = []
+        self.successes = []
+
+    def addError(self, test, err):
+        self.errors.append("%s: ERROR %s" % (test, err))
+
+    def addFailure(self, test, err):
+        self.failures.append("%s: FAILURE %s" % (test, err))
+
+    def addSuccess(self, test):
+        self.successes.append("%s: PASS %s" % (test))
+
+    def finalize(self, result):
+        print self.errors, self.failures, self.successes
 
 class EnzoTestCollection(object):
     def __init__(self, tests = None, verbose=True, args = None,
@@ -494,6 +516,8 @@ if __name__ == "__main__":
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
     answer_plugin.options(parser)
+    reporting_plugin = ResultsSummary()
+    reporting_plugin.enabled = True
     for var, caster in sorted(known_variables.items()):
         if var in testsuites:
             testsuite_group.add_option("", "--%s" % (var),
@@ -513,6 +537,7 @@ if __name__ == "__main__":
     answer_plugin._my_version = rev_hash
 
     answer_plugin.configure(options, None)
+    reporting_plugin.configure(options, None)
 
     # Break out if output directory not specified.
     if options.output_dir is None:
@@ -528,7 +553,7 @@ if __name__ == "__main__":
         bisector(options,args)
         sys.exit(0)
     etc = EnzoTestCollection(verbose=options.verbose, args=args,
-                             plugins = [answer_plugin])
+                             plugins = [answer_plugin, reporting_plugin])
 
     construct_selection = {}
     for var, caster in known_variables.items():
@@ -565,6 +590,7 @@ if __name__ == "__main__":
 
     # Store the results locally or in the cloud.
     answer_plugin.finalize()
+    reporting_plugin.finalize(None)
 
     try:
         import json
