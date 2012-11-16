@@ -452,10 +452,6 @@ class UnspecifiedParameter(object):
     pass
 unknown = UnspecifiedParameter()
 
-testsuites = {'quicksuite': "37 tests that run in 5 minutes or less.  Total runtime: 25 minutes.",
-              'pushsuite': "All quicksuite tests plus 11 more 10-minute tests.  Total runtime: 90 minutes.",
-              'fullsuite': "All pushsuite tests, FLD tests, and some longer tests taking up to 10 hours.  Total runtime: 36 hours."}
-
 if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("--clobber", dest='clobber', default=False,
@@ -466,16 +462,16 @@ if __name__ == "__main__":
                       help="Option to interleave preparation, running, and testing.")
     parser.add_option("-m", "--machine", dest='machine', default='local', 
                       help="Machine to run tests on.")
-    parser.add_option("-o", "--output-dir", dest='output_dir',
+    parser.add_option("-o", "--output-dir", dest='output_dir', metavar='str',
                       help="Where to place the run directory")
     parser.add_option("--repo", dest='repository', default="../",
-                      help="Path to repository being tested.")
+                      help="Path to repository being tested.", metavar='str')
     parser.add_option("--sim-only", dest='sim_only', action="store_true", 
                       default=False, help="Only run simulations.")
     parser.add_option("--test-only", dest='test_only', action="store_true", 
                       default=False, help="Only perform tests.")
     parser.add_option("--time-multiplier", dest='time_multiplier',
-                      default=1.0, type=float,
+                      default=1.0, type=float, metavar='int',
                       help="Multiply simulation time limit by this factor.")
     parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
                       default=False, help="Slightly more verbose output.")
@@ -490,19 +486,24 @@ if __name__ == "__main__":
     parser.add_option("--changeset", dest="changeset", default=None,
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
 
-    testsuite_group = optparse.OptionGroup(parser, "Test suites:")
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
     answer_plugin.options(parser)
+
+    all_suites = ['quick', 'push', 'full']
+    suite_vars = [suite+"suite" for suite in all_suites]
+    testproblem_group = optparse.OptionGroup(parser, "Test problem selection options")
+    testproblem_group.add_option("", "--suite",
+                                 dest="test_suite", default=unknown,
+                                 help="quick: 37 tests in ~25 minutes, push: 48 tests in ~90 minutes, full: 96 tests in ~18 hours.",
+                                 choices=all_suites, metavar=all_suites)
     for var, caster in sorted(known_variables.items()):
-        if var in testsuites:
-            testsuite_group.add_option("", "--%s" % (var),
-                                       type=str, default=unknown,
-                                       help=testsuites[var])
-        else:
-            parser.add_option("", "--%s" % (var),
-                              type=str, default = unknown)
-    parser.add_option_group(testsuite_group)
+        if var not in suite_vars:
+            print "adding ", var
+            testproblem_group.add_option("", "--%s" % (var),
+                                         type=str, default = unknown,
+                                         metavar=caster.__name__)
+    parser.add_option_group(testproblem_group)
     options, args = parser.parse_args()
 
     # Get information about the current repository, set it as the version in
@@ -531,7 +532,13 @@ if __name__ == "__main__":
                              plugins = [answer_plugin])
 
     construct_selection = {}
+    if options.test_suite is not None:
+        suite_var = str(options.test_suite) + "suite"
+        print suite_var
+        construct_selection[suite_var] = \
+          known_variables[suite_var](options.test_suite)
     for var, caster in known_variables.items():
+        if var in suite_vars: continue
         if getattr(options, var) != unknown:
             val = getattr(options, var)
             if val == 'None': val = None
