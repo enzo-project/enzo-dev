@@ -529,7 +529,6 @@ if __name__ == "__main__":
 
     for var, caster in sorted(known_variables.items()):
         if var not in suite_vars:
-            print "adding ", var
             testproblem_group.add_option("", "--%s" % (var),
                                          type=str, default = unknown,
                                          metavar=caster.__name__)
@@ -563,7 +562,7 @@ if __name__ == "__main__":
                              plugins = [answer_plugin, reporting_plugin])
 
     construct_selection = {}
-    if options.test_suite is not None:
+    if options.test_suite != unknown:
         suite_var = str(options.test_suite) + "suite"
         print suite_var
         construct_selection[suite_var] = \
