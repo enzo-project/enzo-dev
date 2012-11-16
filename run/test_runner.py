@@ -487,7 +487,7 @@ if __name__ == "__main__":
     parser.add_option("--interleave", action='store_true', dest='interleave', 
                       default=False,
                       help="Option to interleave preparation, running, and testing.")
-    parser.add_option("-m", "--machine", dest='machine', default='local', 
+    parser.add_option("-m", "--machine", dest='machine', default='local', metavar='str',
                       help="Machine to run tests on.")
     parser.add_option("-o", "--output-dir", dest='output_dir', metavar='str',
                       help="Where to place the run directory")
@@ -506,11 +506,14 @@ if __name__ == "__main__":
                       default=False, help="Run bisection on test. Requires revisions" +
                       "--good and --bad.  Best if --repo is different from location of test_runner.py."+
                       "Runs  --problematic suite.  See README for more info")
-    parser.add_option("--good", dest="good", default=None, help="For bisection, most recent good revision")
-    parser.add_option("--bad", dest="bad", default=None, help="For bisection, most recent bad revision")
+    parser.add_option("--good", dest="good", default=None, metavar='str', 
+                      help="For bisection, most recent good revision")
+    parser.add_option("--bad", dest="bad", default=None, metavar='str',
+                      help="For bisection, most recent bad revision")
     parser.add_option("-j", "--jcompile", dest="jcompile", type="int", default=1, 
+                      metavar='int',
                       help="number of processors with which to compile when running bisect")
-    parser.add_option("--changeset", dest="changeset", default=None,
+    parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
 
     answer_plugin = AnswerTesting()
