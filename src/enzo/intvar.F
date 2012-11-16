@@ -46,26 +46,27 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  argument declarations
 c
-      integer idim, i1, i2, iflatten, isteep
-      real c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
+      INTG_PREC idim, i1, i2, iflatten, isteep
+      R_PREC c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
      &     char1(idim), char2(idim), c0(idim),
      &     qla(idim), qra(idim), ql0(idim), qr0(idim)
-      real qslice(idim), steepen(idim), flatten(idim)
+      R_PREC qslice(idim), steepen(idim), flatten(idim)
 c
 c  parameters
 c
-      real ft, one
-      parameter(ft = 4.d0/3.d0, one=1.d0)
+      R_PREC ft, one
+      parameter(ft = 4._RKIND/3._RKIND, one=1._RKIND)
 c
 c  local declarations (arrays passed as temps)
 c
-      integer i
-      real qplus, qmnus, qcent, qvanl
-      real temp1, temp2, temp3, temp22, temp23
-      real dq(idim), ql(idim), qr(idim), q6(idim)
+      INTG_PREC i
+      R_PREC qplus, qmnus, qcent, qvanl
+      R_PREC temp1, temp2, temp3, temp22, temp23
+      R_PREC dq(idim), ql(idim), qr(idim), q6(idim)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -79,12 +80,12 @@ c
          qmnus = qslice(i  )-qslice(i-1)
          if (qplus*qmnus .gt. 0) then
             qcent = c1(i)*qplus + c2(i)*qmnus
-            qvanl = 2.d0*qplus*qmnus/(qmnus+qplus)
-            temp1 = min(abs(qcent), abs(qvanl), 2.0*abs(qmnus), 
-     $           2.d0*abs(qplus))
+            qvanl = 2._RKIND*qplus*qmnus/(qmnus+qplus)
+            temp1 = min(abs(qcent), abs(qvanl), 2._RKIND*abs(qmnus), 
+     $           2._RKIND*abs(qplus))
             dq(i) = temp1*sign(one, qcent)
          else
-            dq(i) = 0.d0
+            dq(i) = 0._RKIND
          endif
       enddo
 c     
@@ -100,10 +101,10 @@ c     Steepen if asked for (use precomputed steepening parameter)
 c
       if (isteep .ne. 0) then
          do i = i1-1, i2+1
-            ql(i) = (1.d0-steepen(i))*ql(i) + 
-     &              steepen(i)*(qslice(i-1)+0.5d0*dq(i-1))
-            qr(i) = (1.d0-steepen(i))*qr(i) + 
-     &              steepen(i)*(qslice(i+1)-0.5d0*dq(i+1))
+            ql(i) = (1._RKIND-steepen(i))*ql(i) + 
+     &              steepen(i)*(qslice(i-1)+0.5_RKIND*dq(i-1))
+            qr(i) = (1._RKIND-steepen(i))*qr(i) + 
+     &              steepen(i)*(qslice(i+1)-0.5_RKIND*dq(i+1))
          enddo
       endif
 c
@@ -112,25 +113,25 @@ c
       do i=i1-1,i2+1
          temp1 = (qr(i)-qslice(i))*(qslice(i)-ql(i))
          temp2 = qr(i)-ql(i)
-         temp3 = 6.d0*(qslice(i)-0.5d0*(qr(i)+ql(i)))
-         if (temp1 .le. 0.0) then
+         temp3 = 6._RKIND*(qslice(i)-0.5_RKIND*(qr(i)+ql(i)))
+         if (temp1 .le. 0._RKIND) then
             ql(i) = qslice(i)
             qr(i) = qslice(i)
          endif
          temp22 = temp2**2
          temp23 = temp2*temp3
          if (temp22 .lt. temp23)
-     &        ql(i) = 3.d0*qslice(i) - 2.d0*qr(i)
+     &        ql(i) = 3._RKIND*qslice(i) - 2._RKIND*qr(i)
          if (temp22 .lt. -temp23)
-     &        qr(i) = 3.d0*qslice(i) - 2.d0*ql(i)
+     &        qr(i) = 3._RKIND*qslice(i) - 2._RKIND*ql(i)
       enddo
 c
 c     If requested, flatten slopes with flatteners calculated in calcdiss (4.1)
 c
       if (iflatten .ne. 0) then
          do i = i1-1, i2+1
-            ql(i) = qslice(i)*flatten(i) + ql(i)*(1.d0-flatten(i))
-            qr(i) = qslice(i)*flatten(i) + qr(i)*(1.d0-flatten(i))
+            ql(i) = qslice(i)*flatten(i) + ql(i)*(1._RKIND-flatten(i))
+            qr(i) = qslice(i)*flatten(i) + qr(i)*(1._RKIND-flatten(i))
          enddo
       endif
 c
@@ -150,18 +151,22 @@ c
 c    Now construct left and right interface values (eqn 1.12 and 3.3)
 c
       do i = i1-1, i2+1
-         q6(i) = 6.d0*(qslice(i)-0.5d0*(ql(i)+qr(i)))
+         q6(i) = 6._RKIND*(qslice(i)-0.5_RKIND*(ql(i)+qr(i)))
          dq(i) = qr(i) - ql(i)
       enddo
 c
       do i = i1, i2+1
-        qla(i)=qr(i-1)-char1(i-1)*(dq(i-1)-(1.d0-ft*char1(i-1))*q6(i-1))
-        qra(i)=ql(i  )+char2(i  )*(dq(i  )+(1.d0-ft*char2(i  ))*q6(i  ))
+        qla(i) = qr(i-1)-char1(i-1)*(dq(i-1) - 
+     .        (1._RKIND-ft*char1(i-1))*q6(i-1))
+        qra(i) = ql(i  )+char2(i  )*(dq(i  ) + 
+     .       (1._RKIND-ft*char2(i  ))*q6(i  ))
       enddo
 c
       do i=i1,i2+1
-         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1)-(1.d0-ft*c0(i-1))*q6(i-1))
-         qr0(i) = ql(i  )-c0(i  )*(dq(i  )+(1.d0+ft*c0(i  ))*q6(i  ))
+         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1) - 
+     .        (1._RKIND-ft*c0(i-1))*q6(i-1))
+         qr0(i) = ql(i  )-c0(i  )*(dq(i  ) +
+     .        (1._RKIND+ft*c0(i  ))*q6(i  ))
       enddo
 c
 c

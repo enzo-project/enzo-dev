@@ -20,10 +20,6 @@
 #    FFLAGS             Flags for the Fortran 77 compiler
 #    F90FLAGS           Flags for the Fortran 90 compiler
 #    LDFLAGS            Flags for the Linker      
-#                      
-# Preprocessor defines
-#
-#    DEFINES            Preprocessor defines for C, C++, and Fortran
 #
 # Object files
 #

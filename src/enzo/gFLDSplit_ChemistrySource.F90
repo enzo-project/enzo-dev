@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -43,25 +44,25 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: Nchem, ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
-  real,    intent(in) :: time, HFrac
-  real,    intent(in) :: aUnits, LenUnits, TimeUnits, NiUnits
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
+  INTG_PREC, intent(in) :: Nchem, ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in) :: a
+  R_PREC,    intent(in) :: time, HFrac
+  R_PREC,    intent(in) :: aUnits, LenUnits, TimeUnits, NiUnits
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
        :: HIsrc, HeIsrc, HeIIsrc
   
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
 
 !=======================================================================
 
@@ -70,12 +71,12 @@ subroutine gFLDSplit_ChemistrySource(HIsrc, HeIsrc, HeIIsrc, time, a,   &
   ! initialize outputs to have all zero values, flag to success
   ier = 1
   if (Nchem == 1) then
-     HIsrc = 0.d0
+     HIsrc = 0._RKIND
   endif
   if (Nchem == 3) then
-     HIsrc   = 0.d0
-     HeIsrc  = 0.d0
-     HeIIsrc = 0.d0
+     HIsrc   = 0._RKIND
+     HeIsrc  = 0._RKIND
+     HeIIsrc = 0._RKIND
   endif
 
 

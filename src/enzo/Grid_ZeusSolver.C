@@ -167,7 +167,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   /* Set minimum pressure (better if it were a parameter) */
 
-  pmin = tiny;
+  pmin = tiny_number;
 
   /* Error check */
 

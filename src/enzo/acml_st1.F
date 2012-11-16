@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
 #ifdef XT3
 
@@ -7,12 +8,13 @@
       subroutine acml_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
+      REAL*4 :: factor
+      REAL*4 :: scale
       complex*8, allocatable :: work(:)
 
       integer*4 :: nwork, jdir
@@ -31,11 +33,11 @@
 
       if( idir == -1 ) then
         do i = 1, n1
-          x(i) = x(i) * sqrt(real(n1))
+          x(i) = x(i) * sqrt(REAL(n1,RKIND))
         end do
       else
         do i = 1, n1
-          x(i) = x(i) / sqrt(real(n1))
+          x(i) = x(i) / sqrt(REAL(n1,RKIND))
         end do
       end if
 
@@ -49,12 +51,13 @@
       subroutine acml_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
+      REAL*8 :: factor
+      REAL*8 :: scale
       complex*16, allocatable :: work(:)
 
       integer*4 :: nwork, jdir
@@ -76,11 +79,11 @@
 
       if( idir == -1 ) then
         do i = 1, n1
-          x(i) = x(i) * sqrt(real(n1))
+          x(i) = x(i) * sqrt(REAL(n1,RKIND))
         end do
       else
         do i = 1, n1
-          x(i) = x(i) / sqrt(real(n1))
+          x(i) = x(i) / sqrt(REAL(n1,RKIND))
         end do
       end if
 
@@ -94,9 +97,10 @@
       subroutine acml_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer n1, idir
-      complex x(n1)
+      INTG_PREC n1, idir
+      CMPLX_PREC x(n1)
 
       write(0,'("ACML stride 1 FFT error")')
       ERROR_MESSAGE
