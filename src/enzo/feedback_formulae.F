@@ -233,7 +233,7 @@ c
 c     
 c     cumulative mass loss due to PN
 c
-          x = alog10(age)
+          x = log10(age)
           if ( x .le. 7.5_RKIND) then
              mlossPN = 0._RKIND
           else if ( x .le. 9.2_RKIND) then
