@@ -44,8 +44,11 @@ int grid::MustRefineParticlesFlagFromList()
 
   fptr=fopen("MustRefineParticlesFlaggingList.in","r");
   fscanf(fptr,"%d",&ParticlesFound);
+  printf("P(%d): ParticlesFound = %d\n",MyProcessorNumber,ParticlesFound);
   
   ParticleNumberList=new int[ParticlesFound]; //to allocate array space
+
+  printf("P(%d): Alloc Worked\n",MyProcessorNumber);
   for(i=0;i<ParticlesFound;i++){
     fscanf(fptr,"%d %f %f %f",&ParticleNumberList[i],&tempf,&tempf,&tempf);
   }
@@ -78,8 +81,8 @@ int grid::MustRefineParticlesFlagFromList()
     } // end: if (index != -1)
 
   } // end: loop over particles
-  if (ParticlesFlagged > 0)
-    printf("MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",ParticlesFlagged);
+  //if (ParticlesFlagged > 0)
+  printf("P(%d): MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",MyProcessorNumber,ParticlesFlagged);
   delete [] ParticleNumberList;
   return SUCCESS;
 }
