@@ -82,6 +82,9 @@ run_template_dir = 'run_templates'
 machines = {'local':       dict(script = 'local.run',
                                 command = 'bash'),
 
+	    'local_nompi': dict(script = 'local_nompi.run',
+                                command = 'bash'),
+
             'nics_kraken': dict(script = 'nics_kraken.run',
                                 command = 'qsub')}
 
