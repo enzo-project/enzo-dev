@@ -31,6 +31,7 @@ numpy.seterr(all = "ignore")
 import nose
 from nose.loader import TestLoader
 from nose.plugins import Plugin
+from nose.plugins.manager import PluginManager
 
 from yt.config import ytcfg
 ytcfg["yt","suppressStreamLogging"] = "True"
@@ -177,6 +178,13 @@ def bisector(options,args):
     commands.bisect(u,repo,**bisection_default_corrector("command",command))
 
 class ResultsSummary(Plugin):
+    name = "results_summary"
+    score = 10000
+    enabled = True
+
+    def options(self, parser, env):
+        super(ResultsSummary, self).options(parser, env)
+
     def configure(self, options, conf):
         super(ResultsSummary, self).configure(options, conf)
         if not self.enabled:
@@ -195,7 +203,9 @@ class ResultsSummary(Plugin):
         self.successes.append("%s: PASS %s" % (test))
 
     def finalize(self, result):
-        print self.errors, self.failures, self.successes
+        print self.errors
+        print self.failures
+        print self.successes
 
 class EnzoTestCollection(object):
     def __init__(self, tests = None, verbose=True, args = None,
@@ -314,7 +324,10 @@ class EnzoTestCollection(object):
                     include = False
                     break
             if include == True: pp.append(t)
-        return EnzoTestCollection(tests = pp)
+        #raise RuntimeError
+        return EnzoTestCollection(tests = pp, args = self.args,
+                                  verbose = self.verbose,
+                                  plugins = self.plugins)
 
     def summary(self):
         for param in sorted(self.params()):
@@ -475,8 +488,9 @@ class EnzoTestRun(object):
         rf = os.path.join(self.run_dir, 'RunFinished')
         self.run_finished = os.path.exists(rf)
         tl = TestLoader()
+        tl.config.plugins = PluginManager(plugins = self.plugins)
         suite = tl.loadTestsFromDir(self.run_dir)
-        nose.run(argv=self.args, suite=suite, plugins = self.plugins)
+        nose.run(argv=self.args, suite=suite)
 
 class UnspecifiedParameter(object):
     pass
@@ -564,7 +578,7 @@ if __name__ == "__main__":
     if options.bisect:
         bisector(options,args)
         sys.exit(0)
-    etc = EnzoTestCollection(verbose=options.verbose, args=args,
+    etc = EnzoTestCollection(verbose=options.verbose, args=None,
                              plugins = [answer_plugin, reporting_plugin])
 
     construct_selection = {}
