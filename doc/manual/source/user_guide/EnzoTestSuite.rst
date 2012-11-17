@@ -19,17 +19,22 @@ that are accessible using the Enzo test code, both separately and in
 various permutations.  Tests can be selected based on a variety of
 criteria, including (but not limited to) the physics included, the
 estimated runtime of the test, and the dimensionality.  The 
-testing suite runs enzo on each selected test problem, then compares
-the outputs against those generated from a "good" version of the 
-enzo code run on the same problems.  In a few cases, the outputs
-are compared directly against analytical solutions.  Lastly, the 
-results of these tests are returned to the user for interpretation.
+testing suite runs enzo on each selected test problem, produces 
+a series of outputs, and then uses yt to process these outputs
+in a variety of different ways (making projections, looking at
+fields, etc.).  The results of these yt analyses are then compared
+against similarly generated results from an earlier "good" version 
+of the enzo code run on the same problems.  In test problems where
+we have them, analytical solutions are compared against the test
+results (e.g. shocktubes).  Lastly, a summary of these test results 
+are returned to the user for interpretation.
 
-For convenience, three pre-created, overlapping sets of tests are
-provided.  For each set of tests, the test suite can automatically
-pull the "gold standard" results from a remote server; or one
-can generate their own standard locally against which she can compare
-different builds of the code.
+One can run individual tests or groups of tests using the various
+run time flags_.  For convenience, three pre-created, 
+overlapping sets of tests are provided.  For each set of tests, the 
+test suite can automatically pull the "gold standard" results from a 
+remote server; or one can generate their own standard locally against 
+which she can compare different builds of the code.
 
 1.  The "quick suite" (``--suite=quick``).  This is composed of
 small calculations that test critical physics packages both
@@ -55,22 +60,32 @@ to the stable branch of the code.  A small number of simulations in the full
 suite are designed to be run on 2 processors and will take multiple hours to 
 complete.  The total run time is roughly 60 hours.  
 
-How to run the test suite
--------------------------
+.. _running:
+.. _`running the test suite against the gold standard`:
+
+How to run the test suite against the gold standard
+---------------------------------------------------
+
 
 1.  **Compile Enzo.**  The gold standard calculations use the default 
 compiler settings that can be restored with ``make default``.  
-If you use significantly different compilation options
-(high-level optimization in particular) you may see somewhat
-different outputs that will result in failed tests.  To compile 
-enzo with the standard settings, complete these commands:
+If you have already built enzo, you can skip this step and the test will 
+use your existing enzo executable, however be forewarned. If you use 
+significantly different compilation options (high-level optimization 
+in particular) you may see somewhat different outputs from the tests 
+that could result in failed tests.   To compile enzo with the standard 
+settings, complete these commands:
 
 ::
 
-    cd <enzo_root>/src/enzo
-    make default
-    make clean
-    make
+    $ cd <enzo_root>/src/enzo
+    $ make default
+    $ make clean
+    $ make
+
+Note that you need not copy the resulting enzo executable to your path,
+since the enzo.exe will be symbolically linked from the src/enzo directory
+into each test problem directory before tests are run.
 
 2.  **Get/update yt.**  The enzo tests are generated and compared using the 
 yt analysis suite.  If you do not yet have yt, visit 
@@ -80,7 +95,7 @@ the most up-to-date version by running the following command:
 
 ::
 
-    yt update
+    $ yt update
 
 3.  **Generate the standard test files.**  The testing suite operates by 
 running a series of enzo test files throughout the ``run/`` subdirectory.
@@ -90,8 +105,8 @@ created by you with the following command:
 
 ::
 
-    cd <enzo_root>/run
-    python make_new_tests.py
+    $ cd <enzo_root>/run
+    $ ./make_new_tests.py
 
 4.  **Run the test suite.** While remaining in the ``run/`` 
 subdirectory, you can initiate the quicksuite test simulations and 
@@ -100,14 +115,15 @@ commands:
 
 ::
 
-    python test_runner.py --suite=quick -o <output_dir>
+    $ ./test_runner.py --suite=quick -o <output_dir>
 
 In this comand, ``--suite=quick`` instructs the test runner to
 use the quick suite. ``--output-dir=<output_dir>`` instructs the 
 test runner to output its results to a user-specified directory 
-(preferably outside of the enzo file hierarchy).  For a full 
-description of the many flags associated with test_runner.py, see 
-below.
+(preferably outside of the enzo file hierarchy).  Make sure this
+directory is created before you call test_runner.py, or it will 
+fail.  For a full description of the many flags associated with 
+test_runner.py, see the flags_ section.
 
 5.  **Review the results.**  While the test_runner is executing, you should 
 see the results coming up at the terminal in real time, but you can review 
@@ -117,22 +133,22 @@ in the example below.
 
 ::
 
-    ls <output_dir>
-
+    $ ls <output_dir>
     fe7d4e298cb2    
 
 
-    ls <output_dir>/fe7d4e298cb2    
-
-    Cooling                 GravitySolver           MHD                     test_results.txt 
-    Cosmology               Hydro                   RadiationTransport      version.txt
+    $ ls <output_dir>/fe7d4e298cb2    
+    Cooling        GravitySolver    MHD                    test_results.txt 
+    Cosmology      Hydro            RadiationTransport     version.txt
 
 The name of this directory will be the unique hash of the version of 
-enzo you chose to run with the testing suite.  Within this directory 
-are all of the test problems that you ran along with their simulation
-outputs, organized based on test type (e.g. ``Cooling``, ``AMR``, 
-``Hydro``, etc.)  Additionally, you should see a file called
-``test_results.txt``, which contains a summary of the test runs.  
+enzo you chose to run with the testing suite.  In this case it is 
+``fe7d4298cb2``, but yours will likely be different, but equally 
+unintelligible.  Within this directory are all of the test problems 
+that you ran along with their simulation outputs, organized based on 
+test type (e.g.  ``Cooling``, ``AMR``, ``Hydro``, etc.)  Additionally, 
+you should see a file called ``test_results.txt``, which contains a 
+summary of the test runs.  
 
 The testing suite does not expect bitwise agreement between the gold standard
 and your results, due to compiler, architecture and operating system
@@ -141,20 +157,286 @@ difference between your result and the gold standard for you to fail
 any tests, thus you should be passing all of the tests.  If you are not, 
 then examine more closely what modifications you made to the enzo source
 which caused the test failure.  If this is a fresh version of enzo that 
-you grabbed and compiled, then you should write the enzo-users email 
-list with details of your test run (computer os, architecture, version of enzo, 
-version of yt, what test failed, what error message you received), so that
-we can address this issue.
+you grabbed and compiled, then you should write the enzo-dev@googlegroups.com 
+email list with details of your test run (computer os, architecture, version 
+of enzo, version of yt, what test failed, what error message you received), 
+so that we can address this issue.
 
 For more details about the results of an individual test, examine the
 ``estd.out`` file in the test problem within this directory hierarchy,
 as it contains the stderr and stdout for each test simulation.
 
-How to generate your own set of reference results and compare against them
---------------------------------------------------------------------------
+.. _generating_standard:
 
-Explanation of all the ``test_runner.py`` flags
------------------------------------------------
+How to generate your own reference standard
+-------------------------------------------
+
+There may be some circumstances under which you do not wish to compare
+your test results against the gold standard, but against your own
+homegrown standard.  Perhaps you've created a new test not yet in 
+the gold standard, or you want to test one of your forks against another.
+Regardless of the reason, you want to generate your own reference
+standard for comparison.  To do this, follow the instructions for
+`running the test suite against the gold standard`_, but replace step #4 with:
+
+4. **Run the test suite.** Run the suite with these flags within
+the ``run/`` subdirectory in the enzo source hierarchy:
+
+::
+
+    $ ./test_runner.py --suite=quick -o <output_dir> --local-store --answer-store-name=<test_name>
+
+N.B. We're creating a reference set in this example with the quick 
+suite, but we could just as well create a reference from any number 
+of test problems using other test problem flags_.
+
+Here, we are storing the results from our tests locally in a file 
+called <test_name> which will now reside inside of the ``<output_dir>``.
+
+.. _directory layout:
+
+::
+
+    $ ls <output_dir>
+    fe7d4e298cb2    <test_name>        
+
+    $ ls <output_dir>/<test_name>
+    <test_name>.db
+
+When we inspect this directory, we now see that in addition to the
+subdirectory containing the simulation results, we also have a
+<test_name> subdirectory which contains python-readable shelve files,
+in this case a dbm file.  These are the files which actually contain
+the reference standard.  You may have a different set of files
+or extensions depending on which OS you are using, but don't worry
+Python can read this no problem.  Congratulations, you just 
+produced your own reference standard.  Feel free to test against
+this reference standard or tar and gzip it up and send it to another 
+machine for testing.
+
+How to run the test suite against a different reference standard
+----------------------------------------------------------------
+
+First, you must place a copy of your reference standard's files in
+some directory outside the enzo source hierarchy (e.g. your 
+``<output_dir>`` from previous tests), so that it looks something 
+like this `directory layout`_.  From here, you must follow the 
+instructions for `running the test suite against the gold 
+standard`_, but replace step #4 with:
+
+4.  **Run the test suite.**  Run the suite with these flags inside
+the ``run/`` subdirectory in the enzo source hierarchy:
+
+::
+
+    $ ./test_runner.py --suite=quick -o <output_dir> --local-store --answer-compare-name=<test_name> 
+                       --clobber
+
+Here, we're running the quick suite and outputting our results to
+``<output_dir>``.  We are comparing the simulation results against a 
+local (``--local-store``) reference standard which is named ``<test_name>``
+also located in the ``<output_dir>`` directory.  Note, we included the 
+``--clobber`` flag to rerun any simulations that may have been present
+in the ``<output_dir>`` under the existing enzo version's files, since 
+the default behavior is to not rerun simulations if their output files 
+are already present.
+
+.. _flags:
+
+Descriptions of all the testing suite flags
+-------------------------------------------
+
+You can type ``./test_runner.py --help`` to get a quick summary of all 
+of the command line options for the testing suite.  Here is a more 
+thorough explanation of each.
+
+**General flags**
+
+``-h, --help``
+    list all of the flags and their argument types (e.g. int, str, etc.)
+
+``-o str, --output-dir=str`` default: None
+    Where to output the simulation and results file hierarchy.  Recommended
+    to specify outside of the enzo source hierarchy.
+
+``-m str, --machine=str`` default: local
+    Specify the machine on which you're running your tests.  This loads 
+    up a machine-specific method for running your tests.  For instance,
+    it might load qsub or mpirun in order to start the enzo executable
+    for the individual test simulations.  You can only use machine
+    names of machines which have a corresponding machine file in the 
+    ``run/run_templates`` subdirectory (e.g. nics-kraken). N.B.
+    the default, ``local``, will attempt to run the test simulations using
+    mpirun, so if you are required to queue on a machine to execute 
+    mpirun, ``test_runner.py`` will silently fail before finishing your
+    simulation.  You can avoid this behavior by compiling enzo without
+    MPI and then setting the machine flag to ``local_nompi``.
+
+``--repo=str`` default: current directory
+    Path to repository being tested.
+
+``--interleave`` default: False
+    Interleaves preparation, running, and testing of each 
+    individual test problem as opposed to default batch
+    behavior.
+
+``--clobber`` default: False
+    Rerun enzo on test problems which already have 
+    results in the destination directory
+
+``--sim-only`` default: False
+    Only run simulations, do not store the tests or compare them against a 
+    standard.
+
+``--test-only`` default: False
+    Only perform tests on existing simulation outputs, do not rerun the simulations.
+
+``--time-multiplier=int`` default: 1
+    Multiply simulation time limit by this factor.  Useful if you're on a slow
+    machine or you cannot finish the specified tests in their allocated time.
+
+``-v, --verbose`` default: False
+    Verbose output in the testing sequence.  Very good for tracking down
+    specific test failures.
+
+**Flags for tests against local reference standards**
+
+``--answer-compare-name=str`` default: latest 
+    The name of the test against which we will compare
+
+``--answer-store-name=str`` default: None
+    The name we'll call this set of tests. Also turns on functionality
+    for storing the results instead of comparing the results.
+
+``--local-store`` default: False
+    Store/Load local results?
+
+**Bisection flags**
+
+``-b, --bisect`` default: False
+    Run bisection on test. Requires revisions ``--good`` and
+    ``--bad``.  Best if ``--repo`` is different from location of
+    ``test_runner.py`` runs  ``--problematic`` suite.  
+
+``--good=str`` default: None
+    For bisection, most recent good revision
+
+``--bad=str`` default: None
+    For bisection, most recent bad revision
+
+``-j int, --jcompile=int`` default: 1
+    number of processors with which to compile when running bisect
+
+``--changeset=str`` default: latest
+    Changeset to use in simulation repo.  If supplied,
+    make clean && make is also run
+
+**Flags not used**
+
+``--with-answer-testing`` default: False
+    DO NOT USE.  This flag is used in the internal yt answer testing
+    and has no purpose in the enzo testing infrastructure.
+
+``--answer-big-data`` default: False
+    DO NOT USE.  This flag is used in the internal yt answer testing
+    and has no purpose in the enzo testing infrastructure.
+
+**Flags for specifying test problems**
+
+These are the various means of specifying which test problems you want
+to include in a particular run of the testing suite.
+
+``--suite=[quick, push, full]`` default: None
+    A precompiled collection of several different test problems.
+    quick: 37 tests in ~15 minutes, push: 48 tests in ~30 minutes, 
+    full: 96 tests in ~60 hours.
+
+``--answer_testing_script=str`` default: None
+
+``--AMR=bool`` default: False         
+    Test problems which include AMR
+
+``--author=str`` default: None
+    Test problems authored by a specific person
+
+``--chemistry=bool`` default: False
+    Test problems which include chemistry
+
+``--cooling=bool`` default: False
+    Test problems which include cooling
+
+``--cosmology=bool`` default: False   
+    Test problems which include cosmology
+
+``--dimensionality=[1, 2, 3]``
+    Test problems in a particular dimension
+
+``--gravity=bool`` default: False        
+    Test problems which include gravity
+
+``--hydro=bool`` default: False          
+    Test problems which include hydro
+
+``--max_time_minutes=float``
+    Test problems which finish under a certain time limit
+
+``--mhd=bool`` default: False            
+    Test problems which include MHD
+
+``--name=str`` default: None
+    A test problem specified by name
+
+``--nprocs=int`` default: 1
+    Test problems which use a certain number of processors
+
+``--problematic=bool`` default: False 
+    Test problems which are deemed problematic
+
+``--radiation=[None, fld, ray]`` default: None    
+    Test problems which include radiation
+
+``--runtime=[short, medium, long]`` default: None
+    Test problems which are deemed to have a certain predicted runtime
+
+
+.. _bisect:
+
+How to track down which changeset caused your test failure
+----------------------------------------------------------
+
+In order to identify changesets that caused problems, we have 
+provied the ``--bisect`` flag.  This runs hg bisect on revisions 
+between those which are marked as --good and --bad.
+
+hg bisect automatically manipulates the repository as it runs its 
+course, updating it to various past versions of the code and 
+rebuilding.  In order to keep the tests that get run consistent through 
+the course of the bisection, we recommend having two separate enzo
+installations, so that the specified repository (using ``--repo``) where 
+this rebuilding occurs remains distinct from the repository where the 
+testing is run.  
+
+To minimize the number of tests run, bisection is only run on tests 
+for which ``problematic=True``.  This must be set by hand by the user 
+before running biset.  It is best that this is a single test problem, 
+though if multiple tests match that flag, failures are combined with "or"
+
+
+An example of using this method is as follows:
+
+::
+
+    $ echo "problematic = True" >> Cosmology/Hydro/AdiabaticExpansion/AdiabaticExpansion.enzotest
+    $ ./test_runner.py  --output-dir=/scratch/dcollins/TESTS --repo=/SOMEWHERE_ELSE 
+                        --answer-compare-name=$mylar/ac7a5dacd12b --bisect --good=ac7a5dacd12b 
+                        --bad=30cb5ff3c074 -j 8
+
+To run preliminary tests before bisection, we have also supplied the 
+``--changeset`` flag.  If supplied, ``--repo`` is updated to 
+``--changeset`` and compiled.  Compile errors cause ``test_runner.py`` 
+to return that error, otherwise the tests/bisector is run. 
+
+.. _new_test:
 
 How to add a new test to the library
 ------------------------------------
@@ -263,3 +545,5 @@ datasets to Britton Smith (brittonsmith@gmail.com), who will update
 the gold standards.
 
 6.  Push your Enzo changes to the repository.
+
+.. _http://yt-project.org/#getyt: http://yt-project.org/#getyt
