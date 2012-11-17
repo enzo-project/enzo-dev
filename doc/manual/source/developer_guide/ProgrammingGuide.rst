@@ -15,20 +15,6 @@ Remember that other programmers will read your code
     chapter 2
 
 
-File Naming Convention
-----------------------
-
-With very few exceptions, Enzo has a one function per file layout, with the
-file name being the function name. Object methods have the object name
-prepended to the beginning, such as the member of the grid class
-``SolveHydroEquations`` lives in the file ``Grid_SolveHydroEquations.C``.
-
-This does create a large number of files. Familiarity with ``grep`` or ``ack``
-and pipes like ``ls -1 |grep`` are essential.
-
-Internal capitalization is used for C files, all lowercase with underscores for
-fortran files and header files. All Fortran files end with .F.
-
 Comments
 --------
 
