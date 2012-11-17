@@ -18,11 +18,18 @@ that are designed to span the range of physics and dimensionalities
 that are accessible using the Enzo test code, both separately and in
 various permutations.  Tests can be selected based on a variety of
 criteria, including (but not limited to) the physics included, the
-estimated runtime of the test, and the dimensionality.  For
-convenience, three pre-created, overlapping sets of tests are
+estimated runtime of the test, and the dimensionality.  The 
+testing suite runs enzo on each selected test problem, then compares
+the outputs against those generated from a "good" version of the 
+enzo code run on the same problems.  In a few cases, the outputs
+are compared directly against analytical solutions.  Lastly, the 
+results of these tests are returned to the user for interpretation.
+
+For convenience, three pre-created, overlapping sets of tests are
 provided.  For each set of tests, the test suite can automatically
 pull the "gold standard" results from a remote server; or one
-can generate their own standard locally against which she can compare.
+can generate their own standard locally against which she can compare
+different builds of the code.
 
 1.  The "quick suite" (``--suite=quick``).  This is composed of
 small calculations that test critical physics packages both
@@ -30,28 +37,28 @@ alone and in combination.  The intent of this package is to be run
 automatically and relatively frequently (multiple times a day) on 
 a remote server to ensure that bugs have not been introduced during the code 
 development process.  All runs in the quick suite use no more than 
-a single processor.  The total run time should be about 25 minutes.  
+a single processor.  The total run time should be about 15 minutes.  
 
-2.  The "push suite" (``--pushsuite=True``).  This is a slightly 
+2.  The "push suite" (``--suite=push``).  This is a slightly 
 large set of tests, encompassing all of the quick suite and 
 some additional larger simulations that test a wider variety of physics 
 modules.  The intent of this package is to provide a thorough validation 
 of the code prior to changes being pushed to the main repository.  The 
-total run time is roughly 90 minutes and all simulations use only a single 
+total run time is roughly 30 minutes and all simulations use only a single 
 processor.  
 
-3.  The "full suite" (``--fullsuite=True``).  This encompasses essentially 
+3.  The "full suite" (``--suite=full``).  This encompasses essentially 
 all of test simulations contained within the run directory.  This suite 
 provides the most rigorous possible validation of the code in many different 
 situations, and is intended to be run prior to major changes being pushed 
 to the stable branch of the code.  A small number of simulations in the full 
 suite are designed to be run on 2 processors and will take multiple hours to 
-complete.  The total run time is roughly 36 hours.  
+complete.  The total run time is roughly 60 hours.  
 
 How to run the test suite
 -------------------------
 
-1.  Compile Enzo.  The gold standard calculations use the default 
+1.  **Compile Enzo.**  The gold standard calculations use the default 
 compiler settings that can be restored with ``make default``.  
 If you use significantly different compilation options
 (high-level optimization in particular) you may see somewhat
@@ -65,10 +72,7 @@ enzo with the standard settings, complete these commands:
     make clean
     make
 
-Make sure you move the resulting enzo.exe file to somewhere in 
-your active path.
-
-2.  Get yt.  The enzo tests are generated and compared using the 
+2.  **Get/update yt.**  The enzo tests are generated and compared using the 
 yt analysis suite.  If you do not yet have yt, visit 
 http://yt-project.org/#getyt for installation instructions.  
 If you already have yt and yt is in your path, make sure you're using
@@ -78,57 +82,79 @@ the most up-to-date version by running the following command:
 
     yt update
 
-3.  Generate the test files.  The testing suite operates by 
-creating a number of standard tests for each test problem, but
-you need to generate the test files first by executing the following
-commands:
+3.  **Generate the standard test files.**  The testing suite operates by 
+running a series of enzo test files throughout the ``run/`` subdirectory.
+Some unique test files are already generated for specific test problems, 
+but the standard generic tests to be run on each test problem need to be 
+created by you with the following command: 
 
 ::
+
     cd <enzo_root>/run
     python make_new_tests.py
 
-3.  Run the testing suite. While remaining in the ``run/`` 
-subdirectory, you can initiate the generation of the quicksuite test
-simulations and comparison of them against the gold standard by 
-running the following commands:
+4.  **Run the test suite.** While remaining in the ``run/`` 
+subdirectory, you can initiate the quicksuite test simulations and 
+their comparison against the gold standard by running the following 
+commands:
 
 ::
 
-    python test_runner.py --suite=quick -o <external_directory_where_tests_will_reside> 
+    python test_runner.py --suite=quick -o <output_dir>
 
 In this comand, ``--suite=quick`` instructs the test runner to
-use the quick suite (other possible keyboards here are
-``--suite=push`` and ``--suite=full``).
-``--output-dir=/enzo/test/directory`` instructs the test runner to
-write output to a user-specified directory (preferably outside of the
-enzo root hierarchy).  For a full description of the many flags 
-associated with test_runner.py, see the section on running more tests below.
+use the quick suite. ``--output-dir=<output_dir>`` instructs the 
+test runner to output its results to a user-specified directory 
+(preferably outside of the enzo file hierarchy).  For a full 
+description of the many flags associated with test_runner.py, see 
+below.
 
-4.  Review the results. While the test_runner is executing, you should 
+5.  **Review the results.**  While the test_runner is executing, you should 
 see the results coming up at the terminal in real time, but you can review 
 these results in a file output at the end of the run.  The test_runner 
-generates a couple subdirectories in the output directory you provided it.  
-These will look something like this:
+creates a subdirectory in the output directory you provided it, as shown
+in the example below.  
 
 ::
 
-    ls <external_directory_where_tests_will_reside> 
+    ls <output_dir>
 
-                    gold_quick  fe7d4e298cb2    
+    fe7d4e298cb2    
 
-The first subdirectory is where the gold standard downloaded itself
-on to your system.  The files in that directory are python ''shelve'' 
-objects.  The second subdirectory is named by the unique hash of the 
-version of enzo that you used to run your tests.  Within this directory, 
-you should see the individual test problems that you ran, and you should 
-see a file called test_results.txt.  This file contains statistics on
-all of the tests the passed and failed, as well as the reasons why
-failures occurred.  If you get a test failure with a brand new version
-of the code (i.e. no modifications), you should report your results
-to the enzo-users email list.  However, if you have modified the source
-and you receive some failures, you can use test_results.txt to track down
-the source of the problems.
 
+    ls <output_dir>/fe7d4e298cb2    
+
+    Cooling                 GravitySolver           MHD                     test_results.txt 
+    Cosmology               Hydro                   RadiationTransport      version.txt
+
+The name of this directory will be the unique hash of the version of 
+enzo you chose to run with the testing suite.  Within this directory 
+are all of the test problems that you ran along with their simulation
+outputs, organized based on test type (e.g. ``Cooling``, ``AMR``, 
+``Hydro``, etc.)  Additionally, you should see a file called
+``test_results.txt``, which contains a summary of the test runs.  
+
+The testing suite does not expect bitwise agreement between the gold standard
+and your results, due to compiler, architecture and operating system
+differences between versions of enzo.  There must be a significant 
+difference between your result and the gold standard for you to fail 
+any tests, thus you should be passing all of the tests.  If you are not, 
+then examine more closely what modifications you made to the enzo source
+which caused the test failure.  If this is a fresh version of enzo that 
+you grabbed and compiled, then you should write the enzo-users email 
+list with details of your test run (computer os, architecture, version of enzo, 
+version of yt, what test failed, what error message you received), so that
+we can address this issue.
+
+For more details about the results of an individual test, examine the
+``estd.out`` file in the test problem within this directory hierarchy,
+as it contains the stderr and stdout for each test simulation.
+
+How to generate your own set of reference results and compare against them
+--------------------------------------------------------------------------
+
+Explanation of all the ``test_runner.py`` flags
+-----------------------------------------------
 
 How to add a new test to the library
 ------------------------------------
@@ -237,37 +263,3 @@ datasets to Britton Smith (brittonsmith@gmail.com), who will update
 the gold standards.
 
 6.  Push your Enzo changes to the repository.
-
-
-How to create a new set of reference calculations
--------------------------------------------------
-
-It may be necessary for you to generate a set of reference
-calculations for some reason.  If so, here is how you do this.
-
-1.  First, build Enzo using the default set of compile options.  
-Type ``make default`` to restore the defaults.  You will 
-now have an enzo binary in the ``src/enzo`` directory.
-
-2.  Go into the ``run/`` directory and call test_runner.py without the ``--compare-dir`` directory.  If you
-are have multiple Enzo repositories, you can specify the one you want:
-
-::
-
-    ./test_runner.py --repo=/path/to/desired/enzo/repo \
-         --output-dir=/path/to/new/reference/directory
-
-Note that you should only use the top-level directory in the
-repository, not src/enzo, and if you simply want to use the current
-repository (that is, the one your run directory is located in) you can
-leave out the ``--repo`` option.  Once this step is completed, you should
-have a full set of test problems.
-
-3.  If you then want to compare against this set of test problems, use
-the following command:
-
-::
-
-    ./test_runner.py --repo=/path/to/desired/enzo/repo  \
-         --compare-dir=/path/to/new/reference/directory \
-         --output-dir=/path/to/output/directory
