@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import shutil, os
 
 # Do not run the standard tests on these test problems.
