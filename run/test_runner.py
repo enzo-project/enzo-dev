@@ -202,10 +202,35 @@ class ResultsSummary(Plugin):
     def addSuccess(self, test):
         self.successes.append("%s: PASS" % (test))
 
-    def finalize(self, result):
-        print self.errors
-        print self.failures
-        print self.successes
+    def finalize(self, result, outfile=None):
+        print 'Testing complete.'
+        print 'Number of errors: %i' % len(self.errors)
+        print 'Number of failures: %i' % len(self.failures)
+        print 'Number of successes: %i' % len(self.successes)
+        if outfile is not None:
+            outfile.write('Test Summary\n')
+            outfile.write('Tests Passed: %i\n' % len(self.successes))
+            outfile.write('Tests Failed: %i\n' % len(self.failures))
+            outfile.write('Tests Errored: %i\n' % len(self.errors))
+            outfile.write('\n\n')
+
+            outfile.write('Tests that passed: \n')
+            for suc in self.successes: 
+                outfile.write(suc)
+                outfile.write('\n')
+            outfile.write('\n')
+
+            outfile.write('Tests that failed:\n')
+            for fail in self.failures: 
+                outfile.write(fail)
+                outfile.write('\n')
+            outfile.write('\n')
+
+            outfile.write('Tests that errored:\n')
+            for err in self.errors: 
+                outfile.write(err)
+                outfile.write('\n')
+            outfile.write('\n')
 
 class EnzoTestCollection(object):
     def __init__(self, tests = None, verbose=True, args = None,
@@ -344,39 +369,40 @@ class EnzoTestCollection(object):
         run_passes = run_failures = 0
         dnfs = default_test = 0
         f = open(os.path.join(self.output_dir, results_filename), 'w')
-        for my_test in self.test_container:
-            default_only = False
-            if my_test.run_finished:
-                if my_test.test_data['answer_testing_script'] == 'None' or \
-                        my_test.test_data['answer_testing_script'] is None:
-                    default_only = True
-                    default_test += 1
-                t_passes = 0
-                t_failures = 0
-                for t_result in my_test.results.values():
-                    t_passes += int(t_result)
-                    t_failures += int(not t_result)
-                f.write("%-70sPassed: %4d, Failed: %4d" % (my_test.test_data['fulldir'], 
-                                                           t_passes, t_failures))
-                if default_only:
-                    f.write(" (default tests).\n")
-                else:
-                    f.write(".\n")
-                all_passes += t_passes
-                all_failures += t_failures
-                run_passes += int(not (t_failures > 0))
-                run_failures += int(t_failures > 0)
-            else:
-                dnfs += 1
-                f.write("%-70sDID NOT FINISH\n" % my_test.test_data['fulldir'])
+        self.plugins[1].finalize(None, outfile=f)
+        # for my_test in self.test_container:
+        #     default_only = False
+        #     if my_test.run_finished:
+        #         if my_test.test_data['answer_testing_script'] == 'None' or \
+        #                 my_test.test_data['answer_testing_script'] is None:
+        #             default_only = True
+        #             default_test += 1
+        #         t_passes = 0
+        #         t_failures = 0
+        #         for t_result in my_test.results.values():
+        #             t_passes += int(t_result)
+        #             t_failures += int(not t_result)
+        #         f.write("%-70sPassed: %4d, Failed: %4d" % (my_test.test_data['fulldir'], 
+        #                                                    t_passes, t_failures))
+        #         if default_only:
+        #             f.write(" (default tests).\n")
+        #         else:
+        #             f.write(".\n")
+        #         all_passes += t_passes
+        #         all_failures += t_failures
+        #         run_passes += int(not (t_failures > 0))
+        #         run_failures += int(t_failures > 0)
+        #     else:
+        #         dnfs += 1
+        #         f.write("%-70sDID NOT FINISH\n" % my_test.test_data['fulldir'])
 
-        f.write("\n")
-        f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
-                                                      all_passes, all_failures))
-        f.write("Runs finished with all tests passed: %d.\n" % run_passes)
-        f.write("Runs finished with at least one failure: %d.\n" % run_failures)
-        f.write("Runs failed to complete: %d.\n" % dnfs)
-        f.write("Runs finished with only default tests available: %d.\n" % default_test)
+        # f.write("\n")
+        # f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
+        #                                               all_passes, all_failures))
+        # f.write("Runs finished with all tests passed: %d.\n" % run_passes)
+        # f.write("Runs finished with at least one failure: %d.\n" % run_failures)
+        # f.write("Runs failed to complete: %d.\n" % dnfs)
+        # f.write("Runs finished with only default tests available: %d.\n" % default_test)
         f.close()
         if all_failures > 0 or dnfs > 0:
             self.any_failures = True
@@ -622,7 +648,7 @@ if __name__ == "__main__":
 
     # Store the results locally or in the cloud.
     answer_plugin.finalize()
-    reporting_plugin.finalize(None)
+    #reporting_plugin.finalize(None, res_file = )
 
     try:
         import json
