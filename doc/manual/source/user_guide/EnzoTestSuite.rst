@@ -115,14 +115,15 @@ commands:
 
 ::
 
-    $ ./test_runner.py --suite=quick -o <output_dir>
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=quick
 
 In this comand, ``--suite=quick`` instructs the test runner to
 use the quick suite. ``--output-dir=<output_dir>`` instructs the 
 test runner to output its results to a user-specified directory 
 (preferably outside of the enzo file hierarchy).  Make sure this
 directory is created before you call test_runner.py, or it will 
-fail.  For a full description of the many flags associated with 
+fail.  Lastly, it uses the ``quick`` gold standard to compare against.
+For a full description of the many flags associated with 
 test_runner.py, see the flags_ section.
 
 5.  **Review the results.**  While the test_runner is executing, you should 
