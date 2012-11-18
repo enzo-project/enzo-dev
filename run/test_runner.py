@@ -200,7 +200,7 @@ class ResultsSummary(Plugin):
         self.failures.append("%s: FAILURE %s" % (test, err))
 
     def addSuccess(self, test):
-        self.successes.append("%s: PASS %s" % (test))
+        self.successes.append("%s: PASS" % (test))
 
     def finalize(self, result):
         print self.errors
