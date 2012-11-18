@@ -203,9 +203,10 @@ class ResultsSummary(Plugin):
         self.successes.append("%s: PASS" % (test))
 
     def finalize(self, result):
-        print self.errors
-        print self.failures
-        print self.successes
+        print 'Testing complete.'
+        print 'Number of errors: %i' % len(self.errors)
+        print 'Number of failures: %i' % len(self.failures)
+        print 'Number of successes: %i' % len(self.successes)
 
 class EnzoTestCollection(object):
     def __init__(self, tests = None, verbose=True, args = None,
