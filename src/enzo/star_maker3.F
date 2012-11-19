@@ -562,7 +562,7 @@ c     change this to sum_mass_kin_energy
             call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_before, energy_before, 
-     &                           kin_energy_before, imethod)
+     &                           kin_energy_before, idual, imethod)
 c            write(6,*) "m,e before:", mass_before, energy_before
 c
 c           Now add mass and momentum terms (normalization 1.0) to
@@ -573,7 +573,7 @@ c
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, kinf, 1.0-kinf)
+     &                        mass_per_cell, 1.0, 0.0)
 c
 c           Sum a, b and c terms to get momentum normalization
 c
@@ -586,9 +586,9 @@ c
             write(6,*) 'abc1',asum, bsum, csum
             asum = asum - (kin_energy_before + kinf*energy)
             write(6,*) 'abc2',asum, bsum, csum
-            mom_per_cell = 0.0
-            if (kinf .gt. 0.0)
-     &           mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
+c            mom_per_cell = 0.0
+c            if (kinf .gt. 0.0)
+            mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
      &                          (2.0*csum)
 c
 c           Now add mass and momentum, using three-point CIC
@@ -607,7 +607,7 @@ c
             call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_after, energy_after, 
-     &                           kin_energy_after, imethod)
+     &                           kin_energy_after, idual, imethod)
 c
             write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
      &           energy_before + energy,energy
@@ -756,13 +756,14 @@ c
       subroutine sum_mass_energy(pu, pv, pw, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_sum, energy_sum, kin_energy_sum,
-     &                           idual)
+     &                           idual, imethod)
 c
       implicit none
 c
 c     Arguments
 c
       integer nx, ny, nz, iface, jface, kface, ic, jc, kc, idual
+      integer imethod
       real    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
       real    d(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
       real    mass_sum, energy_sum, kin_energy_sum, kin_energy
@@ -798,11 +799,15 @@ c
                mass_sum = mass_sum + mass_term
 
                kin_energy_sum = kin_energy_sum + kin_energy  
-               if (idual .eq. 0) 
-     &              energy_sum = energy_sum + kin_energy 
+               if (idual .eq. 0 .and. imethod .eq. 2)
+     &                  energy_sum = energy_sum + kin_energy 
      &                           + te(ic + i ,jc + j ,kc + k)
+
+               if(idual .eq. 0 .and. imethod .ne. 2)
+     &              energy_sum = energy_sum + te(ic + i ,jc + j ,kc + k)
+
                if (idual .eq. 1)
-     &              energy_sum = kin_energy_sum + kin_energy
+     &              energy_sum = energy_sum + kin_energy
      &                           + ge(ic + i, jc + j, kc + k)
 
 c
@@ -855,8 +860,8 @@ c
             do i = -1, +2
 c
                mass_term = d(ic   +i ,jc   +j ,kc+k)
-c               write(6,*) "mass_term:",mass_term,
-c     &              d1(istart+i,jstart+j,kstart+k)
+               write(6,*) "mass_term:",mass_term,
+     &              d1(istart+i,jstart+j,kstart+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
      &                    pw(ic   +i ,jc   +j, kface+k)**2
@@ -883,9 +888,10 @@ c
                write(6,*) "cterm,mterm:",cterm,mass_term,
      &              cterm/(2.0*mass_term),csum
 c
-               mass_sum = mass_sum + mass_term
-               energy_sum = energy_sum + mom_term/(2.0*mass_term)
-               energy_sum = energy_sum + ge(ic+1,jc+j,kc+k)
+c               mass_sum = mass_sum + mass_term
+c               write(6,*) "mass_sum:",mass_sum
+c               energy_sum = energy_sum + mom_term/(2.0*mass_term)
+c               energy_sum = energy_sum + ge(ic+1,jc+j,kc+k)
 c
             enddo
          enddo
