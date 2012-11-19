@@ -389,6 +389,7 @@ c
      &	   energy_per_cell, mom_per_cell, face_shift,
      &     xface, yface, zface, xpos, ypos, zpos,
      &     energy_before, energy_after, mass_before, mass_after,
+     &     kin_energy_before, kin_energy_after,
      &     asum, bsum, csum
       real dxf, dyf, dzf, dxc, dyc, dzc
       real u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
@@ -453,27 +454,30 @@ c
 c
 c           Assuming 3x3x3 cube, calculate cell distribution
 c
-c           distrad = 3
+            write(6,*) 'distrad:',distrad
+            distrad = 3
             dist_mass_cells = distrad**3
             dist_mom_cells = distrad**2 * 6
 c
 c           Calculate mass per cell ejected
 c
             mass_per_cell = mform * m_eject / dist_mass_cells
+            write(6,*) 'mass_per_cell:',mass_per_cell,m_eject,
+     &           dist_mass_cells
 c
 c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c            
             energy = sn_param * mform * (clight/vunits)**2
             energy_per_cell = energy / dist_mass_cells
-			thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
-			kinetic_energy_per_cell = kinf * energy_per_cell 
+            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
+            kinetic_energy_per_cell = kinf * energy_per_cell 
 
 c           Calculate momentum of this much energy spread into cells
 c             mom = sqrt(2 * mform * m_eject * energy)
 c
 
-			mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
+            mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
 
 c
 c         check bounds - if star particle is outside of this grid
@@ -554,9 +558,11 @@ c
 c
 c           Sum mass and energy before
 c
-            call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
+c     change this to sum_mass_kin_energy
+            call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
-     &                           mass_before, energy_before)
+     &                           mass_before, energy_before, 
+     &                           kin_energy_before, imethod)
 c            write(6,*) "m,e before:", mass_before, energy_before
 c
 c           Now add mass and momentum terms (normalization 1.0) to
@@ -567,7 +573,7 @@ c
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, 1.0, 0.0)
+     &                        mass_per_cell, kinf, 1.0-kinf)
 c
 c           Sum a, b and c terms to get momentum normalization
 c
@@ -577,11 +583,13 @@ c
 c
 c           Calculate momentum contribution
 c
-c            write(6,*) 'abc1',asum, bsum, csum
-            asum = asum - (energy_before + energy)
-c            write(6,*) 'abc2',asum, bsum, csum
-            mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
-     &                             (2.0*csum)
+            write(6,*) 'abc1',asum, bsum, csum
+            asum = asum - (kin_energy_before + kinf*energy)
+            write(6,*) 'abc2',asum, bsum, csum
+            mom_per_cell = 0.0
+            if (kinf .gt. 0.0)
+     &           mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
+     &                          (2.0*csum)
 c
 c           Now add mass and momentum, using three-point CIC
 c
@@ -592,18 +600,23 @@ c            te_per_cell = 0.0
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
      &                        mass_per_cell, mom_per_cell, 
-     &						  thermal_energy_per_cell)
+     &			      thermal_energy_per_cell)
 c
 c           Sum mass and energy before
 c
-            call sum_mass_energy(u, v, w, d, ge, nx, ny, nz,
+            call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
-     &                           mass_after, energy_after)
+     &                           mass_after, energy_after, 
+     &                           kin_energy_after, imethod)
 c
             write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
      &           energy_before + energy,energy
             write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
      &           mass_before + mform*m_eject,mform*m_eject
+            write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
+     &           kin_energy_after, kin_energy_before + kinf*energy, 
+     &           kinf*energy
+            write(6,*) 'idual:',idual
 c
 c           Convert momenta back to velocities and transform back to lab frame
 c
@@ -740,18 +753,19 @@ c
 c     Sum mass, momentum, and energy, and add mass and momentum, if requested
 c       Note that pu, pv, pw are momenta
 c
-      subroutine sum_mass_energy(pu, pv, pw, d, ge, nx, ny, nz,
+      subroutine sum_mass_energy(pu, pv, pw, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
-     &                           mass_sum, energy_sum)
+     &                           mass_sum, energy_sum, kin_energy_sum,
+     &                           idual)
 c
       implicit none
 c
 c     Arguments
 c
-      integer nx, ny, nz, iface, jface, kface, ic, jc, kc
+      integer nx, ny, nz, iface, jface, kface, ic, jc, kc, idual
       real    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
-      real    d(nx,ny,nz), ge(nx,ny,nz)
-      real    mass_sum, energy_sum
+      real    d(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
+      real    mass_sum, energy_sum, kin_energy_sum, kin_energy
 c
 c     Locals
 c
@@ -760,6 +774,7 @@ c
 c
       mass_sum = 0.0
       energy_sum = 0.0
+      kin_energy_sum = 0.0
 c
 c     Sum mass and energy      
 c
@@ -777,11 +792,17 @@ c     &              pw(ic   +i ,jc   +j, kface+k)
      &                    pw(ic   +i ,jc   +j, kface+k)**2
 c
 c              Compute total mass and energy
-c                     
+c              
+               kin_energy = mom_term / (2.0 * mass_term)
+
                mass_sum = mass_sum + mass_term
-               energy_sum = energy_sum + 
-     &						mom_term / (2.0 * mass_term)  
-	 		   energy_sum = energy_sum + ge(ic + i ,jc + j ,kc + k)
+               kin_energy_sum = kin_energy_sum + kin_energy  
+               if (idual .eq. 0) 
+     &              energy_sum = energy_sum + kin_energy 
+     &                           + te(ic + i ,jc + j ,kc + k)
+               if (idual .eq. 1)
+     &              energy_sum = kin_energy_sum + kin_energy
+     &                           + ge(ic + i, jc + j, kc + k)
 c
             enddo
          enddo
@@ -832,6 +853,8 @@ c
             do i = -1, +2
 c
                mass_term = d(ic   +i ,jc   +j ,kc+k)
+c               write(6,*) "mass_term:",mass_term,
+c     &              d1(istart+i,jstart+j,kstart+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
      &                    pw(ic   +i ,jc   +j, kface+k)**2
@@ -852,7 +875,11 @@ c
      &           pu1(istart+i,jstart+j,kstart+k)**2 +
      &           pv1(istart+i,jstart+j,kstart+k)**2 +
      &           pw1(istart+i,jstart+j,kstart+k)**2
+
+               
                csum = csum + cterm/(2.0*mass_term)
+               write(6,*) "cterm,mterm:",cterm,mass_term,
+     &              cterm/(2.0*mass_term),csum
 c
                mass_sum = mass_sum + mass_term
                energy_sum = energy_sum + mom_term/(2.0*mass_term)
@@ -876,7 +903,8 @@ c
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf,
-     &                        mass_per_cell, mom_per_cell, ge_per_cell)
+     &                        mass_per_cell, mom_per_cell, 
+     &                        therm_per_cell)
 c
       implicit none
 c
@@ -886,7 +914,7 @@ c
       integer iface, jface, kface, imethod, imetal, imulti_metals, idual
       real    d(nx, ny, nz), metal(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
       real    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
-      real    mass_per_cell, mom_per_cell, ge_per_cell
+      real    mass_per_cell, mom_per_cell, therm_per_cell
       real    m_eject, yield, metalf
       real    dxf, dyf, dzf, dxc, dyc, dzc,
      &        dxf1, dyf1, dzf1, dxc1, dyc1, dzc1
@@ -894,7 +922,7 @@ c
 c     Locals
 c
       integer i, j, k, i1, j1, k1
-      real    delta_mass, delta_pu, delta_pv, delta_pw, delta_ge
+      real    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm
 c
 c     Error check
 c
@@ -930,11 +958,11 @@ c
 c
                 delta_mass = mass_per_cell*dxc1*dyc1*dzc1
 c                delme = delme + delta_mass
-c                write(6,*) i,j,k,delme,delta_mass
+c                write(6,*) 'delta_mass:',i,j,k,delta_mass
                 delta_pu   = i*mom_per_cell*dxf1*dyc1*dzc1
                 delta_pv   = j*mom_per_cell*dxc1*dyf1*dzc1
                 delta_pw   = k*mom_per_cell*dxc1*dyc1*dzf1
-                delta_ge	= ge_per_cell*dxc1*dyc1*dzc1
+                delta_therm   = therm_per_cell*dxc1*dyc1*dzc1
 c
 c               Add mass, momentum
 c                (add thermal energy here)
@@ -948,8 +976,17 @@ c
                 pw(ic+i1 ,jc+j1 ,kface+k1) = pw(ic+i1 ,jc+j1 ,kface+k1)
      &               + delta_pw
      
-                ge(ic+i1 ,jc+j1 ,kface+k1) = ge(ic+i1 ,jc+j1 ,kface+k1)
-     &               + delta_ge
+
+                te(ic+i1 ,jc+j1 ,kface+k1) = te(ic+i1 ,jc+j1 ,kface+k1)
+     &                                       + delta_therm
+
+                if (idual .eq. 1)
+     &               ge(ic+i1 ,jc+j1 ,kface+k1) = 
+     &                   ge(ic+i1, jc+j1, kface+k1)
+     &                   + delta_therm
+
+
+
 c
 c           Metal feedback (note that in this function gas metal is
 c             a fraction (rho_metal/rho_gas) rather than a density.
