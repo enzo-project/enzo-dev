@@ -296,7 +296,7 @@ c
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
-     &				 kinf)
+     &               kinf)
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
@@ -796,6 +796,7 @@ c
                kin_energy = mom_term / (2.0 * mass_term)
 
                mass_sum = mass_sum + mass_term
+
                kin_energy_sum = kin_energy_sum + kin_energy  
                if (idual .eq. 0) 
      &              energy_sum = energy_sum + kin_energy 
@@ -803,6 +804,7 @@ c
                if (idual .eq. 1)
      &              energy_sum = kin_energy_sum + kin_energy
      &                           + ge(ic + i, jc + j, kc + k)
+
 c
             enddo
          enddo
@@ -883,6 +885,7 @@ c
 c
                mass_sum = mass_sum + mass_term
                energy_sum = energy_sum + mom_term/(2.0*mass_term)
+               energy_sum = energy_sum + ge(ic+1,jc+j,kc+k)
 c
             enddo
          enddo
