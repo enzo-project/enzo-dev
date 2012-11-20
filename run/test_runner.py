@@ -558,6 +558,8 @@ if __name__ == "__main__":
                       help="number of processors with which to compile when running bisect")
     parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
+    parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
+                      help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
 
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
@@ -586,6 +588,10 @@ if __name__ == "__main__":
     options.repository = os.path.expanduser(options.repository)
     hg_current = _get_hg_version(options.repository)
     rev_hash = hg_current.split()[0]
+
+    if options.run_suffix:
+        rev_hash += options.run_suffix
+
     answer_plugin._my_version = rev_hash
 
     answer_plugin.configure(options, None)
@@ -632,6 +638,7 @@ if __name__ == "__main__":
     # Gather results and version files for all test and tar them.
     # get current revision
     options.output_dir = os.path.join(options.output_dir, rev_hash)
+
     if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
     f = open(os.path.join(options.output_dir, version_filename), 'w')
     f.write('Enzo: %s' % hg_current)
