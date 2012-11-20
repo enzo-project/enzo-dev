@@ -307,6 +307,10 @@ thorough explanation of each.
     Verbose output in the testing sequence.  Very good for tracking down
     specific test failures.
 
+``--pdb`` default: False
+    When a test fails a pdb session is triggered.  Allows interactive inspection
+    of failed test data.
+
 **Flags for tests against local reference standards**
 
 ``--answer-compare-name=str`` default: latest 
