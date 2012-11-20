@@ -17,4 +17,4 @@ def test_orbit():
     sim.get_time_series()
     for pf in sim:
         for field in _fields:
-            yield AllFieldValuesTest(pf, field, decimals=3)
+            yield AllFieldValuesTest(pf, field, decimals=13)

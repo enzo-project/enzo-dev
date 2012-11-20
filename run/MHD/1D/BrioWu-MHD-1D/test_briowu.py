@@ -17,4 +17,4 @@ def test_briowu():
     sim.get_time_series()
     for pf in sim:
         for field in _fields:
-            yield AllFieldValuesTest(pf, field)
+            yield AllFieldValuesTest(pf, field, decimals=13)

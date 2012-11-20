@@ -22,10 +22,11 @@ class TestShockImage(AnswerTestingTest):
         sl = self.pf.h.slice(2, 0.5)
         frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0),
                                     (400, 400), antialias=False)
-        return frb["Density"]
+        dens = frb["Density"]
+        return np.array([dens.mean(), dens.std(), dens.min(), dens.max()])
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
+        assert_allclose(new_result, old_result, rtol=1e-13, atol=0)
 
 class TestRadialDensity(AnswerTestingTest):
     _type_name = "noh3damr_radial"

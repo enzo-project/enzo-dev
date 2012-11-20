@@ -21,10 +21,11 @@ class TestGardinerImage(AnswerTestingTest):
     def run(self):
         sl = self.pf.h.slice(2, 0.5)
         frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (200,200))
-        return frb[self.field]
+        dd = frb[self.field]
+        return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
+        assert_allclose(new_result, old_result, rtol=1e-13, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_gardiner():
