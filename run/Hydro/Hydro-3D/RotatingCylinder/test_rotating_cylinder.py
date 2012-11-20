@@ -17,15 +17,10 @@ class TestLVariation(AnswerTestingTest):
         self.pf = pf
 
     def run(self):
-        # self.pf already exists
-        data = self.pf.h.all_data()
-        AngMom = []
-        AngMom.append(data.quantities["TotalQuantity"]("AngularMomentum")[0])
-        AngMomInitial = AngMom[0]
-        AngMomPercentageChange = []
-        for i, item in enumerate(AngMom):
-            AngMomPercentageChange.append(100.0*(item - AngMomInitial)/AngMomInitial)
-        return max(AngMomPercentageChange)
+        ad = self.pf.h.all_data()
+        return na.array(ad.quantities['TotalQuantity'](["AngularMomentumX", 
+                                                        "AngularMomentumY", 
+                                                        "AngularMomentumZ"]))
 
     def compare(self, new_result, old_result):
         assert_allclose(new_result, old_result, rtol=1e-3, atol=0)

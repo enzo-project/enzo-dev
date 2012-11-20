@@ -142,14 +142,17 @@ in the example below.
     Cooling        GravitySolver    MHD                    test_results.txt 
     Cosmology      Hydro            RadiationTransport     version.txt
 
-The name of this directory will be the unique hash of the version of 
-enzo you chose to run with the testing suite.  In this case it is 
-``fe7d4298cb2``, but yours will likely be different, but equally 
-unintelligible.  Within this directory are all of the test problems 
-that you ran along with their simulation outputs, organized based on 
-test type (e.g.  ``Cooling``, ``AMR``, ``Hydro``, etc.)  Additionally, 
-you should see a file called ``test_results.txt``, which contains a 
-summary of the test runs.  
+The name of this directory will be the unique hash of the version of
+enzo you chose to run with the testing suite.  In this case it is
+``fe7d4298cb2``, but yours will likely be different, but equally
+unintelligible.  You can specify an optional additional suffix to be
+appended to this directory name using ``--run-suffix=<suffix>``. This
+may be useful to distinguish multiple runs of a given version of enzo,
+for example with different levels of optimization. Within this
+directory are all of the test problems that you ran along with their
+simulation outputs, organized based on test type (e.g.  ``Cooling``,
+``AMR``, ``Hydro``, etc.)  Additionally, you should see a file called
+``test_results.txt``, which contains a summary of the test runs.
 
 The testing suite does not expect bitwise agreement between the gold standard
 and your results, due to compiler, architecture and operating system
@@ -296,6 +299,10 @@ thorough explanation of each.
     Multiply simulation time limit by this factor.  Useful if you're on a slow
     machine or you cannot finish the specified tests in their allocated time.
 
+``--run-suffix=str`` default: None
+    An optional suffix to append to the test run directory. Useful 
+    to distinguish multiple runs of a given changeset.
+
 ``-v, --verbose`` default: False
     Verbose output in the testing sequence.  Very good for tracking down
     specific test failures.
@@ -335,6 +342,7 @@ thorough explanation of each.
 ``--changeset=str`` default: latest
     Changeset to use in simulation repo.  If supplied,
     make clean && make is also run
+
 
 **Flags not used**
 
