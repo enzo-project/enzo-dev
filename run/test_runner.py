@@ -31,6 +31,7 @@ numpy.seterr(all = "ignore")
 import nose
 from nose.loader import TestLoader
 from nose.plugins import Plugin
+from nose.plugins import debug
 from nose.plugins.manager import PluginManager
 
 from yt.config import ytcfg
@@ -545,6 +546,8 @@ if __name__ == "__main__":
                       help="Multiply simulation time limit by this factor.")
     parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
                       default=False, help="Slightly more verbose output.")
+    parser.add_option("--pdb", action="store_true", dest="pdb",
+                      default=False, help="Drop into debugger on errors")
     parser.add_option("-b", "--bisect", dest="bisect", action="store_true",
                       default=False, help="Run bisection on test. Requires revisions" +
                       "--good and --bad.  Best if --repo is different from location of test_runner.py."+
@@ -564,6 +567,7 @@ if __name__ == "__main__":
     answer_plugin.options(parser)
     reporting_plugin = ResultsSummary()
     reporting_plugin.enabled = True
+    pdb_plugin = debug.Pdb()
 
     all_suites = ['quick', 'push', 'full']
     suite_vars = [suite+"suite" for suite in all_suites]
@@ -580,6 +584,10 @@ if __name__ == "__main__":
                                          metavar=caster.__name__)
     parser.add_option_group(testproblem_group)
     options, args = parser.parse_args()
+
+    if options.pdb:
+        pdb_plugin.enabled = True
+        pdb_plugin.enabled_for_failures = True
 
     # Get information about the current repository, set it as the version in
     # the answer testing plugin.
@@ -604,8 +612,8 @@ if __name__ == "__main__":
     if options.bisect:
         bisector(options,args)
         sys.exit(0)
-    etc = EnzoTestCollection(verbose=options.verbose, args=None,
-                             plugins = [answer_plugin, reporting_plugin])
+    etc = EnzoTestCollection(verbose=options.verbose, args=sys.argv[:1],
+                             plugins = [answer_plugin, reporting_plugin, pdb_plugin])
 
     construct_selection = {}
     if options.test_suite != unknown:
