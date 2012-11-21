@@ -115,7 +115,7 @@ commands:
 
 ::
 
-    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=quick
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=enzogold000
 
 In this comand, ``--suite=quick`` instructs the test runner to
 use the quick suite. ``--output-dir=<output_dir>`` instructs the 
