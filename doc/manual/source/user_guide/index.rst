@@ -12,7 +12,7 @@ how to compile and run Enzo, the initial conditions generation code
 and the various analysis tools bundled with Enzo. The instructions on
 actually running the code are not comprehensive in that they are not
 machine or platform-specific.  Arguably the most useful and important
-piece of this guide is :doc:`../EnzoParameters`, which contains
+piece of this guide is :ref:`parameters`, which contains
 descriptions of all of the roughly 300 possible input parameters (as
 of September 2008). For more detailed information on the Enzo
 algorithms and on running Enzo on different platforms, you should
@@ -42,6 +42,7 @@ inquiries and comments should be directed to the `Enzo Users' List
 
    ExecutablesArgumentsOutputs.rst
    RunningEnzo.rst
+   CUDAEnzo.rst
    EnzoTestSuite.rst
    CosmologicalInitialConditions.rst
    RunningLargeSimulations.rst
@@ -51,3 +52,4 @@ inquiries and comments should be directed to the `Enzo Users' List
    EmbeddedPython.rst
    HierarchyFile.rst
    FlowChart.rst
+   TestProblems.rst

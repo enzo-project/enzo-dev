@@ -63,7 +63,7 @@ extern "C" void FORTRAN_NAME(combine3d)(
 	       int *ivel_flag, int *irefine);
  
 /* InterpolateBoundaryFromParent function */
- 
+int MakeFieldConservative(field_type field); 
 int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 {
  
@@ -302,17 +302,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     if (ConservativeInterpolation)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != DebugField &&
-	    FieldType[field] != GravPotential
-	    ) {
+	if (MakeFieldConservative(FieldType[field])) {
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
 			       &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
@@ -404,17 +394,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
          variables (skipping density). */
  
       if (ConservativeInterpolation)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != DebugField &&
-	    FieldType[field] != GravPotential
-	    )
+	if (MakeFieldConservative(FieldType[field]))
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,
