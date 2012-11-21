@@ -1,29 +1,37 @@
 from yt.mods import *
-from yt.utilities.answer_testing.api import \
-    YTStaticOutputTest, create_test
-import pylab
-class TestFryxellImage(YTStaticOutputTest):
-    field = None
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
+
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+_fields = ('Density', 'Pressure')
+
+class TestFryxellImage(AnswerTestingTest):
+    _type_name = "fryxell_image"
+    _attrs = ("field", )
+
+    def __init__(self, pf, field):
+        self.pf = pf
+        self.field = field
 
     def run(self):
-        # self.pf already exists
         sl = self.pf.h.slice(2, 0.5)
         frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (200,200))
-        self.result = frb[self.field]
+        dd = frb[self.field]
+        return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        assert_allclose(new_result, old_result, rtol=1e-13, atol=0)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 3e-5)
-
-    def plot(self):
-        pylab.clf()
-        pylab.imshow(self.result,
-            interpolation='nearest', origin='lower')
-        fn = "%s_%s_projection.png" % (self.pf, self.field)
-        pylab.savefig(fn)
-        return [fn]
-for field in ['Density','Pressure']:
-    create_test(TestFryxellImage,'test_fryxell_%s'%field,field=field)
+@requires_outputlog(_dir_name, _pf_name)
+def test_fryxell():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        for field in _fields:
+            yield TestFryxellImage(pf, field)

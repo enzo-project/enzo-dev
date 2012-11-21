@@ -1,46 +1,34 @@
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
-class TestCyclinderImage(YTStaticOutputTest):
-    name = "cylinder_image"
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
 
-    def run(self):
-        # self.pf already exists
-        sl = self.pf.h.proj(2, 'Density', center=[0.5,0.5,0.5])
-        frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (64, 64))
-        self.result = frb["Density"]
+class TestLVariation(AnswerTestingTest):
+    _type_name = "deltaL"
+    _attrs = ()
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-class TestLVariation(YTStaticOutputTest):
-    name = "deltaL"
+    def __init__(self, pf):
+        self.pf = pf
 
     def run(self):
-        # self.pf already exists
-        data = self.pf.h.all_data()
-        AngMom = []
-        AngMom.append(data.quantities["TotalQuantity"]("AngularMomentum")[0])
-        AngMomInitial = AngMom[0]
-        AngMomPercentageChange = []
-        for i, item in enumerate(AngMom):
-            AngMomPercentageChange.append(100.0*(item - AngMomInitial)/AngMomInitial)
-        self.result = max(AngMomPercentageChange)
+        ad = self.pf.h.all_data()
+        return na.array(ad.quantities['TotalQuantity'](["AngularMomentumX", 
+                                                        "AngularMomentumY", 
+                                                        "AngularMomentumZ"]))
 
-    def compare(self, old_result):
-        self.compare_value_delta(self.result, old_result, 5e-3)
+    def compare(self, new_result, old_result):
+        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
 
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-if __name__ == "__main__":
-    run()
+@requires_outputlog(_dir_name, _pf_name)
+def test_rotating_cylinder():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        yield TestLVariation(pf)

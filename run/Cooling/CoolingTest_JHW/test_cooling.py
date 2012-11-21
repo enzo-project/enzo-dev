@@ -1,20 +1,21 @@
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     FieldValuesTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
-class TestCoolingValues(YTStaticOutputTest):
-    name = "cooling_values"
+_fields = ("Cooling_Time",)
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
 
-    def run(self):
-        # self.pf already exists
-        self.result = self.pf.h.grids[0]['Cooling_Time']
+@requires_outputlog(_dir_name, _pf_name)
+def test_cooling_time():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        for field in _fields:
+            yield FieldValuesTest(pf, field, decimals=13)
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 1e-6)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
