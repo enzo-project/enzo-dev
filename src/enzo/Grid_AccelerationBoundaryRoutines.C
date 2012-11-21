@@ -114,7 +114,7 @@ int grid::DetachAcceleration(){
 //SetAccelerationBoundary ensures that all subgrids agree in the boundary.
 //Not a big deal for hydro, but essential for DivB = 0 in MHD runs.
 //Only called on level > 0 because the root grid is dealt with differently than SG's.
-int DoAccelerationBoundary = TRUE;
+
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    SiblingGridList SiblingList[],
 			    int level, TopGridData *MetaData,
@@ -125,11 +125,9 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
   if ( ! ( (SelfGravity || UniformGravity || PointSourceGravity) && level > 0 ))
     return SUCCESS;
 
-  if ( Grids[0]->GridData->ReturnNumberOfBaryonFields() == 0 )
-      DoAccelerationBoundary = FALSE;
-
-  if  ( ! DoAccelerationBoundary )
+  if ( Grids[0]->GridData->ReturnNumberOfBaryonFields() == 0 ){
       return SUCCESS;
+  }
 
   //Set the boundary on the Acceleration field.  Reuse SetBoundaryConditions.  
   //Juggle pointers around.
