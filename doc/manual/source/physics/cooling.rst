@@ -9,6 +9,7 @@ to very sophisticated non-equilibrium primoridal chemistry.  All of
 these methods require the parameter ``RadiativeCooling`` be set to 1.
 Other parameters are required for using the various methods, which are
 described below.
+For relevant parameters, please also see :ref:`cooling_parameters`.
 
 MultiSpecies = 0: Sarazin & White
 ---------------------------------

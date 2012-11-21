@@ -45,8 +45,7 @@ extern "C" void FORTRAN_NAME(div3d)(float *source, float *dest,
 				    int *dstart1, int *dstart2, int *dstart3,
                                     int *rstart1, int *rstart2, int *rstart3,
                                     int *rend1, int *rend2, int *rend3);
- 
- 
+int MakeFieldConservative(field_type field);
 int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 {
   /* Return if this doesn't involve us. */
@@ -119,18 +118,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
  
   if (ProcessorNumber == MyProcessorNumber)
     for (field = 0; field < NumberOfBaryonFields; field++)
-      if (FieldTypeIsDensity(FieldType[field]) == FALSE && 
-	  (FieldTypeNoInterpolate(FieldType[field]) == FALSE) && (
-	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
-          || HydroMethod != Zeus_Hydro) &&
-	  FieldType[field] != Bfield1 &&
-	  FieldType[field] != Bfield2 &&
-	  FieldType[field] != Bfield3 &&
-	  FieldType[field] != PhiField &&
-	  FieldType[field] != DrivingField1 &&
-	  FieldType[field] != DrivingField2 &&
-	  FieldType[field] != DrivingField3 &&
-	  FieldType[field] != GravPotential)
+      if (MakeFieldConservative(FieldType[field]))
       FORTRAN_NAME(mult3d)(BaryonField[DensNum], BaryonField[field],
 			   &Size, &One, &One, &Size, &One, &One,
 			   &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
@@ -236,18 +224,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   /* Divide all fields by mass to return to original quantity. */
  
   for (field = 0; field < NumberOfBaryonFields; field++)
-    if ((FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	 (FieldTypeNoInterpolate(FieldType[field]) == FALSE) && (
-	  (FieldType[field] < Velocity1 || FieldType[field] > Velocity3)
-          || HydroMethod != Zeus_Hydro) &&
-	FieldType[field] != Bfield1 &&
-	FieldType[field] != Bfield2 &&
-	FieldType[field] != Bfield3 &&
-	FieldType[field] != PhiField &&
-	FieldType[field] != DrivingField1 &&
-	FieldType[field] != DrivingField2 &&
-	FieldType[field] != DrivingField3 &&
-	 FieldType[field] != GravPotential )) {
+    if ( MakeFieldConservative(FieldType[field]) ) {
       if (ProcessorNumber == MyProcessorNumber)
 	FORTRAN_NAME(div3d)(BaryonField[DensNum], BaryonField[field],
 			    &Size, &One, &One, &Size, &One, &One,

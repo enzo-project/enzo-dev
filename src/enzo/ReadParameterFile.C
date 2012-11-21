@@ -117,7 +117,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
-    ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
     ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
     ret += sscanf(line, "ReadGhostZones = %"ISYM, &ReadGhostZones);
     ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
@@ -905,7 +904,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
     ret += sscanf(line, "PythonReloadScript = %"ISYM, &PythonReloadScript);
-
 #ifdef USE_PYTHON
     ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
     ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);

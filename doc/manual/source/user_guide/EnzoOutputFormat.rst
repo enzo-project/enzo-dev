@@ -22,7 +22,7 @@ Summary of Files
     This ascii file contains a complete listing of all the parameter
     settings, both those specified in the initial parameter file, as
     well as all those for which default values were assumed. The
-    parameters (see :doc:`../EnzoParameters`) are in the same format
+    parameters (see :ref:`parameters`) are in the same format
     as that used in the input file: parameter_name = value. This file
     is modifiable if you would like to restart from a certain point
     with different parameter values.
