@@ -1,84 +1,118 @@
+#;-*-C-*-
+
+# AMR PROBLEM DEFINITION FILE: Cosmology Simulation
+# This is a small cosmology simulation that runs to z = 0.
+# The redshift outputs can be used to create a light-cone out to z = 0.1.
 #
-# AMR PROBLEM DEFINITION FILE: Cosmology Simulation (amr version)
-#
-#  define problem
+# define problem
 #
 ProblemType                = 30      // cosmology simulation
 TopGridRank                = 3
-TopGridDimensions          = 16 16 16
+TopGridDimensions          = 32 32 32
 SelfGravity                = 1       // gravity on
 TopGridGravityBoundary     = 0       // Periodic BC for gravity
 LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
 RightFaceBoundaryCondition = 3 3 3
+
 #
-#  problem parameters
+# problem parameters
 #
-CosmologySimulationOmegaBaryonNow       = 0.04
-CosmologySimulationOmegaCDMNow          = 0.26
+CosmologySimulationOmegaBaryonNow       = 0.0441
+CosmologySimulationOmegaCDMNow          = 0.2239
 CosmologySimulationDensityName          = GridDensity
 CosmologySimulationVelocity1Name        = GridVelocities
 CosmologySimulationVelocity2Name        = GridVelocities
 CosmologySimulationVelocity3Name        = GridVelocities
 CosmologySimulationParticlePositionName = ParticlePositions
 CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationNumberOfInitialGrids = 1
+CosmologySimulationUseMetallicityField  = 1
+
 #
-#  define cosmology parameters
+# cosmology parameters
 #
-ComovingCoordinates        = 1       // Expansion ON
-CosmologyOmegaMatterNow    = 0.3
-CosmologyOmegaLambdaNow    = 0.7
-CosmologyHubbleConstantNow = 0.5     // in 100 km/s/Mpc
-CosmologyComovingBoxSize   = 16.0    // in Mpc/h
-CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
-CosmologyInitialRedshift   = 30      // 
-CosmologyFinalRedshift     = 0       //
-GravitationalConstant      = 1       // this must be true for cosmology
+ComovingCoordinates        = 1
+CosmologyOmegaMatterNow    = 0.268
+CosmologyOmegaLambdaNow    = 0.732
+CosmologyHubbleConstantNow = 0.704
+CosmologyComovingBoxSize   = 32.0
+CosmologyMaxExpansionRate  = 0.02
+CosmologyInitialRedshift   = 50
+CosmologyFinalRedshift     = 0
+GravitationalConstant      = 1
+
 #
-#  set I/O and stop/start parameters
+# I/O and stop/start parameters
 #
-StopCycle              = 1000          // stop after this many cycles
-dtDataDump             = 10.0         // dump at beginning and end
-#CycleSkipDataDump      = 20
-DataDumpName           = output_
-ParallelRootGridIO     = 1
-CosmologyOutputRedshift[0] = 10
-CosmologyOutputRedshift[1] = 8
-CosmologyOutputRedshift[2] = 6
-CosmologyOutputRedshift[3] = 4
-CosmologyOutputRedshift[4] = 3
-CosmologyOutputRedshift[5] = 2
-CosmologyOutputRedshift[6] = 1
-CosmologyOutputRedshift[7] = 0
+dtDataDump       = 5
+RedshiftDumpName = RD
+RedshiftDumpDir  = RD
+DataDumpName     = DD
+DataDumpDir      = DD
+
+CosmologyOutputRedshift[0] = 0.100
+CosmologyOutputRedshift[1] = 0.089
+CosmologyOutputRedshift[2] = 0.078
+CosmologyOutputRedshift[3] = 0.067
+CosmologyOutputRedshift[4] = 0.057
+CosmologyOutputRedshift[5] = 0.047
+CosmologyOutputRedshift[6] = 0.037
+CosmologyOutputRedshift[7] = 0.027
+CosmologyOutputRedshift[8] = 0.017
+CosmologyOutputRedshift[9] = 0.007
+
 #
-#  set hydro parameters
+# hydro parameters
 #
-Gamma                  = 1.6667
-PPMDiffusionParameter  = 0       // diffusion off
-DualEnergyFormalism    = 1       // use total & internal energy
-InterpolationMethod    = 1     // SecondOrderA
-CourantSafetyNumber    = 0.5
+HydroMethod                 = 0       // PPM
+Gamma                       = 1.6667
+PPMDiffusionParameter       = 0       // diffusion off
+DualEnergyFormalism         = 1       // use total & internal energy
+InterpolationMethod         = 1       // SecondOrderA
+FluxCorrection              = 1
+ConservativeInterpolation   = 1
+CourantSafetyNumber         = 0.5
 ParticleCourantSafetyNumber = 0.8
-RadiativeCooling            = 0
-MultiSpecies                = 0
-#
-#  set grid refinement parameters
-#
-StaticHierarchy           = 0    // dynamic hierarchy
-MaximumRefinementLevel    = 2    // use up to 2 levels
-RefineBy                  = 2    // refinement factor
-CellFlaggingMethod        = 2 4    // use baryon mass for refinement 
-MinimumEfficiency         = 0.4  // fraction efficiency
-MinimumOverDensityForRefinement = 4.0 // times the initial density
-MinimumMassForRefinementLevelExponent = -0.3
-MinimumEnergyRatioForRefinement = 0.4 // min Egas/Etot for shock refinement
-#RefineRegionLeftEdge            = 0.15 0.20 0.41
-#RefineRegionRightEdge           = 0.35 0.45 0.79
-
-HierarchyFileInputFormat = 1;   // ASCII
-HierarchyFileOutputFormat = 2 ; // both HDF5 and ASCII
+UseMinimumPressureSupport   = 0
 
 #
-#  set some global parameters
+# grid refinement parameters
 #
-GreensFunctionMaxNumber   = 30   // # of greens function at any one time
+StaticHierarchy                       = 0
+MaximumRefinementLevel                = 5
+MaximumGravityRefinementLevel         = 5
+MaximumParticleRefinementLevel        = 5
+RefineBy                              = 2
+CellFlaggingMethod                    = 2 4
+MinimumOverDensityForRefinement       = 8.0 8.0
+MinimumMassForRefinementLevelExponent = 0.0 0.0
+MinimumEfficiency                     = 0.35
 
+#
+# microphysics parameters
+#
+MultiSpecies       = 0
+RadiativeCooling   = 1
+RadiationFieldType = 0
+
+#
+# star formation parameters
+#
+StarParticleCreation          = 1
+StarParticleFeedback          = 1
+StarMakerOverDensityThreshold = 100
+StarMakerMinimumMass          = 1e6
+StarMakerMinimumDynamicalTime = 1e6
+StarMakerMassEfficiency       = 0.1
+StarMassEjectionFraction      = 0.25
+StarMetalYield                = 0.1
+StarEnergyToThermalFeedback   = 1e-5
+StarFeedbackRadius            = 1
+StarFeedbackMaxCellStep       = 3
+
+#
+# some global parameters
+#
+GreensFunctionMaxNumber = 40
+ParallelRootGridIO      = 1
+ParallelParticleIO      = 1
