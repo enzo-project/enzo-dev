@@ -1,0 +1,9 @@
+This is a cosmology simulation that simulates reionization using the 
+ray tracing radiation transfer method with radiating star particles
+and a Haardt & Madau background.  It will run on 2 processors in about
+40 minutes.
+
+Usage:
+./inits.exe -d ReionizationRadHydro.inits
+mpirun -np 2 ./ring.exe pv ParticlePositions ParticleVelocities
+mpirun -np 2 ./enzo.exe -d ReionizationRadHydro.enzo
