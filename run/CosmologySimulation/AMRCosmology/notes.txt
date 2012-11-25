@@ -1,0 +1,8 @@
+This is a cosmology simulation that runs to z = 0 with tabulated
+radiative cooling and conventional, non-radiative star formation and
+feedback.  It will run on 2 processors in about 40 minutes.
+
+Usage:
+./inits.exe -d AMRCosmology.inits
+mpirun -np 2 ./ring.exe pv ParticlePositions ParticleVelocities
+mpirun -np 2 ./enzo.exe -d AMRCosmology.enzo

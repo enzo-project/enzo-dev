@@ -1,0 +1,20 @@
+This is a cosmological simulation that simulates the collapse of a
+metal-free object at z ~ 20.  It uses the primordial chemistry with H2
+cooling.  The simulation stops when the maximum refinement level
+reaches 12.  It will run on a single processor in about 5 minutes.
+
+Usage:
+./inits.exe -d -s AMRNestedCosmology_SubGrid.inits AMRNestedCosmology_TopGrid.init
+./inits.exe -d -s AMRNestedCosmology_SubSubGrid.inits AMRNestedCosmology_SubGrid.inits
+./inits.exe -d AMRNestedCosmology_SubSubGrid.inits
+./enzo.exe -d AMRNestedCosmology.enzo
+
+To run in parallel with parallel i/o:
+Uncomment the following lines in AMRNestedCosmology.enzo:
+#ParallelRootGridIO     = 1
+#ParallelParticleIO     = 1
+
+After running inits, and before running enzo, do:
+mpirun -np NPROCS ./ring.exe pv ParticlePositions.0 ParticleVelocities.0
+mpirun -np NPROCS ./ring.exe pv ParticlePositions.1 ParticleVelocities.1
+mpirun -np NPROCS ./ring.exe pv ParticlePositions.2 ParticleVelocities.2
