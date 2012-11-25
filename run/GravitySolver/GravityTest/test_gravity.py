@@ -1,32 +1,36 @@
-from yt.config import ytcfg
-ytcfg["yt","loglevel"] = '50'
-ytcfg["yt","suppressStreamLogging"] = 'True'
-
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
-class TestGravityTest(YTStaticOutputTest):
-    name = "GravityTest_plot"
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
 
+class TestGravityTest(AnswerTestingTest):
+    _type_name = "GravityTest"
+    _attrs = ()
+
+    def __init__(self):
+        self.pf = None
+    
     def run(self):
-        Data = na.loadtxt("TestGravityCheckResults.out")
+        Data = np.loadtxt("TestGravityCheckResults.out")
         radius = Data[:,0]
         ForceRadialComputed = Data[:,2]
         ForceRadialTrue = Data[:,3]
 
         Error = (ForceRadialComputed-ForceRadialTrue)/ForceRadialTrue
-        indices = na.where((radius > 1.0) & (radius < 8.0))
+        indices = np.where((radius > 1.0) & (radius < 8.0))
 
-        rmsError = na.std(Error[indices])
-        print "rms error = "+str(rmsError)
-        self.result = rmsError
+        rmsError = np.std(Error[indices])
+        return rmsError
 
-    def compare(self, old_result):
-        self.compare_value_delta(self.result, old_result, 0.01)
+    def compare(self, new_result, old_result):
+        assert_allclose(new_result, old_result, rtol=1e-1, atol=0)
 
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-if __name__ == "__main__":
-    run()
+@requires_outputlog(_dir_name, _pf_name)
+def test_gravity_test():
+    yield TestGravityTest()

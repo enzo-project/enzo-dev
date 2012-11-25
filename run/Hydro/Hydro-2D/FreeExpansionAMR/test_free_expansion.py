@@ -1,42 +1,38 @@
-from yt.config import ytcfg
-ytcfg["yt","loglevel"] = '50'
-ytcfg["yt","suppressStreamLogging"] = 'True'
-
 from yt.mods import *
-from yt.utilities.answer_testing.api import YTStaticOutputTest
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
-class TestFreeExpansion2D(YTStaticOutputTest):
-    name = "expansion_image"
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
 
+class TestFreeExpansionDistance(AnswerTestingTest):
+    _type_name = "ExpansionDistance"
+    _attrs = ()
+
+    def __init__(self, pf):
+        self.pf = pf
+    
     def run(self):
-        # self.pf already exists
-        sl = self.pf.h.slice(2, 0.5)
-        frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (150, 150))
-        self.result = frb["Density"]
-
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
-
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
-
-class TestFreeExpansionDistance(YTStaticOutputTest):
-    name = "expansion_dist"
-
-    def run(self):
-        # self.pf already exists
         ray = self.pf.h.ray([0.0,0.0,0.5], [1.0,1.0,0.5])
-        ipos = na.where(ray['VelocityMagnitude'] == 0.0)[0].argmin()
-        self.result = na.sqrt(2.0) * ray['t'][ipos]
+        ray_length = np.sqrt(((ray.end_point - ray.start_point)**2).sum())
+        ipos = na.argwhere(ray['VelocityMagnitude'] == 0.0)
+        if len(ipos) > 0:
+            ipos = ipos.min()
+        else:
+            ipos = -1
+        return ray_length * ray['t'][ipos]
 
-    def compare(self, old_result):
-        self.compare_value_delta(self.result, old_result, 1e-2)
+    def compare(self, new_result, old_result):
+        assert_allclose(new_result, old_result, 1.0e-2, 0.0)
 
-    def plot(self):
-        # There's not much to plot, so we just return an empty list.
-        return []
+@requires_outputlog(_dir_name, _pf_name)
+def test_collapse_max_value():
+    sim = sim_dir_load(_pf_name, path=_dir_name, 
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        yield TestFreeExpansionDistance(pf)

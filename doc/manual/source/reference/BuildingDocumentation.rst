@@ -47,7 +47,7 @@ In the directory with the ``Makefile``, use this command:
 
 ::
 
-  $ make pdflatex
+  $ make latexpdf
 
 If this is successful, the PDF will be ``build/latex/Enzo.pdf``.
 The PDF might be preferred for some users, and can be searched all at once for

@@ -1,34 +1,37 @@
-from yt.config import ytcfg
-ytcfg["yt","loglevel"] = '50'
-ytcfg["yt","suppressStreamLogging"] = 'True'
-
 from yt.mods import *
-from yt.utilities.answer_testing.api import \
-    YTStaticOutputTest, create_test
-import matplotlib.pyplot as plt
+from yt.testing import *
+from yt.utilities.answer_testing.framework import \
+     AnswerTestingTest, \
+     sim_dir_load
+from yt.frontends.enzo.answer_testing_support import \
+     requires_outputlog
 
-class TestAMRPhotonTest(YTStaticOutputTest):
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+_fields = ('Density', 'HI_Fraction', 'HII_Fraction', 'HI_kph')
+
+class TestAMRPhotonTest(AnswerTestingTest):
+    _type_name = "photon_shadowing_image"
+    _attrs = ("field", )
+
+    def __init__(self, pf, field):
+        self.pf = pf
+        self.field = field
 
     def run(self):
-        # self.pf already exists
-        sl = self.pf.h.slice(2,1.0/64)
+        sl = self.pf.h.slice(2,0.5)
         frb = FixedResolutionBuffer(sl, (0,1,0,1), (200,200))
-        self.result = frb["HII_Density"]
+        dd = frb[self.field]
+        return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])
 
-    def compare(self, old_result):
-        current_buffer = self.result
-        old_buffer = old_result
+    def compare(self, new_result, old_result):
+        assert_allclose(new_result, old_result, rtol=1e-13, atol=0)
 
-        # We want our arrays to agree to some delta
-        self.compare_array_delta(current_buffer, old_buffer, 5e-3)
-
-    def plot(self):
-        plt.clf()
-        plt.imshow(self.result, interpolation='nearest',
-                   origin='lower')
-        fn = '%s_%s.png' % (self.pf, self.field)
-        plt.savefig(fn)
-        return [fn]
-
-for f in ['Density', 'HI_Fraction', 'HII_Fraction', 'HI_kph']:
-    create_test(TestAMRPhotonTest, 'amr_photon_test_%s' % f, field=f)
+@requires_outputlog(_dir_name, _pf_name)
+def test_amr_photon_test():
+    sim = sim_dir_load(_pf_name, path=_dir_name,
+                       find_outputs=True)
+    sim.get_time_series()
+    for pf in sim:
+        for field in _fields:
+            yield TestAMRPhotonTest(pf, field)
