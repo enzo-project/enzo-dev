@@ -28,7 +28,7 @@ c     parent      - parent field
 c     dim1,2,3    - declared dimension of parent
 c     start1,2,3  - starting index in parent in units of grid (one based)
 c     end1,2,3    - ending index in parent in units of grid (one based)
-c     refine1,2,3 - INTG_PREC refinement factors
+c     refine1,2,3 - integer refinement factors
 c     gdim1,2,3   - declared dimension of grid
 c     gstart1,2,3 - starting offset of refined region in grid (one based)
 c     wdim1,2,3   - work dimensions
@@ -127,8 +127,8 @@ c
                   ierror = 1
                   return
                endif
-               if (work(i,j,k) .le. 0._RKIND .or.
-     &             parent(pstart1+i, pstart2+j, pstart3+k).le.0._RKIND) 
+               if (work(i,j,k) .le. 0.0 .or.
+     &             parent(pstart1+i, pstart2+j, pstart3+k) .le. 0.0) 
      &             nneg = nneg+1
             enddo
          enddo
@@ -151,40 +151,39 @@ c
      &                         abs(fbar - work(i+1, j+1, k+1)) )*
      &                  sign(one, (fbar - work(i  , j  , k  )))
                if ((work(i+1, j+1, k+1) - fbar) *
-     &             (fbar - work(i  , j  , k  )  ) .le. 0._RKIND) 
-     &              delf0 = 0._RKIND
+     &             (fbar - work(i  , j  , k  )  ) .le. 0.0) 
+     &              delf0 = 0.0
 c
                delf1 =     min(abs(fbar - work(i+1, j  , k  )),
      &                         abs(fbar - work(i  , j+1, k+1)) )*
      &                  sign(one, (fbar - work(i+1, j  , k  )))
                if ((work(i  , j+1, k+1) - fbar) *
-     &             (fbar - work(i+1, j  , k  )  ) .le. 0._RKIND) 
-     &              delf1 = 0._RKIND
+     &             (fbar - work(i+1, j  , k  )  ) .le. 0.0) 
+     &              delf1 = 0.0
 c
                delf2 =     min(abs(fbar - work(i  , j+1, k  )),
      &                         abs(fbar - work(i+1, j  , k+1)) )*
      &                  sign(one, (fbar - work(i  , j+1, k  )))
                if ((work(i+1, j  , k+1) - fbar) *
-     &             (fbar - work(i  , j+1, k  )  ) .le. 0._RKIND) 
-     &              delf2 = 0._RKIND
+     &             (fbar - work(i  , j+1, k  )  ) .le. 0.0) 
+     &              delf2 = 0.0
 c
                delf3 =     min(abs(fbar - work(i  , j  , k+1)),
      &                         abs(fbar - work(i+1, j+1, k  )) )*
      &                  sign(one, (fbar - work(i  , j  , k+1)))
                if ((work(i+1, j+1, k  ) - fbar) *
-     &             (fbar - work(i  , j  , k+1)  ) .le. 0._RKIND) 
-     &              delf3 = 0._RKIND
+     &             (fbar - work(i  , j  , k+1)  ) .le. 0.0) 
+     &              delf3 = 0.0
 c
 c              Determine s, the resulting scaled value of delf0 and contain
 c                sprime within the range 0 to 1
 c
-               if (delf0 .eq. 0._RKIND) then
-                  delf0 = 1.e-5_RKIND*sign(REAL(tiny,RKIND),
-     &                                     delf1+delf2+delf3)
+               if (delf0 .eq. 0.0) then
+                  delf0 = 1.e-5_RKIND*sign(tiny, delf1+delf2+delf3)
                   sprime = 1._RKIND
                else
                   s = (delf1 + delf2 + delf3) / delf0
-                  sprime = min(max(s, 0._RKIND), 1._RKIND)
+                  sprime = min(max(s, 0.0), 1._RKIND)
                endif
 c
 c              Compute the chi# flags which are 1 if delf# can contribute
@@ -193,9 +192,9 @@ c
                chi1 = 1._RKIND
                chi2 = 1._RKIND
                chi3 = 1._RKIND
-               if (delf1/delf0 .gt. 0._RKIND) chi1 = 0._RKIND
-               if (delf2/delf0 .gt. 0._RKIND) chi2 = 0._RKIND
-               if (delf3/delf0 .gt. 0._RKIND) chi3 = 0._RKIND
+               if (delf1/delf0 .gt. 0.0) chi1 = 0.0
+               if (delf2/delf0 .gt. 0.0) chi2 = 0.0
+               if (delf3/delf0 .gt. 0.0) chi3 = 0.0
 c
 c              If sprime is one (i.e. implied delf0 is too high) reverse chi#.
 c
@@ -206,10 +205,10 @@ c
 c              If sprime is not 0 or 1 (i.e. we do not have to adjust delf#) 
 c                   then set chi# to zero.
 c
-               if (sprime .ne. 0._RKIND .and. sprime .ne. 1._RKIND) then
-                  chi1 = 0._RKIND
-                  chi2 = 0._RKIND
-                  chi3 = 0._RKIND
+               if (sprime .ne. 0.0 .and. sprime .ne. 1._RKIND) then
+                  chi1 = 0.0
+                  chi2 = 0.0
+                  chi3 = 0.0
                endif
 c
 c              Compute frac, the adjustment fraction.
@@ -220,10 +219,10 @@ c
      &           (chi1*delf1 + chi2*delf2 + chi3*delf3 + 1.d-35)
 c
                frac = min(frac, 1._RKIND)
-               if (chi1+chi2+chi3 .eq. 0._RKIND) frac = 0._RKIND
+               if (chi1+chi2+chi3 .eq. 0.0) frac = 0.0
 c
-               frac = max(frac, 0._RKIND)
-               if (frac .lt. 0._RKIND) then
+               frac = max(frac, 0.0)
+               if (frac .lt. 0.0) then
                   write(6,*) "INTERP3D: frac = ", frac
                   write(6,*) chi1,chi2,chi3
                   write(6,*) delf0,delf1,delf2,delf3
@@ -245,7 +244,7 @@ c     &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
 c     &               delf1new,delf2new,delf3new,s
                s = delf1new+delf2new+delf3new
                if (nneg .eq. 0 .and. 
-     &             (fbar+s.le.0._RKIND .or. fbar-s.le.0._RKIND)) then
+     &             (fbar+s .le. 0.0 .or. fbar-s .le. 0.0)) then
                    write(6,*) 'abc',delf0,sprime,chi1,chi2,chi3,
      &               delf1,delf2,delf3,fbar,delf1new+delf2new+delf3new,
      &               delf1new,delf2new,delf3new,s,work(i,j,k),
@@ -304,15 +303,15 @@ c
                         grid(gstart1+(i-1)*refine1+i1,
      &                       gstart2+(j-1)*refine2+j1,
      &                       gstart3+(k-1)*refine3+k1) = (fbar_save(i) +
-     &                       (REAL(i1,RKIND) + 0.5_RKIND - 
-     &                       0.5_RKIND*REAL(refine1,RKIND))
-     &                       / REAL(refine1,RKIND)*fx(i) +
-     &                       (REAL(j1,RKIND) + 0.5_RKIND - 
-     &                       0.5_RKIND*REAL(refine2,RKIND)) 
-     &                       / REAL(refine2,RKIND)*fy(i) +
-     &                       (REAL(k1,RKIND) + 0.5_RKIND - 
-     &                       0.5_RKIND*REAL(refine3,RKIND))
-     &                       / REAL(refine3,RKIND)*fz(i) )
+     &                       (REAL(i1) + 0.5_RKIND - 
+     &                       0.5_RKIND*REAL(refine1)) 
+     &                          / REAL(refine1)*fx(i) +
+     &                       (REAL(j1) + 0.5_RKIND - 
+     &                       0.5_RKIND*REAL(refine2)) 
+     &                          / REAL(refine2)*fy(i) +
+     &                       (REAL(k1) + 0.5_RKIND - 
+     &                       0.5_RKIND*REAL(refine3)) 
+     &                          / REAL(refine3)*fz(i) )
                      enddo
                   enddo
                enddo

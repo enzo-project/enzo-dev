@@ -23,7 +23,7 @@ c     parent      - parent field
 c     dim1        - declared dimension of parent
 c     start1      - starting index in parent in units of grid (one based)
 c     end1        - ending index in parent in units of grid (one based)
-c     refine1     - INTG_PREC refinement factors
+c     refine1     - integer refinement factors
 c     gdim1       - declared dimension of grid
 c     gstart1     - starting offset of refined region in grid (one based)
 c     wdim1       - work dimensions
@@ -98,8 +98,8 @@ c
          delf0 =     min(abs(fbar - work(i  )),
      &                   abs(fbar - work(i+1)) )*
      &            sign(one, (fbar - work(i  )))
-         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0._RKIND) 
-     &        delf0=0._RKIND
+         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0.0) 
+     &        delf0=0.0
 c
 c        Now, find the the interpolation coefficients.
 c
@@ -109,9 +109,9 @@ c        And interpolate to the subgrid.
 c
          do i1 = 0, refine1-1
             grid(gstart1+(i-1)*refine1+i1) = (fbar +
-     &            (REAL(i1,RKIND)+0.5_RKIND - 
-     &             0.5_RKIND*REAL(refine1,RKIND)) / 
-     &             REAL(refine1,RKIND)*fx)
+     &            (REAL(i1)+0.5_RKIND - 
+     &             0.5_RKIND*REAL(refine1)) / 
+     &             REAL(refine1)*fx)
          enddo
 c
       enddo

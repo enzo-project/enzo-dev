@@ -27,7 +27,7 @@ c     parent      - parent field
 c     dim1,2      - declared dimension of parent
 c     start1,2    - starting index in parent in units of grid (one based)
 c     end1,2      - ending index in parent in units of grid (one based)
-c     refine1,2   - INTG_PREC refinement factors
+c     refine1,2   - integer refinement factors
 c     gdim1,2     - declared dimension of grid
 c     gstart1,2   - starting offset of refined region in grid (one based)
 c     wdim1,2     - work dimensions
@@ -116,13 +116,13 @@ c
      &                      abs(fbar - work(i+1, j+1)) )*
      &               sign(one, (fbar - work(i  , j  )))
             if ((work(i+1, j+1) - fbar) * (fbar - work(i, j)) .lt. 0.0)
-     &         delf0 = 0._RKIND
+     &         delf0 = 0.0
 c
             delf1 =     min(abs(fbar - work(i+1, j  )),
      &                      abs(fbar - work(i  , j+1)) )*
      &               sign(one, (fbar - work(i+1, j  )))
             if ((work(i, j+1) - fbar) * (fbar - work(i+1, j)) .lt. 0.0)
-     &         delf1 = 0._RKIND
+     &         delf1 = 0.0
 c
 c           Now, find the the interpolation coefficients.
 c
@@ -135,12 +135,12 @@ c
                do i1 = 0, refine1-1
                   grid(gstart1+(i-1)*refine1+i1,
      &                 gstart2+(j-1)*refine2+j1) = (fbar +
-     &               (REAL(i1,RKIND)+0.5_RKIND -
-     &                 0.5_RKIND*REAL(refine1,RKIND)) / 
-     &                 REAL(refine1,RKIND)*fx +
-     &               (REAL(j1,RKIND)+0.5_RKIND - 
-     &                 0.5_RKIND*REAL(refine2,RKIND)) / 
-     &                 REAL(refine2,RKIND)*fy )
+     &               (REAL(i1)+0.5_RKIND -
+     &                 0.5_RKIND*REAL(refine1)) / 
+     &                 REAL(refine1)*fx +
+     &               (REAL(j1)+0.5_RKIND - 
+     &                 0.5_RKIND*REAL(refine2)) / 
+     &                 REAL(refine2)*fy )
 c                  if (grid(gstart1+(i-1)*refine1+i1,
 c     &                     gstart2+(j-1)*refine2+j1) .lt. 0.0)
 c     &                write(6,*) 'b',i,j,i1,j1
