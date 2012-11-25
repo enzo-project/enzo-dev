@@ -39,8 +39,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   
-  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				   Vel3Num, TENum);
+
 
 
   int nxz, nyz, nzz, ixyz;
@@ -58,9 +57,10 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
   float *Pressure = new float[size];
   this->ComputePressure(Time, Pressure);
 
+#ifdef ECUDA
   cuPPMParameter PPMPara;
   cuPPMData PPMData;
-#ifdef ECUDA
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
   if (UseCUDA) {
     cuPPMInitParameter(&PPMPara, DensNum, TENum, Vel1Num, Vel2Num, Vel3Num, GENum,
                        MAX_NUMBER_OF_BARYON_FIELDS,
@@ -143,7 +143,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
   } // ENDFOR n
 
 #ifdef ECUDA
-  if (UseCUDA) {
+  if (UseCUDA != 0) {
     cuPPMGetBaryon(PPMData, PPMPara, BaryonField);
     cuPPMDestroy(PPMData, PPMPara);
   }

@@ -44,6 +44,12 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     return SUCCESS;
   }
 
+#ifdef ECUDA
+  if (UseCUDA) {
+    this->CudaMHDRK2_2ndStep(SubgridFluxes, NumberOfSubgrids, level, Exterior);
+    return SUCCESS;
+  }     
+#endif 
 
   double time1 = ReturnWallTime();
 

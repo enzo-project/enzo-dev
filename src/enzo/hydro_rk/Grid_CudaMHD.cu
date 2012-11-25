@@ -9,7 +9,6 @@
 /
 ************************************************************************/
 
-#include "mpi.h"
  
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,7 +27,7 @@
 
 #include "CudaMHD.h"
 #include "CudaMHD.cuh"
-#include "CUDAUtil.h"
+#include "../CUDAUtil.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 

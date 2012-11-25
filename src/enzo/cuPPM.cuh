@@ -1464,7 +1464,7 @@ void PPM_CUDA(cuPPMData &Data,
                                       idim, jdim, kdim,
                                       i1, i2, j1, j2, k1, k2,
                                       Data.flatten);
-    CUDA_SAFE_CALL( cudaGetLastError() );
+//    CUDA_SAFE_CALL( cudaGetLastError() );
   }
 
   grid.x = ((size - 5) + NBLOCK - 1)/NBLOCK, grid.y = 1, grid.z = 1;
@@ -1491,7 +1491,7 @@ void PPM_CUDA(cuPPMData &Data,
     Data.vls, Data.vrs, Data.wls, Data.wrs,
     Para.NumberOfColours, Data.colslice, 
     Data.colls, Data.colrs);
-  CUDA_SAFE_CALL( cudaGetLastError() );
+//  CUDA_SAFE_CALL( cudaGetLastError() );
 
   int fallback = 0;
   switch (Para.RiemannSolver) {
@@ -1608,7 +1608,7 @@ void PPM_CUDA(cuPPMData &Data,
       Data.wf, Data.gef, Data.ges, Data.gesf,
       Para.NumberOfColours, Data.colslice, 
       Data.colls, Data.colrs, Data.colf);
-    CUDA_SAFE_CALL( cudaGetLastError() );
+//    CUDA_SAFE_CALL( cudaGetLastError() );
     grid.x = ((size - 6) + NBLOCK - 1)/NBLOCK;
     if (grid.x > 65535)
       grid.y = (grid.x+255)/256, grid.x = 256;
@@ -1652,7 +1652,7 @@ void PPM_CUDA(cuPPMData &Data,
     Data.df, Data.ef, Data.uf, Data.vf, Data.wf,
     Data.gef, Data.ges, 
     Para.NumberOfColours, Data.colslice, Data.colf);
-  CUDA_SAFE_CALL( cudaGetLastError() );
+//  CUDA_SAFE_CALL( cudaGetLastError() );
 
   if (Para.DualEnergyFormalism) {
     grid.x = (size + NBLOCK - 1)/NBLOCK;

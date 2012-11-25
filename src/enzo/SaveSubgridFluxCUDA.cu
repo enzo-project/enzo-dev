@@ -60,6 +60,6 @@ void SaveSubgridFluxCUDA(float *LeftFlux, float *RightFlux, float *Flux,
      fistart, fiend, fjstart, fjend, lface, rface, dir);
   cudaMemcpy(LeftFlux, Tmp1, nf*sizeof(float), cudaMemcpyDeviceToHost);
   cudaMemcpy(RightFlux, Tmp2, nf*sizeof(float), cudaMemcpyDeviceToHost);  
-  CUDA_SAFE_CALL( cudaGetLastError() );
+  //  CUDA_SAFE_CALL( cudaGetLastError() );
 }                     
 

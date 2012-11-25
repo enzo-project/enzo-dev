@@ -12,10 +12,11 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-#include <math.h>
+#include "EOS.h"
+//#include <math.h>
 //#include <cuda.h>
 //#include "ReconstructionRoutines.h"
-#include "EOS.h"
+
 
 #define FABS(A) (A*sign(A))
 __device__  float minmod(float a, float b, float c)

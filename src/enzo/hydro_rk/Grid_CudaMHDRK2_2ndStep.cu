@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "mpi.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
