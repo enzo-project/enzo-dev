@@ -67,16 +67,16 @@
 
       INTG_PREC i, iter, c_done, c_total, nm_done
 
-      double precision pert_i, trad4
+      real*8 pert_i, trad4
 
 !  Slice Locals
 
-      double precision kgr(in), kgrplus(in), sol(in), solplus(in), 
+      real*8 kgr(in), kgrplus(in), sol(in), solplus(in), 
      &     slope(in), tdplus(in), tdustnow(in), tdustold(in), pert(in),
      &     bi_t_mid(in), bi_t_high(in)
       logical nm_itmask(in), bi_itmask(in)
 
-      double precision sola, solb, solpa, solpb
+      real*8 sola, solb, solpa, solpb
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -129,7 +129,8 @@
          do i = is+1, ie+1
             if ( nm_itmask(i) ) then
 
-               tdplus(i) = max(0.001_RKIND, ((1+pert(i)) * tdustnow(i)))
+               tdplus(i) = max(1.e-3_RKIND, ((1._RKIND+pert(i)) 
+     &              * tdustnow(i)))
 
             endif
          enddo
@@ -329,7 +330,7 @@
 
       INTG_PREC in, is, ie
       R_PREC t_subl
-      double precision tdust(in)
+      real*8 tdust(in)
 
 !  Iteration mask
 
@@ -342,11 +343,11 @@
 
 !  Locals
 
-      integer i
+      INTG_PREC i
 
 !  Slice Locals
 
-      double precision kgr(in)
+      real*8 kgr(in)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -363,7 +364,7 @@
                kgr(i) = kgr200
             else
                kgr(i) = max(tiny, 
-     &              (kgr200 * (tdust(i) / 1500._RKIND)**-12))
+     &              (kgr200 * (tdust(i) / 1.5e3_RKIND)**(-12)))
             endif
 
          endif

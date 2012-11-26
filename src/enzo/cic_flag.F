@@ -101,7 +101,7 @@ c             keep default option unrolled!
                  ffield(i1  ,1,1) = 1
                  ffield(i1+1,1,1) = 1
               else
-                 istart = max(i1-buffersize+1, 1_IKIND)
+                 istart = max(i1-buffersize+1, 1)
                  iend = min(i1+buffersize, dim1)
                  do ii = istart, iend
                     ffield(ii,1,1) = 1
@@ -148,9 +148,9 @@ c             keep default option unrolled!
                  ffield(i1  ,j1+1,1) = 1
                  ffield(i1+1,j1+1,1) = 1
               else
-                 istart = max(i1-buffersize+1, 1_IKIND)
+                 istart = max(i1-buffersize+1, 1)
                  iend = min(i1+buffersize, dim1)
-                 jstart = max(j1-buffersize+1, 1_IKIND)
+                 jstart = max(j1-buffersize+1, 1)
                  jend = min(j1+buffersize, dim2)
                  do jj = jstart, jend
                     do ii = istart, iend
@@ -205,11 +205,11 @@ c             keep default option unrolled!
                  ffield(i1  ,j1+1,k1+1) = 1
                  ffield(i1+1,j1+1,k1+1) = 1
               else
-                 istart = max(i1-buffersize+1, 1_IKIND)
+                 istart = max(i1-buffersize+1, 1)
                  iend = min(i1+buffersize, dim1)
-                 jstart = max(j1-buffersize+1, 1_IKIND)
+                 jstart = max(j1-buffersize+1, 1)
                  jend = min(j1+buffersize, dim2)
-                 kstart = max(k1-buffersize+1, 1_IKIND)
+                 kstart = max(k1-buffersize+1, 1)
                  kend = min(k1+buffersize, dim3)
 c	         print*,'cic_flag: buffersize is:',buffersize
                  do kk = kstart, kend

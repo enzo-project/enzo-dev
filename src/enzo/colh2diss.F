@@ -42,15 +42,15 @@ c
 c  Arguments
 c
       R_PREC f1,f2,f3,f4,f5,f6,f7
-      double precision t, tgas
+      real*8 t, tgas
 c
 c  Parameters
 c
 c
 c  Locals
 c
-      double precision tl, a1, a, b, b1, c, c1, d, ftd
-      double precision y(21)
+      real*8 tl, a1, a, b, b1, c, c1, d, ftd
+      real*8 y(21)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================

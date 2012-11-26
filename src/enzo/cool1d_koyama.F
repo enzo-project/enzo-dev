@@ -29,7 +29,7 @@ c  Parameters
 c
       R_PREC pmin
       parameter (pmin = tiny)
-      double precision mh
+      real*8 mh
 
       parameter (mh = mass_h)  ! DPC
 

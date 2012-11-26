@@ -106,7 +106,7 @@
 
 !  Parameters
 
-      double precision mh
+      real*8 mh
       R_PREC    ZSOLAR, mu_metal, boost_factor
 ! MKRJ 12/21/07 boost gammaha by this factor (JHW reduced by 1.0 because
 ! it has been included in v2.0
@@ -122,7 +122,7 @@
       R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, fudge, fH2,
      &     gphdl1, factor, dom_inv, tau, ciefudge
-      double precision coolunit, dbase1, tbase1, xbase1, rtunits,
+      real*8 coolunit, dbase1, tbase1, xbase1, rtunits,
      &     nH2, nother
 
 !  Slice locals
@@ -131,11 +131,11 @@
       R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in), tdust(in), rhoH(in), nh(in),
      &     metallicity(in)
-      double precision edot(in)
+      real*8 edot(in)
 
 !  Cooling/heating slice locals
 
-      double precision ceHI(in), ceHeI(in), ceHeII(in),
+      real*8 ceHI(in), ceHeI(in), ceHeII(in),
      &     ciHI(in), ciHeI(in), ciHeIS(in), ciHeII(in),
      &     reHII(in), reHeII1(in), reHeII2(in), reHeIII(in),
      &     brem(in), cieco(in)
@@ -175,7 +175,7 @@
 
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1)
 
 !     Set units
 
@@ -229,8 +229,7 @@
                p2d(i) = e(i,j,k) - 0.5_RKIND*u(i,j,k)**2
                if (idim .gt. 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
                if (idim .gt. 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
-               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), 
-     &              REAL(tiny,RKIND))
+               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), tiny)
                end if
             enddo
          endif
@@ -324,8 +323,8 @@
 
 !        Compute index into the table and precompute parts of linear interp
 
-         indixe(i) = min(nratec-1, max(1_IKIND,
-     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
+         indixe(i) = min(nratec-1, max(1,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))
@@ -558,7 +557,7 @@
 #endif /* OPTICAL_DEPTH_FUDGE */
 
             edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*(
-     &           vibh(i)/(1._RKIND+vibh(i)/max(   vibl     ,tiny)) +
+     &           vibh(i)/(1._RKIND+vibh(i)/max(   vibl   ,tiny)) +
      &           roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
      &           )/2._RKIND/dom
             end if
@@ -575,9 +574,9 @@ C     Ripamonti & Abel 2003
             do i = is+1, ie+1
             if (itmask(i)) then
 c     Only calculate if H2I(i) is a substantial fraction
-              if (d(i,j,k)*dom.gt.1e10_RKIND) then
+              if (d(i,j,k)*dom > 1e10_RKIND) then
                 ciefudge = 1._RKIND
-                tau = ((d(i,j,k)/2e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
+                tau = ((d(i,j,k)/2.e16_RKIND)*dom)**2.8_RKIND  ! 2e16 is in units of cm^-3
                 tau = max(tau, 1.e-5_RKIND)
                 ciefudge = min((1._RKIND-exp(-tau))/tau,1._RKIND)
 c               Matt's attempt at a second exponentialier cutoff
@@ -622,7 +621,7 @@ c               edot(i) = edot(i) - HDI(i,j,k)*
 c     .                     (hdlte1/(1.0 + hdlte1/hdlow1)/(2.0*dom))
 c  new (correct) way: (april 4, 2007)
                hdlte1 = hdlte(i)/(HI(i,j,k)*dom)
-               hdlow1 = max(hdlow(i), REAL(tiny,RKIND))
+               hdlow1 = max(hdlow(i), tiny)
                edot(i) = edot(i) - HDI(i,j,k)*
      .              (hdlte(i)/(1._RKIND + hdlte1/hdlow1))/(3._RKIND*dom)
             end if
@@ -759,20 +758,19 @@ c               endif
 
          logxe0 = log(xe_start)
          logxe1 = log(xe_end)
-         dlogxea = (logxe1 - logxe0) / REAL(n_xe-1,RKIND)
+         dlogxea = (logxe1 - logxe0) / REAL(n_xe-1)
 c
 c  Determine temperature for CMB temperature so we can subtract metal
 c  cooling at T=T_cmb
 c
          logtcmb = log(comp2)
-         tcmb_idx = max(1_IKIND, 
-     $        int((logtcmb-logtem0)/dlogtem,IKIND)+1_IKIND)
+         tcmb_idx = max(1, int((logtcmb-logtem0)/dlogtem,IKIND)+1)
          dlogTcmb = (logtcmb - (logtem0 + (tcmb_idx-1)*dlogtem)) 
      $        / dlogtem
          do i = is+1, ie+1
             if (itmask(i)) then
 !
-               if (de(i,j,k) .lt. 0._RKIND) then !#####
+               if (de(i,j,k) .lt. 0.0) then !#####
                   write(6,*) 'cool1d_multi: negative d(i,j,k)', 
      $                 de(i,j,k), d(i,j,k), metal(i,j,k)
                endif
@@ -786,8 +784,8 @@ c               if (tgas(i) .lt. 1e4) xe = min(xe, 1e-2)
      $                         xe_min)
                   log_xe = min(log_xe, xe_max)
                endif
-               xe_idx = min(n_xe-1, max(1_IKIND, 
-     $              int((log_xe - logxe0)/dlogxea,IKIND)+1_IKIND))
+               xe_idx = min(n_xe-1, max(1, 
+     $              int((log_xe - logxe0)/dlogxea,IKIND)+1))
                xe1 = logxe0 + (xe_idx - 1)*dlogxea
                dlogT = tdef(i)
                dlogxe = (log_xe - xe1) / dlogxea
@@ -820,7 +818,7 @@ c
                edot(i) = edot(i) - metalc(i) * d(i,j,k) * d(i,j,k) * 
      $              (xi/JHW_METALS_NORMZ)
 #ifdef UNUSED
-               if (xi.gt.1.e-4_RKIND .and. tgas(i).lt.1.e4_RKIND) then
+               if (xi > 1.e-4_RKIND .and. tgas(i) < 1.e4_RKIND) then
                   write(6,'(a,3i5,2e12.4)') 'a0', i,j,k, exp(log_xe),
      $                 exp(logtem(i))
                   write(6,'(a,4e12.4)') 'a1', d(i,j,k), xi, 
@@ -845,7 +843,7 @@ c
      $                        de(i,j,k), metal(i,j,k), d(i,j,k),  
      $                        HII(i,j,k), HeII(i,j,k), HeIII(i,j,k),
      $                        xe_max, xe_min
-                  edot(i) = 0._RKIND
+                  edot(i) = 0.0
                endif
 
             endif
@@ -868,8 +866,8 @@ c
          do j1=1, NID
             denwk(j1) = 10._RKIND**(DENMIN+(j1-0.5_RKIND)*DELD)
             do i=1, NIT
-               cbovcool(i,j1) = 0._RKIND
-               cbovheat(i,j1) = 0._RKIND
+               cbovcool(i,j1) = 0.0
+               cbovheat(i,j1) = 0.0
             enddo
          enddo
 
@@ -900,12 +898,12 @@ c
          else
 
             do i=1, NIB-1
-               radt(i) = 0._RKIND
+               radt(i) = 0.0
             enddo
 
          endif
 
-         radt(NIB) = 0._RKIND
+         radt(NIB) = 0.0
 
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!         call open_mpi_error_file('Metal', 57, 'unknown')
@@ -950,28 +948,28 @@ c        Use the previous metal cooling/heating rate if T >= 10^4 K
 
 c           MKRJ: For low T, adopt the x=10^-2 cooling curve from
 c           Dalgarno & McCray 1972
-	    if (tgas(i) .ge. 1.e3) then
-               if (tgas(i) .ge. 6.31e3) then
-                  metal_cool = 3.13e-27*(tgas(i)**0.396_RKIND)
+	    if (tgas(i) .ge. 1.e3_RKIND) then
+               if (tgas(i) .ge. 6.31e3_RKIND) then
+                  metal_cool = 3.13e-27_RKIND*(tgas(i)**0.396_RKIND)
                else
-                  if (tgas(i) .ge. 3.16e3) then
-                     metal_cool = 2.64e-26*(tgas(i)**0.152_RKIND)
+                  if (tgas(i) .ge. 3.16e3_RKIND) then
+                     metal_cool = 2.64e-26_RKIND*(tgas(i)**0.152_RKIND)
                   else
-                     metal_cool = 5.28e-27*(tgas(i)**0.352_RKIND)
+                     metal_cool = 5.28e-27_RKIND*(tgas(i)**0.352_RKIND)
                   endif
                endif
             else
-               if (tgas(i) .ge. 39.8_RKIND) then
-                  if (tgas(i) .ge. 200._RKIND) then
-                     metal_cool = 3.06e-27*(tgas(i)**0.431_RKIND)
+               if (tgas(i) .ge. 3.98e1_RKIND) then
+                  if (tgas(i) .ge. 2.e2_RKIND) then
+                     metal_cool = 3.06e-27_RKIND*(tgas(i)**0.431_RKIND)
                   else
-                     metal_cool = 1.52e-28*(tgas(i)**0.997_RKIND)
+                     metal_cool = 1.52e-28_RKIND*(tgas(i)**0.997_RKIND)
                   endif
                else
-                  if (tgas(i) .ge. 25.1_RKIND) then
-                     metal_cool = 2.39e-29*(tgas(i)**1.5_RKIND)
+                  if (tgas(i) .ge. 2.51e1_RKIND) then
+                     metal_cool = 2.39e-29_RKIND*(tgas(i)**1.5_RKIND)
                   else
-                     metal_cool = 1.095e-32*(tgas(i)**3.885_RKIND)
+                     metal_cool = 1.095e-32_RKIND*(tgas(i)**3.885_RKIND)
                   endif
                endif
             endif

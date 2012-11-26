@@ -2,9 +2,9 @@
 #include "phys_const.def"
 #include "error.def"
 
+#ifdef CEN_METALS
 C     NAME MTLCLHT
       SUBROUTINE MTLCLHT(DEN,RADT,IPHOTT,CBOVCOOL,CBOVHEAT)
-#ifdef CEN_METALS
 C
 C     THIS PROGRAM CALCULATES A COOLING/HEATING TABLE FOR METALS FROM
 C     C TO NI EXCLUDING H AND HE, GIVEN AN IONIZING RADIATION FIELD
@@ -2659,7 +2659,7 @@ C     NAME=SEATON
 C     R. MOORE OCTOBER 1976
 #include "fortran_types.def"
       IMPLICIT NONE
-      DOUBLE PRECISION XD, XS1, XS2, X3, A10, A11, A12, A13, A14, A15, 
+      REAL*8 XD, XS1, XS2, X3, A10, A11, A12, A13, A14, A15, 
      &                 A20, A21, A22, A23, A24, A25, A30, A31, A32, A33, 
      &                 A34, A35, B10, B11, B12, B13, B14, B20, B21, B22, 
      &                 B23, B24, B30, B31, B32, B33, B34, SEATON
@@ -2707,6 +2707,6 @@ C
      .                      +(32.d0-448.d0/X3)/X3)/X3)
    50 X3=X**0.33333333333333d0*Q**0.66666666666667d0
       SEATON=EXINT1(X,3)+(XS1+XS2/X3)/X3
-#endif /* CEN_METALS */
       RETURN
       END
+#endif /* CEN_METALS */

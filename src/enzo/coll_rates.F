@@ -61,7 +61,7 @@ c  Arguments
 c
       R_PREC k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13,
      $       k14, k15, k16, k17, k18, k19, k23
-      double precision kunit, T
+      real*8 kunit, T
       INTG_PREC casebrates
 c
 c  Parameters
@@ -70,7 +70,7 @@ c
 c  Locals
 c
       INTG_PREC i
-      double precision log_T, log_T_eV, T_ev, xx, dum
+      real*8 log_T, log_T_eV, T_ev, xx, dum
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================

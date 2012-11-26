@@ -197,7 +197,7 @@ c
       parameter (ireco = 1, ibrco = 1, icico = 1, iceco = 1, 
      &           iphoto_mol = 0)
 
-      double precision everg, evhz, tevk, mh, pi, tiny_cgs, dhuge, kb
+      real*8 everg, evhz, tevk, mh, pi, tiny_cgs, dhuge, kb
       parameter (everg = ev2erg, evhz  = 2.41838d14, 
      &           tevk = 1.1605d4, mh = mass_h, 
      &           pi=pi_val, tiny_cgs = 1.0d-37, 
@@ -206,7 +206,7 @@ c
 c
 c         Set various cutoff values in eV.
 c
-      double precision e24,e25,e26,e27,e28a,e28b,e28c,e29a,e29b,e29c,
+      real*8 e24,e25,e26,e27,e28a,e28b,e28c,e29a,e29b,e29c,
      &                 e30a,e30b
         PARAMETER(
      &    e24  = 13.6d0
@@ -225,16 +225,16 @@ c
 c  Locals
 c
       INTG_PREC i,j,n
-      double precision nu, delnu, hnu, logttt, ttt, tev, logtev, 
+      real*8 nu, delnu, hnu, logttt, ttt, tev, logtev, 
      &                 xx, dum, tbase1, xbase1, kunit, coolunit,
      &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate,
      &                 grain_coef, d_ttt, d_logttt, d_dlogtem,
      &                 ttt2, d_ttt2
-      double precision sigma24(nnu), sigma25(nnu), sigma26(nnu), 
+      real*8 sigma24(nnu), sigma25(nnu), sigma26(nnu), 
      &                 sigma27(nnu), sigma28(nnu), sigma29(nnu), 
      &                 sigma30(nnu), sigma31(nnu), fext(nnu)
-      double precision tm
-      double precision HDLR, HDLV, lt, t3, lt3
+      real*8 tm
+      real*8 HDLR, HDLV, lt, t3, lt3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================

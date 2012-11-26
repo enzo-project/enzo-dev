@@ -230,7 +230,7 @@ c
 
       R_PREC U_MW, D_MW, Dstar, alpha, gg, Lambda, x
 
-      double precision msolar
+      real*8 msolar
       parameter (pi=pi_val, G=6.67e-8_RKIND,
      $     msolar=1.989e33_RKIND,mproton=1.67e-24_RKIND)
       

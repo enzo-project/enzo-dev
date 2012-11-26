@@ -210,7 +210,7 @@
       parameter (tolerance = 1.e-10_RKIND)
 #endif
 
-      double precision mh
+      real*8 mh
       parameter (mh = mass_h)
 
 !  Locals
@@ -218,10 +218,10 @@
       INTG_PREC i, j, k, iter
       INTG_PREC clGridDim1, clGridDim2, clGridDim3, clGridDim4, 
      &     clGridDim5
-      R_PREC ttmin, dom, energy, comp1, comp2, dlogtem
-      double precision coolunit, dbase1, tbase1, xbase1, chunit, uvel
-      double precision heq1, heq2, eqk221, eqk222, eqk131, eqk132,
-     &                 eqt1, eqt2, eqtdef, dheq, heq
+      R_PREC ttmin, dom, energy, comp1, comp2
+      real*8 coolunit, dbase1, tbase1, xbase1, chunit, uvel
+      real*8 heq1, heq2, eqk221, eqk222, eqk131, eqk132,
+     &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem
 
 !  row temporaries
 
@@ -247,13 +247,12 @@
 
 !  Cooling/heating row locals
 
-      double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
+      real*8 ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
-     &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
+     &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk), 
      &     brem(ijk), edot(ijk)
-      R_PREC hy_RKIND1k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), 
-     &     rotl(ijk), gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), 
-     &     cieco(ijk)
+      R_PREC hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk), 
+     &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), cieco(ijk)
 
 !  Iteration mask
 
@@ -358,7 +357,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &                piHI, piHeI, piHeII, comp1, comp2,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
      &                hyd01ka, h2k01a, vibha, rotha, rotla,
-     &                hy_RKIND1k, h2k01, vibh, roth, rotl,
+     &                hyd01k, h2k01, vibh, roth, rotl,
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
@@ -904,7 +903,7 @@ c -------------------------------------------------------------------
      &        idust, ndratec
       R_PREC temstart, temend, tgas1d(in), dom,
      &        dtemstart, dtemend
-      double precision coolunit, tbase1
+      real*8 coolunit, tbase1
       logical itmask(ijk)
 
 !     Chemistry rates as a function of temperature
@@ -951,7 +950,7 @@ c -------------------------------------------------------------------
 
 !     Parameters
 
-      double precision everg, e24, e26
+      real*8 everg, e24, e26
       parameter(everg = ev2erg, e24 = 13.6_RKIND, 
      &          e26 = 24.6_RKIND)
 
@@ -978,7 +977,7 @@ c -------------------------------------------------------------------
 
 !        Find index into tble and precompute interpolation values
 
-         indixe(i) = min(nratec-1, max(1_IKIND,
+         indixe(i) = min(nratec-1, max(1,
      &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
@@ -1107,8 +1106,8 @@ c -------------------------------------------------------------------
 
 !                 Find index into table and precompute interpolation values
 
-                  d_indixe(i) = min(ndratec-1,
-     &                 max(1,int((d_logtem(i)-d_logtem0)/d_dlogtem)+1))
+                  d_indixe(i) = min(ndratec-1, max(1,
+     &                 int((d_logtem(i)-d_logtem0)/d_dlogtem,IKIND)+1))
                   d_t1(i) = (d_logtem0 + (d_indixe(i) - 1)*d_dlogtem)
                   d_t2(i) = (d_logtem0 + (d_indixe(i)    )*d_dlogtem)
                   d_tdef(i) = (d_logtem(i) - d_t1(i)) / 
@@ -1233,7 +1232,7 @@ c -------------------------------------------------------------------
       INTG_PREC ispecies, idust, is, ie, j, k, in, jn, kn, 
      &     iradtrans, irt_honly
       R_PREC dedot(in), HIdot(in), dom
-      double precision edot(in)
+      real*8 edot(in)
       logical itmask(in)
 
 !     Density fields
@@ -1248,7 +1247,7 @@ c -------------------------------------------------------------------
       R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
      &        kdissH2I(in,jn,kn)
 
-      double precision chunit
+      real*8 chunit
 
 !     Rate values
 
@@ -1265,7 +1264,7 @@ c -------------------------------------------------------------------
 !     locals
 
       INTG_PREC i
-      double precision h2heatfac(in), H2delta(in), H2dmag, atten, tau
+      real*8 h2heatfac(in), H2delta(in), H2dmag, atten, tau
 
       if (ispecies .eq. 1) then
 

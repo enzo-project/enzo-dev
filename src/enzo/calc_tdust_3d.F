@@ -50,14 +50,14 @@
 
 !  Parameters
 
-      double precision mh
+      real*8 mh
       parameter (mh = mass_h)      !DPC
 
 !  Locals
 
       INTG_PREC i, j, k
       R_PREC trad, zr, logtem0, logtem9, dlogtem
-      double precision coolunit, dbase1, tbase1, xbase1
+      real*8 coolunit, dbase1, tbase1, xbase1
 
 !  Slice locals
  
@@ -126,7 +126,7 @@
 !     Compute index into the table and precompute parts of linear interp
 
                indixe(i) = min(nratec-1,
-     &              max(1,int((logtem(i)-logtem0)/dlogtem)+1))
+     &              max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
                t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
                t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
                tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))

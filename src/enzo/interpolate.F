@@ -87,7 +87,7 @@ c
 c  Error check for self-consistent interpolation indexes
 c
       do i = 1, ndim
-         if (int(pstart(i)/refine(i))*refine(i) .ne. pstart(i)) then
+         if (int(pstart(i)/refine(i),IKIND)*refine(i) /= pstart(i)) then
             write(6,*) "INTERPOLATE: ERROR pstart(i) =", pstart(i),
      &                 " refine(i) =", refine(i), " i =", i
             ERROR_MESSAGE

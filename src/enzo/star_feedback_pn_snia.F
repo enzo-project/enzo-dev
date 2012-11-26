@@ -117,7 +117,7 @@ c     TSK variables for stellar feedback fitting formula
       R_PREC MdotSNII, MdotSNIa, MdotPN
       R_PREC Edota, Edotb, Mdota, Mdotb, dvol
       R_PREC tau, rmf, dtt, madd, madd_cell, delta_e, tmid, tnow
-      double precision msolar, esnIa, eSNII
+      real*8 msolar, esnIa, eSNII
       parameter (tau=1.0e9_RKIND,  msolar=1.989D33) ! tau in years
       parameter (eSNIa=5.D-6, eSNII=5.D-6) 
 c-----------------------------------------------------------------------
@@ -199,9 +199,9 @@ c
 c
 c        Compute index of the cell that the star particle resides in.
 c 
-         i = int((xp(n) - xstart)/dx) + 1
-         j = int((yp(n) - ystart)/dx) + 1
-         k = int((zp(n) - zstart)/dx) + 1
+         i = int((xp(n) - xstart)/dx,IKIND) + 1
+         j = int((yp(n) - ystart)/dx,IKIND) + 1
+         k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
 c         check bounds - if star particle is outside of this grid
 c         then exit and give a warning.

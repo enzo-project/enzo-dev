@@ -47,7 +47,7 @@ c  Parameters
 c
       R_PREC pmin
       parameter (pmin = tiny)
-      double precision mh
+      real*8 mh
 
       parameter (mh = mass_h)  ! DPC
 
@@ -140,8 +140,8 @@ c
 c
 c        Compute index into the table and precompute parts of linear interp
 c
-         indixe(i) = min(nratec-1, max(1_IKIND,
-     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
+         indixe(i) = min(nratec-1, max(1,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)

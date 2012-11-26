@@ -83,7 +83,7 @@ c
       parameter (tolerance = 1.e-10_RKIND)
 #endif
 
-      double precision everg, mh, e24, e26
+      real*8 everg, mh, e24, e26
       parameter (everg = ev2erg, mh = mass_h,
      &           e24 = 13.6_RKIND, e26 = 24.6_RKIND)            ! DPC
 c
@@ -100,7 +100,7 @@ c
      &     totalH(ijk), totalHe(ijk), totalD, 
      &     correctH, correctHe, correctD, metalfree
 
-      double precision coolunit, dbase1, tbase1, xbase1
+      real*8 coolunit, dbase1, tbase1, xbase1
 c
 c  Slice temporaries (passed in)
 c 
@@ -184,8 +184,8 @@ c           logtem(i) = log(0.5_RKIND*(tgas(i,j,k)+tgasold(i,j,k)))
 c
 c           Find index into tble and precompute interpolation values
 c
-            indixe(i) = min(nratec-1, max(1_IKIND,
-     &           int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
+            indixe(i) = min(nratec-1, max(1,
+     &           int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
             t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
             t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
             tdef(i) = t2(i) - t1(i)

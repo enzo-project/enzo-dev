@@ -82,7 +82,7 @@ c  Locals
 c
       INTG_PREC i, j, k, n
       R_PREC comp1, comp2, energy
-      double precision dom, coolunit, dbase1, tbase1, xbase1, mh, ulum
+      real*8 dom, coolunit, dbase1, tbase1, xbase1, mh, ulum
       parameter (mh = mass_h)
 c
 c  Slice locals
@@ -90,11 +90,11 @@ c
       INTG_PREC indixe(ijk)
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
-      double precision edot(in,nlum)
+      real*8 edot(in,nlum)
 c
 c  Cooling/heating slice locals
 c
-      double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
+      real*8 ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk)

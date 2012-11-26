@@ -71,7 +71,7 @@ c
       R_PREC    FNUDEL, AVGNU, FNUMNUH0, FNUMNUHE0, FNUMNUHE20,
      &        QNICK, CROSSS, FJXRY11, FJXRY21,
      &        FJXRY12, FJXRY22, FJXRY13, FJXRY23
-      double precision tbase1, xbase1, dbase1, coolunit, mh
+      real*8 tbase1, xbase1, dbase1, coolunit, mh
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================

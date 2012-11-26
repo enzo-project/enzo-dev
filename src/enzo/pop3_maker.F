@@ -100,7 +100,7 @@ c
       R_PREC   div, tdyn, dtot, wgt
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
-      double precision msolar, mh
+      real*8 msolar, mh
       parameter (pi=pi_val, G=GravConst, 
      &           sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass, mh=mass_h)
@@ -432,7 +432,7 @@ c
       INTG_PREC i, j, k, n
       R_PREC energy, lum, sn_nrg, m_eject, yield, dratio, m1
       R_PREC lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
-      double precision msolar
+      real*8 msolar
       parameter (lower_pisn = 140._RKIND, upper_pisn = 260._RKIND, 
      $           lsun = 2.e33_RKIND)
       parameter (msolar = SolarMass)

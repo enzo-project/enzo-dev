@@ -49,7 +49,7 @@ c
      &        ifp1, ifp2, ip1, ip2, ip3, k2, n, nprev, nrem, ntot
       INTG_PREC ibad
       R_PREC    tempi, tempr
-c     double precision twopi, theta, wr, wi, wpr, wpi, wtemp
+c     real*8 twopi, theta, wr, wi, wpr, wpi, wtemp
       R_PREC    twopi, theta, wr, wi, wpr, wpi, wtemp
       parameter (twopi=6.2831853071796_RKIND)
 c

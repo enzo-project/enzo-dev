@@ -82,7 +82,7 @@ c
 c
 c  Parameters
 c
-      double precision mh
+      real*8 mh
       R_PREC    ZSOLAR
       parameter (mh = mass_h, ZSOLAR = 0.02041_RKIND)
 c
@@ -93,18 +93,18 @@ c
       R_PREC dt2, ttmin, comp1, comp2, scoef, acoef, HIdot,
      &     hdlte1, hdlow1, gamma2, x, nH2, nother, fudge, fH2,
      &     gphdl1, factor, ciefudge, tau, dlogTcmb, logtcmb, metalc_cmb
-      double precision coolunit, dbase1, tbase1, xbase1, rtunits
+      real*8 coolunit, dbase1, tbase1, xbase1, rtunits
 c
 c  Slice locals
 c 
       INTG_PREC indixe(in)
       R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in)
-      double precision edot(in,nedot)
+      real*8 edot(in,nedot)
 c
 c  Cooling/heating slice locals
 c
-      double precision ceHI(in), ceHeI(in), ceHeII(in),
+      real*8 ceHI(in), ceHeI(in), ceHeII(in),
      &     ciHI(in), ciHeI(in), ciHeIS(in), ciHeII(in),
      &     reHII(in), reHeII1(in), reHeII2(in), reHeIII(in),
      &     brem(in)
@@ -282,8 +282,8 @@ c
 c
 c        Compute index into the table and precompute parts of linear interp
 c
-         indixe(i) = min(nratec-1, max(1_IKIND,
-     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1_IKIND))
+         indixe(i) = min(nratec-1, max(1,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = 1._RKIND/(t2(i) - t1(i))
@@ -509,8 +509,7 @@ c  Determine temperature for CMB temperature so we can subtract metal
 c  cooling at T=T_cmb
 c
          logtcmb = log(comp2)
-         tcmb_idx = max(1_IKIND, 
-     $        int((logtcmb-logtem0)/dlogtem,IKIND)+1_IKIND)
+         tcmb_idx = max(1, int((logtcmb-logtem0)/dlogtem,IKIND)+1)
          dlogTcmb = (logtcmb - (logtem0 + (tcmb_idx-1)*dlogtem)) 
      $	/ dlogtem
          do i = is+1, ie+1
@@ -522,8 +521,8 @@ c
      $                         xe_min)
                   log_xe = min(log_xe, xe_max)
                endif
-               xe_idx = min(n_xe-1, max(1_IKIND, 
-     $              int((log_xe - logxe0)/dlogxea,IKIND)+1_IKIND))
+               xe_idx = min(n_xe-1, max(1, 
+     $              int((log_xe - logxe0)/dlogxea,IKIND)+1))
                xe1 = logxe0 + (xe_idx - 1)*dlogxea
                dlogT = (logtem(i) - t1(i)) * tdef(i)
                dlogxe = (log_xe - xe1) / dlogxea

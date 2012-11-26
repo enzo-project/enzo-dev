@@ -109,11 +109,11 @@
       R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk),
      &     tdust(ijk), metallicity(ijk), rhoH(ijk)
-      double precision edot(ijk)
+      real*8 edot(ijk)
 
 !  Cooling/heating slice locals
 
-      double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
+      real*8 ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), cieco(ijk)
