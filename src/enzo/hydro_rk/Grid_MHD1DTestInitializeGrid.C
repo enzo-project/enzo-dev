@@ -60,7 +60,7 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
     size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++) {

@@ -84,7 +84,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   Grid->GridData->ReturnGridInfo(&Rank, Dims, Left, Right);
  
   for (dim = 0; dim < Rank; dim++)
-    Dims[dim] -= 2*DEFAULT_GHOST_ZONES;
+    Dims[dim] -= 2*NumberOfGhostZones;
  
   float Edge = POW(float(Dims[0]*Dims[1]*Dims[2])/float(NumberOfProcessors),
 		   1/float(Rank));
@@ -464,7 +464,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	  RightEdge[dim] = Left[dim] + (Right[dim] - Left[dim])*
 	    FLOAT(StartIndex[dim][ijk]+TempDims[dim])/FLOAT(Dims[dim]);
 	  if (dim < Rank)
-	    TempDims[dim] += 2*DEFAULT_GHOST_ZONES;
+	    TempDims[dim] += 2*NumberOfGhostZones;
  
 //        printf("  LeftEdge[%"ISYM"] = %8.4"FSYM"  RightEdge[%"ISYM"] = %8.4"FSYM"\n",
 //               dim, LeftEdge[dim], dim, RightEdge[dim]);

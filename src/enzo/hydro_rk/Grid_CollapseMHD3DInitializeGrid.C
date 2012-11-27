@@ -151,7 +151,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   }
   activesize = 1;
   for (dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   }
 
   for (dim = 0; dim < GridRank; dim++) {
@@ -518,9 +518,9 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
     printf("Begin generating turbulent velocity spectrum...\n");
     Turbulence_Generator(TurbulenceVelocity, 
-			 GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
-			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
-			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[0]-2*NumberOfGhostZones, 
+			 GridDimension[1]-2*NumberOfGhostZones,
+			 GridDimension[2]-2*NumberOfGhostZones,
 			 4.0, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed);    
 
