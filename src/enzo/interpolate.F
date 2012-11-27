@@ -31,7 +31,7 @@ c     parent    - parent field
 c     pdims(3)  - declared dimension of parent
 c     pend(3)   - ending dimension in parent in index units of grid
 c     pstart(3) - starting dimension in parent in index units of grid
-c     refine(3) - integer refinement factors
+c     refine(3) - INTG_PREC refinement factors
 c     work      - array of size Multiply[i=1,ndim][(gdims(i)/refine(i) + 1)] 
 c
 c  OUTPUTS:
@@ -42,17 +42,18 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c  arguements
 c
-      integer imethod, iposflag, ndim, ierror
-      integer pdims(ndim), pstart(ndim), pend(ndim), refine(ndim),
+      INTG_PREC imethod, iposflag, ndim, ierror
+      INTG_PREC pdims(ndim), pstart(ndim), pend(ndim), refine(ndim),
      &        gdims(ndim), gstart(ndim)
-      real    grid(1), parent(1), work(1)
+      R_PREC    grid(1), parent(1), work(1)
 c
 c  locals
 c
-      integer i
+      INTG_PREC i
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -86,7 +87,7 @@ c
 c  Error check for self-consistent interpolation indexes
 c
       do i = 1, ndim
-         if (int(pstart(i)/refine(i))*refine(i) .ne. pstart(i)) then
+         if (int(pstart(i)/refine(i),IKIND)*refine(i) /= pstart(i)) then
             write(6,*) "INTERPOLATE: ERROR pstart(i) =", pstart(i),
      &                 " refine(i) =", refine(i), " i =", i
             ERROR_MESSAGE
@@ -98,24 +99,24 @@ c    Do the appropriate interpolation (add one to convert to fortran 1 based)
 c
       if (imethod .eq. 0) then
 c
-       if (ndim .eq. 1) call tscint1d(parent, pdims(1), pstart(1)+1, 
-     &                               pend(1)+1, refine(1),
-     &                               grid, gdims(1), gstart(1)+1)
+       if (ndim .eq. 1) call tscint1d(parent, pdims(1), 
+     &        pstart(1)+1_IKIND, pend(1)+1_IKIND, refine(1),
+     &        grid, gdims(1), gstart(1)+1_IKIND)
 c
        if (ndim .eq. 2) call tscint2d(parent, pdims(1), pdims(2),
-     &                               pstart(1)+1, pstart(2)+1,
-     &                               pend(1)+1, pend(2)+1,
-     &                               refine(1), refine(2),
-     &                               grid, gdims(1), gdims(2),
-     &                               gstart(1)+1, gstart(2)+1)
+     &      pstart(1)+1_IKIND, pstart(2)+1_IKIND,
+     &      pend(1)+1_IKIND, pend(2)+1_IKIND,
+     &      refine(1), refine(2),
+     &      grid, gdims(1), gdims(2),
+     &      gstart(1)+1_IKIND, gstart(2)+1_IKIND)
 c
        if (ndim .eq. 3) call tscint3d(parent, 
-     &                            pdims(1), pdims(2), pdims(3),
-     &                            pstart(1)+1, pstart(2)+1, pstart(3)+1,
-     &                            pend(1)+1, pend(2)+1, pend(3)+1,
-     &                            refine(1), refine(2), refine(3),
-     &                            grid, gdims(1), gdims(2), gdims(3),
-     &                            gstart(1)+1, gstart(2)+1, gstart(3)+1)
+     &      pdims(1), pdims(2), pdims(3),
+     &      pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
+     &      pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
+     &      refine(1), refine(2), refine(3),
+     &      grid, gdims(1), gdims(2), gdims(3),
+     &      gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND)
 c
       endif
 c
@@ -126,33 +127,33 @@ c
 c
          if (ndim .eq. 1) call interp1d(parent, work, 
      &                            pdims(1),
-     &                            pstart(1)+1,
-     &                            pend(1)+1,
+     &                            pstart(1)+1_IKIND,
+     &                            pend(1)+1_IKIND,
      &                            refine(1),
      &                            grid, gdims(1),
-     &                            gstart(1)+1,
-     &                            gdims(1)/refine(1)+1)
+     &                            gstart(1)+1_IKIND,
+     &                            gdims(1)/refine(1)+1_IKIND)
 c
          if (ndim .eq. 2) call interp2d(parent, work, 
      &                            pdims(1), pdims(2),
-     &                            pstart(1)+1, pstart(2)+1,
-     &                            pend(1)+1, pend(2)+1,
+     &                            pstart(1)+1_IKIND, pstart(2)+1_IKIND,
+     &                            pend(1)+1_IKIND, pend(2)+1_IKIND,
      &                            refine(1), refine(2),
      &                            grid, gdims(1), gdims(2),
-     &                            gstart(1)+1, gstart(2)+1,
-     &                            gdims(1)/refine(1)+1, 
-     &                            gdims(2)/refine(2)+1)
+     &                            gstart(1)+1_IKIND, gstart(2)+1_IKIND,
+     &                            gdims(1)/refine(1)+1_IKIND, 
+     &                            gdims(2)/refine(2)+1_IKIND)
 c
          if (ndim .eq. 3) call interp3d(parent, work, 
-     &                            pdims(1), pdims(2), pdims(3),
-     &                            pstart(1)+1, pstart(2)+1, pstart(3)+1,
-     &                            pend(1)+1, pend(2)+1, pend(3)+1,
-     &                            refine(1), refine(2), refine(3),
-     &                            grid, gdims(1), gdims(2), gdims(3),
-     &                            gstart(1)+1, gstart(2)+1, gstart(3)+1,
-     &                            gdims(1)/refine(1)+1, 
-     &                            gdims(2)/refine(2)+1,
-     &                            gdims(3)/refine(3)+1, ierror)
+     &        pdims(1), pdims(2), pdims(3),
+     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
+     &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
+     &        refine(1), refine(2), refine(3),
+     &        grid, gdims(1), gdims(2), gdims(3),
+     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND,
+     &        gdims(1)/refine(1)+1_IKIND, 
+     &        gdims(2)/refine(2)+1_IKIND,
+     &        gdims(3)/refine(3)+1_IKIND, ierror)
 c
       endif
 c
@@ -162,23 +163,23 @@ c
 c
 #if 0
          if (ndim .eq. 1) call interp1d(parent, work, 
-     &                            pdims(1),
-     &                            pstart(1)+1,
-     &                            pend(1)+1,
-     &                            refine(1),
-     &                            grid, gdims(1),
-     &                            gstart(1)+1,
-     &                            gdims(1)/refine(1)+1)
+     &        pdims(1),
+     &        pstart(1)+1_IKIND,
+     &        pend(1)+1_IKIND,
+     &        refine(1),
+     &        grid, gdims(1),
+     &        gstart(1)+1_IKIND,
+     &        gdims(1)/refine(1)+1_IKIND)
 c
          if (ndim .eq. 2) call interp2d(parent, work, 
-     &                            pdims(1), pdims(2),
-     &                            pstart(1)+1, pstart(2)+1,
-     &                            pend(1)+1, pend(2)+1,
-     &                            refine(1), refine(2),
-     &                            grid, gdims(1), gdims(2),
-     &                            gstart(1)+1, gstart(2)+1,
-     &                            gdims(1)/refine(1)+1, 
-     &                            gdims(2)/refine(2)+1)
+     &        pdims(1), pdims(2),
+     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND,
+     &        pend(1)+1_IKIND, pend(2)+1_IKIND,
+     &        refine(1), refine(2),
+     &        grid, gdims(1), gdims(2),
+     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND,
+     &        gdims(1)/refine(1)+1_IKIND, 
+     &        gdims(2)/refine(2)+1_IKIND)
 #endif
          if (ndim .ne. 3) then
             write(6,*) 'INTERPOLATE: imethod=2 only for 3d'
@@ -186,15 +187,15 @@ c
          endif
 c
          if (ndim .eq. 3) call int_lin3d(parent, work, 
-     &                            pdims(1), pdims(2), pdims(3),
-     &                            pstart(1)+1, pstart(2)+1, pstart(3)+1,
-     &                            pend(1)+1, pend(2)+1, pend(3)+1,
-     &                            refine(1), refine(2), refine(3),
-     &                            grid, gdims(1), gdims(2), gdims(3),
-     &                            gstart(1)+1, gstart(2)+1, gstart(3)+1,
-     &                            gdims(1)/refine(1)+1, 
-     &                            gdims(2)/refine(2)+1,
-     &                            gdims(3)/refine(3)+1, iposflag)
+     &        pdims(1), pdims(2), pdims(3),
+     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
+     &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
+     &        refine(1), refine(2), refine(3),
+     &        grid, gdims(1), gdims(2), gdims(3),
+     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND,
+     &        gdims(1)/refine(1)+1_IKIND, 
+     &        gdims(2)/refine(2)+1_IKIND,
+     &        gdims(3)/refine(3)+1_IKIND, iposflag)
 c
       endif
 c
@@ -203,11 +204,12 @@ c
       if (imethod .eq. 3) then
 c
          call cicinterp(parent, pdims(1), pdims(2), pdims(3), ndim,
-     &                  pstart(1)+1, pstart(2)+1, pstart(3)+1,
-     &                  pend(1)+1, pend(2)+1, pend(3)+1,
-     &                  refine(1), refine(2), refine(3),
-     &                  grid, gdims(1), gdims(2), gdims(3),
-     &                  gstart(1)+1, gstart(2)+1, gstart(3)+1, iposflag)
+     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
+     &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
+     &        refine(1), refine(2), refine(3),
+     &        grid, gdims(1), gdims(2), gdims(3),
+     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND, 
+     &        iposflag)
 c
       endif
 c
@@ -216,11 +218,11 @@ c
       if (imethod .eq. 4) then
 c
          call ngpinterp(parent, pdims(1), pdims(2), pdims(3), ndim,
-     &                  pstart(1)+1, pstart(2)+1, pstart(3)+1,
-     &                  pend(1)+1, pend(2)+1, pend(3)+1,
-     &                  refine(1), refine(2), refine(3),
-     &                  grid, gdims(1), gdims(2), gdims(3),
-     &                  gstart(1)+1, gstart(2)+1, gstart(3)+1)
+     &        pstart(1)+1_IKIND, pstart(2)+1_IKIND, pstart(3)+1_IKIND,
+     &        pend(1)+1_IKIND, pend(2)+1_IKIND, pend(3)+1_IKIND,
+     &        refine(1), refine(2), refine(3),
+     &        grid, gdims(1), gdims(2), gdims(3),
+     &        gstart(1)+1_IKIND, gstart(2)+1_IKIND, gstart(3)+1_IKIND)
 c
       endif
 c

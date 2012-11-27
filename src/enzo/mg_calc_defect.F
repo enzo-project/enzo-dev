@@ -30,20 +30,21 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ndim, dim1, dim2, dim3
-      real    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3),
+      INTG_PREC ndim, dim1, dim2, dim3
+      R_PREC    solution(dim1, dim2, dim3), rhs(dim1, dim2, dim3),
      &        defect(dim1, dim2, dim3), norm
-      real*8  sum
+      REAL*8  sum
 c
 c  locals
 c
-      integer i, j, k
-      real    h1, h2, h3
+      INTG_PREC i, j, k
+      R_PREC    h1, h2, h3
       
 #if defined(GRAVITY_4S) && !defined(GRAVITY_6S)
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
@@ -54,24 +55,24 @@ c
 c
 c     Precompute some things
 c
-      h1 = -real(dim1-1)/12.d0
-      h2 = h1*real(dim2-1)
-      h3 = h2*real(dim3-1)
+      h1 = -REAL(dim1-1,RKIND)/12._RKIND
+      h2 = h1*REAL(dim2-1,RKIND)
+      h3 = h2*REAL(dim3-1,RKIND)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=3, dim1-2
-            defect(i,1,1) = h1*(-1.d0*(solution(i+2,1,1)+
+            defect(i,1,1) = h1*(-1._RKIND*(solution(i+2,1,1)+
      &                                solution(i-2,1,1))+
-     &                          16.d0*(solution(i+1,1,1)+
+     &                          16._RKIND*(solution(i+1,1,1)+
      &                                solution(i-1,1,1))-
-     &                          30.d0* solution(i,1,1)) + rhs(i,1,1)
+     &                          30._RKIND* solution(i,1,1)) + rhs(i,1,1)
          enddo
-         defect(1,1,1) = 0.d0
-	 	 defect(2,1,1) = 0.d0
-         defect(dim1,1,1) = 0.d0
-	 	 defect(dim1-1,1,1)=0.d0
+         defect(1,1,1) = 0._RKIND
+	 	 defect(2,1,1) = 0._RKIND
+         defect(dim1,1,1) = 0._RKIND
+	 	 defect(dim1-1,1,1)=0._RKIND
       endif
 c
 c     b) 2D
@@ -80,27 +81,27 @@ c
          do j=3, dim2-2
             do i=3, dim1-2
           	  defect(i,j,1) = h2*
-     &		     	   (-1.d0*(solution(i+2,j,1)+
+     &		     	   (-1._RKIND*(solution(i+2,j,1)+
      &                            solution(i-2,j,1)+
      &                            solution(i,j+2,1)+
      &                            solution(i,j-2,1))+
-     &                      16.d0*(solution(i+1,j,1)+
+     &                      16._RKIND*(solution(i+1,j,1)+
      &                            solution(i-1,j,1)+
      &                            solution(i,j+1,1)+
      &                            solution(i,j-1,1))-
-     &                      60.d0* solution(i,j,1)) + rhs(i,j,1)
+     &                      60._RKIND* solution(i,j,1)) + rhs(i,j,1)
       
             enddo
-            defect(1,j,1) = 0.d0
-	    	defect(2,j,1) = 0.d0
-            defect(dim1,j,1) = 0.d0
-	    	defect(dim1-1,j,1) = 0.d0
+            defect(1,j,1) = 0._RKIND
+	    	defect(2,j,1) = 0._RKIND
+            defect(dim1,j,1) = 0._RKIND
+	    	defect(dim1-1,j,1) = 0._RKIND
          enddo
          do i=1,dim1
-            defect(i,1,1) = 0.d0
-	    	defect(i,2,1) = 0.d0
-            defect(i,dim2,1) = 0.d0
-            defect(i,dim2-1,1) = 0.d0
+            defect(i,1,1) = 0._RKIND
+	    	defect(i,2,1) = 0._RKIND
+            defect(i,dim2,1) = 0._RKIND
+            defect(i,dim2-1,1) = 0._RKIND
          enddo
       endif
 c
@@ -111,46 +112,46 @@ c
             do j=3, dim2-2
                do i=3, dim1-2
             	 defect(i,j,k) = h3*
-     &			   (-1.d0*(solution(i+2,j,k)+
+     &			   (-1._RKIND*(solution(i+2,j,k)+
      &                            solution(i-2,j,k)+
      &                            solution(i,j+2,k)+
      &                            solution(i,j-2,k)+
      &			          solution(i,j,k+2)+
      &                            solution(i,j,k-2))+
-     &                      16.d0*(solution(i+1,j,k)+ 
+     &                      16._RKIND*(solution(i+1,j,k)+ 
      &                            solution(i-1,j,k)+
      &                            solution(i,j+1,k)+
      &                            solution(i,j-1,k)+
      &		                  solution(i,j,k+1)+
      &                            solution(i,j,k-1))-
-     &                      90.d0* solution(i,j,k)) + rhs(i,j,k)
+     &                      90._RKIND* solution(i,j,k)) + rhs(i,j,k)
         
                enddo
-               defect(1,j,k) = 0.d0
-	       defect(2,j,k) = 0.d0
-               defect(dim1,j,k) = 0.d0
-               defect(dim1-1,j,k) = 0.d0
+               defect(1,j,k) = 0._RKIND
+	       defect(2,j,k) = 0._RKIND
+               defect(dim1,j,k) = 0._RKIND
+               defect(dim1-1,j,k) = 0._RKIND
             enddo
             do i=1, dim1
-               defect(i,1,k) = 0.d0
-               defect(i,2,k) = 0.d0
-               defect(i,dim2,k) = 0.d0
-               defect(i,dim2-1,k) = 0.d0
+               defect(i,1,k) = 0._RKIND
+               defect(i,2,k) = 0._RKIND
+               defect(i,dim2,k) = 0._RKIND
+               defect(i,dim2-1,k) = 0._RKIND
             enddo
          enddo
          do j=1, dim2
             do i=1, dim1
-               defect(i,j,1) = 0.d0
-               defect(i,j,2) = 0.d0
-               defect(i,j,dim3) = 0.d0
-               defect(i,j,dim3-1) = 0.d0
+               defect(i,j,1) = 0._RKIND
+               defect(i,j,2) = 0._RKIND
+               defect(i,j,dim3) = 0._RKIND
+               defect(i,j,dim3-1) = 0._RKIND
             enddo
          enddo
       endif
 c
 c     Compute norm
 c
-      sum = 0.d0
+      sum = 0._RKIND
       do k=1, dim3
          do j=1, dim2
             do i=1, dim1
@@ -170,28 +171,28 @@ c
 c
 c     Precompute some things
 c
-      h1 = -real(dim1-1)/1080.d0
-      h2 = h1*real(dim2-1)
-      h3 = h2*real(dim3-1)
+      h1 = -REAL(dim1-1,RKIND)/1080._RKIND
+      h2 = h1*REAL(dim2-1,RKIND)
+      h3 = h2*REAL(dim3-1,RKIND)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=4, dim1-3
-            defect(i,1,1) = h1*( 1.d0*(solution(i+3,1,1)+
+            defect(i,1,1) = h1*( 1._RKIND*(solution(i+3,1,1)+
      &                                solution(i-3,1,1))
-     &                         -96.d0*(solution(i+2,1,1)+
+     &                         -96._RKIND*(solution(i+2,1,1)+
      &                                solution(i-2,1,1))
-     &                       +1455.d0*(solution(i+1,1,1)+
+     &                       +1455._RKIND*(solution(i+1,1,1)+
      &                                solution(i-1,1,1))
-     &                       -2720.d0* solution(i,1,1)) + rhs(i,1,1)
+     &                       -2720._RKIND* solution(i,1,1)) + rhs(i,1,1)
          enddo
-         defect(1,1,1) = 0.d0
-         defect(2,1,1) = 0.d0
-         defect(3,1,1) = 0.d0
-         defect(dim1,1,1) = 0.d0
-         defect(dim1-1,1,1) = 0.d0
-         defect(dim1-2,1,1) = 0.d0
+         defect(1,1,1) = 0._RKIND
+         defect(2,1,1) = 0._RKIND
+         defect(3,1,1) = 0._RKIND
+         defect(dim1,1,1) = 0._RKIND
+         defect(dim1-1,1,1) = 0._RKIND
+         defect(dim1-2,1,1) = 0._RKIND
       endif
 c
 c     b) 2D
@@ -200,35 +201,35 @@ c
          do j=4, dim2-3
             do i=4, dim1-3
           	  defect(i,j,1) = h2*(
-     &		    	     1.d0*(solution(i+3,j,1)+
+     &		    	     1._RKIND*(solution(i+3,j,1)+
      &                            solution(i-3,j,1)+
      &                            solution(i,j+3,1)+
      &                            solution(i,j-3,1))
-     &                     -96.d0*(solution(i+2,j,1)+
+     &                     -96._RKIND*(solution(i+2,j,1)+
      &                            solution(i-2,j,1)+
      &                            solution(i,j+2,1)+
      &                            solution(i,j-2,1))
-     &                   +1455.d0*(solution(i+1,j,1)+
+     &                   +1455._RKIND*(solution(i+1,j,1)+
      &                            solution(i-1,j,1)+
      &                            solution(i,j+1,1)+
      &                            solution(i,j-1,1))
-     &                   -5440.d0* solution(i,j,1)) + rhs(i,j,1)
+     &                   -5440._RKIND* solution(i,j,1)) + rhs(i,j,1)
       
             enddo
-            defect(1,j,1) = 0.d0
-            defect(2,j,1) = 0.d0
-            defect(3,j,1) = 0.d0
-            defect(dim1,j,1) = 0.d0
-            defect(dim1-1,j,1) = 0.d0
-            defect(dim1-2,j,1) = 0.d0
+            defect(1,j,1) = 0._RKIND
+            defect(2,j,1) = 0._RKIND
+            defect(3,j,1) = 0._RKIND
+            defect(dim1,j,1) = 0._RKIND
+            defect(dim1-1,j,1) = 0._RKIND
+            defect(dim1-2,j,1) = 0._RKIND
          enddo
          do i=1,dim1
-            defect(i,1,1) = 0.d0
-            defect(i,2,1) = 0.d0
-            defect(i,3,1) = 0.d0
-            defect(i,dim2,1) = 0.d0
-            defect(i,dim2-1,1) = 0.d0
-            defect(i,dim2-2,1) = 0.d0
+            defect(i,1,1) = 0._RKIND
+            defect(i,2,1) = 0._RKIND
+            defect(i,3,1) = 0._RKIND
+            defect(i,dim2,1) = 0._RKIND
+            defect(i,dim2-1,1) = 0._RKIND
+            defect(i,dim2-2,1) = 0._RKIND
          enddo
       endif
 c
@@ -239,58 +240,58 @@ c
             do j=4, dim2-3
                do i=4, dim1-3
                   defect(i,j,k) = h3*(
-     &		             1.d0*(solution(i+3,j,k)+
+     &		             1._RKIND*(solution(i+3,j,k)+
      &                            solution(i-3,j,k)+
      &                            solution(i,j+3,k)+
      &                            solution(i,j-3,k)+
      &		                  solution(i,j,k+3)+
      &                            solution(i,j,k-3))
-     &                     -96.d0*(solution(i+2,j,k)+ 
+     &                     -96._RKIND*(solution(i+2,j,k)+ 
      &                            solution(i-2,j,k)+
      &                            solution(i,j+2,k)+
      &                            solution(i,j-2,k)+
      &		                  solution(i,j,k+2)+
      &                            solution(i,j,k-2))
-     &                   +1455.d0*(solution(i+1,j,k)+ 
+     &                   +1455._RKIND*(solution(i+1,j,k)+ 
      &                            solution(i-1,j,k)+
      &                            solution(i,j+1,k)+
      &                            solution(i,j-1,k)+
      &		                  solution(i,j,k+1)+
      &                            solution(i,j,k-1))
-     &                   -8160.d0* solution(i,j,k)) + rhs(i,j,k)
+     &                   -8160._RKIND* solution(i,j,k)) + rhs(i,j,k)
   
                enddo
-               defect(1,j,k) = 0.d0
-               defect(2,j,k) = 0.d0
-               defect(3,j,k) = 0.d0
-               defect(dim1,j,k) = 0.d0
-               defect(dim1-1,j,k) = 0.d0
-               defect(dim1-2,j,k) = 0.d0
+               defect(1,j,k) = 0._RKIND
+               defect(2,j,k) = 0._RKIND
+               defect(3,j,k) = 0._RKIND
+               defect(dim1,j,k) = 0._RKIND
+               defect(dim1-1,j,k) = 0._RKIND
+               defect(dim1-2,j,k) = 0._RKIND
             enddo
             do i=1, dim1
-               defect(i,1,k) = 0.d0
-               defect(i,2,k) = 0.d0
-               defect(i,3,k) = 0.d0
-               defect(i,dim2,k) = 0.d0
-               defect(i,dim2-1,k) = 0.d0
-               defect(i,dim2-2,k) = 0.d0
+               defect(i,1,k) = 0._RKIND
+               defect(i,2,k) = 0._RKIND
+               defect(i,3,k) = 0._RKIND
+               defect(i,dim2,k) = 0._RKIND
+               defect(i,dim2-1,k) = 0._RKIND
+               defect(i,dim2-2,k) = 0._RKIND
             enddo
          enddo
          do j=1, dim2
             do i=1, dim1
-               defect(i,j,1) = 0.d0
-               defect(i,j,2) = 0.d0
-               defect(i,j,3) = 0.d0
-               defect(i,j,dim3) = 0.d0
-               defect(i,j,dim3-1) = 0.d0
-               defect(i,j,dim3-2) = 0.d0
+               defect(i,j,1) = 0._RKIND
+               defect(i,j,2) = 0._RKIND
+               defect(i,j,3) = 0._RKIND
+               defect(i,j,dim3) = 0._RKIND
+               defect(i,j,dim3-1) = 0._RKIND
+               defect(i,j,dim3-2) = 0._RKIND
             enddo
          enddo
       endif
 c
 c     Compute norm
 c
-      sum = 0.d0
+      sum = 0._RKIND
       do k=1, dim3
          do j=1, dim2
             do i=1, dim1
@@ -311,19 +312,19 @@ c
 c
 c     Precompute some things
 c
-      h1 = -real(dim1-1)
-      h2 = h1*real(dim2-1)
-      h3 = h2*real(dim3-1)
+      h1 = -REAL(dim1-1,RKIND)
+      h2 = h1*REAL(dim2-1,RKIND)
+      h3 = h2*REAL(dim3-1,RKIND)
 c
 c     a) 1D
 c
       if (ndim .eq. 1) then
          do i=2, dim1-1
             defect(i,1,1) = h1*(solution(i-1,1,1) + solution(i+1,1,1) -
-     &                           2.d0*solution(i,1,1)) + rhs(i,1,1)
+     &                           2._RKIND*solution(i,1,1)) + rhs(i,1,1)
          enddo
-         defect(1,1,1) = 0.d0
-         defect(dim1,1,1) = 0.d0
+         defect(1,1,1) = 0._RKIND
+         defect(dim1,1,1) = 0._RKIND
       endif
 c
 c     b) 2D
@@ -334,14 +335,14 @@ c
                defect(i,j,1) = h2*(
      &                    solution(i-1,j  ,1) + solution(i+1,j  ,1) +
      &                    solution(i  ,j-1,1) + solution(i  ,j+1,1) -
-     &                    4.d0*solution(i,j,1)) + rhs(i,j,1)
+     &                    4._RKIND*solution(i,j,1)) + rhs(i,j,1)
             enddo
-            defect(1,j,1) = 0.d0
-            defect(dim1,j,1) = 0.d0
+            defect(1,j,1) = 0._RKIND
+            defect(dim1,j,1) = 0._RKIND
          enddo
          do i=1,dim1
-            defect(i,1,1) = 0.d0
-            defect(i,dim2,1) = 0.d0
+            defect(i,1,1) = 0._RKIND
+            defect(i,dim2,1) = 0._RKIND
          enddo
       endif
 c
@@ -355,27 +356,27 @@ c
      &                 solution(i-1,j  ,k  ) + solution(i+1,j  ,k  ) +
      &                 solution(i  ,j-1,k  ) + solution(i  ,j+1,k  ) +
      &                 solution(i  ,j  ,k-1) + solution(i  ,j  ,k+1) -
-     &                 6.d0*solution(i,j,k)) + rhs(i,j,k)
+     &                 6._RKIND*solution(i,j,k)) + rhs(i,j,k)
                enddo
-               defect(1,j,k) = 0.d0
-               defect(dim1,j,k) = 0.d0
+               defect(1,j,k) = 0._RKIND
+               defect(dim1,j,k) = 0._RKIND
             enddo
             do i=1, dim1
-               defect(i,1,k) = 0.d0
-               defect(i,dim2,k) = 0.d0
+               defect(i,1,k) = 0._RKIND
+               defect(i,dim2,k) = 0._RKIND
             enddo
          enddo
          do j=1, dim2
             do i=1, dim1
-               defect(i,j,1) = 0.d0
-               defect(i,j,dim3) = 0.d0
+               defect(i,j,1) = 0._RKIND
+               defect(i,j,dim3) = 0._RKIND
             enddo
          enddo
       endif
 c
 c     Compute norm
 c
-      sum = 0.d0
+      sum = 0._RKIND
       do k=1, dim3
          do j=1, dim2
             do i=1, dim1
