@@ -12,6 +12,7 @@ for root, dirs, files in os.walk("."):
           os.path.basename(fn)[:-9] not in ignore_list:
             simname = os.path.splitext(fn)[0]
             simpath = root
-            oname = os.path.join(root, "test_standard.py")
+            testname = os.path.basename(fn)[:-9]
+            oname = os.path.join(root, testname + "__test_standard.py")
             output = template % dict(filename = fn[:-4], simpath = simpath)
             open(oname, "w").write(output)
