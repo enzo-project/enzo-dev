@@ -79,15 +79,6 @@ MACH_F90FLAGS = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qsmp=omp -qmaxmem=1 -qthre
 MACH_LDFLAGS =  -qarch=pwr7 -qtune=pwr7 -qsmp=omp -qcache=auto -qthreaded
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = #-qintsize=4
-MACH_FFLAGS_INTEGER_64 = #-qintsize=8
-MACH_FFLAGS_REAL_32    = #-qrealsize=4
-MACH_FFLAGS_REAL_64    = #-qrealsize=8 -qdpc=e
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
