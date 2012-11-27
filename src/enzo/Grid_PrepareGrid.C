@@ -65,8 +65,8 @@ void grid::PrepareGrid(int Rank, int GridDim[],
  
   for (int dim = 0; dim < GridRank; dim++) {
     GridDimension[dim]  = GridDim[dim];
-    GridStartIndex[dim] = min(DEFAULT_GHOST_ZONES, GridDim[dim]-1);
-    GridEndIndex[dim]   = min(ABS(GridDim[dim]-DEFAULT_GHOST_ZONES-1),
+    GridStartIndex[dim] = min(NumberOfGhostZones, GridDim[dim]-1);
+    GridEndIndex[dim]   = min(ABS(GridDim[dim]-NumberOfGhostZones-1),
 			      GridDim[dim]-1);
     GridLeftEdge[dim]   = LeftEdge[dim];
     GridRightEdge[dim]  = RightEdge[dim];
@@ -78,7 +78,7 @@ void grid::PrepareGrid(int Rank, int GridDim[],
 
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2 * DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2 * NumberOfGhostZones);
   }
   
   int size = 1;

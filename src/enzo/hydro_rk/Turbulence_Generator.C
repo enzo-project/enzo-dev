@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include "macros_and_parameters.h"
+extern int NumberOfGhostZones;
 
 
 double Gaussian(double cs); 
@@ -95,9 +96,9 @@ double Gaussian(double cs);
 	 for (k = 0; k < dim2; k++) {
 	   for (j = 0; j < dim1; j++) {
 	     for (i = 0; i < dim0; i++, igrid++) {
-	       int ii = i + DEFAULT_GHOST_ZONES;
-	       int jj = j + DEFAULT_GHOST_ZONES;
-	       int kk = k + DEFAULT_GHOST_ZONES;
+	       int ii = i + NumberOfGhostZones;
+	       int jj = j + NumberOfGhostZones;
+	       int kk = k + NumberOfGhostZones;
 	       double x = LeftEdge[0][ii]+(0.5)*CellWidth[0][ii];
 	       double y = LeftEdge[1][jj]+(0.5)*CellWidth[1][jj];
 	       double z = LeftEdge[2][kk]+(0.5)*CellWidth[2][kk];

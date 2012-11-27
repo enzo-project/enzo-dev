@@ -505,7 +505,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
       // Add ghost zones
  
-      CosmologySimulationGridDimension[gridnum][dim] += 2*DEFAULT_GHOST_ZONES;
+      CosmologySimulationGridDimension[gridnum][dim] += 2*NumberOfGhostZones;
     }
  
     // Create a new subgrid and initialize it
@@ -546,7 +546,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       CosmologySimulationGridDimension[gridnum][dim] -=
-	2*DEFAULT_GHOST_ZONES;
+	2*NumberOfGhostZones;
  
   } // end: loop over gridnums
  
