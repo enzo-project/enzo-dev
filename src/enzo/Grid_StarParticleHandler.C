@@ -405,7 +405,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
   /* initialize */
  
-  int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
+  int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   const double m_h = 1.673e-24;
 

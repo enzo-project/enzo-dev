@@ -23,7 +23,7 @@ _base_fields = ("Density",
 
 @requires_outputlog(os.path.dirname(__file__), 
                     "%(filename)s") # Verifies that OutputLog exists
-def test_problem_test():
+def test_standard():
     sim = sim_dir_load("%(filename)s",
                        path="%(simpath)s",
                        find_outputs=True)

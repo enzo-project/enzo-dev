@@ -316,7 +316,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 		   MetaData.TopGridDims[dim])
       }
       MetaData.TopGridDims[dim] = (MetaData.TopGridDims[dim] > 1) ?
-	MetaData.TopGridDims[dim] + 2*DEFAULT_GHOST_ZONES : 1;
+	MetaData.TopGridDims[dim] + 2*NumberOfGhostZones : 1;
     }
  
     // Create the top grid, prepare it, set the time and parameters
@@ -337,7 +337,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       MetaData.TopGridDims[dim] = max(MetaData.TopGridDims[dim] -
-				      2*DEFAULT_GHOST_ZONES, 1);
+				      2*NumberOfGhostZones, 1);
     
     // Set TopGrid Hierarchy Entry
     

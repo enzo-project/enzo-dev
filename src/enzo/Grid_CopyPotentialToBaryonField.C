@@ -56,14 +56,14 @@ int grid::CopyPotentialToBaryonField()
   }
  
   /* Well, it appears that currently GravitatingMassField is larger
-     than active BaryonField by 2*max(BufferSize, DEFAULT_GHOST_ZONES) = 12
+     than active BaryonField by 2*max(BufferSize, NumberOfGhostZones) = 12
      zones. BufferSize = GRAVITY_BUFFER_SIZE*RefinementFactor = 6.
      In other words, GravitatingMassField has 6 ghost zones, compared to 3
      for a BaryonField. That is why we use shift 6.
      See Grid_InitializeGravitatingMassField.C for details.
   */
  
-  int BaryonFieldBufferSize = DEFAULT_GHOST_ZONES;
+  int BaryonFieldBufferSize = NumberOfGhostZones;
   int GravityBufferSize = GRAVITY_BUFFER_SIZE;
   int DimTemp, BufferSize;
   int dim;

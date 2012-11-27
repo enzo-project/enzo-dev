@@ -130,7 +130,7 @@ int grid::ReadHierarchyInformationHDF5(hid_t Hfile_id, int GridID, int &Task, in
 
   // If HierarchyFile has different Ghostzones (which should be a parameter not a macro ...)
   // (useful in a restart with different hydro/mhd solvers) 
-  int ghosts = DEFAULT_GHOST_ZONES;
+  int ghosts = NumberOfGhostZones;
   if (GridStartIndex[0] != ghosts)  {
     if (GridID < 2)
       fprintf(stderr,"Grid_ReadHierarchyInformationHDF5: Adjusting Ghostzones which in the HDF5 hierarchy file did not match the selected HydroMethod.\n");
