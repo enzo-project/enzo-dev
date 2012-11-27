@@ -130,10 +130,12 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       }
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+        if ( (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3 ) ||
+             (FieldType[field] >= Acceleration0 && FieldType[field] <= Acceleration2 ) ){
           SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-        else
+          }else{
           SecondOrderBFlag[field] = 0;
+          }
 
  
     /* Compute coefficient factors for linear interpolation in time.
