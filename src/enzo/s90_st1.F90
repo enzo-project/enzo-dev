@@ -6,23 +6,23 @@
       implicit none
 #include "fortran_types.def"
 
-      INTG_PREC :: n, dir
-      CMPLX_PREC :: a(n)
+      INTEGER(fftintk) :: n, dir
+      COMPLEX(fftkind) :: a(n)
 
-      INTG_PREC :: i
-      INTG_PREC :: sn(1)
+      INTEGER(fftintk) :: i
+      INTEGER(fftintk) :: sn(1)
 
       sn(1) = n
 
       if( dir == -1 ) then
-        call fftn(a, sn, inv=.false. )
+        call fftn(a, sn, inv=.false._fftlogk )
         do i = 1,n
-        a(i) = a(i) * sqrt(REAL(n,RKIND))
+        a(i) = a(i) * sqrt(REAL(n,fftkind))
         end do
       else
-        call fftn(a, sn, inv=.true. )
+        call fftn(a, sn, inv=.true._fftlogk )
         do i = 1,n
-        a(i) = a(i) / sqrt(REAL(n,RKIND))
+        a(i) = a(i) / sqrt(REAL(n,fftkind))
         end do
       end if
 

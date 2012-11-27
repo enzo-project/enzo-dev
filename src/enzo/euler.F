@@ -253,7 +253,7 @@ c
      &            (dslice(i,j)/dnu(i)+1._RKIND),
      &            dt*grslice(i,j)*0.5_RKIND*
      &            (uslice(i,j) + uold(i)*dslice(i,j)/dnu(i))
-             eslice(i,j) = max(eslice(i,j), REAL(tiny,RKIND))
+             eslice(i,j) = max(eslice(i,j), tiny)
 #endif /* GRAVITY_METHOD1 */
 
 #ifdef GRAVITY_METHOD2 /* (wrong) */

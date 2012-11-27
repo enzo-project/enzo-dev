@@ -125,8 +125,7 @@ c
              if (tgas(i) .le. temstart .and. edot(i) .lt. 0._RKIND) 
      &              edot(i) = tiny
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
-             energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), 
-     &            REAL(tiny,RKIND))
+             energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
              dtit(i) = min(abs(0.1_RKIND*energy/edot(i)), 
      &            dt-ttot(i), dt2)
 #ifdef FORTRAN_DEBUG

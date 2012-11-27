@@ -211,14 +211,14 @@ c
 *
 *
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX
 *     .. Local Scalars ..
-      LOGICAL            NOTA, NOTB
+      LOGIC_PREC         NOTA, NOTB
       INTG_PREC          I, INFO, J, L, NCOLA, NROWA, NROWB
       R_PREC             TEMP
 *     .. Parameters ..
@@ -506,7 +506,7 @@ c
       R_PREC             TEMP
       INTG_PREC          I, INFO, IX, IY, J, JX, JY, KX, KY, LENX, LENY
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
@@ -941,7 +941,7 @@ c
 *           Compute elements J+1:M of J-th column.
 *
             IF( J.LT.M )
-     $         CALL USCAL( M-J, ONE / A( J, J ), A( J+1, J ), 1 )
+     $         CALL USCAL( M-J, ONE / A( J, J ), A( J+1, J ), 1_IKIND )
 *
          ELSE IF( INFO.EQ.0 ) THEN
 *
@@ -952,8 +952,8 @@ c
 *
 *           Update trailing submatrix.
 *
-            CALL UGER( M-J, N-J, -ONE, A( J+1, J ), 1, A( J, J+1 ), LDA,
-     $                 A( J+1, J+1 ), LDA )
+            CALL UGER( M-J, N-J, -ONE, A(J+1,J), 1_IKIND, A(J,J+1), LDA,
+     $                 A(J+1,J+1), LDA )
          END IF
    10 CONTINUE
       RETURN
@@ -1083,7 +1083,7 @@ c
 *           Factor diagonal and subdiagonal blocks and test for exact
 *           singularity.
 *
-            CALL UGETF2( M-J+1, JB, A( J, J ), LDA, IPIV( J ), IINFO )
+            CALL UGETF2( M-J+1_IKIND, JB, A(J,J), LDA, IPIV(J), IINFO )
 *
 *           Adjust INFO and the pivot indices.
 *
@@ -1095,28 +1095,28 @@ c
 *
 *           Apply interchanges to columns 1:J-1.
 *
-            CALL ULASWP( J-1, A, LDA, J, J+JB-1, IPIV, 1 )
+            CALL ULASWP( J-1_IKIND, A, LDA, J, J+JB-1, IPIV, 1_IKIND )
 *
             IF( J+JB.LE.N ) THEN
 *
 *              Apply interchanges to columns J+JB:N.
 *
-               CALL ULASWP( N-J-JB+1, A( 1, J+JB ), LDA, J, J+JB-1,
-     $                      IPIV, 1 )
+               CALL ULASWP( N-J-JB+1_IKIND, A(1,J+JB), LDA, J, 
+     $                      J+JB-1_IKIND, IPIV, 1_IKIND )
 *
 *              Compute block row of U.
 *
                CALL UTRSM( 'Left', 'Lower', 'No transpose', 'Unit', JB,
-     $                     N-J-JB+1, ONE, A( J, J ), LDA, A( J, J+JB ),
+     $                     N-J-JB+1_IKIND, ONE, A(J,J), LDA, A(J,J+JB),
      $                     LDA )
                IF( J+JB.LE.M ) THEN
 *
 *                 Update trailing submatrix.
 *
-                  CALL UGEMM( 'No transpose', 'No transpose', M-J-JB+1,
-     $                        N-J-JB+1, JB, -ONE, A( J+JB, J ), LDA,
-     $                        A( J, J+JB ), LDA, ONE, A( J+JB, J+JB ),
-     $                        LDA )
+                  CALL UGEMM( 'No transpose', 'No transpose', 
+     $                        M-J-JB+1_IKIND, N-J-JB+1_IKIND, JB, -ONE, 
+     $                        A(J+JB,J), LDA, A(J,J+JB), LDA, ONE, 
+     $                        A(J+JB,J+JB), LDA )
                END IF
             END IF
    20    CONTINUE
@@ -1200,10 +1200,10 @@ c
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
-      LOGICAL            NOTRAN
+      LOGIC_PREC         NOTRAN
 *     ..
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     ..
 *     .. External Subroutines ..
@@ -1246,7 +1246,7 @@ c
 *
 *        Apply row interchanges to the right hand sides.
 *
-         CALL ULASWP( NRHS, B, LDB, 1, N, IPIV, 1 )
+         CALL ULASWP( NRHS, B, LDB, 1_IKIND, N, IPIV, 1_IKIND )
 *
 *        Solve L*X = B, overwriting B with X.
 *
@@ -1273,7 +1273,7 @@ c
 *
 *        Apply row interchanges to the solution vectors.
 *
-         CALL ULASWP( NRHS, B, LDB, 1, N, IPIV, -1 )
+         CALL ULASWP( NRHS, B, LDB, 1_IKIND, N, IPIV, -1_IKIND )
       END IF
 *
       RETURN
@@ -1650,14 +1650,14 @@ c
 *
 *
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX
 *     .. Local Scalars ..
-      LOGICAL            LSIDE, NOUNIT, UPPER
+      LOGIC_PREC         LSIDE, NOUNIT, UPPER
       INTG_PREC          I, INFO, J, K, NROWA
       R_PREC             TEMP
 *     .. Parameters ..
@@ -2200,7 +2200,7 @@ c
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      LOGICAL            CNAME, SNAME
+      LOGIC_PREC         CNAME, SNAME
       CHARACTER*1        C1
       CHARACTER*2        C2, C4
       CHARACTER*3        C3
@@ -2646,7 +2646,7 @@ C     ILAENV = 0
 c
 c=======================================================================
 c
-      LOGICAL          FUNCTION LSAME( CA, CB )
+      LOGIC_PREC       FUNCTION LSAME( CA, CB )
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

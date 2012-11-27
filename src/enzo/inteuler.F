@@ -237,22 +237,22 @@ c
      &        char1, char2, c0,
      &        tmp1, tmp2, tmp3, tmp4, dla, dra, dl0, dr0)
 c
-         call intvar(pslice(1,j), idim, i1, i2, 0     , steepen, 
+         call intvar(pslice(1,j), idim, i1, i2, 0_IKIND, steepen, 
      &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
      &        char1, char2, c0,
      &        dp, pl, pr, p6, pla, pra, pl0, pr0)
 c
-         call intvar(uslice(1,j), idim, i1, i2, 0     , steepen, 
+         call intvar(uslice(1,j), idim, i1, i2, 0_IKIND, steepen, 
      &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
      &        char1, char2, c0,
      &        du, ul, ur, u6, ula, ura, ul0, ur0)
 c
-         call intvar(vslice(1,j), idim, i1, i2, 0     , steepen, 
+         call intvar(vslice(1,j), idim, i1, i2, 0_IKIND, steepen, 
      &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
      &        char1, char2, c0,
      &        dv, vl, vr, v6, vla, vra, vl0, vr0)
 c
-         call intvar(wslice(1,j), idim, i1, i2, 0     , steepen, 
+         call intvar(wslice(1,j), idim, i1, i2, 0_IKIND, steepen, 
      &        iflatten, flatten, c1, c2, c3, c4, c5, c6, 
      &        char1, char2, c0,
      &        dw, wl, wr, w6, wla, wra, wl0, wr0)
@@ -269,15 +269,16 @@ c
 
 c
       if (idual .eq. 1)
-     & call intvar(geslice(1,j), idim, i1, i2, 0   , steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            dge, gel, ger, ge6, gela, gera, gel0, ger0)
+     & call intvar(geslice(1,j), idim, i1, i2, 0_IKIND, steepen, 
+     &            iflatten, flatten, c1, c2, c3, c4, c5, c6, char1, 
+     &            char2, c0,dge, gel, ger, ge6, gela, gera, gel0, ger0)
 c
       do ic=1,ncolor
-        call intvar(colslice(1,j,ic), idim, i1,i2, 0, steepen, iflatten, 
-     &            flatten, c1, c2, c3, c4, c5, c6, char1, char2, c0,
-     &            dcol(1,ic), coll(1,ic), colr(1,ic), col6(1,ic),
-     &            colla(1,ic), colra(1,ic), coll0(1,ic), colr0(1,ic))
+        call intvar(colslice(1,j,ic), idim, i1,i2, 0_IKIND, steepen, 
+     &            iflatten, flatten, c1, c2, c3, c4, c5, c6, char1, 
+     &            char2, c0,dcol(1,ic), coll(1,ic), colr(1,ic), 
+     &            col6(1,ic), colla(1,ic), colra(1,ic), coll0(1,ic), 
+     &            colr0(1,ic))
       enddo
 c
 #ifdef UNUSED
@@ -529,10 +530,10 @@ c
 c     Enforce minimum values.
 c
       do i=i1, i2+1
-         pls(i,j) = max(pls(i,j), REAL(tiny,RKIND))
-         prs(i,j) = max(prs(i,j), REAL(tiny,RKIND))
-         dls(i,j) = max(dls(i,j), REAL(tiny,RKIND))
-         drs(i,j) = max(drs(i,j), REAL(tiny,RKIND))
+         pls(i,j) = max(pls(i,j), tiny)
+         prs(i,j) = max(prs(i,j), tiny)
+         dls(i,j) = max(dls(i,j), tiny)
+         drs(i,j) = max(drs(i,j), tiny)
       enddo
 c
 c     If approximating pressure free conditions, then the density should be

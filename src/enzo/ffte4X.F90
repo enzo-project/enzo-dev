@@ -784,25 +784,25 @@
 
       do 10 k = 1,kp8
         l = l/8
-        call settbl0(w(j),8,l)
+        call settbl0(w(j),8_IKIND,l)
         j = j+l
    10 continue
 
       do 20 k = 1,ip(3)
         l = l/5
-        call settbl0(w(j),5,l)
+        call settbl0(w(j),5_IKIND,l)
         j = j+l
    20 continue
 
       do 30 k = 1,kp4
         l = l/4
-        call settbl0(w(j),4,l)
+        call settbl0(w(j),4_IKIND,l)
         j = j+l
    30 continue
 
       do 40 k = 1,ip(2)
         l = l/3
-        call settbl0(w(j),3,l)
+        call settbl0(w(j),3_IKIND,l)
         j = j+l
    40 continue
 

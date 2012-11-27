@@ -132,7 +132,7 @@ c
 
 c     Iteration mask
       
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -198,7 +198,7 @@ c
                   if (idim .gt. 2) 
      &                 p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
                   p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), 
-     &                         REAL(tiny,RKIND))
+     &                         tiny)
                endif
             enddo
          endif
@@ -444,7 +444,7 @@ c     .               ((nH2 + nother)*dom) )
 #endif /* OPTICAL_DEPTH_FUDGE */
 c
             edot(i,15) = -float(ih2co)*fudge*H2I(i,j,k)*(
-     .           vibh(i)/(1._RKIND+vibh(i)/max(   vibl     ,tiny)) +
+     .           vibh(i)/(1._RKIND+vibh(i)/max(   vibl,tiny)) +
      .           roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
      .           )/2._RKIND/dom
             endif
@@ -486,7 +486,7 @@ c
          do i = is+1, ie+1
             if (itmask(i)) then
                hdlte1 = hdlte(i)/(HDI(i,j,k)*dom/2._RKIND)
-               hdlow1 = max(hdlow(i), REAL(tiny,RKIND))
+               hdlow1 = max(hdlow(i), tiny)
                edot(i,17) = -HDI(i,j,k)*
      .              (hdlte1/(1._RKIND + hdlte1/hdlow1)/(2._RKIND*dom))
             endif

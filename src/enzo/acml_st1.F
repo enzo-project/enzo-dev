@@ -26,8 +26,8 @@
 
       allocate( work(nwork) )
 
-      call cfft1d(   0, m1, x, work, info)
-      call cfft1d(jdir, m1, x, work, info)
+      call cfft1d(0_IKIND, m1, x, work, info)
+      call cfft1d(jdir,    m1, x, work, info)
 
       deallocate( work )
 
@@ -69,9 +69,9 @@
 
       allocate( work(nwork) )
 
-      call zfft1d(   0, m1, x, work, info)
+      call zfft1d(0_IKIND, m1, x, work, info)
       if( info .ne. 0 ) write(0,'("Info1 = ",i4)') info
-      call zfft1d(jdir, m1, x, work, info)
+      call zfft1d(jdir,    m1, x, work, info)
       if( info .ne. 0 ) write(0,'("Info2 = ",i4)') info
 
 

@@ -97,7 +97,7 @@
 !  Cloudy cooling data
 
       INTG_PREC icmbTfloor, iClHeat, clGridRank, clDataSize
-      INTG_PREC clGridDim(clGridRank)
+      INTG_PREC clGridDim(5)
       R_PREC clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
@@ -166,7 +166,7 @@
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -191,7 +191,7 @@
 
 !     Set compton cooling coefficients (and temperature)
 
-      if (iexpand .eq. 1) then
+      if (iexpand == 1) then
          comp1 = compa  * (1._RKIND + zr)**4
          comp2 = 2.73_RKIND * (1._RKIND + zr)
       else
@@ -201,7 +201,7 @@
 
 !     Compute Pressure
 
-      if (imethod .eq. 2) then
+      if (imethod == 2) then
 
 !        Zeus - e() is really gas energy
 
@@ -211,7 +211,7 @@
             end if
          enddo
       else
-         if (idual .eq. 1) then
+         if (idual == 1) then
 
 !           PPM with dual energy -- use gas energy
 
@@ -227,8 +227,8 @@
             do i = is+1, ie+1
                if ( itmask(i) ) then
                p2d(i) = e(i,j,k) - 0.5_RKIND*u(i,j,k)**2
-               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
-               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
+               if (idim > 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
+               if (idim > 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
                p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), tiny)
                end if
             enddo
@@ -248,7 +248,7 @@
 
 !          (include molecular hydrogen, but ignore deuterium)
 
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
                tgas(i) = tgas(i) +
@@ -260,7 +260,7 @@
 
 !     Include metal species and calculate metallicity
       
-      if (imetal .eq. 1) then
+      if (imetal == 1) then
          do i = is+1, ie+1
             tgas(i) = tgas(i) + metal(i,j,k)/mu_metal
             metallicity(i) = metal(i,j,k) / d(i,j,k) / z_solar
@@ -276,15 +276,15 @@
 
 !     Correct temperature for gamma from H2
 
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
             nH2 = 0.5_RKIND*(H2I(i,j,k) + H2II(i,j,k))
             nother = (HeI(i,j,k) + HeII(i,j,k) + HeIII(i,j,k))/4._RKIND
      &           + HI(i,j,k) + HII(i,j,k) + de(i,j,k)
-            if (nH2/nother .gt. 1.0e-3) then
+            if (nH2/nother > 1.0e-3) then
                x = 6100._RKIND/tgas(i) ! not quite self-consistent
-               if (x .gt. 10._RKIND) then
+               if (x > 10._RKIND) then
                   gamma2 = 0.5_RKIND*5._RKIND
                else
                   gamma2 = 0.5_RKIND*(5._RKIND + 2._RKIND*x**2 * 
@@ -302,7 +302,7 @@
 
 !     If this is the first time through, just set tgasold to tgas
 
-      if (iter .eq. 1) then
+      if (iter == 1) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
             tgasold(i) = tgas(i)
@@ -416,7 +416,7 @@
      
 !     --- H2 cooling ---
 
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
 
 #define USE_GLOVER_ABEL2008
 #ifdef USE_GLOVER_ABEL2008
@@ -447,13 +447,13 @@
      &                + HI(i,j,k) + HII(i,j,k) + de(i,j,k)
             fH2 = nH2/(nH2 + nother)
             fudge = sqrt((40._RKIND * 10._RKIND**(4.8_RKIND * 
-     &               sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
+     &           sqrt(max(log10(tgas(i)),2._RKIND)-2._RKIND)) / fH2**2)/
      &               ((nH2 + nother)*dom) )
             fudge = min(fudge, 1._RKIND)
 #endif /* OPTICAL_DEPTH_FUDGE */
             ! Note that this optical depth approximation comes from
             ! RA04.
-            if (ih2optical.eq.1) then
+            if (ih2optical == 1) then
                 fudge = (0.76_RKIND*d(i,j,k)*dom /
      &              8.e9_RKIND)**(-0.45_RKIND)
                 fudge = min(fudge, 1._RKIND)
@@ -504,7 +504,7 @@
 #endif /* OPTICAL_DEPTH_FUDGE */
             ! Note that this optical depth approximation comes from
             ! RA04.
-            if (ih2optical.eq.1) then
+            if (ih2optical == 1) then
                 fudge = (0.76_RKIND*d(i,j,k)*dom / 
      &              8.e9_RKIND)**(-0.45_RKIND)
                 fudge = min(fudge, 1._RKIND)
@@ -557,7 +557,7 @@
 #endif /* OPTICAL_DEPTH_FUDGE */
 
             edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*(
-     &           vibh(i)/(1._RKIND+vibh(i)/max(   vibl   ,tiny)) +
+     &           vibh(i)/(1._RKIND+vibh(i)/max(   vibl,tiny)) +
      &           roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
      &           )/2._RKIND/dom
             end if
@@ -570,7 +570,7 @@ c     CIE
 c     cooling from H2-H2 and He-H2 collisional induced emission comes
 C     with its own radiative transfer correction as discussed in
 C     Ripamonti & Abel 2003
-         if (iciecool.eq.1) then
+         if (iciecool == 1) then
             do i = is+1, ie+1
             if (itmask(i)) then
 c     Only calculate if H2I(i) is a substantial fraction
@@ -596,11 +596,11 @@ c               ciefudge, which is applied to the continuum, is applied to edot
 
 !     --- Cooling from HD ---
 
-      if (ispecies .gt. 2) then
+      if (ispecies > 2) then
          do i = is+1, ie+1
             if ( itmask(i) ) then
 c CMB cooling floor
-               if (tgas(i) .gt. comp2) then
+               if (tgas(i) > comp2) then
                   hdlte(i) = hdltea(indixe(i)) + tdef(i)
      &            *(hdltea(indixe(i)+1) - hdltea(indixe(i)))
                   hdlow(i) = hdlowa(indixe(i)) + tdef(i)
@@ -630,7 +630,7 @@ c  new (correct) way: (april 4, 2007)
 
 !     --- Gas to grain heat transfer ---
 
-      if (idust .gt. 0) then
+      if (idust > 0) then
 
 !     Look up gas/grain heat transfer rates
 
@@ -664,11 +664,11 @@ c  new (correct) way: (april 4, 2007)
 !                       Photoionization heating
 
 #ifdef RADIATION
-      if (iradshield .eq. 0) then
+      if (iradshield == 0) then
 
 !        regular version
 
-         if (iradtype .eq. 8) then
+         if (iradtype == 8) then
 
 !           1) heating assuming high energy photons produces secondary
 !              electrons which do the heating (Shull & Steenberg, 1985).
@@ -728,14 +728,14 @@ c  new (correct) way: (april 4, 2007)
 
 !     Photoheating from radiative transfer
 
-      if (iradtrans .eq. 1) then
+      if (iradtrans == 1) then
 c     for radiative transfer, convert from eV/s*TimeUnits to the coolunits use
          rtunits = ev2erg/utim/coolunit/dom
          do i = is+1, ie+1
             if (itmask(i)) then
                edot(i) = edot(i) + float(ipiht) * photogamma(i,j,k) * 
      &              rtunits * HI(i,j,k)
-c               if (photogamma(i,j,k).gt.0) then
+c               if (photogamma(i,j,k)>0) then
 c                  print*, i,j,k,edot(i), photogamma(i,j,k),rtunits,dom,
 c     $                 aye,utim,coolunit,d(i,j,k),hi(i,j,k),tgas(i)
 c               endif
@@ -754,7 +754,7 @@ c               endif
 
 !     --- Cooling/heating due to metals ---
 
-      if (imcool .eq. 1) then
+      if (imcool == 1) then
 
          logxe0 = log(xe_start)
          logxe1 = log(xe_end)
@@ -770,16 +770,16 @@ c
          do i = is+1, ie+1
             if (itmask(i)) then
 !
-               if (de(i,j,k) .lt. 0.0) then !#####
+               if (de(i,j,k) < 0.0) then !#####
                   write(6,*) 'cool1d_multi: negative d(i,j,k)', 
      $                 de(i,j,k), d(i,j,k), metal(i,j,k)
                endif
 !
 c               metalfree = d(i,j,k) - metal(i,j,k)
                xe = de(i,j,k) / d(i,j,k)
-c               if (tgas(i) .lt. 1e4) xe = min(xe, 1e-2)
+c               if (tgas(i) < 1e4) xe = min(xe, 1e-2)
                log_xe = max(min(log(xe), logxe1), logxe0)
-               if (logtem(i) .lt. xe_logtem0) then
+               if (logtem(i) < xe_logtem0) then
                   xe_max = max(xe_slope * (logtem(i) - xe_logtem0), 
      $                         xe_min)
                   log_xe = min(log_xe, xe_max)
@@ -853,13 +853,14 @@ c
 
 #ifdef CEN_METALS
 
-      if (imcool .eq. 2) then
+      if (imcool == 2) then
 
 !     Generate table if required
 
-      if (imetalregen .eq. 1) then
+      if (imetalregen == 1) then
          write(6,*) 'generating metallicity cooling table'
-         if ( (iradtype .eq. 10) .or. (iradtype .eq. 11) ) iradfield = 1
+         if ( (iradtype == 10) .or. (iradtype == 11) ) 
+     &        iradfield = 1
 
 !        Clear table
 
@@ -876,7 +877,7 @@ c
 !        write(6,*) 'radfield type ', iradfield  
 !        write(6,*) 'radtype value ', iradtype
 
-         if (iradfield .eq. 1) then
+         if (iradfield == 1) then
 
             if (NIB .ne. nfreq) then
                write(6,*) NIB, nfreq
@@ -939,7 +940,7 @@ c
 c
 c        MKRJ 12/18/06
 c        Use the previous metal cooling/heating rate if T >= 10^4 K
-         if (tgas(i) .gt. 1.e4) then
+         if (tgas(i) > 1.e4) then
             metal_cool = cbovcool(nti,ndi) * xi * dom_inv *
      &           (HI(i,j,k)+HII(i,j,k))
             metal_heat = cbovheat(nti,ndi) * xi * dom_inv *
@@ -948,25 +949,25 @@ c        Use the previous metal cooling/heating rate if T >= 10^4 K
 
 c           MKRJ: For low T, adopt the x=10^-2 cooling curve from
 c           Dalgarno & McCray 1972
-	    if (tgas(i) .ge. 1.e3_RKIND) then
-               if (tgas(i) .ge. 6.31e3_RKIND) then
+	    if (tgas(i) >= 1.e3_RKIND) then
+               if (tgas(i) >= 6.31e3_RKIND) then
                   metal_cool = 3.13e-27_RKIND*(tgas(i)**0.396_RKIND)
                else
-                  if (tgas(i) .ge. 3.16e3_RKIND) then
+                  if (tgas(i) >= 3.16e3_RKIND) then
                      metal_cool = 2.64e-26_RKIND*(tgas(i)**0.152_RKIND)
                   else
                      metal_cool = 5.28e-27_RKIND*(tgas(i)**0.352_RKIND)
                   endif
                endif
             else
-               if (tgas(i) .ge. 3.98e1_RKIND) then
-                  if (tgas(i) .ge. 2.e2_RKIND) then
+               if (tgas(i) >= 3.98e1_RKIND) then
+                  if (tgas(i) >= 2.e2_RKIND) then
                      metal_cool = 3.06e-27_RKIND*(tgas(i)**0.431_RKIND)
                   else
                      metal_cool = 1.52e-28_RKIND*(tgas(i)**0.997_RKIND)
                   endif
                else
-                  if (tgas(i) .ge. 2.51e1_RKIND) then
+                  if (tgas(i) >= 2.51e1_RKIND) then
                      metal_cool = 2.39e-29_RKIND*(tgas(i)**1.5_RKIND)
                   else
                      metal_cool = 1.095e-32_RKIND*(tgas(i)**3.885_RKIND)
@@ -992,11 +993,11 @@ c            So assume:  emissivity \propto rho^1.4 &
 c                        F_uv = emissivity*l_mfp \propto rho^0.4
 c            (n_H = 0.76*d(i,j,k)*dom)
 c
-            if (0.76_RKIND*d(i,j,k)*dom .gt. 0.5_RKIND) then
+            if (0.76_RKIND*d(i,j,k)*dom > 0.5_RKIND) then
 	       metal_heat = metal_heat * 
      &                   (0.76_RKIND*d(i,j,k)*dom/0.5_RKIND)**0.4_RKIND
             endif
-         endif ! tgas(i) .gt. 1.e4
+         endif ! tgas(i) > 1.e4
 
          edot(i) = edot(i) + metal_heat - metal_cool
 
@@ -1009,7 +1010,7 @@ c
 
 !     --- Cloudy metal cooling and heating ---
 
-      if (imcool .eq. 3) then
+      if (imcool == 3) then
 
          call cool1D_cloudy(d, de, rhoH, metallicity,
      &        in, jn, kn, is, ie, j, k,

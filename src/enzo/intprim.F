@@ -184,11 +184,11 @@ c
 c
 c     Project monotonized slopes back to the primitive variables
 c
-      call char2prim(1, dqc, rem, i1, i2, idim, dd)
-      call char2prim(2, dqc, rem, i1, i2, idim, du)
-      call char2prim(3, dqc, rem, i1, i2, idim, dv)
-      call char2prim(4, dqc, rem, i1, i2, idim, dw)
-      call char2prim(5, dqc, rem, i1, i2, idim, dp)
+      call char2prim(1_IKIND, dqc, rem, i1, i2, idim, dd)
+      call char2prim(2_IKIND, dqc, rem, i1, i2, idim, du)
+      call char2prim(3_IKIND, dqc, rem, i1, i2, idim, dv)
+      call char2prim(4_IKIND, dqc, rem, i1, i2, idim, dw)
+      call char2prim(5_IKIND, dqc, rem, i1, i2, idim, dp)
 c
 c     Construct left and right values (eqn 1.6)
 c

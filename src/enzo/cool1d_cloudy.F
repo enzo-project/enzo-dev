@@ -72,7 +72,7 @@
 !  Cloudy parameters and data
 
       INTG_PREC icmbTfloor, iClHeat, clGridRank, clDataSize
-      INTG_PREC clGridDim(clGridRank)
+      INTG_PREC clGridDim(5)
       R_PREC clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
@@ -81,7 +81,7 @@
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !  Parameters
 
@@ -107,19 +107,19 @@
 
       dclPar(1) = (clPar1(clGridDim(1)) - clPar1(1)) / 
      &     REAL(clGridDim(1) - 1, RKIND)
-      if (clGridRank .gt. 1) then
+      if (clGridRank > 1) then
          dclPar(2) = (clPar2(clGridDim(2)) - clPar2(1)) / 
      &        REAL(clGridDim(2) - 1, RKIND)
       endif
-      if (clGridRank .gt. 2) then
+      if (clGridRank > 2) then
          dclPar(3) = (clPar3(clGridDim(3)) - clPar3(1)) / 
      &        REAL(clGridDim(3) - 1, RKIND)
       endif
-      if (clGridRank .gt. 3) then
+      if (clGridRank > 3) then
          dclPar(4) = (clPar4(clGridDim(4)) - clPar4(1)) / 
      &        REAL(clGridDim(4) - 1, RKIND)
       endif
-      if (clGridRank .gt. 4) then
+      if (clGridRank > 4) then
          dclPar(5) = (clPar5(clGridDim(5)) - clPar5(1)) / 
      &        REAL(clGridDim(5) - 1, RKIND)
       endif
@@ -135,7 +135,7 @@
 
 !           Calculate proper log(n_H)
 
-            if (clGridRank .gt. 1) then
+            if (clGridRank > 1) then
 
                log_n_h(i) = log10(rhoH(i) * dom)
 
@@ -143,7 +143,7 @@
 
 !           Calculate metallicity
 
-            if (clGridRank .gt. 2) then
+            if (clGridRank > 2) then
 
                log_Z(i) = log10(metallicity(i))
 
@@ -151,7 +151,7 @@
 
 !           Calculate electron fraction
             
-            if (clGridRank .gt. 3) then
+            if (clGridRank > 3) then
 
                e_frac(i) = 2._RKIND * de(i,j,k) / 
      &              (d(i,j,k) * (1._RKIND + fh(i)))
@@ -171,21 +171,21 @@
 !           Call interpolation functions to get heating/cooling
 
 !           Interpolate over temperature.
-            if (clGridRank .eq. 1) then
+            if (clGridRank == 1) then
                call interpolate_1D(log10tem(i), clGridDim, clPar1,
      &              dclPar(1), clDataSize, clCooling, log_cool(i))
                edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2._RKIND)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_1D(log10_tCMB, clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clCooling, 
      &                 log_cool_cmb(i))
                   edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_1D(log10tem(i), clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clHeating, 
      &                 log_heat(i))
@@ -193,22 +193,22 @@
                endif
 
 !           Interpolate over density and temperature.
-            else if (clGridRank .eq. 2) then
+            else if (clGridRank == 2) then
                call interpolate_2D(log_n_h(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clDataSize, clCooling, log_cool(i))
                edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
                   call interpolate_2D(log_n_h(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clDataSize, clCooling, log_cool_cmb(i))
                   edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                call interpolate_2D(log_n_h(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clDataSize, clHeating, log_heat(i))
@@ -216,7 +216,7 @@
                endif
 
 !           Interpolate over density, metallicity, and temperature.
-            else if (clGridRank .eq. 3) then
+            else if (clGridRank == 3) then
                call interpolate_3D(log_n_h(i), log_Z(i), log10tem(i),
      &              clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
@@ -225,8 +225,8 @@
                edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2._RKIND)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_3D(log_n_h(i), log_Z(i), log10_tCMB,
      &                 clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -235,7 +235,7 @@
                   edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_3D(log_n_h(i), log_Z(i), log10tem(i),
      &                 clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -245,7 +245,7 @@
                endif
 
 !           Interpolate over density, metallicity, electron fraction, and temperature.
-            else if (clGridRank .eq. 4) then
+            else if (clGridRank == 4) then
                call interpolate_4D(log_n_h(i), log_Z(i), 
      &              log_e_frac(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
@@ -254,8 +254,8 @@
                edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2._RKIND)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_4D(log_n_h(i), log_Z(i),
      &                 log_e_frac(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -264,7 +264,7 @@
                   edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_4D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), log10tem(i), clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -285,8 +285,8 @@
                edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2._RKIND)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_5D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), zr, log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -296,7 +296,7 @@
                   edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_5D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), zr, log10tem(i), clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
@@ -308,7 +308,7 @@
 
             endif
 
-            if (clGridRank .gt. 3) then
+            if (clGridRank > 3) then
                edot_met(i) = edot_met(i) * cl_e_frac(i)
             endif
 
@@ -633,16 +633,16 @@
 #define INDEX_4_BISECTION
 #ifdef INDEX_4_BISECTION
 !     get index 4 with bisection, since not evenly spaced
-      if (input4 .le. gridPar4(1)) then
+      if (input4 <= gridPar4(1)) then
          index4 = 1
-      else if (input4 .ge. gridPar4(gridDim(4)-1)) then
+      else if (input4 >= gridPar4(gridDim(4)-1)) then
          index4 = gridDim(4) - 1
       else
          index4 = 1
          highPt = gridDim(4)
-         do while ((highPt - index4) .gt. 1)
+         do while ((highPt - index4) > 1)
             midPt = int((highPt + index4) / 2,IKIND)
-            if (input4 .ge. gridPar4(midPt)) then
+            if (input4 >= gridPar4(midPt)) then
                index4 = midPt
             else
                highPt = midPt

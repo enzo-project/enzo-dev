@@ -298,15 +298,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,       &
-                      Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,  &
-                      eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,       &
-                      Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                      int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                      TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,        &
+                      Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,   &
+                      eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,        &
+                      Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                      int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                      TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                       dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -328,15 +328,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,       &
-                         Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,  &
-                         eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,       &
-                         Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                         int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                         TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,        &
+                         Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,   &
+                         eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,        &
+                         Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                         int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                         TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                          dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -385,15 +385,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,      &
-                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,      &
-                      Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                      int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                      TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                      Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                      int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                      TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                       dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -416,15 +416,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,      &
-                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,      &
-                         Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                         int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                         TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                         Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                         int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                         TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                          dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -482,16 +482,16 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew, &
-                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,    &
-                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,  &
-                      HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,      &
-                      CompT, int1, int2, int3, int4, int5, int6, int7,         &
-                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
-                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,        &
-                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,       &
-                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,    &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,  &
+                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,     &
+                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,   &
+                      HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, &
+                      CompT, int1, int2, int3, int4, int5, int6, int7,          &
+                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,    &
+                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,         &
+                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,        &
+                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,     &
                       nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -522,7 +522,7 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
                          res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew, &
                          Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,    &
                          rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,  &
-                         HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,      &
+                         HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX,&
                          CompT, int1, int2, int3, int4, int5, int6, int7,         &
                          NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
                          k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,        &
@@ -739,8 +739,8 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
            HIsrc = src_HI(i,j,k)
            
            ! call the local residual routine
-           call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew, &
-                Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0,      &
+           call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew,  &
+                Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0_IKIND, &
                 aval, dadt, int1, int2, int3, k1, k2, dUn, rUn, nUn, ier)
            
            ! check the error flag
@@ -874,9 +874,9 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
                 - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
            
            ! call the local residual routine
-           call gFLDProblem_AnalyticLTEResid(res_Er, res_ec, Ernew,  &
-                ecnew, Erold, ecold, deltat, rhoval, eint, 0.d0,     &
-                ecsrc, kap, gam, Model, PType, 0, aval, dadt, aUn,   &
+           call gFLDProblem_AnalyticLTEResid(res_Er, res_ec, Ernew,      &
+                ecnew, Erold, ecold, deltat, rhoval, eint, 0.d0,         &
+                ecsrc, kap, gam, Model, PType, 0_IKIND, aval, dadt, aUn, &
                 dUn, lUn, tUn, rUn, eUn, nUn, ier)
            
            ! check the error flag

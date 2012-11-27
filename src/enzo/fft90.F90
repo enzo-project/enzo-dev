@@ -139,10 +139,11 @@ MODULE singleton
 #include "fortran_types.def"
 
   PRIVATE
-  PUBLIC:: fft, fftn, fftkind
+  PUBLIC:: fft, fftn, fftkind, fftintk, fftlogk
 
   INTEGER, PARAMETER:: fftkind = RKIND  !--- adjust here for other precisions
   INTEGER, PARAMETER:: fftintk = IKIND  !--- adjust here for other precisions
+  INTEGER, PARAMETER:: fftlogk = LKIND  !--- adjust here for other precisions
 
   REAL(fftkind), PARAMETER:: sin60 = 0.86602540378443865_fftkind
   REAL(fftkind), PARAMETER:: cos72 = 0.30901699437494742_fftkind
@@ -167,7 +168,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),               INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION(SIZE(array, 1)):: ft
@@ -187,7 +188,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:),   INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                          INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),                 INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),                 INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION(SIZE(array, 1), SIZE(array, 2)):: ft
@@ -207,7 +208,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:),     INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                            INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),                   INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),                   INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), &
@@ -228,7 +229,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:),       INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                              INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),                     INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),                     INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
@@ -249,7 +250,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:,:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:),         INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                                INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),                       INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),                       INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
@@ -271,7 +272,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:,:,:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:),           INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                                  INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),                         INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),                         INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
@@ -293,7 +294,7 @@ CONTAINS
     !--- formal parameters
     COMPLEX(fftkind), DIMENSION(:,:,:,:,:,:,:), INTENT(IN)           :: array
     INTEGER(fftintk), DIMENSION(:),             INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                                    INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),                           INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),                           INTENT(OUT), OPTIONAL:: stat
     !--- function result
     COMPLEX(fftkind), DIMENSION( &
@@ -316,12 +317,12 @@ CONTAINS
     COMPLEX(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
     INTEGER(fftintk), DIMENSION(:), INTENT(IN)           :: shape
     INTEGER(fftintk), DIMENSION(:), INTENT(IN),  OPTIONAL:: dim
-    LOGICAL,                        INTENT(IN),  OPTIONAL:: inv
+    LOGICAL(fftlogk),               INTENT(IN),  OPTIONAL:: inv
     INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- local arrays
     INTEGER(fftintk), DIMENSION(SIZE(shape)):: d
     !--- local scalars
-    LOGICAL      :: inverse
+    LOGICAL(fftlogk) :: inverse
     INTEGER(fftintk) :: i, ndim, ntotal
     REAL(fftkind):: scale
     !--- intrinsics used
@@ -361,7 +362,7 @@ CONTAINS
     !--- formal parameters
     INTEGER(fftintk),               INTENT(IN)           :: ntotal, npass, nspan
     COMPLEX(fftkind), DIMENSION(*), INTENT(INOUT)        :: array
-    LOGICAL,                        INTENT(IN)           :: inv
+    LOGICAL(fftlogk),               INTENT(IN)           :: inv
     INTEGER(fftintk),               INTENT(OUT), OPTIONAL:: stat
     !--- local arrays
     INTEGER(fftintk), DIMENSION(BIT_SIZE(0))     :: factor

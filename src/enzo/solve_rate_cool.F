@@ -188,7 +188,7 @@
 !  Cloudy cooling data
 
       INTG_PREC icmbTfloor, iClHeat, clGridRank, clDataSize
-      INTG_PREC clGridDim(clGridRank)
+      INTG_PREC clGridDim(5)
       R_PREC clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
@@ -256,7 +256,7 @@
 
 !  Iteration mask
 
-      logical itmask(ijk)
+      LOGIC_PREC itmask(ijk)
 !
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -300,9 +300,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !       Set iteration mask to include only cells with radiation in the
 !       intermediate coupled chemistry / energy step
 
-         if (iradcoupled .eq. 1 .and. iradstep .eq. 1) then
+         if (iradcoupled == 1 .and. iradstep == 1) then
             do i = is+1, ie+1
-               if (kphHI(i,j,k) .gt. 0) then 
+               if (kphHI(i,j,k) > 0) then 
                   itmask(i) = .true. 
                else 
                   itmask(i) = .false.
@@ -312,9 +312,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !     Normal rate solver, but don't double-count the cells with radiation
  
-         if (iradcoupled .eq. 1 .and. iradstep .eq. 0) then
+         if (iradcoupled == 1 .and. iradstep == 0) then
             do i = is+1, ie+1
-               if (kphHI(i,j,k) .gt. 0) then 
+               if (kphHI(i,j,k) > 0) then 
                   itmask(i) = .false. 
                else 
                   itmask(i) = .true.
@@ -324,7 +324,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !     No radiation timestep coupling
 
-         if (iradcoupled .eq. 0 .or. iradtrans .eq. 0) then 
+         if (iradcoupled == 0 .or. iradtrans == 0) then 
             do i = is+1, ie+1
                itmask(i) = .true.
             enddo
@@ -421,9 +421,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
                if (itmask(i)) then
 !              Bound from below to prevent numerical errors
                
-	       if (abs(dedot(i)) .lt. tiny) 
+	       if (abs(dedot(i)) < tiny) 
      &             dedot(i) = min(REAL(tiny,RKIND),de(i,j,k))
-	       if (abs(HIdot(i)) .lt. tiny)
+	       if (abs(HIdot(i)) < tiny)
      &             HIdot(i) = min(REAL(tiny,RKIND),HI(i,j,k))
 
 !              If the net rate is almost perfectly balanced then set
@@ -432,7 +432,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
                if (min(abs(k1(i)* de(i,j,k)*HI(i,j,k)),
      &                 abs(k2(i)*HII(i,j,k)*de(i,j,k)))/
      &              max(abs(dedot(i)),abs(HIdot(i))) 
-     &              .gt. 1.e6_RKIND) then
+     &              > 1.e6) then
                   dedot(i) = tiny
                   HIdot(i) = tiny
                endif
@@ -443,7 +443,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !                electron or HI fraction which is in equilibrium with high
 !                individual terms (which all nearly cancel).
 
-               if (iter .gt. 50) then
+               if (iter > 50) then
                   dedot(i) = min(abs(dedot(i)), abs(dedot_prev(i)))
                   HIdot(i) = min(abs(HIdot(i)), abs(HIdot_prev(i)))
                endif
@@ -455,7 +455,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &                       abs(0.1_RKIND*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5_RKIND*dt)
 
-              if (d(i,j,k)*dom.gt.1.e8_RKIND .and. edot(i).gt.0.0) then
+              if (d(i,j,k)*dom > 1.e8 .and. edot(i) > 0.0) then
                 ! Equilibrium value for H is:
                 !  H = (-1.0 / (4*k22)) * (k13 - sqrt(8 k13 k22 rho + k13^2))
                 ! We now want this to change by 10% or less, but we're only
@@ -494,18 +494,19 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &               +k13(i)**2._RKIND))
                 !write(0,*) heq2, heq1, eqt2, eqt1, tgas(i), p2d(i), 
 !     &                     edot(i)
-                if(d(i,j,k)*dom.gt.1e18.and.i.eq.4)write(0, *)
+                if(d(i,j,k)*dom>1e18 .and. i==4)write(0,*)
      &              HI(i,j,k)/heq, edot(i),tgas(i)
                 dtit(i) = min(1.d0*dtit(i), 0.1d0*heq/dheq)
               endif
-              if (iter.gt.10) dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
+              if (iter>10) 
+     &             dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
 
-               if (dtit(i)/dt .lt. 1.e-2_RKIND .and. iter .gt. 800 .and.
-     &             abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND) then
+               if (dtit(i)/dt > 1.e-2 .and. iter > 800
+     &             .and. abs((dt-ttot(i))/dt) > 1.e-3) then
                   write(4,1000) iter,i,j,k,dtit(i),
      &              ttot(i),dt,de(i,j,k),dedot(i),HI(i,j,k),HIdot(i),
      &              tgas(i), dedot_prev(i), HIdot_prev(i)
@@ -545,8 +546,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 !              (the gamma used here is the right one even for H2 since p2d 
 !               is calculated with this gamma).
 
-               energy = max(p2d(i)/(gamma-1._RKIND), 
-     &                 REAL(tiny,RKIND))
+               energy = max(p2d(i)/(gamma-1._RKIND), tiny)
 
 !              This is an alternate energy calculation, based directly on
 !              the code's specific energy field, which differs from the above
@@ -554,19 +554,19 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !              energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1.0), 
 !     &                    tiny)
-!              if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
+!              if (energy < tiny) energy = d(i,j,k)*(e(i,j,k) - 
 !     &              0.5*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
 
 !              If the temperature is at the bottom of the temperature look-up 
 !              table and edot < 0, then shut off the cooling.
 
-               if (tgas(i) .le. 1.01_RKIND*temstart .and. 
-     &              edot(i) .lt. 0._RKIND) edot(i) = tiny
-	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
+               if (tgas(i) <= 1.01_RKIND*temstart .and. 
+     &              edot(i) < 0.0) edot(i) = tiny
+	       if (abs(edot(i)) < tiny) edot(i) = tiny
 !
 !              Compute timestep for 10% change
 
-!              if (iter .gt. 100) then
+!              if (iter > 100) then
 !                 dtit(i) = min(REAL(abs(0.1*energy/edot(i)),RKIND), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
@@ -581,10 +581,10 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
-               if (ge(i,j,k) .le. 0._RKIND .and. idual .eq. 1)
+               if (ge(i,j,k) <= 0.0 .and. idual == 1)
      &           write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
-               if (idual .eq. 1 .and.
-     &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0._RKIND)
+               if (idual == 1 .and.
+     &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) <= 0.0)
      &           write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
@@ -592,9 +592,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 #ifdef WRITE_COOLING_DEBUG
 !              If the timestep is too small, then output some debugging info
 
-               if (((dtit(i)/dt .lt. 1.e-2_RKIND .and. iter .gt. 800) 
-     &               .or. iter .gt. itmax-100) .and.
-     &              abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND)
+               if (((dtit(i)/dt < 1.e-2 .and. iter > 800) 
+     &               .or. iter > itmax-100) .and.
+     &              abs((dt-ttot(i))/dt) > 1.e-3)
      &           write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &             energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
  2000          format(4(i4,1x),1p,10(e14.3))
@@ -614,17 +614,17 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !              If using the dual energy formalism, there are 2 energy fields
 
-               if (idual .eq. 1) then
+               if (idual == 1) then
                   ge(i,j,k) = ge(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
 !                 Alternate energy update schemes (not currently used)
 
 !                 ge(i,j,k) = max(ge(i,j,k) + edot(i)/d(i,j,k)*dtit(i),
 !     &                      0.5_RKIND*ge(i,j,k))
-!                 if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
+!                 if (ge(i,j,k) <= tiny) ge(i,j,k) = (energy + 
 !     &              edot(i)*dtit(i))/d(i,j,k)
 #ifdef WRITE_COOLING_DEBUG
-                  if (ge(i,j,k) .le. 0._RKIND) write(3,*)
+                  if (ge(i,j,k) <= 0.0) write(3,*)
      &                 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
 #endif WRITE_COOLING_DEBUG
                endif
@@ -655,14 +655,14 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
             ttmin = huge
             do i = is+1, ie+1
                ttot(i) = min(ttot(i) + dtit(i), dt)
-               if (abs(dt-ttot(i)) .lt. 0.001_RKIND*dt) 
+               if (abs(dt-ttot(i)) < 0.001_RKIND*dt) 
      &              itmask(i) = .false.
-               if (ttot(i).lt.ttmin) ttmin = ttot(i)
+               if (ttot(i)<ttmin) ttmin = ttot(i)
             enddo
 
 !           If all cells are done (on this slice), then exit
 
-            if (abs(dt-ttmin) .lt. tolerance*dt) go to 9999
+            if (abs(dt-ttmin) < tolerance*dt) go to 9999
 
 !           Next subcycle iteration
 
@@ -672,7 +672,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
 !       Abort if iteration count exceeds maximum
 
-         if (iter .gt. itmax) then
+         if (iter > itmax) then
 	    write(0,*) 'inside if statement solve rate cool:',is,ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
@@ -684,7 +684,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
             WARNING_MESSAGE
          endif
 
-         if (iter .gt. itmax/2) then
+         if (iter > itmax/2) then
             write(6,*) 'MULTI_COOL iter,j,k =',iter,j,k
          end if
 !     
@@ -752,7 +752,7 @@ c -------------------------------------------------------------------
             enddo
          enddo
       enddo
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
@@ -763,7 +763,7 @@ c -------------------------------------------------------------------
             enddo
          enddo
       endif
-      if (ispecies .gt. 2) then
+      if (ispecies > 2) then
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
@@ -774,7 +774,7 @@ c -------------------------------------------------------------------
             enddo
          enddo
       endif
-      if (imetal .eq. 1) then
+      if (imetal == 1) then
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
@@ -818,45 +818,43 @@ c -------------------------------------------------------------------
       do k = ks+1, ke+1
          do j = js+1, je+1
             do i = is+1, ie+1
-               de(i,j,k)    = max(de(i,j,k), REAL(tiny,RKIND))
-               HI(i,j,k)    = max(HI(i,j,k), REAL(tiny,RKIND))
-               HII(i,j,k)   = max(HII(i,j,k), REAL(tiny,RKIND))
-               HeI(i,j,k)   = max(HeI(i,j,k), REAL(tiny,RKIND))
-               HeII(i,j,k)  = max(HeII(i,j,k), REAL(tiny,RKIND))
-               HeIII(i,j,k) = max(HeIII(i,j,k), 
-     &                            REAL(1.e-5*tiny,RKIND))
+               de(i,j,k)    = max(de(i,j,k), tiny)
+               HI(i,j,k)    = max(HI(i,j,k), tiny)
+               HII(i,j,k)   = max(HII(i,j,k), tiny)
+               HeI(i,j,k)   = max(HeI(i,j,k), tiny)
+               HeII(i,j,k)  = max(HeII(i,j,k), tiny)
+               HeIII(i,j,k) = max(HeIII(i,j,k), 1.e-5_RKIND*tiny)
             enddo
          enddo
       enddo
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  HM(i,j,k)   = max(HM(i,j,k), REAL(tiny,RKIND))
-                  H2I(i,j,k)  = max(H2I(i,j,k), REAL(tiny,RKIND))
-                  H2II(i,j,k) = max(H2II(i,j,k), REAL(tiny,RKIND))
+                  HM(i,j,k)   = max(HM(i,j,k), tiny)
+                  H2I(i,j,k)  = max(H2I(i,j,k), tiny)
+                  H2II(i,j,k) = max(H2II(i,j,k), tiny)
                enddo
             enddo
          enddo
       endif
-      if (ispecies .gt. 2) then
+      if (ispecies > 2) then
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
-                  DI(i,j,k)  = max(DI(i,j,k), REAL(tiny,RKIND))
-                  DII(i,j,k) = max(DII(i,j,k), REAL(tiny,RKIND))
-                  HDI(i,j,k) = max(HDI(i,j,k), REAL(tiny,RKIND))
+                  DI(i,j,k)  = max(DI(i,j,k), tiny)
+                  DII(i,j,k) = max(DII(i,j,k), tiny)
+                  HDI(i,j,k) = max(HDI(i,j,k), tiny)
                enddo
             enddo
          enddo
       endif
-      if (imetal .eq. 1) then
+      if (imetal == 1) then
          do k = ks+1, ke+1
             do j = js+1, je+1
                do i = is+1, ie+1
                   metal(i,j,k) = min(max(metal(i,j,k),
-     &                               REAL(tiny,RKIND)),
-     &                               0.9_RKIND*d(i,j,k))
+     &                               tiny), 0.9_RKIND*d(i,j,k))
                enddo
             enddo
          enddo
@@ -904,7 +902,7 @@ c -------------------------------------------------------------------
       R_PREC temstart, temend, tgas1d(in), dom,
      &        dtemstart, dtemend
       real*8 coolunit, tbase1
-      logical itmask(ijk)
+      LOGIC_PREC itmask(ijk)
 
 !     Chemistry rates as a function of temperature
 
@@ -1002,7 +1000,7 @@ c -------------------------------------------------------------------
 
 !     Look-up for 9-species model
 
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
          do i = is+1, ie+1
             if (itmask(i)) then
             k7(i) = k7a(indixe(i)) +
@@ -1060,7 +1058,7 @@ c -------------------------------------------------------------------
 
 !     Look-up for 12-species model
 
-      if (ispecies .gt. 2) then
+      if (ispecies > 2) then
          do i = is+1, ie+1
             if (itmask(i)) then
             k50(i) = k50a(indixe(i)) +
@@ -1083,7 +1081,7 @@ c -------------------------------------------------------------------
 
 !     Look-up for H2 formation on dust
 
-      if (idust .gt. 0) then
+      if (idust > 0) then
 
          d_logtem0 = log(dtemstart)
          d_logtem9 = log(dtemend)
@@ -1094,7 +1092,7 @@ c -------------------------------------------------------------------
 
 !              Assume dust melting at T > 1500 K
 
-               if (tdust(i) .gt. dtemend) then
+               if (tdust(i) > dtemend) then
                   h2dust(i) = tiny
                else
 
@@ -1143,7 +1141,7 @@ c -------------------------------------------------------------------
          k26shield(i) = k26
       endif
       enddo
-      if (iradshield .eq. 1) then
+      if (iradshield == 1) then
          do i = is+1, ie+1
             if (itmask(i)) then
             k24shield(i) = k24shield(i)*exp(-HI(i,j,k)*avgsighp*dom)
@@ -1157,7 +1155,7 @@ c -------------------------------------------------------------------
 !          effects of secondary elections (Shull * Steenberg 1985)
 !          (see calc_rate.src)
 
-      if (iradtype .eq. 8) then
+      if (iradtype == 8) then
          do i = is+1, ie+1
             if (itmask(i)) then
             x = max(HII(i,j,k)/(HI(i,j,k)+HII(i,j,k)), 1.e-4_RKIND)
@@ -1183,19 +1181,17 @@ c -------------------------------------------------------------------
 
 #define USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
 #ifdef USE_DENSITY_DEPENDENT_H2_DISSOCIATION_RATE
-            if (ispecies .gt. 1 .and. ithreebody .eq. 0) then
+            if (ispecies > 1 .and. ithreebody == 0) then
                do i = is+1, ie+1
                   if (itmask(i)) then
                   nh = min(HI(i,j,k)*dom, 1.e9_RKIND)
                   k13(i) = tiny
-                  if (tgas1d(i) .ge. 500._RKIND .and.
-     &                tgas1d(i) .lt. 1.e6_RKIND) then
+                  if (tgas1d(i) >= 500.0 .and. tgas1d(i) < 1.e6) then
                      k13(i) = k13dd(i,1)-k13dd(i,2)/
      &                          (1._RKIND+(nh/k13dd(i,5))**k13dd(i,7))
      &                     + k13dd(i,3)-k13dd(i,4)/
      &                          (1._RKIND+(nh/k13dd(i,6))**k13dd(i,7))
-                     k13(i) = max(10._RKIND**k13(i), 
-     &                            REAL(tiny,RKIND))
+                     k13(i) = max(10._RKIND**k13(i), tiny)
                   endif
                endif
                enddo
@@ -1233,7 +1229,7 @@ c -------------------------------------------------------------------
      &     iradtrans, irt_honly
       R_PREC dedot(in), HIdot(in), dom
       real*8 edot(in)
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !     Density fields
 
@@ -1266,7 +1262,7 @@ c -------------------------------------------------------------------
       INTG_PREC i
       real*8 h2heatfac(in), H2delta(in), H2dmag, atten, tau
 
-      if (ispecies .eq. 1) then
+      if (ispecies == 1) then
 
          do i = is+1, ie+1
             if (itmask(i)) then
@@ -1324,7 +1320,7 @@ c -------------------------------------------------------------------
 
 !     Add H2 formation on dust grains
 
-            if (idust .gt. 0) then
+            if (idust > 0) then
                HIdot(i) = HIdot(i) 
      &              - 2.d0 * h2dust(i) * rhoH(i)
             endif
@@ -1365,11 +1361,11 @@ c -------------------------------------------------------------------
 
             ! We only want to apply this if the formation dominates, but we
             ! need to apply it outside the delta calculation.
-            if(H2delta(i).gt.0.0) then
+            if(H2delta(i) > 0.0) then
               H2delta(i) = H2delta(i) * h2heatfac(i)
             endif
 
-            if (idust .gt. 0) then
+            if (idust > 0) then
                H2delta(i) = H2delta(i) + 
      &              h2dust(i) * HI(i,j,k) * rhoH(i) * 
      &              (0.2_RKIND + 4.2_RKIND * h2heatfac(i))
@@ -1393,8 +1389,8 @@ c -------------------------------------------------------------------
 !     Add photo-ionization rates if needed
 
 #ifdef RADIATION
-      if (iradtrans .eq. 1) then
-         if (irt_honly .eq. 0) then
+      if (iradtrans == 1) then
+         if (irt_honly == 0) then
             do i = is+1, ie+1
                if (itmask(i)) then
                   HIdot(i) = HIdot(i) - kphHI(i,j,k)*HI(i,j,k)
@@ -1447,7 +1443,7 @@ c -------------------------------------------------------------------
       INTG_PREC ispecies, idust, in, jn, kn, is, ie, j, k, 
      &     iradtrans, irt_honly
       R_PREC    dtit(in), dedot_prev(in), HIdot_prev(in)
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !     Density fields
 
@@ -1486,7 +1482,7 @@ c -------------------------------------------------------------------
 
 !   A) the 6-species integrator
 !      
-      if (ispecies .eq. 1) then
+      if (ispecies == 1) then
 
          do i = is+1, ie+1
             if (itmask(i)) then
@@ -1497,7 +1493,7 @@ c -------------------------------------------------------------------
             acoef  = k1(i)*de(i,j,k)
 #ifdef RADIATION
      &             + k24shield(i)
-            if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
+            if (iradtrans == 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
             HIp(i)  = (scoef*dtit(i) + HI(i,j,k)) / 
      $           (1._RKIND + acoef*dtit(i))
@@ -1513,13 +1509,14 @@ c
             scoef  = k1(i)*HIp(i)*de(i,j,k)
 #ifdef RADIATION
      &                   + k24shield(i)*HIp(i)
-            if (iradtrans .eq. 1) scoef = scoef + kphHI(i,j,k)*HIp(i)
+            if (iradtrans == 1) 
+     &           scoef = scoef + kphHI(i,j,k)*HIp(i)
 #endif /* RADIATION */
             acoef  = k2(i)*de (i,j,k)
             HIIp(i) = (scoef*dtit(i) + HII(i,j,k)) / 
      $           (1._RKIND +acoef*dtit(i))
 !
-            if (HIIp(i) .le. 0._RKIND) then  !#####
+            if (HIIp(i) <= 0.0) then  !#####
                write(*,*) 'negative HIIp! :: ', i, j, k, HIIp(i), 
      $              scoef, dtit(i), HII(i,j,k), acoef,
      $              k2(i), de(i,j,k),
@@ -1534,11 +1531,11 @@ c
      &                 + k24shield(i)*HI(i,j,k)
      &                 + k25shield(i)*HeII(i,j,k)/4._RKIND
      &                 + k26shield(i)*HeI(i,j,k)/4._RKIND
-            if (iradtrans .eq. 1 .and. irt_honly .eq. 0) 
+            if (iradtrans == 1 .and. irt_honly == 0) 
      &           scoef = scoef + kphHI(i,j,k)   * HI(i,j,k)
      &           + kphHeI(i,j,k)  * HeI(i,j,k)/4._RKIND
      &           + kphHeII(i,j,k) * HeII(i,j,k)/4._RKIND
-            if (iradtrans .eq. 1 .and. irt_honly .eq. 1) 
+            if (iradtrans == 1 .and. irt_honly == 1) 
      &           scoef = scoef + kphHI(i,j,k)   * HI(i,j,k)
 #endif /* RADIATION */
             acoef = -(k1(i)*HI(i,j,k)      - k2(i)*HII(i,j,k)
@@ -1552,7 +1549,7 @@ c
          endif                  ! itmask
          enddo
 
-      endif                     ! (ispecies .eq. 1)
+      endif                     ! (ispecies == 1)
 
 !  --- (B) Do helium chemistry in any case: (for all ispecies values) ---
 
@@ -1565,7 +1562,7 @@ c
          acoef  = k3(i)*de(i,j,k)
 #ifdef RADIATION
      &                + k26shield(i)
-         if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+         if (iradtrans == 1 .and. irt_honly == 0) 
      $        acoef = acoef + kphHeI(i,j,k)
 #endif /* RADIATION */
          HeIp(i)   = ( scoef*dtit(i) + HeI(i,j,k) ) 
@@ -1577,13 +1574,13 @@ c
      &          + k6(i)*HeIII(i,j,k)*de(i,j,k)
 #ifdef RADIATION
      &          + k26shield(i)*HeIp(i)
-         if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+         if (iradtrans == 1 .and. irt_honly == 0) 
      $        scoef = scoef + kphHeI(i,j,k)*HeIp(i)
 #endif /* RADIATION */
          acoef  = k4(i)*de(i,j,k) + k5(i)*de(i,j,k)
 #ifdef RADIATION
      &          + k25shield(i)
-         if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+         if (iradtrans == 1 .and. irt_honly == 0) 
      $        acoef = acoef + kphHeII(i,j,k)
 #endif /* RADIATION */
          HeIIp(i)  = ( scoef*dtit(i) + HeII(i,j,k) )
@@ -1594,7 +1591,7 @@ c
          scoef   = k5(i)*HeIIp(i)*de(i,j,k)
 #ifdef RADIATION
      &           + k25shield(i)*HeIIp(i)
-         if (iradtrans.eq.1 .and. irt_honly.eq.0) 
+         if (iradtrans == 1 .and. irt_honly == 0) 
      $        scoef = scoef + kphHeII(i,j,k) * HeIIp(i)
 #endif /* RADIATION */
          acoef   = k6(i)*de(i,j,k)
@@ -1606,7 +1603,7 @@ c
 
 c --- (C) Now do extra 3-species for molecular hydrogen ---
 
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
 
 !        First, do HI/HII with molecular hydrogen terms
 
@@ -1626,7 +1623,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             +      k19(i)* H2II(i,j,k)* HM(i,j,k)/2._RKIND
 #ifdef RADIATION
      &             + 2._RKIND*k31   * H2I(i,j,k)/2._RKIND
-            if (iradtrans.eq.1)
+            if (iradtrans == 1)
      &           scoef = scoef + 
      &           2._RKIND*kdissH2I(i,j,k)* H2I(i,j,k)/2._RKIND
 #endif /* RADIATION */
@@ -1638,10 +1635,10 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             + 2._RKIND*k22(i)* HI(i,j,k)**2
 #ifdef RADIATION
      &             + k24shield(i)
-            if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
+            if (iradtrans == 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
 
-            if (idust .gt. 0) then
+            if (idust > 0) then
                acoef = acoef + 2.d0 * h2dust(i) * rhoH(i)
             endif
 
@@ -1659,7 +1656,8 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             +    k10(i) * H2II(i,j,k)*HI(i,j,k)/2._RKIND
 #ifdef RADIATION
      &             + k24shield(i)*HI(i,j,k)
-            if (iradtrans .eq. 1) scoef = scoef + kphHI(i,j,k)*HI(i,j,k)
+            if (iradtrans == 1) 
+     &           scoef = scoef + kphHI(i,j,k)*HI(i,j,k)
 #endif /* RADIATION */
             acoef  =    k2(i)  * de(i,j,k)
      &             +    k9(i)  * HI(i,j,k)
@@ -1679,11 +1677,11 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             + k24shield(i)*HIp(i)
      &             + k25shield(i)*HeIIp(i)/4._RKIND
      &             + k26shield(i)*HeIp(i)/4._RKIND
-            if (iradtrans .eq. 1 .and. irt_honly.eq.0) 
+            if (iradtrans == 1 .and. irt_honly == 0) 
      &           scoef = scoef + kphHI(i,j,k)   * HIp(i)
      &           + kphHeI(i,j,k)  * HeIp(i)/4._RKIND
      &           + kphHeII(i,j,k) * HeIIp(i)/4._RKIND
-            if (iradtrans .eq. 1 .and. irt_honly.eq.1) 
+            if (iradtrans == 1 .and. irt_honly == 1) 
      &           scoef = scoef + kphHI(i,j,k)   * HIp(i)
 #endif /* RADIATION */
             acoef = - (k1(i) *HI(i,j,k)    - k2(i)*HII(i,j,k)
@@ -1707,10 +1705,10 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &              + k12(i)*de(i,j,k) )
 #ifdef RADIATION
      &              + k29 + k31
-            if (iradtrans.eq.1) acoef = acoef + kdissH2I(i,j,k)
+            if (iradtrans == 1) acoef = acoef + kdissH2I(i,j,k)
 #endif /* RADIATION */
 
-            if (idust .gt. 0) then
+            if (idust > 0) then
                scoef = scoef + 2.d0 * h2dust(i) * HI(i,j,k) * rhoH(i)
             endif
 
@@ -1750,7 +1748,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
 
 !  --- (D) Now do extra 3-species for molecular HD ---
 !     
-      if (ispecies .gt. 2) then
+      if (ispecies > 2) then
          do i = is+1, ie+1
             if (itmask(i)) then
 !     
@@ -1766,7 +1764,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             +    k56(i) * HM(i,j,k)
 #ifdef RADIATION
      &             + k24shield(i)
-            if (iradtrans .eq. 1) acoef = acoef + kphHI(i,j,k)
+            if (iradtrans == 1) acoef = acoef + kphHI(i,j,k)
 #endif /* RADIATION */
             DIp(i)    = ( scoef*dtit(i) + DI(i,j,k) ) / 
      &                  ( 1._RKIND + acoef*dtit(i) )
@@ -1779,7 +1777,8 @@ c
      &            )
 #ifdef RADIATION
      &            + k24shield(i)*DI(i,j,k)
-            if (iradtrans .eq. 1) scoef = scoef + kphHI(i,j,k)*DI(i,j,k)
+            if (iradtrans == 1) 
+     &           scoef = scoef + kphHI(i,j,k)*DI(i,j,k)
 #endif /* RADIATION */
             acoef =    k2(i)  * de(i,j,k)
      &            +    k51(i) * HI(i,j,k)
@@ -1808,13 +1807,12 @@ c
 
       do i = is+1, ie+1
          if (itmask(i)) then
-         HIdot_prev(i) = abs(HI(i,j,k)-HIp(i))/max(dtit(i),
-     &           REAL(tiny,RKIND))
-         HI(i,j,k)    = max(HIp(i), REAL(tiny,RKIND))
-         HII(i,j,k)   = max(HIIp(i), REAL(tiny,RKIND))
-         HeI(i,j,k)   = max(HeIp(i), REAL(tiny,RKIND))
-         HeII(i,j,k)  = max(HeIIp(i), REAL(tiny,RKIND))
-         HeIII(i,j,k) = max(HeIIIp(i), REAL(1.e-5*tiny,RKIND))
+         HIdot_prev(i) = abs(HI(i,j,k)-HIp(i))/max(dtit(i), tiny)
+         HI(i,j,k)    = max(HIp(i), tiny)
+         HII(i,j,k)   = max(HIIp(i), tiny)
+         HeI(i,j,k)   = max(HeIp(i), tiny)
+         HeII(i,j,k)  = max(HeIIp(i), tiny)
+         HeIII(i,j,k) = max(HeIIIp(i), 1.e-5_RKIND*tiny)
 
 !        de(i,j,k)    = dep(i)
 
@@ -1823,21 +1821,21 @@ c
          dedot_prev(i) = de(i,j,k)
          de(i,j,k) = HII(i,j,k) + HeII(i,j,k)/4._RKIND + 
      &        HeIII(i,j,k)/2._RKIND
-         if (ispecies .gt. 1) 
+         if (ispecies > 1) 
      &      de(i,j,k) = de(i,j,k) - HM(i,j,k) + H2II(i,j,k)/2._RKIND
          dedot_prev(i) = abs(de(i,j,k)-dedot_prev(i))/
-     &                         max(dtit(i),REAL(tiny,RKIND))
+     &                         max(dtit(i),tiny)
 
-         if (ispecies .gt. 1) then
-            HM(i,j,k)    = max(HMp(i), REAL(tiny,RKIND))
-            H2I(i,j,k)   = max(H2Ip(i), REAL(tiny,RKIND))
-            H2II(i,j,k)  = max(H2IIp(i), REAL(tiny,RKIND))
+         if (ispecies > 1) then
+            HM(i,j,k)    = max(HMp(i), tiny)
+            H2I(i,j,k)   = max(H2Ip(i), tiny)
+            H2II(i,j,k)  = max(H2IIp(i), tiny)
          endif
 
-         if (ispecies .gt. 2) then
-            DI(i,j,k)    = max(DIp(i), REAL(tiny,RKIND))
-            DII(i,j,k)   = max(DIIp(i), REAL(tiny,RKIND))
-            HDI(i,j,k)   = max(HDIp(i), REAL(tiny,RKIND))
+         if (ispecies > 2) then
+            DI(i,j,k)    = max(DIp(i), tiny)
+            DII(i,j,k)   = max(DIIp(i), tiny)
+            HDI(i,j,k)   = max(HDIp(i), tiny)
          endif
       endif                     ! itmask
 !     
@@ -1894,7 +1892,7 @@ c
 !     Compute total densities of H and He
 !         (ensure non-negativity)
 
-      if (imetal .eq. 1) then
+      if (imetal == 1) then
          do i = is+1, ie+1
             metalfree(i) = d(i,j,k) - metal(i,j,k)
          enddo
@@ -1916,7 +1914,7 @@ c
 
 !     include molecular hydrogen
 
-      if (ispecies .gt. 1) then
+      if (ispecies > 1) then
          do i = is+1, ie+1
             HM   (i,j,k) = abs(HM   (i,j,k))
             H2II (i,j,k) = abs(H2II (i,j,k))
@@ -1939,7 +1937,7 @@ c
 
 !     Correct molecular hydrogen-related fractions
 
-         if (ispecies .gt. 1) then
+         if (ispecies > 1) then
             HM   (i,j,k) = HM(i,j,k)*correctH
             H2II (i,j,k) = H2II(i,j,k)*correctH
             H2I  (i,j,k) = H2I(i,j,k)*correctH
@@ -1948,7 +1946,7 @@ c
 
 !     Do the same thing for deuterium (ignore HD) Assumes dtoh is small
 
-      if (ispecies .gt. 2) then
+      if (ispecies > 2) then
          do i = is+1, ie+1
             DI  (i,j,k) = abs(DI  (i,j,k))
             DII (i,j,k) = abs(DII (i,j,k))
@@ -1967,7 +1965,7 @@ c
       do i = is+1, ie+1
          de (i,j,k) = HII(i,j,k) + HeII(i,j,k)/4._RKIND + 
      &        HeIII(i,j,k)/2._RKIND
-         if (ispecies .gt. 1) de(i,j,k) = de(i,j,k)
+         if (ispecies > 1) de(i,j,k) = de(i,j,k)
      &             - HM(i,j,k) + H2II(i,j,k)/2._RKIND
       enddo
 

@@ -134,8 +134,8 @@ c
      &        qa, qb, qc, s, sigma(ijkn),
      &        sigma_tilde, vdiff1(ijkn), vdiff2(ijkn), wdiff1(ijkn),
      &        wdiff2(ijkn), wflag(ijkn), Z, ZE
-      logical ljx1,ljy1,ljz1,ljx2,ljy2,ljz2,lj1,lj2
-      logical lkx1,lky1,lkz1,lkx2,lky2,lkz2,lk1,lk2
+      LOGIC_PREC ljx1,ljy1,ljz1,ljx2,ljy2,ljz2,lj1,lj2
+      LOGIC_PREC lkx1,lky1,lkz1,lkx2,lky2,lkz2,lk1,lk2
       R_PREC dp1,dp2,de1,de2,dee,dpp,omega_tilde
 c
 c  parameters
@@ -532,7 +532,7 @@ c
 c              Compute W_j^E; Possible typos in kappa_tilda definition in 
 c              CW84 (A.9). !AK
 c
-               ZE    = s*Z/dslice(ism,j) + uslice(ism,j) + tiny
+               ZE   = s*Z/dslice(ism,j) + uslice(ism,j) + tiny
                cj2s = sqrt(gamma*pslice(isp,j)/dslice(isp,j))
 c
 c              Compute kappa(i): the wavelength of the noise

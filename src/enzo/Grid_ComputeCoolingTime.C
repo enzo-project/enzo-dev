@@ -221,6 +221,48 @@ int grid::ComputeCoolingTime(float *cooling_time)
   /* Call the appropriate FORTRAN routine to do the work. */
 
   if (MultiSpecies) {
+    // printf("Grid_ComputeCoolingTime.C, integer arguments to cool_multi_time:\n");
+    // printf("  in =%"ISYM"\n",GridDimension[0]);
+    // printf("  jn =%"ISYM"\n",GridDimension[1]);
+    // printf("  kn =%"ISYM"\n",GridDimension[2]);
+    // printf("  nratec =%"ISYM"\n",CoolData.NumberOfTemperatureBins);
+    // printf("  iexpand =%"ISYM"\n",ComovingCoordinates);
+    // printf("  imethod =%"ISYM"\n",HydroMethod);
+    // printf("  idual =%"ISYM"\n",DualEnergyFormalism);
+    // printf("  ispecies =%"ISYM"\n",MultiSpecies);
+    // printf("  imetal =%"ISYM"\n",MetalFieldPresent);
+    // printf("  imcool =%"ISYM"\n",MetalCooling);
+    // printf("  idust =%"ISYM"\n",H2FormationOnDust);
+    // printf("  idim =%"ISYM"\n",GridRank);
+    // printf("  is =%"ISYM"\n",GridStartIndex[0]);
+    // printf("  js =%"ISYM"\n",GridStartIndex[1]);
+    // printf("  ks =%"ISYM"\n",GridStartIndex[2]);
+    // printf("  ie =%"ISYM"\n",GridEndIndex[0]);
+    // printf("  je =%"ISYM"\n",GridEndIndex[1]);
+    // printf("  ke =%"ISYM"\n",GridEndIndex[2]);
+    // printf("  ih2co =%"ISYM"\n",CoolData.ih2co);
+    // printf("  ipiht =%"ISYM"\n",CoolData.ipiht);
+    // printf("  igammah =%"ISYM"\n",PhotoelectricHeating);
+    // printf("  n_xe =%"ISYM"\n",CoolData.NumberOfElectronFracBins);
+    // printf("  iradfield =%"ISYM"\n",RadiationFieldType);
+    // printf("  nfreq =%"ISYM"\n",RadiationData.NumberOfFrequencyBins);
+    // printf("  imetalregen =%"ISYM"\n",RadiationFieldRecomputeMetalRates);
+    // printf("  iradshield =%"ISYM"\n",RadiationData.RadiationShield);
+    // printf("  iradtrans =%"ISYM"\n",RadiativeTransfer);
+    // printf("  ih2optical =%"ISYM"\n",H2OpticalDepthApproximation);
+    // printf("  iciecool =%"ISYM"\n",CIECooling);
+    // printf("  icmbTfloor =%"ISYM"\n",CloudyCoolingData.CMBTemperatureFloor);
+    // printf("  iClHeat =%"ISYM"\n",CloudyCoolingData.IncludeCloudyHeating);
+    // printf("  clGridRank =%"ISYM"\n",CloudyCoolingData.CloudyCoolingGridRank);
+    // printf("  clGridDim =%"ISYM", %"ISYM", %"ISYM", %"ISYM", %"ISYM"\n",
+    // 	   CloudyCoolingData.CloudyCoolingGridDimension[0],
+    // 	   CloudyCoolingData.CloudyCoolingGridDimension[1],
+    // 	   CloudyCoolingData.CloudyCoolingGridDimension[2],
+    // 	   CloudyCoolingData.CloudyCoolingGridDimension[3],
+    // 	   CloudyCoolingData.CloudyCoolingGridDimension[4]);
+    // printf("  clDataSize =%"ISYM"\n\n",CloudyCoolingData.CloudyDataSize);
+    
+
     FORTRAN_NAME(cool_multi_time)(
        density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
        BaryonField[DeNum], BaryonField[HINum], BaryonField[HIINum],

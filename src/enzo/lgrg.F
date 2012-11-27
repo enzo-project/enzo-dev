@@ -127,8 +127,7 @@ c
      &          pcent(i) = (gamma - 1._RKIND)*geslice(i,j)*dslice(i,j)
             pcent(i) = min(pcent(i), 
      &                     0.5_RKIND*geslice(i,j)*dslice(i,j)*dx(i)/
-     &                     (max(ubar(i+1,j)-ubar(i,j),
-     &                     REAL(tiny,RKIND))*dt)  )
+     &                     (max(ubar(i+1,j)-ubar(i,j), tiny)*dt))
          enddo
       endif
 c

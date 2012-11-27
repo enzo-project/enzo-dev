@@ -436,7 +436,7 @@ c
       parameter (lower_pisn = 140._RKIND, upper_pisn = 260._RKIND, 
      $           lsun = 2.e33_RKIND)
       parameter (msolar = SolarMass)
-      logical death, pisn
+      LOGIC_PREC death, pisn
 c
 c-----------------------------------------------------------------------
 c

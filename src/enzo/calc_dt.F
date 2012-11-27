@@ -74,7 +74,7 @@ c     one-dimensional version
 c
       if (rank .eq. 1) then
          do i = i1+1, i2+1
-            cs = max(sqrt(gamma*p(i,1,1)/d(i,1,1)), REAL(tiny,RKIND))
+            cs = max(sqrt(gamma*p(i,1,1)/d(i,1,1)), tiny)
             if (ipfree .eq. 1) cs = tiny
             dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,1,1)-vgx)),RKIND))
          enddo
@@ -82,7 +82,7 @@ c
             do i = i1+1, i2+1
                dtviscous = min(dtviscous,
      &              REAL(dx(i)*aye/(4._RKIND*C2*
-     &              max(-u(i+1,1,1)+u(i,1,1),REAL(tiny,RKIND))),
+     &              max(-u(i+1,1,1)+u(i,1,1),tiny)),
      &              RKIND))
             enddo
          endif
@@ -93,8 +93,7 @@ c
       if (rank .eq. 2) then
          do j = j1+1, j2+1
             do i = i1+1, i2+1
-               cs = max(sqrt(gamma*p(i,j,1)/d(i,j,1)), 
-     &              REAL(tiny,RKIND))
+               cs = max(sqrt(gamma*p(i,j,1)/d(i,j,1)), tiny)
                if (ipfree .eq. 1) cs = tiny
                if (ihydro .eq. 0) then
 c
@@ -117,11 +116,9 @@ c
                do i = i1+1, i2+1
                   dtviscous = min(dtviscous, 
      &                 REAL(dx(i)*aye/(4._RKIND*C2*max(
-     &                 -u(i+1,j,1)+u(i,j,1),REAL(tiny,RKIND))), 
-     &                 RKIND),
+     &                 -u(i+1,j,1)+u(i,j,1),tiny)), RKIND),
      &                 REAL(dy(j)*aye/(4._RKIND*C2*max(
-     &                 -v(i,j+1,1)+v(i,j,1),REAL(tiny,RKIND))), 
-     &                 RKIND))
+     &                 -v(i,j+1,1)+v(i,j,1),tiny)), RKIND))
                enddo
             endif
          enddo
@@ -136,8 +133,7 @@ c
                   if (d(i,j,k) .ne. d(i,j,k) .or.
      &                p(i,j,k) .ne. p(i,j,k))
      &               write(6,*) 'calc_dt',d(i,j,k),p(i,j,k),i,j,k
-                  cs = max(sqrt(gamma*p(i,j,k)/d(i,j,k)), 
-     &                 REAL(tiny,RKIND))
+                  cs = max(sqrt(gamma*p(i,j,k)/d(i,j,k)), tiny)
                   if (ipfree .eq. 1) cs = tiny
                   if (ihydro .eq. 0) then
 c     
@@ -168,14 +164,11 @@ c
                   do i = i1+1, i2+1
 	            dt1 = min(
      &                    dx(i)*aye/(4._RKIND*C2*max(
-     &                        -u(i+1,j,k)+u(i,j,k),
-     &                        REAL(tiny,RKIND))),
+     &                        -u(i+1,j,k)+u(i,j,k), tiny)),
      &                    dy(j)*aye/(4._RKIND*C2*max(
-     &                        -v(i,j+1,k)+v(i,j,k),
-     &                        REAL(tiny,RKIND))),
+     &                        -v(i,j+1,k)+v(i,j,k), tiny)),
      &                    dz(k)*aye/(4._RKIND*C2*max(
-     &                        -w(i,j,k+1)+w(i,j,k),
-     &                        REAL(tiny,RKIND))))
+     &                        -w(i,j,k+1)+w(i,j,k), tiny)))
                      dtviscous = min(dtviscous, dt1)
                   enddo
                endif

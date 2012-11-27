@@ -102,7 +102,7 @@ c
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), metalc(ijk)
 
 !  Iteration mask for multi_cool
-      logical itmask(ijk)
+      LOGIC_PREC itmask(ijk)
                 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -170,7 +170,7 @@ c
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idim,
-     &                is, ie, j, k, ih2co, ipiht, 1,
+     &                is, ie, j, k, ih2co, ipiht, 1_IKIND,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,

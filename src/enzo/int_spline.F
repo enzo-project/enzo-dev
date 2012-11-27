@@ -75,8 +75,8 @@ c
 c     a) 1D
 c
       if (ndim .eq. 1) then
-         call spline_make(source(i1,1,1), i2-i1+1, work1, work4)
-         call spline_eval(source(i1,1,1), i2-i1+1, work1,
+         call spline_make(source(i1,1,1), i2-i1+1_IKIND, work1, work4)
+         call spline_eval(source(i1,1,1), i2-i1+1_IKIND, work1,
      &                    refine1, dest(1,1,1))
       endif
 c
@@ -84,8 +84,8 @@ c     b) 2D
 c
       if (ndim .eq. 2) then
          do j=j1, j2
-            call spline_make(source(i1,j,1), i2-i1+1, work1, work4)
-            call spline_eval(source(i1,j,1), i2-i1+1, work1,
+            call spline_make(source(i1,j,1), i2-i1+1_IKIND, work1,work4)
+            call spline_eval(source(i1,j,1), i2-i1+1_IKIND, work1,
      &                       refine1, temp1(1,j-j1+1))
          enddo
 c
@@ -93,8 +93,8 @@ c
             do j=1, j2-j1+1
                work1(j) = temp1(i,j)
             enddo
-            call spline_make(work1, j2-j1+1, work2, work4)
-            call spline_eval(work1, j2-j1+1, work2, refine2, work3)
+            call spline_make(work1, j2-j1+1_IKIND, work2, work4)
+            call spline_eval(work1, j2-j1+1_IKIND, work2, refine2,work3)
      &                          
             do j=1, ddim2
                dest(i,j,1) = work3(j)
@@ -110,8 +110,9 @@ c        Loop over k-slices and generate splined slices
 c
          do k=k1, k2
             do j=j1, j2
-               call spline_make(source(i1,j,k), i2-i1+1, work1, work4)
-               call spline_eval(source(i1,j,k), i2-i1+1, work1,
+               call spline_make(source(i1,j,k), i2-i1+1_IKIND, work1, 
+     &              work4)
+               call spline_eval(source(i1,j,k), i2-i1+1_IKIND, work1,
      &                           refine1, temp1(1,j-j1+1))
             enddo
 c
@@ -119,8 +120,9 @@ c
                do j=1, j2-j1+1
                   work1(j) = temp1(i,j)
                enddo
-               call spline_make(work1, j2-j1+1, work2, work4)
-               call spline_eval(work1, j2-j1+1, work2, refine2, work3)
+               call spline_make(work1, j2-j1+1_IKIND, work2, work4)
+               call spline_eval(work1, j2-j1+1_IKIND, work2, refine2, 
+     &              work3)
      &                          
                do j=1, ddim2
                   temp2(i,j,k-k1+1) = work3(j)
@@ -133,8 +135,9 @@ c
                do k=1, k2-k1+1
                   work1(k) = temp2(i,j,k)
                enddo
-               call spline_make(work1, k2-k1+1, work2, work4)
-               call spline_eval(work1, k2-k1+1, work2, refine3, work3)
+               call spline_make(work1, k2-k1+1_IKIND, work2, work4)
+               call spline_eval(work1, k2-k1+1_IKIND, work2, refine3, 
+     &              work3)
                do k=1, ddim3
                   dest(i,j,k) = work3(k)
                enddo

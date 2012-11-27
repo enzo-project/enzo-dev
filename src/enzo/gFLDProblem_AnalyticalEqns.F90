@@ -245,8 +245,8 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
               HIsrc = src_HI(i,j,k)
               
               ! call the local residual routine
-              call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew, &
-                   Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0,      &
+              call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew,  &
+                   Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0_IKIND, &
                    aval, dadt, int1, int2, int3, k1, k2, dUn, rUn, nUn, ier)
                  
               ! check the error flag
@@ -286,15 +286,15 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,     &
-                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,     &
-                      Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1, &
-                      int2, int3, int4, int5, int6, int7, NTempBins, TStart,  &
-                      TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,       &
-                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb, &
-                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,  &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                      Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                      int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                      TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                       dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -317,15 +317,15 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,     &
-                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,     &
-                         Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1, &
-                         int2, int3, int4, int5, int6, int7, NTempBins, TStart,  &
-                         TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,       &
-                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb, &
-                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,  &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                         Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                         int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                         TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                          dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -384,15 +384,15 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
                  
                  ! call the local residual routine
                  call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew, &
-                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,    &
-                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,  &
-                      HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,      &
-                      CompT, int1, int2, int3, int4, int5, int6, int7,         &
-                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
-                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,        &
-                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,       &
-                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,    &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,  &
+                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,     &
+                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,   &
+                      HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, &
+                      CompT, int1, int2, int3, int4, int5, int6, int7,          &
+                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,    &
+                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,         &
+                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,        &
+                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,     &
                       nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -419,16 +419,16 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,&
-                         Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,   &
-                         rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam, &
-                         HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,     &
-                         CompT, int1, int2, int3, int4, int5, int6, int7,        &
-                         NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,  &
-                         k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,       &
-                         ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,      &
-                         reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,   &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,  &
+                         Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,     &
+                         rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,   &
+                         HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, &
+                         CompT, int1, int2, int3, int4, int5, int6, int7,          &
+                         NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,    &
+                         k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,         &
+                         ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,        &
+                         reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,     &
                          nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -1226,14 +1226,14 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 !!$        ! evaluate the Green's function integrand at tau values, 
 !!$        ! and combine to form the time-integral
 !!$        vals = dx_sc/sqrt(cond*taus)
-!!$        call erf_vec(fvals, vals, 7)
+!!$        call erf_vec(fvals, vals, 7_IKIND)
 !!$        ival = sum(wts * exp(-P1*taus) * fvals**3)
 !!$
 !!$        ! compute contribution due to sources
 !!$        Eranal = ival*Q1
 !!$!!$     else
 !!$!!$        vals(1) = dx_sc/sqrt(cond*dt)
-!!$!!$        call erf_vec(fvals, vals, 1)
+!!$!!$        call erf_vec(fvals, vals, 1_IKIND)
 !!$     end if
 !!$     !    compute contribution due to previous time solution
 !!$!!$     !    (re-use fvals since it was last called with tau=0)
@@ -1463,14 +1463,14 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 !!$        ! evaluate the Green's function integrand at tau values, 
 !!$        ! and combine to form the time-integral
 !!$        vals = dx_sc/sqrt(cond*taus)
-!!$        call erf_vec(fvals, vals, 7)
+!!$        call erf_vec(fvals, vals, 7_IKIND)
 !!$        ival = sum(wts * exp(-P1*taus) * fvals**3)
 !!$
 !!$        ! compute contribution due to sources
 !!$        Eranal = ival*Q1
 !!$!!$     else
 !!$!!$        vals(1) = dx_sc/sqrt(cond*dt)
-!!$!!$        call erf_vec(fvals, vals, 1)
+!!$!!$        call erf_vec(fvals, vals, 1_IKIND)
 !!$     end if
 !!$     !    compute contribution due to previous time solution
 !!$!!$     !    (re-use fvals since it was last called with tau=0)

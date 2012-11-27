@@ -16,7 +16,7 @@
      &                reHeII2a, reHeIIIa, brema, compa, gammaha,
      &                comp_xraya, comp_temp, piHI, piHeI, piHeII,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
-     &                hy_RKIND1ka, h2k01a, vibha, rotha, rotla,
+     &                hyd01ka, h2k01a, vibha, rotha, rotla,
      &                gpldla, gphdla, hdltea, hdlowa,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
      &                gasgra, metala, n_xe, xe_start, xe_end,
@@ -68,7 +68,7 @@
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn)
       R_PREC    metal(in,jn,kn)
       R_PREC    photogamma(in,jn,kn)
-      R_PREC    hy_RKIND1ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec)
       R_PREC    gaHIa(nratec), gaH2a(nratec), gaHea(nratec),
@@ -86,7 +86,7 @@
 !  Cloudy cooling data
 
       INTG_PREC icmbTfloor, iClHeat, clGridRank, clDataSize
-      INTG_PREC clGridDim(clGridRank)
+      INTG_PREC clGridDim(5)
       R_PREC clEleFra
       R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)), 
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)), 
@@ -117,15 +117,16 @@
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk), cieco(ijk)
-      R_PREC hy_RKIND1k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), 
+      R_PREC hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), 
      &     rotl(ijk), gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk)
           
 !  Iteration mask for multi_cool
 
-      logical itmask(ijk)
+      LOGIC_PREC itmask(ijk)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
+
 
 !     Convert densities from comoving to 'proper'
 
@@ -140,21 +141,21 @@
                HeII(i,j,k)  = HeII(i,j,k)/aye**3
                HeIII(i,j,k) = HeIII(i,j,k)/aye**3
             enddo
-            if (ispecies .gt. 1) then
+            if (ispecies > 1) then
                do i = is+1, ie+1
                   HM(i,j,k)   = HM(i,j,k)/aye**3
                   H2I(i,j,k)  = H2I(i,j,k)/aye**3
                   H2II(i,j,k) = H2II(i,j,k)/aye**3
                enddo
             endif
-            if (ispecies .gt. 2) then
+            if (ispecies > 2) then
                do i = is+1, ie+1
                   DI(i,j,k)  = DI(i,j,k)/aye**3
                   DII(i,j,k) = DII(i,j,k)/aye**3
                   HDI(i,j,k) = HDI(i,j,k)/aye**3
                enddo
             endif
-            if (imetal .eq. 1) then
+            if (imetal == 1) then
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)/aye**3
                enddo
@@ -166,18 +167,16 @@
 
       do k = ks+1, ke+1
        do j = js+1, je+1
-
          do i = is+1, ie+1
             itmask(i) = .true.
          end do
 
 !        Compute the cooling rate
-
          call cool1d_multi(     
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idust, idim,
-     &                is, ie, j, k, ih2co, ipiht, 1, igammah,
+     &                is, ie, j, k, ih2co, ipiht, 1_IKIND, igammah,
      &                aye, temstart, temend, z_solar,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,
@@ -187,8 +186,8 @@
      &                comp_xraya, comp_temp,
      &                piHI, piHeI, piHeII, comp1, comp2,
      &                HM, H2I, H2II, DI, DII, HDI, metal,
-     &                hy_RKIND1ka, h2k01a, vibha, rotha, rotla,
-     &                hy_RKIND1k, h2k01, vibh, roth, rotl,
+     &                hyd01ka, h2k01a, vibha, rotha, rotla,
+     &                hyd01k, h2k01, vibh, roth, rotl,
      &                gpldla, gphdla, gpldl, gphdl,
      &                hdltea, hdlowa, hdlte, hdlow,
      &                gaHIa, gaH2a, gaHea, gaHpa, gaela,
@@ -210,9 +209,8 @@
 !        Compute the cooling time on the slice
 !          (the gamma used here is the same as used to calculate the pressure
 !           in cool1d_multi)
-
          do i = is+1, ie+1
-            energy = max(p2d(i)/(gamma-1._RKIND), REAL(tiny,RKIND))   
+            energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 
@@ -220,7 +218,6 @@
       enddo
 
 !     Convert densities back to comoving from 'proper'
-
       do k = ks+1, ke+1
          do j = js+1, je+1
             do i = is+1, ie+1
@@ -232,21 +229,21 @@
                HeII(i,j,k)  = HeII(i,j,k)*aye**3
                HeIII(i,j,k) = HeIII(i,j,k)*aye**3
             enddo
-            if (ispecies .gt. 1) then
+            if (ispecies > 1) then
                do i = is+1, ie+1
                   HM(i,j,k)   = HM(i,j,k)*aye**3
                   H2I(i,j,k)  = H2I(i,j,k)*aye**3
                   H2II(i,j,k) = H2II(i,j,k)*aye**3
                enddo
             endif
-            if (ispecies .gt. 2) then
+            if (ispecies > 2) then
                do i = is+1, ie+1
                   DI(i,j,k)  = DI(i,j,k)*aye**3
                   DII(i,j,k) = DII(i,j,k)*aye**3
                   HDI(i,j,k) = HDI(i,j,k)*aye**3
                enddo
             endif
-            if (imetal .eq. 1) then
+            if (imetal == 1) then
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)*aye**3
                enddo

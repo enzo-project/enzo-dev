@@ -50,7 +50,7 @@
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !  Parameters
 
@@ -74,7 +74,7 @@
       real*8 kgr(in), kgrplus(in), sol(in), solplus(in), 
      &     slope(in), tdplus(in), tdustnow(in), tdustold(in), pert(in),
      &     bi_t_mid(in), bi_t_high(in)
-      logical nm_itmask(in), bi_itmask(in)
+      LOGIC_PREC nm_itmask(in), bi_itmask(in)
 
       real*8 sola, solb, solpa, solpb
 
@@ -334,7 +334,7 @@
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !  Parameters
 

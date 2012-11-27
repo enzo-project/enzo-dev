@@ -197,11 +197,11 @@ c
       parameter (ireco = 1, ibrco = 1, icico = 1, iceco = 1, 
      &           iphoto_mol = 0)
 
-      real*8 everg, evhz, tevk, mh, pi, tiny_cgs, dhuge, kb
+      real*8 everg, evhz, tevk, mh, pi, dhuge, kb
       parameter (everg = ev2erg, evhz  = 2.41838d14, 
      &           tevk = 1.1605d4, mh = mass_h, 
-     &           pi=pi_val, tiny_cgs = 1.0d-37, 
-     &           dhuge = 1.0d30, kb = kboltz)
+     &           pi=pi_val, dhuge = 1.0d30, 
+     &           kb = kboltz)
 
 c
 c         Set various cutoff values in eV.
@@ -296,7 +296,7 @@ c  3) the units for the radiative rate coefficients is just 1/[time]
 c
 c  4) Energy transfer from gas to dust grains, following equation 2.15
 c     of Hollenbach & McKee (1989).
-      grain_coef = 1.2d-31 * 1.0d3**-0.5d0
+      grain_coef = 1.2d-31 * 1.0d3**(-0.5d0)
 c
 c  Compute log spacing in temperature
 c
@@ -384,7 +384,7 @@ c
         gaHea(i)    = tiny
         gaHpa(i)    = tiny
         gaela(i)    = tiny
-        gasgra(i)    = tiny
+        gasgra(i)   = tiny
       enddo
 c
 c  Fill in tables over the range temstart to temend

@@ -15,7 +15,7 @@
       n(2) = 1
       n(3) = 1
 
-      call fourn(x, n, 1, idir)
+      call fourn(x, n, 1_IKIND, idir)
 
       if( idir == 1 ) then
         x = x * factor

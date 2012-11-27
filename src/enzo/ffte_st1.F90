@@ -19,8 +19,8 @@
 
       allocate( work(nwork) )
 
-      call ffte_zfft1d(x, m1,    0, work)
-      call ffte_zfft1d(x, m1, jdir, work)
+      call ffte_zfft1d(x, m1, 0_IKIND, work)
+      call ffte_zfft1d(x, m1, jdir,    work)
 
       deallocate( work )
 

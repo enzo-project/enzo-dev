@@ -75,7 +75,7 @@ c        Compute the cooling rate on a slice
 c
          call cool1d(d, e, ge, u, v, w,
      &               in, jn, kn, nratec, idual, idim, imethod, 
-     &               1, igammah,
+     &               1_IKIND, igammah,
      &               is, ie, j, k, 
      &               temstart, temend, fh, utem, urho, aye,
      &               eta1, eta2, gamma, coola, gammaha,
@@ -85,8 +85,7 @@ c
 c        Compute the cooling time on the slice
 c
          do i = is+1, ie+1
-            energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), 
-     &           REAL(tiny,RKIND))
+            energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 c

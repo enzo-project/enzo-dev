@@ -141,7 +141,7 @@
 
 !  Iteration mask
 
-      logical itmask(ijk)
+      LOGIC_PREC itmask(ijk)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -163,21 +163,21 @@
                HeII(i,j,k)  = HeII(i,j,k)/aye**3
                HeIII(i,j,k) = HeIII(i,j,k)/aye**3
             enddo
-            if (ispecies .gt. 1) then
+            if (ispecies > 1) then
                do i = is+1, ie+1
                   HM(i,j,k)   = HM(i,j,k)/aye**3
                   H2I(i,j,k)  = H2I(i,j,k)/aye**3
                   H2II(i,j,k) = H2II(i,j,k)/aye**3
                enddo
             endif
-            if (ispecies .gt. 2) then
+            if (ispecies > 2) then
                do i = is+1, ie+1
                   DI(i,j,k)  = DI(i,j,k)/aye**3
                   DII(i,j,k) = DII(i,j,k)/aye**3
                   HDI(i,j,k) = HDI(i,j,k)/aye**3
                enddo
             endif
-            if (imetal .eq. 1) then
+            if (imetal == 1) then
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)/aye**3
                enddo
@@ -259,23 +259,23 @@
 !            Set energy of this cell (the gamma used here is the right
 !            one even for H2 since p2d is calculated with this gamma).
 
-             if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
+             if (tgas(i) <= temstart .and. edot(i) < 0.0) 
      &              edot(i) = tiny*1.e-3_RKIND
 
-             if (abs(edot(i)) .lt. tiny) edot(i) = tiny
+             if (abs(edot(i)) < tiny) edot(i) = tiny
 
-             energy = max(p2d(i)/(gamma-1._RKIND), REAL(tiny,RKIND))
+             energy = max(p2d(i)/(gamma-1._RKIND), tiny)
 
 c            energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1._RKIND), 
 c    &                    tiny)
-c            if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
+c            if (energy < tiny) energy = d(i,j,k)*(e(i,j,k) - 
 c    &              0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
 c            energy = p(i,j,k)/(gamma-1._RKIND)
 
 
 !            Compute timestep for 10% change
 
-c            if (iter .gt. 100) then
+c            if (iter > 100) then
 c               dtit(i) = min(REAL(abs(0.01_RKIND*energy/edot(i)),RKIND), 
 c    &                        dt-ttot(i), dt2)
 c            else
@@ -286,24 +286,24 @@ c            endif
              dtit(i) = min(REAL(abs(0.1_RKIND*energy/edot(i)),RKIND),
      &                     dt-ttot(i), dt2)
 
-             if ( dt-ttot(i) .le. tolerance*dt ) then
+             if ( dt-ttot(i) <= tolerance*dt ) then
                 itmask(i) = .false.
              end if
 
              if ( itmask(i) ) then
 
 !            call open_mpi_error_file( 'F30', 30, 'unknown' )
-!            if (iter .eq. 1 .and. j .eq. 4 .and. k .eq. 4)
+!            if (iter == 1 .and. j == 4 .and. k == 4)
 !    &       write(30,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
 !    &       energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
 !            call close_mpi_error_file( 30 )
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
-             if (ge(i,j,k) .le. 0._RKIND .and. idual .eq. 1)
+             if (ge(i,j,k) <= 0._RKIND .and. idual == 1)
      &         write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
 
-             if (e(i,j,k) .le. 0._RKIND .or. e(i,j,k) 
+             if (e(i,j,k) <= 0._RKIND .or. e(i,j,k) 
      &            .ne. e(i+ih2co-1,j,k))
      &         write(6,*) 'mc:e',ge(i,j,k),energy,d(i,j,k),e(i,j,k),
      &                        iter, edot(i), tgas(i)
@@ -312,7 +312,7 @@ c            endif
      &           d(i,j,k) .ne. d(i+ih2co-1,j,k) .or.
      &           e(i,j,k) .ne. e(i+ih2co-1,j,k) .or.
      &           dtit(i) .ne. dtit(i+ih2co-1) .or. 
-     &           d(i,j,k) .eq. 0._RKIND) 
+     &           d(i,j,k) == 0._RKIND) 
      &           then 
                 write(6,*) 'multi_cool_a:',
      &          edot(i),d(i,j,k),dtit(i),i,j,k,iter,p2d(i),
@@ -324,7 +324,7 @@ c            endif
      &              ciHeI(i),ciHeII(i),ciHeIS(i),reHII(i),
      &              reHeII1(i),reHeII2(i),reHeIII(i),comp1,comp2,
      &              brem(i)
-              if (ispecies .gt. 1)
+              if (ispecies > 1)
      &          write(6,*) 'H2:',rotl(i),roth(i),vibh(i),HM(i,j,k),
      &              H2I(i,j,k),H2II(i,j,k),h2k01(i),hyd01k(i)
                 write(0,*) 'FATAL error (1) in MULTI_COOL'
@@ -335,16 +335,16 @@ c            endif
      &            e(i,j,k) .ne.  e(i,j,k)) write(6,*)
      &           'multi_cool_b:',ge(i,j,k),i,j,k,iter,tgas(i),e(i,j,k)
 
-             if (idual .eq. 1 .and.
-     &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0._RKIND)
+             if (idual == 1 .and.
+     &           ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) <= 0._RKIND)
      &         write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 
-             if (((dtit(i)/dt .lt. 1.e-2_RKIND) .and. 
-     &            (iter .gt. 1000) .and.
-     &            (abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND)) .or. 
-     &            (iter .gt. 1800)) then
+             if (((dtit(i)/dt < 1.e-2_RKIND) .and. 
+     &            (iter > 1000) .and.
+     &            (abs((dt-ttot(i))/dt) > 1.e-3_RKIND)) .or. 
+     &            (iter > 1800)) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!               call open_mpi_error_file( 'F3', 3, 'unknown' )
                write(6,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
@@ -360,7 +360,7 @@ c            endif
 
              e(i,j,k)  = e(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
-             if (e(i,j,k) .lt. 0.0) then
+             if (e(i,j,k) < 0.0) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                call open_mpi_error_file( 'F3', 3, 'unknown' )
                 write(6,*) 'Eijk < 0', e(i,j,k)
@@ -368,15 +368,15 @@ c            endif
 !!!                call close_mpi_error_file( 3 )
              end if
 
-             if (idual .eq. 1) then
+             if (idual == 1) then
                 ge(i,j,k) = ge(i,j,k) + edot(i)/d(i,j,k)*dtit(i)
 
 c               ge(i,j,k) = max(ge(i,j,k) + edot(i)/d(i,j,k)*dtit(i),
 c     &                      0.5*ge(i,j,k))
-c            if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
+c            if (ge(i,j,k) <= tiny) ge(i,j,k) = (energy + 
 c     &           edot(i)*dtit(i))/d(i,j,k)
 
-                if (ge(i,j,k) .le. 0._RKIND) then
+                if (ge(i,j,k) <= 0._RKIND) then
 !!! JB 2008-05-20 commented to avoid portability issues with Fortran MPI
 !!!                   call open_mpi_error_file( 'F3', 3, 'unknown' )
                    write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),
@@ -401,7 +401,7 @@ c     &           edot(i)*dtit(i))/d(i,j,k)
 
 !         If the all cells are done then skip out of loop
 
-          if (abs(dt-ttmin) .lt. tolerance*dt) go to 8888
+          if (abs(dt-ttmin) < tolerance*dt) go to 8888
 
          enddo  ! end of iteration loop
 
@@ -409,7 +409,7 @@ c     &           edot(i)*dtit(i))/d(i,j,k)
       
 !       Abort if iteration count exceeds maximum
 	  write(0,*) 'is=',is, ie
-         if (iter .gt. itmax) then
+         if (iter > itmax) then
 	    write(0,*) 'inside if statement is=',is, ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
@@ -420,7 +420,7 @@ c     &           edot(i)*dtit(i))/d(i,j,k)
             ERROR_MESSAGE
          endif
 
-         if (iter .gt. itmax/2) then
+         if (iter > itmax/2) then
             write(6,*) 'MULTI_COOL iter,j,k =',iter,j,k
          end if
 
@@ -448,21 +448,21 @@ c     &           edot(i)*dtit(i))/d(i,j,k)
                HeII(i,j,k)  = HeII(i,j,k)*aye**3
                HeIII(i,j,k) = HeIII(i,j,k)*aye**3
             enddo
-            if (ispecies .gt. 1) then
+            if (ispecies > 1) then
                do i = is+1, ie+1
                   HM(i,j,k)   = HM(i,j,k)*aye**3
                   H2I(i,j,k)  = H2I(i,j,k)*aye**3
                   H2II(i,j,k) = H2II(i,j,k)*aye**3
                enddo
             endif
-            if (ispecies .gt. 2) then
+            if (ispecies > 2) then
                do i = is+1, ie+1
                   DI(i,j,k)  = DI(i,j,k)*aye**3
                   DII(i,j,k) = DII(i,j,k)*aye**3
                   HDI(i,j,k) = HDI(i,j,k)*aye**3
                enddo
             endif
-            if (imetal .eq. 1) then
+            if (imetal == 1) then
                do i = is+1, ie+1
                   metal(i,j,k) = metal(i,j,k)*aye**3
                enddo
