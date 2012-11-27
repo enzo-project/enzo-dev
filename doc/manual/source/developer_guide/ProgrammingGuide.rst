@@ -45,6 +45,17 @@ One must constantly be wary of the possibility of built in C types
 to be re-defined to higher precision types. This is outlined
 in :ref:`FloatIsDouble`.
 
+Fortran types
+-------------
+
+Unlike Enzo's C and C++ routines, Fortran files (.F and .F90) do not
+re-define the built-in 'integer' and 'real' types, so all variables
+and constants must be defined with the appropriate precision.  There
+are pre-defined type specifiers that will match Enzo's C and C++
+precision re-definitions, which should be used for all variables that
+pass through the C/Fortran interface.  This is discussed in detail in 
+:ref:`FloatIsDouble`.
+
 Header Files
 ------------
 
