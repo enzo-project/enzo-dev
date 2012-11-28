@@ -564,6 +564,11 @@ if __name__ == "__main__":
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
 
+    all_thresholds = ['tight', 'medium', 'loose']
+    parser.add_option("", "--threshold",
+                      dest="threshold", default='loose', metavar='str',
+                      help="threshold for testing precision: [tight, medium, loose]")
+
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
     answer_plugin.options(parser)
@@ -590,6 +595,10 @@ if __name__ == "__main__":
     if options.pdb:
         pdb_plugin.enabled = True
         pdb_plugin.enabled_for_failures = True
+
+    # Break out if no valid threshold set
+    if options.threshold not in all_thresholds:
+        sys.exit("Error: %s is not a valid threshold, try --threshold=[%s]" % (options.threshold, ", ".join(all_thresholds)))
 
     # Get information about the current repository, set it as the version in
     # the answer testing plugin.
