@@ -8,8 +8,8 @@ TopGridRank            = 1
 TopGridDimensions      = 100
 SelfGravity            = 1       // gravity on
 TopGridGravityBoundary = 1       // Isolated BCs
-LeftFaceBoundaryCondition  = 1    // outflow ?
-RightFaceBoundaryCondition = 1    // outflow ?
+LeftFaceBoundaryCondition  = 1   // outflow
+RightFaceBoundaryCondition = 1   // outflow
 PressureFree           = 1       // turn off pressure
 #
 #  set I/O and stop/start parameters
@@ -20,19 +20,14 @@ dtDataDump             = 0.1
 #  set hydro parameters
 #
 Gamma                  = 1.4
-CourantSafetyNumber    = 0.05    // needs to be lower for pressurefree
-PPMDiffusionParameter  = 0       // diffusion off
+CourantSafetyNumber    = 0.4    // needs to be lower for pressurefree
+PPMDiffusionParameter  = 0      // diffusion off
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 1    // dynamic hierarchy
-MaximumRefinementLevel    = 1    // use up to 2 levels
-RefineBy                  = 4    // refinement factor
-MinimumSlopeForRefinement = 0.2  // set this to <= 0.2 to refine CD
+StaticHierarchy           = 1    // static hierarchy
 #
 #  set some global parameters
 #
-SubcycleSafetyFactor   = 2       // 
-tiny_number            = 1.0e-10 // fixes velocity slope problem
-MinimumEfficiency      = 0.4     // better value for 1d than 0.2
-Initialdt = 1e-6
+Initialdt              = 1.0e-6
+
