@@ -25,6 +25,7 @@ temp.show-*
 Make.config.machine
 Make.config.override
 *.mod
+*test_standard.py
 
 src/mpgrafic/degraf/Makefile
 src/mpgrafic/degraf/config.h
