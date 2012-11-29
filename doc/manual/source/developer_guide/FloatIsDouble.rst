@@ -132,16 +132,16 @@ routines do not overwrite the basic data types.  Hence, we have
 created unique type identifiers for the Fortran routines that map to
 Enzo's ``float``, ``FLOAT`` and ``int`` types, as specified below:
 
-==================  ============
-**C/C++**           **F/F90**
+==================  ==============
+**Enzo C/C++**      **Enzo F/F90**
 ``float``           ``R_PREC``
 ``int``             ``INTG_PREC``
 ``FLOAT``           ``P_PREC``
-==================  ============
+==================  ==============
 
 In addition, Fortran allows additional data types for both ``logical``
-and ``complex`` variables.  The precision of these variables
-may be chosen to match the ``int`` and ``float`` values from C/C++
+and ``complex`` variables.  In Enzo, the precision of these variables
+may be chosen to match Enzo's ``int`` and ``float`` values from C/C++
 using the F/F90 types ``LOGIC_PREC`` and ``CMPLX_PREC`` respectively.
 
 Moreover, unlike C/C++, hard-coded constants in Fortran routines
@@ -153,7 +153,7 @@ defined four type-modifier Fortran suffixes, that can be used to
 declare constants of differing precision:
 
 ===================  ==========
-**Variable Type++**  **Suffix**
+**Variable Type**    **Suffix**
 ``R_PREC``           ``RKIND``
 ``INTG_PREC``        ``IKIND``
 ``P_PREC``           ``PKIND``
@@ -164,7 +164,7 @@ Note: since a complex number in Fortran is defined through a pair of
 real numbers, to create a complex constant of type ``CMPLX_PREC`` you
 would use the ``RKIND`` suffix on both components.
 
-For example, the type specifiers and constant suffixed could be used
+For example, the type specifiers and constant suffixes could be used
 in the following ways: 
 
 .. code-block:: c
