@@ -570,7 +570,7 @@ if __name__ == "__main__":
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
     parser.add_option("", "--bitwise",
-                      dest="bitwise", default=None, 
+                      dest="bitwise", default=False, action="store_true", 
                       help="run bitwise comparison of fields? (trumps strict)")
     parser.add_option("", "--tolerance",
                       dest="tolerance", default=None, metavar='int',
