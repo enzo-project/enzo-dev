@@ -42,15 +42,16 @@ alone and in combination.  The intent of this package is to be run
 automatically and relatively frequently (multiple times a day) on 
 a remote server to ensure that bugs have not been introduced during the code 
 development process.  All runs in the quick suite use no more than 
-a single processor.  The total run time should be about 15 minutes.  
+a single processor.  The total run time should be about 15 minutes 
+on the default lowest level of optimization..  
 
 2.  The "push suite" (``--suite=push``).  This is a slightly 
 large set of tests, encompassing all of the quick suite and 
 some additional larger simulations that test a wider variety of physics 
 modules.  The intent of this package is to provide a thorough validation 
 of the code prior to changes being pushed to the main repository.  The 
-total run time is roughly 30 minutes and all simulations use only a single 
-processor.  
+total run time is roughly 60 minutes for default optimization, and 
+all simulations use only a single processor.  
 
 3.  The "full suite" (``--suite=full``).  This encompasses essentially 
 all of test simulations contained within the run directory.  This suite 
@@ -58,7 +59,8 @@ provides the most rigorous possible validation of the code in many different
 situations, and is intended to be run prior to major changes being pushed 
 to the stable branch of the code.  A small number of simulations in the full 
 suite are designed to be run on 2 processors and will take multiple hours to 
-complete.  The total run time is roughly 60 hours.  
+complete.  The total run time is roughly 60 hours for the default lowest
+level of optimization.
 
 .. _running:
 .. _`running the test suite against the gold standard`:
@@ -88,7 +90,8 @@ since the enzo.exe will be symbolically linked from the src/enzo directory
 into each test problem directory before tests are run.
 
 2.  **Get/update yt.**  The enzo tests are generated and compared using the 
-yt analysis suite.  If you do not yet have yt, visit 
+yt analysis suite.  You must be using yt 2.5 or later in order for the
+test suite to work.  If you do not yet have yt, visit 
 http://yt-project.org/#getyt for installation instructions.  
 If you already have yt and yt is in your path, make sure you're using
 the most up-to-date version by running the following command:
@@ -105,14 +108,14 @@ gold standard by running the following commands:
 ::
 
     $ cd <enzo_root>/run
-    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=enzogold000
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=enzogold2.2
 
 In this comand, ``--suite=quick`` instructs the test runner to
 use the quick suite. ``--output-dir=<output_dir>`` instructs the 
 test runner to output its results to a user-specified directory 
 (preferably outside of the enzo file hierarchy).  Make sure this
 directory is created before you call test_runner.py, or it will 
-fail.  Lastly, it uses the ``enzogold000`` gold standard to compare 
+fail.  Lastly, it uses the ``enzogold2.2`` gold standard to compare 
 against.  For a full description of the many flags associated with 
 test_runner.py, see the flags_ section.
 
@@ -183,6 +186,13 @@ local_nompi machine flag (i.e. ``-m local_nompi``) to your
 test_runner.py call to run the executable directly without MPI support.  
 Currently, only a few tests use multiple cores, so this is not a 
 problem in the quick or push suites.
+
+If you see a lot of ``YTNoOldAnswer`` errors, it may mean that your
+simulation is running to a different output than the gold standard
+does, and the test suite is trying to compare your last output file
+against a non-existent file in the gold standard.  Look carefully
+at the results of your simulation for this test problem using the 
+provided python file to determine what is happening.
 
 .. _generating_standard:
 

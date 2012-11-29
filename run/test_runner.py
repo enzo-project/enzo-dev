@@ -593,7 +593,7 @@ if __name__ == "__main__":
     testproblem_group = optparse.OptionGroup(parser, "Test problem selection options")
     testproblem_group.add_option("", "--suite",
                                  dest="test_suite", default=unknown,
-                                 help="quick: 37 tests in ~25 minutes, push: 48 tests in ~90 minutes, full: 96 tests in ~18 hours.",
+                                 help="quick: 37 tests in ~15 minutes, push: 48 tests in ~60 minutes, full: 96 tests in ~60 hours.",
                                  choices=all_suites, metavar=all_suites)
 
     for var, caster in sorted(known_variables.items()):
