@@ -103,21 +103,22 @@ the most up-to-date version by running the following command:
 3.  **Run the test suite.** The testing suite operates by running a 
 series of enzo test files throughout the ``run`` subdirectory.  You can 
 initiate the quicksuite test simulations and their comparison against the 
-gold standard by running the following commands:
+current gold standard by running the following commands:
 
 ::
 
     $ cd <enzo_root>/run
-    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=enzogold2.2
+    $ ./test_runner.py -o <output_dir> 
 
-In this comand, ``--suite=quick`` instructs the test runner to
-use the quick suite. ``--output-dir=<output_dir>`` instructs the 
+In this comand, ``--output-dir=<output_dir>`` instructs the 
 test runner to output its results to a user-specified directory 
 (preferably outside of the enzo file hierarchy).  Make sure this
 directory is created before you call test_runner.py, or it will 
-fail.  Lastly, it uses the ``enzogold2.2`` gold standard to compare 
-against.  For a full description of the many flags associated with 
-test_runner.py, see the flags_ section.
+fail.  The default behavior is to use the quick suite, but you
+can specify any set of tests using the ``--suite`` or ``--name``
+flags_. Lastly, we compare against the current gold standard in 
+the cloud: ``enzogold2.2``.  For a full description of the many 
+flags associated with test_runner.py, see the flags_ section.
 
 4.  **Review the results.**  While the test_runner is executing, you should 
 see the results coming up at the terminal in real time, but you can review 
@@ -192,7 +193,8 @@ simulation is running to a different output than the gold standard
 does, and the test suite is trying to compare your last output file
 against a non-existent file in the gold standard.  Look carefully
 at the results of your simulation for this test problem using the 
-provided python file to determine what is happening.
+provided python file to determine what is happening.  Or it may
+simply mean that you specified the wrong gold standard.
 
 .. _generating_standard:
 
@@ -213,7 +215,8 @@ the ``run/`` subdirectory in the enzo source hierarchy:
 ::
 
     $ cd <enzo_root>/run
-    $ ./test_runner.py --suite=quick -o <output_dir> --local-store --answer-store-name=<test_name>
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-store --answer-name=<test_name> 
+                       --local 
 
 N.B. We're creating a reference set in this example with the quick 
 suite, but we could just as well create a reference from any number 
@@ -221,6 +224,8 @@ of test problems using other test problem flags_.
 
 Here, we are storing the results from our tests locally in a file 
 called <test_name> which will now reside inside of the ``<output_dir>``.
+If you want to, you can leave off ``--answer-name`` and get a sensible
+default.
 
 .. _directory layout:
 
@@ -259,17 +264,18 @@ the ``run/`` subdirectory in the enzo source hierarchy:
 ::
 
     $ cd <enzo_root>/run
-    $ ./test_runner.py --suite=quick -o <output_dir> --local-store --answer-compare-name=<test_name> 
-                       --clobber
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-name=<test_name> 
+                       --local --clobber
 
 Here, we're running the quick suite and outputting our results to
 ``<output_dir>``.  We are comparing the simulation results against a 
-local (``--local-store``) reference standard which is named ``<test_name>``
+local (``--local``) reference standard which is named ``<test_name>``
 also located in the ``<output_dir>`` directory.  Note, we included the 
 ``--clobber`` flag to rerun any simulations that may have been present
 in the ``<output_dir>`` under the existing enzo version's files, since 
 the default behavior is to not rerun simulations if their output files 
-are already present.
+are already present.  Because we didn't set the ``--answer-store`` flag,
+the default behavior is to compare against the ``<test_name>``.
 
 .. _flags:
 
@@ -365,17 +371,19 @@ thorough explanation of each.
     When a test fails a pdb session is triggered.  Allows interactive inspection
     of failed test data.
 
-**Flags for tests against local reference standards**
+**Flags for storing, comparing against different standards**
 
-``--answer-compare-name=str`` default: latest 
-    The name of the test against which we will compare
+``--answer-store`` default: False
+    Should we store the results as a reference or just compare
+    against an existing reference?
 
-``--answer-store-name=str`` default: None
-    The name we'll call this set of tests. Also turns on functionality
-    for storing the results instead of comparing the results.
+``--answer-name=str`` default: latest gold standard
+    The name of the file where we will store our reference results,
+    or if ``--answer-store`` is false, the name of the reference against 
+    which we will compare our results. 
 
-``--local-store`` default: False
-    Store/Load local results?
+``--local`` default: False
+    Store/Compare the reference standard locally (i.e. not on the cloud)
 
 **Bisection flags**
 
