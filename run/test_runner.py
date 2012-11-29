@@ -282,6 +282,7 @@ class EnzoTestCollection(object):
             if not test_only: self.run_all_sims()
             if not sim_only: self.run_all_tests()
         if not sim_only: self.save_test_summary()
+        else: self.any_failures = False
         go_stop_time = time.time()
         print "\n\nComplete!"
         print "Total time: %f seconds." % (go_stop_time - go_start_time)
