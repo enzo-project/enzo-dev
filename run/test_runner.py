@@ -725,13 +725,13 @@ if __name__ == "__main__":
     # placed test particles, which makes comparison from run to run 
     # difficult
     # --ProtostellarCollapse_Std needs to be updated to current Enzo
-    # -- ZeldovichPancake is a symmetric collapse along the x-axis, so the
+    # -- (AMR)ZeldovichPancake is a symmetric collapse along the x-axis, so the
     # projection along it is analytically 0, but builds up noise in 
-    # different ways on different systems.  There is an 'test_almost_standard"
-    # in Zeldovich's directory which is just like standard without x-vel 
-    # field comparisons
+    # different ways on different systems.  There are 'test_almost_standard"s
+    # in Zeldovichs's directories which are just like standard without x-vel 
+    # field comparisons, which is why we leave them out here.
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
-                   'ZeldovichPancake')
+                   'ZeldovichPancake', 'AMRZeldovichPancake')
     
     template = open("test_type.py.template").read()
     
