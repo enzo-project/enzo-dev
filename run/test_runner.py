@@ -44,6 +44,11 @@ from yt.utilities.logger import ytLogger as mylog
 from yt.utilities.logger import \
     disable_stream_logging, ufstring
 disable_stream_logging()
+
+# Set the filename for the latest version of the gold standard
+# and for the default local standard output
+ytcfg["yt", "gold_standard_filename"] = str("enzogold2.2")
+ytcfg["yt", "local_standard_filename"] = str("enzolocal2.2")
 from yt.utilities.answer_testing.framework import \
     AnswerTesting
 
@@ -749,7 +754,6 @@ if __name__ == "__main__":
                 open(oname, "w").write(output)
                 # save the destination filename to remove it later
                 test_standard_files.append(oname)
-
 
     # Run the simulations and the tests
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
