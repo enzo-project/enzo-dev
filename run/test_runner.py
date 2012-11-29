@@ -567,7 +567,7 @@ if __name__ == "__main__":
     all_thresholds = ['tight', 'medium', 'loose']
     parser.add_option("", "--threshold",
                       dest="threshold", default='loose', metavar='str',
-                      help="threshold for testing precision: [tight, medium, loose]")
+                      help="threshold for testing precision: [%s]" % " ,".join(all_thresholds))
 
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
@@ -596,10 +596,7 @@ if __name__ == "__main__":
         pdb_plugin.enabled = True
         pdb_plugin.enabled_for_failures = True
 
-    # Break out if no valid threshold set
-    if options.threshold not in all_thresholds:
-        sys.exit("Error: %s is not a valid threshold, try --threshold=[%s]" % (options.threshold, ", ".join(all_thresholds)))
-
+   
     # Get information about the current repository, set it as the version in
     # the answer testing plugin.
     options.repository = os.path.expanduser(options.repository)
@@ -613,6 +610,10 @@ if __name__ == "__main__":
 
     answer_plugin.configure(options, None)
     reporting_plugin.configure(options, None)
+
+    # Break out if no valid threshold set and
+    if options.threshold not in all_thresholds:
+        sys.exit("Error: %s is not a valid threshold, try --threshold=[%s]" % (options.threshold, ", ".join(all_thresholds)))
 
     # Break out if output directory not specified.
     if options.output_dir is None:
@@ -664,6 +665,19 @@ if __name__ == "__main__":
 
     # the path to the executable we're testing
     exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+
+    # Set the appropriate tolerance and use of bitwise test depending on the
+    # threshold set for later use when the nosetests get called in 
+    # answer_testing_support.py
+    if options.threshold == 'tight':
+        ytcfg["yt","answer_testing_tolerance"] = str(13)
+        ytcfg["yt","answer_testing_bitwise"] = str(True)
+    elif options.threshold == 'medium':
+        ytcfg["yt","answer_testing_tolerance"] = str(6)
+        ytcfg["yt","answer_testing_bitwise"] = str(False)
+    elif options.threshold == 'loose':
+        ytcfg["yt","answer_testing_tolerance"] = str(3)
+        ytcfg["yt","answer_testing_bitwise"] = str(False)
 
     # Make it happen
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
