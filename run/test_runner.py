@@ -720,11 +720,17 @@ if __name__ == "__main__":
     # subdirectory.
     
     # Do not run the standard tests on these test problems.
-    # GravityTest is ignored for now because it generates randomly
+    # --GravityTest is ignored for now because it generates randomly
     # placed test particles, which makes comparison from run to run 
     # difficult
-    # ProtostellarCollapse_Std needs to be updated to current Enzo
-    ignore_list = ('GravityTest', 'ProtostellarCollapse_Std')
+    # --ProtostellarCollapse_Std needs to be updated to current Enzo
+    # -- ZeldovichPancake is a symmetric collapse along the x-axis, so the
+    # projection along it is analytically 0, but builds up noise in 
+    # different ways on different systems.  There is an 'test_almost_standard"
+    # in Zeldovich's directory which is just like standard without x-vel 
+    # field comparisons
+    ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
+                   'ZeldovichPancake')
     
     template = open("test_type.py.template").read()
     
