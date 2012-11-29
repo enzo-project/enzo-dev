@@ -212,7 +212,12 @@ class ResultsSummary(Plugin):
             outfile.write('Test Summary\n')
             outfile.write('Tests Passed: %i\n' % len(self.successes))
             outfile.write('Tests Failed: %i\n' % len(self.failures))
-            outfile.write('Tests Errored: %i\n' % len(self.errors))
+            outfile.write('Tests Errored: %i\n\n' % len(self.errors))
+            outfile.write('Relative error tolerance: 1e-%i\n' % self.tolerance)
+            if self.bitwise:
+                outfile.write('Bitwise tests included\n')
+            else:
+                outfile.write('Bitwise tests not included\n')
             outfile.write('\n\n')
 
             outfile.write('Tests that passed: \n')
@@ -697,6 +702,9 @@ if __name__ == "__main__":
 
     ytcfg["yt","answer_testing_tolerance"] = str(options.tolerance)
     ytcfg["yt","answer_testing_bitwise"] = str(options.bitwise)
+    reporting_plugin.tolerance = options.tolerance
+    reporting_plugin.bitwise = options.bitwise
+
     print ""
     print "Relative error tolerance in comparison set to %i (i.e. 1e-%i)." \
            % (options.tolerance, options.tolerance)
