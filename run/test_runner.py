@@ -736,6 +736,7 @@ if __name__ == "__main__":
     
     template = open("test_type.py.template").read()
     
+    test_standard_files = []
     for root, dirs, files in os.walk("."):
         for fn in files:
             if fn.endswith(".enzotest") and \
@@ -746,12 +747,20 @@ if __name__ == "__main__":
                 oname = os.path.join(root, testname + "__test_standard.py")
                 output = template % dict(filename = fn[:-4], simpath = simpath)
                 open(oname, "w").write(output)
+                # save the destination filename to remove it later
+                test_standard_files.append(oname)
 
 
-    # Make it happen
+    # Run the simulations and the tests
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             sim_only=options.sim_only, 
             test_only=options.test_only)
+
+    # Now that the work has been done, get rid of all those pesky
+    # *__test_standard.py files from the enzo run/ directory
+    # that we just created.
+    for file in test_standard_files:
+        os.remove(file)
 
     # Store the results locally or in the cloud.
     answer_plugin.finalize()
