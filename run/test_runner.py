@@ -597,7 +597,7 @@ if __name__ == "__main__":
     suite_vars = [suite+"suite" for suite in all_suites]
     testproblem_group = optparse.OptionGroup(parser, "Test problem selection options")
     testproblem_group.add_option("", "--suite",
-                                 dest="test_suite", default=unknown,
+                                 dest="test_suite", default="quick",
                                  help="quick: 37 tests in ~15 minutes, push: 48 tests in ~60 minutes, full: 96 tests in ~60 hours.",
                                  choices=all_suites, metavar=all_suites)
 
