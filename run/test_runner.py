@@ -563,11 +563,17 @@ if __name__ == "__main__":
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
+    parser.add_option("", "--bitwise",
+                      dest="bitwise", default=None, 
+                      help="run bitwise comparison of fields? (trumps strict)")
+    parser.add_option("", "--tolerance",
+                      dest="tolerance", default=None, metavar='int',
+                      help="tolerance for relative precision in comparison (trumps strict)")
 
-    all_thresholds = ['tight', 'medium', 'loose']
-    parser.add_option("", "--threshold",
-                      dest="threshold", default='loose', metavar='str',
-                      help="threshold for testing precision: [%s]" % " ,".join(all_thresholds))
+    all_strict = ['high', 'medium', 'low']
+    parser.add_option("", "--strict",
+                      dest="strict", default='low', metavar='str',
+                      help="strictness for testing precision: [%s]" % " ,".join(all_strict))
 
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
@@ -611,9 +617,9 @@ if __name__ == "__main__":
     answer_plugin.configure(options, None)
     reporting_plugin.configure(options, None)
 
-    # Break out if no valid threshold set and
-    if options.threshold not in all_thresholds:
-        sys.exit("Error: %s is not a valid threshold, try --threshold=[%s]" % (options.threshold, ", ".join(all_thresholds)))
+    # Break out if no valid strict set 
+    if options.strict not in all_strict:
+        sys.exit("Error: %s is not a valid strict, try --strict=[%s]" % (options.strict, ", ".join(all_strict)))
 
     # Break out if output directory not specified.
     if options.output_dir is None:
@@ -666,18 +672,39 @@ if __name__ == "__main__":
     # the path to the executable we're testing
     exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
 
-    # Set the appropriate tolerance and use of bitwise test depending on the
-    # threshold set for later use when the nosetests get called in 
+    # If strict is set, then use it to set tolerance and bitwise 
+    # values for later use when the nosetests get called in 
     # answer_testing_support.py
-    if options.threshold == 'tight':
-        ytcfg["yt","answer_testing_tolerance"] = str(13)
-        ytcfg["yt","answer_testing_bitwise"] = str(True)
-    elif options.threshold == 'medium':
-        ytcfg["yt","answer_testing_tolerance"] = str(6)
-        ytcfg["yt","answer_testing_bitwise"] = str(False)
-    elif options.threshold == 'loose':
-        ytcfg["yt","answer_testing_tolerance"] = str(3)
-        ytcfg["yt","answer_testing_bitwise"] = str(False)
+    # N.B. Explicitly setting tolerance and/or bitwise trumps 
+    # the strict values
+
+    if options.strict == 'high':
+        if options.tolerance is None:
+            options.tolerance = 13
+        if options.bitwise is None:
+            options.bitwise = True
+    elif options.strict == 'medium':
+        if options.tolerance is None:
+            options.tolerance = 6
+        if options.bitwise is None:
+            options.bitwise = False
+    elif options.strict == 'low':
+        if options.tolerance is None:
+            options.tolerance = 3
+        if options.bitwise is None:
+            options.bitwise = False
+    options.tolerance = int(options.tolerance)
+
+    ytcfg["yt","answer_testing_tolerance"] = str(options.tolerance)
+    ytcfg["yt","answer_testing_bitwise"] = str(options.bitwise)
+    print ""
+    print "Relative error tolerance in comparison set to %i (i.e. 1e-%i)." \
+           % (options.tolerance, options.tolerance)
+    if options.bitwise:
+        print "Including bitwise tests."
+    else:
+        print "Not including bitwise tests."
+    print ""
 
     # Make it happen
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
