@@ -714,6 +714,28 @@ if __name__ == "__main__":
         print "Not including bitwise tests."
     print ""
 
+    # Before starting nose test, we must create the standard
+    # test problems (the old ./make_new_tests.py) by copying 
+    # the testing template out to each Test Problem
+    # subdirectory.
+    
+    # Do not run the standard tests on these test problems.
+    ignore_list = ('GravityTest',)
+    
+    template = open("test_type.py.template").read()
+    
+    for root, dirs, files in os.walk("."):
+        for fn in files:
+            if fn.endswith(".enzotest") and \
+            os.path.basename(fn)[:-9] not in ignore_list:
+                simname = os.path.splitext(fn)[0]
+                simpath = root
+                testname = os.path.basename(fn)[:-9]
+                oname = os.path.join(root, testname + "__test_standard.py")
+                output = template % dict(filename = fn[:-4], simpath = simpath)
+                open(oname, "w").write(output)
+
+
     # Make it happen
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             sim_only=options.sim_only, 
