@@ -27,7 +27,8 @@ class TestFreeExpansionDistance(AnswerTestingTest):
         return ray_length * ray['t'][ipos]
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, 1.0e-2, 0.0)
+        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        assert_allclose(new_result, old_result, 10**-tolerance, 0.0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_collapse_max_value():

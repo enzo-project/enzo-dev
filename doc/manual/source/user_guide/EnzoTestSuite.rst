@@ -42,15 +42,16 @@ alone and in combination.  The intent of this package is to be run
 automatically and relatively frequently (multiple times a day) on 
 a remote server to ensure that bugs have not been introduced during the code 
 development process.  All runs in the quick suite use no more than 
-a single processor.  The total run time should be about 15 minutes.  
+a single processor.  The total run time should be about 15 minutes 
+on the default lowest level of optimization..  
 
 2.  The "push suite" (``--suite=push``).  This is a slightly 
 large set of tests, encompassing all of the quick suite and 
 some additional larger simulations that test a wider variety of physics 
 modules.  The intent of this package is to provide a thorough validation 
 of the code prior to changes being pushed to the main repository.  The 
-total run time is roughly 30 minutes and all simulations use only a single 
-processor.  
+total run time is roughly 60 minutes for default optimization, and 
+all simulations use only a single processor.  
 
 3.  The "full suite" (``--suite=full``).  This encompasses essentially 
 all of test simulations contained within the run directory.  This suite 
@@ -58,7 +59,8 @@ provides the most rigorous possible validation of the code in many different
 situations, and is intended to be run prior to major changes being pushed 
 to the stable branch of the code.  A small number of simulations in the full 
 suite are designed to be run on 2 processors and will take multiple hours to 
-complete.  The total run time is roughly 60 hours.  
+complete.  The total run time is roughly 60 hours for the default lowest
+level of optimization.
 
 .. _running:
 .. _`running the test suite against the gold standard`:
@@ -88,7 +90,8 @@ since the enzo.exe will be symbolically linked from the src/enzo directory
 into each test problem directory before tests are run.
 
 2.  **Get/update yt.**  The enzo tests are generated and compared using the 
-yt analysis suite.  If you do not yet have yt, visit 
+yt analysis suite.  You must be using yt 2.5 or later in order for the
+test suite to work.  If you do not yet have yt, visit 
 http://yt-project.org/#getyt for installation instructions.  
 If you already have yt and yt is in your path, make sure you're using
 the most up-to-date version by running the following command:
@@ -97,36 +100,27 @@ the most up-to-date version by running the following command:
 
     $ yt update
 
-3.  **Generate the standard test files.**  The testing suite operates by 
-running a series of enzo test files throughout the ``run/`` subdirectory.
-Some unique test files are already generated for specific test problems, 
-but the standard generic tests to be run on each test problem need to be 
-created by you with the following command: 
+3.  **Run the test suite.** The testing suite operates by running a 
+series of enzo test files throughout the ``run`` subdirectory.  You can 
+initiate the quicksuite test simulations and their comparison against the 
+current gold standard by running the following commands:
 
 ::
 
     $ cd <enzo_root>/run
-    $ ./make_new_tests.py
+    $ ./test_runner.py -o <output_dir> 
 
-4.  **Run the test suite.** While remaining in the ``run/`` 
-subdirectory, you can initiate the quicksuite test simulations and 
-their comparison against the gold standard by running the following 
-commands:
-
-::
-
-    $ ./test_runner.py --suite=quick -o <output_dir> --answer-compare-name=enzogold000
-
-In this comand, ``--suite=quick`` instructs the test runner to
-use the quick suite. ``--output-dir=<output_dir>`` instructs the 
+In this comand, ``--output-dir=<output_dir>`` instructs the 
 test runner to output its results to a user-specified directory 
 (preferably outside of the enzo file hierarchy).  Make sure this
 directory is created before you call test_runner.py, or it will 
-fail.  Lastly, it uses the ``quick`` gold standard to compare against.
-For a full description of the many flags associated with 
-test_runner.py, see the flags_ section.
+fail.  The default behavior is to use the quick suite, but you
+can specify any set of tests using the ``--suite`` or ``--name``
+flags_. Lastly, we compare against the current gold standard in 
+the cloud: ``enzogold2.2``.  For a full description of the many 
+flags associated with test_runner.py, see the flags_ section.
 
-5.  **Review the results.**  While the test_runner is executing, you should 
+4.  **Review the results.**  While the test_runner is executing, you should 
 see the results coming up at the terminal in real time, but you can review 
 these results in a file output at the end of the run.  The test_runner 
 creates a subdirectory in the output directory you provided it, as shown
@@ -136,7 +130,6 @@ in the example below.
 
     $ ls <output_dir>
     fe7d4e298cb2    
-
 
     $ ls <output_dir>/fe7d4e298cb2    
     Cooling        GravitySolver    MHD                    test_results.txt 
@@ -152,23 +145,56 @@ for example with different levels of optimization. Within this
 directory are all of the test problems that you ran along with their
 simulation outputs, organized based on test type (e.g.  ``Cooling``,
 ``AMR``, ``Hydro``, etc.)  Additionally, you should see a file called
-``test_results.txt``, which contains a summary of the test runs.
+``test_results.txt``, which contains a summary of the test runs and
+which ones failed and why.  
 
-The testing suite does not expect bitwise agreement between the gold standard
-and your results, due to compiler, architecture and operating system
-differences between versions of enzo.  There must be a significant 
-difference between your result and the gold standard for you to fail 
-any tests, thus you should be passing all of the tests.  If you are not, 
-then examine more closely what modifications you made to the enzo source
-which caused the test failure.  If this is a fresh version of enzo that 
-you grabbed and compiled, then you should write the enzo-dev@googlegroups.com 
-email list with details of your test run (computer os, architecture, version 
-of enzo, version of yt, what test failed, what error message you received), 
-so that we can address this issue.
+By default, the testing suite does not expect bitwise agreement between 
+the gold standard and your results, due to compiler, architecture and 
+operating system differences between versions of enzo.  There must be 
+a significant difference between your result and the gold standard for 
+you to fail any tests, thus you should be passing all of the tests.  
+If you are not, then examine more closely what modifications you made 
+to the enzo source which caused the test failure.  If this is a fresh 
+version of enzo that you grabbed and compiled, then you should write 
+the enzo-dev@googlegroups.com email list with details of your test run 
+(computer os, architecture, version of enzo, version of yt, what test 
+failed, what error message you received), so that we can address this 
+issue.
 
-For more details about the results of an individual test, examine the
-``estd.out`` file in the test problem within this directory hierarchy,
-as it contains the stderr and stdout for each test simulation.
+
+My tests are failing and I don't know why
+-----------------------------------------
+
+A variety of things cause tests to fail: differences in compiler,
+optimization level, operating system, MPI submission method, 
+and of course, your modifications to the code.  Go through your 
+``test_results.txt`` file for more information about which tests 
+failed and why.  You could try playing with the relative tolerance 
+for error using the ``--tolerance`` flag as described in the flags_ 
+section.  For more information regarding the failures of a specific 
+test, examine the ``estd.out`` file in that test problem's subdirectory
+within the ``<output_dir>`` directory structure, as it contains the 
+``STDERR`` and ``STDOUT`` for that test simulation.
+
+If you are receiving ``EnzoTestOutputFileNonExistent`` errors, it
+means that your simulation is not completing.  This may be due to
+the fact that you are trying to run enzo with MPI which your 
+system doesn't allow you to initiate from the command line.
+(e.g. it expects you to submit mpirun jobs to the queue).  
+You can solve this problem by recompiling your enzo executable with
+MPI turnend off (i.e. ``make use-mpi-no``), and then just pass the 
+local_nompi machine flag (i.e. ``-m local_nompi``) to your 
+test_runner.py call to run the executable directly without MPI support.  
+Currently, only a few tests use multiple cores, so this is not a 
+problem in the quick or push suites.
+
+If you see a lot of ``YTNoOldAnswer`` errors, it may mean that your
+simulation is running to a different output than the gold standard
+does, and the test suite is trying to compare your last output file
+against a non-existent file in the gold standard.  Look carefully
+at the results of your simulation for this test problem using the 
+provided python file to determine what is happening.  Or it may
+simply mean that you specified the wrong gold standard.
 
 .. _generating_standard:
 
@@ -181,14 +207,16 @@ homegrown standard.  Perhaps you've created a new test not yet in
 the gold standard, or you want to test one of your forks against another.
 Regardless of the reason, you want to generate your own reference
 standard for comparison.  To do this, follow the instructions for
-`running the test suite against the gold standard`_, but replace step #4 with:
+`running the test suite against the gold standard`_, but replace step #3 with:
 
-4. **Run the test suite.** Run the suite with these flags within
+3. **Run the test suite.** Run the suite with these flags within
 the ``run/`` subdirectory in the enzo source hierarchy:
 
 ::
 
-    $ ./test_runner.py --suite=quick -o <output_dir> --local-store --answer-store-name=<test_name>
+    $ cd <enzo_root>/run
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-store --answer-name=<test_name> 
+                       --local 
 
 N.B. We're creating a reference set in this example with the quick 
 suite, but we could just as well create a reference from any number 
@@ -196,6 +224,8 @@ of test problems using other test problem flags_.
 
 Here, we are storing the results from our tests locally in a file 
 called <test_name> which will now reside inside of the ``<output_dir>``.
+If you want to, you can leave off ``--answer-name`` and get a sensible
+default.
 
 .. _directory layout:
 
@@ -226,24 +256,26 @@ some directory outside the enzo source hierarchy (e.g. your
 ``<output_dir>`` from previous tests), so that it looks something 
 like this `directory layout`_.  From here, you must follow the 
 instructions for `running the test suite against the gold 
-standard`_, but replace step #4 with:
+standard`_, but replace step #3 with:
 
-4.  **Run the test suite.**  Run the suite with these flags inside
+3.  **Run the test suite.**  Run the suite with these flags inside
 the ``run/`` subdirectory in the enzo source hierarchy:
 
 ::
 
-    $ ./test_runner.py --suite=quick -o <output_dir> --local-store --answer-compare-name=<test_name> 
-                       --clobber
+    $ cd <enzo_root>/run
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-name=<test_name> 
+                       --local --clobber
 
 Here, we're running the quick suite and outputting our results to
 ``<output_dir>``.  We are comparing the simulation results against a 
-local (``--local-store``) reference standard which is named ``<test_name>``
+local (``--local``) reference standard which is named ``<test_name>``
 also located in the ``<output_dir>`` directory.  Note, we included the 
 ``--clobber`` flag to rerun any simulations that may have been present
 in the ``<output_dir>`` under the existing enzo version's files, since 
 the default behavior is to not rerun simulations if their output files 
-are already present.
+are already present.  Because we didn't set the ``--answer-store`` flag,
+the default behavior is to compare against the ``<test_name>``.
 
 .. _flags:
 
@@ -269,7 +301,7 @@ thorough explanation of each.
     it might load qsub or mpirun in order to start the enzo executable
     for the individual test simulations.  You can only use machine
     names of machines which have a corresponding machine file in the 
-    ``run/run_templates`` subdirectory (e.g. nics-kraken). N.B.
+    ``run/run_templates`` subdirectory (e.g. nics-kraken). *N.B.*
     the default, ``local``, will attempt to run the test simulations using
     mpirun, so if you are required to queue on a machine to execute 
     mpirun, ``test_runner.py`` will silently fail before finishing your
@@ -287,6 +319,34 @@ thorough explanation of each.
 ``--clobber`` default: False
     Rerun enzo on test problems which already have 
     results in the destination directory
+
+``--tolerance=int`` default: see ``--strict``
+    Sets the tolerance of the relative error in the 
+    comparison tests in powers of 10.  
+
+    Ex: Setting ``--tolerance=3`` means that test results
+    are compared against the standard and fail if
+    they are off by more than 1e-3 in relative error.
+    
+``--bitwise`` default: see ``--strict``
+    Declares whether or not bitwise comparison tests
+    are included to assure that the values in output
+    fields exactly match those in the reference standard.
+
+``--strict=[high, medium, low]`` default: low
+    This flag automatically sets the ``--tolerance``
+    and ``--bitwise`` flags to some arbitrary level of
+    strictness for the tests.  If one sets ``--bitwise``
+    or ``--tolerance`` explicitly, they trump the value
+    set by ``--strict``.  When testing enzo general 
+    functionality after an installation, ``--strict=low``
+    is recommended, whereas ``--strict=high`` is suggested
+    when testing modified code against a local reference 
+    standard.
+
+    ``high``: tolerance = 13, bitwise = True
+    ``medium``: tolerance = 6, bitwise = False
+    ``low``: tolerance = 3, bitwise = False
 
 ``--sim-only`` default: False
     Only run simulations, do not store the tests or compare them against a 
@@ -311,17 +371,19 @@ thorough explanation of each.
     When a test fails a pdb session is triggered.  Allows interactive inspection
     of failed test data.
 
-**Flags for tests against local reference standards**
+**Flags for storing, comparing against different standards**
 
-``--answer-compare-name=str`` default: latest 
-    The name of the test against which we will compare
+``--answer-store`` default: False
+    Should we store the results as a reference or just compare
+    against an existing reference?
 
-``--answer-store-name=str`` default: None
-    The name we'll call this set of tests. Also turns on functionality
-    for storing the results instead of comparing the results.
+``--answer-name=str`` default: latest gold standard
+    The name of the file where we will store our reference results,
+    or if ``--answer-store`` is false, the name of the reference against 
+    which we will compare our results. 
 
-``--local-store`` default: False
-    Store/Load local results?
+``--local`` default: False
+    Store/Compare the reference standard locally (i.e. not on the cloud)
 
 **Bisection flags**
 

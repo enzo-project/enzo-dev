@@ -44,6 +44,11 @@ from yt.utilities.logger import ytLogger as mylog
 from yt.utilities.logger import \
     disable_stream_logging, ufstring
 disable_stream_logging()
+
+# Set the filename for the latest version of the gold standard
+# and for the default local standard output
+ytcfg["yt", "gold_standard_filename"] = str("enzogold2.2")
+ytcfg["yt", "local_standard_filename"] = str("enzolocal2.2")
 from yt.utilities.answer_testing.framework import \
     AnswerTesting
 
@@ -212,7 +217,12 @@ class ResultsSummary(Plugin):
             outfile.write('Test Summary\n')
             outfile.write('Tests Passed: %i\n' % len(self.successes))
             outfile.write('Tests Failed: %i\n' % len(self.failures))
-            outfile.write('Tests Errored: %i\n' % len(self.errors))
+            outfile.write('Tests Errored: %i\n\n' % len(self.errors))
+            outfile.write('Relative error tolerance: 1e-%i\n' % self.tolerance)
+            if self.bitwise:
+                outfile.write('Bitwise tests included\n')
+            else:
+                outfile.write('Bitwise tests not included\n')
             outfile.write('\n\n')
 
             outfile.write('Tests that passed: \n')
@@ -277,6 +287,7 @@ class EnzoTestCollection(object):
             if not test_only: self.run_all_sims()
             if not sim_only: self.run_all_tests()
         if not sim_only: self.save_test_summary()
+        else: self.any_failures = False
         go_stop_time = time.time()
         print "\n\nComplete!"
         print "Total time: %f seconds." % (go_stop_time - go_start_time)
@@ -563,6 +574,17 @@ if __name__ == "__main__":
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
     parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
                       help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
+    parser.add_option("", "--bitwise",
+                      dest="bitwise", default=False, action="store_true", 
+                      help="run bitwise comparison of fields? (trumps strict)")
+    parser.add_option("", "--tolerance",
+                      dest="tolerance", default=None, metavar='int',
+                      help="tolerance for relative precision in comparison (trumps strict)")
+
+    all_strict = ['high', 'medium', 'low']
+    parser.add_option("", "--strict",
+                      dest="strict", default='low', metavar='str',
+                      help="strictness for testing precision: [%s]" % " ,".join(all_strict))
 
     answer_plugin = AnswerTesting()
     answer_plugin.enabled = True
@@ -575,8 +597,8 @@ if __name__ == "__main__":
     suite_vars = [suite+"suite" for suite in all_suites]
     testproblem_group = optparse.OptionGroup(parser, "Test problem selection options")
     testproblem_group.add_option("", "--suite",
-                                 dest="test_suite", default=unknown,
-                                 help="quick: 37 tests in ~25 minutes, push: 48 tests in ~90 minutes, full: 96 tests in ~18 hours.",
+                                 dest="test_suite", default="quick",
+                                 help="quick: 37 tests in ~15 minutes, push: 48 tests in ~60 minutes, full: 96 tests in ~60 hours.",
                                  choices=all_suites, metavar=all_suites)
 
     for var, caster in sorted(known_variables.items()):
@@ -591,6 +613,7 @@ if __name__ == "__main__":
         pdb_plugin.enabled = True
         pdb_plugin.enabled_for_failures = True
 
+   
     # Get information about the current repository, set it as the version in
     # the answer testing plugin.
     options.repository = os.path.expanduser(options.repository)
@@ -604,6 +627,10 @@ if __name__ == "__main__":
 
     answer_plugin.configure(options, None)
     reporting_plugin.configure(options, None)
+
+    # Break out if no valid strict set 
+    if options.strict not in all_strict:
+        sys.exit("Error: %s is not a valid strict, try --strict=[%s]" % (options.strict, ", ".join(all_strict)))
 
     # Break out if output directory not specified.
     if options.output_dir is None:
@@ -656,10 +683,88 @@ if __name__ == "__main__":
     # the path to the executable we're testing
     exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
 
-    # Make it happen
+    # If strict is set, then use it to set tolerance and bitwise 
+    # values for later use when the nosetests get called in 
+    # answer_testing_support.py
+    # N.B. Explicitly setting tolerance and/or bitwise trumps 
+    # the strict values
+
+    if options.strict == 'high':
+        if options.tolerance is None:
+            options.tolerance = 13
+        if options.bitwise is None:
+            options.bitwise = True
+    elif options.strict == 'medium':
+        if options.tolerance is None:
+            options.tolerance = 6
+        if options.bitwise is None:
+            options.bitwise = False
+    elif options.strict == 'low':
+        if options.tolerance is None:
+            options.tolerance = 3
+        if options.bitwise is None:
+            options.bitwise = False
+    options.tolerance = int(options.tolerance)
+
+    ytcfg["yt","answer_testing_tolerance"] = str(options.tolerance)
+    ytcfg["yt","answer_testing_bitwise"] = str(options.bitwise)
+    reporting_plugin.tolerance = options.tolerance
+    reporting_plugin.bitwise = options.bitwise
+
+    print ""
+    print "Relative error tolerance in comparison set to %i (i.e. 1e-%i)." \
+           % (options.tolerance, options.tolerance)
+    if options.bitwise:
+        print "Including bitwise tests."
+    else:
+        print "Not including bitwise tests."
+    print ""
+
+    # Before starting nose test, we must create the standard
+    # test problems (the old ./make_new_tests.py) by copying 
+    # the testing template out to each Test Problem
+    # subdirectory.
+    
+    # Do not run the standard tests on these test problems.
+    # --GravityTest is ignored for now because it generates randomly
+    # placed test particles, which makes comparison from run to run 
+    # difficult
+    # --ProtostellarCollapse_Std needs to be updated to current Enzo
+    # --(AMR)ZeldovichPancake is a symmetric collapse along the x-axis, so the
+    # projection along it is analytically 0, but builds up noise in 
+    # different ways on different systems.  There are 'test_almost_standard"s
+    # in Zeldovichs's directories which are just like standard without x-vel 
+    # field comparisons, which is why we leave them out here.
+    ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
+                   'ZeldovichPancake', 'AMRZeldovichPancake',
+                   'MHD2DRotorTest')
+    
+    template = open("test_type.py.template").read()
+    
+    test_standard_files = []
+    for root, dirs, files in os.walk("."):
+        for fn in files:
+            if fn.endswith(".enzotest") and \
+            os.path.basename(fn)[:-9] not in ignore_list:
+                simname = os.path.splitext(fn)[0]
+                simpath = root
+                testname = os.path.basename(fn)[:-9]
+                oname = os.path.join(root, testname + "__test_standard.py")
+                output = template % dict(filename = fn[:-4], simpath = simpath)
+                open(oname, "w").write(output)
+                # save the destination filename to remove it later
+                test_standard_files.append(oname)
+
+    # Run the simulations and the tests
     etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
             sim_only=options.sim_only, 
             test_only=options.test_only)
+
+    # Now that the work has been done, get rid of all those pesky
+    # *__test_standard.py files from the enzo run/ directory
+    # that we just created.
+    for file in test_standard_files:
+        os.remove(file)
 
     # Store the results locally or in the cloud.
     answer_plugin.finalize()

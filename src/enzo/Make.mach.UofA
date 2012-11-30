@@ -109,7 +109,7 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 
-LOCAL_LIBS_MACH   = -L $(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport # Machine-dependent libraries
+LOCAL_LIBS_MACH   = -L $(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport -lsvml # Machine-dependent libraries
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
