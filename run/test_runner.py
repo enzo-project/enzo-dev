@@ -735,6 +735,7 @@ if __name__ == "__main__":
     # different ways on different systems.  There are 'test_almost_standard"s
     # in Zeldovichs's directories which are just like standard without x-vel 
     # field comparisons, which is why we leave them out here.
+    # Same with MHD2DRotorTest
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
                    'ZeldovichPancake', 'AMRZeldovichPancake',
                    'MHD2DRotorTest')
