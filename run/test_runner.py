@@ -273,6 +273,11 @@ class EnzoTestCollection(object):
         go_start_time = time.time()
         self.output_dir = output_dir
         total_tests = len(self.tests)
+
+        # copy executable to top of testing directory
+        shutil.copy(exe_path, output_dir)
+        exe_path = os.path.join(output_dir, os.path.basename(exe_path))
+        
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print "Preparing test: %s." % my_test['name']
