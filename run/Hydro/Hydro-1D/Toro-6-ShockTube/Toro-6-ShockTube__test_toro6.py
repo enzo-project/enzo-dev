@@ -4,7 +4,10 @@ from yt.testing import *
 from yt.frontends.enzo.answer_testing_support import \
     requires_outputlog, \
     ShockTubeTest
+from yt.utilities.answer_testing.framework import \
+    sim_dir_load
 import os
+
 
 _data_file = 'DD0001/data0001'
 _solution_file = 'Toro-6-ShockTube_t=2.0_exact.txt'
