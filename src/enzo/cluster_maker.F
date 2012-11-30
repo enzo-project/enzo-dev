@@ -113,8 +113,11 @@ c
       R_PREC   isosndsp2, bmass, jeanmass, lum, min_temp
       P_PREC this_pos(3)
       real*8 msolar, mh
-      parameter (pi=pi_val, G=GravConst, 
-     &     sndspdC=1.3095e8_RKIND, msolar=SolarMass, mh=mass_h)
+      parameter (pi=pi_val,
+     &           G=GravConst,
+     &           sndspdC=1.3095e8_RKIND, 
+     &           msolar=SolarMass, 
+     &           mh=mass_h)
 c
 c      if (iradtrans .eq. 0) then
 c         write(6,*) 'Radiative transfer required for cluster_maker!'
