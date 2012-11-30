@@ -35,5 +35,5 @@ def test_collapse_max_value():
     sim = sim_dir_load(_pf_name, path=_dir_name, 
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        yield TestFreeExpansionDistance(pf)
+    pf = sim[-1]
+    yield TestFreeExpansionDistance(pf)

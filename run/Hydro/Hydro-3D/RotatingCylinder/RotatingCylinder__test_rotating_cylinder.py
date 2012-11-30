@@ -31,5 +31,5 @@ def test_rotating_cylinder():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        yield TestLVariation(pf)
+    pf = sim[-1]
+    yield TestLVariation(pf)
