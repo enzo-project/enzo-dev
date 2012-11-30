@@ -606,7 +606,7 @@ if __name__ == "__main__":
     suite_vars = [suite+"suite" for suite in all_suites]
     testproblem_group = optparse.OptionGroup(parser, "Test problem selection options")
     testproblem_group.add_option("", "--suite",
-                                 dest="test_suite", default="quick",
+                                 dest="test_suite", default=unknown,
                                  help="quick: 37 tests in ~15 minutes, push: 48 tests in ~60 minutes, full: 96 tests in ~60 hours.",
                                  choices=all_suites, metavar=all_suites)
 
@@ -670,6 +670,9 @@ if __name__ == "__main__":
             if val == 'None': val = None
             if val == "False": val = False
             construct_selection[var] = caster(val)
+    # if no selection criteria given, run the quick suite
+    if not construct_selection:
+        construct_selection['quicksuite'] = True
     print
     print "Selecting with:"
     for k, v in sorted(construct_selection.items()):
