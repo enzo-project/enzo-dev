@@ -17,6 +17,6 @@ def test_freefall():
                        find_outputs=True)
     sim.get_time_series()
     tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
-    for pf in sim:
-        for field in _fields:
-            yield FieldValuesTest(pf, field, decimals=tolerance)
+    pf = sim[-1]
+    for field in _fields:
+        yield FieldValuesTest(pf, field, decimals=tolerance)

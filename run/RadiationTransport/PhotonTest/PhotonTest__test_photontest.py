@@ -33,6 +33,6 @@ def test_photon_test():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        for field in _fields:
-            yield TestPhotonTest(pf, field)
+    pf = sim[-1]
+    for field in _fields:
+        yield TestPhotonTest(pf, field)
