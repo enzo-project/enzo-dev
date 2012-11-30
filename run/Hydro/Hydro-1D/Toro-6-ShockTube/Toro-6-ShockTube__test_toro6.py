@@ -3,9 +3,11 @@ from yt.funcs import *
 from yt.testing import *
 from yt.frontends.enzo.answer_testing_support import \
     requires_outputlog, \
-    ShockTubeTest
+    ShockTubeTest, \
+    standard_small_simulation
 from yt.utilities.answer_testing.framework import \
-    sim_dir_load
+    sim_dir_load, \
+    VerifySimulationSameTest
 import os
 
 
