@@ -89,6 +89,6 @@ def test_noh3damr():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        yield TestShockImage(pf)
-        yield TestRadialDensity(pf)
+    pf = sim[-1]
+    yield TestShockImage(pf)
+    yield TestRadialDensity(pf)

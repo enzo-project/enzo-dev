@@ -233,14 +233,18 @@ class ResultsSummary(Plugin):
 
             outfile.write('Tests that failed:\n')
             for fail in self.failures: 
-                outfile.write(fail)
-                outfile.write('\n')
+                for li, line in enumerate(fail.split('\\n')):
+                    if li > 0: outfile.write('    ')
+                    outfile.write(line)
+                    outfile.write('\n')
             outfile.write('\n')
 
             outfile.write('Tests that errored:\n')
             for err in self.errors: 
-                outfile.write(err)
-                outfile.write('\n')
+                for li, line in enumerate(err.split('\\n')):
+                    if li > 0: outfile.write('    ')
+                    outfile.write(line)
+                    outfile.write('\n')
             outfile.write('\n')
 
 class EnzoTestCollection(object):
