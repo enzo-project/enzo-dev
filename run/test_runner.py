@@ -391,39 +391,6 @@ class EnzoTestCollection(object):
         dnfs = default_test = 0
         f = open(os.path.join(self.output_dir, results_filename), 'w')
         self.plugins[1].finalize(None, outfile=f)
-        # for my_test in self.test_container:
-        #     default_only = False
-        #     if my_test.run_finished:
-        #         if my_test.test_data['answer_testing_script'] == 'None' or \
-        #                 my_test.test_data['answer_testing_script'] is None:
-        #             default_only = True
-        #             default_test += 1
-        #         t_passes = 0
-        #         t_failures = 0
-        #         for t_result in my_test.results.values():
-        #             t_passes += int(t_result)
-        #             t_failures += int(not t_result)
-        #         f.write("%-70sPassed: %4d, Failed: %4d" % (my_test.test_data['fulldir'], 
-        #                                                    t_passes, t_failures))
-        #         if default_only:
-        #             f.write(" (default tests).\n")
-        #         else:
-        #             f.write(".\n")
-        #         all_passes += t_passes
-        #         all_failures += t_failures
-        #         run_passes += int(not (t_failures > 0))
-        #         run_failures += int(t_failures > 0)
-        #     else:
-        #         dnfs += 1
-        #         f.write("%-70sDID NOT FINISH\n" % my_test.test_data['fulldir'])
-
-        # f.write("\n")
-        # f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
-        #                                               all_passes, all_failures))
-        # f.write("Runs finished with all tests passed: %d.\n" % run_passes)
-        # f.write("Runs finished with at least one failure: %d.\n" % run_failures)
-        # f.write("Runs failed to complete: %d.\n" % dnfs)
-        # f.write("Runs finished with only default tests available: %d.\n" % default_test)
         f.close()
         if all_failures > 0 or dnfs > 0:
             self.any_failures = True
