@@ -208,13 +208,15 @@ class ResultsSummary(Plugin):
     def addSuccess(self, test):
         self.successes.append("%s: PASS" % (test))
 
-    def finalize(self, result, outfile=None):
+    def finalize(self, result, outfile=None, sims_not_finished=[], sim_only=False):
         print 'Testing complete.'
+        print 'Sims not finishing: %i' % len(sims_not_finished)
         print 'Number of errors: %i' % len(self.errors)
         print 'Number of failures: %i' % len(self.failures)
         print 'Number of successes: %i' % len(self.successes)
         if outfile is not None:
             outfile.write('Test Summary\n')
+            outfile.write('Sims Not Finishing: %i\n' % len(sims_not_finished))
             outfile.write('Tests Passed: %i\n' % len(self.successes))
             outfile.write('Tests Failed: %i\n' % len(self.failures))
             outfile.write('Tests Errored: %i\n\n' % len(self.errors))
@@ -223,7 +225,21 @@ class ResultsSummary(Plugin):
                 outfile.write('Bitwise tests included\n')
             else:
                 outfile.write('Bitwise tests not included\n')
+            if sim_only:
+                outfile.write('\n')
+                outfile.write('Simulations run, but not tests (--sim-only)\n')
+                return
             outfile.write('\n\n')
+
+            if sims_not_finished:
+                print'Simulations which did not finish in allocated time:'
+                print'(Try rerunning each/all with --time-multiplier=2)'
+                outfile.write('Simulations which did not finish in allocated time:\n')
+                outfile.write('(Try rerunning each/all with --time-multiplier=2)\n')
+                for notfin in sims_not_finished: 
+                    print notfin
+                    outfile.write(notfin + '\n')
+                outfile.write('\n')
 
             outfile.write('Tests that passed: \n')
             for suc in self.successes: 
@@ -267,9 +283,11 @@ class EnzoTestCollection(object):
         else:
             self.tests = tests
         self.test_container = []
+        self.sims_not_finished = []
 
     def go(self, output_dir, interleaved, machine, exe_path, sim_only=False,
            test_only=False):
+        self.sim_only = sim_only
         go_start_time = time.time()
         self.output_dir = output_dir
         total_tests = len(self.tests)
@@ -287,7 +305,8 @@ class EnzoTestCollection(object):
                                                        plugins=self.plugins))
                 if not test_only:
                     print "Running simulation: %d of %d." % (i+1, total_tests)
-                    self.test_container[i].run_sim()
+                    if not self.test_container[i].run_sim():
+                        self.sims_not_finished.append(self.test_container[i].test_data['name'])
                 if not sim_only:
                     print "Running test: %d of %d." % (i+1, total_tests)
                     self.test_container[i].run_test()
@@ -295,8 +314,7 @@ class EnzoTestCollection(object):
             self.prepare_all_tests(output_dir, machine, exe_path)
             if not test_only: self.run_all_sims()
             if not sim_only: self.run_all_tests()
-        if not sim_only: self.save_test_summary()
-        else: self.any_failures = False
+        self.save_test_summary()
         go_stop_time = time.time()
         print "\n\nComplete!"
         print "Total time: %f seconds." % (go_stop_time - go_start_time)
@@ -317,7 +335,9 @@ class EnzoTestCollection(object):
         print "Running all simulations."
         for i, my_test in enumerate(self.test_container):
             print "Running simulation: %d of %d." % (i+1, total_tests)
-            my_test.run_sim()
+            # Did the simulation finish?
+            if not my_test.run_sim():
+                self.sims_not_finished.append(my_test.test_data['name'])
 
     def run_all_tests(self):
         total_tests = len(self.test_container)
@@ -390,7 +410,8 @@ class EnzoTestCollection(object):
         run_passes = run_failures = 0
         dnfs = default_test = 0
         f = open(os.path.join(self.output_dir, results_filename), 'w')
-        self.plugins[1].finalize(None, outfile=f)
+        self.plugins[1].finalize(None, outfile=f, sims_not_finished=self.sims_not_finished, 
+                                 sim_only=self.sim_only)
         f.close()
         if all_failures > 0 or dnfs > 0:
             self.any_failures = True
@@ -466,7 +487,7 @@ class EnzoTestRun(object):
         # Check for existence
         if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             print "%s run already completed, continuing..." % self.test_data['name']
-            return
+            return True
         
         os.chdir(self.run_dir)
         command = "%s %s" % (machines[self.machine]['command'], 
@@ -486,6 +507,7 @@ class EnzoTestRun(object):
                           options.time_multiplier):
                 print "Simulation exceeded maximum run time."
                 os.killpg(proc.pid, signal.SIGUSR1)
+                self.finished = False
             running += 1
             time.sleep(1)
         
@@ -496,7 +518,9 @@ class EnzoTestRun(object):
             f.close()
             print "Simulation completed in %f seconds." % \
                 (sim_stop_time - sim_start_time)
+            self.finished = True
         os.chdir(cur_dir)
+        return self.finished
 
     def run_test(self):
         rf = os.path.join(self.run_dir, 'RunFinished')
