@@ -211,7 +211,7 @@ class ResultsSummary(Plugin):
     def finalize(self, result, outfile=None, sims_not_finished=[]):
         self.sims_not_finished = sims_not_finished
         print 'Testing complete.'
-        print 'Sims Not Finishing: %i' % len(self.sims_not_finished)
+        print 'Sims not finishing: %i' % len(self.sims_not_finished)
         print 'Number of errors: %i' % len(self.errors)
         print 'Number of failures: %i' % len(self.failures)
         print 'Number of successes: %i' % len(self.successes)
@@ -228,12 +228,15 @@ class ResultsSummary(Plugin):
                 outfile.write('Bitwise tests not included\n')
             outfile.write('\n\n')
 
-            outfile.write('Simulations which did not finish in allocated time:\n')
-            outfile.write('(Try rerunning each/all with --time-multiplier=2)\n')
-            for notfin in self.sims_not_finished: 
-                outfile.write(notfin)
+            if self.sims_not_finished:
+                print'Simulations which did not finish in allocated time:'
+                print'(Try rerunning each/all with --time-multiplier=2)'
+                outfile.write('Simulations which did not finish in allocated time:\n')
+                outfile.write('(Try rerunning each/all with --time-multiplier=2)\n')
+                for notfin in self.sims_not_finished: 
+                    print notfin
+                    outfile.write(notfin + '\n')
                 outfile.write('\n')
-            outfile.write('\n')
 
             outfile.write('Tests that passed: \n')
             for suc in self.successes: 
