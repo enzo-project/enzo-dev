@@ -5,6 +5,7 @@ runtime = 'long'
 mhd = True
 hydro = False
 gravity = False
+AMR = True
 dimensionality = 3
 max_time_minutes = 600
 fullsuite = True

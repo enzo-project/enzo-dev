@@ -139,7 +139,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     PhotonTestSphereNumShells[sphere] = 1;
     PhotonTestSphereHIIFraction[sphere] = PhotonTestInitialFractionHII;
     PhotonTestSphereHeIIFraction[sphere] = PhotonTestInitialFractionHeII;
-    PhotonTestSphereHeIIFraction[sphere] = PhotonTestInitialFractionHeIII;
+    PhotonTestSphereHeIIIFraction[sphere] = PhotonTestInitialFractionHeIII;
     PhotonTestSphereH2IFraction[sphere] = PhotonTestInitialFractionH2I;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++) {

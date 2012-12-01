@@ -32,21 +32,8 @@ int grid::MultiSpeciesHandler()
   LCAPERF_START("grid_MultiSpeciesHandler");
 
   if (MultiSpecies && RadiativeCooling ) {
-    if((MultiSpecies == 3) && (PrimordialChemistrySolver > 0)) {
-      if (PrimordialChemistrySolver == 1) {
-	this->SolveHighDensityPrimordialChemistry();
-      } else if (PrimordialChemistrySolver == 2) {
-#ifdef USE_CVODE
-	this->SolvePrimordialChemistryCVODE();
-#else
-	ENZO_FAIL("You have asked for the CVODE solver but CVODE not enabled!");
-#endif
-      }
-    } // ENDIF PrimordialChemistrySolver
-    else {
-      int RTCoupledSolverIntermediateStep = FALSE;
-      this->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
-    }
+    int RTCoupledSolverIntermediateStep = FALSE;
+    this->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
   } else {
     if (MultiSpecies)
       this->SolveRateEquations();

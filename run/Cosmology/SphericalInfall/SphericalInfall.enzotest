@@ -1,0 +1,13 @@
+name = 'SphericalInfall'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+hydro = True
+gravity = True
+AMR = True
+cosmology = True
+dimensionality = 3
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = False

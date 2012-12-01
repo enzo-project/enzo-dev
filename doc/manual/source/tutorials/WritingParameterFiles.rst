@@ -4,12 +4,12 @@ Writing Enzo Parameter Files
 Putting together a parameter file for Enzo is possibly the most
 critical step when setting up a simulation, and is certainly the step
 which is most fraught with peril. There are over 200 parameters that
-one can set - see :doc:`../EnzoParameters` for a complete listing. For
-the most part, defaults are set to be sane values for cosmological
-simulations, and most physics packages are turned off by default, so
-that you have to explicitly turn on modules. All physics packages are
-compiled into Enzo (unlike codes such as ZEUS-MP 1.0, where you have
-to recompile the code in order to enable new physics).
+one can set - see :ref:`parameters` for a complete
+listing. For the most part, defaults are set to be sane values for
+cosmological simulations, and most physics packages are turned off by
+default, so that you have to explicitly turn on modules. All physics
+packages are compiled into Enzo (unlike codes such as ZEUS-MP 1.0,
+where you have to recompile the code in order to enable new physics).
 
 It is inadvisable for a novice to put together a parameter file from
 scratch. Several parameter files are available for download at
@@ -590,7 +590,7 @@ This page is intended to help novice Enzo users put together parameter
 files for their first simulation and therefore is not intended to be
 an exhaustive list of parameters nor a complete description of each
 parameter mentioned. It would be wise to refer to the Enzo user
-guide's :doc:`../EnzoParameters` for a more-or-less complete list of
+guide's :ref:`parameters` for a more-or-less complete list of
 AMR parameters, some of which may be extremely useful for your
 specific application.
 

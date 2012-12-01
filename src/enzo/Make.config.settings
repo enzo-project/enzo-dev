@@ -26,7 +26,6 @@
 #    CONFIG_LCAPERF
 #    CONFIG_PYTHON
 #    CONFIG_NEW_PROBLEM_TYPES
-#    CONFIG_CVODE
 #    CONFIG_PAPI
 #    CONFIG_OOC_BOUNDARY
 #    CONFIG_ACCELERATION_BOUNDARY
@@ -43,11 +42,12 @@
 #    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
 #    CONFIG_SET_ACCELERATION_BOUNDARY
+#    CONFIG_ENZO_PERFORMANCE
 #
 #=======================================================================
 
     PARAMETER_MAX_SUBGRIDS       = 100000
-    PARAMETER_MAX_BARYONS        = 20
+    PARAMETER_MAX_BARYONS        = 30
     PARAMETER_MAX_TASKS_PER_NODE = 8
     PARAMETER_MEMORY_POOL_SIZE   = 100000
 
@@ -188,15 +188,6 @@
      CONFIG_NEW_PROBLEM_TYPES = no
 
 #=======================================================================
-# CONFIG_CVODE
-#=======================================================================
-#    yes           use CVODE solver
-#    no            don't use CVODE solver
-#-----------------------------------------------------------------------
-
-     CONFIG_CVODE = no
-
-#=======================================================================
 # CONFIG_OOC_BOUNDARY
 #=======================================================================
 #    yes           use out-of-core top-grid boundary conditions
@@ -214,6 +205,14 @@
 
      CONFIG_ACCELERATION_BOUNDARY = yes
 
+#=======================================================================
+# CONFIG_ENZO_PERFORMANCE
+#=======================================================================
+#    yes           Turn on performance/timing measurements
+#    no            Turn off performance/timing measurements
+#-----------------------------------------------------------------------
+
+     CONFIG_ENZO_PERFORMANCE = yes
 
 #=======================================================================
 # CONFIG_OPT
@@ -315,7 +314,7 @@
 #    no            Allow non-blocking, potentially divergent summations
 #----------------------------------------------------------------------- 
  
-     CONFIG_BITWISE_IDENTICALITY = yes
+     CONFIG_BITWISE_IDENTICALITY = no
 
 #======================================================================= 
 # CONFIG_ECUDA

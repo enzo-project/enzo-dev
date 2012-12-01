@@ -44,21 +44,22 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, idim, j1, j2, jdim
-      real    eta1, eta2, gamma, pmin
-      real dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
+      INTG_PREC i1, i2, idim, j1, j2, jdim
+      R_PREC    eta1, eta2, gamma, pmin
+      R_PREC dslice(idim,jdim), eslice(idim,jdim), pslice(idim,jdim),
      &     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      &    geslice(idim,jdim)
 c
 c  locals
 c
-      integer i, j, im1, ip1
-      real    demax, ge1, ge2, ke
+      INTG_PREC i, j, im1, ip1
+      R_PREC    demax, ge1, ge2, ke
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -70,7 +71,8 @@ c
 c
 c           Compute the specific energy from the total energy
 c
-            ke = 0.5d0*(uslice(i,j)**2 + vslice(i,j)**2 +wslice(i,j)**2)
+            ke = 0.5_RKIND*(uslice(i,j)**2 + vslice(i,j)**2 
+     &           + wslice(i,j)**2)
             ge1 = eslice(i,j) - ke
 c
 c           Find the maximum nearby total energy (not specific)
@@ -85,10 +87,10 @@ c           If the ratio of the gas energy to the max nearby total energy is
 c             is > eta2 then use the gas energy computed from the total energy
 c             to update the specific energy (total energy is better).
 c
-            if (geslice(i,j) .le. 0.0) write(6,*) 
+            if (geslice(i,j) .le. 0._RKIND) write(6,*) 
      &            'pga:',i,j,geslice(i,j),demax
             if (ge1*dslice(i,j)/demax .gt. eta2) geslice(i,j) = ge1
-            if (geslice(i,j) .le. 0.0) write(6,*) 
+            if (geslice(i,j) .le. 0._RKIND) write(6,*) 
      &            'pgb:',i,j,geslice(i,j),dslice(i,j),demax,eslice(i,j)
 c
 c           If the ratio of the specific gas energy to specific total energy 
@@ -103,7 +105,7 @@ c
 c
 c           If pressure is below the minimum, set it to the minimum
 c
-            ge2 = max(ge2, pmin/((gamma - 1.d0)*dslice(i,j)))
+            ge2 = max(ge2, pmin/((gamma - 1._RKIND)*dslice(i,j)))
 c
 c           Update the total energy
 c
@@ -111,7 +113,7 @@ c
 c
 c           Compute the pressure with the total energy derived gas energy
 c
-            pslice(i,j) = (gamma - 1.d0)*dslice(i,j)*ge2
+            pslice(i,j) = (gamma - 1._RKIND)*dslice(i,j)*ge2
 c
          enddo
       enddo

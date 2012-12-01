@@ -42,66 +42,67 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, 
      &        iradtrans, n_xe, nlum, imcool
-      real    dt, aye, temstart, temend,
+      R_PREC    dt, aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end, dx
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &       de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &      HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &        lum(in,jn,kn,nlum)
-      real    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
+      R_PREC    HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &        DI(in,jn,kn),  DII(in,jn,kn), HDI(in,jn,kn),
      &        metal(in,jn,kn)
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldla(nratec),
      &        gphdla(nratec), hdltea(nratec), hdlowa(nratec),
      $        metala(nratec, n_xe)
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
+      R_PREC    compa, piHI, piHeI, piHeII, comp_xraya, comp_temp,
      &        inutot(nfreq), avgsighp, avgsighep, avgsighe2p
-      real photogamma(in,jn,kn)
+      R_PREC photogamma(in,jn,kn)
 c
 c  Parameters
 c
-      integer ijk
+      INTG_PREC ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 c
 c  Locals
 c
-      integer i, j, k, n
-      real comp1, comp2, energy
-      double precision dom, coolunit, dbase1, tbase1, xbase1, mh, ulum
+      INTG_PREC i, j, k, n
+      R_PREC comp1, comp2, energy
+      real*8 dom, coolunit, dbase1, tbase1, xbase1, mh, ulum
       parameter (mh = mass_h)
 c
 c  Slice locals
 c 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
+      INTG_PREC indixe(ijk)
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk)
-      double precision edot(in,nlum)
+      real*8 edot(in,nlum)
 c
 c  Cooling/heating slice locals
 c
-      double precision ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
+      real*8 ceHI(ijk), ceHeI(ijk), ceHeII(ijk),
      &     ciHI(ijk), ciHeI(ijk), ciHeIS(ijk), ciHeII(ijk),
      &     reHII(ijk), reHeII1(ijk), reHeII2(ijk), reHeIII(ijk),
      &     brem(ijk)
-      real hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
+      R_PREC hyd01k(ijk), h2k01(ijk), vibh(ijk), roth(ijk), rotl(ijk),
      &     gpldl(ijk), gphdl(ijk), hdlte(ijk), hdlow(ijk), metalc(ijk)
 
 !  Iteration mask for multi_cool
-      logical itmask(ijk)
+      LOGIC_PREC itmask(ijk)
                 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
@@ -169,7 +170,7 @@ c
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, idual, imethod,
      &                iexpand, ispecies, imetal, imcool, idim,
-     &                is, ie, j, k, ih2co, ipiht, 1,
+     &                is, ie, j, k, ih2co, ipiht, 1_IKIND,
      &                aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma,

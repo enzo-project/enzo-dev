@@ -32,18 +32,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
-     &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+     &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -104,19 +105,20 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
-     &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3,
-     &        dim1, dim2, dim3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+     &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3,
+     &          dim1, dim2, dim3
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -144,7 +146,7 @@ c
      &                     sstart1, sstart2, sstart3, 
      &                     dstart1, dstart2, dstart3)
 c
-c  COPIES PART OF FIELD (INTEGER VERSION)
+c  COPIES PART OF FIELD (INTG_PREC VERSION)
 c
 c  written by: Greg Bryan
 c  date:       October, 1995
@@ -169,18 +171,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
-     &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
-      integer source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+     &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
+      INTG_PREC source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -240,18 +243,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
-     &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+     &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
       logical*1 source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -313,18 +317,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
-     &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+     &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -390,19 +395,20 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
-     &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3,
-     &        rstart1, rstart2, rstart3, rend1, rend2, rend3
-      real    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+     &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3,
+     &          rstart1, rstart2, rstart3, rend1, rend2, rend3
+      R_PREC    source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -467,20 +473,21 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, irefine,
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, irefine,
      &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3, ivel_shift
-      real    source1(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
+      R_PREC  source1(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3),
      &        source2(sdim1, sdim2, sdim3), weight1, weight2
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
-      real    fact1, fact2
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
+      R_PREC    fact1, fact2
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -510,8 +517,8 @@ c
       if (ivel_shift .eq. 1) then
        do k = start3, end3
           do j = start2, end2
-             fact1 = (real(irefine)+1.0)/(2.0*real(irefine))
-             fact2 = (real(irefine)-1.0)/(2.0*real(irefine))
+             fact1 = (REAL(irefine,RKIND)+1.0)/(2.0*REAL(irefine,RKIND))
+             fact2 = (REAL(irefine,RKIND)-1.0)/(2.0*REAL(irefine,RKIND))
              do i = start1, end1
                 dest   (i-dstart1+1, j-dstart2+1, k-dstart3+1) = fact1*(
      &          source1(i-sstart1+1, j-sstart2+1, k-sstart3+1)*weight1 +
@@ -527,8 +534,8 @@ c
       if (ivel_shift .eq. 2) then
        do k = start3, end3
           do j = start2, end2
-             fact1 = (real(irefine)+1.0)/(2.0*real(irefine))
-             fact2 = (real(irefine)-1.0)/(2.0*real(irefine))
+             fact1 = (REAL(irefine,RKIND)+1.0)/(2.0*REAL(irefine,RKIND))
+             fact2 = (REAL(irefine,RKIND)-1.0)/(2.0*REAL(irefine,RKIND))
              do i = start1, end1
                 dest   (i-dstart1+1, j-dstart2+1, k-dstart3+1) = fact1*(
      &          source1(i-sstart1+1, j-sstart2+1, k-sstart3+1)*weight1 +
@@ -544,8 +551,8 @@ c
       if (ivel_shift .eq. 3) then
        do k = start3, end3
           do j = start2, end2
-             fact1 = (real(irefine)+1.0)/(2.0*real(irefine))
-             fact2 = (real(irefine)-1.0)/(2.0*real(irefine))
+             fact1 = (REAL(irefine,RKIND)+1.0)/(2.0*REAL(irefine,RKIND))
+             fact2 = (REAL(irefine,RKIND)-1.0)/(2.0*REAL(irefine,RKIND))
              do i = start1, end1
                 dest   (i-dstart1+1, j-dstart2+1, k-dstart3+1) = fact1*(
      &          source1(i-sstart1+1, j-sstart2+1, k-sstart3+1)*weight1 +
@@ -592,17 +599,18 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, dstart1, sdim1, sstart1
-      real    source(sdim1), dest(ddim1)
+      INTG_PREC ddim1, dstart1, sdim1, sstart1
+      R_PREC    source(sdim1), dest(ddim1)
 c
 c  locals
 c
-      integer i, end1, start1
+      INTG_PREC i, end1, start1
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -648,17 +656,18 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, value
-      real    dest(ddim1)
+      INTG_PREC ddim1, value
+      R_PREC    dest(ddim1)
 c
 c  locals
 c
-      integer i
+      INTG_PREC i
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

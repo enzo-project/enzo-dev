@@ -27,7 +27,7 @@ MACHINE_NOTES = "Building on NICS's Kraken requires no special modules"
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = 
-LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.4/cnl2.2_pgi9.0.1/
+LOCAL_HDF5_INSTALL   = /sw/xt/hdf5/1.8.9/cnl3.1_pgi12.5.0/
 
 LOCAL_HDF4_INSTALL   = $(HDF4_HOME)
 LOCAL_HYPRE_INSTALL  = 
@@ -70,15 +70,6 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl,-static 
-
-#-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
 
 #-----------------------------------------------------------------------
 # Optimization flags
@@ -126,7 +117,7 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = 
 
-LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles10.1_pgi7.2.3/lib -lsz \
+LOCAL_LIBS_MACH   = -L/sw/xt/szip/2.1/sles11.1_pgi11.6.0/lib -lsz \
 		    -L/usr/local/lib -lz \
 		    -L/opt/acml/4.3.0/pgi64/lib -lacml -lm \
                     -L/opt/pgi/$(PGI_VERS_STR)/linux86-64/7.1/lib \

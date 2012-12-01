@@ -25,6 +25,7 @@ OBJS_CONFIG_LIB = \
         arccosh.o \
         arcsinh.o \
         AssignGridToTaskMap.o \
+        auto_show_compile_options.o \
         auto_show_config.o \
         auto_show_flags.o \
         auto_show_version.o \
@@ -59,6 +60,7 @@ OBJS_CONFIG_LIB = \
         cicinterp.o \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
+        ClusterInitialize.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
@@ -297,6 +299,7 @@ OBJS_CONFIG_LIB = \
 	Grid_AddFeedbackSphere.o \
 	Grid_AddFieldMassToMassFlaggingField.o \
 	Grid_AddFields.o \
+	Grid_AddOneParticleFromList.o \
 	Grid_AddOverlappingParticleMassField.o \
 	Grid_AddParticlesFromList.o \
 	Grid_AddRandomForcing.o \
@@ -321,6 +324,7 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearMassFlaggingField.o \
 	Grid_ClearParticleAccelerations.o \
 	Grid_ClearParticleMassFlaggingField.o \
+	Grid_ClusterInitializeGrid.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \
@@ -530,8 +534,6 @@ OBJS_CONFIG_LIB = \
         Grid_ShearingBoxStratifiedInitializeGrid.o \
 	Grid_ShocksHandler.o \
 	Grid_SolveForPotential.o \
-        Grid_SolveHighDensityPrimordialChemistry.o \
-        Grid_SolvePrimordialChemistryCVODE.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolveOneZoneFreefall.o \
 	Grid_SolvePPM_DE.o \
@@ -633,6 +635,7 @@ OBJS_CONFIG_LIB = \
         MagneticFieldResetter.o \
         mbh_maker.o \
         mcooling.o \
+        MakeFieldConservative.o\
         MemoryAllocationRoutines.o \
 	MemoryPoolRoutines.o \
 	MersenneTwister.o \
@@ -655,7 +658,6 @@ OBJS_CONFIG_LIB = \
         nr_st1.o \
 	NullProblem.o \
 	OneZoneFreefallTestInitialize.o \
-        Options.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
         OutputFromEvolveLevel.o\
@@ -675,10 +677,6 @@ OBJS_CONFIG_LIB = \
         pop3_properties.o \
         power_of_2.o \
         prefort2.o \
-        primordial_calc_derivs.o \
-        primordial_cool.o \
-        primordial_lookup_rates.o \
-        primordial_solver.o \
 	PrepareDensityField.o \
         PrepareGravitatingMassField.o \
         PrepareIsolatedGreensFunction.o \
@@ -737,6 +735,7 @@ OBJS_CONFIG_LIB = \
         RecalibrateAccretingMass.o \
         RecalibrateMBHFeedbackThermalRadius.o \
         ReduceFragmentation.o \
+	Reduce_Times.o \
         remap.o \
         ReportMemoryUsage.o \
         ReturnWallTime.o \
@@ -815,6 +814,7 @@ OBJS_CONFIG_LIB = \
         star_maker7.o \
 	star_maker8.o \
 	star_maker9.o \
+	star_maker_h2reg.o \
 	particle_splitter.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \

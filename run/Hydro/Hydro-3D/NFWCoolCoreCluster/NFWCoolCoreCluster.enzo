@@ -1,0 +1,96 @@
+#
+# AMR PROBLEM DEFINITION FILE: Cool Core Cluster, Cooling flow
+#
+#  define problem
+#
+ProblemType                = 108      // Cluster Cooling Flow 
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64 // For better resolution, use 128 or 256
+SelfGravity                = 0       // self gravity off. When on, the NFW parameters should be changed accordingly
+TopGridGravityBoundary     = 0       // periodic
+LeftFaceBoundaryCondition  = 3 3 3   // periodic
+RightFaceBoundaryCondition = 3 3 3
+PointSourceGravity         = 2
+PointSourceGravityPosition = 0.5 0.5 0.5
+PointSourceGravityConstant = 0.02
+ZEUSQuadraticArtificialViscosity = 2.0
+BaryonSelfGravityApproximation = 0
+#
+# problem parameters
+#
+ClusterRefineAtStart   = 1
+ClusterNumberOfSpheres = 1
+ClusterUseParticles    = 0
+ClusterInitialTemperature = 100000000
+#
+ClusterSphereRadius[0]     = 0.386
+ClusterSphereDensity[0]    = 1443.5756 
+ClusterSphereType[0]       = 6       // Perseus
+ClusterSphereCoreRadius[0] = 0.031461550
+ClusterSpherePosition[0]   = 0.5 0.5 0.5
+ClusterSphereVelocity[0]   = 200 200 200   // Random Velocity in unit of km/s
+#ClusterUniformVelocity     = 0.4 0 0
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyOmegaMatterNow    = 1.0
+CosmologyOmegaLambdaNow    = 0.0
+CosmologyHubbleConstantNow = 0.5     // in km/s/Mpc
+CosmologyComovingBoxSize   = 16.0     // in Mpc/h
+CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 1.0     // 
+CosmologyFinalRedshift     = 0.89       //Stop the simulation at this redshift
+GravitationalConstant      = 1       // this must be true for cosmology
+#
+#  set I/O and stop/start parameters
+#
+#StopTime                = 0.90556598   // 10 Myr
+dtDataDump              = 0.000589   // ~every 10/3 Myr
+TimeLastDataDump        = 0.883  //this should be approx the time when the highest refinement level is reached
+DataDumpName            = stest_
+StopCycle              = 1000000
+CosmologyOutputRedshift[0] = 1.0
+CosmologyOutputRedshift[1] = 0.9
+CosmologyOutputRedshift[2] = 0.7
+CosmologyOutputRedshift[3] = 0.6
+CosmologyOutputRedshift[4] = 0.5
+CosmologyOutputRedshift[5] = 0.4
+CosmologyOutputRedshift[6] = 0.3
+CosmologyOutputRedshift[7] = 0.2
+CosmologyOutputRedshift[8] = 0.1
+CosmologyOutputRedshift[9] = 0.0
+OutputFirstTimeAtLevel     = 6
+#StopFirstTimeAtLevel       = 15
+#
+#  set hydro parameters
+#
+Gamma                       = 1.6667
+PPMDiffusionParameter       = 0       // diffusion off
+DualEnergyFormalism         = 1       // use total & internal energy
+InterpolationMethod         = 1       // FirstOrderA
+CourantSafetyNumber         = 0.5     
+RadiativeCooling            = 1
+MultiSpecies                = 0
+FluxCorrection              = 0       //turn off
+ConservativeInterpolation   = 0
+HydroMethod                 = 2        //Use 
+Initialdt                   = 0.003
+#
+#  set grid refinement parameters
+#
+OptimalSubgridsPerProcessor = 32
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 12   // use up to this many levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 2 6 7        // use baryon mass, Jeans length, cooling time for refinement 
+MinimumEfficiency         = 0.3  // fraction efficiency
+MinimumOverDensityForRefinement = 0.2 // times the initial density
+MinimumMassForRefinementLevelExponent = -0.2  // for better resolution, use -1.2
+MinimumEnergyRatioForRefinement = 0.4 // min Egas/Etot for shock refinement
+RefineRegionLeftEdge            = 0.2 0.2 0.2
+RefineRegionRightEdge           = 0.9 0.9 0.9
+#
+#  set some global parameters
+#
+GreensFunctionMaxNumber   = 10   // # of greens function at any one time

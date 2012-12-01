@@ -4,9 +4,9 @@
 #
 # DESCRIPTION: Makefile settings for NASA's pleiades
 #
-#    modules: comp-intel/11.1.046
-#     	      mpi/mpt.1.25
-#	      hdf5/1.6.5
+#    modules: comp-intel/2011.7.256
+#     	      mpi-sgi/mpi.2.04.10789
+#	      A local serial hdf5 install (e.g. the one that comes with yt)
 #
 # AUTHOR:      John Wise
 # DATE:        2010-01-22
@@ -14,6 +14,8 @@
 # MODIFIED1:   Devin Silvia
 # DATE:        2010-07-02
 #
+# MODIFIED2:   Nathan Goldbaum
+# DATE:        2012-04-18
 #=======================================================================
 
 MACH_TEXT  = NASA Pleiades
@@ -22,9 +24,9 @@ MACH_FILE  = Make.mach.nasa-pleiades
 
 MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 	The following modules are needed to compile: \
-	    comp-intel/11.1.046 \
-	    mpi/mpt.1.25 \
-	    hdf5/1.6.5 "
+	    comp-intel/2011.7.256, \
+	    mpi-sgi/mpi.2.04.10789, and \
+	    a serial hdf5 (the one that comes with yt should work) "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -35,16 +37,16 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/1.25
-LOCAL_HDF5_INSTALL   = /nasa/hdf5/1.6.5/serial
-LOCAL_PYTHON_INSTALL = /nasa/python/2.6.1
-LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/11.1/046
+LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.04.10789/
+LOCAL_HDF5_INSTALL   = $(YT_DEST)
+LOCAL_PYTHON_INSTALL = $(YT_DEST)
+LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2011.7.256/
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /usr/bin/cpp 
+MACH_CPP       = icpc
 
 # With MPI
 
@@ -81,15 +83,6 @@ MACH_LDFLAGS  =
 #,-static 
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
@@ -116,8 +109,8 @@ MACH_OPT_AGGRESSIVE  = -O3 -xSSE4.1
 
 LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
-LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
-                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)

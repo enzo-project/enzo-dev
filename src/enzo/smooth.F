@@ -28,25 +28,26 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer sdim1, sdim2, sdim3, ndim, nsmooth
-      real    source1(sdim1, sdim2, sdim3), 
+      INTG_PREC sdim1, sdim2, sdim3, ndim, nsmooth
+      R_PREC    source1(sdim1, sdim2, sdim3), 
      &        source2(sdim1, sdim2, sdim3), 
      &        source3(sdim1, sdim2, sdim3)
 c
 c  locals
 c
-      integer i, j, k, n, i1, j1, k1
-      real    temp(MAX_ANY_SINGLE_DIRECTION), fact
+      INTG_PREC i, j, k, n, i1, j1, k1
+      R_PREC    temp(MAX_ANY_SINGLE_DIRECTION), fact
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      fact = 1.d0/(2**nsmooth + 1.d0)
+      fact = 1._RKIND/(2**nsmooth + 1._RKIND)
 c
 c     1) x-direction
 c
@@ -54,7 +55,7 @@ c
          do k=1, sdim3
             do j=1, sdim2
                do i=1, sdim1
-                  temp(i) = 0.d0
+                  temp(i) = 0._RKIND
                enddo
                do n=-nsmooth,+nsmooth
                   do i=1, sdim1
@@ -75,7 +76,7 @@ c
          do k=1, sdim3
             do i=1, sdim1
                do j=1, sdim2
-                  temp(j) = 0.d0
+                  temp(j) = 0._RKIND
                enddo
                do n=-nsmooth,+nsmooth
                   do j=1, sdim2
@@ -96,7 +97,7 @@ c
          do j=1, sdim2
             do i=1, sdim1
                do k=1, sdim3
-                  temp(k) = 0.d0
+                  temp(k) = 0._RKIND
                enddo
                do n=-nsmooth,+nsmooth
                   do k=1, sdim3
@@ -144,18 +145,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer sdim1, sdim2, sdim3, ndim
-      real    source(sdim1, sdim2, sdim3), dest(sdim1, sdim2, sdim3)
+      INTG_PREC sdim1, sdim2, sdim3, ndim
+      R_PREC    source(sdim1, sdim2, sdim3), dest(sdim1, sdim2, sdim3)
 c
 c  locals
 c
-      integer i, j, k
-      real    fact
+      INTG_PREC i, j, k
+      R_PREC    fact
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -163,7 +165,7 @@ c
 c     1) 1d
 c
       if (ndim .eq. 1) then
-         fact = 1.0/3.0
+         fact = 1._RKIND/3._RKIND
          do i=2, sdim1-1
             dest(i,1,1) = fact*(source(i-1,1,1) + source(i,1,1) +
      &                          source(i+1,1,1))
@@ -175,7 +177,7 @@ c
 c     2) 2d
 c
       if (ndim .eq. 2) then
-         fact = 1.d0/5.d0
+         fact = 1._RKIND/5._RKIND
          do j=2, sdim2-1
             do i=2, sdim1-1
                dest(i,j,1) = fact*(source(i-1,j,1) + source(i,j,1) +
@@ -194,7 +196,7 @@ c
 c     3) 3d
 c
       if (ndim .eq. 3) then
-         fact = 1.d0/7.d0
+         fact = 1._RKIND/7._RKIND
          do k=2, sdim3-1
             do j=2, sdim2-1
                do i=2, sdim1-1

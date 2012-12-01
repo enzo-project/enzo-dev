@@ -100,6 +100,8 @@ int GravityEquilibriumTestInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 			  HierarchyEntry &TopGrid, TopGridData &MetaData);
+int ClusterInitialize(FILE *fptr, FILE *Outfptr,
+                          HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary &Exterior);
 int TestGravityMotion(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			  TopGridData &MetaData);
 int SupernovaRestartInitialize(FILE *fptr, FILE *Outfptr,
@@ -314,7 +316,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 		   MetaData.TopGridDims[dim])
       }
       MetaData.TopGridDims[dim] = (MetaData.TopGridDims[dim] > 1) ?
-	MetaData.TopGridDims[dim] + 2*DEFAULT_GHOST_ZONES : 1;
+	MetaData.TopGridDims[dim] + 2*NumberOfGhostZones : 1;
     }
  
     // Create the top grid, prepare it, set the time and parameters
@@ -335,7 +337,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       MetaData.TopGridDims[dim] = max(MetaData.TopGridDims[dim] -
-				      2*DEFAULT_GHOST_ZONES, 1);
+				      2*NumberOfGhostZones, 1);
     
     // Set TopGrid Hierarchy Entry
     
@@ -571,6 +573,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = PutSinkRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
 				     Exterior);
  
+  // 108) Cluster cooling flow
+  if (ProblemType == 108) {
+    ret = ClusterInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
+ }
 
   /* 200) 1D MHD Test */
   if (ProblemType == 200) {
@@ -804,7 +810,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
       ProblemType != 30 &&
       ProblemType != 31 &&  // BWO (isolated galaxies)
       ProblemType != 60 &&
-      ProblemType != 106 ) //AK
+      ProblemType != 106 && //AK
+      ProblemType != 108)   //Yuan (Cluster)
     ConvertTotalEnergyToGasEnergy(&TopGrid);
   
   // If using StarParticles, set the number to zero 
@@ -858,7 +865,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     if (debug)
       printf("InitializeNew: Partition Initial Grid %"ISYM"\n", gridcounter);
     
-    CommunicationPartitionGrid(CurrentGrid, gridcounter);
+    if (CurrentGrid->NextGridThisLevel == NULL)     
+      CommunicationPartitionGrid(CurrentGrid, gridcounter);
     
     gridcounter++;
     

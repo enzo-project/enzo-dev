@@ -23,12 +23,11 @@ MACHINE_NOTES = "MACHINE_NOTES for Trestles at SDSC/UCSD: \
 # Compiler settings
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel
+LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel/
 LOCAL_PYTHON_INSTALL = /home/mturk/yt-x86_64/
 #LOCAL_COMPILER_DIR = /opt/pgi/linux86-64/10.5
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072
 LOCAL_HYPRE_INSTALL = 
-LOCAL_CVODE_INSTALL = 
 
 # With MPI
 
@@ -66,15 +65,6 @@ MACH_F90FLAGS =
 MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
@@ -99,14 +89,12 @@ LOCAL_INCLUDES_HYPRE  =
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7 \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
-LOCAL_INCLUDES_CVODE  = 
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
-MACH_INCLUDES_CVODE   = $(LOCAL_INCLUDES_CVODE)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -116,12 +104,12 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L/home/mturk/yt-x86_64/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib -lpython2.7 -lutil
-LOCAL_LIBS_CVODE  = 
+LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \
+                     -lreadline -ltermcap -lutil
 
 #LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER_DIR)/lib \
 #			-lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl -lrt
-LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport
+LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport 
 
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
@@ -129,4 +117,3 @@ MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
-MACH_LIBS_CVODE   = $(LOCAL_LIBS_CVODE)

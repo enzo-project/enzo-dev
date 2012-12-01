@@ -117,7 +117,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
-    ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
+    ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
+    ret += sscanf(line, "ReadGhostZones = %"ISYM, &ReadGhostZones);
     ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
                         &OutputParticleTypeGrouping);
     ret += sscanf(line, "TimeLastTracerParticleDump = %"PSYM,
@@ -224,6 +225,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
     }
 
+    ret += sscanf(line, "NumberOfGhostZones = %"ISYM, &NumberOfGhostZones);
     ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
     ret += sscanf(line, "ResetLoadBalancing = %"ISYM, &ResetLoadBalancing);
     ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);
@@ -437,7 +439,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RadiativeCoolingModel = %"ISYM, &RadiativeCoolingModel);
     ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
     ret += sscanf(line, "MultiSpecies = %"ISYM, &MultiSpecies);
-    ret += sscanf(line, "PrimordialChemistrySolver = %"ISYM, &PrimordialChemistrySolver);
     ret += sscanf(line, "CIECooling = %"ISYM, &CIECooling);
     ret += sscanf(line, "H2OpticalDepthApproximation = %"ISYM, &H2OpticalDepthApproximation);
     ret += sscanf(line, "ThreeBodyRate = %"ISYM, &ThreeBodyRate);
@@ -458,6 +459,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
+    ret += sscanf(line, "FindShocksOnlyOnOutput = %"ISYM, &FindShocksOnlyOnOutput);
 
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "RadiationFieldRedshift = %"FSYM, &RadiationFieldRedshift);
@@ -680,6 +682,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "BigStarSeparation = %"FSYM, &BigStarSeparation);
     ret += sscanf(line, "SimpleQ = %lf", &SimpleQ);
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
+    ret += sscanf(line, "StarFormationOncePerRootGridTimeStep = %"ISYM, &StarFormationOncePerRootGridTimeStep);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
@@ -836,6 +839,29 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (sscanf(line, "MBHInsertLocationFilename = %s", dummy) == 1)
       MBHInsertLocationFilename = dummy;
 
+    ret += sscanf(line, "H2StarMakerEfficiency = %"FSYM,
+		  &H2StarMakerEfficiency);
+    ret += sscanf(line, "H2StarMakerNumberDensityThreshold = %"FSYM,
+		  &H2StarMakerNumberDensityThreshold);
+    ret += sscanf(line, "H2StarMakerMinimumMass = %"FSYM,
+		  &H2StarMakerMinimumMass);
+    ret += sscanf(line, "H2StarMakerMinimumH2FractionForStarFormation = %"FSYM,
+		  &H2StarMakerMinimumH2FractionForStarFormation);
+    ret += sscanf(line, "H2StarMakerStochastic = %"ISYM,
+		  &H2StarMakerStochastic);
+    ret += sscanf(line, "H2StarMakerUseSobolevColumn = %"ISYM,
+		  &H2StarMakerUseSobolevColumn);
+    ret += sscanf(line, "H2StarMakerSigmaOverR = %"FSYM,
+		  &H2StarMakerSigmaOverR);
+    ret += sscanf(line, "H2StarMakerAssumeColdWarmPressureBalance = %"ISYM,
+		  &H2StarMakerAssumeColdWarmPressureBalance);
+    ret += sscanf(line, "H2StarMakerH2DissociationFlux_MW = %"FSYM,
+		  &H2StarMakerH2DissociationFlux_MW);
+    ret += sscanf(line, "H2StarMakerH2FloorInColdGas = %"FSYM,
+		  &H2StarMakerH2FloorInColdGas);
+    ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
+		  &H2StarMakerColdGasTemperature);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);
@@ -877,12 +903,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* Embedded Python */
     ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
-
+    ret += sscanf(line, "PythonReloadScript = %"ISYM, &PythonReloadScript);
 #ifdef USE_PYTHON
     ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
     ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);
     ret += sscanf(line, "NumberOfPythonSubcycleCalls = %"ISYM, &NumberOfPythonSubcycleCalls);
 #endif
+
+    /* EnzoTiming Parameters */
+    ret += sscanf(line, "TimingCycleSkip = %"ISYM, &TimingCycleSkip);
 
     /* Inline halo finder */
 
@@ -1014,6 +1043,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TestGravity"        ) ) ret++;
     if (strstr(line, "SphericalInfall"    ) ) ret++;
     if (strstr(line, "TestGravitySphere"  ) ) ret++;
+    if (strstr(line, "Cluster"            ) ) ret++;
     if (strstr(line, "CollapseTest"       ) ) ret++;
     if (strstr(line, "Cosmology"          ) ) ret++;
     if (strstr(line, "SupernovaRestart"   ) ) ret++;
@@ -1595,10 +1625,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
 
-#ifdef SAB
-  if (HydroMethod == Zeus_Hydro && SelfGravity != 0)
-      ENZO_FAIL("SetAccelerationBoundary (-D SAB) does not work with zeus_hydro !\n");
-#endif 
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 

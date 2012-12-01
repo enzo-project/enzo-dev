@@ -6,22 +6,8 @@ Enzo Primary References
 The Enzo method paper is not yet complete. However, there are several papers
 that describe the numerical methods used in Enzo, and this documentation
 contains a brief outline of the essential physics in Enzo, in
-:ref:`EnzoAlgorithms`.  Two general references (that should be considered to
-stand in for the method paper) are:
-
-
-*  `Introducing Enzo, an AMR Cosmology Application <http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:astro-ph/0403044>`_
-   by **O'Shea et al.** In "Adaptive Mesh Refinement - Theory and
-   Applications," Eds. T. Plewa, T. Linde & V. G. Weirs, Springer
-   Lecture Notes in Computational Science and Engineering, 2004.
-   `Bibtex entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2004astro.ph..3044O&data_type=BIBTEX&db_key=PRE&nocookieset=1>`_
-*  `Simulating Cosmological Evolution with Enzo <http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:0705.1556>`_
-   by **Norman et al.** In "Petascale Computing: Algorithms and
-   Applications," Ed. D. Bader, CRC Press LLC, 2007.
-   `Bibtex entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2007arXiv0705.1556N&data_type=BIBTEX&db_key=PRE&nocookieset=1>`_
-
-Three somewhat older conferences proceedings are also relevant:
-
+:ref:`EnzoAlgorithms`.  These papers should be considered suitable for
+citations for Enzo in general:
 
 *  `Simulating X-Ray Clusters with Adaptive Mesh Refinement <http://adsabs.harvard.edu/abs/1997ASPC..123..363B>`_
    by **Bryan and Norman.** In "Computational Astrophysics; 12th
@@ -42,6 +28,15 @@ Three somewhat older conferences proceedings are also relevant:
    Tomisaka, and Tomoyuki Hanawa. Boston, Mass. : Kluwer Academic,
    1999. (Astrophysics and space science library ; v. 240), p.19
    `Bibtex entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=1999ASSL..240...19N&data_type=BIBTEX&db_key=AST&nocookieset=1>`_
+*  `Introducing Enzo, an AMR Cosmology Application <http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:astro-ph/0403044>`_
+   by **O'Shea et al.** In "Adaptive Mesh Refinement - Theory and
+   Applications," Eds. T. Plewa, T. Linde & V. G. Weirs, Springer
+   Lecture Notes in Computational Science and Engineering, 2004.
+   `Bibtex entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2004astro.ph..3044O&data_type=BIBTEX&db_key=PRE&nocookieset=1>`_
+*  `Simulating Cosmological Evolution with Enzo <http://adsabs.harvard.edu/cgi-bin/bib_query?arXiv:0705.1556>`_
+   by **Norman et al.** In "Petascale Computing: Algorithms and
+   Applications," Ed. D. Bader, CRC Press LLC, 2007.
+   `Bibtex entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2007arXiv0705.1556N&data_type=BIBTEX&db_key=PRE&nocookieset=1>`_
 
 The primary hydrodynamics methods are PPM and ZEUS, as described in
 the following two papers:
@@ -75,13 +70,19 @@ The AMR method used in Enzo can be found here:
   1989, p. 64-84.  `Bibtex Entry
   <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=1989JCoPh..82...64B&data_type=BIBTEX&db_key=PHY&nocookieset=1>`_.
 
-The YT papers can be found here:
+The paper describing the Dedner MHD can be found here:
 
-* M Turk, `Analysis and Visualization of Multi-Scale Astrophysical Simulations
-  Using Python and NumPy
-  <http://conference.scipy.org/proceedings/SciPy2008/paper_11/>`_ in Proceedings
-  of the 7th Python in Science conference (!SciPy 2008), G Varoquaux, T Vaught, J
-  Millman (Eds.), pp. 46-50 (`Bibtex entry <http://yt.enzotools.org/wiki/Citation>`_)
+ * `Magnetohydrodynamic Simulations of Disk Galaxy Formation: The Magnetization of the Cold and Warm Medium <http://adsabs.harvard.edu/abs/2009ApJ...696...96W>`_,
+   by Wang, P.; Abel, T.  The Astrophysical Journal, Volume 696, Issue 1, pp. 96-109 (2009)
+   `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2009ApJ...696...96W&data_type=BIBTEX&db_key=AST&nocookieset=1>`_.
+
+The paper describing the ray-tracing algorithm (MORAY) can be found here:
+
+ * `ENZO+MORAY: radiation hydrodynamics adaptive mesh refinement simulations with adaptive ray tracing <http://adsabs.harvard.edu/abs/2011MNRAS.414.3458W>`_,
+   Wise, J.; Abel, T.  Monthly Notices of the Royal Astronomical Society, Volume 414, Issue 4, pp.  3458-3491.
+   `Bibtex Entry <http://adsabs.harvard.edu/cgi-bin/nph-bib_query?bibcode=2011MNRAS.414.3458W&data_type=BIBTEX&db_key=AST&nocookieset=1>`_.
+
+The YT paper can be found here:
 
 * `yt: A Multi-code Analysis Toolkit for Astrophysical Simulation Data
   <http://adsabs.harvard.edu/abs/2011ApJS..192....9T>`_, by Turk, M. J.;

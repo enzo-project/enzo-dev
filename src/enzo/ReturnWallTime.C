@@ -17,6 +17,7 @@
 #endif
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -29,7 +30,7 @@ double ReturnWallTime()
 
 #else /* USE_MPI */
 
-  return 0.0;
-
+  return (double)(clock()) / ((double)CLOCKS_PER_SEC);
+  
 #endif /* USE_MPI */
 }

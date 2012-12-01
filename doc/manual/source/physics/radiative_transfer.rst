@@ -5,6 +5,9 @@ Radiative Transfer
 .. sectionauthor:: John Wise <jwise@physics.gatech.edu>
 .. versionadded:: 2.0
 
+For relevant parameters, please also see :ref:`radiative_transfer_ray_tracing` and :ref:`radiative_transfer_fld`.
+
+
 Adaptive Ray Tracing
 --------------------
 

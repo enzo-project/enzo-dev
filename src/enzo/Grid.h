@@ -93,8 +93,6 @@ class grid
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
-  float *YT_TemperatureField;                         // place to store temperature field
-                                                      // for call to yt.
 
   // For restart dumps
 
@@ -125,6 +123,13 @@ class grid
 //
   int NumberOfStars;
   Star *Stars;
+
+// For once-per-rootgrid-timestep star formation, the following flag
+// determines whether SF is about to occur or not. It's currently
+//(April 2012) only implemented for H2REG_STAR and completely
+// ignored for all other star makers.
+  int MakeStars;
+
 //
 //  Gravity data
 // 
@@ -309,10 +314,10 @@ class grid
                                    float* &div);
 
 private:
-   int write_dataset(int ndims, hsize_t *dims, char *name, hid_t group, 
+   int write_dataset(int ndims, hsize_t *dims, const char *name, hid_t group, 
        hid_t data_type, void *data, int active_only = TRUE,
        float *temp=NULL);
-   int read_dataset(int ndims, hsize_t *dims, char *name, hid_t group,
+   int read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
        hid_t data_type, void *read_to, int copy_back_active=FALSE,
        float *copy_to=NULL, int *active_dims=NULL);
    int ReadExtraFields(hid_t group_id);
@@ -661,13 +666,6 @@ public:
 /* Solve the joint rate and radiative cooling/heating equations  */
 
    int SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep);
-
-/* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
-
-   int SolveHighDensityPrimordialChemistry();
-#ifdef USE_CVODE
-   int SolvePrimordialChemistryCVODE();
-#endif
 
 /* Compute densities of various species for RadiationFieldUpdate. */
 
@@ -1470,6 +1468,7 @@ public:
 /* Particles: append particles belonging to this grid from a list */
 
    int AddParticlesFromList(ParticleEntry *List, const int &Size, int *AddedNewParticleNumber);
+   int AddOneParticleFromList(ParticleEntry *List, const int place);
    int CheckGridBoundaries(FLOAT *Position);
 
 /* Particles: sort particle data in ascending order by number (id) or type. */
@@ -1920,6 +1919,21 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			     float InitialTemperature, 
 			     float InitialDensity, int level);
 
+/* Cluster: initialize grid. */
+
+  int ClusterInitializeGrid(int NumberOfSpheres,
+                             FLOAT SphereRadius[MAX_SPHERES],
+                             FLOAT SphereCoreRadius[MAX_SPHERES],
+                             float SphereDensity[MAX_SPHERES],
+                             float SphereTemperature[MAX_SPHERES],
+                             FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
+                             float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
+                             int   SphereType[MAX_SPHERES],
+                             int   SphereUseParticles,
+                             float UniformVelocity[MAX_DIMENSION],
+                             int   SphereUseColour,
+                             float InitialTemperature, int level);
+
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(
 			  int   InitialGridNumber,
@@ -2215,7 +2229,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Star Particle handler routine. */
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
-			  float dtLevelAbove);
+			  float dtLevelAbove, float TopGridTimeStep);
 
 /* Particle splitter routine. */
 
@@ -2363,6 +2377,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   Star *ReturnStarPointer(void) { return Stars; };
   int ReturnNumberOfStars(void) { return NumberOfStars; };
   void SetNumberOfStars(int value) { NumberOfStars = value; };
+
+// For once-per-rootgrid-timestep star formation.
+  void SetMakeStars(void) { MakeStars = 1; };
 
   /* Calculate enclosed mass within a radius */
 

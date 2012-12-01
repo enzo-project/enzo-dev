@@ -54,7 +54,6 @@
 
 #define MEMORY_POOL_SIZE  __memory_pool_size
 
-#define DEFAULT_GHOST_ZONES                 3  /* at least 3 */
 
 #define MAX_NUMBER_OF_OUTPUT_REDSHIFTS    500
 
@@ -479,6 +478,8 @@ typedef int            HDF5_hid_t;
 #define SPRINGEL_HERNQUIST_STAR 8
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
+#define H2REG_STAR     11
+
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
 

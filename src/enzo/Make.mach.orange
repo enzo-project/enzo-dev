@@ -19,8 +19,7 @@ MACHINE_NOTES = "***** MACHINE_NOTES for Orange at KIPAC/Stanford: \
 	In the script, first add this line (or the bash equiv.), \
 	'setenv LD_LIBRARY_PATH /afs/slac/g/ki/software/hdf5/lib/' \
 	Depending on your preference of the compiler, choose wisely \
-        for LOCAL_MPI_INSTALL, MACH_FFLAGS, MACH_FFLAGS_REAL_64,  \
-	and MACH_FFLAGS_INTEGER_64. "
+        for LOCAL_MPI_INSTALL and MACH_FFLAGS. "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -80,17 +79,6 @@ MACH_FFLAGS   = -132
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl 
 # -static 
-
-#-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-#MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-#MACH_FFLAGS_REAL_64    = -fdefault-real-8
-MACH_FFLAGS_REAL_64    = -r8
 
 #-----------------------------------------------------------------------
 # Optimization flags

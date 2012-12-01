@@ -176,10 +176,10 @@ int RadiativeTransferInitialize(char *ParameterFile,
       TypesToAdd[i] = FieldUndefined;
 
     /* Check if the fields already exist. */
-    
     OldNumberOfBaryonFields = LevelArray[0]->GridData->
       ReturnNumberOfBaryonFields();
     LevelArray[0]->GridData->ReturnFieldType(ExistingTypes);
+
     for (i = 0; i < FieldsToAdd; i++)
       for (j = 0; j < OldNumberOfBaryonFields; j++)
 	if (TypesToAdd[i] == ExistingTypes[j]) {
@@ -240,9 +240,10 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	    "from %"ISYM" to %"ISYM"\n", OldNumberOfBaryonFields, 
 	    OldNumberOfBaryonFields+FieldsToAdd);
 
-  if (OldNumberOfBaryonFields+FieldsToAdd > MAX_NUMBER_OF_BARYON_FIELDS)
+  // Add an extra 1 because we will need it for flagging/marking cells.
+  if (OldNumberOfBaryonFields+FieldsToAdd+1 > MAX_NUMBER_OF_BARYON_FIELDS)
     ENZO_FAIL("Exceeds MAX_NUMBER_OF_BARYON_FIELDS.  "
-	      "Please increase and re-compile.");
+        "Please increase and re-compile.");
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
     for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)

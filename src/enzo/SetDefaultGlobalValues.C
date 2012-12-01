@@ -125,6 +125,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
+  NumberOfGhostZones = 3;
   LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
   ResetLoadBalancing = FALSE;
@@ -135,9 +136,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   FileDirectedOutput = 1;
 
-  // Default Hierarchy File IO settings
-  HierarchyFileInputFormat = 1; // ASCII
-  HierarchyFileOutputFormat = 2 ; // both HDF5 and ASCII
+  // Default Hierarchy File IO settings (1 = ASCII; 2 = HDF5+ASCII)
+  HierarchyFileInputFormat = 1;
+  HierarchyFileOutputFormat = 2;
 
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
@@ -336,7 +337,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   MultiSpecies                = FALSE;             // off
   NoMultiSpeciesButColors     = FALSE;             // off
-  PrimordialChemistrySolver   = 0;
   ThreeBodyRate               = 0;                 // ABN02
   CIECooling                  = 1;
   H2OpticalDepthApproximation = 1;
@@ -347,6 +347,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
+  FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
+                                                   // during output by default.
   RadiationFieldType          = 0;
   RadiationFieldRedshift      = 0.0;
   TabulatedLWBackground       = 0;
@@ -425,6 +427,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   BigStarSeparation                = 0.25;
   SimpleQ                          = 1e50;
   SimpleRampTime                   = 0.1;
+  StarFormationOncePerRootGridTimeStep = FALSE;
   StarMakerTypeIaSNe               = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
@@ -443,6 +446,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MultiMetals                      = FALSE;
   NumberOfParticleAttributes       = INT_UNDEFINED;
   ParticleTypeInFile               = TRUE;
+  ReadGhostZones                   = FALSE;
+  WriteGhostZones                  = FALSE;
   OutputParticleTypeGrouping       = FALSE;
 
   IsotropicConduction = FALSE;
@@ -453,6 +458,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
+  PythonReloadScript               = FALSE;
+  
+  // EnzoTiming Dump Frequency
+  TimingCycleSkip                  = 1;
 
   InlineHaloFinder                 = FALSE;
   HaloFinderSubfind                = FALSE;
@@ -523,6 +532,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MBHParticleIOFilename            = (char*) "mbh_particle_io.dat";
   MBHInsertLocationFilename        = (char*) "mbh_insert_location.in";
   OutputWhenJetsHaveNotEjected     = FALSE;
+
+  H2StarMakerEfficiency = 0.01;
+  H2StarMakerNumberDensityThreshold = 0.0;
+  H2StarMakerMinimumMass = 0.0;
+  H2StarMakerMinimumH2FractionForStarFormation = 1e-5;
+  H2StarMakerStochastic = 1;
+  H2StarMakerUseSobolevColumn = 0;
+  H2StarMakerSigmaOverR = 1.0/30.0;
+  H2StarMakerAssumeColdWarmPressureBalance = 0;
+  H2StarMakerH2DissociationFlux_MW = 1.0;
+  H2StarMakerH2FloorInColdGas = 0.0;
+  H2StarMakerColdGasTemperature = 1e4;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

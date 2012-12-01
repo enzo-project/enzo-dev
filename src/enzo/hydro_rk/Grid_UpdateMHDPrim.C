@@ -48,7 +48,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
   }
 
   for (dim = 0, activesize = 1; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   }
 
   float *D, *sum;

@@ -1,23 +1,4 @@
-#define MAX_ANY_SINGLE_DIRECTION 3079
-
-#ifdef CONFIG_PFLOAT_4
-#define tiny 1.0e-20
-#define huge 1.0e+20
-#define REALSUB real
-#endif
-
-#ifdef CONFIG_PFLOAT_8
-#define tiny 1.0e-20
-#define huge 1.0e+20
-#define REALSUB real*8
-#endif
-
-#ifdef CONFIG_PFLOAT_16
-#define tiny 1.0e-35
-#define huge 1.0e+35
-#define REALSUB real*8
-#endif
-
+#define MAX_ANY_SINGLE_DIRECTION 1031
 #define MAX_COLOR 45
 #define RADIATION
 #define NO_CEN_METALS

@@ -1,0 +1,201 @@
+#!/bin/bash
+
+### Author: Michael Kuhlen (mqk@astro.berkeley.edy)
+### Date: 06/12/2012
+
+function do_help {
+    echo
+    printf "Usage: pr_testing REPO [REV] [--help] [--make_opts MAKE_OPTS] [--machine MACH_NAME] [--build BUILD_DIR] [--gold_standard GOLD_STD]\n"
+    echo
+    printf "This script checks out revision REV (defaults to tip) of the Enzo code from \nthe repository REPO and builds Enzo in the directory BUILD_DIR for the \nmachine MACH_NAME and with build options given by MAKE_OPTS. It then launches \nEnzo's test_runner.py, which performs the quicksuite tests and compares the \nresults to a gold standard (downloaded from \nhttp://enzo-project.org/tests/gold_standard_quick.tar.gz). An alternative \ngold standard file (tar.gz) can be specified with GOLD_STD.\n"
+    echo
+    printf "Only MACH_NAME is mandatory; BUILD_DIR, MAKE_OPTS, and GOLD_STD are \noptional. You can specify these variables as environment variables, set \nthem in ~/.enzo/enzo_testing_vars.sh, or manually by using the command line \noptions.\n"
+    echo
+    printf 'Example: ./PR_testing.sh https://bitbucket.org/enzo/enzo-dev 0e97196b30f3 --machine linux-gnu --make_opts "-j 8"\n'
+    echo
+    exit 0
+}
+
+function do_exit {
+    echo $*
+    exit 1
+}
+
+
+GOLD_STD="http://enzo-project.org/tests/gold_standard_quick.tar.gz"
+
+REV=""
+REPO=""
+
+### First source ~/.enzo/enzo_testing_vars.sh, if it exists
+if [ -e ~/.enzo/enzo_testing_vars.sh ]
+then
+    . ~/.enzo/enzo_testing_vars.sh
+fi
+
+### Now parse command line arguments
+
+while (( "$#" ))
+do
+    case "$1" in
+	--help | -h)
+	    do_help
+	    ;;
+	--make_opts)
+	    shift
+	    MAKE_OPTS="$1"
+	    ;;
+	--machine)
+	    shift
+	    MACH_NAME="$1"
+	    ;;
+	--build)
+	    shift
+	    BUILD_DIR="$1"
+	    ;;
+	--gold_standard)
+	    shift
+	    GOLD_STD="$1"
+	    ;;
+	-*)
+	    echo
+	    echo "Unknown command line option $1."
+	    do_help
+	    ;;
+	*)
+	    if [ -z "$REPO" ]; then
+		REPO="$1"
+	    elif [ -z "$REV" ]; then
+		REV="$1"
+	    fi
+    esac
+
+    shift
+done
+
+### If revision wasn't specified, set it to "tip".
+if [ -z "$REV" ]; then
+    REV="tip"
+fi
+
+### If build dir wasn't specified, set it to $PWD.
+BUILD_DIR="$PWD"
+
+
+### Sanity check. Ensure that everything has been properly set.
+
+if [ -z "$REPO" ]
+then
+    echo
+    echo "ERROR! You must specify a repository."
+    do_help
+fi
+
+if [ -z "$MACH_NAME" ]
+then
+    echo
+    echo "ERROR! MACH_NAME must be set."
+    do_help
+fi
+
+### Set log file
+LOGFILE=$BUILD_DIR/log."$REV"
+
+
+echo
+echo "Your Configuration:"
+echo
+echo "        REPO = $REPO"
+echo "         REV = $REV"
+echo "   MACH_NAME = $MACH_NAME"
+echo "   MAKE_OPTS = $MAKE_OPTS"
+echo "  BUILD_DIR = $BUILD_DIR"
+echo "    GOLD_STD = $GOLD_STD"
+echo "     LOGFILE = $LOGFILE"
+echo 
+
+
+
+cd $BUILD_DIR
+
+
+### Download gold standard, if URL was provided. Otherwise simply use
+### the file provided in GOLD_STD.
+
+if [ ${GOLD_STD:0:4} == "http" ]; then
+    GOLD_STD_IS_URL=1
+fi
+
+if [ -n "$GOLD_STD_IS_URL" ]; then
+    GOLD_STD_FILE="$BUILD_DIR/$(basename $GOLD_STD)"
+
+    ## only download, if it doesn't already exist.
+    if [ ! -e "$GOLD_STD_FILE" ]; then
+	echo "Downloading gold standard from $GOLD_STD."
+	( wget -nv "$GOLD_STD" 2>&1 ) \
+	    1>> "$LOGFILE" || do_exit "Could not download the gold standard, $GOLD_STD."
+    fi
+    GOLD_STD=$GOLD_STD_FILE
+fi
+
+echo "Using gold standard file $GOLD_STD."
+echo
+
+
+### Clone Revision
+
+echo "Cloning revision $REV from repository $REPO into $BUILD_DIR/enzo-$REV."
+( hg clone -r "$REV" "$REPO" enzo-"$REV" 2>&1 ) 1>> "$LOGFILE" || \
+    do_exit "Could not clone."
+
+cd enzo-"$REV"/
+
+
+### Check that the correct revision has been checked out
+THIS_REV=$(hg identify -i)
+
+## must handle 'REV==tip' differently
+if [ "$REV" == "tip" ]; then
+    THIS_REV=$(hg identify -t)
+fi
+
+if [ "$REV" != "$THIS_REV" ]; then
+    do_exit "Incorrect revision checked out."
+fi
+echo
+
+
+### Build Enzo
+echo "Building Enzo."
+
+printf "   "
+./configure
+cd src/enzo
+
+echo "   Running 'make machine-$MACH_NAME'."
+( make machine-${MACH_NAME} 2>&1 ) 1>> "$LOGFILE" || \
+    do_exit "Couldn't make machine correctly."
+echo "   Running 'make $MAKE_OPTS'."
+( make ${MAKE_OPTS} 2>&1 ) 1>> "$LOGFILE" || \
+    do_exit "Could not build."
+
+echo
+
+cd ../../run/
+
+### Extract gold standard
+echo "Extracting gold standard."
+( tar xfz "$GOLD_STD" 2>&1 ) 1>> "$LOGFILE" || \
+    do_exit "Couldn't extract gold standard from $BUILD_DIR/$GOLD_STD."
+echo
+
+### Run test suite
+echo "Running test suite."
+( python test_runner.py -c gold_standard -o PR --quicksuite=True 2>&1 ) \
+    1>> "$LOGFILE" || do_exit "Test runner died."
+echo
+
+### Print results
+echo "RESULTS:"
+cat PR/"$REV"/test_results.txt
+

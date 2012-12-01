@@ -26,7 +26,6 @@ LOCAL_PYTHON_INSTALL = /projects/lca-group/local-dev/
 LOCAL_PYTHON_INSTALL = /home/mjturk/yt-x86_64-libenzo-intel/
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072/bin/intel64/
 LOCAL_HYPRE_INSTALL = /home/mjturk/intel_mx/
-LOCAL_CVODE_INSTALL = /projects/lca-group/local-dev/
 
 # With MPI
 
@@ -63,15 +62,6 @@ MACH_F90FLAGS = -fno-second-underscore
 MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 =
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    =
-MACH_FFLAGS_REAL_64    = -r8
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
@@ -94,14 +84,12 @@ LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
-LOCAL_INCLUDES_CVODE  = -I$(LOCAL_CVODE_INSTALL)/include/cvode/
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
-MACH_INCLUDES_CVODE   = $(LOCAL_INCLUDES_CVODE)
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -115,10 +103,6 @@ LOCAL_LIBS_PAPI   = # PAPI libraries
 #                     -lreadline -ltermcap -lutil -lpython2.6 -ldl
 LOCAL_LIBS_PYTHON = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.6 \
                      -lreadline -ltermcap -lutil -ldl
-LOCAL_LIBS_CVODE  = -L$(LOCAL_CVODE_INSTALL)/lib -lsundials_cvode \
-                    -lsundials_nvecserial -lhdf5_hl \
-                    /projects/lca-group/local-dev/lib/liblapack.a \
-                    /projects/lca-group/local-dev//lib/libblas.a
 
 LOCAL_LIBS_MACH   = -limf -lifcore -lifport 
 
@@ -127,4 +111,3 @@ MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
 MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
-MACH_LIBS_CVODE   = $(LOCAL_LIBS_CVODE)

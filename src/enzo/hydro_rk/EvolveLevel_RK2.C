@@ -507,7 +507,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level, dtLevelAbove);
+	(Grids[grid1]->NextGridNextLevel, level, dtLevelAbove, TopGridTimeStep);
  
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){
@@ -530,6 +530,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     }  // end loop over grids
 
+    /* Finalize (accretion, feedback, etc.) star particles */
+ 
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			 level, AllStars, TotalStarParticleCountPrevious);
+
     if (UseDivergenceCleaning != 0){
 
 #ifdef FAST_SIB
@@ -548,12 +553,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #else
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
-
-    /* Finalize (accretion, feedback, etc.) star particles */
- 
-    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
-
 
     OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
 #ifdef TRANSFER

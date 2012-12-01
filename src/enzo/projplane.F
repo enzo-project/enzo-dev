@@ -53,24 +53,25 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gdim1, gdim2, gdim3, ifield, iflag, ismooth, 
+      INTG_PREC gdim1, gdim2, gdim3, ifield, iflag, ismooth, 
      &        pdim1, pdim2, projdim, npstart, npend
-      real    weight, fracleft, fracright
-      real    grid1(gdim1,gdim2,gdim3), grid2(gdim1,gdim2,gdim3),
+      R_PREC    weight, fracleft, fracright
+      R_PREC    grid1(gdim1,gdim2,gdim3), grid2(gdim1,gdim2,gdim3),
      &        flaggrid(gdim1,gdim2,gdim3), plane(pdim1,pdim2)
-      REALSUB gleft(3), gfarleft(3), gright(3), pleft(3), pright(3),
+      P_PREC gleft(3), gfarleft(3), gright(3), pleft(3), pright(3),
      &        pcellsize, gcellsize
 c
 c  locals
 c
-      integer i, i0, j, j0, k0, n, istart(3), iend(3)
-      real    sample1, sample2, dx, dy, dz, weight1
-      REAL    xpos, ypos, zpos
+      INTG_PREC i, i0, j, j0, k0, n, istart(3), iend(3)
+      R_PREC    sample1, sample2, dx, dy, dz, weight1
+      R_PREC  xpos, ypos, zpos
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -82,9 +83,9 @@ c      write(6,*) 'projplane: p,gcellsize,weight =',pcellsize,gcellsize,
 c     &                                             weight
       do n = 1, 3
          istart(n) = nint((max(gleft(n), pleft(n))   - pleft(n))/
-     &               pcellsize)
+     &               pcellsize,IKIND)
          iend(n)   = nint((min(gright(n), pright(n)) - pleft(n))/
-     &               pcellsize)
+     &               pcellsize,IKIND)
 c         write(6,*) 'projplane: i,istart,iend =',n,istart(n),iend(n)
 c         write(6,*) 'projplane: gleft, gright =',gleft(n),gright(n)
 c         write(6,*) 'projplane: pleft, pright =',pleft(n),pright(n)
@@ -115,30 +116,33 @@ c
 c
 c                 Compute position in grid space
 c
-                  ypos = pleft(2) + (real(i)-0.5d0)*pcellsize
-                  zpos = pleft(3) + (real(j)-0.5d0)*pcellsize
+                  ypos = pleft(2) + (REAL(i,RKIND)-0.5_RKIND)*pcellsize
+                  zpos = pleft(3) + (REAL(j,RKIND)-0.5_RKIND)*pcellsize
 c
 c                 Compute indexes in grid (for base cell)
 c
-                  j0 = int((ypos - gfarleft(2))/gcellsize + 0.5)
-                  k0 = int((zpos - gfarleft(3))/gcellsize + 0.5)
+                  j0 = int((ypos-gfarleft(2))/gcellsize+0.5_RKIND,IKIND)
+                  k0 = int((zpos-gfarleft(3))/gcellsize+0.5_RKIND,IKIND)
 c
 c                 Compute weights for interpolation
 c
-                  dy = real(j0) - (ypos - gfarleft(2))/gcellsize + 0.5d0
-                  dz = real(k0) - (zpos - gfarleft(3))/gcellsize + 0.5d0
+                  dy = REAL(j0,RKIND) - (ypos - gfarleft(2))/gcellsize
+     &                 + 0.5_RKIND
+                  dz = REAL(k0,RKIND) - (zpos - gfarleft(3))/gcellsize
+     &                 + 0.5_RKIND
 c
 c                 Do 2D linear interpolation into grid field
 c
                   sample1 = grid1(n,j0  ,k0  )*     dy *     dz  +
-     &                      grid1(n,j0  ,k0+1)*     dy *(1.d0-dz) +
-     &                      grid1(n,j0+1,k0  )*(1.d0-dy)*     dz  +
-     &                      grid1(n,j0+1,k0+1)*(1.d0-dy)*(1.d0-dz)
+     &                 grid1(n,j0  ,k0+1)*     dy *(1._RKIND-dz) +
+     &                 grid1(n,j0+1,k0  )*(1._RKIND-dy)*     dz  +
+     &                 grid1(n,j0+1,k0+1)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                   if (iflag .eq. 1) then
-                     if (flaggrid(n,int((ypos-gfarleft(2))/gcellsize)+1,
-     &                              int((zpos-gfarleft(3))/gcellsize)+1) 
-     &                   .ne. 0.0) sample1 = 0.d0
+                     if (flaggrid(n,
+     &                    int((ypos-gfarleft(2))/gcellsize,IKIND)+1,
+     &                    int((zpos-gfarleft(3))/gcellsize,IKIND)+1) 
+     &                   .ne. 0.0) sample1 = 0._RKIND
                   endif
 c
                   if (ifield .eq. 1) then
@@ -146,14 +150,14 @@ c
                   else
 c
                      sample2 = grid2(n,j0  ,k0  )*     dy *     dz  +
-     &                         grid2(n,j0  ,k0+1)*     dy *(1.d0-dz) +
-     &                         grid2(n,j0+1,k0  )*(1.d0-dy)*     dz  +
-     &                         grid2(n,j0+1,k0+1)*(1.d0-dy)*(1.d0-dz)
+     &                    grid2(n,j0  ,k0+1)*     dy *(1._RKIND-dz) +
+     &                    grid2(n,j0+1,k0  )*(1._RKIND-dy)*     dz  +
+     &                    grid2(n,j0+1,k0+1)*(1._RKIND-dy)*(1._RKIND-dz)
 c
                      if (ifield .eq. 2) plane(i,j) = plane(i,j) + 
-     &                                sqrt(sample1)*sample2**2 * weight1
+     &                    sqrt(sample1)*sample2**2 * weight1
                      if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
-     &                                sample1**1.5d0*sample2**2 *weight1
+     &                    sample1**1.5_RKIND*sample2**2 *weight1
 c
                   endif
 c     
@@ -170,24 +174,27 @@ c
             do j = istart(3)+1, iend(3)
                do i = istart(1)+1, iend(1)
 c
-                  xpos = pleft(1) + (real(i)-0.5d0)*pcellsize
-                  zpos = pleft(3) + (real(j)-0.5d0)*pcellsize
+                  xpos = pleft(1) + (REAL(i,RKIND)-0.5_RKIND)*pcellsize
+                  zpos = pleft(3) + (REAL(j,RKIND)-0.5_RKIND)*pcellsize
 c
-                  i0 = int((xpos - gfarleft(1))/gcellsize + 0.5d0)
-                  k0 = int((zpos - gfarleft(3))/gcellsize + 0.5d0)
+                  i0 = int((xpos-gfarleft(1))/gcellsize+0.5_RKIND,IKIND)
+                  k0 = int((zpos-gfarleft(3))/gcellsize+0.5_RKIND,IKIND)
 c
-                  dx = real(i0) - (xpos - gfarleft(1))/gcellsize + 0.5d0
-                  dz = real(k0) - (zpos - gfarleft(3))/gcellsize + 0.5d0
+                  dx = REAL(i0,RKIND) - (xpos - gfarleft(1))/gcellsize 
+     &                 + 0.5_RKIND
+                  dz = REAL(k0,RKIND) - (zpos - gfarleft(3))/gcellsize 
+     &                 + 0.5_RKIND
 c
                   sample1 = grid1(i0  ,n,k0  )*     dx *     dz  +
-     &                      grid1(i0  ,n,k0+1)*     dx *(1.d0-dz) +
-     &                      grid1(i0+1,n,k0  )*(1.d0-dx)*     dz  +
-     &                      grid1(i0+1,n,k0+1)*(1.d0-dx)*(1.d0-dz)
+     &                 grid1(i0  ,n,k0+1)*     dx *(1._RKIND-dz) +
+     &                 grid1(i0+1,n,k0  )*(1._RKIND-dx)*     dz  +
+     &                 grid1(i0+1,n,k0+1)*(1._RKIND-dx)*(1._RKIND-dz)
 c
                   if (iflag .eq. 1) then
-                     if (flaggrid(int((xpos-gfarleft(1))/gcellsize)+1,n,
-     &                            int((zpos-gfarleft(3))/gcellsize)+1) 
-     &                   .ne. 0.0) sample1 = 0.d0
+                     if (flaggrid(
+     &                    int((xpos-gfarleft(1))/gcellsize,IKIND)+1,n,
+     &                    int((zpos-gfarleft(3))/gcellsize,IKIND)+1) 
+     &                   .ne. 0._RKIND) sample1 = 0._RKIND
                   endif
 c
                   if (ifield .eq. 1) then
@@ -195,14 +202,14 @@ c
                   else
 c
                      sample2 = grid2(i0  ,n,k0  )*     dx *     dz  +
-     &                         grid2(i0  ,n,k0+1)*     dx *(1.d0-dz) +
-     &                         grid2(i0+1,n,k0  )*(1.d0-dx)*     dz  +
-     &                         grid2(i0+1,n,k0+1)*(1.d0-dx)*(1.d0-dz)
+     &                    grid2(i0  ,n,k0+1)*     dx *(1._RKIND-dz) +
+     &                    grid2(i0+1,n,k0  )*(1._RKIND-dx)*     dz  +
+     &                    grid2(i0+1,n,k0+1)*(1._RKIND-dx)*(1._RKIND-dz)
 c
                      if (ifield .eq. 2) plane(i,j) = plane(i,j) + 
-     &                                sqrt(sample1)*sample2**2 * weight1
+     &                    sqrt(sample1)*sample2**2 * weight1
                      if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
-     &                                sample1**1.5d0*sample2**2 *weight1
+     &                    sample1**1.5_RKIND*sample2**2 *weight1
 c
                   endif
 c     
@@ -219,24 +226,27 @@ c
             do j = istart(2)+1, iend(2)
                do i = istart(1)+1, iend(1)
 c
-                  xpos = pleft(1) + (real(i)-0.5)*pcellsize
-                  ypos = pleft(2) + (real(j)-0.5)*pcellsize
+                  xpos = pleft(1) + (REAL(i,RKIND)-0.5)*pcellsize
+                  ypos = pleft(2) + (REAL(j,RKIND)-0.5)*pcellsize
 c
-                  i0 = int((xpos - gfarleft(1))/gcellsize + 0.5d0)
-                  j0 = int((ypos - gfarleft(2))/gcellsize + 0.5d0)
+                  i0 = int((xpos-gfarleft(1))/gcellsize+0.5_RKIND,IKIND)
+                  j0 = int((ypos-gfarleft(2))/gcellsize+0.5_RKIND,IKIND)
 c
-                  dx = real(i0) - (xpos - gfarleft(1))/gcellsize + 0.5d0
-                  dy = real(j0) - (ypos - gfarleft(2))/gcellsize + 0.5d0
+                  dx = REAL(i0,RKIND) - (xpos - gfarleft(1))/gcellsize 
+     &                 + 0.5_RKIND
+                  dy = REAL(j0,RKIND) - (ypos - gfarleft(2))/gcellsize 
+     &                 + 0.5_RKIND
 c
                   sample1 = grid1(i0  ,j0  ,n)*     dx *     dy  +
-     &                      grid1(i0  ,j0+1,n)*     dx *(1.d0-dy) +
-     &                      grid1(i0+1,j0  ,n)*(1.d0-dx)*     dy  +
-     &                      grid1(i0+1,j0+1,n)*(1.d0-dx)*(1.d0-dy)
-c
+     &                 grid1(i0  ,j0+1,n)*     dx *(1._RKIND-dy) +
+     &                 grid1(i0+1,j0  ,n)*(1._RKIND-dx)*     dy  +
+     &                 grid1(i0+1,j0+1,n)*(1._RKIND-dx)*(1._RKIND-dy)
+c     
                   if (iflag .eq. 1) then
-                     if (flaggrid(int((xpos-gfarleft(1))/gcellsize)+1,
-     &                            int((ypos-gfarleft(2))/gcellsize)+1,n) 
-     &                   .ne. 0.0) sample1 = 0.d0
+                     if (flaggrid(
+     &                    int((xpos-gfarleft(1))/gcellsize,IKIND)+1,
+     &                    int((ypos-gfarleft(2))/gcellsize,IKIND)+1,n) 
+     &                   .ne. 0._RKIND) sample1 = 0._RKIND
                   endif
 c
                   if (ifield .eq. 1) then
@@ -244,14 +254,14 @@ c
                   else
 c
                      sample2 = grid2(i0  ,j0  ,n)*     dx *     dy  +
-     &                         grid2(i0  ,j0+1,n)*     dx *(1.d0-dy) +
-     &                         grid2(i0+1,j0  ,n)*(1.d0-dx)*     dy  +
-     &                         grid2(i0+1,j0+1,n)*(1.d0-dx)*(1.d0-dy)
-c
+     &                    grid2(i0  ,j0+1,n)*     dx *(1._RKIND-dy) +
+     &                    grid2(i0+1,j0  ,n)*(1._RKIND-dx)*     dy  +
+     &                    grid2(i0+1,j0+1,n)*(1._RKIND-dx)*(1._RKIND-dy)
+c     
                      if (ifield .eq. 2) plane(i,j) = plane(i,j) + 
-     &                                sqrt(sample1)*sample2**2 * weight1
+     &                    sqrt(sample1)*sample2**2 * weight1
                      if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
-     &                                sample1**1.5d0*sample2**2 *weight1
+     &                    sample1**1.5_RKIND*sample2**2 *weight1
 c
                   endif
 c     
@@ -275,15 +285,15 @@ c
             do j = istart(3)+1, iend(3)
                do i = istart(2)+1, iend(2)
 c
-                  j0 = int((pleft(2) + (real(i)-0.5d0)*pcellsize - 
-     &                      gfarleft(2))/gcellsize) + 1
-                  k0 = int((pleft(3) + (real(j)-0.5d0)*pcellsize - 
-     &                      gfarleft(3))/gcellsize) + 1
+                  j0 = int((pleft(2) + (REAL(i,RKIND)-0.5_RKIND)
+     &                 * pcellsize - gfarleft(2))/gcellsize,IKIND) + 1
+                  k0 = int((pleft(3) + (REAL(j,RKIND)-0.5_RKIND)
+     &                 * pcellsize - gfarleft(3))/gcellsize,IKIND) + 1
 c
                   sample1 = grid1(n,j0,k0)
 c
                   if (iflag .eq. 1) then
-                     if (flaggrid(n,j0,k0) .ne. 0.0) sample1 = 0.d0
+                     if (flaggrid(n,j0,k0) .ne. 0.0) sample1 = 0._RKIND
                   endif
 c
                   if (ifield .eq. 1) plane(i,j) = plane(i,j) + 
@@ -291,7 +301,7 @@ c
                   if (ifield .eq. 2) plane(i,j) = plane(i,j) + 
      &                 sqrt(sample1) * grid2(n,j0,k0)**2 * weight1
                   if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
-     &                 sample1**1.5d0 *grid2(n,j0,k0)**2 * weight1
+     &                 sample1**1.5_RKIND *grid2(n,j0,k0)**2 * weight1
 c     
                enddo
             enddo
@@ -308,15 +318,16 @@ c
             do j = istart(3)+1, iend(3)
                do i = istart(1)+1, iend(1)
 c
-                  i0 = int((pleft(1) + (real(i)-0.5d0)*pcellsize - 
-     &                      gfarleft(1))/gcellsize) + 1
-                  k0 = int((pleft(3) + (real(j)-0.5d0)*pcellsize - 
-     &                      gfarleft(3))/gcellsize) + 1
+                  i0 = int((pleft(1) + (REAL(i,RKIND)-0.5_RKIND)
+     &                 * pcellsize - gfarleft(1))/gcellsize,IKIND) + 1
+                  k0 = int((pleft(3) + (REAL(j,RKIND)-0.5_RKIND)
+     &                 * pcellsize - gfarleft(3))/gcellsize,IKIND) + 1
 c
                   sample1 = grid1(i0,n,k0)
 c
                   if (iflag .eq. 1) then
-                     if (flaggrid(i0,n,k0) .ne. 0.0) sample1 = 0.d0
+                     if (flaggrid(i0,n,k0) .ne. 0._RKIND) 
+     &                    sample1 = 0._RKIND
                   endif
 c
                   if (ifield .eq. 1) plane(i,j) = plane(i,j) + 
@@ -324,7 +335,7 @@ c
                   if (ifield .eq. 2) plane(i,j) = plane(i,j) + 
      &                 sqrt(sample1)  *grid2(i0,n,k0)**2 * weight1
                   if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
-     &                 sample1**1.5d0 *grid2(i0,n,k0)**2 * weight1
+     &                 sample1**1.5_RKIND *grid2(i0,n,k0)**2 * weight1
 c     
                enddo
             enddo
@@ -341,15 +352,16 @@ c
             do j = istart(2)+1, iend(2)
                do i = istart(1)+1, iend(1)
 c
-                  i0 = int((pleft(1) + (real(i)-0.5d0)*pcellsize - 
-     &                      gfarleft(1))/gcellsize) + 1
-                  j0 = int((pleft(2) + (real(j)-0.5d0)*pcellsize - 
-     &                      gfarleft(2))/gcellsize) + 1
+                  i0 = int((pleft(1) + (REAL(i,RKIND)-0.5_RKIND)
+     &                 * pcellsize - gfarleft(1))/gcellsize,IKIND) + 1
+                  j0 = int((pleft(2) + (REAL(j,RKIND)-0.5_RKIND)
+     &                 * pcellsize - gfarleft(2))/gcellsize,IKIND) + 1
 c
                   sample1 = grid1(i0,j0,n)
 c
                   if (iflag .eq. 1) then
-                     if (flaggrid(i0,j0,n) .ne. 0.0) sample1 = 0.d0
+                     if (flaggrid(i0,j0,n) .ne. 0._RKIND) 
+     &                    sample1 = 0._RKIND
                   endif
 c
                   if (ifield .eq. 1) plane(i,j) = plane(i,j) + 
@@ -357,7 +369,7 @@ c
                   if (ifield .eq. 2) plane(i,j) = plane(i,j) + 
      &                 sqrt(sample1)  *grid2(i0,j0,n)**2 * weight1
                   if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
-     &                 sample1**1.5d0 *grid2(i0,j0,n)**2 * weight1
+     &                 sample1**1.5_RKIND *grid2(i0,j0,n)**2 * weight1
 c     
                enddo
             enddo

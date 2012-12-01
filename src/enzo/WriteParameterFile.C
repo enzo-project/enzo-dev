@@ -171,11 +171,14 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "PythonTopGridSkip       = %"ISYM"\n", PythonTopGridSkip);
   fprintf(fptr, "PythonSubcycleSkip      = %"ISYM"\n", PythonSubcycleSkip);
+  fprintf(fptr, "PythonReloadScript      = %"ISYM"\n", PythonReloadScript);
 #ifdef USE_PYTHON
   fprintf(fptr, "NumberOfPythonCalls         = %"ISYM"\n", NumberOfPythonCalls);
   fprintf(fptr, "NumberOfPythonTopGridCalls  = %"ISYM"\n", NumberOfPythonTopGridCalls);
   fprintf(fptr, "NumberOfPythonSubcycleCalls = %"ISYM"\n", NumberOfPythonSubcycleCalls);
 #endif
+
+  fprintf(fptr, "TimingCycleSkip             = %"ISYM"\n", TimingCycleSkip);
 
   fprintf(fptr, "CycleSkipGlobalDataDump = %"ISYM"\n\n", //AK
           MetaData.CycleSkipGlobalDataDump);
@@ -233,6 +236,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
     if (CubeDumps[dim] != NULL)
       fprintf(fptr, "CubeDump[%"ISYM"]            = %s\n", dim, CubeDumps[dim]);
 
+  fprintf(fptr, "NumberOfGhostZones    = %"ISYM"\n", NumberOfGhostZones);
   fprintf(fptr, "LoadBalancing          = %"ISYM"\n", LoadBalancing);
   fprintf(fptr, "ResetLoadBalancing     = %"ISYM"\n", ResetLoadBalancing);
   fprintf(fptr, "LoadBalancingCycleSkip = %"ISYM"\n", LoadBalancingCycleSkip);
@@ -301,7 +305,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "HydroMethod                    = %"ISYM"\n", HydroMethod);
   fprintf(fptr, "huge_number                    = %e\n", huge_number);
   fprintf(fptr, "tiny_number                    = %e\n", tiny_number);
-  fprintf(fptr, "Gamma                          = %"GSYM"\n", Gamma);
+  fprintf(fptr, "Gamma                          = %"GOUTSYM"\n", Gamma);
   fprintf(fptr, "PressureFree                   = %"ISYM"\n", PressureFree);
   fprintf(fptr, "RefineBy                       = %"ISYM"\n", RefineBy);
   fprintf(fptr, "MaximumRefinementLevel         = %"ISYM"\n", MaximumRefinementLevel);
@@ -441,7 +445,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
   fprintf(fptr, "MultiSpecies                   = %"ISYM"\n", MultiSpecies);
-  fprintf(fptr, "PrimordialChemistrySolver      = %"ISYM"\n", PrimordialChemistrySolver);
   fprintf(fptr, "CIECooling                     = %"ISYM"\n", CIECooling);
   fprintf(fptr, "H2OpticalDepthApproximation    = %"ISYM"\n", H2OpticalDepthApproximation);
   fprintf(fptr, "ThreeBodyRate                  = %"ISYM"\n", ThreeBodyRate);
@@ -458,6 +461,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ShockMethod                    = %"ISYM"\n", ShockMethod);
   fprintf(fptr, "ShockTemperatureFloor          = %"FSYM"\n", ShockTemperatureFloor);
   fprintf(fptr, "StorePreShockFields            = %"ISYM"\n", StorePreShockFields);
+  fprintf(fptr, "FindShocksOnlyOnOutput         = %"ISYM"\n", FindShocksOnlyOnOutput);
   fprintf(fptr, "RadiationFieldType             = %"ISYM"\n", RadiationFieldType);
   fprintf(fptr, "TabulatedLWBackground          = %"ISYM"\n", TabulatedLWBackground);
   fprintf(fptr, "AdjustUVBackground             = %"ISYM"\n", AdjustUVBackground);
@@ -534,6 +538,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           MustRefineParticlesMinimumMass);
   fprintf(fptr, "ParticleTypeInFile               = %"ISYM"\n",
           ParticleTypeInFile);
+  fprintf(fptr, "WriteGhostZones                  = %"ISYM"\n",
+          WriteGhostZones);
+  fprintf(fptr, "ReadGhostZones                   = %"ISYM"\n",
+          ReadGhostZones);
   fprintf(fptr, "OutputParticleTypeGrouping       = %"ISYM"\n",
           OutputParticleTypeGrouping);
   fprintf(fptr, "MoveParticlesBetweenSiblings     = %"ISYM"\n",
@@ -677,6 +685,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  SimpleQ);
   fprintf(fptr, "SimpleRampTime                        = %"FSYM"\n",
 	  SimpleRampTime);
+  fprintf(fptr, "StarFormationOncePerRootGridTimeStep  = %"ISYM"\n",
+	  StarFormationOncePerRootGridTimeStep);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
@@ -824,6 +834,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
     fprintf(fptr, "MBHParticleIOFilename               = %s\n", MBHParticleIOFilename);
   if (MBHInsertLocationFilename != NULL)
     fprintf(fptr, "MBHInsertLocationFilename           = %s\n\n", MBHInsertLocationFilename);
+
+  fprintf(fptr, "H2StarMakerEfficiency              = %"GSYM"\n", H2StarMakerEfficiency);
+  fprintf(fptr, "H2StarMakerNumberDensityThreshold  = %"GSYM"\n", H2StarMakerNumberDensityThreshold);
+  fprintf(fptr, "H2StarMakerMinimumMass             = %"GSYM"\n", H2StarMakerMinimumMass);
+  fprintf(fptr, "H2StarMakerMinimumH2FractionForStarFormation = %"GSYM"\n", H2StarMakerMinimumH2FractionForStarFormation);
+  fprintf(fptr, "H2StarMakerStochastic              = %"ISYM"\n", H2StarMakerStochastic);
+  fprintf(fptr, "H2StarMakerUseSobolevColumn        = %"ISYM"\n", H2StarMakerUseSobolevColumn);
+  fprintf(fptr, "H2StarMakerSigmaOverR              = %"GSYM"\n", H2StarMakerSigmaOverR);
+  fprintf(fptr, "H2StarMakerAssumeColdWarmPressureBalance = %"ISYM"\n", H2StarMakerAssumeColdWarmPressureBalance);
+  fprintf(fptr, "H2StarMakerH2DissociationFlux_MW   = %"GSYM"\n", H2StarMakerH2DissociationFlux_MW);
+  fprintf(fptr, "H2StarMakerH2FloorInColdGas        = %"GSYM"\n\n", H2StarMakerH2FloorInColdGas);
+  fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
   /* Most Stanford additions: */
 

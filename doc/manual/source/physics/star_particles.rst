@@ -9,9 +9,13 @@ in the astrophysical literature, and we have included several of them
 in Enzo.  There are also methods that include routines for black hole,
 sink, and Pop III stellar tracer formation.  Here we give the details
 of each implementation and the parameters that control them.
+For relevant parameters please also see :ref:`StarParticleParameters`.
+
 
 Method 0: Cen & Ostriker
 ------------------------
+Select this method by setting ``StarParticleCreation = 1``.
+
 *Source: star_maker2.F*
 
 This routine uses the algorithm from Cen & Ostriker (1992, ApJL 399,
@@ -49,21 +53,24 @@ timestep,
 of stars are formed, where M\ :sub:`0` and t\ :sub:`0` are the initial
 star particle mass and creation time, respectively.  
 
-* M\ :sub:`ej` = M\ :sub:`form` * ``StarMakerEjectionFraction`` of gas
+* M\ :sub:`ej` = M\ :sub:`form` * ``StarMassEjectionFraction`` of gas
   are returned to the grid and removed from the particle.
 
 * M\ :sub:`ej` * v\ :sub:`particle` of momentum are added to the cell.
 
-* M\ :sub:`form` * c\ :sup:`2` * ``StarMakerEnergyToThermalFeedback``
+* M\ :sub:`form` * c\ :sup:`2` * ``StarEnergyToThermalFeedback``
   of energy is deposited into the cell.
 
-* M\ :sub:`form` * ((1 - Z\ :sub:`star`) * ``StarMetalYield`` + M\
-  :sub:`ej` * Z\ :sub:`star`) of metals are added to the cell, where
+* M\ :sub:`form` * ((1 - Z\ :sub:`star`) * ``StarMetalYield`` + 
+  ``StarMassEjectionFraction`` * Z\ :sub:`star`) of metals are
+  added to the cell, where
   Z\ :sub:`star` is the star particle metallicity.  This formulation
   accounts for gas recycling back into the stars.
 
 Method 1: Cen & Ostriker with Stochastic Star Formation
 -------------------------------------------------------
+Select this method by setting ``StarParticleCreation = 2``.
+
 *Source: star_maker3.F*
 
 This method is suitable for unigrid calculations.  It behaves in the
@@ -83,6 +90,8 @@ same manner as Method 1 except
 
 Method 2: Global Schmidt Law
 ----------------------------
+Select this method by setting ``StarParticleCreation = 4``.
+
 *Source: star_maker4.F*
 
 This method is based on the Kratsov (2003, ApJL 590, 1) paper that
@@ -102,6 +111,8 @@ particle mass).
 
 Method 3: Population III Stars
 ------------------------------
+Select this method by setting ``StarParticleCreation = 8``.
+
 *Source: pop3_maker.F*
 
 This method is based on the Abel et al. (2007, ApJL 659, 87) paper
@@ -130,10 +141,21 @@ enrichment, turn on the parameter ``PopIIISupernovaUseColour``.
 
 Method 4: Sink particles
 ------------------------
+Select this method by setting ``StarParticleCreation = 16``.
+
 *Source: sink_maker.C*
+
+
+A couple of variations on this method exist but are not being actively maintained.  
+They require a completely different set of parameters to turn on such as BigStarFormation; 
+see Grid_StarParticleHandler.C and :ref:`StarParticleParameters`.
+
+*Source: star_maker8.C, star_maker9.C*
 
 Method 5: Radiative Stellar Clusters
 ------------------------------------
+Select this method by setting ``StarParticleCreation = 32``.
+
 *Source: cluster_maker.F*
 
 This method is based on method 1 (Cen & Ostriker) with the Jeans
@@ -155,8 +177,17 @@ instantaneously created and returns its luminosity for 20 Myr.  In the
 case when it's Jeans unresolved, the stellar mass follows the Cen &
 Ostriker prescription.
 
-Method 6: Cen & Ostriker with no delay in formation
+Method 6: Reserved for future use
+---------------------------------
+Reserved for future use.
+
+*Source:*
+
+
+Method 7: Cen & Ostriker with no delay in formation
 ---------------------------------------------------
+Select this method by setting ``StarParticleCreation = 128``.
+
 *Source: star_maker7.F*
 
 This method relaxes the following criteria from the original Cen &
@@ -174,8 +205,10 @@ details.  It can be used to represent single molecular clouds.
 The ``StarMakerOverDensity`` is in units of particles/cm\ :sup:`3` and
 not in overdensity like the other methods.
 
-Method 7: Springel & Hernquist
+Method 8: Springel & Hernquist
 ------------------------------
+Select this method by setting ``StarParticleCreation = 256``.
+
 *Source: star_maker5.F*
 
 This method is based on the Springel & Hernquist method
@@ -205,7 +238,7 @@ the cell:
 
      .. math::
 
-     t_{\ast}(\rho)=t_0^{\ast}\left(\frac{\rho}{\rho_{\mathrm{th}}}\right)^{-1/2}
+       t_{\ast}(\rho)=t_0^{\ast}\left(\frac{\rho}{\rho_{\mathrm{th}}}\right)^{-1/2}
   
 * Mass fraction in cold clouds, :math:`x` (see Eqns. 16 and 18).
      :math:`y` is a dimensionless quantity
@@ -257,13 +290,117 @@ affects the probability of making a star. In a similar way, a small value of
 star formula.
 
 
-Method 8: Massive Black Holes
+Method 9: Massive Black Holes
 -----------------------------
+Select this method by setting ``StarParticleCreation = 512``.
+
+This simply insert a MBH particle based on the information given by an external file (MBHInsertLocationFilename).
+See Massive Black Hole Particle Formation in :ref:`StarParticleParameters`.
+
 *Source: mbh_maker.C*
 
-Method 9: Population III stellar tracers
+
+Method 10: Population III stellar tracers
 -----------------------------------------
+Select this method by setting ``StarParticleCreation = 1024``.
+
 *Source: pop3_color_maker.F*
+
+
+.. _molecular_hydrogen_regulated_star_formation:
+
+Method 11: Molecular Hydrogen Regulated Star Formation
+------------------------------------------------------
+Select this method by setting ``StarParticleCreation = 2048``.
+
+*Source: star_maker_h2reg.F* 
+
+This SF recipe incorporates ideas from `Krumholz & Tan (2007)
+<http://adsabs.harvard.edu/abs/2007ApJ...654..304K>`_ (KT07),
+`Krumholz, McKee, & Tumlinson (2009)
+<http://adsabs.harvard.edu/abs/2009ApJ...693..216K>`_ (KMT09) and
+`McKee & Krumholz (2010)
+<http://adsabs.harvard.edu/abs/2010ApJ...709..308M>`_ (MK10). The star
+formation rate density is given by:
+
+
+     .. math::
+   
+        \frac{d\rho_\star}{dt} = \epsilon_\star \, f_{\rm H_2} \, \frac{\rho}{t_{\rm ff}}.
+
+The SF time scale is the gas free fall time (:math:`t_{\rm ff} \sim
+\rho^{-1/2}`), and thus the SFR density is effectively proportional to
+:math:`\rho^{3/2}`. :math:`\epsilon_\star` (``H2StarMakerEfficiency``)
+is the specific star formation efficiency per free-fall time, which
+typically is around 1% (KT07). The SFR is proportional
+to the *molecular hydrogen density*, not the total gas density. The H\
+:sub:`2` fraction (:math:`f_{\rm H_2}`) is estimated using the
+prescription given by KMT09 and MK10, which is based on 1D
+radiative transfer calculations and depends on the neutral hydrogen
+number density, the metallicity, and the H\ :sub:`2` dissociating
+flux. The prescription can be written down in four lines:
+
+     .. math::
+   
+        \chi &= 71 \left( \frac{\sigma_{d,-21}}{R_{-16.5}} \right) \frac{G_0'}{n_H}; \qquad {\rm [MK10 \; Eq.(9)]} \\
+	\tau_c &= 0.067 \, Z' \, \Sigma_H; \qquad {\rm [KMT09 \; Eq.(22)]} \\
+        s &= \frac{ \ln( 1 + 0.6 \, \chi + 0.01 \, \chi^2)}{0.6 \tau_c}; \qquad {\rm [MK10 \; Eq.(91)]} \\
+	f_{\rm H_2} &\simeq 1 - \frac{0.75 \, s}{1 + 0.25 s} \qquad {\rm [MK10 \; Eq.(93)]}
+
+* :math:`\left( \frac{\sigma_{d,-21}}{R_{-16.5}} \right)` is the ratio of the dust cross section per H nucleus to 1000 Angstroem radiation normalized to 10\ :sup:`-21` cm\ :sup:`2` (:math:`\sigma_{d,-21}`) to the rate coefficient for H\ :sub:`2` formation on dust grains normalized to the Milky Way value of 10\ :sup:`-16.5` cm\ :sup:`3` s\ :sup:`-1` (:math:`R_{-16.5}`). Both are linearly proportional to the dust-to-gas ratio and hence the ratio is likely independent of metallicity. Although its value is probably close to unity in nature (see discussion in KMT09), Krumholz & Gnedin (2011) argue that in simulations with spatial resolution of ~50 pc, the value of :math:`R_{-16.5}` should be increased by a factor of ~30 in order to account for the subgrid clumping of the gas. The value of this ratio can be controlled with the parameter ``H2StarMakerSigmaOverR``.
+
+* :math:`G_0'` is the H\ :sub:`2` dissociating radiation field in units of the typical value in the Milky Way (7.5x10\ :sup:`-4` cm\ :sup:`3` s\ :sup:`-1`, Draine 1978). At the moment only a spatially uniform and time-independent radiation field is supported, and its strength is controlled by the parameter ``H2StarMakerH2DissociationFlux_MW``.
+
+* :math:`Z'` is the gas phase metallicity normalized to the solar neighborhood, which is assumed to be equal to solar metallicity: Z' = Z/0.02.
+
+* :math:`\Sigma_H` is the column density of the gas *on the scale of a giant atomic-molecular cloud complexes*, so ~50-100 pc. This column density is calculated on the MaximumRefinementLevel grid cells, and it implies that **this star formation method can only safely be used in simulations with sub-100pc resolution**. If ``H2StarMakerUseSobolev`` is set, the column density is calculated through a Sobolev-like approximation, :math:`\Sigma \sim \rho \times (\rho / \nabla \rho)`, otherwise it's simply :math:`\Sigma = \rho \times dx`, which introduces an undesirable explicit resolution dependence.
+
+* If ``H2StarMakerAssumeColdWarmPressureBalance == 1``, then the additional assumption of pressure balance between the Cold Neutral Medium (CNM) and the Warm Neutral Medium (WNM) removes the dependence on the H\ :sub:`2` dissociating flux (KMT09). In this case
+
+     .. math::
+   
+        \chi = 2.3 \left( \frac{\sigma_{d,-21}}{R_{-16.5}} \right) \frac{1 + 3.1 \, Z'^{0.365}}{\phi_{\rm CNM}},  \qquad {\rm [KMT09 \; Eq.(7)]}
+
+where :math:`\phi_{\rm CNM}` is the ratio of the typical CNM density
+to the minimum density at which CNM can exist in pressure balance with
+WNM. Currently :math:`\phi_{\rm CNM}` is hard-coded to the value of 3.
+
+It is possible to impose an H\ :sub:`2` floor in cold gas, which might
+be applicable for some low density situations in which the KMT09
+equilibrium assumption may not hold. The parameter
+``H2StarMakerH2FloorInColdGas`` can be used to enforce such a floor
+for all cells that have temperature less than
+``H2StarMakerColdGasTemperature``. This has not been extensively
+tested, so caveat emptor.
+
+Optionally, a proper number density threshold
+(``H2StarMakerNumberDensityThreshold``) and/or an H\ :sub:`2` fraction
+threshold (``H2StarMakerMinimumH2FractionForStarFormation``) is
+applied, below which no star formation occurs.
+
+Typically this method is used with
+``StarFormationOncePerRootGridTimeStep``, in which case SF occurs only
+at the beginning of the root grid step and only for grids on
+MaximumRefinementLevel, but with a star particle mass that is
+proportial to the root grid time step (as opposed to the much smaller
+time step of the maximally refined grid). This results in fewer and
+more massive star particles, which improves computational
+efficiency. Even so, it may be desirable to enforce a lower limit to
+the star particle mass in some cases. This can be done with the
+parameter ``H2StarMakerMinimumMass``, below which star particles are
+not created. However, with ``H2StarMakerStochastic``, if the
+stellar mass is less than H2StarMakerMinimumMass, then a star
+particle of mass equal to H2StarMakerMinimumMass is formed
+stochastically with a probability of (stellar
+mass)/H2StarMakerMinimumMass.
+
+
+**Important Note**: There is no feedback scheme corresponding to this
+star maker, so don't set StarParticleFeedback = 2048. Instead the user
+should select one of the feedback schemes associated with the other
+star makers (StarParticleFeedback = 4 comes to mind).
+
+
 
 .. _distributed_feedback:
 

@@ -58,30 +58,31 @@ c    numiter - max number of Newton iterations to perform [8]
 c
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, i1, i2, idim, idual, ipresfree, j1, j2, jdim
-      real    dt, eta1, gamma, pmin
-      real      dls(idim,jdim),     drs(idim,jdim),    pbar(idim,jdim),
+      INTG_PREC gravity, i1, i2, idim, idual, ipresfree, j1, j2, jdim
+      R_PREC    dt, eta1, gamma, pmin
+      R_PREC    dls(idim,jdim),     drs(idim,jdim),    pbar(idim,jdim),
      &          pls(idim,jdim),     prs(idim,jdim),    ubar(idim,jdim),
      &          uls(idim,jdim),     urs(idim,jdim), grslice(idim,jdim)
 c
 c  local declarations
 c
-      integer i, j, n
-      real     cl(ijkn),    cr(ijkn), dpdul(ijkn), dpdur(ijkn),
+      INTG_PREC i, j, n
+      R_PREC     cl(ijkn),    cr(ijkn), dpdul(ijkn), dpdur(ijkn),
      &         ps(ijkn),    ubl(ijkn),   ubr(ijkn),
      &         qa      ,     zl(ijkn),    zr(ijkn)
 
-      integer itok, jjj
-      integer mask(ijkn), jfail(ijkn)
-      real    old_ps(ijkn), delta_ps(ijkn)
-      real    fails(ijkn)
+      INTG_PREC itok, jjj
+      INTG_PREC mask(ijkn), jfail(ijkn)
+      R_PREC    old_ps(ijkn), delta_ps(ijkn)
+      R_PREC    fails(ijkn)
 
 !     To reduce this to the old fixed iteration count method
 !     simply set tolerance = 1.0e-50
@@ -89,19 +90,19 @@ c
 !     Tolerance can be relaxed to reduce the cost of this routine
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
-      parameter (tolerance = 1.0e-07)
+      R_PREC tolerance
+      parameter (tolerance = 1.0e-7_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
-      parameter (tolerance = 1.0d-14)
+      R_PREC tolerance
+      parameter (tolerance = 1.e-14_RKIND)
 #endif
 
 c
 c  parameters
 c
-      integer numiter
+      INTG_PREC numiter
       parameter( numiter = 8 )
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//////////////////////////////////
@@ -111,7 +112,7 @@ c     write(6,*) 'TWOSHOCK: dt =',dt,'  idim =',idim,'  jdim=',jdim
 c     write(6,*) 'TWOSHOCK: i1 =',i1,'  i2   =',i2
 c     write(6,*) 'TWOSHOCK: j1 =',j1,'  j2   =',j2
 
-      qa = (gamma + 1.d0)/(2.d0*gamma)
+      qa = (gamma + 1._RKIND)/(2._RKIND*gamma)
 c
 c  Loop through this slice, doing 1 sweep at a time
 c
@@ -123,7 +124,7 @@ c
        if (ipresfree .eq. 1) then
         do i=i1, i2
            pbar(i,j) = pmin
-           ubar(i,j) = 0.5d0*(uls(i,j)+urs(i,j))
+           ubar(i,j) = 0.5_RKIND*(uls(i,j)+urs(i,j))
            pls(i,j)  = pmin
            prs(i,j)  = pmin
         enddo
@@ -142,9 +143,9 @@ c       if (gravity .eq. 1) then
           cl  (i) = sqrt(gamma*pls(i,j)*dls(i,j))
           cr  (i) = sqrt(gamma*prs(i,j)*drs(i,j))
           ps(i) = (cr(i)*pls(i,j) + cl(i)*prs(i,j)
-     &          +  cr(i)*cl(i)*(uls(i,j) - urs(i,j)
-     &                        + 0.5d0*dt*(grslice(i-1,j)-grslice(i,j)) 
-     &                                           ) )/(cr(i)+cl(i))
+     &         +  cr(i)*cl(i)*(uls(i,j) - urs(i,j)
+     &         + 0.5_RKIND*dt*(grslice(i-1,j)-grslice(i,j)) 
+     &         ) )/(cr(i)+cl(i))
 
 !               ^
 !               changed to + June 2003
@@ -188,8 +189,8 @@ c
 
           do i=i1,i2
             if ( mask(i) .gt. 0 ) then
-            zl (i) = cl(i)*sqrt((1.d0+qa*(ps(i)/pls(i,j)-1.d0)))
-            zr (i) = cr(i)*sqrt((1.d0+qa*(ps(i)/prs(i,j)-1.d0)))
+            zl (i) = cl(i)*sqrt((1._RKIND+qa*(ps(i)/pls(i,j)-1._RKIND)))
+            zr (i) = cr(i)*sqrt((1._RKIND+qa*(ps(i)/prs(i,j)-1._RKIND)))
             ubl(i) = uls(i,j) - (ps(i)-pls(i,j))/zl(i)
             ubr(i) = urs(i,j) + (ps(i)-prs(i,j))/zr(i)
             end if
@@ -197,10 +198,12 @@ c
 
           do i=i1,i2
             if ( mask(i) .gt. 0 ) then
-            dpdul(i) = -4.d0*zl(i)**3/dls(i,j)
-     &        /(4.d0*zl(i)**2/dls(i,j) - (gamma+1.d0)*(ps(i)-pls(i,j)))
-            dpdur(i) =  4.d0*zr(i)**3/drs(i,j)
-     &        /(4.d0*zr(i)**2/drs(i,j) - (gamma+1.d0)*(ps(i)-prs(i,j)))
+            dpdul(i) = -4._RKIND*zl(i)**3/dls(i,j)
+     &              /(4._RKIND*zl(i)**2/dls(i,j) 
+     &              - (gamma+1._RKIND)*(ps(i)-pls(i,j)))
+            dpdur(i) =  4._RKIND*zr(i)**3/drs(i,j)
+     &           /(4._RKIND*zr(i)**2/drs(i,j) 
+     &           - (gamma+1._RKIND)*(ps(i)-prs(i,j)))
             ps (i) = ps(i) + (ubr(i)-ubl(i))*dpdur(i)*dpdul(i)
      &                      /(dpdur(i)-dpdul(i))
 c            if (ps(i) .lt. pmin) ps(i) = min(pls(i,j),prs(i,j))
@@ -258,8 +261,8 @@ c
            do i=i1, i2
               if (gamma*ps(i)/min(dls(i,j),drs(i,j)) .lt.
      &             eta1*ubar(i,j)**2) then
-                 pbar(i,j) = 0.5d0*(pls(i,j) + prs(i,j))
-                 ubar(i,j) = 0.5d0*(uls(i,j) + urs(i,j))
+                 pbar(i,j) = 0.5_RKIND*(pls(i,j) + prs(i,j))
+                 ubar(i,j) = 0.5_RKIND*(uls(i,j) + urs(i,j))
               endif
            enddo
         endif

@@ -80,7 +80,7 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
 
   int activesize = 1,n=0;
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   }
 
   float *RandomBField[3];
@@ -93,13 +93,13 @@ int grid::MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium
 
   if (debug && (MyProcessorNumber == ROOT_PROCESSOR)) 
     printf("Begin generating random magnetic field  spectrum... %"ISYM" %"ISYM" %"ISYM"\n", 
-	   GridDimension[0]-2*DEFAULT_GHOST_ZONES,
-	   GridDimension[1]-2*DEFAULT_GHOST_ZONES,
-	   GridDimension[2]-2*DEFAULT_GHOST_ZONES);
+	   GridDimension[0]-2*NumberOfGhostZones,
+	   GridDimension[1]-2*NumberOfGhostZones,
+	   GridDimension[2]-2*NumberOfGhostZones);
 
-  Turbulence_Generator(RandomBField, GridDimension[0]-2*DEFAULT_GHOST_ZONES,
-		       GridDimension[1]-2*DEFAULT_GHOST_ZONES,
-		       GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+  Turbulence_Generator(RandomBField, GridDimension[0]-2*NumberOfGhostZones,
+		       GridDimension[1]-2*NumberOfGhostZones,
+		       GridDimension[2]-2*NumberOfGhostZones,
 		       Sindex, Skmin, Skmax, 1,
 		       CellLeftEdge, CellWidth, seed);
   if (MyProcessorNumber == ROOT_PROCESSOR) printf("Random B field spectrum generated\n");
