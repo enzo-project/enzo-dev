@@ -19,7 +19,7 @@ _rtol = 1.0e-6
 _atol = 1.0e-7
 
 
-_base_fields = ('Density', 'TotalEnergy')
+_base_fields = ('Density', 'Gas_Energy')
 
 @requires_outputlog(os.path.dirname(__file__), "Toro-6-ShockTube.enzo")
 
