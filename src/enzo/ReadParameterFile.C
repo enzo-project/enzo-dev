@@ -1632,6 +1632,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 
+  //
 
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;

@@ -591,7 +591,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
-    EXTRA_OUTPUT_MACRO(2,"After SMHD grid loop")
+    EXTRA_OUTPUT_MACRO(2,"After SolveHydroEquations grid loop")
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			  level, MetaData, Exterior, LevelArray[level]);
