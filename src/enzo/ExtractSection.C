@@ -182,7 +182,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			    *(DomainRightEdge[dim] - DomainLeftEdge[dim]) +
 			      DomainLeftEdge[dim];
       ExtractDims[dim] = ExtractEnd[dim] - ExtractStart[dim] + 1
-	   + 2*DEFAULT_GHOST_ZONES;
+	   + 2*NumberOfGhostZones;
     }
  
     /* Create a new grid and fill it full of goodies. */

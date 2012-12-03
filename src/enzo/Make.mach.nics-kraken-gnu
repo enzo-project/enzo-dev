@@ -73,15 +73,6 @@ MACH_F90FLAGS =
 MACH_LDFLAGS  = -Wl,-static 
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = 
-MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
-MACH_FFLAGS_REAL_32    = 
-MACH_FFLAGS_REAL_64    = -fdefault-real-8 -fdefault-double-8
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 

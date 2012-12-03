@@ -40,7 +40,7 @@ int HLL_PPM(float **prim, float **priml, float **primr,
   // compute priml and primr with ppm
  //   plm(prim, priml, primr, ActiveSize, NEQ_HYDRO);
 //   for (int i=0; i<ActiveSize+2; i++) fprintf(stderr, "plm %"ISYM" :  %"GSYM" : %"GSYM" %"GSYM"\n", 
-// 					   i, prim[iden][i+DEFAULT_GHOST_ZONES], 
+// 					   i, prim[iden][i+NumberOfGhostZones], 
 // 					   priml[iden][i], primr[iden][i]);
 
   if (ppm(prim, priml, primr, ActiveSize, NEQ_HYDRO) == FAIL) {
@@ -54,7 +54,7 @@ int HLL_PPM(float **prim, float **priml, float **primr,
     }
 
 //   for (int i=0; i<ActiveSize+2; i++) fprintf(stderr, "ppm %"ISYM" :  %"GSYM" : %"GSYM" %"GSYM"\n", 
-// 					   i, prim[iden][i+DEFAULT_GHOST_ZONES], 
+// 					   i, prim[iden][i+NumberOfGhostZones], 
 // 					   priml[iden][i], primr[iden][i]);
 
   // Compute FluxLine

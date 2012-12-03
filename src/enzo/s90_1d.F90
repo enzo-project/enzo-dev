@@ -3,11 +3,12 @@
       subroutine s90_1d(x, rank, n1, n2, n3, dir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, dir
-      complex :: x(n1)
+      INTG_PREC :: rank, n1, n2, n3, dir
+      CMPLX_PREC :: x(n1)
 
-      integer :: n(3)
+      INTG_PREC :: n(3)
 
 !     write(*,*) 'S90_1D ',rank,n1,n2,n3,dir
 
@@ -43,23 +44,23 @@
 
       implicit none
 
-      integer :: n, dir
-      complex :: a(n)
+      INTG_PREC :: n, dir
+      CMPLX_PREC :: a(n)
 
-      integer :: i
-      integer :: sn(1)
+      INTG_PREC :: i
+      INTG_PREC :: sn(1)
 
       sn(1) = n
 
       if( dir == -1 ) then
-        call fftn(a, sn, inv=.false. )
+        call fftn(a, sn, inv=.false._fftlogk )
         do i = 1,n
-        a(i) = a(i) * sqrt(real(n))
+        a(i) = a(i) * sqrt(REAL(n,fftkind))
         end do
       else
-        call fftn(a, sn, inv=.true. )
+        call fftn(a, sn, inv=.true._fftlogk )
         do i = 1,n
-        a(i) = a(i) / sqrt(real(n))
+        a(i) = a(i) / sqrt(REAL(n,fftkind))
         end do
       end if
 
