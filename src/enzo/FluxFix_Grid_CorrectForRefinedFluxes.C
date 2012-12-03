@@ -311,7 +311,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  CorrectLeftBoundaryFlux = FALSE;
 	  CorrectRightBoundaryFlux = FALSE;
 	
-    if( CorrectParentBoundaryFlux == TRUE ){
 	  if (Start[dim] == GridStartIndex[dim]-1){
 	    CorrectLeftBoundaryFlux = TRUE;
 	    CorrectLeftBaryonField  = FALSE;
@@ -320,7 +319,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	    CorrectRightBoundaryFlux = TRUE;
 	    CorrectRightBaryonField  = FALSE;
 	  }
-    }
+    
  
 	  /* Set GridFluxStartIndex to the starting position of the flux
 	     plane (i.e. exclude grid boundary zones), except for the direction
@@ -425,7 +424,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      + (k - GridFluxStartIndex[2])*GridFluxDim[1]*GridFluxDim[0];
 		
 		
- 		    if (CorrectLeftBoundaryFlux)
+ 		    if (CorrectLeftBoundaryFlux && CorrectParentBoundaryFlux )
 		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
 			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
 		
@@ -447,7 +446,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      }
 		    }
 		
- 		    if (CorrectRightBoundaryFlux)
+ 		    if (CorrectRightBoundaryFlux && CorrectParentBoundaryFlux )
 		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
 			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
 		
