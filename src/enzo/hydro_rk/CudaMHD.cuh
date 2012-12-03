@@ -261,7 +261,7 @@ __global__ void MHD_HLL_PLMKernel(
   int EOSType, float Ch, float ThetaLimiter, float Gamma, int NeqMHD, 
   int idim, int jdim, int kdim, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
-  int size = idim*jdim*kdim;
+//  int size = idim*jdim*kdim;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
     blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*idim + k1*idim*jdim;
 
@@ -409,7 +409,7 @@ __global__ void ComputeFluxSpeciesKernel(
   int NSpecies, float ThetaLimiter,
   int idim, int jdim, int kdim, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
-  int size = idim*jdim*kdim;
+//  int size = idim*jdim*kdim;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
     blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*idim + k1*idim*jdim;
 
@@ -464,7 +464,7 @@ __global__ void ComputedUKernel(
   int NSpecies, float dt, float dx, float Ch,
   int idim, int jdim, int kdim, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
-  const int size = idim*jdim*kdim;
+//  const int size = idim*jdim*kdim;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
     blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*idim + k1*idim*jdim;
   

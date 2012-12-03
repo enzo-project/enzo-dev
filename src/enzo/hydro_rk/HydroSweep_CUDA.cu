@@ -24,8 +24,6 @@
 #include "../macros_and_parameters.h"
 #include "../typedefs.h"
 #include "../global_data.h"
-//#include <stdio.h>
-//#include <cutil.h>
 #include "CUDAUtil.h"
 
 // hack for making things compile
