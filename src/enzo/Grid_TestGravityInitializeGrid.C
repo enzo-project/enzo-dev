@@ -39,8 +39,8 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
   int dim, i, size, field, vel;
   float phi, r, theta;
   int mt_random_seed = 123456789;
-  const unsigned_int max_random = (1<<16);
-  mt_init(mt_random_seed);
+  int max_random = (1<<16);
+  mt_init((unsigned int) mt_random_seed);
  
   if (UseBaryons) {
  
@@ -102,7 +102,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
  
       /* Compute random r, phi and theta. */
  
-      r     = POW(10, (r2 - r1)*float(mt_random() % max_random) /  float(max_random));
+      r     = POW(10, (r2 - r1)*(float(mt_random() % max_random) /  float(max_random)) + r1);
       phi   = 2.0*pi*float(mt_random() % max_random) /  float(max_random);
       theta =     pi*float(mt_random() % max_random) /  float(max_random);
  
