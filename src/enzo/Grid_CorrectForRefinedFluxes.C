@@ -1,4 +1,3 @@
-#ifdef FLUX_FIX
 /***********************************************************************
 /
 /  GRID CLASS (CORRECT SOLUTION GIVEN ORIGINAL AND REFINED FLUXES)
@@ -758,4 +757,3 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
   return SUCCESS;
  
 }
-#endif 
