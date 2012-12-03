@@ -1129,8 +1129,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
   if (HydroMethod==MHD_RK) useMHD = 1;
-  if (HydroMethod==MHD_Li) useMHDCT = 1;
-  if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
+  //if (HydroMethod==MHD_Li) useMHDCT = 1;
+  //if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
