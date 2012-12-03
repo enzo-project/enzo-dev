@@ -21,10 +21,7 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
-
-#ifdef FLUX_FIX
 #include "TopGridData.h"
-#endif
 
 struct HierarchyEntry;
 
@@ -450,15 +447,10 @@ public:
 	   flux estimates).  Returns SUCCESS or FAIL.
     (for step #19) */
 
-#ifdef FLUX_FIX
    int CorrectForRefinedFluxes(fluxes *InitialFluxes, fluxes *RefinedFluxes,
 			       fluxes *BoundaryFluxesThisTimeStep,
 			       int SUBlingGrid,
 			       TopGridData *MetaData);
-#else
-   int CorrectForRefinedFluxes(fluxes *InitialFluxes, fluxes *RefinedFluxes,
-			       fluxes *BoundaryFluxesThisTimeStep);
-#endif
 
 /* Baryons: add the fluxes pointed to by the argument to the boundary fluxes
             of this grid (sort of for step #16).  Note that the two fluxes
@@ -930,14 +922,12 @@ public:
 				   boundary_type RightFaceBoundaryCondition[]);
 
 /* David Collins flux correction - July 2005 */
-#ifdef FLUX_FIX
    int CheckForSharedFace(grid *OtherGrid,
 			       boundary_type LeftFaceBoundaryCondition[],
 			       boundary_type RightFaceBoundaryCondition[]);
 
    int CheckForSharedFaceHelper(grid *OtherGrid,
 				     FLOAT EdgeOffset[MAX_DIMENSION]);
-#endif
 
 /* baryons: check for overlap between grids & return TRUE if it exists
             (correctly includes periodic boundary conditions). */
