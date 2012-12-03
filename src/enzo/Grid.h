@@ -191,10 +191,12 @@ class grid
 #include "PhotonGrid_Variables.h"
 #endif
 
+#ifdef ECUDA
 //
 // CUDA MHD solver data
 //
   cuMHDData MHDData;
+#endif
 
 
  public:

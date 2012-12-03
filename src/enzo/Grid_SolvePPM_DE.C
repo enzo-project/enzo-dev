@@ -28,7 +28,9 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#ifdef ECUDA
 #include "cuPPM.h"
+#endif
 
 
 int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
