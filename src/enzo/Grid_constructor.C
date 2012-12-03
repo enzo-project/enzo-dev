@@ -45,7 +45,7 @@ grid::grid()
   ParentCostPerCell                     = FLOAT_UNDEFINED;
   ParentEstimatedCostPerCell            = FLOAT_UNDEFINED;
 
-  SubgridFluxStorage = NULL;//new fluxes* [1];
+  SubgridFluxStorage = NULL;
   NumberOfSubgrids = 1;
  
   /* clear MAX_DIMENSION vectors */

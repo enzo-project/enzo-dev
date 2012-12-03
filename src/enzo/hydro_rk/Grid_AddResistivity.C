@@ -51,7 +51,7 @@ int grid::AddResistivity()
 
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
   }
 
   double *d2Bx[3], *d2By[3], *d2Bz[3];

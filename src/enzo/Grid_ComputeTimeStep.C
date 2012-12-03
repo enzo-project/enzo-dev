@@ -351,7 +351,7 @@ float grid::ComputeTimeStep()
       return FAIL;
     }
     dtConduction *= ConductionCourantSafetyNumber;  // for stability
-    dtConduction *= float(DEFAULT_GHOST_ZONES);     // for subcycling 
+    dtConduction *= float(NumberOfGhostZones);     // for subcycling 
   }
 
   /* 6) GasDrag time step */

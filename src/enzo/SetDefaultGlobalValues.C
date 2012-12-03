@@ -125,6 +125,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
+  NumberOfGhostZones = 3;
   LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
   ResetLoadBalancing = FALSE;
@@ -346,6 +347,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;
+  FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
+                                                   // during output by default.
   RadiationFieldType          = 0;
   RadiationFieldRedshift      = 0.0;
   TabulatedLWBackground       = 0;

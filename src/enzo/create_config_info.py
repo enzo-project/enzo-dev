@@ -90,6 +90,7 @@ if __name__ == "__main__":
         for line in diff.split('\n'):
             line = line.replace('\\', '\\\\')
             line = line.replace('"', '\\"')
+            line = line.replace('\r', '\\n')
             line = line.replace('%', '%%')
             output.write('   fprintf(opf, "')
             output.write(r"%s" % line)

@@ -358,7 +358,13 @@ auto_show_compile_options.C:
 .PHONY: dep
 dep:
 	@echo "Updating DEPEND"
-	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- */*.C  *.C *.c *.F *.F90 */*.h *.h) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -fDEPEND -o.o -m -- -- */*.C  ) >& out.make.DEPEND
+	-@(makedepend $(DEFINES) $(INCLUDES) -a -fDEPEND -o.o -m -- -- *.C) >> out.make.DEPEND 2>&1
+	-@(makedepend $(DEFINES) $(INCLUDES) -a -fDEPEND -o.o -m -- -- *.c) >> out.make.DEPEND 2>&1
+	-@(makedepend $(DEFINES) $(INCLUDES) -a -fDEPEND -o.o -m -- -- *.F) >> out.make.DEPEND 2>&1
+	-@(makedepend $(DEFINES) $(INCLUDES) -a -fDEPEND -o.o -m -- -- *.F90) >> out.make.DEPEND 2>&1
+	-@(makedepend $(DEFINES) $(INCLUDES) -a -fDEPEND -o.o -m -- -- */*.h) >> out.make.DEPEND 2>&1
+	-@(makedepend $(DEFINES) $(INCLUDES) -a -fDEPEND -o.o -m -- -- *.h) >> out.make.DEPEND 2>&1
 
 include DEPEND
 

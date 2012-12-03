@@ -117,7 +117,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
-    ret += sscanf(line, "ParticleTypeInFile = %"ISYM, &ParticleTypeInFile);
     ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
     ret += sscanf(line, "ReadGhostZones = %"ISYM, &ReadGhostZones);
     ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
@@ -226,6 +225,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
     }
 
+    ret += sscanf(line, "NumberOfGhostZones = %"ISYM, &NumberOfGhostZones);
     ret += sscanf(line, "LoadBalancing = %"ISYM, &LoadBalancing);
     ret += sscanf(line, "ResetLoadBalancing = %"ISYM, &ResetLoadBalancing);
     ret += sscanf(line, "LoadBalancingCycleSkip = %"ISYM, &LoadBalancingCycleSkip);
@@ -459,6 +459,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
+    ret += sscanf(line, "FindShocksOnlyOnOutput = %"ISYM, &FindShocksOnlyOnOutput);
 
     ret += sscanf(line, "RadiationFieldType = %"ISYM, &RadiationFieldType);
     ret += sscanf(line, "RadiationFieldRedshift = %"FSYM, &RadiationFieldRedshift);
@@ -905,7 +906,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PythonTopGridSkip = %"ISYM, &PythonTopGridSkip);
     ret += sscanf(line, "PythonSubcycleSkip = %"ISYM, &PythonSubcycleSkip);
     ret += sscanf(line, "PythonReloadScript = %"ISYM, &PythonReloadScript);
-
 #ifdef USE_PYTHON
     ret += sscanf(line, "NumberOfPythonCalls = %"ISYM, &NumberOfPythonCalls);
     ret += sscanf(line, "NumberOfPythonTopGridCalls = %"ISYM, &NumberOfPythonTopGridCalls);
@@ -1627,10 +1627,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 #endif
   }
 
-#ifdef SAB
-  if (HydroMethod == Zeus_Hydro && SelfGravity != 0)
-      ENZO_FAIL("SetAccelerationBoundary (-D SAB) does not work with zeus_hydro !\n");
-#endif 
 
   if (debug) printf("Initialdt in ReadParameterFile = %e\n", *Initialdt);
 

@@ -284,7 +284,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	ENZO_FAIL("Error in grid->ComputeGammaField.");
       }
     } else {
-      GammaField = new float;
+      GammaField = new float[1];
       GammaField[0] = Gamma;
 
     }
@@ -460,10 +460,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Clean up allocated fields. */
 
-    if (HydroMethod == Zeus_Hydro && MultiSpecies > 1)
-      delete [] GammaField;
-    else
-      delete GammaField;
+    delete [] GammaField;   
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];

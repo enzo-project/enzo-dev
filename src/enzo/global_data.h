@@ -39,6 +39,7 @@ class EnzoProblemType;
                           1 = Equalize processor memory count
                          2 = Load balance only on a node
 */
+EXTERN int NumberOfGhostZones;
 EXTERN int LoadBalancing;
 EXTERN int LoadBalancingCycleSkip;
 EXTERN int ResetLoadBalancing;
@@ -368,6 +369,8 @@ EXTERN int MultiMetals;
 EXTERN int ShockMethod; 
 EXTERN float ShockTemperatureFloor;
 EXTERN int StorePreShockFields;
+EXTERN int FindShocksOnlyOnOutput;
+
 
 /* Type of radiation field. 
    0 - none,                    1 - Haardt & Madau alpha=-1.5

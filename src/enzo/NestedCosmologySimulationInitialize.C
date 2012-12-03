@@ -460,7 +460,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
       // Add ghost zones
  
-      CosmologySimulationGridDimension[gridnum][dim] += 2*DEFAULT_GHOST_ZONES;
+      CosmologySimulationGridDimension[gridnum][dim] += 2*NumberOfGhostZones;
  
     } // end of loop over dimensions
  
@@ -502,7 +502,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     // Remove ghost zones from dim
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
-      CosmologySimulationGridDimension[gridnum][dim] -= 2*DEFAULT_GHOST_ZONES;
+      CosmologySimulationGridDimension[gridnum][dim] -= 2*NumberOfGhostZones;
  
   } // end: loop over gridnums
  
