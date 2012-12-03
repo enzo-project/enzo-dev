@@ -173,11 +173,6 @@ help-config:
 	@echo "      gmake bitwise-yes"
 	@echo "      gmake bitwise-no"
 	@echo 
-	@echo "   Include sibling subgrid boundary fix"
-	@echo
-	@echo "      gmake fluxfix-yes"
-	@echo "      gmake fluxfix-no"
-	@echo 
 	@echo "   Set whether to use HDF4"
 	@echo
 	@echo "      gmake use-hdf4-yes"
@@ -279,7 +274,6 @@ show-config:
 	@echo "   CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : $(CONFIG_NEW_GRID_IO)"
 	@echo "   CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
-	@echo "   CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : $(CONFIG_FLUX_FIX)"
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
 	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
 	@echo
@@ -878,23 +872,6 @@ CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
 	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY; \
 	echo
 
-
-#-----------------------------------------------------------------------
-
-VALID_FLUX_FIX = fluxfix-yes fluxfix-no
-.PHONY: $(VALID_FLUX_FIX)
-
-fluxfix-yes: CONFIG_FLUX_FIX-yes
-fluxfix-no: CONFIG_FLUX_FIX-no
-fluxfix-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_FLUX_FIX)]\n\n"
-CONFIG_FLUX_FIX-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_FLUX_FIX $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_FLUX_FIX = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_FLUX_FIX; \
-	echo
 
 
 #-----------------------------------------------------------------------
