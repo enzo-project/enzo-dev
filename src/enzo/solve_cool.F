@@ -8,7 +8,7 @@ c
      &                d, e, ge, u, v, w,
      &                in, jn, kn, nratec, iexpand, imethod, cool_method,
      &                idual, idim, igammah,
-     &                is, js, ks, ie, je, ke, imax,
+     &                is, js, ks, ie, je, ke,
      &                dt, aye, temstart, temend, fh,
      &                utem, uxyz, urho, utim,
      &                eta1, eta2, gamma, coola, gammaha, mu)

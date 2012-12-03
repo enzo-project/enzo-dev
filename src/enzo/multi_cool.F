@@ -10,7 +10,7 @@
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
      &                in, jn, kn, nratec, iexpand, imethod, igammah,
      &                idual, ispecies, imetal, imcool, idust, idim,
-     &                is, js, ks, ie, je, ke, imax, ih2co, ipiht,
+     &                is, js, ks, ie, je, ke, ih2co, ipiht,
      &                dt, aye, temstart, temend,
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma, z_solar,

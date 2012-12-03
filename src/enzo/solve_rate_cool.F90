@@ -702,7 +702,7 @@
 #ifdef WRITE_COOLING_DEBUG
                   if (ge(i,j,k) .le. 0._RKIND) write(3,*) &
                        'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
-#endif WRITE_COOLING_DEBUG
+#endif /* WRITE_COOLING_DEBUG */
                endif
             endif               ! itmask
             enddo

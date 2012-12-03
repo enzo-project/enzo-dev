@@ -8,7 +8,7 @@ c
       subroutine solve_rate(
      &                de, HI, HII, HeI, HeII, HeIII, tgas, d,
      &                in, jn, kn, nratec, ispecies,
-     &                is, js, ks, ie, je, ke, imax,
+     &                is, js, ks, ie, je, ke,
      &                dt, aye, temstart, temend, 
      &                uaye, utim, urho, uxyz, fh, dtoh,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
