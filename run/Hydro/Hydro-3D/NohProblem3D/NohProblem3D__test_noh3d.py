@@ -26,7 +26,8 @@ class TestShockImage(AnswerTestingTest):
         return np.array([dens.mean(), dens.std(), dens.min(), dens.max()])
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, rtol=1e-13, atol=0)
+        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
     
 class TestRadialDensity(AnswerTestingTest):
     _type_name = "noh3d_radial"
@@ -52,7 +53,8 @@ class TestRadialDensity(AnswerTestingTest):
         return na.array(diag_den)
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
+        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
 
     def plot(self):
         dd = self.pf.h.all_data()
@@ -86,6 +88,6 @@ def test_noh3d():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        yield TestShockImage(pf)
-        yield TestRadialDensity(pf)
+    pf = sim[-1]
+    yield TestShockImage(pf)
+    yield TestRadialDensity(pf)

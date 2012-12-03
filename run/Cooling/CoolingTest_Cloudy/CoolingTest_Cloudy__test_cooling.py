@@ -15,7 +15,8 @@ def test_cooling_time():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        for field in _fields:
-            yield FieldValuesTest(pf, field, decimals=13)
+    tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+    pf = sim[-1]
+    for field in _fields:
+        yield FieldValuesTest(pf, field, decimals=tolerance)
 

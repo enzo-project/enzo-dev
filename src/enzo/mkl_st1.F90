@@ -1,7 +1,8 @@
 #include "error.def"
+#include "fortran.def"
 
 
-! Complex to complex
+! Complex to CMPLX_PREC
 
 ! isign = 0   initialize coeffts
 ! isign = -1  forward normal
@@ -12,9 +13,9 @@
 ! cfft1d( r, n, isign, wsave )
 ! zfft1d( r, n, isign, wsave )
 
-! r(n)  complex / double complex
-! n     integer must be power of 2
-! wsave complex / double complex  array((3*n)/2)
+! r(n)  CMPLX_PREC / double CMPLX_PREC
+! n     INTG_PREC must be power of 2
+! wsave CMPLX_PREC / double CMPLX_PREC  array((3*n)/2)
 
 
 #ifdef MKL
@@ -24,14 +25,15 @@
       subroutine mkl_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      integer :: power_of_2
+      integer*8 :: power_of_2
 
-      real*4 :: factor
-      real*4 :: scale
+      REAL*4 :: factor
+      REAL*4 :: scale
       complex*8, allocatable :: wsave(:)
 
       integer*4 :: isign, n
@@ -62,14 +64,15 @@
       subroutine mkl_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      integer :: power_of_2
+      integer*8 :: power_of_2
 
-      real*8 :: factor
-      real*8 :: scale
+      REAL*8 :: factor
+      REAL*8 :: scale
       complex*16, allocatable :: wsave(:)
 
       integer*4 :: isign, n
@@ -100,9 +103,10 @@
       subroutine mkl_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
       write(0,'("MKL stride 1 FFT error")')
       ERROR_MESSAGE

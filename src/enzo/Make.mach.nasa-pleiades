@@ -38,8 +38,8 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.04.10789/
-LOCAL_HDF5_INSTALL   = /u/ngoldbau/yt-x86_64/
-LOCAL_PYTHON_INSTALL = /u/ngoldbau/yt-x86_64/
+LOCAL_HDF5_INSTALL   = $(YT_DEST)
+LOCAL_PYTHON_INSTALL = $(YT_DEST)
 LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2011.7.256/
 
 #-----------------------------------------------------------------------
@@ -81,15 +81,6 @@ MACH_FFLAGS   =
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = 
 #,-static 
-
-#-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
 
 #-----------------------------------------------------------------------
 # Optimization flags

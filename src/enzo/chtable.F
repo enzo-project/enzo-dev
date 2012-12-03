@@ -41,21 +41,22 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      integer NFREQ
-      real    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
+      INTG_PREC NFREQ
+      R_PREC    FREQDEL, SIGH(NFREQ), SIGHE(NFREQ), SIGHE2(NFREQ),
      &        SPSTAR1(NFREQ), SPSTAR2(NFREQ)
 c
 c  Parameters
 c
-      real    EV2HZ, PI
+      R_PREC    EV2HZ, PI
 c
 c  Locals
 c
-      integer N, NTI
-      real    E0, sigma0, ya, P, yw, y0, y1, x, y, Fy, FNU, FNU2,
+      INTG_PREC N, NTI
+      R_PREC    E0, sigma0, ya, P, yw, y0, y1, x, y, Fy, FNU, FNU2,
      &        SPTMO, SUM, TBB, RAT, FLAMRAT, FNURAT, ALA, A,
      &        FNUPOWBK1, FNUPOWBK2, SPITP(9), FNUITP(9), WORK(9),
      &        FNU1
@@ -66,61 +67,62 @@ c
 c     Set some cosntants
 c
       PI        = pi_val
-      EV2HZ     = 2.415d14 
+      EV2HZ     = 2.415e14_RKIND
 C
 c-----------------------------------------------------------------------
 C     CREATE THE CROSS SECTIONS
 C
-      E0 = 13.61d0 
-      sigma0 = 9.492d-16
-      ya = 1.469d0
-      P  = 3.188d0
-      yw = 2.039d0
-      y0 = 0.4434d0
-      y1 = 2.136d0
+      E0 = 13.61_RKIND 
+      sigma0 = 9.492e-16_RKIND
+      ya = 1.469_RKIND
+      P  = 3.188_RKIND
+      yw = 2.039_RKIND
+      y0 = 0.4434_RKIND
+      y1 = 2.136_RKIND
       DO N=1,NFREQ
-         FNU  = 10.d0**((N-1.d0)*FREQDEL)
+         FNU  = 10._RKIND**((N-1._RKIND)*FREQDEL)
 C  
 C        i) HYDROGEN I PHOTON-IONIZATION CROSS SECTION 
 C
-         IF(FNU .GT. 13.6d0) THEN
-           FNU1    = SQRT(FNU/13.6d0 -1.d0)
-           SIGH(N) = 1.18d-11*FNU**(-4)*EXP(-4.d0*ATAN(FNU1)/FNU1)
-     .                       /(1.d0 -EXP(-2.d0*PI/FNU1))
+         IF(FNU .GT. 13.6_RKIND) THEN
+           FNU1    = SQRT(FNU/13.6_RKIND -1._RKIND)
+           SIGH(N) = 1.18d-11*FNU**(-4)*EXP(-4._RKIND*ATAN(FNU1)/FNU1)
+     .                       /(1._RKIND -EXP(-2._RKIND*PI/FNU1))
          ELSE 
-           IF(FNU .EQ. 13.6d0) THEN
-             SIGH(N) = 2.16d-13*FNU**(-4)
+           IF(FNU .EQ. 13.6_RKIND) THEN
+             SIGH(N) = 2.16e-13_RKIND*FNU**(-4)
            ELSE
-             SIGH(N) = 0.d0
+             SIGH(N) = 0._RKIND
            ENDIF
          ENDIF
 C
 C
 C        ii) HELIUM I PHOTON-IONIZATION CROSS SECTION 
 C
-         IF(FNU.GE.24.59d0) THEN
+         IF(FNU.GE.24.59_RKIND) THEN
 c          SIGHE(N) = 1.13E-14*(FNU**(-2.05) -9.775*FNU**(-3.05))
            x       = FNU/E0-y0
            y       = sqrt(x*x+y1*y1)
-           Fy      = ((x-1.d0)**2+yw**2)*y**(0.5d0*P-5.5d0)
-     .             *(1.d0+sqrt(y/ya))**(-P)
+           Fy      = ((x-1._RKIND)**2+yw**2)*y**(0.5_RKIND*P-5.5_RKIND)
+     .             *(1._RKIND+sqrt(y/ya))**(-P)
            SIGHE(N) = sigma0*Fy
          ELSE
-           SIGHE(N) = 0.d0
+           SIGHE(N) = 0._RKIND
          ENDIF
 C
 C
 C        iii) HELIUM II PHOTON-IONIZATION CROSS SECTION 
 C
-         IF(FNU.GT.54.4d0) THEN
-           FNU2      = SQRT(FNU/54.4d0 -1.d0)
-           SIGHE2(N) = 7.55d-10*FNU**(-4)*EXP(-4.d0*ATAN(FNU2)/FNU2)
-     .                         /(1.d0 -EXP(-2.d0*PI/FNU2))
+         IF(FNU.GT.54.4_RKIND) THEN
+           FNU2      = SQRT(FNU/54.4_RKIND -1._RKIND)
+           SIGHE2(N) = 7.55e-10_RKIND*FNU**(-4)
+     .          * EXP(-4._RKIND*ATAN(FNU2)/FNU2)
+     .          / (1._RKIND -EXP(-2._RKIND*PI/FNU2))
          ELSE
-           IF(FNU.EQ.54.4d0) THEN
-             SIGHE2(N) = 1.38d-11*FNU**(-4)
+           IF(FNU.EQ.54.4_RKIND) THEN
+             SIGHE2(N) = 1.38e-11_RKIND*FNU**(-4)
            ELSE
-             SIGHE2(N) = 0.d0
+             SIGHE2(N) = 0._RKIND
            ENDIF
          ENDIF
       ENDDO
@@ -128,57 +130,59 @@ C
 c-----------------------------------------------------------------------
 C     GENERATE PHOTOIONIZATION SPECTRUM FOR MASSIVE STARS
 C
-      FNUITP(1)= 10.00d0
-      SPITP(1) = 0.291d0
+      FNUITP(1)= 10._RKIND
+      SPITP(1) = 0.291_RKIND
 
-      FNUITP(2)= 12.60d0
-      SPITP(2) = 0.287d0
+      FNUITP(2)= 12.6_RKIND
+      SPITP(2) = 0.287_RKIND
 
-      FNUITP(3)= 15.85d0
-      SPITP(3) = 0.283d0
+      FNUITP(3)= 15.85_RKIND
+      SPITP(3) = 0.283_RKIND
 
-      FNUITP(4)= 19.95d0
-      SPITP(4) = 0.280d0
+      FNUITP(4)= 19.95_RKIND
+      SPITP(4) = 0.28_RKIND
 
-      FNUITP(5)= 25.12d0
-      SPITP(5) = 0.210d0
+      FNUITP(5)= 25.12_RKIND
+      SPITP(5) = 0.21_RKIND
 
-      FNUITP(6)= 30.63d0
-      SPITP(6) = 0.130d0
+      FNUITP(6)= 30.63_RKIND
+      SPITP(6) = 0.13_RKIND
 
-      FNUITP(7)= 39.81d0
-      SPITP(7) = 0.081d0
+      FNUITP(7)= 39.81_RKIND
+      SPITP(7) = 0.081_RKIND
 
-      FNUITP(8)= 50.12d0
-      SPITP(8) = 0.018d0
+      FNUITP(8)= 50.12_RKIND
+      SPITP(8) = 0.018_RKIND
 
-      FNUITP(9)= 60.00d0
-      SPITP(9) = 0.010d0
+      FNUITP(9)= 60._RKIND
+      SPITP(9) = 0.01_RKIND
 C
       DO N=1,NFREQ
-         FNU = 10.d0**((N-1.d0)*FREQDEL)
-         IF(FNU.LT.50.12d0) THEN
-           CALL IN_EXTP(FNUITP,SPITP,9,FNU,SPTMO,WORK)
+         FNU = 10._RKIND**((N-1._RKIND)*FREQDEL)
+         IF(FNU.LT.50.12_RKIND) THEN
+           CALL IN_EXTP(FNUITP,SPITP,9_IKIND,FNU,SPTMO,WORK)
            SPSTAR1(N) = SPTMO
          ELSE
-           SPSTAR1(N) = 10.d0**(-(FNU-60.d0)/(60.d0-50.12d0)
-     .                        *(LOG10(0.018d0)-LOG10(0.010d0))
-     .                        + LOG10(0.010d0))
+           SPSTAR1(N) = 10._RKIND**(-(FNU-60._RKIND) / 
+     .           (60._RKIND-50.12_RKIND)
+     .           *(LOG10(0.018_RKIND)-LOG10(0.01_RKIND))
+     .           + LOG10(0.01_RKIND))
          ENDIF
       ENDDO
 C
-      SUM = 0.d0
+      SUM = 0._RKIND
       DO N=1,NFREQ
-         FNU = 10.d0**((N-1.d0)*FREQDEL)
-         IF(FNU.GE.13.6d0) THEN
+         FNU = 10._RKIND**((N-1._RKIND)*FREQDEL)
+         IF(FNU.GE.13.6_RKIND) THEN
            SUM = SUM + SPSTAR1(N)*EV2HZ*FNU
-     .                *(10.d0**(0.5d0*FREQDEL)-10.d0**(-0.5d0*FREQDEL))
+     .           *(10._RKIND**(0.5_RKIND*FREQDEL)
+     .           -10._RKIND**(-0.5_RKIND*FREQDEL))
          ENDIF
       ENDDO
 C
       OPEN(15,FILE='STAR.sp')
       DO N=1,NFREQ
-         FNU = 10.d0**((N-1.d0)*FREQDEL)
+         FNU = 10._RKIND**((N-1._RKIND)*FREQDEL)
 C
 C        SPSTAR1(N) IS NORMALIZED SUCH THAT 
 C        \int_(13.6 eV)^{\infty} SPSTAR1(N) dNU = 1 erg
@@ -195,51 +199,54 @@ c-----------------------------------------------------------------------
 C     GENERATE PHOTOIONIZATION SPECTRUM FOR QUASAR
 C
 C     BLACK BODY TEMPERATURE IN KELVIN
-c     TBB     = 2.6e4
-      TBB     = 3.0d4
+c     TBB     = 2.6e4_RKIND
+      TBB     = 3.0e4_RKIND
 C     BLACK BODY TEMPERATURE IN eV
-      TBB     = Tbb/1.16d4
-      RAT     = 0.3d0
-      FLAMRAT = 5450.d0
+      TBB     = Tbb/1.16e4_RKIND
+      RAT     = 0.3_RKIND
+      FLAMRAT = 5450._RKIND
 c     h\nu IN eV
-      FNURAT  = hplanck*c_light/(FLAMRAT*1.d-8)/
+      FNURAT  = hplanck*c_light/(FLAMRAT*1.e-8_RKIND)/
      &     ev2erg
 c
-      ALA     = -1.3d0
+      ALA     = -1.3_RKIND
 c
-      A       = RAT/FNURAT**(3.d0-ALA)*(EXP(FNURAT/TBB)-1.d0) 
+      A       = RAT/FNURAT**(3._RKIND-ALA)*(EXP(FNURAT/TBB)-1._RKIND) 
 c
 c
-      FNUPOWBK1= 1.d3
-      FNUPOWBK2= 1.d5
+      FNUPOWBK1= 1.e3_RKIND
+      FNUPOWBK2= 1.e5_RKIND
 c
       DO N=1,NFREQ
-         FNU = 10.d0**((N-1.d0)*FREQDEL)
+         FNU = 10._RKIND**((N-1._RKIND)*FREQDEL)
          IF(FNU.LT.FNUPOWBK1) THEN
-           SPSTAR2(N) = A*FNU**3/(exp(min(50.d0,FNU/Tbb))-1.d0) 
+           SPSTAR2(N) = A*FNU**3/(exp(min(50._RKIND,FNU/Tbb))-1._RKIND) 
      .                 + FNU**ala
          ELSE
            IF(FNU.LT.FNUPOWBK2) THEN
-             SPSTAR2(N) = FNU**ala*(1.d0+(FNU/FNUPOWBK1)**0.7d0)/2.d0
+             SPSTAR2(N) = FNU**ala*(1._RKIND+(FNU/FNUPOWBK1)**0.7_RKIND)
+     .             / 2._RKIND
            ELSE
-             SPSTAR2(N) = FNU**ala*(1.d0+(FNU/FNUPOWBK1)**0.7d0)/2.d0
-     .                /(1.d0+(FNU/FNUPOWBK2)**1.d0)*2.d0
+             SPSTAR2(N) = FNU**ala*(1._RKIND+(FNU/FNUPOWBK1)**0.7_RKIND)
+     .             / 2._RKIND / (1._RKIND+(FNU/FNUPOWBK2)**1._RKIND)
+     .             * 2._RKIND
              ENDIF
          ENDIF
       ENDDO
 C
-      SUM = 0.d0
+      SUM = 0._RKIND
       DO N=1,NFREQ
-         FNU = 10.d0**((N-1.d0)*FREQDEL)
-         IF(FNU.GE.13.6d0) THEN
+         FNU = 10._RKIND**((N-1._RKIND)*FREQDEL)
+         IF(FNU.GE.13.6_RKIND) THEN
            SUM = SUM + SPSTAR2(N)*EV2HZ*FNU
-     .                *(10.d0**(0.5d0*FREQDEL)-10.d0**(-0.5d0*FREQDEL))
+     .           *(10._RKIND**(0.5_RKIND*FREQDEL)
+     .           -10._RKIND**(-0.5_RKIND*FREQDEL))
          ENDIF
       ENDDO
 C
       OPEN(15,FILE='QUASAR.sp')
       DO N=1,NFREQ
-         FNU        = 10.d0**((N-1.d0)*FREQDEL)
+         FNU        = 10._RKIND**((N-1._RKIND)*FREQDEL)
          SPSTAR2(N) = SPSTAR2(N)/SUM
 C
 C        SPSTAR2(N) IS NORMALIZED SUCH THAT 
@@ -259,136 +266,152 @@ C
 #ifdef USE_CEN_RATES
 C      
       DO NTI=1,NT
-         TEMP    = 10.d0**(TMIN+(NTI-1.d0)*TDEL)
-         TLIM    = 1.d0/(1.d0+SQRT(TEMP*1.d-5))
+         TEMP    = 10._RKIND**(TMIN+(NTI-1._RKIND)*TDEL)
+         TLIM    = 1._RKIND/(1._RKIND+SQRT(TEMP*1.e-5_RKIND))
          TSQRT   = SQRT(TEMP)
-         TEMP4   = TEMP*1.d-4
+         TEMP4   = TEMP*1.e-4_RKIND
          TEMP4LOG = LOG10(TEMP4)
-         TEMP4LOG4= LOG10(TEMP4/4.d0)
+         TEMP4LOG4= LOG10(TEMP4/4._RKIND)
 C
 C        IONIZATION COEFFICIENTS IN cm^3/sec
 C        RECOMBINATION COEFFICIENTS
 C        HYDROGEN RECOMBINATION COEFFICIENT
-         CHTERMS(1,NTI) = 1.567d-10/(SQRT(TEMP/1.023d0)
-     .                   *(1.d0+SQRT(TEMP/1.023d0))**(1.d0-0.7545d0)
-     .                   *(1.d0+SQRT(TEMP/6.8628d5))**(1.d0+0.7545d0))
+         CHTERMS(1,NTI) = 1.567e-1_RKIND/(SQRT(TEMP/1.023_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/1.023_RKIND))**(
+     .                                    1._RKIND-0.7545_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/6.8628e5_RKIND))**(
+     .                                    1._RKIND+0.7545_RKIND))
 C
 C        HELIUMN II RECOMBINATION COEFFICIENT
-         CHTERMS(2,NTI) = 3.294d-11/(SQRT(TEMP/15.54d0)
-     .                   *(1.d0+SQRT(TEMP/15.54d0))**(1.d0-0.691d0)
-     .                   *(1.d0+SQRT(TEMP/3.676d7))**(1.d0+0.691d0))
+         CHTERMS(2,NTI) = 3.294e-11_RKIND/(SQRT(TEMP/15.54_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/15.54_RKIND))**(1._RKIND-0.691_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/3.676d7))**(1._RKIND+0.691_RKIND))
 C
 C        HELIUMN III RECOMBINATION COEFFICIENT
-         CHTERMS(3,NTI) = 2.d0*1.567d-10/(SQRT(TEMP/4.d0/1.023d0)
-     .        *(1.d0+SQRT(TEMP/4.d0/1.023d0))**(1.d0-0.7545d0)
-     .        *(1.d0+SQRT(TEMP/4.d0/6.8628d5))**(1.d00+0.7545d0))
+         CHTERMS(3,NTI) = 2._RKIND*1.567e-10_RKIND / 
+     .        (SQRT(TEMP/4._RKIND/1.023_RKIND)*(1._RKIND +
+     .        SQRT(TEMP/4._RKIND/1.023_RKIND))**(1._RKIND-0.7545_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/4._RKIND/6.8628d5))**(1._RKIND0 +
+     .        0.7545_RKIND))
 C
 C
 C        COLLISIONAL IONIZATION COEFFICIENTS
 C        HYDROGEN COLLISIONAL IONIZATION COEFFICIENT
-         CHTERMS(4,NTI) = 2.91d-8*(157809.1d0/TEMP)**(0.39d0)
-     .                    *EXP(-MIN(50.D0,157809.1d0/TEMP))
-     .                    /(0.232d0+157809.1d0/TEMP)
+         CHTERMS(4,NTI) = 2.91e-8_RKIND *
+     .        (157809.1_RKIND/TEMP)**(0.39_RKIND)
+     .        *EXP(-MIN(50.D0,157809.1_RKIND/TEMP))
+     .        /(0.232_RKIND+157809.1_RKIND/TEMP)
 C
 C        HELIUM I COLLISIONAL IONIZATION COEFFICIENT
-         CHTERMS(5,NTI) = 1.75d-8*(285335.4d0/TEMP)**(0.35d0)
-     .                    *EXP(-MIN(50.D0,285335.4d0/TEMP))
-     .                    /(0.18d0+285335.4d0/TEMP)
+         CHTERMS(5,NTI) = 1.75e-8_RKIND * 
+     .        (285335.4_RKIND/TEMP)**(0.35_RKIND)
+     .        *EXP(-MIN(50.D0,285335.4_RKIND/TEMP))
+     .        /(0.18_RKIND+285335.4_RKIND/TEMP)
 C
 C        HELIUM II COLLISIONAL IONIZATION COEFFICIENT
-         CHTERMS(6,NTI) = 2.05d-9*(1.d0+SQRT(631515.d0/TEMP))
-     .                    *(631515.d0/TEMP)**(0.25d0)
-     .                    *EXP(-MIN(50.D0,631515.d0/TEMP))
-     .                    /(0.265d0+631515.d0/TEMP)
+         CHTERMS(6,NTI) = 2.05e-9_RKIND *
+     .        (1._RKIND+SQRT(631515._RKIND/TEMP))
+     .        *(631515._RKIND/TEMP)**(0.25_RKIND)
+     .        *EXP(-MIN(50._RKIND,631515._RKIND/TEMP))
+     .        /(0.265_RKIND+631515._RKIND/TEMP)
 C
 C        HELIUMN II DIELECTRIC RECOMBINATION COEFFICIENT
-         CHTERMS(7,NTI) = 1.90d-3/TEMP**1.5d0 * 
-     .        EXP(-MIN(50.D0,470000.d0/TEMP)) * 
-     .        (1.d0+0.3d0*EXP(-MIN(10.D0,94000.d0/TEMP)))
+         CHTERMS(7,NTI) = 1.9e-3_RKIND/TEMP**1.5_RKIND * 
+     .        EXP(-MIN(50._RKIND,470000._RKIND/TEMP)) * 
+     .        (1._RKIND+0.3_RKIND *
+     .        EXP(-MIN(10._RKIND,94000._RKIND/TEMP)))
 C
 C
 C
 C
 C        HEATING/COOLING RATES IN 1.E-30 erg cm^3/sec
 C        HYDROGEN I COLLISIONAL IONIZATION COOLING TERM
-         CHTERMS(8,NTI) = 6.33d11*(157809.1d0/TEMP)**(0.39d0)
-     .                    *EXP(-MIN(50.D0,157809.1d0/TEMP))
-     .                    /(0.232d0+157809.1d0/TEMP)
+         CHTERMS(8,NTI) = 6.33e11_RKIND
+     .        *(157809.1_RKIND/TEMP)**(0.39_RKIND)
+     .        *EXP(-MIN(50._RKIND,157809.1_RKIND/TEMP))
+     .        /(0.232_RKIND+157809.1_RKIND/TEMP)
 CCCC .                    *ELTR*HRNI 
 C
 C        HELIUM I COLLISIONAL IONIZATION COOLING TERM
-         CHTERMS(9,NTI) = 6.89d11*(285335.4d0/TEMP)**(0.35d0)
-     .                    *EXP(-MIN(50.D0,285335.4d0/TEMP))
-     .                    /(0.18d0+285335.4d0/TEMP)
+         CHTERMS(9,NTI) = 6.89e11_RKIND
+     .        *(285335.4_RKIND/TEMP)**(0.35_RKIND)
+     .        *EXP(-MIN(50._RKIND,285335.4_RKIND/TEMP))
+     .        /(0.18_RKIND+285335.4_RKIND/TEMP)
 CCCC .                    *ELTR*HEMI
 C
 C        HELIUM I HE(2^3S) THREE-BODY COLLISIONAL IONIZATION COOLING TERM
-         CHTERMS(10,NTI)= 5.01d3/TEMP**0.1687d0*TLIM
-     .                    *EXP(-MIN(40.d0,5.53d0/TEMP4))
+         CHTERMS(10,NTI)= 5.01e3_RKIND/TEMP**0.1687_RKIND*TLIM
+     .                    *EXP(-MIN(40._RKIND,5.53_RKIND/TEMP4))
 CCCC .                    *ELTR**2*HEMII
 C
 C        HELIUM II COLLISIONAL IONIZATION COOLING TERM
-         CHTERMS(11,NTI) = 1.78d11*(1.d0+SQRT(631515.d0/TEMP))
-     .                    *(631515.d0/TEMP)**(0.25d0)
-     .                    *EXP(-MIN(50.D0,631515.d0/TEMP))
-     .                    /(0.265d0+631515.d0/TEMP)
+         CHTERMS(11,NTI) = 1.78e11_RKIND*(1._RKIND
+     .        +SQRT(631515._RKIND/TEMP))
+     .        *(631515._RKIND/TEMP)**(0.25_RKIND)
+     .        *EXP(-MIN(50._RKIND,631515._RKIND/TEMP))
+     .        /(0.265_RKIND+631515._RKIND/TEMP)
 CCCC .                    *ELTR*HEMII
 C
 C
 C        HYDROGEN II RECOMBINATION COOLING TERM
-         CHTERMS(12,NTI)= 10.d0**(5.6553d0 + (0.2418d0*TEMP4LOG
-     .               -0.0745d0*TEMP4LOG*TEMP4LOG
-     .               -0.0316d0*TEMP4LOG*TEMP4LOG*TEMP4LOG)
-     .               /(1.d0+0.01685d0*TEMP4LOG*TEMP4LOG*TEMP4LOG
-     .               -0.00186d0*TEMP4LOG*TEMP4LOG*TEMP4LOG*TEMP4LOG))
+         CHTERMS(12,NTI)= 10._RKIND**(5.6553_RKIND 
+     /        + (0.2418_RKIND*TEMP4LOG
+     .        -0.0745_RKIND*TEMP4LOG*TEMP4LOG
+     .        -0.0316_RKIND*TEMP4LOG*TEMP4LOG*TEMP4LOG)
+     .        /(1._RKIND+0.01685_RKIND*TEMP4LOG*TEMP4LOG*TEMP4LOG
+     .        -0.00186_RKIND*TEMP4LOG*TEMP4LOG*TEMP4LOG*TEMP4LOG))
 CCCC                *ELTR*HRNII
 C
 C        HELIUM II RECOMBINATION COOLING TERM
 C        JORDI, I AM NOT CERTAIN THAT THIS EXPRESSION IS RIGHT??
 C        THERE WAS A TEMP FACTOR MISSING
-         CHTERMS(13,NTI) = 3.393d3*TEMP/(SQRT(TEMP/15.54d0)
-     .                   *(1.d0+SQRT(TEMP/15.54d0))**(1.d0-0.691d0)
-     .                   *(1.d0+SQRT(TEMP/3.676d7))**(1.d0+0.691d0))
+         CHTERMS(13,NTI) = 3.393e3_RKIND*TEMP/(SQRT(TEMP/15.54_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/15.54_RKIND))**(
+     .                                      1._RKIND-0.691_RKIND)
+     .        *(1._RKIND+SQRT(TEMP/3.676e7_RKIND))**(
+     .                                      1._RKIND+0.691_RKIND))
 CCCC .                    *ELTR*HEMII
 C
 C        HELIUM II DIELECTRONIC RECOMBINATION COOLING TERM
-         CHTERMS(14,NTI)= 1.24d17/TEMP**1.5d0
-     .                    *EXP(-MIN(40.d0,47.d0/TEMP4))*(1.d0
-     .                      +0.3d0*EXP(-MIN(40.d0,9.4d0/TEMP4)))
+         CHTERMS(14,NTI)= 1.24e17_RKIND/TEMP**1.5_RKIND
+     .        *EXP(-MIN(40._RKIND,47._RKIND/TEMP4))*(1._RKIND
+     .        +0.3_RKIND*EXP(-MIN(40._RKIND,9.4_RKIND/TEMP4)))
 CCCC .                    *ELTR*HEMII
 C
 C        HELIUM III RECOMBINATION COOLING TERM
-         CHTERMS(15,NTI)= 8.d0*10.d0**(5.6553d0 + (0.2418d0*TEMP4LOG4
-     .               -0.0745d0*TEMP4LOG4*TEMP4LOG4
-     .               -0.0316d0*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4)
-     .               /(1.d0+0.01685d0*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4
-     .          -0.00186d0*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4))
+         CHTERMS(15,NTI)= 8._RKIND*10._RKIND**(5.6553_RKIND 
+     .        + (0.2418_RKIND*TEMP4LOG4
+     .        -0.0745_RKIND*TEMP4LOG4*TEMP4LOG4
+     .        -0.0316_RKIND*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4)
+     .        /(1._RKIND+0.01685_RKIND*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4
+     .        -0.00186_RKIND*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4*TEMP4LOG4))
 CCCC .                    *ELTR*HEMIII
 C
 C
 C        HYDROGEN I COLLISIONAL EXCITATION COOLING TERM
-         CHTERMS(16,NTI)= 7.5d11*TLIM*EXP(-MIN(40.d0,11.83d0/TEMP4))
+         CHTERMS(16,NTI)= 7.5e11_RKIND*TLIM
+     .        *EXP(-MIN(40._RKIND,11.83_RKIND/TEMP4))
 CCCC .                    *ELTR*HRNI
 C
 C        HELIUM I COLLISIONAL EXCITATION COOLING TERM, HE(n=2,3,4 TRIPLETS) 
-         CHTERMS(17,NTI)= 9.10d3/TEMP**0.1687d0*TLIM
-     .                    *EXP(-MIN(40.d0,1.32d0/TEMP4))
+         CHTERMS(17,NTI)= 9.10e3_RKIND/TEMP**0.1687_RKIND*TLIM
+     .        *EXP(-MIN(40._RKIND,1.32_RKIND/TEMP4))
 CCCC .                    *ELTR**2*HEMII
 C
 C        HELIUM II COLLISIONAL EXCITATION COOLING TERM, He^+ (n=2)
-         CHTERMS(18,NTI)= 5.54d13/TEMP**0.397d0*TLIM
-     .                    *EXP(-MIN(40.d0,47.36d0/TEMP4))
+         CHTERMS(18,NTI)= 5.54e13_RKIND/TEMP**0.397_RKIND*TLIM
+     .                    *EXP(-MIN(40._RKIND,47.36_RKIND/TEMP4))
 CCCC .                    *ELTR*HEMII
 C
 C        LITHIUM COLLISIONAL EXCITATION COOLING TERM, FIRST EXCITED (1.85eV)
 C        STATE, IT DECAYS BY EMISSION OF A 6708A PHOTON
-         CHTERMS(19,NTI)= 1.00d10*SQRT(10.d0*TEMP4)
-     .                    *EXP(-MIN(40.d0,2.144d0/TEMP4))
+         CHTERMS(19,NTI)= 1.e1_RKIND*SQRT(10._RKIND*TEMP4)
+     .                    *EXP(-MIN(40._RKIND,2.144_RKIND/TEMP4))
 CCCC .                    *ELTR*(HRNI+HRNII)*RATLI2H
 C
 C        BREMSSTRAHLUNG RADIATION COOLING TERM, Gff=1.30 IS USED
-         CHTERMS(20,NTI)= 1.30d0*1.42d3*TSQRT
-CCCC .                    *ELTR*(HRNII+HEMII+4.0*HEMIII)
+         CHTERMS(20,NTI)= 1.3_RKIND*1.42e3_RKIND*TSQRT
+CCCC .                    *ELTR*(HRNII+HEMII+4._RKIND*HEMIII)
 C
       ENDDO 
 C
@@ -414,6 +437,11 @@ C
 C     WRITTEN: BY RENYUE CEN, 11/7/92
 C
 C
+      implicit none
+#include "fortran_types.def"
+C
+      INTG_PREC N, NPOLY, NSHIFT, I
+      R_PREC    XN, YN, X, Y, XX, XNTMP, YNTMP, DIRV1, DIRVN, DY
       DIMENSION XN(N),YN(N),XX(N)
       DIMENSION XNTMP(10),YNTMP(10)
 C
@@ -461,30 +489,34 @@ c
 c
 c
       SUBROUTINE SPLINE(X,Y,N,YP1,YPN,Y2)
+      implicit none
+#include "fortran_types.def"
+      INTG_PREC N, NMAX, I, K
+      R_PREC    X, Y, YP1, YPN, Y2, U, SIG, P, QN, UN
       PARAMETER (NMAX=1000)
       DIMENSION X(N),Y(N),Y2(N),U(NMAX)
-      IF (YP1.GT..99d30) THEN
-        Y2(1)=0.d0
-        U(1)=0.d0
+      IF (YP1.GT..99e3_RKIND) THEN
+        Y2(1)=0._RKIND
+        U(1)=0._RKIND
       ELSE
-        Y2(1)=-0.5d0
-        U(1)=(3.d0/(X(2)-X(1)))*((Y(2)-Y(1))/(X(2)-X(1))-YP1)
+        Y2(1)=-0.5_RKIND
+        U(1)=(3._RKIND/(X(2)-X(1)))*((Y(2)-Y(1))/(X(2)-X(1))-YP1)
       ENDIF
       DO 11 I=2,N-1
         SIG=(X(I)-X(I-1))/(X(I+1)-X(I-1))
-        P=SIG*Y2(I-1)+2.d0
-        Y2(I)=(SIG-1.)/P
-        U(I)=(6.d0*((Y(I+1)-Y(I))/(X(I+1)-X(I))-(Y(I)-Y(I-1))
+        P=SIG*Y2(I-1)+2._RKIND
+        Y2(I)=(SIG-1._RKIND)/P
+        U(I)=(6._RKIND*((Y(I+1)-Y(I))/(X(I+1)-X(I))-(Y(I)-Y(I-1))
      &      /(X(I)-X(I-1)))/(X(I+1)-X(I-1))-SIG*U(I-1))/P
 11    CONTINUE
-      IF (YPN.GT..99d30) THEN
-        QN=0.d0
-        UN=0.d0
+      IF (YPN.GT..99e3_RKIND) THEN
+        QN=0._RKIND
+        UN=0._RKIND
       ELSE
-        QN=0.5d0
-        UN=(3.d0/(X(N)-X(N-1)))*(YPN-(Y(N)-Y(N-1))/(X(N)-X(N-1)))
+        QN=0.5_RKIND
+        UN=(3._RKIND/(X(N)-X(N-1)))*(YPN-(Y(N)-Y(N-1))/(X(N)-X(N-1)))
       ENDIF
-      Y2(N)=(UN-QN*U(N-1))/(QN*Y2(N-1)+1.d0)
+      Y2(N)=(UN-QN*U(N-1))/(QN*Y2(N-1)+1._RKIND)
       DO 12 K=N-1,1,-1
         Y2(K)=Y2(K)*Y2(K+1)+U(K)
 12    CONTINUE
@@ -492,6 +524,10 @@ c
       END
 c
       SUBROUTINE SPLINT(XA,YA,Y2A,N,X,Y)
+      implicit none
+#include "fortran_types.def"
+      INTG_PREC N, KLO, KHI, K
+      R_PREC    XA, YA, Y2A, X, Y, H, A, B
       DIMENSION XA(N),YA(N),Y2A(N)
       KLO=1
       KHI=N
@@ -506,7 +542,7 @@ c
       ENDIF
       H=XA(KHI)-XA(KLO)
 
-      if (h.eq.0.d0) then
+      if (h.eq.0._RKIND) then
         write(0,'("Bad XA input in SPLINT")')
         ERROR_MESSAGE
       end if
@@ -514,21 +550,25 @@ c
       A=(XA(KHI)-X)/H
       B=(X-XA(KLO))/H
       Y=A*YA(KLO)+B*YA(KHI)+
-     *      ((A**3-A)*Y2A(KLO)+(B**3-B)*Y2A(KHI))*(H**2)/6.d0
+     *      ((A**3-A)*Y2A(KLO)+(B**3-B)*Y2A(KHI))*(H**2)/6._RKIND
       RETURN
       END
 C
 C
       SUBROUTINE RATINT(XA,YA,N,X,Y,DY)
+      implicit none
+#include "fortran_types.def"
+      INTG_PREC N, NMAX, NS, I, M
+      R_PREC    XA, YA, X, Y, DY, TINY, C, D, HH, H, W, T, DD
       PARAMETER (NMAX=10,TINY=1.E-25)
       DIMENSION XA(N),YA(N),C(NMAX),D(NMAX)
       NS=1
       HH=ABS(X-XA(1))
       DO 11 I=1,N
         H=ABS(X-XA(I))
-        IF (H.EQ.0.)THEN
+        IF (H.EQ.0._RKIND)THEN
           Y=YA(I)
-          DY=0.d0
+          DY=0._RKIND
           RETURN
         ELSE IF (H.LT.HH) THEN
           NS=I
@@ -546,7 +586,7 @@ C
           T=(XA(I)-X)*D(I)/H
           DD=T-C(I+1)
 
-          if (dd.eq.0.) then
+          if (dd.eq.0._RKIND) then
             write(0,'("DD = 0 in RATINT")')
             ERROR_MESSAGE
           end if

@@ -12,16 +12,15 @@
 
 MACH_TEXT  = University of Arizona's HPC Clusters
 MACH_VALID = 1
-MACH_FILE  = Make.mach.UofA
+MACH_FILE  = Make.mach.arizona
 
 MACHINE_NOTES = "MACHINE_NOTES for University of Arizona's HPC Cluster: \
         The following modules are needed to compile enzo here with \
         the default machine file. \
-	hdf5/1.8.8 \
+    	hdf5/1.8.8 \
         intel/2012.0.032 \
-	mpt/2.04 (for SGI MPI compilers) \
-	intel-mpi/2012.0.032 (for intel MPI compilers) \
-	\
+	    mpt/2.04 (for SGI MPI compilers) \
+	    \
         You can run this command, \
         $ module load hdf5 mpt intel"
 
@@ -77,15 +76,6 @@ MACH_F90FLAGS =
 MACH_LDFLAGS  = 
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-MACH_FFLAGS_REAL_64    = -r8
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 
@@ -118,7 +108,7 @@ LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 
-LOCAL_LIBS_MACH   = -L $(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport # Machine-dependent libraries
+LOCAL_LIBS_MACH   = -L $(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport -lsvml # Machine-dependent libraries
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

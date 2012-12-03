@@ -95,41 +95,42 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real, intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real, intent(in) :: CompA, Comp_xray, Comp_temp
-  real, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC, intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
+  R_PREC, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
        IsEsHeII, IsEsHeIInu
-  real, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, intent(in), dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        ec, Er, HI, HeI, HeII, ec0, Er0, HI0, HeI0, HeII0, vx, vy, &
        vz, rho, eh, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        ecres, HIres, HeIres, HeIIres
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, &
        k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeIITb,        &
        ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
 
 !--------------
 ! locals
-  integer :: i, j, k, l, sweeps, sweeps2, Tidx, Tidxp
-  real*8 :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
-  real*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
-  real*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8 :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
-  real*8 :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8 :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
-  real*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  INTG_PREC :: i, j, k, l, sweeps, sweeps2, Tidx, Tidxp
+  REAL*8 :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
+  REAL*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
+  REAL*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8 :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
+  REAL*8 :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8 :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -137,11 +138,11 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
   ier = 1
 
   ! initialize outputs to have all zero values
-  ecres = 0.d0
-  if (Nchem > 0)  HIres = 0.d0
+  ecres = 0._RKIND
+  if (Nchem > 0)  HIres = 0._RKIND
   if (Nchem > 1) then
-     HeIres = 0.d0
-     HeIIres = 0.d0
+     HeIres = 0._RKIND
+     HeIIres = 0._RKIND
   end if
 
   ! we only have this enabled for Models 1 & 4 (case B HII recomb rate), 
@@ -217,7 +218,7 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -244,8 +245,8 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
               HIsrc = src_HI(i,j,k)
               
               ! call the local residual routine
-              call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew, &
-                   Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0,      &
+              call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew,  &
+                   Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0_IKIND, &
                    aval, dadt, int1, int2, int3, k1, k2, dUn, rUn, nUn, ier)
                  
               ! check the error flag
@@ -285,15 +286,15 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,     &
-                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,     &
-                      Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1, &
-                      int2, int3, int4, int5, int6, int7, NTempBins, TStart,  &
-                      TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,       &
-                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb, &
-                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,  &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                      Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                      int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                      TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                       dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -316,15 +317,15 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,     &
-                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,     &
-                         Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1, &
-                         int2, int3, int4, int5, int6, int7, NTempBins, TStart,  &
-                         TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,       &
-                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb, &
-                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,  &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                         Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                         int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                         TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                          dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -383,15 +384,15 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
                  
                  ! call the local residual routine
                  call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew, &
-                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,    &
-                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,  &
-                      HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,      &
-                      CompT, int1, int2, int3, int4, int5, int6, int7,         &
-                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
-                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,        &
-                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,       &
-                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,    &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,  &
+                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,     &
+                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,   &
+                      HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, &
+                      CompT, int1, int2, int3, int4, int5, int6, int7,          &
+                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,    &
+                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,         &
+                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,        &
+                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,     &
                       nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -418,16 +419,16 @@ subroutine gFLDProblem_AnalyticResid(ecres, HIres, HeIres, HeIIres, Er,  &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,&
-                         Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,   &
-                         rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam, &
-                         HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,     &
-                         CompT, int1, int2, int3, int4, int5, int6, int7,        &
-                         NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,  &
-                         k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,       &
-                         ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,      &
-                         reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,   &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,  &
+                         Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,     &
+                         rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,   &
+                         HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, &
+                         CompT, int1, int2, int3, int4, int5, int6, int7,          &
+                         NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,    &
+                         k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,         &
+                         ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,        &
+                         reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,     &
                          nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -550,45 +551,46 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real, intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
-  real, intent(in) :: CompA, Comp_xray, Comp_temp
-  real, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,     &
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC, intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
+  R_PREC, intent(in) :: CompA, Comp_xray, Comp_temp
+  R_PREC, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,     &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,   &
+  R_PREC, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,   &
        IsEsHeII, IsEsHeIInu
-  real, intent(in),                                                &
+  R_PREC, intent(in),                                                &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        vx, vy, vz, rho, eh, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        ec, Er, HI, HeI, HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        ecres, HIres, HeIres, HeIIres
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb,      &
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb,      &
        k4Tb, k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb,        &
        ciHeITb, ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb, &
        reHeIIITb, bremTb
 
 !--------------
 ! locals
-  integer :: i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
-  real*8 :: chmin, chmax, chsum, eint, gam
-  real*8 :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
-  real*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
-  real*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8 :: Ernew, ecnew, HInew, HeInew, HeIInew
-  real*8 :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8 :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
-  real*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  INTG_PREC :: i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
+  REAL*8 :: chmin, chmax, chsum, eint, gam
+  REAL*8 :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
+  REAL*8 :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8 :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
+  REAL*8 :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8 :: Ernew, ecnew, HInew, HeInew, HeIInew
+  REAL*8 :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8 :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8 :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -657,7 +659,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
         eint = vUn*vUn*(eh(1,1,1)                                  &
              - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
         T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
-        T = max(1.d0*T,1.d0)
+        T = max(T,1.d0)
      else
         T = ecScale
      endif
@@ -668,7 +670,7 @@ subroutine gFLDProblem_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,  &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1056,53 +1058,54 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, ESpectrum
-  integer, intent(out) :: ier
-  real*8, intent(in) :: a, adot
-  real*8, intent(in) :: dt, dx, gamma, HFrac, TempStart, TempEnd
-  real*8, intent(in) :: Comp1, Comp2, Comp_xray, Comp_temp
-  real*8, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, ESpectrum
+  INTG_PREC, intent(out) :: ier
+  REAL*8, intent(in) :: a, adot
+  REAL*8, intent(in) :: dt, dx, gamma, HFrac, TempStart, TempEnd
+  REAL*8, intent(in) :: Comp1, Comp2, Comp_xray, Comp_temp
+  REAL*8, intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,    &
        ErUnits, ecUnits, NiUnits, aUnits
-  real*8, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
+  REAL*8, intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu,  &
        IsEsHeII, IsEsHeIInu
-  real*8, intent(in) :: Er, ec, HI, HeI, HeII, Er0, ec0, HI0, HeI0, &
+  REAL*8, intent(in) :: Er, ec, HI, HeI, HeII, Er0, ec0, HI0, HeI0, &
        HeII0, rho, eint, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real*8, intent(out) :: Erres, ecres, HIres, HeIres, HeIIres
-  real, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  REAL*8, intent(out) :: Erres, ecres, HIres, HeIres, HeIIres
+  R_PREC, intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
 
   !--------------
   ! locals
-  integer :: Tidx, Tidxp
-  real*8 :: afac, c, hp, kb, mp, lTempS, lTempE, dlTemp
-  real*8 :: nu0_HI, nu0_HeI, nu0_HeII, HIconst, HeIconst, HeIIconst
-  real*8 :: min_temp, min_ni, min_rad
-  real*8 :: HIval, HeIval, HeIIval, ecval, Erval, rhoval
-  real*8 :: nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
-  real*8 :: HIanal, HeIanal, HeIIanal, Eranal, ecanal
-  real*8 :: grey, T, lamT, lTemp, Tl, Tr, Tfac, kE, P1, Q1, cond, dx_sc
-  real*8 :: wts(7), taus(7), vals(7), fvals(7), ival
-  real*8 :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeII, ciHeIS
-  real*8 :: reHII, reHeII1, reHeII2, reHeIII, brem, G, Lambda
-  real*8 :: P2, Q2, k1, k2, k3, k4, k5, k6, G_HI, G_HeI, G_HeII
-  real*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
-  real*8 :: aHeI, bHeI, cHeI, dHeI, kHeI, expVHeI
-  real*8 :: aHeII, bHeII, cHeII, dHeII, kHeII, expVHeII
+  INTG_PREC :: Tidx, Tidxp
+  REAL*8 :: afac, c, hp, kb, mp, lTempS, lTempE, dlTemp
+  REAL*8 :: nu0_HI, nu0_HeI, nu0_HeII, HIconst, HeIconst, HeIIconst
+  REAL*8 :: min_temp, min_ni, min_rad
+  REAL*8 :: HIval, HeIval, HeIIval, ecval, Erval, rhoval
+  REAL*8 :: nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
+  REAL*8 :: HIanal, HeIanal, HeIIanal, Eranal, ecanal
+  REAL*8 :: grey, T, lamT, lTemp, Tl, Tr, Tfac, kE, P1, Q1, cond, dx_sc
+  REAL*8 :: wts(7), taus(7), vals(7), fvals(7), ival
+  REAL*8 :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeII, ciHeIS
+  REAL*8 :: reHII, reHeII1, reHeII2, reHeIII, brem, G, Lambda
+  REAL*8 :: P2, Q2, k1, k2, k3, k4, k5, k6, G_HI, G_HeI, G_HeII
+  REAL*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
+  REAL*8 :: aHeI, bHeI, cHeI, dHeI, kHeI, expVHeI
+  REAL*8 :: aHeII, bHeII, cHeII, dHeII, kHeII, expVHeII
 
   !=======================================================================
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  ecres = 0.d0
-  if (Nchem > 0)  HIres = 0.d0
+  ecres = 0._RKIND
+  if (Nchem > 0)  HIres = 0._RKIND
   if (Nchem > 1) then
-     HeIres = 0.d0
-     HeIIres = 0.d0
+     HeIres = 0._RKIND
+     HeIIres = 0._RKIND
   end if
 
   ! we only have this enabled for Model 1 (case B HII recomb rate), which
@@ -1122,26 +1125,26 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   hp = hplanck                 ! Planck's constant [ergs*s]
   kb = kboltz                  ! boltzmann constant [erg/K]
   mp = mass_h                  ! Mass of a proton [g]
-  nu0_HI = 13.6d0*ev2erg/hp    ! ionization frequency of HI   [hz]
-  nu0_HeI = 24.6d0*ev2erg/hp   ! ionization frequency of HeI  [hz]
-  nu0_HeII = 54.4d0*ev2erg/hp  ! ionization frequency of HeII [hz]
-  min_temp = 1.d0              ! minimum temperature [K]
-  min_ni   = 0.d0              ! minimum chem number density [cm^{-3}]
-  min_rad  = 0.d0              ! minimum radiation density [ergs/cm^3]
+  nu0_HI = 13.6_RKIND*ev2erg/hp    ! ionization frequency of HI   [hz]
+  nu0_HeI = 24.6_RKIND*ev2erg/hp   ! ionization frequency of HeI  [hz]
+  nu0_HeII = 54.4_RKIND*ev2erg/hp  ! ionization frequency of HeII [hz]
+  min_temp = 1._RKIND              ! minimum temperature [K]
+  min_ni   = 0._RKIND              ! minimum chem number density [cm^{-3}]
+  min_rad  = 0._RKIND              ! minimum radiation density [ergs/cm^3]
   HIconst   = c*(IsEsHI - nu0_HI*IsEsHInu)/IsE
   HeIconst  = c*(IsEsHeI - nu0_HeI*IsEsHeInu)/IsE
   HeIIconst = c*(IsEsHeII - nu0_HeII*IsEsHeIInu)/IsE
-  grey = 1.d0                  ! grey vs monochromatic coeff for eqns
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND                  ! grey vs monochromatic coeff for eqns
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   ! radiation time integral weights and integration nodes
-  wts  = (/ 1.d0, 4.d0, 2.d0, 4.d0, 2.d0, 4.d0, 1.d0   /)*dt/18.d0
-  taus = (/ 6.d0, 5.d0, 4.d0, 3.d0, 2.d0, 1.d0, 1.d-11 /)*dt/6.d0
+!!$  wts  = (/ 1._RKIND, 4._RKIND, 2._RKIND, 4._RKIND, 2._RKIND, 4._RKIND, 1._RKIND   /)*dt/18._RKIND
+!!$  taus = (/ 6._RKIND, 5._RKIND, 4._RKIND, 3._RKIND, 2._RKIND, 1._RKIND, 1.e-11_RKIND /)*dt/6._RKIND
 
   ! lookup table constants
   lTempS = log(TempStart)
   lTempE = log(TempEnd)
-  dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
+  dlTemp = (lTempE - lTempS)/(1._RKIND*NTempBins - 1._RKIND)
 
 
   ! decide between none vs Hydrogen vs Hydrogen+Helium chemistry
@@ -1149,23 +1152,23 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   if (Nchem == 1) then
 
      ! get shortcut values time-centered variables
-     Erval = (Er0 + Er)*0.5d0
-     ecval = (ec0 + ec)*0.5d0
-     HIval = (HI0 + HI)*0.5d0
-     HeIval = (HeI0 + HeI)*0.5d0
-     HeIIval = (HeII0 + HeII)*0.5d0
+     Erval = (Er0 + Er)*0.5_RKIND
+     ecval = (ec0 + ec)*0.5_RKIND
+     HIval = (HI0 + HI)*0.5_RKIND
+     HeIval = (HeI0 + HeI)*0.5_RKIND
+     HeIIval = (HeII0 + HeII)*0.5_RKIND
      rhoval = rho*DenUnits
      nH = Hfrac*rhoval/mp
      nHI = HIval*NiUnits
-     nHII = max(1.d0*(nH - nHI), 0.d0)
+     nHII = max(nH - nHI, 0.d0)
      ne = nHII
 
      ! compute temperature and ODE terms
-     T = (gamma-1.d0)*rhoval/(nHI+nHII+ne)*(eint+ecval*ecUnits)/kb
-     T = max(1.d0*T,1.d0*min_temp)
-     lamT = 3.15614d5/T
+     T = (gamma-1._RKIND)*rhoval/(nHI+nHII+ne)*(eint+ecval*ecUnits)/kb
+     T = max(T,min_temp)
+     lamT = 3.15614e5_RKIND/T
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1175,7 +1178,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      kE = HIval*NiUnits*IsEsHI/IsE
      P1 = grey*afac + c*kE
      Q1 = src_Er/ErUnits
-     cond = 16.d0*c/kE/3.d0
+     cond = 16._RKIND*c/kE/3._RKIND
 
      ! compute gas ODE rates
      ceHI = ceHITb(Tidx) + (ceHITb(Tidxp) - ceHITb(Tidx))*Tfac
@@ -1185,25 +1188,25 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      G = nHI/rhoval*Erval*ErUnits*HIconst
      Lambda = ne/rhoval*(ceHI*nHI + ciHI*nHI + reHII*nHII        &
           + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp) + brem*nHII)
-     P2 = 2.d0*afac
+     P2 = 2._RKIND*afac
      Q2 = (G - Lambda + src_ec)/ecUnits
 
      ! compute HI chemistry ODE rates
      k1 = k1Tb(Tidx) + (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac
-     k2 = 2.753d-14*lamT**(1.5d0) *                 &
-          (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
+     k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                 &
+          (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
      G_HI   = c*Erval*ErUnits/hp*IsEsHInu/IsE
      aHI = (k1+k2)*NiUnits
-     bHI = -(k1 + 2.d0*k2)*nH - G_HI
+     bHI = -(k1 + 2._RKIND*k2)*nH - G_HI
      cHI = (k2*nH*nH + src_HI)/NiUnits
 
 
 
     ! compute quasi-steady-state solution for Er, place in Eranal
-    if (abs(P1) < 1.0d-14) then
+    if (abs(P1) < 1.e-14_RKIND) then
        Eranal = Er0 + Q1*dt
     else
-       if (P1*dt > 7.0d2) then
+       if (P1*dt > 7.e2_RKIND) then
           Eranal = Q1/P1
        else
           Eranal = (Er0 - Q1/P1)*exp(-P1*dt) + Q1/P1
@@ -1218,19 +1221,19 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 !!$     ! source; as this is where the local nonlinear problem is hardest to solve, 
 !!$     ! it should prove quite beneficial.
 !!$     !    perform the time integral only if source is nonzero
-!!$     Eranal = 0.d0
+!!$     Eranal = 0._RKIND
 !!$     if (abs(Q1) > 1.d-13) then
 !!$        ! evaluate the Green's function integrand at tau values, 
 !!$        ! and combine to form the time-integral
 !!$        vals = dx_sc/sqrt(cond*taus)
-!!$        call erf_vec(fvals, vals, 7)
+!!$        call erf_vec(fvals, vals, 7_IKIND)
 !!$        ival = sum(wts * exp(-P1*taus) * fvals**3)
 !!$
 !!$        ! compute contribution due to sources
 !!$        Eranal = ival*Q1
 !!$!!$     else
 !!$!!$        vals(1) = dx_sc/sqrt(cond*dt)
-!!$!!$        call erf_vec(fvals, vals, 1)
+!!$!!$        call erf_vec(fvals, vals, 1_IKIND)
 !!$     end if
 !!$     !    compute contribution due to previous time solution
 !!$!!$     !    (re-use fvals since it was last called with tau=0)
@@ -1239,10 +1242,10 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      
 
      ! compute quasi-steady-state solution for ec, place in ecanal
-     if (abs(P2) < 1.0d-14) then
+     if (abs(P2) < 1.e-14_RKIND) then
         ecanal = ec0 + Q2*dt
      else
-        if (P2*dt > 7.0d2) then
+        if (P2*dt > 7.e2_RKIND) then
            ecanal = Q2/P2
         else
            ecanal = (ec0 - Q2/P2)*exp(-P2*dt) + Q2/P2
@@ -1251,11 +1254,11 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
 
      ! compute quasi-steady-state solution for HI, place in HIres
-     dHI = bHI*bHI - 4.d0*aHI*cHI
+     dHI = bHI*bHI - 4._RKIND*aHI*cHI
 
      !    if the second-order terms are very small, treat it as a linear ODE
-     if (abs(aHI*HIval**2/(cHI-bHI*HIval)) < 1.0d-8) then
-        if (bHI*dt < -7.0d2) then
+     if (abs(aHI*HIval**2/(cHI-bHI*HIval)) < 1.e-8_RKIND) then
+        if (bHI*dt < -7.e2_RKIND) then
            HIanal = -cHI/bHI
         else
            HIanal = (HI0 + cHI/bHI)*exp(bHI*dt) - cHI/bHI
@@ -1265,35 +1268,35 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      else
 
         ! no roots to quadratic
-        if (dHI/bHI/bHI < -1.0d-8) then
+        if (dHI/bHI/bHI < -1.e-8_RKIND) then
            sqD = sqrt(-dHI)
-           kHI = 2.d0/sqD*atan((2.d0*aHI*HI0+bHI)/sqD)
-           HIanal = (sqD*tan((dt+kHI)*0.5d0*sqD)-bHI)*0.5d0/aHI
+           kHI = 2._RKIND/sqD*atan((2._RKIND*aHI*HI0+bHI)/sqD)
+           HIanal = (sqD*tan((dt+kHI)*0.5_RKIND*sqD)-bHI)*0.5_RKIND/aHI
 
         ! two roots to quadratic
-        elseif (dHI/bHI/bHI > 1.0d-8) then
-           rt1 = (-bHI+sqrt(dHI))*0.5d0/aHI
-           rt2 = (-bHI-sqrt(dHI))*0.5d0/aHI 
+        elseif (dHI/bHI/bHI > 1.e-8_RKIND) then
+           rt1 = (-bHI+sqrt(dHI))*0.5_RKIND/aHI
+           rt2 = (-bHI-sqrt(dHI))*0.5_RKIND/aHI 
            kHI = log(abs((HI0-rt2)/(HI0-rt1)))/aHI/(rt2-rt1)
            expArg = aHI*(dt+kHI)*(rt2-rt1)
-           if (expArg < -7.0d2) then
+           if (expArg < -7.e2_RKIND) then
               HIanal = rt2
-           elseif (expArg > 7.0d2) then
+           elseif (expArg > 7.e2_RKIND) then
               HIanal = rt1
            else
               expVHI = exp(expArg)
-              if ((HI0-rt1)*(HI0-rt2) > 0.d0) then
-                 HIanal = (rt2-rt1*expVHI)/(1.d0-expVHI)
+              if ((HI0-rt1)*(HI0-rt2) > 0._RKIND) then
+                 HIanal = (rt2-rt1*expVHI)/(1._RKIND-expVHI)
               else
-                 HIanal = (rt2+rt1*expVHI)/(1.d0+expVHI)
+                 HIanal = (rt2+rt1*expVHI)/(1._RKIND+expVHI)
               end if
            end if
 
         ! one double root to quadratic
         else
-           rt1 = -bHI*0.5d0/aHI
-           kHI = 1.d0/aHI/(rt1-HI0)
-           HIanal = rt1 - 1.d0/aHI/(dt+kHI)
+           rt1 = -bHI*0.5_RKIND/aHI
+           kHI = 1._RKIND/aHI/(rt1-HI0)
+           HIanal = rt1 - 1._RKIND/aHI/(dt+kHI)
 
         end if  ! roots
      end if  ! quadratic
@@ -1303,7 +1306,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      Eranal = max(Eranal, min_rad/ErUnits)
      T = (gamma-1.d0)*rhoval/(nHI+nHII+ne)*(eint+ecanal*ecUnits)/kb
      if (T < min_temp)  &
-          ecanal = (min_temp/(gamma-1.d0)/rhoval*(nHI+nHII+ne)*kb-eint)/ecUnits
+          ecanal = (min_temp/(gamma-1._RKIND)/rhoval*(nHI+nHII+ne)*kb-eint)/ecUnits
      HIanal = min(HIanal, nH/NiUnits)
      HIanal = max(HIanal, min_ni/NiUnits)
 
@@ -1344,10 +1347,10 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
         if (dHI/bHI/bHI < -1.0d-8) then
            print '(1(A,es12.5))', '   sqD =',sqrt(-dHI)
         elseif (dHI/bHI/bHI > 1.0d-8) then
-           print '(3(A,es12.5))', '   rt1 =',(-bHI+sqrt(dHI))*0.5d0/aHI, &
-                ', rt2 =',(-bHI-sqrt(dHI))*0.5d0/aHI,', expVHI =',expVHI
+           print '(3(A,es12.5))', '   rt1 =',(-bHI+sqrt(dHI))*0.5_RKIND/aHI, &
+                ', rt2 =',(-bHI-sqrt(dHI))*0.5_RKIND/aHI,', expVHI =',expVHI
         else
-           print '(1(A,es12.5))', '   rt1 =',-bHI*0.5d0/aHI
+           print '(1(A,es12.5))', '   rt1 =',-bHI*0.5_RKIND/aHI
         end if
         print '(2(A,es12.5))', '   K =',kHI,', G_HI =',G_HI
         print '(2(A,es12.5))', '  HIval =',HIval,', HI0 =',HI0
@@ -1363,28 +1366,28 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
   else
 
      ! get shortcut values time-centered variables
-     Erval = (Er0 + Er)*0.5d0
-     ecval = (ec0 + ec)*0.5d0
-     HIval = (HI0 + HI)*0.5d0
-     HeIval = (HeI0 + HeI)*0.5d0
-     HeIIval = (HeII0 + HeII)*0.5d0
+     Erval = (Er0 + Er)*0.5_RKIND
+     ecval = (ec0 + ec)*0.5_RKIND
+     HIval = (HI0 + HI)*0.5_RKIND
+     HeIval = (HeI0 + HeI)*0.5_RKIND
+     HeIIval = (HeII0 + HeII)*0.5_RKIND
      rhoval = rho*DenUnits
      nH = Hfrac*rhoval/mp
      nHI = HIval*NiUnits
-     nHII = max(1.d0*(nH - nHI), 0.d0)
+     nHII = max(nH - nHI, 0.d0)
      nHe = (1.d0-Hfrac)*rhoval/mp
      nHeI = HeIval*NiUnits
      nHeII = HeIIval*NiUnits
-     nHeIII = max(1.d0*(nHe - nHeI - nHeII), 0.d0)
+     nHeIII = max(nHe - nHeI - nHeII, 0.d0)
      ne = nHII + 0.25d0*nHeII + 0.5d0*nHeIII
 
      ! compute temperature and ODE terms
-     T = (gamma-1.d0)*rhoval/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne) &
+     T = (gamma-1._RKIND)*rhoval/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne) &
           * (eint+ecval*ecUnits)/kb
-     T = max(1.d0*T,1.d0*min_temp)
+     T = max(T,min_temp)
      lamT = 3.15614d5/T
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1394,7 +1397,7 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      kE = (HIval*IsEsHI/IsE + HeIval*IsEsHeI/IsE + HeIIval*IsEsHeII/IsE)*NiUnits
      P1  = grey*afac + c*kE
      Q1  = src_Er/ErUnits
-     cond = 16.d0*c/kE/3.d0
+     cond = 16._RKIND*c/kE/3._RKIND
 
      ! compute gas ODE rates
      ceHI = ceHITb(Tidx) + (ceHITb(Tidxp) - ceHITb(Tidx))*Tfac
@@ -1412,17 +1415,17 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      G = Erval*ErUnits/rhoval*(nHI*HIconst + nHeI*HeIconst + nHeII*HeIIconst)
      Lambda = ne/rhoval*(ceHI*nHI + ciHI*nHI + reHII*nHII        &
           + Comp1*(T-Comp2) + Comp_xray*(T-Comp_temp)            &
-          + brem*(nHII+nHeII/4.d0+nHeIII)                        &
-          + 0.25d0*(ceHeI*nHeII*ne + ceHeII*nHeII + ciHeI*nHeI   &
+          + brem*(nHII+nHeII/4._RKIND+nHeIII)                        &
+          + 0.25_RKIND*(ceHeI*nHeII*ne + ceHeII*nHeII + ciHeI*nHeI   &
           + ciHeII*nHeII + ciHeIS*nHeII*ne + reHeII1*nHeII       &
           + reHeII2*nHeII + reHeIII*nHeIII))
-     P2 = 2.d0*afac
+     P2 = 2._RKIND*afac
      Q2 = (G - Lambda + src_ec)/ecUnits
 
      ! compute chemistry ODE rates
      k1 = k1Tb(Tidx) + (k1Tb(Tidxp) - k1Tb(Tidx))*Tfac
-     k2 = 2.753d-14*lamT**(1.5d0) *                 &
-          (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
+     k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                 &
+          (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
      k3 = k3Tb(Tidx) + (k3Tb(Tidxp) - k3Tb(Tidx))*Tfac
      k4 = k4Tb(Tidx) + (k4Tb(Tidxp) - k4Tb(Tidx))*Tfac
      k5 = k5Tb(Tidx) + (k5Tb(Tidxp) - k5Tb(Tidx))*Tfac
@@ -1431,43 +1434,43 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      G_HeI  = c*Erval*ErUnits/hp*IsEsHeInu/IsE
      G_HeII = c*Erval*ErUnits/hp*IsEsHeIInu/IsE
      aHI = (k1+k2)*NiUnits
-     bHI = -(k1 + 2.d0*k2)*nH - (k1+k2)*(nHeII + 2.d0*nHeIII)/4.d0 - G_HI
-     cHI = (k2*nH*nH + k2*nH*(nHeII + 2.d0*nHeIII)/4.d0 + src_HI)/NiUnits
-     aHeI = k3*0.5d0*NiUnits
-     bHeI = -G_HeI - k3*(nHII + 0.5d0*nHe - 0.25d0*nHeII) - k4*0.5d0*nHeII
-     cHeI = (k4*nHeII*(nHII + 0.5d0*nHe - 0.25d0*nHeII) + src_HeI)/NiUnits
-     aHeII = 0.25d0*(k4+k5+k6)*NiUnits
-     bHeII = -G_HeII - (k4+k5+k6)*(nHII + 0.5d0*(nHe-nHeI)) &
-          - 0.25d0*(k3*nHeI + k6*(nHe-nHeI))
-     cHeII = ((k3*nHeI + k6*(nHe-nHeI))*(nHII + 0.5d0*(nHe-nHeI)) &
+     bHI = -(k1 + 2._RKIND*k2)*nH - (k1+k2)*(nHeII + 2._RKIND*nHeIII)/4._RKIND - G_HI
+     cHI = (k2*nH*nH + k2*nH*(nHeII + 2._RKIND*nHeIII)/4._RKIND + src_HI)/NiUnits
+     aHeI = k3*0.5_RKIND*NiUnits
+     bHeI = -G_HeI - k3*(nHII + 0.5_RKIND*nHe - 0.25_RKIND*nHeII) - k4*0.5_RKIND*nHeII
+     cHeI = (k4*nHeII*(nHII + 0.5_RKIND*nHe - 0.25_RKIND*nHeII) + src_HeI)/NiUnits
+     aHeII = 0.25_RKIND*(k4+k5+k6)*NiUnits
+     bHeII = -G_HeII - (k4+k5+k6)*(nHII + 0.5_RKIND*(nHe-nHeI)) &
+          - 0.25_RKIND*(k3*nHeI + k6*(nHe-nHeI))
+     cHeII = ((k3*nHeI + k6*(nHe-nHeI))*(nHII + 0.5_RKIND*(nHe-nHeI)) &
           + nHeI*G_HeI + src_HeII)/NiUnits
 
 
 
      ! compute quasi-steady-state solution for Er, place in Eranal
-     if (abs(P1) < 1.0d-14) then
+     if (abs(P1) < 1.e-14_RKIND) then
         Eranal = Er0 + Q1*dt
      else
-        if (P1*dt > 7.0d2) then
+        if (P1*dt > 7.e2_RKIND) then
            Eranal = Q1/P1
         else
            Eranal = (Er0 - Q1/P1)*exp(-P1*dt) + Q1/P1
         end if
      end if
 !!$     !    perform time integral only if sources are nonzero
-!!$     Eranal = 0.d0
+!!$     Eranal = 0._RKIND
 !!$     if (abs(Q1) > 1.d-13) then
 !!$        ! evaluate the Green's function integrand at tau values, 
 !!$        ! and combine to form the time-integral
 !!$        vals = dx_sc/sqrt(cond*taus)
-!!$        call erf_vec(fvals, vals, 7)
+!!$        call erf_vec(fvals, vals, 7_IKIND)
 !!$        ival = sum(wts * exp(-P1*taus) * fvals**3)
 !!$
 !!$        ! compute contribution due to sources
 !!$        Eranal = ival*Q1
 !!$!!$     else
 !!$!!$        vals(1) = dx_sc/sqrt(cond*dt)
-!!$!!$        call erf_vec(fvals, vals, 1)
+!!$!!$        call erf_vec(fvals, vals, 1_IKIND)
 !!$     end if
 !!$     !    compute contribution due to previous time solution
 !!$!!$     !    (re-use fvals since it was last called with tau=0)
@@ -1476,10 +1479,10 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
 
      ! compute quasi-steady-state solution for ec, place in ecanal
-     if (abs(P2) < 1.0d-14) then
+     if (abs(P2) < 1.e-14_RKIND) then
         ecanal = ec0 + Q2*dt
      else
-        if (P2*dt > 7.0d2) then
+        if (P2*dt > 7.e2_RKIND) then
            ecanal = Q2/P2
         else
            ecanal = (ec0 - Q2/P2)*exp(-P2*dt) + Q2/P2
@@ -1488,11 +1491,11 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
 
      ! compute quasi-steady-state solution for HI, place in HIres
-     dHI = bHI*bHI - 4.d0*aHI*cHI
+     dHI = bHI*bHI - 4._RKIND*aHI*cHI
 
      !    if the second-order terms are very small, treat it as a linear ODE
-     if (abs(aHI*HIval**2/(cHI-bHI*HIval)) < 1.0d-8) then
-        if (bHI*dt < -7.0d2) then
+     if (abs(aHI*HIval**2/(cHI-bHI*HIval)) < 1.e-8_RKIND) then
+        if (bHI*dt < -7.e2_RKIND) then
            HIanal = -cHI/bHI
         else
            HIanal = (HI0 + cHI/bHI)*exp(bHI*dt) - cHI/bHI
@@ -1502,46 +1505,46 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      else
 
         ! no roots to quadratic
-        if (dHI/bHI/bHI < -1.0d-8) then
+        if (dHI/bHI/bHI < -1.e-8_RKIND) then
            sqD = sqrt(-dHI)
-           kHI = 2.d0/sqD*atan((2.d0*aHI*HI0+bHI)/sqD)
-           HIanal = (sqD*tan((dt+kHI)*0.5d0*sqD)-bHI)*0.5d0/aHI
+           kHI = 2._RKIND/sqD*atan((2._RKIND*aHI*HI0+bHI)/sqD)
+           HIanal = (sqD*tan((dt+kHI)*0.5_RKIND*sqD)-bHI)*0.5_RKIND/aHI
 
         ! two roots to quadratic
-        elseif (dHI/bHI/bHI > 1.0d-8) then
-           rt1 = (-bHI+sqrt(dHI))*0.5d0/aHI
-           rt2 = (-bHI-sqrt(dHI))*0.5d0/aHI 
+        elseif (dHI/bHI/bHI > 1.e-8_RKIND) then
+           rt1 = (-bHI+sqrt(dHI))*0.5_RKIND/aHI
+           rt2 = (-bHI-sqrt(dHI))*0.5_RKIND/aHI 
            kHI = log(abs((HI0-rt2)/(HI0-rt1)))/aHI/(rt2-rt1)
            expArg = aHI*(dt+kHI)*(rt2-rt1)
-           if (expArg < -7.0d2) then
+           if (expArg < -7.e2_RKIND) then
               HIanal = rt2
-           elseif (expArg > 7.0d2) then
+           elseif (expArg > 7.e2_RKIND) then
               HIanal = rt1
            else
               expVHI = exp(expArg)
-              if ((HI0-rt1)*(HI0-rt2) > 0.d0) then
-                 HIanal = (rt2-rt1*expVHI)/(1.d0-expVHI)
+              if ((HI0-rt1)*(HI0-rt2) > 0._RKIND) then
+                 HIanal = (rt2-rt1*expVHI)/(1._RKIND-expVHI)
               else
-                 HIanal = (rt2+rt1*expVHI)/(1.d0+expVHI)
+                 HIanal = (rt2+rt1*expVHI)/(1._RKIND+expVHI)
               end if
            end if
 
         ! one double root to quadratic
         else
-           rt1 = -bHI*0.5d0/aHI
-           kHI = 1.d0/aHI/(rt1-HI0)
-           HIanal = rt1 - 1.d0/aHI/(dt+kHI)
+           rt1 = -bHI*0.5_RKIND/aHI
+           kHI = 1._RKIND/aHI/(rt1-HI0)
+           HIanal = rt1 - 1._RKIND/aHI/(dt+kHI)
 
         end if  ! roots
      end if  ! quadratic
 
 
      ! compute quasi-steady-state solution for HeI, place in HeIres
-     dHeI = bHeI*bHeI - 4.d0*aHeI*cHeI
+     dHeI = bHeI*bHeI - 4._RKIND*aHeI*cHeI
 
      !    if the second-order terms are very small, treat it as a linear ODE
-     if (abs(aHeI*HeIval**2/(cHeI-bHeI*HeIval)) < 1.0d-8) then
-        if (bHeI*dt < -7.0d2) then
+     if (abs(aHeI*HeIval**2/(cHeI-bHeI*HeIval)) < 1.e-8_RKIND) then
+        if (bHeI*dt < -7.e2_RKIND) then
            HeIanal = -cHeI/bHeI
         else
            HeIanal = (HeI0 + cHeI/bHeI)*exp(bHeI*dt) - cHeI/bHeI
@@ -1551,15 +1554,15 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      else
 
         ! no roots to quadratic
-        if (dHeI/bHeI/bHeI < -1.0d-8) then
+        if (dHeI/bHeI/bHeI < -1.e-8_RKIND) then
            sqD = sqrt(-dHeI)
-           kHeI = 2.d0/sqD*atan((2.d0*aHeI*HeI0+bHeI)/sqD)
-           HeIanal = (sqD*tan((dt+kHeI)*0.5d0*sqD)-bHeI)*0.5d0/aHeI
+           kHeI = 2._RKIND/sqD*atan((2._RKIND*aHeI*HeI0+bHeI)/sqD)
+           HeIanal = (sqD*tan((dt+kHeI)*0.5_RKIND*sqD)-bHeI)*0.5_RKIND/aHeI
 
         ! two roots to quadratic
-        elseif (dHeI/bHeI/bHeI > 1.0d-8) then
-           rt1 = (-bHeI+sqrt(dHeI))*0.5d0/aHeI
-           rt2 = (-bHeI-sqrt(dHeI))*0.5d0/aHeI 
+        elseif (dHeI/bHeI/bHeI > 1.e-8_RKIND) then
+           rt1 = (-bHeI+sqrt(dHeI))*0.5_RKIND/aHeI
+           rt2 = (-bHeI-sqrt(dHeI))*0.5_RKIND/aHeI 
            kHeI = log(abs((HeI0-rt2)/(HeI0-rt1)))/aHeI/(rt2-rt1)
            expArg = aHeI*(dt+kHeI)*(rt2-rt1)
            if (expArg < -7.0d2) then
@@ -1568,29 +1571,29 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
               HeIanal = rt1
            else
               expVHeI = exp(expArg)
-              if ((HeI0-rt1)*(HeI0-rt2) > 0.d0) then
-                 HeIanal = (rt2-rt1*expVHeI)/(1.d0-expVHeI)
+              if ((HeI0-rt1)*(HeI0-rt2) > 0._RKIND) then
+                 HeIanal = (rt2-rt1*expVHeI)/(1._RKIND-expVHeI)
               else
-                 HeIanal = (rt2+rt1*expVHeI)/(1.d0+expVHeI)
+                 HeIanal = (rt2+rt1*expVHeI)/(1._RKIND+expVHeI)
               end if
            end if
 
         ! one double root to quadratic
         else
-           rt1 = -bHeI*0.5d0/aHeI
-           kHeI = 1.d0/aHeI/(rt1-HeI0)
-           HeIanal = rt1 - 1.d0/aHeI/(dt+kHeI)
+           rt1 = -bHeI*0.5_RKIND/aHeI
+           kHeI = 1._RKIND/aHeI/(rt1-HeI0)
+           HeIanal = rt1 - 1._RKIND/aHeI/(dt+kHeI)
 
         end if  ! roots
      end if  ! quadratic
 
 
      ! compute quasi-steady-state solution for HeII, place in HeIIres
-     dHeII = bHeII*bHeII - 4.d0*aHeII*cHeII
+     dHeII = bHeII*bHeII - 4._RKIND*aHeII*cHeII
 
      !    if the second-order terms are very small, treat it as a linear ODE
-     if (abs(aHeII*HeIIval**2/(cHeII-bHeII*HeIIval)) < 1.0d-8) then
-        if (bHeII*dt < -7.0d2) then
+     if (abs(aHeII*HeIIval**2/(cHeII-bHeII*HeIIval)) < 1.e-8_RKIND) then
+        if (bHeII*dt < -7.e2_RKIND) then
            HeIIanal = -cHeII/bHeII
         else
            HeIIanal = (HeII0 + cHeII/bHeII)*exp(bHeII*dt) - cHeII/bHeII
@@ -1600,35 +1603,35 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
      else
 
         ! no roots to quadratic
-        if (dHeII/bHeII/bHeII < -1.0d-8) then
+        if (dHeII/bHeII/bHeII < -1.e-8_RKIND) then
            sqD = sqrt(-dHeII)
-           kHeII = 2.d0/sqD*atan((2.d0*aHeII*HeII0+bHeII)/sqD)
-           HeIIanal = (sqD*tan((dt+kHeII)*0.5d0*sqD)-bHeII)*0.5d0/aHeII
+           kHeII = 2._RKIND/sqD*atan((2._RKIND*aHeII*HeII0+bHeII)/sqD)
+           HeIIanal = (sqD*tan((dt+kHeII)*0.5_RKIND*sqD)-bHeII)*0.5_RKIND/aHeII
 
         ! two roots to quadratic
-        elseif (dHeII/bHeII/bHeII > 1.0d-8) then
-           rt1 = (-bHeII+sqrt(dHeII))*0.5d0/aHeII
-           rt2 = (-bHeII-sqrt(dHeII))*0.5d0/aHeII 
+        elseif (dHeII/bHeII/bHeII > 1.e-8_RKIND) then
+           rt1 = (-bHeII+sqrt(dHeII))*0.5_RKIND/aHeII
+           rt2 = (-bHeII-sqrt(dHeII))*0.5_RKIND/aHeII 
            kHeII = log(abs((HeII0-rt2)/(HeII0-rt1)))/aHeII/(rt2-rt1)
            expArg = aHeII*(dt+kHeII)*(rt2-rt1)
-           if (expArg < -7.0d2) then
+           if (expArg < -7.e2_RKIND) then
               HeIIanal = rt2
-           elseif (expArg > 7.0d2) then
+           elseif (expArg > 7.e2_RKIND) then
               HeIIanal = rt1
            else
               expVHeII = exp(expArg)
-              if ((HeII0-rt1)*(HeII0-rt2) > 0.d0) then
-                 HeIIanal = (rt2-rt1*expVHeII)/(1.d0-expVHeII)
+              if ((HeII0-rt1)*(HeII0-rt2) > 0._RKIND) then
+                 HeIIanal = (rt2-rt1*expVHeII)/(1._RKIND-expVHeII)
               else
-                 HeIIanal = (rt2+rt1*expVHeII)/(1.d0+expVHeII)
+                 HeIIanal = (rt2+rt1*expVHeII)/(1._RKIND+expVHeII)
               end if
            end if
 
         ! one double root to quadratic
         else
-           rt1 = -bHeII*0.5d0/aHeII
-           kHeII = 1.d0/aHeII/(rt1-HeII0)
-           HeIIanal = rt1 - 1.d0/aHeII/(dt+kHeII)
+           rt1 = -bHeII*0.5_RKIND/aHeII
+           kHeII = 1._RKIND/aHeII/(rt1-HeII0)
+           HeIIanal = rt1 - 1._RKIND/aHeII/(dt+kHeII)
 
         end if  ! roots
      end if  ! quadratic
@@ -1636,11 +1639,11 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
 
      ! enforce bounds
      Eranal = max(Eranal, min_rad/ErUnits)
-     T = (gamma-1.d0)*rhoval/(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne) &
+     T = (gamma-1._RKIND)*rhoval/(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne) &
           *(eint+ecanal*ecUnits)/kb
      if (T < min_temp)  &
-          ecanal = (min_temp/(gamma-1.d0)/rhoval &
-          *(0.25d0*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)*kb-eint)/ecUnits
+          ecanal = (min_temp/(gamma-1._RKIND)/rhoval &
+          *(0.25_RKIND*(nHeI+nHeII+nHeIII)+nHI+nHII+ne)*kb-eint)/ecUnits
      HIanal = min(HIanal, nH/NiUnits)
      HIanal = max(HIanal, min_ni/NiUnits)
      HeIanal = min(HeIanal, nHe/NiUnits)
@@ -1684,13 +1687,13 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
         print *,'NaN encountered in AnalyticLocResid1 (HI)!!'
         print '(2(A,es12.5))', '   A =',aHI,', B =',bHI
         print '(2(A,es12.5))', '   C =',cHI,', D =',dHI
-        if (dHI/bHI/bHI < -1.0d-8) then
+        if (dHI/bHI/bHI < -1.e-8_RKIND) then
            print '(1(A,es12.5))', '   sqD =',sqrt(-dHI)
-        elseif (dHI/bHI/bHI > 1.0d-8) then
-           print '(3(A,es12.5))', '   rt1 =',(-bHI+sqrt(dHI))*0.5d0/aHI, &
-                ', rt2 =',(-bHI-sqrt(dHI))*0.5d0/aHI,', expVHI =',expVHI
+        elseif (dHI/bHI/bHI > 1.e-8_RKIND) then
+           print '(3(A,es12.5))', '   rt1 =',(-bHI+sqrt(dHI))*0.5_RKIND/aHI, &
+                ', rt2 =',(-bHI-sqrt(dHI))*0.5_RKIND/aHI,', expVHI =',expVHI
         else
-           print '(1(A,es12.5))', '   rt1 =',-bHI*0.5d0/aHI
+           print '(1(A,es12.5))', '   rt1 =',-bHI*0.5_RKIND/aHI
         end if
         print '(2(A,es12.5))', '   K =',kHI,', G_HI =',G_HI
         print '(2(A,es12.5))', '  HIval =',HIval,', HI0 =',HI0
@@ -1706,13 +1709,13 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
         print *,'NaN encountered in AnalyticLocResid1 (HeI)!!'
         print '(2(A,es12.5))', '   A =',aHeI,', B =',bHeI
         print '(2(A,es12.5))', '   C =',cHeI,', D =',dHeI
-        if (dHeI/bHeI/bHeI < -1.0d-8) then
+        if (dHeI/bHeI/bHeI < -1.e-8_RKIND) then
            print '(1(A,es12.5))', '   sqD =',sqrt(-dHeI)
-        elseif (dHeI/bHeI/bHeI > 1.0d-8) then
-           print '(3(A,es12.5))', '   rt1 =',(-bHeI+sqrt(dHeI))*0.5d0/aHeI, &
-                ', rt2 =',(-bHeI-sqrt(dHeI))*0.5d0/aHeI,', expVHeI =',expVHeI
+        elseif (dHeI/bHeI/bHeI > 1.e-8_RKIND) then
+           print '(3(A,es12.5))', '   rt1 =',(-bHeI+sqrt(dHeI))*0.5_RKIND/aHeI, &
+                ', rt2 =',(-bHeI-sqrt(dHeI))*0.5_RKIND/aHeI,', expVHeI =',expVHeI
         else
-           print '(1(A,es12.5))', '   rt1 =',-bHeI*0.5d0/aHeI
+           print '(1(A,es12.5))', '   rt1 =',-bHeI*0.5_RKIND/aHeI
         end if
         print '(2(A,es12.5))', '   K =',kHeI,', G_HeI =',G_HeI
         print '(2(A,es12.5))', '  HeIval =',HeIval,', HeI0 =',HeI0
@@ -1729,13 +1732,13 @@ subroutine gFLDProblem_AnalyticLocResid1(Erres, ecres, HIres, HeIres,  &
         print *,'NaN encountered in AnalyticLocResid1 (HeII)!!'
         print '(2(A,es12.5))', '   A =',aHeII,', B =',bHeII
         print '(2(A,es12.5))', '   C =',cHeII,', D =',dHeII
-        if (dHeII/bHeII/bHeII < -1.0d-8) then
+        if (dHeII/bHeII/bHeII < -1.e-8_RKIND) then
            print '(1(A,es12.5))', '   sqD =',sqrt(-dHeII)
-        elseif (dHeII/bHeII/bHeII > 1.0d-8) then
-           print '(3(A,es12.5))', '   rt1 =',(-bHeII+sqrt(dHeII))*0.5d0/aHeII, &
-                ', rt2 =',(-bHeII-sqrt(dHeII))*0.5d0/aHeII,', expVHeII =',expVHeII
+        elseif (dHeII/bHeII/bHeII > 1.e-8_RKIND) then
+           print '(3(A,es12.5))', '   rt1 =',(-bHeII+sqrt(dHeII))*0.5_RKIND/aHeII, &
+                ', rt2 =',(-bHeII-sqrt(dHeII))*0.5_RKIND/aHeII,', expVHeII =',expVHeII
         else
-           print '(1(A,es12.5))', '   rt1 =',-bHeII*0.5d0/aHeII
+           print '(1(A,es12.5))', '   rt1 =',-bHeII*0.5_RKIND/aHeII
         end if
         print '(2(A,es12.5))', '   K =',kHeII,', G_HeII =',G_HeII
         print '(2(A,es12.5))', '  HeIval =',HeIval,', HeI0 =',HeI0
@@ -1798,40 +1801,41 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: ESpectrum
-  integer, intent(out) :: ier
-  real*8, intent(in)   :: a, adot, dt, HFrac, DenUnits, ErUnits, NiUnits
-  real*8, intent(in)   :: IsE, IsEsHI, IsEsHInu, k1, k2
-  real*8, intent(in)   :: Er, HI, Er0, HI0, rho, src_Er, src_HI
-  real*8, intent(out)  :: Erres, HIres
+  INTG_PREC, intent(in)  :: ESpectrum
+  INTG_PREC, intent(out) :: ier
+  REAL*8, intent(in)   :: a, adot, dt, HFrac, DenUnits, ErUnits, NiUnits
+  REAL*8, intent(in)   :: IsE, IsEsHI, IsEsHInu, k1, k2
+  REAL*8, intent(in)   :: Er, HI, Er0, HI0, rho, src_Er, src_HI
+  REAL*8, intent(out)  :: Erres, HIres
 
   !--------------
   ! locals
-  real*8 :: afac, c, hp, mp, nu0_HI, nu0_HeI, nu0_HeII, HIconst
-  real*8 :: min_ni, min_rad, HIval, Erval, rhoval, nH, nHI, nHII, ne
-  real*8 :: HIanal, Eranal, grey, kE, P1, Q1, G_HI
-  real*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
+  REAL*8 :: afac, c, hp, mp, nu0_HI, nu0_HeI, nu0_HeII, HIconst
+  REAL*8 :: min_ni, min_rad, HIval, Erval, rhoval, nH, nHI, nHII, ne
+  REAL*8 :: HIanal, Eranal, grey, kE, P1, Q1, G_HI
+  REAL*8 :: aHI, bHI, cHI, dHI, kHI, expArg, expVHI, sqD, rt1, rt2
 
   !=======================================================================
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  HIres = 0.d0
+  HIres = 0._RKIND
 
   ! initialize constants
   afac = adot/a
   c  = c_light                 ! speed of light [cm/s]
   hp = hplanck                 ! Planck's constant [ergs*s]
   mp = mass_h                  ! Mass of a proton [g]
-  nu0_HI = 13.6d0*ev2erg/hp    ! ionization frequency of HI   [hz]
-  min_ni   = 0.d0              ! minimum chem number density [cm^{-3}]
-  min_rad  = 0.d0              ! minimum radiation density [ergs/cm^3]
+  nu0_HI = 13.6_RKIND*ev2erg/hp    ! ionization frequency of HI   [hz]
+  min_ni   = 0._RKIND              ! minimum chem number density [cm^{-3}]
+  min_rad  = 0._RKIND              ! minimum radiation density [ergs/cm^3]
   HIconst  = c*(IsEsHI - nu0_HI*IsEsHInu)/IsE
-  grey = 1.d0                  ! grey vs monochromatic coeff for eqns
-  if (ESpectrum == -1)  grey = 0.d0
+  grey = 1._RKIND                  ! grey vs monochromatic coeff for eqns
+  if (ESpectrum == -1)  grey = 0._RKIND
 
 
   ! get shortcut values time-centered variables
@@ -1840,7 +1844,7 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   rhoval = rho*DenUnits
   nH = Hfrac*rhoval/mp
   nHI = HIval*NiUnits
-  nHII = max(1.d0*(nH - nHI), 0.d0)
+  nHII = max(nH - nHI, 0.d0)
   ne = nHII
 
   ! compute radiation ODE rates
@@ -1851,15 +1855,15 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   ! compute HI chemistry ODE rates
   G_HI = c*Erval*ErUnits/hp*IsEsHInu/IsE
   aHI = (k1+k2)*NiUnits
-  bHI = -(k1 + 2.d0*k2)*nH - G_HI
+  bHI = -(k1 + 2._RKIND*k2)*nH - G_HI
   cHI = (k2*nH*nH + src_HI)/NiUnits
 
 
   ! compute quasi-steady-state solution for Er, place in Eranal
-  if (abs(P1) < 1.0d-14) then
+  if (abs(P1) < 1.e-14_RKIND) then
      Eranal = Er0 + Q1*dt
   else
-     if (P1*dt > 7.0d2) then
+     if (P1*dt > 7.e2_RKIND) then
         Eranal = Q1/P1
      else
         Eranal = (Er0 - Q1/P1)*exp(-P1*dt) + Q1/P1
@@ -1868,11 +1872,11 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
 
 
   ! compute quasi-steady-state solution for HI, place in HIres
-  dHI = bHI*bHI - 4.d0*aHI*cHI
+  dHI = bHI*bHI - 4._RKIND*aHI*cHI
 
   !    if the second-order terms are very small, treat it as a linear ODE
   if (abs(aHI*HIval**2/(cHI-bHI*HIval)) < 1.0d-8) then
-     if (bHI*dt < -7.0d2) then
+     if (bHI*dt < -7.e2_RKIND) then
         HIanal = -cHI/bHI
      else
         HIanal = (HI0 + cHI/bHI)*exp(bHI*dt) - cHI/bHI
@@ -1882,35 +1886,35 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
   else
 
      ! no roots to quadratic
-     if (dHI/bHI/bHI < -1.0d-8) then
+     if (dHI/bHI/bHI < -1.e-8_RKIND) then
         sqD = sqrt(-dHI)
-        kHI = 2.d0/sqD*atan((2.d0*aHI*HI0+bHI)/sqD)
-        HIanal = (sqD*tan((dt+kHI)*0.5d0*sqD)-bHI)*0.5d0/aHI
+        kHI = 2._RKIND/sqD*atan((2._RKIND*aHI*HI0+bHI)/sqD)
+        HIanal = (sqD*tan((dt+kHI)*0.5_RKIND*sqD)-bHI)*0.5_RKIND/aHI
 
         ! two roots to quadratic
-     elseif (dHI/bHI/bHI > 1.0d-8) then
-        rt1 = (-bHI+sqrt(dHI))*0.5d0/aHI
-        rt2 = (-bHI-sqrt(dHI))*0.5d0/aHI 
+     elseif (dHI/bHI/bHI > 1.e-8_RKIND) then
+        rt1 = (-bHI+sqrt(dHI))*0.5_RKIND/aHI
+        rt2 = (-bHI-sqrt(dHI))*0.5_RKIND/aHI 
         kHI = log(abs((HI0-rt2)/(HI0-rt1)))/aHI/(rt2-rt1)
         expArg = aHI*(dt+kHI)*(rt2-rt1)
-        if (expArg < -7.0d2) then
+        if (expArg < -7.e2_RKIND) then
            HIanal = rt2
-        elseif (expArg > 7.0d2) then
+        elseif (expArg > 7.e2_RKIND) then
            HIanal = rt1
         else
            expVHI = exp(expArg)
-           if ((HI0-rt1)*(HI0-rt2) > 0.d0) then
-              HIanal = (rt2-rt1*expVHI)/(1.d0-expVHI)
+           if ((HI0-rt1)*(HI0-rt2) > 0._RKIND) then
+              HIanal = (rt2-rt1*expVHI)/(1._RKIND-expVHI)
            else
-              HIanal = (rt2+rt1*expVHI)/(1.d0+expVHI)
+              HIanal = (rt2+rt1*expVHI)/(1._RKIND+expVHI)
            end if
         end if
 
         ! one double root to quadratic
      else
-        rt1 = -bHI*0.5d0/aHI
-        kHI = 1.d0/aHI/(rt1-HI0)
-        HIanal = rt1 - 1.d0/aHI/(dt+kHI)
+        rt1 = -bHI*0.5_RKIND/aHI
+        kHI = 1._RKIND/aHI/(rt1-HI0)
+        HIanal = rt1 - 1._RKIND/aHI/(dt+kHI)
 
      end if  ! roots
   end if  ! quadratic
@@ -1943,13 +1947,13 @@ subroutine gFLDProblem_AnalyticLocResid4(Erres, HIres, Er, HI, Er0, HI0, &
      print *,'NaN encountered in AnalyticLocResid4 (HI)!!'
      print '(2(A,es12.5))', '   A =',aHI,', B =',bHI
      print '(2(A,es12.5))', '   C =',cHI,', D =',dHI
-     if (dHI/bHI/bHI < -1.0d-8) then
+     if (dHI/bHI/bHI < -1.e-8_RKIND) then
         print '(1(A,es12.5))', '   sqD =',sqrt(-dHI)
-     elseif (dHI/bHI/bHI > 1.0d-8) then
-        print '(3(A,es12.5))', '   rt1 =',(-bHI+sqrt(dHI))*0.5d0/aHI, &
-             ', rt2 =',(-bHI-sqrt(dHI))*0.5d0/aHI,', expVHI =',expVHI
+     elseif (dHI/bHI/bHI > 1.e-8_RKIND) then
+        print '(3(A,es12.5))', '   rt1 =',(-bHI+sqrt(dHI))*0.5_RKIND/aHI, &
+             ', rt2 =',(-bHI-sqrt(dHI))*0.5_RKIND/aHI,', expVHI =',expVHI
      else
-        print '(1(A,es12.5))', '   rt1 =',-bHI*0.5d0/aHI
+        print '(1(A,es12.5))', '   rt1 =',-bHI*0.5_RKIND/aHI
      end if
      print '(2(A,es12.5))', '   K =',kHI,', G_HI =',G_HI
      print '(2(A,es12.5))', '  HIval =',HIval,', HI0 =',HI0

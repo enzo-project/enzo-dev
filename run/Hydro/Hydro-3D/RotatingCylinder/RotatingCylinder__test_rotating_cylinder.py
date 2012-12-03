@@ -23,12 +23,13 @@ class TestLVariation(AnswerTestingTest):
                                                         "AngularMomentumZ"]))
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, rtol=1e-3, atol=0)
+        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        assert_allclose(new_result, old_result, rtol=10**-tolerance, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_rotating_cylinder():
     sim = sim_dir_load(_pf_name, path=_dir_name,
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        yield TestLVariation(pf)
+    pf = sim[-1]
+    yield TestLVariation(pf)

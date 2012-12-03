@@ -124,117 +124,118 @@
 !-----------------------------------------------------------------------
 
     implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 
-    integer, intent(in) :: in, jn, kn, is, js, ks, ie, je, ke, nratec, &
+    INTG_PREC, intent(in) :: in, jn, kn, is, js, ks, ie, je, ke, nratec, &
          imethod, idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,&
          iradtype, nfreq, imetalregen, iradshield, iradtrans, &
          iradcoupled, iradstep, n_xe, imcool, idust, irt_honly, &
          igammah, ih2optical, iciecool, ithreebody, imax, &
          ndratec
-    real, intent(in) :: dt, aye, temstart, temend, eta1, eta2, gamma, &
+    R_PREC, intent(in) :: dt, aye, temstart, temend, eta1, eta2, gamma, &
          utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end, &
          dtemstart, dtemend, z_solar
-    integer, intent(out) :: ierr
+    INTG_PREC, intent(out) :: ierr
     
 !  Density, energy and velocity fields fields
     
-    real, intent(inout), dimension(in,jn,kn) :: &
+    R_PREC, intent(inout), dimension(in,jn,kn) :: &
          de, HI, HII, HeI, HeII, HeIII, HM, H2I, H2II, DI, DII, HDI, &
          d, ge, e, u, v, w, metal
 
 !  Radiation fields
 
-    real, intent(in), dimension(in,jn,kn) :: &
+    R_PREC, intent(in), dimension(in,jn,kn) :: &
          kphHI, kphHeI, kphHeII, kdissH2I, photogamma
 
 !  Cooling tables (coolings rates as a function of temperature)
 
-    real, intent(in), dimension(nratec) :: &
+    R_PREC, intent(in), dimension(nratec) :: &
          hyd01ka, h2k01a, vibha, rotha, rotla, gpldla, gphdla, hdltea, &
          hdlowa, gaHIa, gaH2a, gaHea, gaHpa, gaela, ciecoa, ceHIa, &
          ceHeIa, ceHeIIa, ciHIa, ciHeIa, ciHeISa, ciHeIIa, reHIIa, &
          reHeII1a, reHeII2a, reHeIIIa, brema, gasgra
-    real, intent(in), dimension(nratec, n_xe) :: metala
-    real, intent(in) :: inutot(nfreq)
-    real, intent(in) :: compa, piHI, piHeI, piHeII, comp_xraya, comp_temp, &
+    R_PREC, intent(in), dimension(nratec, n_xe) :: metala
+    R_PREC, intent(in) :: inutot(nfreq)
+    R_PREC, intent(in) :: compa, piHI, piHeI, piHeII, comp_xraya, comp_temp, &
          avgsighp, avgsighep, avgsighe2p, gammaha
 
 !  Chemistry tables (rates as a function of temperature)
 
-    real, intent(in), dimension(nratec) :: &
+    R_PREC, intent(in), dimension(nratec) :: &
          k1a , k2a , k3a , k4a , k5a , k6a , k7a , k8a , k9a , &
          k10a, k11a, k12a, k13a, k14a, k15a, k16a, k17a, k18a, &
          k19a, k22a, k50a, k51a, k52a, k53a, k54a, k55a, k56a, &
          ncrna, ncrd1a, ncrd2a
-    real, intent(in) :: k13dda(nratec, 7)
-    real, intent(in) :: k24, k25, k26, k27, k28, k29, k30, k31
-    real, intent(in) :: h2dusta(nratec, ndratec)
+    R_PREC, intent(in) :: k13dda(nratec, 7)
+    R_PREC, intent(in) :: k24, k25, k26, k27, k28, k29, k30, k31
+    R_PREC, intent(in) :: h2dusta(nratec, ndratec)
 
 !  Cloudy cooling data
 
-    integer, intent(in) :: icmbTfloor, iClHeat, clGridRank, clDataSize
-    integer, intent(in) :: clGridDim(clGridRank)
-    real, intent(in) :: clEleFra
-    real, intent(in) :: clPar1(clGridDim(1)), clPar2(clGridDim(2)), &
+    INTG_PREC, intent(in) :: icmbTfloor, iClHeat, clGridRank, clDataSize
+    INTG_PREC, intent(in) :: clGridDim(clGridRank)
+    R_PREC, intent(in) :: clEleFra
+    R_PREC, intent(in) :: clPar1(clGridDim(1)), clPar2(clGridDim(2)), &
          clPar3(clGridDim(3)), clPar4(clGridDim(4)), &
          clPar5(clGridDim(5))
-    real, intent(in), dimension(clDataSize) :: clCooling, clHeating
+    R_PREC, intent(in), dimension(clDataSize) :: clCooling, clHeating
     
 !  Parameters
 
-    integer :: itmax
+    INTG_PREC :: itmax
     parameter (itmax = 10000)
 
 #ifdef CONFIG_BFLOAT_4
-    real :: tolerance
-    parameter (tolerance = 1.0e-05)
+    R_PREC :: tolerance
+    parameter (tolerance = 1.e-5_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-    real :: tolerance
-    parameter (tolerance = 1.0e-10)
+    R_PREC :: tolerance
+    parameter (tolerance = 1.e-10_RKIND)
 #endif
 
-    double precision :: mh
+    real*8 :: mh
     parameter (mh = mass_h)
 
 !  Locals
 
-    integer :: i, j, k, iter
-    integer :: clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
-    real :: ttmin, dom, energy, comp1, comp2, olddtit
-    double precision :: coolunit, dbase1, tbase1, xbase1, chunit, uvel
-    double precision :: heq1, heq2, eqk221, eqk222, eqk131, eqk132, &
+    INTG_PREC :: i, j, k, iter
+    INTG_PREC :: clGridDim1, clGridDim2, clGridDim3, clGridDim4, clGridDim5
+    R_PREC :: ttmin, dom, energy, comp1, comp2, olddtit
+    real*8 :: coolunit, dbase1, tbase1, xbase1, chunit, uvel
+    real*8 :: heq1, heq2, eqk221, eqk222, eqk131, eqk132, &
          eqt1, eqt2, eqtdef, dheq, heq, dlogtem
 
     !  row temporaries
 
-    integer, dimension(:), allocatable :: indixe
-    real, dimension(:), allocatable :: &
+    INTG_PREC, dimension(:), allocatable :: indixe
+    R_PREC, dimension(:), allocatable :: &
          t1, t2, logtem, tdef, dtit, ttot, p2d, tgas, tgasold, &
          tdust, metallicity, rhoH
 
     !  Rate equation row temporaries
 
-    real, dimension(:), allocatable :: &
+    R_PREC, dimension(:), allocatable :: &
          HIp, HIIp, HeIp, HeIIp, HeIIIp, HMp, H2Ip, H2IIp, dep, &
          dedot, HIdot, dedot_prev, DIp, DIIp, HDIp, HIdot_prev, &
          k24shield, k25shield, k26shield, &
          h2dust, ncrn, ncrd1, ncrd2
-    real, dimension(:), allocatable :: &
+    R_PREC, dimension(:), allocatable :: &
          k1 , k2 , k3 , k4 , k5 , k6 , k7 , k8 , k9 , k10, k11, &
          k12, k13, k14, k15, k16, k17, k18, k19, k22, k50, k51, &
          k52, k53, k54, k55, k56
-    real, allocatable :: k13dd(:, :)
+    R_PREC, allocatable :: k13dd(:, :)
 
     !  Cooling/heating row locals
 
-    double precision, dimension(:), allocatable :: &
+    real*8, dimension(:), allocatable :: &
          ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII, reHII, &
          reHeII1, reHeII2, reHeIII, brem, edot, cieco
-    real, dimension(:), allocatable :: &
+    R_PREC, dimension(:), allocatable :: &
          hyd01k, h2k01, vibh, roth, rotl, gpldl, gphdl, hdlte, &
          hdlow
 
@@ -350,10 +351,10 @@
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
       uvel     = uxyz / utim
-!      chunit = (7.17775d-12)/(2.d0*uvel*uvel*mh)   ! 4.5 eV per H2 formed
-      chunit = (1.60218d-12)/(2.d0*uvel*uvel*mh)   ! 1 eV per H2 formed
+!      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 formed
+      chunit = (1.60218e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 1 eV per H2 formed
 
-      dlogtem = (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem = (log(temend) - log(temstart))/real(nratec-1,RKIND)
 
 !  Convert densities from comoving to proper
 
@@ -372,14 +373,14 @@
       do k = ks+1, ke+1
       do j = js+1, je+1
 
-!       tolerance = 1.0e-06 * dt
+!       tolerance = 1.e-6_RKIND * dt
 
 !       Set iteration mask to include only cells with radiation in the
 !       intermediate coupled chemistry / energy step
 
          if (iradcoupled .eq. 1 .and. iradstep .eq. 1) then
             do i = is+1, ie+1
-               if (kphHI(i,j,k) .gt. 0) then 
+               if (kphHI(i,j,k) .gt. 0._RKIND) then 
                   itmask(i) = .true. 
                else 
                   itmask(i) = .false.
@@ -410,7 +411,7 @@
 !        Set time elapsed to zero for each cell in 1D section
 
          do i = is+1, ie+1
-            ttot(i) = 0.d0
+            ttot(i) = 0._RKIND
          enddo
 
 !        ------------------ Loop over subcycles ----------------
@@ -508,7 +509,7 @@
 
                if (min(abs(k1(i)* de(i,j,k)*HI(i,j,k)), &
                     abs(k2(i)*HII(i,j,k)*de(i,j,k)))/&
-                    max(abs(dedot(i)),abs(HIdot(i))) .gt. 1.0e6) then
+                    max(abs(dedot(i)),abs(HIdot(i))) .gt. 1.e6_RKIND) then
                   dedot(i) = tiny
                   HIdot(i) = tiny
                endif
@@ -527,11 +528,11 @@
 !              compute minimum rate timestep
 
                olddtit = dtit(i)
-               dtit(i) = min(abs(0.1d0*de(i,j,k)/dedot(i)), &
-                    abs(0.1d0*HI(i,j,k)/HIdot(i)), &
-                    dt-ttot(i), 0.5d0*dt)
+               dtit(i) = min(abs(0.1_RKIND*de(i,j,k)/dedot(i)), &
+                    abs(0.1_RKIND*HI(i,j,k)/HIdot(i)), &
+                    dt-ttot(i), 0.5_RKIND*dt)
 
-              if (d(i,j,k)*dom.gt.1e8.and.edot(i).gt.0.0)then
+              if (d(i,j,k)*dom .gt. 1.e8_RKIND .and. edot(i) .gt. 0._RKIND)then
                 ! Equilibrium value for H is:
                 !  H = (-1.0 / (4*k22)) * (k13 - sqrt(8 k13 k22 rho + k13^2))
                 ! We now want this to change by 10% or less, but we're only
@@ -543,42 +544,42 @@
                 !   de / dt = edot
                 ! Now we use our estimate of dT/de to get the estimated
                 ! difference in the equilibrium
-                eqt2 = min(log(tgas(i)) + 0.1d0*dlogtem, t2(i))
+                eqt2 = min(log(tgas(i)) + 0.1_RKIND*dlogtem, t2(i))
                 eqtdef = (eqt2 - t1(i))/(t2(i) - t1(i))
                 eqk222 = k22a(indixe(i)) + &
                      (k22a(indixe(i)+1) -k22a(indixe(i)))*eqtdef
                 eqk132 = k13a(indixe(i)) + &
                      (k13a(indixe(i)+1) -k13a(indixe(i)))*eqtdef
-                heq2 = (-1.d0 / (4.d0*eqk222)) * (eqk132- &
-                     sqrt(8.d0*eqk132*eqk222*fh*d(i,j,k)+eqk132**2.d0))
+                heq2 = (-1._RKIND / (4._RKIND*eqk222)) * (eqk132- &
+                     sqrt(8._RKIND*eqk132*eqk222*fh*d(i,j,k)+eqk132**2._RKIND))
 
-                eqt1 = max(log(tgas(i)) - 0.1d0*dlogtem, t1(i))
+                eqt1 = max(log(tgas(i)) - 0.1_RKIND*dlogtem, t1(i))
                 eqtdef = (eqt1 - t1(i))/(t2(i) - t1(i))
                 eqk221 = k22a(indixe(i)) + &
                  (k22a(indixe(i)+1) -k22a(indixe(i)))*eqtdef
                 eqk131 = k13a(indixe(i)) + &
                  (k13a(indixe(i)+1) -k13a(indixe(i)))*eqtdef
-                heq1 = (-1.d0 / (4.d0*eqk221)) * (eqk131- &
-                    sqrt(8.d0*eqk131*eqk221*fh*d(i,j,k)+eqk131**2.d0))
+                heq1 = (-1._RKIND / (4._RKIND*eqk221)) * (eqk131- &
+                    sqrt(8._RKIND*eqk131*eqk221*fh*d(i,j,k)+eqk131**2._RKIND))
 
                 dheq = (abs(heq2-heq1)/(exp(eqt2) - exp(eqt1))) &
                     * (tgas(i)/p2d(i)) * edot(i)
-                heq = (-1.d0 / (4.d0*k22(i))) * (k13(i)- &
-                    sqrt(8.d0*k13(i)*k22(i)*fh*d(i,j,k)+k13(i)**2.d0))
+                heq = (-1._RKIND / (4._RKIND*k22(i))) * (k13(i)- &
+                    sqrt(8._RKIND*k13(i)*k22(i)*fh*d(i,j,k)+k13(i)**2._RKIND))
                 !write(0,*) heq2, heq1, eqt2, eqt1, tgas(i), p2d(i), 
 !     &                     edot(i)
-                if(d(i,j,k)*dom.gt.1e18.and.i.eq.4)write(0, *) &
+                if(d(i,j,k)*dom .gt. 1.e18_RKIND .and. i.eq.4) write(0, *) &
                    HI(i,j,k)/heq, edot(i),tgas(i)
-                dtit(i) = min(dtit(i), 0.1d0*heq/dheq)
+                dtit(i) = min(dtit(i), 0.1_RKIND*heq/dheq)
               endif
-              if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
+              if (iter .gt. 10) dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
 #ifndef _OPENMP
-              if (dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800 .and. &
-                   abs((dt-ttot(i))/dt) .gt. 1.0d-3) then
+              if (dtit(i)/dt .lt. 1.e-2_RKIND .and. iter .gt. 800 .and. &
+                   abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND) then
                  write(4,1000) iter,i,j,k,dtit(i), &
                       ttot(i),dt,de(i,j,k),dedot(i),HI(i,j,k),HIdot(i), &
                    tgas(i), dedot_prev(i), HIdot_prev(i)
@@ -590,17 +591,17 @@
                       -      k7(i) *de(i,j,k)    *HI(i,j,k),       &
                       -      k8(i) *HM(i,j,k)    *HI(i,j,k),       &
                       -      k9(i) *HII(i,j,k)   *HI(i,j,k),       &
-                      -      k10(i)*H2II(i,j,k)  *HI(i,j,k)/2.d0,  &
-                      - 2.d0*k22(i)*HI(i,j,k)**2 *HI(i,j,k),       &
+                      -      k10(i)*H2II(i,j,k)  *HI(i,j,k)/2._RKIND,  &
+                      - 2._RKIND*k22(i)*HI(i,j,k)**2 *HI(i,j,k),       &
                       +      k2(i) *HII(i,j,k)   *de(i,j,k) ,      &
-                      + 2.d0*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2.d0, &
-                      +      k11(i)*HII(i,j,k)   *H2I(i,j,k)/2.d0, &
-                      + 2.d0*k12(i)*de(i,j,k)    *H2I(i,j,k)/2.d0, &
+                      + 2._RKIND*k13(i)*HI(i,j,k)    *H2I(i,j,k)/2._RKIND, &
+                      +      k11(i)*HII(i,j,k)   *H2I(i,j,k)/2._RKIND, &
+                      + 2._RKIND*k12(i)*de(i,j,k)    *H2I(i,j,k)/2._RKIND, &
                       +      k14(i)*HM(i,j,k)    *de(i,j,k),       &
                       +      k15(i)*HM(i,j,k)    *HI(i,j,k),       &
-                      + 2.d0*k16(i)*HM(i,j,k)    *HII(i,j,k),      &
-                      + 2.d0*k18(i)*H2II(i,j,k)  *de(i,j,k)/2.d0,  &
-                      +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2.d0
+                      + 2._RKIND*k16(i)*HM(i,j,k)    *HII(i,j,k),      &
+                      + 2._RKIND*k18(i)*H2II(i,j,k)  *de(i,j,k)/2._RKIND,  &
+                      +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2._RKIND
               endif
 #endif /* _OPENMP */
  1000          format(i5,3(i3,1x),1p,11(e11.3))
@@ -619,45 +620,45 @@
 !              (the gamma used here is the right one even for H2 since p2d 
 !               is calculated with this gamma).
 
-               energy = max(p2d(i)/(gamma-1.d0), tiny)
+               energy = max(p2d(i)/(gamma-1._RKIND), tiny)
 
 !              This is an alternate energy calculation, based directly on
 !              the code's specific energy field, which differs from the above
 !              only if using the dual energy formalism.
 
-!              energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1.0), 
+!              energy = max(ge(i,j,k)*d(i,j,k), p2d(i)/(gamma-1._RKIND), 
 !     &                    tiny)
 !              if (energy .lt. tiny) energy = d(i,j,k)*(e(i,j,k) - 
-!     &              0.5*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
+!     &              0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + w(i,j,k)**2))
 
 !              If the temperature is at the bottom of the temperature look-up 
 !              table and edot < 0, then shut off the cooling.
 
-               if (tgas(i) .le. 1.01d0*temstart .and. edot(i) .lt. 0.d0)&
+               if (tgas(i) .le. 1.01_RKIND*temstart .and. edot(i) .lt. 0._RKIND)&
                     edot(i) = tiny
-	       if (abs(edot(i)) .lt. tiny) edot(i) = tiny
+               if (abs(edot(i)) .lt. tiny) edot(i) = tiny
 !
 !              Compute timestep for 10% change
 
 !              if (iter .gt. 100) then
-!                 dtit(i) = min(real(abs(0.1*energy/edot(i))), 
+!                 dtit(i) = min(real(abs(0.1_RKIND*energy/edot(i))), 
 !     &                        dt-ttot(i), dtit(i))
 !              else
-               dtit(i) = min(real(abs(0.1d0*energy/edot(i))), &
+               dtit(i) = min(real(abs(0.1_RKIND*energy/edot(i)),RKIND), &
                     dt-ttot(i), dtit(i))
 !              endif
 
                if (dtit(i) .ne. dtit(i)) & !#####
                     write(6,*) 'HUGE dtit :: ', energy, edot(i), dtit(i), &
-                    dt, ttot(i), abs(0.1d0*energy/edot(i)), &
-                    real(abs(0.1d0*energy/edot(i)))
+                    dt, ttot(i), abs(0.1_RKIND*energy/edot(i)), &
+                    real(abs(0.1_RKIND*energy/edot(i)),RKIND)
 
 #define NO_FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
-               if (ge(i,j,k) .le. 0.0 .and. idual .eq. 1) &
+               if (ge(i,j,k) .le. 0._RKIND .and. idual .eq. 1) &
                     write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
                if (idual .eq. 1 .and. &
-                    ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0.d0) &
+                    ge(i,j,k)+edot(i)/d(i,j,k)*dtit(i) .le. 0._RKIND) &
                     write(6,*) i,j,k,iter,ge(i,j,k),edot(i),tgas(i), &
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
@@ -666,9 +667,9 @@
 !              If the timestep is too small, then output some debugging info
 
 #ifndef _OPENMP
-               if (((dtit(i)/dt .lt. 1.0e-2 .and. iter .gt. 800) &
+               if (((dtit(i)/dt .lt. 1.e-2_RKIND .and. iter .gt. 800) &
                     .or. iter .gt. itmax-100) .and. &
-                    abs((dt-ttot(i))/dt) .gt. 1.0d-3) &
+                    abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND) &
                     write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i), &
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
 #endif /* _OPENMP */
@@ -695,11 +696,11 @@
 !                 Alternate energy update schemes (not currently used)
 
 !                 ge(i,j,k) = max(ge(i,j,k) + edot(i)/d(i,j,k)*dtit(i),
-!     &                      0.5d0*ge(i,j,k))
+!     &                      0.5_RKIND*ge(i,j,k))
 !                 if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 !     &              edot(i)*dtit(i))/d(i,j,k)
 #ifdef WRITE_COOLING_DEBUG
-                  if (ge(i,j,k) .le. 0.d0) write(3,*) &
+                  if (ge(i,j,k) .le. 0._RKIND) write(3,*) &
                        'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
 #endif WRITE_COOLING_DEBUG
                endif
@@ -730,7 +731,7 @@
             ttmin = huge
             do i = is+1, ie+1
                ttot(i) = min(ttot(i) + dtit(i), dt)
-               if (abs(dt-ttot(i)) .lt. 0.001d0*dt) itmask(i) = .false.
+               if (abs(dt-ttot(i)) .lt. 0.001_RKIND*dt) itmask(i) = .false.
                if (ttot(i).lt.ttmin) ttmin = ttot(i)
             enddo
 
@@ -747,7 +748,7 @@
 !       Abort if iteration count exceeds maximum
 
          if (iter .gt. itmax) then
-	    write(0,*) 'inside if statement solve rate cool:',is,ie
+            write(0,*) 'inside if statement solve rate cool:',is,ie
             write(6,*) 'MULTI_COOL iter > ',itmax,' at j,k =',j,k
             write(0,*) 'FATAL error (2) in MULTI_COOL'
             write(0,'(" dt = ",1pe10.3," ttmin = ",1pe10.3)') dt, ttmin
@@ -879,4 +880,3 @@
 
       return
     end subroutine solve_rate_cool
-

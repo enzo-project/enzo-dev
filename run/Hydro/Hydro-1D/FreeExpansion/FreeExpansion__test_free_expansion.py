@@ -27,12 +27,13 @@ class TestFreeExpansionDistance(AnswerTestingTest):
         return ray_length * ray['t'][ipos]
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, 1.0e-2, 0.0)
+        tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+        assert_allclose(new_result, old_result, 10**-tolerance, 0.0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_collapse_max_value():
     sim = sim_dir_load(_pf_name, path=_dir_name, 
                        find_outputs=True)
     sim.get_time_series()
-    for pf in sim:
-        yield TestFreeExpansionDistance(pf)
+    pf = sim[-1]
+    yield TestFreeExpansionDistance(pf)

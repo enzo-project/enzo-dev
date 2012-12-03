@@ -20,10 +20,6 @@
 #    FFLAGS             Flags for the Fortran 77 compiler
 #    F90FLAGS           Flags for the Fortran 90 compiler
 #    LDFLAGS            Flags for the Linker      
-#                      
-# Preprocessor defines
-#
-#    DEFINES            Preprocessor defines for C, C++, and Fortran
 #
 # Object files
 #
@@ -87,7 +83,6 @@
     ifeq ($(CONFIG_INTEGERS),32)
         ERROR_INTEGERS = 0
         ASSEMBLE_INTEGER_DEFINES = -DSMALL_INTS
-        ASSEMBLE_INTEGER_FFLAGS = $(MACH_FFLAGS_INTEGER_32)
     endif
 
     # Settings for 64-bit integers
@@ -95,7 +90,6 @@
     ifeq ($(CONFIG_INTEGERS),64)
         ERROR_INTEGERS = 0
         ASSEMBLE_INTEGER_DEFINES = -DLARGE_INTS
-        ASSEMBLE_INTEGER_FFLAGS = $(MACH_FFLAGS_INTEGER_64)
     endif
 
     # error if CONFIG_INTEGERS is incorrect
@@ -117,7 +111,6 @@
     ifeq ($(CONFIG_PRECISION),32)
         ERROR_PRECISION = 0
         ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_4
-        ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_32)
         ASSEMBLE_PRECISION_NUMBER = 4
     endif
 
@@ -126,7 +119,6 @@
     ifeq ($(CONFIG_PRECISION),64)
         ERROR_PRECISION = 0
         ASSEMBLE_PRECISION_DEFINES = -DCONFIG_BFLOAT_8
-        ASSEMBLE_PRECISION_FFLAGS = $(MACH_FFLAGS_REAL_64)
         ASSEMBLE_PRECISION_NUMBER = 8
     endif
 
@@ -1056,30 +1048,26 @@
     CPPFLAGS = $(MACH_CPPFLAGS)
     CFLAGS   = $(MACH_CFLAGS) \
                $(ASSEMBLE_OPT_FLAGS) \
-	       $(ASSEMBLE_OPENMP)
+               $(ASSEMBLE_OPENMP)
     CXXFLAGS = $(MACH_CXXFLAGS) \
                $(ASSEMBLE_OPT_FLAGS) \
-	       $(ASSEMBLE_OPENMP)
+               $(ASSEMBLE_OPENMP)
     FFLAGS   = $(MACH_FFLAGS) \
-               $(ASSEMBLE_PRECISION_FFLAGS) \
-               $(ASSEMBLE_INTEGER_FFLAGS) \
                $(ASSEMBLE_OPT_FLAGS) \
-	       $(ASSEMBLE_OPENMP)
+               $(ASSEMBLE_OPENMP)
     F90FLAGS = $(MACH_F90FLAGS) \
-               $(ASSEMBLE_PRECISION_FFLAGS) \
-               $(ASSEMBLE_INTEGER_FFLAGS) \
                $(ASSEMBLE_OPT_FLAGS) \
-	       $(ASSEMBLE_OPENMP)
+               $(ASSEMBLE_OPENMP)
     LDFLAGS  = $(MACH_LDFLAGS) \
                $(ASSEMBLE_OPT_FLAGS) \
-	       $(ASSEMBLE_OPENMP)
+               $(ASSEMBLE_OPENMP)
 
     DEFINES = $(MACH_DEFINES) \
               $(MAKEFILE_DEFINES) \
               $(ASSEMBLE_PARAMETER_DEFINES) \
               $(ASSEMBLE_INITS_DEFINES) \
               $(ASSEMBLE_INTEGER_DEFINES) \
-	      $(ASSEMBLE_IDS_DEFINES) \
+              $(ASSEMBLE_IDS_DEFINES) \
               $(ASSEMBLE_IO_DEFINES) \
               $(ASSEMBLE_LCAPERF_DEFINES) \
               $(ASSEMBLE_PYTHON_DEFINES) \
