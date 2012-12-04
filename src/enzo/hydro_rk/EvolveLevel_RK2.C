@@ -123,19 +123,12 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 #endif
 			  );
 
-#ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
 			 fluxes **SubgridFluxesEstimate[],
 			 LevelHierarchyEntry *SUBlingList[],
 			 TopGridData *MetaData);
-#else
-int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
-			 int NumberOfSubgrids[],
-			 fluxes **SubgridFluxesEstimate[]);
-#endif
 
-#ifdef FLUX_FIX
 #ifdef FAST_SIB 
 int CreateSUBlingList(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level,
@@ -148,7 +141,6 @@ int CreateSUBlingList(TopGridData *MetaData,
 #endif /* FAST_SIB */
 int DeleteSUBlingList(int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList);
-#endif
 
 // int UpdateFromFinerGrids(HierarchyEntry *Grids[], int NumberOfGrids,
 // 			 int NumberOfSubgrids[], 
@@ -232,10 +224,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   jbPerf.attribute ("level",&jb_level,JB_INT);
 #endif
 
-#ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
-#endif
 
   FLOAT When;
 
@@ -609,7 +599,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          subgrid's fluxes. (step #19) */
 
 
-#ifdef FLUX_FIX
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
 #ifdef FAST_SIB
     CreateSUBlingList(MetaData, LevelArray, level, SiblingList,
@@ -617,20 +606,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #else
     CreateSUBlingList(MetaData, LevelArray, level, &SUBlingList);
 #endif /* FAST_SIB */
-#endif
 
-#ifdef FLUX_FIX
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			 SubgridFluxesEstimate,
 			 SUBlingList,
 			 MetaData);
-#else
-    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids, SubgridFluxesEstimate);
-#endif
     
-#ifdef FLUX_FIX        /* Clean up SUBlings */
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
-#endif
 
      
     /* ------------------------------------------------------- */

@@ -184,7 +184,6 @@ OBJS_CONFIG_LIB = \
         FindField.o \
         FindSubgrids.o \
         flow.o \
-        FluxFix_Grid_CorrectForRefinedFluxes.o \
 	flux_hll.o \
 	flux_hllc.o \
 	flux_twoshock.o \
