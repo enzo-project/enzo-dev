@@ -169,17 +169,12 @@ int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 #endif
 #endif
 
-#ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
 			 fluxes **SubgridFluxesEstimate[],
 			 LevelHierarchyEntry *SUBlingList[],
 			 TopGridData *MetaData);
-#else
-int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
-			 int NumberOfSubgrids[],
-			 fluxes **SubgridFluxesEstimate[]);
-#endif
+
 int CreateFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
 		 int NumberOfGrids,int NumberOfSubgrids[]);		 
 int FinalizeFluxes(HierarchyEntry *Grids[],fluxes **SubgridFluxesEstimate[],
@@ -201,7 +196,6 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
 		      int StaticLevelZero,TopGridData * MetaData,int level);
 
-#ifdef FLUX_FIX
 #ifdef FAST_SIB 
 int CreateSUBlingList(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level,
@@ -214,7 +208,6 @@ int CreateSUBlingList(TopGridData *MetaData,
 #endif /* FAST_SIB */
 int DeleteSUBlingList(int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList);
-#endif
 
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
@@ -300,10 +293,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
   RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
-#ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
-#endif
 
   /* Initialize the chaining mesh used in the FastSiblingLocator. */
 
@@ -674,7 +665,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      *     subgrid's fluxes. (step #19)
      */
  
-#ifdef FLUX_FIX
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
 #ifdef FAST_SIB
     CreateSUBlingList(MetaData, LevelArray, level, SiblingList,
@@ -682,22 +672,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #else
     CreateSUBlingList(MetaData, LevelArray, level, &SUBlingList);
 #endif /* FAST_SIB */
-#endif /* FLUX_FIX */
 
 
     EXTRA_OUTPUT_MACRO(3,"Before UFG")
 
-#ifdef FLUX_FIX
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			     SubgridFluxesEstimate,SUBlingList,MetaData);
-#else
-    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
-			 SubgridFluxesEstimate);
-#endif
 
-#ifdef FLUX_FIX
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
-#endif
 
     EXTRA_OUTPUT_MACRO(4,"After UFG")
   /* ------------------------------------------------------- */

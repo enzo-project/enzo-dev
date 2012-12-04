@@ -170,7 +170,7 @@ in the following ways:
 .. code-block:: c
 
     c     Declarations
-          R_PREC     third
+          R_PREC     third, tenth
           INTG_PREC  one
           P_PREC     fifth
           CMPLX_PREC two_i
@@ -178,6 +178,7 @@ in the following ways:
 
     c     Calculations
           third = 1._RKIND / 3._RKIND
+	  tenth = 1.e-1_RKIND
           one   = 1_IKIND
           fifth = real(1, PKIND) / 5._PKIND
           two_i = (0._RKIND, 2._RKIND)
