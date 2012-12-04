@@ -45,8 +45,8 @@ int grid::ClusterSMBHFeedback(int level)
     return SUCCESS;
   //printf("in Feedback ClusterSMBHFeedbackSwitch = %d \n", ClusterSMBHFeedbackSwitch);
 
-  /* Return if Switch is off. */
-  if (ClusterSMBHCalculateGasMass != 0 && ClusterSMBHFeedbackSwitch == FALSE)
+  /* Return if using method 1 and Switch is off. */
+  if (ClusterSMBHCalculateGasMass ==1 && ClusterSMBHFeedbackSwitch == FALSE)
     return SUCCESS;
   //printf("starting feedback");
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
