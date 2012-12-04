@@ -295,8 +295,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int *TotalStarParticleCountPrevious = new int[NumberOfGrids];
   RunEventHooks("EvolveLevelTop", Grids, *MetaData);
 
-  bool thread_grid_loop = (level > 0) && 
+  bool thread_grid_loop = false;
+#ifdef _OPENMP
+  thread_grid_loop = (level > 0) && 
     (NumberOfGrids > NumberOfProcessors*omp_get_num_threads());
+#endif
 
 #ifdef FLUX_FIX
   /* Create a SUBling list of the subgrids */

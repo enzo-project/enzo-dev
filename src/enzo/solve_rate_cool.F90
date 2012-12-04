@@ -759,7 +759,7 @@
             WARNING_MESSAGE
          endif
 
-         if (iter .gt. itmax/2) then
+         if (iter .gt. itmax/2_IKIND) then
             write(6,*) 'MULTI_COOL iter,j,k =',iter,j,k
          end if
 !     
