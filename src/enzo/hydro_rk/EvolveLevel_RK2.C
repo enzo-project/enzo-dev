@@ -21,6 +21,7 @@
 #include <math.h>
 #include <unistd.h>
 #include "performance.h"
+#include "EnzoTiming.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -217,12 +218,10 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   HierarchyEntry *NextGrid;
   double time1 = ReturnWallTime();
 
-  // Update lcaperf "level" attribute
+  char level_name[MAX_LINE_LENGTH];
+  sprintf(level_name, "Level_%"ISYM, level);
 
-  Eint32 jb_level = level;
-#ifdef USE_JBPERF
-  jbPerf.attribute ("level",&jb_level,JB_INT);
-#endif
+
 
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
@@ -288,6 +287,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   while (dtThisLevelSoFar[level] < dtLevelAbove) {
 
+    TIMER_START(level_name);
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
@@ -460,7 +460,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
-	  
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	  
@@ -557,6 +556,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
+    TIMER_STOP(level_name);
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -577,10 +577,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
     time1 = ReturnWallTime();
 
-#ifdef USE_JBPERF
-    // Update lcaperf "level" attribute
-    jbPerf.attribute ("level",&jb_level,JB_INT);
-#endif
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note
@@ -666,15 +662,17 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     int GridMemory, NumberOfCells, CellsTotal, Particles;
     float AxialRatio, GridVolume;
-#ifdef UNUSED
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
       LevelZoneCycleCount[level] += NumberOfCells;
+      TIMER_ADD_CELLS(level, NumberOfCells);
       if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
       	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
-#endif
+    TIMER_SET_NGRIDS(level, NumberOfGrids);
+
 
     cycle++;
     LevelCycleCount[level]++;
