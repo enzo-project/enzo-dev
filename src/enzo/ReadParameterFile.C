@@ -303,7 +303,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     }
 #endif
     ret += sscanf(line, "HydroMethod            = %"ISYM, &HydroMethod);
-    if (HydroMethod==MHD_RK) useMHD = 1;
 
     ret += sscanf(line, "huge_number            = %"FSYM, &huge_number);
     ret += sscanf(line, "tiny_number            = %"FSYM, &tiny_number);
@@ -994,6 +993,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
 
+    ret += sscanf(line, "CorrectParentBoundaryFlux             = %"ISYM, &CorrectParentBoundaryFlux);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
@@ -1127,6 +1127,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (ReconstructionMethod == INT_UNDEFINED)
       ReconstructionMethod = PLM;
   }
+
+  if (HydroMethod==MHD_RK) useMHD = 1;
+  //if (HydroMethod==MHD_Li) useMHDCT = 1;
+  //if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
