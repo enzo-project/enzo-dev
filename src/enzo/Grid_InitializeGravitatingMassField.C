@@ -76,10 +76,10 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
     //	BufferSize += 1;
  
     GravitatingMassFieldDimension[dim] = DimTemp +
-      2*max(BufferSize, DEFAULT_GHOST_ZONES);
+      2*max(BufferSize, NumberOfGhostZones);
     GravitatingMassFieldCellSize = CellWidth[dim][0];
     GravitatingMassFieldLeftEdge[dim] = GridLeftEdge[dim] -
-      max(BufferSize, DEFAULT_GHOST_ZONES)*
+      max(BufferSize, NumberOfGhostZones)*
       GravitatingMassFieldCellSize;
   }
  

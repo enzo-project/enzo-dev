@@ -26,8 +26,11 @@
 #define  SEC_PER_MEGAYEAR   3.155e13
 #define  SEC_PER_YEAR       3.155e7
 
+#ifndef __GAMMA_DEFINED_
+#define __GAMMA_DEFINED_
 #define  GAMMA         (5.0/3)
 #define  GAMMA_MINUS1  (GAMMA-1)
+#endif
 
 /************************************************************************
    STRUCTURES

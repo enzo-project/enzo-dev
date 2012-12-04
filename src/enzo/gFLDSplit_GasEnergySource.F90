@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2009 Daniel R. Reynolds
@@ -38,24 +39,24 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
-  real,    intent(in) :: time
-  real,    intent(in) :: aUnits, VelUnits, LenUnits, TimeUnits, ecUnits
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(out) :: ecsrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  INTG_PREC, intent(in) :: ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in) :: a
+  R_PREC,    intent(in) :: time
+  R_PREC,    intent(in) :: aUnits, VelUnits, LenUnits, TimeUnits, ecUnits
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(out) :: ecsrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
 
 !=======================================================================
 
@@ -63,7 +64,7 @@ subroutine gFLDSplit_GasEnergySource(ecsrc, time, a, ProbType, aUnits, &
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  ecsrc = 0.d0
+  ecsrc = 0._RKIND
 
   return
 end subroutine gFLDSplit_GasEnergySource

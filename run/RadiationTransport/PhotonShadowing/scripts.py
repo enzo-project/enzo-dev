@@ -91,7 +91,7 @@ for f in fields:
 pf = load("DD%4.4d/data%4.4d" % (last,last))
 
 pc = PlotCollection(pf, center=[0.5,0.5,0.5])
-pc.add_slice('kph',2)
+pc.add_slice('HI_kph',2)
 pc.add_slice('Neutral_Fraction',2)
 pc.add_slice('Temperature',2)
 pc.save()

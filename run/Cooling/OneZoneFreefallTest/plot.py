@@ -2,7 +2,6 @@ from matplotlib import pylab
 import sys
 
 from yt.mods import *
-from yt.analysis_modules.simulation_handler.api import EnzoSimulation
 
 do_fH2 = True
 do_t_cool = True
@@ -13,8 +12,8 @@ if dust:
 else:
     keyword = 'without_dust'
 
-par_file = sys.argv[1]
-es = EnzoSimulation(par_file, get_data_by_force=True, initial_time=0)
+es = EnzoSimulation('OneZoneFreefallTest.enzo', find_outputs=True)
+es.get_time_series()
 
 T = []
 n = []
@@ -24,9 +23,7 @@ Tdust = []
 t_cool = []
 t_dyn = []
 
-for output in es.allOutputs:
-    print output['filename']
-    pf = load(output['filename'])
+for pf in es:
     T.append(pf.h.grids[0]['Temperature'])
     n.append(pf.h.grids[0]['NumberDensity'][0,0,0])
     Z.append(pf.h.grids[0]['Metallicity'])
@@ -49,10 +46,12 @@ colors = ['black', 'purple', 'blue', 'green', 'orange', 'red']
 
 met = na.round(na.log10(Z[0,0,:,0]))
 for i in range(T.shape[2]):
-    pylab.loglog(n, T[:, 0, i, 0], label='log (Z/Z$_{\odot}$) = %d' % met[i],
+    pylab.loglog(n, T[:, 0, i, 0], 
+                 label='log (Z/Z$_{\odot}$) = %d' % met[i],
                  color=colors[i], linestyle='-')
     if dust:
-        pylab.loglog(n, Tdust[:, 0, i, 0], color=colors[i], linestyle='--')
+        pylab.loglog(n, Tdust[:, 0, i, 0], 
+                     color=colors[i], linestyle='--')
 pylab.xlim(xmin=1.0)
 pylab.ylim(1e0, 1e4)
 pylab.xlabel('n [cm$^{-3}$]')
@@ -63,7 +62,8 @@ pylab.clf()
 
 if do_fH2:
     for i in range(T.shape[2]):
-        pylab.loglog(n, fH2[:, 0, i, 0], label='log (Z/Z$_{\odot}$) = %d' % met[i],
+        pylab.loglog(n, fH2[:, 0, i, 0], 
+                     label='log (Z/Z$_{\odot}$) = %d' % met[i],
                      color=colors[i])
     pylab.xlim(xmin=1.0)
     pylab.xlabel('n [cm$^{-3}$]')
@@ -75,7 +75,8 @@ if do_fH2:
 
 if do_t_cool:
     for i in range(T.shape[2]):
-        pylab.loglog(n, (t_cool[:, 0, i, 0]/t_dyn), label='log (Z/Z$_{\odot}$) = %d' % met[i],
+        pylab.loglog(n, (t_cool[:, 0, i, 0]/t_dyn), 
+                     label='log (Z/Z$_{\odot}$) = %d' % met[i],
                      color=colors[i])
     pylab.xlim(xmin=1.0)
     pylab.xlabel('n [cm$^{-3}$]')

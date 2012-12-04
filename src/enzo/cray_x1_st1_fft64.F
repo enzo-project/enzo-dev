@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
 #ifdef CRAYX1
 
@@ -7,15 +8,16 @@
       subroutine cray_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
+      REAL*4 :: factor
+      REAL*4 :: scale
 
-      real*8 :: table(100+8*n1)
-      real*4 :: work(8*n1)
+      REAL*8 :: table(100+8*n1)
+      REAL*4 :: work(8*n1)
 
       integer*4 :: jdir
       integer*4 :: m1, i0
@@ -24,10 +26,10 @@
       i0 = 0
       jdir = idir
 
-      factor = 1.0/real(n1)
+      factor = 1.0/REAL(n1,RKIND)
 
       if( jdir == -1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -45,15 +47,16 @@
       subroutine cray_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
+      REAL*8 :: factor
+      REAL*8 :: scale
 
-      real*8 :: table(100+8*n1)
-      real*8 :: work(8*n1)
+      REAL*8 :: table(100+8*n1)
+      REAL*8 :: work(8*n1)
 
       integer*4 :: jdir
       integer*4 :: m1, i0
@@ -62,10 +65,10 @@
       jdir = idir
       i0 = 0
 
-      factor = 1.0d-00/real(n1)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == -1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -83,9 +86,10 @@
       subroutine cray_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer n1, idir
-      complex x(n1)
+      INTG_PREC n1, idir
+      CMPLX_PREC x(n1)
 
       write(0,'("Dummy Cray X1 1D FFT - error")')
       ERROR_MESSAGE

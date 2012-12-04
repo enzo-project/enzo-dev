@@ -31,7 +31,7 @@ OneZoneFreefallTimestepFraction = 1e-2
 #
 StopTime                  = 50
 StopCycle                 = 3000
-CycleSkipDataDump         = 20
+CycleSkipDataDump         = 150
 DataDumpDir               = DD
 DataDumpName              = DD
 

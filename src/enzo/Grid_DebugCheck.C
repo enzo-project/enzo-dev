@@ -51,7 +51,7 @@ int grid::DebugCheck(char *message)
  
   // Set this to zero so the compiler doesn't optimize everything away
  
-  int ThisIsZero = GridStartIndex[0] - DEFAULT_GHOST_ZONES, size = 1,
+  int ThisIsZero = GridStartIndex[0] - NumberOfGhostZones, size = 1,
       dim, k1, k2;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];

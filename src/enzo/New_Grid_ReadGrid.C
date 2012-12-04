@@ -212,7 +212,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
     // If HierarchyFile has different Ghostzones (which should be a parameter not a macro ...)
     // (useful in a restart with different hydro/mhd solvers) 
-    int ghosts =DEFAULT_GHOST_ZONES;
+    int ghosts =NumberOfGhostZones;
     if (GridStartIndex[0] != ghosts)  {
 	if (GridID < 2)
      fprintf(stderr,"Grid_Group_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
@@ -318,7 +318,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
    
       int activesize = 1;
       for (int dim = 0; dim < GridRank; dim++)
-	activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+	activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
       
       if (divB == NULL) 
 	divB = new float[activesize];

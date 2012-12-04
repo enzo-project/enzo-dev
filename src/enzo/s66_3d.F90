@@ -4,12 +4,12 @@
 
       implicit none
 
-      integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2,n3)
+      INTG_PREC :: rank, n1, n2, n3, dir
+      CMPLX_PREC :: x(n1,n2,n3)
 
-      complex, allocatable :: y(:,:,:), z(:,:,:)
-      integer :: n(3)
-      integer :: i,j,k
+      CMPLX_PREC, allocatable :: y(:,:,:), z(:,:,:)
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j,k
 
 !     write(*,*) 'S66_3D ',rank,n1,n2,n3,dir
 
@@ -93,19 +93,19 @@
 
       implicit none
 
-      integer :: n, dir
-      real :: a(2*n)
-      integer :: i
+      INTG_PREC :: n, dir
+      R_PREC :: a(2*n)
+      INTG_PREC :: i
 
       if( dir == -1 ) then
         call fft66(a(1),a(2),n,n,n,-2)
 !       do i = 1,2*n
-!       a(i) = a(i) * sqrt(real(n))
+!       a(i) = a(i) * sqrt(REAL(n,RKIND))
 !       end do
       else
         call fft66(a(1),a(2),n,n,n,2)
         do i = 1,2*n
-        a(i) = a(i) / real(n)
+        a(i) = a(i) / REAL(n,RKIND)
         end do
       end if
 

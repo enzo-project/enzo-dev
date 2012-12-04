@@ -80,7 +80,7 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !                  BCs may move these to 0:Nx, 1:Nx+1, etc.
 !     Nx,Ny,Nz   - active mesh size in each direction
 !     NG*l/NG*r  - left/right ghost cells in each direction
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -103,21 +103,22 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer, intent(in)  :: rank, ESpectrum
-  integer, intent(in)  :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB, intent(in)  :: a, a0, adot, adot0
-  real,    intent(in)  :: dt, theta, dx, dy, dz
-  real,    intent(in)  :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real,    intent(in)  :: E0(*), E(*), Temp(*), Temp0(*), kappa(*), src(*)
-  real*8,  intent(out) :: matentries(*)
-  real*8,  intent(out) :: rhsentries(*)
-  real,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in)  :: rank, ESpectrum
+  INTG_PREC, intent(in)  :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in)  :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC, intent(in)  :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  P_PREC, intent(in)  :: a, a0, adot, adot0
+  R_PREC,    intent(in)  :: dt, theta, dx, dy, dz
+  R_PREC,    intent(in)  :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC,    intent(in)  :: E0(*), E(*), Temp(*), Temp0(*), kappa(*), src(*)
+  REAL*8,  intent(out) :: matentries(*)
+  REAL*8,  intent(out) :: rhsentries(*)
+  R_PREC,    intent(out) :: rhsnorm
+  INTG_PREC, intent(out) :: ier
 
   !=======================================================================
   
@@ -173,47 +174,48 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 !  PURPOSE: 3D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: ESpectrum
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  real,     intent(in) :: dt, theta, dx, dy, dz
-  real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  INTG_PREC,  intent(in) :: ESpectrum
+  INTG_PREC,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC,  intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  P_PREC,  intent(in) :: a, a0, adot, adot0
+  R_PREC,     intent(in) :: dt, theta, dx, dy, dz
+  R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: E0, E, kappa, src, Temp, Temp0
-  real*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
-  real,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  REAL*8,  intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  REAL*8,  intent(out) :: rhsentries(x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC,    intent(out) :: rhsnorm
+  INTG_PREC, intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j, k
-  real*8  :: dtfac, dtfac0, kap, kap0, eta, eta0, c, pi, StBz
-  real*8  :: dxi, dxi0, dyi, dyi0, dzi, dzi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
-  real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
-  real*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr, Ed_zl, Ed_zr
-  real*8  :: Rmin
+  INTG_PREC :: i, j, k
+  REAL*8  :: dtfac, dtfac0, kap, kap0, eta, eta0, c, pi, StBz
+  REAL*8  :: dxi, dxi0, dyi, dyi0, dzi, dzi0
+  REAL*8  :: afac, afac0, R, R0, E0avg
+  REAL*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
+  REAL*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
+  REAL*8  :: D_zl, D0_zl, D_zr, D0_zr, E0d_zl, E0d_zr, Ed_zl, Ed_zr
+  REAL*8  :: Rmin
 
 !=======================================================================
   
   ! initialize outputs to zero, flag to success
-  matentries = 0.d0
-  rhsentries = 0.d0
+  matentries = 0._RKIND
+  rhsentries = 0._RKIND
   ier = 1
 
   ! set shortcut values
   dtfac  = dt*theta         ! time step conversion factor
-  dtfac0 = dt*(1.d0-theta)  ! time step conversion factor
+  dtfac0 = dt*(1._RKIND-theta)  ! time step conversion factor
   if (ESpectrum == -1) then
-     afac  = 0.d0
-     afac0 = 0.d0
+     afac  = 0._RKIND
+     afac0 = 0._RKIND
   else
      afac  = adot/a         ! expansion factor (new time)
      afac0 = adot0/a0       ! expansion factor (old time)
@@ -227,8 +229,8 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
   c     = c_light           ! speed of light [cm/s]
   pi    = pi_val
 !  Rmin  = dxi+dyi+dzi
-  Rmin  = 1.0d-20
-  StBz  = 5.6704d-5         ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  Rmin  = 1.0e-20_RKIND
+  StBz  = 5.6704e-5_RKIND   ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
 
 
   ! iterate over the active domain
@@ -241,12 +243,12 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            !    compute gradients of E0, Ediff
            E0d_zl = E0(i,j,k) - E0(i,j,k-1)
            Ed_zl  = E(i,j,k) - E(i,j,k-1)
-           E0avg  = (E0(i,j,k) + E0(i,j,k-1))*0.5d0
+           E0avg  = (E0(i,j,k) + E0(i,j,k-1))*0.5_RKIND
 
 
            !    compute average opacity over face
-           kap = (kappa(i,j,k) + kappa(i,j,k-1))*0.5d0*nUn
-           kap0 = (kappa(i,j,k) + kappa(i,j,k-1))*0.5d0*nUn0
+           kap = (kappa(i,j,k) + kappa(i,j,k-1))*0.5_RKIND*nUn
+           kap0 = (kappa(i,j,k) + kappa(i,j,k-1))*0.5_RKIND*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k-1))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k-1))*nUn0
 
@@ -256,133 +258,133 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
 
            
            !    compute limiter
-!!$           D_zl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$           D0_zl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           D_zl = c/sqrt(9.d0*kap*kap + R*R)
-           D0_zl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$           D_zl = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$           D0_zl = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+           D_zl = c/sqrt(9._RKIND*kap*kap + R*R)
+           D0_zl = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
            !--------------
            ! y-directional limiter, lower face
            !    compute gradients of E0, Ediff
            E0d_yl = E0(i,j,k) - E0(i,j-1,k)
            Ed_yl  = E(i,j,k) - E(i,j-1,k)
-           E0avg  = (E0(i,j,k) + E0(i,j-1,k))*0.5d0
+           E0avg  = (E0(i,j,k) + E0(i,j-1,k))*0.5_RKIND
 
            !    compute R for limiters
            R  = max(dyi *abs(E0d_yl)/E0avg, Rmin)
            R0 = max(dyi0*abs(E0d_yl)/E0avg, Rmin)
 
            !    compute average opacity over face
-           kap = (kappa(i,j,k) + kappa(i,j-1,k))*0.5d0*nUn
-           kap0 = (kappa(i,j,k) + kappa(i,j-1,k))*0.5d0*nUn0
+           kap = (kappa(i,j,k) + kappa(i,j-1,k))*0.5_RKIND*nUn
+           kap0 = (kappa(i,j,k) + kappa(i,j-1,k))*0.5_RKIND*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i,j-1,k))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j-1,k))*nUn0
            
            !    compute limiter
-!!$           D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$           D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           D_yl = c/sqrt(9.d0*kap*kap + R*R)
-           D0_yl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$           D_yl = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$           D0_yl = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+           D_yl = c/sqrt(9._RKIND*kap*kap + R*R)
+           D0_yl = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
            !--------------
            ! x-directional limiter, lower face
            !    compute gradients of E0, Ediff
            E0d_xl = E0(i,j,k) - E0(i-1,j,k)
            Ed_xl  = E(i,j,k) - E(i-1,j,k)
-           E0avg  = (E0(i,j,k) + E0(i-1,j,k))*0.5d0
+           E0avg  = (E0(i,j,k) + E0(i-1,j,k))*0.5_RKIND
 
            !    compute R for limiters
            R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
            R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
            !    compute average opacity over face
-           kap = (kappa(i,j,k) + kappa(i-1,j,k))*0.5d0*nUn
-           kap0 = (kappa(i,j,k) + kappa(i-1,j,k))*0.5d0*nUn0
+           kap = (kappa(i,j,k) + kappa(i-1,j,k))*0.5_RKIND*nUn
+           kap0 = (kappa(i,j,k) + kappa(i-1,j,k))*0.5_RKIND*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i-1,j,k))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i-1,j,k))*nUn0
            
            !    compute limiter
-!!$           D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$           D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           D_xl = c/sqrt(9.d0*kap*kap + R*R)
-           D0_xl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$           D_xl = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$           D0_xl = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+           D_xl = c/sqrt(9._RKIND*kap*kap + R*R)
+           D0_xl = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
            !--------------
            ! x-directional limiter, upper face
            !    compute gradients of E0, Ediff
            E0d_xr = E0(i+1,j,k) - E0(i,j,k)
            Ed_xr  = E(i+1,j,k) - E(i,j,k)
-           E0avg  = (E0(i+1,j,k) + E0(i,j,k))*0.5d0
+           E0avg  = (E0(i+1,j,k) + E0(i,j,k))*0.5_RKIND
 
            !    compute R for limiters
            R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
            R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
 
            !    compute average opacity over face
-           kap = (kappa(i,j,k) + kappa(i+1,j,k))*0.5d0*nUn
-           kap0 = (kappa(i,j,k) + kappa(i+1,j,k))*0.5d0*nUn0
+           kap = (kappa(i,j,k) + kappa(i+1,j,k))*0.5_RKIND*nUn
+           kap0 = (kappa(i,j,k) + kappa(i+1,j,k))*0.5_RKIND*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i+1,j,k))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i+1,j,k))*nUn0
            
            !    compute limiter
-!!$           D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$           D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           D_xr = c/sqrt(9.d0*kap*kap + R*R)
-           D0_xr = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$           D_xr = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$           D0_xr = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+           D_xr = c/sqrt(9._RKIND*kap*kap + R*R)
+           D0_xr = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
            !--------------
            ! y-directional limiter, upper face
            !    compute gradients of E0, Ediff
            E0d_yr = E0(i,j+1,k) - E0(i,j,k)
            Ed_yr  = E(i,j+1,k) - E(i,j,k)
-           E0avg  = (E0(i,j+1,k) + E0(i,j,k))*0.5d0
+           E0avg  = (E0(i,j+1,k) + E0(i,j,k))*0.5_RKIND
 
            !    compute R for limiters
            R  = max(dyi *abs(E0d_yr)/E0avg, Rmin)
            R0 = max(dyi0*abs(E0d_yr)/E0avg, Rmin)
 
            !    compute average opacity over face
-           kap = (kappa(i,j,k) + kappa(i,j+1,k))*0.5d0*nUn
-           kap0 = (kappa(i,j,k) + kappa(i,j+1,k))*0.5d0*nUn0
+           kap = (kappa(i,j,k) + kappa(i,j+1,k))*0.5_RKIND*nUn
+           kap0 = (kappa(i,j,k) + kappa(i,j+1,k))*0.5_RKIND*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i,j+1,k))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j+1,k))*nUn0
            
            !    compute limiter
-!!$           D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$           D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           D_yr = c/sqrt(9.d0*kap*kap + R*R)
-           D0_yr = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$           D_yr = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$           D0_yr = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+           D_yr = c/sqrt(9._RKIND*kap*kap + R*R)
+           D0_yr = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
            !--------------
            ! z-directional limiter, upper face
            !    compute gradients of E0, Ediff
            E0d_zr = E0(i,j,k+1) - E0(i,j,k)
            Ed_zr  = E(i,j,k+1) - E(i,j,k)
-           E0avg  = (E0(i,j,k+1) + E0(i,j,k))*0.5d0
+           E0avg  = (E0(i,j,k+1) + E0(i,j,k))*0.5_RKIND
 
            !    compute R for limiters
            R  = max(dzi *abs(E0d_zr)/E0avg, Rmin)
            R0 = max(dzi0*abs(E0d_zr)/E0avg, Rmin)
 
            !    compute average opacity over face
-           kap = (kappa(i,j,k) + kappa(i,j,k+1))*0.5d0*nUn
-           kap0 = (kappa(i,j,k) + kappa(i,j,k+1))*0.5d0*nUn0
+           kap = (kappa(i,j,k) + kappa(i,j,k+1))*0.5_RKIND*nUn
+           kap0 = (kappa(i,j,k) + kappa(i,j,k+1))*0.5_RKIND*nUn0
 !           kap = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k+1))*nUn
 !           kap0 = sqrt(kappa(i,j,k))*sqrt(kappa(i,j,k+1))*nUn0
            
            !    compute limiter
-!!$           D_zr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$           D0_zr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-           D_zr = c/sqrt(9.d0*kap*kap + R*R)
-           D0_zr = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$           D_zr = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$           D0_zr = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+           D_zr = c/sqrt(9._RKIND*kap*kap + R*R)
+           D0_zr = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
            ! opacity values in this cell
            kap = kappa(i,j,k)*nUn
            kap0 = kappa(i,j,k)*nUn0
 
            ! black-body radiation in this cell (if applicable; otherwise Temp=0)
-           eta = 4.d0*kap*StBz/rUn*Temp(i,j,k)**4
-           eta0 = 4.d0*kap0*StBz/rUn0*Temp0(i,j,k)**4
+           eta = 4._RKIND*kap*StBz/rUn*Temp(i,j,k)**4
+           eta0 = 4._RKIND*kap0*StBz/rUn0*Temp0(i,j,k)**4
 
            ! set the matrix entries.  Note: the diffusive component 
            ! need not be rescaled, since scaling and chain rule cancel 
@@ -390,7 +392,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            matentries(2,i,j,k) = -dtfac*dyi*dyi*D_yl         ! y-left
            matentries(3,i,j,k) = -dtfac*dxi*dxi*D_xl         ! x-left
            matentries(4,i,j,k) = &
-                 1.d0 + dtfac*(afac + c*kap + dxi*dxi*(D_xl+D_xr)   &   ! self
+                 1._RKIND + dtfac*(afac + c*kap + dxi*dxi*(D_xl+D_xr)   &   ! self
                       + dyi*dyi*(D_yl+D_yr) + dzi*dzi*(D_zl+D_zr))
            matentries(5,i,j,k) = -dtfac*dxi*dxi*D_xr         ! x-right
            matentries(6,i,j,k) = -dtfac*dyi*dyi*D_yr         ! y-right
@@ -399,11 +401,11 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
            ! set the rhs entries
            rhsentries(i,j,k) = ( (dtfac/rUn + dtfac0/rUn0)*src(i,j,k)          &
                                + dtfac*eta + dtfac0*eta0                       &
-                               + (1.d0 - dtfac0*(afac0+c*kap0))*E0(i,j,k)      &
+                               + (1._RKIND - dtfac0*(afac0+c*kap0))*E0(i,j,k)      &
                                + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
                                + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)  &
                                + dtfac0*dzi0*dzi0*(D0_zr*E0d_zr-D0_zl*E0d_zl)  &
-                               - (1.d0 + dtfac*(afac+c*kap))*E(i,j,k)          &
+                               - (1._RKIND + dtfac*(afac+c*kap))*E(i,j,k)          &
                                + dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl)         &
                                + dtfac*dyi*dyi*(D_yr*Ed_yr-D_yl*Ed_yl)         &
                                + dtfac*dzi*dzi*(D_zr*Ed_zr-D_zl*Ed_zl) )
@@ -421,7 +423,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         k = x2s
         do j=1,Ny
            do i=1,Nx
-              matentries(1,i,j,k) = 0.d0
+              matentries(1,i,j,k) = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -430,7 +432,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         do j=1,Ny
            do i=1,Nx
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(1,i,j,k)
-              matentries(1,i,j,k) = 0.d0
+              matentries(1,i,j,k) = 0._RKIND
            enddo
         enddo
      endif
@@ -443,7 +445,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         j = x1s
         do k=1,Nz
            do i=1,Nx
-              matentries(2,i,j,k) = 0.d0
+              matentries(2,i,j,k) = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -452,7 +454,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         do k=1,Nz
            do i=1,Nx
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(2,i,j,k)
-              matentries(2,i,j,k) = 0.d0
+              matentries(2,i,j,k) = 0._RKIND
            enddo
         enddo
      endif
@@ -465,7 +467,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         i = x0s
         do k=1,Nz
            do j=1,Ny
-              matentries(3,i,j,k) = 0.d0
+              matentries(3,i,j,k) = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -474,7 +476,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         do k=1,Nz
            do j=1,Ny
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(3,i,j,k)
-              matentries(3,i,j,k) = 0.d0
+              matentries(3,i,j,k) = 0._RKIND
            enddo
         enddo
      endif
@@ -487,7 +489,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         i = x0e
         do k=1,Nz
            do j=1,Ny
-              matentries(5,i,j,k) = 0.d0
+              matentries(5,i,j,k) = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -496,7 +498,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         do k=1,Nz
            do j=1,Ny
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(5,i,j,k)
-              matentries(5,i,j,k) = 0.d0
+              matentries(5,i,j,k) = 0._RKIND
            enddo
         enddo
      endif
@@ -509,7 +511,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         j = x1e
         do k=1,Nz
            do i=1,Nx
-              matentries(6,i,j,k) = 0.d0
+              matentries(6,i,j,k) = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -518,7 +520,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         do k=1,Nz
            do i=1,Nx
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(6,i,j,k)
-              matentries(6,i,j,k) = 0.d0
+              matentries(6,i,j,k) = 0._RKIND
            enddo
         enddo
      endif
@@ -531,7 +533,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         k = x2e
         do j=1,Ny
            do i=1,Nx
-              matentries(7,i,j,k) = 0.d0
+              matentries(7,i,j,k) = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -540,7 +542,7 @@ subroutine gFLDSplit_SetupSystem3D(matentries, rhsentries, rhsnorm, E0, &
         do j=1,Ny
            do i=1,Nx
               matentries(4,i,j,k) = matentries(4,i,j,k) + matentries(7,i,j,k)
-              matentries(7,i,j,k) = 0.d0
+              matentries(7,i,j,k) = 0._RKIND
            enddo
         enddo
      endif
@@ -570,45 +572,46 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
 !  PURPOSE: 2D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: ESpectrum
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  real,     intent(in) :: dt, theta, dx, dy
-  real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
+  INTG_PREC,  intent(in) :: ESpectrum
+  INTG_PREC,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC,  intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  P_PREC,  intent(in) :: a, a0, adot, adot0
+  R_PREC,     intent(in) :: dt, theta, dx, dy
+  R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: E0, E, src, kappa, Temp, Temp0
-  real*8,   intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
-  real*8,   intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
-  real,     intent(out) :: rhsnorm
-  integer,  intent(out) :: ier
+  REAL*8,   intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
+  REAL*8,   intent(out) :: rhsentries(x0s:x0e,x1s:x1e)
+  R_PREC,     intent(out) :: rhsnorm
+  INTG_PREC,  intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j
-  real*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
-  real*8  :: c, pi, dxi, dxi0, dyi, dyi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
-  real*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
-  real*8  :: Rmin
+  INTG_PREC :: i, j
+  REAL*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
+  REAL*8  :: c, pi, dxi, dxi0, dyi, dyi0
+  REAL*8  :: afac, afac0, R, R0, E0avg
+  REAL*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
+  REAL*8  :: D_yl, D0_yl, D_yr, D0_yr, E0d_yl, E0d_yr, Ed_yl, Ed_yr
+  REAL*8  :: Rmin
 
 !=======================================================================
   
   ! initialize outputs to zero, flag to success
-  matentries = 0.d0
-  rhsentries = 0.d0
+  matentries = 0._RKIND
+  rhsentries = 0._RKIND
   ier = 1
 
   ! set shortcut values
   dtfac  = dt*theta         ! time step conversion factor
-  dtfac0 = dt*(1.d0-theta)  ! time step conversion factor
+  dtfac0 = dt*(1._RKIND-theta)  ! time step conversion factor
   if (ESpectrum == -1) then
-     afac  = 0.d0
-     afac0 = 0.d0
+     afac  = 0._RKIND
+     afac0 = 0._RKIND
   else
      afac  = adot/a         ! expansion factor (new time)
      afac0 = adot0/a0       ! expansion factor (old time)
@@ -619,9 +622,9 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
   dyi0  = a0/dy/lUn0
   c     = c_light           ! speed of light [cm/s]
   pi    = pi_val
-!  Rmin  = (dxi+dyi)*1.5d0
-  Rmin  = 1.0d-20
-  StBz  = 5.6704d-5         ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+!  Rmin  = (dxi+dyi)*1.5_RKIND
+  Rmin  = 1.0e-20_RKIND
+  StBz  = 5.6704e-5_RKIND   ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
 
   ! iterate over the active domain
   do j=1,Ny,1
@@ -632,106 +635,106 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         !    compute gradients of E0, Ediff
         E0d_yl = E0(i,j) - E0(i,j-1)
         Ed_yl  = E(i,j) - E(i,j-1)
-        E0avg  = (E0(i,j) + E0(i,j-1))/2.d0
+        E0avg  = (E0(i,j) + E0(i,j-1))/2._RKIND
 
         !    compute R for limiters
         R  = max(dyi *abs(E0d_yl)/E0avg, Rmin)
         R0 = max(dyi0*abs(E0d_yl)/E0avg, Rmin)
 
         !    compute average opacity over face
-        kap = (kappa(i,j) + kappa(i,j-1))*0.5d0*nUn
-        kap0 = (kappa(i,j) + kappa(i,j-1))*0.5d0*nUn0
+        kap = (kappa(i,j) + kappa(i,j-1))*0.5_RKIND*nUn
+        kap0 = (kappa(i,j) + kappa(i,j-1))*0.5_RKIND*nUn0
 !        kap = sqrt(kappa(i,j))*sqrt(kappa(i,j-1))*nUn
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i,j-1))*nUn0
            
         !    compute limiter
-!!$        D_yl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$        D0_yl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        D_yl = c/sqrt(9.d0*kap*kap + R*R)
-        D0_yl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$        D_yl = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$        D0_yl = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+        D_yl = c/sqrt(9._RKIND*kap*kap + R*R)
+        D0_yl = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
         !--------------
         ! x-directional limiter, lower face
         !    compute gradients of E0, Ediff
         E0d_xl = E0(i,j) - E0(i-1,j)
         Ed_xl  = E(i,j) - E(i-1,j)
-        E0avg  = (E0(i,j) + E0(i-1,j))/2.d0
+        E0avg  = (E0(i,j) + E0(i-1,j))/2._RKIND
 
         !    compute R for limiters
         R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
         R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
         !    compute average opacity over face
-        kap = (kappa(i,j) + kappa(i-1,j))*0.5d0*nUn
-        kap0 = (kappa(i,j) + kappa(i-1,j))*0.5d0*nUn0
+        kap = (kappa(i,j) + kappa(i-1,j))*0.5_RKIND*nUn
+        kap0 = (kappa(i,j) + kappa(i-1,j))*0.5_RKIND*nUn0
 !        kap = sqrt(kappa(i,j))*sqrt(kappa(i-1,j))*nUn
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i-1,j))*nUn0
            
         !    compute limiter
-!!$        D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$        D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        D_xl = c/sqrt(9.d0*kap*kap + R*R)
-        D0_xl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$        D_xl = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$        D0_xl = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+        D_xl = c/sqrt(9._RKIND*kap*kap + R*R)
+        D0_xl = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
         !--------------
         ! x-directional limiter, upper face
         !    compute gradients of E0, Ediff
         E0d_xr = E0(i+1,j) - E0(i,j)
         Ed_xr  = E(i+1,j) - E(i,j)
-        E0avg  = (E0(i+1,j) + E0(i,j))/2.d0
+        E0avg  = (E0(i+1,j) + E0(i,j))/2._RKIND
 
         !    compute R for limiters
         R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
         R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
 
         !    compute average opacity over face
-        kap = (kappa(i,j) + kappa(i+1,j))*0.5d0*nUn
-        kap0 = (kappa(i,j) + kappa(i+1,j))*0.5d0*nUn0
+        kap = (kappa(i,j) + kappa(i+1,j))*0.5_RKIND*nUn
+        kap0 = (kappa(i,j) + kappa(i+1,j))*0.5_RKIND*nUn0
 !        kap = sqrt(kappa(i,j))*sqrt(kappa(i+1,j))*nUn
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i+1,j))*nUn0
            
         !    compute limiter
-!!$        D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$        D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        D_xr = c/sqrt(9.d0*kap*kap + R*R)
-        D0_xr = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$        D_xr = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$        D0_xr = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+        D_xr = c/sqrt(9._RKIND*kap*kap + R*R)
+        D0_xr = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
         !--------------
         ! y-directional limiter, upper face
         !    compute gradients of E0, Ediff
         E0d_yr = E0(i,j+1) - E0(i,j)
         Ed_yr  = E(i,j+1) - E(i,j)
-        E0avg  = (E0(i,j+1) + E0(i,j))/2.d0
+        E0avg  = (E0(i,j+1) + E0(i,j))/2._RKIND
 
         !    compute R for limiters
         R  = max(dyi *abs(E0d_yr)/E0avg, Rmin)
         R0 = max(dyi0*abs(E0d_yr)/E0avg, Rmin)
 
         !    compute average opacity over face
-        kap = (kappa(i,j) + kappa(i,j+1))*0.5d0*nUn
-        kap0 = (kappa(i,j) + kappa(i,j+1))*0.5d0*nUn0
+        kap = (kappa(i,j) + kappa(i,j+1))*0.5_RKIND*nUn
+        kap0 = (kappa(i,j) + kappa(i,j+1))*0.5_RKIND*nUn0
 !        kap = sqrt(kappa(i,j))*sqrt(kappa(i,j+1))*nUn
 !        kap0 = sqrt(kappa(i,j))*sqrt(kappa(i,j+1))*nUn0
            
         !    compute limiter
-!!$        D_yr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$        D0_yr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-        D_yr = c/sqrt(9.d0*kap*kap + R*R)
-        D0_yr = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$        D_yr = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$        D0_yr = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+        D_yr = c/sqrt(9._RKIND*kap*kap + R*R)
+        D0_yr = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
         ! opacity values in this cell
         kap = kappa(i,j)*nUn
         kap0 = kappa(i,j)*nUn0
 
         ! black-body radiation in this cell (if applicable)
-        eta = 4.d0*kap*StBz/rUn*Temp(i,j)**4
-        eta0 = 4.d0*kap0*StBz/rUn0*Temp0(i,j)**4
+        eta = 4._RKIND*kap*StBz/rUn*Temp(i,j)**4
+        eta0 = 4._RKIND*kap0*StBz/rUn0*Temp0(i,j)**4
 
         ! set the matrix entries.  Note: the diffusive component 
         ! need not be rescaled, since scaling and chain rule cancel 
         matentries(1,i,j) = -dtfac*dyi*dyi*D_yl         ! y-left
         matentries(2,i,j) = -dtfac*dxi*dxi*D_xl         ! x-left
-        matentries(3,i,j) = 1.d0 + dtfac*(afac + c*kap     &         ! self
+        matentries(3,i,j) = 1._RKIND + dtfac*(afac + c*kap     &         ! self
               + dxi*dxi*(D_xl+D_xr)+dyi*dyi*(D_yl+D_yr))
         matentries(4,i,j) = -dtfac*dxi*dxi*D_xr         ! x-right
         matentries(5,i,j) = -dtfac*dyi*dyi*D_yr         ! y-right
@@ -739,10 +742,10 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
         ! set the rhs entries
         rhsentries(i,j) = ( (dtfac/rUn + dtfac0/rUn0)*src(i,j)            &
                           + dtfac*eta + dtfac0*eta0                       &
-                          + (1.d0 - dtfac0*(afac0+c*kap0))*E0(i,j)        &
+                          + (1._RKIND - dtfac0*(afac0+c*kap0))*E0(i,j)        &
                           + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
                           + dtfac0*dyi0*dyi0*(D0_yr*E0d_yr-D0_yl*E0d_yl)  &
-                          - (1.d0 + dtfac*(afac+c*kap))*E(i,j)            &
+                          - (1._RKIND + dtfac*(afac+c*kap))*E(i,j)            &
                           + dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl)         &
                           + dtfac*dyi*dyi*(D_yr*Ed_yr-D_yl*Ed_yl) )
      enddo
@@ -755,14 +758,14 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCYl==1) then
         j = x1s
         do i=1,Nx
-           matentries(1,i,j) = 0.d0
+           matentries(1,i,j) = 0._RKIND
         enddo
         ! Neumann
      else if (BCYl==2) then
         j = x1s
         do i=1,Nx
            matentries(3,i,j) = matentries(3,i,j) + matentries(1,i,j)
-           matentries(1,i,j) = 0.d0
+           matentries(1,i,j) = 0._RKIND
         enddo
      endif
   end if
@@ -773,14 +776,14 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCXl==1) then
         i = x0s
         do j=1,Ny
-           matentries(2,i,j) = 0.d0
+           matentries(2,i,j) = 0._RKIND
         enddo
         ! Neumann
      else if (BCXl==2) then
         i = x0s
         do j=1,Ny
            matentries(3,i,j) = matentries(3,i,j) + matentries(2,i,j)
-           matentries(2,i,j) = 0.d0
+           matentries(2,i,j) = 0._RKIND
         enddo
      endif
   end if
@@ -791,14 +794,14 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCXr==1) then
         i = x0e
         do j=1,Ny
-           matentries(4,i,j) = 0.d0
+           matentries(4,i,j) = 0._RKIND
         enddo
         ! Neumann
      else if (BCXr==2) then
         i = x0e
         do j=1,Ny
            matentries(3,i,j) = matentries(3,i,j) + matentries(4,i,j)
-           matentries(4,i,j) = 0.d0
+           matentries(4,i,j) = 0._RKIND
         enddo
      endif
   endif
@@ -809,14 +812,14 @@ subroutine gFLDSplit_SetupSystem2D(matentries, rhsentries, rhsnorm, E0,   &
      if (BCYr==1) then
         j = x1e
         do i=1,Nx
-           matentries(5,i,j) = 0.d0
+           matentries(5,i,j) = 0._RKIND
         enddo
         ! Neumann
      else if (BCYr==2) then
         j = x1e
         do i=1,Nx
            matentries(3,i,j) = matentries(3,i,j) + matentries(5,i,j)
-           matentries(5,i,j) = 0.d0
+           matentries(5,i,j) = 0._RKIND
         enddo
      endif
   endif
@@ -844,42 +847,43 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
 !  PURPOSE: 1D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer,  intent(in) :: ESpectrum
-  integer,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  REALSUB,  intent(in) :: a, a0, adot, adot0
-  real,     intent(in) :: dt, theta, dx
-  real,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr), intent(in) :: E0, E, src, kappa, Temp, Temp0
-  real*8,   intent(out) :: matentries(3,x0s:x0e)
-  real*8,   intent(out) :: rhsentries(x0s:x0e)
-  real,     intent(out) :: rhsnorm
-  integer,  intent(out) :: ier
+  INTG_PREC,  intent(in) :: ESpectrum
+  INTG_PREC,  intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  P_PREC,  intent(in) :: a, a0, adot, adot0
+  R_PREC,     intent(in) :: dt, theta, dx
+  R_PREC,     intent(in) :: aUn, lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr), intent(in) :: E0, E, src, kappa, Temp, Temp0
+  REAL*8,   intent(out) :: matentries(3,x0s:x0e)
+  REAL*8,   intent(out) :: rhsentries(x0s:x0e)
+  R_PREC,     intent(out) :: rhsnorm
+  INTG_PREC,  intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i
-  real*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
-  real*8  :: c, pi, dxi, dxi0
-  real*8  :: afac, afac0, R, R0, E0avg
-  real*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
-  real*8  :: Rmin
+  INTG_PREC :: i
+  REAL*8  :: dtfac, dtfac0, kap, kap0, StBz, eta, eta0
+  REAL*8  :: c, pi, dxi, dxi0
+  REAL*8  :: afac, afac0, R, R0, E0avg
+  REAL*8  :: D_xl, D0_xl, D_xr, D0_xr, E0d_xl, E0d_xr, Ed_xl, Ed_xr
+  REAL*8  :: Rmin
 
 !=======================================================================
   
   ! initialize outputs to zero, flag to success
-  matentries = 0.d0
-  rhsentries = 0.d0
+  matentries = 0._RKIND
+  rhsentries = 0._RKIND
   ier = 1
 
   ! set shortcut values
   dtfac  = dt*theta         ! time step conversion factor
-  dtfac0 = dt*(1.d0-theta)  ! time step conversion factor
+  dtfac0 = dt*(1._RKIND-theta)  ! time step conversion factor
   if (ESpectrum == -1) then
-     afac  = 0.d0
-     afac0 = 0.d0
+     afac  = 0._RKIND
+     afac0 = 0._RKIND
   else
      afac  = adot/a         ! expansion factor (new time)
      afac0 = adot0/a0       ! expansion factor (old time)
@@ -888,9 +892,9 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
   dxi0  = a0/dx/lUn0
   c     = c_light           ! speed of light [cm/s]
   pi    = pi_val
-!  Rmin  = dxi*3.d0
-  Rmin  = 1.0d-20
-  StBz  = 5.6704d-5         ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+!  Rmin  = dxi*3._RKIND
+  Rmin  = 1.0e-20_RKIND
+  StBz  = 5.6704e-5_RKIND   ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
 
   ! iterate over the active domain
   do i=1,Nx,1
@@ -900,68 +904,68 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      !    compute gradients of E0, Ediff
      E0d_xl = E0(i) - E0(i-1)
      Ed_xl  = E(i) - E(i-1)
-     E0avg  = (E0(i) + E0(i-1))/2.d0
+     E0avg  = (E0(i) + E0(i-1))/2._RKIND
 
      !    compute R for limiters
      R  = max(dxi *abs(E0d_xl)/E0avg, Rmin)
      R0 = max(dxi0*abs(E0d_xl)/E0avg, Rmin)
 
      !    compute average opacity over face
-     kap = (kappa(i) + kappa(i-1))*0.5d0*nUn
-     kap0 = (kappa(i) + kappa(i-1))*0.5d0*nUn0
+     kap = (kappa(i) + kappa(i-1))*0.5_RKIND*nUn
+     kap0 = (kappa(i) + kappa(i-1))*0.5_RKIND*nUn0
 !     kap = sqrt(kappa(i))*sqrt(kappa(i-1))*nUn
 !     kap0 = sqrt(kappa(i))*sqrt(kappa(i-1))*nUn0
            
      !    compute limiter
-!!$     D_xl = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$     D0_xl = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     D_xl = c/sqrt(9.d0*kap*kap + R*R)
-     D0_xl = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$     D_xl = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$     D0_xl = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+     D_xl = c/sqrt(9._RKIND*kap*kap + R*R)
+     D0_xl = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
      !--------------
      ! x-directional limiter, upper face
      !    compute gradients of E0, Ediff
      E0d_xr = E0(i+1) - E0(i)
      Ed_xr  = E(i+1) - E(i)
-     E0avg  = (E0(i+1) + E0(i))/2.d0
+     E0avg  = (E0(i+1) + E0(i))/2._RKIND
 
      !    compute R for limiters
      R  = max(dxi *abs(E0d_xr)/E0avg, Rmin)
      R0 = max(dxi0*abs(E0d_xr)/E0avg, Rmin)
 
      !    compute average opacity over face
-     kap = (kappa(i) + kappa(i+1))*0.5d0*nUn
-     kap0 = (kappa(i) + kappa(i+1))*0.5d0*nUn0
+     kap = (kappa(i) + kappa(i+1))*0.5_RKIND*nUn
+     kap0 = (kappa(i) + kappa(i+1))*0.5_RKIND*nUn0
 !     kap = sqrt(kappa(i))*sqrt(kappa(i+1))*nUn
 !     kap0 = sqrt(kappa(i))*sqrt(kappa(i+1))*nUn0
            
      !    compute limiter
-!!$     D_xr = c*(2.d0*kap+R)/(6.d0*kap*kap+3.d0*kap*R+R*R)
-!!$     D0_xr = c*(2.d0*kap0+R0)/(6.d0*kap0*kap0+3.d0*kap0*R0+R0*R0)
-     D_xr = c/sqrt(9.d0*kap*kap + R*R)
-     D0_xr = c/sqrt(9.d0*kap0*kap0 + R0*R0)
+!!$     D_xr = c*(2._RKIND*kap+R)/(6._RKIND*kap*kap+3._RKIND*kap*R+R*R)
+!!$     D0_xr = c*(2._RKIND*kap0+R0)/(6._RKIND*kap0*kap0+3._RKIND*kap0*R0+R0*R0)
+     D_xr = c/sqrt(9._RKIND*kap*kap + R*R)
+     D0_xr = c/sqrt(9._RKIND*kap0*kap0 + R0*R0)
 
      ! opacity values in this cell
      kap = kappa(i)*nUn
      kap0 = kappa(i)*nUn0
 
      ! black-body radiation in this cell (if applicable)
-     eta = 4.d0*kap*StBz/rUn*Temp(i)**4
-     eta0 = 4.d0*kap0*StBz/rUn0*Temp0(i)**4
+     eta = 4._RKIND*kap*StBz/rUn*Temp(i)**4
+     eta0 = 4._RKIND*kap0*StBz/rUn0*Temp0(i)**4
 
      ! set the matrix entries.  Note: the diffusive component 
      ! need not be rescaled, since scaling and chain rule cancel 
      matentries(1,i) = -dtfac*dxi*dxi*D_xl            ! x-left
-     matentries(2,i) = 1.d0 + dtfac*(afac + c*kap  &  ! self
+     matentries(2,i) = 1._RKIND + dtfac*(afac + c*kap  &  ! self
                             + dxi*dxi*(D_xl+D_xr))
      matentries(3,i) = -dtfac*dxi*dxi*D_xr            ! x-right
 
      ! set the rhs entries
      rhsentries(i) = ( (dtfac/rUn + dtfac0/rUn0)*src(i)              &
                      + dtfac*eta + dtfac0*eta0                       &
-                     + (1.d0 - dtfac0*(afac0+c*kap0))*E0(i)          &
+                     + (1._RKIND - dtfac0*(afac0+c*kap0))*E0(i)          &
                      + dtfac0*dxi0*dxi0*(D0_xr*E0d_xr-D0_xl*E0d_xl)  &
-                     - (1.d0 + dtfac*(afac+c*kap))*E(i)              &
+                     - (1._RKIND + dtfac*(afac+c*kap))*E(i)              &
                      + dtfac*dxi*dxi*(D_xr*Ed_xr-D_xl*Ed_xl) )
 
   enddo
@@ -972,12 +976,12 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      ! Dirichlet
      if (BCXl==1) then
         i = x0s
-        matentries(1,i) = 0.d0
+        matentries(1,i) = 0._RKIND
      ! Neumann
      else if (BCXl==2) then
         i = x0s
         matentries(2,i) = matentries(2,i) + matentries(1,i)
-        matentries(1,i) = 0.d0
+        matentries(1,i) = 0._RKIND
      endif
   end if
 
@@ -986,12 +990,12 @@ subroutine gFLDSplit_SetupSystem1D(matentries, rhsentries, rhsnorm, E0, &
      ! Dirichlet
      if (BCXr==1) then
         i = x0e
-        matentries(3,i) = 0.d0
+        matentries(3,i) = 0._RKIND
      ! Neumann
      else if (BCXr==2) then
         i = x0e
         matentries(2,i) = matentries(2,i) + matentries(3,i)
-        matentries(3,i) = 0.d0
+        matentries(3,i) = 0._RKIND
      endif
   endif
 

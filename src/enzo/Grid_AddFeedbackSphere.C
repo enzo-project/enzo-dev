@@ -497,7 +497,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   int ind_cell_inside[MAX_SUPERCELL_NUMBER], ind_cell_edge[MAX_SUPERCELL_NUMBER];
   float nx_cell_edge[MAX_SUPERCELL_NUMBER], ny_cell_edge[MAX_SUPERCELL_NUMBER], 
     nz_cell_edge[MAX_SUPERCELL_NUMBER];
-  int n_cell_inside = 0, n_cell_edge = 0, ibuff = DEFAULT_GHOST_ZONES;
+  int n_cell_inside = 0, n_cell_edge = 0, ibuff = NumberOfGhostZones;
   int ii, jj, kk, r_s, ic, sign;
   float m_cell_inside = 0.0, metal_cell_inside = 0.0, colour_cell_inside = 0.0, 
     metallicity_inside = 0.0, colour_inside = 0.0, rho_inside, rho_metal_inside, rho_colour_inside;
