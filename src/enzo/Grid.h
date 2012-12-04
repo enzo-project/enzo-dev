@@ -21,6 +21,10 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
+#ifdef ECUDA
+#include "hydro_rk/CudaMHD.h"
+#endif
+
 #include "TopGridData.h"
 
 struct HierarchyEntry;
@@ -184,6 +188,14 @@ class grid
 #ifdef TRANSFER
 #include "PhotonGrid_Variables.h"
 #endif
+
+#ifdef ECUDA
+//
+// CUDA MHD solver data
+//
+  cuMHDData MHDData;
+#endif
+
 
  public:
 
@@ -2704,6 +2716,27 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ComputeResistivity(float *resistivity, int DensNum);
   /* END OF NEW STANFORD HYDRO/MHD ROUTINES */
 
+//------------------------------------------------------------------------
+// CUDA MHD routines
+//------------------------------------------------------------------------
+#ifdef ECUDA
+  void CudaMHDMallocGPUData();
+  void CudaMHDFreeGPUData();
+  void CudaSolveMHDEquations(fluxes *SubgridFluxes[], int NumberOfSubgrids, int renorm);
+  void CudaMHDSweep(int dir);
+  void CudaMHDSaveSubgridFluxes(fluxes *SubgridFluxes[], 
+                                int NumberOfSubgrids, int dir); 
+  void CudaMHDSourceTerm();
+  void CudaMHDUpdatePrim(int renorm);
+  int CudaMHDRK2_1stStep(fluxes *SubgridFluxes[], 
+                         int NumberOfSubgrids, int level,
+                         ExternalBoundary *Exterior);
+  int CudaMHDRK2_2ndStep(fluxes *SubgridFluxes[], 
+                         int NumberOfSubgrids, int level,
+                         ExternalBoundary *Exterior);
+#endif
+
+
 };
 
 // inline int grid::ReadRandomForcingFields (FILE *main_file_pointer);
@@ -2712,3 +2745,4 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
 #endif
+
