@@ -206,7 +206,6 @@ int grid::TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids,
 
       // Threaded version
       else {
-#ifdef _OPENMP
 
 	/* Find out how many particles are being moved per thread
 	   block, so we know where to start inserting them in the move
