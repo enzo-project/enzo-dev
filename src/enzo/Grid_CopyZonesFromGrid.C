@@ -67,15 +67,13 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
  
   /* declarations */
  
-  int i,j,k,field,dim;
+  int i, j, k, dim, loop, iLoop, field, otherindexB;
+  float vx, vy, vz, v2, rho, bx, by, bz, b2;
 
   bool shiftPos, shiftNeg; float delta; FLOAT L;
 
   if (ShearingBoundaryDirection!=-1){
     L=(DomainRightEdge[ShearingBoundaryDirection]-DomainLeftEdge[ShearingBoundaryDirection]);
-
-   
-    bool noMove=false;
 
     delta=L*AngularVelocity*VelocityGradient;
   
@@ -187,7 +185,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
 
   //Shearing Boundary Variables
-  float rho, vx, vy, vz, v2, b2, bx, by, bz=0.0;
   int thisindex, otherindex=0;
   FLOAT a,b;  FLOAT val1=-9999;FLOAT val2=-9999;
   
@@ -292,10 +289,9 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   int addDim[3] = {1, OtherDim[0], OtherDim[0]*OtherDim[1]};
   int velocityTypes[3]={Velocity1, Velocity2, Velocity3};
-  int Zero[3] = {0,0,0};
 
   if (!isShearing)
-    //#pragma omp parallel for schedule(static)
+//#pragma omp parallel for schedule(static)
     for (field = 0; field < NumberOfBaryonFields; field++)
       FORTRAN_NAME(copy3drel)(OtherGrid->BaryonField[field], BaryonField[field],
 			      Dim, Dim+1, Dim+2,
@@ -314,17 +310,16 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
 	  for (i = 0; i < Dim[0]; i++, thisindex++, otherindex++){
 
-	    int otherindexB=otherindex+ addDim[ShearingVelocityDirection];
+	    otherindexB=otherindex+ addDim[ShearingVelocityDirection];
 	    
 	    val1=OtherGrid->BaryonField[field][otherindex];
 	    val2=OtherGrid->BaryonField[field][otherindexB];
 	    
 	    if (DualEnergyFormalism==0 && FieldType[field]==TotalEnergy) {
-	      for (int loop=0; loop<=1; loop++){
-		int iLoop=otherindex;
+	      for (loop=0; loop < 2; loop++){
+		iLoop=otherindex;
 		if (loop==1) iLoop= otherindexB;
 
-		float vx, vy, vz, v2, rho;
 		v2=0.0;
 		rho= OtherGrid->BaryonField[iden][iLoop];
 		vx= OtherGrid->BaryonField[ivx][iLoop];
@@ -333,7 +328,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 		else vz=0.0;
 		v2=vx*vx+vy*vy+vz*vz;
 		
-		float bx, by, bz, b2;
 		b2=0.0;
 		if (useMHD) {
 		  bx= OtherGrid->BaryonField[iBx][iLoop];
@@ -374,7 +368,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] +
 	  (k + Start[2])*GridDimension[0]*GridDimension[1];
 	for (i = 0; i < Dim[0]; i++, thisindex++){
-	  float vx, vy, vz, v2, rho, bx, by, bz, b2;
 	  rho= BaryonField[iden][thisindex];  
 	  vx= BaryonField[ivx][thisindex];
 	  vy= BaryonField[ivy][thisindex];  

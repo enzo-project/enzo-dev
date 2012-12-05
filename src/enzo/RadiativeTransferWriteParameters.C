@@ -43,6 +43,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferCoupledRateSolver);
   fprintf(fptr, "RadiativeTransferOpticallyThinH2          = %"ISYM"\n", 
 	  RadiativeTransferOpticallyThinH2);
+  fprintf(fptr, "RadiativeTransferOpticallyThinXray        = %"ISYM"\n", 
+	  RadiativeTransferOpticallyThinXray);
   fprintf(fptr, "RadiativeTransferFLDCallOnLevel           = %"ISYM"\n", 
 	  RadiativeTransferFLDCallOnLevel);
   fprintf(fptr, "RadiativeTransferPeriodicBoundary         = %"ISYM"\n", 
@@ -55,6 +57,8 @@ int RadiativeTransferWriteParameters(FILE *fptr)
 	  RadiativeTransferRaysPerCell);
   fprintf(fptr, "RadiativeTransferTimestepVelocityLimit    = %"FSYM"\n", 
 	  RadiativeTransferTimestepVelocityLimit);
+  fprintf(fptr, "RadiativeTransferTimestepVelocityLevel    = %"ISYM"\n", 
+	  RadiativeTransferTimestepVelocityLevel);
   fprintf(fptr, "RadiativeTransferInitialHEALPixLevel      = %"ISYM"\n", 
 	  RadiativeTransferInitialHEALPixLevel);
   fprintf(fptr, "RadiativeTransferPhotonEscapeRadius       = %"FSYM"\n", 

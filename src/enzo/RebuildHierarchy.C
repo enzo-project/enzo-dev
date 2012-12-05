@@ -325,6 +325,8 @@ int RebuildHierarchy(TopGridData *MetaData,
  
 //    if (debug) ReportMemoryUsage("Memory usage report: Rebuild 3");
 
+#ifdef UNUSED 
+#endif
     /* 3) Rebuild all grids on this level and below.  Note: All the grids
           in LevelArray[level+] have been deleted. */
 

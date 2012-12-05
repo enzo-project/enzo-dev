@@ -54,6 +54,8 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const float HypernovaMetals[] = {3.36, 3.53, 5.48, 7.03, 8.59}; // Msun
   const float HypernovaEnergy[] = {10, 10, 20, 25, 30};  // 1e51 erg
 
+  const int max_radius = 5;  // Don't exceed max_radius*PopIIISNRadius
+
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
 
@@ -76,6 +78,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case SUPERNOVA:  // Single thermal bubble of SN feedback
     Radius = PopIIISupernovaRadius * pc / LengthUnits;
     Radius = max(Radius, 3.5*StarLevelCellWidth);
+    Radius = min(Radius, max_radius * PopIIISupernovaRadius*pc/LengthUnits);
     EjectaVolume = 4.0/3.0 * 3.14159 * pow(PopIIISupernovaRadius*pc, 3);
     EjectaDensity = Mass * Msun / EjectaVolume / DensityUnits;
 

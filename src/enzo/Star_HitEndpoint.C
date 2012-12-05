@@ -80,6 +80,10 @@ int Star::HitEndpoint(FLOAT Time)
       }
     } else // SN tracers (must refine)
       result = NO_DEATH;
+
+    if (debug) printf("type = %d, mass = %g, result = %d, feedback = %d\n",
+		      this->type, this->Mass, result, this->FeedbackFlag);
+
     break;
     
   case PopII:

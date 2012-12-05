@@ -198,6 +198,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
   MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
+  MetallicityForRefinement  = 1.0;
   FluxCorrection            = TRUE;
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
@@ -350,7 +351,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
                                                    // during output by default.
   RadiationFieldType          = 0;
-  RadiationFieldRedshift      = 0.0;
+  RadiationFieldRedshift      = FLOAT_UNDEFINED;
   TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;

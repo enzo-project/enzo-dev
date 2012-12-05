@@ -234,7 +234,16 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
        is automatically turned if method #8 is specified. */
 
     break;
- 
+
+    /* ==== METHOD 19: Refine on metal mass ==== */
+
+  case 19:
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetalMass(level);
+    if (NumberOfFlaggedCells < 0) {
+      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMetalMass.\n");
+      return FAIL;
+    }
+    break;
     /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
  
     /* Must be done last ... */
@@ -259,6 +268,10 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
   }
 
+  if (debug1 && NumberOfFlaggedCells > 0)
+    printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
+	   CellFlaggingMethod[method], NumberOfFlaggedCells);
+
   } // ENDFOR methods
  
   /* End of Cell flagging criterion routine                              */
@@ -272,12 +285,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   counter[4]++;
   timer[4] += NumberOfFlaggedCells;
 #endif /* MPI_INSTRUMENTATION */
- 
-  if (debug1)
-
-    printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
-	   method, NumberOfFlaggedCells);
- 
+  
   return SUCCESS;
  
 }

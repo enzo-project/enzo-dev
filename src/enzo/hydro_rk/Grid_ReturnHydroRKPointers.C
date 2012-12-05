@@ -115,7 +115,7 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
   if (MetalNum != -1) {
     Prim[nfield++] = BaryonField[MetalNum];
     if (StarMakerTypeIaSNe)
-      Prim[nfield++] = OldBaryonField[MetalIaNum];
+      Prim[nfield++] = BaryonField[MetalIaNum];
     if (MultiMetals || TestProblemData.MultiMetals) {
       Prim[nfield++] = BaryonField[MetalNum+1];
       Prim[nfield++] = BaryonField[MetalNum+2];

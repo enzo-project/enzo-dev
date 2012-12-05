@@ -11,7 +11,7 @@
        in, jn, kn, nratec, iexpand, imethod, &
        idual, ispecies, imetal, imcool, idust, idim, &
        is, js, ks, ie, je, ke, imax, ih2co, ipiht, igammah, &
-       dt, aye, temstart, temend, &
+       dt, aye, redshift, temstart, temend, &
        utem, uxyz, uaye, urho, utim, &
        eta1, eta2, gamma, fh, dtoh, z_solar, &
        k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a, &
@@ -136,7 +136,7 @@
          ndratec
     R_PREC, intent(in) :: dt, aye, temstart, temend, eta1, eta2, gamma, &
          utim, uxyz, uaye, urho, utem, fh, dtoh, xe_start, xe_end, &
-         dtemstart, dtemend, z_solar
+         dtemstart, dtemend, z_solar, redshift
     INTG_PREC, intent(out) :: ierr
     
 !  Density, energy and velocity fields fields
@@ -425,7 +425,7 @@
                  in, jn, kn, nratec, idual, imethod,              &
                  iexpand, ispecies, imetal, imcool, idust, idim,  &
                  is, ie, j, k, ih2co, ipiht, iter, igammah,       &
-                 aye, temstart, temend, z_solar,                  &
+                 aye, redshift, temstart, temend, z_solar,        &
                  utem, uxyz, uaye, urho, utim,                    &
                  eta1, eta2, gamma,                               &
                  ceHIa, ceHeIa, ceHeIIa, ciHIa, ciHeIa,           &
@@ -520,10 +520,12 @@
 !                electron or HI fraction which is in equilibrium with high
 !                individual terms (which all nearly cancel).
 
+#ifdef UNUSED
                if (iter .gt. 50) then
                   dedot(i) = min(abs(dedot(i)), abs(dedot_prev(i)))
                   HIdot(i) = min(abs(HIdot(i)), abs(HIdot_prev(i)))
                endif
+#endif
 
 !              compute minimum rate timestep
 
@@ -571,14 +573,14 @@
                 if(d(i,j,k)*dom .gt. 1.e18_RKIND .and. i.eq.4) write(0, *) &
                    HI(i,j,k)/heq, edot(i),tgas(i)
                 dtit(i) = min(dtit(i), 0.1_RKIND*heq/dheq)
-              endif
               if (iter .gt. 10) dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
+              endif
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
 !              Output some debugging information if required
-#ifndef _OPENMP
-              if (dtit(i)/dt .lt. 1.e-2_RKIND .and. iter .gt. 800 .and. &
+!#ifndef _OPENMP
+!$omp critical
                    abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND) then
                  write(4,1000) iter,i,j,k,dtit(i), &
                       ttot(i),dt,de(i,j,k),dedot(i),HI(i,j,k),HIdot(i), &
@@ -603,7 +605,9 @@
                       + 2._RKIND*k18(i)*H2II(i,j,k)  *de(i,j,k)/2._RKIND,  &
                       +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2._RKIND
               endif
-#endif /* _OPENMP */
+!$omp end critical
+!#endif /* _OPENMP */
+
  1000          format(i5,3(i3,1x),1p,11(e11.3))
  1100          format(1p,20(e11.3))
 #endif /* WRITE_COOLING_DEBUG */
@@ -653,7 +657,7 @@
                     dt, ttot(i), abs(0.1_RKIND*energy/edot(i)), &
                     real(abs(0.1_RKIND*energy/edot(i)),RKIND)
 
-#define NO_FORTRAN_DEBUG
+#define FORTRAN_DEBUG
 #ifdef FORTRAN_DEBUG
                if (ge(i,j,k) .le. 0._RKIND .and. idual .eq. 1) &
                     write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
@@ -666,13 +670,14 @@
 #ifdef WRITE_COOLING_DEBUG
 !              If the timestep is too small, then output some debugging info
 
-#ifndef _OPENMP
-               if (((dtit(i)/dt .lt. 1.e-2_RKIND .and. iter .gt. 800) &
+!#ifndef _OPENMP
+!$omp critical
                     .or. iter .gt. itmax-100) .and. &
                     abs((dt-ttot(i))/dt) .gt. 1.e-3_RKIND) &
                     write(3,2000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i), &
                     energy,de(i,j,k),ttot(i),d(i,j,k),e(i,j,k),dtit(i)
-#endif /* _OPENMP */
+!$omp end critical
+!#endif /* _OPENMP */
  2000          format(4(i4,1x),1p,10(e14.3))
 #endif /* WRITE_COOLING_DEBUG */
             endif   ! itmask

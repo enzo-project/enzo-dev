@@ -50,7 +50,7 @@ void fpcol(float *x, int n, int m, FILE *fptr);
 #define ALPHA_FADE 0.1
 #define FUZZY_BOUNDARY 0.1
 #define FUZZY_ITERATIONS 10
-#define NO_SYNC_TIMING
+#define SYNC_TIMING
 #define GRIDS_PER_LOOP 10000
 
 int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
