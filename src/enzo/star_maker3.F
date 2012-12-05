@@ -390,10 +390,11 @@ c
      &     xface, yface, zface, xpos, ypos, zpos,
      &     energy_before, energy_after, mass_before, mass_after,
      &     kin_energy_before, kin_energy_after,
-     &     asum, bsum, csum
+     &     asum, bsum, csum, delta_ke, ke_injected
       real dxf, dyf, dzf, dxc, dyc, dzc
       real u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
-     &     te1(4,4,4), ge1(4,4,4), metal1(4,4,4)
+     &     te1(4,4,4), ge1(4,4,4), metal1(4,4,4),
+     &     ke_before(4,4,4), ke_after(4,4,4)
       parameter (clight = c_light, msolar_e51 = 1800.d0)
 c
 c-----------------------------------------------------------------------
@@ -533,7 +534,7 @@ c
             dzc = real(kc) + 0.5 - zpos
 c            write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
 c
-c           Zero local dummy field
+c           Zero local dummy field and kinetic energy field
 c
             do k = 1, 4
                do j = 1, 4
@@ -548,6 +549,24 @@ c
                   enddo
                enddo
             enddo
+
+c
+c     Compute the kinetic energy of the affected region
+c     before momentum is added
+c
+            do k = -1, +2
+               do j = -1, +2
+                  do i = -1, +2
+
+                     ke_before = 0.5d0*(u(iface+i ,jc+j ,kc+k)**2 + 
+     &                    v(iface+i ,jc+j ,kc+k)**2 + 
+     &                    w(iface+i ,jc+j ,kc+k)**2)
+                     
+                     enddo
+                  enddo
+               enddo
+
+
 c
 c           First convert velocities to momenta and transform
 c            into frame comoving with particle
@@ -575,6 +594,14 @@ c
      &                        m_eject, yield, metalf(n),
      &                        mass_per_cell, 1.0, 0.0)
 c
+c           The kinetic energy after the feedback event is a quadratic equation
+c           with delta_p, where delta_p is the total amount of momentum added
+c           to the feedback region:
+c           E_k,a = asum + bsum*delta_p + csum*delta_p*delta_p
+c
+c           asum = sum(p_i,b*p_i,b/(m_i,b + delta_m_i))
+c
+c
 c           Sum a, b and c terms to get momentum normalization
 c
             call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
@@ -586,8 +613,7 @@ c
             write(6,*) 'abc1',asum, bsum, csum
             asum = asum - (kin_energy_before + kinf*energy)
             write(6,*) 'abc2',asum, bsum, csum
-c            mom_per_cell = 0.0
-c            if (kinf .gt. 0.0)
+
             mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
      &                          (2.0*csum)
 c
@@ -628,15 +654,33 @@ c           Still need to fix this:
 c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c     
-            if (imethod .ne. 2 .and. idual .eq. 1) then
-               write(6,*) 'star_maker3: imethod not supported'
-               ERROR_MESSAGE
-c                   te(ic+i1,jc+j1,kc+k1) = 
-c     &                  0.5d0*(u(ic+i1,jc+j1,kc+k1)**2 + 
-c     &                         v(ic+i1,jc+j1,kc+k1)**2 + 
-c     &                         w(ic+i1,jc+i1,kc+k1)**2) +
-c     &                  ge(ic+i1,jc+j1,kc+k1)
-                endif
+            ke_injected = 0.0
+            if (imethod .ne. 2) then
+               do k = -1, +2
+                  do j = -1, +2
+                     do i = -1, +2
+
+                        ke_after(i+1,j+1,k+1) = 0.5d0*
+     &                       (u(iface+i ,jc+j ,kc+k)**2 + 
+     &                        v(iface+i ,jc+j ,kc+k)**2 + 
+     &                        w(iface+i ,jc+j ,kc+k)**2)
+
+                        delta_ke = ke_after(i+1,j+1,k+1) - 
+     &                             ke_before(i+1,j+1,k+1)
+                        te(iface+i ,jc+j ,kc+k) = 
+     &                       te(iface+i ,jc+j ,kc+k) +
+     &                       delta_ke
+                        ke_injected = ke_injected + delta_ke
+
+                     enddo
+                  enddo
+               enddo
+               if (ke_injected .ne. kinf*energy) then
+                  write(6,*) 'star_maker3: ke injected does not match:'
+                  write(6,*) ke_injected,kinf*energy
+                  ERROR_MESSAGE
+               endif
+            endif
 c
  10         continue
          endif
