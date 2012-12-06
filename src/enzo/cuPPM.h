@@ -3,6 +3,7 @@
 
 #include "CUDAUtil.h"
 #include "fortran.def"
+#define tiny 1e-20
 
 typedef struct {
   // Input variables
