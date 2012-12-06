@@ -257,7 +257,7 @@ c  argument declarations
 c
       INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
      &          sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
-      logical*1 source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
+      LOGIC_PREC source(sdim1, sdim2, sdim3), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c

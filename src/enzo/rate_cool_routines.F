@@ -194,7 +194,7 @@ c -------------------------------------------------------------------
       R_PREC temstart, temend, tgas1d(in), dom,
      &        dtemstart, dtemend
       real*8 coolunit, tbase1
-      logical itmask(imax)
+      LOGIC_PREC itmask(imax)
 
 !     Chemistry rates as a function of temperature
 
@@ -520,7 +520,7 @@ c -------------------------------------------------------------------
      &     iradtrans, irt_honly
       R_PREC dedot(in), HIdot(in), dom
       real*8 edot(in)
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !     Density fields
 
@@ -734,7 +734,7 @@ c -------------------------------------------------------------------
       INTG_PREC ispecies, idust, in, jn, kn, is, ie, j, k, 
      &     iradtrans, irt_honly
       R_PREC    dtit(in), dedot_prev(in), HIdot_prev(in)
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !     Density fields
 
