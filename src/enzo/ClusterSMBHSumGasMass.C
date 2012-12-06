@@ -79,7 +79,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
   float ColdGasMassMsun=ClusterSMBHColdGasMass*MassUnits/SolarMass;
   if (ClusterSMBHCalculateGasMass == 2){
-    if (ColdGasMassMsun - 0.0 > 0.1) {
+    if (ColdGasMassMsun  > 0.001) {
        ClusterSMBHFeedbackSwitch = TRUE;
        ClusterSMBHJetMdot = (ColdGasMassMsun/(ClusterSMBHAccretionTime*1e6))/2.0;  // AccretionTime from Myr to yr; reset Mdot, still in Msun/yr. Devide it by 2 because Mdot is for only one jet.
        float epsilon=0.001;
@@ -106,7 +106,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     FILE *fptr=fopen("MT.out","a");
-    fprintf(fptr,"Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBGColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
+    fprintf(fptr,"Time, ClusterSMBHStartTime, Switch, and Total ClusterSMBHColdGasMass in Msun = %g %g %d %g \n", Time, ClusterSMBHStartTime, ClusterSMBHFeedbackSwitch, ColdGasMassMsun);
     fclose(fptr);
   }
   return SUCCESS;

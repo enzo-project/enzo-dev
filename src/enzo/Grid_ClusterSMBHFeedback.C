@@ -384,7 +384,9 @@ energy_add/BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)];
 
 
   /* loop over cells of disk, remove mass. */
-if (DiskOnGrid == true & ClusterSMBHCalculateGasMass != 0){
+if (DiskOnGrid == true && ClusterSMBHCalculateGasMass != 0){
+  if (ClusterSMBHColdGasMass < 0.0001)
+     return SUCCESS;
   float AccretionRate = JetMdot*2.0; // in codeunit  *2 because Mdot is Mdot of one jet. There are two jets!
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   float ColdGasTemperature = 3.0e4;       
