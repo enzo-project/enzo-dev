@@ -82,20 +82,22 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
     ClusterSMBHJetMdot = (ColdGasMassMsun/(ClusterSMBHAccretionTime*1e6))/2.0;  // AccretionTime from Myr to yr; reset Mdot, still in Msun/yr. Devide it by 2 because Mdot is for only one jet.
     float epsilon=0.001;
     ClusterSMBHJetEdot = (epsilon*ClusterSMBHJetMdot * SolarMass/3.1557e7) * pow(clight,2)/1.0e44;
-  }
-  int LastClusterSMBHFeedbackSwitch = ClusterSMBHFeedbackSwitch;
-  if (ColdGasMassMsun < 1.0e5)
-    ClusterSMBHFeedbackSwitch = FALSE;
-  else
-    ClusterSMBHFeedbackSwitch = (ColdGasMassMsun <= ClusterSMBHEnoughColdGas && LastClusterSMBHFeedbackSwitch == FALSE) ? FALSE : TRUE;
+  } // end if ClusterSMBHCalculateGasMass == 2
+  if (ClusterSMBHCalculateGasMass == 1) {
+    int LastClusterSMBHFeedbackSwitch = ClusterSMBHFeedbackSwitch;
+    if (ColdGasMassMsun < 1.0e5)
+       ClusterSMBHFeedbackSwitch = FALSE;
+    else
+       ClusterSMBHFeedbackSwitch = (ColdGasMassMsun <= ClusterSMBHEnoughColdGas && LastClusterSMBHFeedbackSwitch == FALSE) ? FALSE : TRUE;
 
-  if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
-    ClusterSMBHStartTime = Time + ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;
-    if (ClusterSMBHJetPrecessionPeriod < 0.00001 & ClusterSMBHJetPrecessionPeriod > -0.00001)  //if precession off (set to 0), change the angle of the jets
-      ClusterSMBHJetAnglePhi += 0.5;
+    if (LastClusterSMBHFeedbackSwitch == FALSE && ClusterSMBHFeedbackSwitch == TRUE) {
+       ClusterSMBHStartTime = Time + ClusterSMBHTramp*1.0e6*3.1557e7/TimeUnits;
+       if (ClusterSMBHJetPrecessionPeriod < 0.00001 & ClusterSMBHJetPrecessionPeriod > -0.00001)  //if precession off (set to 0), change the angle of the jets
+       ClusterSMBHJetAnglePhi += 0.5;
     if (ClusterSMBHJetPrecessionPeriod < -0.00001)  //if precession negative, change the jet dimension
-      ClusterSMBHJetDim += 1;
-  }
+       ClusterSMBHJetDim += 1;
+    }
+  } // end if ClusterSMBHCalculateGasMass == 1
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     FILE *fptr=fopen("MT.out","a");
