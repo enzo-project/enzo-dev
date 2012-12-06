@@ -87,7 +87,7 @@ extern "C" void FORTRAN_NAME(solve_cool)(
 	float *d, float *e, float *ge, float *u, float *v, float *w,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
 	hydro_method *imethod, int *cool_method, int *idual, int *idim, int *igammah,
-	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *imax,
+	int *is, int *js, int *ks, int *ie, int *je, int *ke,
 	float *dt, float *aye, float *temstart, float *temend, float *fh,
 	float *utem, float *uxyz, float *urho, float *utim,
 	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
@@ -343,7 +343,7 @@ int grid::SolveRadiativeCooling()
           &HydroMethod,&RadiativeCoolingModel,
        &DualEnergyFormalism, &GridRank, &PhotoelectricHeating,
        GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-          GridEndIndex, GridEndIndex+1, GridEndIndex+2, &MaxDimension,
+          GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &dtFixed, &afloat, &CoolData.TemperatureStart,
           &CoolData.TemperatureEnd, &CoolData.HydrogenFractionByMass,
        &TemperatureUnits, &LengthUnits, &DensityUnits, &TimeUnits,
