@@ -474,6 +474,9 @@ c
             thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
             kinetic_energy_per_cell = kinf * energy_per_cell 
 
+            write(6,*) 'kinetic_energy_per_cell:',
+     &           kinetic_energy_per_cell
+
 c           Calculate momentum of this much energy spread into cells
 c             mom = sqrt(2 * mform * m_eject * energy)
 c
@@ -558,7 +561,8 @@ c
                do j = -1, +2
                   do i = -1, +2
 
-                     ke_before = 0.5d0*(u(iface+i ,jc+j ,kc+k)**2 + 
+                     ke_before = 0.5d0*d(iface+i ,jc+j ,kc+k)*
+     &                    (u(iface+i ,jc+j ,kc+k)**2 + 
      &                    v(iface+i ,jc+j ,kc+k)**2 + 
      &                    w(iface+i ,jc+j ,kc+k)**2)
                      
@@ -616,6 +620,7 @@ c
 
             mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
      &                          (2.0*csum)
+            write(6,*) 'mom_per_cell:',mom_per_cell
 c
 c           Now add mass and momentum, using three-point CIC
 c
@@ -661,12 +666,18 @@ c
                      do i = -1, +2
 
                         ke_after(i+1,j+1,k+1) = 0.5d0*
+     &                       d(iface+i ,jc+j ,kc+k)*
      &                       (u(iface+i ,jc+j ,kc+k)**2 + 
      &                        v(iface+i ,jc+j ,kc+k)**2 + 
      &                        w(iface+i ,jc+j ,kc+k)**2)
 
+                        
                         delta_ke = ke_after(i+1,j+1,k+1) - 
      &                             ke_before(i+1,j+1,k+1)
+c                        write(6,*) i+1,j+1,k+1
+c                        write(6,*) ke_before(i+1,j+1,k+1),
+c     &                       ke_after(i+1,j+1,k+1),delta_ke
+
                         te(iface+i ,jc+j ,kc+k) = 
      &                       te(iface+i ,jc+j ,kc+k) +
      &                       delta_ke
@@ -678,6 +689,8 @@ c
                if (ke_injected .ne. kinf*energy) then
                   write(6,*) 'star_maker3: ke injected does not match:'
                   write(6,*) ke_injected,kinf*energy
+                  write(6,*) kin_energy_before,kin_energy_after
+                  write(6,*) kin_energy_after - kin_energy_before
                   ERROR_MESSAGE
                endif
             endif
@@ -904,11 +917,17 @@ c
             do i = -1, +2
 c
                mass_term = d(ic   +i ,jc   +j ,kc+k)
-               write(6,*) "mass_term:",mass_term,
-     &              d1(istart+i,jstart+j,kstart+k)
+c               write(6,*) "mass_term:",mass_term,
+c     &              d1(istart+i,jstart+j,kstart+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
      &                    pw(ic   +i ,jc   +j, kface+k)**2
+               write(6,*) "mom_term:",mom_term,
+     &              pu(iface+i ,jc   +j, kc+k   ), 
+     &              pv(ic   +i ,jface+j, kc+k   ),
+     &              pw(ic   +i ,jc   +j, kface+k)
+c     &              d1(istart+i,jstart+j,kstart+k)
+
 c
 c              Do these sums for the quadratic momentum calculation
 c                 asum = sum(p_i^2/(2*(m_i+dm_i)))
@@ -929,8 +948,8 @@ c
 
                
                csum = csum + cterm/(2.0*mass_term)
-               write(6,*) "cterm,mterm:",cterm,mass_term,
-     &              cterm/(2.0*mass_term),csum
+c               write(6,*) "cterm,mterm:",cterm,mass_term,
+c     &              cterm/(2.0*mass_term),csum
 c
 c               mass_sum = mass_sum + mass_term
 c               write(6,*) "mass_sum:",mass_sum
