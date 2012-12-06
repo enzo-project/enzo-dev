@@ -520,12 +520,10 @@
 !                electron or HI fraction which is in equilibrium with high
 !                individual terms (which all nearly cancel).
 
-#ifdef UNUSED
                if (iter .gt. 50) then
                   dedot(i) = min(abs(dedot(i)), abs(dedot_prev(i)))
                   HIdot(i) = min(abs(HIdot(i)), abs(HIdot_prev(i)))
                endif
-#endif
 
 !              compute minimum rate timestep
 
@@ -573,8 +571,8 @@
                 if(d(i,j,k)*dom .gt. 1.e18_RKIND .and. i.eq.4) write(0, *) &
                    HI(i,j,k)/heq, edot(i),tgas(i)
                 dtit(i) = min(dtit(i), 0.1_RKIND*heq/dheq)
-              if (iter .gt. 10) dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
               endif
+              if (iter .gt. 10) dtit(i) = min(olddtit*1.5_RKIND, dtit(i))
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
