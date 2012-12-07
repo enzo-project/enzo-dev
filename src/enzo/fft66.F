@@ -88,7 +88,7 @@ c  the following two constants should agree with the array dimensions.
       kspan=ks
       nn=nt-inc
       jc=ks/n
-      radf=rad*float(jc)*0.5_RKIND
+      radf=rad*REAL(jc,RKIND)*0.5_RKIND
       i=0
       jf=0
 c  determine the factors of n
@@ -133,7 +133,7 @@ c  determine the factors of n
       j=j-1
       if(j .ne. 0) go to 90
 c  compute fourier transform
-  100 sd=radf/float(kspan)
+  100 sd=radf/REAL(kspan,RKIND)
       cd=2.0*sin(sd)**2
       sd=sin(sd+sd)
       kk=1
@@ -314,7 +314,7 @@ c  transform for odd factors
       if(k .eq. 5) go to 510
       if(k .eq. jf) go to 640
       jf=k
-      s1=rad/float(k)
+      s1=rad/REAL(k,RKIND)
       c1=cos(s1)
       s1=sin(s1)
       if(jf .gt. maxf) go to 998

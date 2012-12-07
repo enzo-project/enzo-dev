@@ -152,9 +152,9 @@ c
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 
-               this_pos(1) = xstart + (float(i)-0.5_RKIND)*dx
-               this_pos(2) = ystart + (float(j)-0.5_RKIND)*dx
-               this_pos(3) = zstart + (float(k)-0.5_RKIND)*dx
+               this_pos(1) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               this_pos(2) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               this_pos(3) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c              1) finest level of refinement?
 c
