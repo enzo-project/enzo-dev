@@ -390,11 +390,11 @@ c
      &     xface, yface, zface, xpos, ypos, zpos,
      &     energy_before, energy_after, mass_before, mass_after,
      &     kin_energy_before, kin_energy_after,
-     &     asum, bsum, csum, delta_ke, ke_injected
+     &     asum, bsum, csum, delta_ke, ke_injected, ke_after
       real dxf, dyf, dzf, dxc, dyc, dzc
       real u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
      &     te1(4,4,4), ge1(4,4,4), metal1(4,4,4),
-     &     ke_before(4,4,4), ke_after(4,4,4)
+     &     ke_before(4,4,4)
       parameter (clight = c_light, msolar_e51 = 1800.d0)
 c
 c-----------------------------------------------------------------------
@@ -554,23 +554,24 @@ c
             enddo
 
 c
-c     Compute the kinetic energy of the affected region
-c     before momentum is added
+c     Compute the kinetic energy in the affected region
+c     before momentum is added (except for ZEUS)
 c
-            do k = -1, +2
-               do j = -1, +2
-                  do i = -1, +2
+            if (imethod .ne. 2) then
+               do k = -1, +2
+                  do j = -1, +2
+                     do i = -1, +2
 
-                     ke_before = 0.5d0*d(iface+i ,jc+j ,kc+k)*
-     &                    (u(iface+i ,jc+j ,kc+k)**2 + 
-     &                    v(iface+i ,jc+j ,kc+k)**2 + 
-     &                    w(iface+i ,jc+j ,kc+k)**2)
+                        ke_before(i+2, j+2, k+2) = 
+     &                       0.5d0*d(ic+i, jc+j, kc+k)*
+     &                    (u(ic+i ,jc+j ,kc+k)**2 + 
+     &                     v(ic+i ,jc+j ,kc+k)**2 + 
+     &                     w(ic+i ,jc+j ,kc+k)**2)
                      
                      enddo
                   enddo
                enddo
-
-
+            endif
 c
 c           First convert velocities to momenta and transform
 c            into frame comoving with particle
@@ -655,39 +656,40 @@ c
      &                    nx, ny, nz, ic, jc, kc, 
      &                    iface, jface, kface, imethod, imetal, -1)
 c
-c           Still need to fix this:
-c           If te is really total energy (and it is unless imethod=2),
-c             then just set this value
+c           Add the increase in the kinetic energy to the total energy field
+c             (unless we're using Zeus).  If using dual energy formalism, we
+c             might want to enforce consistency.
 c     
-            ke_injected = 0.0
             if (imethod .ne. 2) then
+               ke_injected = 0.0
                do k = -1, +2
                   do j = -1, +2
                      do i = -1, +2
 
-                        ke_after(i+1,j+1,k+1) = 0.5d0*
-     &                       d(iface+i ,jc+j ,kc+k)*
-     &                       (u(iface+i ,jc+j ,kc+k)**2 + 
-     &                        v(iface+i ,jc+j ,kc+k)**2 + 
-     &                        w(iface+i ,jc+j ,kc+k)**2)
+                        ke_after = 0.5d0*
+     &                        d(ic+i, jc+j, kc+k) *
+     &                       (u(ic+i ,jc+j ,kc+k)**2 + 
+     &                        v(ic+i ,jc+j ,kc+k)**2 + 
+     &                        w(ic+i ,jc+j ,kc+k)**2) 
 
-                        
-                        delta_ke = ke_after(i+1,j+1,k+1) - 
-     &                             ke_before(i+1,j+1,k+1)
-c                        write(6,*) i+1,j+1,k+1
-c                        write(6,*) ke_before(i+1,j+1,k+1),
-c     &                       ke_after(i+1,j+1,k+1),delta_ke
+                        delta_ke = ke_after - ke_before(i+2,j+2,k+2)
+c                        write(6,*) i+2,j+2,k+2
+c                        write(6,*) ke_before(i+2,j+2,k+2),
+c     &                       ke_after,delta_ke
 
-                        te(iface+i ,jc+j ,kc+k) = 
-     &                       te(iface+i ,jc+j ,kc+k) +
-     &                       delta_ke
+                        te(ic+i ,jc+j ,kc+k) = 
+     &                       te(iface+i ,jc+j ,kc+k) + 
+     &                       delta_ke/d(ic+i, jc+j, kc+k)
+
                         ke_injected = ke_injected + delta_ke
 
                      enddo
                   enddo
                enddo
-               if (ke_injected .ne. kinf*energy) then
-                  write(6,*) 'star_maker3: ke injected does not match:'
+c
+               if (abs(ke_injected - kinf*energy)/
+     &                    ke_injected .gt. 0.01) then
+                  write(6,*) 'star_maker3: ke_injected does not match'
                   write(6,*) ke_injected,kinf*energy
                   write(6,*) kin_energy_before,kin_energy_after
                   write(6,*) kin_energy_after - kin_energy_before
@@ -828,7 +830,7 @@ c
 c     Locals
 c
       integer i, j, k
-      real    mass_term, mom_term
+      real    mass_term, mom_term, gas_energy
 c
       mass_sum = 0.0
       energy_sum = 0.0
@@ -855,18 +857,20 @@ c
 
                mass_sum = mass_sum + mass_term
 
-               kin_energy_sum = kin_energy_sum + kin_energy  
-               if (idual .eq. 0 .and. imethod .eq. 2)
-     &                  energy_sum = energy_sum + kin_energy 
-     &                           + te(ic + i ,jc + j ,kc + k)
-
-               if(idual .eq. 0 .and. imethod .ne. 2)
-     &              energy_sum = energy_sum + te(ic + i ,jc + j ,kc + k)
-
-               if (idual .eq. 1)
-     &              energy_sum = energy_sum + kin_energy
-     &                           + ge(ic + i, jc + j, kc + k)
-
+               kin_energy_sum = kin_energy_sum + kin_energy
+c
+c              Add thermal energy
+c              (te is really gas energy if using Zeus)
+c
+               if (imethod .eq. 2) gas_energy = 
+     &              te(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k)
+               if (idual .eq. 1) gas_energy = 
+     &              ge(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k)
+               if (imethod .ne. 2 .and. idual .eq. 0) gas_energy =
+     &              te(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k) 
+     &              - kin_energy
+c
+               energy_sum = energy_sum + kin_energy + gas_energy
 c
             enddo
          enddo
@@ -994,7 +998,8 @@ c
 c     Locals
 c
       integer i, j, k, i1, j1, k1
-      real    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm
+      real    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
+     &        dratio
 c
 c     Error check
 c
@@ -1039,6 +1044,8 @@ c
 c               Add mass, momentum
 c                (add thermal energy here)
 c
+                dratio = d(ic+i1, jc+j1, kc+k1)/
+     &               (d(ic+i1, jc+j1, kc+k1) + delta_mass)
                 d(ic+i1 ,jc+j1 ,kc+k1) = d(ic+i1 ,jc+j1 ,kc+k1)
      &               + delta_mass
                 pu(iface+i1 ,jc+j1 ,kc+k1) = pu(iface+i1 ,jc+j1 ,kc+k1)
@@ -1047,17 +1054,17 @@ c
      &               + delta_pv
                 pw(ic+i1 ,jc+j1 ,kface+k1) = pw(ic+i1 ,jc+j1 ,kface+k1)
      &               + delta_pw
-     
-
-                te(ic+i1 ,jc+j1 ,kface+k1) = te(ic+i1 ,jc+j1 ,kface+k1)
-     &                                       + delta_therm
+c
+c               Add thermal energy
+c
+                te(ic+i1 ,jc+j1 ,kc+k1) = 
+     &               te(ic+i1 ,jc+j1 ,kc+k1)*dratio + 
+     &               delta_therm / d(ic+i1, jc+j1, kc+k1)
 
                 if (idual .eq. 1)
-     &               ge(ic+i1 ,jc+j1 ,kface+k1) = 
-     &                   ge(ic+i1, jc+j1, kface+k1)
-     &                   + delta_therm
-
-
+     &               ge(ic+i1 ,jc+j1 ,kc+k1) = 
+     &               ge(ic+i1, jc+j1, kc+k1)*dratio +
+     &               delta_therm / d(ic+i1, jc+j1, kc+k1)
 
 c
 c           Metal feedback (note that in this function gas metal is
