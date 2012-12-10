@@ -43,7 +43,7 @@ EXE      = inits
 OUTPUT   = out.compile
 
 ENZO_DIR = $(TOP_DIR)/src/enzo
-MODULES  = enzo_module.o
+MODULES  = 
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
