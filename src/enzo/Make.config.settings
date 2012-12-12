@@ -37,7 +37,6 @@
 #    CONFIG_EMISSIVITY
 #    CONFIG_NEW_GRID_IO
 #    CONFIG_FAST_SIB
-#    CONFIG_FLUX_FIX
 #    CONFIG_USE_HDF4	
 #    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
@@ -288,15 +287,6 @@
 #-----------------------------------------------------------------------
 
      CONFIG_FAST_SIB = yes
-
-#=======================================================================
-# CONFIG_FLUX_FIX
-#=======================================================================
-#    yes           Include the SUBling (Subgrid of Sibling) Flux Correction Fix
-#    no            Skip this step
-#-----------------------------------------------------------------------
-
-     CONFIG_FLUX_FIX = yes
 
 #======================================================================= 
 # CONFIG_USE_HDF4

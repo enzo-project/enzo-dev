@@ -6,6 +6,8 @@ from yt.utilities.answer_testing.framework import \
 from yt.frontends.enzo.answer_testing_support import \
      requires_outputlog
 
+tolerance = ytcfg.getint("yt", "answer_testing_tolerance")
+     
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
 
@@ -29,7 +31,7 @@ class TestGravityTest(AnswerTestingTest):
         return rmsError
 
     def compare(self, new_result, old_result):
-        assert_allclose(new_result, old_result, rtol=1e-1, atol=0)
+        assert_allclose(new_result, old_result, rtol=10.**-tolerance, atol=0)
 
 @requires_outputlog(_dir_name, _pf_name)
 def test_gravity_test():

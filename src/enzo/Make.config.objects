@@ -165,6 +165,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetWavePoolBoundary.o \
         ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
+        ExtraOutput.o\
         ExtractSection.o \
         FastFourierTransform.o \
         FastFourierTransformPrepareComplex.o \
@@ -184,7 +185,6 @@ OBJS_CONFIG_LIB = \
         FindField.o \
         FindSubgrids.o \
         flow.o \
-        FluxFix_Grid_CorrectForRefinedFluxes.o \
 	flux_hll.o \
 	flux_hllc.o \
 	flux_twoshock.o \
@@ -1054,6 +1054,10 @@ OBJS_HYDRO_RK = \
 OBJS_ECUDA_ALL = \
 	hydro_rk/CUDA_Rec_PLM.o \
 	hydro_rk/HydroSweep_CUDA.o \
-	hydro_rk/MHDSweep_CUDA.o
-#	hydro_rk/overlapping_MHDSweep_CUDA.o
-#
+	hydro_rk/Grid_CudaMHD.o \
+	hydro_rk/Grid_CudaMHDRK2_1stStep.o \
+	hydro_rk/Grid_CudaMHDRK2_2ndStep.o \
+	cuPPM.o \
+	CUDAUtil.o \
+	SaveSubgridFluxCUDA.o 
+

@@ -207,21 +207,12 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  igrid = CommunicationReceiveArgumentInt[0][index];
 	  isubgrid = CommunicationReceiveArgumentInt[1][index];
 	  SUBling = CommunicationReceiveArgumentInt[2][index];
-#ifdef FLUX_FIX
 	  if ((errcode = grid_two->CorrectForRefinedFluxes
 	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined, 
 	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1],
 	       SUBling, MetaData)) == FAIL) {
 	    ENZO_FAIL("Error in grid->CorrectForRefinedFluxes.\n");
 	  }
-#else
-	  if ((errcode = grid_two->CorrectForRefinedFluxes
-	      (SubgridFluxesEstimate[igrid][isubgrid], &SubgridFluxesRefined, 
-	       SubgridFluxesEstimate[igrid][NumberOfSubgrids[igrid] - 1]     ))
-	      == FAIL) {
-	    ENZO_FAIL("Error in grid->CorrectForRefinedFluxes.\n");
-	  }
-#endif
 	  break;
 
 	case 12:

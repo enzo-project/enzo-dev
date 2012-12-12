@@ -399,7 +399,7 @@ c     .               ((nH2 + nother)*dom) )
 #endif /* OPTICAL_DEPTH_FUDGE */
 c
             gphdl1 = gphdl(i)/(HI(i,j,k)*dom)
-            edot(i,15) = -float(ih2co)*fudge*H2I(i,j,k)*
+            edot(i,15) = -REAL(ih2co,RKIND)*fudge*H2I(i,j,k)*
      .           gphdl(i)/(1._RKIND + gphdl1/gpldl(i)) / (2._RKIND*dom)
             endif
          enddo
@@ -443,7 +443,7 @@ c     .               ((nH2 + nother)*dom) )
             fudge = min(fudge, 1._RKIND)
 #endif /* OPTICAL_DEPTH_FUDGE */
 c
-            edot(i,15) = -float(ih2co)*fudge*H2I(i,j,k)*(
+            edot(i,15) = -REAL(ih2co,RKIND)*fudge*H2I(i,j,k)*(
      .           vibh(i)/(1._RKIND+vibh(i)/max(   vibl,tiny)) +
      .           roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
      .           )/2._RKIND/dom

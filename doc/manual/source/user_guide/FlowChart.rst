@@ -1,3 +1,5 @@
+.. _FlowChart:
+
 Enzo Flow Chart, Source Browser
 ===============================
 
