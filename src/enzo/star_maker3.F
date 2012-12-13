@@ -419,12 +419,12 @@ c          turned into stars during this timestep.  Then calculate the mass
 c          which should have formed during this timestel dt using the integral
 c          form of the Cen & Ostriker formula.
 
-c            write(6,*) t, dt, tcp(n), tdp(n)
+            write(6,*) t, dt, tcp(n), tdp(n),mp(n)
             if (t+dt < tcp(n)) goto 10
             xv1 = max((t      - tcp(n))/tdp(n), 0.0)
-            if (xv1 .gt. 3.d0) goto 10     ! t-tcp >> tdp so ignore
+            if (xv1 .gt. 10.d0) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
-c            write(6,*) xv1, xv2
+            write(6,*) 'xv1,xv2:',xv1, xv2
             mform = ((1.d0 + xv1)*exp(-xv1) - (1.d0 + xv2)*exp(-xv2)) 
 c
 c          skip if very little mass is formed.
@@ -471,17 +471,19 @@ c           timestep would have gone into supernova energy.
 c            
             energy = sn_param * mform * (clight/vunits)**2
             energy_per_cell = energy / dist_mass_cells
-            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
-            kinetic_energy_per_cell = kinf * energy_per_cell 
+            write(6,*) 'energy,energy_per_cell:',energy,energy_per_cell
 
-            write(6,*) 'kinetic_energy_per_cell:',
-     &           kinetic_energy_per_cell
+            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
+c            kinetic_energy_per_cell = kinf * energy_per_cell 
+
+c            write(6,*) 'kinetic_energy_per_cell:',
+c     &           kinetic_energy_per_cell
 
 c           Calculate momentum of this much energy spread into cells
 c             mom = sqrt(2 * mform * m_eject * energy)
 c
 
-            mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
+c            mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
 
 c
 c         check bounds - if star particle is outside of this grid
@@ -563,7 +565,7 @@ c
                      do i = -1, +2
 
                         ke_before(i+2, j+2, k+2) = 
-     &                       0.5d0*d(ic+i, jc+j, kc+k)*
+     &                       0.5*d(ic+i, jc+j, kc+k)*
      &                    (u(ic+i ,jc+j ,kc+k)**2 + 
      &                     v(ic+i ,jc+j ,kc+k)**2 + 
      &                     w(ic+i ,jc+j ,kc+k)**2)
@@ -609,18 +611,26 @@ c
 c
 c           Sum a, b and c terms to get momentum normalization
 c
-            call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
-     &                   nx, ny, nz, iface, jface, kface, ic, jc, kc,
-     &                   asum, bsum, csum)
+            if (kinf .gt. 0.0) then
+               call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
+     &              nx, ny, nz, iface, jface, kface, ic, jc, kc,
+     &              asum, bsum, csum)
+               write(6,*) 'abc1',asum, bsum, csum
+               asum = asum - (kin_energy_before + kinf*energy)
+               write(6,*) 'abc2',asum, bsum, csum
 c
 c           Calculate momentum contribution
 c
-            write(6,*) 'abc1',asum, bsum, csum
-            asum = asum - (kin_energy_before + kinf*energy)
-            write(6,*) 'abc2',asum, bsum, csum
+               mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
+     &              (2.0*csum)
+            else
+c
+c           If the kinetic fraction is set to 0, then 0 momentum is added
+c           to each cell.
+c
+               mom_per_cell = 0.0
+            endif
 
-            mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
-     &                          (2.0*csum)
             write(6,*) 'mom_per_cell:',mom_per_cell
 c
 c           Now add mass and momentum, using three-point CIC
@@ -673,8 +683,8 @@ c
      &                        w(ic+i ,jc+j ,kc+k)**2) 
 
                         delta_ke = ke_after - ke_before(i+2,j+2,k+2)
-c                        write(6,*) i+2,j+2,k+2
-c                        write(6,*) ke_before(i+2,j+2,k+2),
+
+c                        write(6,*) 'delta_ke:',ke_before(i+2,j+2,k+2),
 c     &                       ke_after,delta_ke
 
                         te(ic+i ,jc+j ,kc+k) = 
@@ -687,8 +697,11 @@ c     &                       ke_after,delta_ke
                   enddo
                enddo
 c
-               if (abs(ke_injected - kinf*energy)/
-     &                    ke_injected .gt. 0.01) then
+
+               write(6,*) 'ke_injected:',ke_injected
+               if (abs((ke_injected - kinf*energy)/
+     &                    ke_injected) .gt. 0.01 .and. 
+     &              kinf .ne. 0.0) then
                   write(6,*) 'star_maker3: ke_injected does not match'
                   write(6,*) ke_injected,kinf*energy
                   write(6,*) kin_energy_before,kin_energy_after
@@ -926,10 +939,10 @@ c     &              d1(istart+i,jstart+j,kstart+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
      &                    pw(ic   +i ,jc   +j, kface+k)**2
-               write(6,*) "mom_term:",mom_term,
-     &              pu(iface+i ,jc   +j, kc+k   ), 
-     &              pv(ic   +i ,jface+j, kc+k   ),
-     &              pw(ic   +i ,jc   +j, kface+k)
+c               write(6,*) "mom_term:",mom_term,
+c     &              pu(iface+i ,jc   +j, kc+k   ), 
+c     &              pv(ic   +i ,jface+j, kc+k   ),
+c     &              pw(ic   +i ,jc   +j, kface+k)
 c     &              d1(istart+i,jstart+j,kstart+k)
 
 c
@@ -1040,6 +1053,10 @@ c                write(6,*) 'delta_mass:',i,j,k,delta_mass
                 delta_pv   = j*mom_per_cell*dxc1*dyf1*dzc1
                 delta_pw   = k*mom_per_cell*dxc1*dyc1*dzf1
                 delta_therm   = therm_per_cell*dxc1*dyc1*dzc1
+
+
+c                write(6,*) 'delta:',delta_pu,delta_pv,delta_pw,
+c     &               delta_therm
 c
 c               Add mass, momentum
 c                (add thermal energy here)
@@ -1048,12 +1065,14 @@ c
      &               (d(ic+i1, jc+j1, kc+k1) + delta_mass)
                 d(ic+i1 ,jc+j1 ,kc+k1) = d(ic+i1 ,jc+j1 ,kc+k1)
      &               + delta_mass
-                pu(iface+i1 ,jc+j1 ,kc+k1) = pu(iface+i1 ,jc+j1 ,kc+k1)
-     &               + delta_pu
-                pv(ic+i1 ,jface+j1 ,kc+k1) = pv(ic+i1 ,jface+j1 ,kc+k1)
-     &               + delta_pv
-                pw(ic+i1 ,jc+j1 ,kface+k1) = pw(ic+i1 ,jc+j1 ,kface+k1)
-     &               + delta_pw
+                pu(iface+i1 ,jc+j1 ,kc+k1) = 
+     &               pu(iface+i1 ,jc+j1 ,kc+k1)+ delta_pu
+                pv(ic+i1 ,jface+j1 ,kc+k1) = 
+     &               pv(ic+i1 ,jface+j1 ,kc+k1) + delta_pv
+                pw(ic+i1 ,jc+j1 ,kface+k1) = 
+     &               pw(ic+i1 ,jc+j1 ,kface+k1)+ delta_pw
+
+
 c
 c               Add thermal energy
 c
