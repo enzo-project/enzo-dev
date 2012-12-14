@@ -37,18 +37,17 @@ int SetEvolveRefineRegion (FLOAT time)
   /* Set time=redshift if that's what we're doing. */
   if (RefineRegionTimeType == 1) {
     time = redshift;
-  timestep = 0;
-  while (timestep < MAX_REFINE_REGIONS && 
-	 EvolveRefineRegionTime[timestep] >= FLOAT_UNDEFINED &&
-	 time < EvolveRefineRegionTime[timestep])
-    timestep++;
+    for(timestep=0; timestep<EvolveRefineRegionNtimes; timestep++){
+      if( time > EvolveRefineRegionTime[timestep] ){
+        break;
+      }
+    }
   }else{
-    timestep = 0;
-    while (timestep < MAX_REFINE_REGIONS && 
-     EvolveRefineRegionTime[timestep] >= FLOAT_UNDEFINED &&
-     time > EvolveRefineRegionTime[timestep])
-      timestep++;
-
+    for(timestep=0; timestep<EvolveRefineRegionNtimes; timestep++){
+      if( time < EvolveRefineRegionTime[timestep] ){
+        break;
+      }
+    }
   }
   timestep -= 1;
   if (timestep < 0) return SUCCESS;
