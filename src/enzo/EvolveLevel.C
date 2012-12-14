@@ -103,6 +103,18 @@ void RunEventHooks(char *, HierarchyEntry *Grid[], TopGridData &MetaData) {}
  
 /* function prototypes */
  
+#ifdef TRANSFER
+#define IMPLICIT_MACRO , ImplicitSolver
+#else
+#define IMPLICIT_MACRO 
+#endif
+
+#define EXTRA_OUTPUT_MACRO(A,B) ExtraOutput(A,LevelArray,MetaData,level,Exterior IMPLICIT_MACRO,B);
+int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *MetaData, int level, ExternalBoundary *Exterior
+#ifdef TRANSFER
+			  , ImplicitProblemABC *ImplicitSolver
+#endif
+        , char * output_string);
 
 int  RebuildHierarchy(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level);
@@ -349,6 +361,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Loop over grid timesteps until the elapsed time equals the timestep
      from the level above (or loop once for the top level). */
  
+  EXTRA_OUTPUT_MACRO(1, "Before Time Loop")
+
   while ((CheckpointRestart == TRUE)
         || (dtThisLevelSoFar[level] < dtLevelAbove)) {
     if(CheckpointRestart == FALSE) {
@@ -568,6 +582,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
  
+    EXTRA_OUTPUT_MACRO(2,"After SolveHydroEquations grid loop")
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			  level, MetaData, Exterior, LevelArray[level]);
@@ -575,6 +590,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
 			  Exterior, LevelArray[level]);
 #endif
+    EXTRA_OUTPUT_MACRO(25,"After SBC")
 
     /* If cosmology, then compute grav. potential for output if needed. */
 
@@ -657,11 +673,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     CreateSUBlingList(MetaData, LevelArray, level, &SUBlingList);
 #endif /* FAST_SIB */
 
+
+    EXTRA_OUTPUT_MACRO(3,"Before UFG")
+
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			     SubgridFluxesEstimate,SUBlingList,MetaData);
 
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
 
+    EXTRA_OUTPUT_MACRO(4,"After UFG")
   /* ------------------------------------------------------- */
   /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
      fluxes for this subgrid .
@@ -724,6 +744,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
   } // end of loop over subcycles
  
+    EXTRA_OUTPUT_MACRO(6, "After Subcycle Loop")
   if (debug)
     fprintf(stdout, "EvolveLevel[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total)\n", level,
            cycle, LevelCycleCount[level]);

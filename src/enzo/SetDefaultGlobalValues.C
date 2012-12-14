@@ -42,6 +42,8 @@ char DefaultDataDir[] = "DD";
 char DefaultHistoryDir[] = "HD";
 char DefaultRedshiftDir[] = "RD";
 char DefaultTracerParticleDir[] = "TD";
+char DefaultExtraName[] = "ExtraDumpXX";
+char DefaultExtraDir[]="ED00";
  
  
  
@@ -116,6 +118,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   //MetaData.RedshiftDumpNumber  = 0;
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
+  MetaData.ExtraDumpDir        = DefaultExtraDir;
+  MetaData.ExtraDumpName        = DefaultExtraName;
 
   MetaData.MetaDataIdentifier    = NULL;
   MetaData.SimulationUUID        = NULL;
@@ -765,7 +769,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
+  CorrectParentBoundaryFlux = FALSE; //Corrects (or doesn't) parent flux when subgrid shares an exposed face with parent.
 
+  for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
   MoveParticlesBetweenSiblings = TRUE;
 
   /* Particle Splitter */
