@@ -39,6 +39,7 @@ struct parmstruct {
   FLOAT RefineRegionRightEdge[3];
   int RefineBy;
   int MaximumInitialRefinementLevel;
+  int AutomaticSubgridBuffer;
 
   /* Boolean flags. */
 

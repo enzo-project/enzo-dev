@@ -21,6 +21,7 @@
 #include <math.h>
 #include <unistd.h>
 #include "performance.h"
+#include "EnzoTiming.h"
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -123,19 +124,12 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 #endif
 			  );
 
-#ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
 			 fluxes **SubgridFluxesEstimate[],
 			 LevelHierarchyEntry *SUBlingList[],
 			 TopGridData *MetaData);
-#else
-int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
-			 int NumberOfSubgrids[],
-			 fluxes **SubgridFluxesEstimate[]);
-#endif
 
-#ifdef FLUX_FIX
 #ifdef FAST_SIB 
 int CreateSUBlingList(TopGridData *MetaData,
 		      LevelHierarchyEntry *LevelArray[], int level,
@@ -148,7 +142,6 @@ int CreateSUBlingList(TopGridData *MetaData,
 #endif /* FAST_SIB */
 int DeleteSUBlingList(int NumberOfGrids,
 		      LevelHierarchyEntry **SUBlingList);
-#endif
 
 // int UpdateFromFinerGrids(HierarchyEntry *Grids[], int NumberOfGrids,
 // 			 int NumberOfSubgrids[], 
@@ -225,17 +218,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   HierarchyEntry *NextGrid;
   double time1 = ReturnWallTime();
 
-  // Update lcaperf "level" attribute
+  char level_name[MAX_LINE_LENGTH];
+  sprintf(level_name, "Level_%"ISYM, level);
 
-  Eint32 jb_level = level;
-#ifdef USE_JBPERF
-  jbPerf.attribute ("level",&jb_level,JB_INT);
-#endif
 
-#ifdef FLUX_FIX
+
   /* Create a SUBling list of the subgrids */
   LevelHierarchyEntry **SUBlingList;
-#endif
 
   FLOAT When;
 
@@ -298,6 +287,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   while (dtThisLevelSoFar[level] < dtLevelAbove) {
 
+    TIMER_START(level_name);
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
@@ -470,7 +460,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
 	else if (HydroMethod == MHD_RK) {
-	  
 	  Grids[grid1]->GridData->MHDRK2_2ndStep
 	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 	  
@@ -507,7 +496,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Include 'star' particle creation and feedback. */
 
       Grids[grid1]->GridData->StarParticleHandler
-	(Grids[grid1]->NextGridNextLevel, level, dtLevelAbove);
+	(Grids[grid1]->NextGridNextLevel, level, dtLevelAbove, TopGridTimeStep);
  
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){
@@ -530,6 +519,11 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     }  // end loop over grids
 
+    /* Finalize (accretion, feedback, etc.) star particles */
+ 
+    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
+			 level, AllStars, TotalStarParticleCountPrevious);
+
     if (UseDivergenceCleaning != 0){
 
 #ifdef FAST_SIB
@@ -549,12 +543,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData, Exterior, LevelArray[level]);
 #endif
 
-    /* Finalize (accretion, feedback, etc.) star particles */
- 
-    StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
-
-
     OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
 #ifdef TRANSFER
 			  , ImplicitSolver
@@ -568,6 +556,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
       Grids[grid1]->GridData->DeleteGravitatingMassFieldParticles();
 
+    TIMER_STOP(level_name);
 
     /* ----------------------------------------- */
     /* Evolve the next level down (recursively). */
@@ -588,10 +577,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
     time1 = ReturnWallTime();
 
-#ifdef USE_JBPERF
-    // Update lcaperf "level" attribute
-    jbPerf.attribute ("level",&jb_level,JB_INT);
-#endif
 
     /* Update SubcycleNumber and the timestep counter for the
        streaming data if this is the bottom of the hierarchy -- Note
@@ -610,7 +595,6 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
          subgrid's fluxes. (step #19) */
 
 
-#ifdef FLUX_FIX
     SUBlingList = new LevelHierarchyEntry*[NumberOfGrids];
 #ifdef FAST_SIB
     CreateSUBlingList(MetaData, LevelArray, level, SiblingList,
@@ -618,20 +602,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #else
     CreateSUBlingList(MetaData, LevelArray, level, &SUBlingList);
 #endif /* FAST_SIB */
-#endif
 
-#ifdef FLUX_FIX
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
 			 SubgridFluxesEstimate,
 			 SUBlingList,
 			 MetaData);
-#else
-    UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids, SubgridFluxesEstimate);
-#endif
     
-#ifdef FLUX_FIX        /* Clean up SUBlings */
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
-#endif
 
      
     /* ------------------------------------------------------- */
@@ -685,15 +662,17 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     int GridMemory, NumberOfCells, CellsTotal, Particles;
     float AxialRatio, GridVolume;
-#ifdef UNUSED
+
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
       Grids[grid1]->GridData->CollectGridInformation
         (GridMemory, GridVolume, NumberOfCells, AxialRatio, CellsTotal, Particles);
       LevelZoneCycleCount[level] += NumberOfCells;
+      TIMER_ADD_CELLS(level, NumberOfCells);
       if (MyProcessorNumber == Grids[grid1]->GridData->ReturnProcessorNumber())
       	LevelZoneCycleCountPerProc[level] += NumberOfCells;
     }
-#endif
+    TIMER_SET_NGRIDS(level, NumberOfGrids);
+
 
     cycle++;
     LevelCycleCount[level]++;

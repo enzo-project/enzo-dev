@@ -27,6 +27,7 @@
 #include <unistd.h>
  
 #define DEFINE_STORAGE
+#include "EnzoTiming.h"
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
@@ -277,6 +278,9 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   t_init0 = MPI_Wtime();
 #endif /* USE_MPI */
+
+  // Create enzo timer
+  enzo_timer = new enzo_timing::enzo_timer();
 
 #ifdef USE_LCAPERF
 

@@ -68,37 +68,38 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart
-      integer  idual, imetal, imethod, iterations
-      real    dt, dx, z, separation
-      real    d1, x1, v1, t1
-      real    r(nx,ny,nz)
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xpold(npart), ypold(npart), zpold(npart)
-      real    upold(npart), vpold(npart), wpold(npart)
-      real    mpold(npart), tdpold(npart), tcpold(npart)
-      real    metalfold(npart)
-      integer typeold(npart)
-      integer npartnew, nmax, children, level, ran1_init
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
-      REALSUB rr_leftedge(3), rr_rightedge(3)
+      INTG_PREC nx, ny, nz, ibuff, npart
+      INTG_PREC  idual, imetal, imethod, iterations
+      R_PREC    dt, dx, z, separation
+      R_PREC    d1, x1, v1, t1
+      R_PREC    r(nx,ny,nz)
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xpold(npart), ypold(npart), zpold(npart)
+      R_PREC    upold(npart), vpold(npart), wpold(npart)
+      R_PREC    mpold(npart), tdpold(npart), tcpold(npart)
+      R_PREC    metalfold(npart)
+      INTG_PREC typeold(npart)
+      INTG_PREC npartnew, nmax, children, level, ran1_init
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      INTG_PREC type(nmax)
+      P_PREC rr_leftedge(3), rr_rightedge(3)
 c
 c  Locals
 c
-      integer n, m, ii, i, j, k
-      real    xp0(children), yp0(children), zp0(children)
-      real    rad, pi
-      real    alpha(3)
-      real    l11, l12, l13
-      real    l21, l22, l23
-      real    l31, l32, l33      
+      INTG_PREC n, m, ii, i, j, k
+      R_PREC    xp0(children), yp0(children), zp0(children)
+      R_PREC    rad, pi
+      R_PREC    alpha(3)
+      R_PREC    l11, l12, l13
+      R_PREC    l21, l22, l23
+      R_PREC    l31, l32, l33      
       parameter (pi=pi_val)
 c
 c-----------------------------------------------------------------------
@@ -116,7 +117,7 @@ c     The distance to the children particles rad is the same for all. It is
 c     currently set to be dx (=CellWidth), but can be changed. 
 c     (i.e. ParticleSplitterChildrenParticleSeparation = 1 by default)
 c
-      rad = dx * separation**float(iterations)
+      rad = dx * separation**REAL(iterations,RKIND)
 c
 c
 c     Loop over existing (parent) particles; It implicitly assumes that 
@@ -146,9 +147,9 @@ c     &                     rr_leftedge(1), rr_leftedge(2), level
 c
 c           Compute index of the cell that the parent particle resides in.
 c 
-            i = int((xpold(n) - xstart)/dx) + 1
-            j = int((ypold(n) - ystart)/dx) + 1
-            k = int((zpold(n) - zstart)/dx) + 1
+            i = int((xpold(n) - xstart)/dx,IKIND) + 1
+            j = int((ypold(n) - ystart)/dx,IKIND) + 1
+            k = int((zpold(n) - zstart)/dx,IKIND) + 1
 c
 c           Check bounds [2] - if the particle is outside of this grid
 c           then give a warning and exit.  (This is very possible when 
@@ -209,8 +210,8 @@ c
 c
 c           First reduce the mass of the parent down to 1/(children+parent) = 1/13
 c 
-c            mpold(n) = mpold(n) / 13.0
-            mpold(n) = mpold(n) / (children + 1.d0)
+c            mpold(n) = mpold(n) / 13._RKIND
+            mpold(n) = mpold(n) / (children + 1._RKIND)
 c
 c
 c           ===================================
@@ -227,57 +228,57 @@ c           Step[I-1]: 6 children on the same x-y plane as the parent
 c                      (counter-clockwise; again, here we assume the parent is at the origin)
 c
             xp0(1) = rad
-            yp0(1) = 0.d0 
-            zp0(1) = 0.d0 
+            yp0(1) = 0._RKIND 
+            zp0(1) = 0._RKIND 
 c
-            xp0(2) = 0.5000d0*rad
-            yp0(2) = 0.8660d0*rad
-            zp0(2) = 0.d0
+            xp0(2) = 0.5_RKIND*rad
+            yp0(2) = 0.866_RKIND*rad
+            zp0(2) = 0._RKIND
 c
-            xp0(3) = -0.5000d0*rad
-            yp0(3) = 0.8660d0*rad
-            zp0(3) = 0.d0
+            xp0(3) = -0.5_RKIND*rad
+            yp0(3) = 0.866_RKIND*rad
+            zp0(3) = 0._RKIND
 c
             xp0(4) = -rad
-            yp0(4) = 0.d0
-            zp0(4) = 0.d0
+            yp0(4) = 0._RKIND
+            zp0(4) = 0._RKIND
 c
-            xp0(5) = -0.5000d0*rad
-            yp0(5) = -0.8660d0*rad
-            zp0(5) = 0.d0
+            xp0(5) = -0.5_RKIND*rad
+            yp0(5) = -0.866_RKIND*rad
+            zp0(5) = 0._RKIND
 c
-            xp0(6) = 0.5000d0*rad
-            yp0(6) = -0.8660d0*rad
-            zp0(6) = 0.d0
+            xp0(6) = 0.5_RKIND*rad
+            yp0(6) = -0.866_RKIND*rad
+            zp0(6) = 0._RKIND
 c
 c           Step[I-2]: 3 children above the parent plane (x-y)
 c                      (the height of the tetrahedron of edge r = sqrt(2/3)*r)
 c
-            xp0(7) = 0.5000d0*rad
-            yp0(7) = 0.2887d0*rad
-            zp0(7) = 0.8165d0*rad
+            xp0(7) = 0.5_RKIND*rad
+            yp0(7) = 0.2887_RKIND*rad
+            zp0(7) = 0.8165_RKIND*rad
 c
-            xp0(8) = -0.5000d0*rad
-            yp0(8) = 0.2887d0*rad
+            xp0(8) = -0.5_RKIND*rad
+            yp0(8) = 0.2887_RKIND*rad
             zp0(8) = 0.8165*rad
 c
-            xp0(9) = 0.d0
-            yp0(9) = -0.5774d0*rad
-            zp0(9) = +0.8165d0*rad
+            xp0(9) = 0._RKIND
+            yp0(9) = -0.5774_RKIND*rad
+            zp0(9) = +0.8165_RKIND*rad
 c
 c           Step[I-3]: 3 children below the parent plane (x-y)
 c
-            xp0(10) = 0.5000d0*rad
-            yp0(10) = 0.2887d0*rad
-            zp0(10) = -0.8165d0*rad
+            xp0(10) = 0.5_RKIND*rad
+            yp0(10) = 0.2887_RKIND*rad
+            zp0(10) = -0.8165_RKIND*rad
 c
-            xp0(11) = -0.5000d0*rad
-            yp0(11) = 0.2887d0*rad
-            zp0(11) = -0.8165d0*rad
+            xp0(11) = -0.5_RKIND*rad
+            yp0(11) = 0.2887_RKIND*rad
+            zp0(11) = -0.8165_RKIND*rad
 c
-            xp0(12) = 0.d0
-            yp0(12) = -0.5774d0*rad
-            zp0(12) = -0.8165d0*rad
+            xp0(12) = 0._RKIND
+            yp0(12) = -0.5774_RKIND*rad
+            zp0(12) = -0.8165_RKIND*rad
 c
 c
 c           ===================================
@@ -303,7 +304,7 @@ c           Step[II-1]: First generate random numbers which will be in the range
 c
             call random_number(alpha)
             do m = 1, 3
-               alpha(m) = alpha(m) * pi * 2.d0
+               alpha(m) = alpha(m) * pi * 2._RKIND
             enddo
 c
 c            write(6,*) 'random number:', alpha(1), alpha(2), alpha(3)
@@ -361,7 +362,7 @@ c
                if (imetal .eq. 1) then
                   metalf(ii+m) = metalfold(n)    !in here metal is a fraction
                else
-                  metalf(ii+m) = 0.d0
+                  metalf(ii+m) = 0._RKIND
                endif
             enddo
 c

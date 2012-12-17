@@ -41,7 +41,7 @@ grid::grid()
   SubgridsAreStatic                     = FALSE;
   ProcessorNumber                       = ROOT_PROCESSOR;
 
-  SubgridFluxStorage = new fluxes* [1];
+  SubgridFluxStorage = NULL;
   NumberOfSubgrids = 1;
  
   /* clear MAX_DIMENSION vectors */
@@ -73,7 +73,6 @@ grid::grid()
     InterpolatedField[i]    = NULL;
     FieldType[i]            = FieldUndefined;
   }
-  YT_TemperatureField       = NULL;
 
 /*
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {
@@ -166,4 +165,9 @@ grid::grid()
   NumberOfStars = 0;
   Stars = NULL;
 
+  /* For once-per-rootgrid-timestep star formation, the following flag
+     determines whether SF is about to occur or not. It's currently
+     (April 2012) only implemented for H2REG_STAR and completely
+     ignored for all other star makers. */
+  MakeStars = 0;
 }

@@ -89,14 +89,10 @@ Compiler flags:
 **MACH_LDFLAGS**   Machine-dependent flags for the linker
 ================== ============
 
-Precision flags:
+Machine-specific flags:
 
 ============================== ============
 **MACH_DEFINES**               Machine-specific defines, e.g. ``-DLINUX``, ``-DIBM``, ``-DIA64``, etc.
-**MACH_FFLAGS_INTEGER_32**     Fortran flags for specifying 32-bit integers
-**MACH_FFLAGS_INTEGER_64**     Fortran flags for specifying 64-bit integers
-**MACH_FFLAGS_REAL_32**        Fortran flags for specifying 32-bit reals
-**MACH_FFLAGS_REAL_64**        Fortran flags for specifying 64-bit reals
 ============================== ============
 
 Paths to include header files:

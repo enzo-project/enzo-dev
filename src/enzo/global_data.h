@@ -39,6 +39,7 @@ class EnzoProblemType;
                           1 = Equalize processor memory count
                          2 = Load balance only on a node
 */
+EXTERN int NumberOfGhostZones;
 EXTERN int LoadBalancing;
 EXTERN int LoadBalancingCycleSkip;
 EXTERN int ResetLoadBalancing;
@@ -345,7 +346,6 @@ EXTERN fpos_t  BaryonFileNamePosition;
 
 EXTERN int MultiSpecies;
 EXTERN int NoMultiSpeciesButColors;
-EXTERN int PrimordialChemistrySolver;
 EXTERN int ThreeBodyRate;
 EXTERN RateDataType RateData;
 EXTERN int H2FormationOnDust;
@@ -369,6 +369,8 @@ EXTERN int MultiMetals;
 EXTERN int ShockMethod; 
 EXTERN float ShockTemperatureFloor;
 EXTERN int StorePreShockFields;
+EXTERN int FindShocksOnlyOnOutput;
+
 
 /* Type of radiation field. 
    0 - none,                    1 - Haardt & Madau alpha=-1.5
@@ -467,6 +469,7 @@ EXTERN float IncrementDensityOutput;
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;
 EXTERN int PythonSubcycleSkip;
+EXTERN int PythonReloadScript;
 
 /* Parameters to control inline halo finding */
 
@@ -572,6 +575,12 @@ EXTERN int   BigStarFormationDone;
 EXTERN float BigStarSeparation;
 EXTERN double SimpleQ;
 EXTERN float SimpleRampTime;
+
+/* Set this flag to allow star formation only once per root grid time
+   step (at the beginning) and with a SFR proportional to the full
+   root grid time step (as in Kravtsov 2004, for example). Currently
+   only implemented for H2REG_STAR. */
+EXTERN int   StarFormationOncePerRootGridTimeStep;
 
 
 /* Parameters governing certain time or redshift-dependent actions. */
@@ -955,5 +964,10 @@ EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed
 
 /* For the database */
 EXTERN char *DatabaseLocation;
+EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];
+EXTERN int CorrectParentBoundaryFlux;
+
+/* For EnzoTiming Behavior */
+EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
 #endif

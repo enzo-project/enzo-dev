@@ -40,22 +40,23 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
-      integer MAX_REFINE
+      INTG_PREC MAX_REFINE
       parameter (MAX_REFINE = 32)
 c
 c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, start1, end1, refine1, gdim1, gstart1, wdim1
-      real    parent(dim1), grid(gdim1), work(wdim1)
+      INTG_PREC dim1, start1, end1, refine1, gdim1, gstart1, wdim1
+      R_PREC    parent(dim1), grid(gdim1), work(wdim1)
 c
 c  locals
 c
-      integer i, i1, pstart1, pdim1
-      real    delf0, fbar, fx, one
-      parameter (one=1.d0)
+      INTG_PREC i, i1, pstart1, pdim1
+      R_PREC    delf0, fbar, fx, one
+      parameter (one=1._RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -78,7 +79,7 @@ c
 c     Interpolate values from cell centers to cell corners
 c
       do i = 1, pdim1+1
-         work(i) = 0.5d0*(
+         work(i) = 0.5_RKIND*(
      &           parent(pstart1+i-1) +
      &           parent(pstart1+i  )
      &                 )
@@ -97,17 +98,20 @@ c
          delf0 =     min(abs(fbar - work(i  )),
      &                   abs(fbar - work(i+1)) )*
      &            sign(one, (fbar - work(i  )))
-         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0.0) delf0=0.d0
+         if ((work(i+1) - fbar) * (fbar - work(i)) .lt. 0.0) 
+     &        delf0=0.0
 c
 c        Now, find the the interpolation coefficients.
 c
-         fx = 2.d0*delf0
+         fx = 2._RKIND*delf0
 c
 c        And interpolate to the subgrid.
 c
          do i1 = 0, refine1-1
             grid(gstart1+(i-1)*refine1+i1) = (fbar +
-     &            (real(i1)+0.5d0-0.5d0*real(refine1))/real(refine1)*fx)
+     &            (REAL(i1)+0.5_RKIND - 
+     &             0.5_RKIND*REAL(refine1)) / 
+     &             REAL(refine1)*fx)
          enddo
 c
       enddo

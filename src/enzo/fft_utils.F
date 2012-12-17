@@ -31,18 +31,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
      &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
-      real    source(sdim1, sdim2, sdim3), dest(ddim3*2, ddim2, ddim1/2)
+      R_PREC  source(sdim1, sdim2, sdim3), dest(ddim3*2, ddim2, ddim1/2)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
@@ -112,18 +113,19 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
+      INTG_PREC ddim1, ddim2, ddim3, dstart1, dstart2, dstart3, 
      &        sdim1, sdim2, sdim3, sstart1, sstart2, sstart3
-      real    source(sdim3*2, sdim2, sdim1/2), dest(ddim1, ddim2, ddim3)
+      R_PREC  source(sdim3*2, sdim2, sdim1/2), dest(ddim1, ddim2, ddim3)
 c
 c  locals
 c
-      integer i, j, k, end1, end2, end3, start1, start2, start3
+      INTG_PREC i, j, k, end1, end2, end3, start1, start2, start3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================

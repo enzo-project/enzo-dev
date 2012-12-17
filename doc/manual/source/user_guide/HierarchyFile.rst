@@ -275,6 +275,8 @@ HDF5 link to the HDF5 file containing the actual data for that grid. Example:
      >>> <ExternalLink to "Grid00000002" in file "./RD0007/RedshiftOutput0007.cpu0000"
 
 
+.. _controlling_the_hierarhcy_file_output: 
+
 Controlling the Hierarchy File Output Format
 --------------------------------------------
 

@@ -13,6 +13,9 @@ of AMR and numerical methods is assumed throughout this documentation.
 
    ModificationIntro.rst
    ProgrammingGuide.rst
+   FilenameConventions.rst
+   DebuggingWithGDB.rst
+   FineGrainedOutput.rst
    AddingNewParameters.rst
    HowToAddNewBaryonField.rst
    FloatIsDouble.rst

@@ -1,0 +1,20 @@
+# This file contains timing information
+# For instructions on how to decipher this information,
+# see [enzo base directory]/src/performance_tools/README.
+# Times are collected across MPI processes and presented as:
+# Level_N/Total, mean time, std_dev time, min time, max time, cell updates, grids, cell updates/processor/sec
+# Routine, mean time, std_dev time, min time, max time 
+# Starting performance log. MPI processes: 4
+
+Cycle_Number 73
+Group_WriteAllData 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
+Level_0 7.426739e-05 2.576135e-06 6.985664e-05 7.605553e-05 1.000000e+02 4 3.366215e+05
+Level_1 6.002188e-05 3.394530e-05 2.408028e-05 9.393692e-05 4.800000e+01 2 1.999271e+05
+Level_2 6.443262e-05 2.628092e-05 4.792213e-05 1.099110e-04 1.600000e+01 3 6.208036e+04
+Level_3 5.096197e-05 4.651836e-06 4.696846e-05 5.888939e-05 1.600000e+01 3 7.848990e+04
+Level_4 4.601479e-05 1.044970e-05 3.480911e-05 6.008148e-05 1.600000e+01 3 8.692858e+04
+RebuildHierarchy 3.094673e-04 4.768372e-07 3.089905e-04 3.099442e-04
+SetBoundaryConditions 1.234412e-04 7.072686e-05 2.717972e-05 2.021790e-04
+SolveHydroEquations 1.204014e-04 4.561247e-05 5.602837e-05 1.838207e-04
+Total 1.373291e-03 4.179102e-04 1.131058e-03 2.097130e-03 1.960000e+02 15 3.568071e+04
+

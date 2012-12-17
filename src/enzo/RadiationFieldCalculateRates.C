@@ -434,14 +434,50 @@ int RadiationFieldCalculateRates(FLOAT Time)
 	   (1.0 + 0.2625 * POW(Redshift+0.918, 2.0)) ) *
       TimeUnits * Ramp;
 
+    if (MultiSpecies > 1) {
+
+      RateData.k27 = 9.37e-10 * POW(1.0+Redshift, 2.526) *
+	exp( 12.7560 * POW(Redshift+2.707, 2.0) /
+	     (1.0 + -0.0301 * POW(Redshift+111.200, 2.0)) ) *
+	TimeUnits * Ramp;
+      
+      RateData.k28 = 9.84e-12 * POW(1.0+Redshift, 2.115) * 
+	exp( -1.9137 * POW(Redshift-1.748, 2.0) / 
+	     (1.0 + 0.3896 * POW(Redshift+3.679, 2.0)) ) * 
+	TimeUnits * Ramp;
+      
+      RateData.k29 = 6.87e-12 * POW(1.0+Redshift, -0.456) * 
+	exp( -0.7601 * POW(Redshift-2.234, 2.0) / 
+	     (1.0 + 0.1955 * POW(Redshift+0.655, 2.0)) ) * 
+	TimeUnits * Ramp;
+      
+      RateData.k30 = 2.61e-12 * POW(1.0+Redshift, -2.198) * 
+	exp( -0.5824 * POW(Redshift-3.811, 2.0) / 
+	     (1.0 + 0.3241 * POW(Redshift+0.838, 2.0)) ) * 
+	TimeUnits * Ramp;
+      
+      /* LymanSawtoothSuppressionFactor is supposed to account for the
+	 suppression of LW flux due to Lyman-series absorption (giving
+	 a sawtooth pattern), a la Haiman & Abel, & Rees (2000).  This
+	 is really only applicable when there is plenty of neutral
+	 hydrogen is around, so I'm scaling it with Ramp. */
+      float LymanSawtoothSuppressionFactor = 0.1 + 0.9 * Ramp;
+
+      RateData.k31 = 2.36e-12 * POW(1.0+Redshift, 1.185) * 
+	exp( -0.2173 * POW(Redshift-3.211, 2.0) / 
+	     (1.0 + 1.1852 * POW(Redshift+0.156, 2.0)) ) * 
+	TimeUnits * Ramp * LymanSawtoothSuppressionFactor;
+
+    }
+
     CoolData.piHI = 4.09e-23 * POW(1.0+Redshift, -0.746) * 
       exp( -0.7469 * POW(Redshift-2.419, 2.0) / 
 	   (1.0 + 0.2120 * POW(Redshift+0.686, 2.0)) )
       / CoolingUnits * Ramp;
 
-    CoolData.piHeII = 1.28e-24 * POW(1.0+Redshift, -0.504) * 
-      exp( -1.0742 * POW(Redshift-1.889, 2.0) / 
-	   (1.0 + 0.1919 * POW(Redshift-0.518,2.0)) ) 
+    CoolData.piHeII = 1.28e-24 * POW(1.0+Redshift, -0.504) *
+      exp( -1.0742 * POW(Redshift-1.889, 2.0) /
+	   (1.0 + 0.1919 * POW(Redshift-0.518, 2.0)) )
       / CoolingUnits * Ramp;
 
     CoolData.piHeI = 4.86e-22 * POW(1.0+Redshift, -2.302) * 

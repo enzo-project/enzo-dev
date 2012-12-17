@@ -27,7 +27,7 @@ c     parent    - parent field
 c     dim1,2    - declared dimension of parent
 c     start1,2  - starting index in parent in units of grid (one based)
 c     end1,2    - ending index in parent in units of grid (one based)
-c     refine1,2 - integer refinement factors
+c     refine1,2 - INTG_PREC refinement factors
 c     gdim1,2   - declared dimension of grid
 c     gstart1,2 - starting offset of refined region in grid (one based)
 c
@@ -42,8 +42,9 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn, MAX_REFINE, num_iter
+      INTG_PREC ijkn, MAX_REFINE, num_iter
       parameter (ijkn = MAX_ANY_SINGLE_DIRECTION, num_iter = 2)
       parameter (MAX_REFINE = 32)
 c
@@ -51,18 +52,18 @@ c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, start1, start2, end1, end2, 
+      INTG_PREC dim1, dim2, start1, start2, end1, end2, 
      &        refine1, refine2, gdim1, gdim2, gstart1, gstart2
-      real    parent(dim1, dim2), grid(gdim1, gdim2)
+      R_PREC    parent(dim1, dim2), grid(gdim1, gdim2)
 c
 c  locals
 c
-      integer i, icoef, igrid, iparent, isub, iter,
+      INTG_PREC i, icoef, igrid, iparent, isub, iter,
      &        j, jcoef, jgrid, jparent, jsub, k
-      real   coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
+      R_PREC coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
      &       coefm2(MAX_REFINE), coefp2(MAX_REFINE), coef02(MAX_REFINE),
      &       del1left, del2left, del1right, del2right, dV, factor, sum
-      real   temp(ijkn), fraction(ijkn)
+      R_PREC   temp(ijkn), fraction(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -77,19 +78,19 @@ c
 c  Compute constants
 c
       do i = 0, refine1-1
-         coefm1(i+1) = real((refine1-i)**3 - (refine1-i-1)**3)/
-     &                 real(6*refine1**3                     )
-         coefp1(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine1**3                     )
-         coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
+         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3,RKIND)/
+     &                 REAL(6*refine1**3                     ,RKIND)
+         coefp1(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine1**3                     ,RKIND)
+         coef01(i+1) = 1._RKIND/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
-         coefm2(i+1) = real((refine2-i)**3 - (refine2-i-1)**3)/
-     &                 real(6*refine2**3                     )
-         coefp2(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine2**3                     )
-         coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
+         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3,RKIND)/
+     &                 REAL(6*refine2**3                     ,RKIND)
+         coefp2(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine2**3                     ,RKIND)
+         coef02(i+1) = 1._RKIND/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
 c  Loop over area to be refined and interpolate
@@ -117,7 +118,7 @@ c  Correct to make sure the interpolation is conservative
 c
       do j = start2, end2, refine2
          do i = start1, end1, refine1
-            sum = 0.d0
+            sum = 0._RKIND
             do jsub = 0, refine2-1
                do isub = 0, refine1-1
                   sum = sum + grid(i-start1+gstart1+isub, 
@@ -125,7 +126,7 @@ c
                enddo
             enddo
             factor = (parent((i-1)/refine1+1, (j-1)/refine2+1) - sum)/
-     &                real(refine1*refine2)
+     &                REAL(refine1*refine2,RKIND)
             do jsub = 0, refine2-1
                do isub = 0, refine1-1
 c                  grid(i-start1+gstart1+isub, j-start2+gstart2+jsub) = 
@@ -146,7 +147,7 @@ c    to the neighbour and the average value), then decrease the entire
 c    profile as needed, but do it in such a way as to keep the average value
 c    the same.
 c
-      dV = 1.0/real(refine1*refine2)
+      dV = 1.0/REAL(refine1*refine2,RKIND)
       do iter = 1, num_iter
 c
 c  1) Do it first in the i direction
@@ -160,11 +161,11 @@ c           a) zero temp space
 c           b) average over one line of the interpolated grid in i direction
 c
          do i = 1, (end1-start1+1)/refine1
-            temp(i) = 0.d0
+            temp(i) = 0._RKIND
          enddo
          do i = start1, end1
             temp((i-start1)/refine1 + 1) = temp((i-start1)/refine1 + 1)
-     &         + grid(i-start1+gstart1, jgrid)/real(refine1)
+     &         + grid(i-start1+gstart1, jgrid)/REAL(refine1,RKIND)
          enddo
 c
 c        Check to see if the end of the distribution is a local maxima
@@ -182,9 +183,9 @@ c
             del2left = temp((i-start1)/refine1+1) -
      &                 grid(i-start1+gstart1, jgrid)
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
             fraction((i-start1)/refine1 + 1) = 
-     &           min(max(del1left/del2left, 0.d0), 1.d0)
+     &           min(max(del1left/del2left, 0._RKIND), 1._RKIND)
          enddo
 c
 c        repeat for right side of each distribution
@@ -200,10 +201,10 @@ c
             del2right = temp((i-start1)/refine1+1) -
      &           grid(i-start1+gstart1+refine1-1, jgrid)
             if (abs(del2right) .lt. tiny) del2right = 
-     &           sign(tiny, del2right)
+     &           sign(REAL(tiny,RKIND), del2right)
             fraction((i-start1)/refine1 + 1) = max(
-     &                    min(max(del1right/del2right, 0.d0), 1.d0)  ,
-     &                    fraction((i-start1)/refine1 + 1)           )
+     &                    min(max(del1right/del2right, 0._RKIND), 
+     &                    1._RKIND), fraction((i-start1)/refine1 + 1) )
          enddo
 c
 c        Modify distributions based on the computed fraction decrease
@@ -211,9 +212,9 @@ c
          do i = start1, end1
             grid(i-start1+gstart1, jgrid) = 
      &         temp((i-start1)/refine1+1) 
-     &                        *        fraction((i-start1)/refine1+1) +
+     &           *        fraction((i-start1)/refine1+1) +
      &         grid(i-start1+gstart1, jgrid)
-     &                        * (1.d0 - fraction((i-start1)/refine1+1) )
+     &           * (1._RKIND - fraction((i-start1)/refine1+1) )
          enddo
       enddo
 c
@@ -226,11 +227,11 @@ c
 c        Compute the average along a single line of the interpolated values
 c
          do j = 1, (end2-start2+1)/refine2
-            temp(j) = 0.d0
+            temp(j) = 0._RKIND
          enddo
          do j = start2, end2
             temp((j-start2)/refine2 + 1) = temp((j-start2)/refine2 + 1)
-     &         + grid(igrid, j-start2+gstart2)/real(refine2)
+     &         + grid(igrid, j-start2+gstart2)/REAL(refine2,RKIND)
          enddo
 c
 c        Check to see if the end of the distribution is a local maxima
@@ -248,9 +249,9 @@ c
             del2left = temp((j-start2)/refine2+1) -
      &                 grid(igrid, j-start2+gstart2)
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
             fraction((j-start2)/refine2 + 1) = 
-     &           min(max(del1left/del2left, 0.d0), 1.d0)
+     &           min(max(del1left/del2left, 0._RKIND), 1._RKIND)
          enddo
 c
 c        repeat for right side of each distribution
@@ -266,10 +267,10 @@ c
             del2right = temp((j-start2)/refine2+1) -
      &           grid(igrid, j-start2+gstart2+refine2-1)
             if (abs(del2right) .lt. tiny) del2right = 
-     &           sign(tiny, del2right)
+     &           sign(REAL(tiny,RKIND), del2right)
             fraction((j-start2)/refine2 + 1) = max(
-     &                    min(max(del1right/del2right, 0.d0), 1.d0)  ,
-     &                    fraction((j-start2)/refine2 + 1)           )
+     &                    min(max(del1right/del2right, 0._RKIND), 
+     &                    1._RKIND), fraction((j-start2)/refine2 + 1) )
          enddo
 c
 c        Modify distributions based on the computed fraction decrease
@@ -277,9 +278,9 @@ c
          do j = start2, end2
             grid(igrid, j-start2+gstart2) = 
      &         temp((j-start2)/refine2+1) 
-     &                        *        fraction((j-start2)/refine2+1) +
+     &           *        fraction((j-start2)/refine2+1) +
      &         grid(igrid, j-start2+gstart2)
-     &                        * (1.d0 - fraction((j-start2)/refine2+1))
+     &           * (1._RKIND - fraction((j-start2)/refine2+1))
          enddo
       enddo
 c

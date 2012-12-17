@@ -21,10 +21,11 @@
 #include "Star.h"
 #include "FOF_allvars.h"
 #include "MemoryPool.h"
-
-#ifdef FLUX_FIX
-#include "TopGridData.h"
+#ifdef ECUDA
+#include "hydro_rk/CudaMHD.h"
 #endif
+
+#include "TopGridData.h"
 
 struct HierarchyEntry;
 
@@ -93,8 +94,6 @@ class grid
   FLOAT *CellLeftEdge[MAX_DIMENSION];
   FLOAT *CellWidth[MAX_DIMENSION];
   fluxes *BoundaryFluxes;
-  float *YT_TemperatureField;                         // place to store temperature field
-                                                      // for call to yt.
 
   // For restart dumps
 
@@ -125,6 +124,13 @@ class grid
 //
   int NumberOfStars;
   Star *Stars;
+
+// For once-per-rootgrid-timestep star formation, the following flag
+// determines whether SF is about to occur or not. It's currently
+//(April 2012) only implemented for H2REG_STAR and completely
+// ignored for all other star makers.
+  int MakeStars;
+
 //
 //  Gravity data
 // 
@@ -182,6 +188,14 @@ class grid
 #ifdef TRANSFER
 #include "PhotonGrid_Variables.h"
 #endif
+
+#ifdef ECUDA
+//
+// CUDA MHD solver data
+//
+  cuMHDData MHDData;
+#endif
+
 
  public:
 
@@ -445,15 +459,10 @@ public:
 	   flux estimates).  Returns SUCCESS or FAIL.
     (for step #19) */
 
-#ifdef FLUX_FIX
    int CorrectForRefinedFluxes(fluxes *InitialFluxes, fluxes *RefinedFluxes,
 			       fluxes *BoundaryFluxesThisTimeStep,
 			       int SUBlingGrid,
 			       TopGridData *MetaData);
-#else
-   int CorrectForRefinedFluxes(fluxes *InitialFluxes, fluxes *RefinedFluxes,
-			       fluxes *BoundaryFluxesThisTimeStep);
-#endif
 
 /* Baryons: add the fluxes pointed to by the argument to the boundary fluxes
             of this grid (sort of for step #16).  Note that the two fluxes
@@ -661,13 +670,6 @@ public:
 /* Solve the joint rate and radiative cooling/heating equations  */
 
    int SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep);
-
-/* Solve the joint rate and radiative cooling/heating equations using MTurk's Solver */
-
-   int SolveHighDensityPrimordialChemistry();
-#ifdef USE_CVODE
-   int SolvePrimordialChemistryCVODE();
-#endif
 
 /* Compute densities of various species for RadiationFieldUpdate. */
 
@@ -932,14 +934,12 @@ public:
 				   boundary_type RightFaceBoundaryCondition[]);
 
 /* David Collins flux correction - July 2005 */
-#ifdef FLUX_FIX
    int CheckForSharedFace(grid *OtherGrid,
 			       boundary_type LeftFaceBoundaryCondition[],
 			       boundary_type RightFaceBoundaryCondition[]);
 
    int CheckForSharedFaceHelper(grid *OtherGrid,
 				     FLOAT EdgeOffset[MAX_DIMENSION]);
-#endif
 
 /* baryons: check for overlap between grids & return TRUE if it exists
             (correctly includes periodic boundary conditions). */
@@ -1470,6 +1470,7 @@ public:
 /* Particles: append particles belonging to this grid from a list */
 
    int AddParticlesFromList(ParticleEntry *List, const int &Size, int *AddedNewParticleNumber);
+   int AddOneParticleFromList(ParticleEntry *List, const int place);
    int CheckGridBoundaries(FLOAT *Position);
 
 /* Particles: sort particle data in ascending order by number (id) or type. */
@@ -2231,7 +2232,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Star Particle handler routine. */
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
-			  float dtLevelAbove);
+			  float dtLevelAbove, float TopGridTimeStep);
 
 /* Particle splitter routine. */
 
@@ -2379,6 +2380,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   Star *ReturnStarPointer(void) { return Stars; };
   int ReturnNumberOfStars(void) { return NumberOfStars; };
   void SetNumberOfStars(int value) { NumberOfStars = value; };
+
+// For once-per-rootgrid-timestep star formation.
+  void SetMakeStars(void) { MakeStars = 1; };
 
   /* Calculate enclosed mass within a radius */
 
@@ -2715,6 +2719,27 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ComputeResistivity(float *resistivity, int DensNum);
   /* END OF NEW STANFORD HYDRO/MHD ROUTINES */
 
+//------------------------------------------------------------------------
+// CUDA MHD routines
+//------------------------------------------------------------------------
+#ifdef ECUDA
+  void CudaMHDMallocGPUData();
+  void CudaMHDFreeGPUData();
+  void CudaSolveMHDEquations(fluxes *SubgridFluxes[], int NumberOfSubgrids, int renorm);
+  void CudaMHDSweep(int dir);
+  void CudaMHDSaveSubgridFluxes(fluxes *SubgridFluxes[], 
+                                int NumberOfSubgrids, int dir); 
+  void CudaMHDSourceTerm();
+  void CudaMHDUpdatePrim(int renorm);
+  int CudaMHDRK2_1stStep(fluxes *SubgridFluxes[], 
+                         int NumberOfSubgrids, int level,
+                         ExternalBoundary *Exterior);
+  int CudaMHDRK2_2ndStep(fluxes *SubgridFluxes[], 
+                         int NumberOfSubgrids, int level,
+                         ExternalBoundary *Exterior);
+#endif
+
+
 };
 
 // inline int grid::ReadRandomForcingFields (FILE *main_file_pointer);
@@ -2723,3 +2748,4 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 
 #endif
+

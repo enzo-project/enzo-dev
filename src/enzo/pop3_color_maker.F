@@ -1,3 +1,4 @@
+#include "fortran.def"
 #include "phys_const.def"
 c=======================================================================
 c/////////////////////  SUBROUTINE POP3_COLOR_MAKER \\\\\\\\\\\\\\\\\\\\
@@ -11,7 +12,6 @@ c
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tcp, type, ctype )
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  CREATES PRIMORDIAL STAR PARTICLES
 c
@@ -75,32 +75,34 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imethod
-      integer procnum, ctype
-      real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
-      real    odthresh
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imethod
+      INTG_PREC procnum, ctype
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      INTG_PREC type(nmax)
+      R_PREC    odthresh
 c
 c  Locals:
 c
-      integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
-      real   div, tdyn, dtot, wgt
-      real   pi, G, sndspdC, m1
-      real   isosndsp2, bmass, jeanmass, lum
-      double precision msolar, mh
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
+      R_PREC   div, tdyn, dtot, wgt
+      R_PREC   pi, G, sndspdC, m1
+      R_PREC   isosndsp2, bmass, jeanmass, lum
+      real*8 msolar, mh
+      parameter (pi=pi_val, G=GravConst, 
+     &           sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass, mh=mass_h)
 c
       ii = np
@@ -125,7 +127,7 @@ c
 c              1) finest level of refinement?
 c
 c               write(0,*) d(i,j,k)
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 c
 c              2) density greater than threshold
 c
@@ -142,48 +144,48 @@ c
 
                type(ii) = -ctype
                tcp(ii) = t
-               xp(ii) = xstart + (float(i)-0.5d0)*dx
-               yp(ii) = ystart + (float(j)-0.5d0)*dx
-               zp(ii) = zstart + (float(k)-0.5d0)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c              Star velocities averaged over multiple cells to
 c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 c
                if (imethod .eq. 2) then
-c                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
-c                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
-c                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
+c                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+c                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+c                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
 
-              up(ii) = ( 0.5d0*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
-     &          0.5d0*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
-     &          0.5d0*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
-     &          0.5d0*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
+              up(ii) = ( 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
+     &          0.5_RKIND*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
+     &          0.5_RKIND*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
+     &          0.5_RKIND*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) ) 
 
-              vp(ii) = ( 0.5d0*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5d0*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5d0*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5d0*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
+              vp(ii) = ( 0.5_RKIND*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5_RKIND*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5_RKIND*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5_RKIND*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
 
-              wp(ii) = ( 0.5d0*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5d0*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5d0*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5d0*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
+              wp(ii) = ( 0.5_RKIND*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5_RKIND*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5_RKIND*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5_RKIND*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )

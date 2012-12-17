@@ -98,12 +98,12 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
 
   /* Find gas energy, if possible. */
 
-  if (DualEnergyFormalism == TRUE) {
-    if ((GENum = FindField(InternalEnergy, FieldType,
-			   NumberOfBaryonFields)) < 0) {
-            ENZO_FAIL("Cannot find gas energy.");
-    }
-  }
+  GENum = FindField(InternalEnergy, FieldType,
+		    NumberOfBaryonFields);
+  
+  if (DualEnergyFormalism == TRUE)
+    if (GENum < 0)
+      ENZO_FAIL("Cannot find gas energy.");
 
   /* Find Velocity1, if possible. */
    

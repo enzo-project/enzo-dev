@@ -58,15 +58,6 @@ MACH_F90FLAGS = -fno-second-underscore # Fortran 90 compiler flags
 MACH_LDFLAGS  = # Linker flags
 
 #-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = # Flag to force Fortran to use 32-bit integers
-MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8 # Flag to force Fortran to use 32-bit integers
-MACH_FFLAGS_REAL_32    = # Flag to force Fortran to use 32-bit REALs
-MACH_FFLAGS_REAL_64    = -fdefault-real-8 # Flag to force Fortran to use 64-bit REALs
-
-#-----------------------------------------------------------------------
 # Optimization flags
 #-----------------------------------------------------------------------
 

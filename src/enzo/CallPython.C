@@ -87,6 +87,7 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     ExportParameterFile(MetaData, CurrentTime, OldTime, dtFixed);
 
     CommunicationBarrier();
+    if(PythonReloadScript == TRUE) PyRun_SimpleString("reload(user_script)\n");
     PyRun_SimpleString("user_script.main()\n");
 
     PyDict_Clear(grid_dictionary);
@@ -94,6 +95,7 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
     PyDict_Clear(hierarchy_information);
     PyDict_Clear(yt_parameter_file);
     PyDict_Clear(conversion_factors);
+    PyRun_SimpleString("gc.collect()\n");
     return SUCCESS;
 #endif
 }

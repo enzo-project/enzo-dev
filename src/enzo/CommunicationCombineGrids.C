@@ -54,11 +54,11 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
   OldHierarchy->GridData->ReturnGridInfo(&Rank, Dims, Left, Right);
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     if (dim < Rank)
-      Dims[dim] -= 2*DEFAULT_GHOST_ZONES;
+      Dims[dim] -= 2*NumberOfGhostZones;
     CellSize[dim] = (Right[dim] - Left[dim])/FLOAT(Dims[dim]);
     NewDims[dim] = nint((DomainRightEdge[dim] - DomainLeftEdge[dim])/
 			CellSize[dim])
-                   + ((dim < Rank) ? 2*DEFAULT_GHOST_ZONES : 0);
+                   + ((dim < Rank) ? 2*NumberOfGhostZones : 0);
   }
   if (debug)
     printf("CombineGrids: NewDims = %"ISYM" %"ISYM" %"ISYM"\n",
@@ -89,7 +89,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
     grid *OldGrid = Temp->GridData;
     OldGrid->ReturnGridInfo(&Rank, TempDims, Left, Right);
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      SendOffset[dim] = (dim < Rank)? DEFAULT_GHOST_ZONES : 0;
+      SendOffset[dim] = (dim < Rank)? NumberOfGhostZones : 0;
       TempDims[dim] -= 2*SendOffset[dim];
       StartIndex[dim] = nint((Left[dim] - DomainLeftEdge[dim])/CellSize[dim])
 	              + SendOffset[dim];
@@ -117,7 +117,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
       OldGrid->ReturnGridInfo(&Rank, TempDims, Left, Right);
       for (dim = 0; dim < MAX_DIMENSION; dim++) {
 	SendOffset[dim] = 0;
-	TempDims[dim] -= 2*DEFAULT_GHOST_ZONES;
+	TempDims[dim] -= 2*NumberOfGhostZones;
 	StartIndex[dim] = nint((Left[dim] - DomainLeftEdge[dim])/CellSize[dim])
 	  + SendOffset[dim];
       }

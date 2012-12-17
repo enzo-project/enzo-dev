@@ -81,7 +81,7 @@ void get_properties(struct particle_data *p, int len, float *pcm, float *pmtot,
     for (i = 0; i < len; i++) {
       radius[i] = 0;
       for (dim = 0; dim < 3; dim++) {
-	del = p[i].Pos[dim] - pcm[dim];
+	del = periodic(p[i].Pos[dim] - pcm[dim]);
 	radius[i] += del*del;
       }
       radius[i] = sqrt(radius[i]);

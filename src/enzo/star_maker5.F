@@ -80,47 +80,48 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, imetalSNIa
-      real    d(nx,ny,nz), dm(nx,ny,nz)
-      real    temp(nx,ny,nz), coolrate(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, msolar1
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      real    odthresh, shdens, masseff, smthresh, mintdyn
-      REALSUB rr_left0, rr_left1, rr_left2
-      REALSUB rr_right0, rr_right1, rr_right2
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum, imetalSNIa
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz)
+      R_PREC    temp(nx,ny,nz), coolrate(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, msolar1
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    odthresh, shdens, masseff, smthresh, mintdyn
+      P_PREC rr_left0, rr_left1, rr_left2
+      P_PREC rr_right0, rr_right1, rr_right2
 c
-      real   sformsum
+      R_PREC   sformsum
       save   sformsum
       data   sformsum/0/
 c
 c  Locals:
 c
-      integer  i, j, k, ii, ran1_init
-      real   div, tdyn, dtot, dummy1
-      real   newd, newdt, newcool, newtemp
-      real   tempx, tempy, tempz
+      INTG_PREC  i, j, k, ii, ran1_init
+      R_PREC   div, tdyn, dtot, dummy1
+      R_PREC   newd, newdt, newcool, newtemp
+      R_PREC   tempx, tempy, tempz
       character*15 fname
-      real   usn, tstar, pstar, sqrtepssn, timeconstant
-      real   mproton, RandomSeed, beta,x ,y, kb
-      real   starfraction, bmass, densthresh 
-      double precision msolar
+      R_PREC   usn, tstar, pstar, sqrtepssn, timeconstant
+      R_PREC   mproton, RandomSeed, beta,x ,y, kb
+      R_PREC   starfraction, bmass, densthresh 
+      real*8 msolar
       parameter (msolar=SolarMass, mproton=mass_h, 
-     &     beta=0.1d0, sqrtepssn=2.d24, RandomSeed=-123456, 
-     &     kb=kboltz)
+     &           beta=0.1_RKIND, sqrtepssn=2.e24, 
+     &           RandomSeed=-123456, kb=kboltz)
 
-      real random
+      R_PREC random
 
       ii = 0
 c     Initialize Random Number Generator Once
@@ -134,7 +135,7 @@ c      open (unit=1701,file=fname,access="APPEND",status="UNKNOWN")
 
 c     Define the energy output from supernovae
 
-      usn=(1.d0-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
+      usn=(1._RKIND-beta)*sqrtepssn/beta/msolar ! Below Eq (2)
       usn=usn*sqrtepssn   ! this trick done to avoid floating-point issues (BWO)
 
 c     Loop over all grids
@@ -142,15 +143,15 @@ c     Loop over all grids
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 c	       Only if this is the most refined cell at this location.
-	       if(r(i,j,k) .ne. 0.d0) goto 10
+	       if(r(i,j,k) .ne. 0._RKIND) goto 10
 
 c             Only over-dense enough cells.
               if(d(i,j,k) .le. odthresh) goto 10
 
 c         Don't consider this cell if it's not in the refinement region.
-              tempx = xstart + (float(i)-0.5d0)*dx
-              tempy = ystart + (float(j)-0.5d0)*dx
-              tempz = zstart + (float(k)-0.5d0)*dx
+              tempx = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+              tempy = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+              tempz = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
               if (tempx .lt. rr_left0 .or. tempx .gt. rr_right0 .or. 
      &          tempy .lt. rr_left1 .or. tempy .gt. rr_right1 .or. 
      &          tempz .lt. rr_left2 .or. tempz .gt. rr_right2) then
@@ -158,21 +159,23 @@ c         Don't consider this cell if it's not in the refinement region.
                endif
 
 c	       Calculate star formation timescale               
-               tstar = 31556926.d0*mintdyn*(d(i,j,k)*dble(d1)/  
-     &              shdens)**(-0.5d0)			!Eq(21)
+               tstar = 31556926._RKIND*mintdyn*(d(i,j,k)*dble(d1)/  
+     &              shdens)**(-0.5_RKIND)			!Eq(21)
             
             
 c     note: minus sign is because 'coolrate' is actual backwards: when
 c     coolrate is negative, gas is cooling (which is the opposite of how
 c     it's defined in springel & Hernquist 2003, MNRAS, 339, 289, eqn. 16
-               y = -1.0*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
-     &              (beta*usn-(1.0-beta)*1.5*kb*temp(i,j,k)/0.6/mproton) !Eq(16)
+               y = -1._RKIND*tstar*coolrate(i,j,k)/(d(i,j,k)*dble(d1))/
+     &              (beta*usn-(1._RKIND-beta)*1.5_RKIND*kb*temp(i,j,k)/
+     &              0.6_RKIND/mproton) !Eq(16)
 
 c	       Calculate the fraction of mass in cold clouds
-               if (y .le. 0.d0) then
-                  x = 0.d0
+               if (y .le. 0._RKIND) then
+                  x = 0._RKIND
                else
-                  x = 1.d0 + 1.d0/2.d0/y - sqrt(1.d0/y + 1.d0/4.d0/y/y)	!Eq(18)
+                  x = 1._RKIND + 1._RKIND/2._RKIND/y - 
+     &                 sqrt(1._RKIND/y + 1._RKIND/4._RKIND/y/y)	!Eq(18)
                endif
 
 c              Calculate total baryon mass in the cell               
@@ -180,7 +183,7 @@ c              Calculate total baryon mass in the cell
 
 c              Calculate a parameter which is compared to a random number
                pstar=(bmass/smthresh)*
-     &                (1.-exp(-(1.-beta)*x*dt*dble(t1)/tstar)) !Eq(39)
+     &              (1._RKIND-exp(-(1._RKIND-beta)*x*dt*dble(t1)/tstar)) !Eq(39)
 
                newd = d(i,j,k) * dble(d1)
                newdt = dt*dble(t1)
@@ -199,7 +202,7 @@ c               write(1701, *) bmass, newd, newcool, newtemp, newdt,pstar
 c ----------If a random number < pstar, create a star!----------------
 
                if(dummy1 .gt. pstar) goto 10
-               starfraction = min(smthresh/bmass, 0.5d0)
+               starfraction = min(smthresh/bmass, 0.5_RKIND)
 
                ii = ii + 1
 	       mp(ii)  = starfraction * d(i,j,k) 
@@ -209,9 +212,9 @@ c ----------If a random number < pstar, create a star!----------------
                yp(ii) = tempy
                zp(ii) = tempz
                if (imethod .eq. 2) then
-                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -222,14 +225,14 @@ c	       Set metal Fraction
                if (imetal .eq. 1) then
                   metalf(ii) = metal(i,j,k)
                else
-                  metalf(ii) = 0.d0
+                  metalf(ii) = 0._RKIND
                endif
                if (imetalSNIa .eq. 1) then
                   metalfSNIa(ii) = metalSNIa(i,j,k)
                endif
 
 c	       Remove mass from grid
-               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1._RKIND - starfraction)*d(i,j,k)
 c
 c              Do not generate more star particles than available
 c
@@ -314,31 +317,32 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
-      real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(npart), yp(npart), zp(npart)
-      real    up(npart), vp(npart), wp(npart)
-      real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
-      integer type(npart)
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, justburn
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(npart), yp(npart), zp(npart)
+      R_PREC    up(npart), vp(npart), wp(npart)
+      R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      INTG_PREC type(npart)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      integer i, j, k, n
-      real mform, tfactor, clight, energy, sn_param, msolar_e51,
+      INTG_PREC i, j, k, n
+      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio, sqrtepssn,
      &     msolar, beta
-      parameter (clight = c_light, msolar_e51 = 1800.d0, 
-     &     msolar=SolarMass, sqrtepssn=2.d24, beta=0.1d0)
+      parameter (clight = c_light, msolar_e51 = 1800._RKIND, 
+     &     msolar=SolarMass, sqrtepssn=2.e24_RKIND, beta=0.1_RKIND)
 
 c    Basically calculate some of the same stuff from above.
 c    Dump it all into thermal making sure to take care of
@@ -347,9 +351,9 @@ c    energy formalisms.
       do n=1, npart
          if(tcp(n) .eq. t .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
             
-            i = int((xp(n) - xstart)/dx) +1
-            j = int((yp(n) - ystart)/dx) +1
-            k = int((zp(n) - zstart)/dx) +1
+            i = int((xp(n) - xstart)/dx,IKIND) +1
+            j = int((yp(n) - ystart)/dx,IKIND) +1
+            k = int((zp(n) - zstart)/dx,IKIND) +1
 
 c
 c         check bounds - if star particle is outside of this grid
@@ -367,7 +371,7 @@ c
 
 c	    Metal Feedback
             metal(i,j,k) = metal(i,j,k) +
-     &            (1.d0-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
+     &            (1._RKIND-beta)*yield*mp(n)/d(i,j,k)		!Eq(40)
 
             energy = sqrtepssn*mp(n)/msolar/v1/v1/d(i,j,k)  
             energy = energy*sqrtepssn    ! this is due to floating-point issues (BWO)
@@ -378,7 +382,7 @@ c	    Metal Feedback
      &           ge(i,j,k) = ge(i,j,k) + energy
             
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 +
+               te(i,j,k) = 0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 +
      &              w(i,j,k)**2) + ge(i,j,k)
             endif
             

@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
 #ifdef SP2
 
@@ -7,13 +8,14 @@
       subroutine ibm_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*4 :: factor
+      REAL*4 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -46,10 +48,10 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/real(n1)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -75,13 +77,14 @@
       subroutine ibm_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -114,10 +117,10 @@
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/real(n1)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -140,9 +143,10 @@
       subroutine ibm_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer n1, idir
-      complex x(n1)
+      INTG_PREC n1, idir
+      CMPLX_PREC x(n1)
 
       write(0,'("IBM stride 1 FFT error")')
       ERROR_MESSAGE

@@ -8,8 +8,7 @@
 * ======================================================================
 
       subroutine fft66(a,b,ntot,n,nspan,isn)
-
-c  multivariate complex fourier transform, computed in place
+c  multivariate CMPLX_PREC fourier transform, computed in place
 c    using mixed-radix fast fourier transform algorithm.
 c  by r. c. singleton, stanford research institute, sept. 1968
 c  arrays a and b originally hold the real and imaginary
@@ -20,11 +19,11 @@ c    array element successor function, without limit
 c    on the number of implied multiple subscripts.
 c    the subroutine is called once for each variate.
 c    the calls for a multivariate transform may be in any order.
-c  ntot is the total number of complex data values.
+c  ntot is the total number of CMPLX_PREC data values.
 c  n is the dimension of the current variable.
 c  nspan/n is the spacing of consecutive data values
 c    while indexing the current variable.
-c  the sign of isn determines the sign of the complex
+c  the sign of isn determines the sign of the CMPLX_PREC
 c    exponential, and the magnitude of isn is normally one.
 c  a tri-variate transform with a(n1,n2,n3), b(n1,n2,n3)
 c    is computed by
@@ -32,17 +31,17 @@ c      call fft(a,b,n1*n2*n3,n1,n1,1)
 c      call fft(a,b,n1*n2*n3,n2,n1*n2,1)
 c      call fft(a,b,n1*n2*n3,n3,n1*n2*n3,1)
 c  for a single-variate transform,
-c    ntot = n = nspan = (number of complex data values), e.g.
+c    ntot = n = nspan = (number of CMPLX_PREC data values), e.g.
 c      call fft(a,b,n,n,n,1)
-c  the data can alternatively be stored in a single complex array c
+c  the data can alternatively be stored in a single CMPLX_PREC array c
 c    in standard fortran fashion, i.e. alternating real and imaginary
-c    parts. then with most fortran compilers, the complex array c can
+c    parts. then with most fortran compilers, the CMPLX_PREC array c can
 c    be equivalenced to a real array a, the magnitude of isn changed
 c    to two to give correct indexing increment, and a(1) and a(2) used
 c    to pass the initial addresses for the sequences of real and
 c    imaginary values, e.g.
-c       complex c(ntot)
-c       real    a(2*ntot)
+c       CMPLX_PREC c(ntot)
+c       R_PREC    a(2*ntot)
 c       equivalence (c(1),a(1))
 c       call fft(a(1),a(2),ntot,n,nspan,2)
 c  arrays at(maxf), ck(maxf), bt(maxf), sk(maxf), and np(maxp)
@@ -52,6 +51,16 @@ c    maxf must be .ge. the maximum prime factor of n.
 c    maxp must be .gt. the number of prime factors of n.
 c    in addition, if the square-free portion k of n has two or
 c    more prime factors, then maxp must be .ge. k-1.
+c
+      implicit none
+#include "fortran_types.def"
+c
+      INTG_PREC i, ii, inc, isn, j, jc, jf, jj, k, k1, k2, k3, k4, kk, 
+     &          ks, kspan, kspnn, kt, m, maxf, maxp, n, nfac, nn, np, 
+     &          nspan, nt, ntot
+      R_PREC    a, aa, aj, ajm, ajp, ak, akm, akp, at, b, bb, bj, bjm, 
+     &          bjp, bk, bkm, bkp, bt, c1, c2, c3, c72, cd, ck, rad, 
+     &          radf, s1, s120, s2, s3, s72, sd, sk
       dimension a(1),b(1)
 c  array storage in nfac for a maximum of 15 prime factors of n.
 c  if n has more than one square-free factor, the product of the
@@ -65,10 +74,10 @@ c  the following two constants should agree with the array dimensions.
       maxf=23
       if(n .lt. 2) return
       inc=isn
-      c72=0.30901699437494742
-      s72=0.95105651629515357
-      s120=0.86602540378443865
-      rad=6.2831853071796
+      c72=0.30901699437494742_RKIND
+      s72=0.95105651629515357_RKIND
+      s120=0.86602540378443865_RKIND
+      rad=6.2831853071796_RKIND
       if(isn .ge. 0) go to 10
       s72=-s72
       s120=-s120
@@ -79,7 +88,7 @@ c  the following two constants should agree with the array dimensions.
       kspan=ks
       nn=nt-inc
       jc=ks/n
-      radf=rad*float(jc)*0.5
+      radf=rad*REAL(jc,RKIND)*0.5_RKIND
       i=0
       jf=0
 c  determine the factors of n
@@ -124,7 +133,7 @@ c  determine the factors of n
       j=j-1
       if(j .ne. 0) go to 90
 c  compute fourier transform
-  100 sd=radf/float(kspan)
+  100 sd=radf/REAL(kspan,RKIND)
       cd=2.0*sin(sd)**2
       sd=sin(sd+sd)
       kk=1
@@ -180,8 +189,8 @@ c  transform for factor of 3 (optional code)
       bj=b(k1)+b(k2)
       a(kk)=ak+aj
       b(kk)=bk+bj
-      ak=-0.5*aj+ak
-      bk=-0.5*bj+bk
+      ak=-0.5_RKIND*aj+ak
+      bk=-0.5_RKIND*bj+bk
       aj=(a(k1)-a(k2))*s120
       bj=(b(k1)-b(k2))*s120
       a(k1)=ak-bj
@@ -230,11 +239,11 @@ c  transform for factor of 4
       if(kk .le. nt) go to 420
   440 c2=c1-(cd*c1+sd*s1)
       s1=(sd*c1-cd*s1)+s1
-      c1=2.0-(c2**2+s1**2)
+      c1=2._RKIND-(c2**2+s1**2)
       s1=c1*s1
       c1=c1*c2
       c2=c1**2-s1**2
-      s2=2.0*c1*s1
+      s2=2._RKIND*c1*s1
       c3=c2*c1-s2*s1
       s3=c2*s1+s2*c1
       kk=kk-nt+jc
@@ -305,12 +314,12 @@ c  transform for odd factors
       if(k .eq. 5) go to 510
       if(k .eq. jf) go to 640
       jf=k
-      s1=rad/float(k)
+      s1=rad/REAL(k,RKIND)
       c1=cos(s1)
       s1=sin(s1)
       if(jf .gt. maxf) go to 998
-      ck(jf)=1.0
-      sk(jf)=0.0
+      ck(jf)=1.0_RKIND
+      sk(jf)=0.0_RKIND
       j=1
   630 ck(j)=ck(k)*c1+sk(k)*s1
       sk(j)=ck(k)*s1-sk(k)*c1
@@ -348,8 +357,8 @@ c  transform for odd factors
       jj=j
       ak=aa
       bk=bb
-      aj=0.0
-      bj=0.0
+      aj=0.0_RKIND
+      bj=0.0_RKIND
       k=1
   670 k=k+1
       ak=at(k)*ck(jj)+ak

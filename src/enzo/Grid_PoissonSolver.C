@@ -308,7 +308,7 @@ int grid::PoissonCleanStep(int level)
 
   
 
-//   const int ng = DEFAULT_GHOST_ZONES;
+//   const int ng = NumberOfGhostZones;
 //   int igrid, igrid_rhs;
 
 //   int Phi_pNum = FindField(Phi_pField, FieldType, NumberOfBaryonFields);
@@ -785,14 +785,14 @@ int grid::PrintToScreenBoundaries(float *field, char *display){
 
 
   PrintToScreenBoundaries(field, display, 1, (int) floor(GridDimension[1]/2.0), 1, 0.0); 
-  //PrintToScreenBoundaries(field, display, 1, DEFAULT_GHOST_ZONES, 0, 0.0);
-  // PrintToScreenBoundaries(field, display, 0, DEFAULT_GHOST_ZONES, 0, 0.0);
+  //PrintToScreenBoundaries(field, display, 1, NumberOfGhostZones, 0, 0.0);
+  // PrintToScreenBoundaries(field, display, 0, NumberOfGhostZones, 0, 0.0);
 
 }
 
 int grid::PrintToScreenBoundaries(){
   //   PrintToScreenBoundaries(field, display, 2, (int) floor(GridDimension[1]/2.0), 0, 0.0); return true;
-  //PrintToScreenBoundaries(field, display, 1, GridDimension[1]-1-DEFAULT_GHOST_ZONES, 0, 0.0);
+  //PrintToScreenBoundaries(field, display, 1, GridDimension[1]-1-NumberOfGhostZones, 0, 0.0);
 
   //if (!debug) return SUCCESS;
  
@@ -803,10 +803,10 @@ int grid::PrintToScreenBoundaries(){
  
   for (int i=0; i< NumberOfBaryonFields; i++){
     printf("\n\n\n\n\n\n-------------Displaying %d (%d)\n", FieldType[i], i);
-    PrintToScreenBoundaries(OldBaryonField[i], "old", 1, DEFAULT_GHOST_ZONES, 0, 0.0);
-    PrintToScreenBoundaries(BaryonField[i], "new", 1, DEFAULT_GHOST_ZONES, 0, 0.0);
-    PrintToScreenBoundaries(OldBaryonField[i], "old", 0, DEFAULT_GHOST_ZONES, 0, 0.0);
-    PrintToScreenBoundaries(BaryonField[i], "new", 0, DEFAULT_GHOST_ZONES, 0, 0.0);
+    PrintToScreenBoundaries(OldBaryonField[i], "old", 1, NumberOfGhostZones, 0, 0.0);
+    PrintToScreenBoundaries(BaryonField[i], "new", 1, NumberOfGhostZones, 0, 0.0);
+    PrintToScreenBoundaries(OldBaryonField[i], "old", 0, NumberOfGhostZones, 0, 0.0);
+    PrintToScreenBoundaries(BaryonField[i], "new", 0, NumberOfGhostZones, 0, 0.0);
   }
 }
 

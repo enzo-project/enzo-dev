@@ -37,7 +37,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 
   /* declarations */
 
-  int   i, j, k, dim, field, GhostZones = DEFAULT_GHOST_ZONES;
+  int   i, j, k, dim, field, GhostZones = NumberOfGhostZones;
   float *index, Sign;
   int GridLeftOffset[MAX_DIMENSION], GridRightOffset[MAX_DIMENSION];
 

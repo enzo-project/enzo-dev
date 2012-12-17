@@ -1,3 +1,4 @@
+#include "fortran.def"
 #include "error.def"
 #include "phys_const.def"
 
@@ -8,7 +9,6 @@ c
      &                      mass, field, leftedge, 
      &                      dim1, dim2, dim3, cellsize, rsmooth)
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  PERFORMS 3D SMOOTHED INTERPOLATION FROM FIELD TO SUMFIELD
 c
@@ -39,29 +39,30 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer dim1, dim2, dim3, npositions, ndim
-      REALSUB posx(npositions), posy(npositions), posz(npositions),
+      INTG_PREC dim1, dim2, dim3, npositions, ndim
+      P_PREC posx(npositions), posy(npositions), posz(npositions),
      &        leftedge(3)
-      real    mass(npositions), field(dim1, dim2, dim3)
-      real    cellsize, rsmooth
+      R_PREC    mass(npositions), field(dim1, dim2, dim3)
+      R_PREC    cellsize, rsmooth
 c
 c  locals
 c     
-      integer i, j, k, n
-      REALSUB xpos, ypos, zpos, rsmsqr, rsqr
-      real    coef, pi
+      INTG_PREC i, j, k, n
+      P_PREC xpos, ypos, zpos, rsmsqr, rsqr
+      R_PREC    coef, pi
       parameter (pi = pi_val)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
       rsmsqr = rsmooth**2
-      coef   = 3.d0/pi*(cellsize/rsmooth)**3
+      coef   = 3._RKIND/pi*(cellsize/rsmooth)**3
 c
       if (ndim .ne. 3) then
          write(6,*) 'SMOOTH_DEPOSIT: only ndim=3 supported.'
@@ -75,11 +76,11 @@ c
 c        loop over grid
 c
          do k=1, dim3
-            zpos = leftedge(3) + (float(k) - 0.5d0)*cellsize
+            zpos = leftedge(3)+(REAL(k,RKIND)-0.5_RKIND)*cellsize
             do j=1, dim2
-               ypos = leftedge(2) + (float(j) - 0.5d0)*cellsize
+               ypos = leftedge(2)+(REAL(j,RKIND)-0.5_RKIND)*cellsize
                do i=1, dim1
-                  xpos = leftedge(1) + (float(i) - 0.5d0)*cellsize
+                  xpos = leftedge(1)+(REAL(i,RKIND)-0.5_RKIND)*cellsize
 c
 c                 Loop over particles
 c
@@ -93,7 +94,7 @@ c
 c
                      if (rsqr .lt. rsmsqr)
      &                    field(i,j,k) = field(i,j,k) +
-     &                         mass(n)*coef*(1.d0 - sqrt(rsqr)/rsmooth)
+     &                    mass(n)*coef*(1._RKIND - sqrt(rsqr)/rsmooth)
 c
                   enddo
 c

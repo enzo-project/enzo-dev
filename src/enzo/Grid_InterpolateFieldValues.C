@@ -62,6 +62,8 @@ extern "C" void FORTRAN_NAME(combine3d)(
 	       int *dstart1, int *dstart2, int *dstart3,
 	       int *ivel_flag, int *irefine);
  
+int MakeFieldConservative(field_type field); 
+
 /* InterpolateBoundaryFromParent function */
  
 int grid::InterpolateFieldValues(grid *ParentGrid)
@@ -89,6 +91,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
   int dim, field, interp_error;
   float *TemporaryField, *TemporaryDensityField, *Work,
         *ParentTemp[MAX_NUMBER_OF_BARYON_FIELDS], *FieldPointer;
+  interpolation_type FieldInterpolationMethod;
  
   if (NumberOfBaryonFields > 0) {
 
@@ -114,21 +117,21 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
     int SecondOrderBFlag[MAX_NUMBER_OF_BARYON_FIELDS];
     if (InterpolationMethod == SecondOrderB)
       for (field = 0; field < NumberOfBaryonFields; field++) {
-	if (FieldType[field] == TotalEnergy || FieldType[field] == Pressure ||
-	    FieldType[field] == InternalEnergy)
-	  SecondOrderBFlag[field] = 2;   // enforce monotonicity
-	else
-	  SecondOrderBFlag[field] = 2;   // enforce only positivity
-	if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
-	  SecondOrderBFlag[field] = 2;   //  no positivity for velocity
+        if (FieldType[field] == TotalEnergy || FieldType[field] == Pressure ||
+            FieldType[field] == InternalEnergy)
+          SecondOrderBFlag[field] = 2;   // enforce monotonicity
+        else
+          SecondOrderBFlag[field] = 2;   // enforce only positivity
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+          SecondOrderBFlag[field] = 2;   //  no positivity for velocity
       }
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
-	  SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-	else
-	  SecondOrderBFlag[field] = 0;
- 
+        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+          SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
+        else
+          SecondOrderBFlag[field] = 0;
+
     /* Compute the start and end indicies (in this grid units) of this grid
        within it's parent */
     /* StartIndex = cells from left edge of parent active region
@@ -270,22 +273,14 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        quantities. */
  
     if (ConservativeInterpolation)
-      for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 
-	    && FieldType[field] != DebugField 
-	    && FieldType[field] != GravPotential
-	    )
+      for (field = 0; field < NumberOfBaryonFields; field++){
+	if (MakeFieldConservative( FieldType[field] ) ){
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
                                &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
                                &Zero, &Zero, &Zero, &Zero, &Zero, &Zero);
+    }
+      }
     
     /* Do the interpolation for the density field. */
  
@@ -331,9 +326,16 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
        (skip density since we did it already) */
  
       if (HydroMethod == Zeus_Hydro){
-	InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
-	  SecondOrderA : SecondOrderC;
+        InterpolationMethod = (SecondOrderBFlag[field] == 0) ?
+            SecondOrderA : SecondOrderC;
       }
+      
+      // Set FieldInterpolationMethod to be FirstOrderA for 
+      // fields that shouldn't be interpolated.'
+      FieldInterpolationMethod = InterpolationMethod;
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
+        FieldInterpolationMethod = FirstOrderA; 
+      
       //      fprintf(stdout, "grid:: InterpolateBoundaryFromParent[4], field = %d\n", field); 
 
       if (FieldType[field] != Density && FieldType[field] != DebugField) {
@@ -343,7 +345,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
 				  ParentTempStartIndex, ParentTempEndIndex,
                                      Refinement,
 				  TemporaryField, TempDim, ZeroVector, Work,
-				  &InterpolationMethod,
+				  &FieldInterpolationMethod,
 				  &SecondOrderBFlag[field], &interp_error);
 	if (interp_error) {
 	  printf("P%d: Error interpolating field %d (%s).\n"
@@ -369,22 +371,13 @@ int grid::InterpolateFieldValues(grid *ParentGrid)
          variables (skipping density). */
  
       if (ConservativeInterpolation)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 
-	    && FieldType[field] != DebugField 
-	    &&  FieldType[field] != GravPotential
-	    )
+	if (MakeFieldConservative( FieldType[field] ) ){
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,
 			      &Zero, &Zero, &Zero, &Zero, &Zero, &Zero,
 			      &Zero, &Zero, &Zero, &TempSize, &Zero, &Zero);
+    }
       
       /* Set FieldPointer to either the correct field (density or the one we
 	 just interpolated to). */

@@ -99,7 +99,7 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     FromOffset[dim] = (dim < GridRank && IncludeBoundary == FALSE &&
 		       SendField != INTERPOLATED_FIELDS) ?
-      DEFAULT_GHOST_ZONES : 0;
+      NumberOfGhostZones : 0;
     FromDim[dim] = RegionDim[dim] + 2*FromOffset[dim];
   }
  

@@ -218,7 +218,21 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     writeScalarAttribute(old_fields, HDF5_PREC, "OldTime", &this->OldTime);
     writeScalarAttribute(old_fields, HDF5_PREC, "dtFixed", &dtFixedCopy);
   }
- 
+
+  // If requested, find shocks immediately before output.
+  if (ShockMethod){
+    // Update the shock fields. 
+    // If FindShocksOnlyOnOutput > 1, don't update shock fields.
+    int temp_shocks_var = FindShocksOnlyOnOutput;
+    if (FindShocksOnlyOnOutput <= 1 ){
+      // Set FindShocksOnlyOnOutput temporarily to 0 so that shocks
+      // are found in the ShockHandler routine.
+      FindShocksOnlyOnOutput = 0;
+      this->ShocksHandler();
+      FindShocksOnlyOnOutput = temp_shocks_var;
+    }
+  }
+
   /* ------------------------------------------------------------------- */
   /* 2) save baryon field quantities (including fields). */
  

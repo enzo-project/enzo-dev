@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -64,6 +65,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     return SUCCESS;
 
   LCAPERF_START("grid_SolveHydroEquations");
+  TIMER_START("SolveHydroEquations");
 
   this->DebugCheck("SolveHydroEquations");
 
@@ -282,7 +284,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 	ENZO_FAIL("Error in grid->ComputeGammaField.");
       }
     } else {
-      GammaField = new float;
+      GammaField = new float[1];
       GammaField[0] = Gamma;
 
     }
@@ -458,6 +460,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     /* Clean up allocated fields. */
 
+    delete [] GammaField;   
 
     for (dim = 0; dim < MAX_DIMENSION; dim++)
       delete [] CellWidthTemp[dim];
@@ -477,6 +480,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
   this->DebugCheck("SolveHydroEquations (after)");
 
+  TIMER_STOP("SolveHydroEquations");
   LCAPERF_STOP("grid_SolveHydroEquations");
   return SUCCESS;
 

@@ -72,7 +72,7 @@ int grid::ParticleSplitter(int level)
 
   /* Initialize */
  
-  int dim, i, j, k, index, size, field, GhostZones = DEFAULT_GHOST_ZONES;
+  int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,H2INum, H2IINum;
 
   LCAPERF_START("grid_ParticleSplitter");

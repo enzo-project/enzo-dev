@@ -19,8 +19,7 @@ MACHINE_NOTES = "***** MACHINE_NOTES for Orange at KIPAC/Stanford: \
 	In the script, first add this line (or the bash equiv.), \
 	'setenv LD_LIBRARY_PATH /afs/slac/g/ki/software/hdf5/lib/' \
 	Depending on your preference of the compiler, choose wisely \
-        for LOCAL_MPI_INSTALL, MACH_FFLAGS, MACH_FFLAGS_REAL_64,  \
-	and MACH_FFLAGS_INTEGER_64. "
+        for LOCAL_MPI_INSTALL and MACH_FFLAGS. "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -31,9 +30,9 @@ MACHINE_NOTES = "***** MACHINE_NOTES for Orange at KIPAC/Stanford: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 #INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler9.0/@sys
-INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler10.1
+INT_DIR=/afs/slac.stanford.edu/package/intel_tools/compiler11.1
 
-LOCAL_MPI_INSTALL    = /usr/lib64/openmpi/1.4-gcc
+LOCAL_MPI_INSTALL    = /afs/slac/g/ki/software/openmpi/1.4.1/
 LOCAL_HDF5_INSTALL   = /afs/slac/g/ki/software/hdf5/1.8.5
 LOCAL_HDF4_INSTALL   = /afs/slac/g/ki/software/hdf4/amd64_linux26
 LOCAL_PYTHON_INSTALL = /u/ki/mornkr/nfs12/yt-dev/yt-x86_64
@@ -52,6 +51,8 @@ MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpic++
 MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif90
 MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90
 MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc
+#MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif90
+MACH_CUDACOMPILER = /opt/cuda/bin/nvcc 
 
 # Without MPI
 
@@ -74,23 +75,12 @@ MACH_DEFINES = -DLINUX -DH5_USE_16_API -DEMBEDDED_PYTHON -DNO_IO_LOG -DMEM_TRACE
 
 MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = -I/usr/local/include/
-MACH_CXXFLAGS = -DOMPI_SKIP_MPICXX
+MACH_CXXFLAGS = -DOMPI_SKIP_MPICXX 
 #MACH_FFLAGS   = -ffixed-line-length-132
 MACH_FFLAGS   = -132
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl 
 # -static 
-
-#-----------------------------------------------------------------------
-# Precision-related flags
-#-----------------------------------------------------------------------
-
-MACH_FFLAGS_INTEGER_32 = -i4
-#MACH_FFLAGS_INTEGER_64 = -fdefault-integer-8
-MACH_FFLAGS_INTEGER_64 = -i8
-MACH_FFLAGS_REAL_32    = -r4
-#MACH_FFLAGS_REAL_64    = -fdefault-real-8
-MACH_FFLAGS_REAL_64    = -r8
 
 #-----------------------------------------------------------------------
 # Optimization flags
@@ -111,6 +101,7 @@ MACH_OPT_WARN        =
 MACH_OPT_DEBUG       = -g
 MACH_OPT_HIGH        = -O2 -g
 MACH_OPT_AGGRESSIVE  = -O3 -g
+MACH_OPT_CUDADEBUG   = -deviceemu
 
 #-----------------------------------------------------------------------
 # Includes
@@ -121,13 +112,16 @@ LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HDF4   = -I$(LOCAL_HDF4_INSTALL)/include
 LOCAL_INCLUDES_IOBUF  = -I$(IOBUF_INC)
-LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.6/ \
-                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.6/site-packages/numpy/core/include
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
+LOCAL_INCLUDES_CUDA   =  -I/opt/cuda/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) $(LOCAL_INCLUDES_SPRNG)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_HDF4) $(LOCAL_INCLUDES_SPRNG) $(LOCAL_INCLUDES_CUDA)
 MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+MACH_OPT_CUDA         = -arch=sm_20 -O3 -Xptxas -v 
 
 #-----------------------------------------------------------------------
 # Libraries
@@ -140,12 +134,13 @@ LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg 
 LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a
+LOCAL_LIBS_CUDA   = -L/opt/cuda/lib64 -lcudart -lcufft 
 
-LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/10.1.018/@sys/lib/ \
-                     -limf -lifcore -lifport \
-                     -L$(INT_DIR)/cc/10.1.018/@sys/lib/ \
-                     -L/usr/lib/gcc/x86_64-redhat-linux/3.4.6/ \
-                     -lstdc++ -lgfortran -lg2c
+LOCAL_LIBS_MACH   =  -g -L$(INT_DIR)/lib/intel64 \
+                     -limf -lm -lsvml -lifcore -lifport  \
+                     -L$(INT_DIR)/lib/@sys/ \
+                     -L/usr/lib/gcc/x86_64-redhat-linux6E/4.4.6/ \
+                     -lstdc++ -lgfortran 
 
 #LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/lib/ \
 #                     -limf -lifcore -lifport \
@@ -156,3 +151,4 @@ LOCAL_LIBS_MACH   =  -L$(INT_DIR)/fc/10.1.018/@sys/lib/ \
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_HDF4) $(LOCAL_LIBS_MACH) 
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)
+MACH_LIBS_CUDA   = $(LOCAL_LIBS_CUDA)

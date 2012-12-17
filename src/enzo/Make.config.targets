@@ -115,11 +115,6 @@ help-config:
 	@echo "      gmake new-problem-types-yes"
 	@echo "      gmake new-problem-types-no"
 	@echo
-	@echo "   Set whether to use embedded CVODE solver"
-	@echo
-	@echo "      gmake cvode-yes"
-	@echo "      gmake cvode-no"
-	@echo
 	@echo "   Set whether to perform unigrid communication transpose"
 	@echo
 	@echo "      gmake unigrid-transpose-yes"
@@ -178,11 +173,6 @@ help-config:
 	@echo "      gmake bitwise-yes"
 	@echo "      gmake bitwise-no"
 	@echo 
-	@echo "   Include sibling subgrid boundary fix"
-	@echo
-	@echo "      gmake fluxfix-yes"
-	@echo "      gmake fluxfix-no"
-	@echo 
 	@echo "   Set whether to use HDF4"
 	@echo
 	@echo "      gmake use-hdf4-yes"
@@ -212,6 +202,11 @@ help-config:
 	@echo
 	@echo "      gmake gravity-4s-yes"
 	@echo "      gmake gravity-4s-no"
+	@echo
+	@echo "   Set whether to use performance/timing measurements"
+	@echo
+	@echo "      gmake enzo-performance-yes"
+	@echo "      gmake enzo-performance-no"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -266,7 +261,6 @@ show-config:
 	@echo "   CONFIG_PAPI  [papi-{yes,no}]                              : $(CONFIG_PAPI)"
 	@echo "   CONFIG_PYTHON  [python-{yes,no}]                          : $(CONFIG_PYTHON)"
 	@echo "   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : $(CONFIG_NEW_PROBLEM_TYPES)"
-	@echo "   CONFIG_CVODE  [cvode-{yes,no}]                            : $(CONFIG_CVODE)"
 	@echo "   CONFIG_ECUDA  [cuda-{yes,no}]                             : $(CONFIG_ECUDA)"
 	@echo "   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : $(CONFIG_OOC_BOUNDARY)"
 	@echo "   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]              : $(CONFIG_ACCELERATION_BOUNDARY)"
@@ -280,8 +274,8 @@ show-config:
 	@echo "   CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : $(CONFIG_NEW_GRID_IO)"
 	@echo "   CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
-	@echo "   CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : $(CONFIG_FLUX_FIX)"
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
+	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -296,8 +290,8 @@ suggest-clean:
 
 show-version:
 	@echo
-	@echo "Mercurial Branch   `$(SVN) identify -i`"
-	@echo "Mercurial Revision `$(SVN) identify -b`"
+	@echo "Mercurial Branch   `$(SVN) identify -b`"
+	@echo "Mercurial Revision `$(SVN) identify -i`"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -372,6 +366,7 @@ machine-%: suggest-clean
            echo; \
 	   echo "   No such machine file "'"'"Make.mach.$*"'"'; \
            echo; \
+	   exit 1; \
         fi; \
 	echo
 
@@ -396,6 +391,7 @@ load-config-%:
            echo; \
            echo "   No such settings file "'"'"$(HOME)/.enzo/Make.settings.$*"'"'; \
            echo; \
+	   exit 1; \
         fi;
 
 #-----------------------------------------------------------------------
@@ -668,23 +664,6 @@ CONFIG_NEW_PROBLEM_TYPES-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_CVODE = cvode-yes cvode-no
-.PHONY: $(VALID_CVODE)
-
-cvode-yes: CONFIG_CVODE-yes
-cvode-no: CONFIG_CVODE-no
-cvode-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_CVODE)]\n\n"
-CONFIG_CVODE-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_CVODE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_CVODE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_CVODE; \
-	echo
-
-#-----------------------------------------------------------------------
-
 VALID_ECUDA = cuda-yes cuda-no
 .PHONY: $(VALID_ECUDA)
 
@@ -894,23 +873,6 @@ CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
 	echo
 
 
-#-----------------------------------------------------------------------
-
-VALID_FLUX_FIX = fluxfix-yes fluxfix-no
-.PHONY: $(VALID_FLUX_FIX)
-
-fluxfix-yes: CONFIG_FLUX_FIX-yes
-fluxfix-no: CONFIG_FLUX_FIX-no
-fluxfix-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_FLUX_FIX)]\n\n"
-CONFIG_FLUX_FIX-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_FLUX_FIX $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_FLUX_FIX = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_FLUX_FIX; \
-	echo
-
 
 #-----------------------------------------------------------------------
 
@@ -946,6 +908,24 @@ CONFIG_GRAVITY_4S-%: suggest-clean
         mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
         echo "CONFIG_GRAVITY_4S = $*" >> $(MAKE_CONFIG_OVERRIDE); \
 	$(MAKE)  show-config | grep CONFIG_GRAVITY_4S; \
+	echo
+
+
+#-----------------------------------------------------------------------
+
+VALID_ENZO_PERFORMANCE = enzo-performance-yes enzo-performance-no
+.PHONY: $(VALID_ENZO_PERFORMANCE)
+
+enzo-performance-yes: CONFIG_ENZO_PERFORMANCE-yes
+enzo-performance-no: CONFIG_ENZO_PERFORMANCE-no
+enzo-performance-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_ENZO_PERFORMANCE)]\n\n"
+CONFIG_ENZO_PERFORMANCE-%:
+	@tmp=.config.temp; \
+        grep -v CONFIG_ENZO_PERFORMANCE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_ENZO_PERFORMANCE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_ENZO_PERFORMANCE; \
 	echo
 
 

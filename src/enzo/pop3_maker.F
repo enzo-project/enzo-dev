@@ -74,33 +74,35 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, ctype, iradtrans
-      real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
-      real    odthresh, masseff, starmass, mintdyn, h2crit, lifetime
-      real    metalcrit
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum, ctype, iradtrans
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, justburn
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      INTG_PREC type(nmax)
+      R_PREC    odthresh, masseff, starmass, mintdyn, h2crit, lifetime
+      R_PREC    metalcrit
 c
 c  Locals:
 c
-      integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
-      real   div, tdyn, dtot, wgt
-      real   pi, G, sndspdC, m1
-      real   isosndsp2, bmass, jeanmass, lum
-      double precision msolar, mh
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
+      R_PREC   div, tdyn, dtot, wgt
+      R_PREC   pi, G, sndspdC, m1
+      R_PREC   isosndsp2, bmass, jeanmass, lum
+      real*8 msolar, mh
+      parameter (pi=pi_val, G=GravConst, 
+     &           sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass, mh=mass_h)
 c
       ii = np
@@ -124,7 +126,7 @@ c
 c
 c              1) finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 c
 c              2) density greater than threshold
 c
@@ -144,12 +146,12 @@ c
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
 c               write(6,*) 'b:', d(i,j,k), div, temp(i,j,k), h2d(i,j,k), h2crit
-               if (div .ge. 0.0) goto 10
+               if (div .ge. 0._RKIND) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
 c               if (tdyn .lt. cooltime(i,j,k) .and. 
 c     &             temp(i,j,k) .gt. 1.1e4) 
 c     &            write(40,*) '1',tdyn,cooltime(i,j,k),temp(i,j,k)
@@ -158,7 +160,7 @@ c               write(6,*) 'b:', i,j,k,d(i,j,k), div, temp(i,j,k),
 c     $              tdyn, cooltime(i,j,k), h2d(i,j,k), h2crit
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1d4) goto 10
+     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -170,8 +172,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k) * m1
 c               isosndsp2 = sndspdC * temp(i,j,k)
-c               jeanmass = pi/(6.0*sqrt(d(i,j,k)*dble(d1))) *
-c     &                    dble(pi * isosndsp2 / G)**1.5 / msolar
+c               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+c     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
 c
 c               if (bmass .lt. jeanmass) 
 c     &            write(40,*) '2',bmass,jeanmass
@@ -200,21 +202,21 @@ c
                if (iradtrans .eq. 0) then
 c                  type(ii) = -ctype
                   mp(ii)   = 0   !starmass / m1
-                  tdp(ii) = 1.5d0*lifetime*3.15d7/t1
+                  tdp(ii) = 1.5_RKIND*lifetime*3.15e7_RKIND/t1
                else
 c              because it's possible that we'll be using an IMF, adjust
 c              these later
-                  mp(ii)   = min(0.5d0 * bmass, starmass/m1)
-                  tdp(ii) = lifetime*3.15d7/t1
-c                  mp(ii)   = min(0.5d0 * bmass, starmass/m1)
-c                  tdp(ii) = lifetime*3.15d7/t1
+                  mp(ii)   = min(0.5_RKIND * bmass, starmass/m1)
+                  tdp(ii) = lifetime*3.15e7_RKIND/t1
+c                  mp(ii)   = min(0.5_RKIND * bmass, starmass/m1)
+c                  tdp(ii) = lifetime*3.15e7_RKIND/t1
                endif
 
                type(ii) = -ctype
                tcp(ii) = t
-               xp(ii) = xstart + (float(i)-0.5d0)*dx
-               yp(ii) = ystart + (float(j)-0.5d0)*dx
-               zp(ii) = zstart + (float(k)-0.5d0)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c     Record amount of star formation
                justburn = justburn + mp(ii)
@@ -224,39 +226,39 @@ c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 c
                if (imethod .eq. 2) then
-c                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
-c                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
-c                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
+c                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+c                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+c                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
 
-              up(ii) = ( 0.5d0*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
-     &          0.5d0*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
-     &          0.5d0*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
-     &          0.5d0*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
+              up(ii) = ( 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
+     &          0.5_RKIND*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
+     &          0.5_RKIND*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
+     &          0.5_RKIND*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) ) 
 
-              vp(ii) = ( 0.5d0*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5d0*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5d0*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5d0*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
+              vp(ii) = ( 0.5_RKIND*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5_RKIND*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5_RKIND*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5_RKIND*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
 
-              wp(ii) = ( 0.5d0*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5d0*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5d0*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5d0*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
+              wp(ii) = ( 0.5_RKIND*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5_RKIND*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5_RKIND*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5_RKIND*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
@@ -307,12 +309,12 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
-                  metalf(ii) = 0.d0
+                  metalf(ii) = 0._RKIND
                endif
 c
 c              Remove mass from grid
 
-c               d(i,j,k) = 0.5d0 * d(i,j,k)
+c               d(i,j,k) = 0.5_RKIND * d(i,j,k)
 
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k
@@ -408,31 +410,33 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod, ctype
-      real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(npart), yp(npart), zp(npart)
-      real    up(npart), vp(npart), wp(npart)
-      real    mp(npart), life(npart), tcp(npart), metalf(npart)
-      integer type(npart)
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod, ctype
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(npart), yp(npart), zp(npart)
+      R_PREC    up(npart), vp(npart), wp(npart)
+      R_PREC    mp(npart), life(npart), tcp(npart), metalf(npart)
+      INTG_PREC type(npart)
 c
 c  Locals
 c
-      integer i, j, k, n
-      real energy, lum, sn_nrg, m_eject, yield, dratio, m1
-      real lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
-      double precision msolar
-      parameter (lower_pisn = 140.0, upper_pisn = 260.0, lsun = 2.d33)
+      INTG_PREC i, j, k, n
+      R_PREC energy, lum, sn_nrg, m_eject, yield, dratio, m1
+      R_PREC lower_pisn, upper_pisn, lsun, he_core, starmass, lifetime
+      real*8 msolar
+      parameter (lower_pisn = 140._RKIND, upper_pisn = 260._RKIND, 
+     $           lsun = 2.e33_RKIND)
       parameter (msolar = SolarMass)
-      logical death, pisn
+      LOGIC_PREC death, pisn
 c
 c-----------------------------------------------------------------------
 c
@@ -449,8 +453,8 @@ c      write(6,*) 'star_feedback2: start'
 c
 c     Based on the stellar mass, calculate its luminosity, SN energy,
 c     and ejecta mass
-            he_core = (13.d0/24.d0) * (mp(n)*m1 - 20.d0)
-            sn_nrg = 5.d0 + 1.304d0 * (he_core - 64.d0)
+            he_core = (13._RKIND/24._RKIND) * (mp(n)*m1 - 20._RKIND)
+            sn_nrg = 5._RKIND + 1.304_RKIND * (he_core - 64._RKIND)
             starmass = mp(n)*m1
             call pop3_properties(starmass, lum, lifetime)
 c
@@ -479,9 +483,9 @@ c
 c
 c           Compute index of nearest cell
 c 
-            i = int((xp(n) - xstart)/dx) + 1
-            j = int((yp(n) - ystart)/dx) + 1
-            k = int((zp(n) - zstart)/dx) + 1
+            i = int((xp(n) - xstart)/dx,IKIND) + 1
+            j = int((yp(n) - ystart)/dx,IKIND) + 1
+            k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
             if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
      &          .or. k .lt. 1 .or. k .gt. nz) then
@@ -492,8 +496,8 @@ c
 c     DURING THE STELLAR LIFETIME
 c
             if (.not. death) then
-               m_eject = 0.d0
-               yield = 0.d0
+               m_eject = 0._RKIND
+               yield = 0._RKIND
             endif
 c
 c     STELLAR ENDPOINT: PISN
@@ -501,16 +505,16 @@ c
             if (death .and. pisn) then
                m_eject = mp(n)
                yield = m_eject
-               mp(n) = 0.d0       ! totally disrupted
+               mp(n) = 0._RKIND       ! totally disrupted
             endif
 c
 c     STELLAR ENDPOINT: BH FORMATION
 c
             if (death .and. .not. pisn) then
-               m_eject = 0.d0 
-               yield = 0.
+               m_eject = 0._RKIND 
+               yield = 0._RKIND
                type(n) = 2         ! BH formation
-               life(n) = 0.d0      ! no dynamical time
+               life(n) = 0._RKIND      ! no dynamical time
             endif
 c
 c           Add energy to energy field
@@ -546,7 +550,7 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + 
+               te(i,j,k) = 0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + 
      &                            w(i,j,k)**2) + ge(i,j,k)
             endif
 c

@@ -5,23 +5,23 @@ c////////////////////////  SUBROUTINE FOURN  \\\\\\\\\\\\\\\\\\\\\\\\\\\
 c
         subroutine fourn(data, nn, ndim, isign)
 c
-c  PERFORM A COMPLEX-COMPLEX N-DIMENSIONAL FFT
+c  PERFORM A CMPLX_PREC-CMPLX_PREC N-DIMENSIONAL FFT
 c
 c   written by: Numerical Recipes
 c   data:
 c   modified1:
 c
 c  PURPOSE:  Replaces DATA by its NDIM-dimensional discrete Fourier transform
-c      if ISIGN is 1.  NN is an integer array of length NDIM, containing
-c      the lengths of each dimension (number of complex values), which
+c      if ISIGN is 1.  NN is an INTG_PREC array of length NDIM, containing
+c      the lengths of each dimension (number of CMPLX_PREC values), which
 c      MUST all be powers of 2.  DATA is a real array of length twice the
 c      product of these lengths, in which the data are stored as in a
-c      multidimensional complex FORTRAN array.  If ISIGN in input as -1,
+c      multidimensional CMPLX_PREC FORTRAN array.  If ISIGN in input as -1,
 c      DATA is replaced by its inverse transform times the product of the
 c      lengths of all dimensions.
 c
 c  INPUTS:
-c    nn    - an integer array of length NDIM, containing the lengths of 
+c    nn    - an INTG_PREC array of length NDIM, containing the lengths of 
 c          each dimension
 c    data  - data to be transformed
 c    ndim  - number of dimensions
@@ -32,30 +32,31 @@ c    data  - transformed array
 c
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      real    data(*)
-      integer isign, ndim, nn(ndim)
+      R_PREC    data(*)
+      INTG_PREC isign, ndim, nn(ndim)
 c
 c  External functions
 c
-      integer power_of_2
+      integer*8 power_of_2
 c
 c  Locals
 c
-      integer i1, i2, i3, i2rev, i3rev, ibit, idim,
+      INTG_PREC i1, i2, i3, i2rev, i3rev, ibit, idim,
      &        ifp1, ifp2, ip1, ip2, ip3, k2, n, nprev, nrem, ntot
-      integer ibad
-      real    tempi, tempr
-c     double precision twopi, theta, wr, wi, wpr, wpi, wtemp
-      real    twopi, theta, wr, wi, wpr, wpi, wtemp
+      INTG_PREC ibad
+      R_PREC    tempi, tempr
+c     real*8 twopi, theta, wr, wi, wpr, wpi, wtemp
+      R_PREC    twopi, theta, wr, wi, wpr, wpi, wtemp
       parameter (twopi=6.2831853071796d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
 c
-c     Compute total number of complex values
+c     Compute total number of CMPLX_PREC values
 c
 
 !     write(*,*) 'FOURN:', nn, ndim, isign
@@ -124,10 +125,10 @@ c
 c         Initialize for the trigonometric recurrence.
 c
              theta = isign*twopi/(ifp2/ip1)
-             wpr   = -2.0*sin(0.5*theta)**2
+             wpr   = -2._RKIND*sin(0.5_RKIND*theta)**2
              wpi   = sin(theta)
-             wr    = 1.0
-             wi    = 0.0
+             wr    = 1._RKIND
+             wi    = 0._RKIND
              do i3 = 1, ifp1, ip1
                 do i1 = i3, i3+ip1-2, 2
                    do i2 = i1, ip3, ifp2

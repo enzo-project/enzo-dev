@@ -6,17 +6,26 @@ community a community of *developers*.
 
 == RESOURCES ==
 
-Enzo is developed in the open at:
+Enzo's main webpage is:
 
- * http://enzo.googlecode.com/
+ * http://enzo-project.org
+
+Enzo is developed in the open on bitbucket.org:
+
+ * Stable Version: https://bitbucket.org/enzo/enzo-stable
+ * Development Version: https://bitbucket.org/enzo/enzo-dev
 
 Documentation, including instructions for compilation, can be found at:
 
- * http://docs.enzo.googlecode.com/hg/index.html
+ * http://enzo-project.org/docs/2.2/
 
 Please subscribe to the Enzo Users' mailing list at:
 
  * https://mailman.ucsd.edu/mailman/listinfo/enzo-users-l
+
+You can also follow the Enzo Project on google+ at:
+
+ * https://plus.google.com/115923030596894217717
 
 If you have received this source code through an archive, rather than the
 mercurial version control system, we highly encourage you to upgrade to the
@@ -26,31 +35,36 @@ version controlled source, as no support can be provided for archived
 == DEVELOPERS ==
 
 Many people have contributed to the development of Enzo -- here's just a short
-list of the people who have recently contributed.
+list of the people who have recently contributed, in alphabetical order:
    
-   * Greg Bryan      gbryan@astro.columbia.edu
-   * Tom Abel        tabel@stanford.edu
-   * Michael Norman  mlnorman@ucsd.edu
-   * John Wise       jwise@physics.gatech.edu
-   * Dan Reynolds    reynolds@smu.edu
-   * Michael Kuhlen  mqk@astro.berkeley.edu
-   * Matthew Turk    matthewturk@gmail.com
-   * Brian O'Shea    oshea@msu.edu
-   * Robert Harkness harkness@sdsc.edu
-   * Alexei Kritsuk   akritsuk@ucsd.edu
-   * Elizabeth Tasker taskere@mcmaster.ca
-   * Dave Collins    dcollins@physics.ucsd.edu
-   * Britton Smith   brittonsmith@gmail.com
+   * Tom Abel               tabel@stanford.edu
+   * James Bordner          jobordner@ucsd.edu
+   * Greg Bryan             gbryan@astro.columbia.edu
+   * Renyue Cen             cen@astro.princeton.edu
+   * Dave Collins           dcollins@physics.ucsd.edu
+   * Nathan Goldbaum        goldbaum@ucolick.org
+   * Robert Harkness        harkness@sdsc.edu
    * Elizabeth Harper-Clark h-clark@astro.utoronto.ca
-   * Peng Wang       pengw@slac.stanford.edu
-   * Fen Zhao        fenzhao@stanford.edu
-   * James Bordner   jobordner@ucsd.edu
-   * Pascal Paschos  ppaschos@minbari.ucsd.edu
-   * Stephen Skory   sskory@physics.ucsd.edu
-   * Rick Wagner     rwagner@physics.ucsd.edu
-   * Renyue Cen      cen@astro.princeton.edu
-   * Alex Razoumov   razoumov@gmail.com
-   * Cameron Hummels chummels@astro.columbia.edu
-   * JS Oishi        jsoishi@gmail.com
-   * Christine Simpson csimpson@astro.columbia.edu
+   * Cameron Hummels        chummels@gmail.com
+   * Alexei Kritsuk         akritsuk@ucsd.edu
+   * Michael Kuhlen         mqk@astro.berkeley.edu
+   * Eve Lee                elee@cita.utoronto.ca
+   * Yuan Li                yuan@astro.columbia.edu
+   * Michael Norman         mlnorman@ucsd.edu
+   * JS Oishi               jsoishi@gmail.com
+   * Brian O'Shea           oshea@msu.edu
+   * Pascal Paschos         ppaschos@minbari.ucsd.edu
+   * Alex Razoumov          razoumov@gmail.com
+   * Dan Reynolds           reynolds@smu.edu
+   * Christine Simpson      csimpson@astro.columbia.edu
+   * Samuel Skillman        samskillman@gmail.com 
+   * Stephen Skory          s@skory.us
+   * Britton Smith          brittonsmith@gmail.com
+   * Elizabeth Tasker       tasker@astro1.sci.hokudai.ac.jp
+   * Matthew Turk           matthewturk@gmail.com
+   * Rick Wagner            rwagner@physics.ucsd.edu
+   * Peng Wang              pengw@slac.stanford.edu
+   * John Wise              jwise@physics.gatech.edu
+   * Fen Zhao               fenzhao@stanford.edu
+
 

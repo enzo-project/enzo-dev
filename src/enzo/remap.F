@@ -53,25 +53,26 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, idim, idual, j1, j2, jdim
-      real   dslice(idim,jdim),      dx(idim     ),  eslice(idim,jdim),
-     &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
-     &     dxnslice(idim,jdim), geslice(idim,jdim)
-      real       df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
-     &           vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
+      INTG_PREC i1, i2, idim, idual, j1, j2, jdim
+      R_PREC  dslice(idim,jdim),      dx(idim     ),  eslice(idim,jdim),
+     &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
+     &        dxnslice(idim,jdim), geslice(idim,jdim)
+      R_PREC  df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
+     &        vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
 c
 c  local declarations
 c
-      integer i, j
-      real    dm(ijkn), dmnu(ijkn)
+      INTG_PREC i, j
+      R_PREC    dm(ijkn), dmnu(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////
 c=======================================================================
@@ -83,7 +84,7 @@ c
          do i=i1, i2
             dm(i)       = dslice(i,j)*dxnslice(i,j)
             dmnu(i)     = dm(i) - (df(i+1,j)-df(i,j))
-            if (dmnu(i) .le. 0.0) then
+            if (dmnu(i) .le. 0._RKIND) then
                write(6,*) 'remap',i,j,i2,dslice(i,j),dxnslice(i,j)
                write(6,*) df(i+1,j),df(i,j)
                write(6,*) dslice(i-1,j),dslice(i,j),dslice(i+1,j)
@@ -103,11 +104,11 @@ c
 c
          if (idual .eq. 1) then
             do i=i1, i2
-               if (geslice(i,j) .le. 0.0) write(6,*) 'remap_a',i
-               geslice(i,j) = max(0.5d0*geslice(i,j), 
+               if (geslice(i,j) .le. 0._RKIND) write(6,*) 'remap_a',i
+               geslice(i,j) = max(0.5_RKIND*geslice(i,j), 
      &                         (dm(i)*geslice(i,j) - 
      &                         (gef(i+1,j)-gef(i,j)))/ dmnu(i) )
-               if (geslice(i,j) .le. 0.0) write(6,*) 'remap_b',i
+               if (geslice(i,j) .le. 0._RKIND) write(6,*) 'remap_b',i
             enddo
          endif
 c

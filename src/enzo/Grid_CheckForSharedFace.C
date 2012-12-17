@@ -35,7 +35,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
  
-#ifdef FLUX_FIX
  
 int grid::CheckForSharedFace(grid *OtherGrid,
 			  boundary_type LeftFaceBoundaryCondition[],
@@ -247,4 +246,3 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
     return FALSE;
 }
  
-#endif

@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -36,7 +37,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -55,25 +56,25 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
-  integer, intent(in)  :: Nz, NGzl, NGzr, BCzL, BCzR, zlface, zrface, x2s, x2e
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
-  real,    intent(in)  :: dx, dy, dz
-  real,    intent(in)  :: aUnits, LenUnits, ErUnits
-  real*8 :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr, BCzL, BCzR, zlface, zrface, x2s, x2e
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a
+  R_PREC,    intent(in)  :: dx, dy, dz
+  R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
+  REAL*8 :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
 !--------------
 ! locals
-  integer :: i, j, k
-  real :: dxa, dya, dza
+  INTG_PREC :: i, j, k
+  R_PREC :: dxa, dya, dza
 !=======================================================================
 
 !!$  write(*,*) 'Entering gFLDProblem::SetNewtonBCs routine'
@@ -96,7 +97,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do j=1,Ny,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i+1,j,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -120,7 +121,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do j=1,Ny,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i-1,j,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -144,7 +145,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j+1,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -168,7 +169,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j-1,k)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -192,7 +193,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j,k+1)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -216,7 +217,7 @@ subroutine gFLDProblem_SetNewtonBCs_3D(matentries, rhsentries, a,      &
            do i=1,Nx,1
               matentries(:,i,j,k) = 0.d0
               matentries(4,i,j,k) = sum(abs(matentries(:,i,j,k-1)))
-              rhsentries(i,j,k)   = 0.d0
+              rhsentries(i,j,k)   = 0._RKIND
            enddo
         enddo
      ! Neumann
@@ -271,7 +272,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -290,24 +291,24 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
-  real,    intent(in)  :: dx, dy
-  real,    intent(in)  :: aUnits, LenUnits, ErUnits
-  real*8 :: matentries(5,x0s:x0e,x1s:x1e)
-  real :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, BCyL, BCyR, ylface, yrface, x1s, x1e
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a
+  R_PREC,    intent(in)  :: dx, dy
+  R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
+  REAL*8 :: matentries(5,x0s:x0e,x1s:x1e)
+  R_PREC :: rhsentries(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr)
 
 !--------------
 ! locals
-  integer :: i, j
-  real :: dxa, dya
+  INTG_PREC :: i, j
+  R_PREC :: dxa, dya
 
 !=======================================================================
 
@@ -328,7 +329,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do j=1,Ny,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i+1,j)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCxL==2) then
@@ -348,7 +349,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do j=1,Ny,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i-1,j)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCxR==2) then
@@ -368,7 +369,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do i=1,Nx,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i,j+1)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCyL==2) then
@@ -388,7 +389,7 @@ subroutine gFLDProblem_SetNewtonBCs_2D(matentries, rhsentries, a,     &
         do i=1,Nx,1
            matentries(:,i,j) = 0.d0
            matentries(3,i,j) = sum(abs(matentries(:,i,j-1)))
-           rhsentries(i,j)   = 0.d0
+           rhsentries(i,j)   = 0._RKIND
         enddo
      ! Neumann
      else if (BCyR==2) then
@@ -439,7 +440,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 !                     0->periodic
 !                     1->Dirichlet
 !                     2->Neumann
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -458,23 +459,23 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
 !  LOCALS:
 !
 !=======================================================================
-#include "fortran.def"
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
-  real,    intent(in)  :: dx
-  real,    intent(in)  :: aUnits, LenUnits, ErUnits
-  real*8 :: matentries(3,x0s:x0e)
-  real :: rhsentries(1-NGxl:Nx+NGxr)
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, BCxL, BCxR, xlface, xrface, x0s, x0e
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a
+  R_PREC,    intent(in)  :: dx
+  R_PREC,    intent(in)  :: aUnits, LenUnits, ErUnits
+  REAL*8 :: matentries(3,x0s:x0e)
+  R_PREC :: rhsentries(1-NGxl:Nx+NGxr)
 
 !--------------
 ! locals
-  integer :: i
-  real :: dxa
+  INTG_PREC :: i
+  R_PREC :: dxa
 
 !=======================================================================
 
@@ -492,7 +493,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
         i = 0
         matentries(:,i) = 0.d0
         matentries(2,i) = sum(abs(matentries(:,i+1)))
-        rhsentries(i)   = 0.d0
+        rhsentries(i)   = 0._RKIND
      ! Neumann
      else if (BCxL==2) then
         i = 1
@@ -508,7 +509,7 @@ subroutine gFLDProblem_SetNewtonBCs_1D(matentries, rhsentries, a,   &
         i = Nx+1
         matentries(:,i) = 0.d0
         matentries(2,i) = sum(abs(matentries(:,i-1)))
-        rhsentries(i)   = 0.d0
+        rhsentries(i)   = 0._RKIND
      ! Neumann
      else if (BCxR==2) then
         i = Nx

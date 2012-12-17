@@ -21,6 +21,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "fortran.def" 
  
 /* function prototypes */
 
@@ -47,8 +48,11 @@ int ProtoSubgrid::AcceptableSubgrid()
   /* Compute size and efficiency. */
  
   int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
+  for (int dim = 0; dim < GridRank; dim++){
     size *= GridDimension[dim];
+    if( GridDimension[dim] >= 0.5*MAX_ANY_SINGLE_DIRECTION)
+        return FALSE;
+  }
  
   float efficiency = float(NumberFlagged)/float(size);
 
