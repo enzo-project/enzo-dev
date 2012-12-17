@@ -459,6 +459,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: compute acceleration field for grid and particles. */
  
+      //Acceleration Field needs to get zeroed.  This is mostly for point sources.
+      if (SelfGravity || UniformGravity || PointSourceGravity) {
+            if( Grids[grid1]->GridData->ZeroAcceleration() == FAIL )
+	      ENZO_FAIL("EvolveLevel: failure in ZeroAccelration");
+      }
+      //</dcc>
+
+ 
       if (SelfGravity) {
 	if (level <= MaximumGravityRefinementLevel) {
  
