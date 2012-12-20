@@ -105,14 +105,14 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
        grid.  It must not extended beyond the active region of TargetGrid
        (if we are depositing in self). */
  
-    GridOffset[dim] = nint((GridLeftEdge[dim] -
+    GridOffset[dim] = int((GridLeftEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
 
 			   TargetGrid->GravitatingMassFieldCellSize) - 1; 
 
     if (TargetGrid == this)
       GridOffset[dim] = max(GridOffset[dim],
-	nint((TargetGrid->GridLeftEdge[dim] -
+	int((TargetGrid->GridLeftEdge[dim] -
 	      TargetGrid->GravitatingMassFieldLeftEdge[dim])/
 	     TargetGrid->GravitatingMassFieldCellSize) );
  
