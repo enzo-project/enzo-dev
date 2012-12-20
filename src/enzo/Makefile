@@ -139,10 +139,13 @@ MACHNOTES:
 	else \
 		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
 		2>&1 ; \
-	fi)  
+	fi)	
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
-                if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+		echo "Compiled enzo from " ; \
+		echo "Mercurial Branch   `$(SVN) identify -b`" ; \
+		echo "Mercurial Revision `$(SVN) identify -i`" ; \
+		if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
 		if [ "$(CONFIG_OPT)" == "debug" ]; then \
 		echo "Compiled with opt-debug (OPT_FLAGS = $(ASSEMBLE_OPT_FLAGS))."; \
 		echo "May run much faster while still accurate with make opt-high (OPT_FLAGS = $(MACH_OPT_HIGH))"; \
