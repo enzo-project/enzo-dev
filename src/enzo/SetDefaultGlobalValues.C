@@ -47,7 +47,6 @@ char DefaultExtraDir[]="ED00";
  
  
  
- 
 int SetDefaultGlobalValues(TopGridData &MetaData)
 {
  
@@ -769,6 +768,32 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
+#ifdef MHDCT
+  //MHDCT variables
+  MHDCTSlopeLimiter = 1;
+  MHDCTDualEnergyMethod = 2;
+  MHDCTPowellSource = 0;
+  MHDCTUseSpecificEnergy = TRUE;
+  ProcessorTopology[0]      = INT_UNDEFINED;
+  ProcessorTopology[1]      = INT_UNDEFINED;
+  ProcessorTopology[2]      = INT_UNDEFINED;
+  FixedTimestep = -1.0;
+  WriteBoundary             = FALSE;
+  CT_AthenaDissipation = 0.0;
+  MHD_WriteElectric = TRUE;
+  tiny_pressure = tiny_number;
+  MHD_CT_Method = 3;
+  NumberOfGhostZones = 3;
+  IsothermalSoundSpeed = 1.0;
+  MHD_ProjectB = FALSE;
+  MHD_ProjectE = TRUE;
+  useMHDCT = FALSE;
+  EquationOfState = 0;
+  for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
+  WriteAcceleration = FALSE;
+
+#endif //MHDCT
+
   CorrectParentBoundaryFlux = FALSE; //Corrects (or doesn't) parent flux when subgrid shares an exposed face with parent.
 
   for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;

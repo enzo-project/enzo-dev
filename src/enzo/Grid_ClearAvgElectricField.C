@@ -16,6 +16,8 @@ int grid::ClearAvgElectricField(){
 
   if(MyProcessorNumber != ProcessorNumber )
     return SUCCESS;
+  if ( useMHDCT != TRUE )
+      return SUCCESS;
 
   for(int field=0;field<3;field++){
     

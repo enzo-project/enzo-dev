@@ -32,7 +32,12 @@ class ExternalBoundary
 					      4 - periodic   */
 
   boundary_type ParticleBoundaryType;
-
+#ifdef MHDCT
+  int  MagneticBoundaryDims[3][MAX_DIMENSION];  //  of the grid to which the boundary
+                                          //  values apply 
+  boundary_type MagneticBoundaryType[3][MAX_DIMENSION][2];
+  float *MagneticBoundaryValue[3][3][2];
+#endif //MHDCT
   float *BoundaryValue[MAX_NUMBER_OF_BARYON_FIELDS][MAX_DIMENSION][2];  
 					  // boundary values for inflow (3)
 
@@ -87,6 +92,11 @@ class ExternalBoundary
   int SetExternalBoundary(int FieldRank, int GridDims[], int GridOffset[],
                           int StartIndex[], int EndIndex[],
                           float *Field, int FieldType);
+#ifdef MHDCT
+  int SetMagneticBoundary(int FieldRank, int GridDims[], int GridOffset[],
+                          int StartIndex[], int EndIndex[],
+                          float *Field, int FieldType);
+#endif //MHDCT
 //
 // This routine handle the boundary conditions for particles.  The conditions
 //   are assumed to be the same as the mass field.

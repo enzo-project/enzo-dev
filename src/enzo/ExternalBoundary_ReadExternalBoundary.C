@@ -53,6 +53,9 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
   int Dims[MAX_DIMENSION], index, size, i;
   int BoundaryValuePresent[2*MAX_DIMENSION];
+#ifdef MHDCT
+  int MagneticBoundaryValuePresent[2*MAX_DIMENSION];
+#endif //MHDCT
   int dim, field, TempInt, j;
  
   float32 *buffer;
@@ -119,32 +122,24 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
   if(ReadText){ 
     /* read general class data */
  
-    if (fscanf(fptr, "BoundaryRank = %"ISYM"\n", &BoundaryRank) != 1) {
-      fprintf(stderr, "Error reading BoundaryRank.\n");
-      return FAIL;
-    }
+    if (fscanf(fptr, "BoundaryRank = %"ISYM"\n", &BoundaryRank) != 1) 
+      ENZO_FAIL("Error reading BoundaryRank.");
  
     fscanf(fptr, "BoundaryDimension =");
  
-    if (ReadListOfInts(fptr, BoundaryRank, BoundaryDimension) == FAIL) {
-      fprintf(stderr, "Error reading BoundaryDimension.\n");
-      return FAIL;
-    }
+    if (ReadListOfInts(fptr, BoundaryRank, BoundaryDimension) == FAIL)
+      ENZO_FAIL("Error reading BoundaryDimension.");
  
     /* read baryon field quantities */
  
     if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n",
-	       &NumberOfBaryonFields) != 1) {
-      fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
-      return FAIL;
-    }
+	       &NumberOfBaryonFields) != 1)
+      ENZO_FAIL("Error reading NumberOfBaryonFields.");
  
     /* Read particle boundary type. */
  
-    if (fscanf(fptr, "ParticleBoundaryType = %"ISYM"\n",&ParticleBoundaryType) != 1) {
-      fprintf(stderr, "Error reading ParticleBoundaryType.\n");
-      return FAIL;
-    }
+    if (fscanf(fptr, "ParticleBoundaryType = %"ISYM"\n",&ParticleBoundaryType) != 1)
+      ENZO_FAIL("Error reading ParticleBoundaryType.");
  
     if (NumberOfBaryonFields > 0) {
  
@@ -153,27 +148,77 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
       fscanf(fptr, "BoundaryFieldType = ");
  
       if (ReadListOfInts(fptr, NumberOfBaryonFields, BoundaryFieldType)
-	  == FAIL) {
-	fprintf(stderr, "Error reading BoundaryFieldType.\n");
-	return FAIL;
-      }
+	  == FAIL) 
+	ENZO_FAIL("Error reading BoundaryFieldType.");
  
       /* read hdf file name */
  
-      if (fscanf(fptr, "BaryonFileName = %s\n", hdfname) != 1) {
-	fprintf(stderr, "Error reading BaryonFileName.\n");
-	return FAIL;
-      }
+      if (fscanf(fptr, "BaryonFileName = %s\n", hdfname) != 1) 
+	ENZO_FAIL("Error reading BaryonFileName.");
  
       /* read BoundaryValue present line */
  
       fscanf(fptr, "BoundaryValuePresent = ");
  
-      if (ReadListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent) == FAIL) {
-	fprintf(stderr, "Error reading BoundaryValuePresent.\n");
-	return FAIL;
-      }
+      if (ReadListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent) == FAIL) 
+	ENZO_FAIL("Error reading BoundaryValuePresent.");
     }
+
+#ifdef MHDCT
+    if(useMHDCT){
+      fscanf(fptr, "MagneticBoundaryValuePresent = ");
+      ReadListOfInts( fptr, BoundaryRank*2, MagneticBoundaryValuePresent);
+      for(dim=0; dim<3; dim++)
+	for(int i=0;i<2;i++){
+	  if( MagneticBoundaryValuePresent[2*dim+i] == TRUE ){
+	    ENZO_FAIL("Error You're not reading in the Inflow Conditions.\n  You'd better write the code to write the value to HDF5 files.\n When you do, make sure you change WriteExternalBoundary, too");
+	  } else{
+	    for(int field = 0; field<3; field++){
+	      MagneticBoundaryValue[field][dim][i] = NULL;
+	    }
+	  }
+	}
+
+      /*
+	Since MHD Boundary isn't as arbitrary as Hydro, we can read
+	the boundary conditions in this file instead of HDF5 files.
+	More generality may come later, when the BC bugs are worked out.
+	dcc march 04.
+      */
+
+      int ret = 0;
+
+
+    
+      ret += fscanf(fptr, "MagneticBoundaryType 1 = %d %d %d %d %d %d  ",
+		    &MagneticBoundaryType[0][0][0],
+		    &MagneticBoundaryType[0][1][0],
+		    &MagneticBoundaryType[0][2][0],
+		    &MagneticBoundaryType[0][0][1],
+		    &MagneticBoundaryType[0][1][1],
+		    &MagneticBoundaryType[0][2][1]);
+
+      ret += fscanf(fptr, "MagneticBoundaryType 2 = %d %d %d %d %d %d  ",
+		    &MagneticBoundaryType[1][0][0],
+		    &MagneticBoundaryType[1][1][0],
+		    &MagneticBoundaryType[1][2][0],
+		    &MagneticBoundaryType[1][0][1],
+		    &MagneticBoundaryType[1][1][1],
+		    &MagneticBoundaryType[1][2][1]);
+
+      ret += fscanf(fptr, "MagneticBoundaryType 3 = %d %d %d %d %d %d  ",
+		    &MagneticBoundaryType[2][0][0],
+		    &MagneticBoundaryType[2][1][0],
+		    &MagneticBoundaryType[2][2][0],
+		    &MagneticBoundaryType[2][0][1],
+		    &MagneticBoundaryType[2][1][1],
+		    &MagneticBoundaryType[2][2][1]);
+
+      if( ret != 18 )
+	ENZO_VFAIL("Error. MagneticBoundaryType not defined ret = %"ISYM"\n", ret)
+    }//mhd used
+
+#endif //MHDCT
   }
 
   if (ReadData && NumberOfBaryonFields > 0) { 

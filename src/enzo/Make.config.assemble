@@ -967,6 +967,26 @@
 	$(error Illegal value '$(CONFIG_ENZO_PERFORMANCE)' for $$(CONFIG_ENZO_PERFORMANCE))
     endif
 
+#-----------------------------------------------------------------------
+# Determine MHDCT object files. dcc July 28 2009
+#-----------------------------------------------------------------------
+    ERROR_MHDCT = 1
+
+    ifeq ($(CONFIG_MHDCT),yes)
+        ERROR_MHDCT = 0
+        ASSEMBLE_OBJS_MHDCT = $(OBJS_MHDCT)
+        ASSEMBLE_MHDCT_DEFINES = -DMHDCT -DOTHER_DCC
+    endif
+
+    ifeq ($(CONFIG_MHDCT),no)
+        ERROR_MHDCT = 0
+    endif
+
+    ifeq ($(ERROR_MHDCT),1)
+        .PHONY: error_mhdf
+        error_mhdf:
+        $(error Illegal Value '$(CONFIG_MHDCT)' for $$(CONFIG_MHDCT))
+    endif
 
 
 #=======================================================================
@@ -1025,7 +1045,8 @@
               $(ASSEMBLE_HDF4_DEFINES) \
               $(ASSEMBLE_GRAVITY_4S_DEFINES) \
               $(ASSEMBLE_ENZO_PERFORMANCE_DEFINES) \
-              $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
+              $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)\
+              $(ASSEMBLE_MHDCT_DEFINES)
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \
@@ -1036,7 +1057,8 @@
                $(ASSEMBLE_PAPI_INCLUDES) \
                $(MAKEFILE_INCLUDES)   -I.
 
-    OBJS_LIB = $(OBJS_CONFIG_LIB) \
+    OBJS_LIB = $(ASSEMBLE_OBJS_MHDCT)\
+               $(OBJS_CONFIG_LIB) \
     	       $(OBJS_PHOTON_LIB) \
     	       $(OBJS_LCAPERF_LIB) \
 	       $(OBJS_HYDRO_RK) \

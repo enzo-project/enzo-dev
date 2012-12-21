@@ -440,6 +440,19 @@ int RebuildHierarchy(TopGridData *MetaData,
 	Temp                                = Temp->NextGridThisLevel;
       }
  
+#ifdef MHDCT
+      //Old fine grids are necessary during the interpolation for ensuring DivB = 0 with MHDCT
+      //Note that this is a loop the size of N_{new sub grids} * N_{old sub grids}.  Fast Sib locator 
+      //needs to be employed here.
+      if( useMHDCT ){
+        for (j = 0; j < subgrids; j++) {
+           if(SubgridHierarchyPointer[j]->GridData->MHD_SendOldFineGrids(
+                  TempLevelArray[i+1],SubgridHierarchyPointer[j]->ParentGrid->GridData, MetaData) == FALSE ){
+             ENZO_FAIL("Error in SendOldFineGrids");
+              }
+        }
+      }
+#endif //MHDCT
       /* 3e) For each new subgrid, interpolate from parent and then
 	 copy from old subgrids.  For each old subgrid, decrement the
 	 Overlap counter, deleting the grid which it reaches zero. */
@@ -456,7 +469,12 @@ int RebuildHierarchy(TopGridData *MetaData,
         }
 
 	SubgridHierarchyPointer[j]->GridData->InterpolateFieldValues
-	  (SubgridHierarchyPointer[j]->ParentGrid->GridData);
+	  (SubgridHierarchyPointer[j]->ParentGrid->GridData
+#ifdef MHDCT
+		,TempLevelArray[i+1],
+        MetaData
+#endif //MHDCT
+       );
 
         if (RandomForcing) { //AK
           SubgridHierarchyPointer[j]->GridData->RemoveForcingFromBaryonFields();

@@ -939,6 +939,33 @@ EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
+#ifdef MHDCT
+EXTERN int MHDCTSlopeLimiter;
+EXTERN int MHDCTDualEnergyMethod;
+EXTERN int MHDCTPowellSource;
+EXTERN int MHDCTUseSpecificEnergy;
+EXTERN float FixedTimestep;
+EXTERN int WriteBoundary;
+EXTERN int WriteAcceleration;
+EXTERN int TracerParticlesAddToRestart;// forces addition of tracer particles to already initialized simulations
+EXTERN int MHD_ProjectThisFace[3]; //Used for determining face projection/communication needs for 
+                                   //face centered fields
+EXTERN int ProcessorTopology[3]; //user define processor topology.
+EXTERN float CT_AthenaDissipation;
+EXTERN int MHD_WriteElectric;
+EXTERN float tiny_pressure;
+EXTERN int MHD_CT_Method;
+EXTERN int MHD_ProjectB;// Should always be FALSE for the evoloution. May be used in initialization.
+EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
+EXTERN int useMHDCT;
+EXTERN int EquationOfState;
+EXTERN char *MHDLabel[3];
+EXTERN char *MHDcLabel[3];
+EXTERN char *MHDUnits[3];
+EXTERN char *MHDeLabel[3];
+EXTERN char *MHDeUnits[3];
+
+#endif //MHDCT
 /* For the database */
 EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];
