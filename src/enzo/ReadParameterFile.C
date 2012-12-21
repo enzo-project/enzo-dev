@@ -413,6 +413,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
     ret += sscanf(line, "PotentialIterations   = %"ISYM, &PotentialIterations);
     ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
+#ifdef MHDCT
+    ret += sscanf(line, "WriteAcceleration      = %"ISYM, &WriteAcceleration);
+#endif //MHDCT
     ret += sscanf(line, "BaryonSelfGravityApproximation = %"ISYM,
 		  &BaryonSelfGravityApproximation);
  
@@ -997,6 +1000,41 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ExtraOutputs +1,ExtraOutputs +2,ExtraOutputs +3,
 		  ExtraOutputs +4,ExtraOutputs +5,ExtraOutputs +6,
 		  ExtraOutputs +7,ExtraOutputs +8,ExtraOutputs +9);
+#ifdef MHDCT
+    //MHDCT variables
+    ret += sscanf(line, "MHDCTPowellSource             = %"ISYM, &MHDCTPowellSource);
+    ret += sscanf(line, "MHDCTDualEnergyMethod             = %"ISYM, &MHDCTDualEnergyMethod);
+    ret += sscanf(line, "MHDCTSlopeLimiter             = %"ISYM, &MHDCTSlopeLimiter);
+    ret += sscanf(line, "MHDCTUseSpecificEnergy             = %"ISYM, &MHDCTUseSpecificEnergy);
+    ret += sscanf(line, "WriteBoundary          = %"ISYM, &WriteBoundary);
+    ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
+    ret += sscanf(line,"RefineByJeansLengthUnits = %"ISYM,&RefineByJeansLengthUnits);
+    ret += sscanf(line, "ProcessorTopology      = %"ISYM" %"ISYM" %"ISYM,
+		  ProcessorTopology,ProcessorTopology+1,ProcessorTopology+2);
+
+    ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
+    ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
+//    ret += sscanf(line, "MHDLi = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"",
+//		  MHDLi,MHDLi+1,MHDLi+2,MHDLi+3,MHDLi+4);
+
+    ret += sscanf(line,"tiny_pressure = %"FSYM,&tiny_pressure);
+    ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method);
+		  
+    ret += sscanf(line,"NumberOfGhostZones = %"ISYM,&NumberOfGhostZones);
+    ret += sscanf(line,"MHD_ProjectB = %"ISYM,&MHD_ProjectB);
+    ret += sscanf(line,"MHD_ProjectE = %"ISYM,&MHD_ProjectE);
+    ret += sscanf(line,"EquationOfState = %"ISYM,&EquationOfState);
+    if(sscanf(line, "MHDLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDLabel[dim] = dummy;
+    if(sscanf(line, "MHDUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDUnits[dim] = dummy;
+    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDcLabel[dim] = dummy;
+    if(sscanf(line, "MHDeLabel[%"ISYM"] = %s\n", &dim, dummy) ==2)
+      MHDeLabel[dim] = dummy;
+    if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
+      MHDeUnits[dim] = dummy;
+#endif //MHDCT
     ret += sscanf(line, "CorrectParentBoundaryFlux             = %"ISYM, &CorrectParentBoundaryFlux);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
@@ -1133,8 +1171,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
   if (HydroMethod==MHD_RK) useMHD = 1;
-  //if (HydroMethod==MHD_Li) useMHDCT = 1;
-  //if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
+#ifdef MHDCT
+  if (HydroMethod==MHD_Li) useMHDCT = 1;
+  if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
+#endif //MHDCT
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 

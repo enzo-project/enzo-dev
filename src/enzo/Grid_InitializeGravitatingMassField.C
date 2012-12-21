@@ -73,6 +73,9 @@ int grid::InitializeGravitatingMassField(int RefinementFactor)
     BufferSize = RefinementFactor*GravityBufferSize;
     //      if (int(DimTemp/4)*4 != DimTemp && RefinementFactor == 2)
 
+#ifdef MHDCT
+    BufferSize = ( (BufferSize <= NumberOfGhostZones ) ? NumberOfGhostZones + 1 : BufferSize ) ;
+#endif
     //	BufferSize += 1;
  
     GravitatingMassFieldDimension[dim] = DimTemp +
