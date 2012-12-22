@@ -43,12 +43,13 @@ int grid::ComputeOneZoneCollapseFactor(float *force_factor)
 
   /* Compute the size of the fields. */
  
-  int i, j, k, t, index, size = 1;
+  int i, j, k, t, der, index, size = 1;
   for (int dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
 
   /* Initialize values. */
+
   for (i = 0; i < size; i++) {
     force_factor[i] = 0.0;
   }
@@ -58,11 +59,11 @@ int grid::ComputeOneZoneCollapseFactor(float *force_factor)
   }
  
   /* Check for density and pressure history. */
-  for (t = 0; t < 2; t++) {
-    if (freefall_density[t] == NULL) {
-      return SUCCESS;
-    }
-  }
+  der = 1;
+  if (freefall_density[1] == NULL)
+    return SUCCESS;
+  if (freefall_density[2] != NULL)
+    der = 2;
 
   /* Find Density, if possible. */
  
@@ -78,10 +79,16 @@ int grid::ComputeOneZoneCollapseFactor(float *force_factor)
 	index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
 
 	/* Calculate the effective adiabatic index, dlog(p)/dlog(rho). */
-	gamma_eff = log10(freefall_pressure[0][index] /
-			  freefall_pressure[1][index]) /
-	  log10(freefall_density[0][index] /
-		freefall_density[1][index]);
+        gamma_eff = log10(freefall_pressure[0][index] /
+                          freefall_pressure[1][index]) /
+          log10(freefall_density[0][index] /
+                freefall_density[1][index]);
+        if (der > 1) {
+          gamma_eff += 0.5 * ((log10(freefall_pressure[1][index] /
+                                     freefall_pressure[2][index]) /
+                               log10(freefall_density[1][index] /
+                                     freefall_density[2][index])) - gamma_eff);
+        }
 
 	if (gamma_eff < 0.83) {
 	  force_factor[index] = 0.0;

@@ -70,7 +70,7 @@ int grid::SolveOneZoneFreefall()
 
   /* Compute size of the current grid. */
 
-  int i, j, k, index, dim, size = 1;
+  int i, j, k, t, index, dim, size = 1;
   for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
   }
@@ -134,21 +134,19 @@ int grid::SolveOneZoneFreefall()
   float FreefallTimeConstant = POW(((32 * GravitationalConstant) /
                                     (3 * pi)), 0.5);
 
-  /* Update density and pressure history. */
-
-  if (freefall_density[0] == NULL) {
-    freefall_density[0] = new float[size]; // density
-    freefall_pressure[0] = new float[size]; // pressure
-  }
-  else {
-    if (freefall_density[1] == NULL) {
-      freefall_density[1] = new float[size]; // density
-      freefall_pressure[1] = new float[size]; // pressure
+  /* Initialize pressure and density history. */
+  for (t = 0; t < 3; t++) {
+    if (freefall_density[t] == NULL) {
+      freefall_density[t] = new float[size];
+      freefall_pressure[t] = new float[size];
+      break;
     }
-    // move t-1 values into t-2
+  }
+
+  for (t = min(2, t); t > 0; t--) {
     for (i = 0; i < size; i++) {
-      freefall_density[1][i] = freefall_density[0][i];
-      freefall_pressure[1][i] = freefall_pressure[0][i];
+      freefall_density[t][i] = freefall_density[t-1][i];
+      freefall_pressure[t][i] = freefall_pressure[t-1][i];
     }
   }
 

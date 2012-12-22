@@ -176,8 +176,8 @@ class grid
 
 // density and pressure history for one-zone collapse
 // for calculating effective gamma
-  float *freefall_density[2];
-  float *freefall_pressure[2];
+  float **freefall_density;
+  float **freefall_pressure;
 
 //
 // Friends

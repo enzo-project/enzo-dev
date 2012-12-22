@@ -44,8 +44,10 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
   int ExtraField[2];
 
   /* initialize density and pressure history storage */
+  freefall_density = new float*[3];
+  freefall_pressure = new float*[3];
 
-  for (i = 0;i < 2;i++) {
+  for (i = 0;i < 3;i++) {
     freefall_density[i] = NULL;
     freefall_pressure[i] = NULL;
   }
