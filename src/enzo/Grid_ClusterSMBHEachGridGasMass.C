@@ -107,7 +107,7 @@ int grid::ClusterSMBHEachGridGasMass(int level)
       for (i = DiskStartIndex[0]; i <= DiskEndIndex[0]; i++) {
 //        printf("BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k) = %g \n", BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)]);
         if (BaryonFieldTemperature[GRIDINDEX_NOGHOST(i,j,k)] < ColdGasTemperature)
-          ClusterSMBHColdGasMass += BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)]*pow(CellWidth[0][0],3);
+          ClusterSMBHColdGasMass += BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)]*pow(CellWidth[0][0],3);   //Assuming it is refined to the highest refinement level (otherwise we should use the CellWidth at the exact position.)
 //          printf("BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)] and ClusterSMBHColdGasMass = %g %g \n", BaryonField[DensNum][GRIDINDEX_NOGHOST(i,j,k)], ClusterSMBHColdGasMass);
 //take out part of the mass in ClusterSMBHFeedback?
       }

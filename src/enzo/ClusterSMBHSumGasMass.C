@@ -83,7 +83,7 @@ int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
        ClusterSMBHFeedbackSwitch = TRUE;
        ClusterSMBHJetMdot = (ColdGasMassMsun/(ClusterSMBHAccretionTime*1e6))/2.0;  // AccretionTime from Myr to yr; reset Mdot, still in Msun/yr. Devide it by 2 because Mdot is for only one jet.
        float epsilon=0.001;
-       ClusterSMBHJetEdot = (epsilon*ClusterSMBHJetMdot * SolarMass/3.1557e7) * pow(clight,2)/1.0e44;
+       ClusterSMBHJetEdot = (epsilon*ClusterSMBHJetMdot * SolarMass/3.1557e7) * pow(clight,2)/1.0e44;   //for one jet
        }
     else
        ClusterSMBHFeedbackSwitch = FALSE;    // if there is not enough ColdGas, then do not turn jet on.
