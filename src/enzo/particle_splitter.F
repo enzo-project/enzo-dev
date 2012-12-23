@@ -117,7 +117,7 @@ c     The distance to the children particles rad is the same for all. It is
 c     currently set to be dx (=CellWidth), but can be changed. 
 c     (i.e. ParticleSplitterChildrenParticleSeparation = 1 by default)
 c
-      rad = dx * separation**float(iterations)
+      rad = dx * separation**REAL(iterations,RKIND)
 c
 c
 c     Loop over existing (parent) particles; It implicitly assumes that 

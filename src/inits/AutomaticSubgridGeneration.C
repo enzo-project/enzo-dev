@@ -68,8 +68,8 @@ int AutomaticSubgridGeneration(parmstruct *Parameters)
 	/* Compute the start and end indices in the coarse level grid.   This is the
 	   bit of code which actually sets the size of the regions. */
 
-	StartIndex[dim] = max(int(LevelDims[dim]*Parameters->RefineRegionLeftEdge[dim])-1, 0);
-	EndIndex[dim] = int(LevelDims[dim]*Parameters->RefineRegionRightEdge[dim])+1;
+	StartIndex[dim] = max(int(LevelDims[dim]*Parameters->RefineRegionLeftEdge[dim]) - Parameters->AutomaticSubgridBuffer, 0);
+	EndIndex[dim] = int(LevelDims[dim]*Parameters->RefineRegionRightEdge[dim]) + Parameters->AutomaticSubgridBuffer;
 
 	/* Convert to the most refined level for start index. */
 

@@ -76,11 +76,11 @@ c
 c        loop over grid
 c
          do k=1, dim3
-            zpos = leftedge(3) + (float(k) - 0.5_RKIND)*cellsize
+            zpos = leftedge(3)+(REAL(k,RKIND)-0.5_RKIND)*cellsize
             do j=1, dim2
-               ypos = leftedge(2) + (float(j) - 0.5_RKIND)*cellsize
+               ypos = leftedge(2)+(REAL(j,RKIND)-0.5_RKIND)*cellsize
                do i=1, dim1
-                  xpos = leftedge(1) + (float(i) - 0.5_RKIND)*cellsize
+                  xpos = leftedge(1)+(REAL(i,RKIND)-0.5_RKIND)*cellsize
 c
 c                 Loop over particles
 c

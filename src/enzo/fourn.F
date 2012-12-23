@@ -51,7 +51,7 @@ c
       R_PREC    tempi, tempr
 c     real*8 twopi, theta, wr, wi, wpr, wpi, wtemp
       R_PREC    twopi, theta, wr, wi, wpr, wpi, wtemp
-      parameter (twopi=6.2831853071796_RKIND)
+      parameter (twopi=6.2831853071796d0)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================

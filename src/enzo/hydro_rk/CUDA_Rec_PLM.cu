@@ -12,10 +12,11 @@
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
-#include <math.h>
+#include "EOS.h"
+//#include <math.h>
 //#include <cuda.h>
 //#include "ReconstructionRoutines.h"
-#include "EOS.h"
+#define GHOST_ZONES 3
 
 #define FABS(A) (A*sign(A))
 __device__  float minmod(float a, float b, float c)
@@ -74,7 +75,7 @@ __global__ void cuda_plm_kernel(float **prim, float **priml, float **primr, int 
   int i = blockIdx.x * blockDim.x + threadIdx.x; 
 
    if ( i < ActiveSize+1) {
-     iprim = i + DEFAULT_GHOST_ZONES - 1;
+     iprim = i + GHOST_ZONES - 1;
      cuda_plm_point(prim[field][iprim-1], prim[field][iprim  ], prim[field][iprim+1],priml[field][i], Theta_Limiter);
      cuda_plm_point(prim[field][iprim+2], prim[field][iprim+1], prim[field][iprim], primr[field][i], Theta_Limiter);
    }
@@ -86,7 +87,7 @@ __host__ void cuda_plm(float **prim, float **priml, float **primr, int ActiveSiz
   int blocksize = 16;
   dim3 dimBlock(blocksize);
   dim3 dimGrid( ceil( ActiveSize / (float)blocksize)  );
-  int Nzones = ActiveSize+2*DEFAULT_GHOST_ZONES;
+  int Nzones = ActiveSize+2*GHOST_ZONES;
   float *prim_d[Nzones],*priml_d[Nzones],*primr_d[Nzones]; 
   cudaMalloc( (void**)&prim_d, Nzones*sizeof(float));
   cudaMalloc( (void**)&priml_d, Nzones*sizeof(float));
@@ -111,7 +112,7 @@ __device__ int cuda_plm_species(float **prim, int is, float **species, float *fl
 
   int iprim;
   for (int n = 0; n < ActiveSize+1; n++) {
-    iprim = n + DEFAULT_GHOST_ZONES - 1;    
+    iprim = n + GHOST_ZONES - 1;    
     if (flux0[n] >= 0) {
       for (int field = 0; field < NSpecies; field++) {
 	cuda_plm_l(prim[field+is][iprim-1], prim[field+is][iprim], prim[field+is][iprim+1],
@@ -144,7 +145,7 @@ __device__ int cuda_plm_color(float **prim, int is, float **color, float *flux0,
 
   int iprim;
   for (int n = 0; n < ActiveSize+1; n++) {
-    iprim = n + DEFAULT_GHOST_ZONES - 1;        
+    iprim = n + GHOST_ZONES - 1;        
     if (flux0[n] >= 0) {
       for (int field = is+NSpecies; field < is+NSpecies+NColor; field++) {
 	cuda_plm_l(prim[field][iprim-1], prim[field][iprim], prim[field][iprim+1],

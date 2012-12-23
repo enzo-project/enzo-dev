@@ -167,7 +167,7 @@ endif
 
 #-------------------  object files  ------------------------------------
 
-F90M =  enzo_module.o
+F90M =  
 
 F90X = 	select_fft.o						\
 	fft90.o
