@@ -37,6 +37,7 @@
 #    CONFIG_EMISSIVITY
 #    CONFIG_NEW_GRID_IO
 #    CONFIG_FAST_SIB
+#    CONFIG_FLUX_FIX
 #    CONFIG_USE_HDF4	
 #    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
@@ -57,7 +58,7 @@
 #    64            use 64-bit integers
 #-----------------------------------------------------------------------
 
-     CONFIG_INTEGERS = 64
+     CONFIG_INTEGERS = 32
 
 #=======================================================================
 # CONFIG_PARTICLE_IDS
@@ -66,7 +67,7 @@
 #    64            use 64-bit integers for particle IDs
 #-----------------------------------------------------------------------
 
-     CONFIG_PARTICLE_IDS = 64
+     CONFIG_PARTICLE_IDS = 32
 
 #=======================================================================
 # CONFIG_PRECISION
@@ -75,7 +76,7 @@
 #    64            use 64-bit precision for floating point data
 #-----------------------------------------------------------------------
 
-     CONFIG_PRECISION = 64
+     CONFIG_PRECISION = 32
 
 #=======================================================================
 # CONFIG_PARTICLES
@@ -85,7 +86,7 @@
 #   128            use 128-bit precision for particle positions
 #-----------------------------------------------------------------------
 
-     CONFIG_PARTICLES = 64
+     CONFIG_PARTICLES = 32
 
 #=======================================================================
 # CONFIG_INITS
@@ -94,7 +95,7 @@
 #    64            use 64-bit precision for inits
 #-----------------------------------------------------------------------
 
-     CONFIG_INITS = 64
+     CONFIG_INITS = 32
 
 #=======================================================================
 # CONFIG_IO
@@ -223,7 +224,7 @@
 #    aggressive    Use aggressive optimization
 #-----------------------------------------------------------------------
 
-     CONFIG_OPT = debug
+     CONFIG_OPT = aggressive
 
 #=======================================================================
 # CONFIG_TESTING
@@ -288,6 +289,15 @@
 
      CONFIG_FAST_SIB = yes
 
+#=======================================================================
+# CONFIG_FLUX_FIX
+#=======================================================================
+#    yes           Include the SUBling (Subgrid of Sibling) Flux Correction Fix
+#    no            Skip this step
+#-----------------------------------------------------------------------
+
+     CONFIG_FLUX_FIX = yes
+
 #======================================================================= 
 # CONFIG_USE_HDF4
 #======================================================================= 
@@ -313,7 +323,7 @@
 #    no            For most of the machines (don't have graphics card)
 #----------------------------------------------------------------------- 
  
-     CONFIG_ECUDA = no
+     CONFIG_ECUDA = yes
 
 #======================================================================= 
 # CONFIG_GRAVITY_4S
