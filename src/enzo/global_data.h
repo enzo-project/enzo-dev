@@ -47,6 +47,7 @@ EXTERN int CoresPerNode;
 EXTERN int PreviousMaxTask;
 EXTERN int LoadBalancingMinLevel;
 EXTERN int LoadBalancingMaxLevel;
+EXTERN int HybridParallelRootGridSplit;
 
 /* FileDirectedOutput checks for file existence: 
    stopNow (writes, stops),   outputNow, subgridcycleCount */

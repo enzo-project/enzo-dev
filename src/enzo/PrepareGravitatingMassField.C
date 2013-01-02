@@ -74,7 +74,7 @@ int PrepareGravitatingMassField1(HierarchyEntry *Grid)
   //  if (CommunicationReceiveIndex != CommunicationReceiveIndexLast)
   //    CommunicationReceiveCurrentDependsOn = CommunicationReceiveIndex-1;
 
-  END_LOAD_TIMER(CurrentGrid);
+  END_LOAD_TIMER(CurrentGrid,0);
   return SUCCESS;
 }
 
@@ -146,7 +146,7 @@ int PrepareGravitatingMassField2a(HierarchyEntry *Grid, TopGridData *MetaData,
  
   } // end: if (CommunicationDirection != COMMUNICATION_SEND)
 
-  END_LOAD_TIMER(CurrentGrid);
+  END_LOAD_TIMER(CurrentGrid,0);
   return SUCCESS;
 }
 
@@ -165,6 +165,6 @@ int PrepareGravitatingMassField2b(HierarchyEntry *Grid, int level)
 
     CurrentGrid->PreparePotentialField(Grid->ParentGrid->GridData);
  
-  END_LOAD_TIMER(CurrentGrid);
+  END_LOAD_TIMER(CurrentGrid,0);
   return SUCCESS;
 }

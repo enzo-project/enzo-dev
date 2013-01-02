@@ -130,23 +130,23 @@ int LoadBalanceHilbertCurve(HierarchyEntry *GridHierarchyPointer[],
   for (i = 0; i < NumberOfGrids; i++) {
     grid_num = HilbertData[i].grid_num;
     if (MyProcessorNumber == GridHierarchyPointer[grid_num]->GridData->ReturnProcessorNumber()) {
-      ObservedCost = GridHierarchyPointer[grid_num]->GridData->ReturnCost();
-      EstimatedCost = GridHierarchyPointer[grid_num]->GridData->ReturnEstimatedCost();
+      ObservedCost = GridHierarchyPointer[grid_num]->GridData->ReturnCost(0);
+      EstimatedCost = GridHierarchyPointer[grid_num]->GridData->ReturnEstimatedCost(0);
 
       // First timestep (use # of cells)
       if (ObservedCost < 0 && EstimatedCost < 0) {
 	NewEstimatedCost = GridHierarchyPointer[grid_num]->GridData->GetGridSize();
-	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(FLOAT_UNDEFINED);
+	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(FLOAT_UNDEFINED,0);
       }
       // Second timestep (first with timing data)
       else if (ObservedCost > 0 && EstimatedCost < 0) {
 	NewEstimatedCost = ObservedCost;
-	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost);
+	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost,0);
       } 
       // All later timesteps (fading memory filter)
       else {
 	NewEstimatedCost = ALPHA_FADE * (ObservedCost - EstimatedCost) + EstimatedCost;
-	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost);
+	GridHierarchyPointer[grid_num]->GridData->SetEstimatedCost(NewEstimatedCost,0);
       }
 
 //      if (grid_num == 0)

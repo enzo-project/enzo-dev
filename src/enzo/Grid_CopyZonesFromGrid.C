@@ -404,15 +404,18 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     int size = this->GetGridSize();
     int other_size = OtherGrid->GetGridSize();
     float other_partial_size = 1.0;
-    float per_cell = this->ObservedCost / size;
-    float est_per_cell = this->EstimatedCost / size;
-    for (dim = 0; dim < GridRank; dim++)
-      other_partial_size *= Dim[dim];
-    if (OtherGrid->EstimatedCost >= 0 && this->EstimatedCost >= 0) {
-      this->ObservedCost += OtherGrid->ObservedCost * (other_partial_size / other_size) -
-	per_cell * other_partial_size;
-      this->EstimatedCost += OtherGrid->EstimatedCost * (other_partial_size / other_size) -
-	est_per_cell * other_partial_size;
+    float per_cell, est_per_cell;
+    for (i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+      per_cell = this->ObservedCost[i] / size;
+      est_per_cell = this->EstimatedCost[i] / size;
+      for (dim = 0; dim < GridRank; dim++)
+	other_partial_size *= Dim[dim];
+      if (OtherGrid->EstimatedCost[i] >= 0 && this->EstimatedCost[i] >= 0) {
+	this->ObservedCost[i] += OtherGrid->ObservedCost[i] * 
+	  (other_partial_size / other_size) - per_cell * other_partial_size;
+	this->EstimatedCost[i] += OtherGrid->EstimatedCost[i] * 
+	  (other_partial_size / other_size) - est_per_cell * other_partial_size;
+      }
     }
   }
 

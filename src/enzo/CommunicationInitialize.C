@@ -119,7 +119,6 @@ int CommunicationInitialize(Eint32 *argc, char **argv[])
 #pragma omp parallel
   CoresPerProcessor = omp_get_num_threads();
   NumberOfCores = CoresPerProcessor * NumberOfProcessors;
-  NumberOfCores = NumberOfProcessors;
   if (MyProcessorNumber == ROOT_PROCESSOR)
     printf("MPI_Init: NumberOfCores = %"ISYM"\n", NumberOfCores);
 #else

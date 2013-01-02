@@ -40,10 +40,6 @@ grid::grid()
   GravitatingMassFieldParticlesCellSize = FLOAT_UNDEFINED;
   SubgridsAreStatic                     = FALSE;
   ProcessorNumber                       = ROOT_PROCESSOR;
-  EstimatedCost                         = FLOAT_UNDEFINED;
-  ObservedCost                          = FLOAT_UNDEFINED;
-  ParentCostPerCell                     = FLOAT_UNDEFINED;
-  ParentEstimatedCostPerCell            = FLOAT_UNDEFINED;
 
   SubgridFluxStorage = NULL;
   NumberOfSubgrids = 1;
@@ -168,6 +164,15 @@ grid::grid()
   
   NumberOfStars = 0;
   Stars = NULL;
+
+  /* Compute timers for load balancing */
+
+  for (i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+    EstimatedCost[i]              = FLOAT_UNDEFINED;
+    ObservedCost[i]               = FLOAT_UNDEFINED;
+    ParentCostPerCell[i]          = FLOAT_UNDEFINED;
+    ParentEstimatedCostPerCell[i] = FLOAT_UNDEFINED;
+  }
 
   /* For once-per-rootgrid-timestep star formation, the following flag
      determines whether SF is about to occur or not. It's currently

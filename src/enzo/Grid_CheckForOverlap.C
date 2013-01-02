@@ -216,7 +216,7 @@ int grid::CheckForOverlap(grid *OtherGrid,
   } // end: loop of k
 
 
-  END_GRID_TIMER;
+  END_GRID_TIMER(0);
   return SUCCESS;
  
 }

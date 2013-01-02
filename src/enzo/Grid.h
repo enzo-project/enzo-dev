@@ -176,10 +176,10 @@ class grid
 //
 // Performance counters for load balancing
 //
-  float ParentCostPerCell;
-  float ParentEstimatedCostPerCell;
-  float ObservedCost;
-  float EstimatedCost;
+  float ParentCostPerCell[MAX_COMPUTE_TIMERS];
+  float ParentEstimatedCostPerCell[MAX_COMPUTE_TIMERS];
+  float ObservedCost[MAX_COMPUTE_TIMERS];
+  float EstimatedCost[MAX_COMPUTE_TIMERS];
 
 //
 // Friends
@@ -1513,20 +1513,25 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   /* Performance counter for load balancing */
 
-  void ResetCost() { ObservedCost = 0.0; };
-  float ReturnCost() { return ObservedCost; };
-  float ReturnEstimatedCost() { return EstimatedCost; };
-  void SetEstimatedCost(float a) { EstimatedCost = a; };
-  void AddToCost(double a) { 
+  void ResetCost() { 
+    for (int i; i < MAX_COMPUTE_TIMERS; i++) ObservedCost[i] = 0.0; };
+  void ResetCost(int i) { ObservedCost[i] = 0.0; };
+  float ReturnCost(int i) { return ObservedCost[i]; };
+  float ReturnEstimatedCost(int i) { return EstimatedCost[i]; };
+  void SetEstimatedCost(float a, int i) { EstimatedCost[i] = a; };
+  void AddToCost(int i, double a) { 
     if (MyProcessorNumber == ProcessorNumber)
-      ObservedCost += a;
+      ObservedCost[i] += a;
   };
   void SetParentCost(grid *Parent) {
     if (MyProcessorNumber == ProcessorNumber) {
-      this->ParentCostPerCell = Parent->ReturnCost() / Parent->GetGridSize();
-      this->ParentEstimatedCostPerCell = Parent->ReturnEstimatedCost() / Parent->GetGridSize();
-      this->ObservedCost = this->ParentCostPerCell * this->GetGridSize();
-      this->EstimatedCost = this->ParentEstimatedCostPerCell * this->GetGridSize();
+      for (int i; i < MAX_COMPUTE_TIMERS; i++) {
+	this->ParentCostPerCell[i] = Parent->ReturnCost(i) / Parent->GetGridSize();
+	this->ParentEstimatedCostPerCell[i] = Parent->ReturnEstimatedCost(i) / 
+	  Parent->GetGridSize();
+	this->ObservedCost[i] = this->ParentCostPerCell[i] * this->GetGridSize();
+	this->EstimatedCost[i] = this->ParentEstimatedCostPerCell[i] * this->GetGridSize();
+      }
     }
   };
 

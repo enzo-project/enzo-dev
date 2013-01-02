@@ -289,9 +289,10 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     }H5E_END_TRY
     if (attr_id != h5_error) {
       H5Aclose(attr_id);
-      readAttribute(group_id, HDF5_REAL, "ObservedCost", &this->ObservedCost, TRUE);
+      readAttribute(group_id, HDF5_REAL, "ObservedCost", this->ObservedCost, TRUE);
     } else {
-      this->ObservedCost = FLOAT_UNDEFINED;
+      for (i = 0; i < MAX_COMPUTE_TIMERS; i++)
+	this->ObservedCost[i] = FLOAT_UNDEFINED;
     }
  
     /* loop over fields, reading each one */

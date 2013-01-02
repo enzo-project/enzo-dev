@@ -216,15 +216,21 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     
   while (GridTime > PhotonTime) {
 
-  /* Temporarily load balance grids according to the number of ray
-     segments.  We'll move the grids back at the end of this
-     routine */
+    /* Temporarily load balance grids according to the number of ray
+       segments.  We'll move the grids back at the end of this
+       routine */
 
     if (RadiativeTransferLoadBalance) {
       CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
 					  MetaData->FirstTimestepAfterRestart);
       SetSubgridMarker(*MetaData, LevelArray, 1, TRUE);
     }
+
+    /* Clear ray tracing timers */
+
+    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+      for (i = 0; i < nGrids[lvl]; i++)
+	Grids[lvl][i]->GridData->ResetCost(2);
 
     /* Recalculate timestep if this isn't the first loop.  We already
        did this in RadiativeTransferPrepare */

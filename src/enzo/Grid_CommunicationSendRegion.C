@@ -64,7 +64,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 //      MyProcessorNumber != ToProcessor)
 //    return SUCCESS;
  
-  int index, field, dim, Zero[] = {0, 0, 0};
+  int i, index, field, dim, Zero[] = {0, 0, 0};
  
   // Compute size of region to transfer
  
@@ -79,7 +79,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
   // +1 for the observed performance cost
   if (SendField == ALL_FIELDS, NewOrOld == NEW_ONLY)
-    TransferSize += 2;
+    TransferSize += 2*MAX_COMPUTE_TIMERS;
  
   // Allocate buffer
  
@@ -110,8 +110,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
       // Send the observed cost for load balancing
       if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS) {
-	buffer[index++] = this->ObservedCost;
-	buffer[index] = this->EstimatedCost;
+	for (i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+	  buffer[index++] = this->ObservedCost[i];
+	  buffer[index++] = this->EstimatedCost[i];
+	}
       }
     }
  
@@ -263,8 +265,10 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 	}
 
       if (NewOrOld == NEW_ONLY && SendField == ALL_FIELDS) {
-	this->ObservedCost = buffer[TransferSize-2];
-	this->EstimatedCost = buffer[TransferSize-1];
+	for (i = 0; i < MAX_COMPUTE_TIMERS; i++) {
+	  this->ObservedCost[i] = buffer[index++];
+	  this->EstimatedCost[i] = buffer[index++];
+	}
       }
     }
  

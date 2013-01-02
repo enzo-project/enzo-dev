@@ -577,6 +577,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "Unigrid = %"ISYM, &Unigrid);
     ret += sscanf(line, "UnigridTranspose = %"ISYM, &UnigridTranspose);
     ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
+    ret += sscanf(line, "HybridParallelRootGridSplit = %"ISYM, &HybridParallelRootGridSplit);
  
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
  
@@ -1651,6 +1652,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (NumberOfProcessors == 1 && ResetLoadBalancing)
     ResetLoadBalancing = FALSE;
+
+  if (HybridParallelRootGridSplit == FALSE)
+    NumberOfCores = NumberOfProcessors;
 
   CheckShearingBoundaryConsistency(MetaData);
   return SUCCESS;

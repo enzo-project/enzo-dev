@@ -19,6 +19,9 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif /* _OPENMP */
+#ifdef USE_MPI
+#include "mpi.h"
+#endif /* USE_MPI */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -64,6 +67,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   if (PhotonPackages->NextPackage == NULL)
     return SUCCESS;
+
+  START_GRID_TIMER;
 
   /* Find fields: density, total energy, velocity1-3. */
 
@@ -370,6 +375,8 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   }
 
   } // END parallel
+
+  END_GRID_TIMER(2);
 
 #ifdef UNUSED
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {

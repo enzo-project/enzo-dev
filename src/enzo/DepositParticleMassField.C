@@ -74,7 +74,7 @@ int DepositParticleMassField(HierarchyEntry *Grid, FLOAT TimeMidStep)
     ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
 
-  END_LOAD_TIMER(Grid->GridData);
+  END_LOAD_TIMER(Grid->GridData,0);
  
   /* Recursively deposit particles in children (at TimeMidStep). */
  
@@ -104,7 +104,7 @@ int DepositParticleMassFieldChildren(HierarchyEntry *DepositGrid,
     ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
   }
  
-  END_LOAD_TIMER(DepositGrid->GridData);
+  END_LOAD_TIMER(DepositGrid->GridData,0);
 
   /* Next grid on this level. */
  

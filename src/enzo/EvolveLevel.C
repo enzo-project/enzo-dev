@@ -302,8 +302,11 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   bool thread_grid_loop = false;
 #ifdef _OPENMP
-  thread_grid_loop = (level > 0) && 
-    (NumberOfGrids > NumberOfProcessors*omp_get_num_threads());
+  if (HybridParallelRootGridSplit)
+    thread_grid_loop = true;
+  else
+    thread_grid_loop = (level > 0) && 
+      (NumberOfGrids > NumberOfProcessors*omp_get_num_threads());
 #endif
 
   /* Create a SUBling list of the subgrids */
@@ -525,7 +528,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 */
 #ifdef SAB
 
-      END_LOAD_TIMER(Grids[grid1]->GridData);
+      END_LOAD_TIMER(Grids[grid1]->GridData,0);
 
     } // End of loop over grids
     
@@ -613,7 +616,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
 
-      END_LOAD_TIMER(Grids[grid1]->GridData);
+      END_LOAD_TIMER(Grids[grid1]->GridData,0);
  
     }  // end loop over grids
 

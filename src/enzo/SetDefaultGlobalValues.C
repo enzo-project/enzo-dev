@@ -266,6 +266,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   Unigrid                     = FALSE;
   UnigridTranspose            = FALSE;
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
+  HybridParallelRootGridSplit = TRUE;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
 

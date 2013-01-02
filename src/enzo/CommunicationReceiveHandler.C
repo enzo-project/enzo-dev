@@ -277,7 +277,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 		  CommunicationReceiveCallType[index])
 
 	} // end: switch on call type
-	END_LOAD_TIMER(grid_one);
+	END_LOAD_TIMER(grid_one,0);
 
 	/* Report error if there has been one in any of the above calls. */
 

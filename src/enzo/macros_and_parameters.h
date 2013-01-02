@@ -83,6 +83,8 @@
 
 #define MAX_ENERGY_BINS                    10
 
+#define MAX_COMPUTE_TIMERS                  5
+
 #define ROOT_PROCESSOR                      0
 
 #define VERSION                             2.0  /* current version number */
@@ -560,9 +562,9 @@ typedef int            HDF5_hid_t;
 /* Timing macros for load balancing */
 #ifdef USE_MPI
 #define START_GRID_TIMER double _mpi_time = MPI_Wtime();
-#define END_GRID_TIMER this->ObservedCost += MPI_Wtime() - _mpi_time;
+#define END_GRID_TIMER(A) this->ObservedCost[A] += MPI_Wtime() - _mpi_time;
 #define START_LOAD_TIMER double _mpi_time = MPI_Wtime();
-#define END_LOAD_TIMER(A) A->AddToCost(MPI_Wtime() - _mpi_time);
+#define END_LOAD_TIMER(A,B) A->AddToCost(B,MPI_Wtime() - _mpi_time);
 #else
 #define START_GRID_TIMER ;
 #define END_GRID_TIMER ;
