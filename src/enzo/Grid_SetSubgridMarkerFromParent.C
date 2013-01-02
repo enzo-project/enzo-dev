@@ -183,19 +183,21 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	      pi = ParentStart[0] + (i + CellOffset[0]) / Refinement[0];
 	      pindex = pi + 
 		Parent->GridDimension[0] * (pj + pk*Parent->GridDimension[1]);
-	      buffer[buffer_index] = Parent->SubgridMarker[pindex]->GetGridID();
+	      if (Parent->SubgridMarker[pindex] != NULL) {
+		buffer[buffer_index] = Parent->SubgridMarker[pindex]->GetGridID();
 
-	      // Determine the level of the grid pointed to by the
-	      // subgrid marker
-	      MarkerRefinement = 
-		nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
-		      CellWidth[0][0] );
-	      marker_level = level;
-	      while (MarkerRefinement > 1) {
-		MarkerRefinement /= RefineBy;
-		marker_level--;
+		// Determine the level of the grid pointed to by the
+		// subgrid marker
+		MarkerRefinement = 
+		  nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
+			CellWidth[0][0] );
+		marker_level = level;
+		while (MarkerRefinement > 1) {
+		  MarkerRefinement /= RefineBy;
+		  marker_level--;
+		}
+		buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
 	      }
-	      buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
 	    }
 	  }
 	}
@@ -214,19 +216,21 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	      pi = ParentStart[0] + (i + CellOffset[0]) / Refinement[0];
 	      pindex = pi + 
 		Parent->GridDimension[0] * (pj + pk*Parent->GridDimension[1]);
-	      buffer[buffer_index] = Parent->SubgridMarker[pindex]->GetGridID();
+	      if (Parent->SubgridMarker[pindex] != NULL) {
+		buffer[buffer_index] = Parent->SubgridMarker[pindex]->GetGridID();
 
-	      // Determine the level of the grid pointed to by the
-	      // subgrid marker
-	      MarkerRefinement = 
-		nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
-		      CellWidth[0][0] );
-	      marker_level = level;
-	      while (MarkerRefinement > 1) {
-		MarkerRefinement /= RefineBy;
-		marker_level--;
+		// Determine the level of the grid pointed to by the
+		// subgrid marker
+		MarkerRefinement = 
+		  nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
+			CellWidth[0][0] );
+		marker_level = level;
+		while (MarkerRefinement > 1) {
+		  MarkerRefinement /= RefineBy;
+		  marker_level--;
+		}
+		buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
 	      }
-	      buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
 	    }
 	  }
 	}
