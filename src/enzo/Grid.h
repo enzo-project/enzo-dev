@@ -1832,7 +1832,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			      int UseBaryons);
 
 /* Star Particle test: initialize particle */
-  int TestStarParticleInitializeGrid(float TestStarParticleStarMass);
+  int TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
+				     float *Initialdt);
 
 /* Gravity Test: initialize grid. */
 

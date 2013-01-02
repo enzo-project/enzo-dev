@@ -28,13 +28,15 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
-int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass)
+int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
+					 float *Initialdt)
 {
   /* declarations */
 
   float CentralMass = 1.0;
   int i, dim;
-
+  float TestInitialdt = *Initialdt;
+  
   /* Return if this doesn't concern us. */
 
   if (ProcessorNumber != MyProcessorNumber)
@@ -80,8 +82,8 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass)
     ParticleVelocity[dim][0] = 0;
   }
   ParticleMass[0] = CentralMass;
-  ParticleAttribute[0][0] = Time+1e-4; // creation time:make sure it is non-zero
-  ParticleAttribute[1][0] = 0.4/GridDimension[0]/3.0; // dynamical time?
+  ParticleAttribute[0][0] = Time+1e-4; //creation time:make sure it is non-zero
+  ParticleAttribute[1][0] = TestInitialdt/100.0; // dynamical time?
   ParticleAttribute[2][0] = 0.0;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa
 

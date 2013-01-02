@@ -31,7 +31,7 @@
 #include "TopGridData.h"
 
 int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-			TopGridData &MetaData)
+			       TopGridData &MetaData,float *Initialdt)
 {
   char *DensName = "Density";
   char *TEName   = "TotalEnergy";
@@ -89,7 +89,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 					      TestStarParticleBField) == FAIL)
     ENZO_FAIL("Error in InitializeUniformGrid.");
 
-  if (TopGrid.GridData->TestStarParticleInitializeGrid(TestStarParticleStarMass) == FAIL)
+  if (TopGrid.GridData->TestStarParticleInitializeGrid(TestStarParticleStarMass,Initialdt) == FAIL)
     ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
