@@ -1513,8 +1513,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   /* Performance counter for load balancing */
 
-  void ResetCost() { 
-    for (int i; i < MAX_COMPUTE_TIMERS; i++) ObservedCost[i] = 0.0; };
+  void ResetCost(void) { 
+    for (int i = 0; i < MAX_COMPUTE_TIMERS; i++) ObservedCost[i] = 0.0; };
   void ResetCost(int i) { ObservedCost[i] = 0.0; };
   float ReturnCost(int i) { return ObservedCost[i]; };
   float ReturnEstimatedCost(int i) { return EstimatedCost[i]; };
@@ -1525,7 +1525,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   };
   void SetParentCost(grid *Parent) {
     if (MyProcessorNumber == ProcessorNumber) {
-      for (int i; i < MAX_COMPUTE_TIMERS; i++) {
+      for (int i = 0; i < MAX_COMPUTE_TIMERS; i++) {
 	this->ParentCostPerCell[i] = Parent->ReturnCost(i) / Parent->GetGridSize();
 	this->ParentEstimatedCostPerCell[i] = Parent->ReturnEstimatedCost(i) / 
 	  Parent->GetGridSize();

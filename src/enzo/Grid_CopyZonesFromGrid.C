@@ -400,7 +400,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 
   /* Adjust the observed cost for these grids */
 
-  if (this->ParentCostPerCell > 0) {
+  if (this->ParentCostPerCell[0] > 0) {
     int size = this->GetGridSize();
     int other_size = OtherGrid->GetGridSize();
     float other_partial_size = 1.0;

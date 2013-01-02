@@ -210,6 +210,12 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   } // ENDFOR RS
 
+  /* Clear ray tracing timers */
+
+  for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
+    for (i = 0; i < nGrids[lvl]; i++)
+      Grids[lvl][i]->GridData->ResetCost(2);
+
   /**********************************************************************
                        MAIN RADIATION TRANSPORT LOOP
    **********************************************************************/
@@ -225,12 +231,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 					  MetaData->FirstTimestepAfterRestart);
       SetSubgridMarker(*MetaData, LevelArray, 1, TRUE);
     }
-
-    /* Clear ray tracing timers */
-
-    for (lvl = 0; lvl < MAX_DEPTH_OF_HIERARCHY; lvl++)
-      for (i = 0; i < nGrids[lvl]; i++)
-	Grids[lvl][i]->GridData->ResetCost(2);
 
     /* Recalculate timestep if this isn't the first loop.  We already
        did this in RadiativeTransferPrepare */

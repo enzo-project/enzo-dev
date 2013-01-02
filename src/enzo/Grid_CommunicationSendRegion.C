@@ -77,7 +77,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
   int RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
   int TransferSize = RegionSize * NumberOfFields;
 
-  // +1 for the observed performance cost
+  // add for the observed performance cost
   if (SendField == ALL_FIELDS, NewOrOld == NEW_ONLY)
     TransferSize += 2*MAX_COMPUTE_TIMERS;
  
