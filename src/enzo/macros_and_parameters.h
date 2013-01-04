@@ -471,6 +471,7 @@ typedef int            HDF5_hid_t;
 
 #define NORMAL_STAR	0
 #define UNIGRID_STAR    1
+#define UNIGRID_STAR_ORIG 12
 #define KRAVTSOV_STAR   2
 #define POP3_STAR	3
 #define SINK_PARTICLE	4
