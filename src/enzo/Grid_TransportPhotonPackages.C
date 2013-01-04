@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -65,8 +66,12 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     ENZO_FAIL("Transfer in less than 3D is not implemented!\n");
   }
 
-  if (PhotonPackages->NextPackage == NULL)
+  TIMER_START("TransportPhotons");
+
+  if (PhotonPackages->NextPackage == NULL) {
+    TIMER_STOP("TransportPhotons");
     return SUCCESS;
+  }
 
   START_GRID_TIMER;
 
@@ -378,6 +383,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   END_GRID_TIMER(2);
 
+  TIMER_STOP("TransportPhotons");
 #ifdef UNUSED
   for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
     if (HasRadiation == TRUE) break;

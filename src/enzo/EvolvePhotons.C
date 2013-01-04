@@ -26,6 +26,7 @@
 #include <math.h>
 #include "performance.h"
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -143,6 +144,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     return SUCCESS;
 
   LCAPERF_START("EvolvePhotons");
+  TIMER_START("EvolvePhotons");
 
   /* Declarations */
 
@@ -710,6 +712,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (nGrids[lvl] > 0) delete [] Grids[lvl];
 
   LCAPERF_STOP("EvolvePhotons");
+  TIMER_STOP("EvolvePhotons");
   return SUCCESS;
 
 }
