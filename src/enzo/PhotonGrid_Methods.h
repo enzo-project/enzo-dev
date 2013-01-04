@@ -388,7 +388,7 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      float TemperatureUnits, float VelocityUnits, 
 		      float LengthUnits, float TimeUnits, float LightSpeed);
 
-int FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
+int FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
 		      PhotonPackageEntry* &PP,
 		      grid* &MoveToGrid, int &DeltaLevel,
 		      const float *DomainWidth, int &DeleteMe,

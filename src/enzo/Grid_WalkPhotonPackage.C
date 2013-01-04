@@ -169,7 +169,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   cindex = GRIDINDEX_NOGHOST(g[0],g[1],g[2]);
   if (SubgridMarker[cindex] != this) {
-    FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
+    FindPhotonNewGrid(cindex, r, u, g, *PP, *MoveToGrid,
 		      DeltaLevel, DomainWidth, DeleteMe, 
 		      ParentGrid);
     return SUCCESS;
@@ -348,7 +348,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
        DeltaLevel, and DeleteMe, and exit the loop. */
 
     if (SubgridMarker[cindex] != this) {
-      FindPhotonNewGrid(cindex, r, u, *PP, *MoveToGrid,
+      FindPhotonNewGrid(cindex, r, u, g, *PP, *MoveToGrid,
 			DeltaLevel, DomainWidth, DeleteMe, 
 			ParentGrid);
       break;
@@ -356,13 +356,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     /* Check for photons that have left the domain (only for root
        grids without periodic radiation boundaries).  We also adjust
-       the photon coordinates if it needs wrapping around the
-       periodic boundary. */
+       the photon coordinates if it needs wrapping around the periodic
+       boundary.  Only for root grids that are not split because the
+       ray will just be wrapped around the grid, and not moved to
+       another grid.  */
 
-    if (GravityBoundaryType != SubGridIsolated)
+    if (GravityBoundaryType != SubGridIsolated && nGrids0 == 1)
       if (this->PhotonPeriodicBoundary(cindex, r, g, s, *PP, *MoveToGrid,
-				       DomainWidth, DeleteMe) == FALSE)
-	break;
+    				       DomainWidth, DeleteMe) == FALSE)
+    	break;
 
     oldr = (*PP)->Radius;
     min_dr = 1e20;

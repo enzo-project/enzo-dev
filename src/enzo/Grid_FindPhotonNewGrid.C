@@ -25,7 +25,7 @@
 #include "GridList.h"
 #include "Grid.h"
 
-int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
+int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
 			    PhotonPackageEntry* &PP,
 			    grid* &MoveToGrid, int &DeltaLevel,
 			    const float *DomainWidth, int &DeleteMe,
@@ -40,11 +40,16 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
      destination grid, and "nudge" the photon package to avoid
      loitering on boundaries. */
 
+  PP->Radius += PFLOAT_EPSILON;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    r[dim] += u[dim] * PFLOAT_EPSILON;
+    g[dim] = GridStartIndex[dim] + 
+      nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
+  }
+
+  cindex = GRIDINDEX_NOGHOST(g[0], g[1], g[2]);
   RayInsideGrid = this->PointInGridNB(r);
   MoveToGrid = SubgridMarker[cindex];
-  PP->Radius += PFLOAT_EPSILON;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    r[dim] += u[dim] * PFLOAT_EPSILON;
 
   /***** Root grids *****/
 
@@ -64,10 +69,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 	  for (dim = 0; dim < 3; dim++)
 	    if (r[dim] < DomainLeftEdge[dim]) {
  	      PP->SourcePosition[dim] += DomainWidth[dim];
-	      //r[dim] += DomainWidth[dim];
 	    } else if (r[dim] > DomainRightEdge[dim]) {
  	      PP->SourcePosition[dim] -= DomainWidth[dim];
-	      //r[dim] -= DomainWidth[dim];
 	    }
 	} // ENDIF periodic
 	else {
@@ -111,10 +114,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 	  for (dim = 0; dim < 3; dim++)
 	    if (r[dim] < DomainLeftEdge[dim]) {
 	      PP->SourcePosition[dim] += DomainWidth[dim];
-	      //r[dim] += DomainWidth[dim];
 	    } else if (r[dim] > DomainRightEdge[dim]) {
 	      PP->SourcePosition[dim] -= DomainWidth[dim];
-	      //r[dim] -= DomainWidth[dim];
 	    }
 	} // ENDIF periodic
       } // ENDELSE !InsideDomain
