@@ -371,8 +371,10 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       // Set FieldInterpolationMethod to be FirstOrderA for 
       // fields that shouldn't be interpolated.'
       FieldInterpolationMethod = InterpolationMethod;
-      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
-        FieldInterpolationMethod = FirstOrderA; 
+      if (FieldTypeNoInterpolate(FieldType[field]) == TRUE) {
+        FieldInterpolationMethod = FirstOrderA;
+	if (FieldType[field] == RaySegments) continue;
+      }
  
       /* Interpolating from the ParentTemp field to a Temporary field.  This
 	 is done for the entire current grid, not just it's boundaries.
