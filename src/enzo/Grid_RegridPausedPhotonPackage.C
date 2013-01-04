@@ -124,7 +124,7 @@ int grid::RegridPausedPhotonPackage(PhotonPackageEntry** PP, grid* ParentGrid,
     
   index = GRIDINDEX_NOGHOST(int_pos[0], int_pos[1], int_pos[2]);
   if (SubgridMarker[index] != this)
-    this->FindPhotonNewGrid(index, new_pos, new_vec, *PP, *MoveToGrid,
+    this->FindPhotonNewGrid(index, new_pos, new_vec, int_pos, *PP, *MoveToGrid,
 			    DeltaLevel, DomainWidth, DeleteMe, 
 			    ParentGrid);
 
