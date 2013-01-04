@@ -293,12 +293,12 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   if (!isShearing)
 //#pragma omp parallel for schedule(static)
     for (field = 0; field < NumberOfBaryonFields; field++)
-      FORTRAN_NAME(copy3drel)(OtherGrid->BaryonField[field], BaryonField[field],
-			      Dim, Dim+1, Dim+2,
-			      OtherDim, OtherDim+1, OtherDim+2,
-			      GridDimension, GridDimension+1, GridDimension+2,
-			      StartOther, StartOther+1, StartOther+2,
-			      Start, Start+1, Start+2);
+	FORTRAN_NAME(copy3drel)(OtherGrid->BaryonField[field], BaryonField[field],
+				Dim, Dim+1, Dim+2,
+				OtherDim, OtherDim+1, OtherDim+2,
+				GridDimension, GridDimension+1, GridDimension+2,
+				StartOther, StartOther+1, StartOther+2,
+				Start, Start+1, Start+2);
 
   if (isShearing) {
     for (field = 0; field < NumberOfBaryonFields; field++)

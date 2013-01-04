@@ -61,6 +61,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	GridLeftOffset[dim] < GhostZones)
 
       for (field = 0; field < NumberOfBaryonFields; field++) {
+	if (FieldType[field] == RaySegments) continue;
 	Sign = 1;
 
 	switch(dim) {
@@ -122,6 +123,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 	GridRightOffset[dim] < GhostZones)
 
       for (field = 0; field < NumberOfBaryonFields; field++) {
+	if (FieldType[field] == RaySegments) continue;
 	Sign = 1;
 
 	switch(dim) {
