@@ -89,6 +89,7 @@ int grid::ComputeOneZoneCollapseFactor(float *force_factor)
                                log10(freefall_density[1][index] /
                                      freefall_density[2][index])) - gamma_eff);
         }
+        gamma_eff = min(gamma_eff, (4./3.));
 
 	if (gamma_eff < 0.83) {
 	  force_factor[index] = 0.0;
