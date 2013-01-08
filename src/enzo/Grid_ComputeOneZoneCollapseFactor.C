@@ -3,8 +3,8 @@
 /  GRID CLASS (COMPUTE THE RATIO OF PRESSURE TO GRAVITY FOR ONE-ZONE
 /              COLLAPSE)
 /
-/  written by: Greg Bryan
-/  date:       April, 1995
+/  written by: Britton Smith
+/  date:       December, 2012
 /  modified1:
 /
 /  PURPOSE: Computes an approximate ratio of pressure to gravitational 
