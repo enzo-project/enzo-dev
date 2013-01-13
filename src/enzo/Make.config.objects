@@ -315,6 +315,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CheckForPossibleOverlap.o \
         Grid_CheckForSharedFace.o \
 	grid_cic.o \
+	grid_ngp.o \
 	Grid_CleanUpMovedParticles.o \
 	Grid_CleanUp.o \
 	Grid_ClearBoundaryFluxes.o \

@@ -50,6 +50,19 @@ extern "C" void FORTRAN_NAME(dep_grid_cic)(
 			       float *offset1, float *offset2, float *offset3,
 			       int *ddim1, int *ddim2, int *ddim3,
 			       int *refine1, int *refine2, int *refine3);
+
+extern "C" void FORTRAN_NAME(dep_grid_ngp)(
+                               float *source, float *dest, float *temp,
+			       float *velx, float *vely, float *velz,
+			       float *dt, float *rfield, int *ndim,
+                                   hydro_method *ihydro,
+			       float *delx, float *dely, float *delz,
+			       int *sdim1, int *sdim2, int *sdim3,
+			       int *sstart1, int *sstart2, int *sstart3,
+			       int *send1, int *send2, int *send3,
+			       float *offset1, float *offset2, float *offset3,
+			       int *ddim1, int *ddim2, int *ddim3,
+			       int *refine1, int *refine2, int *refine3);
  
 int RK2SecondStepBaryonDeposit = 0;
 
@@ -92,6 +105,12 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
   /* Compute refinement factors. */
  
   TargetGrid->ComputeRefinementFactors(this, Refinement);
+
+  /* Use CIC deposition for this grid, NGP for subgrids. */
+
+  int DepositGridCIC = FALSE;
+  if (TargetGrid == this)
+    DepositGridCIC = TRUE;
  
   /* This routine will create a temporary patch with cell width equal to
      the target grid.  The current grid then deposits into this patch.
@@ -220,8 +239,22 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     }
 
     //    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
-    
-    FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
+
+    if (DepositGridCIC == TRUE)
+      FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
+			       input_velx, input_vely, input_velz,
+			       &dt,
+			       BaryonField[NumberOfBaryonFields], &GridRank,
+			       &HydroMethod,
+			       dxfloat, dxfloat+1, dxfloat+2,
+			       GridDimension, GridDimension+1, GridDimension+2,
+			       GridStartIndex, GridStartIndex+1, GridStartIndex+2,
+			       GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+			       GridStart, GridStart+1, GridStart+2,
+			       RegionDim, RegionDim+1, RegionDim+2,
+			       Refinement, Refinement+1, Refinement+2);
+    else
+      FORTRAN_NAME(dep_grid_ngp)(input_density, dens_field, vel_field,
 			       input_velx, input_vely, input_velz,
 			       &dt,
 			       BaryonField[NumberOfBaryonFields], &GridRank,
