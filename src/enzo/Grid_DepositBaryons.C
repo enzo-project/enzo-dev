@@ -106,6 +106,8 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
   TargetGrid->ComputeRefinementFactors(this, Refinement);
  
+  /* Use CIC deposition for this grid, NGP for subgrids. */
+
   int DepositGridCIC = FALSE;
   if (TargetGrid == this)
     DepositGridCIC = TRUE;
@@ -122,13 +124,13 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
        grid.  It must not extended beyond the active region of TargetGrid
        (if we are depositing in self). */
     
-    GridOffset[dim] = int((GridLeftEdge[dim] -
-			   TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			  TargetGrid->GravitatingMassFieldCellSize);
+    GridOffset[dim] = nint((GridLeftEdge[dim] -
+			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
+			   TargetGrid->GravitatingMassFieldCellSize) - 1;
     
     if (TargetGrid == this)
       GridOffset[dim] = max(GridOffset[dim],
-	int((TargetGrid->GridLeftEdge[dim] -
+	nint((TargetGrid->GridLeftEdge[dim] -
 	      TargetGrid->GravitatingMassFieldLeftEdge[dim])/
 	     TargetGrid->GravitatingMassFieldCellSize) );
  
