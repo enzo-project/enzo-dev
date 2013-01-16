@@ -24,9 +24,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-#define MH 1.67e-24
-#define DEFAULT_MU 0.6
-
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
@@ -46,6 +43,15 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
 
   int ExtraField[2];
 
+  /* initialize density and pressure history storage */
+  freefall_density = new float*[3];
+  freefall_pressure = new float*[3];
+
+  for (i = 0;i < 3;i++) {
+    freefall_density[i] = NULL;
+    freefall_pressure[i] = NULL;
+  }
+
   /* create fields */
  
   NumberOfBaryonFields = 0;
@@ -63,19 +69,19 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
   int colorfields = NumberOfBaryonFields;
 
   // Enzo's standard multispecies (primordial chemistry - H, D, He)
-  if (TestProblemData.MultiSpecies) {
+  if (MultiSpecies) {
     FieldType[DeNum     = NumberOfBaryonFields++] = ElectronDensity;
     FieldType[HINum     = NumberOfBaryonFields++] = HIDensity;
     FieldType[HIINum    = NumberOfBaryonFields++] = HIIDensity;
     FieldType[HeINum    = NumberOfBaryonFields++] = HeIDensity;
     FieldType[HeIINum   = NumberOfBaryonFields++] = HeIIDensity;
     FieldType[HeIIINum  = NumberOfBaryonFields++] = HeIIIDensity;
-    if (TestProblemData.MultiSpecies > 1) {
+    if (MultiSpecies > 1) {
       FieldType[HMNum   = NumberOfBaryonFields++] = HMDensity;
       FieldType[H2INum  = NumberOfBaryonFields++] = H2IDensity;
       FieldType[H2IINum = NumberOfBaryonFields++] = H2IIDensity;
     }
-    if (TestProblemData.MultiSpecies > 2) {
+    if (MultiSpecies > 2) {
       FieldType[DINum   = NumberOfBaryonFields++] = DIDensity;
       FieldType[DIINum  = NumberOfBaryonFields++] = DIIDensity;
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
@@ -87,7 +93,7 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
-    if(TestProblemData.MultiMetals){
+    if (MultiMetals){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
       FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
     }
@@ -173,7 +179,7 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
     // Set multispecies fields!
     // this attempts to set them such that species conservation is maintained,
     // using the method in CosmologySimulationInitializeGrid.C
-    if(TestProblemData.MultiSpecies){
+    if(MultiSpecies){
 
       BaryonField[HINum][i] = TestProblemData.HI_Fraction * 
 	TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
@@ -188,7 +194,7 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
 	(1.0 - TestProblemData.HydrogenFractionByMass) * BaryonField[0][i] -
 	BaryonField[HeINum][i] - BaryonField[HeIINum][i];
 
-      if(TestProblemData.MultiSpecies > 1){
+      if(MultiSpecies > 1){
 	BaryonField[HMNum][i] = TestProblemData.HM_Fraction *
 	  TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
 
@@ -220,13 +226,13 @@ int grid::OneZoneFreefallTestInitializeGrid(float InitialDensity,
 
       // Set deuterium species (assumed to be a negligible fraction of the total, so not
       // counted in the conservation)
-      if(TestProblemData.MultiSpecies > 2){
-	BaryonField[DINum ][i]  = TestProblemData.DeuteriumToHydrogenRatio * BaryonField[HINum][i];
-	BaryonField[DIINum][i] = TestProblemData.DeuteriumToHydrogenRatio * BaryonField[HIINum][i];
-	BaryonField[HDINum][i] = 0.75 * TestProblemData.DeuteriumToHydrogenRatio * BaryonField[H2INum][i];
+      if(MultiSpecies > 2){
+	BaryonField[DINum ][i]  = CoolData.DeuteriumToHydrogenRatio * BaryonField[HINum][i];
+	BaryonField[DIINum][i] = CoolData.DeuteriumToHydrogenRatio * BaryonField[HIINum][i];
+	BaryonField[HDINum][i] = 0.75 * CoolData.DeuteriumToHydrogenRatio * BaryonField[H2INum][i];
       }
 
-    } // if(TestProblemData.MultiSpecies)
+    } // if(MultiSpecies)
 
   } // for (i = 0; i < size; i++)
 
