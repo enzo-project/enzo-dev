@@ -1,0 +1,78 @@
+ 
+# Generic crap
+ParallelRootGridIO     = 0
+ProblemType            = 500
+WriteBoundary          = 0
+
+CourantSafetyNumber    = 0.5
+MHD_CT_Method       = 2  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
+
+# Problem Crap
+
+Gamma                  = 1.4
+
+#CellFlaggingMethod     = 8
+#MaximumRefinementLevel = 0
+HydroMethod            = 6
+
+StopCycle = 1
+StopTime = 0.2
+
+CycleLastDataDump = -1
+CycleSkipDataDump = 1
+
+TopGridRank            = 3
+TopGridDimensions      = 16 16 16
+
+#this fucks things up!
+#DomainRightEdge        = 40 40 40
+
+RightFaceBoundaryCondition = 3 3 3
+LeftFaceBoundaryCondition =  3 3 3
+#ProcessorTopology = 8 1 1
+
+#    various init styles:
+#       0 = sphere: 1,2,3=rectangular slice along x, y,z
+#       40,41,42=cylander along x,y,z: 
+#       5,6,7,8 = Index Tests: 10*i + 100*j + 1000*k, i,j,k
+
+MHDBlastInitStyle = 0
+MHDBlastCenter = 0.5 0.5 0.5 //Center in spatial units.
+MHDBlastRadius = 0.2 //in space units OF THE LONGEST AXIS
+
+MHDBlastDA = 1
+#MHDBlastDB = 1
+MHDBlastDB = 1
+
+MHDBlastVelocityA = 0 0 0
+MHDBlastVelocityB = 0 0 0
+
+#MHDBlastBA  = 0.75 0.0 1.0
+#MHDBlastBB  = 0.75 0.0 -1.0 
+MHDBlastBA  = 0.01 0.02 0.03
+MHDBlastBB  = 0.01 0.02 0.03
+
+#if gas energy isn't defined, pressure is read and gass energy is calculated from that.
+
+#MHDBlastGasEnergyA = 3.0
+#MHDBlastGasEnergyB = 6.0
+
+MHDBlastPA = 1.0
+#MHDBlastPB = 1.0
+MHDBlastPB = 1.0
+MHDBlastRefineOnStartup = 0
+
+
+NumberOfBufferZones    = 0
+
+StaticHierarchy           = 0    // dynamic hierarchy
+RefineBy                  = 2    // refinement factor
+
+TopGridGravityBoundary = 0       // Periodic BC
+SelfGravity            = 0       // Gravity on.
+
+# The Defaults!
+#  MinimumSlopeForRefinement        = 0.3;          // 30% change in value
+#  MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
+#  MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
+# tiny_number            = 1.0e-6  // fixes velocity slope problem
