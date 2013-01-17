@@ -3,6 +3,7 @@
 ParallelRootGridIO     = 0
 ProblemType            = 500
 WriteBoundary          = 0
+MHD_WriteElectric      = 1
 
 CourantSafetyNumber    = 0.5
 MHD_CT_Method       = 2  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
@@ -12,7 +13,7 @@ MHD_CT_Method       = 2  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
 Gamma                  = 1.4
 
 #CellFlaggingMethod     = 8
-#MaximumRefinementLevel = 0
+MaximumRefinementLevel = 0
 HydroMethod            = 6
 
 StopCycle = 1
@@ -44,13 +45,18 @@ MHDBlastDA = 1
 #MHDBlastDB = 1
 MHDBlastDB = 1
 
-MHDBlastVelocityA = 0 0 0
-MHDBlastVelocityB = 0 0 0
+MHDBlastVelocityA = 0.02 0.04 0.06
+MHDBlastVelocityB = 0.02 0.04 0.06
 
 #MHDBlastBA  = 0.75 0.0 1.0
 #MHDBlastBB  = 0.75 0.0 -1.0 
-MHDBlastBA  = 0.01 0.02 0.03
-MHDBlastBB  = 0.01 0.02 0.03
+#MHDBlastBA  = 0.01 0.02 0.03
+#MHDBlastBB  = 0.01 0.02 0.03
+MHDBlastBA  = 0.0 0.0 0.0 
+MHDBlastBB  = 0.0 0.0 0.0 
+
+MHDBlastPerturbAmplitude = 0.5
+MHDBlastPerturbMethod = 100 #white noise in all fields.
 
 #if gas energy isn't defined, pressure is read and gass energy is calculated from that.
 
