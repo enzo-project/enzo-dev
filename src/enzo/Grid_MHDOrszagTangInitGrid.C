@@ -123,7 +123,7 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
 	    +0.5*(CenteredB[0][index]*CenteredB[0][index]+
 		  CenteredB[1][index]*CenteredB[1][index]+
 		  CenteredB[2][index]*CenteredB[2][index]);
-	BaryonField[TENum][index]=TotalEnergy;
+	BaryonField[TENum][index]=TotalEnergy/DensityIn;
 
 	}
 	if( DualEnergyFormalism )
