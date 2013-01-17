@@ -36,7 +36,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove, 
+int grid::TransportPhotonPackages(int level, int finest_level, 
+				  ListOfPhotonsToMove **PhotonsToMove, 
 				  int GridNum, grid **Grids0, int nGrids0, 
 				  grid *ParentGrid, grid *CurrentGrid)
 {
@@ -109,8 +110,11 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     (c_cgs/VelocityUnits);
 
   float DomainWidth[MAX_DIMENSION];
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
+  double FinestCellVolume = pow(RefineBy, -3*(finest_level-level));
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+    FinestCellVolume *= CellWidth[dim][0];
+  }
 
   if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
   if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
@@ -139,6 +143,12 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 	  ENZO_VFAIL("Error in grid->ComputeVertexCenteredField "
 		  "(field %"ISYM").\n", i)
 	}
+
+  /* Calculate minimum photon flux before a ray is deleted */
+  
+  const float mh = 1.673e-24;
+  float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
+    (PhotonTime * RadiativeTransferHubbleTimeFraction);
 
   count = 0;
   PP = PhotonPackages->NextPackage;
@@ -179,7 +189,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 			RPresNum2, RPresNum3, RaySegNum,
 			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 
-			LengthUnits, TimeUnits, LightSpeed);
+			LengthUnits, TimeUnits, LightSpeed, MinimumPhotonFlux);
       tcount++;
     } else {
 
@@ -260,7 +270,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   } // ENDWHILE photons
 
-  if (debug1)
+  if (DEBUG)
     fprintf(stdout, "grid::TransportPhotonPackage: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
 	    tcount, dcount, pcount, trcount);

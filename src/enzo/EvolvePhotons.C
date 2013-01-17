@@ -406,7 +406,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	  Temp->GridData->PhotonSortLinkedLists();
 #endif
 	  Temp->GridData->TransportPhotonPackages
-	    (lvl, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
+	    (lvl, level, &PhotonsToMove, GridNum, Grids0, nGrids0, Helper, 
 	     Temp->GridData);
 
 	} // ENDFOR grids

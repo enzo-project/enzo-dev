@@ -100,7 +100,8 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 
 /* Transport Photon Packages */ 
 
-int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove, 
+int TransportPhotonPackages(int level, int finest_level,
+			    ListOfPhotonsToMove **PhotonsToMove, 
 			    int GridNum, grid **Grids0, int nGrids0, 
 			    grid *ParentGrid, grid *CurrentGrid);
 
@@ -381,7 +382,8 @@ int WalkPhotonPackage(PhotonPackageEntry **PP,
 		      int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 		      float DensityUnits, 
 		      float TemperatureUnits, float VelocityUnits, 
-		      float LengthUnits, float TimeUnits, float LightSpeed);
+		      float LengthUnits, float TimeUnits, float LightSpeed,
+		      float MinimumPhotonFlux);
 
 int FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 		      PhotonPackageEntry* &PP,

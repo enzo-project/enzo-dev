@@ -49,7 +49,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    int &PauseMe, int &DeltaLevel, float LightCrossingTime,
 			    float DensityUnits, float TemperatureUnits,
 			    float VelocityUnits, float LengthUnits,
-			    float TimeUnits, float LightSpeed) {
+			    float TimeUnits, float LightSpeed,
+			    float MinimumPhotonFlux) {
 
   const float erg_eV = 1.602176e-12;
   const float c_cgs = 2.99792e10;
@@ -766,7 +767,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < 1e-10*tiny_number || 
+    if ((*PP)->Photons < MinimumPhotonFlux || 
 	(*PP)->ColumnDensity > tau_delete) {
       if (DEBUG>1) {
 	fprintf(stderr, "PP-Photons: %"GSYM"  PP->Radius: %"GSYM
