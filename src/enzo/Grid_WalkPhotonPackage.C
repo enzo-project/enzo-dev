@@ -767,12 +767,13 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       return SUCCESS;
 
     // return in case we're out of photons
-    if ((*PP)->Photons < MinimumPhotonFlux || 
+    if ((*PP)->Photons < MinimumPhotonFlux*(solid_angle*Area_inv) || 
 	(*PP)->ColumnDensity > tau_delete) {
-      if (DEBUG>1) {
-	fprintf(stderr, "PP-Photons: %"GSYM"  PP->Radius: %"GSYM
+      if (DEBUG > 1) {
+	fprintf(stderr, "PP-Photons: %"GSYM" (%"GSYM"), PP->Radius: %"GSYM
 		"PP->CurrentTime: %"FSYM"\n",
-		(*PP)->Photons, (*PP)->Radius, (*PP)->CurrentTime);
+		(*PP)->Photons, MinimumPhotonFlux*solid_angle*Area_inv, 
+		(*PP)->Radius, (*PP)->CurrentTime);
 	fprintf(stderr, "\tdP: %"GSYM"\tddr: %"GSYM"\t cdt: %"GSYM"\t tau: %"GSYM"\n", 
 		dP, ddr, cdt, tau);
       }

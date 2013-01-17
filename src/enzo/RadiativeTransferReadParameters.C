@@ -67,7 +67,7 @@ int RadiativeTransferReadParameters(FILE *fptr)
   RadiativeTransferTraceSpectrumTable         = (char*) "spectrum_table.dat";
   RadiativeTransferSourceBeamAngle            = 30.0;
   RadiativeTransferLoadBalance                = FALSE;
-  RadiativeTransferHubbleTimeFraction         = 1.0;
+  RadiativeTransferHubbleTimeFraction         = 0.1;
 
   if (MultiSpecies == 0)
     RadiativeTransferOpticallyThinH2 = FALSE;
