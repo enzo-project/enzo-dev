@@ -2781,6 +2781,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   float *DxBz, *DyBz, *DxyBz;
   int * DBxFlag, *DByFlag, *DBzFlag;
 
+  int MHD_Diagnose(char * message);
+  inline int indexb1(int i, int j, int k)    {return i+MagneticDims[0][0]*(j+MagneticDims[0][1]*k);}  
+  inline int indexb2(int i, int j, int k)    {return i+MagneticDims[1][0]*(j+MagneticDims[1][1]*k);}  
+  inline int indexb3(int i, int j, int k)    {return i+MagneticDims[2][0]*(j+MagneticDims[2][1]*k);}
   int MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData, int Offset[], int TempDim[], int Refinement[]);
   int MHD_CIDWorker(grid* OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION]);
   int MHD_SendOldFineGrids(LevelHierarchyEntry * OldFineLevel, grid *ParentGrid, TopGridData *MetaData);
