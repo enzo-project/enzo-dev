@@ -301,6 +301,9 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   int halfpoint;
   float zscale;
 
+  if ( PerturbMethod == 100 )
+      srand( 3449653 ); //please don't change this number.
+
   if( EquationOfState == 0 ){
     fprintf(stderr,"GridDim %d %d %d\n",GridDimension[0],GridDimension[1],GridDimension[2]);
     FieldType[NumberOfBaryonFields++] = Density;
@@ -706,6 +709,14 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 	    
 	    break;
+        
+      case 100:
+	    for(field=0;field<3;field++)
+        BaryonField[ Ev[field] ][index] *= PerturbAmplitude* ((float)rand()/(float)(RAND_MAX) );
+        BaryonField[ Eden ][index] *= PerturbAmplitude* ((float)rand()/(float)(RAND_MAX) );
+        break;
+
+        
 	    
 
 
@@ -745,12 +756,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 				     : ( (field==1) ? i*j
 					 : ( (field==2) ? 0.0
 					     : 3000) ) );
-	      /*	    
-			    ( (field==0) ? (1.0*j*k)/1000 :
-			    ( (field==1) ? (1.0*i*k)/1000 :
-			    ( (field==2) ? (1.0*i*j)/1000 : 3000) ) );
-	      */
-	      //MagneticField[field][index] = (1000000*(1+field) +10000*i+100*j+k);
 	      MagneticField[field][index] = value +  0* field;
 
 	    break;
@@ -776,9 +781,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 
 	    switch( PerturbMethod ){
-	      
-	      
-	      
 	    case 1:
 	    case 2: 
 	    case 3:
@@ -845,26 +847,25 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  }//i,j,k
     }//field
   
-  
-  if(0==1)
-    for(field=0;field<3;field++)
-      for(k=MHDeStartIndex[field][2]; k<=MHDeEndIndex[field][2]; k++)
-	for(j=MHDeStartIndex[field][1]; j<=MHDeEndIndex[field][1]; j++)
-	  for(i=MHDeStartIndex[field][0]; i<=MHDeEndIndex[field][0];i++){
+  for(field=0;field<3;field++)
+    for( k=0;k<ElectricDims[field][2];k++)
+      for( j=0;j<ElectricDims[field][1];j++)
+        for( i=0;i<ElectricDims[field][0];i++){
 	    
 
 	    index = i+ ElectricDims[field][0] *(j+ ElectricDims[field][1]*k);
-	    switch( InitStyle ){
-	    case 3:
-	      ElectricField[field][index] = field + 10*i + 100*j + 1000*k;
+	    switch( PerturbMethod ){
+	    case 100:
+	      ElectricField[field][index] =  PerturbAmplitude* ((float)rand()/(float)(RAND_MAX));
 	      break;
 	      
-	    default:
-	      
-	      ElectricField[field][index] = 0.0;
-	      break;
 	    }//switch
 	  }
+
+  if( PerturbMethod == 100 ){
+      this->MHD_Curl(GridStartIndex, GridEndIndex, 0);
+      CenterMagneticField();
+  }
 
   if(DualEnergyFormalism )
     for(index=0;index<size;index++)
