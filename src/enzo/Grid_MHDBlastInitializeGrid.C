@@ -847,6 +847,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  }//i,j,k
     }//field
   
+  int index_periodic, k1, j1, i1, do_periodic;
   for(field=0;field<3;field++)
     for( k=0;k<ElectricDims[field][2];k++)
       for( j=0;j<ElectricDims[field][1];j++)
@@ -856,7 +857,26 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    index = i+ ElectricDims[field][0] *(j+ ElectricDims[field][1]*k);
 	    switch( PerturbMethod ){
 	    case 100:
+            do_periodic=FALSE;
 	      ElectricField[field][index] =  PerturbAmplitude* ((float)rand()/(float)(RAND_MAX));
+          k1 = k; j1 = j; i1=i;
+          
+          if( k >= GridEndIndex[2] && field != 2 ){
+              k1 = k - (GridEndIndex[2] - GridStartIndex[2]);
+              do_periodic = TRUE;
+          }
+          if( j >=GridEndIndex[1] && field != 1 ){
+              j1 = j - (GridEndIndex[1] - GridStartIndex[1]);
+              do_periodic = TRUE;
+          }
+          if( i >=GridEndIndex[0] && field != 0 ){
+              i1 = i - (GridEndIndex[0] - GridStartIndex[0]);
+              do_periodic = TRUE;
+          }
+          if( do_periodic == TRUE ){
+              index_periodic = i1+ ElectricDims[field][0] *(j1+ ElectricDims[field][1]*k1);
+              ElectricField[field][index] = ElectricField[field][index_periodic];
+          }
 	      break;
 	      
 	    }//switch
@@ -866,6 +886,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       this->MHD_Curl(GridStartIndex, GridEndIndex, 0);
       CenterMagneticField();
   }
+  MHD_Diagnose("Post Initialize Grid");
 
   if(DualEnergyFormalism )
     for(index=0;index<size;index++)
