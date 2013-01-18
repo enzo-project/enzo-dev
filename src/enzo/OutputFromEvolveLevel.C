@@ -255,13 +255,6 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       ExitEnzo = TRUE;
       WriteOutput = TRUE;
     }
-    /* If dt is too short, write an output. */
-
-    if (LevelArray[level]->GridData->ReturnTimeStep() <= 1.0e-10) {
-      printf("dt is too short!");
-      ExitEnzo = TRUE;
-      WriteOutput = TRUE;
-    }
 
 
   }//Finest Level
