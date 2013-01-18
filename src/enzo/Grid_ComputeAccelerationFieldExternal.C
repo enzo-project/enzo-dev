@@ -66,8 +66,12 @@ int grid::ComputeAccelerationFieldExternal()
     for (dim = 0; dim < GridRank; dim++) {
       AccelerationField[dim] = new float[size];
       for (i = 0; i < size; i++)
-	AccelerationField[dim][i] = 0;
+        AccelerationField[dim][i] = 0;
     }
+  if( SelfGravity == 0 )
+      for (i = 0; i < size; i++)
+        AccelerationField[dim][i] = 0;
+
  
 
   /* BWO:  if we're using the NFW halo with ProblemType = 31 ("GalaxySimulation"),
