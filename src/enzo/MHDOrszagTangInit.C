@@ -42,6 +42,10 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *GEName   = "GasEnergy";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
 
   DataLabel[count++] = DensName;
   if( EquationOfState == 0 )  
@@ -55,29 +59,37 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[count++] = Vel1Name;
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
+  if (HydroMethod == MHD_RK){
+      DataLabel[count++] = BxName;
+      DataLabel[count++] = ByName;
+      DataLabel[count++] = BzName;
+      DataLabel[count++] = PhiName;
+  }
 
   for (int i = 0; i < count; i++)
     DataUnits[i] = NULL;
 
-  MHDcLabel[0] = "Bx";
-  MHDcLabel[1] = "By";
-  MHDcLabel[2] = "Bz";
+  if ( useMHDCT ){
+      MHDcLabel[0] = "Bx";
+      MHDcLabel[1] = "By";
+      MHDcLabel[2] = "Bz";
 
-  MHDLabel[0] = "BxF";
-  MHDLabel[1] = "ByF";
-  MHDLabel[2] = "BzF";
+      MHDLabel[0] = "BxF";
+      MHDLabel[1] = "ByF";
+      MHDLabel[2] = "BzF";
 
-  MHDeLabel[0] = "Ex";
-  MHDeLabel[1] = "Ey";
-  MHDeLabel[2] = "Ez";
+      MHDeLabel[0] = "Ex";
+      MHDeLabel[1] = "Ey";
+      MHDeLabel[2] = "Ez";
 
-  MHDUnits[0] = "None";
-  MHDUnits[1] = "None";
-  MHDUnits[2] = "None";
+      MHDUnits[0] = "None";
+      MHDUnits[1] = "None";
+      MHDUnits[2] = "None";
 
-  MHDeUnits[0] = "None";
-  MHDeUnits[1] = "None";
-  MHDeUnits[2] = "None";
+      MHDeUnits[0] = "None";
+      MHDeUnits[1] = "None";
+      MHDeUnits[2] = "None";
+  }
 
 
   if( TopGrid.GridData->MHDOrszagTangInitGrid(Density,Pressure,V0,B0) == FAIL ){

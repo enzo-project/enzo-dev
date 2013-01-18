@@ -35,6 +35,12 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   FieldType[NumberOfBaryonFields++] = Velocity1;
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
+  if ( HydroMethod == MHD_RK ){
+      FieldType[NumberOfBaryonFields++] = Bfield1;
+      FieldType[NumberOfBaryonFields++] = Bfield2;
+      FieldType[NumberOfBaryonFields++] = Bfield3;
+      FieldType[NumberOfBaryonFields++] = PhiField;
+  }
 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
@@ -56,19 +62,26 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   float X, Y, Vx, Vy, GasEnergy=Pressure/(Gamma-1), TotalEnergy=0; 
   int index, size=1, i,j,k, field;
   float Scale[3];
+
+  //In order to ensure a good comparison, we use the MHD-CT initialization
+  //for both MHDCT and Dedner.  Temporarily, we make this code think that MHD-CT is on.
+
+  if ( HydroMethod == MHD_RK ){
+      useMHDCT = TRUE;
+      MHD_SetupDims(); //this only sets some variables that won't be used
+  }
+
   this->AllocateGrids();  
+
+
 
   for(i=0;i<GridRank;i++){
     size*=GridDimension[i];
     Scale[i]=(GridRightEdge[i]-GridLeftEdge[i])/(GridDimension[i]-2*NumberOfGhostZones);
+  }
 
-  }
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
+  IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num);
 
   fprintf(stderr,"Density %f Pressure %f V0 %f B0 %f \n", DensityIn,Pressure,V0,B0);
   fprintf(stderr,"Scale: %f %f %f\n", Scale[0],Scale[1],Scale[2]);
@@ -82,11 +95,11 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   for( k=0;k<ElectricDims[field][2];k++)
     for( j=0;j<ElectricDims[field][1];j++)
       for( i=0;i<ElectricDims[field][0];i++){
-	index=i+ElectricDims[field][0]*(j+ElectricDims[field][1]*k);
-	X=(i-GridStartIndex[0])*Scale[0];
-	Y=(j-GridStartIndex[1])*Scale[1];
+        index=i+ElectricDims[field][0]*(j+ElectricDims[field][1]*k);
+        X=(i-GridStartIndex[0])*Scale[0];
+        Y=(j-GridStartIndex[1])*Scale[1];
 
-	ElectricField[field][index]=B0*( cos(4*Pi*X)/(4*Pi) + cos(2*Pi*Y)/(2*Pi) );
+        ElectricField[field][index]=B0*( cos(4*Pi*X)/(4*Pi) + cos(2*Pi*Y)/(2*Pi) );
       }
   
 
@@ -109,30 +122,45 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   for(k=0;k<GridDimension[2];k++)
     for(j=0;j<GridDimension[1];j++)
       for(i=0;i<GridDimension[0];i++){
-	index = i+GridDimension[0]*(j+GridDimension[1]*k);
-	X=(i-GridStartIndex[0]+0.5)*Scale[0];
-	Y=(j-GridStartIndex[1]+0.5)*Scale[1];
+        index = i+GridDimension[0]*(j+GridDimension[1]*k);
+        X=(i-GridStartIndex[0]+0.5)*Scale[0];
+        Y=(j-GridStartIndex[1]+0.5)*Scale[1];
 
-	Vx=-V0*sin(2*Pi*Y);
-	Vy=V0*sin(2*Pi*X);
+        Vx=-V0*sin(2*Pi*Y);
+        Vy=V0*sin(2*Pi*X);
 
-	BaryonField[DensNum][index]=DensityIn;
+        BaryonField[DensNum][index]=DensityIn;
 
-	if( EquationOfState == 0 ){
-	  TotalEnergy=GasEnergy + 0.5*DensityIn*(Vx*Vx+Vy*Vy)
-	    +0.5*(CenteredB[0][index]*CenteredB[0][index]+
-		  CenteredB[1][index]*CenteredB[1][index]+
-		  CenteredB[2][index]*CenteredB[2][index]);
-	BaryonField[TENum][index]=TotalEnergy/DensityIn;
+        if( EquationOfState == 0 ){
+          TotalEnergy=GasEnergy + 0.5*DensityIn*(Vx*Vx+Vy*Vy)
+            +0.5*(CenteredB[0][index]*CenteredB[0][index]+
+              CenteredB[1][index]*CenteredB[1][index]+
+              CenteredB[2][index]*CenteredB[2][index]);
+        BaryonField[TENum][index]=TotalEnergy/DensityIn;
 
-	}
-	if( DualEnergyFormalism )
-	  BaryonField[GENum][index]=GasEnergy;
-	BaryonField[Vel1Num][index]=Vx;
-	BaryonField[Vel2Num][index]=Vy;
-	BaryonField[Vel3Num][index]=0.0;
+        }
+        if( DualEnergyFormalism )
+          BaryonField[GENum][index]=GasEnergy;
+        BaryonField[Vel1Num][index]=Vx;
+        BaryonField[Vel2Num][index]=Vy;
+        BaryonField[Vel3Num][index]=0.0;
 
       }
+
+  if ( HydroMethod == MHD_RK ){
+      //Clean up.
+      useMHDCT = FALSE;
+      int BNUM[3] = {B1Num, B2Num, B3Num};
+      for ( field=0; field<3; field++){
+          delete [] MagneticField[field];
+          delete [] ElectricField[field];
+          delete [] BaryonField[BNUM[field]];
+          BaryonField[BNUM[field]] = CenteredB[field];
+          CenteredB[field] = NULL;
+          MagneticField[field] = NULL;
+          ElectricField[field] = NULL;
+      }
+  }
   
 
   return SUCCESS;
