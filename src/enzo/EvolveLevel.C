@@ -464,6 +464,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
             if( Grids[grid1]->GridData->ZeroAcceleration() == FAIL )
 	      ENZO_FAIL("EvolveLevel: failure in ZeroAccelration");
       }
+      //</dcc>
 
  
       if (SelfGravity) {
