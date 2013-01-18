@@ -2735,18 +2735,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                          int NumberOfSubgrids, int level,
                          ExternalBoundary *Exterior);
 #endif
-  int ZeroAcceleration(){
-    float size = 1;
-    int dim, i;
-    for (dim = 0; dim < GridRank; dim++)
-      size *= GridDimension[dim];
-    for (dim = 0; dim < GridRank; dim++) {
-      if( AccelerationField[dim] != NULL ) 
-	for (i = 0; i < size; i++)
-	  AccelerationField[dim][i] = 0;
-    }
-    return SUCCESS;
-  }//zero
 
 
 };
