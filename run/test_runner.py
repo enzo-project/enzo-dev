@@ -742,7 +742,7 @@ if __name__ == "__main__":
     # Same with MHD2DRotorTest
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
                    'ZeldovichPancake', 'AMRZeldovichPancake',
-                   'MHD2DRotorTest', 'Toro-6-ShockTube')
+                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang')
     
     template = open("test_type.py.template").read()
     
@@ -769,7 +769,8 @@ if __name__ == "__main__":
     # *__test_standard.py files from the enzo run/ directory
     # that we just created.
     for file in test_standard_files:
-        os.remove(file)
+        if os.path.exists(file):
+            os.remove(file)
 
     # Store the results locally or in the cloud.
     answer_plugin.finalize()
