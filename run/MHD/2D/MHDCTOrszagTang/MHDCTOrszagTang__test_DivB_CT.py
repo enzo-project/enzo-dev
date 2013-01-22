@@ -19,7 +19,10 @@ _base_fields = ("Density",
                 "Bx",
                 "By")
 
-@requires_outputlog(os.path.dirname(__file__), "MHDCTOrszagTang.enzo") # Verifies that OutputLog exists
+_pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
+_dir_name = os.path.dirname(__file__)
+
+@requires_outputlog(_dir_name, _pf_name)
 def test_standard():
     sim = sim_dir_load("MHDCTOrszagTang.enzo",
                        path="./MHD/2D/MHDCTOrszagTang",
@@ -52,7 +55,8 @@ def _DivB_CT(field,data):
             (by[:,1:ny+1,:]-by[:,0:ny,:])/data['dy']+
             (bz[:,:,1:nz+1]-bz[:,:,0:nz])/data['dz'])
 
-@requires_outputlog(os.path.dirname(__file__), "MHDCTOrszagTang.enzo") # Verifies that OutputLog exists
+# Tests that Div B = 0
+@requires_outputlog(_dir_name, _pf_name)
 def test_DivB_CT():
     """ Make sure that Divergence of B is zero everywhere. """
     add_field('DivB_CT', function = _DivB_CT,take_log=False,
