@@ -5,8 +5,8 @@ runtime = 'short'   # short, medium, long
 hydro = False
 mhd = True
 gravity = False
-AMR = True
-dimensionality = 2
+AMR = False
+dimensionality = 3 #this is really a 2+1 dim in a 3d setting, but d/dz F = 0 for all F.
 max_time_minutes = 2.5
 fullsuite = True
 pushsuite = True
