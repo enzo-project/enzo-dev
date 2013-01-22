@@ -70,7 +70,7 @@ def load_vals(tdump):
     tval, vol, gamma, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
     Eg = f.get('/Grid00000001/Grey_Radiation_Energy')
-    energy = f.get('/Grid00000001/Total_Energy')
+    energy = f.get('/Grid00000001/TotalEnergy')
     HI = f.get('/Grid00000001/HI_Density')
     HII = f.get('/Grid00000001/HII_Density')
     rho = f.get('/Grid00000001/Density')
