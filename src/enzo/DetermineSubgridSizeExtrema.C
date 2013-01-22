@@ -31,15 +31,8 @@
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
 
-//Minimum values to be used:
-
-#define MINIMUM_EDGE 2
-#define MINIMUM_SIZE 64
-
-// Default values to be used, if no good estimate is availabke:
-
-#define DEFAULT_MAXIMUM_SUBGRID_SIZE 2000
-#define DEFAULT_MINIMUM_SUBGRID_EDGE 4
+#define MINIMUM_EDGE 4
+#define MINIMUM_SIZE 2000
 
 int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel)
 {
@@ -49,7 +42,8 @@ int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumSt
 
   /* Now determine subgrid size parameters */
 
-  int grids_per_proc = OptimalSubgridsPerProcessor;
+  int grids_per_proc = (level > MaximumStaticSubgridLevel) ?
+    OptimalSubgridsPerProcessor : 8;
 
   MaximumSubgridSize = NumberOfCells / 
     (NumberOfProcessors * grids_per_proc);
@@ -57,17 +51,6 @@ int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumSt
   MinimumSubgridEdge = nint(pow(MaximumSubgridSize, 0.33333) * 0.25);
   MinimumSubgridEdge += MinimumSubgridEdge % 2;
   MinimumSubgridEdge = max(MinimumSubgridEdge, MINIMUM_EDGE);
-
-  /* If the NumberOfCells is zero, we have no good estimate to use to calculate
-     the optimal values, so use some defaults, defined earlier. */
-
-  if (NumberOfCells == 0) {
-    MaximumSubgridSize = DEFAULT_MAXIMUM_SUBGRID_SIZE;
-    MinimumSubgridEdge = DEFAULT_MINIMUM_SUBGRID_EDGE;
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
-      printf("DetermineSGSize: Warning: NumberOfCells is 0, using defaults.\n");
-    }
-  }
 
   if (debug)
     printf("DetermineSGSize: MaxSubgridSize = %"ISYM", MinSubgridEdge = %"
