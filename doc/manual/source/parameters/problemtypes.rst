@@ -1218,47 +1218,47 @@ Put Sink from Restart (107)
 Cluster Cooling Flow (108)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``ClusterSMBHFeedback``(external)
+``ClusterSMBHFeedback`` (external)
     Boolean flag. Default: FALSE
-``ClusterSMBHJetMdot``(external)
+``ClusterSMBHJetMdot`` (external)
     Mdot of one Jet. Units: Solar mass per year. Default: 3.0
-``ClusterSMBHJetVelocity``(external)
+``ClusterSMBHJetVelocity`` (external)
     Units:km/s. Default: 10000.0
-``ClusterSMBHJetRadius``(external)
+``ClusterSMBHJetRadius`` (external)
     The radius of the jet launching region. Units: cell width. Default: 6.0
-``ClusterSMBHJetLaunchOffset``(external)
+``ClusterSMBHJetLaunchOffset`` (external)
     The distance of the jet launching plane to the center of the cluster. Units: cell width. Default: 10.0
-``ClusterSMBHStartTime``(external)
+``ClusterSMBHStartTime`` (external)
     The time to start feedback in code unit. Default: 1.0
-``ClusterSMBHTramp``(external)
+``ClusterSMBHTramp`` (external)
     The ramp time in Myr. Default: 0.1
-``ClusterSMBHJetOpenAngleRadius``(external)
+``ClusterSMBHJetOpenAngleRadius`` (external)
     Default: 0.0
-``ClusterSMBHFastJetRadius``(external)
+``ClusterSMBHFastJetRadius`` (external)
     Default: 0.1
-``ClusterSMBHFastJetVelocity``(external)
+``ClusterSMBHFastJetVelocity`` (external)
     Unit: km/s. Default: 10000.0
-``ClusterSMBHJetEdot``(external)
+``ClusterSMBHJetEdot`` (external)
     Unit: 10^44 ergs/s. Default: 1.0
-``ClusterSMBHKineticFraction``(external)
+``ClusterSMBHKineticFraction`` (external)
     The fraction of kinetic energy feedback; the rest is thermal feedback. Default: 1.0
-``ClusterSMBHJetAngleTheta``(external)
+``ClusterSMBHJetAngleTheta`` (external)
     The angle of the jet direction with respect to z-axis. Default: 0.0 (along the axis)
-``ClusterSMBHJetAnglePhi``(external)
+``ClusterSMBHJetAnglePhi`` (external)
     Default: 0.0
-``ClusterSMBHJetPrecessionPeriod``(external)
+``ClusterSMBHJetPrecessionPeriod`` (external)
     Unit: Myr. Default: 0.0 (not precessing)
-``ClusterSMBHCalculateGasMass``(external)
+``ClusterSMBHCalculateGasMass`` (external)
     Type: integer. 1--Calculate the amount of cold gas around the SMBH and remove it at the rate of 2*Mdot; 2--Calculate Mdot based on the amount of cold gas around the SMBH; 0--off (do not remove cold gas). Default: 1.
-``ClusterSMBHFeedbackSwitch``(external)
+``ClusterSMBHFeedbackSwitch`` (external)
     Boolean flag. When ClusterSMBHCalculateGasMass=1, ClusterSMBHFeedbackSwitch is turned on when there is enough cold gas (ClusterSMBHEnoughColdGas) around the SMBH. Default: FALSE
-``ClusterSMBHEnoughColdGas``(external)
+``ClusterSMBHEnoughColdGas`` (external)
     Unit: Solar mass. Default: 1.0e7
-``ClusterSMBHAccretionTime``(external)
+``ClusterSMBHAccretionTime`` (external)
     When ClusterSMBHCalculateGasMass = 2, Mdot = Mcold/ClusterSMBHAccretionTime. Default: 5.0 (Myr)
-``ClusterSMBHJetDim``(external)
+``ClusterSMBHJetDim`` (external)
     0--x; 1--y; 2--z. Default: 2
-``ClusterSMBHAccretionEpsilon``(external)
+``ClusterSMBHAccretionEpsilon`` (external)
     Jet Edot = ClusterSMBHAccretionEpsilon * Mdot * c^2. Default: 0.001
 
 
