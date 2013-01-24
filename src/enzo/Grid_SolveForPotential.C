@@ -71,7 +71,7 @@ int grid::SolveForPotential(int level, FLOAT PotentialTime)
   float InverseVolumeElement = 1;
   for (dim = 0; dim < GridRank; dim++) {
     size *= GravitatingMassFieldDimension[dim];
-    InverseVolumeElement *= (GravitatingMassFieldDimension[dim]);
+    InverseVolumeElement *= (GravitatingMassFieldDimension[dim]-1);
   }
   tol_dim = max(sqrt(float(size))*1e-6, tol_dim);
  

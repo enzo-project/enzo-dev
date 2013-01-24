@@ -472,7 +472,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
       for(i = 0; i < size; i++)
         CurrentMaximumDensity =
-            max(BaryonField[DensNum][size], CurrentMaximumDensity);
+            max(BaryonField[DensNum][i], CurrentMaximumDensity);
     }
 
   }  // end: if (NumberOfBaryonFields > 0)
