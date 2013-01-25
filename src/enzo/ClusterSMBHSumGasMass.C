@@ -44,6 +44,10 @@ float ClusterSMBHColdGasMass;
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level)
 {
 
+  /* Return if not running Cluster SMBH feedback */
+  if (ProblemType != 108)
+    return SUCCESS;
+
   /* Return if we do not want to calculate the cold gas mass */
   if (ClusterSMBHCalculateGasMass == 0)
     return SUCCESS;
