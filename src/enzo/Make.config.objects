@@ -61,6 +61,7 @@ OBJS_CONFIG_LIB = \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
         ClusterInitialize.o \
+	ClusterSMBHSumGasMass.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
@@ -325,6 +326,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearParticleAccelerations.o \
 	Grid_ClearParticleMassFlaggingField.o \
 	Grid_ClusterInitializeGrid.o \
+	Grid_ClusterSMBHFeedback.o \
+        Grid_ClusterSMBHEachGridGasMass.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \

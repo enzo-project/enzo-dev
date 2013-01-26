@@ -460,6 +460,28 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AnisotropicConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
+  ClusterSMBHFeedback              = FALSE;
+  ClusterSMBHJetMdot               = 3.0;
+  ClusterSMBHJetVelocity           = 10000.0;
+  ClusterSMBHJetRadius             = 6.0;
+  ClusterSMBHJetLaunchOffset       = 10.0;
+  ClusterSMBHStartTime             = 1.0;
+  ClusterSMBHTramp                 = 0.1;
+  ClusterSMBHJetOpenAngleRadius    = 0.0;
+  ClusterSMBHFastJetRadius         = 0.1;
+  ClusterSMBHFastJetVelocity       = 10000.0;
+  ClusterSMBHJetEdot               = 1.0;
+  ClusterSMBHKineticFraction       = 1.0;
+  ClusterSMBHJetAngleTheta         = 0.0;
+  ClusterSMBHJetAnglePhi           = 0.0;
+  ClusterSMBHJetPrecessionPeriod   = 0.0;
+  ClusterSMBHCalculateGasMass      = 1;
+  ClusterSMBHFeedbackSwitch        = FALSE;
+  ClusterSMBHEnoughColdGas         = 1.0e7;
+  ClusterSMBHAccretionTime         = 5.0;
+  ClusterSMBHJetDim                = 2;
+  ClusterSMBHAccretionEpsilon      = 0.001;
+
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;

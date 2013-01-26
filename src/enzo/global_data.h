@@ -940,6 +940,29 @@ EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
 
+/* SMBH Feedback in galaxy clusters*/
+EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
+EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr 
+EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s 
+EXTERN float ClusterSMBHJetRadius;  // JetRadius in cellwidth 
+EXTERN float ClusterSMBHJetLaunchOffset;  //in cellwidth
+EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart 
+EXTERN float ClusterSMBHTramp;  // in Myr
+EXTERN float ClusterSMBHJetOpenAngleRadius;  // in cellwidth 
+EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth 
+EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s 
+EXTERN float ClusterSMBHJetEdot;  // Total feedback Edot in 10^44 ergs/s 
+EXTERN float ClusterSMBHKineticFraction;  // fraction of kinetic feedback (0-1)
+EXTERN float ClusterSMBHJetAngleTheta;  // from 0 to 1/2, in pi
+EXTERN float ClusterSMBHJetAnglePhi;  // from 0 to 2, in pi
+EXTERN float ClusterSMBHJetPrecessionPeriod;  //in Myr
+EXTERN int ClusterSMBHCalculateGasMass;  // TRUE OR FALSE
+EXTERN int ClusterSMBHFeedbackSwitch;  // TRUE OR FALSE
+EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass 
+EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
+EXTERN int ClusterSMBHJetDim;  // Jet dimension
+EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
+
 /* For the database */
 EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];

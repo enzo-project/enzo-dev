@@ -992,6 +992,27 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CoolingPowerCutOffDensity1 = %"GSYM, &CoolingPowerCutOffDensity1);
     ret += sscanf(line, "CoolingPowerCutOffDensity2 = %"GSYM, &CoolingPowerCutOffDensity2);
     ret += sscanf(line, "UseCUDA = %"ISYM,&UseCUDA);
+    ret += sscanf(line, "ClusterSMBHFeedback = %"ISYM, &ClusterSMBHFeedback);
+    ret += sscanf(line, "ClusterSMBHJetMdot = %"FSYM, &ClusterSMBHJetMdot);
+    ret += sscanf(line, "ClusterSMBHJetVelocity = %"FSYM, &ClusterSMBHJetVelocity);
+    ret += sscanf(line, "ClusterSMBHJetRadius = %"FSYM, &ClusterSMBHJetRadius);
+    ret += sscanf(line, "ClusterSMBHJetLaunchOffset = %"FSYM, &ClusterSMBHJetLaunchOffset);
+    ret += sscanf(line, "ClusterSMBHStartTime = %"FSYM, &ClusterSMBHStartTime);
+    ret += sscanf(line, "ClusterSMBHTramp = %"FSYM, &ClusterSMBHTramp);
+    ret += sscanf(line, "ClusterSMBHJetOpenAngleRadius = %"FSYM, &ClusterSMBHJetOpenAngleRadius);
+    ret += sscanf(line, "ClusterSMBHFastJetRadius = %"FSYM, &ClusterSMBHFastJetRadius);
+    ret += sscanf(line, "ClusterSMBHFastJetVelocity = %"FSYM, &ClusterSMBHFastJetVelocity);
+    ret += sscanf(line, "ClusterSMBHJetEdot = %"FSYM, &ClusterSMBHJetEdot);
+    ret += sscanf(line, "ClusterSMBHKineticFraction = %"FSYM, &ClusterSMBHKineticFraction);
+    ret += sscanf(line, "ClusterSMBHJetAngleTheta = %"FSYM, &ClusterSMBHJetAngleTheta);
+    ret += sscanf(line, "ClusterSMBHJetAnglePhi = %"FSYM, &ClusterSMBHJetAnglePhi);
+    ret += sscanf(line, "ClusterSMBHJetPrecessionPeriod = %"FSYM, &ClusterSMBHJetPrecessionPeriod);
+    ret += sscanf(line, "ClusterSMBHCalculateGasMass = %"ISYM, &ClusterSMBHCalculateGasMass);
+    ret += sscanf(line, "ClusterSMBHFeedbackSwitch = %"ISYM, &ClusterSMBHFeedbackSwitch);
+    ret += sscanf(line, "ClusterSMBHEnoughColdGas = %"FSYM, &ClusterSMBHEnoughColdGas);
+    ret += sscanf(line, "ClusterSMBHAccretionTime = %"FSYM, &ClusterSMBHAccretionTime);
+    ret += sscanf(line, "ClusterSMBHJetDim = %"ISYM, &ClusterSMBHJetDim);
+    ret += sscanf(line, "ClusterSMBHAccretionEpsilon = %"FSYM, &ClusterSMBHAccretionEpsilon);
 
     ret += sscanf(line, "ExtraOutputs = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"", ExtraOutputs,
 		  ExtraOutputs +1,ExtraOutputs +2,ExtraOutputs +3,
@@ -1471,6 +1492,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   }
 
 
+
   if ((MetaData.GravityBoundary != TopGridPeriodic) &&
       (UnigridTranspose)) {
     /* it turns out that Robert Harkness' unigrid transpose stuff is incompatible with the top
@@ -1557,6 +1579,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		"PopIIISupernovaMustRefine.  Set the level or turn off"
 		"PopIIISupernovaMustRefine.");
   } // ENDIF PopIIISupernovaMustRefine
+//del
 
   if (TracerParticleOn) {
     ParticleTypeInFile = TRUE;
@@ -1639,6 +1662,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   //
 
   CheckShearingBoundaryConsistency(MetaData);
+
   return SUCCESS;
 #endif /* ndef CONFIG_USE_LIBCONFIG */
 }

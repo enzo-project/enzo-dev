@@ -1943,7 +1943,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              int   SphereUseParticles,
                              float UniformVelocity[MAX_DIMENSION],
                              int   SphereUseColour,
-                             float InitialTemperature, int level);
+                             float InitialTemperature, 
+			     float ClusterInitialSpinParameter, int level);
 
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(
@@ -2521,6 +2522,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 // new hydro & MHD routines
 //------------------------------------------------------------------------
 
+  int ClusterSMBHFeedback(int level);
+  int ClusterSMBHEachGridGasMass(int level);
   int SetNumberOfColours(void);
   int SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
                         float *Flux3D[], int flux, float fluxcoef, float dt);

@@ -193,6 +193,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
                                       float * norm, float * pTopGridTimeStep);
+int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level);
 int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
 		      int StaticLevelZero,TopGridData * MetaData,int level);
 
@@ -412,6 +413,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     Star *AllStars = NULL;
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
+
+    /* Calculate ClusterSMBHColdGasMass */
+
+    ClusterSMBHSumGasMass(Grids, NumberOfGrids, level);
 
 #ifdef TRANSFER
     /* Initialize the radiative transfer */
