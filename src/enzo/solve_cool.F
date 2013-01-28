@@ -51,7 +51,7 @@ c
 
 #ifdef CONFIG_BFLOAT_4
       R_PREC tolerance
-      parameter (tolerance = 1.e-52_RKIND)
+      parameter (tolerance = 1.e-5_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
