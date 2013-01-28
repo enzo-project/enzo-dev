@@ -40,7 +40,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
   float phi, r, theta;
   int mt_random_seed = 123456789;
   int max_random = (1<<16);
-  mt_init((unsigned int) mt_random_seed);
+  mt_init((unsigned_int) mt_random_seed);
  
   if (UseBaryons) {
  
