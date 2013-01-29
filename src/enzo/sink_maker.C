@@ -349,13 +349,13 @@ int sink_maker(int *nx, int *ny, int *nz, int *size, float *d, float *u,
   } // ENDFOR k
 
   if (ii > 0)
-    printf("star_maker3[add]: %"ISYM" new sink particles\n", ii);
+    printf("sink_maker[add]: %"ISYM" new sink particles\n", ii);
 
 //  if (nsinks > 0)
-//    printf("star_maker3[sink]: %"ISYM" old sink particles\n", nsinks);
+//    printf("sink_maker[sink]: %"ISYM" old sink particles\n", nsinks);
 
   if (ii >= *nmax) {
-    fprintf(stdout, "star_maker3: reached max new particle count");
+    fprintf(stdout, "sink_maker: reached max new particle count");
     return FAIL;
   }
 

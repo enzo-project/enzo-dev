@@ -1410,13 +1410,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* Set the number of particle attributes, if left unset. */
  
-  if (NumberOfParticleAttributes == INT_UNDEFINED)
+  if (NumberOfParticleAttributes == INT_UNDEFINED || 
+      NumberOfParticleAttributes == 0) {
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      AddParticleAttributes = TRUE;
     } else {
       NumberOfParticleAttributes = 0;
     }
+    
+  }
  
 #ifdef UNUSED
   if (MaximumGravityRefinementLevel == INT_UNDEFINED)
