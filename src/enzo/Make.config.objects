@@ -61,6 +61,7 @@ OBJS_CONFIG_LIB = \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
         ClusterInitialize.o \
+	ClusterSMBHSumGasMass.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
@@ -165,6 +166,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetWavePoolBoundary.o \
         ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
+        ExtraOutput.o\
         ExtractSection.o \
         FastFourierTransform.o \
         FastFourierTransformPrepareComplex.o \
@@ -184,7 +186,6 @@ OBJS_CONFIG_LIB = \
         FindField.o \
         FindSubgrids.o \
         flow.o \
-        FluxFix_Grid_CorrectForRefinedFluxes.o \
 	flux_hll.o \
 	flux_hllc.o \
 	flux_twoshock.o \
@@ -325,6 +326,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearParticleAccelerations.o \
 	Grid_ClearParticleMassFlaggingField.o \
 	Grid_ClusterInitializeGrid.o \
+	Grid_ClusterSMBHFeedback.o \
+        Grid_ClusterSMBHEachGridGasMass.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \
@@ -354,6 +357,7 @@ OBJS_CONFIG_LIB = \
         Grid_ComputeHeat.o \
 	Grid_ComputeLuminosity.o \
 	Grid_ComputeMetalLineLuminosity.o \
+        Grid_ComputeOneZoneCollapseFactor.o \
 	Grid_ComputePressure.o \
 	Grid_ComputeRandomForcingFields.o\
 	Grid_ComputeTemperatureField.o \
@@ -1054,6 +1058,10 @@ OBJS_HYDRO_RK = \
 OBJS_ECUDA_ALL = \
 	hydro_rk/CUDA_Rec_PLM.o \
 	hydro_rk/HydroSweep_CUDA.o \
-	hydro_rk/MHDSweep_CUDA.o
-#	hydro_rk/overlapping_MHDSweep_CUDA.o
-#
+	hydro_rk/Grid_CudaMHD.o \
+	hydro_rk/Grid_CudaMHDRK2_1stStep.o \
+	hydro_rk/Grid_CudaMHDRK2_2ndStep.o \
+	cuPPM.o \
+	CUDAUtil.o \
+	SaveSubgridFluxCUDA.o 
+

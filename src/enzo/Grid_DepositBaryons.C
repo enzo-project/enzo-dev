@@ -108,7 +108,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     GridOffset[dim] = nint((GridLeftEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
 
-			   TargetGrid->GravitatingMassFieldCellSize); 
+			   TargetGrid->GravitatingMassFieldCellSize) - 1; 
 
     if (TargetGrid == this)
       GridOffset[dim] = max(GridOffset[dim],
@@ -130,7 +130,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     GridOffsetEnd[dim] = nint((GridRightEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			   TargetGrid->GravitatingMassFieldCellSize) - 1;
+			   TargetGrid->GravitatingMassFieldCellSize);
 
     if (TargetGrid == this)
       GridOffsetEnd[dim] = min(GridOffsetEnd[dim],
@@ -149,11 +149,9 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     }
  
     if (RegionDim[dim] < 2) {
-      return SUCCESS;
-      fprintf(stderr, "this[%"ISYM"] = target%"ISYM"\n", this, TargetGrid);
       fprintf(stderr, "GridStart[%"ISYM"] = %"ISYM" \n", dim, GridStart[dim]);
-      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffsetEnd[dim]);
-      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffset[dim]);
+      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM"\n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM"\n", dim, GridOffset[dim]);
       ENZO_VFAIL("RegionDim[%"ISYM"] = %"ISYM" < 2!\n", dim, RegionDim[dim])
     }
  
