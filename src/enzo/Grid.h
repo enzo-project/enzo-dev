@@ -381,6 +381,10 @@ public:
    int ConductHeat();			     /* Conduct Heat */
    int ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
+/* Member functions for dealing with Cosmic Ray Diffusion */
+//	int ComputeCRDiffusion(); // CR Diffusion Method FIXME 
+//	int ComputeCRDiffusionTimeStep(float &dt); FIXME
+
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
 
@@ -1626,6 +1630,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num, 
 				 int &Vel2Num, int &Vel3Num, int &TENum);
 
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num,
+         int &Vel2Num, int &Vel3Num, int &TENum, int &CRNum);
+
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
 				 int &Vel2Num, int &Vel3Num, int &TENum,
 				 int &B1Num, int &B2Num, int &B3Num);
@@ -1748,11 +1755,35 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				    float LeftPressure, float RightPressure,
 				    float CenterPressure);
 
+/* Cosmic Ray Shock Tube Problems: Initialize grid (returns SUCCESS or FAIL) */
+
+  int CRShockTubesInitializeGrid(float InitialDiscontinuity,
+            float LeftDensity, float RightDensity,
+            float LeftVelocityX, float RightVelocityX,
+            float LeftVelocityY, float RightVelocityY,
+            float LeftVelocityZ, float RightVelocityZ,
+            float LeftPressure, float RightPressure,
+            float LeftCRDensity, float RightCRDensity);
+  int CRShockTubesInitializeGrid(float InitialDiscontinuity,
+            float SecondDiscontinuity,
+            float LeftDensity, float RightDensity,
+            float CenterDensity,
+            float LeftVelocityX, float RightVelocityX,
+            float CenterVelocityX,
+            float LeftVelocityY, float RightVelocityY,
+            float CenterVelocityY,
+            float LeftVelocityZ, float RightVelocityZ,
+            float CenterVelocityZ,
+            float LeftPressure, float RightPressure,
+            float CenterPressure,
+            float LeftCRDensity, float RightCRDensity,
+            float CenterCRDensity);
+
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
 			    float UniformGasEnergy, float UniformVelocity[], 
-			    float UniformBField[]);
+			    float UniformBField[]); // FIXME append 'float UniformCR = 0.0);'
 
 
 /* Initialize a grid for the Double Mach reflection problem. */
@@ -2057,6 +2088,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float GalaxySimulationInflowTime,
 				     float GalaxySimulationInflowDensity,
 				     int level);
+						// FIXME append 'float GalaxySimulationCR = 0.0);
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,

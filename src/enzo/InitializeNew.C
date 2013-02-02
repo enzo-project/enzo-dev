@@ -52,6 +52,8 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
+int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
+            HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -622,6 +624,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 210) {
     ret = MHDDecayingRandomFieldInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
+
+  // 250 ) Cosmic Ray Shocktube Problem
+  if (ProblemType == 250){
+    ret = CRShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
 
 
   /* ???? */
