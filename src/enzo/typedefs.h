@@ -159,10 +159,13 @@ const field_type
   /* Number of ray segments for ray tracing load balancing */
   RaySegments     = 94,
 
-/* Metals from Type Ia SNe */
+  /* Metals from Type Ia SNe */
   MetalSNIaDensity = 95,
+ 
+  /* Cosmic Ray Energy Density */
+  CRDensity = 96,
 
-  FieldUndefined  = 96;
+  FieldUndefined  = 97;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

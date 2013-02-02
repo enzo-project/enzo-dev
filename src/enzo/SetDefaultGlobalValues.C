@@ -348,6 +348,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GloverChemistryModel        = 0;                 // 0ff
   GloverRadiationBackground   = 0;
   GloverOpticalDepth          = 0;
+  CRModel                     = 0;                 // off
+  CRDiffusion                 = 0;                 // off
+  CRkappa                     = 0.0;
+  CRFeedback                  = 0.0;               // no stellar feedback into CRs
+  CRdensFloor                 = 0.0;
+  CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;

@@ -455,6 +455,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       ret++;
     }
 
+    ret += sscanf(line, "CRModel = %"ISYM, &CRModel); 
+    ret += sscanf(line, "CRDiffusion = %"ISYM, &CRDiffusion);
+    ret += sscanf(line, "CRkappa = %"FSYM, &CRkappa);
+    ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
+    ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
+    ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
+
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);
     ret += sscanf(line, "ShockTemperatureFloor = %"FSYM, &ShockTemperatureFloor);
     ret += sscanf(line, "StorePreShockFields = %"ISYM, &StorePreShockFields);
