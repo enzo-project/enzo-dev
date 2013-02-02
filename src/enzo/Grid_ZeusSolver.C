@@ -83,13 +83,13 @@ int Zeus_zTransport(float *d, float *e, float *u, float *v, float *w,
 		    int Vel1Num, int Vel2Num, int Vel3Num, float *BaryonField[],
 		    int NumberOfColours, int colnum[]);
 
-int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, 
+int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float *cr, 
 	       int in, int jn, int kn, int rank, int igamfield,
 	       int is, int ie, int js, int je, int ks, int ke, 
 	       float C1, float C2, int ipresfree,
 	       float *gamma, float dt, float pmin, float dx[], float dy[], float dz[],
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
-	       int bottom, float minsupecoef);
+	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
 
 int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
@@ -103,9 +103,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   /*  Locals */
 
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
-  float *d, *e, *u, *v, *w;
+  float *d, *e, *u, *v, *w, *cr;
 
   /* Error Check */
 
@@ -123,7 +123,19 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
      Create zero fields for velocity2-3 for low-dimension runs because solver
      assumes they exist. */
 
-  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
+  if(CRModel) {
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+              Vel3Num, TENum, CRNum ) == FAIL ) {
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+    }
+    cr = BaryonField[CRNum];
+  }
+  else
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+              Vel3Num, TENum ) == FAIL ) {
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+    }
+  
   d = BaryonField[DensNum];
   e = BaryonField[TENum];
   u = BaryonField[Vel1Num];
@@ -183,7 +195,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 		 
   /*   1) Add source terms */
 
-  if (ZeusSource(d, e, u, v, w, p, 
+  if (ZeusSource(d, e, u, v, w, p, cr, 
 		 GridDimension[0], GridDimension[1], GridDimension[2],
 		 GridRank, igamfield,
 		 is, ie, js, je, ks, ke, 
@@ -192,7 +204,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 		 gamma, dtFixed, pmin, dx, dy, dz,
 		 gravity, AccelerationField[0], AccelerationField[1],
 		 AccelerationField[2],
-		 bottom, minsupecoef) == FAIL) {
+		 bottom, minsupecoef, CRModel, CRgamma) == FAIL) {
     fprintf(stderr, "P(%"ISYM"): Error in ZeusSource on step %"ISYM" (dt=%"GSYM")\n", MyProcessorNumber,
 	    nhy, dtFixed);
     fprintf(stderr, "  grid dims = %"ISYM" %"ISYM" %"ISYM"\n", GridDimension[0], GridDimension[1], GridDimension[2]);
@@ -210,6 +222,16 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Velocity too fast! (post-call)\n");
     }
   }
+  
+  /* -- density floor for CR model FIXME -- */
+  if( CRModel ){
+    if( CRdensFloor != 0.0 ){
+      if( e[i] < tiny_number*1e-5 )
+        e[i] = tiny_number*1e-5;
+      if( d[i] <= CRdensFloor )
+        d[i] = CRdensFloor;
+    }
+  } // end cr model if
 
   /*  2) Transport step */
 

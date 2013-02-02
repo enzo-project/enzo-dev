@@ -38,20 +38,20 @@ c
 
 #define IDX(a,b,c) ( ((c)*jn + (b))*in + (a) )
 
-int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, 
+int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float *cr, 
 	       int in, int jn, int kn, int rank, int igamfield,
 	       int is, int ie, int js, int je, int ks, int ke, 
 	       float C1, float C2, int ipresfree,
 	       float *gamma, float dt, float pmin, float dx[], float dy[], float dz[],
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
-	       int bottom, float minsupecoef)
+	       int bottom, float minsupecoef, int CRModel, float CRgamma )
 {
   int ijk = MAX_ANY_SINGLE_DIRECTION;
 
   /* Local declarations */
 
   int i, j, k, jsm1, ksm1, jep1, kep1, jsm2, ksm2, jep2, kep2, n, nstep;
-  float  alpha, q[ijk], div[ijk], deltav, deltavmax, e1, gamma1, dt1;
+  float  alpha, q[ijk], div[ijk], deltav, deltavmax, e1, gamma1, dt1, CRalpha;
 
   /* ======================================================================= */
 
@@ -106,6 +106,10 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	}
       }
 
+    // If Cosmic Rays present, add pressure contribution
+    if(CRModel && ipresfree != 1)
+      for(i = 0; i < in; i++ )
+        p[IDX(i,j,k)] += max((CRgamma-1.0)*cr[IDX(i,j,k)],0.0);
 
     } // end loop over j
   } // end loop over k
@@ -336,6 +340,12 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p,
 	    fprintf(stderr, "d,e,u,v,w=%"GSYM",%"GSYM",%"GSYM",%"GSYM",%"GSYM"\n", d[IDX(n,j,k)],e[IDX(n,j,k)],u[IDX(n,j,k)],v[IDX(n,j,k)],w[IDX(n,j,k)]);
 	  ENZO_FAIL("Negative energy or density!\n");
 	}
+
+        /* CR Energy Density updated*/
+        if(CRModel){
+          CRalpha = 0.5*dt*(CRgamma - 1.0)*div[i];
+          cr[IDX(i,j,k)] = cr[IDX(i,j,k)] * (1.0 - CRalpha)/(1.0 + CRalpha);
+        }// end CR if
 
       } // end: loop over i
 
