@@ -68,7 +68,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 int UseMetallicityField, 
 					 float GalaxySimulationInflowTime,
 					 float GalaxySimulationInflowDensity,
-					 int level)
+					 int level,
+           float GalaxySimulationCR )
 {
  /* declarations */
 
@@ -76,11 +77,13 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
    DINum, DIINum, HDINum, B1Num, B2Num, B3Num, PhiNum;
  float DiskDensity, DiskVelocityMag;
+  int CRNum, DensNum;
 
   
   /* create fields */
 
   NumberOfBaryonFields = 0;
+  DensNum = NumberOfBaryonFields;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
   if (DualEnergyFormalism)
@@ -100,6 +103,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }
+
+  /* If cosmic rays present, set up field */
+  CRNum = NumberOfBaryonFields;
+  if( CRModel )
+    FieldType[NumberOfBaryonFields++] = CRDensity;
 
   if (MultiSpecies) {
     FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
@@ -341,6 +349,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	  printf("n = %d  temp = %g   e = %g\n", 0, temperature, 
 	       BaryonField[1][0]);
 
+     if( CRModel )
+       BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
 
      } // end loop over grid
 

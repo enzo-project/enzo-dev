@@ -47,13 +47,14 @@ int RebuildHierarchy(TopGridData *MetaData,
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, 
 			  HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  char *DensName = "Density";
-  char *TEName   = "TotalEnergy";
-  char *GEName   = "GasEnergy";
-  char *Vel1Name = "x-velocity";
-  char *Vel2Name = "y-velocity";
-  char *Vel3Name = "z-velocity";
-  char *MetalName = "Metal_Density";
+  char *DensName    = "Density";
+  char *TEName      = "TotalEnergy";
+  char *GEName      = "GasEnergy";
+  char *Vel1Name    = "x-velocity";
+  char *Vel2Name    = "y-velocity";
+  char *Vel3Name    = "z-velocity";
+  char *CRName      = "CREnergyDensity";
+  char *MetalName   = "Metal_Density";
   char *MetalIaName = "MetalSNIa_Density";
 
   /* declarations */
@@ -71,10 +72,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   float GalaxySimulationGasMass,
     GalaxySimulationGalaxyMass,
+    GalaxySimulationCR,
     GalaxySimulationDiskTemperature,
     GalaxySimulationAngularMomentum[MAX_DIMENSION],
     GalaxySimulationUniformVelocity[MAX_DIMENSION],
     GalaxySimulationUniformDensity,
+    GalaxySimulationUniformCR,
     GalaxySimulationUniformEnergy;
 
   FLOAT GalaxySimulationDiskRadius,
@@ -116,6 +119,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   }
   GalaxySimulationUniformDensity = 1.0;
   GalaxySimulationUniformEnergy = 1.0;
+  GalaxySimulationCR = .01;
+  GalaxySimulationUniformCR = .01;
 
   /* read input from file */
 
@@ -138,6 +143,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationGalaxyMass);
     ret += sscanf(line, "GalaxySimulationGasMass = %"FSYM,
 		  &GalaxySimulationGasMass);
+    ret += sscanf(line, "GalaxySimulationCR = %"FSYM,
+      &GalaxySimulationCR);
+    ret += sscanf(line, "GalaxySimulationUniformCR = %"FSYM,
+      &GalaxySimulationUniformCR);
     ret += sscanf(line, "GalaxySimulationDiskPosition = %"PSYM" %"PSYM" %"PSYM, 
 		  &GalaxySimulationDiskPosition[0],
 		  &GalaxySimulationDiskPosition[1],
@@ -182,7 +191,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
-						       GalaxySimulationInflowDensity,0)
+						       GalaxySimulationInflowDensity,0,
+                   GalaxySimulationCR )
 	      == FAIL) {
       ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
   }// end subgrid if
@@ -234,7 +244,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
-						       GalaxySimulationInflowDensity,0)
+						       GalaxySimulationInflowDensity,0,
+                   GalaxySimulationCR )
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}// end subgrid if
@@ -271,6 +282,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    DataLabel[count++] = Vel2Name;
  if(MetaData.TopGridRank > 2)
    DataLabel[count++] = Vel3Name;
+ if(CRModel)
+   DataLabel[count++] = CRName;
  if (GalaxySimulationUseMetallicityField)
    DataLabel[count++] = MetalName;
  if (StarMakerTypeIaSNe)
@@ -298,6 +311,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	   GalaxySimulationGalaxyMass);
    fprintf(Outfptr, "GalaxySimulationGasMass = %"GOUTSYM"\n",
 	   GalaxySimulationGasMass);
+   fprintf(Outfptr, "GalaxySimulationUniformCR = %"GOUTSYM"\n",
+     GalaxySimulationUniformCR);
+   fprintf(Outfptr, "GalaxySimulationCR = %"GOUTSYM"\n",
+     GalaxySimulationCR);
    fprintf(Outfptr, "GalaxySimulationDiskScaleHeightz = %"GOUTSYM"\n",
 	   GalaxySimulationDiskScaleHeightz);
    fprintf(Outfptr, "GalaxySimulationDiskScaleHeightR = %"GOUTSYM"\n",

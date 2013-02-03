@@ -1783,7 +1783,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
 			    float UniformGasEnergy, float UniformVelocity[], 
-			    float UniformBField[]); // FIXME append 'float UniformCR = 0.0);'
+			    float UniformBField[]);
 
 
 /* Initialize a grid for the Double Mach reflection problem. */
@@ -2087,8 +2087,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     int UseMetallicityField, 
 				     float GalaxySimulationInflowTime,
 				     float GalaxySimulationInflowDensity,
-				     int level);
-						// FIXME append 'float GalaxySimulationCR = 0.0);
+				     int level,
+						 float GalaxySimulationCR = 0.0 );
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
