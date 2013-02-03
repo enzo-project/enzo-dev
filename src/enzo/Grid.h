@@ -382,8 +382,8 @@ public:
    int ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
-//	int ComputeCRDiffusion(); // CR Diffusion Method FIXME 
-//	int ComputeCRDiffusionTimeStep(float &dt); FIXME
+	int ComputeCRDiffusion(); // CR Diffusion Method 
+	int ComputeCRDiffusionTimeStep(float &dt);
 
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
