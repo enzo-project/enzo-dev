@@ -375,6 +375,7 @@ EXTERN int CRDiffusion;
  */
 EXTERN float CRFeedback;
 EXTERN float CRkappa;
+EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
 EXTERN float CRgamma;
 

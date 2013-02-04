@@ -382,6 +382,7 @@ float grid::ComputeTimeStep()
       fprintf(stderr, "Error in ComputeCRDiffusionTimeStep.\n");
       return FAIL;
     }
+    dtCR *= CRCourantSafetyNumber;
     dtCR *= float(NumberOfGhostZones);  // for subcycling
   }
 

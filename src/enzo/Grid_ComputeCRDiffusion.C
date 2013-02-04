@@ -98,7 +98,7 @@ int grid::ComputeCRDiffusion(){
     if (this->ComputeCRDiffusionTimeStep(dtSubcycle) == FAIL) {
       ENZO_FAIL("Error in ComputeConductionTimeStep.");
     }
-    dtSubcycle *= 0.5;  // for stability FIXME
+    dtSubcycle *= CRCourantSafetyNumber;  // for stability FIXME
 
     // make sure we don't extend past dtFixed
     dtSubcycle = min(dtSubcycle, dtFixed-dtSoFar);

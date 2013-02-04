@@ -351,6 +351,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRModel                     = 0;                 // off
   CRDiffusion                 = 0;                 // off
   CRkappa                     = 0.0;
+  CRCourantSafetyNumber       = 0.5;
   CRFeedback                  = 0.0;               // no stellar feedback into CRs
   CRdensFloor                 = 0.0;
   CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
