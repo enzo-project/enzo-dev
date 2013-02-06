@@ -224,10 +224,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   }
   
   /* -- density floor for CR model FIXME -- */
-  if( CRModel ){
-    if( CRdensFloor != 0.0 && d[i] <= CRdensFloor ){
-        d[i] = CRdensFloor;
-    }
+  if( CRModel && CRdensFloor != 0.0 ){
+    if( d[i] <= CRdensFloor ) d[i] = CRdensFloor;
+    if( e[i] < tiny_number*1e-5 ) e[i] = tiny_number*1e-5;
   } // end cr model if
 
   /*  2) Transport step */
