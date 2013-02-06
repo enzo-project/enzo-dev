@@ -148,11 +148,12 @@ int grid::ComputeCRDiffusion(){
       for (j = GridStart[1]; j <= GridEnd[1]; j++) 
   	for (i = GridStart[0]; i <= GridEnd[0]; i++) {
 	  idx = ELT(i,j,k);
-
 	  crOld=cr[idx];
-
   	  cr[idx] += dCRdt[idx]*dtSubcycle;
-	    
+          if( cr[idx] < 0.0 ){
+            printf("Negative CR (after diff) i,j,k = %"ISYM", %"ISYM", %"ISYM"\n",i,j,k);
+            printf("\t\t>> Old CR: %"ESYM"\n",crOld);
+          } // end err if FIXME
 	} // triple for loop
 
     // increment timestep
