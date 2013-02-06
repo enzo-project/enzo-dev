@@ -221,13 +221,13 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 	      u[i],v[i],w[i],d[i],e[i], dx[0], dtFixed);
       ENZO_FAIL("Velocity too fast! (post-call)\n");
     }
-  }
   
-  /* -- density floor for CR model FIXME -- */
-  if( CRModel && CRdensFloor != 0.0 ){
-    if( d[i] <= CRdensFloor ) d[i] = CRdensFloor;
-    if( e[i] < tiny_number*1e-5 ) e[i] = tiny_number*1e-5;
-  } // end cr model if
+    /* -- density floor for CR model -- */
+    if( CRModel && CRdensFloor != 0.0 ){
+      if( d[i] < CRdensFloor ) d[i] = CRdensFloor;
+      if( e[i] < tiny_number*1e-5 ) e[i] = tiny_number*1e-5;
+    } // end cr model if
+  } // end i for
 
   /*  2) Transport step */
 
