@@ -296,7 +296,7 @@ c
      &                      distrad, diststep, distcells, 
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, justburn
+     &                      mp, tdp, tcp, metalf, type, justburn,
      &                      crmodel, crfeedback, cr )
 
 c
@@ -407,7 +407,7 @@ c          over a long period of time (in code units), so the particle
 c          actually loses mass over time in an exponentially decaying
 c          way.
 
-        Determine how much of a given star particle would have been 
+c        Determine how much of a given star particle would have been 
 c          turned into stars during this timestep.  Then calculate the mass
 c          which should have formed during this timestel dt using the integral
 c          form of the Cen & Ostriker formula.
