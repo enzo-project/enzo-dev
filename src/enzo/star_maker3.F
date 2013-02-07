@@ -296,7 +296,8 @@ c
      &                      distrad, diststep, distcells, 
      &                      npart, xstart, ystart, zstart, ibuff,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, justburn)
+     &                      mp, tdp, tcp, metalf, type, justburn
+     &                      crmodel, crfeedback, cr )
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
@@ -376,6 +377,9 @@ c
       R_PREC    up(npart), vp(npart), wp(npart)
       R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       INTG_PREC type(npart)
+      INTG_PREC crmodel
+      R_PREC cr(nx,ny,nz)
+      R_PREC crfeedback
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
@@ -390,7 +394,7 @@ c-----------------------------------------------------------------------
 c
 c     Loop over particles
 c
-c      write(6,*) 'star_feedback3: start'
+      write(6,*) 'star_feedback3: start'
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
@@ -403,7 +407,7 @@ c          over a long period of time (in code units), so the particle
 c          actually loses mass over time in an exponentially decaying
 c          way.
 
-c        Determine how much of a given star particle would have been 
+        Determine how much of a given star particle would have been 
 c          turned into stars during this timestep.  Then calculate the mass
 c          which should have formed during this timestel dt using the integral
 c          form of the Cen & Ostriker formula.
@@ -494,12 +498,22 @@ c
                      cellstep = stepj + abs(ic-i)
                      if (cellstep .le. diststep) then
                         dratio = 1._RKIND/(d(ic,jc,kc) + distmass)
-                        te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
-     &                       energy) * dratio
-                        if (idual .eq. 1)
-     &                       ge(ic,jc,kc) = 
-     &                       ((ge(ic,jc,kc)*d(ic,jc,kc)) +
-     &                       energy) * dratio
+                        if( crmodel .gt. 0 ) then
+                          te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
+     &                         energy*(1._RKIND-crfeedback)) * dratio
+                          if (idual .eq. 1)
+     &                      ge(ic,jc,kc) =   
+     &                         ((ge(ic,jc,kc)*d(ic,jc,kc)) +
+     &                         energy*(1._RKIND-crfeedback)) * dratio
+                          cr(ic,jc,kc) = cr(ic,jc,kc)+energy*crfeedback
+                        else
+                          te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
+     &                         energy) * dratio
+                          if (idual .eq. 1)
+     &                      ge(ic,jc,kc) = 
+     &                         ((ge(ic,jc,kc)*d(ic,jc,kc)) +
+     &                         energy) * dratio
+                        endif
 c
 c           Metal feedback (note that in this function gas metal is
 c             a fraction (rho_metal/rho_gas) rather than a density.

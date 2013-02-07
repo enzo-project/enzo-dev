@@ -461,6 +461,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "CRCourantSafetyNumber = %"FSYM, &CRCourantSafetyNumber);
     ret += sscanf(line, "CRFeedback = %"FSYM, &CRFeedback);
     ret += sscanf(line, "CRdensFloor = %"FSYM, &CRdensFloor);
+    ret += sscanf(line, "CRmaxSoundSpeed = %"FSYM, &CRmaxSoundSpeed);
     ret += sscanf(line, "CRgamma = %"FSYM, &CRgamma);
 
     ret += sscanf(line, "ShockMethod = %"ISYM, &ShockMethod);

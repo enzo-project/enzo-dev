@@ -213,6 +213,9 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   /* Error check */
 
+  float CRcs = 0.0;
+  if(CRmaxSoundSpeed != 0.0) CRcs = (CRgamma-1.0)/(CRmaxSoundSpeed*CRmaxSoundSpeed);
+
   for (i = 0; i < size; i++) {
     if (fabs(u[i]) > dx[0]/dtFixed ||
 	fabs(v[i]) > dy[0]/dtFixed ||
@@ -222,10 +225,11 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Velocity too fast! (post-call)\n");
     }
   
-    /* -- density floor for CR model -- */
-    if( CRModel && CRdensFloor != 0.0 ){
-      if( d[i] < CRdensFloor ) d[i] = CRdensFloor;
-      if( e[i] < tiny_number*1e-5 ) e[i] = tiny_number*1e-5;
+    /* -- density/TE floor for CR model -- */
+    if( CRModel ){
+      if( CRdensFloor != 0.0 && d[i] < CRdensFloor ) d[i] = CRdensFloor;
+      if( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed 
+      if( e[i] < tiny_number*1e-5                  ) e[i] = tiny_number*1e-5;
     } // end cr model if
   } // end i for
 

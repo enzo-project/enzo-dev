@@ -377,6 +377,7 @@ EXTERN float CRFeedback;
 EXTERN float CRkappa;
 EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
+EXTERN float CRmaxSoundSpeed;
 EXTERN float CRgamma;
 
 /* Shock Finding Method

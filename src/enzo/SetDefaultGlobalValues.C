@@ -353,7 +353,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRkappa                     = 0.0;
   CRCourantSafetyNumber       = 0.5;
   CRFeedback                  = 0.0;               // no stellar feedback into CRs
-  CRdensFloor                 = 0.0;
+  CRdensFloor                 = 0.0;               // off
+  CRmaxSoundSpeed             = 0.0;               // off 
   CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
