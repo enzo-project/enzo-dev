@@ -38,6 +38,9 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
  
+  char *MachName   = "Mach";
+  char *PSTempName = "PreShock_Temperature";
+  char *PSDenName  = "PreShock_Density";
   /* declarations */
  
   char line[MAX_LINE_LENGTH];
@@ -81,18 +84,18 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     ret += sscanf(line, "ShockInABoxBoundary = %"PSYM, &ShockInABoxBoundary);
  
-    ret += sscanf(line, "ShockInABoxLeftDensity = %"FSYM,
+    ret += sscanf(line, "ShockInABoxLeftDensity = %"ESYM,
 		  &ShockInABoxDensity[0]);
-    ret += sscanf(line, "ShockInABoxLeftPressure = %"FSYM,
+    ret += sscanf(line, "ShockInABoxLeftPressure = %"ESYM,
 		  &ShockInABoxPressure[0]);
-    ret += sscanf(line, "ShockInABoxLeftVelocity = %"FSYM,
+    ret += sscanf(line, "ShockInABoxLeftVelocity = %"ESYM,
 		  &ShockInABoxVelocity[0]);
  
-    ret += sscanf(line, "ShockInABoxRightDensity = %"FSYM,
+    ret += sscanf(line, "ShockInABoxRightDensity = %"ESYM,
 		  &ShockInABoxDensity[1]);
-    ret += sscanf(line, "ShockInABoxRightPressure = %"FSYM,
+    ret += sscanf(line, "ShockInABoxRightPressure = %"ESYM,
 		  &ShockInABoxPressure[1]);
-    ret += sscanf(line, "ShockInABoxRightVelocity = %"FSYM,
+    ret += sscanf(line, "ShockInABoxRightVelocity = %"ESYM,
 		  &ShockInABoxVelocity[1]);
  
     ret += sscanf(line, "ShockInABoxSubgridLeft = %"PSYM,
@@ -103,7 +106,7 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     /* if the line is suspicious, issue a warning */
  
     if (ret == 0 && strstr(line, "=") && strstr(line, "ShockInABox"))
-      fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
+      fprintf(stderr, "ShockInABox warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }
  
@@ -174,17 +177,46 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     }
   }
   
+ 
+  /* set up field names and units */
+ 
+  DataLabel[0] = DensName;
+  DataLabel[1] = Vel1Name;
+  DataLabel[2] = Vel2Name;
+  DataLabel[3] = Vel3Name;
+  DataLabel[4] = TEName;
+ 
+  DataUnits[0] = NULL;
+  DataUnits[1] = NULL;
+  DataUnits[2] = NULL;
+  DataUnits[3] = NULL;
+  DataUnits[4] = NULL;
+ 
+  int field_counter = 5;
+
+  if (ShockMethod) {
+    DataLabel[field_counter++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[field_counter++] = PSTempName;
+      DataLabel[field_counter++] = PSDenName;
+    }
+  } 
+  for (int j = 0; j < field_counter; j++)
+    DataUnits[j] = NULL;
+
   /* Initialize the exterior. */
  
   Exterior.Prepare(TopGrid.GridData);
  
-  float InflowValue[5], Dummy[5];
+  float InflowValue[field_counter], Dummy[field_counter];
+  for (int j = 0; j < field_counter; j++){
+    InflowValue[j] = 0.0;
+    Dummy[j] = 0.0;
+  }
   InflowValue[0] = ShockInABoxDensity[0];
-  InflowValue[1] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0]
+  InflowValue[1] = ShockInABoxVelocity[0];
+  InflowValue[4] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0]
                    + 0.5*POW(ShockInABoxVelocity[0], 2);
-  InflowValue[2] = ShockInABoxVelocity[0];
-  InflowValue[3] = 0.0;
-  InflowValue[4] = 0.0;
  
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 					      Dummy) == FAIL) {
@@ -198,21 +230,6 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     Exterior.InitializeExternalBoundaryFace(2, reflecting, reflecting,
 					    Dummy, Dummy);
  
- 
-  /* set up field names and units */
- 
-  DataLabel[0] = DensName;
-  DataLabel[1] = TEName;
-  DataLabel[2] = Vel1Name;
-  DataLabel[3] = Vel2Name;
-  DataLabel[4] = Vel3Name;
- 
-  DataUnits[0] = NULL;
-  DataUnits[1] = NULL;
-  DataUnits[2] = NULL;
-  DataUnits[3] = NULL;
-  DataUnits[4] = NULL;
- 
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -221,16 +238,16 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     fprintf(Outfptr, "ShockInABoxBoundary      = %"GOUTSYM"\n\n",
 	    ShockInABoxBoundary);
  
-    fprintf(Outfptr, "ShockInABoxLeftDensity   = %"FSYM"\n", ShockInABoxDensity[0]);
-    fprintf(Outfptr, "ShockInABoxLeftPressure  = %"FSYM"\n",
+    fprintf(Outfptr, "ShockInABoxLeftDensity   = %"ESYM"\n", ShockInABoxDensity[0]);
+    fprintf(Outfptr, "ShockInABoxLeftPressure  = %"ESYM"\n",
 	    ShockInABoxPressure[0]);
-    fprintf(Outfptr, "ShockInABoxLeftVelocity  = %"FSYM"\n\n",
+    fprintf(Outfptr, "ShockInABoxLeftVelocity  = %"ESYM"\n\n",
 	    ShockInABoxVelocity[0]);
  
-    fprintf(Outfptr, "ShockInABoxRightDensity  = %"FSYM"\n", ShockInABoxDensity[1]);
-    fprintf(Outfptr, "ShockInABoxRightPressure = %"FSYM"\n",
+    fprintf(Outfptr, "ShockInABoxRightDensity  = %"ESYM"\n", ShockInABoxDensity[1]);
+    fprintf(Outfptr, "ShockInABoxRightPressure = %"ESYM"\n",
 	    ShockInABoxPressure[1]);
-    fprintf(Outfptr, "ShockInABoxRightVelocity = %"FSYM"\n\n",
+    fprintf(Outfptr, "ShockInABoxRightVelocity = %"ESYM"\n\n",
 	    ShockInABoxVelocity[1]);
   }
  

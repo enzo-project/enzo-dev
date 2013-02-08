@@ -24,6 +24,8 @@ int grid::HydroShockTubesInitializeGrid(float x0,
 					)
 {  
 
+  int MachNum, PSTempNum, PSDenNum;
+
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -33,6 +35,14 @@ int grid::HydroShockTubesInitializeGrid(float x0,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
+
+  if(ShockMethod){
+    FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
+    if(StorePreShockFields){
+      FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
+      FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
+    }
+  }    
 
   
   if (ProcessorNumber != MyProcessorNumber) {
@@ -86,6 +96,16 @@ int grid::HydroShockTubesInitializeGrid(float x0,
 	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
     }
+
+    //Shock
+    if (ShockMethod) {
+      BaryonField[MachNum][i] = tiny_number;
+      if (StorePreShockFields) {
+        BaryonField[PSTempNum][i] = tiny_number;
+        BaryonField[PSDenNum][i] = tiny_number;
+      }
+    }
+
   }
 
   return SUCCESS;
@@ -102,6 +122,8 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
 					)
 {  
 
+  int MachNum, PSTempNum, PSDenNum;
+
   NumberOfBaryonFields = 0;
   FieldType[NumberOfBaryonFields++] = Density;
   FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -112,6 +134,15 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
 
+
+
+  if(ShockMethod){
+    FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
+    if(StorePreShockFields){
+      FieldType[PSTempNum = NumberOfBaryonFields++] = PreShockTemperature;
+      FieldType[PSDenNum = NumberOfBaryonFields++] = PreShockDensity;
+    }
+  }    
   
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
@@ -175,6 +206,15 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
       BaryonField[ietot][i] = etotr;
       if (DualEnergyFormalism) {
 	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+      }
+    }
+
+  //Shock
+    if (ShockMethod) {
+      BaryonField[MachNum][i] = tiny_number;
+      if (StorePreShockFields) {
+	BaryonField[PSTempNum][i] = tiny_number;
+	BaryonField[PSDenNum][i] = tiny_number;
       }
     }
   }
