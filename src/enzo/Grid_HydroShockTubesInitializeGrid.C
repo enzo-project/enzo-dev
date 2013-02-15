@@ -107,6 +107,8 @@ int grid::HydroShockTubesInitializeGrid(float x0,
     }
 
   }
+  }
+  }
 
   return SUCCESS;
 }
@@ -133,8 +135,6 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-
-
 
   if(ShockMethod){
     FieldType[MachNum   = NumberOfBaryonFields++] = Mach;
@@ -216,6 +216,8 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
 	BaryonField[PSDenNum][index] = tiny_number;
       }
     }
+  }
+  }
   }
 
   return SUCCESS;
