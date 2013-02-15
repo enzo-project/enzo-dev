@@ -50,13 +50,10 @@ int grid::HydroShockTubesInitializeGrid(float x0,
   }
 
 
-  int size = 1, activesize = 1, dim;
+  int size = 1, index, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
-  
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (BaryonField[field] == NULL)
@@ -73,36 +70,39 @@ int grid::HydroShockTubesInitializeGrid(float x0,
 
   FLOAT x;
   int i;
+  for (int k = 0; k < GridDimension[2]; k++) {
+  for (int j = 0; j < GridDimension[1]; j++) {
   for (i = 0; i < GridDimension[0]; i++) {
 
     x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+    index = GRIDINDEX_NOGHOST(i,j,k); 
 
     if (x <= x0) {
-      BaryonField[iden ][i] = rhol;
-      BaryonField[ivx  ][i] = vxl;
-      BaryonField[ivy  ][i] = vyl;
-      BaryonField[ivz  ][i] = vzl;
-      BaryonField[ietot][i] = etotl;
+      BaryonField[iden ][index] = rhol;
+      BaryonField[ivx  ][index] = vxl;
+      BaryonField[ivy  ][index] = vyl;
+      BaryonField[ivz  ][index] = vzl;
+      BaryonField[ietot][index] = etotl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
+	BaryonField[ieint][index] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
     } else {
-      BaryonField[iden ][i] = rhor;
-      BaryonField[ivx  ][i] = vxr;
-      BaryonField[ivy  ][i] = vyr;
-      BaryonField[ivz  ][i] = vzr;
-      BaryonField[ietot][i] = etotr;
+      BaryonField[iden ][index] = rhor;
+      BaryonField[ivx  ][index] = vxr;
+      BaryonField[ivy  ][index] = vyr;
+      BaryonField[ivz  ][index] = vzr;
+      BaryonField[ietot][index] = etotr;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+	BaryonField[ieint][index] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
     }
 
     //Shock
     if (ShockMethod) {
-      BaryonField[MachNum][i] = tiny_number;
+      BaryonField[MachNum][index] = tiny_number;
       if (StorePreShockFields) {
-        BaryonField[PSTempNum][i] = tiny_number;
-        BaryonField[PSDenNum][i] = tiny_number;
+        BaryonField[PSTempNum][index] = tiny_number;
+        BaryonField[PSDenNum][index] = tiny_number;
       }
     }
 
@@ -149,18 +149,14 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
   }
 
 
-  int size = 1, activesize = 1, dim;
+  int size = 1, dim, index;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
-  for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
-  
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (BaryonField[field] == NULL)
       BaryonField[field] = new float[size];
-
   
   /* transform pressure to total energy */
   float etotl, etotr, etotc, v2;
@@ -175,46 +171,49 @@ int grid::HydroShockTubesInitializeGrid(float x0, float x1,
 
   FLOAT x;
   int i;
+  for (int k = 0; k < GridDimension[2]; k++) {
+  for (int j = 0; j < GridDimension[1]; j++) {
   for (i = 0; i < GridDimension[0]; i++) {
 
     x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+    index = GRIDINDEX_NOGHOST(i,j,k);
 
     if (x <= x0) {
-      BaryonField[iden ][i] = rhol;
-      BaryonField[ivx  ][i] = vxl;
-      BaryonField[ivy  ][i] = vyl;
-      BaryonField[ivz  ][i] = vzl;
-      BaryonField[ietot][i] = etotl;
+      BaryonField[iden ][index] = rhol;
+      BaryonField[ivx  ][index] = vxl;
+      BaryonField[ivy  ][index] = vyl;
+      BaryonField[ivz  ][index] = vzl;
+      BaryonField[ietot][index] = etotl;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
+	BaryonField[ieint][index] = etotl - 0.5*(vxl*vxl+vyl*vyl+vzl*vzl);
       }
     } else if (x <= x1) {
-      BaryonField[iden ][i] = rhoc;
-      BaryonField[ivx  ][i] = vxc;
-      BaryonField[ivy  ][i] = vyc;
-      BaryonField[ivz  ][i] = vzc;
-      BaryonField[ietot][i] = etotc;
+      BaryonField[iden ][index] = rhoc;
+      BaryonField[ivx  ][index] = vxc;
+      BaryonField[ivy  ][index] = vyc;
+      BaryonField[ivz  ][index] = vzc;
+      BaryonField[ietot][index] = etotc;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotc - 0.5*(vxc*vxc+vyc*vyc+vzc*vzc);
+	BaryonField[ieint][index] = etotc - 0.5*(vxc*vxc+vyc*vyc+vzc*vzc);
       }
     }
     else {
-      BaryonField[iden ][i] = rhor;
-      BaryonField[ivx  ][i] = vxr;
-      BaryonField[ivy  ][i] = vyr;
-      BaryonField[ivz  ][i] = vzr;
-      BaryonField[ietot][i] = etotr;
+      BaryonField[iden ][index] = rhor;
+      BaryonField[ivx  ][index] = vxr;
+      BaryonField[ivy  ][index] = vyr;
+      BaryonField[ivz  ][index] = vzr;
+      BaryonField[ietot][index] = etotr;
       if (DualEnergyFormalism) {
-	BaryonField[ieint][i] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
+	BaryonField[ieint][index] = etotr - 0.5*(vxr*vxr+vyr*vyr+vzr*vzr);
       }
     }
 
   //Shock
     if (ShockMethod) {
-      BaryonField[MachNum][i] = tiny_number;
+      BaryonField[MachNum][index] = tiny_number;
       if (StorePreShockFields) {
-	BaryonField[PSTempNum][i] = tiny_number;
-	BaryonField[PSDenNum][i] = tiny_number;
+	BaryonField[PSTempNum][index] = tiny_number;
+	BaryonField[PSDenNum][index] = tiny_number;
       }
     }
   }
