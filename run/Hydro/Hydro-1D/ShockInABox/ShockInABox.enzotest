@@ -1,5 +1,5 @@
-name = 'CustomShockBox'
-answer_testing_script = None
+name = 'ShockInABox'
+answer_testing_script = 'ShockInABox__test_shockinabox.py' 
 nprocs = 1
 runtime = 'short'
 hydro = True

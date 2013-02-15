@@ -6,7 +6,7 @@ from yt.frontends.enzo.answer_testing_support import \
 import os
 
 # Verifies that OutputLog exists
-@requires_outputlog(os.path.dirname(__file__), "CustomShockBox.enzo")
+@requires_outputlog(os.path.dirname(__file__), "ShockInABox.enzo")
 def test_customshockbox():
     pf = load('DD0010/data0010')
     mach = pf.h.find_max('Mach')[0]

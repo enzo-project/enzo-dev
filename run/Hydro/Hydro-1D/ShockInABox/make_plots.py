@@ -1,9 +1,6 @@
 from yt.mods import *
 import pylab
 
-### define problem name
-problem_name = 'CustomShockBox'
-
 ### define simulation output directory and filename base
 output_dir_base = 'DD'
 datafile_base = 'data'
