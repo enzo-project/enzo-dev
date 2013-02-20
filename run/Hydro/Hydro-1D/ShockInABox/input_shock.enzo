@@ -22,7 +22,6 @@ dtDataDump             = 1.0e-1
 #  set Hydro parameters
 #
 HydroMethod            = 0
-Gamma                  = 1.66667
 CourantSafetyNumber    = 0.8
 PPMDiffusionParameter  = 1       // diffusion on 
 PPMFlatteningParameter = 1       // flattening on

@@ -20,7 +20,7 @@ def setup_shockbox(length_units, time_units, d1, T1, m, gamma=None):
     c1 = (gamma*p1/(d1))**0.5;
     v1 = 0.0
     v2 = m*c1*(1.-d1/d2);
-    shockspeed = 0.9*c1 * m;
+    shockspeed = 1.0 * c1 * m;
 
     vel_units = length_units/time_units
 
@@ -29,6 +29,7 @@ def setup_shockbox(length_units, time_units, d1, T1, m, gamma=None):
     lines.append('DensityUnits = %0.8e\n' % dens_units)
     lines.append('LengthUnits = %0.8e\n' % length_units)
     lines.append('TimeUnits = %0.8e\n' % time_units)
+    lines.append('Gamma = %f\n' % gamma)
     lines.append('ShockInABoxLeftDensity = %0.8e\n' % (d1)) 
     lines.append('ShockInABoxLeftVelocity = %0.8e\n' % ((shockspeed - v1))) 
     lines.append('ShockInABoxLeftPressure = %0.8e\n' % (p1) ) 
@@ -69,8 +70,9 @@ def add_lines(infile, outfile, lines):
     of.writelines(lines)
     of.close()
 
-def TempJump(mach):
-    Gamma = 5.0/3.0
+def TempJump(mach, Gamma=None):
+    if Gamma is None:
+        Gamma = 5.0/3.0
     M2 = mach*mach;
     TJ = (2.0*Gamma*M2-(Gamma-1.0))*((Gamma-1.0)*M2+2.0)/(M2*(Gamma+1.0)**2);
     return TJ
@@ -80,19 +82,19 @@ boxsize = 1.0*cm_per_mpc # 1 Mpc box
 pre_shock_den = 1.0e0 # part/cc
 postT = 1.0e7 # K
 mach = 3.0 
+gas_gamma = 5./3.
 
 infile = 'input_shock.enzo'
 myname = 'CustomShockBox.enzo'
 
 # No modification is needed below here.
 
-preT = postT/TempJump(mach)
+preT = postT/TempJump(mach, gas_gamma)
 
 header = get_header(pre_shock_den, preT, postT, mach)
 inlines = get_lines(infile)
-customlines = setup_shockbox(boxsize, simtime, pre_shock_den, preT, mach)
+customlines = setup_shockbox(boxsize, simtime, pre_shock_den, preT, mach,
+                             gamma=gas_gamma)
 
 write_lines(myname, header+inlines+customlines)
-
-
 

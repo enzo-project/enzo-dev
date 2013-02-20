@@ -115,14 +115,6 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if( ShockInABoxDirection != 0 )
     ENZO_FAIL("Only ShockInABoxDirection=0 supported at the moment!");
 
-//   if (TopGrid.GridData->ShockTubeInitializeGrid(ShockInABoxDirection,
-// 						ShockInABoxBoundary,
-// 						ShockInABoxDensity,
-// 						ShockInABoxPressure,
-// 						ShockInABoxVelocity) == FAIL) {
-//     ENZO_FAIL("Error in ShockTubeInitializeGrid.\n");
-//   }
-
   if (TopGrid.GridData->
       HydroShockTubesInitializeGrid(ShockInABoxBoundary,
 				    ShockInABoxDensity[0], ShockInABoxDensity[1],
