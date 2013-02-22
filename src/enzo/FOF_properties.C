@@ -60,8 +60,8 @@ void get_properties(FOFData D, FOF_particle_data *p, int len, bool subgroup,
     pcmv[k] = sv[k];
   }
 
-  printf("CoM0 = %15.10g %15.10g %15.10g\n", pcm[0]/D.BoxSize, pcm[1]/D.BoxSize, 
-	   pcm[2]/D.BoxSize);
+//  printf("CoM0 = %15.10g %15.10g %15.10g\n", pcm[0]/D.BoxSize, pcm[1]/D.BoxSize, 
+//	   pcm[2]/D.BoxSize);
 
   mtot0 = mtot;
   pindex = new int[len];
