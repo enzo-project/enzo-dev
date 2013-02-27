@@ -129,12 +129,12 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
     cr = BaryonField[CRNum];
-  }
-  else
+  } else {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
               Vel3Num, TENum ) == FAIL ) {
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
+  }
   
   d = BaryonField[DensNum];
   e = BaryonField[TENum];

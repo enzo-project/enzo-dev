@@ -434,16 +434,17 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find fields: density, total energy, velocity1-3. */
  
   this->DebugCheck("StarParticleHandler");
-  if( CRModel )
+  if( CRModel ){
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
                  Vel3Num, TENum, CRNum ) == FAIL) {
           ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
-  else
+  } else {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
   				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
           ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
+  }
  
   /* If using MHD, subtract magnetic energy from total energy because 
      density may be modified in star_maker8. */

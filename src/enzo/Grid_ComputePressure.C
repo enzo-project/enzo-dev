@@ -66,16 +66,17 @@ int grid::ComputePressure(FLOAT time, float *pressure)
  
   /* Find fields: density, total energy, velocity1-3. */
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRNum;
-  if(CRModel)
+  if(CRModel) {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
               Vel3Num, TENum, CRNum) == FAIL) {
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
-  else
+  } else {
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
               Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
+  }
  
   /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
      subtract the kinetic energy term. */
