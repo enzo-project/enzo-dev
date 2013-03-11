@@ -779,10 +779,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ProcessorTopology[2]      = INT_UNDEFINED;
   FixedTimestep = -1.0;
   WriteBoundary             = FALSE;
-  CT_AthenaDissipation = 0.0;
+  CT_AthenaDissipation = 0.1;
   MHD_WriteElectric = TRUE;
   tiny_pressure = tiny_number;
-  MHD_CT_Method = 3;
+  MHD_CT_Method = 2;
   NumberOfGhostZones = 3;
   IsothermalSoundSpeed = 1.0;
   MHD_ProjectB = FALSE;
