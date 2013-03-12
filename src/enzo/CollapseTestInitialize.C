@@ -502,8 +502,8 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
 	      CollapseTestSphereConstantPressure[sphere]);
       fprintf(Outfptr, "CollapseTestSphereSmoothSurface[%"ISYM"] = %"ISYM"\n", sphere,
 	      CollapseTestSphereSmoothSurface[sphere]);
-      fprintf(Outfptr, "CollapseTestSphereConstantPressure[%"ISYM"] = %"ISYM"\n", sphere,
-	      CollapseTestSphereConstantPressure[sphere]);
+      fprintf(Outfptr, "CollapseTestSphereSmoothRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      CollapseTestSphereSmoothRadius[sphere]);
     }
   }
 

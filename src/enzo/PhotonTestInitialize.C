@@ -543,6 +543,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	      PhotonTestSphereConstantPressure[sphere]);
       fprintf(Outfptr, "PhotonTestSphereSmoothSurface[%"ISYM"] = %"ISYM"\n", sphere,
 	      PhotonTestSphereSmoothSurface[sphere]);
+      fprintf(Outfptr, "PhotonTestSphereSmoothRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      PhotonTestSphereSmoothRadius[sphere]);
       fprintf(Outfptr, "PhotonTestSphereRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereRadius[sphere]);
       fprintf(Outfptr, "PhotonTestSphereCoreRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
@@ -551,8 +553,6 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	      PhotonTestSphereDensity[sphere]);
       fprintf(Outfptr, "PhotonTestSphereTemperature[%"ISYM"] = %"FSYM"\n", sphere,
 	      PhotonTestSphereTemperature[sphere]);
-      fprintf(Outfptr, "PhotonTestSphereConstantPressure[%"ISYM"] = %"ISYM"\n", sphere,
-	      PhotonTestSphereConstantPressure[sphere]);
       fprintf(Outfptr, "PhotonTestSpherePosition[%"ISYM"] = ", sphere);
       WriteListOfFloats(Outfptr, MetaData.TopGridRank,
 			PhotonTestSpherePosition[sphere]);
