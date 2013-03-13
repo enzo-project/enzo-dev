@@ -42,13 +42,12 @@ void my_exit(int status);
  
 // HDF5 function prototypes
  
-
- 
 // function prototypes
  
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
  
+void MHDCTSetupFieldLabels(void);
 static int GridReadDataGridCounter = 0;
  
  
@@ -310,7 +309,68 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       }
 
     } // end: loop over fields
+
+#ifdef MHDCT
+
+    if( useMHDCT ){
+      //
+      // Set up metadata for MHD.
+      //
+      MHDCTSetupFieldLabels();
+      this->MHD_SetupDims();
+
+      //
+      // Define some local variables for MHD.
+      //
+      if( MyProcessorNumber == ProcessorNumber ){
+        int MHDActive[3];
+        hsize_t MHDOutDims[3];
+        int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
+        float *MHDtmp = new float[BiggieSize];	
+        bool io_log = (log_fptr != NULL);
+
+        //
+        // Read Magnetic Field.
+        //
+        for (field = 0; field < 3; field++) {
+          for (int dim = 0; dim < 3; dim++)
+            MHDActive[dim] = MHDEndIndex[field][dim] - MHDStartIndex[field][dim] +1;
+
+          for (int dim = 0; dim < GridRank; dim++)
+            MHDOutDims[GridRank-dim-1] = MHDActive[dim];
+
+          MagneticField[field] = new float[MagneticSize[field]];
+          if( MagneticField[field] == NULL ){
+            ENZO_FAIL("ReadGridHDF5: Not enough memory! Lost it on the MagneticField read.");
+          }
+          for( i=0; i<MagneticSize[field]; i++) MagneticField[field][i] = 0.0;
+
+          this->read_dataset(GridRank, MHDOutDims, MHDLabel[field],
+            group_id, HDF5_REAL, (VOIDP) MHDtmp,
+            TRUE, MagneticField[field], MHDActive, MHDStartIndex[field], MHDEndIndex[field],
+            MagneticDims[field]);
  
+        }//End Read Magnetic Field
+        //allocate centeredB and ElectricField
+        for(field=0;field<3;field++){
+          CenteredB[field] = new float[size];
+
+          for (i = 0; i < size; i++)
+            CenteredB[field][i] = 0.0;
+        }
+        if( this->CenterMagneticField() == FAIL )
+          ENZO_FAIL("error with CenterMagneticField , second call.");
+
+        for(field=0;field<3;field++)
+          ElectricField[field] = new float[ElectricSize[field]];
+
+        delete [] MHDtmp;
+
+      }//processor
+
+    }
+
+#endif //MHDCT
 
     if (HydroMethod == MHD_RK) { // This is the MHD with Dedner divergence cleaning that needs an extra field
       // 
@@ -515,7 +575,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
 int grid::read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
                   hid_t data_type, void *read_to, int copy_back_active,
-                  float *copy_to, int *active_dims)
+                  float *copy_to, int *active_dims, int *grid_start_index,
+                  int *grid_end_index, int *data_dims)
 {
   hid_t file_dsp_id;
   hid_t dset_id;
@@ -542,15 +603,25 @@ int grid::read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
   if(copy_back_active == TRUE) {
     /* copy active region into whole grid */
 
-    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-        for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++){
-          copy_to[i + j*GridDimension[0] +
-            k*GridDimension[0]*GridDimension[1]] =
-	      ((float *)read_to)[(i-GridStartIndex[0])                             +
-	                         (j-GridStartIndex[1])*active_dims[0]              +
-	                         (k-GridStartIndex[2])*active_dims[0]*active_dims[1] ];   
-}
+    if (grid_start_index == NULL){
+      grid_start_index = GridStartIndex;
+    }
+    if (grid_end_index == NULL){
+      grid_end_index = GridEndIndex;
+    }
+    if (data_dims == NULL){
+      data_dims = GridDimension;
+    }
+
+    for (k = grid_start_index[2]; k <= grid_end_index[2]; k++)
+      for (j = grid_start_index[1]; j <= grid_end_index[1]; j++)
+        for (i = grid_start_index[0]; i <= grid_end_index[0]; i++){
+          copy_to[i + j*data_dims[0] +
+            k*data_dims[0]*data_dims[1]] =
+	      ((float *)read_to)[(i-grid_start_index[0])                             +
+	                         (j-grid_start_index[1])*active_dims[0]              +
+	                         (k-grid_start_index[2])*active_dims[0]*active_dims[1] ];   
+        }
   }
   return SUCCESS;
 }

@@ -54,6 +54,9 @@ void grid::PrepareGrid(int Rank, int GridDim[],
     WriteListOfFloats(stdout, Rank, RightEdge);
   }
 */
+
+  int field, dim; 
+
   /* Set Particle quantities. */
  
   NumberOfParticles = NumParticles;
@@ -63,7 +66,7 @@ void grid::PrepareGrid(int Rank, int GridDim[],
  
   GridRank = Rank;
  
-  for (int dim = 0; dim < GridRank; dim++) {
+  for (dim = 0; dim < GridRank; dim++) {
     GridDimension[dim]  = GridDim[dim];
     GridStartIndex[dim] = min(NumberOfGhostZones, GridDim[dim]-1);
     GridEndIndex[dim]   = min(ABS(GridDim[dim]-NumberOfGhostZones-1),
@@ -72,6 +75,13 @@ void grid::PrepareGrid(int Rank, int GridDim[],
     GridRightEdge[dim]  = RightEdge[dim];
   }
  
+#ifdef MHDCT
+  if(useMHDCT)
+    {
+      this->MHD_SetupDims(); 
+    }//useMHDCT
+#endif //MHDCT
+
   /* compute derived quantites */
  
   this->PrepareGridDerivedQuantities();

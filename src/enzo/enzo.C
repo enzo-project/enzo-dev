@@ -50,6 +50,9 @@
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
 #endif
+#ifdef MHDCT
+#include "DaveTools.h"
+#endif //MHDCT
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON
 int InitializePythonInterface(int argc, char **argv);
@@ -70,6 +73,10 @@ int ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 int Group_ReadAllData(char *filename, HierarchyEntry *TopGrid, TopGridData &tgd,
 		      ExternalBoundary *Exterior, float *Initialdt,
 		      bool ReadParticlesOnly=false);
+
+#ifdef MHDCT
+int  MHDCT_EnergyToggle(HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary *Exterior, LevelHierarchyEntry *LevelArray[]);
+#endif //MHDCT
 
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &tgd,
 		    ExternalBoundary *Exterior, 
@@ -731,8 +738,11 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   InitializePythonInterface(argc, argv);
 #endif 
 
+#ifdef MHDCT 
+  MHDCT_EnergyToggle(TopGrid, MetaData, &Exterior, LevelArray);
+#endif //MHDCT
+
   // Call the main evolution routine
- 
   if (debug) fprintf(stderr, "INITIALDT ::::::::::: %16.8e\n", Initialdt);
   try {
   if (EvolveHierarchy(TopGrid, MetaData, &Exterior, 

@@ -38,6 +38,10 @@ int MakeFieldConservative(field_type field){
             break;
         }
     }
-
+#ifdef MHDCT
+    if( field == TotalEnergy && HydroMethod == MHD_Li && MHDCTUseSpecificEnergy == FALSE ){
+        MultiplyField = FALSE;
+    }
+#endif //MHDCT
     return MultiplyField;
 }
