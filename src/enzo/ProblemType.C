@@ -255,10 +255,10 @@ int EnzoProblemType::InitializeUniformGrid(
  
   /* allocate fields */
  
-  for (field = 0; field < tg->NumberOfBaryonFields; field++)
-    if (tg->BaryonField[field] == NULL)
-      tg->BaryonField[field] = new float[size];
- 
+  // for (field = 0; field < tg->NumberOfBaryonFields; field++)
+  //   if (tg->BaryonField[field] == NULL)
+  //     tg->BaryonField[field] = new float[size];
+  tg->AllocateGrids();  
   /* set density, total energy */
  
   for (i = 0; i < size; i++) {
