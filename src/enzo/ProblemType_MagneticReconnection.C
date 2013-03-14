@@ -1,0 +1,465 @@
+/***********************************************************************
+/
+/  ROTATING CYLINDER PROBLEM TYPE
+/
+/  written by: Matthew Turk, Brian O'Shea
+/  date:       July, 2010
+/
+/  PURPOSE:
+/
+************************************************************************/
+
+#ifdef NEW_PROBLEM_TYPES
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+#include <iostream>
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "TopGridData.h"
+#include "ProblemType.h"
+#include "EventHooks.h"
+
+class ProblemType_MagneticReconnection;
+
+class MagneticReconnectionGrid : private grid {
+    friend class ProblemType_MagneticReconnection;
+};
+
+int GetUnits (float *DensityUnits, float *LengthUnits,
+	      float *TemperatureUnits, float *TimeUnits,
+	      float *VelocityUnits, double *MassUnits, FLOAT Time);
+
+int FindField(int field, int farray[], int numfields);
+
+class ProblemType_MagneticReconnection : public EnzoProblemType
+{
+    private:
+        FLOAT MagneticReconnectionSubgridLeft, MagneticReconnectionSubgridRight;
+        FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
+        FLOAT MagneticReconnectionCenterPosition[MAX_DIMENSION];
+        float MagneticReconnectionVelocity[3];   // gas initally at rest
+        float MagneticReconnectionBField[3];   
+        float MagneticReconnectionBperturbk[MAX_DIMENSION];   // perturbation wavenumbers
+        float MagneticReconnectionLambda;
+        float MagneticReconnectionBperturbation;
+        float MagneticReconnectionOverdensity;
+        float MagneticReconnectionDensity;
+        float MagneticReconnectionTotalEnergy;
+
+    public:
+    ProblemType_MagneticReconnection() : EnzoProblemType()
+    { 
+        std::cout << "Creating problem type Magnetic Reconnection" << std::endl;
+        //RegisterEventPlugin("Printing", &JustPrintSomething);
+        //RegisterEventHook("EvolveLevelTop", "Printing");
+    }
+
+    ~ProblemType_MagneticReconnection()
+    {
+    }
+
+    virtual int InitializeFromRestart(
+            HierarchyEntry &TopGrid, TopGridData &MetaData)
+    {
+       return SUCCESS;
+    }
+
+    virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
+            HierarchyEntry &TopGrid, TopGridData &MetaData)
+    {
+      if(debug){
+        printf("Entering MagneticReconnectionInitialize\n");
+        fflush(stdout);
+      }
+
+      char *DensName = "Density";
+      char *TEName   = "TotalEnergy";
+      char *GEName   = "GasEnergy";
+      char *Vel1Name = "x-velocity";
+      char *Vel2Name = "y-velocity";
+      char *Vel3Name = "z-velocity";
+      char *MetalName = "Metal_Density";
+      char *BxName = "Bx";
+      char *ByName = "By";
+      char *BzName = "Bz";
+      if ( useMHDCT ){
+         MHDcLabel[0] = "Bx";
+         MHDcLabel[1] = "By";
+         MHDcLabel[2] = "Bz";
+         
+         MHDLabel[0] = "BxF";
+         MHDLabel[1] = "ByF";
+         MHDLabel[2] = "BzF";
+         
+         MHDeLabel[0] = "Ex";
+         MHDeLabel[1] = "Ey";
+         MHDeLabel[2] = "Ez";
+         
+         MHDUnits[0] = "None";
+         MHDUnits[1] = "None";
+         MHDUnits[2] = "None";
+         
+         MHDeUnits[0] = "None";
+         MHDeUnits[1] = "None";
+         MHDeUnits[2] = "None";
+      }
+      
+
+      /* local declarations */
+
+      char line[MAX_LINE_LENGTH];
+      int  i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
+           SubgridDims[MAX_DIMENSION];
+      float Pi                      = 3.14159;
+
+      for(i=0; i<MAX_DIMENSION; i++) 
+        MagneticReconnectionCenterPosition[i] = 0.5;  // right in the middle of the box
+
+      MagneticReconnectionBperturbk[0] = 2 * Pi;  
+      MagneticReconnectionBperturbk[1] = Pi;  
+      MagneticReconnectionBperturbk[2] = 0;
+
+
+      this->MagneticReconnectionVelocity[0] = 
+        this->MagneticReconnectionVelocity[1] = 
+        this->MagneticReconnectionVelocity[2] = 0.0; // gas initally at rest
+      this->MagneticReconnectionBField[0] = 1.0;
+      this->MagneticReconnectionBField[1] =
+        this->MagneticReconnectionBField[2] = 0.0; // gas initally at rest
+      this->MagneticReconnectionLambda = 0.5; // in problem units!
+      this->MagneticReconnectionBperturbation = 0.1; // in problem units!
+      this->MagneticReconnectionOverdensity = 20.0;
+      this->MagneticReconnectionDensity = 1.0;
+      this->MagneticReconnectionTotalEnergy = 1.0;
+
+
+      /* set no subgrids by default. */
+
+      MagneticReconnectionSubgridLeft         = 0.0;    // start of subgrid(s)
+      MagneticReconnectionSubgridRight        = 0.0;    // end of subgrid(s)
+
+      /* read input from file */
+
+      while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+
+        ret = 0;
+
+        /* read parameters specifically for radiating shock problem*/
+
+        ret += sscanf(line, "MagneticReconnectionOverdensity  = %"FSYM, &MagneticReconnectionOverdensity);
+        ret += sscanf(line, "MagneticReconnectionSubgridLeft = %"PSYM,
+            &MagneticReconnectionSubgridLeft);
+        ret += sscanf(line, "MagneticReconnectionSubgridRight = %"PSYM,
+            &MagneticReconnectionSubgridRight);
+        ret += sscanf(line, "MagneticReconnectionLambda = %"FSYM,
+            &MagneticReconnectionLambda);
+        ret += sscanf(line, "MagneticReconnectionBperturbation = %"FSYM,
+            &MagneticReconnectionBperturbation);
+
+        ret += sscanf(line, "MagneticReconnectionTotalEnergy = %"FSYM,
+            &MagneticReconnectionTotalEnergy);
+
+        ret += sscanf(line, "MagneticReconnectionCenterPosition = %"PSYM" %"PSYM" %"PSYM,
+            MagneticReconnectionCenterPosition, MagneticReconnectionCenterPosition+1,
+            MagneticReconnectionCenterPosition+2);
+        ret += sscanf(line, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM,
+            MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
+            MagneticReconnectionBperturbk+2);
+
+        ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
+        ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
+
+        /* if the line is suspicious, issue a warning */
+
+        if (ret == 0 && strstr(line, "=") && (strstr(line, "MagneticReconnection") || strstr(line, "TestProblem")) &&
+            line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR)
+          fprintf(stderr,
+              "*** warning: the following parameter line was not interpreted:\n%s\n",
+              line);
+
+      } // end input from parameter file
+
+
+      this->InitializeUniformGrid(TopGrid.GridData,
+            MagneticReconnectionDensity,
+            MagneticReconnectionTotalEnergy,
+            MagneticReconnectionTotalEnergy,
+            MagneticReconnectionVelocity,
+            MagneticReconnectionBField);
+
+      /* Create as many subgrids as there are refinement levels
+         needed to resolve the initial explosion region upon the start-up. */
+
+      HierarchyEntry ** Subgrid;
+      if (MaximumRefinementLevel > 0)
+        Subgrid   = new HierarchyEntry*[MaximumRefinementLevel];
+
+      /* Create new HierarchyEntries. */
+
+      int lev;
+      for (lev = 0; lev < MaximumRefinementLevel; lev++)
+        Subgrid[lev] = new HierarchyEntry;
+
+      for (lev = 0; lev < MaximumRefinementLevel; lev++) {
+
+        for (dim = 0; dim < MetaData.TopGridRank; dim++)
+          NumberOfSubgridZones[dim] =
+            nint((MagneticReconnectionSubgridRight - MagneticReconnectionSubgridLeft)/
+                ((DomainRightEdge[dim] - DomainLeftEdge[dim] )/
+                 float(MetaData.TopGridDims[dim])))
+            *int(POW(RefineBy, lev + 1));
+
+        if (debug)
+          printf("MagneticReconnection:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
+              NumberOfSubgridZones[0]);
+
+        if (NumberOfSubgridZones[0] > 0) {
+
+          /* fill them out */
+
+          if (lev == 0)
+            TopGrid.NextGridNextLevel  = Subgrid[0];
+          Subgrid[lev]->NextGridThisLevel = NULL;
+          if (lev == MaximumRefinementLevel-1)
+            Subgrid[lev]->NextGridNextLevel = NULL;
+          else
+            Subgrid[lev]->NextGridNextLevel = Subgrid[lev+1];
+          if (lev == 0)
+            Subgrid[lev]->ParentGrid        = &TopGrid;
+          else
+            Subgrid[lev]->ParentGrid        = Subgrid[lev-1];
+
+          /* compute the dimensions and left/right edges for the subgrid */
+
+          for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+            SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*NumberOfGhostZones;
+            LeftEdge[dim]    = MagneticReconnectionSubgridLeft;
+            RightEdge[dim]   = MagneticReconnectionSubgridRight;
+          }
+
+          /* create a new subgrid and initialize it */
+
+          Subgrid[lev]->GridData = this->CreateNewUniformGrid(
+                                        TopGrid.GridData,
+                                        MetaData.TopGridRank, SubgridDims,
+                                        LeftEdge, RightEdge, 0,
+                                        MagneticReconnectionDensity,
+                                        MagneticReconnectionTotalEnergy,
+                                        MagneticReconnectionTotalEnergy,
+                                        MagneticReconnectionVelocity,
+                                        MagneticReconnectionBField);
+
+          /* set up the initial explosion area on the finest resolution subgrid */
+
+          if (lev == MaximumRefinementLevel - 1)
+            if (this->InitializeGrid(Subgrid[lev]->GridData, TopGrid, MetaData)
+                == FAIL) {
+              ENZO_FAIL("Error in MagneticReconnectionInitialize[Sub]Grid.");
+            }
+
+        }
+        else{
+          printf("MagneticReconnection: single grid start-up.\n");
+        }
+      }
+
+      this->FinalizeGrids(Subgrid, TopGrid, MetaData);
+
+      /* set up field names and units -- NOTE: these absolutely MUST be in 
+         the same order that they are in Grid_InitializeUniformGrids.C, or 
+         else you'll find out that data gets written into incorrectly-named
+         fields.  Just FYI. */
+
+      i = 0;
+      DataLabel[i++] = DensName;
+      DataLabel[i++] = TEName;
+      if(DualEnergyFormalism)
+        DataLabel[i++] = GEName;
+      DataLabel[i++] = Vel1Name;
+
+      if(MetaData.TopGridRank > 1)
+        DataLabel[i++] = Vel2Name;
+
+      if(MetaData.TopGridRank > 2)
+        DataLabel[i++] = Vel3Name;
+
+      if (TestProblemData.UseMetallicityField)
+        DataLabel[i++] = MetalName;
+
+      for(j=0; j < i; j++)
+        DataUnits[j] = NULL;
+
+      /* Write parameters to parameter output file */
+
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+        fprintf(Outfptr, "MagneticReconnectionOverdensity         = %"FSYM"\n"  , MagneticReconnectionOverdensity);
+        fprintf(Outfptr, "MagneticReconnectionLambda         = %"FSYM"\n"  , MagneticReconnectionLambda);
+        fprintf(Outfptr, "MagneticReconnectionBperturbation  = %"FSYM"\n"  , MagneticReconnectionBperturbation);
+        fprintf(Outfptr, "MagneticReconnectionTotalEnergy         = %"FSYM"\n"  , MagneticReconnectionTotalEnergy);
+        fprintf(Outfptr, "MagneticReconnectionCenterPosition = %"PSYM" %"PSYM" %"PSYM"\n",
+            MagneticReconnectionCenterPosition, MagneticReconnectionCenterPosition+1,
+            MagneticReconnectionCenterPosition+2);
+        fprintf(Outfptr, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM"\n",
+            MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
+            MagneticReconnectionBperturbk+2);
+        fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
+        fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
+
+      } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
+
+
+      if(debug){
+        printf("Exiting MagneticReconnectionInitialize\n");
+        fflush(stdout);
+      }
+
+      return SUCCESS;
+
+    }
+
+/*
+
+This is the grid-by-grid initializer.
+
+*/
+    int InitializeGrid(grid *thisgrid_orig,
+            HierarchyEntry &TopGrid, TopGridData &MetaData)
+    {
+
+      MagneticReconnectionGrid *thisgrid =
+        static_cast<MagneticReconnectionGrid *>(thisgrid_orig);
+
+      if (thisgrid->ProcessorNumber != MyProcessorNumber)
+        return SUCCESS;
+
+      if(debug){
+        printf("Entering MagneticReconnectionInitializeGrid\n");
+        fflush(stdout);
+      }
+
+      printf("MagneticReconnectionCenterPosition = %e %e %e\n", 
+          this->MagneticReconnectionCenterPosition[0],
+          this->MagneticReconnectionCenterPosition[1],
+          this->MagneticReconnectionCenterPosition[2]);
+      printf("MagneticReconnectionBperturbk = %e %e %e\n", 
+          this->MagneticReconnectionBperturbk[0],
+          this->MagneticReconnectionBperturbk[1],
+          this->MagneticReconnectionBperturbk[2]);
+
+      printf("MagneticReconnectionLambda = %e\n",this->MagneticReconnectionLambda);
+      printf("MagneticReconnectionBperturbation = %e\n",this->MagneticReconnectionBperturbation);
+      printf("MagneticReconnectionOverdensity = %e\n",this->MagneticReconnectionOverdensity);
+
+
+      /* declarations */
+
+      int size = 1, dim, cellindex;
+
+      for (dim = 0; dim < thisgrid->GridRank; dim++)
+        size *= thisgrid->GridDimension[dim];
+
+      FLOAT r,x,y,z, radius, zdist;
+
+      
+
+      int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
+
+      float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
+      float VelocityUnits = 1.0, TimeUnits = 1.0;
+      double MassUnits = 1.0;
+      
+      // Get system of units
+      if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits, 
+                   &TimeUnits, &VelocityUnits, &MassUnits, thisgrid->Time) == FAIL) {
+         ENZO_FAIL("Error in GetUnits.");
+      }
+
+      float lambda_scaled = MagneticReconnectionLambda/LengthUnits;
+
+      if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+            Vel3Num, TENum) == FAIL) {
+        fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
+        ENZO_FAIL("");
+      }
+
+      int MetallicityField = FALSE;
+      if ((MetalNum = FindField(Metallicity, thisgrid->FieldType, thisgrid->NumberOfBaryonFields))
+          != -1)
+        MetallicityField = TRUE;
+      else
+        MetalNum = 0;
+
+      /* set fields in the cylinder region */
+
+      int index, jndex, i, j, k;
+      float outside_rho, outside_TE, outside_GE, kx, ky;
+      kx = MagneticReconnectionBperturbk[0];
+      ky = MagneticReconnectionBperturbk[1];
+
+      outside_rho =  thisgrid->BaryonField[DensNum][0];
+
+      if(HydroMethod==2){  // ZEUS
+
+        outside_TE = thisgrid->BaryonField[TENum][0];
+
+      } else { // PPM
+
+        outside_TE = thisgrid->BaryonField[TENum][0];
+
+        if(DualEnergyFormalism){
+          outside_GE = thisgrid->BaryonField[GENum][0];
+        }
+
+      }  // if(HydroMethod==2)
+
+      for (k = 0; k < thisgrid->GridDimension[2]; k++)
+        for (j = 0; j < thisgrid->GridDimension[1]; j++)
+          for (i = 0; i < thisgrid->GridDimension[0]; i++){
+
+            /* Compute position */
+            x=y=z=0.0;
+
+            cellindex = i + j*thisgrid->GridDimension[0]
+                          + k*thisgrid->GridDimension[0]
+                             *thisgrid->GridDimension[1];
+
+            x = thisgrid->CellLeftEdge[0][i] + 0.5*thisgrid->CellWidth[0][i];
+            y = thisgrid->CellLeftEdge[1][j] + 0.5*thisgrid->CellWidth[1][j];
+            if (thisgrid->GridRank == 3)
+               z = thisgrid->CellLeftEdge[2][k] + 0.5*thisgrid->CellWidth[2][k];
+
+            thisgrid->BaryonField[DensNum][cellindex] = outside_rho * MagneticReconnectionOverdensity/pow(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + outside_rho;
+
+            thisgrid->MagneticField[0][cellindex] = MagneticReconnectionBField[0] * tanh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx * x) * sin(ky * y);
+            thisgrid->MagneticField[1][cellindex] = -MagneticReconnectionBperturbation * kx * sin(kx * x) * cos(ky * y);
+            
+
+          } // for (i = 0; i < GridDimension[0]; i++)
+
+      if(debug){
+        printf("Exiting MagneticReconnectionInitialize\n");
+        fflush(stdout);
+      }
+
+      return SUCCESS;
+
+    } 
+
+
+};
+
+//.. register:
+namespace{
+    EnzoProblemType_creator_concrete<ProblemType_MagneticReconnection>
+        rotating_cylinder("MagneticReconnection");
+}
+
+#endif
