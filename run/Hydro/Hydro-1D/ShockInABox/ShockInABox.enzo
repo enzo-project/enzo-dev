@@ -1,0 +1,71 @@
+# 
+# ShockInABox Problem.
+# Shock Mach Number: 3.000000
+# PreShock Temperature: 2.727273e+06
+# PostShock Temperature: 1.000000e+07
+# PreShock Density: 1.000000e+00
+# 
+
+#
+# AMR PROBLEM DEFINITION FILE: 1D Shock Propogation test
+#
+#  define problem
+#
+ProblemType            = 5        // Shock In A Box
+TopGridRank            = 1
+TopGridDimensions      = 32
+
+ShockInABoxBoundary      = 0.5
+
+LeftFaceBoundaryCondition = 2 0 0  // set left faces to inflow 
+RightFaceBoundaryCondition = 1 0 0  // set right faces to outflow
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1.0e0
+dtDataDump             = 1.0e-1
+
+#
+#  set Hydro parameters
+#
+HydroMethod            = 0
+Gamma                  = 1.66667
+CourantSafetyNumber    = 0.8
+PPMDiffusionParameter  = 1       // diffusion on 
+PPMFlatteningParameter = 1       // flattening on
+PPMSteepeningParameter = 1       // steepening on
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // static hierarchy
+MaximumRefinementLevel    = 2
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 1
+MinimumEfficiency         = 0.5
+
+#
+#  set some misc global parameters
+#
+OutputTemperature = 1
+
+# 
+#  Turn on Shock Finding
+#
+ShockTemperatureFloor=1.0e0
+StorePreShockFields = 1
+FindShocksOnlyOnOutput = 1
+ShockMethod = 1
+
+
+DensityUnits = 1.67453400e-24
+LengthUnits = 3.08567758e+24
+TimeUnits = 3.15576000e+16
+ShockInABoxLeftDensity = 1.00000000e+00
+ShockInABoxLeftVelocity = 6.90120768e-01
+ShockInABoxLeftPressure = 3.91989033e-02
+ShockInABoxRightDensity = 3.00000000e+00
+ShockInABoxRightVelocity = 1.78920199e-01
+ShockInABoxRightPressure = 4.31187936e-01
+
