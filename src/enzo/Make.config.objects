@@ -689,6 +689,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_RotatingCylinder.o \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
+	ProblemType_MagneticReconnection.o \
         ProcMap.o \
         project.o \
         projectbool.o \
