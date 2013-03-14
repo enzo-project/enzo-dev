@@ -484,7 +484,15 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       } // ENDIF UseHydro
 
+      /* If we're supposed to be outputting on Density, we need to update
+      the current maximum value of that Density. */
 
+      if(OutputOnDensity == 1){
+	int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+	for(i = 0; i < size; i++)
+	  CurrentMaximumDensity = max(BaryonField[DensNum][i], CurrentMaximumDensity);
+      }
+      
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();
