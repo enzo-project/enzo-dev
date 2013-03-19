@@ -408,15 +408,96 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       GravityOn = 1;
 #endif    
 
+#ifdef MHDCT
+    //Some setup for MHDCT
+
+    float *MagneticFlux[3][2];
+    if ( useMHDCT ) {
+        MHDCT_ConvertEnergyToConservedS();  //Energy toggle.  Probably will be removed soon.
+        for(field=0;field<3;field++){
+            if(ElectricField[field] == NULL ) 
+                ElectricField[field] = new float[ElectricSize[field]];
+            for(i=0;i<ElectricSize[field]; i++) ElectricField[field][i] = 0.0;
+        }
+        for(field=0;field<3;field++){
+          MagneticFlux[field][0] = new float[2*MagneticSize[field]];
+          MagneticFlux[field][1] =  MagneticFlux[field][0] +MagneticSize[field];
+        }
+        CenterMagneticField();
+#ifdef BIERMANN
+        // Biermann battery constants in cgs units, convert to enzo units later
+        float speedoflight = 3.0e10;
+        float hydrogenmass = 1.6733e-24;
+        float electroncharge = 4.803e-10;
+        float chi=1.0;
+        
+        /* Compute Units. */
+        
+        float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1, TimeUnits = 1,
+          VelocityUnits = 1, BFieldUnits = 1;
+        
+        if(ComovingCoordinates){
+          if (MHDCosmologyGetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+          		     &TimeUnits, &VelocityUnits, Time,&BFieldUnits) == FAIL) {
+            fprintf(stderr, "Error in MHD CosmologyGetUnits.\n");
+            return FAIL;
+          }
+          /* Transform speed of light, hydrogen mass and electron change in units of ENZO */
+          electroncharge *= TimeUnits*BFieldUnits/(speedoflight*DensityUnits*pow(LengthUnits,3));
+          speedoflight /=VelocityUnits;
+          hydrogenmass /= DensityUnits*pow(LengthUnits,3);
+        }
+#endif //BIERMANN
+    }//useMHDCT
+
+#endif //MHDCT
+
+
+#ifdef MHDCT
+    float* Fluxes[3] = {MagneticFlux[0][0],MagneticFlux[1][0],MagneticFlux[2][0]};
+    int CurlStart[3] = {0,0,0}, 
+    CurlEnd[3] = {GridDimension[0]-1,GridDimension[1]-1,GridDimension[2]-1};
+    if ( useMHDCT ){
+        if (HydroMethod == MHD_Li)
+          this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
+                CellWidthTemp, GridGlobalStart, GravityOn, 
+                NumberOfColours, colnum);
+        if( HydroMethod != NoHydro )
+            switch( MHD_CT_Method ){
+                case CT_BalsaraSpicer: //1
+                case CT_Athena_LF:     //2
+                case CT_Athena_Switch: //3
+                    ComputeElectricField(dtFixed, Fluxes);
+                    break;
+                case CT_Biermann:      //4
+#ifdef BIERMANN
+                    FORTRAN_NAME(create_e_biermann)(MagneticFlux[0][0], MagneticFlux[1][0], MagneticFlux[2][0],
+                                 MagneticFlux[0][1], MagneticFlux[1][1], MagneticFlux[2][1],
+                                 ElectricField[0], ElectricField[1], ElectricField[2],
+                                 CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2],
+                                 BaryonField[DensNum],BaryonField[GENum],
+                                 GridDimension, GridDimension +1, GridDimension +2,
+                                 GridStartIndex, GridEndIndex,
+                                 GridStartIndex+1, GridEndIndex+1,
+                                 GridStartIndex+2, GridEndIndex+2, &dtFixed, &UseDT,
+                                 &Gamma, &speedoflight,&hydrogenmass, &electroncharge, &chi, a);
+                    break;
+#endif //BIERMANN
+                case CT_None:
+                default:
+                    if(MyProcessorNumber == ROOT_PROCESSOR )
+                        fprintf(stderr, "Warning: No CT method used with MHD_Li.\n");
+                break;
+            }
+        MHD_Curl( CurlStart,CurlEnd, 1);
+        CenterMagneticField();
+        MHDCT_ConvertEnergyToSpecificS();
+    }
+#endif //MHDCT
     /* Call Solver on this grid.
        Notice that it is hard-wired for three dimensions, but it does
        the right thing for < 3 dimensions. */
     /* note: Start/EndIndex are zero based */
-
-    if (HydroMethod == MHD_Li)
-      this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
-			CellWidthTemp, GridGlobalStart, GravityOn, 
-			NumberOfColours, colnum);
         
     if (HydroMethod == PPM_DirectEuler)
       this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes, 

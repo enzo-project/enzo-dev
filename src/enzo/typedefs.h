@@ -259,9 +259,10 @@ const enum_type Isotropic = 1, Beamed = -2, Episodic = -3;
 #ifdef MHDCT
 const mhd_ct_method 
   CT_None = 0,
-CT_BalsaraSpicer = 1,
+  CT_BalsaraSpicer = 1,
   CT_Athena_LF = 2,
-  CT_Athena_Switch = 3;
+  CT_Athena_Switch = 3,
+  CT_Biermann = 4;
 
 #endif
 
