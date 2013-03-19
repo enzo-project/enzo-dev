@@ -1066,6 +1066,7 @@ OBJS_ECUDA_ALL = \
 	SaveSubgridFluxCUDA.o 
 
 OBJS_MHDCT = Grid_MHD_Diagnose.o \
+Grid_SolveMHD_Li.o \
 Grid_MHDCTEnergyToggle.o\
 MHDBlastInitialize.o\
     Grid_MHDBlastInitializeGrid.o\

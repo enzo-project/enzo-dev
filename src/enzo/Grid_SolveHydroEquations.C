@@ -412,6 +412,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        Notice that it is hard-wired for three dimensions, but it does
        the right thing for < 3 dimensions. */
     /* note: Start/EndIndex are zero based */
+
+    if (HydroMethod == MHD_Li)
+      this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
+			CellWidthTemp, GridGlobalStart, GravityOn, 
+			NumberOfColours, colnum);
         
     if (HydroMethod == PPM_DirectEuler)
       this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
