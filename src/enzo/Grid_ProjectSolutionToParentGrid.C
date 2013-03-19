@@ -267,7 +267,6 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       }//MHD_ProjectE
 
       if(MHD_ProjectB == TRUE){
-          ENZO_FAIL("Musn't project b.\n");
 
 
 	  fprintf(stderr, "PROJB my proc %d parent proc %d\n", MyProcessorNumber, ParentGrid.ReturnProcessorNumber());
