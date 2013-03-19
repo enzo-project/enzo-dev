@@ -1,11 +1,11 @@
 /***********************************************************************
 /
-/  ROTATING CYLINDER PROBLEM TYPE
+/  MAGNETIC RECONNECTION PROBLEM TYPE
 /
-/  written by: Matthew Turk, Brian O'Shea
-/  date:       July, 2010
+/  written by: J. S. Oishi, Matthew Turk, Brian O'Shea
+/  date:       March, 2013
 /
-/  PURPOSE:
+/  PURPOSE: to reconnect field lines
 /
 ************************************************************************/
 
@@ -87,9 +87,6 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       char *Vel2Name = "y-velocity";
       char *Vel3Name = "z-velocity";
       char *MetalName = "Metal_Density";
-      char *BxName = "Bx";
-      char *ByName = "By";
-      char *BzName = "Bz";
       if ( useMHDCT ){
          MHDcLabel[0] = "Bx";
          MHDcLabel[1] = "By";
@@ -136,9 +133,9 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         this->MagneticReconnectionBField[2] = 0.0; // gas initally at rest
       this->MagneticReconnectionLambda = 0.5; // in problem units!
       this->MagneticReconnectionBperturbation = 0.1; // in problem units!
-      this->MagneticReconnectionOverdensity = 20.0;
-      this->MagneticReconnectionDensity = 1.0;
-      this->MagneticReconnectionTotalEnergy = 1.0;
+      this->MagneticReconnectionOverdensity = 1.;
+      this->MagneticReconnectionDensity = 0.2;
+      this->MagneticReconnectionTotalEnergy = 0.5;
 
 
       /* set no subgrids by default. */
@@ -187,7 +184,8 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
 
       } // end input from parameter file
 
-
+      MHD_ProjectE = FALSE;
+      MHD_ProjectB = TRUE;
       this->InitializeUniformGrid(TopGrid.GridData,
             MagneticReconnectionDensity,
             MagneticReconnectionTotalEnergy,
@@ -259,8 +257,8 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
 
           /* set up the initial explosion area on the finest resolution subgrid */
 
-          if (lev == MaximumRefinementLevel - 1)
-            if (this->InitializeGrid(Subgrid[lev]->GridData, TopGrid, MetaData)
+          //if (lev == MaximumRefinementLevel - 1)
+             if (this->InitializeGrid(Subgrid[lev]->GridData, TopGrid, MetaData)
                 == FAIL) {
               ENZO_FAIL("Error in MagneticReconnectionInitialize[Sub]Grid.");
             }
@@ -315,6 +313,8 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
 
       } //   if (MyProcessorNumber == ROOT_PROCESSOR) 
 
+      MHD_ProjectE = TRUE;
+      MHD_ProjectB = FALSE;
 
       if(debug){
         printf("Exiting MagneticReconnectionInitialize\n");
@@ -366,9 +366,7 @@ This is the grid-by-grid initializer.
       for (dim = 0; dim < thisgrid->GridRank; dim++)
         size *= thisgrid->GridDimension[dim];
 
-      FLOAT r,x,y,z, radius, zdist;
-
-      
+      FLOAT r, x, y, z, xy, yx;
 
       int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
 
@@ -420,6 +418,53 @@ This is the grid-by-grid initializer.
 
       }  // if(HydroMethod==2)
 
+  
+      // initialize B fields
+      int field;
+      for (field = 0; field < 3; field++)
+         for (k = 0; k < thisgrid->MagneticDims[field][2]; k++)
+            for (j = 0; j < thisgrid->MagneticDims[field][1]; j++)
+               for (i = 0; i < thisgrid->MagneticDims[field][0]; i++){
+
+                  /* Compute position */
+                  x=y=z=0.0;
+                  
+                  cellindex = i + j*thisgrid->MagneticDims[field][0]
+                     + k*thisgrid->MagneticDims[field][0]
+                     *thisgrid->MagneticDims[field][1];
+                  
+                  // for face centered fields, use functions f,g of position like so:
+                  // Bx = f(x,xy)
+                  // By = g(yx,y)
+                  x = thisgrid->CellLeftEdge[0][i];
+                  y = thisgrid->CellLeftEdge[1][j];
+                  xy = thisgrid->CellLeftEdge[0][i] + 0.5*thisgrid->CellWidth[0][i];
+                  yx = thisgrid->CellLeftEdge[1][j] + 0.5*thisgrid->CellWidth[1][j];
+
+                  if (thisgrid->GridRank == 3)
+                     z = thisgrid->CellLeftEdge[2][k] + k*thisgrid->CellWidth[2][k];
+                  
+                  switch (field) {
+                  case 0:
+                     thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[0] * tanh((yx-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx * x) * sin(ky * yx);
+                     break;
+                  case 1:
+                     thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[1] -MagneticReconnectionBperturbation * kx * sin(kx * xy) * cos(ky * y);
+                     break;
+                  case 2:
+                     thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[2];
+                     break;
+                  }
+               }
+
+
+      if( thisgrid->CenterMagneticField() == FAIL ) {
+         fprintf(stderr," error with CenterMagneticField\n");
+         return FAIL;
+      }
+
+      // Thermal Physics compensates for the field profile with a density bump
+      // and an assumed isothermal initial condition
       for (k = 0; k < thisgrid->GridDimension[2]; k++)
         for (j = 0; j < thisgrid->GridDimension[1]; j++)
           for (i = 0; i < thisgrid->GridDimension[0]; i++){
@@ -436,12 +481,10 @@ This is the grid-by-grid initializer.
             if (thisgrid->GridRank == 3)
                z = thisgrid->CellLeftEdge[2][k] + 0.5*thisgrid->CellWidth[2][k];
 
-            thisgrid->BaryonField[DensNum][cellindex] = outside_rho * MagneticReconnectionOverdensity/pow(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + outside_rho;
+            thisgrid->BaryonField[DensNum][cellindex] = MagneticReconnectionOverdensity/pow(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + MagneticReconnectionDensity;
 
-            thisgrid->MagneticField[0][cellindex] = MagneticReconnectionBField[0] * tanh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx * x) * sin(ky * y);
-            thisgrid->MagneticField[1][cellindex] = -MagneticReconnectionBperturbation * kx * sin(kx * x) * cos(ky * y);
-            
-
+            // Use the MagneticReconnectionTotalEnergy as an isothermal sound speed...
+            thisgrid->BaryonField[TENum][cellindex] = MagneticReconnectionTotalEnergy/(Gamma - 1.0) + 0.5 * (POW(thisgrid->CenteredB[0][cellindex], 2) + POW(thisgrid->CenteredB[1][cellindex], 2) + POW(thisgrid->CenteredB[2][cellindex], 2))/thisgrid->BaryonField[DensNum][cellindex];
           } // for (i = 0; i < GridDimension[0]; i++)
 
       if(debug){
@@ -459,7 +502,7 @@ This is the grid-by-grid initializer.
 //.. register:
 namespace{
     EnzoProblemType_creator_concrete<ProblemType_MagneticReconnection>
-        rotating_cylinder("MagneticReconnection");
+        magnetic_reconnection("MagneticReconnection");
 }
 
 #endif
