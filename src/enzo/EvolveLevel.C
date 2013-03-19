@@ -519,23 +519,23 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Call hydro solver and save fluxes around subgrids. */
 
-#ifdef MHDCT
-
-      //<dbg>
-      //Grids[grid1]->GridData->ExtraFunction("Pre SMHD");
-      if( useMHDCT && HydroMethod == MHD_Li ){
-	Grids[grid1]->GridData->SolveMHDEquations(LevelCycleCount[level],
-		NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level ,grid1); 
-	
-      }else{
-	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
-	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      }
-#else
+//#ifdef MHDCT
+//
+//      //<dbg>
+//     //Grids[grid1]->GridData->ExtraFunction("Pre SMHD");
+//     if( useMHDCT && HydroMethod == MHD_Li ){
+//   Grids[grid1]->GridData->SolveMHDEquations(LevelCycleCount[level],
+//   	NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level ,grid1); 
+//   
+//     }else{
+//   Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
+//       NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
+//     }
+//#else
       Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
       
-#endif //MHDCT	
+//#endif //MHDCT	
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();

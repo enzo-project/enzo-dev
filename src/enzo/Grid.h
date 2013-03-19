@@ -2757,6 +2757,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 #endif
 
 #ifdef MHDCT
+  int SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
+                 fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                 Elong_int GridGlobalStart[], int GravityOn,
+                 int NumberOfColours, int colnum[]);
+
   //Variables
     //CenteredB is used in the Riemann solver (SolveMHDequations) and the timestep (dtMagnetic)
   //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
