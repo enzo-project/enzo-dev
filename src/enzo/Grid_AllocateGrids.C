@@ -51,6 +51,7 @@ void grid::AllocateGrids()
 
       MagneticField[field] = new float[MagneticSize[field]];
       ElectricField[field] = new float[ElectricSize[field]];
+      AvgElectricField[field] = new float[ ElectricSize[field] ];
 
       for(i=0;i<size;i++){
 	CenteredB[field][i] = 0.0;
