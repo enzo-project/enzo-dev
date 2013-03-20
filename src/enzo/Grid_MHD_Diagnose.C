@@ -78,7 +78,6 @@ int grid::MHD_Diagnose(char * label)
   //Compute total energy, gas, kinetic, and magnetic energies
   //as well as divergence.
 
-  fprintf(stderr,"CLOWN here's the deal\n");
   for(k=GridStartIndex[2];k<=GridEndIndex[2]; k++)
     for(j=GridStartIndex[1];j<=GridEndIndex[1];j++)
       for(i=GridStartIndex[0];i<=GridEndIndex[0];i++){
