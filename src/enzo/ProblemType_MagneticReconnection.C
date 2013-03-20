@@ -33,6 +33,9 @@ class MagneticReconnectionGrid : private grid {
     friend class ProblemType_MagneticReconnection;
 };
 
+void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+int RebuildHierarchy(TopGridData *MetaData,
+		     LevelHierarchyEntry *LevelArray[], int level);
 int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *TemperatureUnits, float *TimeUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
@@ -53,6 +56,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         float MagneticReconnectionOverdensity;
         float MagneticReconnectionDensity;
         float MagneticReconnectionTotalEnergy;
+        int MagneticReconnectionRefineAtStart;
 
     public:
     ProblemType_MagneticReconnection() : EnzoProblemType()
@@ -113,7 +117,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       /* local declarations */
 
       char line[MAX_LINE_LENGTH];
-      int  i, j, dim, ret, NumberOfSubgridZones[MAX_DIMENSION],
+      int  i, j, dim, ret, level, NumberOfSubgridZones[MAX_DIMENSION],
            SubgridDims[MAX_DIMENSION];
       float Pi                      = 3.14159;
 
@@ -136,7 +140,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       this->MagneticReconnectionOverdensity = 1.;
       this->MagneticReconnectionDensity = 0.2;
       this->MagneticReconnectionTotalEnergy = 0.5;
-
+      this->MagneticReconnectionRefineAtStart = TRUE;
 
       /* set no subgrids by default. */
 
@@ -170,6 +174,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         ret += sscanf(line, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM,
             MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
             MagneticReconnectionBperturbk+2);
+        ret += sscanf(line, "MagneticReconnectionRefineAtStart = %"ISYM, &MagneticReconnectionRefineAtStart);
 
         ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
         ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction);
@@ -184,6 +189,8 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
 
       } // end input from parameter file
 
+
+
       MHD_ProjectE = FALSE;
       MHD_ProjectB = TRUE;
       this->InitializeUniformGrid(TopGrid.GridData,
@@ -192,84 +199,34 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
             MagneticReconnectionTotalEnergy,
             MagneticReconnectionVelocity,
             MagneticReconnectionBField);
+      this->InitializeGrid(TopGrid.GridData, TopGrid, MetaData);
+      if (MagneticReconnectionRefineAtStart)
+         {
+            /* Declare, initialize, and fill out the LevelArray. */
+            LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+            for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+               LevelArray[level] = NULL;
+            AddLevel(LevelArray, &TopGrid, 0);
 
-      /* Create as many subgrids as there are refinement levels
-         needed to resolve the initial explosion region upon the start-up. */
-
-      HierarchyEntry ** Subgrid;
-      if (MaximumRefinementLevel > 0)
-        Subgrid   = new HierarchyEntry*[MaximumRefinementLevel];
-
-      /* Create new HierarchyEntries. */
-
-      int lev;
-      for (lev = 0; lev < MaximumRefinementLevel; lev++)
-        Subgrid[lev] = new HierarchyEntry;
-
-      for (lev = 0; lev < MaximumRefinementLevel; lev++) {
-
-        for (dim = 0; dim < MetaData.TopGridRank; dim++)
-          NumberOfSubgridZones[dim] =
-            nint((MagneticReconnectionSubgridRight - MagneticReconnectionSubgridLeft)/
-                ((DomainRightEdge[dim] - DomainLeftEdge[dim] )/
-                 float(MetaData.TopGridDims[dim])))
-            *int(POW(RefineBy, lev + 1));
-
-        if (debug)
-          printf("MagneticReconnection:: Level[%"ISYM"]: NumberOfSubgridZones[0] = %"ISYM"\n", lev+1,
-              NumberOfSubgridZones[0]);
-
-        if (NumberOfSubgridZones[0] > 0) {
-
-          /* fill them out */
-
-          if (lev == 0)
-            TopGrid.NextGridNextLevel  = Subgrid[0];
-          Subgrid[lev]->NextGridThisLevel = NULL;
-          if (lev == MaximumRefinementLevel-1)
-            Subgrid[lev]->NextGridNextLevel = NULL;
-          else
-            Subgrid[lev]->NextGridNextLevel = Subgrid[lev+1];
-          if (lev == 0)
-            Subgrid[lev]->ParentGrid        = &TopGrid;
-          else
-            Subgrid[lev]->ParentGrid        = Subgrid[lev-1];
-
-          /* compute the dimensions and left/right edges for the subgrid */
-
-          for (dim = 0; dim < MetaData.TopGridRank; dim++) {
-            SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*NumberOfGhostZones;
-            LeftEdge[dim]    = MagneticReconnectionSubgridLeft;
-            RightEdge[dim]   = MagneticReconnectionSubgridRight;
-          }
-
-          /* create a new subgrid and initialize it */
-
-          Subgrid[lev]->GridData = this->CreateNewUniformGrid(
-                                        TopGrid.GridData,
-                                        MetaData.TopGridRank, SubgridDims,
-                                        LeftEdge, RightEdge, 0,
-                                        MagneticReconnectionDensity,
-                                        MagneticReconnectionTotalEnergy,
-                                        MagneticReconnectionTotalEnergy,
-                                        MagneticReconnectionVelocity,
-                                        MagneticReconnectionBField);
-
-          /* set up the initial explosion area on the finest resolution subgrid */
-
-          //if (lev == MaximumRefinementLevel - 1)
-             if (this->InitializeGrid(Subgrid[lev]->GridData, TopGrid, MetaData)
-                == FAIL) {
-              ENZO_FAIL("Error in MagneticReconnectionInitialize[Sub]Grid.");
-            }
-
-        }
-        else{
-          printf("MagneticReconnection: single grid start-up.\n");
-        }
-      }
-
-      this->FinalizeGrids(Subgrid, TopGrid, MetaData);
+            /* Add levels to the maximum depth or until no new levels are created,
+               and re-initialize the level after it is created. */
+            for (level = 0; level < MaximumRefinementLevel; level++) {
+               if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
+                  fprintf(stderr, "Error in RebuildHierarchy.\n");
+                  return FAIL;
+               }
+               if (LevelArray[level+1] == NULL)
+                  break;
+               LevelHierarchyEntry *Temp = LevelArray[level+1];
+               while (Temp != NULL) {
+                  if (this->InitializeGrid(Temp->GridData, TopGrid, MetaData) == FAIL)
+                     {
+                        ENZO_FAIL("Error in MagneticReconnection->InitializeGrid");
+                     }
+                  Temp = Temp->NextGridThisLevel;
+               } // end: loop over grids on this level
+            } // end: loop over levels
+         }
 
       /* set up field names and units -- NOTE: these absolutely MUST be in 
          the same order that they are in Grid_InitializeUniformGrids.C, or 
@@ -308,6 +265,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         fprintf(Outfptr, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM"\n",
             MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
             MagneticReconnectionBperturbk+2);
+        fprintf(Outfptr, "MagneticReconnectionRefineAtStart           = %"ISYM"\n", MagneticReconnectionRefineAtStart);
         fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
         fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
 
