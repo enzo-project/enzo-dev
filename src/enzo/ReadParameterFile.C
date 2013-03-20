@@ -1023,6 +1023,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ExtraOutputs +7,ExtraOutputs +8,ExtraOutputs +9);
 #ifdef MHDCT
     //MHDCT variables
+    ret += sscanf(line, "MHDCT_debug_flag      = %"ISYM, &MHDCT_debug_flag);
     ret += sscanf(line, "MHDCTPowellSource             = %"ISYM, &MHDCTPowellSource);
     ret += sscanf(line, "MHDCTDualEnergyMethod             = %"ISYM, &MHDCTDualEnergyMethod);
     ret += sscanf(line, "MHDCTSlopeLimiter             = %"ISYM, &MHDCTSlopeLimiter);
@@ -1196,6 +1197,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
         RiemannSolver = HLLD;
     if (ReconstructionMethod == INT_UNDEFINED)
         ReconstructionMethod = PLM;
+    if (DualEnergyFormalism == FALSE)
+        MHDCTDualEnergyMethod = 0;
 #endif //MHDCT
 
   if (HydroMethod==MHD_RK) useMHD = 1;
