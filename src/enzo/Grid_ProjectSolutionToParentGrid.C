@@ -158,7 +158,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   /* For each field, accumulate it's conserved quantities in the parent
      grid. */
  
-  if (ProcessorNumber == MyProcessorNumber)
+  if (ProcessorNumber == MyProcessorNumber){
     for (field = 0; field < NumberOfBaryonFields; field++) {
       if (FieldTypeNoInterpolate(FieldType[field]) == TRUE)
 	continue;
@@ -336,6 +336,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       
       
   }//useMHDCT
+  }
    
 #endif //MHDCT
 
