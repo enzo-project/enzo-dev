@@ -460,9 +460,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
         if(useMHDCT==TRUE){
            i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
           for(i = ParentStartIndex[0];i <= ParentEndIndex[0];i++,i1++){
-            ParentGrid.BaryonField[TENum][i1]*=ParentGrid.BaryonField[DensNum][i1];
             ParentGrid.BaryonField[TENum][i1]+=0.5*(pow(ParentGrid.CenteredB[0][i1],2)+pow(ParentGrid.CenteredB[1][i1],2)
-               +pow(ParentGrid.CenteredB[2][i1],2));
+               +pow(ParentGrid.CenteredB[2][i1],2))/ParentGrid.BaryonField[DensNum][i1];
           }
          }
 #endif //MHDCT
