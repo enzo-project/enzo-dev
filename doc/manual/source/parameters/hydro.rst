@@ -228,7 +228,7 @@ isothermal Riemann solver in Enzo.  Default: 0
 ``IsothermalSoundSpeed`` (external, ct only) When ``EquationOfState = 1``, this is the
 sound speed used for computation of pressure.  Default: 1
 
-``SlopeLimieter`` (external, ct only) For computing derivatives for the reconstruction,
+``MHDCTSlopeLimiter`` (external, ct only) For computing derivatives for the reconstruction,
 this switches between zero slope (0), minmod (1), VanLeer (2), and
 characteristic  (3) characteristic with primitive limiting (4).  Default: 1
 

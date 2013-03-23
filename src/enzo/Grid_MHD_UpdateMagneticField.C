@@ -42,23 +42,8 @@ int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
   CenterMagneticField();
       
     int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-  if(useMHDCT == 1 && DualEnergyFormalism ==1){
-
-     /* Compute the field size. */
-
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-
-
-    for(int i=0;i<size;i++)
-       BaryonField[TENum][i] = BaryonField[GENum][i]*BaryonField[DensNum][i]
- + 0.5*BaryonField[DensNum][i]*
-             (BaryonField[Vel1Num][i]*BaryonField[Vel1Num][i]
-              +BaryonField[Vel2Num][i]*BaryonField[Vel2Num][i]
-             +BaryonField[Vel3Num][i]*BaryonField[Vel3Num][i])
-             + 0.5*(CenteredB[0][i]*CenteredB[0][i]+CenteredB[1][i]
-             *CenteredB[1][i]+CenteredB[2][i]*CenteredB[2][i]);
+  if( DualEnergyFormalism ==1){
+    this->RestoreEnergyConsistency(ENTIRE_REGION);
    }
   
   //Also update AvgElectricField, if this is a subgrid.
@@ -68,10 +53,10 @@ int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
     for(int field=0;field<3;field++){
       
       if(AvgElectricField[field] == NULL)
-	ENZO_FAIL("AvgElectricField is null!");
+        ENZO_FAIL("AvgElectricField is null!");
 
       for(int i=0;i<ElectricSize[field];i++){
-	AvgElectricField[field][i] += ElectricField[field][i];
+        AvgElectricField[field][i] += ElectricField[field][i];
       }
     }//field
   }//level>0
