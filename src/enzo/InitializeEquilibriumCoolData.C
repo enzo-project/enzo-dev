@@ -146,7 +146,6 @@ int InitializeEquilibriumCoolData(FLOAT Time)
        float(CoolData.NumberOfTemperatureBins-1),
        CoolData.EquilibriumRate[index]);
     fclose(fptr);
-    fprintf(stdout,"WROTE TO COOLING FILE\n"); // FIXME
   } // end rootgrid if
 
   }else if( RadiativeCoolingModel == 3){

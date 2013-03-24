@@ -105,7 +105,8 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   int i, ie, is, j, je, js, k, ks, ke, n, ixyz, ret;
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
-  float *d, *e, *u, *v, *w, *cr;
+  float *d, *e, *u, *v, *w, *cr, *m;
+  int UseMetallicityField;
 
   /* Error Check */
 
@@ -135,6 +136,15 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
   }
+
+  /* figure out if we're using metals. If so, grab field */
+  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
+    MetalIaNum;
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum,
+         Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
+  UseMetallicityField = ( MetalNum != -1 );
+  if(UseMetallicityField) m = BaryonField[MetalNum]; 
   
   d = BaryonField[DensNum];
   e = BaryonField[TENum];
@@ -231,6 +241,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
       if( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed 
       if( e[i] < tiny_number*1e-5                  ) e[i] = tiny_number*1e-5;
     } // end cr model if
+    if( UseMetallicityField && m[i] < tiny_number*1e-5 ) m[i] = tiny_number*1e-5;
   } // end i for
 
   /*  2) Transport step */

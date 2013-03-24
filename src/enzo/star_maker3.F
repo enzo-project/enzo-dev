@@ -394,7 +394,7 @@ c-----------------------------------------------------------------------
 c
 c     Loop over particles
 c
-      write(6,*) 'star_feedback3: start'
+c      write(6,*) 'star_feedback3: start'
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
