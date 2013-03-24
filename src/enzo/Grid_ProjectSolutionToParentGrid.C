@@ -336,9 +336,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       
       
   }//useMHDCT
-  }
    
 #endif //MHDCT
+  }
 
     
  
