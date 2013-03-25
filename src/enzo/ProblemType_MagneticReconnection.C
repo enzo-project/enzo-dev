@@ -423,6 +423,9 @@ This is the grid-by-grid initializer.
 
       // Thermal Physics compensates for the field profile with a density bump
       // and an assumed isothermal initial condition
+
+      // Use the MagneticReconnectionTotalEnergy as an isothermal sound speed...
+      MagneticReconnectionTotalEnergy = POW(MagneticReconnectionBField[0],2)/(2.* (MagneticReconnectionOverdensity + MagneticReconnectionDensity));
       for (k = 0; k < thisgrid->GridDimension[2]; k++)
         for (j = 0; j < thisgrid->GridDimension[1]; j++)
           for (i = 0; i < thisgrid->GridDimension[0]; i++){
@@ -441,7 +444,6 @@ This is the grid-by-grid initializer.
 
             thisgrid->BaryonField[DensNum][cellindex] = MagneticReconnectionOverdensity/pow(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + MagneticReconnectionDensity;
 
-            // Use the MagneticReconnectionTotalEnergy as an isothermal sound speed...
             thisgrid->BaryonField[TENum][cellindex] = MagneticReconnectionTotalEnergy/(Gamma - 1.0) + 0.5 * (POW(thisgrid->CenteredB[0][cellindex], 2) + POW(thisgrid->CenteredB[1][cellindex], 2) + POW(thisgrid->CenteredB[2][cellindex], 2))/thisgrid->BaryonField[DensNum][cellindex];
           } // for (i = 0; i < GridDimension[0]; i++)
 
