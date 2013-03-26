@@ -45,7 +45,8 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids, 
 		      fluxes *SubgridFluxes[], float *CellWidthTemp[], 
 		      Elong_int GridGlobalStart[], int GravityOn, 
-		      int NumberOfColours, int colnum[])
+		      int NumberOfColours, int colnum[],
+          float ** Fluxes)
 {
     
 
@@ -81,10 +82,10 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
 
 
   int line_width = 9;  //the number of conserved quantities.
-  float * field_line = new float[line_size * line_width];
-  float * flux_line = new float[line_size * line_width];
-  float * colour_line = new float[line_size * NumberOfColours];
-  float * gravity_line = new float[line_size];
+  float * field_line     = new float[line_size * line_width];
+  float * flux_line      = new float[line_size * line_width];
+  float * colour_line    = new float[line_size * NumberOfColours];
+  float * gravity_line   = new float[line_size];
   float * diffusion_line = new float[line_size];
 
   //Both of these need to be convolved with the above.
@@ -118,6 +119,15 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   for( ii=0; ii<size; ii++){
     entropy[ii] = pressure[ii]/POW(BaryonField[DensNum][ii], Gamma - 1);
   }
+
+  //Pointers to magnetic fluxes for simplicity below.  
+  float * MagFluxX1 = Fluxes[0],
+        * MagFluxX2 = Fluxes[0]+MagneticSize[0],
+        * MagFluxY1 = Fluxes[1],
+        * MagFluxY2 = Fluxes[1]+MagneticSize[1],
+        * MagFluxZ1 = Fluxes[2],
+        * MagFluxZ2 = Fluxes[2]+MagneticSize[2];
+
 
   //strang loop.
   //
@@ -182,7 +192,12 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             }
            //DO collors from lines
            //DO energy from lines
-         }
+          }
+          for(ii = 3; ii<GridDimension[0]-1; ii++ ){
+            index_bf = ii + MagneticDims[0][0]*(jj + MagneticDims[0][1]*kk);
+            MagFluxX1[index_bf] = flux_line[ ii-1 + line_size*5];
+            MagFluxX2[index_bf] = flux_line[ ii-1 + line_size*6];
+          }
                 //DO subgrid fluxes
                 //
                 //DO Magnetic fluxes (loop positions?)
@@ -248,8 +263,12 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               pressure[index_bf] = field_line[jj + line_size*8 ] *POW(field_line[jj + line_size*0], (Gamma - 1));
             }
            //DO collors from lines
-           //DO energy from lines
          }
+          for(jj = 3; jj<GridDimension[1]-1; jj++ ){
+            index_bf = ii + MagneticDims[1][0]*(jj + MagneticDims[1][1]*kk);
+            MagFluxY2[index_bf] = flux_line[ jj-1 + line_size*5];
+            MagFluxY1[index_bf] = flux_line[ jj-1 + line_size*6];
+          }
                 //DO subgrid fluxes
                 //
                 //DO Magnetic fluxes (loop positions?)
@@ -315,11 +334,16 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
            //DO collors from lines
            //DO energy from lines
          }
+          for(kk = 3; kk<GridDimension[2]-1; kk++ ){
+            index_bf = ii + MagneticDims[2][0]*(jj + MagneticDims[2][1]*kk);
+            MagFluxZ1[index_bf] = flux_line[ kk-1 + line_size*5];
+            MagFluxZ2[index_bf] = flux_line[ kk-1 + line_size*6];
+          }
                 //DO subgrid fluxes
                 //
                 //DO Magnetic fluxes (loop positions?)
-          }//y sweep jj loop
-      }//y sweep kk loop
+          }//z sweep jj loop
+      }//z sweep kk loop
     }
 
   }//strang order loop

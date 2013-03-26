@@ -458,10 +458,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     int CurlStart[3] = {0,0,0}, 
     CurlEnd[3] = {GridDimension[0]-1,GridDimension[1]-1,GridDimension[2]-1};
     if ( useMHDCT ){
-        if (HydroMethod == MHD_Li)
+        if (HydroMethod == MHD_Li){
           this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
                 CellWidthTemp, GridGlobalStart, GravityOn, 
-                NumberOfColours, colnum);
+                NumberOfColours, colnum, Fluxes);
+        }
+
         if( HydroMethod != NoHydro )
             switch( MHD_CT_Method ){
                 case CT_BalsaraSpicer: //1
@@ -491,6 +493,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
             }
         MHD_Curl( CurlStart,CurlEnd, 1);
         CenterMagneticField();
+
         MHDCT_ConvertEnergyToSpecificS();
     }
 #endif //MHDCT
