@@ -108,7 +108,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             0.5*(BaryonField[Vel1Num][ii]*BaryonField[Vel1Num][ii]+
                  BaryonField[Vel2Num][ii]*BaryonField[Vel2Num][ii]+
                  BaryonField[Vel3Num][ii]*BaryonField[Vel3Num][ii])*BaryonField[DensNum][ii]
-            +0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
+            -0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
                   CenteredB[1][ii]*CenteredB[1][ii]+
                   CenteredB[2][ii]*CenteredB[2][ii]));
       }
@@ -126,8 +126,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   startindex = 3;
   endindex = GridDimension[0] - 2;
   for( n=0; n<1; n++){
-
-    if ( 1 ){ //x loope
+    //x loope
+    if ( 1 ){ 
       for( kk = 0; kk< GridDimension[2]; kk++){
         for( jj = 0; jj<GridDimension[1]; jj++){
           for(ii = 0; ii<GridDimension[0]; ii++ ){
@@ -141,7 +141,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             field_line[ ii + line_size*6] = CenteredB[2][index_bf];
             if ( EquationOfState == 0 ){
               field_line[ ii + line_size*7] = BaryonField[TENum][index_bf];
-              field_line[ ii + line_size*8] = entropy[index_bf];
+              field_line[ ii + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
    
             //DO fill colour lines
@@ -169,16 +169,16 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
 
           for(ii = 0; ii<GridDimension[0]; ii++ ){
             index_bf = ii + GridDimension[0]*(jj + GridDimension[1]*kk);
-            BaryonField[DensNum][index_bf]= field_line[ ii + line_size*0];
-            BaryonField[Vel1Num][index_bf]= field_line[ ii + line_size*1]/field_line[ ii + line_size*0];
-            BaryonField[Vel2Num][index_bf]= field_line[ ii + line_size*2]/field_line[ ii + line_size*0];
-            BaryonField[Vel3Num][index_bf]= field_line[ ii + line_size*3]/field_line[ ii + line_size*0];
-            CenteredB[0][index_bf]        = field_line[ ii + line_size*4];
-            CenteredB[1][index_bf]        = field_line[ ii + line_size*5];
-            CenteredB[2][index_bf]        = field_line[ ii + line_size*6];
+            BaryonField[DensNum][index_bf] = field_line[ ii + line_size*0];
+            BaryonField[Vel1Num][index_bf] = field_line[ ii + line_size*1]/field_line[ ii + line_size*0];
+            BaryonField[Vel2Num][index_bf] = field_line[ ii + line_size*2]/field_line[ ii + line_size*0];
+            BaryonField[Vel3Num][index_bf] = field_line[ ii + line_size*3]/field_line[ ii + line_size*0];
+            CenteredB[0][index_bf]         = field_line[ ii + line_size*4];
+            CenteredB[1][index_bf]         = field_line[ ii + line_size*5];
+            CenteredB[2][index_bf]         = field_line[ ii + line_size*6];
             if ( EquationOfState == 0 ){
               BaryonField[TENum][index_bf] = field_line[ ii + line_size*7];
-              pressure[index_bf] = field_line[ii + line_size*8 ] *POW(field_line[ii + line_size*0], (Gamma - 1));
+              pressure[index_bf]           = field_line[ii + line_size*8 ] *POW(field_line[ii + line_size*0], (Gamma - 1));
             }
            //DO collors from lines
            //DO energy from lines
@@ -207,6 +207,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             if ( EquationOfState == 0 ){
               field_line[ jj + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ jj + line_size*8] = entropy[index_bf];
+              field_line[ jj + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
    
             //DO fill colour lines
@@ -271,7 +272,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             field_line[ kk + line_size*6] = CenteredB[1][index_bf];
             if ( EquationOfState == 0 ){
               field_line[ kk + line_size*7] = BaryonField[TENum][index_bf];
-              field_line[ kk + line_size*8] = entropy[index_bf];
+              field_line[ kk + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
    
             //DO fill colour lines
@@ -337,6 +338,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //DO entropy to pressure, if applicable
   //DO clean up arrays.  Check all news in code.
   //DO not filling entropy array fails, even with DEF off.  Sort out why.
+  //   Followup:  how is entropy used?
+  //DO check UseSpecificEnergy
   
   return SUCCESS;
 }
