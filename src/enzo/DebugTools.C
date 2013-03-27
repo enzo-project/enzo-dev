@@ -157,7 +157,7 @@ void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum
   char filename[20];
   
   sprintf(filename, "data111%4.4d.grid%4.4d",dNum,gNum);
-  fprintf(stderr,"GPFS WriteCube: %s %s [%d,%d,%d]\n", string, filename, Dims[0],Dims[1],Dims[2]);
+  fprintf(stderr,"GPFS WriteCube: %s %s [%"ISYM",%"ISYM",%"ISYM"]\n", string, filename, Dims[0],Dims[1],Dims[2]);
   
 #define floatdcc double  
   int jj = sizeof(floatdcc);
@@ -207,6 +207,5 @@ void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum
   status = H5Sclose(dataspace_id);
   status = H5Dclose(dataset_id);
   status = H5Fclose(file_id);
-  
-  
+    
 }

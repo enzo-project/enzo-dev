@@ -84,7 +84,7 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
   if( ProcessorNumber != MyProcessorNumber )
     return SUCCESS;
   
-  fprintf(stderr,"===  SMHD n = %d L = %d g = %d proc = %d dt = %15.12e id %d === Right (%0.2e, %0.2e, %0.2e)\n",
+  fprintf(stderr,"===  SMHD n = %"ISYM" L = %"ISYM" g = %"ISYM" proc = %"ISYM" dt = %15.12e id %"ISYM" === Right (%"ESYM", %"ESYM", %"ESYM")\n",
 	  CycleNumber, level, grid, MyProcessorNumber, dtFixed, GetGridID(), GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
