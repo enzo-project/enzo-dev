@@ -202,13 +202,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
   }
-  
-  
-  //doom is a dummy field used for debugging. Feel free to remove it.
-  //fprintf(stderr,"kludge:  no prolongation\n");
-  int doom[6] = {1,1,1,1,1,1};
-  //int doom[6] = {1,0,0,0,0,0};
-  
+    
   //Oh yeah, in my notation "Left" and "Right" refer to the "other" grid    
   int ProlongStart[3], ProlongStartOther[3], ProlongDim[3] = {1,1,1}, Face = -12;    
   int Prolong = FALSE;
@@ -221,7 +215,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       //This is the important flag.
       
       if( OnlyOneFace == -1 || OnlyOneFace == 0  )
-	if( Start[0] > 0 && doom[0] == 1){
+	if( Start[0] > 0){
 	  
 	  for(i=0;i<3;i++){
 	    ProlongStart[i] = Start[i];
@@ -240,7 +234,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 2:
       if( OnlyOneFace == -1 || OnlyOneFace == 10 )
-	if( End[0] < GridDimension[0] - 1 && doom[1] == 1){
+	if( End[0] < GridDimension[0] - 1 ){
 	  
 	  if( ver2==TRUE)fprintf(stderr, "Prolong x r %s\n", Label);
 	  
@@ -261,7 +255,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 3:
       if( OnlyOneFace == -1 || OnlyOneFace == 1 )
-	if( Start[1] > 0 && doom[2] == 1){
+	if( Start[1] > 0 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong y l %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -281,7 +275,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 4:
       if(OnlyOneFace == -1 || OnlyOneFace == 11 )
-	if( End[1] < GridDimension[1]-1 && doom[3] == 1 ){
+	if( End[1] < GridDimension[1]-1 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong y r %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -301,7 +295,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 5:
       if(OnlyOneFace == -1 || OnlyOneFace == 2)
-	if( Start[2] > 0 && doom[4] == 1 ){
+	if( Start[2] > 0 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong z l %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -321,7 +315,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 6:
       if(OnlyOneFace == -1 || OnlyOneFace == 12 )
-	if( End[2] < GridDimension[2] -1 && doom[5] == 1 ){
+	if( End[2] < GridDimension[2] -1 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong z r %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
