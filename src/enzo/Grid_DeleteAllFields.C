@@ -56,8 +56,6 @@ void grid::DeleteAllFields()
     }
 #endif
  
-#ifdef MHDCT
-
   for(i=0;i<3;i++){
     if(MagneticField[i] != NULL){
       delete [] MagneticField[i];
@@ -90,8 +88,6 @@ void grid::DeleteAllFields()
     }
   }
 
-
-#endif //MHDCT 
   delete [] PotentialField;
   delete [] GravitatingMassField;
   delete [] GravitatingMassFieldParticles;

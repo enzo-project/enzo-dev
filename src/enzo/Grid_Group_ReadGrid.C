@@ -358,7 +358,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
       //      if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
        if( dset_id == h5_error ){
-	 fprintf(stderr, "NumberOfBaryonFields = %d", field);
+	 fprintf(stderr, "NumberOfBaryonFields = %"ISYM"", field);
 	 my_exit(EXIT_FAILURE);
        }
 
@@ -443,8 +443,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       
     } /* if HydroMethod == MHD */
 
-#ifdef MHDCT
-
   if( useMHDCT ){
     if(MHDcLabel[0]==NULL)
       MHDcLabel[0] = "Bx";
@@ -520,6 +518,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     if( MyProcessorNumber == ProcessorNumber ){
     int MHDActive[3];
     hsize_t MHDOutDims[3];
+    // BiggieSize accommodates larger MHD grids: +1 in each dimension for face-centered quantities.
     int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
     io_type *MHDtmp = new io_type[BiggieSize];	
     
@@ -537,21 +536,21 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       
       
       file_dsp_id = H5Screate_simple((Eint32) GridRank, MHDOutDims, NULL);
-      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %d\n", file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
       
       if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", MHDLabel[field]);
       
       dset_id = H5Dopen(group_id, MHDLabel[field]);
-      if (io_log) fprintf(log_fptr, "H5Dopen id: %d\n", dset_id);
+      if (io_log) fprintf(log_fptr, "H5Dopen id: %"ISYM"\n", dset_id);
       
       h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
 			  (VOIDP) MHDtmp);
       
       h5_status = H5Sclose(file_dsp_id);
-      if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
       
       h5_status = H5Dclose(dset_id);
-      if (io_log) fprintf(log_fptr, "H5Dclose: %d\n", h5_status);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
       
       MagneticField[field] = new float[MagneticSize[field]];
       if( MagneticField[field] == NULL )
@@ -584,7 +583,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     }//processor
     }
 
-#endif //MHDCT
     delete [] temp;
  
   }  // end:   if (NumberOfBaryonFields > 0 && ReadData &&
