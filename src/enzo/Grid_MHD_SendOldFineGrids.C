@@ -40,20 +40,15 @@ int grid::MHD_SendOldFineGrids(LevelHierarchyEntry * OldFineLevel, grid *ParentG
     EndIndex[dim] = (int(EndIndex[dim]/Refinement[dim])+1)*Refinement[dim]-1;
     
     TempDim[dim]            = EndIndex[dim] - StartIndex[dim] + 1;
-
   }
 
   CommunicationDirection = COMMUNICATION_SEND;
-  //ComputeInterpolation Derivatives
+
+  //Compute Interpolation Derivatives
   if( MHD_CID(OldFineLevel, MetaData, Offset, TempDim, Refinement) == FAIL ){
     fprintf(stderr, "MHD_CID failed.\n");
     return FAIL;
   }
-
-
-
-
-  
 
   return SUCCESS;
 }
