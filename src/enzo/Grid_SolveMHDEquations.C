@@ -401,11 +401,11 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
       return FAIL;
     }
     
-    
     /* Transform speed of light, hydrogen mass and electron change in units of ENZO */
     electroncharge *= TimeUnits*BFieldUnits/(speedoflight*DensityUnits*pow(LengthUnits,3));
     speedoflight /=VelocityUnits;
     hydrogenmass /= DensityUnits*pow(LengthUnits,3);
+
   }//ComovingCoordinates
   
 #endif //BIERMANN
@@ -424,10 +424,7 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
   }
 
   float  **ColorFlux =  new float*[15], **Color= new float*[15];
-  //   for(i=0;i<15;i++) {
-  //     ColorFlux[i] = NULL;
-  //     Color[i] = NULL;
-  //     }
+
   i=0;
   
   if (MultiSpecies>0) {
@@ -553,7 +550,6 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
 
     break;
 
-    
   case NoHydro:
     fprintf(stderr,"=============== NASTY KLUDGE!!! NO SOLVER!!! ==================\n");
     break;
