@@ -15,9 +15,6 @@
 
 // Solve the hydro equations with the solver, saving the subgrid fluxes
 //
-#ifdef USE_MPI
-#include "mpi.h"
-#endif /* USE_MPI */
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
