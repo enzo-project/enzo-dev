@@ -10,7 +10,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "DaveTools.h"
+#include "DebugTools.h"
 #include "phys_constants.h"
 
 float blaststyle(int i,int j, int k, int InitStyle, FLOAT BlastCenterLocal[], float Radius){

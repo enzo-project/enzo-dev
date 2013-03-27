@@ -39,7 +39,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "fortran.def"
-#include "DaveTools.h"
+#include "DebugTools.h"
 
 //
 // Method = 0: MagneticField = Curl( ElectricField )

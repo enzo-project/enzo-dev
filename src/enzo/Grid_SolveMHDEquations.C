@@ -10,7 +10,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "fortran.def"
-#include "DaveTools.h"
+#include "DebugTools.h"
 #include "CosmologyParameters.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -84,8 +84,6 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
   if( ProcessorNumber != MyProcessorNumber )
     return SUCCESS;
   
-  wall_time("Start SMHD");
-
   fprintf(stderr,"===  SMHD n = %d L = %d g = %d proc = %d dt = %15.12e id %d === Right (%0.2e, %0.2e, %0.2e)\n",
 	  CycleNumber, level, grid, MyProcessorNumber, dtFixed, GetGridID(), GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
 
@@ -671,8 +669,6 @@ if(MultiSpecies>0){
      }
    }
   delete [] ColorFlux, Color;
-
-  wall_time("End SMHD");
 
   MHDCT_ConvertEnergyToSpecificS();
 

@@ -38,7 +38,7 @@ CID_Parameters CID_Params;
 
 //MHD_ Calculate Interpolation Derivatives
 int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
-  //wall_time("Start CIDW_1");
+
   //This is a flag for the interpolator.  Step = 1 tells mhd_interpolate to only take derivatives
   //don't actually interpolate.
   int Step = 1, ver = FALSE, ver2=FALSE,Overlap, dim, i, OnlyOneFace, field;
@@ -158,7 +158,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     }//Overlap == TRUE
   }// dim<3
-  //wall_time("End CIDW_1");
+
   //If there's no overlap, get out of this damned loop.
   if( Overlap == FALSE ){
     if(ver==TRUE) fprintf(stderr,"MHD_CID: continuing.  No overlap.\n");
@@ -167,7 +167,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
     //continue;
     
   }
-  //wall_time("Start CIDW_2");
+
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     Dim[dim] = End[dim] - Start[dim] + 1;//dcf
   
@@ -199,15 +199,13 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   //The processor that doesn't have ThisGrid has nothing else to do.
   //We've gotten what we want from it, now we'll leave it to die alone in the desert.
   //Bwa ha ha ha!
-  //wall_time("End CIDW_2");
+
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
     //OldFineLevelIterator = OldFineLevelIterator->NextGridThisLevel;
     //continue;
   }
   
-  
-  //wall_time("Start CIDW_3");
   
   //doom is a dummy field used for debugging. Feel free to remove it.
   //fprintf(stderr,"kludge:  no prolongation\n");
@@ -219,7 +217,6 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   int Prolong = FALSE;
   
   for( int Looper=1;Looper<=6;Looper++){
-    //wall_time("Start CIDW_4");
     Prolong = FALSE;
     switch(Looper){
     case 1:
@@ -355,7 +352,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
     if(Prolong == TRUE){
       
       Step = 1;
-      //wall_time("Start CIDW_int");
+
       FORTRAN_NAME(mhd_interpolate)(this->MHDParentTemp[0], 
 				    this->MHDParentTemp[1], 
 				    this->MHDParentTemp[2], 
@@ -387,9 +384,9 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       char oot[30];
       sprintf(oot,"CID, loop %d",Looper);
     }	  
-    //wall_time("End CIDW_4");
+
   }//Loop	
-  //wall_time("Start CIDW_del");
+
   // 10/4: the copy to the smaller grid will go here.
   //Remove this delete.
   // set "OffProcessorHasRegion = TRUE "
@@ -404,8 +401,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       OldFineGrid->MagneticField[field] = NULL;
     }
   }
-  //wall_time("End CIDW_del");
-  //wall_time("End CIDW_3");
+
   if(ver==TRUE) fprintf(stderr, "MHD_CID: OldFineLevel \n");
   return SUCCESS;
 }

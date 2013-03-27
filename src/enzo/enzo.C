@@ -51,7 +51,7 @@
 #include "ImplicitProblemABC.h"
 #endif
 #ifdef MHDCT
-#include "DaveTools.h"
+#include "DebugTools.h"
 #endif //MHDCT
 #undef DEFINE_STORAGE
 #ifdef USE_PYTHON

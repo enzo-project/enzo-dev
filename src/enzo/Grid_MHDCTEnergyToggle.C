@@ -41,7 +41,9 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+
 int dbg = FALSE;
+
 int  MHDCT_EnergyToggle(HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary *Exterior, LevelHierarchyEntry *LevelArray[]){
     //Converts the TotalEnergy field from specific to conserved.
     //This is a stopgap to ensure the code can be used while dcollins tracks down a problem
@@ -102,7 +104,6 @@ int grid::MHDCT_ConvertEnergyToConservedC()
     MHDCT_temp_conserved_energy= NULL;
 
     return SUCCESS;
-    
 }
 
 int grid::MHDCT_ConvertEnergyToSpecificC()
@@ -126,10 +127,9 @@ int grid::MHDCT_ConvertEnergyToSpecificC()
     for (int i=0; i<size; i++)
         BaryonField[TENum][i] = MHDCT_temp_conserved_energy[i]/BaryonField[DensNum][i];
 
-
     return SUCCESS;
-    
 }
+
 int grid::MHDCT_ConvertEnergyToSpecificS()
 {
     //Stores BaryonField[TENum] (conserved). in MHDCT_temp_energy
@@ -150,6 +150,4 @@ int grid::MHDCT_ConvertEnergyToSpecificS()
         BaryonField[TENum][i]  /= BaryonField[DensNum][i];
 
     return SUCCESS;
-
-    
 }

@@ -1090,7 +1090,7 @@ MHDBlastInitialize.o\
     riemann_mhd.o\
     mhd_hlld_isothermal.o\
     mhd_hlld_adiabatic.o\
-    DaveTools.o\
+    DebugTools.o\
     Grid_MHD_CID.o\
     Grid_MHD_ProlongAllocate.o\
     mhd_interpolate.o\
