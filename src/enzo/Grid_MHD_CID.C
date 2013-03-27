@@ -196,8 +196,6 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   }
   
   //The processor that doesn't have ThisGrid has nothing else to do.
-  //We've gotten what we want from it, now we'll leave it to die alone in the desert.
-  //Bwa ha ha ha!
 
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
@@ -344,33 +342,18 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
       Step = 1;
 
-      FORTRAN_NAME(mhd_interpolate)(this->MHDParentTemp[0], 
-				    this->MHDParentTemp[1], 
-				    this->MHDParentTemp[2], 
-				    this->MHDParentTempPermanent,
+      FORTRAN_NAME(mhd_interpolate)(this->MHDParentTemp[0], this->MHDParentTemp[1], 
+				    this->MHDParentTemp[2], this->MHDParentTempPermanent,
 				    this->MHDRefinementFactors,
-				    MagneticField[0],
-				    MagneticField[1],
-				    MagneticField[2],
-				    TempDim, 
-				    ProlongStart,
-				    ProlongDim,
-				    OldFineGrid->MagneticField[0],
-				    OldFineGrid->MagneticField[1],
+				    MagneticField[0], MagneticField[1], MagneticField[2],
+				    TempDim, ProlongStart, ProlongDim,
+				    OldFineGrid->MagneticField[0], OldFineGrid->MagneticField[1],
 				    OldFineGrid->MagneticField[2],
-				    //OldFineGrid->GridDimension,
-				    OtherDim,
-				    ProlongStartOther,
-				    DyBx, DzBx, DyzBx,
-				    DxBy, DzBy, DxzBy,
-				    DxBz, DyBz, DxyBz,
+				    OtherDim, ProlongStartOther,
+				    DyBx, DzBx, DyzBx, DxBy, DzBy, DxzBy, DxBz, DyBz, DxyBz,
 				    DBxFlag,DByFlag,DBzFlag,
-				    &this->ParentDx,
-				    &this->ParentDy,
-				    &this->ParentDz,
-				    &Face,
-				    &Step,
-				    &Step);
+				    &this->ParentDx, &this->ParentDy, &this->ParentDz,
+				    &Face, &Step, &Step);
       
       char oot[30];
       sprintf(oot,"CID, loop %"ISYM"",Looper);
@@ -396,6 +379,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   if(ver==TRUE) fprintf(stderr, "MHD_CID: OldFineLevel \n");
   return SUCCESS;
 }
+
 int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int Offset[], 
 		  int TempDim[], int Refinement[])
 {
@@ -409,14 +393,15 @@ int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int
   int ver = FALSE;
   
   int dim;
-  //In order to reuse CheckForOverlap, I need to get around it's fixed 
+
+  //In order to reuse CheckForOverlap, I need to get around its fixed 
   //signature by putting some extra parameters in this structure.
   for(dim=0;dim<GridRank;dim++){
     CID_Params.Offset[dim] = Offset[dim];
     CID_Params.TempDim[dim]= TempDim[dim];
     CID_Params.Refinement[dim] = Refinement[dim];
   }
-  //if(ver==TRUE) fprintf(stderr, "MHD_CID: Enter\n");
+
   if(ver==TRUE) fprintf(stderr, "MHD_CID: Offset %"ISYM" %"ISYM" %"ISYM"\n", Offset[0],Offset[1],Offset[2]);
   if(ver==TRUE) fprintf(stderr, "MHD_CID: TempDim %"ISYM" %"ISYM" %"ISYM"\n", 
 			TempDim[0], TempDim[1], TempDim[2]);
@@ -463,18 +448,12 @@ int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int
     FLOAT PeriodicOffset[3] = {0,0,0};
     this->MHD_CIDWorker( OldFineGrid,PeriodicOffset);
 
-    //for(int fart=0;fart<MAX_DIMENSION;fart++){
-    //TopLeftBoundary[fart] = reflecting;
-    //TopRightBoundary[fart] = reflecting;
-    //}
     if( this->CheckForOverlap( OldFineGrid, MetaData->LeftFaceBoundaryCondition, MetaData->RightFaceBoundaryCondition, //TopLeftBoundary, TopRightBoundary,
 			       &grid::MHD_CIDWorker) == FAIL )
       ENZO_FAIL("MHD_CID: CheckForOverlap failed.");
     OldFineLevelIterator = OldFineLevelIterator->NextGridThisLevel;
 
   }
-
-
 
   return SUCCESS;
 
