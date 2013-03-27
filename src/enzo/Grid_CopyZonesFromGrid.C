@@ -276,7 +276,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
     if (DualEnergyFormalism) ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
     
-    if (useMHD){
+    if (UseMHD){
       iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
       iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
       if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
@@ -336,7 +336,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 		
 		float bx, by, bz, b2;
 		b2=0.0;
-		if (useMHD) {
+		if (UseMHD) {
 		  bx= OtherGrid->BaryonField[iBx][iLoop];
 		  by= OtherGrid->BaryonField[iBy][iLoop];  
 		  if (GridRank==3) bz= OtherGrid->BaryonField[iBz][iLoop];  
@@ -384,7 +384,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	  v2=vx*vx+vy*vy+vz*vz;
 	  
 	  b2=0.0;
-	  if (useMHD) {
+	  if (UseMHD) {
 	    bx= BaryonField[iBx][thisindex];
 	    by= BaryonField[iBy][thisindex];  
 	    if (GridRank==3) bz= BaryonField[iBz][thisindex];  

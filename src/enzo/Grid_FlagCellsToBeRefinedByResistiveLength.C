@@ -52,7 +52,7 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
   FLOAT x, y, z, r;
 
     int iBx, iBy, iBz;
-    if (useMHD){
+    if (UseMHD){
       iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
       iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
       if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);

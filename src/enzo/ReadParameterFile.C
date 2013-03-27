@@ -1193,7 +1193,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (ReconstructionMethod == INT_UNDEFINED)
         ReconstructionMethod = PLM;
 
-  if (HydroMethod==MHD_RK) useMHD = 1;
+  if (HydroMethod==MHD_RK) UseMHD = 1;
   if (HydroMethod==MHD_Li) UseMHDCT = 1;
   if (UseMHDCT) CorrectParentBoundaryFlux = TRUE;
 
@@ -1245,7 +1245,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   // make sure that MHD is turned on if we're trying to use anisotropic conduction.
   // if not, alert user.
-  if(AnisotropicConduction==TRUE && useMHD==0){
+  if(AnisotropicConduction==TRUE && UseMHD==0){
     ENZO_FAIL("AnisotropicConduction can only be used if MHD is turned on!\n");
   }  
   if(AnisotropicConduction==TRUE && MetaData.TopGridRank < 2){

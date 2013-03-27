@@ -892,7 +892,7 @@ EXTERN float VelocityGradient;
 EXTERN int ShearingBoundaryDirection;
 EXTERN int ShearingVelocityDirection;
 EXTERN int ShearingOtherDirection;
-EXTERN int useMHD;
+EXTERN int UseMHD;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
