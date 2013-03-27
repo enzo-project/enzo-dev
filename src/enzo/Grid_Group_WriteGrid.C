@@ -541,10 +541,10 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 	    temp[(i-WriteStartIndex[0])                           + 
 	         (j-WriteStartIndex[1])*ActiveDim[0]              + 
 	         (k-WriteStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-		     io_type(
-		   temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
-			     );
- 
+	      io_type(
+		      temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
+		      );
+      
       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
