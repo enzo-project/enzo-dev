@@ -114,7 +114,7 @@ grid::~grid()
     WriteListOfInts(stdout, GridRank, GridDimension);
   }
 */
-#ifdef MHDCT
+
   //MHD stuff 
  
   if( useMHDCT ){
@@ -146,10 +146,6 @@ grid::~grid()
 
     }
 
-    //MHDCleanUpTemp();
-
   }
 
-
-#endif //MHDCT 
 }
