@@ -413,9 +413,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
     ret += sscanf(line, "PotentialIterations   = %"ISYM, &PotentialIterations);
     ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
-#ifdef MHDCT
     ret += sscanf(line, "WriteAcceleration      = %"ISYM, &WriteAcceleration);
-#endif //MHDCT
     ret += sscanf(line, "BaryonSelfGravityApproximation = %"ISYM,
 		  &BaryonSelfGravityApproximation);
  
@@ -1021,7 +1019,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ExtraOutputs +1,ExtraOutputs +2,ExtraOutputs +3,
 		  ExtraOutputs +4,ExtraOutputs +5,ExtraOutputs +6,
 		  ExtraOutputs +7,ExtraOutputs +8,ExtraOutputs +9);
-#ifdef MHDCT
+
     //MHDCT variables
     ret += sscanf(line, "MHDCTPowellSource             = %"ISYM, &MHDCTPowellSource);
     ret += sscanf(line, "MHDCTDualEnergyMethod             = %"ISYM, &MHDCTDualEnergyMethod);
@@ -1035,8 +1033,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
     ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
-//    ret += sscanf(line, "MHDLi = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"",
-//		  MHDLi,MHDLi+1,MHDLi+2,MHDLi+3,MHDLi+4);
 
     ret += sscanf(line,"tiny_pressure = %"FSYM,&tiny_pressure);
     ret += sscanf(line,"MHD_CT_Method = %"ISYM,&MHD_CT_Method);
@@ -1055,7 +1051,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MHDeLabel[dim] = dummy;
     if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
       MHDeUnits[dim] = dummy;
-#endif //MHDCT
+
     ret += sscanf(line, "CorrectParentBoundaryFlux             = %"ISYM, &CorrectParentBoundaryFlux);
     ret += sscanf(line, "MoveParticlesBetweenSiblings = %"ISYM,
 		  &MoveParticlesBetweenSiblings);
@@ -1190,19 +1186,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (ReconstructionMethod == INT_UNDEFINED)
       ReconstructionMethod = PLM;
   }
-#ifdef MHDCT
+
   else if (HydroMethod == MHD_Li )
     if (RiemannSolver == INT_UNDEFINED) 
         RiemannSolver = HLLD;
     if (ReconstructionMethod == INT_UNDEFINED)
         ReconstructionMethod = PLM;
-#endif //MHDCT
 
   if (HydroMethod==MHD_RK) useMHD = 1;
-#ifdef MHDCT
   if (HydroMethod==MHD_Li) useMHDCT = 1;
   if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
-#endif //MHDCT
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
