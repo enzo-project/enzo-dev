@@ -53,9 +53,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
  
   int Dims[MAX_DIMENSION], index, size, i;
   int BoundaryValuePresent[2*MAX_DIMENSION];
-#ifdef MHDCT
   int MagneticBoundaryValuePresent[2*MAX_DIMENSION];
-#endif //MHDCT
   int dim, field, TempInt, j;
  
   float32 *buffer;
@@ -164,7 +162,6 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	ENZO_FAIL("Error reading BoundaryValuePresent.");
     }
 
-#ifdef MHDCT
     if(useMHDCT){
       fscanf(fptr, "MagneticBoundaryValuePresent = ");
       ReadListOfInts( fptr, BoundaryRank*2, MagneticBoundaryValuePresent);
@@ -190,7 +187,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 
 
     
-      ret += fscanf(fptr, "MagneticBoundaryType 1 = %d %d %d %d %d %d  ",
+      ret += fscanf(fptr, "MagneticBoundaryType 1 = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"  ",
 		    &MagneticBoundaryType[0][0][0],
 		    &MagneticBoundaryType[0][1][0],
 		    &MagneticBoundaryType[0][2][0],
@@ -198,7 +195,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 		    &MagneticBoundaryType[0][1][1],
 		    &MagneticBoundaryType[0][2][1]);
 
-      ret += fscanf(fptr, "MagneticBoundaryType 2 = %d %d %d %d %d %d  ",
+      ret += fscanf(fptr, "MagneticBoundaryType 2 = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"  ",
 		    &MagneticBoundaryType[1][0][0],
 		    &MagneticBoundaryType[1][1][0],
 		    &MagneticBoundaryType[1][2][0],
@@ -206,7 +203,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 		    &MagneticBoundaryType[1][1][1],
 		    &MagneticBoundaryType[1][2][1]);
 
-      ret += fscanf(fptr, "MagneticBoundaryType 3 = %d %d %d %d %d %d  ",
+      ret += fscanf(fptr, "MagneticBoundaryType 3 = %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"  ",
 		    &MagneticBoundaryType[2][0][0],
 		    &MagneticBoundaryType[2][1][0],
 		    &MagneticBoundaryType[2][2][0],
@@ -218,7 +215,6 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	ENZO_VFAIL("Error. MagneticBoundaryType not defined ret = %"ISYM"\n", ret)
     }//mhd used
 
-#endif //MHDCT
   }
 
   if (ReadData && NumberOfBaryonFields > 0) { 
@@ -516,7 +512,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
   /* read general class data */
 
-  if (fscanf(fptr, "BoundaryRank = %d\n", &BoundaryRank) != 1) {
+  if (fscanf(fptr, "BoundaryRank = %"ISYM"\n", &BoundaryRank) != 1) {
     fprintf(stderr, "Error reading BoundaryRank.\n");
     return FAIL;
   }
@@ -529,7 +525,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
   /* read baryon field quantities */
 
-  if (fscanf(fptr, "NumberOfBaryonFields = %d\n", 
+  if (fscanf(fptr, "NumberOfBaryonFields = %"ISYM"\n", 
 	     &NumberOfBaryonFields) != 1) {
     fprintf(stderr, "Error reading NumberOfBaryonFields.\n");
     return FAIL;
@@ -537,7 +533,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 
   /* Read particle boundary type. */
 
-  if (fscanf(fptr, "ParticleBoundaryType = %d\n",&ParticleBoundaryType) != 1) {
+  if (fscanf(fptr, "ParticleBoundaryType = %"ISYM"\n",&ParticleBoundaryType) != 1) {
     fprintf(stderr, "Error reading ParticleBoundaryType.\n");
     return FAIL;
   }
@@ -603,7 +599,7 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 	for (i = 0; i < index; i++)
 	  if (TempIntArray[index-i-1] != Dims[i]) {
 	    fprintf(stderr, "HDF file dims do not match BoundaryDims.\n");
-	    fprintf(stderr, " Dims[%d] = %d   HDF Dims[%d] = %d\n", i, Dims[i],
+	    fprintf(stderr, " Dims[%"ISYM"] = %"ISYM"   HDF Dims[%"ISYM"] = %"ISYM"\n", i, Dims[i],
 		    index-i-1, TempIntArray[index-i-1]);
 	    return FAIL;
 	  }
@@ -640,12 +636,12 @@ int ExternalBoundary::ReadExternalBoundaryHDF4(FILE *fptr)
 	      if (DFSDgetdata(hdfname, TempInt2, TempIntArray, (VOIDP)
 			      buffer) == HDF_FAIL) {
 		fprintf(stderr, "Error in DFSDgetdata(1).\n");
-		fprintf(stderr, "dim = %d field = %d i = %d\n", dim, field, i);
+		fprintf(stderr, "dim = %"ISYM" field = %"ISYM" i = %"ISYM"\n", dim, field, i);
 		return FAIL;
 	      }
 	      for (j = 0; j < size; j++){
 		BoundaryValue[field][dim][i][j] = float(buffer[j]);
-	        if(i==0&&j==0) fprintf(stderr,"BoundaryValue[%d][%d][0][0]=%f\n", field, dim, BoundaryValue[field][dim][0][0]);
+	        if(i==0&&j==0) fprintf(stderr,"BoundaryValue[%"ISYM"][%"ISYM"][0][0]=%"FSYM"\n", field, dim, BoundaryValue[field][dim][0][0]);
 	      }		
 	    }
 	  }  // end of loop over fields
