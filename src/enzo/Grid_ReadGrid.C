@@ -453,7 +453,7 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 
   } /* if HydroMethod == MHD */
 
-  if( useMHDCT ){
+  if( UseMHDCT ){
     if(MHDcLabel[0]==NULL)
       MHDcLabel[0] = "Bx";
     if(MHDcLabel[1]==NULL)

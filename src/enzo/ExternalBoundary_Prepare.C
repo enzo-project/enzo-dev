@@ -60,7 +60,7 @@ int ExternalBoundary::Prepare(grid *TopGrid)
       }
   }
  
-  if(useMHDCT)
+  if(UseMHDCT)
     {
       for(int field=0;field<3; field++)
 	for(int dim=0;dim<3; dim++){

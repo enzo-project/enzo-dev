@@ -23,7 +23,7 @@
 #include "Grid.h"
 
 void grid::MHD_SetupDims(void){
-  if (!useMHDCT)
+  if (!UseMHDCT)
     return;
 
   for(int field=0; field<3; field++){

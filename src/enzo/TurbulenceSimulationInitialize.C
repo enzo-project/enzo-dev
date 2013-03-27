@@ -417,7 +417,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   delete dummy;
 
   //set up field labels
-  if( useMHDCT == TRUE ){
+  if( UseMHDCT == TRUE ){
     MHDLabel[0] = "BxF";
     MHDLabel[1] = "ByF";
     MHDLabel[2] = "BzF";

@@ -980,7 +980,7 @@ EXTERN float tiny_pressure;
 EXTERN int MHD_CT_Method;
 EXTERN int MHD_ProjectB;// Should always be FALSE for the evoloution. May be used in initialization.
 EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
-EXTERN int useMHDCT;
+EXTERN int UseMHDCT;
 EXTERN int EquationOfState;
 EXTERN char *MHDLabel[3];
 EXTERN char *MHDcLabel[3];

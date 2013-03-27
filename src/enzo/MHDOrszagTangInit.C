@@ -67,7 +67,7 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   for (int i = 0; i < count; i++)
     DataUnits[i] = NULL;
 
-  if ( useMHDCT ){
+  if ( UseMHDCT ){
       MHDcLabel[0] = "Bx";
       MHDcLabel[1] = "By";
       MHDcLabel[2] = "Bz";

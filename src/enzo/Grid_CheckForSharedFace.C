@@ -232,7 +232,7 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
   for(dim=0;dim<GridRank;dim++){
     if( fabs(Left[dim]-Right[dim]) < CellEpsilon[dim] ){
  
-      if( ! useMHDCT ){
+      if( ! UseMHDCT ){
 	//corners need to be kept for MHDCT.
 	for(dim2=0;dim2<GridRank;dim2++)
 	  if(dim2 != dim){

@@ -311,7 +311,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
     } // end: loop over fields
 
 
-    if( useMHDCT ){
+    if( UseMHDCT ){
       //
       // Set up metadata for MHD.
       //

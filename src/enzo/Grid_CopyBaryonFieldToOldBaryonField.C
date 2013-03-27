@@ -74,7 +74,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
  
   } // end loop over fields
 
-  if(useMHDCT){   
+  if(UseMHDCT){   
     for(field=0;field<3;field++){
 
       if(MagneticField[field] == NULL )
@@ -100,7 +100,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
       }
 
     }//for(field < 3;)
-  }//end if(useMHDCT)
+  }//end if(UseMHDCT)
 
   // AccelerationHack
 

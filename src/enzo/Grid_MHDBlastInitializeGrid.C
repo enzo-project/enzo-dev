@@ -475,7 +475,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  BaryonField[3][index] = value + 3;
 	  if( EquationOfState == 0)
 	    BaryonField[4][index] = value + 4;
-	  if( useMHDCT == TRUE ){
+	  if( UseMHDCT == TRUE ){
 	    CenteredB[0][index] = value + 5;
 	    CenteredB[1][index] = value + 6;
 	    CenteredB[2][index] = value + 7;
@@ -505,11 +505,11 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  if( EquationOfState == 0 ) BaryonField[Eeng][index] = 
 				       (1-fraction)*EnergyA + fraction*EnergyB;
 	  BaryonField[ Ev[0] ][index] = (1-fraction)*VelocityA[0]+fraction* VelocityB[0]; 
-	  if( GridRank > 1 || useMHDCT == TRUE )
+	  if( GridRank > 1 || UseMHDCT == TRUE )
 	  BaryonField[ Ev[1] ][index] = (1-fraction)*VelocityA[1]+fraction* VelocityB[1]; 
-	  if( GridRank > 2 || useMHDCT == TRUE )
+	  if( GridRank > 2 || UseMHDCT == TRUE )
 	  BaryonField[ Ev[2] ][index] = (1-fraction)*VelocityA[2]+fraction* VelocityB[2]; 
-	  if( useMHDCT == TRUE ){
+	  if( UseMHDCT == TRUE ){
 	    CenteredB[0][index] = (1-fraction) * BA[0] + fraction*BB[0];
 	    CenteredB[1][index] = (1-fraction) * BA[1] + fraction*BB[1];
 	    CenteredB[2][index] = (1-fraction) * BA[2] + fraction*BB[2];
@@ -710,7 +710,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   //
 
 
-  if( useMHDCT == TRUE )
+  if( UseMHDCT == TRUE )
     for(field=0;field<3;field++){
       for(k=0; k<MagneticDims[field][2]; k++)
 	for(j=0; j<MagneticDims[field][1]; j++)

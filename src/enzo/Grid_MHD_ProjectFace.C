@@ -35,7 +35,7 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
   // checks that there is something do be done on this processor, with this pair of grids, now.
   //
 
-   if( useMHDCT != TRUE)
+   if( UseMHDCT != TRUE)
     return SUCCESS;
 
   if (MyProcessorNumber != ProcessorNumber && 

@@ -162,7 +162,7 @@ int ExternalBoundary::ReadExternalBoundary(FILE *fptr, int ReadText, int ReadDat
 	ENZO_FAIL("Error reading BoundaryValuePresent.");
     }
 
-    if(useMHDCT){
+    if(UseMHDCT){
       fscanf(fptr, "MagneticBoundaryValuePresent = ");
       ReadListOfInts( fptr, BoundaryRank*2, MagneticBoundaryValuePresent);
       for(dim=0; dim<3; dim++)

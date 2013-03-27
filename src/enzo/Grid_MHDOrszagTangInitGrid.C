@@ -52,7 +52,7 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   //for both MHDCT and Dedner.  Temporarily, we make this code think that MHD-CT is on.
 
   if ( HydroMethod == MHD_RK ){
-      useMHDCT = TRUE;
+      UseMHDCT = TRUE;
       MHD_SetupDims(); //this only sets some variables that won't be used
   }
 
@@ -128,7 +128,7 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
 
   if ( HydroMethod == MHD_RK ){
       //Clean up.
-      useMHDCT = FALSE;
+      UseMHDCT = FALSE;
       int BNUM[3] = {B1Num, B2Num, B3Num};
       for ( field=0; field<3; field++){
           delete [] MagneticField[field];

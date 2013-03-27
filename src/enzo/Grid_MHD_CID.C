@@ -384,7 +384,7 @@ int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int
 		  int TempDim[], int Refinement[])
 {
 
-  if( useMHDCT != TRUE )
+  if( UseMHDCT != TRUE )
     return SUCCESS;
 
   grid * OldFineGrid;

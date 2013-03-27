@@ -419,7 +419,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
  
     } // end loop over fields
 
-    if(useMHDCT){
+    if(UseMHDCT){
       int MHDParentTempDims[3][3], MHDChildTempDims[3][3];
 
       float *MHDChildTemp[3], *dummy = new float;
@@ -601,7 +601,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       if( this->CenterMagneticField() == FAIL )
 	ENZO_FAIL("error with CenterMagneticField");
       
-    }// useMHDCT
+    }// UseMHDCT
  
     delete [] Work;
     delete [] TemporaryField;

@@ -809,7 +809,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IsothermalSoundSpeed = 1.0;
   MHD_ProjectB = FALSE;
   MHD_ProjectE = TRUE;
-  useMHDCT = FALSE;
+  UseMHDCT = FALSE;
   EquationOfState = 0;
   for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
   WriteAcceleration = FALSE;

@@ -517,7 +517,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Call hydro solver and save fluxes around subgrids. */
 
-      if( useMHDCT && HydroMethod == MHD_Li ){
+      if( UseMHDCT && HydroMethod == MHD_Li ){
 	Grids[grid1]->GridData->SolveMHDEquations(LevelCycleCount[level],
 		NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level ,grid1); 
 	
@@ -701,7 +701,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     EXTRA_OUTPUT_MACRO(4,"After UFG")
 
 
-    if(useMHDCT == TRUE && MHD_ProjectE == TRUE){
+    if(UseMHDCT == TRUE && MHD_ProjectE == TRUE){
       for(grid1=0;grid1<NumberOfGrids; grid1++){
         Grids[grid1]->GridData->MHD_UpdateMagneticField(level, LevelArray[level+1]);
         }
@@ -714,7 +714,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
      fluxes for this subgrid .
      (Note: this must be done after CorrectForRefinedFluxes). */
 
-    if( useMHDCT ){
+    if( UseMHDCT ){
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			  level, MetaData, Exterior, LevelArray[level]);

@@ -271,7 +271,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
     /* -------------- Face Projection.  Still with blocking receive. ----------------- */
 
-  if( useMHDCT) {
+  if( UseMHDCT) {
     CommunicationDirection = COMMUNICATION_SEND;
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {

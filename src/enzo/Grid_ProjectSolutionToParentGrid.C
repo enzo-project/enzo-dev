@@ -193,7 +193,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       }
     }
 
-    if(useMHDCT == TRUE ){
+    if(UseMHDCT == TRUE ){
 
       if(MHD_ProjectE == TRUE ){
        
@@ -334,7 +334,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	}//field
       }//Proj B
       
-    }//useMHDCT
+    }//UseMHDCT
    
   } // if (ProcessorNumber == MyProcessorNumber)
     
@@ -347,7 +347,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
     /* If posting a receive, then record details of call. */
   int FieldToSend = JUST_BARYONS; 
 
-  if( useMHDCT == TRUE ){
+  if( UseMHDCT == TRUE ){
 
     if( MHD_ProjectB == TRUE ){
       FieldToSend = BARYONS_MAGNETIC;
@@ -448,7 +448,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  }
 	}
 
-        if(useMHDCT==TRUE){
+        if(UseMHDCT==TRUE){
 	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
           for(i = ParentStartIndex[0];i <= ParentEndIndex[0];i++,i1++){
             ParentGrid.BaryonField[TENum][i1]+=0.5*(pow(ParentGrid.CenteredB[0][i1],2)+pow(ParentGrid.CenteredB[1][i1],2)

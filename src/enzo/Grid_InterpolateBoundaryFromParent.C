@@ -501,7 +501,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       }
 
 
-     if(useMHDCT == TRUE) {
+     if(UseMHDCT == TRUE) {
       
        float  *MHDChildTemp[3], *dummy = new float;;
       
@@ -760,7 +760,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	  }
 	}//ParentProc
       }//field
-    }//useMHDCT
+    }//UseMHDCT
   } // end: if (NumberOfBaryonFields > 0)
  
   this->DebugCheck("InterpolateBoundaryFromParent (after)");

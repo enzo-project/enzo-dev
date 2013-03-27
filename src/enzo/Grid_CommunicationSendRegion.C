@@ -83,7 +83,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
   int MHDRegionDim[3][3], MHDRegionSize[3]={1,1,1};
   int MHDeRegionDim[3][3], MHDeRegionSize[3]={1,1,1};
 
-  if( useMHDCT ){
+  if( UseMHDCT ){
     //Account for face centered field.  Note that I don't want to communicate the OldCenteredField
     TransferSize += ((SendField == ALL_FIELDS)? 3*RegionSize : 0 )*
                      ((NewOrOld == NEW_AND_OLD)? 2 : 1);
@@ -101,7 +101,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
       
     }//field
 
-  }//useMHDCT
+  }//UseMHDCT
 #endif //MHDCT
   // Allocate buffer
  
@@ -142,7 +142,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
       }
 #ifdef MHDCT
 
-    if( useMHDCT && SendField == ALL_FIELDS ){
+    if( UseMHDCT && SendField == ALL_FIELDS ){
 
       if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY ){
 	for( field = 0; field<3; field++){
@@ -354,7 +354,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 	}
  
 #ifdef MHDCT
-    if( useMHDCT && SendField == ALL_FIELDS ){
+    if( UseMHDCT && SendField == ALL_FIELDS ){
       if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY){
 	for(field=0;field<3;field++){
 	  delete ToGrid->CenteredB[field];
@@ -422,7 +422,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       Zero, Zero+1, Zero+2);
 	  index += MHDRegionSize[field];
 	}
-    }//useMHDCT
+    }//UseMHDCT
 #endif //MHDCT
     if (SendField == GRAVITATING_MASS_FIELD_PARTICLES) {
       delete ToGrid->GravitatingMassFieldParticles;

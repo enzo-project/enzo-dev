@@ -345,7 +345,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
     } // if(TestProblemData.GloverChemistryModel)
     
-    if(useMHDCT == TRUE){      
+    if(UseMHDCT == TRUE){      
       CenteredB[0][i] = UniformBField[0];
       CenteredB[1][i] = UniformBField[1];
       CenteredB[2][i] = UniformBField[2];
@@ -355,7 +355,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
   } // for (i = 0; i < size; i++)
 
 
-  if(useMHDCT == TRUE){
+  if(UseMHDCT == TRUE){
     for(field=0;field<3;field++)
       for(k=0; k<MagneticDims[field][2]; k++)
 	for(j=0; j<MagneticDims[field][1]; j++)
@@ -363,7 +363,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 	    index = i+MagneticDims[field][0]*(j+MagneticDims[field][1]*k);
 	    MagneticField[field][index] = UniformBField[field];
 	  }
-  }  // if(useMHDCT == TRUE)
+  }  // if(UseMHDCT == TRUE)
 
   return SUCCESS;
 }

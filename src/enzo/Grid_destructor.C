@@ -117,7 +117,7 @@ grid::~grid()
 
   //MHD stuff 
  
-  if( useMHDCT ){
+  if( UseMHDCT ){
     for(i=0;i<3;i++){
 
       if(MagneticField[i] != NULL ){

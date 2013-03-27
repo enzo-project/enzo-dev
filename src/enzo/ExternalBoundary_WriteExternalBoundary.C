@@ -162,7 +162,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
  
     char *logname = new char[MAX_NAME_LENGTH];
 
-    if( useMHDCT ){
+    if( UseMHDCT ){
       for (dim = 0; dim < BoundaryRank; dim++)
 	for (i = 0; i < 2; i++) {
 	  if (MagneticBoundaryValue[0][dim][i] == NULL)

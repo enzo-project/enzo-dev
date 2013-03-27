@@ -127,7 +127,7 @@ int SendAllBaryonFields = FALSE;
   int MHD_BoundaryOnly[3]={FALSE,FALSE,FALSE};
 
   //This complicated Field Specific Send business is only important in MHD_ProjectFace.
-  if( useMHDCT ){
+  if( UseMHDCT ){
     switch(SendField){
     case ALL_FIELDS:
       for(dim=0;dim<3;dim++){
@@ -241,7 +241,7 @@ int SendAllBaryonFields = FALSE;
       }//Efield
     }//field
     
-  }//useMHDCT
+  }//UseMHDCT
 
 #else //MHDCT 
   NumberOfFields = ((SendField == ALL_FIELDS)? NumberOfBaryonFields : 1) *
@@ -313,7 +313,7 @@ int SendAllBaryonFields = FALSE;
       }
     }
 #ifdef MHDCT
-    if( useMHDCT ){
+    if( UseMHDCT ){
       
       /* Send Centered B */
       if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
@@ -362,7 +362,7 @@ int SendAllBaryonFields = FALSE;
 		       FromOffset, FromOffset+1, FromOffset+2);
 	  index += MHDeRegionSize[field];
 	}//field
-    }//useMHDCT
+    }//UseMHDCT
 #endif //MHDCT 
   } // ENDIF FromProcessor
  
@@ -487,7 +487,7 @@ int SendAllBaryonFields = FALSE;
       }
 
 #ifdef MHDCT
-    if( useMHDCT ){     
+    if( UseMHDCT ){     
       /* unpack centeredB */
       if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
 	if( SendField == ALL_FIELDS )
@@ -558,7 +558,7 @@ int SendAllBaryonFields = FALSE;
 	  index += MHDeRegionSize[field];
 	}
             
-    }//useMHDCT
+    }//UseMHDCT
  
 #endif //MHDCT 
     /* Clean up */

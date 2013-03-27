@@ -424,7 +424,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     } // end: if (OutputTemperature)
 
 
-    if( useMHDCT ){
+    if( UseMHDCT ){
       for(field=0;field<nBfields;field++){
         if(CopyOnlyActive == TRUE) {
           this->write_dataset(GridRank, OutDims, MHDcLabel[field],
@@ -499,7 +499,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         }
       }//WriteElectric
       delete [] MHDtmp;
-    }//useMHDCT
+    }//UseMHDCT
 
     /* If requested, compute and output the dust temperature field 
        as well since its such a pain to compute after the fact. */

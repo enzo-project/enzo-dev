@@ -75,10 +75,10 @@ void grid::PrepareGrid(int Rank, int GridDim[],
     GridRightEdge[dim]  = RightEdge[dim];
   }
  
-  if(useMHDCT)
+  if(UseMHDCT)
     {
       this->MHD_SetupDims(); 
-    }//useMHDCT
+    }//UseMHDCT
 
   /* compute derived quantites */
  

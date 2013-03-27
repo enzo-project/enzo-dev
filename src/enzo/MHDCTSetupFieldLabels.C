@@ -20,7 +20,7 @@
 #include "global_data.h"
 
 void MHDCTSetupFieldLabels(void){
-  if (!useMHDCT)
+  if (!UseMHDCT)
     return;
   if(MHDcLabel[0]==NULL)
     MHDcLabel[0] = "Bx";

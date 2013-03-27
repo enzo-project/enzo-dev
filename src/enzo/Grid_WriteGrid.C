@@ -337,7 +337,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
     }   // end of loop over fields
 
-    if( useMHDCT ){
+    if( UseMHDCT ){
       for(field=0;field<nBfields;field++){
 	WriteDataset(file_id,CenteredB[field],temp,
 		     GridDimension,GridRank,
@@ -402,7 +402,7 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 	
       }//WriteElectric
       delete [] MHDtmp;
-    }//useMHDCT
+    }//UseMHDCT
     
     /* If requested compute and output the temperature field
        as well since its such a pain to compute after the fact. */

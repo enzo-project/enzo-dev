@@ -59,7 +59,7 @@ void grid::CleanUp()
     }
 #endif
 
-  if( useMHDCT ){
+  if( UseMHDCT ){
     for(i=0;i<3;i++){
       if( OldMagneticField[i] != NULL ){
 	delete [] OldMagneticField[i];

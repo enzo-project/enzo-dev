@@ -110,7 +110,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
     The Pseudo-Vector nature of B poses a problem that I haven't sorted out all the way.
     Currently, it's being set as if it were a Plain vector.*/
 
-  if(useMHDCT && NumberOfBaryonFields > 0)
+  if(UseMHDCT && NumberOfBaryonFields > 0)
     {
 
       if(Exterior->SetMagneticBoundary(GridRank, GridDimension, GridOffset,
@@ -145,7 +145,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 					CenteredB[2], Velocity3) == FAIL)
 	ENZO_FAIL("Error: Something's wrong with the CenteredB[2] boundary.");
  
-    }// if(useMHDCT)
+    }// if(UseMHDCT)
 
   /* Now we handle the particles (if any). */
  

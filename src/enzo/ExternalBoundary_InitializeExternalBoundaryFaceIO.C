@@ -141,7 +141,7 @@ int ExternalBoundary::InitializeExternalBoundaryFace(int dim,
 
   }
 
-  if(useMHDCT)
+  if(UseMHDCT)
     for(field=0;field<3;field++){
       MagneticBoundaryType[field][dim][0]=LeftBoundaryType;
       MagneticBoundaryType[field][dim][1]=RightBoundaryType;

@@ -443,7 +443,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       
     } /* if HydroMethod == MHD */
 
-  if( useMHDCT ){
+  if( UseMHDCT ){
     if(MHDcLabel[0]==NULL)
       MHDcLabel[0] = "Bx";
     if(MHDcLabel[1]==NULL)
