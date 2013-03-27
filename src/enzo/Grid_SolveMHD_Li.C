@@ -59,27 +59,26 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
   FLOAT a[4];
   
-  if(ComovingCoordinates==1)
-    {
+  if(ComovingCoordinates==1){
       //CosmologyComputeExpansionFactor(Time, &a[0], &a[1]) 
       CosmologyComputeExpansionFactor(Time+(FLOAT)0.5*dtFixed, &a[2], &a[3]);
-    }else{
-    a[0] = 1.0;
-    a[1] = 0.0;
-    a[2] = 1.0;
-    a[3] = 0.0;
+  }else{
+      a[0] = 1.0;
+      a[1] = 0.0;
+      a[2] = 1.0;
+      a[3] = 0.0;
   }
 
   int line_size = max( GridDimension[0], max(GridDimension[1], GridDimension[2]));
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   int ixyz = CycleNumber % GridRank;
-  int n, ii, jj, kk, index_bf, index_line;
+  int n, ii, jj, kk, index_bf,  dim, subgrid;
   int hack = 0; //a flag for testing the solver.
+  float dtdx;
 
   int nu = 6; //Remove this
   float csmin = 1e-13, rhomin = 1e-6;
   float tdum0 = 1e-13, boxl0 = 0.0, hubb=0.0, zr = 0.0; //Dummy variables.  Clean up.
-
 
   int line_width = 9;  //the number of conserved quantities.
   float * field_line     = new float[line_size * line_width];
@@ -128,14 +127,44 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
         * MagFluxZ1 = Fluxes[2],
         * MagFluxZ2 = Fluxes[2]+MagneticSize[2];
 
+  int *fistart[3], *fiend[3], *fjstart[3], *fjend[3], *nfi[3], *lindex[3], *rindex[3];
+  for ( dim=0;dim<3;dim++){
+    fistart[dim] = new int[NumberOfSubgrids];
+    fiend[dim]   = new int[NumberOfSubgrids];
+    fjstart[dim] = new int[NumberOfSubgrids];
+    fjend[dim]   = new int[NumberOfSubgrids];
+    nfi[dim]     = new int[NumberOfSubgrids];
+    lindex[dim]  = new int[NumberOfSubgrids];
+    rindex[dim]  = new int[NumberOfSubgrids];
+
+  }
+
+  int idim, jdim, offset;
+  for( n=0; n<NumberOfSubgrids; n++){
+    //Transverse start and end index (y and z coordinates for x flux, etc.)
+    for( dim=0;dim<3;dim++){
+      idim = (dim == 0 ) ? 1 : ( ( dim == 1 ) ? 0 : 0 );
+      jdim = (dim == 0 ) ? 2 : ( ( dim == 1 ) ? 2 : 1 );
+      fistart[dim][n] = SubgridFluxes[n]->RightFluxStartGlobalIndex[dim][idim] - GridGlobalStart[idim];
+      fiend[dim][n]   = SubgridFluxes[n]->RightFluxEndGlobalIndex[dim][idim]   - GridGlobalStart[idim];
+      fjstart[dim][n] = SubgridFluxes[n]->RightFluxStartGlobalIndex[dim][jdim] - GridGlobalStart[jdim];
+      fjend[dim][n]   = SubgridFluxes[n]->RightFluxEndGlobalIndex[dim][jdim]   - GridGlobalStart[jdim];
+      //width of plane for computing offsets
+      nfi[dim][n]     = fiend[dim][n] - fistart[dim][n] + 1;
+      lindex[dim][n] = SubgridFluxes[n]->LeftFluxStartGlobalIndex[dim][dim] - GridGlobalStart[dim]-1; //-1 for fortran indices
+      rindex[dim][n] = SubgridFluxes[n]->RightFluxStartGlobalIndex[dim][dim] - GridGlobalStart[dim];   //-1 for fortran, +1 for the right face.
+    }
+    //Position of planes, longitudinal (x position for x flux, etc)
+  }//index allocation
 
   //strang loop.
-  //
+  
   int startindex, endindex;
 //  for (n = ixyz; n < ixyz+GridRank; n++) {
-  startindex = 3;
-  endindex = GridDimension[0] - 2;
   for( n=0; n<1; n++){
+    startindex = 3;
+    endindex = GridDimension[0] - 2;
+    dtdx = dtFixed/CellWidthTemp[0][0];
     //x loope
     if ( 1 ){ 
       for( kk = 0; kk< GridDimension[2]; kk++){
@@ -157,25 +186,24 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             //DO fill colour lines
             //DO fill gravity line
             gravity_line[ ii ] = 0.0;
-            //DO zero flux lines
+          }//ii loop
+          //DO diffusion term
+          for( ii=1; ii<GridDimension[0]; ii++){
+            diffusion_line[ii] = 0.0;
           }
-            //DO diffusion term
-           for( ii=1; ii<GridDimension[0]; ii++){
-             diffusion_line[ii] = 0.0;
-           }
-            FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
-                &startindex, &endindex,
-                CellWidthTemp[0],  &dtFixed, 
-                flux_magnetic_line, //kill this
-                flux_line, 
-                flux_def_line, //kill this too
-                diffusion_line,
-                &Gamma, &csmin, &rhomin,
-                &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
-                &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
-                &tdum0, &boxl0, &hubb, &zr, 
-                &CycleNumber, &GravityOn, gravity_line, 
-                a, &EquationOfState, &IsothermalSoundSpeed, &hack);
+          FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
+            &startindex, &endindex,
+            CellWidthTemp[0],  &dtFixed, 
+            flux_magnetic_line, //kill this
+            flux_line, 
+            flux_def_line, //kill this too
+            diffusion_line,
+            &Gamma, &csmin, &rhomin,
+            &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
+            &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
+            &tdum0, &boxl0, &hubb, &zr, 
+            &CycleNumber, &GravityOn, gravity_line, 
+            a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
           for(ii = 0; ii<GridDimension[0]; ii++ ){
             index_bf = ii + GridDimension[0]*(jj + GridDimension[1]*kk);
@@ -190,21 +218,55 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               BaryonField[TENum][index_bf] = field_line[ ii + line_size*7];
               pressure[index_bf]           = field_line[ii + line_size*8 ] *POW(field_line[ii + line_size*0], (Gamma - 1));
             }
-           //DO collors from lines
-           //DO energy from lines
-          }
+            //DO collors from lines
+
+          }//ii
+          //Fill subgrids.
+          dim = 0;
+          //xflux
+          for( subgrid=0; subgrid<NumberOfSubgrids; subgrid++){
+            if( ( jj >= fistart[dim][subgrid] && jj <= fiend[dim][subgrid] ) &&
+                ( kk >= fjstart[dim][subgrid] && kk <= fjend[dim][subgrid] ) ){
+              offset = (jj - fistart[dim][subgrid] ) + (kk - fjstart[dim][subgrid] )*nfi[dim][subgrid];
+              ii = lindex[dim][subgrid];
+              SubgridFluxes[subgrid]->LeftFluxes[DensNum][dim][offset] = dtdx*flux_line[ii + line_size*0];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel1Num][dim][offset] = dtdx*flux_line[ii + line_size*1];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel2Num][dim][offset] = dtdx*flux_line[ii + line_size*2];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel3Num][dim][offset] = dtdx*flux_line[ii + line_size*3];
+              if( EquationOfState == 0 ){
+                SubgridFluxes[subgrid]->LeftFluxes[TENum][dim][offset] = dtdx*flux_line[ii + line_size*7];
+              }
+              if( DualEnergyFormalism ){
+                SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[ii];
+              }
+              //DO test dual energy and flux correction
+              //DO collors from lines
+              ii = rindex[dim][subgrid];
+              SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[ii + line_size*0];
+              SubgridFluxes[subgrid]->RightFluxes[Vel1Num][dim][offset]= dtdx*flux_line[ii + line_size*1];
+              SubgridFluxes[subgrid]->RightFluxes[Vel2Num][dim][offset]= dtdx*flux_line[ii + line_size*2];
+              SubgridFluxes[subgrid]->RightFluxes[Vel3Num][dim][offset]= dtdx*flux_line[ii + line_size*3];
+              if( EquationOfState == 0 ){
+                SubgridFluxes[subgrid]->RightFluxes[TENum][dim][offset]= dtdx*flux_line[ii + line_size*7];
+              }
+              if( DualEnergyFormalism ){
+                SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[ii];
+              }//GE flux
+              
+            }//subgrid ok.
+          }//subgrid loop
           for(ii = 3; ii<GridDimension[0]-1; ii++ ){
             index_bf = ii + MagneticDims[0][0]*(jj + MagneticDims[0][1]*kk);
             MagFluxX1[index_bf] = flux_line[ ii-1 + line_size*5];
             MagFluxX2[index_bf] = flux_line[ ii-1 + line_size*6];
           }
-                //DO subgrid fluxes
-                //
-                //DO Magnetic fluxes (loop positions?)
-          }//x sweep jj loop
+        }//x sweep jj loop
       }//x sweep kk loop
     }//x sweep conditional
-
+    
+    startindex = 3;
+    endindex = GridDimension[1] - 2;
+    dtdx = dtFixed/CellWidthTemp[1][0];
     //DO strang logic in here
     // Y SWEEP
     if ( 1 ) {
@@ -231,22 +293,22 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             //DO zero flux lines
           }
             //DO diffusion term
-           for( jj=1; jj<GridDimension[1]; jj++){
+          for( jj=1; jj<GridDimension[1]; jj++){
              diffusion_line[jj] = 0.0;
-           }
-            FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
-                &startindex, &endindex,
-                CellWidthTemp[1],  &dtFixed, 
-                flux_magnetic_line, //kill this
-                flux_line, 
-                flux_def_line, //kill this too
-                diffusion_line,
-                &Gamma, &csmin, &rhomin,
-                &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
-                &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
-                &tdum0, &boxl0, &hubb, &zr, 
-                &CycleNumber, &GravityOn, gravity_line, 
-                a, &EquationOfState, &IsothermalSoundSpeed, &hack);
+          }
+          FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
+            &startindex, &endindex,
+            CellWidthTemp[1],  &dtFixed, 
+            flux_magnetic_line, //kill this
+            flux_line, 
+            flux_def_line, //kill this too
+            diffusion_line,
+            &Gamma, &csmin, &rhomin,
+            &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
+            &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
+            &tdum0, &boxl0, &hubb, &zr, 
+            &CycleNumber, &GravityOn, gravity_line, 
+            a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
 
           for(jj = 0; jj<GridDimension[1]; jj++ ){
@@ -263,19 +325,53 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               pressure[index_bf] = field_line[jj + line_size*8 ] *POW(field_line[jj + line_size*0], (Gamma - 1));
             }
            //DO collors from lines
-         }
+          }
+          dim = 1;
+          //yflux
+          for( subgrid=0; subgrid<NumberOfSubgrids; subgrid++){
+            if( ( ii >= fistart[dim][subgrid] && ii <= fiend[dim][subgrid] ) &&
+                ( kk >= fjstart[dim][subgrid] && kk <= fjend[dim][subgrid] ) ){
+              offset = (ii - fistart[dim][subgrid] ) + (kk - fjstart[dim][subgrid] )*nfi[dim][subgrid];
+              jj = lindex[dim][subgrid];
+              SubgridFluxes[subgrid]->LeftFluxes[DensNum][dim][offset] = dtdx*flux_line[jj + line_size*0];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel1Num][dim][offset] = dtdx*flux_line[jj + line_size*3];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel2Num][dim][offset] = dtdx*flux_line[jj + line_size*1];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel3Num][dim][offset] = dtdx*flux_line[jj + line_size*2];
+              if( EquationOfState == 0 ){
+                SubgridFluxes[subgrid]->LeftFluxes[TENum][dim][offset]   = dtdx*flux_line[jj + line_size*7];
+              }//te flux
+              if( DualEnergyFormalism ){
+               SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[jj];
+               //DO check that the gas energy flux number is correct.
+              }//ge flux
+              //DO collors from lines
+              jj = rindex[dim][subgrid];
+              SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[jj + line_size*0];
+              SubgridFluxes[subgrid]->RightFluxes[Vel1Num][dim][offset]= dtdx*flux_line[jj + line_size*3];
+              SubgridFluxes[subgrid]->RightFluxes[Vel2Num][dim][offset]= dtdx*flux_line[jj + line_size*1];
+              SubgridFluxes[subgrid]->RightFluxes[Vel3Num][dim][offset]= dtdx*flux_line[jj + line_size*2];
+              if( EquationOfState == 0 ){
+                SubgridFluxes[subgrid]->RightFluxes[TENum][dim][offset]  = dtdx*flux_line[jj + line_size*7];
+              }//TE flux
+              if( DualEnergyFormalism ){
+               SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[jj];
+               //DO check that the total energy flux number is correct.
+              }//GE flux
+              
+            }//subgrid ok.
+          }//subgrid loop
           for(jj = 3; jj<GridDimension[1]-1; jj++ ){
             index_bf = ii + MagneticDims[1][0]*(jj + MagneticDims[1][1]*kk);
             MagFluxY2[index_bf] = flux_line[ jj-1 + line_size*5];
             MagFluxY1[index_bf] = flux_line[ jj-1 + line_size*6];
           }
-                //DO subgrid fluxes
-                //
-                //DO Magnetic fluxes (loop positions?)
-          }//y sweep jj loop
+        }//y sweep ii loop
       }//y sweep kk loop
     }//strang conditional
     
+    startindex = 3;
+    endindex = GridDimension[2] - 2;
+    dtdx = dtFixed/CellWidthTemp[2][0];
     // z sweep
     if( 1 ){
       for(ii = 0; ii<GridDimension[0]; ii++ ){ //DO is this the fastest order?
@@ -300,22 +396,22 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             //DO zero flux lines
           }
             //DO diffusion term
-           for( kk=1; kk<GridDimension[1]; kk++){
-             diffusion_line[kk] = 0.0;
-           }
-            FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
-                &startindex, &endindex,
-                CellWidthTemp[2],  &dtFixed, 
-                flux_magnetic_line, //kill this
-                flux_line, 
-                flux_def_line, //kill this too
-                diffusion_line,
-                &Gamma, &csmin, &rhomin,
-                &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
-                &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
-                &tdum0, &boxl0, &hubb, &zr, 
-                &CycleNumber, &GravityOn, gravity_line, 
-                a, &EquationOfState, &IsothermalSoundSpeed, &hack);
+          for( kk=1; kk<GridDimension[1]; kk++){
+            diffusion_line[kk] = 0.0;
+          }
+          FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
+            &startindex, &endindex,
+            CellWidthTemp[2],  &dtFixed, 
+            flux_magnetic_line, //kill this
+            flux_line, 
+            flux_def_line, //kill this too
+            diffusion_line,
+            &Gamma, &csmin, &rhomin,
+            &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
+            &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
+            &tdum0, &boxl0, &hubb, &zr, 
+            &CycleNumber, &GravityOn, gravity_line, 
+            a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
 
           for(kk = 0; kk<GridDimension[1]; kk++ ){
@@ -333,25 +429,52 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             }
            //DO collors from lines
            //DO energy from lines
-         }
+          }
+          dim = 2;
+          //zflux
+          for( subgrid=0; subgrid<NumberOfSubgrids; subgrid++){
+            if( ( ii >= fistart[dim][subgrid] && ii <= fiend[dim][subgrid] ) &&
+                ( jj >= fjstart[dim][subgrid] && jj <= fjend[dim][subgrid] ) ){
+              offset = (ii - fistart[dim][subgrid] ) + (jj - fjstart[dim][subgrid] )*nfi[dim][subgrid];
+              kk = lindex[dim][subgrid];
+              SubgridFluxes[subgrid]->LeftFluxes[DensNum][dim][offset] = dtdx*flux_line[kk + line_size*0];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel1Num][dim][offset] = dtdx*flux_line[kk + line_size*2];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel2Num][dim][offset] = dtdx*flux_line[kk + line_size*3];
+              SubgridFluxes[subgrid]->LeftFluxes[Vel3Num][dim][offset] = dtdx*flux_line[kk + line_size*1];
+              if( EquationOfState == 0 ){
+                SubgridFluxes[subgrid]->LeftFluxes[TENum][dim][offset] = dtdx*flux_line[kk + line_size*7];
+              }//te flux
+              if( DualEnergyFormalism ){
+                SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[kk];
+                //DO check that the gas energy flux number is correct.
+              }//ge flux
+              //DO collors from lines
+              kk = rindex[dim][subgrid];
+              SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[kk + line_size*0];
+              SubgridFluxes[subgrid]->RightFluxes[Vel1Num][dim][offset]= dtdx*flux_line[kk + line_size*2];
+              SubgridFluxes[subgrid]->RightFluxes[Vel2Num][dim][offset]= dtdx*flux_line[kk + line_size*3];
+              SubgridFluxes[subgrid]->RightFluxes[Vel3Num][dim][offset]= dtdx*flux_line[kk + line_size*1];
+              if( EquationOfState == 0 ){
+                SubgridFluxes[subgrid]->RightFluxes[TENum][dim][offset]  = dtdx*flux_line[kk + line_size*7];
+              }//TE flux
+              
+              if( DualEnergyFormalism ){
+                SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[kk];
+                //DO check that the total energy flux number is correct.
+              }//GE flux
+            }//subgrid ok.
+          }//subgrid loop
           for(kk = 3; kk<GridDimension[2]-1; kk++ ){
             index_bf = ii + MagneticDims[2][0]*(jj + MagneticDims[2][1]*kk);
             MagFluxZ1[index_bf] = flux_line[ kk-1 + line_size*5];
             MagFluxZ2[index_bf] = flux_line[ kk-1 + line_size*6];
           }
-                //DO subgrid fluxes
-                //
-                //DO Magnetic fluxes (loop positions?)
           }//z sweep jj loop
       }//z sweep kk loop
     }
 
   }//strang order loop
 
-  // DO Y LOOP
-  // DO Z LOOP
-  //
-  //
   if( DualEnergyFormalism ){
     for( ii=0; ii<size; ii++){
       BaryonField[GENum][ii] /= BaryonField[DensNum][ii]*(Gamma-1);
@@ -359,11 +482,17 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   }
 
   //DO magnetic cosmology
-  //DO entropy to pressure, if applicable
   //DO clean up arrays.  Check all news in code.
   //DO not filling entropy array fails, even with DEF off.  Sort out why.
   //   Followup:  how is entropy used?
   //DO check UseSpecificEnergy
+  //DO test DEF and AMR
+  //DO strang
+  //DO colors (the whole point!)
+  //DO 2d
+  //DO gravity
+  //DO diffusion
+  
   
   return SUCCESS;
 }
