@@ -98,7 +98,7 @@ int grid::MHDCT_ConvertEnergyToConservedC()
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
 
-    //Converstion to specific uses a copied temporary variable.
+    //Conversion to specific uses a copied temporary variable.
     delete [] BaryonField[TENum];
     BaryonField[TENum] = MHDCT_temp_conserved_energy;
     MHDCT_temp_conserved_energy= NULL;
