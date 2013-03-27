@@ -1252,6 +1252,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ENZO_FAIL("AnisotropicConduction can only be used if TopGridRank is >= 2!\n");
   }
 
+  if(EquationOfState == 1 && HydroMethod != MHD_Li){
+    ENZO_FAIL("If EquationOfState = 1, you must be using MHD-CT!\n");
+  }
+
 
   /*
     if (EOSType == 3) // an isothermal equation of state implies the adiabatic index = 1 
