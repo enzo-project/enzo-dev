@@ -93,7 +93,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
 
   //DO setup strang
   //DO Comoving magnetic conversion
-  float * pressure, *entropy;
+  float * pressure;
   if( DualEnergyFormalism ){
     //Pressure is computed in-place for "historical reasons"
     //DO clean this up.
@@ -113,10 +113,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                   CenteredB[2][ii]*CenteredB[2][ii]));
       }
     }
-  }
-  entropy = new float[size];
-  for( ii=0; ii<size; ii++){
-    entropy[ii] = pressure[ii]/POW(BaryonField[DensNum][ii], Gamma - 1);
   }
 
   //Pointers to magnetic fluxes for simplicity below.  
@@ -283,7 +279,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             field_line[ jj + line_size*6] = CenteredB[0][index_bf];
             if ( EquationOfState == 0 ){
               field_line[ jj + line_size*7] = BaryonField[TENum][index_bf];
-              field_line[ jj + line_size*8] = entropy[index_bf];
               field_line[ jj + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
    
@@ -479,6 +474,29 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     for( ii=0; ii<size; ii++){
       BaryonField[GENum][ii] /= BaryonField[DensNum][ii]*(Gamma-1);
     }
+  }
+
+  delete [] field_line;
+  delete [] flux_line;
+  delete [] colour_line;
+  delete [] gravity_line;
+  delete [] diffusion_line;
+
+  //Both of these need to be convolved with the above.
+  delete [] flux_magnetic_line;
+  delete [] flux_def_line;
+
+  if ( ! DualEnergyFormalism )
+    delete [] pressure;
+
+  for ( dim=0;dim<3;dim++){
+    delete [] fistart[dim];
+    delete [] fiend[dim];
+    delete [] fjstart[dim];
+    delete [] fjend[dim];
+    delete [] nfi[dim];
+    delete [] lindex[dim];
+    delete [] rindex[dim];
   }
 
   //DO magnetic cosmology
