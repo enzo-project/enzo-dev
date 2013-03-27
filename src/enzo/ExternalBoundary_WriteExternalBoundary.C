@@ -161,7 +161,7 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
     WriteListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent);
  
     char *logname = new char[MAX_NAME_LENGTH];
-#ifdef MHDCT
+
     if( useMHDCT ){
       for (dim = 0; dim < BoundaryRank; dim++)
 	for (i = 0; i < 2; i++) {
@@ -197,7 +197,6 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
       delete [] buffer2;
     }
       
-#endif //MHDCT
     strcpy(logname, hdfname);
     strcat(logname, ".log");
     if (io_log) log_fptr = fopen(logname, "a");

@@ -407,7 +407,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	}}}
  
   
-#ifdef MHDCT
   int i,j,k,field;
   if( useMHDCT ){
     /* Centered Magentic Field */
@@ -469,8 +468,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     
     /* Clean up if we have transfered data. */
   }//useMHDCT
-
-#endif //MHDCT  
 
   /* Clean up if we have transfered data. */
   

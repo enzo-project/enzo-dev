@@ -58,7 +58,7 @@ void grid::CleanUp()
       OldAccelerationField[i] = NULL;
     }
 #endif
-#ifdef MHDCT
+
   if( useMHDCT ){
     for(i=0;i<3;i++){
       if( OldMagneticField[i] != NULL ){
@@ -73,6 +73,5 @@ void grid::CleanUp()
       
     }
   }
-#endif //MHDCT
 
 }

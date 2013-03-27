@@ -884,7 +884,38 @@ OBJS_CONFIG_LIB = \
         ZeusSource.o \
         Zeus_xTransport.o \
         Zeus_yTransport.o \
-        Zeus_zTransport.o
+        Zeus_zTransport.o \
+	Grid_MHD_Diagnose.o \
+	Grid_MHDCTEnergyToggle.o\
+	MHDBlastInitialize.o\
+    	Grid_MHDBlastInitializeGrid.o\
+    	Grid_MHD_ProjectFace.o\
+    	Grid_ClearAvgElectricField.o\
+    	ExternalBoundary_SetMagneticBoundary.o\
+   	 mhd_dt.o\
+    	 Grid_SolveMHDEquations.o \
+    	 Grid_MHD_UpdateMagneticField.o\
+    	 Grid_MHDOrszagTangInitGrid.o \
+    	 Grid_MHD_SetupDims.o \
+    	 MHDOrszagTangInit.o \
+    	 MHDCT_ParameterJuggle.o \
+    	 MHDCTSetupFieldLabels.o \
+    	 mhd_li.o\
+    	 mhd_li_ms.o \
+    	 Grid_CenterMagneticField.o\
+    	 Grid_ComputeElectricField.o\
+    	 Grid_MHD_Curl.o\
+    	 pde1dsolver_mhd.o\
+    	 pde1dsolver_mhd_ms.o \
+    	 riemann_mhd.o\
+    	 mhd_hlld_isothermal.o\
+    	 mhd_hlld_adiabatic.o\
+    	 DebugTools.o\
+    	 Grid_MHD_CID.o\
+    	 Grid_MHD_ProlongAllocate.o\
+    	 mhd_interpolate.o\
+    	 Grid_MHD_SendOldFineGrids.o
+
 
 #-----------------------------------------------------------------------
 # Objects for radiative transfer module
@@ -1065,34 +1096,4 @@ OBJS_ECUDA_ALL = \
 	CUDAUtil.o \
 	SaveSubgridFluxCUDA.o 
 
-OBJS_MHDCT = Grid_MHD_Diagnose.o \
-Grid_MHDCTEnergyToggle.o\
-MHDBlastInitialize.o\
-    Grid_MHDBlastInitializeGrid.o\
-    Grid_MHD_ProjectFace.o\
-    Grid_ClearAvgElectricField.o\
-    ExternalBoundary_SetMagneticBoundary.o\
-    mhd_dt.o\
-    Grid_SolveMHDEquations.o \
-    Grid_MHD_UpdateMagneticField.o\
-    Grid_MHDOrszagTangInitGrid.o \
-    Grid_MHD_SetupDims.o \
-    MHDOrszagTangInit.o \
-    MHDCT_ParameterJuggle.o \
-    MHDCTSetupFieldLabels.o \
-    mhd_li.o\
-    mhd_li_ms.o \
-    Grid_CenterMagneticField.o\
-    Grid_ComputeElectricField.o\
-    Grid_MHD_Curl.o\
-    pde1dsolver_mhd.o\
-    pde1dsolver_mhd_ms.o \
-    riemann_mhd.o\
-    mhd_hlld_isothermal.o\
-    mhd_hlld_adiabatic.o\
-    DebugTools.o\
-    Grid_MHD_CID.o\
-    Grid_MHD_ProlongAllocate.o\
-    mhd_interpolate.o\
-    Grid_MHD_SendOldFineGrids.o
-
+OBJS_MHDCT = 

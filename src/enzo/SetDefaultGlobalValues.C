@@ -790,7 +790,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   useMHD=0;
-#ifdef MHDCT
+
   //MHDCT variables
   MHDCTSlopeLimiter = 1;
   MHDCTDualEnergyMethod = 2;
@@ -813,8 +813,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   EquationOfState = 0;
   for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
   WriteAcceleration = FALSE;
-
-#endif //MHDCT
 
   CorrectParentBoundaryFlux = FALSE; //Corrects (or doesn't) parent flux when subgrid shares an exposed face with parent.
 

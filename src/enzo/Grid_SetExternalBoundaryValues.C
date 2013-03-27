@@ -104,7 +104,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
     }
  
   }
-#ifdef MHDCT
+
   /*If there's a magnetic field, set it as well.
     It is still unclear if this is a valid way to do things: 
     The Pseudo-Vector nature of B poses a problem that I haven't sorted out all the way.
@@ -146,7 +146,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 	ENZO_FAIL("Error: Something's wrong with the CenteredB[2] boundary.");
  
     }// if(useMHDCT)
-#endif //MHDCT
+
   /* Now we handle the particles (if any). */
  
   if (NumberOfParticles > 0)

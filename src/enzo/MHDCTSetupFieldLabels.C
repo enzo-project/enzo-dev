@@ -1,4 +1,3 @@
-#ifdef MHDCT
 /***********************************************************************
 /
 /  MHDCTSetupFieldLabels
@@ -58,10 +57,9 @@ void MHDCTSetupFieldLabels(void){
   if(MHDeUnits[2] == NULL)
     MHDeUnits[2] = "None";
 
-
   return;
 }
 
-#endif
+
 
 

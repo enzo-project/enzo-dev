@@ -480,9 +480,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
 	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
-#ifdef MHDCT
 	HydroMethod == MHD_Li || HydroMethod == NoHydro ||
-#endif //MHDCT
 	HydroMethod < 0) {
       if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER

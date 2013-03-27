@@ -56,12 +56,10 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 #define io_type float32
 #endif
 
-#ifdef MHDCT
 int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
 		 int * DataDims, int GridRank,
 		 int *WriteStartIndex, int *WriteEndIndex, int * WriteDims,
 		 char * Label, char * Units,hid_t file_type_id,hid_t float_type_id,FILE *log_fptr ) ;
-#endif //MHDCT 
 
 int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 {
@@ -339,7 +337,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
     }   // end of loop over fields
 
-#ifdef MHDCT
     if( useMHDCT ){
       for(field=0;field<nBfields;field++){
 	WriteDataset(file_id,CenteredB[field],temp,
@@ -407,8 +404,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       delete [] MHDtmp;
     }//useMHDCT
     
-#endif  //MHDCT
- 
     /* If requested compute and output the temperature field
        as well since its such a pain to compute after the fact. */
   

@@ -963,7 +963,6 @@ EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
 EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
 
-#ifdef MHDCT
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;
 EXTERN int MHDCTPowellSource;
@@ -989,7 +988,6 @@ EXTERN char *MHDUnits[3];
 EXTERN char *MHDeLabel[3];
 EXTERN char *MHDeUnits[3];
 
-#endif //MHDCT
 /* For the database */
 EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];

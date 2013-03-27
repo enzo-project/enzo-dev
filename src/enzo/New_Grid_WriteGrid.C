@@ -60,9 +60,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
  
-#ifdef MHDCT
   int WriteStartIndex[MAX_DIMENSION], WriteEndIndex[MAX_DIMENSION];
-#endif
 
   float *temp, *temp_VelAnyl;
   float *temperature, *dust_temperature,
@@ -120,7 +118,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     GridStartIndex[dim] = 0;
     GridEndIndex[dim] = 0;
   }
- #ifdef MHDCT
+
   if( WriteBoundary == -1 ) {
     WriteBoundary = 1;
   }
@@ -135,13 +133,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       WriteEndIndex[i] = GridEndIndex[i];
     }
   }    
+
   for (dim = 0; dim < 3; dim++)
     ActiveDim[dim] = WriteEndIndex[dim] - WriteStartIndex[dim] +1;
-#else //MHDCT
-  for (dim = 0; dim < 3; dim++)
-    ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
-#endif //MHDCT
- 
+
+
   /* ------------------------------------------------------------------- */
   /* 1) Save general grid class data */
 
@@ -427,7 +423,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
     } // end: if (OutputTemperature)
 
-#ifdef MHDCT
+
     if( useMHDCT ){
       for(field=0;field<nBfields;field++){
         if(CopyOnlyActive == TRUE) {
@@ -504,8 +500,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       }//WriteElectric
       delete [] MHDtmp;
     }//useMHDCT
-
-#endif //MHDCT 
 
     /* If requested, compute and output the dust temperature field 
        as well since its such a pain to compute after the fact. */

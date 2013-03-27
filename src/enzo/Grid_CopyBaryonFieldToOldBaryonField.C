@@ -73,7 +73,6 @@ int grid::CopyBaryonFieldToOldBaryonField()
       OldBaryonField[field][i] = BaryonField[field][i];
  
   } // end loop over fields
-#ifdef MHDCT
 
   if(useMHDCT){   
     for(field=0;field<3;field++){
@@ -102,7 +101,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 
     }//for(field < 3;)
   }//end if(useMHDCT)
-#endif //MHDCT
+
   // AccelerationHack
 
 #ifdef SAB
