@@ -60,7 +60,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   FLOAT a[4];
   
   if(ComovingCoordinates==1){
-      //CosmologyComputeExpansionFactor(Time, &a[0], &a[1]) 
+      CosmologyComputeExpansionFactor(Time, &a[0], &a[1]) 
       CosmologyComputeExpansionFactor(Time+(FLOAT)0.5*dtFixed, &a[2], &a[3]);
   }else{
       a[0] = 1.0;
@@ -92,7 +92,32 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   float * flux_def_line = new float[ line_size ]; //For dual energy.  Get rid of this.
 
   //DO setup strang
-  //DO Comoving magnetic conversion
+
+  float inv_sqrt_a = 1./sqrt(a[0]), sqrt_a = sqrt(a[0]);
+  if( ComovingCoordinates ){
+    if ( EquationOfState == 0 ){
+      for( ii=0; ii<size; ii++){
+        BaryonField[TENum][ii] -= 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
+                                       CenteredB[1][ii]*CenteredB[1][ii]+
+                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+      }
+    }
+
+    for( int field=0; field<3; field++){
+      for( ii=0; ii<size; ii++){
+        CenteredB[field][ii] *= inv_sqrt_a;
+      }
+    }
+    if ( EquationOfState == 0 ){
+      for( ii=0; ii<size; ii++){
+        BaryonField[TENum][ii] += 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
+                                       CenteredB[1][ii]*CenteredB[1][ii]+
+                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+      }
+    }
+  }//comoving
+
+
   float * pressure;
   if( DualEnergyFormalism ){
     //Pressure is computed in-place for "historical reasons"
@@ -510,6 +535,34 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //DO 2d
   //DO gravity
   //DO diffusion
+  if( ComovingCoordinates ){
+    if ( EquationOfState == 0 ){
+      for( ii=0; ii<size; ii++){
+        BaryonField[TENum][ii] -= 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
+                                       CenteredB[1][ii]*CenteredB[1][ii]+
+                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+      }
+    }
+
+    for( int field=0; field<3; field++){
+      for( ii=0; ii<size; ii++){
+        CenteredB[field][ii] *= sqrt_a;
+      }
+      for( ii=0; ii<MagneticSize[field]; ii++){
+        Fluxes[field][ii] *= sqrt_a/a[1];
+        Fluxes[field][ii+MagneticSize[field]] *= sqrt_a/a[2];
+      }
+    }
+
+    if ( EquationOfState == 0 ){
+      for( ii=0; ii<size; ii++){
+        BaryonField[TENum][ii] += 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
+                                       CenteredB[1][ii]*CenteredB[1][ii]+
+                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+      }
+    }
+  }//comoving
+
   
   
   return SUCCESS;
