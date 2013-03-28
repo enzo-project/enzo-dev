@@ -127,47 +127,47 @@ c
 
 c  preprocess B field, B=B/sqrt(a), for comoving coordinate
       if( comoving .eq. 1 ) then
-      temp = one/sqrt(a(0))
-      do i=1,idim
-        do j=1,jdim
-          do k=1,kdim
-           e(i,j,k) = e(i,j,k) - 
-     +       half*(bxc(i,j,k)**2+byc(i,j,k)**2+bzc(i,j,k)**2)
-           bxc(i,j,k) = bxc(i,j,k)*temp
-           byc(i,j,k) = byc(i,j,k)*temp
-           bzc(i,j,k) = bzc(i,j,k)*temp
-           e(i,j,k) = e(i,j,k) +
-     +       half*(bxc(i,j,k)**2+byc(i,j,k)**2+bzc(i,j,k)**2)
-          enddo
-        enddo
-      enddo
+         temp = one/sqrt(a(0))
+         do i=1,idim
+            do j=1,jdim
+               do k=1,kdim
+                  e(i,j,k) = e(i,j,k) - 
+     +                 half*(bxc(i,j,k)**2+byc(i,j,k)**2+bzc(i,j,k)**2)
+                  bxc(i,j,k) = bxc(i,j,k)*temp
+                  byc(i,j,k) = byc(i,j,k)*temp
+                  bzc(i,j,k) = bzc(i,j,k)*temp
+                  e(i,j,k) = e(i,j,k) +
+     +                 half*(bxc(i,j,k)**2+byc(i,j,k)**2+bzc(i,j,k)**2)
+               enddo
+            enddo
+         enddo
       endif
 
-c hx compute gas pressure 
+c     hx compute gas pressure 
       if(idual .eq. 0) MHDCTDualEnergyMethod = 0
  
       if(idual .eq. 0 .and. EquationOfState .eq. 0) then
-        do i=1,idim
-         do j=1,jdim
-           do k= 1,kdim
-            ge(i,j,k)= max(premin,gm1*(e(i,j,k) 
+         do i=1,idim
+            do j=1,jdim
+               do k= 1,kdim
+                  ge(i,j,k)= max(premin,gm1*(e(i,j,k) 
      +  - half*d(i,j,k)*(vx(i,j,k)**2+vy(i,j,k)**2+vz(i,j,k)**2)
-     +  - half*(bxc(i,j,k)**2+byc(i,j,k)**2+bzc(i,j,k)**2)))
-           enddo
-          enddo
-        enddo
-       endif
+     +  - half*(bxc(i,j,k)**2+byc(i,j,k)**2+bzc(i,j,k)**2) ))
+               enddo
+            enddo
+         enddo
+      endif
 
 
       if(idual .eq. 1) then
-       do i=1,idim
-         do j=1,jdim
-           do k= 1,kdim
-           ge(i,j,k) =  ge(i,j,k)*gm1*d(i,j,k)
-           enddo
-          enddo
-        enddo
-       endif
+         do i=1,idim
+            do j=1,jdim
+               do k= 1,kdim
+                  ge(i,j,k) =  ge(i,j,k)*gm1*d(i,j,k)
+               enddo
+            enddo
+         enddo
+      endif
 
      
 c     this is for debugging.
@@ -267,20 +267,20 @@ c     Loop over all 3 directions.
 c     
          
 #ifdef USESTRANG
-       n=1
- 704  continue
-      if (n.ge.4) goto 705
-      if (iflag(nmod,n).eq.1) then
-         goto 701
-      elseif (iflag(nmod,n).eq.2) then
-         goto 702
-      elseif (iflag(nmod,n).eq.3) then
-         goto 703
-      else
-         goto 705
-      endif    
+         n=1
+ 704     continue
+         if (n.ge.4) goto 705
+         if (iflag(nmod,n).eq.1) then
+            goto 701
+         elseif (iflag(nmod,n).eq.2) then
+            goto 702
+         elseif (iflag(nmod,n).eq.3) then
+            goto 703
+         else
+            goto 705
+         endif    
 #else
-      do n=nstart, nend, increment
+         do n=nstart, nend, increment
 #endif
  
 
@@ -293,95 +293,94 @@ c
 #else
       if (mod(n,rank) .eq. 0) then
 #endif        
-            na = idim - 4
+         na = idim - 4
 
-            if(verb.eq.1)write(*,*) "x step "
+         if(verb.eq.1)write(*,*) "x step "
+         
+         dim=1
 
-            dim=1
-
-            do k=ks, ke
+         do k=ks, ke
             do j=js, je
                   
-            do i=1,idim
+               do i=1,idim
                      
 c     Note: This solver takes momentum, not velocity.
 
-               wx(i,1)=d(i,j,k)
-               wx(i,2)=vx(i,j,k)*d(i,j,k)
-               wx(i,3)=vy(i,j,k)*d(i,j,k)
-               wx(i,4)=vz(i,j,k)*d(i,j,k)
-               wx(i,5)=bxc(i,j,k)
-               wx(i,6)=byc(i,j,k)
-               wx(i,7)=bzc(i,j,k)
-               if( EquationOfState .eq. 0 ) then
-                  wx(i,8)=e(i,j,k)
-                  wx(i,9)=ge(i,j,k)/(d(i,j,k)**gm1)
-               endif
-               fluxx(i,6) = zero
-               fluxx(i,7) = zero
-               fluxBx(i)=zero
-               fluxEx(i)=zero
-               fx1(i,j,k)=zero
-               fx2(i,j,k)=zero
-               if(gravityon .eq. 1) gravityx(i) = gr_ax(i,j,k) 
+                  wx(i,1)=d(i,j,k)
+                  wx(i,2)=vx(i,j,k)*d(i,j,k)
+                  wx(i,3)=vy(i,j,k)*d(i,j,k)
+                  wx(i,4)=vz(i,j,k)*d(i,j,k)
+                  wx(i,5)=bxc(i,j,k)
+                  wx(i,6)=byc(i,j,k)
+                  wx(i,7)=bzc(i,j,k)
+                  if( EquationOfState .eq. 0 ) then
+                     wx(i,8)=e(i,j,k)
+                     wx(i,9)=ge(i,j,k)/(d(i,j,k)**gm1)
+                  endif
+                  fluxx(i,6) = zero
+                  fluxx(i,7) = zero
+                  fluxBx(i)=zero
+                  fluxEx(i)=zero
+                  fx1(i,j,k)=zero
+                  fx2(i,j,k)=zero
+                  if(gravityon .eq. 1) gravityx(i) = gr_ax(i,j,k) 
            
-             enddo    
-
+               enddo    
 
 
 c Compute the diffusion coefficient
-        if(idiffusion .eq. 1) then
-           do i =is+1,ie
-             diffcoefx(i)= (vx(i,j,k)-vx(i-1,j,k))/dx
-          if (j .gt. js .and. j .lt. je) then
-              diffcoefx(i) = diffcoefx(i) 
-     +  + half*((vy(i,j+1,k)-vy(i,j-1,k))/(2._RKIND*dy) 
+               if(idiffusion .eq. 1) then
+                  do i =is+1,ie
+                     diffcoefx(i)= (vx(i,j,k)-vx(i-1,j,k))/dx
+                     if (j .gt. js .and. j .lt. je) then
+                        diffcoefx(i) = diffcoefx(i) 
+     +        + half*((vy(i,j+1,k)-vy(i,j-1,k))/(2._RKIND*dy) 
      +        +(vy(i-1,j+1,k)-vy(i-1,j-1,k))/(2._RKIND*dy)  )
-          endif
-          if(k .gt. ks .and. k .lt. ke) then
-             diffcoefx(i) = diffcoefx(i)
-     +  + half*((vz(i,j,k+1)-vz(i,j,k-1))/(2._RKIND*dz)
+                     endif
+                     if(k .gt. ks .and. k .lt. ke) then
+                        diffcoefx(i) = diffcoefx(i)
+     +        + half*((vz(i,j,k+1)-vz(i,j,k-1))/(2._RKIND*dz)
      +        +(vz(i-1,j,k+1)-vz(i-1,j,k-1))/(2._RKIND*dz)  )
-          endif
-        diffcoefx(i)=abs(dx*diffcoefx(i))      
-           enddo
-        endif        
+                     endif
+                     diffcoefx(i)=abs(dx*diffcoefx(i))      
+                  enddo
+               endif        
             
-           startindex = is + 2
-           endindex =ie - 2
+               startindex = is + 2
+               endindex =ie - 2
            
         call pde1dsolver_mhd(wx,idim,nu,startindex,endindex,dx,dtstrang,
-     +       fluxBx, fluxx,
-     +            fluxEx,diffcoefx,
-     +            gamma, csmin, rhomin,
+     +              fluxBx, fluxx,
+     +              fluxEx,diffcoefx,
+     +              gamma, csmin, rhomin,
      +          MHDCTDualEnergyMethod, MHDCTSlopeLimiter,RiemannSolver, 
-     +          ReconstructionMethod, idiffusion, MHDCTPowellSource,
-     +            tdum0,boxl0,hubb,zr,
-     +            nhy,
-     +        gravityon, gravityx,
-     +        a, EquationOfState, SoundSpeed,hack2)
+     +              ReconstructionMethod, idiffusion, MHDCTPowellSource,
+     +              tdum0,boxl0,hubb,zr,
+     +              nhy,
+     +              gravityon, gravityx,
+     +              a, EquationOfState, SoundSpeed,hack2)
 
-            do i=is+2,ie-2
+        do i=is+2,ie-2
 
-               if(output .eq. 1 ) then
-                  write(710,800) wx(i,1),wx(i,8),wx(i,2),wx(i,3),
-     +                 wx(i,4),wx(i,5),wx(i,6),
-     +                 wx(i,7)
-               endif
+           if(output .eq. 1 ) then
+              write(710,800) wx(i,1),wx(i,8),wx(i,2),wx(i,3),
+     +             wx(i,4),wx(i,5),wx(i,6),
+     +             wx(i,7)
+           endif
                
-               d(i,j,k) = wx(i,1)
-               vx(i,j,k) = wx(i,2)/d(i,j,k)
-               vy(i,j,k) = wx(i,3)/d(i,j,k)
-               vz(i,j,k) = wx(i,4)/d(i,j,k)
-               bxc(i,j,k) = wx(i,5)
-               byc(i,j,k) = wx(i,6)
-               bzc(i,j,k) = wx(i,7)
-               if( EquationOfState .eq. 0 ) then
-                  e(i,j,k) = wx(i,8)
-                  ge(i,j,k) = wx(i,9)*(wx(i,1)**gm1)
-               endif
+           d(i,j,k) = wx(i,1)
+           vx(i,j,k) = wx(i,2)/d(i,j,k)
+           vy(i,j,k) = wx(i,3)/d(i,j,k)
+           vz(i,j,k) = wx(i,4)/d(i,j,k)
+           bxc(i,j,k) = wx(i,5)
+           byc(i,j,k) = wx(i,6)
+           bzc(i,j,k) = wx(i,7)
+           if( EquationOfState .eq. 0 ) then
+              e(i,j,k) = wx(i,8)
+              ge(i,j,k) = wx(i,9)*(wx(i,1)**gm1)
+           endif
 
-c
+c     
 c     fill the flux array for SubgridFluxCorrection.
 c
 
@@ -389,51 +388,51 @@ c     fluxextents(dim,coord,face,n,s)
 
 c     dim=1 is set at the beginning of the sweep.
 
-               do s=1, nsubgrids
+           do s=1, nsubgrids
 
-                  do face=1,2
-                     if( i .eq. fluxextents(dim,1,face,1,s) 
+              do face=1,2
+                 if( i .eq. fluxextents(dim,1,face,1,s) 
      +                .and. (j .le. fluxextents(dim,2,face,2,s))
      +                .and. (j .ge. fluxextents(dim,2,face,1,s))
      +                .and. (k .le. fluxextents(dim,3,face,2,s))
      +                .and. (k .ge. fluxextents(dim,3,face,1,s))
      +                .and. (correct(dim,face) .eq. 1)    ) then
-                        
+                    
 c     effective indexing: flux(i,j,k,dimension, face, subgrid)
 
-                        index=1
-     +                  + i - fluxextents(dim,1,face,1,s)
-     +                  + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
-     +                  + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
-     +                  + fdim(dim,3,s)*(face-1)))
-     +                  + TotalOffset(dim, s)
+                    index=1
+     +                   + i - fluxextents(dim,1,face,1,s)
+     +                   + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
+     +                   + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
+     +                   + fdim(dim,3,s)*(face-1)))
+     +                   + TotalOffset(dim, s)
                         
 
-                        fd(index)  = fd(index) +dtdx*fluxx(i-1,1)
-                        fvx(index) = fvx(index)+dtdx*fluxx(i-1,2)
-                        fvy(index) = fvy(index)+dtdx*fluxx(i-1,3)
-                        fvz(index) = fvz(index)+dtdx*fluxx(i-1,4)
-                        if( EquationOfState .eq. 0 ) then
-                           fe(index)  = fe(index) +dtdx*fluxx(i-1,8)
-                           fge(index) = fge(index)+dtdx*fluxEx(i-1)
-                        endif
+                    fd(index)  = fd(index) +dtdx*fluxx(i-1,1)
+                    fvx(index) = fvx(index)+dtdx*fluxx(i-1,2)
+                    fvy(index) = fvy(index)+dtdx*fluxx(i-1,3)
+                    fvz(index) = fvz(index)+dtdx*fluxx(i-1,4)
+                    if( EquationOfState .eq. 0 ) then
+                       fe(index)  = fe(index) +dtdx*fluxx(i-1,8)
+                       fge(index) = fge(index)+dtdx*fluxEx(i-1)
+                    endif
                         
-                     endif
-                  enddo
-               enddo
+                 endif
+              enddo
+           enddo
 c ------------ end the flux 
                
-            enddo
+        enddo
             
 c     The difference in indexing comes from a difference
 c     in variable definition
             
-             do i=is+3, ie-1
-               fx1(i,j,k) = fx1(i,j,k) + fluxx(i-1,6)
-               fx2(i,j,k) = fx2(i,j,k) + fluxx(i-1,7)
-            enddo
+        do i=is+3, ie-1
+           fx1(i,j,k) = fx1(i,j,k) + fluxx(i-1,6)
+           fx2(i,j,k) = fx2(i,j,k) + fluxx(i-1,7)
+        enddo
             
-         enddo
+      enddo
       enddo
 
 
@@ -443,7 +442,7 @@ c     in variable definition
        goto 704
  702   continue            
 #else
-       else if (mod(n,rank) .eq. 1) then 
+      else if (mod(n,rank) .eq. 1) then 
 #endif
 
          if(verb.eq.1)write(*,*) "y step, ", nhy
@@ -451,147 +450,147 @@ c     in variable definition
          na = jdim - 4
          
          do k=ks, ke
-         do i=is,ie
+            do i=is,ie
 
-         do j=1,jdim
+               do j=1,jdim
                        
-            wy(j,1)=d(i,j,k)
-            wy(j,2)=vy(i,j,k)*d(i,j,k)
-            wy(j,3)=vz(i,j,k)*d(i,j,k)
-            wy(j,4)=vx(i,j,k)*d(i,j,k)
-            wy(j,5)=byc(i,j,k)
-            wy(j,6)=bzc(i,j,k)
-            wy(j,7)=bxc(i,j,k)
-            if( EquationOfState .eq. 0 ) then
-               wy(j,8)=e(i,j,k)
-               wy(j,9)=ge(i,j,k)/(d(i,j,k)**gm1)
-            endif
-            fluxy(j,6) = zero
-            fluxy(j,7) = zero
-            fluxBy(j)=zero
-            fluxEy(j) = zero
-            fy1(i,j,k) = zero
-            fy2(i,j,k) = zero            
+                  wy(j,1)=d(i,j,k)
+                  wy(j,2)=vy(i,j,k)*d(i,j,k)
+                  wy(j,3)=vz(i,j,k)*d(i,j,k)
+                  wy(j,4)=vx(i,j,k)*d(i,j,k)
+                  wy(j,5)=byc(i,j,k)
+                  wy(j,6)=bzc(i,j,k)
+                  wy(j,7)=bxc(i,j,k)
+                  if( EquationOfState .eq. 0 ) then
+                     wy(j,8)=e(i,j,k)
+                     wy(j,9)=ge(i,j,k)/(d(i,j,k)**gm1)
+                  endif
+                  fluxy(j,6) = zero
+                  fluxy(j,7) = zero
+                  fluxBy(j)=zero
+                  fluxEy(j) = zero
+                  fy1(i,j,k) = zero
+                  fy2(i,j,k) = zero            
 
-            if(gravityon .eq. 1) gravityy(j)= gr_ay(i,j,k)      
-
-            if(output .eq. 1) then
-               write(701,800) wy(j,1),wy(j,8),wy(j,2),wy(j,3),
-     +              wy(j,4),wy(j,5),wy(j,6),
-     +              wy(j,7)
-            endif
+                  if(gravityon .eq. 1) gravityy(j)= gr_ay(i,j,k)      
+                  
+                  if(output .eq. 1) then
+                     write(701,800) wy(j,1),wy(j,8),wy(j,2),wy(j,3),
+     +                    wy(j,4),wy(j,5),wy(j,6),
+     +                    wy(j,7)
+                  endif
             
-         enddo
+               enddo
 
-c Compute the diffusion coefficient
-        if(idiffusion .eq. 1) then
-           do j =js+1,je
-             diffcoefy(j)= (vy(i,j,k)-vy(i,j-1,k))/dy
-          if (i .gt. is .and. i .lt. ie) then
-              diffcoefy(j) = diffcoefy(j)
-     +  + half*((vx(i+1,j,k)-vx(i-1,j,k))/(2._RKIND*dx)
+c     Compute the diffusion coefficient
+               if(idiffusion .eq. 1) then
+                  do j =js+1,je
+                     diffcoefy(j)= (vy(i,j,k)-vy(i,j-1,k))/dy
+                     if (i .gt. is .and. i .lt. ie) then
+                        diffcoefy(j) = diffcoefy(j)
+     +        + half*((vx(i+1,j,k)-vx(i-1,j,k))/(2._RKIND*dx)
      +        +(vx(i+1,j-1,k)-vx(i-1,j-1,k))/(2._RKIND*dx)  )
-          endif
-          if(k .gt. ks .and. k .lt. ke) then
-             diffcoefy(j) = diffcoefy(j)
-     +  + half*((vz(i,j,k+1)-vz(i,j,k-1))/(2._RKIND*dz)
+                     endif
+                     if(k .gt. ks .and. k .lt. ke) then
+                        diffcoefy(j) = diffcoefy(j)
+     +        + half*((vz(i,j,k+1)-vz(i,j,k-1))/(2._RKIND*dz)
      +        +(vz(i,j-1,k+1)-vz(i,j-1,k-1))/(2._RKIND*dz)  )
-          endif
-        diffcoefy(j)=abs(dy*diffcoefy(j))
-           enddo
-        endif
+                     endif
+                     diffcoefy(j)=abs(dy*diffcoefy(j))
+                  enddo
+               endif
 
 
 
-           startindex = js + 2
-           endindex = je - 2
+               startindex = js + 2
+               endindex = je - 2
 
              
-           if( hack .ne. 10 ) then
+               if( hack .ne. 10 ) then
         call pde1dsolver_mhd(wy,jdim,nu,startindex,endindex,dy,dtstrang,
-     +     fluxBy, fluxy,
-     +            fluxEy,diffcoefy,
-     +            gamma, csmin, rhomin,
+     +                 fluxBy, fluxy,
+     +                 fluxEy,diffcoefy,
+     +                 gamma, csmin, rhomin,
      +          MHDCTDualEnergyMethod, MHDCTSlopeLimiter,RiemannSolver, 
      +          ReconstructionMethod, idiffusion, MHDCTPowellSource,
-     +            tdum0,boxl0,hubb,zr,
-     +            nhy,
-     +      gravityon, gravityy,
-     +      a, EquationOfState,SoundSpeed, hack)
-        endif
+     +                 tdum0,boxl0,hubb,zr,
+     +                 nhy,
+     +                 gravityon, gravityy,
+     +                 a, EquationOfState,SoundSpeed, hack)
+      endif
 
          
-         do j=js+2, je-2
-            d(i,j,k) = wy(j,1)
-            vx(i,j,k) = wy(j,4)/d(i,j,k)
-            vy(i,j,k) = wy(j,2)/d(i,j,k)
-            vz(i,j,k) = wy(j,3)/d(i,j,k)
-            bxc(i,j,k) = wy(j,7)
-            byc(i,j,k) = wy(j,5)
-            bzc(i,j,k) = wy(j,6)
-            if( EquationOfState .eq. 0 ) then
-               e(i,j,k) = wy(j,8)
-               ge(i,j,k) = wy(j,9)*(wy(j,1)**gm1)     
-            endif
-            if(output .eq. 1) then
-               write(711,800) wy(j,1),wy(j,8),wy(j,2),wy(j,3),
-     +              wy(j,4),wy(j,5),wy(j,6),
-     +              wy(j,7),wy(j,9)
-            endif
-
+      do j=js+2, je-2
+         d(i,j,k) = wy(j,1)
+         vx(i,j,k) = wy(j,4)/d(i,j,k)
+         vy(i,j,k) = wy(j,2)/d(i,j,k)
+         vz(i,j,k) = wy(j,3)/d(i,j,k)
+         bxc(i,j,k) = wy(j,7)
+         byc(i,j,k) = wy(j,5)
+         bzc(i,j,k) = wy(j,6)
+         if( EquationOfState .eq. 0 ) then
+            e(i,j,k) = wy(j,8)
+            ge(i,j,k) = wy(j,9)*(wy(j,1)**gm1)     
+         endif
+         if(output .eq. 1) then
+            write(711,800) wy(j,1),wy(j,8),wy(j,2),wy(j,3),
+     +           wy(j,4),wy(j,5),wy(j,6),
+     +           wy(j,7),wy(j,9)
+         endif
+         
 c     dim=2 is set at the beginning of the sweep.
 
-               do s=1, nsubgrids
+         do s=1, nsubgrids
 
-                  do face=1,2
-                     if( j .eq. fluxextents(dim,2,face,1,s) 
-     +                .and. (i .le. fluxextents(dim,1,face,2,s))
-     +                .and. (i .ge. fluxextents(dim,1,face,1,s))
-     +                .and. (k .le. fluxextents(dim,3,face,2,s))
-     +                .and. (k .ge. fluxextents(dim,3,face,1,s))
-     +                .and. (correct(dim,face) .eq. 1)    ) then
+            do face=1,2
+               if( j .eq. fluxextents(dim,2,face,1,s) 
+     +              .and. (i .le. fluxextents(dim,1,face,2,s))
+     +              .and. (i .ge. fluxextents(dim,1,face,1,s))
+     +              .and. (k .le. fluxextents(dim,3,face,2,s))
+     +              .and. (k .ge. fluxextents(dim,3,face,1,s))
+     +              .and. (correct(dim,face) .eq. 1)    ) then
                         
-                        index=1
-     +                  + i - fluxextents(dim,1,face,1,s)
-     +                  + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
-     +                  + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
-     +                  + fdim(dim,3,s)*(face-1)))
-     +                  + TotalOffset(dim, s)
+                  index=1
+     +                 + i - fluxextents(dim,1,face,1,s)
+     +                 + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
+     +                 + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
+     +                 + fdim(dim,3,s)*(face-1)))
+     +                 + TotalOffset(dim, s)
 
 
-                        fd(index)  = fd(index) +dtdy*fluxy(j-1,1)
-                        fvy(index) = fvy(index)+dtdy*fluxy(j-1,2)
-                        fvz(index) = fvz(index)+dtdy*fluxy(j-1,3)
-                        fvx(index) = fvx(index)+dtdy*fluxy(j-1,4)
-                        if( EquationOfState .eq. 0 ) then
-                           fe(index)  = fe(index) +dtdy*fluxy(j-1,8)
-                           fge(index) = fge(index)+dtdy*fluxEy(j-1)
-                        endif
+                  fd(index)  = fd(index) +dtdy*fluxy(j-1,1)
+                  fvy(index) = fvy(index)+dtdy*fluxy(j-1,2)
+                  fvz(index) = fvz(index)+dtdy*fluxy(j-1,3)
+                  fvx(index) = fvx(index)+dtdy*fluxy(j-1,4)
+                  if( EquationOfState .eq. 0 ) then
+                     fe(index)  = fe(index) +dtdy*fluxy(j-1,8)
+                     fge(index) = fge(index)+dtdy*fluxEy(j-1)
+                  endif
                         
-                     endif
-                  enddo
-               enddo
+               endif
+            enddo
+         enddo
 c ------------ end the flux 
 
 
             
-         enddo
+      enddo
          
-          do j=js+3, je-1
-            fy2(i,j,k) = fy2(i,j,k)+fluxy(j-1,6)
-            fy1(i,j,k) = fy1(i,j,k)+fluxy(j-1,7)
-         enddo
+      do j=js+3, je-1
+         fy2(i,j,k) = fy2(i,j,k)+fluxy(j-1,6)
+         fy1(i,j,k) = fy1(i,j,k)+fluxy(j-1,7)
+      enddo
          
       enddo
       enddo	 
 
 
 #ifdef USESTRANG
-       n=n+1
-       goto 704
- 703   continue
+      n=n+1
+      goto 704
+ 703  continue
 #else                               
-       else if (mod(n,rank) .eq. 2 ) then
+      else if (mod(n,rank) .eq. 2 ) then
 #endif 
          
          na = kdim-4
@@ -599,146 +598,146 @@ c ------------ end the flux
          dim=3
 
          do i=is, ie
-         do j=js, je
+            do j=js, je
                   
-         do k=1,kdim
-            wz(k,1) = d(i,j,k)
-            wz(k,2) = vz(i,j,k)*d(i,j,k)
-            wz(k,3) = vx(i,j,k)*d(i,j,k)
-            wz(k,4) = vy(i,j,k)*d(i,j,k)
-            wz(k,5) = bzc(i,j,k)
-            wz(k,6) = bxc(i,j,k)
-            wz(k,7) = byc(i,j,k)
-            if( EquationOfState .eq. 0 ) then
-               wz(k,8) = e(i,j,k)
-               wz(k,9) = ge(i,j,k)/(d(i,j,k)**gm1)
-            endif
-            fluxz(k,6) = zero
-            fluxz(k,7) = zero
-            fluxBz(k) = zero
-            fluxEz(k) = zero   
-            fz1(i,j,k) = zero
-            fz2(i,j,k) = zero  
+               do k=1,kdim
+                  wz(k,1) = d(i,j,k)
+                  wz(k,2) = vz(i,j,k)*d(i,j,k)
+                  wz(k,3) = vx(i,j,k)*d(i,j,k)
+                  wz(k,4) = vy(i,j,k)*d(i,j,k)
+                  wz(k,5) = bzc(i,j,k)
+                  wz(k,6) = bxc(i,j,k)
+                  wz(k,7) = byc(i,j,k)
+                  if( EquationOfState .eq. 0 ) then
+                     wz(k,8) = e(i,j,k)
+                     wz(k,9) = ge(i,j,k)/(d(i,j,k)**gm1)
+                  endif
+                  fluxz(k,6) = zero
+                  fluxz(k,7) = zero
+                  fluxBz(k) = zero
+                  fluxEz(k) = zero   
+                  fz1(i,j,k) = zero
+                  fz2(i,j,k) = zero  
 
-            if(gravityon .eq. 1) gravityz(k) = gr_az(i,j,k)     
+                  if(gravityon .eq. 1) gravityz(k) = gr_az(i,j,k)     
 
-            if(output .eq. 1) then
-               write(702,800) wz(k,1),wz(k,8),wz(k,2),wz(k,3),
-     +              wz(k,4),wz(k,5),wz(k,6),
-     +              wz(k,7),wz(k,9)
+                  if(output .eq. 1) then
+                     write(702,800) wz(k,1),wz(k,8),wz(k,2),wz(k,3),
+     +                    wz(k,4),wz(k,5),wz(k,6),
+     +                    wz(k,7),wz(k,9)
                
-            endif            
-         enddo
+                  endif            
+               enddo
 
 
 c Compute the diffusion coefficient
-        if(idiffusion .eq. 1) then
-           do k =ks+1,ke
-             diffcoefz(k)= (vz(i,j,k)-vz(i,j,k-1))/dz
-          if (j .gt. js .and. j .lt. je) then
-              diffcoefz(k) = diffcoefz(k)
-     +  + half*((vy(i,j+1,k)-vy(i,j-1,k))/(2._RKIND*dy)
+               if(idiffusion .eq. 1) then
+                  do k =ks+1,ke
+                     diffcoefz(k)= (vz(i,j,k)-vz(i,j,k-1))/dz
+                     if (j .gt. js .and. j .lt. je) then
+                        diffcoefz(k) = diffcoefz(k)
+     +        + half*((vy(i,j+1,k)-vy(i,j-1,k))/(2._RKIND*dy)
      +        +(vy(i,j+1,k-1)-vy(i,j-1,k-1))/(2._RKIND*dy)  )
-          endif
-          if(i .gt. is .and. i .lt. ie) then
-             diffcoefz(k) = diffcoefz(k)
-     +  + half*((vx(i+1,j,k)-vx(i-1,j,k))/(2._RKIND*dx)
+                     endif
+                     if(i .gt. is .and. i .lt. ie) then
+                        diffcoefz(k) = diffcoefz(k)
+     +        + half*((vx(i+1,j,k)-vx(i-1,j,k))/(2._RKIND*dx)
      +        +(vx(i+1,j,k-1)-vx(i-1,j,k-1))/(2._RKIND*dx)  )
-          endif
-        diffcoefz(k)=abs(dz*diffcoefz(k))
-           enddo
-        endif
+                     endif
+                     diffcoefz(k)=abs(dz*diffcoefz(k))
+                  enddo
+               endif
+               
 
-
-           startindex = ks + 2
-           endindex = ke - 2
+               startindex = ks + 2
+               endindex = ke - 2
   
 
-           if( hack .ne. 10 ) then
+               if( hack .ne. 10 ) then
         call pde1dsolver_mhd(wz,kdim,nu,startindex,endindex,dz,dtstrang,
-     +             fluxBz, fluxz,
-     +            fluxEz,diffcoefz,
-     +            gamma, csmin, rhomin,
+     +                 fluxBz, fluxz,
+     +                 fluxEz,diffcoefz,
+     +                 gamma, csmin, rhomin,
      +          MHDCTDualEnergyMethod, MHDCTSlopeLimiter,RiemannSolver, 
      +          ReconstructionMethod, idiffusion, MHDCTPowellSource,
-     +            tdum0,boxl0,hubb,zr,
-     +            nhy,
-     +            gravityon,gravityz,
-     +            a, EquationOfState,SoundSpeed, hack)
-        endif
+     +                 tdum0,boxl0,hubb,zr,
+     +                 nhy,
+     +                 gravityon,gravityz,
+     +                 a, EquationOfState,SoundSpeed, hack)
+      endif
 
-         do k=ks+2, ke-2
+      do k=ks+2, ke-2
 
-            if(output .eq. 1) then
-               write(712,800) wz(k,1),wz(k,8),wz(k,2),wz(k,3),
-     +              wz(k,4),wz(k,5),wz(k,6),
-     +              wz(k,7)
-            endif
+         if(output .eq. 1) then
+            write(712,800) wz(k,1),wz(k,8),wz(k,2),wz(k,3),
+     +           wz(k,4),wz(k,5),wz(k,6),
+     +           wz(k,7)
+         endif
             
-            d(i,j,k) = wz(k,1)
-            vx(i,j,k) = wz(k,3)/d(i,j,k)
-            vy(i,j,k) = wz(k,4)/d(i,j,k)
-            vz(i,j,k) = wz(k,2)/d(i,j,k)
-            bxc(i,j,k) = wz(k,6)
-            byc(i,j,k) = wz(k,7)
-            bzc(i,j,k) = wz(k,5)
-            if( EquationOfState .eq. 0 ) then
-               e(i,j,k) = wz(k,8)                
-               ge(i,j,k) = wz(k,9)*(wz(k,1)**gm1)
-            endif
-
+         d(i,j,k) = wz(k,1)
+         vx(i,j,k) = wz(k,3)/d(i,j,k)
+         vy(i,j,k) = wz(k,4)/d(i,j,k)
+         vz(i,j,k) = wz(k,2)/d(i,j,k)
+         bxc(i,j,k) = wz(k,6)
+         byc(i,j,k) = wz(k,7)
+         bzc(i,j,k) = wz(k,5)
+         if( EquationOfState .eq. 0 ) then
+            e(i,j,k) = wz(k,8)                
+            ge(i,j,k) = wz(k,9)*(wz(k,1)**gm1)
+         endif
+         
 c     dim=3 is set at the beginning of the sweep.
 
-            do s=1, nsubgrids
+         do s=1, nsubgrids
 
-                  do face=1,2
-                     if( k .eq. fluxextents(dim,3,face,1,s) 
-     +                .and. (i .le. fluxextents(dim,1,face,2,s))
-     +                .and. (i .ge. fluxextents(dim,1,face,1,s))
-     +                .and. (j .le. fluxextents(dim,2,face,2,s))
-     +                .and. (j .ge. fluxextents(dim,2,face,1,s))
-     +                .and. (correct(dim,face) .eq. 1) ) then
+            do face=1,2
+               if( k .eq. fluxextents(dim,3,face,1,s) 
+     +              .and. (i .le. fluxextents(dim,1,face,2,s))
+     +              .and. (i .ge. fluxextents(dim,1,face,1,s))
+     +              .and. (j .le. fluxextents(dim,2,face,2,s))
+     +              .and. (j .ge. fluxextents(dim,2,face,1,s))
+     +              .and. (correct(dim,face) .eq. 1) ) then
+                  
+
+                  index=1
+     +                 + i - fluxextents(dim,1,face,1,s)
+     +                 + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
+     +                 + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
+     +                 + fdim(dim,3,s)*(face-1)))
+     +                 + TotalOffset(dim, s)
+
+
+                  fd(index)  = fd(index) +dtdz*fluxz(k-1,1)
+                  fvz(index) = fvz(index)+dtdz*fluxz(k-1,2)
+                  fvx(index) = fvx(index)+dtdz*fluxz(k-1,3)
+                  fvy(index) = fvy(index)+dtdz*fluxz(k-1,4)
+                  if( EquationOfState .eq. 0 ) then
+                     fe(index)  = fe(index) +dtdz*fluxz(k-1,8)
+                     fge(index) = fge(index)+dtdz*fluxEz(k-1)
+                  endif
                         
-
-                        index=1
-     +                  + i - fluxextents(dim,1,face,1,s)
-     +                  + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
-     +                  + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
-     +                  + fdim(dim,3,s)*(face-1)))
-     +                  + TotalOffset(dim, s)
-
-
-                        fd(index)  = fd(index) +dtdz*fluxz(k-1,1)
-                        fvz(index) = fvz(index)+dtdz*fluxz(k-1,2)
-                        fvx(index) = fvx(index)+dtdz*fluxz(k-1,3)
-                        fvy(index) = fvy(index)+dtdz*fluxz(k-1,4)
-                        if( EquationOfState .eq. 0 ) then
-                           fe(index)  = fe(index) +dtdz*fluxz(k-1,8)
-                           fge(index) = fge(index)+dtdz*fluxEz(k-1)
-                        endif
-                        
-                     endif
-                  enddo
-               enddo
+               endif
+            enddo
+         enddo
 c ------------ end the flux               
 
             
-         enddo
+      enddo
          
-         do k=ks+3, ke-1
-            fz1(i,j,k) = fz1(i,j,k)+fluxz(k-1,6)
-            fz2(i,j,k) = fz2(i,j,k)+fluxz(k-1,7)
-         enddo
+      do k=ks+3, ke-1
+         fz1(i,j,k) = fz1(i,j,k)+fluxz(k-1,6)
+         fz2(i,j,k) = fz2(i,j,k)+fluxz(k-1,7)
+      enddo
       enddo
       enddo
         
 
 #ifdef USESTRANG      
-       n=n+1
-       goto 704
- 705   continue
+      n=n+1
+      goto 704
+ 705  continue
 #else      
-       endif
+      endif
 
 c     end of strang split loop
        enddo
