@@ -1,6 +1,3 @@
-c#include "fortran.def"
-c#include "error.def"
-c#define tiny 1.0e-20
 #define USESTRANG
       
       subroutine mhd_li(d, e, vx, vy, vz, 
@@ -43,7 +40,6 @@ c
      +     fz1(idim,jdim,kdim+1),fz2(idim,jdim,kdim+1)
       R_PREC fd(totalfluxsize), fe(totalfluxsize), fvx(totalfluxsize),
      +     fvy(totalfluxsize), fvz(totalfluxsize), fge(totalfluxsize)
-c    hx     
       P_PREC a(0:3)  
       INTG_PREC  idual,idiff
       INTG_PREC comoving
@@ -62,7 +58,6 @@ c
       INTG_PREC ixyz, n, retard1, retard2, output, strang, nhyt
       INTG_PREC is, ie, js, je, ks, ke, na, increment, mmm
       INTG_PREC fdim(3,3,nsubgrids), index
-c   hx, changed dimension to 9, new one for the entropy     
       R_PREC wx(idim,9), wy(jdim,9), wz(kdim,9), dtstrang
       R_PREC fluxBx(idim), fluxBy(jdim), fluxBz(kdim) 
       R_PREC fluxEx(idim), fluxEy(jdim), fluxEz(kdim)
@@ -77,7 +72,6 @@ c   hx, changed dimension to 9, new one for the entropy
       INTG_PREC nu
       R_PREC  diffcoefx(idim),diffcoefy(jdim),diffcoefz(kdim)
       R_PREC csmin, rhomin 
-!      INTG_PREC UseEntropy, option, iflux,ipred
       INTG_PREC idiffusion, isource
       R_PREC tdum0,boxL0,hubb,zr
       INTG_PREC startindex, endindex
@@ -96,13 +90,8 @@ c   hx, changed dimension to 9, new one for the entropy
        nu = 6_IKIND
        csmin = 1.0e-13_RKIND
        rhomin = 1.0e-6_RKIND
-!       UseEntropy = solverparameters(0)  ! 2
-!       option = solverparameters(1) ! 1
-!       iflux = solverparameters(2) ! 5
        if( EquationOfState .eq. 1 ) RiemannSolver = 6_IKIND !isothermal hlld. 1==isothermal
-!       ipred = solverparameters(3) ! 1
        idiffusion = idiff
-!       isource = solverparameters(4) !0
        tdum0 = 1.0e-13_RKIND
        boxL0 = 0.0_RKIND
        hubb = 0.0_RKIND
@@ -237,13 +226,6 @@ c -------- I opted for clarity over cleverness. (if this comment is confusing, i
 
 c     end of subgrid stuff -------------------
 
-c      open(unit=700,file='file.X0',status='unknown',position='append')
-c      open(unit=710,file='file.X1',status='unknown',position='append')
-c      open(unit=701,file='file.Y0',status='unknown',position='append')
-c      open(unit=711,file='file.Y1',status='unknown',position='append')
-c      open(unit=702,file='file.Z0',status='unknown',position='append')
-c      open(unit=712,file='file.Z1',status='unknown',position='append')
-
 
  800  format(10f9.5)
       
@@ -256,15 +238,9 @@ c      open(unit=712,file='file.Z1',status='unknown',position='append')
       
       nhyt = nhy
       
-c     if( kdim .eq. 12 ) then
-c     c         nhyt = nhyt + 2
-c     endif
-      
       ixyz = mod(nhyt,rank)
       
 
-c     This strang business is an experiment.  It doesn't work.  
-c      dtstrang = dt/2.0      
       dtstrang = dt
       dtdx = dtstrang/dx
       dtdy = dtstrang/dy
@@ -285,16 +261,6 @@ c      dtstrang = dt/2.0
             nend = ixyz
             increment = -1
          endif
-         
-c     onlyx = 0
-c     if(onlyx .eq. 1 ) then
-c     c     side is zero based.
-c     if( idim .eq. 12 ) side = 2
-c     if( jdim .eq. 12 ) side = 0
-c     if( kdim .eq. 12 ) side = 1
-c     nstart = side
-c     nend = side
-c     endif
          
 c     
 c     Loop over all 3 directions.
@@ -358,25 +324,10 @@ c     Note: This solver takes momentum, not velocity.
                fx1(i,j,k)=zero
                fx2(i,j,k)=zero
                if(gravityon .eq. 1) gravityx(i) = gr_ax(i,j,k) 
-
-c               do mmm=1,7
-c                  fluxx(i,mmm) = -666.123
-c               enddo
-
-c               do mmm=1,10
-c                  if( wx(i,mmm) .ne. wx(i,mmm) ) then
-c                     write(*,*) "failure, beginning of x"
-cc                     ERROR_MESSAGE
-c                  endif
-c               enddo               
+           
              enddo    
 
-c           do i = is+3,ie-2
-c               fx1(i,j,k) =  (bxc(i-1,j,k)*vy(i-1,j,k)
-c     +           +bxc(i,j,k)*vy(i,j,k))*0.5
-c               fx2(i,j,k) =  (bxc(i-1,j,k)*vz(i-1,j,k)
-c     +           +bxc(i,j,k)*vz(i,j,k))*0.5
-c           enddo
+
 
 c Compute the diffusion coefficient
         if(idiffusion .eq. 1) then
@@ -449,8 +400,6 @@ c     dim=1 is set at the beginning of the sweep.
      +                .and. (correct(dim,face) .eq. 1)    ) then
                         
 c     effective indexing: flux(i,j,k,dimension, face, subgrid)
-c     I'm afraid this may cause cache misses.  If you come up with a better
-c     way, please let me know.
 
                         index=1
      +                  + i - fluxextents(dim,1,face,1,s)
@@ -458,24 +407,6 @@ c     way, please let me know.
      +                  + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
      +                  + fdim(dim,3,s)*(face-1)))
      +                  + TotalOffset(dim, s)
-
-c                        if( index .ge. totalfluxsize ) then
-c                           write(*,*) "Error Exceeding flux array",
-c     +                      index, totalfluxsize, "(",i,j,k,s,face,
-c     +                      ")[",fdim(1,1,s), fdim(1,2,s), fdim(1,3,s),
-c     +                      "]",sizeothersubgrids(s), 
-c     +                      + i - fluxextents(1,1,face,1,s)
-c     +                      + fdim(1,1,s)*(j- fluxextents(1,2,face,1,s)
-c     +                      + fdim(1,2,s)*(k- fluxextents(1,3,face,1,s)
-c     +                      + fdim(1,3,s)*(0)))
-c                           
-c                           ERROR_MESSAGE
-c                        endif
-
-                        do mmm=1,7
-c                           fluxx(i-1,mmm)=0.1
-c1000*j+10*mmm+face
-                        enddo
                         
 
                         fd(index)  = fd(index) +dtdx*fluxx(i-1,1)
@@ -486,14 +417,6 @@ c1000*j+10*mmm+face
                            fe(index)  = fe(index) +dtdx*fluxx(i-1,8)
                            fge(index) = fge(index)+dtdx*fluxEx(i-1)
                         endif
-c                        do mmm=1,7
-c                           if( fluxx(i-1,mmm) .ne. fluxx(i-1,mmm)) then
-c                              write(*,*) "Error Flux Failure x, ijkflg"
-c                              
-c                              write(*,*) i,j,k,mmm, level, grid
-c                              ERROR_MESSAGE
-c                           endif
-c                        enddo
                         
                      endif
                   enddo
@@ -505,7 +428,6 @@ c ------------ end the flux
 c     The difference in indexing comes from a difference
 c     in variable definition
             
-c            do i=is+1, ie
              do i=is+3, ie-1
                fx1(i,j,k) = fx1(i,j,k) + fluxx(i-1,6)
                fx2(i,j,k) = fx2(i,j,k) + fluxx(i-1,7)
@@ -553,30 +475,13 @@ c            do i=is+1, ie
 
             if(gravityon .eq. 1) gravityy(j)= gr_ay(i,j,k)      
 
-c            do mmm = 1,7
-c               fluxy(j,mmm) = -666.123
-c            enddo
             if(output .eq. 1) then
                write(701,800) wy(j,1),wy(j,8),wy(j,2),wy(j,3),
      +              wy(j,4),wy(j,5),wy(j,6),
      +              wy(j,7)
             endif
-
-c            do mmm=1,10
-c               if( wy(j,mmm) .ne. wy(j,mmm) ) then
-c                  write(*,*) "Error failure, beginning of y"
-cc                  ERROR_MESSAGE
-c               endif
-c            enddo
             
          enddo
-
-c          do j=js+3,je-2
-c              fy2(i,j,k) =  (byc(i,j-1,k)*vz(i,j-1,k)
-c     +           +byc(i,j,k)*vz(i,j,k))*0.5
-c               fy1(i,j,k) = (byc(i,j-1,k)*vx(i,j-1,k)
-c     +           +byc(i,j,k)*vx(i,j,k))*0.5
-c         enddo
 
 c Compute the diffusion coefficient
         if(idiffusion .eq. 1) then
@@ -615,14 +520,6 @@ c Compute the diffusion coefficient
      +      a, EquationOfState,SoundSpeed, hack)
         endif
 
-
-c         do j=js,je
-c            do mmm=1,7
-c            fluxy(j,mmm) = 0.0
-c            enddo 
-c         
-c         enddo
-                                  
          
          do j=js+2, je-2
             d(i,j,k) = wy(j,1)
@@ -641,13 +538,6 @@ c         enddo
      +              wy(j,4),wy(j,5),wy(j,6),
      +              wy(j,7),wy(j,9)
             endif
-
-c            do mmm=1,10
-c               if( wy(j,mmm) .ne. wy(j,mmm) ) then
-c                  write(*,*) "Error failure, end of y"
-cc                  ERROR_MESSAGE
-c               endif
-c            enddo
 
 c     dim=2 is set at the beginning of the sweep.
 
@@ -668,24 +558,6 @@ c     dim=2 is set at the beginning of the sweep.
      +                  + fdim(dim,3,s)*(face-1)))
      +                  + TotalOffset(dim, s)
 
-c                        if( index .ge. totalfluxsize ) then
-c                           write(*,*) "Error  Exceeding flux array, y",
-c     +                    index, totalfluxsize, "(",i,j,k,s,face,
-c     +                ")[",fdim(dim,1,s), fdim(dim,2,s), fdim(dim,3,s),
-c     +                "]",sizeothersubgrids(s), 
-c     +                + i - fluxextents(dim,1,face,1,s)
-c     +                + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
-c     +                + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
-c     +                + fdim(dim,3,s)*(0)))
-c                           
-c                           ERROR_MESSAGE
-c                        endif
-
-                        do mmm=1,7
-c                           fluxy(j-1,mmm)=0.1
-c1000*j+10*mmm+face
-                        enddo
-
 
                         fd(index)  = fd(index) +dtdy*fluxy(j-1,1)
                         fvy(index) = fvy(index)+dtdy*fluxy(j-1,2)
@@ -695,16 +567,6 @@ c1000*j+10*mmm+face
                            fe(index)  = fe(index) +dtdy*fluxy(j-1,8)
                            fge(index) = fge(index)+dtdy*fluxEy(j-1)
                         endif
-c                        do mmm=1,7
-c                           if( fluxy(j-1,mmm) .ne. fluxy(j-1,mmm)
-c     +                          .and. mmm .ne. 6
-c     +                          .and. mmm. ne. 5) then
-c                          write(*,*) "Error Flux Failure y, ijkflg"
-c                              
-c                              write(*,*) i,j,k,mmm, level, grid
-c                              ERROR_MESSAGE
-c                           endif
-c                        enddo
                         
                      endif
                   enddo
@@ -715,7 +577,6 @@ c ------------ end the flux
             
          enddo
          
-c         do j=js+1, je
           do j=js+3, je-1
             fy2(i,j,k) = fy2(i,j,k)+fluxy(j-1,6)
             fy1(i,j,k) = fy1(i,j,k)+fluxy(j-1,7)
@@ -766,22 +627,8 @@ c         do j=js+1, je
      +              wz(k,4),wz(k,5),wz(k,6),
      +              wz(k,7),wz(k,9)
                
-            endif
-c            do mmm=1,10
-c               if( wz(k,mmm) .ne. wz(k,mmm) ) then
-c                  write(*,*) "Error! failure, beginning of z"
-cc                  ERROR_MESSAGE
-c               endif
-c            enddo
-            
+            endif            
          enddo
-             
-c        do k=ks+3,ke-2   
-c            fz1(i,j,k) =  (bzc(i,j,k-1)*vx(i,j,k-1)
-c     +           +bzc(i,j,k)*vx(i,j,k))*0.5
-c              fz2(i,j,k) = (bzc(i,j,k-1)*vy(i,j,k-1)
-c     +           +bzc(i,j,k)*vy(i,j,k))*0.5
-c         enddo
 
 
 c Compute the diffusion coefficient
@@ -820,14 +667,6 @@ c Compute the diffusion coefficient
      +            a, EquationOfState,SoundSpeed, hack)
         endif
 
-
-c           do k=ks,ke
-c            do mmm=1,7
-c            fluxz(k,mmm) = 0.0
-c            enddo 
-     
-c         enddo
-
          do k=ks+2, ke-2
 
             if(output .eq. 1) then
@@ -835,13 +674,6 @@ c         enddo
      +              wz(k,4),wz(k,5),wz(k,6),
      +              wz(k,7)
             endif
-
-c            do mmm=1,10
-c               if( wz(k,mmm) .ne. wz(k,mmm) ) then
-c                  write(*,*) "Error! failure, end of z", i, j, k, mmm
-cc                  ERROR_MESSAGE
-c               endif
-c            enddo
             
             d(i,j,k) = wz(k,1)
             vx(i,j,k) = wz(k,3)/d(i,j,k)
@@ -875,24 +707,6 @@ c     dim=3 is set at the beginning of the sweep.
      +                  + fdim(dim,3,s)*(face-1)))
      +                  + TotalOffset(dim, s)
 
-c                        if( index .ge. totalfluxsize ) then
-c                           write(*,*) "Error!  Exceeding flux array, y",
-c     +                    index, totalfluxsize, "(",i,j,k,s,face,
-c     +                ")[",fdim(dim,1,s), fdim(dim,2,s), fdim(dim,3,s),
-c     +                "]",sizeothersubgrids(s), 
-c     +                + i - fluxextents(dim,1,face,1,s)
-c     +                + fdim(dim,1,s)*(j- fluxextents(dim,2,face,1,s)
-c     +                + fdim(dim,2,s)*(k- fluxextents(dim,3,face,1,s)
-c     +                + fdim(dim,3,s)*(0)))
-c                           
-c                           ERROR_MESSAGE
-c                        endif
-
-                        do mmm=1,7
-c                           fluxz(k-1,mmm)=0.1
-c1000*k+10*mmm+face
-                        enddo
-
 
                         fd(index)  = fd(index) +dtdz*fluxz(k-1,1)
                         fvz(index) = fvz(index)+dtdz*fluxz(k-1,2)
@@ -902,16 +716,6 @@ c1000*k+10*mmm+face
                            fe(index)  = fe(index) +dtdz*fluxz(k-1,8)
                            fge(index) = fge(index)+dtdz*fluxEz(k-1)
                         endif
-c                        do mmm=1,7
-c                           if( fluxz(k-1,mmm) .ne. fluxz(k-1,mmm)
-c     +                          .and. mmm .ne. 5 
-c     +                          .and. mmm .ne. 6) then
-c                              write(*,*) "Error! Flux Failure z ijfklg"
-c                              
-c                              write(*,*) i,j,k,mmm, level, grid
-c                              ERROR_MESSAGE
-c                           endif
-c                        enddo
                         
                      endif
                   enddo
@@ -921,8 +725,7 @@ c ------------ end the flux
             
          enddo
          
-c         do k=ks+1, ke
-           do k=ks+3, ke-1
+         do k=ks+3, ke-1
             fz1(i,j,k) = fz1(i,j,k)+fluxz(k-1,6)
             fz2(i,j,k) = fz2(i,j,k)+fluxz(k-1,7)
          enddo
@@ -1012,8 +815,3 @@ c hx gravitational step
       
 
       end
-
-
-
-
-
