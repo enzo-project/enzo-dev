@@ -11,13 +11,7 @@
       implicit none
 #include "fortran_types.def"
 
-c
 c determine the minimum crossing time for fast magnetosonic shocks.
-c dcc 03/26/04 
-c
-c Note that a is the sound speed squared.
-c If you're reading this code, email David and tell him to rename a to something
-c less confusing.
 
 c input variables      
 
@@ -38,9 +32,9 @@ c     dt, gamma
       R_PREC dt, gamma
       R_PREC eng(idim,jdim,kdim)
 
-c internal variales
+c internal variables
 
-c     loop indicies
+c     loop indices
       INTG_PREC is, ie, js, je, ks, ke
       INTG_PREC i,j,k
 
@@ -51,13 +45,10 @@ c     temporary stuff
 c     square of the alfven speed, b/sqrt(4 pi d): the sound speed.
 c     fast shock speed: pi: 1/sqrt(4 pi): 1/sqrt(d)
 c     two temporary numbers to avoid cache misses: a variable mx: another variable called meat
-      R_PREC bx, by, bz, a
+      R_PREC bx, by, bz, cs2
       R_PREC cf, dinv
-c      pi, fpiinv, 
       R_PREC dzt, dyt, mx, meat
       R_PREC dtx, dty, dtz
-
-c      parameter(pi =3.141592653589, fpiinv = 0.282094791773)
 
 c     huge is defined in fortran.def
       dt = huge
@@ -94,43 +85,36 @@ c     calculate alfven speed and sound speed. (both squared)!!
                bx = bxc(i,j,k) * dinv
                by = byc(i,j,k) * dinv
                bz = bzc(i,j,k) * dinv
-c               bx = bxc(i,j,k) * fpiinv * dinv
-c               by = byc(i,j,k) * fpiinv * dinv
-c               bz = bzc(i,j,k) * fpiinv * dinv
 
                bx = bx*bx
                by = by*by
                bz = bz*bz
 
-               a = gamma*p(i,j,k)/d(i,j,k)
-               mx = a + bx + by + bz
+               cs2 = gamma*p(i,j,k)/d(i,j,k)
+               mx = cs2 + bx + by + bz
 
 c     The x crossing time:
-               meat = max( mx*mx - 4._RKIND*a*bx, 0.0_RKIND)
+               meat = max( mx*mx - 4._RKIND*cs2*bx, 0.0_RKIND)
                cf = sqrt( 0.5_RKIND*(mx + sqrt( meat ) ) )
-c               dt = min( dt, dx(i)/(cf+abs(vx(i,j,k))  ))
                dtx = (cf+abs(vx(i,j,k)))/dx(i)
                if( rank .gt. 1 ) then
+
 c     The y crossing time:
-                  meat = max( mx*mx - 4._RKIND*a*by, 0.0_RKIND)
+                  meat = max( mx*mx - 4._RKIND*cs2*by, 0.0_RKIND)
                   cf = sqrt( 0.5_RKIND*(mx + sqrt(meat) ) ) 
                   dty = (cf+abs( vy(i,j,k) ) )/ dyt
-c     write(*,*) "   cf, y", cf
-c     write(*,'("y",8f10.2)') p(i,j,k),a,bx,by,bz,mx,meat,cf
                else
                   dty = 0
                endif
+
 c     the z crossing time:
                if( rank .gt. 2 ) then
-                  meat = max( mx*mx - 4._RKIND*a*bz,0.0_RKIND) 
+                  meat = max( mx*mx - 4._RKIND*cs2*bz,0.0_RKIND) 
                   cf = sqrt( 0.5_RKIND*(mx + sqrt(meat) ) )
                   dtz = (cf + abs( vz(i,j,k) ) )/dzt
                else
                   dtz = 0
                endif
-c     write(*,*) "   cf, z", cf
-c     write(*,'("z",8f10.2)') p(i,j,k),a,bx,by,bz,mx,meat,cf
-c     write(*,*) "   sizes: ", dx(i), dyt, dzt
                
 c     We use the Godunov stability criterion.  See Godunov et all, 1962.
                
@@ -151,9 +135,6 @@ c     We use the Godunov stability criterion.  See Godunov et all, 1962.
             enddo
          enddo
       enddo
-
-c	write(*,*) "++++++ still need to impliment Godunov timestep +++"
-c      write(*,*) " dt kludge: force dt = 0.0005"
 
       return
       end
