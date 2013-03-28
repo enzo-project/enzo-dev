@@ -81,10 +81,6 @@ c
            u0(5,ix)=u(ix,8)
            u0(6,ix)=u(ix,9)
         endif
-c        u0(7,ix)=u(ix,5)
-c        u0(8,ix)=u(ix,6)
-c        u0(9,ix)=u(ix,7)
-c
       enddo
 
 c xh preprossor
@@ -114,9 +110,6 @@ c xh preprossor
             else
                du1 = cdiff*diffcoef(ixp1)
             end if
-c$$$            do iu = 1, npu
-c$$$               diffu(ix,iu) = du1*(u(ix,iu)-u(ixp1,iu))
-c$$$            end do
 
             diffu(ix,1  ) = du1*(u(ix,1  ) - u(ixp1,1  ))
             diffu(ix,iun) = du1*(u(ix,iun) - u(ixp1,iun))
@@ -150,17 +143,14 @@ c...  compute ux = 0.5hdu/dx
       if (MHDCTSlopeLimiter.eq.3 .or.MHDCTSlopeLimiter.eq.4) then
 c
 c...  charateristic limiting
-c         write(*,*) "lim_char "
          call char_limiter_MHD(w,ux,ndx,npu,nxb,nxe,gamma,isweep,
      $    MHDCTSlopeLimiter, ur,csmin)
       else
 c...  component limiting
-c         write(*,*) "lim_prim"
          call limiter1(w,ndx,npu,nxbe,theta,ux,MHDCTSlopeLimiter)
       end if
       
       if (ReconstructionMethod.eq.0) then
-c         write(*,*) "pred_plm"
 c
 c...  piece-wise linear method (PLM) predictor for primitive variables
          call plmpred_mhd(w,ux,ndx,npu,nxb,nxe,dt,dx,gamma,
@@ -168,7 +158,6 @@ c...  piece-wise linear method (PLM) predictor for primitive variables
       else if (ReconstructionMethod.eq.6) then
 c
 c...  Hancock predictor for primitive variables
-c         write(*,*) "pred_han"
          call hncokpred_mhd(w,ux,ndx,npu,nxb,nxe,dt,dx,gamma,
      $        isweep,ur,ul,prelow,rhomin,csmin)
 
@@ -208,7 +197,6 @@ c...  calculate the flux at interface in x-direction
      $          RiemannSolver, csmin)
            endif
          else
-c            if( RiemannSolver .eq. 6 ) then
             if( RiemannSolver .eq. 6 ) then
                do extraCounter = 2,4 
                   ww(extraCounter) = ww(extraCounter)*ww(1)
@@ -252,7 +240,6 @@ c
 c... S-code
          call calc_fluxAIN1_mhd(gamma,we,ww,flux1,1_IKIND,RiemannSolver,
      $                          csmin)
-c               call calc_fluxAIN_mhd(gamma,we,ww,flux1,1_IKIND,4_IKIND,csmin)
             else
 c     
 c...  internal energy version -- rho*e_in*u(iun)
@@ -264,14 +251,8 @@ c...  internal energy version -- rho*e_in*u(iun)
       end do
 c
       cfl = em_x*dtdx
-      if (cfl.gt.10e0) then
-c         print *, ' cfl too big', cfl,em_x,dtdx,' at t=', t
-c         ie = -3
-c         return
-      end if
 c
 c...  den and shear-velocity field, magnetic field
-c      if( EquationOfState .eq. 1 .and. RiemannSolver .eq. 6 ) then
       if( EquationOfState .eq. 1 ) then
          do ix=nxb,nxe
             u(ix,1) = u(ix,1) - dtdx*(fluxph(ix,1)-fluxph(ix-1,1))
@@ -293,21 +274,6 @@ c      if( EquationOfState .eq. 1 .and. RiemannSolver .eq. 6 ) then
             u(ix,7) = u(ix,7) - dtdx*(fluxph(ix,7)-fluxph(ix-1,7))
          enddo
 
-!         if ( hack .eq. 1   ) then
-!         do ix=nxb,nxe
-!            u(ix,1) = fluxph(ix,1)-fluxph(ix-1,1)
-!            u(ix,2) = fluxph(ix,2)-fluxph(ix-1,2)
-!            u(ix,3) = fluxph(ix,3)-fluxph(ix-1,3)
-!            u(ix,4) = fluxph(ix,4)-fluxph(ix-1,4)
-!            u(ix,5) = fluxph(ix,5)-fluxph(ix-1,5)
-!            u(ix,6) = fluxph(ix,6)-fluxph(ix-1,6)
-!            u(ix,7) = fluxph(ix,7)-fluxph(ix-1,7)
-!            u(ix,8) = fluxph(ix,8)-fluxph(ix-1,8)
-!         enddo
-!         return
-!
-!         endif
-
          
 c...  normal velocity and total energy
          do ix = nxb, nxe
@@ -326,7 +292,6 @@ c
           if( EquationOfState .eq. 0 ) then
              u(ix,8) = u(ix,8) - 0.5_RKIND*u(ix,2)**2/u(ix,1)
           endif
-c          u(ix,2) = u(ix,2) + 0.5_RKIND*(u(ix,1)+w(ix,1))*dt*acc(ix)
           u(ix,2) = u(ix,2) + w(ix,1)*dt*acc(ix)
           if( EquationOfState .eq. 0 ) then
              u(ix,8) = u(ix,8) + 0.5_RKIND*u(ix,2)**2/u(ix,1)
@@ -373,14 +338,12 @@ c     dcc All further changes are modifications to the energy equation.
       else if (MHDCTDualEnergyMethod.eq.1) then
          do ix = nxb, nxe
 c xh entropy was modified by the preprocessor
-c            entropy(ix) = entropy(ix) - dtdx*(fluxE(ix)-fluxE(ix-1))
             entropy(ix) = u(ix,9) -dtdx*(fluxE(ix)-fluxE(ix-1))
 
             ein(ix) = u(ix,npu) - ekin(ix)
             if (ein(ix).lt.alpha1*ekin(ix)) then
 c...  new ein
                ein(ix) = max(entropy(ix)*u(ix,1)**gm1, prelow)/gm1      
-c         ein(ix)=max(ein(ix)*gm1,entropy(ix)*u(ix,1)**gm1, prelow)/gm1
                u(ix,npu) = ein(ix) + ekin(ix)
             end if            
 c...  the switch is described below
@@ -465,21 +428,19 @@ c...D. Ryu's switch detection
             entropy(ix) = max(entropy(ix),tdum0*u0(1,ix)/rgam1(ix))
          enddo
 
-c         return       ! use total energy version
-c     
          u0(1,nxb-1) = u0(1, nxe)
          u0(1,nxe+1) = u0(1, nxb)
-c     
+
          u0(2,nxb-1) = u0(2, nxe)
          u0(2,nxe+1) = u0(2, nxb)
          u0(5,nxb-1) = u0(5, nxe)
          u0(5,nxe+1) = u0(5, nxb)
-c     
+
          entropy(nxb-1) = entropy(nxe)
          entropy(nxe+1) = entropy(nxb)
          rgam1(nxb-1) = rgam1(nxe)
          rgam1(nxe+1) = rgam1(nxb)
-c     
+
          do ix= nxb-1,nxe+1
             pre(ix) = entropy(ix)*rgam1(ix)
             rt(ix)  = pre(ix)/gm1/u0(5,ix)
@@ -494,7 +455,6 @@ c
             dp= abs(pre(ix+1)-pre(ix-1))
      +           /(pre(ix+1)+pre(ix-1)+2*pre(ix))*4.0
             if( (dp.gt.0.3).and.(dv.lt.0.0) ) shock(ix)=1.
-c            if(min(rt(ix),rt(ix-1),rt(ix+1)).ge.0.02) shock(ix)=1. ! Ryu
             if(min(rt(ix),rt(ix-1),rt(ix+1)).ge.0.001) shock(ix)=1.
             if(shock(ix) .lt. 0.5) then
                u0(6,ix) = entropy(ix) 

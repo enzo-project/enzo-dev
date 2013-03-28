@@ -33,7 +33,7 @@ c     INTG_PREC j, k
       v_c_af  = sqrt(v_c_af2)
       v_cf_af = max(v_cf_af, v_c_af)           
 c 
-c...  engienvalue
+c...  eigenvalue
       v_eig(5) = wa_un + v_cf_af
       v_eig(7) = wa_un - v_cf_af
 
@@ -55,28 +55,6 @@ c...  engienvalue
 c     
 c...  renormalization coefficients
 c     
-c$$$      v_tmp1 = max(1.e-9, wa_bt1*wa_bt1+wa_bt2*wa_bt2)
-c$$$      v_tmp1 = sqrt(1._RKIND/v_tmp1)
-c$$$
-c$$$      if (v_tmp1 .lt. 1.e4) then
-c$$$         v_betay = wa_bt1*v_tmp1
-c$$$         v_betaz = wa_bt2*v_tmp1
-c$$$      else
-c$$$         v_betay = sqhalf
-c$$$         v_betaz = v_betay
-c$$$      end if
-c$$$      
-c$$$      tmp1 = v_cf_af*v_cf_af - v_cs_af*v_cs_af
-c$$$      if (tmp1 .gt. 1.e-8) then
-c$$$         v_alphaf = (v_c_af**2-v_cs_af*v_cs_af)/tmp1
-c$$$         v_alphas = (v_cf_af*v_cf_af-v_c_af**2)/tmp1
-c$$$      else if (abs(v_a_af) .le. v_c_af) then
-c$$$         v_alphaf = 1._RKIND
-c$$$         v_alphas = 0._RKIND
-c$$$      else
-c$$$         v_alphaf = 0._RKIND
-c$$$         v_alphas = 1._RKIND
-c$$$      end if
 
       v_tmp1 = sqrt(wa_bt1*wa_bt1+wa_bt2*wa_bt2)
       if (v_tmp1.gt.0._RKIND) then
@@ -189,13 +167,6 @@ c
       end if
 c     
 c$$$c...  added the eight wave system
-c$$$      l_eigv(5,1) = l_eigv(8,1)*(-wa_bn)
-c$$$      l_eigv(5,2) = l_eigv(8,2)*(-wa_bn)
-c$$$      l_eigv(5,3) = l_eigv(8,3)*(-wa_bn)
-c$$$      l_eigv(5,4) = l_eigv(8,4)*(-wa_bn)
-c$$$      l_eigv(5,5) = l_eigv(8,5)*(-wa_bn)
-c$$$      l_eigv(5,6) = l_eigv(8,6)*(-wa_bn)
-c$$$      l_eigv(5,7) = l_eigv(8,7)*(-wa_bn)
       
                                 ! Left eigenvector for Divergence wave
       l_eigv(1,8) = 0._RKIND
@@ -218,7 +189,6 @@ c$$$      l_eigv(5,7) = l_eigv(8,7)*(-wa_bn)
 
       tmp1 = sqhalf
       tmp5 = tmp2*(wa_bt1*v_betay+wa_bt2*v_betaz)
-c      tmp2 = rho_a*vv_a*0.5_RKIND + gamma*pre_a/gm1
       tmp2 = rho_a*vv_a*0.5_RKIND + v_c_af2*rho_a/gm1
       tmp6 = -gammaa*rho_a*tmp1
       tmp7 = gammab*tmp1
@@ -304,38 +274,6 @@ c...  added the eight wave system
       r_eigv(8,6) = 0._RKIND
       r_eigv(8,7) = 0._RKIND
       r_eigv(8,8) = wa_bn
-c     
-c...  seven wave formulation
-c$$$  do i = 1, 8
-c$$$  l_eigv(5,i) = 0_RKIND
-c$$$  l_eigv(i,8) = 0_RKIND
-c$$$  r_eigv(8,i) = 0_RKIND
-c$$$  end do
-c     
-
-c$$$      do k = 5,5
-c$$$         tmp1 = 0_RKIND
-c$$$         do i = 1,8
-c$$$            do j = 1, 8
-c$$$               tmp1 = tmp1 + l_eigv(j,i)*r_eigv(k,j)
-c$$$            end do
-c$$$         end do
-c$$$         if (abs(tmp1-1_RKIND) .gt. 1.e-11) then
-c$$$            print *, '+++++++++++++++++++++++', k, tmp1
-c$$$            do i = 1,8
-c$$$               tmp1 = 0._RKIND
-c$$$               do j = 1, 8
-c$$$                  tmp1 = tmp1 + l_eigv(j,i)*r_eigv(k,j)
-c$$$               end do
-c$$$               if (i.ne.5 .and. abs(tmp1).gt.1e-8) then
-c$$$                  print *, i, tmp1
-c$$$                  print *, (l_eigv(j,i),j=1,8)
-c$$$                  print *, v_c_af,wa_un,wa_ut1,wa_ut2
-c$$$               end if
-c$$$            end do
-c$$$            
-c$$$         end if
-c$$$      end do
 
       return
       end
@@ -344,7 +282,6 @@ c$$$      end do
      &     wa_bt1, wa_bt2,pre_a,rhoag,gamma,v_eig,l_eigv,r_eigv,
      $     v_c_af, csmin, choice)
 c...................................................................
-c     output l_eigv, r_eigv, v_
       implicit none
 #include "fortran_types.def"  
       INTG_PREC choice
@@ -358,7 +295,6 @@ c     output l_eigv, r_eigv, v_
       R_PREC tmp6,tmp7,rc2, rhoag, rhoagm1
       R_PREC sign, gammaf, gammas, gammaa,wpar,sqhalf
       INTG_PREC i
-c     INTG_PREC j, k
       INTG_PREC printflag
       common /printff/printflag
       
@@ -367,7 +303,6 @@ c     INTG_PREC j, k
       rho_a_inv = 1._RKIND/rho_a
       bb_a = wa_bn*wa_bn + wa_bt1*wa_bt1 + wa_bt2*wa_bt2
       rhoagm1 = rhoag/rho_a
-c      v_c_af = max(csmin,gamma*pre_a*rho_a_inv)
       v_c_af = gamma*pre_a*rho_a_inv
       v_a_af = wa_bn*wa_bn*rho_a_inv
       tmp2   = v_c_af + bb_a*rho_a_inv ! a^2 + b^2
@@ -402,28 +337,6 @@ c...  engienvalue
 c     
 c...  Non-dimensional scaling factors
 c     
-c$$$      v_tmp1 = max(1.e-8, wa_bt1*wa_bt1+wa_bt2*wa_bt2)
-c$$$      v_tmp1 = sqrt(1._RKIND/v_tmp1)
-c$$$
-c$$$      if (v_tmp1 .lt. 1.e4) then
-c$$$         v_betay = wa_bt1*v_tmp1
-c$$$         v_betaz = wa_bt2*v_tmp1
-c$$$      else
-c$$$         v_betay = 1._RKIND/sqrt(2.0_RKIND)
-c$$$         v_betaz = v_betay
-c$$$      end if
-c$$$      
-c$$$      tmp1 = v_cf_af*v_cf_af - v_cs_af*v_cs_af
-c$$$      if (tmp1 .gt. 1.e-8) then
-c$$$         v_alphaf = (v_c_af*v_c_af-v_cs_af*v_cs_af)/tmp1
-c$$$         v_alphas = (v_cf_af*v_cf_af-v_c_af*v_c_af)/tmp1
-c$$$      else if (abs(v_a_af) .le. v_c_af) then
-c$$$         v_alphaf = 1._RKIND
-c$$$         v_alphas = 0._RKIND
-c$$$      else
-c$$$         v_alphaf = 0._RKIND
-c$$$         v_alphas = 1._RKIND
-c$$$      end if
 
       v_tmp1 = sqrt(wa_bt1*wa_bt1+wa_bt2*wa_bt2)
       if (v_tmp1.gt.0._RKIND) then
@@ -544,32 +457,10 @@ c...  added the eight wave system
                                 ! Right eigenvector for Entropy wave
       tmp1 = - gm1*pre_a/rhoag
       tmp2 = 1._RKIND/rhoagm1
-c$$$  r_eigv(1,1) = 1._RKIND
-c$$$  r_eigv(2,1) = wa_un
-c$$$  r_eigv(3,1) = wa_ut1
-c$$$  r_eigv(4,1) = wa_ut2
-c$$$  r_eigv(5,1) = 0._RKIND
-c$$$  r_eigv(6,1) = 0._RKIND
-c$$$  r_eigv(7,1) = 0._RKIND
       r_eigv(8,1) = tmp1     
                                 ! Right eigenvector for Alfven wave +
-c$$$  tmp3 = 1_RKIND/sqrt(2_RKIND)
-c$$$  r_eigv(1,2) = 0._RKIND
-c$$$  r_eigv(2,2) = 0._RKIND
-c$$$  r_eigv(3,2) = -v_betaz*rho_a*tmp3
-c$$$  r_eigv(4,2) =  v_betay*rho_a*tmp3
-c$$$  r_eigv(5,2) = 0._RKIND
-c$$$  r_eigv(6,2) =  v_betaz*v_sqrt_rho_af*tmp3
-c$$$  r_eigv(7,2) = -v_betay*v_sqrt_rho_af*tmp3
       r_eigv(8,2) =  0._RKIND
                                 ! Right eigenvector for Alfven wave -
-c$$$  r_eigv(1,3) = 0._RKIND
-c$$$  r_eigv(2,3) = 0._RKIND
-c$$$  r_eigv(3,3) =  r_eigv(3,2)
-c$$$  r_eigv(4,3) =  r_eigv(4,2)
-c$$$  r_eigv(5,3) =  0._RKIND
-c$$$  r_eigv(6,3) = -r_eigv(6,2)
-c$$$  r_eigv(7,3) = -r_eigv(7,2)
       r_eigv(8,3) =  0._RKIND
 
       tmp3 = rho_a*v_alphas
@@ -578,29 +469,8 @@ c$$$  r_eigv(7,3) = -r_eigv(7,2)
       tmp5 = tmp1*tmp3 + tmp2*tmp4
                                 ! Right eigenvector for Slow magnetosonic wave+
       r_eigv(8,4) = tmp5
-c$$$  
-c$$$  tmp6 =  v_c_af*v_sqrt_rho_af
-c$$$  tmp7 = -v_alphaf*tmp6
-c$$$  r_eigv(1,4) = tmp3
-c$$$  r_eigv(2,4) = tmp3*(wa_un+v_cs_af)
-c$$$  r_eigv(3,4) = tmp3*wa_ut1 + v_alphaf*v_cf_af*v_betay*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(4,4) = tmp3*wa_ut2 + v_alphaf*v_cf_af*v_betaz*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(5,4) = 0._RKIND
-c$$$  r_eigv(6,4) = tmp7*v_betay
-c$$$  r_eigv(7,4) = tmp7*v_betaz
                                 ! Right eigenvector for Slow magnetosonic wave-
       r_eigv(8,6) = tmp5
-c$$$  r_eigv(1,6) = tmp3
-c$$$  r_eigv(2,6) = tmp3*(wa_un-v_cs_af)
-c$$$  r_eigv(3,6) = tmp3*wa_ut1 - v_alphaf*v_cf_af*v_betay*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(4,6) = tmp3*wa_ut2 - v_alphaf*v_cf_af*v_betaz*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(5,6) = 0_RKIND
-c$$$  r_eigv(6,6) = tmp7*v_betay
-c$$$  r_eigv(7,6) = tmp7*v_betaz
 
       if (choice.eq.0) then
          tmp3 = rho_a*v_alphaf
@@ -608,45 +478,11 @@ c$$$  r_eigv(7,6) = tmp7*v_betaz
          tmp5 = tmp1*tmp3 + tmp2*tmp4
                                 ! Right eigenvector for Fast magnetosonic wave+
          r_eigv(8,5) = tmp5      
-c$$$  tmp6 =  v_c_af*v_sqrt_rho_af
-c$$$  tmp7 =  v_alphas*tmp6
-c$$$  r_eigv(1,5) = tmp3
-c$$$  r_eigv(2,5) = tmp3*(wa_un+v_cf_af)
-c$$$  r_eigv(3,5) = tmp3*wa_ut1 - v_alphas*v_cf_af*v_betay*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(4,5) = tmp3*wa_ut2 - v_alphas*v_cf_af*v_betaz*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(5,5) = 0._RKIND
-c$$$  r_eigv(6,5) = tmp7*v_betay
-c$$$  r_eigv(7,5) = tmp7*v_betaz
                                 ! Right eigenvector for Fast magnetosonic wave-
          r_eigv(8,7) = tmp5
-c$$$  r_eigv(1,7) = tmp3
-c$$$  r_eigv(2,7) = tmp3*(wa_un-v_cf_af)
-c$$$  r_eigv(3,7) = tmp3*wa_ut1 + v_alphas*v_cf_af*v_betay*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(4,7) = tmp3*wa_ut2 + v_alphas*v_cf_af*v_betaz*sign_bn_af*
-c$$$  $     rho_a
-c$$$  r_eigv(5,7) = 0._RKIND
-c$$$  r_eigv(6,7) = tmp7*v_betay
-c$$$  r_eigv(7,7) = tmp7*v_betaz
       end if
                                 ! Right eigenvector for Divergence wave
       r_eigv(8,8) = 0._RKIND
-
-c$$$      tmp1 = 0._RKIND
-c$$$      do i = 1, 8
-c$$$         do k = 7, 7
-c$$$            do j = 1, 8
-c$$$               tmp1 = tmp1 + l_eigv(i,j)*r_eigv(j,k)
-c$$$            end do
-c$$$         end do
-c$$$c         print *, tmp1,i
-c$$$      end do
-c$$$      if (abs(tmp1-1._RKIND) .gt. 1.e-11) then
-c$$$         print *, ' nonzero:', i, tmp1
-c$$$         pause
-c$$$      end if
 
       return
       end
@@ -843,8 +679,7 @@ c-----------------------------------------------------------
 c.... HLL family flux
          ampx = max(v_eig(5), wr_un + v_cf_rf)
          ammx = min(v_eig(7), wl_un - v_cf_lf) 
-c$$$         ampx = max(wl_un + v_cf_lf, wr_un + v_cf_rf)
-c$$$         ammx = min(wr_un - v_cf_rf, wl_un - v_cf_lf) 
+
          if(ammx.ge.0._RKIND) then
             do i = 1, 8
                flux(i) = flux_l(i)
@@ -932,8 +767,6 @@ c...  calculate the middle state ur*
                   end do
                end if           ! if (am)
             else 
-c$$$               ampx = max(ampx, -ammx)
-c$$$               ammx = - ampx
                do i = 1, 8
                   flux(i) = (ampx*flux_l(i) - ammx*flux_r(i) + 
      &                 ampx*ammx*del_u(i))/(ampx - ammx)
@@ -972,31 +805,6 @@ c...  anti-diffusion for other than fast magnetosonic fields
          end if
          goto 99
       end if
-c     
-c...  entropy fix
-c$$$      v_a_lf = sqrt(v_a_lf)
-c$$$      v_a_rf = sqrt(v_a_rf)
-c$$$                                !Entropy   
-c$$$      tmp1 = max(0._RKIND, 4.0_RKIND*(wr_un - wl_un))
-c$$$      if (abs(v_eig(1)) .lt. tmp1*half) then
-c$$$         v_eig(1) = sign(1._RKIND, v_eig(1)) *
-c$$$     &        (v_eig(1)*v_eig(1)/tmp1 + tmp1*0.25_RKIND)
-c$$$      end if
-c$$$      
-c$$$                                !Alfven + 
-c$$$      tmp1 = (wr_un+v_a_rf) - (wl_un+v_a_lf)
-c$$$      tmp1 = max(0._RKIND, 4.0_RKIND*tmp1)
-c$$$      if (abs(v_eig(2)) .lt. tmp1*half) then
-c$$$         v_eig(2) = sign(1._RKIND, v_eig(2)) *
-c$$$     &        (v_eig(2)*v_eig(2)/tmp1 + tmp1*0.25_RKIND)
-c$$$      end if
-c$$$                                !Alfven - 
-c$$$      tmp1 = (wr_un-v_a_rf) - (wl_un-v_a_lf)
-c$$$      tmp1 = max(0._RKIND, 4.0_RKIND*tmp1)
-c$$$      if (abs(v_eig(3)) .lt. tmp1*half) then
-c$$$         v_eig(3) = sign(1._RKIND, v_eig(3)) *
-c$$$     &        (v_eig(3)*v_eig(3)/tmp1 + tmp1*0.25_RKIND)
-c$$$      end if
 
       tmp1 = (wr_un+v_cs_rf) - (wl_un+v_cs_lf)
       tmp1 = max(0._RKIND, 4.0_RKIND*tmp1)
@@ -1029,11 +837,6 @@ c$$$      end if
                                 !Divergence
       v_eig(8) = v_eig(1)
                                 !\
-                                ! Timur's divergence wave fix!!!
-                                !/
-c      v_eig(8)=abs(v_eig(8))+v_c_af
-c      v_eig(8) = 0._RKIND
-                                !\
                                 ! Alphas (elemental wave strengths)
                                 !/
       do i = 1, 8
@@ -1052,7 +855,6 @@ c      v_eig(8) = 0._RKIND
             flux(i) = flux(i) - alpha(j)*r_eigv(j,i)
          end do
 c...  LxF flux
-c$$$         flux(i) = flux(i) - cmax*del_u(i)
          flux(i) = flux(i)*half
       enddo
 c
@@ -1442,8 +1244,6 @@ c...  calculate the eigenvalue and eigenvector at interface.
 c.... HLL family flux
          ampx = max(v_eig(5), wr_un + v_cf_rf)
          ammx = min(v_eig(7), wl_un - v_cf_lf) 
-c$$$         ampx = max(wl_un + v_cf_lf,  wr_un + v_cf_rf)
-c$$$         ammx = min(wr_un - v_cf_rf,  wl_un - v_cf_lf) 
          if (ammx.ge.0._RKIND) then
             fluxE = flux_l
          else if (ampx.le.0._RKIND) then
@@ -1475,7 +1275,6 @@ c
 c...  HLLE with anti-diffusion term
 c...  anti-diffusion for other than fast magnetosonic fields
          if (ammx .lt. 0._RKIND .and. ampx .gt. 0._RKIND) then
-c            tmp1 = abs(half*(v_eig(7) - v_eig(5)))
             tmp1 = v_c_af
             delta1 = (ampx*ammx)/(ampx - ammx)
             do i = 1, 8
@@ -1485,8 +1284,6 @@ c            tmp1 = abs(half*(v_eig(7) - v_eig(5)))
                      delta2 = delta2 + l_eigv(i,j)*del_u(j)
                   end do
                   ubar = half*(ampx+ammx) ! HLLEM method
-c                  ubar = v_eig(i)
-c                  ubar = beta*v_eig(i) + (1.0_RKIND-beta)*tmp1
                   alpha(i) = delta1*delta2*(tmp1/(tmp1+abs(ubar)))
                end if
             end do
@@ -1509,14 +1306,6 @@ c                  ubar = beta*v_eig(i) + (1.0_RKIND-beta)*tmp1
             alpha(i) = alpha(i) + l_eigv(i,j)*del_u(j)
          end do
       end do
-
-c$$$      do i = 1, 8
-c$$$	 tmp1 = 0._RKIND
-c$$$         do j = 1, 8
-c$$$            tmp1 = tmp1 + l_eigv(i,j)*del_u(j)
-c$$$         end do
-c$$$         alpha(i) = tmp1
-c$$$      end do  
        
       flux1 = flux_l+flux_r
       do j = 1, 8
@@ -1669,8 +1458,6 @@ c...  Left-going fast magnetoacoustic wave u - cf
             dur = hrc2*(af*(du(i,nu)-t01*du(i,inorm)) +
      $           as*(by*(t1*du(i,ibt1)+t2*du(i,itan1))+
      $               bz*(t1*du(i,ibt2)+t2*du(i,itan2))))
-c$$$            at1 = (sign(1._RKIND,dul)+sign(1._RKIND,dur))*min(abs(dul),
-c$$$     $           0.25_RKIND*abs(dul+dur),abs(dur))
             at1 = 0.5_RKIND*(sign(1._RKIND,dul)+sign(1._RKIND,dur))*
      $           min(abs(dul),0.5_RKIND*abs(dul+dur),abs(dur))
 c
@@ -1691,8 +1478,6 @@ c... Left-going slow magnetoacoustic wave u - cs
             dur = hrc2*(as*(du(i,nu) - t02*du(i,inorm))-
      $           af*(by*(t1*du(i,ibt1) + t4*du(i,itan1))+
      $               bz*(t1*du(i,ibt2) + t4*du(i,itan2))))
-c$$$            at3 = (sign(1._RKIND,dul)+sign(1._RKIND,dur))*min(abs(dul),
-c$$$     $           0.25_RKIND*abs(dul+dur),abs(dur))
             at3 = 0.5_RKIND*(sign(1._RKIND,dul)+sign(1._RKIND,dur))*
      $           min(abs(dul),0.5_RKIND*abs(dul+dur),abs(dur))
 c
@@ -1715,8 +1500,6 @@ c...  Right-going slow magnetoacoustic wave u+cs
             dur = hrc2*(as*(du(i,nu) + t02*du(i,inorm))-
      $           af*(by*(t1*du(i,ibt1) - t4*du(i,itan1))+
      $               bz*(t1*du(i,ibt2) - t4*du(i,itan2))))
-c$$$            at6 = (sign(1._RKIND,dul)+sign(1._RKIND,dur))*min(abs(dul),
-c$$$     $           0.25_RKIND*abs(dul+dur),abs(dur))
             at6 = 0.5_RKIND*(sign(1._RKIND,dul)+sign(1._RKIND,dur))*
      $           min(abs(dul),0.5_RKIND*abs(dul+dur),abs(dur))
 c
@@ -1735,8 +1518,6 @@ c...  Right-going fast magnetoacoustic wave u+cf
             dur = hrc2*(af*(du(i,nu) + t01*du(i,inorm)) +
      $           as*(by*(t1*du(i,ibt1) - t2*du(i,itan1))+
      $               bz*(t1*du(i,ibt2) - t2*du(i,itan2))))  
-c$$$            at8 = (sign(1._RKIND,dul)+sign(1._RKIND,dur))*min(abs(dul),
-c$$$     $           0.25_RKIND*abs(dul+dur),abs(dur))
             at8 = 0.5_RKIND*(sign(1._RKIND,dul)+sign(1._RKIND,dur))*
      $           min(abs(dul),0.5_RKIND*abs(dul+dur),abs(dur))
            
@@ -1834,17 +1615,6 @@ c...  van Leer's limiter
                du1 = du2
             end do
          end do
-c     
-c...  positivity preserving
-c$$$         do iu = 1, nu, nu-1
-c$$$            do ix = nxbe(2)-1, nxbe(3)+1
-c$$$               ux1 = ux(ix,iu)
-c$$$               u1  = u (ix,iu)
-c$$$               if (u1-ux1 .le. 0._RKIND .or. u1+ux1 .le. 0._RKIND) then
-c$$$                  ux(ix,iu) = 0._RKIND
-c$$$               end if
-c$$$            end do
-c$$$         end do
       else if (method.eq.0) then
          do iu = 1, nu
             do ix = nxbe(2)-1, nxbe(3)+1
@@ -2184,7 +1954,6 @@ c...  local variables
       R_PREC gamma1,rho,u,v,w,pr,dtdx,cs2,at1,at2,at3,at4,
      $     at5,at6,at7,at8, rx,ux,vx,wx,px,bnx,btx1,btx2,
      $     tau,bn,bt1,bt2
-c      data smallp/1.e-15_RKIND/, smallr/1.e-10_RKIND/
 c
 c predictor step for variables at midtime at cell edges for muscl
 c working on row number j
@@ -2227,7 +1996,6 @@ c
       px  = qx(i,nu)
 
       tau = 1._RKIND/rho
-c      cs2 = gamma*pr
       cs2 = max(csmin,gamma*pr*tau)*rho
 
       at1 = dtdx*(u*rx + rho*ux)
@@ -2269,7 +2037,6 @@ c
          px  = qx(ip1,nu)
 
          tau = 1._RKIND/rho
-c         cs2 = gamma*pr
          cs2 = max(csmin,gamma*pr*tau)*rho
 c
          at1 = dtdx*(u*rx + rho*ux)
