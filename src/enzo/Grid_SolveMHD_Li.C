@@ -60,7 +60,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   FLOAT a[4];
   
   if(ComovingCoordinates==1){
-      CosmologyComputeExpansionFactor(Time, &a[0], &a[1]) 
+      CosmologyComputeExpansionFactor(Time, &a[0], &a[1]) ;
       CosmologyComputeExpansionFactor(Time+(FLOAT)0.5*dtFixed, &a[2], &a[3]);
   }else{
       a[0] = 1.0;
@@ -72,6 +72,10 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   int line_size = max( GridDimension[0], max(GridDimension[1], GridDimension[2]));
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   int ixyz = CycleNumber % GridRank;
+  int nxz, nyz, nzz;
+  nxz = GridEndIndex[0] - GridStartIndex[0] + 1;
+  nyz = GridEndIndex[1] - GridStartIndex[1] + 1;
+  nzz = GridEndIndex[2] - GridStartIndex[2] + 1;
   int n, ii, jj, kk, index_bf,  dim, subgrid;
   int hack = 0; //a flag for testing the solver.
   float dtdx;
@@ -181,13 +185,13 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //strang loop.
   
   int startindex, endindex;
-//  for (n = ixyz; n < ixyz+GridRank; n++) {
-  for( n=0; n<1; n++){
+  for (n = ixyz; n < ixyz+GridRank; n++) {
     startindex = 3;
     endindex = GridDimension[0] - 2;
     dtdx = dtFixed/CellWidthTemp[0][0];
     //x loope
-    if ( 1 ){ 
+    if ( (n % GridRank == 0) && nxz > 1){ 
+      fprintf(stderr,"CLOWN x sweep\n");
       for( kk = 0; kk< GridDimension[2]; kk++){
         for( jj = 0; jj<GridDimension[1]; jj++){
           for(ii = 0; ii<GridDimension[0]; ii++ ){
@@ -290,7 +294,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     dtdx = dtFixed/CellWidthTemp[1][0];
     //DO strang logic in here
     // Y SWEEP
-    if ( 1 ) {
+    if ( (n % GridRank == 1) && nyz > 1) {
+      fprintf(stderr,"CLOWN y sweep\n");
       for( kk = 0; kk< GridDimension[2]; kk++){
         for(ii = 0; ii<GridDimension[0]; ii++ ){
           for( jj = 0; jj<GridDimension[1]; jj++){
@@ -393,7 +398,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     endindex = GridDimension[2] - 2;
     dtdx = dtFixed/CellWidthTemp[2][0];
     // z sweep
-    if( 1 ){
+    if( (n % GridRank == 2) && nzz > 1 ){
+      fprintf(stderr,"CLOWN z sweep\n");
       for(ii = 0; ii<GridDimension[0]; ii++ ){ //DO is this the fastest order?
         for( jj = 0; jj<GridDimension[1]; jj++){
           for( kk = 0; kk< GridDimension[2]; kk++){
