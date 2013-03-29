@@ -38,7 +38,7 @@ extern "C" void FORTRAN_NAME(pde1dsolver_mhd)(float * wx, int * idim,int * nu,
            int * ReconstructionMethod, int * idiffusion, int * MHDCTPowellSource,
            float * tdum0, float * boxl0, float * hubb, float * zr, 
            int * nhy, int * gravityon, float * gravityx, 
-           float * a, int * EquationOfState, float * SoundSpeed, int * hack2);
+           FLOAT * a, int * EquationOfState, float * SoundSpeed, int * hack2);
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
@@ -68,6 +68,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
       a[2] = 1.0;
       a[3] = 0.0;
   }
+
 
   int line_size = max( GridDimension[0], max(GridDimension[1], GridDimension[2]));
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
@@ -121,6 +122,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     }
   }//comoving
 
+ 
 
   float * pressure;
   if( DualEnergyFormalism ){
@@ -399,6 +401,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     dtdx = dtFixed/CellWidthTemp[2][0];
     // z sweep
     if( (n % GridRank == 2) && nzz > 1 ){
+
       fprintf(stderr,"CLOWN z sweep\n");
       for(ii = 0; ii<GridDimension[0]; ii++ ){ //DO is this the fastest order?
         for( jj = 0; jj<GridDimension[1]; jj++){
@@ -555,7 +558,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
         CenteredB[field][ii] *= sqrt_a;
       }
       for( ii=0; ii<MagneticSize[field]; ii++){
-        Fluxes[field][ii] *= sqrt_a/a[1];
+        Fluxes[field][ii] *= sqrt_a/a[2];
         Fluxes[field][ii+MagneticSize[field]] *= sqrt_a/a[2];
       }
     }
