@@ -26,12 +26,13 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-extern "C" void FORTRAN_NAME(pde1dsolver_mhd)(float * wx, int * idim,int * nu,
-           int * startindex, int * endindex, 
+extern "C" void FORTRAN_NAME(pde1dsolver_mhd_new)(float * wx, float* colours, int * idim,int * nu,
+           int * startindex, int * endindex, int * numberofcolours,
            float * dx, float * dtstrang,
            float * fluxBx, //remove
            float * fluxx, 
            float * fluxEx, //remove
+           float * fluxcolour,
            float * diffcoefx, 
            float * gamma, float * csmin, float * rhomin, 
            int * MHDCTDualEnergyMethod, int * MHDCTSlopeLimiter,int * RiemannSolver, 
@@ -73,7 +74,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   int line_size = max( GridDimension[0], max(GridDimension[1], GridDimension[2]));
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
   int ixyz = CycleNumber % GridRank;
-  int nxz, nyz, nzz;
+  int nxz, nyz, nzz, nColour;
   nxz = GridEndIndex[0] - GridStartIndex[0] + 1;
   nyz = GridEndIndex[1] - GridStartIndex[1] + 1;
   nzz = GridEndIndex[2] - GridStartIndex[2] + 1;
@@ -89,6 +90,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   float * field_line     = new float[line_size * line_width];
   float * flux_line      = new float[line_size * line_width];
   float * colour_line    = new float[line_size * NumberOfColours];
+  float * flux_colour    = new float[line_size * NumberOfColours];
   float * gravity_line   = new float[line_size];
   float * diffusion_line = new float[line_size];
 
@@ -209,21 +211,25 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               field_line[ ii + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ ii + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
-   
-            //DO fill colour lines
-            //DO fill gravity line
-            gravity_line[ ii ] = AccelerationField[0][index_bf];
+            if( GravityOn )
+              gravity_line[ ii ] = AccelerationField[0][index_bf];
+            if( NumberOfColours > 0){
+              for( nColour=0; nColour<NumberOfColours; nColour++){
+                colour_line[ ii + line_size*nColour ] = BaryonField[ colnum[nColour] ][index_bf];
+              }
+            }//colours?
           }//ii loop
           //DO diffusion term
           for( ii=1; ii<GridDimension[0]; ii++){
             diffusion_line[ii] = 0.0;
           }
-          FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
-            &startindex, &endindex,
+          FORTRAN_NAME(pde1dsolver_mhd_new)(field_line, colour_line, &line_size, &nu, 
+            &startindex, &endindex, &NumberOfColours,
             CellWidthTemp[0],  &dtFixed, 
             flux_magnetic_line, //kill this
             flux_line, 
             flux_def_line, //kill this too
+            flux_colour,
             diffusion_line,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
@@ -245,6 +251,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               BaryonField[TENum][index_bf] = field_line[ ii + line_size*7];
               pressure[index_bf]           = field_line[ii + line_size*8 ] *POW(field_line[ii + line_size*0], (Gamma - 1));
             }
+            if( NumberOfColours > 0 ){
+              for( nColour=0; nColour<NumberOfColours; nColour++){
+                BaryonField[colnum[nColour]][index_bf] = colour_line[ ii + line_size*nColour];
+              }
+            }//colours
             //DO collors from lines
 
           }//ii
@@ -313,22 +324,27 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               field_line[ jj + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ jj + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
+              for( nColour=0; nColour<NumberOfColours; nColour++){
+                colour_line[ jj + line_size*nColour ] = BaryonField[ colnum[nColour] ][index_bf];
+              }
    
             //DO fill colour lines
             //DO fill gravity line
-            gravity_line[ jj ] = AccelerationField[1][index_bf];
+            if( GravityOn )
+              gravity_line[ jj ] = AccelerationField[1][index_bf];
             //DO zero flux lines
           }
             //DO diffusion term
           for( jj=1; jj<GridDimension[1]; jj++){
              diffusion_line[jj] = 0.0;
           }
-          FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
-            &startindex, &endindex,
+          FORTRAN_NAME(pde1dsolver_mhd_new)(field_line, colour_line, &line_size, &nu, 
+            &startindex, &endindex, &NumberOfColours,
             CellWidthTemp[1],  &dtFixed, 
             flux_magnetic_line, //kill this
             flux_line, 
             flux_def_line, //kill this too
+            flux_colour,
             diffusion_line,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
@@ -351,7 +367,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               BaryonField[TENum][index_bf] = field_line[ jj + line_size*7];
               pressure[index_bf] = field_line[jj + line_size*8 ] *POW(field_line[jj + line_size*0], (Gamma - 1));
             }
-           //DO collors from lines
+            if( NumberOfColours > 0 ){
+              for( nColour=0; nColour<NumberOfColours; nColour++){
+                BaryonField[colnum[nColour]][index_bf] = colour_line[ jj + line_size*nColour];
+              }
+            }//colours
           }
           dim = 1;
           //yflux
@@ -418,22 +438,30 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               field_line[ kk + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ kk + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
+            if( NumberOfColours > 0){
+              for( nColour=0; nColour<NumberOfColours; nColour++){
+                colour_line[ kk + line_size*nColour ] = BaryonField[ colnum[nColour] ][index_bf];
+              }
+            }//colours?
    
             //DO fill colour lines
             //DO fill gravity line
-            gravity_line[ kk ] = AccelerationField[2][index_bf];
+            if( GravityOn )
+              gravity_line[ kk ] = AccelerationField[2][index_bf];
             //DO zero flux lines
           }
             //DO diffusion term
           for( kk=1; kk<GridDimension[1]; kk++){
             diffusion_line[kk] = 0.0;
           }
-          FORTRAN_NAME(pde1dsolver_mhd)(field_line, &line_size, &nu, 
-            &startindex, &endindex,
+          
+          FORTRAN_NAME(pde1dsolver_mhd_new)(field_line, colour_line, &line_size, &nu, 
+            &startindex, &endindex, &NumberOfColours,
             CellWidthTemp[2],  &dtFixed, 
             flux_magnetic_line, //kill this
             flux_line, 
             flux_def_line, //kill this too
+            flux_colour,
             diffusion_line,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
@@ -441,6 +469,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &tdum0, &boxl0, &hubb, &zr, 
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
+            
 
 
           for(kk = 0; kk<GridDimension[1]; kk++ ){
@@ -456,8 +485,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               BaryonField[TENum][index_bf] = field_line[ kk + line_size*7];
               pressure[index_bf] = field_line[kk + line_size*8 ] *POW(field_line[kk + line_size*0], (Gamma - 1));
             }
-           //DO collors from lines
-           //DO energy from lines
+            if( NumberOfColours > 0 ){
+              for( nColour=0; nColour<NumberOfColours; nColour++){
+                BaryonField[colnum[nColour]][index_bf] = colour_line[ kk + line_size*nColour];
+              }
+            }//colours
           }
           dim = 2;
           //zflux

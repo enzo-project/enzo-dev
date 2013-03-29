@@ -1087,6 +1087,7 @@ MHDBlastInitialize.o\
     Grid_ComputeElectricField.o\
     Grid_MHD_Curl.o\
     pde1dsolver_mhd.o\
+    pde1dsolver_mhd_NewMS.o\
     pde1dsolver_mhd_ms.o \
     riemann_mhd.o\
     mhd_hlld_isothermal.o\
