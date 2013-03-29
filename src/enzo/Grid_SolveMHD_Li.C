@@ -210,7 +210,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
    
             //DO fill colour lines
             //DO fill gravity line
-            gravity_line[ ii ] = 0.0;
+            gravity_line[ ii ] = AccelerationField[0][index_bf];
           }//ii loop
           //DO diffusion term
           for( ii=1; ii<GridDimension[0]; ii++){
@@ -314,7 +314,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
    
             //DO fill colour lines
             //DO fill gravity line
-            gravity_line[ jj ] = 0.0;
+            gravity_line[ jj ] = AccelerationField[1][index_bf];
             //DO zero flux lines
           }
             //DO diffusion term
@@ -418,7 +418,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
    
             //DO fill colour lines
             //DO fill gravity line
-            gravity_line[ kk ] = 0.0;
+            gravity_line[ kk ] = AccelerationField[2][index_bf];
             //DO zero flux lines
           }
             //DO diffusion term
