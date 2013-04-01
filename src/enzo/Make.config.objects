@@ -1096,4 +1096,4 @@ OBJS_ECUDA_ALL = \
 	CUDAUtil.o \
 	SaveSubgridFluxCUDA.o 
 
-OBJS_MHDCT = 
+
