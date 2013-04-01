@@ -77,7 +77,6 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
   int RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
   int TransferSize = RegionSize * NumberOfFields;
  
-#ifdef MHDCT
   /* MHD Dimension stuff */
 
   int MHDRegionDim[3][3], MHDRegionSize[3]={1,1,1};
@@ -101,8 +100,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
       
     }//field
 
-  }//UseMHDCT
-#endif //MHDCT
+  }//if(UseMHDCT)
+
   // Allocate buffer
  
   float *buffer = NULL;
@@ -140,9 +139,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       RegionStart, RegionStart+1, RegionStart+2);
 	  index += RegionSize;
       }
-#ifdef MHDCT
 
-    if( UseMHDCT && SendField == ALL_FIELDS ){
+    if(UseMHDCT && SendField == ALL_FIELDS){
 
       if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY ){
 	for( field = 0; field<3; field++){
@@ -201,9 +199,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 	    index += MHDRegionSize[field];
 	  }
       }//new and old or old only
-    }//MHD
+    } // if(UseMHDCT && SendField == ALL_FIELDS)
  
-#endif //MHDCT 
     if (SendField == GRAVITATING_MASS_FIELD_PARTICLES)
       FORTRAN_NAME(copy3d)(GravitatingMassFieldParticles, buffer,
 			   GravitatingMassFieldParticlesDimension,
@@ -353,7 +350,6 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 	  index += RegionSize;
 	}
  
-#ifdef MHDCT
     if( UseMHDCT && SendField == ALL_FIELDS ){
       if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY){
 	for(field=0;field<3;field++){
@@ -422,8 +418,8 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 			       Zero, Zero+1, Zero+2);
 	  index += MHDRegionSize[field];
 	}
-    }//UseMHDCT
-#endif //MHDCT
+    } // if( UseMHDCT && SendField == ALL_FIELDS )
+
     if (SendField == GRAVITATING_MASS_FIELD_PARTICLES) {
       delete ToGrid->GravitatingMassFieldParticles;
       ToGrid->GravitatingMassFieldParticles = new float[RegionSize];

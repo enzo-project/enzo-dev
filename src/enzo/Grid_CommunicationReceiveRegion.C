@@ -72,7 +72,6 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
   int NumberOfFields, RegionSize, TransferSize;
  
 int SendAllBaryonFields = FALSE;
-#ifdef MHDCT
 
   switch( SendField ){
   case ALL_FIELDS:
@@ -243,20 +242,6 @@ int SendAllBaryonFields = FALSE;
     
   }//UseMHDCT
 
-#else //MHDCT 
-  NumberOfFields = ((SendField == ALL_FIELDS)? NumberOfBaryonFields : 1) *
-    ((NewOrOld == NEW_AND_OLD)? 2 : 1);
-
-  if (SendField == INTERPOLATED_FIELDS) {
-    switch (OutputSmoothedDarkMatter) {
-    case 1: NumberOfFields = 1; break;  // density
-    case 2: NumberOfFields = 5; break;  // + rms velocity + 3-velocity
-    }
-  }
-
-  RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
-  TransferSize = RegionSize*NumberOfFields;
-#endif //MHD 
   // Allocate buffer
  
   float *buffer = NULL;
@@ -264,18 +249,7 @@ int SendAllBaryonFields = FALSE;
     buffer = CommunicationReceiveBuffer[CommunicationReceiveIndex];
   else
     buffer = new float[TransferSize];
-#ifndef MHDCT //we simply moved this 
-  /* If this is the from processor, pack fields */
- 
-  int FromDim[MAX_DIMENSION], FromOffset[MAX_DIMENSION];
- 
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    FromOffset[dim] = (dim < GridRank && IncludeBoundary == FALSE &&
-		       SendField != INTERPOLATED_FIELDS) ?
-      NumberOfGhostZones : 0;
-    FromDim[dim] = RegionDim[dim] + 2*FromOffset[dim];
-  }
-#endif //!MHDCT 
+
   if (MyProcessorNumber == FromProcessor) {
  
     index = 0;
@@ -312,7 +286,7 @@ int SendAllBaryonFields = FALSE;
 	index += RegionSize;
       }
     }
-#ifdef MHDCT
+
     if( UseMHDCT ){
       
       /* Send Centered B */
@@ -363,7 +337,7 @@ int SendAllBaryonFields = FALSE;
 	  index += MHDeRegionSize[field];
 	}//field
     }//UseMHDCT
-#endif //MHDCT 
+
   } // ENDIF FromProcessor
  
   /* Send buffer */
@@ -486,7 +460,6 @@ int SendAllBaryonFields = FALSE;
 	index += RegionSize;
       }
 
-#ifdef MHDCT
     if( UseMHDCT ){     
       /* unpack centeredB */
       if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
@@ -560,7 +533,6 @@ int SendAllBaryonFields = FALSE;
             
     }//UseMHDCT
  
-#endif //MHDCT 
     /* Clean up */
  
     delete [] buffer;
