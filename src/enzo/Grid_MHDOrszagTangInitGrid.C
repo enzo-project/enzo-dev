@@ -44,6 +44,8 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
+  float Pi = 3.14159265;
+
   float X, Y, Vx, Vy, GasEnergy=Pressure/(Gamma-1), TotalEnergy=0; 
   int index, size=1, i,j,k, field;
   float Scale[3];
@@ -81,7 +83,7 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
         X=(i-GridStartIndex[0])*Scale[0];
         Y=(j-GridStartIndex[1])*Scale[1];
 
-        ElectricField[field][index]=B0*( cos(4*pi*X)/(4*pi) + cos(2*pi*Y)/(2*pi) );
+        ElectricField[field][index]=B0*( cos(4*Pi*X)/(4*Pi) + cos(2*Pi*Y)/(2*Pi) );
       }
   
 
@@ -105,8 +107,8 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
         X=(i-GridStartIndex[0]+0.5)*Scale[0];
         Y=(j-GridStartIndex[1]+0.5)*Scale[1];
 
-        Vx=-V0*sin(2.0*pi*Y);
-        Vy=V0*sin(2.0*pi*X);
+        Vx=-V0*sin(2.0*Pi*Y);
+        Vy=V0*sin(2.0*Pi*X);
 
         BaryonField[DensNum][index]=DensityIn;
 
