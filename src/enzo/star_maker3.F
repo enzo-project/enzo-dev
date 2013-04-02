@@ -419,12 +419,16 @@ c          turned into stars during this timestep.  Then calculate the mass
 c          which should have formed during this timestel dt using the integral
 c          form of the Cen & Ostriker formula.
 
+            
 c            write(6,*) t, dt, tcp(n), tdp(n),mp(n)
             if (t+dt < tcp(n)) goto 10
             xv1 = max((t      - tcp(n))/tdp(n), 0.0)
+c            if (imethod .eq. 3) xv1 = max((t - dt - tcp(n))/tdp(n), 0.0)
+c            write(6,*) 'xv1:',xv1
             if (xv1 .gt. 10.d0) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
-c            write(6,*) 'xv1,xv2:',xv1, xv2
+            if (imethod .eq. 3) xv2 = (t - tcp(n))/tdp(n)
+            write(6,*) 'xv1,xv2:',xv1, xv2
             mform = ((1.d0 + xv1)*exp(-xv1) - (1.d0 + xv2)*exp(-xv2)) 
 c
 c          skip if very little mass is formed.
