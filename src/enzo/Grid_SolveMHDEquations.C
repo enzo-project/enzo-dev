@@ -671,6 +671,7 @@ if(MultiSpecies>0){
      }
    }
   delete [] ColorFlux, Color;
+  delete [] FluxExtents, FluxDims;
 
   wall_time("End SMHD");
 
