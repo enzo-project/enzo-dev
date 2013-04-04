@@ -17,7 +17,7 @@
 // For historic reasons, this is done entirely in one routine, mhd_interpolate (called from
 // grid::ProlongFineGrid)
 //
-// Note: This routine assumes that the refinement is always by a factor of two, and thus it is hard-wired.
+// Note: MHDCT only works with RefineBy = 2, thus refinement factors are hard coded.
 
 int grid::MHD_DCheck(int * ChildDim, char * mess){
 
