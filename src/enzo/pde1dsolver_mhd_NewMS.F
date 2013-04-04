@@ -378,7 +378,7 @@ c...  copy solution to u0(*)--------------------------------------
             do iu = 1, numberofcolours
                  fluxColour(ix,iu) =
      $       fluxph(ix,1)*(uc(ix,iu)+uc(ix+1,iu))/(w(ix,1)+w(ix+1,1))
-                uc(ix,iu) = 1e-7 !uc(ix,iu)*u0(1,ix)/w(ix,1)
+                uc(ix,iu) = uc(ix,iu)*u0(1,ix)/w(ix,1)
             end do
          else
             do iu = 1, numberofcolours
