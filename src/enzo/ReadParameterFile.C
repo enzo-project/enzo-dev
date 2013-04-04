@@ -1196,18 +1196,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
         RiemannSolver = HLLD;
     if (ReconstructionMethod == INT_UNDEFINED)
         ReconstructionMethod = PLM;
+#endif //MHDCT
+
+  if (HydroMethod==MHD_RK) useMHD = 1;
+  if (HydroMethod==MHD_Li) useMHDCT = 1;
+  if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
+
     if (DualEnergyFormalism == FALSE)
         MHDCTDualEnergyMethod = 0;
     else
       if ( MHDCTDualEnergyMethod == INT_UNDEFINED || MHDCTDualEnergyMethod == 0)
         MHDCTDualEnergyMethod = 2;
-#endif //MHDCT
-
-  if (HydroMethod==MHD_RK) useMHD = 1;
-#ifdef MHDCT
-  if (HydroMethod==MHD_Li) useMHDCT = 1;
-  if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
-#endif //MHDCT
 
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
