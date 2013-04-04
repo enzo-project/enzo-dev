@@ -195,7 +195,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     dtdx = dtFixed/CellWidthTemp[0][0];
     //x loope
     if ( (n % GridRank == 0) && nxz > 1){ 
-      fprintf(stderr,"CLOWN x sweep\n");
       for( kk = 0; kk< GridDimension[2]; kk++){
         for( jj = 0; jj<GridDimension[1]; jj++){
           for(ii = 0; ii<GridDimension[0]; ii++ ){
@@ -277,6 +276,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               if( DualEnergyFormalism ){
                 SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[ii];
               }
+              if( NumberOfColours > 0 ){
+                for( nColour=0; nColour<NumberOfColours; nColour++){
+                  SubgridFluxes[subgrid]->LeftFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[ii +line_size*nColour];
+                }
+              }
               //DO test dual energy and flux correction
               //DO collors from lines
               ii = rindex[dim][subgrid];
@@ -290,6 +294,13 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               if( DualEnergyFormalism ){
                 SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[ii];
               }//GE flux
+              //color fluxes
+              if( NumberOfColours > 0 ){
+                for( nColour=0; nColour<NumberOfColours; nColour++){
+                  SubgridFluxes[subgrid]->RightFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[ii +line_size*nColour];
+                }
+              }
+                //end color fluxes
               
             }//subgrid ok.
           }//subgrid loop
@@ -308,7 +319,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     //DO strang logic in here
     // Y SWEEP
     if ( (n % GridRank == 1) && nyz > 1) {
-      fprintf(stderr,"CLOWN y sweep\n");
       for( kk = 0; kk< GridDimension[2]; kk++){
         for(ii = 0; ii<GridDimension[0]; ii++ ){
           for( jj = 0; jj<GridDimension[1]; jj++){
@@ -324,9 +334,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               field_line[ jj + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ jj + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
             }
-              for( nColour=0; nColour<NumberOfColours; nColour++){
-                colour_line[ jj + line_size*nColour ] = BaryonField[ colnum[nColour] ][index_bf];
-              }
+            for( nColour=0; nColour<NumberOfColours; nColour++){
+              colour_line[ jj + line_size*nColour ] = BaryonField[ colnum[nColour] ][index_bf];
+            }
    
             //DO fill colour lines
             //DO fill gravity line
@@ -391,6 +401,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[jj];
                //DO check that the gas energy flux number is correct.
               }//ge flux
+              if( NumberOfColours > 0 ){
+                for( nColour=0; nColour<NumberOfColours; nColour++){
+                  SubgridFluxes[subgrid]->LeftFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[jj +line_size*nColour];
+                }
+              }
               //DO collors from lines
               jj = rindex[dim][subgrid];
               SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[jj + line_size*0];
@@ -404,6 +419,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[jj];
                //DO check that the total energy flux number is correct.
               }//GE flux
+              if( NumberOfColours > 0 ){
+                for( nColour=0; nColour<NumberOfColours; nColour++){
+                  SubgridFluxes[subgrid]->RightFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[jj +line_size*nColour];
+                }
+              }
               
             }//subgrid ok.
           }//subgrid loop
@@ -422,7 +442,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     // z sweep
     if( (n % GridRank == 2) && nzz > 1 ){
 
-      fprintf(stderr,"CLOWN z sweep\n");
       for(ii = 0; ii<GridDimension[0]; ii++ ){ //DO is this the fastest order?
         for( jj = 0; jj<GridDimension[1]; jj++){
           for( kk = 0; kk< GridDimension[2]; kk++){
@@ -509,6 +528,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                 SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[kk];
                 //DO check that the gas energy flux number is correct.
               }//ge flux
+              if( NumberOfColours > 0 ){
+                for( nColour=0; nColour<NumberOfColours; nColour++){
+                  SubgridFluxes[subgrid]->LeftFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[kk +line_size*nColour];
+                }
+              }
               //DO collors from lines
               kk = rindex[dim][subgrid];
               SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[kk + line_size*0];
@@ -523,6 +547,11 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                 SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[kk];
                 //DO check that the total energy flux number is correct.
               }//GE flux
+              if( NumberOfColours > 0 ){
+                for( nColour=0; nColour<NumberOfColours; nColour++){
+                  SubgridFluxes[subgrid]->RightFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[kk +line_size*nColour];
+                }
+              }
             }//subgrid ok.
           }//subgrid loop
           for(kk = 3; kk<GridDimension[2]-1; kk++ ){
