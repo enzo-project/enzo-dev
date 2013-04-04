@@ -1198,9 +1198,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
         ReconstructionMethod = PLM;
 #endif //MHDCT
 
-  if (HydroMethod==MHD_RK) useMHD = 1;
-  if (HydroMethod==MHD_Li) useMHDCT = 1;
-  if (useMHDCT) CorrectParentBoundaryFlux = TRUE;
+  if (HydroMethod==MHD_RK) UseMHD = 1;
+  if (HydroMethod==MHD_Li) UseMHDCT = 1;
+  if (UseMHDCT) CorrectParentBoundaryFlux = TRUE;
 
     if (DualEnergyFormalism == FALSE)
         MHDCTDualEnergyMethod = 0;
