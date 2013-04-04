@@ -215,10 +215,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     if (level > 0)
       if (Grids[level]->InterpolateFieldValues(Grids[level-1]
-#ifdef MHDCT
-                  ,NULL, &MetaData
-#endif //MHDCE
-                  ) == FAIL) {
+			,NULL, &MetaData) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolateFieldValues.\n");
 	my_exit(EXIT_FAILURE);
       }

@@ -10,10 +10,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "DaveTools.h"
-//#define ABS abs
-
-//both declared below.
+#include "DebugTools.h"
+#include "phys_constants.h"
 
 float blaststyle(int i,int j, int k, int InitStyle, FLOAT BlastCenterLocal[], float Radius){
   int which;
@@ -125,13 +123,14 @@ float blaststyle(int i,int j, int k, int InitStyle, FLOAT BlastCenterLocal[], fl
     
   default:
     which = -1;
-    fprintf(stderr,"MHDBlast: Invalid Init Style %d\n",InitStyle);
+    fprintf(stderr,"MHDBlast: Invalid Init Style %"ISYM"\n",InitStyle);
     break;
 
   }//switch
 
   return which;
 }//blaststyle
+
 void eigen( float d, float vx, float vy, float vz, 
 	    float bx, float by, float bz, float eng, 
 	    float right[][7])
@@ -165,12 +164,6 @@ void eigen( float d, float vx, float vy, float vz,
   float ca = sqrt( bx*bx/d ); 
   float cf = sqrt( 0.5*( aa*aa + 2*bp/d + sqrt( pow( (aa*aa + 2*bp/d ),2) - 4* aa*aa*bx*bx/d ) ) );
 
-  /*
-    Speeds[0] =aa;
-    Speeds[1] =cs;
-    Speeds[2] =ca;
-    Speeds[3] =cf;
-  */
   //compute ancilary values
   //The normalization of alph_f may change. This normalization uses Ryu
   //& Jones, but Balsara may be more robust.
@@ -225,7 +218,6 @@ void eigen( float d, float vx, float vy, float vz,
   right[4][2] = alph_s*vz - alph_f*betaz*aa*sbx;
   right[5][2] = -alph_f*betay*aa*aa*sqrtDi/cf;
   right[6][2] = -alph_f*betaz*aa*aa*sqrtDi/cf;
-  //right[4][2]*betaz/betay; Why was this here?
   
   //entropy (no entropy wave in isothermal MHD.)(Or hydro,for that matter)
   if(EquationOfState == 1 ){
@@ -297,7 +289,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   //Every processor needs to know this for every grid,
   //WHETHER OR NOT IT HAS THE DATA.
 
-  float Pi = 3.14159265;
   int halfpoint;
   float zscale;
 
@@ -305,7 +296,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       srand( 3449653 ); //please don't change this number.
 
   if( EquationOfState == 0 ){
-    fprintf(stderr,"GridDim %d %d %d\n",GridDimension[0],GridDimension[1],GridDimension[2]);
+    fprintf(stderr,"GridDim %"ISYM" %"ISYM" %"ISYM"\n",GridDimension[0],GridDimension[1],GridDimension[2]);
     FieldType[NumberOfBaryonFields++] = Density;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
     FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -374,7 +365,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   
   Radius /= CellWidth[LongDimension][0];
   
-  fprintf(stderr, "Center %f %f %f, Radius, %f\n", 
+  fprintf(stderr, "Center %"FSYM" %"FSYM" %"FSYM", Radius, %"FSYM"\n", 
 	  BlastCenterLocal[0], BlastCenterLocal[1], BlastCenterLocal[2], Radius);
   
 
@@ -446,13 +437,13 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  BA[InitStyle-1], BA[B2num], BA[B3num], EnergyA, Right);
 
     for( field=0; field<7; field++)
-      fprintf(stderr, "EigenVector[%d][%d] %f \n", field, wave, Right[field][wave]);
-    fprintf(stderr,"EigenVector: B2 %d B3 %d \n", B2num, B3num);
+      fprintf(stderr, "EigenVector[%"ISYM"][%"ISYM"] %"FSYM" \n", field, wave, Right[field][wave]);
+    fprintf(stderr,"EigenVector: B2 %"ISYM" B3 %"ISYM" \n", B2num, B3num);
   }
 
   //
-  //Set up BarryonField and Centered Magnetic fields.
-  //Add perturbatoin if necessary.
+  //Set up BaryonField and Centered Magnetic fields.
+  //Add perturbation if necessary.
   //
 
   for(k=InitStartIndex[2];k<=InitEndIndex[2]; k++)
@@ -460,7 +451,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       for(i=InitStartIndex[0];i<=InitEndIndex[0];i++){
 	
 	index = i+GridDimension[0]*(j+GridDimension[1]*k);
-	//fprintf( stderr, " %d %d %d %f ", i,j,k, Radius);
 
 	switch( InitStyle ) {
 	  
@@ -485,7 +475,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  BaryonField[3][index] = value + 3;
 	  if( EquationOfState == 0)
 	    BaryonField[4][index] = value + 4;
-	  if( useMHDCT == TRUE ){
+	  if( UseMHDCT == TRUE ){
 	    CenteredB[0][index] = value + 5;
 	    CenteredB[1][index] = value + 6;
 	    CenteredB[2][index] = value + 7;
@@ -515,11 +505,11 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  if( EquationOfState == 0 ) BaryonField[Eeng][index] = 
 				       (1-fraction)*EnergyA + fraction*EnergyB;
 	  BaryonField[ Ev[0] ][index] = (1-fraction)*VelocityA[0]+fraction* VelocityB[0]; 
-	  if( GridRank > 1 || useMHDCT == TRUE )
+	  if( GridRank > 1 || UseMHDCT == TRUE )
 	  BaryonField[ Ev[1] ][index] = (1-fraction)*VelocityA[1]+fraction* VelocityB[1]; 
-	  if( GridRank > 2 || useMHDCT == TRUE )
+	  if( GridRank > 2 || UseMHDCT == TRUE )
 	  BaryonField[ Ev[2] ][index] = (1-fraction)*VelocityA[2]+fraction* VelocityB[2]; 
-	  if( useMHDCT == TRUE ){
+	  if( UseMHDCT == TRUE ){
 	    CenteredB[0][index] = (1-fraction) * BA[0] + fraction*BB[0];
 	    CenteredB[1][index] = (1-fraction) * BA[1] + fraction*BB[1];
 	    CenteredB[2][index] = (1-fraction) * BA[2] + fraction*BB[2];
@@ -614,24 +604,23 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  Zp = (float) (k-GridStartIndex[2])/GridDimension[2] *(GridRightEdge[2]-GridLeftEdge[2])
 	    + GridLeftEdge[2] + 0.5*CellWidth[2][k];
 	  
-	  //BaryonField[2][index] = PerturbAmplitude*sin(2*Pi * Xp / PerturbWavelength[0]);
-	  BaryonField[ Ev[1] ][index] += PerturbAmplitude*sin(2*Pi * Xp / PerturbWavelength[1]);
+	  BaryonField[ Ev[1] ][index] += PerturbAmplitude*sin(2*pi*Xp / PerturbWavelength[1]);
 	  break;
 	  
-  case 8:
-    //Z velocity perturbation, as in Stone & Gardiner 2007 Rayleigh Taylor
-    index2 = i+GridDimension[0]*(j+GridDimension[1]*k);
-    BaryonField[ Ev[2] ][index] = PerturbAmplitude* ((float)rand()/(float)(RAND_MAX) - .5);
-    halfpoint = 0.5*(InitEndIndex[2]+InitStartIndex[2]);
-    zscale = (1.0*k - BlastCenterLocal[2])/(InitEndIndex[2]-InitStartIndex[2]);
-    BaryonField[ Ev[2] ][index]  *= 1+cos(2*PI*zscale);
-    break;
+	case 8:
+	  //Z velocity perturbation, as in Stone & Gardiner 2007 Rayleigh Taylor
+	  index2 = i+GridDimension[0]*(j+GridDimension[1]*k);
+	  BaryonField[ Ev[2] ][index] = PerturbAmplitude* ((float)rand()/(float)(RAND_MAX) - .5);
+	  halfpoint = 0.5*(InitEndIndex[2]+InitStartIndex[2]);
+	  zscale = (1.0*k - BlastCenterLocal[2])/(InitEndIndex[2]-InitStartIndex[2]);
+	  BaryonField[ Ev[2] ][index]  *= 1+cos(2*pi*zscale);
+	  break;
 
-  case 9:
-    index2 = i+GridDimension[0]*(j+GridDimension[1]*k);
-    BaryonField[ Ev[2] ][index] = PerturbAmplitude*( j % 3 - 1);
-    break;
-
+	case 9:
+	  index2 = i+GridDimension[0]*(j+GridDimension[1]*k);
+	  BaryonField[ Ev[2] ][index] = PerturbAmplitude*( j % 3 - 1);
+	  break;
+	  
 	  //Characteristics.  Sine wave
 	case 70:
 	case 71:
@@ -652,8 +641,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 
 	  Pos = ( InitStyle == 1 ) ? Xp : ( InitStyle == 2 ) ? Yp : ( InitStyle == 3)? Zp : 0;
-	  Amp = sin(2*Pi * Pos);
-	  //Amp = (which == 0)?-1:1;
+	  Amp = sin(2*pi* Pos);
 	  
 	  //Make the velocity into momentum
 	  for(field=0;field<3;field++)
@@ -662,8 +650,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  
 	  for(field=0;field<NumberOfBaryonFields;field++){
 	    BaryonField[field][index] +=PerturbAmplitude*Right[ Map[field] ][wave]*Amp;
-	    //fprintf(stderr, "field %d amp %f xp %f field %f\n", field, PerturbAmplitude, Pos,
-	    //BaryonField[field][index]);
 	  }
 	  
 	  CenteredB[B2num][index] += PerturbAmplitude*Right[5][wave]*Amp;
@@ -675,9 +661,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    BaryonField[ Ev[field] ][index] /= BaryonField[ Eden ][index];
 
 	  break;
-
-
-	    
+    
 	  //Characteristics: Step Function
 	  case 80:
 	  case 81:
@@ -687,13 +671,10 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  case 85:
 	  case 86:
 	    Amp = 1- fraction * 2;
-	    //if( which == 0 ) Amp = +1;
-	    //if( which == 1 ) Amp = -1;
 	    
 	    //Make the velocity into momentum
 	    for(field=0;field<3;field++)
 	      BaryonField[ Ev[field] ][index] *= BaryonField[ Eden ][index];
-	    
 	    
 	    for(field=0; field< NumberOfBaryonFields; field++){
 	      BaryonField[field][index] +=  Amp*PerturbAmplitude*Right[ Map[field] ][wave];
@@ -705,8 +686,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    //Make the momentum  into velocity
 	    for(field=0;field<3;field++)
 	      BaryonField[ Ev[field] ][index] /= BaryonField[ Eden ][index];
-	    
-
 	    
 	    break;
         
@@ -724,14 +703,14 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  break;
 	}
 	
-      }//end barryonfield initialize
+      }//end baryonfield initialize
   
   //
   // MagneticField Initialize.
   //
 
 
-  if( useMHDCT == TRUE )
+  if( UseMHDCT == TRUE )
     for(field=0;field<3;field++){
       for(k=0; k<MagneticDims[field][2]; k++)
 	for(j=0; j<MagneticDims[field][1]; j++)
@@ -795,7 +774,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    case 71:
 	    case 72:
 	    case 73:
-	  case 74:
+	    case 74:
 	    case 75:
 	    case 76:
 	      
@@ -810,7 +789,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	      
 	      
 	      Pos = ( InitStyle == 1 ) ? Xp : ( InitStyle == 2 ) ? Yp : ( InitStyle == 3)? Zp : 0;
-	      Amp = sin(2*Pi * Pos);
+	      Amp = sin(2*pi*Pos);
 	      //Amp = (which == 0)?-1:1;
 	      
 	      
@@ -828,8 +807,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    case 86:
 
 	      Amp = 1-2*fraction;
-	      //if( which == 0 ) Amp = +1;
-	      //if( which == 1 ) Amp = -1;
 	      
 	      if( field == B2num) MagneticField[B2num][index] += Amp*PerturbAmplitude*Right[5][wave];
 	      if( field == B3num) MagneticField[B3num][index] += Amp*PerturbAmplitude*Right[6][wave];
@@ -892,8 +869,12 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
     for(index=0;index<size;index++)
     BaryonField[ Egas ][index] =
        BaryonField[ Eeng ][index]
-      - 0.5*(BaryonField[ Ev[0] ][index]*BaryonField[ Ev[0] ][index]+BaryonField[ Ev[1] ][index]*BaryonField[ Ev[1] ][index]+BaryonField[ Ev[2] ][index]*BaryonField[ Ev[2] ][index])
-      - 0.5*(CenteredB[0][index]*CenteredB[0][index]+CenteredB[1][index]*CenteredB[1][index]+CenteredB[2][index]*CenteredB[2][index])/BaryonField[ Eden ][index];
+      - 0.5*(BaryonField[ Ev[0] ][index]*BaryonField[ Ev[0] ][index] +
+	     BaryonField[ Ev[1] ][index]*BaryonField[ Ev[1] ][index] +
+	     BaryonField[ Ev[2] ][index]*BaryonField[ Ev[2] ][index])
+      - 0.5*(CenteredB[0][index]*CenteredB[0][index] +
+	     CenteredB[1][index]*CenteredB[1][index] +
+	     CenteredB[2][index]*CenteredB[2][index])/BaryonField[ Eden ][index];
     
   return SUCCESS;
   

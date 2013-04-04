@@ -16,13 +16,13 @@
 // then do the actual interpolation.
 // For historic reasons, this is done entirely in one routine, mhd_interpolate (called from
 // grid::ProlongFineGrid)
+//
+// Note: This routine assumes that the refinement is always by a factor of two, and thus it is hard-wired.
 
 int grid::MHD_DCheck(int * ChildDim, char * mess){
-  //I recognize that this may be a bad plan, hard wiring the refinement in like this.
-  //However, since this routine must necessarily have a refinement=2, I'm not worried.
+
   if( ProcessorNumber!=MyProcessorNumber)
     return SUCCESS;
-  //fprintf(stderr," %d DCheck %s ",MyProcessorNumber, mess);
 
   int rf[3] = {2,2,2},i;
 
@@ -86,25 +86,13 @@ int grid::MHD_DCheck(int * ChildDim, char * mess){
 }
 
 
+// Note: This routine assumes that the refinement is always by a factor of two, and thus it is hard-wired.
 int grid::MHD_ProlongAllocate(int * ChildDim){
+
   //I recognize that this may be a bad plan, hard wiring the refinement in like this.
   //However, since this routine must necessarily have a refinement=2, I'm not worried.
-
   int rf[3] = {2,2,2},i;
-  /*
-  fprintf(stderr, "Heyc %d %d %d\n",
-	  (ChildDim[0]/rf[0]+2),
-	  (ChildDim[1]/rf[1]+1),
-	  (ChildDim[2]/rf[2]+1));
-  fprintf(stderr, "Heyc %d %d %d\n",
-	  (ChildDim[0]/rf[0]+1),
-	  (ChildDim[1]/rf[1]+2),
-	  (ChildDim[2]/rf[2]+1));
-  fprintf(stderr, "Heyc %d %d %d\n",
-	  (ChildDim[0]/rf[0]+1),
-	  (ChildDim[1]/rf[1]+1),
-	  (ChildDim[2]/rf[2]+2));
-  */
+
   int dXsize = (ChildDim[0]/rf[0]+2)*(ChildDim[1]/rf[1]+1)*(ChildDim[2]/rf[2]+1);
   int dYsize = (ChildDim[0]/rf[0]+1)*(ChildDim[1]/rf[1]+2)*(ChildDim[2]/rf[2]+1);
   int dZsize = (ChildDim[0]/rf[0]+1)*(ChildDim[1]/rf[1]+1)*(ChildDim[2]/rf[2]+2);

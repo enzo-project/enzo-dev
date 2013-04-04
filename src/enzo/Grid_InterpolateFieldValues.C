@@ -37,7 +37,7 @@ extern "C" void FORTRAN_NAME(interpolate)
 			      float *field, int dim[], int is[], float *work,
 			      interpolation_type *imethod, int *posflag,
 			      int *ierror);
-#ifdef MHDCT
+
 extern "C" void FORTRAN_NAME(mhd_interpolate)
                                (float *parentx, float *parenty, float *parentz,
 				int parentdim[], int refine[],
@@ -51,8 +51,6 @@ extern "C" void FORTRAN_NAME(mhd_interpolate)
 				int* DBxFlag,int* DByFlag,int* DBzFlag,
 				FLOAT *cellsizex, FLOAT *cellsizey, FLOAT *cellsizez,
                                 int *face, int * step, int * counter);
-#endif //MHDCT
-
 
 extern "C" void FORTRAN_NAME(copy3d)(float *source, float *dest,
 				     int *sdim1, int *sdim2, int *sdim3,
@@ -84,9 +82,7 @@ int MakeFieldConservative(field_type field);
 /* InterpolateBoundaryFromParent function */
 
 int grid::InterpolateFieldValues(grid *ParentGrid
-#ifdef MHDCT
         , LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData
-#endif //MHDCT
         )
 {
  
@@ -422,8 +418,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 			   Offset, Offset+1, Offset+2);
  
     } // end loop over fields
-#ifdef MHDCT
-    if( useMHDCT ){
+
+    if(UseMHDCT){
       int MHDParentTempDims[3][3], MHDChildTempDims[3][3];
 
       float *MHDChildTemp[3], *dummy = new float;
@@ -497,9 +493,6 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       //at the same time, right here.  I then realized that I needed all derivatives from all
       //old fine grids before the new fine grid is actually filled.  
       //So now the code is called twice, with the flag "step" to split this one routine into two.
-      //I will re-arrange things in the future, but for now, watch that flag.
-      //Please forgive the incomprehensibility of this code.  All should be fixed shortly,
-      //but if you're reading this comment, obviously it hasn't.
 
       //Allocate derivatives on the parent grid.
       int Step = 1;
@@ -608,9 +601,8 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       if( this->CenterMagneticField() == FAIL )
 	ENZO_FAIL("error with CenterMagneticField");
       
-    }// useMHDCT
+    }// UseMHDCT
  
-#endif MHDCT
     delete [] Work;
     delete [] TemporaryField;
     delete [] TemporaryDensityField;

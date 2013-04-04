@@ -1,4 +1,3 @@
-#ifdef MHDCT
 /***********************************************************************
 /
 /  GRID CLASS ((Setup MHD Dimensions)
@@ -24,7 +23,7 @@
 #include "Grid.h"
 
 void grid::MHD_SetupDims(void){
-  if (!useMHDCT)
+  if (!UseMHDCT)
     return;
 
   for(int field=0; field<3; field++){
@@ -51,7 +50,6 @@ void grid::MHD_SetupDims(void){
         this->MHDAdd[field][dim]=1;
       }
 
-
       this->MagneticSize[field] *= this->MagneticDims[field][dim];
       this->ElectricSize[field] *= this->ElectricDims[field][dim];
     }
@@ -59,4 +57,3 @@ void grid::MHD_SetupDims(void){
   }
   return;
 }
-#endif

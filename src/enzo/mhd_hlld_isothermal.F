@@ -28,15 +28,11 @@ c     --- /dcc
       R_PREC f2,f3,X,g3,g4,g5,g6
       R_PREC S1L, S1R, S2L, S2R
       
-c     dcc dbg
       INTG_PREC test_flag
       INTG_PREC m
-c     //dcc dbg
-c     common/aspd/a1,a2  
       
       a=a1
 
-c     dcc kludge
       if( -12 .eq. a1 ) then
          do i=1,7
             f(i) = ur(i)
@@ -45,7 +41,6 @@ c     dcc kludge
          return
       endif
 
-c     /dcckludge
       u_L=UL(2)/UL(1)
       v_L=UL(3)/UL(1)
       w_L=UL(4)/UL(1)
@@ -89,8 +84,6 @@ c     /dcckludge
       SR=max(S1R,S2R)
       
       if (SL.ge.0.) then
-c     if (SL.ge.0. .and. -12 .eq.a1  ) then
-c     write(*,*) "flux 1"
          F(1)=UL(2)
          F(2)=UL(2)*u_L+ptL -Ul(5)*Ul(5)
          F(3)=UL(3)*u_L-Ul(5)*Ul(6)
@@ -111,8 +104,6 @@ c     write(*,*) "flux 1"
       endif
       
       if (SR.le.0.) then
-c     if (SR.le.0. .and. -12.eq.a1) then
-c     write(*,*) "flux 2"
          F(1)=UR(2)
          F(2)=UR(2)*u_R+ptR-Ur(5)*Ur(5)
          F(3)=UR(3)*u_R-Ur(5)*Ur(6)
@@ -179,8 +170,6 @@ c     write(*,*) "flux 2"
       endif
       
       if ((SL.lt.0.).and.(0.le.SL_rot)) then
-c     if ( ((SL.lt.0.).and.(0.le.SL_rot) ) .and. -12 .eq. a1) then
-c     write(*,*) "flux 3"
          do i=1,7
             F(i)=FL(i)+SL*(UL_ast(i)-UL(i))
             U(i)=UL_ast(i)
@@ -209,8 +198,6 @@ c     write(*,*) "flux 3"
       
       
       if ((SR_rot.lt.0.).and.(0.le.SR)) then
-c     if ( ((SR_rot.lt.0.).and.(0.le.SR)) .or. -1.eq.a1) then
-c     write(*,*) "flux 4"	   
          do i=1,7
             F(i)=FR(i)+SR*(UR_ast(i)-UR(i))
             U(i)=UR_ast(i)
@@ -245,16 +232,9 @@ c     write(*,*) "flux 4"
       if (.not.((SL_rot.le.0.).and.(0.le.SR_rot))) then
          print*,'Error in HLLDS procedure! Press any key.' ,
      +        ' SL_rot ', SL_rot , ' SR_rot ', SR_rot
-c     pause
       endif
       
  8888 continue 
       
-c     print*,'hlld finished'
-c     pause
-      
       return
       end
-c     End Subroutine HLLDx
-      
-        

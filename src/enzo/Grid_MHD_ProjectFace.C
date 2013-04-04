@@ -24,6 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "fortran.def"
+
 /* function prototypes */
 int grid::MHD_ProjectFace(grid &ParentGrid, 
 				      boundary_type LeftFaceBoundaryCondition[],
@@ -34,7 +35,7 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
   // checks that there is something do be done on this processor, with this pair of grids, now.
   //
 
-   if( useMHDCT != TRUE)
+   if( UseMHDCT != TRUE)
     return SUCCESS;
 
   if (MyProcessorNumber != ProcessorNumber && 
@@ -268,13 +269,6 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
 	  if( numberoffaces > 1 )
 	    continue;
 	}
-	/*
-	fprintf(stderr,"kludge: not doing bulk projection.\n");
-	if( MHD_ProjectThisFace[0]==FALSE && 
-	    MHD_ProjectThisFace[1]==FALSE && 
-	    MHD_ProjectThisFace[2]==FALSE )
-	  continue;
-	*/
 
 	//I think this skip shift here is redundant.  Whatever.
 	if( SkipShift == TRUE )
@@ -315,7 +309,7 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
 	      
 	      for(dim=0;dim<3;dim++){
 		
-		//This controlls the extents of the actual projection.
+		//This controls the extents of the actual projection.
 		//note that we ONLY want to project into common faces, so the standard expansion
 		//of the electric dataset (Ex(nx,ny+1,nz+1), etc)isn't valid here.
 		
@@ -365,10 +359,6 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
 	    //we skip the interspacing points when doing the projection.
 
 	    for(field=0;field<3;field++){
-	    //Why is this another loop, not in the previous loop?  I'm not sure.
-	      //If you have time, fix it, but double check I'm not doing anything 
-	      //stupid.  (Can you tell from the comments that this is one
-	      //of the later routines I've written?)
 	      
 	      //Electric fields along an axis DO NOT lie in that face,
 	      //so DO NOT project from the subgrid to the parent grid if this is only a 
@@ -407,7 +397,6 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
 	      }//k  
 
 	    }//field
-	    //Now set the flag for the 
 	    //Note that Electric Fields are NOT located on their faces: the OTHER TWO fields are
 	    
 	  }//MHD_ProjectE

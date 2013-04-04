@@ -17,9 +17,6 @@
 // Periodic BC's are dealt with by other routines in enzo, so that code doesn't actually do anything.
 //
 
-//int NumberOfBoundaryFields = 4;
-//boundary_type MagneticBoundaryType[3][2];
-
 inline int indgen(int i,int j,int k,int nx,int ny,int nz){return i+(nx)*(j+(ny)*(k));}
 
 int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int GridOffset[],
@@ -38,8 +35,6 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
   int is,js,ks,ie, je ,ke;
   bool lx = 1, rx = 0, lxz = 0, rxz = 0, ly=0,ry=0,lz=0,rz=0;
   bool verbose = 0;
-  //int GridOffset[3] = {0,0,0}, MagneticBoundaryDims[3] = {nxt,nyt,nzt};
-  
   
   //The fields centered on the boundary may require special attention.
   //For instance, on the X face, Bx on the boundary, for reflecting conditions,  must be zero.
@@ -57,10 +52,8 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
   
   nx += Add[0]; ny += Add[1]; nz += Add[2];
   nxt += Add[0]; nyt += Add[1]; nzt += Add[2];
-  //is = nb;js=nb;ks=nb;ie=nx+nb;je=ny+nb;ke=nz+nb;
   is = 0; js = 0; ks = 0; ie = nxt; je = nyt; ke = nzt;
-  
-  
+    
   //  
   //left x
   //
@@ -505,28 +498,3 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
   
   return SUCCESS;
 }
-/*
-void FillBoundaryValue(int nx,int ny,int nz,int nb)
-{
-
-  int index;
-  int size = (nx+2*nb)*(ny+2*nb)*(nz+2*nb);
-  int MagneticBoundaryDims[3] = {nx+2*nb,ny+2*nb,nz+2*nb};
-  int LHS;
-  for(int field = 0; field < NumberOfBoundaryFields; field++)
-    {
-      for(int dim = 0; dim<3; dim++){
-	MagneticBoundaryValue[field][dim][0] = new FLOAT[size/MagneticBoundaryDims[dim]];
-	for (index = 0; index < size/MagneticBoundaryDims[dim]; index++)
-	  {
-	    LHS =  -1*(100*(dim+1)+10+field+1);
-	    MagneticBoundaryValue[field][dim][0][index] = LHS;
-	  }
-	MagneticBoundaryValue[field][dim][1] = new FLOAT[size/MagneticBoundaryDims[dim]];
-	for (index = 0; index < size/MagneticBoundaryDims[dim]; index++)
-	  MagneticBoundaryValue[field][dim][1][index] = -1*(100*(dim+1)+20+field+1);
-      }
-    }
-}
-
-*/

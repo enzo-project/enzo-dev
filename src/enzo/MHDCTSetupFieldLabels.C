@@ -1,4 +1,3 @@
-#ifdef MHDCT
 /***********************************************************************
 /
 /  MHDCTSetupFieldLabels
@@ -21,7 +20,7 @@
 #include "global_data.h"
 
 void MHDCTSetupFieldLabels(void){
-  if (!useMHDCT)
+  if (!UseMHDCT)
     return;
   if(MHDcLabel[0]==NULL)
     MHDcLabel[0] = "Bx";
@@ -58,10 +57,9 @@ void MHDCTSetupFieldLabels(void){
   if(MHDeUnits[2] == NULL)
     MHDeUnits[2] = "None";
 
-
   return;
 }
 
-#endif
+
 
 

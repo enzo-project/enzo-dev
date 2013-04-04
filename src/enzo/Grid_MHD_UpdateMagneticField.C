@@ -15,7 +15,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
 
-   if(MyProcessorNumber != ProcessorNumber || useMHDCT != TRUE)
+   if(MyProcessorNumber != ProcessorNumber || UseMHDCT != TRUE)
     return SUCCESS;
 
   //if we're projecting the magnetic field, this routine isn't necessary.
