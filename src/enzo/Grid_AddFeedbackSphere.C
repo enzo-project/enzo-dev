@@ -64,6 +64,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
+  /* If the radius is less than the cell width, return */
+  
+  if (radius < CellWidth[0][0])
+    return SUCCESS;
+
   /* Check if sphere overlaps with this grid */
 
   for (dim = 0; dim < GridRank; dim++)
