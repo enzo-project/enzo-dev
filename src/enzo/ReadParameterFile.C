@@ -1197,6 +1197,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if (HydroMethod==MHD_Li) UseMHDCT = 1;
   if (UseMHDCT) CorrectParentBoundaryFlux = TRUE;
 
+    if (DualEnergyFormalism == FALSE)
+        MHDCTDualEnergyMethod = 0;
+    else
+      if ( MHDCTDualEnergyMethod == INT_UNDEFINED || MHDCTDualEnergyMethod == 0)
+        MHDCTDualEnergyMethod = 2;
+
   //  OutputTemperature = ((ProblemType == 7) || (ProblemType == 11));
 
   /* Even if this is not cosmology, due to a check for nested grid cosmology
