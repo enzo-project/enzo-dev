@@ -1,3 +1,17 @@
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: Hao Xu, Shengtai Li, David Collins.
+!  date:       2005?
+!  modified1:
+!
+!  PURPOSE:   One dimensional sweep solver for MHD equations.
+!             This version in principle also solved the advection 
+!             of color fields.  Depricated.
+!
+!
+!***********************************************************************/
        subroutine pde1dsolver_mhd_ms(
      $     u,uc,numberofcolor,ndx,nu,nxb,nxe,dx,dt,fluxB,
      $     fluxph, fluxc,

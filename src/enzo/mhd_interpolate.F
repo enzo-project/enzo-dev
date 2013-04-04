@@ -1,3 +1,49 @@
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: David Collins
+!  date:       8/4/04
+!  modified1:  many times.  
+!
+!  PURPOSE:   Interpolation, as described in Balsara 2001
+!
+!     This routine (duh) interpolates the parent Face Centered Magnetic Field
+!     to a child grid.
+!     
+!     Variables:
+!     b[x,y,z](3)      Partent Magnetic Field. 
+!     parenddim(3)     Parent Dimension, in Parent Units.
+!     parentstart(3)   Parent Start Index, in Parent Dims
+!     parenttempdim(3) dimension of subgrid + 1 layer of boundary (Parent Units)
+!     refine(3)        inter refinement factor (parent cell size)/(child cell size)
+!     child[x,y,z]     Child Magnetic Field
+!     cd(3)            Dimension of child grid.
+!     childstart(3)    Position within child grid to start.  (Probably 0)
+!     refinedim(3)     Dimension of region to be refined.
+!     dx, dy, dz       Parent Grid Cell Size (Note: Constant over the whole subgrid.)
+!                                            (If you want that changed, you have a lot
+!                                            of work to do outside of this routine.)
+!     face             Action to take: volume interpolation (0) or face
+!                      prologongation (<0)
+!     otherb[x,y,z]    For prolongation: Subgrids on the same level as child[x,y,z], 
+!                          from a previous timestep.      
+!                      See Balsara's AMR MHD paper for details.
+!     otherdim(3)      Dimension of otherb.  As in all fortran routines, this is the
+!                          cell centered dimension.
+!     otherstart(3)    Index of the beginning of the overlap between the old subgrid
+!                          and the new one.
+!     
+!     step             Portion of the interpolation routine used.  
+!                      The code is broken into two parts:  The derivative taking and the reconstruction.
+!                      Since this is a face centered method, the derivatives need to be globaly filled
+!                      before the reconstruction happens, to ensure data consistancy between grids.
+!                      Step=0 => Derivatives + Reconstruction
+!                      Step=1 => derivatives only
+!                      Step=2 => Reconstruction Only.
+!                      If you want to see the flow in the code, look for 'goto' and 'continue'
+!
+!***********************************************************************/
 
       subroutine mhd_interpolate(bx, by, bz, parentdim, rf,
      +                          childx, childy, childz,
@@ -11,43 +57,6 @@
      +                          dx, dy, dz, face, step, cycle)
 
 
-c     This routine (duh) interpolates the parent Face Centered Magnetic Field
-c     to a child grid.
-c     
-c     Variables:
-c     b[x,y,z](3)      xPartent Magnetic Field. 
-c     parenddim(3)     Parent Dimension, in Parent Units.
-c     parentstart(3)   Parent Start Index, in Parent Dims
-c     parenttempdim(3) dimension of subgrid + 1 layer of boundary (Parent Units)
-c     refine(3)        inter refinement factor (parent cell size)/(child cell size)
-c     child[x,y,z]     Child Magnetic Field
-c     cd(3)            Dimension of child grid.
-c     childstart(3)    Position within child grid to start.  (Probably 0)
-c     refinedim(3)     Dimension of region to be refined.
-c     dx, dy, dz       Parent Grid Cell Size (Note: Constant over the whole subgrid.)
-c                                            (If you want that changed, you have a lot
-c                                            of work to do outside of this routine.)
-c     face             Action to take: volume interpolation (0) or face
-c                      prologongation (<0)
-c     otherb[x,y,z]    For prolongation: Subgrids on the same level as child[x,y,z], 
-c                          from a previous timestep.      
-c                      See Balsara's AMR MHD paper for details.
-c     otherdim(3)      Dimension of otherb.  As in all fortran routines, this is the
-c                          cell centered dimension.
-c     otherstart(3)    Index of the beginning of the overlap between the old subgrid
-c                          and the new one.
-c     
-c     step             Portion of the interpolation routine used.  
-c                      The code is broken into two parts:  The derivative taking and the reconstruction.
-c                      Since this is a face centered method, the derivatives need to be globaly filled
-c                      before the reconstruction happens, to ensure data consistancy between grids.
-c                      Step=0 => Derivatives + Reconstruction
-c                      Step=1 => derivatives only
-c                      Step=2 => Reconstruction Only.
-c                      If you want to see the flow in the code, look for 'goto' and 'continue'
-c                      
-c     written David Collins, 8/4/04
-c
 
       implicit none
 #include "fortran_types.def"  

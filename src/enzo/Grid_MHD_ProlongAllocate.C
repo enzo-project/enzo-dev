@@ -1,3 +1,19 @@
+/***********************************************************************
+/
+/  GRID CLASS (ALLOCATES FIELDS FOR DERIVATIVES)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  Allocates fields for use in the divergence free interpolation
+/            needed for MHDCT.  
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"

@@ -1,3 +1,21 @@
+/***********************************************************************
+/
+/  GRID CLASS (COMPUTES INTERPOLATION DERIVATIVES)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  The divergence free interpolation of Balsara 2001 requires
+/            not only the parent grid, but also the values from the existing
+/            fine grids at a given point.  This computes the derivatives 
+/            used in the interpolation, saving the finest derivative available.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include <stdio.h>
 #include "ErrorExceptions.h"
 #include <math.h>

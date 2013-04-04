@@ -1,3 +1,15 @@
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: David Collins
+!  date:       2007?
+!  modified1:
+!
+!  PURPOSE:   HLLD riemann solver.
+!
+!
+!***********************************************************************/
 c top
 	subroutine hllds(pl,pr,f, gamma)
 

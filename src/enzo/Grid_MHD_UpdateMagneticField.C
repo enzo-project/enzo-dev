@@ -1,3 +1,19 @@
+/***********************************************************************
+/
+/  GRID CLASS (UPDATE MAGNETIC FIELDS)
+/
+/  written by: David Collins
+/  date:       2005?
+/  modified1:
+/
+/  PURPOSE: Takes the curl a second time, after UpdateFromFinerGrids
+/           replaces ElectricField with the fine grid data.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "ErrorExceptions.h"
 #include <stdio.h>
 #include <math.h>

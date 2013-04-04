@@ -7,6 +7,7 @@
 /  modified1:
 /
 /  PURPOSE:  This does projection on Electric or Magnetic fields.
+/            Only acts on the face of a grid.
 /            The reason this is in a seperate routine is because the BaryonFields
 /            are all cell centered, so there will be no need to project to non-parents.
 /

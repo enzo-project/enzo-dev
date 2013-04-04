@@ -1,3 +1,16 @@
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: Hao Xu, Shengtai Li, David Collins.
+!  date:       2005?
+!  modified1:
+!
+!  PURPOSE:   One dimensional sweep solver for MHD equations.
+!
+!
+!***********************************************************************/
+
        subroutine pde1dsolver_mhd(
      $     u,ndx,nu,nxb,nxe,dx,dt,fluxB,
      $     fluxph,

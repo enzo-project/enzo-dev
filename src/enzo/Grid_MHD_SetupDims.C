@@ -1,12 +1,12 @@
 /***********************************************************************
 /
-/  GRID CLASS ((Setup MHD Dimensions)
+/  GRID CLASS (Setup MHDCT Dimensions)
 /
 /  written by: Sam Skillman
 /  date:       September, 2012
 /  modified1: 
 /
-/  PURPOSE: Helper function to set up MHD dimensions.
+/  PURPOSE: Helper function to set up MHDCT dimensions.
 /
 /  RETURNS:
 /    SUCCESS or FAIL

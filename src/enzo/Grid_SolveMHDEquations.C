@@ -1,3 +1,20 @@
+/***********************************************************************
+/
+/  GRID CLASS (SOLVES THE MHD EQUATIONS)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:   Fills and allocates fluxes and updates the MHD equations
+/             Depricated in favor of the new C wrapper, which is now 
+/             called form SolveHydroEquations.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include <math.h>

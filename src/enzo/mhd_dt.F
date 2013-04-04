@@ -1,3 +1,19 @@
+!***********************************************************************
+!
+!  Fortran!
+!
+!  written by: David Collins, Hao Xu
+!  date:       2005
+!  modified1:
+!
+!  PURPOSE:  Wrapper to call the MHD solver.  Depricated in favor of
+!            Grid_SolveMHD_Li.C
+!
+!  RETURNS:
+!    SUCCESS or FAIL
+!
+!***********************************************************************/
+
 #include "fortran.def"
 #include "error.def"
 

@@ -1,3 +1,27 @@
+/***********************************************************************
+/
+/  EZTERNAL BOUNDARY CLASS (Set magnetic field on grids boundary)
+/
+/  written by: David Collins
+/  date:       2005
+/  modified1:
+/
+/  PURPOSE: Similar to ExternalBoundary_SetExternalBoundary.
+/           Setting boundary values for the magnetic field in a cell-by-cell basis 
+/           is not possible, due to our update strategy.  
+/           Therefore, to minimize computation in the loop, individual loops are used
+/           for each type of BC.  This is different from the other boundary value routine
+/           in enzo, ExternalBoundary_SetExternalBoundary.C
+/           Note two things:  This code is only partially tested.  I assure you some conditions don't work.
+/                             Outflow probably works, but its mostly good for shock tubes.
+/           Periodic BC's are dealt with by other routines in enzo, so that code doesn't actually do anything.
+/          
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -7,15 +31,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-// Setting boundary values for the magnetic field in a cell-by-cell basis 
-// is not possible, due to our update strategy.  
-// Therefore, to minimize computation in the loop, individual loops are used
-// for each type of BC.  This is different from the other boundary value routine
-// in enzo, ExternalBoundary_SetExternalBoundary.C
-// Note two things:  This code is only partially tested.  I assure you some conditions don't work.
-//                   Outflow probably works, but its mostly good for shock tubes.
-// Periodic BC's are dealt with by other routines in enzo, so that code doesn't actually do anything.
-//
 
 inline int indgen(int i,int j,int k,int nx,int ny,int nz){return i+(nx)*(j+(ny)*(k));}
 

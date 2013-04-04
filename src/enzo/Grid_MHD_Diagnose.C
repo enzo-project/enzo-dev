@@ -1,4 +1,16 @@
 
+/***********************************************************************
+/
+/  GRID CLASS (CHECK THE VALIDITY OF THE MHD FIELDS AND MONITOR DIVB) 
+/  modified1:
+/
+/  PURPOSE:  Computes DivB for the CT scheme.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"

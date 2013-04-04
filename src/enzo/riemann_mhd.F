@@ -1,3 +1,15 @@
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: Shengtai Li
+!  date:       2005?
+!  modified1:
+!
+!  PURPOSE:   Contains functions used by pde1dsolver_mhd.F
+!
+!
+!***********************************************************************/
       subroutine calc_eigv_mhd(rho_a,wa_un,wa_ut1,wa_ut2,wa_bn,
      &     wa_bt1, wa_bt2,pre_a, gamma, v_eig, l_eigv,r_eigv,
      &     v_c_af, v_cf_af, csmin, choice)

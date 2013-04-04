@@ -1,3 +1,21 @@
+/***********************************************************************
+/
+/  GRID CLASS (ZERO AND ALLOCATE AvgElectricField)
+/
+/  written by: David Collins
+/  date:       2005
+/  modified1:
+/
+/  PURPOSE:  This is an analogous routine to the grid::ClearBoundaryFluxes 
+/            routine, but acts on the AvgElectricField.  AvgElectricField
+/            acts similarly to the BoundaryFluxes, but in order to more 
+/            robustly preserve Div(B) this quantity is used for the projection
+/            of the electric field.  See Collins et al 2010 for a description.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
 
 #include "preincludes.h"
 #include "macros_and_parameters.h"

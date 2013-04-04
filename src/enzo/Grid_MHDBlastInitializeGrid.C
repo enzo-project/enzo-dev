@@ -1,3 +1,19 @@
+
+/***********************************************************************
+/
+/  GRID CLASS (INITIALIZE THE MHD BLAST GRID)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  See MHDBlastInitialize.C for parameters
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

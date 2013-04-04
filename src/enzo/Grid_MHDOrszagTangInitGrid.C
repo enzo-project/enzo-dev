@@ -1,3 +1,19 @@
+/***********************************************************************
+/
+/  GRID CLASS (Initialize Orszag Tang Vortex)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  Sets up the test problem.  Results can be found in most MHD 
+/            method papers, such as Collins et al 2010.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"

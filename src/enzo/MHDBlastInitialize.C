@@ -1,3 +1,68 @@
+/***********************************************************************
+/
+/  Initialize the MHD Blast Test.
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  MHDBlast Test is a general purpose 2 state problem initializer
+/
+/  PARAMETERS:   
+/ 
+/       MHDBlastInitStyle  Shape of discontinuity
+/                          0 = sphere: 
+/                          1,2,3=rectangular slice along x, y,z 
+/                          40,41,42=cylander along x,y,z:  
+/                          5,6,7,8 = Index Tests: 10*i + 100*j + 1000*k, i,j,k 
+/
+/
+/       MHDBlastCenter     Center in spatial units. 
+/       MHDBlastRadius     in space units OF THE LONGEST AXIS, 
+/                          MHDBlastInitStyle = 1,2,3 the width of the slab 
+/                          MHDBlastInitStyle = 40,41,42 the radius of the infinite cylander
+/                          MHDBlastInitStyle = 0, radius of sphere
+/
+/       Density, Pressure, Magnetic Field, Velocity can be set with the following.  
+/       For all fields, one side of the discontinuity is denoted A, one is B.
+/       MHDBlastD[A,B] 
+/       MHDBlastVelocity[A,B] 
+/       MHDBlastB[A,B]
+/       MHDBlastGasEnergy[A,B]
+/       MHDBlastP[A,B]   (Gas energy is checked first, then pressure)
+/       
+/       Fields may be perturbed to seed instabilities or linear characteristic advection using
+/       the following:
+/       MHDBlastPerturbAmplitude  
+/       MHDBlastPerturbWavelength     
+/       MHDBlastPerturbMethod    
+/                               1:  white noise in the velocity
+/                               2:  plane symmetric noise in the velocity
+/                               7:  plane symmetric, energy preserving
+/                               4,5,6: sinusoidal perturbation in vy
+/                               8:  Perturbation for RT instability, as in Stone & Gardiner 2007
+/                               80: square wave in the left moving fast characteristic
+/                               81: square wave in the left moving alfven characteristic
+/                               82: square wave in the left moving slow characteristic
+/                               83: square wave in the contact discontinuity
+/                               84: square wave in the right moving fast characteristic
+/                               85: square wave in the right moving alfven characteristic
+/                               86: square wave in the right moving slow characteristic
+/                               70: sine wave in the left moving fast characteristic
+/                               71: sine wave in the left moving alfven characteristic
+/                               72: sine wave in the left moving slow characteristic
+/                               73: sine wave in the contact discontinuity
+/                               74: sine wave in the right moving fast characteristic
+/                               75: sine wave in the right moving alfven characteristic
+/                               76: sine wave in the right moving slow characteristic
+/
+/
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -172,30 +237,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     TotalFlag += sscanf(line, "MHDBlastTotalEnergyA = %"PSYM, &TotalEnergyA);
     TotalFlag += sscanf(line, "MHDBlastTotalEnergyB = %"PSYM, &TotalEnergyB);
     
-    /////
-    ObsFlag  += sscanf(line, "MHDBlastD0 = %"PSYM, &Density0);
-    ObsFlag += sscanf(line, "MHDBlastD1 = %"PSYM, &Density1);
-    
-    ObsFlag += sscanf(line, "MHDBlastB0 = %"PSYM" %"PSYM" %"PSYM, B0, B0+1, B0+2);
-    ObsFlag+= sscanf(line, "MHDBlastB1 = %"PSYM" %"PSYM" %"PSYM, B1, B1+1, B1+2);
-    
-    ObsFlag += sscanf(line, "MHDBlastP0 = %"PSYM, &Pressure0);
-    ObsFlag += sscanf(line, "MHDBlastP1 = %"PSYM, &Pressure1);
-
-    ObsFlag += sscanf(line, "MHDBlastGasEnergy0 = %"PSYM, &GasEnergy0);
-    ObsFlag += sscanf(line, "MHDBlastGasEnergy1 = %"PSYM, &GasEnergy1);
-
-    ObsFlag += sscanf(line, "MHDBlastTotalEnergy0 = %"PSYM, &TotalEnergy0);
-    ObsFlag += sscanf(line, "MHDBlastTotalEnergy1 = %"PSYM, &TotalEnergy1);
-
-    if( ObsFlag != 0 )
-      ENZO_FAIL("Obsolete nomenclature in blast init file. Fix.\n I changed all the '0' to 'A', all the '1' to 'B'\n. so MHDBlastD0 is now MHDBlastDA");
-
-    if( sscanf(line, "PerturbAmplitude      = %"PSYM, &PerturbAmplitude) != 0 ||
-	sscanf(line, "PerturbMethod     = %"ISYM"", &PerturbMethod) != 0           ||
-	sscanf(line, "PerturbWavelength = %"PSYM,PerturbWavelength)      != 0 )
-      ENZO_FAIL("Parameter renamed: PerturbAmplitude(,Method,Wavelength) -> MHDBlastPerturbAmplitude(etc).  Fix it.");
-
     ////
 
     ret += sscanf(line, "MHDBlastRadius = %"PSYM, &Radius);
@@ -211,8 +252,8 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		  MHDBlastSubgridRight, MHDBlastSubgridRight +1 , MHDBlastSubgridRight +2);
 
     ret += sscanf(line, "MHDBlastPerturbAmplitude      = %"PSYM, &PerturbAmplitude);
-    ret += sscanf(line, "MHDBlastPerturbMethod     = %"ISYM"", &PerturbMethod);
-    ret += sscanf(line, "MHDBlastPerturbWavelength = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MHDBlastPerturbMethod         = %"ISYM"", &PerturbMethod);
+    ret += sscanf(line, "MHDBlastPerturbWavelength      = %"PSYM" %"PSYM" %"PSYM,
                   PerturbWavelength,PerturbWavelength+1,PerturbWavelength+2);
 
     ret += sscanf(line, "MHDBlastRefineOnStartup  = %"ISYM"", &RefineOnStartup);

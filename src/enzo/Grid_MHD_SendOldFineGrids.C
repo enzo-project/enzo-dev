@@ -1,3 +1,21 @@
+/***********************************************************************
+/
+/  GRID CLASS (Communicates old fine grids)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:   The divergence free interpolation of Balsara 2001
+/             requires information from magnetic fields at the prior timestep
+/             for interpolation. This routine communicates the necessary 
+/             information before the call to InterpolateFieldValues.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 
 #include "preincludes.h"
 #include "macros_and_parameters.h"
