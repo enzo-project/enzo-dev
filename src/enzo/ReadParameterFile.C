@@ -1196,6 +1196,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
         RiemannSolver = HLLD;
     if (ReconstructionMethod == INT_UNDEFINED)
         ReconstructionMethod = PLM;
+    if (DualEnergyFormalism == FALSE)
+        MHDCTDualEnergyMethod = 0;
+    else
+      if ( MHDCTDualEnergyMethod == INT_UNDEFINED || MHDCTDualEnergyMethod == 0)
+        MHDCTDualEnergyMethod = 2;
 #endif //MHDCT
 
   if (HydroMethod==MHD_RK) useMHD = 1;
