@@ -54,6 +54,10 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //Big questions: 
   //1.) Strang?  Do I want to do the full pairwise strang, or the simpler style?
   //2.) What is needed for rank < 3?
+  //DO clean up arrays.  Check all news in code.
+  //DO check UseSpecificEnergy
+  //DO strang
+  //DO 2d
   
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
 
@@ -97,8 +101,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //Both of these need to be convolved with the above.
   float * flux_magnetic_line = new float[ line_size ]; //for Powell fluxes
   float * flux_def_line = new float[ line_size ]; //For dual energy.  Get rid of this.
-
-  //DO setup strang
 
   float inv_sqrt_a = 1./sqrt(a[0]), sqrt_a = sqrt(a[0]);
   if( ComovingCoordinates ){
@@ -255,7 +257,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                 BaryonField[colnum[nColour]][index_bf] = colour_line[ ii + line_size*nColour];
               }
             }//colours
-            //DO collors from lines
 
           }//ii
           //Fill subgrids.
@@ -281,8 +282,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                   SubgridFluxes[subgrid]->LeftFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[ii +line_size*nColour];
                 }
               }
-              //DO test dual energy and flux correction
-              //DO collors from lines
               ii = rindex[dim][subgrid];
               SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[ii + line_size*0];
               SubgridFluxes[subgrid]->RightFluxes[Vel1Num][dim][offset]= dtdx*flux_line[ii + line_size*1];
@@ -316,7 +315,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     startindex = 3;
     endindex = GridDimension[1] - 2;
     dtdx = dtFixed/CellWidthTemp[1][0];
-    //DO strang logic in here
     // Y SWEEP
     if ( (n % GridRank == 1) && nyz > 1) {
       for( kk = 0; kk< GridDimension[2]; kk++){
@@ -338,13 +336,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               colour_line[ jj + line_size*nColour ] = BaryonField[ colnum[nColour] ][index_bf];
             }
    
-            //DO fill colour lines
-            //DO fill gravity line
             if( GravityOn )
               gravity_line[ jj ] = AccelerationField[1][index_bf];
-            //DO zero flux lines
           }
-            //DO diffusion term
           for( jj=1; jj<GridDimension[1]; jj++){
              diffusion_line[jj] = 0.0;
           }
@@ -399,14 +393,12 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               }//te flux
               if( DualEnergyFormalism ){
                SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[jj];
-               //DO check that the gas energy flux number is correct.
               }//ge flux
               if( NumberOfColours > 0 ){
                 for( nColour=0; nColour<NumberOfColours; nColour++){
                   SubgridFluxes[subgrid]->LeftFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[jj +line_size*nColour];
                 }
               }
-              //DO collors from lines
               jj = rindex[dim][subgrid];
               SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[jj + line_size*0];
               SubgridFluxes[subgrid]->RightFluxes[Vel1Num][dim][offset]= dtdx*flux_line[jj + line_size*3];
@@ -417,7 +409,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               }//TE flux
               if( DualEnergyFormalism ){
                SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[jj];
-               //DO check that the total energy flux number is correct.
               }//GE flux
               if( NumberOfColours > 0 ){
                 for( nColour=0; nColour<NumberOfColours; nColour++){
@@ -463,11 +454,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               }
             }//colours?
    
-            //DO fill colour lines
-            //DO fill gravity line
             if( GravityOn )
               gravity_line[ kk ] = AccelerationField[2][index_bf];
-            //DO zero flux lines
           }
             //DO diffusion term
           for( kk=1; kk<GridDimension[1]; kk++){
@@ -526,14 +514,12 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               }//te flux
               if( DualEnergyFormalism ){
                 SubgridFluxes[subgrid]->LeftFluxes[GENum][dim][offset] = dtdx*flux_def_line[kk];
-                //DO check that the gas energy flux number is correct.
               }//ge flux
               if( NumberOfColours > 0 ){
                 for( nColour=0; nColour<NumberOfColours; nColour++){
                   SubgridFluxes[subgrid]->LeftFluxes[colnum[nColour]][dim][offset]= dtdx*flux_colour[kk +line_size*nColour];
                 }
               }
-              //DO collors from lines
               kk = rindex[dim][subgrid];
               SubgridFluxes[subgrid]->RightFluxes[DensNum][dim][offset]= dtdx*flux_line[kk + line_size*0];
               SubgridFluxes[subgrid]->RightFluxes[Vel1Num][dim][offset]= dtdx*flux_line[kk + line_size*2];
@@ -545,7 +531,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
               
               if( DualEnergyFormalism ){
                 SubgridFluxes[subgrid]->RightFluxes[GENum][dim][offset]= dtdx*flux_def_line[kk];
-                //DO check that the total energy flux number is correct.
               }//GE flux
               if( NumberOfColours > 0 ){
                 for( nColour=0; nColour<NumberOfColours; nColour++){
@@ -594,17 +579,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     delete [] rindex[dim];
   }
 
-  //DO magnetic cosmology
-  //DO clean up arrays.  Check all news in code.
-  //DO not filling entropy array fails, even with DEF off.  Sort out why.
-  //   Followup:  how is entropy used?
-  //DO check UseSpecificEnergy
-  //DO test DEF and AMR
-  //DO strang
-  //DO colors (the whole point!)
-  //DO 2d
-  //DO gravity
-  //DO diffusion
   if( ComovingCoordinates ){
     if ( EquationOfState == 0 ){
       for( ii=0; ii<size; ii++){
