@@ -377,14 +377,13 @@ typedef int            HDF5_hid_t;
    grid::DepositPositions */
 //If MAX_EXTRA_OUTPUTS neesd to be changed, change statements in ReadParameterFile and WriteParameterFile.
 #define MAX_EXTRA_OUTPUTS                10 
-#ifdef MHDCT
+
 #define BARYONS_ELECTRIC                 -13
 #define BARYONS_MAGNETIC                 -12
 #define JUST_BARYONS                     -11
 #define MAGNETIC_FIELD                   -10
 #define ELECTRIC_FIELD                   -9
 #define nBfields 3
-#endif //MHDCT
 
 #define INTERPOLATED_FIELDS              -8
 #define PARTICLE_MASS_FLAGGING_FIELD     -7

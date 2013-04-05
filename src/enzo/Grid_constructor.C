@@ -164,7 +164,7 @@ grid::grid()
   
   NumberOfStars = 0;
   Stars = NULL;
-#ifdef MHDCT
+
   for(i=0;i<3;i++){
     MagneticField[i] = NULL;
     CenteredB[i]     = NULL;
@@ -200,7 +200,7 @@ grid::grid()
       MHDAdd[field][dim]=(field==dim) ? 1:0;
       MagneticDims[field][dim] = -100;
     }}
-#endif //MHDCT
+
 
   /* For once-per-rootgrid-timestep star formation, the following flag
      determines whether SF is about to occur or not. It's currently

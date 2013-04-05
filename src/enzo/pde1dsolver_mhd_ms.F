@@ -1,3 +1,17 @@
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: Hao Xu, Shengtai Li, David Collins.
+!  date:       2005?
+!  modified1:
+!
+!  PURPOSE:   One dimensional sweep solver for MHD equations.
+!             This version in principle also solved the advection 
+!             of color fields.  Depricated.
+!
+!
+!***********************************************************************/
        subroutine pde1dsolver_mhd_ms(
      $     u,uc,numberofcolor,ndx,nu,nxb,nxe,dx,dt,fluxB,
      $     fluxph, fluxc,
@@ -97,9 +111,6 @@ c xh preprossor
             else
                du1 = cdiff*diffcoef(ixp1)
             end if
-c$$$            do iu = 1, npu
-c$$$               diffu(ix,iu) = du1*(u(ix,iu)-u(ixp1,iu))
-c$$$            end do
 
             diffu(ix,1  ) = du1*(u(ix,1  ) - u(ixp1,1  ))
             diffu(ix,iun) = du1*(u(ix,iun) - u(ixp1,iun))
@@ -192,7 +203,6 @@ c------------------------------------------------------------
 c
 c... S-code
           call calc_fluxAIN1_mhd(gamma,we,ww,flux1,1_IKIND,iflux,csmin)
-c               call calc_fluxAIN_mhd(gamma,we,ww,flux1,1,4,csmin)
             else
 c     
 c...  internal energy version -- rho*e_in*u(iun)
@@ -205,8 +215,6 @@ c
       cfl = em_x*dtdx
       if (cfl.gt.10e0) then
          print *, ' cfl too big', cfl,em_x,dtdx,' at t=', t
-c         ie = -3
-c         return
       end if
 c
 c...  den and shear-velocity field, magnetic field
@@ -218,19 +226,7 @@ c...  den and shear-velocity field, magnetic field
          u(ix,6) = u(ix,6) - dtdx*(fluxph(ix,6)-fluxph(ix-1,6))
          u(ix,7) = u(ix,7) - dtdx*(fluxph(ix,7)-fluxph(ix-1,7))
       enddo
-c      do ix = nxb-1, nxe
-c         fluxph(ix,6) = fluxph(ix,6)
-c     +     + 0.5*(w(ix,6)*w(ix,2)+w(ix+1,6)*w(ix+1,2))
-c     +      + 0.5*(w(ix,5)*w(ix,3)+w(ix+1,5)*w(ix+1,3))
-c     +    + 0.25*(u(ix,5)*u(ix,3)/u(ix,1)+u(ix+1,5)*u(ix+1,3)/u(ix+1,1))
-c     +     + 0.5*(ul(ix,6)+ur(ix,6))
-c         fluxph(ix,7) = fluxph(ix,7)
-c     +     + 0.5*(w(ix,7)*w(ix,2)+w(ix+1,7)*w(ix+1,2))
-c     +     + 0.5*(w(ix,5)*w(ix,4)+w(ix+1,5)*w(ix+1,4))
-c     +   + 0.25*(u(ix,5)*u(ix,4)/u(ix,1)+u(ix+1,5)*u(ix+1,4)/u(ix+1,1))
-c     +     +0.5*(ul(ix,7)+ur(ix,7))
-c       end do
-c
+
 c...  normal velocity and total energy
       do ix = nxb, nxe
          u(ix,2) = u0(2,ix)-dtdx*(fluxph(ix,2)-fluxph(ix-1,2))
@@ -243,7 +239,6 @@ c
        do ix =nxb,nxe
           u(ix,8) = u(ix,8) - 0.5*u(ix,2)**2/u(ix,1)
           u(ix,2) = u(ix,2) + 0.5*(u(ix,1)+w(ix,1))*dt*acc(ix)
-c       u(ix,8)=u(ix,8)+0.5*dt*acc(ix)*(u(ix,2)+w(ix,2)*w(ix,1)/u(ix,1))
           u(ix,8) = u(ix,8) + 0.5*u(ix,2)**2/u(ix,1)
        enddo  
       endif
@@ -281,14 +276,12 @@ c...  added div(B) source terms to the induction equation -- Powell 8-wave
       else if (useEntropy.eq.1) then
          do ix = nxb, nxe
 c xh entropy was modified by the preprocessor
-c            entropy(ix) = entropy(ix) - dtdx*(fluxE(ix)-fluxE(ix-1))
             entropy(ix) = u(ix,9) -dtdx*(fluxE(ix)-fluxE(ix-1))
 
             ein(ix) = u(ix,npu) - ekin(ix)
             if (ein(ix).lt.alpha1*ekin(ix)) then
 c...  new ein
                ein(ix) = max(entropy(ix)*u(ix,1)**gm1, prelow)/gm1      
-c         ein(ix)=max(ein(ix)*gm1,entropy(ix)*u(ix,1)**gm1, prelow)/gm1
                u(ix,npu) = ein(ix) + ekin(ix)
             end if            
 c...  the switch is described below
@@ -299,7 +292,6 @@ c...  the switch is described below
             if (eth.lt.alpha1*ekin(ix)) then
                entl = ein(ix)
                pre1 = 0.5*(ul(ix+1,npu)+ur(ix,npu))
-c...  d(rho*e_in)/dt =  - p * div(V), fluxE(ix) = rho*e_in*u(iun)
                entr = entl - dtdx*(fluxE(ix)-fluxE(ix-1) +
      $              pre1*ux(ix,iun)*2.0e00)
                eth = max(entr, 0.5e00*entl)
@@ -318,17 +310,6 @@ c...  copy solution to u0(*)--------------------------------------
             u0(5,ix) = u(ix,8)
             u0(6,ix) = ein(ix)*gm1     
             do iu = 1, numberofcolor
-c               rhom = u0(1,ix-1)
-c               rho  = u0(1,ix)
-c               rhop = u0(1,ix+1)
-c               fluxm = fluxph(ix-1,1)
-c               fluxp = fluxph(ix,1)
-c               fluxc(ix-1,iu) = sign(1.0_RKIND,fluxm)
-c     $              *max(fluxm/rhom*uc(iu,ix-1),-fluxm/rho*uc(iu,ix))
-c                fluxc(ix,iu) = sign(1.0_RKIND,fluxp)
-c     $             *max(fluxp/rho*uc(iu,ix),-fluxp/rhop*uc(iu,ix+1)) 
-c               uc(iu,ix) = uc(iu,ix) + dtdx*
-c     $              (fluxc(ix-1,iu) - fluxc(ix,iu) )
                  fluxc(ix,iu) =
      $       fluxph(ix,1)*(uc(iu,ix)+uc(iu,ix+1))/(w(ix,1)+w(ix+1,1))
                 uc(iu,ix) = uc(iu,ix)*u0(1,ix)/w(ix,1)
@@ -336,12 +317,9 @@ c     $              (fluxc(ix-1,iu) - fluxc(ix,iu) )
          else
             do iu = 1, numberofcolor
                fluxc(ix,iu) = 0
-c               uc(iu,ix) = 0.5*(u0(1,ix)+rhomin)*uc(iu,ix)/u0(1,ix)
                  uc(iu,ix) = rhomin*uc(iu,ix)/u0(1,ix)
             end do
-c            eth = 0.5*w(ix,8)*(u0(1,ix)+rhomin)/u0(1,ix)/gm1
              eth = w(ix,8)*(rhomin)/u0(1,ix)/gm1
-c            u0(1,ix) = 0.5*(u0(1,ix)+rhomin)
              u0(1,ix) = rhomin
             u0(2,ix) = 0.5*u0(1,ix)*w(ix,2)
             u0(3,ix) = 0.5*u0(1,ix)*w(ix,3)
@@ -364,7 +342,6 @@ c...  transform the pressure to entropy variables
          do ix = nxb,nxe
             u0(6,ix) = max(u0(6,ix), u0(1,ix)*tdum0)/(u0(1,ix)**gm1)
          end do
-c         return
       end if
     
 c----------------------------------------------------------------------
@@ -378,21 +355,19 @@ c...D. Ryu's switch detection
             entropy(ix) = max(entropy(ix),tdum0*u0(1,ix)/rgam1(ix))
          enddo
 
-c         return       ! use total energy version
-c     
          u0(1,nxb-1) = u0(1, nxe)
          u0(1,nxe+1) = u0(1, nxb)
-c     
+
          u0(2,nxb-1) = u0(2, nxe)
          u0(2,nxe+1) = u0(2, nxb)
          u0(5,nxb-1) = u0(5, nxe)
          u0(5,nxe+1) = u0(5, nxb)
-c     
+
          entropy(nxb-1) = entropy(nxe)
          entropy(nxe+1) = entropy(nxb)
          rgam1(nxb-1) = rgam1(nxe)
          rgam1(nxe+1) = rgam1(nxb)
-c     
+
          do ix= nxb-1,nxe+1
             pre(ix) = entropy(ix)*rgam1(ix)
             rt(ix)  = pre(ix)/gm1/u0(5,ix)
@@ -407,7 +382,7 @@ c
             dp= abs(pre(ix+1)-pre(ix-1))
      +           /(pre(ix+1)+pre(ix-1)+2*pre(ix))*4.0
             if( (dp.gt.0.3).and.(dv.lt.0.0) ) shock(ix)=1.
-c            if(min(rt(ix),rt(ix-1),rt(ix+1)).ge.0.02) shock(ix)=1. ! Ryu
+
             if(min(rt(ix),rt(ix-1),rt(ix+1)).ge.0.001) shock(ix)=1.
             if(shock(ix) .lt. 0.5) then
                u0(6,ix) = entropy(ix) 
@@ -433,6 +408,3 @@ c            if(min(rt(ix),rt(ix-1),rt(ix+1)).ge.0.02) shock(ix)=1. ! Ryu
       
       return
       end           
-
-
-

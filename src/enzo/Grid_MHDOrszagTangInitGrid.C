@@ -1,3 +1,19 @@
+/***********************************************************************
+/
+/  GRID CLASS (Initialize Orszag Tang Vortex)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  Sets up the test problem.  Results can be found in most MHD 
+/            method papers, such as Collins et al 2010.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -7,6 +23,7 @@
 #include "ExternalBoundary.h"
 #include "fortran.def"
 #include "Grid.h"
+#include "phys_constants.h"
 //start
 
 extern "C" void FORTRAN_NAME(curl_of_e)(float *bx, float *by, float *bz,
@@ -22,10 +39,9 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
 
   //Every processor needs to know this for every grid,
   //WHETHER OR NOT IT HAS THE DATA.
-  
 
   NumberOfBaryonFields = 0;
-  fprintf(stderr,"GridDim %d %d %d\n",GridDimension[0],GridDimension[1],GridDimension[2]);
+
   FieldType[NumberOfBaryonFields++] = Density;
   if (DualEnergyFormalism)
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
@@ -44,20 +60,6 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
 
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"======== tang ===================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-  fprintf(stderr,"=================================\n");
-
-  float Pi = 3.14159265, One=1.0;
   float X, Y, Vx, Vy, GasEnergy=Pressure/(Gamma-1), TotalEnergy=0; 
   int index, size=1, i,j,k, field;
   float Scale[3];
@@ -66,13 +68,11 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   //for both MHDCT and Dedner.  Temporarily, we make this code think that MHD-CT is on.
 
   if ( HydroMethod == MHD_RK ){
-      useMHDCT = TRUE;
+      UseMHDCT = TRUE;
       MHD_SetupDims(); //this only sets some variables that won't be used
   }
 
   this->AllocateGrids();  
-
-
 
   for(i=0;i<GridRank;i++){
     size*=GridDimension[i];
@@ -82,10 +82,9 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
   IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num);
 
-  fprintf(stderr,"Density %f Pressure %f V0 %f B0 %f \n", DensityIn,Pressure,V0,B0);
-  fprintf(stderr,"Scale: %f %f %f\n", Scale[0],Scale[1],Scale[2]);
+  fprintf(stderr,"Density %"FSYM" Pressure %"FSYM" V0 %"FSYM" B0 %"FSYM" \n", DensityIn,Pressure,V0,B0);
+  fprintf(stderr,"Scale: %"FSYM" %"FSYM" %"FSYM"\n", Scale[0],Scale[1],Scale[2]);
   
-
   //Vector Potential. 
   //Due to the similarity in centering, and lack of foresight in naming,
   //I'm using the Electric Field as a Vector Potential to initialize the Magnetic Field.  
@@ -98,14 +97,13 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
         X=(i-GridStartIndex[0])*Scale[0];
         Y=(j-GridStartIndex[1])*Scale[1];
 
-        ElectricField[field][index]=B0*( cos(4*Pi*X)/(4*Pi) + cos(2*Pi*Y)/(2*Pi) );
+        ElectricField[field][index]=B0*( cos(4.0*pi*X)/(4.0*pi) + cos(2.0*pi*Y)/(2.0*pi) );
       }
   
 
   //
   //Curl is B=Curl(A)
   //
-
 
   //the last argument indicates that this isn't a time update.
   if( this->MHD_Curl(GridStartIndex, GridEndIndex, 0) == FAIL )
@@ -116,8 +114,6 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
     return FAIL;
   }
 
-
-
   for(k=0;k<GridDimension[2];k++)
     for(j=0;j<GridDimension[1];j++)
       for(i=0;i<GridDimension[0];i++){
@@ -125,8 +121,8 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
         X=(i-GridStartIndex[0]+0.5)*Scale[0];
         Y=(j-GridStartIndex[1]+0.5)*Scale[1];
 
-        Vx=-V0*sin(2*Pi*Y);
-        Vy=V0*sin(2*Pi*X);
+        Vx=-V0*sin(2.0*pi*Y);
+        Vy=V0*sin(2.0*pi*X);
 
         BaryonField[DensNum][index]=DensityIn;
 
@@ -148,7 +144,7 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
 
   if ( HydroMethod == MHD_RK ){
       //Clean up.
-      useMHDCT = FALSE;
+      UseMHDCT = FALSE;
       int BNUM[3] = {B1Num, B2Num, B3Num};
       for ( field=0; field<3; field++){
           delete [] MagneticField[field];
@@ -161,6 +157,5 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
       }
   }
   
-
   return SUCCESS;
 }

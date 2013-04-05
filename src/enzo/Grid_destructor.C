@@ -114,10 +114,10 @@ grid::~grid()
     WriteListOfInts(stdout, GridRank, GridDimension);
   }
 */
-#ifdef MHDCT
+
   //MHD stuff 
  
-  if( useMHDCT ){
+  if( UseMHDCT ){
     for(i=0;i<3;i++){
 
       if(MagneticField[i] != NULL ){
@@ -146,10 +146,6 @@ grid::~grid()
 
     }
 
-    //MHDCleanUpTemp();
-
   }
 
-
-#endif //MHDCT 
 }

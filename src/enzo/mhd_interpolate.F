@@ -1,6 +1,49 @@
-c#include "fortran.def"
-c#include "error.def"
-
+!***********************************************************************
+!
+!  FORTRAN!!
+!
+!  written by: David Collins
+!  date:       8/4/04
+!  modified1:  many times.  
+!
+!  PURPOSE:   Interpolation, as described in Balsara 2001
+!
+!     This routine (duh) interpolates the parent Face Centered Magnetic Field
+!     to a child grid.
+!     
+!     Variables:
+!     b[x,y,z](3)      Partent Magnetic Field. 
+!     parenddim(3)     Parent Dimension, in Parent Units.
+!     parentstart(3)   Parent Start Index, in Parent Dims
+!     parenttempdim(3) dimension of subgrid + 1 layer of boundary (Parent Units)
+!     refine(3)        inter refinement factor (parent cell size)/(child cell size)
+!     child[x,y,z]     Child Magnetic Field
+!     cd(3)            Dimension of child grid.
+!     childstart(3)    Position within child grid to start.  (Probably 0)
+!     refinedim(3)     Dimension of region to be refined.
+!     dx, dy, dz       Parent Grid Cell Size (Note: Constant over the whole subgrid.)
+!                                            (If you want that changed, you have a lot
+!                                            of work to do outside of this routine.)
+!     face             Action to take: volume interpolation (0) or face
+!                      prologongation (<0)
+!     otherb[x,y,z]    For prolongation: Subgrids on the same level as child[x,y,z], 
+!                          from a previous timestep.      
+!                      See Balsara's AMR MHD paper for details.
+!     otherdim(3)      Dimension of otherb.  As in all fortran routines, this is the
+!                          cell centered dimension.
+!     otherstart(3)    Index of the beginning of the overlap between the old subgrid
+!                          and the new one.
+!     
+!     step             Portion of the interpolation routine used.  
+!                      The code is broken into two parts:  The derivative taking and the reconstruction.
+!                      Since this is a face centered method, the derivatives need to be globaly filled
+!                      before the reconstruction happens, to ensure data consistancy between grids.
+!                      Step=0 => Derivatives + Reconstruction
+!                      Step=1 => derivatives only
+!                      Step=2 => Reconstruction Only.
+!                      If you want to see the flow in the code, look for 'goto' and 'continue'
+!
+!***********************************************************************/
 
       subroutine mhd_interpolate(bx, by, bz, parentdim, rf,
      +                          childx, childy, childz,
@@ -14,43 +57,6 @@ c#include "error.def"
      +                          dx, dy, dz, face, step, cycle)
 
 
-c     This routine (duh) interpolates the parent Face Centered Magnetic Field
-c     to a child grid.
-c     
-c     Variables:
-c     b[x,y,z](3)      xPartent Magnetic Field. 
-c     parenddim(3)     Parent Dimension, in Parent Units.
-c     parentstart(3)   Parent Start Index, in Parent Dims
-c     parenttempdim(3) dimension of subgrid + 1 layer of boundary (Parent Units)
-c     refine(3)        inter refinement factor (parent cell size)/(child cell size)
-c     child[x,y,z]     Child Magnetic Field
-c     cd(3)            Dimension of child grid.
-c     childstart(3)    Position within child grid to start.  (Probably 0)
-c     refinedim(3)     Dimension of region to be refined.
-c     dx, dy, dz       Parent Grid Cell Size (Note: Constant over the whole subgrid.)
-c                                            (If you want that changed, you have a lot
-c                                            of work to do outside of this routine.)
-c     face             Action to take: volume interpolation (0) or face
-c                      prologongation (<0)
-c     otherb[x,y,z]    For prolongation: Subgrids on the same level as child[x,y,z], 
-c                          from a previous timestep.      
-c                      See Balsara's AMR MHD paper for details.
-c     otherdim(3)      Dimension of otherb.  As in all fortran routines, this is the
-c                          cell centered dimension.
-c     otherstart(3)    Index of the beginning of the overlap between the old subgrid
-c                          and the new one.
-c     
-c     step             Portion of the interpolation routine used.  
-c                      The code is broken into two parts:  The derivative taking and the reconstruction.
-c                      Since this is a face centered method, the derivatives need to be globaly filled
-c                      before the reconstruction happens, to ensure data consistancy between grids.
-c                      Step=0 => Derivatives + Reconstruction
-c                      Step=1 => derivatives only
-c                      Step=2 => Reconstruction Only.
-c                      If you want to see the flow in the code, look for 'goto' and 'continue'
-c                      
-c     written David Collins, 8/4/04, 12:50 am.
-c
 
       implicit none
 #include "fortran_types.def"  
@@ -62,7 +68,6 @@ c     Arguments
       INTG_PREC rf(3), otherstart(3), face, step, cycle
 
       R_PREC  dx, dy, dz
-c      R_PRECSUB  dx, dy, dz
 
       R_PREC bx(parentdim(1)+1, parentdim(2), parentdim(3))
       R_PREC by(parentdim(1), parentdim(2)+1, parentdim(3))
@@ -131,12 +136,11 @@ c     offset1(3)      Starting position of coefficients wrt ParentGrid.  (Actual
       INTG_PREC prdim(3), pend(3)
       INTG_PREC file0, file1, file2,file3, file4
       INTG_PREC TestX, TestY, TestZ
-c      character*15 filename
       R_PREC Lx, Ly, Lz, dxi, dyi, dzi
-c      REALSUB Lx, Ly, Lz, dxi, dyi, dzi
       R_PREC minmod
       R_PREC tol
       INTG_PREC NanLoo
+
 c     this is just what it sounds like:  it's a dummy variable that holds things together while
 c     I debug, before I rip this routine appart.
       INTG_PREC methodkludge
@@ -183,16 +187,13 @@ c     the +1 is to take care of rounding errors.
       
 
 c     A Negative face flag indicates prolongation to newly interpolated fields.
-c     the variable s takes care of a necessary position offset.  See documentation maps
-c     If david hasn't written the documentation map yet, throw eggs at him.
+c     the variable s takes care of a necessary position offset. 
 
       if(face .eq. -1) s(1) = 1
       if(face .eq. -3) s(2) = 1
       if(face .eq. -5) s(3) = 1
 
 
-c     BEHOLD! The dreaded GOTO statement!
-c     I feel that one goto is way better than an if statement that covers 500 lines of code.
 c     step = 2 only reconstructs from given derivatives, so skip this section.
      
       if(step .ne. 0 .and. step .ne. 1 ) goto 10
@@ -202,7 +203,7 @@ c     Fill derivaives of Bx
 c
 
 
-c     set start and stop indicies.
+c     set start and stop indices.
 
       i1 = pstart(1)
       i2 = pend(1)+1
@@ -232,21 +233,6 @@ c     available is used for the derivatives.  THIS takes derivatives on the pare
          DyzBx(i,j,k) = zero
          endif
 
-c
-c     Note: dcc 01/23/06  this derivative is actually taken elsewhere now.  However, the code has been 
-c     left for posterity. It can probably get deleted.
-c
-
-c     If this is a prolongation from a fine grid
-
-c         if( face .lt. 0 ) then
-c             DyzBx(i,j,k) = (Bx(Pi, Pj+1, Pk+1)
-c     +        -Bx(Pi, Pj-1, Pk+1)
-c     +        -Bx(Pi, Pj+1, Pk-1)
-c     +        +Bx(Pi, Pj-1, Pk-1))
-c     +        *dyi*dzi*(0.25)
-c         endif
-
       enddo
       enddo
       enddo
@@ -261,7 +247,7 @@ c      if( (face .eq. -1 .or. face .eq. -2) .and. 1.eq.0) then
 
 
       if( (face .eq. -1 .or. face .eq. -2)  ) then
-c dccf
+
          if( face .eq. -1 ) then
             i = pstart(1) + 1
          endif
@@ -359,9 +345,6 @@ c
          i1 = pstart(1)
          i2 = pend(1)
 
-c         j1 = pstart(2)
-c         j2 = j1 + prdim(2) -1
-         
          k1 = pstart(3)
          k2 = pend(3)
          
@@ -375,15 +358,10 @@ c         j2 = j1 + prdim(2) -1
 
             oj = otherstart(2) +1
 
-c         oi = otherstart(1)
-c         ok = otherstart(3)
-         
          do k=k1,k2
-c            do j=j1, j2
             do i=i1, i2
 
                oi = rf(1)*(i-i1) + otherstart(1) + 1
-c               oj = rf(2)*(j-j1) + otherstart(2) + 1
                ok = rf(3)*(k-k1) + otherstart(3) + 1
 
                DByFlag(i,j,k) = DByFlag(i,j,k) + 1
@@ -459,9 +437,6 @@ c
          j1 = pstart(2)
          j2 = pend(2)
          
-c         k1 = pstart(3)
-c         k2 = k1 + prdim(3) -1
-         
          if( face .eq. -5 ) then
             k = pstart(3) + 1
          endif
@@ -470,17 +445,11 @@ c         k2 = k1 + prdim(3) -1
          endif
          ok = otherstart(3)+1
 
-c         oi = otherstart(1)
-c         oj = otherstart(2)
-
-         
-c         do k=k1,k2
             do j=j1, j2
             do i=i1, i2
 
                oi = rf(1)*(i-i1) + otherstart(1) + 1
                oj = rf(2)*(j-j1) + otherstart(2) + 1
-c               ok = rf(3)*(k-k1) + otherstart(3) + 1
 
                DBzFlag(i,j,k) = DBzFlag(i,j,k) + 1
 
@@ -536,26 +505,11 @@ c     This is where the step that already has the derivatives goes.
 
       
       if( step .ne. 0 .and. step .ne. 2 ) goto 666
-c      write(*,*) "MHD_INT: STEP ", step      
-c      write(*,*) "mhd_int, the rest of the stuff, s=", step
+
 c
 c     Calulate interpolation coefficients.
 c     See balsara for derivation
 c
-
-c      write(filename, "(a7, i1)") "file.a.", cycle
-c      write(*,*) "writing file ", filename
-c      open(unit=700,file=filename,status='unknown')
-c
-c      write(filename, "(a7, i1)") "file.b.", cycle
-c      write(*,*) "writing file ", filename
-c      open(unit=701,file=filename,status='unknown')
-c
-c      write(filename, "(a7, i1)") "file.c.", cycle
-c      write(*,*) "writing file ", filename
-c      open(unit=702,file=filename,status='unknown')
-
-
 
       file0 = 700
       file1 = 701
@@ -574,10 +528,6 @@ c      open(unit=702,file=filename,status='unknown')
       k1 = pstart(3)
       k2 = pend(3)
 
-c      write(*,*) "mhd_interpolate: i1, i2, etc,", i1, i2, j1, j2,k1,k2
-
-c      write(*,*) " mhdint: ", i1, i2, j1, j2, k1, k2
-      
       do k=k1,k2
          Pk = k+offset1(3)
       do j=j1,j2
@@ -592,9 +542,7 @@ c      write(*,*) " mhdint: ", i1, i2, j1, j2, k1, k2
          enddo
 
 
-
-
-c     Note at the arrays for  magnetic fields and theier derivatives are defined with different spatial 
+c     Note at the arrays for  magnetic fields and their derivatives are defined with different spatial 
 c     locations: Magnetic Fields live in the Parent Level, Parent Start Indicies.
 c     Derivatives are defined using the parent level, but begin at the start of the subgrid.
 c     So there's a linear offset between the two.
@@ -628,7 +576,6 @@ c     So there's a linear offset between the two.
          c(1,i,j,k) = (  Bz(Pi,Pj,Pk+1) +   Bz(Pi,Pj,Pk))*half
      +        -c(5,i,j,k)*dz*dz*quarter
          
-c         if( face .lt. 0 ) then
          
          a(8,i,j,k) = (DyzBx(i+1,j,k) + DyzBx(i,j,k))*half
          a(9,i,j,k) = (DyzBx(i+1,j,k) - DyzBx(i,j,k))*dxi
@@ -657,74 +604,16 @@ c         if( face .lt. 0 ) then
          
          c(2,i,j,k) = c(2,i,j,k) - c(10,i,j,k)*dz*dz*quarter
          c(3,i,j,k) = c(3,i,j,k) - c(11,i,j,k)*dz*dz*quarter
-         
-         
-c         if( (a(7,i,j,k) + b(7,i,j,k) + 2*c(5,i,j,k) ) .gt. tol )then
-c            write(*,*) " Prolong fail 1"
-c         endif
-c         if( (a(9,i,j,k) +2*b(11,i,j,k)+2*c(11,i,j,k)) .gt. tol) then
-c            write(*,*) "  prolong fail 2"
-c         endif
-c         if((2*a(11,i,j,k) +b(9,i,j,k) +2*c(10,i,j,k)) .gt. tol) then
-c            write(*,*) " prolong fail 3"
-c         endif
-c         if( (2*a(10,i,j,k)+2*b(10,i,j,k)+c(9,i,j,k)) .gt. tol) then
-c            write(*,*) " prolong fail 4"
-c         endif
-         
-
-         
-c         if( a(2,i,j,k)+b(3,i,j,k)+c(4,i,j,k) .ge. tol ) then
-c            write(*,*) "Interp  a2+b3+c4 != 0",i,j,k
-c            write(*,*) a(2,i,j,k),b(3,i,j,k),c(4,i,j,k)
-c         endif
-c         if( 2*a(5,i,j,k) + b(6,i,j,k)+c(6,i,j,k) .ge. tol ) then
-c            write(*,*) "Interp  2a5+b6+c6 != 0"
-c         endif
-c         if( a(6,i,j,k) + 2*b(5,i,j,k) + c(7,i,j,k) .ge. tol ) then
-c            write(*,*) "Interp  a6 ..."
-c         endif
-c         if( a(7,i,j,k) + b(7,i,j,k) + 2*c(5,i,j,k) .ge. tol ) then
-c            write(*,*) "Interp  a7 ..."
-c         endif
-         
-         
-c     write(file0,900) "(",i,",",j,",",k,")", a(1,i,j,k),
-c     +       a(2,i,j,k), a(3,i,j,k), a(4,i,j,k), 
-c     +       a(5,i,j,k), a(6,i,j,k), a(7,i,j,k)
-c     write(file1,900) "(",i,",",j,",",k,")", b(1,i,j,k),
-c     +       b(2,i,j,k), b(3,i,j,k), b(4,i,j,k), b(5,i,j,k),
-c     +       b(6,i,j,k), b(7,i,j,k)
-c     write(file2,900) "(",i,",",j,",",k,")", c(1,i,j,k),
-c     +       c(2,i,j,k), c(3,i,j,k), c(4,i,j,k), c(5,i,j,k),
-c     +       c(6,i,j,k), c(7,i,j,k)
-c     write(703,902) " ",i," ",j," ",k," "
-         
-c     write(file0,900) a(1,i,j,k),
-c     +       a(2,i,j,k), a(3,i,j,k), a(4,i,j,k), 
-c     +       a(5,i,j,k), a(6,i,j,k), a(7,i,j,k), a(8,i,j,k),
-c     +       a(9,i,j,k), a(10,i,j,k), a(11,i,j,k)
-c     write(file1,900) b(1,i,j,k),
-c     +       b(2,i,j,k), b(3,i,j,k), b(4,i,j,k), b(5,i,j,k),
-c     +       b(6,i,j,k), b(7,i,j,k), b(8,i,j,k), b(9,i,j,k),
-c     +       b(10,i,j,k),b(11,i,j,k)
-c     write(file2,900) c(1,i,j,k),
-c     +       c(2,i,j,k), c(3,i,j,k), c(4,i,j,k), c(5,i,j,k),
-c     +       c(6,i,j,k), c(7,i,j,k), c(8,i,j,k), c(9,i,j,k),
-c     +       c(10,i,j,k), c(11,i,j,k)
-         
+                  
       enddo
       enddo
       enddo
       
  900  format(11f15.8)
-c 900  format(a1,i2,a,i2,a,i2,a, 7f7.2) 
  902  format(a1,i2,a,i2,a,i2,a)
  901  format(a1,i2,a,i2,a,i2,a, 7f13.2)
  903  format(5f7.2)
 
-
-c     poo
 
 c     when you get rid of this, get rid of NanLoo, too
       TestX = 0
@@ -761,19 +650,16 @@ c     we can incorporate the shift into s, but I don't know if that will be any 
          i2 = i2+1
       endif
 
-c      do k=childstart(3)+1, childstart(3)+refinedim(3)
       do k=k1,k2
          Pk = (k-1+offset2(3))/rf(3) + 1
          Lk = mod(k-1+offset2(2),rf(3) )
          Lz = dz*(one*Lk/rf(3) -half + one/(rf(3)*two ) )
 
-c          do j=childstart(2)+1, childstart(2)+refinedim(2)
          do j=j1,j2
             Pj = (j-1+offset2(2))/rf(2) + 1
             Lj = mod(j-1+offset2(2),rf(2) )
             Ly = dy*(one*Lj/rf(2) -half + one/(rf(2)*two) )
 
-c            do i=childstart(1)+1+s(1), childstart(1)+refinedim(1)+s(1)
             do i=i1,i2
 
                Pi = (i-1+offset2(1)-s(1))/rf(1) + 1
@@ -815,8 +701,6 @@ c
 c     note the change in roles of Pi, Pj, Pk!
 
 
-c     write(667,*) "r By"
-
       k1=childstart(3)+1
       k2=childstart(3)+refinedim(3)
 
@@ -832,12 +716,10 @@ c     write(667,*) "r By"
       if( methodkludge .eq. -4 ) then
          write(*,*) "INTP ", i1,i2,j1,j2,k1,k2
       endif
-c      do k=childstart(3)+1, childstart(3)+refinedim(3)
       do k=k1,k2
          Pk = (k-1+offset2(3))/rf(3) + 1
          Lk = mod(k-1+offset2(3),rf(3) )
          Lz = dz*(one*Lk/rf(3) -half + one/(rf(3)*two ) )
-c         do j=childstart(2)+1+s(2), childstart(2)+refinedim(2)+s(2)
          do j=j1,j2
             Pj = (j-1+offset2(2) - s(2))/rf(2) + 1 
 
@@ -848,7 +730,7 @@ c         do j=childstart(2)+1+s(2), childstart(2)+refinedim(2)+s(2)
                Lj = mod(j-1+offset2(2)-s(2),rf(2) ) +s(2)
                Ly = dy*(one*Lj/rf(2) -half )
             endif
-c            do i=childstart(1)+1, childstart(1)+refinedim(1)
+
             do i=i1,i2
                Pi = (i-1+offset2(1))/rf(1) + 1
                Li = mod(i-1+offset2(1),rf(1) )
@@ -873,7 +755,7 @@ c            do i=childstart(1)+1, childstart(1)+refinedim(1)
                endif
 
                else
-c	pooy
+
                   childy(i,j,k) =  Ly
 
                endif
@@ -901,7 +783,6 @@ c     note the change in roles of Pi, Pj, Pk!
       i1=childstart(1)+1
       i2= childstart(1)+refinedim(1)
 
-c      do k=childstart(3)+1+s(3), childstart(3)+refinedim(3)+s(3)
       do k=k1,k2
          Pk = (k-1+offset2(3)-s(3))/rf(3) +1
 
@@ -912,12 +793,10 @@ c      do k=childstart(3)+1+s(3), childstart(3)+refinedim(3)+s(3)
             Lk = mod(k-1+offset2(3)-s(3),rf(3) )+s(3)
             Lz = dz*(one*Lk/rf(3) -half )
          endif
-c         do j=childstart(2)+1, childstart(2)+refinedim(2)
          do j=j1,j2
             Pj = (j-1+offset2(2))/rf(2) +1
             Lj = mod(j-1+offset2(2),rf(2) )
             Ly = dy*(one*Lj/rf(2) -half +one/(rf(1)*two) )
-c            do i=childstart(1)+1, childstart(1)+refinedim(1)
             do i=i1,i2
                Pi = (i-1+offset2(1))/rf(1)+1
                Li = mod(i-1+offset2(1),rf(1) )
@@ -946,9 +825,8 @@ c     if this is a prolongation, update
 
 
                else
-c     pooz
-                  childz(i,j,k) = Ly
 
+                  childz(i,j,k) = Ly
 
                endif
       enddo
@@ -956,12 +834,6 @@ c     pooz
       enddo
 
 
-c
-c     She's a beautiful metal jukebox, a sailboat explosion
-c
-c
-
-         
       t = 0
 
  666  continue
@@ -989,10 +861,3 @@ c
       endif
 
       end
-c
-c     minmod(a,b) = 0 if a*b < 0
-c                   a if a*b > 0 AND |a|<|b|
-c                   b if a*b > 0 AND |b|<|a|
-c
-c     This is a slope limiter, for TVD interpolation.
-c     

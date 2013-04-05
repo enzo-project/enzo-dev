@@ -141,7 +141,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     for (dim = 0; dim < Rank; dim++)
       Layout[dim] = 6;
 */
-#ifdef MHDCT
+
   /* If defined, use user defined Processor Topology. */
   if( ProcessorTopology[0] != INT_UNDEFINED &&
       ProcessorTopology[1] != INT_UNDEFINED &&
@@ -151,11 +151,10 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
       for( dim = 0 ; dim<Rank; dim++)
 	Layout[dim] = ProcessorTopology[dim];
     else
-      fprintf(stderr, "WARNING!!!! Not using User Defined Processor Topology: %d * %d * %d != %d\n",
+      fprintf(stderr, "WARNING!!!! Not using User Defined Processor Topology: %"ISYM" * %"ISYM" * %"ISYM" != %"ISYM"\n",
 	      ProcessorTopology[0],ProcessorTopology[1], ProcessorTopology[2], NumberOfProcessors);
   }
 
-#endif //MHDCT
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(stderr, "ENZO_layout %"ISYM" x %"ISYM" x %"ISYM"\n", Layout[0], Layout[1], Layout[2]);
   }
@@ -270,7 +269,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     } // ENDELSE ThisLevel == 1
 
     if (ParentGridNum == INT_UNDEFINED) {
-      ENZO_VFAIL("CommunicationPartitionGrid: grid %d (%d), Parent not found?\n",
+      ENZO_VFAIL("CommunicationPartitionGrid: grid %"ISYM" (%"ISYM"), Parent not found?\n",
 	      gridnum, ThisLevel)
     }
 

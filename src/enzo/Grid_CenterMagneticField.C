@@ -1,3 +1,17 @@
+/***********************************************************************
+/
+/  GRID CLASS ()
+/
+/  written by: David Collins
+/  date:       2005?
+/  modified1:
+/
+/  PURPOSE:    Averages the face centered magnetic field to the cell centered one.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
 
 #include "preincludes.h"
 #include "macros_and_parameters.h"

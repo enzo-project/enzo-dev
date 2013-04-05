@@ -64,9 +64,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
  
   int grid1, subgrid, StartGrid, EndGrid;
   HierarchyEntry *NextGrid;
-#ifdef MHDCT
   LevelHierarchyEntry *NextSubgrid;
-#endif //MHDCT
  
   int SUBlingGrid;
   LevelHierarchyEntry *NextEntry;
@@ -273,8 +271,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
     /* -------------- Face Projection.  Still with blocking receive. ----------------- */
 
-#ifdef MHDCT
-  if( useMHDCT) {
+  if( UseMHDCT) {
     CommunicationDirection = COMMUNICATION_SEND;
 
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
@@ -303,7 +300,6 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
       }
     }//2nd grid loop
   }//MHD Used
-#endif //MHDCT
 
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();

@@ -1007,7 +1007,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   MustRefineParticlesMinimumMass /= POW(1/(float(MetaData.TopGridDims[0])
 				       *POW(float(RefineBy), float(MustRefineParticlesRefineToLevel))),3);
-#ifdef MHDCT
   //MHDCT variables
   fprintf(fptr, "MHDCTSlopeLimiter          = %"ISYM"\n", MHDCTSlopeLimiter);
   fprintf(fptr, "MHDCTDualEnergyMethod          = %"ISYM"\n", MHDCTDualEnergyMethod);
@@ -1016,8 +1015,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "WriteBoundary          = %"ISYM"\n", WriteBoundary);
   fprintf(fptr,"CT_AthenaDissipation          =%"GSYM"\n",CT_AthenaDissipation);
   fprintf(fptr,"MHD_WriteElectric             =%"ISYM"\n",MHD_WriteElectric);
-  //fprintf(fptr, "MHDLi                    = %d %d %d %d %d\n",MHDLi[0],MHDLi[1],
-	  //MHDLi[2],MHDLi[3],MHDLi[4]);
   fprintf(fptr,"tiny_pressure                 =%"GSYM"\n",tiny_pressure);
   fprintf(fptr,"MHD_CT_Method                 =%"ISYM"\n",MHD_CT_Method);
   fprintf(fptr,"NumberOfGhostZones           =%"ISYM"\n",NumberOfGhostZones);
@@ -1028,7 +1025,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"ProcessorTopology             =%"ISYM" %"ISYM" %"ISYM"\n",
           ProcessorTopology[0],ProcessorTopology[1],ProcessorTopology[2]);
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
-#endif //MHDCT
+
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
 
   /* Output current time */

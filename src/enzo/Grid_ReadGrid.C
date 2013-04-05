@@ -452,8 +452,8 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 	gradPhi[dim][n] = 0.0;
 
   } /* if HydroMethod == MHD */
-#ifdef MHDCT
-  if( useMHDCT ){
+
+  if( UseMHDCT ){
     if(MHDcLabel[0]==NULL)
       MHDcLabel[0] = "Bx";
     if(MHDcLabel[1]==NULL)
@@ -593,7 +593,7 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
     
     }//processor
     }
-#endif
+
   }  // end read baryon fields
  
   /* 3) Read particle info */

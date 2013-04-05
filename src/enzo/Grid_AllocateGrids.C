@@ -43,8 +43,7 @@ void grid::AllocateGrids()
       BaryonField[field][i] = 0.0;
   }
  
-#ifdef MHDCT
-  if(useMHDCT){
+  if(UseMHDCT){
     for(field=0;field<3;field++){
 
       CenteredB[field] = new float[size];
@@ -66,6 +65,6 @@ void grid::AllocateGrids()
 
     for( i=0;i< size; i++ ) divB[i] = 0.0;
     
-  }
-#endif //MHDCT
+  } // if(UseMHDCT)
+
 }

@@ -39,7 +39,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "fortran.def"
-#include "DaveTools.h"
+#include "DebugTools.h"
 
 //
 // Method = 0: MagneticField = Curl( ElectricField )
@@ -121,12 +121,11 @@ int grid::MHD_Curl(int * Start, int * End, int Method){
 		-( (OK[dimX][1] == 1) ? dTdX[dimZ]*(ElectricField[dimY][E4]- ElectricField[dimY][E3]) : 0 ));
 	    break;
 	  default:
-	    ENZO_VFAIL(" Method = %d isn't a valid argumetn to MHD_Curl.  Fix it.\n",Method)
+	    ENZO_VFAIL(" Method = %"ISYM" isn't a valid argument to MHD_Curl.  Fix it.\n",Method)
 	    break;
 	  }//switch
 	}//i,j,k
   }//dim
-  
   
   return SUCCESS;
   

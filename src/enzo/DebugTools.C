@@ -20,11 +20,6 @@
 
 void RecursivelySetParticleCount(HierarchyEntry *GridPoint, PINT *Count);
  
-// This routine intializes a new simulation based on the parameter file.
- 
-
- 
- 
 int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
 				    TopGridData *MetaData)
 {
@@ -81,18 +76,19 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
   }
   fclose(fptr);
  
-/*
-  fprintf(stderr, "TracerParticleCreation = %"ISYM"\n", MetaData->CycleNumber);
-  fprintf(stderr, "TracerParticleCreationSpacing = %"PSYM"\n", TracerParticleCreationSpacing);
-  fprintf(stderr, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM"\n",
-                  TracerParticleCreationLeftEdge[0],
-                  TracerParticleCreationLeftEdge[1],
-                  TracerParticleCreationLeftEdge[2]);
-  fprintf(stderr, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
-                  TracerParticleCreationRightEdge[0],
-                  TracerParticleCreationRightEdge[1],
-                  TracerParticleCreationRightEdge[2]);
-*/
+  if(debug){
+    fprintf(stderr, "TracerParticleCreation = %"ISYM"\n", MetaData->CycleNumber);
+    fprintf(stderr, "TracerParticleCreationSpacing = %"PSYM"\n", TracerParticleCreationSpacing);
+    fprintf(stderr, "TracerParticleCreationLeftEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+	    TracerParticleCreationLeftEdge[0],
+	    TracerParticleCreationLeftEdge[1],
+	    TracerParticleCreationLeftEdge[2]);
+    fprintf(stderr, "TracerParticleCreationRightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
+	    TracerParticleCreationRightEdge[0],
+	    TracerParticleCreationRightEdge[1],
+	    TracerParticleCreationRightEdge[2]);
+  }
+
   HierarchyEntry * Temp = TopGrid;
   if (TracerParticleCreationSpacing > 0) {
     while( Temp != NULL ){
@@ -117,7 +113,7 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
  
     LocalNumberOfParticles = 0;
     LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
-    // printf("OldLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
+    if(debug) printf("OldLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
 
 #ifdef USE_MPI 
     CommunicationAllReduceValues(&LocalNumberOfParticles, 1, MPI_SUM);
@@ -125,65 +121,18 @@ int TracerParticlesAddToRestart_DoIt(char * filename, HierarchyEntry *TopGrid,
     Temp->GridData->SetNumberOfParticles(LocalNumberOfParticles);
  
     LocalNumberOfParticles = Temp->GridData->ReturnNumberOfParticles();
-    // printf("NewLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
+    if(debug) printf("NewLocalParticleCount: %"ISYM"\n", LocalNumberOfParticles );
  
     Temp = Temp->NextGridThisLevel;
   }
  
  
-  PINT PaticleCount = 0;
   Temp = TopGrid;
   PINT ParticleCount = 0;
   RecursivelySetParticleCount(Temp, &ParticleCount);
   MetaData->NumberOfParticles = ParticleCount;
-
-  
- 
-
  
   return SUCCESS;
-}
-
-
-//returns the wall time.
-extern FILE * wall_ptr;
-void wall_time_start(){
-  char filename[20];
-  sprintf(filename,"data_time_%04d",MyProcessorNumber);
-  wall_ptr = fopen(filename,"w");
-}
-void wall_time_flush(){
-  fclose(wall_ptr);
-  char filename[20];
-  sprintf(filename,"data_time_%04d",MyProcessorNumber);
-  wall_ptr = fopen(filename,"a");
-
-}
-void wall_time_stop(){
-  fclose(wall_ptr);
-}  
-void wall_time (char * string)
-{
-  //wall_ptr == null unless wall_time_start is called
-  if( wall_ptr ){
-    struct timeval tv;
-    struct timezone tz;
-    gettimeofday(&tv,&tz);
-    fprintf(wall_ptr,"%d TIME %s %f \n", MyProcessorNumber, string, tv.tv_sec + 1e-6*tv.tv_usec);
-    fflush(wall_ptr);
-  }
-}
-float wall_time ()
-{ 
-  //if( MyProcessorNumber != ROOT_PROCESSOR)
-  //return;
-  // get current time in seconds (specifically the number of 
-  // seconds since 00:00:00 UTC January 1 1970)              
-
-  struct timeval tv;
-  struct timezone tz;
-  gettimeofday(&tv,&tz);
-  return tv.tv_sec + 1e-6*tv.tv_usec;
 }
 
 //Writes an HDF5 cube.  Quick and dirty.  
@@ -208,7 +157,7 @@ void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum
   char filename[20];
   
   sprintf(filename, "data111%4.4d.grid%4.4d",dNum,gNum);
-  fprintf(stderr,"GPFS WriteCube: %s %s [%d,%d,%d]\n", string, filename, Dims[0],Dims[1],Dims[2]);
+  fprintf(stderr,"GPFS WriteCube: %s %s [%"ISYM",%"ISYM",%"ISYM"]\n", string, filename, Dims[0],Dims[1],Dims[2]);
   
 #define floatdcc double  
   int jj = sizeof(floatdcc);
@@ -258,22 +207,5 @@ void WriteSingleCube(float * array, int Dims[], char* string, int dNum, int gNum
   status = H5Sclose(dataspace_id);
   status = H5Dclose(dataset_id);
   status = H5Fclose(file_id);
-  
-  
-}
-
-void commas(char *str, int numin){
-
-  char temp[100]="";
-  int num = numin;
-  sprintf(str, "");
-  for(int i=10; i>=0; i--){
-    int dig = (int) pow((double) 10,(double) i);
-    if((int) numin/dig < 1 ) continue;
-    sprintf(temp, "%i", num/dig);
-    strcat(str, temp);
-    if( i % 3 == 0 && i != 0 ) strcat(str, ",");
-    num=num-(num/dig)*dig;
-  }
-
+    
 }

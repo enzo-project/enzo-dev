@@ -1,8 +1,20 @@
 //
-// The Orszag Tang Vortex.
-// ICs from Ryu, Dongsu; Miniati, Francesco; Jones, T. W.; Frank, Adam, 1998 
-//
-//
+/***********************************************************************
+/
+/  GRID CLASS ()
+/
+/  written by: David Collins
+/  date:       2005?
+/  modified1:
+/
+/  PURPOSE: The Orszag Tang Vortex.
+/           ICs from Ryu, Dongsu; Miniati, Francesco; Jones, T. W.; Frank, Adam, 1998 
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 
 #include "preincludes.h"
 #include "macros_and_parameters.h"
@@ -67,7 +79,7 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   for (int i = 0; i < count; i++)
     DataUnits[i] = NULL;
 
-  if ( useMHDCT ){
+  if ( UseMHDCT ){
       MHDcLabel[0] = "Bx";
       MHDcLabel[1] = "By";
       MHDcLabel[2] = "Bz";
