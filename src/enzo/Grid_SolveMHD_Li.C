@@ -570,16 +570,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   if ( ! DualEnergyFormalism )
     delete [] pressure;
 
-  for ( dim=0;dim<3;dim++){
-    delete [] fistart[dim];
-    delete [] fiend[dim];
-    delete [] fjstart[dim];
-    delete [] fjend[dim];
-    delete [] nfi[dim];
-    delete [] lindex[dim];
-    delete [] rindex[dim];
-  }
-
   for( dim=0;dim<3;dim++){
     delete [] fistart[dim];
     delete [] fiend[dim];
@@ -618,7 +608,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     }
   }//comoving
 
-  
+
   
   return SUCCESS;
 }
