@@ -424,11 +424,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         }
         CenterMagneticField();
 #ifdef BIERMANN
-        // Biermann battery constants in cgs units, convert to enzo units later
-        float speedoflight = 3.0e10;
-        float hydrogenmass = 1.6733e-24;
-        float electroncharge = 4.803e-10;
-        float chi=1.0;
         
         /* Compute Units. */
         
@@ -442,9 +437,12 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
             return FAIL;
           }
           /* Transform speed of light, hydrogen mass and electron change in units of ENZO */
-          electroncharge *= TimeUnits*BFieldUnits/(speedoflight*DensityUnits*pow(LengthUnits,3));
-          speedoflight /=VelocityUnits;
-          hydrogenmass /= DensityUnits*pow(LengthUnits,3);
+          // Biermann battery constants in cgs units, convert to enzo units later
+          float speedoflight = clight/VelocityUnits;
+          float hydrogenmass = mh/DensityUnits*POW(LengthUnits,3);
+          float electroncharge = 4.803e-10*
+                TimeUnits*BFieldUnits/(speedoflight*DensityUnits*POW(LengthUnits,3));
+          float chi=1.0;
         }
 #endif //BIERMANN
     }//UseMHDCT
