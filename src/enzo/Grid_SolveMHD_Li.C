@@ -559,6 +559,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   delete [] field_line;
   delete [] flux_line;
   delete [] colour_line;
+  delete [] flux_colour;
   delete [] gravity_line;
   delete [] diffusion_line;
 
@@ -570,6 +571,16 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     delete [] pressure;
 
   for ( dim=0;dim<3;dim++){
+    delete [] fistart[dim];
+    delete [] fiend[dim];
+    delete [] fjstart[dim];
+    delete [] fjend[dim];
+    delete [] nfi[dim];
+    delete [] lindex[dim];
+    delete [] rindex[dim];
+  }
+
+  for( dim=0;dim<3;dim++){
     delete [] fistart[dim];
     delete [] fiend[dim];
     delete [] fjstart[dim];
