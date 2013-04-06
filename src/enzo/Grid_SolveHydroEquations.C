@@ -408,11 +408,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
       GravityOn = 1;
 #endif    
 
-#ifdef MHDCT
     //Some setup for MHDCT
 
     float *MagneticFlux[3][2];
-    if ( useMHDCT ) {
+    if ( UseMHDCT ) {
         MHDCT_ConvertEnergyToConservedS();  //Energy toggle.  Probably will be removed soon.
         for(field=0;field<3;field++){
             if(ElectricField[field] == NULL ) 
@@ -448,16 +447,14 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
           hydrogenmass /= DensityUnits*pow(LengthUnits,3);
         }
 #endif //BIERMANN
-    }//useMHDCT
-
-#endif //MHDCT
+    }//UseMHDCT
 
 
-#ifdef MHDCT
+
     float* Fluxes[3] = {MagneticFlux[0][0],MagneticFlux[1][0],MagneticFlux[2][0]};
     int CurlStart[3] = {0,0,0}, 
     CurlEnd[3] = {GridDimension[0]-1,GridDimension[1]-1,GridDimension[2]-1};
-    if ( useMHDCT ){
+    if ( UseMHDCT ){
         if (HydroMethod == MHD_Li){
           this->SolveMHD_Li(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
                 CellWidthTemp, GridGlobalStart, GravityOn, 
@@ -495,8 +492,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         CenterMagneticField();
 
         MHDCT_ConvertEnergyToSpecificS();
+        for(field=0;field<3;field++){
+          delete [] MagneticFlux[field][0];
+        }
     }
-#endif //MHDCT
     /* Call Solver on this grid.
        Notice that it is hard-wired for three dimensions, but it does
        the right thing for < 3 dimensions. */
