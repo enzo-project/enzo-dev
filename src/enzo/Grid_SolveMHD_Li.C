@@ -37,7 +37,6 @@ extern "C" void FORTRAN_NAME(pde1dsolver_mhd_new)(float * wx, float* colours, in
            float * gamma, float * csmin, float * rhomin, 
            int * MHDCTDualEnergyMethod, int * MHDCTSlopeLimiter,int * RiemannSolver, 
            int * ReconstructionMethod, int * idiffusion, int * MHDCTPowellSource,
-           float * tdum0, float * boxl0, float * hubb, float * zr, 
            int * nhy, int * gravityon, float * gravityx, 
            FLOAT * a, int * EquationOfState, float * SoundSpeed, int * hack2);
 
@@ -86,9 +85,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   int hack = 0; //a flag for testing the solver.
   float dtdx;
 
-  int nu = 6; //Remove this
+  int nu = 6;
   float csmin = 1e-13, rhomin = 1e-6;
-  float tdum0 = 1e-13, boxl0 = 0.0, hubb=0.0, zr = 0.0; //Dummy variables.  Clean up.
 
   int line_width = 9;  //the number of conserved quantities.
   float * field_line     = new float[line_size * line_width];
@@ -235,7 +233,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
             &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
-            &tdum0, &boxl0, &hubb, &zr, 
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
@@ -353,7 +350,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
             &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
-            &tdum0, &boxl0, &hubb, &zr, 
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
@@ -473,7 +469,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
             &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
-            &tdum0, &boxl0, &hubb, &zr, 
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
             

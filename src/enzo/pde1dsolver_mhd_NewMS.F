@@ -7,7 +7,6 @@
      $     gamma,csmin,rhomin,
      $     MHDCTDualEnergyMethod,MHDCTSlopeLimiter,RiemannSolver,
      $     ReconstructionMethod,idiffusion,MHDCTPowellSource,
-     $     tdum0,boxl0,hubb,zr,
      $      ncyc,
      $     gravityon, acc,
      $     a, EquationOfState,SoundSpeed,hack)
@@ -30,7 +29,7 @@
 c----------------------------------------------------------
 c
       INTG_PREC omp_get_thread_num,ncyc
-      R_PREC rgam1(ndx), rt(ndx), shock(ndx), tdum0, boxl0,hubb,zr
+      R_PREC rgam1(ndx), rt(ndx), shock(ndx), tdum0
      $     , dp, dv
 c-----------------------------------------------------------
       R_PREC gamma,gm1, prelow,rhomin,csmin
@@ -51,6 +50,8 @@ c     Note that for the most part things are treated identically as adiabatic.
       common /printff/printflag
 
       data alpha1/0.008_RKIND/, cdiff/0.1_RKIND/,prelow/1.0e-16_RKIND/
+      
+      tdum0 = 1e-13_RKIND
     
       gm1 = gamma - 1._RKIND
       theta = 1.5_RKIND
@@ -444,7 +445,7 @@ c
          do ix = nxb,nxe
             shock(ix) = 0.
             dv= u0(2,ix+1)/u0(1,ix+1)-u0(2,ix-1)/u0(1,ix-1) 
-     +           +2.0*dx*boxL0*HUBB/(1.0+zr)
+c     +           +2.0*dx*boxL0*HUBB/(1.0+zr)
             dp= abs(pre(ix+1)-pre(ix-1))
      +           /(pre(ix+1)+pre(ix-1)+2*pre(ix))*4.0
             if( (dp.gt.0.3).and.(dv.lt.0.0) ) shock(ix)=1.
