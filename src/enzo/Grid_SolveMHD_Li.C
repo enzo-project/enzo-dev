@@ -474,7 +474,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             
 
 
-          for(kk = 0; kk<GridDimension[1]; kk++ ){
+          for(kk = 0; kk<GridDimension[2]; kk++ ){
             index_bf = ii + GridDimension[0]*(jj + GridDimension[1]*kk);
             BaryonField[DensNum][index_bf]= field_line[ kk + line_size*0];
             BaryonField[Vel1Num][index_bf]= field_line[ kk + line_size*2]/field_line[ kk + line_size*0];
