@@ -58,9 +58,6 @@ int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
   CenterMagneticField();
       
     int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-  if( DualEnergyFormalism ==1){
-    this->RestoreEnergyConsistency(ENTIRE_REGION);
-   }
   
   //Also update AvgElectricField, if this is a subgrid.
   if( level > 0 ){
