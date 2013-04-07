@@ -141,9 +141,6 @@ c     offset1(3)      Starting position of coefficients wrt ParentGrid.  (Actual
       R_PREC tol
       INTG_PREC NanLoo
 
-c     this is just what it sounds like:  it's a dummy variable that holds things together while
-c     I debug, before I rip this routine appart.
-      INTG_PREC methodkludge
 
       R_PREC one, half, zero, quarter, two
 
@@ -627,7 +624,6 @@ c      endif
 c      face = -1
 
        
-      methodkludge=-1
 c     
 c     Reconstruction Bx
 c     
@@ -646,9 +642,6 @@ c     we can incorporate the shift into s, but I don't know if that will be any 
       i1 = childstart(1)+1+s(1)
       i2 = childstart(1)+refinedim(1)+s(1) 
 
-      if( (methodkludge .ne. -1) .and. (methodkludge .ne. -2) ) then 
-         i2 = i2+1
-      endif
 
       do k=k1,k2
          Pk = (k-1+offset2(3))/rf(3) + 1
@@ -681,13 +674,11 @@ c     we can incorporate the shift into s, but I don't know if that will be any 
      +                 a(6,Pi,Pj,Pk)*Lx*Ly +
      +                 a(7,Pi,Pj,Pk)*Lx*Lz 
                   
-                  if( methodkludge .lt. 0) then
                      childx(i,j,k) = childx(i,j,k)       +
      +                    a(8,Pi,Pj,Pk)*Ly*Lz    +
      +                    a(9,Pi,Pj,Pk)*Lx*Ly*Lz +
      +                    a(10,Pi,Pj,Pk)*Lx*Lx*Ly+
      +                    a(11,Pi,Pj,Pk)*Lx*Lx*Lz
-                  endif
                   
                endif
                
@@ -707,15 +698,9 @@ c     note the change in roles of Pi, Pj, Pk!
       j1=childstart(2)+1+s(2)
       j2=childstart(2)+refinedim(2)+s(2)
 
-      if( (methodkludge .ne. -3) .and. (methodkludge .ne. -4) )then
-         j2 = j2+1
-      endif
 
       i1=childstart(1)+1
       i2=childstart(1)+refinedim(1)
-      if( methodkludge .eq. -4 ) then
-         write(*,*) "INTP ", i1,i2,j1,j2,k1,k2
-      endif
       do k=k1,k2
          Pk = (k-1+offset2(3))/rf(3) + 1
          Lk = mod(k-1+offset2(3),rf(3) )
@@ -745,14 +730,12 @@ c     note the change in roles of Pi, Pj, Pk!
      +              b(6,Pi,Pj,Pk)*Lx*Ly +
      +              b(7,Pi,Pj,Pk)*Lz*Ly 
 
-               if( methodkludge .lt.0 ) then
                   childy(i,j,k) =  childy(i,j,k)       +
      +                 b(8,Pi,Pj,Pk)*Lx*Lz    +
      +                 b(9,Pi,Pj,Pk)*Lx*Ly*Lz +
      +                 b(10,Pi,Pj,Pk)*Ly*Ly*Lx+
      +                 b(11,Pi,Pj,Pk)*Ly*Ly*Lz
                   
-               endif
 
                else
 
@@ -773,9 +756,6 @@ c     note the change in roles of Pi, Pj, Pk!
       k1=childstart(3)+1+s(3)
       k2=childstart(3)+refinedim(3)+s(3)
 
-      if( (methodkludge .ne. -5) .and. (methodkludge .ne. -6) )then
-         k2 = k2+1
-      endif
 
       j1=childstart(2)+1
       j2=childstart(2)+refinedim(2)
@@ -814,14 +794,12 @@ c     note the change in roles of Pi, Pj, Pk!
 
 c     if this is a prolongation, update
 
-                  if(methodkludge .lt. 0 ) then
                      childz(i,j,k) = childz(i,j,k)       +
      +                               c(8,Pi,Pj,Pk)*Lx*Ly    +
      +                               c(9,Pi,Pj,Pk)*Lx*Ly*Lz +
      +                               c(10,Pi,Pj,Pk)*Lz*Lz*Lx+
      +                               c(11,Pi,Pj,Pk)*Lz*Lz*Ly
 
-                  endif
 
 
                else
