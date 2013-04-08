@@ -682,6 +682,7 @@ if(MultiSpecies>0){
      }
    }
   delete [] ColorFlux, Color;
+  delete [] FluxExtents, FluxDims;
 
   MHDCT_ConvertEnergyToSpecificS();
 
