@@ -122,6 +122,15 @@ int grid::MHDRK2_2ndStep(fluxes *SubgridFluxes[],
     delete [] dU[field];
   }
 
+  /* If we're supposed to be outputting on Density, we need to update
+  the current maximum value of that Density. */
+  
+  if(OutputOnDensity == 1){
+    int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+    for(int i = 0; i < size; i++)
+      CurrentMaximumDensity = max(BaryonField[DensNum][i], CurrentMaximumDensity);
+  }
+
   return SUCCESS;
 
 }
