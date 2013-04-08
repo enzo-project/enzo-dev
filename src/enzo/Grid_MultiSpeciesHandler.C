@@ -31,6 +31,13 @@ int grid::MultiSpeciesHandler()
 
   LCAPERF_START("grid_MultiSpeciesHandler");
 
+  if (grackle_chemistry.use_chemistry) {
+    if (this->GrackleWrapper() == FAIL) {
+      ENZO_FAIL("Error in GrackleWrapper.\n");
+    }
+    return SUCCESS;
+  }
+
   if (MultiSpecies && RadiativeCooling ) {
     int RTCoupledSolverIntermediateStep = FALSE;
     this->SolveRateAndCoolEquations(RTCoupledSolverIntermediateStep);
