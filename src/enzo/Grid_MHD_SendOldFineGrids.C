@@ -1,3 +1,21 @@
+/***********************************************************************
+/
+/  GRID CLASS (Communicates old fine grids)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:   The divergence free interpolation of Balsara 2001
+/             requires information from magnetic fields at the prior timestep
+/             for interpolation. This routine communicates the necessary 
+/             information before the call to InterpolateFieldValues.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 
 #include "preincludes.h"
 #include "macros_and_parameters.h"
@@ -40,20 +58,15 @@ int grid::MHD_SendOldFineGrids(LevelHierarchyEntry * OldFineLevel, grid *ParentG
     EndIndex[dim] = (int(EndIndex[dim]/Refinement[dim])+1)*Refinement[dim]-1;
     
     TempDim[dim]            = EndIndex[dim] - StartIndex[dim] + 1;
-
   }
 
   CommunicationDirection = COMMUNICATION_SEND;
-  //ComputeInterpolation Derivatives
+
+  //Compute Interpolation Derivatives
   if( MHD_CID(OldFineLevel, MetaData, Offset, TempDim, Refinement) == FAIL ){
     fprintf(stderr, "MHD_CID failed.\n");
     return FAIL;
   }
-
-
-
-
-  
 
   return SUCCESS;
 }

@@ -346,11 +346,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
  
   i = 0;
   DataLabel[i++] = DensName;
-#ifdef MHDCT
   if( EquationOfState == 0 ) DataLabel[i++] = TEName;
-#else //MHDCT
-  DataLabel[i++] = TEName;
-#endif //MHDCT
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
   DataLabel[i++] = Vel1Name;
@@ -419,9 +415,9 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   /* Clean up. */
  
   delete dummy;
-#ifdef MHDCT 
+
   //set up field labels
-  if( useMHDCT == TRUE ){
+  if( UseMHDCT == TRUE ){
     MHDLabel[0] = "BxF";
     MHDLabel[1] = "ByF";
     MHDLabel[2] = "BzF";
@@ -443,7 +439,6 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     MHDeUnits[2] = "None";
   }
  
-#endif //MHDCT 
   return SUCCESS;
 }
  

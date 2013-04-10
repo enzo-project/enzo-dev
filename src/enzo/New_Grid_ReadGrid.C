@@ -319,9 +319,8 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
     } // end: loop over fields
 
-#ifdef MHDCT
 
-    if( useMHDCT ){
+    if( UseMHDCT ){
       //
       // Define some local variables for MHD.
       //
@@ -373,7 +372,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
     }
 
-#endif //MHDCT
 
     if (HydroMethod == MHD_RK) { // This is the MHD with Dedner divergence cleaning that needs an extra field
       // 

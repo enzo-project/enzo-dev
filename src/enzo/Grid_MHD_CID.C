@@ -1,3 +1,21 @@
+/***********************************************************************
+/
+/  GRID CLASS (COMPUTES INTERPOLATION DERIVATIVES)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  The divergence free interpolation of Balsara 2001 requires
+/            not only the parent grid, but also the values from the existing
+/            fine grids at a given point.  This computes the derivatives 
+/            used in the interpolation, saving the finest derivative available.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include <stdio.h>
 #include "ErrorExceptions.h"
 #include <math.h>
@@ -38,7 +56,7 @@ CID_Parameters CID_Params;
 
 //MHD_ Calculate Interpolation Derivatives
 int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
-  //wall_time("Start CIDW_1");
+
   //This is a flag for the interpolator.  Step = 1 tells mhd_interpolate to only take derivatives
   //don't actually interpolate.
   int Step = 1, ver = FALSE, ver2=FALSE,Overlap, dim, i, OnlyOneFace, field;
@@ -89,13 +107,13 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
       if( GridLeft[dim] > OldFineGrid->GridRightEdge[dim]+Some ) {
 	Overlap = FALSE;
-	if(ver==TRUE) fprintf(stderr,"MHD_CID: left too right (%d %f %f %f)\n",
+	if(ver==TRUE) fprintf(stderr,"MHD_CID: left too right (%"ISYM" %"FSYM" %"FSYM" %"FSYM")\n",
 			      dim, GridLeft[dim],OldFineGrid->GridRightEdge[dim], Some );
       }
       
       if( GridRight[dim] < OldFineGrid->GridLeftEdge[dim]-Some ) {
 	Overlap = FALSE;
-	if(ver==TRUE) fprintf(stderr,"MHD_CID: right too left (%d %f %f %f)\n",
+	if(ver==TRUE) fprintf(stderr,"MHD_CID: right too left (%"ISYM" %"FSYM" %"FSYM" %"FSYM")\n",
 			      dim, GridRight[dim],OldFineGrid->GridLeftEdge[dim], Some );
 	
       }
@@ -104,7 +122,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
 	if( OnlyOneFace == -1 )
 	  OnlyOneFace = dim;
 	else{
-	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %d, %d\n",OnlyOneFace, dim);
+	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %"ISYM", %"ISYM"\n",OnlyOneFace, dim);
 	  Overlap = FALSE;
 	}
       }
@@ -113,7 +131,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
 	if( OnlyOneFace == -1 )
 	  OnlyOneFace = 10+dim;
 	else{
-	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %d, %d\n",OnlyOneFace, dim);
+	  if(ver==TRUE) fprintf(stderr, "PFG: too many faces: %"ISYM", %"ISYM"\n",OnlyOneFace, dim);
 	  Overlap = FALSE;
 	}
       }
@@ -121,7 +139,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       // Clearly the code has gotten this far, so some prolonging must happen.
       
       //
-      // Compute the start and stop indicies of the overlapping region.
+      // Compute the start and stop indices of the overlapping region.
       //
       
       //initialize
@@ -133,6 +151,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       //Determine position in Spatial coordinates
       OverlapLeft  = max(GridLeft[dim], OldFineGrid->GridLeftEdge[dim]);
       OverlapRight = min(GridRight[dim], OldFineGrid->GridRightEdge[dim]);
+
       //convert to GridCoordinates
       Start[dim] = nint((OverlapLeft  - GridLeft[dim]) / CellWidth[dim][0]);
       End[dim]   = nint((OverlapRight - GridLeft[dim]) / CellWidth[dim][0]) - 1;
@@ -145,7 +164,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       }
       
       if(ver==TRUE) 
-	fprintf(stderr, "MHD_CID:     dim %d OverlapLeft %f OverlapRight %f Ss %d %d\n", 
+	fprintf(stderr, "MHD_CID:     dim %"ISYM" OverlapLeft %"FSYM" OverlapRight %"FSYM" Ss %"ISYM" %"ISYM"\n", 
 		dim, 16*OverlapLeft, 16*OverlapRight, Start[dim], End[dim]);
       
       StartOther[dim] = nint((OverlapLeft - OldFineGrid->CellLeftEdge[dim][0])/
@@ -158,16 +177,13 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     }//Overlap == TRUE
   }// dim<3
-  //wall_time("End CIDW_1");
+
   //If there's no overlap, get out of this damned loop.
   if( Overlap == FALSE ){
     if(ver==TRUE) fprintf(stderr,"MHD_CID: continuing.  No overlap.\n");
     return SUCCESS;
-    //OldFineLevelIterator = OldFineLevelIterator->NextGridThisLevel;
-    //continue;
-    
   }
-  //wall_time("Start CIDW_2");
+
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     Dim[dim] = End[dim] - Start[dim] + 1;//dcf
   
@@ -186,6 +202,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
 	OldFineGrid->MagneticField[field][i]=0.0;
     }
   }
+
   //Communicate, if I need to.
   if (ProcessorNumber != OldFineGrid->ProcessorNumber) {
     OldFineGrid->CommunicationSendRegion(OldFineGrid, ProcessorNumber, 
@@ -197,29 +214,16 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
   }
   
   //The processor that doesn't have ThisGrid has nothing else to do.
-  //We've gotten what we want from it, now we'll leave it to die alone in the desert.
-  //Bwa ha ha ha!
-  //wall_time("End CIDW_2");
+
   if (ProcessorNumber != MyProcessorNumber){
     return SUCCESS;
-    //OldFineLevelIterator = OldFineLevelIterator->NextGridThisLevel;
-    //continue;
   }
-  
-  
-  //wall_time("Start CIDW_3");
-  
-  //doom is a dummy field used for debugging. Feel free to remove it.
-  //fprintf(stderr,"kludge:  no prolongation\n");
-  int doom[6] = {1,1,1,1,1,1};
-  //int doom[6] = {1,0,0,0,0,0};
-  
+    
   //Oh yeah, in my notation "Left" and "Right" refer to the "other" grid    
   int ProlongStart[3], ProlongStartOther[3], ProlongDim[3] = {1,1,1}, Face = -12;    
   int Prolong = FALSE;
   
   for( int Looper=1;Looper<=6;Looper++){
-    //wall_time("Start CIDW_4");
     Prolong = FALSE;
     switch(Looper){
     case 1:
@@ -227,7 +231,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       //This is the important flag.
       
       if( OnlyOneFace == -1 || OnlyOneFace == 0  )
-	if( Start[0] > 0 && doom[0] == 1){
+	if( Start[0] > 0){
 	  
 	  for(i=0;i<3;i++){
 	    ProlongStart[i] = Start[i];
@@ -246,7 +250,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 2:
       if( OnlyOneFace == -1 || OnlyOneFace == 10 )
-	if( End[0] < GridDimension[0] - 1 && doom[1] == 1){
+	if( End[0] < GridDimension[0] - 1 ){
 	  
 	  if( ver2==TRUE)fprintf(stderr, "Prolong x r %s\n", Label);
 	  
@@ -267,7 +271,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 3:
       if( OnlyOneFace == -1 || OnlyOneFace == 1 )
-	if( Start[1] > 0 && doom[2] == 1){
+	if( Start[1] > 0 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong y l %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -287,7 +291,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 4:
       if(OnlyOneFace == -1 || OnlyOneFace == 11 )
-	if( End[1] < GridDimension[1]-1 && doom[3] == 1 ){
+	if( End[1] < GridDimension[1]-1 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong y r %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -307,7 +311,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 5:
       if(OnlyOneFace == -1 || OnlyOneFace == 2)
-	if( Start[2] > 0 && doom[4] == 1 ){
+	if( Start[2] > 0 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong z l %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -327,7 +331,7 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       
     case 6:
       if(OnlyOneFace == -1 || OnlyOneFace == 12 )
-	if( End[2] < GridDimension[2] -1 && doom[5] == 1 ){
+	if( End[2] < GridDimension[2] -1 ){
 	  if( ver2==TRUE)fprintf(stderr, "Prolong z r %s\n", Label);
 	  
 	  for(i=0;i<3;i++){
@@ -355,41 +359,26 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
     if(Prolong == TRUE){
       
       Step = 1;
-      //wall_time("Start CIDW_int");
-      FORTRAN_NAME(mhd_interpolate)(this->MHDParentTemp[0], 
-				    this->MHDParentTemp[1], 
-				    this->MHDParentTemp[2], 
-				    this->MHDParentTempPermanent,
+
+      FORTRAN_NAME(mhd_interpolate)(this->MHDParentTemp[0], this->MHDParentTemp[1], 
+				    this->MHDParentTemp[2], this->MHDParentTempPermanent,
 				    this->MHDRefinementFactors,
-				    MagneticField[0],
-				    MagneticField[1],
-				    MagneticField[2],
-				    TempDim, 
-				    ProlongStart,
-				    ProlongDim,
-				    OldFineGrid->MagneticField[0],
-				    OldFineGrid->MagneticField[1],
+				    MagneticField[0], MagneticField[1], MagneticField[2],
+				    TempDim, ProlongStart, ProlongDim,
+				    OldFineGrid->MagneticField[0], OldFineGrid->MagneticField[1],
 				    OldFineGrid->MagneticField[2],
-				    //OldFineGrid->GridDimension,
-				    OtherDim,
-				    ProlongStartOther,
-				    DyBx, DzBx, DyzBx,
-				    DxBy, DzBy, DxzBy,
-				    DxBz, DyBz, DxyBz,
+				    OtherDim, ProlongStartOther,
+				    DyBx, DzBx, DyzBx, DxBy, DzBy, DxzBy, DxBz, DyBz, DxyBz,
 				    DBxFlag,DByFlag,DBzFlag,
-				    &this->ParentDx,
-				    &this->ParentDy,
-				    &this->ParentDz,
-				    &Face,
-				    &Step,
-				    &Step);
+				    &this->ParentDx, &this->ParentDy, &this->ParentDz,
+				    &Face, &Step, &Step);
       
       char oot[30];
-      sprintf(oot,"CID, loop %d",Looper);
+      sprintf(oot,"CID, loop %"ISYM"",Looper);
     }	  
-    //wall_time("End CIDW_4");
+
   }//Loop	
-  //wall_time("Start CIDW_del");
+
   // 10/4: the copy to the smaller grid will go here.
   //Remove this delete.
   // set "OffProcessorHasRegion = TRUE "
@@ -404,16 +393,16 @@ int grid::MHD_CIDWorker(grid* OldFineGrid, FLOAT EdgeOffset[MAX_DIMENSION]){
       OldFineGrid->MagneticField[field] = NULL;
     }
   }
-  //wall_time("End CIDW_del");
-  //wall_time("End CIDW_3");
+
   if(ver==TRUE) fprintf(stderr, "MHD_CID: OldFineLevel \n");
   return SUCCESS;
 }
+
 int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int Offset[], 
 		  int TempDim[], int Refinement[])
 {
 
-  if( useMHDCT != TRUE )
+  if( UseMHDCT != TRUE )
     return SUCCESS;
 
   grid * OldFineGrid;
@@ -422,20 +411,21 @@ int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int
   int ver = FALSE;
   
   int dim;
-  //In order to reuse CheckForOverlap, I need to get around it's fixed 
+
+  //In order to reuse CheckForOverlap, I need to get around its fixed 
   //signature by putting some extra parameters in this structure.
   for(dim=0;dim<GridRank;dim++){
     CID_Params.Offset[dim] = Offset[dim];
     CID_Params.TempDim[dim]= TempDim[dim];
     CID_Params.Refinement[dim] = Refinement[dim];
   }
-  //if(ver==TRUE) fprintf(stderr, "MHD_CID: Enter\n");
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: Offset %d %d %d\n", Offset[0],Offset[1],Offset[2]);
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: TempDim %d %d %d\n", 
+
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: Offset %"ISYM" %"ISYM" %"ISYM"\n", Offset[0],Offset[1],Offset[2]);
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: TempDim %"ISYM" %"ISYM" %"ISYM"\n", 
 			TempDim[0], TempDim[1], TempDim[2]);
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: Refinement %d %d %d\n", 
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: Refinement %"ISYM" %"ISYM" %"ISYM"\n", 
 			Refinement[0], Refinement[1], Refinement[2]);
-  if(ver==TRUE) fprintf(stderr, "MHD_CID: MHDParentTempPermanent %d %d %d\n", 
+  if(ver==TRUE) fprintf(stderr, "MHD_CID: MHDParentTempPermanent %"ISYM" %"ISYM" %"ISYM"\n", 
 	  MHDParentTempPermanent[0], MHDParentTempPermanent[1], MHDParentTempPermanent[2]);
 
   while( OldFineLevelIterator != NULL ){
@@ -476,18 +466,12 @@ int grid::MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData *MetaData, int
     FLOAT PeriodicOffset[3] = {0,0,0};
     this->MHD_CIDWorker( OldFineGrid,PeriodicOffset);
 
-    //for(int fart=0;fart<MAX_DIMENSION;fart++){
-    //TopLeftBoundary[fart] = reflecting;
-    //TopRightBoundary[fart] = reflecting;
-    //}
     if( this->CheckForOverlap( OldFineGrid, MetaData->LeftFaceBoundaryCondition, MetaData->RightFaceBoundaryCondition, //TopLeftBoundary, TopRightBoundary,
 			       &grid::MHD_CIDWorker) == FAIL )
       ENZO_FAIL("MHD_CID: CheckForOverlap failed.");
     OldFineLevelIterator = OldFineLevelIterator->NextGridThisLevel;
 
   }
-
-
 
   return SUCCESS;
 

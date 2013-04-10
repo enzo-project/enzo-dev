@@ -1,6 +1,3 @@
-c#include "fortran.def"
-c#include "error.def"
-c#define tiny 1.0e-20
 #define USESTRANG
 
         subroutine mhd_li_ms(d, e, vx, vy, vz, 
@@ -102,19 +99,12 @@ c   hx, changed dimension to 9, new one for the entropy
 
       R_PREC temp
 
-
 #ifndef HAOXU_NOMULTI
-
 
        nu = 6
        csmin = 1.0e-13
        rhomin = 1.0e-6
-       !UseEntropy = 0w
-       !option = solverparameters(1) ! 1
-       !iflux = solverparameters(2) ! 5
-       !ipred = solverparameters(3) ! 1
        idiffusion = idiff
-       !isource = solverparameters(4) !0
        tdum0 = 1.0e-13
        boxL0 = 0.0
        hubb = 0.0
@@ -252,14 +242,6 @@ c -------- I opted for clarity over cleverness. (if this comment is confusing, i
 
 c     end of sub-crap -------------------
 
-c      open(unit=700,file='file.X0',status='unknown',position='append')
-c      open(unit=710,file='file.X1',status='unknown',position='append')
-c      open(unit=701,file='file.Y0',status='unknown',position='append')
-c      open(unit=711,file='file.Y1',status='unknown',position='append')
-c      open(unit=702,file='file.Z0',status='unknown',position='append')
-c      open(unit=712,file='file.Z1',status='unknown',position='append')
-
-
  800  format(10f9.5)
       
       is = 1      
@@ -271,15 +253,8 @@ c      open(unit=712,file='file.Z1',status='unknown',position='append')
       
       nhyt = nhy
       
-c     if( kdim .eq. 12 ) then
-c     c         nhyt = nhyt + 2
-c     endif
-      
       ixyz = mod(nhyt,rank)
       
-
-c     This strang business is an experiment.  It doesn't work.  
-c      dtstrang = dt/2.0      
       dtstrang = dt
       dtdx = dtstrang/dx
       dtdy = dtstrang/dy
@@ -299,16 +274,6 @@ c      dtstrang = dt/2.0
             nend = ixyz
             increment = -1
          endif
-         
-c     onlyx = 0
-c     if(onlyx .eq. 1 ) then
-c     c     side is zero based.
-c     if( idim .eq. 12 ) side = 2
-c     if( jdim .eq. 12 ) side = 0
-c     if( kdim .eq. 12 ) side = 1
-c     nstart = side
-c     nend = side
-c     endif
          
 c     
 c     Loop over all 3 directions.
@@ -505,8 +470,6 @@ c     dim=1 is set at the beginning of the sweep.
      +                .and. (correct(dim,face) .eq. 1)    ) then
                         
 c     effective indexing: flux(i,j,k,dimension, face, subgrid)
-c     I'm afraid this may cause cache misses.  If you come up with a better
-c     way, please let me know.
 
                         index=1
      +                  + i - fluxextents(dim,1,face,1,s)
@@ -516,10 +479,6 @@ c     way, please let me know.
      +                  + TotalOffset(dim, s)
 
 
-                        do mmm=1,7
-c                           fluxx(i-1,mmm)=0.1
-c1000*j+10*mmm+face
-                        enddo
                         
 
                         fd(index)  = fd(index) +dtdx*fluxx(i-1,1)
@@ -569,8 +528,7 @@ c ------------ end the flux stuff
 c     The difference in indexing comes from a difference
 c     in variable definition
             
-c            do i=is+1, ie
-             do i=is+3, ie-1
+            do i=is+3, ie-1
                fx1(i,j,k) = fx1(i,j,k) + fluxx(i-1,6)
                fx2(i,j,k) = fx2(i,j,k) + fluxx(i-1,7)
             enddo
@@ -648,10 +606,6 @@ c     multi-species
                 fluxyc(j,mmm) = 0.0
              enddo
 
-
-c            do mmm = 1,7
-c               fluxy(j,mmm) = -666.123
-c            enddo
             if(output .eq. 1) then
                write(701,800) wy(j,1),wy(j,8),wy(j,2),wy(j,3),
      +              wy(j,4),wy(j,5),wy(j,6),
@@ -695,14 +649,6 @@ c Compute the diffusion coefficient
      +     nhy,
      +      gravityon, gravityy,
      +      a)
-
-
-c         do j=js,je
-c            do mmm=1,7
-c            fluxy(j,mmm) = 0.0
-c            enddo 
-c         
-c         enddo
                                   
          
          do j=js+2, je-2
@@ -770,11 +716,6 @@ c     dim=2 is set at the beginning of the sweep.
      +                  + fdim(dim,3,s)*(face-1)))
      +                  + TotalOffset(dim, s)
 
-                        do mmm=1,7
-c                           fluxy(j-1,mmm)=0.1
-c1000*j+10*mmm+face
-                        enddo
-
 
                         fd(index)  = fd(index) +dtdy*fluxy(j-1,1)
                         fvy(index) = fvy(index)+dtdy*fluxy(j-1,2)
@@ -820,7 +761,6 @@ c ------------ end the flux stuff
             
          enddo
          
-c         do j=js+1, je
           do j=js+3, je-1
             fy2(i,j,k) = fy2(i,j,k)+fluxy(j-1,6)
             fy1(i,j,k) = fy1(i,j,k)+fluxy(j-1,7)
@@ -942,13 +882,6 @@ c Compute the diffusion coefficient
      +            gravityon,gravityz,
      +            a)
 
-     
-c           do k=ks,ke
-c            do mmm=1,7
-c            fluxz(k,mmm) = 0.0
-c            enddo 
-     
-c         enddo
 
          do k=ks+2, ke-2
             if(output .eq. 1) then
@@ -1016,11 +949,6 @@ c     dim=3 is set at the beginning of the sweep.
      +                  + fdim(dim,3,s)*(face-1)))
      +                  + TotalOffset(dim, s)
 
-                        do mmm=1,7
-c                           fluxz(k-1,mmm)=0.1
-c1000*k+10*mmm+face
-                        enddo
-
 
                         fd(index)  = fd(index) +dtdz*fluxz(k-1,1)
                         fvz(index) = fvz(index)+dtdz*fluxz(k-1,2)
@@ -1066,7 +994,6 @@ c ------------ end the flux stuff
             
          enddo
          
-c         do k=ks+1, ke
            do k=ks+3, ke-1
             fz1(i,j,k) = fz1(i,j,k)+fluxz(k-1,6)
             fz2(i,j,k) = fz2(i,j,k)+fluxz(k-1,7)
@@ -1136,12 +1063,6 @@ c  change back B field, B=B*sqrt(a), and magnetic flux, for comoving coordinate
       close(712)
       
 c HaoXu ifdef
-#endif 
+#endif  
 
       end
-
-
-
-
-
-

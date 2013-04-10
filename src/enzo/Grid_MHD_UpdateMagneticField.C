@@ -1,3 +1,19 @@
+/***********************************************************************
+/
+/  GRID CLASS (UPDATE MAGNETIC FIELDS)
+/
+/  written by: David Collins
+/  date:       2005?
+/  modified1:
+/
+/  PURPOSE: Takes the curl a second time, after UpdateFromFinerGrids
+/           replaces ElectricField with the fine grid data.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "ErrorExceptions.h"
 #include <stdio.h>
 #include <math.h>
@@ -15,7 +31,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
 int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
 
-   if(MyProcessorNumber != ProcessorNumber || useMHDCT != TRUE)
+   if(MyProcessorNumber != ProcessorNumber || UseMHDCT != TRUE)
     return SUCCESS;
 
   //if we're projecting the magnetic field, this routine isn't necessary.
@@ -42,9 +58,6 @@ int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
   CenterMagneticField();
       
     int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-  if( DualEnergyFormalism ==1){
-    this->RestoreEnergyConsistency(ENTIRE_REGION);
-   }
   
   //Also update AvgElectricField, if this is a subgrid.
   if( level > 0 ){

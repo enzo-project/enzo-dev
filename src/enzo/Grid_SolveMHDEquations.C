@@ -1,3 +1,20 @@
+/***********************************************************************
+/
+/  GRID CLASS (SOLVES THE MHD EQUATIONS)
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:   Fills and allocates fluxes and updates the MHD equations
+/             Depricated in favor of the new C wrapper, which is now 
+/             called form SolveHydroEquations.
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include "ErrorExceptions.h"
 #include "performance.h"
 #include <math.h>
@@ -10,7 +27,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "fortran.def"
-#include "DaveTools.h"
+#include "DebugTools.h"
 #include "CosmologyParameters.h"
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
@@ -84,9 +101,7 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
   if( ProcessorNumber != MyProcessorNumber )
     return SUCCESS;
   
-  wall_time("Start SMHD");
-
-  fprintf(stderr,"===  SMHD n = %d L = %d g = %d proc = %d dt = %15.12e id %d === Right (%0.2e, %0.2e, %0.2e)\n",
+  fprintf(stderr,"===  SMHD n = %"ISYM" L = %"ISYM" g = %"ISYM" proc = %"ISYM" dt = %15.12e id %"ISYM" === Right (%"ESYM", %"ESYM", %"ESYM")\n",
 	  CycleNumber, level, grid, MyProcessorNumber, dtFixed, GetGridID(), GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
 
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
@@ -403,11 +418,11 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
       return FAIL;
     }
     
-    
     /* Transform speed of light, hydrogen mass and electron change in units of ENZO */
     electroncharge *= TimeUnits*BFieldUnits/(speedoflight*DensityUnits*pow(LengthUnits,3));
     speedoflight /=VelocityUnits;
     hydrogenmass /= DensityUnits*pow(LengthUnits,3);
+
   }//ComovingCoordinates
   
 #endif //BIERMANN
@@ -426,10 +441,7 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
   }
 
   float  **ColorFlux =  new float*[15], **Color= new float*[15];
-  //   for(i=0;i<15;i++) {
-  //     ColorFlux[i] = NULL;
-  //     Color[i] = NULL;
-  //     }
+
   i=0;
   
   if (MultiSpecies>0) {
@@ -555,7 +567,6 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
 
     break;
 
-    
   case NoHydro:
     fprintf(stderr,"=============== NASTY KLUDGE!!! NO SOLVER!!! ==================\n");
     break;
@@ -672,7 +683,6 @@ if(MultiSpecies>0){
    }
   delete [] ColorFlux, Color;
   delete [] FluxExtents, FluxDims;
-  wall_time("End SMHD");
 
   MHDCT_ConvertEnergyToSpecificS();
 

@@ -1,32 +1,42 @@
-
-// Originally, MHDCT was written to use conserved energy throughout, while the rest of the
-// sovlers in Enzo dealt with specific energy.  Converting from one to the other unfortunately
-// yeilds minor differences in the solution.  This is due to the time interpolation in InterpolateBoundaryFromParent. 
-// In order to maintain contact with older solutions, I have provided two sets of conversion routines.  
-// In nearly all cases, MHDCTUseSpecificEnergy == TRUE.  For all cases, specific energy is used for 
-// initialization and IO.
-//
-// MHDCT_ConvertEnergyToConservedS
-// MHDCT_ConvertEnergyToSpecificS
-//  When MHDCTUseSpecificEnergy == TRUE, these two routines convert from specific to conserved and back
-//  inside Grid_SolveMHDEquations in order to prepare the energy for the MHD solver.  This should be the
-//  default usage.
-// 
-// MHDCT_ConvertEnergyToSpecificC
-// MHDCT_ConvertEnergyToConservedC
-//  When MHDCTUseSpecificEnergy == FALSE, these routines convert from conserved to specific.  This is done 
-//  with an extra copy of the energy field, in order to reduce noise.  This is done for pressure computation
-//  and IO.
-//
-// MHDCT_EnergyToggle
-//  When MHDCTUseSpecificEnergy == FALSE, this converts the specific energy used in initialization to 
-//  conserved.
-//
-// In adapting the code to deal only with, a
-// precision error has been uncoverd that I have yet to track down. These conversion functions 
-// have been written to ensure the code 
-// can be used without significan overhead to the user, namely all initialization and output will be done
-// done with  specific energy, and the internal workings dealt with accordingly.  
+/***********************************************************************
+/
+/  GRID CLASS ()
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+/  Originally, MHDCT was written to use conserved energy throughout, while the rest of the
+/  sovlers in Enzo dealt with specific energy.  Converting from one to the other unfortunately
+/  yeilds minor differences in the solution.  This is due to the time interpolation in InterpolateBoundaryFromParent. 
+/  In order to maintain contact with older solutions, I have provided two sets of conversion routines.  
+/  
+/  In all cases, use MHDCTUseSpecificEnergy == TRUE (the default).  
+/ 
+/  For all cases, specific energy is used for initialization and IO, just like the rest of enzo.
+/ 
+/  MHDCT_ConvertEnergyToConservedS
+/  MHDCT_ConvertEnergyToSpecificS
+/   When MHDCTUseSpecificEnergy == TRUE, these two routines convert from specific to conserved and back
+/   inside Grid_SolveMHDEquations in order to prepare the energy for the MHD solver.  This should be the
+/   default usage.
+/  
+/  MHDCT_ConvertEnergyToSpecificC
+/  MHDCT_ConvertEnergyToConservedC
+/   When MHDCTUseSpecificEnergy == FALSE, these routines convert from conserved to specific.  This is done 
+/   with an extra copy of the energy field, in order to reduce noise.  This is done for pressure computation
+/   and IO.
+/ 
+/  MHDCT_EnergyToggle
+/   When MHDCTUseSpecificEnergy == FALSE, this converts the specific energy used in initialization to 
+/   conserved.
+/ 
+************************************************************************/
 
 #include <stdio.h>
 #include "ErrorExceptions.h"
@@ -41,7 +51,9 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
+
 int dbg = FALSE;
+
 int  MHDCT_EnergyToggle(HierarchyEntry &TopGrid, TopGridData &MetaData, ExternalBoundary *Exterior, LevelHierarchyEntry *LevelArray[]){
     //Converts the TotalEnergy field from specific to conserved.
     //This is a stopgap to ensure the code can be used while dcollins tracks down a problem
@@ -96,13 +108,12 @@ int grid::MHDCT_ConvertEnergyToConservedC()
       ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
     }
 
-    //Converstion to specific uses a copied temporary variable.
+    //Conversion to specific uses a copied temporary variable.
     delete [] BaryonField[TENum];
     BaryonField[TENum] = MHDCT_temp_conserved_energy;
     MHDCT_temp_conserved_energy= NULL;
 
     return SUCCESS;
-    
 }
 
 int grid::MHDCT_ConvertEnergyToSpecificC()
@@ -126,10 +137,9 @@ int grid::MHDCT_ConvertEnergyToSpecificC()
     for (int i=0; i<size; i++)
         BaryonField[TENum][i] = MHDCT_temp_conserved_energy[i]/BaryonField[DensNum][i];
 
-
     return SUCCESS;
-    
 }
+
 int grid::MHDCT_ConvertEnergyToSpecificS()
 {
     //Stores BaryonField[TENum] (conserved). in MHDCT_temp_energy
@@ -150,6 +160,4 @@ int grid::MHDCT_ConvertEnergyToSpecificS()
         BaryonField[TENum][i]  /= BaryonField[DensNum][i];
 
     return SUCCESS;
-
-    
 }

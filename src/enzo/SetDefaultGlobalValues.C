@@ -789,11 +789,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoundaryDirection=-1;
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
-  useMHD=0;
-#ifdef MHDCT
+  UseMHD=0;
+
   //MHDCT variables
+  MHDCT_debug_flag = 0;
   MHDCTSlopeLimiter = 1;
-  MHDCTDualEnergyMethod = 2;
+  MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;
   MHDCTUseSpecificEnergy = TRUE;
   ProcessorTopology[0]      = INT_UNDEFINED;
@@ -809,12 +810,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IsothermalSoundSpeed = 1.0;
   MHD_ProjectB = FALSE;
   MHD_ProjectE = TRUE;
-  useMHDCT = FALSE;
+  UseMHDCT = FALSE;
   EquationOfState = 0;
   for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
   WriteAcceleration = FALSE;
-
-#endif //MHDCT
 
   CorrectParentBoundaryFlux = FALSE; //Corrects (or doesn't) parent flux when subgrid shares an exposed face with parent.
 

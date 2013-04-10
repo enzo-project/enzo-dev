@@ -192,8 +192,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	}
       }
     }
-#ifdef MHDCT
-    if(useMHDCT == TRUE ){
+
+    if(UseMHDCT == TRUE ){
 
       if(MHD_ProjectE == TRUE ){
        
@@ -212,64 +212,65 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
               fprintf(stderr,"Find out why, and where.\n");
               delete [] ParentGrid.ElectricField[field];
             }
-              ParentGrid.ElectricField[field]=new float[ MHDeParentSize[field] ];
-
+	    ParentGrid.ElectricField[field]=new float[ MHDeParentSize[field] ];
+	    
           }
 	  
           for(k=ParentStartIndex[2];k<=ParentEndIndex[2]+((field==2)?0:1); k++)
             for(j=ParentStartIndex[1];j<=ParentEndIndex[1]+((field==1)?0:1);j++)
               for(i=ParentStartIndex[0];i<=ParentEndIndex[0]+((field==0)?0:1);i++){
-                pindex=i+MHDeParentDim[field][0]*(j+MHDeParentDim[field][1]*k);
-                //dbg
+
+                pindex=i+MHDeParentDim[field][0]*(j+MHDeParentDim[field][1]*k);		
                 if( pindex >= MHDeParentSize[field] )
-                    ENZO_FAIL("ProjectSolutionToParentGrid: Memory Violation.\n");
+		  ENZO_FAIL("ProjectSolutionToParentGrid: Memory Violation.\n");
                 ParentGrid.ElectricField[field][pindex]=0.0;
+
               }
+
         }//field
 	
-	  //Now do the actual projection
-	  //Since the Parent and Subgrid electric fields are co-located along one axis,
-	  //we skip the interspacing points when doing the projection.
-      
-      
-	  for(field=0;field<3;field++){
-	    RefineInv=1.0/Refinement[field];
-	    for(k=0;k<MHDeDim[field][2];k+=((field==2)?1:Refinement[2]) ){
-	      k1=k/Refinement[2];
-	      for(j=0;j<MHDeDim[field][1];j+=((field==1)?1:Refinement[1])){
-		j1=j/Refinement[1];
+	//Now do the actual projection
+	//Since the Parent and Subgrid electric fields are co-located along one axis,
+	//we skip the interspacing points when doing the projection.
 	
-		pindex= 0+ParentStartIndex[0]
-		  +(j1+ParentStartIndex[1])*MHDeParentDim[field][0]
-		  +(k1+ParentStartIndex[2])*MHDeParentDim[field][1]*MHDeParentDim[field][0];
 	
-		gindex = 0 + GridStartIndex[0]
-		  +(j+GridStartIndex[1])*ElectricDims[field][0]
-		  +(k+GridStartIndex[2])*ElectricDims[field][1]*ElectricDims[field][0];
+	for(field=0;field<3;field++){
+	  RefineInv=1.0/Refinement[field];
+	  for(k=0;k<MHDeDim[field][2];k+=((field==2)?1:Refinement[2]) ){
+	    k1=k/Refinement[2];
+	    for(j=0;j<MHDeDim[field][1];j+=((field==1)?1:Refinement[1])){
+	      j1=j/Refinement[1];
+	
+	      pindex= 0+ParentStartIndex[0]
+		+(j1+ParentStartIndex[1])*MHDeParentDim[field][0]
+		+(k1+ParentStartIndex[2])*MHDeParentDim[field][1]*MHDeParentDim[field][0];
+	      
+	      gindex = 0 + GridStartIndex[0]
+		+(j+GridStartIndex[1])*ElectricDims[field][0]
+		+(k+GridStartIndex[2])*ElectricDims[field][1]*ElectricDims[field][0];
                 
 
-		//Note that we use AvgElectricField on the subgrid, but ElectricField on the 
-		//Parent.  This is because Parent.ElectricField must reflect the time structure
-		//of the subgrid advance.
-               
-		for(i=0;i<MHDeDim[field][0];i+=((field==0)?1:Refinement[0])){
-                  i1=i/Refinement[0];
+	      //Note that we use AvgElectricField on the subgrid, but ElectricField on the 
+	      //Parent.  This is because Parent.ElectricField must reflect the time structure
+	      //of the subgrid advance.
+              
+	      for(i=0;i<MHDeDim[field][0];i+=((field==0)?1:Refinement[0])){
+		i1=i/Refinement[0];
                 if( pindex+i1 >= MHDeParentSize[field] )
-                    ENZO_FAIL("ProjectSolutionToParentGrid: Memory Violation 2\n");
-		  ParentGrid.ElectricField[field][pindex+i1] += 
-		    AvgElectricField[field][gindex+i]*RefineInv;
-		}//i
-              	
-	      }//j
-	    }//k  
-	  }//field
+		  ENZO_FAIL("ProjectSolutionToParentGrid: Memory Violation 2\n");
+		ParentGrid.ElectricField[field][pindex+i1] += 
+		  AvgElectricField[field][gindex+i]*RefineInv;
+	      }//i
+	      
+	    }//j
+	  }//k  
+	}//field
         
       }//MHD_ProjectE
 
       if(MHD_ProjectB == TRUE){
 
-
-	  fprintf(stderr, "PROJB my proc %d parent proc %d\n", MyProcessorNumber, ParentGrid.ReturnProcessorNumber());
+	fprintf(stderr, "PROJB my proc %"ISYM" parent proc %"ISYM"\n", MyProcessorNumber, ParentGrid.ReturnProcessorNumber());
 	int MHDDim[3][3], MHDParentDim[3][3], MHDParentSize[3]={1,1,1};
 	
 	for(field=0;field<3;field++){
@@ -279,10 +280,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	    MHDParentSize[field] *= MHDParentDim[field][dim];
 	  }
 	  if( ParentGrid.ProcessorNumber != MyProcessorNumber) {
-	    fprintf(stderr,"00000000000000000 allocating magnetic field\n");
+	    fprintf(stderr,"allocating magnetic field\n");
 	    delete ParentGrid.MagneticField[field];
 	    ParentGrid.MagneticField[field] = new float[MHDParentSize[field]];
-	    
 	    
 	  }
 	  
@@ -293,9 +293,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  for (k = ParentStartIndex[2]; k <= ParentEndIndex[2]+MHDAdd[field][2]; k++)
 	    for (j = ParentStartIndex[1]; j <= ParentEndIndex[1]+MHDAdd[field][1]; j++) 
 	      for (i = ParentStartIndex[0]; i <= ParentEndIndex[0]+MHDAdd[field][0]; i++){
+
 		pindex = i+(k*MHDParentDim[field][1] + j)*MHDParentDim[field][0];
 		ParentGrid.MagneticField[field][pindex] = 0.0;
-		
 	      }
 	
 	for (field = 0; field < 3; field++) {
@@ -334,12 +334,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	}//field
       }//Proj B
       
-      
-  }//useMHDCT
-  }
+    }//UseMHDCT
    
-#endif //MHDCT
-
+  } // if (ProcessorNumber == MyProcessorNumber)
     
  
   /* If necessary, copy the projected field from the 'fake' ParentGrid to
@@ -348,10 +345,9 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
   if (ProcessorNumber != ParentGrid.ProcessorNumber) {
 
     /* If posting a receive, then record details of call. */
-#ifdef MHDCT
   int FieldToSend = JUST_BARYONS; 
 
-  if( useMHDCT == TRUE ){
+  if( UseMHDCT == TRUE ){
 
     if( MHD_ProjectB == TRUE ){
       FieldToSend = BARYONS_MAGNETIC;
@@ -361,10 +357,6 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
     }
 
   }
-#else
-  //
-#define FieldToSend ALL_FIELDS
-#endif //MHDCT
 
 #ifdef USE_MPI
     if (CommunicationDirection == COMMUNICATION_POST_RECEIVE) {
@@ -456,15 +448,13 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  }
 	}
 
-#ifdef MHDCT
-        if(useMHDCT==TRUE){
-           i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
+        if(UseMHDCT==TRUE){
+	  i1 = (k*ParentDim[1] + j)*ParentDim[0] + ParentStartIndex[0];
           for(i = ParentStartIndex[0];i <= ParentEndIndex[0];i++,i1++){
             ParentGrid.BaryonField[TENum][i1]+=0.5*(pow(ParentGrid.CenteredB[0][i1],2)+pow(ParentGrid.CenteredB[1][i1],2)
-               +pow(ParentGrid.CenteredB[2][i1],2))/ParentGrid.BaryonField[DensNum][i1];
+						    +pow(ParentGrid.CenteredB[2][i1],2))/ParentGrid.BaryonField[DensNum][i1];
           }
-         }
-#endif //MHDCT
+	}
 		
       } // end: loop over faces
  

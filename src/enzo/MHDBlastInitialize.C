@@ -1,3 +1,68 @@
+/***********************************************************************
+/
+/  Initialize the MHD Blast Test.
+/
+/  written by: David Collins
+/  date:       2004-2013
+/  modified1:
+/
+/  PURPOSE:  MHDBlast Test is a general purpose 2 state problem initializer
+/
+/  PARAMETERS:   
+/ 
+/       MHDBlastInitStyle  Shape of discontinuity
+/                          0 = sphere: 
+/                          1,2,3=rectangular slice along x, y,z 
+/                          40,41,42=cylander along x,y,z:  
+/                          5,6,7,8 = Index Tests: 10*i + 100*j + 1000*k, i,j,k 
+/
+/
+/       MHDBlastCenter     Center in spatial units. 
+/       MHDBlastRadius     in space units OF THE LONGEST AXIS, 
+/                          MHDBlastInitStyle = 1,2,3 the width of the slab 
+/                          MHDBlastInitStyle = 40,41,42 the radius of the infinite cylander
+/                          MHDBlastInitStyle = 0, radius of sphere
+/
+/       Density, Pressure, Magnetic Field, Velocity can be set with the following.  
+/       For all fields, one side of the discontinuity is denoted A, one is B.
+/       MHDBlastD[A,B] 
+/       MHDBlastVelocity[A,B] 
+/       MHDBlastB[A,B]
+/       MHDBlastGasEnergy[A,B]
+/       MHDBlastP[A,B]   (Gas energy is checked first, then pressure)
+/       
+/       Fields may be perturbed to seed instabilities or linear characteristic advection using
+/       the following:
+/       MHDBlastPerturbAmplitude  
+/       MHDBlastPerturbWavelength     
+/       MHDBlastPerturbMethod    
+/                               1:  white noise in the velocity
+/                               2:  plane symmetric noise in the velocity
+/                               7:  plane symmetric, energy preserving
+/                               4,5,6: sinusoidal perturbation in vy
+/                               8:  Perturbation for RT instability, as in Stone & Gardiner 2007
+/                               80: square wave in the left moving fast characteristic
+/                               81: square wave in the left moving alfven characteristic
+/                               82: square wave in the left moving slow characteristic
+/                               83: square wave in the contact discontinuity
+/                               84: square wave in the right moving fast characteristic
+/                               85: square wave in the right moving alfven characteristic
+/                               86: square wave in the right moving slow characteristic
+/                               70: sine wave in the left moving fast characteristic
+/                               71: sine wave in the left moving alfven characteristic
+/                               72: sine wave in the left moving slow characteristic
+/                               73: sine wave in the contact discontinuity
+/                               74: sine wave in the right moving fast characteristic
+/                               75: sine wave in the right moving alfven characteristic
+/                               76: sine wave in the right moving slow characteristic
+/
+/
+/
+/  RETURNS:
+/    SUCCESS or FAIL
+/
+************************************************************************/
+
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -34,17 +99,6 @@ int SetupNormal(float Normal[], float MHDBlastCenter[3], TopGridData & MetaData)
 int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData, ExternalBoundary &Exterior)
 {
-#ifdef MHDCT
-
-  fprintf(stderr, "====================================== \n");
-  fprintf(stderr, "====================================== \n");
-  fprintf(stderr, "========= MHDBlastInitialize ========= \n");  
-  fprintf(stderr, "====================================== \n");
-  fprintf(stderr, "======== MyProcessorNumber %"ISYM"  ========= \n",
-	  MyProcessorNumber);
-  fprintf(stderr, "====================================== \n");
-  fprintf(stderr, "====================================== \n");
-
 
   //
   //
@@ -71,6 +125,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataUnits[j++] = NULL;
     DataLabel[i++] = Vel3Name;
     DataUnits[j++] = NULL;
+
   }else if (EquationOfState == 1){
     DataLabel[i++] = DensName;
     DataUnits[j++] = NULL;
@@ -114,29 +169,21 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   MHDeUnits[2] = "None";
   
 
-  // General controll variable
-  //
-
+  // General control variable
   int dim;
 
-  //
   // Parameters and their defaults.
-  // 
-
-
   char line[MAX_LINE_LENGTH];
   int ret = 0, GasFlag = 0, Pflag=0, TotalFlag=0;
   int ObsFlag = 0;
   int RefineOnStartup = FALSE;
-  // Or 1.0
-  float fpi = 1.0;//1/(sqrt(4.0*3.14159265)*4.0*3.14159265);
+
   float DensityA = 1.0666,
     DensityB = 1.0,
     GasEnergyA = 3.666,
     GasEnergyB = 1000.666,
     TotalEnergyA = 1.0,
     TotalEnergyB = 1.0;
-
 
   float PressureA, PressureB;
   float VelocityA[3] = {0.666, 0.666, 0.666};
@@ -149,7 +196,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float MHDBlastCenter[3] = {0.5,0.5,0.5};
   float PerturbAmplitude = 0.0;
   float PerturbWavelength[3] = {0.0, 0.0, 0.0};
-  //now this is a global value.  Becuase I'm a jerk.
 
   FLOAT MHDBlastSubgridLeft[3]  = {DomainLeftEdge[0] ,DomainLeftEdge[1] ,DomainLeftEdge[2]};
   FLOAT MHDBlastSubgridRight[3] = {DomainRightEdge[0],DomainRightEdge[1],DomainRightEdge[2]};
@@ -167,7 +213,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
     ret = 0;
 
-    //I changed some nominclature, to make things easier on myself
+    //I changed some nomenclature, to make things easier on myself
     //This checks for old nominclature.
     ObsFlag = 0;
     
@@ -191,30 +237,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     TotalFlag += sscanf(line, "MHDBlastTotalEnergyA = %"PSYM, &TotalEnergyA);
     TotalFlag += sscanf(line, "MHDBlastTotalEnergyB = %"PSYM, &TotalEnergyB);
     
-    /////
-    ObsFlag  += sscanf(line, "MHDBlastD0 = %"PSYM, &Density0);
-    ObsFlag += sscanf(line, "MHDBlastD1 = %"PSYM, &Density1);
-    
-    ObsFlag += sscanf(line, "MHDBlastB0 = %"PSYM" %"PSYM" %"PSYM, B0, B0+1, B0+2);
-    ObsFlag+= sscanf(line, "MHDBlastB1 = %"PSYM" %"PSYM" %"PSYM, B1, B1+1, B1+2);
-    
-    ObsFlag += sscanf(line, "MHDBlastP0 = %"PSYM, &Pressure0);
-    ObsFlag += sscanf(line, "MHDBlastP1 = %"PSYM, &Pressure1);
-
-    ObsFlag += sscanf(line, "MHDBlastGasEnergy0 = %"PSYM, &GasEnergy0);
-    ObsFlag += sscanf(line, "MHDBlastGasEnergy1 = %"PSYM, &GasEnergy1);
-
-    ObsFlag += sscanf(line, "MHDBlastTotalEnergy0 = %"PSYM, &TotalEnergy0);
-    ObsFlag += sscanf(line, "MHDBlastTotalEnergy1 = %"PSYM, &TotalEnergy1);
-
-    if( ObsFlag != 0 )
-      ENZO_FAIL("Obsolete nomenclature in blast init file. Fix.\n I changed all the '0' to 'A', all the '1' to 'B'\n. so MHDBlastD0 is now MHDBlastDA");
-
-    if( sscanf(line, "PerturbAmplitude      = %"PSYM, &PerturbAmplitude) != 0 ||
-	sscanf(line, "PerturbMethod     = %"ISYM"", &PerturbMethod) != 0           ||
-	sscanf(line, "PerturbWavelength = %"PSYM,PerturbWavelength)      != 0 )
-      ENZO_FAIL("Parameter renamed: PerturbAmplitude(,Method,Wavelength) -> MHDBlastPerturbAmplitude(etc).  Fix it.");
-
     ////
 
     ret += sscanf(line, "MHDBlastRadius = %"PSYM, &Radius);
@@ -230,25 +252,22 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		  MHDBlastSubgridRight, MHDBlastSubgridRight +1 , MHDBlastSubgridRight +2);
 
     ret += sscanf(line, "MHDBlastPerturbAmplitude      = %"PSYM, &PerturbAmplitude);
-    ret += sscanf(line, "MHDBlastPerturbMethod     = %"ISYM"", &PerturbMethod);
-    ret += sscanf(line, "MHDBlastPerturbWavelength = %"PSYM" %"PSYM" %"PSYM,
+    ret += sscanf(line, "MHDBlastPerturbMethod         = %"ISYM"", &PerturbMethod);
+    ret += sscanf(line, "MHDBlastPerturbWavelength      = %"PSYM" %"PSYM" %"PSYM,
                   PerturbWavelength,PerturbWavelength+1,PerturbWavelength+2);
 
     ret += sscanf(line, "MHDBlastRefineOnStartup  = %"ISYM"", &RefineOnStartup);
 
   }//line loop
 
-  //
   //Re scale the subgrid edges to line up with the parent grid.
   // nCellsL and nCellsR are the number of cells from the domain left edge.
-  //
 
   int nCellsL[3],nCellsR[3];
   int nCells[3] = {0,0,0};  
   for( dim = 0; dim < 3; dim++){
     nCellsL[dim]= nint(( MHDBlastSubgridLeft[dim] - DomainLeftEdge[dim] )/
 		     (DomainRightEdge[dim]-DomainLeftEdge[dim])*MetaData.TopGridDims[dim]);
-
 
     MHDBlastSubgridLeft[dim]=max( nCellsL[dim]*(DomainRightEdge[dim]-DomainLeftEdge[dim])/MetaData.TopGridDims[dim],
 				  DomainLeftEdge[dim]);
@@ -261,7 +280,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     nCells[dim] =  nint( (MHDBlastSubgridRight[dim]-MHDBlastSubgridLeft[dim])/
       (DomainRightEdge[dim]-DomainLeftEdge[dim])*MetaData.TopGridDims[dim] );
     
-    
   }
 
   if( RefineOnStartup == 1 ){
@@ -269,7 +287,8 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     fprintf(stderr,"Subgrid Right %"GSYM" %"GSYM" %"GSYM"\n",MHDBlastSubgridRight[0],MHDBlastSubgridRight[1],MHDBlastSubgridRight[2]);
     fprintf(stderr,"nCells %"ISYM" %"ISYM" %"ISYM"\n", nCells[0], nCells[1], nCells[2]);
   }
-  // Long Dimension is used to conver the radius from Physical units to Grid Units;
+
+  // Long Dimension is used to convert the radius from Physical units to Grid Units;
   // We want the axis, though, so figure out which is the longest edge (in Grid Units) 
   // then figure out which one it is.  A more elegant solution would be welcomed.
 
@@ -303,10 +322,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 	0.5*(VelocityB[0]*VelocityB[0] + VelocityB[1]*VelocityB[1] + VelocityB[2]*VelocityB[2])
 	+0.5*(BB[0]*BB[0]+BB[1]*BB[1]+BB[2]*BB[2])/DensityB;
   }
-  //<dbg>
-  //fprintf(stderr,"klown: pa %"GSYM" pb %"GSYM" ea %"GSYM" eb %"GSYM"\n",
-  //Pressure0, Pressure1, Energy0, Energy1);
-  //</dbg>
+
   if( TotalFlag > 0){
     Energy0=TotalEnergyA;
     Energy1=TotalEnergyB;
@@ -325,7 +341,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					       PerturbAmplitude, PerturbMethod,PerturbWavelength,
 					       InitStyle) == FAIL )
     ENZO_FAIL("MHDBlastInitialize:  Error in MHDBlastInitializeGrid.");
-
 
   //
   // Generate Hierarchy.
@@ -408,7 +423,6 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     // This projection juggle is to ensure that, regardless of how the hierarchy is evolved, the field gets projected
     // properly here.
     
-    
     int MHD_ProjectEtmp = MHD_ProjectE;
     int MHD_ProjectBtmp = MHD_ProjectB;
     MHD_ProjectE=FALSE;
@@ -428,15 +442,12 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 	ENZO_FAIL("Error in ProjectSolutionToParentGrid.");
     }
     
-    
     // Put the projection options back to the inital.
     MHD_ProjectE = MHD_ProjectEtmp;
     MHD_ProjectB = MHD_ProjectBtmp;
     
-    
   }//RefineOnStartup
 
-#endif //MHDCT
   return SUCCESS;
 }
 

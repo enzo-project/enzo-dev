@@ -72,17 +72,12 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
   if (levelNorm <= 0.0)
     WARNING_MESSAGE;
  
-#ifdef MHDCT
   if ( HydroMethod == MHD_Li )
       MHDCT_ConvertEnergyToSpecificC();//See docs or Grid_MHDCTEnergyToggle.C for if/when this is done
-#endif //MHDCT
+
   /* do not do the update if using ZEUS */
  
-  if (HydroMethod != Zeus_Hydro 
-#ifdef MHDCT
-      && EquationOfState == 0 
-#endif //MHDCT
-      )
+  if (HydroMethod != Zeus_Hydro && EquationOfState == 0)
     for (i = 0; i < size; i++)
       for (dim = 0; dim < GridRank; dim++){
 	BaryonField[TENum][i] +=
@@ -96,10 +91,8 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
     for (i = 0; i < size; i++)
 	BaryonField[Vel1Num+dim][i] += RandomForcingField[dim][i]*levelNorm;
 
-#ifdef MHDCT
   if ( HydroMethod == MHD_Li )
       MHDCT_ConvertEnergyToConservedC();  //See docs or Grid_MHDCTEnergyToggle.C for if/when this is done
-#endif //MHDCT
  
   LCAPERF_STOP("grid_AddRandomForcing");
   return SUCCESS;

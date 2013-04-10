@@ -918,12 +918,8 @@ gradient force to gravitational force for one-zone collapse test. */
 /* baryons: interpolate field values from the Parent Grid (gg #6).
             Returns SUCCESS or FAIL. */
 
-#ifndef MHDCT
-   int InterpolateFieldValues(grid *ParentGrid);
-#else
    int InterpolateFieldValues(grid *ParentGrid , 
-        LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData);
-#endif //MHDCT
+			      LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData);
 
 
 /* Interpolate one radiation field.  Based on InterpolateFieldValues
@@ -2756,7 +2752,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                          ExternalBoundary *Exterior);
 #endif
 
-#ifdef MHDCT
+  int SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
+                 fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                 Elong_int GridGlobalStart[], int GravityOn,
+                 int NumberOfColours, int colnum[],
+                 float ** Fluxes);
+
   //Variables
     //CenteredB is used in the Riemann solver (SolveMHDequations) and the timestep (dtMagnetic)
   //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
@@ -2833,9 +2834,6 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDCT_ConvertEnergyToSpecificC();
   int MHDCT_ConvertEnergyToConservedS();
   int MHDCT_ConvertEnergyToSpecificS();
-
-#endif //MHDCT
-
 
 };
 

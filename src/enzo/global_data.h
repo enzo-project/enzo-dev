@@ -892,7 +892,7 @@ EXTERN float VelocityGradient;
 EXTERN int ShearingBoundaryDirection;
 EXTERN int ShearingVelocityDirection;
 EXTERN int ShearingOtherDirection;
-EXTERN int useMHD;
+EXTERN int UseMHD;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
@@ -963,7 +963,7 @@ EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
 EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
 
-#ifdef MHDCT
+EXTERN int MHDCT_debug_flag;
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;
 EXTERN int MHDCTPowellSource;
@@ -981,7 +981,7 @@ EXTERN float tiny_pressure;
 EXTERN int MHD_CT_Method;
 EXTERN int MHD_ProjectB;// Should always be FALSE for the evoloution. May be used in initialization.
 EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
-EXTERN int useMHDCT;
+EXTERN int UseMHDCT;
 EXTERN int EquationOfState;
 EXTERN char *MHDLabel[3];
 EXTERN char *MHDcLabel[3];
@@ -989,7 +989,6 @@ EXTERN char *MHDUnits[3];
 EXTERN char *MHDeLabel[3];
 EXTERN char *MHDeUnits[3];
 
-#endif //MHDCT
 /* For the database */
 EXTERN char *DatabaseLocation;
 EXTERN int ExtraOutputs[MAX_EXTRA_OUTPUTS];
