@@ -761,8 +761,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 	}//ParentProc
       }//field
       this->MHD_ProlongFree();
-    }//useMHDCT
-#endif //MHDCT
+    }//UseMHDCT
   } // end: if (NumberOfBaryonFields > 0)
  
   this->DebugCheck("InterpolateBoundaryFromParent (after)");

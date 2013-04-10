@@ -91,7 +91,7 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       char *Vel2Name = "y-velocity";
       char *Vel3Name = "z-velocity";
       char *MetalName = "Metal_Density";
-      if ( useMHDCT ){
+      if ( UseMHDCT ){
          MHDcLabel[0] = "Bx";
          MHDcLabel[1] = "By";
          MHDcLabel[2] = "Bz";

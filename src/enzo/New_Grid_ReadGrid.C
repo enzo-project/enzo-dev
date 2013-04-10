@@ -234,7 +234,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
 
-  if (useMHDCT) {
+  if (UseMHDCT) {
       //
       // Set up metadata for MHD.
       //
