@@ -32,14 +32,21 @@ Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
 List <http://groups.google.com/group/enzo-users>`_.  A source
 browser is also available.
 
-Please visit the `enzo project home page <http://enzo-project.org>`_ to learn
+Please visit the `Enzo Project home page <http://enzo-project.org>`_ to learn
 more about the code and installation methods.  To directly access the source
-code, you can visit the `enzo bitbucket page <https://bitbucket.org/enzo`_.
+code, you can visit the `Enzo Bitbucket page <https://bitbucket.org/enzo`_.
 
-Updating a source tree with Mercurial is beyond the scope of this document; for
-more information, please peruse :ref:`developers_guide` and the Mercurial
-documentation.  The `mercurial <http://mercurial.selenic.com/>`_ commands of
-most use are ``pull``, ``update`` and ``incoming``.
+If you already have `Mercurial <http://mercurial.selenic.com>`_, 
+`MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, and 
+`HDF5 <http://www.hdfgroup.org/HDF5/>`_ installed, then installation of
+Enzo should be straightforward.  Simply run this at the command line to get
+the latest stable version of the Enzo source:
+
+.. highlight:: none
+
+::
+
+    ~ $ hg clone https://bitbucket.org/enzo/enzo-stable
 
 Building Enzo
 -------------
@@ -49,8 +56,8 @@ Enzo using the current build system. A comprehensive list of the make
 system arguments can be found in :ref:`MakeOptions`.
 
 This assumes that we're working from a checkout (or download) of the source
-after following instructions on the `enzo project home page <http://enzo-project.org>`_ 
-or downloading the source code with mercurial through the `enzo bitbucket page <https://bitbucket.org/enzo>`_.
+after following instructions on the `Enzo Project home page <http://enzo-project.org>`_ 
+or downloading the source code with mercurial through the `Enzo Bitbucket page <https://bitbucket.org/enzo>`_.
 For more detailed information about the structure of the Enzo source
 control repository, see :ref:`enzo_modification`.
 
@@ -59,8 +66,6 @@ Initializing the Build System
 
 This just clears any existing configurations left over from a previous machine,
 and creates a couple of files for building.
-
-.. highlight:: none
 
 ::
 
