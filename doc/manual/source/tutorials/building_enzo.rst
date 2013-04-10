@@ -32,10 +32,9 @@ Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
 List <http://groups.google.com/group/enzo-users>`_.  A source
 browser is also available.
 
-Please visit the Google Code project website to access the Enzo source tree and
-read the latest source checkout instructions.
-
-http://enzo.googlecode.com/
+Please visit the `enzo project home page <http://enzo-project.org>`_ to learn
+more about the code and installation methods.  To directly access the source
+code, you can visit the `enzo bitbucket page <https://bitbucket.org/enzo`_.
 
 Updating a source tree with Mercurial is beyond the scope of this document; for
 more information, please peruse :ref:`developers_guide` and the Mercurial
@@ -49,9 +48,10 @@ This is a quick, line by line example of checking out and building
 Enzo using current build system. A comprehensive list of the make
 system arguments can be found in :ref:`MakeOptions`.
 
-This assumes that we're working from a checkout from the Enzo project page,
-located at http://enzo.googlecode.com/ .  Checkout instructions can be found
-there, and for more detailed information about the structure of the Enzo source
+This assumes that we're working from a checkout (or download) of the source
+after following instructions on the `enzo project home page <http://enzo-project.org>`_ 
+or downloading the source code with mercurial through the `enzo bitbucket page <https://bitbucket.org/enzo>`_
+For more detailed information about the structure of the Enzo source
 control repository, see :ref:`enzo_modification`.
 
 Initializing the Build System
