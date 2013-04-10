@@ -45,12 +45,12 @@ Building Enzo
 -------------
 
 This is a quick, line by line example of checking out and building
-Enzo using current build system. A comprehensive list of the make
+Enzo using the current build system. A comprehensive list of the make
 system arguments can be found in :ref:`MakeOptions`.
 
 This assumes that we're working from a checkout (or download) of the source
 after following instructions on the `enzo project home page <http://enzo-project.org>`_ 
-or downloading the source code with mercurial through the `enzo bitbucket page <https://bitbucket.org/enzo>`_
+or downloading the source code with mercurial through the `enzo bitbucket page <https://bitbucket.org/enzo>`_.
 For more detailed information about the structure of the Enzo source
 control repository, see :ref:`enzo_modification`.
 
