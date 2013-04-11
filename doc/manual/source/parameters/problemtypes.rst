@@ -684,6 +684,15 @@ Collapse Test (27)
     ``CollapseTestSphereAng2`` are set, the rotational axis linearly
     changes with radius between ``CollapseTestSphereAng1`` and
     ``CollapseTestSphereAng2``.  Units in radians. Default: 0.
+``CollapseTestSphereConstantPressure`` (external)
+    Constant pressure inside the sphere that is equal to the pressure
+    at the outer radius.  Default: 0
+``CollapseTestSphereSmoothSurface`` (external)
+    The density interface between the ambient and sphere medium is
+    smoothed with a hyperbolic tangent.  Default: 0
+``CollapseTestSmoothRadius`` (external)
+    The outer radius of the smoothed interface.  This parameter is in
+    units of the sphere radius.  Default: 1.2
 ``CollapseTestSphereInitialLevel`` (external)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
