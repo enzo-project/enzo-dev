@@ -231,23 +231,16 @@ Additional Performance Tools
 An additional performance tool exists in the enzo source which provides
 slightly different details about a number of subprocesses in enzo.  By default,
 it is turned off, although you can enable it by adding a compiler flag to your 
-Makefile or by uncommenting a line in the source.  The downside to this 
+Makefile.  The downside to this 
 performance tool, called MPI Instrumentation, is that it only provides information
 if you're running MPI, it only gives you that information at the end of a 
 simulation (when it has successfully completed, not when it runs out of time),
 and it produces a file for every processor that was used in the simulation 
 (which can sometimes crowd your directory).
 
-To enable this feature, you may edit macros_and_parameters.h and uncomment
-the line where we define the MPI_INSTRUMENTATION (so that it *is* defined):
-
-.. code-block:: C++
-
-  #define MPI_INSTRUMENTATION
-
-Alternatively, you could just add a flag in your machine's Makefile to explicitly
-set this preprocessor keyword.  You could do this by editing your machine's 
-Makefile to include the flag to your MACH_DEFINES:
+To enable this feature, you can add a flag to your machine's Makefile to explicitly
+set this preprocessor keyword.  Do this by editing your machine's 
+Makefile to include this flag to your MACH_DEFINES:
 
 .. code-block:: C++
 
