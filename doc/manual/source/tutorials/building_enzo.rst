@@ -34,7 +34,7 @@ browser is also available.
 
 Please visit the `Enzo Project home page <http://enzo-project.org>`_ to learn
 more about the code and installation methods.  To directly access the source
-code, you can visit the `Enzo Bitbucket page <https://bitbucket.org/enzo`_.
+code, you can visit the `Enzo Bitbucket page <https://bitbucket.org/enzo>`_.
 
 If you already have `Mercurial <http://mercurial.selenic.com>`_, 
 `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, and 
