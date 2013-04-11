@@ -536,7 +536,16 @@ typedef int            HDF5_hid_t;
 #define IMF_TABLE_ENTRIES 1000
 
 #ifdef USE_MPI
+/* Defining MPI_INSTRUMENTATION will spit out a number of MPI diagnostic files
+   to your run directory when an enzo run reaches completion.  These files
+   contain information about the total time spent doing a variety of 
+   different MPI communications of particles, fluxes, etc.  Unfortunately, 
+   it creates one such file for every processor on which the job was run.
+   Much of this functionality is covered in a more concise form in the
+   enzo_performance package (in a single file: performance.out), which is
+   why MPI_INSTRUMENTATION is no longer set by default.
 #define MPI_INSTRUMENTATION
+*/
 #else /* USE_MPI */
 //#undef MEM_TRACE
 #undef MPI_TRACE
