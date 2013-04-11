@@ -234,7 +234,7 @@ it is turned off, although you can enable it by adding a compiler flag to your
 Makefile or by uncommenting a line in the source.  The downside to this 
 performance tool, called MPI Instrumentation, is that it only provides information
 if you're running MPI, it only gives you that information at the end of a 
-simulations (when it has successfully completed, not when it runs out of time),
+simulation (when it has successfully completed, not when it runs out of time),
 and it produces a file for every processor that was used in the simulation 
 (which can sometimes crowd your directory).
 
@@ -246,7 +246,7 @@ the line where we define the MPI_INSTRUMENTATION (so that it *is* defined):
   #define MPI_INSTRUMENTATION
 
 Alternatively, you could just add a flag in your machine's Makefile to explicitly
-set this precompiler keyword.  You could do this by editing your machine's 
+set this preprocessor keyword.  You could do this by editing your machine's 
 Makefile to include the flag to your MACH_DEFINES:
 
 .. code-block:: C++
