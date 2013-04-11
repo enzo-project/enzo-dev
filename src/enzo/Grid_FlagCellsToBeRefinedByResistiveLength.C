@@ -70,7 +70,6 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
 	ymo = (j-1 + k*GridDimension[1])*GridDimension[0]+i;
 	zpo = (j + (k+1)*GridDimension[1])*GridDimension[0]+i;
 	zmo = (j + (k-1)*GridDimension[1])*GridDimension[0]+i;
-	rho = BaryonField[DensNum][igrid];
 
 	curlBx   = ((BaryonField[iBz  ][ypo] - BaryonField[iBz  ][ymo]) -
 		    (BaryonField[iBy  ][zpo] - BaryonField[iBy  ][zmo]))/2.;	
@@ -87,9 +86,7 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
 
 	l_res = sqrt(absB2)/max(sqrt(curlB2),tiny_number);
 
-
-	int oldflag = FlaggingField[igrid];
-	if (CellWidth[0][i]*RefineByResistiveLengthSafetyFactor > l_res) {	  
+	if (RefineByResistiveLengthSafetyFactor > l_res) {	  
 	  FlaggingField[igrid]++;
 	}
 
