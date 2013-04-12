@@ -210,8 +210,6 @@ Magnetohydrodynamics (CT) Parameters
                 Uses ``CT_AthenaDissipation`` flag.
     3           Gardiner and Stone 2005.  Second order reconstruction using
                 upwind switches
-    4           Lee and Deane 2009 or Lee 2012 third order.  Someone should
-                write this, it would be sweet.
     ========== ==========================================================================
 
     Default: 3
