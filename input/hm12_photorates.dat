@@ -1,27 +1,26 @@
- # Optically thin H and He photoionization and heating rates + Compton heating rate
- #
- # The following 11 lines are model identification flags
- # CUBA V6.3 Nov 2011
- # 0.1000E+01
- # 0.4000E+00 0.1300E+01 0.2000E+00 0.4400E+00 0.1570E+01 0.9000E+00
- # 0.1200E+06 0.1000E+05 0.5000E+04 0.1300E+04
- # 0.3000E+00 0.7000E+00 0.8900E-01 0.7000E+00
- # 0.1000E+01
- # Inputs/salp_SFRD1parfit.hiz.dat
- # Inputs/column_dist.dat
- # 0.1000E+01
- # 0.1800E-03 0.3400E+01
- # 0.1000E+02
- #
- # The following 7 lines are column identification labels
- # z=redshift, HI_i=hydrogen phoionization rate, HI_h=hydrogen photoheating rate 
- # HeI_i,h=photoionization and photoheating rates for neutral helium
- # HeII_i,h=photoionization and photoheating rates for singly ionized helium
- # Compton= Compton heating rate. 
- # All photoionization and photoheating rates are *per ion* and have units of 1/s and eV/s, respectively.
- # The Compton heating rate is *per electron* and has units of eV/s. 
- #  z      HI_i     HI_h    HeI_i    HeI_h    HeII_i   HeII_h   Compton 
-
+# Optically thin H and He photoionization and heating rates + Compton heating rate
+#
+# The following 11 lines are model identification flags
+# CUBA V6.3 Nov 2011
+# 0.1000E+01
+# 0.4000E+00 0.1300E+01 0.2000E+00 0.4400E+00 0.1570E+01 0.9000E+00
+# 0.1200E+06 0.1000E+05 0.5000E+04 0.1300E+04
+# 0.3000E+00 0.7000E+00 0.8900E-01 0.7000E+00
+# 0.1000E+01
+# Inputs/salp_SFRD1parfit.hiz.dat
+# Inputs/column_dist.dat
+# 0.1000E+01
+# 0.1800E-03 0.3400E+01
+# 0.1000E+02
+#
+# The following 7 lines are column identification labels
+# z=redshift, HI_i=hydrogen phoionization rate, HI_h=hydrogen photoheating rate 
+# HeI_i,h=photoionization and photoheating rates for neutral helium
+# HeII_i,h=photoionization and photoheating rates for singly ionized helium
+# Compton= Compton heating rate. 
+# All photoionization and photoheating rates are *per ion* and have units of 1/s and eV/s, respectively.
+# The Compton heating rate is *per electron* and has units of eV/s. 
+#  z      HI_i     HI_h    HeI_i    HeI_h    HeII_i   HeII_h   Compton 
  .000E+00 .228E-13 .889E-13 .124E-13 .112E-12 .555E-15 .114E-13 .690E-19
  .491E-01 .284E-13 .111E-12 .157E-13 .140E-12 .676E-15 .138E-13 .827E-19
  .101E+00 .354E-13 .139E-12 .196E-13 .174E-12 .823E-15 .168E-13 .985E-19

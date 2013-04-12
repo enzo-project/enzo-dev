@@ -608,6 +608,7 @@ OBJS_CONFIG_LIB = \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeLymanWernerTable.o \
+	InitializeHM12Photorates.o \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
