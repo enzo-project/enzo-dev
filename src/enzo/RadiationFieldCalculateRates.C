@@ -543,7 +543,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
       delta = RateData.HM12Redshifts[ihi] - RateData.HM12Redshifts[ilo];
       frac = ( Redshift - RateData.HM12Redshifts[ilo] ) / delta;
     }
-
+    
     /* now interpolate the rates */
     delta = RateData.HM12GH1[ihi] - RateData.HM12GH1[ilo];
     RateData.k24 = POW( 10.0, RateData.HM12GH1[ilo] + frac * delta );
@@ -570,23 +570,22 @@ int RadiationFieldCalculateRates(FLOAT Time)
     CoolData.piHeII = CoolData.piHeII / CoolingUnits * Ramp;
 
     /*
-    printf( "Altay: Redshift = %"ESYM"\n", Redshift);
-    printf( "Altay: RadiationRedshiftOn = %"ESYM"\n", CoolData.RadiationRedshiftOn);
-    printf( "Altay: RadiationRedshiftFullOn = %"ESYM"\n", CoolData.RadiationRedshiftFullOn);
-    printf( "Altay: Ramp = %"ESYM"\n", Ramp);
-
-    printf( "Altay: TimeUnits = %"ESYM"\n", TimeUnits);
-    printf( "Altay: CoolingUnits = %"ESYM"\n", CoolingUnits);
-    printf( "Altay: k24 = %"ESYM"\n",RateData.k24); 
-    printf( "Altay: k25 = %"ESYM"\n",RateData.k25); 
-    printf( "Altay: k26 = %"ESYM"\n",RateData.k26); 
-    printf( "Altay: piHI = %"ESYM"\n",CoolData.piHI);
-    printf( "Altay: piHeI = %"ESYM"\n",CoolData.piHeI);
-    printf( "Altay: piHeII = %"ESYM"\n",CoolData.piHeII);
-
-    ENZO_FAIL("Altay: In Radiation Field Calculate \n");
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      printf( "Altay: TimeUnits = %"ESYM"\n", TimeUnits);
+      printf( "Altay: CoolingUnits = %"ESYM"\n", CoolingUnits);
+      printf( "Altay: Redshift = %"ESYM"\n", Redshift);
+      printf( "Altay: RadiationRedshiftOn = %"ESYM"\n", CoolData.RadiationRedshiftOn);
+      printf( "Altay: RadiationRedshiftFullOn = %"ESYM"\n", CoolData.RadiationRedshiftFullOn);
+      printf( "Altay: Ramp = %"ESYM"\n", Ramp);
+      printf( "Altay: k24 = %"ESYM"\n",RateData.k24); 
+      printf( "Altay: k25 = %"ESYM"\n",RateData.k25); 
+      printf( "Altay: k26 = %"ESYM"\n",RateData.k26); 
+      printf( "Altay: piHI = %"ESYM"\n",CoolData.piHI);
+      printf( "Altay: piHeI = %"ESYM"\n",CoolData.piHeI);
+      printf( "Altay: piHeII = %"ESYM"\n",CoolData.piHeII);
+    }
     */
-
+    
   }
 
 
@@ -679,18 +678,6 @@ int RadiationFieldCalculateRates(FLOAT Time)
   fclose(fp);
 */
 
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
-
-    printf( "Altay: TimeUnits = %"ESYM"\n", TimeUnits);
-    printf( "Altay: CoolingUnits = %"ESYM"\n", CoolingUnits);
-    printf( "Altay: k24 = %"ESYM"\n",RateData.k24); 
-    printf( "Altay: k25 = %"ESYM"\n",RateData.k25); 
-    printf( "Altay: k26 = %"ESYM"\n",RateData.k26); 
-    printf( "Altay: piHI = %"ESYM"\n",CoolData.piHI);
-    printf( "Altay: piHeI = %"ESYM"\n",CoolData.piHeI);
-    printf( "Altay: piHeII = %"ESYM"\n",CoolData.piHeII);
-
-  }
 
   return SUCCESS;
 }
