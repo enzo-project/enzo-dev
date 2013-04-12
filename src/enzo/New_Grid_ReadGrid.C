@@ -234,6 +234,15 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
   snprintf(name, MAX_LINE_LENGTH-1, "/Grid%"GROUP_TAG_FORMAT""ISYM, GridID);
 
+  if (UseMHDCT) {
+      //
+      // Set up metadata for MHD.
+      //
+      MHDCTSetupFieldLabels();
+      this->MHD_SetupDims();
+  }
+
+
   if (NumberOfBaryonFields > 0 && ReadData && !ReadParticlesOnly &&
       (MyProcessorNumber == ProcessorNumber)) {
 
@@ -312,12 +321,6 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 
 
     if( UseMHDCT ){
-      //
-      // Set up metadata for MHD.
-      //
-      MHDCTSetupFieldLabels();
-      this->MHD_SetupDims();
-
       //
       // Define some local variables for MHD.
       //
