@@ -22,14 +22,18 @@ compiler, the following libraries are necessary:
    * `MPI <http://www.mcs.anl.gov/research/projects/mpi/>`_, for multi-processor parallel
      jobs.  Note that Enzo will compile without MPI, but it's fine to compile
      with MPI and only run on a single processor.
+   * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
+     While it is not required to run enzo, ``yt`` enables the easiest analysis
+     of its outputs, as well as the ability to run the enzo testing tools.
 
 Downloading Enzo
 ----------------
 
-Enzo is provided in both a stable and an unstable (developers) form.  **It is highly
+Enzo is provided in both a stable and an unstable (developer's) form.  **It is highly
 recommended that for any production run the stable version is used.**
 Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
-List <http://groups.google.com/group/enzo-users>`_.  
+List <http://groups.google.com/group/enzo-users>`_, where one can ask questions
+to the community of enzo users and developers.  
 
 Please visit the `Enzo Project home page <http://enzo-project.org>`_ to learn
 more about the code and different installation methods.  To directly access the source
@@ -123,7 +127,7 @@ src/ directory.
 
 ::
 
-    ~/enzo-stable/src $ cd src/
+    ~/enzo-stable $ cd src
     ~/enzo-stable/src $ ls
     Makefile      P-GroupFinder      TREECOOL      anyl      enzo      enzohop
     inits         lcaperf            mpgrafic      performance_tools   ring
