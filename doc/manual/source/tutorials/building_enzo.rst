@@ -24,7 +24,10 @@ compiler, the following libraries are necessary:
      with MPI and only run on a single processor.
    * `yt <http://yt-project.org>`_, the yt visualization and analysis suite.  
      While it is not required to run enzo, ``yt`` enables the easiest analysis
-     of its outputs, as well as the ability to run the enzo testing tools.
+     of its outputs, as well as the ability to run the enzo testing tools.  It
+     also provides an easy way to download enzo as part of its installation script.
+     See the `Enzo Project home page <http://enzo-project.org/>`_ for more 
+     information.
 
 Downloading Enzo
 ----------------
