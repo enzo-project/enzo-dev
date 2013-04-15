@@ -404,10 +404,10 @@ This is the grid-by-grid initializer.
                   
                   switch (field) {
                   case 0:
-                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[0] * tanh((yx-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx * x) * sin(ky * (yx-MagneticReconnectionCenterPosition[1]));
+                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[0] * tanh((yx-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx*LengthUnit * x) * sin(ky*LengthUnit * (yx-MagneticReconnectionCenterPosition[1]));
                      break;
                   case 1:
-                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[1] -MagneticReconnectionBperturbation * kx * sin(kx * xy) * cos(ky * (y-MagneticReconnectionCenterPosition[1]));
+                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[1] -MagneticReconnectionBperturbation * kx * sin(kx*LengthUnit * xy) * cos(ky*LengthUnit * (y-MagneticReconnectionCenterPosition[1]));
                      break;
                   case 2:
                      thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[2];
