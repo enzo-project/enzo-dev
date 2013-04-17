@@ -276,7 +276,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int dummy_int;
 
   char level_name[MAX_LINE_LENGTH];
-  sprintf(level_name, "Level_%"ISYM, level);
+  sprintf(level_name, "Level_%02"ISYM, level);
     
   // Update lcaperf "level" attribute
   Eint32 lcaperf_level = level;
