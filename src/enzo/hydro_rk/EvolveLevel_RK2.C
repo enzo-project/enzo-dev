@@ -219,7 +219,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   double time1 = ReturnWallTime();
 
   char level_name[MAX_LINE_LENGTH];
-  sprintf(level_name, "Level_%"ISYM, level);
+  sprintf(level_name, "Level_%02"ISYM, level);
 
 
 

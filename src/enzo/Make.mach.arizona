@@ -1,8 +1,8 @@
 #=======================================================================
 #
-# FILE:        Make.mach.UofA
+# FILE:        Make.mach.arizona
 #
-# DESCRIPTION: Makefile settings for University of Arizona HPC Cluster
+# DESCRIPTION: Makefile settings for University of Arizona SMP Cluster
 #
 # AUTHOR:      Cameron Hummels (chummels@email.arizona.edu)
 #
@@ -10,28 +10,26 @@
 #
 #=======================================================================
 
-MACH_TEXT  = University of Arizona's HPC Clusters
+MACH_TEXT  = University of Arizona SMP Cluster
 MACH_VALID = 1
 MACH_FILE  = Make.mach.arizona
 
-MACHINE_NOTES = "MACHINE_NOTES for University of Arizona's HPC Cluster: \
+MACHINE_NOTES = " MACHINE_NOTES for University of Arizona HPC Cluster: \
         The following modules are needed to compile enzo here with \
         the default machine file. \
-        intel/2012.0.032 \
-	    mpt/2.04 (for SGI MPI compilers) \
 	    \
         You can run this command, \
-        $ module load hdf5 mpt intel"
+        $ module load intel mpt hdf5"
 
 #-----------------------------------------------------------------------
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL = /opt/sgi/mpt/mpt-2.04
-#LOCAL_HDF5_INSTALL = /uaopt/hdf5/1.8.8     # only if using non-yt hdf5
-LOCAL_HDF5_INSTALL = $(YT_DEST)
-LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_COMPILER_DIR = /gsfs1/uaopt/intel/2012.0.032/composer_xe_2011_sp1.6.233/compiler
+LOCAL_MPI_INSTALL = 
+LOCAL_HDF5_INSTALL = /uaopt/hdf5/1.8.8/
+#LOCAL_HDF5_INSTALL = $(YT_DEST)
+#LOCAL_PYTHON_INSTALL = $(YT_DEST)
+LOCAL_COMPILER_DIR = 
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -72,7 +70,7 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 
 MACH_CPPFLAGS = -P -traditional 
 MACH_CFLAGS   = 
-MACH_CXXFLAGS =
+MACH_CXXFLAGS = -DMPICH_IGNORE_CXX_SEEK 
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = 
@@ -104,12 +102,13 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 # Libraries
 #-----------------------------------------------------------------------
 
-LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++ # MPI libraries
+#LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi # MPI libraries
+LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi++ # MPI libraries
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 
-LOCAL_LIBS_MACH   = -L $(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport -lsvml # Machine-dependent libraries
+LOCAL_LIBS_MACH   = -L $(LOCAL_COMPILER_DIR) -limf -lifcore -lifport -lsvml -lgfortran # Machine-dependent libraries
 
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

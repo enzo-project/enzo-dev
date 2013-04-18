@@ -544,7 +544,6 @@ typedef int            HDF5_hid_t;
 #define IMF_TABLE_ENTRIES 1000
 
 #ifdef USE_MPI
-#define MPI_INSTRUMENTATION
 #else /* USE_MPI */
 //#undef MEM_TRACE
 #undef MPI_TRACE
