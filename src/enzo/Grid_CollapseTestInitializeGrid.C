@@ -589,10 +589,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		if (r < SphereCoreRadius[sphere]) {
 		  dens1 = SphereDensity[sphere]*pow(SphereCoreRadius[sphere]/
 						    SphereRadius[sphere], -2);
-		  dens1 = dens1*(1.1 + 0.1*cos(2*theta));
 		} else {
 		  dens1 = SphereDensity[sphere]*pow(r/SphereRadius[sphere], -2);
-		  dens1 = dens1*(1.1 + 0.1*cos(2*theta));
 		}
 	      }
 
@@ -600,7 +598,6 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 	      if (SphereType[sphere] == 6) {
 		dens1 = SphereDensity[sphere] * BE(r*Scale_Factor[sphere]);
-		dens1 = dens1*(1.1 + 0.1*cos(2*theta));
 	      }
 
 	      /* 7) Uniform density, Keplerian disk */
