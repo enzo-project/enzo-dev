@@ -3,13 +3,15 @@
 Running Enzo with CUDA
 ======================
 
-Enzo contains a CUDA MHD solver. Supported parameters include
+Enzo contains CUDA version of PPM and MHD solver. Supported parameters include
 
-    - Riemann Solver: HLL-PLM
+    - PPM: TwoShock, HLL, HLLC, PPMFlatteningParameter, PPMSteepeningParameter, DualEnergyFormalism, RiemannSolverFallback
+    - MHD: HLL-PLM
     - Gravity
     - Color fields: chemistry, etc
     - Driving field
     - Comoving coordinates
+    - EOSType: 0
 
 How to compile with CUDA
 ------------------------
@@ -53,7 +55,10 @@ The only thing to do is to set ``UseCUDA=1`` in whichever parameter
 file. That's all!
 
 Be sure that each node has at least 1 NVIDIA GPU. Also note that 
-although each GPU can be running multiple MPI processes, the 
-performance will not increase beyond  1 MPI process per GPU.
-
+each GPU can be running multiple MPI processes, the 
+performance will typically increase with mulitple MPI processes per GPU. 
+So it's recommended to set the number of MPI processes per node to be the number 
+of CPU cores to fully use both the CPU and GPU resources.
+Furthermore, on Kepler K20 GPU, it's recommended to turn on CUDA MPS (Multi-Process Service),
+which enables concurrent running of multiple MPI processes on the GPU.
 
