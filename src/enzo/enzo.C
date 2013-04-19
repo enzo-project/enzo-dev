@@ -715,13 +715,14 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   }
 
+#ifdef ECUDA
   if (UseCUDA) {
     if (InitGPU(MyProcessorNumber) != SUCCESS) {
       printf("InitGPU failed\n");
       exit(1);
     }
   }
-
+#endif
 
   /* Initialize the radiative transfer */
 
