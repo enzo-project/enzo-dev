@@ -19,8 +19,18 @@ How to compile with CUDA
 In order to make Enzo compatible with CUDA, a few changes need to be
 made in the settings. 
 
-The first thing is to locate the Makefiles located within the ``src/`` 
-directory in the Enzo repository. Make sure then that ``CONFIG_ECUDA=yes``
+The first thing is to locate the Make.config.settings located within the ``src/`` 
+directory in the Enzo repository. Make sure then that 
+
+::
+
+CONFIG_ECUDA=yes
+CONFIG_INTEGER=32
+CONFIG_PRECISION=32
+CONFIG_INITS=32
+CONFIG_IO=32
+CONFIG_PARTICLE_IDS=32
+CONFIG_PARTICLES=32
 
 Then locate your machine specific Makefile, e.g. Make.mach.mymach, and 
 then set the following variables:
