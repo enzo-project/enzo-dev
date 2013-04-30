@@ -25,6 +25,7 @@ Background Radiation Parameters
      10 - Internally computed radiation field using the algorithm of Cen & Ostriker
      11 - Same as previous, but with very, very simple optical shielding fudge
      12 - Haardt & Madau spectrum with q_alpha = 1.57
+     15 - Haardt & Madau 2012.  See Table 3 in '2012ApJ...746..125H <http://adsabs.harvard.edu/abs/2012ApJ...746..125H />'_
 
 ``RadiationFieldLevelRecompute`` (external)
     This integer parameter is used only if the previous parameter is
