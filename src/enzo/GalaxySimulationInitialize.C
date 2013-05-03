@@ -122,6 +122,13 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationCR = .01;
   GalaxySimulationUniformCR = .01;
 
+  /* Align gaseous and stellar disks */
+	if( DiskGravity > 0 ){
+	  for( i = 0 ; i < MAX_DIMENSION ; i++ )
+	    DiskGravityAngularMomentum[i] = GalaxySimulationAngularMomentum[i];
+	} // end DiskGravity if
+
+
   /* read input from file */
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {

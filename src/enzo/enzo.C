@@ -249,7 +249,6 @@ void PrintMemoryUsage(char *str);
 Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 {
 
-
   int i;
 
   // Initialize Communications

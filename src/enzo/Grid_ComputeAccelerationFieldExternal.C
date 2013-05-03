@@ -289,6 +289,131 @@ int grid::ComputeAccelerationFieldExternal()
   } // end: if (PointSourceGravity)
 
 
+/*-----------------------------------------------------------------------
+ *     DiskGravity
+ *     Reference: Burkert 1995, Mori & Burkert 2000
+ *------------------------------------------------------------------------*/
+
+  if (DiskGravity > 0) {
+
+    fprintf(stderr,"INSIDE DISK GRAVITY COMPUTE\n"); // FIXME
+
+    double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
+    float dadt, a = 1, AngularMomentumx, AngularMomentumy, AngularMomentumz;
+    float MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
+      rDMConst, densDMConst;
+
+    AngularMomentumx = DiskGravityAngularMomentum[0];
+    AngularMomentumy = DiskGravityAngularMomentum[1];
+    AngularMomentumz = DiskGravityAngularMomentum[2];
+    MSDisk = DiskGravityStellarDiskMass;
+    SDiskScaleHeightR = DiskGravityStellarDiskScaleHeightR;
+    SDiskScaleHeightz = DiskGravityStellarDiskScaleHeightz;
+    MBulge = DiskGravityStellarBulgeMass;
+    rBulge = DiskGravityStellarBulgeR;
+    rDMConst = DiskGravityDarkMatterR;
+    densDMConst = DiskGravityDarkMatterDensity;
+
+    /* Compute adot/a at time = t+1/2dt (time-centered). */
+    float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
+          VelocityUnits=1, MassUnits=1, AccelUnits=1;
+
+    if (ComovingCoordinates) {
+      if (CosmologyComputeExpansionFactor(Time+0.5*dtFixed, &a, &dadt) == FAIL) {
+        fprintf(stderr, "Error in CosmologyComputeExpansionFactor.\n");
+        return FAIL;
+      } // end computefactor if
+    } // end: if comoving coordinates
+
+    GetUnits(&DensityUnits,&LengthUnits,&TemperatureUnits,&TimeUnits, &VelocityUnits,&MassUnits,Time);
+    AccelUnits = LengthUnits/TimeUnits/TimeUnits;
+
+    /* Loop over grid, adding acceleration to field. */
+    for (dim = 0; dim < GridRank; dim++) {
+      int n = 0;
+
+      for (k = 0; k < GridDimension[2]; k++) {
+        if (GridRank > 2)
+          zpos=CellLeftEdge[2][k]+0.5*CellWidth[2][k]-DiskGravityPosition[2];
+        if (dim == 2 && HydroMethod == Zeus_Hydro)
+          zpos -= 0.5*CellWidth[2][k];
+
+      for (j = 0; j < GridDimension[1]; j++) {
+        if (GridRank > 1)
+          ypos = CellLeftEdge[1][j] + 0.5*CellWidth[1][j]-DiskGravityPosition[1];
+        if (dim == 1 && HydroMethod == Zeus_Hydro)
+          ypos -= 0.5*CellWidth[1][j];
+
+      for (i = 0; i < GridDimension[0]; i++, n++) {
+        xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i]-DiskGravityPosition[0];
+        if (dim == 0 && HydroMethod == Zeus_Hydro)
+          xpos -= 0.5*CellWidth[0][i];
+
+        /* Compute distance from center. */
+        rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
+
+        /* add on here */
+
+        double accelsph, accelcylR, accelcylz, zheight, xpos1, ypos1, zpos1;
+        /* Compute z and r_perp (AngularMomentum is angular momentum 
+         * and must have unit length). */
+
+        /* magnitude of z = r.L in L direction */
+
+        zheight=AngularMomentumx*xpos + AngularMomentumy*ypos +AngularMomentumz*zpos;
+
+        /* position in plane of disk */
+        xpos1=xpos-zheight*AngularMomentumx;
+        ypos1=ypos-zheight*AngularMomentumy;
+        zpos1=zpos-zheight*AngularMomentumz;
+
+        radius = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1 + zheight*zheight);
+        rcyl = sqrt(xpos1*xpos1 + ypos1*ypos1 + zpos1*zpos1);
+        radius = radius*LengthUnits;
+        rcyl = rcyl*LengthUnits;
+        accelsph = (GravConst)*MBulge*SolarMass/pow(radius+rBulge*Mpc,2)
+                 + pi*GravConst*densDMConst*pow(rDMConst*Mpc,3)/pow(radius,2)
+                   *(-2.0*atan(radius/rDMConst/Mpc)
+                     +2.0*log(1.0+radius/rDMConst/Mpc)
+                     +log(1.0+pow(radius/rDMConst/Mpc,2))
+                    );
+        accelcylR = GravConst*MSDisk*SolarMass*rcyl/sqrt(pow(pow(rcyl,2)
+                  + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
+                  + pow(SDiskScaleHeightz*Mpc,2)),2),3));
+        accelcylz = GravConst*MSDisk*SolarMass/sqrt(pow(zheight*LengthUnits,2)
+                  + pow(SDiskScaleHeightz*Mpc,2))*zheight*LengthUnits/sqrt(pow(pow(rcyl,2)
+                  + pow(SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
+                  + pow(SDiskScaleHeightz*Mpc,2)),2),3))
+                    *(  SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
+                      + pow(SDiskScaleHeightz*Mpc,2))
+                     )/AccelUnits;
+         accelsph = accelsph/(radius/LengthUnits)/AccelUnits;
+         accelcylR = accelcylR/(rcyl/LengthUnits)/AccelUnits;
+
+         /*Apply Force*/ /*generalized for rotation about y-axis*/
+         double xzcyl = sqrt(pow(zpos1,2)+pow(xpos1,2));
+         double xsign = 1.0, zsign = 1.0;
+         if (xpos1 < 0.0) xsign = -1.0;
+         if (zpos1 < 0.0) zsign = -1.0;
+
+         if (dim == 0)
+           AccelerationField[0][n] -= accelsph*xpos+(accelcylR*xzcyl*xsign)*AngularMomentumz
+                                    + (accelcylz)*AngularMomentumx;
+         if (dim == 1)
+           AccelerationField[1][n] -= (accelsph*ypos1+accelcylR*ypos1);
+         if (dim == 2)
+           AccelerationField[2][n] -= (accelsph*zpos+(accelcylz)*AngularMomentumz
+                                    + (accelcylR*xzcyl*zsign)*AngularMomentumx);
+
+      } } } // end: loop over grid (i/j/k)
+    } // end: loop over dims
+
+    fprintf(stderr,"DONE w/ DISK GRAVITY COMPUTE\n"); // FIXME
+    /* ---  FIXME PARTICLES NOT IMPLEMENTED FIXME --- */
+
+  } // end: if (DiskGravity)
+
+
   if (ExternalGravity) {
 
     if (PointSourceGravity)

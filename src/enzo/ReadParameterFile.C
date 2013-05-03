@@ -393,6 +393,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "PointSourceGravityCoreRadius = %"FSYM,
 		  &PointSourceGravityCoreRadius);
  
+    ret += sscanf(line, "DiskGravity                        = %"ISYM,&DiskGravity);
+    ret += sscanf(line, "DiskGravityPosition                = %"PSYM" %"PSYM" %"PSYM,
+      DiskGravityPosition, DiskGravityPosition+1, DiskGravityPosition+2);
+    ret += sscanf(line, "DiskGravityAngularMomentum         = %"PSYM" %"PSYM" %"PSYM,
+      DiskGravityAngularMomentum,DiskGravityAngularMomentum+1,
+      DiskGravityAngularMomentum+2);
+    ret += sscanf(line, "DiskGravityStellarDiskMass         = %"FSYM,&DiskGravityStellarDiskMass);
+    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightR = %"FSYM,&DiskGravityStellarDiskScaleHeightR);
+    ret += sscanf(line, "DiskGravityStellarDiskScaleHeightz = %"FSYM,&DiskGravityStellarDiskScaleHeightz);
+    ret += sscanf(line, "DiskGravityStellarBulgeMass        = %"FSYM,&DiskGravityStellarBulgeMass);
+    ret += sscanf(line, "DiskGravityStellarBulgeR           = %"FSYM,&DiskGravityStellarBulgeR);
+    ret += sscanf(line, "DiskGravityDarkMatterR             = %"FSYM,&DiskGravityDarkMatterR);
+    ret += sscanf(line, "DiskGravityDarkMatterDensity       = %"FSYM,&DiskGravityDarkMatterDensity);
+
     ret += sscanf(line, "ExternalGravity         = %"ISYM,&ExternalGravity);
     ret += sscanf(line, "ExternalGravityConstant = %"FSYM, &ExternalGravityConstant);
     ret += sscanf(line, "ExternalGravityRadius   = %"FSYM,&ExternalGravityRadius);

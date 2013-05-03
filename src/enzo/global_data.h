@@ -247,6 +247,18 @@ EXTERN FLOAT PointSourceGravityPosition[MAX_DIMENSION];
 EXTERN float PointSourceGravityConstant;
 EXTERN float PointSourceGravityCoreRadius;
 
+/* disk gravity */
+EXTERN int DiskGravity;
+EXTERN FLOAT DiskGravityPosition[MAX_DIMENSION],
+             DiskGravityAngularMomentum[MAX_DIMENSION];
+EXTERN float DiskGravityStellarDiskMass;
+EXTERN float DiskGravityStellarDiskScaleHeightR;
+EXTERN float DiskGravityStellarDiskScaleHeightz;
+EXTERN float DiskGravityStellarBulgeMass;
+EXTERN float DiskGravityStellarBulgeR;
+EXTERN float DiskGravityDarkMatterR;
+EXTERN float DiskGravityDarkMatterDensity;
+
 /* SelfGravity (TRUE or FALSE) */
 
 EXTERN int SelfGravity;

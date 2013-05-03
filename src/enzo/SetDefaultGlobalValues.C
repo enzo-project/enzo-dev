@@ -233,10 +233,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
-    MustRefineRegionLeftEdge[dim] = 0.0;
-    MustRefineRegionRightEdge[dim] = 1.0;
+    DiskGravityPosition[dim]        = 0.0;
+    DiskGravityAngularMomentum[dim] = 0.0;
+    MustRefineRegionLeftEdge[dim]   = 0.0;
+    MustRefineRegionRightEdge[dim]  = 1.0;
   }
- 
+  if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
+
   for (i = 0; i < MAX_STATIC_REGIONS; i++) {
     StaticRefineRegionLevel[i] = INT_UNDEFINED;
     AvoidRefineRegionLevel[i]  = INT_UNDEFINED;
@@ -305,6 +308,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PointSourceGravity           = FALSE;             // off
   PointSourceGravityConstant   = 1.0;
   PointSourceGravityCoreRadius = 0.0;
+
+  DiskGravity                        = FALSE;
+  DiskGravityStellarDiskMass         = 1.0E11;      // Solar Masses
+  DiskGravityStellarDiskScaleHeightR = 4.0E-3;      // Mpc
+  DiskGravityStellarDiskScaleHeightz = 2.5E-4;      // Mpc
+  DiskGravityStellarBulgeMass        = 1.0E10;      // Solar Masses
+  DiskGravityStellarBulgeR           = 4.0E-4;      // Mpc
+  DiskGravityDarkMatterR             = 2.3E-2;      // Mpc
+  DiskGravityDarkMatterDensity       = 3.81323E-25; // CGS
 
   SelfGravity                 = FALSE;             // off
   SelfGravityGasOff           = FALSE;             // off
