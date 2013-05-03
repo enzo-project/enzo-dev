@@ -52,7 +52,23 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor,
 float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv [3][3], float DiskDensity, FLOAT ScaleHeightR, FLOAT ScaleHeightz, FLOAT cellwidth);
 void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, FLOAT &zrot, FLOAT inv [3][3]);
 
+/* Internal Routines for Disk Potential Setup */
+double DiskPotentialCircularVelocity(double cellwidth,double z,double xpos,double ypos,double zpos,double density,double &temperature);
+double trapzd(double (func)(), double a, double b, int n);
+double qromb(double (*func)(double), double a, double b);
+void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
+double func1(double zint);
+double func2(double zint);
+double func3(double zint);
+double func4(double zint);
+double *vector(int nl,int nh);
+void free_vector(double *v,int nl,int nh);
+static double drcyl;
+static double r2;
+
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits;
+
+double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm;
 
 int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxyMass,
@@ -80,7 +96,13 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  float DiskDensity, DiskVelocityMag;
   int CRNum, DensNum;
 
-  
+  /* global-scope variables for disk potential functions (FIXME) */
+  gScaleHeightR = ScaleHeightR;
+  gScaleHeightz = ScaleHeightz;
+  densicm = GalaxySimulationInflowDensity;
+  MgasScale = GasMass;
+  Picm = kboltz*GalaxySimulationInflowDensity*InitialTemperature/(0.6*mh);
+
   /* create fields */
 
   NumberOfBaryonFields = 0;
@@ -245,7 +267,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    xhat[1] = ypos - zheight*AngularMomentum[1];
 	    xhat[2] = zpos - zheight*AngularMomentum[2];
 	    drad = sqrt(xhat[0]*xhat[0] + xhat[1]*xhat[1] + xhat[2]*xhat[2]);
-
+      drcyl = drad;
 
 	    /* Normalize the vector r_perp = unit vector pointing along plane of disk */
 
@@ -282,7 +304,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    if( PointSourceGravity > 0 )
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
 	    else if( DiskGravity > 0 )
-	      DiskVelocityMag = 0.0; // FIXME
+	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,xhat[0]*drad*LengthUnits,
+          xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, DiskDensity, temp1);
       if( PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
 
@@ -490,4 +513,260 @@ void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, F
   xrot = xpos*inv[0][0] + ypos*inv[0][1] + zpos*inv[0][2];
   yrot = xpos*inv[1][0] + ypos*inv[1][1] + zpos*inv[1][2];
   zrot = xpos*inv[2][0] + ypos*inv[2][1] + zpos*inv[2][2];
+}
+
+/* 
+ *	DISK POTENTIAL CIRCULAR VELOCITY
+ */
+double DiskPotentialCircularVelocity(double cellwidth, double z, double xpos, double ypos, double zpos, double density, double &temperature)
+{
+	extern double drcyl;
+	double func1(double zint);       //(density times Stellar bulge force)
+	double func2(double zint);     //(density times stellar disk force)
+	double func3(double zint);       //func1 but for r2
+	double func4(double zint);      //func2 but for r2
+	
+	double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
+		zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot;
+
+	// printf("r2,drcyl,cellwidth,LU=%g %g %g %g\n", r2, drcyl, cellwidth, LengthUnits);
+	r2=(drcyl+0.01*cellwidth)*LengthUnits;
+	rsph=sqrt(pow(drcyl*LengthUnits,2)+pow(z,2));
+
+	/*	Determine zicm: the height above the disk where rho -> rho_ICM,
+	 *	use this to find P_icm and dP_icm  */
+	if (fabs(drcyl*LengthUnits/Mpc) <= 0.02) {
+		zicm=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(drcyl*LengthUnits/gScaleHeightR/Mpc));
+		zicm=log(1.0/zicm+sqrt((1.0/pow(zicm,2))-1.0));
+		zicm=fabs(zicm*gScaleHeightz*Mpc);
+
+		//printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
+		zicm2=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc));
+		zicm2=log(1.0/zicm2+sqrt((1.0/pow(zicm2,2))-1.0));
+		zicm2=fabs(zicm2*gScaleHeightz*Mpc);
+
+		Pressure= qromb(func1, fabs(zicm), fabs(z)) + qromb(func2, fabs(zicm), fabs(z));
+		Pressure2= qromb(func3, fabs(zicm2), fabs(z)) + qromb(func4, fabs(zicm2), fabs(z));
+	}
+  else {
+    if (fabs(drcyl*LengthUnits/Mpc) <= 0.026) {
+
+			zicmf=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
+			      /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc)))));
+			zicm=log(1.0/zicmf+sqrt((1.0/pow(zicmf,2))-1.0));
+			zicm=fabs(zicm*gScaleHeightz*Mpc);			
+			if (zicmf > 1.0) zicm = 0.0;
+
+			//printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
+			zicm2f=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
+			      /cosh(r2/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc)))));
+			zicm2=log(1.0/zicm2f+sqrt((1.0/pow(zicm2f,2))-1.0));
+			zicm2=fabs(zicm2*gScaleHeightz*Mpc);
+			if (zicm2f > 1.0) zicm2 = 0.0;
+
+			if (densicm >= (MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
+			                /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)/cosh(fabs(z)/gScaleHeightz/Mpc)
+			                *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))))) 
+			    && fabs(z) < zicm) {
+				printf("small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
+			} // end small density if
+
+			if (fabs(z) < fabs(zicm)) {
+				Pressure  = (qromb(func1, fabs(zicm), fabs(z)) + qromb(func2, fabs(zicm), fabs(z)))
+				            *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))));
+    		Pressure2 = (qromb(func3, fabs(zicm2), fabs(z)) + qromb(func4, fabs(zicm2), fabs(z)))
+				            *(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc))));
+			} // end |z| > |zicm| if
+
+  	} // end r_cyle < .026 if
+	} // end r_cyl < .02 if/else
+
+	denuse = density; // av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits; FIXME
+	if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= 0.026 && fabs(z) <= fabs(zicm)) {
+		fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc, drcyl*LengthUnits/Mpc);
+	}
+	if (fabs(drcyl)*LengthUnits/Mpc >= 0.026 || fabs(zicm) <= fabs(z)){
+		Pressure = 0.0;
+		Pressure2 = 0.0;
+		denuse = densicm;
+	}
+	if (Pressure2 <= 0.0 && Pressure <= 0.0){
+		Pressure = 0.0;
+		Pressure2 = 0.0;
+		denuse = densicm;
+	}
+	if (Pressure <= 0.0) {
+		Pressure = 0.0;
+		Pressure2 = 0.0;
+		denuse = densicm;
+	}
+	if (denuse < densicm) {
+		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
+	}
+	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
+
+	/* Calculate pressure gradient */
+	FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; //(av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits);
+
+	/* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
+	FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*pow(DiskGravityDarkMatterR*Mpc,3)/pow(rsph,3)*drcyl*LengthUnits
+	         *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc)+2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc)
+	           +log(1.0+pow(rsph/DiskGravityDarkMatterR/Mpc,2)));
+	FtotR += -GravConst*DiskGravityStellarDiskMass*SolarMass*drcyl*LengthUnits
+             /sqrt(pow(pow(drcyl*LengthUnits,2)+pow(DiskGravityStellarDiskScaleHeightR*Mpc
+	                   +sqrt(pow(z,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)),2),3));
+	FtotR += -GravConst*DiskGravityStellarBulgeMass*SolarMass
+	           /pow(sqrt(pow(z,2)+pow(drcyl*LengthUnits,2))+DiskGravityStellarBulgeR*Mpc,2)*drcyl*LengthUnits/sqrt(pow(z,2)
+	                +pow(drcyl*LengthUnits,2));
+
+
+	if (temperature < 0.0) fprintf(stderr,"temp = %g, P = %g, z = %g, zicm = %g, zicmf=%g, zsmall=%g, drcyl = %g\n", 
+		temperature, Pressure, z/Mpc, zicm/Mpc, zicmf, zsmall, drcyl*LengthUnits/Mpc);
+	if ((FtotR - FdPdR) > 0.0) { 
+		fprintf(stderr,"FtotR = %g, FdPdR = %g, P = %g,P2 = %g, Picm = %g, dr = %g, drcyl = %g, z = %g\n", 
+			FtotR, FdPdR, Pressure, Pressure2, Picm, r2-drcyl*LengthUnits, drcyl*LengthUnits/Mpc, z/Mpc);
+   	FdPdR = 0.0;
+	} // end FtotR - FdPdr > 0.0 if
+
+	/* Find circular velocity by balancing FG and dPdR against centrifugal force */
+	vrot=sqrt(-drcyl*LengthUnits*(FtotR-FdPdR));
+	if ((denuse == densicm)) vrot = 0.0;
+
+  return (vrot/VelocityUnits); //code units
+} // end DiskPotentialCircularVelocity
+
+
+double *vector(int nl,int nh)
+{
+  double *v;
+  v = new double[(nh-nl+1)];
+  if (!v) nrerror("allocation failure in vector()");
+  return v-nl;
+}
+
+void free_vector(double *v,int nl,int nh)
+{
+  delete [] &v[nl];
+}
+
+// the two functions integrated by qromb
+
+double func1(double zint)
+{
+
+  extern double drcyl;
+  return (-MgasScale*SolarMass/(2*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)/cosh(fabs(zint)/gScaleHeightz/Mpc)*GravConst*DiskGravityStellarBulgeMass*SolarMass/pow((sqrt(pow(zint,2)+pow(drcyl*LengthUnits,2))+DiskGravityStellarBulgeR*Mpc),2)*fabs(zint)/sqrt(pow(zint,2)+pow(drcyl*LengthUnits,2)));
+}
+
+double func2(double zint)
+{
+  extern double drcyl;
+  return (-MgasScale*SolarMass/(2*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)/cosh(fabs(zint)/gScaleHeightz/Mpc)*GravConst*DiskGravityStellarDiskMass*SolarMass*(DiskGravityStellarDiskScaleHeightR*Mpc+sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)))*fabs(zint)/sqrt(pow(pow(drcyl*LengthUnits,2)+pow((DiskGravityStellarDiskScaleHeightR*Mpc+sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2))),2),3))/sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)));
+}
+
+// need to repeat the same functions but with a new r
+
+double func3(double zint)
+{
+  extern double r2;
+  return (-MgasScale*SolarMass/(2*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc)/cosh(fabs(zint)/gScaleHeightz/Mpc)*GravConst*DiskGravityStellarBulgeMass*SolarMass/pow((sqrt(pow(zint,2)+pow(r2,2))+DiskGravityStellarBulgeR*Mpc),2)*fabs(zint)/sqrt(pow(zint,2)+pow(r2,2)));
+}
+
+double func4(double zint)
+{
+  extern double r2;
+  return (-MgasScale*SolarMass/(2*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc)/cosh(fabs(zint)/gScaleHeightz/Mpc)*GravConst*DiskGravityStellarDiskMass*SolarMass*(DiskGravityStellarDiskScaleHeightR*Mpc+sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)))*fabs(zint)/sqrt(pow(pow(r2,2)+pow(DiskGravityStellarDiskScaleHeightR*Mpc+sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)),2),3))/sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)));
+}
+
+// Will be called by qromb to find the pressure at every point in disk.
+
+#define FUNC(x) ((*func)(x))
+
+double trapzd(double (*func)(double), double a, double b, int n)
+{
+	static double s;
+	static int it;
+	int j;
+	double del, sum, tnm, x;
+
+	if (n == 1){
+		it = 1;
+		return (s=0.5*(b-a)*(FUNC(a)+FUNC(b)));
+	}
+
+	tnm = it;
+	del = (b-a)/tnm;
+	x = a+0.5*del;
+	for (sum=0.0,j=1;j<=it;j++,x+=del) sum += FUNC(x);
+	it *= 2;
+	s = 0.5*(s+(b-a)*sum/tnm);
+	return s;
+} // end trapezoid
+
+/* also called by qromb */
+void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
+{
+	int i,m,ns=1;
+	double den,dif,dift,ho,hp,w;
+	double *c,*d,*vector(int,int);
+	void nrerror(char *),free_vector(double *, int, int);
+
+	dif=fabs(x-xa[1]);
+	c=vector(1,n);
+	d=vector(1,n);
+	for (i=1;i<=n;i++) {
+		if ( (dift=fabs(x-xa[i])) < dif) {
+			ns=i;
+			dif=dift;
+		}
+		c[i]=ya[i];
+		d[i]=ya[i];
+	} // end i for
+	
+	*y=ya[ns--];
+	for (m=1;m<n;m++) {
+		for (i=1;i<=n;i++) {
+			ho=xa[i]-x;
+			hp=xa[i+m]-x;
+			w=c[i+1]-d[i];
+			if ( (den=ho-hp) == 0.0 ) fprintf(stderr,"Error in routine POLINT\n");
+			den = w/den;
+			d[i]=hp*den;
+			c[i]=ho*den;
+		} // end i for
+		*dy=(2*ns < (n-m) ? c[ns+1] : d[ns--]);
+		*y += (*dy);
+	} // end m for
+
+	free_vector(d,1,n);
+	free_vector(c,1,n);
+} // end polint
+
+#define EPS 1.0e-6
+#define JMAX 40
+#define JMAXP JMAX+1
+#define K 7
+
+/* Main integration routine called by DiskPotentialCircularVelocity to find Pressure */
+double qromb(double (*func)(double), double a, double b)
+{
+	double ss,dss,trapzd(double (*func)(double), double a, double b, int n);
+  int j;
+  double h[JMAXP+1], s[JMAXP+1];
+  void polint(double xa[],double ya[],int n,double x,double *y,double *dy),nrerror(char *);
+
+  h[1] = 1.0;
+  for (j=1;j<=JMAX;j++)    {
+      s[j] = trapzd(func,a,b,j);
+      if (j >= K)
+  {
+    polint(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
+    if (fabs(dss) < EPS*fabs(ss)) return ss;
+  }
+      s[j+1]=s[j];
+      h[j+1]=0.25*h[j]; 
+    }
+  fprintf(stderr,"Too many steps in routine QROMB\n");
+  fprintf(stderr,"\t>> drcyl= %"FSYM", z = %"FSYM"\n", drcyl*LengthUnits/Mpc, a/Mpc); 
+	return -1.0;
 }
