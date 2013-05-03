@@ -968,18 +968,19 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 		  /* Set bulk velocity. */
           
-          for (sphere = 0; sphere<NumberOfSpheres;sphere++)
+          for (sphere = 0; sphere<NumberOfSpheres;sphere++) {
             xdist = ParticlePosition[0][npart]-SpherePosition[sphere][0];
             ydist = ParticlePosition[1][npart]-SpherePosition[sphere][1];
             zdist = ParticlePosition[2][npart]-SpherePosition[sphere][2];
 		    for (dim = 0; dim < GridRank; dim++)
-              if (sqrt(xdist*xdist + ydist*ydist + zdist*zdist) < SphereRadius[sphere]) { //particle is inside sphere
-		        ParticleVelocity[dim][npart] = 
-		         DMVelocity[dim]+UniformVelocity[dim]+SphereVelocity[sphere][dim] ; 
-              } else { //particle is outside sphere
-		        ParticleVelocity[dim][npart] = 
-		         DMVelocity[dim]+UniformVelocity[dim]; 
-              }
+                if (sqrt(xdist*xdist + ydist*ydist + zdist*zdist) < SphereRadius[sphere]) { //particle is inside sphere
+		            ParticleVelocity[dim][npart] = 
+		            DMVelocity[dim]+UniformVelocity[dim]+SphereVelocity[sphere][dim] ; 
+                } else { //particle is outside sphere
+		            ParticleVelocity[dim][npart] = 
+		            DMVelocity[dim]+UniformVelocity[dim]; 
+                }
+          }
 		  /* Add random velocity; */
 
 		  if (sigma != 0)
