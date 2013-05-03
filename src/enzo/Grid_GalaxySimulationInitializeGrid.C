@@ -277,10 +277,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		  inv[j][i] = temp;
 		}
 
-	    /* If we're above the disk, then exit. */
 	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0)
 
-	    DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
+	    if( PointSourceGravity > 0 )
+	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
+	    else if( DiskGravity > 0 )
+	      DiskVelocityMag = 0.0; // FIXME
+      if( PointSourceGravity*DiskGravity != FALSE ) 
+	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
 
 
 	    if (dim == 0)
@@ -292,6 +296,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 	      }
 
+	    /* If we're above the disk, then exit. */
 	    if (dens1 < density)
 	      break;
 
