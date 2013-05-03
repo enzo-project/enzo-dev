@@ -63,6 +63,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float DMConcentration,
 					 float DiskTemperature,
 					 float InitialTemperature,
+					 float UniformDensity,
 					 float AngularMomentum[MAX_DIMENSION],
 					 float UniformVelocity[MAX_DIMENSION], 
 					 int UseMetallicityField, 
@@ -189,7 +190,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	if (GridRank > 2)
 	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
-	density = 1.0;
+	density = UniformDensity;
 	temperature = temp1 = InitialTemperature;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
