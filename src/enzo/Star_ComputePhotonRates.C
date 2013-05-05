@@ -79,9 +79,9 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     if (!RadiativeTransferOpticallyThinH2 &&
 	MultiSpecies > 1) nbins++;
 #endif
-    EnergyFractionLW   = 0.01;
-    EnergyFractionHeI  = 0.4284;
-    EnergyFractionHeII = 0.0282;
+    EnergyFractionLW   = 1.288;
+    EnergyFractionHeI  = 0.2951;
+    EnergyFractionHeII = 2.818e-4;
     E[0] = 21.62; // eV (good for a standard, low-Z IMF)
     E[1] = 30.0;
     E[2] = 60.0;
