@@ -41,6 +41,7 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *GPotName = "Grav_Potential";
 
   /* declarations */
 
@@ -60,7 +61,26 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   FLOAT TestOrbitRadius            = 0.2;  
   float TestOrbitCentralMass       = 1.0;
   float TestOrbitTestMass          = 1.0e-6;
-  int   TestOrbitUseBaryons        = FALSE; // not implemented 
+  int   TestOrbitUseBaryons        = FALSE; // not on by default
+
+  // Quantities for the baryon field if we turn it on (necessary for the potential)
+  float TestOrbitBackgroundVelocity[3]   = {0.0, 0.0, 0.0};   // gas initally at rest
+  float TestOrbitBackgroundDensity;
+  float TestOrbitBackgroundEnergy = 1.0;
+  float ZeroBField[3] = {0.0, 0.0, 0.0};
+
+  /* The test orbit background density needs to be small, otherwise bad things will 
+     happen to the orbit.  The reason for this is that the test orbit requires 
+     non-periodic (isolated) gravity boundary conditions, and it's hard to maintain
+     a circular orbit inside of a cube of gas.  BUT, we need to have baryon fields
+     enabled in order to write out the gravitational potential, so we compromise by
+     setting this to the smallest practical number.  As long as 
+     (bayron density) * (simulation volume) is much smaller than the mass of 
+     the big particle at the center of the volume, everything ought to be fine.
+     --BWO, May 2013 */
+
+  TestOrbitBackgroundDensity = tiny_number;   
+  
 
   /* read input from file */
 
@@ -89,14 +109,31 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   } // end input from parameter file
 
-  /* set up grid */
 
+  if(TestOrbitUseBaryons == TRUE && UseHydro == TRUE){
+    UseHydro = FALSE;
+    fprintf(stderr,"TestOrbit: UseBaryons = TRUE, turning off hydro!\n");
+  }
+
+  /* set up uniform top grid if we're using baryon fields (this
+     must be done if we want to write out the gravitational potential). */
+  if(TestOrbitUseBaryons == TRUE)
+    if (TopGrid.GridData->InitializeUniformGrid(TestOrbitBackgroundDensity,
+						TestOrbitBackgroundEnergy,
+						TestOrbitBackgroundEnergy,
+						TestOrbitBackgroundVelocity,
+						ZeroBField
+						) == FAIL) {
+      ENZO_FAIL("Error in InitializeUniformGrid.");
+    }
+
+  /* put particles in the grid - doesn't need grid baryon quantities initialized */
   if (TopGrid.GridData->TestOrbitInitializeGrid(TestOrbitNumberOfParticles,
 						TestOrbitRadius,
 						TestOrbitCentralMass,
 						TestOrbitTestMass,
 						TestOrbitUseBaryons
-						  ) == FAIL){
+						) == FAIL){
     ENZO_FAIL("Error in TestOrbitInitializeGrid.\n");
   }
 
@@ -111,12 +148,11 @@ int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
 
-  DataUnits[0] = NULL;
-  DataUnits[1] = NULL;
-  DataUnits[2] = NULL;
-  DataUnits[3] = NULL;
-  DataUnits[4] = NULL;
-  DataUnits[5] = NULL;
+  if (WritePotential)
+    DataLabel[count++] = GPotName;  
+
+  for (int j = 0; j < count; j++)
+    DataUnits[j] = NULL;
 
   /* Write parameters to parameter output file */
   
