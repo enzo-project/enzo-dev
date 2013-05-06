@@ -23,10 +23,8 @@ PE = []
 TE = []
 time = []
 
-it = 0
-
 ts = TimeSeriesData.from_filenames("*/*.hierarchy")
-for pf in ts:
+for it, pf in enumerate(ts):
     
     # particle position
     xp = pf.h.grids[0]["particle_position_x"][1]
@@ -57,7 +55,6 @@ for pf in ts:
         TE.append(myTE)
         time.append(pf.current_time)
 
-    it += 1
 
 # turn into NumPy arrays for convenient manipulation
 TotalEnergy = na.array(TE) 
