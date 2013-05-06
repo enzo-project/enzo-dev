@@ -265,6 +265,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
     } // end: loop over levels
 
+
+	fprintf(stderr,"P[%"ISYM"] Done with loop over levels !\n",MyProcessorNumber); // FIXME
+
     /* Loop back from the bottom, restoring the consistency among levels. */
 
     for (level = MaximumRefinementLevel; level > 0; level--) {
@@ -279,8 +282,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
     }
 
+	fprintf(stderr,"P[%"ISYM"] made it!\n",MyProcessorNumber); // FIXME
+
   } // end: if (GalaxySimulationRefineAtStart)
 
+	fprintf(stderr,"P[%"ISYM"] made it out here too!\n",MyProcessorNumber); // FIXME
  /* set up field names and units */
 
  int count = 0;

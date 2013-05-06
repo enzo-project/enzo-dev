@@ -410,7 +410,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Prepare Gravity. */
 
     int GravityOn = 0, FloatSize = sizeof(float);
-    if (SelfGravity || UniformGravity || PointSourceGravity)
+    if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity )
       GravityOn = 1;
 #ifdef TRANSFER
     if (RadiationPressure)

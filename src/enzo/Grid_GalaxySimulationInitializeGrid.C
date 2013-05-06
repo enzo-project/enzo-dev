@@ -53,7 +53,7 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
 void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, FLOAT &zrot, FLOAT inv [3][3]);
 
 /* Internal Routines for Disk Potential Setup */
-double DiskPotentialCircularVelocity(double cellwidth,double z,double xpos,double ypos,double zpos,double density,double &temperature);
+double DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT xpos,FLOAT ypos,FLOAT zpos,FLOAT density,FLOAT &temperature);
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
@@ -99,9 +99,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   /* global-scope variables for disk potential functions (FIXME) */
   gScaleHeightR = ScaleHeightR;
   gScaleHeightz = ScaleHeightz;
-  densicm = GalaxySimulationInflowDensity;
+  densicm = UniformDensity;
   MgasScale = GasMass;
-  Picm = kboltz*GalaxySimulationInflowDensity*InitialTemperature/(0.6*mh);
+  Picm = kboltz*UniformDensity*InitialTemperature/(0.6*mh);
 
   /* create fields */
 
@@ -202,8 +202,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  /* Loop over the mesh. */
 
- float density, dens1, Velocity[MAX_DIMENSION],
-   temperature, temp1;
+ float density, dens1, Velocity[MAX_DIMENSION];
+ FLOAT temperature, temp1;
  FLOAT r, x, y = 0, z = 0;
  int n = 0;
 
@@ -305,10 +305,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
 	    else if( DiskGravity > 0 )
 	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,xhat[0]*drad*LengthUnits,
-          xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, DiskDensity, temp1);
+	        xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, DiskDensity, temp1);
       if( PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
-
 
 	    if (dim == 0)
 	      {
@@ -350,6 +349,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
 	  }
+		fprintf(stderr,"temp1,temperature,DiskTemperature = %"GSYM", %"GSYM", %"GSYM"\n", temp1,temperature,DiskTemperature); // FIXME
 
 	} // end: if (r < DiskRadius)
 	
@@ -389,6 +389,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
        BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
 
      } // end loop over grid
+
+	fprintf(stdout,"... done with grid! level,processor = %"ISYM", %"ISYM"\n",level,MyProcessorNumber); // FIXME
 
  return SUCCESS;
 
@@ -518,20 +520,23 @@ void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, F
 /* 
  *	DISK POTENTIAL CIRCULAR VELOCITY
  */
-double DiskPotentialCircularVelocity(double cellwidth, double z, double xpos, double ypos, double zpos, double density, double &temperature)
+float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT density, FLOAT &temperature)
 {
+
 	extern double drcyl;
 	double func1(double zint);       //(density times Stellar bulge force)
 	double func2(double zint);     //(density times stellar disk force)
 	double func3(double zint);       //func1 but for r2
 	double func4(double zint);      //func2 but for r2
-	
+
 	double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
 		zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot;
 
-	// printf("r2,drcyl,cellwidth,LU=%g %g %g %g\n", r2, drcyl, cellwidth, LengthUnits);
+	//printf("r2,drcyl,cellwidth,LU=%g %g %g %g\n", r2, drcyl, cellwidth, LengthUnits);
 	r2=(drcyl+0.01*cellwidth)*LengthUnits;
 	rsph=sqrt(pow(drcyl*LengthUnits,2)+pow(z,2));
+
+	//printf("gScaleHeightR,gScaleHeightz,MgasScale = %"GSYM", %"GSYM", %"GSYM"\n", gScaleHeightR,gScaleHeightz,MgasScale);
 
 	/*	Determine zicm: the height above the disk where rho -> rho_ICM,
 	 *	use this to find P_icm and dP_icm  */
@@ -540,7 +545,7 @@ double DiskPotentialCircularVelocity(double cellwidth, double z, double xpos, do
 		zicm=log(1.0/zicm+sqrt((1.0/pow(zicm,2))-1.0));
 		zicm=fabs(zicm*gScaleHeightz*Mpc);
 
-		//printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
+	//	printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
 		zicm2=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc));
 		zicm2=log(1.0/zicm2+sqrt((1.0/pow(zicm2,2))-1.0));
 		zicm2=fabs(zicm2*gScaleHeightz*Mpc);
@@ -557,7 +562,7 @@ double DiskPotentialCircularVelocity(double cellwidth, double z, double xpos, do
 			zicm=fabs(zicm*gScaleHeightz*Mpc);			
 			if (zicmf > 1.0) zicm = 0.0;
 
-			//printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
+//			printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
 			zicm2f=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
 			      /cosh(r2/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc)))));
 			zicm2=log(1.0/zicm2f+sqrt((1.0/pow(zicm2f,2))-1.0));
@@ -756,16 +761,16 @@ double qromb(double (*func)(double), double a, double b)
   void polint(double xa[],double ya[],int n,double x,double *y,double *dy),nrerror(char *);
 
   h[1] = 1.0;
-  for (j=1;j<=JMAX;j++)    {
-      s[j] = trapzd(func,a,b,j);
-      if (j >= K)
-  {
-    polint(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
-    if (fabs(dss) < EPS*fabs(ss)) return ss;
-  }
-      s[j+1]=s[j];
-      h[j+1]=0.25*h[j]; 
+  for (j=1;j<=JMAX;j++){
+    s[j] = trapzd(func,a,b,j);
+    if( s[j] != s[j] ) ENZO_FAIL("NaN's during pressure integration in GalaxySimulationInitialize");
+    if (j >= K) {
+      polint(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
+      if (fabs(dss) < EPS*fabs(ss)) return ss;
     }
+    s[j+1]=s[j];
+    h[j+1]=0.25*h[j]; 
+  }
   fprintf(stderr,"Too many steps in routine QROMB\n");
   fprintf(stderr,"\t>> drcyl= %"FSYM", z = %"FSYM"\n", drcyl*LengthUnits/Mpc, a/Mpc); 
 	return -1.0;

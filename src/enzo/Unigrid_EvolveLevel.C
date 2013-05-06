@@ -295,7 +295,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       LCAPERF_START_LOW("evolve-level-10"); // ComputeAccelerationFieldExternal()
 #endif
 
-      if (UniformGravity || PointSourceGravity)
+      if (UniformGravity || PointSourceGravity || DiskGravity )
 	if (Grids[grid]->GridData->ComputeAccelerationFieldExternal() ==FAIL) {
 	  ENZO_FAIL("Error in grid->ComputeAccelerationFieldExternal.\n");
 	}
@@ -468,7 +468,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       LCAPERF_START_LOW("evolve-level-18"); // clean up AccelerationField
 #endif
 
-      if (SelfGravity || UniformGravity || PointSourceGravity) {
+      if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity ) {
 	if (level != MaximumGravityRefinementLevel ||
 	    MaximumGravityRefinementLevel == MaximumRefinementLevel)
 	  Grids[grid]->GridData->DeleteAccelerationField();

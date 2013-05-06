@@ -44,7 +44,7 @@ int grid::ComputeAccelerationFieldExternal()
 {
  
   /* Return if this does not concern us */
-  if (!(UniformGravity || PointSourceGravity || ExternalGravity)) return SUCCESS;
+  if (!(UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity)) return SUCCESS;
 
   /* Return if this grid is not on this processor. */
  
@@ -99,7 +99,7 @@ int grid::ComputeAccelerationFieldExternal()
      ----------------------------------------------------------------- */
  
   if (PointSourceGravity > 0) {
- 
+
     FLOAT a = 1.0, accel, dadt, radius, rcubed, rsquared, 
       xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
  
@@ -296,8 +296,6 @@ int grid::ComputeAccelerationFieldExternal()
 
   if (DiskGravity > 0) {
 
-    fprintf(stderr,"INSIDE DISK GRAVITY COMPUTE\n"); // FIXME
-
     double accel, radius, rsquared, xpos, ypos = 0, zpos = 0, rcore,rcyl;
     float dadt, a = 1, AngularMomentumx, AngularMomentumy, AngularMomentumz;
     float MSDisk, SDiskScaleHeightR, SDiskScaleHeightz, MBulge, rBulge,
@@ -408,7 +406,6 @@ int grid::ComputeAccelerationFieldExternal()
       } } } // end: loop over grid (i/j/k)
     } // end: loop over dims
 
-    fprintf(stderr,"DONE w/ DISK GRAVITY COMPUTE\n"); // FIXME
     /* ---  FIXME PARTICLES NOT IMPLEMENTED FIXME --- */
 
   } // end: if (DiskGravity)
