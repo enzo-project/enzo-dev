@@ -349,7 +349,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
 	  }
-		fprintf(stderr,"temp1,temperature,DiskTemperature = %"GSYM", %"GSYM", %"GSYM"\n", temp1,temperature,DiskTemperature); // FIXME
 
 	} // end: if (r < DiskRadius)
 	
@@ -389,8 +388,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
        BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
 
      } // end loop over grid
-
-	fprintf(stdout,"... done with grid! level,processor = %"ISYM", %"ISYM"\n",level,MyProcessorNumber); // FIXME
 
  return SUCCESS;
 
@@ -532,11 +529,8 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 	double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
 		zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot;
 
-	//printf("r2,drcyl,cellwidth,LU=%g %g %g %g\n", r2, drcyl, cellwidth, LengthUnits);
 	r2=(drcyl+0.01*cellwidth)*LengthUnits;
 	rsph=sqrt(pow(drcyl*LengthUnits,2)+pow(z,2));
-
-	//printf("gScaleHeightR,gScaleHeightz,MgasScale = %"GSYM", %"GSYM", %"GSYM"\n", gScaleHeightR,gScaleHeightz,MgasScale);
 
 	/*	Determine zicm: the height above the disk where rho -> rho_ICM,
 	 *	use this to find P_icm and dP_icm  */
@@ -545,11 +539,14 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 		zicm=log(1.0/zicm+sqrt((1.0/pow(zicm,2))-1.0));
 		zicm=fabs(zicm*gScaleHeightz*Mpc);
 
+		fprintf(stderr,"zicm = %"GSYM"\n",zicm); // FIXME
+
 	//	printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
 		zicm2=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc));
 		zicm2=log(1.0/zicm2+sqrt((1.0/pow(zicm2,2))-1.0));
 		zicm2=fabs(zicm2*gScaleHeightz*Mpc);
 
+				fprintf(stderr,"zicm,zicm2,z = %"GSYM", %"GSYM", %"GSYM"\n",zicm,zicm2,z);
 		Pressure= qromb(func1, fabs(zicm), fabs(z)) + qromb(func2, fabs(zicm), fabs(z));
 		Pressure2= qromb(func3, fabs(zicm2), fabs(z)) + qromb(func4, fabs(zicm2), fabs(z));
 	}
@@ -560,6 +557,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 			      /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc)))));
 			zicm=log(1.0/zicmf+sqrt((1.0/pow(zicmf,2))-1.0));
 			zicm=fabs(zicm*gScaleHeightz*Mpc);			
+			fprintf(stderr,"zicm,zicmf= %"GSYM", %"GSYM"\n",zicm,zicmf); // FIXME
 			if (zicmf > 1.0) zicm = 0.0;
 
 //			printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
@@ -577,6 +575,9 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 			} // end small density if
 
 			if (fabs(z) < fabs(zicm)) {
+
+				fprintf(stderr,"zicm,zicm2,z = %"GSYM", %"GSYM", %"GSYM"\n",zicm,zicm2,z);
+
 				Pressure  = (qromb(func1, fabs(zicm), fabs(z)) + qromb(func2, fabs(zicm), fabs(z)))
 				            *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))));
     		Pressure2 = (qromb(func3, fabs(zicm2), fabs(z)) + qromb(func4, fabs(zicm2), fabs(z)))
