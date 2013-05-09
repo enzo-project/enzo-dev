@@ -46,6 +46,9 @@
 #include "communication.h"
 #include "CommunicationUtilities.h"
 #include "EventHooks.h"
+#ifdef ECUDA
+#include "CUDAUtil.h"
+#endif
 #ifdef TRANSFER
 #include "PhotonCommunication.h"
 #include "ImplicitProblemABC.h"
@@ -251,7 +254,6 @@ void PrintMemoryUsage(char *str);
 
 Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 {
-
 
   int i;
 
@@ -715,6 +717,15 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 #endif /* USE_MPI */
 
   }
+
+#ifdef ECUDA
+  if (UseCUDA) {
+    if (InitGPU(MyProcessorNumber) != SUCCESS) {
+      printf("InitGPU failed\n");
+      exit(1);
+    }
+  }
+#endif
 
   /* Initialize the radiative transfer */
 

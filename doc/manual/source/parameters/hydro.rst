@@ -198,8 +198,8 @@ Minimum Pressure Support Parameters
 Magnetohydrodynamics (CT) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``MHD_CT_Method`` (external) Method for computing the electric field from the
-Riemann fluxes
+``MHD_CT_Method`` (external) 
+    Method for computing the electric field from the Riemann fluxes
 
     ========== ==========================================================================
     CT Method   Description  
@@ -210,56 +210,64 @@ Riemann fluxes
                 Uses ``CT_AthenaDissipation`` flag.
     3           Gardiner and Stone 2005.  Second order reconstruction using
                 upwind switches
-    4           Lee and Deane 2009 or Lee 2012 third order.  Someone should
-                write this, it would be sweet.
     ========== ==========================================================================
 
     Default: 3
 
-``CT_AthenaDissipation``  (external) For the Lax-Friedrichs CT method, this is
-the maximum wave speed.  (:math:`\alpha` in Gardiner & Stone 2005 eqn. 46). Default: 0.1
+``CT_AthenaDissipation``  (external) 
+    For the Lax-Friedrichs CT method, this is the maximum wave speed.  (:math:`\alpha` in Gardiner & Stone 2005 eqn. 46). Default: 0.1
 
-``EquationOfState`` (external, ct only) 0: standard adiabatic 1: Exactly isothermal
-equation of state.  This flag removes the total energy term completely, instead
-computing pressure as :math:`p = c^2 \rho`. This option only works with
-``HydroMethod = 6`` and ``RiemannSolver = 6`` (HLLD) as this is the only purely
-isothermal Riemann solver in Enzo.  Default: 0
+``EquationOfState`` (external, ct only) 
+    0: standard adiabatic 1: Exactly isothermal
+    equation of state.  This flag removes the total energy term completely, instead
+    computing pressure as :math:`p = c^2 \rho`. This option only works with
+    ``HydroMethod = 6`` and ``RiemannSolver = 6`` (HLLD) as this is the only purely
+    isothermal Riemann solver in Enzo.  Default: 0
 
-``IsothermalSoundSpeed`` (external, ct only) When ``EquationOfState = 1``, this is the
-sound speed used for computation of pressure.  Default: 1
+``IsothermalSoundSpeed`` (external, ct only) 
+    When ``EquationOfState = 1``, this is the
+    sound speed used for computation of pressure.  Default: 1
 
-``MHDCTSlopeLimiter`` (external, ct only) For computing derivatives for the reconstruction,
-this switches between zero slope (0), minmod (1), VanLeer (2), and
-characteristic  (3) characteristic with primitive limiting (4).  Default: 1
+``MHDCTSlopeLimiter`` (external, ct only) 
+    For computing derivatives for the reconstruction,
+    this switches between zero slope (0), minmod (1), VanLeer (2), and
+    characteristic  (3) characteristic with primitive limiting (4).  Default: 1
 
-``ReconstructionMethod`` (external) There are two reconstruction methods
-that work with MHDCT: Piecewise Linear Method (PLM) (0) and MUSCL-Hancock (6).  This
-formuation of MUSCL-Hancock is different from the 2nd order Runga Kutta used for
-``HydroMethod = 3,4``.     
+``ReconstructionMethod`` (external) 
+    There are two reconstruction methods
+    that work with MHDCT: Piecewise Linear Method (PLM) (0) and MUSCL-Hancock (6).  This
+    formuation of MUSCL-Hancock is different from the 2nd order Runga Kutta used for
+    ``HydroMethod = 3,4``.     
 
-``RiemannSolver`` (external)  As with ``HydroMethod=4``, the prefered solver is
-HLLD (``RiemannSolver=6``).  Other solvers may be released if the DOE approves
-them.
-
-
-``MHDCTUseSpecificEnergy`` (external) Either specific energy is used internally
-(1) or conserved energy is used internally (0).  Minor difference in boundary
-condition update, included for comparison to old solutions.  Default: 1
-
-
-``DualEnergyMethod`` (external) When ``DualEnergyFormalism = 1``, this switches
-between a method that solves an additional equation for the internal energy, as
-in the rest of Enzo, and method that updates the entropy.  
+``RiemannSolver`` (external)  
+    As with ``HydroMethod=4``, the prefered solver is
+    HLLD (``RiemannSolver=6``).  Other solvers may be released if the DOE approves
+    them.
 
 
-``MHD_WriteElectric`` (external)  Include the electric field in the output.
-Default: 0
+``MHDCTUseSpecificEnergy`` (external) 
+    Either specific energy is used internally
+    (1) or conserved energy is used internally (0).  Minor difference in boundary
+    condition update, included for comparison to old solutions.  Default: 1
 
-``MHD_ProjectB`` (internal)  Project magnetic fields from fine to coarse.
-Should not be done in general, only used for initialization.  
 
-``MHD_ProjectE`` (internal)  Project Electric fields from fine to coarse.
-Used for the time evolution of the fields.
+``MHDCTDualEnergyMethod`` (external) 
+    When ``DualEnergyFormalism = 1``, this switches
+    between a method that solves an additional equation for the internal energy, as
+    in the rest of Enzo, and method that updates the entropy.  
+
+
+``MHD_WriteElectric`` (external)  
+    Include the electric field in the output.
+    Default: 0
+
+``MHD_ProjectB`` (internal)  
+    Project magnetic fields from fine to coarse.
+    Should not be done in general, only used for initialization.  
+
+``MHD_ProjectE`` (internal)  
+    Project Electric fields from fine to coarse.
+    Used for the time evolution of the fields.
 
 Magnetohydrodynamics (Dedner) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

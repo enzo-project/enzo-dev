@@ -609,6 +609,7 @@ OBJS_CONFIG_LIB = \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeLymanWernerTable.o \
+	InitializeHM12Photorates.o \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
@@ -1090,6 +1091,7 @@ OBJS_HYDRO_RK = \
 
 # Objects for the CUDA GPU-computing support
 OBJS_ECUDA_ALL = \
+        hydro_rk/CudaMHD.o \
 	hydro_rk/CUDA_Rec_PLM.o \
 	hydro_rk/HydroSweep_CUDA.o \
 	hydro_rk/Grid_CudaMHD.o \

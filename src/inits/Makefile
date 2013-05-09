@@ -41,6 +41,7 @@ SHELL    = /bin/bash
 TOP_DIR  = ../..
 EXE      = inits
 OUTPUT   = out.compile
+VERBOSE  = 0
 
 ENZO_DIR = $(TOP_DIR)/src/enzo
 MODULES  = 

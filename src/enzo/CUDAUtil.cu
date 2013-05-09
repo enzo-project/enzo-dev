@@ -25,5 +25,7 @@ int InitGPU(int ProcessRank)
     exit(1);
   }
   CUDA_SAFE_CALL( cudaSetDevice( ProcessRank % NumGPU ) );
+  int *a;
+  cudaMalloc(&a, sizeof(int));
   return SUCCESS;
 }

@@ -90,7 +90,7 @@ Interpolation must be done, obviously, in a divergence-free manner.  Balsara
 
 One challenge of this method is that newly interpolated regions require
 knowledge of any fine-grid data at the same level that may share a face.  Thus
-instead of simply interpolating from parent grids, then coping from old fine
+instead of simply interpolating from parent grids, then copying from old fine
 grids, MHDCT must use the magnetic information from the old fine grids.  This is
 done by first computing interpolation derivatives (done in ``Grid_MHD_CID.C``
 and stored in ``DyBx``, etc) then communicating this information to the relevant
@@ -136,7 +136,7 @@ machinery.  Interested students can contact dcollins for further instruction.
 
 Presently MHD-CT needs additional layers of ghost zones over the base hydro.  I
 believe that I can reduce this by communicating the electric field, which will
-improve memory overhead.  Again, bored students can contact me for details.
+improve memory overhead.  Again, interested parties can contact me for details.
 
 Multi-species needs to be tested.
 
