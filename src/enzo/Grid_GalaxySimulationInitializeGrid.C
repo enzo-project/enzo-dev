@@ -303,9 +303,15 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	    if( PointSourceGravity > 0 )
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
-	    else if( DiskGravity > 0 )
+	    else if( DiskGravity > 0 ){
+	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
+	        DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
+
+	      DiskDensity = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+
 	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,xhat[0]*drad*LengthUnits,
 	        xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, DiskDensity, temp1);
+			}
       if( PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
 
@@ -539,14 +545,12 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 		zicm=log(1.0/zicm+sqrt((1.0/pow(zicm,2))-1.0));
 		zicm=fabs(zicm*gScaleHeightz*Mpc);
 
-		fprintf(stderr,"zicm = %"GSYM"\n",zicm); // FIXME
 
 	//	printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
 		zicm2=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc));
 		zicm2=log(1.0/zicm2+sqrt((1.0/pow(zicm2,2))-1.0));
 		zicm2=fabs(zicm2*gScaleHeightz*Mpc);
 
-				fprintf(stderr,"zicm,zicm2,z = %"GSYM", %"GSYM", %"GSYM"\n",zicm,zicm2,z);
 		Pressure= qromb(func1, fabs(zicm), fabs(z)) + qromb(func2, fabs(zicm), fabs(z));
 		Pressure2= qromb(func3, fabs(zicm2), fabs(z)) + qromb(func4, fabs(zicm2), fabs(z));
 	}
@@ -557,10 +561,8 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 			      /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc)))));
 			zicm=log(1.0/zicmf+sqrt((1.0/pow(zicmf,2))-1.0));
 			zicm=fabs(zicm*gScaleHeightz*Mpc);			
-			fprintf(stderr,"zicm,zicmf= %"GSYM", %"GSYM"\n",zicm,zicmf); // FIXME
 			if (zicmf > 1.0) zicm = 0.0;
 
-//			printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
 			zicm2f=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
 			      /cosh(r2/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc)))));
 			zicm2=log(1.0/zicm2f+sqrt((1.0/pow(zicm2f,2))-1.0));
@@ -576,8 +578,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 
 			if (fabs(z) < fabs(zicm)) {
 
-				fprintf(stderr,"zicm,zicm2,z = %"GSYM", %"GSYM", %"GSYM"\n",zicm,zicm2,z);
-
 				Pressure  = (qromb(func1, fabs(zicm), fabs(z)) + qromb(func2, fabs(zicm), fabs(z)))
 				            *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))));
     		Pressure2 = (qromb(func3, fabs(zicm2), fabs(z)) + qromb(func4, fabs(zicm2), fabs(z)))
@@ -587,7 +587,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
   	} // end r_cyle < .026 if
 	} // end r_cyl < .02 if/else
 
-	denuse = density; // av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits; FIXME
+	denuse = density*DensityUnits; // av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits; FIXME
 	if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= 0.026 && fabs(z) <= fabs(zicm)) {
 		fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc, drcyl*LengthUnits/Mpc);
 	}
@@ -610,6 +610,9 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
 	}
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
+
+	fprintf(stderr,"Temperature, Picm,Pressure,denuse, z,zicm= %"GSYM", %"GSYM", %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n",
+		temperature,Picm,Pressure,denuse,z,zicm); // FIXME
 
 	/* Calculate pressure gradient */
 	FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; //(av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits);
