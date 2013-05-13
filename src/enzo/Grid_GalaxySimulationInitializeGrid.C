@@ -307,10 +307,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
 	        DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
 
-	      DiskDensity = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 
 	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,xhat[0]*drad*LengthUnits,
-	        xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, DiskDensity, temp1);
+	        xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, dens1, temp1);
 			}
       if( PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
