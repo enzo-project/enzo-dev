@@ -611,9 +611,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 	}
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
-	fprintf(stderr,"Temperature, Picm,Pressure,denuse, z,zicm= %"GSYM", %"GSYM", %"GSYM", %"GSYM", %"GSYM", %"GSYM"\n",
-		temperature,Picm,Pressure,denuse,z,zicm); // FIXME
-
 	/* Calculate pressure gradient */
 	FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; //(av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits);
 

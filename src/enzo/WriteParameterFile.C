@@ -520,6 +520,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   
   fprintf(fptr, "VelAnyl                        = %"ISYM"\n", VelAnyl);
   fprintf(fptr, "BAnyl                          = %"ISYM"\n", BAnyl);
+  fprintf(fptr, "WriteExternalAccel             = %"ISYM"\n", WriteExternalAccel);
 
   // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputCoolingTime < 0)

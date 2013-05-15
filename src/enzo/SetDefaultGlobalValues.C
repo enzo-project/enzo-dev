@@ -829,7 +829,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   }  
 
   VelAnyl                     = 0;
-  BAnyl                     = 0;
+  BAnyl                       = 0;
+  WriteExternalAccel          = 0;
 
   /* Gas drag parameters */
   UseGasDrag = 0;

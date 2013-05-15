@@ -959,6 +959,9 @@ EXTERN int OutputWhenJetsHaveNotEjected;
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
 
+/* Write Out External Acceleratopm Field */
+EXTERN int WriteExternalAccel;
+
 /* Gas drag */
 EXTERN int UseGasDrag;
 EXTERN float GasDragCoefficient;
