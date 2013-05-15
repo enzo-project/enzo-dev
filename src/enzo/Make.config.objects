@@ -524,10 +524,12 @@ OBJS_CONFIG_LIB = \
 	Grid_RHIonizationSteepInitializeGrid.o \
 	Grid_RHIonizationTestInitializeGrid.o \
 	Grid_RotatingCylinderInitialize.o \
+	Grid_RotatingDiskInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid3D.o \
 	Grid_SetExternalBoundaryValues.o \
 	Grid_SetFlaggingField.o \
+	Grid_SetFlaggingFieldMultiRefineRegions.o \
 	Grid_SetFlaggingFieldStaticRegions.o \
 	Grid_SetIsolatedPotentialBoundary.o \
 	Grid_SetMinimumSupport.o \
@@ -752,6 +754,7 @@ OBJS_CONFIG_LIB = \
         rotate2d.o \
         rotate3d.o \
         RotatingCylinderInitialize.o \
+	RotatingDiskInitialize.o \
         s66_st1.o \
         s90_st1.o \
 	SearchUtilities.o \
