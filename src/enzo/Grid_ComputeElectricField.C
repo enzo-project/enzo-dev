@@ -181,6 +181,10 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
 
   int ElectricStart[MAX_DIMENSION], ElectricEnd[MAX_DIMENSION];
 
+  for( int dim=GridRank; dim<MAX_DIMENSION; dim++){
+    ElectricStart[dim] = GridStartIndex[dim];
+    ElectricEnd[dim] = GridEndIndex[dim];
+  }
   for(int dim=0;dim<GridRank;dim++){
     ElectricStart[dim] = 1;
     ElectricEnd[dim] = GridDimension[dim]-2;
