@@ -236,17 +236,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim] = 1.0;
   }
 
+  MultiRefineRegionMaximumOuterLevel = INT_UNDEFINED;
+  MultiRefineRegionMinimumOuterLevel = INT_UNDEFINED;
   for (i = 0; i < MAX_STATIC_REGIONS; i++) {
-    MultiRefineRegionMaximumLevel[i] = -1;
-    MultiRefineRegionMinimumLevel[i] = -1;
+    MultiRefineRegionMaximumLevel[i] = INT_UNDEFINED;
+    MultiRefineRegionMinimumLevel[i] = 0;
     MultiRefineRegionGeometry[i] = -1; 
-    MultiRefineRegionRadius[i] = 0.0;
+    MultiRefineRegionRadius[i] = INT_UNDEFINED;
     MultiRefineRegionWidth[i] = 3.0;
-    MultiRefineRegionStaggeredRefinement[i] = 0.5;
+    MultiRefineRegionStaggeredRefinement[i] = 0.0;
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
       MultiRefineRegionLeftEdge[i][dim] = FLOAT_UNDEFINED;
       MultiRefineRegionRightEdge[i][dim] = FLOAT_UNDEFINED;
-      MultiRefineRegionCenter[i][dim]         = 0.5;
+      MultiRefineRegionCenter[i][dim]         = FLOAT_UNDEFINED;
       MultiRefineRegionOrientation[i][dim]    = FLOAT_UNDEFINED;
     }
   }

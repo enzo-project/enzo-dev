@@ -567,6 +567,12 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
       WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionRightEdge[dim]);
     }
 
+
+  fprintf(fptr, "MultiRefineRegionMaximumOuterLevel  = %"ISYM"\n",
+          MultiRefineRegionMaximumOuterLevel);
+  fprintf(fptr, "MultiRefineRegionMinimumOuterLevel  = %"ISYM"\n",
+          MultiRefineRegionMinimumOuterLevel);
+  
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++){ 
  
     fprintf(fptr, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"\n", dim,

@@ -361,6 +361,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MustRefineRegionRightEdge+2);
   
     /* Parameters for the MultiRefineRegion mechanics */
+    
+    ret += sscanf(line, "MultiRefineRegionMaximumOuterLevel  = %"ISYM, &MultiRefineRegionMaximumOuterLevel);
+    ret += sscanf(line, "MultiRefineRegionMinimumOuterLevel  = %"ISYM, &MultiRefineRegionMinimumOuterLevel);
     if (sscanf(line, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) 
       {
 	if (dim > MAX_STATIC_REGIONS-1) 

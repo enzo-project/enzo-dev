@@ -235,6 +235,7 @@ EXTERN FLOAT RefineRegionLeftEdge[MAX_DIMENSION],
              RefineRegionRightEdge[MAX_DIMENSION];
 EXTERN int RefineRegionAutoAdjust;
 
+EXTERN int MultiRefineRegion;
 EXTERN FLOAT MultiRefineRegionLeftEdge[MAX_STATIC_REGIONS][MAX_DIMENSION], 
              MultiRefineRegionRightEdge[MAX_STATIC_REGIONS][MAX_DIMENSION];
 EXTERN int MultiRefineRegionGeometry[MAX_STATIC_REGIONS];
@@ -244,8 +245,9 @@ EXTERN FLOAT MultiRefineRegionRadius[MAX_STATIC_REGIONS];
 EXTERN FLOAT MultiRefineRegionWidth[MAX_STATIC_REGIONS];
 EXTERN int MultiRefineRegionMaximumLevel[MAX_STATIC_REGIONS];
 EXTERN int MultiRefineRegionMinimumLevel[MAX_STATIC_REGIONS];
+EXTERN int MultiRefineRegionMaximumOuterLevel;
+EXTERN int MultiRefineRegionMinimumOuterLevel;
 EXTERN FLOAT MultiRefineRegionStaggeredRefinement[MAX_STATIC_REGIONS];
-
 
 /* Uniform gravity: on/off flag, direction, and strength. */
 
