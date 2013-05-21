@@ -93,7 +93,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-                        TopGridData &MetaData);
+                        TopGridData &MetaData, ExternalBoundary &Exterior);
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
@@ -487,7 +487,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   // 31) GalaxySimulation
   if (ProblemType == 31)
-    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData,Exterior);
 
 
 // 35) Shearing Box Simulation

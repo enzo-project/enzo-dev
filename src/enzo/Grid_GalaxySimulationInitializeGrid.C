@@ -393,8 +393,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
      if( CRModel )
        BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
 
+
+
      } // end loop over grid
 
+ fprintf(stderr,"Done w/ Grid Level,MyProcessorNumber = %"ISYM", %"ISYM" \n",level,MyProcessorNumber); // FIXME
  return SUCCESS;
 
 }
