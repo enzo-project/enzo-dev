@@ -201,6 +201,27 @@ int grid::GrackleWrapper()
     return FAIL;
   }
 
+  // Set the total energy appropriately for the updated thermal energy.
+
+  if (HydroMethod != Zeus_Hydro) {
+    for (i = 0; i < size; i++) {
+      BaryonField[TENum][i] = thermal_energy[i] +
+        0.5 * POW(BaryonField[Vel1Num][i], 2.0);
+      if(GridRank > 1)
+        BaryonField[TENum][i] += 0.5 * POW(BaryonField[Vel2Num][i], 2.0);
+      if(GridRank > 2)
+        BaryonField[TENum][i] += 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
+
+      if(HydroMethod == MHD_RK) {
+        BaryonField[TENum][i] += 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
+                                        POW(BaryonField[iBy][i], 2.0) + 
+                                        POW(BaryonField[iBz][i], 2.0)) / 
+          BaryonField[DensNum][i];
+      }
+
+    } // for (int i = 0; i < size; i++)
+  } // if (HydroMethod != Zeus_Hydro)
+
   if (temp_thermal == TRUE) {
     delete [] thermal_energy;
   }
