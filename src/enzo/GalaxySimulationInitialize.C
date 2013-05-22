@@ -36,6 +36,7 @@
 #include "Hierarchy.h"
 #include "LevelHierarchy.h"
 #include "TopGridData.h"
+#include "ShockPoolGlobalData.h"
 
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
@@ -325,6 +326,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 
   /* Initialize the exterior */
+
   Exterior.Prepare(TopGrid.GridData);
 
   float InflowValue[5], Dummy[5];
@@ -350,6 +352,33 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (MetaData.TopGridRank > 2)
     Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
 					    InflowValue, Dummy);
+
+
+	/* !!!! Piggy-Backing off the ShockPool BC's */
+
+  /* set the inflow boundary on the left, otherwise leave things alone. *
+  for (dim = 0; dim < MetaData.TopGridRank; dim++)
+    MetaData.LeftFaceBoundaryCondition[dim] = inflow;
+	ShockPoolAngle = 0.0;
+	ShockPoolShockDensity = GalaxySimulationRPSWindDensity;
+	ShockPoolShockTotalEnergy = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
+	if (HydroMethod != 2) {
+		ShockPoolShockTotalEnergy += 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
+  	                                        + pow(GalaxySimulationRPSWindVelocity[1],2)
+		                                        + pow(GalaxySimulationRPSWindVelocity[2],2));
+	}
+	
+	ShockPoolShockSpeed = GalaxySimulationRPSWindVelocity[2]; // wrong, but shouldn't really matter FIXME
+
+	ShockPoolShockVelocity[0] = GalaxySimulationRPSWindVelocity[0];
+	ShockPoolShockVelocity[1] = GalaxySimulationRPSWindVelocity[1];
+	ShockPoolShockVelocity[2] = GalaxySimulationRPSWindVelocity[2];
+	ShockPoolDensity = GalaxySimulationUniformDensity;
+	ShockPoolTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6); 
+	ShockPoolVelocity[0] = 0.0;
+	ShockPoolVelocity[1] = 0.0;
+	ShockPoolVelocity[2] = 0.0;
+  */	
 
 	//	Initialize particle boundary conditions
 //	Exterior.InitializeExternalBoundaryParticles(MetaData.ParticleBoundaryType); FIXME
