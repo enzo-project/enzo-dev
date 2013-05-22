@@ -70,6 +70,9 @@ int grid::SetFlaggingFieldMultiRefineRegions(int level)
   
   for (region = 0; region < MAX_STATIC_REGIONS; region++) {
 
+    if (MultiRefineRegionMaximumLevel[region] == INT_UNDEFINED)
+      MultiRefineRegionMaximumLevel[region] = MaximumRefinementLevel;
+
     /* loop over grid */
 
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
@@ -158,9 +161,6 @@ int grid::SetFlaggingFieldMultiRefineRegions(int level)
 	       for (dim = 0; dim < GridRank; dim++)
 		 MultiRefineRegionCenter[region][dim] = 0.5*(DomainLeftEdge[dim] + DomainRightEdge[dim]);
 	     
-	     if (MultiRefineRegionMaximumLevel[region] == INT_UNDEFINED)
-	       MultiRefineRegionMaximumLevel[region] = MaximumRefinementLevel;
-
 	     /* Calculate position */
 
 	     xpos = CellLeftEdge[0][i] + 0.5*CellWidth[0][i] - 
