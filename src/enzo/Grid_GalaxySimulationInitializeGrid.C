@@ -299,7 +299,12 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		  inv[j][i] = temp;
 		}
 
-	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0)
+			if( fabs(drcyl*LengthUnits/Mpc) > 0.026 ){
+				dens1 = 0.0;
+				break;
+			}
+		  
+			DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) DENSITY NEEDS CUTOFF
 
 	    if( PointSourceGravity > 0 )
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
@@ -349,7 +354,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	   	    
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
-	  if (dens1 > density) {
+	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= 0.026 ) {
 	    density = dens1;
 	    if (temp1 == InitialTemperature)
 	      temp1 = DiskTemperature;
@@ -495,7 +500,8 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
   float Mass = 0;
   FLOAT xrot,yrot,zrot;
   int i,j,k;
-
+	FLOAT rrot;
+	
   for (i=0;i<5;i++)
     {
       xResult[i] = 0.0;
@@ -505,7 +511,15 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
 	  for (k=0;k<5;k++)
 	    {
 	      rot_to_disk(xpos+EvaluationPoints[i]*cellwidth/2.0,ypos+EvaluationPoints[j]*cellwidth/2.0,zpos+EvaluationPoints[k]*cellwidth/2.0,xrot,yrot,zrot,inv);
-	      yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-sqrt(POW(xrot,2)+POW(yrot,2))/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
+				rrot = sqrt(POW(xrot,2)+POW(yrot,2));
+				if( PointSourceGravity > 0 )
+		      yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-rrot/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
+				else if( DiskGravity > 0 ){
+					if( rrot/Mpc < 0.02 )
+						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz);
+					else if( rrot/Mpc < 0.026 )
+						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-0.02*Mpc)/(0.006*Mpc)));
+				} // end disk gravity if
 	    }
 	  xResult[i] += cellwidth/2.0*Weights[j]*yResult[j];
 	}
