@@ -48,8 +48,10 @@ int grid::MHD_Diagnose(char * label)
 
   if( 0 == 0 ){
     dx = CellWidth[0][0];
-    dy = CellWidth[1][0];
-    dz = CellWidth[2][0];
+    if ( GridRank > 1 )
+      dy = CellWidth[1][0];
+    if ( GridRank > 2 )
+      dz = CellWidth[2][0];
   }
 
   int i,j,k, index;

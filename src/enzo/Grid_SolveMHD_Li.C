@@ -42,6 +42,24 @@ extern "C" void FORTRAN_NAME(pde1dsolver_mhd_new)(float * wx, float* colours, in
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
+void TransverseMagneticFlux(float *Vx, float * Vy , float * Vz,
+                           float *Bx, float * By , float * Bz,
+                           float * F1, float * F2, int * CellDims, int* FaceDims)
+{
+  //For GridRank<3, the electric field still needs to be computed from transverse velocity and magnetic field.
+  //This routine fills only the transverse fluxes necessary for electric field computation.
+  //This is often refered to as "2.5 dimensions" in the literature.
+  int index_cell, index_face, i,j,k;
+  for( k=0;k<CellDims[2];k++)
+    for(j=0;j<CellDims[1];j++)
+      for(i=0;i<CellDims[0];i++){
+        index_face = i + FaceDims[0]*(j+FaceDims[1]*k);
+        index_cell = i + CellDims[0]*(j+CellDims[1]*k);
+        F1[index_face] = -(Vy[index_cell]*Bx[index_cell]-Vx[index_cell]*By[index_cell]);
+        F2[index_face] = -(Vz[index_cell]*Bx[index_cell]-Vx[index_cell]*Bz[index_cell]);
+      }
+}
+
 int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids, 
 		      fluxes *SubgridFluxes[], float *CellWidthTemp[], 
 		      Elong_int GridGlobalStart[], int GravityOn, 
@@ -76,7 +94,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
 
   int line_size = max( GridDimension[0], max(GridDimension[1], GridDimension[2]));
   int size = GridDimension[0]*GridDimension[1]*GridDimension[2];
-  int ixyz = CycleNumber % GridRank;
+  int ixyz = CycleNumber % 3;
   int nxz, nyz, nzz, nColour;
   nxz = GridEndIndex[0] - GridStartIndex[0] + 1;
   nyz = GridEndIndex[1] - GridStartIndex[1] + 1;
@@ -189,12 +207,12 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //strang loop.
   
   int startindex, endindex;
-  for (n = ixyz; n < ixyz+GridRank; n++) {
+  for (n = ixyz; n < ixyz+3; n++) {
     startindex = 3;
     endindex = GridDimension[0] - 2;
     dtdx = dtFixed/CellWidthTemp[0][0];
     //x loope
-    if ( (n % GridRank == 0) && nxz > 1){ 
+    if ( (n % 3 == 0) && nxz > 1){ 
       for( kk = 0; kk< GridDimension[2]; kk++){
         for( jj = 0; jj<GridDimension[1]; jj++){
           for(ii = 0; ii<GridDimension[0]; ii++ ){
@@ -313,7 +331,13 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     endindex = GridDimension[1] - 2;
     dtdx = dtFixed/CellWidthTemp[1][0];
     // Y SWEEP
-    if ( (n % GridRank == 1) && nyz > 1) {
+    if ( (n % 3 == 1) )
+      if ( nyz == 1 ){
+        TransverseMagneticFlux(BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[Vel1Num],
+                               CenteredB[1], CenteredB[2], CenteredB[0], 
+                               MagFluxY2, MagFluxY1, GridDimension, MagneticDims[1]);
+
+      }else if ( nyz > 1) {
       for( kk = 0; kk< GridDimension[2]; kk++){
         for(ii = 0; ii<GridDimension[0]; ii++ ){
           for( jj = 0; jj<GridDimension[1]; jj++){
@@ -427,7 +451,13 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     endindex = GridDimension[2] - 2;
     dtdx = dtFixed/CellWidthTemp[2][0];
     // z sweep
-    if( (n % GridRank == 2) && nzz > 1 ){
+    if( (n % 3 == 2) )
+      if ( nzz == 1 ){
+        TransverseMagneticFlux(BaryonField[Vel3Num], BaryonField[Vel1Num], BaryonField[Vel2Num],
+                               CenteredB[2], CenteredB[0], CenteredB[1], 
+                               MagFluxZ1, MagFluxZ2, GridDimension, MagneticDims[2]);
+
+      }else if ( nzz > 1) {
 
       for(ii = 0; ii<GridDimension[0]; ii++ ){ //DO is this the fastest order?
         for( jj = 0; jj<GridDimension[1]; jj++){
