@@ -53,10 +53,13 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   float TestStarParticleDensity     = 1.0;
   float TestStarParticleEnergy      = 1.0;
   float TestStarParticleVelocity[3] = {0.0, 0.0, 0.0};
+  FLOAT TestStarParticleStarVelocity[3] = {0.0, 0.0, 0.0};
+  FLOAT TestStarParticleStarPosition[3] = {0.5, 0.5, 0.5};
   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
   float TestStarParticleStarMass    = 100.0;
 
   /* read input from file */
+
 
   while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 
@@ -70,8 +73,15 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  &TestStarParticleEnergy);
     ret += sscanf(line, "TestStarParticleStarMass = %"FSYM,
 		  &TestStarParticleStarMass);
-            
-
+    ret += sscanf(line,"TestStarParticleStarVelocity = %"PSYM" %"PSYM" %"PSYM, 
+		  &TestStarParticleStarVelocity[0],
+		  &TestStarParticleStarVelocity[1],
+		  &TestStarParticleStarVelocity[2]);
+    ret += sscanf(line,"TestStarParticleStarPosition = %"PSYM" %"PSYM" %"PSYM, 
+		  &TestStarParticleStarPosition[0],
+		  &TestStarParticleStarPosition[1],
+		  &TestStarParticleStarPosition[2]);
+    
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "TestStarParticle") 
@@ -81,15 +91,19 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   } // end input from parameter file
 
   /* set up uniform grid as of before explosion */
-
+  
   if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity, 
 					      TestStarParticleEnergy,
 					      TestStarParticleEnergy,
 					      TestStarParticleVelocity,
 					      TestStarParticleBField) == FAIL)
     ENZO_FAIL("Error in InitializeUniformGrid.");
-
-  if (TopGrid.GridData->TestStarParticleInitializeGrid(TestStarParticleStarMass,Initialdt) == FAIL)
+ 
+  if (TopGrid.GridData->
+      TestStarParticleInitializeGrid(TestStarParticleStarMass,
+				     Initialdt, 
+				     TestStarParticleStarVelocity,
+				     TestStarParticleStarPosition) == FAIL)
     ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */

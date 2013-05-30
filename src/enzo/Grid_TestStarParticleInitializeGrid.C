@@ -29,7 +29,9 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass, 
-					 float *Initialdt)
+					 float *Initialdt,
+					 FLOAT TestStarParticleStarVelocity[],
+					 FLOAT TestStarParticleStarPosition[])
 {
   /* declarations */
 
@@ -43,7 +45,6 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     return SUCCESS;
 
   
-
   /* Get Units. */
 
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1, 
@@ -77,9 +78,13 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
 
   /* Set central particle. */
 
+  //ParticlePosition[0][0] = 0.25*(DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
+  //ParticleVelocity[0][0] = 5.0*1e5*TimeUnits/LengthUnits;
+  
   for (dim = 0; dim < GridRank; dim++) {
-    ParticlePosition[dim][0] = 0.5*(DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
-    ParticleVelocity[dim][0] = 0;
+    ParticlePosition[dim][0] = TestStarParticleStarPosition[dim]*
+      (DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
+    ParticleVelocity[dim][0] = TestStarParticleStarVelocity[dim]*1e5*TimeUnits/LengthUnits;
   }
   ParticleMass[0] = CentralMass;
   ParticleAttribute[0][0] = Time+1e-7; //creation time:make sure it is non-zero
