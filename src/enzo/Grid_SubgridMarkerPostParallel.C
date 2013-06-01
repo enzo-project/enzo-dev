@@ -60,13 +60,15 @@ int grid::SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids
      addresses are 64-bit, we have to crop the address. */
 
   for (index = 0; index < size; index++) {
-    packed_int = ((long) SubgridMarker[index] & 0xffffffff);
-    GridID = packed_int & mask;
-    GridLevel = packed_int >> LEVEL_BIT_OFFSET;
-    if (GridID < 0 || GridID >= NumberOfGrids[GridLevel])
-      ENZO_VFAIL("BBP%d: packed_int[%d] = %d, Grid %d, MarkerGrid/Level %d/%d\n", 
-		 MyProcessorNumber, index, packed_int, this->ID, GridLevel, GridID);
-    SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
+    if (SubgridMarker[index] != NULL) {
+      packed_int = ((long) SubgridMarker[index] & 0xffffffff);
+      GridID = packed_int & mask;
+      GridLevel = packed_int >> LEVEL_BIT_OFFSET;
+      if (GridID < 0 || GridID >= NumberOfGrids[GridLevel])
+	ENZO_VFAIL("BBP%d: packed_int[%d] = %d, Grid %d, MarkerGrid/Level %d/%d\n", 
+		   MyProcessorNumber, index, packed_int, this->ID, GridLevel, GridID);
+      SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
+    }
   } // ENDFOR index
 
   return SUCCESS;
@@ -124,12 +126,14 @@ int grid::SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
 	index = GRIDINDEX_NOGHOST(GZStart[0], j, k);
 	for (i = GZStart[0]; i <= GZEnd[0]; i++, index++) {
 	  if (cellmask[index] == 0) {
-	    // When addresses are 64-bit, we have to crop the address
-	    packed_int = ((long) SubgridMarker[index] & 0xffffffff);
-	    GridID = packed_int & mask;
-	    GridLevel = packed_int >> LEVEL_BIT_OFFSET;
-	    SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
-	    cellmask[index] = 1;
+	    if (SubgridMarker[index] != NULL) {
+	      // When addresses are 64-bit, we have to crop the address
+	      packed_int = ((long) SubgridMarker[index] & 0xffffffff);
+	      GridID = packed_int & mask;
+	      GridLevel = packed_int >> LEVEL_BIT_OFFSET;
+	      SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
+	      cellmask[index] = 1;
+	    }
 	  } // ENDIF
 	} // ENDFOR i
       } // ENDFOR j
@@ -146,12 +150,14 @@ int grid::SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
 	index = GRIDINDEX_NOGHOST(GZStart[0], j, k);
 	for (i = GZStart[0]; i <= GZEnd[0]; i++, index++) {
 	  if (cellmask[index] == 0) {
-	    // When addresses are 64-bit, we have to crop the address
-	    packed_int = ((long) SubgridMarker[index] & 0xffffffff);
-	    GridID = packed_int & mask;
-	    GridLevel = packed_int >> LEVEL_BIT_OFFSET;
-	    SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
-	    cellmask[index] = 1;
+	    if (SubgridMarker[index] != NULL) {
+	      // When addresses are 64-bit, we have to crop the address
+	      packed_int = ((long) SubgridMarker[index] & 0xffffffff);
+	      GridID = packed_int & mask;
+	      GridLevel = packed_int >> LEVEL_BIT_OFFSET;
+	      SubgridMarker[index] = Grids[GridLevel][GridID]->GridData;
+	      cellmask[index] = 1;
+	    }
 	  } // ENDIF
 	} // ENDFOR i
       } // ENDFOR j
