@@ -320,8 +320,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       }
     }
 
-	fprintf(stderr,"P[%"ISYM"] made it!\n",MyProcessorNumber); // FIXME
-
   } // end: if (GalaxySimulationRefineAtStart)
 
 

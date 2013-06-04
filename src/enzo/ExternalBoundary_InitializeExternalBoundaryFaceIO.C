@@ -49,20 +49,6 @@ int ExternalBoundary::InitializeExternalBoundaryFace(int dim,
 					     float RightBoundaryValue[])
 {
 
- 	/* FIXME ------ */
-	fprintf(stdout,"===================================================================\n");
-	fprintf(stdout,"DIM = %"ISYM"\n", dim);
-	fprintf(stdout,"LEFT BNDRY TYPE = %"ISYM"\n",LeftBoundaryType);
-	fprintf(stdout,"RIGHT BNDRY TYPE = %"ISYM"\n",RightBoundaryType);
-	fprintf(stdout,"LEFT BDNRY VALUES = [ %"GSYM", %"GSYM", %"GSYM", %"GSYM", %"GSYM" ]\n",
-		LeftBoundaryValue[0], LeftBoundaryValue[1], LeftBoundaryValue[2], 
-		LeftBoundaryValue[3], LeftBoundaryValue[4]);
-	fprintf(stdout,"RIGHT BDNRY VALUES = [ %"GSYM", %"GSYM", %"GSYM", %"GSYM", %"GSYM" ]\n",
-		RightBoundaryValue[0], RightBoundaryValue[1], RightBoundaryValue[2], 
-		RightBoundaryValue[3], RightBoundaryValue[4]);
-	fprintf(stdout,"===================================================================\n");
-	/* FIXME ------ */
-
   int field, index;
 
 #ifdef OOC_BOUNDARY
