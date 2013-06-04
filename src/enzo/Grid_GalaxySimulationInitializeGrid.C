@@ -673,19 +673,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 } // end DiskPotentialCircularVelocity
 
 
-double *vector(int nl,int nh)
-{
-  double *v;
-  v = new double[(nh-nl+1)];
-  if (!v) nrerror("allocation failure in vector()");
-  return v-nl;
-}
-
-void free_vector(double *v,int nl,int nh)
-{
-  delete [] &v[nl];
-}
-
 // the two functions integrated by qromb
 
 double func1(double zint)
@@ -749,19 +736,16 @@ void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
 {
 	int i,m,ns=1;
 	double den,dif,dift,ho,hp,w;
-	double *c,*d,*vector(int,int);
-	void nrerror(char *),free_vector(double *, int, int);
+	void nrerror(char *);
 
 	dif=fabs(x-xa[1]);
-	c=vector(1,n);
-	d=vector(1,n);
 	for (i=1;i<=n;i++) {
 		if ( (dift=fabs(x-xa[i])) < dif) {
 			ns=i;
 			dif=dift;
 		}
-		c[i]=ya[i];
-		d[i]=ya[i];
+		polint_c[i]=ya[i];
+		polint_d[i]=ya[i];
 	} // end i for
 	
 	*y=ya[ns--];
@@ -769,18 +753,15 @@ void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
 		for (i=1;i<=n;i++) {
 			ho=xa[i]-x;
 			hp=xa[i+m]-x;
-			w=c[i+1]-d[i];
+			w=polint_c[i+1]-polint_d[i];
 			if ( (den=ho-hp) == 0.0 ) fprintf(stderr,"Error in routine POLINT\n");
 			den = w/den;
-			d[i]=hp*den;
-			c[i]=ho*den;
+			polint_d[i]=hp*den;
+			polint_c[i]=ho*den;
 		} // end i for
-		*dy=(2*ns < (n-m) ? c[ns+1] : d[ns--]);
+		*dy=(2*ns < (n-m) ? polint_c[ns+1] : polint_d[ns--]);
 		*y += (*dy);
 	} // end m for
-
-	free_vector(d,1,n);
-	free_vector(c,1,n);
 } // end polint
 
 #define EPS 1.0e-6
