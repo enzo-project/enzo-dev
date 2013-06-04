@@ -238,7 +238,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
 	  PP = grid_one->ReturnPhotonPackagePointer();
 	  errcode = grid_one->CommunicationSendPhotonPackages
 	    (grid_two, MyProcessorNumber, ToNumber, FromNumber,
-	     &PP->NextPackage);
+	     &PP);
 	  break;
 #endif /* TRANSFER */
 
