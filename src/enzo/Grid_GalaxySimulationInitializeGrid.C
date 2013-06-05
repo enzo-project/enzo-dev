@@ -602,7 +602,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 
 			if (fabs(z) < fabs(zicm)) {
 
-
 		WHICH_COMP = 0; // bulge FIXME
 				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z)));
 		WHICH_COMP = 1; // disk FIXME
@@ -728,8 +727,8 @@ double trapzd(double (*func)(double), double a, double b, int n)
 } // end trapezoid
 
 #define K 7
-FLOAT polint_c[K];
-FLOAT polint_d[K];
+FLOAT polint_c[K+1];
+FLOAT polint_d[K+1];
 
 /* also called by qromb */
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
@@ -783,6 +782,7 @@ double qromb(double (*func)(double), double a, double b)
     if (j >= K) {
       polint(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
       if (fabs(dss) < EPS*fabs(ss)) {
+				fprintf(stderr,"%"ISYM" iters\n",j); // FIXME
 				if( j > 11 ) // should be rare FIXME
 					fprintf(stderr,"a,b,ss,drcyl,[j] = %"FSYM", %"FSYM", %"FSYM", %"FSYM", [%"ISYM"]\n",a/Mpc,b/Mpc,ss,drcyl*LengthUnits/Mpc,j);
 				return ss;
