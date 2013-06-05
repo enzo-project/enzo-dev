@@ -782,7 +782,6 @@ double qromb(double (*func)(double), double a, double b)
     if (j >= K) {
       polint(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
       if (fabs(dss) < EPS*fabs(ss)) {
-				fprintf(stderr,"%"ISYM" iters\n",j); // FIXME
 				if( j > 11 ) // should be rare FIXME
 					fprintf(stderr,"a,b,ss,drcyl,[j] = %"FSYM", %"FSYM", %"FSYM", %"FSYM", [%"ISYM"]\n",a/Mpc,b/Mpc,ss,drcyl*LengthUnits/Mpc,j);
 				return ss;
