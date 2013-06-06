@@ -79,11 +79,6 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {
-      if(debug){
-        printf("Entering MagneticReconnectionInitialize\n");
-        fflush(stdout);
-      }
-
       char *DensName = "Density";
       char *TEName   = "TotalEnergy";
       char *GEName   = "GasEnergy";
@@ -304,29 +299,6 @@ This is the grid-by-grid initializer.
       if (thisgrid->ProcessorNumber != MyProcessorNumber)
         return SUCCESS;
 
-      if(debug){
-        printf("Entering MagneticReconnectionInitializeGrid\n");
-        fflush(stdout);
-      }
-
-      printf("MagneticReconnectionCenterPosition = %e %e %e\n", 
-          this->MagneticReconnectionCenterPosition[0],
-          this->MagneticReconnectionCenterPosition[1],
-          this->MagneticReconnectionCenterPosition[2]);
-      printf("MagneticReconnectionBperturbk = %e %e %e\n", 
-          this->MagneticReconnectionBperturbk[0],
-          this->MagneticReconnectionBperturbk[1],
-          this->MagneticReconnectionBperturbk[2]);
-      printf("MagneticReconnectionBField = %e %e %e\n", 
-          this->MagneticReconnectionBField[0],
-          this->MagneticReconnectionBField[1],
-          this->MagneticReconnectionBField[2]);
-
-      printf("MagneticReconnectionLambda = %e\n",this->MagneticReconnectionLambda);
-      printf("MagneticReconnectionBperturbation = %e\n",this->MagneticReconnectionBperturbation);
-      printf("MagneticReconnectionOverdensity = %e\n",this->MagneticReconnectionOverdensity);
-
-
       /* declarations */
 
       int size = 1, dim, cellindex;
@@ -456,11 +428,6 @@ This is the grid-by-grid initializer.
 
             thisgrid->BaryonField[TENum][cellindex] = MagneticReconnectionTotalEnergy/(Gamma - 1.0) + 0.5 * (POW(thisgrid->CenteredB[0][cellindex], 2) + POW(thisgrid->CenteredB[1][cellindex], 2) + POW(thisgrid->CenteredB[2][cellindex], 2))/thisgrid->BaryonField[DensNum][cellindex];
           } // for (i = 0; i < GridDimension[0]; i++)
-
-      if(debug){
-        printf("Exiting MagneticReconnectionInitialize\n");
-        fflush(stdout);
-      }
 
       return SUCCESS;
 
