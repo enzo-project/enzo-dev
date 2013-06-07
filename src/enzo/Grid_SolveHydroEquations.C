@@ -421,6 +421,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
         for(field=0;field<3;field++){
           MagneticFlux[field][0] = new float[2*MagneticSize[field]];
           MagneticFlux[field][1] =  MagneticFlux[field][0] +MagneticSize[field];
+          for (i=0; i< 2*MagneticSize[field]; i++) MagneticFlux[field][0][i] = 0.0;
         }
         CenterMagneticField();
 #ifdef BIERMANN
