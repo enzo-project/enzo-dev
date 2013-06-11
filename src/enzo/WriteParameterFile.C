@@ -628,6 +628,25 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumSlopeForRefinement[5],
 	  MinimumSlopeForRefinement[6]);
 
+  fprintf(fptr, "SecondDerivativeFlaggingFields ="
+	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+	  SecondDerivativeFlaggingFields[0], 
+	  SecondDerivativeFlaggingFields[1],
+	  SecondDerivativeFlaggingFields[2], 
+	  SecondDerivativeFlaggingFields[3],
+	  SecondDerivativeFlaggingFields[4],
+	  SecondDerivativeFlaggingFields[5],
+	  SecondDerivativeFlaggingFields[6]);
+
+  fprintf(fptr, "MinimumSecondDerivativeForRefinement ="
+	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+	  MinimumSecondDerivativeForRefinement[0],
+	  MinimumSecondDerivativeForRefinement[1],
+	  MinimumSecondDerivativeForRefinement[2],
+	  MinimumSecondDerivativeForRefinement[3],
+	  MinimumSecondDerivativeForRefinement[4],
+	  MinimumSecondDerivativeForRefinement[5],
+	  MinimumSecondDerivativeForRefinement[6]);
 
   fprintf(fptr, "MinimumOverDensityForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
