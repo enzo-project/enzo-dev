@@ -47,7 +47,6 @@ char DefaultExtraDir[]="ED00";
  
  
  
- 
 int SetDefaultGlobalValues(TopGridData &MetaData)
 {
  
@@ -460,6 +459,28 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   AnisotropicConductionSpitzerFraction = 1.0;
   ConductionCourantSafetyNumber = 0.5;
 
+  ClusterSMBHFeedback              = FALSE;
+  ClusterSMBHJetMdot               = 3.0;
+  ClusterSMBHJetVelocity           = 10000.0;
+  ClusterSMBHJetRadius             = 6.0;
+  ClusterSMBHJetLaunchOffset       = 10.0;
+  ClusterSMBHStartTime             = 1.0;
+  ClusterSMBHTramp                 = 0.1;
+  ClusterSMBHJetOpenAngleRadius    = 0.0;
+  ClusterSMBHFastJetRadius         = 0.1;
+  ClusterSMBHFastJetVelocity       = 10000.0;
+  ClusterSMBHJetEdot               = 1.0;
+  ClusterSMBHKineticFraction       = 1.0;
+  ClusterSMBHJetAngleTheta         = 0.0;
+  ClusterSMBHJetAnglePhi           = 0.0;
+  ClusterSMBHJetPrecessionPeriod   = 0.0;
+  ClusterSMBHCalculateGasMass      = 1;
+  ClusterSMBHFeedbackSwitch        = FALSE;
+  ClusterSMBHEnoughColdGas         = 1.0e7;
+  ClusterSMBHAccretionTime         = 5.0;
+  ClusterSMBHJetDim                = 2;
+  ClusterSMBHAccretionEpsilon      = 0.001;
+
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
   PythonReloadScript               = FALSE;
@@ -768,7 +789,32 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoundaryDirection=-1;
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
-  useMHD=0;
+  UseMHD=0;
+
+  //MHDCT variables
+  MHDCT_debug_flag = 0;
+  MHDCTSlopeLimiter = 1;
+  MHDCTDualEnergyMethod = INT_UNDEFINED;
+  MHDCTPowellSource = 0;
+  MHDCTUseSpecificEnergy = TRUE;
+  ProcessorTopology[0]      = INT_UNDEFINED;
+  ProcessorTopology[1]      = INT_UNDEFINED;
+  ProcessorTopology[2]      = INT_UNDEFINED;
+  FixedTimestep = -1.0;
+  WriteBoundary             = FALSE;
+  CT_AthenaDissipation = 0.1;
+  MHD_WriteElectric = TRUE;
+  tiny_pressure = tiny_number;
+  MHD_CT_Method = 2;
+  NumberOfGhostZones = 3;
+  IsothermalSoundSpeed = 1.0;
+  MHD_ProjectB = FALSE;
+  MHD_ProjectE = TRUE;
+  UseMHDCT = FALSE;
+  EquationOfState = 0;
+  for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
+  WriteAcceleration = FALSE;
+
   CorrectParentBoundaryFlux = FALSE; //Corrects (or doesn't) parent flux when subgrid shares an exposed face with parent.
 
   for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;

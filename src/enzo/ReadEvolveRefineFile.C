@@ -26,15 +26,25 @@ int ReadEvolveRefineFile(void)
     return FAIL;
   }
 
-  while (fscanf(fptr, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+  char line[MAX_LINE_LENGTH];
+  int nret;
+  EvolveRefineRegionNtimes=0;
+  while ((fgets(line, MAX_LINE_LENGTH, fptr) != NULL)){
+    nret = sscanf(line, "%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
 		&(EvolveRefineRegionTime[i]),
 		&(EvolveRefineRegionLeftEdge[i][0]),
 		&(EvolveRefineRegionLeftEdge[i][1]),
 		&(EvolveRefineRegionLeftEdge[i][2]),
 		&(EvolveRefineRegionRightEdge[i][0]),
 		&(EvolveRefineRegionRightEdge[i][1]),
-		&(EvolveRefineRegionRightEdge[i][2])) != 0 && 
-	 i < MAX_REFINE_REGIONS) i++;
+		&(EvolveRefineRegionRightEdge[i][2])); 
+    if( nret != 7 ){
+      fprintf(stderr,"WARNING: ReadEvolveRefineFile cannot interpret line %s",line);
+      continue;
+    }
+    i++;
+    EvolveRefineRegionNtimes++;
+  }
 
   fclose(fptr);
 

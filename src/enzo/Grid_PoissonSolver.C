@@ -49,7 +49,7 @@ int grid::PoissonSolver(int level)
   */
 {
 
-  if (ProcessorNumber != MyProcessorNumber || UseDivergenceCleaning==0 || useMHD==0 ) {
+  if (ProcessorNumber != MyProcessorNumber || UseDivergenceCleaning==0 || UseMHD==0 ) {
    
     return SUCCESS;
   }

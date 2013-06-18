@@ -21,6 +21,8 @@ General
     2              ZEUS (a Cartesian, 3D version of Stone & Norman). Note that if ZEUS is selected, it automatically turns off ``ConservativeInterpolation`` and the ``DualEnergyFormalism`` flags.
     3              Runge Kutta second-order based MUSCL solvers.
     4              Same as 3 but including Dedner MHD (Wang & Abel 2008). For 3 and 4 there are the additional parameters ``RiemannSolver`` and ``ReconstructionMethod`` you want to set.
+    5              No Hydro (Testing only)
+    6              MHD with Constrained Transport.
     ============== =============================
 
     Default: 0
@@ -70,23 +72,25 @@ General
     velocity). Ideally, this should be done, but it can cause problems
     when strong density gradients occur. This must(!) be set off for
     ZEUS hydro (the code does it automatically). Default: 1
-``RiemannSolver`` (external; only if ``HydroMethod`` is 3 or 4)
-    This integer specifies the Riemann solver used by the MUSCL solver. Choice of
+``RiemannSolver`` (external)
+    This integer specifies the Riemann solver. Solver options, and the relevant
+    hydro method, are summarized as follows:
 
-    ================ ===========================
-    Riemann solver   Description
-    ================ ===========================
-    0                [reserved]
-    1                HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no resolution of contact waves
-    2                [reserved]
-    3                LLF (Local Lax-Friedrichs)
-    4                HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
-    5                TwoShock
-    ================ ===========================
+    ================ =========== ===========================
+    Riemann solver   HydroMethod Description
+    ================ =========== ===========================
+    0                --          [reserved]
+    1                0,3,4       HLL (Harten-Lax-van Leer) a two-wave, three-state solver with no resolution of contact waves
+    2                            [reserved]
+    3                3,4         LLF (Local Lax-Friedrichs)
+    4                0,3         HLLC (Harten-Lax-van Leer with Contact) a three-wave, four-state solver with better resolution of contacts
+    5                0           TwoShock 
+    6                4,6         HLLD 
+    ================ =========== ===========================
 
     Default: 1 (HLL) for ``HydroMethod`` = 3; 5 (TwoShock) for
-    ``HydroMethod`` = 0
-``RiemannSolverFallback`` (external; only if ``HydroMethod`` is 3 or 4)
+    ``HydroMethod`` = 0; 6 (HLLD) for ``HydroMethod = 6``
+``RiemannSolverFallback`` (external; only if ``HydroMethod`` is 0, 3 or 4)
     If the euler update results in a negative density or energy, the
     solver will fallback to the HLL Riemann solver that is more
     diffusive only for the failing cell.  Only active when using the
@@ -94,15 +98,16 @@ General
 ``ReconstructionMethod`` (external; only if ``HydroMethod`` is 3 or 4)
     This integer specifies the reconstruction method for the MUSCL solver. Choice of
 
-    ===================== ====================
-    Reconstruction Method Description
-    ===================== ====================
-    0                     PLM (piecewise linear)
-    1                     PPM (piecwise parabolic)
-    2                     [reserved]
-    3                     [reserved]
-    4                     [reserved]
-    ===================== ====================
+    ===================== ============ ===================
+    Reconstruction Method HydroMethod  Description
+    ===================== ============ ===================
+    0                     0,3,4,6      PLM (piecewise linear) 
+    1                     0            PPM (piecwise parabolic)
+    2                                  [reserved]
+    3                                  [reserved]
+    4                                  [reserved]
+    6                     6            MUSCL-Hancock (Non Runge-Kutta) 
+    ===================== ============ ====================
 
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``ConservativeReconstruction`` (external; only if ``HydroMethod`` is 3 or 4)
@@ -193,7 +198,76 @@ Minimum Pressure Support Parameters
 Magnetohydrodynamics (CT) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Coming very soon...!
+``MHD_CT_Method`` (external) 
+    Method for computing the electric field from the Riemann fluxes
+
+    ========== ==========================================================================
+    CT Method   Description  
+    ========== ==========================================================================
+    0           None (only for debugging)
+    1           Balsara Spicer 2001, first order average
+    2           Gardiner and Stone 2005. Second order Lax-Friedrichs type reconstruction.
+                Uses ``CT_AthenaDissipation`` flag.
+    3           Gardiner and Stone 2005.  Second order reconstruction using
+                upwind switches
+    ========== ==========================================================================
+
+    Default: 3
+
+``CT_AthenaDissipation``  (external) 
+    For the Lax-Friedrichs CT method, this is the maximum wave speed.  (:math:`\alpha` in Gardiner & Stone 2005 eqn. 46). Default: 0.1
+
+``EquationOfState`` (external, ct only) 
+    0: standard adiabatic 1: Exactly isothermal
+    equation of state.  This flag removes the total energy term completely, instead
+    computing pressure as :math:`p = c^2 \rho`. This option only works with
+    ``HydroMethod = 6`` and ``RiemannSolver = 6`` (HLLD) as this is the only purely
+    isothermal Riemann solver in Enzo.  Default: 0
+
+``IsothermalSoundSpeed`` (external, ct only) 
+    When ``EquationOfState = 1``, this is the
+    sound speed used for computation of pressure.  Default: 1
+
+``MHDCTSlopeLimiter`` (external, ct only) 
+    For computing derivatives for the reconstruction,
+    this switches between zero slope (0), minmod (1), VanLeer (2), and
+    characteristic  (3) characteristic with primitive limiting (4).  Default: 1
+
+``ReconstructionMethod`` (external) 
+    There are two reconstruction methods
+    that work with MHDCT: Piecewise Linear Method (PLM) (0) and MUSCL-Hancock (6).  This
+    formuation of MUSCL-Hancock is different from the 2nd order Runga Kutta used for
+    ``HydroMethod = 3,4``.     
+
+``RiemannSolver`` (external)  
+    As with ``HydroMethod=4``, the prefered solver is
+    HLLD (``RiemannSolver=6``).  Other solvers may be released if the DOE approves
+    them.
+
+
+``MHDCTUseSpecificEnergy`` (external) 
+    Either specific energy is used internally
+    (1) or conserved energy is used internally (0).  Minor difference in boundary
+    condition update, included for comparison to old solutions.  Default: 1
+
+
+``MHDCTDualEnergyMethod`` (external) 
+    When ``DualEnergyFormalism = 1``, this switches
+    between a method that solves an additional equation for the internal energy, as
+    in the rest of Enzo, and method that updates the entropy.  
+
+
+``MHD_WriteElectric`` (external)  
+    Include the electric field in the output.
+    Default: 0
+
+``MHD_ProjectB`` (internal)  
+    Project magnetic fields from fine to coarse.
+    Should not be done in general, only used for initialization.  
+
+``MHD_ProjectE`` (internal)  
+    Project Electric fields from fine to coarse.
+    Used for the time evolution of the fields.
 
 Magnetohydrodynamics (Dedner) Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -5,7 +5,7 @@ Enzo Test Suite
 
 The Enzo test suite is a set of tools whose purpose is to perform
 regression tests on the Enzo codebase, in order to help developers
-discover bugs that they have introducted, to verify that the code is
+discover bugs that they have introduced, to verify that the code is
 producing correct results on new computer systems and/or compilers,
 and, more generally, to demonstrate that Enzo is behaving as expected
 under a wide variety of conditions.
@@ -110,7 +110,7 @@ current gold standard by running the following commands:
     $ cd <enzo_root>/run
     $ ./test_runner.py -o <output_dir> 
 
-In this comand, ``--output-dir=<output_dir>`` instructs the 
+In this command, ``--output-dir=<output_dir>`` instructs the 
 test runner to output its results to a user-specified directory 
 (preferably outside of the enzo file hierarchy).  Make sure this
 directory is created before you call test_runner.py, or it will 
@@ -182,7 +182,7 @@ the fact that you are trying to run enzo with MPI which your
 system doesn't allow you to initiate from the command line.
 (e.g. it expects you to submit mpirun jobs to the queue).  
 You can solve this problem by recompiling your enzo executable with
-MPI turnend off (i.e. ``make use-mpi-no``), and then just pass the 
+MPI turned off (i.e. ``make use-mpi-no``), and then just pass the 
 local_nompi machine flag (i.e. ``-m local_nompi``) to your 
 test_runner.py call to run the executable directly without MPI support.  
 Currently, only a few tests use multiple cores, so this is not a 
@@ -480,7 +480,7 @@ How to track down which changeset caused your test failure
 ----------------------------------------------------------
 
 In order to identify changesets that caused problems, we have 
-provied the ``--bisect`` flag.  This runs hg bisect on revisions 
+provided the ``--bisect`` flag.  This runs hg bisect on revisions 
 between those which are marked as --good and --bad.
 
 hg bisect automatically manipulates the repository as it runs its 
@@ -493,7 +493,7 @@ testing is run.
 
 To minimize the number of tests run, bisection is only run on tests 
 for which ``problematic=True``.  This must be set by hand by the user 
-before running biset.  It is best that this is a single test problem, 
+before running bisect.  It is best that this is a single test problem, 
 though if multiple tests match that flag, failures are combined with "or"
 
 
@@ -583,7 +583,7 @@ above.
 5.  By default, the final output of any test problem will be tested by 
 comparing the min, max, and mean of a set of fields.  If you want to 
 have additional tests performed, create a script in the problem type 
-sybdirectory and set the ``answer_testing_script`` parameter in the 
+directory and set the ``answer_testing_script`` parameter in the 
 ``.enzotest`` file to point to your test script.  For an example of 
 writing custom tests, see 
 ``run/Hydro/Hydro-3D/RotatingCylinder/test_rotating_cylinder.py``.

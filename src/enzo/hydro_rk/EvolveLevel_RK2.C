@@ -219,7 +219,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   double time1 = ReturnWallTime();
 
   char level_name[MAX_LINE_LENGTH];
-  sprintf(level_name, "Level_%"ISYM, level);
+  sprintf(level_name, "Level_%02"ISYM, level);
 
 
 
@@ -390,13 +390,13 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();  
 
       if (UseHydro) {
-	if (HydroMethod == HD_RK)
-	  Grids[grid1]->GridData->RungeKutta2_1stStep
-	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
-	else if (HydroMethod == MHD_RK) 
-	  Grids[grid1]->GridData->MHDRK2_1stStep
-	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
-
+        if (HydroMethod == HD_RK)
+          Grids[grid1]->GridData->RungeKutta2_1stStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+        else if (HydroMethod == MHD_RK) {
+          Grids[grid1]->GridData->MHDRK2_1stStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+        }
 	//	if (ComovingCoordinates)
 	//	  Grids[grid1]->GridData->ComovingExpansionTerms();
 
@@ -455,35 +455,34 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
 
       if (UseHydro) {
-	if (HydroMethod == HD_RK)
-	  Grids[grid1]->GridData->RungeKutta2_2ndStep
-	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+        if (HydroMethod == HD_RK)
+          Grids[grid1]->GridData->RungeKutta2_2ndStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
-	else if (HydroMethod == MHD_RK) {
-	  Grids[grid1]->GridData->MHDRK2_2ndStep
-	    (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
-	  
-	  if (UseAmbipolarDiffusion) 
-	    Grids[grid1]->GridData->AddAmbipolarDiffusion();
-	  
-	  if (UseResistivity) 
-	    Grids[grid1]->GridData->AddResistivity();
-	
-	} // ENDIF MHD_RK
+        else if (HydroMethod == MHD_RK) {
+          double t1 = MPI_Wtime();
+          Grids[grid1]->GridData->MHDRK2_2ndStep
+              (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
+          if (UseAmbipolarDiffusion) 
+            Grids[grid1]->GridData->AddAmbipolarDiffusion();
 
-	time1 = ReturnWallTime();
+          if (UseResistivity) 
+            Grids[grid1]->GridData->AddResistivity();
 
-      /* Add viscosity */
+        } // ENDIF MHD_RK
 
-      if (UseViscosity) 
-	Grids[grid1]->GridData->AddViscosity();
+        time1 = ReturnWallTime();
 
-      /* If using comoving co-ordinates, do the expansion terms now. */
-      if (ComovingCoordinates)
-	Grids[grid1]->GridData->ComovingExpansionTerms();
+        /* Add viscosity */
+
+        if (UseViscosity) 
+          Grids[grid1]->GridData->AddViscosity();
+
+        /* If using comoving co-ordinates, do the expansion terms now. */
+        if (ComovingCoordinates)
+          Grids[grid1]->GridData->ComovingExpansionTerms();
 
       } // ENDIF UseHydro
-
 
       /* Solve the cooling and species rate equations. */
  
@@ -508,10 +507,12 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Gravity: clean up AccelerationField. */
 
+#ifndef SAB
       if ((level != MaximumGravityRefinementLevel ||
 	   MaximumGravityRefinementLevel == MaximumRefinementLevel))
 	Grids[grid1]->GridData->DeleteAccelerationField();
 
+#endif //!SAB
       Grids[grid1]->GridData->DeleteParticleAcceleration();
  
       if (UseFloor) 

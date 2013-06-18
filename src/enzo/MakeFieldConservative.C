@@ -39,5 +39,9 @@ int MakeFieldConservative(field_type field){
         }
     }
 
+    if( field == TotalEnergy && HydroMethod == MHD_Li && MHDCTUseSpecificEnergy == FALSE ){
+        MultiplyField = FALSE;
+    }
+
     return MultiplyField;
 }

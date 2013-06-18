@@ -61,6 +61,7 @@ OBJS_CONFIG_LIB = \
         cie_thin_cooling_rate.o \
         cluster_maker.o \
         ClusterInitialize.o \
+	ClusterSMBHSumGasMass.o \
         c_message.o \
         colh2diss.o \
         CollapseTestInitialize.o \
@@ -326,6 +327,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ClearParticleAccelerations.o \
 	Grid_ClearParticleMassFlaggingField.o \
 	Grid_ClusterInitializeGrid.o \
+	Grid_ClusterSMBHFeedback.o \
+        Grid_ClusterSMBHEachGridGasMass.o \
 	Grid_CollapseTestInitializeGrid.o \
         Grid_CollectGridInformation.o \
         Grid_CollectParticles.o \
@@ -538,6 +541,7 @@ OBJS_CONFIG_LIB = \
 	Grid_SolveForPotential.o \
         Grid_SolveHydroEquations.o \
 	Grid_SolveOneZoneFreefall.o \
+  Grid_SolveMHD_Li.o \
 	Grid_SolvePPM_DE.o \
         Grid_SolveRadiativeCooling.o \
         Grid_SolveRateAndCoolEquations.o \
@@ -606,6 +610,7 @@ OBJS_CONFIG_LIB = \
 	InitializeGadgetEquilibriumCoolData.o \
         InitializeLocal.o \
         InitializeLymanWernerTable.o \
+	InitializeHM12Photorates.o \
         InitializeMovieFile.o \
         InitializeNew.o \
         InitializePythonInterface.o \
@@ -687,6 +692,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_RotatingCylinder.o \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
+	ProblemType_MagneticReconnection.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -882,7 +888,39 @@ OBJS_CONFIG_LIB = \
         ZeusSource.o \
         Zeus_xTransport.o \
         Zeus_yTransport.o \
-        Zeus_zTransport.o
+        Zeus_zTransport.o \
+	Grid_MHD_Diagnose.o \
+	Grid_MHDCTEnergyToggle.o\
+	MHDBlastInitialize.o\
+    	Grid_MHDBlastInitializeGrid.o\
+    	Grid_MHD_ProjectFace.o\
+    	Grid_ClearAvgElectricField.o\
+    	ExternalBoundary_SetMagneticBoundary.o\
+   	 mhd_dt.o\
+    	 Grid_SolveMHDEquations.o \
+    	 Grid_MHD_UpdateMagneticField.o\
+    	 Grid_MHDOrszagTangInitGrid.o \
+    	 Grid_MHD_SetupDims.o \
+    	 MHDOrszagTangInit.o \
+    	 MHDCT_ParameterJuggle.o \
+    	 MHDCTSetupFieldLabels.o \
+    	 mhd_li.o\
+    	 mhd_li_ms.o \
+    	 Grid_CenterMagneticField.o\
+    	 Grid_ComputeElectricField.o\
+    	 Grid_MHD_Curl.o\
+    	 pde1dsolver_mhd.o\
+    	 pde1dsolver_mhd_ms.o \
+       pde1dsolver_mhd_NewMS.o\
+    	 riemann_mhd.o\
+    	 mhd_hlld_isothermal.o\
+    	 mhd_hlld_adiabatic.o\
+    	 DebugTools.o\
+    	 Grid_MHD_CID.o\
+    	 Grid_MHD_ProlongAllocate.o\
+    	 mhd_interpolate.o\
+    	 Grid_MHD_SendOldFineGrids.o
+
 
 #-----------------------------------------------------------------------
 # Objects for radiative transfer module
@@ -1054,6 +1092,7 @@ OBJS_HYDRO_RK = \
 
 # Objects for the CUDA GPU-computing support
 OBJS_ECUDA_ALL = \
+        hydro_rk/CudaMHD.o \
 	hydro_rk/CUDA_Rec_PLM.o \
 	hydro_rk/HydroSweep_CUDA.o \
 	hydro_rk/Grid_CudaMHD.o \
@@ -1062,4 +1101,5 @@ OBJS_ECUDA_ALL = \
 	cuPPM.o \
 	CUDAUtil.o \
 	SaveSubgridFluxCUDA.o 
+
 

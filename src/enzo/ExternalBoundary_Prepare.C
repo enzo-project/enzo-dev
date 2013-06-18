@@ -60,6 +60,22 @@ int ExternalBoundary::Prepare(grid *TopGrid)
       }
   }
  
+  if(UseMHDCT)
+    {
+      for(int field=0;field<3; field++)
+	for(int dim=0;dim<3; dim++){
+	  MagneticBoundaryDims[field][dim]=TopGrid->GridDimension[dim];
+	  
+	  if(field == dim) MagneticBoundaryDims[field][dim]++;
+	}
+
+      for(int dim=0;dim<3;dim++)
+	for(int field = 0; field<3; field++){
+	  MagneticBoundaryValue[field][dim][0] = NULL;
+	  MagneticBoundaryValue[field][dim][1] = NULL;
+	}
+    }
+
   return SUCCESS;
  
 }

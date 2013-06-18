@@ -433,6 +433,7 @@ EXTERN int   StaticRefineRegionLevel[MAX_STATIC_REGIONS];
 /* Evolving refinement region. */
 EXTERN char *RefineRegionFile;
 EXTERN int RefineRegionTimeType; // 0=time 1=redshift
+EXTERN int EvolveRefineRegionNtimes;
 EXTERN FLOAT EvolveRefineRegionTime[MAX_REFINE_REGIONS]; // time bins
 EXTERN FLOAT EvolveRefineRegionLeftEdge[MAX_REFINE_REGIONS][3]; // left corners
 EXTERN FLOAT EvolveRefineRegionRightEdge[MAX_REFINE_REGIONS][3]; // right corners
@@ -891,7 +892,7 @@ EXTERN float VelocityGradient;
 EXTERN int ShearingBoundaryDirection;
 EXTERN int ShearingVelocityDirection;
 EXTERN int ShearingOtherDirection;
-EXTERN int useMHD;
+EXTERN int UseMHD;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
@@ -938,6 +939,55 @@ EXTERN int AnisotropicConduction;  // TRUE OR FALSE
 EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
+
+/* SMBH Feedback in galaxy clusters*/
+EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE
+EXTERN float ClusterSMBHJetMdot;  // JetMdot in SolarMass/yr 
+EXTERN float ClusterSMBHJetVelocity;  // JetVelocity in km/s 
+EXTERN float ClusterSMBHJetRadius;  // JetRadius in cellwidth 
+EXTERN float ClusterSMBHJetLaunchOffset;  //in cellwidth
+EXTERN float ClusterSMBHStartTime;  // in codeunits, usually is InitialTime of restart 
+EXTERN float ClusterSMBHTramp;  // in Myr
+EXTERN float ClusterSMBHJetOpenAngleRadius;  // in cellwidth 
+EXTERN float ClusterSMBHFastJetRadius;  // FastJetRadius in cellwidth 
+EXTERN float ClusterSMBHFastJetVelocity;  // FastJetVelocity in km/s 
+EXTERN float ClusterSMBHJetEdot;  // Total feedback Edot in 10^44 ergs/s 
+EXTERN float ClusterSMBHKineticFraction;  // fraction of kinetic feedback (0-1)
+EXTERN float ClusterSMBHJetAngleTheta;  // from 0 to 1/2, in pi
+EXTERN float ClusterSMBHJetAnglePhi;  // from 0 to 2, in pi
+EXTERN float ClusterSMBHJetPrecessionPeriod;  //in Myr
+EXTERN int ClusterSMBHCalculateGasMass;  // TRUE OR FALSE
+EXTERN int ClusterSMBHFeedbackSwitch;  // TRUE OR FALSE
+EXTERN float ClusterSMBHEnoughColdGas;  // To turn jet on, in SolarMass 
+EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
+EXTERN int ClusterSMBHJetDim;  // Jet dimension
+EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
+
+EXTERN int MHDCT_debug_flag;
+EXTERN int MHDCTSlopeLimiter;
+EXTERN int MHDCTDualEnergyMethod;
+EXTERN int MHDCTPowellSource;
+EXTERN int MHDCTUseSpecificEnergy;
+EXTERN float FixedTimestep;
+EXTERN int WriteBoundary;
+EXTERN int WriteAcceleration;
+EXTERN int TracerParticlesAddToRestart;// forces addition of tracer particles to already initialized simulations
+EXTERN int MHD_ProjectThisFace[3]; //Used for determining face projection/communication needs for 
+                                   //face centered fields
+EXTERN int ProcessorTopology[3]; //user define processor topology.
+EXTERN float CT_AthenaDissipation;
+EXTERN int MHD_WriteElectric;
+EXTERN float tiny_pressure;
+EXTERN int MHD_CT_Method;
+EXTERN int MHD_ProjectB;// Should always be FALSE for the evoloution. May be used in initialization.
+EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
+EXTERN int UseMHDCT;
+EXTERN int EquationOfState;
+EXTERN char *MHDLabel[3];
+EXTERN char *MHDcLabel[3];
+EXTERN char *MHDUnits[3];
+EXTERN char *MHDeLabel[3];
+EXTERN char *MHDeUnits[3];
 
 /* For the database */
 EXTERN char *DatabaseLocation;

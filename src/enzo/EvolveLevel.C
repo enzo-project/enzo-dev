@@ -128,7 +128,7 @@ int WriteStreamData(LevelHierarchyEntry *LevelArray[], int level,
 		    TopGridData *MetaData, int *CycleCount, int open=FALSE);
 int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid,
 				int GridNum, float *norm, float TopGridTimeStep, 
-				int level, int LevelCycleCount[]);  //moo
+				int level, int LevelCycleCount[]);  
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
@@ -193,6 +193,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
                                       float * norm, float * pTopGridTimeStep);
+int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level);
 int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
 		      int StaticLevelZero,TopGridData * MetaData,int level);
 
@@ -275,7 +276,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   int dummy_int;
 
   char level_name[MAX_LINE_LENGTH];
-  sprintf(level_name, "Level_%"ISYM, level);
+  sprintf(level_name, "Level_%02"ISYM, level);
     
   // Update lcaperf "level" attribute
   Eint32 lcaperf_level = level;
@@ -346,8 +347,12 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       }
     }
   } else {
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
       Grids[grid1]->GridData->ClearBoundaryFluxes();
+      if ( level > 0 )
+      Grids[grid1]->GridData->ClearAvgElectricField();
+    }
+
   }
  
   /* After we calculate the ghost zones, we can initialize streaming
@@ -412,6 +417,10 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     Star *AllStars = NULL;
     StarParticleInitialize(Grids, MetaData, NumberOfGrids, LevelArray,
 			   level, AllStars, TotalStarParticleCountPrevious);
+
+    /* Calculate ClusterSMBHColdGasMass */
+
+    ClusterSMBHSumGasMass(Grids, NumberOfGrids, level);
 
 #ifdef TRANSFER
     /* Initialize the radiative transfer */
@@ -507,9 +516,18 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       /* Call hydro solver and save fluxes around subgrids. */
-      Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
+
+      if( UseMHDCT && HydroMethod == MHD_Li && MHDCT_debug_flag == 1){
+        //Temporarily allow the option of calling SolveMHDEqations 
+        //while I transition MHDCT to SolveHydroEquations.
+	Grids[grid1]->GridData->SolveMHDEquations(LevelCycleCount[level],
+		NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level ,grid1); 
+	
+      }else{
+	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      
+      }
+
       /* Solve the cooling and species rate equations. */
  
       Grids[grid1]->GridData->MultiSpeciesHandler();
@@ -583,6 +601,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
                       b) copy any overlapping zones from siblings. */
  
     EXTRA_OUTPUT_MACRO(2,"After SolveHydroEquations grid loop")
+
 #ifdef FAST_SIB
     SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
 			  level, MetaData, Exterior, LevelArray[level]);
@@ -682,10 +701,32 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
 
     EXTRA_OUTPUT_MACRO(4,"After UFG")
+
+
+    if(UseMHDCT == TRUE && MHD_ProjectE == TRUE){
+      for(grid1=0;grid1<NumberOfGrids; grid1++){
+        Grids[grid1]->GridData->MHD_UpdateMagneticField(level, LevelArray[level+1]);
+        }
+    }//MHD True
+
+    EXTRA_OUTPUT_MACRO(5,"After UMF")
+
   /* ------------------------------------------------------- */
   /* Add the saved fluxes (in the last subsubgrid entry) to the exterior
      fluxes for this subgrid .
      (Note: this must be done after CorrectForRefinedFluxes). */
+
+    if( UseMHDCT ){
+#ifdef FAST_SIB
+    SetBoundaryConditions(Grids, NumberOfGrids, SiblingList,
+			  level, MetaData, Exterior, LevelArray[level]);
+#else
+    SetBoundaryConditions(Grids, NumberOfGrids, level, MetaData,
+			  Exterior, LevelArray[level]);
+#endif
+    }
+
+    EXTRA_OUTPUT_MACRO(51, "After SBC")
 
     FinalizeFluxes(Grids,SubgridFluxesEstimate,NumberOfGrids,NumberOfSubgrids);
 

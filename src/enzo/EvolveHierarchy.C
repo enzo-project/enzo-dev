@@ -146,8 +146,8 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
  
 #define NO_REDUCE_FRAGMENTATION
  
- 
- 
+
+
  
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
                     ExternalBoundary *Exterior,
@@ -451,11 +451,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* If provided, set RefineRegion from evolving RefineRegion */
     if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
-        if (SetEvolveRefineRegion(MetaData.Time) == FAIL) {
-          fprintf(stderr, "Error in SetEvolveRefineRegion.\n");
-          return FAIL;
-        }
+        if (SetEvolveRefineRegion(MetaData.Time) == FAIL) 
+	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
     }
+
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 
@@ -481,6 +480,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
 	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
+	HydroMethod == MHD_Li || HydroMethod == NoHydro ||
 	HydroMethod < 0) {
       if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER

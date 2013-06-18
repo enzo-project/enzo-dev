@@ -207,7 +207,6 @@ help-config:
 	@echo
 	@echo "      gmake enzo-performance-yes"
 	@echo "      gmake enzo-performance-no"
-	@echo
 
 #-----------------------------------------------------------------------
 
@@ -872,6 +871,9 @@ CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
 	$(MAKE)  show-config | grep CONFIG_BITWISE_IDENTICALITY; \
 	echo
 
+
+
+#-----------------------------------------------------------------------
 
 
 #-----------------------------------------------------------------------
