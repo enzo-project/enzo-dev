@@ -295,7 +295,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
-						       GalaxySimulationInflowDensity,0,
+						       GalaxySimulationInflowDensity,level,
                    GalaxySimulationCR )
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
