@@ -52,6 +52,7 @@ OBJS_CONFIG_LIB = \
         CheckShearingBoundaryConsistency.o \
 	chtable.o \
         cic_deposit.o \
+        cic_deposit_c.o \
         cic_flag.o \
         cic_flag_c.o \
         cic_interp.o \
