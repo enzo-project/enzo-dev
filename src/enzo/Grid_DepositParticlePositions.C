@@ -298,7 +298,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       }
 
       /* Deposit sink particles (only) to field using CIC or NGP. 
-         (only use NGP if cellsize < cloudsize - i.e. source is subgrid) */
+         (only use NGP if cellsize > cloudsize - i.e. source is subgrid) */
 
       if (ParticleSubgridDepositMode == NGP_DEPOSIT && CellSize > 1.5*CloudSize) {
 	PFORTRAN_NAME(ngp_deposit)(
@@ -323,7 +323,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       //  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %"GSYM"\n", CellSize);
  
       /* Deposit sink particles (only) to field using CIC or NGP. 
-         (only use NGP if cellsize < cloudsize - i.e. source is subgrid) */
+         (only use NGP if cellsize > cloudsize - i.e. source is subgrid) */
 
       if (ParticleSubgridDepositMode == NGP_DEPOSIT && CellSize > 1.5*CloudSize) {
 	PFORTRAN_NAME(ngp_deposit)
