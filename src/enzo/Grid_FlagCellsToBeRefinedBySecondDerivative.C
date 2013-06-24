@@ -89,7 +89,6 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   int Offsets[3];
   for (dim=0; dim<GridRank; dim++)
     Offsets[dim] = 1;
-  float sderiv_epsilon = 1.0e-2;
   
   for (dim = 0; dim<GridRank-1; dim++){
     Offsets[dim+1] = Offsets[dim]*GridDimension[dim]; 
@@ -138,15 +137,15 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
                                 BaryonField[field][index]) +
                            fabs(BaryonField[field][index] -
                                 BaryonField[field][index - Offsets[dimk]])) +
-                      sderiv_epsilon * (fabs(BaryonField[field][index + Offsets[dimk] + Offsets[diml]]) +
+                      SecondDerivativeEpsilon * (fabs(BaryonField[field][index + Offsets[dimk] + Offsets[diml]]) +
                                         fabs(BaryonField[field][index + Offsets[dimk] - Offsets[diml]]) +
                                         fabs(BaryonField[field][index - Offsets[dimk] + Offsets[diml]]) +
                                         fabs(BaryonField[field][index - Offsets[dimk] - Offsets[dimk]])) , 2.0);
             }
           }
         }
-    /* flag field based on second derivative */
 
+    /* flag field based on second derivative */
     for (i = 0; i < size; i++){
       TopBuffer[i] = sqrt(TopBuffer[i]/BottomBuffer[i]);
       FlaggingField[i] += (TopBuffer[i] > MinimumSecondDerivativeForRefinementThis) ? 1 : 0;

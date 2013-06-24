@@ -648,6 +648,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumSecondDerivativeForRefinement+5,
 		  MinimumSecondDerivativeForRefinement+6);
 
+    ret += sscanf(line, "SecondDerivativeEpsilon  = %"FSYM,
+		  &SecondDerivativeEpsilon);
 
     ret += sscanf(line, "MinimumOverDensityForRefinement  = "
 		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,

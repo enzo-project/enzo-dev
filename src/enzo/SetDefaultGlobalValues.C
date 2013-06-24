@@ -221,6 +221,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MinimumSecondDerivativeForRefinement[i]= 0.3;
     SecondDerivativeFlaggingFields[i] = INT_UNDEFINED;
   }
+  SecondDerivativeEpsilon = 1.0e-2;
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainLeftEdge[dim]             = 0.0;

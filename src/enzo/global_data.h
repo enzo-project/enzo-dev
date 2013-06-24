@@ -569,6 +569,7 @@ EXTERN int ShockwaveRefinementMaxLevel;
    Minimum second derivative required for refinement.    */
 EXTERN float MinimumSecondDerivativeForRefinement[MAX_FLAGGING_METHODS];
 EXTERN int SecondDerivativeFlaggingFields[MAX_FLAGGING_METHODS];
+EXTERN float SecondDerivativeEpsilon;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 

@@ -649,6 +649,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumSecondDerivativeForRefinement[5],
 	  MinimumSecondDerivativeForRefinement[6]);
 
+  fprintf(fptr, "SecondDerivativeEpsilon = %"GSYM"\n",
+	  SecondDerivativeEpsilon);
+
   fprintf(fptr, "MinimumOverDensityForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
 	  MinimumOverDensityForRefinement[0],
