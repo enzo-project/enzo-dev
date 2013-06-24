@@ -293,6 +293,14 @@ EXTERN int ComputePotential;
 
 EXTERN int WritePotential;
 
+/* Parameter to control how particles in a subgrid are deposited in
+   the target grid.  Options are: 
+     CIC_DEPOSIT - cloud in cell using cloud size equal to target grid size
+     CIC_DEPOSIT_SMALL - CIC using cloud size equal to source grid size
+     NGP_DEPOSIT - nearest grid point */
+
+EXTERN int ParticleSubgridDepositMode;
+
 /* Maximum number of GreensFunctions that will be stored in any time.
    This number must be less than MAX_NUMBER_OF_GREENS_FUNCTIONS. */
 

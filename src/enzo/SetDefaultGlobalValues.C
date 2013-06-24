@@ -317,6 +317,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GravityResolution           = 1.0;               // equivalent to grid
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
+  ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
