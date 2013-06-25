@@ -20,7 +20,8 @@ Hierarchy Control Parameters
     indicate that a cell should be refined, then it is flagged. For
     cosmology simulations, methods 2 and 4 are probably most useful.
     Note that some methods have additional parameters which are
-    described below. Default: 1
+    described below. For more information about specific methods, see the
+    method paper. Default: 1
 
     ================== ==========================================================
     CellFlaggingMethod Description
