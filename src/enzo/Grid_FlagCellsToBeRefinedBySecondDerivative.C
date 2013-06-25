@@ -77,10 +77,8 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   /* Force the user to specify fields if they want to use this on more than 
      one field */
   int NumberOfFields = 1;
-  for (int g=1; g<MAX_FLAGGING_METHODS; g++){
-    if (SecondDerivativeFlaggingFields[g] != INT_UNDEFINED){
-      NumberOfFields += 1; 
-    }
+  if (SecondDerivativeFlaggingFields[0] != INT_UNDEFINED){
+    NumberOfFields = NumberOfBaryonFields;
   }
 
   bool doField=false;
