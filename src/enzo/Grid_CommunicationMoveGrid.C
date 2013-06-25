@@ -34,7 +34,7 @@
  
  
 int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles, 
-				int DeleteAllFields)
+				int DeleteAllFields, int MoveSubgridMarker)
 {
 
   int dim;
@@ -83,6 +83,8 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles,
 					    NumberOfPhotonPackages, 
 					    NumberOfPhotonPackages, 
 					    &PhotonPackages);
+    if (MoveSubgridMarker == TRUE)
+      this->CommunicationSendSubgridMarker(this, ToProcessor);
 #endif /* TRANSFER */    
 
     /* Delete fields on old grid. */
@@ -95,6 +97,8 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles,
 	  this->DeleteAllFields();
 	else
 	  this->DeleteAllButParticles();
+	if (MoveSubgridMarker == TRUE)
+	  delete [] SubgridMarker;
       } else {
 	this->DeleteBaryonFields();
       }

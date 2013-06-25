@@ -223,7 +223,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (RadiativeTransferLoadBalance) {
       CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
 					  MetaData->FirstTimestepAfterRestart);
-      SetSubgridMarker(*MetaData, LevelArray, 1, TRUE);
     }
 
     /* Recalculate timestep if this isn't the first loop.  We already

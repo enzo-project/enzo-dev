@@ -96,6 +96,8 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 				      int ToNumber, int FromNumber, 
 				      PhotonPackageEntry **ToPP);
 
+  int CommunicationSendSubgridMarker(grid *ToGrid, int ToProcessor);
+
 /* Transport Photon Packages */ 
 
 int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove, 

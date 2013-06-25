@@ -33,10 +33,11 @@
 int grid::SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids)
 {
 
-  /* Return if this grid is not on this processor or the parent is on
-     the same processor. */
+  /* Only process if this is the local processor, and the data wasn't
+     originally on the processor before load balancing. */
 
-  if (MyProcessorNumber != ProcessorNumber)
+  if (MyProcessorNumber != ProcessorNumber ||
+      ProcessorNumber == OriginalProcessorNumber)
     return SUCCESS;
 
   /* declarations */
@@ -60,7 +61,9 @@ int grid::SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids
      addresses are 64-bit, we have to crop the address. */
 
   for (index = 0; index < size; index++) {
-    if (SubgridMarker[index] != NULL) {
+    if ((long) SubgridMarker[index] == INT_UNDEFINED) {
+      SubgridMarker[index] = NULL;
+    } else {
       packed_int = ((long) SubgridMarker[index] & 0xffffffff);
       GridID = packed_int & mask;
       GridLevel = packed_int >> LEVEL_BIT_OFFSET;
