@@ -66,7 +66,7 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
  
-  /* allocate a temporary slope field. */
+  /* allocate a temporary second derivative and normalization field. */
  
   float *TopBuffer = new float[size];
   float *BottomBuffer = new float[size];
@@ -74,14 +74,14 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   /* some problems do not need to check all the fields, in particular
      the velocity components */
  
-  int NumberOfFields = NumberOfBaryonFields;
-
-  // Override NumberOfFields for some specific problems:
-
-  if (ProblemType ==  6) NumberOfFields = 1; // Implosion (AK)
-  if (ProblemType ==  7) NumberOfFields = 2; // SedovBlast (AK)
-  if (ProblemType == 11) NumberOfFields = 2; // RadiatingShock (BWO)
-  if (ProblemType == 30) NumberOfFields = 2; // Cosmology (BWO 23 May 2006)
+  /* Force the user to specify fields if they want to use this on more than 
+     one field */
+  int NumberOfFields = 1;
+  for (int g=1; g<MAX_FLAGGING_METHODS; g++){
+    if (SecondDerivativeFlaggingFields[g] != INT_UNDEFINED){
+      NumberOfFields += 1; 
+    }
+  }
 
   bool doField=false;
   float MinimumSecondDerivativeForRefinementThis;
@@ -93,8 +93,8 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
   for (dim = 0; dim<GridRank-1; dim++){
     Offsets[dim+1] = Offsets[dim]*GridDimension[dim]; 
   }
-  for (int field = 0; field < NumberOfFields; field++) {
 
+  for (int field = 0; field < NumberOfFields; field++) {
     doField = false;
     if (SecondDerivativeFlaggingFields[0]==INT_UNDEFINED){ 
       MinimumSecondDerivativeForRefinementThis=MinimumSecondDerivativeForRefinement[0];
@@ -126,12 +126,15 @@ int grid::FlagCellsToBeRefinedBySecondDerivative()
           BottomBuffer[index] = 0.0;
           for (int dimk = 0; dimk < GridRank; dimk++){
             for (int diml = 0; diml < GridRank; diml++){
-              /* zero slope */
+              // Top buffer is the 2nd order partial derivatives
               TopBuffer[index] += 
                   0.125*POW(BaryonField[field][index + Offsets[dimk] + Offsets[diml]] -
                             BaryonField[field][index + Offsets[dimk] - Offsets[diml]] -
                             BaryonField[field][index - Offsets[dimk] + Offsets[diml]] +
                             BaryonField[field][index - Offsets[dimk] - Offsets[diml]], 2.0);
+              // BottomBuffer is the normalization, which is an average of the 
+              // first derivatives + SecondDerivativeEpsilong * an average of 
+              // the field values, filtering out oscillations. 
               BottomBuffer[index] +=
                   POW(0.5*(fabs(BaryonField[field][index + Offsets[dimk]] -
                                 BaryonField[field][index]) +
