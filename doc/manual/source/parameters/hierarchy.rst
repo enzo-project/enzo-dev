@@ -22,19 +22,28 @@ Hierarchy Control Parameters
     Note that some methods have additional parameters which are
     described below. Default: 1
 
-    :: 
-
-       1 - refine by slope		       9 - refine by shear
-       2 - refine by baryon mass	       10 - refine by optical depth (in RT calculation)
-       3 - refine by shocks 		       11 - refine by resistive length (in MHD calculation)
-       4 - refine by particle mass	       12 - refine by defined region "MustRefineRegion"
-       5 - refine by baryon overdensity	       13 - refine by metallicity
-       	  (currently disabled)                 14 - refine around shockwaves
-       6  - refine by Jeans length             16 - refine by Jeans length from the inertial tensor	       
-       7  - refine if (cooling time < cell width/sound speed)
-       8 - refine by must-refine particles
-       100 - avoid refinement based on ForbiddenRefinement field
-       101 - avoid refinement in regions defined in "AvoidRefineRegion" 
+    ================== ==========================================================
+    CellFlaggingMethod Description
+    ================== ==========================================================
+    1                  Refine by slope
+    2                  Refine by baryon mass
+    3                  Refine by shocks
+    4                  Refine by particle mass
+    5                  Refine by baryon overdensity
+    6                  Refine by Jeans length
+    7                  Refine if (cooling time < cell width/sound speed)
+    8                  Refine by must-refine particles
+    9                  Refine by shear
+    10                 Refine by optical depth (in RT calculation)
+    11                 Refine by resistive length (in MHD calculation)
+    12                 Refine by defined region "MustRefineRegion"
+    13                 Refine by metallicity
+    14                 Refine by shockwaves (found w/shock finder)
+    15                 Refine by normalized second derivative
+    16                 Refine by Jeans length from the inertial tensor
+    100                Avoid refinement based on ForbiddenRefinement field
+    101                Avoid refinement in regions defined in "AvoidRefineRegion"
+    ================== ==========================================================
 
 ``RefineRegionLeftEdge``, ``RefineRegionRightEdge`` (external)
     These two parameters control the region in which refinement is
@@ -155,6 +164,20 @@ Hierarchy Control Parameters
     The minimum shock velocity required to refine a level when using ShockwaveRefinement. Default: 1.0e7 (cm/s)
 ``ShockwaveRefinementMaxLevel`` (external)
     The maximum level to refine to using the ShockwaveRefinement criteria. Default: 0 (not used)
+``SecondDerivativeFlaggingFields`` (external)
+    The field indices (list of up to 7) that are used for the normalized second
+    derivative refinement criteria. Default: INT_UNDEFINED
+``MinimumSecondDerivativeForRefinement`` (external)
+    The value of the second derivative above which a cell will be flagged for
+    refinement. Each value in this list (of up to 7 values) should be between
+    0.0 and 1.0.  Values between 0.3-0.8 are recommended.  Default: 0.3
+``SecondDerivativeEpsilon`` (external)
+    Used to avoid refining around oscillations/fluctuations in the normalized
+    second derivative refinement method.  The higher the value, the more it
+    will filter out.  For fluid instability simulations, a value of ~0.01 is
+    good.  For full-physics simulations, values around ~0.2 are recommended. Be
+    aware that fluctuations on this scale in initial conditions may cause
+    immediate refinement to the maximum level.  Default: 1.0e-2
 ``RefineByJeansLengthSafetyFactor`` (external)
     If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
     is being used, then this parameter specifies the number of cells
