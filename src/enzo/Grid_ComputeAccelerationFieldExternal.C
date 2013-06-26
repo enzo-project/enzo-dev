@@ -386,9 +386,9 @@ int grid::ComputeAccelerationFieldExternal()
                       + pow(SDiskScaleHeightz*Mpc,2))
                      )/AccelUnits;
 
-         accelsph = fabs(accelsph)/(radius/LengthUnits)/AccelUnits;
-         accelcylR = fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits;
-         accelcylz = fabs(accelcylz)*zheight/fabs(zheight);
+         accelsph  = (radius ==0.0?0.0:fabs(accelsph )/(radius/LengthUnits)/AccelUnits);
+         accelcylR = (rcyl   ==0.0?0.0:fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits);
+         accelcylz = (zheight==0.0?0.0:fabs(accelcylz)*zheight/fabs(zheight));
 
          if (dim == 0)
            AccelerationField[0][n] -= (   accelsph*xpos
