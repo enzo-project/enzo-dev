@@ -385,23 +385,23 @@ int grid::ComputeAccelerationFieldExternal()
                     *(  SDiskScaleHeightR*Mpc+sqrt(pow(zheight*LengthUnits,2)
                       + pow(SDiskScaleHeightz*Mpc,2))
                      )/AccelUnits;
-         accelsph = accelsph/(radius/LengthUnits)/AccelUnits;
-         accelcylR = accelcylR/(rcyl/LengthUnits)/AccelUnits;
 
-         /*Apply Force*/ /*generalized for rotation about y-axis*/
-         double xzcyl = sqrt(pow(zpos1,2)+pow(xpos1,2));
-         double xsign = 1.0, zsign = 1.0;
-         if (xpos1 < 0.0) xsign = -1.0;
-         if (zpos1 < 0.0) zsign = -1.0;
+         accelsph = fabs(accelsph)/(radius/LengthUnits)/AccelUnits;
+         accelcylR = fabs(accelcylR)/(rcyl/LengthUnits)/AccelUnits;
+         accelcylz = fabs(accelcylz)*zheight/fabs(zheight);
 
          if (dim == 0)
-           AccelerationField[0][n] -= accelsph*xpos+(accelcylR*xzcyl*xsign)*AngularMomentumz
-                                    + (accelcylz)*AngularMomentumx;
+           AccelerationField[0][n] -= (   accelsph*xpos
+                                        + accelcylR*xpos1
+                                        + accelcylz*AngularMomentumx);
          if (dim == 1)
-           AccelerationField[1][n] -= (accelsph*ypos1+accelcylR*ypos1);
+           AccelerationField[1][n] -= (  accelsph*ypos1
+                                        + accelcylR*ypos1
+                                        + accelcylz*AngularMomentumy);
          if (dim == 2)
-           AccelerationField[2][n] -= (accelsph*zpos+(accelcylz)*AngularMomentumz
-                                    + (accelcylR*xzcyl*zsign)*AngularMomentumx);
+           AccelerationField[2][n] -= (   accelsph*zpos
+                                        + accelcylR*zpos1
+                                        + accelcylz*AngularMomentumz);
 
       } } } // end: loop over grid (i/j/k)
     } // end: loop over dims
