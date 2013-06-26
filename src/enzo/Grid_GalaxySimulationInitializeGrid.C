@@ -54,9 +54,9 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
 void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, FLOAT &zrot, FLOAT inv [3][3]);
 
 /* Internal Routines for Disk Potential Setup */
-double DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT xpos,FLOAT ypos,FLOAT zpos,FLOAT density,FLOAT &temperature, bool printStats);
+double DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT density,FLOAT &temperature);
 double trapzd(double (func)(), double a, double b, int n);
-double qromb(double (*func)(double), double a, double b,bool printStats);
+double qromb(double (*func)(double), double a, double b);
 void polint(double xa[],double ya[],int n,double x,double *y,double *dy);
 double func1(double zint);
 double func2(double zint);
@@ -70,8 +70,6 @@ static double r2;
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits;
 
 double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm;
-
-int WHICH_COMP; // FIXME
 
 int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxyMass,
@@ -163,11 +161,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
  if (ProcessorNumber != MyProcessorNumber) 
    return SUCCESS;
-
-
-  fprintf(stderr,"%"ISYM"\t%"FSYM"\t%"ISYM"\t%"ISYM"\t%"ISYM"\t%"ISYM"\t%"ISYM"\n", 
-		0,ReturnWallTime(),MyProcessorNumber,level,GridDimension[0],GridDimension[1],GridDimension[2]); // FIXME
-
 
  /* Set various units. */
 
@@ -322,9 +315,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 
-	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits,xhat[0]*drad*LengthUnits,
-	        xhat[1]*drad*LengthUnits,xhat[2]*drad*LengthUnits, dens1, temp1,
-					( n%1==0 && MyProcessorNumber == 16 && level == 3 && GridDimension[0]*GridDimension[1]*GridDimension[2] == 104160 ));
+	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits, dens1, temp1);
 			}
       if( PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
@@ -410,9 +401,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 
      } // end loop over grid
-
-  fprintf(stderr,"%"ISYM"\t%"FSYM"\t%"ISYM"\t%"ISYM"\t%"ISYM"\t%"ISYM"\t%"ISYM"\n",
-    1,ReturnWallTime(),MyProcessorNumber,level,GridDimension[0],GridDimension[1],GridDimension[2]); // FIXME
 
  return SUCCESS;
 
@@ -551,7 +539,7 @@ void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, F
 /* 
  *	DISK POTENTIAL CIRCULAR VELOCITY
  */
-float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT density, FLOAT &temperature,bool printStats)
+float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLOAT &temperature)
 {
 
 	extern double drcyl;
@@ -579,10 +567,10 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 		zicm2=fabs(zicm2*gScaleHeightz*Mpc);
 
 		if( fabs(z) < fabs(zicm) ){
-			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z),printStats));
-			Pressure= bulgeComp + qromb(func2, fabs(zicm), fabs(z),printStats);
-			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func3, fabs(zicm2), fabs(z),printStats));
-			Pressure2= bulgeComp + qromb(func4, fabs(zicm2), fabs(z),printStats);
+			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z)));
+			Pressure= bulgeComp + qromb(func2, fabs(zicm), fabs(z));
+			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func3, fabs(zicm2), fabs(z)));
+			Pressure2= bulgeComp + qromb(func4, fabs(zicm2), fabs(z));
 		}  // end |z| < |zicm| if
 	}
   else {
@@ -609,11 +597,11 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 
 			if (fabs(z) < fabs(zicm)) {
 
-				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z),printStats));
-				Pressure  = (bulgeComp+ qromb(func2, fabs(zicm), fabs(z),printStats))
+				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z)));
+				Pressure  = (bulgeComp+ qromb(func2, fabs(zicm), fabs(z)))
 				            *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))));
-				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func3, fabs(zicm2), fabs(z),printStats));
-    		Pressure2 = (bulgeComp + qromb(func4, fabs(zicm2), fabs(z),printStats))
+				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func3, fabs(zicm2), fabs(z)));
+    		Pressure2 = (bulgeComp + qromb(func4, fabs(zicm2), fabs(z)))
 				            *(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc))));
 			} // end |z| < |zicm| if
 
@@ -645,7 +633,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT xpos, FLOAT 
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
 	/* Calculate pressure gradient */
-	FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; //(av_den(cellwidth*LengthUnits, z, xpos, ypos, zpos)*DensityUnits);
+	FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; 
 
 	/* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
 	FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*pow(DiskGravityDarkMatterR*Mpc,3)/pow(rsph,3)*drcyl*LengthUnits
@@ -767,12 +755,13 @@ void polint(double xa[],double ya[],int n,double x,double *y,double *dy)
 } // end polint
 
 #define EPS 1.0e-6
-#define JMAX 40
+#define JMAX 20
 #define JMAXP JMAX+1
 
 /* Main integration routine called by DiskPotentialCircularVelocity to find Pressure */
-double qromb(double (*func)(double), double a, double b, bool printStats) // FIXME
+double qromb(double (*func)(double), double a, double b)
 {
+	if( a == b ) return 0.0;
 	double ss,dss,trapzd(double (*func)(double), double a, double b, int n);
   int j;
   double h[JMAXP+1], s[JMAXP+1];
@@ -781,25 +770,16 @@ double qromb(double (*func)(double), double a, double b, bool printStats) // FIX
   h[1] = 1.0;
   for (j=1;j<=JMAX;j++){
     s[j] = trapzd(func,a,b,j);
-    if( s[j] != s[j] ) ENZO_FAIL("NaN's during pressure integration in GalaxySimulationInitialize");
+    if( isnan(s[j]) ) ENZO_FAIL("NaN's during pressure integration in GalaxySimulationInitialize");
     if (j >= K) {
       polint(&h[j-K],&s[j-K],K,0.0,&ss,&dss);
-      if (fabs(dss) < EPS*fabs(ss)) {
-        if( printStats ) // FIXME
-					fprintf(stdout,">>>>%"FSYM"\t%"FSYM"\t%"ESYM"\t%"FSYM"\t%"ISYM"\n",a/Mpc,b/Mpc,ss,drcyl*LengthUnits/Mpc,j);
-        if( j > 11 ) { // should be rare FIXME
-          fprintf(stderr,"a,b,ss,drcyl,[j] = %"FSYM", %"FSYM", %"ESYM", %"FSYM", [%"ISYM"]\n",a/Mpc,b/Mpc,ss,drcyl*LengthUnits/Mpc,j);
-				ENZO_FAIL("TOO MANY ITERATIONS IN QROMB\n");
-				} // end j for
-				return ss;
-			}// end if 
+			if (fabs(dss) < EPS*fabs(ss)) return ss;
     }
     s[j+1]=s[j];
     h[j+1]=0.25*h[j]; 
   }
 	/* Print bug report and exit */
   fprintf(stderr,"Too many steps in routine QROMB\n");
-	fprintf(stderr,"\t>> Component = %"ISYM", ( Bulge:0 , Disk:1 ) \n",WHICH_COMP); // FIXME
   fprintf(stderr,"\t>> drcyl = %"FSYM", z = %"FSYM", z_icm = %"FSYM"\n", drcyl*LengthUnits/Mpc, a/Mpc, b/Mpc);
 	fprintf(stderr,"\t>> ss = %"FSYM", dss = %"FSYM"\n", ss, dss);
 	ENZO_FAIL("FAILED IN QROMB IN GRID_GALAXYSIMULATIONINIALIZE\n");
