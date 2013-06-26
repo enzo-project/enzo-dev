@@ -129,7 +129,9 @@ int grid::SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
 	index = GRIDINDEX_NOGHOST(GZStart[0], j, k);
 	for (i = GZStart[0]; i <= GZEnd[0]; i++, index++) {
 	  if (cellmask[index] == 0) {
-	    if (SubgridMarker[index] != NULL) {
+	    if ((long) SubgridMarker[index] == INT_UNDEFINED) {
+	      SubgridMarker[index] = NULL;
+	    } else {
 	      // When addresses are 64-bit, we have to crop the address
 	      packed_int = ((long) SubgridMarker[index] & 0xffffffff);
 	      GridID = packed_int & mask;
@@ -153,7 +155,9 @@ int grid::SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
 	index = GRIDINDEX_NOGHOST(GZStart[0], j, k);
 	for (i = GZStart[0]; i <= GZEnd[0]; i++, index++) {
 	  if (cellmask[index] == 0) {
-	    if (SubgridMarker[index] != NULL) {
+	    if ((long) SubgridMarker[index] == INT_UNDEFINED) {
+	      SubgridMarker[index] = NULL;
+	    } else {
 	      // When addresses are 64-bit, we have to crop the address
 	      packed_int = ((long) SubgridMarker[index] & 0xffffffff);
 	      GridID = packed_int & mask;
