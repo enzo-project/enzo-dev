@@ -613,6 +613,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
+  PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
   IMFData                          = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
