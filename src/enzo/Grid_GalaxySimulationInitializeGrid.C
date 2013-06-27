@@ -69,14 +69,16 @@ static double r2;
 
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits;
 
-double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm;
+double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm, TruncRadius, SmoothRadius, SmoothLength;
+
 
 int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxyMass,
 					 float GasMass,
 					 FLOAT DiskPosition[MAX_DIMENSION], 
 					 FLOAT ScaleHeightz,
-					 FLOAT ScaleHeightR, 
+					 FLOAT ScaleHeightR,
+           FLOAT GalaxyTruncationRadius, 
 					 float DMConcentration,
 					 float DiskTemperature,
 					 float InitialTemperature,
@@ -103,6 +105,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   densicm = UniformDensity;
   MgasScale = GasMass;
   Picm = kboltz*UniformDensity*InitialTemperature/(0.6*mh);
+  TruncRadius = GalaxyTruncationRadius;
+  SmoothRadius = TruncRadius*.02/.026;
+  SmoothLength = TruncRadius - SmoothRadius;
 
   /* create fields */
 
@@ -300,7 +305,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		  inv[j][i] = temp;
 		}
 
-			if( fabs(drcyl*LengthUnits/Mpc) > 0.026 ){
+			if( fabs(drcyl*LengthUnits/Mpc) > TruncRadius ){
 				dens1 = 0.0;
 				break;
 			}
@@ -354,7 +359,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	   	    
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
-	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= 0.026 ) {
+	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 	    density = dens1;
 	    if (temp1 == InitialTemperature)
 	      temp1 = DiskTemperature;
@@ -514,10 +519,10 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
 				if( PointSourceGravity > 0 )
 		      yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-rrot/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
 				else if( DiskGravity > 0 ){
-					if( rrot/Mpc < 0.02 )
+					if( rrot/Mpc < SmoothRadius )
 						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz);
-					else if( rrot/Mpc < 0.026 )
-						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-0.02*Mpc)/(0.006*Mpc)));
+					else if( rrot/Mpc < TruncRadius )
+						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
 				} // end disk gravity if
 	    }
 	  xResult[i] += cellwidth/2.0*Weights[j]*yResult[j];
@@ -556,7 +561,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 
 	/*	Determine zicm: the height above the disk where rho -> rho_ICM,
 	 *	use this to find P_icm and dP_icm  */
-	if (fabs(drcyl*LengthUnits/Mpc) <= 0.02) {
+	if (fabs(drcyl*LengthUnits/Mpc) <= SmoothRadius) {
 		zicm=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(drcyl*LengthUnits/gScaleHeightR/Mpc));
 		zicm=log(1.0/zicm+sqrt((1.0/pow(zicm,2))-1.0));
 		zicm=fabs(zicm*gScaleHeightz*Mpc);
@@ -574,23 +579,23 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 		}  // end |z| < |zicm| if
 	}
   else {
-    if (fabs(drcyl*LengthUnits/Mpc) <= 0.026) {
+    if (fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 
 			zicmf=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
-			      /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc)))));
+			      /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc)))));
 			zicm=log(1.0/zicmf+sqrt((1.0/pow(zicmf,2))-1.0));
 			zicm=fabs(zicm*gScaleHeightz*Mpc);			
 			if (zicmf > 1.0) zicm = 0.0;
 
 			zicm2f=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
-			      /cosh(r2/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc)))));
+			      /cosh(r2/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc)))));
 			zicm2=log(1.0/zicm2f+sqrt((1.0/pow(zicm2f,2))-1.0));
 			zicm2=fabs(zicm2*gScaleHeightz*Mpc);
 			if (zicm2f > 1.0) zicm2 = 0.0;
 
 			if (densicm >= (MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
 			                /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)/cosh(fabs(z)/gScaleHeightz/Mpc)
-			                *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))))) 
+			                *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc))))) 
 			    && fabs(z) < zicm) {
 				printf("small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
 			} // end small density if
@@ -599,20 +604,20 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 
 				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z)));
 				Pressure  = (bulgeComp+ qromb(func2, fabs(zicm), fabs(z)))
-				            *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-0.02*Mpc)/(0.006*Mpc))));
+				            *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
 				bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func3, fabs(zicm2), fabs(z)));
     		Pressure2 = (bulgeComp + qromb(func4, fabs(zicm2), fabs(z)))
-				            *(0.5*(1.0+cos(pi*(r2-0.02*Mpc)/(0.006*Mpc))));
+				            *(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
 			} // end |z| < |zicm| if
 
-  	} // end r_cyle < .026 if
-	} // end r_cyl < .02 if/else
+  	} // end r_cyle < TruncRadius if
+	} // end r_cyl < SmoothRadius if/else
 
 	denuse = density*DensityUnits; 
-	if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= 0.026 && fabs(z) <= fabs(zicm)) {
+	if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= TruncRadius && fabs(z) <= fabs(zicm)) {
 		fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc, drcyl*LengthUnits/Mpc);
 	}
-	if (fabs(drcyl)*LengthUnits/Mpc >= 0.026 || fabs(zicm) <= fabs(z)){
+	if (fabs(drcyl)*LengthUnits/Mpc >= TruncRadius || fabs(zicm) <= fabs(z)){
 		Pressure = 0.0;
 		Pressure2 = 0.0;
 		denuse = densicm;

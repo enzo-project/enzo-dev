@@ -88,7 +88,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   FLOAT GalaxySimulationDiskRadius,
     GalaxySimulationDiskPosition[MAX_DIMENSION],
     GalaxySimulationDiskScaleHeightz,
-    GalaxySimulationDiskScaleHeightR;
+    GalaxySimulationDiskScaleHeightR,
+    GalaxySimulationTruncationRadius;
+
 
   float GalaxySimulationInitialTemperature,
     GalaxySimulationDarkMatterConcentrationParameter,
@@ -115,6 +117,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationDiskTemperature    = 1.e4;     // [K]
   GalaxySimulationDiskScaleHeightz   = 325e-6;
   GalaxySimulationDiskScaleHeightR   = 3500e-6;
+  GalaxySimulationTruncationRadius   = .026; // [ Mpc ]
   GalaxySimulationDarkMatterConcentrationParameter = 12;
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
@@ -173,6 +176,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationDiskScaleHeightz);
     ret += sscanf(line, "GalaxySimulationDiskScaleHeightR = %"PSYM,
 		  &GalaxySimulationDiskScaleHeightR);
+    ret += sscanf(line, "GalaxySimulationTruncationRadius = %"PSYM,
+      &GalaxySimulationTruncationRadius);
     ret += sscanf(line, "GalaxySimulationDarkMatterConcentrationParameter = %"FSYM,
 		  &GalaxySimulationDarkMatterConcentrationParameter);
     ret += sscanf(line, "GalaxySimulationDiskTemperature = %"FSYM,
@@ -232,7 +237,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationGasMass,
 						       GalaxySimulationDiskPosition, 
 						       GalaxySimulationDiskScaleHeightz,
-						       GalaxySimulationDiskScaleHeightR, 
+						       GalaxySimulationDiskScaleHeightR,
+                   GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
@@ -286,7 +292,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationGasMass,
 						       GalaxySimulationDiskPosition, 
 						       GalaxySimulationDiskScaleHeightz,
-						       GalaxySimulationDiskScaleHeightR, 
+						       GalaxySimulationDiskScaleHeightR,
+                   GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
@@ -432,6 +439,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	   GalaxySimulationDiskScaleHeightz);
    fprintf(Outfptr, "GalaxySimulationDiskScaleHeightR = %"GOUTSYM"\n",
 	   GalaxySimulationDiskScaleHeightR);
+   fprintf(Outfptr, "GalaxySimulationTruncationRadius = %"GOUTSYM"\n",
+     GalaxySimulationTruncationRadius);
    fprintf(Outfptr, "GalaxySimulationDarkMatterConcentrationParameter = %"GOUTSYM"\n",
 	   GalaxySimulationDarkMatterConcentrationParameter);
    fprintf(Outfptr, "GalaxySimulationDiskTemperature = %"GOUTSYM"\n",
