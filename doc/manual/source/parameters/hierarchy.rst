@@ -237,6 +237,39 @@ Hierarchy Control Parameters
     These two parameters specify the two corners of a region that
     limits refinement to a certain level (see the previous
     parameter). Default: none
+``MultiRefineRegionGeometry[#]`` (external)
+    This parameter (and the ones following) describe a physical region of the simulation box for which an 
+    independent refinement maximum and minimum (separate from ``MaximumRefinementLevel``) can be specified.
+    ``MultiRefineRegionGeometry`` controls the geometry of the refined volume. Currently implemented 
+    geometries are: (0) a rectangular region, (1) a ring of infinite height and (2) a cyclinder of infinite 
+    height. Up to 20 multi-refined regions may be defined (number the same as for ``StaticRefineRegion``)
+    and each multi-refined region is labelled starting from zero. Default: -1 (no multi-regions)
+``MultiRefineRegionLeftEdge[#]``, ``MultiRefineRegionRightEdge[#]`` (external)
+    Used when ``MultiRefineRegionGeometry[#] = 0`` and specifies the two corners in code units of a 
+    rectagular multi-region with a given maximum and minimum refinement level. Default: none.
+``MultiRefineRegionCenter[#]`` (external)
+    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the center of the ring or cylinder 
+    in code units. Default: none
+``MultiRefineRegionRadius[#]`` (external)
+    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and specifies the radius of the ring or cylinder 
+    in code units. In the case of the ring, this marks the distance to the middle of the ring's thickness. 
+    The thickness is specified with ``MultiRefineRegionWidth``. Default: none
+``MultiRefineRegionWidth[#]`` (external)
+    Used when ``MultiRefineRegionGeometry[#] = 1`` and specifies the width (thickness) of the ring in 
+    code units. Default: none
+``MultiRefineRegionOrientation[#]`` (external)
+    Used when ``MultiRefineRegionGeometry[#] = 1 or 2`` and is a unit vector pointing along the vertical
+    direction of the ring or cylinder. Default: none.
+``MultiRefineRegionStaggeredRefinement[#]`` (external)
+    Used when ``MultiRefineRegionGeometry[#] = 1 or 2``. To avoid a sharp change in refinement at the edge of
+    the ring or cylinder, the allowed refinement is staggered from the maximum allowed value outside the 
+    region, ``MultiRefineRegionOuterMaximumLevel``, to the maximum allowed refinement inside the region, 
+    ``MultiRefineRegionMaximumLevel``. This parameter is the length over which that staggering occurs in 
+    code units. Default: 0.0 (no staggering)
+``MultiRefineRegionMaximumLevel[#]``, ``MultiRefineRegionMinimumLevel[#]`` (external)
+    Maximum and minimum allowed refinement inside the region. Default: ``MaximumRefinementLevel``, 0
+``MultiRefineRegionOuterMaximumLevel[#]``, ``MultiRefineRegionOuterMinimumLevel[#]`` (external)
+    Maximum and minimum allowed refinement outside all regions. Default: ``MaximumRefinementLevel``, 0
 ``MinimumEfficiency`` (external)
     When new grids are created during the rebuilding process, each grid
     is split up by a recursive bisection process that continues until a

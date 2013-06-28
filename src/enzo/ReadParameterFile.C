@@ -74,7 +74,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   
   char line[MAX_LINE_LENGTH];
   int i, dim, ret, int_dummy;
-  float TempFloat;
+  float TempFloat, float_dummy;
   char *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
   int comment_count = 0;
@@ -359,6 +359,64 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "MustRefineRegionRightEdge  = %"PSYM" %"PSYM" %"PSYM,
 		  MustRefineRegionRightEdge, MustRefineRegionRightEdge+1,
 		  MustRefineRegionRightEdge+2);
+  
+    /* Parameters for the MultiRefineRegion mechanics */
+    
+    ret += sscanf(line, "MultiRefineRegionMaximumOuterLevel  = %"ISYM, &MultiRefineRegionMaximumOuterLevel);
+    ret += sscanf(line, "MultiRefineRegionMinimumOuterLevel  = %"ISYM, &MultiRefineRegionMinimumOuterLevel);
+    if (sscanf(line, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2) 
+      {
+	if (dim > MAX_STATIC_REGIONS-1) 
+	  ENZO_VFAIL("MultiRefineRegion number %"ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim);
+	if (int_dummy > MaximumRefinementLevel)
+	  ENZO_VFAIL("MultiRefineRegionMaximumLevel %"ISYM"  > MaximumRefinementLevel\n", int_dummy);
+	ret++;
+	MultiRefineRegionMaximumLevel[dim] = int_dummy;
+      }
+    if (sscanf(line, "MultiRefineRegionGeometry[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2){
+      ret++;
+      MultiRefineRegionGeometry[dim] = int_dummy;
+    }
+    if (sscanf(line, "MultiRefineRegionMinimumLevel[%"ISYM"] = %"ISYM, &dim, &int_dummy) == 2){
+      ret++;
+      MultiRefineRegionMinimumLevel[dim] = int_dummy;
+    }
+    if (sscanf(line, "MultiRefineRegionRadius[%"ISYM"] = %"PSYM, &dim, &float_dummy) == 2){
+      ret++;
+      MultiRefineRegionRadius[dim] = float_dummy;
+    }
+    if (sscanf(line, "MultiRefineRegionWidth[%"ISYM"] = %"PSYM, &dim, &float_dummy) == 2){
+      ret++;
+      MultiRefineRegionWidth[dim] = float_dummy;
+    }
+    if (sscanf(line, "MultiRefineRegionStaggeredRefinement[%"ISYM"] = %"PSYM, &dim, &float_dummy) == 2){
+      ret++;
+      MultiRefineRegionStaggeredRefinement[dim] = float_dummy;
+    }
+    if (sscanf(line, "MultiRefineRegionCenter[%"ISYM"] = ", &dim) == 1)
+      ret += sscanf(line,
+		    "MultiRefineRegionCenter[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    &dim, MultiRefineRegionCenter[dim],
+		    MultiRefineRegionCenter[dim]+1,
+		    MultiRefineRegionCenter[dim]+2);
+    if (sscanf(line, "MultiRefineRegionOrientation[%"ISYM"] = ", &dim) == 1)
+      ret += sscanf(line,
+		    "MultiRefineRegionOrientation[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    &dim, MultiRefineRegionOrientation[dim],
+		    MultiRefineRegionOrientation[dim]+1,
+		    MultiRefineRegionOrientation[dim]+2);
+    if (sscanf(line, "MultiRefineRegionLeftEdge[%"ISYM"] = ", &dim) == 1)
+      ret += sscanf(line,
+		    "MultiRefineRegionLeftEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    &dim, MultiRefineRegionLeftEdge[dim],
+		    MultiRefineRegionLeftEdge[dim]+1,
+		    MultiRefineRegionLeftEdge[dim]+2);
+    if (sscanf(line, "MultiRefineRegionRightEdge[%"ISYM"] = ", &dim) == 1)
+      ret += sscanf(line,
+		    "MultiRefineRegionRightEdge[%"ISYM"] = %"PSYM" %"PSYM" %"PSYM,
+		    &dim, MultiRefineRegionRightEdge[dim],
+		    MultiRefineRegionRightEdge[dim]+1,
+		    MultiRefineRegionRightEdge[dim]+2);
 
     /* Read evolving RefineRegion */
 
@@ -1107,6 +1165,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "Units")               ) ret++;
     if (strstr(line, "RadiatingShock")      ) ret++;
     if (strstr(line, "RotatingCylinder")    ) ret++;
+    if (strstr(line, "RotatingDisk")    ) ret++;
     if (strstr(line, "RotatingSphere")    ) ret++;
     if (strstr(line, "StratifiedMediumExplosion")) ret++;
     if (strstr(line, "TestOrbit")    ) ret++;

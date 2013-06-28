@@ -790,6 +790,11 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int SetFlaggingField(int &NumberOfFlaggedCells, int level);
 
+
+/* Set flagging field from refine regions */
+
+   int SetFlaggingFieldMultiRefineRegions(int level);
+
 /* Set flagging field from static regions */
 
    int SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells);
@@ -1811,6 +1816,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT RotatingCylinderCenterPosition[MAX_DIMENSION],
 				     float RotatingCylinderLambda,
 				     float RotatingCylinderOverdensity);
+
+  int RotatingDiskInitializeGrid(float RDScaleRadius,
+				 float RDScaleHeight, 
+				 float RDTemperature,
+				 float RDDMConcentration, 
+				 float RDTotalDMMass,
+				 float RDCentralDensity,
+				 float RDOuterEdge);
 
   int RotatingSphereInitializeGrid(FLOAT RotatingSphereRadius,
 				     FLOAT RotatingSphereCenterPosition[MAX_DIMENSION],

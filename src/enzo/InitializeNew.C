@@ -64,6 +64,8 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData);
 int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -433,6 +435,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 12)
     ret = FreeExpansionInitialize(fptr, Outfptr, TopGrid, MetaData);
  
+  // 13) RotatingDisk
+  if (ProblemType == 13)
+    ret = RotatingDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+
   // 20) Zeldovich Pancake
  
   if (ProblemType == 20)
