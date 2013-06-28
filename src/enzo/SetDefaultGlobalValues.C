@@ -218,7 +218,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
     MinimumMassForRefinementLevelExponent[i] = 0;
+    MinimumSecondDerivativeForRefinement[i]= 0.3;
+    SecondDerivativeFlaggingFields[i] = INT_UNDEFINED;
   }
+  SecondDerivativeEpsilon = 1.0e-2;
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainLeftEdge[dim]             = 0.0;
@@ -315,6 +318,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GravityResolution           = 1.0;               // equivalent to grid
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
+  ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time

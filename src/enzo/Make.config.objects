@@ -316,6 +316,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CheckForPossibleOverlap.o \
         Grid_CheckForSharedFace.o \
 	grid_cic.o \
+	grid_ngp.o \
 	Grid_CleanUpMovedParticles.o \
 	Grid_CleanUp.o \
 	Grid_ClearBoundaryFluxes.o \
@@ -424,6 +425,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByShocks.o \
 	Grid_FlagCellsToBeRefinedByShockwaves.o \
 	Grid_FlagCellsToBeRefinedBySlope.o \
+	Grid_FlagCellsToBeRefinedBySecondDerivative.o \
 	Grid_FlagRefinedCells.o \
 	Grid_FlagGridArray.o \
 	Grid_FreeExpansionInitializeGrid.o \
@@ -657,6 +659,7 @@ OBJS_CONFIG_LIB = \
         mused.o \
         NestedCosmologySimulationInitialize.o \
         ngpinterp.o \
+        ngp_deposit.o \
         NohInitialize.o \
         nr_1d.o \
         nr_2d.o \

@@ -413,6 +413,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ComputePotential      = %"ISYM, &ComputePotential);
     ret += sscanf(line, "PotentialIterations   = %"ISYM, &PotentialIterations);
     ret += sscanf(line, "WritePotential        = %"ISYM, &WritePotential);
+    ret += sscanf(line, "ParticleSubgridDepositMode  = %"ISYM, &ParticleSubgridDepositMode);
     ret += sscanf(line, "WriteAcceleration      = %"ISYM, &WriteAcceleration);
     ret += sscanf(line, "BaryonSelfGravityApproximation = %"ISYM,
 		  &BaryonSelfGravityApproximation);
@@ -626,7 +627,30 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumSlopeForRefinement+5,
 		  MinimumSlopeForRefinement+6);
 
- 
+     ret += sscanf(line, "SecondDerivativeFlaggingFields = "
+		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+		  SecondDerivativeFlaggingFields+0, 
+		  SecondDerivativeFlaggingFields+1,
+		  SecondDerivativeFlaggingFields+2, 
+		  SecondDerivativeFlaggingFields+3,
+		  SecondDerivativeFlaggingFields+4,
+		  SecondDerivativeFlaggingFields+5,
+		  SecondDerivativeFlaggingFields+6);
+    
+    ret += sscanf(line, "MinimumSecondDerivativeForRefinement = " 	  
+		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
+	
+		  MinimumSecondDerivativeForRefinement+0,
+		  MinimumSecondDerivativeForRefinement+1,
+		  MinimumSecondDerivativeForRefinement+2,
+		  MinimumSecondDerivativeForRefinement+3,
+		  MinimumSecondDerivativeForRefinement+4,  
+		  MinimumSecondDerivativeForRefinement+5,
+		  MinimumSecondDerivativeForRefinement+6);
+
+    ret += sscanf(line, "SecondDerivativeEpsilon  = %"FSYM,
+		  &SecondDerivativeEpsilon);
+
     ret += sscanf(line, "MinimumOverDensityForRefinement  = "
 		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
 		  MinimumOverDensityForRefinement+0, 
@@ -636,6 +660,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumOverDensityForRefinement+4, 
 		  MinimumOverDensityForRefinement+5,
 		  MinimumOverDensityForRefinement+6);
+
     ret += sscanf(line, "MinimumMassForRefinement  = "
 		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
 		  MinimumMassForRefinement+0, 
@@ -645,6 +670,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumMassForRefinement+4, 
 		  MinimumMassForRefinement+5,
 		  MinimumMassForRefinement+6);
+
     ret += sscanf(line, "MinimumMassForRefinementLevelExponent = "
 		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
 		  MinimumMassForRefinementLevelExponent+0,
@@ -654,15 +680,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumMassForRefinementLevelExponent+4,
 		  MinimumMassForRefinementLevelExponent+5,
 		  MinimumMassForRefinementLevelExponent+6);
-    ret += sscanf(line, "MinimumSlopeForRefinement ="
-		  " %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM,
-		  MinimumSlopeForRefinement+0,
-		  MinimumSlopeForRefinement+1,
-		  MinimumSlopeForRefinement+2,
-		  MinimumSlopeForRefinement+3,
-		  MinimumSlopeForRefinement+4,
-		  MinimumSlopeForRefinement+5,
-		  MinimumSlopeForRefinement+6);
+
     ret += sscanf(line, "MinimumPressureJumpForRefinement = %"FSYM,
 		  &MinimumPressureJumpForRefinement);
     ret += sscanf(line, "MinimumShearForRefinement = %"FSYM,

@@ -148,6 +148,7 @@ EXTERN int FastSiblingLocatorEntireDomain;
 			 11 = FlagCellsToBeRefinedByResistiveLength
                          12 = FlagCellsToBeRefinedByMustRefineRegion
 			 13 = FlagCellsToBeRefinedByMetallicity
+       15 = FlagCellsToBeRefinedBySecondDerivative
  */
 
 EXTERN int CellFlaggingMethod[MAX_FLAGGING_METHODS];
@@ -291,6 +292,14 @@ EXTERN int ComputePotential;
 /* Flag to indicate output for gravitational potential field. */
 
 EXTERN int WritePotential;
+
+/* Parameter to control how particles in a subgrid are deposited in
+   the target grid.  Options are: 
+     CIC_DEPOSIT - cloud in cell using cloud size equal to target grid size
+     CIC_DEPOSIT_SMALL - CIC using cloud size equal to source grid size
+     NGP_DEPOSIT - nearest grid point */
+
+EXTERN int ParticleSubgridDepositMode;
 
 /* Maximum number of GreensFunctions that will be stored in any time.
    This number must be less than MAX_NUMBER_OF_GREENS_FUNCTIONS. */
@@ -555,6 +564,12 @@ EXTERN float RefineByResistiveLengthSafetyFactor;
 EXTERN float ShockwaveRefinementMinMach;
 EXTERN float ShockwaveRefinementMinVelocity;
 EXTERN int ShockwaveRefinementMaxLevel;
+
+/* For CellFlaggingMethod = 15,   
+   Minimum second derivative required for refinement.    */
+EXTERN float MinimumSecondDerivativeForRefinement[MAX_FLAGGING_METHODS];
+EXTERN int SecondDerivativeFlaggingFields[MAX_FLAGGING_METHODS];
+EXTERN float SecondDerivativeEpsilon;
 
 /* Noh problem switch: Upper-Right quadrant or full domain */
 

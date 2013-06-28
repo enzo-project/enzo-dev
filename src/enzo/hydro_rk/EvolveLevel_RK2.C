@@ -460,6 +460,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
               (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
 
         else if (HydroMethod == MHD_RK) {
+
           Grids[grid1]->GridData->MHDRK2_2ndStep
               (SubgridFluxesEstimate[grid1], NumberOfSubgrids[grid1], level, Exterior);
           if (UseAmbipolarDiffusion) 
