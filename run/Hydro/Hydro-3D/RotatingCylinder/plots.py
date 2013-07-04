@@ -1,49 +1,46 @@
+from matplotlib import pyplot
+
 from yt.mods import *
-import yt.extensions.EnzoSimulation as ES
 
 # Create image slices and plot the evolution of the total angular momentum of the system. 
 
-es = ES.EnzoSimulation("RotatingCylinder.enzo", initial_time=0.0, final_time=26)
+es = simulation("RotatingCylinder.enzo", "Enzo")
+es.get_time_series(initial_time=0.0, final_time=26)
 
 AngMom = []
 time = []
-i = 0
 
-for output in es.allOutputs:
-    # load up a dataset
-    pf = load(output['filename'])
-
+for pf in es:
     # calculate total angular momentum of simulation volume
     data = pf.h.all_data()
-    AngMom.append(data.quantities["TotalQuantity"]("AngularMomentum")[0])    
+    my_ang = np.array(data.quantities["TotalQuantity"](["AngularMomentumX",
+                                                        "AngularMomentumY",
+                                                        "AngularMomentumZ"]))
+    AngMom.append(np.sqrt((my_ang**2).sum()))
 
-    # calculate the time of output
-    time.append(2.0*i)
-    i = i + 1
+    # get current time
+    time.append(pf.current_time * pf.time_units['Myr'])
 
     # create density slices
-    pc = PlotCollection(pf, center=[0.5,0.5,0.5])
-    pc.add_slice("Density", 0)
-    pc.save("t%s" % str(time[i-1]))
-
+    plot = SlicePlot(pf, 'x', 'Density')
+    plot.annotate_text((-0.1, -0.05), "t = %f" % pf.current_time)
+    plot.save()
 
 # plot the percentage change in angular momentum
+AngMom = np.array(AngMom)
 AngMomInitial = AngMom[0]
-AngMomPercentageChange = []
-AngMomPercentageChangeEachMyr = []
+AngMomPercentageChange = 100. * (AngMom - AngMom[0]) / AngMom[0]
+AngMomPercentageChangeEachMyr = 100. * (AngMom[1:] / AngMom[:-1] - 1) / 2.
+AngMomPercentageChangeEachMyr = np.concatenate([[0.0], AngMomPercentageChangeEachMyr])
+    
+pyplot.xlabel("Time [Myr]")
+pyplot.ylabel("Percentage Increase in Total Angular Momentum")
+pyplot.plot(time, AngMomPercentageChange, 'b', label='Net change')
+pyplot.plot(time, AngMomPercentageChangeEachMyr, 'r', label='Change per Myr')
+pyplot.legend()
+pyplot.savefig('AngMom.png')
 
-for i, item in enumerate(AngMom):
-    AngMomPercentageChange.append(100.0*(item - AngMomInitial)/AngMomInitial)
-    AngMomPercentageChangeEachMyr.append(100.0*(item - AngMom[i-1])/AngMom[i-1]/2.0)
-
-pylab.xlabel("Time [Myr]")
-pylab.ylabel("Percentage Increase in Total Angular Momentum")
-pylab.plot(time, AngMomPercentageChange, 'b', label='Net change')
-pylab.plot(time, AngMomPercentageChangeEachMyr, 'r', label='Change per Myr')
-pylab.legend()
-pylab.savefig('AngMom.png')
-pylab.show()
-
-print "Net L change, Maximum L change: ", max(AngMomPercentageChange), max(AngMomPercentageChangeEachMyr)
+print "Net L change, Maximum L change: ", max(AngMomPercentageChange), \
+  max(AngMomPercentageChangeEachMyr)
 
 
