@@ -411,6 +411,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ComputePotential               = %"ISYM"\n", ComputePotential);
   fprintf(fptr, "PotentialIterations            = %"ISYM"\n", PotentialIterations);
   fprintf(fptr, "WritePotential                 = %"ISYM"\n", WritePotential);
+  fprintf(fptr, "ParticleSubgridDepositMode     = %"ISYM"\n", ParticleSubgridDepositMode);
   fprintf(fptr, "BaryonSelfGravityApproximation = %"ISYM"\n",
 	  BaryonSelfGravityApproximation);
 
@@ -567,6 +568,52 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
       WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionRightEdge[dim]);
     }
 
+
+  fprintf(fptr, "MultiRefineRegionMaximumOuterLevel  = %"ISYM"\n",
+          MultiRefineRegionMaximumOuterLevel);
+  fprintf(fptr, "MultiRefineRegionMinimumOuterLevel  = %"ISYM"\n",
+          MultiRefineRegionMinimumOuterLevel);
+  
+  for (dim = 0; dim < MAX_STATIC_REGIONS; dim++){ 
+ 
+    fprintf(fptr, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"\n", dim,
+	    MultiRefineRegionMaximumLevel[dim]);
+    
+    fprintf(fptr, "MultiRefineRegionMinimumLevel[%"ISYM"] = %"ISYM"\n", dim,
+	    MultiRefineRegionMinimumLevel[dim]);
+
+    fprintf(fptr, "MultiRefineRegionGeometry[%"ISYM"] = %"ISYM"\n", dim,
+	    MultiRefineRegionGeometry[dim]);
+
+    fprintf(fptr, "MultiRefineRegionRadius[%"ISYM"] = %"GSYM"\n", dim,
+	    MultiRefineRegionRadius[dim]);
+
+    fprintf(fptr, "MultiRefineRegionWidth[%"ISYM"] = %"GSYM"\n", 
+	    MultiRefineRegionWidth[dim]);
+
+    fprintf(fptr, "MultiRefineRegionStaggeredRefinement[%"ISYM"] =%"GSYM"\n", 
+	    MultiRefineRegionStaggeredRefinement[dim]);
+
+    fprintf(fptr, "MultiRefineRegionLeftEdge[%"ISYM"] = ", dim);
+    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionLeftEdge[dim]);
+
+    fprintf(fptr, "MultiRefineRegionRightEdge[%"ISYM"] = ", dim);
+    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionRightEdge[dim]);
+    
+    fprintf(fptr, "MultiRefineRegionCenter[%"ISYM"] = ", dim);
+    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionCenter[dim]);
+
+    fprintf(fptr, "MultiRefineRegionOrientation[%"ISYM"] = ", dim);
+    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionOrientation[dim]);
+
+    fprintf(fptr, "\n");
+
+  }
+
+  fprintf(fptr, "\n");
+  fprintf(fptr, "\n");
+
+
   for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
     if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
       fprintf(fptr, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
@@ -628,6 +675,28 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumSlopeForRefinement[5],
 	  MinimumSlopeForRefinement[6]);
 
+  fprintf(fptr, "SecondDerivativeFlaggingFields ="
+	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+	  SecondDerivativeFlaggingFields[0], 
+	  SecondDerivativeFlaggingFields[1],
+	  SecondDerivativeFlaggingFields[2], 
+	  SecondDerivativeFlaggingFields[3],
+	  SecondDerivativeFlaggingFields[4],
+	  SecondDerivativeFlaggingFields[5],
+	  SecondDerivativeFlaggingFields[6]);
+
+  fprintf(fptr, "MinimumSecondDerivativeForRefinement ="
+	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",
+	  MinimumSecondDerivativeForRefinement[0],
+	  MinimumSecondDerivativeForRefinement[1],
+	  MinimumSecondDerivativeForRefinement[2],
+	  MinimumSecondDerivativeForRefinement[3],
+	  MinimumSecondDerivativeForRefinement[4],
+	  MinimumSecondDerivativeForRefinement[5],
+	  MinimumSecondDerivativeForRefinement[6]);
+
+  fprintf(fptr, "SecondDerivativeEpsilon = %"GSYM"\n",
+	  SecondDerivativeEpsilon);
 
   fprintf(fptr, "MinimumOverDensityForRefinement ="
 	  " %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM" %"GSYM"\n",

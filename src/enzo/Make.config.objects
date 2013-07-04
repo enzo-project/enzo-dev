@@ -316,6 +316,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CheckForPossibleOverlap.o \
         Grid_CheckForSharedFace.o \
 	grid_cic.o \
+	grid_ngp.o \
 	Grid_CleanUpMovedParticles.o \
 	Grid_CleanUp.o \
 	Grid_ClearBoundaryFluxes.o \
@@ -424,6 +425,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByShocks.o \
 	Grid_FlagCellsToBeRefinedByShockwaves.o \
 	Grid_FlagCellsToBeRefinedBySlope.o \
+	Grid_FlagCellsToBeRefinedBySecondDerivative.o \
 	Grid_FlagRefinedCells.o \
 	Grid_FlagGridArray.o \
 	Grid_FreeExpansionInitializeGrid.o \
@@ -524,10 +526,12 @@ OBJS_CONFIG_LIB = \
 	Grid_RHIonizationSteepInitializeGrid.o \
 	Grid_RHIonizationTestInitializeGrid.o \
 	Grid_RotatingCylinderInitialize.o \
+	Grid_RotatingDiskInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid3D.o \
 	Grid_SetExternalBoundaryValues.o \
 	Grid_SetFlaggingField.o \
+	Grid_SetFlaggingFieldMultiRefineRegions.o \
 	Grid_SetFlaggingFieldStaticRegions.o \
 	Grid_SetIsolatedPotentialBoundary.o \
 	Grid_SetMinimumSupport.o \
@@ -657,6 +661,7 @@ OBJS_CONFIG_LIB = \
         mused.o \
         NestedCosmologySimulationInitialize.o \
         ngpinterp.o \
+        ngp_deposit.o \
         NohInitialize.o \
         nr_1d.o \
         nr_2d.o \
@@ -752,6 +757,7 @@ OBJS_CONFIG_LIB = \
         rotate2d.o \
         rotate3d.o \
         RotatingCylinderInitialize.o \
+	RotatingDiskInitialize.o \
         s66_st1.o \
         s90_st1.o \
 	SearchUtilities.o \
@@ -945,6 +951,7 @@ POBJS_CONFIG_LIB = \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
 	Grid_CommunicationSendPhotonPackages.o \
+	Grid_CommunicationSendSubgridMarker.o \
         Grid_ComputePhotonTimestep.o \
         Grid_ComputePhotonTimestepHII.o \
         Grid_ComputePhotonTimestepTau.o \

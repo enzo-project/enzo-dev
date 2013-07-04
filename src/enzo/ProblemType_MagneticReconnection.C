@@ -79,11 +79,6 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
     virtual int InitializeSimulation(FILE *fptr, FILE *Outfptr,
             HierarchyEntry &TopGrid, TopGridData &MetaData)
     {
-      if(debug){
-        printf("Entering MagneticReconnectionInitialize\n");
-        fflush(stdout);
-      }
-
       char *DensName = "Density";
       char *TEName   = "TotalEnergy";
       char *GEName   = "GasEnergy";
@@ -174,6 +169,9 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         ret += sscanf(line, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM,
             MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
             MagneticReconnectionBperturbk+2);
+        ret += sscanf(line, "MagneticReconnectionBField = %"PSYM" %"PSYM" %"PSYM,
+            MagneticReconnectionBField, MagneticReconnectionBField+1,
+            MagneticReconnectionBField+2);
         ret += sscanf(line, "MagneticReconnectionRefineAtStart = %"ISYM, &MagneticReconnectionRefineAtStart);
 
         ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
@@ -265,6 +263,9 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         fprintf(Outfptr, "MagneticReconnectionBperturbk = %"PSYM" %"PSYM" %"PSYM"\n",
             MagneticReconnectionBperturbk, MagneticReconnectionBperturbk+1,
             MagneticReconnectionBperturbk+2);
+        fprintf(Outfptr, "MagneticReconnectionBField = %"PSYM" %"PSYM" %"PSYM"\n",
+            MagneticReconnectionBField, MagneticReconnectionBField+1,
+            MagneticReconnectionBField+2);
         fprintf(Outfptr, "MagneticReconnectionRefineAtStart           = %"ISYM"\n", MagneticReconnectionRefineAtStart);
         fprintf(Outfptr, "TestProblemUseMetallicityField  = %"ISYM"\n", TestProblemData.UseMetallicityField);
         fprintf(Outfptr, "TestProblemInitialMetallicityFraction  = %"FSYM"\n", TestProblemData.MetallicityField_Fraction);
@@ -297,25 +298,6 @@ This is the grid-by-grid initializer.
 
       if (thisgrid->ProcessorNumber != MyProcessorNumber)
         return SUCCESS;
-
-      if(debug){
-        printf("Entering MagneticReconnectionInitializeGrid\n");
-        fflush(stdout);
-      }
-
-      printf("MagneticReconnectionCenterPosition = %e %e %e\n", 
-          this->MagneticReconnectionCenterPosition[0],
-          this->MagneticReconnectionCenterPosition[1],
-          this->MagneticReconnectionCenterPosition[2]);
-      printf("MagneticReconnectionBperturbk = %e %e %e\n", 
-          this->MagneticReconnectionBperturbk[0],
-          this->MagneticReconnectionBperturbk[1],
-          this->MagneticReconnectionBperturbk[2]);
-
-      printf("MagneticReconnectionLambda = %e\n",this->MagneticReconnectionLambda);
-      printf("MagneticReconnectionBperturbation = %e\n",this->MagneticReconnectionBperturbation);
-      printf("MagneticReconnectionOverdensity = %e\n",this->MagneticReconnectionOverdensity);
-
 
       /* declarations */
 
@@ -404,10 +386,10 @@ This is the grid-by-grid initializer.
                   
                   switch (field) {
                   case 0:
-                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[0] * tanh((yx-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx * x) * sin(ky * (yx-MagneticReconnectionCenterPosition[1]));
+                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[0] * tanh((yx-MagneticReconnectionCenterPosition[1])/lambda_scaled) + MagneticReconnectionBperturbation * ky * cos(kx*LengthUnits * x) * sin(ky*LengthUnits * (yx-MagneticReconnectionCenterPosition[1]));
                      break;
                   case 1:
-                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[1] -MagneticReconnectionBperturbation * kx * sin(kx * xy) * cos(ky * (y-MagneticReconnectionCenterPosition[1]));
+                    thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[1] -MagneticReconnectionBperturbation * kx * sin(kx*LengthUnits * xy) * cos(ky*LengthUnits * (y-MagneticReconnectionCenterPosition[1]));
                      break;
                   case 2:
                      thisgrid->MagneticField[field][cellindex] = MagneticReconnectionBField[2];
@@ -442,15 +424,10 @@ This is the grid-by-grid initializer.
             if (thisgrid->GridRank == 3)
                z = thisgrid->CellLeftEdge[2][k] + 0.5*thisgrid->CellWidth[2][k];
 
-            thisgrid->BaryonField[DensNum][cellindex] = MagneticReconnectionOverdensity/pow(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + MagneticReconnectionDensity;
+            thisgrid->BaryonField[DensNum][cellindex] = MagneticReconnectionOverdensity/POW(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + MagneticReconnectionDensity;
 
             thisgrid->BaryonField[TENum][cellindex] = MagneticReconnectionTotalEnergy/(Gamma - 1.0) + 0.5 * (POW(thisgrid->CenteredB[0][cellindex], 2) + POW(thisgrid->CenteredB[1][cellindex], 2) + POW(thisgrid->CenteredB[2][cellindex], 2))/thisgrid->BaryonField[DensNum][cellindex];
           } // for (i = 0; i < GridDimension[0]; i++)
-
-      if(debug){
-        printf("Exiting MagneticReconnectionInitialize\n");
-        fflush(stdout);
-      }
 
       return SUCCESS;
 

@@ -790,6 +790,11 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int SetFlaggingField(int &NumberOfFlaggedCells, int level);
 
+
+/* Set flagging field from refine regions */
+
+   int SetFlaggingFieldMultiRefineRegions(int level);
+
 /* Set flagging field from static regions */
 
    int SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells);
@@ -833,6 +838,12 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int FlagCellsToBeRefinedBySlope();
 
+/* Flag all points that require refining by their slope.
+     Returns the number of flagged cells.  Returns the number of flagged cells
+     (gg #4) */
+
+   int FlagCellsToBeRefinedBySecondDerivative();
+ 
 /* Flag all points that require refinging by the presence of shocks.
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
@@ -1530,7 +1541,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Move a grid from one processor to another. */
 
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
-			    int DeleteAllFields = TRUE);
+			    int DeleteAllFields = TRUE, 
+			    int MoveSubgridMarker = FALSE);
 
 /* Send particles from one grid to another. */
 
@@ -1804,6 +1816,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT RotatingCylinderCenterPosition[MAX_DIMENSION],
 				     float RotatingCylinderLambda,
 				     float RotatingCylinderOverdensity);
+
+  int RotatingDiskInitializeGrid(float RDScaleRadius,
+				 float RDScaleHeight, 
+				 float RDTemperature,
+				 float RDDMConcentration, 
+				 float RDTotalDMMass,
+				 float RDCentralDensity,
+				 float RDOuterEdge);
 
   int RotatingSphereInitializeGrid(FLOAT RotatingSphereRadius,
 				     FLOAT RotatingSphereCenterPosition[MAX_DIMENSION],
