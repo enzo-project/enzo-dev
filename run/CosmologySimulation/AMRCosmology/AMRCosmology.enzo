@@ -107,8 +107,8 @@ StarMakerMassEfficiency       = 0.1
 StarMassEjectionFraction      = 0.25
 StarMetalYield                = 0.1
 StarEnergyToThermalFeedback   = 1e-5
-StarFeedbackRadius            = 1
-StarFeedbackMaxCellStep       = 3
+StarFeedbackDistRadius        = 1
+StarFeedbackDistCellStep      = 3
 
 #
 # some global parameters

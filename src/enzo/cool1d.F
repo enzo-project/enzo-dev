@@ -158,7 +158,7 @@ c
 c
 c        Photoelectric heating  
 c
-         edot(i) = edot(i) + float(igammah)*gammaha*dom_inv
+         edot(i) = edot(i) + REAL(igammah,RKIND)*gammaha*dom_inv
 c
       enddo
 c

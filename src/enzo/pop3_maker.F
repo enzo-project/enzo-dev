@@ -214,9 +214,9 @@ c                  tdp(ii) = lifetime*3.15e7_RKIND/t1
 
                type(ii) = -ctype
                tcp(ii) = t
-               xp(ii) = xstart + (float(i)-0.5_RKIND)*dx
-               yp(ii) = ystart + (float(j)-0.5_RKIND)*dx
-               zp(ii) = zstart + (float(k)-0.5_RKIND)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c     Record amount of star formation
                justburn = justburn + mp(ii)

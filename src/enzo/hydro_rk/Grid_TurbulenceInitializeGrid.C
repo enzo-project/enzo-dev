@@ -86,7 +86,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
   }
-  FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity;
+  //  FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity;
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
     fprintf(stderr, "Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
@@ -348,7 +348,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	}
 
 	BaryonField[iden ][n] = Density;
-	BaryonField[ColourNum][n] = Density*0.018477;
+	//	BaryonField[ColourNum][n] = Density*0.018477;
 	BaryonField[ivx  ][n] = Velx;
 	BaryonField[ivy  ][n] = Vely;
 	BaryonField[ivz  ][n] = Velz;

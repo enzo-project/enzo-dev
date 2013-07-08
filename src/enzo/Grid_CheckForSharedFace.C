@@ -35,7 +35,6 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
  
-#ifdef FLUX_FIX
  
 int grid::CheckForSharedFace(grid *OtherGrid,
 			  boundary_type LeftFaceBoundaryCondition[],
@@ -152,7 +151,7 @@ int grid::CheckForSharedFace(grid *OtherGrid,
 
  
 	  /* Full periodic case (26 checks).
-	     This ONLY checks the Periodic shifts.  (that's the i!=0 || ... crap) */
+	     This ONLY checks the Periodic shifts.  (that's the i!=0 || ... stuff) */
 	
 
 
@@ -233,12 +232,15 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
   for(dim=0;dim<GridRank;dim++){
     if( fabs(Left[dim]-Right[dim]) < CellEpsilon[dim] ){
  
-      for(dim2=0;dim2<GridRank;dim2++)
-	if(dim2 != dim){
-	  if( fabs(Left[dim2]-Right[dim2]) < CellEpsilon[dim2] )
-	    return FALSE;
-	}//third dim loop
- 
+      if( ! UseMHDCT ){
+	//corners need to be kept for MHDCT.
+	for(dim2=0;dim2<GridRank;dim2++)
+	  if(dim2 != dim){
+	    if( fabs(Left[dim2]-Right[dim2]) < CellEpsilon[dim2] )
+	      return FALSE;
+	  }//third dim loop
+      }
+
       return TRUE;
  
     }//if face matches
@@ -247,4 +249,3 @@ int grid::CheckForSharedFaceHelper(grid *OtherGrid,
     return FALSE;
 }
  
-#endif

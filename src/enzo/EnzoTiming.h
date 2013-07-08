@@ -199,7 +199,7 @@ namespace enzo_timing{
     // Get a level section_performance by level
     section_performance * get_level(int level){
       char level_name[256];
-      sprintf(level_name, "Level_%d", level);
+      sprintf(level_name, "Level_%02d", level);
       return get(level_name);
     }
 

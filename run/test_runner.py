@@ -47,8 +47,8 @@ disable_stream_logging()
 
 # Set the filename for the latest version of the gold standard
 # and for the default local standard output
-ytcfg["yt", "gold_standard_filename"] = str("enzogold2.2")
-ytcfg["yt", "local_standard_filename"] = str("enzolocal2.2")
+ytcfg["yt", "gold_standard_filename"] = str("enzogold0002")
+ytcfg["yt", "local_standard_filename"] = str("enzolocaldev")
 from yt.utilities.answer_testing.framework import \
     AnswerTesting
 
@@ -429,6 +429,7 @@ class EnzoTestRun(object):
         self.test_dir = test_dir
         self.test_data = test_data
         self.exe_path = exe_path
+        self.finished = False
         self.results = {}
         if self.exe_path is None:
             self.local_exe = None
@@ -741,7 +742,7 @@ if __name__ == "__main__":
     # Same with MHD2DRotorTest
     ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
                    'ZeldovichPancake', 'AMRZeldovichPancake',
-                   'MHD2DRotorTest', 'Toro-6-ShockTube')
+                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang')
     
     template = open("test_type.py.template").read()
     
@@ -768,7 +769,8 @@ if __name__ == "__main__":
     # *__test_standard.py files from the enzo run/ directory
     # that we just created.
     for file in test_standard_files:
-        os.remove(file)
+        if os.path.exists(file):
+            os.remove(file)
 
     # Store the results locally or in the cloud.
     answer_plugin.finalize()

@@ -400,7 +400,7 @@
 
 !                    Photoelectric heating by UV-irradiated dust
 
-     &             + float(igammah)*gammaha*(HI(i,j,k)+HII(i,j,k))
+     &             + REAL(igammah,RKIND)*gammaha*(HI(i,j,k)+HII(i,j,k))
      &             *dom_inv)
 
          if (edot(i) .ne. edot(i)) then
@@ -464,7 +464,7 @@
      &               + gaHe(i) * HeI(i,j,k) + gaHp(i) * HII(i,j,k)
      &               + gael(i) * de(i,j,k)
             gphdl1 = gphdl(i)/dom
-            edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*
+            edot(i) = edot(i) - REAL(ih2co,RKIND)*fudge*H2I(i,j,k)*
      &           gphdl(i)/(1._RKIND + gphdl1/galdl(i)) / (2._RKIND*dom)
 
             end if
@@ -512,7 +512,7 @@
                 fudge = 1._RKIND
             endif
             gphdl1 = gphdl(i)/(HI(i,j,k)*dom)
-            edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*
+            edot(i) = edot(i) - REAL(ih2co,RKIND)*fudge*H2I(i,j,k)*
      &           gphdl(i)/(1._RKIND + gphdl1/gpldl(i)) / (2._RKIND*dom)
 
             end if
@@ -556,7 +556,7 @@
             fudge = min(fudge, 1._RKIND)
 #endif /* OPTICAL_DEPTH_FUDGE */
 
-            edot(i) = edot(i) - float(ih2co)*fudge*H2I(i,j,k)*(
+            edot(i) = edot(i) - REAL(ih2co,RKIND)*fudge*H2I(i,j,k)*(
      &           vibh(i)/(1._RKIND+vibh(i)/max(   vibl,tiny)) +
      &           roth(i)/(1._RKIND+roth(i)/max(qq*rotl(i),tiny))     
      &           )/2._RKIND/dom
@@ -678,7 +678,7 @@ c  new (correct) way: (april 4, 2007)
                x = max(HII(i,j,k)/(HI(i,j,k)+HII(i,j,k)), 1.e-4_RKIND)
                factor = 0.9971_RKIND*(1._RKIND
      &              -(1._RKIND-x**0.2663_RKIND)**1.3163_RKIND)
-               edot(i) = edot(i) + float(ipiht)*factor*(
+               edot(i) = edot(i) + REAL(ipiht,RKIND)*factor*(
      &                + piHI  *HI  (i,j,k)             ! pi of HI
      &                + piHeI *HeI (i,j,k)*0.25_RKIND  ! pi of HeI
      &                + piHeII*HeII(i,j,k)*0.25_RKIND  ! pi of HeII
@@ -692,7 +692,7 @@ c  new (correct) way: (april 4, 2007)
 
             do i = is+1, ie+1
                if ( itmask(i) ) then
-               edot(i) = edot(i) + float(ipiht)*(
+               edot(i) = edot(i) + REAL(ipiht,RKIND)*(
      &                + piHI  *HI  (i,j,k)            ! pi of HI
      &                + piHeI *HeI (i,j,k)*0.25_RKIND     ! pi of HeI
      &                + piHeII*HeII(i,j,k)*0.25_RKIND     ! pi of HeII
@@ -709,7 +709,7 @@ c  new (correct) way: (april 4, 2007)
          do i = is+1, ie+1
             if ( itmask(i) ) then
 
-            edot(i) = edot(i) + float(ipiht)*(
+            edot(i) = edot(i) + REAL(ipiht,RKIND)*(
      &                + piHI  *HI  (i,j,k)*
      &                   exp(-avgsighp*HI(i,j,k)*dom)
      &                + piHeI *HeI (i,j,k)*0.25_RKIND*
@@ -733,8 +733,8 @@ c     for radiative transfer, convert from eV/s*TimeUnits to the coolunits use
          rtunits = ev2erg/utim/coolunit/dom
          do i = is+1, ie+1
             if (itmask(i)) then
-               edot(i) = edot(i) + float(ipiht) * photogamma(i,j,k) * 
-     &              rtunits * HI(i,j,k)
+               edot(i) = edot(i) + REAL(ipiht,RKIND) * photogamma(i,j,k)
+     &              * rtunits * HI(i,j,k)
 c               if (photogamma(i,j,k)>0) then
 c                  print*, i,j,k,edot(i), photogamma(i,j,k),rtunits,dom,
 c     $                 aye,utim,coolunit,d(i,j,k),hi(i,j,k),tgas(i)
@@ -983,7 +983,7 @@ c	    MKRJ 12/18/06 -- Photoelectric heating rate (Gamma_pe)
 c            8.5e-26 came from Gamma_pe, assuming epsilon=0.05, G_0=1.7
 c            (see Gerritsen & Icke '97, or Joung & Mac Low '06, Sec. 2.2)
 c
-	    metal_heat = float(igammah) * boost_factor * 
+	    metal_heat = REAL(igammah,RKIND) * boost_factor * 
      &           gammaha * xi * (HI(i,j,k)+HII(i,j,k)) * dom_inv
 c
 c           MKRJ 10/15/08 -- Gamma (in erg/s) should weakly depend on 

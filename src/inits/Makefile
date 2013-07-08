@@ -41,9 +41,10 @@ SHELL    = /bin/bash
 TOP_DIR  = ../..
 EXE      = inits
 OUTPUT   = out.compile
+VERBOSE  = 0
 
 ENZO_DIR = $(TOP_DIR)/src/enzo
-MODULES  = enzo_module.o
+MODULES  = 
 
 #-----------------------------------------------------------------------
 # Make.config.settings is used for setting default values to all compile-time 
@@ -122,7 +123,49 @@ $(EXE).exe: $(MODULES) dep $(OBJS_LIB)
 # Implicit rules
 #-----------------------------------------------------------------------
 
-.SUFFIXES: .c .C .src .src90 .f .f90
+.SUFFIXES: .c .C .src .src90 .f .f90 .F .F90
+
+.F.o:
+	@echo "Compiling $<"
+	@rm -f $@
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
+             echo; \
+             echo "$(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F"; \
+             echo; \
+             $(FC) -c -o $@ $(FFLAGS) $(DEFINES) $*.F; \
+             echo; \
+             exit 1; \
+          fi ; \
+	else \
+	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $*.F >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
+
+.F90.o:
+	@rm -f $@
+	@echo "Compiling $<"
+	@(if [ $(VERBOSE) -eq 0 ]; then \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >& $(OUTPUT) ; \
+	  if [ ! -e $@ ]; then \
+             echo; \
+             echo "$(F90) -c -o $@ $(DEFINES) $(F90FLAGS) $*.F90"; \
+             echo; \
+             $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
+             echo; \
+             exit 1; \
+	  fi ; \
+	else \
+	  $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90 >> $(OUTPUT) 2>&1 ; \
+	  if [ ! -e $@ ]; then \
+	     echo "See $(OUTPUT) for error messages"; \
+	     exit 1; \
+	  fi ; \
+	fi)
 
 .src.f:
 	@echo "Compiling $<"

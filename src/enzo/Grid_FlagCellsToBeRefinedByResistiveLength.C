@@ -51,13 +51,22 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
   int xmo, xpo, ymo, ypo, zmo, zpo;
   FLOAT x, y, z, r;
 
-    int iBx, iBy, iBz;
-    if (useMHD){
-      iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
-      iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
-      if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
-      
-    }
+  int iBx, iBy, iBz;
+  float *Bx, *By, *Bz;
+  if (UseMHD){
+    iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
+    iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
+    if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
+    Bx = BaryonField[iBx];
+    By = BaryonField[iBy];
+    Bz = BaryonField[iBz];
+  }
+
+  if (UseMHDCT) {
+    Bx = CenteredB[0];
+    By = CenteredB[1];
+    Bz = CenteredB[2];
+  }
 
       
   for (int k = GridStartIndex[2]; k < GridEndIndex[2]; k++) {
@@ -70,26 +79,22 @@ int grid::FlagCellsToBeRefinedByResistiveLength()
 	ymo = (j-1 + k*GridDimension[1])*GridDimension[0]+i;
 	zpo = (j + (k+1)*GridDimension[1])*GridDimension[0]+i;
 	zmo = (j + (k-1)*GridDimension[1])*GridDimension[0]+i;
-	rho = BaryonField[DensNum][igrid];
 
-	curlBx   = ((BaryonField[iBz  ][ypo] - BaryonField[iBz  ][ymo]) -
-		    (BaryonField[iBy  ][zpo] - BaryonField[iBy  ][zmo]))/2.;	
-	curlBy   =  ((BaryonField[iBz  ][xpo] - BaryonField[iBz  ][xmo]) -
-		     (BaryonField[iBx  ][zpo] - BaryonField[iBx  ][zmo]))/2. ;
-	curlBz   = ((BaryonField[iBy  ][zpo] - BaryonField[iBy  ][zmo]) -
-		    (BaryonField[iBz  ][ypo] - BaryonField[iBz  ][ymo]))/2.  ;
+	curlBx   = ((Bz[ypo] - Bz[ymo]) -
+		    (By[zpo] - By[zmo]))/2.;	
+	curlBy   =  ((Bx[zpo] - Bx[zmo]) -
+		     (Bz[xpo] - Bz[xmo]))/2. ;
+	curlBz   = ((By[xpo] - By[xmo]) -
+		    (Bx[ypo] - Bx[ymo]))/2.  ;
 
-
-	absB2 = BaryonField[iBx  ][igrid]*BaryonField[iBx  ][igrid] + 
-	  BaryonField[iBy  ][igrid]*BaryonField[iBy  ][igrid] + 
-	  BaryonField[iBz  ][igrid]*BaryonField[iBz  ][igrid]  ;
+	absB2 = Bx[igrid]*Bx[igrid] + 
+	  By[igrid]*By[igrid] + 
+	  Bz[igrid]*Bz[igrid]  ;
 	curlB2 = curlBx*curlBx + curlBy*curlBy + curlBz*curlBz;
 
 	l_res = sqrt(absB2)/max(sqrt(curlB2),tiny_number);
 
-
-	int oldflag = FlaggingField[igrid];
-	if (CellWidth[0][i]*RefineByResistiveLengthSafetyFactor > l_res) {	  
+	if (RefineByResistiveLengthSafetyFactor > l_res) {	  
 	  FlaggingField[igrid]++;
 	}
 

@@ -149,9 +149,9 @@ c             Only over-dense enough cells.
               if(d(i,j,k) .le. odthresh) goto 10
 
 c         Don't consider this cell if it's not in the refinement region.
-              tempx = xstart + (float(i)-0.5_RKIND)*dx
-              tempy = ystart + (float(j)-0.5_RKIND)*dx
-              tempz = zstart + (float(k)-0.5_RKIND)*dx
+              tempx = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+              tempy = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+              tempz = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
               if (tempx .lt. rr_left0 .or. tempx .gt. rr_right0 .or. 
      &          tempy .lt. rr_left1 .or. tempy .gt. rr_right1 .or. 
      &          tempz .lt. rr_left2 .or. tempz .gt. rr_right2) then

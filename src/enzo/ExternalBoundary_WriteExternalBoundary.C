@@ -161,6 +161,42 @@ int ExternalBoundary::WriteExternalBoundary(FILE *fptr, char *hdfname)
     WriteListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent);
  
     char *logname = new char[MAX_NAME_LENGTH];
+
+    if( UseMHDCT ){
+      for (dim = 0; dim < BoundaryRank; dim++)
+	for (i = 0; i < 2; i++) {
+	  if (MagneticBoundaryValue[0][dim][i] == NULL)
+	    BoundaryValuePresent[2*dim+i] = FALSE;
+	  else
+	    {
+	      BoundaryValuePresent[2*dim+i] = TRUE;
+	      fprintf(stderr, "Error You're not writing out the Inflow Conditions.\n");
+	      fprintf(stderr, "You'd better write that\n");
+	      fprintf(stderr, "MagneticBV[0][%d][%d] ",dim,i);
+	      return FAIL;
+	    }
+	}
+      fprintf(fptr, "MagneticBoundaryValuePresent = ");
+      WriteListOfInts(fptr, BoundaryRank*2, BoundaryValuePresent);
+      
+      /* Since MHD Boundary isn't as arbitrary as Hydro, we can write
+	 the boundary conditions in this file. */
+      int *buffer2, index2=0;
+      buffer2 = new int[6];
+
+      for(int field=0;field<3;field++){
+	fprintf(fptr, "MagneticBoundaryType %d      = ", field+1);
+	for(int face=0;face<2;face++)
+	  for(int axis=0;axis<3;axis++){
+	    buffer2[index2++]=(int)MagneticBoundaryType[field][axis][face];
+	    
+	  }
+	WriteListOfInts(fptr, 6, buffer2 );
+	index2 = 0;
+      }//field
+      delete [] buffer2;
+    }
+      
     strcpy(logname, hdfname);
     strcat(logname, ".log");
     if (io_log) log_fptr = fopen(logname, "a");

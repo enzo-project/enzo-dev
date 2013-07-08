@@ -381,8 +381,6 @@ int grid::TurbulenceSimulationInitializeGrid(
         for (i = 0; i < size; i++)
           BaryonField[1][i] +=
             0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
-    if( MyProcessorNumber == ROOT_PROCESSOR)
-    fprintf(stderr,"Turkey Buttox: GE+KE %0.2e\n",BaryonField[TENum][ELT(3,3,3)]);
       if( HydroMethod == MHD_RK ){
           for(i=0;i<size;i++){
               BaryonField[TENum][i] += (0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i]+
@@ -391,8 +389,6 @@ int grid::TurbulenceSimulationInitializeGrid(
                                         BaryonField[DensNum][i]);
 
           }
-    if( MyProcessorNumber == ROOT_PROCESSOR)
-    fprintf(stderr,"Turkey Buttox: GE+KE+BE %0.2e\n",BaryonField[TENum][ELT(3,3,3)]);
       }
     }
   }

@@ -57,6 +57,7 @@ PhotonTestSourceLifeTime[0]   = 1e10
 PhotonTestSourceEnergyBins[0] = 1
 #PhotonTestSourceEnergy[0] = 23.2686
 PhotonTestSourceEnergy[0] = 13.60001
+PhotonTestSourceCreationTime[0] = -1
 
 PhotonTestNumberOfSpheres      = 0
 

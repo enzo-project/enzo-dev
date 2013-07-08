@@ -269,6 +269,7 @@
 #-----------------------------------------------------------------------
 	
     ASSEMBLE_CUDACOMPILER = $(MACH_CUDACOMPILER)
+    ASSEMBLE_CUDAFLAGS = $(MACH_OPT_CUDA)	
 
 #-----------------------------------------------------------------------
 # DETERMINE OBJECT MODE SETTINGS
@@ -881,33 +882,6 @@
     endif
 
 
-#-----------------------------------------------------------------------
-# DETERMINE FLUX FIX SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_FLUX_FIX = 1
-
-    # Settings to turn FLUX FIX on
-
-    ifeq ($(CONFIG_FLUX_FIX),yes)
-        ERROR_FLUX_FIX = 0
-        ASSEMBLE_FLUX_FIX_DEFINES = -DFLUX_FIX
-    endif
-
-    # Settings to turn FLUX FIX off
-
-    ifeq ($(CONFIG_FLUX_FIX),no)
-        ERROR_FLUX_FIX = 0
-        ASSEMBLE_FLUX_FIX_DEFINES =
-    endif
-
-    # error if CONFIG_FLUX_FIX is incorrect
-
-    ifeq ($(ERROR_FLUX_FIX),1)
-       .PHONY: error_transfer
-       error_tpvel:
-	$(error Illegal value '$(CONFIG_FLUX_FIX)' for $$(CONFIG_FLUX_FIX))
-    endif
 
 #-----------------------------------------------------------------------
 # DETERMINE HDF4 USAGE
@@ -1046,13 +1020,13 @@
               $(ASSEMBLE_NEW_GRID_IO_DEFINES) \
               $(ASSEMBLE_FAST_SIB_DEFINES) \
               $(ASSEMBLE_BITWISE_IDENTICALITY_DEFINES) \
-              $(ASSEMBLE_FLUX_FIX_DEFINES) \
               $(ASSEMBLE_ECUDA_DEFINES) \
               $(ASSEMBLE_CUDADEBUG_DEFINES) \
               $(ASSEMBLE_HDF4_DEFINES) \
               $(ASSEMBLE_GRAVITY_4S_DEFINES) \
               $(ASSEMBLE_ENZO_PERFORMANCE_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
+
 
     INCLUDES = $(MACH_INCLUDES) \
     	       $(ASSEMBLE_MPI_INCLUDES) \

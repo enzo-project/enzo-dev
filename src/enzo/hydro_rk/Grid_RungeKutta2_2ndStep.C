@@ -163,6 +163,15 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
   }
 
   //  PerformanceTimers[1] += ReturnWallTime() - time1;
+  
+  /* If we're supposed to be outputting on Density, we need to update
+  the current maximum value of that Density. */
+  
+  if(OutputOnDensity == 1){
+    int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+    for(int i = 0; i < size; i++)
+      CurrentMaximumDensity = max(BaryonField[DensNum][i], CurrentMaximumDensity);
+  }
 
   return SUCCESS;
 

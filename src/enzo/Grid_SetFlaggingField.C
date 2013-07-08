@@ -210,8 +210,18 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     }
     break;
 
-    /* ==== METHOD 15: undefined ==== */
-
+      /* ==== METHOD 15: Refine by Second Derivative ==== */
+  case 15:
+ 
+    /* flag all points needing extra resolution 
+     * (FlagCellsToBeRefinedBySecondDerivative)
+       returns the number of flagged cells). */
+ 
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedBySecondDerivative();
+    if (NumberOfFlaggedCells < 0) {
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedBySecondDerivative.");
+    }
+    break;
     
     /* ==== METHOD 16: Refine on total Jeans length ==== */
   case 16: 

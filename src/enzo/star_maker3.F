@@ -217,9 +217,9 @@ c
                mp(ii)  = starfraction * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5_RKIND)*dx
-               yp(ii) = ystart + (float(j)-0.5_RKIND)*dx
-               zp(ii) = zstart + (float(k)-0.5_RKIND)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c              Star velocities averaged over multiple cells to
 c              avoid "runaway star particle" phenomenon

@@ -455,7 +455,9 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &                       abs(0.1_RKIND*HI(i,j,k)/HIdot(i)),
      &                       dt-ttot(i), 0.5_RKIND*dt)
 
-              if (d(i,j,k)*dom > 1.e8 .and. edot(i) > 0.0) then
+              if ( d(i,j,k)*dom > 1.e8 .and. 
+     &             edot(i) > 0.0 .and. 
+     &             ispecies > 1 ) then
                 ! Equilibrium value for H is:
                 !  H = (-1.0 / (4*k22)) * (k13 - sqrt(8 k13 k22 rho + k13^2))
                 ! We now want this to change by 10% or less, but we're only

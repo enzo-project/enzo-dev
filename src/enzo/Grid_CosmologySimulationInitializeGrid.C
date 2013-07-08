@@ -178,7 +178,7 @@ int grid::CosmologySimulationInitializeGrid(
      if ( (ParallelRootGridIO != TRUE) || 
 	  (ParallelParticleIO != TRUE && !CosmologySimulationCalculatePositions) )
      {
-              ENZO_FAIL("ParallelRootGridIO and ParallelParticleIO MUST be set for > 64 cpus!");
+         fprintf(stderr, "WARNING: ParallelRootGridIO and ParallelParticleIO are recommended for > 64 cpus to shrink data read-in time.");
      }
   }
  
