@@ -47,7 +47,7 @@ disable_stream_logging()
 
 # Set the filename for the latest version of the gold standard
 # and for the default local standard output
-ytcfg["yt", "gold_standard_filename"] = str("enzogold0002")
+ytcfg["yt", "gold_standard_filename"] = str("enzogold0003")
 ytcfg["yt", "local_standard_filename"] = str("enzolocaldev")
 from yt.utilities.answer_testing.framework import \
     AnswerTesting
