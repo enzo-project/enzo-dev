@@ -225,7 +225,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindVelocity[0] = GalaxySimulationRPSWindVelocity[0]/LengthUnits*TimeUnits;
   GalaxySimulationRPSWindVelocity[1] = GalaxySimulationRPSWindVelocity[1]/LengthUnits*TimeUnits;
   GalaxySimulationRPSWindVelocity[2] = GalaxySimulationRPSWindVelocity[2]/LengthUnits*TimeUnits;
-
+	GalaxySimulationRPSWindDensity = GalaxySimulationRPSWindDensity/DensityUnits;
+	GalaxySimulationRPSWindShockSpeed = GalaxySimulationRPSWindShockSpeed/LengthUnits*TimeUnits;
 
   /* Align gaseous and stellar disks */
   if( DiskGravity > 0 ){
@@ -341,7 +342,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
 	ShockPoolAngle = 0.0;
 	ShockPoolShockDensity = GalaxySimulationRPSWindDensity;
-	ShockPoolShockTotalEnergy = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
+	ShockPoolShockTotalEnergy = GalaxySimulationRPSWindPressure/(Gamma-1.0)/(GalaxySimulationRPSWindDensity*DensityUnits);
 	if (HydroMethod != 2) {
 		ShockPoolShockTotalEnergy += 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
   	                                        + pow(GalaxySimulationRPSWindVelocity[1],2)
@@ -353,7 +354,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	ShockPoolShockVelocity[0] = GalaxySimulationRPSWindVelocity[0];
 	ShockPoolShockVelocity[1] = GalaxySimulationRPSWindVelocity[1];
 	ShockPoolShockVelocity[2] = GalaxySimulationRPSWindVelocity[2];
-	ShockPoolDensity = GalaxySimulationUniformDensity;
+	ShockPoolDensity = GalaxySimulationUniformDensity/DensityUnits;
 	ShockPoolTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*.6);
 	ShockPoolVelocity[0] = 0.0;
 	ShockPoolVelocity[1] = 0.0;

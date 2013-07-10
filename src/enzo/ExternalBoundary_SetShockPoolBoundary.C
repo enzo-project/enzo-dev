@@ -36,8 +36,6 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 {
   /* declarations */
 
-	fprintf(stderr,">>> Inside Shock Pool\n"); // FIXME
- 
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
   float deltime, distance, pos[MAX_DIMENSION];
@@ -144,8 +142,15 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	} // end loop over boundary slice
  
     } // end loop over boundary directions
- 
-	fprintf(stderr,">>> Done with boundary!!!\n"); // FIXME
+
+	if( MyProcessorNumber == ROOT_PROCESSOR ){ 
+		fprintf(stderr,"\t\tShockPoolDensity          = %"GSYM"\n",ShockPoolDensity);
+		fprintf(stderr,"\t\tShockPoolShockTotalEnergy = %"GSYM"\n",ShockPoolShockTotalEnergy);
+		fprintf(stderr,"\t\tShockPoolShockVelocity    = (%"GSYM", %"GSYM", %"GSYM")\n",
+			ShockPoolShockVelocity[0],ShockPoolShockVelocity[1],ShockPoolShockVelocity[2]);
+		fprintf(stderr,"\t\tShockPoolShockSpeed       = %"GSYM"\n",ShockPoolShockSpeed);
+	} // end if
+
   return SUCCESS;
  
 }
