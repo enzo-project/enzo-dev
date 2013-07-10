@@ -549,12 +549,12 @@ int RadiationFieldCalculateRates(FLOAT Time)
     RateData.k24 = POW( 10.0, RateData.HM12GH1[ilo] + frac * delta );
     RateData.k24 *= TimeUnits * Ramp;
     
-    delta = RateData.HM12GHe1[ihi] - RateData.HM12GHe1[ilo];
-    RateData.k25 = POW( 10.0, RateData.HM12GHe1[ilo] + frac * delta );
+    delta = RateData.HM12GHe2[ihi] - RateData.HM12GHe2[ilo];
+    RateData.k25 = POW( 10.0, RateData.HM12GHe2[ilo] + frac * delta );
     RateData.k25 *= TimeUnits * Ramp;
 
-    delta = RateData.HM12GHe2[ihi] - RateData.HM12GHe2[ilo];
-    RateData.k26 = POW( 10.0, RateData.HM12GHe2[ilo] + frac * delta );
+    delta = RateData.HM12GHe1[ihi] - RateData.HM12GHe1[ilo];
+    RateData.k26 = POW( 10.0, RateData.HM12GHe1[ilo] + frac * delta );
     RateData.k26 *= TimeUnits * Ramp;
 
     delta = RateData.HM12GhH1[ihi] - RateData.HM12GhH1[ilo];
