@@ -35,6 +35,8 @@ int FindField(int f, int farray[], int n);
 int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 {
   /* declarations */
+
+	fprintf(stderr,">>> Inside Shock Pool\n"); // FIXME
  
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
@@ -143,6 +145,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
  
     } // end loop over boundary directions
  
+	fprintf(stderr,">>> Done with boundary!!!\n"); // FIXME
   return SUCCESS;
  
 }

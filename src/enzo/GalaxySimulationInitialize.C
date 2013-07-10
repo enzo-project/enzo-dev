@@ -103,7 +103,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   int GalaxySimulationRPSWindDirection;
   float GalaxySimulationRPSWindDensity,
     GalaxySimulationRPSWindVelocity[MAX_DIMENSION],
-    GalaxySimulationRPSWindPressure;
+    GalaxySimulationRPSWindPressure,
+    GalaxySimulationRPSWindShockSpeed;
  
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
@@ -139,7 +140,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindDirection = 2;
   GalaxySimulationRPSWindDensity = GalaxySimulationUniformDensity;
   GalaxySimulationRPSWindPressure = 1.0852e-12;
-  
+	GalaxySimulationRPSWindShockSpeed = 0.0; 
 
   /* read input from file */
 
@@ -196,6 +197,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       &GalaxySimulationRPSWindPressure);
     ret += sscanf(line, "GalaxySimulationRPSWindDirection = %"ISYM,
       &GalaxySimulationRPSWindDirection);
+		ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,
+			&GalaxySimulationRPSWindShockSpeed);
     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"FSYM" %"FSYM" %"FSYM,
       &GalaxySimulationRPSWindVelocity[0],
       &GalaxySimulationRPSWindVelocity[1],
@@ -330,40 +333,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end: if (GalaxySimulationRefineAtStart)
 
 
-  /* Initialize the exterior */
-
-  Exterior.Prepare(TopGrid.GridData);
-
-  float InflowValue[5], Dummy[5];
-  InflowValue[0] = GalaxySimulationRPSWindDensity;
-  InflowValue[1] = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
-  if (HydroMethod != 2) {
-    InflowValue[1] = InflowValue[1] + 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
-                                            + pow(GalaxySimulationRPSWindVelocity[1],2)
-                                            + pow(GalaxySimulationRPSWindVelocity[2],2));
-  }
-  InflowValue[2] = GalaxySimulationRPSWindVelocity[0];
-  InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
-  InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
-  
-  if (Exterior.InitializeExternalBoundaryFace(0, reflecting, reflecting, Dummy,
-					      Dummy) == FAIL) {
-    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      return FAIL;
-  }
-  if (MetaData.TopGridRank > 1)
-    Exterior.InitializeExternalBoundaryFace(1, reflecting, reflecting,
-					    Dummy, Dummy);
-  if (MetaData.TopGridRank > 2)
-    Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
-					    InflowValue, Dummy);
-
-
 	/* !!!! Piggy-Backing off the ShockPool BC's */
 
-  /* set the inflow boundary on the left, otherwise leave things alone. *
+  /* set the inflow boundary on the left, otherwise leave things alone. */
   for (dim = 0; dim < MetaData.TopGridRank; dim++)
     MetaData.LeftFaceBoundaryCondition[dim] = inflow;
+
 	ShockPoolAngle = 0.0;
 	ShockPoolShockDensity = GalaxySimulationRPSWindDensity;
 	ShockPoolShockTotalEnergy = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
@@ -373,20 +348,16 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		                                        + pow(GalaxySimulationRPSWindVelocity[2],2));
 	}
 	
-	ShockPoolShockSpeed = GalaxySimulationRPSWindVelocity[2]; // wrong, but shouldn't really matter FIXME
+	ShockPoolShockSpeed = GalaxySimulationRPSWindShockSpeed;
 
 	ShockPoolShockVelocity[0] = GalaxySimulationRPSWindVelocity[0];
 	ShockPoolShockVelocity[1] = GalaxySimulationRPSWindVelocity[1];
 	ShockPoolShockVelocity[2] = GalaxySimulationRPSWindVelocity[2];
 	ShockPoolDensity = GalaxySimulationUniformDensity;
-	ShockPoolTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6); 
+	ShockPoolTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*.6);
 	ShockPoolVelocity[0] = 0.0;
 	ShockPoolVelocity[1] = 0.0;
 	ShockPoolVelocity[2] = 0.0;
-  */	
-
-	//	Initialize particle boundary conditions
-//	Exterior.InitializeExternalBoundaryParticles(MetaData.ParticleBoundaryType); FIXME
 
  /* set up field names and units */
 
@@ -461,6 +432,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationRPSWindDirection);
    fprintf(Outfptr, "GalaxySimulationRPSWindVelocity = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationRPSWindVelocity);
+   fprintf(Outfptr, "GalaxySimulationRPSWindShockSpeed = %"GOUTSYM"\n",
+     GalaxySimulationRPSWindShockSpeed);
  }
 
 #ifdef USE_MPI
