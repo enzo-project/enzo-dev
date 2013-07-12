@@ -51,7 +51,7 @@ if( MyProcessorNumber == ROOT_PROCESSOR ){
 	return SUCCESS; // FIXME
 
   /* declarations */
- 
+
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
   float deltime, distance, pos[MAX_DIMENSION];
@@ -158,7 +158,15 @@ if( MyProcessorNumber == ROOT_PROCESSOR ){
 	} // end loop over boundary slice
  
     } // end loop over boundary directions
- 
+
+	if( MyProcessorNumber == ROOT_PROCESSOR ){ 
+		fprintf(stderr,"\t\tShockPoolDensity          = %"GSYM"\n",ShockPoolDensity);
+		fprintf(stderr,"\t\tShockPoolShockTotalEnergy = %"GSYM"\n",ShockPoolShockTotalEnergy);
+		fprintf(stderr,"\t\tShockPoolShockVelocity    = (%"GSYM", %"GSYM", %"GSYM")\n",
+			ShockPoolShockVelocity[0],ShockPoolShockVelocity[1],ShockPoolShockVelocity[2]);
+		fprintf(stderr,"\t\tShockPoolShockSpeed       = %"GSYM"\n",ShockPoolShockSpeed);
+	} // end if
+
   return SUCCESS;
  
 }

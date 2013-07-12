@@ -139,7 +139,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindShockSpeed = 2;
   GalaxySimulationRPSWindDensity = GalaxySimulationUniformDensity;
   GalaxySimulationRPSWindPressure = 1.0852e-12;
-  
+	GalaxySimulationRPSWindShockSpeed = 0.0; 
 
   /* read input from file */
 
@@ -373,7 +373,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	ShockPoolVelocity[0] = 0.0;
 	ShockPoolVelocity[1] = 0.0;
 	ShockPoolVelocity[2] = 0.0;
-
+*/
  /* set up field names and units */
 
  int count = 0;
@@ -447,6 +447,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationRPSWindShockSpeed);
    fprintf(Outfptr, "GalaxySimulationRPSWindVelocity = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationRPSWindVelocity);
+   fprintf(Outfptr, "GalaxySimulationRPSWindShockSpeed = %"GOUTSYM"\n",
+     GalaxySimulationRPSWindShockSpeed);
  }
 
 #ifdef USE_MPI
