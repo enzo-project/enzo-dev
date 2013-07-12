@@ -34,7 +34,7 @@ int FindField(int f, int farray[], int n);
  
 int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 {
-	
+
 	if( MyProcessorNumber == ROOT_PROCESSOR ){
 	  fprintf(stderr,"ShockPoolAngle = %"GSYM"\n",ShockPoolAngle);
 	  fprintf(stderr,"ShockPoolShockSpeed = %"GSYM"\n",ShockPoolShockSpeed);
@@ -49,8 +49,6 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	  fprintf(stderr,"ShockPoolVelocity = %"GSYM", %"GSYM", %"GSYM"\n",
 			ShockPoolVelocity[0],ShockPoolVelocity[1],ShockPoolVelocity[2]);
 	} // end if
-
-	return SUCCESS;
 
   /* declarations */
 
@@ -160,14 +158,6 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	} // end loop over boundary slice
  
     } // end loop over boundary directions
-
-	if( MyProcessorNumber == ROOT_PROCESSOR ){ 
-		fprintf(stderr,"\t\tShockPoolDensity          = %"GSYM"\n",ShockPoolDensity);
-		fprintf(stderr,"\t\tShockPoolShockTotalEnergy = %"GSYM"\n",ShockPoolShockTotalEnergy);
-		fprintf(stderr,"\t\tShockPoolShockVelocity    = (%"GSYM", %"GSYM", %"GSYM")\n",
-			ShockPoolShockVelocity[0],ShockPoolShockVelocity[1],ShockPoolShockVelocity[2]);
-		fprintf(stderr,"\t\tShockPoolShockSpeed       = %"GSYM"\n",ShockPoolShockSpeed);
-	} // end if
 
   return SUCCESS;
  
