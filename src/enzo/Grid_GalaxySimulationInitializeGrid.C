@@ -180,13 +180,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
  }
 
- /* correct background density if it's not given in code units */
- if( UniformDensity < 1.0E-10 ){
-   UniformDensity /= DensityUnits;
-   if( debug && MyProcessorNumber == ROOT_PROCESSOR ) 
-     fprintf(stdout,"Converting GalaxySimulationUniformDensity = %"GSYM" from CGS to code units\n",UniformDensity);
- } // end uniform density if
-
  /* Set up inflow */
  if (GalaxySimulationInflowTime > 0.0){
    TimeActionType[0] = 2;

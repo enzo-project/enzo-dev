@@ -43,7 +43,7 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
  
   /* For Shock Pool problem, compute the new inflow boundary conditions. */
  
-  if (ProblemType == 3)
+  if (ProblemType == 3 ) //|| ProblemType == 31)
     if (Exterior->SetShockPoolBoundary(Time) == FAIL) {
       ENZO_FAIL("Error in exterior->SetShockPoolBoundary.\n");
     }

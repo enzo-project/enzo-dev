@@ -34,6 +34,22 @@ int FindField(int f, int farray[], int n);
  
 int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 {
+if( MyProcessorNumber == ROOT_PROCESSOR ){
+  fprintf(stderr,"ShockPoolAngle = %"GOUTSYM"\n",  ShockPoolAngle);
+  fprintf(stderr,"ShockPoolShockSpeed = %"GOUTSYM"\n",  ShockPoolShockSpeed);
+
+  fprintf(stderr,"ShockPoolShockDensity = %"GOUTSYM"\n",  ShockPoolShockDensity);
+  fprintf(stderr,"ShockPoolShockTotalEnergy = %"GOUTSYM"\n",  ShockPoolShockTotalEnergy);
+  fprintf(stderr,"ShockPoolShockVelocity = %"GOUTSYM", %"GOUTSYM", %"GOUTSYM"\n",  
+   ShockPoolShockVelocity[0], ShockPoolShockVelocity[1], ShockPoolShockVelocity[2]);
+
+  fprintf(stderr,"ShockPoolDensity = %"GOUTSYM"\n",  ShockPoolDensity);
+  fprintf(stderr,"ShockPoolTotalEnergy = %"GOUTSYM"\n",  ShockPoolTotalEnergy);
+  fprintf(stderr,"ShockPoolVelocity = %"GOUTSYM", %"GOUTSYM", %"GOUTSYM"\n",  
+     ShockPoolVelocity[0], ShockPoolVelocity[1], ShockPoolVelocity[2]);
+} // end if
+	return SUCCESS; // FIXME
+
   /* declarations */
  
   int i, j, dim, index;
