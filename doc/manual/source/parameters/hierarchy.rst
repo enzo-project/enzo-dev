@@ -240,8 +240,8 @@ Hierarchy Control Parameters
 ``MultiRefineRegionGeometry[#]`` (external)
     This parameter (and the ones following) describe a physical region of the simulation box for which an 
     independent refinement maximum and minimum (separate from ``MaximumRefinementLevel``) can be specified.
-    ``MultiRefineRegionGeometry`` controls the geometry of the refined volume. Currently implemented 
-    geometries are: (0) a rectangular region, (1) a ring of infinite height and (2) a cyclinder of infinite 
+``MultiRefineRegionGeometry[#]`` controls the geometry of the refined volume. Currently implemented 
+    geometries are: (0) a rectangular region, (1) a ring of infinite height and (2) a cylinder of infinite 
     height. Up to 20 multi-refined regions may be defined (number the same as for ``StaticRefineRegion``)
     and each multi-refined region is labelled starting from zero. Default: -1 (no multi-regions)
 ``MultiRefineRegionLeftEdge[#]``, ``MultiRefineRegionRightEdge[#]`` (external)
