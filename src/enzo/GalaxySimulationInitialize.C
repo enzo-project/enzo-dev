@@ -446,6 +446,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationRPSWindShockSpeed);
    fprintf(Outfptr, "GalaxySimulationRPSWindVelocity = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationRPSWindVelocity);
+   fprintf(Outfptr, "GalaxySimulationRPSWindShockSpeed = %"GOUTSYM"\n",
+     GalaxySimulationRPSWindShockSpeed);
  }
 
 #ifdef USE_MPI
