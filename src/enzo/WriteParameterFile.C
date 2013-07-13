@@ -558,15 +558,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  ResetMagneticFieldAmplitude[1],
 	  ResetMagneticFieldAmplitude[2]);
 
-  for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
-    if (AvoidRefineRegionLevel[dim] != INT_UNDEFINED) {
-      fprintf(fptr, "AvoidRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
-	      AvoidRefineRegionLevel[dim]);
-      fprintf(fptr, "AvoidRefineRegionLeftEdge[%"ISYM"] = ", dim);
-      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionLeftEdge[dim]);
-      fprintf(fptr, "AvoidRefineRegionRightEdge[%"ISYM"] = ", dim);
-      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionRightEdge[dim]);
+  for (int ireg = 0; ireg < MAX_STATIC_REGIONS; ireg++){
+    if (AvoidRefineRegionLevel[ireg] != INT_UNDEFINED) {
+      fprintf(fptr, "AvoidRefineRegionLevel[%"ISYM"] = %"ISYM"\n", ireg,
+	      AvoidRefineRegionLevel[ireg]);
+      fprintf(fptr, "AvoidRefineRegionLeftEdge[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionLeftEdge[ireg]);
+      fprintf(fptr, "AvoidRefineRegionRightEdge[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, AvoidRefineRegionRightEdge[ireg]);
     }
+  }
 
 
   fprintf(fptr, "MultiRefineRegionMaximumOuterLevel  = %"ISYM"\n",
@@ -574,55 +575,53 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MultiRefineRegionMinimumOuterLevel  = %"ISYM"\n",
           MultiRefineRegionMinimumOuterLevel);
   
-  for (dim = 0; dim < MAX_STATIC_REGIONS; dim++){ 
- 
-    fprintf(fptr, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"\n", dim,
-	    MultiRefineRegionMaximumLevel[dim]);
-    
-    fprintf(fptr, "MultiRefineRegionMinimumLevel[%"ISYM"] = %"ISYM"\n", dim,
-	    MultiRefineRegionMinimumLevel[dim]);
+  for (int ireg = 0; ireg < MAX_STATIC_REGIONS; ireg++){
+    if (MultiRefineRegionGeometry[ireg] >= 0) {
+      fprintf(fptr, "MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"\n", ireg,
+              MultiRefineRegionMaximumLevel[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionGeometry[%"ISYM"] = %"ISYM"\n", dim,
-	    MultiRefineRegionGeometry[dim]);
+      fprintf(fptr, "MultiRefineRegionMinimumLevel[%"ISYM"] = %"ISYM"\n", ireg,
+              MultiRefineRegionMinimumLevel[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionRadius[%"ISYM"] = %"GSYM"\n", dim,
-	    MultiRefineRegionRadius[dim]);
+      fprintf(fptr, "MultiRefineRegionGeometry[%"ISYM"] = %"ISYM"\n", ireg,
+              MultiRefineRegionGeometry[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionWidth[%"ISYM"] = %"GSYM"\n", 
-	    MultiRefineRegionWidth[dim]);
+      fprintf(fptr, "MultiRefineRegionRadius[%"ISYM"] = %"GSYM"\n", ireg,
+              MultiRefineRegionRadius[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionStaggeredRefinement[%"ISYM"] =%"GSYM"\n", 
-	    MultiRefineRegionStaggeredRefinement[dim]);
+      fprintf(fptr, "MultiRefineRegionWidth[%"ISYM"] = %"GSYM"\n",
+              MultiRefineRegionWidth[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionLeftEdge[%"ISYM"] = ", dim);
-    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionLeftEdge[dim]);
+      fprintf(fptr, "MultiRefineRegionStaggeredRefinement[%"ISYM"] =%"GSYM"\n",
+              MultiRefineRegionStaggeredRefinement[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionRightEdge[%"ISYM"] = ", dim);
-    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionRightEdge[dim]);
-    
-    fprintf(fptr, "MultiRefineRegionCenter[%"ISYM"] = ", dim);
-    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionCenter[dim]);
+      fprintf(fptr, "MultiRefineRegionLeftEdge[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionLeftEdge[ireg]);
 
-    fprintf(fptr, "MultiRefineRegionOrientation[%"ISYM"] = ", dim);
-    WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionOrientation[dim]);
+      fprintf(fptr, "MultiRefineRegionRightEdge[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionRightEdge[ireg]);
 
-    fprintf(fptr, "\n");
+      fprintf(fptr, "MultiRefineRegionCenter[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionCenter[ireg]);
 
+      fprintf(fptr, "MultiRefineRegionOrientation[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionOrientation[ireg]);
+
+      fprintf(fptr, "\n");
+    }
   }
 
-  fprintf(fptr, "\n");
-  fprintf(fptr, "\n");
-
-
-  for (dim = 0; dim < MAX_STATIC_REGIONS; dim++)
-    if (StaticRefineRegionLevel[dim] != INT_UNDEFINED) {
-      fprintf(fptr, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM"\n", dim,
-	      StaticRefineRegionLevel[dim]);
-      fprintf(fptr, "StaticRefineRegionLeftEdge[%"ISYM"] = ", dim);
-      WriteListOfFloats(fptr, MAX_DIMENSION, StaticRefineRegionLeftEdge[dim]);
-      fprintf(fptr, "StaticRefineRegionRightEdge[%"ISYM"] = ", dim);
-      WriteListOfFloats(fptr, MAX_DIMENSION, StaticRefineRegionRightEdge[dim]);
+  for (int ireg = 0; ireg < MAX_STATIC_REGIONS; ireg++){
+    if (StaticRefineRegionLevel[ireg] != INT_UNDEFINED) {
+      fprintf(fptr, "StaticRefineRegionLevel[%"ISYM"] = %"ISYM"\n", ireg,
+	      StaticRefineRegionLevel[ireg]);
+      fprintf(fptr, "StaticRefineRegionLeftEdge[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, StaticRefineRegionLeftEdge[ireg]);
+      fprintf(fptr, "StaticRefineRegionRightEdge[%"ISYM"] = ", ireg);
+      WriteListOfFloats(fptr, MAX_DIMENSION, StaticRefineRegionRightEdge[ireg]);
+      fprintf(fptr, "\n");
     }
+  }
  
   fprintf(fptr, "ParallelRootGridIO              = %"ISYM"\n", ParallelRootGridIO);
   fprintf(fptr, "ParallelParticleIO              = %"ISYM"\n", ParallelParticleIO);
