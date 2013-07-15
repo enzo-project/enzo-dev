@@ -122,7 +122,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	  /* Find the difference between the current time and the time at
 	     which the wave will reach this point. */
  
-	  deltime = time - distance/ShockPoolShockSpeed;
+	  deltime = time - distance/ShockPoolShockSpeed - ShockPoolDelay;
  
 	  /* If deltime < 0, the shock has not yet reached this point. */
  
@@ -134,11 +134,9 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	    BoundaryValue[TENum][dim][0][index] = ShockPoolShockTotalEnergy;
 	    BoundaryValue[Vel1Num][dim][0][index] = ShockPoolShockVelocity[0];
 	    if (BoundaryRank > 1)
-	      BoundaryValue[Vel2Num][dim][0][index] =
-	                                             ShockPoolShockVelocity[1];
+	      BoundaryValue[Vel2Num][dim][0][index] = ShockPoolShockVelocity[1];
 	    if (BoundaryRank > 2)
-	      BoundaryValue[Vel3Num][dim][0][index] =
-	                                             ShockPoolShockVelocity[2];
+	      BoundaryValue[Vel3Num][dim][0][index] = ShockPoolShockVelocity[2];
  
 	  } else {
  
@@ -150,9 +148,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	    if (BoundaryRank > 1)
 	      BoundaryValue[Vel2Num][dim][0][index] = ShockPoolVelocity[1];
 	    if (BoundaryRank > 2)
-
 	      BoundaryValue[Vel3Num][dim][0][index] = ShockPoolVelocity[2];
- 
 	  }
  
 	} // end loop over boundary slice

@@ -103,7 +103,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   float GalaxySimulationRPSWindDensity,
     GalaxySimulationRPSWindVelocity[MAX_DIMENSION],
     GalaxySimulationRPSWindPressure,
-		GalaxySimulationRPSWindShockSpeed;
+		GalaxySimulationRPSWindShockSpeed,
+		GalaxySimulationRPSWindDelay;
  
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
@@ -138,7 +139,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   GalaxySimulationRPSWindDensity = GalaxySimulationUniformDensity;
   GalaxySimulationRPSWindPressure = 1.0852e-12;
-	GalaxySimulationRPSWindShockSpeed = 0.0; 
+	GalaxySimulationRPSWindShockSpeed = 1.0; 
+	GalaxySimulationRPSWindDelay = 0.0; 
 
   /* read input from file */
 
@@ -193,6 +195,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       &GalaxySimulationRPSWindDensity);
     ret += sscanf(line, "GalaxySimulationRPSWindPressure = %"FSYM,
       &GalaxySimulationRPSWindPressure);
+    ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,
+      &GalaxySimulationRPSWindDelay);
     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,
       &GalaxySimulationRPSWindShockSpeed);
     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"FSYM" %"FSYM" %"FSYM,
@@ -201,7 +205,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       &GalaxySimulationRPSWindVelocity[2]);
     
     /* if the line is suspicious, issue a warning */
-    
     if (ret == 0 && strstr(line, "=") && strstr(line, "GalaxySimulation") 
 	&& line[0] != '#')
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
@@ -222,6 +225,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindVelocity[1] = GalaxySimulationRPSWindVelocity[1]/LengthUnits*TimeUnits;
   GalaxySimulationRPSWindVelocity[2] = GalaxySimulationRPSWindVelocity[2]/LengthUnits*TimeUnits;
 	GalaxySimulationRPSWindShockSpeed = GalaxySimulationRPSWindShockSpeed/LengthUnits*TimeUnits;
+	GalaxySimulationRPSWindDelay = GalaxySimulationRPSWindDelay/TimeUnits;
 
   /* Align gaseous and stellar disks */
   if( DiskGravity > 0 ){
@@ -230,7 +234,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end DiskGravity if
 
   /* set up grid */
-
   if (TopGrid.GridData->GalaxySimulationInitializeGrid(GalaxySimulationDiskRadius,
 						       GalaxySimulationGalaxyMass, 
 						       GalaxySimulationGasMass,
@@ -360,6 +363,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	/* Set ShockPool Global Variables */
 	ShockPoolAngle = 0.0;
 	ShockPoolShockSpeed = GalaxySimulationRPSWindShockSpeed;
+	ShockPoolDelay = GalaxySimulationRPSWindDelay;
 	
 	ShockPoolShockDensity     = InflowValue[0];
 	ShockPoolShockTotalEnergy = InflowValue[1]; 
@@ -442,6 +446,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationRPSWindDensity);
    fprintf(Outfptr, "GalaxySimulationRPSWindPressure = %"GOUTSYM"\n",
      GalaxySimulationRPSWindPressure);
+   fprintf(Outfptr, "GalaxySimulationRPSWindDelay = %"GOUTSYM"\n",
+     GalaxySimulationRPSWindDelay);
    fprintf(Outfptr, "GalaxySimulationRPSWindShockSpeed = %"GOUTSYM"\n",
      GalaxySimulationRPSWindShockSpeed);
    fprintf(Outfptr, "GalaxySimulationRPSWindVelocity = ");

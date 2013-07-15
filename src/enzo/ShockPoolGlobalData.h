@@ -25,6 +25,10 @@ SHOCK_POOL_EXTERN float ShockPoolAngle;
 
 SHOCK_POOL_EXTERN float ShockPoolShockSpeed;
 
+/* Time Delay for Shock entering */
+
+SHOCK_POOL_EXTERN float ShockPoolDelay;
+
 /* Density, pressure and velocity of the pre shock state. */
 
 SHOCK_POOL_EXTERN float ShockPoolDensity;
