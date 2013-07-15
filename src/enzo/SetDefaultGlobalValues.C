@@ -237,6 +237,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DiskGravityAngularMomentum[dim] = 0.0;
     MustRefineRegionLeftEdge[dim]   = 0.0;
     MustRefineRegionRightEdge[dim]  = 1.0;
+    ShockPoolVelocity[dim]          = 0.0;
+    ShockPoolShockVelocity[dim]     = 0.0;
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 
@@ -329,6 +331,14 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
+
+  ShockPoolAngle = 0.0;
+  ShockPoolShockSpeed = 1.0;
+  ShockPoolDelay = 0.0;
+  ShockPoolDensity = 0.0;
+  ShockPoolTotalEnergy = 0.0;
+  ShockPoolShockDensity = 0.0;
+  ShockPoolShockTotalEnergy = 0.0;
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet

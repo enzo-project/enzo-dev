@@ -446,6 +446,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  HaloFinderTimestep);
   fprintf(fptr, "HaloFinderLastTime             = %"PSYM"\n\n", 
 	  HaloFinderLastTime);
+
+  fprintf(fptr, "ShockPoolAngle            = %"GSYM"\n",ShockPoolAngle);
+  fprintf(fptr, "ShockPoolShockSpeed       = %"GSYM"\n",ShockPoolShockSpeed);
+  fprintf(fptr, "ShockPoolDelay            = %"GSYM"\n",ShockPoolDelay);
+  fprintf(fptr, "ShockPoolDensity          = %"GSYM"\n",ShockPoolDensity);
+  fprintf(fptr, "ShockPoolTotalEnergy      = %"GSYM"\n",ShockPoolTotalEnergy);
+  fprintf(fptr, "ShockPoolVelocity         = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ShockPoolVelocity);
+  fprintf(fptr, "ShockPoolShockDensity     = %"GSYM"\n",ShockPoolShockDensity);
+  fprintf(fptr, "ShockPoolShockTotalEnergy = %"GSYM"\n",ShockPoolShockTotalEnergy);
+  fprintf(fptr, "ShockPoolShockVelocity    = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, ShockPoolShockVelocity);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);

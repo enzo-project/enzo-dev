@@ -750,6 +750,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	  MyProcessorNumber == ROOT_PROCESSOR)
 	fprintf(stderr, "Warning: Incorrect version number.\n");
     }
+
+    /* Read Shock Pool Boundary Variables */
+
+     ret += sscanf(line, "ShockPoolAngle = %"FSYM,&ShockPoolAngle);
+     ret += sscanf(line, "ShockPoolShockSpeed = %"FSYM,&ShockPoolShockSpeed);
+     ret += sscanf(line, "ShockPoolDelay = %"FSYM,&ShockPoolDelay);
+     ret += sscanf(line, "ShockPoolDensity = %"FSYM,&ShockPoolDensity);
+     ret += sscanf(line, "ShockPoolTotalEnergy = %"FSYM,&ShockPoolTotalEnergy);
+     ret += sscanf(line, "ShockPoolVelocity = %"PSYM" %"PSYM" %"PSYM,
+     	ShockPoolVelocity, ShockPoolVelocity+1, ShockPoolVelocity+2);
+     ret += sscanf(line, "ShockPoolShockDensity = %"FSYM,&ShockPoolShockDensity);
+     ret += sscanf(line, "ShockPoolShockTotalEnergy = %"FSYM,&ShockPoolShockTotalEnergy);
+     ret += sscanf(line, "ShockPoolShockVelocity = %"PSYM" %"PSYM" %"PSYM,
+         ShockPoolShockVelocity,ShockPoolShockVelocity+1,ShockPoolShockVelocity+2);
  
     /* Read star particle parameters. */
 

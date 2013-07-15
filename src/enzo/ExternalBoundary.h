@@ -116,7 +116,7 @@ class ExternalBoundary
 //
 // ShockPool test problem:
 //  This routine sets up the inflow boundary conditions to model an inflowing
-//   shock wave (from the left boundary).  See also ShockPoolGlobalData.h.
+//   shock wave (from the left boundary).
 //
   int SetShockPoolBoundary(FLOAT time);
 //
