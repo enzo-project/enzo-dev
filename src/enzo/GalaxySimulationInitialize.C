@@ -362,7 +362,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	/* Set ShockPool Global Variables */
 	ShockPoolAngle = 0.0;
 	ShockPoolShockSpeed = GalaxySimulationRPSWindShockSpeed;
-	ShockPoolDelay = GalaxySimulationRPSWindDelay;
+	ShockPoolDelay = GalaxySimulationRPSWindDelay + TopGrid.GridData->ReturnTime();
 	
 	ShockPoolShockDensity     = InflowValue[0];
 	ShockPoolShockTotalEnergy = InflowValue[1]; 
