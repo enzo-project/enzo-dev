@@ -103,7 +103,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationRPSWindVelocity[MAX_DIMENSION],
     GalaxySimulationRPSWindPressure,
 		GalaxySimulationRPSWindShockSpeed,
-		GalaxySimulationRPSWindDelay;
+		GalaxySimulationRPSWindDelay,
+		GalaxySimulationRPSWindAngle;
  
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
@@ -140,6 +141,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRPSWindPressure = 1.0852e-12;
 	GalaxySimulationRPSWindShockSpeed = 1.0; 
 	GalaxySimulationRPSWindDelay = 0.0; 
+	GalaxySimulationRPSWindAngle = 0.0;
 
   /* read input from file */
 
@@ -198,6 +200,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       &GalaxySimulationRPSWindDelay);
     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,
       &GalaxySimulationRPSWindShockSpeed);
+    ret += sscanf(line, "GalaxySimulationRPSWindAngle = %"FSYM,
+      &GalaxySimulationRPSWindAngle);
     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"FSYM" %"FSYM" %"FSYM,
       &GalaxySimulationRPSWindVelocity[0],
       &GalaxySimulationRPSWindVelocity[1],
@@ -353,14 +357,14 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
       return FAIL;
   }
   if (MetaData.TopGridRank > 1)
-    Exterior.InitializeExternalBoundaryFace(1, reflecting, reflecting,
-					    Dummy, Dummy);
+    Exterior.InitializeExternalBoundaryFace(1, inflow, outflow,
+					    InflowValue, Dummy);
   if (MetaData.TopGridRank > 2)
     Exterior.InitializeExternalBoundaryFace(2, reflecting, reflecting,
 					    Dummy, Dummy);
 
 	/* Set ShockPool Global Variables */
-	ShockPoolAngle = 0.0;
+	ShockPoolAngle = GalaxySimulationRPSWindAngle;
 	ShockPoolShockSpeed = GalaxySimulationRPSWindShockSpeed;
 	ShockPoolDelay = GalaxySimulationRPSWindDelay + TopGrid.GridData->ReturnTime();
 	
@@ -451,6 +455,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
      GalaxySimulationRPSWindShockSpeed);
    fprintf(Outfptr, "GalaxySimulationRPSWindVelocity = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationRPSWindVelocity);
+   fprintf(Outfptr, "GalaxySimulationRPSWindAngle = %"GOUTSYM"\n",
+     GalaxySimulationRPSWindAngle);
    fprintf(Outfptr, "GalaxySimulationRPSWindShockSpeed = %"GOUTSYM"\n",
      GalaxySimulationRPSWindShockSpeed);
  }
