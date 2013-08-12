@@ -348,6 +348,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   GalaxySimulationRPSWindDensity = 0.0;
   GalaxySimulationRPSWindTotalEnergy = 0.0;
+  GalaxySimulationRPSWindPressure = 0.0;
 
   GalaxySimulationPreWindDensity = 0.0;
   GalaxySimulationPreWindTotalEnergy = 0.0;

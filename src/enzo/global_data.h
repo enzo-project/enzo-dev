@@ -1028,6 +1028,7 @@ EXTERN float GalaxySimulationRPSWindDelay;
 EXTERN float GalaxySimulationRPSWindDensity;
 EXTERN float GalaxySimulationRPSWindTotalEnergy;
 EXTERN float GalaxySimulationRPSWindVelocity[MAX_DIMENSION];
+EXTERN float GalaxySimulationRPSWindPressure;
 
 EXTERN float GalaxySimulationPreWindDensity;
 EXTERN float GalaxySimulationPreWindTotalEnergy; 

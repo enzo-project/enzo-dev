@@ -99,8 +99,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   int   GalaxySimulationRefineAtStart,
     GalaxySimulationUseMetallicityField;
  
-  float GalaxySimulationRPSWindPressure;
- 
   FLOAT LeftEdge[MAX_DIMENSION], RightEdge[MAX_DIMENSION];
   float ZeroBField[3] = {0.0, 0.0, 0.0};
 
@@ -125,18 +123,11 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 					     DomainRightEdge[dim]);
     GalaxySimulationAngularMomentum[dim] = 0.0;
     GalaxySimulationUniformVelocity[dim] = 0.0;
-    GalaxySimulationRPSWindVelocity[dim] = 0.0;
   }
   GalaxySimulationUniformDensity = 1.0E-28;
   GalaxySimulationUniformEnergy = 1.0;
   GalaxySimulationCR = .01;
   GalaxySimulationUniformCR = .01;
-
-  GalaxySimulationRPSWindDensity = GalaxySimulationUniformDensity;
-  GalaxySimulationRPSWindPressure = 1.0852e-12;
-	GalaxySimulationRPSWindShockSpeed = 1.0; 
-	GalaxySimulationRPSWindDelay = 0.0; 
-	GalaxySimulationRPSWindAngle = 0.0;
 
   /* read input from file */
 
@@ -187,8 +178,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationAngularMomentum[0],
 		  &GalaxySimulationAngularMomentum[1],
 		  &GalaxySimulationAngularMomentum[2]);
-    ret += sscanf(line, "GalaxySimulationRPSWindPressure = %"FSYM,
-      &GalaxySimulationRPSWindPressure);
     
     /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && strstr(line, "GalaxySimulation") 
@@ -421,8 +410,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationDiskPosition);
    fprintf(Outfptr, "GalaxySimulationAngularMomentum = ");
    WriteListOfFloats(Outfptr, MetaData.TopGridRank, GalaxySimulationAngularMomentum);
-   fprintf(Outfptr, "GalaxySimulationRPSWindPressure = %"GOUTSYM"\n",
-     GalaxySimulationRPSWindPressure);
  }
 
 #ifdef USE_MPI
