@@ -119,6 +119,13 @@ class ExternalBoundary
 //   shock wave (from the left boundary).
 //
   int SetShockPoolBoundary(FLOAT time);
+
+//
+// Galaxy Simulation RPS Wind boundary
+//   Sets up the inflow boundary conditions to model an 
+//   ICM wind bombarding a galaxy from an arbitrary angle
+  int SetGalaxySimulationBoundary(FLOAT time);
+
 //
 // DoubleMach problem:
 //  This routine sets up the necessary inflow boundary conditions.

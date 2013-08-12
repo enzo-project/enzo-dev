@@ -764,6 +764,19 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      ret += sscanf(line, "ShockPoolShockTotalEnergy = %"FSYM,&ShockPoolShockTotalEnergy);
      ret += sscanf(line, "ShockPoolShockVelocity = %"PSYM" %"PSYM" %"PSYM,
          ShockPoolShockVelocity,ShockPoolShockVelocity+1,ShockPoolShockVelocity+2);
+
+		/* Read Galaxy Simulation Wind Boundary Variabels */
+     ret += sscanf(line, "GalaxySimulationRPSWindAngle = %"FSYM,&GalaxySimulationRPSWindAngle);
+     ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,&GalaxySimulationRPSWindShockSpeed);
+     ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,&GalaxySimulationRPSWindDelay);
+     ret += sscanf(line, "GalaxySimulationRPSWindDensity = %"FSYM,&GalaxySimulationRPSWindDensity);
+     ret += sscanf(line, "GalaxySimulationRPSWindTotalEnergy = %"FSYM,&GalaxySimulationRPSWindTotalEnergy);
+     ret += sscanf(line, "GalaxySimulationRPSWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+      GalaxySimulationRPSWindVelocity, GalaxySimulationRPSWindVelocity+1, GalaxySimulationRPSWindVelocity+2);
+     ret += sscanf(line, "GalaxySimulationPreWindDensity = %"FSYM,&GalaxySimulationPreWindDensity);
+     ret += sscanf(line, "GalaxySimulationPreWindTotalEnergy = %"FSYM,&GalaxySimulationPreWindTotalEnergy);
+     ret += sscanf(line, "GalaxySimulationPreWindVelocity = %"PSYM" %"PSYM" %"PSYM,
+         GalaxySimulationPreWindVelocity,GalaxySimulationPreWindVelocity+1,GalaxySimulationPreWindVelocity+2);
  
     /* Read star particle parameters. */
 

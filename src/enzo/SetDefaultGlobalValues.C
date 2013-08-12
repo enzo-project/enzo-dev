@@ -239,6 +239,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionRightEdge[dim]  = 1.0;
     ShockPoolVelocity[dim]          = 0.0;
     ShockPoolShockVelocity[dim]     = 0.0;
+    GalaxySimulationRPSWindVelocity[dim] = 0.0;
+    GalaxySimulationPreWindVelocity[dim] = 0.0;
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 
@@ -339,6 +341,16 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockPoolTotalEnergy = 0.0;
   ShockPoolShockDensity = 0.0;
   ShockPoolShockTotalEnergy = 0.0;
+
+  GalaxySimulationRPSWindAngle = 0.0;
+  GalaxySimulationRPSWindShockSpeed = 0.0;
+  GalaxySimulationRPSWindDelay = 0.0;
+
+  GalaxySimulationRPSWindDensity = 0.0;
+  GalaxySimulationRPSWindTotalEnergy = 0.0;
+
+  GalaxySimulationPreWindDensity = 0.0;
+  GalaxySimulationPreWindTotalEnergy = 0.0;
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet

@@ -43,9 +43,16 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
  
   /* For Shock Pool problem, compute the new inflow boundary conditions. */
  
-  if (ProblemType == 3 || ProblemType == 31 )
+  if (ProblemType == 3)
     if (Exterior->SetShockPoolBoundary(Time) == FAIL) {
       ENZO_FAIL("Error in exterior->SetShockPoolBoundary.\n");
+    }
+
+  /* For Galaxy Sim w/ ICM Wind, compute the new inflow boundary conditions. */
+
+  if (ProblemType == 31)
+    if (Exterior->SetGalaxySimulationBoundary(Time) == FAIL) {
+      ENZO_FAIL("Error in exterior->SetGalaxySimulationBoundary.\n");
     }
  
   /* For the DoubleMach problem, set the bew inflow boundary conditions. */

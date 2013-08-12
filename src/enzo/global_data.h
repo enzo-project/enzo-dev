@@ -1011,11 +1011,26 @@ EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 EXTERN float ShockPoolAngle;
 EXTERN float ShockPoolShockSpeed;
 EXTERN float ShockPoolDelay;
+
 EXTERN float ShockPoolDensity;
 EXTERN float ShockPoolTotalEnergy;
 EXTERN float ShockPoolVelocity[MAX_DIMENSION];
+
 EXTERN float ShockPoolShockDensity;
 EXTERN float ShockPoolShockTotalEnergy;
 EXTERN float ShockPoolShockVelocity[MAX_DIMENSION];
+
+/* For the galaxy simulation boundary method */
+EXTERN float GalaxySimulationRPSWindAngle;
+EXTERN float GalaxySimulationRPSWindShockSpeed;
+EXTERN float GalaxySimulationRPSWindDelay;
+
+EXTERN float GalaxySimulationRPSWindDensity;
+EXTERN float GalaxySimulationRPSWindTotalEnergy;
+EXTERN float GalaxySimulationRPSWindVelocity[MAX_DIMENSION];
+
+EXTERN float GalaxySimulationPreWindDensity;
+EXTERN float GalaxySimulationPreWindTotalEnergy; 
+EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
  
 #endif

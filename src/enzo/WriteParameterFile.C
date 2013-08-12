@@ -458,6 +458,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ShockPoolShockTotalEnergy = %"GSYM"\n",ShockPoolShockTotalEnergy);
   fprintf(fptr, "ShockPoolShockVelocity    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ShockPoolShockVelocity);
+
+  fprintf(fptr, "GalaxySimulationRPSWindAngle       = %"GSYM"\n",GalaxySimulationRPSWindAngle);
+  fprintf(fptr, "GalaxySimulationRPSWindShockSpeed  = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
+  fprintf(fptr, "GalaxySimulationRPSWindDelay       = %"GSYM"\n",GalaxySimulationRPSWindDelay);
+  fprintf(fptr, "GalaxySimulationRPSWindDensity     = %"GSYM"\n",GalaxySimulationRPSWindDensity);
+  fprintf(fptr, "GalaxySimulationRPSWindTotalEnergy = %"GSYM"\n",GalaxySimulationRPSWindTotalEnergy);
+  fprintf(fptr, "GalaxySimulationRPSWindVelocity    = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationRPSWindVelocity);
+  fprintf(fptr, "GalaxySimulationPreWindDensity     = %"GSYM"\n",GalaxySimulationPreWindDensity);
+  fprintf(fptr, "GalaxySimulationPreWindTotalEnergy = %"GSYM"\n",GalaxySimulationPreWindTotalEnergy);
+  fprintf(fptr, "GalaxySimulationPreWindVelocity    = ");
+  WriteListOfFloats(fptr, MetaData.TopGridRank, GalaxySimulationPreWindVelocity);
  
   fprintf(fptr, "GreensFunctionMaxNumber     = %"ISYM"\n", GreensFunctionMaxNumber);
   fprintf(fptr, "GreensFunctionMaxSize       = %"ISYM"\n", GreensFunctionMaxSize);
