@@ -766,7 +766,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
          ShockPoolShockVelocity,ShockPoolShockVelocity+1,ShockPoolShockVelocity+2);
 
 		/* Read Galaxy Simulation Wind Boundary Variabels */
-     ret += sscanf(line, "GalaxySimulationRPSWindAngle = %"FSYM,&GalaxySimulationRPSWindAngle);
      ret += sscanf(line, "GalaxySimulationRPSWindShockSpeed = %"FSYM,&GalaxySimulationRPSWindShockSpeed);
      ret += sscanf(line, "GalaxySimulationRPSWindDelay = %"FSYM,&GalaxySimulationRPSWindDelay);
      ret += sscanf(line, "GalaxySimulationRPSWindDensity = %"FSYM,&GalaxySimulationRPSWindDensity);

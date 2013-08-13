@@ -1,10 +1,11 @@
 /***********************************************************************
 /
-/  EXTERNAL BOUNDARY CLASS (SETS OUTFLOW BOUNDARY CONDITIONS FOR SHOCK POOL)
+/  EXTERNAL BOUNDARY CLASS (SETS OUTFLOW BOUNDARY CONDITIONS FOR GAL SIM)
 /
 /  written by: Greg Bryan
 /  date:       May, 1995
-/  modified1:
+/  modified1:  Munier Salem
+/  date:       August, 2013
 /
 /  PURPOSE:
 /
@@ -28,14 +29,12 @@
 int FindField(int f, int farray[], int n);
  
 // Set the Left BoundaryValue of the chosen wave direction (set by
-//  GalaxySimulationRPSWindAngle) to the appropriate inflow boundary condition.
-//  This is a sinusoidal wave
+//  GalaxySimulationRPSWindSpeed) to the appropriate inflow boundary condition.
  
 int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 {
 
 	if( MyProcessorNumber == ROOT_PROCESSOR ){
-	  fprintf(stderr,"GalaxySimulationRPSWindAngle = %"GSYM"\n",GalaxySimulationRPSWindAngle);
 	  fprintf(stderr,"GalaxySimulationRPSWindShockSpeed = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
 
 	  fprintf(stderr,"GalaxySimulationRPSWindDensity = %"GSYM"\n",GalaxySimulationRPSWindDensity);
@@ -113,11 +112,17 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 	      float(NumberOfZones[dim2]);
  
 	  /* Compute the distance along the wave propogation vector
-	     (cos(angle), sin(angle), 0). Convert to radians. */
-	
-	  distance = pos[0]*cos(GalaxySimulationRPSWindAngle*TwoPi/360.0) +
-	             pos[1]*sin(GalaxySimulationRPSWindAngle*TwoPi/360.0);
- 
+     *    |d| = |v_wind . x|/|v_wind| */ 		
+
+		float vMag = sqrt( POW(GalaxySimulationRPSWindVelocity[0],2.0) +
+                       POW(GalaxySimulationRPSWindVelocity[1],2.0) +
+                       POW(GalaxySimulationRPSWindVelocity[2],2.0) );
+		distance = 0.0;
+		if( vMag > 0.0 )
+			distance = fabs( GalaxySimulationRPSWindVelocity[0]*pos[0] +
+			                 GalaxySimulationRPSWindVelocity[1]*pos[1] +
+			                 GalaxySimulationRPSWindVelocity[2]*pos[2] )/vMag;
+
 	  /* Find the difference between the current time and the time at
 	     which the wave will reach this point. */
  

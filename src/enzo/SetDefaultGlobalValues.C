@@ -334,7 +334,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   WritePotential              = FALSE;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
-  ShockPoolAngle = 0.0;
+	ShockPoolAngle = 0.0;
   ShockPoolShockSpeed = 1.0;
   ShockPoolDelay = 0.0;
   ShockPoolDensity = 0.0;
@@ -342,7 +342,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockPoolShockDensity = 0.0;
   ShockPoolShockTotalEnergy = 0.0;
 
-  GalaxySimulationRPSWindAngle = 0.0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
   GalaxySimulationRPSWindDelay = 0.0;
 
