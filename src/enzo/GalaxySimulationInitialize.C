@@ -332,8 +332,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     Exterior.InitializeExternalBoundaryFace(1, inflow, outflow,
 					    InflowValue, Dummy);
   if (MetaData.TopGridRank > 2)
-    Exterior.InitializeExternalBoundaryFace(2, reflecting, reflecting,
-					    Dummy, Dummy);
+    Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
+					    InflowValue, Dummy);
 
 	/* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
 	GalaxySimulationRPSWindDelay += TopGrid.GridData->ReturnTime();
