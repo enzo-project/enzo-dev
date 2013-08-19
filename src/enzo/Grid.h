@@ -329,10 +329,12 @@ class grid
 private:
    int write_dataset(int ndims, hsize_t *dims, const char *name, hid_t group, 
        hid_t data_type, void *data, int active_only = TRUE,
-       float *temp=NULL);
+       float *temp=NULL, int *grid_start_index=NULL, int *grid_end_index=NULL,
+       int *active_dims=NULL, int *data_dims=NULL);
    int read_dataset(int ndims, hsize_t *dims, const char *name, hid_t group,
        hid_t data_type, void *read_to, int copy_back_active=FALSE,
-       float *copy_to=NULL, int *active_dims=NULL);
+       float *copy_to=NULL, int *active_dims=NULL, int *grid_start_index=NULL,
+       int *grid_end_index=NULL, int *data_dims=NULL);
    int ReadExtraFields(hid_t group_id);
 public:
 
@@ -792,6 +794,11 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int SetFlaggingField(int &NumberOfFlaggedCells, int level);
 
+
+/* Set flagging field from refine regions */
+
+   int SetFlaggingFieldMultiRefineRegions(int level);
+
 /* Set flagging field from static regions */
 
    int SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells);
@@ -835,6 +842,12 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int FlagCellsToBeRefinedBySlope();
 
+/* Flag all points that require refining by their slope.
+     Returns the number of flagged cells.  Returns the number of flagged cells
+     (gg #4) */
+
+   int FlagCellsToBeRefinedBySecondDerivative();
+ 
 /* Flag all points that require refinging by the presence of shocks.
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
@@ -920,7 +933,9 @@ gradient force to gravitational force for one-zone collapse test. */
 /* baryons: interpolate field values from the Parent Grid (gg #6).
             Returns SUCCESS or FAIL. */
 
-   int InterpolateFieldValues(grid *ParentGrid);
+   int InterpolateFieldValues(grid *ParentGrid , 
+			      LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData);
+
 
 /* Interpolate one radiation field.  Based on InterpolateFieldValues
    but removed all of the conservative stuff. */   
@@ -1530,7 +1545,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Move a grid from one processor to another. */
 
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
-			    int DeleteAllFields = TRUE);
+			    int DeleteAllFields = TRUE, 
+			    int MoveSubgridMarker = FALSE);
 
 /* Send particles from one grid to another. */
 
@@ -1832,6 +1848,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     float RotatingCylinderLambda,
 				     float RotatingCylinderOverdensity);
 
+  int RotatingDiskInitializeGrid(float RDScaleRadius,
+				 float RDScaleHeight, 
+				 float RDTemperature,
+				 float RDDMConcentration, 
+				 float RDTotalDMMass,
+				 float RDCentralDensity,
+				 float RDOuterEdge);
+
   int RotatingSphereInitializeGrid(FLOAT RotatingSphereRadius,
 				     FLOAT RotatingSphereCenterPosition[MAX_DIMENSION],
 				     float RotatingSphereLambda,
@@ -1953,6 +1977,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			     float SphereAng2[MAX_SPHERES],
 			     int   SphereNumShells[MAX_SPHERES],
 			     int   SphereType[MAX_SPHERES],
+			     int   SphereConstantPressure[MAX_SPHERES],
+			     int   SphereSmoothSurface[MAX_SPHERES],
+			     float SphereSmoothRadius[MAX_SPHERES],
 			     int   SphereUseParticles,
 			     float ParticleMeanDensity,
 			     float UniformVelocity[MAX_DIMENSION],
@@ -2782,6 +2809,88 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                          ExternalBoundary *Exterior);
 #endif
 
+  int SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
+                 fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                 Elong_int GridGlobalStart[], int GravityOn,
+                 int NumberOfColours, int colnum[],
+                 float ** Fluxes);
+
+  //Variables
+    //CenteredB is used in the Riemann solver (SolveMHDequations) and the timestep (dtMagnetic)
+  //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
+  //CT style algorithm.
+  float *MagneticField[3]; 
+  float *CenteredB[3]; 
+  float *ElectricField[3];
+  float *AvgElectricField[3];
+  float *OldMagneticField[3];
+  float *OldElectricField[3];
+  float *OldCenteredB[3];
+  //Magnetic dimensions: MagneticDims[field][axis]
+  int MagneticDims[3][3], ElectricDims[3][3];
+  int MHDStartIndex[3][3], MHDEndIndex[3][3];//For the MagneticField
+  int MHDeStartIndex[3][3], MHDeEndIndex[3][3];//Electric Field
+  int MHDAdd[3][3]; //How much to add to Barryon Dimensions.  MHDAdd[i][j]=KronikerDelta(i,j)
+  int MagneticSize[3];
+  int ElectricSize[3];
+
+  float dtParent; //used for the Electric Field update.
+
+  //MHDParentTemp is used for the interpolation.
+  //It's a member of the grid class because it's also used in CopyZonesFromGrid,
+  //for the prolongation (see Balsara's AMR MHD paper), which has no knowledge of the parent.
+
+  float *MHDParentTemp[3];
+  int MHDParentTempPermanent[3];
+  int    MHDRefinementFactors[3];
+  FLOAT ParentDx, ParentDy, ParentDz;
+
+  
+  float *DyBx, *DzBx, *DyzBx;
+  float *DxBy, *DzBy, *DxzBy;
+  float *DxBz, *DyBz, *DxyBz;
+  int * DBxFlag, *DByFlag, *DBzFlag;
+
+  int MHD_Diagnose(char * message);
+  inline int indexb1(int i, int j, int k)    {return i+MagneticDims[0][0]*(j+MagneticDims[0][1]*k);}  
+  inline int indexb2(int i, int j, int k)    {return i+MagneticDims[1][0]*(j+MagneticDims[1][1]*k);}  
+  inline int indexb3(int i, int j, int k)    {return i+MagneticDims[2][0]*(j+MagneticDims[2][1]*k);}
+  int MHD_CID(LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData, int Offset[], int TempDim[], int Refinement[]);
+  int MHD_CIDWorker(grid* OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION]);
+  int MHD_SendOldFineGrids(LevelHierarchyEntry * OldFineLevel, grid *ParentGrid, TopGridData *MetaData);
+  int MHD_ProlongAllocate(int * ChildDim);
+  int MHD_DCheck(int * ChildDim, char * mess);
+  int MHD_ProlongFree();
+  void MHD_SetupDims(void);
+  //Evolution/AMR routines
+  int SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
+			fluxes *SubgridFluxes[], int level, int grid);
+  int ComputeElectricField(float dT, float ** Fluxes);
+  int MHD_Curl( int * Start, int * End, int Method);
+  int CenterMagneticField(int * Start = NULL, int * End = NULL);
+
+  int ClearAvgElectricField();
+  int MHD_UpdateMagneticField(int level, LevelHierarchyEntry * Level);
+  int MHD_ProjectFace(grid &ParentGrid,
+		  boundary_type LeftFaceBoundaryCondition[],
+		      boundary_type RightFaceBoundaryCondition[]);
+
+  //Test Problems
+  int MHDBlastInitializeGrid(float Density0, float Density1,
+                             float Energy0,  float Energy1,
+                             float Velocity0[], float Velocity1[],
+                             float B0[], float B1[],
+                             float Radius, float MHDBlastCenter[], int LongDimension,
+                             float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
+                             int InitStyle);
+  int MHDOrszagTangInitGrid(float Density,float Pressure, float V0, float B0 );
+
+  //See Grid_MHDCTEnergyToggle.C for details on these functions.
+  float *MHDCT_temp_conserved_energy;
+  int MHDCT_ConvertEnergyToConservedC();
+  int MHDCT_ConvertEnergyToSpecificC();
+  int MHDCT_ConvertEnergyToConservedS();
+  int MHDCT_ConvertEnergyToSpecificS();
 
 };
 

@@ -1,0 +1,9 @@
+
+This test is the standard Orszag-Tang test at low resolution with AMR.  
+The primary purpose of this test is to test the prolongation machinery, 
+as well as the rest of the AMR.  
+When an existing subgrid expands into new un-refined territory, 
+fine grids from the previous timestep must be included in the refinement.
+This test uses the EvolveRefineRegion machinery to evolve the refined region
+into new territory.  This test fails if it generates DivB larger than 1e-8 in
+double precision.  

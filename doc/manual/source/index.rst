@@ -99,7 +99,7 @@ If you use Enzo for a scientific publication, we ask that you cite the code in
 the following way in the acknowledgments of your paper:
 
 Computations described in this work were performed using the Enzo code
-(http://enzo.googlecode.com), which is the product of a collaborative effort
+(http://enzo-project.org), which is the product of a collaborative effort
 of scientists at many universities and national laboratories.
 
 Search

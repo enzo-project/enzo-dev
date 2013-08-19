@@ -33,6 +33,11 @@ class ExternalBoundary
 
   boundary_type ParticleBoundaryType;
 
+  int  MagneticBoundaryDims[3][MAX_DIMENSION];  //  of the grid to which the boundary
+                                          //  values apply 
+  boundary_type MagneticBoundaryType[3][MAX_DIMENSION][2];
+  float *MagneticBoundaryValue[3][3][2];
+
   float *BoundaryValue[MAX_NUMBER_OF_BARYON_FIELDS][MAX_DIMENSION][2];  
 					  // boundary values for inflow (3)
 
@@ -85,6 +90,9 @@ class ExternalBoundary
 //   Returns: 0 on failure
 //
   int SetExternalBoundary(int FieldRank, int GridDims[], int GridOffset[],
+                          int StartIndex[], int EndIndex[],
+                          float *Field, int FieldType);
+  int SetMagneticBoundary(int FieldRank, int GridDims[], int GridOffset[],
                           int StartIndex[], int EndIndex[],
                           float *Field, int FieldType);
 //

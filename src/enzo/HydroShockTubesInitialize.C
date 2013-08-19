@@ -1,6 +1,4 @@
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -35,6 +33,9 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *ColourName = "colour";
+  char *MachName   = "Mach";
+  char *PSTempName = "PreShock_Temperature";
+  char *PSDenName  = "PreShock_Density";
 
   /* declarations */
 
@@ -208,6 +209,14 @@ int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
+
+  if (ShockMethod) {
+    DataLabel[count++] = MachName;
+    if(StorePreShockFields){
+      DataLabel[count++] = PSTempName;
+      DataLabel[count++] = PSDenName;
+    }
+  } 
 
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;

@@ -60,6 +60,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
                              float SphereAng2[MAX_SPHERES],
                              int   SphereNumShells[MAX_SPHERES],
 			     int   SphereType[MAX_SPHERES],
+			     int   SphereConstantPressure[MAX_SPHERES],
+			     int   SphereSmoothSurface[MAX_SPHERES],
+			     float SphereSmoothRadius[MAX_SPHERES],
 			     float SphereHII[MAX_SPHERES],
 			     float SphereHeII[MAX_SPHERES],
 			     float SphereHeIII[MAX_SPHERES],
@@ -298,7 +301,7 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
   /* Loop over the mesh. */
   float density, dens1, Velocity[MAX_DIMENSION],
-    temperature, temp1, sigma, sigma1, colour;
+    temperature, temp1, sigma, sigma1, colour, outer_radius;
   float HII_Fraction, HeII_Fraction, HeIII_Fraction, H2I_Fraction;
   FLOAT r, x, y = 0, z = 0;
   int n = 0;
@@ -415,7 +418,9 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 		   pow(fabs(z-SpherePosition[sphere][2]), 2) );
 	  r = max(r, 0.1*CellWidth[0][0]);
 
-	  if (r < SphereRadius[sphere]) {
+	  outer_radius = (SphereSmoothSurface[sphere] == TRUE) ? 
+	    SphereSmoothRadius[sphere]*SphereRadius[sphere] : SphereRadius[sphere];
+	  if (r < outer_radius) {
 
 	    /* Compute Cartesian coordinates for rotational properties */
 
@@ -648,9 +653,16 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 
 	    if (dens1 > density) {
 	      density = dens1;
-	      if (temp1 == InitialTemperature)
-		temp1 = SphereTemperature[sphere];
-	      temperature = temp1;
+	      if (SphereType[sphere] != 7 && SphereType[sphere] != 9)
+		if (temp1 == InitialTemperature) {
+		  if (SphereConstantPressure[sphere] == TRUE) {
+		    temperature = SphereTemperature[sphere] * (SphereDensity[sphere] / dens1);
+		  } else {
+		    temperature = SphereTemperature[sphere];
+		  }
+		} else {
+		  temperature = temp1;
+		}
 	      sigma = sigma1;
 	      if (SphereType[sphere] != 6 &&
 		  SphereType[sphere] != 10 &&
@@ -666,6 +678,19 @@ int grid::PhotonTestInitializeGrid(int NumberOfSpheres,
 	    }
 
 	  } // end: if (r < SphereRadius)
+
+	  if (SphereSmoothSurface[sphere] == TRUE && 
+	      r < SphereSmoothRadius[sphere]*SphereRadius[sphere] &&
+		  r > SphereRadius[sphere]) {
+	    float ramp = 1.0 - 1.0 * tanh((3.0/(SphereSmoothRadius[sphere]-1.0))*
+					  (r/SphereRadius[sphere] - 1.0));
+	    ramp = max(ramp, 1.0/density);
+	    density *= ramp;
+	    if (SphereConstantPressure[sphere] == TRUE) {
+	      temperature /= ramp;
+	    }
+	  } // end: if (SmoothSurface)
+	  
 	} // end: loop over spheres
 
 	/* Set density. */

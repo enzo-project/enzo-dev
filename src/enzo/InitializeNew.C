@@ -66,6 +66,8 @@ int ImplosionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData);
 int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -217,6 +219,12 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 				HierarchyEntry &TopGrid, TopGridData &MetaData);
 
+int MHDCT_ParameterJuggle(); //updates old style MHDCT parameter files to reflect new values
+int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                          TopGridData &MetaData, ExternalBoundary &Exterior);
+int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+		      TopGridData &MetaData, ExternalBoundary &Exterior);
+
 void PrintMemoryUsage(char *str);
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -278,6 +286,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
  
   if (ReadParameterFile(fptr, MetaData, Initialdt) == FAIL) {
     ENZO_FAIL("Error in ReadParameterFile.");
+  }
+
+  //Ensure old style MHD_CT parameter files still work.
+  if( MHDCT_ParameterJuggle() == FAIL ){
+    ENZO_FAIL("Invalid parameter from old style MHD CT");
   }
 
   // Set the number of particle attributes, if left unset
@@ -424,6 +437,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 12)
     ret = FreeExpansionInitialize(fptr, Outfptr, TopGrid, MetaData);
  
+  // 13) RotatingDisk
+  if (ProblemType == 13)
+    ret = RotatingDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+
   // 20) Zeldovich Pancake
  
   if (ProblemType == 20)
@@ -483,14 +500,11 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     }
   }
   
-  
- 
   // 31) GalaxySimulation
   if (ProblemType == 31)
     ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData,Exterior);
 
-
-// 35) Shearing Box Simulation
+  // 35) Shearing Box Simulation
   if (ProblemType == 35) 
     ret = ShearingBoxInitialize(fptr, Outfptr, TopGrid, MetaData);
   if (ProblemType == 36) 
@@ -563,6 +577,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 102) {
     ret = Collapse1DInitialize(fptr, Outfptr, TopGrid, MetaData);
   }
+
+  /* 103) MHD Orszag-Tang vortex */
+  if (ProblemType == 103) //This doesn't actually need all those arguments
+    ret = MHDOrszagTangInit(fptr, Outfptr, TopGrid, MetaData, Exterior);
   
   /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
@@ -680,6 +698,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if ((ProblemType == 450) || (ProblemType == 451) || (ProblemType == 452))
     ret = FSMultiSourceInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
 #endif /* TRANSFER */
+
+  // 500) MHD blast initializer (many variants included here)
+  if (ProblemType == 500)
+    ret = MHDBlastInitialize(fptr, Outfptr, TopGrid, MetaData, Exterior);
 
 #ifdef NEW_PROBLEM_TYPES
   if (ProblemType == -978)

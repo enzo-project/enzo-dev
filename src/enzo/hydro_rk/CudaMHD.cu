@@ -1,5 +1,27 @@
-#define NBLOCK 128
-#define PLM_GHOST_SIZE 2
+/***********************************************************************
+/
+/  MHD SOLVER ON GPU
+/
+/  written by: Peng Wang
+/  date:       September, 2012
+/  modified1:
+/
+/
+************************************************************************/
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <assert.h>
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
+#include "typedefs.h"
+#include "global_data.h"
+#include "CUDAUtil.h"
+#include "CudaMHD.h"
+
+#define sign(A)  ((A) >  0  ?  1  : -1 )
+
+dim3 CudaBlock, CudaGrid;
 
 /***********************************************************
 /
@@ -14,8 +36,9 @@
 /
 ************************************************************/
 
-__forceinline__ __device__ void EOSDevice(float &p, float &rho, float &e, float &h, float &cs, 
-                    const float &Gamma, const int &eostype, const int &mode)
+__forceinline__ __device__ 
+void EOSDevice(float &p, float &rho, float &e, float &h, float &cs, 
+               const float &Gamma, const int &eostype, const int &mode)
 {
   float poverrho;
   
@@ -42,7 +65,8 @@ __forceinline__ __device__ void EOSDevice(float &p, float &rho, float &e, float 
 }
 
 // return the maximum of a, b, c
-__forceinline__ __device__ float Max3Device(const float &a, const float &b, const float &c)  
+__forceinline__ __device__ 
+float Max3Device(const float &a, const float &b, const float &c)  
 {
   if (a > b) {
     if (a > c)
@@ -59,7 +83,8 @@ __forceinline__ __device__ float Max3Device(const float &a, const float &b, cons
 
 
 // return the minimum of a, b, c
-__forceinline__ __device__ float Min3Device(const float &a, const float &b, const float &c)
+__forceinline__ __device__ 
+float Min3Device(const float &a, const float &b, const float &c)
 {
   if (a<b) {
     if (c<a)
@@ -77,16 +102,19 @@ __forceinline__ __device__ float Min3Device(const float &a, const float &b, cons
 #define FABS(A) ((A)*sign(A))
 
 // minmod limiter function
-__forceinline__ __device__ float MinmodDevice(const float &a, const float &b, const float &c)
+__forceinline__ __device__ 
+float MinmodDevice(const float &a, const float &b, const float &c)
 {
-  return 0.25f*(sign(a)+sign(b))*FABS((sign(a)+sign(c)))*Min3Device(FABS(a), FABS(b), FABS(c));
+  return 0.25f*(sign(a)+sign(b))*
+    FABS((sign(a)+sign(c)))*Min3Device(FABS(a), FABS(b), FABS(c));
 }
 
 
 // do PLM reconstruction for a point
-__forceinline__ __device__ void PLMPointDevice(float &vl_plm, 
-                                              const float &vm1, const float &v, const float &vp1, 
-                                              const float &ThetaLimiter)
+__forceinline__ __device__ 
+void PLMPointDevice(float &vl_plm, 
+                    const float &vm1, const float &v, const float &vp1, 
+                    const float &ThetaLimiter)
 {
   float dv_l = (v-vm1) * ThetaLimiter;
   float dv_r = (vp1-v) * ThetaLimiter;
@@ -98,9 +126,10 @@ __forceinline__ __device__ void PLMPointDevice(float &vl_plm,
   //vl_plm = ThetaLimiter;
 }
 
-__forceinline__ __device__ void PLMLeftDevice(float &vl_plm, 
-                                          const float &vm1, const float &v, const float &vp1,
-                                          const float &ThetaLimiter)
+__forceinline__ __device__ 
+void PLMLeftDevice(float &vl_plm, 
+                   const float &vm1, const float &v, const float &vp1,
+                   const float &ThetaLimiter)
 {
   float dv_l = (v-vm1) * ThetaLimiter;
   float dv_r = (vp1-v) * ThetaLimiter;
@@ -111,9 +140,10 @@ __forceinline__ __device__ void PLMLeftDevice(float &vl_plm,
   vl_plm = v + 0.5f*dv;
 }
 
-__forceinline__ __device__ void PLMRightDevice(float &vr_plm, 
-                                          const float &vm1, const float &v, const float &vp1,
-                                          const float &ThetaLimiter)
+__forceinline__ __device__ 
+void PLMRightDevice(float &vr_plm, 
+                    const float &vm1, const float &v, const float &vp1,
+                    const float &ThetaLimiter)
 {
   float dv_l = (v-vm1) * ThetaLimiter;
   float dv_r = (vp1-v) * ThetaLimiter;
@@ -125,15 +155,16 @@ __forceinline__ __device__ void PLMRightDevice(float &vr_plm,
 }
 
 // HLL Riemann solver
-__forceinline__ __device__ void HLLDevice(float &UD, float &US1, float &US2, float &US3, 
-                               float &UTau, float &UB1, float &UB2, float &UB3, 
-                               float &UPhi,
-                               float &FD, float &FS1, float &FS2, float &FS3, 
-                               float &FTau, float &FB1, float &FB2, float &FB3, float &FPhi,                         
-                               float &lp, float &lm,
-                               float D, float Ein, float V1, float V2, float V3, 
-                               float B1, float B2, float B3, float Phi,
-                               int EOSType, float Gamma)
+__forceinline__ __device__ 
+void HLLDevice(float &UD, float &US1, float &US2, float &US3, 
+               float &UTau, float &UB1, float &UB2, float &UB3, 
+               float &UPhi,
+               float &FD, float &FS1, float &FS2, float &FS3, 
+               float &FTau, float &FB1, float &FB2, float &FB3, float &FPhi,
+               float &lp, float &lm,
+               float D, float Ein, float V1, float V2, float V3, 
+               float B1, float B2, float B3, float Phi,
+               int EOSType, float Gamma)
 {
   float BSq = B1*B1 + B2*B2 + B3*B3;
   float BV = B1*V1 + B2*V2 + B3*V3;
@@ -179,7 +210,8 @@ __forceinline__ __device__ void HLLDevice(float &UD, float &US1, float &US2, flo
 
 // 1D HLL-PLM solver
 // We will use the same 1D solver for sweeps in all 3 directions
-__forceinline__ __device__ void MHD_HLL_PLM_1D(
+__forceinline__ __device__ 
+void MHD_HLL_PLM_1D(
   float &FD, float &FS1, float &FS2, float &FS3,
   float &FTau, float &FB1, float &FB2,
   float &FB3, float &FPhi,
@@ -253,13 +285,15 @@ __forceinline__ __device__ void MHD_HLL_PLM_1D(
 
 // Kernel for HLL-PLM MHD solver
 // 1 thread corresponds to 1 flux at cell interface
-__global__ void MHD_HLL_PLMKernel(
+__global__ 
+void MHD_HLL_PLMKernel(
   float *FluxD, float *FluxS1, float *FluxS2, float *FluxS3, float *FluxTau, 
   float *FluxB1, float *FluxB2, float *FluxB3, float *FluxPhi,
   float *D, float *V1, float *V2, float *V3, float *TE, 
   float *B1, float *B2, float *B3, float *Phi,
   int EOSType, float Ch, float ThetaLimiter, float Gamma, int NeqMHD, 
-  int idim, int jdim, int kdim, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
+  int idim, int jdim, int kdim, 
+  int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
 //  int size = idim*jdim*kdim;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
@@ -403,6 +437,26 @@ __global__ void MHD_HLL_PLMKernel(
   }
 }
 
+extern "C"
+void MHD_HLL_PLMGPU(cuMHDData &Data, int dir)
+{
+  MHD_HLL_PLMKernel<<<CudaGrid, CudaBlock>>>(
+    Data.Flux[IdxD], Data.Flux[IdxS1], Data.Flux[IdxS2], Data.Flux[IdxS3],
+    Data.Flux[IdxTau], 
+    Data.Flux[IdxB1], Data.Flux[IdxB2], Data.Flux[IdxB3], Data.Flux[IdxPhi],
+    Data.Baryon[IdxD], 
+    Data.Baryon[IdxV1], Data.Baryon[IdxV2], Data.Baryon[IdxV3], 
+    Data.Baryon[IdxTE], 
+    Data.Baryon[IdxB1], Data.Baryon[IdxB2], Data.Baryon[IdxB3], 
+    Data.Baryon[IdxPhi],
+    EOSType, C_h, Theta_Limiter, Gamma, NEQ_MHD,
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2], dir);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
 // Solve for advecting species fields
 __global__ void ComputeFluxSpeciesKernel(
   float **FluxSpecies, float **Species, float *FluxD,
@@ -451,6 +505,19 @@ __global__ void ComputeFluxSpeciesKernel(
   }
 }
 
+extern "C"
+void ComputeFluxSpeciesGPU(cuMHDData &Data, int dir)
+{
+  ComputeFluxSpeciesKernel<<<CudaGrid, CudaBlock>>>(
+    Data.FluxSpeciesArray, Data.SpeciesArray, Data.Flux[IdxD], 
+    NSpecies, Theta_Limiter,
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2], dir);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
 // Differentiate fluxes to get dU
 __global__ void ComputedUKernel(
   float *dUD, float *dUS1, float *dUS2, float *dUS3, float *dUTau,
@@ -462,7 +529,8 @@ __global__ void ComputedUKernel(
   const float* __restrict FluxB2, const float* __restrict FluxB3, 
   const float* __restrict FluxPhi, float **FluxSpecies,
   int NSpecies, float dt, float dx, float Ch,
-  int idim, int jdim, int kdim, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
+  int idim, int jdim, int kdim, 
+  int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
 //  const int size = idim*jdim*kdim;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
@@ -505,11 +573,34 @@ __global__ void ComputedUKernel(
   }
 }
 
-__global__ void MHDGravitySourceKernel(
+extern "C"
+void ComputedUGPU(cuMHDData &Data, float dt, float dx, int dir)
+{
+  ComputedUKernel<<<CudaGrid, CudaBlock>>>(
+    Data.dU[IdxD], Data.dU[IdxS1], Data.dU[IdxS2], Data.dU[IdxS3],
+    Data.dU[IdxTau], 
+    Data.dU[IdxB1], Data.dU[IdxB2], Data.dU[IdxB3], Data.dU[IdxPhi], 
+    Data.divB, Data.gradPhi, Data.dUSpeciesArray,
+    Data.Flux[IdxD], Data.Flux[IdxS1], Data.Flux[IdxS2], Data.Flux[IdxS3], 
+    Data.Flux[IdxTau], 
+    Data.Flux[IdxB1], Data.Flux[IdxB2], Data.Flux[IdxB3], 
+    Data.Flux[IdxPhi], Data.FluxSpeciesArray,
+    NSpecies, dt, dx, C_h, 
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2], dir);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
+__global__ 
+void MHDGravitySourceKernel(
   float *dUS1, float *dUS2, float *dUS3, float *dUTau,
   float *D, float *V1, float *V2, float *V3, float dt,
-  float *AccelerationField0, float *AccelerationField1, float *AccelerationField2,
-  int dimx, int dimy, int dimz,
+  float *AccelerationField0, 
+  float *AccelerationField1, 
+  float *AccelerationField2,
+  int dimx, int dimy, int dimz, 
   int i1, int i2, int j1, int j2, int k1, int k2)
 {
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
@@ -534,10 +625,28 @@ __global__ void MHDGravitySourceKernel(
   }
 }
 
-__global__ void MHDComovingSourceKernel(
+extern "C"
+void MHDGravitySourceGPU(cuMHDData &Data, float dt)
+{
+  MHDGravitySourceKernel<<<CudaGrid, CudaBlock>>>(
+    Data.dU[IdxS1], Data.dU[IdxS2], Data.dU[IdxS3], Data.dU[IdxTau], 
+    Data.Baryon[IdxD], 
+    Data.Baryon[IdxV1], Data.Baryon[IdxV2], Data.Baryon[IdxV3], dt,
+    Data.AccelerationField[0], 
+    Data.AccelerationField[1], 
+    Data.AccelerationField[2],
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2]);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
+__global__ 
+void MHDComovingSourceKernel(
   float *dUTau, float *dUB1, float *dUB2, float *dUB3, float *dUPhi,
   float *B1, float *B2, float *B3, float dt, float coef,
-  int dimx, int dimy, int dimz,
+  int dimx, int dimy, int dimz, 
   int i1, int i2, int j1, int j2, int k1, int k2)
 {
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
@@ -559,13 +668,29 @@ __global__ void MHDComovingSourceKernel(
   }
 }
 
-__global__ void MHDDrivingSourceKernel(
+extern "C"
+void MHDComovingSourceGPU(cuMHDData &Data, float dt, float coef)
+{
+  MHDComovingSourceKernel<<<CudaGrid, CudaBlock>>>(
+    Data.dU[IdxTau], Data.dU[IdxB1], Data.dU[IdxB2], Data.dU[IdxB3], 
+    Data.dU[IdxPhi], 
+    Data.Baryon[IdxB1], Data.Baryon[IdxB2], Data.Baryon[IdxB3], 
+    dt, coef,
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2]);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
+__global__ 
+void MHDDrivingSourceKernel(
   float *dUS1, float *dUS2, float *dUS3, float *dUTau,
-  float *D, float *V1, float *V2, float *V3, float *TE,
-  float *B1, float *B2, float *B3,
-  float *DrivingForce1, float *DrivingForce2, float *DrivingForce3,
-  float dt, float DrivingEfficiency,
-  int dimx, int dimy, int dimz,
+  float *D, float *V1, float *V2, float *V3, 
+  float *TE, float *B1, float *B2, float *B3,
+  float *DrivingForce1, float *DrivingForce2, 
+  float *DrivingForce3, float DrivingEfficiency,
+  float dt, int dimx, int dimy, int dimz, 
   int i1, int i2, int j1, int j2, int k1, int k2)
 {
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
@@ -592,10 +717,27 @@ __global__ void MHDDrivingSourceKernel(
   }
 }
   
-  
+extern "C"
+void MHDDrivingSourceGPU(cuMHDData &Data, float dt)
+{
+  MHDDrivingSourceKernel<<<CudaGrid, CudaBlock>>>(
+    Data.dU[IdxS1], Data.dU[IdxS2], Data.dU[IdxS3], Data.dU[IdxTau], 
+    Data.Baryon[IdxD], 
+    Data.Baryon[IdxV1], Data.Baryon[IdxV2], Data.Baryon[IdxV3], 
+    Data.Baryon[IdxTE], 
+    Data.Baryon[IdxB1], Data.Baryon[IdxB2], Data.Baryon[IdxB3],
+    Data.DrivingForce[0], Data.DrivingForce[1], Data.DrivingForce[2], 
+    DrivingEfficiency, dt,
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2]);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
 
-__global__ void Density2Fraction(float **Species, float *Density, 
-                                 float NSpecies, int size)
+__global__ 
+void Density2FractionKernel(float **Species, float *Density, 
+                            float NSpecies, int size)
 {
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + blockIdx.x*blockDim.x + 
     threadIdx.x;
@@ -608,8 +750,18 @@ __global__ void Density2Fraction(float **Species, float *Density,
   }
 }
 
-__global__ void Fraction2Density(float **Species, float *Density, 
-                                 float NSpecies, int size)
+extern "C"
+void Density2FractionGPU(cuMHDData &Data)
+{
+  const int size = Data.Dimension[0]*Data.Dimension[1]*Data.Dimension[2];
+  Density2FractionKernel<<<CudaGrid, CudaBlock>>>(
+    Data.SpeciesArray, Data.Baryon[IdxD], NSpecies, size);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
+__global__ 
+void Fraction2DensityKernel(float **Species, float *Density, 
+                            float NSpecies, int size)
 {
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + blockIdx.x*blockDim.x + 
     threadIdx.x;
@@ -620,8 +772,17 @@ __global__ void Fraction2Density(float **Species, float *Density,
   }
 }
 
+extern "C"
+void Fraction2DensityGPU(cuMHDData &Data)
+{
+  const int size = Data.Dimension[0]*Data.Dimension[1]*Data.Dimension[2];
+  Fraction2DensityKernel<<<CudaGrid, CudaBlock>>>(
+    Data.SpeciesArray, Data.Baryon[IdxD], NSpecies, size);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
 
-__global__ void UpdateMHDPrimKernel(
+__global__ 
+void UpdateMHDPrimKernel(
   float *D, float *V1, float *V2, float *V3, float *TE,
   float *B1, float *B2, float *B3, float *Phi, float **Species,
   float *OldD, float *OldV1, float *OldV2, float *OldV3, float *OldTE,
@@ -650,7 +811,8 @@ __global__ void UpdateMHDPrimKernel(
       if (RKStep == 1) {
         sp = Species[f][idx3d]*D[idx3d] + dUSpecies[f][idx3d];
       } else {
-        sp = 0.5f*(OldSpecies[f][idx3d] + Species[f][idx3d]*D[idx3d] + dUSpecies[f][idx3d]);
+        sp = 0.5f*(OldSpecies[f][idx3d] + Species[f][idx3d]*D[idx3d] + 
+                   dUSpecies[f][idx3d]);
       }
       Species[f][idx3d] = sp;
       sum += sp;
@@ -729,10 +891,38 @@ __global__ void UpdateMHDPrimKernel(
   }
 }
 
-__global__ void MHDSaveSubgridFluxKernel(
+extern "C"
+void UpdateMHDPrimGPU(cuMHDData &Data, int RKStep, float dt)
+{
+  UpdateMHDPrimKernel<<<CudaGrid, CudaBlock>>>(
+    Data.Baryon[IdxD], 
+    Data.Baryon[IdxV1], Data.Baryon[IdxV2], Data.Baryon[IdxV3], 
+    Data.Baryon[IdxTE], 
+    Data.Baryon[IdxB1], Data.Baryon[IdxB2], Data.Baryon[IdxB3],
+    Data.Baryon[IdxPhi], Data.SpeciesArray,
+    Data.OldBaryon[IdxD], 
+    Data.OldBaryon[IdxV1], Data.OldBaryon[IdxV2], Data.OldBaryon[IdxV3],
+    Data.OldBaryon[IdxTE], 
+    Data.OldBaryon[IdxB1], Data.OldBaryon[IdxB2], Data.OldBaryon[IdxB3],
+    Data.OldBaryon[IdxPhi], Data.OldSpeciesArray,
+    Data.dU[IdxD], 
+    Data.dU[IdxS1], Data.dU[IdxS2], Data.dU[IdxS3], Data.dU[IdxTau], 
+    Data.dU[IdxB1], Data.dU[IdxB2], Data.dU[IdxB3], Data.dU[IdxPhi], 
+    Data.dUSpeciesArray,
+    NSpecies, RKStep, dt, C_h, C_p, 
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2]);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
+__global__ 
+void MHDSaveSubgridFluxKernel(
   float *LeftFluxes,  float *RightFluxes, const float* __restrict Flux,
   float dtdx, int dimx, int dimy, int dimz,
-  int fistart, int fiend, int fjstart, int fjend, int lface, int rface, int dir)
+  int fistart, int fiend, int fjstart, int fjend, 
+  int lface, int rface, int dir)
 {
   int tid = blockIdx.x*blockDim.x + threadIdx.x;
   const int nfi = fiend - fistart + 1;
@@ -757,3 +947,26 @@ __global__ void MHDSaveSubgridFluxKernel(
     RightFluxes[offset] = 0.5f*Flux[rindex]*dtdx;
   }
 }
+
+extern "C"
+void MHDSaveSubgridFluxGPU(float *LeftFlux, float *RightFlux, float *Flux,
+                          float *Tmp1, float *Tmp2, float *Tmp3, float *Tmp4, 
+                          float dtdx,
+                          const int dimx, const int dimy, const int dimz,
+                          const int fistart, const int fiend,
+                          const int fjstart, const int fjend,
+                          const int lface, const int rface, int dir)
+{
+  int nf = (fiend - fistart + 1)*(fjend - fjstart + 1);
+  
+  MHDSaveSubgridFluxKernel<<<(nf+127)/128, 128>>>
+    (Tmp1, Tmp2, Flux, dtdx, dimx, dimy, dimz,
+     fistart, fiend, fjstart, fjend, lface, rface, dir);
+  cudaMemcpy(Tmp3, Tmp1, nf*sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(Tmp4, Tmp2, nf*sizeof(float), cudaMemcpyDeviceToHost);  
+  CUDA_SAFE_CALL( cudaGetLastError() );
+  for (int i = 0; i < nf; i++) {
+    LeftFlux[i] += Tmp3[i];
+    RightFlux[i] += Tmp4[i];
+  }
+}                     
