@@ -23,6 +23,11 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+         float *TemperatureUnits, float *TimeUnits,
+         float *VelocityUnits, FLOAT Time);
  
 int grid::FlagCellsToBeRefinedByShear()
 {
@@ -52,11 +57,28 @@ int grid::FlagCellsToBeRefinedByShear()
   /* Find fields: density, total energy, velocity1-3. */
  
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
+  float c_sound2;
   if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
 				       Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
- 
+
+/* Create temperature fields for calculating local sound speed */
+
+  float *temperature = new float[size];
+
+  if (this->ComputeTemperatureField(temperature) == FAIL){
+    ENZO_FAIL("Error in grid->ComputeTemperatureField.");
+  }
+
+  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
+    VelocityUnits = 1, TimeUnits = 1;
+
+  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+           &TimeUnits, &VelocityUnits, Time) == FAIL) {
+    ENZO_FAIL("Error in GetUnits.");
+  }
+
   /* loop over active dimensions */
  
   int Offset = 1;
@@ -112,9 +134,12 @@ int grid::FlagCellsToBeRefinedByShear()
 	    DelVel1 *= DelVel1;
 	    DelVel2 *= DelVel2;
 	    DelVelocity[index] += DelVel1 + DelVel2;
-	    if (dim == GridRank-1)
+        c_sound2 = Gamma*kboltz*temperature[index]/(Mu*mh) / 
+                   (VelocityUnits*VelocityUnits);
+	    if (dim == GridRank-1) {
 	      FlaggingField[index] +=
-		(DelVelocity[index] > MinimumShearForRefinement) ? 1 : 0;
+		(DelVelocity[index] > (MinimumShearForRefinement*c_sound2)) ? 1 : 0;
+        }
 	  }
  
       Offset *= GridDimension[dim];
@@ -124,6 +149,7 @@ int grid::FlagCellsToBeRefinedByShear()
   /* clean up */
  
   delete DelVelocity;
+  delete temperature;
  
   /* Count number of flagged Cells. */
  
