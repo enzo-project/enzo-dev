@@ -23,10 +23,14 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
- 
+
 /* function prototypes */
  
 int FindField(int f, int farray[], int n);
+
+int GetUnits(float *DensityUnits, float *LengthUnits,
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, float *MassUnits, FLOAT time);
  
 // Set the Left BoundaryValue of the chosen wave direction (set by
 //  GalaxySimulationRPSWindSpeed) to the appropriate inflow boundary condition.
@@ -69,7 +73,7 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 					 Vel3Num, TENum) == FAIL) {
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
- 
+
   /* set the appropriate BoundaryValues on the left side */
  
   for (dim = 0; dim < BoundaryRank; dim++)
@@ -154,6 +158,79 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 		} else if( 2 == GalaxySimulationRPSWind ){
 
 			/* Update Bounds w/ table of density and wind velocity components */
+	
+			static double *ICMDensityTable, *ICMTotalEnergyTable, *ICMVelocityXTable, 
+				*ICMVelocityYTable, *ICMVelocityZTable, *ICMTimeTable;	
+			static int loadTable = 1,ICMTableSize=0; // only when processor revs up
+			if( loadTable ){
+	
+				/* Find units */
+				float DensityUnits,LengthUnits,TemperatureUnits,TimeUnits,VelocityUnits,MassUnits,temperature;
+				GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+				         &TimeUnits, &VelocityUnits, &MassUnits, time);
+
+				char filename[] = "ICMinflow_data.out"; char line[MAX_LINE_LENGTH]; FILE *fptr;
+				if ((fptr = fopen(filename, "r")) == NULL) ENZO_FAIL("Erroring opening ICMinflow_data.out");
+
+				int index = 0;
+				while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
+					if (line[0] == 'N') {
+						(sscanf(line, "NumberOfSteps = %d\n", &ICMTableSize));
+						ICMTimeTable        = new float[ICMTableSize];
+						ICMDensityTable     = new float[ICMTableSize];
+						ICMTotalEnergyTable = new float[ICMTableSize];
+						ICMVelocityXTable   = new float[ICMTableSize];
+						ICMVelocityYTable   = new float[ICMTableSize];
+						ICMVelocityZTable   = new float[ICMTableSize];
+					}
+					if (line[0] != '#' && line[0] != 'N') {
+						
+						// read values
+						sscanf(line,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"",&ICMTimeTable[index],&ICMDensityTable[index], 
+						       &temperature,&ICMVelocityXTable[index],&ICMVelocityYTable[index],&ICMVelocityZTable[index]);
+						
+						// convert to code units
+						ICMTimeTable[index]        /= TimeUnits;
+						ICMDensityTable[index]     /= DensityUnits;
+						ICMVelocityXTable[index]   /= (LengthUnits/TimeUnits); 
+						ICMVelocityYTable[index]   /= (LengthUnits/TimeUnits); 
+						ICMVelocityZTable[index]   /= (LengthUnits/TimeUnits); 
+						ICMTotalEnergyTable[index] = temperature/TemperatureUnits/((Gamma-1.0)*0.6);
+
+						if (HydroMethod != 2) {
+							ICMTotalEnergyTable[index] += 0.5*(   pow(ICMVelocityXTable[0],2)
+							                                    + pow(ICMVelocityYTable[1],2)
+							                                    + pow(ICMVelocityZTable[2],2));
+						}
+
+						index++;
+					} // end data-line if
+      	} // end file read while
+
+				fclose(fptr); 
+
+				// display table
+				fprintf(stderr,"LOOKUP TABLE:\n");
+				for( int i = 0 ; i < ICMTableSize ; i++ )
+					fprintf(stderr,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",ICMTimeTable[i],ICMDensityTable[i],
+						ICMTotalEnergyTable[i],ICMVelocityXTable[i],ICMVelocityYTable[i],ICMVelocityZTable[i]);
+
+				loadTable = 0;
+			}// end load table if
+
+/*
+			if(deltime > 0.0){ // use default pre-wind values
+				BoundaryValue[DensNum][dim][0][index] = GalaxySimulationPreWindDensity;
+				BoundaryValue[TENum][dim][0]  [index] = GalaxySimulationPreWindTotalEnergy;
+				BoundaryValue[Vel1Num][dim][0][index] = GalaxySimulationPreWindVelocity[0];
+				if (BoundaryRank > 1)
+					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationPreWindVelocity[1];
+				if (BoundaryRank > 2)
+					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationPreWindVelocity[2];
+			} else {
+				// use table and interpolate!
+			}
+*/
 
 		} else {
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
