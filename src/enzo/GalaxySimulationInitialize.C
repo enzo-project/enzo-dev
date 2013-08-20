@@ -307,43 +307,44 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   } // end: if (GalaxySimulationRefineAtStart)
 
 
-  /* Initialize the exterior */
-
-  Exterior.Prepare(TopGrid.GridData);
-
-  float InflowValue[5], Dummy[5];
-  InflowValue[0] = GalaxySimulationRPSWindDensity;
-  InflowValue[1] = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
-  if (HydroMethod != 2) {
-    InflowValue[1] = InflowValue[1] + 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
-                                            + pow(GalaxySimulationRPSWindVelocity[1],2)
-                                            + pow(GalaxySimulationRPSWindVelocity[2],2));
-  }
-  InflowValue[2] = GalaxySimulationRPSWindVelocity[0];
-  InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
-  InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
+  /* If Galaxy is Subject to ICM Wind, Initialize the exterior */
+	if( GalaxySimulationRPSWind > 0 ){
+  	Exterior.Prepare(TopGrid.GridData);
+	
+		float InflowValue[5], Dummy[5];
+	  InflowValue[0] = GalaxySimulationRPSWindDensity;
+	  InflowValue[1] = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
+	  if (HydroMethod != 2) {
+	    InflowValue[1] = InflowValue[1] + 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
+	                                            + pow(GalaxySimulationRPSWindVelocity[1],2)
+	                                            + pow(GalaxySimulationRPSWindVelocity[2],2));
+	  }
+	  InflowValue[2] = GalaxySimulationRPSWindVelocity[0];
+	  InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
+	  InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
   
-  if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
-					      Dummy) == FAIL) {
-    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-      return FAIL;
-  }
-  if (MetaData.TopGridRank > 1)
-    Exterior.InitializeExternalBoundaryFace(1, inflow, outflow,
-					    InflowValue, Dummy);
-  if (MetaData.TopGridRank > 2)
-    Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
-					    InflowValue, Dummy);
-
-	/* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
-	GalaxySimulationRPSWindDelay += TopGrid.GridData->ReturnTime();
-	GalaxySimulationRPSWindTotalEnergy = InflowValue[1]; 
-
-	GalaxySimulationPreWindDensity     = GalaxySimulationUniformDensity/DensityUnits;
-	GalaxySimulationPreWindTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6); 
-	GalaxySimulationPreWindVelocity[0] = 0.0;
-	GalaxySimulationPreWindVelocity[1] = 0.0;
-	GalaxySimulationPreWindVelocity[2] = 0.0;
+	 if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
+						      Dummy) == FAIL) {
+	    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+	      return FAIL;
+	 }
+	 if (MetaData.TopGridRank > 1)
+ 	   Exterior.InitializeExternalBoundaryFace(1, inflow, outflow,
+						    InflowValue, Dummy);
+ 	 if (MetaData.TopGridRank > 2)
+ 	   Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
+						    InflowValue, Dummy);
+	
+		/* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
+		GalaxySimulationRPSWindDelay += TopGrid.GridData->ReturnTime();
+		GalaxySimulationRPSWindTotalEnergy = InflowValue[1]; 
+	
+		GalaxySimulationPreWindDensity     = GalaxySimulationUniformDensity/DensityUnits;
+		GalaxySimulationPreWindTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6); 
+		GalaxySimulationPreWindVelocity[0] = 0.0;
+		GalaxySimulationPreWindVelocity[1] = 0.0;
+		GalaxySimulationPreWindVelocity[2] = 0.0;
+	}
 
  /* set up field names and units */
 

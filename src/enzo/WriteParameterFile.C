@@ -460,6 +460,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ShockPoolShockVelocity    = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, ShockPoolShockVelocity);
 
+  fprintf(fptr, "GalaxySimulationRPSWind            = %"ISYM"\n",GalaxySimulationRPSWind);
   fprintf(fptr, "GalaxySimulationRPSWindShockSpeed  = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
   fprintf(fptr, "GalaxySimulationRPSWindDelay       = %"GSYM"\n",GalaxySimulationRPSWindDelay);
   fprintf(fptr, "GalaxySimulationRPSWindDensity     = %"GSYM"\n",GalaxySimulationRPSWindDensity);

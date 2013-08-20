@@ -362,6 +362,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockPoolShockDensity = 0.0;
   ShockPoolShockTotalEnergy = 0.0;
 
+	GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
   GalaxySimulationRPSWindDelay = 0.0;
 

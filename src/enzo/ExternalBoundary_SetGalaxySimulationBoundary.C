@@ -33,6 +33,7 @@ int FindField(int f, int farray[], int n);
  
 int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 {
+	if( 0 == GalaxySimulationRPSWind ) return SUCCESS;
 
 	if( MyProcessorNumber == ROOT_PROCESSOR ){
 	  fprintf(stderr,"GalaxySimulationRPSWindShockSpeed = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
@@ -127,37 +128,40 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 	     which the wave will reach this point. */
  
 	  deltime = time - distance/GalaxySimulationRPSWindShockSpeed - GalaxySimulationRPSWindDelay;
- 
-	  /* If deltime < 0, the shock has not yet reached this point. */
- 
-	  if (deltime > 0.0) {
- 
-	    /* Shock has arrived, set fields to post-shock values. */
- 
-	    BoundaryValue[DensNum][dim][0][index] = GalaxySimulationRPSWindDensity;
-	    BoundaryValue[TENum][dim][0][index] = GalaxySimulationRPSWindTotalEnergy;
-	    BoundaryValue[Vel1Num][dim][0][index] = GalaxySimulationRPSWindVelocity[0];
-	    if (BoundaryRank > 1)
-	      BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationRPSWindVelocity[1];
-	    if (BoundaryRank > 2)
-	      BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationRPSWindVelocity[2];
- 
-	  } else {
- 
-	    /* If not, set the fields to their pre-shock values. */
- 
-	    BoundaryValue[DensNum][dim][0][index] = GalaxySimulationPreWindDensity;
-	    BoundaryValue[TENum][dim][0]  [index] = GalaxySimulationPreWindTotalEnergy;
-	    BoundaryValue[Vel1Num][dim][0][index] = GalaxySimulationPreWindVelocity[0];
-	    if (BoundaryRank > 1)
-	      BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationPreWindVelocity[1];
-	    if (BoundaryRank > 2)
-	      BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationPreWindVelocity[2];
-	  }
- 
+
+		if( 1 == GalaxySimulationRPSWind ){
+
+			/* Update bounds with simple shock wind */
+
+			if (deltime > 0.0) {  // Shock has arrived, set post-shock values
+				BoundaryValue[DensNum][dim][0][index] = GalaxySimulationRPSWindDensity;
+				BoundaryValue[TENum][dim][0][index] = GalaxySimulationRPSWindTotalEnergy;
+				BoundaryValue[Vel1Num][dim][0][index] = GalaxySimulationRPSWindVelocity[0];
+				if (BoundaryRank > 1)
+					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationRPSWindVelocity[1];
+				if (BoundaryRank > 2)
+					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationRPSWindVelocity[2];
+			} else { // If not, set pre-shock values
+				BoundaryValue[DensNum][dim][0][index] = GalaxySimulationPreWindDensity;
+				BoundaryValue[TENum][dim][0]  [index] = GalaxySimulationPreWindTotalEnergy;
+				BoundaryValue[Vel1Num][dim][0][index] = GalaxySimulationPreWindVelocity[0];
+				if (BoundaryRank > 1)
+					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationPreWindVelocity[1];
+				if (BoundaryRank > 2)
+					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationPreWindVelocity[2];
+			}
+
+		} else if( 2 == GalaxySimulationRPSWind ){
+
+			/* Update Bounds w/ table of density and wind velocity components */
+
+		} else {
+			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
+		}
+
 	} // end loop over boundary slice
- 
-    } // end loop over boundary directions
+	
+	} // end loop over boundary directions
 
   return SUCCESS;
  

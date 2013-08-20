@@ -1076,6 +1076,12 @@ EXTERN float ShockPoolShockTotalEnergy;
 EXTERN float ShockPoolShockVelocity[MAX_DIMENSION];
 
 /* For the galaxy simulation boundary method */
+EXTERN int GalaxySimulationRPSWind;
+/* GalaxySimulationRPSWind
+ *   0 - OFF 
+ *   1 - Simple Shock w/ angle and delay 
+ *   2 - Lookup table of density and velocity
+ */
 EXTERN float GalaxySimulationRPSWindShockSpeed;
 EXTERN float GalaxySimulationRPSWindDelay;
 
