@@ -169,10 +169,10 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 				GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 				         &TimeUnits, &VelocityUnits, &MassUnits, time);
 
-				char filename[] = "ICMinflow_data.out"; char line[MAX_LINE_LENGTH]; FILE *fptr;
-				if ((fptr = fopen(filename, "r")) == NULL) ENZO_FAIL("Erroring opening ICMinflow_data.out");
+				char filename[] = "ICMinflow_data.in"; char line[MAX_LINE_LENGTH]; FILE *fptr;
+				if ((fptr = fopen(filename, "r")) == NULL) ENZO_FAIL("Erroring opening ICMinflow_data.in");
 
-				int index = 0;
+				int f_index = 0;
 				while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL) {
 					if (line[0] == 'N') {
 						(sscanf(line, "NumberOfSteps = %d\n", &ICMTableSize));
@@ -186,24 +186,24 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 					if (line[0] != '#' && line[0] != 'N') {
 						
 						// read values
-						sscanf(line,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"",&ICMTimeTable[index],&ICMDensityTable[index], 
-						       &temperature,&ICMVelocityXTable[index],&ICMVelocityYTable[index],&ICMVelocityZTable[index]);
+						sscanf(line,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"",&ICMTimeTable[f_index],&ICMDensityTable[f_index], 
+						       &temperature,&ICMVelocityXTable[f_index],&ICMVelocityYTable[f_index],&ICMVelocityZTable[f_index]);
 						
 						// convert to code units
-						ICMTimeTable[index]        /= TimeUnits;
-						ICMDensityTable[index]     /= DensityUnits;
-						ICMVelocityXTable[index]   /= (LengthUnits/TimeUnits); 
-						ICMVelocityYTable[index]   /= (LengthUnits/TimeUnits); 
-						ICMVelocityZTable[index]   /= (LengthUnits/TimeUnits); 
-						ICMTotalEnergyTable[index] = temperature/TemperatureUnits/((Gamma-1.0)*0.6);
+						ICMTimeTable[f_index]        /= TimeUnits;
+						ICMDensityTable[f_index]     /= DensityUnits;
+						ICMVelocityXTable[f_index]   /= (LengthUnits/TimeUnits); 
+						ICMVelocityYTable[f_index]   /= (LengthUnits/TimeUnits); 
+						ICMVelocityZTable[f_index]   /= (LengthUnits/TimeUnits); 
+						ICMTotalEnergyTable[f_index] = temperature/TemperatureUnits/((Gamma-1.0)*0.6);
 
 						if (HydroMethod != 2) {
-							ICMTotalEnergyTable[index] += 0.5*(   pow(ICMVelocityXTable[0],2)
-							                                    + pow(ICMVelocityYTable[1],2)
-							                                    + pow(ICMVelocityZTable[2],2));
+							ICMTotalEnergyTable[f_index] += 0.5*(   pow(ICMVelocityXTable[0],2)
+							                                      + pow(ICMVelocityYTable[1],2)
+							                                      + pow(ICMVelocityZTable[2],2));
 						}
 
-						index++;
+						f_index++;
 					} // end data-line if
       	} // end file read while
 
@@ -211,26 +211,51 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 
 				// display table
 				fprintf(stderr,"LOOKUP TABLE:\n");
-				for( int i = 0 ; i < ICMTableSize ; i++ )
-					fprintf(stderr,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",ICMTimeTable[i],ICMDensityTable[i],
-						ICMTotalEnergyTable[i],ICMVelocityXTable[i],ICMVelocityYTable[i],ICMVelocityZTable[i]);
+				for( int ii = 0 ; ii < ICMTableSize ; ii++ )
+					fprintf(stderr,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",ICMTimeTable[ii],ICMDensityTable[ii],
+						ICMTotalEnergyTable[ii],ICMVelocityXTable[ii],ICMVelocityYTable[ii],ICMVelocityZTable[ii]);
 
 				loadTable = 0;
 			}// end load table if
 
-/*
-			if(deltime > 0.0){ // use default pre-wind values
+			if(deltime < 0.0){
+
+				// use default pre-wind values
 				BoundaryValue[DensNum][dim][0][index] = GalaxySimulationPreWindDensity;
-				BoundaryValue[TENum][dim][0]  [index] = GalaxySimulationPreWindTotalEnergy;
+				BoundaryValue[TENum  ][dim][0][index] = GalaxySimulationPreWindTotalEnergy;
 				BoundaryValue[Vel1Num][dim][0][index] = GalaxySimulationPreWindVelocity[0];
 				if (BoundaryRank > 1)
 					BoundaryValue[Vel2Num][dim][0][index] = GalaxySimulationPreWindVelocity[1];
 				if (BoundaryRank > 2)
 					BoundaryValue[Vel3Num][dim][0][index] = GalaxySimulationPreWindVelocity[2];
+
 			} else {
-				// use table and interpolate!
+
+				/* interpolate w/ lookup table */
+
+				float t_ratio,v1,v2;
+				int i1,i2=-1;
+				
+				// find times that bracket what we want
+				while( ++i2 < ICMTableSize ) if( deltime < ICMTimeTable[i2] ) break;
+				i1 = i2 - 1;
+
+				// interpolate values
+				t_ratio = (deltime - ICMTimeTable[i2])/(ICMTimeTable[i1] - ICMTimeTable[i2]);
+			
+				BoundaryValue[DensNum][dim][0][index] = t_ratio*ICMDensityTable[i1]
+				                                        + (1.0-t_ratio)*ICMDensityTable[i2];
+				BoundaryValue[TENum  ][dim][0][index] = t_ratio*ICMTotalEnergyTable[i1] 
+				                                        + (1.0-t_ratio)*ICMTotalEnergyTable[i2];
+				BoundaryValue[Vel1Num][dim][0][index] = t_ratio*ICMVelocityXTable[i1]
+				                                        + (1.0-t_ratio)*ICMVelocityXTable[i2];
+				if (BoundaryRank > 1)
+					BoundaryValue[Vel2Num][dim][0][index] = t_ratio*ICMVelocityYTable[i1]
+				 	                                        + (1.0-t_ratio)*ICMVelocityYTable[i2];
+				if (BoundaryRank > 2)
+					BoundaryValue[Vel3Num][dim][0][index] = t_ratio*ICMVelocityZTable[i1]
+						                                      + (1.0-t_ratio)*ICMVelocityZTable[i2];
 			}
-*/
 
 		} else {
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
