@@ -39,20 +39,6 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 {
 	if( 0 == GalaxySimulationRPSWind ) return SUCCESS;
 
-	if( MyProcessorNumber == ROOT_PROCESSOR ){
-	  fprintf(stderr,"GalaxySimulationRPSWindShockSpeed = %"GSYM"\n",GalaxySimulationRPSWindShockSpeed);
-
-	  fprintf(stderr,"GalaxySimulationRPSWindDensity = %"GSYM"\n",GalaxySimulationRPSWindDensity);
-	  fprintf(stderr,"GalaxySimulationRPSWindTotalEnergy = %"GSYM"\n",GalaxySimulationRPSWindTotalEnergy);
-	  fprintf(stderr,"GalaxySimulationRPSWindVelocity = %"GSYM", %"GSYM", %"GSYM"\n",
-			GalaxySimulationRPSWindVelocity[0],GalaxySimulationRPSWindVelocity[1], GalaxySimulationRPSWindVelocity[2]);
-
-	  fprintf(stderr,"GalaxySimulationPreWindDensity = %"GSYM"\n",GalaxySimulationPreWindDensity);
-	  fprintf(stderr,"GalaxySimulationPreWindTotalEnergy = %"GSYM"\n",GalaxySimulationPreWindTotalEnergy);
-	  fprintf(stderr,"GalaxySimulationPreWindVelocity = %"GSYM", %"GSYM", %"GSYM"\n",
-			GalaxySimulationPreWindVelocity[0],GalaxySimulationPreWindVelocity[1],GalaxySimulationPreWindVelocity[2]);
-	} // end if
-
   /* declarations */
 
   int i, j, dim, index;
@@ -208,13 +194,6 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
       	} // end file read while
 
 				fclose(fptr); 
-
-				// display table
-				fprintf(stderr,"LOOKUP TABLE:\n");
-				for( int ii = 0 ; ii < ICMTableSize ; ii++ )
-					fprintf(stderr,"%"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n",ICMTimeTable[ii],ICMDensityTable[ii],
-						ICMTotalEnergyTable[ii],ICMVelocityXTable[ii],ICMVelocityYTable[ii],ICMVelocityZTable[ii]);
-
 				loadTable = 0;
 			}// end load table if
 
@@ -255,11 +234,24 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 				if (BoundaryRank > 2)
 					BoundaryValue[Vel3Num][dim][0][index] = t_ratio*ICMVelocityZTable[i1]
 						                                      + (1.0-t_ratio)*ICMVelocityZTable[i2];
+
+				// update RPS Wind Vector for time delay calc
+				if( index == 0.0 ){
+					GalaxySimulationRPSWindVelocity[0] = BoundaryValue[Vel1Num][dim][0][index];
+					GalaxySimulationRPSWindVelocity[1] = BoundaryValue[Vel2Num][dim][0][index];
+					GalaxySimulationRPSWindVelocity[2] = BoundaryValue[Vel3Num][dim][0][index];
+				}
+	
 			}
 
 		} else {
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
 		}
+
+		if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
+			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");
+		if( BoundaryValue[TENum][dim][0][index] < 0.0 ) 
+			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Total Energy");
 
 	} // end loop over boundary slice
 	
