@@ -1,0 +1,130 @@
+#=======================================================================
+#
+# FILE:        Make.mach.tacc-stampede
+#
+# DESCRIPTION: 
+#
+# AUTHOR:      Robert Harkness/Alexei Kritsuk
+# AUTHOR2:     Stephen Skory (7 Oct 2008)
+#
+# DATE:        2008-02-27
+#
+# To use this makefile, you need to update your environment. Either
+# execute these on the command line, or better, put them you profile.
+#   module load hdf5
+#   
+# If you wish to use HYPRE, you will need to additionally do:
+#   module load hypre/2.4.0b
+#   
+#
+# Addionally, you should ensure that you're using the same HDF5
+# utilities that you're linking against.
+#
+#=======================================================================
+
+MACH_TEXT  = TACC Stampede
+MACH_VALID = 1
+MACH_FILE  = Make.mach.tacc-stampede
+
+MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
+	The following modules are needed to compile enzo here with \
+	the default machine file: hdf5 \
+        (module load hdf5)."
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL    =
+LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
+LOCAL_HDF4_INSTALL   = 
+LOCAL_HYPRE_INSTALL  = 
+LOCAL_ACML_INSTALL   = 
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = /usr/bin/cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpicxx -DMPICH_IGNORE_CXX_SEEK
+MACH_FC_MPI    = mpif90
+MACH_F90_MPI   = mpif90
+MACH_LD_MPI    = mpicxx
+
+# Without MPI
+
+MACH_CC_NOMPI  = mpicc
+MACH_CXX_NOMPI = mpicxx
+MACH_FC_NOMPI  = mpif90
+MACH_F90_NOMPI = mpif90
+MACH_LD_NOMPI  = mpicxx
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+#MACH_CPPFLAGS = 
+MACH_CFLAGS   = -mp1 -prec_div -fp_port -align
+MACH_CXXFLAGS = -mp1 -prec_div -fp_port -align
+MACH_FFLAGS   = 
+MACH_F90FLAGS = -mp1 -prec_div -fp_port -align -save -zero
+MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = 
+MACH_OPT_DEBUG       = -g -O0 
+#MACH_OPT_CRASHES        = -fastsse
+#MACH_OPT_HIGH        = -O2 -Mprof=func
+#MACH_OPT_HIGH        = -O2 -Mbounds -gopt
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3 -Mfptrap -Mflushz -fastsse -Mdaz -Mnontemporal -Mnofprelaxed -Mvect=altcode,assoc,prefetch -Kieee 
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+# make sure to "load module hdf5" before compiling
+#
+#
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
+LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+
+LOCAL_LIBS_MACH   = -lm
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)

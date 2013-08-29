@@ -1,17 +1,23 @@
 #ifndef _CUMHD_H_
 #define _CUMHD_H_
 
+#define NMHD 9
 #define MAX_SPECIES 20
+#define NBLOCK 128
+#define PLM_GHOST_SIZE 2
+
+enum {IdxD, IdxV1, IdxV2, IdxV3, IdxTE, IdxB1, IdxB2, IdxB3, IdxPhi};
+enum {IdxS1 = 1, IdxS2 = 2, IdxS3 = 3, IdxTau = 4};
 
 typedef struct {
   // baryon fields (primitives)
-  float *D, *V1, *V2, *V3, *TE, *B1, *B2, *B3, *Phi;
+  float *Baryon[NMHD];
   // old baryon fields
-  float *OldD, *OldV1, *OldV2, *OldV3, *OldTE, *OldB1, *OldB2, *OldB3, *OldPhi;
+  float *OldBaryon[NMHD];
   // fluxes
-  float *FluxD, *FluxS1, *FluxS2, *FluxS3, *FluxTau, *FluxB1, *FluxB2, *FluxB3, *FluxPhi;
+  float *Flux[NMHD];
   // dU
-  float *dUD, *dUS1, *dUS2, *dUS3, *dUTau, *dUB1, *dUB2, *dUB3, *dUPhi; 
+  float *dU[NMHD];
   // source terms
   float *divB, *gradPhi, *AccelerationField[3], *DrivingForce[3];
   // Color
@@ -23,6 +29,43 @@ typedef struct {
   float **OldSpeciesArray;
   float **FluxSpeciesArray;
   float **dUSpeciesArray;
+  // Parameters
+  int Dimension[3], StartIndex[3], EndIndex[3];
 } cuMHDData;
 
+extern "C"
+void MHD_HLL_PLMGPU(cuMHDData &Data,  int dir);
+
+extern "C"
+void ComputeFluxSpeciesGPU(cuMHDData &Data, int dir);
+
+extern "C"
+void ComputedUGPU(cuMHDData &Data, float dt, float dx, int dir);
+
+extern "C"
+void MHDGravitySourceGPU(cuMHDData &Data, float dt);
+
+extern "C"
+void MHDComovingSourceGPU(cuMHDData &Data, float dt, float coef);
+
+extern "C"
+void MHDDrivingSourceGPU(cuMHDData &Data, float dt);
+
+extern "C"
+void Density2FractionGPU(cuMHDData &Data);
+
+extern "C"
+void Fraction2DensityGPU(cuMHDData &Data);
+
+extern "C"
+void UpdateMHDPrimGPU(cuMHDData &Data, int RKStep, float dt);
+
+extern "C"
+void MHDSaveSubgridFluxGPU(float *LeftFlux, float *RightFlux, float *Flux,
+                           float *Tmp1, float *Tmp2, float *Tmp3, float *Tmp4, 
+                           float dtdx,
+                           const int dimx, const int dimy, const int dimz,
+                           const int fistart, const int fiend,
+                           const int fjstart, const int fjend,
+                           const int lface, const int rface, int dir);
 #endif

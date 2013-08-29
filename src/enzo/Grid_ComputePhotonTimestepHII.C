@@ -90,6 +90,7 @@ float grid::ComputePhotonTimestepHII(float DensityUnits, float LengthUnits,
   float HIIdot, a3inv, a6inv, kr1, kr2, cs;
   float logtem, logtem0, logtem9, dlogtem, t1, t2, tdef, cs_factor;
   float *alldt = new float[size];
+  for (i = 0; i < size; i++) alldt[i] = -huge_number;
 
   a3inv = 1.0/(a*a*a);
   a6inv = a3inv * a3inv;

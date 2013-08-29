@@ -1,0 +1,11 @@
+name = 'ShockInABox'
+answer_testing_script = 'ShockInABox__test_shockinabox.py' 
+nprocs = 1
+runtime = 'short'
+hydro = True
+gravity = False
+dimensionality = 1
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

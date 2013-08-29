@@ -85,14 +85,12 @@ enzo-dev@googlegroups.com
 Regression Tests
 ----------------
 
-The Enzo trunk and select branches are checked out of Subversion and tested
-continuously using `LCATest <http://lca.ucsd.edu/projects/lcatest>`_ on
-ppcluster.ucsd.edu:
-
- * `Continuous Regression Test Results <http://ppcluster.ucsd.edu/lcatest/>`_
- 
-For questions or suggestions related to the Enzo regression testing or lcatest,
-please contact James Bordner at jobordner at ucsd.edu.
+Enzo has an internal testing suite (:ref:`EnzoTestSuite`) that
+performs regression tests that verifies that the code is producing
+expected results on a wide variety of platforms.  It also aids in
+discovering bugs that may have been introduced in the development
+process of Enzo.  The Enzo codebase is tested before every point
+release and routinely by Enzo developers.
 
 Citing Enzo
 -----------
@@ -101,7 +99,7 @@ If you use Enzo for a scientific publication, we ask that you cite the code in
 the following way in the acknowledgments of your paper:
 
 Computations described in this work were performed using the Enzo code
-(http://enzo.googlecode.com), which is the product of a collaborative effort
+(http://enzo-project.org), which is the product of a collaborative effort
 of scientists at many universities and national laboratories.
 
 Search

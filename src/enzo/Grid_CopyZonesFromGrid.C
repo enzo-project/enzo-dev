@@ -276,7 +276,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
     ietot=FindField(TotalEnergy, FieldType, NumberOfBaryonFields);
     if (DualEnergyFormalism) ieint=FindField(InternalEnergy, FieldType, NumberOfBaryonFields);
     
-    if (useMHD){
+    if (UseMHD){
       iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
       iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
       if (GridRank==3) iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
@@ -336,7 +336,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 		
 		float bx, by, bz, b2;
 		b2=0.0;
-		if (useMHD) {
+		if (UseMHD) {
 		  bx= OtherGrid->BaryonField[iBx][iLoop];
 		  by= OtherGrid->BaryonField[iBy][iLoop];  
 		  if (GridRank==3) bz= OtherGrid->BaryonField[iBz][iLoop];  
@@ -384,7 +384,7 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	  v2=vx*vx+vy*vy+vz*vz;
 	  
 	  b2=0.0;
-	  if (useMHD) {
+	  if (UseMHD) {
 	    bx= BaryonField[iBx][thisindex];
 	    by= BaryonField[iBy][thisindex];  
 	    if (GridRank==3) bz= BaryonField[iBz][thisindex];  
@@ -407,6 +407,67 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	}}}
  
   
+  int i,j,k,field;
+  if( UseMHDCT ){
+    /* Centered Magentic Field */
+    for (field = 0; field < 3; field++)
+      for (k = 0; k < Dim[2]; k++)
+	for (j = 0; j < Dim[1]; j++) {
+	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] + 
+	    (k + Start[2])*GridDimension[0]*GridDimension[1];
+	  otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] + 
+	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
+	  for(i = 0; i < Dim[0];i++, thisindex++, otherindex++)
+	    CenteredB[field][thisindex] = 
+	      OtherGrid->CenteredB[field][otherindex];
+	}
+    
+    //
+    // Face Centered Magnetic Field
+    //
+    
+    // set up some Magnetic Field properties
+    // The DimToAdd business controlls whether or not to add the first active
+    // face centered field.  (i.e., Bzf(z=0) on the z boundary.)
+    // Only the right edge, face centered field (i.e. Bzf(z=1) on the z face) is coppied
+    // for boundary calls.  This ensures correct periodicity. dcc.
+    
+    int MHDDim[3][3], MHDOtherDim[3][3], MHDShift[3][3], DimToAdd=0;
+    
+    for(field=0;field<3;field++)
+      for(dim=0;dim<3;dim++){
+	MHDShift[field][dim]=0;
+	DimToAdd = (End[dim] == NumberOfGhostZones-1 && field == dim ) ? 0 : 1;
+	MHDDim[field][dim] = Dim[dim] + ( (field == dim) ? 1 : 0 );
+	MHDOtherDim[field][dim] = OtherDim[dim] + ((field == dim) ?1:0);
+      }
+    
+    int othersize[3]={1,1,1};
+    for (field =0; field<3; field++){
+      
+      if( MagneticField[field] == NULL )
+	ENZO_VFAIL("Severe Error: Grid_CopyZonesFromGrid.  MagneticField[%d] == NULL..\n", field);
+      
+      othersize[field] = MHDOtherDim[field][0]*MHDOtherDim[field][1]*MHDOtherDim[field][2];
+      for( k=0; k<MHDDim[field][2]; k++)
+	for( j=0; j<MHDDim[field][1]; j++)
+	  for( i=0; i<MHDDim[field][0]; i++){
+	    thisindex = ( (i + Start[0]+MHDShift[field][0])
+			  +(j+ Start[1]+MHDShift[field][1])*MagneticDims[field][0]
+			  +(k+ Start[2]+MHDShift[field][2])*MagneticDims[field][1]*MagneticDims[field][0] );
+	    
+	    otherindex= ( (i + StartOther[0]+MHDShift[field][0] )
+			  +(j+ StartOther[1]+MHDShift[field][1] )*(MHDOtherDim[field][0])
+			  +(k+ StartOther[2]+MHDShift[field][2] )*(MHDOtherDim[field][0]*MHDOtherDim[field][1]));
+	    
+	    //MagneticField[field][thisindex] = ((dccCounter < 0 )? 0 : OtherGrid->MagneticField[field][otherindex]);
+	    MagneticField[field][thisindex] = OtherGrid->MagneticField[field][otherindex];
+	    }//i
+    }//field
+    
+    
+    /* Clean up if we have transfered data. */
+  }//UseMHDCT
 
   /* Clean up if we have transfered data. */
   

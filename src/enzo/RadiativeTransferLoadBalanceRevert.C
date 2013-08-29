@@ -136,59 +136,16 @@ int RadiativeTransferLoadBalanceRevert(HierarchyEntry **Grids[], int *NumberOfGr
     } // ENDFOR grids
   } // ENDFOR Level
 
-  /* Send photon packages from replicated grid to actual grid */
-
-  PhotonPackageEntry *PP;
+  /* Set processor number back to its original number */
 
   for (level = MIN_LEVEL; level < MAX_DEPTH_OF_HIERARCHY; level++) {
 
-  /* Post receives */
-
-  CommunicationReceiveIndex = 0;
-  CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
-  CommunicationDirection = COMMUNICATION_POST_RECEIVE;
-
-  for (i = 0; i < NumberOfGrids[level]; i++) {
-    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
-    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
-    if (ori_proc != temp_proc) {
-      PP = Grids[level][i]->GridData->ReturnPhotonPackagePointer();
-      nph = Grids[level][i]->GridData->ReturnNumberOfPhotonPackages();
-      if (PP->NextPackage != NULL)
-	Grids[level][i]->GridData->CommunicationSendPhotonPackages
-	  (Grids[level][i]->GridData, ori_proc, nph, nph, &PP->NextPackage);
-    } // ENDIF
-  } // ENDFOR grids
-
-  /* Send photons */
-  
-  CommunicationDirection = COMMUNICATION_SEND;
-
-  for (i = 0; i < NumberOfGrids[level]; i++) {
-    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
-    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
-    if (ori_proc != temp_proc) {
-      PP = Grids[level][i]->GridData->ReturnPhotonPackagePointer();
-      nph = Grids[level][i]->GridData->ReturnNumberOfPhotonPackages();
-      if (PP->NextPackage != NULL)
-	Grids[level][i]->GridData->CommunicationSendPhotonPackages
-	  (Grids[level][i]->GridData, ori_proc, nph, nph, &PP->NextPackage);
-    } // ENDIF
-  } // ENDFOR grids
-
-  /* Receive photons */
-
-  if (CommunicationReceiveHandler() == FAIL)
-    ENZO_FAIL("CommunicationReceiveHandler() failed!\n");
-
-  /* Return processor number back to original */
-
-  for (i = 0; i < NumberOfGrids[level]; i++) {
-    ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
-    temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
-    if (ori_proc != temp_proc)
-      Grids[level][i]->GridData->SetProcessorNumber(ori_proc);
-  } // ENDFOR grids
+    for (i = 0; i < NumberOfGrids[level]; i++) {
+      ori_proc = Grids[level][i]->GridData->ReturnOriginalProcessorNumber();
+      temp_proc = Grids[level][i]->GridData->ReturnProcessorNumber();
+      if (ori_proc != temp_proc)
+	Grids[level][i]->GridData->SetProcessorNumber(ori_proc);
+    } // ENDFOR grids
 
   } // ENDFOR level
 

@@ -1,5 +1,83 @@
 = Enzo Changelog =
 
+== Version 2.3 ==
+_Release date - July 9, 2013_
+
+  * New Feature: MHDCT, divergence free MHD ( PR #121, PR #156, PR #160)
+  * New Feature: New Haard & Madau 2012 radiation background ( PR #143)
+  * New Feature: Second derivative refinement criteria ( PR #164)
+  * New Feature: New TestOrbit problem for orbiting point masses ( PR #152)
+  * New Feature: New magnetic reconnection test ( PR #121)
+  * New Feature: CUDA PPM solver ( PR #78)
+  * New Feature: Supermassive black hole feedback ( PR #119)
+  * Enhancement: New additions to the RefineRegion mechanics ( PR #155)
+  * Enhancement: Improvements to the gravity solver ( PR #120, PR #124, PR #131 PR #163, )
+  * Enhancement: Improvements to the CUDA MHD solver
+  * Enhancement: New output mechanism for debugging difficult code ( PR #103)
+  * Enhancement: Updates to documentation ( PR #94, PR #104, PR #140, PR #141)
+  * Enhancement: Performance timers for communication ( PR #139)
+  * Enhancement: Updates to test problems, test runner, and inits ( PR #87, PR #89, 
+                 PR #91, PR #93, PR #95, PR #96, PR #97, PR #98, PR #99, PR #100, 
+                 PR #101, PR #102, PR #107, PR #108, PR #110, PR #113 PR #123, 
+                 PR #132, PR #133, PR #149, PR #146, PR #151, PR #154, PR #161, PR #167, )
+  * Enhancement: Improvements to the enzo/yt inline interface ( PR #131)
+  * Enhancement: NumberOfGhostZones is now a run-time parameter ( PR #84)
+  * Bugfix: OutputOnDensity fixes ( PR #122, PR #136)
+  * Bugfix: Cooling fixes ( PR #126, PR #136)
+  * Bugfix: Ray tracer bugfixes for isolaced BCs, constant dt, memory bug ( PR #144, PR #158)
+  * Bugfix: Timestep bug fixed for multispecies ( PR #153)
+  * Bugfix: Sink particle fix ( PR #129)
+  * Bugfix: Set acceleration boundary updates ( PR #88) 
+
+== Version 2.2 ==
+_Release date - Nov 30, 2012_
+
+  * New Feature: Supernova Ia feedback (no PR)
+  * New Feature: H2-regulated star formation prescription (PR #41)
+  * New Feature: Light-weight timing and performance measuring tool (PR #35)
+  * Enhancement: Fortran precisions are now explicit. (PR #80)
+  * Enhancement: Improved inline yt analysis. (PR #13)
+  * Enhancement: Support for ghost-zone input/output. (PR #8)
+  * Enhancement: Reorganized and improved code documentation. (PR #79, and many more)
+  * Enhancement: Improvements to answer testing. (PR #82, and many more)
+  * Enhancement: Docs for enzo performance measurement/analysis. (PR #38)
+  * Bugfix: Generalizing the conversion to conserved quantities. (PR #75)
+  * Bugfix: Fixing the set-acceleration-boundary compile flag. (PR #77)
+  * Bugfix: Bug fix in hydro shock tubes initialization (PR #76)
+  * Bugfix: Fix precision settings in WriteParameterFile. (PR #74)
+  * Bugfix: Fixing create_config_info.py to replace ^M with \n in the output of 'hg diff'. (PR #73)
+  * Bugfix: MAX_ANY_DIRECTION check (PR #72)
+  * Bugfix: Fixing memory leak. (PR #71)
+  * Bugfix: Shocks on output bugfix (PR #70)
+  * Bugfix: Backporting Mike's hdf5 hierarchy fixes. (PR #69)
+  * Bugfix: fix too-many-files issue with make dep (PR #65)
+  * Bugfix: Changing MAX_ANY_SINGLE_DIRECTION from 3079 to 1024. (PR #62)
+  * Bugfix: Minor fixes to H2 chemistry & cooling (PR #61)
+  * Bugfix: Removing extra 1/dom factor in MetalCooling = 1 (PR #59)
+  * Bugfix: Removing unused experimental chemistry code (PR #60)
+  * Bugfix: Adding -fdefault-double-8 for example machine files for GNU v4.6+ (PR #54)
+  * Bugfix: Change default setting for (the inaccurately named) bitwise-identicality setting to no (PR #47)
+  * Bugfix: Subgrid size change and FOF bugfix (PR #46)
+  * Bugfix: Fixed tracer particle allocation (PR #44)
+  * Bugfix: Sink particle merging fixes (PR #40)
+  * Bugfix: Fixed small errorPartition Grid only if not already partitioned (PR #28)
+  * Bugfix: Small changes for GENum in AddFeedbackSphere and IdentifyPhysicalQuantites to avoid confusion with DensNum. (PR #25)
+  * Bugfix: Fix for Ghost Zone IO (PR #34)
+  * Bugfix: Fixing some errors in the description of Cen & Ostriker star (PR #33)
+  * Bugfix: moved ENZO_FAIL before the loop to see if fields already exist. this loop will be infinite if OldNumberOfBaryonFields + FieldsToAdd > MAX_NUMBER_OF_BARYON_FIELDS, so it's best to do the check first. (PR #31)
+  * Bugfix: Corrected Make.config.target's transposition of branch and revision info (PR #30)
+  * Bugfix: Fixing small error (3.5%) in TemperatureUnits in CosmologyGetUnits.C (PR #26)
+  * Bugfix: Small doc fix. (PR #22)
+  * Bugfix: Changing enzo_unit_tests.h to Unix file format (PR #19)
+  * Bugfix: Bugfix MetalCooling=1 missing a factor of density (PR #16)
+  * Bugfix: Make inits work for 2D cosmology simulations (PR #12)
+  * Bugfix: Deleting LevelArray variable after HDF5 hierarchy is written (PR #9)
+  * Bugfix: make HDF5Hierarchy work with particles-128 (PR #11)
+  * Bugfix: Fix urgent Ghost Zone bug (PR #14)
+  * Bugfix: dtPhoton lower limit (PR #5)
+  * Bugfix: HDF5 Hierarchy fix (PR #1)
+  * Bugfix: Fix the rotating cylinder test problem (PR #4)
+
 == Version 2.1.1 ==
 _Release date - Oct 27, 2011_
 

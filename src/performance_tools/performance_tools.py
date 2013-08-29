@@ -59,14 +59,24 @@ def preserve_extrema(extrema, xdata, ydata):
     if extrema[4] == 0:
         minx = np.min(xdata)
         maxx = np.max(xdata)
-        miny = np.min(ydata[np.nonzero(ydata)])
-        maxy = np.max(ydata[np.nonzero(ydata)])
+        nonzero = ydata[np.nonzero(ydata)]
+        if len(nonzero) == 0:
+            miny = 1e-1    ### Reasonable defaults given that no data to plot
+            maxy = 1
+        else:                
+            miny = np.min(nonzero)
+            maxy = np.max(nonzero)
     ### Otherwise, preserve the existing extrema
     else:
         minx = np.min([extrema[0], np.min(xdata)])
         maxx = np.max([extrema[1], np.max(xdata)])
-        miny = np.min([extrema[2], np.min(ydata[np.nonzero(ydata)])])
-        maxy = np.max([extrema[3], np.max(ydata[np.nonzero(ydata)])])
+        nonzero = ydata[np.nonzero(ydata)]
+        if len(nonzero) == 0:
+            miny = extrema[2]
+            maxy = extrema[3]
+        else:                
+            miny = np.min([extrema[2], np.min(nonzero)])
+            maxy = np.max([extrema[3], np.max(nonzero)])
     return [minx,maxx,miny,maxy,1]
 
 def smooth(x, window_len=11, window='hanning'):

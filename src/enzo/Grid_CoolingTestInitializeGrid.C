@@ -171,10 +171,10 @@ int grid::CoolingTestInitializeGrid()
       BaryonField[HINum][i] = TestProblemData.HI_Fraction * 
 	TestProblemData.HydrogenFractionByMass * BaryonField[0][i];
  
-      BaryonField[HeINum][i] =  TestProblemData.HeII_Fraction *
+      BaryonField[HeINum][i] =  TestProblemData.HeI_Fraction *
 	BaryonField[0][i] * (1.0-TestProblemData.HydrogenFractionByMass);
 
-      BaryonField[HeIINum][i] = TestProblemData.HeIII_Fraction *
+      BaryonField[HeIINum][i] = TestProblemData.HeII_Fraction *
 	BaryonField[0][i] * (1.0-TestProblemData.HydrogenFractionByMass);
 
       BaryonField[HeIIINum][i] =
