@@ -89,9 +89,8 @@ int grid::FlagCellsToBeRefinedByShear()
                      (du/dz)^2 + (dv/dz)^2 + (dw/dx)^2  ] > parameter,
 	 where:  du/dy = [u(j-1) - u(j+1)]/[2dy],
 	 assume: dx=dy=dz=1;
-	 parameter ~ (sound/dx)^2
-         assume: sound = 1
-      */
+	 parameter = epsilon_threshold * (c_sound/dx)^2
+     */
  
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
 	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
@@ -113,18 +112,18 @@ int grid::FlagCellsToBeRefinedByShear()
  
 	    case 1:
 	      DelVel1 = BaryonField[Vel1Num][index - Offset] -
-		        BaryonField[Vel1Num][index + Offset];
+	   	            BaryonField[Vel1Num][index + Offset];
 	      if (GridRank > 2)
-		DelVel2 = BaryonField[Vel1Num+2][index - Offset] -
-		          BaryonField[Vel1Num+2][index + Offset];
+		  DelVel2 = BaryonField[Vel1Num+2][index - Offset] -
+		            BaryonField[Vel1Num+2][index + Offset];
 	      break;
  
 	    case 2:
 	      if (GridRank > 1)
-		DelVel1 = BaryonField[Vel1Num+1][index - Offset] -
-		          BaryonField[Vel1Num+1][index + Offset];
+		  DelVel1 = BaryonField[Vel1Num+1][index - Offset] -
+		            BaryonField[Vel1Num+1][index + Offset];
 	      DelVel2 = BaryonField[Vel1Num][index - Offset] -
-		        BaryonField[Vel1Num][index + Offset];
+		            BaryonField[Vel1Num][index + Offset];
 	      break;
  
 	    default:
@@ -134,11 +133,21 @@ int grid::FlagCellsToBeRefinedByShear()
 	    DelVel1 *= DelVel1;
 	    DelVel2 *= DelVel2;
 	    DelVelocity[index] += DelVel1 + DelVel2;
-        c_sound2 = Gamma*kboltz*temperature[index]/(Mu*mh) / 
-                   (VelocityUnits*VelocityUnits);
+        // If ideal gas, then calculate local sound speed
+        if (EOSType == 0) {
+          c_sound2 = Gamma*kboltz*temperature[index]/(Mu*mh) / 
+                     (VelocityUnits*VelocityUnits);
+          //fprintf(stderr,"DelVelocity = %f\n", DelVelocity[index]);
+          //fprintf(stderr,"epsilon*c_sound2 = %f\n", MinimumShearForRefinement*c_sound2);
+        }
+        // If nonideal gas, then assume sound speed is 1, as was
+        // previously done for all calculations
+        else {
+          c_sound2 = 1.0;
+        }
 	    if (dim == GridRank-1) {
 	      FlaggingField[index] +=
-		(DelVelocity[index] > (MinimumShearForRefinement*c_sound2)) ? 1 : 0;
+		  (DelVelocity[index] > (MinimumShearForRefinement*c_sound2)) ? 1 : 0;
         }
 	  }
  
