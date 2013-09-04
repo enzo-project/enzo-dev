@@ -12,9 +12,6 @@
 /           Therefore, to minimize computation in the loop, individual loops are used
 /           for each type of BC.  This is different from the other boundary value routine
 /           in enzo, ExternalBoundary_SetExternalBoundary.C
-/           Note two things:  This code is only partially tested.  I assure you some conditions don't work.
-/                             Outflow probably works, but its mostly good for shock tubes.
-/           Periodic BC's are dealt with by other routines in enzo, so that code doesn't actually do anything.
 /          
 /
 /  RETURNS:
@@ -39,10 +36,12 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
                           float *A, int FieldType)
 {
   
-  //return SUCCESS;
   //Al
   //Ai means Active Index
   //Bi means Boundary Index
+  //Add[] controls the extension of the grid size along a vector field.
+  //      For instance, for calls to the By face centered field, Add = {0,1,0}
+  //      which corrects indexing along the y faces, but not x or z.
   int nb = NumberOfGhostZones;
   int nx = GridDims[0] - 2*nb, ny = GridDims[1] - 2*nb, nz = GridDims[2] - 2*nb;
   int i,j,k,sign,dbgflag,Bi,Ai, field;
@@ -130,7 +129,6 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
     case periodic:
       if( verbose ) fprintf(stderr,"Periodic?\n");
       break;
-      if( verbose ) fprintf(stderr, "I SAID BREAK\n");
       if( GridOffset[0]+GridDims[0] == BoundaryDimension[0]){
 	for(k=ks;k<ke;k++)
 	  for(j=js;j<je;j++)
