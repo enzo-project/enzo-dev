@@ -133,6 +133,9 @@ int grid::FlagCellsToBeRefinedByShear()
 	    DelVel1 *= DelVel1;
 	    DelVel2 *= DelVel2;
 	    DelVelocity[index] += DelVel1 + DelVel2;
+
+	    if (dim == GridRank-1) {
+
         // If ideal gas, then calculate local sound speed
         if (EOSType == 0) {
           c_sound2 = Gamma*kboltz*temperature[index]/(Mu*mh) / 
@@ -145,7 +148,8 @@ int grid::FlagCellsToBeRefinedByShear()
         else {
           c_sound2 = 1.0;
         }
-	    if (dim == GridRank-1) {
+
+        // Flag field if criterion met
 	      FlaggingField[index] +=
 		  (DelVelocity[index] > (MinimumShearForRefinement*c_sound2)) ? 1 : 0;
         }
