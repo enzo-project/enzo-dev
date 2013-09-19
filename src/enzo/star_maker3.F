@@ -786,7 +786,7 @@ c
      &                                      d(ic+i, jc+j, kc+k)
                   endif
                   if (imetal .eq. 1) then
-                     metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+i,kc+k) *
+                     metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+j,kc+k) *
      &                    d(ic+i,jc+j,kc+k)
                   endif
 c
@@ -812,7 +812,7 @@ c
      &                                     d(ic+i, jc+j, kc+k) + wp
                   endif
                   if (imetal .eq. 1) then
-                     metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+i,kc+k) /
+                     metal(ic+i,jc+j,kc+k) = metal(ic+i,jc+j,kc+k) /
      &                    d(ic+i,jc+j,kc+k)
                   endif
                endif
