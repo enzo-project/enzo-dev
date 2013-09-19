@@ -39,6 +39,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *MetalName = "Metal_Density";
 
   /* declarations */
 
@@ -57,6 +58,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   FLOAT TestStarParticleStarPosition[3] = {0.5, 0.5, 0.5};
   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
   float TestStarParticleStarMass    = 100.0;
+  float TestProblemUseMetallicityField = 0;
+  float TestProblemInitialMetallicityFraction = 1e-10;
 
   /* read input from file */
 
@@ -82,6 +85,9 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 		  &TestStarParticleStarPosition[1],
 		  &TestStarParticleStarPosition[2]);
     
+
+    ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
+    ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction); 
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "TestStarParticle") 
@@ -91,6 +97,8 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   } // end input from parameter file
 
   /* set up uniform grid as of before explosion */
+
+  
   
   if (TopGrid.GridData->InitializeUniformGrid(TestStarParticleDensity, 
 					      TestStarParticleEnergy,
@@ -116,13 +124,16 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   DataLabel[count++] = Vel1Name;
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
-
+  if (TestProblemData.UseMetallicityField)
+    DataLabel[count++] = MetalName;
+  
   DataUnits[0] = NULL;
   DataUnits[1] = NULL;
   DataUnits[2] = NULL;
   DataUnits[3] = NULL;
   DataUnits[4] = NULL;
   DataUnits[5] = NULL;
+  DataUnits[6] = NULL;
 
   /* Write parameters to parameter output file */
   
