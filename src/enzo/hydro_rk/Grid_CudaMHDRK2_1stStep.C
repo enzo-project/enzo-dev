@@ -98,8 +98,8 @@ int grid::CudaMHDRK2_1stStep(fluxes *SubgridFluxes[],
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
                                    Vel3Num, TENum, B1Num, B2Num, B3Num, 
                                    PhiNum);
-  int IdxBaryon[9] = 
-    {DensNum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum};
+  int IdxBaryon[10] = 
+    {DensNum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, GENum};
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
   if (MultiSpecies)
@@ -125,7 +125,6 @@ int grid::CudaMHDRK2_1stStep(fluxes *SubgridFluxes[],
   for (int i = 0; i < NEQ_MHD; i++)
     cudaMemcpy(MHDData.OldBaryon[i], MHDData.Baryon[i], sizebytes,
                cudaMemcpyDeviceToDevice);
-
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
     for (int i = 0; i < GridRank; i++)
       cudaMemcpy(MHDData.AccelerationField[i], AccelerationField[i], sizebytes, cudaMemcpyHostToDevice);
