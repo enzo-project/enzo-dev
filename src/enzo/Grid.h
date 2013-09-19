@@ -2759,6 +2759,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 // CUDA MHD routines
 //------------------------------------------------------------------------
 #ifdef ECUDA
+  void CudaMHDMalloc(void **p, size_t size);
   void CudaMHDMallocGPUData();
   void CudaMHDFreeGPUData();
   void CudaSolveMHDEquations(fluxes *SubgridFluxes[], int NumberOfSubgrids, int renorm);
