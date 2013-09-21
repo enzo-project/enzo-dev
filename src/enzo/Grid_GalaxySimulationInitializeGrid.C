@@ -178,7 +178,14 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		      &TimeUnits, &VelocityUnits, Time);
    CriticalDensity = 2.78e11*POW(HubbleConstantNow, 2); // in Msolar/Mpc^3
    BoxLength = ComovingBoxSize*ExpansionFactor/HubbleConstantNow;  // in Mpc
- }
+ } else if( PointSourceGravity ){
+   ENZO_FAIL("ERROR IN GALAXY SIM GRID INITIALIZE: non-cosmology units not supported for point source gravity");
+ } else {
+   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.");
+  } // end get units error if  
+ } // end units if/else
 
 	/* correct background density if it's not given in code units */
 	if( UniformDensity < 1.0E-10 ){

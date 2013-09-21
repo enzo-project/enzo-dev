@@ -116,8 +116,12 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 
 	  /* Find the difference between the current time and the time at
 	     which the wave will reach this point. */
- 
-	  deltime = time - distance/GalaxySimulationRPSWindShockSpeed - GalaxySimulationRPSWindDelay;
+		static int hasNotArrived = 1;
+		if( hasNotArrived ) 
+			deltime = time - distance/GalaxySimulationRPSWindShockSpeed - GalaxySimulationRPSWindDelay;
+		else
+			deltime = time - distance/vMag - GalaxySimulationRPSWindDelay; // fluid travels at bulk speed
+		if( hasNotArrived && deltime > 0 ) hasNotArrived = 0;
 
 		if( 1 == GalaxySimulationRPSWind ){
 
