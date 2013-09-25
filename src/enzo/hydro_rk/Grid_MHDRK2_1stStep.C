@@ -21,7 +21,7 @@
 #include "ExternalBoundary.h"
 #include "TopGridData.h"
 #include "Grid.h"
-
+#include <stdlib.h>
 
 double ReturnWallTime();
 
@@ -34,7 +34,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     SubgridFluxes[NumberOfSubgrids]
   */
 {
-  //  printf("NumberOfBaryonFields=%"ISYM"\n", NumberOfBaryonFields);
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
@@ -42,6 +41,8 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   if (NumberOfBaryonFields == 0) {
     return SUCCESS;
   }
+
+  if (DualEnergyFormalism > 0) NEQ_MHD = 10;
 
   TIMER_START("MHDRK2");
 #ifdef ECUDA
@@ -52,6 +53,10 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
   }
 #endif
 
+
+  int size = 1;
+  for (int dim = 0; dim < GridRank; dim++)
+    size *= GridDimension[dim];
   double time1 = ReturnWallTime();
   int igrid;
 
@@ -101,8 +106,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
     
   } // end of loop over subgrids
 
-  if (DualEnergyFormalism > 0) NEQ_MHD = 10;
-
   float *Prim[NEQ_MHD+NSpecies+NColor];
   this->ReturnHydroRKPointers(Prim, false); 
 
@@ -111,10 +114,6 @@ int grid::MHDRK2_1stStep(fluxes *SubgridFluxes[],
 
   float *dU[NEQ_MHD+NSpecies+NColor];
 
-  int size = 1;
-  for (int dim = 0; dim < GridRank; dim++)
-    size *= GridDimension[dim];
-  
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
