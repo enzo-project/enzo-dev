@@ -21,7 +21,6 @@
 #include "ExternalBoundary.h"
 #include "TopGridData.h"
 #include "Grid.h"
-#include <stdlib.h>
 
 double ReturnWallTime();
 
