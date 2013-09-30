@@ -107,7 +107,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationRefineAtStart      = TRUE;
   GalaxySimulationUseMetallicityField  = FALSE;
   GalaxySimulationInitialTemperature = 1000.0;
-  GalaxySimulationDiskRadius         = 0.2;      // [Mpc]
+  GalaxySimulationDiskRadius         = 0.2;      // CODE UNITS!!!
   GalaxySimulationDiskTemperature    = 1.e4;     // [K]
   GalaxySimulationDiskScaleHeightz   = 325e-6;
   GalaxySimulationDiskScaleHeightR   = 3500e-6;

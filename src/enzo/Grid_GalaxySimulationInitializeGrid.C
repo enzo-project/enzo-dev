@@ -67,7 +67,7 @@ void free_vector(double *v,int nl,int nh);
 static double drcyl;
 static double r2;
 
-static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits;
+static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits, MassUnits;
 
 double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm, TruncRadius, SmoothRadius, SmoothLength;
 
