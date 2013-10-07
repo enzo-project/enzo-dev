@@ -5,6 +5,7 @@
 /  written by: Greg Bryan
 /  date:       April, 1995
 /  modified1:  Alexei Kritsuk, Aug.2004
+/  modified2:  Cameron Hummels, Oct.2013
 /
 /  PURPOSE:
 /
@@ -54,6 +55,7 @@ int grid::FlagCellsToBeRefinedByShear(int level)
   float *DelVel1= new float[size];
   float *DelVel2 = new float[size];
   float *DelVel3 = new float[size];
+
   for (i = 0; i < size; i++) {
     DelVel1[i] = 0.0;
     DelVel2[i] = 0.0;
@@ -77,12 +79,6 @@ int grid::FlagCellsToBeRefinedByShear(int level)
     ENZO_FAIL("Error in grid->ComputePressure.");
   }
 
-//  float *temperature = new float[size];
-
-  //if (this->ComputeTemperatureField(temperature) == FAIL){
-    //ENZO_FAIL("Error in grid->ComputeTemperatureField.");
-  //}
-
   float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
     VelocityUnits = 1, TimeUnits = 1;
 
@@ -90,12 +86,6 @@ int grid::FlagCellsToBeRefinedByShear(int level)
            &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
-    //fprintf(stderr,"DensityUnits = %g\n", DensityUnits);
-    //fprintf(stderr,"LengthUnits = %g\n", LengthUnits);
-    //fprintf(stderr,"TemperatureUnits = %g\n", TemperatureUnits);
-    //fprintf(stderr,"TimeUnits = %g\n", TimeUnits);
-    //fprintf(stderr,"VelocityUnits = %g\n", VelocityUnits);
-    //ENZO_FAIL("DESIRED FAILURE.");
 
   /* Set up stencil for Zeus vs PPM data, since PPM uses cell-centered 
      velocities and Zeus uses edge-centered velocities */
@@ -122,14 +112,22 @@ int grid::FlagCellsToBeRefinedByShear(int level)
     
          We scale this to be dimensionless by multiplying by (dx/c_sound),
          which is equivalent to dividing out all of the dx/dy/dz values from 
-         the shear equation and dividing by c_sound:
+         the shear equation and dividing by c_sound.  This yields a 
+         discontinuous quantity, so we scale it by 2**level, which means
+         the shear is relative to the root grid dx/dy/dz and the local sound
+         speed:
 
       Dimensionless Shear: [(dvx + dvy)^2 + (dvz + dvy)^2 + 
-                            (dvx + dvz)^2  ]^(0.5) / c_sound
+                            (dvx + dvz)^2  ]^(0.5) * (2**level / c_sound)
+    
        
       Refinement occurs if: Dimensionless Shear > epsilon_threshold
       where epsilon_threshold is a user-defined value tied to the local mach
       number.
+
+      N.B.: DelVel1 = dvx/dy + dvy/dx
+            DelVel2 = dvx/dz + dvz/dx
+            DelVel3 = dvz/dy + dvy/dz
      */
  
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
@@ -171,13 +169,13 @@ int grid::FlagCellsToBeRefinedByShear(int level)
 	    if (dim == GridRank-1) {    // if we're done
 
         // If ideal gas, then calculate local sound speed
-        if (EOSType == 0) {
+        if (EOSType == 0) 
           c_sound2 = Gamma*pressure[index]/BaryonField[DensNum][index];
-        }
+        
         // If nonideal gas, then assume sound speed is 1
-        else {
+        else 
           c_sound2 = 1.0;
-        }
+        
         // Calculate the normalization to make sure shear is continuous
         // across refinement boundaries
         Norm2 = pow(2.0, level) * pow(2.0, level);
@@ -185,19 +183,13 @@ int grid::FlagCellsToBeRefinedByShear(int level)
         // check to make sure width decreases by a factor of 2 when level increases by 1
         // fprintf(stderr,"Level = %i; Width = %g\n", level, this->CellWidth[dim][k]);
 
-        if (GridRank == 2)  {
-            Shear2 = (Norm2*DelVel1[index]*DelVel1[index])/(Denom*Denom*c_sound2);
-        }
+        Shear2 = (Norm2*(DelVel1[index]*DelVel1[index] + 
+                         DelVel2[index]*DelVel2[index] + 
+                         DelVel3[index]*DelVel3[index])) / 
+                  (Denom*Denom*c_sound2);
 
-        if (GridRank > 2) {
-            Shear2 = (Norm2*(DelVel1[index]*DelVel1[index] + 
-                             DelVel2[index]*DelVel2[index] + 
-                             DelVel3[index]*DelVel3[index])) / 
-                      (Denom*Denom*c_sound2);
-        }
-
-	      FlaggingField[index] +=
-		  (Shear2 > MinimumShearForRefinement*MinimumShearForRefinement) ? 1 : 0;
+        FlaggingField[index] +=
+        (Shear2 > MinimumShearForRefinement*MinimumShearForRefinement) ? 1 : 0;
         }
 	  }
  
