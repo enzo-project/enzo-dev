@@ -1099,10 +1099,13 @@ c
 c           "Cen method".  This takes into account gas recycling.
 c                 (metal is not a fraction here)
 c
+     
                    metal(ic+i1, jc+j1, kc+k1) = 
-     &                  metal(ic+i1, jc+j1, kc+k1) +
-     &                  delta_mass * (yield * (1.d0-metalf) + 
-     &                                m_eject * metalf)
+     &                  metal(ic+i1, jc+j1, kc+k1) + 
+     &                  (delta_mass/m_eject)
+     &                  * (yield * (1.d0-metalf) + 
+     &                  m_eject * metalf)
+
 c 
                 endif
 c
