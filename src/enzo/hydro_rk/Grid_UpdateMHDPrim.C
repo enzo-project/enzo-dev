@@ -249,7 +249,7 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
 	  eint = Eint_new/D_new;
 	  float eint1 = etot - 0.5*v2 - 0.5*B2/D_new;
 	  if (eint1 > 0) {
-	    EOS(p, D_new, eint, h, cs, dpdrho, dpde, EOSType, 2);
+	    EOS(p, D_new, eint1, h, cs, dpdrho, dpde, EOSType, 2);
 	  }
 	  else {
 	    cs = 0.0;
