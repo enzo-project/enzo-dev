@@ -67,6 +67,7 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[],
   /* Define a temporary flux holder for the refined fluxes. */
 
   fluxes SubgridFluxesRefined;
+  InitializeFluxes(&SubgridFluxesRefined);
 
   while (ReceivesCompletedToDate < TotalReceives) {
 
