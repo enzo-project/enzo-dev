@@ -195,7 +195,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "OutputOnDensity = %"ISYM"\n", OutputOnDensity);
   fprintf(fptr, "StartDensityOutputs = %"GSYM"\n", StartDensityOutputs);
   fprintf(fptr, "CurrentDensityOutput = %"GSYM"\n", CurrentDensityOutput);
-  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n\n", IncrementDensityOutput);
+  fprintf(fptr, "IncrementDensityOutput = %"GSYM"\n", IncrementDensityOutput);
+  fprintf(fptr, "StopFirstTimeAtDensity = %"GSYM"\n", StopFirstTimeAtDensity);
+  fprintf(fptr, "StopFirstTimeAtMetalEnrichedDensity = %"GSYM"\n", StopFirstTimeAtMetalEnrichedDensity);
+  fprintf(fptr, "EnrichedMetalFraction = %"GSYM"\n\n", EnrichedMetalFraction);
 
   fprintf(fptr, "FileDirectedOutput = %"ISYM"\n", FileDirectedOutput);
 

@@ -501,6 +501,10 @@ EXTERN float StartDensityOutputs;
 EXTERN float CurrentDensityOutput;
 EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
+EXTERN float StopFirstTimeAtDensity;
+EXTERN float StopFirstTimeAtMetalEnrichedDensity;
+EXTERN float CurrentMaximumMetalEnrichedDensity;
+EXTERN float EnrichedMetalFraction;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;

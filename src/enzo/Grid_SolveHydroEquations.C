@@ -557,12 +557,63 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
   /* If we're supposed to be outputting on Density, we need to update
      the current maximum value of that Density. */
 
-    if(OutputOnDensity == 1){
+    if (OutputOnDensity == 1 || 
+        StopFirstTimeAtDensity > 0. || 
+        StopFirstTimeAtMetalEnrichedDensity > 0.) {
       int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
-      for(i = 0; i < size; i++)
+
+      int MetalNum = 0, SNColourNum = 0;
+      int MetalFieldPresent = FALSE;
+      float *MetalPointer;
+      float *TotalMetals = NULL;
+
+      if (StopFirstTimeAtMetalEnrichedDensity > 0.) {
+
+        // First see if there's a metal field (so we can conserve species in
+        // the solver)
+        MetalNum = FindField(Metallicity, FieldType, NumberOfBaryonFields);
+        SNColourNum = FindField(SNColour, FieldType, NumberOfBaryonFields);
+        MetalFieldPresent = (MetalNum != -1 || SNColourNum != -1);
+
+        // Double check if there's a metal field when we have metal cooling
+        if (MetalFieldPresent == FALSE) {
+          ENZO_FAIL("StopFirstTimeAtMetalEnrichedDensity is set, but no metal field is present.\n");
+        }
+
+        /* If both metal fields (Pop I/II and III) exist, create a field
+           that contains their sum */
+
+        if (MetalNum != -1 && SNColourNum != -1) {
+          TotalMetals = new float[size];
+          for (int i = 0; i < size; i++)
+            TotalMetals[i] = BaryonField[MetalNum][i] + BaryonField[SNColourNum][i];
+          MetalPointer = TotalMetals;
+        } // ENDIF both metal types
+        else {
+          if (MetalNum != -1)
+            MetalPointer = BaryonField[MetalNum];
+          else if (SNColourNum != -1)
+            MetalPointer = BaryonField[SNColourNum];
+        } // ENDELSE both metal types
+ 
+      }
+
+      for (i = 0; i < size; i++) {
+
         CurrentMaximumDensity =
             max(BaryonField[DensNum][i], CurrentMaximumDensity);
-    }
+
+        if (StopFirstTimeAtMetalEnrichedDensity > 0. &&
+            (MetalPointer[i] / BaryonField[DensNum][i]) > EnrichedMetalFraction) {
+          CurrentMaximumMetalEnrichedDensity = 
+            max(BaryonField[DensNum][i], CurrentMaximumMetalEnrichedDensity);
+        }
+
+      }
+
+      delete [] TotalMetals;
+
+    } // end: if (OutputOnDensity == 1 || ...
 
   }  // end: if (NumberOfBaryonFields > 0)
 

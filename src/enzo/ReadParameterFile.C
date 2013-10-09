@@ -169,6 +169,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
            &CurrentDensityOutput);
     ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
            &IncrementDensityOutput);
+    ret += sscanf(line, "StopFirstTimeAtDensity = %"FSYM,
+           &StopFirstTimeAtDensity);
+    ret += sscanf(line, "StopFirstTimeAtMetalEnrichedDensity = %"FSYM,
+           &StopFirstTimeAtMetalEnrichedDensity);
+    ret += sscanf(line, "EnrichedMetalFraction = %"FSYM,
+           &EnrichedMetalFraction);
 
     /* Subcycle directed output */
     ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 

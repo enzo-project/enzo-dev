@@ -306,7 +306,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CurrentDensityOutput             = 999;
   IncrementDensityOutput           = 999;
   CurrentMaximumDensity            = -999;
- 
+  StopFirstTimeAtDensity              = 0.0;
+  StopFirstTimeAtMetalEnrichedDensity = 0.0;
+  CurrentMaximumMetalEnrichedDensity  = -999;
+  EnrichedMetalFraction               = 1.e-8;
+
   CubeDumpEnabled             = 0;
 
 #ifdef STAGE_INPUT
