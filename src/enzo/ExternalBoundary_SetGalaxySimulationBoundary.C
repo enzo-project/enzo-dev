@@ -257,6 +257,12 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 		if( BoundaryValue[TENum][dim][0][index] < 0.0 ) 
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Total Energy");
 
+    if( BoundaryValue[DensNum][dim][0][index] != BoundaryValue[DensNum][dim][0][index] )  
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Density NaN");
+    if( BoundaryValue[TENum][dim][0][index] != BoundaryValue[TENum][dim][0][index] )  
+      ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Total Energy NaN");
+
+
 	} // end loop over boundary slice
 	
 	} // end loop over boundary directions

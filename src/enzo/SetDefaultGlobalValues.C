@@ -366,12 +366,12 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GalaxySimulationRPSWindShockSpeed = 0.0;
   GalaxySimulationRPSWindDelay = 0.0;
 
-  GalaxySimulationRPSWindDensity = 0.0;
-  GalaxySimulationRPSWindTotalEnergy = 0.0;
-  GalaxySimulationRPSWindPressure = 0.0;
+  GalaxySimulationRPSWindDensity = 1.0;
+  GalaxySimulationRPSWindTotalEnergy = 1.0;
+  GalaxySimulationRPSWindPressure = 1.0;
 
-  GalaxySimulationPreWindDensity = 0.0;
-  GalaxySimulationPreWindTotalEnergy = 0.0;
+  GalaxySimulationPreWindDensity = 1.0;
+  GalaxySimulationPreWindTotalEnergy = 1.0;
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
   GreensFunctionMaxSize       = 1;                 // not used yet
