@@ -81,6 +81,7 @@ float grid::ComputeTimeStep()
   float dtMHD          = huge_number;
   float dtConduction   = huge_number;
   float dtGasDrag      = huge_number;
+  float dtCooling      = huge_number;
   int dim, i, j, k, index, result;
  
   /* Compute the field size. */
@@ -412,6 +413,21 @@ float grid::ComputeTimeStep()
   }
 
 
+  /* Cooling time */
+  if (UseCoolingTimestep == TRUE) {
+    float *cooling_time = new float[size];
+    if (this->ComputeCoolingTime(cooling_time) == FAIL) {
+      ENZO_FAIL("Error in grid->ComputeCoolingTime.\n");
+    }
+
+    for (i = 0;i < size;i++) {
+      dtCooling = min(dtCooling, fabs(cooling_time[i]));
+    }
+    dtCooling *= CoolingTimestepSafetyFactor;
+ 
+    delete [] cooling_time;
+  }
+
   /* 7) calculate minimum timestep */
  
   dt = min(dtBaryons, dtParticles);
@@ -421,6 +437,7 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtExpansion);
   dt = min(dt, dtConduction);
   dt = min(dt, dtGasDrag);
+  dt = min(dt, dtCooling);
 
 #ifdef TRANSFER
 
