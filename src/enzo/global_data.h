@@ -187,6 +187,11 @@ EXTERN float TimestepSafetyVelocity;
 
 EXTERN int FluxCorrection;
 
+/* Cooling time timestep limit. */
+
+EXTERN int UseCoolingTimestep;
+EXTERN float CoolingTimestepSafetyFactor;
+
 /* This specifies the interpolation method (see typedefs.h). */
 
 EXTERN interpolation_type InterpolationMethod;
