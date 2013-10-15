@@ -221,10 +221,15 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 				
 				// find times that bracket what we want
 				while( ++i2 < ICMTableSize ) if( deltime < ICMTimeTable[i2] ) break;
-				i1 = i2 - 1;
+				i1 = i2-1;
+				
+				if(i2<ICMTableSize)
+					t_ratio = (deltime - ICMTimeTable[i2])/(ICMTimeTable[i1] - ICMTimeTable[i2]);
+				else { // if beyond final time, just use final val
+					i2--;
+					t_ratio = 1.0;
+				}
 
-				// interpolate values
-				t_ratio = (deltime - ICMTimeTable[i2])/(ICMTimeTable[i1] - ICMTimeTable[i2]);
 			
 				BoundaryValue[DensNum][dim][0][index] = t_ratio*ICMDensityTable[i1]
 				                                        + (1.0-t_ratio)*ICMDensityTable[i2];
