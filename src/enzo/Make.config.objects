@@ -663,6 +663,7 @@ OBJS_CONFIG_LIB = \
         NestedCosmologySimulationInitialize.o \
         ngpinterp.o \
         ngp_deposit.o \
+        ngp_deposit_c.o \
         NohInitialize.o \
         nr_1d.o \
         nr_2d.o \
