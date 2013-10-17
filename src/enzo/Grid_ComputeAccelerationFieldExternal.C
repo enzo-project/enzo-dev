@@ -67,10 +67,11 @@ int grid::ComputeAccelerationFieldExternal()
       AccelerationField[dim] = new float[size];
       for (i = 0; i < size; i++)
         AccelerationField[dim][i] = 0;
+
+    if( SelfGravity == 0 )
+        for (i = 0; i < size; i++)
+          AccelerationField[dim][i] = 0;
     }
-  if( SelfGravity == 0 )
-      for (i = 0; i < size; i++)
-        AccelerationField[dim][i] = 0;
 
  
 
