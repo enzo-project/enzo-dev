@@ -68,10 +68,15 @@ int grid::ComputeAccelerationFieldExternal()
       for (i = 0; i < size; i++)
         AccelerationField[dim][i] = 0;
 
-    if( SelfGravity == 0 )
-        for (i = 0; i < size; i++)
-          AccelerationField[dim][i] = 0;
     }
+    if( SelfGravity == 0 ){
+      for (dim = 0; dim < GridRank; dim++) {
+        for (i = 0; i < size; i++){
+          AccelerationField[dim][i] = 0;
+        }
+      }
+    }
+
 
  
 
