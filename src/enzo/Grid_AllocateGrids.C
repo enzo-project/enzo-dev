@@ -59,6 +59,7 @@ void grid::AllocateGrids()
       for(i=0; i<MagneticSize[field]; i++) MagneticField[field][i] = 0.0;      
 
       MHDParentTemp[field] = NULL;
+      OldCenteredB[field] = NULL;
     }
     
     divB = new float[size]; //note that MHDCT uses divB that's a different size than StanfordMHD

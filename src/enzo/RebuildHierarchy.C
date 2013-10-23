@@ -397,6 +397,9 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       HierarchyEntry *Temp2;
       HierarchyEntry *SubgridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
+      for (j = 0; j < MAX_NUMBER_OF_SUBGRIDS; j++){
+        SubgridHierarchyPointer[j] = NULL;
+      }
       subgrids = 0;
       for (j = 0; j < grids; j++) {
 	Temp2 = GridHierarchyPointer[j]->NextGridNextLevel;
