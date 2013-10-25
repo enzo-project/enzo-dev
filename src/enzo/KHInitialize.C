@@ -60,6 +60,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHPerturbationAmplitude = 0.01;
   float KHInnerDensity          = 2.0;
   float KHOuterDensity          = 1.0;
+  float KHConvergentICs         = 0.0;
+  float KHRampWidth             = 0.05;
 
   float KHInnerInternalEnergy, KHOuterInternalEnergy;
 
@@ -78,6 +80,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "KHVelocityJump  = %"FSYM, &KHVelocityJump);
     ret += sscanf(line, "KHPerturbationAmplitude = %"FSYM, 
 		                                   &KHPerturbationAmplitude);
+    ret += sscanf(line, "KHConvergentICs = %"FSYM, &KHConvergentICs);
+    ret += sscanf(line, "KHRampWidth  = %"FSYM, &KHRampWidth);
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "KH") && 
@@ -122,7 +126,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					 KHOuterInternalEnergy,
 					 KHPerturbationAmplitude,
 					 KHInnerVelocity[0], 
-					 KHOuterVelocity[0]) 
+					 KHOuterVelocity[0],
+                     KHConvergentICs,
+                     KHRampWidth) 
       == FAIL) {
         ENZO_FAIL("Error in KHInitializeGrid.");
   }
