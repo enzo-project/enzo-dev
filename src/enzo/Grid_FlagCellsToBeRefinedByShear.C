@@ -118,7 +118,7 @@ int grid::FlagCellsToBeRefinedByShear(int level)
          speed:
 
       Dimensionless Shear: [(dvx + dvy)^2 + (dvz + dvy)^2 + 
-                            (dvx + dvz)^2  ]^(0.5) * (2**level / c_sound)
+                            (dvx + dvz)^2  ]^(0.5) * (c_sound)
     
        
       Refinement occurs if: Dimensionless Shear > epsilon_threshold
@@ -140,26 +140,32 @@ int grid::FlagCellsToBeRefinedByShear(int level)
 	    switch (dim) {
 	    case 0: 
 	      if (GridRank > 1) // dvy/dx
-          DelVel1[index] += BaryonField[Vel2Num][index - LeftOffset] -
-                            BaryonField[Vel2Num][index + RightOffset];
+          DelVel1[index] += (BaryonField[Vel2Num][index - LeftOffset] -
+                             BaryonField[Vel2Num][index + RightOffset]) /
+                             this->CellWidth[dim][k];
 	      if (GridRank > 2) // dvz/dx
-          DelVel2[index] += BaryonField[Vel3Num][index - LeftOffset] -
-                            BaryonField[Vel3Num][index + RightOffset];
+          DelVel2[index] += (BaryonField[Vel3Num][index - LeftOffset] -
+                             BaryonField[Vel3Num][index + RightOffset]) /
+                             this->CellWidth[dim][k];
 	      break;
  
 	    case 1:             // dvx/dy
-	      DelVel1[index] += BaryonField[Vel1Num][index - LeftOffset] -
-	   	                    BaryonField[Vel1Num][index + RightOffset];
+	      DelVel1[index] += (BaryonField[Vel1Num][index - LeftOffset] -
+	   	                     BaryonField[Vel1Num][index + RightOffset]) /
+                             this->CellWidth[dim][k];
 	      if (GridRank > 2) // dvz/dy
-		  DelVel3[index] += BaryonField[Vel3Num][index - LeftOffset] -
-		                    BaryonField[Vel3Num][index + RightOffset];
+		  DelVel3[index] += (BaryonField[Vel3Num][index - LeftOffset] -
+		                     BaryonField[Vel3Num][index + RightOffset]) /
+                             this->CellWidth[dim][k];
 	      break;
  
 	    case 2:             // dvx/dz and dvy/dz 
-	      DelVel2[index] += BaryonField[Vel1Num][index - LeftOffset] -
-		                    BaryonField[Vel1Num][index + RightOffset];
-		  DelVel3[index] += BaryonField[Vel2Num][index - LeftOffset] -
-		                    BaryonField[Vel2Num][index + RightOffset];
+	      DelVel2[index] += (BaryonField[Vel1Num][index - LeftOffset] -
+		                     BaryonField[Vel1Num][index + RightOffset]) /
+                             this->CellWidth[dim][k];
+		  DelVel3[index] += (BaryonField[Vel2Num][index - LeftOffset] -
+		                     BaryonField[Vel2Num][index + RightOffset]) / 
+                             this->CellWidth[dim][k];
 	      break;
  
 	    default:
@@ -178,18 +184,20 @@ int grid::FlagCellsToBeRefinedByShear(int level)
         
         // Calculate the normalization to make sure shear is continuous
         // across refinement boundaries
-        Norm2 = pow(2.0, level) * pow(2.0, level);
+        // Norm2 = pow(2.0, level) * pow(2.0, level);
 
         // check to make sure width decreases by a factor of 2 when level increases by 1
-        // fprintf(stderr,"Level = %i; Width = %g\n", level, this->CellWidth[dim][k]);
+        // fprintf(stderr,"Level = %i; k Width = %g; j Width = %g; i width = %g\n", 
+        //         level, this->CellWidth[dim][k], this->CellWidth[dim][j], this->CellWidth[dim][i]);
 
-        Shear2 = (Norm2*(DelVel1[index]*DelVel1[index] + 
-                         DelVel2[index]*DelVel2[index] + 
-                         DelVel3[index]*DelVel3[index])) / 
-                  (Denom*Denom*c_sound2);
+        Shear2 = (DelVel1[index]*DelVel1[index] + 
+                  DelVel2[index]*DelVel2[index] + 
+                  DelVel3[index]*DelVel3[index]) / 
+                 (Denom*Denom*c_sound2);
 
         FlaggingField[index] +=
-        (Shear2 > MinimumShearForRefinement*MinimumShearForRefinement) ? 1 : 0;
+        (Shear2 > (MinimumShearForRefinement*MinimumShearForRefinement) / 
+                  (this->CellWidth[dim][k]*this->CellWidth[dim][k]) ) ? 1 : 0;
         }
 	  }
  
