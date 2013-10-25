@@ -1,5 +1,5 @@
 name = 'LoopAdvection_CT'
-#answer_testing_script = 'MHDCTOrszagTang__test_DivB_CT.py'  # or None
+answer_testing_script = None
 nprocs = 1
 runtime = 'short'   # short, medium, long
 hydro = False
