@@ -20,8 +20,8 @@ int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float Pressure = 5.0/(12*Pi);
   float Vx=0.0, Vy = 0.0, Vz = 0.0;
   float B0=1e-3;
-  float R0 = 0.3;
-  float Center[3];
+  FLOAT R0 = 0.3;
+  FLOAT Center[3];
   int CurrentAxis = 2;
   for(int dim =0;dim<3;dim++)
     Center[dim] = 0.5*(DomainLeftEdge[dim]+DomainRightEdge[dim]);

@@ -2851,8 +2851,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
                              int InitStyle);
   int MHDOrszagTangInitGrid(float Density,float Pressure, float V0, float B0 );
-  int MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, float Vz, float B0, float R0, 
-                      float Center[], int CurrentAxis);
+  int MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, float Vz, float B0, FLOAT R0, 
+                      FLOAT Center[], int CurrentAxis);
 
 
   //See Grid_MHDCTEnergyToggle.C for details on these functions.

@@ -14,8 +14,8 @@
 #include "phys_constants.h"
 
 
-int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, float Vz, float B0, float R0, 
-                          float Center[], int CurrentAxis){ 
+int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, float Vz, float B0, FLOAT R0, 
+                          FLOAT Center[], int CurrentAxis){ 
 
 
   fprintf(stderr,"GridDim %"ISYM" %"ISYM" %"ISYM"\n",GridDimension[0],GridDimension[1],GridDimension[2]);
