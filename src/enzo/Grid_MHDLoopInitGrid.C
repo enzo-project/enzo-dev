@@ -65,9 +65,7 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
   int index, size=1, i,j,k, Three=3,TENum=1; 
   float Scale[3];
 
-  fprintf(stderr,"CLOWN 0\n");
   this->AllocateGrids();  
-  fprintf(stderr,"CLOWN 0.1\n");
   //For Dedner MHD, we need to temporarily allocate the other fields
   //to initialize the magnetic field in a manner that's consistent with MHDCT
   if(UseMHD){  
@@ -85,32 +83,23 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
         }
       MagneticSize[field] *= MagneticDims[field][dim];
       ElectricSize[field] *= ElectricDims[field][dim];
-      //fprintf(stderr,"CLOWN Mag[%d][%d] = %d\n",field,dim,MagneticDims[field][dim]);
-      //fprintf(stderr,"CLOWN Magsize[%d]] = %d\n",field,MagneticSize[field]);
-      //fprintf(stderr,"CLOWN Elesize[%d]] = %d\n",field,ElectricSize[field]);
       }
     }
     //
     //
     for(field=0;field<3;field++){
 
-      fprintf(stderr,"CLONW x1\n");
       MagneticField[field] = new float[MagneticSize[field]];
       ElectricField[field] = new float[ElectricSize[field]];
-      fprintf(stderr,"CLONW x2\n");
 
       for(i=0; i<ElectricSize[field]; i++) ElectricField[field][i] = 0.0;
       for(i=0; i<MagneticSize[field]; i++) MagneticField[field][i] = 0.0;      
-
-      fprintf(stderr,"CLONW x2\n");
     }
     CenteredB[0] = BaryonField[BxNum];
     CenteredB[1] = BaryonField[ByNum];
     CenteredB[2] = BaryonField[BzNum];
-      fprintf(stderr,"CLONW x3\n");
     
   } // if(UseMHD)
-  fprintf(stderr,"CLOWN 1\n");
 
   for(i=0;i<GridRank;i++){
     size*=GridDimension[i];
@@ -120,10 +109,6 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
     Scale[i] = 0;
     Center[i] = 0;
   }
-
-  fprintf(stderr,"Density %f Pressure %f (vx,vy) (%f,%f) B0 %f \n", LoopDensity,Pressure,Vx,Vy,B0);
-  fprintf(stderr,"Scale: %f %f %f\n", Scale[0],Scale[1],Scale[2]);
-  fprintf(stderr,"Center; %f %f %f\n", Center[0], Center[1], Center[2]);
 
   //Vector Potential. 
   //Due to the similarity in centering, and lack of foresight in naming,
