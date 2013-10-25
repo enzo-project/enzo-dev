@@ -1,0 +1,58 @@
+ 
+#General flags.
+
+ProblemType            = 104  //This uses the MHDBlast initialization.
+
+#Debug options
+#WriteInThis            = 0 
+
+
+
+#Hydro parameters. 
+HydroMethod            = 4
+
+CourantSafetyNumber    = 0.5  //Understand this before running code.
+Gamma                  = 1.4
+
+
+#Job Control variables
+StopCycle = 2000
+StopTime = 2.23607
+
+CycleLastDataDump = -100
+CycleSkipDataDump = 100
+
+TopGridRank            = 2 
+
+TopGridDimensions      = 128 64
+DomainLeftEdge         = -1 -0.5 -1
+DomainRightEdge        = 1 0.5 0
+
+RightFaceBoundaryCondition = 3 3 
+LeftFaceBoundaryCondition =  3 3 
+
+
+#
+# Loop parameters
+#
+
+MHDLoopDensity = 1
+MHDLoopPressure = 1
+MHDLoopVx      = 0.89442719099991586 //2.0/sqrt(5)
+MHDLoopVy      = 0.44721359549995793 //1.0/sqrt(5)
+MHDLoopB0      = 1e-3
+MHDLoopR0      = 0.3
+MHDLoopCenter  = 0 0 0
+
+
+CellFlaggingMethod     = 3  //Look up which to use.
+MaximumRefinementLevel = 0
+StaticHierarchy           = 0    // dynamic hierarchy
+RefineBy                  = 2    // refinement factor
+
+TopGridGravityBoundary = 0       // Periodic BC
+SelfGravity            = 0       // Gravity on.
+
+NumberOfBufferZones       = 0
+MinimumSlopeForRefinement = 0.3;
+

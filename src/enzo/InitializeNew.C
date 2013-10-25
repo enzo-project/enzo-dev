@@ -326,10 +326,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Error check the dimensions and at the same time add ghost zones
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++) {
+      /*
       if (MetaData.TopGridDims[dim] < 1 || MetaData.TopGridDims[dim] > 8192) {
 	ENZO_VFAIL("TopGridDims[%"ISYM"] = %"ISYM" ill defined.\n", dim,
 		   MetaData.TopGridDims[dim])
       }
+      */
       MetaData.TopGridDims[dim] = (MetaData.TopGridDims[dim] > 1) ?
 	MetaData.TopGridDims[dim] + 2*NumberOfGhostZones : 1;
     }
