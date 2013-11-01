@@ -50,6 +50,7 @@ int grid::FindNewStarParticles(int level)
       exists = false;
       for (cstar = Stars; cstar; cstar = cstar->NextStar)
 	if (cstar->Identifier == ParticleNumber[i]) {
+	  cstar->SetLevel(level);
 	  exists = true;
 	  break;
 	}
