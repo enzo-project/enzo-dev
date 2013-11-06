@@ -78,6 +78,7 @@ c
 c
       if (cloudsize .gt. cellsize) then
          write(6,*) "cloudsize > cellsize in cic_deposit!"
+         write(6,*) cloudsize, cellsize
          ERROR_MESSAGE
       endif
 c

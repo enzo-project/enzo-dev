@@ -92,6 +92,12 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 	  /* Compute the index into the boundary value. */
  
 	  index = j*BoundaryDimension[dim1] + i;
+
+		// update bndry type (needed for restart runs)
+		for( int field = 0 ; field < NumberOfBaryonFields; ++field ){
+			BoundaryType[field][dim][0][index] = inflow;  // left bnd
+			BoundaryType[field][dim][1][index] = outflow; // right bnd
+		}
  
 	  /* Find the 3D vector from the corner to the current location. */
  

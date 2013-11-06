@@ -178,6 +178,7 @@ int grid::CosmologySimulationInitializeGrid(
      if ( (ParallelRootGridIO != TRUE) || 
 	  (ParallelParticleIO != TRUE && !CosmologySimulationCalculatePositions) )
      {
+				if( MyProcessorNumber == ROOT_PROCESSOR )
          fprintf(stderr, "WARNING: ParallelRootGridIO and ParallelParticleIO are recommended for > 64 cpus to shrink data read-in time.");
      }
   }
