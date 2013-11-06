@@ -130,7 +130,7 @@ int grid::CosmologySimulationInitializeGrid(
   int MachNum, PSTempNum, PSDenNum;
  
   int ExtraField[2];
-  int ForbidNum, iTE;
+  int ForbidNum, iTE, iCR;
  
   inits_type *tempbuffer = NULL;
   int *int_tempbuffer = NULL;
@@ -234,7 +234,11 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity3;
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
-    
+    if(CRModel){
+        iCR = NumberOfBaryonFields;
+        FieldType[NumberOfBaryonFields++] = CRDensity;
+    }
+ 
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     
@@ -366,6 +370,12 @@ int grid::CosmologySimulationInitializeGrid(
 		    BaryonField[iTE], &tempbuffer, 0, 1) == FAIL) {
             ENZO_FAIL("Error reading total energy field.");
     }
+
+  // set the CR energy density field to small fraction of density
+  if(CRModel){
+    for (i = 0; i < size; i++)
+      BaryonField[iCR][i] = CosmologySimulationUniformCR;
+	} // end CR if
  
   // Read the gas energy field
  

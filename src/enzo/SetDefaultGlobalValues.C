@@ -411,6 +411,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CRdensFloor                 = 0.0;               // off
   CRmaxSoundSpeed             = 0.0;               // off 
   CRgamma                     = 4.0/3.0;           // relativistic, adiabatic gas
+  CosmologySimulationUniformCR= 1e-20;             // FIXME
   ShockMethod                 = 0;                 // off
   ShockTemperatureFloor       = 1.0;               // Set to 1K
   StorePreShockFields         = 0;

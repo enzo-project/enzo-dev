@@ -414,6 +414,7 @@ EXTERN float CRCourantSafetyNumber;
 EXTERN float CRdensFloor;
 EXTERN float CRmaxSoundSpeed;
 EXTERN float CRgamma;
+EXTERN float CosmologySimulationUniformCR; // FIXME
 
 /* Shock Finding Method
  * 0: Off - default
