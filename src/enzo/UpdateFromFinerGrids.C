@@ -72,6 +72,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
   /* Define a temporary flux holder for the refined fluxes. */
  
   fluxes SubgridFluxesRefined;
+  InitializeFluxes(&SubgridFluxesRefined);
  
   /* For each grid,
      (a)  project the proper and neighboring subgrids' solutions into 
