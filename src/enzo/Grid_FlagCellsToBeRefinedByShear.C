@@ -30,7 +30,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
          float *TemperatureUnits, float *TimeUnits,
          float *VelocityUnits, FLOAT Time);
  
-int grid::FlagCellsToBeRefinedByShear(int level)
+int grid::FlagCellsToBeRefinedByShear()
 {
   /* declarations */
  
