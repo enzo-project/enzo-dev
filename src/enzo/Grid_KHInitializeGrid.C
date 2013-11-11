@@ -32,6 +32,8 @@ int grid::KHInitializeGrid(float KHInnerDensity,
 			   float KHOuterInternalEnergy,
 			   float KHPerturbationAmplitude,
 			   float KHInnerVx, float KHOuterVx,
+			   float KHInnerPressure,
+			   float KHOuterPressure,
                float KHConvergentICs,
                float KHRampWidth)
 {
@@ -56,6 +58,7 @@ int grid::KHInitializeGrid(float KHInnerDensity,
     for (i = 0; i < size; i++) {
       index = i % GridDimension[0];
       jndex = (i-index)/GridDimension[0];
+
       BaryonField[3][i] = KHPerturbationAmplitude * 
                           ((float)rand()/(float)(RAND_MAX) - 0.5); //AK
       BaryonField[1][i] = POW(BaryonField[3][i],2) / 2.0;
@@ -77,40 +80,82 @@ int grid::KHInitializeGrid(float KHInnerDensity,
       }
     }
   }
-  else {    // use convergent initial conditions, which create an continuously
+  else {    // use convergent initial conditions, which create a continuously
             // changing ``ramp`` region between the two fluids in density/vel
             // space.  then perturb the fluids with a sinusoidal perturbation.
             // all resulting simulations should converge as you increase 
             // resolution
     int index, jndex, i;
+    FLOAT x_val, y_val, KHRampWidth2;
+    KHRampWidth2 = KHRampWidth*KHRampWidth;
     for (i = 0; i < size; i++) {
       index = i % GridDimension[0];
       jndex = (i-index)/GridDimension[0];
-      // everywhere set vy, vz = 0
-      BaryonField[3][i]  = 0.0;
-      BaryonField[4][i]  = 0.0;
+      x_val = (FLOAT)index / (FLOAT)GridDimension[0];
+      y_val = (FLOAT)jndex / (FLOAT)GridDimension[1];
 
+      // everywhere set the sinusoidal perturbation in v_y
+      //BaryonField[3][i] = KHPerturbationAmplitude * 
+      //                    ((float)rand()/(float)(RAND_MAX) - 0.5); //AK
+      BaryonField[3][i] = KHPerturbationAmplitude * sin(4.0 * M_PI * x_val);
 
+      //float sinvar = sin(4.0*M_PI*x_val);
+      //if (index < 5 || index > GridDimension[0]-5)
+      //   fprintf(stderr, "i = %"ISYM" index = %"ISYM" x_val = %"FSYM" sinvar = %"FSYM"\n", 
+      //            i, index, x_val, sinvar);
 
-//      BaryonField[3][i] = KHPerturbationAmplitude * 
-//                          ((float)rand()/(float)(RAND_MAX) - 0.5); 
-//      BaryonField[1][i] = POW(BaryonField[3][i],2) / 2.0;
-      
-      if (jndex >= GridDimension[1]/4 && jndex < 3*GridDimension[1]/4) { 
+      // set density and velocity fields in "inner region"
+      if (jndex > GridDimension[1]/4 && jndex < 3*GridDimension[1]/4) { 
         BaryonField[0][i]  = KHInnerDensity;
         BaryonField[2][i]  = KHInnerVx;
-        BaryonField[1][i] += KHInnerInternalEnergy + 
-	                     POW(BaryonField[2][i],2) / 2.0;
-      }
-      else {
-        BaryonField[2][i]  = KHOuterVx + 
-	                     KHPerturbationAmplitude * 
-                             ((float)rand()/(float)(RAND_MAX) - 0.5);
-        BaryonField[1][i] += KHOuterInternalEnergy + 
-	                     POW(BaryonField[2][i],2) / 2.0;
+      // modify the top half of the inner fluid (quadrant 3) to account for ramp
+        if (jndex >= GridDimension[1]/2) {
+          BaryonField[0][i] -= exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.75 - 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+          BaryonField[2][i] -= exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.75 - 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+        } else {
+      // modify the bottom half of the inner fluid (quadrant 2) to account for ramp
+          BaryonField[0][i] -= exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.25 + 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+          BaryonField[2][i] -= exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.25 + 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+        }
+      // set the energy in the "inner region" 
+        BaryonField[1][i] = KHInnerPressure/((Gamma - 1.0)*BaryonField[0][i]) + 
+	                        (POW(BaryonField[2][i],2) +
+	                         POW(BaryonField[3][i],2)) / 2.0;
+      } else {
+      // density and velocity fields in "outer region" already set in KHInit...C
+      // modify the top half of the outer fluid (quadrant 4) to account for ramp
+        if (jndex >= GridDimension[1]/2) {
+          BaryonField[0][i] += exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.75 + 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+          BaryonField[2][i] += exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.75 + 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+        } else {
+      // modify the bottom half of the outer fluid (quadrant 1) to account for ramp
+          BaryonField[0][i] += exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.25 - 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+          BaryonField[2][i] += exp( (-0.5/KHRampWidth2)*
+                                    pow(y_val-0.25 - 
+                                        sqrt(-2.0*KHRampWidth2*log(0.5)),2));
+        }
+      // set the energy in the "outer region"
+        BaryonField[1][i] = KHOuterPressure/((Gamma - 1.0)*BaryonField[0][i]) + 
+	                        (POW(BaryonField[2][i],2) +
+	                         POW(BaryonField[3][i],2)) / 2.0;
       }
     }
   }
+      
   if (debug) {
     fprintf(stderr, "GKHIG: BF[2][0]:%"FSYM" BF[2][size/2]: %"FSYM"\n", 
 	    BaryonField[2][0],
@@ -120,6 +165,5 @@ int grid::KHInitializeGrid(float KHInnerDensity,
 	    BaryonField[3][0],
 	    BaryonField[3][size/2]);
   }
-
   return SUCCESS;
 }

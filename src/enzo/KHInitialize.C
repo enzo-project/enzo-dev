@@ -127,6 +127,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 					 KHPerturbationAmplitude,
 					 KHInnerVelocity[0], 
 					 KHOuterVelocity[0],
+                     KHInnerPressure,
+                     KHOuterPressure,
                      KHConvergentICs,
                      KHRampWidth) 
       == FAIL) {
