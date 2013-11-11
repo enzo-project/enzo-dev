@@ -71,7 +71,7 @@ int grid::FlagCellsToBeRefinedByShear(int level)
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
-/* Create temperature fields for calculating local sound speed */
+/* Create pressure field for calculating local sound speed */
 
   float *pressure = new float[size];
 
@@ -110,24 +110,21 @@ int grid::FlagCellsToBeRefinedByShear(int level)
 	     where:  dvx/dy = [vx(j-1) - vx(j+1)]/[2dy],
          in units of s^(-1)
     
-         We scale this to be dimensionless by multiplying by (dx/c_sound),
-         which is equivalent to dividing out all of the dx/dy/dz values from 
-         the shear equation and dividing by c_sound.  This yields a 
-         discontinuous quantity, so we scale it by 2**level, which means
-         the shear is relative to the root grid dx/dy/dz and the local sound
-         speed:
+         In order to use this as a refinement criterion, we need to compare
+         it against the local cell width (ie dx).  So we refine when
+         the shearing rate is larger than a user-defined threshold
+         divided by the sound-crossing time of the cell:
 
-      Dimensionless Shear: [(dvx + dvy)^2 + (dvz + dvy)^2 + 
-                            (dvx + dvz)^2  ]^(0.5) * (c_sound)
-    
-       
-      Refinement occurs if: Dimensionless Shear > epsilon_threshold
-      where epsilon_threshold is a user-defined value tied to the local mach
-      number.
+         Shear > epsilon * c_s / dx
 
-      N.B.: DelVel1 = dvx/dy + dvy/dx
-            DelVel2 = dvx/dz + dvz/dx
-            DelVel3 = dvz/dy + dvy/dz
+         We can save some extra calculations by removing dx from 
+         the denominators of both sides of this equation:
+
+         ((dvx + dvy)^2 + (dvz + dvy)^2 + (dvx + dvz)^2) / c_sound^2 > epsilon^2
+
+      N.B.: DelVel1 = dvx(in dy) + dvy(in dx)
+            DelVel2 = dvx(in dz) + dvz(in dx)
+            DelVel3 = dvz(in dy) + dvy(in dz)
      */
  
       for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
@@ -136,36 +133,34 @@ int grid::FlagCellsToBeRefinedByShear(int level)
  
 	    index = i + j*GridDimension[0] +
 	                k*GridDimension[1]*GridDimension[0];
+
+     // CellWidth[dim][k] is used because k always represents the
+     // current cellwidth (i.e. dx, dy, dz), whereas j and i seem
+     // to get strange behavior, so it is tacitly assumed dx=dy=dz
  
 	    switch (dim) {
 	    case 0: 
 	      if (GridRank > 1) // dvy/dx
           DelVel1[index] += (BaryonField[Vel2Num][index - LeftOffset] -
-                             BaryonField[Vel2Num][index + RightOffset]) /
-                             this->CellWidth[dim][k];
+                             BaryonField[Vel2Num][index + RightOffset]);
 	      if (GridRank > 2) // dvz/dx
           DelVel2[index] += (BaryonField[Vel3Num][index - LeftOffset] -
-                             BaryonField[Vel3Num][index + RightOffset]) /
-                             this->CellWidth[dim][k];
+                             BaryonField[Vel3Num][index + RightOffset]);
 	      break;
  
 	    case 1:             // dvx/dy
 	      DelVel1[index] += (BaryonField[Vel1Num][index - LeftOffset] -
-	   	                     BaryonField[Vel1Num][index + RightOffset]) /
-                             this->CellWidth[dim][k];
+	   	                     BaryonField[Vel1Num][index + RightOffset]);
 	      if (GridRank > 2) // dvz/dy
 		  DelVel3[index] += (BaryonField[Vel3Num][index - LeftOffset] -
-		                     BaryonField[Vel3Num][index + RightOffset]) /
-                             this->CellWidth[dim][k];
+		                     BaryonField[Vel3Num][index + RightOffset]);
 	      break;
  
 	    case 2:             // dvx/dz and dvy/dz 
 	      DelVel2[index] += (BaryonField[Vel1Num][index - LeftOffset] -
-		                     BaryonField[Vel1Num][index + RightOffset]) /
-                             this->CellWidth[dim][k];
+		                     BaryonField[Vel1Num][index + RightOffset]);
 		  DelVel3[index] += (BaryonField[Vel2Num][index - LeftOffset] -
-		                     BaryonField[Vel2Num][index + RightOffset]) / 
-                             this->CellWidth[dim][k];
+		                     BaryonField[Vel2Num][index + RightOffset]);
 	      break;
  
 	    default:
@@ -182,22 +177,13 @@ int grid::FlagCellsToBeRefinedByShear(int level)
         else 
           c_sound2 = 1.0;
         
-        // Calculate the normalization to make sure shear is continuous
-        // across refinement boundaries
-        // Norm2 = pow(2.0, level) * pow(2.0, level);
-
-        // check to make sure width decreases by a factor of 2 when level increases by 1
-        // fprintf(stderr,"Level = %i; k Width = %g; j Width = %g; i width = %g\n", 
-        //         level, this->CellWidth[dim][k], this->CellWidth[dim][j], this->CellWidth[dim][i]);
-
         Shear2 = (DelVel1[index]*DelVel1[index] + 
                   DelVel2[index]*DelVel2[index] + 
                   DelVel3[index]*DelVel3[index]) / 
                  (Denom*Denom*c_sound2);
 
         FlaggingField[index] +=
-        (Shear2 > (MinimumShearForRefinement*MinimumShearForRefinement) / 
-                  (this->CellWidth[dim][k]*this->CellWidth[dim][k]) ) ? 1 : 0;
+        (Shear2 > (MinimumShearForRefinement*MinimumShearForRefinement)) ? 1 : 0;
         }
 	  }
  
