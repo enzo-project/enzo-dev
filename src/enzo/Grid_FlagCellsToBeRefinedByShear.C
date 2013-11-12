@@ -102,7 +102,7 @@ int grid::FlagCellsToBeRefinedByShear()
 
   /* The old method for this refinement criterion refined on both
      shear and vorticity, and it made a number of assumptions about
-     the simulation (dx=dy=dz=1; c_s=1; PPM; etc.), but I leave it below 
+     the simulation (c_s=1; PPM; etc.), but I leave it below 
      for reproducibility with old results.  To utilize the old method
      for shear refinement, include the parameter "OldShearMethod = 1" in your
      parameter file.
@@ -215,7 +215,7 @@ int grid::FlagCellsToBeRefinedByShear()
          For shear: [(du/dy)^2 + (dv/dx)^2 + (dw/dy)^2 +
                      (du/dz)^2 + (dv/dz)^2 + (dw/dx)^2  ] > parameter,
          where:  du/dy = [u(j-1) - u(j+1)]/[2dy],
-         assume: dx=dy=dz=1;
+         assume: dx=dy=dz;
          parameter ~ (sound/dx)^2
          assume: sound = 1
       */

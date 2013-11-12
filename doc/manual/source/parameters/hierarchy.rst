@@ -151,8 +151,8 @@ Hierarchy Control Parameters
 ``OldShearMethod`` (external)
     If using the shear refinement criterion, setting this variable to 1 enables 
     the old method for calculating the shear criterion, which actually 
-    calculates it based on shear and vorticity and makes several assumptions
-    about the simulations (dx=dy=dz=1, c_s=1, etc.).  However, this is necessary
+    calculates it based on shear and vorticity and makes some assumptions
+    about the simulations (c_s=1, etc.).  However, this is necessary
     if you want to reproduce some of the old enzo results 
     (e.g. Kritsuk et al. 2006).  Default: 0
 ``MetallicityRefinementMinMetallicity`` (external)
