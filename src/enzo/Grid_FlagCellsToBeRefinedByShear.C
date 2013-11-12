@@ -100,6 +100,17 @@ int grid::FlagCellsToBeRefinedByShear()
     Denom = 2.0;
   }
 
+  /* The old method for this refinement criterion refined on both
+     shear and vorticity, and it made a number of assumptions about
+     the simulation (dx=dy=dz=1; c_s=1; PPM; etc.), but I leave it below 
+     for reproducibility with old results.  To utilize the old method
+     for shear refinement, include the parameter "OldShearMethod = 1" in your
+     parameter file.
+
+     Here is the new method:
+  */
+  if (OldShearMethod == 0) {
+  
   /* loop over active dimensions */
  
   for (dim = 0; dim < GridRank; dim++)
@@ -191,7 +202,75 @@ int grid::FlagCellsToBeRefinedByShear()
       RightOffset *= GridDimension[dim];
  
     }  // end loop over dimension
- 
+
+  } else {  // OldShearMethod -- the old method for calculating shear 
+            // (and vorticity)
+
+  int Offset = LeftOffset;
+
+  for (dim = 0; dim < GridRank; dim++)
+    if (GridDimension[dim] > 1) {
+
+      /* 
+         For shear: [(du/dy)^2 + (dv/dx)^2 + (dw/dy)^2 +
+                     (du/dz)^2 + (dv/dz)^2 + (dw/dx)^2  ] > parameter,
+         where:  du/dy = [u(j-1) - u(j+1)]/[2dy],
+         assume: dx=dy=dz=1;
+         parameter ~ (sound/dx)^2
+         assume: sound = 1
+      */
+
+      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
+        for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
+          for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+
+            index = i + j*GridDimension[0] +
+                        k*GridDimension[1]*GridDimension[0];
+
+            float DelVel1 = 0.0, DelVel2 = 0.0;
+            switch (dim) {
+            case 0:
+              if (GridRank > 1)
+                DelVel1 = BaryonField[Vel1Num+1][index - Offset] -
+                          BaryonField[Vel1Num+1][index + Offset];
+              if (GridRank > 2)
+                DelVel2 = BaryonField[Vel1Num+2][index - Offset] -
+                          BaryonField[Vel1Num+2][index + Offset];
+              break;
+
+            case 1:
+              DelVel1 = BaryonField[Vel1Num][index - Offset] -
+                        BaryonField[Vel1Num][index + Offset];
+              if (GridRank > 2)
+                DelVel2 = BaryonField[Vel1Num+2][index - Offset] -
+                          BaryonField[Vel1Num+2][index + Offset];
+              break;
+
+            case 2:
+              if (GridRank > 1)
+                DelVel1 = BaryonField[Vel1Num+1][index - Offset] -
+                          BaryonField[Vel1Num+1][index + Offset];
+              DelVel2 = BaryonField[Vel1Num][index - Offset] -
+                        BaryonField[Vel1Num][index + Offset];
+              break;
+
+            default:
+              break;
+            }
+
+            DelVel1 *= DelVel1;
+            DelVel2 *= DelVel2;
+            DelVel3[index] += DelVel1 + DelVel2;
+            if (dim == GridRank-1)
+              FlaggingField[index] +=
+                (DelVel3[index] > MinimumShearForRefinement) ? 1 : 0;
+          }
+
+      Offset *= GridDimension[dim];
+
+    }  // end loop over dimension
+
+  }
   /* clean up */
  
   delete [] DelVel1;
