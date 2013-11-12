@@ -70,15 +70,11 @@ MACH_LDFLAGS  =
 MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
 MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
 # Flags for high conservative optimization
-#MACH_OPT_HIGH        = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-div
 MACH_OPT_HIGH        = -O2
 # Note that this breaks determinism, which is why it's commented out!
 #
 MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
-# This is the best we can do, from what I can tell.
-#MACH_OPT_AGGRESSIVE  = -O1 -ftz -mieee-fp -fp-speculation=off -prec-sqrt -prec-div
 
-#-----------------------------------------------------------------------
 #-----------------------------------------------------------------------
 # Includes
 #-----------------------------------------------------------------------
@@ -107,8 +103,6 @@ LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \
                      -lreadline -ltermcap -lutil
 
-#LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER_DIR)/lib \
-#			-lpgf90 -lpgf90_rpm1 -lpgf902 -lpgf90rtl -lpgftnrtl -lrt
 LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport 
 
 
