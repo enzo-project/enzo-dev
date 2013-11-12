@@ -15,6 +15,8 @@
 #-----------------------------------------------------------------------
 
 OBJS_CONFIG_LIB = \
+  MHDLoopInit.o \
+  Grid_MHDLoopInitGrid.o \
         acml_st1.o \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
