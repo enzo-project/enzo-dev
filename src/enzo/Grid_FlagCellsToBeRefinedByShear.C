@@ -26,10 +26,6 @@
 #include "Grid.h"
 #include "phys_constants.h"
 
-int GetUnits(float *DensityUnits, float *LengthUnits,
-             float *TemperatureUnits, float *TimeUnits,
-             float *VelocityUnits, FLOAT Time);
- 
 int grid::FlagCellsToBeRefinedByShear()
 {
   /* declarations */
@@ -76,14 +72,6 @@ int grid::FlagCellsToBeRefinedByShear()
 
   if (this->ComputePressure(Time, pressure) == FAIL){
     ENZO_FAIL("Error in grid->ComputePressure.");
-  }
-
-  float TemperatureUnits = 1, DensityUnits = 1, LengthUnits = 1,
-        VelocityUnits = 1, TimeUnits = 1;
-
-  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-               &TimeUnits, &VelocityUnits, Time) == FAIL) {
-    ENZO_FAIL("Error in GetUnits.");
   }
 
   /* Set up stencil for Zeus vs PPM data, since PPM uses cell-centered 
