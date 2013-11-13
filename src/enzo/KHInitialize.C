@@ -62,6 +62,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHOuterDensity          = 1.0;
   float KHConvergentICs         = 0.0;
   float KHRampWidth             = 0.05;
+  float KHBulkVelocity          = 0.0;
 
   float KHInnerInternalEnergy, KHOuterInternalEnergy;
 
@@ -81,7 +82,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "KHPerturbationAmplitude = %"FSYM, 
 		                                   &KHPerturbationAmplitude);
     ret += sscanf(line, "KHConvergentICs = %"FSYM, &KHConvergentICs);
-    ret += sscanf(line, "KHRampWidth  = %"FSYM, &KHRampWidth);
+    ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
+    ret += sscanf(line, "KHBulkVelocity  = %"FSYM, &KHBulkVelocity);
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "KH") && 
@@ -100,8 +102,10 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHInnerVelocity[3] = {0.0, 0.0, 0.0};
   float KHOuterVelocity[3] = {0.0, 0.0, 0.0};
   float KHBField[3] = {0.0, 0.0, 0.0};
-  KHInnerVelocity[0]      += 0.5*KHVelocityJump; // gas initally moving right
-  KHOuterVelocity[0]      -= 0.5*KHVelocityJump; // gas initally moving left
+  // gas initally moving right
+  KHInnerVelocity[0]      += 0.5*KHVelocityJump + KHBulkVelocity; 
+  // gas initally moving left  
+  KHOuterVelocity[0]      -= 0.5*KHVelocityJump - KHBulkVelocity; 
 
   /* set the periodic boundaries */
 
