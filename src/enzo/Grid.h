@@ -1836,7 +1836,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                        float KHInnerInternalEnergy,
                        float KHOuterInternalEnergy,
                        float KHPerturbationAmplitude,
-                       float KHInnerVx, float KHOuterVx);
+                       float KHInnerVx, float KHOuterVx,
+                       float KHInnerPressure,
+                       float KHOuterPressure,
+                       float KHConvergentICs,
+                       float KHRampWidth);
 
   /* Initialize a grid and set boundary for the 2D/3D Noh problem. */
 
