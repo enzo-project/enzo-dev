@@ -1,0 +1,113 @@
+#=======================================================================
+#
+# FILE:        Make.mach.gordon
+#
+# DESCRIPTION: Makefile settings for the Gordon Resource at SDSC/UCSD
+#
+# AUTHOR:      Cameron Hummels (chummels@gmail.com)
+#
+# DATE:        15 Oct 2013
+#
+#
+#=======================================================================
+
+MACH_TEXT  = Gordon
+MACH_VALID = 1
+MACH_FILE  = Make.mach.gordon
+
+MACHINE_NOTES = "MACHINE_NOTES for Gordon at SDSC/UCSD: \
+	Load these modules, \
+	'module load intel mvapich2_ib'"
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL = /opt/mvapich2/intel/ib/
+LOCAL_PYTHON_INSTALL = ${YT_DEST}
+LOCAL_COMPILER_DIR = /opt/intel/composer_xe_2013.1.117/
+LOCAL_HYPRE_INSTALL = 
+
+# With MPI
+
+MACH_CPP       = cpp
+MACH_CC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicc # C compiler when using MPI
+MACH_CXX_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpicxx # C++ compiler when using MPI
+MACH_FC_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpif90 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = $(LOCAL_MPI_INSTALL)/bin/mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicxx # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/intel64/icc # C compiler when not using MPI
+MACH_CXX_NOMPI = $(LOCAL_COMPILER_DIR)/bin/intel64/icpc # C++ compiler when not using MPI
+MACH_FC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/intel64/ifort # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = $(LOCAL_COMPILER_DIR)/bin/intel64/ifort # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/intel64/icpc # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+# Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+
+MACH_CPPFLAGS = -P -traditional 
+MACH_CFLAGS   = 
+MACH_CXXFLAGS =
+MACH_FFLAGS   = 
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = 
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall # Flags for verbose compiler warnings
+MACH_OPT_DEBUG       = -O0 -g # Flags for debugging
+# Flags for high conservative optimization
+MACH_OPT_HIGH        = -O2
+# Note that this breaks determinism, which is why it's commented out!
+#
+MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I${YT_DEST}/include # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = 
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7 \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES_PYTHON  = $(LOCAL_INCLUDES_PYTHON)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L${YT_DEST}/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HYPRE  = 
+LOCAL_LIBS_PAPI   = # PAPI libraries
+LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \
+                     -lreadline -ltermcap -lutil
+
+LOCAL_LIBS_MACH  = -L$(LOCAL_COMPILER_DIR)/lib/intel64 -lifcore -lifport 
+
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_PYTHON  = $(LOCAL_LIBS_PYTHON)

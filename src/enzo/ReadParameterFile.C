@@ -741,6 +741,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MinimumPressureJumpForRefinement = %"FSYM,
 		  &MinimumPressureJumpForRefinement);
+    ret += sscanf(line, "OldShearMethod = %"ISYM,
+		  &OldShearMethod);
     ret += sscanf(line, "MinimumShearForRefinement = %"FSYM,
 		  &MinimumShearForRefinement);
     ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
