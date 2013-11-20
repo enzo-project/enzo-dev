@@ -7,6 +7,7 @@
 /  modified1:  Alexei Kritsuk, December 2004.  
 /  modified2:  Gregg Dobrowalski, Feb 2005.  
 /  modified3:  Alexei Kritsuk, April 2005. v_y perturbations + more parameters.
+/  modified4:  Cameron Hummels, November 2013. Convergent ICs
 /
 /  PURPOSE: Sets the field variables in the domain.
 /          
@@ -91,25 +92,20 @@ int grid::KHInitializeGrid(float KHInnerDensity,
     for (i = 0; i < size; i++) {
       index = i % GridDimension[0];
       jndex = (i-index)/GridDimension[0];
-      x_val = (FLOAT)index / (FLOAT)GridDimension[0];
-      y_val = (FLOAT)jndex / (FLOAT)GridDimension[1];
+      x_val = (FLOAT)(index - GridStartIndex[0]) / 
+              (FLOAT)(GridEndIndex[0] - GridStartIndex[0]+1);
+      y_val = (FLOAT)(jndex - GridStartIndex[1]) / 
+              (FLOAT)(GridEndIndex[1] - GridStartIndex[1]+1);
 
       // everywhere set the sinusoidal perturbation in v_y
-      //BaryonField[3][i] = KHPerturbationAmplitude * 
-      //                    ((float)rand()/(float)(RAND_MAX) - 0.5); //AK
       BaryonField[3][i] = KHPerturbationAmplitude * sin(4.0 * M_PI * x_val);
 
-      //float sinvar = sin(4.0*M_PI*x_val);
-      //if (index < 5 || index > GridDimension[0]-5)
-      //   fprintf(stderr, "i = %"ISYM" index = %"ISYM" x_val = %"FSYM" sinvar = %"FSYM"\n", 
-      //            i, index, x_val, sinvar);
-
       // set density and velocity fields in "inner region"
-      if (jndex > GridDimension[1]/4 && jndex < 3*GridDimension[1]/4) { 
+      if (y_val > 0.25 && y_val < 0.75) { 
         BaryonField[0][i]  = KHInnerDensity;
         BaryonField[2][i]  = KHInnerVx;
       // modify the top half of the inner fluid (quadrant 3) to account for ramp
-        if (jndex >= GridDimension[1]/2) {
+        if (y_val >= 0.5) {
           BaryonField[0][i] -= exp( (-0.5/KHRampWidth2)*
                                     pow(y_val-0.75 - 
                                         sqrt(-2.0*KHRampWidth2*log(0.5)),2));
@@ -132,7 +128,7 @@ int grid::KHInitializeGrid(float KHInnerDensity,
       } else {
       // density and velocity fields in "outer region" already set in KHInit...C
       // modify the top half of the outer fluid (quadrant 4) to account for ramp
-        if (jndex >= GridDimension[1]/2) {
+        if (y_val >= 0.5) {
           BaryonField[0][i] += exp( (-0.5/KHRampWidth2)*
                                     pow(y_val-0.75 + 
                                         sqrt(-2.0*KHRampWidth2*log(0.5)),2));
