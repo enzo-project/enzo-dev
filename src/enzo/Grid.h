@@ -1833,6 +1833,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   /* Initialize a grid for the KH instability problem. */
 
   int KHInitializeGrid(float KHInnerDensity,
+                       float KHOuterDensity,
                        float KHInnerInternalEnergy,
                        float KHOuterInternalEnergy,
                        float KHPerturbationAmplitude,

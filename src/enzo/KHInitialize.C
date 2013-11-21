@@ -7,6 +7,7 @@
 /  modified1:  Alexei Kritsuk, December 2004.
 /  modified2:  Gregg Dobrowalski, Feb 2005.
 /  modified3:  Alexei Kritsuk, April 2005. added more parameters.
+/  modified4:  Cameron Hummels, November 2013. Modified substantially.
 /
 /  PURPOSE:
 /    Periodic boundary conditions
@@ -31,8 +32,12 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "Hierarchy.h"
+#include "LevelHierarchy.h"
 #include "TopGridData.h"
 
+int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+                     int level);
+void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)
 {
@@ -49,11 +54,12 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* local declarations */
 
   char line[MAX_LINE_LENGTH];
-  int  dim, ret;
+  int  dim, ret, level;
 
- 
   /* set default parameters */
 
+//  int RefineAtStart             = TRUE;
+  int RefineAtStart             = FALSE;
   float KHInnerPressure         = 2.5;
   float KHOuterPressure         = 2.5;
   float KHVelocityJump          = 1.0;
@@ -109,23 +115,29 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   /* set the periodic boundaries */
 
+
   for (dim = 0; dim < MetaData.TopGridRank; dim++) {
     MetaData.LeftFaceBoundaryCondition[dim]  = periodic;
     MetaData.RightFaceBoundaryCondition[dim] = periodic;
   }
 
-  /* set up uniform grid without an inner flow */
+  /* set up the grids and their ICs */
+  /* Initialize whole grid before setting values */
+  if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity,
+                                              KHOuterInternalEnergy,
+                                              KHOuterInternalEnergy,
+                                              KHOuterVelocity,
+                                              KHBField) == FAIL)
+    ENZO_FAIL("Error in InitializeUniformGrid.");
 
-  if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity, 
-					      KHOuterInternalEnergy,
-					      KHOuterInternalEnergy,
-					      KHOuterVelocity, KHBField) == FAIL) {
-        ENZO_FAIL("Error in InitializeUniformGrid.");
-  }
+  TopGrid.GridData->PrepareGrid(MetaData.TopGridRank, MetaData.TopGridDims, 
+                                    LeftEdge, RightEdge, 0);
+  fprintf(stderr, "%"ISYM" %"ISYM" %"ISYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n", MetaData.TopGridRank, MetaData.TopGridDims[0], MetaData.TopGridDims[1], LeftEdge[0],  LeftEdge[1], RightEdge[0], RightEdge[1]);
 
-  /* set up the inner flow and add noise to velocities */
+
 
   if (TopGrid.GridData->KHInitializeGrid(KHInnerDensity, 
+                     KHOuterDensity,
 					 KHInnerInternalEnergy,
 					 KHOuterInternalEnergy,
 					 KHPerturbationAmplitude,
@@ -139,6 +151,54 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
         ENZO_FAIL("Error in KHInitializeGrid.");
   }
 
+
+  /* If requested, recursively refine the grid to the desired level. */
+
+  if (RefineAtStart) {
+
+    /* Declare, initialize, and fill out the first level of the LevelArray. */
+
+    LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+      LevelArray[level] = NULL;
+    AddLevel(LevelArray, &TopGrid, 0);
+
+    /* Add levels to the maximum depth or until no new levels are created,
+       and re-initialize the level after it is created. */
+
+    for (level = 0; level < MaximumRefinementLevel; level++) {
+      if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
+        fprintf(stderr, "Error in RebuildHierarchy.\n");
+        return FAIL;
+      }
+      if (LevelArray[level+1] == NULL)
+        break;
+      LevelHierarchyEntry *Temp = LevelArray[level+1];
+
+      while (Temp != NULL) {
+//        if (Temp->GridData->PrepareGrid(MetaData.TopGridRank, 
+//                                        Temp->GridData->GridDims, 
+//                                        Temp->LeftEdge, 
+//                                        Temp->RightEdge, 
+//                                        0) == FAIL)
+//          ENZO_FAIL("Error in PrepareGrids");
+
+        if (Temp->GridData->KHInitializeGrid(KHInnerDensity, 
+                                             KHOuterDensity,
+                                             KHInnerInternalEnergy,
+                                             KHOuterInternalEnergy,
+                                             KHPerturbationAmplitude,
+                                             KHInnerVelocity[0], 
+                                             KHOuterVelocity[0],
+                                             KHInnerPressure,
+                                             KHOuterPressure,
+                                             KHConvergentICs,
+                                             KHRampWidth) == FAIL) 
+          ENZO_FAIL("Error in KHInitializeGrid");
+        Temp = Temp->NextGridThisLevel;
+      } // end: loop over grids on this level
+    } // end: loop over levels
+  }
 
   printf("KH: single grid start-up.\n");
 
