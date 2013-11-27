@@ -90,8 +90,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "KHConvergentICs = %"FSYM, &KHConvergentICs);
     ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
     ret += sscanf(line, "KHBulkVelocity  = %"FSYM, &KHBulkVelocity);
-    /* if the line is suspicious, issue a warning */
 
+    /* if the line is suspicious, issue a warning */
     if (ret == 0 && strstr(line, "=") && strstr(line, "KH") && 
 	line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, 
@@ -115,7 +115,6 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
   /* set the periodic boundaries */
 
-
   for (dim = 0; dim < MetaData.TopGridRank; dim++) {
     MetaData.LeftFaceBoundaryCondition[dim]  = periodic;
     MetaData.RightFaceBoundaryCondition[dim] = periodic;
@@ -130,11 +129,12 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                               KHBField) == FAIL)
     ENZO_FAIL("Error in InitializeUniformGrid.");
 
-  TopGrid.GridData->PrepareGrid(MetaData.TopGridRank, MetaData.TopGridDims, 
-                                    LeftEdge, RightEdge, 0);
-  fprintf(stderr, "%"ISYM" %"ISYM" %"ISYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n", MetaData.TopGridRank, MetaData.TopGridDims[0], MetaData.TopGridDims[1], LeftEdge[0],  LeftEdge[1], RightEdge[0], RightEdge[1]);
+//  TopGrid.GridData->PrepareGrid(MetaData.TopGridRank, MetaData.TopGridDims, 
+//                                    LeftEdge, RightEdge, 0);
+  //fprintf(stderr, "%"ISYM" %"ISYM" %"ISYM" %"FSYM" %"FSYM" %"FSYM" %"FSYM"\n", MetaData.TopGridRank, MetaData.TopGridDims[0], MetaData.TopGridDims[1], LeftEdge[0],  LeftEdge[1], RightEdge[0], RightEdge[1]);
 
 
+fprintf(stderr, "checkpoing 1\n");
 
   if (TopGrid.GridData->KHInitializeGrid(KHInnerDensity, 
                      KHOuterDensity,
@@ -151,6 +151,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
         ENZO_FAIL("Error in KHInitializeGrid.");
   }
 
+fprintf(stderr, "checkpoing 2\n");
 
   /* If requested, recursively refine the grid to the desired level. */
 
@@ -177,9 +178,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 
       while (Temp != NULL) {
 //        if (Temp->GridData->PrepareGrid(MetaData.TopGridRank, 
-//                                        Temp->GridData->GridDims, 
-//                                        Temp->LeftEdge, 
-//                                        Temp->RightEdge, 
+//                                        Temp->GridData->GridDimension,
+//                                        Temp->GridData->GridLeftEdge, 
+//                                        Temp->GridData->GridRightEdge, 
 //                                        0) == FAIL)
 //          ENZO_FAIL("Error in PrepareGrids");
 
