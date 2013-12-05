@@ -34,6 +34,9 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
+void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
+int RebuildHierarchy(TopGridData *MetaData,
+             LevelHierarchyEntry *LevelArray[], int level);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)
 {
@@ -50,11 +53,13 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* local declarations */
 
   char line[MAX_LINE_LENGTH];
-  int  dim, ret;
+  int  dim, ret, level;
 
  
   /* set default parameters */
 
+  int RefineAtStart             = TRUE;
+  //int RefineAtStart             = FALSE;
   float KHInnerPressure         = 2.5;
   float KHOuterPressure         = 2.5;
   float KHVelocityJump          = 1.0;
@@ -154,6 +159,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   */
   else {
 
+    /* initialize grid and fields */
     if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity, 
                                                 KHOuterInternalEnergy,
                                                 KHOuterInternalEnergy,
@@ -171,10 +177,70 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                                KHOuterVelocity[0],
                                                KHInnerPressure,
                                                KHOuterPressure,
-                                               KHRampWidth) 
+                                               KHRampWidth,
+                                               0) 
         == FAIL) {
       ENZO_FAIL("Error in KHInitializeGridRamp.");
     }
+
+    /* If requested, refine the grid to the desired level. */
+
+    if (RefineAtStart) {
+
+      /* Declare, initialize and fill out the LevelArray. */
+
+      LevelHierarchyEntry *LevelArray[MAX_DEPTH_OF_HIERARCHY];
+      for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
+        LevelArray[level] = NULL;
+      AddLevel(LevelArray, &TopGrid, 0);
+
+      /* Add levels to the maximum depth or until no new levels are created,
+         and re-initialize the level after it is created. */
+
+      for (level = 0; level < MaximumRefinementLevel; level++) {
+        if (RebuildHierarchy(&MetaData, LevelArray, level) == FAIL) {
+          ENZO_FAIL("Error in RebuildHierarchy.");
+        }
+        if (LevelArray[level+1] == NULL)
+          break;
+        LevelHierarchyEntry *Temp = LevelArray[level+1];
+        while (Temp != NULL) {
+          if (Temp->GridData->KHInitializeGridRamp(KHInnerDensity, 
+                                                   KHOuterDensity,
+                                                   KHInnerInternalEnergy,
+                                                   KHOuterInternalEnergy,
+                                                   KHPerturbationAmplitude,
+                                                   KHInnerVelocity[0], 
+                                                   KHOuterVelocity[0],
+                                                   KHInnerPressure,
+                                                   KHOuterPressure,
+                                                   KHRampWidth, 
+                                                   level+1) 
+              == FAIL) {
+            ENZO_FAIL("Error in KHInitializeGridRamp.");
+          }
+          Temp = Temp->NextGridThisLevel;
+        }
+      } // end: loop over levels
+
+      /* Loop back from the bottom, restoring the consistency among levels. */
+
+      for (level = MaximumRefinementLevel; level > 0; level--) {
+        LevelHierarchyEntry *Temp = LevelArray[level];
+        while (Temp != NULL) {
+          if (Temp->GridData->ProjectSolutionToParentGrid(
+                   *LevelArray[level-1]->GridData) == FAIL) {
+            ENZO_FAIL("Error in grid->ProjectSolutionToParentGrid.");
+          }
+          Temp = Temp->NextGridThisLevel;
+        }
+      }
+
+
+
+
+    } // end: if (CollapseTestRefineAtStart)
+
   }
   printf("KH: single grid start-up.\n");
 
