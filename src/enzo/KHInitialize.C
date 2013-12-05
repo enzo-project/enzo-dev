@@ -7,6 +7,7 @@
 /  modified1:  Alexei Kritsuk, December 2004.
 /  modified2:  Gregg Dobrowalski, Feb 2005.
 /  modified3:  Alexei Kritsuk, April 2005. added more parameters.
+/  modified4:  Cameron Hummels, December 2013. Added ramp.
 /
 /  PURPOSE:
 /    Periodic boundary conditions
@@ -60,9 +61,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHPerturbationAmplitude = 0.01;
   float KHInnerDensity          = 2.0;
   float KHOuterDensity          = 1.0;
-  float KHConvergentICs         = 0.0;
-  float KHRampWidth             = 0.05;
   float KHBulkVelocity          = 0.0;
+  int   KHRamp                  = 0;
+  float KHRampWidth             = 0.05;
 
   float KHInnerInternalEnergy, KHOuterInternalEnergy;
 
@@ -81,9 +82,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "KHVelocityJump  = %"FSYM, &KHVelocityJump);
     ret += sscanf(line, "KHPerturbationAmplitude = %"FSYM, 
 		                                   &KHPerturbationAmplitude);
-    ret += sscanf(line, "KHConvergentICs = %"FSYM, &KHConvergentICs);
-    ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
     ret += sscanf(line, "KHBulkVelocity  = %"FSYM, &KHBulkVelocity);
+    ret += sscanf(line, "KHRamp = %"ISYM, &KHRamp);
+    ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "KH") && 
@@ -114,32 +115,67 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     MetaData.RightFaceBoundaryCondition[dim] = periodic;
   }
 
-  /* set up uniform grid without an inner flow */
+  /* If KHRamp is not set, then set up ICs according to the old method.
+     Two fluids separated by a discontinuity.  Initial perturbations
+     are due to random fluctuations in the y-velocity of all fluid elements
+     in domain.
+  */
 
-  if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity, 
-					      KHOuterInternalEnergy,
-					      KHOuterInternalEnergy,
-					      KHOuterVelocity, KHBField) == FAIL) {
+  if (KHRamp == 0) {
+
+    /* set up uniform grid without an inner flow */
+    if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity, 
+                                                KHOuterInternalEnergy,
+                                                KHOuterInternalEnergy,
+                                                KHOuterVelocity, 
+                                                KHBField) == FAIL) {
         ENZO_FAIL("Error in InitializeUniformGrid.");
+    }
+
+    /* set up the inner flow and add noise to velocities */
+    if (TopGrid.GridData->KHInitializeGrid(KHInnerDensity, 
+                                           KHInnerInternalEnergy,
+                                           KHOuterInternalEnergy,
+                                           KHPerturbationAmplitude,
+                                           KHInnerVelocity[0], 
+                                           KHOuterVelocity[0],
+                                           KHInnerPressure,
+                                           KHOuterPressure)
+        == FAIL) {
+      ENZO_FAIL("Error in KHInitializeGrid.");
+    }
   }
 
-  /* set up the inner flow and add noise to velocities */
+  /* If KHRamp is set, then set up ICs according to the new, ramp method.
+     Two fluids separated by a continuous ramp in density and velocity.  
+     Initial perturbations are due to a sinusoidal fluctuations in the 
+     y-velocity of all fluid elements in the domain.  These ICs give
+     convergent behavior as resolution increases.
+  */
+  else {
 
-  if (TopGrid.GridData->KHInitializeGrid(KHInnerDensity, 
-					 KHInnerInternalEnergy,
-					 KHOuterInternalEnergy,
-					 KHPerturbationAmplitude,
-					 KHInnerVelocity[0], 
-					 KHOuterVelocity[0],
-                     KHInnerPressure,
-                     KHOuterPressure,
-                     KHConvergentICs,
-                     KHRampWidth) 
-      == FAIL) {
-        ENZO_FAIL("Error in KHInitializeGrid.");
+    if (TopGrid.GridData->InitializeUniformGrid(KHOuterDensity, 
+                                                KHOuterInternalEnergy,
+                                                KHOuterInternalEnergy,
+                                                KHOuterVelocity, 
+                                                KHBField) == FAIL) {
+        ENZO_FAIL("Error in InitializeUniformGrid.");
+    }
+
+    if (TopGrid.GridData->KHInitializeGridRamp(KHInnerDensity, 
+                                               KHOuterDensity,
+                                               KHInnerInternalEnergy,
+                                               KHOuterInternalEnergy,
+                                               KHPerturbationAmplitude,
+                                               KHInnerVelocity[0], 
+                                               KHOuterVelocity[0],
+                                               KHInnerPressure,
+                                               KHOuterPressure,
+                                               KHRampWidth) 
+        == FAIL) {
+      ENZO_FAIL("Error in KHInitializeGridRamp.");
+    }
   }
-
-
   printf("KH: single grid start-up.\n");
 
 
