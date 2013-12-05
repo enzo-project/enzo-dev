@@ -28,12 +28,12 @@
 #include "Grid.h"
 
 int grid::KHInitializeGrid(float KHInnerDensity, 
-			   float KHInnerInternalEnergy,
-			   float KHOuterInternalEnergy,
-			   float KHPerturbationAmplitude,
-			   float KHInnerVx, float KHOuterVx,
-			   float KHInnerPressure,
-			   float KHOuterPressure)
+                           float KHInnerInternalEnergy,
+                           float KHOuterInternalEnergy,
+                           float KHPerturbationAmplitude,
+                           float KHInnerVx, float KHOuterVx,
+                           float KHInnerPressure,
+                           float KHOuterPressure)
 {
 
   if (ProcessorNumber != MyProcessorNumber)

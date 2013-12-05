@@ -35,10 +35,10 @@
 #include "TopGridData.h"
 
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
-int RebuildHierarchy(TopGridData *MetaData,
-             LevelHierarchyEntry *LevelArray[], int level);
+int RebuildHierarchy(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[], 
+                     int level);
 int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-		       TopGridData &MetaData)
+                 TopGridData &MetaData)
 {
   char *DensName = "Density";
   char *TEName   = "TotalEnergy";
@@ -55,11 +55,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char line[MAX_LINE_LENGTH];
   int  dim, ret, level;
 
- 
   /* set default parameters */
 
-  int RefineAtStart             = TRUE;
-  //int RefineAtStart             = FALSE;
+  int RefineAtStart             = TRUE; 
   float KHInnerPressure         = 2.5;
   float KHOuterPressure         = 2.5;
   float KHVelocityJump          = 1.0;
@@ -67,7 +65,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHInnerDensity          = 2.0;
   float KHOuterDensity          = 1.0;
   float KHBulkVelocity          = 0.0;
-  int   KHRamp                  = 0;
+  int   KHRamp                  = 1;    // Convergent ICs with Ramp
   float KHRampWidth             = 0.05;
 
   float KHInnerInternalEnergy, KHOuterInternalEnergy;
@@ -86,17 +84,18 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "KHOuterPressure = %"FSYM, &KHOuterPressure);
     ret += sscanf(line, "KHVelocityJump  = %"FSYM, &KHVelocityJump);
     ret += sscanf(line, "KHPerturbationAmplitude = %"FSYM, 
-		                                   &KHPerturbationAmplitude);
+                  &KHPerturbationAmplitude);
     ret += sscanf(line, "KHBulkVelocity  = %"FSYM, &KHBulkVelocity);
     ret += sscanf(line, "KHRamp = %"ISYM, &KHRamp);
     ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
+
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "KH") && 
-	line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR)
+        line[0] != '#' && MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, 
-	 "warning: the following parameter line was not interpreted:\n%s\n", 
-	      line);
+            "warning: the following parameter line was not interpreted:\n%s\n", 
+            line);
 
   } // end input from parameter file
 
@@ -108,9 +107,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHInnerVelocity[3] = {0.0, 0.0, 0.0};
   float KHOuterVelocity[3] = {0.0, 0.0, 0.0};
   float KHBField[3] = {0.0, 0.0, 0.0};
-  // gas initally moving right
+  /* gas initally moving right */
   KHInnerVelocity[0]      += 0.5*KHVelocityJump + KHBulkVelocity; 
-  // gas initally moving left  
+  /* gas initally moving left */
   KHOuterVelocity[0]      -= 0.5*KHVelocityJump - KHBulkVelocity; 
 
   /* set the periodic boundaries */
@@ -123,8 +122,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   /* If KHRamp is not set, then set up ICs according to the old method.
      Two fluids separated by a discontinuity.  Initial perturbations
      are due to random fluctuations in the y-velocity of all fluid elements
-     in domain.
-  */
+     in domain.  */
 
   if (KHRamp == 0) {
 
@@ -155,8 +153,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
      Two fluids separated by a continuous ramp in density and velocity.  
      Initial perturbations are due to a sinusoidal fluctuations in the 
      y-velocity of all fluid elements in the domain.  These ICs give
-     convergent behavior as resolution increases.
-  */
+     convergent behavior as resolution increases.  */
+
   else {
 
     /* initialize grid and fields */
@@ -235,15 +233,9 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
           Temp = Temp->NextGridThisLevel;
         }
       }
-
-
-
-
-    } // end: if (CollapseTestRefineAtStart)
-
+    } // end: if RefineAtStart
   }
   printf("KH: single grid start-up.\n");
-
 
   /* set up field names and units */
 
