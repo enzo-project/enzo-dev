@@ -73,9 +73,10 @@ int grid::ComovingExpansionTerms()
     /* Find the density, gas energy, velocities & total energy
        (where appropriate). */
 
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum;
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, 
+		    B1Num, B2Num, B3Num, PhiNum, CRNum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRNum) == FAIL) {
             ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 
@@ -145,6 +146,12 @@ int grid::ComovingExpansionTerms()
 		      (BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
 				     0.5*BaryonField[TENum][i]);
       }
+
+			if( CRModel ){
+				double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
+				for( i = 0 ; i != size; ++i )
+					BaryonField[CRNum][i] -= BaryonField[CRNum][i]*min(cr_coeff,0.5);
+			} // end CR model if
 
     } else {
 
