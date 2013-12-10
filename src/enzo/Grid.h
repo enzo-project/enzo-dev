@@ -1803,7 +1803,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
    float UniformGasEnergy, float UniformVelocity[], 
-   float UniformBField[]);
+   float UniformBField[],float UniformCR = 0.0);
 
 
 /* Initialize a grid for the Double Mach reflection problem. */
