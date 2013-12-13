@@ -1,0 +1,57 @@
+# The KH Test problem creates two fluids moving antiparallel to each other
+# in a periodic 2D grid (inner fluid and outer fluid).  The inside fluid
+# has a higher density than the outside fluid.  There is a slight ramp region
+# in density and x-velocity connecting the two regions so there are no 
+# discontinuities in the flow.  The y-velocity is perturbed with small sinusoidal
+# perturbation.  As the flows shear past each other, the KH instability
+# is excited, which develops over time.  This test watches the evolution of
+# those instabilities.  
+#
+# This version incorporates 1 level of AMR using the shear criterion on the
+# interface between the two fluids.  --Cameron Hummels, 2013
+
+#
+#  define problem
+#
+ProblemType                = 8      // KH test problem
+Gamma                      = 1.4  
+
+#
+# grid setup
+#
+TopGridRank                = 2
+TopGridDimensions          = 64 64
+
+#
+#  problem parameters
+#
+KHRamp                      = 1
+KHRampWidth                = 0.02
+KHPerturbationAmplitude    = 0.1 
+KHBulkVelocity             = 0.0
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1.0
+dtDataDump             = 0.1
+DataDumpName           = DD     
+DataDumpDir            = DD    // output files use this as prefix
+
+#
+#  set hydro parameters
+#
+HydroMethod               = 0 // PPM = 0, Zeus = 2, MUSCL = 3
+CourantSafetyNumber       = 0.4    
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0       // dynamic hierarchy
+MaximumRefinementLevel    = 1
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 9    // Shear for refinement
+MinimumShearForRefinement = 0.06
+#
+#  set some global parameters
+#
+tiny_number               = 1.0e-7

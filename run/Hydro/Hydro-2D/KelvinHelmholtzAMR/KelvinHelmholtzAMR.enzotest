@@ -1,0 +1,12 @@
+name = 'KelvinHelmholtzAMR'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+hydro = True
+gravity = False
+dimensionality = 2
+AMR = True
+max_time_minutes = 2
+fullsuite = True
+pushsuite = True
+quicksuite = True
