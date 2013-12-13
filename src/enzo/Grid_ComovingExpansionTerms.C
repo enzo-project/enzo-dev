@@ -142,15 +142,21 @@ int grid::ComovingExpansionTerms()
 
     if (HydroMethod == Zeus_Hydro) {
 
-			double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
-      for (i = 0; i < size; i++)
-				BaryonField[TENum][i] *= gas_coeff;
-			
 			if( CRModel ){
+				double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
+      	for (i = 0; i < size; i++)
+					BaryonField[TENum][i] *= gas_coeff;
 				double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
 				for( i = 0 ; i != size; ++i )
 					BaryonField[CRNum][i] *= cr_coeff;
 			} // end CR model if
+			else {
+				for (i = 0; i < size; i++) {
+					BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
+						(BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
+						 0.5*BaryonField[TENum][i]);
+				} // end for 
+			} // end CR if/else
 
     } else {
 
