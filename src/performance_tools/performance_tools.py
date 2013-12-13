@@ -26,6 +26,7 @@
 ### $ python performance_tools.py performance.out
 
 import matplotlib as mpl
+mpl.use("Agg")
 import pylab as pl
 import numpy as np
 from matplotlib import cm
