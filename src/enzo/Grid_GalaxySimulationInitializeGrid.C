@@ -582,42 +582,48 @@ float HaloGasDensity(FLOAT R){
 // }
 }
 
-
 double findZicm(FLOAT r){
-	/*	
-	 *	Finds the height above the disk plane where the disk gas density
-	 *  matches the halo's gas density (using bisection)
-	 */
-	
-	static const double X_TOL = 1e-7*Mpc/LengthUnits; // sub pc resolution
-	static const int MAX_ITERS = 50; int iters=0;
-	
-	double z_lo = 0.0,z_hi = 1.0*Mpc/LengthUnits,z_new,f_lo,f_hi,f_new;
-	f_hi = DiskPotentialGasDensity(r,z_hi) - HaloGasDensity(sqrt(r*r+z_hi*z_hi)); // -ve
-	f_lo = DiskPotentialGasDensity(r,z_lo) - HaloGasDensity(sqrt(r*r+z_lo*z_lo)); // +ve
+  /*  
+   *  Finds the height above the disk plane where the disk gas density
+   *  matches the halo's gas density (using bisection)
+   *
+   *  Parameters:
+   *  -----------
+   *  	r - cylindrical radius (code units)
+   *
+   *  Returns: zicm, edge of disk, (code units)
+   */
 
-	if(f_lo < 0.0) return 0.0; // beyond the disk
-	if(f_hi > 0.0) ENZO_FAIL("ERROR IN GALAXY INITIALIZE: HALO IS UNDER-PRESSURIZED");
+  static const double X_TOL = 1e-7*Mpc/LengthUnits; // sub pc resolution
+  static const int MAX_ITERS = 50; int iters=0;
 
-	while(iters++ < MAX_ITERS ){
+  double z_lo = 0.0,z_hi = 0.01*Mpc/LengthUnits,z_new,f_lo,f_hi,f_new;
+  f_hi = DiskPotentialGasDensity(r,z_hi) - HaloGasDensity(sqrt(r*r+z_hi*z_hi)); // -ve
+  f_lo = DiskPotentialGasDensity(r,z_lo) - HaloGasDensity(sqrt(r*r+z_lo*z_lo)); // +ve
 
-		z_new = (z_hi+z_lo)/2.0;
-		f_new = DiskPotentialGasDensity(r,z_new) 
-		        - HaloGasDensity(sqrt(r*r+z_new*z_new));
-		
-		if( fabs(f_new) == 0.0 ) return z_new;
-		if( z_new*z_lo > 0.0 ){
-			z_lo = z_new; f_lo = f_new;
-		}
-		else{
-			z_hi = z_new; f_hi = f_new;
-		}
-		if( fabs(z_hi - z_lo) <= X_TOL ) return z_new;
-	}
+  if(f_lo < 0.0) return 0.0; // beyond the disk
+  if(f_hi > 0.0) ENZO_FAIL("ERROR IN GALAXY INITIALIZE: HALO IS UNDER-PRESSURIZED");
 
-	ENZO_FAIL("ERROR IN GALAXY INITIALIZE: findZicm FAILED TO CONVERGE");
-	return -1.0;
+  while(iters++ < MAX_ITERS ){
+
+    z_new = (z_hi+z_lo)/2.0;
+    f_new = DiskPotentialGasDensity(r,z_new)
+            - HaloGasDensity(sqrt(r*r+z_new*z_new));
+
+    if( fabs(f_new) == 0.0 ) return z_new;
+    if( f_new*f_lo > 0.0 ){
+      z_lo = z_new; f_lo = f_new;
+    }
+    else{
+      z_hi = z_new; f_hi = f_new;
+    }
+    if( fabs(z_hi - z_lo) <= X_TOL ) return z_new;
+  }
+
+  ENZO_FAIL("ERROR IN GALAXY INITIALIZE: findZicm FAILED TO CONVERGE");
+  return -1.0;
 }
+
 
 /* 
  *	DISK POTENTIAL CIRCULAR VELOCITY
@@ -643,8 +649,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 
 		zicm  = findZicm(drcyl)*LengthUnits;
 		zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
-		if( drcyl < 10.0*Mpc/LengthUnits && z < 2.0*Mpc/LengthUnits )
-			fprintf(stderr,"z,z_icm,r = %"GSYM", %"GSYM", %"GSYM"\n", z,zicm,drcyl); // FIXME
 
 		if( fabs(z) < fabs(zicm) ){
 			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z)));
@@ -698,8 +702,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	if (denuse < densicm) {
 		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
 	}
-	if( Pressure > 0.0 )
-		fprintf(stderr,"Picm,Pressure = %"GSYM", %"GSYM"\n",Picm,Pressure); // FIXME
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
 	/* Calculate pressure gradient */
