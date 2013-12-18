@@ -54,6 +54,8 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
 void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, FLOAT &zrot, FLOAT inv [3][3]);
 
 /* Internal Routines for Disk Potential Setup */
+float HaloGasDensity(FLOAT);
+float HaloGasTemperature(FLOAT);
 double DiskPotentialCircularVelocity(FLOAT cellwidth,FLOAT z,FLOAT density,FLOAT &temperature);
 double trapzd(double (func)(), double a, double b, int n);
 double qromb(double (*func)(double), double a, double b);
@@ -69,7 +71,7 @@ static double r2;
 
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits, MassUnits;
 
-double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm, TruncRadius, SmoothRadius, SmoothLength;
+double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm, TruncRadius, SmoothRadius, SmoothLength,Ticm;
 
 
 int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
@@ -104,7 +106,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   gScaleHeightz = ScaleHeightz;
   densicm = UniformDensity;
   MgasScale = GasMass;
-  Picm = kboltz*UniformDensity*InitialTemperature/(0.6*mh);
+	Ticm = InitialTemperature;
+  Picm = kboltz*UniformDensity*Ticm/(0.6*mh);
   TruncRadius = GalaxyTruncationRadius;
   SmoothRadius = TruncRadius*.02/.026;
   SmoothLength = TruncRadius - SmoothRadius;
@@ -217,7 +220,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  /* Loop over the mesh. */
 
  float density, dens1, Velocity[MAX_DIMENSION];
- FLOAT temperature, temp1;
+ FLOAT temperature, temp1, init_temp;
  FLOAT r, x, y = 0, z = 0;
  int n = 0;
 
@@ -233,8 +236,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	if (GridRank > 2)
 	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
 
-	density = UniformDensity;
-	temperature = temp1 = InitialTemperature;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
 	  Velocity[dim] = 0;
 
@@ -244,6 +245,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		 POW(fabs(y-DiskPosition[1]), 2) +
 		 POW(fabs(z-DiskPosition[2]), 2) );
 	r = max(r, 0.1*CellWidth[0][0]);
+
+	density = HaloGasDensity(r)/DensityUnits;
+	temperature = temp1 = init_temp = HaloGasTemperature(r);
 
 	if (r < DiskRadius) {
 
@@ -369,7 +373,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	       disk), then set the velocity. */
 	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 	    density = dens1;
-	    if (temp1 == InitialTemperature)
+	    if (temp1 == init_temp)
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
 	  }
@@ -573,6 +577,11 @@ float DiskPotentialGasDensity(FLOAT r,FLOAT z){
   return density;
 } // end DiskPotentialGasDensity
 
+
+float HaloGasTemperature(FLOAT R){
+	return Ticm;
+}
+
 float HaloGasDensity(FLOAT R){
 //	if(GalaxySimulationGasHalo){
 //    static double T0 = HaloGasTemperature(HaloGasScaleR);
@@ -687,21 +696,22 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	if (fabs(drcyl)*LengthUnits/Mpc >= TruncRadius || fabs(zicm) <= fabs(z)){
 		Pressure = 0.0;
 		Pressure2 = 0.0;
-		denuse = densicm;
+		denuse = HaloGasDensity(rsph);
 	}
 	if (Pressure2 <= 0.0 && Pressure <= 0.0){
 		Pressure = 0.0;
 		Pressure2 = 0.0;
-		denuse = densicm;
+		denuse = HaloGasDensity(rsph);
 	}
 	if (Pressure <= 0.0) {
 		Pressure = 0.0;
 		Pressure2 = 0.0;
-		denuse = densicm;
+		denuse = HaloGasDensity(rsph);
 	}
-	if (denuse < densicm) {
+	if (denuse < HaloGasDensity(rsph)) {
 		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
 	}
+	Picm = HaloGasDensity(rsph)*kboltz*HaloGasTemperature(rsph)/(0.6*mh);
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
 	/* Calculate pressure gradient */
