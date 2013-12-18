@@ -549,6 +549,76 @@ void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, F
   zrot = xpos*inv[2][0] + ypos*inv[2][1] + zpos*inv[2][2];
 }
 
+float DiskPotentialGasDensity(FLOAT r,FLOAT z){
+/*
+ *	computes gas density within galaxy disk, according to eq
+ *
+ * 		(Mgas/8*pi*a^2*b)*sech(r/a)*sech*(z/b)
+ *
+ * 	Smoothed by a cosine fcn beyond SmoothRadius
+ *
+ * 	Parameteres:
+ * 	------------
+ * 		r - cylindrical radius (code units)
+ * 		z - cylindrical height (code units)
+ *
+ * 	Returns: density (in grams/cm^3)
+ *
+ */
+  double density = MgasScale*SolarMass/(8.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc);
+  density /= (cosh(r*LengthUnits/gScaleHeightR/Mpc)*cosh(z*LengthUnits/gScaleHeightz/Mpc));
+
+  if(fabs(r*LengthUnits/Mpc) > SmoothRadius && fabs(r*LengthUnits/Mpc) <= TruncRadius)
+    density *= 0.5*(1.0+cos(pi*(r*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
+  return density;
+} // end DiskPotentialGasDensity
+
+float HaloGasDensity(FLOAT R){
+//	if(GalaxySimulationGasHalo){
+//    static double T0 = HaloGasTemperature(HaloGasScaleR);
+//    return densicm*(T0/HaloGasTemperature(R))/pow((R*LengthUnits/HaloGasScaleR/Mpc),3);
+//  } else {
+	return densicm;
+// }
+}
+
+
+double findZicm(FLOAT r){
+	/*	
+	 *	Finds the height above the disk plane where the disk gas density
+	 *  matches the halo's gas density (using bisection)
+	 */
+	
+	static const double X_TOL = 1e-7*Mpc/LengthUnits; // sub pc resolution
+	static const int MAX_ITERS = 50; int iters=0;
+	
+	double z_lo = 0.0,z_hi = 1.0*Mpc/LengthUnits,z_new,f_lo,f_hi,f_new;
+	f_hi = DiskPotentialGasDensity(r,z_hi) - HaloGasDensity(sqrt(r*r+z_hi*z_hi)); // -ve
+	f_lo = DiskPotentialGasDensity(r,z_lo) - HaloGasDensity(sqrt(r*r+z_lo*z_lo)); // +ve
+
+	if(f_lo < 0.0) return 0.0; // beyond the disk
+	if(f_hi > 0.0) ENZO_FAIL("ERROR IN GALAXY INITIALIZE: HALO IS UNDER-PRESSURIZED");
+
+	while(iters++ < MAX_ITERS ){
+
+		z_new = (z_hi+z_lo)/2.0;
+		f_new = DiskPotentialGasDensity(r,z_new) 
+		        - HaloGasDensity(sqrt(r*r+z_new*z_new));
+		
+		if( fabs(f_new) == 0.0 ) return z_new;
+		if( z_new*z_lo > 0.0 ){
+			z_lo = z_new; f_lo = f_new;
+		}
+		else{
+			z_hi = z_new; f_hi = f_new;
+		}
+		if( fabs(z_hi - z_lo) <= X_TOL ) return z_new;
+	}
+
+	ENZO_FAIL("ERROR IN GALAXY INITIALIZE: findZicm FAILED TO CONVERGE");
+	return -1.0;
+}
+
 /* 
  *	DISK POTENTIAL CIRCULAR VELOCITY
  */
@@ -570,14 +640,11 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	/*	Determine zicm: the height above the disk where rho -> rho_ICM,
 	 *	use this to find P_icm and dP_icm  */
 	if (fabs(drcyl*LengthUnits/Mpc) <= SmoothRadius) {
-		zicm=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(drcyl*LengthUnits/gScaleHeightR/Mpc));
-		zicm=log(1.0/zicm+sqrt((1.0/pow(zicm,2))-1.0));
-		zicm=fabs(zicm*gScaleHeightz*Mpc);
 
-	//	printf("zicm = %g, drcyl = %g\n", zicm/Mpc, drcyl*LengthUnits/Mpc);
-		zicm2=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/cosh(r2/gScaleHeightR/Mpc));
-		zicm2=log(1.0/zicm2+sqrt((1.0/pow(zicm2,2))-1.0));
-		zicm2=fabs(zicm2*gScaleHeightz*Mpc);
+		zicm  = findZicm(drcyl)*LengthUnits;
+		zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
+		if( drcyl < 10.0*Mpc/LengthUnits && z < 2.0*Mpc/LengthUnits )
+			fprintf(stderr,"z,z_icm,r = %"GSYM", %"GSYM", %"GSYM"\n", z,zicm,drcyl); // FIXME
 
 		if( fabs(z) < fabs(zicm) ){
 			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func1, fabs(zicm), fabs(z)));
@@ -585,26 +652,14 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 			bulgeComp = (DiskGravityStellarBulgeMass==0.0?0.0:qromb(func3, fabs(zicm2), fabs(z)));
 			Pressure2= bulgeComp + qromb(func4, fabs(zicm2), fabs(z));
 		}  // end |z| < |zicm| if
-	}
-  else {
+	}  else {
     if (fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 
-			zicmf=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
-			      /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc)))));
-			zicm=log(1.0/zicmf+sqrt((1.0/pow(zicmf,2))-1.0));
-			zicm=fabs(zicm*gScaleHeightz*Mpc);			
-			if (zicmf > 1.0) zicm = 0.0;
+			zicm  = findZicm(drcyl)*LengthUnits;
+			zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
 
-			zicm2f=densicm/(MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
-			      /cosh(r2/gScaleHeightR/Mpc)*(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc)))));
-			zicm2=log(1.0/zicm2f+sqrt((1.0/pow(zicm2f,2))-1.0));
-			zicm2=fabs(zicm2*gScaleHeightz*Mpc);
-			if (zicm2f > 1.0) zicm2 = 0.0;
-
-			if (densicm >= (MgasScale*SolarMass/(2.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25
-			                /cosh(drcyl*LengthUnits/gScaleHeightR/Mpc)/cosh(fabs(z)/gScaleHeightz/Mpc)
-			                *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc))))) 
-			    && fabs(z) < zicm) {
+			if ( HaloGasDensity(sqrt(drcyl*drcyl+zicm*zicm)) >= DiskPotentialGasDensity(drcyl,z)
+					&& fabs(z) < zicm) {
 				printf("small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
 			} // end small density if
 
@@ -643,6 +698,8 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	if (denuse < densicm) {
 		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
 	}
+	if( Pressure > 0.0 )
+		fprintf(stderr,"Picm,Pressure = %"GSYM", %"GSYM"\n",Picm,Pressure); // FIXME
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
 	/* Calculate pressure gradient */
