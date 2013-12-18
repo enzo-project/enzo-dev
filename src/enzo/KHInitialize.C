@@ -61,7 +61,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHInnerPressure         = 2.5;
   float KHOuterPressure         = 2.5;
   float KHVelocityJump          = 1.0;
-  float KHPerturbationAmplitude = 0.01;
+  float KHPerturbationAmplitude = 0.1;
   float KHInnerDensity          = 2.0;
   float KHOuterDensity          = 1.0;
   float KHBulkVelocity          = 0.0;

@@ -319,7 +319,7 @@ Kelvin-Helmholtz Instability (8)
     (negative).  Total fluid velocities will combine this jump with 
     KHBulkVelocity.  Default: 1.0
 ``KHPerturbationAmplitude`` (external)
-    Default: 0.01
+    Default: 0.1
 ``KHRamp`` (external)
     Whether to use ramped ICs or not.  Default: 1
 ``KHRampWidth`` (external)
