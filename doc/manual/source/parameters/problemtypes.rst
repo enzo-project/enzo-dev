@@ -301,11 +301,10 @@ Kelvin-Helmholtz Instability (8)
     ramp connecting the two fluids in x-velocity and density of width 
     ``KHRampWidth``.  A sinusoidal perturbation in y-velocity is the seed
     to the KH instability resulting in only growth of k=2 modes.  
-    These results converge in behavior as resolution is increased and give 
-    reproducable behavior from one run to the next, whereas the standard
-    ICs do not.  The ramped ICs are based on Robertson, Kravtsov, Gnedin, 
-    Abel & Rudd 2010, but that work has a typo in the ramp equation, and 
-    this implementation matches Robertson's actual ICs.  
+    These results converge in behavior as resolution is increased, whereas 
+    the standard ICs do not.  The ramped ICs are based on Robertson, Kravtsov, 
+    Gnedin, Abel & Rudd 2010, but that work has a typo in the ramp equation, 
+    and this implementation matches Robertson's actual ICs.  
 
 ``KHInnerDensity``, ``KHOuterDensity`` (external)
     Initial density. Default: 2.0 (inner) and 1.0 (outer)
@@ -325,6 +324,11 @@ Kelvin-Helmholtz Instability (8)
     Whether to use ramped ICs or not.  Default: 1
 ``KHRampWidth`` (external)
     The width in y-space of the transition ramp.  Default: 0.05
+``KHRandomSeed`` (external)
+    The seed for the Mersennes random number generator.  This is only
+    used in the case of the KHRamp=0 ICs.  By using the same seed
+    from one run to the next, one can reproduce previous behavior with
+    identical parameter files.  Default: 123456789
 
 
 .. _noh_param:
