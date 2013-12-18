@@ -67,6 +67,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   float KHBulkVelocity          = 0.0;
   int   KHRamp                  = 1;    // Convergent ICs with Ramp
   float KHRampWidth             = 0.05;
+  int   KHRandomSeed            = 123456789;
 
   float KHInnerInternalEnergy, KHOuterInternalEnergy;
 
@@ -88,6 +89,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     ret += sscanf(line, "KHBulkVelocity  = %"FSYM, &KHBulkVelocity);
     ret += sscanf(line, "KHRamp = %"ISYM, &KHRamp);
     ret += sscanf(line, "KHRampWidth     = %"FSYM, &KHRampWidth);
+    ret += sscanf(line, "KHRandomSeed    = %"ISYM, &KHRandomSeed);
 
     /* if the line is suspicious, issue a warning */
 
@@ -143,7 +145,8 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                            KHInnerVelocity[0], 
                                            KHOuterVelocity[0],
                                            KHInnerPressure,
-                                           KHOuterPressure)
+                                           KHOuterPressure,
+                                           KHRandomSeed)
         == FAIL) {
       ENZO_FAIL("Error in KHInitializeGrid.");
     }

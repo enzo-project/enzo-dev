@@ -7,6 +7,7 @@
 /  modified1:  Alexei Kritsuk, December 2004.  
 /  modified2:  Gregg Dobrowalski, Feb 2005.  
 /  modified3:  Alexei Kritsuk, April 2005. v_y perturbations + more parameters.
+/  modified4:  Cameron Hummels, December 2013. mersennes twister RNG
 /
 /  PURPOSE: Sets the field variables in the domain.
 /          
@@ -27,13 +28,21 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
+/* including mersennes twister random number generator; allows
+   reproducible behavior with same seed */
+
+void mt_init(unsigned_int seed);
+
+unsigned_long_int mt_random();
+
 int grid::KHInitializeGrid(float KHInnerDensity, 
                            float KHInnerInternalEnergy,
                            float KHOuterInternalEnergy,
                            float KHPerturbationAmplitude,
                            float KHInnerVx, float KHOuterVx,
                            float KHInnerPressure,
-                           float KHOuterPressure)
+                           float KHOuterPressure,
+                           int   KHRandomSeed)
 {
 
   if (ProcessorNumber != MyProcessorNumber)
@@ -42,6 +51,12 @@ int grid::KHInitializeGrid(float KHInnerDensity,
   /* declarations */
 
   int size = 1, dim;
+  float rand_x, rand_y;
+  unsigned_long_int random_int;
+
+  /* initialize random number generator from seed */
+  mt_init(((unsigned_int) KHRandomSeed)); 
+
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
 
@@ -52,22 +67,20 @@ int grid::KHInitializeGrid(float KHInnerDensity,
     index = i % GridDimension[0];
     jndex = (i-index)/GridDimension[0];
 
-    BaryonField[3][i] = KHPerturbationAmplitude * 
-                        ((float)rand()/(float)(RAND_MAX) - 0.5); //AK
+    rand_x = (float)(mt_random()%32768)/(32768.0) - 0.5;
+    rand_y = (float)(mt_random()%32768)/(32768.0) - 0.5;
+
+    BaryonField[3][i] = KHPerturbationAmplitude * rand_y;
     BaryonField[1][i] = POW(BaryonField[3][i],2) / 2.0;
       
     if (jndex >= GridDimension[1]/4 && jndex < 3*GridDimension[1]/4) { //AK
       BaryonField[0][i]  = KHInnerDensity;
-      BaryonField[2][i]  = KHInnerVx + 
-                           KHPerturbationAmplitude * 
-                           ((float)rand()/(float)(RAND_MAX) - 0.5);
+      BaryonField[2][i]  = KHInnerVx + KHPerturbationAmplitude * rand_x;
       BaryonField[1][i] += KHInnerInternalEnergy + 
                            POW(BaryonField[2][i],2) / 2.0;
     }
     else {
-      BaryonField[2][i]  = KHOuterVx + 
-                           KHPerturbationAmplitude * 
-                           ((float)rand()/(float)(RAND_MAX) - 0.5);
+      BaryonField[2][i]  = KHOuterVx + KHPerturbationAmplitude * rand_x;
       BaryonField[1][i] += KHOuterInternalEnergy + 
                            POW(BaryonField[2][i],2) / 2.0;
     }
