@@ -178,8 +178,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                                KHOuterVelocity[0],
                                                KHInnerPressure,
                                                KHOuterPressure,
-                                               KHRampWidth,
-                                               0) 
+                                               KHRampWidth)
         == FAIL) {
       ENZO_FAIL("Error in KHInitializeGridRamp.");
     }
@@ -215,8 +214,7 @@ int KHInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                                                    KHOuterVelocity[0],
                                                    KHInnerPressure,
                                                    KHOuterPressure,
-                                                   KHRampWidth, 
-                                                   level+1) 
+                                                   KHRampWidth)
               == FAIL) {
             ENZO_FAIL("Error in KHInitializeGridRamp.");
           }
