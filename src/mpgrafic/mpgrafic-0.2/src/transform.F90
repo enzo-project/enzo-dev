@@ -35,10 +35,10 @@ contains
     complex*16, dimension(l/2+1,m,n), intent(out) :: output
     integer*8 :: plan
 
-    call rfftw3d_f77_create_plan(plan,l,m,n,FFTW_REAL_TO_COMPLEX, &
+    call rfftw3d_create_plan(plan,l,m,n,FFTW_REAL_TO_COMPLEX, &
          & FFTW_ESTIMATE)
-    call rfftwnd_f77_one_real_to_complex(plan,input,output)
-    call rfftwnd_f77_destroy_plan(plan)
+    call rfftwnd_one_real_to_complex(plan,input,output)
+    call rfftwnd_destroy_plan(plan)
 
   end subroutine fft_forward
 
@@ -52,9 +52,9 @@ contains
     real(dp), dimension(:), intent(inout) :: input
 
     if (use_workspace) then
-       call rfftwnd_f77_mpi(plan, 1, input, work, 1, FFTW_NORMAL_ORDER) 
+       call rfftwnd_mpi(plan, 1, input, work, 1, FFTW_NORMAL_ORDER) 
     else
-       call rfftwnd_f77_mpi(plan, 1, input, 0, 0, FFTW_NORMAL_ORDER) 
+       call rfftwnd_mpi(plan, 1, input, 0, 0, FFTW_NORMAL_ORDER) 
     endif
 
   end subroutine fft_mpi_double
@@ -66,9 +66,9 @@ contains
     real(sp), dimension(:), intent(inout) :: input
 
     if (use_workspace) then
-       call rfftwnd_f77_mpi(plan, 1, input, work, 1, FFTW_NORMAL_ORDER) 
+       call rfftwnd_mpi(plan, 1, input, work, 1, FFTW_NORMAL_ORDER) 
     else
-       call rfftwnd_f77_mpi(plan, 1, input, 0, 0, FFTW_NORMAL_ORDER) 
+       call rfftwnd_mpi(plan, 1, input, 0, 0, FFTW_NORMAL_ORDER) 
     endif
 
   end subroutine fft_mpi_single
