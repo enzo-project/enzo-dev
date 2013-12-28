@@ -632,6 +632,7 @@ EXTERN char  *CubeDumps[MAX_CUBE_DUMPS];
 /* Parameters governing whether tracer particles are on or off. */
 
 EXTERN int   TracerParticleOn;
+EXTERN int   TracerParticleOutputVelocity;
 EXTERN FLOAT TracerParticleCreationSpacing;
 EXTERN FLOAT TracerParticleCreationLeftEdge[MAX_DIMENSION];
 EXTERN FLOAT TracerParticleCreationRightEdge[MAX_DIMENSION];
