@@ -78,7 +78,13 @@ have a look at :ref:`controlling_data_output` for more information.
     evolving Enzo will check for new signal files to output.  (See
     :ref:`force_output_now`.)  Default 1.
 ``TracerParticleOn``
-    This parameter is used to set the velocities of the tracer particles equal to the gas velocities in the current cells.   Tracer particles are massless and can be used to output values of the gas as they advect with the fluid.  Default: 0
+    This parameter is used to set the velocities of the tracer
+    particles equal to the gas velocities in the current cells.
+    Tracer particles are massless and can be used to output values of
+    the gas as they advect with the fluid.  Default: 0
+``TracerParticleOutputVelocity``
+    This parameter is used to output tracer particle velocity as well
+    as position, density, and temperature.  Default: 0
 ``OutputFirstTimeAtLevel`` (external)
     This forces Enzo to output when a given level is reached, and at
     every level thereafter. Default is 0 (off). User can usefully
