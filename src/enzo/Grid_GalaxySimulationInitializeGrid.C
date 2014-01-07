@@ -72,7 +72,7 @@ static double r2;
 static float DensityUnits, LengthUnits, TemperatureUnits = 1, TimeUnits, VelocityUnits, MassUnits;
 
 double gScaleHeightR, gScaleHeightz, densicm, MgasScale, Picm, TruncRadius, SmoothRadius, SmoothLength,Ticm;
-
+double GalaxySimulationGasHalo, GalaxySimulationGasHaloScaleRadius, GalaxySimulationGasHaloDensity;
 
 int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float GalaxyMass,
@@ -85,6 +85,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 float DiskTemperature,
 					 float InitialTemperature,
 					 float UniformDensity,
+           int   GasHalo,
+           float GasHaloScaleRadius,
+           float GasHaloDensity,
 					 float AngularMomentum[MAX_DIMENSION],
 					 float UniformVelocity[MAX_DIMENSION], 
 					 int UseMetallicityField, 
@@ -111,6 +114,10 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
   TruncRadius = GalaxyTruncationRadius;
   SmoothRadius = TruncRadius*.02/.026;
   SmoothLength = TruncRadius - SmoothRadius;
+
+	GalaxySimulationGasHalo = GasHalo;
+	GalaxySimulationGasHaloScaleRadius = GasHaloScaleRadius;
+	GalaxySimulationGasHaloDensity = GasHaloDensity;
 
   /* create fields */
 
@@ -553,6 +560,45 @@ void rot_to_disk(FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT &xrot, FLOAT &yrot, F
   zrot = xpos*inv[2][0] + ypos*inv[2][1] + zpos*inv[2][2];
 }
 
+
+double DiskPotentialDarkMatterMass(FLOAT R){
+/*
+ * 	computes dark matter mass enclosed within spherical radius R
+ *	for potential in Mori & Burkert 2000, consistent with eq
+ *
+ *		rho = rho0 * r0**3 / ( (r + r0)*(r**2 + r0**2 ) )
+ *			
+ *	Parameters:
+ *	-----------
+ *		R - Spherical radius (code units)
+ *
+ * 	Returns: Mass, in grams
+ */
+	FLOAT R0 = DiskGravityDarkMatterR*Mpc,x=R/R0*LengthUnits;
+	double M0 = pi*DiskGravityDarkMatterDensity*R0*R0*R0;
+
+	return M0*(-2.0*atan(x)+2.0*log(1+x)+log(1.0+x*x));
+} // end DiskPotentialDarkMatterMass
+
+
+float HaloGasTemperature(FLOAT R){
+/*
+ *	computes halo temperature, assuming gas particles follow
+ *	KE = 1/2 PE assuming DM potential given in 
+ *	DiskPotentialDarkMatterMass() above. 
+ *
+ *	Parameters:
+ *	-----------
+ *		R - spherical radius (code units)
+ *
+ *	Returns: Temperature, Kelvin
+ */
+	if(GalaxySimulationGasHalo)
+		return GravConst*DiskPotentialDarkMatterMass(R)*0.6*mh/(3.0*kboltz*R*LengthUnits);
+	return Ticm;
+}
+
+
 float DiskPotentialGasDensity(FLOAT r,FLOAT z){
 /*
  *	computes gas density within galaxy disk, according to eq
@@ -569,27 +615,36 @@ float DiskPotentialGasDensity(FLOAT r,FLOAT z){
  * 	Returns: density (in grams/cm^3)
  *
  */
-  double density = MgasScale*SolarMass/(8.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc);
-  density /= (cosh(r*LengthUnits/gScaleHeightR/Mpc)*cosh(z*LengthUnits/gScaleHeightz/Mpc));
+	double density = MgasScale*SolarMass/(8.0*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc);
+	density /= (cosh(r*LengthUnits/gScaleHeightR/Mpc)*cosh(z*LengthUnits/gScaleHeightz/Mpc));
 
-  if(fabs(r*LengthUnits/Mpc) > SmoothRadius && fabs(r*LengthUnits/Mpc) <= TruncRadius)
-    density *= 0.5*(1.0+cos(pi*(r*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
-  return density;
+	if(fabs(r*LengthUnits/Mpc) > SmoothRadius && fabs(r*LengthUnits/Mpc) <= TruncRadius)
+		density *= 0.5*(1.0+cos(pi*(r*LengthUnits-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
+	return density;
 } // end DiskPotentialGasDensity
 
 
-float HaloGasTemperature(FLOAT R){
-	return Ticm;
-}
-
 float HaloGasDensity(FLOAT R){
-//	if(GalaxySimulationGasHalo){
-//    static double T0 = HaloGasTemperature(HaloGasScaleR);
-//    return densicm*(T0/HaloGasTemperature(R))/pow((R*LengthUnits/HaloGasScaleR/Mpc),3);
-//  } else {
+/*
+ *	computes density of gaseous halo, assuming hydro equilibrium
+ *	and temperature profile given above in HaloGasTemperature().
+ *
+ * 	Paramaters:
+ * 	-----------
+ * 		R - spherical radius, code units
+ *
+ * 	Returns: density, grams/cm^3
+ */
+	if(GalaxySimulationGasHalo){
+		double T0,haloDensity;
+		T0 = HaloGasTemperature(GalaxySimulationGasHaloScaleRadius*Mpc/LengthUnits);
+		haloDensity = GalaxySimulationGasHaloDensity*(T0/HaloGasTemperature(R));
+		haloDensity /= pow((R*LengthUnits/GalaxySimulationGasHaloScaleRadius/Mpc),3);
+		return min(haloDensity,GalaxySimulationGasHaloDensity);
+	}
 	return densicm;
-// }
-}
+} // end HaloGasDensity
+
 
 double findZicm(FLOAT r){
   /*  
@@ -647,7 +702,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	double func4(double zint);      //func2 but for r2
 
 	double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
-		zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp;
+		zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp,rsph_icm;
 
 	r2=(drcyl+0.01*cellwidth)*LengthUnits;
 	rsph=sqrt(pow(drcyl*LengthUnits,2)+pow(z,2));
@@ -671,7 +726,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 			zicm  = findZicm(drcyl)*LengthUnits;
 			zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
 
-			if ( HaloGasDensity(sqrt(drcyl*drcyl+zicm*zicm)) >= DiskPotentialGasDensity(drcyl,z)
+			if ( HaloGasDensity(sqrt(drcyl*drcyl+z*z)) >= DiskPotentialGasDensity(drcyl,z)
 					&& fabs(z) < zicm) {
 				printf("small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
 			} // end small density if
@@ -711,7 +766,8 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	if (denuse < HaloGasDensity(rsph)) {
 		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
 	}
-	Picm = HaloGasDensity(rsph)*kboltz*HaloGasTemperature(rsph)/(0.6*mh);
+	rsph_icm = sqrt(drcyl*drcyl+zicm*zicm);
+	Picm = HaloGasDensity(rsph_icm)*kboltz*HaloGasTemperature(rsph_icm)/(0.6*mh);
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
 	/* Calculate pressure gradient */

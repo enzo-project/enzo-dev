@@ -340,6 +340,11 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       DetermineSubgridSizeExtrema(NumberOfCells[i+1], i+1, 
 				  MaximumStaticSubgridLevel+1);
+
+/*			if( MetaData->CycleNumber == 2093 ){
+				fprintf(stderr,">>>>> Just outside Determine Subgrid Size\n"); // FIXME
+				fprintf(stderr,"\t\t>>>> level = %"ISYM"\n",level);
+			} */
  
       /* 3a) Generate an array of grids on this level. */
  

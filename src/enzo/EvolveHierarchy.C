@@ -278,6 +278,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Do the first grid regeneration. */
  
   if(CheckpointRestart == FALSE) {
+		if( MetaData.CycleNumber == 2093 ) fprintf(stderr,"CALLED HERE @ 281 !!!\n");
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
 
@@ -321,6 +322,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   bool FirstLoop = true;
   while (!Stop) {
 
+  	if (debug) fprintf(stderr,">>>>> L325: Beginning Evolve Hierarcy: C%"ISYM", P%"ISYM"\n",
+			MetaData.CycleNumber, MyProcessorNumber); // FIXME
+	
   TIMER_START("Total");
 
 #ifdef USE_LCAPERF
@@ -343,9 +347,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* Load balance the root grids if this isn't the initial call */
 
+		if (debug) fprintf(stderr,">>>>> L350: About to alter Load balance: C%"ISYM", P%"ISYM"\n",
+      MetaData.CycleNumber, MyProcessorNumber); // FIXME
     if ((CheckpointRestart == FALSE) && (!FirstLoop))
       CommunicationLoadBalanceRootGrids(LevelArray, MetaData.TopGridRank, 
 					MetaData.CycleNumber);
+		if (debug) fprintf(stderr,">>>>> L355: Finished altering load balance: : C%"ISYM", P%"ISYM"\n",
+      MetaData.CycleNumber, MyProcessorNumber); // FIXME
 
     /* Output level information to log file. */
  
@@ -362,6 +370,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fclose(LevelInfofptr);
+
+		if (debug) fprintf(stderr,">>>>> L374: Finished Outputing Level Info, Computing Time Step: C%"ISYM", P%"ISYM"\n",
+      MetaData.CycleNumber, MyProcessorNumber); // FIXME
  
     /* Compute minimum timestep on the top level. */
  
@@ -579,8 +590,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     PrintMemoryUsage("Pre loop rebuild");
  
-    if (ProblemType != 25 && Restart == FALSE)
-      RebuildHierarchy(&MetaData, LevelArray, 0);
+    if (ProblemType != 25 && Restart == FALSE){
+			if (debug) fprintf(stderr,">>>>> L594: About to rebuild hierarchy: C%"ISYM", P%"ISYM"\n",
+          MetaData.CycleNumber, MyProcessorNumber); // FIXME
+			RebuildHierarchy(&MetaData, LevelArray, 0);
+	 		if (debug) fprintf(stderr,">>>>> L597: Finished rebuilding hierarchy: C%"ISYM", P%"ISYM"\n",
+          MetaData.CycleNumber, MyProcessorNumber); // FIXME
+		}
 
     PrintMemoryUsage("Post loop rebuild");
 
@@ -690,6 +706,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     FirstLoop = false;
  
+		if (debug) fprintf(stderr,">>>>> L709: End evolve hierarchy cycle:: C%"ISYM", P%"ISYM"\n",
+      MetaData.CycleNumber, MyProcessorNumber); // FIXME
+
   } // ===== end of main loop ====
 
 #ifdef USE_LCAPERF
@@ -758,6 +777,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef USE_MPI
   texit = MPI_Wtime();
 #endif
- 
+
   return SUCCESS;
 }

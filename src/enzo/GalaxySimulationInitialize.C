@@ -95,6 +95,10 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     GalaxySimulationDarkMatterConcentrationParameter,
     GalaxySimulationInflowTime,
     GalaxySimulationInflowDensity;
+	
+	int GalaxySimulationGasHalo;
+	float GalaxySimulationGasHaloScaleRadius,
+		GalaxySimulationGasHaloDensity;
 
   int   GalaxySimulationRefineAtStart,
     GalaxySimulationUseMetallicityField;
@@ -109,13 +113,16 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationInitialTemperature = 1000.0;
   GalaxySimulationDiskRadius         = 0.2;      // CODE UNITS!!!
   GalaxySimulationDiskTemperature    = 1.e4;     // [K]
-  GalaxySimulationDiskScaleHeightz   = 325e-6;
-  GalaxySimulationDiskScaleHeightR   = 3500e-6;
+  GalaxySimulationDiskScaleHeightz   = 325e-6;   // Mpc
+  GalaxySimulationDiskScaleHeightR   = 3500e-6;  // Mpc
   GalaxySimulationTruncationRadius   = .026; // [ Mpc ]
   GalaxySimulationDarkMatterConcentrationParameter = 12;
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
   GalaxySimulationDiskTemperature    = 1000.0;
+	GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
+	GalaxySimulationGasHaloScaleRadius = .001; // Mpc
+	GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
   GalaxySimulationInflowTime         = -1;
   GalaxySimulationInflowDensity      = 0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -170,6 +177,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 		  &GalaxySimulationDarkMatterConcentrationParameter);
     ret += sscanf(line, "GalaxySimulationDiskTemperature = %"FSYM,
 		  &GalaxySimulationDiskTemperature);
+    ret += sscanf(line, "GalaxySimulationGasHalo = %"ISYM,
+      &GalaxySimulationGasHalo);
+    ret += sscanf(line, "GalaxySimulationGasHaloScaleRadius = %"FSYM,
+      &GalaxySimulationGasHaloScaleRadius);
+    ret += sscanf(line, "GalaxySimulationGasHaloDensity = %"FSYM,
+      &GalaxySimulationGasHaloDensity);
     ret += sscanf(line, "GalaxySimulationInflowTime = %"FSYM,
 		  &GalaxySimulationInflowTime);
     ret += sscanf(line, "GalaxySimulationInflowDensity = %"FSYM,
@@ -220,6 +233,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
+                   GalaxySimulationGasHalo,
+                   GalaxySimulationGasHaloScaleRadius,
+                   GalaxySimulationGasHaloDensity,
 						       GalaxySimulationAngularMomentum,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
@@ -275,6 +291,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
+                   GalaxySimulationGasHalo,
+                   GalaxySimulationGasHaloScaleRadius,
+                   GalaxySimulationGasHaloDensity,
 						       GalaxySimulationAngularMomentum,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
@@ -403,6 +422,12 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	   GalaxySimulationDarkMatterConcentrationParameter);
    fprintf(Outfptr, "GalaxySimulationDiskTemperature = %"GOUTSYM"\n",
 	   GalaxySimulationDiskTemperature);
+   fprintf(Outfptr, "GalaxySimulationGasHalo = %"ISYM"\n",
+     GalaxySimulationGasHalo);
+   fprintf(Outfptr, "GalaxySimulationGasHaloScaleRadius = %"GOUTSYM"\n",
+     GalaxySimulationGasHaloScaleRadius);
+   fprintf(Outfptr, "GalaxySimulationGasHaloDensity = %"GOUTSYM"\n",
+     GalaxySimulationGasHaloDensity);
    fprintf(Outfptr, "GalaxySimulationInflowTime = %"GOUTSYM"\n",
 	   GalaxySimulationInflowTime);
    fprintf(Outfptr, "GalaxySimulationInflowDensity = %"GOUTSYM"\n",
