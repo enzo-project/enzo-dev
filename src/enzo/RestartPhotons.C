@@ -38,18 +38,17 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		  Star *&AllStars, FLOAT GridTime, int level, int LoopTime = TRUE);
+int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
+			    Star *AllStars);
 
 int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
-		   Star *AllStars)
+		   int level, Star *AllStars)
 {
 
-  int level;
+  int _level;
   LevelHierarchyEntry *Temp;
 
   //MetaData->FirstTimestepAfterRestart = FALSE;
-
-  if (GlobalRadiationSources->NextSource == NULL)
-    return SUCCESS;
 
   if (!RadiativeTransfer)
     return SUCCESS;
@@ -73,6 +72,11 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   PhotonTime -= LightCrossingTime;
   dtPhoton = 0.1*LightCrossingTime;
 
+  StarParticleRadTransfer(LevelArray, level, AllStars);
+
+  if (GlobalRadiationSources->NextSource == NULL)
+    return SUCCESS;
+
   if (debug)
     printf("Restarting radiative transfer.  Light-crossing time = %"GSYM"\n", 
 	   LightCrossingTime);
@@ -92,8 +96,8 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     EvolvePhotons(MetaData, LevelArray, AllStars, MetaData->Time, 0, FALSE);
 
     PhotonCount = 0;
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
-      Temp = LevelArray[level];
+    for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++) {
+      Temp = LevelArray[_level];
       while (Temp != NULL) {
 	Temp->GridData->CountPhotonNumber();
 	if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
@@ -136,8 +140,8 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 
   if (RadiativeTransferOpticallyThinH2)
-    for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
-      for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel)
+    for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++)
+      for (Temp = LevelArray[_level]; Temp; Temp = Temp->NextGridThisLevel)
 	Temp->GridData->AddH2Dissociation(AllStars, NumberOfSources);
 
   return SUCCESS;
