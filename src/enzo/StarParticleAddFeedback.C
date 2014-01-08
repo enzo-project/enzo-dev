@@ -134,6 +134,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     /* If there's no feedback or something weird happens, don't bother. */
 
     if ( influenceRadius <= tiny_number || 
+	 SphereContained == FALSE ||
 	((cstar->ReturnFeedbackFlag() == MBH_THERMAL ||
 	  cstar->ReturnFeedbackFlag() == MBH_JETS) &&
 	 (influenceRadius >= RootCellWidth/2 || 
