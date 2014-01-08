@@ -62,6 +62,8 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
    int SubgridMarkerPostParallel(HierarchyEntry **Grids[], int *NumberOfGrids);
    int SubgridMarkerPostParallelGZ(grid *Parent, HierarchyEntry **Grids[],
 				   int *NumberOfGrids);
+   int SetSubgridMarkerIsolatedBoundaries(void);
+   int CheckSubgridMarker(void);
 
 /* Return Subgrid Marker for a position */
 

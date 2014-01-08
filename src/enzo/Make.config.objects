@@ -978,6 +978,7 @@ POBJS_CONFIG_LIB = \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
+	Grid_CheckSubgridMarker.o \
 	Grid_CommunicationSendPhotonPackages.o \
 	Grid_CommunicationSendSubgridMarker.o \
         Grid_ComputePhotonTimestep.o \

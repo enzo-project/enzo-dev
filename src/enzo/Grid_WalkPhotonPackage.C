@@ -63,6 +63,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
   float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
 
+  bool OutsideGhostZones;
   int i, index, dim, splitMe, direction;
   int keep_walking, count, H2Thin, type, TemperatureField;
   int g[3], celli[3], u_dir[3], u_sign[3];
@@ -151,12 +152,17 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     // Current cell in integer and floating point
     g[dim] = GridStartIndex[dim] + 
       nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
+
+    /* Check whether photon is inside the ghost zones.  They can exist
+       outside after splitting in tightly packed grids, close to the
+       source.  Automatically move to the parent grid. */
+
     if (g[dim] < 0 || g[dim] >= GridDimension[dim]) {
-      //printf("Ray out of grid? g = %d %d %d\n", g[0], g[1], g[2]);
-      DeleteMe = TRUE;
+      DeltaLevel = -1;
+      *MoveToGrid = ParentGrid;
       return SUCCESS;
-      //ENZO_FAIL("Ray out of grid?");
     }
+
     f[dim] = CellLeftEdge[dim][g[dim]];
 
     // On cell boundaries, the index will change in negative directions
@@ -267,7 +273,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   FLOAT factor3 = Area_inv*emission_dt_inv;
 
   /* For X-ray photons, we do heating and ionization for HI/HeI/HeII
-     in one shot; see Table 2 of Shull & van Steenberg (1985) */
+     in one shot; see Table 2 of Shull & van Steenberg (1985) */  
 
   if ((*PP)->Type == 4) {
     for (i = 0; i < 3; i++)
@@ -792,8 +798,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     //   flux_floor = 0.01 * photon-ionization(background) / cross-section
     if (RadiationFieldType > 0 && RadiativeTransferSourceClustering > 0)
       if ((*PP)->Photons < flux_floor * solid_angle) {
-//	printf("Deleting photon %p: r=%g, P=%g, limit=%g\n", *PP, radius,
-//	       (*PP)->Photons, flux_floor*solid_angle);
+	if (DEBUG)
+	  printf("Deleting photon %p: r=%g, P=%g, limit=%g\n", *PP, radius,
+		 (*PP)->Photons, flux_floor*solid_angle);
 	(*PP)->Photons = -1;
 	DeleteMe = TRUE;
 	return SUCCESS;

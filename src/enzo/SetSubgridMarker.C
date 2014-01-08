@@ -213,6 +213,13 @@ int SetSubgridMarker(TopGridData &MetaData,
 	delete [] SiblingList.GridList;
 
       } // ENDIF UpdateMask
+    
+#define NO_DEBUG
+#ifdef DEBUG
+    for (Temp = LevelArray[i]; Temp; Temp = Temp->NextGridThisLevel) {
+      Temp->GridData->CheckSubgridMarker();
+    }
+#endif    
 
     FastSiblingLocatorFinalize(&ChainingMesh);      
 
