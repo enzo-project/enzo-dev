@@ -60,8 +60,10 @@ int grid::KHInitializeGridRamp(float KHInnerDensity,
   }
 
   int index, jndex, i, j, k, n = 0;
-  FLOAT x, y, KHRampWidth2;
+  FLOAT x, y, KHRampWidth2, DensityDiff, VelocityDiff;
   KHRampWidth2 = KHRampWidth*KHRampWidth;
+  DensityDiff = (KHInnerDensity - KHOuterDensity);
+  VelocityDiff = (KHInnerVx - KHOuterVx);
   for (k = 0; k < GridDimension[2]; k++)
   for (j = 0; j < GridDimension[1]; j++)
   for (i = 0; i< GridDimension[0]; i++, n++) {
@@ -80,19 +82,19 @@ int grid::KHInitializeGridRamp(float KHInnerDensity,
 
     /* modify the top half of the inner fluid to account for ramp */
       if (y >= 0.5) {
-        BaryonField[DensNum][n] -= exp( (-0.5/KHRampWidth2)*
+        BaryonField[DensNum][n] -= DensityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.75 - 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
-        BaryonField[Vel1Num][n] -= exp( (-0.5/KHRampWidth2)*
+        BaryonField[Vel1Num][n] -= VelocityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.75 - 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
       } else {
 
     /* modify the bottom half of the inner fluid to account for ramp */
-        BaryonField[DensNum][n] -= exp( (-0.5/KHRampWidth2)*
+        BaryonField[DensNum][n] -= DensityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.25 + 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
-        BaryonField[Vel1Num][n] -= exp( (-0.5/KHRampWidth2)*
+        BaryonField[Vel1Num][n] -= VelocityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.25 + 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
       }
@@ -109,19 +111,19 @@ int grid::KHInitializeGridRamp(float KHInnerDensity,
 
     /* modify the top half of the outer fluid to account for ramp */
       if (y >= 0.5) {
-        BaryonField[DensNum][n] += exp( (-0.5/KHRampWidth2)*
+        BaryonField[DensNum][n] += DensityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.75 + 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
-        BaryonField[Vel1Num][n] += exp( (-0.5/KHRampWidth2)*
+        BaryonField[Vel1Num][n] += VelocityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.75 + 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
       } else {
 
     /* modify the bottom half of the outer fluid to account for ramp */
-        BaryonField[DensNum][n] += exp( (-0.5/KHRampWidth2)*
+        BaryonField[DensNum][n] += DensityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.25 - 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
-        BaryonField[Vel1Num][n] += exp( (-0.5/KHRampWidth2)*
+        BaryonField[Vel1Num][n] += VelocityDiff * exp( (-0.5/KHRampWidth2)*
                                   pow(y-0.25 - 
                                       sqrt(-2.0*KHRampWidth2*log(0.5)),2));
       }
