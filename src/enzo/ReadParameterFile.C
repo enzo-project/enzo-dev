@@ -41,6 +41,7 @@
 #include "Grid.h"
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
+#include "CosmologyParameters.h"
 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
@@ -61,6 +62,7 @@ int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int ReadEvolveRefineFile(void);
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
@@ -494,6 +496,22 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingEdot = %"FSYM, &RandomForcingEdot); //AK
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
+    /* Grackle chemistry parameters */
+    ret += sscanf(line, "use_grackle = %"ISYM, &grackle_chemistry.use_chemistry);
+    ret += sscanf(line, "with_radiative_cooling = %"ISYM,
+                  &grackle_chemistry.with_radiative_cooling);
+    if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
+      grackle_chemistry.grackle_data_file = dummy;
+      ret++;
+    }
+    ret += sscanf(line, "UVbackground = %"ISYM, &grackle_chemistry.UVbackground);
+    ret += sscanf(line, "Compton_xray_heating = %"ISYM, 
+                  &grackle_chemistry.Compton_xray_heating);
+    ret += sscanf(line, "LWbackground_intensity = %"FSYM, 
+                  &grackle_chemistry.LWbackground_intensity);
+    ret += sscanf(line, "LWbackground_sawtooth_suppression = %"ISYM,
+                  &grackle_chemistry.LWbackground_sawtooth_suppression);
+    /********************************/
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
     ret += sscanf(line, "RadiativeCoolingModel = %"ISYM, &RadiativeCoolingModel);
     ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
@@ -1416,59 +1434,112 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
   }
 
-  /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
-     or RadiationFieldType to be on - both are taken care of in
-     the Gadget cooling routine.  Therefore, we turn them off!
-     Also, initialize the Gadget equilibrium cooling data. */
+  /* If using Grackle chemistry and cooling library, override all other 
+     cooling machinery and do a translation of some of the parameters. */
+  if (grackle_chemistry.use_chemistry == TRUE) {
+    // grackle_chemistry.use_chemistry already set
+    // grackle_chemistry.with_radiative_cooling already set
+    // grackle_chemistry.grackle_data_file already set
+    // grackle_chemistry.UVbackground already set
+    // grackle_chemistry.Compton_xray_heating already set
+    // grackle_chemistry.LWbackground_intensity already set
+    // grackle_chemistry.LWbackground_sawtooth_suppression already set
+    grackle_chemistry.Gamma = Gamma;
+    grackle_chemistry.primordial_chemistry = MultiSpecies;
+    grackle_chemistry.metal_cooling = MetalCooling;
+    grackle_chemistry.h2_on_dust = H2FormationOnDust;
+    grackle_chemistry.cmb_temperature_floor = CloudyCoolingData.CMBTemperatureFloor;
+    grackle_chemistry.include_metal_heating = CloudyCoolingData.IncludeCloudyHeating;
+    grackle_chemistry.three_body_rate = ThreeBodyRate;
+    grackle_chemistry.cie_cooling = CIECooling;
+    grackle_chemistry.h2_optical_depth_approximation = H2OpticalDepthApproximation;
+    grackle_chemistry.photoelectric_heating = PhotoelectricHeating;
+    grackle_chemistry.photoelectric_heating_rate = PhotoelectricHeatingRate;
 
-  if(GadgetEquilibriumCooling == TRUE){
-
-    if(MyProcessorNumber == ROOT_PROCESSOR ) {
-      fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
-      fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
-      fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
+    // Initialize units structure.
+    float a_value, dadt;
+    a_value = 1.0;
+    grackle_units.a_units = 1.0;
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                 &TimeUnits, &VelocityUnits, MetaData.Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.\n");
     }
+    if (ComovingCoordinates) {
+      if (CosmologyComputeExpansionFactor(MetaData.Time, &a_value, 
+                                          &dadt) == FAIL) {
+        ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+      }
+      grackle_units.a_units = 1.0/(1.0 + InitialRedshift);
+    }
+    grackle_units.comoving_coordinates = ComovingCoordinates;
+    grackle_units.density_units = DensityUnits;
+    grackle_units.length_units = LengthUnits;
+    grackle_units.time_units = TimeUnits;
 
-    RadiationFieldType = 0;
-    MultiSpecies       = 0;
-    RadiativeCooling   = 1;
-
-    // initialize Gadget equilibrium cooling
-    if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
-            ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
-    } 
+    // Initialize chemistry structure.
+    if (initialize_chemistry_data(grackle_chemistry, grackle_units,
+                                  a_value) == FAIL) {
+      ENZO_FAIL("Error in initialize_chemistry_data.\n");
+    }
   }
 
-  /* If set, initialize the RadiativeCooling and RateEquations data. */
+  else {
 
-  if (MultiSpecies > 0) {
-    if (InitializeRateData(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeRateData.");
+    /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
+       or RadiationFieldType to be on - both are taken care of in
+       the Gadget cooling routine.  Therefore, we turn them off!
+       Also, initialize the Gadget equilibrium cooling data. */
+
+    if(GadgetEquilibriumCooling == TRUE){
+
+      if(MyProcessorNumber == ROOT_PROCESSOR ) {
+        fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
+        fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
+        fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
+      }
+
+      RadiationFieldType = 0;
+      MultiSpecies       = 0;
+      RadiativeCooling   = 1;
+
+      // initialize Gadget equilibrium cooling
+      if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
+        ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
+      } 
     }
-  }
+
+    /* If set, initialize the RadiativeCooling and RateEquations data. */
+
+    if (MultiSpecies > 0) {
+      if (InitializeRateData(MetaData.Time) == FAIL) {
+        ENZO_FAIL("Error in InitializeRateData.");
+      }
+    }
  
-  if (MultiSpecies             == 0 && 
-      MetalCooling             == 0 &&
-      GadgetEquilibriumCooling == 0 &&
-      RadiativeCooling          > 0) {
-    if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
+    if (MultiSpecies             == 0 && 
+        MetalCooling             == 0 &&
+        GadgetEquilibriumCooling == 0 &&
+        RadiativeCooling          > 0) {
+      if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
+        ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
+      }
     }
-  }
 
-  /* If using the internal radiation field, initialize it. */
+    /* If using the internal radiation field, initialize it. */
  
-  if (RadiationFieldType == 11) 
-    RadiationData.RadiationShield = TRUE; 
-  else if (RadiationFieldType == 10)
-    RadiationData.RadiationShield = FALSE; 
+    if (RadiationFieldType == 11) 
+      RadiationData.RadiationShield = TRUE; 
+    else if (RadiationFieldType == 10)
+      RadiationData.RadiationShield = FALSE; 
 
-  if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
-      RadiationData.RadiationShield == TRUE)
-    if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
+    if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
+        RadiationData.RadiationShield == TRUE)
+      if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
+  } // else (if Grackle == TRUE)
+
   /* If using MBHFeedback = 2 to 5 (Star->FeedbackFlag = MBH_JETS), 
      you need MBHParticleIO for angular momentum */
 

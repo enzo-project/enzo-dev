@@ -359,6 +359,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerEmissivityField    = 0;                 // off
   uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
 
+  // Grackle chemistry data structure.
+  grackle_chemistry           = set_default_chemistry_parameters();
+
   MultiSpecies                = FALSE;             // off
   NoMultiSpeciesButColors     = FALSE;             // off
   ThreeBodyRate               = 0;                 // ABN02
