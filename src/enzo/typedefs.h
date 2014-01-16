@@ -17,7 +17,10 @@
 #include "RateData.h"
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
+
+#ifdef USE_GRACKLE
 #include <grackle.h>
+#endif
 
 /* These are the different types of baryon fields. */
 

@@ -416,6 +416,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+#ifdef USE_GRACKLE
   // Grackle chemistry data structure.
   grackle_chemistry                     = set_default_chemistry_parameters();
   // Map Grackle defaults to corresponding Enzo parameters
@@ -439,6 +440,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass       = grackle_chemistry.HydrogenFractionByMass;
   CoolData.DeuteriumToHydrogenRatio     = grackle_chemistry.DeuteriumToHydrogenRatio;
   CoolData.SolarMetalFractionByMass     = grackle_chemistry.SolarMetalFractionByMass;
+#endif
 
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;

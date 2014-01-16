@@ -38,6 +38,7 @@ int FindField(int field, int farray[], int numfields);
 int grid::GrackleWrapper()
 {
 
+#ifdef USE_GRACKLE
   if (!grackle_chemistry.use_grackle)
     return SUCCESS;
 
@@ -227,5 +228,6 @@ int grid::GrackleWrapper()
 
   LCAPERF_STOP("grid_GrackleWrapper");
 
+#endif
   return SUCCESS;
 }

@@ -200,6 +200,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
  
+#ifdef USE_GRACKLE
   if (grackle_chemistry.use_grackle) {
 
     /* Update units. */
@@ -269,6 +270,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
 
     return SUCCESS;
   }
+#endif // USE_GRACKLE
 
   /* Calculate the rates due to the radiation field. */
  

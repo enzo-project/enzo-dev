@@ -442,6 +442,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RootGridCourantSafetyNumber = %"FSYM"\n\n", RootGridCourantSafetyNumber);
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
+#ifdef USE_GRACKLE
   /* Grackle chemistry parameters */
   fprintf(fptr, "use_grackle                 = %"ISYM"\n", grackle_chemistry.use_grackle);
   fprintf(fptr, "with_radiative_cooling      = %"ISYM"\n", grackle_chemistry.with_radiative_cooling);
@@ -451,6 +452,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "LWbackground_intensity      = %"FSYM"\n", grackle_chemistry.LWbackground_intensity);
   fprintf(fptr, "LWbackground_sawtooth_suppression = %"ISYM"\n", grackle_chemistry.LWbackground_sawtooth_suppression);
   /********************************/
+#endif
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
