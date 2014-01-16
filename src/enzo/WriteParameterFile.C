@@ -443,7 +443,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
   /* Grackle chemistry parameters */
-  fprintf(fptr, "use_grackle                 = %"ISYM"\n", grackle_chemistry.use_chemistry);
+  fprintf(fptr, "use_grackle                 = %"ISYM"\n", grackle_chemistry.use_grackle);
   fprintf(fptr, "with_radiative_cooling      = %"ISYM"\n", grackle_chemistry.with_radiative_cooling);
   fprintf(fptr, "grackle_data_file           = %s\n", grackle_chemistry.grackle_data_file);
   fprintf(fptr, "UVbackground                = %"ISYM"\n", grackle_chemistry.UVbackground);

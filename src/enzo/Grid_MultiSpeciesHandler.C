@@ -31,7 +31,7 @@ int grid::MultiSpeciesHandler()
 
   LCAPERF_START("grid_MultiSpeciesHandler");
 
-  if (grackle_chemistry.use_chemistry) {
+  if (grackle_chemistry.use_grackle) {
     if (this->GrackleWrapper() == FAIL) {
       ENZO_FAIL("Error in GrackleWrapper.\n");
     }

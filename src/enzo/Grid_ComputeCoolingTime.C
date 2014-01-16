@@ -200,17 +200,16 @@ int grid::ComputeCoolingTime(float *cooling_time)
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
  
-  if (grackle_chemistry.use_chemistry) {
+  if (grackle_chemistry.use_grackle) {
 
     /* Update units. */
 
-    grackle_units.density_units = DensityUnits;
-    grackle_units.length_units = LengthUnits;
-
-    if (update_UVbackground_rates(grackle_chemistry, grackle_units,
-                                  afloat) == FAIL) {
-      ENZO_FAIL("Error in update_UVbackground_rates.\n");
-    }
+    grackle_units.comoving_coordinates = ComovingCoordinates;
+    grackle_units.density_units        = DensityUnits;
+    grackle_units.length_units         = LengthUnits;
+    grackle_units.time_units           = TimeUnits;
+    grackle_units.velocity_units       = VelocityUnits;
+    grackle_units.a_units              = aUnits;
 
     int temp_thermal = FALSE;
     float *thermal_energy;
@@ -259,7 +258,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
                                BaryonField[DINum],   BaryonField[DIINum], 
                                BaryonField[HDINum],  BaryonField[DeNum], 
                                MetalPointer, cooling_time) == FAIL) {
-      ENZO_FAIL("Error in grackle calculate_cooling_time.\n");
+      ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
 
     if (temp_thermal == TRUE) {

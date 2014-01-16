@@ -38,7 +38,7 @@ int FindField(int field, int farray[], int numfields);
 int grid::GrackleWrapper()
 {
 
-  if (!grackle_chemistry.use_chemistry)
+  if (!grackle_chemistry.use_grackle)
     return SUCCESS;
 
   if (ProcessorNumber != MyProcessorNumber)
@@ -100,8 +100,12 @@ int grid::GrackleWrapper()
 
   /* Update units. */
 
-  grackle_units.density_units = DensityUnits;
-  grackle_units.length_units = LengthUnits;
+  grackle_units.comoving_coordinates = ComovingCoordinates;
+  grackle_units.density_units        = DensityUnits;
+  grackle_units.length_units         = LengthUnits;
+  grackle_units.time_units           = TimeUnits;
+  grackle_units.velocity_units       = VelocityUnits;
+  grackle_units.a_units              = aUnits;
 
   /* Metal cooling codes. */
  
@@ -141,13 +145,6 @@ int grid::GrackleWrapper()
       MetalPointer = BaryonField[SNColourNum];
   } // ENDELSE both metal types
  
-  /* Update UV background rates. */
-
-  if (update_UVbackground_rates(grackle_chemistry, grackle_units,
-                                afloat) == FAIL) {
-    ENZO_FAIL("Error in update_UVbackground_rates.\n");
-  }
-
   int temp_thermal = FALSE;
   float *thermal_energy;
   if (HydroMethod == MHD_RK){
@@ -197,7 +194,7 @@ int grid::GrackleWrapper()
                       BaryonField[DINum],   BaryonField[DIINum], 
                       BaryonField[HDINum],  BaryonField[DeNum], 
                       MetalPointer) == FAIL) {
-    fprintf(stderr, "Error in solve_chemistry.\n");
+    fprintf(stderr, "Error in Grackle solve_chemistry.\n");
     return FAIL;
   }
 

@@ -497,7 +497,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
     /* Grackle chemistry parameters */
-    ret += sscanf(line, "use_grackle = %"ISYM, &grackle_chemistry.use_chemistry);
+    ret += sscanf(line, "use_grackle = %"ISYM, &grackle_chemistry.use_grackle);
     ret += sscanf(line, "with_radiative_cooling = %"ISYM,
                   &grackle_chemistry.with_radiative_cooling);
     if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
@@ -1436,25 +1436,34 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   /* If using Grackle chemistry and cooling library, override all other 
      cooling machinery and do a translation of some of the parameters. */
-  if (grackle_chemistry.use_chemistry == TRUE) {
-    // grackle_chemistry.use_chemistry already set
+  if (grackle_chemistry.use_grackle == TRUE) {
+    // grackle_chemistry.use_grackle already set
     // grackle_chemistry.with_radiative_cooling already set
     // grackle_chemistry.grackle_data_file already set
     // grackle_chemistry.UVbackground already set
     // grackle_chemistry.Compton_xray_heating already set
     // grackle_chemistry.LWbackground_intensity already set
     // grackle_chemistry.LWbackground_sawtooth_suppression already set
-    grackle_chemistry.Gamma = Gamma;
-    grackle_chemistry.primordial_chemistry = MultiSpecies;
-    grackle_chemistry.metal_cooling = MetalCooling;
-    grackle_chemistry.h2_on_dust = H2FormationOnDust;
-    grackle_chemistry.cmb_temperature_floor = CloudyCoolingData.CMBTemperatureFloor;
-    grackle_chemistry.include_metal_heating = CloudyCoolingData.IncludeCloudyHeating;
-    grackle_chemistry.three_body_rate = ThreeBodyRate;
-    grackle_chemistry.cie_cooling = CIECooling;
+    grackle_chemistry.Gamma                          = Gamma;
+    grackle_chemistry.primordial_chemistry           = MultiSpecies;
+    grackle_chemistry.metal_cooling                  = MetalCooling;
+    grackle_chemistry.h2_on_dust                     = H2FormationOnDust;
+    grackle_chemistry.cmb_temperature_floor          = CloudyCoolingData.CMBTemperatureFloor;
+    grackle_chemistry.three_body_rate                = ThreeBodyRate;
+    grackle_chemistry.cie_cooling                    = CIECooling;
     grackle_chemistry.h2_optical_depth_approximation = H2OpticalDepthApproximation;
-    grackle_chemistry.photoelectric_heating = PhotoelectricHeating;
-    grackle_chemistry.photoelectric_heating_rate = PhotoelectricHeatingRate;
+    grackle_chemistry.photoelectric_heating          = PhotoelectricHeating;
+    grackle_chemistry.photoelectric_heating_rate     = PhotoelectricHeatingRate;
+    grackle_chemistry.NumberOfTemperatureBins        = CoolData.NumberOfTemperatureBins;
+    grackle_chemistry.CaseBRecombination             = RateData.CaseBRecombination;
+    grackle_chemistry.TemperatureStart               = CoolData.TemperatureStart;
+    grackle_chemistry.TemperatureEnd                 = CoolData.TemperatureEnd;
+    grackle_chemistry.NumberOfDustTemperatureBins    = RateData.NumberOfDustTemperatureBins;
+    grackle_chemistry.DustTemperatureStart           = RateData.DustTemperatureStart;
+    grackle_chemistry.DustTemperatureEnd             = RateData.DustTemperatureEnd;
+    grackle_chemistry.HydrogenFractionByMass         = CoolData.HydrogenFractionByMass;
+    grackle_chemistry.DeuteriumToHydrogenRatio       = CoolData.DeuteriumToHydrogenRatio;
+    grackle_chemistry.SolarMetalFractionByMass       = CoolData.SolarMetalFractionByMass;
 
     // Initialize units structure.
     float a_value, dadt;
@@ -1469,19 +1478,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                                           &dadt) == FAIL) {
         ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
       }
-      grackle_units.a_units = 1.0/(1.0 + InitialRedshift);
+      grackle_units.a_units            = 1.0 / (1.0 + InitialRedshift);
     }
     grackle_units.comoving_coordinates = ComovingCoordinates;
-    grackle_units.density_units = DensityUnits;
-    grackle_units.length_units = LengthUnits;
-    grackle_units.time_units = TimeUnits;
+    grackle_units.density_units        = DensityUnits;
+    grackle_units.length_units         = LengthUnits;
+    grackle_units.time_units           = TimeUnits;
+    grackle_units.velocity_units       = VelocityUnits;
 
     // Initialize chemistry structure.
     if (initialize_chemistry_data(grackle_chemistry, grackle_units,
                                   a_value) == FAIL) {
-      ENZO_FAIL("Error in initialize_chemistry_data.\n");
+      ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
     }
-  }
+  }  // if (grackle_chemistry.use_grackle == TRUE)
 
   else {
 
