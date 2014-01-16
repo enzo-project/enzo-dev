@@ -207,6 +207,11 @@ help-config:
 	@echo
 	@echo "      gmake enzo-performance-yes"
 	@echo "      gmake enzo-performance-no"
+	@echo
+	@echo "   Set whether to compile with support for the Grackle chemistry and cooling library"
+	@echo
+	@echo "      gmake grackle-yes"
+	@echo "      gmake grackle-no"
 
 #-----------------------------------------------------------------------
 
@@ -275,6 +280,7 @@ show-config:
 	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
 	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
+	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -933,3 +939,20 @@ CONFIG_ENZO_PERFORMANCE-%:
 
 #-----------------------------------------------------------------------
 
+VALID_GRACKLE = grackle-yes grackle-no
+.PHONY: $(VALID_GRACKLE)
+
+grackle-yes: CONFIG_GRACKLE-yes
+grackle-no: CONFIG_GRACKLE-no
+grackle-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_GRACKLE)]\n\n"
+CONFIG_GRACKLE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_GRACKLE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_GRACKLE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_GRACKLE; \
+	echo
+
+
+#-----------------------------------------------------------------------
