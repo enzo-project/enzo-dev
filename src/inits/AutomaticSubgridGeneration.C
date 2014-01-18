@@ -170,12 +170,12 @@ int AutomaticSubgridGeneration(parmstruct *Parameters)
 
       fprintf(fptr, "CosmologySimulationGridLeftEdge[%"ISYM"]     = ", level);
       for (dim = 0; dim < Parameters->Rank; dim++)
-	fprintf(fptr, "%"FSYM" ", FinalLeftEdge[dim]);
+	fprintf(fptr, "%"GOUTSYM" ", FinalLeftEdge[dim]);
       fprintf(fptr, "\n");
 
       fprintf(fptr, "CosmologySimulationGridRightEdge[%"ISYM"]     = ", level);
       for (dim = 0; dim < Parameters->Rank; dim++)
-	fprintf(fptr, "%"FSYM" ", FinalRightEdge[dim]);
+	fprintf(fptr, "%"GOUTSYM" ", FinalRightEdge[dim]);
       fprintf(fptr, "\n");
 
       fprintf(fptr, "CosmologySimulationGridLevel[%"ISYM"]         = %"ISYM"\n", level, level);
