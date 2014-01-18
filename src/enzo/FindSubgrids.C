@@ -80,8 +80,8 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
       return FAIL;
     }
 
-    for (i = 0; i < NumberOfBufferZones; i++)
-      NumberOfFlaggedCells = CurrentGrid->FlagBufferZones();
+    NumberOfFlaggedCells = CurrentGrid->FlagBufferZones();
+
   } 
 
   /* Set the static (permanent) regions. */

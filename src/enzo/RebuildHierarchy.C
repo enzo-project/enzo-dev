@@ -110,7 +110,7 @@ int RebuildHierarchy(TopGridData *MetaData,
  
   bool ParticlesAreLocal, SyncNumberOfParticles = true;
   bool MoveStars = true;
-  int i, j, k, grids, grids2, subgrids, MoveParticles;
+  int i, j, k, grids, grids2, subgrids, MoveParticles, ncells;
   int TotalFlaggedCells, FlaggedGrids;
   FLOAT ZeroVector[MAX_DIMENSION];
   LevelHierarchyEntry *Temp;
@@ -336,11 +336,20 @@ int RebuildHierarchy(TopGridData *MetaData,
 
 
       /* Determine the subgrid minimum and maximum sizes, if
-	 requested. */
+         requested.
 
-      DetermineSubgridSizeExtrema(NumberOfCells[i+1], i+1, 
-				  MaximumStaticSubgridLevel+1);
- 
+         If we are initializing and on our first trip through
+         the hierachy, use the number of cells on the parent
+         level to estimate the grid efficiency parameters
+      */
+
+      if (NumberOfCells[i+1] == 0)
+        ncells = NumberOfCells[i];
+      else
+        ncells = NumberOfCells[i+1];
+
+      DetermineSubgridSizeExtrema(ncells, i+1, MaximumStaticSubgridLevel+1);
+
       /* 3a) Generate an array of grids on this level. */
  
 //??      HierarchyEntry *GridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
@@ -388,6 +397,9 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       HierarchyEntry *Temp2;
       HierarchyEntry *SubgridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
+      for (j = 0; j < MAX_NUMBER_OF_SUBGRIDS; j++){
+        SubgridHierarchyPointer[j] = NULL;
+      }
       subgrids = 0;
       for (j = 0; j < grids; j++) {
 	Temp2 = GridHierarchyPointer[j]->NextGridNextLevel;

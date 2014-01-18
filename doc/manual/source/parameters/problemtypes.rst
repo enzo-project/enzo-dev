@@ -285,15 +285,50 @@ Sedov Blast (7)
 Kelvin-Helmholtz Instability (8)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    This problem sets up a 2D box with periodic boundary conditions containing
+    two fluids (inner fluid and outer fluid).  The inner fluid has a positive
+    velocity and the outer fluid has a negative velocity with a difference of
+    ``KHVelocityJump``.  The two fluids typically have different densities.
+    The result is the build up of KH instabilities along the interface between
+    the two fluids.
+
+    Setting ``KHRamp`` to 0, creates the standard KH test problem
+    where there is a discontinuous jump between the two fluids in
+    x-velocity and density.  Random perturbations in y-velocity are the seeds 
+    to the KH instability resulting in growth of multiple modes of the KHI.
+
+    Setting ``KHRamp`` to 1 modifies the ICs so that there is a smooth
+    ramp connecting the two fluids in x-velocity and density of width 
+    ``KHRampWidth``.  A sinusoidal perturbation in y-velocity is the seed
+    to the KH instability resulting in only growth of k=2 modes.  
+    These results converge in behavior as resolution is increased, whereas 
+    the standard ICs do not.  The ramped ICs are based on Robertson, Kravtsov, 
+    Gnedin, Abel & Rudd 2010, but that work has a typo in the ramp equation, 
+    and this implementation matches Robertson's actual ICs.  
 
 ``KHInnerDensity``, ``KHOuterDensity`` (external)
     Initial density. Default: 2.0 (inner) and 1.0 (outer)
 ``KHInnerPressure``, ``KHOuterPressure`` (external)
     Initial pressure. Default: 2.5 (for both)
+``KHBulkVelocity`` (external)
+    The bulk velocity of both fluids relative to the grid.  Default: 0.0
 ``KHVelocityJump`` (external)
-    Default: 1.0
+    The difference in velocity between the outer fluid and the inner fluid.
+    Inner fluid will have half this value and move to the right (positive),
+    whereas outer fluid will have have this value and move to the left 
+    (negative).  Total fluid velocities will combine this jump with 
+    KHBulkVelocity.  Default: 1.0
 ``KHPerturbationAmplitude`` (external)
-    Default: 0.01
+    Default: 0.1
+``KHRamp`` (external)
+    Whether to use ramped ICs or not.  Default: 1
+``KHRampWidth`` (external)
+    The width in y-space of the transition ramp.  Default: 0.05
+``KHRandomSeed`` (external)
+    The seed for the Mersennes random number generator.  This is only
+    used in the case of the KHRamp=0 ICs.  By using the same seed
+    from one run to the next, one can reproduce previous behavior with
+    identical parameter files.  Default: 123456789
 
 
 .. _noh_param:

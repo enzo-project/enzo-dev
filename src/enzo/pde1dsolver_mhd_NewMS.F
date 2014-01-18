@@ -7,6 +7,7 @@
      $     gamma,csmin,rhomin,
      $     MHDCTDualEnergyMethod,MHDCTSlopeLimiter,RiemannSolver,
      $     ReconstructionMethod,idiffusion,MHDCTPowellSource,
+     $     theta,
      $      ncyc,
      $     gravityon, acc,
      $     a, EquationOfState,SoundSpeed,hack)
@@ -54,8 +55,8 @@ c     Note that for the most part things are treated identically as adiabatic.
       tdum0 = 1e-13_RKIND
     
       gm1 = gamma - 1._RKIND
-      theta = 1.5_RKIND
-      if (idiffusion.eq.0) theta = 1.1_RKIND
+c     theta = 1.5_RKIND
+c     if (idiffusion.eq.0) theta = 1.1_RKIND
       dtdx = dt/dx
       nxbe(2) = nxb
       nxbe(3) = nxe

@@ -15,6 +15,8 @@
 #-----------------------------------------------------------------------
 
 OBJS_CONFIG_LIB = \
+  MHDLoopInit.o \
+  Grid_MHDLoopInitGrid.o \
         acml_st1.o \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
@@ -124,6 +126,7 @@ OBJS_CONFIG_LIB = \
         CreateSmoothedDarkMatterFields.o \
         CreateSUBlingList.o \
         CreateFluxes.o \
+        InitializeFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
         DepositBaryons.o \
@@ -471,6 +474,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InterpolatePositions.o \
         Grid_InterpolateStarParticlesToGrid.o \
 	Grid_KHInitializeGrid.o \
+	Grid_KHInitializeGridRamp.o \
         Grid_MagneticFieldResetter.o \
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
@@ -662,6 +666,7 @@ OBJS_CONFIG_LIB = \
         NestedCosmologySimulationInitialize.o \
         ngpinterp.o \
         ngp_deposit.o \
+        ngp_deposit_c.o \
         NohInitialize.o \
         nr_1d.o \
         nr_2d.o \

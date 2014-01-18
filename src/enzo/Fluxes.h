@@ -36,5 +36,5 @@ struct fluxes
   float *RightFluxes[MAX_NUMBER_OF_BARYON_FIELDS][MAX_DIMENSION];
 };
 
-
+void InitializeFluxes(fluxes *Fluxes);
 #endif

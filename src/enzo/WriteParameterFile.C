@@ -729,6 +729,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "MinimumShearForRefinement             = %e\n",
 	  MinimumShearForRefinement);
+  fprintf(fptr, "OldShearMethod                        = %"ISYM"\n",
+	  OldShearMethod);
   fprintf(fptr, "MinimumPressureJumpForRefinement      = %e\n",
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",

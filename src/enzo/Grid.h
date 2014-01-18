@@ -1836,7 +1836,22 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                        float KHInnerInternalEnergy,
                        float KHOuterInternalEnergy,
                        float KHPerturbationAmplitude,
-                       float KHInnerVx, float KHOuterVx);
+                       float KHInnerVx, float KHOuterVx,
+                       float KHInnerPressure,
+                       float KHOuterPressure,
+                       int   KHRandomSeed);
+
+  /* Initialize a grid for the KH instability problem including a ramp. */
+
+  int KHInitializeGridRamp(float KHInnerDensity,
+                           float KHOuterDensity,
+                           float KHInnerInternalEnergy,
+                           float KHOuterInternalEnergy,
+                           float KHPerturbationAmplitude,
+                           float KHInnerVx, float KHOuterVx,
+                           float KHInnerPressure,
+                           float KHOuterPressure,
+                           float KHRampWidth);
 
   /* Initialize a grid and set boundary for the 2D/3D Noh problem. */
 
@@ -2759,6 +2774,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 // CUDA MHD routines
 //------------------------------------------------------------------------
 #ifdef ECUDA
+  void CudaMHDMalloc(void **p, size_t size);
   void CudaMHDMallocGPUData();
   void CudaMHDFreeGPUData();
   void CudaSolveMHDEquations(fluxes *SubgridFluxes[], int NumberOfSubgrids, int renorm);
@@ -2850,6 +2866,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
                              int InitStyle);
   int MHDOrszagTangInitGrid(float Density,float Pressure, float V0, float B0 );
+  int MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, float Vz, float B0, FLOAT R0, 
+                      FLOAT Center[], int CurrentAxis);
+
 
   //See Grid_MHDCTEnergyToggle.C for details on these functions.
   float *MHDCT_temp_conserved_energy;

@@ -148,6 +148,13 @@ Hierarchy Control Parameters
     detection. Default: 0.1
 ``MinimumShearForRefinement`` (external)
     It is the minimum shear above which a refinement occurs if the CellFlaggingMethod is appropriately set. Default: 0
+``OldShearMethod`` (external)
+    If using the shear refinement criterion, setting this variable to 1 enables 
+    the old method for calculating the shear criterion, which actually 
+    calculates it based on shear and vorticity and makes some assumptions
+    about the simulations (c_s=1, etc.).  However, this is necessary
+    if you want to reproduce some of the old enzo results 
+    (e.g. Kritsuk et al. 2006).  Default: 0
 ``MetallicityRefinementMinMetallicity`` (external)
     This is the threshold metallicity (in units of solar metallicity)
     above which cells must be refined to a minimum level of
