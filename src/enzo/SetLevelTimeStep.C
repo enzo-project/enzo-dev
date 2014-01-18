@@ -80,11 +80,11 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       float dt_conduction;
       dt_conduction = huge_number;
       for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
-        dt_conduction = min(dt_conduction, 
-                            Grids[grid1]->GridData->ComputeConductionTimeStep());
+        if (Grids[grid1]->GridData->ComputeConductionTimeStep(dt_conduction) == FAIL) 
+          ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
       }
       dt_conduction = CommunicationMinValue(dt_conduction);
-      dt_conduction *= float(DEFAULT_GHOST_ZONES);  // for subcycling
+      dt_conduction *= float(NumberOfGhostZones);  // for subcycling
 
       int my_cycle_skip = max(1, (int) (*dtThisLevel / dt_conduction));
       dtRebuildHierarchy[level] = *dtThisLevel;

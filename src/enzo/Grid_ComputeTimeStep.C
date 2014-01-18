@@ -401,7 +401,7 @@ float grid::ComputeTimeStep()
 
   if(IsotropicConduction || AnisotropicConduction){
     if (this->ComputeConductionTimeStep(dtConduction) == FAIL) 
-      ENZO_FAIL("Error in ComputeConductionTimeStep.");
+      ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
 
     dtConduction *= float(NumberOfGhostZones);     // for subcycling 
   }

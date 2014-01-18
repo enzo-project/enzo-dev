@@ -118,7 +118,8 @@ int grid::ConductHeat(){
     }
 
     // compute this subcycle timestep
-    dtSubcycle = this->ComputeConductionTimeStep();
+    if (this->ComputeConductionTimeStep(dtSubcycle) == FAIL)
+      ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
 
     // make sure we don't extend past dtFixed
     dtSubcycle = min(dtSubcycle, dtFixed-dtSoFar);
