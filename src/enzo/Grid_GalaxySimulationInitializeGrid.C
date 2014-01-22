@@ -732,10 +732,12 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 			zicm  = findZicm(drcyl)*LengthUnits;
 			zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
 
+/*
 			if ( HaloGasDensity(sqrt(drcyl*drcyl+z*z)) >= DiskPotentialGasDensity(drcyl,z)
 					&& fabs(z) < zicm) {
 				printf("small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
 			} // end small density if
+*/ // FIXME
 
 			if (fabs(z) < fabs(zicm)) {
 
