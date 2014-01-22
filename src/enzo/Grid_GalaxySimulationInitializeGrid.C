@@ -224,6 +224,11 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    if (BaryonField[field] == NULL)
      BaryonField[field] = new float[size];
 
+	/* set metals to small value */
+  if (UseMetallicityField)
+    for (i = 0; i < size; i++)
+      BaryonField[MetalNum][i] = 1.0e-10;
+
  /* Loop over the mesh. */
 
  float density, dens1, Velocity[MAX_DIMENSION];
@@ -385,6 +390,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    temperature = temp1;
 			if( temperature > 1e7 )
 				temperature = init_temp;
+			if( UseMetallicityField ) // FIXME - this obviously breaks metallicity feature
+				BaryonField[MetalNum][n] = density;
 	  }
 
 	} // end: if (r < DiskRadius)
@@ -393,9 +400,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 
 	BaryonField[0][n] = density;
 	
-	if (UseMetallicityField)
-	  for (i = 0; i < size; i++)
-	    BaryonField[MetalNum][i] = 1.0e-10;
 	if (StarMakerTypeIaSNe)
 	  for (i = 0; i < size; i++)
 	    BaryonField[MetalIaNum][i] = 1.0e-10;
