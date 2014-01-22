@@ -383,6 +383,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    if (temp1 == init_temp)
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
+			if( temperature > 1e7 )
+				temperature = init_temp;
 	  }
 
 	} // end: if (r < DiskRadius)
@@ -766,7 +768,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density, FLO
 	if (denuse < HaloGasDensity(rsph)) {
 		fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
 	}
-	rsph_icm = sqrt(drcyl*drcyl+zicm*zicm);
+	rsph_icm = sqrt(drcyl*drcyl+pow(zicm/LengthUnits,2));
 	Picm = HaloGasDensity(rsph_icm)*kboltz*HaloGasTemperature(rsph_icm)/(0.6*mh);
 	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
