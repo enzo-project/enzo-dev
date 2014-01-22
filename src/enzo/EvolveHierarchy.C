@@ -167,7 +167,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 		    LevelHierarchyEntry *LevelArray[], float Initialdt)
 {
-  EXTRA_OUTPUT_MACRO(67, "Enter EH");
  
   float dt;
  
@@ -250,7 +249,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   PrintMemoryUsage("Bdry set");
   Temp = LevelArray[0];
   while (Temp != NULL) {
-    fprintf(stderr,"CLOWN tmp\n");
      if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
        //      ENZO_FAIL("Error in grid->SetExternalBoundaryValues.\n");
        Exterior->Prepare(Temp->GridData);
