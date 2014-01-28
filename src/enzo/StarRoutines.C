@@ -28,6 +28,8 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#define LIFETIME_IN_TDYN 12.0
+
 void DeleteStar(Star * &Node);
 Star *PopStar(Star * &Node);
 void InsertStarAfter(Star * &Node, Star * &NewNode);
@@ -89,7 +91,10 @@ Star::Star(grid *_grid, int _id, int _level)
   Identifier = _grid->ParticleNumber[_id];
   Mass = FinalMass = (double)(_grid->ParticleMass[_id]);
   BirthTime = _grid->ParticleAttribute[0][_id];
-  LifeTime = _grid->ParticleAttribute[1][_id];
+  if (type == PARTICLE_TYPE_STAR)
+    LifeTime = LIFETIME_IN_TDYN * _grid->ParticleAttribute[1][_id];
+  else
+    LifeTime = _grid->ParticleAttribute[1][_id];
   Metallicity = _grid->ParticleAttribute[2][_id];
   this->ConvertAllMassesToSolar();
 }
@@ -441,11 +446,16 @@ void Star::CopyFromParticle(grid *_grid, int _id, int _level)
   BirthTime = _grid->ParticleAttribute[0][_id];
   LifeTime = _grid->ParticleAttribute[1][_id];
   Metallicity = _grid->ParticleAttribute[2][_id];
-
   // below is removed because we want to keep Star->Mass as double 
   // during the run - Ji-hoon Kim, Dec.2009
-//  Mass = (double)(_grid->ParticleMass[_id]); 
-//  this->ConvertMassToSolar();
+  //
+  // If considering RT from original star_makers, then get the mass
+  // because it decreases through ejecta in star_feedback() - John
+  // Wise, Jan. 2014
+  if (type == PARTICLE_TYPE_STAR) {
+    Mass = (double)(_grid->ParticleMass[_id]); 
+    this->ConvertMassToSolar();
+  }
   return;
 }
 

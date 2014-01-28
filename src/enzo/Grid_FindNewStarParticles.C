@@ -43,7 +43,9 @@ int grid::FindNewStarParticles(int level)
 	ParticleType[i] == -PARTICLE_TYPE_CLUSTER ||
 	ParticleType[i] == -PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == -PARTICLE_TYPE_SIMPLE_SOURCE ||
-	ABS(ParticleType[i]) == PARTICLE_TYPE_MBH) {
+	ABS(ParticleType[i]) == PARTICLE_TYPE_MBH ||
+	(StarParticleRadiativeFeedback == TRUE &&
+	 ParticleType[i] == PARTICLE_TYPE_STAR)) {
 
       // Check if it already exists (wasn't activated on the last
       // timestep, usually because of insufficient mass)

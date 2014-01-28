@@ -94,6 +94,9 @@ int Star::HitEndpoint(FLOAT Time)
   case PopIII_CF:
     break;
 
+  case NormalStar:
+    break;
+
   } // ENDSWITCH
 
   return result;

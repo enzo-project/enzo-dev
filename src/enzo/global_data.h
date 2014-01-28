@@ -615,6 +615,7 @@ EXTERN int   ComovingCoordinates;
 
 EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
+EXTERN int   StarParticleRadiativeFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;

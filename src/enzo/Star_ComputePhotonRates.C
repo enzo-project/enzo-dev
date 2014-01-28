@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "phys_constants.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -28,12 +29,17 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
+#define LIFETIME_IN_TDYN 12.0
+
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
 {
 
+  const float eV_erg = 6.241509e11;
+
   int i;
+  float M0, Mform, xv1, xv2, tdyn, L_UV;
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
@@ -174,6 +180,22 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     // radiating particle that ramps with time, independant of mass
     E[0] = 20.0;
     Q[0] = SimpleQ; // ramping done in StarParticleRadTransfer.C
+    break;
+
+  case NormalStar:
+    nbins = 1;
+    E[0] = 21.0;  // Good for [Z/H] > -1.3  (Schaerer 2003)
+    // Calculate Delta(M_SF) for Cen & Ostriker star particles
+    tdyn = this->LifeTime / LIFETIME_IN_TDYN;
+    xv1 = (PhotonTime - this->BirthTime) / tdyn;
+    xv2 = (PhotonTime + dtPhoton - this->BirthTime) / tdyn;
+    M0 = this->Mass / (1.0 - StarMassEjectionFraction * 
+		       (1.0 - (1.0 + xv1) * exp(-xv1)));
+    Mform = M0 * ((1.0 + xv1) * exp(-xv1) -
+		  (1.0 + xv2) * exp(-xv2));
+    Mform = max(min(Mform, this->Mass), 0.0);
+    L_UV = StarEnergyToStellarUV * Mform * clight * clight / dtPhoton; // erg/s
+    Q[0] = L_UV * eV_erg / E[0]; // ph/s
     break;
 
   default:

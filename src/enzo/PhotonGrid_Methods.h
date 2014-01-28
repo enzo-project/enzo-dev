@@ -441,6 +441,7 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 
 /************************************************************************/
 
+int StarParticlesToRadSources(FLOAT Time, double ConversionFactor);
 int ConvertToCellCenteredRadiation(void);
 
 int ReassignSuperSources(void);

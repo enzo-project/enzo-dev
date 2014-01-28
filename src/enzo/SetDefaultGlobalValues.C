@@ -501,6 +501,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
+  StarParticleRadiativeFeedback    = FALSE;
   BigStarFormation                 = FALSE;
   BigStarFormationDone             = FALSE;
   BigStarSeparation                = 0.25;

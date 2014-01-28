@@ -797,6 +797,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "SimpleRampTime = %"FSYM, &SimpleRampTime);
     ret += sscanf(line, "StarFormationOncePerRootGridTimeStep = %"ISYM, &StarFormationOncePerRootGridTimeStep);
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
+    ret += sscanf(line, "StarParticleRadiativeFeedback = %"ISYM, &StarParticleRadiativeFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
 
