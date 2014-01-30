@@ -74,8 +74,10 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   StarParticleRadTransfer(LevelArray, level, AllStars);
 
-  if (GlobalRadiationSources->NextSource == NULL)
+  if (GlobalRadiationSources->NextSource == NULL) {
+    PhotonTime += LightCrossingTime;
     return SUCCESS;
+  }
 
   if (debug)
     printf("Restarting radiative transfer.  Light-crossing time = %"GSYM"\n", 
