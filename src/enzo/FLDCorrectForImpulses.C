@@ -100,7 +100,7 @@ int FLDCorrectForImpulses(int field, LevelHierarchyEntry *LevelArray[],
 	continue;
       Lifetime = cstar->ReturnLifetime();
       Position = cstar->ReturnPosition();
-      cstar->ComputePhotonRates(nbins, energies, LL);
+      cstar->ComputePhotonRates(TimeUnits, nbins, energies, LL);
       Luminosity = LL[3];
       TimeFraction = (min(BirthTime + Lifetime, FLDTime) -
 		      max(BirthTime, FLDTime-dtFLD)) / dtFLD;

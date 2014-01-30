@@ -33,13 +33,14 @@
 
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
-int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
+int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
 {
 
   const float eV_erg = 6.241509e11;
 
   int i;
-  float M0, Mform, xv1, xv2, tdyn, L_UV;
+  float M0, Mform, xv1, xv2, tdyn;
+  double L_UV, cgs_convert;
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
   float EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
@@ -194,8 +195,10 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     Mform = M0 * ((1.0 + xv1) * exp(-xv1) -
 		  (1.0 + xv2) * exp(-xv2));
     Mform = max(min(Mform, this->Mass), 0.0);
-    L_UV = StarEnergyToStellarUV * Mform * clight * clight / dtPhoton; // erg/s
-    Q[0] = L_UV * eV_erg / E[0]; // ph/s
+    // units of Msun/(time in code units)
+    L_UV = StarEnergyToStellarUV * Mform * clight * clight / dtPhoton;
+    cgs_convert = SolarMass / TimeUnits;
+    Q[0] = cgs_convert * L_UV * eV_erg / E[0]; // ph/s
     break;
 
   default:

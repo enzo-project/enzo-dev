@@ -757,7 +757,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 
     // Remember:  dA = [~] * dP * Energy / Density * r_hat
     if (RadiationPressure && 
-	(*PP)->Radius > (*PP)->SourcePositionDiff)
+	(*PP)->Radius >= (*PP)->SourcePositionDiff)
       for (dim = 0; dim < MAX_DIMENSION; dim++)
 	BaryonField[RPresNum1+dim][index] += 
 	  RadiationPressureConversion * RadiationPressureScale * dP * (*PP)->Energy / 

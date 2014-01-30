@@ -84,7 +84,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
     if (cstar->IsARadiationSource(PhotonTime)) {
 
       // Calculate photon luminosity
-      if (cstar->ComputePhotonRates(nbins, energies, Q) == FAIL) {
+      if (cstar->ComputePhotonRates(TimeUnits, nbins, energies, Q) == FAIL) {
 	ENZO_FAIL("Error in ComputePhotonRates.\n");
       }
       
