@@ -29,8 +29,6 @@
 #include "TopGridData.h"
 #include "LevelHierarchy.h"
 
-#define LIFETIME_IN_TDYN 12.0
-
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
@@ -39,10 +37,9 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
   const float eV_erg = 6.241509e11;
 
   int i;
-  float M0, Mform, xv1, xv2, tdyn;
   double L_UV, cgs_convert;
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
-  float EnergyFractionHeI, EnergyFractionHeII;
+  float Mform, EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
   x2 = x*x;
 
@@ -187,14 +184,7 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     nbins = 1;
     E[0] = 21.0;  // Good for [Z/H] > -1.3  (Schaerer 2003)
     // Calculate Delta(M_SF) for Cen & Ostriker star particles
-    tdyn = this->LifeTime / LIFETIME_IN_TDYN;
-    xv1 = (PhotonTime - this->BirthTime) / tdyn;
-    xv2 = (PhotonTime + dtPhoton - this->BirthTime) / tdyn;
-    M0 = this->Mass / (1.0 - StarMassEjectionFraction * 
-		       (1.0 - (1.0 + xv1) * exp(-xv1)));
-    Mform = M0 * ((1.0 + xv1) * exp(-xv1) -
-		  (1.0 + xv2) * exp(-xv2));
-    Mform = max(min(Mform, this->Mass), 0.0);
+    Mform = this->CalculateMassLoss(dtPhoton) / StarMassEjectionFraction;
     // units of Msun/(time in code units)
     L_UV = StarEnergyToStellarUV * Mform * clight * clight / dtPhoton;
     cgs_convert = SolarMass / TimeUnits;

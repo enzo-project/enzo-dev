@@ -90,6 +90,7 @@ public:
   void  AddMass(double dM) { Mass += dM; };
   bool  HasAccretion(void) { return (DeltaMass > 0); };
   void  ResetAccretion(void) { DeltaMass = 0.0; };
+  void  SetAccretionMass(const float value) { DeltaMass = value; };
   void  ResetNotEjectedMass(void) { NotEjectedMass = 0.0; };
   double ReturnNotEjectedMass(void) { return NotEjectedMass; };
   void  ResetAccretionPointers(void) 
@@ -106,6 +107,7 @@ public:
   void	ConvertAllMassesToSolar(void);
   void	ConvertMassToSolar(void);
   int   CalculateMassAccretion(float &BondiRadius, float &density);
+  float CalculateMassLoss(const float dt);
   int   ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[]);
   int	SetFeedbackFlag(FLOAT Time);
   void  SetFeedbackFlag(int flag);
