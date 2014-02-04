@@ -31,7 +31,6 @@
 #    CONFIG_ACCELERATION_BOUNDARY
 #    CONFIG_OPT
 #    CONFIG_TESTING
-#    CONFIG_TPVEL
 #    CONFIG_PHOTON
 #    CONFIG_HYPRE
 #    CONFIG_EMISSIVITY
@@ -233,15 +232,6 @@
 #-----------------------------------------------------------------------
 
      CONFIG_TESTING = no
-
-#=======================================================================
-# CONFIG_TPVEL
-#=======================================================================
-#    yes           Include tracer particle velocity info printout
-#    no            Do not include tracer particle velocity info printout
-#-----------------------------------------------------------------------
-
-     CONFIG_TPVEL = no
 
 #=======================================================================
 # CONFIG_PHOTON

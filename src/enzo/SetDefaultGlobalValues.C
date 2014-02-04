@@ -295,7 +295,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   debug1                      = 0;
   debug2                      = 0;
 
-  TracerParticleOn            = 0;
+  TracerParticleOn            = FALSE;
+  TracerParticleOutputVelocity = FALSE;
 
   OutputOnDensity                  = 0;
   StartDensityOutputs              = 999;

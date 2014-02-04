@@ -643,34 +643,6 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE TRACER PARTICLE VELOCITY OUTPUT SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_TPVEL = 1
-
-    # Settings to turn isolated gravity boundary conditions ON
-
-    ifeq ($(CONFIG_TPVEL),yes)
-        ERROR_TPVEL = 0
-        ASSEMBLE_TPVEL_DEFINES = -DTP_VELOCITY
-    endif
-
-    # Settings to turn isolated gravity boundary conditions OFF
-
-    ifeq ($(CONFIG_TPVEL),no)
-        ERROR_TPVEL = 0
-        ASSEMBLE_TPVEL_DEFINES =
-    endif
-
-    # error if CONFIG_TPVEL is incorrect
-
-    ifeq ($(ERROR_TPVEL),1)
-       .PHONY: error_tpvel
-       error_tpvel:
-	$(error Illegal value '$(CONFIG_TPVEL)' for $$(CONFIG_TPVEL))
-    endif
-
-#-----------------------------------------------------------------------
 # DETERMINE RADIATIVE TRANSFER SETTINGS
 #-----------------------------------------------------------------------
 
@@ -1013,7 +985,6 @@
               $(ASSEMBLE_PACKED_AMR_DEFINES) \
               $(ASSEMBLE_PACKED_MEM_DEFINES) \
               $(ASSEMBLE_TESTING_DEFINES) \
-              $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_HYPRE_DEFINES) \
               $(ASSEMBLE_EMISSIVITY_DEFINES) \
