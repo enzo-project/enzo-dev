@@ -458,6 +458,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerPlanetaryNebulae        = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
+  StarMakerTimeIndependentFormation = FALSE;
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years

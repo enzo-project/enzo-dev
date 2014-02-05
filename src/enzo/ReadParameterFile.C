@@ -818,6 +818,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &StarMakerOverDensityThreshold);
     ret += sscanf(line, "StarMakerSHDensityThreshold = %"FSYM,
 		  &StarMakerSHDensityThreshold);
+    ret += sscanf(line, "StarMakerTimeIndependentFormation = %"ISYM,
+		  &StarMakerTimeIndependentFormation);
     ret += sscanf(line, "StarMakerMassEfficiency = %"FSYM,
 		  &StarMakerMassEfficiency);
     ret += sscanf(line, "StarMakerMinimumMass = %"FSYM, &StarMakerMinimumMass);

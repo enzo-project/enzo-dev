@@ -10,7 +10,7 @@ c
      &                      dt, r, metal, dx, t, z, procnum, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
-     &                      imetal, imethod, mintdyn,
+     &                      imetal, imethod, tindsf, mintdyn,
      &                      odthresh, masseff, smthresh, level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
@@ -52,6 +52,7 @@ c    d1,x1,v1,t1 - factors to convert d,dx,v,t to physical units
 c    nx,ny,nz - dimensions of field arrays
 c    ibuff    - number of buffer zones at each end of grid
 c    imethod  - Hydro method (0/1 -- PPM DE/LR, 2 - ZEUS)
+c    tindsf   - if true, remove dt/t_dyn term in starfraction
 c    odthresh - overdensity threshold (some number * avg. density)
 c    masseff - gas-to-mass conversion efficiency ( 0<=masseff<=1 )
 c    smthresh - star mass threshold (only creates stars with mass >
@@ -83,7 +84,7 @@ c
 c  Arguments
 c
       INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      INTG_PREC imetalSNIa, procnum
+      INTG_PREC imetalSNIa, procnum, tindsf
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
@@ -174,8 +175,15 @@ c
 c              6) Check to see if star is above threshold (given
 c                 in units of M_solar)
 c
-               starfraction = min(masseff*dt/tdyn, 0.9_RKIND)
-               tdyn = max(tdyn, mintdyn*3.15e7_RKIND/t1)
+
+               if (tindsf .eq. 1) then
+                  starfraction = masseff
+                  tdyn = mintdyn*3.15d7/t1
+               else
+                  starfraction = min(masseff*dt/tdyn, 0.9_RKIND)
+                  tdyn = max(tdyn, mintdyn*3.15e7_RKIND/t1)
+               endif
+
 c
 c  13 Nov. 2002:  stochastic star formation has been turned OFF by
 c    bwo, since the algorithm is a bit suspect.  This encourages

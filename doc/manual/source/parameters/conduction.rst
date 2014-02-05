@@ -7,7 +7,13 @@ time-centered algorithm.  In the anisotropic conduction, heat can only
 conduct along magnetic field lines.  One can turn on the two types of
 conduction independently, since there are situations where one might 
 want to use both.  The Spitzer fraction can be also set
-independently for the isotropic and anisotropic conduction.
+independently for the isotropic and anisotropic conduction.  Running a 
+cosmological simulation with conduction on can be tricky as the timesteps 
+can become very short.  It is recommended that you look carefully at all the 
+available conduction parameters.  Additionally, if you intend to run with 
+star particles, it is highly recommended that you set the parameter, 
+``StarMakerTimeIndependentFormation``.  See the description in 
+:ref:`starparticleparameters` for more information.
 
 ``IsotropicConduction`` (external)
     Turns on isotropic thermal conduction using Spitzer conduction.  Default: 0 (FALSE)
