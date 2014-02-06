@@ -100,28 +100,13 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
       break;
       
     case reflecting:
-      if( verbose ) fprintf(stderr,"Reflecting?\n");
-      if(Add[0] == 1 )
-	{
-	  sign = -1;
-	  for(k=ks;k<ke;k++)
-	    for(j=js;j<je;j++){
-	      i = nb;
-	      Bi = indgen(i,j,k,nxt,nyt,nzt);
-	      A[Bi] = 0;
-	    }
-	}
-      else
-	{
-	  sign = 1;
-	}
 
       for(k=ks;k<ke;k++)
 	for(j=js;j<je;j++)
 	  for(i=0;i<nb;i++){
 	    Ai = indgen(2*nb-i-1+Add[0],j,k,nxt,nyt,nzt);
 	    Bi = indgen(i,j,k,nxt,nyt,nzt);
-	    A[Bi] = sign*A[Ai];
+	    A[Bi] = A[Ai];
 	  }
 
 	break;
@@ -173,17 +158,6 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	break;
 	
       case reflecting:
-	if(Add[0] == 1)
-	  {
-	    sign = -1;
-	    for(k=ks;k<ke;k++)
-	      for(j=js;j<je;j++){
-		Bi = indgen(nx+nb-1,j,k,nxt,nyt,nzt);
-		A[Bi] = 0;
-	      }
-	  }
-	else 
-	  {sign = 1;}
 	
 	for(k=ks;k<ke;k++)
 	  for(j=js;j<je;j++)
@@ -245,30 +219,13 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	
       case reflecting:
 	
-	if(Add[1] == 1)
-	  {
-	    sign = -1;
-	    
 	    for(k=ks;k<ke;k++)
+    	  for(j=0;j<nb;j++)
 	      for(i=is;i<ie;i++){
-		j = nb;
 		Bi = indgen(i,j,k,nxt,nyt,nzt);
-		A[Bi] = 0;
-		//oi(i,j,k);
-	      }
-	  }  
-	else 
-	  {sign = 1;}
-	
-	for(k=ks;k<ke;k++)
-	  for(j=0;j<nb;j++)
-	    for(i=is;i<ie;i++){
 	      Ai = indgen(i,2*nb-j-1+Add[1],k,nxt,nyt,nzt);
-	      Bi = indgen(i,j,k,nxt,nyt,nzt);
-	      A[Bi] = sign*A[Ai];
-	      
+	      A[Bi] = A[Ai];
 	    }
-	
 	break;
 	
       case periodic:
@@ -321,25 +278,12 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	
       case reflecting:
 	
-	if( Add[1] == 1)
-	  {
-	    sign = -1;
-	    j = 0; 
-	    for(k=ks;k<ke;k++)
-	      for(i=is;i<ie;i++){	      
-		Bi = indgen(i,nb+ny+j-1,k,nxt,nyt,nzt);
-		A[Bi] = 0;
-		//oi(i,nb+ny+j,k);
-	      }
-	  }
-	else{sign = 1;}
-	
 	for(k=ks;k<ke;k++)
 	  for(j=0;j<nb;j++)
 	    for(i=is;i<ie;i++){
 	      Ai = indgen(i,nb+ny-1-j-Add[1],k,nxt,nyt,nzt);
 	      Bi = indgen(i,nb+ny+j,k,nxt,nyt,nzt);
-	      A[Bi] = sign *A[Ai];
+	      A[Bi] = A[Ai];
 	      
 	    }
 	break;
@@ -394,27 +338,13 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	break;
 	
       case reflecting:
-	if( Add[2] ==1 )
-	  {
-	    sign = -1;
-	    k = nb;
-	    for(j=js;j<je;j++)
-	      for(i=is;i<ie;i++)
-		{
-		  Bi = indgen(i,j,k,nxt,nyt,nzt);
-		  A[Bi] = 0;
-		  //oi(i,j,k);
-		}
-	  }
-      else{sign = 1;}
 
       for(k=0;k<nb;k++)
 	for(j=js;j<je;j++)
 	  for(i=is;i<ie;i++){
 	    Ai = indgen(i,j,2*nb-k-1+Add[2],nxt,nyt,nzt);
 	    Bi = indgen(i,j,k,nxt,nyt,nzt);
-	    A[Bi] = sign*A[Ai];
-	    //oi(i,j,2*nb-k-1-Add[2]);
+	    A[Bi] = A[Ai];
 	  }
       
       break;
@@ -467,18 +397,6 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	break;
 	
       case reflecting:
-	if(Add[2] == 1)
-	  {
-	    sign = -1;
-	    k = 0;
-	  for(j=js;j<je;j++)
-	    for(i=is;i<ie;i++){
-	      Bi = indgen(i,j,nb+nz-1,nxt,nyt,nzt);
-	      A[Bi] = 0;
-	      //oi(i,j,nb+nz+k);
-	    }
-	  }
-	else{sign = 1;}
 	
 	for(k=0;k<nb;k++)
 	  for(j=js;j<je;j++)
