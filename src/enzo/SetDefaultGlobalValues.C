@@ -417,6 +417,32 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+#ifdef USE_GRACKLE
+  // Grackle chemistry data structure.
+  grackle_chemistry                     = set_default_chemistry_parameters();
+  // Map Grackle defaults to corresponding Enzo parameters
+  Gamma                                 = grackle_chemistry.Gamma;
+  MultiSpecies                          = grackle_chemistry.primordial_chemistry;
+  MetalCooling                          = grackle_chemistry.metal_cooling;
+  H2FormationOnDust                     = grackle_chemistry.h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = grackle_chemistry.cmb_temperature_floor;
+  ThreeBodyRate                         = grackle_chemistry.three_body_rate;
+  CIECooling                            = grackle_chemistry.cie_cooling;
+  H2OpticalDepthApproximation           = grackle_chemistry.h2_optical_depth_approximation;
+  PhotoelectricHeating                  = grackle_chemistry.photoelectric_heating;
+  PhotoelectricHeatingRate              = grackle_chemistry.photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = grackle_chemistry.NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = grackle_chemistry.CaseBRecombination;
+  CoolData.TemperatureStart             = grackle_chemistry.TemperatureStart;
+  CoolData.TemperatureEnd               = grackle_chemistry.TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = grackle_chemistry.NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = grackle_chemistry.DustTemperatureStart;
+  RateData.DustTemperatureEnd           = grackle_chemistry.DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = grackle_chemistry.HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = grackle_chemistry.DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = grackle_chemistry.SolarMetalFractionByMass;
+#endif
+
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
   OutputDustTemperature = FALSE;
