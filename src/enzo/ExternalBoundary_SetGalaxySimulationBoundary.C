@@ -60,6 +60,10 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
     ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
 
+	/* Determine if we're using metallicity (as a color field) */
+	int MetalNum = FindField(Metallicity,BoundaryFieldType,NumberOfBaryonFields);
+	int UseMetallicityField = (MetalNum == -1) ? 0 : 1;
+		
   /* set the appropriate BoundaryValues on the left side */
  
   for (dim = 0; dim < BoundaryRank; dim++)
@@ -262,6 +266,10 @@ int ExternalBoundary::SetGalaxySimulationBoundary(FLOAT time)
 		} else {
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: GalaxySimulationRPSWind choice invalid");
 		}
+
+		// update metallicity field
+		if( UseMetallicityField )
+			BoundaryValue[MetalNum][dim][0][index] = 1.0e-10;
 
 		if( BoundaryValue[DensNum][dim][0][index] < 0.0 ) 
 			ENZO_FAIL("Error in ExternalBoundary_SetGalaxyBoundary: Negative Density");

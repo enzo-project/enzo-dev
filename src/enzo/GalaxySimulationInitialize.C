@@ -330,7 +330,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	if( GalaxySimulationRPSWind > 0 ){
   	Exterior.Prepare(TopGrid.GridData);
 	
-		float InflowValue[5], Dummy[5];
+		const int MAX_BNDRY_VARS = 6;
+		float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
 	  InflowValue[0] = GalaxySimulationRPSWindDensity;
 	  InflowValue[1] = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
 	  if (HydroMethod != 2) {
@@ -341,6 +342,8 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	  InflowValue[2] = GalaxySimulationRPSWindVelocity[0];
 	  InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
 	  InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
+		if(GalaxySimulationUseMetallicityField)
+			InflowValue[5] = 1.0e-10;
   
 	 if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
 						      Dummy) == FAIL) {
