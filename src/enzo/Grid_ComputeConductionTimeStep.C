@@ -36,9 +36,14 @@ int GetUnits (float *DensityUnits, float *LengthUnits,
 	      float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Member functions
-int grid::ComputeConductionTimeStep (float &dt) {
-  if (ProcessorNumber != MyProcessorNumber) {return SUCCESS;}
-  if (NumberOfBaryonFields == 0) {return SUCCESS;}
+float grid::ComputeConductionTimeStep (float &dt) {
+
+  dt = huge_number;
+
+  if (ProcessorNumber != MyProcessorNumber)
+    return SUCCESS;
+  if (NumberOfBaryonFields == 0)
+    return SUCCESS;
   this->DebugCheck("ComputeConductionTimeStep");
 
   // Some locals
@@ -48,7 +53,7 @@ int grid::ComputeConductionTimeStep (float &dt) {
   FLOAT a = 1.0, dadt;
   double MassUnits = 1.0;
   float *rho;
-  float dt_est;
+  float dt_est, light_cross_time;
   double all_units;
 
   float SpitzerFraction;
@@ -236,6 +241,12 @@ int grid::ComputeConductionTimeStep (float &dt) {
     ( 6.0e-7 * SpitzerFraction * mh * TimeUnits );
   
   dt *= float(all_units);
+  dt *= ConductionCourantSafetyNumber;  // for stability, this has to be < 0.5
+
+  if (SpeedOfLightTimeStepLimit) {
+    light_cross_time = dx * VelocityUnits / clight;
+    dt = max(dt, light_cross_time);
+  }
 
   delete [] Temp;
 

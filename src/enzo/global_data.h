@@ -895,11 +895,16 @@ EXTERN RadiativeTransferSpectrumTableType RadiativeTransferSpectrumTable;
 #endif /* TRANSFER  */
 
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
+EXTERN int LevelSubCycleCount[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float dtRebuildHierarchy[MAX_DEPTH_OF_HIERARCHY];
+EXTERN float TimeSinceRebuildHierarchy[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevelSoFar[MAX_DEPTH_OF_HIERARCHY];
 EXTERN float dtThisLevel[MAX_DEPTH_OF_HIERARCHY];
 
 /* RebuildHierarchy on this level every N cycles. */
 EXTERN int RebuildHierarchyCycleSkip[MAX_DEPTH_OF_HIERARCHY];
+EXTERN int ConductionDynamicRebuildHierarchy;
+EXTERN int ConductionDynamicRebuildMinLevel;
 
 /* Coupled radiative transfer, cooling, and rate solver */
 EXTERN int RadiativeTransferCoupledRateSolver;
@@ -980,6 +985,7 @@ EXTERN int AnisotropicConduction;  // TRUE OR FALSE
 EXTERN float IsotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float AnisotropicConductionSpitzerFraction;  // f_Spitzer
 EXTERN float ConductionCourantSafetyNumber;
+EXTERN int SpeedOfLightTimeStepLimit; // TRUE OR FALSE
 
 /* SMBH Feedback in galaxy clusters*/
 EXTERN int ClusterSMBHFeedback;  // TRUE OR FALSE

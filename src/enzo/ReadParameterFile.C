@@ -235,6 +235,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "LoadBalancingMinLevel = %"ISYM, &LoadBalancingMinLevel);
     ret += sscanf(line, "LoadBalancingMaxLevel = %"ISYM, &LoadBalancingMaxLevel);
  
+    ret += sscanf(line, "ConductionDynamicRebuildHierarchy = %"ISYM, 
+                  &ConductionDynamicRebuildHierarchy);
+    ret += sscanf(line, "ConductionDynamicRebuildMinLevel = %"ISYM, 
+                  &ConductionDynamicRebuildMinLevel);
     if (sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] =", &int_dummy) == 1) {
       if (int_dummy > MAX_DEPTH_OF_HIERARCHY) {
 	ENZO_VFAIL("Cannot set RebuildHierarchyCycleSkip[%"ISYM"], max hierarchy depth = %"ISYM".\n", int_dummy, MAX_DEPTH_OF_HIERARCHY);
@@ -983,6 +987,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IsotropicConductionSpitzerFraction = %"FSYM, &IsotropicConductionSpitzerFraction);
     ret += sscanf(line, "AnisotropicConductionSpitzerFraction = %"FSYM, &AnisotropicConductionSpitzerFraction);
     ret += sscanf(line, "ConductionCourantSafetyNumber = %"FSYM, &ConductionCourantSafetyNumber);
+    ret += sscanf(line, "SpeedOfLightTimeStepLimit = %"ISYM, &SpeedOfLightTimeStepLimit);
 
     ret += sscanf(line, "RadiativeTransfer = %"ISYM, &RadiativeTransfer);
     ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, &RadiationXRaySecondaryIon);

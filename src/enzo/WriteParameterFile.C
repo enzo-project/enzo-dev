@@ -245,6 +245,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "LoadBalancingMinLevel  = %"ISYM"\n", LoadBalancingMinLevel);
   fprintf(fptr, "LoadBalancingMaxLevel  = %"ISYM"\n", LoadBalancingMaxLevel);
  
+  fprintf(fptr, "ConductionDynamicRebuildHierarchy = %"ISYM"\n", ConductionDynamicRebuildHierarchy);
+  fprintf(fptr, "ConductionDynamicRebuildMinLevel  = %"ISYM"\n", ConductionDynamicRebuildMinLevel);
   for (dim = 0;dim < MAX_DEPTH_OF_HIERARCHY;dim++) {
     if (RebuildHierarchyCycleSkip[dim] != 1) {
       fprintf(fptr, "RebuildHierarchyCycleSkip[%"ISYM"] = %"ISYM"\n",
@@ -827,6 +829,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IsotropicConductionSpitzerFraction    = %"FSYM"\n", IsotropicConductionSpitzerFraction);
   fprintf(fptr, "AnisotropicConductionSpitzerFraction  = %"FSYM"\n", AnisotropicConductionSpitzerFraction);
   fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
+  fprintf(fptr, "SpeedOfLightTimeStepLimit             = %"ISYM"\n", SpeedOfLightTimeStepLimit);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
   fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);
