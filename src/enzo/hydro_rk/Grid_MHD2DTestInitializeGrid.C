@@ -820,6 +820,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      field=0;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxu + ramp*(Bxl-Bxu);
+      field=1;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byu + ramp*(Byl-Byu);
+      field=2;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+    }
       }
     }
   } // endif MHD2DProblemType == 9 
