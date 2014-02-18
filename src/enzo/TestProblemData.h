@@ -8,8 +8,6 @@ struct TestProblemDataType
 {
 
   float HydrogenFractionByMass;
-  float HeliumFractionByMass;
-  float MetalFractionByMass;
   float DeuteriumToHydrogenRatio;
 
   /* multispecies */
