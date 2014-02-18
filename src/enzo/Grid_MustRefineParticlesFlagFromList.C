@@ -30,6 +30,7 @@ int grid::MustRefineParticlesFlagFromList()
 {
   
   int i, dim, LowerIndex, UpperIndex, MidPoint, ParticlesFound, ParticlesFlagged, *ParticleNumberList;
+  int NumberOfParticles;
   FILE *fptr;
   float tempf;
 
@@ -43,16 +44,23 @@ int grid::MustRefineParticlesFlagFromList()
   /*Read in particle indicies*/
 
   fptr=fopen("MustRefineParticlesFlaggingList.in","r");
-  fscanf(fptr,"%d",&ParticlesFound);
-  printf("P(%d): ParticlesFound = %d\n",MyProcessorNumber,ParticlesFound);
+ 
+  char line[MAX_LINE_LENGTH];
+  ParticlesFound = 0;
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
+    if (line[0] != '#') ParticlesFound++;
+   
+  if (debug) printf("P(%d): ParticlesFound = %d\n",MyProcessorNumber,ParticlesFound);
   
   ParticleNumberList=new int[ParticlesFound]; //to allocate array space
 
-  printf("P(%d): Alloc Worked\n",MyProcessorNumber);
-  for(i=0;i<ParticlesFound;i++){
-    fscanf(fptr,"%d %f %f %f",&ParticleNumberList[i],&tempf,&tempf,&tempf);
-  }
-    
+  rewind(fptr);
+  i = 0;
+  while (fgets(line, MAX_LINE_LENGTH, fptr) != NULL)
+    if (line[0] != '#')
+      if (sscanf(line, "%"ISYM, &ParticleNumberList[i]) == 1)
+        i++;
+
   fclose(fptr);
 
   /* Loop over particles. */
@@ -69,8 +77,9 @@ int grid::MustRefineParticlesFlagFromList()
 	LowerIndex = MidPoint;
       else
 	UpperIndex = MidPoint;
+
     }
-    if (LowerIndex == -1) LowerIndex = UpperIndex;
+    //if (LowerIndex == -1) LowerIndex = UpperIndex;
 
     /* If found, set left/right edge and output */
 
@@ -78,11 +87,12 @@ int grid::MustRefineParticlesFlagFromList()
 	ParticleNumber[i] == ParticleNumberList[UpperIndex]  ) {
       ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
       ParticlesFlagged=ParticlesFlagged+1.;
+      //printf("Particle Flagged: %d\n",ParticleNumber[i]);
     } // end: if (index != -1)
 
   } // end: loop over particles
-  //if (ParticlesFlagged > 0)
-  printf("P(%d): MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",MyProcessorNumber,ParticlesFlagged);
+  if (ParticlesFlagged > 0)
+    printf("P(%d): MustRefineParticlesFlagFromList:ParticlesFlagged=%d\n",MyProcessorNumber,ParticlesFlagged);
   delete [] ParticleNumberList;
   return SUCCESS;
 }
