@@ -45,7 +45,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
     if(level >= MustRefineParticlesRefineToLevel ||
        CellFlaggingMethod[method] == 4 ||
-       MustRefineParticlesCreateParticles != 1){
+       MustRefineParticlesCreateParticles == 0){
  
   switch (CellFlaggingMethod[method]) {
  

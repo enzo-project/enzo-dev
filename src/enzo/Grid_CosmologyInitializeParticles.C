@@ -190,12 +190,13 @@ int grid::CosmologyInitializeParticles(
       mass[i] = (float) tempbuffer[i];
   } // ENDIF read masses
 
+  //printf("CosmologySimulationParticleTypeName is %s\n",CosmologySimulationParticleTypeName);
   if (CosmologySimulationParticleTypeName != NULL) {
     int_tempbuffer = new int[size];
     if (ReadIntFile(CosmologySimulationParticleTypeName, GridRank,
 		 GridDimension, GridStartIndex, GridEndIndex, Offset,
 		 NULL, &int_tempbuffer, 0, 1) == FAIL) {
-      ENZO_FAIL("Error reading particle mass.\n");
+      ENZO_FAIL("Error reading particle types.\n");
     }
     types = new int[size];
     for (i = 0; i < size; i++)
@@ -315,8 +316,18 @@ int grid::CosmologyInitializeParticles(
 	index = (k*ActiveDim[1] + j)*ActiveDim[0];
 	for (i = 0; i < ActiveDim[0]; i++, index++)
 	  if (mask[index]) {
-	    ParticleType[count] = types[index];
-	    count++;
+
+	    if (MustRefineParticlesCreateParticles == 2){
+	      if (types[index] > 0){
+		ParticleType[count] = PARTICLE_TYPE_MUST_REFINE;
+	      } else {
+		ParticleType[count] = PARTICLE_TYPE_DARK_MATTER;
+	      }
+	      count++;
+	    } else {
+	      ParticleType[count] = types[index];
+	      count++;
+	    }
 	  } // ENDIF mask
       } // ENDFOR j
   } // ENDIF types

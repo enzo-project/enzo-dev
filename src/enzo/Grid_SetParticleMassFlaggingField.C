@@ -105,7 +105,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
       /* beginning of Cell flagging criterion routine                        */
       if(level >= MustRefineParticlesRefineToLevel ||
 	 CellFlaggingMethod[method] == 8 || 
-	 MustRefineParticlesCreateParticles != 1){
+	 MustRefineParticlesCreateParticles == 0){
       switch (CellFlaggingMethod[method]) {
  
 	/* ==== METHOD 4: BY PARTICLE MASS ==== */
