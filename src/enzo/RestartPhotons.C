@@ -69,13 +69,16 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     (clight * RadiativeTransferPropagationSpeedFraction);
   FLOAT SavedPhotonTime = PhotonTime;
   float SavedPhotonTimestep = dtPhoton;
+  int savedCoupledChemistrySolver = RadiativeTransferCoupledRateSolver;
   PhotonTime -= LightCrossingTime;
   dtPhoton = 0.1*LightCrossingTime;
 
   StarParticleRadTransfer(LevelArray, level, AllStars);
 
   if (GlobalRadiationSources->NextSource == NULL) {
-    PhotonTime += LightCrossingTime;
+    RadiativeTransferCoupledRateSolver = savedCoupledChemistrySolver;
+    dtPhoton = SavedPhotonTimestep;
+    PhotonTime = SavedPhotonTime;
     return SUCCESS;
   }
 
@@ -86,7 +89,6 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Solve radiative transfer */
 
   int PhotonCount, LastPhotonCount = 0;
-  int savedCoupledChemistrySolver = RadiativeTransferCoupledRateSolver;
   RadiativeTransferCoupledRateSolver = FALSE;
 
   while ((dtPhoton > 0.) && RadiativeTransfer && 

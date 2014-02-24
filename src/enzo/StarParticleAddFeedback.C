@@ -97,7 +97,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
     if (cstar->ReturnType() == NormalStar &&
 	cstar->ReturnLevel() == level) {
       MassLoss = cstar->CalculateMassLoss(SNe_dt);
-      cstar->SetAccretionMass(MassLoss);
+      cstar->SetAccretionMass(-MassLoss);
     }
 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) &&
