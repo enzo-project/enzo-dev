@@ -184,11 +184,15 @@ int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], doubl
     nbins = 1;
     E[0] = 21.0;  // Good for [Z/H] > -1.3  (Schaerer 2003)
     // Calculate Delta(M_SF) for Cen & Ostriker star particles
+#ifdef TRANSFER
     Mform = this->CalculateMassLoss(dtPhoton) / StarMassEjectionFraction;
     // units of Msun/(time in code units)
     L_UV = 4 * pi * StarEnergyToStellarUV * Mform * clight * clight / dtPhoton;
     cgs_convert = SolarMass / TimeUnits;
     Q[0] = cgs_convert * L_UV * eV_erg / E[0]; // ph/s
+#else
+    Q[0] = 0.0;
+#endif
     break;
 
   default:
