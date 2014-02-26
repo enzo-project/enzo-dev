@@ -207,6 +207,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       PauseRadius = -u_dot_d + sqrt_term;
     else
       PauseRadius = -u_dot_d - sqrt_term;
+    if (PauseRadius < 0)
+      PauseRadius = huge_number;
   } else
     PauseRadius = huge_number;
 
@@ -766,7 +768,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
     (*PP)->CurrentTime += cdt;
     (*PP)->Photons     -= dP;
     (*PP)->Radius      += ddr;
-
+    
     if (RadiativeTransferLoadBalance)
       BaryonField[RaySegNum][index] += 1.0;
 

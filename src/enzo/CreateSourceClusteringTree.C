@@ -59,6 +59,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 
   int i, j, num[2], dim, sort_dim, median, nleft, nright;
   bool top_level = false;
+  SuperSourceEntry *new_leaf = NULL;
   SuperSourceData *temp = NULL; // workspace
 
   /* Create work arrays and delete old tree (if it exists) if this is
@@ -139,7 +140,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 
   /* Create new leaf and insert into tree */
 
-  SuperSourceEntry *new_leaf = new SuperSourceEntry;
+  new_leaf = new SuperSourceEntry;
   new_leaf->ParentSource = NULL;
   for (i = 0; i < MAX_LEAF; i++)
     new_leaf->ChildSource[i] = NULL;
@@ -227,6 +228,18 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 	SourceList[i] = temp[i];
       SourceClusteringTree = SourceClusteringTree->ParentSource;
       delete temp;
+    } else {
+      // Bottom of the branch
+      new_leaf = new SuperSourceEntry;
+      for (j = 0; j < MAX_LEAF; j++)
+	new_leaf->ChildSource[j] = NULL;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	new_leaf->Position[dim] = SourceList[0].Position[dim];
+      new_leaf->ClusteringRadius = 0;
+      new_leaf->LeafID = INT_UNDEFINED;
+      new_leaf->LWLuminosity = SourceList[0].LWLuminosity;
+      new_leaf->ParentSource = SourceClusteringTree;
+      SourceClusteringTree->ChildSource[0] = new_leaf;
     }
 
     // Right leaf
@@ -239,8 +252,20 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 	SourceList[nleft+i] = temp[i];
       SourceClusteringTree = SourceClusteringTree->ParentSource;
       delete temp;
+    } else {
+      // Bottom of the branch
+      new_leaf = new SuperSourceEntry;
+      for (j = 0; j < MAX_LEAF; j++)
+	new_leaf->ChildSource[j] = NULL;
+      for (dim = 0; dim < MAX_DIMENSION; dim++)
+	new_leaf->Position[dim] = SourceList[nleft].Position[dim];
+      new_leaf->ClusteringRadius = 0;
+      new_leaf->LeafID = INT_UNDEFINED;
+      new_leaf->LWLuminosity = SourceList[nleft].LWLuminosity;
+      new_leaf->ParentSource = SourceClusteringTree;
+      SourceClusteringTree->ChildSource[1] = new_leaf;
     }
-  } // ENDIF nShine > 1
+  } // ENDIF nShine > 2
 
   else {
 
