@@ -259,6 +259,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
       ENZO_FAIL("Cannot find initial density or particle velocity datafile"
 		" for nested cosmology run.");
 
+    
+
     /* Read Rank, Dimensions, TopGridStart, TopGridEnd and TopGridDims attributes */
  
     ReadAttribute(dset_id, &field_rank_attr, "Rank", log_fptr, io_log);
@@ -307,7 +309,10 @@ int grid::NestedCosmologySimulationInitializeGrid(
     for (dim = 0; dim < GridRank; dim++) {
       //      SubDomainLeftEdge[dim] = TopGridStart[dim] * (DomainRightEdge[dim]-DomainLeftEdge[dim])/((float) TopGridDims[dim]);
       //      SubDomainRightEdge[dim] = (TopGridEnd[dim]+1) * (DomainRightEdge[dim]-DomainLeftEdge[dim])/((float) TopGridDims[dim]);
+
+
       SubCellWidth[dim] = (SubDomainRightEdge[dim]-SubDomainLeftEdge[dim])/((float) field_dims_attr[dim]);
+      //SubCellWidth[dim] = (SubDomainRightEdge[dim]-SubDomainLeftEdge[dim])/((float) field_dims_attr[GridRank-dim-1]);
     }
  
     for (dim = 0; dim < GridRank; dim++)
@@ -439,7 +444,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	size *= GridDimension[dim];
  
       // Allocate space for the fields ONLY if ReadData is TRUE!
- 
+     
       if (ReadData == TRUE) {
 	if (io_log) fprintf(log_fptr, "Allocate %"ISYM" fields, %"ISYM" floats per field\n", NumberOfBaryonFields, size);
 	for (dim=0; dim < GridRank; dim++) {
@@ -693,6 +698,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     if ((CosmologySimulationParticlePositionName != NULL ||
 	 CosmologySimulationCalculatePositions) && ReadData) {
 
+
       // Get the total number of particles from this file by reading the file attributes
  
       int TempInt, Dim[1], Start[1] = {0}, End[1], Zero[1] = {0};
@@ -717,6 +723,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
       int PreSortedParticles = 0;
       if (ParallelParticleIO && !CosmologySimulationCalculatePositions)
 	PreSortedParticles = 1;
+      
 
       // ---------------------------------------------------
       //  This section only used with
@@ -724,6 +731,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
       if (ParallelRootGridIO == TRUE && PreSortedParticles == 1) {
  
+
 	int NumSortedParticles = 0;
 	int TotParticleCount = 0;
  
@@ -974,7 +982,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	} // end: if (CosmologySimulationParticlePositionName != NULL)
 
 	  // Read pre-sorted particle velocities
-
+	
 	if (CosmologySimulationParticleVelocityName != NULL) {
  
 	  for (dim = 0; dim < GridRank; dim++)
@@ -1287,6 +1295,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	delete [] IntRingTemp;
 
       } // end: if (ParallelRootGridIO && PresortedParticles == 1)
+
 
       if (CosmologySimulationCalculatePositions) {
 	if (CosmologyInitializeParticles(CosmologySimulationParticleVelocityName, 

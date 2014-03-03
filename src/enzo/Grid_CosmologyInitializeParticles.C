@@ -190,7 +190,7 @@ int grid::CosmologyInitializeParticles(
       mass[i] = (float) tempbuffer[i];
   } // ENDIF read masses
 
-  //printf("CosmologySimulationParticleTypeName is %s\n",CosmologySimulationParticleTypeName);
+  
   if (CosmologySimulationParticleTypeName != NULL) {
     int_tempbuffer = new int[size];
     if (ReadIntFile(CosmologySimulationParticleTypeName, GridRank,
@@ -198,10 +198,12 @@ int grid::CosmologyInitializeParticles(
 		 NULL, &int_tempbuffer, 0, 1) == FAIL) {
       ENZO_FAIL("Error reading particle types.\n");
     }
+    
     types = new int[size];
     for (i = 0; i < size; i++)
       types[i] = (int) int_tempbuffer[i];
   } // ENDIF read masses
+  
 
   // Cleanup
   delete [] tempbuffer;

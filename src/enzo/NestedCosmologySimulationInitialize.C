@@ -981,7 +981,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
     int TotalRefinement = -1;
  
     // Loop over all grids on this level
- 
+
     Temp = CurrentGrid;
     while (Temp != NULL) {
       if (Temp->GridData->NestedCosmologySimulationInitializeGrid
