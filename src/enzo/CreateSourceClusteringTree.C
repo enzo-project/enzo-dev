@@ -16,6 +16,7 @@
 int loop_count;
 void DeleteSourceClusteringTree(SuperSourceEntry * &leaf);
 int ReassignSuperSources(LevelHierarchyEntry *LevelArray[]);
+void PrintSourceClusteringTree(SuperSourceEntry *leaf, FILE *fptr);
 
 Eint32 compare_x (const void *a, const void *b)
 {
@@ -94,15 +95,13 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 
     // Copy clustering tree from previous timestep
     // TODO: Rebuild only branches that have changed.
-    if (OldSourceClusteringTree != NULL)
-      DeleteSourceClusteringTree(OldSourceClusteringTree);
-    OldSourceClusteringTree = SourceClusteringTree;
     if (ReassignSuperSources(LevelArray) == FAIL) {
       ENZO_FAIL("Error in ReassignSuperSources.\n");
     }
+    if (OldSourceClusteringTree != NULL)
+      DeleteSourceClusteringTree(OldSourceClusteringTree);
+    OldSourceClusteringTree = SourceClusteringTree;
     SourceClusteringTree = NULL;
-//    if (SourceClusteringTree != NULL)
-//      DeleteSourceClusteringTree(SourceClusteringTree);
 
   } // ENDIF SourceList == NULL (first time)  
 
@@ -227,7 +226,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       for (i = 0; i < nleft; i++)
 	SourceList[i] = temp[i];
       SourceClusteringTree = SourceClusteringTree->ParentSource;
-      delete temp;
+      delete [] temp;
     } 
 
     // Right leaf
@@ -239,7 +238,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       for (i = 0; i < nright; i++)
 	SourceList[nleft+i] = temp[i];
       SourceClusteringTree = SourceClusteringTree->ParentSource;
-      delete temp;
+      delete [] temp;
     } 
   } // ENDIF nShine > 2
 
@@ -293,7 +292,7 @@ void DeleteSourceClusteringTree(SuperSourceEntry * &leaf)
 
 }
 
-void PrintSourceClusteringTree(SuperSourceEntry *leaf)
+void PrintSourceClusteringTree(SuperSourceEntry *leaf, FILE *fptr)
 {
 
   int i;
@@ -301,7 +300,8 @@ void PrintSourceClusteringTree(SuperSourceEntry *leaf)
   if (leaf == NULL)
     return;
 
-  printf("Source clustering[P%"ISYM"]: leaf %"ISYM", SRC = %x, parent = %x,\n"
+  fprintf(fptr, 
+	 "Source clustering[P%"ISYM"]: leaf %"ISYM", SRC = %x, parent = %x,\n"
 	 "                        children = %x %x\n"
 	 "                        pos = %"FSYM" %"FSYM" %"FSYM", cradius = %"GSYM"\n",
 	 MyProcessorNumber, leaf->LeafID, leaf, leaf->ParentSource,
@@ -310,7 +310,6 @@ void PrintSourceClusteringTree(SuperSourceEntry *leaf)
 
   for (i = 0; i < MAX_LEAF; i++)
     if (leaf->ChildSource[i] != NULL)
-
-      PrintSourceClusteringTree(leaf->ChildSource[i]);
+      PrintSourceClusteringTree(leaf->ChildSource[i], fptr);
 
 }

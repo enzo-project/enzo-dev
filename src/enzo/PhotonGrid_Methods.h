@@ -184,6 +184,31 @@ float ReturnTotalNumberOfRaySegments(int RaySegNum) {
 ************************************************************************/
 
 #ifdef UNUSED
+int ErrorCheckSource(void) {
+  PhotonPackageEntry *PP;
+  for (PP = PhotonPackages->NextPackage; PP; PP = PP->NextPackage) {
+    if (PP->CurrentSource != NULL) {
+      if ((PP->CurrentSource->LeafID < 0 ||
+	   PP->CurrentSource->LeafID > 10000) &&
+	  PP->CurrentSource->LeafID != INT_UNDEFINED) {
+	printf("Bad merge...\n");
+	return FAIL;
+      }
+    }
+  }
+  for (PP = FinishedPhotonPackages->NextPackage; PP; PP = PP->NextPackage) {
+    if (PP->CurrentSource != NULL) {
+      if ((PP->CurrentSource->LeafID < 0 ||
+	   PP->CurrentSource->LeafID > 10000) &&
+	  PP->CurrentSource->LeafID != INT_UNDEFINED) {
+	printf("Bad merge...\n");
+	return FAIL;
+      }
+    }
+  }
+  return SUCCESS;
+}
+
 int ErrorCheckPhotonNumber(int level) {
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;

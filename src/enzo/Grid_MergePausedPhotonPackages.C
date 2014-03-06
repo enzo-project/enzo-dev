@@ -252,7 +252,7 @@ int grid::MergePausedPhotonPackages() {
       
       // go up one level up in the source tree
       NewPack->CurrentSource = TempPP[i].CurrentSource->ParentSource;
-	
+
       merges++;
     } // ENDELSE match
   } // ENDFOR photons

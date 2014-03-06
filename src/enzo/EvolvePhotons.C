@@ -68,7 +68,6 @@ RadiationSourceEntry* DeleteRadiationSource(RadiationSourceEntry *RS);
 PhotonPackageEntry* DeletePhotonPackage(PhotonPackageEntry *PP);
 int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 			       LevelHierarchyEntry *LevelArray[]);
-void PrintSourceClusteringTree(SuperSourceEntry *leaf);
 int CommunicationSyncNumberOfPhotons(LevelHierarchyEntry *LevelArray[]);
 int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 				     TopGridData *MetaData, float dtLevelAbove,
@@ -309,7 +308,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     START_PERF();
     if (RadiativeTransferSourceClustering == TRUE) {
       CreateSourceClusteringTree(NULL, NULL, LevelArray);
-      //PrintSourceClusteringTree(SourceClusteringTree);
     }
     END_PERF(1);
 
