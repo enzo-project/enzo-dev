@@ -656,7 +656,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   }
 #endif
 
-  /* Delete GridList */
+  /* Delete GridList and Reset Grid IDs in static sources */
 
   ThinGridList *Orphan;
   TempGridList = RS_GridList;
@@ -664,6 +664,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     Orphan = TempGridList;
     TempGridList = TempGridList->NextGrid;
     if (Orphan != NULL) delete Orphan;
+  }
+
+  if (ProblemType == 50) {
+    for (RS = GlobalRadiationSources->NextSource; RS; RS = RS->NextSource) {
+      RS->GridID = INT_UNDEFINED;
+      RS->GridLevel = INT_UNDEFINED;
+    }
   }
 
   /* Delete grid lists */
