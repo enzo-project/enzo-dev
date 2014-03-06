@@ -134,7 +134,6 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       break;
     }
 
-    printf("PhotonCount = %d\n", PhotonCount);
     LastPhotonCount = PhotonCount;
 
   } /* ENDWHILE evolve photon */
