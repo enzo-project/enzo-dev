@@ -116,9 +116,9 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     FinestCellVolume *= CellWidth[dim][0];
   }
 
-  if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
-  if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
-		     GridStartIndex[0], GridEndIndex[0]);
+  // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
+  // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
+  // 		     GridStartIndex[0], GridEndIndex[0]);
 
   PhotonPackageEntry *PP, *FPP, *SavedPP, *PausedPP;
   PP = PhotonPackages;
@@ -130,7 +130,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
       PP=PP->NextPackage;
     }
     fprintf(stdout, "TransportPhotonPackage: done initializing.\n");
-    fprintf(stdout, "counted %"ISYM" packages\n", count);
+    fprintf(stdout, "[%d] counted %"ISYM" packages\n", this->ID, count);
   }
 
   /* If requested, make vertex centered field (only when it doesn't
@@ -231,7 +231,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     } 
 
     if (MoveToGrid != NULL) {
-      if (DEBUG) {
+      if (DEBUG > 1) {
 	fprintf(stdout, "moving photon from %x to %x\n", 
 		 CurrentGrid,  MoveToGrid);
 	fprintf(stdout, "moving photon %x %x %x %x\n", 
@@ -271,9 +271,9 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   } // ENDWHILE photons
 
   if (DEBUG)
-    fprintf(stdout, "grid::TransportPhotonPackage: "
+    fprintf(stdout, "grid::TransportPhotonPackage[%d]: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
-	    tcount, dcount, pcount, trcount);
+	    this->ID, tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
 
 #ifdef UNUSED
