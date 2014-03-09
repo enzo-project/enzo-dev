@@ -263,9 +263,13 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	/* Consider the first super source with a leaf size greater
 	   than the cell size. */
 
+#define NO_PRE_MERGE
+#ifdef PRE_MERGE
 	while (NewPack->CurrentSource != NULL &&
+	       RadiativeTransferPhotonMergeRadius * 
 	       NewPack->CurrentSource->ClusteringRadius < CellWidth[0][0])
 	  NewPack->CurrentSource = NewPack->CurrentSource->ParentSource;
+#endif /* PRE_MERGE */
 
 //	if (DEBUG) {
 //	  printf("Shine: MBH = %d, RS->Type = %d, E=%g, NewPack->Type = %d\n", 
