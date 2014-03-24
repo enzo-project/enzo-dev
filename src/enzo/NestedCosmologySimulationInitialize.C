@@ -634,6 +634,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
       ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
     }
 
+    
     // Initialize MustRefine particles if MustRefineParticlesCreateParticles is set.
 
     if (ParallelRootGridIO != TRUE && MustRefineParticlesCreateParticles == 1) {
@@ -900,9 +901,9 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 
   PINT ParticleCount = 0;
   for (gridnum = 0; gridnum < CosmologySimulationNumberOfInitialGrids; gridnum++) {
- 
+    printf("Grid Num is %d\n",gridnum);
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      printf("NestedCosmologySimulation: ReInitializing grid %"ISYM"\n", gridnum);
+      printf("Hi! NestedCosmologySimulation: ReInitializing grid %"ISYM"\n", gridnum);
  
     // If there is more than one grid, add the grid number to the name
  
@@ -969,6 +970,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       }
  
     }
+    printf("Finished naming things\n");
  
     // If there is a subgrid, use CosmologySimulationSubgridsAreStatic,
     // otherwise just set to false
@@ -982,6 +984,7 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
  
     // Loop over all grids on this level
 
+    printf("Calling Grid initializer\n");
     Temp = CurrentGrid;
     while (Temp != NULL) {
       if (Temp->GridData->NestedCosmologySimulationInitializeGrid
@@ -1014,6 +1017,15 @@ int NestedCosmologySimulationReInitialize(HierarchyEntry *TopGrid,
 	   ) == FAIL) {
 	ENZO_FAIL("Error in grid->NestedCosmologySimulationInitializeGrid.\n");
       }
+
+
+      int j,MRP_num = 0;
+     
+      for (j = 0; j < Temp->GridData->ReturnNumberOfParticles(); j++)
+        if (Temp->GridData->ReturnParticleType(j) == PARTICLE_TYPE_MUST_REFINE)
+          MRP_num++;
+      printf("Number of MRP is %d out of %d particles\n",MRP_num,Temp->GridData->ReturnNumberOfParticles());
+
 
       //Initialize MustRefine particles if MustRefineParticlesCreateParticles is set.
      

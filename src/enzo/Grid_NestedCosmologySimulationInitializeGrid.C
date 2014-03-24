@@ -14,7 +14,7 @@
 /              Use MPICH V1.x Dims_create code
 /  modified3:  Robert Harkness, April 2008
 /
-/  PURPOSE:
+/  PRPOSE:
 /
 /  RETURNS: FAIL or SUCCESS
 /
@@ -175,6 +175,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
   int         io_log = 0;
 #endif
 
+  io_log = 1;
+
   // Warn if number of processors is too large for serial IO
  
   if ( NumberOfProcessors > 64 )
@@ -311,8 +313,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
       //      SubDomainRightEdge[dim] = (TopGridEnd[dim]+1) * (DomainRightEdge[dim]-DomainLeftEdge[dim])/((float) TopGridDims[dim]);
 
 
-      SubCellWidth[dim] = (SubDomainRightEdge[dim]-SubDomainLeftEdge[dim])/((float) field_dims_attr[dim]);
-      //SubCellWidth[dim] = (SubDomainRightEdge[dim]-SubDomainLeftEdge[dim])/((float) field_dims_attr[GridRank-dim-1]);
+      //SubCellWidth[dim] = (SubDomainRightEdge[dim]-SubDomainLeftEdge[dim])/((float) field_dims_attr[dim]);
+      SubCellWidth[dim] = (SubDomainRightEdge[dim]-SubDomainLeftEdge[dim])/((float) field_dims_attr[GridRank-dim-1]);
     }
  
     for (dim = 0; dim < GridRank; dim++)
@@ -327,8 +329,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
   } // end: if (ParallelRootGridIO == TRUE && TotalRefinement < 0)
  
   if (ParallelRootGridIO == TRUE && TotalRefinement < 0)
-    for (dim = 0; dim < GridRank; dim++)
+    for (dim = 0; dim < GridRank; dim++){
       Offset[dim] = nint((GridLeftEdge[dim] - SubDomainLeftEdge[dim])/SubCellWidth[dim]);
+      //if (Offset[dim] > 0)
+      //Offset[dim] = Offset[dim] - 1;
+      printf("Offset[%d]: %d, %g, %g, %g\n",dim,Offset[dim],GridLeftEdge[dim],SubDomainLeftEdge[dim],SubCellWidth[dim]);
+    }
   /*
     if (ParallelRootGridIO == TRUE && TotalRefinement < 0)
     for (dim = 0; dim < GridRank; dim++)
@@ -1310,6 +1316,12 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	}
       }
 
+      int MRP_num = 0;
+      for (j = 0; j < NumberOfParticles; j++)
+	if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+	  MRP_num++;
+      printf("1:Number of MRP is %d\n",MRP_num);
+
       if (PreSortedParticles == 0 && !CosmologySimulationCalculatePositions) {
 
 	// For regular IO (parallel or non-parallel)
@@ -1406,6 +1418,13 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
       } // end: if (PreSortedParticles == 0 && !CosmologySimCalculatePositions)
  
+      MRP_num = 0;
+      for (j = 0; j < NumberOfParticles; j++)
+        if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+          MRP_num++;
+      printf("3:Number of MRP is %d\n",MRP_num);
+
+
       //    } // end: if ParallelRootGridIO == TRUE
  
       // If there are particles, but no velocity file then abort
@@ -1442,6 +1461,8 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	  int NumberOfActiveCells = (GridEndIndex[0]-GridStartIndex[0]+1)*
 	    (GridEndIndex[1]-GridStartIndex[1]+1)*
 	    (GridEndIndex[2]-GridStartIndex[2]+1);
+	  printf("NumberOfActiveCells = %d\n",NumberOfActiveCells);
+	  printf("NumberOfParticles = %d\n",NumberOfParticles);
 	  if (NumberOfParticles*8 == NumberOfActiveCells)
 	    UniformParticleMass *= 8;
 	  if (NumberOfParticles == NumberOfActiveCells*8)
@@ -1488,17 +1509,46 @@ int grid::NestedCosmologySimulationInitializeGrid(
  
       } // end: if (NumberOfParticles > 0 && CosmologySimulationParticleMassName == NULL)
  
+
+
+      MRP_num = 0;
+      for (j = 0; j < NumberOfParticles; j++)
+        if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+          MRP_num++;
+      printf("5:Number of MRP is %d\n",MRP_num);
+
+
+
       // Set Particle attributes to FLOAT_UNDEFINED
  
       for (j = 0; j < NumberOfParticleAttributes; j++)
 	for (i = 0; i < NumberOfParticles; i++)
 	  ParticleAttribute[j][i] = FLOAT_UNDEFINED;
+
+
+      MRP_num = 0;
+      for (j = 0; j < NumberOfParticles; j++)
+        if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+          MRP_num++;
+      printf("6:Number of MRP is %d\n",MRP_num);
+
+
  
       // If no type file was read, then set all particles to dm particles
- 
-      if (CosmologySimulationParticleTypeName == NULL)
+     
+
+      if (CosmologySimulationParticleTypeName == NULL){
 	for (i = 0; i < NumberOfParticles; i++)
 	  ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
+      }
+
+
+      MRP_num = 0;
+      for (j = 0; j < NumberOfParticles; j++)
+	if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+	  MRP_num++;
+      printf("7:Number of MRP is %d\n",MRP_num);
+
  
       // Assign particles unique identifiers
  
@@ -1519,6 +1569,17 @@ int grid::NestedCosmologySimulationInitializeGrid(
 	CurrentParticleNumber += NumberOfParticles; // ignored
       }
  
+
+
+
+
+      MRP_num = 0;
+      for (j = 0; j < NumberOfParticles; j++)
+        if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+          MRP_num++;
+      printf("10:Number of MRP is %d\n",MRP_num);
+
+
   
     } // end: if (CosmologySimulationParticleName != NULL)
 
@@ -1541,6 +1602,11 @@ int grid::NestedCosmologySimulationInitializeGrid(
 
   if (io_log) fclose(log_fptr);
 
+  int MRP_num = 0;
+  for (j = 0; j < NumberOfParticles; j++)
+    if (ParticleType[j] == PARTICLE_TYPE_MUST_REFINE)
+      MRP_num++;
+  printf("11:Number of MRP is %d out of %d particles\n",MRP_num,NumberOfParticles);
  
   return SUCCESS;
  

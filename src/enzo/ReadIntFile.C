@@ -85,6 +85,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
 #else
   int         io_log = 0;
 #endif
+
  
   char pid[MAX_TASK_TAG_SIZE];
   sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);

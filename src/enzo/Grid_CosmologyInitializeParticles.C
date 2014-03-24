@@ -312,6 +312,7 @@ int grid::CosmologyInitializeParticles(
 
   // If provided, store types
   count = 0;
+  int num_flip = 0;
   if (types != NULL) {
     for (k = 0; k < ActiveDim[2]; k++)
       for (j = 0; j < ActiveDim[1]; j++) {
@@ -320,8 +321,13 @@ int grid::CosmologyInitializeParticles(
 	  if (mask[index]) {
 
 	    if (MustRefineParticlesCreateParticles == 2){
-	      if (types[index] > 0){
+	      if (types[index] == 1)
+		printf("Mask did not work.\n");
+	      //printf("MustRefineParticles Created\n");
+	      if (types[index] == 0 && CosmologySimulationNumberOfInitialGrids - 1 == level){
+		//printf("Flippling MRP on level %d\n",level);
 		ParticleType[count] = PARTICLE_TYPE_MUST_REFINE;
+		num_flip++;
 	      } else {
 		ParticleType[count] = PARTICLE_TYPE_DARK_MATTER;
 	      }
@@ -329,10 +335,12 @@ int grid::CosmologyInitializeParticles(
 	    } else {
 	      ParticleType[count] = types[index];
 	      count++;
-	    }
+	    } // ENDIF Must Refine particles created
 	  } // ENDIF mask
       } // ENDFOR j
   } // ENDIF types
+  printf("Number of MRPs created on level %d is %d.\n",level,num_flip);
+  //printf("MR type is %d\n",PARTICLE_TYPE_MUST_REFINE);
 
 #ifdef ICPART_SHIFT8
   /* Check to see if the particle is adjacent to static grid boundary
