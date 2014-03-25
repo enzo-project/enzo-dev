@@ -85,7 +85,6 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
 #else
   int         io_log = 0;
 #endif
-
  
   char pid[MAX_TASK_TAG_SIZE];
   sprintf(pid, "%"TASK_TAG_FORMAT""ISYM, MyProcessorNumber);
@@ -260,8 +259,7 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
  
   for ( dim = 1; dim < Slab_Rank; dim++ )
   {
-    //Slab_Dims[dim] = field_dims_attr[dim-1];
-    Slab_Dims[dim] = field_dims_attr[Rank-dim];
+    Slab_Dims[dim] = field_dims_attr[dim-1];
   }
  
   if (io_log) fprintf(log_fptr, "  Extended Rank %"ISYM"\n", (int) Slab_Rank);

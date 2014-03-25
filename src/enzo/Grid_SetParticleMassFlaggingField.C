@@ -127,8 +127,6 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 
 	DepositParticleMaximumParticleMass = 0;
 
-	printf("SetParticleMassFlaggingField: level = %d, method = %d, NumberOfFlaggedCells = %d\n",level, CellFlaggingMethod[method], NumberOfFlaggedCells);
-
 	break;
  
 	/* ==== METHOD 8: BY POSITION OF MUST-REFINE PARTICLES  ==== */
@@ -144,8 +142,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	    ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");
 	  }
 	}
-
-	printf("SetParticleMassFlaggingField: level = %d, method = %d, NumberOfFlaggedCells = %d\n",level, CellFlaggingMethod[method], NumberOfFlaggedCells);
+	
 	break;
  
 	/* ==== undefined ==== */
@@ -223,10 +220,6 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
   } // ENDIF post receive
 
 #endif /* USE_MPI */
-
-
-
-
    
   return SUCCESS;
  

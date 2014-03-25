@@ -77,8 +77,6 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   int         io_log = 0;
 #endif
 
-  io_log = 1;
-
   /* If requested, open IO log for each processor. */
  
   if (io_log) {
@@ -185,9 +183,8 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
   Slab_Dims[0] = component_rank_attr;
  
   for ( dim = 1; dim < Slab_Rank; dim++ )
+    //Slab_Dims[dim] = field_dims_attr[dim-1];
     Slab_Dims[dim] = field_dims_attr[Rank-dim];
-  //Slab_Dims[dim] = field_dims_attr[dim-1];
-  
  
   if (io_log) fprintf(log_fptr, "  Extended Rank %"ISYM"\n", (int) Slab_Rank);
   for ( dim = 0; dim < Slab_Rank; dim++ )

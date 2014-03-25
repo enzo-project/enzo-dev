@@ -62,9 +62,6 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
   float ModifiedMinimumMassForRefinement =
     MinimumMassForRefinement[method]*POW(RefineBy,
 		    level*MinimumMassForRefinementLevelExponent[method]);
-
-  printf("ModifiedMinimumMassForRefinement = %g\n",ModifiedMinimumMassForRefinement);
-
   if (ProblemType == 28)
     ModifiedMinimumMassForRefinement = 0;
  

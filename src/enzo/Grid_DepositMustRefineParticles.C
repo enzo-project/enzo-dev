@@ -100,16 +100,11 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
     MustRefineMass = 0;
   
   int NumberOfFlaggedCells = 0;
-
-  printf("DepositMRP: NumberOfFlaggedCells = %d\n",NumberOfFlaggedCells);
   for (i = 0; i < size; i++)
     if (FlaggingField[i]) {
-      //printf("Flagging cell containing MRP\n");
       ParticleMassFlaggingField[i] = MustRefineMass;
       NumberOfFlaggedCells++;
     }
-
-  printf("DepositMRP: NumberOfFlaggedCells = %d\n",NumberOfFlaggedCells);
 
   /* If refining region before supernova, change particle type back to
      its original value. */

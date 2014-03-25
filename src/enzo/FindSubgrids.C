@@ -94,7 +94,7 @@ int FindSubgrids(HierarchyEntry *Grid, int level, int &TotalFlaggedCells,
   TotalFlaggedCells += NumberOfFlaggedCells;
   if (NumberOfFlaggedCells > 0)
     FlaggedGrids++;
-  if (debug)
+  if (debug1)
     printf("RebuildHierarchy[%"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
 	   level, NumberOfFlaggedCells);
  

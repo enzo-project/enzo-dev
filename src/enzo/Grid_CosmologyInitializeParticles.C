@@ -321,11 +321,7 @@ int grid::CosmologyInitializeParticles(
 	  if (mask[index]) {
 
 	    if (MustRefineParticlesCreateParticles == 2){
-	      if (types[index] == 1)
-		printf("Mask did not work.\n");
-	      //printf("MustRefineParticles Created\n");
 	      if (types[index] == 0 && CosmologySimulationNumberOfInitialGrids - 1 == level){
-		//printf("Flippling MRP on level %d\n",level);
 		ParticleType[count] = PARTICLE_TYPE_MUST_REFINE;
 		num_flip++;
 	      } else {

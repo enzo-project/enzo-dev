@@ -286,7 +286,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   timer[4] += NumberOfFlaggedCells;
 #endif /* MPI_INSTRUMENTATION */
  
-  if (debug && NumberOfFlaggedCells > 0)
+  if (debug1 && NumberOfFlaggedCells > 0)
     printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
 	   method, NumberOfFlaggedCells);
  

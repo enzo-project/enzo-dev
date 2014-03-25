@@ -58,7 +58,7 @@ c
 c
 c  locals
 c
-      INTG_PREC i1, j1, k1, n, ii, jj, kk,n_mrp
+      INTG_PREC i1, j1, k1, n, ii, jj, kk
       INTG_PREC istart, iend, jstart, jend, kstart, kend
       R_PREC    xpos, ypos, zpos
       P_PREC edge1, edge2, edge3, half, fact
@@ -67,7 +67,6 @@ c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
-      n_mrp = 0
       fact = 1._PKIND/cellsize
       edge1 = REAL(dim1,PKIND) - half
       edge2 = REAL(dim2,PKIND) - half
@@ -183,7 +182,6 @@ c
 c
 c             Compute the position of the central cell
 c
-              n_mrp = n_mrp +1
               xpos = min(max((posx(n) - leftedge(1))*fact, half), edge1)
               ypos = min(max((posy(n) - leftedge(2))*fact, half), edge2)
               zpos = min(max((posz(n) - leftedge(3))*fact, half), edge3)
@@ -230,9 +228,6 @@ c
 c
       endif
 c
-
-
-      WRITE(6,*) "cic_flag",n_mrp
       return
 #endif
       end
