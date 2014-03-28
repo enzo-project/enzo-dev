@@ -47,6 +47,8 @@ class ProtoSubgrid
 		       ProtoSubgrid *NewGrid);
   int ComputeSecondDerivative(int dim, int &ZeroCrossStrength, 
 			      int GridEnds[2][2]);
+  int LargeAxisRatioCheck(int &dim, int GridEnds[MAX_DIMENSION*2][2], 
+			  float CriticalRatio);
   int CopyFlaggedZonesFromGrid(grid *Grid);
   int ShrinkToMinimumSize();
   int CleanUp();

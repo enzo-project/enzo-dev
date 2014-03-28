@@ -56,7 +56,7 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
     /* Iterate on this grid until it is acceptable. */
 
     while (Subgrid->AcceptableSubgrid() == FALSE) {
- 
+
       /* Loop over the dimensions (longest to shortest), compute the
 	 1D signatures and then look for zeros in them.  */
  
@@ -108,35 +108,45 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
       /* If we couldn't partition by simple zeros then try the 2nd deriv. */
  
       if (NumberOfNewGrids <= 1) {
- 
-	/* Now Compute the zero crossings in the second derivaties of all the
-	   signatures. */
- 
+
 	int MaxZeroCrossingStrength = -1, StrongestDim = -1, TempInt;
+
+	/* First check large axis ratio and split on that if necessary */
 	
-	//	for (i = 0; i < MAX_DIMENSION; i++) {
-	for (i = 0; i < 1; i++) {
+#define CRITICAL_RATIO 3.0
+
+	Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, CRITICAL_RATIO);
+
+	if (StrongestDim == -1) {
+ 
+	  /* Now Compute the zero crossings in the second derivaties of all the
+	     signatures. */
+ 	
+	  //	for (i = 0; i < MAX_DIMENSION; i++) {
+	  for (i = 0; i < 1; i++) {
 	
-	  if ((dim = Subgrid->ReturnNthLongestDimension(i)) < 0)
-	    break;
+	    if ((dim = Subgrid->ReturnNthLongestDimension(i)) < 0)
+	      break;
 	
-	  if (Subgrid->ComputeSecondDerivative(dim, TempInt,
-					       &GridEnds[dim*2]) == FAIL) {
-	   ENZO_FAIL("Error in ProtoSubgrid->ComputeSecondDerivative.\n");
+	    if (Subgrid->ComputeSecondDerivative(dim, TempInt,
+						 &GridEnds[dim*2]) == FAIL) {
+	      ENZO_FAIL("Error in ProtoSubgrid->ComputeSecondDerivative.\n");
+	    }
+	
+	    if (TempInt > MaxZeroCrossingStrength) {
+	      StrongestDim = dim;
+	      MaxZeroCrossingStrength = TempInt;
+	    }
+	
+	  } // end: for (i = 0; i < MAX_DIMENSION; i++)
+	
+	  /* Error check. */
+	
+	  if (StrongestDim < 0) {
+	    ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
 	  }
-	
-	  if (TempInt > MaxZeroCrossingStrength) {
-	    StrongestDim = dim;
-	    MaxZeroCrossingStrength = TempInt;
-	  }
-	
-	} // end: for (i = 0; i < MAX_DIMENSION; i++)
-	
-	/* Error check. */
-	
-	if (StrongestDim < 0) {
-	  ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");
-	}
+
+	} // end: if (StrongestDim == -1)
 	
 	/* Create new subgrids (two). */
  
