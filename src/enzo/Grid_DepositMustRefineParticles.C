@@ -24,6 +24,8 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "CosmologyParameters.h"
+
  
 /* function prototypes */
  
@@ -31,7 +33,8 @@ extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, float *partmass, int *ndim, int *npositions,
                         int *itype, int *ffield, FLOAT *leftedge,
                         int *dim1, int *dim2, int *dim3, FLOAT *cellsize,
-		       	int *imatch1, int *imatch2, float *minmassmust, int *buffersize);
+			int *imatch1, int *imatch2, float *minmassmust, int *buffersize,
+			float *unipartmass);
  
  
 int grid::DepositMustRefineParticles(int pmethod, int level)
@@ -84,12 +87,18 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   ParticleTypeToMatch1 = PARTICLE_TYPE_MUST_REFINE;
   ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
  
+  float UniformParticleMass = 0.0;
+  if (ProblemType == 30 and MustRefineParticlesCreateParticles == 3){
+    float OmegaCDMNow = 1.0 - OmegaLambdaNow;
+    UniformParticleMass = OmegaCDMNow/OmegaMatterNow;
+  }
   PFORTRAN_NAME(cic_flag)(
 	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
 	   LeftEdge, GridDimension, GridDimension+1, GridDimension+2,
 	   &CellSize, &ParticleTypeToMatch1, &ParticleTypeToMatch2, 
-	   &MustRefineParticlesMinimumMass, &ParticleBufferSize);
+	   &MustRefineParticlesMinimumMass, &ParticleBufferSize,
+			  &UniformParticleMass);
 
   /* Increase particle mass flagging field for definite refinement */
 
