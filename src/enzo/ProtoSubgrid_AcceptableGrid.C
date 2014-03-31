@@ -73,7 +73,8 @@ int ProtoSubgrid::AcceptableSubgrid()
   //  return FALSE;
 
   if (size <= POW(float(MinimumSubgridEdge), GridRank)){
-    printf("Size acceptable; ratio is %g\n",ratio);
+    if (ratio > 3.0)
+      printf("Size acceptable; ratio is %g\n",ratio);
     return TRUE;
   }
  
@@ -81,7 +82,8 @@ int ProtoSubgrid::AcceptableSubgrid()
     return FALSE;
  
   if (efficiency > MinimumEfficiency){
-    printf("Efficiency acceptable; ratio is %g\n",ratio);
+    if (ratio > 3.0)
+      printf("Efficiency acceptable; ratio is %g; efficiency is %g > %g\n",ratio,efficiency,MinimumEfficiency);
     return TRUE;
   }
  
