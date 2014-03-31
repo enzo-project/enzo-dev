@@ -726,7 +726,7 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_CopyFlaggedZonesFromGrid.o \
         ProtoSubgrid_CopyToNewSubgrid.o \
         ProtoSubgrid_FindGridsByZeroSignature.o \
-        ProtoSubgrid_LargeAxisRatioCheck \
+        ProtoSubgrid_LargeAxisRatioCheck.o \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
 	PutSinkRestartInitialize.o \

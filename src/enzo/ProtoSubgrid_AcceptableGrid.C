@@ -64,14 +64,26 @@ int ProtoSubgrid::AcceptableSubgrid()
      but if we are using multiple processors, then make sure it is
      not too big (for good load balancing). */
  
-  if (size <= POW(float(MinimumSubgridEdge), GridRank))
+  int DimLong = this->ReturnNthLongestDimension(0);
+  int DimShort = this->ReturnNthLongestDimension(GridRank-1);
+
+  float ratio = float(GridDimension[DimLong])/float(GridDimension[DimShort]);
+
+  //if (ratio > 3.0)
+  //  return FALSE;
+
+  if (size <= POW(float(MinimumSubgridEdge), GridRank)){
+    printf("Size acceptable; ratio is %g\n",ratio);
     return TRUE;
+  }
  
   if (size > MaximumSubgridSize && NumberOfProcessors > 1)
     return FALSE;
  
-  if (efficiency > MinimumEfficiency)
+  if (efficiency > MinimumEfficiency){
+    printf("Efficiency acceptable; ratio is %g\n",ratio);
     return TRUE;
+  }
  
   /* Not acceptable yet -- keep refining. */
  

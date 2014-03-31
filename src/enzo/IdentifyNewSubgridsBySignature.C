@@ -115,8 +115,21 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	
 #define CRITICAL_RATIO 3.0
 
+
+	dim = Subgrid->ReturnNthLongestDimension(0);
 	Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, CRITICAL_RATIO);
 
+	int split_large_axis = 0;
+	if (StrongestDim > -1){
+	  
+	  int *Dims;
+	
+	  split_large_axis = 1;
+	  Dims = Subgrid->ReturnGridDimension();
+	  //printf("StrongestDim = %d and Dims are %d, %d, %d\n",StrongestDim,Dims[0],Dims[1],Dims[2]);
+	  //printf("New GridEnds: %d %d %d %d\n",GridEnds[StrongestDim*2][0],GridEnds[StrongestDim*2][1],GridEnds[StrongestDim*2+1][0],GridEnds[StrongestDim*2+1][1]);
+
+	}
 	if (StrongestDim == -1) {
  
 	  /* Now Compute the zero crossings in the second derivaties of all the
@@ -149,7 +162,9 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	} // end: if (StrongestDim == -1)
 	
 	/* Create new subgrids (two). */
- 
+
+	if (split_large_axis == 1)
+	  printf("Splitting with New GridEnds: %d %d %d %d\n",GridEnds[StrongestDim*2][0],GridEnds[StrongestDim*2][1],GridEnds[StrongestDim*2+1][0],GridEnds[StrongestDim*2+1][1]);
 	SubgridList[index] = new ProtoSubgrid;
 	SubgridList[NumberOfSubgrids++] = new ProtoSubgrid;
 	Subgrid->CopyToNewSubgrid(StrongestDim, GridEnds[StrongestDim*2][0],
@@ -159,12 +174,12 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 				  GridEnds[StrongestDim*2+1][1],
 				  SubgridList[NumberOfSubgrids-1]);
 
-	/*	if (debug)
-	  printf("Breaking by zero-crossing. dim=%"ISYM"  break=%"ISYM"-%"ISYM"/%"ISYM"-%"ISYM"\n",
+	if (split_large_axis == 1)
+	  printf("Breaking by zero-crossing. dim=%"ISYM"  break=%"ISYM"-%"ISYM"/%"ISYM"-%"ISYM"\n\n",
 		 StrongestDim,
 		 GridEnds[StrongestDim*2][0], GridEnds[StrongestDim*2][1],
 		 GridEnds[StrongestDim*2+1][0], GridEnds[StrongestDim*2+1][1]);
-		 */
+	
 
       }
  
