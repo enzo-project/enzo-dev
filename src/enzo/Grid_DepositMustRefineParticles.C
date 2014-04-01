@@ -45,7 +45,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
   int ParticleBufferSize;
 
-  ParticleBufferSize = 1;
+  ParticleBufferSize = 16;
   if (ProblemType == 106 || ProblemType ==107)
     ParticleBufferSize = 16;
 
@@ -91,6 +91,8 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   if (ProblemType == 30 and MustRefineParticlesCreateParticles == 3){
     float OmegaCDMNow = 1.0 - OmegaLambdaNow;
     UniformParticleMass = OmegaCDMNow/OmegaMatterNow;
+    if (debug)
+      printf("DepositMRP: UniformParticleMass = %g\n",UniformParticleMass);
   }
   PFORTRAN_NAME(cic_flag)(
 	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
