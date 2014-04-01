@@ -320,7 +320,7 @@ int grid::CosmologyInitializeParticles(
 	for (i = 0; i < ActiveDim[0]; i++, index++)
 	  if (mask[index]) {
 
-	    if (MustRefineParticlesCreateParticles == 2){
+	    if (MustRefineParticlesCreateParticles >= 2){
 	      if (types[index] == 0 && CosmologySimulationNumberOfInitialGrids - 1 == level){
 		ParticleType[count] = PARTICLE_TYPE_MUST_REFINE;
 		num_flip++;

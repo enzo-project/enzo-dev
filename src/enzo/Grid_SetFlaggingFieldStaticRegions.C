@@ -40,6 +40,8 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
     ENZO_FAIL("Flagging Field is undefined.\n");
   }
  
+
+  printf("Flagging Static Regions\n");
   /* compute size */
  
   int size = 1;
