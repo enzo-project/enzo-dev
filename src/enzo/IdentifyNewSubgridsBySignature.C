@@ -136,22 +136,24 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 	      ENZO_FAIL("Error in ProtoSubgrid->ComputeSecondDerivative.\n");
 	    }
 
-	    int NewGridWidth_1, NewGridWidth_2;
-	    NewGridWidth_1 = GridEnds[dim*2][1]-GridEnds[dim*2][0];
-	    NewGridWidth_2 = GridEnds[dim*2+1][1]-GridEnds[dim*2+1][0];
-
-	    if (TempInt > MaxZeroCrossingStrength and NewGridWidth_1 > MinimumSubgridEdge and NewGridWidth_2 > MinimumSubgridEdge) {
+	    int MinimumNewGridWidth;
+	    MinimumNewGridWidth = min(GridEnds[dim*2][1]-GridEnds[dim*2][0],
+				      GridEnds[dim*2+1][1]-GridEnds[dim*2+1][0]);
+	    
+	    if (TempInt > MaxZeroCrossingStrength and MinimumNewGridWidth > MinimumSubgridEdge) {
 	      StrongestDim = dim;
 	      MaxZeroCrossingStrength = TempInt;
 	    }
 	
 	  } // end: for (i = 0; i < MAX_DIMENSION; i++)
 	
-	  /* Error check. */
-	
+	  /* If no inflection point splitting creates grids sufficiently thick,
+	   split the grid in half along the long axis. */
 
 	  if (StrongestDim < 0)
 	    Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, 0.0);
+
+	  /* Error check. */
 
 	  if (StrongestDim < 0) {
 	    ENZO_FAIL("Error in IdentifyNewSubgridsBySignature.");

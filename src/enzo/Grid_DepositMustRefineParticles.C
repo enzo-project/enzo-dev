@@ -45,7 +45,7 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
   FLOAT LeftEdge[MAX_DIMENSION], CellSize;
   int ParticleBufferSize;
 
-  ParticleBufferSize = 16;
+  ParticleBufferSize = 1;
   if (ProblemType == 106 || ProblemType ==107)
     ParticleBufferSize = 16;
 
