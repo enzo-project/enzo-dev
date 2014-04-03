@@ -41,7 +41,6 @@ int grid::SetFlaggingFieldStaticRegions(int level, int &NumberOfFlaggedCells)
   }
  
 
-  printf("Flagging Static Regions\n");
   /* compute size */
  
   int size = 1;

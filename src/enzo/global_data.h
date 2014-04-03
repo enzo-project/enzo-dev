@@ -212,6 +212,10 @@ EXTERN int MinimumSubgridEdge;
 
 EXTERN int MaximumSubgridSize;
 
+/* This is the maximum allowed ratio for a new subgrid */
+
+EXTERN float CriticalGridRatio;
+
 /* The number of zones that will be refined around each flagged zone. */
 
 EXTERN int NumberOfBufferZones;

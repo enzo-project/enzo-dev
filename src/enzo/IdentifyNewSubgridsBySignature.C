@@ -114,11 +114,8 @@ int IdentifyNewSubgridsBySignature(ProtoSubgrid *SubgridList[],
 
 	/* First check large axis ratio and split on that if necessary */
 	
-#define CRITICAL_RATIO 3.0
-
-
 	dim = Subgrid->ReturnNthLongestDimension(0);
-	Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, CRITICAL_RATIO);
+	Subgrid->LargeAxisRatioCheck(StrongestDim, GridEnds, CriticalGridRatio);
 
 	if (StrongestDim == -1) {
  

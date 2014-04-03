@@ -65,8 +65,6 @@ int grid::FlagCellsToBeRefinedByMustRefineParticles()
   if (ProblemType == 30 and MustRefineParticlesCreateParticles == 3){
     float OmegaCDMNow = 1.0 - OmegaLambdaNow;
     UniformParticleMass = OmegaCDMNow/OmegaMatterNow;
-    if (debug)
-      printf("FlagCellsToBeRefinedByMRP: UniformParticleMass = %g\n",UniformParticleMass);
   }
 
   /* Loop over all the particles, using only particles marked as
