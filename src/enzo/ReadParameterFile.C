@@ -1640,7 +1640,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
-      AddParticleAttributes = TRUE;
+      if (MetaData.Time > 0) AddParticleAttributes = TRUE;
     } else {
       NumberOfParticleAttributes = 0;
     }
