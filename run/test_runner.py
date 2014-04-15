@@ -262,6 +262,35 @@ class ResultsSummary(Plugin):
                     outfile.write(line)
                     outfile.write('\n')
             outfile.write('\n')
+        self.report(sims_not_finished=sims_not_finished)
+
+    def report(self, filename='nosetests.xml', sims_not_finished=[]):
+        os.system("echo 'I am attempting to report'")
+        stats = {'errors': len(self.errors),
+                 'failures': len(self.failures),
+                 'passes': len(self.successes),
+                 'skipped': len(sims_not_finished)
+                 }
+        errorlist = self.errors
+
+        error_report_file = open(filename, 'w')
+        """Writes an Xunit-formatted XML file
+
+        The file includes a report of test errors and failures.
+
+        """
+        stats['encoding'] = 'UTF-8'
+        stats['total'] = (stats['errors'] + stats['failures']
+                               + stats['passes'] + stats['skipped'])
+        error_report_file.write(
+            '<?xml version="1.0" encoding="%(encoding)s"?>'
+            '<testsuite name="nosetests" tests="%(total)d" '
+            'errors="%(errors)d" failures="%(failures)d" '
+            'skip="%(skipped)d">' % stats)
+        error_report_file.write(''.join(errorlist))
+        error_report_file.write('</testsuite>')
+        error_report_file.close()
+
 
 class EnzoTestCollection(object):
     def __init__(self, tests = None, verbose=True, args = None,
