@@ -287,6 +287,11 @@ class ResultsSummary(Plugin):
             '<testsuite name="nosetests" tests="%(total)d" '
             'errors="%(errors)d" failures="%(failures)d" '
             'skip="%(skipped)d">' % stats)
+        for s in self.successes:
+            name, stat = s.split(":")
+            clname, funcname = name.split(".")
+            error_report_file.write('<testcase classname="%s" name="%s" time="0.000"></testcase>' % (clname, funcname))
+
         error_report_file.write(''.join(errorlist))
         error_report_file.write('</testsuite>')
         error_report_file.close()
