@@ -660,7 +660,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "Unigrid = %"ISYM, &Unigrid);
     ret += sscanf(line, "UnigridTranspose = %"ISYM, &UnigridTranspose);
     ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
- 
+    ret += sscanf(line, "UserDefinedRootGridLayout = %"ISYM" %"ISYM" %"ISYM, &UserDefinedRootGridLayout[0],
+                  &UserDefinedRootGridLayout[1], &UserDefinedRootGridLayout[2]);
+
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
  
     ret += sscanf(line, "ExtractFieldsOnly = %"ISYM, &ExtractFieldsOnly);

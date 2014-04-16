@@ -106,41 +106,31 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   }
 */
 
-  int Nnodes = NumberOfProcessors;
-  int Ndims = Rank;
-  int LayoutDims[] = {0, 0, 0};
-
-  if (Enzo_Dims_create(Nnodes, Ndims, LayoutDims) != SUCCESS) {
-    ENZO_FAIL("Error in Enzo_Dims_create.");
+  /* If defined, use user defined Processor Topology. */
+  if( UserDefinedRootGridLayout[0] != INT_UNDEFINED &&
+      UserDefinedRootGridLayout[1] != INT_UNDEFINED &&
+      UserDefinedRootGridLayout[2] != INT_UNDEFINED ){
+    for (dim = 0; dim < Rank; dim++) {
+      Layout[dim] = UserDefinedRootGridLayout[dim];
+    }
   }
+  else {
+    int Nnodes = NumberOfProcessors;
+    int Ndims = Rank;
+    int LayoutDims[] = {0, 0, 0};
 
-  for (dim = 0; dim < Rank; dim++)
-    LayoutTemp[dim] = LayoutDims[dim];
- 
-  /* Swap layout because we want smallest value to be at Layout[0]. */
- 
-  for (dim = 0; dim < Rank; dim++)
-    Layout[dim] = LayoutTemp[Rank-1-dim] * NumberOfRootGridTilesPerDimensionPerProcessor;
- 
-  /* Force some distributions if the default is brain-dead. */
+    if (Enzo_Dims_create(Nnodes, Ndims, LayoutDims) != SUCCESS) {
+      ENZO_FAIL("Error in Enzo_Dims_create.");
+    }
 
-/*
-  if (Rank == 3 && NumberOfProcessors == 8)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 2;
+    /* Swap layout because we want smallest value to be at Layout[0]. */
+    for (dim = 0; dim < Rank; dim++) {
+      LayoutTemp[dim] = LayoutDims[dim];
+      Layout[dim] = LayoutTemp[Rank-1-dim] *
+        NumberOfRootGridTilesPerDimensionPerProcessor;
+    }
 
-  if (Rank == 3 && NumberOfProcessors == 64)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 4;
-
-  if (Rank == 3 && NumberOfProcessors == 125)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 5;
- 
-  if (Rank == 3 && NumberOfProcessors == 216)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 6;
-*/
+  }
 
   /* If defined, use user defined Processor Topology. */
   if( ProcessorTopology[0] != INT_UNDEFINED &&

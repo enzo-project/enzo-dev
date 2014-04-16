@@ -288,6 +288,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
+  for (i = 0; i < MAX_DIMENSION; i++) {
+    UserDefinedRootGridLayout[i] = INT_UNDEFINED;
+  }
 
   ExternalBoundaryIO          = FALSE;
   ExternalBoundaryTypeIO      = FALSE;

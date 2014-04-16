@@ -647,7 +647,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "PartitionNestedGrids            = %"ISYM"\n", PartitionNestedGrids);
   fprintf(fptr, "ExtractFieldsOnly               = %"ISYM"\n", ExtractFieldsOnly);
   fprintf(fptr, "CubeDumpEnabled                 = %"ISYM"\n", CubeDumpEnabled);
- 
+  fprintf(fptr, "UserDefinedRootGridLayout       = %"ISYM" %"ISYM" %"ISYM"\n",
+          &UserDefinedRootGridLayour[0], &UserDefinedRootGridLayout[1], UserDefinedRootGridLayout[2]);
+
   fprintf(fptr, "Debug1                          = %"ISYM"\n", debug1);
   fprintf(fptr, "Debug2                          = %"ISYM"\n", debug2);
 
