@@ -36,7 +36,8 @@
 int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
 		      fluxes *SubgridFluxes[], float *CellWidthTemp[], 
 		      Elong_int GridGlobalStart[], int GravityOn, 
-		      int NumberOfColours, int colnum[])
+              int NumberOfColours, int colnum[],
+              float MinimumSupportEnergyCoefficient)
 {
 
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
@@ -57,7 +58,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
     size *= GridDimension[dim];
   
   float *Pressure = new float[size]();
-  this->ComputePressure(Time, Pressure);
+  this->ComputePressure(Time, Pressure, MinimumSupportEnergyCoefficient);
 
 #ifdef ECUDA
   cuPPMParameter PPMPara;

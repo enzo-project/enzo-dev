@@ -501,9 +501,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* note: Start/EndIndex are zero based */
         
     if (HydroMethod == PPM_DirectEuler)
-      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
-			CellWidthTemp, GridGlobalStart, GravityOn, 
-			NumberOfColours, colnum);
+      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
+                        CellWidthTemp, GridGlobalStart, GravityOn,
+                        NumberOfColours, colnum,
+                        MinimumSupportEnergyCoefficient);
 
     /* PPM LR has been withdrawn. */
 
@@ -540,7 +541,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 			   GravityOn, NumberOfSubgrids, GridGlobalStart,
 			   SubgridFluxes,
 			   NumberOfColours, colnum, LowestLevel,
-			   MinimumSupportEnergyCoefficient) == FAIL)
+               MinimumSupportEnergyCoefficient) == FAIL)
 	ENZO_FAIL("ZeusSolver() failed!\n");
 	
 

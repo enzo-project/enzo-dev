@@ -503,7 +503,8 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the pressure at the requested time. */
 
-   int ComputePressure(FLOAT time, float *pressure);
+  int ComputePressure(FLOAT time, float *pressure,
+                      float MinimumSupportEnergyCoefficient=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
             formalism. */
@@ -1701,9 +1702,10 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* PPM Direct Euler Solver. */
 
 int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
-		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-		Elong_int GridGlobalStart[], int GravityOn, 
-		int NumberOfColours, int colnum[]);
+                fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                Elong_int GridGlobalStart[], int GravityOn,
+                int NumberOfColours, int colnum[],
+                float MinimumSupportEnergyCoefficient);
 
 int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
