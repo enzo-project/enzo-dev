@@ -142,6 +142,20 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   fclose(fptr);
 
+  /* Set the number of particle attributes, if left unset. */
+
+  if (NumberOfParticleAttributes == INT_UNDEFINED ||
+      NumberOfParticleAttributes == 0) {
+    if (StarParticleCreation || StarParticleFeedback) {
+      NumberOfParticleAttributes = 3;
+      if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      AddParticleAttributes = TRUE;
+    } else {
+      NumberOfParticleAttributes = 0;
+    }
+
+  }
+
   // name is something like /dsgpfs/harkness/NewL7/Dumps/DD0156/DD0156
   // open the hdf file on this processor /dsgpfs/harkness/NewL7/Dumps/DD0156/DD0156.cpu0000, etc.
   // the task map should respect this, otherwise the map is scrambled on input
