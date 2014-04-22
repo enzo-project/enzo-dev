@@ -90,9 +90,9 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       SubgridDims[MAX_DIMENSION];
 
    // Initialize parameters to default values
-   RotatingSphereNFWMass = 1.0e6;
+   RotatingSphereNFWMass = 1.0e7;
    RotatingSphereNFWConcentration = 2;
-   RotatingSphereCoreRadius = 8.0;
+   RotatingSphereCoreRadius = 16.0;
    RotatingSphereCentralDensity = 1.0;
    RotatingSphereCoreDensityExponent = 0.1;
    RotatingSphereOuterDensityExponent = 2.5;
@@ -101,7 +101,7 @@ int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
    RotatingSphereAngularMomentumExponent = 0.9;
    RotatingSphereUseTurbulence = 1;
    RotatingSphereTurbulenceRMS = 0.01;
-   RotatingSphereRedshift = 0.0;
+   RotatingSphereRedshift = 20.0;
 
    // Set no subgrids by default. 
    RotatingSphereSubgridLeft[0] = RotatingSphereSubgridLeft[1] = 

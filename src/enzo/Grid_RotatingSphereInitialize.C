@@ -318,7 +318,7 @@ int grid::RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
 
       if (inf == NULL) {
          printf("Could not open file 'turbulence.in', which is needed for turbulence.\n");
-         printf("If it is not here, try running the file 'turbulence.py'.\n");
+         printf("If it is not here, try running the file 'turbulence_generator.py'.\n");
          exit(1);
          }
       
