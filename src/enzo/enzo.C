@@ -462,7 +462,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
  
   // If we need to read the parameter file as a restart file, do it now
  
-  if (restart || OutputAsParticleDataFlag || extract || InformationOutput || project  ||  velanyl) {
+  if (restart || OutputAsParticleDataFlag || extract || InformationOutput || project  ||  velanyl || WritePotentialOnly) {
  
     SetDefaultGlobalValues(MetaData);
  
