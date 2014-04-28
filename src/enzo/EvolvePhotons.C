@@ -212,7 +212,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /**********************************************************************
                        MAIN RADIATION TRANSPORT LOOP
    **********************************************************************/
-    
+
   while (GridTime > PhotonTime) {
 
   /* Temporarily load balance grids according to the number of ray
@@ -245,8 +245,13 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     LastNode = RS_GridList;
     TempGridList = RS_GridList->NextGrid;
     int NumberOfSources = 0;
+    bool DeleteSources = (FirstTime ||
+			  !(RadiativeTransferAdaptiveTimestep == FALSE &&
+			    RadiativeTransferSourceClustering == TRUE));
+			  
     while (RS != NULL) {
-      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime) && LoopTime == TRUE) {  
+      if ( ((RS->CreationTime + RS->LifeTime) < PhotonTime) && LoopTime == TRUE &&
+	   DeleteSources) {
 	if (debug) {
 	  fprintf(stdout, "\nEvolvePhotons: Deleted Source on lifetime limit \n");
 	  fprintf(stdout, "EvolvePhotons:  %"GSYM" %"GSYM" %"GSYM" \n",
