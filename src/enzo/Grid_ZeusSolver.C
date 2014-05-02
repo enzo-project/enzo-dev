@@ -91,6 +91,10 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 	       int gravity, float *gr_xacc, float *gr_yacc, float *gr_zacc, 
 	       int bottom, float minsupecoef, int CRModel, float CRgamma);
 
+int GetUnits (float *DensityUnits, float *LengthUnits,
+         float *TemperatureUnits, float *TimeUnits,
+         float *VelocityUnits, double *MassUnits, FLOAT Time);
+
 
 int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
 		     float dx[], float dy[], float dz[], 
@@ -222,9 +226,20 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   }
 
   /* Error check */
+  
+	float CRcs = 0.0;
+  if(CRmaxSoundSpeed != 0.0){
+		  // Get system of units
+		  float CRsound,DensityUnits,LengthUnits,TemperatureUnits,
+				TimeUnits,VelocityUnits,MassUnits,Time;
+		  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+		               &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+		    ENZO_FAIL("Error in GetUnits.");
+		  }
 
-  float CRcs = 0.0;
-  if(CRmaxSoundSpeed != 0.0) CRcs = (CRgamma-1.0)/(CRmaxSoundSpeed*CRmaxSoundSpeed);
+		CRsound = CRmaxSoundSpeed/VelocityUnits; 
+		CRcs = (CRgamma-1.0)/(CRsound*CRsound);
+	}
 
   for (i = 0; i < size; i++) {
     if (fabs(u[i]) > dx[0]/dtFixed ||
