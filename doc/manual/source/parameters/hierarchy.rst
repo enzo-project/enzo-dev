@@ -320,6 +320,10 @@ Hierarchy Control Parameters
     When restarting a simulation, this parameter resets the processor number of each root grid to be sequential.  All child grids are assigned to the processor of their parent grid.  Only implemented for LoadBalancing = 1.  Default = 0
 ``NumberOfRootGridTilesPerDimensionPerProcessor`` (external)
     Splits the root grid into 2^(dimensions*this parameter) grids per MPI process.  Default: 1
+``UserDefinedRootGridLayout`` (external)
+   A three element array.  Splits the root grid into `N` subgrids where `N` is the product of the supplied values.  The first entry corresponds to the number of root grid decompositions along the x axis of the simulation, the second element the number of decompositions along the y axis, and the third the number of decompositions along the z axis.
+
+   This parameter is only used if all three elements of the array are set to a value different from the dummy default value.  If that is the case the root grid will be `manually` decomposed and the values supplied for ``NumberOfRootGridTilesPerDimensionPerProcessor`` will be ignored.  This is most useful when an automatic root grid decomposition is inefficient (for example in a deeply nested isolated galaxy simulation).  Default: -99999 -99999 -99999
 ``FastSiblingLocatorEntireDomain`` (external)
     In zoom-in calculations, the fast sibling locator doesn't need to search the entire domain.  Turning this parameter on restricts the finder to the inner nested grid.  Currently broken.  Default: 0
 ``MoveParticlesBetweenSiblings`` (external)
