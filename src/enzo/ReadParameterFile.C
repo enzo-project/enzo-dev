@@ -789,7 +789,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
-    ret += sscanf(line, "AddParticleAttributes = %"ISYM, &AddParticleAttributes);
 
     /* read data which defines the boundary conditions */
  

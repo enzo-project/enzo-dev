@@ -776,8 +776,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
 	  NumberOfParticleAttributes);
-  fprintf(fptr, "AddParticleAttributes                 = %"ISYM"\n", 
-	  AddParticleAttributes);
 
     /* Sink particles (for present day star formation) & winds */
   fprintf(fptr, "SinkMergeDistance                     = %"FSYM"\n", 
