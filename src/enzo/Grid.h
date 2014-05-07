@@ -503,7 +503,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the pressure at the requested time. */
 
-  int ComputePressure(FLOAT time, float *pressure,
+   int ComputePressure(FLOAT time, float *pressure,
                       float MinimumSupportEnergyCoefficient=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy

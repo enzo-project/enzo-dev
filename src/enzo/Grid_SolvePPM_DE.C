@@ -34,8 +34,8 @@
 
 
 int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
-		      fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-		      Elong_int GridGlobalStart[], int GravityOn, 
+              fluxes *SubgridFluxes[], float *CellWidthTemp[], 
+              Elong_int GridGlobalStart[], int GravityOn, 
               int NumberOfColours, int colnum[],
               float MinimumSupportEnergyCoefficient)
 {
