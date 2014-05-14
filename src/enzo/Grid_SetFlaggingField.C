@@ -270,7 +270,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     ENZO_VFAIL("CellFlaggingMethod[%"ISYM"] = %"ISYM" unknown\n", method,
 	    CellFlaggingMethod[method])
  
-  }
+  } // ENDSWITCH
+  } // ENDIF must-refine
 
   } // ENDFOR methods
  
@@ -292,4 +293,4 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
   return SUCCESS;
  
-}
+    }
