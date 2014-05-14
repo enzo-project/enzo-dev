@@ -109,7 +109,9 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
 	CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 	
 
-	  if (level > 0) {
+	  if (level == 0) {
+    	    Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
+	  } else {
 	    Grids[grid1]->GridData->InterpolateBoundaryFromParent
 	      (Grids[grid1]->ParentGrid->GridData);
 	  }
@@ -217,11 +219,6 @@ int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
       (MetaData->LeftFaceBoundaryCondition,
        MetaData->RightFaceBoundaryCondition);
 
-    for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid += GRIDS_PER_LOOP) {
-      EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
-      for (grid1 = StartGrid; grid1 < EndGrid; grid1++)
-        Grids[grid1]->GridData->SetExternalBoundaryValues(Exterior);
-    }
   
   
 #ifdef FORCE_MSG_PROGRESS 

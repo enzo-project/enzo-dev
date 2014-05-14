@@ -58,17 +58,6 @@
 #endif
  
 // function prototypes
-#ifdef TRANSFER
-#define IMPLICIT_MACRO , ImplicitSolver
-#else
-#define IMPLICIT_MACRO 
-#endif
-#define EXTRA_OUTPUT_MACRO(A,B) ExtraOutput(A,LevelArray,&MetaData,0,Exterior IMPLICIT_MACRO,B);
-int ExtraOutput(int output_flag, LevelHierarchyEntry *LevelArray[],TopGridData *MetaData, int level, ExternalBoundary *Exterior
-#ifdef TRANSFER
-			  , ImplicitProblemABC *ImplicitSolver
-#endif
-        , char * output_string);
  
 int RebuildHierarchy(TopGridData *MetaData,
 		     LevelHierarchyEntry *LevelArray[], int level);
@@ -220,6 +209,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   CommunicationReceiveCurrentDependsOn = COMMUNICATION_NO_DEPENDENCE;
 
   while (Temp != NULL) {
+    if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
+      //      ENZO_FAIL("Error in grid->SetExternalBoundaryValues.\n");
+      Exterior->Prepare(Temp->GridData);
+
+    }
     if (CopyOverlappingZones(Temp->GridData, &MetaData, LevelArray, 0)
 	== FAIL)
       ENZO_FAIL("Error in CopyOverlappingZones.");
@@ -247,14 +241,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
   PrintMemoryUsage("Bdry set");
-  Temp = LevelArray[0];
-  while (Temp != NULL) {
-     if (Temp->GridData->SetExternalBoundaryValues(Exterior) == FAIL) {
-       //      ENZO_FAIL("Error in grid->SetExternalBoundaryValues.\n");
-       Exterior->Prepare(Temp->GridData);
-     }
-     Temp = Temp->NextGridThisLevel;
-  }
  
   /* Remove RandomForcingFields from BaryonFields when BCs are set. */
  
