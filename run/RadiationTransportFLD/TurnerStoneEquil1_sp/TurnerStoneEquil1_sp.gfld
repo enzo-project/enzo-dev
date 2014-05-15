@@ -18,15 +18,17 @@ EnergyOpacityC2 = 0.0
 #
 # General module and solver parameters
 # 
-RadHydroChemistry   = 0              // no chemistry
-RadHydroModel       = 10             // LTE coupling
-RadHydroMaxDt       = 5.0e-3
-RadHydroMinDt       = 1.0e-8
-RadHydroInitDt      = 1.0e-8
-RadHydroDtRadFac    = 0.05           // 5% desired change/step
-RadHydroDtGasFac    = 0.05
-RadHydroDtChemFac   = 0.05
-RadHydroMGPreRelax  = 2              // MG pre-relaxation sweeps
-RadHydroMGPostRelax = 2              // MG post-relaxation sweeps
+RadHydroChemistry    = 0             // no chemistry
+RadHydroModel        = 10            // LTE coupling
+RadHydroMaxDt        = 5.0e-3
+RadHydroMinDt        = 1.0e-8
+RadHydroInitDt       = 1.0e-8
+RadHydroMaxSubcycles = 1.0e3
+RadHydroMaxChemSubcycles = 1.0e3
+RadHydroDtRadFac     = 0.05          // 5% desired change/step
+RadHydroDtGasFac     = 0.05
+RadHydroDtChemFac    = 0.05
+RadHydroMGPreRelax   = 2             // MG pre-relaxation sweeps
+RadHydroMGPostRelax  = 2             // MG post-relaxation sweeps
 
 #############################

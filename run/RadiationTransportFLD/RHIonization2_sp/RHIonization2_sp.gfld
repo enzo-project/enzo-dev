@@ -24,9 +24,11 @@ EtaRadius = 1.0e0                    // radius for emissivity source [cells]
 RadHydroMaxDt        = 1.0e-2
 RadHydroMinDt        = 1.0e-8
 RadHydroInitDt       = 1.0e-8
-RadHydroDtRadFac     = 0.001         // 0.1% desired change/step
-RadHydroDtGasFac     = 0.001
-RadHydroDtChemFac    = 0.001
+RadHydroMaxSubcycles = 1.0e3
+RadHydroMaxChemSubcycles = 1.0e3
+RadHydroDtRadFac     = 0.00005       // 0.005% desired change/step
+RadHydroDtGasFac     = 0.00005
+RadHydroDtChemFac    = 0.00005
 RadHydroMGPreRelax   = 2             // MG pre-relaxation sweeps
 RadHydroMGPostRelax  = 2             // MG post-relaxation sweeps
 
