@@ -76,7 +76,7 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   float RadHydroX1Velocity           = 0.0;
   float RadHydroX2Velocity           = 0.0;
   float RadHydroNumDensity           = 3.2;           // [cm^{-3}]
-  float RadHydroDensityRadius        = 2.8234155e+20; // 91.5 pc [cm]
+  float RadHydroDensityRadius        = 1.14375e-1;    // [code units]
   float DensityCenter0               = 0.0;
   float DensityCenter1               = 0.0;
   float DensityCenter2               = 0.0;
@@ -112,26 +112,17 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroInitialFractionHII);
 	ret += sscanf(line, "RadHydroHFraction = %"FSYM, 
 		      &RadHydroHydrogenMassFraction);
-	if ((RadHydroChemistry == 3) || (MultiSpecies == 1)) {
-	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
-			&RadHydroInitialFractionHeII);
-	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
-			&RadHydroInitialFractionHeIII);
-	}
+	ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
+		      &RadHydroInitialFractionHeII);
+	ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
+		      &RadHydroInitialFractionHeIII);
 	ret += sscanf(line, "EtaCenter = %"FSYM" %"FSYM" %"FSYM, 
 		      &DensityCenter0, &DensityCenter1, &DensityCenter2);
-
       } // end input from parameter file
       fclose(RHfptr);
     }
   }
 
-  /* error checking */
-  if (Mu != DEFAULT_MU) {
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
-    Mu = DEFAULT_MU;
-  }
 
   // set up CoolData object if not already set up
   if (CoolData.ceHI == NULL) 
@@ -185,7 +176,6 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
     }
     Temp = Temp->NextGridThisLevel;
   }
-
 
   // set up field names and units
   // note: we must set up He species fields as well since Enzo 
