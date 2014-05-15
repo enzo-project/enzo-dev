@@ -200,6 +200,32 @@ Hierarchy Control Parameters
     Resistive length is defined as the curl of the magnetic field over
     the magnitude of the magnetic field. We make sure this length is
     covered by this number of cells. i.w. The resistive length in a MHD simulation should not be smaller than CellWidth * RefineByResistiveLengthSafetyFactor.  Default: 2.0
+``MustRefineParticlesCreateParticles`` (external)
+    This parameter will flag dark matter particles in cosmological 
+    initial conditions as ``MustRefineParticles``.  If ``CellFlaggingMethod`` 
+    8 is set, AMR will be restricted to cells surrounding 
+    ``MustRefineParticles``.  There are several different modes for creating
+    ``MustRefineParticles`` with this parameter described below.  Further 
+    information on how to use dark matter ``MustRefineParticles`` in 
+    cosmological simulations can be found here (link).  Default: 0
+
+::
+
+   1 - If the user specifies ``MustRefineParticlesLeftEdge`` and 
+       ``MustRefineParticlesRightEdge``, dark matter particles within the 
+       specified region are flagged.  Otherwise, the code looks for an ascii 
+       input file called MustRefineParticlesFlaggingList.in that contains a list 
+       of particle ids to be flagged.
+   2 - For use with ellipsodial masking in MUSIC inititial conditions.  This 
+       setting uses traditional static grids for intermediate resolution levels.  
+       MUSIC will generate RefinementMask files and the ``ParticleTypeName`` 
+       parameter should be set to the name of these files.
+   3 - Same as setting 2, except refinement on intermediate levels is not 
+       constrained by static grids.  Instead, refinement around dark matter 
+       particles is allowed down to the level of a particle's generation level.  
+       Refinement beyond this level is allowed around particles within the MUSIC 
+       ellipsoidal making region.
+
 ``MustRefineParticlesRefineToLevel`` (external)
     The maximum level on which ``MustRefineParticles`` are required to
     refine to. Currently sink particles and MBH particles are required
@@ -215,6 +241,14 @@ Hierarchy Control Parameters
     information. Default: 0 (FALSE)
 ``MustRefineParticlesMinimumMass`` (external)
     This was an experimental parameter to set a minimum for ``MustRefineParticles``.  Default: 0.0
+``MustRefineParticlesRegionLeftEdge`` (external)
+    Bottom-left corner of a region in which dark matter particles are flagged 
+    as ``MustRefineParticles`` in nested cosmological simulations.  To be used with 
+    ``MustRefineParticlesCreateParticles`` = 1.  Default: 0.0 0.0 0.0
+``MustRefineParticlesRegionRightEdge`` (external)
+    Top-right corner of a region in which dark matter particles are flagged 
+    as ``MustRefineParticles`` in nested cosmological simulations.  To be used with 
+    ``MustRefineParticlesCreateParticles`` = 1.  Default: 0.0 0.0 0.0
 ``MustRefineRegionMinRefinementLevel`` (external)
     Minimum level to which the rectangular solid volume defined by
     ``MustRefineRegionLeftEdge`` and ``MustRefineRegionRightEdge`` will be
@@ -297,6 +331,10 @@ Hierarchy Control Parameters
     The minimum length of the edge of a subgrid.  See :ref:`running_large_simulations`. Default: 6
 ``MaximumSubgridSize`` (external)
     The maximum size (volume) of a subgrid.  See :ref:`running_large_simulations`. Default: 32768
+``CriticalGridRatio`` (external)
+    Critical grid ratio above which subgrids will be split in half along their 
+    long axis prior to being split by the second derivative of their 
+    signature.  Default: 3.0
 ``SubgridSizeAutoAdjust`` (external)
     See :ref:`running_large_simulations`.  Default: 1 (TRUE)
 ``OptimalSubgridsPerProcessor`` (external)

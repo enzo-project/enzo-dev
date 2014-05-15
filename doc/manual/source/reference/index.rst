@@ -15,6 +15,7 @@ Reference Information
    LinkedLists.rst
    MachineNotes.rst
    NestedGridParticles.rst
+   MRPNestedGrid.rst
    ParticlesInRebuildHierarchy.rst
    ProblemSizeEsimates.rst
    SetAccelerationBoundary.rst
