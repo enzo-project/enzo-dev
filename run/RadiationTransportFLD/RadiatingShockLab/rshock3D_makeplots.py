@@ -159,7 +159,7 @@ def load_vals(tdump):
     vy = f.get('/Grid00000001/y-velocity')
     vz = f.get('/Grid00000001/z-velocity')
     Eg = f.get('/Grid00000001/Grey_Radiation_Energy')
-    etot = f.get('/Grid00000001/Total_Energy')
+    etot = f.get('/Grid00000001/TotalEnergy')
     vx = np.multiply(vx,vUnit)
     vy = np.multiply(vy,vUnit)
     vz = np.multiply(vz,vUnit)

@@ -37,6 +37,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 1st dataset'
 f.close()
 
 
@@ -59,6 +60,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 2nd dataset'
 f.close()
 
 
@@ -81,6 +83,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 3rd dataset'
 f.close()
 
 
@@ -103,6 +106,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 4th dataset'
 f.close()
 
 
@@ -125,6 +129,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 5th dataset'
 f.close()
 
 
@@ -147,6 +152,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 6th dataset'
 f.close()
 
 
@@ -169,6 +175,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 7th dataset'
 f.close()
 
 
@@ -191,6 +198,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 8th dataset'
 f.close()
 
 
@@ -213,6 +221,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 9th dataset'
 f.close()
 
 
@@ -227,7 +236,7 @@ else:
     Eg = sum(sum(Eg3D,axis=0),axis=0)/nx/ny
 Eg_anal = linspace(0.0, 1.0, N[0])
 for i in range(0,N[0]):
-    if (x[i] > 1.0):
+    if (x[i] < 1.0):
         Eg_anal[i] = 1.0
     else:
         Eg_anal[i] = 0.0
@@ -235,6 +244,7 @@ Eg_err = Eg - Eg_anal
 err_norm = (np.sum(np.multiply(Eg_err,Eg_err))/N[0])**(0.5)
 if (err_norm > tol):
     ret += 1
+    print 'Error tolerance ',tol,' exceeded (',err_norm,'), 10th dataset'
 
 # issue final success/failure statement
 if (ret > 0):

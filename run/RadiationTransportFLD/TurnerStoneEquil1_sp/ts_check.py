@@ -40,7 +40,7 @@ def load_vals(tdump):
     tval, dUnit, tUnit, lUnit = get_params(pfile)
     f = h5py.File(hfile,'r')
     Eg3D = f.get('/Grid00000001/Grey_Radiation_Energy')
-    et3D = f.get('/Grid00000001/Total_Energy')
+    et3D = f.get('/Grid00000001/TotalEnergy')
     nx, ny, nz = Eg3D.shape
     Egval = sum(sum(sum(Eg3D)))/ny/nz/nx*dUnit*lUnit*lUnit/tUnit/tUnit
     etval = sum(sum(sum(et3D)))/ny/nz/nx*lUnit*lUnit/tUnit/tUnit
