@@ -13,7 +13,7 @@ ytcfg["yt","loglevel"] = "50"
 te = 50
 
 # set the solution tolerance
-tol = 0.002
+tol = 0.01
 
 # load the reference solution
 r_sol = np.load('r_sol.npy')
