@@ -118,6 +118,41 @@ int RadiativeTransferInitialize(char *ParameterFile,
 	    (Eint32) MetaData.DataDumpNumber-1);
   }
 
+
+  // If FLD solver handles LW radiation, set solver type
+  if (RadiativeTransferFLD == 1)   ImplicitProblem = 2;
+
+  // if using an implicit RT solver, declare the appropriate object here
+  if (RadiativeTransferFLD) {
+    if (ImplicitProblem == 1)
+      ImplicitSolver = new gFLDProblem; 
+    else if (ImplicitProblem == 2)
+      ImplicitSolver = new FSProb; 
+    else if (ImplicitProblem == 3)
+      ImplicitSolver = new gFLDSplit; 
+    // else if (ImplicitProblem == 4)    // MFProb has been removed
+    //   ImplicitSolver = new MFProb; 
+    // else if (ImplicitProblem == 5)    // MFSplit has been disabled
+    //   ImplicitSolver = new MFSplit; 
+    else
+      ImplicitSolver = new NullProblem;
+  }
+
+  // if using the FLD solver, initialize it here
+#ifdef USE_HYPRE
+  if (RadiativeTransferFLD) {
+    // first get parallelism information for implicit system
+    if (DetermineParallelism(&TopGrid, MetaData) == FAIL)
+      ENZO_FAIL("Error in DetermineParallelism.");
+    // initialize the implicit solver
+    ImplicitSolver->Initialize(TopGrid, MetaData);
+  }
+#else
+  if (RadiativeTransferFLD)
+    ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
+#endif
+
+
   /* Create all StarParticles from normal particles */
 
 //  for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++)
@@ -192,23 +227,18 @@ int RadiativeTransferInitialize(char *ParameterFile,
     while (TypesToAdd[FieldsToAdd] != FieldUndefined)
       FieldsToAdd++;
 
-  } // ENDIF RadiativeTransfer
-
-
-  // do the same thing as above, but now for the FLD solver
-  // Note: do nothing unless the problem initializer forgot
-  //       to set up the relevant fields
-  if (!RadiativeTransfer && (RadiativeTransferFLD>1)) {
-
-    // all of FSProb, gFLDProblem, gFLDSplit, MFProb and MFSplit need RadiationFreq0
-    if (ImplicitProblem > 0)
-      TypesToAdd[FieldsToAdd++] = RadiationFreq0;
-
-    // MFProb and MFSplit need RadiationFreq1-RadiationFreq3
-    if ((ImplicitProblem == 4) || (ImplicitProblem == 5)) {
-      TypesToAdd[FieldsToAdd++] = RadiationFreq1;
-      TypesToAdd[FieldsToAdd++] = RadiationFreq2;
-      TypesToAdd[FieldsToAdd++] = RadiationFreq3;
+  }  // ENDIF RadiativeTransfer
+  else if (RadiativeTransferFLD > 1) {  // do the same for the FLD solver
+    TypesToAdd[FieldsToAdd++] = RadiationFreq0;
+    if (RadiativeCooling) {
+      TypesToAdd[FieldsToAdd++] = kphHI;
+      TypesToAdd[FieldsToAdd++] = PhotoGamma;
+      if (RadiativeTransferHydrogenOnly == FALSE) {
+	TypesToAdd[FieldsToAdd++] = kphHeI;
+	TypesToAdd[FieldsToAdd++] = kphHeII;
+      }
+      if (MultiSpecies > 1)
+	TypesToAdd[FieldsToAdd++] = kdissH2I;
     }
 
     // don't use the rest
@@ -349,25 +379,6 @@ int RadiativeTransferInitialize(char *ParameterFile,
 //  fprintf(stderr, "RTI: RTTS = %d, RTTST =  %s\n", 
 //	  RadiativeTransferTraceSpectrum, RadiativeTransferTraceSpectrumTable); 
 
-  // If FLD solver handles LW radiation, set solver type
-  if (RadiativeTransferFLD == 1)   ImplicitProblem = 2;
-
-  // if using an implicit RT solver, declare the appropriate object here
-  if (RadiativeTransferFLD) {
-    if (ImplicitProblem == 1)
-      ImplicitSolver = new gFLDProblem; 
-    else if (ImplicitProblem == 2)
-      ImplicitSolver = new FSProb; 
-    else if (ImplicitProblem == 3)
-      ImplicitSolver = new gFLDSplit; 
-//     else if (ImplicitProblem == 4)
-//       ImplicitSolver = new MFProb; 
-//     else if (ImplicitProblem == 5)
-//       ImplicitSolver = new MFSplit; 
-    else
-      ImplicitSolver = new NullProblem;
-  }
-
   /* If set, initialize spectrum table */
 
   if (RadiativeTransfer == TRUE &&
@@ -375,22 +386,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
     if (InitializeRadiativeTransferSpectrumTable(MetaData.Time) == FAIL) {  
       ENZO_FAIL("Error in InitializeRadiativeTransferSpectrumTable.");
     }
-  
-}
-  // if using the FLD solver, initialize it here
-#ifdef USE_HYPRE
-  if (RadiativeTransferFLD) {
-    // first get parallelism information for implicit system
-    if (DetermineParallelism(&TopGrid, MetaData) == FAIL)
-      ENZO_FAIL("Error in DetermineParallelism.");
-    // initialize the implicit solver
-    ImplicitSolver->Initialize(TopGrid, MetaData);
   }
-#else
-  if (RadiativeTransferFLD)
-
-    ENZO_FAIL("Error: cannot use RadiativeTransferFLD without HYPRE.");
-#endif
 
   return SUCCESS;
 

@@ -185,13 +185,13 @@ int RadiativeTransferReadParameters(FILE *fptr)
   }
 
 
-  // If RadiativeTransferFLD > 1, turn off RadiativeCooling
-  if (RadiativeTransferFLD > 1  &&  RadiativeCooling) {
-    if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "Warning: RadiativeTransferFLD > 1 cannot be used with "
-	      "RadiativeCooling solver.  Turning RadiativeCooling OFF.\n");
-    RadiativeCooling = 0;
-  }
+//   // If RadiativeTransferFLD > 1, turn off RadiativeCooling
+//   if (RadiativeTransferFLD > 1  &&  RadiativeCooling) {
+//     if (MyProcessorNumber == ROOT_PROCESSOR)
+//       fprintf(stderr, "Warning: RadiativeTransferFLD > 1 cannot be used with "
+// 	      "RadiativeCooling solver.  Turning RadiativeCooling OFF.\n");
+//     RadiativeCooling = 0;
+//   }
 
   // If RadiativeTransferFLD > 1, reset RadiationFieldType (if necessary)
   if (RadiativeTransferFLD > 1  &&  (RadiationFieldType != 0)) {

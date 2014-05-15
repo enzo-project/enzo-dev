@@ -48,6 +48,11 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stdout,"Entering RHIonizationSteepInitialize routine\n");
 
+  char *kphHIName    = "HI_kph";
+  char *kphHeIName   = "HeI_kph";
+  char *kphHeIIName  = "HeII_kph";
+  char *gammaName    = "PhotoGamma";
+  char *kdissH2IName = "H2I_kdiss";
   char *DensName  = "Density";
   char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
@@ -57,6 +62,9 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   char *RadName   = "Grey_Radiation_Energy";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
+  char *HeIName   = "HeI_Density";
+  char *HeIIName  = "HeII_Density";
+  char *HeIIIName = "HeIII_Density";
   char *DeName    = "Electron_Density";
 
   // local declarations
@@ -74,9 +82,11 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   float DensityCenter2               = 0.0;
   float RadHydroTemperature          = 100.0;         // [K]
   float RadHydroRadiationEnergy      = 1.0e-20;
+  float RadHydroHydrogenMassFraction = 1.0;
   float RadHydroInitialFractionHII   = 0.0;
+  float RadHydroInitialFractionHeII  = 0.0;
+  float RadHydroInitialFractionHeIII = 0.0;
   int   RadHydroChemistry            = 1;
-  int   RadHydroModel                = 1;
 
   // overwrite input from RadHydroParamFile file, if it exists
   if (MetaData.RadHydroParameterFname != NULL) {
@@ -90,8 +100,6 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroX2Velocity);
 	ret += sscanf(line, "RadHydroChemistry = %"ISYM, 
 		      &RadHydroChemistry);
-	ret += sscanf(line, "RadHydroModel = %"ISYM, 
-		      &RadHydroModel);
 	ret += sscanf(line, "RadHydroNumDensity = %"FSYM, 
 		      &RadHydroNumDensity);
 	ret += sscanf(line, "RadHydroDensityRadius = %"FSYM, 
@@ -102,16 +110,21 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroRadiationEnergy);
 	ret += sscanf(line, "RadHydroInitialFractionHII = %"FSYM, 
 		      &RadHydroInitialFractionHII);
+	ret += sscanf(line, "RadHydroHFraction = %"FSYM, 
+		      &RadHydroHydrogenMassFraction);
+	if ((RadHydroChemistry == 3) || (MultiSpecies == 1)) {
+	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
+			&RadHydroInitialFractionHeII);
+	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
+			&RadHydroInitialFractionHeIII);
+	}
 	ret += sscanf(line, "EtaCenter = %"FSYM" %"FSYM" %"FSYM, 
 		      &DensityCenter0, &DensityCenter1, &DensityCenter2);
+
       } // end input from parameter file
       fclose(RHfptr);
     }
   }
-
-  // ensure that we're performing only Hydrogen chemistry
-  if (RadHydroChemistry != 1) 
-    ENZO_FAIL("RHIonizationSteepInitialize error: RadHydroChemistry must equal 1!");
 
   /* error checking */
   if (Mu != DEFAULT_MU) {
@@ -131,14 +144,26 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   RadHydroTemperature = max(RadHydroTemperature,MIN_TEMP); // enforce minimum
   float mp = 1.67262171e-24;    // proton mass [g]
   float kb = 1.3806504e-16;     // boltzmann constant [erg/K]
-  float HI = 1.0 - RadHydroInitialFractionHII;
-  float HII = RadHydroInitialFractionHII;
-  float ne = HII;
-  float num_dens = HI + HII + ne;
-  float mu = 1.0/num_dens;
-  // correct mu if using a special model
-  if ((RadHydroModel == 4) || (RadHydroModel == 5)) 
-    mu = DEFAULT_MU;
+  float nH, HI, HII, nHe, HeI, HeII, HeIII, ne, num_dens, mu;
+  if (RadHydroChemistry == 1) {
+    HI = 1.0 - RadHydroInitialFractionHII;
+    HII = RadHydroInitialFractionHII;
+    ne = HII;
+    num_dens = HI + HII + ne;
+    mu = 1.0/num_dens;
+  }
+  else if (RadHydroChemistry == 3) {
+    nH = RadHydroHydrogenMassFraction;
+    nHe = (1.0 - RadHydroHydrogenMassFraction);
+    HI = nH*(1.0 - RadHydroInitialFractionHII);
+    HII = nH*RadHydroInitialFractionHII;
+    HeII = nHe*RadHydroInitialFractionHeII;
+    HeIII = nHe*RadHydroInitialFractionHeIII;
+    HeI = nHe - HeII - HeIII;
+    ne = HII + HeII/4.0 + HeIII/2.0;
+    num_dens = 0.25*(HeI + HeII + HeIII) + HI + HII + ne;
+    mu = 1.0/num_dens;
+  }
   // compute the internal energy
   float RadHydroIEnergy = kb*RadHydroTemperature/mu/mp/(Gamma-1.0);	
 
@@ -151,12 +176,16 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
 			DensityCenter1, DensityCenter2, RadHydroX0Velocity, 
 			RadHydroX1Velocity, RadHydroX2Velocity, 
 			RadHydroIEnergy, RadHydroRadiationEnergy, 
-			RadHydroInitialFractionHII, local) == FAIL) {
+			RadHydroHydrogenMassFraction, 
+			RadHydroInitialFractionHII, 
+			RadHydroInitialFractionHeII, 
+			RadHydroInitialFractionHeIII, local) == FAIL) {
       fprintf(stderr, "Error in RHIonizationSteepInitializeGrid.\n");
       return FAIL;
     }
     Temp = Temp->NextGridThisLevel;
   }
+
 
   // set up field names and units
   // note: we must set up He species fields as well since Enzo 
@@ -173,6 +202,23 @@ int RHIonizationSteepInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[BaryonField++] = DeName;
   DataLabel[BaryonField++] = HIName;
   DataLabel[BaryonField++] = HIIName;
+  if ((RadHydroChemistry == 3) || (MultiSpecies > 0)) {
+    DataLabel[BaryonField++] = HeIName;
+    DataLabel[BaryonField++] = HeIIName;
+    DataLabel[BaryonField++] = HeIIIName;
+  }
+
+  // if using external chemistry/cooling, set rate labels and update params
+  if (RadiativeCooling) {
+    DataLabel[BaryonField++] = kphHIName;
+    DataLabel[BaryonField++] = gammaName;
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      DataLabel[BaryonField++] = kphHeIName;
+      DataLabel[BaryonField++] = kphHeIIName;
+    }
+    if (MultiSpecies > 1)
+      DataLabel[BaryonField++] = kdissH2IName;
+  }
 
   for (int i=0; i<BaryonField; i++) 
     DataUnits[i] = NULL;

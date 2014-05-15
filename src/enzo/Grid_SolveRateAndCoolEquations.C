@@ -250,6 +250,10 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
   /* Call the fortran routine to solve cooling equations. */
 
   int ierr = 0;
+  int addRT = (RadiativeTransfer) || (RadiativeTransferFLD);
+  int RTcoupled = RadiativeTransferCoupledRateSolver;
+  if ((RadiativeTransferFLD) && (RadiativeTransfer==0))
+    RTcoupled = 0;    // disable if using FLD and not ray-tracing
 
   FORTRAN_NAME(solve_rate_cool)(
     density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
@@ -299,7 +303,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     &RadiationData.NumberOfFrequencyBins, 
     &RadiationFieldRecomputeMetalRates,
     &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
-    &RadiativeTransfer, &RadiativeTransferCoupledRateSolver,
+    &addRT, &RTcoupled,
     &RTCoupledSolverIntermediateStep, &ierr,
     &RadiativeTransferHydrogenOnly,
     BaryonField[kphHINum], BaryonField[kphHeINum], BaryonField[kphHeIINum], 

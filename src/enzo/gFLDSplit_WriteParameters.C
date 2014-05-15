@@ -32,15 +32,13 @@ int gFLDSplit::WriteParameters(FILE *fptr)
   fprintf(fptr, "RadHydroModel = %"ISYM"\n", Model);
 
   // set restart initial time step to current time step
-  if (dt == 0.0) {
-    fprintf(fptr, "RadHydroInitDt = %22.16e\n", initdt);
-  }
-  else {
-    fprintf(fptr, "RadHydroInitDt = %22.16e\n", dt);
-  }
+  fprintf(fptr, "RadHydroInitDt = %22.16e\n", dtrad);
   fprintf(fptr, "RadHydroMaxDt = %22.16e\n", maxdt);
   fprintf(fptr, "RadHydroMinDt = %22.16e\n", mindt);
+  fprintf(fptr, "RadHydroMaxSubcycles = %"FSYM"\n", maxsubcycles);
+  fprintf(fptr, "RadHydroMaxChemSubcycles = %"FSYM"\n", maxchemsub);
   fprintf(fptr, "RadHydroDtNorm = %22.16e\n", dtnorm);
+  fprintf(fptr, "RadHydroDtGrowth = %22.16e\n", dtgrowth);
   fprintf(fptr, "RadHydroDtRadFac = %22.16e\n", dtfac[0]);
   fprintf(fptr, "RadHydroDtGasFac = %22.16e\n", dtfac[1]);
   fprintf(fptr, "RadHydroDtChemFac = %22.16e\n", dtfac[2]);
@@ -48,6 +46,11 @@ int gFLDSplit::WriteParameters(FILE *fptr)
   fprintf(fptr, "RadiationScaling = %22.16e\n", ErScale);
   fprintf(fptr, "EnergyCorrectionScaling = %22.16e\n", ecScale);
   fprintf(fptr, "ChemistryScaling = %22.16e\n", NiScale);
+  if (autoScale) {
+    fprintf(fptr, "AutomaticScaling = 1\n");
+  } else {
+    fprintf(fptr, "AutomaticScaling = 0\n");
+  }
 
   fprintf(fptr, "RadHydroTheta = %22.16e\n", theta);
 
@@ -63,7 +66,8 @@ int gFLDSplit::WriteParameters(FILE *fptr)
   }
 
   fprintf(fptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
-  fprintf(fptr, "RadHydroNewtTolerance = %22.16e\n", sol_tolerance);
+  fprintf(fptr, "RadHydroKrylovMethod = %"ISYM"\n", Krylov_method);
+  fprintf(fptr, "RadHydroSolTolerance = %22.16e\n", sol_tolerance);
   fprintf(fptr, "RadHydroMaxMGIters = %i\n", sol_maxit);    
   fprintf(fptr, "RadHydroMGRelaxType = %i\n", sol_rlxtype);    
   fprintf(fptr, "RadHydroMGPreRelax = %i\n", sol_npre);    

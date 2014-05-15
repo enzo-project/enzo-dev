@@ -82,7 +82,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
   //       p - norm choice (input), 0->max norm, otherwise the p-norm
   //           **all p-norms here divide by the total number of cells**
   //       dtfactor - desired relative change per step (input)
-  //       atol - 1e-3 (assumes units are all normalized)
+  //       atol - 0.1 (assumes units are all normalized)
   //    For the gas energy correction, this is different since we do 
   //    not have uold: 
   //       relerr_fac = || unew / w ||_p
@@ -108,7 +108,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
     if (dtfactor[0] != huge_number) {
       float *Eold = uold->GetData(0);
       float *Enew = unew->GetData(0);
-      atol = 0.001; // assumes values are normalized
+      atol = 0.1; // assumes values are normalized
       if (dtnorm > 0.0) {
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
@@ -141,7 +141,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
     loc_est[1] = 0.0;
     if (dtfactor[1] != huge_number) {
       float *ec = unew->GetData(1);
-      atol = 0.001; // assumes values are normalized
+      atol = 0.1; // assumes values are normalized
       if (dtnorm > 0.0) {
 	for (k=ghZl; k<Nz+ghZl; k++) 
 	  for (j=ghYl; j<Ny+ghYl; j++)
@@ -175,7 +175,7 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
       if (dtfactor[l] != huge_number) {
 	niold = uold->GetData(l);
 	ninew = unew->GetData(l);
-	atol = 0.001; // assumes values are normalized
+	atol = 0.1; // assumes values are normalized
 	if (dtnorm > 0.0) {
 	  for (k=ghZl; k<Nz+ghZl; k++) 
 	    for (j=ghYl; j<Ny+ghYl; j++)
@@ -238,33 +238,25 @@ float gFLDSplit::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew, int flag)
     }
 
     // set estimated time step as minimum of component time steps
-    dt_est = maxdt*TimeUnits;    // max time step estimate (physical units)
+    dt_est = maxdt;    // max time step estimate (scaled units)
     for (l=0; l<Nvar; l++) {
       dt_est = min(dt_est, dt_est_var[l]);
     }
-
-    // limit maximum growth per step
-    dt_est = min(dt_est, 1.1*dt);    // time step growth (physical units)
-
-
-    // rescale dt estimates to normalized values
-    dt_est /= TimeUnits;
-    for (l=0; l<Nvar; l++)  dt_est_var[l] /= TimeUnits;
 
     // account for min/max time step size (according to user)
     dt_est = max(dt_est, mindt);
     dt_est = min(dt_est, maxdt);
 
-    if (debug) {
-      printf("  gFLDSplit_ComputeTimestep: (E, e, ni) dt_est = (");
-      for (l=0; l<Nvar; l++) {
-	if (dt_est_var[l] == huge_number/TimeUnits)
-	  printf(" -------- ");
-	else  
-	  printf(" %8.2e ",dt_est_var[l]);
-      }
-      printf(")\n");
-    }
+//     if (debug) {
+//       printf("  gFLDSplit_ComputeTimestep: (E, e, ni) dt_est = (");
+//       for (l=0; l<Nvar; l++) {
+// 	if (dt_est_var[l] == huge_number/TimeUnits)
+// 	  printf(" -------- ");
+// 	else  
+// 	  printf(" %8.2e ",dt_est_var[l]);
+//       }
+//       printf(")\n");
+//     }
   }
 
   // account for min/max time step size (according to user)

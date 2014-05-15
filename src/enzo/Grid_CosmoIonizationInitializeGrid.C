@@ -38,7 +38,10 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
 					float VzConstant, 
 					float IEConstant, 
 					float EgConstant, 
+					float HydrogenMassFraction,
 					float InitialFractionHII, 
+					float InitialFractionHeII, 
+					float InitialFractionHeIII, 
 					float OmegaBaryonNow,
 					int local)
 {
@@ -57,7 +60,8 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
 
   // create necessary baryon fields
   int RhoNum, TENum, GENum, V0Num, V1Num, V2Num, EgNum, DeNum, 
-    HINum, HIINum;
+    HINum, HIINum, HeINum, HeIINum, HeIIINum, kphHINum, kphHeINum, 
+    kphHeIINum, gammaNum, kdissH2INum, etaNum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++]   = Density;
   FieldType[TENum = NumberOfBaryonFields++]    = TotalEnergy;
@@ -70,9 +74,29 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
   FieldType[DeNum = NumberOfBaryonFields++]    = ElectronDensity;
   FieldType[HINum = NumberOfBaryonFields++]    = HIDensity;
   FieldType[HIINum = NumberOfBaryonFields++]   = HIIDensity;
+  if ((NumChemicals == 3) || (MultiSpecies > 0)) {
+    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
+    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;    
+    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+  }
+  // if using external chemistry/cooling, set rate fields
+  if (RadiativeCooling) {
+    FieldType[kphHINum = NumberOfBaryonFields++] = kphHI;
+    FieldType[gammaNum = NumberOfBaryonFields++] = PhotoGamma;
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      FieldType[kphHeINum  = NumberOfBaryonFields++] = kphHeI;
+      FieldType[kphHeIINum = NumberOfBaryonFields++] = kphHeII;
+    }
+    if (MultiSpecies > 1)
+      FieldType[kdissH2INum = NumberOfBaryonFields++] = kdissH2I;
+  }
+  // if using the AMRFLDSplit solver, set a field for the emissivity
+  if (ImplicitProblem == 6) 
+    FieldType[etaNum = NumberOfBaryonFields++] = Emissivity0;
+
 
   // set the subgrid static flag (necessary??)
-  SubgridsAreStatic = FALSE;  // no subgrids
+  SubgridsAreStatic = FALSE;
 
   // Return if this doesn't concern us.
   if (ProcessorNumber != MyProcessorNumber)
@@ -87,7 +111,7 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
     fprintf(stderr,"Error in GetUnits.\n");
     return FAIL;
   }
-  if (MyProcessorNumber == ROOT_PROCESSOR) {
+  if (debug && NewData) {
     printf("  Internal Unit Conversion Factors:\n");
     printf("         length = %g\n",LengthUnits);
     printf("           mass = %lg\n",MassUnits);
@@ -100,10 +124,6 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
-// 	   MyProcessorNumber, NumberOfBaryonFields, size, 
-// 	   GridDimension[0], GridDimension[1], GridDimension[2]);
-
     for (int field=0; field<NumberOfBaryonFields; field++)
       if (BaryonField[field] == NULL)
 	BaryonField[field] = new float[size];
@@ -115,12 +135,15 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
 					  VzConstant*VzConstant));
     float mp = 1.67262171e-24;      // proton mass [g]
     float rhoConstant = OmegaBaryonNow/OmegaMatterNow*DensityUnits;
-    float HIIConstant = rhoConstant*InitialFractionHII;
-    float HIConstant = rhoConstant - HIIConstant;
-    float DeConstant = HIIConstant;
+    float HIIConstant = rhoConstant*InitialFractionHII*HydrogenMassFraction;
+    float HIConstant = rhoConstant*HydrogenMassFraction - HIIConstant;
+    float HeIIConstant = rhoConstant*InitialFractionHeII*(1.0-HydrogenMassFraction);
+    float HeIIIConstant = rhoConstant*InitialFractionHeIII*(1.0-HydrogenMassFraction);
+    float HeIConstant = (1.0-HydrogenMassFraction)*rhoConstant - HeIIConstant - HeIIIConstant;
+    float DeConstant = HIIConstant + 0.25*HeIIConstant + 0.5*HeIIIConstant;
     float eUnits = VelocityUnits*VelocityUnits;
     float EUnits = DensityUnits*eUnits;
-    // initialize constant field
+    // initialize constant fields
     for (i=0; i<size; i++) {
       BaryonField[TENum][i]    = TEConstant/eUnits;
       BaryonField[V0Num][i]    = VxConstant/VelocityUnits;
@@ -131,12 +154,28 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
       BaryonField[DeNum][i]    = DeConstant/DensityUnits;
       BaryonField[HINum][i]    = HIConstant/DensityUnits;
       BaryonField[HIINum][i]   = HIIConstant/DensityUnits;
+      if ((NumChemicals == 3) || (MultiSpecies > 0)) {
+	BaryonField[HeINum][i]   = HeIConstant/DensityUnits;
+	BaryonField[HeIINum][i]  = HeIIConstant/DensityUnits;
+	BaryonField[HeIIINum][i] = HeIIIConstant/DensityUnits;
+      }
     }
     if (DualEnergyFormalism)
       for (i=0; i<size; i++)
 	BaryonField[GENum][i] = IEConstant/eUnits;
+    // if using external chemistry/cooling, set rate fields
+    if (RadiativeCooling) {
+      for (i=0; i<size; i++)  BaryonField[kphHINum][i] = 0.0;
+      for (i=0; i<size; i++)  BaryonField[gammaNum][i] = 0.0;
+      if (RadiativeTransferHydrogenOnly == FALSE) {
+	for (i=0; i<size; i++)  BaryonField[kphHeINum][i]  = 0.0;
+	for (i=0; i<size; i++)  BaryonField[kphHeIINum][i] = 0.0;
+      }
+      if (MultiSpecies > 1)
+	for (i=0; i<size; i++)  BaryonField[kdissH2INum][i] = 0.0;
+    }
 
-    if (debug) {
+    if (debug && NewData) {
       printf("\n  Initializing constant fields using CGS values:\n");
       printf("        density = %g\n",rhoConstant);
       printf("   total energy = %g\n",TEConstant);
@@ -149,6 +188,11 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
       printf("      electrons = %g\n",DeConstant);
       printf("            nHI = %g\n",HIConstant);
       printf("           nHII = %g\n",HIIConstant);
+      if ((NumChemicals == 3) || (MultiSpecies > 0)) {
+	printf("           nHeI = %g\n",HeIConstant);
+	printf("          nHeII = %g\n",HeIIConstant);
+	printf("         nHeIII = %g\n",HeIIIConstant);
+      }
       
       printf("Corresponding scaled values:\n");
       printf("        density = %g\n",rhoConstant/DensityUnits);
@@ -162,6 +206,11 @@ int grid::CosmoIonizationInitializeGrid(int NumChemicals,
       printf("      electrons = %g\n",DeConstant/DensityUnits);
       printf("            nHI = %g\n",HIConstant/DensityUnits);
       printf("           nHII = %g\n",HIIConstant/DensityUnits);
+      if ((NumChemicals == 3) || (MultiSpecies > 0)) {
+	printf("           nHeI = %g\n",BaryonField[HeINum][1]);
+	printf("          nHeII = %g\n",BaryonField[HeIINum][1]);
+	printf("         nHeIII = %g\n",BaryonField[HeIIINum][1]);
+      }
     }
 
   } // end if NewData == TRUE
