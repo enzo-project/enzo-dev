@@ -69,7 +69,11 @@ void grid::CudaMHDMallocGPUData()
 
   // Compute the size of the total GPU memory
   MHDData.GPUMemOffset = 0;
-  MHDData.GPUMemSize = 40*sizebytes_align;
+  MHDData.GPUMemSize = 4*NEQ_MHD*sizebytes_align;
+#ifdef DEDNER_SOURCE
+  MHDData.GPUMemSize += 4*sizebytes_align;
+#endif
+
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
     MHDData.GPUMemSize += 3*sizebytes_align;
   if (UseDrivingField) 
@@ -86,8 +90,9 @@ void grid::CudaMHDMallocGPUData()
            (float)free/(1024.0*1024.0));
     exit(1);
   }
+  // allocate memory for all variables
   CUDA_SAFE_CALL( cudaMalloc(&(MHDData.GPUMem), MHDData.GPUMemSize) );
-  
+
   // baryon 
   for (int i = 0; i < NEQ_MHD; i++) {
     CudaMHDMalloc((void**)&MHDData.Baryon[i], sizebytes);
@@ -97,8 +102,10 @@ void grid::CudaMHDMallocGPUData()
   }
 
   // source terms
-  // CudaMHDMalloc((void**)&MHDData.divB, sizebytes);
-  // CudaMHDMalloc((void**)&MHDData.gradPhi, 3*sizebytes);
+#ifdef DEDNER_SOURCE
+  CudaMHDMalloc((void**)&MHDData.divB, sizebytes);
+  CudaMHDMalloc((void**)&MHDData.gradPhi, 3*sizebytes);
+#endif
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
     for (int i = 0; i < GridRank; i++) {
       CudaMHDMalloc((void**)&MHDData.AccelerationField[i], sizebytes);
@@ -179,6 +186,10 @@ void grid::CudaMHDSourceTerm()
 	== FAIL) {
       ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
     }
+
+#ifdef DEDNER_SOURCE
+  MHDDednerSourceGPU(MHDData);
+#endif
 
   if (DualEnergyFormalism) 
     MHDDualEnergySourceGPU(MHDData, dtFixed, a,
