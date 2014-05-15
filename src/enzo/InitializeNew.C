@@ -66,6 +66,8 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 			       TopGridData &MetaData);
 int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData);
 int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -440,6 +442,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 13) RotatingDisk
   if (ProblemType == 13)
     ret = RotatingDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  if (ProblemType == 14)
+    ret = RotatingSphereInitialize(fptr, Outfptr, TopGrid, MetaData);
 
   // 20) Zeldovich Pancake
  

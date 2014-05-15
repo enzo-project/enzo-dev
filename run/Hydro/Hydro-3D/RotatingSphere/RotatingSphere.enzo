@@ -1,0 +1,96 @@
+# Multiphase Cooling 2D simulation general case
+#
+# Initializes a 2D grid with a given temperature, entropy slope, and
+# scale height
+
+# Initialization Parameters
+ProblemType                = 14
+TopGridRank                = 3
+
+TopGridDimensions          = 128 128 128
+DomainLeftEdge             = -200.0 -200.0 -200.0
+DomainRightEdge            = 200.0 200.0 200.0
+
+LeftFaceBoundaryCondition  = 3 3 3 # 3 = Periodic, 0 = reflecting
+RightFaceBoundaryCondition = 3 3 3 # 3 = Periodic, 0 = reflecting
+TopGridGravityBoundary = 0  # 1 = Isolated
+
+# Hierarchy Control Parameters
+StaticHierarchy            = 0 # 0 = AMR, 1 = No AMR
+MaximumRefinementLevel     = 2
+RefineBy                   = 2
+CellFlaggingMethod = 12
+#MinimumOverDensityForRefinement = 8.0
+MustRefineRegionMinRefinementLevel = 2
+MustRefineRegionLeftEdge = -16.0 -16.0 -16.0
+MustRefineRegionRightEdge = 16.0 16.0 16.0
+
+# I/O Parameters
+StopCycle = 1000000
+InitialTime = 0.0
+StopTime = 1.0
+dtDataDump = 0.01
+OutputFirstTimeAtLevel = 6
+DataDumpDir                = DD
+DataDumpName = DD
+OutputTemperature          = 1 
+OutputCoolingTime          = 1
+
+# Units Parameters
+DensityUnits               = 1.66054e-24  # 1 particle/cc
+LengthUnits                = 3.08567758135e+18  # 1 pc
+TimeUnits                  = 3.15576e+14 # 10 Million years
+
+# Gravity Parameters
+SelfGravity                = 1
+
+# Hydrodynamic Parameters
+UseHydro                   = 1
+HydroMethod                = 0  # 0 = PPM, 2 = ZEUS
+FluxCorrection             = 1
+DualEnergyFormalism        = 1 
+Gamma                      = 1.66666666667
+PPMDiffusionParameter      = 0
+CourantSafetyNumber        = 0.1
+
+# Parameters for Additional Physics
+RadiativeCooling = 1
+MultiSpecies = 3
+
+MetalCooling = 3  #### turn on Cloudy cooling! --Set this to 0 to test.
+IncludeCloudyHeating = 0
+IncludeCloudyMMW = 0
+CloudyMetallicityNormalization = 0.018477  	  # do not change
+CloudyCoolingGridFile = solar_2008_3D_metals.h5   # use 3D file (has correct dynamic range)
+
+# Global Parameters
+tiny_number                = 1.0e-10
+MinimumEfficiency          = 0.4
+
+Mu = 1.22
+
+# Problem-specific Parameters
+RotatingSphereNFWMass = 1.0e7
+RotatingSphereNFWConcentration = 2.0
+RotatingSphereCoreRadius = 16.0
+RotatingSphereCentralDensity = 1.0
+RotatingSphereCoreDensityExponent = 0.1
+RotatingSphereOuterDensityExponent = 2.5
+RotatingSphereExteriorTemperature = 200.0
+RotatingSphereSpinParameter = 0.05
+RotatingSphereAngularMomentumExponent = 0.9
+RotatingSphereUseTurbulence = 0
+RotatingSphereTurbulenceRMS = 0.00
+RotatingSphereRedshift = 20.0
+
+TestProblemInitialHIFraction  = 0.998
+TestProblemInitialHIIFraction  = 0.002
+TestProblemInitialHeIFraction  = 0.999
+TestProblemInitialHeIIFraction  = 0.001
+TestProblemInitialHeIIIFraction  = 1.0e-10
+TestProblemInitialHMFraction  = 1.0e-10
+TestProblemInitialH2IFraction  = 5.0e-4
+TestProblemInitialH2IIFraction  = 1.0e-20
+
+TestProblemUseMetallicityField = 1
+TestProblemInitialMetallicityFraction = 0.022e-3  # 0.022 is solar metallicity.

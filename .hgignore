@@ -51,3 +51,5 @@ src/P-GroupFinder/P-GroupFinder
 doc/manual/build
 
 run/results.js
+
+run/Hydro/Hydro-3D/RotatingSphere/profile_script.py
