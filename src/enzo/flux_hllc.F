@@ -316,7 +316,7 @@ c
       
       if (idual .eq. 1) then
          do i = i1,i2+1
-            gef(i,j) = dt*gef(i,j)
+            gef(i,j) = dt/dx(i)*gef(i,j)
          enddo
       endif
 

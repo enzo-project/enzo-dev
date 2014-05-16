@@ -189,7 +189,7 @@ c
              if (geslice(i,j) .lt. 0._RKIND) 
      $            write(6,*) 'euler: geslice<0:', i,j,geslice(i,j)
              geslice(i,j) = max((geslice(i,j)*dslice(i,j) +
-     $            (gef(i,j) - gef(i+1,j))/dx(i) + ges(i,j)) * dnuinv(i)
+     $            (gef(i,j) - gef(i+1,j)) + ges(i,j)) * dnuinv(i)
      $            ,0.5_RKIND*geslice(i,j))
 c             if (geslice(i,j) .lt. tiny) geslice(i,j) = tiny
              if (geslice(i,j) .lt. 0._RKIND) then
