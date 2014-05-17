@@ -819,8 +819,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if ((NumberOfGrids >1) || ( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      delete [] SiblingList[grid1].GridList;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+      // Need this check to match that from CreateSiblingList.C and
+      // Grid_FastSiblingLocatorFindSiblings.C
+      if (NumberOfGrids == 1)
+        delete SiblingList[grid1].GridList;
+      else
+        delete [] SiblingList[grid1].GridList;
+    }
     delete [] SiblingList;
   }
 
