@@ -89,7 +89,6 @@ int grid::FlagBufferZones()
           for(j=jstart; j<jend;j++){
             Index = (k*GridDimension[1] + j)*GridDimension[0] + 1;
             for(i=1; i<GridDimension[0]-1;i++, Index++){
-
               TempBuffer[Index] += FlaggingField[Index         ] + 
                 FlaggingField[Index - Offset] +
                 FlaggingField[Index + Offset];
