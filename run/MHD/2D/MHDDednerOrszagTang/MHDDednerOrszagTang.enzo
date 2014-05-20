@@ -14,8 +14,6 @@ RiemannSolver = 1
 #MHD_CT_Method       = 1  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
 HydroMethod            = 4
 CourantSafetyNumber    = 0.5
-#ProcessorTopology = 4 4 1
-#ProcessorTopology = 2 1 1
 
 # Hydro control
 

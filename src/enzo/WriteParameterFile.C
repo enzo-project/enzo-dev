@@ -1110,8 +1110,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"FixedTimestep          =%"GSYM"\n",FixedTimestep);
   fprintf(fptr,"MHD_ProjectB                  =%"ISYM"\n",MHD_ProjectB);
   fprintf(fptr,"MHD_ProjectE                  =%"ISYM"\n",MHD_ProjectE);
-  fprintf(fptr,"ProcessorTopology             =%"ISYM" %"ISYM" %"ISYM"\n",
-          ProcessorTopology[0],ProcessorTopology[1],ProcessorTopology[2]);
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
 
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);
