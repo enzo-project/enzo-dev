@@ -17,7 +17,17 @@ will need to modify:
 
    FieldType[NaNum    = NumberOfBaryonFields++] = SodiumDensity;
 
-3. You can access the field in your problem initializer or elsewhere using the ``FindField`` function. To get the field number, you would use
+3. Finally, you need to modify the initializer of problem types using your new field to make sure that the field is written out. Add the lines
+
+.. code-block:: c
+
+   char* SodiumName = "Sodium_Density";
+   ...
+   DataLabel[i++] = SodiumName;
+
+after the other DataLabels are set. Note that you need to set the Data Labels in the same order that the fields were added in Grid_InitializeUniformGrid.C or the fields will be written incorrectly.
+
+4. You can access the field in your problem initializer or elsewhere using the ``FindField`` function. To get the field number, you would use
 
 .. code-block:: c
 
