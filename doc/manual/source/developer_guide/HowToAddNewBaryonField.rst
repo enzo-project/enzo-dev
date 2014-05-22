@@ -44,5 +44,4 @@ Now you can access the field as ``BaryonField[NaNum]``. For example, to set the 
 Conservation
 ------------
 
-By default, Enzo assumes that fields represent densities for purposes of advection and interpolation. If your field is not a density field, you will
-need to make some adjustments to make sure that the field is properly conserved. To do this, you can modify the macros in ``typedefs.h`` under ``FieldTypeIsDensity``.
+For the purpose of advection and interpolation, Enzo assumes that all fields are densities unless told otherwise. If your field is not a density field, you will need to make some adjustments to make sure that the field is properly conserved. To do this, you can modify the macros in ``typedefs.h`` under ``FieldTypeIsDensity``. Non-density fields will be multiplied by density prior to flux correction and converted back afterwards. This process will make the field be conserved in the same way as density fields. To see how Enzo decides whether a field needs to be multiplied by density, take a look at the file ``MakeFieldConservative.C``. The actual manipulation is done in the flux correction and interpolation routines, and should not need to be modified.
