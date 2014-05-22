@@ -62,7 +62,7 @@ int grid::FlagCellsToBeRefinedByMustRefineParticles()
   CellSize = float(CellWidth[0][0]);
 
   float UniformParticleMass = 0.0;
-  if (ProblemType == 30 and MustRefineParticlesCreateParticles == 3){
+  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3){
     float OmegaCDMNow = 1.0 - OmegaLambdaNow;
     UniformParticleMass = OmegaCDMNow/OmegaMatterNow;
   }

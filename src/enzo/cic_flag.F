@@ -50,10 +50,11 @@ c
 c  argument declarations
 c
       INTG_PREC dim1, dim2, dim3, npositions, ndim, imatch1, imatch2
-      R_PREC minmassmust,unipartmass
+      R_PREC minmassmust, unipartmass
+      R_PREC partmass(npositions)
       INTG_PREC buffersize
       P_PREC posx(npositions), posy(npositions), posz(npositions), 
-     &        partmass(npositions), leftedge(3)
+     &     leftedge(3)
       P_PREC cellsize
       INTG_PREC itype(npositions)
       INTG_PREC ffield(dim1, dim2, dim3)
