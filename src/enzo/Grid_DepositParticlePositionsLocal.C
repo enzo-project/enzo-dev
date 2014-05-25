@@ -34,12 +34,13 @@
  
 extern float DepositParticleMaximumParticleMass;
  
-int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField)
+int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
+					bool BothFlags)
 {
  
   /* Declarations. */
  
-  int dim, i;
+  int dim, i, size;
   float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer;
  
   /* If there are no particles, don't deposit anything. */
@@ -91,12 +92,43 @@ int grid::DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField)
 			     NumberOfParticles, DepositField) == FAIL) {
     ENZO_FAIL("Error in grid->DepositPositions\n");
   }
- 
+
+  /* If requested, only consider cells that have already been flagged. */
+
+  if (BothFlags) {
+
+    float *DepositFieldPointer;
+    switch (DepositField) {
+    case GRAVITATING_MASS_FIELD:
+      DepositFieldPointer = GravitatingMassField;
+      break;
+    case GRAVITATING_MASS_FIELD_PARTICLES:
+      DepositFieldPointer = GravitatingMassFieldParticles;
+      break;
+    case MASS_FLAGGING_FIELD:
+      DepositFieldPointer = MassFlaggingField;
+      break;
+    case PARTICLE_MASS_FLAGGING_FIELD:
+      DepositFieldPointer = ParticleMassFlaggingField;
+      break;
+    } // ENDSWITCH
+    
+    for (dim = 0, size = 1; dim < GridRank; dim++)
+      size *= GridDimension[dim];
+    for (i = 0; i < size; i++)
+      if (FlaggingField[i] == 0)
+	DepositFieldPointer[i] = 0.0;
+  }
+  
   /* If necessary, delete the particle mass temporary. */
  
   if (MassFactor != 1.0)
-
     delete [] ParticleMassTemp;
+
+  if (BothFlags) {
+    delete [] FlaggingField;
+    FlaggingField = NULL;
+  }
  
   /* Return particles to positions at Time. */
  

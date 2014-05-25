@@ -38,12 +38,13 @@ int Return_MPI_Tag(int grid_num, int proc);
 extern float DepositParticleMaximumParticleMass;
  
 int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level, 
-				       int ParticleMassMethod, int *SendProcs,
-				       int NumberOfSends)
+				       int ParticleMassMethod, int MustRefineMethod,
+				       int *SendProcs, int NumberOfSends)
 {
 
   //printf("grid::SetParticleMassFlaggingField called \n");
   int i, irecv, dim, size, proc, MPI_Tag;
+  bool and_flag;
 
   /* Return if we're not needed here */
 
@@ -77,6 +78,7 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
   if (CommunicationDirection == COMMUNICATION_SEND) {
 
     int method, NumberOfFlaggedCells;
+    bool KeepFlaggingField;
 
     /* Calculate the flagging field only if 
        1) this grid belongs to this grid and it's the first pass, or
@@ -95,65 +97,62 @@ int grid::SetParticleMassFlaggingField(int StartProc, int EndProc, int level,
 	 NumberOfParticles == 0))
       return SUCCESS;
 
+    /***********************************************************************/
+    /* beginning of Cell flagging criterion routine                        */
+    /*
+       NOTE (JHW 05/2014): If using MustRefineParticlesCreateParticles
+       > 0, then only flag cells for particle overdensity refinement
+       if they are flagged by the must-refine particles on level ==
+       MustRefineParticlesRefineToLevel ONLY so that the entire region
+       occupied by the high-resolution region is not refined.  Thus,
+       must-refine flagging must be done first.
+    */
+  
     /* Allocate and clear mass flagging field. */
  
     this->ClearParticleMassFlaggingField();
 
-    for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
+    /* ==== METHOD 8: BY POSITION OF MUST-REFINE PARTICLES  ==== */
+ 
+    if (MustRefineMethod >= 0 &&
+	level <= MustRefineParticlesRefineToLevel) {
 
-      /***********************************************************************/
-      /* beginning of Cell flagging criterion routine                        */
-      if(level >= MustRefineParticlesRefineToLevel ||
-	 CellFlaggingMethod[method] == 8 || 
-	 MustRefineParticlesCreateParticles == 0){
-      switch (CellFlaggingMethod[method]) {
- 
-	/* ==== METHOD 4: BY PARTICLE MASS ==== */
- 
-      case 4:
- 
-	/* Set the maximum particle mass to be deposited (cleared below). */
- 
-	DepositParticleMaximumParticleMass =
-	  0.99999*MinimumMassForRefinement[method]*POW(RefineBy,
-			       level*MinimumMassForRefinementLevelExponent[method]);
- 
-	/* Deposit particles in this grid to MassFlaggingField. */
- 
-	if (this->DepositParticlePositionsLocal(this->ReturnTime(),
-					PARTICLE_MASS_FLAGGING_FIELD) == FAIL) {
-	  ENZO_FAIL("Error in grid->DepositParticlePositions.\n");
-	}
+      KeepFlaggingField = (level == MustRefineParticlesRefineToLevel);
+      NumberOfFlaggedCells = 
+	this->DepositMustRefineParticles(ParticleMassMethod, level,
+					 KeepFlaggingField);
 
-	DepositParticleMaximumParticleMass = 0;
+      if (NumberOfFlaggedCells < 0) {
+	ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");
+      }
 
-	break;
- 
-	/* ==== METHOD 8: BY POSITION OF MUST-REFINE PARTICLES  ==== */
- 
-      case 8:
- 
-	if (level < MustRefineParticlesRefineToLevel) {
-	  
-	    NumberOfFlaggedCells = 
-	      this->DepositMustRefineParticles(ParticleMassMethod, level);
+    } // ENDIF MustRefineMethod
+    
+    /* ==== METHOD 4: BY PARTICLE MASS ==== */
 
-	  if (NumberOfFlaggedCells < 0) {
-	    ENZO_FAIL("Error in grid->DepositMustRefineParticles.\n");
-	  }
-	}
-	
-	break;
+    if (ParticleMassMethod >= 0 &&
+	(level >= MustRefineParticlesRefineToLevel ||
+	 MustRefineParticlesCreateParticles == 0)) {
+
+      and_flag = (level == MustRefineParticlesRefineToLevel &&
+		  MustRefineParticlesCreateParticles > 0);
+      
+      /* Set the maximum particle mass to be deposited (cleared below). */
+      
+      DepositParticleMaximumParticleMass =
+	0.99999*MinimumMassForRefinement[ParticleMassMethod]*POW(RefineBy,
+ 	 level*MinimumMassForRefinementLevelExponent[ParticleMassMethod]);
  
-	/* ==== undefined ==== */
+      /* Deposit particles in this grid to MassFlaggingField. */
  
-      case INT_UNDEFINED:
-	break;
-  
-      } // ENDSWITCH method
- }
-    } // ENDFOR methods
-  
+      this->DepositParticlePositionsLocal(this->ReturnTime(),
+					  PARTICLE_MASS_FLAGGING_FIELD,
+					  and_flag);
+      
+      DepositParticleMaximumParticleMass = 0;
+
+    } // ENDIF ParticleMassMethod
+
     /* End of Cell flagging criterion routine                              */
     /***********************************************************************/
 

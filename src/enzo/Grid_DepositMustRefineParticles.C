@@ -37,7 +37,7 @@ extern "C" void PFORTRAN_NAME(cic_flag)(FLOAT *posx, FLOAT *posy,
 			float *unipartmass);
  
  
-int grid::DepositMustRefineParticles(int pmethod, int level)
+int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingField)
 {
   /* declarations */
   //printf("grid::DepositMustRefineParticles called \n");
@@ -107,13 +107,20 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
     POW(RefineBy, level * MinimumMassForRefinementLevelExponent[pmethod]);
   if (ProblemType == 28)
     MustRefineMass = 0;
+
+  /* Special case on level == MustRefineParticlesRefineToLevel when we
+     restrict the additional AMR to regions with must-refine
+     particles, and don't use the particle mass field. */
   
   int NumberOfFlaggedCells = 0;
-  for (i = 0; i < size; i++)
-    if (FlaggingField[i]) {
-      ParticleMassFlaggingField[i] = MustRefineMass;
-      NumberOfFlaggedCells++;
-    }
+  if (!(ProblemType == 30 && MustRefineParticlesCreateParticles == 3 &&
+	level == MustRefineParticlesRefineToLevel)) {
+    for (i = 0; i < size; i++)
+      if (FlaggingField[i]) {
+	ParticleMassFlaggingField[i] = MustRefineMass;
+	NumberOfFlaggedCells++;
+      }
+  }
 
   /* If refining region before supernova, change particle type back to
      its original value. */
@@ -123,8 +130,10 @@ int grid::DepositMustRefineParticles(int pmethod, int level)
 
   /* Clean up */
 
-  delete [] FlaggingField;
-  FlaggingField = NULL;
+  if (!KeepFlaggingField) {
+    delete [] FlaggingField;
+    FlaggingField = NULL;
+  }
 
   return NumberOfFlaggedCells;
  
