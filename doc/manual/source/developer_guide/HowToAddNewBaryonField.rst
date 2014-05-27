@@ -17,6 +17,9 @@ will need to modify:
 
    FieldType[NaNum    = NumberOfBaryonFields++] = SodiumDensity;
 
+In theory, you could add the fields and allocate the fields in your problem initializer code (as some test problems currently in Enzo do), but it is cleaner and simpler to have your problem initializer call ``InitializeUniformGrid`` before doing the setup for your problem type. For more details, see 
+:ref:`AddingANewTestProblem`.
+
 3. Finally, you need to modify the initializer of problem types using your new field to make sure that the field is written out. Add the lines
 
 .. code-block:: c
@@ -40,6 +43,9 @@ Now you can access the field as ``BaryonField[NaNum]``. For example, to set the 
 
    for (int i = 0; i < size; i++)
       BaryonField[NaNum][i] = 0.0;
+
+For a more detailed discussion of how data in BaryonFields is accessed, see
+:ref:`BaryonFieldAccess`.
 
 Conservation
 ------------
