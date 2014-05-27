@@ -5,14 +5,14 @@ Adding a new Test Problem.
 
 This is the best place to start your Enzo Development Career. Even
 if you're not interested in actually writing a new problem
-generator, in this page I'll discuss the basic Enzo datastructures
+generator, in this page I'll discuss the basic Enzo data structures
 and programming patterns.
 
 One deficiency in this tutorial is the lack of Particles. This is
 not an oversight, but due to the fact that the author of the
 article doesn't really use particles, as he's not a cosmologist.
 These will be added in the future, but particles are really not
-that big of a deal when it comes to the general Enzo data
+that big of a deal when it comes to the general Enzo data 
 structures. All the information herein is still essential.
 
 Overview
@@ -34,8 +34,8 @@ Lastly, please give your problem a reasonable name. I'll be using
 ``MyProblem`` throughout this tutorial. Please change this to something
 that reflects the problem you're installing.
 
-Setup and Installation
-----------------------
+Adding Setup Files and Defining a New Problem Type
+--------------------------------------------------
 
 Please follow the general Enzo naming convention and call your
 routines ``MyProblemInitialize`` and store it in ``MyProblemInitialize.C``,
@@ -211,15 +211,51 @@ In brief, these are:
 
 More information can be found in :doc:`../reference/Headers`.
 
-Necessary Assignments
-~~~~~~~~~~~~~~~~~~~~~
+Initializing Baryon Fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+At some point in your problem type setup, it is essential that the arrays
+to hold BaryonField data are initialized. To do this, you must tell Enzo
+what baryon fields exist in the problem, allocate the BaryonField arrays,
+and label the fields so that they can be written out.
+
+The easiest way to set up and allocate the fields is through a call to
+``InitializeUniformGrid``. This function, found in ``Grid_InitializeUniformGrid.C``,
+takes care of setting up the fields and allocating the arrays and
+initializes the gas to a uniform state. You will still need to add
+labels for output as described below.
+
+The call to ``InitializeUniformGrid`` can simply be added in ``MyProblemInitialize.C``
+before the call to the problem initializer as follows:
+
+.. code-block:: c
+
+        if (TopGrid.GridData->InitializeUniformGrid(MyProblemUniformDensity,
+                                              MyProblemUniformTotalEnergy,
+                                              MyProblemUniformTotalEnergy,
+                                              MyProblemUniformVelocity,
+                                              MyProblemUniformBField) == FAIL) {
+                                                 ENZO_FAIL("Error in InitializeUniformGrid.");
+                                                 }
+
+Note that it is in theory possible to set up the BaryonFields manually in your test
+problem without the call to ``InitializeUniformGrid``. This is done in some test
+problems in the code base, but is discouraged as a call to ``InitializeUniformGrid``
+is cleaner, simpler, and is already implemented. If for some reason you do need
+to do the setup and allocation manually, look at ``Grid_InitializeUniformGrid.C``
+to see how it is done. The field information must be done on every grid on every
+processor, so it is essential that you do this step before exiting on remote grids.
+
+Setting up Data Labels
+~~~~~~~~~~~~~~~~~~~~~~
 
 There are two arrays that need to be filled in ``MyProblemInitialize``.
 One of them is **ABSOLUTELY ESSENTIAL** for the functioning of the
 code. These are ``DataLabel`` and ``DataUnits``. Both of these are arrays
 of strings that will be used to label the HDF5 output files. Each
 element of the array corresponds to an element of the BaryonField
-array (more on this later) and MUST be defined in the same order.
+array and MUST be defined in the same order as fields are entered in
+``InitializeUniformGrid`` or elsewhere in your problem initializer.
 There is not a mechanism to ensure that you do this right, so don't
 screw it up.
 
@@ -346,73 +382,22 @@ stores the actual data that the simulator is interested in.
 
     float *BaryonField[MAX_NUMBER_OF_BARYON_FIELDS];
 
-Necessary Actions
-~~~~~~~~~~~~~~~~~
-
-There are four things that this routine ABSOLUTELY MUST do, and
-they MUST BE DONE IN THIS ORDER.
-
-#. Set up the FieldType array and define NumberOfBaryonFields.
-
-    The FieldType array is an array of type field_type, a type defined
-    in ``src/enzo/typedefs.h``. It is used to relate physics to the
-    actual BaryonField element.
-
-    ``NumberOfBaryonFields`` is the number of valid, allocated fields. This
-    can be as little as 5 for pure fluid dynamics, or as many as you
-    have chemistry to deal with.
-
-    A typical pattern looks like this:
-
-    .. code-block:: c
-
-      NumberOfBaryonFields = 0;
-      FieldType[NumberOfBaryonFields++] = Density;
-      FieldType[NumberOfBaryonFields++] = TotalEnergy;
-      if (DualEnergyFormalism)
-        FieldType[NumberOfBaryonFields++] = InternalEnergy;
-      FieldType[NumberOfBaryonFields++] = Velocity1;
-      vel = NumberOfBaryonFields - 1;
-      if (GridRank > 1)
-        FieldType[NumberOfBaryonFields++] = Velocity2;
-      if (GridRank > 2)
-        FieldType[NumberOfBaryonFields++] = Velocity3;
-
-    All the right hand side of those assigns can be found in
-    ``typedefs.h``.
-
-    Note that all processors must have this information defined for all
-    grids, so this MUST come before step 2.
-
-#. Exit for remote grids.
-
-    Generally, grid member functions have two modes: things that all
-    processors can do, and things that only processors that own the
-    data can do. Usually, the routine simply exits if the processor
-    doesn't own the data:
+When setting up a new test problem, make sure to only set field values
+on Grids which live on the current processor. In Enzo, each Grid is a
+'real Grid' on one processor and a 'remote Grid', storing only metadata,
+on other processors. Therefore, your problem initializer should include
 
     .. code-block:: c
 
       if (ProcessorNumber != MyProcessorNumber)
         return SUCCESS;
 
-    ``ProcessorNumber`` is a grid member that stores which processor
-    actually has the data, and ``MyProcessorNumber`` is the global number
-    of the processor.
-    
-    Processors that don't get this data need to not execute the rest of the code.
+before setting field values.
 
-#. Allocate the BaryonFields
 
-    .. code-block:: c
-    
-        this->AllocateGrids()
-    
-    does the trick. More details on this in the Parallel section below.
-
-#. Assign values to the ``BaryonField``. See the page on Baryon Field Access for details.
-    Note that for problems that are perturbations on a homogenous background,
-    the routine ``InitializeUniformGrid`` has been provided. See that routine for its function signature.
+Finally, set up your test problem by setting the BaryonField values.
+See the page on Baryon Field Access for details.
+:ref:`BaryonFieldAccess`
 
 Initializing AMR problems
 ~~~~~~~~~~~~~~~~~~~~~~~~~
