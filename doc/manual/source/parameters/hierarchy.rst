@@ -321,9 +321,27 @@ Hierarchy Control Parameters
 ``NumberOfRootGridTilesPerDimensionPerProcessor`` (external)
     Splits the root grid into 2^(dimensions*this parameter) grids per MPI process.  Default: 1
 ``UserDefinedRootGridLayout`` (external)
-   A three element array.  Splits the root grid into `N` subgrids where `N` is the product of the supplied values.  The first entry corresponds to the number of root grid decompositions along the x axis of the simulation, the second element the number of decompositions along the y axis, and the third the number of decompositions along the z axis.
+   A three element array.  Splits the root grid into ``N`` subgrids where ``N``
+   is the product of the supplied values.  The first entry corresponds to the
+   number of root grid decompositions along the x axis of the simulation, the
+   second element the number of decompositions along the y axis, and the third
+   the number of decompositions along the z axis.
 
-   This parameter is only used if all three elements of the array are set to a value different from the dummy default value.  If that is the case the root grid will be `manually` decomposed and the values supplied for ``NumberOfRootGridTilesPerDimensionPerProcessor`` will be ignored.  This is most useful when an automatic root grid decomposition is inefficient (for example in a deeply nested isolated galaxy simulation).  Default: -99999 -99999 -99999
+   This parameter is only used if all three elements of the array are set to a
+   value different from the dummy default value.  If that is the case the root
+   grid will be *manually* decomposed and the value supplied for
+   ``NumberOfRootGridTilesPerDimensionPerProcessor`` will be ignored.  This is
+   most useful when an automatic root grid decomposition is inefficient (for
+   example, in a deeply nested isolated galaxy simulation).
+
+   This parameter should be used with caution since it is possible to get into
+   a situation where there are fewer grids than CPU cores.  Normally this can
+   never happen since there will always be at least one root grid tile for every
+   CPU.  Most simulations assume you will be running with as many root grid
+   tiles as CPUs - if you instead opt to reduce the number of root grid tiles
+   per CPU to a number less than one, Enzo might break in unpredictable ways.
+   Default: -99999 -99999 -99999
+
 ``FastSiblingLocatorEntireDomain`` (external)
     In zoom-in calculations, the fast sibling locator doesn't need to search the entire domain.  Turning this parameter on restricts the finder to the inner nested grid.  Currently broken.  Default: 0
 ``MoveParticlesBetweenSiblings`` (external)
