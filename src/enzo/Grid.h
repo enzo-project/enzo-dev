@@ -507,7 +507,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the pressure at the requested time. */
 
-   int ComputePressure(FLOAT time, float *pressure);
+   int ComputePressure(FLOAT time, float *pressure,int IncludeCRs=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
             formalism. */
@@ -516,7 +516,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the temperature. */
 
-   int ComputeTemperatureField(float *temperature);
+   int ComputeTemperatureField(float *temperature,int IncludeCRs=0);
 
 /* Baryons: compute the temperature at the requested time using
    Gadget equilibrium cooling. */

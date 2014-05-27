@@ -34,7 +34,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-int grid::ComputePressure(FLOAT time, float *pressure)
+int grid::ComputePressure(FLOAT time, float *pressure,int IncludeCRs)
 {
  
   /* declarations */
@@ -296,7 +296,7 @@ int grid::ComputePressure(FLOAT time, float *pressure)
     }
 
    /* If cosmic rays present, add pressure contribution */
-   if( CRModel ){
+   if( CRModel && IncludeCRs){
      float crDensity;
      for (i=0; i<size; i++) {
        crDensity = BaryonField[CRNum][i];

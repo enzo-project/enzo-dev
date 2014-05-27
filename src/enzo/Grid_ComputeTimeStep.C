@@ -141,7 +141,7 @@ float grid::ComputeTimeStep()
     /* Compute the pressure. */
  
     float *pressure_field = new float[size];
-    this->ComputePressure(Time, pressure_field);
+    this->ComputePressure(Time, pressure_field,1); // USE CRs
  
 #ifdef UNUSED
     int Zero[3] = {0,0,0}, TempInt[3] = {0,0,0};
