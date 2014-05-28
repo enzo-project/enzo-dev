@@ -18,7 +18,7 @@
 Eint64 mused(void)
 {
 
-#define MEM_TRACE
+//#define MEM_TRACE
 
 #ifdef MEM_TRACE
   struct rusage temp;

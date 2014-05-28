@@ -295,13 +295,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // Set the number of particle attributes, if left unset
  
-  if (NumberOfParticleAttributes == INT_UNDEFINED)
+  if (NumberOfParticleAttributes == INT_UNDEFINED || 
+      NumberOfParticleAttributes == 0){
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
     } else {
       NumberOfParticleAttributes = 0;
     }
+  }
  
   // Give unset parameters their default values
  

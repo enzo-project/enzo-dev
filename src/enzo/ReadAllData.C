@@ -112,6 +112,20 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   fprintf(stderr, "fclose: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   fclose(fptr);
+
+  /* Set the number of particle attributes, if left unset. */
+
+  if (NumberOfParticleAttributes == INT_UNDEFINED ||
+      NumberOfParticleAttributes == 0) {
+    if (StarParticleCreation || StarParticleFeedback) {
+      NumberOfParticleAttributes = 3;
+      if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      AddParticleAttributes = TRUE;
+    } else {
+      NumberOfParticleAttributes = 0;
+    }
+
+  }
  
   /* Read Boundary condition info. */
   fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
