@@ -60,7 +60,7 @@ int ReadFile(char *name, int Rank, int Dim[], int StartIndex[],
  
 int grid::TurbulenceSimulationInitializeGrid(
                           float TurbulenceSimulationInitialDensity,
-			  float TurbulenceSimulationInitialDensityPerturbationAmplitude,
+              float TurbulenceSimulationInitialDensityPerturbationAmplitude,
                           float TurbulenceSimulationInitialTemperature,
                           float TurbulenceSimulationInitialPressure,
                           float TurbulenceSimulationInitialMagneticField[],
@@ -111,7 +111,7 @@ int grid::TurbulenceSimulationInitializeGrid(
     fprintf(log_fptr, "\n");
     fprintf(log_fptr, "TSIG ParallelRootGridIO = %"ISYM"\n", ParallelRootGridIO);
     fprintf(log_fptr, "Processor %"ISYM", Target processor %"ISYM"\n",
-	    MyProcessorNumber, ProcessorNumber);
+        MyProcessorNumber, ProcessorNumber);
     fprintf(log_fptr, "TotalRefinement = %"ISYM"\n", TotalRefinement);
   }
  
@@ -131,15 +131,15 @@ int grid::TurbulenceSimulationInitializeGrid(
   if (ParallelRootGridIO == TRUE && TotalRefinement == -1)
     for (dim = 0; dim < GridRank; dim++)
       Offset[dim] = nint((GridLeftEdge[dim] - DomainLeftEdge[dim])/
-			 CellWidth[dim][0]);
+             CellWidth[dim][0]);
  
   /*----------------------------------------------------*/
   /* Create baryon fields. */
  
   NumberOfBaryonFields = 0;
-  //if (TurbulenceSimulationVelocityNames[0] != NULL) {
     FieldType[NumberOfBaryonFields++] = Density;
-    FieldType[NumberOfBaryonFields++] = TotalEnergy;
+    if( EquationOfState == 0 )
+      FieldType[NumberOfBaryonFields++] = TotalEnergy;
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     FieldType[NumberOfBaryonFields++] = Velocity1;
@@ -168,7 +168,6 @@ int grid::TurbulenceSimulationInitializeGrid(
 
   if( WritePotential )
       FieldType[NumberOfBaryonFields++] = GravPotential; 
-  //}
  
   /* Set the subgrid static flag. */
  
@@ -200,13 +199,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   /* Allocate space for the fields. */
  
   if (ReadData == TRUE) {
-    if (io_log) fprintf(log_fptr, "Allocate %"ISYM" fields, %"ISYM" floats per field\n",
-			NumberOfBaryonFields, size);
-    for (dim = 0; dim < GridRank; dim++)
-      if (io_log) fprintf(log_fptr, "  Field dim %"ISYM" size %"ISYM"\n", dim, GridDimension[dim]);
-    printf("Allocating %"ISYM" baryon fields of size %"ISYM"\n", NumberOfBaryonFields, size);
-    for (int field = 0; field < NumberOfBaryonFields; field++)
-      BaryonField[field] = new float[size];
+    this->AllocateGrids();
   }
  
   /* If set, allocate space for RandomForcing fields. */
@@ -226,11 +219,13 @@ int grid::TurbulenceSimulationInitializeGrid(
     }
  
   /* Read the total energy field. */
- 
-  if (TurbulenceSimulationTotalEnergyName != NULL && ReadData)
+  if (TurbulenceSimulationTotalEnergyName != NULL && ReadData
+      && EquationOfState == 0
+      )
+
     if (ReadFile(TurbulenceSimulationTotalEnergyName, GridRank,
-		    GridDimension, GridStartIndex, GridEndIndex, Offset,
-		    BaryonField[DensNum], &tempbuffer, 0, 1) == FAIL) {
+            GridDimension, GridStartIndex, GridEndIndex, Offset,
+            BaryonField[TENum], &tempbuffer, 0, 1) == FAIL) {
       ENZO_FAIL("Error reading total energy field.\n");
     }
  
@@ -238,8 +233,8 @@ int grid::TurbulenceSimulationInitializeGrid(
  
   if (TurbulenceSimulationGasPressureName != NULL && ReadData)
     if (ReadFile(TurbulenceSimulationGasPressureName, GridRank,
-		    GridDimension, GridStartIndex, GridEndIndex, Offset,
-		    BaryonField[TENum], &tempbuffer, 0, 1) == FAIL) {
+            GridDimension, GridStartIndex, GridEndIndex, Offset,
+            BaryonField[TENum], &tempbuffer, 0, 1) == FAIL) {
       ENZO_FAIL("Error reading total energy field.\n");
     }
  
@@ -248,8 +243,8 @@ int grid::TurbulenceSimulationInitializeGrid(
   if (TurbulenceSimulationGasEnergyName != NULL && DualEnergyFormalism &&
       ReadData)
     if (ReadFile(TurbulenceSimulationGasEnergyName, GridRank, GridDimension,
-		     GridStartIndex, GridEndIndex, Offset, BaryonField[GENum],
-		     &tempbuffer, 0, 1) == FAIL) {
+             GridStartIndex, GridEndIndex, Offset, BaryonField[GENum],
+             &tempbuffer, 0, 1) == FAIL) {
       ENZO_FAIL("Error reading gas energy field.\n");
     }
  
@@ -266,14 +261,16 @@ int grid::TurbulenceSimulationInitializeGrid(
     npart = 1;
   }
       if (ReadFile(TurbulenceSimulationVelocityNames[dim], GridRank,
-		   GridDimension, GridStartIndex, GridEndIndex, Offset,
-		   BaryonField[Vel1Num+dim], &tempbuffer, part, npart) == FAIL) {
-	ENZO_VFAIL("Error reading velocity field %"ISYM".\n", dim)
+           GridDimension, GridStartIndex, GridEndIndex, Offset,
+           BaryonField[Vel1Num+dim], &tempbuffer, part, npart) == FAIL) {
+    ENZO_VFAIL("Error reading velocity field %"ISYM".\n", dim)
       }
       }
   /* Read the magnetic fields. */
  
-  if (TurbulenceSimulationMagneticNames[0] != NULL && ReadData && HydroMethod == MHD_RK)
+  if (TurbulenceSimulationMagneticNames[0] != NULL && ReadData && 
+      (HydroMethod == MHD_RK || HydroMethod == MHD_Li) ){
+
     for (dim = 0; dim < GridRank; dim++){
   if( strcmp( TurbulenceSimulationMagneticNames[0] , TurbulenceSimulationMagneticNames[1] ) == 0 ){
     part = dim;
@@ -282,12 +279,26 @@ int grid::TurbulenceSimulationInitializeGrid(
     part = 0;
     npart = 1;
   }
+  if( UseMHDCT == TRUE ){
       if (ReadFile(TurbulenceSimulationMagneticNames[dim], GridRank,
-		   GridDimension, GridStartIndex, GridEndIndex, Offset,
-		   BaryonField[B1Num+dim], &tempbuffer, part, npart) == FAIL) {
-	ENZO_VFAIL("Error reading magnetic field %"ISYM".\n", dim)
+                        MagneticDims[dim], MHDStartIndex[dim], MHDEndIndex[dim], Offset,
+                        MagneticField[dim], &tempbuffer, part, npart) == FAIL) {
+    ENZO_VFAIL("Error reading magnetic field %"ISYM".\n", dim)
       }
+  }//MHDCT
+  if( UseMHD ){
+      if (ReadFile(TurbulenceSimulationMagneticNames[dim], GridRank,
+           GridDimension, GridStartIndex, GridEndIndex, Offset,
+           BaryonField[B1Num+dim], &tempbuffer, part, npart) == FAIL) {
+    ENZO_VFAIL("Error reading magnetic field %"ISYM".\n", dim)
       }
+      }//UseMHD
+
+    }//dim (field)
+  if( UseMHDCT ){
+    this->CenterMagneticField();
+      }
+  }
   /* Get RandomForcing data */
  
   if (RandomForcing == TRUE && TurbulenceSimulationRandomForcingNames[0] != NULL) {
@@ -296,18 +307,15 @@ int grid::TurbulenceSimulationInitializeGrid(
  
     if (ReadData)
       for (dim = 0; dim < GridRank; dim++)
-	if (ReadFile(TurbulenceSimulationRandomForcingNames[dim], GridRank,
-			  GridDimension, GridStartIndex, GridEndIndex, Offset,
-			  RandomForcingField[dim], &tempbuffer, 0, 1) == FAIL) {
-	  //		  RandomForcingField[dim], &tempbuffer, dim, 3) == FAIL) {
-	  ENZO_VFAIL("Error reading RandomForcing field %"ISYM".\n", dim)
+    if (ReadFile(TurbulenceSimulationRandomForcingNames[dim], GridRank,
+              GridDimension, GridStartIndex, GridEndIndex, Offset,
+              RandomForcingField[dim], &tempbuffer, 0, 1) == FAIL) {
+      ENZO_VFAIL("Error reading RandomForcing field %"ISYM".\n", dim)
       }
-  }
- 
-  else {
+  } else {
  
   /* OR: copy random forcing fields from initial velocities. */
-    if( ReadData ){ //&& RandomForcing == TRUE){
+    if( ReadData ){ 
         if (TurbulenceSimulationVelocityNames[0] == NULL) {
           //OR compute a brand new one!
           if( this->ComputeRandomForcingFields(0) == FAIL ){
@@ -346,16 +354,23 @@ int grid::TurbulenceSimulationInitializeGrid(
         for( i=0; i< size; i++)
             BaryonField[PhiNum][i]= 0;
     }
- 
-    if (TurbulenceSimulationTotalEnergyName == NULL){
-        if (TurbulenceSimulationGasPressureName != NULL ){
-          for (i = 0; i < size; i++)
-            BaryonField[TENum][i] /= BaryonField[DensNum][i]*(Gamma -1.);
-        }else{
-          for (i = 0; i < size; i++)
-            BaryonField[TENum][i] = TurbulenceSimulationInitialTemperature/(Gamma-1.);
-        }
+    if( UseMHDCT == TRUE && TurbulenceSimulationMagneticNames[0] == NULL ){
+      for(int field=0;field<3;field++){
+        CenteredB[field] = new float[size];
+        for(i=0;i<size;i++)
+          CenteredB[field][i]=TurbulenceSimulationInitialMagneticField[field];
+        MagneticField[field] = new float[MagneticSize[field]];
+        for(i=0;i<MagneticSize[field];i++)
+          MagneticField[field][i]=TurbulenceSimulationInitialMagneticField[field];
+      }//field
     }
+    if( EquationOfState == 0 ) {
+
+      if (TurbulenceSimulationTotalEnergyName == NULL 
+          && TurbulenceSimulationGasPressureName != NULL){
+          for(i=0;i<size;i++)
+            BaryonField[1][i] /= (BaryonField[0][i]*(Gamma -1));
+      }
     
     if (TurbulenceSimulationTotalEnergyName == NULL && TurbulenceSimulationGasPressureName == NULL){
         if( TurbulenceSimulationInitialTemperature != FLOAT_UNDEFINED ){
@@ -366,23 +381,23 @@ int grid::TurbulenceSimulationInitializeGrid(
             for( i=0;i<size;i++){
                 BaryonField[1][i] = TurbulenceSimulationInitialPressure/(Gamma - 1.)/
                     BaryonField[0][i];
-
             }
         }
     }
  
-    if (TurbulenceSimulationGasEnergyName == NULL && DualEnergyFormalism)
+      if (TurbulenceSimulationGasEnergyName == NULL && DualEnergyFormalism){
       for (i = 0; i < size; i++)
         BaryonField[2][i] = BaryonField[1][i];
+      }
  
     if (TurbulenceSimulationTotalEnergyName == NULL &&
         HydroMethod != Zeus_Hydro){
+
       for (dim = 0; dim < GridRank; dim++)
-        for (i = 0; i < size; i++)
+        for (i = 0; i < size; i++){
           BaryonField[1][i] +=
             0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
-    if( MyProcessorNumber == ROOT_PROCESSOR)
-    fprintf(stderr,"Turkey Buttox: GE+KE %0.2e\n",BaryonField[TENum][ELT(3,3,3)]);
+        }
       if( HydroMethod == MHD_RK ){
           for(i=0;i<size;i++){
               BaryonField[TENum][i] += (0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i]+
@@ -391,11 +406,19 @@ int grid::TurbulenceSimulationInitializeGrid(
                                         BaryonField[DensNum][i]);
 
           }
-    if( MyProcessorNumber == ROOT_PROCESSOR)
-    fprintf(stderr,"Turkey Buttox: GE+KE+BE %0.2e\n",BaryonField[TENum][ELT(3,3,3)]);
+      }
+      if( HydroMethod == MHD_Li ){
+          for(i=0;i<size;i++){
+              BaryonField[TENum][i] += (0.5*(CenteredB[0][i]*CenteredB[0][i]+
+                                             CenteredB[1][i]*CenteredB[1][i]+
+                                             CenteredB[2][i]*CenteredB[2][i])/
+                                        BaryonField[DensNum][i]);
+
+          }
       }
     }
-  }
+    }//EquationOfState  
+  }//ReadData
  
   } // end: if (NumberOfBaryonFields > 0)
  
