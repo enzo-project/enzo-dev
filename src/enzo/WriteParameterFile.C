@@ -564,6 +564,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MoveParticlesBetweenSiblings);
   fprintf(fptr, "ParticleSplitterIterations       = %"ISYM"\n",
 	  ParticleSplitterIterations);
+  fprintf(fptr, "ParticleSplitterRandomSeed       = %"ISYM"\n",
+	  ParticleSplitterRandomSeed);
   fprintf(fptr, "ParticleSplitterChildrenParticleSeparation     = %"FSYM"\n",
 	  ParticleSplitterChildrenParticleSeparation);
   fprintf(fptr, "ResetMagneticField               = %"ISYM"\n",

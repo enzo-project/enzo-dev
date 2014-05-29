@@ -33,6 +33,9 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 
+void mt_init(unsigned_int seed);
+
+unsigned_long_int mt_random();
 
 int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
 			       int *ParticleType, float *ParticlePosition[],
@@ -54,7 +57,8 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
   float l31 = 0.0, l32 = 0.0, l33 = 0.0;
   float  separation =  ParticleSplitterChildrenParticleSeparation;
   int iterations = ParticleSplitterIterations;
-  
+  float therandomfraction = 0.0;
+  unsigned_long_int therandominteger = 0;
   /*
    *   The distance to the children particles rad is the same for all. It is 
    *   currently set to be dx (=CellWidth), but can be changed. 
@@ -62,8 +66,8 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
    */
   
   rad = dx * pow(separation, double(iterations));
-  srand48(time(NULL));
-  
+  //Reproducible random seed
+  mt_init(((unsigned_int) ParticleSplitterRandomSeed));
   
   /* 
    * Loop over existing (parent) particles; It implicitly assumes that 
@@ -206,7 +210,9 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 
 	  for(m = 0; m < 3; m++)
 	  {
-	      alpha[m] = (float)(drand48()*M_PI*2.0);
+	      therandominteger = mt_random();
+	      therandomfraction =  float((therandominteger%32768)) /  32768.0;
+	      alpha[m] = (float)(therandomfraction*M_PI*2.0);
 	  }
 	  
 	  /* 
