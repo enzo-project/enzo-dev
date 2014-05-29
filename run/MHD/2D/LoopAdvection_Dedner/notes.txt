@@ -1,0 +1,5 @@
+
+Advection of a magnetic field loop.
+Originally described by Gardiner & Stone 2005 (Journal of Computational Physics,
+205,509).  The multidimensional MHD analogue of a square wave advection test,
+the field loop severely deforms for many CT schemes.  

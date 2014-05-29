@@ -37,6 +37,7 @@ extern "C" void FORTRAN_NAME(pde1dsolver_mhd_new)(float * wx, float* colours, in
            float * gamma, float * csmin, float * rhomin, 
            int * MHDCTDualEnergyMethod, int * MHDCTSlopeLimiter,int * RiemannSolver, 
            int * ReconstructionMethod, int * idiffusion, int * MHDCTPowellSource,
+           float * Theta,
            int * nhy, int * gravityon, float * gravityx, 
            FLOAT * a, int * EquationOfState, float * SoundSpeed, int * hack2);
 
@@ -251,6 +252,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
             &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
+            &Theta_Limiter,
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
@@ -374,6 +376,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
             &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
+            &Theta_Limiter,
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
 
@@ -499,6 +502,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             &Gamma, &csmin, &rhomin,
             &MHDCTDualEnergyMethod, &MHDCTSlopeLimiter, &RiemannSolver, 
             &ReconstructionMethod, &PPMDiffusionParameter, &MHDCTPowellSource,
+            &Theta_Limiter,
             &CycleNumber, &GravityOn, gravity_line, 
             a, &EquationOfState, &IsothermalSoundSpeed, &hack);
             

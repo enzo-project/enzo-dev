@@ -372,7 +372,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     // Start skipping
     if(CheckpointRestart == FALSE) {
       while (Temp != NULL) {
-        dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
+        float dtProcTemp = Temp->GridData->ComputeTimeStep();
+        dtProc = min(dtProc, dtProcTemp);
         Temp = Temp->NextGridThisLevel;
       }
 

@@ -136,6 +136,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "dtHistoryDump       = %"GOUTSYM"\n\n", MetaData.dtHistoryDump);
  
   fprintf(fptr, "TracerParticleOn           = %"ISYM"\n", TracerParticleOn);
+  fprintf(fptr, "TracerParticleOutputVelocity           = %"ISYM"\n", TracerParticleOutputVelocity);
+
   fprintf(fptr, "TimeLastTracerParticleDump = %"GOUTSYM"\n",
           MetaData.TimeLastTracerParticleDump);
   fprintf(fptr, "dtTracerParticleDump       = %"GOUTSYM"\n",
@@ -243,6 +245,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "LoadBalancingMinLevel  = %"ISYM"\n", LoadBalancingMinLevel);
   fprintf(fptr, "LoadBalancingMaxLevel  = %"ISYM"\n", LoadBalancingMaxLevel);
  
+  fprintf(fptr, "ConductionDynamicRebuildHierarchy = %"ISYM"\n", ConductionDynamicRebuildHierarchy);
+  fprintf(fptr, "ConductionDynamicRebuildMinLevel  = %"ISYM"\n", ConductionDynamicRebuildMinLevel);
   for (dim = 0;dim < MAX_DEPTH_OF_HIERARCHY;dim++) {
     if (RebuildHierarchyCycleSkip[dim] != 1) {
       fprintf(fptr, "RebuildHierarchyCycleSkip[%"ISYM"] = %"ISYM"\n",
@@ -442,6 +446,17 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RootGridCourantSafetyNumber = %"FSYM"\n\n", RootGridCourantSafetyNumber);
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
+#ifdef USE_GRACKLE
+  /* Grackle chemistry parameters */
+  fprintf(fptr, "use_grackle                 = %"ISYM"\n", grackle_chemistry.use_grackle);
+  fprintf(fptr, "with_radiative_cooling      = %"ISYM"\n", grackle_chemistry.with_radiative_cooling);
+  fprintf(fptr, "grackle_data_file           = %s\n", grackle_chemistry.grackle_data_file);
+  fprintf(fptr, "UVbackground                = %"ISYM"\n", grackle_chemistry.UVbackground);
+  fprintf(fptr, "Compton_xray_heating        = %"ISYM"\n", grackle_chemistry.Compton_xray_heating);
+  fprintf(fptr, "LWbackground_intensity      = %"FSYM"\n", grackle_chemistry.LWbackground_intensity);
+  fprintf(fptr, "LWbackground_sawtooth_suppression = %"ISYM"\n", grackle_chemistry.LWbackground_sawtooth_suppression);
+  /********************************/
+#endif
   fprintf(fptr, "RadiativeCooling               = %"ISYM"\n", RadiativeCooling);
   fprintf(fptr, "RadiativeCoolingModel          = %"ISYM"\n", RadiativeCoolingModel);
   fprintf(fptr, "GadgetEquilibriumCooling       = %"ISYM"\n", GadgetEquilibriumCooling);
@@ -589,11 +604,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
       fprintf(fptr, "MultiRefineRegionRadius[%"ISYM"] = %"GSYM"\n", ireg,
               MultiRefineRegionRadius[ireg]);
 
-      fprintf(fptr, "MultiRefineRegionWidth[%"ISYM"] = %"GSYM"\n",
+      fprintf(fptr, "MultiRefineRegionWidth[%"ISYM"] = %"GSYM"\n", ireg,
               MultiRefineRegionWidth[ireg]);
 
       fprintf(fptr, "MultiRefineRegionStaggeredRefinement[%"ISYM"] =%"GSYM"\n",
-              MultiRefineRegionStaggeredRefinement[ireg]);
+              ireg, MultiRefineRegionStaggeredRefinement[ireg]);
 
       fprintf(fptr, "MultiRefineRegionLeftEdge[%"ISYM"] = ", ireg);
       WriteListOfFloats(fptr, MAX_DIMENSION, MultiRefineRegionLeftEdge[ireg]);
@@ -632,7 +647,11 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "PartitionNestedGrids            = %"ISYM"\n", PartitionNestedGrids);
   fprintf(fptr, "ExtractFieldsOnly               = %"ISYM"\n", ExtractFieldsOnly);
   fprintf(fptr, "CubeDumpEnabled                 = %"ISYM"\n", CubeDumpEnabled);
- 
+  fprintf(fptr, "UserDefinedRootGridLayout       = %"ISYM" %"ISYM" %"ISYM"\n",
+          UserDefinedRootGridLayout[0],
+          UserDefinedRootGridLayout[1],
+          UserDefinedRootGridLayout[2]);
+
   fprintf(fptr, "Debug1                          = %"ISYM"\n", debug1);
   fprintf(fptr, "Debug2                          = %"ISYM"\n", debug2);
 
@@ -729,6 +748,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "MinimumShearForRefinement             = %e\n",
 	  MinimumShearForRefinement);
+  fprintf(fptr, "OldShearMethod                        = %"ISYM"\n",
+	  OldShearMethod);
   fprintf(fptr, "MinimumPressureJumpForRefinement      = %e\n",
 	  MinimumPressureJumpForRefinement);
   fprintf(fptr, "MinimumEnergyRatioForRefinement       = %e\n",
@@ -759,8 +780,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarParticleFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
 	  NumberOfParticleAttributes);
-  fprintf(fptr, "AddParticleAttributes                 = %"ISYM"\n", 
-	  AddParticleAttributes);
 
     /* Sink particles (for present day star formation) & winds */
   fprintf(fptr, "SinkMergeDistance                     = %"FSYM"\n", 
@@ -779,6 +798,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarMakerOverDensityThreshold);
   fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
       StarMakerSHDensityThreshold);
+  fprintf(fptr, "StarMakerTimeIndependentFormation     = %"ISYM"\n",
+	  StarMakerTimeIndependentFormation);
   fprintf(fptr, "StarMakerMassEfficiency               = %"GSYM"\n",
 	  StarMakerMassEfficiency);
   fprintf(fptr, "StarMakerMinimumMass                  = %"GSYM"\n",
@@ -810,6 +831,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "IsotropicConductionSpitzerFraction    = %"FSYM"\n", IsotropicConductionSpitzerFraction);
   fprintf(fptr, "AnisotropicConductionSpitzerFraction  = %"FSYM"\n", AnisotropicConductionSpitzerFraction);
   fprintf(fptr, "ConductionCourantSafetyNumber   = %"FSYM"\n", ConductionCourantSafetyNumber);
+  fprintf(fptr, "SpeedOfLightTimeStepLimit             = %"ISYM"\n", SpeedOfLightTimeStepLimit);
 
   fprintf(fptr, "RefineByJeansLengthUnits              = %"ISYM"\n",RefineByJeansLengthUnits);
   fprintf(fptr, "IsothermalSoundSpeed                  = %"GSYM"\n",IsothermalSoundSpeed);
@@ -1090,8 +1112,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr,"FixedTimestep          =%"GSYM"\n",FixedTimestep);
   fprintf(fptr,"MHD_ProjectB                  =%"ISYM"\n",MHD_ProjectB);
   fprintf(fptr,"MHD_ProjectE                  =%"ISYM"\n",MHD_ProjectE);
-  fprintf(fptr,"ProcessorTopology             =%"ISYM" %"ISYM" %"ISYM"\n",
-          ProcessorTopology[0],ProcessorTopology[1],ProcessorTopology[2]);
   fprintf(fptr,"EquationOfState               =%"ISYM"\n",EquationOfState);
 
   fprintf(fptr, "CorrectParentBoundaryFlux          = %d\n", CorrectParentBoundaryFlux);

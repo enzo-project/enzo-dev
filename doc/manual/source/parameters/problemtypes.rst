@@ -28,6 +28,7 @@ Problem Type Description and Parameter List
 10 	     :ref:`rotatingcylinder_param`
 11 	     :ref:`radiatingshock_param`
 12 	     :ref:`freeexpansion_param`
+14           :ref:`rotatingsphere_param`
 20 	     :ref:`zeldovichpancake_param`
 21 	     :ref:`pressurelesscollapse_param`
 22 	     :ref:`adiabaticexpansion_param`
@@ -285,15 +286,50 @@ Sedov Blast (7)
 Kelvin-Helmholtz Instability (8)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    This problem sets up a 2D box with periodic boundary conditions containing
+    two fluids (inner fluid and outer fluid).  The inner fluid has a positive
+    velocity and the outer fluid has a negative velocity with a difference of
+    ``KHVelocityJump``.  The two fluids typically have different densities.
+    The result is the build up of KH instabilities along the interface between
+    the two fluids.
+
+    Setting ``KHRamp`` to 0, creates the standard KH test problem
+    where there is a discontinuous jump between the two fluids in
+    x-velocity and density.  Random perturbations in y-velocity are the seeds 
+    to the KH instability resulting in growth of multiple modes of the KHI.
+
+    Setting ``KHRamp`` to 1 modifies the ICs so that there is a smooth
+    ramp connecting the two fluids in x-velocity and density of width 
+    ``KHRampWidth``.  A sinusoidal perturbation in y-velocity is the seed
+    to the KH instability resulting in only growth of k=2 modes.  
+    These results converge in behavior as resolution is increased, whereas 
+    the standard ICs do not.  The ramped ICs are based on Robertson, Kravtsov, 
+    Gnedin, Abel & Rudd 2010, but that work has a typo in the ramp equation, 
+    and this implementation matches Robertson's actual ICs.  
 
 ``KHInnerDensity``, ``KHOuterDensity`` (external)
     Initial density. Default: 2.0 (inner) and 1.0 (outer)
 ``KHInnerPressure``, ``KHOuterPressure`` (external)
     Initial pressure. Default: 2.5 (for both)
+``KHBulkVelocity`` (external)
+    The bulk velocity of both fluids relative to the grid.  Default: 0.0
 ``KHVelocityJump`` (external)
-    Default: 1.0
+    The difference in velocity between the outer fluid and the inner fluid.
+    Inner fluid will have half this value and move to the right (positive),
+    whereas outer fluid will have have this value and move to the left 
+    (negative).  Total fluid velocities will combine this jump with 
+    KHBulkVelocity.  Default: 1.0
 ``KHPerturbationAmplitude`` (external)
-    Default: 0.01
+    Default: 0.1
+``KHRamp`` (external)
+    Whether to use ramped ICs or not.  Default: 1
+``KHRampWidth`` (external)
+    The width in y-space of the transition ramp.  Default: 0.05
+``KHRandomSeed`` (external)
+    The seed for the Mersennes random number generator.  This is only
+    used in the case of the KHRamp=0 ICs.  By using the same seed
+    from one run to the next, one can reproduce previous behavior with
+    identical parameter files.  Default: 123456789
 
 
 .. _noh_param:
@@ -446,6 +482,71 @@ should turn into a Sedov-Taylor blast wave.
 ``FreeExpansionSubgridRight`` (external)
     Rightmost edge of the region to set the initial refinement.
     Default: 0
+
+.. _rotatingsphere_param:
+
+Rotating Sphere (14)
+~~~~~~~~~~~~~~~~~~~~
+
+A test originally created to study star formation. Sets up a rotating,
+turbulent sphere of gas within an NFW halo. For details of the setup
+process, see Meece (2014).
+
+
+``RotatingSphereNFWMass`` (external)
+    The mass of the NFW halo within R200 in solar masses.
+    Default: 1.0e+7 M_sun
+``RotatingSphereNFWConcentration`` (external)
+    The NFW Concentration parameter, defined as virial radius over scale radius (R200/Rs).
+    Default: 2.0
+``RotatingSphereCoreRadius`` (external)
+    Radius of the core region in code units. The core radius is used as the break in the
+    density profile. Gas within the core is set up in HSE, while outside the core temperature
+    increases adiabatically with density.
+    Default: 16 pc
+``RotatingSphereCentralDensity`` (external)
+    This is the scaling density for the density profile in code units. The density profile is defined as
+    rho(r) = rho_center * (r/Rc)^-alpha * (1+r/Rc)^(alpha-beta) where rho_center is this
+    parameters, Rc is the core radius, alpha is the core exponent (below) and beta is the
+    outer exponent (also below).
+    Default: 1
+``RotatingSphereCoreDensityExponent`` (external)
+    The density scaling exponent in the core. Within the core, density approximately goes as
+    (r/Rc)^-alpha, were alpha is this parameter.
+    Default: 0.1
+``RotatingSphereOuterDensityExponent`` (external)
+    The density scaling exponent in the outer regions. Outside of the core, density
+    approximately goes as (r/Rc)^-beta, were alpha is this parameter.
+    Default: 2.5
+``RotatingSphereExteriorTemperature`` (external)
+    This is the temperature in K of gas outside the sphere, defined as the region where
+    density would drop below the critical density.
+    Default: 200.0
+``RotatingSphereSpinParameter`` (external)
+    The Baryonic spin parameter, defined as Lambda = (J * abs(E)^(1/2)) / (G M^(5/2)),
+    where J is the total (gas) angular momentum, E is the binding energy of the gas due
+    to the gas and dark matter, M is the gas mas, and G is the gravitational constant.
+    All quantities are defined relative to the edge of the sphere defined above.
+    Default: 0.05
+``RotatingSphereAngularMomentumExponent`` (external)
+    This is the power law index of the scaling relation for specific angular momentum
+    as a function of mass enclosed. l scales as (M/M_T)^chi where chi is this parameter.
+    Default: 0.9
+``RotatingSphereUseTurbulence`` (external)
+    0 = No Turbulence, 1 = Use Turbulence. If using turbulence, you need a file called
+    turbulence.in, which can be generated using the file turbulence_generator.py in the
+    RotatingSphere problem in the run directory.
+    Default: 0
+``RotatingSphereTurbulenceRMS`` (external)
+    The RMS velocity of the turbulence is normalized to some fraction of the virial sound
+    speed of the halo, as determined from the virial temperature of the halo. This parameter
+    is that fraction. If RotatingSphereUseTurbulence == 0, this parameters is ignored.
+    Default: 0.01
+``RotatingSphereRedshift`` (external)
+    The redshift is mainly used to determine the critical density of the universe. The problem
+    generator assumes a cosmology with Omega_L=0.7, Omega_M = 0.3, and H0 = 70 km/s/mpc. Small
+    variations in cosmology should not have a large effect on the properties of the sphere.
+    Default: 20.0
 
 .. _zeldovichpancake_param:
 

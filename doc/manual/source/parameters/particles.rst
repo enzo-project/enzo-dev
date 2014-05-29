@@ -18,10 +18,6 @@ Particle Parameters
 ``NumberOfParticleAttributes`` (internal)
     It is set to 3 if either ``StarParticleCreation`` or
     ``StarParticleFeedback`` is set to 1 (TRUE). Default: 0
-``AddParticleAttributes`` (external)
-    If set to 1, additional particle attributes will be added and
-    zeroed. This is handy when restarting a run, and the user wants to
-    use star formation afterwards. Default: 0.
 ``ParallelParticleIO`` (external)
     Normally, for the mpi version, the particle data are read into the
     root processor and then distributed to separate processors.

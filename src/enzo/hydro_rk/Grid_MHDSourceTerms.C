@@ -54,7 +54,7 @@ int grid::MHDSourceTerms(float **dU)
     }
   
 
-#ifdef NOUSE
+#ifdef DEDNER_SOURCE
   /* Dedner MHD formulation source terms */
 
   FLOAT dtdx = dtFixed/CellWidth[0][0]/a,

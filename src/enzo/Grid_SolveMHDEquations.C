@@ -372,7 +372,7 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
   
   
   int GravityOn = 0;
-  if (SelfGravity || UniformGravity || PointSourceGravity)
+  if (SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity)
     GravityOn = 1;
   
   /* if comoving coordinates, compute a and dadt at Time, Time + 0.5dt*/ 

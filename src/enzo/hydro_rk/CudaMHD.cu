@@ -283,7 +283,8 @@ void MHD_HLL_PLM_1D(
   FB1  = (ap*FlB1  + am*FrB1  - ap*am*(UrB1 -UlB1 )) / (ap+am);
   FB2  = (ap*FlB2  + am*FrB2  - ap*am*(UrB2 -UlB2 )) / (ap+am);
   FB3  = (ap*FlB3  + am*FrB3  - ap*am*(UrB3 -UlB3 )) / (ap+am);
-  FGE  = (ap*FlGE  + am*FrGE  - ap*am*(UrGE -UlGE )) / (ap+am);
+  if (DualEnergyFormalism)
+    FGE  = (ap*FlGE  + am*FrGE  - ap*am*(UrGE -UlGE )) / (ap+am);
   
   FB1 += UlPhi + 0.5f*(UrPhi-UlPhi) - 0.5f*Ch*(UrB1-UlB1);
   FPhi = UlB1 + 0.5f*(UrB1-UlB1) - 0.5f/Ch*(UrPhi-UlPhi);
@@ -302,12 +303,12 @@ void MHD_HLL_PLMKernel(
   float *B1, float *B2, float *B3, float *Phi, float *GE,
   int EOSType, float Ch, float ThetaLimiter, float Gamma, int NeqMHD, 
   int DualEnergyFormalism, float min_coeff,
-  int idim, int jdim, int kdim, 
+  int dimx, int dimy, int dimz, 
   int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
-//  int size = idim*jdim*kdim;
+//  int size = dimx*dimy*dimz;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
-    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*idim + k1*idim*jdim;
+    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*dimx + k1*dimx*dimy;
 
   float D0, D1, D2, D3,
     Ein0, Ein1, Ein2, Ein3,
@@ -320,9 +321,9 @@ void MHD_HLL_PLMKernel(
     Phi0, Phi1, Phi2, Phi3;
   float FD, FS1, FS2, FS3, FTau, FB1, FB2, FB3, FPhi, FGE;
 
-  int i = idx3d % idim;
-  int j = (idx3d % (idim*jdim)) / idim;
-  int k = idx3d / (idim*jdim);
+  int i = idx3d % dimx;
+  int j = (idx3d % (dimx*dimy)) / dimx;
+  int k = idx3d / (dimx*dimy);
   
   int iend = i2, jend = j2, kend = k2;
   if (dir == 1) iend = i2+1;
@@ -341,12 +342,12 @@ void MHD_HLL_PLMKernel(
       B1R = B1, B2R = B2, B3R = B3;
     }
     if (dir == 2) {
-      m2 = -2*idim, m1 = -idim, p1 = idim;
+      m2 = -2*dimx, m1 = -dimx, p1 = dimx;
       V1R = V2, V2R = V3, V3R = V1;
       B1R = B2, B2R = B3, B3R = B1;
     }
     if (dir == 3) {
-      m2 = -2*idim*jdim, m1 = -idim*jdim, p1 = idim*jdim;
+      m2 = -2*dimx*dimy, m1 = -dimx*dimy, p1 = dimx*dimy;
       V1R = V3, V2R = V1, V3R = V2;
       B1R = B3, B2R = B1, B3R = B2;
     }
@@ -491,15 +492,15 @@ void MHD_HLL_PLMGPU(cuMHDData &Data, int dir, float dx)
 __global__ void ComputeFluxSpeciesKernel(
   float **FluxSpecies, float **Species, float *FluxD,
   int NSpecies, float ThetaLimiter,
-  int idim, int jdim, int kdim, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
+  int dimx, int dimy, int dimz, int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
-//  int size = idim*jdim*kdim;
+//  int size = dimx*dimy*dimz;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
-    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*idim + k1*idim*jdim;
+    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*dimx + k1*dimx*dimy;
 
-  int i = idx3d % idim;
-  int j = (idx3d % (idim*jdim)) / idim;
-  int k = idx3d / (idim*jdim);
+  int i = idx3d % dimx;
+  int j = (idx3d % (dimx*dimy)) / dimx;
+  int k = idx3d / (dimx*dimy);
 
   int iend = i2, jend = j2, kend = k2;
   if (dir == 1) iend = i2 + 1;
@@ -510,8 +511,8 @@ __global__ void ComputeFluxSpeciesKernel(
     float s0, s1, s2, s3, s;
     int m2, m1, p1;
     if (dir == 1) m2 = -2, m1 = -1, p1 = 1;
-    if (dir == 2) m2 = -2*idim, m1 = -idim, p1 = idim;
-    if (dir == 3) m2 = -2*idim*jdim, m1 = -idim*jdim, p1 = idim*jdim;
+    if (dir == 2) m2 = -2*dimx, m1 = -dimx, p1 = dimx;
+    if (dir == 3) m2 = -2*dimx*dimy, m1 = -dimx*dimy, p1 = dimx*dimy;
     for (int f = 0; f < NSpecies; f++) {
       s0 = Species[f][idx3d+m2];
       s1 = Species[f][idx3d+m1];
@@ -560,24 +561,24 @@ __global__ void ComputedUKernel(
   const float* __restrict FluxPhi, const float* __restrict FluxGE,
   float **FluxSpecies, int DualEnergyFormalism,
   int NSpecies, float dt, float dx, float Ch,
-  int idim, int jdim, int kdim, 
+  int dimx, int dimy, int dimz, 
   int i1, int i2, int j1, int j2, int k1, int k2, int dir)
 {
-//  const int size = idim*jdim*kdim;
+  const int size = dimx*dimy*dimz;
   int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
-    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*idim + k1*idim*jdim;
+    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*dimx + k1*dimx*dimy;
   
-  int i = idx3d % idim;
-  int j = (idx3d % (idim*jdim)) / idim;
-  int k = idx3d / (idim*jdim);
+  int i = idx3d % dimx;
+  int j = (idx3d % (dimx*dimy)) / dimx;
+  int k = idx3d / (dimx*dimy);
  
   float dtdx = dt/dx;
 
   if (i >= i1 && i <= i2 && j >= j1 && j <= j2 && k >= k1 && k <= k2) {
     int iflux = idx3d, ifluxp1;
     if (dir == 1) ifluxp1 = idx3d + 1;
-    if (dir == 2) ifluxp1 = idx3d + idim;
-    if (dir == 3) ifluxp1 = idx3d + idim*jdim;
+    if (dir == 2) ifluxp1 = idx3d + dimx;
+    if (dir == 3) ifluxp1 = idx3d + dimx*dimy;
 
     dUD  [idx3d] -= (FluxD  [ifluxp1] - FluxD  [iflux]) * dtdx; 
     dUS1 [idx3d] -= (FluxS1 [ifluxp1] - FluxS1 [iflux]) * dtdx;
@@ -588,19 +589,23 @@ __global__ void ComputedUKernel(
     dUB2 [idx3d] -= (FluxB2 [ifluxp1] - FluxB2 [iflux]) * dtdx;
     dUB3 [idx3d] -= (FluxB3 [ifluxp1] - FluxB3 [iflux]) * dtdx;
     dUPhi[idx3d] -= (FluxPhi[ifluxp1] - FluxPhi[iflux]) * dtdx;
-    dUGE [idx3d] -= (FluxGE [ifluxp1] - FluxGE [iflux]) * dtdx;
+    if (DualEnergyFormalism) 
+      dUGE [idx3d] -= (FluxGE [ifluxp1] - FluxGE [iflux]) * dtdx;
     for (int f = 0; f < NSpecies; f++)
       dUSpecies[f][idx3d] -= (FluxSpecies[f][ifluxp1] - FluxSpecies[f][iflux]) * dtdx;
-    // divB[idx3d] += (FluxPhi[ifluxp1] - FluxPhi[iflux]) / (Ch*Ch) * dtdx;
-    // if (dir == 0) 
-    //   gradPhi[idx3d] = (FluxB1[ifluxp1] - FluxB1[iflux]) * dtdx;
-    // else if (dir == 1)
-    //   gradPhi[size + idx3d] = 
-    //     (FluxB2[ifluxp1]- FluxB2[iflux]) * dtdx;
-    // else if (dir == 2)
-    //   gradPhi[2*size+idx3d] = 
-    //     (FluxB3[ifluxp1]- FluxB3[iflux]) * dtdx;
-
+#ifdef DEDNER_SOURCE
+    if (dir == 1) 
+      divB[idx3d] = 0;
+    divB[idx3d] += (FluxPhi[ifluxp1] - FluxPhi[iflux]) / (Ch*Ch) * dtdx;
+    if (dir == 1) 
+      gradPhi[idx3d] = (FluxB1[ifluxp1] - FluxB1[iflux]) * dtdx;
+    else if (dir == 2)
+      gradPhi[size + idx3d] = 
+        (FluxB2[ifluxp1]- FluxB2[iflux]) * dtdx;
+    else if (dir == 3)
+      gradPhi[2*size+idx3d] = 
+        (FluxB3[ifluxp1]- FluxB3[iflux]) * dtdx;
+#endif
   }
 }
 
@@ -669,6 +674,46 @@ void MHDGravitySourceGPU(cuMHDData &Data, float dt)
     Data.AccelerationField[0], 
     Data.AccelerationField[1], 
     Data.AccelerationField[2],
+    Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
+    Data.StartIndex[0], Data.EndIndex[0],
+    Data.StartIndex[1], Data.EndIndex[1],
+    Data.StartIndex[2], Data.EndIndex[2]);
+  CUDA_SAFE_CALL( cudaGetLastError() );
+}
+
+__global__ 
+void MHDDednerSourceKernel(
+  float *dUS1, float *dUS2, float *dUS3, float *dUTau,
+  float *B1, float *B2, float *B3, float *divB, float *gradPhi,
+  int dimx, int dimy, int dimz, 
+  int i1, int i2, int j1, int j2, int k1, int k2)
+{
+  const int size = dimx*dimy*dimz;
+  int idx3d = blockIdx.y*blockDim.x*gridDim.x + 
+    blockIdx.x*blockDim.x + threadIdx.x + i1 + j1*dimx + k1*dimx*dimy;
+  
+  int i = idx3d % dimx;
+  int j = (idx3d % (dimx*dimy)) / dimx;
+  int k = idx3d / (dimx*dimy);
+
+  if (i >= i1 && i <= i2 && j >= j1 && j <= j2 && k >= k1 && k <= k2) {
+    dUS1[idx3d]  -= divB[idx3d] * B1[idx3d];
+    dUS2[idx3d]  -= divB[idx3d] * B2[idx3d];
+    dUS3[idx3d]  -= divB[idx3d] * B3[idx3d];
+    dUTau[idx3d] -= (B1[idx3d]*gradPhi[idx3d] + 
+                     B2[idx3d]*gradPhi[size+idx3d] + 
+                     B3[idx3d]*gradPhi[2*size+idx3d]);
+  }
+}
+    
+    
+extern "C"
+void MHDDednerSourceGPU(cuMHDData &Data)
+{
+  MHDDednerSourceKernel<<<CudaGrid, CudaBlock>>>(
+    Data.dU[IdxS1], Data.dU[IdxS2], Data.dU[IdxS3], Data.dU[IdxTau],
+    Data.Baryon[IdxB1], Data.Baryon[IdxB2], Data.Baryon[IdxB3],
+    Data.divB, Data.gradPhi,
     Data.Dimension[0], Data.Dimension[1], Data.Dimension[2],
     Data.StartIndex[0], Data.EndIndex[0],
     Data.StartIndex[1], Data.EndIndex[1],

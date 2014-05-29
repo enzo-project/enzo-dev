@@ -166,8 +166,8 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	for(k=ks;k<ke;k++)
 	  for(j=js;j<je;j++)
 	    for(i=0;i<nb;i++){
-	      Bi = indgen(nb+nx+Add[0]+i,j,k,nxt,nyt,nzt);
-	      Ai = indgen(nb+nx-1+Add[0]  ,j,k,nxt,nyt,nzt);
+	      Ai = indgen(nb+nx-1,j,k,nxt,nyt,nzt);
+	      Bi = indgen(nb+nx+i,j,k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	    }
 	break;
@@ -313,8 +313,8 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	for(k=ks;k<ke;k++)
 	  for(j=0;j<nb;j++)
 	    for(i=is;i<ie;i++){
-	      Ai = indgen(i,nb+ny-1+Add[1]  ,k,nxt,nyt,nzt);
-	      Bi = indgen(i,nb+ny+Add[1]+j,k,nxt,nyt,nzt);
+	      Ai = indgen(i,nb+ny-1,k,nxt,nyt,nzt);
+	      Bi = indgen(i,nb+ny+j,k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	    }
 	break;
@@ -458,8 +458,8 @@ int ExternalBoundary::SetMagneticBoundary(int FieldRank, int GridDims[], int Gri
 	for(k=0;k<nb;k++)
 	  for(j=js;j<je;j++)
 	    for(i=is;i<ie;i++){
-	      Ai = indgen(i,j,nb+nz-1+Add[2]  ,nxt,nyt,nzt);
-	      Bi = indgen(i,j,nb+nz+Add[2]+k,nxt,nyt,nzt);
+	      Ai = indgen(i,j,nb+nz-1,nxt,nyt,nzt);
+	      Bi = indgen(i,j,nb+nz+k,nxt,nyt,nzt);
 	      A[Bi] = A[Ai];
 	      
 	    }

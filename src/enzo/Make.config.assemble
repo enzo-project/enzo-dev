@@ -643,34 +643,6 @@
     endif
 
 #-----------------------------------------------------------------------
-# DETERMINE TRACER PARTICLE VELOCITY OUTPUT SETTINGS
-#-----------------------------------------------------------------------
-
-    ERROR_TPVEL = 1
-
-    # Settings to turn isolated gravity boundary conditions ON
-
-    ifeq ($(CONFIG_TPVEL),yes)
-        ERROR_TPVEL = 0
-        ASSEMBLE_TPVEL_DEFINES = -DTP_VELOCITY
-    endif
-
-    # Settings to turn isolated gravity boundary conditions OFF
-
-    ifeq ($(CONFIG_TPVEL),no)
-        ERROR_TPVEL = 0
-        ASSEMBLE_TPVEL_DEFINES =
-    endif
-
-    # error if CONFIG_TPVEL is incorrect
-
-    ifeq ($(ERROR_TPVEL),1)
-       .PHONY: error_tpvel
-       error_tpvel:
-	$(error Illegal value '$(CONFIG_TPVEL)' for $$(CONFIG_TPVEL))
-    endif
-
-#-----------------------------------------------------------------------
 # DETERMINE RADIATIVE TRANSFER SETTINGS
 #-----------------------------------------------------------------------
 
@@ -968,6 +940,36 @@
     endif
 
 
+#-----------------------------------------------------------------------
+# DETERMINE USE GRACKLE
+#-----------------------------------------------------------------------
+
+    ERROR_GRACKLE = 1
+
+    # compilers and settings if GRACKLE is yes
+
+    ifeq ($(CONFIG_GRACKLE),yes)
+        ERROR_GRACKLE = 0
+        ASSEMBLE_GRACKLE_DEFINES     = -DUSE_GRACKLE
+        ASSEMBLE_GRACKLE_INCLUDES    = $(MACH_INCLUDES_GRACKLE)
+        ASSEMBLE_GRACKLE_LIBS        = $(MACH_LIBS_GRACKLE)
+    endif
+
+    # compilers and settings if GRAVITY_4S is no
+
+    ifeq ($(CONFIG_GRACKLE),no)
+        ERROR_GRACKLE = 0
+        ASSEMBLE_GRACKLE_DEFINES =
+    endif
+
+    # error if CONFIG_GRACKLE is incorrect
+
+    ifeq ($(ERROR_GRACKLE),1)
+       .PHONY: error_compilers
+       error_compilers:
+	$(error Illegal value '$(CONFIG_GRACKLE)' for $$(CONFIG_GRACKLE))
+    endif
+
 
 #=======================================================================
 # ASSIGN ALL OUTPUT VARIABLES
@@ -1013,7 +1015,6 @@
               $(ASSEMBLE_PACKED_AMR_DEFINES) \
               $(ASSEMBLE_PACKED_MEM_DEFINES) \
               $(ASSEMBLE_TESTING_DEFINES) \
-              $(ASSEMBLE_TPVEL_DEFINES) \
               $(ASSEMBLE_PHOTON_DEFINES) \
               $(ASSEMBLE_HYPRE_DEFINES) \
               $(ASSEMBLE_EMISSIVITY_DEFINES) \
@@ -1025,6 +1026,7 @@
               $(ASSEMBLE_HDF4_DEFINES) \
               $(ASSEMBLE_GRAVITY_4S_DEFINES) \
               $(ASSEMBLE_ENZO_PERFORMANCE_DEFINES) \
+              $(ASSEMBLE_GRACKLE_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
 
 
@@ -1035,6 +1037,7 @@
                $(ASSEMBLE_PYTHON_INCLUDES) \
                $(ASSEMBLE_NEW_PROBLEM_TYPES_INCLUDES) \
                $(ASSEMBLE_PAPI_INCLUDES) \
+               $(ASSEMBLE_GRACKLE_INCLUDES) \
                $(MAKEFILE_INCLUDES)   -I.
 
     OBJS_LIB = $(OBJS_CONFIG_LIB) \
@@ -1051,6 +1054,7 @@
            $(ASSEMBLE_PAPI_LIBS) \
            $(ASSEMBLE_PYTHON_LIBS) \
            $(ASSEMBLE_NEW_PROBLEM_TYPES_LIBS) \
-           $(ASSEMBLE_CUDA_LIBS)
+           $(ASSEMBLE_CUDA_LIBS) \
+           $(ASSEMBLE_GRACKLE_LIBS)
 
 

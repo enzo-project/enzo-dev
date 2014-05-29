@@ -363,9 +363,9 @@ program grafic1
 !!$     nys=shtaille%ny
 !!$     nzs=shtaille%nz
      call grafic_read_header_white(small_file_name,nxs,nys,nzs,iseeds)
-     call rfftw3d_f77_mpi_create_plan(plan,MPI_COMM_WORLD,nxs,nys,nzs, &
+     call rfftw3d_mpi_create_plan(plan,MPI_COMM_WORLD,nxs,nys,nzs, &
           & FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE)
-     call rfftwnd_f77_mpi_local_sizes(plan,local_nzs,local_z_starts, &
+     call rfftwnd_mpi_local_sizes(plan,local_nzs,local_z_starts, &
           & local_nys, local_y_starts, total_local_sizes)
      call init_fftw(total_local_sizes)
      allocate(f(total_local_sizes))
@@ -378,7 +378,7 @@ program grafic1
      call fft_mpi(plan,f)
      ! Scale small grid power to large grid
      ! f = f*real(np1*np2,dp)*np3/real(nxs*nys*nzs,dp)
-     call rfftwnd_f77_mpi_destroy_plan(plan)
+     call rfftwnd_mpi_destroy_plan(plan)
      call cleanup_fftw
      shtaille%nx=nxs
      shtaille%ny=nys
@@ -395,11 +395,11 @@ program grafic1
   ! plans. Beware that domain decomposition is done along nx...
   ! (Slowest varying dimension in the array)
 
-  call rfftw3d_f77_mpi_create_plan(plan,MPI_COMM_WORLD,nx,ny,nz, &
+  call rfftw3d_mpi_create_plan(plan,MPI_COMM_WORLD,nx,ny,nz, &
        FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE)
-  call rfftw3d_f77_mpi_create_plan(iplan,MPI_COMM_WORLD,nx,ny,nz, &
+  call rfftw3d_mpi_create_plan(iplan,MPI_COMM_WORLD,nx,ny,nz, &
        FFTW_COMPLEX_TO_REAL, FFTW_ESTIMATE)
-  call rfftwnd_f77_mpi_local_sizes(plan,local_nz,local_z_start,local_ny, &
+  call rfftwnd_mpi_local_sizes(plan,local_nz,local_z_start,local_ny, &
        local_y_start,total_local_size)
   call init_fftw(total_local_size)
 
@@ -598,8 +598,8 @@ program grafic1
   enddo
   !
 !!$if (.not.hanning) close(10)
-  call rfftwnd_f77_mpi_destroy_plan(plan)
-  call rfftwnd_f77_mpi_destroy_plan(iplan)
+  call rfftwnd_mpi_destroy_plan(plan)
+  call rfftwnd_mpi_destroy_plan(iplan)
   call cleanup_fftw
 
   call mpi_finalize(ierr)
