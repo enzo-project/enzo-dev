@@ -147,6 +147,7 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
 
   //Compute current
 
+/*
   if( MaxDivB >= MaxTolerance || TRUE ){
     fprintf(stderr, " ++++ L1 norm             L0 norm           L1/GridSize        Max    %s\n",
         label);
@@ -164,6 +165,7 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
     return SUCCESS;
 
   }
+*/
 
   return SUCCESS;
 
