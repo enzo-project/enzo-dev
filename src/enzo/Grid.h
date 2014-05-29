@@ -2858,7 +2858,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   float *DxBz, *DyBz, *DxyBz;
   int * DBxFlag, *DByFlag, *DBzFlag;
 
-  int MHD_Diagnose(char * message);
+  int MHD_Diagnose(char * message, float * &DivB);
   inline int indexb1(int i, int j, int k)    {return i+MagneticDims[0][0]*(j+MagneticDims[0][1]*k);}  
   inline int indexb2(int i, int j, int k)    {return i+MagneticDims[1][0]*(j+MagneticDims[1][1]*k);}  
   inline int indexb3(int i, int j, int k)    {return i+MagneticDims[2][0]*(j+MagneticDims[2][1]*k);}

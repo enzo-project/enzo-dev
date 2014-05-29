@@ -362,7 +362,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
 
     if (BAnyl==1){
-
+      if (HydroMethod == MHD_RK) {
       float *curl_x, *curl_y, *curl_z, *div;
 
         this->ComputeVectorAnalysisFields(Bfield1, Bfield2, Bfield3,
@@ -386,6 +386,23 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           delete [] curl_x;
           delete [] curl_y;
         }
+      } else if (UseMHDCT) {
+        fprintf(stdout, "Outputting DivB\n");
+        float *DivB = NULL;
+        this->MHD_Diagnose("WriteGrid", DivB);
+        fprintf(stdout, "DivB[0] = %10.5e\n", DivB[0]);
+        if(CopyOnlyActive == TRUE) {
+          this->write_dataset(GridRank, OutDims, "DivB",
+                              group_id, file_type_id, (VOIDP) DivB,
+                              TRUE, temp);
+        } else {
+          this->write_dataset(GridRank, FullOutDims, "DivB",
+                              group_id, file_type_id, (VOIDP) DivB,
+                              FALSE);
+        }
+
+        delete [] DivB;
+      }
     }
 
    
@@ -487,7 +504,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           this->write_dataset(GridRank, MHDOutDims, MHDeLabel[field],
                             group_id, file_type_id, (VOIDP) ElectricField[field],
                             TRUE, MHDtmp, MHDWriteStartIndex, MHDWriteEndIndex, 
-                            MHDActive, MagneticDims[field]);
+                            MHDActive, ElectricDims[field]);
           if( AvgElectricField[field] != NULL ){
             char name[30];
             sprintf(name, "AvgElec%d",field);
