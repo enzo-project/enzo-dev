@@ -167,10 +167,8 @@ int grid::ParticleSplitter(int level)
 #endif
     if(!tg->CreateChildParticles(CellWidthTemp, NumberOfParticles, ParticleMass,
 				 ParticleType, ParticlePosition, ParticleVelocity,
-				 ParticleAttribute, NumberOfParticleAttributes,
-				 RefineRegionLeftEdge, RefineRegionRightEdge,
-				 CellLeftEdge, GridDimension, MaximumNumberOfNewParticles,
-				 &NumberOfNewParticles))
+				 ParticleAttribute, CellLeftEdge, GridDimension, 
+				 MaximumNumberOfNewParticles, &NumberOfNewParticles))
       {
 	fprintf(stdout, "Failed to create child particles in grid %d\n", this->GetGridID());
 	return FAIL;

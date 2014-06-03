@@ -38,12 +38,10 @@ void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
 
 int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
-			       int *ParticleType, float *ParticlePosition[],
+			       int *ParticleType, FLOAT *ParticlePosition[],
 			       float *ParticleVelocity[], float *ParticleAttribute[],
-			       int NumberAttributes, float *RefineRegionLeftEdge, 
-			       float *RefineRegionRightEdge, float *CellLeftEdge[],
-			       int *GridDimension, int MaximumNumberOfNewParticles,
-			       int *NumberOfNewParticles)
+			       FLOAT *CellLeftEdge[], int *GridDimension, 
+			       int MaximumNumberOfNewParticles, int *NumberOfNewParticles)
 			 
 {
   int partnum = 0, i = 0, child = 0, m = 0, numpart = 0, innerchild = 0;
@@ -287,7 +285,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
 	      for(i = 0; i < 3; i++)
 		this->ParticleVelocity[i][child] = ParticleVelocity[i][partnum];
 	      this->ParticleType[child] = ParticleType[partnum];
-	      for(i = 0; i < NumberAttributes; i++)
+	      for(i = 0; i < NumberOfParticleAttributes; i++)
 		this->ParticleAttribute[i][child] = ParticleAttribute[i][numpart];
 	    }
 
