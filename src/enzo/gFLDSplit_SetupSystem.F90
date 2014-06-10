@@ -27,7 +27,7 @@ function gFLD_limiter(E1, E2, k1, k2, nUn, lUn, dxi)
   Rmin = 1.e-2_RKIND/lUn
   Rmin = min(Rmin, 1.e-20_RKIND)    ! 1st is astro/cosmo, 2nd is lab frame
   Emin = 1.e-30_RKIND
-  Dmax = 10._RKIND * c_light * lUn
+  Dmax = 0.01_RKIND * c_light * lUn
   Dmax = max(Dmax, 1.e20_RKIND)     ! 1st is astro/cosmo, 2nd is lab frame
 
   ! compute limiter
@@ -55,28 +55,10 @@ subroutine gFLDSplit_SetupSystem(matentries, rhsentries, rhsnorm, E0,   &
 !  PURPOSE: Computes the array of matrix stencil elements and vector of 
 !           rhs entries for the Grey FLD radiation problem,
 !              d_t E - Div(D(E)*Grad(E)) = -adot/a*E - c*kappa*E + eta + src
-!           where D(E) is a nonlinear flux-limiter 
-!           depending on E0 (time lagged).  We define the values
-!              R_i = |Grad(E)_i|/E,
-!           The '_i' subscript implies the gradient in the ith 
-!           direction; these quantities are all required at cell faces, 
-!           as that is the location of the divergence calculations.
-!           With these components, we allow any of the following three 
-!           forms of the limiter, 
-!             [Levermore-Pomraning, 1981],
-!                 D_i(E) = c/kappa/R_i*[coth(R_i)-1/R_i],
-!             [rational approx. to above, Levermore-Pomraning, 1981],
-!                 D_i(E) = c/kappa*(2+R_i)/(6+3*R_i+R_i**2),
-!             [Reynolds approximation to LP],
-!                 D_i(E) = 2/pi*c*atan(R_i*pi/6/kappa)/R_i
-!             [Zeus form of rational approx. to LP],
-!                 D_i(E) = c*(2*kappa+R_i)/(6*kappa*kappa+3*kappa*R_i+R_i**2)
-!           where we have the [small] parameter
-!              kappa = absorption coefficient.
-!           As the stencil has {7,5,3} non-zero elements per matrix row 
-!           (depending on whether the problem is 3D, 2D or 1D), we 
-!           set these entries over the computational domain, with the 
-!           proper adjustments due to the choice of limiter.
+!           where D(E) is a nonlinear flux-limiter depending on E0
+!           (time lagged).  As the stencil has {7,5,3} non-zero elements 
+!           per matrix row (depending on whether the problem is 3D, 2D 
+!           or 1D), we set these entries over the computational domain.
 !
 !           We in fact solve a scaled version of the equation.  Since 
 !           the values of E are in fact in normalized units 
