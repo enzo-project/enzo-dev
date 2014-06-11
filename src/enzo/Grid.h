@@ -2303,6 +2303,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ParticleSplitter(int level);
 
+  int CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
+			   int *ParticleType, FLOAT *ParticlePosition[],
+			   float *ParticleVelocity[], float *ParticleAttribute[],
+			   FLOAT *CellLeftEdge[], int *GridDimension, 
+			   int MaximumNumberOfNewParticles, int *NumberOfNewParticles);
+
 /* Magnetic field resetting routine. */
 
   int MagneticFieldResetter(int level);

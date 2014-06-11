@@ -879,6 +879,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
+  ParticleSplitterRandomSeed = 131180;
 
   /* Magnetic Field Resetter */
 

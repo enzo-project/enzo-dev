@@ -475,6 +475,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
 
+#define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
 
 #define CIC_DEPOSIT        0
