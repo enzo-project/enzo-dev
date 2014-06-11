@@ -47,7 +47,7 @@ int grid::CreateChildParticles(float dx, int NumberOfParticles, float *ParticleM
   int partnum = 0, i = 0, child = 0, m = 0, numpart = 0, innerchild = 0;
   int xindex=0, yindex=0, zindex=0;
   float rad = 0.0, sin60 = 0.0;
-  float NewPos[3][CHILDRENPERPARENT];
+  FLOAT NewPos[3][CHILDRENPERPARENT];
   int ChildrenPerParent = CHILDRENPERPARENT, total_children = 0;
   float alpha[3];
   float l11 = 0.0, l12 = 0.0, l13 = 0.0;
