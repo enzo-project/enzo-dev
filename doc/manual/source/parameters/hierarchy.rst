@@ -275,7 +275,7 @@ Hierarchy Control Parameters
     code units. Default: 0.0 (no staggering)
 ``MultiRefineRegionMaximumLevel[#]``, ``MultiRefineRegionMinimumLevel[#]`` (external)
     Maximum and minimum allowed refinement inside the region. Default: ``MaximumRefinementLevel``, 0
-``MultiRefineRegionOuterMaximumLevel[#]``, ``MultiRefineRegionOuterMinimumLevel[#]`` (external)
+``MultiRefineRegionMaximumOuterLevel``, ``MultiRefineRegionMinimumOuterLevel`` (external)
     Maximum and minimum allowed refinement outside all regions. Default: ``MaximumRefinementLevel``, 0
 ``MinimumEfficiency`` (external)
     When new grids are created during the rebuilding process, each grid
