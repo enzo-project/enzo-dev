@@ -375,8 +375,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       {
 	if (dim > MAX_STATIC_REGIONS-1) 
 	  ENZO_VFAIL("MultiRefineRegion number %"ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim);
-	if (int_dummy > MaximumRefinementLevel)
-	  ENZO_VFAIL("MultiRefineRegionMaximumLevel %"ISYM"  > MaximumRefinementLevel\n", int_dummy);
 	ret++;
 	MultiRefineRegionMaximumLevel[dim] = int_dummy;
       }
@@ -1263,6 +1261,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if ((HierarchyFileOutputFormat < 0) || (HierarchyFileOutputFormat > 2))
     ENZO_FAIL("Invalid HierarchyFileOutputFormat. Must be 0 (HDF5), 1 (ASCII), or 2 (both).")
   
+  // While we're examining the hierarchy, check that the MultiRefinedRegion doesn't demand more refinement that we've got                                                                                     
+  for (int ireg = 0; ireg < MAX_STATIC_REGIONS; ireg++)
+    if (MultiRefineRegionGeometry[ireg] >= 0)
+      if (MultiRefineRegionMaximumLevel[ireg] > MaximumRefinementLevel)
+	ENZO_VFAIL("MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"  > MaximumRefinementLevel\n", ireg, MultiRefineRegionMaximumLevel[ireg]);
+
+
 
   /* clean up */
  
