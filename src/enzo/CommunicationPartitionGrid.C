@@ -123,9 +123,12 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
       ENZO_FAIL("Error in Enzo_Dims_create.");
     }
 
-    /* Swap layout because we want smallest value to be at Layout[0]. */
     for (dim = 0; dim < Rank; dim++) {
       LayoutTemp[dim] = LayoutDims[dim];
+    }
+
+    /* Swap layout because we want smallest value to be at Layout[0]. */
+    for (dim = 0; dim < Rank; dim++) {
       Layout[dim] = LayoutTemp[Rank-1-dim] *
         NumberOfRootGridTilesPerDimensionPerProcessor;
     }
