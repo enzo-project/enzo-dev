@@ -56,6 +56,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
     ret += sscanf(line, "CosmologyHubbleConstantNow = %"FSYM,
 		  &HubbleConstantNow);
     ret += sscanf(line, "CosmologyOmegaMatterNow = %"FSYM, &OmegaMatterNow);
+    ret += sscanf(line, "CosmologyOmegaDarkMatterNow = %"FSYM, &OmegaDarkMatterNow);
     ret += sscanf(line, "CosmologyOmegaLambdaNow = %"FSYM, &OmegaLambdaNow);
     ret += sscanf(line, "CosmologyComovingBoxSize = %"FSYM, &ComovingBoxSize);
     ret += sscanf(line, "CosmologyMaxExpansionRate = %"FSYM,
@@ -81,7 +82,8 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
     /* if the line is suspicious, issue a warning */
  
     if (ret == 0 && strstr(line, "=") != NULL && line[0] != '#' &&
-	strstr(line, "Cosmology") && !strstr(line, "CosmologySimulation"))
+	strstr(line, "Cosmology") && !strstr(line, "CosmologySimulation") &&
+	MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }

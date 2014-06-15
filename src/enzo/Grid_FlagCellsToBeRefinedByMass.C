@@ -24,7 +24,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
  
-int grid::FlagCellsToBeRefinedByMass(int level, int method)
+int grid::FlagCellsToBeRefinedByMass(int level, int method, int RestrictFlag)
 {
  
   /* Return if this grid is not on this processor. */
@@ -76,9 +76,20 @@ int grid::FlagCellsToBeRefinedByMass(int level, int method)
     ENZO_VFAIL("Unrecognized mass refinement flagging method (%"ISYM")\n", 
 	    method)
   }
- 
-  for (i = 0; i < size; i++)
-    FlaggingField[i] += (ffield[i] > ModifiedMinimumMassForRefinement) ? 1 : 0;
+
+  /* If RestrictFlag is true, then cells will only be flagged if they
+     are flagged by mass.  This happens when using must-refine
+     particles and must happen after all of the other flagging
+     methods. */
+
+  if (RestrictFlag) {
+    for (i = 0; i < size; i++)
+      FlaggingField[i] = ((ffield[i] > ModifiedMinimumMassForRefinement) &&
+			  (FlaggingField[i] > 0)) ? 1 : 0;
+  } else {
+    for (i = 0; i < size; i++)
+      FlaggingField[i] += (ffield[i] > ModifiedMinimumMassForRefinement) ? 1 : 0;
+  }
   
   /*for (i = 0; i < size; i++){
     if (i % 100000 == 0)

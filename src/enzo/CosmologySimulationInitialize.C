@@ -402,6 +402,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     Mu = 0.6;
   }
 
+  // Copy Omega_DM to a global variable
+  OmegaDarkMatterNow = CosmologySimulationOmegaCDMNow;
+  
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)

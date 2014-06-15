@@ -837,7 +837,7 @@ gradient force to gravitational force for one-zone collapse test. */
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
 
-   int FlagCellsToBeRefinedByMass(int level, int method);
+   int FlagCellsToBeRefinedByMass(int level, int method, int RestrictFlag);
 
 /* Flag all points that require refining by their slope.
      Returns the number of flagged cells.  Returns the number of flagged cells

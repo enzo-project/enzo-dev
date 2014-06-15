@@ -14,6 +14,10 @@ EXTERN float HubbleConstantNow;
 
 EXTERN float OmegaMatterNow;
 
+/* The value of Omega due to non-relativistic collisionless particles at z=0. */
+
+EXTERN float OmegaDarkMatterNow;
+
 /* The value of Omega due to lamba (the cosmological constant) at z=0. */
 
 EXTERN float OmegaLambdaNow;

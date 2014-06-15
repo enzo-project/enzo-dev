@@ -88,10 +88,9 @@ int grid::DepositMustRefineParticles(int pmethod, int level, bool KeepFlaggingFi
   ParticleTypeToMatch2 = PARTICLE_TYPE_MBH;
  
   float UniformParticleMass = 0.0;
-  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3){
-    float OmegaCDMNow = 1.0 - OmegaLambdaNow;
-    UniformParticleMass = OmegaCDMNow/OmegaMatterNow;
-  }
+  if (ProblemType == 30 && MustRefineParticlesCreateParticles == 3)
+    UniformParticleMass = OmegaDarkMatterNow / OmegaMatterNow;
+
   PFORTRAN_NAME(cic_flag)(
 	   ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], ParticleMass,
 	   &GridRank, &NumberOfParticles, ParticleType, FlaggingField,
