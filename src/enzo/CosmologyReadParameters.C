@@ -34,6 +34,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   HubbleConstantNow    = 0.701;
   OmegaMatterNow       = 0.279;
+  OmegaDarkMatterNow   = FLOAT_UNDEFINED;
   OmegaLambdaNow       = 0.721;
   ComovingBoxSize      = 64;
   MaxExpansionRate     = 0.01;
@@ -87,7 +88,13 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
       fprintf(stderr, "warning: the following parameter line was not interpreted:\n%s\n", line);
  
   }
- 
+
+  if (MyProcessorNumber == ROOT_PROCESSOR &&
+      OmegaDarkMatterNow == FLOAT_UNDEFINED &&
+      MustRefineParticlesCreateParticles > 0)
+    ENZO_FAIL("Must define Omega_DM if using must-refine particles in "
+	      "a cosmology simulation.");
+  
   /* Initialize by finding the time at the initial redshift. */
  
   if (CosmologyComputeTimeFromRedshift(InitialRedshift,
