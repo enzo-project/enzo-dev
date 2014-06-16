@@ -61,7 +61,7 @@ A FLD-based Radiation and Chemistry Solver for ENZO}
 
 This document describes a new, highly scalable,
 field-based radiation and chemistry solver for Enzo, 
-{\tt gFLSplit}. The target applications of this solver include the
+{\tt gFLDSplit}. The target applications of this solver include the
 transport of radiation using a flux-limited-diffusion-based solver,
 distributed among a possibly large number of 
 processors.  In this solver, the radiation field is assumed to be
@@ -273,8 +273,9 @@ this document.
   value must also be given in scaled time units.
 \item {\tt RadHydroMaxSubcycles} [$1$], this parameter sets the
   desired number of {\tt gFLDSplit} time steps per each hydrodynamics
-  time step.  It is recommended that this value not exceed 1 unless
-  {\tt gFLDSplit} is performing chemistry and gas heating internally.
+  time step (must be $\ge 1$).  When using Enzo's chemistry and
+  cooling solvers this parameter should be set to 1 to avoid overly
+  decoupling radiation and chemistry.
 \item {\tt RadHydroMaxChemSubcycles} [$1$], this parameter sets the
   desired number of chemistry and heating time steps per each
   radiation time step, {\em within} the {\tt gFLDSplit} solver.  This

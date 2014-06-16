@@ -418,10 +418,13 @@ Radiative Transfer (FLD) Split Solver Parameters
     initial time step to use in the FLD solver. Default: 1e20 (uses
     hydro time step).
 ``RadHydroMaxSubcycles`` (external)
-    desired number of FLD time steps per hydrodynamics time step. This
-    is only recommended if the FLD solver is performing chemistry and
-    heating internally, since it will only synchronize with the
-    ionization state at each hydrodynamic time step.  Default: 1.0.
+    desired number of FLD time steps per hydrodynamics time step (must
+    be greater than or equal to 1). This is only recommended if the
+    FLD solver is performing chemistry and heating internally, since
+    it will only synchronize with the ionization state at each
+    hydrodynamic time step.  When using Enzo's chemistry and cooling
+    solvers this parameter should be set to 1 to avoid overly
+    decoupling radiation and chemistry.  Default: 1.0.
 ``RadHydroMaxChemSubcycles`` (external)
     desired number of chemistry time steps per FLD time step.  This
     only applies if the FLD solver is performing chemistry and heating
