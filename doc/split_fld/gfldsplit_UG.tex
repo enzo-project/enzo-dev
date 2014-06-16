@@ -631,7 +631,7 @@ In this approach, we solve the radiation equation
 \eqref{eq:radiation_PDE} separately from the more tightly-coupled gas
 energy correction and chemistry equations
 \eqref{eq:cons_energy_correction} and \eqref{eq:hydrogen_ionization},
-which are evolved together.  These solves are coupled to Enzo's 
+which are evolved together.  These solvers are coupled to Enzo's 
 existing operator-split solver framework in the following manner:
 \begin{itemize}
 \item[(i)] Evolve the radiation implicitly in time [{\tt gFLDSplit}].
