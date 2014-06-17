@@ -1,0 +1,12 @@
+name = 'RadiationStreamX0_sp'
+answer_testing_script = None
+nprocs = 1
+runtime = 'medium'
+hydro = True
+gravity = False
+dimensionality = 3
+radiation = 'fld'
+max_time_minutes = 9
+fullsuite = True
+pushsuite = False
+quicksuite = False

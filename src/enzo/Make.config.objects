@@ -216,6 +216,7 @@ OBJS_CONFIG_LIB = \
 	fourn.o \
 	FreeRealMem.o \
 	FreeExpansionInitialize.o \
+	FreezeRateData.o \
         FriendOfFriend.o \
 	FSMultiSourceInitialize.o \
 	FSProb_ComputeOpacityLW.o \
@@ -285,6 +286,7 @@ OBJS_CONFIG_LIB = \
 	gFLDSplit_EnforceBoundary.o \
 	gFLDSplit_Evolve.o \
 	gFLDSplit_FInterface.o \
+	gFLDSplit_FillRates.o \
 	gFLDSplit_GasEnergySource.o \
 	gFLDSplit_InitialGuess.o \
 	gFLDSplit_Initialize.o \

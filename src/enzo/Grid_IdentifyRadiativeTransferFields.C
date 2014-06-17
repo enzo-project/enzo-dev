@@ -35,7 +35,7 @@ int grid::IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
   
   kphHINum = gammaNum = kphHeINum = kphHeIINum = kdissH2INum = 0;
 
-  if (RadiativeTransfer) {
+  if ((RadiativeTransfer) || (RadiativeTransferFLD)) {
 
     kphHINum    = FindField(kphHI, FieldType, NumberOfBaryonFields); 
     gammaNum    = FindField(PhotoGamma, FieldType, NumberOfBaryonFields);	  

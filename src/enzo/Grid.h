@@ -2163,7 +2163,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				      float V1Const, float V2Const,
 				      float IEConstIn, float IEConstOut, 
 				      float EgConst, float HMassFrac, 
-				      float InitFracHII, float ClumpCenterX0, 
+				      float InitFracHII, float InitFracHeII, 
+				      float InitFracHeIII, float ClumpCenterX0, 
 				      float ClumpCenterX1, float ClumpCenterX2, 
 				      float ClumpRadius, int local);
 
@@ -2173,13 +2174,17 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				      float DensityCenter1, float DensityCenter2, 
 				      float V0Const, float V1Const, 
 				      float V2Const, float IEConst, 
-				      float EgConst, float InitFracHII, int local);
+				      float EgConst, float HMassFrac, 
+				      float InitFracHII, float InitFracHeII, 
+				      float InitFracHeIII, int local);
 
   /* FLD Radiation test problem: cosmological HII ioniztion (SUCCESS or FAIL) */
   int CosmoIonizationInitializeGrid(int NumChem, float VxConst, float VyConst, 
 				    float VzConst, float IEConst, 
-				    float EgConst, float InitFracHII, 
-				    float OmegaBaryonNow, int local);
+				    float EgConst, float HMassFrac, 
+				    float InitFracHII, float InitFracHeII, 
+				    float InitFracHeIII, float OmegaBaryonNow, 
+				    int local);
 
   /* FLD Radiation test problem: stream test (SUCCESS or FAIL) */
   int RadHydroStreamTestInitializeGrid(float DensityConst, float EgConst,

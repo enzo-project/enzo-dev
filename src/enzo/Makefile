@@ -236,7 +236,7 @@ verbose: $(EXE).exe
              echo; \
              echo "$(F90) -c -o $@ $(DEFINES) $(F90FLAGS) $*.F90"; \
              echo; \
-             $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
+             $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90; \
              echo; \
              exit 1; \
 	  fi ; \
