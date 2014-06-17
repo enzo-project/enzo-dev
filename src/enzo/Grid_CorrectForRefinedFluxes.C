@@ -662,32 +662,32 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	}
 	
 
-        /* Return faces to original quantity. */
+          /* Return faces to original quantity. */
 	
-        if (HydroMethod != Zeus_Hydro) {
-          for (field = 0; field < NumberOfBaryonFields; field++) {
-            if ( MakeFieldConservative(FieldType[field])) {
-              if (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-                                            FieldType[field] != InternalEnergy)) {
-                for (k = Start[2]; k <= End[2]; k++) {
-                  for (j = Start[1]; j <= End[1]; j++) {
-                    index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
-                    for (i = Start[0]; i <= End[0]; i++, index++) {
-                      BaryonField[field][index] /= BaryonField[DensNum][index];
-                      BaryonField[field][index+Offset] /=
-                        BaryonField[DensNum][index+Offset];
+          if (HydroMethod != Zeus_Hydro) {
+            for (field = 0; field < NumberOfBaryonFields; field++) {
+              if ( MakeFieldConservative(FieldType[field])) {
+                if (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+                                              FieldType[field] != InternalEnergy)) {
+                  for (k = Start[2]; k <= End[2]; k++) {
+                    for (j = Start[1]; j <= End[1]; j++) {
+                      index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
+                      for (i = Start[0]; i <= End[0]; i++, index++) {
+                        BaryonField[field][index] /= BaryonField[DensNum][index];
+                        BaryonField[field][index+Offset] /=
+                          BaryonField[DensNum][index+Offset];
+                      }
                     }
                   }
                 }
               }
             }
           }
-        }
         
 	  /* If appropriate, restore consistency between total and internal
 	     energy in corrected faces. */
 	
-	  if (DualEnergyFormalism == TRUE && RadiativeCooling == FALSE){
+	  if (DualEnergyFormalism == TRUE){
 	    float B2 = 0.0;
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {
