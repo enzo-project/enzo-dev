@@ -136,6 +136,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Phi_pName = "Phip";
 
 #ifdef TRANSFER
+  char *RadName = "Grey_Radiation_Energy";
   char *kphHIName = "kphHI";
   char *kphHeIName = "kphHeI";
   char *kphHeIIName = "kphHeII";
