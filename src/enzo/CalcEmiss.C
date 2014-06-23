@@ -213,7 +213,5 @@ int CalcEmiss(int *nx, int *ny, int *nz,
     */
   }//100 in Fortran
 
-  //I want a universal translator... for computer languages...
-
   return SUCCESS;
 }
