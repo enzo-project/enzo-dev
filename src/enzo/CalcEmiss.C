@@ -192,9 +192,9 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 
 
 	    /* update the Emissivity_Array with <UV energy weighted by time> */
-	    printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
+	    /*printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
 	    EmissivityArray[i + *nx * (j + *ny * k)] += uv_energy;
-	    printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
+	    /*printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
 	  }
 	}
 	else {
@@ -212,19 +212,6 @@ int CalcEmiss(int *nx, int *ny, int *nz,
       printf("NO STARS MADE \n");
     */
   }//100 in Fortran
-
-  //I want a universal translator... for computer languages...
-
-  /*
-    int emis_x=0, emis_y=0, emis_z=0, emis_index=0;
-    for(int emis_z=0; emis_z< *nz; emis_z++)
-      for(int emis_y=0; emis_y< *ny; emis_y++)
-	for(int emis_x=0; emis_x< *nx; emis_x++){
-	  emis_index = emis_x + *nx*(emis_y + *ny*emis_z);
-	  if(EmissivityArray[emis_index] != 0)
-	    printf("At end of Calc Emiss %0.12"GSYM" at %"ISYM" %"ISYM" %"ISYM"\n", EmissivityArray[emis_index], emis_x, emis_y, emis_z);
-	}
-  */
 
   return SUCCESS;
 }
