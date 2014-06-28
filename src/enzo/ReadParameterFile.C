@@ -943,6 +943,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorMass);
     ret += sscanf(line, "PopIIIUseHypernova = %"ISYM,
 		  &PopIIIUseHypernova);
+    ret += sscanf(line, "PopIIISupernovaExplosions = %"ISYM,
+		  &PopIIISupernovaExplosions);
 
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);

@@ -899,18 +899,20 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIH2CriticalFraction);
   fprintf(fptr, "PopIIIMetalCriticalFraction           = %"GSYM"\n",
           PopIIIMetalCriticalFraction);
+  fprintf(fptr, "PopIIISupernovaExplosions             = %"ISYM"\n",
+          PopIIISupernovaExplosions);
   fprintf(fptr, "PopIIISupernovaRadius                 = %"GSYM"\n",
           PopIIISupernovaRadius);
   fprintf(fptr, "PopIIISupernovaUseColour              = %"ISYM"\n",
           PopIIISupernovaUseColour);
   fprintf(fptr, "PopIIISupernovaMustRefine             = %"ISYM"\n",
           PopIIISupernovaMustRefine);
-  fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n\n",
+  fprintf(fptr, "PopIIISupernovaMustRefineResolution   = %"ISYM"\n",
           PopIIISupernovaMustRefineResolution);
 
   fprintf(fptr, "PopIIIColorDensityThreshold           = %"GSYM"\n",
           PopIIIColorDensityThreshold);
-  fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n\n",
+  fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n",
           PopIIIColorMass);
   fprintf(fptr, "PopIIIUseHypernova                    = %"ISYM"\n\n",
           PopIIIUseHypernova);

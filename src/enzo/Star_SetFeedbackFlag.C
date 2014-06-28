@@ -70,7 +70,8 @@ int Star::SetFeedbackFlag(FLOAT Time)
       this->FeedbackFlag = FORMATION;
     else if (Time > this->BirthTime + this->LifeTime) // endpoint
       if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
-	  (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass))
+	  (this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) &&
+	  PopIIISupernovaExplosions == TRUE)
 	this->FeedbackFlag = SUPERNOVA;
       else
 	this->FeedbackFlag = NO_FEEDBACK; // BH formation

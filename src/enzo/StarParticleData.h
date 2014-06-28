@@ -83,6 +83,7 @@ SPEXTERN int   PopIIISupernovaMustRefineResolution;
 SPEXTERN float PopIIIColorDensityThreshold;
 SPEXTERN float PopIIIColorMass;
 SPEXTERN int   PopIIIUseHypernova;
+SPEXTERN int   PopIIISupernovaExplosions;
 
 SPEXTERN int    StarClusterUseMetalField;
 SPEXTERN int    StarClusterHeliumIonization;

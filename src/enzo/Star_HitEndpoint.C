@@ -46,7 +46,8 @@ int Star::HitEndpoint(FLOAT Time)
     // If a Pop III star is going supernova, only kill it after it has
     // applied its feedback sphere
     if ((this->Mass >= PISNLowerMass && this->Mass <= PISNUpperMass) ||
-	(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass)) {
+	(this->Mass >= TypeIILowerMass && this->Mass <= TypeIIUpperMass) &&
+	PopIIISupernovaExplosions == TRUE) {
 
       // Needs to be non-zero (multiply by a small number to retain
       // memory of mass)
