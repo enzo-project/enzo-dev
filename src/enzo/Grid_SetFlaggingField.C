@@ -38,14 +38,25 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
  
   NumberOfFlaggedCells = INT_UNDEFINED;
 
-  bool RestrictFlaggingToMustRefineParticles =
+  /* For must-refine particles, restrict refinement to where they
+     exist.  This is already done in Grid_SetParticleMassFlaggingField
+     for simulations with particle-only criteria, and we don't have to
+     consider this restriction here. */
+  
+  int method, pmethod = INT_UNDEFINED;
+  bool ParticleRefinementOnly, RestrictFlaggingToMustRefineParticles;
+  ParticleRefinementOnly = true;
+  for (method = 0; method < MAX_FLAGGING_METHODS; method++)
+    ParticleRefinementOnly &= (CellFlaggingMethod[method] == 4 ||
+			       CellFlaggingMethod[method] == 8 ||
+			       CellFlaggingMethod[method] == INT_UNDEFINED);
+  RestrictFlaggingToMustRefineParticles =
     (level == MustRefineParticlesRefineToLevel) &&
-    (MustRefineParticlesCreateParticles > 0);
+    (MustRefineParticlesCreateParticles > 0) && (!ParticleRefinementOnly);
  
   /***********************************************************************/
   /* beginning of Cell flagging criterion routine                        */
 
-  int method, pmethod;
   for (method = 0; method < MAX_FLAGGING_METHODS; method++) {
   if (level >= MustRefineParticlesRefineToLevel ||
       CellFlaggingMethod[method] == 4 ||
@@ -296,7 +307,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
      criterion in order to setup an AND-clause with the refinement and
      must-refine particles. */
   
-  if (RestrictFlaggingToMustRefineParticles) {
+  if (RestrictFlaggingToMustRefineParticles && pmethod != INT_UNDEFINED) {
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMass(level, pmethod, TRUE);
     if (NumberOfFlaggedCells < 0) {
       ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMass (4).");
