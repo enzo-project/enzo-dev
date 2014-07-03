@@ -185,7 +185,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
       printf("HydroTime = %"PSYM", PhotonTime = %"PSYM
 	     ", dtPhoton = %g, dtPhoton0 = %g\n",
 	     HydroTime, PhotonTime, dtPhoton, Saved_dtPhoton);
-    dtPhoton = max(HydroTime+dtTol - PhotonTime, dtTol);
+    dtPhoton = min(1.01 * (HydroTime - PhotonTime), Saved_dtPhoton);
     dtPhoton = max(dtPhoton, 1e-4*Saved_dtPhoton);
     //LastTimestepUseHII = FALSE;
   }

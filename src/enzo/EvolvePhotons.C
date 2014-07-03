@@ -215,15 +215,6 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   while (GridTime > PhotonTime) {
 
-  /* Temporarily load balance grids according to the number of ray
-     segments.  We'll move the grids back at the end of this
-     routine */
-
-    if (RadiativeTransferLoadBalance) {
-      CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
-					  MetaData->FirstTimestepAfterRestart);
-    }
-
     /* Recalculate timestep if this isn't the first loop.  We already
        did this in RadiativeTransferPrepare */
 
@@ -275,6 +266,15 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     }
 
     if (debug) fprintf(stdout, "%"ISYM" SRC(s)\n", NumberOfSources);
+
+  /* Temporarily load balance grids according to the number of ray
+     segments.  We'll move the grids back at the end of this
+     routine */
+
+    if (RadiativeTransferLoadBalance && NumberOfSources > 0) {
+      CommunicationLoadBalancePhotonGrids(Grids, nGrids, 
+					  MetaData->FirstTimestepAfterRestart);
+    }
 
     /* Initialize radiation fields */
 
@@ -547,7 +547,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
        which was saved in CommunicationLoadBalancePhotonGrids.  Photon
        packages must be moved back, too. */
 
-    if (RadiativeTransferLoadBalance)
+    if (RadiativeTransferLoadBalance && NumberOfSources > 0)
       RadiativeTransferLoadBalanceRevert(Grids, nGrids);
 
     /************************************************************************/
