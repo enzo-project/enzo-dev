@@ -45,6 +45,8 @@ LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
 LOCAL_HDF4_INSTALL   = 
 LOCAL_HYPRE_INSTALL  = 
 LOCAL_ACML_INSTALL   = 
+LOCAL_GRACKLE_INSTALL = $(HOME)/code/grackle
+
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
@@ -77,8 +79,7 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 # Compiler flag settings
 #-----------------------------------------------------------------------
 
-MACH_CPPFLAGS = -P -traditional
-#MACH_CPPFLAGS = 
+MACH_CPPFLAGS = -P # -traditional
 MACH_CFLAGS   = -mp1 -prec_div -fp_port -align
 MACH_CXXFLAGS = -mp1 -prec_div -fp_port -align
 MACH_FFLAGS   = 
@@ -91,11 +92,8 @@ MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g -O0 
-#MACH_OPT_CRASHES        = -fastsse
-#MACH_OPT_HIGH        = -O2 -Mprof=func
-#MACH_OPT_HIGH        = -O2 -Mbounds -gopt
 MACH_OPT_HIGH        = -O2
-MACH_OPT_AGGRESSIVE  = -O3 -Mfptrap -Mflushz -fastsse -Mdaz -Mnontemporal -Mnofprelaxed -Mvect=altcode,assoc,prefetch -Kieee 
+MACH_OPT_AGGRESSIVE  = -O3 -xHOST -ipo -mcmodel=medium -mkl
 
 #-----------------------------------------------------------------------
 # Includes
@@ -104,9 +102,9 @@ MACH_OPT_AGGRESSIVE  = -O3 -Mfptrap -Mflushz -fastsse -Mdaz -Mnontemporal -Mnofp
 LOCAL_INCLUDES_MPI    = 
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
-
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
@@ -122,9 +120,10 @@ LOCAL_LIBS_MPI    =
 LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
 LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
 LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 
 LOCAL_LIBS_MACH   = -lm
-
 MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
 MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
