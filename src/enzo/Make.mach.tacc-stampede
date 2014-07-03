@@ -22,14 +22,15 @@
 #
 #=======================================================================
 
-MACH_TEXT  = TACC Stampede
+MACH_TEXT  = TACC Stampede Intel
 MACH_VALID = 1
 MACH_FILE  = Make.mach.tacc-stampede
 
 MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
 	The following modules are needed to compile enzo here with \
-	the default machine file: hdf5 \
-        (module load hdf5)."
+	the default machine file: hdf5 intel \
+        (module load hdf5) \
+	(module load intel)."
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -40,18 +41,14 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    =
 LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
-LOCAL_HDF4_INSTALL   = 
-LOCAL_HYPRE_INSTALL  = 
-LOCAL_ACML_INSTALL   = 
 LOCAL_GRACKLE_INSTALL = $(HOME)/code/grackle
 
 #-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
-MACH_CPP       = /usr/bin/cpp
+MACH_CPP       = cpp
 
 # With MPI
 
@@ -63,11 +60,11 @@ MACH_LD_MPI    = mpicxx
 
 # Without MPI
 
-MACH_CC_NOMPI  = mpicc
-MACH_CXX_NOMPI = mpicxx
-MACH_FC_NOMPI  = mpif90
-MACH_F90_NOMPI = mpif90
-MACH_LD_NOMPI  = mpicxx
+MACH_CC_NOMPI  = icc
+MACH_CXX_NOMPI = icpc
+MACH_FC_NOMPI  = ifort
+MACH_F90_NOMPI = ifort
+MACH_LD_NOMPI  = icpc
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
@@ -99,14 +96,15 @@ MACH_OPT_AGGRESSIVE  = -O3 -xHOST -ipo -mcmodel=medium -mkl
 # Includes
 #-----------------------------------------------------------------------
 
-LOCAL_INCLUDES_MPI    = 
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
-LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_MPI     = 
+LOCAL_INCLUDES_HDF5    = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE   = -I$(LOCAL_HYPRE_INSTALL)/include
 LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
 MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
 
 #-----------------------------------------------------------------------
 # Libraries
