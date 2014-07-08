@@ -790,7 +790,7 @@ c
      &                    d(ic+i,jc+j,kc+k)
                   endif
 c
-c              if idir = -1: convert vel -> mom
+c              if idir = -1: convert mom -> vel
 c               
                else
                   if (imethod .eq. 2) then
@@ -1106,6 +1106,9 @@ c
      &                  * (yield * (1.d0-metalf) + 
      &                  m_eject * metalf)
 
+                   write(6,*) 'metals injected:',(delta_mass/m_eject)
+     &                  * (yield * (1.d0-metalf) +
+     &                  m_eject * metalf),metal(ic+i1,jc+j1,kc+k1)
 c 
                 endif
 c

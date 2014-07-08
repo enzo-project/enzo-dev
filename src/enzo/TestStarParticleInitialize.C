@@ -40,6 +40,13 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *MetalName = "Metal_Density";
+  char *ElectronName = "Electron_Density";
+  char *HIName    = "HI_Density";
+  char *HIIName   = "HII_Density";
+  char *HeIName   = "HeI_Density";
+  char *HeIIName  = "HeII_Density";
+  char *HeIIIName = "HeIII_Density";
+
 
   /* declarations */
 
@@ -58,8 +65,16 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   FLOAT TestStarParticleStarPosition[3] = {0.5, 0.5, 0.5};
   float TestStarParticleBField[3]   = {0.0, 0.0, 0.0};
   float TestStarParticleStarMass    = 100.0;
-  float TestProblemUseMetallicityField = 0;
-  float TestProblemInitialMetallicityFraction = 1e-10;
+  int TestProblemUseMetallicityField = 1;
+  float TestProblemInitialMetallicityFraction = 2e-3; // 0.1 Zsun
+  
+
+
+
+
+  TestProblemData.MultiSpecies = MultiSpecies;
+  TestProblemData.UseMetallicityField = TestProblemUseMetallicityField;
+  TestProblemData.MetallicityField_Fraction = TestProblemInitialMetallicityFraction;
 
   /* read input from file */
 
@@ -88,6 +103,15 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 
     ret += sscanf(line, "TestProblemUseMetallicityField  = %"ISYM, &TestProblemData.UseMetallicityField);
     ret += sscanf(line, "TestProblemInitialMetallicityFraction  = %"FSYM, &TestProblemData.MetallicityField_Fraction); 
+
+    ret += sscanf(line, "TestProblemInitialHIFraction  = %"FSYM, &TestProblemData.HI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHIIFraction  = %"FSYM, &TestProblemData.HII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIFraction  = %"FSYM, &TestProblemData.HeI_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIFraction  = %"FSYM, &TestProblemData.HeII_Fraction);
+    ret += sscanf(line, "TestProblemInitialHeIIIIFraction  = %"FSYM, &TestProblemData.HeIII_Fraction);
+    ret += sscanf(line, "TestProblemHydrogenFractionByMass = %"FSYM, &TestProblemData.HydrogenFractionByMass);
+
+
     /* if the line is suspicious, issue a warning */
 
     if (ret == 0 && strstr(line, "=") && strstr(line, "TestStarParticle") 
@@ -115,7 +139,7 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
     ENZO_FAIL("Error in TestStarParticleInitializeGrid.\n");
 
   /* set up field names and units */
-
+  
   int count = 0;
   DataLabel[count++] = DensName;
   DataLabel[count++] = TEName;
@@ -124,17 +148,23 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
   DataLabel[count++] = Vel1Name;
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
+  if (TestProblemData.MultiSpecies){
+    DataLabel[count++] = ElectronName;
+    DataLabel[count++] = HIName;
+    DataLabel[count++] = HIIName;
+    DataLabel[count++] = HeIName;
+    DataLabel[count++] = HeIIName;
+    DataLabel[count++] = HeIIIName;
+  }
   if (TestProblemData.UseMetallicityField)
     DataLabel[count++] = MetalName;
-  
-  DataUnits[0] = NULL;
-  DataUnits[1] = NULL;
-  DataUnits[2] = NULL;
-  DataUnits[3] = NULL;
-  DataUnits[4] = NULL;
-  DataUnits[5] = NULL;
-  DataUnits[6] = NULL;
 
+
+  int j;
+  for(j=0; j < count; j++)
+    DataUnits[j] = NULL;
+
+   
   /* Write parameters to parameter output file */
   
   if (MyProcessorNumber == ROOT_PROCESSOR) {
@@ -143,7 +173,18 @@ int TestStarParticleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 	    TestStarParticleDensity);
     fprintf(Outfptr, "TestStarParticleEnergy = %"FSYM"\n",
 	    TestStarParticleEnergy);
+    fprintf(Outfptr, "MetallicityField_Fraction = %"FSYM"\n",
+            TestProblemData.MetallicityField_Fraction);
   }
+
+  fprintf(stderr, "TestStarParticleDensity = %"FSYM"\n",
+	  TestStarParticleDensity);
+  fprintf(stderr, "TestStarParticleEnergy = %"FSYM"\n",
+	  TestStarParticleEnergy);
+  fprintf(stderr, "MetallicityField_Fraction = %"FSYM"\n",
+	  TestProblemData.MetallicityField_Fraction);
+
+
 
   return SUCCESS;
 
