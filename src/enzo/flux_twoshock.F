@@ -391,7 +391,7 @@ c
           enddo
           do i=i1, i2+1
              qc = dt/dx(i)
-             gef(i,j) = dt*dugeb(i)
+             gef(i,j) = qc*dugeb(i)
              ges(i,j) = qc * pcent(i) * (ub(i) - ub(i+1))
           enddo
        endif
