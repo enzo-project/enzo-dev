@@ -132,7 +132,6 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			SiblingGridList SiblingList[],
 			int level, TopGridData *MetaData, FLOAT When);
 #else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
@@ -256,6 +255,8 @@ static int StaticLevelZero = 0;
 #endif
 
 extern int RK2SecondStepBaryonDeposit;
+SiblingGridList *SiblingGridListStorage[MAX_DEPTH_OF_HIERARCHY];
+
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
@@ -301,6 +302,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (dbx) fprintf(stderr, "EL: Initialize FSL \n"); 
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
+  SiblingGridListStorage[level] = SiblingList;
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
   
   /* Adjust the refine region so that only the finest particles 
@@ -449,7 +451,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     When = 0.5;
 
 #ifdef FAST_SIB
-     PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+     PrepareDensityField(LevelArray,  level, MetaData, When);
 #else   // !FAST_SIB
      PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -828,6 +830,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         delete [] SiblingList[grid1].GridList;
     }
     delete [] SiblingList;
+    SiblingGridListStorage[level] = NULL;
   }
 
   return SUCCESS;

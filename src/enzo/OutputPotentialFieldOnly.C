@@ -49,7 +49,6 @@ int CreateSiblingList(HierarchyEntry **Grids, int NumberOfGrids,
 		      SiblingGridList *SiblingList, int StaticLevelZero,
 		      TopGridData *MetaData, int level);
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			SiblingGridList SiblingList[],
 			int level, TopGridData *MetaData, FLOAT When);
 #else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[], 
@@ -131,7 +130,7 @@ int OutputPotentialFieldOnly(char *ParameterFile,
       SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
       CreateSiblingList(Grids, NumberOfGrids, SiblingList, FALSE, &MetaData,
 			level);
-      PrepareDensityField(LevelArray, SiblingList, level, &MetaData, When);
+      PrepareDensityField(LevelArray,  level, &MetaData, When);
       delete [] SiblingList;
       delete [] Grids;
 #else
