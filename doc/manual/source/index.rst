@@ -95,12 +95,21 @@ release and routinely by Enzo developers.
 Citing Enzo
 -----------
 
-If you use Enzo for a scientific publication, we ask that you cite the code in
-the following way in the acknowledgments of your paper:
+Guidelines for citing enzo are available in the ``CITATION`` file in the root of
+the enzo mercurial repository.
 
-Computations described in this work were performed using the Enzo code
-(http://enzo-project.org), which is the product of a collaborative effort
-of scientists at many universities and national laboratories.
+If you use Enzo for a scientific publication, we ask that you cite the code in
+the following way in the acknowledgments of your paper::
+
+    Computations described in this work were performed using the
+    publicly-available \texttt{Enzo} code (http://enzo-project.org), which is
+    the product of a collaborative effort of many independent scientists from
+    numerous institutions around the world.  Their commitment to open science
+    has helped make this work possible.
+
+In addition, we request that you link to the project webpage in a footnote and
+add a citation to the Enzo method paper.  See the ``CITATION`` file for BibTeX
+and LaTeX formatted citations.
 
 Search
 ======

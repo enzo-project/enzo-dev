@@ -27,3 +27,4 @@ of AMR and numerical methods is assumed throughout this documentation.
    NewTestProblem1.rst
    NewTestProblem3.rst
    using_mhd.rst
+   DoingARelease.rst
