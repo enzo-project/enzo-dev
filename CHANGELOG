@@ -8,6 +8,8 @@ _Release date - TBA
   * New Feature: Added a rotating turbulent sphere test problem (PR #206)
   * New Feature: Hierarchy rebuilds can now be controlled dynamically (PR #196)
   * New Feature: Grackle chemistry and cooling (PR #194)
+  * Enhancement: Improved compatibility for cosmology simulations that include
+                 FLD, chemistry, and cooling. (PR #230)
   * Enhancement: Significant updates for the unigrid FLD solver (PR #216)
   * Enhancement: Particle splitting has been reimplemented with an improved 
                  algorithm (PR #188)
@@ -36,6 +38,15 @@ _Release date - TBA
                  (PR #177, PR #200)
   * Enhancement: New refine region mechanics (PR #155, PR #172, PR #227)
   * Enhancement: MHDCT works with outflow boundary conditions (PR #176, PR#198)
+  * Bugfix: The internal energy field is no longer made conservative during flux
+            correction if cooling is turned on (PR 228)
+  * Bugfix: Fixed an issue where incorrect fluxes were being generated for
+            the internal energy in simulations that used flux correction.  This
+            may improve stability in some applications. (PR 217)
+  * Bugfix: FinalRedshift is no longer derived from StopTime, preventing
+            desynchronization between these parameters (PR 236)
+  * Bugfix: The FLD radiative transfer parameter file is now only written by
+            the root processor (PR #235)
   * Bugfix: Fixed issues with mpgrafic and P-GroupFinder (PR #215)
   * Bugfix: Fixed issues with transport of color fields at refinement boundaries.
             (PR #199)
