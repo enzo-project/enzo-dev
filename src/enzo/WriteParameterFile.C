@@ -375,13 +375,13 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
     if (DataLabel[dim]) {
       if ((strstr(DataLabel[dim], "Density") != NULL) ||
 	  (strstr(DataLabel[dim], "Colour") != NULL))
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %.17*"GSYM"\n", dim, DensityUnits);
+	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM_CONV"\n", dim, DensityUnits);
       if (strstr(DataLabel[dim], "velocity") != NULL)
-	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %.17"GSYM"\n", dim, VelocityUnits);
+	fprintf(fptr, "#DataCGSConversionFactor[%"ISYM"] = %"GOUTSYM_CONV"\n", dim, VelocityUnits);
     }
   }
-  fprintf(fptr, "#TimeUnits                 = %.17"GSYM"\n", TimeUnits);
-  fprintf(fptr, "#TemperatureUnits          = %.17"GSYM"\n", TemperatureUnits);
+  fprintf(fptr, "#TimeUnits                 = %"GOUTSYM_CONV"\n", TimeUnits);
+  fprintf(fptr, "#TemperatureUnits          = %"GOUTSYM_CONV"\n", TemperatureUnits);
   fprintf(fptr, "\n");
  
   fprintf(fptr, "UniformGravity             = %"ISYM"\n", UniformGravity);
