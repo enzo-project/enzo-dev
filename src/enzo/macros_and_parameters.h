@@ -294,16 +294,6 @@ typedef int            HDF5_hid_t;
 #endif
 #endif
 
-/* Definitions for controlling the float type for outputting conversions
-   and units in WriteParameterFile.C */
-
-#ifdef CONFIG_BFLOAT_4
-#define GOUTSYM_CONV ".8g"
-#endif
-#ifdef CONFIG_BFLOAT_8
-#define GOUTSYM_CONV ".16g"
-#endif
-
 /* Definitions for controlling the integer type for particle IDs
    (8-byte needed for >2 billion particle simulations) */
 
