@@ -419,7 +419,7 @@ int WriteAllData(char *basename, int filenumber,
   strcat(MetaData.BoundaryConditionName, BCSuffix);
 
 #ifdef TRANSFER
-  if (ImplicitProblem) {
+  if (ImplicitProblem && MyProcessorNumber == ROOT_PROCESSOR) {
     // Output ImplicitSolver module parameter file
 
     //    Reset MetaData.RadHydroParameterFname

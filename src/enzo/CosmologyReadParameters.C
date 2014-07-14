@@ -26,7 +26,7 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
 {
  
   int i, OutputNumber;
-  FLOAT FinalRedshift, CurrentRedshift;
+  FLOAT CurrentRedshift;
   char line[MAX_LINE_LENGTH], *dummy = new char[MAX_LINE_LENGTH];
   dummy[0] = 0;
  

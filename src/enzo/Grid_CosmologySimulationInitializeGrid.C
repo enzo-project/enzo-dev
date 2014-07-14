@@ -128,6 +128,7 @@ int grid::CosmologySimulationInitializeGrid(
   int EtaNum;
 #endif
   int MachNum, PSTempNum, PSDenNum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
  
   int ExtraField[2];
   int ForbidNum, iTE;
@@ -245,8 +246,19 @@ int grid::CosmologySimulationInitializeGrid(
     }
     
 #ifdef TRANSFER
-    if (RadiativeTransferFLD > 1)
+    if (RadiativeTransferFLD > 1) {
       FieldType[EgNum = NumberOfBaryonFields++] = RadiationFreq0;
+      if (RadiativeCooling) {
+	FieldType[ kphHINum = NumberOfBaryonFields++] = kphHI;
+	FieldType[ PhotoGammaNum = NumberOfBaryonFields++] = PhotoGamma;
+	if (RadiativeTransferHydrogenOnly == FALSE) {
+	  FieldType[ kphHeINum = NumberOfBaryonFields++] = kphHeI;
+	  FieldType[ kphHeIINum = NumberOfBaryonFields++] = kphHeII;
+	}
+	if (MultiSpecies > 1)
+	  FieldType[ kdissH2INum = NumberOfBaryonFields++] = kdissH2I;
+      }
+    }
 #endif
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;

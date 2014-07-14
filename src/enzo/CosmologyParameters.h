@@ -34,6 +34,10 @@ EXTERN FLOAT InitialTimeInCodeUnits;
 
 EXTERN FLOAT InitialRedshift;
 
+/* The final redshift. */
+
+EXTERN FLOAT FinalRedshift;
+
 /* Redshift output information: */
 
 EXTERN FLOAT CosmologyOutputRedshift[MAX_NUMBER_OF_OUTPUT_REDSHIFTS];
