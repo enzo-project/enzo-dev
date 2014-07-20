@@ -132,7 +132,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			int level, TopGridData *MetaData, FLOAT When);
+			int level, TopGridData *MetaData, FLOAT When, SiblingGridList **SiblingGridListStorage);
 #else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
@@ -255,7 +255,6 @@ static int StaticLevelZero = 0;
 #endif
 
 extern int RK2SecondStepBaryonDeposit;
-SiblingGridList *SiblingGridListStorage[MAX_DEPTH_OF_HIERARCHY];
 
 
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -263,6 +262,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
+    , SiblingGridList *SiblingGridListStorage[] 
 		)
 {
   /* Declarations */
@@ -451,7 +451,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     When = 0.5;
 
 #ifdef FAST_SIB
-     PrepareDensityField(LevelArray,  level, MetaData, When);
+     PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
 #else   // !FAST_SIB
      PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -642,6 +642,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
+          ,SiblingGridListStorage
 		      ) == FAIL) {
 	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
