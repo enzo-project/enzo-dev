@@ -1218,7 +1218,7 @@ Protostellar Collapse (61)
 ``ProtostellarCollapseOuterDensity`` (external)
      Initial density. Default: 1.0
 ``ProtostellarCollapseAngularVelocity`` (external)
-     Initial agnular velocity. Default: 0
+     Initial angular velocity. Default: 0
 ``ProtostellarCollapseSubgridLeft``, ``ProtostellarCollapseSubgridRight`` (external)
      Start and end position of subgrid. Default: 0 (for both)
 
