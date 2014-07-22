@@ -51,7 +51,6 @@ int CalcEmiss(int *nx, int *ny, int *nz,
   int i, j, k, n;
   float mform, tfactor, uv_energy, 
         minitial, xv1, xv2, dratio;
-  float msolar_e51 = 1800.0;
 
   /* disabling clear of Emissivity field until a way to do it in AMR is found 
      in EvolveHierarchy and EvolveLevel.  Instead put the clear here manually
