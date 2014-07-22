@@ -31,7 +31,7 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
-
+#include "phys_constants.h"
 
 /* Translating everything from star_maker2.src feedback section including paraphrasing the comments from that section */
 
@@ -51,9 +51,7 @@ int CalcEmiss(int *nx, int *ny, int *nz,
   int i, j, k, n;
   float mform, tfactor, uv_energy, 
         minitial, xv1, xv2, dratio;
-  float clight = 2.99792458e10;
   float msolar_e51 = 1800.0;
-  float pi = 3.141592653589793e0;
 
   /* disabling clear of Emissivity field until a way to do it in AMR is found 
      in EvolveHierarchy and EvolveLevel.  Instead put the clear here manually
@@ -186,7 +184,7 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 	       Razoumov et.al. 2002 June 20 The Astrophysical Journal */
 	    /* Multiplying uv_param by 4pi to have consistent units with the 
 	       energy equation in FLD solver*/
-	    uv_energy = 4 * pi * uv_param * mform * (clight) * (clight) *
+	    uv_energy = 4.0 * pi * uv_param * mform * (clight) * (clight) *
 	      *d1 / (dtLevelAbove * *t1);
 
 
