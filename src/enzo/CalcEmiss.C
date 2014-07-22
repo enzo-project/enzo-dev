@@ -51,7 +51,7 @@ int CalcEmiss(int *nx, int *ny, int *nz,
   int i, j, k, n;
   float mform, tfactor, uv_energy, 
         minitial, xv1, xv2, dratio;
-  float clight = 3e10;
+  float clight = 2.99792458e10;
   float msolar_e51 = 1800.0;
   float pi = 3.141592653589793e0;
 
