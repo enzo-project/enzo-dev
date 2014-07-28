@@ -98,6 +98,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
         ENZO_FAIL("Error in grid->IdentifySpeciesFields.");
     }
 
+  fh = CoolData.HydrogenFractionByMass;
+
   /* Find Metallicity or SNColour field and set flag. */
 
   int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
@@ -161,7 +163,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   // Correct for smaller enrichment radius
   EjectaMetalDensity *= pow(MetalRadius, -3.0);
   PrimordialDensity = EjectaDensity - EjectaMetalDensity;
-  fh = CoolData.HydrogenFractionByMass;
   MetalRadius2 = radius * radius * MetalRadius * MetalRadius;
   outerRadius2 = 1.2 * 1.2 * radius * radius;
 
@@ -881,13 +882,14 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
          -- Enforce a minimum temperature for cold gas accretion --
   ************************************************************************/
 
-  float MinimumTemperature = 1.0, AdditionalEnergy, GasEnergy;
+  float MinimumTemperature = 1e4, AdditionalEnergy, GasEnergy;
+  ionizedFraction = 0.999;  // Assume an initial HII region
 
   if (cstar->FeedbackFlag == FORMATION) {
 
     index = 0;
-    if (cstar->type == PopII)
-      MinimumTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
+    //if (cstar->type == PopII)
+    //MinimumTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
     
     for (k = 0; k < GridDimension[2]; k++) {
 
@@ -913,31 +915,41 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
 
+	    if (MetallicityField == TRUE)
+	      metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
+	    else
+	      metallicity = 0;
+
+	    fhz = fh * (1-metallicity);
+	    fhez = (1-fh) * (1-metallicity);
+
             //if (abs(cstar->type) == SimpleSource) {
 	    //  factor = PopIIIStarMass/EjectaDensity;
 	    //}
 	    //else
-	      factor = EjectaDensity / BaryonField[DensNum][index];
+	    //factor = EjectaDensity / BaryonField[DensNum][index];
+	    factor = EjectaDensity;  // Temporary (EjectaDensity is the percentage decrease)
 	    BaryonField[DensNum][index] *= factor;
 
 	    if (MultiSpecies) {
-	      BaryonField[DeNum][index] *= factor;
-	      BaryonField[HINum][index] *= factor;
-	      BaryonField[HIINum][index] *= factor;
-	      BaryonField[HeINum][index] *= factor;
-	      BaryonField[HeIINum][index] *= factor;
-	      BaryonField[HeIIINum][index] *= factor;
+	      BaryonField[DeNum][index] = BaryonField[DensNum][index] * ionizedFraction;
+	      BaryonField[HINum][index] = BaryonField[DensNum][index] * (1-ionizedFraction) * fhz;
+	      BaryonField[HIINum][index] = BaryonField[DensNum][index] * ionizedFraction * fhz;
+	      BaryonField[HeINum][index] = BaryonField[DensNum][index] * (1-ionizedFraction) * fhez;
+	      BaryonField[HeIINum][index] = BaryonField[DensNum][index] * (ionizedFraction) * fhez;
+	      BaryonField[HeIIINum][index] = 1e-10 * BaryonField[DensNum][index];
 	    }
 	    if (MultiSpecies > 1) {
-	      BaryonField[HMNum][index] *= factor;
-	      BaryonField[H2INum][index] *= factor;
-	      BaryonField[H2IINum][index] *= factor;
+	      BaryonField[HMNum][index] = tiny_number;
+	      BaryonField[H2INum][index] = tiny_number;
+	      BaryonField[H2IINum][index] = tiny_number;
 	    }
 	    if (MultiSpecies > 2) {
-	      BaryonField[DINum][index] *= factor;
-	      BaryonField[DIINum][index] *= factor;
-	      BaryonField[HIINum][index] *= factor;
-	      BaryonField[HDINum][index] *= factor;
+	      BaryonField[DINum][index] = BaryonField[DensNum][index] * fh *
+		CoolData.DeuteriumToHydrogenRatio * (1-ionizedFraction);
+	      BaryonField[DIINum][index] = BaryonField[DensNum][index] * fh *
+		CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
+	      BaryonField[HDINum][index] = tiny_number * BaryonField[DensNum][index];
 	    }
 
 	    if (SNColourNum > 0)

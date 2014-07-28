@@ -252,10 +252,12 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // Remove the stellar mass from the sphere and distribute the
       // gas evenly in the sphere since this is what will happen once
       // the I-front passes through it.
-      EjectaDensity = (float) 
-	(double(Msun * (MassEnclosed - AccretedMass)) / 
-	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
-	 DensityUnits);
+      EjectaDensity = (MassEnclosed - AccretedMass) / MassEnclosed;
+//      EjectaDensity = (float) 
+//	(double(Msun * (MassEnclosed - AccretedMass)) / 
+//	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
+//	 DensityUnits);
+    
     else 
       // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
       EjectaThermalEnergy *= pow(initialRadius/Radius, 3);
