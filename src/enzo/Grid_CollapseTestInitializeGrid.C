@@ -801,6 +801,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 		if (sphere == 0)
 		  colour = dens1; /* only mark first sphere */
+
 		HII_Fraction = SphereHII[sphere];
 		HeII_Fraction = SphereHeII[sphere];
 		HeIII_Fraction = SphereHeIII[sphere];
@@ -905,9 +906,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		  //	      CosmologySimulationOmegaBaryonNow/
 		  HubbleConstantNow*2.0;
 	      else
-		BaryonField[H2INum][n] = H2I_Fraction *
-		  BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)/
-		  (2.0*BaryonMeanDensity);
+		BaryonField[H2INum][n] = H2I_Fraction * 
+		  CoolData.HydrogenFractionByMass * BaryonField[0][n];
 	    }
 
 	    BaryonField[HINum][n] = 
