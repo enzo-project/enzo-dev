@@ -928,8 +928,9 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    //}
 	    //else
 	    //factor = EjectaDensity / BaryonField[DensNum][index];
-	    factor = EjectaDensity;  // Temporary (EjectaDensity is the percentage decrease)
-	    BaryonField[DensNum][index] *= factor;
+	    //factor = EjectaDensity;  // Temporary (EjectaDensity is the percentage decrease)
+	    //BaryonField[DensNum][index] *= factor;
+	    BaryonField[DensNum][index] = EjectaDensity;
 
 	    if (MultiSpecies) {
 	      BaryonField[DeNum][index] = BaryonField[DensNum][index] * ionizedFraction;

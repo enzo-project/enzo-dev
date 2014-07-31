@@ -201,11 +201,11 @@ c
 c              Set the critical H2 fraction based on the local H2
 c              dissociating radiation field.
 c
-               if (h2diss(i,j,k) .ge. h2diss_crit) then
-                  my_h2crit = 1.e-7_RKIND
-               else
-                  my_h2crit = h2crit
-               endif
+c               if (h2diss(i,j,k) .ge. h2diss_crit) then
+c                  my_h2crit = h2crit !1.e-7_RKIND
+c               else
+               my_h2crit = h2crit
+c               endif
 c
                if (h2d(i,j,k) .lt. my_h2crit) goto 10
                if (kph(i,j,k) .gt. tiny) goto 10
