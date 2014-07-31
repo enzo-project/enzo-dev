@@ -210,12 +210,12 @@ c
                if (h2d(i,j,k) .lt. my_h2crit) goto 10
                if (kph(i,j,k) .gt. tiny) goto 10
 c
-               write(6,7777) i, j, k
-               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 
-     &              cooltime(i,j,k)
-               write(6,*) temp(i,j,k), h2d(i,j,k), bmass
-               write(6,*) my_h2crit, h2diss(i,j,k), h2diss_crit, 
-     &              kph(i,j,k)
+c               write(6,7777) i, j, k
+c               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 
+c     &              cooltime(i,j,k)
+c               write(6,*) temp(i,j,k), h2d(i,j,k), bmass
+c               write(6,*) my_h2crit, h2diss(i,j,k), h2diss_crit, 
+c     &              kph(i,j,k)
 c
 c              Create a star particle
 c
