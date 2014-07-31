@@ -4,8 +4,8 @@ c=======================================================================
 c////////////////////////  SUBROUTINE POP3_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine pop3_maker(nx, ny, nz,
-     &                      d, dm, h2d, temp, u, v, w, cooltime,
-     &                      dt, r, metal, dx, t, z, procnum, 
+     &                      d, dm, h2d, h2diss, kph, temp, u, v, w, 
+     &                      cooltime, dt, r, metal, dx, t, z, procnum, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, h2crit, metalcrit,
@@ -83,6 +83,7 @@ c
       INTG_PREC procnum, ctype, iradtrans
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
+      R_PREC    h2diss(nx,ny,nz), kph(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1, justburn
@@ -100,6 +101,7 @@ c
       R_PREC   div, tdyn, dtot, wgt
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
+      R_PREC   h2diss_crit, my_h2crit
       real*8 msolar, mh
       parameter (pi=pi_val, G=GravConst, 
      &           sndspdC=1.3095e8_RKIND,
@@ -109,6 +111,10 @@ c
 c
 c     calculate how many solar masses are in d1*x1^3
       m1 = dble(x1*dx)**3 * dble(d1) / msolar
+c
+c     critical H2 dissociation rate above which we set the critical 
+c     H2 fraction much lower to fake shielding.
+      h2diss_crit = 8.4e-07 * t1
 c
 c  for each zone, : a primordial "star" particle is created if answers
 c  to all the following questions are affirmative:
@@ -160,7 +166,7 @@ c               write(6,*) 'b:', i,j,k,d(i,j,k), div, temp(i,j,k),
 c     $              tdyn, cooltime(i,j,k), h2d(i,j,k), h2crit
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
+     &             temp(i,j,k) .gt. 1.0e3_RKIND) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -192,7 +198,24 @@ c
 c              8) Check if molecular hydrogren fraction is greater than
 c              critical value
 c
-               if (h2d(i,j,k) .lt. h2crit) goto 10
+c              Set the critical H2 fraction based on the local H2
+c              dissociating radiation field.
+c
+               if (h2diss(i,j,k) .ge. h2diss_crit) then
+                  my_h2crit = 1.e-7_RKIND
+               else
+                  my_h2crit = h2crit
+               endif
+c
+               if (h2d(i,j,k) .lt. my_h2crit) goto 10
+               if (kph(i,j,k) .gt. tiny) goto 10
+c
+               write(6,7777) i, j, k
+               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 
+     &              cooltime(i,j,k)
+               write(6,*) temp(i,j,k), h2d(i,j,k), bmass
+               write(6,*) my_h2crit, h2diss(i,j,k), h2diss_crit, 
+     &              kph(i,j,k)
 c
 c              Create a star particle
 c
