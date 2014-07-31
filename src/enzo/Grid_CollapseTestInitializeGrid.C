@@ -81,13 +81,23 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 				     int   SphereConstantPressure[MAX_SPHERES],
 				     int   SphereSmoothSurface[MAX_SPHERES],
 				     float SphereSmoothRadius[MAX_SPHERES],
+				     float SphereHII[MAX_SPHERES],
+				     float SphereHeII[MAX_SPHERES],
+				     float SphereHeIII[MAX_SPHERES],
+				     float SphereH2I[MAX_SPHERES],
 				     int   SphereUseParticles,
 				     float ParticleMeanDensity,
 				     float UniformVelocity[MAX_DIMENSION],
 				     int   SphereUseColour,
 				     int   SphereUseMetals,
 				     float InitialTemperature, 
-				     float InitialDensity, int level)
+				     float InitialDensity, int level,
+				     float CollapseTestInitialFractionHII, 
+				     float CollapseTestInitialFractionHeII,
+				     float CollapseTestInitialFractionHeIII, 
+				     float CollapseTestInitialFractionHM,
+				     float CollapseTestInitialFractionH2I, 
+				     float CollapseTestInitialFractionH2II)
 {
   /* declarations */
 
@@ -299,6 +309,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
     double SchwarzschildRadius, CavityRadius, InnerDensity, InnerTemperature,
       ThickenTransitionRadius, BHMass, ScaleHeight, InnerScaleHeight;
     double MidplaneDensity, MidplaneTemperature;
+    float HII_Fraction, HeII_Fraction, HeIII_Fraction, H2I_Fraction;
 
     /* Pre-compute cloud properties before looping over mesh */
 
@@ -461,6 +472,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	  sigma = sigma1 = 0;
 	  colour = 1.0e-10;
 	  metallicity = tiny_number;
+	  HII_Fraction = CollapseTestInitialFractionHII;
+	  HeII_Fraction = CollapseTestInitialFractionHeII;
+	  HeIII_Fraction = CollapseTestInitialFractionHeIII;
+	  H2I_Fraction = CollapseTestInitialFractionH2I;
 	  for (dim = 0; dim < MAX_DIMENSION; dim++) {
 	    Velocity[dim] = 0;
 	    DMVelocity[dim] = 0;
@@ -786,6 +801,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 		if (sphere == 0)
 		  colour = dens1; /* only mark first sphere */
+		HII_Fraction = SphereHII[sphere];
+		HeII_Fraction = SphereHeII[sphere];
+		HeIII_Fraction = SphereHeIII[sphere];
+		H2I_Fraction = SphereH2I[sphere];
 
 	      }
 
@@ -859,31 +878,36 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 	  if (MultiSpecies > 0) {
 	  
-	    BaryonField[HIINum][n] = CosmologySimulationInitialFractionHII *
+	    BaryonField[HIINum][n] = HII_Fraction *
 	      CoolData.HydrogenFractionByMass * BaryonField[0][n] *
 	      sqrt(OmegaMatterNow)/
 	      (OmegaMatterNow*BaryonMeanDensity*HubbleConstantNow);
 	    //	    (CosmologySimulationOmegaBaryonNow*HubbleConstantNow);
       
-	    BaryonField[HeIINum][n] = CosmologySimulationInitialFractionHeII*
+	    BaryonField[HeIINum][n] = HeII_Fraction *
 	      BaryonField[0][n] * 4.0 * (1.0-CoolData.HydrogenFractionByMass);
-	    BaryonField[HeIIINum][n] = CosmologySimulationInitialFractionHeIII*
+	    BaryonField[HeIIINum][n] = HeIII_Fraction *
 	      BaryonField[0][n] * 4.0 * (1.0-CoolData.HydrogenFractionByMass);
 	    BaryonField[HeINum][n] = 
 	      (1.0 - CoolData.HydrogenFractionByMass)*BaryonField[0][n] -
 	      BaryonField[HeIINum][n] - BaryonField[HeIIINum][n];
 
 	    if (MultiSpecies > 1) {
-	      BaryonField[HMNum][n] = CosmologySimulationInitialFractionHM*
+	      BaryonField[HMNum][n] = CollapseTestInitialFractionHM *
 		BaryonField[HIINum][n]* pow(temperature,float(0.88));
-	      BaryonField[H2IINum][n] = CosmologySimulationInitialFractionH2II*
+	      BaryonField[H2IINum][n] = CollapseTestInitialFractionH2II *
 		2.0*BaryonField[HIINum][n]* pow(temperature,float(1.8));
-	      BaryonField[H2INum][n] = CosmologySimulationInitialFractionH2I*
-		BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
-		pow(OmegaMatterNow, float(1.5))/
-		(OmegaMatterNow*BaryonMeanDensity)/
-		//	      CosmologySimulationOmegaBaryonNow/
-		HubbleConstantNow*2.0;
+	      if (ComovingCoordinates)
+		BaryonField[H2INum][n] = H2I_Fraction *
+		  BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)*
+		  pow(OmegaMatterNow, float(1.5))/
+		  (OmegaMatterNow*BaryonMeanDensity)/
+		  //	      CosmologySimulationOmegaBaryonNow/
+		  HubbleConstantNow*2.0;
+	      else
+		BaryonField[H2INum][n] = H2I_Fraction *
+		  BaryonField[0][n]*CoolData.HydrogenFractionByMass*pow(301.0,5.1)/
+		  (2.0*BaryonMeanDensity);
 	    }
 
 	    BaryonField[HINum][n] = 
