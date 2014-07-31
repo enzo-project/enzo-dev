@@ -10,7 +10,7 @@
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
-     &                dt, aye, redshift, temstart, temend, 
+     &                dx, dt, aye, redshift, temstart, temend, 
      &                utem, uxyz, uaye, urho, utim,
      &                eta1, eta2, gamma, fh, dtoh, z_solar,
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
@@ -135,7 +135,8 @@
      &        iradcoupled, iradstep, n_xe, ierr, imcool, idust,
      &        irt_honly, igammah, ih2optical, iciecool, ithreebody,
      &        ndratec
-      R_PREC    dt, aye, temstart, temend, eta1, eta2, gamma,
+      P_PREC  dx
+      R_PREC  dt, aye, temstart, temend, eta1, eta2, gamma,
      &        utim, uxyz, uaye, urho, utem, fh, dtoh, z_solar, 
      &        xe_start, xe_end, dtemstart, dtemend, redshift
 
@@ -221,7 +222,7 @@
       R_PREC ttmin, dom, energy, comp1, comp2
       real*8 coolunit, dbase1, tbase1, xbase1, chunit, uvel
       real*8 heq1, heq2, eqk221, eqk222, eqk131, eqk132,
-     &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem
+     &                 eqt1, eqt2, eqtdef, dheq, heq, dlogtem, dx_cgs
 
 !  row temporaries
 
@@ -236,7 +237,8 @@
      &     HMp(ijk), H2Ip(ijk), H2IIp(ijk),
      &     dep(ijk), dedot(ijk),HIdot(ijk), dedot_prev(ijk),
      &     DIp(ijk), DIIp(ijk), HDIp(ijk), HIdot_prev(ijk),
-     &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
+     &     k24shield(ijk), k25shield(ijk), k26shield(ijk),
+     &     k31shield(ijk)
       R_PREC k1 (ijk), k2 (ijk), k3 (ijk), k4 (ijk), k5 (ijk),
      &     k6 (ijk), k7 (ijk), k8 (ijk), k9 (ijk), k10(ijk),
      &     k11(ijk), k12(ijk), k13(ijk), k14(ijk), k15(ijk),
@@ -276,6 +278,7 @@
 c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 formed
       chunit = (1.60218e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 1 eV per H2 formed
 
+      dx_cgs = dx * xbase1;
       dlogtem = (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 
 !  Convert densities from comoving to proper
@@ -381,8 +384,8 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 
             call lookup_cool_rates1d(temstart, temend, nratec, j, k,
      &               is, ie, ijk, iradtype, iradshield, ithreebody,
-     &               in, jn, kn, ispecies, idust, 
-     &               tgas, HI, HII, HeI, HeII, tdust, metallicity, 
+     &               in, jn, kn, ispecies, idust, tgas, d, HI, HII, 
+     &               HeI, HeII, H2I, tdust, metallicity, 
      &               k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &               k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
      &               k17a, k18a, k19a, k22a,
@@ -392,12 +395,13 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &               avgsighp, avgsighep, avgsighe2p, piHI, piHeI,
      &               k1, k2, k3, k4, k5, k6, k7, k8, k9, k10,
      &               k11, k12, k13, k14, k15, k16, k17, k18,
-     &               k19, k22, k24, k25, k26, 
+     &               k19, k22, k24, k25, k26, k31,
      &               k50, k51, k52, k53, k54, k55,
      &               k56, k13dd, k24shield, k25shield, k26shield,
-     &               h2dust, ncrn, ncrd1, ncrd2, 
+     &               k31shield, h2dust, ncrn, ncrd1, ncrd2, 
      &               t1, t2, tdef, logtem, indixe, 
-     &               dom, coolunit, tbase1, itmask)
+     &               dom, coolunit, tbase1, xbase1, dx_cgs, iradtrans, 
+     &               kdissH2I, itmask)
 
 !           Compute dedot and HIdot, the rates of change of de and HI
 !             (should add itmask to this call)
@@ -408,12 +412,12 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &                     in, jn, kn, is, ie, j, k, 
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
-     &                     k24, k25, k26, k27, k28, k29, k30, k31,
+     &                     k24, k25, k26, k27, k28, k29, k30, 
      &                     k50, k51, k52, k53, k54, k55, k56, 
      &                     h2dust, ncrn, ncrd1, ncrd2, rhoH, 
-     &                     k24shield, k25shield, k26shield,
+     &                     k24shield, k25shield, k26shield, k31shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask, edot, chunit, dom)
+     &                     itmask, edot, chunit, dom)
 
 !           Find timestep that keeps relative chemical changes below 10%
 
@@ -640,15 +644,15 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
      &                     in, jn, kn, is, ie, j, k, ispecies, idust,
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
-     &                     k24, k25, k26, k27, k28, k29, k30, k31,
+     &                     k24, k25, k26, k27, k28, k29, k30, 
      &                     k50, k51, k52, k53, k54, k55, k56, 
      &                     h2dust, rhoH,
-     &                     k24shield, k25shield, k26shield,
+     &                     k24shield, k25shield, k26shield, k31shield,
      &                     HIp, HIIp, HeIp, HeIIp, HeIIIp, dep,
      &                     HMp, H2Ip, H2IIp, DIp, DIIp, HDIp,
      &                     dedot_prev, HIdot_prev,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask)
+     &                     itmask)
 
 !           Add the timestep to the elapsed time for each cell and find
 !            minimum elapsed time step in this row
@@ -873,8 +877,8 @@ c -------------------------------------------------------------------
 
       subroutine lookup_cool_rates1d(temstart, temend, nratec, j, k,
      &                is, ie, ijk, iradtype, iradshield, ithreebody,
-     &                in, jn, kn, ispecies, idust,
-     &                tgas1d, HI, HII, HeI, HeII, tdust, metallicity, 
+     &                in, jn, kn, ispecies, idust, tgas1d, d, HI, HII, 
+     &                HeI, HeII, H2I, tdust, metallicity, 
      &                k1a, k2a, k3a, k4a, k5a, k6a, k7a, k8a, k9a, k10a,
      &                k11a, k12a, k13a, k13dda, k14a, k15a, k16a,
      &                k17a, k18a, k19a, k22a,
@@ -884,12 +888,13 @@ c -------------------------------------------------------------------
      &                avgsighp, avgsighep, avgsighe2p, piHI, piHeI,
      &                k1, k2, k3, k4, k5, k6, k7, k8, k9, k10,
      &                k11, k12, k13, k14, k15, k16, k17, k18,
-     &                k19, k22, k24, k25, k26,
+     &                k19, k22, k24, k25, k26, k31,
      &                k50, k51, k52, k53, k54, k55,
      &                k56, k13dd, k24shield, k25shield, k26shield,
-     &                h2dust, ncrn, ncrd1, ncrd2,
+     &                k31shield, h2dust, ncrn, ncrd1, ncrd2,
      &                t1, t2, tdef, logtem, indixe, 
-     &                dom, coolunit, tbase1, itmask)
+     &                dom, coolunit, tbase1, xbase1, dx_cgs, iradtrans, 
+     &                kdissH2I, itmask)
 ! -------------------------------------------------------------------
 
       implicit NONE
@@ -899,10 +904,10 @@ c -------------------------------------------------------------------
 
       INTG_PREC is, ie, ijk, iradtype, iradshield, nratec, 
      &        in, jn, kn, ispecies, ithreebody, j, k,
-     &        idust, ndratec
+     &        idust, ndratec, iradtrans
       R_PREC temstart, temend, tgas1d(in), dom,
      &        dtemstart, dtemend
-      real*8 coolunit, tbase1
+      real*8 coolunit, tbase1, xbase1, dx_cgs
       LOGIC_PREC itmask(ijk)
 
 !     Chemistry rates as a function of temperature
@@ -916,13 +921,17 @@ c -------------------------------------------------------------------
      &     k54a(nratec), k55a(nratec), k56a(nratec),
      &     k13dda(nratec, 7), h2dusta(nratec, ndratec), 
      &     ncrna(nratec), ncrd1a(nratec), ncrd2a(nratec),
-     &     k24, k25, k26,
+     &     k24, k25, k26, k31,
      &     avgsighp, avgsighep, avgsighe2p, piHI, piHeI
 
 !     Density fields
 
-      R_PREC    HI(in,jn,kn),   HII(in,jn,kn),
-     &        HeI(in,jn,kn), HeII(in,jn,kn)
+      R_PREC d(in,jn,kn), HI(in,jn,kn), HII(in,jn,kn),
+     &     HeI(in,jn,kn), HeII(in,jn,kn), H2I(in,jn,kn)
+
+!     Radiation fields
+
+      R_PREC kdissH2I(in,jn,kn)
 
 !     Returned rate values
 
@@ -933,7 +942,8 @@ c -------------------------------------------------------------------
      &     k50(ijk), k51(ijk), k52(ijk), k53(ijk), k54(ijk),
      &     k55(ijk), k56(ijk), k13dd(ijk, 7), h2dust(ijk), 
      &     ncrn(ijk), ncrd1(ijk), ncrd2(ijk),
-     &     k24shield(ijk), k25shield(ijk), k26shield(ijk)
+     &     k24shield(ijk), k25shield(ijk), k26shield(ijk),
+     &     k31shield(ijk)
 
 !     1D temporaries (passed in)
 
@@ -945,7 +955,7 @@ c -------------------------------------------------------------------
 
       INTG_PREC d_indixe(ijk)
       R_PREC d_t1(ijk), d_t2(ijk), d_logtem(ijk), d_tdef(ijk),
-     &     dusti1(ijk), dusti2(ijk)
+     &     dusti1(ijk), dusti2(ijk), divrhoa(6)
 
 !     Parameters
 
@@ -957,7 +967,8 @@ c -------------------------------------------------------------------
 
       INTG_PREC i, n1
       R_PREC factor, x, logtem0, logtem9, dlogtem, nh,
-     &     d_logtem0, d_logtem9, d_dlogtem
+     &     d_logtem0, d_logtem9, d_dlogtem, divrho, N_H2, f_shield,
+     &     b_doppler, l_sobolev
 
 !     Set log values of start and end of lookup tables
 
@@ -1151,6 +1162,56 @@ c -------------------------------------------------------------------
          endif
          enddo
       endif
+!
+!     H2 self-shielding (Sobolev-like, spherically averaged, Wolcott-Green+ 2011)
+!
+      if (ispecies .gt. 1) then
+      if (iradtrans == 0) then
+         do i = is+1, ie+1
+            if (itmask(i)) then
+               k31shield(i) = k31
+            endif
+         enddo
+      else
+         do i = is+1, ie+1
+            if (itmask(i)) then
+               k31shield(i) = k31 + kdissH2I(i,j,k)
+            endif
+         enddo
+      endif
+      if (iradshield == 2) then
+         do i = is+1, ie+1
+            if (itmask(i)) then
+               divrhoa(1) = d(i+1, j  , k  ) - d(i,j,k)
+               divrhoa(2) = d(i-1, j  , k  ) - d(i,j,k)
+               divrhoa(3) = d(i  , j+1, k  ) - d(i,j,k)
+               divrhoa(4) = d(i,   j-1, k  ) - d(i,j,k)
+               divrhoa(5) = d(i,   j  , k+1) - d(i,j,k)
+               divrhoa(6) = d(i,   j  , k-1) - d(i,j,k)
+               divrho = tiny
+c     Exclude directions with (drho/ds > 0)
+               do n1 = 1, 6
+                  if (divrhoa(n1) .lt. 0.0_RKIND) then
+                     divrho = divrho + divrhoa(n1)
+                  endif
+               enddo
+c     (rho / divrho) is the Sobolev-like length in cell widths
+               l_sobolev = min(dx_cgs * d(i,j,k) / abs(divrho), xbase1)
+               N_H2 = dom*H2I(i,j,k) * l_sobolev
+c               if (N_H2.gt.1e14 .and. divrho.gt.100*tiny) then
+c                  write(6,*) "test"
+c               endif
+               x = 2e-15_RKIND * N_H2
+               b_doppler = 1e-5_RKIND * 
+     &              sqrt(2.0_RKIND * kboltz * tgas1d(i) / mass_h)
+               f_shield = 0.965_RKIND / (1 + x/b_doppler)**1.1 +
+     &              0.035_RKIND * exp(-8.5e-4_RKIND * sqrt(1+x)) /
+     &              sqrt(1+x)
+               k31shield(i) = f_shield * k31shield(i)
+            endif
+         enddo
+      endif
+      endif ! ispecies > 1
 
 !        If using a high-energy radiation field, then account for
 !          effects of secondary elections (Shull * Steenberg 1985)
@@ -1212,12 +1273,12 @@ c -------------------------------------------------------------------
      &                     in, jn, kn, is, ie, j, k, 
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
-     &                     k24, k25, k26, k27, k28, k29, k30, k31,
+     &                     k24, k25, k26, k27, k28, k29, k30,
      &                     k50, k51, k52, k53, k54, k55, k56, 
      &                     h2dust, ncrn, ncrd1, ncrd2, rhoH, 
-     &                     k24shield, k25shield, k26shield,
+     &                     k24shield, k25shield, k26shield, k31shield,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII, 
-     &                     kdissH2I, itmask, edot, chunit, dom)
+     &                     itmask, edot, chunit, dom)
 
 ! -------------------------------------------------------------------
 
@@ -1241,8 +1302,7 @@ c -------------------------------------------------------------------
 
 !     Radiation fields
 
-      R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
-     &        kdissH2I(in,jn,kn)
+      R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn)
 
       real*8 chunit
 
@@ -1256,7 +1316,8 @@ c -------------------------------------------------------------------
      &     k55(in), k56(in), h2dust(in), 
      &     ncrn(in), ncrd1(in), ncrd2(in), rhoH(in), 
      &     k24shield(in), k25shield(in), k26shield(in),
-     &     k24, k25, k26, k27, k28, k29, k30, k31
+     &     k31shield(in),
+     &     k24, k25, k26, k27, k28, k29, k30
 
 !     locals
 
@@ -1317,6 +1378,7 @@ c -------------------------------------------------------------------
      &               +      k19(i)*H2II(i,j,k)  *HM(i,j,k)/2._RKIND
 #ifdef RADIATION
      &               -      k24shield(i)*HI(i,j,k)
+     &               +      2._RKIND*k31shield(i) * H2I(i,j,k)/2._RKIND
 #endif /* RADIATION */
 
 !     Add H2 formation on dust grains
@@ -1425,15 +1487,15 @@ c -------------------------------------------------------------------
      &                     in, jn, kn, is, ie, j, k, ispecies, idust, 
      &                     k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11,
      &                     k12, k13, k14, k15, k16, k17, k18, k19, k22,
-     &                     k24, k25, k26, k27, k28, k29, k30, k31,
+     &                     k24, k25, k26, k27, k28, k29, k30, 
      &                     k50, k51, k52, k53, k54, k55, k56, 
      &                     h2dust, rhoH,
-     &                     k24shield, k25shield, k26shield,
+     &                     k24shield, k25shield, k26shield, k31shield,
      &                     HIp, HIIp, HeIp, HeIIp, HeIIIp, dep,
      &                     HMp, H2Ip, H2IIp, DIp, DIIp, HDIp,
      &                     dedot_prev, HIdot_prev,
      &                     iradtrans, irt_honly, kphHI, kphHeI, kphHeII,
-     &                     kdissH2I, itmask)
+     &                     itmask)
 c -------------------------------------------------------------------
 
       implicit NONE
@@ -1456,8 +1518,7 @@ c -------------------------------------------------------------------
 
 !     Radiation fields
 
-      R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn),
-     &        kdissH2I(in,jn,kn)
+      R_PREC    kphHI(in,jn,kn), kphHeI(in,jn,kn), kphHeII(in,jn,kn)
 
 !     Rate values
 
@@ -1467,8 +1528,8 @@ c -------------------------------------------------------------------
      &     k16(in), k17(in), k18(in), k19(in), k22(in),
      &     k50(in), k51(in), k52(in), k53(in), k54(in),
      &     k55(in), k56(in), h2dust(in), rhoH(in),
-     &     k24shield(in), k25shield(in), k26shield(in),
-     &     k24, k25, k26, k27, k28, k29, k30, k31
+     &     k24shield(in), k25shield(in), k26shield(in), k31shield(in),
+     &     k24, k25, k26, k27, k28, k29, k30
 
 !     temporaries (passed in)
 
@@ -1623,10 +1684,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &             + 2._RKIND*k18(i)* H2II(i,j,k)* de(i,j,k)/2._RKIND
      &             +      k19(i)* H2II(i,j,k)* HM(i,j,k)/2._RKIND
 #ifdef RADIATION
-     &             + 2._RKIND*k31   * H2I(i,j,k)/2._RKIND
-            if (iradtrans == 1)
-     &           scoef = scoef + 
-     &           2._RKIND*kdissH2I(i,j,k)* H2I(i,j,k)/2._RKIND
+     &             + 2._RKIND*k31shield(i) * H2I(i,j,k)/2._RKIND
 #endif /* RADIATION */
             acoef  =      k1(i) * de(i,j,k)
      &             +      k7(i) * de(i,j,k)  
@@ -1647,7 +1705,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &                      ( 1._RKIND + acoef*dtit(i) )
             if (HIp(i) .ne. HIp(i)) then
                write(*,*) 'HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
-     $              HII(i,j,k), de(i,j,k), H2I(i,j,k), kdissH2I(i,j,k),
+     $              HII(i,j,k), de(i,j,k), H2I(i,j,k), k31shield(i),
      $              kphHI(i,j,k)
             endif
 
@@ -1705,8 +1763,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
             acoef = ( k13(i)*HI(i,j,k) + k11(i)*HII(i,j,k)
      &              + k12(i)*de(i,j,k) )
 #ifdef RADIATION
-     &              + k29 + k31
-            if (iradtrans == 1) acoef = acoef + kdissH2I(i,j,k)
+     &              + k29 + k31shield(i)
 #endif /* RADIATION */
 
             if (idust > 0) then
