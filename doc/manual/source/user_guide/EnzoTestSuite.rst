@@ -15,7 +15,7 @@ What's in the test suite?
 
 The suite is composed of a large number of individual test problems
 that are designed to span the range of physics and dimensionalities
-that are accessible using the Enzo test code, both separately and in
+that are accessible using the Enzo code, both separately and in
 various permutations.  Tests can be selected based on a variety of
 criteria, including (but not limited to) the physics included, the
 estimated runtime of the test, and the dimensionality.  The 
@@ -29,12 +29,10 @@ we have them, analytical solutions are compared against the test
 results (e.g. shocktubes).  Lastly, a summary of these test results 
 are returned to the user for interpretation.
 
-One can run individual tests or groups of tests using the various
-run time flags_.  For convenience, three pre-created, 
-overlapping sets of tests are provided.  For each set of tests, the 
-test suite can automatically pull the "gold standard" results from a 
-remote server; or one can generate their own standard locally against 
-which she can compare different builds of the code.
+One can run individual tests or groups of tests using the various run time
+flags_.  For convenience, three pre-created, overlapping sets of tests are
+provided.  For each set of tests, one must generate their own standard locally
+against which she can compare different builds of the code.
 
 1.  The "quick suite" (``--suite=quick``).  This is composed of
 small calculations that test critical physics packages both
@@ -63,20 +61,14 @@ complete.  The total run time is roughly 60 hours for the default lowest
 level of optimization.
 
 .. _running:
-.. _`running the test suite against the gold standard`:
 
-How to run the test suite against the gold standard
----------------------------------------------------
+How to run the test suite
+-------------------------
 
 
-1.  **Compile Enzo.**  The gold standard calculations use the default 
-compiler settings that can be restored with ``make default``.  
-If you have already built enzo, you can skip this step and the test will 
-use your existing enzo executable, however be forewarned. If you use 
-significantly different compilation options (high-level optimization 
-in particular) you may see somewhat different outputs from the tests 
-that could result in failed tests.   To compile enzo with the standard 
-settings, complete these commands:
+1.  **Compile Enzo.** If you have already built enzo, you can skip this step and
+the test will use your existing enzo executable.  To compile enzo with the
+standard settings, complete these commands:
 
 ::
 
@@ -89,42 +81,89 @@ Note that you need not copy the resulting enzo executable to your path,
 since the enzo.exe will be symbolically linked from the src/enzo directory
 into each test problem directory before tests are run.
 
-2.  **Get/update yt.**  The enzo tests are generated and compared using the 
-yt analysis suite.  You must be using yt 2.5 or later in order for the
-test suite to work.  If you do not yet have yt, visit 
-http://yt-project.org/#getyt for installation instructions.  
-If you already have yt and yt is in your path, make sure you're using
-the most up-to-date version by running the following command:
+2.  **Get the correct yt version** The enzo tests are generated and compared
+using the yt analysis suite.  You must be using yt 2.6.3 in order for the test
+suite to work.  The test suite has not yet been updated to work with yt 3.0 and
+newer releases. If you do not yet have yt, visit http://yt-project.org/#getyt
+for installation instructions.  If you already have yt and yt is in your path,
+make sure you're using yt 2.6.3 by running the following commands:
 
 ::
 
-    $ yt update
+    $ cd /path/to/yt_mercurial_repository
+    $ hg update yt-2.x
+    $ python setup.py develop
 
-3.  **Run the test suite.** The testing suite operates by running a 
-series of enzo test files throughout the ``run`` subdirectory.  You can 
-initiate the quicksuite test simulations and their comparison against the 
-current gold standard by running the following commands:
+3. **Generate answers to test with.** Run the test suite with these flags within
+the ``run/`` subdirectory in the enzo source hierarchy:
 
 ::
 
     $ cd <enzo_root>/run
-    $ ./test_runner.py -o <output_dir> 
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-store
+                        --answer-name=<test_name> --local 
+ 
+Note that we're creating test answers in this example with the quick suite, but
+we could just as well create a reference from any number of test problems using
+other test problem flags_.
 
-In this command, ``--output-dir=<output_dir>`` instructs the 
-test runner to output its results to a user-specified directory 
-(preferably outside of the enzo file hierarchy).  Make sure this
-directory is created before you call test_runner.py, or it will 
-fail.  The default behavior is to use the quick suite, but you
-can specify any set of tests using the ``--suite`` or ``--name``
-flags_. Lastly, we compare against the current gold standard in 
-the cloud: ``enzogold2.2``.  For a full description of the many 
-flags associated with test_runner.py, see the flags_ section.
+Here, we are storing the results from our tests locally in a file called
+<test_name> which will now reside inside of the ``<output_dir>``.  If you want
+to, you can leave off ``--answer-name`` and get a sensible default.
 
-4.  **Review the results.**  While the test_runner is executing, you should 
-see the results coming up at the terminal in real time, but you can review 
-these results in a file output at the end of the run.  The test_runner 
-creates a subdirectory in the output directory you provided it, as shown
-in the example below.  
+.. _directory layout:
+
+::
+
+    $ ls <output_dir>
+    fe7d4e298cb2    <test_name>        
+
+    $ ls <output_dir>/<test_name>
+    <test_name>.db
+
+When we inspect this directory, we now see that in addition to the subdirectory
+containing the simulation results, we also have a <test_name> subdirectory which
+contains python-readable shelve files, in this case a dbm file.  These are the
+files which actually contain the reference standard.  You may have a different
+set of files or extensions depending on which OS you are using, but don't worry
+Python can read this no problem.  Congratulations, you just produced your own
+reference standard.  Feel free to test against this reference standard or tar
+and gzip it up and send it to another machine for testing.
+
+
+4.  **Run the test suite using your local answers.** The testing suite operates
+by running a series of enzo test files throughout the ``run`` subdirectory.
+Note that if you want to test a specific enzo changeset, you must update to it
+and recompile enzo. You can initiate the quicksuite test simulations and their
+comparison against your locally generated answers by running the following
+commands:
+
+::
+
+    $ cd <enzo_root>/run
+    $ ./test_runner.py --suite=quick -o <output_dir> --answer-name=<test_name>
+                       --local --clobber
+
+In this command, ``--output-dir=<output_dir>`` instructs the test runner to
+output its results to a user-specified directory (preferably outside of the enzo
+file hierarchy).  Make sure this directory is created before you call
+test_runner.py, or it will fail.  The default behavior is to use the quick
+suite, but you can specify any set of tests using the ``--suite`` or ``--name``
+flags_. We are comparing the simulation results against a local (``--local``)
+reference standard which is named ``<test_name>`` also located in the
+``<output_dir>`` directory.  Note, we included the ``--clobber`` flag to rerun
+any simulations that may have been present in the ``<output_dir>`` under the
+existing enzo version's files, since the default behavior is to not rerun
+simulations if their output files are already present.  Because we didn't set
+the ``--answer-store`` flag, the default behavior is to compare against the
+``<test_name>``.
+
+
+5.  **Review the results.** While the test_runner is executing, you should see
+the results coming up at the terminal in real time, but you can review these
+results in a file output at the end of the run.  The test_runner creates a
+subdirectory in the output directory you provided it, as shown in the example
+below.
 
 ::
 
@@ -147,20 +186,6 @@ simulation outputs, organized based on test type (e.g.  ``Cooling``,
 ``AMR``, ``Hydro``, etc.)  Additionally, you should see a file called
 ``test_results.txt``, which contains a summary of the test runs and
 which ones failed and why.  
-
-By default, the testing suite does not expect bitwise agreement between 
-the gold standard and your results, due to compiler, architecture and 
-operating system differences between versions of enzo.  There must be 
-a significant difference between your result and the gold standard for 
-you to fail any tests, thus you should be passing all of the tests.  
-If you are not, then examine more closely what modifications you made 
-to the enzo source which caused the test failure.  If this is a fresh 
-version of enzo that you grabbed and compiled, then you should write 
-the enzo-dev@googlegroups.com email list with details of your test run 
-(computer os, architecture, version of enzo, version of yt, what test 
-failed, what error message you received), so that we can address this 
-issue.
-
 
 My tests are failing and I don't know why
 -----------------------------------------
@@ -188,94 +213,13 @@ test_runner.py call to run the executable directly without MPI support.
 Currently, only a few tests use multiple cores, so this is not a 
 problem in the quick or push suites.
 
-If you see a lot of ``YTNoOldAnswer`` errors, it may mean that your
-simulation is running to a different output than the gold standard
-does, and the test suite is trying to compare your last output file
-against a non-existent file in the gold standard.  Look carefully
-at the results of your simulation for this test problem using the 
-provided python file to determine what is happening.  Or it may
-simply mean that you specified the wrong gold standard.
-
-.. _generating_standard:
-
-How to generate your own reference standard
--------------------------------------------
-
-There may be some circumstances under which you do not wish to compare
-your test results against the gold standard, but against your own
-homegrown standard.  Perhaps you've created a new test not yet in 
-the gold standard, or you want to test one of your forks against another.
-Regardless of the reason, you want to generate your own reference
-standard for comparison.  To do this, follow the instructions for
-`running the test suite against the gold standard`_, but replace step #3 with:
-
-3. **Run the test suite.** Run the suite with these flags within
-the ``run/`` subdirectory in the enzo source hierarchy:
-
-::
-
-    $ cd <enzo_root>/run
-    $ ./test_runner.py --suite=quick -o <output_dir> --answer-store --answer-name=<test_name> 
-                       --local 
-
-N.B. We're creating a reference set in this example with the quick 
-suite, but we could just as well create a reference from any number 
-of test problems using other test problem flags_.
-
-Here, we are storing the results from our tests locally in a file 
-called <test_name> which will now reside inside of the ``<output_dir>``.
-If you want to, you can leave off ``--answer-name`` and get a sensible
-default.
-
-.. _directory layout:
-
-::
-
-    $ ls <output_dir>
-    fe7d4e298cb2    <test_name>        
-
-    $ ls <output_dir>/<test_name>
-    <test_name>.db
-
-When we inspect this directory, we now see that in addition to the
-subdirectory containing the simulation results, we also have a
-<test_name> subdirectory which contains python-readable shelve files,
-in this case a dbm file.  These are the files which actually contain
-the reference standard.  You may have a different set of files
-or extensions depending on which OS you are using, but don't worry
-Python can read this no problem.  Congratulations, you just 
-produced your own reference standard.  Feel free to test against
-this reference standard or tar and gzip it up and send it to another 
-machine for testing.
-
-How to run the test suite against a different reference standard
-----------------------------------------------------------------
-
-First, you must place a copy of your reference standard's files in
-some directory outside the enzo source hierarchy (e.g. your 
-``<output_dir>`` from previous tests), so that it looks something 
-like this `directory layout`_.  From here, you must follow the 
-instructions for `running the test suite against the gold 
-standard`_, but replace step #3 with:
-
-3.  **Run the test suite.**  Run the suite with these flags inside
-the ``run/`` subdirectory in the enzo source hierarchy:
-
-::
-
-    $ cd <enzo_root>/run
-    $ ./test_runner.py --suite=quick -o <output_dir> --answer-name=<test_name> 
-                       --local --clobber
-
-Here, we're running the quick suite and outputting our results to
-``<output_dir>``.  We are comparing the simulation results against a 
-local (``--local``) reference standard which is named ``<test_name>``
-also located in the ``<output_dir>`` directory.  Note, we included the 
-``--clobber`` flag to rerun any simulations that may have been present
-in the ``<output_dir>`` under the existing enzo version's files, since 
-the default behavior is to not rerun simulations if their output files 
-are already present.  Because we didn't set the ``--answer-store`` flag,
-the default behavior is to compare against the ``<test_name>``.
+If you see a lot of ``YTNoOldAnswer`` errors, it may mean that your simulation
+is running to a different output than what was reached for your locally
+generated answers does, and the test suite is trying to compare your last output
+file against a non-existent file in the answers.  Look carefully at the
+results of your simulation for this test problem using the provided python file
+to determine what is happening.  Or it may simply mean that you specified the
+wrong answer name.
 
 .. _flags:
 
@@ -599,9 +543,7 @@ What to do if you fix a bug in Enzo
 
 It's inevitable that bugs will be found in Enzo, and that some of
 those bugs will affect the actual simulation results (and thus the
-test problems used in the problem suite).  If you fix a bug that
-results in a change to some or all of the test problems, the gold
-standard solutions will need to be updated.  Here is the procedure for
+test problems used in the problem suite).  Here is the procedure for
 doing so:
 
 1.  Run the "push suite" of test problems (``--pushsuite=True``)
@@ -615,14 +557,6 @@ version is actually producing the correct results!
 enzo-dev@googlegroups.com to explain your bug fix, and to show the
 results of the now-failing test problems.
 
-4.  Once the denizens of the mailing list concur that you have
-correctly solved the bug, create a new set of gold standard test
-problem datasets, following the instructions in the next section.
-
-5.  After these datasets are created, send the new gold standard
-datasets to Britton Smith (brittonsmith@gmail.com), who will update
-the gold standards.
-
-6.  Push your Enzo changes to the repository.
+4.  Create a pull request for your fix.
 
 .. _http://yt-project.org/#getyt: http://yt-project.org/#getyt
