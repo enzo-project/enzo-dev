@@ -73,7 +73,8 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
   INTG_PREC :: i, j, k
   R_PREC :: pi, h_nu0, h_nu1, h_nu2, etaconst, specconst, factor, etaloc(3)
   R_PREC :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
-  R_PREC :: cellXc, cellYc, cellZc, ECenter(3), ERadius, NGDot
+  R_PREC :: cellXc, cellYc, cellZc, ECenter(3), ERadius
+  REAL*8 :: NGDot
 
 !=======================================================================
 
@@ -213,7 +214,7 @@ subroutine gFLDSplit_RadiationSource(Ersrc, time, a, ProbType, ESpectrum, &
      ECenter(2) = 3.3_RKIND
      ECenter(3) = 3.3_RKIND
      ERadius = 1.0_RKIND
-     NGDot = 3.e51_RKIND
+     NGDot = 3.d51
 
      ! compute eta factor for given ionization source
      etaconst = h_nu0*NGDot*specconst/dV/8.d0/(ERadius**3)
