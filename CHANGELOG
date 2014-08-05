@@ -8,6 +8,8 @@ _Release date - TBA
   * New Feature: Added a rotating turbulent sphere test problem (PR #206)
   * New Feature: Hierarchy rebuilds can now be controlled dynamically (PR #196)
   * New Feature: Grackle chemistry and cooling (PR #194)
+  * Enhancement: Conversion factors from code units to CGS units are now written
+                 with increased precision (PR 239)
   * Enhancement: Improved compatibility for cosmology simulations that include
                  FLD, chemistry, and cooling. (PR #230)
   * Enhancement: Significant updates for the unigrid FLD solver (PR #216)
@@ -38,6 +40,10 @@ _Release date - TBA
                  (PR #177, PR #200)
   * Enhancement: New refine region mechanics (PR #155, PR #172, PR #227)
   * Enhancement: MHDCT works with outflow boundary conditions (PR #176, PR#198)
+  * Bugfix: Fixed an issue with the emissivity field in the FLD module having 
+            incorrect units (PR 241)
+  * Bugfix: Compilation issues for the FLD module in 32-bit mode have been 
+            resolved (PR 240)
   * Bugfix: The internal energy field is no longer made conservative during flux
             correction if cooling is turned on (PR 228)
   * Bugfix: Fixed an issue where incorrect fluxes were being generated for
