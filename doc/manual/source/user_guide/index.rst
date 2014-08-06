@@ -42,7 +42,9 @@ inquiries and comments should be directed to the `Enzo Users' List
 
    ExecutablesArgumentsOutputs.rst
    RunningEnzo.rst
+   Progress.rst
    CUDAEnzo.rst
+   Grackle.rst
    EnzoTestSuite.rst
    CosmologicalInitialConditions.rst
    RunningLargeSimulations.rst

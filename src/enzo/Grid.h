@@ -381,7 +381,7 @@ public:
 /* Member functions for dealing with thermal conduction */
    int ComputeHeat(float dedt[]);	     /* Compute Heat */
    int ConductHeat();			     /* Conduct Heat */
-   int ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
+   float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
@@ -503,7 +503,8 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the pressure at the requested time. */
 
-   int ComputePressure(FLOAT time, float *pressure);
+   int ComputePressure(FLOAT time, float *pressure,
+                      float MinimumSupportEnergyCoefficient=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
             formalism. */
@@ -665,6 +666,10 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Handle the selection of cooling and chemistry modules */
 
    int MultiSpeciesHandler();
+
+/* Wrap the grackle chemistry solver. */
+
+   int GrackleWrapper();
 
 /* Handle the selection of shock finding algorithm */
 
@@ -1697,9 +1702,10 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* PPM Direct Euler Solver. */
 
 int SolvePPM_DE(int CycleNumber, int NumberOfSubgrids, 
-		fluxes *SubgridFluxes[], float *CellWidthTemp[], 
-		Elong_int GridGlobalStart[], int GravityOn, 
-		int NumberOfColours, int colnum[]);
+                fluxes *SubgridFluxes[], float *CellWidthTemp[],
+                Elong_int GridGlobalStart[], int GravityOn,
+                int NumberOfColours, int colnum[],
+                float MinimumSupportEnergyCoefficient);
 
 int xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[], 
 		Elong_int GridGlobalStart[], float *CellWidthTemp[], 
@@ -1825,10 +1831,18 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				 float RDCentralDensity,
 				 float RDOuterEdge);
 
-  int RotatingSphereInitializeGrid(FLOAT RotatingSphereRadius,
-				     FLOAT RotatingSphereCenterPosition[MAX_DIMENSION],
-				     float RotatingSphereLambda,
-				     float RotatingSphereOverdensity);
+  int RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
+                                   float RotatingSphereNFWConcentration,
+                                   float RotatingSphereCoreRadius,
+                                   float RotatingSphereCentralDensity,
+                                   float RotatingSphereCoreDensityExponent,
+                                   float RotatingSphereOuterDensityExponent,
+                                   float RotatingSphereExternalTemperature,
+                                   float RotatingSphereSpinParameter,
+                                   float RotatingSphereAngularMomentumExponent,
+                                   int RotatingSphereUseTurbulence,
+				   float RotatingSphereTurbulenceRMS,
+                                   float RotatingSphereRedshift);
 
   /* Initialize a grid for the KH instability problem. */
 
@@ -1836,7 +1850,22 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                        float KHInnerInternalEnergy,
                        float KHOuterInternalEnergy,
                        float KHPerturbationAmplitude,
-                       float KHInnerVx, float KHOuterVx);
+                       float KHInnerVx, float KHOuterVx,
+                       float KHInnerPressure,
+                       float KHOuterPressure,
+                       int   KHRandomSeed);
+
+  /* Initialize a grid for the KH instability problem including a ramp. */
+
+  int KHInitializeGridRamp(float KHInnerDensity,
+                           float KHOuterDensity,
+                           float KHInnerInternalEnergy,
+                           float KHOuterInternalEnergy,
+                           float KHPerturbationAmplitude,
+                           float KHInnerVx, float KHOuterVx,
+                           float KHInnerPressure,
+                           float KHOuterPressure,
+                           float KHRampWidth);
 
   /* Initialize a grid and set boundary for the 2D/3D Noh problem. */
 
@@ -2134,7 +2163,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				      float V1Const, float V2Const,
 				      float IEConstIn, float IEConstOut, 
 				      float EgConst, float HMassFrac, 
-				      float InitFracHII, float ClumpCenterX0, 
+				      float InitFracHII, float InitFracHeII, 
+				      float InitFracHeIII, float ClumpCenterX0, 
 				      float ClumpCenterX1, float ClumpCenterX2, 
 				      float ClumpRadius, int local);
 
@@ -2144,13 +2174,17 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				      float DensityCenter1, float DensityCenter2, 
 				      float V0Const, float V1Const, 
 				      float V2Const, float IEConst, 
-				      float EgConst, float InitFracHII, int local);
+				      float EgConst, float HMassFrac, 
+				      float InitFracHII, float InitFracHeII, 
+				      float InitFracHeIII, int local);
 
   /* FLD Radiation test problem: cosmological HII ioniztion (SUCCESS or FAIL) */
   int CosmoIonizationInitializeGrid(int NumChem, float VxConst, float VyConst, 
 				    float VzConst, float IEConst, 
-				    float EgConst, float InitFracHII, 
-				    float OmegaBaryonNow, int local);
+				    float EgConst, float HMassFrac, 
+				    float InitFracHII, float InitFracHeII, 
+				    float InitFracHeIII, float OmegaBaryonNow, 
+				    int local);
 
   /* FLD Radiation test problem: stream test (SUCCESS or FAIL) */
   int RadHydroStreamTestInitializeGrid(float DensityConst, float EgConst,
@@ -2273,6 +2307,12 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Particle splitter routine. */
 
   int ParticleSplitter(int level);
+
+  int CreateChildParticles(float dx, int NumberOfParticles, float *ParticleMass,
+			   int *ParticleType, FLOAT *ParticlePosition[],
+			   float *ParticleVelocity[], float *ParticleAttribute[],
+			   FLOAT *CellLeftEdge[], int *GridDimension, 
+			   int MaximumNumberOfNewParticles, int *NumberOfNewParticles);
 
 /* Magnetic field resetting routine. */
 
@@ -2759,6 +2799,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 // CUDA MHD routines
 //------------------------------------------------------------------------
 #ifdef ECUDA
+  void CudaMHDMalloc(void **p, size_t size);
   void CudaMHDMallocGPUData();
   void CudaMHDFreeGPUData();
   void CudaSolveMHDEquations(fluxes *SubgridFluxes[], int NumberOfSubgrids, int renorm);
@@ -2850,6 +2891,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float PerturbAmplitude, int PerturbMethod, float PerturbWavelength[],
                              int InitStyle);
   int MHDOrszagTangInitGrid(float Density,float Pressure, float V0, float B0 );
+  int MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, float Vz, float B0, FLOAT R0, 
+                      FLOAT Center[], int CurrentAxis);
+
 
   //See Grid_MHDCTEnergyToggle.C for details on these functions.
   float *MHDCT_temp_conserved_energy;

@@ -143,6 +143,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HierarchyFileInputFormat = 1;
   HierarchyFileOutputFormat = 2;
 
+  ConductionDynamicRebuildHierarchy = FALSE;
+  ConductionDynamicRebuildMinLevel = 0;
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
   }
@@ -193,7 +195,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
-  RefineBy                  = 4;                 // Refinement factor
+  RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
   MaximumParticleRefinementLevel = -1;            // unused if negative
@@ -286,6 +288,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
+  for (i = 0; i < MAX_DIMENSION; i++) {
+    UserDefinedRootGridLayout[i] = INT_UNDEFINED;
+  }
 
   ExternalBoundaryIO          = FALSE;
   ExternalBoundaryTypeIO      = FALSE;
@@ -295,7 +300,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   debug1                      = 0;
   debug2                      = 0;
 
-  TracerParticleOn            = 0;
+  TracerParticleOn            = FALSE;
+  TracerParticleOutputVelocity = FALSE;
 
   OutputOnDensity                  = 0;
   StartDensityOutputs              = 999;
@@ -357,7 +363,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RadiativeTransferFLD        = 0;                 // off
   ImplicitProblem             = 0;                 // off
   StarMakerEmissivityField    = 0;                 // off
-  uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
+  uv_param                    = 1.1e-5;            // consistent with Razoumov Norman 2002
 
   MultiSpecies                = FALSE;             // off
   NoMultiSpeciesButColors     = FALSE;             // off
@@ -416,6 +422,32 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+#ifdef USE_GRACKLE
+  // Grackle chemistry data structure.
+  grackle_chemistry                     = set_default_chemistry_parameters();
+  // Map Grackle defaults to corresponding Enzo parameters
+  Gamma                                 = grackle_chemistry.Gamma;
+  MultiSpecies                          = grackle_chemistry.primordial_chemistry;
+  MetalCooling                          = grackle_chemistry.metal_cooling;
+  H2FormationOnDust                     = grackle_chemistry.h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = grackle_chemistry.cmb_temperature_floor;
+  ThreeBodyRate                         = grackle_chemistry.three_body_rate;
+  CIECooling                            = grackle_chemistry.cie_cooling;
+  H2OpticalDepthApproximation           = grackle_chemistry.h2_optical_depth_approximation;
+  PhotoelectricHeating                  = grackle_chemistry.photoelectric_heating;
+  PhotoelectricHeatingRate              = grackle_chemistry.photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = grackle_chemistry.NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = grackle_chemistry.CaseBRecombination;
+  CoolData.TemperatureStart             = grackle_chemistry.TemperatureStart;
+  CoolData.TemperatureEnd               = grackle_chemistry.TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = grackle_chemistry.NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = grackle_chemistry.DustTemperatureStart;
+  RateData.DustTemperatureEnd           = grackle_chemistry.DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = grackle_chemistry.HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = grackle_chemistry.DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = grackle_chemistry.SolarMetalFractionByMass;
+#endif
+
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
   OutputDustTemperature = FALSE;
@@ -432,6 +464,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
+  OldShearMethod                   = 0;            
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
@@ -456,6 +489,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   StarMakerPlanetaryNebulae        = FALSE;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
+  StarMakerTimeIndependentFormation = FALSE;
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
@@ -476,9 +510,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IsotropicConduction = FALSE;
   AnisotropicConduction = FALSE;
-  IsotropicConductionSpitzerFraction = 1.0;
-  AnisotropicConductionSpitzerFraction = 1.0;
+  IsotropicConductionSpitzerFraction = 0.0;
+  AnisotropicConductionSpitzerFraction = 0.0;
   ConductionCourantSafetyNumber = 0.5;
+  SpeedOfLightTimeStepLimit = FALSE;
 
   ClusterSMBHFeedback              = FALSE;
   ClusterSMBHJetMdot               = 3.0;
@@ -799,7 +834,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* Some stateful variables for EvolveLevel */
   for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
-    LevelCycleCount[i] = 0;
+    LevelCycleCount[i] = LevelSubCycleCount[i] = 0;
+    dtRebuildHierarchy[i] = -1.0;
+    TimeSinceRebuildHierarchy[i] = 0.0;
     dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
   }
 
@@ -818,9 +855,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;
   MHDCTUseSpecificEnergy = TRUE;
-  ProcessorTopology[0]      = INT_UNDEFINED;
-  ProcessorTopology[1]      = INT_UNDEFINED;
-  ProcessorTopology[2]      = INT_UNDEFINED;
   FixedTimestep = -1.0;
   WriteBoundary             = FALSE;
   CT_AthenaDissipation = 0.1;
@@ -845,6 +879,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
+  ParticleSplitterRandomSeed = 131180;
 
   /* Magnetic Field Resetter */
 

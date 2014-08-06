@@ -30,35 +30,26 @@
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-// Allocate a single memory space and use pointer arithmetics for all arrays
-static void *GPUMem;
-static size_t GPUMemSize;
-static size_t GPUMemOffset;
-
 extern dim3 CudaBlock, CudaGrid;
 
 // Helper routine using pointer arithmetics for memory allocation
-void CudaMHDMalloc(void **p, size_t size)
+void grid::CudaMHDMalloc(void **p, size_t size)
 {
   assert(size > 0);
   //CUDA_SAFE_CALL( cudaMalloc(p, size) );
   size_t offset = 128*(int)ceil((float)size/128);
-  if (GPUMemOffset + offset > GPUMemSize) {
-    printf("insufficient GPU memory!\n");
+  if (MHDData.GPUMemOffset + offset > MHDData.GPUMemSize) {
+    printf("insufficient GPU memory: GPUMemOffset=%d, offset=%d, GPUMemSize=%d!\n",
+           MHDData.GPUMemOffset, offset, MHDData.GPUMemSize);
     exit(1);
   }
-  *p = (void*)((char*)GPUMem + GPUMemOffset);
-  GPUMemOffset += offset;
+  *p = (void*)((char*)MHDData.GPUMem + MHDData.GPUMemOffset);
+  MHDData.GPUMemOffset += offset;
 }
 
 // allocate space for all GPU arrays
 void grid::CudaMHDMallocGPUData()
 {
-  // Do some parameter check
-  if (DualEnergyFormalism) {
-    printf("Grid_CudaMHD.C: DualEnergyFormalism not supported in GPU MHD solver\n");
-    exit(1);
-  }
 
   // Init parameters for GPU MHD solvers
   for (int i = 0; i < GridRank; i++) {
@@ -77,24 +68,31 @@ void grid::CudaMHDMallocGPUData()
   size_t sizebytes_align = 128*(int)ceil((float)sizebytes/128);
 
   // Compute the size of the total GPU memory
-  GPUMemSize = 36*sizebytes_align;
+  MHDData.GPUMemOffset = 0;
+  MHDData.GPUMemSize = 4*NEQ_MHD*sizebytes_align;
+#ifdef DEDNER_SOURCE
+  MHDData.GPUMemSize += 4*sizebytes_align;
+#endif
+
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
-    GPUMemSize += 3*sizebytes_align;
+    MHDData.GPUMemSize += 3*sizebytes_align;
   if (UseDrivingField) 
-    GPUMemSize += 3*sizebytes_align;
+    MHDData.GPUMemSize += 3*sizebytes_align;
   if (MultiSpecies)
-    GPUMemSize += 4*NSpecies*sizebytes_align;
+    MHDData.GPUMemSize += 4*NSpecies*sizebytes_align;
 
   size_t free, tot;
   CUDA_SAFE_CALL( cudaMemGetInfo(&free, &tot) );
   free -= 200*1024*1024;
-  if (GPUMemSize > free) {
+  if (MHDData.GPUMemSize > free) {
     printf("Requested GPU memory size %f MB > available GPU memory %f MB\n",
-           (float)GPUMemSize/(1024.0*1024.0), (float)free/(1024.0*1024.0));
+           (float)MHDData.GPUMemSize/(1024.0*1024.0), 
+           (float)free/(1024.0*1024.0));
     exit(1);
   }
-  CUDA_SAFE_CALL( cudaMalloc(&GPUMem, GPUMemSize) );
-  
+  // allocate memory for all variables
+  CUDA_SAFE_CALL( cudaMalloc(&(MHDData.GPUMem), MHDData.GPUMemSize) );
+
   // baryon 
   for (int i = 0; i < NEQ_MHD; i++) {
     CudaMHDMalloc((void**)&MHDData.Baryon[i], sizebytes);
@@ -104,11 +102,14 @@ void grid::CudaMHDMallocGPUData()
   }
 
   // source terms
-  // CudaMHDMalloc((void**)&MHDData.divB, sizebytes);
-  // CudaMHDMalloc((void**)&MHDData.gradPhi, 3*sizebytes);
+#ifdef DEDNER_SOURCE
+  CudaMHDMalloc((void**)&MHDData.divB, sizebytes);
+  CudaMHDMalloc((void**)&MHDData.gradPhi, 3*sizebytes);
+#endif
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
-    for (int i = 0; i < GridRank; i++)
+    for (int i = 0; i < GridRank; i++) {
       CudaMHDMalloc((void**)&MHDData.AccelerationField[i], sizebytes);
+    }
   if (UseDrivingField) 
     for (int i = 0; i < GridRank; i++)
       CudaMHDMalloc((void**)&MHDData.DrivingForce[i], sizebytes);
@@ -132,13 +133,14 @@ void grid::CudaMHDMallocGPUData()
     cudaMemcpy(MHDData.dUSpeciesArray, MHDData.dUSpecies, NSpecies*sizeof(float*),
                cudaMemcpyHostToDevice);
   }
+
 }                       
  
 // free space for all GPU arrays
 void grid::CudaMHDFreeGPUData()
 {
-  cudaFree(GPUMem);
-  GPUMemOffset = 0;
+  cudaFree(MHDData.GPUMem);
+  MHDData.GPUMemOffset = 0;
   if (MultiSpecies) {
     cudaFree(MHDData.SpeciesArray);
     cudaFree(MHDData.OldSpeciesArray);
@@ -161,7 +163,7 @@ void grid::CudaMHDSweep(int dir)
   }
  
   // HLL-PLM solver to compute flux
-  MHD_HLL_PLMGPU(MHDData, dir);
+  MHD_HLL_PLMGPU(MHDData, dir, CellWidth[0][0]);
 
   // Compute flux for species field
   if (NSpecies) 
@@ -184,6 +186,14 @@ void grid::CudaMHDSourceTerm()
 	== FAIL) {
       ENZO_FAIL("Error in CosmologyComputeExpansionFactors.");
     }
+
+#ifdef DEDNER_SOURCE
+  MHDDednerSourceGPU(MHDData);
+#endif
+
+  if (DualEnergyFormalism) 
+    MHDDualEnergySourceGPU(MHDData, dtFixed, a,
+                           CellWidth[0][0], CellWidth[1][0], CellWidth[2][0]);
 
   if (SelfGravity || ExternalGravity || UniformGravity || PointSourceGravity) 
     MHDGravitySourceGPU(MHDData, dtFixed);
@@ -284,9 +294,9 @@ void grid::CudaMHDSaveSubgridFluxes(fluxes *SubgridFluxes[],
     this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
                                      Vel3Num, TENum, B1Num, B2Num, B3Num, 
                                      PhiNum);
-    int FluxId[9] = 
+    int FluxId[10] = 
       {DensNum, Vel1Num, Vel2Num, Vel3Num, TENum,
-       B1Num, B2Num, B3Num, PhiNum};
+       B1Num, B2Num, B3Num, PhiNum, GENum};
     for (int i = 0; i < NEQ_MHD; i++) {
       MHDSaveSubgridFluxGPU(SubgridFluxes[n]->LeftFluxes[FluxId[i]][dim],
                             SubgridFluxes[n]->RightFluxes[FluxId[i]][dim],

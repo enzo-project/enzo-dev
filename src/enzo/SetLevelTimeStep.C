@@ -47,6 +47,18 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
  
   } else {
  
+    /* Calculate timestep without conduction and get conduction separately later. */
+
+    int my_isotropic_conduction = IsotropicConduction;
+    int my_anisotropic_conduction = AnisotropicConduction;
+    int dynamic_hierarchy_rebuild = ConductionDynamicRebuildHierarchy &&
+      level >= ConductionDynamicRebuildMinLevel &&
+      dtRebuildHierarchy[level] <= 0.0;
+
+    if (dynamic_hierarchy_rebuild) {
+      IsotropicConduction = AnisotropicConduction = FALSE;      
+    }
+
     /* Compute the mininum timestep for all grids. */
  
     *dtThisLevel = huge_number;
@@ -55,6 +67,35 @@ int SetLevelTimeStep(HierarchyEntry *Grids[], int NumberOfGrids, int level,
       *dtThisLevel = min(*dtThisLevel, dtGrid);
     }
     *dtThisLevel = CommunicationMinValue(*dtThisLevel);
+
+    /* Compute conduction timestep and use to set the number 
+       of iterations without rebuiding the hierarchy. */
+
+    if (dynamic_hierarchy_rebuild) {
+
+      /* Return conduction parameters to original values. */
+      IsotropicConduction = my_isotropic_conduction;
+      AnisotropicConduction = my_anisotropic_conduction;
+
+      float dt_conduction;
+      dt_conduction = huge_number;
+      for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+        if (Grids[grid1]->GridData->ComputeConductionTimeStep(dt_conduction) == FAIL) 
+          ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
+      }
+      dt_conduction = CommunicationMinValue(dt_conduction);
+      dt_conduction *= float(NumberOfGhostZones);  // for subcycling
+
+      int my_cycle_skip = max(1, (int) (*dtThisLevel / dt_conduction));
+      dtRebuildHierarchy[level] = *dtThisLevel;
+      if (debug)
+        fprintf(stderr, "Conduction dt[%"ISYM"] = %"GSYM", will rebuild hierarchy in about %"ISYM" cycles.\n",
+                         level, dt_conduction, my_cycle_skip);
+
+      /* Set actual timestep correctly. */
+      *dtThisLevel = min(*dtThisLevel, dt_conduction);
+
+    }
 
     dtActual = *dtThisLevel;
 

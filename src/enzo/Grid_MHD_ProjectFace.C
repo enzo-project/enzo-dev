@@ -513,7 +513,7 @@ int grid::MHD_ProjectFace(grid &ParentGrid,
 	    
 	    if(ParentGrid.MagneticField[field] != NULL){
 	      delete ParentGrid.MagneticField[field] ;
-	      ParentGrid.ElectricField[field]=NULL;
+	      ParentGrid.MagneticField[field]=NULL;
 	    }
 	    
 	  }//field

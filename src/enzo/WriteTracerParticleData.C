@@ -4,7 +4,9 @@
 /
 /  written by: Greg Bryan
 /  date:       March, 2004
-/  modified1:
+/  modified1:  BWO, Dec. 2013: tracer particles now work for any
+/              dimensionality.  also converted velocity output to
+/              a runtime parameter.
 /
 /  PURPOSE: This function walks through the grids and writes out,
 /     for each grid, the position, density and temperature at the
@@ -97,11 +99,8 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
         4) density conversion factor
         5) velocity conversion factor
         6) Number of values per tracer particle
-           This is currently 5 or 8: xpos,ypos,zpos,dens,temp, OR
-           xpos,ypos,zpos,dens,temp, xvel,yvel,zvel (depending on if
-	   the compiler flag TP_VELOCITY is set.  Note that as of right now
-	   if 8 values are written, we write positions, density and temperature 
-	   FIRST, and then write velocities.      */
+           This is currently either 2 + simulation dimensionality (density and temperature
+	   plus position), or 2 + 2*simulation dimensionality (as before, but with velocity).  */
  
   float float_temp = float(WriteTime);  // convert from FLOAT to float
   fwrite((void*) &float_temp, sizeof(float), 1, fptr);
@@ -112,13 +111,18 @@ int WriteTracerParticleData(char *basename, int dumpnumber,
   fwrite((void*) &DensityUnits, sizeof(float), 1, fptr);
   fwrite((void*) &VelocityUnits, sizeof(float), 1, fptr);
 
-#ifdef TP_VELOCITY
-  int int_temp = 8;
-#else 
-  int int_temp = 5;
-#endif
+  int int_temp;
+  
 
-  fwrite((void*) &int_temp, sizeof(int), 1, fptr);
+  int_temp = 2 + MetaData->TopGridRank;  // 2 fields we're tracking plus TopGridRank position fields
+
+  if(TracerParticleOutputVelocity)
+    int_temp += MetaData->TopGridRank;  // TopGridRank velocity fields
+
+
+  // printf("tracer particle: writing %d fields and sizeof(int) is %d\n",int_temp,sizeof(int));
+
+  fwrite((void*) &int_temp, sizeof(int), 1, fptr);  // write number of fields
  
   /* --------------------------------------------------------------- */
   /* Loop over grids and write grid data to files. */

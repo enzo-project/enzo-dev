@@ -1,0 +1,16 @@
+This is a cosmology simulation identical to AMRCosmology, except using 
+the Grackle to solve the cooling.  See the documentation 
+for more information on running with Grackle.
+
+This simulation runs to z = 0 with tabulated primordial and metal
+cooling from Grackle and conventional, non-radiative star formation and
+feedback.  It will run on 2 processors in about 40 minutes.
+
+To run this, you will need to copy the file, CloudyData_UVB=HM2012.h5, 
+from the input directory of your Grackle source, to the run directory
+of the simulation.
+
+Usage:
+./inits.exe -d AMRCosmology_Grackle.inits
+mpirun -np 2 ./ring.exe pv ParticlePositions ParticleVelocities
+mpirun -np 2 ./enzo.exe -d AMRCosmology_Grackle.enzo

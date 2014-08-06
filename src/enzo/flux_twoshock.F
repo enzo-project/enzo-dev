@@ -252,9 +252,9 @@ c
        do n=1,ncolor
           do i=i1, i2+1
              if (ub(i) .gt. 0._RKIND) then
-                colb(i,n) = colls(i,j,n)
+                colb(i,n) = colls(i,j,n) * db(i)/dls(i,j)
              else
-                colb(i,n) = colrs(i,j,n)
+                colb(i,n) = colrs(i,j,n) * db(i)/drs(i,j)
              endif
           enddo
        enddo
@@ -391,7 +391,7 @@ c
           enddo
           do i=i1, i2+1
              qc = dt/dx(i)
-             gef(i,j) = dt*dugeb(i)
+             gef(i,j) = qc*dugeb(i)
              ges(i,j) = qc * pcent(i) * (ub(i) - ub(i+1))
           enddo
        endif

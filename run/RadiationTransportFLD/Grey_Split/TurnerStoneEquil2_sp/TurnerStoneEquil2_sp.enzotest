@@ -1,0 +1,12 @@
+name = 'TurnerStoneEquil2_sp'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+hydro = False
+gravity = False
+dimensionality = 3
+radiation = 'fld'
+max_time_minutes = 1
+fullsuite = True
+pushsuite = True
+quicksuite = True

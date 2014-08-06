@@ -376,6 +376,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     SetLevelTimeStep(Grids, NumberOfGrids, level, 
         &dtThisLevelSoFar[level], &dtThisLevel[level], dtLevelAbove);
 
+    TimeSinceRebuildHierarchy[level] += dtThisLevel[level];
+
     /* If StarFormationOncePerRootGridTimeStep, stars are only created
     once per root grid time step and only on MaximumRefinementLevel
     grids. The following sets the MakeStars flag for all
@@ -782,13 +784,17 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     cycle++;
     LevelCycleCount[level]++;
+    LevelSubCycleCount[level]++;
+    if ((MetaData->StaticHierarchy == 0) && (level < MaximumRefinementLevel)) {
+      LevelSubCycleCount[level+1] = 0;
+    }
  
   } // end of loop over subcycles
  
     EXTRA_OUTPUT_MACRO(6, "After Subcycle Loop")
   if (debug)
-    fprintf(stdout, "EvolveLevel[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total)\n", level,
-           cycle, LevelCycleCount[level]);
+    fprintf(stdout, "EvolveLevel[%"ISYM"]: NumberOfSubCycles = %"ISYM" (%"ISYM" total, %"ISYM" sub)\n", 
+            level, cycle, LevelCycleCount[level], LevelSubCycleCount[level]);
  
   /* If possible & desired, report on memory usage. */
  
@@ -813,8 +819,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if ((NumberOfGrids >1) || ( StaticLevelZero == 1 && level != 0 ) || StaticLevelZero == 0 ) {
 
-    for (grid1 = 0; grid1 < NumberOfGrids; grid1++)
-      delete [] SiblingList[grid1].GridList;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++){
+      // Need this check to match that from CreateSiblingList.C and
+      // Grid_FastSiblingLocatorFindSiblings.C
+      if (NumberOfGrids == 1)
+        delete SiblingList[grid1].GridList;
+      else
+        delete [] SiblingList[grid1].GridList;
+    }
     delete [] SiblingList;
   }
 

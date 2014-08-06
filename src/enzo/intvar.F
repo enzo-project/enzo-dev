@@ -67,6 +67,10 @@ c
       R_PREC qplus, qmnus, qcent, qvanl
       R_PREC temp1, temp2, temp3, temp22, temp23
       R_PREC dq(idim), ql(idim), qr(idim), q6(idim)
+      dq(:) = 0._RKIND
+      ql(:) = 0._RKIND
+      qr(:) = 0._RKIND
+      q6(:) = 0._RKIND
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================

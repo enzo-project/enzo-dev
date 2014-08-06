@@ -72,6 +72,7 @@ int gFLDSplit::ComputeRadiationIntegrals()
   float nu0_HeI = hnu0_HeI*ev2erg/h;     // ionization threshold of HeI (hz)
   float nu0_HeII = hnu0_HeII*ev2erg/h;   // ionization threshold of HeII (hz)
   float epsilon = 1.0;                   // floating point roundoff
+  float nuMoray = 5.0777776e+15;         // 21 eV photon frequency (Hz)
   while ((1.0 + epsilon) > 1.0)  epsilon*=0.5;
 
   // set integration parameters
@@ -90,9 +91,108 @@ int gFLDSplit::ComputeRadiationIntegrals()
 
 
   // for monochromatic problems, integration uses delta function
+  //    monochromatic at nu0_HI
   if (ESpectrum == -1) {
     // evaluation point
     nu_m = nu0_HI*(1.0 + 2.0*epsilon);
+
+    // integral( delta_{nu0}(nu) )
+    intSigE = 1.0;
+
+    // integral( delta_{nu0}(nu) * sig_{HI}(nu) )
+    intSigESigHI = this->CrossSections(nu_m,0);
+
+    // integral( delta_{nu0}(nu) * sig_{HI}(nu) / nu )
+    intSigESigHInu = this->CrossSections(nu_m,0) / nu_m;
+
+    if (debug) {
+      printf("  Computed Radiation Integrals:\n");
+      printf("    intSigE          = %22.16e\n",intSigE);
+      printf("    intSigESigHI     = %22.16e\n",intSigESigHI);
+      printf("    intSigESigHInu   = %22.16e\n",intSigESigHInu);
+    }
+
+    // (integrals using sigHeI and sigHeII are zero at nu0_HI)
+    return SUCCESS;
+  }
+
+  //    monochromatic at nu0_HeI
+  if (ESpectrum == -2) {
+    // evaluation point
+    nu_m = nu0_HeI*(1.0 + 2.0*epsilon);
+
+    // integral( delta_{nu0}(nu) )
+    intSigE = 1.0;
+
+    // integral( delta_{nu0}(nu) * sig_{HI}(nu) )
+    intSigESigHI = this->CrossSections(nu_m,0);
+
+    // integral( delta_{nu0}(nu) * sig_{HI}(nu) / nu )
+    intSigESigHInu = this->CrossSections(nu_m,0) / nu_m;
+
+    // integral( delta_{nu0}(nu) * sig_{HeI}(nu) )
+    intSigESigHeI = this->CrossSections(nu_m,1);
+
+    // integral( delta_{nu0}(nu) * sig_{HeI}(nu) / nu )
+    intSigESigHeInu = this->CrossSections(nu_m,1) / nu_m;
+
+    if (debug) {
+      printf("  Computed Radiation Integrals:\n");
+      printf("    intSigE          = %22.16e\n",intSigE);
+      printf("    intSigESigHI     = %22.16e\n",intSigESigHI);
+      printf("    intSigESigHInu   = %22.16e\n",intSigESigHInu);
+      printf("    intSigESigHeI    = %22.16e\n",intSigESigHeI);
+      printf("    intSigESigHeInu  = %22.16e\n",intSigESigHeInu);
+    }
+
+    // (integrals using sigHeII are zero at nu0_HeI)
+    return SUCCESS;
+  }
+
+  //    monochromatic at nu0_HeII
+  if (ESpectrum == -3) {
+    // evaluation point
+    nu_m = nu0_HeII*(1.0 + 2.0*epsilon);
+
+    // integral( delta_{nu0}(nu) )
+    intSigE = 1.0;
+
+    // integral( delta_{nu0}(nu) * sig_{HI}(nu) )
+    intSigESigHI = this->CrossSections(nu_m,0);
+
+    // integral( delta_{nu0}(nu) * sig_{HI}(nu) / nu )
+    intSigESigHInu = this->CrossSections(nu_m,0) / nu_m;
+
+    // integral( delta_{nu0}(nu) * sig_{HeI}(nu) )
+    intSigESigHeI = this->CrossSections(nu_m,1);
+
+    // integral( delta_{nu0}(nu) * sig_{HeI}(nu) / nu )
+    intSigESigHeInu = this->CrossSections(nu_m,1) / nu_m;
+
+    // integral( delta_{nu0}(nu) * sig_{HeII}(nu) )
+    intSigESigHeII = this->CrossSections(nu_m,2);
+
+    // integral( delta_{nu0}(nu) * sig_{HeII}(nu) / nu )
+    intSigESigHeIInu = this->CrossSections(nu_m,2) / nu_m;
+
+    if (debug) {
+      printf("  Computed Radiation Integrals:\n");
+      printf("    intSigE          = %22.16e\n",intSigE);
+      printf("    intSigESigHI     = %22.16e\n",intSigESigHI);
+      printf("    intSigESigHInu   = %22.16e\n",intSigESigHInu);
+      printf("    intSigESigHeI    = %22.16e\n",intSigESigHeI);
+      printf("    intSigESigHeInu  = %22.16e\n",intSigESigHeInu);
+      printf("    intSigESigHeII   = %22.16e\n",intSigESigHeII);
+      printf("    intSigESigHeIInu = %22.16e\n",intSigESigHeIInu);
+    }
+    return SUCCESS;
+  }
+
+  // Geoffrey So 2/25/2014 adding 21 eV for Moray/FLD comparison
+  if (ESpectrum == -10) {
+    // evaluation point
+    // changing nu0_HI to 5.0777e15 Hz for 21 eV photons
+    nu_m = nuMoray*(1.0 + 2.0*epsilon);
 
     // integral( delta_{nu0}(nu) )
     intSigE = 1.0;

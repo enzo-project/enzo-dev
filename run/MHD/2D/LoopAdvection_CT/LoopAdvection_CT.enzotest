@@ -1,0 +1,13 @@
+name = 'LoopAdvection_CT'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'   # short, medium, long
+hydro = False
+mhd = True
+gravity = False
+AMR = False
+dimensionality = 2
+max_time_minutes = 2.5
+fullsuite = False
+pushsuite = False
+quicksuite = False

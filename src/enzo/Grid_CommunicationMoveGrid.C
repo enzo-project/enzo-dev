@@ -93,12 +93,14 @@ int grid::CommunicationMoveGrid(int ToProcessor, int MoveParticles,
 	(CommunicationDirection == COMMUNICATION_SEND ||
 	 CommunicationDirection == COMMUNICATION_SEND_RECEIVE)) {
       if (DeleteAllFields == TRUE) {
-	if (MoveParticles == TRUE)
-	  this->DeleteAllFields();
-	else
-	  this->DeleteAllButParticles();
-	if (MoveSubgridMarker == TRUE)
-	  delete [] SubgridMarker;
+        if (MoveParticles == TRUE)
+          this->DeleteAllFields();
+        else
+          this->DeleteAllButParticles();
+#ifdef TRANSFER
+        if (MoveSubgridMarker == TRUE)
+          delete [] SubgridMarker;
+#endif /* TRANSFER */    
       } else {
 	this->DeleteBaryonFields();
       }

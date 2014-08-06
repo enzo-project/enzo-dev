@@ -34,15 +34,16 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-int grid::ComputePressure(FLOAT time, float *pressure)
+int grid::ComputePressure(FLOAT time, float *pressure,
+                          float MinimumSupportEnergyCoefficient)
 {
  
   /* declarations */
  
-  float density, gas_energy, total_energy;
+  float density, gas_energy, total_energy, min_pressure;
   float velocity1, velocity2 = 0, velocity3 = 0;
   int i, size = 1;
- 
+
   /* Error Check */
  
   if (time < OldTime || time > Time) {
@@ -144,10 +145,17 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	  }
 
 	  pressure[i] = (Gamma - 1.0)*density*gas_energy;
- 
+
 	  if (pressure[i] < tiny_number)
 	    pressure[i] = tiny_number;
-	}
+
+      min_pressure =
+        MinimumSupportEnergyCoefficient * (Gamma - 1.0) * density * density;
+
+         if (pressure[i] < min_pressure)
+          pressure[i] = min_pressure;
+
+        }
 
       }//EquationOfState == 0
 
@@ -211,8 +219,16 @@ int grid::ComputePressure(FLOAT time, float *pressure)
 	
 	  if (pressure[i] < tiny_number)
 	    pressure[i] = tiny_number;
-	}
-      }//EquationOfState == 0
+
+      min_pressure =
+        MinimumSupportEnergyCoefficient * (Gamma - 1.0) * density * density;
+
+      if (pressure[i] < min_pressure)
+        pressure[i] = min_pressure;
+
+
+       }
+      } //EquationOfState == 0
 
     } /* end of loop over cells */
  

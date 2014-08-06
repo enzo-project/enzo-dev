@@ -400,7 +400,24 @@ star maker, so don't set StarParticleFeedback = 2048. Instead the user
 should select one of the feedback schemes associated with the other
 star makers (StarParticleFeedback = 4 comes to mind).
 
+Restarting a Simulation With Star Formation or Feedback
+-------------------------------------------------------
 
+Sometimes it is convenient to run a simulation for a while until it comes
+to some sort of equilibrium before turning on star formation.
+
+If a simulation is initialized with star formation and feedback turned off,
+particles in the simulation will not have the necessary particle attribute
+fields Enzo uses to track data like the formation time, dynamical time,
+and metallicity.
+
+To restart a simulation including star formation or feedback, simply edit
+the parameter file written to disk in the data dump folder (i.e. for a dataset
+named ``DD0100``, the parameter file will typically be named ``DD0100/DD0100``.
+Change the parameters ``StarParticleCreation`` or ``StarParticleFeedback`` to
+the values needed for your simulation, and restart the simulation.  Enzo will
+detect that it needs to create particle attribute fields and allocate the 
+necessary memory above what is needed to read in the dataset.
 
 .. _distributed_feedback:
 

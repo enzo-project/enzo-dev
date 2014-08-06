@@ -71,6 +71,7 @@ MACH_CXXFLAGS =
 MACH_FFLAGS   = 
 MACH_F90FLAGS = 
 MACH_LDFLAGS  = -Wl,-static 
+MACH_OPENMP   = -fopenmp
 
 #-----------------------------------------------------------------------
 # Optimization flags
