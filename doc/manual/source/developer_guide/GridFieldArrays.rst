@@ -135,7 +135,7 @@ The important part of the map is that it knows the data type of the
 fields, which you need to know, so you can call the right method.
 This is really pretty simple, since just about everything returned
 is a ``float``. For a complete list of the (hopefully current) fields,
-see the section **Field List Reference**. For the best reference,
+see the section Field_List_Reference_. For the best reference,
 check in ``typedefs.h``,
 and ``Grid_CreateFieldArray.C``.
 
@@ -228,49 +228,54 @@ what this snippet lacks is the fairly
 long list of header files that need to be included. You can compile
 this by calling ``make field_array_example.exe`` in source directory.
 
+.. _Field_List_Reference:
+
 Field List Reference
 --------------------
 
-======================  ======================  ==========  ===============
-Field Number            Field Name              Data Type   Array or Vector
-======================  ======================  ==========  ===============
-Density                 "Density"               float       Array
-TotalEnergy             "TotalEnergy"           float       Array
-InternalEnergy          "InternalEnergy"        float       Array
-Pressure                "Pressure"              float       Array
-Velocity1               "Velocity1"             float       Array
-Velocity2               "Velocity2"             float       Array
-Velocity3               "Velocity3"             float       Array
-ElectronDensity         "ElectronDensity"       float       Array
-HIDensity               "HIDensity"             float       Array
-HIIDensity              "HIIDensity"            float       Array
-HeIDensity              "HeIDensity"            float       Array
-HeIIDensity             "HeIIDensity"           float       Array
-HeIIIDensity            "HeIIIDensity"          float       Array
-HMDensity               "HMDensity"             float       Array
-H2IDensity              "H2IDensity"            float       Array
-H2IIDensity             "H2IIDensity"           float       Array
-DIDensity               "DIDensity"             float       Array
-DIIDensity              "DIIDensity"            float       Array
-HDIDensity              "HDIDensity"            float       Array
-Metallicity             "Metallicity"           float       Array
-ExtraType0              "ExtraType0"            float       Array
-ExtraType1              "ExtraType1"            float       Array
-GravPotential           "GravPotential"         float       Array
-Acceleration0           "Acceleration0"         float       Array
-Acceleration1           "Acceleration1"         float       Array
-Acceleration2           "Acceleration2"         float       Array
-gParticlePosition       "ParticlePosition"      FLOAT       Vector
-gParticleVelocity       "ParticleVelocity"      float       Vector
-gParticleMass           "ParticleMass"          float       Array
-gParticleAcceleration   "ParticleAcceleration"  float       Vector
-gParticleNumber         "ParticleNumber"        int         Array
-gParticleType           "ParticleType"          int         Array
-gParticleAttribute      "ParticleAttribute"     float       Vector
-gPotentialField         "PotentialField"        float       Array
-gAccelerationField      "AccelerationField"     float       Vector
-gGravitatingMassField   "GravitatingMassField"  float       Array
-gFlaggingField          "FlaggingField"         int         Array
-gVelocity               "Velocity"              float       Vector
-======================  ======================  ==========  ===============
+The following table is a partial list of the fields in Enzo.  The **Field Type ID** is defined in the ``typedef.h`` file.
+
+=============  ======================  ======================  ==========  ===============
+Field Type ID  Field Number            Field Name              Data Type   Array or Vector
+=============  ======================  ======================  ==========  ===============
+0              Density                 "Density"               float       Array
+1              TotalEnergy             "TotalEnergy"           float       Array
+2              InternalEnergy          "InternalEnergy"        float       Array
+3              Pressure                "Pressure"              float       Array
+4              Velocity1               "Velocity1"             float       Array
+5              Velocity2               "Velocity2"             float       Array
+6              Velocity3               "Velocity3"             float       Array
+7              ElectronDensity         "ElectronDensity"       float       Array
+8              HIDensity               "HIDensity"             float       Array
+9              HIIDensity              "HIIDensity"            float       Array
+10             HeIDensity              "HeIDensity"            float       Array
+11             HeIIDensity             "HeIIDensity"           float       Array
+12             HeIIIDensity            "HeIIIDensity"          float       Array
+13             HMDensity               "HMDensity"             float       Array
+14             H2IDensity              "H2IDensity"            float       Array
+15             H2IIDensity             "H2IIDensity"           float       Array
+16             DIDensity               "DIDensity"             float       Array
+17             DIIDensity              "DIIDensity"            float       Array
+18             HDIDensity              "HDIDensity"            float       Array
+19             SNColour
+20             Metallicity             "Metallicity"           float       Array
+21             ExtraType0              "ExtraType0"            float       Array
+22             ExtraType1              "ExtraType1"            float       Array
+30             GravPotential           "GravPotential"         float       Array
+31             Acceleration0           "Acceleration0"         float       Array
+32             Acceleration1           "Acceleration1"         float       Array
+33             Acceleration2           "Acceleration2"         float       Array
+37             gParticlePosition       "ParticlePosition"      FLOAT       Vector
+38             gParticleVelocity       "ParticleVelocity"      float       Vector
+39             gParticleMass           "ParticleMass"          float       Array
+40             gParticleAcceleration   "ParticleAcceleration"  float       Vector
+41             gParticleNumber         "ParticleNumber"        int         Array
+42             gParticleType           "ParticleType"          int         Array
+43             gParticleAttribute      "ParticleAttribute"     float       Vector
+44             gPotentialField         "PotentialField"        float       Array
+45             gAccelerationField      "AccelerationField"     float       Vector
+46             gGravitatingMassField   "GravitatingMassField"  float       Array
+47             gFlaggingField          "FlaggingField"         int         Array
+48             gVelocity               "Velocity"              float       Vector
+=============  ======================  ======================  ==========  ===============
 

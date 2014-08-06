@@ -97,6 +97,10 @@ Shock Tube (1: unigrid and AMR)
     shock waves, contact discontinuities, and rarefaction waves in a
     variety of situations (Toro 1999, p. 129).
 
+    It is also possible to set up a second discontinuity, creating three
+    initial regions, rather than the two regions of the original Sod Shock
+    Tube.
+
     ::
 
               Test  LeftDensity LeftVelocity LeftPressure RightDensity RightVelocity RightPressure
@@ -107,19 +111,34 @@ Shock Tube (1: unigrid and AMR)
               1.5   5.99924     19.5975      460.894      5.99242      -6.19633      46.0950
 
 
-``ShockTubeBoundary`` (external)
-    Discontinuity position. Default: 0.5
-``ShockTubeDirection`` (external)
-    Discontinuity orientation. Type: integer. Default: 0 (shock(s) will
-    propagate in x-direction)
-``ShockTubeLeftDensity``, ``ShockTubeRightDensity`` (external)
-    The initial gas density to the left and to the right of the
-    discontinuity. Default: 1.0 and 0.125, respectively
-``ShockTubeLeftVelocity``, ``ShockTubeRightVelocity`` (external)
-    The same as above but for the velocity component in
-    ``ShockTubeDirection``. Default: 0.0, 0.0
-``ShockTubeLeftPressure``, ``ShockTubeRightPressure`` (external)
-    The same as above but for pressure. Default: 1.0, 0.1
+``HydroShockTubesInitialDiscontinuity`` (external)
+    The position of the initial discontinuity. Default: 0.5
+``HydroShockTubesSecondDiscontinuity`` (external)
+    The position of the second discontinuity, if a second discontinuity is 
+    desired. Default: FLOAT_UNDEFINED, i.e. no second discontinuity.
+``HydroShockTubesLeftDensity``, ``HydroShockTubesRightDensity``, ``HydroShockTubesCenterDensity`` (external)
+    The initial gas density to the left and right of the discontinuity,
+    and between the discontinuities if a second discontinuity has been 
+    specified with HydroShockTubesSecondDiscontinuity.  Default: 1.0 for each
+    value.
+``HydroShockTubesLeftPressure``, ``HydroShockTubesRightPressure``, ``HydroShockTubesCenterPressure`` (external)
+    The initial gas density to the left and right of the discontinuity,
+    and between the discontinuities if a second discontinuity has been
+    specified with HydroShockTubesSecondDiscontinuity.  Default: 1.0 for
+    each of the left, right, and center regions.
+
+``HydroShockTubesLeftVelocityX``, ``HydroShockTubesLeftVelocityY``, ``HydroShockTubesLeftVelocityZ`` (external)
+    The initial gas velocity, in the x-, y-, and z-directions to the left of 
+    the discontinuity.  Default: 0.0 for all directions.
+
+``HydroShockTubesRightVelocityX``, ``HydroShockTubesRightVelocityY``, ``HydroShockTubesRightVelocityZ`` (external)
+    The initial gas velocity, in the x-, y-, and z-directions to the right of 
+    the discontinuity.  Default: 0.0 for all directions.
+
+``HydroShockTubesCenterVelocityX``, ``HydroShockTubesCenterVelocityY``, ``HydroShockTubesCenterVelocityZ`` (external)
+    The initial gas velocity, in the x-, y-, and z-directions between the 
+    discontinuities, used if a second discontinuity has been specified with 
+    HydroShockTubesSecondDiscontinuity. Default: 1.0 for all directions.
 
 .. _wavepool_param:
 
@@ -1141,27 +1160,43 @@ Turbulence Simulation (60)
     Quasi-isothermal forced turbulence.
 
 ``TurbulenceSimulationsDensityName`` (external)
+
 ``TurbulenceSimulationTotalEnergyName`` (external)
+
 ``TurbulenceSimulationGasPressureName`` (external)
+
 ``TurbulenceSimulationGasEnergyName`` (external)
+
 ``TurbulenceSimulationVelocityName`` (external)
+
 ``TurbulenceSimulationRandomForcingName`` (external)
+
 ``TurbulenceSimulationMagneticName`` (external)
+
 ``TurbulenceSimulationInitialTemperature`` (external)    
+
 ``TurbulenceSimulationInitialDensity`` (external)
+
 ``TurbulenceSimulationSoundSpeed`` (external)
+
 ``TurbulenceSimulationInitialPressure`` (external)
+
 ``TurbulenceSimulationInitialDensityPerturbationAmplitude`` (external)
+
 ``TurbulenceSimulationNumberOfInitialGrids`` (external)
-     Default: 1
+    Default: 1
 ``TurbulenceSimulationSubgridsAreStatic`` (external)
-     Boolean flag. Default: 1
+    Boolean flag. Default: 1
 ``TurbulenceSimulationGridLeftEdge[]`` (external)
+    TBD
 ``TurbulenceSimulationGridRightEdge[]`` (external)
+    TBD
 ``TurbulenceSimulationGridDimension[]`` (external)
+    TBD
 ``TurbulenceSimulationGridLevel[]`` (external)
+    TBD
 ``TurbulenceSimulationInitialMagneticField[i]`` (external)
-     Initial magnetic field strength in the ith direction. Default: 5.0 (all)
+    Initial magnetic field strength in the ith direction. Default: 5.0 (all)
 ``RandomForcing`` (external)
     This parameter is used to add random forcing field to create turbulence; see Mac Low 1999, ApJ 524, 169. Default: 0
 ``RandomForcingEdot`` (external)
@@ -1183,7 +1218,7 @@ Protostellar Collapse (61)
 ``ProtostellarCollapseOuterDensity`` (external)
      Initial density. Default: 1.0
 ``ProtostellarCollapseAngularVelocity`` (external)
-     Initial agnular velocity. Default: 0
+     Initial angular velocity. Default: 0
 ``ProtostellarCollapseSubgridLeft``, ``ProtostellarCollapseSubgridRight`` (external)
      Start and end position of subgrid. Default: 0 (for both)
 
@@ -1496,19 +1531,26 @@ Galaxy Disk (207)
 ``HaloTemperature[i]`` (external)
     Temperature of the halo for the ith sphere. Default: 1 (all)
 ``HaloAngVel[i]`` (external)
+    TBD
 ``HaloSpin[i]`` (external)
+    TBD
 ``HaloPosition[i][j]`` (external)
     Position of the Halo. 
 ``HaloVelocity[i][j]`` (external)
     Velocity of the Halo.
 ``DiskRadius[i]`` (external)
+    TBD
 ``DiskHeight[i]`` (external)
+    TBD
 ``DiskDensity[i]`` (external)
+    TBD
 ``DiskTemperature[i]`` (external)
+    TBD
 ``DiskMassFraction[i]`` (external)
     Default: 0 (all)
 ``DiskFlaringParameter[i]`` (external)
     Default: 10 (all)
+
 .. _agndisk_param:
 
 AGN Disk (207)
