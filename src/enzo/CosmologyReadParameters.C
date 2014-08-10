@@ -89,11 +89,11 @@ int CosmologyReadParameters(FILE *fptr, FLOAT *StopTime, FLOAT *InitTime)
  
   }
 
-  if (MyProcessorNumber == ROOT_PROCESSOR &&
-      OmegaDarkMatterNow == FLOAT_UNDEFINED &&
-      MustRefineParticlesCreateParticles > 0)
-    ENZO_FAIL("Must define Omega_DM if using must-refine particles in "
-	      "a cosmology simulation.");
+  // if (MyProcessorNumber == ROOT_PROCESSOR &&
+  //     OmegaDarkMatterNow == FLOAT_UNDEFINED &&
+  //     MustRefineParticlesCreateParticles > 0)
+  //   ENZO_FAIL("Must define Omega_DM if using must-refine particles in "
+  // 	      "a cosmology simulation.");
   
   /* Initialize by finding the time at the initial redshift. */
  
