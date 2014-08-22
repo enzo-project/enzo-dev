@@ -1203,7 +1203,8 @@ c                  write(6,*) "test"
 c               endif
                x = 2e-15_RKIND * N_H2
                b_doppler = 1e-5_RKIND * 
-     &              sqrt(2.0_RKIND * kboltz * tgas1d(i) / mass_h)
+     &              sqrt(2.0_RKIND * kboltz * 
+     &              tgas1d(i) / mass_h)
                f_shield = 0.965_RKIND / (1 + x/b_doppler)**1.1 +
      &              0.035_RKIND * exp(-8.5e-4_RKIND * sqrt(1+x)) /
      &              sqrt(1+x)
