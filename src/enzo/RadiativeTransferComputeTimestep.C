@@ -74,6 +74,7 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
   // Search for the maximum level with radiation
   maxLevel = 0;
   for (l = MAX_DEPTH_OF_HIERARCHY-1; l >= 0; l--) {
+    ncells_rad = 0;
     for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
       ncells_rad = Temp->GridData->CountRadiationCells();
       if (ncells_rad > 0) break;
@@ -84,6 +85,8 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
     }
   }
   maxLevel = CommunicationMaxValue(maxLevel);
+  if (debug)
+    fprintf(stdout, "EvolvePhotons: Maximum level with radiation = %d\n", maxLevel);
 
   // Determine if this is the first timestep (not in restart)
   InitialTimestep = true;
