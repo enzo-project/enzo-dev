@@ -65,18 +65,25 @@ int RadiativeTransferComputeTimestep(LevelHierarchyEntry *LevelArray[],
 
   LevelHierarchyEntry *Temp;
   bool InitialTimestep;
-  int l, maxLevel;
+  int l, maxLevel, ncells_rad;
   FLOAT HydroTime;
   float ThisPhotonDT;
   const float unchangedLimit = 0.1*PhotonCourantFactor*huge_number;
   const float lowerLimit = MaxDTDecrease * LastPhotonDT[0];
 
-  // Search for the maximum level
-  for (l = 0; l < MAX_DEPTH_OF_HIERARCHY-1; l++)
-    if (LevelArray[l] == NULL) {
-      maxLevel = l-1;
+  // Search for the maximum level with radiation
+  maxLevel = 0;
+  for (l = MAX_DEPTH_OF_HIERARCHY-1; l >= 0; l--) {
+    for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) {
+      ncells_rad = Temp->GridData->CountRadiationCells();
+      if (ncells_rad > 0) break;
+    }
+    if (ncells_rad > 0) {
+      maxLevel = l;
       break;
     }
+  }
+  maxLevel = CommunicationMaxValue(maxLevel);
 
   // Determine if this is the first timestep (not in restart)
   InitialTimestep = true;
