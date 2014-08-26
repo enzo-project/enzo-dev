@@ -100,8 +100,8 @@ int grid::MagneticFieldResetter(int level)
 
       if(DualEnergyFormalism)
 	BaryonField[TENum][i] -= 0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
-				      BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
-				      BaryonField[B1Num][i]*BaryonField[B1Num][i])/BaryonField[DensNum][i];
+				      BaryonField[B2Num][i]*BaryonField[B2Num][i] + 
+				      BaryonField[B3Num][i]*BaryonField[B3Num][i])/BaryonField[DensNum][i];
       
       BaryonField[B1Num][i]  = ResetMagneticFieldAmplitude[0];
       BaryonField[B2Num][i]  = ResetMagneticFieldAmplitude[1];
@@ -110,8 +110,8 @@ int grid::MagneticFieldResetter(int level)
       
       if(DualEnergyFormalism)
 	BaryonField[TENum][i] += 0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
-				      BaryonField[B1Num][i]*BaryonField[B1Num][i] + 
-				      BaryonField[B1Num][i]*BaryonField[B1Num][i])/BaryonField[DensNum][i];
+				      BaryonField[B2Num][i]*BaryonField[B2Num][i] + 
+				      BaryonField[B3Num][i]*BaryonField[B3Num][i])/BaryonField[DensNum][i];
     } else {
 
       BaryonField[B1Num][i]  = 0.0;
