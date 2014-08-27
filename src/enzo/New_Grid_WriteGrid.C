@@ -390,7 +390,11 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
         fprintf(stdout, "Outputting DivB\n");
         float *DivB = NULL;
         this->MHD_Diagnose("WriteGrid", DivB);
-        fprintf(stdout, "DivB[0] = %10.5e\n", DivB[0]);
+        float max_div_b = 0.0;
+        for ( i=0;i<size;i++ ){
+          if ( DivB[i] > max_div_b ) max_div_b = DivB[i];
+        }
+        fprintf(stdout, "max(DivB) = %10.5e\n", max_div_b);
         if(CopyOnlyActive == TRUE) {
           this->write_dataset(GridRank, OutDims, "DivB",
                               group_id, file_type_id, (VOIDP) DivB,
