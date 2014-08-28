@@ -46,7 +46,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 			    float LengthUnits, float VelocityUnits, 
 			    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			    double EjectaMetalDensity, double EjectaThermalEnergy, 
-			    int &CellsModified)
+			    double Q_HI, double sigma_HI, float deltaE, int &CellsModified)
 {
 
   const float WhalenMaxVelocity = 35;		// km/s
@@ -890,6 +890,23 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     index = 0;
     //if (cstar->type == PopII)
     //MinimumTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
+
+    /* For the initial Stroemgen sphere, pre-calculate the numerator
+       of the photo-ionization and photo-heating terms and also absorb
+       the unit conversions and (1/4pi) into the cross-section. */
+
+    float kph, kheat;
+    sigma_HI *= (double) TimeUnits / ((double)LengthUnits * (double)LengthUnits) 
+      / (4.0 * M_PI);
+    kph = (float) (Q_HI * sigma_HI);
+    kheat = kph * deltaE;
+
+    /* Get photo-ionization fields */
+
+    int kphHINum, kphHeINum, kphHeIINum, kdissH2INum;
+    int gammaNum;
+    IdentifyRadiativeTransferFields(kphHINum, gammaNum, kphHeINum, kphHeIINum, 
+				    kdissH2INum);
     
     for (k = 0; k < GridDimension[2]; k++) {
 
@@ -914,6 +931,8 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
+
+	    radius2 = max(radius2, 0.125*CellWidth[0][i]*CellWidth[0][i]); // (0.25*dx)^2
 
 	    if (MetallicityField == TRUE)
 	      metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];

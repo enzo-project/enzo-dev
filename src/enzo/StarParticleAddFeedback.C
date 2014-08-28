@@ -43,8 +43,7 @@ int RecalibrateMBHFeedbackThermalRadius(FLOAT star_pos[], LevelHierarchyEntry *L
 					double &EjectaDensity, double &EjectaMetalDensity,
 					double &EjectaThermalEnergy);
 int RemoveParticles(LevelHierarchyEntry *LevelArray[], int level, int ID);
-#ifdef USE_MPI
-#endif /* USE_MPI */
+FLOAT FindCrossSection(int type, float energy);
 
 int StarParticleAddFeedback(TopGridData *MetaData, 
 			    LevelHierarchyEntry *LevelArray[], int level, 
@@ -188,13 +187,35 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 
     int CellsModified = 0;
 
-    if (SkipMassRemoval == FALSE)
+    if (SkipMassRemoval == FALSE) {
+
+      /* Determine the H-ionizing photon luminosity to calculate the
+	 photo-ionization and heating rate in the initial Stroemgren
+	 sphere. */
+
+      int nbins;
+      double Q[MAX_ENERGY_BINS], LConv, Q_HI, sigma;
+      float energies[MAX_ENERGY_BINS], deltaE;
+      if (RadiativeTransfer) {
+	cstar->ComputePhotonRates(TimeUnits, nbins, energies, Q);
+	sigma = (double) FindCrossSection(0, energies[0]);  // HI (cm^2)
+	//LConv = (double) TimeUnits / pow(LengthUnits, 3);  // #/s -> RT units
+	Q_HI = Q[0];// * LConv;
+	deltaE = energies[0] - 13.6;  // eV
+      } else {
+	Q_HI = 0.0;
+	sigma = 0.0;
+	deltaE = 0.0;
+      }
+
       for (l = level; l < MAX_DEPTH_OF_HIERARCHY; l++)
 	for (Temp = LevelArray[l]; Temp; Temp = Temp->NextGridThisLevel) 
 	  Temp->GridData->AddFeedbackSphere
 	    (cstar, l, influenceRadius, DensityUnits, LengthUnits, 
 	     VelocityUnits, TemperatureUnits, TimeUnits, EjectaDensity, 
-	     EjectaMetalDensity, EjectaThermalEnergy, CellsModified);
+	     EjectaMetalDensity, EjectaThermalEnergy, Q_HI, sigma, deltaE, 
+	     CellsModified);
+    } // ENDIF
 
 //    fprintf(stdout, "StarParticleAddFeedback[%"ISYM"][%"ISYM"]: "
 //	    "Radius = %e pc, changed %"ISYM" cells.\n", 
