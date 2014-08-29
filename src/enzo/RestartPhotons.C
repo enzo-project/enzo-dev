@@ -60,7 +60,9 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	   &TimeUnits, &VelocityUnits, MetaData->Time);
-  
+
+  StarParticleRadTransfer(LevelArray, level, AllStars);
+
   /* Light crossing time */
 
   const float clight = 2.9979e10;
@@ -76,9 +78,6 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     dtPhoton = min(dtPhoton, LightCrossingTime);
   else
     dtPhoton = 1.0*LightCrossingTime;
-
-
-  StarParticleRadTransfer(LevelArray, level, AllStars);
 
   if (GlobalRadiationSources->NextSource == NULL) {
     RadiativeTransferCoupledRateSolver = savedCoupledChemistrySolver;
@@ -124,13 +123,13 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if (LastPhotonCount > 0)
       if (float(PhotonCount-LastPhotonCount)/float(LastPhotonCount) < CONVERGE) {
-	PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
+	PhotonTime = SavedPhotonTime + PFLOAT_EPSILON;
 	break;
       }
 
     if ((PhotonCount == 0 && LastPhotonCount == 0) ||
 	RadiativeTransferAdaptiveTimestep > 0) {
-      PhotonTime = SavedPhotonTime + dtPhoton*1e-2;
+      PhotonTime = SavedPhotonTime + PFLOAT_EPSILON;
       break;
     }
 
