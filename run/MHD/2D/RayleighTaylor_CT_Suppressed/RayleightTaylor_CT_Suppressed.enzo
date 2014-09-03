@@ -24,7 +24,7 @@ RightFaceBoundaryCondition = 3 0
 #  set I/O and stop/start parameters
 #
 StopTime               = 12.75
-dtDataDump             = .25
+dtDataDump             = 3.1875
 DataDumpName           = data
 #
 #  set grid refinement parameters
