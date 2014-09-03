@@ -92,13 +92,15 @@ int grid::TransportPhotonPackages(int level, int finest_level,
 
   /* Get units. */
 
+  double MassUnits, RT_Units;
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
     DensityUnits;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL)
     ENZO_FAIL("Error in GetUnits.\n");
-  }
+  MassUnits = (double) DensityUnits * POW(LengthUnits, 3.0);
+  RT_Units = (double) TimeUnits * POW(LengthUnits, -3.0);
 
   /* speed of light in code units. note this one is independent of
      a(t), and Modify the photon propagation speed by this
@@ -110,10 +112,10 @@ int grid::TransportPhotonPackages(int level, int finest_level,
     (c_cgs/VelocityUnits);
 
   float DomainWidth[MAX_DIMENSION];
-  double FinestCellVolume = pow(RefineBy, -3*(finest_level-level));
+  //double FinestCellVolume = pow(RefineBy, -3*(finest_level-level));
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
-    FinestCellVolume *= CellWidth[dim][0];
+    //FinestCellVolume *= CellWidth[dim][0];
   }
 
   // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
@@ -146,9 +148,20 @@ int grid::TransportPhotonPackages(int level, int finest_level,
 
   /* Calculate minimum photon flux before a ray is deleted */
   
-  const float mh = 1.673e-24;
-  float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
-    (PhotonTime * RadiativeTransferHubbleTimeFraction);
+  const double mh = 1.673e-24;
+  float MinimumPhotonFlux;
+  int gmethod = INT_UNDEFINED;
+  for (i = 0; i < MAX_FLAGGING_METHODS; i++)
+    if (CellFlaggingMethod[i] == 2) gmethod = i;
+  if (gmethod == INT_UNDEFINED)
+    MinimumPhotonFlux = POW(TopGridDx[0], GridRank) * POW(RefineBy, level); // estimate
+  else
+    MinimumPhotonFlux = MinimumMassForRefinement[gmethod] * 
+      POW(RefineBy, level*MinimumMassForRefinementLevelExponent[gmethod]);
+  MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
+				(PhotonTime * RadiativeTransferHubbleTimeFraction));
+  // float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
+  //   (PhotonTime * RadiativeTransferHubbleTimeFraction);
 
   count = 0;
   PP = PhotonPackages->NextPackage;
