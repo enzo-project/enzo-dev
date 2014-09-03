@@ -1,4 +1,4 @@
-name = 'RayleightTaylor_CT_Suppressed
+name = 'RayleightTaylor_CT_Suppressed'
 answer_testing_script = None
 nprocs = 1
 runtime = 'medium'
