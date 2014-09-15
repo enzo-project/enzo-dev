@@ -131,7 +131,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   const float MetalRadius = 1.0;
   float ionizedFraction = 0.999;  // Assume supernova is ionized
   float maxGE, MetalRadius2, PrimordialDensity, metallicity, fhz, fhez;
-  float outerRadius2;
+  float outerRadius2, delta_fz;
 
   if (cstar->FeedbackFlag == SUPERNOVA || 
       cstar->FeedbackFlag == CONT_SUPERNOVA) {
@@ -269,19 +269,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	    /* Update species and colour fields */
 
-	    increase = BaryonField[DensNum][index] / OldDensity;
-	    if (MetallicityField == TRUE) {
-	      if (radius2 <= MetalRadius2) {
-		metallicity = (BaryonField[MetalNum][index] + EjectaMetalDensity) /
-		  BaryonField[DensNum][index];
-	      } else {
-		metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
-	      }
-	    } else
-	      metallicity = 0;
-
-	    fhz = fh * (1-metallicity);
-	    fhez = (1-fh) * (1-metallicity);
+	    if (MetallicityField == TRUE && radius2 <= MetalRadius2)
+	      delta_fz = EjectaMetalDensity / OldDensity;
+	    else
+	      delta_fz = 0.0;
+	    increase = BaryonField[DensNum][index] / OldDensity - delta_fz;
 
 	    if (MultiSpecies) {
 	      BaryonField[DeNum][index] *= increase;
@@ -303,7 +295,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    }
 
 	    if (MetallicityField == TRUE)
-	      BaryonField[MetalNum][index] = metallicity * BaryonField[DensNum][index];
+	      BaryonField[MetalNum][index] += EjectaMetalDensity;
 
 	    CellsModified++;
 
@@ -431,52 +423,33 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 
 	    /* Update species and colour fields */
 
-	    //increase = BaryonField[DensNum][index] / OldDensity;
-	    if (MetallicityField == TRUE) {
-	      if (radius2 <= MetalRadius2) {
-		metallicity = (BaryonField[MetalNum][index] + EjectaMetalDensity) /
-		  BaryonField[DensNum][index];
-	      } else {
-		metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
-	      }
-	    } else
-	      metallicity = 0;
-
-	    fhz = fh * (1-metallicity);
-	    fhez = (1-fh) * (1-metallicity);
+	    if (MetallicityField == TRUE && radius2 <= MetalRadius2)
+	      delta_fz = EjectaMetalDensity / OldDensity;
+	    else
+	      delta_fz = 0.0;
+	    increase = BaryonField[DensNum][index] / OldDensity - delta_fz;
 
 	    if (MultiSpecies) {
-	      BaryonField[DeNum][index] = (1-metallicity) *
-		BaryonField[DensNum][index] * ionizedFraction;
-	      BaryonField[HINum][index] = 
-		BaryonField[DensNum][index] * fhz * (1-ionizedFraction);
-	      BaryonField[HIINum][index] =
-		BaryonField[DensNum][index] * fhz * ionizedFraction;
-	      BaryonField[HeINum][index] =
-		0.5*BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
-	      BaryonField[HeIINum][index] =
-		0.5*BaryonField[DensNum][index] * fhez * (1-ionizedFraction);
-	      BaryonField[HeIIINum][index] =
-		BaryonField[DensNum][index] * fhez * ionizedFraction;
+	      BaryonField[DeNum][index] *= increase;
+	      BaryonField[HINum][index] *= increase;
+	      BaryonField[HIINum][index] *= increase;
+	      BaryonField[HeINum][index] *= increase;
+	      BaryonField[HeIINum][index] *= increase;
+	      BaryonField[HeIIINum][index] *= increase;
 	    }
 	    if (MultiSpecies > 1) {
-	      BaryonField[HMNum][index] = tiny_number * BaryonField[DensNum][index];
-	      BaryonField[H2INum][index] = 
-		tiny_number * BaryonField[DensNum][index];
-	      BaryonField[H2IINum][index] = 
-		tiny_number * BaryonField[DensNum][index];
+	      BaryonField[HMNum][index] *= increase;
+	      BaryonField[H2INum][index] *= increase;
+	      BaryonField[H2IINum][index] *= increase;
 	    }
 	    if (MultiSpecies > 2) {
-	      BaryonField[DINum][index] = BaryonField[DensNum][index] * fh *
-		CoolData.DeuteriumToHydrogenRatio * (1-ionizedFraction);
-	      BaryonField[DIINum][index] = BaryonField[DensNum][index] * fh *
-		CoolData.DeuteriumToHydrogenRatio * ionizedFraction;
-	      BaryonField[HDINum][index] = 
-		tiny_number * BaryonField[DensNum][index];
+	      BaryonField[DINum][index] *= increase;
+	      BaryonField[DIINum][index] *= increase;
+	      BaryonField[HDINum][index] *= increase;
 	    }
 
 	    if (MetallicityField == TRUE)
-	      BaryonField[MetalNum][index] = metallicity * BaryonField[DensNum][index];
+	      BaryonField[MetalNum][index] += EjectaMetalDensity;
 
 	    /* MBHColour injected */
 	    if (MBHColourNum > 0)
