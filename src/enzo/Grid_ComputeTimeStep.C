@@ -220,9 +220,9 @@ float grid::ComputeTimeStep()
     float rho, p, vx, vy, vz, v2, eint, etot, h, cs, dpdrho, dpde,
       v_signal_x, v_signal_y, v_signal_z;
     int n = 0;
-    for (int k = 0; k < GridDimension[2]; k++) {
-      for (int j = 0; j < GridDimension[1]; j++) {
-	for (int i = 0; i < GridDimension[0]; i++, n++) {
+    for (k = 0; k < GridDimension[2]; k++) {
+      for (j = 0; j < GridDimension[1]; j++) {
+	for (i = 0; i < GridDimension[0]; i++, n++) {
 	  rho = BaryonField[DensNum][n];
 	  vx  = BaryonField[Vel1Num][n];
 	  vy  = BaryonField[Vel2Num][n];
@@ -281,9 +281,9 @@ float grid::ComputeTimeStep()
       v_signal_x, v_signal_y, v_signal_z, cf, cf2, temp1, Bx, By, Bz, B2, ca2;
     int n = 0;
     float rho_dt, B_dt, v_dt;
-    for (int k = 0; k < GridDimension[2]; k++) {
-      for (int j = 0; j < GridDimension[1]; j++) {
-	for (int i = 0; i < GridDimension[0]; i++, n++) {
+    for (k = 0; k < GridDimension[2]; k++) {
+      for (j = 0; j < GridDimension[1]; j++) {
+	for (i = 0; i < GridDimension[0]; i++, n++) {
 	  rho = BaryonField[DensNum][n];
 	  vx  = BaryonField[Vel1Num][n];
 	  vy  = BaryonField[Vel2Num][n];
@@ -416,12 +416,17 @@ float grid::ComputeTimeStep()
   /* Cooling time */
   if (UseCoolingTimestep == TRUE) {
     float *cooling_time = new float[size];
-    if (this->ComputeCoolingTime(cooling_time) == FAIL) {
+    if (this->ComputeCoolingTime(cooling_time, FALSE) == FAIL) {
       ENZO_FAIL("Error in grid->ComputeCoolingTime.\n");
     }
 
-    for (i = 0;i < size;i++) {
-      dtCooling = min(dtCooling, fabs(cooling_time[i]));
+    for (k = GridStartIndex[2]; k < GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j < GridEndIndex[1]; j++) {
+	index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
+	for (i = GridStartIndex[0]; i < GridEndIndex[0]; i++, index++) {
+	  dtCooling = min(dtCooling, fabs(cooling_time[index]));
+	}
+      }
     }
     dtCooling *= CoolingTimestepSafetyFactor;
  
@@ -529,6 +534,8 @@ float grid::ComputeTimeStep()
       printf("Acc = %"ESYM" ", dtAcceleration);
     if (NumberOfParticles)
       printf("Part = %"ESYM" ", dtParticles);
+    if (UseCoolingTimestep)
+      printf("Cool = %"ESYM" ", dtCooling);
     if (IsotropicConduction || AnisotropicConduction)
       printf("Cond = %"ESYM" ",(dtConduction));
     if (UseGasDrag)

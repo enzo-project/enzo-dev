@@ -4,7 +4,7 @@
 
       subroutine cool_multi_time(
      &                d, e, ge, u, v, w, de, HI, HII, HeI, HeII, HeIII,
-     &                  cooltime,
+     &                  cooltime, coolonly,
      &                in, jn, kn, nratec, iexpand, imethod,
      &                idual, ispecies, imetal, imcool, idust, idim,
      &                is, js, ks, ie, je, ke, ih2co, ipiht, igammah,
@@ -55,7 +55,8 @@
       INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec, imethod,
      &        idual, iexpand, ih2co, ipiht, ispecies, imetal, idim,
      &        iradtype, nfreq, imetalregen, iradshield, iradtrans,
-     &        n_xe, imcool, idust, igammah, ih2optical, iciecool
+     &        n_xe, imcool, idust, igammah, ih2optical, iciecool,
+     &        coolonly
       R_PREC    dt, aye, temstart, temend, redshift,
      &        utem, uxyz, uaye, urho, utim,
      &        eta1, eta2, gamma, xe_start, xe_end, z_solar
@@ -209,10 +210,21 @@
 !        Compute the cooling time on the slice
 !          (the gamma used here is the same as used to calculate the pressure
 !           in cool1d_multi)
-         do i = is+1, ie+1
-            energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
-            cooltime(i,j,k) = abs(energy/edot(i))
-         enddo
+         if (coolonly .eq. 1) then
+            do i = is+1, ie+1
+               energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
+               if (energy .lt. 0._RKIND) then
+                  cooltime(i,j,k) = -energy/edot(i)
+               else
+                  cooltime(i,j,k) = huge;
+               endif
+            enddo
+         else
+            do i = is+1, ie+1
+               energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
+               cooltime(i,j,k) = abs(energy/edot(i))
+            enddo
+         endif
 
        enddo
       enddo
