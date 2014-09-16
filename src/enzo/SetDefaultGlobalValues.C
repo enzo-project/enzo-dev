@@ -141,7 +141,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // Default Hierarchy File IO settings (1 = ASCII; 2 = HDF5+ASCII)
   HierarchyFileInputFormat = 1;
-  HierarchyFileOutputFormat = 2;
+  HierarchyFileOutputFormat = 1;
 
   ConductionDynamicRebuildHierarchy = FALSE;
   ConductionDynamicRebuildMinLevel = 0;
