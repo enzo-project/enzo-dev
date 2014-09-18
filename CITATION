@@ -1,0 +1,45 @@
+To cite Enzo in publications, please use:
+
+Bryan, G.~L., Norman, M.~L., O'Shea, B.~W., et al. 2014, ApJS, 211, 19
+
+In the body of the text, please add a footnote to the enzo webpage:
+
+http://enzo-project.org
+
+and in the acknowledgements, please add the following text:
+
+"Computations described in this work were performed using the publicly-available
+\texttt{Enzo} code (http://enzo-project.org), which is the product of a
+collaborative effort of many independent scientists from numerous institutions
+around the world.  Their commitment to open science has helped make this work
+possible."
+
+Here are some alternative citation formats for For LaTeX and BibTex users:
+
+\bibitem[Bryan et al.(2014)]{2014ApJS..211...19B} Bryan, G.~L., Norman, 
+M.~L., O'Shea, B.~W., et al.\ 2014, \apjs, 211, 19 
+
+@ARTICLE{2014ApJS..211...19B,
+   author = {{Bryan}, G.~L. and {Norman}, M.~L. and {O'Shea}, B.~W. and {Abel}, T. and 
+   {Wise}, J.~H. and {Turk}, M.~J. and {Reynolds}, D.~R. and {Collins}, D.~C. and 
+   {Wang}, P. and {Skillman}, S.~W. and {Smith}, B. and {Harkness}, R.~P. and 
+   {Bordner}, J. and {Kim}, J.-h. and {Kuhlen}, M. and {Xu}, H. and 
+   {Goldbaum}, N. and {Hummels}, C. and {Kritsuk}, A.~G. and {Tasker}, E. and 
+   {Skory}, S. and {Simpson}, C.~M. and {Hahn}, O. and {Oishi}, J.~S. and 
+   {So}, G.~C. and {Zhao}, F. and {Cen}, R. and {Li}, Y. and {The Enzo Collaboration}
+   },
+    title = "{ENZO: An Adaptive Mesh Refinement Code for Astrophysics}",
+  journal = {\apjs},
+archivePrefix = "arXiv",
+   eprint = {1307.2265},
+ primaryClass = "astro-ph.IM",
+ keywords = {hydrodynamics, methods: numerical },
+     year = 2014,
+    month = apr,
+   volume = 211,
+      eid = {19},
+    pages = {19},
+      doi = {10.1088/0067-0049/211/2/19},
+   adsurl = {http://adsabs.harvard.edu/abs/2014ApJS..211...19B},
+  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}

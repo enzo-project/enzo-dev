@@ -26,14 +26,7 @@ int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
 {
  
-  /* Compute the final redshift from StopTime. */
- 
-  FLOAT a, dadt, FinalRedshift, CurrentRedshift;
-  if (CosmologyComputeExpansionFactor(StopTime, &a, &dadt) == FAIL) {
-    ENZO_FAIL("Error in CosmologyComputeExpansionFactor.\n");
-  }
-  FinalRedshift = (1 + InitialRedshift)/a - 1;
- 
+  FLOAT a, dadt, CurrentRedshift;
   /* Compute the current redshift (for information only). */
  
   CosmologyComputeExpansionFactor(CurrentTime, &a, &dadt);
