@@ -7,12 +7,15 @@
 # AUTHOR:      Robert Harkness/Alexei Kritsuk
 # AUTHOR2:     Stephen Skory (7 Oct 2008)
 # AUTHOR3:     Gabriel Altay (18 Sept 2014)
+# AUTHOR4:     Cameron Hummels (18 Sept 2014)
 #
 # DATE:        2014-09-18
 #
 # To use this makefile, you need to update your environment. Either
 # execute these on the command line, or better, put them you profile.
+#   module load gcc
 #   module load hdf5
+#   module load mvapich2
 #   
 # If you wish to use HYPRE, you will need to additionally do:
 #   module load hypre
@@ -27,11 +30,14 @@ MACH_TEXT  = TACC Stampede GNU
 MACH_VALID = 1
 MACH_FILE  = Make.mach.tacc-stampede-gnu
 
-MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
+MACHINE_NOTES = "MACHINE_NOTES for Stampede-gcc at UT-Austin/TACC: \
+	The HDF5 library directory should be added to the LD_LIBRARY_PATH \
+	using a command like,
+	(export LD_LIBRARY_PATH=$TACC_HDF5_DIR/lib:$LD_LIBRARY_PATH) \
 	The following modules are needed to compile enzo here with \
-	the default machine file: hdf5 gcc mvapich2 \
-        (module load hdf5) \
+	this machine file: gcc hdf5 mvapich2 \
 	(module load gcc) \
+        (module load hdf5) \
         (module load mvapich2)."
 
 #-----------------------------------------------------------------------
@@ -43,7 +49,11 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
+LOCAL_MPI_INSTALL     =
+LOCAL_HDF4_INSTALL    = 
+LOCAL_HYPRE_INSTALL   = 
+LOCAL_ACML_INSTALL    = 
+LOCAL_HDF5_INSTALL    = $(TACC_HDF5_DIR)
 LOCAL_GRACKLE_INSTALL = $(HOME)/code/grackle_gnu
 
 #-----------------------------------------------------------------------
@@ -58,7 +68,7 @@ MACH_CC_MPI    = mpicc
 MACH_CXX_MPI   = mpicxx -DMPICH_IGNORE_CXX_SEEK
 MACH_FC_MPI    = mpif90
 MACH_F90_MPI   = mpif90
-#MACH_LD_MPI    = mpicxx
+#MACH_LD_MPI   = mpicxx
 MACH_LD_MPI    = mpif90
 
 # Without MPI

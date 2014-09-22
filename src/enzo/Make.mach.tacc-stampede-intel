@@ -7,15 +7,18 @@
 # AUTHOR:      Robert Harkness/Alexei Kritsuk
 # AUTHOR2:     Stephen Skory (7 Oct 2008)
 # AUTHOR3:     Gabriel Altay (18 Sept 2014)
+# AUTHOR4:     Cameron Hummels (18 Sept 2014)
 #
 # DATE:        2014-09-18
 #
 # To use this makefile, you need to update your environment. Either
 # execute these on the command line, or better, put them you profile.
+#   module load intel
 #   module load hdf5
-#   
+#   module load mvapich2
+#
 # If you wish to use HYPRE, you will need to additionally do:
-#   module load hypre/2.4.0b
+#   module load hypre
 #   
 #
 # Addionally, you should ensure that you're using the same HDF5
@@ -27,11 +30,11 @@ MACH_TEXT  = TACC Stampede Intel
 MACH_VALID = 1
 MACH_FILE  = Make.mach.tacc-stampede-intel
 
-MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
+MACHINE_NOTES = "MACHINE_NOTES for Stampede-intel at UT-Austin/TACC: \
 	The following modules are needed to compile enzo here with \
-	the default machine file: hdf5 intel mvapich2 \
-        (module load hdf5) \
+	this machine file: intel hdf5 mvapich2 \
 	(module load intel) \
+        (module load hdf5) \
         (module load mvapich2)."
 
 #-----------------------------------------------------------------------
@@ -43,7 +46,11 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
+LOCAL_MPI_INSTALL     =
+LOCAL_HDF4_INSTALL    = 
+LOCAL_HYPRE_INSTALL   = 
+LOCAL_ACML_INSTALL    = 
+LOCAL_HDF5_INSTALL    = $(TACC_HDF5_DIR)
 LOCAL_GRACKLE_INSTALL = $(HOME)/code/grackle_intel
 
 #-----------------------------------------------------------------------
@@ -78,7 +85,7 @@ MACH_DEFINES   = -DLINUX -DH5_USE_16_API
 # Compiler flag settings
 #-----------------------------------------------------------------------
 
-MACH_CPPFLAGS = -P # -traditional
+MACH_CPPFLAGS = -P -traditional
 MACH_CFLAGS   = -mp1 -prec_div -fp_port -align
 MACH_CXXFLAGS = -mp1 -prec_div -fp_port -align
 MACH_FFLAGS   = 
@@ -89,7 +96,7 @@ MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
 # Optimization flags
 #-----------------------------------------------------------------------
 
-MACH_OPT_WARN        = 
+MACH_OPT_WARN        = -warn all -g -O0
 MACH_OPT_DEBUG       = -g -O0 
 MACH_OPT_HIGH        = -O2
 MACH_OPT_AGGRESSIVE  = -O3 -xHOST -ipo -mcmodel=medium -mkl
