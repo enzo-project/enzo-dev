@@ -1,0 +1,129 @@
+#=======================================================================
+#
+# FILE:        Make.mach.tacc-stampede-intel
+#
+# DESCRIPTION: Intel compiler suite on Stampede
+#
+# AUTHOR:      Robert Harkness/Alexei Kritsuk
+# AUTHOR2:     Stephen Skory (7 Oct 2008)
+# AUTHOR3:     Gabriel Altay (18 Sept 2014)
+#
+# DATE:        2014-09-18
+#
+# To use this makefile, you need to update your environment. Either
+# execute these on the command line, or better, put them you profile.
+#   module load hdf5
+#   
+# If you wish to use HYPRE, you will need to additionally do:
+#   module load hypre/2.4.0b
+#   
+#
+# Addionally, you should ensure that you're using the same HDF5
+# utilities that you're linking against.
+#
+#=======================================================================
+
+MACH_TEXT  = TACC Stampede Intel
+MACH_VALID = 1
+MACH_FILE  = Make.mach.tacc-stampede-intel
+
+MACHINE_NOTES = "MACHINE_NOTES for Stampede at UT-Austin/TACC: \
+	The following modules are needed to compile enzo here with \
+	the default machine file: hdf5 intel mvapich2 \
+        (module load hdf5) \
+	(module load intel) \
+        (module load mvapich2)."
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_HDF5_INSTALL   = $(TACC_HDF5_DIR)
+LOCAL_GRACKLE_INSTALL = $(HOME)/code/grackle_intel
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpicxx -DMPICH_IGNORE_CXX_SEEK
+MACH_FC_MPI    = mpif90
+MACH_F90_MPI   = mpif90
+MACH_LD_MPI    = mpicxx
+
+# Without MPI
+
+MACH_CC_NOMPI  = icc
+MACH_CXX_NOMPI = icpc
+MACH_FC_NOMPI  = ifort
+MACH_F90_NOMPI = ifort
+MACH_LD_NOMPI  = icpc
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES   = -DLINUX -DH5_USE_16_API
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P # -traditional
+MACH_CFLAGS   = -mp1 -prec_div -fp_port -align
+MACH_CXXFLAGS = -mp1 -prec_div -fp_port -align
+MACH_FFLAGS   = 
+MACH_F90FLAGS = -mp1 -prec_div -fp_port -align -save -zero
+MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = 
+MACH_OPT_DEBUG       = -g -O0 
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3 -xHOST -ipo -mcmodel=medium -mkl
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI     = 
+LOCAL_INCLUDES_HDF5    = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE   = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) 
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+# make sure to "load module hdf5" before compiling
+#
+#
+
+LOCAL_LIBS_MPI    = 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5
+LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lmfhdf -ldf -ljpeg
+LOCAL_LIBS_HYPRE  = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+
+LOCAL_LIBS_MACH   = -lm
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) 
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
