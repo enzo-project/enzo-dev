@@ -68,7 +68,6 @@ MACH_CC_MPI    = mpicc
 MACH_CXX_MPI   = mpicxx -DMPICH_IGNORE_CXX_SEEK
 MACH_FC_MPI    = mpif90
 MACH_F90_MPI   = mpif90
-#MACH_LD_MPI   = mpicxx
 MACH_LD_MPI    = mpif90
 
 # Without MPI
@@ -77,7 +76,6 @@ MACH_CC_NOMPI  = gcc # C compiler when not using MPI
 MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
 MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
 MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
-#MACH_LD_NOMPI  = g++ # Linker when not using MPI
 MACH_LD_NOMPI  = gfortran # Linker when not using MPI
 
 #-----------------------------------------------------------------------
