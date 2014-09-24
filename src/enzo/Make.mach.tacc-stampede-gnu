@@ -32,7 +32,7 @@ MACH_FILE  = Make.mach.tacc-stampede-gnu
 
 MACHINE_NOTES = "MACHINE_NOTES for Stampede-gcc at UT-Austin/TACC: \
 	The HDF5 library directory should be added to the LD_LIBRARY_PATH \
-	using a command like,
+	using a command like, \
 	(export LD_LIBRARY_PATH=$TACC_HDF5_DIR/lib:$LD_LIBRARY_PATH) \
 	The following modules are needed to compile enzo here with \
 	this machine file: gcc hdf5 mvapich2 \
