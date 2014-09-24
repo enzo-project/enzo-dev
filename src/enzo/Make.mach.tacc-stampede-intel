@@ -41,6 +41,8 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede-intel at UT-Austin/TACC: \
         (module load mvapich2). \
 	Note that the hypre module must also be loaded if using FLD solver \
 	(module load hypre) \
+	The authors of hypre suggest using the "LargeScale" version \
+	of the module for jobs with > O(10000) MPI tasks. \
 	If you wish to use the Grackle library you will need to build \
 	a local copy (with the intel compiler) and edit the value of \
 	LOCAL_GRACKLE_INSTALL in this machine file. "
