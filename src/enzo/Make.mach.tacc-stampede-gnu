@@ -12,15 +12,23 @@
 # DATE:        2014-09-18
 #
 # To use this makefile, you need to update your environment. Either
-# execute these on the command line, or better, put them you profile.
+# execute the following statements on the command line, or put them 
+# in a startup script. 
 #   module load gcc
 #   module load hdf5
 #   module load mvapich2
-#   
-# If you wish to use HYPRE, you will need to additionally do:
-#   module load hypre
-#   
 #
+# To actually run the enzo executable you will need to update your 
+# LD_LIBRARY_PATH variable to include $TACC_HDF5_DIR/lib, for example, 
+#   export LD_LIBRARY_PATH=$TACC_HDF5_DIR/lib:$LD_LIBRARY_PATH
+#   
+# If you wish to use HYPRE, you will need to build a local copy as 
+# (currently) the stampede hypre module is not available with the 
+# gnu compiler collection. 
+#
+# If you wish to use the Grackle library you will need to build 
+# a local copy and edit the line below that sets LOCAL_GRACKLE_INSTALL
+#   
 # Addionally, you should ensure that you're using the same HDF5
 # utilities that you're linking against.
 #
@@ -38,7 +46,13 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede-gcc at UT-Austin/TACC: \
 	this machine file: gcc hdf5 mvapich2 \
 	(module load gcc) \
         (module load hdf5) \
-        (module load mvapich2)."
+        (module load mvapich2). \
+	Note that the hypre module (required by the FLD solver) is not \
+	available with the gnu compilers on stampede.  To use hypre you \
+	will have to build a local copy. \
+	If you wish to use the Grackle library you will need to build \
+	a local copy (with the gnu compiler) and edit the value of \
+	LOCAL_GRACKLE_INSTALL in this machine file. "
 
 #-----------------------------------------------------------------------
 # Commands to run test executables
@@ -54,7 +68,7 @@ LOCAL_HDF4_INSTALL    =
 LOCAL_HYPRE_INSTALL   = $(TACC_HYPRE_DIR)
 LOCAL_ACML_INSTALL    = 
 LOCAL_HDF5_INSTALL    = $(TACC_HDF5_DIR)
-LOCAL_GRACKLE_INSTALL = $(HOME)/code/grackle_gnu
+LOCAL_GRACKLE_INSTALL = 
 
 #-----------------------------------------------------------------------
 # Compiler settings
