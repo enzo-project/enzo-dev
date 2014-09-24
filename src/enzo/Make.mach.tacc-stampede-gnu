@@ -22,9 +22,10 @@
 # LD_LIBRARY_PATH variable to include $TACC_HDF5_DIR/lib, for example, 
 #   export LD_LIBRARY_PATH=$TACC_HDF5_DIR/lib:$LD_LIBRARY_PATH
 #   
-# If you wish to use HYPRE, you will need to build a local copy as 
-# (currently) the stampede hypre module is not available with the 
-# gnu compiler collection. 
+# If you wish to use HYPRE (required by the FLD solver), you will need 
+# to build a local copy as (currently) the stampede hypre module is not 
+# available with the gnu compiler collection.  Once built, indicate the path 
+# to the install by setting the variable LOCAL_HYPRE_INSTALL below 
 #
 # If you wish to use the Grackle library you will need to build 
 # a local copy and edit the line below that sets LOCAL_GRACKLE_INSTALL
@@ -49,7 +50,8 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede-gcc at UT-Austin/TACC: \
         (module load mvapich2). \
 	Note that the hypre module (required by the FLD solver) is not \
 	available with the gnu compilers on stampede.  To use hypre you \
-	will have to build a local copy. \
+	will have to build a local copy and edit LOCAL_HYPRE_INSTALL \
+	to indicate its location. \
 	If you wish to use the Grackle library you will need to build \
 	a local copy (with the gnu compiler) and edit the value of \
 	LOCAL_GRACKLE_INSTALL in this machine file. "
@@ -65,7 +67,7 @@ MACHINE_NOTES = "MACHINE_NOTES for Stampede-gcc at UT-Austin/TACC: \
 
 LOCAL_MPI_INSTALL     =
 LOCAL_HDF4_INSTALL    = 
-LOCAL_HYPRE_INSTALL   = $(TACC_HYPRE_DIR)
+LOCAL_HYPRE_INSTALL   = 
 LOCAL_ACML_INSTALL    = 
 LOCAL_HDF5_INSTALL    = $(TACC_HDF5_DIR)
 LOCAL_GRACKLE_INSTALL = 
