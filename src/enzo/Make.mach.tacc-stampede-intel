@@ -18,8 +18,12 @@
 #   module load hdf5
 #   module load mvapich2
 #
-# If you wish to use HYPRE, you will need to additionally do:
+# If you wish to use HYPRE (required by the FLD solver), you will need to 
+# additionally do:
 #   module load hypre
+#
+# Note, the authors of hypre suggest using the "LargeScale" version 
+# of the module for jobs with > O(10000) MPI tasks.
 #
 # If you wish to use the Grackle library you will need to build 
 # a local copy and edit the line below that sets LOCAL_GRACKLE_INSTALL
