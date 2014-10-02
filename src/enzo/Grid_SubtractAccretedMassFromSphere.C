@@ -180,7 +180,6 @@ int grid::SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, f
 	  if (MultiSpecies > 2) {
 	    BaryonField[DINum][index] *= increase;
 	    BaryonField[DIINum][index] *= increase;
-	    BaryonField[HIINum][index] *= increase;
 	    BaryonField[HDINum][index] *= increase;
 	  }
 	  
