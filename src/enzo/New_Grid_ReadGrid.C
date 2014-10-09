@@ -180,11 +180,13 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
       if (fscanf(fptr, "BaryonFileName = %s\n", procfilename) != 1) {
 		ENZO_FAIL("Error reading BaryonFileName.");
       }
- 
-      fscanf(fptr, "CourantSafetyNumber    = %"FSYM"\n", &CourantSafetyNumber);
-      fscanf(fptr, "PPMFlatteningParameter = %"ISYM"\n", &PPMFlatteningParameter);
-      fscanf(fptr, "PPMDiffusionParameter  = %"ISYM"\n", &PPMDiffusionParameter);
-      fscanf(fptr, "PPMSteepeningParameter = %"ISYM"\n", &PPMSteepeningParameter);
+
+      // Read in hydro parameters but set to NULL since these should
+      // come from the simulation parameter file.
+      fscanf(fptr, "CourantSafetyNumber    = %*"FSYM"\n", NULL);
+      fscanf(fptr, "PPMFlatteningParameter = %*"ISYM"\n", NULL);
+      fscanf(fptr, "PPMDiffusionParameter  = %*"ISYM"\n", NULL);
+      fscanf(fptr, "PPMSteepeningParameter = %*"ISYM"\n", NULL);
     }
 
     /* 3) Read particle info */
