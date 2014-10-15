@@ -53,6 +53,7 @@ extern char HierarchySuffix[];
 extern char hdfsuffix[];
 extern char TaskMapSuffix[];
 extern char MemoryMapSuffix[]; 
+extern char ForcingSuffix[];
  
 //#define IO_LOG
 #ifdef IO_LOG
@@ -74,7 +75,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   /* declarations */
  
   char pid[MAX_TASK_TAG_SIZE];
-  char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
+  char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH],forcingname[MAX_LINE_LENGTH];
   char HDF5hierarchyname[MAX_LINE_LENGTH];
   // Code shrapnel. See comments below. --Rick
   // char taskmapname[MAX_LINE_LENGTH];
@@ -112,6 +113,19 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   fprintf(stderr, "fclose: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   fclose(fptr);
+
+  if (DrivenFlowProfile) {
+      strcpy(forcingname, name);
+      strcat(forcingname, ForcingSuffix);
+      if (debug)
+          printf("ReadAllData: reading file %s.\n", forcingname);
+      if (Forcing.ReadSpectrum(forcingname) == FAIL) {
+          fprintf(stderr, "Error in ReadSpectrum.\n");
+          return FAIL;
+     }
+  }
+
+
  
   /* Set the number of particle attributes, if left unset. */
 

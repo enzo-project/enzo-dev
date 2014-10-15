@@ -355,6 +355,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcing               = FALSE;             // off //AK
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
+
+  DrivenFlowProfile = 0; // off
+  DrivenFlowSeed = 0;
+  DrivenFlowWeight = 0.0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    DrivenFlowAlpha[dim] = 0;
+    DrivenFlowBandWidth[dim] = 0.0;
+    DrivenFlowAutoCorrl[dim] = 0.0;
+    DrivenFlowVelocity[dim] = 0.0;
+    DrivenFlowDomainLength[dim] = 0.0;
+  }
+
   RadiativeCooling            = FALSE;             // off
   RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
                                                    //3=Koyama&Inutsuka 2002

@@ -546,6 +546,9 @@ typedef int            HDF5_hid_t;
 
 #define MAX_LEAF 2
 
+/* Maximum number of stochastic foring modes. */
+#define MAX_FORCING_MODES                 255
+
 /* Number of entries in the Pop III IMF lookup table */
 
 #define IMF_TABLE_ENTRIES 1000

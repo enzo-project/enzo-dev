@@ -353,7 +353,40 @@ int grid::MHDSourceTerms(float **dU)
     }
   }
 
+  // pgrete: Add StochasticForcing force to velocity fields
+  if (DrivenFlowProfile) {
 
+    int StochAccelNum;
+    if ((StochAccelNum = FindField(StochAcceleration1, FieldType, NumberOfBaryonFields)) < 0) {
+        fprintf(stderr, "Cannot find stochastic acceleration field.\n");
+        return FAIL;
+    };
+
+    int igrid;
+    float drivex, drivey, drivez, vx, vy, vz, rho;
+    int n = 0; 
+
+    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+          for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
+              igrid = i+(j+k*GridDimension[1])*GridDimension[0];
+              rho    = BaryonField[DensNum     ][igrid];
+              drivex = BaryonField[StochAccelNum][igrid];
+              drivey = BaryonField[StochAccelNum+1][igrid];
+              drivez = BaryonField[StochAccelNum+2][igrid];
+              vx     = BaryonField[Vel1Num      ][igrid];
+              vy     = BaryonField[Vel2Num      ][igrid];
+              vz     = BaryonField[Vel3Num      ][igrid];
+        
+              dU[iS1  ][n] += dtFixed*rho*drivex;
+              dU[iS2  ][n] += dtFixed*rho*drivey;
+              dU[iS3  ][n] += dtFixed*rho*drivez;
+              dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz + 
+                0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez));
+        }
+      }
+    }
+  }
   
   /* Add centrifugal force for the shearing box */
 

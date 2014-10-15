@@ -191,6 +191,8 @@ int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
 static float norm = 0.0;            //AK
 static float TopGridTimeStep = 0.0; //AK
 
+int ComputeStochasticForcing(TopGridData *MetaData,HierarchyEntry *Grids[], int NumberOfGrids);
+
 static int StaticSiblingListInitialized = 0;
 
 #ifdef STATIC_SIBLING_LIST
@@ -347,6 +349,22 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+
+   /* Compute stochastic force field via FFT from the specturm. */
+
+   if (DrivenFlowProfile) {
+     if (MyProcessorNumber == ROOT_PROCESSOR)
+         if (debug) printf("Level %"ISYM": computing stochastic force field on %"ISYM" grids...\n",
+             level,NumberOfGrids);
+     if (ComputeStochasticForcing(MetaData, Grids, NumberOfGrids)
+         == FAIL) {
+       fprintf(stderr, "Error in ComputeStochasticForcing.\n");
+       return FAIL;
+     }
+     if (MyProcessorNumber == ROOT_PROCESSOR)
+         if (debug) printf("finished\n");
+   }
 
     /* Solve the radiative transfer */
 

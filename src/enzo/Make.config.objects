@@ -934,7 +934,20 @@ OBJS_CONFIG_LIB = \
     	 Grid_MHD_CID.o\
     	 Grid_MHD_ProlongAllocate.o\
     	 mhd_interpolate.o\
-    	 Grid_MHD_SendOldFineGrids.o
+    	 Grid_MHD_SendOldFineGrids.o\
+   StochasticForcing_CommunicationBroadcastFlags.o \
+   StochasticForcing_CommunicationBroadcastSpectrum.o \
+   StochasticForcing_constructor.o \
+   StochasticForcing_destructor.o \
+   StochasticForcing_Evolve.o \
+   StochasticForcing_Init.o \
+   StochasticForcing_GaussDeviate.o \
+   StochasticForcing_ReadAndWrite.o \
+   ComputeStochasticForcing.o \
+   Grid_FTStochasticForcing.o \
+   DrivenFlowInitialize.o \
+   Grid_DrivenFlowInitializeGrid.o \
+   Grid_Phases.o 
 
 
 #-----------------------------------------------------------------------

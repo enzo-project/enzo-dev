@@ -85,6 +85,7 @@ char RadiationSuffix[] = ".radiation";
 char TaskMapSuffix[]   = ".taskmap";
 char MemoryMapSuffix[] = ".memorymap";
 char ConfigureSuffix[] = ".configure";
+char ForcingSuffix[]   = ".forcing";
  
 extern char LastFileNameWritten[MAX_LINE_LENGTH];
  
@@ -111,6 +112,7 @@ int WriteAllData(char *basename, int filenumber,
   char taskmapname[MAX_LINE_LENGTH];
   char memorymapname[MAX_LINE_LENGTH];
   char configurename[MAX_LINE_LENGTH];
+  char forcingname[MAX_LINE_LENGTH];
  
   int unixresult;
   int status;
@@ -410,6 +412,23 @@ int WriteAllData(char *basename, int filenumber,
  
   CommunicationBarrier();
  
+
+
+
+  // WS: Output forcing spectrum
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    if (DrivenFlowProfile) {
+      strcpy(forcingname, name);
+      strcat(forcingname, ForcingSuffix);
+      if (debug)
+          printf("WriteAllData: writing file %s.\n", forcingname);
+      if (Forcing.WriteSpectrum(forcingname) == FAIL) {
+          fprintf(stderr, "Error in WriteSpectrum.\n");
+          return FAIL;
+      }
+    }
+  }
+
   // Set MetaData.BoundaryConditionName
  
   if (MetaData.BoundaryConditionName != NULL)

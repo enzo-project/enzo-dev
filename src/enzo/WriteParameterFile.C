@@ -446,6 +446,9 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "RootGridCourantSafetyNumber = %"FSYM"\n\n", RootGridCourantSafetyNumber);
   fprintf(fptr, "RandomForcing                  = %"ISYM"\n", RandomForcing);
   fprintf(fptr, "RandomForcingEdot              = %"GSYM"\n", RandomForcingEdot);
+  fprintf(fptr, "DrivenFlowProfile              = %"ISYM"\n", DrivenFlowProfile);
+  if (DrivenFlowProfile)
+    Forcing.WriteParameters(fptr);
 #ifdef USE_GRACKLE
   /* Grackle chemistry parameters */
   fprintf(fptr, "use_grackle                 = %"ISYM"\n", grackle_chemistry.use_grackle);
