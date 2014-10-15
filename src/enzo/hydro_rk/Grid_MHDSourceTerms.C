@@ -298,9 +298,6 @@ int grid::MHDSourceTerms(float **dU)
 
   if (UseDrivingField) {
 
-    float rhou, lenu, tempu, tu, velu;
-    GetUnits(&rhou, &lenu, &tempu, &tu, &velu, Time);
-
     int Drive1Num, Drive2Num, Drive3Num;
     if (IdentifyDrivingFields(Drive1Num, Drive2Num, Drive3Num) == FAIL) {
       printf("grid::SourceTerms: canot identify driving fields.\n");
@@ -309,17 +306,11 @@ int grid::MHDSourceTerms(float **dU)
     int igrid;
     float drivex, drivey, drivez, vx, vy, vz, rho;
     int n = 0;
-    FLOAT x, y, z, r;
+    
     for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
       for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
 	for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
 	  igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-
-	  x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
-	  y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
-	  z = CellLeftEdge[2][k] + 0.5*CellWidth[2][k];
-	  r = sqrt(pow(x-0.5,2) + pow(y-0.5,2) + pow(z-0.5,2));
-	
 
 	  rho    = BaryonField[DensNum     ][igrid];
 	  drivex = BaryonField[Drive1Num][igrid];
@@ -329,61 +320,14 @@ int grid::MHDSourceTerms(float **dU)
 	  vy     = BaryonField[Vel2Num      ][igrid];
 	  vz     = BaryonField[Vel3Num      ][igrid];
 
-	  float eint = BaryonField[TENum][igrid] - 0.5*sqrt(vx*vx + vy*vy + vz*vz)
-	    -0.5*sqrt(pow(BaryonField[B1Num][igrid],2)+pow(BaryonField[B2Num][igrid],2)
-		      +pow(BaryonField[B3Num][igrid],2))/rho;
-
-	  float T = eint*Mu*(Gamma-1.0)*tempu;
-
-	  FLOAT R = sqrt(pow(x-0.5,2) + pow(y-0.5,2));
-
-	  //if (T > 90.0) {
-	  //if (z < 0.1 || z > 0.9) {
-	  //if (r > 0.3) {
-	  //if (R > 0.45) {
-	    dU[iS1  ][n] += dtFixed*rho*drivex*DrivingEfficiency;
-	    dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
-	    dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
-	    dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz)*DrivingEfficiency;
+	  dU[iS1  ][n] += dtFixed*rho*drivex*DrivingEfficiency;
+	  dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
+	  dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
+	  dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz +
+        0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez)) * DrivingEfficiency;
 
 
-	    //}
 	}
-      }
-    }
-  }
-
-  // pgrete: Add StochasticForcing force to velocity fields
-  if (DrivenFlowProfile) {
-
-    int StochAccelNum;
-    if ((StochAccelNum = FindField(StochAcceleration1, FieldType, NumberOfBaryonFields)) < 0) {
-        fprintf(stderr, "Cannot find stochastic acceleration field.\n");
-        return FAIL;
-    };
-
-    int igrid;
-    float drivex, drivey, drivez, vx, vy, vz, rho;
-    int n = 0; 
-
-    for (int k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
-      for (int j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
-          for (int i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++) {
-              igrid = i+(j+k*GridDimension[1])*GridDimension[0];
-              rho    = BaryonField[DensNum     ][igrid];
-              drivex = BaryonField[StochAccelNum][igrid];
-              drivey = BaryonField[StochAccelNum+1][igrid];
-              drivez = BaryonField[StochAccelNum+2][igrid];
-              vx     = BaryonField[Vel1Num      ][igrid];
-              vy     = BaryonField[Vel2Num      ][igrid];
-              vz     = BaryonField[Vel3Num      ][igrid];
-        
-              dU[iS1  ][n] += dtFixed*rho*drivex;
-              dU[iS2  ][n] += dtFixed*rho*drivey;
-              dU[iS3  ][n] += dtFixed*rho*drivez;
-              dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz + 
-                0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez));
-        }
       }
     }
   }

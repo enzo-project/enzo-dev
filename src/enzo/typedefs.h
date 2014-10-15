@@ -170,13 +170,7 @@ const field_type
 /* Metals from Type Ia SNe */
   MetalSNIaDensity = 95,
 
-  FieldUndefined  = 96,
-
-/* Used for StochasticForcing, can probably be merged with DrivingField or 
- * AccelerationField //PG */
-  StochAcceleration1 = 97,
-  StochAcceleration2 = 98,
-  StochAcceleration3 = 99;
+  FieldUndefined  = 96;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
