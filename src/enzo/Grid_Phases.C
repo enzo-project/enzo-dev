@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 void grid::Phases()
 {
@@ -39,7 +40,7 @@ void grid::Phases()
 
     if ((PhaseFctInitEven != NULL) && (PhaseFctInitOdd != NULL)) return;
 
-//TODO    if (debug) cout << "Computing initial phase factors" << endl;
+    if (debug) printf("Computing initial phase factors\n");
 
     PhaseFctInitEven = new float[size];
     PhaseFctInitOdd  = new float[size];
@@ -49,16 +50,21 @@ void grid::Phases()
     for (dim = 0; dim < GridRank; dim++) {
 
     delta[dim]       = (GridRightEdge[dim]- GridLeftEdge[dim]) / (GridEndIndex[dim] - GridStartIndex[dim] + 1);
-    wave_number[dim] = 2. * 3.1415926535897932 / (DomainRightEdge[dim] - DomainLeftEdge[dim]);
+    wave_number[dim] = 2. * pi / (DomainRightEdge[dim] - DomainLeftEdge[dim]);
     phase_start[dim] = wave_number[dim] * (GridLeftEdge[dim] - GridStartIndex[dim] * delta[dim]); 
     incr[dim]        = wave_number[dim] * delta[dim];
 
 #ifdef _LIST_ALL_
-//    if (dim == 0) cout << "\n";
-//    cout << dim << " " << GridLeftEdge[dim] << " " << GridRightEdge[dim] << "\n"
-//         << dim << " delta " << delta[dim] << "\n"
-//         << dim << " wave_number " << wave_number[dim] << "\n" 
-//         << dim << " phase_start " << phase_start[dim] << " incr " << incr[dim] << "\n";
+    if (dim == 0) printf("\n");
+    printf(
+    "%"ISYM" %"FSYM" %"FSYM"\n"
+    "%"ISYM" delta %"FSYM"\n"
+    "%"ISYM" wave_number %"FSYM"\n"
+    "%"ISYM" phase_start %"FSYM" incr %"FSYM"\n", 
+        dim,GridLeftEdge[dim],GridRightEdge[dim],
+        dim,delta[dim],
+        dim,wave_number[dim],
+        dim,phase_start[dim],incr[dim]);
 #endif
 
     PhaseFctMultEven[dim] = new float[size];
@@ -70,7 +76,7 @@ void grid::Phases()
     }
     }
 
-//    if (debug) cout << "Computing phase factor multiplicators" << endl;
+    if (debug) printf("Computing phase factor multiplicators\n");
 
     /* calculate initial phase factors corresponding to the origin of the grid 
        and multiplicators for single cell shifts */
@@ -86,9 +92,9 @@ void grid::Phases()
         PhaseFctMultOdd [0][m] = sin(i*incr[0]);
 
 #ifdef _LIST_ALL_
-//        cout << i << " " << m << "   " << i*phase_start[0] << "   " 
-//         << PhaseFctInitEven[m] << " " << PhaseFctInitOdd [m] << "   " << i*incr[0] << "   " 
-//         << PhaseFctMultEven[0][m] << " " << PhaseFctMultOdd[0][m] << "\n";
+    printf("%"ISYM" %"ISYM"   %"FSYM"   %"FSYM" %"FSYM"   %"FSYM"   %"FSYM" %"FSYM"\n",
+        i,m,i*phase_start[0],PhaseFctInitEven[m],PhaseFctInitOdd [m],i*incr[0],
+        PhaseFctMultEven[0][m],PhaseFctMultOdd[0][m]);
 #endif
         ++m;
     }
@@ -114,10 +120,11 @@ void grid::Phases()
             PhaseFctMultOdd [1][m] = sin(j*incr[1]);
             
 #ifdef _LIST_ALL_
-//            cout << i << " " << j << "   " << n-1 << " " << m << "  "
-//             << PhaseFctInitEven[m] << " " << PhaseFctInitOdd [m] << "   " 
-//             << PhaseFctMultEven[0][m] << " " << PhaseFctMultOdd[0][m] << "   " 
-//             << PhaseFctMultEven[1][m] << " " << PhaseFctMultOdd[1][m] << "\n";
+            printf("%"ISYM" %"ISYM"   %"ISYM" %"ISYM"  %"FSYM" %"FSYM"   %"FSYM"   %"FSYM"   %"FSYM" %"FSYM"\n",
+                i,j,n-1,m,
+                PhaseFctInitEven[m],PhaseFctInitOdd [m],
+                PhaseFctMultEven[0][m],PhaseFctMultOdd[0][m],
+                PhaseFctMultEven[1][m],PhaseFctMultOdd[1][m]);
 #endif
             ++m;
         }
@@ -151,12 +158,15 @@ void grid::Phases()
                 PhaseFctMultOdd [2][m] = sin(k*incr[2]);
 
 #ifdef _LIST_ALL_
-//                cout << i << " " << j << " " << k << "   " << n << " " << m << "  "
-//                     << PhaseFctInitEven[m] << "   " << PhaseFctMultEven[0][m] << " " 
-//                     << PhaseFctMultEven[1][m] << " " << PhaseFctMultEven[2][m] << "\n"
-//                     << i << " " << j << " " << k << "   " << n << " " << m << "  "
-//                     << PhaseFctInitOdd [m] << "   " << PhaseFctMultOdd [0][m] << " " 
-//                     << PhaseFctMultOdd [1][m] << " " << PhaseFctMultOdd [2][m] << "\n";     
+    printf(
+"%"ISYM" %"ISYM" %"ISYM"  %"ISYM" %"ISYM"  %"FSYM"    %"FSYM" %"FSYM" %"FSYM"\n"
+"%"ISYM" %"ISYM" %"ISYM"  %"ISYM" %"ISYM"  %"FSYM"    %"FSYM" %"FSYM" %"FSYM"\n",
+i,j,k,n,m,
+PhaseFctInitEven[m],PhaseFctMultEven[0][m], 
+PhaseFctMultEven[1][m],PhaseFctMultEven[2][m],
+i,j,k,n,m,
+PhaseFctInitOdd [m],PhaseFctMultOdd [0][m],
+PhaseFctMultOdd [1][m],PhaseFctMultOdd [2][m]);
 #endif
                 ++m;
                 }

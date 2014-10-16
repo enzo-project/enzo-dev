@@ -20,7 +20,6 @@ int StochasticForcing::ReadSpectrum(char *fname)
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
     FILE *fptr;
-//	ifstream in_file(fname);
 
 	if (debug) printf("ReadSpectrum: reading data\n");
 
@@ -29,30 +28,20 @@ int StochasticForcing::ReadSpectrum(char *fname)
     }
 
 
-//	if (in_file.bad()) {
-//	    std::cerr << "ReadSpectrum: failed to open file " << fname << "\n";
-//	    return FAIL;
-//	}
-
-
     char line[MAX_LINE_LENGTH];
     
     fgets(line, MAX_LINE_LENGTH, fptr);
     sscanf(line,"%"ISYM" %"ISYM" %"ISYM,&seed, &idum2, &iy);
     
-//    in_file >> seed >> idum2 >> iy;
-
 	for (int i = 0; i < 32; i++) {
         fgets(line, MAX_LINE_LENGTH, fptr);
         sscanf(line,"%"ISYM,&iv[i]);
-//	    in_file >> iv[i];
     }
 
 	for (int dim = 0; dim < SpectralRank; dim++)
 	    for (int m = 0; m < NumNonZeroModes; m++) {
             fgets(line, MAX_LINE_LENGTH, fptr);
             sscanf(line,"%"FSYM" %"FSYM,&SpectrumEven[dim][m],&SpectrumOdd[dim][m]);
-//    		in_file >> SpectrumEven[dim][m] >> SpectrumOdd[dim][m];
         }
     
     fclose(fptr);
@@ -66,33 +55,22 @@ int StochasticForcing::WriteSpectrum(char *fname)
 {
     if (MyProcessorNumber == ROOT_PROCESSOR) {
 
-//	ofstream out_file(fname);
     FILE *fptr;	
 
 	if (debug) printf("WriteSpectrum: writing data to file %s\n",fname);
 
-//	if (out_file.bad()) {
-//	    std::cerr << "WriteSpectrum: failed to open file " << fname << "\n";
-//	    return FAIL;
-//	}
-    
     if ((fptr = fopen(fname, "w")) == NULL) {
         ENZO_VFAIL("WriteSpectrum: failed to open file  %s\n", fname)
     }
 
-//	out_file << seed << " " << idum2 << " " << iy << "\n";
     fprintf(fptr,"%"ISYM" %"ISYM" %"ISYM"\n",seed,idum2,iy);
 
 	for (int i = 0; i < 32; i++)
         fprintf(fptr,"%"ISYM"\n",iv[i]);
-//	    out_file << iv[i] << "\n";
 
-// TODO
-//	out_file << setprecision(16);
 	for (int dim = 0; dim < SpectralRank; dim++)
 	    for (int m = 0; m < NumNonZeroModes; m++)
             fprintf(fptr,"%.16"FSYM" %.16"FSYM"\n",SpectrumEven[dim][m],SpectrumOdd[dim][m]);
-//  		out_file << SpectrumEven[dim][m] << " " << SpectrumOdd [dim][m] << "\n";
     
     
     fclose(fptr);

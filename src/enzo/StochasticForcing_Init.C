@@ -92,19 +92,24 @@ int StochasticForcing::Init(int my_spectral_rank,
     if (my_soln_weight  < 1.0) SolenoidalWeight = my_soln_weight;
     if (my_soln_weight <= 0.0) SolenoidalWeight = 0.0;
     if (SpectralRank == 1) SolenoidalWeight = 0.0;
-//TODO
-/*
+
     if (MyProcessorNumber == ROOT_PROCESSOR) {
-	cout << "Spectral profile " << SpectProfile << "\n"
-	     << "Weight of solenoidal component " << SolenoidalWeight << "\n"
-	     << "Alpha " << alpha[0] << " " << alpha[1] << " " << alpha[2] << " " << "\n"
-	     << "Band width " << BandWidth[0] << " " << BandWidth[1] << " " << BandWidth[2] << " " << "\n"
-	     << "Integral velocity " << IntgrVelocity[0] << " " << IntgrVelocity[1] << " " << IntgrVelocity[2] << " " << "\n"
-	     << "Integral length " << IntgrLength[0] << " " << IntgrLength[1] << " " << IntgrLength[2] << " " << "\n"
-	     << "Integral time " << IntgrTime[0] << " " << IntgrTime[1] << " " << IntgrTime[2] << " " << "\n"
-	     << "Autocorrelation time " << AutoCorrlTime[0] << " " << AutoCorrlTime[1] << " " << AutoCorrlTime[2] << " " << "\n";
+        printf("\n### STOCHASTIC FORCING CONFIG ###\n"
+"Spectral profile %"ISYM"\n"
+"Weight of solenoidal component %"FSYM"\n"
+"Alpha %"FSYM" %"FSYM" %"FSYM"\n"
+"Band width %"FSYM" %"FSYM" %"FSYM"\n"
+"Integral velocity %"FSYM" %"FSYM" %"FSYM"\n"
+"Integral length %"FSYM" %"FSYM" %"FSYM"\n"
+"Integral time %"FSYM" %"FSYM" %"FSYM"\n"
+"Autocorrelation time %"FSYM" %"FSYM" %"FSYM"\n\n",
+SpectProfile,SolenoidalWeight,
+alpha[0],alpha[1],alpha[2],BandWidth[0],BandWidth[1],BandWidth[2],
+IntgrVelocity[0],IntgrVelocity[1],IntgrVelocity[2],
+IntgrLength[0],IntgrLength[1],IntgrLength[2],
+IntgrTime[0],IntgrTime[1],IntgrTime[2],
+AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
     }
-*/
     /* determine boundary indices of spectral domain */
 
     if (SpectralRank > 0) {
@@ -197,14 +202,15 @@ int StochasticForcing::Init(int my_spectral_rank,
 		    f2 = a2;
 		    g2 = a2/b2; g2 *= g2;
 		}
-        /*
-		if (debug) {
-		    cout << "\nj1 = " << j1 << ", j2 = " << j2 << "\n";
-		    cout << "b1 = " << b1 << ", b2 = " << b2 << "\n";
-		    cout << "f1 = " << f1 << ", f2 = " << f2 << "\n";
-		    cout << "g1 = " << g1 << ", g2 = " << g2 << "\n\n";
+        
+		if (debug) {printf("\n"
+		    "j1 = %"FSYM", j2 = %"FSYM"\n"
+		    "b1 = %"FSYM", b2 = %"FSYM"\n"
+		    "f1 = %"FSYM", f2 = %"FSYM"\n"
+		    "g1 = %"FSYM", g2 = %"FSYM"\n\n",
+            j1,j2,b1,b2,f1,f2,g1,g2);
 		}
-*/
+
 		/* compute amplitude factors for wave numbers bounded by the
 		   ellipses with semi axes a1, b1 and a2, b2, respectively */
 		
@@ -222,13 +228,15 @@ int StochasticForcing::Init(int my_spectral_rank,
 			} else if (SpectProfile == Band) {
 			    if ((x1 >= 0.0) && (x2 >= 0.0)) Amplitude[0][n] = 1.0;
 			}
-            /*
+            
 			if (debug) {
-			    cout << "i = " << i << ", a = " << a  << ", j = " << j << ", b = " << b << "\n";
-			    cout << "x1 = " << x1 << ", x2 = " << x2 << "\n";
-			    cout << "n = " << n << ", Amplitude = " << Amplitude[0][n] << "\n";
+                printf(
+			    "i = %"ISYM", a = %"FSYM", j = %"ISYM", b = %"FSYM"\n"
+			    "x1 = %"FSYM", x2 = %"FSYM"\n"
+			    "n = %"ISYM", Amplitude = %"FSYM"\n",
+                i,a,j,b,x1,x2,n,Amplitude[0][n]);
 			}
-            */
+            
 			++n;
 		    }
 		}
@@ -246,12 +254,12 @@ int StochasticForcing::Init(int my_spectral_rank,
 		    if (c2 > 0.0) {
 			h2 = a2/c2; h2 *= h2;
 		    }
-            /*
+            
 		    if (debug) {
-			cout << "\nc1 = " << c1 << ", c2 = " << c2 << "\n";
-			cout << "h1 = " << h1 << ", h2 = " << h2 << "\n\n";
+                printf("\nc1 = %"FSYM", c2 = %"FSYM"\nh1 = %"FSYM", h2 = %"FSYM"\n\n",
+                    c1,c2,h1,h2);
 		    }
-		    */
+		    
 		    /* compute amplitude factors for wave numbers bounded by the
 		       ellipsoids with semi axes a1, b1, c1 and a2, b2, c2, respectively */
 
@@ -270,14 +278,15 @@ int StochasticForcing::Init(int my_spectral_rank,
 				} else if (SpectProfile == Band) {
 				    if ((x1 >= 0.0) && (x2 >= 0.0)) Amplitude[0][n] = 1.0;
 				}
-                /*
+                
 				if (debug) {
-				    cout << "i = " << i << ", a = " << a  << ", j = " << j << ", b = " << b 
-					 << ", k = " << k << ", c = " << c << "\n";
-				    cout << "x1 = " << x1 << ", x2 = " << x2 << "\n";
-				    cout << "n = " << n << ", Amplitude = " << Amplitude[0][n] << "\n";
+                    printf(
+    			    "i = %"ISYM", a = %"FSYM", j = %"ISYM", b = %"FSYM", k = %"ISYM
+    			    ", c = %"FSYM", x1 = %"FSYM", x2 = %"FSYM"\n"
+    			    "n = %"ISYM", Amplitude = %"FSYM"\n",
+                    i,a,j,b,k,c,x1,x2,n,Amplitude[0][n]);
 				}
-                */
+                
 				++n;
 			    }
 			}
@@ -348,8 +357,9 @@ int StochasticForcing::Init(int my_spectral_rank,
 	NumNonZeroModes = 0;
 	for (int n = 0; n < NumModes; n++)
 	    if (mask[n]) ++NumNonZeroModes;
-//	if (debug) cout << "Number of non-zero stochastic forcing modes = " << NumNonZeroModes 
-//			<< ", proc #" << MyProcessorNumber << "\n";
+	if (debug) 
+        printf("Number of non-zero stochastic forcing modes = %"ISYM", proc # %"ISYM"\n",
+            NumNonZeroModes, MyProcessorNumber);
     }
 
     /* allocate memory for the forcing spectrum and set inital random deviates */

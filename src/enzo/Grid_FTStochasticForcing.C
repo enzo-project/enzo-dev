@@ -130,8 +130,9 @@ int grid::FTStochasticForcing(int FieldDim)
 
                 BaryonField[StochAccelNum][i + j*GridDimension[0]] = FT_NORM * sum;
 #ifdef _LIST_FORCE_
-//                cout << FieldDim << "   " << j <<" " << i << "   " << i + j*GridDimension[0] << " " 
-//                 << BaryonField[StochAccelNum][i + j*GridDimension[0]] << "\n";
+                printf("%"ISYM"   %"ISYM" %"ISYM"   %"ISYM" %"FSYM"\n",
+                    FieldDim,j,i,i + j*GridDimension[0],
+                    BaryonField[StochAccelNum][i + j*GridDimension[0]]);
 #endif
                 }
 
@@ -161,14 +162,15 @@ int grid::FTStochasticForcing(int FieldDim)
                                  j*GridDimension[0] + 
                                  k*GridDimension[0]*GridDimension[1]] = FT_NORM * sum;
 #ifdef _LIST_FORCE_
-//                if ((j == GridDimension[1]/2) && (i == GridDimension[0]/2))
-//                    cout << MyProcessorNumber << "   " << k << "   " 
-//                     << GridRightEdge[0]- GridLeftEdge[0] << " " 
-//                     << GridRightEdge[1]- GridLeftEdge[1] << " "  
-//                     << GridRightEdge[2]- GridLeftEdge[2] << "   " 
-//                     << BaryonField[StochAccelNum][i + 
-//                                     j*GridDimension[0] + 
-//                                     k*GridDimension[0]*GridDimension[1]] << "\n";
+                if ((j == GridDimension[1]/2) && (i == GridDimension[0]/2))
+                    printf("%"ISYM"   %"ISYM"   %"FSYM" %"FSYM" %"FSYM"   %"FSYM"\n",
+                        MyProcessorNumber,k,
+                        GridRightEdge[0]- GridLeftEdge[0],
+                        GridRightEdge[1]- GridLeftEdge[1],
+                        GridRightEdge[2]- GridLeftEdge[2],
+                        BaryonField[StochAccelNum][i + 
+                                     j*GridDimension[0] + 
+                                     k*GridDimension[0]*GridDimension[1]]);
 #endif
                 }
 
@@ -207,7 +209,7 @@ int grid::FTStochasticForcing(int FieldDim)
 
             BaryonField[StochAccelNum][i] = FT_NORM * sum;
 #ifdef _LIST_FORCE_
-//            cout << i << "   " << BaryonField[StochAccelNum][i] << "\n";
+            printf("%"ISYM"   %"FSYM"\n",i,BaryonField[StochAccelNum][i]);
 #endif
             
             // iterate phase factors
@@ -252,8 +254,9 @@ int grid::FTStochasticForcing(int FieldDim)
                 
                 BaryonField[StochAccelNum][i + j*GridDimension[0]] = FT_NORM * sum;
 #ifdef _LIST_FORCE_
-//                cout << FieldDim << "   " << j <<" " << i << "   " << i + j*GridDimension[0] << " " 
-//                 << BaryonField[StochAccelNum][i + j*GridDimension[0]] << "\n";
+                printf("%"ISYM"   %"ISYM" %"ISYM"   %"ISYM" %"FSYM"\n",
+                    FieldDim,j,i,i + j*GridDimension[0],
+                    BaryonField[StochAccelNum][i + j*GridDimension[0]]);
 #endif
                 
                 // iterate x-phase factors
@@ -322,15 +325,15 @@ int grid::FTStochasticForcing(int FieldDim)
                                  j*GridDimension[0] + 
                                  k*GridDimension[0]*GridDimension[1]] = FT_NORM * sum;
 #ifdef _LIST_FORCE_
-//TODO everywhere in this file
-//                if ((MyProcessorNumber == ROOT_PROCESSOR) && (j == GridDimension[1]/2) && (i == GridDimension[0]/2))
-//                    cout << MyProcessorNumber << " " << k << "   " 
-//                     << GridRightEdge[0]- GridLeftEdge[0] << " " 
-//                     << GridRightEdge[1]- GridLeftEdge[1] << " "  
-//                     << GridRightEdge[2]- GridLeftEdge[2] << "   " 
-//                     << BaryonField[StochAccelNum][i + 
-//                                     j*GridDimension[0] + 
-//                                     k*GridDimension[0]*GridDimension[1]] << "\n";
+                if ((MyProcessorNumber == ROOT_PROCESSOR) && (j == GridDimension[1]/2) && (i == GridDimension[0]/2))
+                    printf("%"ISYM"   %"ISYM"   %"FSYM" %"FSYM" %"FSYM"   %"FSYM"\n",
+                        MyProcessorNumber,k,
+                        GridRightEdge[0]- GridLeftEdge[0],
+                        GridRightEdge[1]- GridLeftEdge[1],
+                        GridRightEdge[2]- GridLeftEdge[2],
+                        BaryonField[StochAccelNum][i + 
+                                     j*GridDimension[0] + 
+                                     k*GridDimension[0]*GridDimension[1]]);
 #endif
                 // iterate x-phase factors
                 for (m = 0; m < size; m++) {
