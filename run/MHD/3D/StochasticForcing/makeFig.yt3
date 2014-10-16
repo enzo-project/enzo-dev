@@ -1,0 +1,30 @@
+from yt.mods import *
+import numpy as np
+from matplotlib.figure import Figure
+
+Fields = ["mach_number","vorticity_magnitude"]
+
+Ts = load("DD????/data????")
+
+Times = []
+FieldsEvol = {}
+
+for field in Fields:
+    FieldsEvol[field] = []
+
+for ds in Ts:
+    Times.append(ds.current_time)
+    dd = ds.all_data()    
+    for field in Fields:
+            FieldsEvol[field].append(np.sqrt((dd[field] * dd[field]).sum()/float(dd[field].size)))
+
+for field in Fields:
+    fig = Figure()
+
+    ax = fig.add_subplot(111)
+    ax.set_xlabel("time $t$")
+    ax.plot(Times,FieldsEvol[field],label = field + " RMS")
+    ax.legend(loc=4)
+    fig.tight_layout()
+    fig.savefig(field)
+
