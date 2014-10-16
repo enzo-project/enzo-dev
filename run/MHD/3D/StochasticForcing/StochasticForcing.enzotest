@@ -1,0 +1,13 @@
+name = 'StochasticForcing'
+answer_testing_script = None
+nprocs = 1
+runtime = 'medium'
+mhd = True
+hydro = False
+gravity = False
+AMR = False
+dimensionality = 3
+max_time_minutes = 15
+fullsuite = True
+pushsuite = False
+quicksuite = False
