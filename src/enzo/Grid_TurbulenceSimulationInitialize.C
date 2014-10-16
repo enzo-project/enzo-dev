@@ -230,7 +230,7 @@ int grid::TurbulenceSimulationInitializeGrid(
   if (TurbulenceSimulationTotalEnergyName != NULL && ReadData)
     if (ReadFile(TurbulenceSimulationTotalEnergyName, GridRank,
 		    GridDimension, GridStartIndex, GridEndIndex, Offset,
-		    BaryonField[DensNum], &tempbuffer, 0, 1) == FAIL) {
+		    BaryonField[TENum], &tempbuffer, 0, 1) == FAIL) {
       ENZO_FAIL("Error reading total energy field.\n");
     }
  
