@@ -97,7 +97,7 @@ int StochasticForcing::Init(int my_spectral_rank,
         printf("\n### STOCHASTIC FORCING CONFIG ###\n"
 "Spectral profile %"ISYM"\n"
 "Weight of solenoidal component %"FSYM"\n"
-"Alpha %"FSYM" %"FSYM" %"FSYM"\n"
+"Alpha %"ISYM" %"ISYM" %"ISYM"\n"
 "Band width %"FSYM" %"FSYM" %"FSYM"\n"
 "Integral velocity %"FSYM" %"FSYM" %"FSYM"\n"
 "Integral length %"FSYM" %"FSYM" %"FSYM"\n"
