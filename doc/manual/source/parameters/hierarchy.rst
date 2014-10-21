@@ -123,10 +123,12 @@ Hierarchy Control Parameters
     makes the refinement super-Lagrangian, while positive values are
     sub-Lagrangian. There are up to 9 values specified here, as per
     the above two parameters. Default: 0.0
-``SlopeFlaggingFields[#]`` (external)
+``SlopeFlaggingFields`` (external)
     If ``CellFlaggingMethod`` is 1, and you only want to refine on the
-    slopes of certain fields then you can enter the number IDs of the
-    fields. Default: Refine on slopes of all fields.
+    slopes of certain fields then you can enter the
+    :ref:`Field Type IDs <Field_List_Reference>` of the fields you want,
+    separating the IDs with a space. Up to 7 Field Type IDs can be 
+    specified. Default: Refine on slopes of all fields.
 ``MinimumSlopeForRefinement`` (external)
     If ``CellFlaggingMethod`` is 1, then local gradients are used as the
     refinement criteria. All variables are examined and the relative

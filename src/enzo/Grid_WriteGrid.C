@@ -440,11 +440,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-      if ( DataUnits[field] == NULL )
-      {
-        DataUnits[field] = "none";
-      }
- 
       WriteStringAttr(dset_id, "Label", "Temperature", log_fptr);
       WriteStringAttr(dset_id, "Units", "K", log_fptr);
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
@@ -516,11 +511,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
       dset_id = H5Dcreate(file_id, "Dust_Temperature", file_type_id, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      if ( DataUnits[field] == NULL )
-      {
-        DataUnits[field] = "none";
-      }
  
       WriteStringAttr(dset_id, "Label", "Dust_Temperature", log_fptr);
       WriteStringAttr(dset_id, "Units", "K", log_fptr);
@@ -686,12 +676,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
  
       /* set datafield name and units, etc. */
  
-      if ( DataUnits[field] == NULL )
-      {
-        DataUnits[field] = "none";
-      }
- 
-    
       // fprintf(stderr,  DataLabelN[field]);
 
       WriteStringAttr(dset_id, "Label", DataLabelN[field], log_fptr);
@@ -786,11 +770,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-      if ( DataUnits[field] == NULL )
-      {
-        DataUnits[field] = "none";
-      }
- 
       WriteStringAttr(dset_id, "Label", "Cooling_Time", log_fptr);
       WriteStringAttr(dset_id, "Units", "s", log_fptr);
       WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
@@ -869,9 +848,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
 	dset_id = H5Dcreate(file_id, "Dark_Matter_Density", file_type_id, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
- 
-	if ( DataUnits[field] == NULL )
-	  DataUnits[field] = "none";
  
 	WriteStringAttr(dset_id, "Label", "Cooling_Time", log_fptr);
 	WriteStringAttr(dset_id, "Units", "s", log_fptr);

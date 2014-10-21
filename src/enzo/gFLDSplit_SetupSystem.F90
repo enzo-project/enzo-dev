@@ -21,20 +21,21 @@ function gFLD_limiter(E1, E2, k1, k2, nUn, lUn, dxi)
   implicit none
 #include "fortran_types.def"
   R_PREC, intent(in) :: E1, E2, k1, k2, nUn, lUn, dxi
-  R_PREC :: gFLD_limiter, Eavg, kap, R, Emin, Rmin, Dmax
+  REAL*8 :: Eavg, kap, R, Emin, Rmin, Dmax
+  REAL*8 :: gFLD_limiter
   
   ! set limiter bounds
-  Rmin = 1.e-2_RKIND/lUn
-  Rmin = min(Rmin, 1.e-20_RKIND)    ! 1st is astro/cosmo, 2nd is lab frame
-  Emin = 1.e-30_RKIND
-  Dmax = 0.01_RKIND * c_light * lUn
-  Dmax = max(Dmax, 1.e20_RKIND)     ! 1st is astro/cosmo, 2nd is lab frame
+  Rmin = 1.d-2/lUn
+  Rmin = min(Rmin, 1.d-20)    ! 1st is astro/cosmo, 2nd is lab frame
+  Emin = 1.d-30
+  Dmax = 1.d-2 * c_light * lUn
+  Dmax = max(Dmax, 1.d20)     ! 1st is astro/cosmo, 2nd is lab frame
 
   ! compute limiter
-  Eavg = max((E1 + E2)*0.5_RKIND, Emin)
-  kap = 2._RKIND*k1*k2/(k1+k2)*nUn        ! harmonic mean
+  Eavg = max((E1 + E2)*0.5d0, Emin)
+  kap = 2.d0*k1*k2/(k1+k2)*nUn        ! harmonic mean
   R = max(dxi*abs(E1 - E2)/Eavg, Rmin)
-  gFLD_limiter = min(c_light/sqrt(9._RKIND*kap*kap + R*R), Dmax)
+  gFLD_limiter = min(c_light/sqrt(9.d0*kap*kap + R*R), Dmax)
 
 end function gFLD_limiter
 !=======================================================================

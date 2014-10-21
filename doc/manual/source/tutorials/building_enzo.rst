@@ -32,9 +32,7 @@ compiler, the following libraries are necessary:
 Downloading Enzo
 ----------------
 
-Enzo is provided in both a stable and an unstable (developer's) form.  **It is highly
-recommended that for any production run the stable version is used.**
-Additionally, we encourage anyone who uses Enzo to sign up for the `Enzo Users'
+We encourage anyone who uses Enzo to sign up for the `Enzo Users'
 List <http://groups.google.com/group/enzo-users>`_, where one can ask questions
 to the community of enzo users and developers.  
 
@@ -55,37 +53,37 @@ computer in the current directory:
 
 ::
 
-    ~ $ hg clone https://bitbucket.org/enzo/enzo-stable
-
-Or if you're feeling fiesty, you can get the developer's version which is 
-more up to date, but may also have some experimental code mixed in (which 
-might affect stability):
-
-.. highlight:: none
-
-::
-
-    ~ $ hg clone https://bitbucket.org/enzo/enzo-dev
+    ~ $ hg clone https://bitbucket.org/enzo/enzo-dev ./enzo
 
 Later on, if you want to update your code and get any additional modifications 
 which may have occurred since you originally cloned the source repository, 
 you will have to ``pull`` them from the server and then ``update`` your 
 local copy (in this example, no new changes have occurred):
 
+By default, after you clone enzo you will be on the ``stable`` branch.  If you
+wish to use the latest development version, you must update to the
+``week-of-code`` branch:
+
 .. highlight:: none
 
 ::
 
-    ~ $ cd enzo-stable
-    ~/enzo-stable $ hg pull
-    pulling from https://bitbucket.org/enzo/enzo-stable
+   ~/enzo $ hg update week-of-code
+
+.. highlight:: none
+
+::
+
+    ~/enzo $ cd enzo
+    ~/enzo $ hg pull
+    pulling from https://bitbucket.org/enzo/enzo-dev
     searching for changes
     no changes found
 
-    ~/enzo-stable $ hg update
+    ~/enzo $ hg update
     0 files updated, 0 files merged, 0 files removed, 0 files unresolved
 
-    ~/enzo-stable $ 
+    ~/enzo $ 
 
 This covers the basics, but for more information about interacting with the
 mercurial version control system please peruse the :ref:`developers_guide`,
@@ -112,11 +110,11 @@ and creates a couple of files for building.
 
 ::
 
-    ~ $ cd enzo-stable/
-    ~/enzo-stable $ ./configure 
+    ~ $ cd enzo/
+    ~/enzo $ ./configure 
     Configure complete.
 
-    ~/enzo-stable $ 
+    ~/enzo $ 
 
 This message just confirms that the build system has been
 initialized.  To further confirm that it ran, there should be a file called
@@ -130,19 +128,19 @@ src/ directory.
 
 ::
 
-    ~/enzo-stable $ cd src
-    ~/enzo-stable/src $ ls
+    ~/enzo $ cd src
+    ~/enzo/src $ ls
     Makefile      P-GroupFinder      TREECOOL      anyl      enzo      enzohop
     inits         lcaperf            mpgrafic      performance_tools   ring
 
-    ~/enzo-stable/src $ 
+    ~/enzo/src $ 
 
 Right now, we're just building the main executable (the one that
 does the simulations), so we need the ``enzo/`` directory.
 
 ::
 
-    ~/enzo-stable/src $ cd enzo/
+    ~/enzo/src $ cd enzo/
 
 Find the Right Machine File
 +++++++++++++++++++++++++++
@@ -156,7 +154,7 @@ These machine-specific configuration files are named ``Make.mach.machinename``.
 
 ::
 
-    ~/enzo-stable/src/enzo $ ls Make.mach.*
+    ~/enzo/src/enzo $ ls Make.mach.*
     Make.mach.arizona               Make.mach.darwin                
     Make.mach.hotfoot-condor        Make.mach.kolob                 
     Make.mach.linux-gnu             Make.mach.nasa-discover         
@@ -170,7 +168,7 @@ These machine-specific configuration files are named ``Make.mach.machinename``.
     Make.mach.triton                Make.mach.triton-gnu
     Make.mach.triton-intel          Make.mach.unknown
 
-    ~/enzo-stable/src/enzo $ 
+    ~/enzo/src/enzo $ 
 
 In this example, we choose ``Make.mach.darwin``, which is appropriate for Mac
 OS X machines.
@@ -231,13 +229,13 @@ use it (remember to ``make clean`` if you change any previous settings):
 
 ::
 
-    ~/enzo-stable/src/enzo $ make machine-darwin
+    ~/enzo/src/enzo $ make machine-darwin
     
      *** Execute 'gmake clean' before rebuilding executables ***
     
        MACHINE: Darwin (OSX Leopard)
     
-    ~/enzo-stable/src/enzo $ 
+    ~/enzo/src/enzo $ 
 
 You may also want to know the settings (precision, etc.) that are being
 use. You can find this out using ``make show-config``. For a detailed
@@ -245,7 +243,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
 
 ::
 
-    ~/enzo-stable/src/enzo $ make show-config
+    ~/enzo/src/enzo $ make show-config
     
     MACHINE: Darwin (OSX Leopard)
     MACHINE-NAME: darwin
@@ -287,7 +285,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
     CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : no
     CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : yes
     
-    ~/enzo-stable/src/enzo $ 
+    ~/enzo/src/enzo $ 
 
 Build Enzo
 ++++++++++
@@ -296,7 +294,7 @@ The default build target is the main executable, Enzo.
 
 ::
 
-    ~/enzo-stable/src/enzo $ make
+    ~/enzo/src/enzo $ make
     Updating DEPEND
     pdating DEPEND
     Compiling enzo.C
@@ -306,7 +304,7 @@ The default build target is the main executable, Enzo.
     Linking
     Success!
 
-    ~/enzo-stable/src/enzo $ 
+    ~/enzo/src/enzo $ 
 
 After compiling, you will have ``enzo.exe`` in the current directory.
 If you have a failure during the compiler process, you may get enough of
@@ -326,8 +324,8 @@ Inits
 
 ::
 
-    ~/enzo-stable/src/ring $ cd ../inits/
-    ~/enzo-stable/src/inits $ make
+    ~/enzo/src/ring $ cd ../inits/
+    ~/enzo/src/inits $ make
     Compiling enzo_module.src90
     Updating DEPEND
     Compiling acml_st1.src
@@ -343,8 +341,8 @@ Ring
 
 ::
 
-    ~/enzo-stable/src/enzo $ cd ../ring/
-    ~/enzo-stable/src/ring $ make
+    ~/enzo/src/enzo $ cd ../ring/
+    ~/enzo/src/ring $ make
     Updating DEPEND
     Compiling Ring_Decomp.C
     Compiling Enzo_Dims_create.C

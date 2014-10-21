@@ -1483,7 +1483,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     grackle_chemistry.SolarMetalFractionByMass       = CoolData.SolarMetalFractionByMass;
 
     // Initialize units structure.
-    float a_value, dadt;
+    FLOAT a_value, dadt;
     a_value = 1.0;
     grackle_units.a_units = 1.0;
     if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
