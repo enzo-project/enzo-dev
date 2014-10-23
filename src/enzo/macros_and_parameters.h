@@ -455,6 +455,7 @@ typedef int            HDF5_hid_t;
 #define MPI_SENDPARTFIELD_TAG 1000
 
 /* Definitions for CommunicationBufferedSend. */
+
 #define BUFFER_IN_PLACE -1
 
 /* Particle types (note: gas is a conceptual type) */

@@ -262,7 +262,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-    , SiblingGridList *SiblingGridListStorage[] 
 		)
 {
   /* Declarations */
@@ -641,7 +640,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
-          ,SiblingGridListStorage
 		      ) == FAIL) {
 	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }

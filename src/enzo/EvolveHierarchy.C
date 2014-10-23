@@ -67,7 +67,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
-    ,SiblingGridList *SiblingGridListStorage[]
 		);
 
 int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -75,7 +74,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		    ImplicitProblemABC *ImplicitSolver, 
 #endif
-		    FLOAT dt0 ,SiblingGridList *SiblingGridListStorage[]);
+		    FLOAT dt0);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -318,12 +317,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LCAPERF_STOP("EvolveHierarchy");
   LCAPERF_END("EH");
 
-  SiblingGridList *SiblingGridListStorage[MAX_DEPTH_OF_HIERARCHY];
-  for( int level=0; level < MAX_DEPTH_OF_HIERARCHY; level++ ){
-    SiblingGridListStorage[level] = NULL;
-  }
-
-
   /* ====== MAIN LOOP ===== */
 
   bool FirstLoop = true;
@@ -495,7 +488,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
-          ,SiblingGridListStorage
 		      ) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
@@ -516,7 +508,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 			    ImplicitSolver, 
 #endif
-			    dt, SiblingGridListStorage) == FAIL) {
+			    dt) == FAIL) {
 	  if (NumberOfProcessors == 1) {
 	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
 	    fprintf(stderr, "--> Dumping data (output number %d).\n",
