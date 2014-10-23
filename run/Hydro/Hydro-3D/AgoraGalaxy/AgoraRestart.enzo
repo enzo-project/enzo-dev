@@ -1,0 +1,139 @@
+#
+# AMR PROBLEM DEFINITION FILE: Agora Restart Galaxy Simulation
+#
+# This run includes radiative feedback and star particle creation but
+# NO star particle feedback
+
+#
+#  define problem
+#
+ProblemTypeName            = AgoraRestart      // Agora Isolated Galaxy Simulation
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 1       // isolated gravity BCs
+LeftFaceBoundaryCondition  = 3 3 3   // periodic
+RightFaceBoundaryCondition = 3 3 3
+DomainLeftEdge             = 0 0 0
+DomainRightEdge            = 1 1 1
+
+#
+# problem parameters
+#
+# All parameters are in code units except as noted.
+AgoraRestartCenterPosition                     = 0.5 0.5 0.5 // code units
+AgoraRestartScaleLength                        = .00261063
+AgoraRestartScaleHeight                        = .000261063
+AgoraRestartDiskMass                           = 42.9661
+AgoraRestartGasFraction                        = 0.2
+AgoraRestartDiskTemperature                    = 1.0e4      // Kelvin
+AgoraRestartHaloMass                           = 42.9661
+AgoraRestartHaloTemperature                    = 1.0e6
+AgoraRestartRefineAtStart                      = 1
+#
+#  define cosmology parameters
+#
+ComovingCoordinates        = 0       // Expansion OFF
+
+#
+# units
+#
+MassUnits                  = 1.9891e42     // 10^9 msun in grams
+LengthUnits                = 4.04446e24    // 1.31072 mpc (chosen to get dx = 80 pc on level 8)
+TimeUnits                  = 3.15569e16    // 1 Gyr in s
+GravitationalConstant      = 0.0000251055  // 4*pi*G*DensityUnits*TimeUnits^2
+
+#
+#  set I/O and stop/start parameters
+#
+DataDumpName           = DD
+StopCycle              = 1000
+ParallelRootGridIO     = 0
+StopTime               = 0.1
+dtDataDump             = 0.001
+
+#
+#  set hydro parameters
+#
+Gamma                       = 1.666667
+PPMDiffusionParameter       = 0       // diffusion off
+DualEnergyFormalism         = 1
+DualEnergyFormalismEta1     = 0.001
+DualEnergyFormalismEta2     = 0.2
+CourantSafetyNumber         = 0.3
+FluxCorrection              = 1
+ConservativeInterpolation   = 1
+RiemannSolver               = 4
+HydroMethod                 = 0  // PPM
+CorrectParentBoundaryFlux   = 1
+OutputTemperature           = 1
+OutputCoolingTime           = 1
+UseMinimumPressureSupport   = 1
+MinimumPressureSupportParameter = 16
+
+#
+#  Cooling
+#
+RadiativeCooling           = 1
+MultiSpecies               = 0
+MetalCooling               = 1
+CMBTemperatureFloor        = 1
+IncludeCloudyHeating       = 1
+use_grackle                = 1
+with_radiative_cooling     = 1
+UVbackground               = 0
+grackle_data_file = /home/goldbaum/grackle/input/CloudyData_noUVB.h5
+PhotoelectricHeating       = 1
+
+#
+#  Species
+#
+AgoraRestartUseMetallicityField          = 1
+AgoraRestartHaloMetallicity              = 1e-6
+AgoraRestartDiskMetallicity              = 1.0
+AgoraRestartMetalFractionByMass          = 0.02041
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0      // dynamic hierarchy
+StaticRefineRegionLevel[0] = 1
+StaticRefineRegionLeftEdge[0] = 0.2500000000000000 0.2500000000000000 0.2500000000000000
+StaticRefineRegionRightEdge[0] = 0.7500000000000000 0.7500000000000000 0.7500000000000000
+StaticRefineRegionLevel[1] = 2
+StaticRefineRegionLeftEdge[1] = 0.3750000000000000 0.3750000000000000 0.3750000000000000
+StaticRefineRegionRightEdge[1] = 0.6250000000000000 0.6250000000000000 0.6250000000000000
+StaticRefineRegionLevel[2] = 3
+StaticRefineRegionLeftEdge[2] = 0.4375000000000000 0.4375000000000000 0.4375000000000000
+StaticRefineRegionRightEdge[2] = 0.5625000000000000 0.5625000000000000 0.5625000000000000
+StaticRefineRegionLevel[3] = 4
+StaticRefineRegionLeftEdge[3] = 0.4687500000000000 0.4687500000000000 0.4687500000000000
+StaticRefineRegionRightEdge[3] = 0.5312500000000000 0.5312500000000000 0.5312500000000000
+StaticRefineRegionLevel[4] = 5
+StaticRefineRegionLeftEdge[4] = 0.484375 0.484375 0.484375
+StaticRefineRegionRightEdge[4] = 0.515625 0.515625 0.515625
+UserDefinedRootGridLayout = 1 1 1
+MaximumRefinementLevel    = 8
+RefineBy                  = 2      // refinement factor
+CellFlaggingMethod        = 2 4 6 12 // gas mass, particle mass, jeans length, MustRefineRegion
+RefineByJeansLengthSafetyFactor = 4
+MinimumMassForRefinement = 0.00002148 0.0017186 0.00002148
+SubgridSizeAutoAdjust = 0
+MinimumSubgridEdge = 24
+MaximumSubgridSize = 50000
+MinimumEfficiency = 0.3
+NumberOfBufferZones = 4
+
+#
+#  set some global parameters
+#
+PotentialIterations = 10
+
+# Star formation parameters
+StarParticleCreation = 4096
+StarParticleFeedback = 0
+StarMakerOverDensityThreshold = 7
+StarMakerTimeIndependentFormation = 0
+StarMakerMassEfficiency = 0.01
+StarMakerMinimumMass = 1.0e3
+StarMakerMinimumDynamicalTime = 1.e7

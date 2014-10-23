@@ -1,0 +1,20 @@
+The initial conditions for this problem depend on star and dark matter particle
+data files that must be generated using the MakeGalaxy code.
+
+Example star particle data files corresponding to the AGORA isolated galaxy
+initial conditions can be found at the following URL:
+
+https://www.dropbox.com/sh/1xzt1rysy9v3a9l/AAAHZyjrfTz88aG12H0Q_Rqla
+
+The included test problem parameter file corresponds to the LOW initial
+conditions (80 pc resolution).  Follow the readme.txt and use the IPython
+notebook to adjust the parameter file if you want to simulate a galaxy at
+different resolution.
+
+Enzo must be compiled with new-problem-types-yes and grackle-yes for
+this test problem to function correctly.  You will also need to edit the
+parameter file to point to the location of the grackle noUVB cooling table.
+
+If run to completion, this simulation needs about 200 gigabytes of free space.
+If you are constrained by hard disk space, consider decreasing the output
+interval (1 Myr of physical time per output, by default).
