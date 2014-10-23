@@ -75,8 +75,7 @@ extern "C" void FORTRAN_NAME(flux_hllc)(
 	   float *wls, float *wrs, float *gels, float *gers, 
            float *df, float *ef, float *uf, float *vf, float *wf, float *gef, 
 	   float *ges,
-           int *ncolor, float *colslice, float *colls, float *colrs, float *colf,
-           float *dfloor);
+           int *ncolor, float *colslice, float *colls, float *colrs, float *colf);
 
 extern "C" void FORTRAN_NAME(euler)(
 		float *dslice, float *pslice, float *grslice, 
@@ -86,4 +85,4 @@ extern "C" void FORTRAN_NAME(euler)(
 		int *gravity, int *idual, float *eta1, float *eta2, float *df, 
 		float *ef, float *uf, float *vf, float *wf, float *gef,
 		float *ges,
-		int *ncolor, float *colslice, float *colf, float *dfl, float *eceil);
+		int *ncolor, float *colslice, float *colf);

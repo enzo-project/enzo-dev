@@ -34,7 +34,6 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      Elong_int GridGlobalStart[], float *CellWidthTemp[], 
 		      int GravityOn, int NumberOfColours, int colnum[], float *pressure)
 {
-  this->DebugCheck("Grid_zEulerSweep 37");
 
   int dim = 2, idim = 0, jdim = 1;
   int dim_p1 = dim+1;   // To match definition in calcdiss
@@ -188,7 +187,6 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     FORTRAN_NAME(pgas2d)(dslice, eslice, pslice, uslice, vslice, 
 			 wslice, &GridDimension[2], &GridDimension[0], 
 			 &is_m3, &ie_p3, &js, &je, &Gamma, &MinimumPressure);
-
   */
   /* If requested, compute diffusion and slope flattening coefficients */
 
@@ -218,7 +216,6 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   wls, wrs, &NumberOfColours, colslice, colls, colrs);
 
   /* Compute (Lagrangian part of the) Riemann problem at each zone boundary */
-
 
   switch (RiemannSolver) {
   case TwoShock:
@@ -267,8 +264,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			    dls, drs, pls, prs, uls, urs,
 			    vls, vrs, wls, wrs, gels, gers,
 			    df, uf, vf, wf, ef, gef, ges,
-			    &NumberOfColours, colslice, colls, colrs, colf,
-                            &DensityFloor);
+			    &NumberOfColours, colslice, colls, colrs, colf);
     break;
 
   } // ENDCASE
@@ -282,7 +278,7 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 		      df, ef, uf, vf, wf, gef, ges,
-		      &NumberOfColours, colslice, colf, &DensityFloor, &EnergyCeiling);
+		      &NumberOfColours, colslice, colf);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
 
@@ -446,8 +442,6 @@ int grid::zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   delete [] colf;
   delete [] colls;
   delete [] colrs;
-
-  this->DebugCheck("Grid_zEulerSweep 447");
 
   return SUCCESS;
 

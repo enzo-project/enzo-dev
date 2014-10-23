@@ -43,7 +43,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
   
 
-  this->DebugCheck("Grid_SolvePPM_DE line 46");
+
 
   int nxz, nyz, nzz, ixyz;
   nxz = GridEndIndex[0] - GridStartIndex[0] + 1;
@@ -82,17 +82,13 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
   }
 #endif
 
-  this->DebugCheck("Grid_SolvePPM_DE line 85");
-
   int i,j,k,n;
   for (n = ixyz; n < ixyz+GridRank; n++) {
-    this->DebugCheck("Grid_SolvePPM_DE line 89");
 
     // Update in x-direction
     if ((n % GridRank == 0) && nxz > 1) {
       if (UseCUDA == 0) 
 	for (k = 0; k < GridDimension[2]; k++) {
-	  this->DebugCheck("Grid_SolvePPM_DE line 94");
 	  if (this->xEulerSweep(k, NumberOfSubgrids, SubgridFluxes, 
 				GridGlobalStart, CellWidthTemp, GravityOn, 
 				NumberOfColours, colnum, Pressure) == FAIL) {
@@ -127,7 +123,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
       }
     } // ENDIF y-direction
       
-    // Update in z-direction
+      // Update in z-direction
     if ((n % GridRank == 2) && nzz > 1) {
       if (UseCUDA == 0) 
 	for (j = 0; j < GridDimension[1]; j++) {
@@ -146,8 +142,7 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 #endif
       }
     } // ENDIF z-direction
-    this->DebugCheck("Grid_SolvePPM_DE line 149");
-
+      
   } // ENDFOR n
 
 #ifdef ECUDA
@@ -163,7 +158,6 @@ int grid::SolvePPM_DE(int CycleNumber, int NumberOfSubgrids,
 
 
   delete [] Pressure;
-  this->DebugCheck("Grid_SolvePPM_DE line 163");
 
   return SUCCESS;
 

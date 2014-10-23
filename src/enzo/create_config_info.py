@@ -15,7 +15,6 @@ import os
 import time
 
 def get_hg_info():
-    from mercurial.error import RepoError
     try:
         from mercurial import hg, ui, commands 
         from mercurial.error import RepoError

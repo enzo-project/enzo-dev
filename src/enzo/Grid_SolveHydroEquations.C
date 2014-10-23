@@ -67,7 +67,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
   LCAPERF_START("grid_SolveHydroEquations");
   TIMER_START("SolveHydroEquations");
 
-  this->DebugCheck("SolveHydroEquations (start)");
+  this->DebugCheck("SolveHydroEquations");
 
   if (NumberOfBaryonFields > 0) {
 
@@ -500,8 +500,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        Notice that it is hard-wired for three dimensions, but it does
        the right thing for < 3 dimensions. */
     /* note: Start/EndIndex are zero based */
-
-    this->DebugCheck("SolveHydroEquations (504)");
         
     if (HydroMethod == PPM_DirectEuler)
       this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
@@ -509,7 +507,6 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                         NumberOfColours, colnum,
                         MinimumSupportEnergyCoefficient);
 
-    this->DebugCheck("SolveHydroEquations (512)");
     /* PPM LR has been withdrawn. */
 
     if (HydroMethod == PPM_LagrangeRemap) {

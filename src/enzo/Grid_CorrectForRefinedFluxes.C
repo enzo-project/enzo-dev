@@ -338,7 +338,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  /* Multiply faces by density to get conserved quantities
 	     (only multiply fields which we are going to correct) */
-          this->DebugCheck("CorrectForRefinedFluxes line 341");
 	
 	  if (HydroMethod != Zeus_Hydro) {
 	    for (field = 0; field < NumberOfBaryonFields; field++) { 
@@ -369,8 +368,9 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
 	    if (((FieldType[field] >= ElectronDensity &&
-		FieldType[field] <= ExtraType1) || FieldType[field] == MetalSNIaDensity 
-                    || FieldType[field] == MetalSNIIDensity )&&
+              FieldType[field] <= ExtraType1) ||
+                FieldType[field] == MetalSNIaDensity ||
+                FieldType[field] == MetalSNIIDensity) &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -464,13 +464,13 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			  
 			BaryonField[field][FieldIndex + Offset] += CorrectionAmountRight;
 			
-		      }else{ /* if( SUBlingGrid == FALSE ){} */
+		      }else{ /* if( SUBlingGrid == FALSE ){ */
 			  CorrectionAmountRight = 
 			    InitialFluxes->RightFluxes[field][dim][FluxIndex] -
 			    RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex];
 			  BaryonField[field][FieldIndex + Offset] += CorrectionAmountRight;
 			
-		      } // else /* if( SUBlingGrid == FALSE ){} */
+		      } // else{ /* if( SUBlingGrid == FALSE ){ */
 		    } // if(CorrectRightBaryonField)
 		
 		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
@@ -542,12 +542,12 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			}
 		      } // ENDIF CorrectRightBaryonField
 		    }
-		  }// for (i = Start[0]; i <= End[0]; i++) 
-		} // for (j = Start[1]; j <= End[1]; j++)
-	      } // for (k = Start[2]; k <= End[2]; k++)
+		  }// for (i = Start[0]; i <= End[0]; i++) {
+		} // for (j = Start[1]; j <= End[1]; j++){
+	      } // for (k = Start[2]; k <= End[2]; k++){
 	    }	// if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && etc
-	  } // for (field = 0; field < NumberOfBaryonFields; field++)
-	}
+	  } // for (field = 0; field < NumberOfBaryonFields; field++){
+	  }
 
 
 	if (Coordinate == Cylindrical) {
@@ -555,7 +555,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	for (field = 0; field < NumberOfBaryonFields; field++) {
 	  /*if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && 
 	    FieldType[field] != InternalEnergy))
-	    && (FieldType[field] < ElectronDensity) ) */
+	    && (FieldType[field] < ElectronDensity) ) {*/
 	  if (FieldType[field] < ElectronDensity &&
 	      FieldType[field] != DrivingField1 &&
 	      FieldType[field] != DrivingField2 &&
@@ -689,11 +689,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	  /* If appropriate, restore consistency between total and internal
 	     energy in corrected faces. */
 	
-          if ( this->DebugCheck("CorrectForRefinedFluxes line 691") == FAIL ) {
-            fprintf(stderr, "CorrectForRefined further info.  %"ISYM", %"ISYM", %"ISYM" %"ISYM" %"GSYM" %"GSYM"\n", 
-                CorrectLeftBaryonField, CorrectRightBaryonField, CorrectLeftBoundaryFlux, CorrectRightBoundaryFlux,
-                CorrectionAmountLeft, CorrectionAmountRight);
-          }
 	  if (DualEnergyFormalism == TRUE){
 	    float B2 = 0.0;
 	    for (k = Start[2]; k <= End[2]; k++)
@@ -748,7 +743,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	      } // end: loop over faces
 	  } // end: if (DualEnergyFormalism)
 	
-          this->DebugCheck("CorrectForRefinedFluxes line 745");
 	    /* Multiply species by density to return from fractional to real
 	       density. (see comments above regarding species). */
 	
@@ -770,12 +764,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  }
 		}
 	
-	} // if( CorrectLeftBaryonField || CorrectRightBaryonField)
+	} // if( CorrectLeftBaryonField || CorrectRightBaryonField){
 
       } // end: if GridDimension[dim] > 1
       /* delete Refined fluxes as they're not needed anymore. */
  
-      this->DebugCheck("CorrectForRefinedFluxes line 777");
       for (field = 0; field < NumberOfBaryonFields; field++) {
 	delete [] RefinedFluxes->LeftFluxes[field][dim];
 	delete [] RefinedFluxes->RightFluxes[field][dim];

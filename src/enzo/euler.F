@@ -10,7 +10,7 @@ c
      &            idim, jdim, i1, i2, j1, j2, dt, 
      &            gamma, idiff, gravity, idual, eta1, eta2,
      &            df, ef, uf, vf, wf, gef, ges,
-     &            ncolor, colslice, colf, dfl, eceil
+     &            ncolor, colslice, colf
      &                 )
 c
 c  SOLVES THE EULERIAN CONSERVATION LAWS USING FLUXES FROM THE RIEMANN SOLVER
@@ -59,7 +59,6 @@ c    vl,rs  - 2-velocity at left and right edges of each cell
 c    vslice - extracted 2d slice of the 2-velocity, v
 c    wl,rs  - 3-velocity at left and right edges of each cell
 c    wslice - extracted 2d slice of the 3-velocity, w
-c    dfl    - density floor
 c
 c  OUTPUT:
 c    dslice - extracted 2d slice of the density, d
@@ -86,7 +85,7 @@ c  argument declarations
 c
       INTG_PREC gravity, i1, i2, idiff, idim, idual, j1, j2, 
      &       jdim, ncolor
-      R_PREC    dt, eta1, eta2, gamma, dfl, eceil
+      R_PREC    dt, eta1, eta2, gamma
       R_PREC diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim)
@@ -98,7 +97,7 @@ c
 c  local declarations
 c
       INTG_PREC i, j, n
-      R_PREC qa, qb, qc, frac, uadvect, eold, theDiff
+      R_PREC qa, qb, qc, frac, uadvect, eold
       R_PREC dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
       R_PREC min_color
@@ -120,7 +119,6 @@ c
 c  Loop over sweep lines (in this slice)
 c
       do j=j1, j2
-
 c     
 c  Update conservation laws  (eq. 3.1)
 c
@@ -139,12 +137,8 @@ c
 c     A small cheat: if idual is on, assume a cosmo sim, and institute a
 c     minimum density.  This should be a parameter and pased in.
 c
-          if (idual .eq. 1 .and. gravity .eq. 1) then
-              if (dnu(i) .lt. dfl) then
-                  write(6,*) 'WARNING: Hit density floor ',dnu(i)
-                  dnu(i) = dfl
-              endif
-          endif
+          if (idual .eq. 1 .and. gravity .eq. 1) 
+     &         dnu(i) = max(dnu(i),1.e-3_RKIND)
 
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
@@ -192,19 +186,6 @@ c            for the source term in the gas energy equation.
 c
        if (idual .eq. 1) then
           do i=i1, i2
-             if (geslice(i,j) .gt. eceil) then
-                write(6,*) 'Hit temperature ceiling!',
-     &               i,j,dslice(i,j),dnu(i),pcent(i),eslice(i,j),
-     &               gef(i,j), gef(i+1,j), ges(i,j),
-     &               geslice(i,j)*dslice(i,j),
-     &               uslice(i,j),uslice(i+1,j),
-     &               dnuinv(i),geslice(i,j),
-     &               (geslice(i,j)*dslice(i,j)+gef(i,j)-gef(i+1,j)
-     &                 +ges(i,j)) * dnuinv(i)
-                theDiff = geslice(i,j) - eceil
-c                geslice(i,j) = geslice(i,j) - theDiff
-c                eslice(i,j) = eslice(i,j) - theDiff
-             endif
              if (geslice(i,j) .lt. 0._RKIND) 
      $            write(6,*) 'euler: geslice<0:', i,j,geslice(i,j)
              geslice(i,j) = max((geslice(i,j)*dslice(i,j) +
@@ -288,8 +269,6 @@ c
        do i=i1, i2
           dslice(i,j) = dnu(i)
        enddo
-
-
 c
       enddo
 c

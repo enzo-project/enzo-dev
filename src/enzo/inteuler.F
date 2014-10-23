@@ -1,5 +1,4 @@
 #include "fortran.def"
-#include "error.def"
 c=======================================================================
 c///////////////////////  SUBROUTINE INTEULER  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -281,7 +280,6 @@ c
      &            col6(1,ic), colla(1,ic), colra(1,ic), coll0(1,ic), 
      &            colr0(1,ic))
       enddo
-
 c
 #ifdef UNUSED
       do i=i1,i2+1
@@ -442,7 +440,7 @@ c
             else
                colls(i,j,ic) = coll0(i,ic) * dls(i,j)/dl0(i)
             endif
-
+c
             if (uslice(i  ,j) .ge. 0._RKIND) then
                colrs(i,j,ic) = colra(i,ic) * drs(i,j)/dra(i)
             else
@@ -450,8 +448,6 @@ c
             endif
          enddo
       enddo
-
-
 c
 c     Correct advected quantities for wave subtraction (similar as d,p,u
 c     correction above).
@@ -502,6 +498,7 @@ c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
      &          1.0e-3_RKIND
      &          .or. dls(i,j)/dla(i) .gt. 5._RKIND) then
                do ic = 1,ncolor
+c                cols *= new/old
                  colls(i,j,ic) = colls(i,j,ic) * dla(i)/dls(i,j)
                enddo
                pls(i,j) = pla(i)
@@ -559,8 +556,5 @@ c
 c
 400   continue
 c
-
-
-
       return
       end

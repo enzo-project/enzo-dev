@@ -378,6 +378,7 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
       return SUCCESS;
 
   }
+ 
   /* Divide all fields by mass to return to original quantity. */
  
   for (field = 0; field < NumberOfBaryonFields; field++)

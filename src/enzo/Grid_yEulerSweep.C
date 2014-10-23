@@ -35,7 +35,6 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      int GravityOn, int NumberOfColours, int colnum[], float *pressure)
 {
 
-  this->DebugCheck("Grid_yEulerSweep (38)");
   int dim = 1, idim = 0, jdim = 2;
   int dim_p1 = dim+1;   // To match definition in calcdiss
 
@@ -268,11 +267,11 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			    dls, drs, pls, prs, uls, urs,
 			    vls, vrs, wls, wrs, gels, gers,
 			    df, uf, vf, wf, ef, gef, ges,
-			    &NumberOfColours, colslice, colls, colrs, colf,
-                            &DensityFloor );
+			    &NumberOfColours, colslice, colls, colrs, colf);
     break;
 
   } // ENDCASE
+
 
   /* Compute Eulerian fluxes and update zone-centered quantities */
 
@@ -283,7 +282,7 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 		      df, ef, uf, vf, wf, gef, ges,
-		      &NumberOfColours, colslice, colf, &DensityFloor, &EnergyCeiling);
+		      &NumberOfColours, colslice, colf);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
 
@@ -448,7 +447,6 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   delete [] colls;
   delete [] colrs;
 
-  this->DebugCheck("Grid_yEulerSweep (453)");
   return SUCCESS;
 
 }

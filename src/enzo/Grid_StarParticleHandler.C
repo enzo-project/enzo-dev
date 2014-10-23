@@ -1350,8 +1350,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        BaryonField[EtaNum], dtLevelAbove);
     }
 #endif 
- 
-  this->DebugCheck("After formation, before feedback");
 
   /* ------------------------------------------------------------------- */
   /* 2) StarParticle feedback. */

@@ -132,7 +132,8 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			int level, TopGridData *MetaData, FLOAT When, SiblingGridList **SiblingGridListStorage);
+			SiblingGridList SiblingList[],
+			int level, TopGridData *MetaData, FLOAT When);
 #else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
@@ -256,7 +257,6 @@ static int StaticLevelZero = 0;
 
 extern int RK2SecondStepBaryonDeposit;
 
-
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
 #ifdef TRANSFER
@@ -302,7 +302,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (dbx) fprintf(stderr, "EL: Initialize FSL \n"); 
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
-  SiblingGridListStorage[level] = SiblingList;
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
   
   /* Adjust the refine region so that only the finest particles 
@@ -451,7 +450,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     When = 0.5;
 
 #ifdef FAST_SIB
-     PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
+     PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
 #else   // !FAST_SIB
      PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -517,7 +516,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Copy current fields (with their boundaries) to the old fields
 	  in preparation for the new step. */
  
-      Grids[grid1]->GridData->DebugCheck("EvolveLevel line 520");
       Grids[grid1]->GridData->CopyBaryonFieldToOldBaryonField();
 
       /* Call hydro solver and save fluxes around subgrids. */
@@ -594,8 +592,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
       if (ComovingCoordinates)
 	Grids[grid1]->GridData->ComovingExpansionTerms();
-
-      Grids[grid1]->GridData->DebugCheck("EvolveLevel line 598");
  
     }  // end loop over grids
  
@@ -700,6 +696,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     CreateSUBlingList(MetaData, LevelArray, level, &SUBlingList);
 #endif /* FAST_SIB */
 
+
     EXTRA_OUTPUT_MACRO(3,"Before UFG")
 
     UpdateFromFinerGrids(level, Grids, NumberOfGrids, NumberOfSubgrids,
@@ -708,6 +705,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     DeleteSUBlingList( NumberOfGrids, SUBlingList );
 
     EXTRA_OUTPUT_MACRO(4,"After UFG")
+
 
     if(UseMHDCT == TRUE && MHD_ProjectE == TRUE){
       for(grid1=0;grid1<NumberOfGrids; grid1++){
@@ -832,7 +830,6 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         delete [] SiblingList[grid1].GridList;
     }
     delete [] SiblingList;
-    SiblingGridListStorage[level] = NULL;
   }
 
   return SUCCESS;

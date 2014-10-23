@@ -339,7 +339,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
     for (field = 0; field < NumberOfBaryonFields; field++) {
  
     /* Interpolating from the ParentTemp field to a Temporary field.  This
-       is done for the entire current grid, not just its boundaries.
+       is done for the entire current grid, not just it's boundaries.
        (skip density since we did it already) */
  
       if (HydroMethod == Zeus_Hydro){
@@ -618,7 +618,7 @@ int grid::InterpolateFieldValues(grid *ParentGrid
       if (this->RestoreEnergyConsistency(ENTIRE_REGION) == FAIL) {
 	ENZO_FAIL("Error in grid->RestoreEnergyConsistency.");
       }
-      //      if (this->RestoreEnergyConsistency(ONLY_BOUNDARY) == FAIL) 
+      //      if (this->RestoreEnergyConsistency(ONLY_BOUNDARY) == FAIL) {
  
   } // end: if (NumberOfBaryonFields > 0)
  

@@ -216,7 +216,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
     MinimumSlopeForRefinement[i]= 0.3;
     SlopeFlaggingFields[i] = INT_UNDEFINED;
-    SlopeDivideByDensity[i] = 0;
     CellFlaggingMethod[i]       = INT_UNDEFINED;
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
@@ -690,8 +689,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ViscosityCoefficient       = 0.;
   UseAmbipolarDiffusion	     = 0;
   UseResistivity	     = 0;
-  DensityFloor          = 1.0e-3;
-  EnergyCeiling = 1e30;
 
   StringKick = 0;
   StringKickDimension = 0;

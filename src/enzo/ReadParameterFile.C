@@ -710,17 +710,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumSlopeForRefinement+5,
 		  MinimumSlopeForRefinement+6);
 
-    ret += sscanf(line, "SlopeDivideByDensity = " 	  
-		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
-	
-		  SlopeDivideByDensity+0,
-		  SlopeDivideByDensity+1,
-		  SlopeDivideByDensity+2,
-		  SlopeDivideByDensity+3,
-		  SlopeDivideByDensity+4,  
-		  SlopeDivideByDensity+5,
-		  SlopeDivideByDensity+6);
-
      ret += sscanf(line, "SecondDerivativeFlaggingFields = "
 		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
 		  SecondDerivativeFlaggingFields+0, 
@@ -1867,7 +1856,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* No one seems to want GlobalDir to default to abspath(CWD).  I'm leaving
        the code here in case you do. MJT */ 
     strcpy(cwd_buffer, ".");
-   MetaData.GlobalDir = cwd_buffer;
+    MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }

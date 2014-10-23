@@ -186,7 +186,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Attach RandomForcingFields to BaryonFields temporarily to apply BCs */
  
-  if (RandomForcing == TRUE) { //AK
+  if (RandomForcing) { //AK
     Temp = LevelArray[0];
     while (Temp != NULL) {
       Temp->GridData->AppendForcingToBaryonFields();
@@ -245,7 +245,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Remove RandomForcingFields from BaryonFields when BCs are set. */
  
-  if (RandomForcing==TRUE) { //AK
+  if (RandomForcing) { //AK
     LevelHierarchyEntry *Temp = LevelArray[0];
     while (Temp != NULL) {
       Temp->GridData->DetachForcingFromBaryonFields();
@@ -695,9 +695,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     TIMER_STOP("Total");
-    if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0) {
-      TIMER_WRITE(MetaData.CycleNumber);
-    }
+    if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0)
+		  TIMER_WRITE(MetaData.CycleNumber);
+
     FirstLoop = false;
  
     /* If simulation is set to stop after writing a set number of outputs, check that here. */

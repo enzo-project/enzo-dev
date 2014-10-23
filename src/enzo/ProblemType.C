@@ -175,7 +175,6 @@ int EnzoProblemType::InitializeUniformGrid(
   if (TestProblemData.UseMetallicityField) {
     tg->FieldType[MetalNum = tg->NumberOfBaryonFields++] = Metallicity;
 
-
     if(TestProblemData.MultiMetals){
       tg->FieldType[ExtraField[0] = tg->NumberOfBaryonFields++] = ExtraType0;
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
