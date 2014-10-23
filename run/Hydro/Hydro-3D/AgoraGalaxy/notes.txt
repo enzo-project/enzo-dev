@@ -17,4 +17,6 @@ parameter file to point to the location of the grackle noUVB cooling table.
 
 If run to completion, this simulation needs about 200 gigabytes of free space.
 If you are constrained by hard disk space, consider decreasing the output
-interval (1 Myr of physical time per output, by default).
+interval (1 Myr of physical time per output, by default).  The simulation should
+finish in approximately 12 hours when run on 16 cores.  Of course, you're
+mileage may vary for the amount of wallclock time necessary.
