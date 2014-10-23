@@ -59,13 +59,14 @@ c
 c  locals
 c
       INTG_PREC i, j, im1, ip1
-      R_PREC    demax, ge1, ge2, ke
+      R_PREC    demax, ge1, ge2, ke, eceil
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////
 c=======================================================================
 c
 c  compute the pressure
 c
+      eceil = 100.0_RKIND
       do j=j1,j2
          do i=i1,i2
 c
@@ -87,11 +88,28 @@ c           If the ratio of the gas energy to the max nearby total energy is
 c             is > eta2 then use the gas energy computed from the total energy
 c             to update the specific energy (total energy is better).
 c
+
+
+             if (geslice(i,j) .gt. eceil .or. eslice(i,j) .gt. eceil 
+     &            .or. ke .gt. eceil) then
+                write(6,*) 'Hit temperature ceiling pgd3!',
+     &               i,j,geslice(i,j),dslice(i,j),eslice(i,j),ge1,ke,
+     &               uslice(i,j),vslice(i,j),wslice(i,j)
+             endif
+
+
             if (geslice(i,j) .le. 0._RKIND) write(6,*) 
      &            'pga:',i,j,geslice(i,j),demax
             if (ge1*dslice(i,j)/demax .gt. eta2) geslice(i,j) = ge1
             if (geslice(i,j) .le. 0._RKIND) write(6,*) 
      &            'pgb:',i,j,geslice(i,j),dslice(i,j),demax,eslice(i,j)
+
+             if (geslice(i,j) .gt. eceil .or. eslice(i,j) .gt. eceil 
+     &            .or. ke .gt. eceil) then
+                write(6,*) 'Hit temperature ceiling pgd4!',
+     &               i,j,geslice(i,j),dslice(i,j),eslice(i,j),ge1,ke,
+     &               uslice(i,j),vslice(i,j),wslice(i,j)
+             endif
 c
 c           If the ratio of the specific gas energy to specific total energy 
 c             (in this cell) is < eta1 then use the gas energy to update

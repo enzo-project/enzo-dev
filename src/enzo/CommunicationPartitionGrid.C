@@ -159,7 +159,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     StartIndex[dim] = new int[Layout[dim]];
  
     /* Compute dims and start indexes of the grids along this dim. */
- 
+
     ExactDims = float(Dims[dim])/float(Layout[dim]);
     ExactCount = 0;
     DisplacementCount = 0;

@@ -20,6 +20,7 @@
  
 #include <stdlib.h>
 #include <stdio.h>
+#include <fstream>
 #include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -422,6 +423,8 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtConduction);
   dt = min(dt, dtGasDrag);
 
+
+
 #ifdef TRANSFER
 
   /* 8) If star formation, set a minimum timestep */
@@ -497,26 +500,30 @@ float grid::ComputeTimeStep()
 #endif /* TRANSFER */
  
   /* Debugging info. */
+
+  if (dt < 1.0e-15) {
   
-  if (debug1) {
-    printf("ComputeTimeStep = %"ESYM" (", dt);
-    if (HydroMethod != MHD_RK && HydroMethod != MHD_Li && NumberOfBaryonFields > 0)
-      printf("Bar = %"ESYM" ", dtBaryons);
-    if (HydroMethod == MHD_RK || HydroMethod == MHD_Li)
-      printf("dtMHD = %"ESYM" ", dtMHD);
-    if (HydroMethod == Zeus_Hydro)
-      printf("Vis = %"ESYM" ", dtViscous);
-    if (ComovingCoordinates)
-      printf("Exp = %"ESYM" ", dtExpansion);
-    if (dtAcceleration != huge_number)
-      printf("Acc = %"ESYM" ", dtAcceleration);
-    if (NumberOfParticles)
-      printf("Part = %"ESYM" ", dtParticles);
-    if (IsotropicConduction || AnisotropicConduction)
-      printf("Cond = %"ESYM" ",(dtConduction));
-    if (UseGasDrag)
-      printf("Drag = %"ESYM" ",(dtGasDrag));
-    printf(")\n");
+	  if (true) {
+	    printf("ComputeTimeStep = %"ESYM" (", dt);
+	    if (HydroMethod != MHD_RK && HydroMethod != MHD_Li && NumberOfBaryonFields > 0)
+	      printf("Bar = %"ESYM" ", dtBaryons);
+	    if (HydroMethod == MHD_RK || HydroMethod == MHD_Li)
+	      printf("dtMHD = %"ESYM" ", dtMHD);
+	    if (HydroMethod == Zeus_Hydro)
+	      printf("Vis = %"ESYM" ", dtViscous);
+	    if (ComovingCoordinates)
+	      printf("Exp = %"ESYM" ", dtExpansion);
+	    if (dtAcceleration != huge_number)
+	      printf("Acc = %"ESYM" ", dtAcceleration);
+	    if (NumberOfParticles)
+	      printf("Part = %"ESYM" ", dtParticles);
+	    if (IsotropicConduction || AnisotropicConduction)
+	      printf("Cond = %"ESYM" ",(dtConduction));
+	    if (UseGasDrag)
+	      printf("Drag = %"ESYM" ",(dtGasDrag));
+	    printf(")\n");
+	  }
+   ENZO_FAIL("Small time step");
   }
  
   return dt;

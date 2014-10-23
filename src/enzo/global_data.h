@@ -523,6 +523,7 @@ EXTERN FLOAT HaloFinderLastTime;
 
 EXTERN float MinimumSlopeForRefinement[MAX_FLAGGING_METHODS];
 EXTERN int SlopeFlaggingFields[MAX_FLAGGING_METHODS];
+EXTERN int SlopeDivideByDensity[MAX_FLAGGING_METHODS];
 
 /* For CellFlaggingMethod = 2,
    The minimum refined mass for the ByMass refining scheme
@@ -623,6 +624,7 @@ EXTERN float SimpleRampTime;
    root grid time step (as in Kravtsov 2004, for example). Currently
    only implemented for H2REG_STAR. */
 EXTERN int   StarFormationOncePerRootGridTimeStep;
+
 
 
 /* Parameters governing certain time or redshift-dependent actions. */
@@ -766,6 +768,8 @@ EXTERN int UseViscosity;
 EXTERN float ViscosityCoefficient;
 EXTERN int UseAmbipolarDiffusion;
 EXTERN int UseResistivity;
+EXTERN float DensityFloor; // code units
+EXTERN float EnergyCeiling; // code units
 
 /* Chemistry & cooling parameters */
 

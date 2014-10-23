@@ -377,8 +377,10 @@ c
           do i=i1, i2+1
 c             colf(i,j,n) = dt*dub(i)*colb(i,n)   ! color*dens conserved
              colf(i,j,n) = dt*ub(i)*colb(i,n)     ! color      conserved
+c             colf(i,j,n) = dt*ub(i)*colb(i,n)*db(i)/dslice(i,j)     ! color      conserved
           enddo
        enddo
+
 c
 c      Do the same for the gas energy if using the dual energy formalism
 c         (note that we do not include the source term)

@@ -82,6 +82,7 @@ class grid
   FLOAT OldTime;                       // time corresponding to OldBaryonField
   int   SubgridsAreStatic;             // 
   int   ID;                            // Grid ID Number
+  int   sfSeed;
 //
 //  Baryon grid data
 //
@@ -119,6 +120,7 @@ class grid
   PINT  *ParticleNumber;                   // unique identifier
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+
 //
 //  Star particle data
 //
@@ -503,7 +505,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the pressure at the requested time. */
 
-   int ComputePressure(FLOAT time, float *pressure,
+  int ComputePressure(FLOAT time, float *pressure,
                       float MinimumSupportEnergyCoefficient=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
@@ -1666,7 +1668,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   /* Identify colour field */
 
   int IdentifyColourFields(int &SNColourNum, int &MetalNum, 
-			   int &MetalIaNum, int &MBHColourNum,
+			   int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
 			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
   /* Identify Multi-species fields. */

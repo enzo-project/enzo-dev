@@ -650,9 +650,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "ExtractFieldsOnly               = %"ISYM"\n", ExtractFieldsOnly);
   fprintf(fptr, "CubeDumpEnabled                 = %"ISYM"\n", CubeDumpEnabled);
   fprintf(fptr, "UserDefinedRootGridLayout       = %"ISYM" %"ISYM" %"ISYM"\n",
-          UserDefinedRootGridLayout[0],
-          UserDefinedRootGridLayout[1],
-          UserDefinedRootGridLayout[2]);
+          UserDefinedRootGridLayout[0], UserDefinedRootGridLayout[1], UserDefinedRootGridLayout[2]);
 
   fprintf(fptr, "Debug1                          = %"ISYM"\n", debug1);
   fprintf(fptr, "Debug2                          = %"ISYM"\n", debug2);
@@ -694,6 +692,16 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MinimumSlopeForRefinement[4],
 	  MinimumSlopeForRefinement[5],
 	  MinimumSlopeForRefinement[6]);
+
+  fprintf(fptr, "SlopeDivideByDensity ="
+	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
+	  SlopeDivideByDensity[0],
+	  SlopeDivideByDensity[1],
+	  SlopeDivideByDensity[2],
+	  SlopeDivideByDensity[3],
+	  SlopeDivideByDensity[4],
+	  SlopeDivideByDensity[5],
+	  SlopeDivideByDensity[6]);
 
   fprintf(fptr, "SecondDerivativeFlaggingFields ="
 	  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM"\n",
@@ -798,6 +806,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",
 	  StarMakerOverDensityThreshold);
+  fprintf(fptr, "StarMakerUseOverDensityThreshold      = %"ISYM"\n",
+	  StarMakerUseOverDensityThreshold);
+  fprintf(fptr, "StarMakerMaximumFractionCell          = %"GSYM"\n",
+	  StarMakerMaximumFractionCell);
   fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
       StarMakerSHDensityThreshold);
   fprintf(fptr, "StarMakerTimeIndependentFormation     = %"ISYM"\n",
@@ -824,6 +836,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistCellStep);
   fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
 	  StarMakerTypeIaSNe);
+  fprintf(fptr, "StarMakerTypeIISNeMetalField          = %"ISYM"\n",
+	  StarMakerTypeIISNeMetalField);
   fprintf(fptr, "StarMakerPlanetaryNebulae             = %"ISYM"\n",
 	  StarMakerPlanetaryNebulae);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n\n",
@@ -995,6 +1009,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "UseConstantAcceleration    = %d\n", UseConstantAcceleration);
   fprintf(fptr, "ConstantAcceleration       = %g %g %g\n", ConstantAcceleration[0],
 	  ConstantAcceleration[1], ConstantAcceleration[2]);
+  fprintf(fptr, "DensityFloor               = %g\n", DensityFloor);
+  fprintf(fptr, "EnergyCeiling              = %g\n", EnergyCeiling);
 
   fprintf(fptr, "UseDrivingField            = %d\n", UseDrivingField);
   fprintf(fptr, "DrivingEfficiency          = %f\n", DrivingEfficiency);

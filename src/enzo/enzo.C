@@ -286,6 +286,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 
   // Create enzo timer
   enzo_timer = new enzo_timing::enzo_timer();
+  TIMER_REGISTER("SolveHydroEquations");
 
 #ifdef USE_LCAPERF
 

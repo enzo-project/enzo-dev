@@ -216,6 +216,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   for (i = 0; i < MAX_FLAGGING_METHODS; i++) {
     MinimumSlopeForRefinement[i]= 0.3;
     SlopeFlaggingFields[i] = INT_UNDEFINED;
+    SlopeDivideByDensity[i] = 0;
     CellFlaggingMethod[i]       = INT_UNDEFINED;
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
@@ -486,7 +487,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SimpleRampTime                   = 0.1;
   StarFormationOncePerRootGridTimeStep = FALSE;
   StarMakerTypeIaSNe               = FALSE;
+  StarMakerTypeIISNeMetalField     = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
+  StarMakerUseOverDensityThreshold = TRUE;
+  StarMakerMaximumFractionCell     = 0.5;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerTimeIndependentFormation = FALSE;
@@ -686,6 +690,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ViscosityCoefficient       = 0.;
   UseAmbipolarDiffusion	     = 0;
   UseResistivity	     = 0;
+  DensityFloor          = 1.0e-3;
+  EnergyCeiling = 1e30;
 
   StringKick = 0;
   StringKickDimension = 0;
@@ -754,6 +760,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
   TestProblemData.MetallicitySNIaField_Fraction = tiny_number;
+  TestProblemData.MetallicitySNIIField_Fraction = tiny_number;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

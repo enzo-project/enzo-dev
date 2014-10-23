@@ -85,8 +85,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			SiblingGridList SiblingList[],
-			int level, TopGridData *MetaData, FLOAT When);
+			int level, TopGridData *MetaData, FLOAT When, SiblingGridList **SiblingGridListStorage);
 int SetAccelerationBoundary(HierarchyEntry *Grids[], int NumberOfGrids,
 			    SiblingGridList SiblingList[],
 			    int level, TopGridData *MetaData,
@@ -209,7 +208,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		    ImplicitProblemABC *ImplicitSolver,
 #endif
-		    FLOAT dt0)
+		    FLOAT dt0, SiblingGridList *SiblingGridListStorage[] 
+        )
 {
 
   float dtGrid;
@@ -244,6 +244,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero, 
 		    MetaData, level);
+  SiblingGridListStorage[level] = SiblingList;
 
   /* On the top grid, adjust the refine region so that only the finest
      particles are included.  We don't want the more massive particles
@@ -338,7 +339,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 //    RK2SecondStepBaryonDeposit = 1;  
     if (SelfGravity) {
 #ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+      PrepareDensityField(LevelArray,  level, MetaData, When,SiblingGridListStorage );
 #else   // !FAST_SIB
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -420,7 +421,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (RK2SecondStepBaryonDeposit && SelfGravity && UseHydro) {  
       When = 0.5;
 #ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+      PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
 #else  
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -570,7 +571,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 			  ImplicitSolver, 
 #endif
-			  dt0) 
+			  dt0, SiblingGridListStorage) 
 	  == FAIL) {
 	fprintf(stderr, "Error in EvolveLevel_RK2 (%"ISYM").\n", level);
 	ENZO_FAIL("");
@@ -630,7 +631,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       When = 0.5;
  
 #ifdef FAST_SIB
-      PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+      PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
 #else   // !FAST_SIB
       PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -703,6 +704,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       delete [] SiblingList[grid1].GridList;
     delete [] SiblingList;
   }
+  SiblingGridListStorage[level] = NULL;
 
   return SUCCESS;
 

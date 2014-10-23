@@ -455,10 +455,7 @@ typedef int            HDF5_hid_t;
 #define MPI_SENDPARTFIELD_TAG 1000
 
 /* Definitions for CommunicationBufferedSend. */
-
-#define BUFFER_IN_PLACE -1
-
-/* Particle types (note: gas is a conceptual type) */
+#define BUFFER_IN_PLACE -1 /* Particle types (note: gas is a conceptual type) */
 
 #define NUM_PARTICLE_TYPES 11
 
@@ -495,6 +492,7 @@ typedef int            HDF5_hid_t;
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
 #define H2REG_STAR     11
+#define SINGLE_SUPERNOVA 12
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)

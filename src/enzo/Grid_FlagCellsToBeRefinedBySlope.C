@@ -96,13 +96,17 @@ int grid::FlagCellsToBeRefinedBySlope()
  
 
 	bool doField=false; float MinimumSlopeForRefinementThis;
+    bool DBD;
 	if (SlopeFlaggingFields[0]==INT_UNDEFINED){ 
 	  MinimumSlopeForRefinementThis=MinimumSlopeForRefinement[0];
-	  doField=true;}
+	  doField=true;
+      DBD=0;
+    }
 	else{
 	  for (int g=0; g<MAX_FLAGGING_METHODS; g++){
 	     if (SlopeFlaggingFields[g]==FieldType[field]){
 	       MinimumSlopeForRefinementThis=MinimumSlopeForRefinement[g];
+           DBD = SlopeDivideByDensity[g];
 	       doField=true;
 	     }
 	  }
@@ -125,16 +129,30 @@ int grid::FlagCellsToBeRefinedBySlope()
 	    for (i = Start[0]; i <= End[0]; i++) {
 	      index = i + j*GridDimension[0] +
 		      k*GridDimension[1]*GridDimension[0];
+          if(DBD==0) {
 	      *(TempBuffer + index) = 0.5*fabs(
 		     (*(BaryonField[field] + index + Offset) -
 		      *(BaryonField[field] + index - Offset)  ) /
 		  max(fabs(*(BaryonField[field] + index) ), tiny_number));
+          }
+
+          if(DBD==1) {
+	      *(TempBuffer + index) = 0.5*fabs(
+		     (*(BaryonField[field] + index + Offset)/ *(BaryonField[0] + index+Offset) -
+		      *(BaryonField[field] + index - Offset)/ *(BaryonField[0] + index-Offset)  ) /
+		  max(fabs(*(BaryonField[field] + index) )/ *(BaryonField[0]+index), tiny_number));
+          }
 	    }
 	
 	/* flag field based on slope */
  
-	for (i = 0; i < size; i++)
+	for (i = 0; i < size; i++) {
 	  FlaggingField[i] += (TempBuffer[i] > MinimumSlopeForRefinementThis) ? 1 : 0;
+      if(TempBuffer[i] > MinimumSlopeForRefinementThis) {
+        double dummy=0;
+        dummy = dummy+1;
+      }
+    }
 
 	  } // end loop over do condition
  

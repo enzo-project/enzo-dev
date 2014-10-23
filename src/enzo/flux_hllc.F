@@ -9,8 +9,8 @@ c////////////////////////  SUBROUTINE FLUX_HLLC \\\\\\\\\\\\\\\\\\\\\\\\
      &     idiff, idual, eta1, ifallback,
      &     dls, drs, pls, prs, uls, urs, vls, vrs, wls, wrs, gels, gers,
      &     df, uf, vf, wf, ef, gef, ges,
-     &     ncolor, colslice, colls, colrs, colf
-     &     )
+     &     ncolor, colslice, colls, colrs, colf,
+     &     dfloor )
 
 c  RIEMANN SOLVER USING HLLC APPROXIMATION
 c
@@ -65,7 +65,7 @@ c  argument declarations
 c
       INTG_PREC i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
      $     ifallback
-      R_PREC gamma, dt, eta1
+      R_PREC gamma, dt, eta1, dfloor
       R_PREC dx(idim)
       R_PREC uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
      $     urs(idim,jdim), vrs(idim,jdim), wrs(idim,jdim),
@@ -329,7 +329,7 @@ c
 c     Check here for negative densities and energies
 c
       do i=i1, i2
-         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0._RKIND) then
+         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. dfloor) then
             if (eslice(i,j) .lt. 0._RKIND) then
                write (6,*) 'flux_hllc: eslice < 0: ', i, j
                write (6,*) ef(i,j)-ef(i+1,j),
@@ -375,6 +375,7 @@ c     &        write (6,*) grslice(i-1,j), grslice(i,j), grslice(i+1,j)
                write(0,*) 'stop in euler with e < 0'
                ERROR_MESSAGE
             else
+	       write(6,*) 'BELOW DENSITY FLOOR srsly' 
                write(0,*) 'Falling back to a more diffusive Riemann',
      $              'solver, HLL'
                WARNING_MESSAGE

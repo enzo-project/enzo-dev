@@ -59,7 +59,6 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 TopGridData *MetaData)
  
 {
-
   LCAPERF_START("UpdateFromFinerGrids");
  
   int grid1, subgrid, StartGrid, EndGrid;
@@ -83,6 +82,12 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();
 #endif
+  for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid+=GRIDS_PER_LOOP) {
+    EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+    for( grid1 = StartGrid; grid1 < EndGrid; ++grid1) {
+        Grids[grid1]->GridData->DebugCheck("Before ProjectSolutionToParentGrid (UpdateFromFinerGrids:88)");
+    }
+  }
 
   TIME_MSG("UpdateFromFinerGrids");
   LCAPERF_START("GetProjectedBoundaryFluxes");
@@ -114,6 +119,7 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	NextGrid->GridData->
 	  GetProjectedBoundaryFluxes(Grids[grid1]->GridData, SubgridFluxesRefined);
  
+
 	NextGrid = NextGrid->NextGridThisLevel;
 	subgrid++;
       } // ENDWHILE subgrids
@@ -165,12 +171,14 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	   (only call it if the grid and sub-grid are on the same
 	   processor, otherwise handled in CommunicationReceiveHandler.) */
 
+    Grids[grid1]->GridData->DebugCheck("Before CorrectForRefinedFluxes (UpdateFromFinerGrids:174)");
 	if (NextGrid->GridData->ReturnProcessorNumber() ==
 	    Grids[grid1]->GridData->ReturnProcessorNumber())
 	  Grids[grid1]->GridData->CorrectForRefinedFluxes
 	    (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
 	     SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
 	     FALSE, MetaData);
+    Grids[grid1]->GridData->DebugCheck("After CorrectForRefinedFluxes (UpdateFromFinerGrids:181)");
 
 	NextGrid = NextGrid->NextGridThisLevel;
 	subgrid++;
@@ -192,14 +200,17 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
  
 	  /* Correct this grid for the refined fluxes (step #19)
 	     (this also deletes the fields in SubgridFluxesRefined). */
- 
-	  if (NextEntry->GridData->ReturnProcessorNumber() ==
+      
+      Grids[grid1]->GridData->DebugCheck("Before CorrectForRefinedFluxes (UpdateFromFinerGrids:204)");
+	  
+      if (NextEntry->GridData->ReturnProcessorNumber() ==
 	      Grids[grid1]->GridData->ReturnProcessorNumber())
 	    Grids[grid1]->GridData->CorrectForRefinedFluxes
 	      (SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
 	       &SubgridFluxesRefined,
 	       SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
 	       TRUE, MetaData);
+      Grids[grid1]->GridData->DebugCheck("After CorrectForRefinedFluxes (UpdateFromFinerGrids:213)");
 	}
 
 	NextEntry = NextEntry->NextGridThisLevel;
@@ -219,6 +230,12 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
     (b) correct for the difference between this grid's fluxes and the
         subgrid's fluxes. (step #19) 
   ************************************************************************/
+  for (StartGrid = 0; StartGrid < NumberOfGrids; StartGrid+=GRIDS_PER_LOOP) {
+    EndGrid = min(StartGrid + GRIDS_PER_LOOP, NumberOfGrids);
+    for( grid1 = StartGrid; grid1 < EndGrid; ++grid1) {
+        Grids[grid1]->GridData->DebugCheck("Before ProjectSolutionToParentGrid (UpdateFromFinerGrids:225)");
+    }
+  }
 
   TIME_MSG("Projecting solution to parent");
   LCAPERF_START("ProjectSolutionToParentGrid");

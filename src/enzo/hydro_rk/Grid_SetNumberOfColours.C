@@ -38,10 +38,10 @@ int grid::SetNumberOfColours(void)
 
   /* Count colours */  
 
-  int SNColourNum, MetalNum, MetalIaNum, MBHColourNum, Galaxy1ColourNum, 
+  int SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, Galaxy1ColourNum, 
     Galaxy2ColourNum; 
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;
@@ -55,6 +55,7 @@ int grid::SetNumberOfColours(void)
   if (MetalNum != -1) {
     _nc++;
     if (StarMakerTypeIaSNe) _nc++;
+    if (StarMakerTypeIISNeMetalField) _nc++;
     if (MultiMetals || TestProblemData.MultiMetals) {
       _nc += 2;
     }

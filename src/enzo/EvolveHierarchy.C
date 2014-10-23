@@ -67,6 +67,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
+    ,SiblingGridList *SiblingGridListStorage[]
 		);
 
 int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -74,7 +75,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		    ImplicitProblemABC *ImplicitSolver, 
 #endif
-		    FLOAT dt0);
+		    FLOAT dt0 ,SiblingGridList *SiblingGridListStorage[]);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -185,7 +186,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Attach RandomForcingFields to BaryonFields temporarily to apply BCs */
  
-  if (RandomForcing) { //AK
+  if (RandomForcing == TRUE) { //AK
     Temp = LevelArray[0];
     while (Temp != NULL) {
       Temp->GridData->AppendForcingToBaryonFields();
@@ -244,7 +245,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
   /* Remove RandomForcingFields from BaryonFields when BCs are set. */
  
-  if (RandomForcing) { //AK
+  if (RandomForcing==TRUE) { //AK
     LevelHierarchyEntry *Temp = LevelArray[0];
     while (Temp != NULL) {
       Temp->GridData->DetachForcingFromBaryonFields();
@@ -316,6 +317,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
   LCAPERF_STOP("EvolveHierarchy");
   LCAPERF_END("EH");
+
+  SiblingGridList *SiblingGridListStorage[MAX_DEPTH_OF_HIERARCHY];
+  for( int level=0; level < MAX_DEPTH_OF_HIERARCHY; level++ ){
+    SiblingGridListStorage[level] = NULL;
+  }
+
 
   /* ====== MAIN LOOP ===== */
 
@@ -488,6 +495,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
+          ,SiblingGridListStorage
 		      ) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
@@ -508,7 +516,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 			    ImplicitSolver, 
 #endif
-			    dt) == FAIL) {
+			    dt, SiblingGridListStorage) == FAIL) {
 	  if (NumberOfProcessors == 1) {
 	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
 	    fprintf(stderr, "--> Dumping data (output number %d).\n",
@@ -687,9 +695,9 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #endif
 
     TIMER_STOP("Total");
-    if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0)
-		  TIMER_WRITE(MetaData.CycleNumber);
-
+    if ((MetaData.CycleNumber-1) % TimingCycleSkip == 0) {
+      TIMER_WRITE(MetaData.CycleNumber);
+    }
     FirstLoop = false;
  
     /* If simulation is set to stop after writing a set number of outputs, check that here. */

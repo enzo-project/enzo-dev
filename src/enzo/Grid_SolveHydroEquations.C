@@ -67,7 +67,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
   LCAPERF_START("grid_SolveHydroEquations");
   TIMER_START("SolveHydroEquations");
 
-  this->DebugCheck("SolveHydroEquations");
+  this->DebugCheck("SolveHydroEquations (start)");
 
   if (NumberOfBaryonFields > 0) {
 
@@ -172,10 +172,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Add "real" colour fields (metallicity, etc.) as colour variables. */
 
     int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-      MetalIaNum; 
+      MetalIaNum, MetalIINum; 
 
-    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
-				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
+                MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
     if (MetalNum != -1) {
@@ -187,6 +187,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
     if (MetalIaNum       != -1) colnum[NumberOfColours++] = MetalIaNum;
+    if (MetalIINum       != -1) colnum[NumberOfColours++] = MetalIINum;
     if (SNColourNum      != -1) colnum[NumberOfColours++] = SNColourNum;
     if (MBHColourNum     != -1) colnum[NumberOfColours++] = MBHColourNum;
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
@@ -499,6 +500,8 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
        Notice that it is hard-wired for three dimensions, but it does
        the right thing for < 3 dimensions. */
     /* note: Start/EndIndex are zero based */
+
+    this->DebugCheck("SolveHydroEquations (504)");
         
     if (HydroMethod == PPM_DirectEuler)
       this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
@@ -506,6 +509,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                         NumberOfColours, colnum,
                         MinimumSupportEnergyCoefficient);
 
+    this->DebugCheck("SolveHydroEquations (512)");
     /* PPM LR has been withdrawn. */
 
     if (HydroMethod == PPM_LagrangeRemap) {

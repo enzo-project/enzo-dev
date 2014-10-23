@@ -140,6 +140,7 @@ grid::grid()
   PhotonPackages->ipix            = 0;         
   PhotonPackages->level           = 0;        
 
+  sfSeed                          = 0;
   ID                              = 0;
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;

@@ -710,6 +710,17 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  MinimumSlopeForRefinement+5,
 		  MinimumSlopeForRefinement+6);
 
+    ret += sscanf(line, "SlopeDivideByDensity = " 	  
+		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
+	
+		  SlopeDivideByDensity+0,
+		  SlopeDivideByDensity+1,
+		  SlopeDivideByDensity+2,
+		  SlopeDivideByDensity+3,
+		  SlopeDivideByDensity+4,  
+		  SlopeDivideByDensity+5,
+		  SlopeDivideByDensity+6);
+
      ret += sscanf(line, "SecondDerivativeFlaggingFields = "
 		  " %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM" %"ISYM,
 		  SecondDerivativeFlaggingFields+0, 
@@ -835,10 +846,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "StarMakerTypeIaSNe = %"ISYM,
 		  &StarMakerTypeIaSNe);
+    ret += sscanf(line, "StarMakerTypeIISNeMetalField = %"ISYM,
+		  &StarMakerTypeIISNeMetalField);
     ret += sscanf(line, "StarMakerPlanetaryNebulae = %"ISYM,
 		  &StarMakerPlanetaryNebulae);
     ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
 		  &StarMakerOverDensityThreshold);
+    ret += sscanf(line, "StarMakerUseOverDensityThreshold = %"ISYM,
+          &StarMakerUseOverDensityThreshold);
+    ret += sscanf(line, "StarMakerMaximumFractionCell = %"FSYM,
+          &StarMakerMaximumFractionCell);
     ret += sscanf(line, "StarMakerSHDensityThreshold = %"FSYM,
 		  &StarMakerSHDensityThreshold);
     ret += sscanf(line, "StarMakerTimeIndependentFormation = %"ISYM,
@@ -1082,6 +1099,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ConservativeReconstruction = %"ISYM, &ConservativeReconstruction);
     ret += sscanf(line, "PositiveReconstruction = %"ISYM, &PositiveReconstruction);
     ret += sscanf(line, "ReconstructionMethod = %"ISYM, &ReconstructionMethod);
+    ret += sscanf(line, "DensityFloor = %"FSYM, &DensityFloor);
+    ret += sscanf(line, "EnergyCeiling = %"FSYM, &EnergyCeiling);
 
     ret += sscanf(line, "EOSType = %"ISYM, &EOSType);
     ret += sscanf(line, "EOSSoundSpeed = %"FSYM, &EOSSoundSpeed);
@@ -1217,6 +1236,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "GalaxySimulation")) ret++;
+    if (strstr(line, "AgoraRestart")) ret++;
     if (strstr(line, "ConductionTest")) ret++;
     if (strstr(line, "ConductionBubble")) ret++;
     if (strstr(line, "ConductionCloud")) ret++;
@@ -1847,7 +1867,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     /* No one seems to want GlobalDir to default to abspath(CWD).  I'm leaving
        the code here in case you do. MJT */ 
     strcpy(cwd_buffer, ".");
-    MetaData.GlobalDir = cwd_buffer;
+   MetaData.GlobalDir = cwd_buffer;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fprintf(stderr,"Global Dir set to %s\n", cwd_buffer);
   }

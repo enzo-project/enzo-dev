@@ -39,6 +39,8 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int dim_p1 = dim+1;   // To match definition in calcdiss
   int ierr = 0;
 
+  this->DebugCheck("Grid_xEulerSweep line 42");
+
   /* Find fields: density, total energy, velocity1-3. */
 
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
@@ -132,6 +134,8 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     } // ENDFOR colours
   } // ENDFOR j
 
+  this->DebugCheck("Grid_xEulerSweep line 137");
+
   /* Allocate memory for fluxes */
 
   float *dls, *drs, *flatten, *pbar, *pls, *prs, *ubar, *uls, *urs, *vls, 
@@ -192,6 +196,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			 &is_m3, &ie_p3, &js, &je, &Gamma, &MinimumPressure);
   */
   /* If requested, compute diffusion and slope flattening coefficients */
+  this->DebugCheck("Grid_xEulerSweep line 199");
 
   if (PPMDiffusionParameter != 0 || PPMFlatteningParameter != 0)
     FORTRAN_NAME(calcdiss)(dslice, eslice, uslice, BaryonField[Vel2Num],
@@ -219,6 +224,8 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			   wls, wrs, &NumberOfColours, colslice, colls, colrs);
 
   /* Compute (Lagrangian part of the) Riemann problem at each zone boundary */
+
+  this->DebugCheck("Grid_xEulerSweep line 228");
 
   switch (RiemannSolver) {
   case TwoShock:
@@ -267,10 +274,12 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			    dls, drs, pls, prs, uls, urs,
 			    vls, vrs, wls, wrs, gels, gers,
 			    df, uf, vf, wf, ef, gef, ges,
-			    &NumberOfColours, colslice, colls, colrs, colf);
+			    &NumberOfColours, colslice, colls, colrs, colf,
+			    &DensityFloor);
     break;
 
   } // ENDCASE
+  this->DebugCheck("Grid_xEulerSweep line 282");
 
   /* Compute Eulerian fluxes and update zone-centered quantities */
 
@@ -281,7 +290,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      &PPMDiffusionParameter, &GravityOn, &DualEnergyFormalism, 
 		      &DualEnergyFormalismEta1, &DualEnergyFormalismEta2,
 		      df, ef, uf, vf, wf, gef, ges,
-		      &NumberOfColours, colslice, colf);
+		      &NumberOfColours, colslice, colf, &DensityFloor, &EnergyCeiling);
 
   /* If necessary, recompute the pressure to correctly set ge and e */
 
@@ -363,6 +372,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
     } // ENDIF k inside
 
   } // ENDFOR n
+  this->DebugCheck("Grid_xEulerSweep line 375");
 
   /* Copy from slice to field */
 
@@ -445,6 +455,7 @@ int grid::xEulerSweep(int k, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   delete [] colf;
   delete [] colls;
   delete [] colrs;
+  this->DebugCheck("Grid_xEulerSweep line 458");
 
   return SUCCESS;
 

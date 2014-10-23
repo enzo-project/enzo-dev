@@ -85,10 +85,10 @@ extern int CopyPotentialFieldAverage;
 #define GRIDS_PER_LOOP 100000
 
  
+
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			SiblingGridList SiblingList[],
-			int level, TopGridData *MetaData, FLOAT When)
+			int level, TopGridData *MetaData, FLOAT When,SiblingGridList **SiblingGridListStorage)
 #else   // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
 			int level, TopGridData *MetaData, FLOAT When)
@@ -118,6 +118,7 @@ int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
   typedef HierarchyEntry* HierarchyEntryPointer;
   HierarchyEntry **Grids;
   int NumberOfGrids = GenerateGridArray(LevelArray, level, &Grids);
+  SiblingGridList *SiblingList = SiblingGridListStorage[level];
 
   /************************************************************************/
   /* Grids: Deposit particles in their GravitatingMassFieldParticles.
