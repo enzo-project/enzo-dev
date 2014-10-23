@@ -236,8 +236,9 @@ int grid::GrackleWrapper()
   }
 
   delete [] TotalMetals;
-
-  delete [] g_grid_dimension, g_grid_start, g_grid_end;
+  delete [] g_grid_dimension;
+  delete [] g_grid_start;
+  delete [] g_grid_end;
 
   LCAPERF_STOP("grid_GrackleWrapper");
 
