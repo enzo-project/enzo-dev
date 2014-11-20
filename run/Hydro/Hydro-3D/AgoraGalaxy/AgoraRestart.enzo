@@ -82,7 +82,7 @@ IncludeCloudyHeating       = 1
 use_grackle                = 1
 with_radiative_cooling     = 1
 UVbackground               = 0
-grackle_data_file = /home/goldbaum/grackle/input/CloudyData_noUVB.h5
+grackle_data_file = CloudyData_noUVB.h5
 PhotoelectricHeating       = 1
 
 #

@@ -11,6 +11,10 @@ conditions (80 pc resolution).  Follow the readme.txt and use the IPython
 notebook to adjust the parameter file if you want to simulate a galaxy at
 different resolution.
 
+The bash script prepare_sim.sh downloads and extracts the necessary grackle data
+file and initial conditions. Run it in the directory you would like to run the
+test simulation.
+
 Enzo must be compiled with new-problem-types-yes and grackle-yes for
 this test problem to function correctly.  You will also need to edit the
 parameter file to point to the location of the grackle noUVB cooling table.
