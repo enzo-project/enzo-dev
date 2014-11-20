@@ -708,6 +708,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
 	ProblemType_MagneticReconnection.o \
+        ProblemType_AgoraRestart.o \
         ProcMap.o \
         project.o \
         projectbool.o \

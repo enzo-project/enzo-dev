@@ -666,7 +666,7 @@ public:
     AgoraRestartGrid *thisgrid =
       static_cast<AgoraRestartGrid *>(thisgrid_orig);
 
-    mt_init((unsigned int) thisgrid->ID);
+    mt_init(thisgrid->ID);
 
     // Determine the number of particles of each type
     int nBulge, nDisk, nHalo, nParticles;
