@@ -11,16 +11,13 @@ conditions (80 pc resolution).  Follow the readme.txt and use the IPython
 notebook to adjust the parameter file if you want to simulate a galaxy at
 different resolution.
 
-The bash script prepare_sim.sh downloads and extracts the necessary grackle data
-file and initial conditions. Run it in the directory you would like to run the
-test simulation.
-
-Enzo must be compiled with new-problem-types-yes and grackle-yes for
-this test problem to function correctly.  You will also need to edit the
-parameter file to point to the location of the grackle noUVB cooling table.
+Enzo must be compiled with new-problem-types-yes and grackle-yes for this test
+problem to function correctly. The bash script prepare_sim.sh downloads and
+extracts the necessary grackle data file and initial conditions. Run it in the
+directory you would like to run the test simulation.
 
 If run to completion, this simulation needs about 200 gigabytes of free space.
 If you are constrained by hard disk space, consider decreasing the output
-interval (1 Myr of physical time per output, by default).  The simulation should
-finish in approximately 12 hours when run on 16 cores.  Of course, you're
-mileage may vary for the amount of wallclock time necessary.
+interval (1 Myr of physical time per output by default).  The simulation should
+finish in approximately 12 hours when run on 16 cores.  Of course, your mileage
+may vary for the amount of wallclock time necessary.
