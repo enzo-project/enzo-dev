@@ -41,6 +41,9 @@ void mt_init(unsigned_int seed);
 unsigned_long_int mt_random();
 
 float s49Lookup(float m) {
+  // Returns a broken power-law approximation to the ionizing luminosity emitted
+  // by a main sequence star of mass m, normalized to 10^49 photon/s
+  // See Parravano et al. 2003 ApJ 584 797 (doi:10.1086/345807)
   if (m<5)
     {
       return 0;
