@@ -97,19 +97,19 @@ AgoraRestartMetalFractionByMass          = 0.02041
 #  set grid refinement parameters
 #
 StaticHierarchy           = 0      // dynamic hierarchy
-StaticRefineRegionLevel[0] = 1
+StaticRefineRegionLevel[0] = 0
 StaticRefineRegionLeftEdge[0] = 0.2500000000000000 0.2500000000000000 0.2500000000000000
 StaticRefineRegionRightEdge[0] = 0.7500000000000000 0.7500000000000000 0.7500000000000000
-StaticRefineRegionLevel[1] = 2
+StaticRefineRegionLevel[1] = 1
 StaticRefineRegionLeftEdge[1] = 0.3750000000000000 0.3750000000000000 0.3750000000000000
 StaticRefineRegionRightEdge[1] = 0.6250000000000000 0.6250000000000000 0.6250000000000000
-StaticRefineRegionLevel[2] = 3
+StaticRefineRegionLevel[2] = 2
 StaticRefineRegionLeftEdge[2] = 0.4375000000000000 0.4375000000000000 0.4375000000000000
 StaticRefineRegionRightEdge[2] = 0.5625000000000000 0.5625000000000000 0.5625000000000000
-StaticRefineRegionLevel[3] = 4
+StaticRefineRegionLevel[3] = 3
 StaticRefineRegionLeftEdge[3] = 0.4687500000000000 0.4687500000000000 0.4687500000000000
 StaticRefineRegionRightEdge[3] = 0.5312500000000000 0.5312500000000000 0.5312500000000000
-StaticRefineRegionLevel[4] = 5
+StaticRefineRegionLevel[4] = 4
 StaticRefineRegionLeftEdge[4] = 0.484375 0.484375 0.484375
 StaticRefineRegionRightEdge[4] = 0.515625 0.515625 0.515625
 UserDefinedRootGridLayout = 1 1 1
