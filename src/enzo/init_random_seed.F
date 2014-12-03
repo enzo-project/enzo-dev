@@ -53,9 +53,9 @@ c     sufficient for seeding a better PRNG.
       if (s == 0) then
          s = 104729
       else
-         s = mod(s, 4294967296_IKIND)
+         s = mod(s, 2147483647_IKIND)
       end if
-      s = mod(s * 279470273_IKIND, 4294967291_IKIND)
+      s = mod(s * 279470273_IKIND, 2147483642_IKIND)
       lcg = int(mod(s, int(HUGE(0), IKIND)), kind(0))
       end function lcg
       end subroutine init_random_seed
