@@ -121,10 +121,6 @@ int OutputPotentialFieldOnly(char *ParameterFile,
     RebuildHierarchy(&MetaData, LevelArray, 0);
 
   /* Compute the potential field on all levels */
-  SiblingGridList *SiblingGridListStorage[MAX_DEPTH_OF_HIERARCHY];
-  for( int level=0; level < MAX_DEPTH_OF_HIERARCHY; level++ ){
-    SiblingGridListStorage[level] = NULL;
-  }
 
   for (level = 0; level < MAX_DEPTH_OF_HIERARCHY; level++) {
 
