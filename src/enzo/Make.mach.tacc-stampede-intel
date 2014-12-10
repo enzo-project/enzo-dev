@@ -104,7 +104,7 @@ MACH_CFLAGS   = -mp1 -prec_div -fp_port -align
 MACH_CXXFLAGS = -mp1 -prec_div -fp_port -align
 MACH_FFLAGS   = 
 MACH_F90FLAGS = -mp1 -prec_div -fp_port -align -save -zero
-MACH_LDFLAGS  = -Wl,-noinhibit-exec -lifcore -lifport -lpthread -ldl
+MACH_LDFLAGS  = -Wl,-lifcore -lifport -lpthread -ldl
 
 #-----------------------------------------------------------------------
 # Optimization flags
