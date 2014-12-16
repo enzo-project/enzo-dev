@@ -39,7 +39,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
   RadiationSourceEntry *RS = RadiationSource;
   FLOAT min_beam_zvec, dot_prod, vec[3];
   int BasePackages, NumberOfNewPhotonPackages;
-  int i, j, dim;
+  int i, j, dim, bin;
   int count=0;
   int min_level = RadiativeTransferInitialHEALPixLevel;
 
@@ -241,11 +241,9 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 		  NewPack->Photons, NewPack )
 	}
 
-	if (NewPack->Type < 4)
-	  NewPack->CrossSection = 
-	    FindCrossSection(NewPack->Type, NewPack->Energy);
-	else
-	  NewPack->CrossSection = tiny_number;
+	if (NewPack->Type != 3)  // not Lyman-Werner
+	  for (bin = 0; bin <= 3; bin++)
+	    NewPack->CrossSection[bin] = FindCrossSection(bin, NewPack->Energy);
 
 	/* Set the photon origin to the source radius (0 = point src) */
 

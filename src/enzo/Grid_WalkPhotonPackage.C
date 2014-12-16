@@ -219,21 +219,15 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float xx, heat_factor = 1.0;
   float ion2_factor[] = {1.0, 1.0, 1.0};
 
-  if ((*PP)->Type == iHI || (*PP)->Type == iHeI || (*PP)->Type == iHeII) {
-    for (i = 0; i <= (*PP)->Type; i++)
-      if (i == (*PP)->Type)
-	sigma[i] = (*PP)->CrossSection * LengthUnits;
-      else
-	sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
-  }
-  else if ((*PP)->Type == iH2I) {
+  if ((*PP)->Type == iH2I) {
     sigma[0] = 3.71e-18 * LengthUnits; // H2I average cross-section
-  }
-  else if ((*PP)->Type == 4) {
-    for (i = 0; i < 3; i++)
-      sigma[i] = FindCrossSection(i, (*PP)->Energy) * LengthUnits;
-    nSecondaryHII = (*PP)->Energy / 13.6;
-    nSecondaryHeII = (*PP)->Energy / 24.6; 
+  } else {
+    for (i = 0; i <= 3; i++)
+      sigma[i] = (*PP)->CrossSection[i] * LengthUnits;
+    if ((*PP)->Type == 4) {  // X-rays
+      nSecondaryHII = (*PP)->Energy / 13.6;
+      nSecondaryHeII = (*PP)->Energy / 24.6; 
+    }
   }
 
   MinTauIfront = MIN_TAU_IFRONT / sigma[0];  // absorb sigma

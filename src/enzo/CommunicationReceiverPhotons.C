@@ -65,7 +65,7 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
   int TotalReceivedPhotons = 0;
   bool *CompletedRequests = NULL;
   PhotonPackageEntry *NewPack, *ToPP;
-  int lvl, gi, dim, i, count, NumberOfActiveRequests;
+  int lvl, gi, dim, i, j, count, NumberOfActiveRequests;
   grid *ToGrid;
   int ret, level;
 
@@ -206,7 +206,8 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
       NewPack->EmissionTime		= RecvBuffer[i].buffer.EmissionTime;
       NewPack->CurrentTime		= RecvBuffer[i].buffer.CurrentTime;
       NewPack->ColumnDensity	= RecvBuffer[i].buffer.ColumnDensity;
-      NewPack->CrossSection		= RecvBuffer[i].buffer.CrossSection;
+      for (j = 0; j <= 3; j++)
+	NewPack->CrossSection[j] = RecvBuffer[i].buffer.CrossSection[j];
       NewPack->Radius		= RecvBuffer[i].buffer.Radius;
       NewPack->ipix			= RecvBuffer[i].buffer.ipix;
       NewPack->level		= RecvBuffer[i].buffer.level;
