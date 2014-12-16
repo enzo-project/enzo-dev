@@ -149,7 +149,8 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   /* Calculate minimum photon flux before a ray is deleted */
   
   const double mh = 1.673e-24;
-  float MinimumPhotonFlux;
+  const double alphaB = 2.6e-13;
+  float MinimumPhotonFlux, RecombinationTime;
   int gmethod = INT_UNDEFINED;
   for (i = 0; i < MAX_FLAGGING_METHODS; i++)
     if (CellFlaggingMethod[i] == 2) gmethod = i;
@@ -158,8 +159,14 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   else
     MinimumPhotonFlux = MinimumMassForRefinement[gmethod] * 
       POW(RefineBy, level*MinimumMassForRefinementLevelExponent[gmethod]);
-  MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
-				(PhotonTime * RadiativeTransferHubbleTimeFraction));
+  if (ComovingCoordinates)
+    MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
+				  (PhotonTime * RadiativeTransferHubbleTimeFraction));
+  else {
+    RecombinationTime = 1.0 / (alphaB * DensityUnits / mh) / TimeUnits;
+    MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
+				  (RecombinationTime * RadiativeTransferHubbleTimeFraction));
+  }
   // float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
   //   (PhotonTime * RadiativeTransferHubbleTimeFraction);
 
