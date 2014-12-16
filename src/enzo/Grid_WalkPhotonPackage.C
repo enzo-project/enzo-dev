@@ -34,8 +34,7 @@
 #define TAU_DELETE_PHOTON 10.0
 #define GEO_CORRECTION
 
-int SplitPhotonPackage(PhotonPackageEntry *PP);
-FLOAT FindCrossSection(int type, float energy);
+inline int SplitPhotonPackage(PhotonPackageEntry *PP);
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
 int grid::WalkPhotonPackage(PhotonPackageEntry **PP, 
@@ -330,8 +329,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
      dA = [~] * dP * Energy / Density * r_hat
   */
 
-  double RadiationPressureConversion =
-    erg_eV / c_cgs * emission_dt_inv / DensityUnits / VelocityUnits * Volume_inv;
+  double RadiationPressureConversion = 0.0;
+  if (RadiationPressure)
+    RadiationPressureConversion =
+      erg_eV * emission_dt_inv * Volume_inv / (DensityUnits * VelocityUnits * c_cgs);
 
   // Mark that this grid has radiation (mainly for the coupled rate solver)
   HasRadiation = TRUE;
