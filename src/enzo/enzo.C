@@ -242,6 +242,11 @@ void lcaperfInitialize (int max_level);
 void my_exit(int status);
 void PrintMemoryUsage(char *str);
 
+#ifdef USE_GRACKLE
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    grackle_verbose = 1;
+  }
+#endif
 
  
 //  ENZO Main Program
