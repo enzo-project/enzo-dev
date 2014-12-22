@@ -15,12 +15,9 @@
  
 // This routine writes the parameter file in the argument and sets parameters
 //   based on it.
- 
-#include <stdio.h>
-#include <string.h>
+
+#include "preincludes.h" 
 #include <time.h>
-#include <math.h>
-#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"

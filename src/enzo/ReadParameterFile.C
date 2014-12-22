@@ -19,19 +19,16 @@
  
 // This routine reads the parameter file in the argument and sets parameters
 //   based on it.
- 
-#include <stdio.h>
-#include <string.h>
+
+#include "preincludes.h" 
 #include <stdlib.h>
 #include <unistd.h>
-#include <math.h>
 #include <vector>
 
 #ifdef CONFIG_USE_LIBCONFIG
 #include <libconfig.h++>
 #endif
  
-#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
