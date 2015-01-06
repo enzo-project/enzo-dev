@@ -426,7 +426,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
   }
   // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = (int) grackle_data.Gamma;
+  Gamma                                 = (float) grackle_data.Gamma;
   MultiSpecies                          = (int) grackle_data.primordial_chemistry;
   MetalCooling                          = (int) grackle_data.metal_cooling;
   H2FormationOnDust                     = (int) grackle_data.h2_on_dust;
