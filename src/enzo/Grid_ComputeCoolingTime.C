@@ -198,7 +198,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
   } // ENDELSE both metal types
  
 #ifdef USE_GRACKLE
-  if (grackle_data.use_grackle) {
+  if (grackle_data.use_grackle == TRUE) {
 
     Eint32 *g_grid_dimension, *g_grid_start, *g_grid_end;
     g_grid_dimension = new Eint32[GridRank];
