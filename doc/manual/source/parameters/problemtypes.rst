@@ -963,7 +963,7 @@ Cosmology Simulation (30)
 ``CosmologySimulationOmegaCDMNow`` (external)
     This is the contribution of CDM to the energy density at the
     current epoch (z=0), relative to the value required to marginally
-    close the universe. Typical value 0.94. Default: 0.0 (no dark
+    close the universe. Typical value 0.24. Default: 0.0 (no dark
     matter)
 ``CosmologySimulationManuallySetParticleMassRatio`` (external)
     This binary flag (0 - off, 1 - on) allows the user to manually set
