@@ -1534,6 +1534,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       } 
     }
 
+    // Set temperature range for this cooling method.
+    if (MetalCooling == JHW_METAL_COOLING) {
+      CoolData.TemperatureEnd = 1.0e8;
+    }
+
     /* If set, initialize the RadiativeCooling and RateEquations data. */
 
     if (MultiSpecies > 0) {
