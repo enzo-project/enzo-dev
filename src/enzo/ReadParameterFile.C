@@ -835,10 +835,16 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "StarMakerTypeIaSNe = %"ISYM,
 		  &StarMakerTypeIaSNe);
+    ret += sscanf(line, "StarMakerTypeIISNeMetalField = %"ISYM,
+		  &StarMakerTypeIISNeMetalField);
     ret += sscanf(line, "StarMakerPlanetaryNebulae = %"ISYM,
 		  &StarMakerPlanetaryNebulae);
     ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
 		  &StarMakerOverDensityThreshold);
+    ret += sscanf(line, "StarMakerUseOverDensityThreshold = %"ISYM,
+          &StarMakerUseOverDensityThreshold);
+    ret += sscanf(line, "StarMakerMaximumFractionCell = %"FSYM,
+          &StarMakerMaximumFractionCell);
     ret += sscanf(line, "StarMakerSHDensityThreshold = %"FSYM,
 		  &StarMakerSHDensityThreshold);
     ret += sscanf(line, "StarMakerTimeIndependentFormation = %"ISYM,
@@ -1217,6 +1223,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "TurbulenceSimulation")) ret++;
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "GalaxySimulation")) ret++;
+    if (strstr(line, "AgoraRestart")) ret++;
     if (strstr(line, "ConductionTest")) ret++;
     if (strstr(line, "ConductionBubble")) ret++;
     if (strstr(line, "ConductionCloud")) ret++;

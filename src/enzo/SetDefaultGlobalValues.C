@@ -486,7 +486,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SimpleRampTime                   = 0.1;
   StarFormationOncePerRootGridTimeStep = FALSE;
   StarMakerTypeIaSNe               = FALSE;
+  StarMakerTypeIISNeMetalField     = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
+  StarMakerUseOverDensityThreshold = TRUE;
+  StarMakerMaximumFractionCell     = 0.5;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerTimeIndependentFormation = FALSE;
@@ -754,6 +757,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
   TestProblemData.MetallicitySNIaField_Fraction = tiny_number;
+  TestProblemData.MetallicitySNIIField_Fraction = tiny_number;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

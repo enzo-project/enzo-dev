@@ -798,6 +798,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 
   fprintf(fptr, "StarMakerOverDensityThreshold         = %"GSYM"\n",
 	  StarMakerOverDensityThreshold);
+  fprintf(fptr, "StarMakerUseOverDensityThreshold      = %"ISYM"\n",
+	  StarMakerUseOverDensityThreshold);
+  fprintf(fptr, "StarMakerMaximumFractionCell          = %"GSYM"\n",
+	  StarMakerMaximumFractionCell);
   fprintf(fptr, "StarMakerSHDensityThreshold           = %"GSYM"\n",
       StarMakerSHDensityThreshold);
   fprintf(fptr, "StarMakerTimeIndependentFormation     = %"ISYM"\n",
@@ -824,6 +828,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           StarFeedbackDistCellStep);
   fprintf(fptr, "StarMakerTypeIaSNe                    = %"ISYM"\n",
 	  StarMakerTypeIaSNe);
+  fprintf(fptr, "StarMakerTypeIISNeMetalField          = %"ISYM"\n",
+	  StarMakerTypeIISNeMetalField);
   fprintf(fptr, "StarMakerPlanetaryNebulae             = %"ISYM"\n",
 	  StarMakerPlanetaryNebulae);
   fprintf(fptr, "MultiMetals                           = %"ISYM"\n\n",

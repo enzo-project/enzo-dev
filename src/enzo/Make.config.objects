@@ -617,6 +617,7 @@ OBJS_CONFIG_LIB = \
 	InexactNewton_InexactNewtonForce.o \
 	InexactNewton_LinesearchStepSize.o \
 	InexactNewton_Solve.o \
+    init_random_seed.o \
         InitializeCloudyCooling.o \
 	InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
@@ -707,6 +708,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
 	ProblemType_MagneticReconnection.o \
+        ProblemType_AgoraRestart.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -839,6 +841,7 @@ OBJS_CONFIG_LIB = \
 	star_maker8.o \
 	star_maker9.o \
 	star_maker_h2reg.o \
+    star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \
