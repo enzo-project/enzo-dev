@@ -630,6 +630,7 @@ OBJS_CONFIG_LIB = \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
+    init_random_seed.o \
 	interp1d.o \
 	interp2d.o \
 	interp3d.o \

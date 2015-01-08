@@ -94,8 +94,6 @@ c
 c
 c  Locals:
 c
-      integer*4 n
-      integer*4, allocatable :: seed(:)
       INTG_PREC  i, j, k, ii
       INTG_PREC, save :: ran1_init = 0
       R_PREC   div, tdyn, dtot
@@ -110,16 +108,10 @@ c
       ii = np
 
 c     Initialize RNG the first time this routine is called
-c     Use (MPI rank + 1) to seed the RNG, ensuring different streams
-c     on each processor.  Offset by one to avoid the poor RNG stream
-c     generated when the seed is set to 0.
+c     Use MPI rank to seed the RNG, ensuring different streams
+c     on each processor.
       if(ran1_init .eq. 0) then
-         call random_seed(size=n)
-         allocate(seed(n))
-         do i = 1, n
-            seed(i) = procnum+1
-         end do
-         call random_seed(put=seed)
+         call init_random_seed(procnum)
          ran1_init = 1
       endif
 
