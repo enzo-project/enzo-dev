@@ -617,7 +617,6 @@ OBJS_CONFIG_LIB = \
 	InexactNewton_InexactNewtonForce.o \
 	InexactNewton_LinesearchStepSize.o \
 	InexactNewton_Solve.o \
-    init_random_seed.o \
         InitializeCloudyCooling.o \
 	InitializeEquilibriumCoolData.o \
 	InitializeGadgetEquilibriumCoolData.o \
