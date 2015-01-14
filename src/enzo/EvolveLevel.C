@@ -433,6 +433,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
     /* Initialize the radiative transfer */
 
+    TIMER_STOP(level_name);
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
 			     dtLevelAbove);
     RadiativeTransferCallFLD(LevelArray, level, MetaData, AllStars, 
@@ -442,6 +443,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	
     GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
     EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+    TIMER_START(level_name);
  
 #endif /* TRANSFER */
 

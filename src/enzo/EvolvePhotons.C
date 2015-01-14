@@ -26,6 +26,7 @@
 #include <math.h>
 #include "performance.h"
 #include "ErrorExceptions.h"
+#include "EnzoTiming.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -143,6 +144,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     return SUCCESS;
 
   LCAPERF_START("EvolvePhotons");
+  TIMER_START("EvolvePhotons");
 
   /* Declarations */
 
@@ -393,6 +395,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       keep_transporting = 1;
 #endif /* !NONBLOCKING_RT */
 
+      TIMER_START("RayTracing");
       if (local_keep_transporting)
       for (lvl = MAX_DEPTH_OF_HIERARCHY-1; lvl >= 0 ; lvl--) {
 
@@ -418,6 +421,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	//delete [] Grids;
 
       }                          // loop over levels
+      TIMER_STOP("RayTracing");
       END_PERF(4);
 
       if (PhotonsToMove->NextPackageToMove != NULL)
@@ -431,8 +435,10 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Check if there are any photons leaving this grid.  If so, move them. */
       
       START_PERF();
+      TIMER_START("RayCommunication");
       CommunicationTransferPhotons(LevelArray, &PhotonsToMove, kt_global,
 				   keep_transporting);
+      TIMER_STOP("RayCommunication");
       END_PERF(5);
 
       /* When all photons have been traced, all of the paused (to be
@@ -450,6 +456,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
       /* Receive keep_transporting messages and take the MAX */
 
       START_PERF();
+      TIMER_START("RayCommunication");
       local_keep_transporting = keep_transporting;
 #ifdef NONBLOCKING_RT
       if (keep_transporting != last_keep_transporting)
@@ -458,6 +465,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #else /* NONBLOCKING_RT */
       keep_transporting = CommunicationMaxValue(keep_transporting);
 #endif
+      TIMER_STOP("RayCommunication");
       END_PERF(6);
 
     }                           //  end while keep_transporting
@@ -685,6 +693,7 @@ int EvolvePhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     if (nGrids[lvl] > 0) delete [] Grids[lvl];
 
   LCAPERF_STOP("EvolvePhotons");
+  TIMER_STOP("EvolvePhotons");
   return SUCCESS;
 
 }
