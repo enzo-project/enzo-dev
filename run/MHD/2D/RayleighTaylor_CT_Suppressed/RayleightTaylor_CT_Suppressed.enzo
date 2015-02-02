@@ -7,6 +7,8 @@
 # compare to 
 # http://www.astro.princeton.edu/~jstone/tests/rt/rt.html
 #  
+#  This version suppresses the growth of RT with magnetic fields. 
+#  This uses and tests MHDCT
 #  
 # 
 
