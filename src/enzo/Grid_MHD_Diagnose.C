@@ -136,6 +136,13 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
       if( j < min[1] ) min[1] = j;
       if( k > max[2] ) max[2] = k;
       if( k < min[2] ) min[2] = k;
+      if ( debug1 && debug2 && debug ){
+        fprintf(stderr, "++++ DivB larger than tollerable.  Some stats: ++++\n");
+        fprintf(stderr, " ++++ L1 norm             L0 norm           L1/GridSize        Max    %s\n",
+            label);
+        fprintf(stderr, " ++++ %13.12e %13.12e %13.12e %13.12e\n", 
+            AbsDivB, TotalDivB, AbsDivB/size, MaxDivB);
+      }
     }else{
       if( i <= max[0] && i >= min[0] &&
           j <= max[1] && j >= min[1] &&
@@ -145,19 +152,9 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
     
       }
 
-  //Compute current
 
 /*
   if( MaxDivB >= MaxTolerance || TRUE ){
-    fprintf(stderr, " ++++ L1 norm             L0 norm           L1/GridSize        Max    %s\n",
-        label);
-    fprintf(stderr, " ++++ %13.12e %13.12e %13.12e %13.12e\n", 
-        AbsDivB, TotalDivB, AbsDivB/size, MaxDivB);
-    float IsThisNan = TotalDivB;
-    if( IsThisNan != IsThisNan ) {
-      fprintf(stderr,"000000000000000000000 Nan Tastic.  %13.12e \n", IsThisNan);
-      return FAIL;
-    }
 
   if( Crash == TRUE )
     return FAIL;
