@@ -5,9 +5,14 @@
 # Rotating 1 solar mass uniform cloud with temperature = 10K
 # and an m=2 perturbation on it and isothermal EOS collapses. 
 # 
-# We also added a B-field to this one (chosing HydroMethod != 4)
-# or chossing InitialBField = 0 will gives the hydro version.
-#  define problem
+# Can be run with or without magnetic fields.
+# HydroMethod == 0 gives PPM, non-magnetic
+# HydroMethod == 3 gives MUSCL-RK, non-magnetic
+# HydroMethod == 4 gives MUCSL-RK, magnetic
+# HydroMethod == 6 gives MHDCT, magnetic.
+# Setting InitialBField != 0 and HydroMethod == 4 or 6 will give an initial magnetic field along \hat{z}
+#
+# This version sets up MHDCT fields with HydroMethod == 6
 #
 ProblemType                = 202      // Collapse test
 TopGridRank                = 3
@@ -38,7 +43,6 @@ InitialBField      = 0.01
 #
 #  set I/O and stop/start parameters
 #
-StopCycle = 1
 StopTime               = 0.05
 CycleSkipDataDump      = 15
 #dtDataDump             = 0.001

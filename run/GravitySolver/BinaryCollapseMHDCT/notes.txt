@@ -1,21 +1,6 @@
 = Notes on the output =
 
-(Stephen Skory, June 2010)
+(Stephen Skory, June 2010, David Collins, January 2015)
 
-This test runs to completion. There are 8 data dumps, DD0000 to DD0007.
-This test does not work in 1.5 because problem 202 is not defined there.
-
-I ran my tests with opt-debug using the intel/openmpi stack on Triton on 3 June 2010.
-
-2.0 test:
-
-Running with the 2.0 enzo produces a binary collapse of
-matter that begins to form two dense clumps best viewed along the z-axis.
-The yt plotting script included will plot this nicely, zoomed in on the inner
-third of the volume.
-
-I have made some changes to this file from how it was previously.
-I removed the magnetic field, and I changed the stop time so this test takes
-roughly 1 hour on 8 cores. As it was written before, it would have taken many
-hours to reach completion, and I am fundamentally against test problems that
-take more than 1 hour.
+This is an update to the test in run/GravitySolver/BinaryCollapse, to include
+MHDCT.  A shorter test to ensure MHDCT runs.

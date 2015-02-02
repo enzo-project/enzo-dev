@@ -1,11 +1,5 @@
-from yt.mods import *
-
-for i in xrange(8):
-    pf = load("DD%04d/data%04d" % (i,i))
-    pc = PlotCollection(pf, center=[0.5]*3)
-    for dim in xrange(3):
-        pc.add_projection("Density", dim)
-    pc.set_width(.3, '1')
-    pc.save("%04d_" % i)
-
-
+import yt
+for i in range(8):
+    ds = yt.load("DD%04d/data%04d" % (i,i))
+    for ax in ("x", "y", "z"):
+        p = yt.ProjectionPlot(ds, ax, 'density', width=(0.3, 'code_length')).save()
