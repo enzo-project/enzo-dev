@@ -746,42 +746,6 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   if ((srcMax - srcNorm) > ScaleCorrTol*srcMax)  
     StartAutoScale = true;
 
-  // Multigrid solver: for periodic dims, only coarsen until grid no longer divisible by 2
-  Eint32 max_levels, level=-1;
-  int Ndir;
-  if (BdryType[0][0] == 0) {
-    level = 0;
-    Ndir = GlobDims[0];
-    while ( Ndir%2 == 0 ) {
-      level++;
-      Ndir /= 2;
-    }
-  }
-  max_levels = level;
-  if (rank > 1) {
-    if (BdryType[1][0] == 0) {
-      level = 0;
-      Ndir = GlobDims[1];
-      while ( Ndir%2 == 0 ) {
-	level++;
-	Ndir /= 2;
-      }
-    }
-    max_levels = min(level,max_levels);
-  }
-  if (rank > 2) {
-    if (BdryType[2][0] == 0) {
-      level = 0;
-      Ndir = GlobDims[2];
-      while ( Ndir%2 == 0 ) {
-	level++;
-	Ndir /= 2;
-      }
-    }
-    max_levels = min(level,max_levels);
-  }
-  
-  
   //   enforce boundary conditions on current time step vector
   if (this->EnforceBoundary(U0) != SUCCESS) 
     ENZO_FAIL("gFLDSplit_RadStep: EnforceBoundary failure!!");
@@ -801,9 +765,6 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
     
 #ifdef USE_HYPRE
   
-  HYPRE_StructSolver solver;            // HYPRE solver structure
-  HYPRE_StructSolver preconditioner;    // HYPRE preconditioner structure
-  
   // set up and solve radiation equation
   float *RadiationEnergy = U0->GetData(0);    // old radiation energy array
   float *Eg_new = sol->GetData(0);    // updated radiation energy array
@@ -811,6 +772,20 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   if (this->SetupSystem(matentries, rhsentries, &rhsnorm, RadiationEnergy, Eg_new, 
 			OpacityE, Temperature, Temperature0, RadSrc) != SUCCESS) 
     ENZO_FAIL("gFLDSplit_RadStep: Error in SetupSystem routine");
+  
+  // skip solve if ||rhs|| < sol_tolerance  (i.e. old solution is fine)
+  if (rhsnorm < sol_tolerance) {
+    if (debug) {
+      printf(" ----------------------------------------------------------------------\n");
+      printf("   no solve required: |rhs| = %.1e  <  tol = %.1e\n", rhsnorm, sol_tolerance);
+      printf(" ======================================================================\n\n");
+    }
+    // rescale dt, told, tnew, adot back to normalized values
+    dt   /= TimeUnits;
+    told /= TimeUnits;
+    tnew /= TimeUnits;
+    return 0;
+  }
   
   // assemble matrix
   Eint32 entries[7] = {0, 1, 2, 3, 4, 5, 6};   // matrix stencil entries
@@ -851,6 +826,8 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
 
   // set up the solver and preconditioner [PFMG]
   //    create the solver & preconditioner
+  HYPRE_StructSolver solver;            // HYPRE solver structure
+  HYPRE_StructSolver preconditioner;    // HYPRE preconditioner structure
   switch (Krylov_method) {
   case 0:   // PCG
     HYPRE_StructPCGCreate(MPI_COMM_WORLD, &solver);
@@ -864,6 +841,41 @@ int gFLDSplit::RadStep(HierarchyEntry *ThisGrid, int eta_set)
   }
   HYPRE_StructPFMGCreate(MPI_COMM_WORLD, &preconditioner);
   
+  // Multigrid solver: for periodic dims, only coarsen until grid no longer divisible by 2
+  Eint32 max_levels, level=-1;
+  int Ndir;
+  if (BdryType[0][0] == 0) {
+    level = 0;
+    Ndir = GlobDims[0];
+    while ( Ndir%2 == 0 ) {
+      level++;
+      Ndir /= 2;
+    }
+  }
+  max_levels = level;
+  if (rank > 1) {
+    if (BdryType[1][0] == 0) {
+      level = 0;
+      Ndir = GlobDims[1];
+      while ( Ndir%2 == 0 ) {
+	level++;
+	Ndir /= 2;
+      }
+    }
+    max_levels = min(level,max_levels);
+  }
+  if (rank > 2) {
+    if (BdryType[2][0] == 0) {
+      level = 0;
+      Ndir = GlobDims[2];
+      while ( Ndir%2 == 0 ) {
+	level++;
+	Ndir /= 2;
+      }
+    }
+    max_levels = min(level,max_levels);
+  }
+
   //    set preconditioner options
   if (max_levels > -1) 
     HYPRE_StructPFMGSetMaxLevels(preconditioner, max_levels);
