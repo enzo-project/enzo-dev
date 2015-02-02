@@ -1,5 +1,6 @@
-import yt
+from yt.mods import *
+
 for i in range(8):
-    ds = yt.load("DD%04d/data%04d" % (i,i))
-    for ax in ("x", "y", "z"):
-        p = yt.ProjectionPlot(ds, ax, 'density', width=(0.3, 'code_length')).save()
+    ds = load("DD%04d/data%04d" % (i,i))
+    for ax in 'xyz':
+        p = ProjectionPlot(ds, ax, 'Density', width=0.3).save()
