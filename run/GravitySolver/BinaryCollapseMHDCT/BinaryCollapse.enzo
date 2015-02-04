@@ -37,14 +37,15 @@ Mu                       = 2.
 MediumDensity	    = 1.e-19
 MediumPressure      = 5.95e-09  # 
 SpherePosition[0]   = 0.5 0.5 0.5
-SphereAngVel[0]    = 1.6e-12
+SphereAngVel[0]    = 0.0
 UniformVelocity     = 0.0 0.0 0.0 //0.6 0.6 0.6
-InitialBField      = 0.01
+InitialBField      = 1e-8
+#0.001
 #
 #  set I/O and stop/start parameters
 #
 StopTime               = 0.05
-CycleSkipDataDump      = 15
+CycleSkipDataDump      = 160
 #dtDataDump             = 0.001
 DataDumpName           = data
 OutputFirstTimeAtLevel = 4
