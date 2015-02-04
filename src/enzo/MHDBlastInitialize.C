@@ -153,6 +153,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataUnits[j++] = NULL;
   }
   
+  if ( UseMHDCT ){
   MHDLabel[0] = "BxF";
   MHDLabel[1] = "ByF";
   MHDLabel[2] = "BzF";
@@ -172,6 +173,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   MHDeUnits[0] = "None";
   MHDeUnits[1] = "None";
   MHDeUnits[2] = "None";
+  }
   
 
   // General control variable
