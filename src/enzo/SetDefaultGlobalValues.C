@@ -15,10 +15,8 @@
  
 // This routine intializes a new simulation based on the parameter file.
 //
- 
-#include <string.h>
-#include <stdio.h>
-#include "ErrorExceptions.h"
+
+#include "preincludes.h" 
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -424,28 +422,30 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
 #ifdef USE_GRACKLE
   // Grackle chemistry data structure.
-  grackle_chemistry                     = set_default_chemistry_parameters();
+  if (set_default_chemistry_parameters() == FAIL) {
+    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+  }
   // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = grackle_chemistry.Gamma;
-  MultiSpecies                          = grackle_chemistry.primordial_chemistry;
-  MetalCooling                          = grackle_chemistry.metal_cooling;
-  H2FormationOnDust                     = grackle_chemistry.h2_on_dust;
-  CloudyCoolingData.CMBTemperatureFloor = grackle_chemistry.cmb_temperature_floor;
-  ThreeBodyRate                         = grackle_chemistry.three_body_rate;
-  CIECooling                            = grackle_chemistry.cie_cooling;
-  H2OpticalDepthApproximation           = grackle_chemistry.h2_optical_depth_approximation;
-  PhotoelectricHeating                  = grackle_chemistry.photoelectric_heating;
-  PhotoelectricHeatingRate              = grackle_chemistry.photoelectric_heating_rate;
-  CoolData.NumberOfTemperatureBins      = grackle_chemistry.NumberOfTemperatureBins;
-  RateData.CaseBRecombination           = grackle_chemistry.CaseBRecombination;
-  CoolData.TemperatureStart             = grackle_chemistry.TemperatureStart;
-  CoolData.TemperatureEnd               = grackle_chemistry.TemperatureEnd;
-  RateData.NumberOfDustTemperatureBins  = grackle_chemistry.NumberOfDustTemperatureBins;
-  RateData.DustTemperatureStart         = grackle_chemistry.DustTemperatureStart;
-  RateData.DustTemperatureEnd           = grackle_chemistry.DustTemperatureEnd;
-  CoolData.HydrogenFractionByMass       = grackle_chemistry.HydrogenFractionByMass;
-  CoolData.DeuteriumToHydrogenRatio     = grackle_chemistry.DeuteriumToHydrogenRatio;
-  CoolData.SolarMetalFractionByMass     = grackle_chemistry.SolarMetalFractionByMass;
+  Gamma                                 = (float) grackle_data.Gamma;
+  MultiSpecies                          = (int) grackle_data.primordial_chemistry;
+  MetalCooling                          = (int) grackle_data.metal_cooling;
+  H2FormationOnDust                     = (int) grackle_data.h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data.cmb_temperature_floor;
+  ThreeBodyRate                         = (int) grackle_data.three_body_rate;
+  CIECooling                            = (int) grackle_data.cie_cooling;
+  H2OpticalDepthApproximation           = (int) grackle_data.h2_optical_depth_approximation;
+  PhotoelectricHeating                  = (int) grackle_data.photoelectric_heating;
+  PhotoelectricHeatingRate              = (float) grackle_data.photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = (int) grackle_data.NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = (int) grackle_data.CaseBRecombination;
+  CoolData.TemperatureStart             = (float) grackle_data.TemperatureStart;
+  CoolData.TemperatureEnd               = (float) grackle_data.TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = (int) grackle_data.NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = (float) grackle_data.DustTemperatureStart;
+  RateData.DustTemperatureEnd           = (float) grackle_data.DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = (float) grackle_data.HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data.DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = (float) grackle_data.SolarMetalFractionByMass;
 #endif
 
   OutputCoolingTime = FALSE;

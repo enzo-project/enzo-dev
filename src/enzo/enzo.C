@@ -243,7 +243,6 @@ void my_exit(int status);
 void PrintMemoryUsage(char *str);
 
 
- 
 //  ENZO Main Program
 
 #ifdef SHARED_LIBRARY
@@ -273,7 +272,12 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
       sleep(5);
   }
 #endif
-  
+
+#ifdef USE_GRACKLE
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    grackle_verbose = 1;
+  }
+#endif
 
   int int_argc;
   int_argc = argc;
