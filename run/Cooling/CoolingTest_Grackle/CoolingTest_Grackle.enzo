@@ -68,10 +68,13 @@ TimeUnits                 = 3.1557e+11 // 10,000 yr in s
 #
 # chemistry/cooling
 #
-RadiativeCooling          = 1
-MultiSpecies              = 1
-MetalCooling              = 1          // John Wise's metal cooling
-TemperatureEnd            = 1.e8
+RadiativeCooling        = 1
+use_grackle             = 1
+MultiSpecies            = 1 // sets grackle.primordial_chemistry
+MetalCooling            = 1 // sets grackle.metal_cooling
+grackle_data_file       = CloudyData_noUVB.h5
+UVbackground            = 0
+CMBTemperatureFloor     = 1 // sets grackle.cmb_temperature_floor
 
 # Initial species fractions, fiddle at own risk,
 #TestProblemInitialHIFraction      = 0.998

@@ -365,12 +365,6 @@ EXTERN FLOAT   RandomForcingEdot;
 EXTERN FLOAT   RandomForcingMachNumber;  //#####
 EXTERN fpos_t  BaryonFileNamePosition;
 
-#ifdef USE_GRACKLE
-/* Grackle chemistry and cooling. */
-EXTERN code_units grackle_units;
-EXTERN chemistry_data grackle_chemistry;
-#endif
-
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;

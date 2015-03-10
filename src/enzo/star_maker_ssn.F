@@ -108,8 +108,10 @@ c
       ii = np
 
 c     Initialize RNG the first time this routine is called
+c     Use MPI rank to seed the RNG, ensuring different streams
+c     on each processor.
       if(ran1_init .eq. 0) then
-         call init_random_seed()
+         call init_random_seed(procnum)
          ran1_init = 1
       endif
 

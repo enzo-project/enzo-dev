@@ -892,7 +892,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       this->MHD_Curl(GridStartIndex, GridEndIndex, 0);
       CenterMagneticField();
   }
-  MHD_Diagnose("Post Initialize Grid");
+  float *DivB;
+  MHD_Diagnose("Post Initialize Grid", DivB);
 
   if(DualEnergyFormalism )
     for(index=0;index<size;index++)
