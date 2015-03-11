@@ -630,6 +630,7 @@ OBJS_CONFIG_LIB = \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
+    init_random_seed.o \
 	interp1d.o \
 	interp2d.o \
 	interp3d.o \
@@ -707,6 +708,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
 	ProblemType_MagneticReconnection.o \
+        ProblemType_AgoraRestart.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -839,6 +841,7 @@ OBJS_CONFIG_LIB = \
 	star_maker8.o \
 	star_maker9.o \
 	star_maker_h2reg.o \
+    star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \

@@ -367,8 +367,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     to keep the same fractional density. */
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (FieldType[field] >= ElectronDensity &&
-		FieldType[field] <= Metallicity &&
+	    if (((FieldType[field] >= ElectronDensity &&
+              FieldType[field] <= ExtraType1) ||
+                FieldType[field] == MetalSNIaDensity ||
+                FieldType[field] == MetalSNIIDensity) &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -745,8 +747,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	       density. (see comments above regarding species). */
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (FieldType[field] >= ElectronDensity &&
-		FieldType[field] <= Metallicity &&
+	    if (((FieldType[field] >= ElectronDensity &&
+                  FieldType[field] <= ExtraType1) ||
+                 FieldType[field] == MetalSNIaDensity ||
+                 FieldType[field] == MetalSNIIDensity)
+                   &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)

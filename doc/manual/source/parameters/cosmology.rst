@@ -1,3 +1,5 @@
+.. _cosmology-parameters:
+
 Cosmology Parameters
 ~~~~~~~~~~~~~~~~~~~~
 

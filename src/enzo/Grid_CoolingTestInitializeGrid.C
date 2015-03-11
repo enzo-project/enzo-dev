@@ -211,6 +211,8 @@ int grid::CoolingTestInitializeGrid()
 	BaryonField[DeNum][i] += 0.5*BaryonField[H2IINum][i] -
 	  BaryonField[HMNum][i];
 
+      BaryonField[DeNum][i] = max(BaryonField[DeNum][i], tiny_number);
+
       // Set deuterium species (assumed to be a negligible fraction of the total, so not
       // counted in the conservation)
       if(TestProblemData.MultiSpecies > 2){

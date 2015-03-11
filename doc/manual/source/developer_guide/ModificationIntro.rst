@@ -99,7 +99,7 @@ tested, verified, or even to provide correct answers.
 
 To conceptually -- and technically! -- separate these two repositories, they
 also live in different places.  We keep both the stable repository 
-and the development repository at BitBucket.  Enzo is (as of 2.2) developed in
+and the development repository at BitBucket.  Enzo is (as of 2.4) developed in
 a relatively simple fashion:
 
   #. On BitBucket, developers "fork" the primary development repository.
@@ -110,14 +110,13 @@ a relatively simple fashion:
      development branch.  New features will be aggregated into patch
      releases on the "stable" branch.
   #. When a new patch release is issued, the current development branch is
-     pushed to the "enzo-stable" repository on Bitbucket.
+     pushed to the "enzo-dev" repository on Bitbucket.
 
-The idea here is that there is a double firewall: the development repository is
-very high-cadence and with high-turnover, but the stable repository is much
+The idea here is that there is a double firewall: the development branch is
+very high-cadence and with high-turnover, but the stable branch is much
 slower, more carefully curated, and inclusions in it are well-tested.
 
- * Stable code lives at: https://bitbucket.org/enzo/enzo-stable
- * Development code lives at: http://bitbucket.org/enzo/enzo-dev
+ * code lives at: http://bitbucket.org/enzo/enzo-dev
 
 How To Share Changes
 --------------------

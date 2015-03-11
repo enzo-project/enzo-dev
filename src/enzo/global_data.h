@@ -376,12 +376,6 @@ EXTERN float DrivenFlowAutoCorrl[MAX_DIMENSION];
 EXTERN float DrivenFlowVelocity[MAX_DIMENSION];
 EXTERN float DrivenFlowDomainLength[MAX_DIMENSION];
 
-#ifdef USE_GRACKLE
-/* Grackle chemistry and cooling. */
-EXTERN code_units grackle_units;
-EXTERN chemistry_data grackle_chemistry;
-#endif
-
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;

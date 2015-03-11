@@ -18,10 +18,6 @@
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
 
-#ifdef USE_GRACKLE
-#include <grackle.h>
-#endif
-
 /* These are the different types of baryon fields. */
 
 #ifdef SMALL_INTS
@@ -169,8 +165,9 @@ const field_type
 
 /* Metals from Type Ia SNe */
   MetalSNIaDensity = 95,
+  MetalSNIIDensity = 96,
 
-  FieldUndefined  = 96;
+  FieldUndefined  = 97;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

@@ -76,12 +76,21 @@ int grid::ComputePressure(FLOAT time, float *pressure,
   /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
      subtract the kinetic energy term. */
 
-  if( HydroMethod == MHD_Li ){
-      BaryonField[B1Num = NumberOfBaryonFields] = CenteredB[0];
-      BaryonField[B2Num = NumberOfBaryonFields+1] = CenteredB[1];
-      BaryonField[B3Num = NumberOfBaryonFields+2] = CenteredB[2];
+  if (HydroMethod == MHD_Li) {
+      //Find the last occupied bayon field, map CenteredB to the end.  
+      //This is a stop gap solution
+      int counter=0;
+      for( counter=0; counter<MAX_NUMBER_OF_BARYON_FIELDS; counter++){
+        if ( BaryonField[counter] == NULL ){
+          break;
+        }
+      }
+      BaryonField[B1Num = counter++] = CenteredB[0];
+      BaryonField[B2Num = counter++] = CenteredB[1];
+      BaryonField[B3Num = counter++] = CenteredB[2];
+      MHDCT_ConvertEnergyToSpecificC();//See docs or Grid_MHDCTEnergyToggle.C for if/when this is done
   }
-  MHDCT_ConvertEnergyToSpecificC();//See docs or Grid_MHDCTEnergyToggle.C for if/when this is done
+
  
   float OneHalf = 0.5;
   if (HydroMethod == Zeus_Hydro)
