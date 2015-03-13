@@ -31,8 +31,9 @@
 //     for the current time step (BoundaryFluxesThisTimeStep).
 //   Also note that subgrids sharing a face with This Grid, but not proper subgrids,
 //   also need to be taken into account.
- 
+
 #include <stdio.h>
+#include <vector>
 #include <math.h>
 #include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
@@ -60,7 +61,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
  
   if (ProcessorNumber != MyProcessorNumber || !UseHydro)
     return SUCCESS;
- 
+
   // declarations
  
   int i1, i2, i, j, k, dim, field, ffield, index;
@@ -335,54 +336,92 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	
 	  for (i = 0; i < dim; i++)
 	    Offset *= GridDimension[i];
-	
-	  /* Multiply faces by density to get conserved quantities
-	     (only multiply fields which we are going to correct) */
-	
-	  if (HydroMethod != Zeus_Hydro) {
-	    for (field = 0; field < NumberOfBaryonFields; field++) { 
-	      if ( MakeFieldConservative(FieldType[field]) ) {
-                if (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-                                              FieldType[field] != InternalEnergy)) {
-                  for (k = Start[2]; k <= End[2]; k++) {
-                    for (j = Start[1]; j <= End[1]; j++) {
-                      index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
-                      for (i = Start[0]; i <= End[0]; i++, index++) {
-                        BaryonField[field][index] *= BaryonField[DensNum][index];
-                        BaryonField[field][index+Offset] *= 
-                          BaryonField[DensNum][index+Offset];
-                      }
-                    }
-                  }
-                }
-	      }
-            }
-	  }
 
-	  
+      // Create an ordered list to store the fields in the order we wish to 
+      // process them.
+      std::vector<int> fieldNumberList;
+
+      // Add density, total energy, then internal energy to the field list 
+      // first.  If we do not process those fields first, then the result 
+      // could become dependent on the order of the fields in BaryonField 
+      // if any of the three initial fields are less than or equal to zero.
+      // NB: If a field does not exist, e.g. InternalEnergy, then the XXNum
+      // value is equal to 0, which is the same value for the field at
+      // BaryonField[0].  Therefore, we cannot use a >= 0 condition to check
+      // if the field exists.  Instead, we check that FieldType[XXNum] is the
+      // expected field type.
+      if (FieldType[DensNum] == Density) {
+        fieldNumberList.push_back(DensNum);
+      }
+      if (RadiativeCooling == 0) {
+        if (FieldType[TENum] == TotalEnergy) {
+          fieldNumberList.push_back(TENum);
+        }
+        if (FieldType[GENum] == InternalEnergy) {
+          fieldNumberList.push_back(GENum);
+        }
+      }
 	
-	  /* Divide species by densities so that at the end we can multiply
-	     them by the new density (species are not otherwise modified --
-	     see the next comment).  This ensures that the species are changed
-	     to keep the same fractional density. */
-	
-	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (((FieldType[field] >= ElectronDensity &&
-              FieldType[field] <= ExtraType1) ||
-                FieldType[field] == MetalSNIaDensity ||
-                FieldType[field] == MetalSNIIDensity) &&
-		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
-		FieldTypeIsRadiation(FieldType[field]) == FALSE)
-	      for (k = Start[2]; k <= End[2]; k++)
-		for (j = Start[1]; j <= End[1]; j++) {
-		  index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
-		  for (i = Start[0]; i <= End[0]; i++, index++) {
-		    BaryonField[field][index] /= BaryonField[DensNum][index];
-		    BaryonField[field][index+Offset] /=
-		      BaryonField[DensNum][index+Offset];
-		  }
-		}
-	
+      for (field = 0; field < NumberOfBaryonFields; field++) { 
+        // Multiply faces by density to get conserved quantities
+        // (only multiply fields which we are going to correct)
+        if (HydroMethod != Zeus_Hydro
+          && (RadiativeCooling == 0
+            || (FieldType[field] != TotalEnergy
+              && FieldType[field] != InternalEnergy
+            )
+          ) && MakeFieldConservative(FieldType[field])
+        ) {
+          for (k = Start[2]; k <= End[2]; k++) {
+            for (j = Start[1]; j <= End[1]; j++) {
+              index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
+              for (i = Start[0]; i <= End[0]; i++, index++) {
+                BaryonField[field][index] *= BaryonField[DensNum][index];
+                BaryonField[field][index+Offset]
+                  *= BaryonField[DensNum][index+Offset];
+              }
+            }
+          }
+        }
+
+        // Divide species by densities so that at the end we can multiply
+        // them by the new density (species are not otherwise modified --
+        // see the next comment).  This ensures that the species are changed
+        // to keep the same fractional density.
+        if (FieldType[field] >= ElectronDensity
+          && FieldType[field] <= Metallicity 
+          && FieldTypeNoInterpolate(FieldType[field]) == FALSE
+          && FieldTypeIsRadiation(FieldType[field]) == FALSE
+        ) {
+          for (k = Start[2]; k <= End[2]; k++) {
+            for (j = Start[1]; j <= End[1]; j++) {
+              index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
+              for (i = Start[0]; i <= End[0]; i++, index++) {
+                BaryonField[field][index] /= BaryonField[DensNum][index];
+                BaryonField[field][index+Offset]
+                  /= BaryonField[DensNum][index+Offset];
+              }
+            }
+          }
+        }
+
+	    if (FieldTypeNoInterpolate(FieldType[field]) == FALSE
+          // Density, total energy, and internal energy were already 
+          // added above.
+          && FieldType[field] != Density
+          && FieldType[field] != TotalEnergy
+          && FieldType[field] != InternalEnergy
+          && FieldType[field] < ElectronDensity 
+          && FieldType[field] != DrivingField1
+          && FieldType[field] != DrivingField2
+          && FieldType[field] != DrivingField3
+          && FieldType[field] != GravPotential
+          && FieldType[field] != DebugField
+        ) {
+          fieldNumberList.push_back(field);
+        }
+      }
+
 	  /* Correct face for difference between refined and initial fluxes.
 	     (Don't do this for energy if radiative cooling is on because it's
 	     no longer conserved.  Similarly, don't do it for the species
@@ -391,21 +430,13 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     total number density summed over ionization, etc.) */
 	
 	  if (Coordinate == Cartesian) {
-	  for (field = 0; field < NumberOfBaryonFields; field++){
-	    if ((FieldTypeNoInterpolate(FieldType[field]) == FALSE) &&
-		(RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
-					   FieldType[field] != InternalEnergy)) &&
-		(FieldType[field] < ElectronDensity) && 
-		FieldType[field] != DrivingField1 &&
-		FieldType[field] != DrivingField2 &&
-		FieldType[field] != DrivingField3 &&
-		FieldType[field] != GravPotential &&
-		FieldType[field] != DebugField) {
-	      for (k = Start[2]; k <= End[2]; k++){
-		for (j = Start[1]; j <= End[1]; j++){
-		  for (i = Start[0]; i <= End[0]; i++) {
-		
-		    /* Compute indexes. */
+        for (int index = 0; index < fieldNumberList.size(); ++index) {
+          field = fieldNumberList[index];
+          for (k = Start[2]; k <= End[2]; k++) {
+            for (j = Start[1]; j <= End[1]; j++) {
+              for (i = Start[0]; i <= End[0]; i++) {
+
+                /* Compute indexes. */
 		
 		    FieldIndex = (k*GridDimension[1] + j)*GridDimension[0] + i;
 		    FluxIndex  = ((k - Start[2]+InitialOffset[2])*Dim[1] +
@@ -427,19 +458,27 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      + (k - GridFluxStartIndex[2])*GridFluxDim[1]*GridFluxDim[0];
 		
 		
- 		    if (CorrectLeftBoundaryFlux && CorrectParentBoundaryFlux )
-		      BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex] =
-			RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
+ 		    if (CorrectLeftBoundaryFlux && CorrectParentBoundaryFlux) {
+              // This will not be "undone" in the event that density, total 
+              // energy, or internal energy gives a negative value.
+
+              // @todo Confirm that this should not be undone in the event that
+              // density, total energy, or internal energy gives a negative 
+              // value.  If it may be better to put this after the check for 
+              // negative density/energy.
+              BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex]
+                = RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
+            }
+
+		    if (CorrectLeftBaryonField) {
 		
-		    if(CorrectLeftBaryonField){
-		
-		      if( SUBlingGrid == FALSE ){
+		      if (SUBlingGrid == FALSE) {
 			CorrectionAmountLeft = 
 			  InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
 			  RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
 			BaryonField[field][FieldIndex] += CorrectionAmountLeft;
 			
-		      }else{ /* if( SUBlingGrid == False) */
+		      } else { /* if( SUBlingGrid == False) */
 			
 			CorrectionAmountLeft = 
 			  -(InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
@@ -449,10 +488,18 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		      }
 		    }
 		
- 		    if (CorrectRightBoundaryFlux && CorrectParentBoundaryFlux )
-		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex] =
-			RefinedFluxes->RightFluxes[field][dim][FluxIndex];
-		
+ 		    if (CorrectRightBoundaryFlux && CorrectParentBoundaryFlux) {
+              // This will not be "undone" in the event that density, total 
+              // energy, or internal energy gives a negative value.
+
+              // @todo Confirm that this should not be undone in the event that
+              // density, total energy, or internal energy gives a negative 
+              // value.  If it may be better to put this after the check for 
+              // negative density/energy.
+		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex]
+                = RefinedFluxes->RightFluxes[field][dim][FluxIndex];
+            }
+
 		    /* update only if necessary */
 		    if(CorrectRightBaryonField){
 		
@@ -464,13 +511,13 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			  
 			BaryonField[field][FieldIndex + Offset] += CorrectionAmountRight;
 			
-		      }else{ /* if( SUBlingGrid == FALSE ){ */
+		      }else{ /* if( SUBlingGrid == FALSE ) */
 			  CorrectionAmountRight = 
 			    InitialFluxes->RightFluxes[field][dim][FluxIndex] -
 			    RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex];
 			  BaryonField[field][FieldIndex + Offset] += CorrectionAmountRight;
 			
-		      } // else{ /* if( SUBlingGrid == FALSE ){ */
+		      } // else /* if( SUBlingGrid == FALSE ) */
 		    } // if(CorrectRightBaryonField)
 		
 		    if ((FieldTypeIsDensity(FieldType[field]) == TRUE ||
@@ -482,7 +529,6 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 
 		      if (CorrectLeftBaryonField &&
 			  BaryonField[field][FieldIndex] <= 0) {
-			BaryonField[field][FieldIndex] -= CorrectionAmountLeft;
 
 			if (SUBlingGrid == FALSE) {
 			  if (debug)
@@ -493,9 +539,19 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->LeftFluxes[field][dim][FluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+                ffield = fieldNumberList[undoIndex];
+                // If the flux correction was already applied, then undo it.
+                if (undoIndex <= index) {
+                  BaryonField[ffield][FieldIndex]
+                    -= (InitialFluxes->LeftFluxes[ffield][dim][FluxIndex] 
+                    - RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex]);
+                }
+                // Set the refined fluxes equal to the initial fluxes, so i
+                // that no further correction will be applied.
 			    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+              }
 			} else {
 			  if (debug)
 			    printf("P(%d) -- CFRFlS warn: %e %e %e %e %"ISYM
@@ -505,15 +561,24 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountLeft,
 				   i, j, k, dim, field);
-			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+                ffield = fieldNumberList[undoIndex];
+                // If the flux correction was already applied, then undo it.
+                if (undoIndex <= index) {
+                  BaryonField[ffield][FieldIndex]
+                    -= -(InitialFluxes->LeftFluxes[ffield][dim][FluxIndex]
+                    - RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex]);
+                }
+                // Set the refined fluxes equal to the initial fluxes, so i
+                // that no further correction will be applied.
 			    RefinedFluxes->RightFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+              }
 			} // ENDELSE (SUBlingGrid == FALSE)
 		      } // ENDIF CorrectLeftBaryonField
 
 		      if (CorrectRightBaryonField &&
 			  BaryonField[field][FieldIndex+Offset] <= 0) {
-			BaryonField[field][FieldIndex+Offset] -= CorrectionAmountRight;
 
 			if (SUBlingGrid == FALSE) {
 			  if (debug)
@@ -524,9 +589,19 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][FluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+                ffield = fieldNumberList[undoIndex];
+                // If the flux correction was already applied, then undo it.
+                if (undoIndex <= index) {
+                  BaryonField[ffield][FieldIndex + Offset]
+                    -= -(InitialFluxes->RightFluxes[ffield][dim][FluxIndex]
+                    - RefinedFluxes->RightFluxes[ffield][dim][FluxIndex]);
+                }
+                // Set the refined fluxes equal to the initial fluxes, so i
+                // that no further correction will be applied.
 			    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
+              }
 			} else {
 			  if (debug)
 			    printf("P(%d) -- CFRFrS warn: %e %e %e %e %"ISYM
@@ -536,33 +611,33 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 				   RefinedFluxes->RightFluxes[field][dim][RefinedFluxIndex],
 				   CorrectionAmountRight,
 				   i, j, k, dim, field);
-			  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
+			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+                ffield = fieldNumberList[undoIndex];
+                // If the flux correction was already applied, then undo it.
+                if (undoIndex <= index) {
+                  BaryonField[ffield][FieldIndex + Offset]
+                    -= (InitialFluxes->RightFluxes[field][dim][FluxIndex]
+                    - RefinedFluxes->LeftFluxes[field][dim][RefinedFluxIndex]);
+                }
+                // Set the refined fluxes equal to the initial fluxes, so i
+                // that no further correction will be applied.
 			    RefinedFluxes->LeftFluxes[ffield][dim][RefinedFluxIndex] =
 			      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
+              }
 			}
 		      } // ENDIF CorrectRightBaryonField
 		    }
-		  }// for (i = Start[0]; i <= End[0]; i++) {
-		} // for (j = Start[1]; j <= End[1]; j++){
-	      } // for (k = Start[2]; k <= End[2]; k++){
-	    }	// if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && etc
-	  } // for (field = 0; field < NumberOfBaryonFields; field++){
+		  }// for (i = Start[0]; i <= End[0]; i++) 
+		} // for (j = Start[1]; j <= End[1]; j++)
+	      } // for (k = Start[2]; k <= End[2]; k++)
+	    } // for (int index = 0; index < fieldNumberList.size(); ++index)
 	  }
 
 
-	if (Coordinate == Cylindrical) {
-	FLOAT xr, xl, xc, geofacr, geofacl;
-	for (field = 0; field < NumberOfBaryonFields; field++) {
-	  /*if ((RadiativeCooling == 0 || (FieldType[field] != TotalEnergy && 
-	    FieldType[field] != InternalEnergy))
-	    && (FieldType[field] < ElectronDensity) ) {*/
-	  if (FieldType[field] < ElectronDensity &&
-	      FieldType[field] != DrivingField1 &&
-	      FieldType[field] != DrivingField2 &&
-	      FieldType[field] != DrivingField3 &&
-	      FieldType[field] != GravPotential &&
-	      FieldType[field] != DebugField
-	      ) {
+      if (Coordinate == Cylindrical) {
+        FLOAT xr, xl, xc, geofacr, geofacl;
+        for (int index = 0; index < fieldNumberList.size(); ++index) {
+          field = fieldNumberList[index];
 	  for (k = Start[2]; k <= End[2]; k++) {
 	    for (j = Start[1]; j <= End[1]; j++) {
 	      for (i = Start[0]; i <= End[0]; i++) {
@@ -616,7 +691,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		     RefinedFluxes->RightFluxes[field][dim][FluxIndex] )*xc;
 
 		}		
-		/* Check for posivtivity and undo flux correction if negative */
+		/* Check for positivity and undo flux correction if negative */
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
 		     FieldType[field] == InternalEnergy) &&
@@ -629,12 +704,17 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   i, j, k, dim, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-		  BaryonField[field][FieldIndex] -=
-		     (InitialFluxes->LeftFluxes[field][dim][FluxIndex] -
-		      RefinedFluxes->LeftFluxes[field][dim][FluxIndex] );
-		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex] =
-		      InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+                ffield = fieldNumberList[undoIndex];
+            if (undoIndex <= index) {
+              BaryonField[ffield][FieldIndex] -= (
+                InitialFluxes->LeftFluxes[ffield][dim][FluxIndex]
+                - RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex]
+              );
+            }
+		    RefinedFluxes->LeftFluxes[ffield][dim][FluxIndex]
+		      = InitialFluxes->LeftFluxes[ffield][dim][FluxIndex];
+          }
 		}
 		if ((FieldType[field] == Density || 
 		     FieldType[field] == TotalEnergy ||
@@ -648,22 +728,24 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 			   i, j, k, dim, Offset, field);
 			   }*/
 		  /* If new density & energy is < 0 then undo the flux correction. */
-		  BaryonField[field][FieldIndex + Offset] +=
-		     (InitialFluxes->RightFluxes[field][dim][FluxIndex] -
-		      RefinedFluxes->RightFluxes[field][dim][FluxIndex] );
-		  for (ffield = 0; ffield < NumberOfBaryonFields; ffield++)
-		    RefinedFluxes->RightFluxes[ffield][dim][FluxIndex] =
-		      InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
+			  for (int undoIndex = 0; undoIndex < fieldNumberList.size(); ++undoIndex) {
+                ffield = fieldNumberList[undoIndex];
+            if (undoIndex <= index) {
+              BaryonField[ffield][FieldIndex + Offset] += (
+                InitialFluxes->RightFluxes[ffield][dim][FluxIndex]
+                - RefinedFluxes->RightFluxes[ffield][dim][FluxIndex]
+              );
+            }
+            RefinedFluxes->RightFluxes[ffield][dim][FluxIndex]
+              = InitialFluxes->RightFluxes[ffield][dim][FluxIndex];
+          }
 		}
-	      }
-	    }
-	  }
-	  
-	  }
+	      } // i
+	    } // j
+	  } // k
 	}
-	}
+	} // if (Cylindrical)
 	
-
           /* Return faces to original quantity. */
 	
           if (HydroMethod != Zeus_Hydro) {
@@ -747,11 +829,8 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	       density. (see comments above regarding species). */
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (((FieldType[field] >= ElectronDensity &&
-                  FieldType[field] <= ExtraType1) ||
-                 FieldType[field] == MetalSNIaDensity ||
-                 FieldType[field] == MetalSNIIDensity)
-                   &&
+	    if (FieldType[field] >= ElectronDensity &&
+		FieldType[field] <= Metallicity &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -764,7 +843,7 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		  }
 		}
 	
-	} // if( CorrectLeftBaryonField || CorrectRightBaryonField){
+	} // if( CorrectLeftBaryonField || CorrectRightBaryonField)
 
       } // end: if GridDimension[dim] > 1
       /* delete Refined fluxes as they're not needed anymore. */
