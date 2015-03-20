@@ -64,7 +64,13 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
 
   for (i = 0; i < NumberOfParticles; i++) {
     ParticleNumber[i] = i;
-    ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
+
+    /* if MRPs are activated, set the particle type for test particles to MUST_REFINE */
+    if (MustRefineParticlesRefineToLevel > 0 && i > 0) {
+      ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
+    }else{
+      ParticleType[i] = PARTICLE_TYPE_DARK_MATTER;
+    }
   }
 
   /* Set central particle. */
