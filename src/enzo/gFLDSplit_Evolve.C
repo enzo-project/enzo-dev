@@ -265,13 +265,13 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       float NiMax = UMaxVals[2];
       float NiTyp = UTypVals[2];
       if (Nchem > 1) {
-	NiMax = max(NiMax, UMaxVals[3]);
-	NiTyp = max(NiTyp, UTypVals[3]);
-	NiMax = max(NiMax, UMaxVals[4]);
-	NiTyp = max(NiTyp, UTypVals[4]);
+        NiMax = max(NiMax, UMaxVals[3]);
+        NiTyp = max(NiTyp, UTypVals[3]);
+        NiMax = max(NiMax, UMaxVals[4]);
+        NiTyp = max(NiTyp, UTypVals[4]);
       }
       if ((NiMax - NiTyp) > ScaleCorrTol*NiMax)
-	NiScaleCorr = NiMax;
+       NiScaleCorr = NiMax;
     }
   }
 
@@ -319,8 +319,8 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       }
       dt = tnew - told;
       if (debug) 
-	printf("\n subcycled rad %"ISYM": dt=%7.1e, t=%7.1e (hydro dt=%7.1e, t=%7.1e)\n",
-	       radstep,dt,tnew,dthydro,end_time);
+       printf("\n subcycled rad %"ISYM": dt=%7.1e, t=%7.1e (hydro dt=%7.1e, t=%7.1e)\n",
+        radstep,dt,tnew,dthydro,end_time);
       
       // take a radiation step
       recompute_step = this->RadStep(ThisGrid, eta_set);
@@ -328,9 +328,9 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       // if the radiation step was unsuccessful, back-track to previous 
       // step and pull back on dtrad
       if (recompute_step) {
-	dtrad = max(dtrad*0.5, mindt);
-	tnew = told;
-	radstop = 0;
+       dtrad = max(dtrad*0.5, mindt);
+       tnew = told;
+       radstop = 0;
       }
 
     }
@@ -358,45 +358,44 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
       tchem = told;
       chemstop = 0;
       for (chemstep=0; chemstep<=maxchemsub*2; chemstep++) {
-	
-	// update tchem
-	thisdt = min(dtchem, dt);             // do not exceed radiation dt
-	thisdt = max(thisdt, dt/maxchemsub);  // set max subcycle count wrt radiation
-	tchem += thisdt;                      // update chemistry time
-	if ((tchem - tnew)/tnew > -1.0e-14) { // do not exceed radiation time
-	  thisdt = tnew - (tchem - thisdt);   // get max time step
-	  tchem = tnew;                       // set updated time
-	  chemstop = 1;
-	}
-	if (debug) 
-	  printf("   subcycled chem %"ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",
-		 chemstep,thisdt,tchem,dt,tnew);
+      	// update tchem
+        thisdt = min(dtchem, dt);             // do not exceed radiation dt
+        thisdt = max(thisdt, dt/maxchemsub);  // set max subcycle count wrt radiation
+        tchem += thisdt;                      // update chemistry time
+        if ((tchem - tnew)/tnew > -1.0e-14) { // do not exceed radiation time
+          thisdt = tnew - (tchem - thisdt);   // get max time step
+          tchem = tnew;                       // set updated time
+          chemstop = 1;
+        }
+        if (debug) 
+          printf("   subcycled chem %"ISYM": dt=%7.1e, t=%7.1e (rad dt=%7.1e, t=%7.1e)\n",
+            chemstep,thisdt,tchem,dt,tnew);
 
-	//   take a chemistry step
-	if (this->ChemStep(ThisGrid, thisdt, tchem) != SUCCESS)
-	  ENZO_FAIL("gFLDSplit Evolve: Error in ChemStep routine");
-	
-	// update chemistry time step size based on changes to chem+energy
-	//   (limit growth at each cycle)
-	dtchem2 = this->ComputeTimeStep(U0,sol,1);
-	dtchem = min(dtchem2, 2.0*dtchem);
-	
-	//   Zero out fluid energy correction fields
-	for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-	  sol_ec[i] = 0.0;
-	for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
-	  FluidEnergyCorrection[i] = 0.0;
-	
-	//   Update Enzo chemistry arrays with new values
-	if (Nchem > 0)  
-	  U0->copy_component(sol, 2);  // HI
-	if (Nchem > 1) {
-	  U0->copy_component(sol, 3);  // HeI
-	  U0->copy_component(sol, 4);  // HeII
-	}
+        //   take a chemistry step
+        if (this->ChemStep(ThisGrid, thisdt, tchem) != SUCCESS)
+          ENZO_FAIL("gFLDSplit Evolve: Error in ChemStep routine");
 
-	// break out of time-stepping loop if we've reached the end
-	if (chemstop)  break;
+        // update chemistry time step size based on changes to chem+energy
+        //   (limit growth at each cycle)
+        dtchem2 = this->ComputeTimeStep(U0,sol,1);
+        dtchem = min(dtchem2, 2.0*dtchem);
+
+        //   Zero out fluid energy correction fields
+        for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+          sol_ec[i] = 0.0;
+        for (i=0; i<ArrDims[0]*ArrDims[1]*ArrDims[2]; i++)  
+          FluidEnergyCorrection[i] = 0.0;
+
+        //   Update Enzo chemistry arrays with new values
+        if (Nchem > 0)  
+          U0->copy_component(sol, 2);  // HI
+        if (Nchem > 1) {
+	        U0->copy_component(sol, 3);  // HeI
+	        U0->copy_component(sol, 4);  // HeII
+        }
+
+        // break out of time-stepping loop if we've reached the end
+        if (chemstop)  break;
 	
       }  // end of chemistry subcycling
       
@@ -453,9 +452,9 @@ int gFLDSplit::Evolve(HierarchyEntry *ThisGrid, float dthydro)
 
   // update scaling factors to account for new values
   if (StartAutoScale && autoScale) {
-    ErScale *= ErScaleCorr;
-    ecScale *= ecScaleCorr;
-    NiScale *= NiScaleCorr;
+    ErScale *= max(ErScaleCorr, 1.0);
+    ecScale *= max(ecScaleCorr, 1.0);
+    NiScale *= max(NiScaleCorr, 1.0);
   }
 
   //   Update dependent chemical species densities (ne, nHII, nHeIII) 

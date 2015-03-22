@@ -117,7 +117,6 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialUniformBField[])
 {
  
- 
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum;
@@ -234,7 +233,7 @@ int grid::CosmologySimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity3;
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
-    
+
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     
@@ -542,10 +541,12 @@ int grid::CosmologySimulationInitializeGrid(
       }
     }
 
-    if (CosmologySimulationTotalEnergyName == NULL)
-      for (i = 0; i < size; i++)
+    if (CosmologySimulationTotalEnergyName == NULL) {
+      for (i = 0; i < size; i++) {
         BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
             TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
+      }
+    }
 
     /*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
                 / (Gamma-1); */
@@ -556,10 +557,11 @@ int grid::CosmologySimulationInitializeGrid(
 
     if (CosmologySimulationTotalEnergyName == NULL &&
         HydroMethod != Zeus_Hydro) {
-      for (dim = 0; dim < GridRank; dim++)
-        for (i = 0; i < size; i++) {
+    for (i = 0; i < size; i++) {
+      for (dim = 0; dim < GridRank; dim++) {
           BaryonField[iTE][i] +=
               0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
+      }
           if (HydroMethod == MHD_RK) {
             BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
             BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
@@ -579,9 +581,7 @@ int grid::CosmologySimulationInitializeGrid(
                                         CenteredB[2][i] * CenteredB[2][i])/
                 BaryonField[0][i];
           }
-
-
-        }
+      }
 
       if(UseMHDCT == TRUE){
         for(int field=0;field<3;field++)

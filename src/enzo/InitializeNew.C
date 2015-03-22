@@ -257,12 +257,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Declarations
  
   FILE *fptr, *BCfptr, *Outfptr;
-  float Dummy[MAX_DIMENSION];
   int dim, i;
-
- 
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    Dummy[dim] = 0.0;
  
   // Open parameter file
  
@@ -796,7 +791,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 	    fprintf(stderr, "SimpleConstantBoundary FALSE\n");
 	  }
 	}
-        
+
+        float Dummy[TopGrid.GridData->ReturnNumberOfBaryonFields()];
+        for (
+          int fieldIndex = 0; 
+          fieldIndex < TopGrid.GridData->ReturnNumberOfBaryonFields(); 
+          fieldIndex++
+        ) {
+          Dummy[fieldIndex] = 0.0;
+        }
 	for (dim = 0; dim < MetaData.TopGridRank; dim++)
 	  if (Exterior.InitializeExternalBoundaryFace(dim,
 						      MetaData.LeftFaceBoundaryCondition[dim],
