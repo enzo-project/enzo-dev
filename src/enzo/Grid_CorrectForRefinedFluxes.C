@@ -459,13 +459,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		
 		
  		    if (CorrectLeftBoundaryFlux && CorrectParentBoundaryFlux) {
-              // This will not be "undone" in the event that density, total 
-              // energy, or internal energy gives a negative value.
+              // This is not included in the "undo" in the event that density,
+              // total energy, or internal energy gives a negative value
+              // because this code only runs when
+              //    CorrectLeftBoundaryFlux == true,
+              // while the correction to the BaryonField values and the "undo"
+              // code only runs when 
+              //    CorrectLeftBaryonField == true,
+              // and the two booleans are always set to be opposite in value.
 
-              // @todo Confirm that this should not be undone in the event that
-              // density, total energy, or internal energy gives a negative 
-              // value.  If it may be better to put this after the check for 
-              // negative density/energy.
               BoundaryFluxesThisTimeStep->LeftFluxes[field][dim][GridFluxIndex]
                 = RefinedFluxes->LeftFluxes[field][dim][FluxIndex];
             }
@@ -489,13 +491,15 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 		    }
 		
  		    if (CorrectRightBoundaryFlux && CorrectParentBoundaryFlux) {
-              // This will not be "undone" in the event that density, total 
-              // energy, or internal energy gives a negative value.
+              // This is not included in the "undo" in the event that density,
+              // total energy, or internal energy gives a negative value
+              // because this code only runs when
+              //    CorrectRightBoundaryFlux == true,
+              // while the correction to the BaryonField values and the "undo"
+              // code only runs when 
+              //    CorrectRightBaryonField == true,
+              // and the two booleans are always set to be opposite in value.
 
-              // @todo Confirm that this should not be undone in the event that
-              // density, total energy, or internal energy gives a negative 
-              // value.  If it may be better to put this after the check for 
-              // negative density/energy.
 		      BoundaryFluxesThisTimeStep->RightFluxes[field][dim] [GridFluxIndex]
                 = RefinedFluxes->RightFluxes[field][dim][FluxIndex];
             }
