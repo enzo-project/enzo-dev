@@ -205,7 +205,7 @@ Magnetohydrodynamics (CT) Parameters
     CT Method   Description  
     ========== ==========================================================================
     0           None (only for debugging)
-    1           Balsara Spicer 2001, first order average
+    1           Balsara and Spicer 1999. First order average.
     2           Gardiner and Stone 2005. Second order Lax-Friedrichs type reconstruction.
                 Uses ``CT_AthenaDissipation`` flag.
     3           Gardiner and Stone 2005.  Second order reconstruction using
