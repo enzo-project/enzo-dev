@@ -1,0 +1,116 @@
+#=======================================================================
+#
+# FILE:        Make.mach.hits-magny
+#
+# DESCRIPTION: Make file for the machine Magny at HITS
+#
+# AUTHOR:      Christine Simpson
+#
+# DATE:        2014-11-20
+#
+#=======================================================================
+
+MACH_TEXT  = HITS Magny
+MACH_VALID = 1
+MACH_FILE  = Make.mach.hits-magny
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_GRACKLE_INSTALL = 
+LOCAL_HDF5_INSTALL   = /hits/tap/sw/libs/hdf5-1.8.10/
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = # C preprocessor command
+
+# With MPI
+
+MACH_CC_MPI    = mpicc # C compiler when using MPI
+MACH_CXX_MPI   = mpicxx # C++ compiler when using MPI
+MACH_FC_MPI    = mpif90 # Fortran 77 compiler when using MPI
+MACH_F90_MPI   = mpif90 # Fortran 90 compiler when using MPI
+MACH_LD_MPI    = mpicxx # Linker when using MPI
+
+# Without MPI
+
+MACH_CC_NOMPI  = gcc # C compiler when not using MPI
+MACH_CXX_NOMPI = g++ # C++ compiler when not using MPI
+MACH_FC_NOMPI  = gfortran # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = gfortran # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = gfortran # Linker when not using MPI
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+# Note: When compiling against HDF5 version 1.8 or greater, you need to
+# compile HDF5 with --with-default-api-version=v16, or Enzo with
+# -DH5_USE_16_API.
+
+MACH_DEFINES   = -DH5_USE_16_API -DLINUX # Defines for the architecture; e.g. -DSUN, -DLINUX, etc.
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   = 
+MACH_CXXFLAGS = 
+MACH_FFLAGS   = -fno-second-underscore -ffixed-line-length-132
+MACH_F90FLAGS = -fno-second-underscore
+MACH_LDFLAGS  = -lstdc++ -lc #-Wl,-noinhibit-exec -lpthread -ldl
+
+
+
+#MACH_CPPFLAGS = # C preprocessor flags
+#MACH_CFLAGS   = # C compiler flags
+#MACH_CXXFLAGS = # C++ compiler flags
+#MACH_FFLAGS   = # Fortran 77 compiler flags
+#MACH_F90FLAGS = # Fortran 90 compiler flags
+#MACH_LDFLAGS  = # Linker flags
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g
+MACH_OPT_DEBUG       = -g -O0 
+MACH_OPT_HIGH        = -O2
+MACH_OPT_AGGRESSIVE  = -O3 -Mfptrap -Mflushz -fastsse -Mdaz -Mnontemporal -Mnofprelaxed -Mvect=altcode,assoc,prefetch -Kieee 
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = # MPI includes
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HYPRE  = # hypre includes
+LOCAL_INCLUDES_PAPI   = # PAPI includes
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
+MACH_INCLUDES_GRACKLE = $(LOCAL_INCLUDES_GRACKLE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+
+LOCAL_LIBS_MPI    = # MPI libraries
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HYPRE  = # hypre libraries
+LOCAL_LIBS_PAPI   = # PAPI libraries
+LOCAL_LIBS_MACH   = -lgfortran # Machine-dependent libraries
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)
+MACH_LIBS_PAPI    = $(LOCAL_LIBS_PAPI)
+MACH_LIBS_GRACKLE = $(LOCAL_LIBS_GRACKLE)
