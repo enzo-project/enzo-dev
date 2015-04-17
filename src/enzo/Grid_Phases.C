@@ -1,5 +1,3 @@
-#undef  _LIST_ALL_
-
 /***********************************************************************
 /
 /  GRID CLASS: Phases
@@ -54,19 +52,6 @@ void grid::Phases()
     phase_start[dim] = wave_number[dim] * (GridLeftEdge[dim] - GridStartIndex[dim] * delta[dim]); 
     incr[dim]        = wave_number[dim] * delta[dim];
 
-#ifdef _LIST_ALL_
-    if (dim == 0) printf("\n");
-    printf(
-    "%"ISYM" %"FSYM" %"FSYM"\n"
-    "%"ISYM" delta %"FSYM"\n"
-    "%"ISYM" wave_number %"FSYM"\n"
-    "%"ISYM" phase_start %"FSYM" incr %"FSYM"\n", 
-        dim,GridLeftEdge[dim],GridRightEdge[dim],
-        dim,delta[dim],
-        dim,wave_number[dim],
-        dim,phase_start[dim],incr[dim]);
-#endif
-
     PhaseFctMultEven[dim] = new float[size];
     PhaseFctMultOdd[dim]  = new float[size];
 
@@ -91,11 +76,6 @@ void grid::Phases()
         PhaseFctMultEven[0][m] = cos(i*incr[0]);
         PhaseFctMultOdd [0][m] = sin(i*incr[0]);
 
-#ifdef _LIST_ALL_
-    printf("%"ISYM" %"ISYM"   %"FSYM"   %"FSYM" %"FSYM"   %"FSYM"   %"FSYM" %"FSYM"\n",
-        i,m,i*phase_start[0],PhaseFctInitEven[m],PhaseFctInitOdd [m],i*incr[0],
-        PhaseFctMultEven[0][m],PhaseFctMultOdd[0][m]);
-#endif
         ++m;
     }
     
@@ -119,13 +99,6 @@ void grid::Phases()
             PhaseFctMultEven[1][m] = cos(j*incr[1]);
             PhaseFctMultOdd [1][m] = sin(j*incr[1]);
             
-#ifdef _LIST_ALL_
-            printf("%"ISYM" %"ISYM"   %"ISYM" %"ISYM"  %"FSYM" %"FSYM"   %"FSYM"   %"FSYM"   %"FSYM" %"FSYM"\n",
-                i,j,n-1,m,
-                PhaseFctInitEven[m],PhaseFctInitOdd [m],
-                PhaseFctMultEven[0][m],PhaseFctMultOdd[0][m],
-                PhaseFctMultEven[1][m],PhaseFctMultOdd[1][m]);
-#endif
             ++m;
         }
 
@@ -157,17 +130,6 @@ void grid::Phases()
                 PhaseFctMultEven[2][m] = cos(k*incr[2]);
                 PhaseFctMultOdd [2][m] = sin(k*incr[2]);
 
-#ifdef _LIST_ALL_
-    printf(
-"%"ISYM" %"ISYM" %"ISYM"  %"ISYM" %"ISYM"  %"FSYM"    %"FSYM" %"FSYM" %"FSYM"\n"
-"%"ISYM" %"ISYM" %"ISYM"  %"ISYM" %"ISYM"  %"FSYM"    %"FSYM" %"FSYM" %"FSYM"\n",
-i,j,k,n,m,
-PhaseFctInitEven[m],PhaseFctMultEven[0][m], 
-PhaseFctMultEven[1][m],PhaseFctMultEven[2][m],
-i,j,k,n,m,
-PhaseFctInitOdd [m],PhaseFctMultOdd [0][m],
-PhaseFctMultOdd [1][m],PhaseFctMultOdd [2][m]);
-#endif
                 ++m;
                 }
     }

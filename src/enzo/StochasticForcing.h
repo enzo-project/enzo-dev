@@ -95,7 +95,7 @@ class StochasticForcing {
 //
     void set_decay(void);
 //
-// Set the weighing parameter
+// Set the weighting parameter
 //
     void set_SolenoidalWeight(int my_soln_weight);
 //

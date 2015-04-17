@@ -1,7 +1,3 @@
-
-#undef  _LIST_ALL_
-//#define  _LIST_ALL_
-
 /***********************************************************************
  *
  *  STOCHASTIC FORCING CLASS: Evolve, Inject, WriteSpectrum
@@ -33,7 +29,11 @@ void StochasticForcing::Evolve(float dt)
 
 	    Inject();
 		    
-	    /* increment forcing spectrum (drift and random diffusion) */
+	    /* Increment forcing spectrum (drift and random diffusion) 
+         * For general properties of Ornstein-Uhlenbeck process, see e.g.
+         * Turbulent Flows by Pope (2000) Appendix J with 
+         * drift and diffusion coefficients given eq (J.41)
+         * */
 
 	    for (int dim = 0; dim < SpectralRank; dim++) {
 		DriftCoeff[dim] = exp(-dt/AutoCorrlTime[dim]);
@@ -64,13 +64,6 @@ void StochasticForcing::Evolve(float dt)
 
     CommunicationBroadcastSpectrum();
 
-#ifdef _LIST_ALL_
-    for (int dim = 0; dim < SpectralRank; dim++)
-	for (int m = 0; m < NumNonZeroModes; m++) {
-	    std::cout << "proc = " << MyProcessorNumber << " dim = " << dim << " mode = " << m << "  SpectrumOdd = " 
-		      << SpectrumOdd[dim][m] << "  SpectrumEven = " << SpectrumEven[dim][m] << "\n";
-	}
-#endif
 }
 
 //
@@ -94,15 +87,11 @@ void StochasticForcing::Inject(void)
 		}
 		InjectionEven[dim][n] = a;
 		InjectionOdd[dim][n]  = b;
-#ifdef _LIST_ALL_
-		if (mask[n]) {
-		    std::cout << "proc = " << MyProcessorNumber << " dim = " << dim << " mode = " << n << "  InjectionOdd = " 
-			      << InjectionOdd[dim][n] << "  InjectionEven = " << InjectionEven[dim][n] << "\n";
-		}
-#endif
 	    }
 
-	/* project modes */
+	/* project modes 
+     * see eq (8) in Schmidt et al., A&A (2009)
+     * http://dx.doi.org/10.1051/0004-6361:200809967 */
 
 	for (i = 0; i < i2; i++) { // wave vectors in positive x-direction
 	    InjectionEven[0][i] = (1.0 - SolenoidalWeight) * InjectionEven[0][i];
@@ -140,34 +129,6 @@ void StochasticForcing::Inject(void)
 		    InjectionOdd[2][n]  = SolenoidalWeight * InjectionOdd [2][n];
 		}
 		
-#ifdef _LIST_ALL_
-		j = 0; k = 0;
-	
-		for (n = 0; n < i2; n++)
-		    if (mask[n]) {
-			div = i*InjectionEven[0][n] + j*InjectionEven[1][n] + k*InjectionEven[2][n];
-			std::cout << "proc = " << MyProcessorNumber << " mode = " << n << " i = " << i << " j = " << j << " k = " << k << " "
-				  << " div = " << div
-				  << " rotx = " << j*InjectionEven[2][n] - k*InjectionEven[1][n] << " "
-				  << " roty = " << k*InjectionEven[0][n] - i*InjectionEven[2][n] << " "
-				  << " rotz = " << i*InjectionEven[1][n] - j*InjectionEven[0][n] << "\n";
-		    }
-
-		n = i2;
-		for (j = 1; j <= j2; j++)
-		    for (i = i1; i <= i2; i++) {
-			if (mask[n]) {
-			    div = i*InjectionEven[0][n] + j*InjectionEven[1][n] + k*InjectionEven[2][n];
-			    std::cout << "proc = " << MyProcessorNumber << " mode = " << n << " i = " << i << " j = " << j << " k = " << k << " "
-				      << " div = " << div
-				      << " rotx = " << j*InjectionEven[2][n] - k*InjectionEven[1][n] << " "
-				      << " roty = " << k*InjectionEven[0][n] - i*InjectionEven[2][n] << " "
-				      << " rotz = " << i*InjectionEven[1][n] - j*InjectionEven[0][n] << "\n";
-			}
-			++n;
-		    }
-#endif
-
 		for (k = 1; k <= k2; k++) { // wave vectors not aligned to xy-plane
 		    for (j = j1; j <= j2; j++) {
 			for (i = i1; i <= i2; i++) {
@@ -185,16 +146,6 @@ void StochasticForcing::Inject(void)
 			    InjectionOdd[0][n] = SolenoidalWeight * InjectionOdd[0][n] + i*contr;
 			    InjectionOdd[1][n] = SolenoidalWeight * InjectionOdd[1][n] + j*contr;
 			    InjectionOdd[2][n] = SolenoidalWeight * InjectionOdd[2][n] + k*contr;
-#ifdef _LIST_ALL_
-			    if (mask[n]) {
-				div = i*InjectionEven[0][n] + j*InjectionEven[1][n] + k*InjectionEven[2][n];
-				std::cout << "proc = " << MyProcessorNumber << " mode = " << n << " i = " << i << " j = " << j << " k = " << k << " "
-					  << " div = " << div
-					  << " rotx = " << j*InjectionEven[2][n] - k*InjectionEven[1][n] << " "
-					  << " roty = " << k*InjectionEven[0][n] - i*InjectionEven[2][n] << " "
-					  << " rotz = " << i*InjectionEven[1][n] - j*InjectionEven[0][n] << "\n";
-			    }
-#endif
 			    ++n;
 
 			}
@@ -203,14 +154,6 @@ void StochasticForcing::Inject(void)
 	    }
 	}
 
-#ifdef _LIST_ALL_
-	for (int dim = 0; dim < SpectralRank; dim++)
-	    for (int n = 0; n < NumModes; n++)
-		if (mask[n]) {
-		    std::cout << "proc = " << MyProcessorNumber << " dim = " << dim << " mode = " << n << "  InjectionOdd = " 
-			      << InjectionOdd[dim][n] << "  InjectionEven = " << InjectionEven[dim][n] << "\n";
-		}
-#endif
     }
 }
 

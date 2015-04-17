@@ -1,6 +1,3 @@
-
-#undef  _LIST_ALL_
-
 /***********************************************************************
 /
 /  STOCHASTIC FORCING CLASS METHOD: CommunicationBroadcastFlags
@@ -54,10 +51,5 @@ void StochasticForcing::CommunicationBroadcastFlags(void)
   CommunicationTime += endtime-starttime;
 #endif /* MPI_INSTRUMENTATION */
  
-#ifdef _LIST_ALL_
-  for (int n = 0; n < NumModes; n++)
-      if (debug) printf("%"ISYM" %"ISYM" %"ISYM"\n",MyProcessorNumber,n,mask[n]);
-#endif
-
 #endif /* USE_MPI */
 }

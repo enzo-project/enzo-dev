@@ -1,6 +1,3 @@
-
-#undef  _LIST_ALL_
-
 /***********************************************************************
 /
 /  STOCHASTIC FORCING CLASS METHOD: CommunicationBroadcastSpectrum
@@ -19,7 +16,6 @@
 #include "preincludes.h"
 #include <stdlib.h>
 #include "macros_and_parameters.h"
-//#include <string.h>
 #include "typedefs.h"
 #include "StochasticForcing.h"
 #include "global_data.h"
@@ -72,12 +68,6 @@ void StochasticForcing::CommunicationBroadcastSpectrum(void)
   for (dim = 0; dim < SpectralRank; dim++) {
       for (m = 0; m < NumNonZeroModes; m++) SpectrumEven[dim][m] = buffer[n++];
       for (m = 0; m < NumNonZeroModes; m++) SpectrumOdd [dim][m] = buffer[n++];
-#ifdef _LIST_ALL_
-      if (debug) 
-	  for (m = 0; m < NumNonZeroModes; m++)
-          printf("%"ISYM"  %"ISYM"     %"ISYM"   %"FSYM" %"FSYM"\n",
-            MyProcessorNumber,dim,m,SpectrumOdd[dim][m],SpectrumEven[dim][m])
-#endif
   }
 
   delete [] buffer;
