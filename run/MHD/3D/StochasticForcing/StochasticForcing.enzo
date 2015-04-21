@@ -54,7 +54,7 @@ EOSType                     = 0
 UseDrivingField     = 1           # otherwise no driving...
 DrivenFlowProfile   = 2           # 0 - off (def.), 1 - peak, 2 - parabolic, 3 - band
 DrivenFlowAlpha     = 2 2 2       # ratio of domain size to characteristic length
-DrivenFlowSeed      = -27011974   # seed of random number generator
+DrivenFlowSeed      = 20150419    # seed of random number generator
 DrivenFlowBandWidth = 1.0 1.0 1.0 # band width (1.0 = maximal) 
 DrivenFlowAutoCorrl = 1.0 1.0 1.0 # ratio auto-correlation to large-eddy turn-over time scale
 DrivenFlowMach      = 2.9 2.9 2.9 # Mach number
