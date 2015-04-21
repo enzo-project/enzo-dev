@@ -64,6 +64,7 @@ int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
 int InitialLoadBalanceRootGrids(FILE *fptr, hid_t Hfile_id, int TopGridRank,
 				int TopGridDim, int &NumberOfRootGrids,
 				int* &RootProcessors);
+int mt_read(char *fname);
  
 extern char RadiationSuffix[];
 extern char HierarchySuffix[];
@@ -71,6 +72,7 @@ extern char hdfsuffix[];
 extern char TaskMapSuffix[];
 extern char MemoryMapSuffix[];
 extern char ForcingSuffix[]; // WS
+extern char MTSuffix[];
 extern char CPUSuffix[];
 
 
@@ -89,7 +91,8 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
  
   /* declarations */
  
-  char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH],forcingname[MAX_LINE_LENGTH];
+  char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
+  char mtname[MAX_LINE_LENGTH], forcingname[MAX_LINE_LENGTH];
   char HDF5hierarchyname[MAX_LINE_LENGTH];
   // Code shrapnel. See comments below. --Rick
   //  char taskmapname[MAX_LINE_LENGTH];
@@ -155,6 +158,16 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
           fprintf(stderr, "Error in ReadSpectrum.\n");
           return FAIL;
       }
+     
+     /* Load state of RNG */
+      strcpy(mtname, name);
+      strcat(mtname, MTSuffix);
+      if (debug)
+          printf("Group_ReadAllData: reading file %s.\n", mtname);
+      if (mt_read(mtname) == FAIL) {
+          fprintf(stderr, "Error in mt_read.\n");
+          return FAIL;
+     }
   }
 
 

@@ -47,6 +47,8 @@
 #include "Grid.h"
 #include "StochasticForcing.h"
 
+void mt_init(unsigned_int seed);
+
 int StochasticForcing::Init(int my_spectral_rank,
 			    forcing_type my_spect_profile, 
 			    int *my_alpha, 
@@ -337,10 +339,7 @@ AutoCorrlTime[0],AutoCorrlTime[1],AutoCorrlTime[2]);
         }
 
 	/* initialise new sequence of random numbers */
-
-	seed = my_seed;
-//	if (debug) cout << "Seed of random number generator = " << seed << "\n";
-	RandUni(seed);
+    mt_init(((unsigned_int) my_seed));
 
 	/* compute initial set of random deviates */
 

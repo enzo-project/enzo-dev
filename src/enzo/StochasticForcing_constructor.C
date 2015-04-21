@@ -30,9 +30,6 @@ StochasticForcing::StochasticForcing()
     NumModes = 0;
     decay = 0;    
     
-    idum2=123456789;
-    iy=0;
-
     for (int dim = 0; dim < MAX_DIMENSION; dim++) {
 	alpha[dim]         = 0;         
 	IntgrVelocity[dim] = 0.0; 

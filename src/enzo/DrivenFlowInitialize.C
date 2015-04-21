@@ -54,7 +54,7 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
   /* set default parameters specifying the random force field */
 
   int DrivenFlowAlpha[3]       = {1, 1, 1};       // ratio of domain size to characteristic length
-  int DrivenFlowSeed = -27011974;                 // seed of random number generator
+  int DrivenFlowSeed = 20150418;                  // seed of random number generator
   float DrivenFlowBandWidth[3] = {1.0, 1.0, 1.0}; // band width (1.0 = maximal)
   float DrivenFlowAutoCorrl[3] = {1.0, 1.0, 1.0}; // ratio auto-correlation to large-eddy turn-over time scale
   float DrivenFlowMach[3]      = {1.0, 1.0, 1.0}; // Mach number

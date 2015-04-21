@@ -20,8 +20,6 @@ class StochasticForcing {
 
  private:
 
-    int seed;                           // seed for the Random number generator
-    int idum2, iy, iv[32];              // defines state of Random number generator
     int SpectralRank;                   // rank of the spectrum
     int NumModes;                       // number of Fourier modes in the spectral domain
     int NumNonZeroModes;                // number of non-zero Fourier modes

@@ -30,14 +30,6 @@ int StochasticForcing::ReadSpectrum(char *fname)
 
     char line[MAX_LINE_LENGTH];
     
-    fgets(line, MAX_LINE_LENGTH, fptr);
-    sscanf(line,"%"ISYM" %"ISYM" %"ISYM,&seed, &idum2, &iy);
-    
-	for (int i = 0; i < 32; i++) {
-        fgets(line, MAX_LINE_LENGTH, fptr);
-        sscanf(line,"%"ISYM,&iv[i]);
-    }
-
 	for (int dim = 0; dim < SpectralRank; dim++)
 	    for (int m = 0; m < NumNonZeroModes; m++) {
             fgets(line, MAX_LINE_LENGTH, fptr);
@@ -63,11 +55,6 @@ int StochasticForcing::WriteSpectrum(char *fname)
         ENZO_VFAIL("WriteSpectrum: failed to open file  %s\n", fname)
     }
 
-    fprintf(fptr,"%"ISYM" %"ISYM" %"ISYM"\n",seed,idum2,iy);
-
-	for (int i = 0; i < 32; i++)
-        fprintf(fptr,"%"ISYM"\n",iv[i]);
-
 	for (int dim = 0; dim < SpectralRank; dim++)
 	    for (int m = 0; m < NumNonZeroModes; m++)
             fprintf(fptr,"%.16"FSYM" %.16"FSYM"\n",SpectrumEven[dim][m],SpectrumOdd[dim][m]);
@@ -83,7 +70,7 @@ void StochasticForcing::WriteParameters(FILE *fptr)
 {
     fprintf(fptr, "DrivenFlowWeight            = %"FSYM"\n", SolenoidalWeight);
     fprintf(fptr, "DrivenFlowAlpha             = %"ISYM" %"ISYM" %"ISYM"\n", alpha[0], alpha[1], alpha[2]);
-    fprintf(fptr, "DrivenFlowSeed             = %"ISYM"\n", seed);
+    fprintf(fptr, "DrivenFlowSeed             = %"ISYM"\n", DrivenFlowSeed);
     fprintf(fptr, "DrivenFlowBandWidth         = %"FSYM" %"FSYM" %"FSYM"\n", 
 	    BandWidth[0], BandWidth[1], BandWidth[2]);
     fprintf(fptr, "DrivenFlowVelocity          = %"FSYM" %"FSYM" %"FSYM"\n", 

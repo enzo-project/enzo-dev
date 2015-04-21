@@ -72,6 +72,7 @@ int CommunicationCombineGrids(HierarchyEntry *OldHierarchy,
 void DeleteGridHierarchy(HierarchyEntry *GridEntry);
 void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
+int mt_save(char *fname);
  
  
 #ifdef TRANSFER
@@ -86,6 +87,7 @@ char TaskMapSuffix[]   = ".taskmap";
 char MemoryMapSuffix[] = ".memorymap";
 char ConfigureSuffix[] = ".configure";
 char ForcingSuffix[]   = ".forcing";
+char MTSuffix[]   = ".mt";
  
 extern char LastFileNameWritten[MAX_LINE_LENGTH];
  
@@ -113,6 +115,7 @@ int WriteAllData(char *basename, int filenumber,
   char memorymapname[MAX_LINE_LENGTH];
   char configurename[MAX_LINE_LENGTH];
   char forcingname[MAX_LINE_LENGTH];
+  char mtname[MAX_LINE_LENGTH];
  
   int unixresult;
   int status;
@@ -424,6 +427,16 @@ int WriteAllData(char *basename, int filenumber,
           printf("WriteAllData: writing file %s.\n", forcingname);
       if (Forcing.WriteSpectrum(forcingname) == FAIL) {
           fprintf(stderr, "Error in WriteSpectrum.\n");
+          return FAIL;
+      }
+      
+      /* Save state of RNG */
+      strcpy(mtname, name);
+      strcat(mtname, MTSuffix);
+      if (debug)
+          printf("WriteAllData: writing file %s.\n", mtname);
+      if (mt_save(mtname) == FAIL) {
+          fprintf(stderr, "Error in mt_save.\n");
           return FAIL;
       }
     }
