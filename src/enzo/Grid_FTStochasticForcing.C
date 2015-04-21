@@ -10,6 +10,14 @@
 /           spectrum onto a particular grid including ghost cells;
 /           the algorithm is based on iterative phase factor
 /           multiplication and works well for coarse forcing spectra
+/  
+/  EXPLANATION: We are not using standard FFTW here due to its overhead
+/   when applied to only few modes. Since the coefficients of the inverse
+/   FT are given by exp(i*(k1*x + k2*y + k3*z)) = exp(i*k1*x) * exp(i*k2*y)*...
+/   we pre-calculate the local coefficients (see Grid_Phases) and iteratively
+/   update the coefficients with exp(i*k1*delta_x), etc. during the 
+/   inverse FT. 
+/   As warned below: this is only efficient for a limited number of modes.
 /
 ************************************************************************/
 
