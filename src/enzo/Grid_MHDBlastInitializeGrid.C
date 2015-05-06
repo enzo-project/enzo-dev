@@ -386,7 +386,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
   //Variable names.
   int Eeng, Eden, Ev[3], Egas, BxNum = 0, ByNum = 1, BzNum = 2;
-
+  int max_velocity_index = 3; //( (UseMHD || UseMHDCT ) ) ? 3 : GridRank;
   if (this->IdentifyPhysicalQuantities(Eden, Egas, Ev[0], Ev[1], 
                        Ev[2], Eeng, BxNum, ByNum, BzNum) == FAIL) 
     ENZO_FAIL("MHDBlastInitializeGrid: Error in IdentifyPhysicalQuantities.");
@@ -700,8 +700,9 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	    Amp = 1- fraction * 2;
 	    
 	    //Make the velocity into momentum
-	    for(field=0;field<3;field++)
+	    for(field=0;field<max_velocity_index;field++)
 	      BaryonField[ Ev[field] ][index] *= BaryonField[ Eden ][index];
+      BaryonField[ Eeng ][index] *= BaryonField[Eden][index];
 	    
 	    for(field=0; field< NumberOfBaryonFields; field++){
 	      BaryonField[field][index] +=  Amp*PerturbAmplitude*Right[ Map[field] ][wave];
@@ -713,8 +714,9 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       }
 	    
 	    //Make the momentum  into velocity
-	    for(field=0;field<3;field++)
+	    for(field=0;field<max_velocity_index;field++)
 	      BaryonField[ Ev[field] ][index] /= BaryonField[ Eden ][index];
+      BaryonField[ Eeng ][index] /= BaryonField[Eden][index];
 	    
 	    break;
         
@@ -892,7 +894,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       this->MHD_Curl(GridStartIndex, GridEndIndex, 0);
       CenterMagneticField();
   }
-  float *DivB;
+  float *DivB=NULL;
   MHD_Diagnose("Post Initialize Grid", DivB);
 
   if(DualEnergyFormalism )
