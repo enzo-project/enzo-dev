@@ -208,8 +208,8 @@ int grid::ProjectSolutionToParentGrid(grid &ParentGrid)
 	  
           if(ParentGrid.ProcessorNumber != MyProcessorNumber ){
             if(ParentGrid.ElectricField[field] != NULL ){
-              fprintf(stderr,"ProjectSolution: ElectricField not null where it should be.\n");
-              fprintf(stderr,"Find out why, and where.\n");
+//             fprintf(stderr,"ProjectSolution: ElectricField not null where it should be.\n");
+//             fprintf(stderr,"Find out why, and where.\n");
               delete [] ParentGrid.ElectricField[field];
             }
 	    ParentGrid.ElectricField[field]=new float[ MHDeParentSize[field] ];
