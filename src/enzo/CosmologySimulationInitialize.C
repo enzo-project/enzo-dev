@@ -418,6 +418,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    if (CosmologySimulationInitialUniformBField[dim] != 0.0 && (HydroMethod != 4 || HydroMethod != 6)
+        ENZO_FAIL("Incompatible HydroMethod");
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
