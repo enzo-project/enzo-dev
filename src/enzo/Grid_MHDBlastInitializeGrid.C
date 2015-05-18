@@ -624,10 +624,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 	  Xp = (float) (i-GridStartIndex[0])/GridDimension[0] *(GridRightEdge[0]-GridLeftEdge[0]) 
 	    + GridLeftEdge[0] + 0.5*CellWidth[0][i];
-	  Yp = (float) (j-GridStartIndex[1])/GridDimension[1] *(GridRightEdge[1]-GridLeftEdge[1])
-	    + GridLeftEdge[1] + 0.5*CellWidth[1][j];
-	  Zp = (float) (k-GridStartIndex[2])/GridDimension[2] *(GridRightEdge[2]-GridLeftEdge[2])
-	    + GridLeftEdge[2] + 0.5*CellWidth[2][k];
 	  
 	  BaryonField[ Ev[1] ][index] += PerturbAmplitude*sin(2*pi*Xp / PerturbWavelength[1]);
 	  break;
@@ -657,20 +653,22 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 
 	  //characteristic advection
 
-	  Xp = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
-	    *(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
-	  Yp = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
-	    *(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
-	  Zp = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
-	    *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
-
-
-	  Pos = ( InitStyle == 1 ) ? Xp : ( InitStyle == 2 ) ? Yp : ( InitStyle == 3)? Zp : 0;
+    if ( InitStyle == 1 ){
+      Pos = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
+        *(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
+    }else if(InitStyle == 2 && GridRank > 1){
+      Pos = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
+        *(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
+    }else if (InitStyle == 3 && GridRank > 2){
+      Pos = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
+        *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
+    }
 	  Amp = sin(2*pi* Pos);
 	  
 	  //Make the velocity into momentum
 	  for(field=0;field<3;field++)
 	    BaryonField[ Ev[field] ][index] *= BaryonField[ Eden ][index];
+    BaryonField[ Eeng ][index] *= BaryonField[Eden][index];
 	  
 	  
 	  for(field=0;field<NumberOfBaryonFields;field++){
@@ -686,6 +684,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	  //Make the momentum into velocity 
 	  for(field=0;field<3;field++)
 	    BaryonField[ Ev[field] ][index] /= BaryonField[ Eden ][index];
+    BaryonField[ Eeng ][index] /= BaryonField[Eden][index];
 
 	  break;
     
@@ -811,16 +810,17 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
 	      
 	      //characteristic advection
 	    
-	      Xp = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
-		*(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
-	      Yp = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
-		*(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
-	      Zp = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
-	      *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
-	      
-	      
-	      Pos = ( InitStyle == 1 ) ? Xp : ( InitStyle == 2 ) ? Yp : ( InitStyle == 3)? Zp : 0;
-	      Amp = sin(2*pi*Pos);
+        if ( InitStyle == 1 ){
+          Pos = (float) (i-GridStartIndex[0])/(GridDimension[0]-2*NumberOfGhostZones)
+            *(GridRightEdge[0]-GridLeftEdge[0]) + GridLeftEdge[0] + 0.5*CellWidth[0][i];
+        }else if(InitStyle == 2 && GridRank > 1){
+          Pos = (float) (j-GridStartIndex[1])/(GridDimension[1]-2*NumberOfGhostZones)
+            *(GridRightEdge[1]-GridLeftEdge[1]) + GridLeftEdge[1] + 0.5*CellWidth[1][i];
+        }else if (InitStyle == 3 && GridRank > 2){
+          Pos = (float) (k-GridStartIndex[2])/(GridDimension[2]-2*NumberOfGhostZones)
+            *(GridRightEdge[2]-GridLeftEdge[2]) + GridLeftEdge[2] + 0.5*CellWidth[2][i];
+        }
+        Amp = sin(2*pi* Pos);
 	      //Amp = (which == 0)?-1:1;
 	      
 	      
