@@ -2874,7 +2874,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   //Evolution/AMR routines
   int SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
 			fluxes *SubgridFluxes[], int level, int grid);
-  int ComputeElectricField(float dT, float ** Fluxes);
+  int ComputeElectricField(float dT, float ** Fluxes, float a);
   int MHD_Curl( int * Start, int * End, int Method);
   int CenterMagneticField(int * Start = NULL, int * End = NULL);
 

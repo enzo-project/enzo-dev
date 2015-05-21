@@ -466,7 +466,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
                 case CT_BalsaraSpicer: //1
                 case CT_Athena_LF:     //2
                 case CT_Athena_Switch: //3
-                    ComputeElectricField(dtFixed, Fluxes);
+                    ComputeElectricField(dtFixed, Fluxes, a);
                     break;
                 case CT_Biermann:      //4
 #ifdef BIERMANN

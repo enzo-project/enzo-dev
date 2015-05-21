@@ -104,6 +104,11 @@
 //    ammount to add (to the cell centered loop indices) along [XYZ].
 //    For rank<3, the 'Uniform' dimension (Z for Rank=2, Y&Z for Rank
 //    = 1) End[YZ] is set to zero.
+//
+// Cosmology:
+//    a is at the half timestep and needs to be applied to the cell-centered electric field,
+//    to ensure the flux formulation is consistent.
+//    The second order term does not require the expansion factor.
 
 #include "performance.h"
 #include "preincludes.h"
@@ -137,7 +142,9 @@ inline void SSSe(float * BsL, float * BsR, float WindDirection){
 
 }
 
-int grid::ComputeElectricField(float dT, float ** Fluxes){  
+int grid::ComputeElectricField(float dT, float ** Fluxes, float a  ){  
+  
+
 
   //loop variables.
   int i,j,k,dimX, dimY, dimZ, flag;
@@ -196,10 +203,13 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
     fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
     return FAIL;
   }
+  float inv_a = 1./a;
   float * Bc[3] = {CenteredB[0], CenteredB[1],CenteredB[2]};
   float * Bf[3] = {MagneticField[0], MagneticField[1], MagneticField[2]};
   float * Vel[3] = {BaryonField[ Vel1Num ], BaryonField[ Vel2Num ], BaryonField[ Vel3Num ] };
-#define Ec(index) (Bc[ dimY ][index]*Vel[ dimZ ][index] - Bc[ dimZ ][index]*Vel[ dimY ][index] )
+#define Ec(index) (Bc[ dimY ][index]*Vel[ dimZ ][index] - Bc[ dimZ ][index]*Vel[ dimY ][index] )*inv_a
+
+  
   
    
    //Default reconstructon coefficents.

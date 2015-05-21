@@ -590,7 +590,7 @@ int grid::SolveMHDEquations(int CycleNumber, int NumberOfSubgrids,
     case CT_Athena_LF: //1
     case CT_Athena_Switch: //2
 
-      ComputeElectricField(dtFixed, Fluxes);
+      ComputeElectricField(dtFixed, Fluxes, a[0]);
 
       MHD_Curl( CurlStart,CurlEnd, 1);
 
