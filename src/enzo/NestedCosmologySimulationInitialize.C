@@ -364,7 +364,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
     if (CosmologySimulationInitialUniformBField[dim] != 0.0 && HydroMethod != 4 && HydroMethod != 6)
-        ENZO_FAIL("Incompatible HydroMethod");
+        ENZO_FAIL("UniformBField requested with a non-MHD solver. Please use one of the MHD solvers");
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
