@@ -543,6 +543,12 @@ c
          dls(i,j) = max(dls(i,j), tiny)
          drs(i,j) = max(drs(i,j), tiny)
       enddo
+      do ic = 1,ncolor
+         do i = i1,i2+1
+            colls(i,j,ic) = max(colls(i,j,ic), 1.d-35)
+            colrs(i,j,ic) = max(colrs(i,j,ic), 1.d-35)
+         enddo
+      enddo
 c
 c     If approximating pressure free conditions, then the density should be
 c       reset to the pre-corrected state.
