@@ -141,7 +141,7 @@ float grid::ComputeTimeStep()
     /* Compute the pressure. */
  
     float *pressure_field = new float[size];
-    this->ComputePressure(Time, pressure_field,1); // USE CRs
+    this->ComputePressure(Time, pressure_field,0,1); // USE CRs
  
 #ifdef UNUSED
     int Zero[3] = {0,0,0}, TempInt[3] = {0,0,0};
@@ -402,9 +402,8 @@ float grid::ComputeTimeStep()
 
   if(IsotropicConduction || AnisotropicConduction){
     if (this->ComputeConductionTimeStep(dtConduction) == FAIL) 
-      ENZO_FAIL("Error in ComputeConductionTimeStep.");
+      ENZO_FAIL("Error in ComputeConductionTimeStep.\n");
 
-    dtConduction *= ConductionCourantSafetyNumber;  // for stability
     dtConduction *= float(NumberOfGhostZones);     // for subcycling 
   }
   

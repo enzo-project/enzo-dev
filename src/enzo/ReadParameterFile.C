@@ -19,19 +19,16 @@
  
 // This routine reads the parameter file in the argument and sets parameters
 //   based on it.
- 
-#include <stdio.h>
-#include <string.h>
+
+#include "preincludes.h" 
 #include <stdlib.h>
 #include <unistd.h>
-#include <math.h>
 #include <vector>
 
 #ifdef CONFIG_USE_LIBCONFIG
 #include <libconfig.h++>
 #endif
  
-#include "ErrorExceptions.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -41,6 +38,7 @@
 #include "Grid.h"
 #include "TopGridData.h"
 #include "hydro_rk/EOS.h" 
+#include "CosmologyParameters.h"
 
 /* This variable is declared here and only used in Grid_ReadGrid. */
  
@@ -61,6 +59,7 @@ int InitializeRadiationFieldData(FLOAT Time);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
+int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int ReadEvolveRefineFile(void);
  
 int CheckShearingBoundaryConsistency(TopGridData &MetaData); 
@@ -117,6 +116,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "dtHistoryDump       = %"PSYM, &MetaData.dtHistoryDump);
  
     ret += sscanf(line, "TracerParticleOn  = %"ISYM, &TracerParticleOn);
+    ret += sscanf(line, "TracerParticleOutputVelocity  = %"ISYM, &TracerParticleOutputVelocity);
     ret += sscanf(line, "WriteGhostZones = %"ISYM, &WriteGhostZones);
     ret += sscanf(line, "ReadGhostZones = %"ISYM, &ReadGhostZones);
     ret += sscanf(line, "OutputParticleTypeGrouping = %"ISYM,
@@ -232,6 +232,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "LoadBalancingMinLevel = %"ISYM, &LoadBalancingMinLevel);
     ret += sscanf(line, "LoadBalancingMaxLevel = %"ISYM, &LoadBalancingMaxLevel);
  
+    ret += sscanf(line, "ConductionDynamicRebuildHierarchy = %"ISYM, 
+                  &ConductionDynamicRebuildHierarchy);
+    ret += sscanf(line, "ConductionDynamicRebuildMinLevel = %"ISYM, 
+                  &ConductionDynamicRebuildMinLevel);
     if (sscanf(line, "RebuildHierarchyCycleSkip[%"ISYM"] =", &int_dummy) == 1) {
       if (int_dummy > MAX_DEPTH_OF_HIERARCHY) {
 	ENZO_VFAIL("Cannot set RebuildHierarchyCycleSkip[%"ISYM"], max hierarchy depth = %"ISYM".\n", int_dummy, MAX_DEPTH_OF_HIERARCHY);
@@ -368,8 +372,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       {
 	if (dim > MAX_STATIC_REGIONS-1) 
 	  ENZO_VFAIL("MultiRefineRegion number %"ISYM" (MAX_STATIC_REGIONS) > MAX allowed\n", dim);
-	if (int_dummy > MaximumRefinementLevel)
-	  ENZO_VFAIL("MultiRefineRegionMaximumLevel %"ISYM"  > MaximumRefinementLevel\n", int_dummy);
 	ret++;
 	MultiRefineRegionMaximumLevel[dim] = int_dummy;
       }
@@ -508,6 +510,24 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingEdot = %"FSYM, &RandomForcingEdot); //AK
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
+#ifdef USE_GRACKLE
+    /* Grackle chemistry parameters */
+    ret += sscanf(line, "use_grackle = %d", &grackle_data.use_grackle);
+    ret += sscanf(line, "with_radiative_cooling = %d",
+                  &grackle_data.with_radiative_cooling);
+    if (sscanf(line, "grackle_data_file = %s", dummy) == 1) {
+      grackle_data.grackle_data_file = dummy;
+      ret++;
+    }
+    ret += sscanf(line, "UVbackground = %d", &grackle_data.UVbackground);
+    ret += sscanf(line, "Compton_xray_heating = %d", 
+                  &grackle_data.Compton_xray_heating);
+    ret += sscanf(line, "LWbackground_intensity = %lf", 
+                  &grackle_data.LWbackground_intensity);
+    ret += sscanf(line, "LWbackground_sawtooth_suppression = %d",
+                  &grackle_data.LWbackground_sawtooth_suppression);
+    /********************************/
+#endif
     ret += sscanf(line, "RadiativeCooling = %"ISYM, &RadiativeCooling);
     ret += sscanf(line, "RadiativeCoolingModel = %"ISYM, &RadiativeCoolingModel);
     ret += sscanf(line, "GadgetEquilibriumCooling = %"ISYM, &GadgetEquilibriumCooling);
@@ -659,7 +679,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "Unigrid = %"ISYM, &Unigrid);
     ret += sscanf(line, "UnigridTranspose = %"ISYM, &UnigridTranspose);
     ret += sscanf(line, "NumberOfRootGridTilesPerDimensionPerProcessor = %"ISYM, &NumberOfRootGridTilesPerDimensionPerProcessor);
- 
+    ret += sscanf(line, "UserDefinedRootGridLayout = %"ISYM" %"ISYM" %"ISYM, &UserDefinedRootGridLayout[0],
+                  &UserDefinedRootGridLayout[1], &UserDefinedRootGridLayout[2]);
+
     ret += sscanf(line, "PartitionNestedGrids = %"ISYM, &PartitionNestedGrids);
  
     ret += sscanf(line, "ExtractFieldsOnly = %"ISYM, &ExtractFieldsOnly);
@@ -765,6 +787,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "MinimumPressureJumpForRefinement = %"FSYM,
 		  &MinimumPressureJumpForRefinement);
+    ret += sscanf(line, "OldShearMethod = %"ISYM,
+		  &OldShearMethod);
     ret += sscanf(line, "MinimumShearForRefinement = %"FSYM,
 		  &MinimumShearForRefinement);
     ret += sscanf(line, "MinimumEnergyRatioForRefinement = %"FSYM,
@@ -786,7 +810,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "StarParticleFeedback = %"ISYM, &StarParticleFeedback);
     ret += sscanf(line, "NumberOfParticleAttributes = %"ISYM,
 		  &NumberOfParticleAttributes);
-    ret += sscanf(line, "AddParticleAttributes = %"ISYM, &AddParticleAttributes);
 
     /* read data which defines the boundary conditions */
  
@@ -861,12 +884,20 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
     ret += sscanf(line, "StarMakerTypeIaSNe = %"ISYM,
 		  &StarMakerTypeIaSNe);
+    ret += sscanf(line, "StarMakerTypeIISNeMetalField = %"ISYM,
+		  &StarMakerTypeIISNeMetalField);
     ret += sscanf(line, "StarMakerPlanetaryNebulae = %"ISYM,
 		  &StarMakerPlanetaryNebulae);
     ret += sscanf(line, "StarMakerOverDensityThreshold = %"FSYM,
 		  &StarMakerOverDensityThreshold);
+    ret += sscanf(line, "StarMakerUseOverDensityThreshold = %"ISYM,
+          &StarMakerUseOverDensityThreshold);
+    ret += sscanf(line, "StarMakerMaximumFractionCell = %"FSYM,
+          &StarMakerMaximumFractionCell);
     ret += sscanf(line, "StarMakerSHDensityThreshold = %"FSYM,
 		  &StarMakerSHDensityThreshold);
+    ret += sscanf(line, "StarMakerTimeIndependentFormation = %"ISYM,
+		  &StarMakerTimeIndependentFormation);
     ret += sscanf(line, "StarMakerMassEfficiency = %"FSYM,
 		  &StarMakerMassEfficiency);
     ret += sscanf(line, "StarMakerMinimumMass = %"FSYM, &StarMakerMinimumMass);
@@ -1010,6 +1041,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "IsotropicConductionSpitzerFraction = %"FSYM, &IsotropicConductionSpitzerFraction);
     ret += sscanf(line, "AnisotropicConductionSpitzerFraction = %"FSYM, &AnisotropicConductionSpitzerFraction);
     ret += sscanf(line, "ConductionCourantSafetyNumber = %"FSYM, &ConductionCourantSafetyNumber);
+    ret += sscanf(line, "SpeedOfLightTimeStepLimit = %"ISYM, &SpeedOfLightTimeStepLimit);
 
     ret += sscanf(line, "RadiativeTransfer = %"ISYM, &RadiativeTransfer);
     ret += sscanf(line, "RadiationXRaySecondaryIon = %"ISYM, &RadiationXRaySecondaryIon);
@@ -1158,8 +1190,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "WriteBoundary          = %"ISYM, &WriteBoundary);
     ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
     ret += sscanf(line,"RefineByJeansLengthUnits = %"ISYM,&RefineByJeansLengthUnits);
-    ret += sscanf(line, "ProcessorTopology      = %"ISYM" %"ISYM" %"ISYM,
-		  ProcessorTopology,ProcessorTopology+1,ProcessorTopology+2);
 
     ret += sscanf(line,"CT_AthenaDissipation = %"FSYM,&CT_AthenaDissipation);
     ret += sscanf(line,"MHD_WriteElectric = %"ISYM,&MHD_WriteElectric);
@@ -1187,6 +1217,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &MoveParticlesBetweenSiblings);
     ret += sscanf(line, "ParticleSplitterIterations = %"ISYM,
 		  &ParticleSplitterIterations);
+    ret += sscanf(line, "ParticleSplitterRandomSeed = %"ISYM,
+		  &ParticleSplitterRandomSeed);
     ret += sscanf(line, "ParticleSplitterChildrenParticleSeparation = %"FSYM,
 		  &ParticleSplitterChildrenParticleSeparation);
     ret += sscanf(line, "ResetMagneticField = %"ISYM,
@@ -1242,6 +1274,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "ProtostellarCollapse")) ret++;
     if (strstr(line, "GalaxySimulation") 
 			&& !strstr(line,"RPSWind") && !strstr(line,"PreWind") ) ret++;
+    if (strstr(line, "AgoraRestart")) ret++;
     if (strstr(line, "ConductionTest")) ret++;
     if (strstr(line, "ConductionBubble")) ret++;
     if (strstr(line, "ConductionCloud")) ret++;
@@ -1286,6 +1319,13 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
   if ((HierarchyFileOutputFormat < 0) || (HierarchyFileOutputFormat > 2))
     ENZO_FAIL("Invalid HierarchyFileOutputFormat. Must be 0 (HDF5), 1 (ASCII), or 2 (both).")
   
+  // While we're examining the hierarchy, check that the MultiRefinedRegion doesn't demand more refinement that we've got                                                                                     
+  for (int ireg = 0; ireg < MAX_STATIC_REGIONS; ireg++)
+    if (MultiRefineRegionGeometry[ireg] >= 0)
+      if (MultiRefineRegionMaximumLevel[ireg] > MaximumRefinementLevel)
+	ENZO_VFAIL("MultiRefineRegionMaximumLevel[%"ISYM"] = %"ISYM"  > MaximumRefinementLevel\n", ireg, MultiRefineRegionMaximumLevel[ireg]);
+
+
 
   /* clean up */
  
@@ -1341,7 +1381,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
      in ProtoSubgrid_AcceptableGrid.C, we'll set the default for this here. */
   CosmologySimulationNumberOfInitialGrids = 1;
 
-  if (HydroMethod != MHD_RK)
+  if (HydroMethod != MHD_RK && UseMHDCT != 1)
     BAnyl = 0; // set this to zero no matter what unless we have a magnetic field to analyze.
 
   if ((HydroMethod != MHD_RK) && (UseGasDrag != 0))
@@ -1468,59 +1508,127 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       }
   }
 
-  /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
-     or RadiationFieldType to be on - both are taken care of in
-     the Gadget cooling routine.  Therefore, we turn them off!
-     Also, initialize the Gadget equilibrium cooling data. */
+#ifdef USE_GRACKLE
+  /* If using Grackle chemistry and cooling library, override all other 
+     cooling machinery and do a translation of some of the parameters. */
+  if (grackle_data.use_grackle == TRUE) {
+    // grackle_data.use_grackle already set
+    // grackle_data.with_radiative_cooling already set
+    // grackle_data.grackle_data_file already set
+    // grackle_data.UVbackground already set
+    // grackle_data.Compton_xray_heating already set
+    // grackle_data.LWbackground_intensity already set
+    // grackle_data.LWbackground_sawtooth_suppression already set
+    grackle_data.Gamma                          = (double) Gamma;
+    grackle_data.primordial_chemistry           = (Eint32) MultiSpecies;
+    grackle_data.metal_cooling                  = (Eint32) MetalCooling;
+    grackle_data.h2_on_dust                     = (Eint32) H2FormationOnDust;
+    grackle_data.cmb_temperature_floor          = (Eint32) CloudyCoolingData.CMBTemperatureFloor;
+    grackle_data.three_body_rate                = (Eint32) ThreeBodyRate;
+    grackle_data.cie_cooling                    = (Eint32) CIECooling;
+    grackle_data.h2_optical_depth_approximation = (Eint32) H2OpticalDepthApproximation;
+    grackle_data.photoelectric_heating          = (Eint32) PhotoelectricHeating;
+    grackle_data.photoelectric_heating_rate     = (double) PhotoelectricHeatingRate;
+    grackle_data.NumberOfTemperatureBins        = (Eint32) CoolData.NumberOfTemperatureBins;
+    grackle_data.CaseBRecombination             = (Eint32) RateData.CaseBRecombination;
+    grackle_data.TemperatureStart               = (double) CoolData.TemperatureStart;
+    grackle_data.TemperatureEnd                 = (double) CoolData.TemperatureEnd;
+    grackle_data.NumberOfDustTemperatureBins    = (Eint32) RateData.NumberOfDustTemperatureBins;
+    grackle_data.DustTemperatureStart           = (double) RateData.DustTemperatureStart;
+    grackle_data.DustTemperatureEnd             = (double) RateData.DustTemperatureEnd;
+    grackle_data.HydrogenFractionByMass         = (double) CoolData.HydrogenFractionByMass;
+    grackle_data.DeuteriumToHydrogenRatio       = (double) CoolData.DeuteriumToHydrogenRatio;
+    grackle_data.SolarMetalFractionByMass       = (double) CoolData.SolarMetalFractionByMass;
 
-  if(GadgetEquilibriumCooling == TRUE){
+    // Initialize units structure.
+    FLOAT a_value, dadt;
+    a_value = 1.0;
+    code_units grackle_units;
+    grackle_units.a_units = 1.0;
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+                 &TimeUnits, &VelocityUnits, MetaData.Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.\n");
+    }
+    if (ComovingCoordinates) {
+      if (CosmologyComputeExpansionFactor(MetaData.Time, &a_value, 
+                                          &dadt) == FAIL) {
+        ENZO_FAIL("Error in CosmologyComputeExpansionFactors.\n");
+      }
+      grackle_units.a_units            = (double) (1.0 / (1.0 + InitialRedshift));
+    }
+    grackle_units.comoving_coordinates = (Eint32) ComovingCoordinates;
+    grackle_units.density_units        = (double) DensityUnits;
+    grackle_units.length_units         = (double) LengthUnits;
+    grackle_units.time_units           = (double) TimeUnits;
+    grackle_units.velocity_units       = (double) VelocityUnits;
 
-    if(MyProcessorNumber == ROOT_PROCESSOR ) {
-      fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
-      fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
-      fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
+    // Initialize chemistry structure.
+    if (initialize_chemistry_data(&grackle_units,
+                                  (double) a_value) == FAIL) {
+      ENZO_FAIL("Error in Grackle initialize_chemistry_data.\n");
+    }
+  }  // if (grackle_data.use_grackle == TRUE)
+
+  else {
+#endif // USE_GRACKE
+
+    /* If GadgetEquilibriumCooling == TRUE, we don't want MultiSpecies
+       or RadiationFieldType to be on - both are taken care of in
+       the Gadget cooling routine.  Therefore, we turn them off!
+       Also, initialize the Gadget equilibrium cooling data. */
+
+    if(GadgetEquilibriumCooling == TRUE){
+
+      if(MyProcessorNumber == ROOT_PROCESSOR ) {
+        fprintf(stderr, "WARNING:  GadgetEquilibriumCooling = 1.  Forcing\n");
+        fprintf(stderr, "WARNING:  RadiationFieldType = 0, MultiSpecies = 0, and\n");
+        fprintf(stderr, "WARNING:  RadiativeCooling = 1.\n");
+      }
+
+      RadiationFieldType = 0;
+      MultiSpecies       = 0;
+      RadiativeCooling   = 1;
+
+      // initialize Gadget equilibrium cooling
+      if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
+        ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
+      } 
     }
 
-    RadiationFieldType = 0;
-    MultiSpecies       = 0;
-    RadiativeCooling   = 1;
+    /* If set, initialize the RadiativeCooling and RateEquations data. */
 
-    // initialize Gadget equilibrium cooling
-    if (InitializeGadgetEquilibriumCoolData(MetaData.Time) == FAIL) {
-            ENZO_FAIL("Error in InitializeGadgetEquilibriumCoolData.");
-    } 
-  }
-
-  /* If set, initialize the RadiativeCooling and RateEquations data. */
-
-  if (MultiSpecies > 0) {
-    if (InitializeRateData(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeRateData.");
+    if (MultiSpecies > 0) {
+      if (InitializeRateData(MetaData.Time) == FAIL) {
+        ENZO_FAIL("Error in InitializeRateData.");
+      }
     }
-  }
  
-  if (MultiSpecies             == 0 && 
-      MetalCooling             == 0 &&
-      GadgetEquilibriumCooling == 0 &&
-      RadiativeCooling          > 0) {
-    if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
-      ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
+    if (MultiSpecies             == 0 && 
+        MetalCooling             == 0 &&
+        GadgetEquilibriumCooling == 0 &&
+        RadiativeCooling          > 0) {
+      if (InitializeEquilibriumCoolData(MetaData.Time) == FAIL) {
+        ENZO_FAIL("Error in InitializeEquilibriumCoolData.");
+      }
     }
-  }
 
-  /* If using the internal radiation field, initialize it. */
+    /* If using the internal radiation field, initialize it. */
  
-  if (RadiationFieldType == 11) 
-    RadiationData.RadiationShield = TRUE; 
-  else if (RadiationFieldType == 10)
-    RadiationData.RadiationShield = FALSE; 
+    if (RadiationFieldType == 11) 
+      RadiationData.RadiationShield = TRUE; 
+    else if (RadiationFieldType == 10)
+      RadiationData.RadiationShield = FALSE; 
 
-  if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
-      RadiationData.RadiationShield == TRUE)
-    if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
+    if ((RadiationFieldType >= 10 && RadiationFieldType <= 11) ||
+        RadiationData.RadiationShield == TRUE)
+      if (InitializeRadiationFieldData(MetaData.Time) == FAIL) {
 	ENZO_FAIL("Error in InitializeRadiationFieldData.");
       }
  
+#ifdef USE_GRACKLE
+  } // else (if Grackle == TRUE)
+#endif
+
   /* If using MBHFeedback = 2 to 5 (Star->FeedbackFlag = MBH_JETS), 
      you need MBHParticleIO for angular momentum */
 
@@ -1589,7 +1697,6 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   // Determine color fields (NColor) later inside a grid object.
   // ...
- 
 #ifdef UNUSED
   if (MaximumGravityRefinementLevel == INT_UNDEFINED)
     MaximumGravityRefinementLevel = (RadiativeCooling && SelfGravity

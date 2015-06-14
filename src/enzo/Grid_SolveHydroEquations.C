@@ -172,10 +172,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Add "real" colour fields (metallicity, etc.) as colour variables. */
 
     int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-      MetalIaNum; 
+      MetalIaNum, MetalIINum; 
 
-    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
-				   Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+    if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
+                MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
       ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
     if (MetalNum != -1) {
@@ -187,6 +187,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     }
 
     if (MetalIaNum       != -1) colnum[NumberOfColours++] = MetalIaNum;
+    if (MetalIINum       != -1) colnum[NumberOfColours++] = MetalIINum;
     if (SNColourNum      != -1) colnum[NumberOfColours++] = SNColourNum;
     if (MBHColourNum     != -1) colnum[NumberOfColours++] = MBHColourNum;
     if (Galaxy1ColourNum != -1) colnum[NumberOfColours++] = Galaxy1ColourNum;
@@ -410,7 +411,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Prepare Gravity. */
 
     int GravityOn = 0, FloatSize = sizeof(float);
-    if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity )
+    if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
       GravityOn = 1;
 #ifdef TRANSFER
     if (RadiationPressure)
@@ -510,9 +511,10 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* note: Start/EndIndex are zero based */
         
     if (HydroMethod == PPM_DirectEuler)
-      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes, 
-			CellWidthTemp, GridGlobalStart, GravityOn, 
-			NumberOfColours, colnum);
+      this->SolvePPM_DE(CycleNumber, NumberOfSubgrids, SubgridFluxes,
+                        CellWidthTemp, GridGlobalStart, GravityOn,
+                        NumberOfColours, colnum,
+                        MinimumSupportEnergyCoefficient);
 
     /* PPM LR has been withdrawn. */
 
@@ -545,11 +547,11 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
 
     if (HydroMethod == Zeus_Hydro)
       if (this->ZeusSolver(GammaField, UseGammaField, CycleNumber, 
-			   CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2],
-			   GravityOn, NumberOfSubgrids, GridGlobalStart,
-			   SubgridFluxes,
-			   NumberOfColours, colnum, LowestLevel,
-			   MinimumSupportEnergyCoefficient) == FAIL)
+               CellWidthTemp[0], CellWidthTemp[1], CellWidthTemp[2],
+               GravityOn, NumberOfSubgrids, GridGlobalStart,
+               SubgridFluxes,
+               NumberOfColours, colnum, LowestLevel,
+               MinimumSupportEnergyCoefficient) == FAIL)
 	ENZO_FAIL("ZeusSolver() failed!\n");
 	
 

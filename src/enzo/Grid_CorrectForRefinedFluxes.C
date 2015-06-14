@@ -340,20 +340,23 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     (only multiply fields which we are going to correct) */
 	
 	  if (HydroMethod != Zeus_Hydro) {
-
-	    for (field = 0; field < NumberOfBaryonFields; field++) 
+	    for (field = 0; field < NumberOfBaryonFields; field++) { 
 	      if ( MakeFieldConservative(FieldType[field]) ) {
-		for (k = Start[2]; k <= End[2]; k++) {
-		  for (j = Start[1]; j <= End[1]; j++) {
-		    index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
-		    for (i = Start[0]; i <= End[0]; i++, index++) {
-		      BaryonField[field][index] *= BaryonField[DensNum][index];
-		      BaryonField[field][index+Offset] *= 
-			BaryonField[DensNum][index+Offset];
-		    }
-		  }
-		}
+                if (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+                                              FieldType[field] != InternalEnergy)) {
+                  for (k = Start[2]; k <= End[2]; k++) {
+                    for (j = Start[1]; j <= End[1]; j++) {
+                      index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
+                      for (i = Start[0]; i <= End[0]; i++, index++) {
+                        BaryonField[field][index] *= BaryonField[DensNum][index];
+                        BaryonField[field][index+Offset] *= 
+                          BaryonField[DensNum][index+Offset];
+                      }
+                    }
+                  }
+                }
 	      }
+            }
 	  }
 
 	  
@@ -364,8 +367,10 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	     to keep the same fractional density. */
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (FieldType[field] >= ElectronDensity &&
-		FieldType[field] < Metallicity &&
+	    if (((FieldType[field] >= ElectronDensity &&
+              FieldType[field] <= ExtraType1) ||
+                FieldType[field] == MetalSNIaDensity ||
+                FieldType[field] == MetalSNIIDensity) &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)
@@ -659,25 +664,32 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	}
 	
 
-	    /* Return faces to original quantity. */
+          /* Return faces to original quantity. */
 	
-	  if (HydroMethod != Zeus_Hydro)
-	    for (field = 0; field < NumberOfBaryonFields; field++)
-	      if ( MakeFieldConservative(FieldType[field]))
-		for (k = Start[2]; k <= End[2]; k++)
-		  for (j = Start[1]; j <= End[1]; j++) {
-		    index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
-		    for (i = Start[0]; i <= End[0]; i++, index++) {
-		      BaryonField[field][index] /= BaryonField[DensNum][index];
-		      BaryonField[field][index+Offset] /=
-			BaryonField[DensNum][index+Offset];
-		    }
-		  }
-	
+          if (HydroMethod != Zeus_Hydro) {
+            for (field = 0; field < NumberOfBaryonFields; field++) {
+              if ( MakeFieldConservative(FieldType[field])) {
+                if (RadiativeCooling == 0 || (FieldType[field] != TotalEnergy &&
+                                              FieldType[field] != InternalEnergy)) {
+                  for (k = Start[2]; k <= End[2]; k++) {
+                    for (j = Start[1]; j <= End[1]; j++) {
+                      index = (k*GridDimension[1] + j)*GridDimension[0] + Start[0];
+                      for (i = Start[0]; i <= End[0]; i++, index++) {
+                        BaryonField[field][index] /= BaryonField[DensNum][index];
+                        BaryonField[field][index+Offset] /=
+                          BaryonField[DensNum][index+Offset];
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        
 	  /* If appropriate, restore consistency between total and internal
 	     energy in corrected faces. */
 	
-	  if (DualEnergyFormalism == TRUE && RadiativeCooling == FALSE){
+	  if (DualEnergyFormalism == TRUE){
 	    float B2 = 0.0;
 	    for (k = Start[2]; k <= End[2]; k++)
 	      for (j = Start[1]; j <= End[1]; j++) {
@@ -735,8 +747,11 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
 	       density. (see comments above regarding species). */
 	
 	  for (field = 0; field < NumberOfBaryonFields; field++)
-	    if (FieldType[field] >= ElectronDensity &&
-		FieldType[field] < Metallicity &&
+	    if (((FieldType[field] >= ElectronDensity &&
+                  FieldType[field] <= ExtraType1) ||
+                 FieldType[field] == MetalSNIaDensity ||
+                 FieldType[field] == MetalSNIIDensity)
+                   &&
 		FieldTypeNoInterpolate(FieldType[field]) == FALSE &&
 		FieldTypeIsRadiation(FieldType[field]) == FALSE)
 	      for (k = Start[2]; k <= End[2]; k++)

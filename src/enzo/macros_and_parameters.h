@@ -85,7 +85,7 @@
 
 #define ROOT_PROCESSOR                      0
 
-#define VERSION                             2.0  /* current version number */
+#define VERSION                             2.4  /* current version number */
 
 /* Unmodifiable Parameters */
 
@@ -475,6 +475,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
 
+#define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
 
 #define CIC_DEPOSIT        0
@@ -494,6 +495,7 @@ typedef int            HDF5_hid_t;
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
 #define H2REG_STAR     11
+#define SINGLE_SUPERNOVA 12
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)

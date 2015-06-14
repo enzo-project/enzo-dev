@@ -35,6 +35,9 @@ int FastSiblingLocatorInitialize(ChainingMeshStructure *Mesh, int Rank,
   /* Fill out structure. */
  
   int dim, i, size = 1;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    Mesh->Dimension[dim] = 1;
+  }
   for (dim = 0; dim < Rank; dim++) {
     Mesh->Rank = Rank;
     //Mesh->Dimension[dim] = 128;  // this should be tuned

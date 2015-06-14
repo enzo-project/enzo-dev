@@ -1,0 +1,12 @@
+name = 'RHIonization2_enzochem'
+answer_testing_script = None
+nprocs = 1
+runtime = 'short'
+hydro = False
+gravity = False
+dimensionality = 3
+radiation = 'fld'
+max_time_minutes = 2
+fullsuite = True
+pushsuite = True
+quicksuite = True

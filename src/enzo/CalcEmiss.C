@@ -31,7 +31,7 @@
 #include "fortran.def"
 #include "CosmologyParameters.h"
 #include "StarParticleData.h"
-
+#include "phys_constants.h"
 
 /* Translating everything from star_maker2.src feedback section including paraphrasing the comments from that section */
 
@@ -51,13 +51,6 @@ int CalcEmiss(int *nx, int *ny, int *nz,
   int i, j, k, n;
   float mform, tfactor, uv_energy, 
         minitial, xv1, xv2, dratio;
-  float clight = 3e10;
-  float msolar_e51 = 1800.0;
-
-  /* uv_param taken from upper limits of
-     Razoumov and Norman 2002 June 20 The Astrophysical Journal */
-  //float uv_param = 1e-5;
-  //printf("UV_PARAM IS %"FSYM" \n", uv_param);
 
   /* disabling clear of Emissivity field until a way to do it in AMR is found 
      in EvolveHierarchy and EvolveLevel.  Instead put the clear here manually
@@ -186,15 +179,18 @@ int CalcEmiss(int *nx, int *ny, int *nz,
 
 	    /* noticed that the v1 cancels out from above, give the following */
             /* Units of uv_energy will be in erg/s/cm^3 */
-
-	    uv_energy = uv_param * mform * (clight) * (clight) *
+	    /* default value of uv_param consistent with
+	       Razoumov et.al. 2002 June 20 The Astrophysical Journal */
+	    /* Multiplying uv_param by 4pi to have consistent units with the 
+	       energy equation in FLD solver*/
+	    uv_energy = 4.0 * pi * uv_param * mform * (clight) * (clight) *
 	      *d1 / (dtLevelAbove * *t1);
 
 
 	    /* update the Emissivity_Array with <UV energy weighted by time> */
-	    printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
+	    /*printf("before %i %i %i was %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
 	    EmissivityArray[i + *nx * (j + *ny * k)] += uv_energy;
-	    printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);
+	    /*printf("after %i %i %i is %22.16e\n", EmissivityArray[i + *nx * (j + *ny * k)],i,j,k);*/
 	  }
 	}
 	else {
@@ -212,19 +208,6 @@ int CalcEmiss(int *nx, int *ny, int *nz,
       printf("NO STARS MADE \n");
     */
   }//100 in Fortran
-
-  //I want a universal translator... for computer languages...
-
-  /*
-    int emis_x=0, emis_y=0, emis_z=0, emis_index=0;
-    for(int emis_z=0; emis_z< *nz; emis_z++)
-      for(int emis_y=0; emis_y< *ny; emis_y++)
-	for(int emis_x=0; emis_x< *nx; emis_x++){
-	  emis_index = emis_x + *nx*(emis_y + *ny*emis_z);
-	  if(EmissivityArray[emis_index] != 0)
-	    printf("At end of Calc Emiss %0.12"GSYM" at %"ISYM" %"ISYM" %"ISYM"\n", EmissivityArray[emis_index], emis_x, emis_y, emis_z);
-	}
-  */
 
   return SUCCESS;
 }

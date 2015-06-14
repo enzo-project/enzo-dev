@@ -56,7 +56,7 @@ int gFLDSplit::EnforceBoundary(EnzoVector *u)
   int x1len = udims[1] + ugh[1][0] + ugh[1][1];
 
   float *udata = u->GetData(0);
-  float dxa = dx[0]*LenUnits/a;
+  float dxa = dx[0]*LenUnits;
   // x0 left boundary
   //   Dirichlet
   if (OnBdry[0][0] && (BdryType[0][0]==1)) {
@@ -104,7 +104,7 @@ int gFLDSplit::EnforceBoundary(EnzoVector *u)
   }
 
   if (rank > 1) {
-    float dya = dx[1]*LenUnits/a;
+    float dya = dx[1]*LenUnits;
     // x1 left boundary
     //   Dirichlet
     if (OnBdry[1][0] && (BdryType[1][0]==1)) {
@@ -153,7 +153,7 @@ int gFLDSplit::EnforceBoundary(EnzoVector *u)
   }  // end if rank > 1
      
   if (rank > 2) {
-    float dza = dx[2]*LenUnits/a;
+    float dza = dx[2]*LenUnits;
     // x2 left boundary
     //   Dirichlet
     if (OnBdry[2][0] && (BdryType[2][0]==1)) {

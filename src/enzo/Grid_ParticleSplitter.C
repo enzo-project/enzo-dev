@@ -94,11 +94,11 @@ int grid::ParticleSplitter(int level)
   /* Find metallicity field and set flag. */
  
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum;
+    MetalIaNum, MetalIINum;
   int MetallicityField = FALSE;
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum,
-				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum,
+              MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
   MetalNum = max(MetalNum, SNColourNum);
@@ -165,30 +165,14 @@ int grid::ParticleSplitter(int level)
 		xindex, yindex, zindex, level); 
     }
 #endif
-
-    FORTRAN_NAME(particle_splitter)(
-       GridDimension, GridDimension+1, GridDimension+2,
-       &DualEnergyFormalism, &MetallicityField, &HydroMethod,
-       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
-          &Time, &zred,
-       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
-          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
-       &NumberOfParticles, 
-       ParticlePosition[0], ParticlePosition[1],
-          ParticlePosition[2],
-       ParticleVelocity[0], ParticleVelocity[1],
-          ParticleVelocity[2],
-       ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-       ParticleAttribute[2], ParticleType,
-       &MaximumNumberOfNewParticles, &NumberOfNewParticles, &ChildrenPerParent, &level,
-       tg->ParticlePosition[0], tg->ParticlePosition[1],
-          tg->ParticlePosition[2],
-       tg->ParticleVelocity[0], tg->ParticleVelocity[1],
-          tg->ParticleVelocity[2],
-       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
-       tg->ParticleAttribute[2], tg->ParticleType, 
-       &ParticleSplitterIterations, &ParticleSplitterChildrenParticleSeparation, 
-       &ran1_init, RefineRegionLeftEdge, RefineRegionRightEdge);
+    if(!tg->CreateChildParticles(CellWidthTemp, NumberOfParticles, ParticleMass,
+				 ParticleType, ParticlePosition, ParticleVelocity,
+				 ParticleAttribute, CellLeftEdge, GridDimension, 
+				 MaximumNumberOfNewParticles, &NumberOfNewParticles))
+      {
+	fprintf(stdout, "Failed to create child particles in grid %d\n", this->GetGridID());
+	return FAIL;
+      }
 
   }
 
@@ -203,7 +187,7 @@ int grid::ParticleSplitter(int level)
 
     /* If not set in the above routine, then set the metal fraction to zero. */
     
-    if (MetallicityField == FALSE)
+    if (MetallicityField == FALSE && NumberOfParticleAttributes > 1)
       for (i = 0; i < NumberOfNewParticles; i++)
 	tg->ParticleAttribute[2][i] = 0.0;
     

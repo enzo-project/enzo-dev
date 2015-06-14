@@ -41,17 +41,17 @@ float gas_velocity(FLOAT r, FLOAT cdensity,
 		  FLOAT totaldmmass, FLOAT rs, FLOAT hs, 
 		  FLOAT dmc, FLOAT router);
 	     
-float average_density(FLOAT r, FLOAT cdensity, FLOAT rs, FLOAT hs, 
+float average_density(FLOAT r, float cdensity, float rs, float hs, 
 		      FLOAT cellwidth, FLOAT xpos, FLOAT ypos, FLOAT zpos);
 
 
-int grid::RotatingDiskInitializeGrid(FLOAT RDScaleRadius,
-				     FLOAT RDScaleHeight, 
-				     FLOAT RDTemperature,
-				     FLOAT RDDMConcentration, 
-				     FLOAT RDTotalDMMass,
-				     FLOAT RDCentralDensity,
-				     FLOAT RDOuterRadius)
+int grid::RotatingDiskInitializeGrid(float RDScaleRadius,
+				     float RDScaleHeight, 
+				     float RDTemperature,
+				     float RDDMConcentration, 
+				     float RDTotalDMMass,
+				     float RDCentralDensity,
+				     float RDOuterRadius)
 {
 
   

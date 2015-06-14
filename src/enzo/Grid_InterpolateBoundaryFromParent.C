@@ -282,11 +282,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     /* Allocate temporary space. */
  
-    TemporaryField        = new float[TempSize];
-    TemporaryDensityField = new float[TempSize];
-    Work                  = new float[WorkSize];
+    TemporaryField        = new float[TempSize]();
+    TemporaryDensityField = new float[TempSize]();
+    Work                  = new float[WorkSize]();
     for (field = 0; field < NumberOfBaryonFields; field++)
-      ParentTemp[field]     = new float[ParentTempSize];
+      ParentTemp[field]     = new float[ParentTempSize]();
  
     /* Copy just the required section from the parent fields to the temp
        space, doing the linear interpolation in time as we do it. */
@@ -635,11 +635,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 			   +(j)*MHDChildTempDims[field][0]
 			   +(k)*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
 	      
-	      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
-
-		fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
-			field,i,j,k);
-	      }
+//      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
+//
+//	fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
+//		field,i,j,k);
+//      }
 
 	    }//i,j,k
       

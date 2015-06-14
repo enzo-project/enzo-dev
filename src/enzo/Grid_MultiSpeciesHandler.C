@@ -13,8 +13,7 @@
 /
 ************************************************************************/
 
-#include <stdio.h>
-#include "ErrorExceptions.h"
+#include "preincludes.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -30,6 +29,15 @@ int grid::MultiSpeciesHandler()
   if (GadgetEquilibriumCooling != 0) return SUCCESS;
 
   LCAPERF_START("grid_MultiSpeciesHandler");
+
+#ifdef USE_GRACKLE
+  if (grackle_data.use_grackle == TRUE) {
+    if (this->GrackleWrapper() == FAIL) {
+      ENZO_FAIL("Error in GrackleWrapper.\n");
+    }
+    return SUCCESS;
+  }
+#endif
 
   if (MultiSpecies && RadiativeCooling ) {
     int RTCoupledSolverIntermediateStep = FALSE;

@@ -1,5 +1,84 @@
 = Enzo Changelog =
 
+== Version 2.4 ==
+_Release date - TBA
+
+  * New Feature: A progess meter script has been added to the bin directory
+                 (PR #233)
+  * New Feature: Added a rotating turbulent sphere test problem (PR #206)
+  * New Feature: Hierarchy rebuilds can now be controlled dynamically (PR #196)
+  * New Feature: Grackle chemistry and cooling (PR #194)
+  * Enhancement: Conversion factors from code units to CGS units are now written
+                 with increased precision (PR 239)
+  * Enhancement: Improved compatibility for cosmology simulations that include
+                 FLD, chemistry, and cooling. (PR #230)
+  * Enhancement: Significant updates for the unigrid FLD solver (PR #216)
+  * Enhancement: Particle splitting has been reimplemented with an improved 
+                 algorithm (PR #188)
+  * Enhancement: CosmologySimulation can now be run with MHDCT (PR #223)
+  * Enhancement: PPM simulations that use MinimumPressureSupport now use an 
+                 improved algorithm for runs with cooling (PR #220)
+  * Enhancement: Added a parameter that allows fully manual control over the root
+                 grid decomposition (PR #219, PR#226)
+  * Enhancement: Documentation on how to add a new BaryonField has been added.
+                 (PR #221)
+  * Enhancement: The galaxy simulation can now be run without using comoving
+                 coordinates (PR #204)
+  * Enhancement: Added a timestep-independent star particle creation mechanism
+                 (PR #197)
+  * Enhancement: Improvements for the tracer particle implementation (PR #193)
+  * Enhancement: Improvements for the Kelvin-Helmholtz test problem (PR #192)
+  * Enhancement: Buffer zones on processor boundaries will now be properly
+                 flagged for refinement. (PR #190, PR #218)
+  * Enhancement: The shear refinement criterion is now compatible with more
+                 simulation types (PR #189)
+  * Enhancement: AccelerationBoundary is now compatible with point source gravity
+                 (PR #117)
+  * Enhancement: Test problems will generate more efficient hierarchies during
+                 problem initialization (PR #182)
+  * Enhancement: Improvements for the CPU and GPU Dedner MHD solvers 
+                 (PR #177, PR #200)
+  * Enhancement: New refine region mechanics (PR #155, PR #172, PR #227)
+  * Enhancement: MHDCT works with outflow boundary conditions (PR #176, PR#198)
+  * Bugfix: Fixed an issue with the emissivity field in the FLD module having 
+            incorrect units (PR 241)
+  * Bugfix: Compilation issues for the FLD module in 32-bit mode have been 
+            resolved (PR 240)
+  * Bugfix: The internal energy field is no longer made conservative during flux
+            correction if cooling is turned on (PR 228)
+  * Bugfix: Fixed an issue where incorrect fluxes were being generated for
+            the internal energy in simulations that used flux correction.  This
+            may improve stability in some applications. (PR 217)
+  * Bugfix: FinalRedshift is no longer derived from StopTime, preventing
+            desynchronization between these parameters (PR 236)
+  * Bugfix: The FLD radiative transfer parameter file is now only written by
+            the root processor (PR #235)
+  * Bugfix: Fixed issues with mpgrafic and P-GroupFinder (PR #215)
+  * Bugfix: Fixed issues with transport of color fields at refinement boundaries.
+            (PR #199)
+  * Bugfix: Remove AddParticleAttributes, which sometimes causes particle 
+            metadata to be incorrectly zeroed out (PR #208)
+  * Bugfix: The -g command line option now works as expected (PR #207) 
+  * Bugfix: A buggy MIN macro was causing ComputeTimestep to be called twice
+            (PR #200)
+  * Bugfix: Fix for simulations that use ExternalGravity but no self gravity
+            (PR #201)
+  * Bugfix: Inits now uses increased precision when writing subgrid locations.
+            (PR #195)
+  * Bugfix: Use Agg as the plotting backend for performance_tools (PR #191)
+  * Bugfix: AddFeedbackSphere is now compatible with the Zeus hydro solver 
+            (PR 187)
+  * Bugfix: Fixed issues MHD test problems (PR #185, PR #186)
+  * Bugfix: Fixes for uninitialized memory errors reported by valgrind 
+            (PR #181, PR #184)
+  * Bugfix: Fixed issues with compiling in mixed precision mode (PR #181)
+  * Bugfix: Fixed an issue with NumberOfOutputsBeforeExit functionality (PR #179)
+  * Bugfix: Fixed an issue with header include order in the RK solvers (PR #178)
+  * Bugfix: MagneticField is not set to NULL after being deleted (PR #175)
+  * Bugfix: Fixed an issue that caused the build to fail if hg is not 
+            present (PR #174)
+  * Bugfix: Fixed Haardt & Madau 2012 radiation field rates (PR #171)
+
 == Version 2.3 ==
 _Release date - July 9, 2013_
 

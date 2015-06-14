@@ -34,15 +34,17 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
  
-int grid::ComputePressure(FLOAT time, float *pressure,int IncludeCRs)
+int grid::ComputePressure(FLOAT time, float *pressure,
+                          float MinimumSupportEnergyCoefficient,
+                          int IncludeCRs)
 {
  
   /* declarations */
  
-  float density, gas_energy, total_energy;
+  float density, gas_energy, total_energy, min_pressure;
   float velocity1, velocity2 = 0, velocity3 = 0;
   int i, size = 1;
- 
+
   /* Error Check */
  
   if (time < OldTime || time > Time) {
@@ -81,12 +83,21 @@ int grid::ComputePressure(FLOAT time, float *pressure,int IncludeCRs)
   /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
      subtract the kinetic energy term. */
 
-  if( HydroMethod == MHD_Li ){
-      BaryonField[B1Num = NumberOfBaryonFields] = CenteredB[0];
-      BaryonField[B2Num = NumberOfBaryonFields+1] = CenteredB[1];
-      BaryonField[B3Num = NumberOfBaryonFields+2] = CenteredB[2];
+  if (HydroMethod == MHD_Li) {
+      //Find the last occupied bayon field, map CenteredB to the end.  
+      //This is a stop gap solution
+      int counter=0;
+      for( counter=0; counter<MAX_NUMBER_OF_BARYON_FIELDS; counter++){
+        if ( BaryonField[counter] == NULL ){
+          break;
+        }
+      }
+      BaryonField[B1Num = counter++] = CenteredB[0];
+      BaryonField[B2Num = counter++] = CenteredB[1];
+      BaryonField[B3Num = counter++] = CenteredB[2];
+      MHDCT_ConvertEnergyToSpecificC();//See docs or Grid_MHDCTEnergyToggle.C for if/when this is done
   }
-  MHDCT_ConvertEnergyToSpecificC();//See docs or Grid_MHDCTEnergyToggle.C for if/when this is done
+
  
   float OneHalf = 0.5;
   if (HydroMethod == Zeus_Hydro)
@@ -150,10 +161,17 @@ int grid::ComputePressure(FLOAT time, float *pressure,int IncludeCRs)
 	  }
 
 	  pressure[i] = (Gamma - 1.0)*density*gas_energy;
- 
+
 	  if (pressure[i] < tiny_number)
 	    pressure[i] = tiny_number;
-	}
+
+      min_pressure =
+        MinimumSupportEnergyCoefficient * (Gamma - 1.0) * density * density;
+
+         if (pressure[i] < min_pressure)
+          pressure[i] = min_pressure;
+
+        }
 
       }//EquationOfState == 0
 
@@ -217,8 +235,16 @@ int grid::ComputePressure(FLOAT time, float *pressure,int IncludeCRs)
 	
 	  if (pressure[i] < tiny_number)
 	    pressure[i] = tiny_number;
-	}
-      }//EquationOfState == 0
+
+      min_pressure =
+        MinimumSupportEnergyCoefficient * (Gamma - 1.0) * density * density;
+
+      if (pressure[i] < min_pressure)
+        pressure[i] = min_pressure;
+
+
+       }
+      } //EquationOfState == 0
 
     } /* end of loop over cells */
  

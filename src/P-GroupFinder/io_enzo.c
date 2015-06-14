@@ -255,6 +255,7 @@ void enzoCountLocalParticles (char *fname, int files)
   char           dummy_str[MAX_FILE_LENGTH];
   int 	 	 i, j, dim, dummy, grid, filecount_local;
   int 	 	 n, slab, TotalLocal, PbufPlace, ptype_size;
+  long long      LocalSize;
   PINT 		*id;
   int           *inside, *level;
   int            GridsInside, startIndex, endIndex;
@@ -296,7 +297,8 @@ void enzoCountLocalParticles (char *fname, int files)
   NtoLeft= (int *) malloc(sizeof(int)*NTask);
   NtoRight=(int *) malloc(sizeof(int)*NTask);
 
-  Pbuf_local = (struct particle_data*) malloc(ptype_size*TotalLocal);
+  LocalSize = (long long) ptype_size * TotalLocal;
+  Pbuf_local = (struct particle_data*) malloc(LocalSize);
   Nslab_local =   (int *) malloc(sizeof(int)*NTask);
   NtoLeft_local = (int *) malloc(sizeof(int)*NTask);
   NtoRight_local =(int *) malloc(sizeof(int)*NTask);

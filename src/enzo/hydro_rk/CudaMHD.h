@@ -1,12 +1,12 @@
 #ifndef _CUMHD_H_
 #define _CUMHD_H_
 
-#define NMHD 9
+#define NMHD 10
 #define MAX_SPECIES 20
 #define NBLOCK 128
 #define PLM_GHOST_SIZE 2
 
-enum {IdxD, IdxV1, IdxV2, IdxV3, IdxTE, IdxB1, IdxB2, IdxB3, IdxPhi};
+enum {IdxD, IdxV1, IdxV2, IdxV3, IdxTE, IdxB1, IdxB2, IdxB3, IdxPhi, IdxGE};
 enum {IdxS1 = 1, IdxS2 = 2, IdxS3 = 3, IdxTau = 4};
 
 typedef struct {
@@ -31,10 +31,13 @@ typedef struct {
   float **dUSpeciesArray;
   // Parameters
   int Dimension[3], StartIndex[3], EndIndex[3];
+  void *GPUMem;
+  size_t GPUMemSize;
+  size_t GPUMemOffset;
 } cuMHDData;
 
 extern "C"
-void MHD_HLL_PLMGPU(cuMHDData &Data,  int dir);
+void MHD_HLL_PLMGPU(cuMHDData &Data,  int dir, float dx);
 
 extern "C"
 void ComputeFluxSpeciesGPU(cuMHDData &Data, int dir);
@@ -49,7 +52,14 @@ extern "C"
 void MHDComovingSourceGPU(cuMHDData &Data, float dt, float coef);
 
 extern "C"
+void MHDDednerSourceGPU(cuMHDData &Data);
+
+extern "C"
 void MHDDrivingSourceGPU(cuMHDData &Data, float dt);
+
+extern "C"
+void MHDDualEnergySourceGPU(cuMHDData &Data, float dt, float a,
+                            float dx, float dy, float dz);
 
 extern "C"
 void Density2FractionGPU(cuMHDData &Data);

@@ -96,11 +96,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
   /* Find Metallicity or SNColour field and set flag. */
 
   int SNColourNum, MetalNum, Metal2Num, MBHColourNum, Galaxy1ColourNum, 
-    Galaxy2ColourNum, MetalIaNum;
+    Galaxy2ColourNum, MetalIaNum, MetalIINum;
   int MetallicityField = FALSE;
 
   if (this->IdentifyColourFields(SNColourNum, Metal2Num, MetalIaNum, 
-				 MBHColourNum, Galaxy1ColourNum, 
+				 MetalIINum, MBHColourNum, Galaxy1ColourNum, 
 				 Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
 
@@ -856,10 +856,11 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    if (GENum >= 0 && DualEnergyFormalism)
 	      BaryonField[GENum][index] = EjectaThermalEnergy*ramp;
 	    
-	    for (dim = 0; dim < GridRank; dim++)
-	      BaryonField[TENum][index] += 
-		0.5 * BaryonField[Vel1Num+dim][index] *
-		BaryonField[Vel1Num+dim][index];
+	    if (HydroMethod != Zeus_Hydro)
+	      for (dim = 0; dim < GridRank; dim++)
+		BaryonField[TENum][index] += 
+		  0.5 * BaryonField[Vel1Num+dim][index] *
+		  BaryonField[Vel1Num+dim][index];
 	    
 	    CellsModified++;
 
@@ -946,9 +947,10 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	      GasEnergy = BaryonField[GENum][index];
 	    } else {
 	      GasEnergy = BaryonField[TENum][index];
-	      for (dim = 0; dim < GridRank; dim++)
-		GasEnergy -= 0.5*BaryonField[Vel1Num+dim][index] * 
-		  BaryonField[Vel1Num+dim][index];
+	      if (HydroMethod != Zeus_Hydro)
+		for (dim = 0; dim < GridRank; dim++)
+		  GasEnergy -= 0.5*BaryonField[Vel1Num+dim][index] * 
+		    BaryonField[Vel1Num+dim][index];
 	    }
 	    AdditionalEnergy = 
 	      MinimumTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6) - 

@@ -18,6 +18,11 @@ def get_hg_info():
     try:
         from mercurial import hg, ui, commands 
         from mercurial.error import RepoError
+    except ImportError:
+        print "WARNING: could not get version information.  Please install mercurial."
+        return ('unknown', 'unknown', None)
+    
+    try:
         u = ui.ui()
         u.pushbuffer()
         repo = hg.repository(u, os.path.expanduser('../..'))
@@ -27,7 +32,7 @@ def get_hg_info():
         commands.diff(u, repo)
         my_diff = u.popbuffer()
         return (my_info[0], my_info[1], my_diff)
-    except (ImportError, RepoError):
+    except RepoError:
         print "WARNING: could not get version information."
         return ('unknown', 'unknown', None)
 

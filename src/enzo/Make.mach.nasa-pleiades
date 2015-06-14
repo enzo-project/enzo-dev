@@ -16,6 +16,9 @@
 #
 # MODIFIED2:   Nathan Goldbaum
 # DATE:        2012-04-18
+#
+# MODIFIED3:   Nathan Goldbaum
+# DATE:        2014-04-24
 #=======================================================================
 
 MACH_TEXT  = NASA Pleiades
@@ -24,8 +27,8 @@ MACH_FILE  = Make.mach.nasa-pleiades
 
 MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 	The following modules are needed to compile: \
-	    comp-intel/2011.7.256, \
-	    mpi-sgi/mpi.2.04.10789, and \
+	    comp-intel/2013.5.192, \
+	    mpi-sgi/mpt.2.10r6, and \
 	    a serial hdf5 (the one that comes with yt should work) "
 
 #-----------------------------------------------------------------------
@@ -37,10 +40,11 @@ MACHINE_NOTES = "MACHINE_NOTES for Pleiades at NASA: \
 # Install paths (local variables)
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.04.10789/
+LOCAL_MPI_INSTALL    = /nasa/sgi/mpt/2.10r6
 LOCAL_HDF5_INSTALL   = $(YT_DEST)
 LOCAL_PYTHON_INSTALL = $(YT_DEST)
-LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2011.7.256/
+LOCAL_COMPILER_DIR    = /nasa/intel/Compiler/2013.5.192/
+LOCAL_GRACKLE_INSTALL = $(HOME)/local
 
 #-----------------------------------------------------------------------
 # Compiler settings
@@ -98,10 +102,11 @@ MACH_LDFLAGS  =
 # *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
 
 MACH_OPT_WARN        = 
-MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
-# use -xSSE4.2, if you're using Pleiades/Nehalem-EP cores
-MACH_OPT_AGGRESSIVE  = -O3 -xSSE4.1
+MACH_OPT_DEBUG       = -g -O0
+# Best for pleiades ivy bridge nodes.
+# See: goo.gl/A0IFMV
+MACH_OPT_HIGH        = -g -O2 -xAVX -ip -ipo
+MACH_OPT_AGGRESSIVE  = -O3 -xAVX -ip -ipo
 
 #-----------------------------------------------------------------------
 # Includes
@@ -111,8 +116,9 @@ LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
 LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
                         -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
+LOCAL_INCLUDES_GRACKLE = -I$(LOCAL_GRACKLE_INSTALL)/include
 
-MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_GRACKLE)
 MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
 MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 
@@ -122,11 +128,12 @@ MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
 #
 
 LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib -lmpi -lmpi++
-LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz
+LOCAL_LIBS_GRACKLE = -L$(LOCAL_GRACKLE_INSTALL)/lib -lgrackle
 #LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg     
 #LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
 
 LOCAL_LIBS_MACH = -lifcore -lifport
 
-MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_PYTHON)
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) $(LOCAL_LIBS_GRACKLE) #$(LOCAL_LIBS_PYTHON)
 MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

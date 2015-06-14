@@ -436,15 +436,15 @@ c
       do ic=1,ncolor
          do i=i1,i2+1
             if (uslice(i-1,j) .le. 0._RKIND) then
-               colls(i,j,ic) = colla(i,ic)
+               colls(i,j,ic) = colla(i,ic) * dls(i,j)/dla(i)
             else
-               colls(i,j,ic) = coll0(i,ic)
+               colls(i,j,ic) = coll0(i,ic) * dls(i,j)/dl0(i)
             endif
 c
             if (uslice(i  ,j) .ge. 0._RKIND) then
-               colrs(i,j,ic) = colra(i,ic)
+               colrs(i,j,ic) = colra(i,ic) * drs(i,j)/dra(i)
             else
-               colrs(i,j,ic) = colr0(i,ic)
+               colrs(i,j,ic) = colr0(i,ic) * drs(i,j)/dr0(i)
             endif
          enddo
       enddo
@@ -497,6 +497,10 @@ c            if (gamma*pla(i)/dla(i) .lt. eta1*ula(i)**2) then
      &          max(abs(cm(i-1)),abs(c0(i-1)),abs(cp(i-1))) .lt. 
      &          1.0e-3_RKIND
      &          .or. dls(i,j)/dla(i) .gt. 5._RKIND) then
+               do ic = 1,ncolor
+c                cols *= new/old
+                 colls(i,j,ic) = colls(i,j,ic) * dla(i)/dls(i,j)
+               enddo
                pls(i,j) = pla(i)
                uls(i,j) = ula(i)
                dls(i,j) = dla(i)
@@ -505,6 +509,10 @@ c            if (gamma*pra(i)/dra(i) .lt. eta1*ura(i)**2) then
             if (gamma*pra(i)/dra(i) .lt. eta2*ura(i)**2 .or.
      &          max(abs(cm(i)),abs(c0(i)),abs(cp(i))) .lt. 1.0e-3_RKIND
      &          .or. drs(i,j)/dra(i) .gt. 5._RKIND) then
+               do ic = 1,ncolor
+c                colrs *= new/old
+                 colrs(i,j,ic) = colrs(i,j,ic) * dra(i)/drs(i,j)
+               enddo
                prs(i,j) = pra(i)
                urs(i,j) = ura(i)
                drs(i,j) = dra(i)

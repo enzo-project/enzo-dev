@@ -54,8 +54,8 @@ int grid::CudaMHDRK2_2ndStep(fluxes *SubgridFluxes[],
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
                                    Vel3Num, TENum, B1Num, B2Num, B3Num, 
                                    PhiNum);
-  int IdxBaryon[9] = 
-    {DensNum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum};
+  int IdxBaryon[10] = 
+    {DensNum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, GENum};
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
       DINum, DIINum, HDINum;
@@ -122,27 +122,6 @@ int grid::CudaMHDRK2_2ndStep(fluxes *SubgridFluxes[],
   if (NSpecies > 0) {
     this->UpdateElectronDensity();
   }
-
-//   float d=0, vx=0, vy=0, vz=0, etot=0, Bx=0, By=0, Bz=0, Phi=0, c=0;
-//   for (int i = 0; i < size; i++) {
-//     d += BaryonField[DensNum][i];
-//     vx += BaryonField[Vel1Num][i];
-//     vy += BaryonField[Vel2Num][i];
-//     vz += BaryonField[Vel3Num][i];
-//     etot += BaryonField[TENum][i];
-//     Bx += BaryonField[B1Num][i];
-//     By += BaryonField[B2Num][i];
-//     Bz += BaryonField[B3Num][i];
-//     Phi += BaryonField[PhiNum][i];
-//     if (MultiSpecies)
-//       c += BaryonField[HIDensity][i] + BaryonField[HIIDensity][i] +
-//         BaryonField[HeIDensity][i] + BaryonField[HeIIDensity][i] + 
-//         BaryonField[HeIIIDensity][i];
-
-//   }
-//   printf("d=%f,v=(%f,%f,%f),etot=%f,B=(%f,%f,%f),Phi=%f,c=%f\n",
-//          d, vx, vy, vz, etot, Bx, By, Bz, Phi,c);
-
 
   return SUCCESS;
 }

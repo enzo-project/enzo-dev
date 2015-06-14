@@ -123,10 +123,12 @@ Hierarchy Control Parameters
     makes the refinement super-Lagrangian, while positive values are
     sub-Lagrangian. There are up to 9 values specified here, as per
     the above two parameters. Default: 0.0
-``SlopeFlaggingFields[#]`` (external)
+``SlopeFlaggingFields`` (external)
     If ``CellFlaggingMethod`` is 1, and you only want to refine on the
-    slopes of certain fields then you can enter the number IDs of the
-    fields. Default: Refine on slopes of all fields.
+    slopes of certain fields then you can enter the
+    :ref:`Field Type IDs <Field_List_Reference>` of the fields you want,
+    separating the IDs with a space. Up to 7 Field Type IDs can be 
+    specified. Default: Refine on slopes of all fields.
 ``MinimumSlopeForRefinement`` (external)
     If ``CellFlaggingMethod`` is 1, then local gradients are used as the
     refinement criteria. All variables are examined and the relative
@@ -148,6 +150,13 @@ Hierarchy Control Parameters
     detection. Default: 0.1
 ``MinimumShearForRefinement`` (external)
     It is the minimum shear above which a refinement occurs if the CellFlaggingMethod is appropriately set. Default: 0
+``OldShearMethod`` (external)
+    If using the shear refinement criterion, setting this variable to 1 enables 
+    the old method for calculating the shear criterion, which actually 
+    calculates it based on shear and vorticity and makes some assumptions
+    about the simulations (c_s=1, etc.).  However, this is necessary
+    if you want to reproduce some of the old enzo results 
+    (e.g. Kritsuk et al. 2006).  Default: 0
 ``MetallicityRefinementMinMetallicity`` (external)
     This is the threshold metallicity (in units of solar metallicity)
     above which cells must be refined to a minimum level of
@@ -268,7 +277,7 @@ Hierarchy Control Parameters
     code units. Default: 0.0 (no staggering)
 ``MultiRefineRegionMaximumLevel[#]``, ``MultiRefineRegionMinimumLevel[#]`` (external)
     Maximum and minimum allowed refinement inside the region. Default: ``MaximumRefinementLevel``, 0
-``MultiRefineRegionOuterMaximumLevel[#]``, ``MultiRefineRegionOuterMinimumLevel[#]`` (external)
+``MultiRefineRegionMaximumOuterLevel``, ``MultiRefineRegionMinimumOuterLevel`` (external)
     Maximum and minimum allowed refinement outside all regions. Default: ``MaximumRefinementLevel``, 0
 ``MinimumEfficiency`` (external)
     When new grids are created during the rebuilding process, each grid
@@ -313,6 +322,28 @@ Hierarchy Control Parameters
     When restarting a simulation, this parameter resets the processor number of each root grid to be sequential.  All child grids are assigned to the processor of their parent grid.  Only implemented for LoadBalancing = 1.  Default = 0
 ``NumberOfRootGridTilesPerDimensionPerProcessor`` (external)
     Splits the root grid into 2^(dimensions*this parameter) grids per MPI process.  Default: 1
+``UserDefinedRootGridLayout`` (external)
+   A three element array.  Splits the root grid into ``N`` subgrids where ``N``
+   is the product of the supplied values.  The first entry corresponds to the
+   number of root grid decompositions along the x axis of the simulation, the
+   second element the number of decompositions along the y axis, and the third
+   the number of decompositions along the z axis.
+
+   This parameter is only used if all three elements of the array are set to a
+   value different from the dummy default value.  If that is the case the root
+   grid will be *manually* decomposed and the value supplied for
+   ``NumberOfRootGridTilesPerDimensionPerProcessor`` will be ignored.  This is
+   most useful when an automatic root grid decomposition is inefficient (for
+   example, in a deeply nested isolated galaxy simulation).
+
+   This parameter should be used with caution since it is possible to get into
+   a situation where there are fewer grids than CPU cores.  Normally this can
+   never happen since there will always be at least one root grid tile for every
+   CPU.  Most simulations assume you will be running with as many root grid
+   tiles as CPUs - if you instead opt to reduce the number of root grid tiles
+   per CPU to a number less than one, Enzo might break in unpredictable ways.
+   Default: -99999 -99999 -99999
+
 ``FastSiblingLocatorEntireDomain`` (external)
     In zoom-in calculations, the fast sibling locator doesn't need to search the entire domain.  Turning this parameter on restricts the finder to the inner nested grid.  Currently broken.  Default: 0
 ``MoveParticlesBetweenSiblings`` (external)

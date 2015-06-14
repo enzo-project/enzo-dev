@@ -36,8 +36,8 @@
 
 
 int GetUnits(float *DensityUnits, float *LengthUnits,
-            float *TemperatureUnits, float *TimeUnits,
-            float *VelocityUnits, double *MassUnits, FLOAT Time);
+	     float *TemperatureUnits, float *TimeUnits,
+	     float *VelocityUnits, FLOAT Time);
 
 int CosmologyGetUnits(float *DensityUnits, float *LengthUnits,
 		      float *TemperatureUnits, float *TimeUnits,
@@ -203,7 +203,6 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		if( debug && MyProcessorNumber == ROOT_PROCESSOR ) 
 			fprintf(stdout,"Converting GalaxySimulationUniformDensity = %"GSYM" from CGS to code units\n",UniformDensity);
 	} // end uniform density if
-
 
  /* Set up inflow */
  if (GalaxySimulationInflowTime > 0.0){
@@ -473,7 +472,7 @@ float gasvel(FLOAT radius, float DiskDensity, FLOAT ExpansionFactor, float Galax
   double MassUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+	       &TimeUnits, &VelocityUnits, Time) == FAIL) {
     ENZO_FAIL("Error in GetUnits.");
   }
 

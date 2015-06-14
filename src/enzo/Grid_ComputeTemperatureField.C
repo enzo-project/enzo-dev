@@ -72,7 +72,7 @@ int grid::ComputeTemperatureField(float *temperature,int IncludeCRs)
 
   /* Compute the pressure first. */
  
-  this->ComputePressure(Time, temperature,IncludeCRs);
+  this->ComputePressure(Time, temperature,0,IncludeCRs);
  
   /* Compute the size of the fields. */
  

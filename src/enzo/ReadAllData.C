@@ -98,7 +98,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   strcpy(PrevParameterFileName, name);
 
   CommunicationBarrier();
- 
+
   /* Read TopGrid data. */
  
   if ((fptr = fopen(name, "r")) == NULL) {
@@ -127,6 +127,21 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
 
   }
  
+  /* Set the number of particle attributes, if left unset. */
+
+  if (NumberOfParticleAttributes == INT_UNDEFINED ||
+      NumberOfParticleAttributes == 0) {
+    if (StarParticleCreation || StarParticleFeedback) {
+      NumberOfParticleAttributes = 3;
+      if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
+      AddParticleAttributes = TRUE;
+    } else {
+      NumberOfParticleAttributes = 0;
+    }
+
+  }
+
   /* Read Boundary condition info. */
   fprintf(stderr, "fopen: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  

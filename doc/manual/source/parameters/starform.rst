@@ -113,6 +113,18 @@ The parameters below are considered in ``StarParticleCreation`` method
     parameter. This effectively sets a limit on the rate of star
     formation based on the idea that stars have a non-negligible
     formation and life-time. The unit is years. Default: 1e6
+``StarMakerTimeIndependentFormation`` (external)
+    When used, the factor of dt / t_dyn is removed from the calculation of 
+    the star particle mass above.  Instead of the local dynamical time, the 
+    timescale over which feedback occurs is a constant set by the parameter 
+    ``StarMakerMinimumDynamicalTime``.  This is necessary when running with 
+    conduction as the timesteps can be very short, which causes the calculated 
+    star particle mass to never exceed reasonable values for 
+    ``StarMakerMinimumMass``.  This prevents cold, star-forming gas from 
+    actually forming stars, and when combined with conduction, results in too 
+    much heat being transferred out of hot gas.  When running a cosmological 
+    simulation with conduction and star formation, one must use this otherwise 
+    bad things will happen.  (1 - ON; 0 - OFF)  Default: 0.
 ``StarMassEjectionFraction`` (external)
     The mass fraction of created stars which is returned to the gas
     phase. Default: 0.25

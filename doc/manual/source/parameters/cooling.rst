@@ -145,3 +145,70 @@ creating Cloudy datasets.
     Cloudy, using all metals through Zn, this value is 9.153959e-3.
     Default: 9.153959e-3.
 
+.. _grackle_pars:
+
+The Grackle
+^^^^^^^^^^^
+
+The Grackle is an external chemistry and cooling library originally derived from 
+Enzo's MultiSpecies chemistry and Cloudy cooling modules.  See :ref:`here <Grackle>` 
+for a full description, including why you might use this over Enzo's internal 
+chemistry and cooling.  For more information on Grackle parameter, see also the 
+`Grackle documentation <https://grackle.readthedocs.org/>`_.  Note, some Grackle 
+parameters have been mapped to Enzo parameters for simplicity.
+
+``use_grackle`` (int)
+    Flag to use the Grackle machinery (1 - on, 0 - off). Default: 0.
+
+``with_radiative_cooling`` (int)
+    Flag to include radiative cooling and actually update the thermal energy during the chemistry solver.  If off, the chemistry species will still be updated.  The most common reason to set this to off is to iterate the chemistry network to an equilibrium state (1 - on, 0 - off).  Default: 1.
+
+``MultiSpecies`` (int) [mapped to Grackle parameter ``primordial_chemistry``]
+    Flag to control which primordial chemistry network is used.  Default: 0.
+
+    - 0: no chemistry network.  Radiative cooling for primordial species is solved by interpolating from lookup tables calculated with Cloudy.
+    - 1: 6-species atomic H and He.  Active species: H, H\ :sup:`+`, He, He\ :sup:`+`, \ :sup:`++`, e\ :sup:`-`.
+    - 2: 9-species network including atomic species above and species for molecular hydrogen formation.  This network includes formation from the H\ :sup:`-` and H\ :sub:`2`\ :sup:`+` channels, three-body formation (H+H+H and H+H+H\ :sub:`2`), H\ :sub:`2` rotational transitions, chemical heating, and collision-induced emission (optional).  Active species: above + H\ :sup:`-`, H\ :sub:`2`, H\ :sub:`2`\ :sup:`+`.
+    - 3: 12-species network include all above plus HD rotation cooling.  Active species: above plus D, D\ :sup:`+`, HD.
+
+``H2FormationOnDust`` (int) [mapped to Grackle parameter ``h2_on_dust``]
+    See Enzo equivalent above.  Default: 0.
+
+``MetalCooling`` (int) [mapped to Grackle parameter ``metal_cooling``]
+    Flag to enable metal cooling using the Cloudy tables.  If enabled, the cooling table to be used must be specified with the ``grackle_data_file`` parameter (1 - on, 0 - off).  Default: 0.
+
+``CMBTemperatureFloor`` (int) [mapped to Grackle parameter ``cmb_temperature_floor``]
+    See Enzo equivalent above.  Default: 1.
+
+``UVbackground`` (int)
+    Flag to enable a UV background.  If enabled, the cooling table to be used must be specified with the ``grackle_data_file`` parameter (1 - on, 0 - off).  Default: 0.
+
+``grackle_data_file`` (string)
+    Path to the data file containing the metal cooling and UV background tables.  Default: "".
+
+``Gamma`` (float)
+    See Enzo equivalent above.  Default:  5/3.
+
+``ThreeBodyRate`` (int) [mapped to Grackle parameter ``three_body_rate``]
+    See Enzo equivalent above.  Default: 0.
+
+``CIECooling`` (int) [mapped to Grackle parameter ``cie_cooling``]
+    See Enzo equivalent above.  Default: 0.
+
+``H2OpticalDepthApproximation`` (int) [mapped to Grackle parameter ``h2_optical_depth_approximation``]
+    See Enzo equivalent above.  Default: 0.
+
+``PhotoelectricHeating`` (int) [mapped to Grackle parameter ``photoelectric_heating``]
+    See Enzo equivalent above.  Default: 0.
+
+``PhotoelectricHeatingRate`` (float) [mapped to Grackle parameter ``photoelectric_heating_rate``]
+    See Enzo equivalent above.  Default: 8.5e-26.
+
+``Compton_xray_heating`` (int)
+   Flag to enable Compton heating from an X-ray background following `Madau & Efstathiou (1999) <http://adsabs.harvard.edu/abs/1999ApJ...517L...9M>`_.  Default: 0.
+
+``LWbackground_intensity`` (float)
+    Intensity of a constant Lyman-Werner H\ :sub:`2` photo-dissociating radiation field in units of 10\ :sup:`-21` erg s\ :sup:`-1` cm\ :sup:`-2` Hz\ :sup:`-1` sr\ :sup:`-1`.  Default: 0.
+
+``LWbackground_sawtooth_suppression`` (int)
+    Flag to enable suppression of Lyman-Werner flux due to Lyman-series absorption (giving a sawtooth pattern), taken from `Haiman & Abel, & Rees (2000) <http://adsabs.harvard.edu/abs/2000ApJ...534...11H>`_.  Default: 0.

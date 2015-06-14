@@ -111,31 +111,36 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
   char *GPotName = "GravPotential";
+  char *BxName = "Bx";
+  char *ByName = "By";
+  char *BzName = "Bz";
+  char *PhiName = "Phi";
   
   int i=0, j=0;
 
-  if( EquationOfState == 0 ){
     DataLabel[i++] = DensName;
     DataUnits[j++] = NULL;
+  if( EquationOfState == 0 ){
     DataLabel[i++] = TEName;
     DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel1Name;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel2Name;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel3Name;
-    DataUnits[j++] = NULL;
-
-  }else if (EquationOfState == 1){
-    DataLabel[i++] = DensName;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel1Name;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel2Name;
-    DataUnits[j++] = NULL;
-    DataLabel[i++] = Vel3Name;
-    DataUnits[j++] = NULL;
   }
+    DataLabel[i++] = Vel1Name;
+    DataUnits[j++] = NULL;
+    DataLabel[i++] = Vel2Name;
+    DataUnits[j++] = NULL;
+    DataLabel[i++] = Vel3Name;
+    DataUnits[j++] = NULL;
+  if( UseMHD ){
+    DataUnits[i] = NULL;
+    DataLabel[i++] = BxName;
+    DataUnits[i] = NULL;
+    DataLabel[i++] = ByName;
+    DataUnits[i] = NULL;
+    DataLabel[i++] = BzName;
+    DataUnits[i] = NULL;
+    DataLabel[i++] = PhiName;
+  }
+
 
   if(DualEnergyFormalism ){
     char *GEName = "GasEnergy";
@@ -148,6 +153,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataUnits[j++] = NULL;
   }
   
+  if ( UseMHDCT ){
   MHDLabel[0] = "BxF";
   MHDLabel[1] = "ByF";
   MHDLabel[2] = "BzF";
@@ -167,6 +173,7 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   MHDeUnits[0] = "None";
   MHDeUnits[1] = "None";
   MHDeUnits[2] = "None";
+  }
   
 
   // General control variable

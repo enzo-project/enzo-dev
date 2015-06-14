@@ -68,6 +68,8 @@ int RotatingCylinderInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGri
 			       TopGridData &MetaData);
 int RotatingDiskInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			       TopGridData &MetaData);
+int RotatingSphereInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+			       TopGridData &MetaData);
 int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 			     TopGridData &MetaData);
 int ConductionBubbleInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -224,6 +226,8 @@ int MHDBlastInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                           TopGridData &MetaData, ExternalBoundary &Exterior);
 int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		      TopGridData &MetaData, ExternalBoundary &Exterior);
+int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
+                          TopGridData &MetaData, ExternalBoundary &Exterior);
 
 void PrintMemoryUsage(char *str);
 
@@ -250,12 +254,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Declarations
  
   FILE *fptr, *BCfptr, *Outfptr;
-  float Dummy[MAX_DIMENSION];
   int dim, i;
-
- 
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    Dummy[dim] = 0.0;
  
   // Open parameter file
  
@@ -295,16 +294,17 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 
   // Set the number of particle attributes, if left unset
  
-  if (NumberOfParticleAttributes == INT_UNDEFINED || 
-      NumberOfParticleAttributes == 0){
+  if (NumberOfParticleAttributes == INT_UNDEFINED ||
+      NumberOfParticleAttributes == 0) {
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
     } else {
       NumberOfParticleAttributes = 0;
     }
   }
- 
+
   // Give unset parameters their default values
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -442,6 +442,9 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // 13) RotatingDisk
   if (ProblemType == 13)
     ret = RotatingDiskInitialize(fptr, Outfptr, TopGrid, MetaData);
+
+  if (ProblemType == 14)
+    ret = RotatingSphereInitialize(fptr, Outfptr, TopGrid, MetaData);
 
   // 20) Zeldovich Pancake
  
@@ -583,6 +586,8 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   /* 103) MHD Orszag-Tang vortex */
   if (ProblemType == 103) //This doesn't actually need all those arguments
     ret = MHDOrszagTangInit(fptr, Outfptr, TopGrid, MetaData, Exterior);
+  if (ProblemType == 104) 
+    ret = MHDLoopInit(fptr, Outfptr, TopGrid, MetaData, Exterior);
   
   /* 106) Hydro and MHD Turbulence problems/Star Formation */
   if (ProblemType == 106) {
@@ -785,7 +790,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 	    fprintf(stderr, "SimpleConstantBoundary FALSE\n");
 	  }
 	}
-        
+
+        float Dummy[TopGrid.GridData->ReturnNumberOfBaryonFields()];
+        for (
+          int fieldIndex = 0; 
+          fieldIndex < TopGrid.GridData->ReturnNumberOfBaryonFields(); 
+          fieldIndex++
+        ) {
+          Dummy[fieldIndex] = 0.0;
+        }
 	for (dim = 0; dim < MetaData.TopGridRank; dim++)
 	  if (Exterior.InitializeExternalBoundaryFace(dim,
 						      MetaData.LeftFaceBoundaryCondition[dim],

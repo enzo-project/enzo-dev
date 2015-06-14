@@ -139,18 +139,19 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
       //compared against.  This will be irrelevant when CenteredB gets stored in BaryonField.
       if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
 					GridStartIndex, GridEndIndex,
-					CenteredB[0], Velocity1) == FAIL)
-	ENZO_FAIL("Error: Something's wrong with the CenteredB[0] boundary.");
+				CenteredB[0], Density) == FAIL)
+ENZO_FAIL("Error: Something's wrong with the CenteredB[0] boundary.");
       
       if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
 					GridStartIndex, GridEndIndex,
-					CenteredB[1], Velocity2) == FAIL)
-	ENZO_FAIL("Error: Something's wrong with the CenteredB[1] boundary.");
+				CenteredB[1], Density) == FAIL)
+ENZO_FAIL("Error: Something's wrong with the CenteredB[1] boundary.");
 
       if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
 					GridStartIndex, GridEndIndex,
-					CenteredB[2], Velocity3) == FAIL)
-	ENZO_FAIL("Error: Something's wrong with the CenteredB[2] boundary.");
+				CenteredB[2], Density) == FAIL)
+ENZO_FAIL("Error: Something's wrong with the CenteredB[2] boundary.");
+ 
  
     }// if(UseMHDCT)
 

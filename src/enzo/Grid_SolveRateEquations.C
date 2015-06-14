@@ -159,6 +159,7 @@ int grid::SolveRateEquations()
   }
  
   /* Call the fortran routine to solve cooling equations. */
+  int addRT = (RadiativeTransfer) || (RadiativeTransferFLD);
  
   FORTRAN_NAME(solve_rate)(
        BaryonField[DeNum], BaryonField[HINum], BaryonField[HIINum],
@@ -186,7 +187,7 @@ int grid::SolveRateEquations()
           BaryonField[DINum], BaryonField[DIINum], BaryonField[HDINum],
        &RadiationData.RadiationShield, &HIShieldFactor, &HeIShieldFactor, &HeIIShieldFactor,
        &RadiationFieldType, &CoolData.piHI, &CoolData.piHeI,
-       &RadiativeTransfer, &RadiativeTransferHydrogenOnly,
+       &addRT, &RadiativeTransferHydrogenOnly,
        BaryonField[kphHINum], BaryonField[kphHeINum], 
        BaryonField[kphHeIINum], BaryonField[kdissH2INum]);
  

@@ -15,6 +15,8 @@
 #-----------------------------------------------------------------------
 
 OBJS_CONFIG_LIB = \
+  MHDLoopInit.o \
+  Grid_MHDLoopInitGrid.o \
         acml_st1.o \
         AdiabaticExpansionInitialize.o \
         AdjustRefineRegion.o \
@@ -125,6 +127,7 @@ OBJS_CONFIG_LIB = \
         CreateSUBlingList.o \
         CreateFluxes.o \
         CRShockTubesInitialize.o \
+        InitializeFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
         DepositBaryons.o \
@@ -215,6 +218,7 @@ OBJS_CONFIG_LIB = \
 	fourn.o \
 	FreeRealMem.o \
 	FreeExpansionInitialize.o \
+	FreezeRateData.o \
         FriendOfFriend.o \
 	FSMultiSourceInitialize.o \
 	FSProb_ComputeOpacityLW.o \
@@ -284,6 +288,7 @@ OBJS_CONFIG_LIB = \
 	gFLDSplit_EnforceBoundary.o \
 	gFLDSplit_Evolve.o \
 	gFLDSplit_FInterface.o \
+	gFLDSplit_FillRates.o \
 	gFLDSplit_GasEnergySource.o \
 	gFLDSplit_InitialGuess.o \
 	gFLDSplit_Initialize.o \
@@ -390,6 +395,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CosmoIonizationInitializeGrid.o \
 	Grid_CosmologyInitializeParticles.o \
 	Grid_CosmologySimulationInitializeGrid.o \
+	Grid_CreateChildParticles.o \
 	Grid_CreateFieldArray.o \
 	Grid_CreateParticleTypeGrouping.o \
 	Grid_CRShockTubesInitializeGrid.o \
@@ -448,6 +454,7 @@ OBJS_CONFIG_LIB = \
         Grid_GetEnclosedMass.o \
         Grid_GetEnclosedMassInShell.o \
         Grid_GetProjectedBoundaryFluxes.o \
+        Grid_GrackleWrapper.o \
         Grid_GravityEquilibriumTestInitializeGrid.o \
         Grid_Group_WriteGridInterpolate.o \
         Grid_Group_WriteGrid.o \
@@ -476,6 +483,7 @@ OBJS_CONFIG_LIB = \
 	Grid_InterpolatePositions.o \
         Grid_InterpolateStarParticlesToGrid.o \
 	Grid_KHInitializeGrid.o \
+	Grid_KHInitializeGridRamp.o \
         Grid_MagneticFieldResetter.o \
 	Grid_MirrorStarParticles.o \
 	Grid_MoveAllParticles.o \
@@ -532,6 +540,7 @@ OBJS_CONFIG_LIB = \
 	Grid_RHIonizationTestInitializeGrid.o \
 	Grid_RotatingCylinderInitialize.o \
 	Grid_RotatingDiskInitializeGrid.o \
+	Grid_RotatingSphereInitialize.o \
 	Grid_SedovBlastInitializeGrid.o \
 	Grid_SedovBlastInitializeGrid3D.o \
 	Grid_SetExternalBoundaryValues.o \
@@ -626,6 +635,7 @@ OBJS_CONFIG_LIB = \
         InitializeRadiativeTransferSpectrumTable.o \
         InitializeRateData.o \
 	InitialLoadBalanceRootGrids.o \
+    init_random_seed.o \
 	interp1d.o \
 	interp2d.o \
 	interp3d.o \
@@ -667,6 +677,7 @@ OBJS_CONFIG_LIB = \
         NestedCosmologySimulationInitialize.o \
         ngpinterp.o \
         ngp_deposit.o \
+        ngp_deposit_c.o \
         NohInitialize.o \
         nr_1d.o \
         nr_2d.o \
@@ -702,6 +713,7 @@ OBJS_CONFIG_LIB = \
         ProblemType_CollapsingCoolingCloud.o \
 	ProblemType_ExplodingCloud.o \
 	ProblemType_MagneticReconnection.o \
+        ProblemType_AgoraRestart.o \
         ProcMap.o \
         project.o \
         projectbool.o \
@@ -763,6 +775,7 @@ OBJS_CONFIG_LIB = \
         rotate3d.o \
         RotatingCylinderInitialize.o \
 	RotatingDiskInitialize.o \
+        RotatingSphereInitialize.o \
         s66_st1.o \
         s90_st1.o \
 	SearchUtilities.o \
@@ -833,7 +846,7 @@ OBJS_CONFIG_LIB = \
 	star_maker8.o \
 	star_maker9.o \
 	star_maker_h2reg.o \
-	particle_splitter.o \
+    star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
         SupernovaRestartInitialize.o \
         SysMkdir.o \

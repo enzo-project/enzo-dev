@@ -163,11 +163,12 @@ const field_type
 
   /* Metals from Type Ia SNe */
   MetalSNIaDensity = 95,
- 
-  /* Cosmic Ray Energy Density */
-  CRDensity = 96,
+  MetalSNIIDensity = 96,
 
-  FieldUndefined  = 97;
+  /* Cosmic Ray Energy Density */
+  CRDensity = 97,
+
+  FieldUndefined  = 98;
    
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,

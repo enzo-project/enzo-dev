@@ -117,7 +117,6 @@ int grid::CosmologySimulationInitializeGrid(
 			  float CosmologySimulationInitialUniformBField[])
 {
  
- 
   int idim, dim, i, j, vel, OneComponentPerFile, ndim, level;
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum;
@@ -128,6 +127,7 @@ int grid::CosmologySimulationInitializeGrid(
   int EtaNum;
 #endif
   int MachNum, PSTempNum, PSDenNum;
+  int kphHINum, kphHeINum, kphHeIINum, kdissH2INum, PhotoGammaNum;
  
   int ExtraField[2];
   int ForbidNum, iTE, iCR;
@@ -238,7 +238,6 @@ int grid::CosmologySimulationInitializeGrid(
         iCR = NumberOfBaryonFields;
         FieldType[NumberOfBaryonFields++] = CRDensity;
     }
- 
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     
@@ -250,8 +249,19 @@ int grid::CosmologySimulationInitializeGrid(
     }
     
 #ifdef TRANSFER
-    if (RadiativeTransferFLD > 1)
+    if (RadiativeTransferFLD > 1) {
       FieldType[EgNum = NumberOfBaryonFields++] = RadiationFreq0;
+      if (RadiativeCooling) {
+	FieldType[ kphHINum = NumberOfBaryonFields++] = kphHI;
+	FieldType[ PhotoGammaNum = NumberOfBaryonFields++] = PhotoGamma;
+	if (RadiativeTransferHydrogenOnly == FALSE) {
+	  FieldType[ kphHeINum = NumberOfBaryonFields++] = kphHeI;
+	  FieldType[ kphHeIINum = NumberOfBaryonFields++] = kphHeII;
+	}
+	if (MultiSpecies > 1)
+	  FieldType[ kdissH2INum = NumberOfBaryonFields++] = kdissH2I;
+      }
+    }
 #endif
     if (MultiSpecies) {
       FieldType[DeNum    = NumberOfBaryonFields++] = ElectronDensity;
@@ -344,9 +354,7 @@ int grid::CosmologySimulationInitializeGrid(
     printf("Allocating %"ISYM" baryon fields of size %"ISYM"\n", NumberOfBaryonFields, size);
  
   if (ReadData == TRUE)
-    for (int field = 0; field < NumberOfBaryonFields; field++)
-      BaryonField[field] = new float[size];
- 
+    this->AllocateGrids();  
  
   // Read the density field
  
@@ -543,38 +551,61 @@ int grid::CosmologySimulationInitializeGrid(
       }
     }
 
-    if (CosmologySimulationTotalEnergyName == NULL)
-      for (i = 0; i < size; i++)
-	BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
-	                      TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
- 
-/*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
-	                    / (Gamma-1); */
- 
+    if (CosmologySimulationTotalEnergyName == NULL) {
+      for (i = 0; i < size; i++) {
+        BaryonField[iTE][i] = CosmologySimulationInitialTemperature/
+            TemperatureUnits/DEFAULT_MU/(Gamma-1.0);
+      }
+    }
+
+    /*          * POW(BaryonField[0][i]/CosmologySimulationOmegaBaryonNow,Gamma-1)
+                / (Gamma-1); */
+
     if (CosmologySimulationGasEnergyName == NULL && DualEnergyFormalism)
       for (i = 0; i < size; i++)
-	BaryonField[iTE+1][i] = BaryonField[iTE][i];
- 
+        BaryonField[iTE+1][i] = BaryonField[iTE][i];
+
     if (CosmologySimulationTotalEnergyName == NULL &&
-	HydroMethod != Zeus_Hydro) {
-      for (dim = 0; dim < GridRank; dim++)
-	for (i = 0; i < size; i++) {
-	  BaryonField[iTE][i] +=
-	    0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
- 	  if (HydroMethod == MHD_RK) {
- 	    BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
- 	    BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
- 	    BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
- 	    BaryonField[iPhi ][i] = 0.0;
- 	    BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
- 	  			  BaryonField[iBy][i] * BaryonField[iBy][i]+
- 	  			  BaryonField[iBz][i] * BaryonField[iBz][i])/
- 	  BaryonField[iden][i];
- 	 }
-   }
- 	 }
-   }
- 
+        HydroMethod != Zeus_Hydro) {
+    for (i = 0; i < size; i++) {
+      for (dim = 0; dim < GridRank; dim++) {
+          BaryonField[iTE][i] +=
+              0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
+      }
+          if (HydroMethod == MHD_RK) {
+            BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
+            BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
+            BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
+            BaryonField[iPhi ][i] = 0.0;
+            BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
+                                        BaryonField[iBy][i] * BaryonField[iBy][i]+
+                                        BaryonField[iBz][i] * BaryonField[iBz][i])/
+                BaryonField[iden][i];
+          }
+          if(UseMHDCT == TRUE){      
+            CenteredB[0][i] = CosmologySimulationInitialUniformBField[0];
+            CenteredB[1][i] = CosmologySimulationInitialUniformBField[1];
+            CenteredB[2][i] = CosmologySimulationInitialUniformBField[2];
+            BaryonField[iTE][i] += 0.5*(CenteredB[0][i] * CenteredB[0][i]+
+                                        CenteredB[1][i] * CenteredB[1][i]+
+                                        CenteredB[2][i] * CenteredB[2][i])/
+                BaryonField[0][i];
+          }
+      }
+
+      if(UseMHDCT == TRUE){
+        for(int field=0;field<3;field++)
+          for(int k=0; k<MagneticDims[field][2]; k++)
+            for(int j=0; j<MagneticDims[field][1]; j++)
+              for(int i=0; i<MagneticDims[field][0];i++){
+                int index = i+MagneticDims[field][0]*(j+MagneticDims[field][1]*k);
+                MagneticField[field][index] = 
+                    CosmologySimulationInitialUniformBField[field];
+              }                               
+      }  // if(UseMHDCT == TRUE)              
+    }
+  }
+
   } // end: if (NumberOfBaryonFields > 0)
  
  
