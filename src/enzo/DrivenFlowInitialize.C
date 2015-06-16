@@ -124,8 +124,8 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
       return FALSE;
   }
 
-  if ((HydroMethod != MHD_RK) && (HydroMethod != HD_RK)) {
-      fprintf(stderr,"DrivenFlowInitialize: Only support for MUSCL framework at this point.\n");
+  if ((HydroMethod != MHD_RK) && (HydroMethod != HD_RK) && (HydroMethod != MHD_Li)) {
+      fprintf(stderr,"DrivenFlowInitialize: Only support for MUSCL framework and MHDCT at this point.\n");
       return FALSE;
   }
 
@@ -193,6 +193,28 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[count++] = BzName;
     DataLabel[count++] = PhiName;
   }
+  if ( UseMHDCT ) {
+    MHDLabel[0] = "BxF";
+    MHDLabel[1] = "ByF";
+    MHDLabel[2] = "BzF";
+    
+    MHDcLabel[0] = "Bx";
+    MHDcLabel[1] = "By";
+    MHDcLabel[2] = "Bz";
+    
+    MHDeLabel[0] = "Ex";
+    MHDeLabel[1] = "Ey";
+    MHDeLabel[2] = "Ez";
+    
+    MHDUnits[0] = "None";
+    MHDUnits[1] = "None";
+    MHDUnits[2] = "None";
+    
+    MHDeUnits[0] = "None";
+    MHDeUnits[1] = "None";
+    MHDeUnits[2] = "None";
+    }
+
     DataLabel[count++] = StochAccel1Name;
     DataLabel[count++] = StochAccel2Name;
     DataLabel[count++] = StochAccel3Name;

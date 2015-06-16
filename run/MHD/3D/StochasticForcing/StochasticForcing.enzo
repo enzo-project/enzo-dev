@@ -6,9 +6,10 @@
 # For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
 # http://dx.doi.org/10.1051/0004-6361:200809967
 #
-# Works only with MUSCL type solvers at this point.
+# Works/properly tested only on 3D uniform grids with MUSCL type solvers and MHDCT at this point.
 # For hydro use HydroMethod 3
 # For MHD use HydroMethod 4
+# For MHDCT use HydroMethod 6
 # 
 #  define problem
 #
@@ -38,7 +39,7 @@ MaximumRefinementLevel    = 0
 #
 #  set hydro parameters
 #
-HydroMethod                 = 4     # 3 - no MHD, 4 - MHD
+HydroMethod                 = 4     # 3 - no MHD, 4 - MHD, 6 - MHDCT
 DualEnergyFormalism         = 1
 CourantSafetyNumber         = 0.4
 Gamma                       = 1.001

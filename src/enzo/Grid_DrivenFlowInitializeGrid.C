@@ -36,10 +36,8 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   int vel = NumberOfBaryonFields;
 
   FieldType[NumberOfBaryonFields++] = Velocity1;
-  if (GridRank > 1)
-    FieldType[NumberOfBaryonFields++] = Velocity2;
-  if (GridRank > 2)
-    FieldType[NumberOfBaryonFields++] = Velocity3;
+  FieldType[NumberOfBaryonFields++] = Velocity2;
+  FieldType[NumberOfBaryonFields++] = Velocity3;
 
   FieldType[NumberOfBaryonFields++] = TotalEnergy;
 
@@ -59,10 +57,8 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   int accel = NumberOfBaryonFields;
 
   FieldType[NumberOfBaryonFields++] = DrivingField1;
-  if (GridRank > 1)
-    FieldType[NumberOfBaryonFields++] = DrivingField2;
-  if (GridRank > 2)
-    FieldType[NumberOfBaryonFields++] = DrivingField3;
+  FieldType[NumberOfBaryonFields++] = DrivingField2;
+  FieldType[NumberOfBaryonFields++] = DrivingField3;
 
 
   /* Return if this doesn't concern us. */
@@ -106,6 +102,16 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
           BaryonField[iBx  ][i]  = DrivenFlowMagField;
           BaryonField[ietot][i] += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
       }
+  }
+  
+  if ( UseMHDCT ){
+    for ( int i = 0; i < MagneticSize[0]; i++){
+       MagneticField[0][i] = DrivenFlowMagField;
+    }
+    for( int i = 0; i < size; i++){
+      CenteredB[0][i] = DrivenFlowMagField;
+      BaryonField[ietot][i] += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
+    }
   }
 
   return SUCCESS;
