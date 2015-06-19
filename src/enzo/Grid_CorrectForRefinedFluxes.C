@@ -388,8 +388,14 @@ int grid::CorrectForRefinedFluxes(fluxes *InitialFluxes,
         // them by the new density (species are not otherwise modified --
         // see the next comment).  This ensures that the species are changed
         // to keep the same fractional density.
-        if (FieldType[field] >= ElectronDensity
-          && FieldType[field] <= Metallicity 
+        if (
+          (
+            (FieldType[field] >= ElectronDensity
+              && FieldType[field] <= ExtraType1
+            )
+            || FieldType[field] == MetalSNIaDensity
+            || FieldType[field] == MetalSNIIDensity
+          )
           && FieldTypeNoInterpolate(FieldType[field]) == FALSE
           && FieldTypeIsRadiation(FieldType[field]) == FALSE
         ) {
