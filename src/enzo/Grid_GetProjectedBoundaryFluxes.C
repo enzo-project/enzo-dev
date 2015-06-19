@@ -129,22 +129,22 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
  
 	  /* project (downsample by RefinementFactors[i] Fluxes */
  
-      for (k = 0; k < Dims[2]; k++) {
-        k1 = k/RefinementFactors[2];
-        for (j = 0; j < Dims[1]; j++) {
-          j1 = j/RefinementFactors[1];
-          for (i = 0; i < Dims[0]; i++) {
-            i1 = i/RefinementFactors[0];
-            *(ProjectedFluxes.LeftFluxes[field][dim] +
-              i1 + j1*ProjectedDims[0] +
-              k1*ProjectedDims[0]*ProjectedDims[1]) +=
-              (*(BoundaryFluxes->LeftFluxes[field][dim] +
-              i + j*Dims[0] + k*Dims[0]*Dims[1])) * dArea;
-            *(ProjectedFluxes.RightFluxes[field][dim] +
-              i1 + j1*ProjectedDims[0] +
-              k1*ProjectedDims[0]*ProjectedDims[1]) +=
-              (*(BoundaryFluxes->RightFluxes[field][dim] +
-              i + j*Dims[0] + k*Dims[0]*Dims[1])) * dArea;
+	  for (k = 0; k < Dims[2]; k++) {
+	    k1 = k/RefinementFactors[2];
+	    for (j = 0; j < Dims[1]; j++) {
+	      j1 = j/RefinementFactors[1];
+	      for (i = 0; i < Dims[0]; i++) {
+		i1 = i/RefinementFactors[0];
+		*(ProjectedFluxes.LeftFluxes[field][dim] +
+		  i1 + j1*ProjectedDims[0] +
+		  k1*ProjectedDims[0]*ProjectedDims[1]) +=
+		  (*(BoundaryFluxes->LeftFluxes[field][dim] +
+		     i + j*Dims[0] + k*Dims[0]*Dims[1])) * dArea;
+		*(ProjectedFluxes.RightFluxes[field][dim] +
+		  i1 + j1*ProjectedDims[0] +
+		  k1*ProjectedDims[0]*ProjectedDims[1]) +=
+		  (*(BoundaryFluxes->RightFluxes[field][dim] +
+		     i + j*Dims[0] + k*Dims[0]*Dims[1])) * dArea;
 	      }
 	    }
 	  }
