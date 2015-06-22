@@ -82,8 +82,10 @@ int Star::HitEndpoint(FLOAT Time)
     } else // SN tracers (must refine)
       result = NO_DEATH;
 
-    if (debug) printf("type = %d, mass = %g, result = %d, feedback = %d\n",
-		      this->type, this->Mass, result, this->FeedbackFlag);
+    if (debug)
+      printf("HitEndpoint[%d]: type = %d, mass = %g, result = %d, feedback = %d, Time = %f/%f\n",
+	     this->Identifier, this->type, this->Mass, result, this->FeedbackFlag, Time,
+	     this->BirthTime+this->LifeTime);
 
     break;
     
