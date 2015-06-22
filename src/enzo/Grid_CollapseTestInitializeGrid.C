@@ -61,6 +61,8 @@ static float CosmologySimulationInitialFractionHeIII = 1.0e-17;
 static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
+static float CollapseTestInitialMetallicity = 2.04e-8;
+static float SphereColour = 2.04e-8;
 
 int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 				     FLOAT SphereRadius[MAX_SPHERES],
@@ -470,8 +472,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	  density = InitialDensity;
 	  temperature = temp1 = InitialTemperature;
 	  sigma = sigma1 = 0;
-	  colour = 1.0e-10;
-	  metallicity = tiny_number;
+	  colour = SphereColour;
+	  metallicity = CollapseTestInitialMetallicity;
 	  HII_Fraction = CollapseTestInitialFractionHII;
 	  HeII_Fraction = CollapseTestInitialFractionHeII;
 	  HeIII_Fraction = CollapseTestInitialFractionHeIII;
@@ -800,7 +802,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		//	  Velocity[2]);
 
 		if (sphere == 0)
-		  colour = dens1; /* only mark first sphere */
+		  colour = SphereColour; /* only mark first sphere */
 
 		HII_Fraction = SphereHII[sphere];
 		HeII_Fraction = SphereHeII[sphere];
@@ -809,7 +811,8 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 
 	      }
 
-	      metallicity += SphereMetallicity[sphere];
+	      //metallicity += SphereMetallicity[sphere];
+	      metallicity = SphereMetallicity[sphere];
 
 	    } // end: if (r < SphereRadius)
 	    else {
@@ -945,7 +948,7 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	  /* If there is a colour field, set it. */
 
 	  if (SphereUseColour)
-	    BaryonField[ColourNum][n] = colour;
+	    BaryonField[ColourNum][n] = colour * BaryonField[0][n];
 
 	  /* Set Velocities. */
 

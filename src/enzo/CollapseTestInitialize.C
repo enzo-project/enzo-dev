@@ -54,7 +54,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
   const char *Vel1Name = "x-velocity";
   const char *Vel2Name = "y-velocity";
   const char *Vel3Name = "z-velocity";
-  const char *ColourName = "colour";
+  const char *ColourName = "SN_Colour";
   const char *ElectronName = "Electron_Density";
   const char *HIName    = "HI_Density";
   const char *HIIName   = "HII_Density";
@@ -122,7 +122,7 @@ int CollapseTestInitialize(FILE *fptr, FILE *Outfptr,
     CollapseTestSphereAng2[sphere] = 0;
     CollapseTestSphereNumShells[sphere] = 1;
     CollapseTestSphereSmoothRadius[sphere] = 1.2;
-    CollapseTestSphereMetallicity[sphere] = 0;
+    CollapseTestSphereMetallicity[sphere] = tiny_number;
     CollapseTestSphereInitialLevel[sphere] = 0;
     CollapseTestSphereHIIFraction[sphere] = CollapseTestInitialFractionHII;
     CollapseTestSphereHeIIFraction[sphere] = CollapseTestInitialFractionHeII;
