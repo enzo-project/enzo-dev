@@ -109,9 +109,7 @@ int RestartPhotons(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     for (_level = 0; _level < MAX_DEPTH_OF_HIERARCHY; _level++) {
       Temp = LevelArray[_level];
       while (Temp != NULL) {
-	Temp->GridData->CountPhotonNumber();
-	if (MyProcessorNumber == Temp->GridData->ReturnProcessorNumber())
-	  PhotonCount += Temp->GridData->ReturnNumberOfPhotonPackages();
+	PhotonCount += Temp->GridData->CountPhotonNumber();
 	Temp = Temp->NextGridThisLevel;
       }
     }
