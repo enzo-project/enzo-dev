@@ -65,7 +65,7 @@ void CommunicationBroadcastValues(int *Value, int Number, int BroadcastProcessor
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-			  int level, ExternalBoundary *Exterior
+			  int level, ExternalBoundary *Exterior, int OutputNow
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
@@ -74,6 +74,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
   int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
   int PackedStatus = 0;
   int CheckpointDump = FALSE;
+  WriteOutput = OutputNow;
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
