@@ -39,7 +39,8 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
 
-  FieldType[NumberOfBaryonFields++] = TotalEnergy;
+  if (EquationOfState == 0)
+    FieldType[NumberOfBaryonFields++] = TotalEnergy;
 
   if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
@@ -100,8 +101,8 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   if (HydroMethod == MHD_RK) {
       for (int i = 0; i < size; i++) {
           BaryonField[iBx  ][i]  = DrivenFlowMagField;
-          BaryonField[ietot][i] += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
       }
+      Energy += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
   }
   
   if ( UseMHDCT ){
@@ -110,9 +111,13 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
     }
     for( int i = 0; i < size; i++){
       CenteredB[0][i] = DrivenFlowMagField;
-      BaryonField[ietot][i] += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
     }
+    Energy += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
   }
+  
+  if (EquationOfState == 0)
+    for( int i = 0; i < size; i++)
+      BaryonField[ietot][i] = Energy;
 
   return SUCCESS;
 }

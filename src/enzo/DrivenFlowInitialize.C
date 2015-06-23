@@ -112,8 +112,12 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
 
   /* thermodynamic initial values */
 
-  if (MultiSpecies == 0) { 
-    SoundSpeed = sqrt(Gamma * DrivenFlowPressure / DrivenFlowDensity);
+  if (MultiSpecies == 0) {
+    if (EquationOfState == 0)
+      SoundSpeed = sqrt(Gamma * DrivenFlowPressure / DrivenFlowDensity);
+    else
+      SoundSpeed = IsothermalSoundSpeed;
+    
   } else {
     fprintf(stderr,"DrivenFlowInitialize: Multispecies != 0 untested at this point.\n");
     return FALSE;
@@ -183,7 +187,8 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = Vel3Name;
 
 
-  DataLabel[count++] = TEName;
+  if(EquationOfState == 0)
+    DataLabel[count++] = TEName;
   if (DualEnergyFormalism)
     DataLabel[count++] = GEName;
 
