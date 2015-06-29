@@ -136,7 +136,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 		index = BaryonField[field] + GridDimension[0] - 1 - i
 		        + j*GridDimension[0]
 		        + k*GridDimension[1]*GridDimension[0];
-		*index = Sign*(*(index - 2 * (GridDimension[0] - GridEndIndex[0] - i) + 1));
+		*index = Sign*(*(index - 2 * (GridDimension[0] - 1 - GridEndIndex[0] - i) + 1));
 	      }
 	  break;
 
@@ -152,7 +152,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 		  + k*GridDimension[1]*GridDimension[0];
 		*index = Sign*(
 		  *(index - (
-		    2 * (GridDimension[1] - GridEndIndex[1] - j) + 1
+		    2 * (GridDimension[1] - 1 - GridEndIndex[1] - j) + 1
 		  ) * GridDimension[0])
 		);
 	      }
@@ -172,7 +172,7 @@ int grid::CheckForExternalReflections(boundary_type LeftFaceBoundaryCondition[],
 		  ) * GridDimension[1] * GridDimension[0];
 		*index = Sign*(
 		  *(index - (
-		    2 * (GridDimension[2] - GridEndIndex[2] - k) + 1
+		    2 * (GridDimension[2] - 1 - GridEndIndex[2] - k) + 1
 		  ) * GridDimension[0] * GridDimension[1])
 		);
 	      }	  
