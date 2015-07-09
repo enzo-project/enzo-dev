@@ -132,9 +132,9 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 
 	  if (HydroMethod == MHD_RK || UseMHDCT) {
 	    float B2 = pow(BaryonField[B1Num][i],2)
-          + pow(BaryonField[B2Num][i],2)
+	      + pow(BaryonField[B2Num][i],2)
 	      + pow(BaryonField[B3Num][i],2);
-        BaryonField[TENum][i] += OneHalf * B2 / density;
+	    BaryonField[TENum][i] += OneHalf * B2 / density;
 	  }
 	
 	} else { 
