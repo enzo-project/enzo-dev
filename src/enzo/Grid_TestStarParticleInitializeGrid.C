@@ -88,8 +88,8 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   }
   ParticleMass[0] = CentralMass;
   ParticleAttribute[0][0] = Time+1e-7; //creation time:make sure it is non-zero
-  if (STARFEED_METHOD(UNIGRID_STAR_ORIG)) ParticleAttribute[1][0] = 1e7*3.15e7/TimeUnits;
-  if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = TestInitialdt/100.0; // dynamical time?
+  if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 1e7*3.15e7/TimeUnits;
+  if (STARFEED_METHOD(UNIGRID_STAR_MOM)) ParticleAttribute[1][0] = TestInitialdt/100.0; // dynamical time?
   ParticleAttribute[2][0] = 0.0;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa
 

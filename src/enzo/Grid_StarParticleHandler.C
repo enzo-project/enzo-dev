@@ -67,7 +67,7 @@ extern "C" void FORTRAN_NAME(star_maker2)(int *nx, int *ny, int *nz,
 		float *mp, float *tdp, float *tcp, float *metalf,
 	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
  
-extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
+extern "C" void FORTRAN_NAME(star_maker3mom)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
                 float *cooltime,
              float *dt, float *r, float *metal, float *zfield1, float *zfield2,
@@ -83,7 +83,7 @@ extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
 		 float *mp, float *tdp, float *tcp, float *metalf,
  	     int *imetalSNIa, float *metalSNIa, float *metalfSNIa);
 
-extern "C" void FORTRAN_NAME(star_maker30)(int *nx, int *ny, int *nz,
+extern "C" void FORTRAN_NAME(star_maker3)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
                 float *cooltime,
              float *dt, float *r, float *metal, float *zfield1, float *zfield2,
@@ -719,13 +719,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleType[i] = NormalStarType;
     } 
 
-    if (STARMAKE_METHOD(UNIGRID_STAR)) {
+    if (STARMAKE_METHOD(UNIGRID_STAR_MOM)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
       
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
-      FORTRAN_NAME(star_maker3)(
+      FORTRAN_NAME(star_maker3mom)(
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
@@ -750,13 +750,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleType[i] = NormalStarType;
     }
 
-    if (STARMAKE_METHOD(UNIGRID_STAR_ORIG)) {
+    if (STARMAKE_METHOD(UNIGRID_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
       
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
-      FORTRAN_NAME(star_maker30)(
+      FORTRAN_NAME(star_maker3)(
        GridDimension, GridDimension+1, GridDimension+2,
        BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,

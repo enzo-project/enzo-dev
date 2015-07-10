@@ -808,7 +808,7 @@ OBJS_CONFIG_LIB = \
 	star_feedback_pn_snia.o \
         star_maker1.o \
         star_maker2.o \
-	star_maker30.o \
+	star_maker3mom.o \
         star_maker3.o \
         star_maker4.o \
 	star_maker5.o \

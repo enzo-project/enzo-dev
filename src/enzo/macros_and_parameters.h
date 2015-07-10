@@ -471,7 +471,6 @@ typedef int            HDF5_hid_t;
 
 #define NORMAL_STAR	0
 #define UNIGRID_STAR    1
-#define UNIGRID_STAR_ORIG 12
 #define KRAVTSOV_STAR   2
 #define POP3_STAR	3
 #define SINK_PARTICLE	4
@@ -481,6 +480,8 @@ typedef int            HDF5_hid_t;
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
 #define H2REG_STAR     11
+#define UNIGRID_STAR_MOM 12
+
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
