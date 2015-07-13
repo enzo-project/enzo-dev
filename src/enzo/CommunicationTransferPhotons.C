@@ -257,7 +257,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 	       MyProcessorNumber, ToCount, ToProc, TempLevel, TempGridNum,
 	       SendList[ToProc][ToCount].buffer.Photons);
 
-  }  /* ENDELSE different processor */
+    }  /* ENDELSE different processor */
 
     LastMover = Mover;
     Mover = Mover->NextPackageToMove;

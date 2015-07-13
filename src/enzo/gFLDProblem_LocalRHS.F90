@@ -91,60 +91,61 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, ESpectrum, NTempBins, AnalyticChem
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real,    intent(in)  :: time, dx, dy, dz, gamma, HFrac
-  real,    intent(in)  :: CompA, Comp_xray, Comp_temp
-  real,    intent(in)  :: TempStart, TempEnd, piHI, piHeI, piHeII
-  real,    intent(in)  :: aUnits, DenUnits, VelUnits, LenUnits, ErUnits, &
+  INTG_PREC, intent(in)  :: Model, Nchem, ESpectrum, NTempBins, AnalyticChem
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC,    intent(in)  :: time, dx, dy, dz, gamma, HFrac
+  R_PREC,    intent(in)  :: CompA, Comp_xray, Comp_temp
+  R_PREC,    intent(in)  :: TempStart, TempEnd, piHI, piHeI, piHeII
+  R_PREC,    intent(in)  :: aUnits, DenUnits, VelUnits, LenUnits, ErUnits, &
        ecUnits, NiUnits, ecScale
-  real,    intent(in)  :: IsE, IsEsHI, IsEsHInu, IsEsHeI
-  real,    intent(in)  :: IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in),                                              &
+  R_PREC,    intent(in)  :: IsE, IsEsHI, IsEsHInu, IsEsHeI
+  R_PREC,    intent(in)  :: IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in),                                              &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::   &
        src_Er, src_ec, src_HI, src_HeI, src_HeII, vx, vy, vz, rhoa, &
        eca, Era, n_HIa, n_HeIa, n_HeIIa, Tempa, eha, kappaEa, kappaPa
-  real,    intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb,   &
+  R_PREC,    intent(in), dimension(NTempBins) :: k1Tb, k2Tb, k3Tb, k4Tb,   &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, &
        ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb
-  real,    intent(out),                                           &
+  R_PREC,    intent(out),                                           &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: &
        rhs_Er, rhs_ec, rhs_HI, rhs_HeI, rhs_HeII
 
 !--------------
 ! locals
-  integer :: i, j, k, Tidx, Tidxp
-  real :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac
-  real :: k1, k2, k3, k4, k5, k6
-  real :: aval, afac, grey, c, hp, mp, zr, gam_1, StBz, pi
-  real :: HIconst, HeIconst, HeIIconst, kappaP, kappaE
-  real :: dxi2, dyi2, dzi2, DivV, GradRhoDotV
-  real :: rho, ec, eh, Er, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
-  real :: T, lamT, G, Lambda
-  real :: alpha, beta, eta, nu0_HI, nu0_HeI, nu0_HeII
-  real :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII
-  real :: reHII, reHeII1, reHeII2, reHeIII, brem, Comp1, Comp2
-  real :: G_HI, G_HeI, G_HeII
+  INTG_PREC :: i, j, k, Tidx, Tidxp
+  R_PREC :: lTempS, lTempE, dlTemp, lTemp, Tl, Tr, Tfac
+  R_PREC :: k1, k2, k3, k4, k5, k6
+  R_PREC :: aval, afac, grey, c, hp, mp, zr, gam_1, StBz, pi
+  R_PREC :: HIconst, HeIconst, HeIIconst, kappaP, kappaE
+  R_PREC :: dxi2, dyi2, dzi2, DivV, GradRhoDotV
+  R_PREC :: rho, ec, eh, Er, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne
+  R_PREC :: T, lamT, G, Lambda
+  R_PREC :: alpha, beta, eta, nu0_HI, nu0_HeI, nu0_HeII
+  R_PREC :: ceHI, ceHeI, ceHeII, ciHI, ciHeI, ciHeIS, ciHeII
+  R_PREC :: reHII, reHeII1, reHeII2, reHeIII, brem, Comp1, Comp2
+  R_PREC :: G_HI, G_HeI, G_HeII
 
 !=======================================================================
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  rhs_Er = 0.d0
-  rhs_ec = 0.d0
+  rhs_Er = 0._RKIND
+  rhs_ec = 0._RKIND
   if (Nchem > 0) then
-     rhs_HI = 0.d0
+     rhs_HI = 0._RKIND
   endif
   if (Nchem == 3) then
-     rhs_HeI  = 0.d0
-     rhs_HeII = 0.d0
+     rhs_HeI  = 0._RKIND
+     rhs_HeII = 0._RKIND
   endif
   
   ! check that chemistry constants make sense
@@ -154,13 +155,13 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
      ier = 0
      return
   endif
-!!$  if ((Nchem == 1) .and. (HFrac /= 1.d0)) then
+!!$  if ((Nchem == 1) .and. (HFrac /= 1._RKIND)) then
 !!$     write(*,*) 'Chemistry ERROR: illegal value, HFrac = ',HFrac, &
 !!$          ',  value must equal 1 for Hydrogen only case.  Returning!'
 !!$     ier = 0
 !!$     return     
 !!$  endif
-  if ((HFrac < 0.d0) .or. (HFrac > 1.d0)) then
+  if ((HFrac < 0._RKIND) .or. (HFrac > 1._RKIND)) then
      write(*,*) 'Chemistry ERROR: illegal value, HFrac = ',HFrac, &
           ',  value must be in the interval [0,1].  Returning!'
      ier = 0
@@ -180,40 +181,40 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 
   ! initialize constants
   aval = a*aunits
-  gam_1 = gamma-1.d0
+  gam_1 = gamma-1._RKIND
   pi = pi_val
   c  = c_light                 ! speed of light [cm/s]
   hp = hplanck                 ! Planck's constant [ergs*s]
   mp = mass_h                  ! Mass of a proton [g]
-  zr = 1.d0/(aval) - 1.d0      ! cosmological redshift
-  StBz  = 5.6704d-5            ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  zr = 1._RKIND/(aval) - 1._RKIND      ! cosmological redshift
+  StBz  = 5.6704e-5_RKIND      ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   afac  = adot/a               ! adot/a
-  alpha = -0.4910454d0         ! exponent in emissivity fitting
-  beta  = 2.17748887d-24       ! scaling in emissivity fitting
-  nu0_HI = 13.6d0*ev2erg/hp    ! ionization frequency of HI   [hz]
-  nu0_HeI = 24.6d0*ev2erg/hp   ! ionization frequency of HeI  [hz]
-  nu0_HeII = 54.4d0*ev2erg/hp  ! ionization frequency of HeII [hz]
-  grey = 1.d0                  ! grey vs monochromatic coeff for eqns
-  if (ESpectrum == -1)  grey = 0.d0
+  alpha = -0.4910454_RKIND         ! exponent in emissivity fitting
+  beta  = 2.17748887e-24_RKIND     ! scaling in emissivity fitting
+  nu0_HI = 13.6_RKIND*ev2erg/hp    ! ionization frequency of HI   [hz]
+  nu0_HeI = 24.6_RKIND*ev2erg/hp   ! ionization frequency of HeI  [hz]
+  nu0_HeII = 54.4_RKIND*ev2erg/hp  ! ionization frequency of HeII [hz]
+  grey = 1._RKIND                  ! grey vs monochromatic coeff for eqns
+  if (ESpectrum == -1)  grey = 0._RKIND
 
   !   lookup table constants
   lTempS = log(TempStart)
   lTempE = log(TempEnd)
-  dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
+  dlTemp = (lTempE - lTempS)/(1._RKIND*NTempBins - 1._RKIND)
 
   ! compute shortcuts
-  dxi2 = 0.5d0*a/(dx*LenUnits)  ! convert to proper units during division
-  dyi2 = 0.5d0*a/(dy*LenUnits)
-  dzi2 = 0.5d0*a/(dz*LenUnits)
+  dxi2 = 0.5_RKIND*a/(dx*LenUnits)  ! convert to proper units during division
+  dyi2 = 0.5_RKIND*a/(dy*LenUnits)
+  dzi2 = 0.5_RKIND*a/(dz*LenUnits)
   HIconst   = c*(IsEsHI   - nu0_HI*IsEsHInu)/IsE
   HeIconst  = c*(IsEsHeI  - nu0_HeI*IsEsHeInu)/IsE
   HeIIconst = c*(IsEsHeII - nu0_HeII*IsEsHeIInu)/IsE
-  if (aval .ne. 1.d0) then        ! Compton cooling coefficients
-     Comp1 = CompA*(1.d0 + zr)**4
-     Comp2 = 2.73d0*(1.d0 + zr)
+  if (aval .ne. 1._RKIND) then        ! Compton cooling coefficients
+     Comp1 = CompA*(1._RKIND + zr)**4
+     Comp2 = 2.73_RKIND*(1._RKIND + zr)
   else
-     Comp1 = 0.d0
-     Comp2 = 0.d0
+     Comp1 = 0._RKIND
+     Comp2 = 0._RKIND
   endif
 
 
@@ -315,9 +316,9 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
               eh = eha(i,j,k)*VelUnits*VelUnits
 
               ! put ODE rhs together
-              rhs_ec(i,j,k) = (eh + ec + 2.d0*time*exp(2.d0*time))/ecUnits
-              rhs_Er(i,j,k) = 10.d0*cos(20.d0*time)/ErUnits
-              rhs_HI(i,j,k) = (-sin(2.0d0*time) + 8.d0*time)/NiUnits
+              rhs_ec(i,j,k) = (eh + ec + 2._RKIND*time*exp(2._RKIND*time))/ecUnits
+              rhs_Er(i,j,k) = 10._RKIND*cos(20._RKIND*time)/ErUnits
+              rhs_HI(i,j,k) = (-sin(2._RKIND*time) + 8._RKIND*time)/NiUnits
 
 
            enddo
@@ -341,15 +342,15 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
               nHI = n_HIa(i,j,k)*NiUnits
 
               ! put ODE rhs together
-              rhs_ec(i,j,k) = 1.d1*((7.d0/3.d0)*(eh+ec)   &
-                                 + (-2.d0/3.d0)*nHI       &
-                                 + (-2.d0/3.d0)*Er)/ecUnits
-              rhs_Er(i,j,k) = 1.d1*((-2.d0/3.d0)*(eh+ec)  &
-                                 + (-1.d0/6.d0)*nHI       &
-                                 + (11.d0/6.d0)*Er)/ErUnits
-              rhs_HI(i,j,k) = 1.d1*((-2.d0/3.d0)*(eh+ec)  &
-                                 + (11.d0/6.d0)*nHI       &
-                                 - (1.d0/6.d0)*Er)/NiUnits
+              rhs_ec(i,j,k) = 10._RKIND*((7._RKIND/3._RKIND)*(eh+ec)   &
+                                 + (-2._RKIND/3._RKIND)*nHI       &
+                                 + (-2._RKIND/3._RKIND)*Er)/ecUnits
+              rhs_Er(i,j,k) = 10._RKIND*((-2._RKIND/3._RKIND)*(eh+ec)  &
+                                 + (-1._RKIND/6._RKIND)*nHI       &
+                                 + (11._RKIND/6._RKIND)*Er)/ErUnits
+              rhs_HI(i,j,k) = 10._RKIND*((-2._RKIND/3._RKIND)*(eh+ec)  &
+                                 + (11._RKIND/6._RKIND)*nHI       &
+                                 - (1._RKIND/6._RKIND)*Er)/NiUnits
 
            enddo
         enddo
@@ -399,7 +400,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
               rho = rhoa(i,j,k)*DenUnits
               nHI = n_HIa(i,j,k)*NiUnits
               nH = Hfrac*rho/mp
-              nHII = max(1.d0*(nH - nHI), 0.d0)
+              nHII = max(nH - nHI, 0._RKIND)
               ne = nHII
 
               ! opacity
@@ -407,16 +408,16 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
               
               ! temperature shortcuts
               !*** For Model 4 with cosmology, the temperature is held in ecScale ***!
-              if (adot == 0.d0) then
+              if (adot == 0._RKIND) then
                  T = Tempa(i,j,k)
               else
                  T = ecScale
               endif
-              lamT = 3.15614d5/T
+              lamT = 3.15614e5_RKIND/T
 
               ! look up rates
               lTemp = min(max(log(T), lTempS), lTempE)
-              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+              Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
               Tidxp = Tidx+1
               Tl = lTempS + (Tidx-1)*dlTemp
               Tr = lTempS +  Tidx*dlTemp
@@ -426,8 +427,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
               ! compute case B Hydrogen recombination coefficient 
               ! [Hui & Gnedin, 1997: RI^B_{HII}]
               !   (still need this because table holds case A coefficient!)
-              k2 = 2.753d-14*lamT**(1.5d0) *                 &
-                   (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
+              k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                 &
+                   (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
 
               ! compute Hydrogen photoionization rate
               G_HI = c*Er/hp*IsEsHInu/IsE
@@ -441,7 +442,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                    - (afac*grey + c*kappaE)*Er)/ErUnits
 
               ! decouple gas energy from all other variables
-              rhs_ec(i,j,k) = 0.d0
+              rhs_ec(i,j,k) = 0._RKIND
               
            enddo
         enddo
@@ -469,10 +470,10 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                    - (afac*grey + c*kappaE)*Er)/ErUnits
 
               ! decouple gas energy from all other variables
-              rhs_ec(i,j,k) = 0.d0
+              rhs_ec(i,j,k) = 0._RKIND
               
               ! decouple HI evolution from all other variables
-              rhs_HI(i,j,k) = 0.d0
+              rhs_HI(i,j,k) = 0._RKIND
               
            enddo
         enddo
@@ -500,8 +501,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 
               ! put it all together
               rhs_ec(i,j,k) = (src_ec(i,j,k) + rhs_ec(i,j,k)  &
-                   - 2.d0*afac*ec + (c*kappaE*Er - 4.d0*pi*eta)/rho)/ecUnits
-              rhs_Er(i,j,k) = (src_Er(i,j,k) + 4.d0*pi*eta    &
+                   - 2._RKIND*afac*ec + (c*kappaE*Er - 4._RKIND*pi*eta)/rho)/ecUnits
+              rhs_Er(i,j,k) = (src_Er(i,j,k) + 4._RKIND*pi*eta    &
                    - (afac*grey + c*kappaE)*Er)/ErUnits
 
            enddo
@@ -528,7 +529,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho = rhoa(i,j,k)*DenUnits
                  nHI = n_HIa(i,j,k)*NiUnits
                  nH = Hfrac*rho/mp
-                 nHII = max(1.d0*(nH - nHI), 0.d0)
+                 nHII = max(nH - nHI, 0._RKIND)
                  ne  = nHII
                  
                  ! opacity
@@ -539,7 +540,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -578,8 +579,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
 
                  ! put it all together
                  rhs_ec(i,j,k) = (src_ec(i,j,k) + rhs_ec(i,j,k) &
-                      + G - Lambda - 2.d0*afac*ec)/ecUnits
-                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4.d0*pi*eta   &
+                      + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4._RKIND*pi*eta   &
                       - (afac*grey + c*kappaE)*Er)/ErUnits
                  rhs_HI(i,j,k) = (src_HI(i,j,k) + k2*ne*nHII    &
                       - nHI*(k1*ne + G_HI))/NiUnits
@@ -603,12 +604,12 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho    = rhoa(i,j,k)*DenUnits
                  nHI    = n_HIa(i,j,k)*NiUnits
                  nH     = Hfrac*rho/mp
-                 nHII   = max(1.d0*(nH - nHI), 0.d0)
-                 nHe    = (1.d0-HFrac)*rho/4.d0/mp
-                 nHeI   = n_HeIa(i,j,k)*NiUnits/4.d0
-                 nHeII  = n_HeIIa(i,j,k)*NiUnits/4.d0
-                 nHeIII = max(1.d0*(nHe - nHeI - nHeII), 0.d0)
-                 ne     = nHII + 0.25d0*nHeII + 0.5d0*nHeIII
+                 nHII   = max(nH - nHI, 0._RKIND)
+                 nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
+                 nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
+                 nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
+                 nHeIII = max(nHe - nHeI - nHeII, 0._RKIND)
+                 ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
                  
                  ! opacity
                  kappaE = nHI*IsEsHI/IsE + nHeI*IsEsHeI/IsE + nHeII*IsEsHeII/IsE
@@ -618,7 +619,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -658,19 +659,19 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  !    Bremsstrahlung (1)
                  Lambda = ne/rho                       &
                       *(ceHI*nHI                       &
-                      + ceHeI*nHeII*ne/4.d0            &
-                      + ceHeII*nHeII/4.d0              &
+                      + ceHeI*nHeII*ne/4._RKIND            &
+                      + ceHeII*nHeII/4._RKIND              &
                       + ciHI*nHI                       &
-                      + ciHeI*nHeI/4.d0                &
-                      + ciHeII*nHeII/4.d0              &
-                      + ciHeIS*nHeII*ne/4.d0           &
+                      + ciHeI*nHeI/4._RKIND                &
+                      + ciHeII*nHeII/4._RKIND              &
+                      + ciHeIS*nHeII*ne/4._RKIND           &
                       + reHII*nHII                     &
-                      + reHeII1*nHeII/4.d0             &
-                      + reHeII2*nHeII/4.d0             &
-                      + reHeIII*nHeIII/4.d0            &
+                      + reHeII1*nHeII/4._RKIND             &
+                      + reHeII2*nHeII/4._RKIND             &
+                      + reHeIII*nHeIII/4._RKIND            &
                       + Comp1*(T-Comp2)                &
                       + Comp_xray*(T-Comp_temp)        &
-                      + brem*(nHII+nHeII/4.d0+nHeIII)  &
+                      + brem*(nHII+nHeII/4._RKIND+nHeIII)  &
                       )
                  
                  ! compute fluid heating rate
@@ -678,20 +679,20 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! compute emissivity 
                  ! [WE HAVE NO FORMULA FOR ETA IN MULTI-SPECIES CASE!!]
-                 eta = 0.d0
+                 eta = 0._RKIND
 
                  ! put it all together
                  rhs_ec(i,j,k) = (src_ec(i,j,k) + rhs_ec(i,j,k)      &
-                      + G - Lambda - 2.d0*afac*ec)/ecUnits
-                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4.d0*pi*eta        &
+                      + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4._RKIND*pi*eta        &
                       - (afac*grey + c*kappaE)*Er)/ErUnits
                  rhs_HI(i,j,k) = (src_HI(i,j,k) + k2*ne*nHII         &
                       - nHI*(k1*ne + G_HI))/NiUnits
                  rhs_HeI(i,j,k) = (src_HeI(i,j,k) + k4*ne*nHeII      &
-                      - k3*ne*nHeI - nHeI*G_HeI)*4.d0/NiUnits
+                      - k3*ne*nHeI - nHeI*G_HeI)*4._RKIND/NiUnits
                  rhs_HeII(i,j,k) = (src_HeII(i,j,k) + nHeI*G_HeI     &
                       - nHeII*G_HeII + ne*k3*nHeI + ne*k6*nHeIII     &
-                      - ne*(k4+k5)*nHeII)*4.d0/NiUnits
+                      - ne*(k4+k5)*nHeII)*4._RKIND/NiUnits
 
               enddo
            enddo
@@ -747,7 +748,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho = rhoa(i,j,k)*DenUnits
                  nHI = n_HIa(i,j,k)*NiUnits
                  nH = Hfrac*rho/mp
-                 nHII = max(1.d0*(nH - nHI), 0.d0)
+                 nHII = max(nH - nHI, 0._RKIND)
                  ne  = nHII
                  
                  ! opacity
@@ -759,7 +760,7 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -773,8 +774,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  ! compute case B Hydrogen recombination coefficient 
                  ! [Hui & Gnedin, 1997: RI^B_{HII}]
                  !   (still need this because table holds case A coefficient!)
-                 k2 = 2.753d-14*lamT**(1.5d0) *                 &
-                      (1.d0+(lamT/2.74d0)**(0.407d0))**(-2.242d0)
+                 k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) *                 &
+                      (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(-2.242_RKIND)
                  
                  ! compute Hydrogen photoionization rate 
                  G_HI = c*Er/hp*IsEsHInu/IsE
@@ -800,12 +801,12 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! compute emissivity 
                  ! [WE HAVE NO FORMULA FOR ETA IN CASE-B CASE!!]
-                 eta = 0.d0
+                 eta = 0._RKIND
 
                  ! put it all together
                  rhs_ec(i,j,k) = (src_ec(i,j,k) + rhs_ec(i,j,k) &
-                      + G - Lambda - 2.d0*afac*ec)/ecUnits
-                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4.d0*pi*eta   &
+                      + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4._RKIND*pi*eta   &
                       - (afac*grey + c*kappaE)*Er)/ErUnits
                  rhs_HI(i,j,k) = (src_HI(i,j,k) + k2*ne*nHII    &
                       - nHI*(k1*ne + G_HI))/NiUnits
@@ -833,8 +834,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  Er     = Era(i,j,k)*ErUnits
                  rho    = rhoa(i,j,k)*DenUnits
                  nHI    = n_HIa(i,j,k)*NiUnits
-                 nHeI   = n_HeIa(i,j,k)*NiUnits/4.d0
-                 nHeII  = n_HeIIa(i,j,k)*NiUnits/4.d0
+                 nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
+                 nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
                  
                  ! opacity
                  kappaE = nHI*IsEsHI/IsE + nHeI*IsEsHeI/IsE + nHeII*IsEsHeII/IsE
@@ -862,23 +863,23 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  rho    = rhoa(i,j,k)*DenUnits
                  nHI    = n_HIa(i,j,k)*NiUnits
                  nH     = Hfrac*rho/mp
-                 nHII   = max(1.d0*(nH - nHI), 0.d0)
-                 nHe    = (1.d0-HFrac)*rho/4.d0/mp
-                 nHeI   = n_HeIa(i,j,k)*NiUnits/4.d0
-                 nHeII  = n_HeIIa(i,j,k)*NiUnits/4.d0
-                 nHeIII = max(1.d0*(nHe - nHeI - nHeII), 0.d0)
-                 ne     = nHII + 0.25d0*nHeII + 0.5d0*nHeIII
+                 nHII   = max(nH - nHI, 0._RKIND)
+                 nHe    = (1._RKIND-HFrac)*rho/4._RKIND/mp
+                 nHeI   = n_HeIa(i,j,k)*NiUnits/4._RKIND
+                 nHeII  = n_HeIIa(i,j,k)*NiUnits/4._RKIND
+                 nHeIII = max(nHe - nHeI - nHeII, 0._RKIND)
+                 ne     = nHII + 0.25_RKIND*nHeII + 0.5_RKIND*nHeIII
                  
                  ! opacity
                  kappaE = nHI*IsEsHI/IsE + nHeI*IsEsHeI/IsE + nHeII*IsEsHeII/IsE
               
                  ! shortcuts for temperature, ln(temp) and powers
                  T = Tempa(i,j,k)
-                 lamT = 3.15614d5/T
+                 lamT = 3.15614e5_RKIND/T
                  
                  ! look up rates
                  lTemp = min(max(log(T), lTempS), lTempE)
-                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+                 Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
                  Tidxp = Tidx+1
                  Tl = lTempS + (Tidx-1)*dlTemp
                  Tr = lTempS +  Tidx*dlTemp
@@ -904,8 +905,8 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  ! compute case B Hydrogen recombination coefficient 
                  ! [Hui & Gnedin, 1997: RI^B_{HII}]
                  !   (still need this because table holds case A coefficient!)
-                 k2 = 2.753d-14*lamT**(1.5d0) /                &
-                      (1.d0+(lamT/2.74d0)**(0.407d0))**(2.242d0)
+                 k2 = 2.753e-14_RKIND*lamT**(1.5_RKIND) /                &
+                      (1._RKIND+(lamT/2.74_RKIND)**(0.407_RKIND))**(2.242_RKIND)
                  
                  ! compute Hydrogen photoionization rate 
                  G_HI = c*Er/hp*IsEsHInu/IsE
@@ -923,19 +924,19 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  !    Bremsstrahlung (1)
                  Lambda = ne/rho                       &
                       *(ceHI*nHI                       &
-                      + ceHeI*nHeII*ne/4.d0            &
-                      + ceHeII*nHeII/4.d0              &
+                      + ceHeI*nHeII*ne/4._RKIND            &
+                      + ceHeII*nHeII/4._RKIND              &
                       + ciHI*nHI                       &
-                      + ciHeI*nHeI/4.d0                &
-                      + ciHeII*nHeII/4.d0              &
-                      + ciHeIS*nHeII*ne/4.d0           &
+                      + ciHeI*nHeI/4._RKIND                &
+                      + ciHeII*nHeII/4._RKIND              &
+                      + ciHeIS*nHeII*ne/4._RKIND           &
                       + reHII*nHII                     &
-                      + reHeII1*nHeII/4.d0             &
-                      + reHeII2*nHeII/4.d0             &
-                      + reHeIII*nHeIII/4.d0            &
+                      + reHeII1*nHeII/4._RKIND             &
+                      + reHeII2*nHeII/4._RKIND             &
+                      + reHeIII*nHeIII/4._RKIND            &
                       + Comp1*(T-Comp2)                &
                       + Comp_xray*(T-Comp_temp)        &
-                      + brem*(nHII+nHeII/4.d0+nHeIII)  &
+                      + brem*(nHII+nHeII/4._RKIND+nHeIII)  &
                       )
                  
                  ! compute fluid heating rate
@@ -943,12 +944,12 @@ subroutine gFLDProblem_LocalRHS(rhs_Er, rhs_ec, rhs_HI, rhs_HeI,       &
                  
                  ! compute emissivity 
                  ! [WE HAVE NO FORMULA FOR ETA IN CASE-B CASE!!]
-                 eta = 0.d0
+                 eta = 0._RKIND
 
                  ! put it all together
                  rhs_ec(i,j,k) = (src_ec(i,j,k) + rhs_ec(i,j,k)      &
-                      + G - Lambda - 2.d0*afac*ec)/ecUnits
-                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4.d0*pi*eta        &
+                      + G - Lambda - 2._RKIND*afac*ec)/ecUnits
+                 rhs_Er(i,j,k) = (src_Er(i,j,k) + 4._RKIND*pi*eta        &
                       - (afac*grey + c*kappaE)*Er)/ErUnits
                  rhs_HI(i,j,k) = (src_HI(i,j,k) + k2*ne*nHII         &
                       - nHI*(k1*ne + G_HI))/NiUnits

@@ -32,41 +32,42 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke,
      &       idual, iexpand, nratec, idim, imethod, igammah, cool_method
-      real    dt, aye, temstart, temend, fh, gammaha,
+      R_PREC    dt, aye, temstart, temend, fh, gammaha,
      &        utem, uxyz, urho, utim,
      &        eta1, eta2, gamma, coola(nratec), mu
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
 c  Parameters
 c
-      integer itmax, ijk
+      INTG_PREC itmax, ijk
       parameter (itmax = 5000, ijk = MAX_ANY_SINGLE_DIRECTION)
 
 #ifdef CONFIG_BFLOAT_4
-      real tolerance
-      parameter (tolerance = 1.0e-05)
+      R_PREC tolerance
+      parameter (tolerance = 1.e-5_RKIND)
 #endif
 
 #ifdef CONFIG_BFLOAT_8
-      real tolerance
-      parameter (tolerance = 1.0d-10)
+      R_PREC tolerance
+      parameter (tolerance = 1.e-10_RKIND)
 #endif
 
 c  Locals
 c
-      integer i, j, k, iter
-      real energy, dt2, ttmin
+      INTG_PREC i, j, k, iter
+      R_PREC energy, dt2, ttmin
 c
 c  Slice locals
 c 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
+      INTG_PREC indixe(ijk)
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), tgas(ijk), tgasold(ijk),
      &     cool(ijk), edot(ijk)
 c
@@ -81,7 +82,7 @@ c
 c        Set time elapsed to zero for each cell (and convert dens to abs)
 c
          do i = is+1, ie+1
-            ttot(i) = 0.d0
+            ttot(i) = 0._RKIND
             d(i,j,k) = d(i,j,k)/aye**3
          enddo
 c
@@ -117,31 +118,32 @@ c              (maximum timestep is 1/2 hydro step).
 c         Then, use each cell~s individual timestep tp update it~s energy
 c         Find minimum elapsed timestep (ttot)
 c
-          dt2 = dt/2.d0
+          dt2 = dt/2._RKIND
           ttmin = huge
 c
           do i = is+1, ie+1
-             if (tgas(i) .le. temstart .and. edot(i) .lt. 0.0) 
+             if (tgas(i) .le. temstart .and. edot(i) .lt. 0._RKIND) 
      &              edot(i) = tiny
              if (abs(edot(i)) .lt. tiny) edot(i) = tiny
-             energy = max(p2d(i)/d(i,j,k)/(gamma-1.d0), tiny)
-             dtit(i) = min(abs(0.1d0*energy/edot(i)), 
-     &                      dt-ttot(i), dt2)
+             energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
+             dtit(i) = min(abs(0.1_RKIND*energy/edot(i)), 
+     &            dt-ttot(i), dt2)
 #ifdef FORTRAN_DEBUG
              if (ge(i,j,k) .ne. ge(i,j,k) .or.
      &            e(i,j,k) .ne.  e(i,j,k)) write(6,*)
      &           'solve_cool:',ge(i,j,k),i,j,k,iter,tgas(i),e(i,j,k)
-             if (ge(i,j,k) .le. 0.0)
+             if (ge(i,j,k) .le. 0._RKIND)
      &         write(6,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
-             if (e(i,j,k) .le. 0.0)
+             if (e(i,j,k) .le. 0._RKIND)
      &         write(6,*) 'b',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
 c            if (ge(i,j,k)+edot(i)*dtit(i) .le. 0.0)
 c     &         write(6,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
 c     &              energy,ttot(i),d(i,j,k),e(i,j,k)
 #endif /* FORTRAN_DEBUG */
 c
-             if (dtit(i)/dt .lt. 1.0e-2 .and. 
-     &           abs(dt-ttot(i)) .gt. 1.0d-5*dt .and. iter .gt. 200)
+             if (dtit(i)/dt .lt. 1.e-2_RKIND .and. 
+     &            abs(dt-ttot(i)) .gt. 1.e-5_RKIND*dt .and. 
+     &            iter .gt. 200)
      &         write(3,1000) i,j,k,iter,ge(i,j,k),edot(i),tgas(i),
      &              tgasold(i),energy,ttot(i),d(i,j,k),e(i,j,k)
  1000        format(4(i4,1x),1p,11(e11.2))
@@ -155,7 +157,7 @@ c               ge(i,j,k) = max(ge(i,j,k) + edot(i)*dtit(i),
 c     &                      0.5*ge(i,j,k))
 c            if (ge(i,j,k) .le. tiny) ge(i,j,k) = (energy + 
 c     &           edot(i)*dtit(i))
-                if (ge(i,j,k) .le. 0.0)
+                if (ge(i,j,k) .le. 0._RKIND)
      &          write(3,*) 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
              endif
 c

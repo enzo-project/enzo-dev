@@ -116,7 +116,7 @@ specifies the type of test and the test particulars. This file is
 ascii, and can be edited.
 It consists of a series of lines (and optional comments) each of
 which specifies the value of one parameter. The parameters are
-discussed in more detail in :doc:`../EnzoParameters`.
+discussed in more detail in :ref:`parameters`.
 
 If you just type ``enzo`` without any arguments, or if the number of
 arguments is incorrect, the program should respond with a summary

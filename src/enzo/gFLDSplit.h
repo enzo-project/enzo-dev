@@ -47,8 +47,10 @@ class gFLDSplit : public virtual ImplicitProblemABC {
 
  private:
   
-  // overall time spent in solver
+  // overall time spent in solver and components
   float RTtime;
+  float HYPREtime;
+  float ChemTime;
   
   // HYPRE Struct-specific data
   Eint32 mattype;                // HYPRE matrix type for solve
@@ -68,6 +70,10 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   Eint32 sol_npost;              // num. post-relaxation sweeps
   Eint32 sol_printl;             // print output level
   Eint32 sol_log;                // amount of logging
+  int    Krylov_method;          // flag denoting which outer solver to use:
+                                 //    0 => PCG
+                                 //    1 => BiCGStab (default)
+                                 //    2 => GMRES
   Eint32 SolvIndices[3][2];      // L/R edge indices of subdomain in global mesh
                                  // Note: these INCLUDE Dirichlet zones, even 
                                  //   though those are not included as active 
@@ -106,16 +112,20 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   // time-stepping related data
   int initial_guess;   // parameter for setting the initial guess:
   float initdt;        // initial radiation time step size
-  float maxdt;         // maximum radiation time step size
-  float mindt;         // minimum radiation time step size
+  float maxdt;         // maximum radiation/chemistry/heating time step size
+  float mindt;         // minimum radiation/chemistry/heating time step size
+  float maxsubcycles;  // max subcycle factor for rad time step within hydro step
+  float maxchemsub;    // max subcycle factor for chem time step within rad step
   float dtfac[3];      // desired relative change in fields per step
   float dtnorm;        // norm choice for computing relative change:
                        //    0 -> max pointwise norm (default)
                        //   >0 -> rms p-norm over entire domain
+  float dtgrowth;      // time step growth factor (1 < dtgrowth < 10)
   float tnew;          // new time
   float told;          // old time
   float dt;            // time step size
-  float dtchem;        // chemistry time step size (subcycled)
+  float dtrad;         // radiation time step size (subcycled)
+  float dtchem;        // chemistry/gas time step size (subcycled)
   float theta;         // implicitness parameter (1->BE, 0.5->CN, 0->FE)
   EnzoVector *sol;     // solution vector
   EnzoVector *U0;      // old time-level state
@@ -140,6 +150,8 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   float ErScale;       // radiation energy density scaling factor
   float ecScale;       // specific energy correction scaling factor
   float NiScale;       // species density scaling factor
+  bool  autoScale;     // flag to enable/disable automatic scaling factors
+  bool  StartAutoScale;  // flag to turn begin automatic scaling in a run
   float ErUnits;       // radiation energy density unit conversion factor
   float ecUnits;       // specific energy correction unit conversion factor
   float NiUnits;       // species density unit conversion factor
@@ -166,10 +178,13 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   float hnu0_HI;            // HI ionization threshold (eV)
   float hnu0_HeI;           // HeI ionization threshold (eV)
   float hnu0_HeII;          // HeII ionization threshold (eV)
-  int ESpectrum;            // integer flag determining spectrum choice
+  int ESpectrum;            // integer flag determining spectrum choice, 
+                            // negative values imply monochromatic SED
                             //   1 -> 1e5 black body spectrum
                             //   0 -> simple power law spectrum
-                            //  -1 -> monochromatic spectrum
+                            //  -1 -> monochromatic spectrum @ hnu0_HI
+                            //  -2 -> monochromatic spectrum @ hnu0_HeI
+                            //  -3 -> monochromatic spectrum @ hnu0_HeII
   float intSigE;            // int_{nu0}^{inf} sigma_E(nu) d nu
   float intSigESigHI;       // int_{nu0}^{inf} sigma_E(nu)*sigma_HI(nu) d nu
   float intSigESigHeI;      // int_{nu0}^{inf} sigma_E(nu)*sigma_HeI(nu) d nu
@@ -206,7 +221,12 @@ class gFLDSplit : public virtual ImplicitProblemABC {
   int ComputeRadiationIntegrals();
   int AnalyticInitGuess(EnzoVector *u, float dt);
   int AnalyticChemistry(EnzoVector *u0, EnzoVector *u, EnzoVector *src, float dt);
-
+  int FillRates(EnzoVector *u, EnzoVector *u0, float *phHI, float *phHeI, 
+		float *phHeII, float *PhotoGamma, float *dissH2I);
+  int RadStep(HierarchyEntry *ThisGrid, int eta_set);
+  int ChemStep(HierarchyEntry *ThisGrid, float thisdt, float tcur);
+  int ChemBounds(HierarchyEntry *ThisGrid);
+  
 
  public:
 

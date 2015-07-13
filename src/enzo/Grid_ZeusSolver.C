@@ -150,7 +150,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   je = GridEndIndex[1];
   ke = GridEndIndex[2];
 
-  //  If DEFAULT_GHOST_ZONES is set to 4, then use the extra space
+  //  If NumberOfGhostZones is set to 4, then use the extra space
 
   if (is == 4) {
     is = is - 1;
@@ -167,7 +167,7 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   /* Set minimum pressure (better if it were a parameter) */
 
-  pmin = tiny;
+  pmin = tiny_number;
 
   /* Error check */
 

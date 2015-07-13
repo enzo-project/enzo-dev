@@ -136,7 +136,12 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Phi_pName = "Phip";
 
 #ifdef TRANSFER
-  char *RadName    = "Grey_Radiation_Energy";
+  char *RadName = "Grey_Radiation_Energy";
+  char *kphHIName = "kphHI";
+  char *kphHeIName = "kphHeI";
+  char *kphHeIIName = "kphHeII";
+  char *kdissH2IName = "kdissH2I";
+  char *PhotoGammaName = "PhotoGamma";
 #endif
 #ifdef EMISSIVITY
   char *EtaName    = "Emissivity";
@@ -413,6 +418,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    if (CosmologySimulationInitialUniformBField[dim] != 0.0 && HydroMethod != 4 && HydroMethod != 6)
+        ENZO_FAIL("UniformBField requested with a non-MHD solver. Please use one of the MHD solvers");
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
@@ -505,7 +512,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
       // Add ghost zones
  
-      CosmologySimulationGridDimension[gridnum][dim] += 2*DEFAULT_GHOST_ZONES;
+      CosmologySimulationGridDimension[gridnum][dim] += 2*NumberOfGhostZones;
     }
  
     // Create a new subgrid and initialize it
@@ -546,7 +553,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
       CosmologySimulationGridDimension[gridnum][dim] -=
-	2*DEFAULT_GHOST_ZONES;
+	2*NumberOfGhostZones;
  
   } // end: loop over gridnums
  
@@ -723,8 +730,19 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[i++] = Vel3Name;
   */
 #ifdef TRANSFER
-  if (RadiativeTransferFLD > 1)
+  if (RadiativeTransferFLD > 1) {
     DataLabel[i++] = RadName;
+    if (RadiativeCooling) {
+      DataLabel[i++] = kphHIName;
+      DataLabel[i++] = PhotoGammaName;
+      if (RadiativeTransferHydrogenOnly == FALSE) {
+	DataLabel[i++] = kphHeIName;
+	DataLabel[i++] = kphHeIIName;
+      }
+      if (MultiSpecies > 1)
+	DataLabel[i++] = kdissH2IName;
+    }
+  }
 #endif
   if (MultiSpecies) {
     DataLabel[i++] = ElectronName;
@@ -776,6 +794,29 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   for (j = 0; j < i; j++)
     DataUnits[j] = NULL;
  
+  if ( UseMHDCT ){
+      MHDcLabel[0] = "Bx";
+      MHDcLabel[1] = "By";
+      MHDcLabel[2] = "Bz";
+
+      MHDLabel[0] = "BxF";
+      MHDLabel[1] = "ByF";
+      MHDLabel[2] = "BzF";
+
+      MHDeLabel[0] = "Ex";
+      MHDeLabel[1] = "Ey";
+      MHDeLabel[2] = "Ez";
+
+      MHDUnits[0] = "None";
+      MHDUnits[1] = "None";
+      MHDUnits[2] = "None";
+
+      MHDeUnits[0] = "None";
+      MHDeUnits[1] = "None";
+      MHDeUnits[2] = "None";
+  }
+
+
   // Write parameters to parameter output file
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {

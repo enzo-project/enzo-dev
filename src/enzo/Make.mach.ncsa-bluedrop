@@ -1,0 +1,119 @@
+#=======================================================================
+#
+# FILE:        Make.mach.ncsa-bluedrop
+#
+# DESCRIPTION: Makefile settings for IBM BlueDrop
+#
+# AUTHOR:      Daniel R. Reynolds
+#
+# DATE:        2010-08-27
+#
+#=======================================================================
+
+MACH_TEXT  = NCSA Blue Drop
+MACH_VALID = 1
+MACH_FILE  = Make.mach.ncsa-bluedrop
+
+MACHINE_NOTES = "BlueDrop prototype for BlueWaters at UIUC/NCSA."
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL   = 
+LOCAL_HDF5_INSTALL  = /home/harkness/HDF5/5-1.8.4-aix-64
+LOCAL_HDF4_INSTALL  = 
+LOCAL_HDF4_INSTALL  = 
+LOCAL_SPRNG_INSTALL = 
+LOCAL_PNG_INSTALL   = 
+LOCAL_HYPRE_INSTALL = /home/harkness/Hypre/hypre-2.6.0b
+LOCAL_ACML_INSTALL  = 
+LOCAL_ZLIB_INSTALL  = /usr/lib
+
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_FDEF      = "-WF,"
+
+MACH_CPP       = /usr/bin/cpp
+
+# With MPI
+
+MACH_CC_MPI    = mpCC
+MACH_CXX_MPI   = mpCC
+MACH_FC_MPI    = mpfort -compiler /opt/ibmcmp/xlf/13.1/bin/xlf90_r
+MACH_F90_MPI   = mpfort -compiler /opt/ibmcmp/xlf/13.1/bin/xlf90_r
+MACH_LD_MPI    = mpCC
+
+# Without MPI
+
+MACH_CC_NOMPI  = xlc_r
+MACH_CXX_NOMPI = xlC_r
+MACH_FC_NOMPI  = xlf_r
+MACH_F90_NOMPI = xlf90_r
+MACH_LD_NOMPI  = xlC_r
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES = -DLINUX_IBM_XL -DHAVE_GNUPLOT -DH5_USE_16_API -DNO_IO_LOG
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -traditional
+
+MACH_CFLAGS   = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qthreaded -qsmp=noauto
+MACH_CXXFLAGS = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qthreaded -qsmp=noauto -D__NO_MATH_INLINES 
+MACH_FFLAGS   = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qsmp=omp -qmaxmem=1 -qthreaded -qextname -qfixed=132 
+MACH_F90FLAGS = -qarch=pwr7 -qtune=pwr7 -qcache=auto -qsmp=omp -qmaxmem=1 -qthreaded -qextname -qsuffix=f=f90 -qfree 
+MACH_LDFLAGS =  -qarch=pwr7 -qtune=pwr7 -qsmp=omp -qcache=auto -qthreaded
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+MACH_OPT_WARN        = -Wall -g -qsource -qstrict 
+MACH_OPT_DEBUG       = -g -O0 -p -pg -qsource -qstrict 
+MACH_OPT_HIGH        = -O2 -qsource -qstrict #-qdebug=nfuse,nsimdcost
+MACH_OPT_AGGRESSIVE  = -O3 -qstrict -qsimd=auto
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = 
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_HYPRE  = -I$(LOCAL_HYPRE_INSTALL)/include
+LOCAL_INCLUDES_SPRNG  = -I$(LOCAL_SPRNG_INSTALL)/include
+LOCAL_INCLUDES_PNG    =
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5) $(LOCAL_INCLUDES_SPRNG)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+
+LOCAL_LIBS_MPI   = 
+LOCAL_LIBS_HDF5  = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -L$(LOCAL_ZLIB_INSTALL) -lz 
+LOCAL_LIBS_HYPRE = -L$(LOCAL_HYPRE_INSTALL)/lib -lHYPRE
+LOCAL_LIBS_SPRNG = -L$(LOCAL_SPRNG_INSTALL)/lib -llcg64
+LOCAL_LIBS_PNG   = -L$(LOCAL_PNG_INSTALL)/lib -lpng -lfreetype
+
+LOCAL_LIBS_MACH   = -L/opt/ibmcmp/xlf/13.1/lib64 -lxl -lxlf90_r -lxlf90_t -lxlfmath -lxlopt -lxlfpad -lxlfpmt4 -lxlfpmt8
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_SPRNG)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)
+MACH_LIBS_HYPRE   = $(LOCAL_LIBS_HYPRE)

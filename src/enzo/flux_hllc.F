@@ -55,18 +55,19 @@ c    numiter - max number of Newton iterations to perform [8]
 c
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
+      INTG_PREC i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
      $     ifallback
-      real gamma, dt, eta1
-      real dx(idim)
-      real uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
+      R_PREC gamma, dt, eta1
+      R_PREC dx(idim)
+      R_PREC uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
      $     urs(idim,jdim), vrs(idim,jdim), wrs(idim,jdim),
      $     pls(idim,jdim), dls(idim,jdim), gels(idim,jdim),
      $     prs(idim,jdim), drs(idim,jdim), gers(idim,jdim),
@@ -75,30 +76,30 @@ c
      $     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      $     eslice(idim,jdim), geslice(idim,jdim),
      $     colslice(idim,jdim,ncolor)
-      real df(idim,jdim), ef(idim,jdim), gef(idim,jdim), ges(idim,jdim),
-     $     uf(idim,jdim), vf(idim,jdim), wf(idim,jdim),
-     $     colf(idim,jdim,ncolor)
+      R_PREC df(idim,jdim), ef(idim,jdim), gef(idim,jdim), 
+     $     ges(idim,jdim), uf(idim,jdim), vf(idim,jdim), 
+     $     wf(idim,jdim), colf(idim,jdim,ncolor)
 c
 c  local declarations
 c
-      integer i, j, n
-      real sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
+      INTG_PREC i, j, n
+      R_PREC sqrtdl, sqrtdr, gamma1, isdlpdr, vroe1, vroe2, vroe3, v2,
      $     hroe, tl, tr, dl, dr, q1, dub, delu, energy, qc,
      $     gamma1i, csl0, csr0
-      real cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
+      R_PREC cs(ijkn), char1(ijkn), char2(ijkn), csl(ijkn), csr(ijkn),
      $     cw(ijkn), cp(ijkn), diffd(ijkn), diffuu(ijkn), diffuv(ijkn),
      $     diffuw(ijkn), diffue(ijkn), diffuge(ijkn), 
      $     bp(ijkn), bm(ijkn), el(ijkn), er(ijkn), pcent(ijkn)
-      real dfl(ijkn), dfr(ijkn), ufl(ijkn), ufr(ijkn), 
+      R_PREC dfl(ijkn), dfr(ijkn), ufl(ijkn), ufr(ijkn), 
      $     vfl(ijkn), vfr(ijkn), wfl(ijkn), wfr(ijkn),
      $     efl(ijkn), efr(ijkn), gefl(ijkn), gefr(ijkn),
      $     gesl(ijkn), gesr(ijkn),
      $     colfl(ijkn,MAX_COLOR), colfr(ijkn,MAX_COLOR)
-      real sl(ijkn), sr(ijkn), sm(ijkn)
-      real dubl, dubr
+      R_PREC sl(ijkn), sr(ijkn), sm(ijkn)
+      R_PREC dubl, dubr
 
-      gamma1 = gamma - 1.d0
-      gamma1i = 1.d0 / gamma1
+      gamma1 = gamma - 1._RKIND
+      gamma1i = 1._RKIND / gamma1
 c
 c  Loop through this slice, doing 1 sweep at a time
 c
@@ -109,7 +110,7 @@ c
       do i = i1,i2+1
          sqrtdl = sqrt(dls(i,j))
          sqrtdr = sqrt(drs(i,j))
-         isdlpdr = 1.d0 / (sqrtdl + sqrtdr)
+         isdlpdr = 1._RKIND / (sqrtdl + sqrtdr)
          vroe1 = (sqrtdl * uls(i,j) + sqrtdr * urs(i,j)) * isdlpdr
          vroe2 = (sqrtdl * vls(i,j) + sqrtdr * vrs(i,j)) * isdlpdr
          vroe3 = (sqrtdl * wls(i,j) + sqrtdr * wrs(i,j)) * isdlpdr
@@ -119,16 +120,16 @@ c     The enthalpy H=(E+P)/d is averaged for adiabatic flows, rather
 c     than E or P directly.  
 c     sqrtql*hl = sqrtdl*(el+pl)/dl = (el+pl)/sqrtdl
 c         
-         el(i) = gamma1i * pls(i,j) + 0.5d0*dls(i,j)*
+         el(i) = gamma1i * pls(i,j) + 0.5_RKIND*dls(i,j)*
      $        (uls(i,j)**2 + vls(i,j)**2 + wls(i,j)**2)
-         er(i) = gamma1i * prs(i,j) + 0.5d0*drs(i,j)*
+         er(i) = gamma1i * prs(i,j) + 0.5_RKIND*drs(i,j)*
      $        (urs(i,j)**2 + vrs(i,j)**2 + wrs(i,j)**2)
          hroe = ((el(i) + pls(i,j))/sqrtdl + 
      $        (er(i) + prs(i,j))/sqrtdr) * isdlpdr
 c
 c     Compute characteristics using Roe-averaged values
 c
-         cs(i) = sqrt(gamma1*max((hroe - 0.5d0*v2), tiny))
+         cs(i) = sqrt(gamma1*max((hroe - 0.5_RKIND*v2), tiny))
          char1(i) = vroe1 - cs(i)
          char2(i) = vroe1 + cs(i)
       enddo
@@ -143,8 +144,8 @@ c
          csl(i) = min(uls(i,j)-csl0, char1(i))
          csr(i) = max(urs(i,j)+csr0, char2(i))
 
-         bm(i) = min(csl(i), 0.d0)
-         bp(i) = max(csr(i), 0.d0)
+         bm(i) = min(csl(i), 0._RKIND)
+         bp(i) = max(csr(i), 0._RKIND)
 
       enddo
 c
@@ -157,23 +158,23 @@ c
          tr = prs(i,j) - (csr(i) - urs(i,j)) * drs(i,j) * urs(i,j)
          dl =  dls(i,j) * (csl(i) - uls(i,j))
          dr = -drs(i,j) * (csr(i) - urs(i,j))
-         q1 = 1.d0 / (dl+dr)
+         q1 = 1._RKIND / (dl+dr)
          cw(i) = (tr - tl)*q1
          cp(i) = (dl*tr + dr*tl)*q1
          if (cw(i) .ge. 0.0) then
             sl(i) =  cw(i) / (cw(i) - bm(i))
-            sr(i) = 0.d0
+            sr(i) = 0._RKIND
             sm(i) = -bm(i) / (cw(i) - bm(i))
          else
-            sl(i) = 0.d0
+            sl(i) = 0._RKIND
             sr(i) = -cw(i) / (bp(i) - cw(i))
             sm(i) =  bp(i) / (bp(i) - cw(i))
          endif
-         cp(i) = max(cp(i), 0.d0)
+         cp(i) = max(cp(i), 0._RKIND)
 c         if (sm(i) .gt. 0.0 .and. cp(i) .lt. 0.0) then
 c            write(6,*) 'flux_hllc: Negative contact pressure = ',i,cp(i)
 c            WARNING_MESSAGE
-c            cp(i) = 0.d0
+c            cp(i) = 0._RKIND
 c         endif
       enddo
 c
@@ -200,12 +201,12 @@ c
          endif
       else
          do i = i1,i2+1
-            diffd(i) = 0.d0
-            diffuu(i) = 0.d0
-            diffuv(i) = 0.d0
-            diffuw(i) = 0.d0
-            diffue(i) = 0.d0
-            diffuge(i) = 0.d0
+            diffd(i) = 0._RKIND
+            diffuu(i) = 0._RKIND
+            diffuv(i) = 0._RKIND
+            diffuw(i) = 0._RKIND
+            diffue(i) = 0._RKIND
+            diffuge(i) = 0._RKIND
          enddo
       endif
 c
@@ -290,7 +291,7 @@ c     Calculate source term for gas energy
 c
       if (idual .eq. 1) then
          do i=i1, i2+1
-            pcent(i) = max((gamma-1.d0)*geslice(i,j)*dslice(i,j), 
+            pcent(i) = max((gamma-1._RKIND)*geslice(i,j)*dslice(i,j), 
      $           tiny)
          enddo
          do i=i1, i2+1
@@ -315,7 +316,7 @@ c
       
       if (idual .eq. 1) then
          do i = i1,i2+1
-            gef(i,j) = dt*gef(i,j)
+            gef(i,j) = dt/dx(i)*gef(i,j)
          enddo
       endif
 
@@ -328,8 +329,8 @@ c
 c     Check here for negative densities and energies
 c
       do i=i1, i2
-         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0.0) then
-            if (eslice(i,j) .lt. 0.0) then
+         if (dslice(i,j)+df(i,j)-df(i+1,j) .le. 0._RKIND) then
+            if (eslice(i,j) .lt. 0._RKIND) then
                write (6,*) 'flux_hllc: eslice < 0: ', i, j
                write (6,*) ef(i,j)-ef(i+1,j),
      &              eslice(i,j)*dslice(i,j)
@@ -394,7 +395,7 @@ c
          do i=i1, i2
             if (colslice(i,j,n) +
      $           (colf(i,j,n)-colf(i+1,j,n))/dx(i)
-     $           .lt. 0.0) then
+     $           .lt. 0._RKIND) then
                write(6,*) 'flux_hllc: negative color',i,j,n
                write(6,*) 'a', dx(i), colf(i-1,j,n),colf(i,j,n),
      $              colf(i+1,j,n)

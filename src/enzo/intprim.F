@@ -53,36 +53,38 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  argument declarations
 c
-      integer idim, i1, i2, iflatten, isteep, iposrec
-      real gamma
-      real c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
+      INTG_PREC idim, i1, i2, iflatten, isteep, iposrec
+      R_PREC gamma
+      R_PREC c1(idim), c2(idim), c3(idim), c4(idim), c5(idim), c6(idim),
      &     char1(idim), char2(idim), c0(idim)
-      real dslice(idim), uslice(idim), vslice(idim), wslice(idim),
+      R_PREC dslice(idim), uslice(idim), vslice(idim), wslice(idim),
      $     pslice(idim)
-      real dla(idim), dra(idim), dl0(idim), dr0(idim),
+      R_PREC dla(idim), dra(idim), dl0(idim), dr0(idim),
      $     ula(idim), ura(idim), ul0(idim), ur0(idim),
      $     vla(idim), vra(idim), vl0(idim), vr0(idim),
      $     wla(idim), wra(idim), wl0(idim), wr0(idim),
      $     pla(idim), pra(idim), pl0(idim), pr0(idim)
-      real dd(idim), dl(idim), dr(idim), d6(idim),
+      R_PREC dd(idim), dl(idim), dr(idim), d6(idim),
      $     du(idim), ul(idim), ur(idim), u6(idim),
      $     dv(idim), vl(idim), vr(idim), v6(idim),
      $     dw(idim), wl(idim), wr(idim), w6(idim),
      $     dp(idim), pl(idim), pr(idim), p6(idim)
-      real steepen(idim), flatten(idim)
-      real lem(idim,5,5), rem(idim,5,5), dxdt2(idim)
+      R_PREC steepen(idim), flatten(idim)
+      R_PREC lem(idim,5,5), rem(idim,5,5), dxdt2(idim)
 c
 c  local declarations (arrays passed as temps)
 c
-      integer i, m, n
-      real temp1, temp2, dxdt, gamma1, pc, rhoc, du2, dplim, limit, one
-      real qplus(idim,5), qmnus(idim,5), qcent(idim,5), qvanl(idim,5),
+      INTG_PREC i, m, n
+      R_PREC temp1, temp2, dxdt, gamma1, pc, rhoc, du2, dplim, 
+     $       limit, one
+      R_PREC qplus(idim,5), qmnus(idim,5), qcent(idim,5), qvanl(idim,5),
      $     qplusc(idim,5), qmnusc(idim,5), qcentc(idim,5), 
      $     qvanlc(idim,5), dqc(idim,5)
-      parameter (one=1.d0)
+      parameter (one=1._RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -129,9 +131,10 @@ c
             if (qmnusc(i,n)*qplusc(i,n) .gt. 0.0) then
                temp1 = min(abs(qmnusc(i,n)), abs(qplusc(i,n)))
                temp2 = min(abs(qcentc(i,n)), abs(qvanlc(i,n)))
-               dqc(i,n) = min(2.0*temp1, temp2) * sign(one, qcentc(i,n))
+               dqc(i,n) = min(2._RKIND*temp1, temp2) * 
+     &              sign(one, qcentc(i,n))
             else
-               dqc(i,n) = 0.d0
+               dqc(i,n) = 0._RKIND
             endif
          enddo
       enddo
@@ -141,10 +144,10 @@ c     (U-reconstruction; Waagan 2009, JCP, 228, 8609, Eqn 3.17).
 c     Recall that i = 0->4 = rho, u, v, w, p.
 c
       if (iposrec .eq. 1) then
-         gamma1 = gamma - 1.d0
+         gamma1 = gamma - 1._RKIND
          ! Density
          do i = i1-2, i2+2
-            limit = 0.5d0 * dslice(i)
+            limit = 0.5_RKIND * dslice(i)
             if (dqc(i,1) .gt. limit) then
                print*, 'Enforcing positive pressure by limiting ' ,
      $              'density slope', i, dslice(i), limit
@@ -169,7 +172,7 @@ c
             enddo
             rhoc = dslice(i) - dqc(i,1)
             pc = pslice(i) - dqc(i,5)
-            dplim = 2.d0 * abs(0.125d0 * rhoc * du2 * gamma1 + pc)
+            dplim = 2._RKIND * abs(0.125_RKIND*rhoc*du2*gamma1+pc)
             if (dqc(i,5) .gt. dplim) then
                print*, 'Enforcing positive pressure by limiting ' ,
      $              'pressure slope', i, pslice(i), dplim
@@ -181,11 +184,11 @@ c
 c
 c     Project monotonized slopes back to the primitive variables
 c
-      call char2prim(1, dqc, rem, i1, i2, idim, dd)
-      call char2prim(2, dqc, rem, i1, i2, idim, du)
-      call char2prim(3, dqc, rem, i1, i2, idim, dv)
-      call char2prim(4, dqc, rem, i1, i2, idim, dw)
-      call char2prim(5, dqc, rem, i1, i2, idim, dp)
+      call char2prim(1_IKIND, dqc, rem, i1, i2, idim, dd)
+      call char2prim(2_IKIND, dqc, rem, i1, i2, idim, du)
+      call char2prim(3_IKIND, dqc, rem, i1, i2, idim, dv)
+      call char2prim(4_IKIND, dqc, rem, i1, i2, idim, dw)
+      call char2prim(5_IKIND, dqc, rem, i1, i2, idim, dp)
 c
 c     Construct left and right values (eqn 1.6)
 c
@@ -199,10 +202,10 @@ c     Steepen density if asked for (use precomputed steepening parameter)
 c
       if (isteep .ne. 0) then
          do i = i1-1, i2+1
-            dl(i) = (1.d0-steepen(i))*dl(i) + 
-     &              steepen(i)*(dslice(i-1)+0.5d0*dd(i-1))
-            dr(i) = (1.d0-steepen(i))*dr(i) + 
-     &              steepen(i)*(dslice(i+1)-0.5d0*dd(i+1))
+            dl(i) = (1._RKIND-steepen(i))*dl(i) + 
+     &              steepen(i)*(dslice(i-1)+0.5_RKIND*dd(i-1))
+            dr(i) = (1._RKIND-steepen(i))*dr(i) + 
+     &              steepen(i)*(dslice(i+1)-0.5_RKIND*dd(i+1))
          enddo
       endif
 c
@@ -234,23 +237,24 @@ c-----------------------------------------------------------------------
 
       subroutine linslope(qslice, c1, c2, i1, i2, idim, qplus, qmnus, 
      $     qcent, qvanl)
-      
+c      
       implicit none
-
-      integer i1, i2, idim
-      real qslice(idim), qplus(idim), qmnus(idim), qcent(idim), 
+#include "fortran_types.def"
+c
+      INTG_PREC i1, i2, idim
+      R_PREC qslice(idim), qplus(idim), qmnus(idim), qcent(idim), 
      $     qvanl(idim), c1(idim), c2(idim)
       
-      integer i
+      INTG_PREC i
 
       do i = i1-2, i2+2
          qplus(i) = qslice(i+1)-qslice(i  )
          qmnus(i) = qslice(i  )-qslice(i-1)
          qcent(i) = c1(i)*qplus(i) + c2(i)*qmnus(i)
          if (qplus(i)*qmnus(i) .gt. 0) then
-            qvanl(i) = 2.d0*qplus(i)*qmnus(i)/(qmnus(i)+qplus(i))
+            qvanl(i) = 2._RKIND*qplus(i)*qmnus(i)/(qmnus(i)+qplus(i))
          else
-            qvanl(i) = 0.d0
+            qvanl(i) = 0._RKIND
          endif
       enddo
 
@@ -259,12 +263,14 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 
       subroutine char2prim(n, dqc, rem, i1, i2, idim, dq)
-      
+c      
       implicit none
-      integer n, i1, i2, idim
-      real dqc(idim,5), dq(idim), rem(idim,5,5)
+#include "fortran_types.def"
+c
+      INTG_PREC n, i1, i2, idim
+      R_PREC dqc(idim,5), dq(idim), rem(idim,5,5)
       
-      integer i, m
+      INTG_PREC i, m
 
       do i = i1-2, i2+2
          dq(i) = dqc(i,1) * rem(i,1,n)
@@ -279,13 +285,15 @@ c-----------------------------------------------------------------------
 
       subroutine lr_states(qslice, c3, c4, c5, c6, dq, i1, i2, idim, 
      $     ql, qr)
-      
+c      
       implicit none
-      integer i1, i2, idim
-      real qslice(idim), c3(idim), c4(idim), c5(idim), c6(idim)
-      real dq(idim), ql(idim), qr(idim)
+#include "fortran_types.def"
+c
+      INTG_PREC i1, i2, idim
+      R_PREC qslice(idim), c3(idim), c4(idim), c5(idim), c6(idim)
+      R_PREC dq(idim), ql(idim), qr(idim)
 
-      integer i
+      INTG_PREC i
 
       do i = i1-1, i2+2
          ql(i) = c3(i)*qslice(i-1) + c4(i)*qslice(i) +
@@ -299,38 +307,40 @@ c-----------------------------------------------------------------------
 
       subroutine mono_n_flat(qslice, ql, qr, iflatten, flatten, 
      $     i1, i2, idim)
-
+c
       implicit none
-      integer i1, i2, idim, iflatten
-      real qslice(idim), ql(idim), qr(idim), flatten(idim)
+#include "fortran_types.def"
+c
+      INTG_PREC i1, i2, idim, iflatten
+      R_PREC qslice(idim), ql(idim), qr(idim), flatten(idim)
 
-      integer i
-      real temp1, temp2, temp3, temp22, temp23
+      INTG_PREC i
+      R_PREC temp1, temp2, temp3, temp22, temp23
 c
 c     Monotonize again (eqn 1.10)
 c
       do i=i1-1,i2+1
          temp1 = (qr(i)-qslice(i))*(qslice(i)-ql(i))
          temp2 = qr(i)-ql(i)
-         temp3 = 6.d0*(qslice(i)-0.5d0*(qr(i)+ql(i)))
-         if (temp1 .le. 0.0) then
+         temp3 = 6._RKIND*(qslice(i)-0.5_RKIND*(qr(i)+ql(i)))
+         if (temp1 .le. 0._RKIND) then
             ql(i) = qslice(i)
             qr(i) = qslice(i)
          endif
          temp22 = temp2**2
          temp23 = temp2*temp3
          if (temp22 .lt. temp23)
-     &        ql(i) = 3.d0*qslice(i) - 2.d0*qr(i)
+     &        ql(i) = 3._RKIND*qslice(i) - 2._RKIND*qr(i)
          if (temp22 .lt. -temp23)
-     &        qr(i) = 3.d0*qslice(i) - 2.d0*ql(i)
+     &        qr(i) = 3._RKIND*qslice(i) - 2._RKIND*ql(i)
       enddo
 c
 c     If requested, flatten slopes with flatteners calculated in calcdiss (4.1)
 c
       if (iflatten .ne. 0) then
          do i = i1-1, i2+1
-            ql(i) = qslice(i)*flatten(i) + ql(i)*(1.d0-flatten(i))
-            qr(i) = qslice(i)*flatten(i) + qr(i)*(1.d0-flatten(i))
+            ql(i) = qslice(i)*flatten(i) + ql(i)*(1._RKIND-flatten(i))
+            qr(i) = qslice(i)*flatten(i) + qr(i)*(1._RKIND-flatten(i))
          enddo
       endif
 c
@@ -353,30 +363,34 @@ c-----------------------------------------------------------------------
 
       subroutine lr_interface(qslice, ql, qr, char1, char2, c0,
      $     i1, i2, idim, dq, q6, qla, qra, ql0, qr0)
-
+c
       implicit none
-      integer i1, i2, idim
-      real qslice(idim), ql(idim), qr(idim), char1(idim), char2(idim),
+#include "fortran_types.def"
+c
+      INTG_PREC i1, i2, idim
+      R_PREC qslice(idim), ql(idim), qr(idim), char1(idim), char2(idim),
      $     c0(idim), dq(idim), q6(idim), qla(idim), qra(idim), 
      $     ql0(idim), qr0(idim)
 
-      integer i
-      real ft
-      parameter(ft = 4.d0/3.d0)
+      INTG_PREC i
+      R_PREC ft
+      parameter(ft = 4._RKIND/3._RKIND)
 
       do i = i1-1, i2+1
-         q6(i) = 6.d0*(qslice(i)-0.5d0*(ql(i)+qr(i)))
+         q6(i) = 6._RKIND*(qslice(i)-0.5_RKIND*(ql(i)+qr(i)))
          dq(i) = qr(i) - ql(i)
       enddo
 c
       do i = i1, i2+1
-        qla(i)=qr(i-1)-char1(i-1)*(dq(i-1)-(1.d0-ft*char1(i-1))*q6(i-1))
-        qra(i)=ql(i  )+char2(i  )*(dq(i  )+(1.d0-ft*char2(i  ))*q6(i  ))
+        qla(i) = qr(i-1)-char1(i-1)*(dq(i-1) - 
+     &        (1._RKIND-ft*char1(i-1))*q6(i-1))
+        qra(i) = ql(i  )+char2(i  )*(dq(i  ) + 
+     &       (1._RKIND-ft*char2(i  ))*q6(i  ))
       enddo
 c
       do i=i1,i2+1
-         ql0(i) = qr(i-1)-c0(i-1)*(dq(i-1)-(1.d0-ft*c0(i-1))*q6(i-1))
-         qr0(i) = ql(i  )-c0(i  )*(dq(i  )+(1.d0+ft*c0(i  ))*q6(i  ))
+         ql0(i)=qr(i-1)-c0(i-1)*(dq(i-1)-(1._RKIND-ft*c0(i-1))*q6(i-1))
+         qr0(i)=ql(i  )-c0(i  )*(dq(i  )+(1._RKIND+ft*c0(i  ))*q6(i  ))
       enddo
 
       end

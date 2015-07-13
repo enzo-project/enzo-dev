@@ -1,0 +1,14 @@
+name = 'AMRNestedCosmology'
+answer_testing_script = None
+nprocs = 1
+runtime = 'medium'
+AMR = True
+hydro = True
+gravity = True
+cosmology = True
+dimensionality = 3
+author = 'Uncle Enzo'
+max_time_minutes = 10
+fullsuite = False
+pushsuite = False
+quicksuite = False

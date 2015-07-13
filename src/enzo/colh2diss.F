@@ -37,19 +37,20 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      real f1,f2,f3,f4,f5,f6,f7
-      double precision t, tgas
+      R_PREC f1,f2,f3,f4,f5,f6,f7
+      real*8 t, tgas
 c
 c  Parameters
 c
 c
 c  Locals
 c
-      double precision tl, a1, a, b, b1, c, c1, d, ftd
-      double precision y(21)
+      real*8 tl, a1, a, b, b1, c, c1, d, ftd
+      real*8 y(21)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -60,9 +61,9 @@ c
       f2 = tiny
       f3 = tiny
       f4 = tiny
-      f5 = 1.d0
-      f6 = 1.d0
-      f7 = 0.d0
+      f5 = 1._RKIND
+      f6 = 1._RKIND
+      f7 = 0._RKIND
 c
 c     do not use tiny values for temperatures below 500 K also do not
 c     return values for temperatures above 1 million Kelvin. Note that     
@@ -70,65 +71,65 @@ c     data and fits are only accurate for t< 5 10^5. However,
 c     collisional dissociation by electrons will be dominant above this
 c     temperature, anyhow. 
 c
-      if (tgas .le. 500.d0) then
-         t=500.d0
-c         CID = -60.d0
+      if (tgas .le. 500._RKIND) then
+         t=500._RKIND
+c         CID = -60._RKIND
       endif
-      if (t .ge. 1.d6) then
-         t = 1.d6
-c         CID = -60.d0
+      if (t .ge. 1.e6_RKIND) then
+         t = 1.e6_RKIND
+c         CID = -60._RKIND
       endif
 c
 c     fitting parameters
 c
-      y(1)   =   -1.784239D+02
-      y(2)   =   -6.842243D+01
-      y(3)   =    4.320243D+01
-      y(4)   =   -4.633167D+00
-      y(5)   =    6.970086D+01
-      y(6)   =    4.087038D+04
-      y(7)   =   -2.370570D+04
-      y(8)   =    1.288953D+02
-      y(9)   =   -5.391334D+01
-      y(10)  =    5.315517D+00
-      y(11)  =   -1.973427D+01
-      y(12)  =    1.678095D+04
-      y(13)  =   -2.578611D+04
-      y(14)  =    1.482123D+01
-      y(15)  =   -4.890915D+00
-      y(16)  =    4.749030D-01
-      y(17)  =   -1.338283D+02
-      y(18)  =   -1.164408D+00
-      y(19)  =    8.227443D-01
-      y(20)  =    5.864073D-01
-      y(21)  =   -2.056313D+00
+      y(1)   =   -1.784239e2_RKIND
+      y(2)   =   -6.842243e1_RKIND
+      y(3)   =    4.320243e1_RKIND
+      y(4)   =   -4.633167e0_RKIND
+      y(5)   =    6.970086e1_RKIND
+      y(6)   =    4.087038e4_RKIND
+      y(7)   =   -2.370570e4_RKIND
+      y(8)   =    1.288953e2_RKIND
+      y(9)   =   -5.391334e1_RKIND
+      y(10)  =    5.315517e0_RKIND
+      y(11)  =   -1.973427e1_RKIND
+      y(12)  =    1.678095e4_RKIND
+      y(13)  =   -2.578611e4_RKIND
+      y(14)  =    1.482123e1_RKIND
+      y(15)  =   -4.890915e0_RKIND
+      y(16)  =    4.749030e-1_RKIND
+      y(17)  =   -1.338283e2_RKIND
+      y(18)  =   -1.164408e0_RKIND
+      y(19)  =    8.227443e-1_RKIND
+      y(20)  =    5.864073e-1_RKIND
+      y(21)  =   -2.056313e0_RKIND
 c
       tl=log10(t)
 c high density limit
       a =   y(1)+y(2)*tl+y(3)*tl*tl+y(4)*tl*tl*tl
-     $     +y(5)*dlog10(1.d0+y(6)/t)
+     $     +y(5)*dlog10(1._RKIND+y(6)/t)
       a1=   y(7)/t
 c low density limit
-      b =   y(8)+y(9)*tl+y(10)*tl*tl+y(11)*dlog10(1.0D0+y(12)/t)       
+      b =   y(8)+y(9)*tl+y(10)*tl*tl+y(11)*dlog10(1._RKIND+y(12)/t)       
       b1=   y(13)/t
 c critical density
       c =   y(14)+y(15)*tl+y(16)*tl*tl+y(17)/t
       c1 =  y(18)+c
-      d =   y(19)+y(20)*exp(-t/1850.d0)+y(21)*exp(-t/440.d0)    
+      d =   y(19)+y(20)*exp(-t/1850._RKIND)+y(21)*exp(-t/440._RKIND)    
 c     tabulate the following temperature dependent coefficients:
       f1 = a
       f2 = (a-b)
       f3 = a1   
       f4 = (a1-b1)
-      f5 = 10.d0**c
-      f6 = 10.d0**c1
+      f5 = 10._RKIND**c
+      f6 = 10._RKIND**c1
       f7 = d
 c
 c and then get the dissociation rate in cm^3/s with this
 c    (note: this is in log10)
 c
-c      CID = f1-f2/(1.0+(nh/f5)**f7)
-c     $     +f3-f4/(1.0+(nh/f6)**f7)
+c      CID = f1-f2/(1._RKIND+(nh/f5)**f7)
+c     $     +f3-f4/(1._RKIND+(nh/f6)**f7)
 c
 c
       return

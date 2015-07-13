@@ -120,13 +120,15 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
       } // ENDELSE !InsideDomain
     } // ENDELSE
 
-    if (DEBUG) 
-      fprintf(stdout, "Walk: left grid: sent photon to grid %d (DeltaL = %d)\n", 
-	      MoveToGrid->ID, DeltaLevel);
-
   } // ENDELSE (subgrid)
 
   /* Error check */
+
+  if (DEBUG && MoveToGrid != NULL) {
+    fprintf(stdout, "Walk: left grid: sent photon to grid %d [dx=%g] (DeltaL = %d)\n", 
+	    MoveToGrid->ID, MoveToGrid->CellWidth[0][0], DeltaLevel);
+  }
+
 
 #ifdef UNUSED
   if (MoveToGrid != NULL && InsideDomain)

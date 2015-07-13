@@ -4,6 +4,7 @@
 import imp
 import optparse
 import os.path
+import os
 import shutil
 import signal
 import subprocess
@@ -24,27 +25,33 @@ known_categories = [
     "RadiationTransportFLD",
 ]
 
-try:
-    from yt.config import ytcfg
-    from yt.utilities.answer_testing.api import \
-        RegressionTestRunner, clear_registry, create_test, \
-        TestFieldStatistics, TestAllProjections
-    from yt.utilities.command_line import get_yt_version
-    from yt.utilities.logger import ytLogger as mylog
-    from yt.utilities.logger import \
-        disable_stream_logging, ufstring
-    disable_stream_logging()
-    ytcfg["yt","suppressStreamLogging"] = "True"
-except:
-    raise
+import numpy
+numpy.seterr(all = "ignore")
 
-    RegressionTestRunner = None
+import nose
+from nose.loader import TestLoader
+from nose.plugins import Plugin
+from nose.plugins import debug
+from nose.plugins.manager import PluginManager
+from nose.plugins.xunit import Xunit
 
-try:
-    import numpy
-    numpy.seterr(all = "ignore")
-except ImportError:
-    pass
+from yt.config import ytcfg
+ytcfg["yt","suppressStreamLogging"] = "True"
+ytcfg["yt","__command_line"] = "True" 
+from yt.mods import *
+
+from yt.utilities.command_line import get_yt_version
+from yt.utilities.logger import ytLogger as mylog
+from yt.utilities.logger import \
+    disable_stream_logging, ufstring
+disable_stream_logging()
+
+# Set the filename for the latest version of the gold standard
+# and for the default local standard output
+ytcfg["yt", "gold_standard_filename"] = str("enzogold0003")
+ytcfg["yt", "local_standard_filename"] = str("enzolocaldev")
+from yt.utilities.answer_testing.framework import \
+    AnswerTesting
 
 try:
     yt_version = get_yt_version()
@@ -81,6 +88,9 @@ variable_defaults = dict( [(k, v[1]) for k, v in varspec.items()] )
 # Machine specific job scripts.
 run_template_dir = 'run_templates'
 machines = {'local':       dict(script = 'local.run',
+                                command = 'bash'),
+
+	    'local_nompi': dict(script = 'local_nompi.run',
                                 command = 'bash'),
 
             'nics_kraken': dict(script = 'nics_kraken.run',
@@ -174,10 +184,95 @@ def bisector(options,args):
     commands.bisect(u,repo,rev=options.bad,**bisection_default_corrector("bad",True))
     commands.bisect(u,repo,**bisection_default_corrector("command",command))
 
+class ResultsSummary(Plugin):
+    name = "results_summary"
+    score = 10000
+    enabled = True
+
+    def options(self, parser, env):
+        super(ResultsSummary, self).options(parser, env)
+
+    def configure(self, options, conf):
+        super(ResultsSummary, self).configure(options, conf)
+        if not self.enabled:
+            return
+        self.errors = []
+        self.failures = []
+        self.successes = []
+
+    def addError(self, test, err):
+        self.errors.append("%s: ERROR %s" % (test, err))
+
+    def addFailure(self, test, err):
+        self.failures.append("%s: FAILURE %s" % (test, err))
+
+    def addSuccess(self, test):
+        self.successes.append("%s: PASS" % (test))
+
+    def finalize(self, result, outfile=None, sims_not_finished=[], sim_only=False):
+        print 'Testing complete.'
+        print 'Sims not finishing: %i' % len(sims_not_finished)
+        print 'Number of errors: %i' % len(self.errors)
+        print 'Number of failures: %i' % len(self.failures)
+        print 'Number of successes: %i' % len(self.successes)
+        if outfile is not None:
+            outfile.write('Test Summary\n')
+            outfile.write('Sims Not Finishing: %i\n' % len(sims_not_finished))
+            outfile.write('Tests Passed: %i\n' % len(self.successes))
+            outfile.write('Tests Failed: %i\n' % len(self.failures))
+            outfile.write('Tests Errored: %i\n\n' % len(self.errors))
+            outfile.write('Relative error tolerance: 1e-%i\n' % self.tolerance)
+            if self.bitwise:
+                outfile.write('Bitwise tests included\n')
+            else:
+                outfile.write('Bitwise tests not included\n')
+            if sim_only:
+                outfile.write('\n')
+                outfile.write('Simulations run, but not tests (--sim-only)\n')
+                return
+            outfile.write('\n\n')
+
+            if sims_not_finished:
+                print'Simulations which did not finish in allocated time:'
+                print'(Try rerunning each/all with --time-multiplier=2)'
+                outfile.write('Simulations which did not finish in allocated time:\n')
+                outfile.write('(Try rerunning each/all with --time-multiplier=2)\n')
+                for notfin in sims_not_finished: 
+                    print notfin
+                    outfile.write(notfin + '\n')
+                outfile.write('\n')
+
+            outfile.write('Tests that passed: \n')
+            for suc in self.successes: 
+                outfile.write(suc)
+                outfile.write('\n')
+            outfile.write('\n')
+
+            outfile.write('Tests that failed:\n')
+            for fail in self.failures: 
+                for li, line in enumerate(fail.split('\\n')):
+                    if li > 0: outfile.write('    ')
+                    outfile.write(line)
+                    outfile.write('\n')
+            outfile.write('\n')
+
+            outfile.write('Tests that errored:\n')
+            for err in self.errors: 
+                for li, line in enumerate(err.split('\\n')):
+                    if li > 0: outfile.write('    ')
+                    outfile.write(line)
+                    outfile.write('\n')
+            outfile.write('\n')
+
 
 class EnzoTestCollection(object):
-    def __init__(self, tests = None, verbose=True):
+    def __init__(self, tests = None, verbose=True, args = None,
+                 plugins = None):
         self.verbose = verbose
+        if args is None: args = sys.argv[:1]
+        self.args = args
+        if plugins is None: plugins = []
+        self.plugins = plugins
         if tests is None:
             # Now we look for all our *.enzotest files
             fns = []
@@ -190,28 +285,38 @@ class EnzoTestCollection(object):
         else:
             self.tests = tests
         self.test_container = []
+        self.sims_not_finished = []
 
-    def go(self, output_dir, interleaved, machine, exe_path, compare_dir,
-           sim_only=False, test_only=False):
+    def go(self, output_dir, interleaved, machine, exe_path, sim_only=False,
+           test_only=False):
+        self.sim_only = sim_only
         go_start_time = time.time()
         self.output_dir = output_dir
         total_tests = len(self.tests)
+
+        # copy executable to top of testing directory
+        shutil.copy(exe_path, output_dir)
+        exe_path = os.path.join(output_dir, os.path.basename(exe_path))
+        
         if interleaved:
             for i, my_test in enumerate(self.tests):
                 print "Preparing test: %s." % my_test['name']
                 self.test_container.append(EnzoTestRun(output_dir, my_test, 
-                                                       machine, exe_path))
+                                                       machine, exe_path,
+                                                       args=self.args,
+                                                       plugins=self.plugins))
                 if not test_only:
-                    print "Running simulation: %d of %d." % (i, total_tests)
-                    self.test_container[i].run_sim()
+                    print "Running simulation: %d of %d." % (i+1, total_tests)
+                    if not self.test_container[i].run_sim():
+                        self.sims_not_finished.append(self.test_container[i].test_data['name'])
                 if not sim_only:
-                    print "Running test: %d of %d." % (i, total_tests)
-                    self.test_container[-1].run_test(compare_dir)
+                    print "Running test: %d of %d." % (i+1, total_tests)
+                    self.test_container[i].run_test()
         else:
             self.prepare_all_tests(output_dir, machine, exe_path)
             if not test_only: self.run_all_sims()
-            if not sim_only: self.run_all_tests(compare_dir)
-        if not sim_only: self.save_test_summary()
+            if not sim_only: self.run_all_tests()
+        self.save_test_summary()
         go_stop_time = time.time()
         print "\n\nComplete!"
         print "Total time: %f seconds." % (go_stop_time - go_start_time)
@@ -223,21 +328,25 @@ class EnzoTestCollection(object):
         for my_test in self.tests:
             print "Preparing test: %s." % my_test['name']
             self.test_container.append(EnzoTestRun(output_dir, my_test, 
-                                                   machine, exe_path))
+                                                   machine, exe_path,
+                                                   args = self.args,
+                                                   plugins = self.plugins))
 
     def run_all_sims(self):
         total_tests = len(self.test_container)
         print "Running all simulations."
         for i, my_test in enumerate(self.test_container):
-            print "Running simulation: %d of %d." % (i, total_tests)
-            my_test.run_sim()
+            print "Running simulation: %d of %d." % (i+1, total_tests)
+            # Did the simulation finish?
+            if not my_test.run_sim():
+                self.sims_not_finished.append(my_test.test_data['name'])
 
-    def run_all_tests(self, compare_dir):
+    def run_all_tests(self):
         total_tests = len(self.test_container)
         print "Running all tests."
         for i, my_test in enumerate(self.test_container):
-            print "Running test: %d of %d." % (i, total_tests)
-            my_test.run_test(compare_dir)
+            print "Running test: %d of %d." % (i+1, total_tests)
+            my_test.run_test()
 
     def add_test(self, fn):
         # We now do something dangerous: we exec the file directly and grab
@@ -283,7 +392,10 @@ class EnzoTestCollection(object):
                     include = False
                     break
             if include == True: pp.append(t)
-        return EnzoTestCollection(tests = pp)
+        #raise RuntimeError
+        return EnzoTestCollection(tests = pp, args = self.args,
+                                  verbose = self.verbose,
+                                  plugins = self.plugins)
 
     def summary(self):
         for param in sorted(self.params()):
@@ -300,39 +412,8 @@ class EnzoTestCollection(object):
         run_passes = run_failures = 0
         dnfs = default_test = 0
         f = open(os.path.join(self.output_dir, results_filename), 'w')
-        for my_test in self.test_container:
-            default_only = False
-            if my_test.run_finished:
-                if my_test.test_data['answer_testing_script'] == 'None' or \
-                        my_test.test_data['answer_testing_script'] is None:
-                    default_only = True
-                    default_test += 1
-                t_passes = 0
-                t_failures = 0
-                for t_result in my_test.results.values():
-                    t_passes += int(t_result)
-                    t_failures += int(not t_result)
-                f.write("%-70sPassed: %4d, Failed: %4d" % (my_test.test_data['fulldir'], 
-                                                           t_passes, t_failures))
-                if default_only:
-                    f.write(" (default tests).\n")
-                else:
-                    f.write(".\n")
-                all_passes += t_passes
-                all_failures += t_failures
-                run_passes += int(not (t_failures > 0))
-                run_failures += int(t_failures > 0)
-            else:
-                dnfs += 1
-                f.write("%-70sDID NOT FINISH\n" % my_test.test_data['fulldir'])
-
-        f.write("\n")
-        f.write("%-70sPassed: %4d, Failed: %4d.\n" % ("Total", 
-                                                      all_passes, all_failures))
-        f.write("Runs finished with all tests passed: %d.\n" % run_passes)
-        f.write("Runs finished with at least one failure: %d.\n" % run_failures)
-        f.write("Runs failed to complete: %d.\n" % dnfs)
-        f.write("Runs finished with only default tests available: %d.\n" % default_test)
+        self.plugins[1].finalize(None, outfile=f, sims_not_finished=self.sims_not_finished, 
+                                 sim_only=self.sim_only)
         f.close()
         if all_failures > 0 or dnfs > 0:
             self.any_failures = True
@@ -340,11 +421,17 @@ class EnzoTestCollection(object):
             self.any_failures = False
 
 class EnzoTestRun(object):
-    def __init__(self, test_dir, test_data, machine, exe_path):
+    def __init__(self, test_dir, test_data, machine, exe_path,
+                 args = None, plugins = None):
+        if args is None: args = sys.args[:1]
+        self.args = args
+        if plugins is None: plugins = []
+        self.plugins = plugins
         self.machine = machine
         self.test_dir = test_dir
         self.test_data = test_data
         self.exe_path = exe_path
+        self.finished = False
         self.results = {}
         if self.exe_path is None:
             self.local_exe = None
@@ -367,7 +454,8 @@ class EnzoTestRun(object):
                 shutil.copy(os.path.join(self.test_dir, version_filename),
                             os.path.join(self.run_dir, version_filename))
                 if self.exe_path is not None:
-                    shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
+                    os.symlink(os.path.realpath(self.exe_path), 
+                               os.path.join(self.run_dir, self.local_exe))
             else:
                 print "%s already exists. Skipping directory." % self.test_data['name']
         else:
@@ -376,7 +464,8 @@ class EnzoTestRun(object):
             shutil.copy(os.path.join(self.test_dir, version_filename),
                         os.path.join(self.run_dir, version_filename))
             if self.exe_path is not None:
-                shutil.copy(self.exe_path, os.path.join(self.run_dir, self.local_exe))
+                os.symlink(os.path.realpath(self.exe_path), 
+                           os.path.join(self.run_dir, self.local_exe))
 
     def _create_run_script(self):
         template_path = os.path.join(os.path.dirname(__file__), 
@@ -401,7 +490,7 @@ class EnzoTestRun(object):
         # Check for existence
         if os.path.exists(os.path.join(self.run_dir, 'RunFinished')):
             print "%s run already completed, continuing..." % self.test_data['name']
-            return
+            return True
         
         os.chdir(self.run_dir)
         command = "%s %s" % (machines[self.machine]['command'], 
@@ -421,6 +510,7 @@ class EnzoTestRun(object):
                           options.time_multiplier):
                 print "Simulation exceeded maximum run time."
                 os.killpg(proc.pid, signal.SIGUSR1)
+                self.finished = False
             running += 1
             time.sleep(1)
         
@@ -431,131 +521,138 @@ class EnzoTestRun(object):
             f.close()
             print "Simulation completed in %f seconds." % \
                 (sim_stop_time - sim_start_time)
+            self.finished = True
         os.chdir(cur_dir)
+        return self.finished
 
-    def run_test(self, compare_dir):
-        cur_dir = os.getcwd()
-        if compare_dir is None:
-            compare_id = None
-        else:
-            compare_id = ""
-            compare_dir = os.path.join(cur_dir, compare_dir,
-                            self.test_data['fulldir'])
-        os.chdir(self.run_dir)
-        print "Running test: %s" % self.test_data['fulldir']
-        self.run_finished = os.path.exists("RunFinished")
+    def run_test(self):
+        rf = os.path.join(self.run_dir, 'RunFinished')
+        self.run_finished = os.path.exists(rf)
+        tl = TestLoader()
+        tl.config.plugins = PluginManager(plugins = self.plugins)
+        suite = tl.loadTestsFromDir(self.run_dir)
+        nose.run(argv=self.args, suite=suite)
 
-        if os.path.exists(results_filename):
-            if self.run_finished:
-                print "Reading test results from file."
-                res_lines = file(results_filename)
-                for line in res_lines:
-                    if len(line.split()) == 2:
-                        this_test, this_result = line.split()
-                        self.results[this_test] = bool(this_result)
 
-        else:
-            fn = self.test_data['answer_testing_script']
-            if RegressionTestRunner is None:
-                print "This installation of yt does not support testing, please update to the branch 'yt'."
-                return
-            clear_registry()
-
-            handler = logging.FileHandler("testing.log")
-            f = logging.Formatter(ufstring)
-            handler.setFormatter(f)
-            mylog.addHandler(handler)
-            if self.run_finished:
-                if fn != 'None' and fn is not None:
-                    if fn.endswith(".py"): fn = fn[:-3]
-                    print "Loading module %s" % (fn)
-                    f, filename, desc = imp.find_module(fn, ["."])
-                    project = imp.load_module(fn, f, filename, desc)
-                if fn is None or fn == "None":
-                    create_test(TestFieldStatistics, "field_stats", tolerance = 1e-10)
-                    create_test(TestAllProjections, "all_projs", tolerance = 1e-10)
-                rtr = RegressionTestRunner("", compare_id,
-                            compare_results_path = compare_dir)
-                rtr.run_all_tests()
-                self.results = rtr.passed_tests.copy()
-            mylog.removeHandler(handler)
-            handler.close()
-
-        os.chdir(cur_dir)
-        self.save_results()
-
-    def save_results(self):
-        f = open(os.path.join(self.run_dir, results_filename), 'w')
-        if self.run_finished:
-            if self.test_data['answer_testing_script'] == 'None' \
-                    or self.test_data['answer_testing_script'] is None:
-                f.write("Ran default binary tests since no others were available.\n")
-            my_tests = self.results.keys()
-            my_tests.sort()
-            for my_test in my_tests:
-                f.write("%-70s%s\n" % (my_test, self.results[my_test]))
-        else:
-            f.write("All tests failed because simulation did not finish.\n")
-        f.close()
+class DummyConfiguration(object):
+    """Provide a dummy configuration for Nose"""
+    def __init__(self):
+        self.verbosity = 0
 
 class UnspecifiedParameter(object):
     pass
 unknown = UnspecifiedParameter()
 
-testsuites = {'quicksuite': "37 tests that run in 5 minutes or less.  Total runtime: 25 minutes.",
-              'pushsuite': "All quicksuite tests plus 11 more 10-minute tests.  Total runtime: 90 minutes.",
-              'fullsuite': "All pushsuite tests, FLD tests, and some longer tests taking up to 10 hours.  Total runtime: 36 hours."}
-
 if __name__ == "__main__":
     parser = optparse.OptionParser()
-    parser.add_option("-c", "--compare-dir", dest='compare_dir',
-                      default=None,
-                      help="The directory structure to compare against")
     parser.add_option("--clobber", dest='clobber', default=False,
                       action="store_true", 
                       help="Recopies tests and tests from scratch.")
-    parser.add_option("-g", "--gather", dest='gather_dir', default=None,
-                      help="Gather test results from this directory into a tar file.")
     parser.add_option("--interleave", action='store_true', dest='interleave', 
                       default=False,
                       help="Option to interleave preparation, running, and testing.")
-    parser.add_option("-m", "--machine", dest='machine', default='local', 
+    parser.add_option("-m", "--machine", dest='machine', default='local', metavar='str',
                       help="Machine to run tests on.")
-    parser.add_option("-o", "--output-dir", dest='output_dir',
+    parser.add_option("-o", "--output-dir", dest='output_dir', metavar='str',
                       help="Where to place the run directory")
     parser.add_option("--repo", dest='repository', default="../",
-                      help="Path to repository being tested.")
+                      help="Path to repository being tested.", metavar='str')
     parser.add_option("--sim-only", dest='sim_only', action="store_true", 
                       default=False, help="Only run simulations.")
     parser.add_option("--test-only", dest='test_only', action="store_true", 
                       default=False, help="Only perform tests.")
     parser.add_option("--time-multiplier", dest='time_multiplier',
-                      default=1.0, type=float,
+                      default=1.0, type=float, metavar='int',
                       help="Multiply simulation time limit by this factor.")
     parser.add_option("-v", "--verbose", dest='verbose', action="store_true",
                       default=False, help="Slightly more verbose output.")
+    parser.add_option("--pdb", action="store_true", dest="pdb",
+                      default=False, help="Drop into debugger on errors")
     parser.add_option("-b", "--bisect", dest="bisect", action="store_true",
                       default=False, help="Run bisection on test. Requires revisions" +
                       "--good and --bad.  Best if --repo is different from location of test_runner.py."+
                       "Runs  --problematic suite.  See README for more info")
-    parser.add_option("--good", dest="good", default=None, help="For bisection, most recent good revision")
-    parser.add_option("--bad", dest="bad", default=None, help="For bisection, most recent bad revision")
+    parser.add_option("--good", dest="good", default=None, metavar='str', 
+                      help="For bisection, most recent good revision")
+    parser.add_option("--bad", dest="bad", default=None, metavar='str',
+                      help="For bisection, most recent bad revision")
     parser.add_option("-j", "--jcompile", dest="jcompile", type="int", default=1, 
+                      metavar='int',
                       help="number of processors with which to compile when running bisect")
-    parser.add_option("--changeset", dest="changeset", default=None,
+    parser.add_option("--changeset", dest="changeset", default=None, metavar='str',
                       help="Changeset to use in simulation repo.  If supplied, make clean && make is also run")
+    parser.add_option("--run-suffix", dest="run_suffix", default=None, metavar='str',
+                      help="An optional suffix to append to the test run directory. Useful to distinguish multiple runs of a given changeset.")
+    parser.add_option("", "--bitwise",
+                      dest="bitwise", default=None, action="store_true", 
+                      help="run bitwise comparison of fields? (trumps strict)")
+    parser.add_option("", "--tolerance",
+                      dest="tolerance", default=None, metavar='int',
+                      help="tolerance for relative precision in comparison (trumps strict)")
 
-    testsuite_group = optparse.OptionGroup(parser, "Test suites:")
+    all_strict = ['high', 'medium', 'low']
+    parser.add_option("", "--strict",
+                      dest="strict", default='low', metavar='str',
+                      help="strictness for testing precision: [%s]" % " ,".join(all_strict))
+
+
+    xunit_plugin = Xunit()
+    # Make sure this plugin get called by setting its score to be the highest.
+    xunit_plugin.score = 1000000
+    xunit_plugin.enabled = True
+
+    # Set up a dummy env for xunit to parse. Note we are using nose's xunit,
+    # not the one bundled in yt
+    env = {"NOSE_XUNIT_FILE": "nosetests.xml"} 
+    xunit_plugin.options(parser, env)
+
+    answer_plugin = AnswerTesting()
+    answer_plugin.enabled = True
+    answer_plugin.options(parser)
+    reporting_plugin = ResultsSummary()
+    reporting_plugin.enabled = True
+    pdb_plugin = debug.Pdb()
+
+    all_suites = ['quick', 'push', 'full']
+    suite_vars = [suite+"suite" for suite in all_suites]
+    testproblem_group = optparse.OptionGroup(parser, "Test problem selection options")
+    testproblem_group.add_option("", "--suite",
+                                 dest="test_suite", default=unknown,
+                                 help="quick: 37 tests in ~15 minutes, push: 48 tests in ~60 minutes, full: 96 tests in ~60 hours.",
+                                 choices=all_suites, metavar=all_suites)
+
     for var, caster in sorted(known_variables.items()):
-        if var in testsuites:
-            testsuite_group.add_option("", "--%s" % (var),
-                                       type=str, default=unknown,
-                                       help=testsuites[var])
-        else:
-            parser.add_option("", "--%s" % (var),
-                              type=str, default = unknown)
-    parser.add_option_group(testsuite_group)
+        if var not in suite_vars:
+            testproblem_group.add_option("", "--%s" % (var),
+                                         type=str, default = unknown,
+                                         metavar=caster.__name__)
+    parser.add_option_group(testproblem_group)
     options, args = parser.parse_args()
+
+
+    if options.pdb:
+        pdb_plugin.enabled = True
+        pdb_plugin.enabled_for_failures = True
+
+    # Get information about the current repository, set it as the version in
+    # the answer testing plugin.
+    options.repository = os.path.expanduser(options.repository)
+    hg_current = _get_hg_version(options.repository)
+    rev_hash = hg_current.split()[0]
+
+    if options.run_suffix:
+        rev_hash += options.run_suffix
+
+
+    answer_plugin._my_version = rev_hash
+
+    xunit_plugin.configure(options, DummyConfiguration())
+    answer_plugin.configure(options, None)
+    reporting_plugin.configure(options, None)
+
+    # Break out if no valid strict set 
+    if options.strict not in all_strict:
+        sys.exit("Error: %s is not a valid strict, try --strict=[%s]" % (options.strict, ", ".join(all_strict)))
 
     # Break out if output directory not specified.
     if options.output_dir is None:
@@ -569,96 +666,156 @@ if __name__ == "__main__":
 
     if options.bisect:
         bisector(options,args)
+        sys.exit(0)
+
+    etc = EnzoTestCollection(verbose=options.verbose, args=sys.argv[:1],
+                             plugins = [answer_plugin, reporting_plugin, pdb_plugin, xunit_plugin])
+
+    construct_selection = {}
+    if options.test_suite != unknown:
+        suite_var = str(options.test_suite) + "suite"
+        print suite_var
+        construct_selection[suite_var] = \
+          known_variables[suite_var](options.test_suite)
+    for var, caster in known_variables.items():
+        if var in suite_vars: continue
+        if getattr(options, var) != unknown:
+            val = getattr(options, var)
+            if val == 'None': val = None
+            if val == "False": val = False
+            construct_selection[var] = caster(val)
+    # if no selection criteria given, run the quick suite
+    if not construct_selection:
+        construct_selection['quicksuite'] = True
+    print
+    print "Selecting with:"
+    for k, v in sorted(construct_selection.items()):
+        print "     %s = %s" % (k, v)
+    etc2 = etc.select(**construct_selection)
+    print
+    print "\n".join(list(etc2.unique('name')))
+    print "Total: %s" % len(etc2.tests)
+
+    # Gather results and version files for all test and tar them.
+    # get current revision
+    options.output_dir = os.path.join(options.output_dir, rev_hash)
+
+    if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
+    f = open(os.path.join(options.output_dir, version_filename), 'w')
+    f.write('Enzo: %s' % hg_current)
+    f.write('yt: %s\n' % yt_version)
+    f.close()
+
+    # the path to the executable we're testing
+    exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+
+    # If strict is set, then use it to set tolerance and bitwise 
+    # values for later use when the nosetests get called in 
+    # answer_testing_support.py
+    # N.B. Explicitly setting tolerance and/or bitwise trumps 
+    # the strict values
+
+    if options.strict == 'high':
+        if options.tolerance is None:
+            options.tolerance = 13
+        if options.bitwise is None:
+            options.bitwise = True
+    elif options.strict == 'medium':
+        if options.tolerance is None:
+            options.tolerance = 6
+        if options.bitwise is None:
+            options.bitwise = False
+    elif options.strict == 'low':
+        if options.tolerance is None:
+            options.tolerance = 3
+        if options.bitwise is None:
+            options.bitwise = False
+    options.tolerance = int(options.tolerance)
+
+    ytcfg["yt","answer_testing_tolerance"] = str(options.tolerance)
+    ytcfg["yt","answer_testing_bitwise"] = str(options.bitwise)
+    reporting_plugin.tolerance = options.tolerance
+    reporting_plugin.bitwise = options.bitwise
+
+    print ""
+    print "Relative error tolerance in comparison set to %i (i.e. 1e-%i)." \
+           % (options.tolerance, options.tolerance)
+    if options.bitwise:
+        print "Including bitwise tests."
     else:
-        etc = EnzoTestCollection(verbose=options.verbose)
+        print "Not including bitwise tests."
+    print ""
 
-        construct_selection = {}
-        for var, caster in known_variables.items():
-            if getattr(options, var) != unknown:
-                val = getattr(options, var)
-                if val == 'None': val = None
-                if val == "False": val = False
-                construct_selection[var] = caster(val)
-        print
-        print "Selecting with:"
-        for k, v in sorted(construct_selection.items()):
-            print "     %s = %s" % (k, v)
-        etc2 = etc.select(**construct_selection)
-        print
-        print "\n".join(list(etc2.unique('name')))
-        print "Total: %s" % len(etc2.tests)
+    # Before starting nose test, we must create the standard
+    # test problems (the old ./make_new_tests.py) by copying 
+    # the testing template out to each Test Problem
+    # subdirectory.
+    
+    # Do not run the standard tests on these test problems.
+    # --GravityTest is ignored for now because it generates randomly
+    # placed test particles, which makes comparison from run to run 
+    # difficult
+    # --ProtostellarCollapse_Std needs to be updated to current Enzo
+    # --(AMR)ZeldovichPancake is a symmetric collapse along the x-axis, so the
+    # projection along it is analytically 0, but builds up noise in 
+    # different ways on different systems.  There are 'test_almost_standard"s
+    # in Zeldovichs's directories which are just like standard without x-vel 
+    # field comparisons, which is why we leave them out here.
+    # Same with MHD2DRotorTest
+    ignore_list = ('GravityTest', 'ProtostellarCollapse_Std',
+                   'ZeldovichPancake', 'AMRZeldovichPancake',
+                   'MHD2DRotorTest', 'Toro-6-ShockTube', 'MHDCTOrszagTangAMR', 'MHDCTOrszagTang')
+    
+    template = open("test_type.py.template").read()
+    
+    test_standard_files = []
+    for root, dirs, files in os.walk("."):
+        for fn in files:
+            if fn.endswith(".enzotest") and \
+            os.path.basename(fn)[:-9] not in ignore_list:
+                simname = os.path.splitext(fn)[0]
+                simpath = root
+                testname = os.path.basename(fn)[:-9]
+                oname = os.path.join(root, testname + "__test_standard.py")
+                output = template % dict(filename = fn[:-4], simpath = simpath)
+                open(oname, "w").write(output)
+                # save the destination filename to remove it later
+                test_standard_files.append(oname)
 
-        # Gather results and version files for all test and tar them.
-        if options.gather_dir is not None:
-            cur_dir = os.getcwd()
-            if options.gather_dir.endswith('/'):
-                options.gather_dir = options.gather_dir[:-1]
-            top_dir = os.path.dirname(options.gather_dir)
-            basename = os.path.basename(options.gather_dir)
-            tar_filename = "%s.tar.gz" % basename
-            os.chdir(top_dir)
-            file_list = []
-            missing_file_list = []
-            for test in etc2.tests:
-                for gather in results_gather:
-                    my_addition = os.path.join(basename, test['fulldir'], gather)
-                    if os.path.exists(my_addition):
-                        file_list.append(my_addition)
-                    else:
-                        missing_file_list.append(my_addition)
-            if len(missing_file_list) > 0:
-                print "\nError: could not gather test results because the following files are missing."
-                print '\n'.join(missing_file_list)
-                print 'Total: %d files missing.' % len(missing_file_list)
-                sys.exit(1)
-            print "Gathering test results into %s." % os.path.join(top_dir, tar_filename)
-            my_tar = tarfile.open(name=tar_filename, mode='w:gz')
-            for my_addition in file_list:
-                print "Adding %s." % my_addition
-                my_tar.add(my_addition)
-            my_tar.close()
-            print "Results gathered into %s." % os.path.join(top_dir, tar_filename)
-            sys.exit(0)
+    # Run the simulations and the tests
+    etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
+            sim_only=options.sim_only, 
+            test_only=options.test_only)
 
+    # Now that the work has been done, get rid of all those pesky
+    # *__test_standard.py files from the enzo run/ directory
+    # that we just created.
+    for file in test_standard_files:
+        if os.path.exists(file):
+            os.remove(file)
 
-        # get current revision
-        options.repository = os.path.expanduser(options.repository)
-        if options.compare_dir is not None:
-            options.compare_dir = os.path.expanduser(options.compare_dir)
-        hg_current = _get_hg_version(options.repository)
-        rev_hash = hg_current.split()[0]
-        options.output_dir = os.path.join(options.output_dir, rev_hash)
-        if not os.path.exists(options.output_dir): os.makedirs(options.output_dir)
-        f = open(os.path.join(options.output_dir, version_filename), 'w')
-        f.write('Enzo: %s' % hg_current)
-        f.write('yt: %s\n' % yt_version)
-        f.close()
+    # Store the results locally or in the cloud.
+    xunit_plugin.report(None)
+    answer_plugin.finalize()
+    #reporting_plugin.finalize(None, res_file = )
 
-        # the path to the executable we're testing
-        exe_path = os.path.join(options.repository, "src/enzo/enzo.exe")
+    try:
+        import json
+    except ImportError:
+        json = None
+    if json is not None:
+        f = open("results.js", "w")
+        results = []
+        for test in etc2.test_container:
+            # This is to avoid any sorting code in JS
+            vals = test.results.items()
+            vals.sort()
+            results.append( dict(name = test.test_data['name'],
+                             results = vals) )
+        f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
+        f.write("current_set = '%s';\n" % (hg_current.strip()))
 
-        # Make it happen
-        etc2.go(options.output_dir, options.interleave, options.machine, exe_path,
-                options.compare_dir, sim_only=options.sim_only, 
-                test_only=options.test_only)
-        try:
-            import json
-        except ImportError:
-            json = None
-        if json is not None and options.compare_dir is not None:
-            f = open("results.js", "w")
-            results = []
-            for test in etc2.test_container:
-                # This is to avoid any sorting code in JS
-                vals = test.results.items()
-                vals.sort()
-                results.append( dict(name = test.test_data['name'],
-                                 results = vals) )
-            f.write("test_data = %s;\n" % (json.dumps(results, indent=2)))
-            f.write("compare_set = '%s';\ncurrent_set = '%s';\n" % (
-                      options.compare_dir.strip(), hg_current.strip()))
-
-        if etc2.any_failures:
-            sys.exit(1)
-        else:
-            sys.exit(0)
+    if etc2.any_failures:
+        sys.exit(1)
+    else:
+        sys.exit(0)

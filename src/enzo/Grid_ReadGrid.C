@@ -217,7 +217,7 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 
     // If HierarchyFile has different Ghostzones 
     // (useful in a restart with different hydro/mhd solvers) 
-    int ghosts =DEFAULT_GHOST_ZONES;
+    int ghosts =NumberOfGhostZones;
     if (GridStartIndex[0] != ghosts)  {
       if (GridID < 2) fprintf(stderr,"Grid_ReadGrid: Adjusting Ghostzones which in the hierarchy file did not match the selected HydroMethod.\n");
       
@@ -411,7 +411,7 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 
     int activesize = 1;
     for (int dim = 0; dim < GridRank; dim++)
-      activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+      activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
     
     if (divB == NULL) 
       divB = new float[activesize];
@@ -452,6 +452,147 @@ int grid::ReadGrid(FILE *fptr, int GridID, char DataFilename[],
 	gradPhi[dim][n] = 0.0;
 
   } /* if HydroMethod == MHD */
+
+  if( UseMHDCT ){
+    if(MHDcLabel[0]==NULL)
+      MHDcLabel[0] = "Bx";
+    if(MHDcLabel[1]==NULL)
+      MHDcLabel[1] = "By";
+    if(MHDcLabel[2]==NULL)
+      MHDcLabel[2] = "Bz";
+    
+    if(MHDLabel[0]==NULL)
+      MHDLabel[0] = "BxF";
+    if(MHDLabel[1]==NULL)
+      MHDLabel[1] = "ByF";
+    if(MHDLabel[2]==NULL)
+      MHDLabel[2] = "BzF";
+
+    if(MHDUnits[0]==NULL)
+      MHDUnits[0] = "None";
+    if(MHDUnits[1]==NULL)
+      MHDUnits[1] = "None";
+    if(MHDUnits[2]==NULL)
+      MHDUnits[2] = "None";
+
+    if(MHDeLabel[0] == NULL)
+      MHDeLabel[0] = "Ex";
+    if(MHDeLabel[1] == NULL)
+      MHDeLabel[1] = "Ey";
+    if(MHDeLabel[2] == NULL)
+      MHDeLabel[2] = "Ez";
+
+    if(MHDeUnits[0] == NULL)
+      MHDeUnits[0] = "None";
+    if(MHDeUnits[1] == NULL)
+      MHDeUnits[1] = "None";
+    if(MHDeUnits[2] == NULL)
+      MHDeUnits[2] = "None";
+    //
+    // Set up metadata for MHD.
+    //
+    
+    for(field=0; field<3; field++){
+      MagneticSize[field] = 1;
+      ElectricSize[field] = 1;
+      
+      for(dim=0; dim<3; dim++){
+	MagneticDims[field][dim] = GridDimension[dim];
+	ElectricDims[field][dim] = GridDimension[dim] +1;
+	
+	
+	MHDStartIndex[field][dim] = GridStartIndex[dim];
+	MHDEndIndex[field][dim] = GridEndIndex[dim];
+	
+	MHDeStartIndex[field][dim] = GridStartIndex[dim];
+	MHDeEndIndex[field][dim] = GridEndIndex[dim]+1;
+	
+	MHDAdd[field][dim]=0;
+	if( field == dim )
+	  {MagneticDims[field][dim]++;
+	    ElectricDims[field][dim]--;
+	    MHDEndIndex[field][dim]++;
+	    MHDeEndIndex[field][dim]--;
+	    MHDAdd[field][dim]=1;}
+	
+	
+	MagneticSize[field] *= MagneticDims[field][dim];
+	ElectricSize[field] *= ElectricDims[field][dim];
+      }
+      
+    }
+    
+    //
+    // Define some local variables for MHD.
+    //
+    if( MyProcessorNumber == ProcessorNumber ){
+    int MHDActive[3];
+    hsize_t MHDOutDims[3];
+    int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
+    io_type *MHDtmp = new io_type[BiggieSize];	
+    
+    
+    //
+    // Read Magnetic Field.
+    //
+    for (field = 0; field < 3; field++) {
+      
+      for (dim = 0; dim < 3; dim++)
+	MHDActive[dim] = MHDEndIndex[field][dim] - MHDStartIndex[field][dim] +1;
+      
+      for (dim = 0; dim < GridRank; dim++)
+	MHDOutDims[GridRank-dim-1] = MHDActive[dim];
+      
+      
+      file_dsp_id = H5Screate_simple(3, MHDOutDims, NULL);
+      if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %d\n", file_dsp_id);
+      
+      if (io_log) fprintf(log_fptr, "H5Dopen with Name = %s\n", MHDLabel[field]);
+      
+      dset_id = H5Dopen(file_id, MHDLabel[field]);
+      if (io_log) fprintf(log_fptr, "H5Dopen id: %d\n", dset_id);
+      
+      h5_status = H5Dread(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
+			  (VOIDP) MHDtmp);
+      
+      h5_status = H5Sclose(file_dsp_id);
+      if (io_log) fprintf(log_fptr, "H5Sclose: %d\n", h5_status);
+      
+      h5_status = H5Dclose(dset_id);
+      if (io_log) fprintf(log_fptr, "H5Dclose: %d\n", h5_status);
+
+      MagneticField[field] = new float[MagneticSize[field]];
+      if( MagneticField[field] == NULL )
+	ENZO_FAIL("ReadGridHDF5: Not enough memory! Lost it on the MagneticField read.");
+      for( i=0;i<MagneticSize[field]; i++) MagneticField[field][i] = 0.0;
+      for(k=MHDStartIndex[field][2]; k<=MHDEndIndex[field][2]; k++)
+	for(j=MHDStartIndex[field][1];j<=MHDEndIndex[field][1];j++)
+	  for(i=MHDStartIndex[field][0];i<=MHDEndIndex[field][0];i++)
+	    {
+	      MagneticField[field][i + j*MagneticDims[field][0] + 
+				   k*MagneticDims[field][0]*MagneticDims[field][1]] =
+		float( MHDtmp[(i-MHDStartIndex[field][0])+
+			      (j-MHDStartIndex[field][1])*MHDActive[0]+
+			      (k-MHDStartIndex[field][2])*MHDActive[0]*MHDActive[1] ] );
+	    }
+      
+    }//End Read Magnetic Field
+    //allocate centeredB and ElectricFeel
+
+    for(field=0;field<3;field++){
+      CenteredB[field] = new float[size];
+      
+      for (i = 0; i < size; i++)
+	CenteredB[field][i] = 0.0;
+    }
+    if( this->CenterMagneticField() == FAIL )
+      ENZO_FAIL("error with CenterMagneticField , second call");
+
+    for(field=0;field<3;field++)
+      ElectricField[field] = new float[ElectricSize[field]];
+    
+    }//processor
+    }
 
   }  // end read baryon fields
  

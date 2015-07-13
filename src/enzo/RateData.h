@@ -79,4 +79,28 @@ struct RateDataType
   float *n_cr_n;
   float *n_cr_d1;
   float *n_cr_d2;
+
+
+
+  /* Haardt and Madau 2012 photorates */
+  int HM12NumberOfRedshiftBins;
+  float HM12RedshiftLo;        
+  float HM12RedshiftHi;
+
+  float *HM12Redshifts; 
+
+  /* hydrogen / helium photo-ionization rates (functions of z) */
+  float *HM12GH1;
+  float *HM12GHe1;
+  float *HM12GHe2;
+
+  /* hydrogen / helium photo-heating rates (functions of z) */
+  float *HM12GhH1;
+  float *HM12GhHe1;
+  float *HM12GhHe2;
+
+  /* Compton heating rate */
+  float *HM12Compton;
+
+
 };

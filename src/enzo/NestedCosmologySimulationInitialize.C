@@ -363,6 +363,8 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
+    if (CosmologySimulationInitialUniformBField[dim] != 0.0 && HydroMethod != 4 && HydroMethod != 6)
+        ENZO_FAIL("UniformBField requested with a non-MHD solver. Please use one of the MHD solvers");
     CosmologySimulationInitialUniformBField[dim] /= MagneticUnits;
     if (MyProcessorNumber == ROOT_PROCESSOR)
       printf("magnetic field: dim %"ISYM", %"FSYM" %"ESYM" \n", dim, MagneticUnits, 
@@ -460,7 +462,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
  
       // Add ghost zones
  
-      CosmologySimulationGridDimension[gridnum][dim] += 2*DEFAULT_GHOST_ZONES;
+      CosmologySimulationGridDimension[gridnum][dim] += 2*NumberOfGhostZones;
  
     } // end of loop over dimensions
  
@@ -502,7 +504,7 @@ int NestedCosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     // Remove ghost zones from dim
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++)
-      CosmologySimulationGridDimension[gridnum][dim] -= 2*DEFAULT_GHOST_ZONES;
+      CosmologySimulationGridDimension[gridnum][dim] -= 2*NumberOfGhostZones;
  
   } // end: loop over gridnums
  

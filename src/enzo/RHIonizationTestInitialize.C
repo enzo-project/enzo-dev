@@ -47,6 +47,11 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
   if (MyProcessorNumber == ROOT_PROCESSOR)
     fprintf(stdout,"Entering RHIonizationTestInitialize routine\n");
 
+  char *kphHIName    = "HI_kph";
+  char *kphHeIName   = "HeI_kph";
+  char *kphHeIIName  = "HeII_kph";
+  char *gammaName    = "PhotoGamma";
+  char *kdissH2IName = "H2I_kdiss";
   char *DensName  = "Density";
   char *TEName    = "TotalEnergy";
   char *IEName    = "Internal_Energy";
@@ -88,7 +93,6 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
   float RadHydroInitialFractionHeII  = 0.0;
   float RadHydroInitialFractionHeIII = 0.0;
   int   RadHydroChemistry            = 1;
-  int   RadHydroModel                = 1;
 
   // overwrite input from RadHydroParamFile file, if it exists
   if (MetaData.RadHydroParameterFname != NULL) {
@@ -102,8 +106,6 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
 		      &RadHydroX2Velocity);
 	ret += sscanf(line, "RadHydroChemistry = %"ISYM, 
 		      &RadHydroChemistry);
-	ret += sscanf(line, "RadHydroModel = %"ISYM, 
-		      &RadHydroModel);
 	ret += sscanf(line, "RadHydroDensity = %"FSYM, 
 		      &RadHydroDensity);
 	ret += sscanf(line, "RadHydroTemperature = %"FSYM, 
@@ -118,12 +120,13 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
 	  ret += sscanf(line, "RadHydroHFraction = %"FSYM, 
 			&RadHydroHydrogenMassFraction);
 	}
-	if (RadHydroChemistry == 3) {
+	if ((RadHydroChemistry == 3) || (MultiSpecies == 1)) {
 	  ret += sscanf(line, "RadHydroInitialFractionHeII = %"FSYM, 
 			&RadHydroInitialFractionHeII);
 	  ret += sscanf(line, "RadHydroInitialFractionHeIII = %"FSYM, 
 			&RadHydroInitialFractionHeIII);
 	}
+ 
       } // end input from parameter file
       fclose(RHfptr);
     }
@@ -180,9 +183,6 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
 	fprintf(stderr,"Initialize error: NChem != {0,1,3}\n");
 	return FAIL;	
       }
-      // correct mu if using a special model
-      if ((RadHydroModel == 4) || (RadHydroModel == 5)) 
-	mu = DEFAULT_MU;
       // compute the internal energy
       RadHydroIEnergy = kb*RadHydroTemperature/mu/mp/(Gamma-1.0);	
     }
@@ -218,10 +218,22 @@ int RHIonizationTestInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[BaryonField++] = HIName;
     DataLabel[BaryonField++] = HIIName;
   }
-  if (RadHydroChemistry == 3) {
+  if ((RadHydroChemistry == 3) || (MultiSpecies > 0)) {
     DataLabel[BaryonField++] = HeIName;
     DataLabel[BaryonField++] = HeIIName;
     DataLabel[BaryonField++] = HeIIIName;
+  }
+
+  // if using external chemistry/cooling, set rate labels
+  if (RadiativeCooling) {
+    DataLabel[BaryonField++] = kphHIName;
+    DataLabel[BaryonField++] = gammaName;
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      DataLabel[BaryonField++] = kphHeIName;
+      DataLabel[BaryonField++] = kphHeIIName;
+    }
+    if (MultiSpecies > 1)
+      DataLabel[BaryonField++] = kdissH2IName;
   }
 
   for (int i=0; i<BaryonField; i++) 

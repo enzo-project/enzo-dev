@@ -15,23 +15,25 @@ ProblemType =  63
 #
 TopGridRank = 2
 
-TopGridDimensions = 3 5
+TopGridDimensions = 3 3
 
 OneZoneFreefallTestInitialDensity = 1.0
-OneZoneFreefallTestMinimumEnergy = 1.0
-OneZoneFreefallTestMaximumEnergy = 10.0
+OneZoneFreefallTestMinimumEnergy = 2.0
+OneZoneFreefallTestMaximumEnergy = 2.0
 OneZoneFreefallTestMinimumMetallicity = 1.0e-7
-OneZoneFreefallTestMaximumMetallicity = 1.0e-3
+OneZoneFreefallTestMaximumMetallicity = 1.0e-5
 
 # Set timestep as a fraction of free-fall time
 OneZoneFreefallTimestepFraction = 1e-2
+OneZoneFreefallUseEffectiveGamma = 1
+Gamma = 1.333
 
 #
 #  set I/O and stop/start parameters
 #
-StopTime                  = 50
+StopTime                  = 100
 StopCycle                 = 3000
-CycleSkipDataDump         = 20
+CycleSkipDataDump         = 150
 DataDumpDir               = DD
 DataDumpName              = DD
 
@@ -83,7 +85,7 @@ TestProblemInitialHIFraction      = 0.999
 #TestProblemInitialHIIFraction     = 1e-10
 #TestProblemInitialHeIFraction     = 1.0
 #TestProblemInitialHeIIFraction    = 1.0e-20
-#TestProblemInitialHeIIIIFraction  = 1.0e-20
+#TestProblemInitialHeIIIFraction  = 1.0e-20
 #TestProblemInitialHMFraction      = 1.e-20
 TestProblemInitialH2IFraction     = 1.e-5
 #TestProblemInitialH2IIFraction    = 1.e-20

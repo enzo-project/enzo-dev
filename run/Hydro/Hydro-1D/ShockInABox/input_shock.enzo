@@ -1,0 +1,51 @@
+#
+# AMR PROBLEM DEFINITION FILE: 1D Shock Propogation test
+#
+#  define problem
+#
+ProblemType            = 5        // Shock In A Box
+TopGridRank            = 1
+TopGridDimensions      = 32
+
+ShockInABoxBoundary      = 0.5
+
+LeftFaceBoundaryCondition = 2 0 0  // set left faces to inflow 
+RightFaceBoundaryCondition = 1 0 0  // set right faces to outflow
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 1.0e0
+dtDataDump             = 1.0e-1
+
+#
+#  set Hydro parameters
+#
+HydroMethod            = 0
+CourantSafetyNumber    = 0.8
+PPMDiffusionParameter  = 1       // diffusion on 
+PPMFlatteningParameter = 1       // flattening on
+PPMSteepeningParameter = 1       // steepening on
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // static hierarchy
+MaximumRefinementLevel    = 2
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 1
+MinimumEfficiency         = 0.5
+
+#
+#  set some misc global parameters
+#
+OutputTemperature = 1
+
+# 
+#  Turn on Shock Finding
+#
+ShockTemperatureFloor=1.0e0
+StorePreShockFields = 1
+FindShocksOnlyOnOutput = 1
+ShockMethod = 1
+

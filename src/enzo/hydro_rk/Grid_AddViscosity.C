@@ -45,7 +45,7 @@ int grid::AddViscosity()
 
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
   }
 
   double *d2Vx[5], *d2Vy[5], *d2Vz[5];

@@ -43,7 +43,10 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
 					  float VzConstant, 
 					  float IEConstant, 
 					  float EgConstant, 
+					  float HydrogenMassFraction,
 					  float InitialFractionHII, 
+					  float InitialFractionHeII, 
+					  float InitialFractionHeIII, 
 					  int   local)
 {
 #ifdef TRANSFER
@@ -61,7 +64,8 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
 
   // create necessary baryon fields
   int RhoNum, TENum, IENum, V0Num, V1Num, V2Num, EgNum, DeNum, 
-    HINum, HIINum;
+    HINum, HIINum, HeINum, HeIINum, HeIIINum, kphHINum, kphHeINum, 
+    kphHeIINum, gammaNum, kdissH2INum;
   NumberOfBaryonFields = 0;
   FieldType[RhoNum = NumberOfBaryonFields++] = Density;
   FieldType[TENum = NumberOfBaryonFields++]  = TotalEnergy;
@@ -74,9 +78,26 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
   FieldType[DeNum = NumberOfBaryonFields++]  = ElectronDensity;
   FieldType[HINum = NumberOfBaryonFields++]  = HIDensity;
   FieldType[HIINum = NumberOfBaryonFields++] = HIIDensity;
+  if ((NumChemicals == 3) || (MultiSpecies > 0)) {
+    FieldType[HeINum   = NumberOfBaryonFields++] = HeIDensity;
+    FieldType[HeIINum  = NumberOfBaryonFields++] = HeIIDensity;    
+    FieldType[HeIIINum = NumberOfBaryonFields++] = HeIIIDensity;
+  }
+  // if using external chemistry/cooling, set rate fields
+  if (RadiativeCooling) {
+    FieldType[kphHINum = NumberOfBaryonFields++] = kphHI;
+    FieldType[gammaNum = NumberOfBaryonFields++] = PhotoGamma;
+    if (RadiativeTransferHydrogenOnly == FALSE) {
+      FieldType[kphHeINum  = NumberOfBaryonFields++] = kphHeI;
+      FieldType[kphHeIINum = NumberOfBaryonFields++] = kphHeII;
+    }
+    if (MultiSpecies > 1)
+      FieldType[kdissH2INum = NumberOfBaryonFields++] = kdissH2I;
+  }
+
 
   // set the subgrid static flag (necessary??)
-  SubgridsAreStatic = FALSE;  // no subgrids
+  SubgridsAreStatic = FALSE;
 
   // Return if this doesn't concern us.
   if (ProcessorNumber != MyProcessorNumber)
@@ -91,7 +112,7 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
     fprintf(stderr,"Error in GetUnits.\n");
     return FAIL;
   }
-  if (debug) {
+  if (debug && NewData) {
     fprintf(stdout,"  Internal Unit Conversion Factors:\n");
     fprintf(stdout,"         length = %g\n",LengthUnits);
     fprintf(stdout,"           mass = %lg\n",MassUnits);
@@ -104,10 +125,6 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
  
   // allocate fields
   if (NewData == TRUE) {
-//     printf("\n  P%"ISYM": Allocating %"ISYM" baryon fields of size %"ISYM" (%"ISYM"x%"ISYM"x%"ISYM")\n",
-// 	   MyProcessorNumber, NumberOfBaryonFields, size, 
-// 	   GridDimension[0], GridDimension[1], GridDimension[2]);
-
     for (int field=0; field<NumberOfBaryonFields; field++)
       if (BaryonField[field] == NULL)
 	BaryonField[field] = new float[size];
@@ -132,6 +149,12 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
       for (i=0; i<size; i++)
 	BaryonField[IENum][i] = IEConstant/eUnits;
     
+    // if using external chemistry/cooling, set rate fields
+    if (RadiativeCooling) {
+      for (i=0; i<size; i++)  BaryonField[kphHINum][i] = 0.0;
+      for (i=0; i<size; i++)  BaryonField[gammaNum][i] = 0.0;
+    }
+
     // initialize density-dependent quantities
     // NOTE: energy is not density-dependent since it is *specific* energy 
     //       (per unit mass)
@@ -154,7 +177,7 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
     int idx;
     float mp = 1.67262171e-24;    // proton mass [g]
     float x0l, x0r, x0c, x1l, x1r, x1c, x2l, x2r, x2c;
-    float radius, nH, nHI, nHII, ne, ndens;
+    float radius, nH, nHI, nHII, nHe, nHeI, nHeII, nHeIII, ne, ndens;
     for (k=0; k<GridDimension[2]; k++) {
       x2l = gridx2l + (k)*dx2 - DensityCenter2;
       x2r = gridx2l + (k+1)*dx2  - DensityCenter2;
@@ -211,10 +234,20 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
 	           NumDensity*(7.0/12.0)*POW(DensityRadius/radius,2.0);	
 	  
 	  // fill in the density-dependent quantities
-	  nH = ndens;
+	  nH = ndens*HydrogenMassFraction;
 	  nHII = nH*InitialFractionHII;
 	  nHI = nH - nHII;
 	  ne = nHII;
+	  if ((NumChemicals == 3) || (MultiSpecies > 0)) {
+	    nHe = ndens*(1.0 - HydrogenMassFraction);
+	    nHeII = nHe*InitialFractionHeII;
+	    nHeIII = nHe*InitialFractionHeIII;
+	    nHeI = nHe - nHeII - nHeIII;
+	    ne = nHII + 0.25*nHeII + 0.5*nHeIII;
+	    BaryonField[HeINum][idx]   = nHeI*mp/DensityUnits;
+	    BaryonField[HeIINum][idx]  = nHeII*mp/DensityUnits;
+	    BaryonField[HeIIINum][idx] = nHeIII*mp/DensityUnits;
+	  }
 	  BaryonField[RhoNum][idx] = nH*mp/DensityUnits;
 	  BaryonField[DeNum][idx]  = ne*mp/DensityUnits;
 	  BaryonField[HINum][idx]  = nHI*mp/DensityUnits;
@@ -224,18 +257,21 @@ int grid::RHIonizationSteepInitializeGrid(int NumChemicals,
     }
     
     // Write parameters to output file
-    if (MyProcessorNumber == ROOT_PROCESSOR) {
-      printf( "        Total Energy = %g\n", TEConstant);
+    if (debug  &&  NewData) {
+      printf( "          Total Energy = %g\n", TEConstant);
       if (DualEnergyFormalism)
-	printf( "     Internal Energy = %g\n", IEConstant);
-      printf( "     RadiationEnergy = %g\n", EgConstant);
-      printf( "          NumDensity = %g\n", NumDensity);
-      printf( "  InitialFractionHII = %g\n", InitialFractionHII);
-      printf( "          x-velocity = %g\n", VxConstant);
-      printf( "          y-velocity = %g\n", VyConstant);
-      printf( "          z-velocity = %g\n", VzConstant);
-      printf( "       DensityRadius = %g\n", DensityRadius);
-      printf( "           EtaCenter = %g %g %g\n", 
+	printf( "       Internal Energy = %g\n", IEConstant);
+      printf( "       RadiationEnergy = %g\n", EgConstant);
+      printf( "            NumDensity = %g\n", NumDensity);
+      printf( "  HydrogenMassFraction = %g\n", HydrogenMassFraction);
+      printf( "    InitialFractionHII = %g\n", InitialFractionHII);
+      printf( "   InitialFractionHeII = %g\n", InitialFractionHeII);
+      printf( "  InitialFractionHeIII = %g\n", InitialFractionHeIII);
+      printf( "            x-velocity = %g\n", VxConstant);
+      printf( "            y-velocity = %g\n", VyConstant);
+      printf( "            z-velocity = %g\n", VzConstant);
+      printf( "         DensityRadius = %g\n", DensityRadius);
+      printf( "             EtaCenter = %g %g %g\n", 
 	      DensityCenter0, DensityCenter1, DensityCenter2);
     }
 

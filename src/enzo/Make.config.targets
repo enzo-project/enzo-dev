@@ -173,11 +173,6 @@ help-config:
 	@echo "      gmake bitwise-yes"
 	@echo "      gmake bitwise-no"
 	@echo 
-	@echo "   Include sibling subgrid boundary fix"
-	@echo
-	@echo "      gmake fluxfix-yes"
-	@echo "      gmake fluxfix-no"
-	@echo 
 	@echo "   Set whether to use HDF4"
 	@echo
 	@echo "      gmake use-hdf4-yes"
@@ -213,6 +208,10 @@ help-config:
 	@echo "      gmake enzo-performance-yes"
 	@echo "      gmake enzo-performance-no"
 	@echo
+	@echo "   Set whether to compile with support for the Grackle chemistry and cooling library"
+	@echo
+	@echo "      gmake grackle-yes"
+	@echo "      gmake grackle-no"
 
 #-----------------------------------------------------------------------
 
@@ -271,7 +270,6 @@ show-config:
 	@echo "   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]              : $(CONFIG_ACCELERATION_BOUNDARY)"
 	@echo "   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : $(CONFIG_OPT)"
 	@echo "   CONFIG_TESTING  [testing-{yes,no}]                        : $(CONFIG_TESTING)"
-	@echo "   CONFIG_TPVEL  [tpvel-{yes,no}]]                           : $(CONFIG_TPVEL)"
 	@echo "   CONFIG_PHOTON  [photon-{yes,no}]                          : $(CONFIG_PHOTON)"
 	@echo "   CONFIG_HYPRE  [hypre-{yes,no}]                            : $(CONFIG_HYPRE)"
 	@echo "   CONFIG_EMISSIVITY  [emissivity-{yes,no}]                  : $(CONFIG_EMISSIVITY)"
@@ -279,9 +277,9 @@ show-config:
 	@echo "   CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : $(CONFIG_NEW_GRID_IO)"
 	@echo "   CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : $(CONFIG_BITWISE_IDENTICALITY)"
 	@echo "   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : $(CONFIG_FAST_SIB)"
-	@echo "   CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : $(CONFIG_FLUX_FIX)"
 	@echo "   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : $(CONFIG_GRAVITY_4S)"
 	@echo "   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : $(CONFIG_ENZO_PERFORMANCE)"
+	@echo "   CONFIG_GRACKLE  [grackle-{yes,no}]                        : $(CONFIG_GRACKLE)"
 	@echo
 
 #-----------------------------------------------------------------------
@@ -759,23 +757,6 @@ CONFIG_TESTING-%: suggest-clean
 
 #-----------------------------------------------------------------------
 
-VALID_TPVEL = tpvel-yes tpvel-no
-.PHONY: $(VALID_TPVEL)
-
-tpvel-yes: CONFIG_TPVEL-yes
-tpvel-no: CONFIG_TPVEL-no
-tpvel-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_TPVEL)]\n\n"
-CONFIG_TPVEL-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_TPVEL $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_TPVEL = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE) show-config | grep CONFIG_TPVEL; \
-	echo
-
-#-----------------------------------------------------------------------
-
 VALID_PHOTON = photon-yes photon-no
 .PHONY: $(VALID_PHOTON)
 
@@ -879,22 +860,8 @@ CONFIG_BITWISE_IDENTICALITY-%: suggest-clean
 	echo
 
 
+
 #-----------------------------------------------------------------------
-
-VALID_FLUX_FIX = fluxfix-yes fluxfix-no
-.PHONY: $(VALID_FLUX_FIX)
-
-fluxfix-yes: CONFIG_FLUX_FIX-yes
-fluxfix-no: CONFIG_FLUX_FIX-no
-fluxfix-%:
-	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_FLUX_FIX)]\n\n"
-CONFIG_FLUX_FIX-%: suggest-clean
-	@tmp=.config.temp; \
-        grep -v CONFIG_FLUX_FIX $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
-        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
-        echo "CONFIG_FLUX_FIX = $*" >> $(MAKE_CONFIG_OVERRIDE); \
-	$(MAKE)  show-config | grep CONFIG_FLUX_FIX; \
-	echo
 
 
 #-----------------------------------------------------------------------
@@ -954,3 +921,20 @@ CONFIG_ENZO_PERFORMANCE-%:
 
 #-----------------------------------------------------------------------
 
+VALID_GRACKLE = grackle-yes grackle-no
+.PHONY: $(VALID_GRACKLE)
+
+grackle-yes: CONFIG_GRACKLE-yes
+grackle-no: CONFIG_GRACKLE-no
+grackle-%:
+	@printf "\n\tInvalid target: $@\n\n\tValid targets: [$(VALID_GRACKLE)]\n\n"
+CONFIG_GRACKLE-%: suggest-clean
+	@tmp=.config.temp; \
+        grep -v CONFIG_GRACKLE $(MAKE_CONFIG_OVERRIDE) > $${tmp}; \
+        mv $${tmp} $(MAKE_CONFIG_OVERRIDE); \
+        echo "CONFIG_GRACKLE = $*" >> $(MAKE_CONFIG_OVERRIDE); \
+	$(MAKE)  show-config | grep CONFIG_GRACKLE; \
+	echo
+
+
+#-----------------------------------------------------------------------

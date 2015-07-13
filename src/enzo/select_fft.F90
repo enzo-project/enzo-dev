@@ -1,16 +1,18 @@
+#include "fortran.def"
 
       subroutine fortfft(x, rank, dim1, dim2, dim3, dir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, dim1, dim2, dim3, dir
-      complex :: x(dim1,dim2,dim3)
+      INTG_PREC :: rank, dim1, dim2, dim3, dir
+      CMPLX_PREC :: x(dim1,dim2,dim3)
 
-      integer :: method
+      INTG_PREC :: method
 
       character (len=8) :: choice
 
-      real*8 :: t0, t1, t2, wall_clock
+      REAL*8 :: t0, t1, t2, wall_clock
 
       external :: cray_st1
       external :: acml_st1

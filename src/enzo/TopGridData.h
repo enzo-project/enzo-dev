@@ -106,6 +106,8 @@ struct TopGridData
   char *MovieDumpDir;           // movie dump directory name
   char *TracerParticleDumpDir;  // tracer particle dump directory name
   char *RedshiftDumpDir;        // redshift dump directory name
+  char * ExtraDumpDir;          // Another directory name.  For the extra dumps.
+  char * ExtraDumpName;          // Another directory name.  For the extra dumps.
 
   char *LocalDir;               // local disk directory name
   char *GlobalDir;              // global disk directory name

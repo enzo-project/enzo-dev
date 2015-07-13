@@ -31,7 +31,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 {
   /* declarations */
  
-  int dim, i, size, field, GCM;
+  int dim, i, j, k, index, size, field, GCM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum;
@@ -64,9 +64,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
   }
+
   if (WritePotential)
     FieldType[NumberOfBaryonFields++] = GravPotential;
-
 
 
   int colorfields = NumberOfBaryonFields;
@@ -179,10 +179,8 @@ int grid::InitializeUniformGrid(float UniformDensity,
  
   /* allocate fields */
  
-  for (field = 0; field < NumberOfBaryonFields; field++)
-    if (BaryonField[field] == NULL)
-      BaryonField[field] = new float[size];
- 
+  this->AllocateGrids();
+
   /* set density, total energy */
  
   for (i = 0; i < size; i++) {
@@ -346,8 +344,26 @@ int grid::InitializeUniformGrid(float UniformDensity,
       }
 
     } // if(TestProblemData.GloverChemistryModel)
+    
+    if(UseMHDCT == TRUE){      
+      CenteredB[0][i] = UniformBField[0];
+      CenteredB[1][i] = UniformBField[1];
+      CenteredB[2][i] = UniformBField[2];
+    }
+
 
   } // for (i = 0; i < size; i++)
+
+
+  if(UseMHDCT == TRUE){
+    for(field=0;field<3;field++)
+      for(k=0; k<MagneticDims[field][2]; k++)
+	for(j=0; j<MagneticDims[field][1]; j++)
+	  for(i=0; i<MagneticDims[field][0];i++){
+	    index = i+MagneticDims[field][0]*(j+MagneticDims[field][1]*k);
+	    MagneticField[field][index] = UniformBField[field];
+	  }
+  }  // if(UseMHDCT == TRUE)
 
   return SUCCESS;
 }

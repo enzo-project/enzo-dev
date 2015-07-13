@@ -52,7 +52,7 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
   if (DualEnergyFormalism) {
     FieldType[ieint=NumberOfBaryonFields++] = InternalEnergy;
   }
-  if (useMHD){
+  if (UseMHD){
   FieldType[iBx=NumberOfBaryonFields++] = Bfield1;
   FieldType[iBy=NumberOfBaryonFields++] = Bfield2;
   FieldType[iBz=NumberOfBaryonFields++] = Bfield3;
@@ -72,7 +72,7 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
   
 //  int iBx, iBy, iBz;
   int iB[3]={-1,-1,-1};
-  if (useMHD){
+  if (UseMHD){
     iB[0]=iBx;
     iB[1]=iBy;
     if (GridRank==3){ 
@@ -183,7 +183,7 @@ int grid::ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float 
 
 	v2=xVel[0]*xVel[0]+xVel[1]*xVel[1]+xVel[2]*xVel[2];
 	
-	if (useMHD){
+	if (UseMHD){
 	  BaryonField[iBx][n] = 0.0;
 	  BaryonField[iBy][n] = 0.0;
 	  BaryonField[iBz][n] = 0.0;

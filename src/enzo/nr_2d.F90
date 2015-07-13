@@ -3,12 +3,13 @@
       subroutine nr_2d(x, rank, n1, n2, n3, dir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2)
+      INTG_PREC :: rank, n1, n2, n3, dir
+      CMPLX_PREC :: x(n1,n2)
 
-      integer :: n(3)
-      real :: factor
+      INTG_PREC :: n(3)
+      R_PREC :: factor
 
 !     write(*,*) 'NR_2D ',rank,n1,n2,n3,dir
 
@@ -26,7 +27,7 @@
       n(2) = n2
       n(3) = n3
 
-      factor = 1.d0/real(n1*n2)
+      factor = 1._RKIND/REAL(n1*n2,RKIND)
 
       if( dir == -1 ) then
         call fourn(x, n, rank, dir)

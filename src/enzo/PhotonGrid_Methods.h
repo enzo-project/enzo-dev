@@ -96,6 +96,8 @@ void DeleteSubgridMarker() { delete [] SubgridMarker; SubgridMarker = NULL; };
 				      int ToNumber, int FromNumber, 
 				      PhotonPackageEntry **ToPP);
 
+  int CommunicationSendSubgridMarker(grid *ToGrid, int ToProcessor);
+
 /* Transport Photon Packages */ 
 
 int TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove, 
@@ -412,6 +414,9 @@ int PhotonTestInitializeGrid(int NumberOfSpheres,
 			     float SphereAng2[MAX_SPHERES],
 			     int   SphereNumShells[MAX_SPHERES],
 			     int   SphereType[MAX_SPHERES],
+			     int   SphereConstantPressure[MAX_SPHERES],
+			     int   SphereSmoothSurface[MAX_SPHERES],
+			     float SphereSmoothRadius[MAX_SPHERES],
 			     float SphereHII[MAX_SPHERES],
 			     float SphereHeII[MAX_SPHERES],
 			     float SphereHeIII[MAX_SPHERES],

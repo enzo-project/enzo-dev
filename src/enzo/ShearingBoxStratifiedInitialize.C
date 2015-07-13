@@ -153,7 +153,7 @@ int ShearingBoxStratifiedInitialize (FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] =  (char*) GEName;
   }
-  if(useMHD){
+  if(UseMHD){
 
   DataLabel[count++] =  (char*) BxName;
   DataLabel[count++] =  (char*) ByName;

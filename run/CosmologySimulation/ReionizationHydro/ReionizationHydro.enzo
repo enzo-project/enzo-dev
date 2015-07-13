@@ -1,0 +1,118 @@
+#;-*-C-*-
+
+# AMR PROBLEM DEFINITION FILE: Cosmology Simulation
+# This is a reionization simulation using hydrodynamics
+# and conventional star formation and feedback.
+#
+# define problem
+#
+ProblemType                = 30      // cosmology simulation
+TopGridRank                = 3
+TopGridDimensions          = 64 64 64
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3   // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+
+#
+# problem parameters
+#
+CosmologySimulationOmegaBaryonNow       = 0.0441
+CosmologySimulationOmegaCDMNow          = 0.2239
+CosmologySimulationDensityName          = GridDensity
+CosmologySimulationVelocity1Name        = GridVelocities
+CosmologySimulationVelocity2Name        = GridVelocities
+CosmologySimulationVelocity3Name        = GridVelocities
+CosmologySimulationParticlePositionName = ParticlePositions
+CosmologySimulationParticleVelocityName = ParticleVelocities
+CosmologySimulationNumberOfInitialGrids = 1
+CosmologySimulationUseMetallicityField  = 1
+
+#
+# cosmology parameters
+#
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyOmegaMatterNow    = 0.268
+CosmologyOmegaLambdaNow    = 0.732
+CosmologyHubbleConstantNow = 0.704   // in 100 km/s/Mpc
+CosmologyComovingBoxSize   = 10.0    // in Mpc/h 
+CosmologyMaxExpansionRate  = 0.015   // maximum allowed delta(a)/a
+CosmologyInitialRedshift   = 60.0
+CosmologyFinalRedshift 	   = 5.0
+GravitationalConstant      = 1       // this must be true for cosmology
+
+#
+# I/O and stop/start parameters
+#
+DataDumpName     = DD
+DataDirName      = DD
+RedshiftDirName  = RD
+RedshiftDumpName = RD
+dtDataDump       = 5.0 
+StopCycle        = 100000
+StopCPUTime      = 3600000
+
+CosmologyOutputRedshift[0] = 5.0
+
+#
+# hydro parameters
+#
+HydroMethod                 = 0       // PPM
+Gamma                       = 1.6667
+PPMDiffusionParameter       = 0       // diffusion off
+DualEnergyFormalism         = 1       // use total & internal energy
+InterpolationMethod         = 1       // SecondOrderA
+FluxCorrection              = 1
+ConservativeInterpolation   = 1
+CourantSafetyNumber         = 0.5
+ParticleCourantSafetyNumber = 0.8
+UseMinimumPressureSupport   = 0
+
+#
+# microphysics parameters
+# 
+RadiativeCooling   = 1
+MultiSpecies       = 1 
+RadiationFieldType = 1    // Haardt/Madau background turning on at z = 7
+
+#
+# grid refinement parameters
+#
+StaticHierarchy                 = 0     // dynamic hierarchy
+MaximumRefinementLevel 	        = 2
+MaximumGravityRefinementLevel   = 2
+MaximumParticleRefinementLevel  = 2
+SubgridSizeAutoAdjust           = 1
+RefineBy                        = 2     // refinement factor
+CellFlaggingMethod              = 2 4   // use baryon mass for refinement 
+MinimumEfficiency               = 0.4   // fraction efficiency
+MinimumOverDensityForRefinement = 4. 4.
+
+#
+# inline halo finder
+#
+InlineHaloFinder         = 1
+HaloFinderCycleSkip      = 0
+HaloFinderRunAfterOutput = 1
+
+#
+# star particle parameters
+#
+StarParticleCreation          = 1
+StarParticleFeedback          = 1
+StarMakerOverDensityThreshold = 100
+StarMakerMinimumDynamicalTime = 1e7
+StarMakerMinimumMass          = 1e8
+StarMakerMassEfficiency       = 0.07
+StarMassEjectionFraction      = 0.25
+StarMetalYield                = 0.025
+StarEnergyToThermalFeedback   = 1e-5
+StarFeedbackDistRadius        = 1
+StarFeedbackDistCellStep      = 3
+
+#
+# some global parameters
+#
+GreensFunctionMaxNumber = 30
+ParallelRootGridIO      = 1
+ParallelParticleIO      = 1

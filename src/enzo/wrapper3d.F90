@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
       subroutine wrapper3d(x, rank, n1, n2, n3, dir, method)
 
@@ -7,18 +8,19 @@
 !     Date:       November, 2003
 
       implicit none
+#include "fortran_types.def"
 
 !     Arguments
 
-      integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2,n3)
+      INTG_PREC :: rank, n1, n2, n3, dir
+      CMPLX_PREC :: x(n1,n2,n3)
       external :: method
 
 !     Locals
 
-      complex, allocatable :: y(:,:,:), z(:,:,:)
-      integer :: n(3)
-      integer :: i,j,k
+      CMPLX_PREC, allocatable :: y(:,:,:), z(:,:,:)
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j,k
 
       if( rank /= 3 ) then
         write(0,*) '3D wrapper rank != 3'
@@ -71,10 +73,11 @@
       subroutine fftwrap3d( a, n, dir, method )
 
       implicit none
+#include "fortran_types.def"
 
-      complex :: a(*)
-      integer :: n(3)
-      integer :: dir
+      CMPLX_PREC :: a(*)
+      INTG_PREC :: n(3)
+      INTG_PREC :: dir
       external :: method
 
       call method(a, n(1), dir)

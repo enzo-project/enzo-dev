@@ -36,6 +36,21 @@
 /* function prototypes */
  
 int FindField(int f, int farray[], int n);
+
+extern "C" void FORTRAN_NAME(mhd_interpolate)
+  (float *parentx, float *parenty, float *parentz,
+   int parentdim[], int refine[],
+   float * childx, float * childy, float *childz,
+   int childdim[], int childstart[], int refinedim[],
+   float * otherbx, float * otherby, float * otherbz,
+   int otherdim[], int otherstart[],
+   float* DyBx, float* DzBx, float* DyzBx,
+   float* DxBy, float* DzBy, float* DxzBy,
+   float* DxBz, float* DyBz, float* DxyBz,
+   int* DBxFlag,int* DByFlag,int* DBzFlag,
+   FLOAT *cellsizex, FLOAT *cellsizey, FLOAT *cellsizez,
+   int * face, int * step, int * counter);
+
 extern "C" void FORTRAN_NAME(interpolate)
                              (int *rank, float *pfield, int pdim[],
 			      int pis[], int pie[], int r[],
@@ -63,7 +78,7 @@ extern "C" void FORTRAN_NAME(combine3d)(
 	       int *ivel_flag, int *irefine);
  
 /* InterpolateBoundaryFromParent function */
- 
+int MakeFieldConservative(field_type field); 
 int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 {
  
@@ -130,10 +145,12 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       }
     if (HydroMethod == Zeus_Hydro)
       for (field = 0; field < NumberOfBaryonFields; field++)
-        if (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3)
+        if ( (FieldType[field] >= Velocity1 && FieldType[field] <= Velocity3 ) ||
+             (FieldType[field] >= Acceleration0 && FieldType[field] <= Acceleration2 ) ){
           SecondOrderBFlag[field] = FieldType[field] - Velocity1 + 1;
-        else
+          }else{
           SecondOrderBFlag[field] = 0;
+          }
 
  
     /* Compute coefficient factors for linear interpolation in time.
@@ -265,11 +282,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     /* Allocate temporary space. */
  
-    TemporaryField        = new float[TempSize];
-    TemporaryDensityField = new float[TempSize];
-    Work                  = new float[WorkSize];
+    TemporaryField        = new float[TempSize]();
+    TemporaryDensityField = new float[TempSize]();
+    Work                  = new float[WorkSize]();
     for (field = 0; field < NumberOfBaryonFields; field++)
-      ParentTemp[field]     = new float[ParentTempSize];
+      ParentTemp[field]     = new float[ParentTempSize]();
  
     /* Copy just the required section from the parent fields to the temp
        space, doing the linear interpolation in time as we do it. */
@@ -302,17 +319,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
  
     if (ConservativeInterpolation)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != DebugField &&
-	    FieldType[field] != GravPotential
-	    ) {
+	if (MakeFieldConservative(FieldType[field])) {
 	  FORTRAN_NAME(mult3d)(ParentTemp[densfield], ParentTemp[field],
 			       &ParentTempSize, &One, &One,
 			       &ParentTempSize, &One, &One,
@@ -334,11 +341,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 			      &InterpolationMethod,
 			      &SecondOrderBFlag[densfield], &interp_error);
       if (interp_error) {
-	printf("P%d: Error interpolating density.\n"
-		   "ParentGrid ID = %d\n"
+	printf("P%"ISYM": Error interpolating density.\n"
+		   "ParentGrid ID = %"ISYM"\n"
 		   "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
 		   "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		   "ThisGrid ID = %d\n"
+		   "ThisGrid ID = %"ISYM"\n"
 		   "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
 		   "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
 		   MyProcessorNumber, ParentGrid->ID, 
@@ -381,11 +388,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 				  &FieldInterpolationMethod,
 				  &SecondOrderBFlag[field], &interp_error);
 	if (interp_error) {
-	  printf("P%d: Error interpolating field %d (%s).\n"
-		     "ParentGrid ID = %d\n"
+	  printf("P%"ISYM": Error interpolating field %"ISYM" (%s).\n"
+		     "ParentGrid ID = %"ISYM"\n"
 		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
 		     "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n"
-		     "ThisGrid ID = %d\n"
+		     "ThisGrid ID = %"ISYM"\n"
 		     "\t LeftEdge  = %"PSYM" %"PSYM" %"PSYM"\n"
 		 "\t RightEdge = %"PSYM" %"PSYM" %"PSYM"\n",
 		     MyProcessorNumber, field, DataLabel[field], ParentGrid->ID, 
@@ -404,17 +411,7 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
          variables (skipping density). */
  
       if (ConservativeInterpolation)
-	if (FieldTypeIsDensity(FieldType[field]) == FALSE  &&
-	    FieldType[field] != Bfield1 &&
-	    FieldType[field] != Bfield2 &&
-	    FieldType[field] != Bfield3 &&
-	    FieldType[field] != PhiField &&
-	    FieldType[field] != DrivingField1 &&
-	    FieldType[field] != DrivingField2 &&
-	    FieldType[field] != DrivingField3 &&
-	    FieldType[field] != DebugField &&
-	    FieldType[field] != GravPotential
-	    )
+	if (MakeFieldConservative(FieldType[field]))
 	  FORTRAN_NAME(div3d)(TemporaryDensityField, TemporaryField,
 			      &TempSize, &One, &One,
 			      &TempSize, &One, &One,
@@ -502,7 +499,269 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
       if (this->RestoreEnergyConsistency(ONLY_BOUNDARY) == FAIL) {
 	ENZO_FAIL("Error in grid->RestoreEnergyConsisitency.\n");
       }
- 
+
+
+     if(UseMHDCT == TRUE) {
+      
+       float  *MHDChildTemp[3], *dummy = new float;;
+      
+       int MHDParentTempDims[3][3], MHDChildTempDims[3][3], MHDParentDims[3][3];
+
+       int MHDParentTempSize[3]={1,1,1}, MHDChildTempSize[3]={1,1,1}, One[3] = {1,1,1};
+      
+       *dummy = 1;
+
+       //These get saved for the call to CID
+       ParentDx =ParentGrid->CellWidth[0][0];
+       ParentDy =ParentGrid->CellWidth[1][0];
+       ParentDz =ParentGrid->CellWidth[2][0];
+      
+      
+       //
+       // the field loop
+       //
+      
+       for( field=0;field<3;field++ ){
+	
+	 for(dim=0;dim<3;dim++){
+
+	   //Also saved for CID
+	   MHDParentTempPermanent[dim] = ParentTempDim[dim];
+	   MHDRefinementFactors[dim] = Refinement[dim];
+
+	   //Dimension of parent.  If it's off processor, it's only the dimension of the relevant 
+	   //region.
+	   MHDParentDims[field][dim]=ParentDim[dim]+MHDAdd[field][dim]; 
+	  
+	   //Dimension of relevant region.
+	   MHDParentTempDims[field][dim] = ParentTempDim[dim]+MHDAdd[field][dim];
+
+	  
+	   MHDChildTempDims[field][dim] = TempDim[dim] + MHDAdd[field][dim];
+	   MHDParentTempSize[field] *= MHDParentTempDims[field][dim];
+	   MHDChildTempSize[field] *= MHDChildTempDims[field][dim];
+	  
+	 }
+	
+	 if(MHDParentTemp[field] != NULL ) 
+	   delete MHDParentTemp[field];
+
+	 MHDParentTemp[field] = new float[ MHDParentTempSize[field] ];
+	 MHDChildTemp[field] = new float[ MHDChildTempSize[field] ];
+	 
+	 for(i=0;i<MHDParentTempSize[field];i++) MHDParentTemp[field][i] = -10000000.0;
+	
+	 float *ParentOld = ParentGrid->OldMagneticField[field];
+
+	 if (Time == ParentGrid->Time)
+	   ParentOld = ParentGrid->MagneticField[field];
+
+
+	 //Linear combination in time of the parent grid.  
+
+
+	 FORTRAN_NAME(combine3d)(
+				 ParentOld, &coef1, ParentGrid->MagneticField[field], &coef2,
+				 MHDParentTemp[field], 
+				 MHDParentDims[field],
+				 MHDParentDims[field]+1,
+				 MHDParentDims[field]+2,
+				 MHDParentTempDims[field],
+				 MHDParentTempDims[field]+1,
+				 MHDParentTempDims[field]+2,
+				 &Zero,&Zero,&Zero,
+				 ParentStartIndex, ParentStartIndex+1,
+				 ParentStartIndex+2, &Zero, &Zero);
+
+	 if(ParentGrid->ProcessorNumber != ProcessorNumber && 0==1)
+	   fprintf(stderr,"Parent StartIndex %"ISYM" %"ISYM" %"ISYM" \n"
+		   ,ParentStartIndex[0],ParentStartIndex[1],ParentStartIndex[2]);
+	
+	 if(ParentGrid->ProcessorNumber != ProcessorNumber && 1==0)
+	   for(k=0;k<MHDParentTempDims[field][2];k++)
+	     for(j=0;j<MHDParentTempDims[field][1];j++)
+	       for(i=0;i<MHDParentTempDims[field][0];i++){
+		 int index =  i + MHDParentTempDims[field][0]*(j+MHDParentTempDims[field][1]*k);
+		 fprintf(stderr,"MHD: (%"ISYM",%"ISYM",%"ISYM",%"ISYM") %"FSYM"*%"FSYM" + %"FSYM"*%"FSYM" = %"FSYM"\n",
+			 field,i,j,k,coef1,ParentOld[index],coef2,
+			 ParentGrid->MagneticField[field][index], 
+			 MHDParentTemp[field][index]);
+	       }//i,j,k
+	
+      } //  for( field=0;field<3;field++ ) 
+
+       
+       MHD_ProlongAllocate(TempDim);
+       int Step = 1;
+       int mhd_interpolate_face = 0;
+
+       //FILL
+       FORTRAN_NAME(mhd_interpolate)(MHDParentTemp[0], MHDParentTemp[1], MHDParentTemp[2],
+				     ParentTempDim,    Refinement,
+				     MHDChildTemp[0], MHDChildTemp[1], MHDChildTemp[2],
+				     TempDim, ZeroVector, TempDim,
+				     dummy, dummy, dummy, ZeroVector, ZeroVector,
+				     DyBx, DzBx, DyzBx,
+				     DxBy, DzBy, DxzBy,
+				     DxBz, DyBz, DxyBz,
+				     DBxFlag,DByFlag,DBzFlag,
+				     ParentGrid->CellWidth[0],
+				     ParentGrid->CellWidth[1],
+				     ParentGrid->CellWidth[2],
+				     &mhd_interpolate_face, &Step, &Step);
+       
+      Step = 2;
+
+      FORTRAN_NAME(mhd_interpolate)(MHDParentTemp[0], MHDParentTemp[1], MHDParentTemp[2],
+                                    ParentTempDim,    Refinement,
+                                    MHDChildTemp[0], MHDChildTemp[1], MHDChildTemp[2],
+                                    TempDim, ZeroVector, TempDim,
+                                    dummy, dummy, dummy, ZeroVector, ZeroVector,
+				    DyBx, DzBx, DyzBx,
+				    DxBy, DzBy, DxzBy,
+				    DxBz, DyBz, DxyBz,
+                                    DBxFlag,DByFlag,DBzFlag,
+                                    ParentGrid->CellWidth[0],
+                                    ParentGrid->CellWidth[1],
+                                    ParentGrid->CellWidth[2],
+				    &mhd_interpolate_face, &Step, &Step);
+
+      for(field=0; field<3; field++){
+	for(k=0;k<MHDChildTempDims[field][2];k++)
+	  for(j=0;j<MHDChildTempDims[field][1];j++)
+	    for(i=0;i<MHDChildTempDims[field][0];i++){
+	      
+	      tempindex = ((i )
+			   +(j)*MHDChildTempDims[field][0]
+			   +(k)*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
+	      
+//      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
+//
+//	fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
+//		field,i,j,k);
+//      }
+
+	    }//i,j,k
+      
+      }//  for( field=0;field<3;field++ )
+
+
+      for(field=0; field<3; field++){
+	
+	// i faces
+	for( k=0; k<MagneticDims[field][2]; k++)
+	  for(j=0; j<MagneticDims[field][1]; j++){
+	    tempindex = ((0 + Offset[0])
+			 +(j+ Offset[1])*MHDChildTempDims[field][0]
+			 +(k+ Offset[2])*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
+	    fieldindex = (k*MagneticDims[field][1] + j)*MagneticDims[field][0];
+	    for( i=0; i<MHDStartIndex[field][0]; i++){
+	      MagneticField[field][fieldindex+i] = MHDChildTemp[field][tempindex+i];
+	      
+	      if(fieldindex >= MagneticSize[field] || tempindex >= MHDChildTempSize[field] ) {
+              ENZO_FAIL("InterpolateBoundaryFromParent Bounds Check.\n");
+	      }
+	    }
+	    for( i=MHDEndIndex[field][0]+1;i<MagneticDims[field][0]; i++){
+	      MagneticField[field][fieldindex+i] = MHDChildTemp[field][tempindex+i];
+
+	      if(fieldindex >= MagneticSize[field] || tempindex >= MHDChildTempSize[field] ) {
+		ENZO_FAIL("InterpolateBoundaryFromParent Bounds Check.\n");
+	      }
+	      
+	    }
+	    
+	  }//i faces
+	
+	// Left j face
+	
+	for( k=0; k<MagneticDims[field][2]; k++)
+	  for(j=0; j<MHDStartIndex[field][1]; j++)
+	    for(i=0; i<MagneticDims[field][0]; i++){
+	      tempindex = ((i + Offset[0])
+			   +(j+ Offset[1])*MHDChildTempDims[field][0]
+			   +(k+ Offset[2])*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
+	      fieldindex = (k*MagneticDims[field][1] + j)*MagneticDims[field][0] +i;
+	      MagneticField[field][fieldindex] = MHDChildTemp[field][tempindex];
+
+	      if(fieldindex >= MagneticSize[field] || tempindex >= MHDChildTempSize[field] ) {
+		ENZO_FAIL("InterpolateBoundaryFromParent Bounds Check.\n");
+	      }
+	      
+	    }//left j face (i loop)
+	
+	// Right j face
+	for( k=0; k<MagneticDims[field][2]; k++)
+	  for(j=MHDEndIndex[field][1]+1; j<MagneticDims[field][1]; j++)
+	    for(i=0; i<MagneticDims[field][0]; i++){
+	      tempindex = ((i + Offset[0])
+			   +(j+ Offset[1])*MHDChildTempDims[field][0]
+			   +(k+ Offset[2])*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
+	      fieldindex = (k*MagneticDims[field][1] + j)*MagneticDims[field][0] +i;
+	      MagneticField[field][fieldindex] = MHDChildTemp[field][tempindex];
+
+	      if(fieldindex >= MagneticSize[field] || tempindex >= MHDChildTempSize[field] ) {
+		ENZO_FAIL("InterpolateBoundaryFromParent Bounds Check.\n");
+	      }
+	      
+	    }//right j face (i loop)
+	
+	// Left k face
+	
+	for( k=0; k<MHDStartIndex[field][2]; k++)
+	  for( j=0; j<MagneticDims[field][1]; j++)
+	    for( i=0; i<MagneticDims[field][0]; i++){
+	      tempindex = ((i + Offset[0])
+			   +(j+ Offset[1])*MHDChildTempDims[field][0]
+			   +(k+ Offset[2])*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
+	      fieldindex = (k*MagneticDims[field][1] + j)*MagneticDims[field][0] +i;
+	      MagneticField[field][fieldindex] = MHDChildTemp[field][tempindex];
+
+	      if(fieldindex >= MagneticSize[field] || tempindex >= MHDChildTempSize[field] ) {
+		ENZO_FAIL("InterpolateBoundaryFromParent Bounds Check.\n");
+	      }
+	      
+	    }// left k face ( i loop)
+	
+	// right k face
+	
+	for( k=MHDEndIndex[field][2]+1; k<MagneticDims[field][2]; k++)
+	  for( j=0; j<MagneticDims[field][1]; j++)
+	    for( i=0; i<MagneticDims[field][0]; i++){
+	      tempindex = ((i + Offset[0])
+			   +(j+ Offset[1])*MHDChildTempDims[field][0]
+			   +(k+ Offset[2])*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
+	      fieldindex = (k*MagneticDims[field][1] + j)*MagneticDims[field][0] +i;
+	      
+	      MagneticField[field][fieldindex] = MHDChildTemp[field][tempindex];
+	      if(fieldindex >= MagneticSize[field] || tempindex >= MHDChildTempSize[field] ) {
+		ENZO_FAIL("InterpolateBoundaryFromParent Bounds Check.\n");
+	      }	      
+	    }// right k face ( i loop)
+      }//field
+
+      for (field = 0; field < 3; field++){
+	delete MHDParentTemp[field];
+	MHDParentTemp[field] = NULL;
+	delete MHDChildTemp[field];
+	
+	if(ParentGrid->ProcessorNumber != MyProcessorNumber ){
+	  if( ParentGrid->MagneticField[field] != NULL ){
+	    delete ParentGrid->MagneticField[field];
+	    ParentGrid->MagneticField[field] = NULL;
+	  }
+	  if( ParentGrid->OldMagneticField[field] != NULL ){
+	    delete ParentGrid->OldMagneticField[field];
+	    ParentGrid->OldMagneticField[field] = NULL;
+	  }
+	  if( ParentGrid->ElectricField[field] != NULL ){
+	    delete ParentGrid->ElectricField[field];
+	    ParentGrid->ElectricField[field] = NULL;
+	  }
+	}//ParentProc
+      }//field
+      this->MHD_ProlongFree();
+    }//UseMHDCT
   } // end: if (NumberOfBaryonFields > 0)
  
   this->DebugCheck("InterpolateBoundaryFromParent (after)");

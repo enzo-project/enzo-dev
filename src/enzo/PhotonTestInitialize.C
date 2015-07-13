@@ -94,7 +94,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   int PhotonTestUseParticles    = FALSE;
   int PhotonTestUseColour       = FALSE;
   float PhotonTestInitialTemperature = 1000;
-  int   PhotonTestSphereType[MAX_SPHERES];
+  int   PhotonTestSphereType[MAX_SPHERES],
+    PhotonTestSphereConstantPressure[MAX_SPHERES],
+    PhotonTestSphereSmoothSurface[MAX_SPHERES];
   float PhotonTestSphereDensity[MAX_SPHERES],
     PhotonTestSphereTemperature[MAX_SPHERES],
     PhotonTestSphereVelocity[MAX_SPHERES][MAX_DIMENSION],
@@ -104,6 +106,7 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     PhotonTestSphereCutOff[MAX_SPHERES],
     PhotonTestSphereAng1[MAX_SPHERES],
     PhotonTestSphereAng2[MAX_SPHERES],
+    PhotonTestSphereSmoothRadius[MAX_SPHERES],
     PhotonTestSphereRadius[MAX_SPHERES],
     PhotonTestSphereCoreRadius[MAX_SPHERES],
     PhotonTestSphereHIIFraction[MAX_SPHERES],
@@ -137,9 +140,10 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     PhotonTestSphereAng1[sphere] = 0;
     PhotonTestSphereAng2[sphere] = 0;
     PhotonTestSphereNumShells[sphere] = 1;
+    PhotonTestSphereSmoothRadius[sphere] = 1.2;
     PhotonTestSphereHIIFraction[sphere] = PhotonTestInitialFractionHII;
     PhotonTestSphereHeIIFraction[sphere] = PhotonTestInitialFractionHeII;
-    PhotonTestSphereHeIIFraction[sphere] = PhotonTestInitialFractionHeIII;
+    PhotonTestSphereHeIIIFraction[sphere] = PhotonTestInitialFractionHeIII;
     PhotonTestSphereH2IFraction[sphere] = PhotonTestInitialFractionH2I;
 
     for (dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -148,6 +152,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
       PhotonTestSphereVelocity[sphere][dim] = 0;
     }
     PhotonTestSphereType[sphere]       = 0;
+    PhotonTestSphereConstantPressure[sphere] = FALSE;
+    PhotonTestSphereSmoothSurface[sphere] = FALSE;
   }
   for (dim = 0; dim < MAX_DIMENSION; dim++)
     PhotonTestUniformVelocity[dim] = 0;
@@ -178,6 +184,15 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     if (sscanf(line, "PhotonTestSphereType[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "PhotonTestSphereType[%"ISYM"] = %"ISYM, &sphere,
 		    &PhotonTestSphereType[sphere]);
+    if (sscanf(line, "PhotonTestSphereConstantPressure[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereConstantPressure[%"ISYM"] = %"ISYM, &sphere,
+		    &PhotonTestSphereConstantPressure[sphere]);
+    if (sscanf(line, "PhotonTestSphereSmoothSurface[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereSmoothSurface[%"ISYM"] = %"ISYM, &sphere,
+		    &PhotonTestSphereSmoothSurface[sphere]);
+    if (sscanf(line, "PhotonTestSphereSmoothRadius[%"ISYM"]", &sphere) > 0)
+      ret += sscanf(line, "PhotonTestSphereSmoothRadius[%"FSYM"] = %"FSYM, &sphere,
+		    &PhotonTestSphereSmoothRadius[sphere]);
     if (sscanf(line, "PhotonTestSphereRadius[%"ISYM"]", &sphere) > 0)
       ret += sscanf(line, "PhotonTestSphereRadius[%"ISYM"] = %"FSYM, &sphere,
 		    &PhotonTestSphereRadius[sphere]);
@@ -291,7 +306,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
              PhotonTestFracKeplerianRot, PhotonTestSphereTurbulence,
              PhotonTestSphereCutOff, PhotonTestSphereAng1,
              PhotonTestSphereAng2, PhotonTestSphereNumShells,
-	     PhotonTestSphereType, 
+	     PhotonTestSphereType, PhotonTestSphereConstantPressure,
+	     PhotonTestSphereSmoothSurface, PhotonTestSphereSmoothRadius,
 	     PhotonTestSphereHIIFraction, PhotonTestSphereHeIIFraction,
 	     PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 	     PhotonTestUseParticles,
@@ -358,7 +374,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
              PhotonTestFracKeplerianRot, PhotonTestSphereTurbulence,
              PhotonTestSphereCutOff, PhotonTestSphereAng1,
              PhotonTestSphereAng2, PhotonTestSphereNumShells,
-	     PhotonTestSphereType, 
+	     PhotonTestSphereType, PhotonTestSphereConstantPressure,
+	     PhotonTestSphereSmoothSurface, PhotonTestSphereSmoothRadius,
 	     PhotonTestSphereHIIFraction, PhotonTestSphereHeIIFraction,
 	     PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 	     PhotonTestUseParticles,
@@ -411,7 +428,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestFracKeplerianRot, PhotonTestSphereTurbulence,
 		    PhotonTestSphereCutOff, PhotonTestSphereAng1,
 		    PhotonTestSphereAng2, PhotonTestSphereNumShells,
-		    PhotonTestSphereType, 
+		    PhotonTestSphereType, PhotonTestSphereConstantPressure,
+		    PhotonTestSphereSmoothSurface, PhotonTestSphereSmoothRadius,
 		    PhotonTestSphereHIIFraction, PhotonTestSphereHeIIFraction,
 		    PhotonTestSphereHeIIIFraction, PhotonTestSphereH2IFraction,
 		    PhotonTestUseParticles,
@@ -521,6 +539,12 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
     for (sphere = 0; sphere < PhotonTestNumberOfSpheres; sphere++) {
       fprintf(Outfptr, "PhotonTestSphereType[%"ISYM"] = %"ISYM"\n", sphere,
 	      PhotonTestSphereType[sphere]);
+      fprintf(Outfptr, "PhotonTestSphereConstantPressure[%"ISYM"] = %"ISYM"\n", sphere,
+	      PhotonTestSphereConstantPressure[sphere]);
+      fprintf(Outfptr, "PhotonTestSphereSmoothSurface[%"ISYM"] = %"ISYM"\n", sphere,
+	      PhotonTestSphereSmoothSurface[sphere]);
+      fprintf(Outfptr, "PhotonTestSphereSmoothRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
+	      PhotonTestSphereSmoothRadius[sphere]);
       fprintf(Outfptr, "PhotonTestSphereRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,
 	      PhotonTestSphereRadius[sphere]);
       fprintf(Outfptr, "PhotonTestSphereCoreRadius[%"ISYM"] = %"GOUTSYM"\n", sphere,

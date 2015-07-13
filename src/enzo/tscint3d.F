@@ -28,7 +28,7 @@ c     parent      - parent field
 c     dim1,2,3    - declared dimension of parent
 c     start1,2,3  - starting index in parent in units of grid (one based)
 c     end1,2,3    - ending index in parent in units of grid (one based)
-c     refine1,2,3 - integer refinement factors
+c     refine1,2,3 - INTG_PREC refinement factors
 c     gdim1,2,3   - declared dimension of grid
 c     gstart1,2,3 - starting offset of refined region in grid (one based)
 c
@@ -44,8 +44,9 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn, MAX_REFINE, num_iter
+      INTG_PREC ijkn, MAX_REFINE, num_iter
       parameter (ijkn = MAX_ANY_SINGLE_DIRECTION, num_iter = 2)
       parameter (MAX_REFINE = 32)
 c
@@ -53,24 +54,24 @@ c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, dim3, start1, start2, start3, 
+      INTG_PREC dim1, dim2, dim3, start1, start2, start3, 
      &        end1, end2, end3, refine1, refine2, refine3, 
      &        gdim1, gdim2, gdim3, gstart1, gstart2, gstart3
-      real    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
+      R_PREC    parent(dim1, dim2, dim3), grid(gdim1, gdim2, gdim3)
 c
 c  locals
 c
-      integer i, i1, i2, icoef, igrid, iparent, isub, iter,
+      INTG_PREC i, i1, i2, icoef, igrid, iparent, isub, iter,
      &        j, j1, j2, jcoef, jgrid, jparent, jsub, 
      &        k, k1, k2, kcoef, kgrid, kparent, ksub, 
      &        wdim1, wdim2, wdim3
-      real   coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
+      R_PREC coefm1(MAX_REFINE), coefp1(MAX_REFINE), coef01(MAX_REFINE),
      &       coefm2(MAX_REFINE), coefp2(MAX_REFINE), coef02(MAX_REFINE),
      &       coefm3(MAX_REFINE), coefp3(MAX_REFINE), coef03(MAX_REFINE),
      &       del1left, del2left, del1next, del2next, 
      &       del1right, del2right, dV, factor, sum,
      &       w01, w02, w03, wm1, wm2, wm3, wp1, wp2, wp3
-      real   temp(ijkn), fraction(ijkn)
+      R_PREC   temp(ijkn), fraction(ijkn)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -92,27 +93,27 @@ c
 c  Compute constants
 c
       do i = 0, refine1-1
-         coefm1(i+1) = real((refine1-i)**3 - (refine1-i-1)**3)/
-     &                 real(6*refine1**3                     )
-         coefp1(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine1**3                     )
-         coef01(i+1) = 1.d0/refine1 - coefm1(i+1) - coefp1(i+1)
+         coefm1(i+1) = REAL((refine1-i)**3 - (refine1-i-1)**3,RKIND)/
+     &                 REAL(6*refine1**3                     ,RKIND)
+         coefp1(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine1**3                     ,RKIND)
+         coef01(i+1) = 1._RKIND/refine1 - coefm1(i+1) - coefp1(i+1)
       enddo
 c
       do i = 0, refine2-1
-         coefm2(i+1) = real((refine2-i)**3 - (refine2-i-1)**3)/
-     &                 real(6*refine2**3                     )
-         coefp2(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine2**3                     )
-         coef02(i+1) = 1.d0/refine2 - coefm2(i+1) - coefp2(i+1)
+         coefm2(i+1) = REAL((refine2-i)**3 - (refine2-i-1)**3,RKIND)/
+     &                 REAL(6*refine2**3                     ,RKIND)
+         coefp2(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine2**3                     ,RKIND)
+         coef02(i+1) = 1._RKIND/refine2 - coefm2(i+1) - coefp2(i+1)
       enddo
 c
       do i = 0, refine3-1
-         coefm3(i+1) = real((refine3-i)**3 - (refine3-i-1)**3)/
-     &                 real(6*refine3**3                     )
-         coefp3(i+1) = real(3*i**2 + 3*i + 1)                 /
-     &                 real(6*refine3**3                     )
-         coef03(i+1) = 1.d0/refine3 - coefm3(i+1) - coefp3(i+1)
+         coefm3(i+1) = REAL((refine3-i)**3 - (refine3-i-1)**3,RKIND)/
+     &                 REAL(6*refine3**3                     ,RKIND)
+         coefp3(i+1) = REAL(3*i**2 + 3*i + 1,RKIND)                 /
+     &                 REAL(6*refine3**3                     ,RKIND)
+         coef03(i+1) = 1._RKIND/refine3 - coefm3(i+1) - coefp3(i+1)
       enddo
 c
 c  Loop over area to be refined and interpolate
@@ -183,7 +184,7 @@ c
 c           Clear the work field
 c
             do i = 1, wdim1
-               temp(i) = 0.d0
+               temp(i) = 0._RKIND
             enddo
 c
 c           Compute the sum over each parent zone
@@ -206,7 +207,7 @@ c
                temp(i) = (parent((start1-1)/refine1+i, 
      &                           (start2-1)/refine2+j, 
      &                           (start3-1)/refine3+k) - temp(i))/
-     &                   real(refine1*refine2*refine3)
+     &                   REAL(refine1*refine2*refine3)
             enddo
 c
 c           Add difference to each subgrid value
@@ -237,7 +238,7 @@ c    to the neighbour and the average value), then decrease the entire
 c    profile as needed, but do it in such a way as to keep the average value
 c    the same.
 c
-      dV = 1.d0/real(refine1*refine2*refine3)
+      dV = 1._RKIND/REAL(refine1*refine2*refine3)
       do iter = 1, num_iter
 c
 c  1) Do it first in the i direction
@@ -254,13 +255,13 @@ c           a) zero temp space
 c           b) average over one line of the interpolated grid in i direction
 c
          do i = 1, wdim1
-            temp(i) = 0.d0
+            temp(i) = 0._RKIND
          enddo
 c
          do i1 = gstart1, gstart1+refine1-1
             do i2 = 1, wdim1
                temp(i2) = temp(i2) + 
-     &              grid((i2-1)*refine1+i1, jgrid, kgrid)/real(refine1)
+     &              grid((i2-1)*refine1+i1, jgrid, kgrid)/REAL(refine1)
             enddo
          enddo
 c
@@ -277,8 +278,8 @@ c
      &                 grid((i-1)*refine1+gstart1  , jgrid, kgrid)
 c
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
-            fraction(i) = min(max(del1left/del2left, 0.d0), 1.d0)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
+            fraction(i) = min(max(del1left/del2left, 0._RKIND),1._RKIND)
          enddo
 c
 c        repeat for right side of each distribution
@@ -292,9 +293,9 @@ c
      &                  grid( i   *refine1+gstart1-1, jgrid, kgrid)
 c
             if (abs(del2right) .lt. tiny) 
-     &           del2right = sign(tiny, del2right)
-            fraction(i) =  max(max(min(del1right/del2right, 0.d0),1.d0),
-     &                         fraction(i)                            )
+     &           del2right = sign(REAL(tiny,RKIND), del2right)
+            fraction(i) =  max(max(min(del1right/del2right, 0._RKIND),
+     &           1._RKIND), fraction(i)                             )
          enddo
 c
 c        Modify distributions based on the computed fraction decrease
@@ -304,14 +305,14 @@ c            grid(i-start1+gstart1, jgrid, kgrid) =
 c     &         temp((i-start1)/refine1+1) 
 c     &                        *        fraction((i-start1)/refine1+1) +
 c     &         grid(i-start1+gstart1, jgrid, kgrid)
-c     &                        * (1.d0 - fraction((i-start1)/refine1+1))
+c     &                        * (1._RKIND - fraction((i-start1)/refine1+1))
 c         enddo
 c
          do i1 = gstart1, gstart1+refine1-1
             do i2 = 1, wdim1
                grid((i2-1)*refine1+i1, jgrid, kgrid) = 
      &                     fraction(i2)  * temp(i2) +
-     &              (1.d0 - fraction(i2)) * grid((i2-1)*refine1+i1, 
+     &              (1._RKIND - fraction(i2)) * grid((i2-1)*refine1+i1, 
      &                                          jgrid, kgrid)
             enddo
          enddo
@@ -331,13 +332,13 @@ c
 c        Compute the average along a single line of the interpolated values
 c
          do j = 1, wdim2
-            temp(j) = 0.d0
+            temp(j) = 0._RKIND
          enddo
 c
          do j1 = gstart2, gstart2+refine2-1
             do j2 = 1, wdim2
                temp(j2) = temp(j2) + 
-     &              grid(igrid, (j2-1)*refine2+j1, kgrid)/real(refine2)
+     &              grid(igrid, (j2-1)*refine2+j1, kgrid)/REAL(refine2)
             enddo
          enddo
 c
@@ -354,8 +355,8 @@ c
      &                 grid(igrid, (j-1)*refine2+gstart2  , kgrid)
 c
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
-            fraction(j) = min(max(del1left/del2left, 0.d0), 1.d0)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
+            fraction(j) = min(max(del1left/del2left, 0._RKIND),1._RKIND)
          enddo
 c
 c        repeat for right side of each distribution
@@ -369,9 +370,9 @@ c
      &                  grid(igrid,  j   *refine2+gstart2-1, kgrid)
 c
             if (abs(del2right) .lt. tiny) 
-     &           del2right = sign(tiny, del2right)
-            fraction(j) =  max(max(min(del1right/del2right, 0.d0),1.d0),
-     &                         fraction(j)                            )
+     &           del2right = sign(REAL(tiny,RKIND), del2right)
+            fraction(j) =  max(max(min(del1right/del2right, 0._RKIND),
+     &                         1._RKIND), fraction(j)               )
          enddo
 c
 c        Modify distributions based on the computed fraction decrease
@@ -380,7 +381,7 @@ c
             do j2 = 1, wdim2
                grid(igrid, (j2-1)*refine2+j1, kgrid) = 
      &                     fraction(j2)  * temp(j2) +
-     &              (1.d0 - fraction(j2)) * grid(igrid, 
+     &              (1._RKIND - fraction(j2)) * grid(igrid, 
      &                                         (j2-1)*refine2+j1, kgrid)
             enddo
          enddo
@@ -400,13 +401,13 @@ c
 c        Compute the average along a single line of the interpolated values
 c
          do k = 1, wdim3
-            temp(k) = 0.d0
+            temp(k) = 0._RKIND
          enddo
 c
          do k1 = gstart3, gstart3+refine3-1
             do k2 = 1, wdim3
                temp(k2) = temp(k2) + 
-     &              grid(igrid, jgrid, (k2-1)*refine3+k1)/real(refine3)
+     &              grid(igrid, jgrid, (k2-1)*refine3+k1)/REAL(refine3)
             enddo
          enddo
 c
@@ -423,8 +424,8 @@ c
      &                 grid(igrid, jgrid, (k-1)*refine3+gstart3  )
 c
             if (abs(del2left) .lt. tiny) 
-     &           del2left = sign(tiny, del2left)
-            fraction(k) = min(max(del1left/del2left, 0.d0), 1.d0)
+     &           del2left = sign(REAL(tiny,RKIND), del2left)
+            fraction(k) = min(max(del1left/del2left, 0._RKIND),1._RKIND)
          enddo
 c
 c        repeat for right side of each distribution
@@ -438,9 +439,9 @@ c
      &                  grid(igrid, jgrid,  k   *refine3+gstart3-1)
 c
             if (abs(del2right) .lt. tiny) 
-     &           del2right = sign(tiny, del2right)
-            fraction(k) =  max(max(min(del1right/del2right, 0.d0),1.d0),
-     &                         fraction(k)                            )
+     &           del2right = sign(REAL(tiny,RKIND), del2right)
+            fraction(k) =  max(max(min(del1right/del2right, 0._RKIND),
+     &                         1._RKIND), fraction(k)                )
          enddo
 c
 c        Modify distributions based on the computed fraction decrease
@@ -449,7 +450,7 @@ c
             do k2 = 1, wdim3
                grid(igrid, jgrid, (k2-1)*refine3+k1) = 
      &                     fraction(k2)  * temp(k2) +
-     &              (1.d0 - fraction(k2)) * grid(igrid, jgrid,
+     &              (1._RKIND - fraction(k2)) * grid(igrid, jgrid,
      &                                         (k2-1)*refine3+k1)
             enddo
          enddo

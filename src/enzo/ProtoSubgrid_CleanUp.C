@@ -41,7 +41,7 @@ int ProtoSubgrid::CleanUp()
   int size = 1;
   for (dim = 0; dim < GridRank; dim++) {
     size *= GridDimension[dim];
-    GridDimension[dim] = GridDimension[dim]*RefineBy + 2*DEFAULT_GHOST_ZONES;
+    GridDimension[dim] = GridDimension[dim]*RefineBy + 2*NumberOfGhostZones;
   }
  
   /* Compute efficiency & report. */
@@ -51,7 +51,7 @@ int ProtoSubgrid::CleanUp()
     printf("ProtoSubgrid: efficiency = %6.1"FSYM"%% (%"ISYM"/%"ISYM") dims=",
 	   float(NumberFlagged)/float(size)*100.0, NumberFlagged, size);
     for (i = 0; i < GridRank; i++)
-      printf("%"ISYM" ", (GridDimension[i] - 2*DEFAULT_GHOST_ZONES)/RefineBy);
+      printf("%"ISYM" ", (GridDimension[i] - 2*NumberOfGhostZones)/RefineBy);
     printf("\n");
   }
  

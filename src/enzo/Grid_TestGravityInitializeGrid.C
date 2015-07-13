@@ -23,7 +23,12 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "phys_constants.h"
+
+/* Random number generator */
  
+void mt_init(unsigned_int seed);
+unsigned_long_int mt_random();
  
 int grid::TestGravityInitializeGrid(float CentralDensity,
 				    int NumberOfNewParticles,
@@ -32,7 +37,10 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
   /* declarations */
  
   int dim, i, size, field, vel;
-  float phi, r, theta, pi = 3.14159;
+  float phi, r, theta;
+  int mt_random_seed = 123456789;
+  int max_random = (1<<16);
+  mt_init((unsigned_int) mt_random_seed);
  
   if (UseBaryons) {
  
@@ -75,7 +83,7 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
  
 #ifdef UNUSED
  
-	ParticlePosition[dim][i] = FLOAT(rand())/FLOAT(RAND_MAX);
+	ParticlePosition[dim][i] = FLOAT(mt_random() % max_random)/FLOAT(max_random);
  
 #endif /* UNUSED */
 	
@@ -94,9 +102,9 @@ int grid::TestGravityInitializeGrid(float CentralDensity,
  
       /* Compute random r, phi and theta. */
  
-      r     = POW(10, (r2 - r1)*float(rand())/float(RAND_MAX) + r1);
-      phi   = 2.0*pi*float(rand())/float(RAND_MAX);
-      theta =     pi*float(rand())/float(RAND_MAX);
+      r     = POW(10, (r2 - r1)*(float(mt_random() % max_random) /  float(max_random)) + r1);
+      phi   = 2.0*pi*float(mt_random() % max_random) /  float(max_random);
+      theta =     pi*float(mt_random() % max_random) /  float(max_random);
  
       /* Turn these into x/y/z. */
  

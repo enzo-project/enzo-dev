@@ -39,8 +39,12 @@
 extern "C" void PFORTRAN_NAME(cic_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
                         float *densfield, float *field, FLOAT *leftedge,
-			int *dim1, int *dim2, int *dim3, float *cellsize, 
-			int *addaspoints);
+			int *dim1, int *dim2, int *dim3, float *cellsize,
+					   float *cloudsize);
+extern "C" void PFORTRAN_NAME(ngp_deposit)(FLOAT *posx, FLOAT *posy,
+			FLOAT *posz, int *ndim, int *npositions,
+                        float *densfield, float *field, FLOAT *leftedge,
+		        int *dim1, int *dim2, int *dim3, float *cellsize);
  
 extern "C" void PFORTRAN_NAME(smooth_deposit)(FLOAT *posx, FLOAT *posy,
 			FLOAT *posz, int *ndim, int *npositions,
@@ -79,7 +83,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   int Dimension[] = {1,1,1};
   int OriginalDimension[] = {1,1,1};
   int Offset[] = {0,0,0};
-  float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer, CellSize;
+  float MassFactor = 1.0, *ParticleMassTemp, *ParticleMassPointer, CellSize, CloudSize;
   float *ParticleMassPointerSink;    
   float TimeDifference = 0;
   FLOAT LeftEdge[MAX_DIMENSION], OriginalLeftEdge[MAX_DIMENSION];
@@ -92,6 +96,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       TargetGrid->InitializeGravitatingMassField(RefineBy);
     DepositFieldPointer = TargetGrid->GravitatingMassField;
     CellSize            = float(TargetGrid->GravitatingMassFieldCellSize);
+    CloudSize           = float(CellWidth[0][0]);
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->GravitatingMassFieldLeftEdge[dim];
       Dimension[dim] = TargetGrid->GravitatingMassFieldDimension[dim];
@@ -105,6 +110,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       TargetGrid->InitializeGravitatingMassFieldParticles(RefineBy);
     DepositFieldPointer = TargetGrid->GravitatingMassFieldParticles;
     CellSize            = float(TargetGrid->GravitatingMassFieldParticlesCellSize);
+    CloudSize            = float(CellWidth[0][0]);
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->GravitatingMassFieldParticlesLeftEdge[dim];
       Dimension[dim] = TargetGrid->GravitatingMassFieldParticlesDimension[dim];
@@ -116,6 +122,7 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
   else if (DepositField == MASS_FLAGGING_FIELD) {
     DepositFieldPointer = TargetGrid->MassFlaggingField;
     CellSize            = float(TargetGrid->CellWidth[0][0]);
+    CloudSize           = float(CellWidth[0][0]);
     for (dim = 0; dim < GridRank; dim++) {
       LeftEdge[dim]  = TargetGrid->CellLeftEdge[dim][0];
       Dimension[dim] = TargetGrid->GridDimension[dim];
@@ -207,9 +214,10 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 
   if (MyProcessorNumber == ProcessorNumber) {
 
-    int addaspoints=0;
-    // too add child grids as points rather than with CIC use the following line
-    addaspoints= (CellSize > 1.5*CellWidth[0][0]) ? 1 : 0;
+    /* If using CIC-mode deposit, then set cloudsize equal to cellsize. */
+
+    if (ParticleSubgridDepositMode == CIC_DEPOSIT)
+      CloudSize = CellSize;
     
     /* If the Target is this grid and the DepositField is MassFlaggingField,
        then multiply the Particle density by the volume to get the mass. */
@@ -218,8 +226,8 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
       for (dim = 0; dim < GridRank; dim++)
 	MassFactor *= CellWidth[dim][0];
  
-  /* If the DepositGrid and this grid are not the same, we must adjust the
-     particle 'mass'. */
+    /* If the DepositGrid and this grid are not the same, we must adjust the
+       particle 'mass'. */
  
     if (this != TargetGrid) {
  
@@ -289,12 +297,20 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
 	}
       }
 
-      /* Deposit sink particles (only) to field using CIC. */
+      /* Deposit sink particles (only) to field using CIC or NGP. 
+         (only use NGP if cellsize > cloudsize - i.e. source is subgrid) */
 
-      PFORTRAN_NAME(cic_deposit)(
+      if (ParticleSubgridDepositMode == NGP_DEPOSIT && CellSize > 1.5*CloudSize) {
+	PFORTRAN_NAME(ngp_deposit)(
            ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	   &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
-	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &addaspoints);
+	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);
+      } else {
+	PFORTRAN_NAME(cic_deposit)(
+           ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
+	   &GridRank, &NumberOfParticles, ParticleMassPointerSink, DepositFieldPointer, 
+	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &CloudSize);
+      }
 
       delete [] ParticleMassPointerSink;
 
@@ -303,18 +319,25 @@ int grid::DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime,
     /* Deposit particles. */
 
     if (SmoothField == FALSE) {
-
-    /* Deposit to field using CIC. */
  
       //  fprintf(stderr, "------DP Call Fortran cic_deposit with CellSize = %"GSYM"\n", CellSize);
  
+      /* Deposit sink particles (only) to field using CIC or NGP. 
+         (only use NGP if cellsize > cloudsize - i.e. source is subgrid) */
 
-      PFORTRAN_NAME(cic_deposit)
+      if (ParticleSubgridDepositMode == NGP_DEPOSIT && CellSize > 1.5*CloudSize) {
+	PFORTRAN_NAME(ngp_deposit)
+	  (ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
+	   &GridRank, &NumberOfParticles, ParticleMassPointer, DepositFieldPointer, 
+	   LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize);
+      } else {
+	PFORTRAN_NAME(cic_deposit)
 	(ParticlePosition[0], ParticlePosition[1], ParticlePosition[2], 
 	 &GridRank, &NumberOfParticles, ParticleMassPointer, DepositFieldPointer, 
-	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &addaspoints);
-    }
-    else {
+	 LeftEdge, Dimension, Dimension+1, Dimension+2, &CellSize, &CloudSize);
+      }
+
+    } else {
 
       /* Deposit to field using large-spherical CIC, with radius of
 	 DepositPositionsParticleSmoothRadius */

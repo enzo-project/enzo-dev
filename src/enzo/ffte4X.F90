@@ -16,37 +16,31 @@
       module ffte_param
 
       implicit none
+#include "fortran_types.def"
 
-#ifdef CONFIG_BFLOAT_4
-      REAL*4 :: TYPE_DUMMY
-#endif
-
-#ifdef CONFIG_BFLOAT_8
-      REAL*8 :: TYPE_DUMMY
-#endif
-
-      integer, parameter :: fftkind = KIND(TYPE_DUMMY)
+      INTEGER, parameter :: fftkind = RKIND
+      INTEGER, parameter :: fftintk = IKIND
 
 ! the maximum supported 2-d transform length is 65536.
-      integer, parameter :: nda2=65536
+      INTEGER(fftintk), parameter :: nda2=65536
 
 ! the maximum supported 3-d transform length is 4096.
-      integer, parameter :: nda3=4096
-      integer, parameter :: nda4=256
+      INTEGER(fftintk), parameter :: nda3=4096
+      INTEGER(fftintk), parameter :: nda4=256
 
 ! the parameter nblk is a blocking parameter.
-!     integer, parameter :: nblk=8  !(for pentiumiii and athlon)
-      integer, parameter :: nblk=16 !(for pentium4, athlon xp, opteron,
+!     INTEGER(fftintk), parameter :: nblk=8  !(for pentiumiii and athlon)
+      INTEGER(fftintk), parameter :: nblk=16 !(for pentium4, athlon xp, opteron,
                                     ! itanium and itanium2)
 
 ! the parameter np is a padding parameter to avoid cache
 ! conflicts in the fft routines.
-!     integer, parameter :: np=2 !(for pentiumiii)
-!     integer, parameter :: np=4 !(for athlon, athlon xp, opteron and itanium)
-      integer, parameter :: np=8 !(for pentium4 and itanium2)
+!     INTEGER(fftintk), parameter :: np=2 !(for pentiumiii)
+!     INTEGER(fftintk), parameter :: np=4 !(for athlon, athlon xp, opteron and itanium)
+      INTEGER(fftintk), parameter :: np=8 !(for pentium4 and itanium2)
 
 ! size of l2 cache
-      integer, parameter :: l2size=1048576
+      INTEGER(fftintk), parameter :: l2size=1048576
 
       end module ffte_param
 
@@ -64,13 +58,13 @@
 !         e-mail: daisuke@cs.tsukuba.ac.jp
 !
 !
-!     1-d complex fft routine
+!     1-d CMPLX_PREC fft routine
 !
 !     fortran77 source program
 !
 !     call zfft1d(a,n,iopt,b)
 !
-!     a(n) is complex input/output vector (complex*16)
+!     a(n) is CMPLX_PREC input/output vector (complex*16)
 !     b(n) is work vector (complex*16)
 !     n is the length of the transforms (integer*4)
 !       -----------------------------------
@@ -88,19 +82,19 @@
 
       implicit none
 
-      integer :: n, iopt
-      complex :: a(*),b(*)
+      INTG_PREC :: n, iopt
+      CMPLX_PREC :: a(*),b(*)
 
-      integer :: i
-      integer :: nd
-      integer :: n1, n2, m1, m2
-      integer :: nw2, nw3, nw4
-      real :: dn
+      INTG_PREC :: i
+      INTG_PREC :: nd
+      INTG_PREC :: n1, n2, m1, m2
+      INTG_PREC :: nw2, nw3, nw4
+      R_PREC :: dn
 
-      complex :: c((nda2+np)*(nblk+1)+np)
-      complex :: w1(nda2/2+np),w2(nda2/2+np)
-      complex :: ww((nda2+np)*4+np)
-      integer :: ip(3),ip1(3),ip2(3)
+      CMPLX_PREC :: c((nda2+np)*(nblk+1)+np)
+      CMPLX_PREC :: w1(nda2/2+np),w2(nda2/2+np)
+      CMPLX_PREC :: ww((nda2+np)*4+np)
+      INTG_PREC :: ip(3),ip1(3),ip2(3)
 
       save w1,w2,ww
 
@@ -153,7 +147,7 @@
       end if
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/real(n)
+        dn = 1.0_fftkind/REAL(n,fftkind)
         do i = 1,n
           a(i) = conjg(a(i))*dn
         end do
@@ -170,16 +164,16 @@
 
       implicit none
 
-      integer :: n1, n2, m1, m2
-      complex :: a1(n1,*),a2(n2,*),b(n1,*),c(n2+np,*),d(*)
-      complex :: w1(*),w2(*)
-      complex :: ww1(m1,*),ww2(m1,*),ww3(m2,*),ww4(n1/m1,*)
-      complex :: temp
-      integer :: ip1(*),ip2(*)
+      INTG_PREC :: n1, n2, m1, m2
+      CMPLX_PREC :: a1(n1,*),a2(n2,*),b(n1,*),c(n2+np,*),d(*)
+      CMPLX_PREC :: w1(*),w2(*)
+      CMPLX_PREC :: ww1(m1,*),ww2(m1,*),ww3(m2,*),ww4(n1/m1,*)
+      CMPLX_PREC :: temp
+      INTG_PREC :: ip1(*),ip2(*)
 
-      integer :: i, j
-      integer :: ii, jj
-      integer :: ij, ik, ir, is, ij0
+      INTG_PREC :: i, j
+      INTG_PREC :: ii, jj
+      INTG_PREC :: ij, ik, ir, is, ij0
 
 !$omp do private(ij,ij0,ir,j,temp)
       do ii = 1,n1,nblk
@@ -247,36 +241,36 @@
 
       implicit none
 
-      integer :: n1, n2, m1, m2
-      real :: w1(2,m1,*),w2(2,m1,*),w3(2,m2,*),w4(2,n1/m1,*)
+      INTG_PREC :: n1, n2, m1, m2
+      R_PREC :: w1(2,m1,*),w2(2,m1,*),w3(2,m2,*),w4(2,n1/m1,*)
 
-      integer :: j, k
-      integer :: ir, is
-      real :: pi2, px
+      INTG_PREC :: j, k
+      INTG_PREC :: ir, is
+      R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(real(n1)*real(n2))
+      px = -pi2/(REAL(n1,fftkind)*REAL(n2,fftkind))
 
 !$omp parallel
 !$omp do
       do k = 1,m2
         do j = 1,m1
-          w1(1,j,k) = cos(px*real(j-1)*real(k-1))
-          w1(2,j,k) = sin(px*real(j-1)*real(k-1))
+          w1(1,j,k) = cos(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
+          w1(2,j,k) = sin(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
         end do
         do ir = 1,n1/m1
-          w3(1,k,ir) = cos(px*real(k-1)*real(ir-1)*real(m1))
-          w3(2,k,ir) = sin(px*real(k-1)*real(ir-1)*real(m1))
+          w3(1,k,ir) = cos(px*REAL(k-1,fftkind)*REAL(ir-1,fftkind)*REAL(m1,fftkind))
+          w3(2,k,ir) = sin(px*REAL(k-1,fftkind)*REAL(ir-1,fftkind)*REAL(m1,fftkind))
         end do
       end do
       do is = 1,n2/m2
         do j = 1,m1
-          w2(1,j,is) = cos(px*real(j-1)*real(is-1)*real(m2))
-          w2(2,j,is) = sin(px*real(j-1)*real(is-1)*real(m2))
+          w2(1,j,is) = cos(px*REAL(j-1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
+          w2(2,j,is) = sin(px*REAL(j-1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
         end do
         do ir = 1,n1/m1
-          w4(1,ir,is) = cos(px*real(ir-1)*real(m1)*real(is-1)*real(m2))
-          w4(2,ir,is) = sin(px*real(ir-1)*real(m1)*real(is-1)*real(m2))
+          w4(1,ir,is) = cos(px*REAL(ir-1,fftkind)*REAL(m1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
+          w4(2,ir,is) = sin(px*REAL(ir-1,fftkind)*REAL(m1,fftkind)*REAL(is-1,fftkind)*REAL(m2,fftkind))
         end do
       end do
 !$omp end parallel
@@ -297,13 +291,13 @@
 !         e-mail: daisuke@cs.tsukuba.ac.jp
 !
 !
-!     2-d complex fft routine
+!     2-d CMPLX_PREC fft routine
 !
 !     fortran77 source program
 !
 !     call zfft2d(a,nx,ny,iopt)
 !
-!     a(nx,ny) is complex input/output vector (complex*16)
+!     a(nx,ny) is CMPLX_PREC input/output vector (complex*16)
 !     nx is the length of the transforms in the x-direction (integer*4)
 !     ny is the length of the transforms in the y-direction (integer*4)
 !       ------------------------------------
@@ -322,14 +316,14 @@
 
       implicit none
 
-      integer :: nx, ny, iopt
-      complex :: a(*)
-      complex :: b((nda2+np)*(nblk+1)+np)
-      complex :: wx(nda2/2+np),wy(nda2/2+np)
-      integer :: lnx(3),lny(3)
+      INTG_PREC :: nx, ny, iopt
+      CMPLX_PREC :: a(*)
+      CMPLX_PREC :: b((nda2+np)*(nblk+1)+np)
+      CMPLX_PREC :: wx(nda2/2+np),wy(nda2/2+np)
+      INTG_PREC :: lnx(3),lny(3)
 
-      integer :: i, nc
-      real :: dn
+      INTG_PREC :: i, nc
+      R_PREC :: dn
 
       save wx,wy
 
@@ -354,7 +348,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(real(nx)*real(ny))
+        dn = 1.0_fftkind/(REAL(nx,fftkind)*REAL(ny,fftkind))
         do i = 1,nx*ny
           a(i) = conjg(a(i))*dn
         end do
@@ -370,13 +364,13 @@
 
       implicit none
 
-      integer :: nx, ny
-      complex :: a(nx,*),b(ny+np,*),c(*)
-      complex :: wx(*),wy(*)
-      integer :: lnx(*),lny(*)
+      INTG_PREC :: nx, ny
+      CMPLX_PREC :: a(nx,*),b(ny+np,*),c(*)
+      CMPLX_PREC :: wx(*),wy(*)
+      INTG_PREC :: lnx(*),lny(*)
 
-      integer :: i, j
-      integer :: ii, jj
+      INTG_PREC :: i, j
+      INTG_PREC :: ii, jj
 
 !$omp do
       do ii = 1,nx,nblk
@@ -417,13 +411,13 @@
 !         e-mail: daisuke@cs.tsukuba.ac.jp
 !
 !
-!     3-d complex fft routine
+!     3-d CMPLX_PREC fft routine
 !
 !     fortran77 source program
 !
 !     call zfft3d(a,nx,ny,nz,iopt)
 !
-!     a(nx,ny,nz) is complex input/output vector (complex*16)
+!     a(nx,ny,nz) is CMPLX_PREC input/output vector (complex*16)
 !     nx is the length of the transforms in the x-direction (integer*4)
 !     ny is the length of the transforms in the y-direction (integer*4)
 !     nz is the length of the transforms in the z-direction (integer*4)
@@ -444,14 +438,14 @@
 
       implicit none
 
-      integer :: nx, ny, nz, iopt
-      complex :: a(*)
-      complex :: b((nda3+np)*(nblk+1)+np)
-      complex :: wx(nda3/2+np),wy(nda3/2+np),wz(nda3/2+np)
-      integer :: lnx(3),lny(3),lnz(3)
+      INTG_PREC :: nx, ny, nz, iopt
+      CMPLX_PREC :: a(*)
+      CMPLX_PREC :: b((nda3+np)*(nblk+1)+np)
+      CMPLX_PREC :: wx(nda3/2+np),wy(nda3/2+np),wz(nda3/2+np)
+      INTG_PREC :: lnx(3),lny(3),lnz(3)
 
-      integer :: i, nc
-      real :: dn
+      INTG_PREC :: i, nc
+      R_PREC :: dn
 
       save wx,wy,wz
 
@@ -478,7 +472,7 @@
 !$omp end parallel
 
       if (iopt .eq. 1) then
-        dn = 1.0_fftkind/(real(nx)*real(ny)*real(nz))
+        dn = 1.0_fftkind/(REAL(nx,fftkind)*REAL(ny,fftkind)*REAL(nz,fftkind))
         do i = 1,nx*ny*nz
           a(i) = conjg(a(i))*dn
         end do
@@ -494,13 +488,13 @@
 
       implicit none
 
-      integer :: nx, ny, nz
-      complex :: a(nx,ny,*),by(ny+np,*),bz(nz+np,*),c(*)
-      complex :: wx(*),wy(*),wz(*)
-      integer :: lnx(*),lny(*),lnz(*)
+      INTG_PREC :: nx, ny, nz
+      CMPLX_PREC :: a(nx,ny,*),by(ny+np,*),bz(nz+np,*),c(*)
+      CMPLX_PREC :: wx(*),wy(*),wz(*)
+      INTG_PREC :: lnx(*),lny(*),lnz(*)
 
-      integer :: i, j, k
-      integer :: ii, jj, kk
+      INTG_PREC :: i, j, k
+      INTG_PREC :: ii, jj, kk
 
 !$omp do
       do j = 1,ny
@@ -574,16 +568,16 @@
 
       implicit none
 
-      integer :: n
-      integer :: ip(*)
-      complex :: a(*),b(*),w(*)
+      INTG_PREC :: n
+      INTG_PREC :: ip(*)
+      CMPLX_PREC :: a(*),b(*),w(*)
 
-      integer :: j, k, l, m
-      integer :: key
-      integer :: kp4, kp8
+      INTG_PREC :: j, k, l, m
+      INTG_PREC :: key
+      INTG_PREC :: kp4, kp8
 
       if (ip(1) .ne. 1) then
-        kp4 = 2-mod(ip(1)+2,3)
+        kp4 = 2-mod(ip(1)+2,3_fftintk)
         kp8 = (ip(1)-kp4)/3
       else
         kp4 = 0
@@ -692,8 +686,8 @@
 
       implicit none
 
-      integer :: m, l
-      complex :: a(*),b(*),w(*)
+      INTG_PREC :: m, l
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft3a(a,b,w,l)
@@ -711,8 +705,8 @@
 
       implicit none
 
-      integer :: m, l
-      complex :: a(*),b(*),w(*)
+      INTG_PREC :: m, l
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft4a(a,b,w,l)
@@ -730,8 +724,8 @@
 
       implicit none
 
-      integer :: m, l
-      complex :: a(*),b(*),w(*)
+      INTG_PREC :: m, l
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft5a(a,b,w,l)
@@ -749,8 +743,8 @@
 
       implicit none
 
-      integer :: m, l
-      complex :: a(*),b(*),w(*)
+      INTG_PREC :: m, l
+      CMPLX_PREC :: a(*),b(*),w(*)
 
       if (m .eq. 1) then
         call fft8a(a,b,w,l)
@@ -768,17 +762,17 @@
 
       implicit none
 
-      integer :: n
-      complex :: w(*)
+      INTG_PREC :: n
+      CMPLX_PREC :: w(*)
 
-      integer :: i, j, k, l
-      integer :: ip(3)
-      integer :: kp4, kp8
+      INTG_PREC :: i, j, k, l
+      INTG_PREC :: ip(3)
+      INTG_PREC :: kp4, kp8
 
       call factor(n,ip)
 
       if (ip(1) .ne. 1) then
-        kp4 = 2-mod(ip(1)+2,3)
+        kp4 = 2-mod(ip(1)+2,3_fftintk)
         kp8 = (ip(1)-kp4)/3
       else
         kp4 = 0
@@ -790,25 +784,25 @@
 
       do 10 k = 1,kp8
         l = l/8
-        call settbl0(w(j),8,l)
+        call settbl0(w(j),8_IKIND,l)
         j = j+l
    10 continue
 
       do 20 k = 1,ip(3)
         l = l/5
-        call settbl0(w(j),5,l)
+        call settbl0(w(j),5_IKIND,l)
         j = j+l
    20 continue
 
       do 30 k = 1,kp4
         l = l/4
-        call settbl0(w(j),4,l)
+        call settbl0(w(j),4_IKIND,l)
         j = j+l
    30 continue
 
       do 40 k = 1,ip(2)
         l = l/3
-        call settbl0(w(j),3,l)
+        call settbl0(w(j),3_IKIND,l)
         j = j+l
    40 continue
 
@@ -822,17 +816,17 @@
 
       implicit none
 
-      integer :: m, l
-      real :: w(2,*)
-      integer :: i
-      real :: pi2, px
+      INTG_PREC :: m, l
+      R_PREC :: w(2,*)
+      INTG_PREC :: i
+      R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(real(m)*real(l))
+      px = -pi2/(REAL(m,fftkind)*REAL(l,fftkind))
 
       do 10 i = 1,l
-        w(1,i) = cos(px*real(i-1))
-        w(2,i) = sin(px*real(i-1))
+        w(1,i) = cos(px*REAL(i-1,fftkind))
+        w(2,i) = sin(px*REAL(i-1,fftkind))
    10 continue
 
       return
@@ -845,18 +839,18 @@
 
       implicit none
 
-      integer :: n1, n2
-      real :: w(2,n1,*)
-      integer :: j, k
-      real :: pi2, px
+      INTG_PREC :: n1, n2
+      R_PREC :: w(2,n1,*)
+      INTG_PREC :: j, k
+      R_PREC :: pi2, px
 
       pi2 = 8.0_fftkind*atan(1.0_fftkind)
-      px = -pi2/(real(n1)*real(n2))
+      px = -pi2/(REAL(n1,fftkind)*REAL(n2,fftkind))
 
       do 20 k = 1,n2
         do 10 j = 1,n1
-          w(1,j,k) = cos(px*real(j-1)*real(k-1))
-          w(2,j,k) = sin(px*real(j-1)*real(k-1))
+          w(1,j,k) = cos(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
+          w(2,j,k) = sin(px*REAL(j-1,fftkind)*REAL(k-1,fftkind))
    10   continue
    20 continue
 
@@ -870,29 +864,30 @@
 
       implicit none
 
-      integer :: n, n2
-      integer :: ip(*)
+      INTG_PREC :: n, n2
+      INTG_PREC :: ip(*)
 
       ip(1) = 0
       ip(2) = 0
       ip(3) = 0
       n2 = n
 
-      if (mod(n,2) .ne. 0 .and. mod(n,3) .ne. 0 .and.&
-     &    mod(n,5) .ne. 0) return
+      if (mod(n,2_fftintk) .ne. 0 .and. &
+          mod(n,3_fftintk) .ne. 0 .and. &
+     &    mod(n,5_fftintk) .ne. 0) return
 
    10 continue
 
       if (n2 .le. 1) return
-      if (mod(n2,2) .eq. 0) then
+      if (mod(n2,2_fftintk) .eq. 0) then
         ip(1) = ip(1)+1
         n2 = n2/2
         go to 10
-      else if (mod(n2,3) .eq. 0) then
+      else if (mod(n2,3_fftintk) .eq. 0) then
         ip(2) = ip(2)+1
         n2 = n2/3
         go to 10
-      else if (mod(n2,5) .eq. 0) then
+      else if (mod(n2,5_fftintk) .eq. 0) then
         ip(3) = ip(3)+1
         n2 = n2/5
         go to 10
@@ -926,11 +921,11 @@
 
       implicit none
 
-      integer :: m
-      real :: a(2,m,*),b(2,m,*)
+      INTG_PREC :: m
+      R_PREC :: a(2,m,*),b(2,m,*)
 
-      integer :: i
-      real :: x0, y0, x1, y1
+      INTG_PREC :: i
+      R_PREC :: x0, y0, x1, y1
 
       do i = 1,m
         x0 = a(1,i,1)
@@ -953,14 +948,14 @@
 
       implicit none
 
-      integer :: l
-      real :: a(2,l,*),b(2,3,*),w(2,*)
+      INTG_PREC :: l
+      R_PREC :: a(2,l,*),b(2,3,*),w(2,*)
 
-      integer :: i, j
-      real :: wr1, wi1, wr2, wi2
-      real :: x0, y0, x1, y1, x2, y2
+      INTG_PREC :: i, j
+      R_PREC :: wr1, wi1, wr2, wi2
+      R_PREC :: x0, y0, x1, y1, x2, y2
 
-      real :: c31, c32
+      R_PREC :: c31, c32
       data c31/0.86602540378443865_fftkind/
       data c32/0.5_fftkind/
 
@@ -993,14 +988,14 @@
 
       implicit none
 
-      integer :: m, l
-      real :: a(2,m,l,*),b(2,m,3,*),w(2,*)
+      INTG_PREC :: m, l
+      R_PREC :: a(2,m,l,*),b(2,m,3,*),w(2,*)
 
-      integer :: i, j
-      real :: wr1, wi1, wr2, wi2
-      real :: x0, y0, x1, y1, x2, y2
+      INTG_PREC :: i, j
+      R_PREC :: wr1, wi1, wr2, wi2
+      R_PREC :: x0, y0, x1, y1, x2, y2
 
-      real :: c31, c32
+      R_PREC :: c31, c32
       data c31/0.86602540378443865_fftkind/
       data c32/0.5_fftkind/
 
@@ -1050,12 +1045,12 @@
 
       implicit none
 
-      integer :: l
-      real :: a(2,l,*),b(2,4,*),w(2,*)
+      INTG_PREC :: l
+      R_PREC :: a(2,l,*),b(2,4,*),w(2,*)
 
-      integer :: j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
+      INTG_PREC :: j
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
 
       do j = 1,l
         wr1 = w(1,j)
@@ -1093,12 +1088,12 @@
 
       implicit none
 
-      integer :: m, l
-      real :: a(2,m,l,*),b(2,m,4,*),w(2,*)
+      INTG_PREC :: m, l
+      R_PREC :: a(2,m,l,*),b(2,m,4,*),w(2,*)
 
-      integer :: i, j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
+      INTG_PREC :: i, j
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
 
       do i = 1,m
         x0 = a(1,i,1,1)+a(1,i,1,3)
@@ -1156,16 +1151,16 @@
 
       implicit none
 
-      integer :: l
-      real :: a(2,l,*),b(2,5,*),w(2,*)
+      INTG_PREC :: l
+      R_PREC :: a(2,l,*),b(2,5,*),w(2,*)
 
-      integer :: j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: x8, y8, x9, y9, x10, y10
+      INTG_PREC :: j
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: x8, y8, x9, y9, x10, y10
 
-      real :: c51, c52, c53, c54
+      R_PREC :: c51, c52, c53, c54
       data c51/0.95105651629515357_fftkind/
       data c52/0.61803398874989485_fftkind/
       data c53/0.55901699437494742_fftkind/
@@ -1224,16 +1219,16 @@
 
       implicit none
 
-      integer :: m, l
-      real :: a(2,m,l,*),b(2,m,5,*),w(2,*)
+      INTG_PREC :: m, l
+      R_PREC :: a(2,m,l,*),b(2,m,5,*),w(2,*)
 
-      integer :: i, j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: x8, y8, x9, y9, x10, y10
+      INTG_PREC :: i, j
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: x8, y8, x9, y9, x10, y10
 
-      real :: c51, c52, c53, c54
+      R_PREC :: c51, c52, c53, c54
       data c51/0.95105651629515357_fftkind/
       data c52/0.61803398874989485_fftkind/
       data c53/0.55901699437494742_fftkind/
@@ -1329,20 +1324,20 @@
 
       implicit none
 
-      integer :: l
-      real :: a(2,l,*),b(2,8,*),w(2,*)
+      INTG_PREC :: l
+      R_PREC :: a(2,l,*),b(2,8,*),w(2,*)
 
-      integer :: j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: wr5, wi5, wr6, wi6, wr7, wi7
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: u0, v0
-      real :: u1, v1
-      real :: u2, v2
-      real :: u3, v3
+      INTG_PREC :: j
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: wr5, wi5, wr6, wi6, wr7, wi7
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: u0, v0
+      R_PREC :: u1, v1
+      R_PREC :: u2, v2
+      R_PREC :: u3, v3
 
-      real :: c81
+      R_PREC :: c81
       data c81/0.70710678118654752_fftkind/
 
       do j = 1,l
@@ -1420,20 +1415,20 @@
 
       implicit none
 
-      integer :: m, l
-      real :: a(2,m,l,*),b(2,m,8,*),w(2,*)
+      INTG_PREC :: m, l
+      R_PREC :: a(2,m,l,*),b(2,m,8,*),w(2,*)
 
-      integer :: i, j
-      real :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
-      real :: wr5, wi5, wr6, wi6, wr7, wi7
-      real :: x0, y0, x1, y1, x2, y2, x3, y3
-      real :: x4, y4, x5, y5, x6, y6, x7, y7
-      real :: u0, v0
-      real :: u1, v1
-      real :: u2, v2
-      real :: u3, v3
+      INTG_PREC :: i, j
+      R_PREC :: wr1, wi1, wr2, wi2, wr3, wi3, wr4, wi4
+      R_PREC :: wr5, wi5, wr6, wi6, wr7, wi7
+      R_PREC :: x0, y0, x1, y1, x2, y2, x3, y3
+      R_PREC :: x4, y4, x5, y5, x6, y6, x7, y7
+      R_PREC :: u0, v0
+      R_PREC :: u1, v1
+      R_PREC :: u2, v2
+      R_PREC :: u3, v3
 
-      real :: c81
+      R_PREC :: c81
       data c81/0.70710678118654752_fftkind/
 
       do i = 1,m

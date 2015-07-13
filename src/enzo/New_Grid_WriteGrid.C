@@ -60,6 +60,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
   int file_status;
  
+  int WriteStartIndex[MAX_DIMENSION], WriteEndIndex[MAX_DIMENSION];
+
   float *temp, *temp_VelAnyl;
   float *temperature, *dust_temperature,
     *cooling_time;
@@ -116,10 +118,26 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     GridStartIndex[dim] = 0;
     GridEndIndex[dim] = 0;
   }
- 
+
+  if( WriteBoundary == -1 ) {
+    WriteBoundary = 1;
+  }
+  if( WriteBoundary == TRUE ){
+    for(i=0;i<3; i++){
+      WriteStartIndex[i] = 0;
+      WriteEndIndex[i] = GridDimension[i] - 1;
+    }
+  }else{
+    for(i=0;i<3; i++){
+      WriteStartIndex[i] = GridStartIndex[i];
+      WriteEndIndex[i] = GridEndIndex[i];
+    }
+  }    
+
   for (dim = 0; dim < 3; dim++)
-    ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
- 
+    ActiveDim[dim] = WriteEndIndex[dim] - WriteStartIndex[dim] +1;
+
+
   /* ------------------------------------------------------------------- */
   /* 1) Save general grid class data */
 
@@ -344,7 +362,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
 
     if (BAnyl==1){
-
+      if (HydroMethod == MHD_RK) {
       float *curl_x, *curl_y, *curl_z, *div;
 
         this->ComputeVectorAnalysisFields(Bfield1, Bfield2, Bfield3,
@@ -368,6 +386,27 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
           delete [] curl_x;
           delete [] curl_y;
         }
+      } else if (UseMHDCT) {
+        fprintf(stdout, "Outputting DivB\n");
+        float *DivB = NULL;
+        this->MHD_Diagnose("WriteGrid", DivB);
+        float max_div_b = 0.0;
+        for ( i=0;i<size;i++ ){
+          if ( DivB[i] > max_div_b ) max_div_b = DivB[i];
+        }
+        fprintf(stdout, "max(DivB) = %10.5e\n", max_div_b);
+        if(CopyOnlyActive == TRUE) {
+          this->write_dataset(GridRank, OutDims, "DivB",
+                              group_id, file_type_id, (VOIDP) DivB,
+                              TRUE, temp);
+        } else {
+          this->write_dataset(GridRank, FullOutDims, "DivB",
+                              group_id, file_type_id, (VOIDP) DivB,
+                              FALSE);
+        }
+
+        delete [] DivB;
+      }
     }
 
    
@@ -404,6 +443,84 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       }
  
     } // end: if (OutputTemperature)
+
+
+    if( UseMHDCT ){
+      for(field=0;field<nBfields;field++){
+        if(CopyOnlyActive == TRUE) {
+          this->write_dataset(GridRank, OutDims, MHDcLabel[field],
+                              group_id, file_type_id, (VOIDP) CenteredB[field],
+                              TRUE, temp);
+        } else {
+          this->write_dataset(GridRank, FullOutDims, MHDcLabel[field],
+                              group_id, file_type_id, (VOIDP) CenteredB[field],
+                              FALSE);
+        }
+      }
+
+      hsize_t MHDOutDims[3];
+      int MHDActive[3]; 
+      int MHDWriteStartIndex[3], MHDWriteEndIndex[3];
+      int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
+      float *MHDtmp = new float[BiggieSize];
+      int index1, index2;
+
+      for(field=0;field<nBfields;field++){
+        if( WriteBoundary == TRUE){
+          for(i=0;i<3;i++){
+            MHDWriteStartIndex[i] = 0;
+            MHDWriteEndIndex[i] = MagneticDims[field][i]-1;
+          }
+        }else{
+          for(i=0;i<3;i++){
+            MHDWriteStartIndex[i] = MHDStartIndex[field][i];
+            MHDWriteEndIndex[i] = MHDEndIndex[field][i];
+          }
+        }
+        for (dim = 0; dim < 3; dim++){
+          MHDActive[dim] = MHDWriteEndIndex[dim] - MHDWriteStartIndex[dim] +1;
+          MHDOutDims[GridRank-dim-1] = MHDActive[dim];
+        }
+
+        this->write_dataset(GridRank, MHDOutDims, MHDLabel[field],
+                            group_id, file_type_id, (VOIDP) MagneticField[field],
+                            TRUE, MHDtmp, MHDWriteStartIndex, MHDWriteEndIndex, 
+                            MHDActive, MagneticDims[field]);
+      }
+      if( MHD_WriteElectric && ElectricField[0] != NULL ){
+        for(field=0;field<nBfields;field++){
+          if( WriteBoundary == TRUE ){
+            for( i=0;i<3;i++){
+              MHDWriteStartIndex[i] = 0;
+              MHDWriteEndIndex[i] = ElectricDims[field][i] - 1;
+            }
+          }else{
+            for(i=0;i<3;i++){
+              MHDWriteStartIndex[i] = MHDeStartIndex[field][i];
+              MHDWriteEndIndex[i] = MHDeEndIndex[field][i];
+            }
+          }
+          for(dim = 0; dim<3; dim++){
+            MHDActive[dim] = MHDWriteEndIndex[dim] - MHDWriteStartIndex[dim] +1;
+            MHDOutDims[GridRank-dim-1] = MHDActive[dim];
+          }
+
+          this->write_dataset(GridRank, MHDOutDims, MHDeLabel[field],
+                            group_id, file_type_id, (VOIDP) ElectricField[field],
+                            TRUE, MHDtmp, MHDWriteStartIndex, MHDWriteEndIndex, 
+                            MHDActive, ElectricDims[field]);
+          if( AvgElectricField[field] != NULL ){
+            char name[30];
+            sprintf(name, "AvgElec%d",field);
+            this->write_dataset(GridRank, MHDOutDims, name,
+                            group_id, file_type_id, (VOIDP) ElectricField[field],
+                            TRUE, MHDtmp, MHDWriteStartIndex, MHDWriteEndIndex, 
+                            MHDActive, MagneticDims[field]);
+          }
+        }
+      }//WriteElectric
+      delete [] MHDtmp;
+    }//UseMHDCT
 
     /* If requested, compute and output the dust temperature field 
        as well since its such a pain to compute after the fact. */
@@ -718,7 +835,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
 
 int grid::write_dataset(int ndims, hsize_t *dims, const char *name,
                   hid_t group, hid_t data_type, void *data, int active_only,
-                  float *temp)
+                  float *temp, int *grid_start_index, int *grid_end_index, 
+                  int *grid_active_dim, int *data_dims)
 {
     hid_t file_dsp_id;
     hid_t dset_id;
@@ -726,20 +844,35 @@ int grid::write_dataset(int ndims, hsize_t *dims, const char *name,
     herr_t      h5_error = -1;
     int i, j, k, dim, ActiveDim[MAX_DIMENSION];
 
-    for (dim = 0; dim < 3; dim++)
-      ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
+    // Populate optional arguments.  
+    if (grid_start_index == NULL){
+      grid_start_index = GridStartIndex;
+    }
+    if (grid_end_index == NULL){
+      grid_end_index = GridEndIndex;
+    }
+    if (data_dims == NULL){
+      data_dims = GridDimension;
+    }
+    if (grid_active_dim == NULL){
+      for (dim = 0; dim < 3; dim++)
+        ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
+    } else {
+      for (dim = 0; dim < 3; dim++)
+        ActiveDim[dim] = grid_active_dim[dim];
+    }
  
     if(active_only == TRUE) {
-       if (data_type != HDF5_REAL) ENZO_FAIL("Can't cast to float!");
-       float *data_float = (float *) data;
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
-	    temp[(i-GridStartIndex[0])                           +
-	         (j-GridStartIndex[1])*ActiveDim[0]              +
-	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-	      data_float[i + j*GridDimension[0] +
-		                     k*GridDimension[0]*GridDimension[1]];
+      if (data_type != HDF5_REAL) ENZO_FAIL("Can't cast to float!");
+      float *data_float = (float *) data;
+      for (k = grid_start_index[2]; k <= grid_end_index[2]; k++)
+        for (j = grid_start_index[1]; j <= grid_end_index[1]; j++)
+          for (i = grid_start_index[0]; i <= grid_end_index[0]; i++)
+            temp[(i-grid_start_index[0])                           +
+                (j-grid_start_index[1])*ActiveDim[0]              +
+                (k-grid_start_index[2])*ActiveDim[0]*ActiveDim[1] ] =
+                data_float[i + j*data_dims[0] +
+                k*data_dims[0]*data_dims[1]];
     } else { 
       temp = (float *) data; /* Should be fine, since we re-cast back to VOID */
     }

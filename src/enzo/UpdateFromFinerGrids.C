@@ -52,17 +52,11 @@ int CommunicationReceiveHandler(fluxes **SubgridFluxesEstimate[] = NULL,
 #define GRIDS_PER_LOOP 100000
  
  
-#ifdef FLUX_FIX
 int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 			 int NumberOfSubgrids[],
 			 fluxes **SubgridFluxesEstimate[],
 			 LevelHierarchyEntry* SUBlingList[],
 			 TopGridData *MetaData)
-#else
-int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
-			 int NumberOfSubgrids[],
-			 fluxes **SubgridFluxesEstimate[])
-#endif
  
 {
 
@@ -70,15 +64,15 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
  
   int grid1, subgrid, StartGrid, EndGrid;
   HierarchyEntry *NextGrid;
+  LevelHierarchyEntry *NextSubgrid;
  
-#ifdef FLUX_FIX
   int SUBlingGrid;
   LevelHierarchyEntry *NextEntry;
-#endif
  
   /* Define a temporary flux holder for the refined fluxes. */
  
   fluxes SubgridFluxesRefined;
+  InitializeFluxes(&SubgridFluxesRefined);
  
   /* For each grid,
      (a)  project the proper and neighboring subgrids' solutions into 
@@ -126,7 +120,6 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
       /* Loop over SUBlings for this grid. */
 
-#ifdef FLUX_FIX
       NextEntry = SUBlingList[grid1];
       while (NextEntry != NULL && FluxCorrection) {
 
@@ -147,7 +140,6 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	} // ENDIF not proper subgrid
 	NextEntry = NextEntry->NextGridThisLevel;
       } // ENDWHILE SUBlings
-#endif /* FLUX_FIX */
 
     } // ENDFOR grids
 
@@ -173,20 +165,12 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 	   (only call it if the grid and sub-grid are on the same
 	   processor, otherwise handled in CommunicationReceiveHandler.) */
 
-#ifdef FLUX_FIX	
 	if (NextGrid->GridData->ReturnProcessorNumber() ==
 	    Grids[grid1]->GridData->ReturnProcessorNumber())
 	  Grids[grid1]->GridData->CorrectForRefinedFluxes
 	    (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
 	     SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1],
 	     FALSE, MetaData);
-#else
-	if (NextGrid->GridData->ReturnProcessorNumber() ==
-	    Grids[grid1]->GridData->ReturnProcessorNumber())
-	  Grids[grid1]->GridData->CorrectForRefinedFluxes
-	    (SubgridFluxesEstimate[grid1][subgrid], &SubgridFluxesRefined,
-	     SubgridFluxesEstimate[grid1][NumberOfSubgrids[grid1] - 1]);
-#endif /* FLUX_FIX */
 
 	NextGrid = NextGrid->NextGridThisLevel;
 	subgrid++;
@@ -195,7 +179,6 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
       /* Loop over SUBlings for this grid. */
 
-#ifdef FLUX_FIX
       NextEntry = SUBlingList[grid1];
       while (NextEntry != NULL && FluxCorrection) {
 	/* make sure this isn't a "proper" subgrid */
@@ -221,18 +204,13 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
 	NextEntry = NextEntry->NextGridThisLevel;
       } // ENDWHILE SUBlings
-#endif /* FLUX_FIX */
 
     } // ENDFOR grids
 
     /* -------------- THIRD PASS ----------------- */
 
-#ifdef FLUX_FIX
     CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids, 
 				FALSE, MetaData);
-#else
-    CommunicationReceiveHandler(SubgridFluxesEstimate, NumberOfSubgrids);
-#endif
 
   } // ENDFOR grid batches
   LCAPERF_STOP("GetProjectedBoundaryFluxes");
@@ -290,6 +268,39 @@ int UpdateFromFinerGrids(int level, HierarchyEntry *Grids[], int NumberOfGrids,
 
   } // ENDFOR grid batches
   LCAPERF_STOP("ProjectSolutionToParentGrid");
+
+
+    /* -------------- Face Projection.  Still with blocking receive. ----------------- */
+
+  if( UseMHDCT) {
+    CommunicationDirection = COMMUNICATION_SEND;
+
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+
+      NextSubgrid = SUBlingList[grid1];
+      while( NextSubgrid != NULL ){
+	
+        if (NextSubgrid->GridData->MHD_ProjectFace
+            (*Grids[grid1]->GridData, MetaData->LeftFaceBoundaryCondition,
+             MetaData->RightFaceBoundaryCondition  ) == FAIL) 
+	  ENZO_FAIL("Error in grid->MHD_ProjectFace, Send Pass.");
+	
+	NextSubgrid = NextSubgrid->NextGridThisLevel;
+      }
+    }
+    CommunicationDirection = COMMUNICATION_SEND_RECEIVE;
+    for (grid1 = 0; grid1 < NumberOfGrids; grid1++) {
+      NextSubgrid = SUBlingList[grid1];
+      while( NextSubgrid != NULL ){
+	if (NextSubgrid->GridData->MHD_ProjectFace
+	    (*Grids[grid1]->GridData, MetaData->LeftFaceBoundaryCondition,
+	     MetaData->RightFaceBoundaryCondition  ) == FAIL)
+	  ENZO_FAIL("Error in grid->MHD_ProjectFace, Receive Pass.");
+	
+	NextSubgrid = NextSubgrid->NextGridThisLevel;
+      }
+    }//2nd grid loop
+  }//MHD Used
 
 #ifdef FORCE_MSG_PROGRESS 
   CommunicationBarrier();

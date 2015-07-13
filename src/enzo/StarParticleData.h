@@ -43,8 +43,12 @@ SPEXTERN int G_TotalNumberOfStars;
 
 SPEXTERN int StarFeedbackType;
 SPEXTERN int StarMakerTypeIaSNe;
+SPEXTERN int StarMakerTypeIISNeMetalField;
 SPEXTERN int StarMakerPlanetaryNebulae;
+SPEXTERN int StarMakerTimeIndependentFormation;
 SPEXTERN float StarMakerOverDensityThreshold;
+SPEXTERN int StarMakerUseOverDensityThreshold;
+SPEXTERN float StarMakerMaximumFractionCell;
 SPEXTERN float StarMakerSHDensityThreshold;
 SPEXTERN float StarMakerMassEfficiency;
 SPEXTERN float StarMakerMinimumMass;

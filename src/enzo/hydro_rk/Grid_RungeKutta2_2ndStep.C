@@ -111,7 +111,7 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
   
   int activesize = 1;
   for (int dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
 
   float *dU[NEQ_HYDRO+NSpecies+NColor];
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
@@ -163,6 +163,15 @@ int grid::RungeKutta2_2ndStep(fluxes *SubgridFluxes[],
   }
 
   //  PerformanceTimers[1] += ReturnWallTime() - time1;
+  
+  /* If we're supposed to be outputting on Density, we need to update
+  the current maximum value of that Density. */
+  
+  if(OutputOnDensity == 1){
+    int DensNum = FindField(Density, FieldType, NumberOfBaryonFields);
+    for(int i = 0; i < size; i++)
+      CurrentMaximumDensity = max(BaryonField[DensNum][i], CurrentMaximumDensity);
+  }
 
   return SUCCESS;
 

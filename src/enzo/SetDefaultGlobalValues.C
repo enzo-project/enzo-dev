@@ -15,10 +15,8 @@
  
 // This routine intializes a new simulation based on the parameter file.
 //
- 
-#include <string.h>
-#include <stdio.h>
-#include "ErrorExceptions.h"
+
+#include "preincludes.h" 
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -42,7 +40,8 @@ char DefaultDataDir[] = "DD";
 char DefaultHistoryDir[] = "HD";
 char DefaultRedshiftDir[] = "RD";
 char DefaultTracerParticleDir[] = "TD";
- 
+char DefaultExtraName[] = "ExtraDumpXX";
+char DefaultExtraDir[]="ED00";
  
  
  
@@ -116,6 +115,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   //MetaData.RedshiftDumpNumber  = 0;
   MetaData.RedshiftDumpName    = DefaultRedshiftName;
   MetaData.RedshiftDumpDir     = DefaultRedshiftDir;
+  MetaData.ExtraDumpDir        = DefaultExtraDir;
+  MetaData.ExtraDumpName        = DefaultExtraName;
 
   MetaData.MetaDataIdentifier    = NULL;
   MetaData.SimulationUUID        = NULL;
@@ -125,6 +126,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetaData.LocalDir            = NULL;
   MetaData.GlobalDir           = NULL;
 
+  NumberOfGhostZones = 3;
   LoadBalancing = 1;     //On, memory equalization method
   LoadBalancingCycleSkip = 10;  // Load balance root grids every 10 cycles
   ResetLoadBalancing = FALSE;
@@ -137,8 +139,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   // Default Hierarchy File IO settings (1 = ASCII; 2 = HDF5+ASCII)
   HierarchyFileInputFormat = 1;
-  HierarchyFileOutputFormat = 2;
+  HierarchyFileOutputFormat = 1;
 
+  ConductionDynamicRebuildHierarchy = FALSE;
+  ConductionDynamicRebuildMinLevel = 0;
   for (i = 0;i < MAX_DEPTH_OF_HIERARCHY;i++) {
     RebuildHierarchyCycleSkip[i] = 1;
   }
@@ -189,7 +193,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HydroMethod               = PPM_DirectEuler;   //
   Gamma                     = 5.0/3.0;           // 5/3
   PressureFree              = FALSE;             // use pressure (duh)
-  RefineBy                  = 4;                 // Refinement factor
+  RefineBy                  = 2;                 // Refinement factor
   MaximumRefinementLevel    = 2;                 // three levels (w/ topgrid)
   MaximumGravityRefinementLevel = INT_UNDEFINED;
   MaximumParticleRefinementLevel = -1;            // unused if negative
@@ -214,7 +218,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MinimumMassForRefinement[i] = FLOAT_UNDEFINED;   // usually set by:
     MinimumOverDensityForRefinement[i]       = 1.5;
     MinimumMassForRefinementLevelExponent[i] = 0;
+    MinimumSecondDerivativeForRefinement[i]= 0.3;
+    SecondDerivativeFlaggingFields[i] = INT_UNDEFINED;
   }
+  SecondDerivativeEpsilon = 1.0e-2;
  
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainLeftEdge[dim]             = 0.0;
@@ -231,7 +238,24 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MustRefineRegionLeftEdge[dim] = 0.0;
     MustRefineRegionRightEdge[dim] = 1.0;
   }
- 
+
+  MultiRefineRegionMaximumOuterLevel = INT_UNDEFINED;
+  MultiRefineRegionMinimumOuterLevel = INT_UNDEFINED;
+  for (i = 0; i < MAX_STATIC_REGIONS; i++) {
+    MultiRefineRegionMaximumLevel[i] = INT_UNDEFINED;
+    MultiRefineRegionMinimumLevel[i] = 0;
+    MultiRefineRegionGeometry[i] = -1; 
+    MultiRefineRegionRadius[i] = INT_UNDEFINED;
+    MultiRefineRegionWidth[i] = 3.0;
+    MultiRefineRegionStaggeredRefinement[i] = 0.0;
+    for (dim = 0; dim < MAX_DIMENSION; dim++) {
+      MultiRefineRegionLeftEdge[i][dim] = FLOAT_UNDEFINED;
+      MultiRefineRegionRightEdge[i][dim] = FLOAT_UNDEFINED;
+      MultiRefineRegionCenter[i][dim]         = FLOAT_UNDEFINED;
+      MultiRefineRegionOrientation[i][dim]    = FLOAT_UNDEFINED;
+    }
+  }
+
   for (i = 0; i < MAX_STATIC_REGIONS; i++) {
     StaticRefineRegionLevel[i] = INT_UNDEFINED;
     AvoidRefineRegionLevel[i]  = INT_UNDEFINED;
@@ -262,6 +286,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
+  for (i = 0; i < MAX_DIMENSION; i++) {
+    UserDefinedRootGridLayout[i] = INT_UNDEFINED;
+  }
 
   ExternalBoundaryIO          = FALSE;
   ExternalBoundaryTypeIO      = FALSE;
@@ -271,7 +298,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   debug1                      = 0;
   debug2                      = 0;
 
-  TracerParticleOn            = 0;
+  TracerParticleOn            = FALSE;
+  TracerParticleOutputVelocity = FALSE;
 
   OutputOnDensity                  = 0;
   StartDensityOutputs              = 999;
@@ -311,6 +339,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   GravityResolution           = 1.0;               // equivalent to grid
   ComputePotential            = FALSE;
   WritePotential              = FALSE;
+  ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
   GreensFunctionMaxNumber     = 1;                 // only one at a time
@@ -332,7 +361,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RadiativeTransferFLD        = 0;                 // off
   ImplicitProblem             = 0;                 // off
   StarMakerEmissivityField    = 0;                 // off
-  uv_param                    = 1.0e-5;            // mid-range value from Razoumov Norman 2002
+  uv_param                    = 1.1e-5;            // consistent with Razoumov Norman 2002
 
   MultiSpecies                = FALSE;             // off
   NoMultiSpeciesButColors     = FALSE;             // off
@@ -372,7 +401,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass   = 0.76;
   /* The DToHRatio is by mass in the code, so multiply by 2. */
   CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
-  CoolData.SolarMetalFractionByMass = 0.02041;
+
+  /*
+     Previously, the solar metal mass fraction was 0.02041.  
+     This is close to 0.0194 of Anders & Grevesse (1989), but significantly 
+     higher than the more recent value of 0.0122 from Asplund et al. (2005).
+     Now, the solar metal mass fraction has been set to 0.01295, 
+     which is consistent with the abundances used in Cloudy when generating the 
+     Grackle cooling tables.
+  */
+  CoolData.SolarMetalFractionByMass = 0.01295; // Cloudy v13 abundances
+
   CoolData.NumberOfTemperatureBins = 600;
   CoolData.ih2co                   = 1;
   CoolData.ipiht                   = 1;
@@ -391,6 +430,34 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CloudyCoolingData.CMBTemperatureFloor            = 1;         // use CMB floor.
   CloudyCoolingData.CloudyElectronFractionFactor = 9.153959e-3; // calculated using Cloudy 07.02 abundances
 
+#ifdef USE_GRACKLE
+  // Grackle chemistry data structure.
+  if (set_default_chemistry_parameters() == FAIL) {
+    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+  }
+  // Map Grackle defaults to corresponding Enzo parameters
+  Gamma                                 = (float) grackle_data.Gamma;
+  MultiSpecies                          = (int) grackle_data.primordial_chemistry;
+  MetalCooling                          = (int) grackle_data.metal_cooling;
+  H2FormationOnDust                     = (int) grackle_data.h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data.cmb_temperature_floor;
+  ThreeBodyRate                         = (int) grackle_data.three_body_rate;
+  CIECooling                            = (int) grackle_data.cie_cooling;
+  H2OpticalDepthApproximation           = (int) grackle_data.h2_optical_depth_approximation;
+  PhotoelectricHeating                  = (int) grackle_data.photoelectric_heating;
+  PhotoelectricHeatingRate              = (float) grackle_data.photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = (int) grackle_data.NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = (int) grackle_data.CaseBRecombination;
+  CoolData.TemperatureStart             = (float) grackle_data.TemperatureStart;
+  CoolData.TemperatureEnd               = (float) grackle_data.TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = (int) grackle_data.NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = (float) grackle_data.DustTemperatureStart;
+  RateData.DustTemperatureEnd           = (float) grackle_data.DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = (float) grackle_data.HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data.DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = (float) grackle_data.SolarMetalFractionByMass;
+#endif
+
   OutputCoolingTime = FALSE;
   OutputTemperature = FALSE;
   OutputDustTemperature = FALSE;
@@ -407,6 +474,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
  
   //MinimumSlopeForRefinement        = 0.3;          // 30% change in value
   MinimumShearForRefinement        = 1.0;          //AK
+  OldShearMethod                   = 0;            
   MinimumPressureJumpForRefinement = 0.33;         // As in PPM method paper
   MinimumEnergyRatioForRefinement  = 0.1;          // conservative!
   RefineByJeansLengthSafetyFactor  = 4.0;
@@ -428,9 +496,13 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SimpleRampTime                   = 0.1;
   StarFormationOncePerRootGridTimeStep = FALSE;
   StarMakerTypeIaSNe               = FALSE;
+  StarMakerTypeIISNeMetalField     = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
+  StarMakerUseOverDensityThreshold = TRUE;
+  StarMakerMaximumFractionCell     = 0.5;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
+  StarMakerTimeIndependentFormation = FALSE;
   StarMakerMassEfficiency          = 1;
   StarMakerMinimumMass             = 1.0e9;        // in solar masses
   StarMakerMinimumDynamicalTime    = 1.0e6;        // in years
@@ -453,9 +525,32 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   IsotropicConduction = FALSE;
   AnisotropicConduction = FALSE;
-  IsotropicConductionSpitzerFraction = 1.0;
-  AnisotropicConductionSpitzerFraction = 1.0;
+  IsotropicConductionSpitzerFraction = 0.0;
+  AnisotropicConductionSpitzerFraction = 0.0;
   ConductionCourantSafetyNumber = 0.5;
+  SpeedOfLightTimeStepLimit = FALSE;
+
+  ClusterSMBHFeedback              = FALSE;
+  ClusterSMBHJetMdot               = 3.0;
+  ClusterSMBHJetVelocity           = 10000.0;
+  ClusterSMBHJetRadius             = 6.0;
+  ClusterSMBHJetLaunchOffset       = 10.0;
+  ClusterSMBHStartTime             = 1.0;
+  ClusterSMBHTramp                 = 0.1;
+  ClusterSMBHJetOpenAngleRadius    = 0.0;
+  ClusterSMBHFastJetRadius         = 0.1;
+  ClusterSMBHFastJetVelocity       = 10000.0;
+  ClusterSMBHJetEdot               = 1.0;
+  ClusterSMBHKineticFraction       = 1.0;
+  ClusterSMBHJetAngleTheta         = 0.0;
+  ClusterSMBHJetAnglePhi           = 0.0;
+  ClusterSMBHJetPrecessionPeriod   = 0.0;
+  ClusterSMBHCalculateGasMass      = 1;
+  ClusterSMBHFeedbackSwitch        = FALSE;
+  ClusterSMBHEnoughColdGas         = 1.0e7;
+  ClusterSMBHAccretionTime         = 5.0;
+  ClusterSMBHJetDim                = 2;
+  ClusterSMBHAccretionEpsilon      = 0.001;
 
   PythonTopGridSkip                = 0;
   PythonSubcycleSkip               = 1;
@@ -674,6 +769,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
   TestProblemData.MetallicitySNIaField_Fraction = tiny_number;
+  TestProblemData.MetallicitySNIIField_Fraction = tiny_number;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;
@@ -754,7 +850,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
   /* Some stateful variables for EvolveLevel */
   for(i = 0; i < MAX_DEPTH_OF_HIERARCHY; i++) {
-    LevelCycleCount[i] = 0;
+    LevelCycleCount[i] = LevelSubCycleCount[i] = 0;
+    dtRebuildHierarchy[i] = -1.0;
+    TimeSinceRebuildHierarchy[i] = 0.0;
     dtThisLevelSoFar[i] = dtThisLevel[i] = 0.0;
   }
 
@@ -765,14 +863,39 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingBoundaryDirection=-1;
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
-  useMHD=0;
+  UseMHD=0;
 
+  //MHDCT variables
+  MHDCT_debug_flag = 0;
+  MHDCTSlopeLimiter = 1;
+  MHDCTDualEnergyMethod = INT_UNDEFINED;
+  MHDCTPowellSource = 0;
+  MHDCTUseSpecificEnergy = TRUE;
+  FixedTimestep = -1.0;
+  WriteBoundary             = FALSE;
+  CT_AthenaDissipation = 0.1;
+  MHD_WriteElectric = TRUE;
+  tiny_pressure = tiny_number;
+  MHD_CT_Method = 2;
+  NumberOfGhostZones = 3;
+  IsothermalSoundSpeed = 1.0;
+  MHD_ProjectB = FALSE;
+  MHD_ProjectE = TRUE;
+  UseMHDCT = FALSE;
+  EquationOfState = 0;
+  for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
+  WriteAcceleration = FALSE;
+
+  CorrectParentBoundaryFlux = FALSE; //Corrects (or doesn't) parent flux when subgrid shares an exposed face with parent.
+
+  for(int dccdbg=0; dccdbg<MAX_EXTRA_OUTPUTS;dccdbg++) ExtraOutputs[dccdbg]=INT_UNDEFINED;
   MoveParticlesBetweenSiblings = TRUE;
 
   /* Particle Splitter */
 
   ParticleSplitterIterations = FALSE;
   ParticleSplitterChildrenParticleSeparation = 1.0;
+  ParticleSplitterRandomSeed = 131180;
 
   /* Magnetic Field Resetter */
 

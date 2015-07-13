@@ -34,40 +34,40 @@
 !-----------------------------------------------------------------------
 
       implicit NONE
-
+#include "fortran_types.def"
 !  Arguments
 
-      integer in, jn, kn, is, js, ks, ie, je, ke, nratec,
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, nratec,
      &        iexpand, ispecies, idim
-      real    aye, temstart, temend,
+      R_PREC    aye, temstart, temend,
      &        utem, uxyz, uaye, urho, utim
-      real    d(in,jn,kn),
+      R_PREC    d(in,jn,kn),
      &     de(in,jn,kn),   HI(in,jn,kn),   HII(in,jn,kn),
      &     HeI(in,jn,kn), HeII(in,jn,kn), HeIII(in,jn,kn),
      &     HM(in,jn,kn),  H2I(in,jn,kn), H2II(in,jn,kn),
      &     gas_temp(in,jn,kn), dust_temp(in,jn,kn)
-      real    gasgra(nratec)
+      R_PREC    gasgra(nratec)
 
 !  Parameters
 
-      double precision mh
+      real*8 mh
       parameter (mh = mass_h)      !DPC
 
 !  Locals
 
-      integer i, j, k
-      real trad, zr, logtem0, logtem9, dlogtem
-      double precision coolunit, dbase1, tbase1, xbase1
+      INTG_PREC i, j, k
+      R_PREC trad, zr, logtem0, logtem9, dlogtem
+      real*8 coolunit, dbase1, tbase1, xbase1
 
 !  Slice locals
  
-      integer indixe(in)
-      real t1(in), t2(in), logtem(in), tdef(in), 
+      INTG_PREC indixe(in)
+      R_PREC t1(in), t2(in), logtem(in), tdef(in), 
      &     tgas(in), tdust(in), nh(in), gasgr(in)
           
 !  Iteration mask for multi_cool
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -84,12 +84,12 @@
       xbase1   = uxyz/(aye*uaye)    ! uxyz is [x]*a      = [x]*[a]*a'        '
       dbase1   = urho*(aye*uaye)**3 ! urho is [dens]/a^3 = [dens]/([a]*a')^3 '
       coolunit = (uaye**5 * xbase1**2 * mh**2) / (tbase1**3 * dbase1)
-      zr       = 1.d0/(aye*uaye) - 1.d0
+      zr       = 1._RKIND/(aye*uaye) - 1._RKIND
 
 !     Set compton cooling coefficients (and temperature)
 
       if (iexpand .eq. 1) then
-         trad = 2.73d0 * (1.d0 + zr)
+         trad = 2.73_RKIND * (1._RKIND + zr)
       else
          trad = tiny
       endif
@@ -126,7 +126,7 @@
 !     Compute index into the table and precompute parts of linear interp
 
                indixe(i) = min(nratec-1,
-     &              max(1,int((logtem(i)-logtem0)/dlogtem)+1))
+     &              max(1,int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
                t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
                t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
                tdef(i) = (logtem(i) - t1(i)) / (t2(i) - t1(i))

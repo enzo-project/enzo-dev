@@ -81,39 +81,43 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, ctype, iradtrans, imulti, imetalSNIa
-      real    formleft(3), formright(3)
-      real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      integer type(nmax)
-      real    odthresh, masseff, starmass, min_tdyn, efficiency
-      real    lifetime
-      real    metalcrit
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum, ctype, iradtrans, imulti, imetalSNIa
+      R_PREC    formleft(3), formright(3)
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, justburn
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      INTG_PREC type(nmax)
+      R_PREC    odthresh, masseff, starmass, min_tdyn, efficiency
+      R_PREC    lifetime
+      R_PREC    metalcrit
 c
 c  Locals:
 c
-      integer  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
-      integer  dim
-      real   div, tdyn, dtot, wgt
-      real   pi, G, sndspdC, m1
-      real   isosndsp2, bmass, jeanmass, lum, min_temp
-      REALSUB this_pos(3)
-      double precision msolar, mh
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
-     &           msolar=SolarMass, mh=mass_h)
+      INTG_PREC  i, j, k, ii, irad, ib, jb, kb, maxradius, radius2
+      INTG_PREC  dim
+      R_PREC   div, tdyn, dtot, wgt
+      R_PREC   pi, G, sndspdC, m1
+      R_PREC   isosndsp2, bmass, jeanmass, lum, min_temp
+      P_PREC this_pos(3)
+      real*8 msolar, mh
+      parameter (pi=pi_val,
+     &           G=GravConst,
+     &           sndspdC=1.3095e8_RKIND, 
+     &           msolar=SolarMass, 
+     &           mh=mass_h)
 c
 c      if (iradtrans .eq. 0) then
 c         write(6,*) 'Radiative transfer required for cluster_maker!'
@@ -130,8 +134,8 @@ c     calculate how many solar masses are in d1*x1^3
       m1 = dble(x1*dx)**3 * dble(d1) / msolar
 c
 c     Different minimum temperature when to ignore tcool < tdyn
-      if (imulti.le.1) min_temp = 1e4
-      if (imulti.ge.2) min_temp = 1e3
+      if (imulti.le.1) min_temp = 1.e4_RKIND
+      if (imulti.ge.2) min_temp = 1.e3_RKIND
 c
 c
 c  for each zone, : a primordial "star" particle is created if answers
@@ -148,9 +152,9 @@ c
          do j=1+ibuff,ny-ibuff
             do i=1+ibuff,nx-ibuff
 
-               this_pos(1) = xstart + (float(i)-0.5d0)*dx
-               this_pos(2) = ystart + (float(j)-0.5d0)*dx
-               this_pos(3) = zstart + (float(k)-0.5d0)*dx
+               this_pos(1) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               this_pos(2) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               this_pos(3) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c              1) finest level of refinement?
 c
@@ -173,12 +177,12 @@ c
      &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
-               if (div .ge. 0.0) goto 10
+               if (div .ge. 0._RKIND) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 8000.0 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
 c               if (tdyn .gt. cooltime(i,j,k) .or.
 c     &            temp(i,j,k) .lt. 1.1e4) 
 c     &            write(6,*) 'C',i,j,k,tdyn,cooltime(i,j,k),temp(i,j,k)
@@ -240,10 +244,10 @@ c
                ii = ii + 1
 c               mp(ii)   = efficiency*bmass
                mp(ii)  = efficiency*d(i,j,k)
-               if (lifetime.lt.0.0) then
-                  tdp(ii) = 4.d0*tdyn
+               if (lifetime.lt.0._RKIND) then
+                  tdp(ii) = 4._RKIND*tdyn
                else
-                  tdp(ii) = lifetime*3.15d7/t1 ! yr -> code
+                  tdp(ii) = lifetime*3.15e7_RKIND/t1 ! yr -> code
                endif
 
                type(ii) = -ctype
@@ -260,39 +264,39 @@ c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 c
                if (imethod .eq. 2) then
-c                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
-c                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
-c                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
+c                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+c                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+c                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
 
-              up(ii) = ( 0.5d0*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
-     &          0.5d0*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
-     &          0.5d0*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
-     &          0.5d0*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
+              up(ii) = ( 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
+     &          0.5_RKIND*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
+     &          0.5_RKIND*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
+     &          0.5_RKIND*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) ) 
 
-              vp(ii) = ( 0.5d0*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5d0*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5d0*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5d0*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
+              vp(ii) = ( 0.5_RKIND*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5_RKIND*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5_RKIND*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5_RKIND*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
 
-              wp(ii) = ( 0.5d0*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
-     &          0.5d0*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
-     &          0.5d0*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
-     &          0.5d0*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
-     &          0.5d0*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
-     &          0.5d0*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
-     &          0.5d0*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
+              wp(ii) = ( 0.5_RKIND*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
+     &          0.5_RKIND*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
+     &          0.5_RKIND*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
+     &          0.5_RKIND*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
+     &          0.5_RKIND*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
+     &          0.5_RKIND*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
+     &          0.5_RKIND*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
      &          ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &           d(i,j-1,k)+d(i,j+1,k)           +
      &           d(i,j,k-1)+d(i,j,k+1) )
@@ -343,7 +347,7 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
-                  metalf(ii) = 0.d0
+                  metalf(ii) = 0._RKIND
                endif
                if (imetalSNIa .eq. 1) then
                   metalfSNIa(ii) = metalSNIa(i,j,k)
@@ -351,7 +355,7 @@ c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
 c
 c              Remove mass from grid
 
-               d(i,j,k) = (1.d0 - efficiency) * d(i,j,k)
+               d(i,j,k) = (1._RKIND - efficiency) * d(i,j,k)
 
 c               write(6,777) d(i,j,k), xp(ii), yp(ii), zp(ii)
 c               write(6,7777) i, j, k

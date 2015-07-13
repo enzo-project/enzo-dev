@@ -30,16 +30,17 @@ c  modified6:  June, 2010 by John Wise; transferred from euler.src into its
 c                         own routine
 c
       implicit none
-      integer ijkn
+#include "fortran_types.def"
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c     Arguments
 c
-      integer i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
+      INTG_PREC i1, i2, j1, j2, idim, jdim, ncolor, idiff, idual,
      $     ifallback
-      real gamma, dt, eta1
-      real ubar(idim,jdim), pbar(idim,jdim), dx(idim),
+      R_PREC gamma, dt, eta1
+      R_PREC ubar(idim,jdim), pbar(idim,jdim), dx(idim),
      $     uls(idim,jdim), vls(idim,jdim), wls(idim,jdim),
      $     urs(idim,jdim), vrs(idim,jdim), wrs(idim,jdim),
      $     pls(idim,jdim), dls(idim,jdim), gels(idim,jdim),
@@ -49,7 +50,7 @@ c
      $     uslice(idim,jdim), vslice(idim,jdim), wslice(idim,jdim),
      $     eslice(idim,jdim), geslice(idim,jdim),
      $     colslice(idim,jdim,ncolor)
-      real df(idim,jdim), ef(idim,jdim), gef(idim,jdim),
+      R_PREC df(idim,jdim), ef(idim,jdim), gef(idim,jdim),
      $     uf(idim,jdim), vf(idim,jdim), wf(idim,jdim),
      $     colf(idim,jdim,ncolor), ges(idim,jdim)
 
@@ -57,20 +58,20 @@ c
 c-----------------------------------------------------------------------
 c     Locals
 c
-      integer i, j, n
-      real qa, qb, qc, frac, one
-      real sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
+      INTG_PREC i, j, n
+      R_PREC qa, qb, qc, frac, one
+      R_PREC sn(ijkn), u0(ijkn), p0(ijkn), d0(ijkn), c0(ijkn), z0(ijkn),
      $     dbar(ijkn), cbar(ijkn), l0(ijkn), lbar(ijkn), 
      $     ub(ijkn), vb(ijkn), wb(ijkn), db(ijkn), pb(ijkn), 
      $     cb(ijkn), eb(ijkn), geb(ijkn), colb(ijkn,MAX_COLOR),
      $     upb(ijkn), dub(ijkn), duub(ijkn), duvb(ijkn), duwb(ijkn),
      $     dueb(ijkn), dugeb(ijkn), pcent(ijkn)
-      parameter (one=1.d0)
+      parameter (one=1._RKIND)
 c
 c-----------------------------------------------------------------------
 c
-      qa = (gamma + 1.d0)/(2.d0*gamma)
-      qb = (gamma - 1.d0)/(gamma + 1.d0)
+      qa = (gamma + 1._RKIND)/(2._RKIND*gamma)
+      qb = (gamma - 1._RKIND)/(gamma + 1._RKIND)
 
 c
 c  Loop over sweep lines (in this slice)
@@ -86,7 +87,7 @@ c
 c
 c  Collect values of interest depending on which way fluid is flowing
 c     
-          if (sn(i) .lt. 0.0) then
+          if (sn(i) .lt. 0._RKIND) then
              u0(i) = uls(i,j)
              p0(i) = pls(i,j)
              d0(i) = dls(i,j)
@@ -103,7 +104,7 @@ c             geb(i) = gers(i,j)
           endif
           c0(i)    = sqrt(max(gamma*p0(i)/d0(i), tiny))
           z0(i)    = c0(i)*d0(i)*sqrt(max(
-     &               1.d0 + qa*(pbar(i,j)/p0(i)-1.d0), tiny))
+     &               1._RKIND + qa*(pbar(i,j)/p0(i)-1._RKIND), tiny))
 c          write(24,*) i, u0(i), uls(i,j), urs(i,j), c0(i)
        enddo
 c
@@ -112,7 +113,7 @@ c
 #ifdef UNUSED
        do n=1,ncolor
           do i=i1, i2+1
-             if (sn(i) .lt. 0.0) then
+             if (sn(i) .lt. 0._RKIND) then
                 colb(i,n) = colls(i,j,n)
              else
                 colb(i,n) = colrs(i,j,n)
@@ -125,8 +126,8 @@ c  Compute equivalent bar (inside shock & rarefaction) values for density
 c    and sound speed
 c
        do i=i1, i2+1
-          dbar(i)  = 1.d0/(1.d0/d0(i) - (pbar(i,j)-p0(i))/
-     &                                max(z0(i)**2, tiny))
+          dbar(i)  = 1._RKIND/(1._RKIND/d0(i) - (pbar(i,j)-p0(i))/
+     &         max(z0(i)**2, tiny))
           cbar(i)  = sqrt(max(gamma*pbar(i,j)/dbar(i), tiny))
        enddo
 c
@@ -155,7 +156,7 @@ c  sound speed is assumed to be 1.0 in expression for db(i)
 c  (see eqs (3.11) - (3.16) in Balsara (1994) ApJ 420, p. 200)
 c
          ub(i)    = -cbar(i)*sn(i)
-         db(i)    = d0(i)*exp(-sn(i)*u0(i) - 1.d0)
+         db(i)    = d0(i)*exp(-sn(i)*u0(i) - 1._RKIND)
          pb(i)    = db(i)*cbar(i)**2
 c
 #endif /* RAREFACTION0 */
@@ -165,13 +166,13 @@ c
 c  Compute values for inside a rarefaction fan
 c  (method described in Colella (1982) SIAM J Sci Stat Comp 3, p. 107)
 c
-         cb(i)    = (-sn(i)*ubar(i,j) + 2.0*cbar(i)/(gamma - 1.d0))*qb
-         ub(i)    = -cb(i)*sn(i)
-c         alpha    = (c0(i)**2 - cb(i)**2)/(c0(i)**2 + cb(i)**2)/
+         cb(i) = (-sn(i)*ubar(i,j) + 2.0*cbar(i)/(gamma - 1._RKIND))*qb
+         ub(i) = -cb(i)*sn(i)
+c         alpha = (c0(i)**2 - cb(i)**2)/(c0(i)**2 + cb(i)**2)/
 c     &              (gamma - 1.0)
-c         db(i)    = d0(i)*(1.0 - alpha)/(1.0 + alpha)
-         db(i)    = d0(i)*(cb(i)/c0(i))**(2.0/(gamma - 1.d0)) !AK
-         pb(i)    = db(i)*cb(i)**2/gamma
+c         db(i) = d0(i)*(1.0 - alpha)/(1.0 + alpha)
+         db(i) = d0(i)*(cb(i)/c0(i))**(2.0/(gamma - 1._RKIND)) !AK
+         pb(i) = db(i)*cb(i)**2/gamma
 c
 #endif /* RAREFACTION1 */
 c
@@ -182,12 +183,12 @@ c     (linear interpolation between end states, as suggested in PPM ref)
 c
          frac     = l0(i) - lbar(i)
          if (frac .lt. tiny) frac = tiny
-         if (frac .gt. 1.0)  frac = 1.d0
-         frac     = (0.d0 - lbar(i))/frac
-         frac     = min(max(frac, 0.d0), 1.d0)
-         pb(i)    = p0(i)*frac + pbar(i,j)*(1.d0 - frac)
-         db(i)    = d0(i)*frac + dbar(i  )*(1.d0 - frac)
-         ub(i)    = u0(i)*frac + ubar(i,j)*(1.d0 - frac)
+         if (frac .gt. 1._RKIND)  frac = 1._RKIND
+         frac     = (0._RKIND - lbar(i))/frac
+         frac     = min(max(frac, 0._RKIND), 1._RKIND)
+         pb(i)    = p0(i)*frac + pbar(i,j)*(1._RKIND - frac)
+         db(i)    = d0(i)*frac + dbar(i  )*(1._RKIND - frac)
+         ub(i)    = u0(i)*frac + ubar(i,j)*(1._RKIND - frac)
 c
 #endif /* RAREFACTION2 */
 c
@@ -199,12 +200,12 @@ c     l0   <  0 --> outside shock/rarefaction wave,
 c     otherwise --> inside rarefaction wave).
 c
        do i=i1, i2+1
-         if (lbar(i) .ge. 0.0) then !AK
+         if (lbar(i) .ge. 0._RKIND) then !AK
             pb(i) = pbar(i,j)
             db(i) = dbar(i  )
             ub(i) = ubar(i,j)
          endif
-         if (l0  (i) .lt. 0.0) then !AK
+         if (l0  (i) .lt. 0._RKIND) then !AK
             pb(i) = p0(i)
             db(i) = d0(i)
             ub(i) = u0(i)
@@ -220,13 +221,13 @@ c
 #define NO_CAVITATE_AVOID
 #ifdef CAVITATE_AVOID
        do i=i1, i2+1
-         if (ubar(i,j)*ub(i) .lt. 0.0 .and. 
+         if (ubar(i,j)*ub(i) .lt. 0._RKIND .and. 
      &       -db(i)*ub(i)*dt/dx(i) .gt. dslice(i,j) .or.
      &        db(i)*ub(i)*dt/dx(i) .gt. dslice(i-1,j)     ) then
             write(6,1010) i,j,ubar(i,j),ub(i),db(i),
      &              dslice(i,j),dslice(i-1,j)
  1010       format('cav:',2i6,8g12.4)
-            ub(i) = 0.d0
+            ub(i) = 0._RKIND
          endif
       enddo
 #endif
@@ -235,7 +236,7 @@ c  Collect values of interest depending on which way fluid is flowing
 c     (note: new placement for this - uses ub instead of ubar for consistency)
 c
        do i=i1, i2+1
-          if (ub(i) .gt. 0.0) then !AK
+          if (ub(i) .gt. 0._RKIND) then !AK
              vb(i) = vls(i,j)
              wb(i) = wls(i,j)
              geb(i) = gels(i,j)
@@ -250,10 +251,10 @@ c      Repeat for colour variables
 c
        do n=1,ncolor
           do i=i1, i2+1
-             if (ub(i) .gt. 0.0) then
-                colb(i,n) = colls(i,j,n)
+             if (ub(i) .gt. 0._RKIND) then
+                colb(i,n) = colls(i,j,n) * db(i)/dls(i,j)
              else
-                colb(i,n) = colrs(i,j,n)
+                colb(i,n) = colrs(i,j,n) * db(i)/drs(i,j)
              endif
           enddo
        enddo
@@ -281,9 +282,9 @@ c  Calculate total specific energy corresponding to this state
 c     (and the specific gas energy).
 c
        do i=i1, i2+1
-         eb(i) = pb(i)/((gamma-1.d0)*db(i)) + 
-     &           0.5d0*(ub(i)**2 + vb(i)**2 + wb(i)**2)
-c         geb(i) = pb(i)/((gamma-1.d0)*db(i))
+         eb(i) = pb(i)/((gamma-1._RKIND)*db(i)) + 
+     &           0.5_RKIND*(ub(i)**2 + vb(i)**2 + wb(i)**2)
+c         geb(i) = pb(i)/((gamma-1._RKIND)*db(i))
        enddo
 c
 c  Compute terms in differenced hydro equations (eq. 3.1)
@@ -385,12 +386,12 @@ c      JHW (Jul 2010): Moved the source term to here.
 c
        if (idual .eq. 1) then
           do i=i1, i2+1
-             pcent(i) = max((gamma-1.d0)*geslice(i,j)*dslice(i,j), 
+             pcent(i) = max((gamma-1._RKIND)*geslice(i,j)*dslice(i,j), 
      $            tiny)
           enddo
           do i=i1, i2+1
              qc = dt/dx(i)
-             gef(i,j) = dt*dugeb(i)
+             gef(i,j) = qc*dugeb(i)
              ges(i,j) = qc * pcent(i) * (ub(i) - ub(i+1))
           enddo
        endif
@@ -399,9 +400,9 @@ c
 c     Check here for negative densities and energies
 c
        do i=i1, i2
-          if (dslice(i,j) + (df(i,j)-df(i+1,j)) .le. 0.0 .or.
-     $         eslice(i,j) .lt. 0.0) then
-             if (eslice(i,j) .lt. 0.0) then
+          if (dslice(i,j) + (df(i,j)-df(i+1,j)) .le. 0._RKIND .or.
+     $         eslice(i,j) .lt. 0._RKIND) then
+             if (eslice(i,j) .lt. 0._RKIND) then
                 write (6,*) 'flux_twoshock: eslice < 0: ', i, j
                 write (6,*) qc*(dueb(i)-dueb(i+1)),
      &                     qc*(upb(i)-upb(i+1)), eslice(i,j)*dslice(i,j)
@@ -461,7 +462,7 @@ c
        do n=1, ncolor
           do i=i1, i2
              if (colslice(i,j,n) +
-     $            (colf(i,j,n)-colf(i+1,j,n))/dx(i) .lt. 0.0) then
+     $            (colf(i,j,n)-colf(i+1,j,n))/dx(i) .lt. 0._RKIND) then
                 write(6,*) 'flux_twoshock: negative color',i,j,n
                 write(6,*) 'a', dx(i), colf(i-1,j,n),colf(i,j,n),
      $               colf(i+1,j,n)

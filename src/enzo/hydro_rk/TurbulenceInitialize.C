@@ -295,7 +295,7 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
       DataLabel[count++] = HDIName;
     }
   }  // if Multispecies                                                                                                   
-  DataLabel[count++] = MetalName;
+  //  DataLabel[count++] = MetalName;
   //if (PhotonTestUseColour)
   //DataLabel[count++] = ColourName;
 #ifdef TRANSFER

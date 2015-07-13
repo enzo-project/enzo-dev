@@ -1,14 +1,16 @@
+#include "fortran.def"
       subroutine rotate2d(x,n1,n2,y)
 
       implicit none
+#include "fortran_types.def"
 
-      integer n1,n2
-      complex x(n1,n2), y(n2,n1)
+      INTG_PREC n1,n2
+      CMPLX_PREC x(n1,n2), y(n2,n1)
 
-      integer i,j
-      integer ii,jj
-      integer ib,jb
-      integer bs
+      INTG_PREC i,j
+      INTG_PREC ii,jj
+      INTG_PREC ib,jb
+      INTG_PREC bs
 
       bs = 64
       ib = n1/max(n1/bs,1)

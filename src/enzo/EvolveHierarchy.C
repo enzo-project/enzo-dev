@@ -67,6 +67,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
+    ,SiblingGridList *SiblingGridListStorage[]
 		);
 
 int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
@@ -74,7 +75,7 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		    ImplicitProblemABC *ImplicitSolver, 
 #endif
-		    FLOAT dt0);
+		    FLOAT dt0 ,SiblingGridList *SiblingGridListStorage[]);
 
 int WriteAllData(char *basename, int filenumber,
 		 HierarchyEntry *TopGrid, TopGridData &MetaData,
@@ -146,8 +147,8 @@ int CallPython(LevelHierarchyEntry *LevelArray[], TopGridData *MetaData,
  
 #define NO_REDUCE_FRAGMENTATION
  
- 
- 
+
+
  
 int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
                     ExternalBoundary *Exterior,
@@ -160,6 +161,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   float dt;
  
   int i, dim, Stop = FALSE;
+  int StoppedByOutput = FALSE;
   int Restart = FALSE;
   double tlev0, tlev1, treb0, treb1, tloop0, tloop1, tentry, texit;
   LevelHierarchyEntry *Temp;
@@ -316,6 +318,12 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   LCAPERF_STOP("EvolveHierarchy");
   LCAPERF_END("EH");
 
+  SiblingGridList *SiblingGridListStorage[MAX_DEPTH_OF_HIERARCHY];
+  for( int level=0; level < MAX_DEPTH_OF_HIERARCHY; level++ ){
+    SiblingGridListStorage[level] = NULL;
+  }
+
+
   /* ====== MAIN LOOP ===== */
 
   bool FirstLoop = true;
@@ -371,7 +379,8 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     // Start skipping
     if(CheckpointRestart == FALSE) {
       while (Temp != NULL) {
-        dtProc = min(dtProc, Temp->GridData->ComputeTimeStep());
+        float dtProcTemp = Temp->GridData->ComputeTimeStep();
+        dtProc = min(dtProc, dtProcTemp);
         Temp = Temp->NextGridThisLevel;
       }
 
@@ -451,11 +460,10 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     /* If provided, set RefineRegion from evolving RefineRegion */
     if ((RefineRegionTimeType == 1) || (RefineRegionTimeType == 0)) {
-        if (SetEvolveRefineRegion(MetaData.Time) == FAIL) {
-          fprintf(stderr, "Error in SetEvolveRefineRegion.\n");
-          return FAIL;
-        }
+        if (SetEvolveRefineRegion(MetaData.Time) == FAIL) 
+	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
     }
+
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 
@@ -481,11 +489,13 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
  
     if (HydroMethod == PPM_DirectEuler || HydroMethod == Zeus_Hydro || 
 	HydroMethod == PPM_LagrangeRemap || HydroMethod == HydroMethodUndefined ||
+	HydroMethod == MHD_Li || HydroMethod == NoHydro ||
 	HydroMethod < 0) {
       if (EvolveLevel(&MetaData, LevelArray, 0, dt, Exterior
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
+          ,SiblingGridListStorage
 		      ) == FAIL) {
         if (NumberOfProcessors == 1) {
           fprintf(stderr, "Error in EvolveLevel.\n");
@@ -506,7 +516,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef TRANSFER
 			    ImplicitSolver, 
 #endif
-			    dt) == FAIL) {
+			    dt, SiblingGridListStorage) == FAIL) {
 	  if (NumberOfProcessors == 1) {
 	    fprintf(stderr, "Error in EvolveLevel_RK2.\n");
 	    fprintf(stderr, "--> Dumping data (output number %d).\n",
@@ -690,6 +700,20 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     FirstLoop = false;
  
+    /* If simulation is set to stop after writing a set number of outputs, check that here. */
+
+    if (MetaData.NumberOfOutputsBeforeExit && MetaData.WroteData) {
+      MetaData.OutputsLeftBeforeExit--;
+      if (MetaData.OutputsLeftBeforeExit <= 0) {
+        if (MyProcessorNumber == ROOT_PROCESSOR) {
+          fprintf(stderr, "Exiting after writing %"ISYM" datadumps.\n",
+                  MetaData.NumberOfOutputsBeforeExit);
+        }      
+        Stop = TRUE;
+        StoppedByOutput = TRUE;
+      }
+    }
+
   } // ===== end of main loop ====
 
 #ifdef USE_LCAPERF
@@ -741,7 +765,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Write a file to indicate that we're finished. */
 
   FILE *Exit_fptr;
-  if (!Restart && MyProcessorNumber == ROOT_PROCESSOR) {
+  if (!Restart && !StoppedByOutput && MyProcessorNumber == ROOT_PROCESSOR) {
     if ((Exit_fptr = fopen("RunFinished", "w")) == NULL)
       ENZO_FAIL("Error opening RunFinished.");
     fprintf(Exit_fptr, "Finished on cycle %"ISYM"\n", MetaData.CycleNumber);

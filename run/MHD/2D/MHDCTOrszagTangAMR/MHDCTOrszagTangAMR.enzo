@@ -1,0 +1,56 @@
+Debug1 = 1
+Debug2 = 1
+StopCycle = 2000
+#ExtraOutputs = 80 1 2 3 4 5 6 
+ProblemType            = 103
+NumberOfGhostZones = 5
+MHDCTUseSpecificEnergy = 0
+# the things
+
+#Refinement options:
+# 1 = slope, 2=baryon mass, 3=shocks, 4=particle mass, 6=jeans length
+# 7= cooling time, 8=mhd dummy
+RefineRegionFile = RefinementSequence
+RefineRegionTimeType = 0 #0 for code, 1 for redshift
+MustRefineRegionMinRefinementLevel = 1
+MustRefineRegionLeftEdge  = 0.25 0.25 0
+MustRefineRegionRightEdge = 0.75 0.75 1
+SubgridSizeAutoAdjust = 0
+MaximumSubgridSize = 32768 #2000
+
+CellFlaggingMethod     = 12
+NumberOfBufferZones    = 0
+MaximumRefinementLevel    = 1
+MHD_InterpolationMethod = 1 //0 = Direct sample, 1=Average
+RefineBy = 2
+StaticHierarchy = 0
+MinimumSlopeForRefinement        = 0.3;
+WriteBoundary          = 0
+
+# Solver Parameters
+DualEnergyMethod = 0
+SlopeLimiter = 1
+RiemannSolver = 6
+ReconstructionMethod = 6
+MHD_CT_Method       = 1  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
+HydroMethod            = 6
+CourantSafetyNumber    = 0.5
+
+
+# Hydro control
+
+Gamma                  = 1.6667
+
+StopTime = 0.48
+
+CycleLastDataDump = -20
+CycleSkipDataDump = 20
+
+TopGridRank            = 3
+TopGridDimensions      = 16 16 5 
+
+
+RightFaceBoundaryCondition = 3 3 3
+LeftFaceBoundaryCondition =  3 3 3
+
+

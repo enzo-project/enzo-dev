@@ -1,9 +1,6 @@
 #include "fortran.def"
 #include "error.def"
 
-#define XH 0.76
-#define MU 1.22
-
 !     set this if you want to log star particle info in a file (one per
 !     processor)
 #define STAR_LOG
@@ -170,67 +167,72 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
+#include "phys_const.def"
+#define XH 0.76_RKIND
+#define MU 1.22_RKIND
+
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer grid_id
-      integer procnum
-      integer ran1_init
-      real    d(nx,ny,nz), fHI(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1
-      REALSUB xstart, ystart, zstart, t
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC grid_id
+      INTG_PREC procnum
+      INTG_PREC ran1_init
+      R_PREC    d(nx,ny,nz), fHI(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1
+      P_PREC xstart, ystart, zstart, t
 
-      integer oldnp
-      REALSUB oldxp(oldnp), oldyp(oldnp), oldzp(oldnp)
-      real oldmp(oldnp), oldtcp(oldnp)
-      integer oldtype(oldnp)
+      INTG_PREC oldnp
+      P_PREC oldxp(oldnp), oldyp(oldnp), oldzp(oldnp)
+      R_PREC oldmp(oldnp), oldtcp(oldnp)
+      INTG_PREC oldtype(oldnp)
 
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
 
-      integer StochasticStarFormation
-      integer UseSobolevColumn
-      integer AssumeColdWarmPressureBalance
-      real StarFormationEfficiency
-      real StarFormationNumberDensityThreshold
-      real StarFormationMinimumMass
-      real MinimumH2FractionForStarFormation
-      real SigmaOverR
-      real H2DissociationFlux_MW
-      real H2FloorInColdGas
-      real ColdGasTemperature
+      INTG_PREC StochasticStarFormation
+      INTG_PREC UseSobolevColumn
+      INTG_PREC AssumeColdWarmPressureBalance
+      R_PREC StarFormationEfficiency
+      R_PREC StarFormationNumberDensityThreshold
+      R_PREC StarFormationMinimumMass
+      R_PREC MinimumH2FractionForStarFormation
+      R_PREC SigmaOverR
+      R_PREC H2DissociationFlux_MW
+      R_PREC H2FloorInColdGas
+      R_PREC ColdGasTemperature
 
 c
 c  Functions:
 c
-      real SobolevColumn
+      R_PREC SobolevColumn
 
 c
 c  Locals:
 c
-      integer  i, j, k, n, ii
-      real   pi, G, mproton, m1
-      real   starmass, starmass_in_Msun
-      real   densthresh, timeconstant, gasfrac
-      real   tau_ff, tau_max
-      real   random, critval
+      INTG_PREC  i, j, k, n, ii
+      R_PREC   pi, G, mproton, m1
+      R_PREC   starmass, starmass_in_Msun
+      R_PREC   densthresh, timeconstant, gasfrac
+      R_PREC   tau_ff, tau_max
+      R_PREC   random, critval
 
-      real H2_fraction, Z_MW, nH
-      real phi_CNM, chi, Sigma, tau_c, s
-      real G0prime, t_avg, age
-      real Sigma_cell
+      R_PREC H2_fraction, Z_MW, nH
+      R_PREC phi_CNM, chi, Sigma, tau_c, s
+      R_PREC G0prime, t_avg, age
+      R_PREC Sigma_cell
 
-      real U_MW, D_MW, Dstar, alpha, gg, Lambda, x
+      R_PREC U_MW, D_MW, Dstar, alpha, gg, Lambda, x
 
-      double precision msolar
-      parameter (pi=3.14159265, G=6.67e-8,
-     $     msolar=1.989e33,mproton=1.67e-24)
+      real*8 msolar
+      parameter (pi=pi_val, G=6.67e-8_RKIND,
+     $     msolar=1.989e33_RKIND,mproton=1.67e-24_RKIND)
       
 
 #ifdef STAR_LOG      
@@ -265,9 +267,9 @@ c      print *,'starlog_filename = ',starlog_filename
 
 
       if (StochasticStarFormation .eq. 1) then 
-c     Initialize random number generator once  
+c     Initialize random number generator once using the MPI rank
          if (ran1_init .eq. 0) then
-            call random_seed()
+            call init_random_seed(procnum)
             ran1_init = 1
          endif
       endif
@@ -309,7 +311,7 @@ c     StarFormationOncePerRootGridTimeStep.
 c     
 c     Is this finest level of refinement?
 c     
-               if (r(i,j,k) .ne. 0.d0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 
 
 c     Some conditions for SF to occur.
@@ -327,14 +329,14 @@ c     t_ff = [ 3 * pi / (32 * G * rho) ]^(-1/2)
 c          = 6.66e6 yr * [ rho / 10^-22 g/cm^3 ]^(-1/2)
 c          = 2.10e14 seconds * [ rho / 10^-22 g/cm^3 ]^(-1/2)
 
-               timeconstant = 2.10e14 / t1 /
-     $              sqrt( d(i,j,k)*dble(d1) / 1.0e-22 )
+               timeconstant = 2.10e14_RKIND / t1 /
+     $              sqrt( d(i,j,k)*dble(d1) / 1.0e-22_RKIND )
 
 c     Calculate molecular hydrogen frection (if H2StarFormation)
                H2_fraction = 1.0
 
 c     Metallicity normalized to Milky Way (solar neighborhood)
-               Z_MW = metal(i,j,k) / 0.0204 ! I got this value from yt (source?)
+               Z_MW = metal(i,j,k) / 0.0204_RKIND ! I got this value from yt (source?)
 
 c     [Actually, 0.024 is the solar metallicity, which is not
 c     necessarily equal to the solar neighborhood metallicity. For
@@ -351,15 +353,15 @@ c     Hydrogen number density in proper cm^-3
                if (AssumeColdWarmPressureBalance .eq. 1) then
 
 c     Eq.(7) Krumholz, McKee, & Tumlinson (2009)
-                  phi_CNM = 3.0
-                  chi = 2.3 * SigmaOverR / phi_CNM * 
-     $                 ( 1.0 + 3.1 * Z_MW**0.365 )
+                  phi_CNM = 3._RKIND
+                  chi = 2.3_RKIND * SigmaOverR / phi_CNM * 
+     $                 ( 1._RKIND + 3.1_RKIND * Z_MW**0.365_RKIND )
                else
 
                   G0prime = H2DissociationFlux_MW
                      
 c     Eq.(9) McKee & Krumholz (2010)
-                  chi = 71.0 * SigmaOverR * G0prime / nH
+                  chi = 71._RKIND * SigmaOverR * G0prime / nH
                
                endif
 
@@ -374,7 +376,7 @@ ccc   Sigma = d(i,j,k) * d1 * (x1*dx) * 4788.03
 
 c     neutral hydrogen column (Sigma_HI)
                   Sigma = d(i,j,k) * fHI(i,j,k) * 
-     $                 d1 * (x1*dx) * 4788.03                        
+     $                 d1 * (x1*dx) * 4788.03_RKIND
                else
 c              *** Sobolev-like approximation ***
 c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
@@ -383,35 +385,35 @@ c                  [ Sigma ~ rho * ( rho / grad(rho) ) ]
      $                 i, j, k, dx, d1, x1)
                   
                   Sigma_cell = d(i,j,k) * fHI(i,j,k) * 
-     $                 d1 * (x1*dx) * 4788.03                        
+     $                 d1 * (x1*dx) * 4788.03_RKIND
                endif
                      
 c     Eq.(22) Krumholz, McKee, & Tumlinson (2009)
-               tau_c = 0.067 * Z_MW * Sigma
+               tau_c = 0.067_RKIND * Z_MW * Sigma
                
 c     Eq.(91) McKee & Krumholz (2010)
-               s = log( 1.0 + 0.6 * chi + 0.01*chi*chi) /
-     $              (0.6 * tau_c)
+               s = log( 1._RKIND + 0.6_RKIND * chi + 0.01_RKIND*chi*chi) 
+     $              / (0.6_RKIND * tau_c)
                
 c     Eq.(93) McKee & Krumholz (2010)
-               H2_fraction = 0.0
-               if (s .lt. 2.0) then
-                  H2_fraction = 1.0 - 0.75 * 
-     $                 ( s / (1.0 + 0.25*s) )
+               H2_fraction = 0._RKIND
+               if (s .lt. 2._RKIND) then
+                  H2_fraction = 1._RKIND - 0.75_RKIND * 
+     $                 ( s / (1._RKIND + 0.25_RKIND*s) )
                endif
                
-c               if (H2_fraction .eq. 0.0) then
+c               if (H2_fraction .eq. 0._RKIND) then
 c                  write(4,*) 'f_H2=0: ',s,chi,tau_c,Z_MW,Sigma,
 c     $                 Sigma_cell,nH,d(i,j,k), fHI(i,j,k)
 c               endif
-c               if (H2_fraction .eq. 1.0) then
+c               if (H2_fraction .eq. 1._RKIND) then
 c                  print *, 'f_H2=1: ',s,chi,tau_c,Z_MW,Sigma
 c               endif
 
 
 c     If H2FloorInColdGas is non-zero, then enforce a floor in f_H2, but
 c     only for cold gas (ColdGasTemperature).
-               if (H2FloorInColdGas .gt. 0.0) then
+               if (H2FloorInColdGas .gt. 0._RKIND) then
                   
                   if(H2_fraction .lt. H2FloorInColdGas) then
                      
@@ -436,7 +438,7 @@ c#endif
                      
                   endif  ! if(H2_fraction .lt. H2FloorInColdGas)
                   
-               endif  ! if (H2FloorInColdGas .gt. 0.0)
+               endif  ! if (H2FloorInColdGas .gt. 0._RKIND)
 
                
 c     No star formation if H2_fraction < MinimumH2FractionForStarFormation.
@@ -450,7 +452,7 @@ c     $                 MinimumH2FractionForStarFormation
                
 c     Ensure that no more than 90% of the cell's mass is converted into
 c     a star particle.
-               gasfrac = min( 0.9, 
+               gasfrac = min( 0.9_RKIND, 
      $              StarFormationEfficiency * H2_fraction *
      $              dt / timeconstant )
                
@@ -520,43 +522,43 @@ c            fill in star particle attributes
                mp(ii)  = starmass
                tcp(ii) = t
                tdp(ii) = timeconstant
-               xp(ii) = xstart + (float(i)-0.5)*dx
-               yp(ii) = ystart + (float(j)-0.5)*dx
-               zp(ii) = zstart + (float(k)-0.5)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 
 #define AVERAGE_PARTICLE_VELOCITY
 #ifdef AVERAGE_PARTICLE_VELOCITY
                if (imethod .eq. 2) then
                   
-                  up(ii) = ( 0.5*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
-     &                 0.5*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)        +
-     &                 0.5*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)      +
-     &                 0.5*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)    +        
-     &                 0.5*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)    + 
-     &                 0.5*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)    +        
-     &                 0.5*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) ) / 
+                  up(ii) = ( 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))*d(i,j,k) +
+     &                 0.5_RKIND*(u(i-1,j,k)+u(i,j,k))*d(i-1,j,k)      +
+     &                 0.5_RKIND*(u(i+1,j,k)+u(i+2,j,k))*d(i+1,j,k)    +
+     &                 0.5_RKIND*(u(i,j+1,k)+u(i+1,j+1,k))*d(i,j+1,k)  +        
+     &                 0.5_RKIND*(u(i,j-1,k)+u(i+1,j-1,k))*d(i,j-1,k)  + 
+     &                 0.5_RKIND*(u(i,j,k+1)+u(i+1,j,k+1))*d(i,j,k+1)  +        
+     &                 0.5_RKIND*(u(i,j,k-1)+u(i+1,j,k-1))*d(i,j,k-1) )/ 
      &                 ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &                 d(i,j-1,k)+d(i,j+1,k)           +
      &                 d(i,j,k-1)+d(i,j,k+1) ) 
                   
-                  vp(ii) = ( 0.5*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
-     &                 0.5*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)        +
-     &                 0.5*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)      +
-     &                 0.5*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)    +
-     &                 0.5*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)    +
-     &                 0.5*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)    +
-     &                 0.5*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) ) /
+                  vp(ii) = ( 0.5_RKIND*(v(i,j,k)+v(i+1,j,k))*d(i,j,k) +
+     &                 0.5_RKIND*(v(i-1,j,k)+v(i,j,k))*d(i-1,j,k)      +
+     &                 0.5_RKIND*(v(i+1,j,k)+v(i+2,j,k))*d(i+1,j,k)    +
+     &                 0.5_RKIND*(v(i,j+1,k)+v(i+1,j+1,k))*d(i,j+1,k)  +
+     &                 0.5_RKIND*(v(i,j-1,k)+v(i+1,j-1,k))*d(i,j-1,k)  +
+     &                 0.5_RKIND*(v(i,j,k+1)+v(i+1,j,k+1))*d(i,j,k+1)  +
+     &                 0.5_RKIND*(v(i,j,k-1)+v(i+1,j,k-1))*d(i,j,k-1) )/
      &                 ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &                 d(i,j-1,k)+d(i,j+1,k)           +
      &                 d(i,j,k-1)+d(i,j,k+1) )
                   
-                  wp(ii) = ( 0.5*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
-     &                 0.5*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)        +
-     &                 0.5*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)      +
-     &                 0.5*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)    +
-     &                 0.5*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)    +
-     &                 0.5*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)    +
-     &                 0.5*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) ) /
+                  wp(ii) = ( 0.5_RKIND*(w(i,j,k)+w(i+1,j,k))*d(i,j,k) +
+     &                 0.5_RKIND*(w(i-1,j,k)+w(i,j,k))*d(i-1,j,k)      +
+     &                 0.5_RKIND*(w(i+1,j,k)+w(i+2,j,k))*d(i+1,j,k)    +
+     &                 0.5_RKIND*(w(i,j+1,k)+w(i+1,j+1,k))*d(i,j+1,k)  +
+     &                 0.5_RKIND*(w(i,j-1,k)+w(i+1,j-1,k))*d(i,j-1,k)  +
+     &                 0.5_RKIND*(w(i,j,k+1)+w(i+1,j,k+1))*d(i,j,k+1)  +
+     &                 0.5_RKIND*(w(i,j,k-1)+w(i+1,j,k-1))*d(i,j,k-1) )/
      &                 ( d(i,j,k)+d(i-1,j,k)+d(i+1,j,k) +
      &                 d(i,j-1,k)+d(i,j+1,k)           +
      &                 d(i,j,k-1)+d(i,j,k+1) )                  
@@ -599,9 +601,9 @@ c            fill in star particle attributes
                endif               
 #else
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -615,12 +617,12 @@ c
                if (imetal .eq. 1) then
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
                else
-                  metalf(ii) = 0.0
+                  metalf(ii) = 0._RKIND
                endif
 c
 c              Remove mass from grid
 c
-               d(i,j,k) = (1.0 - gasfrac)*d(i,j,k)
+               d(i,j,k) = (1._RKIND - gasfrac)*d(i,j,k)
 c
 c              Do not generate more star particles than available
 c
@@ -647,8 +649,7 @@ c
       end
 
 
-      real function SobolevColumn(d, fHI, 
-     $     nx, ny, nz, i, j, k, dx, d1, x1)
+      R_PREC function SobolevColumn(d,fHI,nx,ny,nz,i,j,k,dx,d1,x1)
 c     
 c  CALCULATE SOBOLEV-LIKE APPROXIMATION OF THE HI SURFACE DENSITY
 c
@@ -689,34 +690,35 @@ c    Sigma_HI - Sobolev-like estimate of the neutral hydrogen column density
 c
 c-----------------------------------------------------------------------
       implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c  Arguments
 c
-      integer nx, ny, nz, i, j, k
-      real d(nx,ny,nz), fHI(nx,ny,nz)
-      real dx, d1, x1
+      INTG_PREC nx, ny, nz, i, j, k
+      R_PREC d(nx,ny,nz), fHI(nx,ny,nz)
+      R_PREC dx, d1, x1
 c
 c  Locals:
 c
-      real dHI
-      real dHI_xm1, dHI_xp1
-      real dHI_ym1, dHI_yp1
-      real dHI_zm1, dHI_zp1
+      R_PREC dHI
+      R_PREC dHI_xm1, dHI_xp1
+      R_PREC dHI_ym1, dHI_yp1
+      R_PREC dHI_zm1, dHI_zp1
 
-      real grad_xm, grad_xp
-      real grad_ym, grad_yp
-      real grad_zm, grad_zp
+      R_PREC grad_xm, grad_xp
+      R_PREC grad_ym, grad_yp
+      R_PREC grad_zm, grad_zp
 
-      real dHIavg_xm, dHIavg_xp
-      real dHIavg_ym, dHIavg_yp
-      real dHIavg_zm, dHIavg_zp
+      R_PREC dHIavg_xm, dHIavg_xp
+      R_PREC dHIavg_ym, dHIavg_yp
+      R_PREC dHIavg_zm, dHIavg_zp
 
-      real Sigma
-      real Sigma_xm, Sigma_xp
-      real Sigma_ym, Sigma_yp
-      real Sigma_zm, Sigma_zp
+      R_PREC Sigma
+      R_PREC Sigma_xm, Sigma_xp
+      R_PREC Sigma_ym, Sigma_yp
+      R_PREC Sigma_zm, Sigma_zp
 
-      real unit_factor
+      R_PREC unit_factor
 
 
 c     HI density at grid cell of interest and six surrounding neighbor
@@ -745,30 +747,30 @@ c     Calculate "gradients"
 
 
 c     Check for zero gradients
-      if( grad_xm .eq. 0.0 ) grad_xm = 1e-20
-      if( grad_xp .eq. 0.0 ) grad_xp = 1e-20
+      if( grad_xm .eq. 0._RKIND ) grad_xm = 1e-20_RKIND
+      if( grad_xp .eq. 0._RKIND ) grad_xp = 1e-20_RKIND
 
-      if( grad_ym .eq. 0.0 ) grad_ym = 1e-20
-      if( grad_yp .eq. 0.0 ) grad_yp = 1e-20
+      if( grad_ym .eq. 0._RKIND ) grad_ym = 1e-20_RKIND
+      if( grad_yp .eq. 0._RKIND ) grad_yp = 1e-20_RKIND
 
-      if( grad_zm .eq. 0.0 ) grad_zm = 1e-20
-      if( grad_zp .eq. 0.0 ) grad_zp = 1e-20
+      if( grad_zm .eq. 0._RKIND ) grad_zm = 1e-20_RKIND
+      if( grad_zp .eq. 0._RKIND ) grad_zp = 1e-20_RKIND
 
 
 c     Calculate averaged densities at (i,j,k)
-      dHIavg_xm = 0.5 * ( dHI_xm1 + dHI )
-      dHIavg_xp = 0.5 * ( dHI_xp1 + dHI )
+      dHIavg_xm = 0.5_RKIND * ( dHI_xm1 + dHI )
+      dHIavg_xp = 0.5_RKIND * ( dHI_xp1 + dHI )
 
-      dHIavg_ym = 0.5 * ( dHI_ym1 + dHI )
-      dHIavg_yp = 0.5 * ( dHI_yp1 + dHI )
+      dHIavg_ym = 0.5_RKIND * ( dHI_ym1 + dHI )
+      dHIavg_yp = 0.5_RKIND * ( dHI_yp1 + dHI )
 
-      dHIavg_zm = 0.5 * ( dHI_zm1 + dHI )
-      dHIavg_zp = 0.5 * ( dHI_zp1 + dHI )
+      dHIavg_zm = 0.5_RKIND * ( dHI_zm1 + dHI )
+      dHIavg_zp = 0.5_RKIND * ( dHI_zp1 + dHI )
 
 
 c     Convert from code units to Msun pc^-2
 c     (1 g/cm^2 = 4788.03 Msun/pc^2)
-      unit_factor = d1 * x1 * 4788.03
+      unit_factor = d1 * x1 * 4788.03_RKIND
 
 
 c     Calculate directional columns
@@ -783,9 +785,9 @@ c     Calculate directional columns
 
 
 c     Total column is the harmonic mean of directional columns
-      SobolevColumn = 6.0 / ( 1.0/Sigma_xm + 1.0/Sigma_xp +
-     $                        1.0/Sigma_ym + 1.0/Sigma_yp +
-     $                        1.0/Sigma_zm + 1.0/Sigma_zp )
+      SobolevColumn = 6._RKIND / ( 1._RKIND/Sigma_xm + 1._RKIND/Sigma_xp 
+     $                      + 1._RKIND/Sigma_ym + 1._RKIND/Sigma_yp +
+     $                        1._RKIND/Sigma_zm + 1._RKIND/Sigma_zp )
       
 
       return

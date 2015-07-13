@@ -37,7 +37,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
  
-  if (NumberOfParticles == 0 || SelfGravity == FALSE) return SUCCESS;
+  if (NumberOfParticles == 0 || ParticleAcceleration[0] == NULL) return SUCCESS;
  
   FLOAT a = 1.0, dadt;
 #if defined(VELOCITY_METHOD1) || defined(VELOCITY_METHOD2)
@@ -60,7 +60,7 @@ int grid::UpdateParticleVelocity(float TimeStep)
     /* Error check. */
  
     if (ParticleAcceleration[dim] == NULL) {
-            ENZO_FAIL("No ParticleAccleration present.");
+            ENZO_FAIL("No ParticleAcceleration present.");
     }
  
     /* Update velocities.  */
@@ -124,8 +124,9 @@ int grid::UpdateParticleVelocity(float TimeStep)
 
   if (ProblemType == 29)
     for (i = 0; i < NumberOfParticles; i++)
-      printf("id=%"PISYM"  %"PSYM" %"PSYM" %"PSYM"\n", ParticleNumber[i],
-	     ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i]);
+      printf("id=%"PISYM"  %"PSYM" %"PSYM" %"PSYM"  %"ESYM" %"ESYM" %"ESYM" \n", ParticleNumber[i],
+	     ParticlePosition[0][i], ParticlePosition[1][i], ParticlePosition[2][i],
+             ParticleVelocity[0][i], ParticleVelocity[1][i], ParticleVelocity[2][i]);
 
  
   return SUCCESS;

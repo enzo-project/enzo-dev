@@ -6,7 +6,10 @@ Hydro and MHD Methods
 There are four available methods in Enzo for calculating the evolution
 of the gas with and without magnetic fields. Below is a brief
 description of each method, including the parameters associated with
-each one and a link to further reading.
+each one and a link to further reading. 
+For relevant parameters please also see :ref:`hydrodynamics_parameters`.
+
+Additionally, there are two MHD methods, which are described in detail in :ref:`mhd_methods`
 
 Method 0: Piecewise Parabolic Method (PPM)
 ------------------------------------------
@@ -141,18 +144,61 @@ used for the left and right states in the Riemann problem.
 
 1. PPM: Currently being developed.
 
-Method 4: MHD
--------------
+Method 4: MHD with Hyperbolic Cleaning (Dedner)
+-----------------------------------------------
 
-.. versionadded:: 2.0
+The two MHD methods in Enzo differ primarily in the mechanism for maintaining
+:math:`\nabla \cdot B = 0`.  
+These are described in more detail in :ref:`mhd_methods`
 
-The MHD scheme uses the same MUSCL framework as Method 3.  To enforce
-:math:`\div \cdot B = 0`, it uses the hyperbolic cleaning method of
-Dedner et al. (2002, JCP 175, 645).
+``HydroMethod = 4`` uses the hyperbolic cleaning method of Dedner et al. (2002, JCP 175, 645).  The basic 
+integration is the MUSCL 2nd order Runga Kutta method described above.  As
+``HydroMethod = 3``, there are three Riemann solver options, though instead of
+HLLC, HLLD is available
+
+1. HLL (Harten-Lax-van Leer): a two-wave, three-state solver with no
+   resolution of contact waves.
+
+3. LLF (Local Lax-Friedrichs) is based on central differences instead
+   of a Riemann problem.  It requires no characteristic information.
+   This is the most diffusive of the available three solvers in
+   MUSCL.
+
+6. HLLD (Harten-Lax-van Leer with Discontinuities): a 5-wave, six-state
+   solver.  HLLD includes two fast waves, two Alfven waves, and one contact
+   discontinuity.  
+
+``ReconstructionMethod``: specifies the type of interpolation scheme
+used for the left and right states in the Riemann problem.
+
+0. PLM: **default**
+
+1. PPM: Currently being developed.
 
 Parameters
 ^^^^^^^^^^
 Parameter file call: ``HydroMethod = 4``
+
+Method 6: MHD with Constrained Transport (CT)
+---------------------------------------------
+
+``HydroMethod = 6`` uses the CT method, which computes an electric field from
+the Riemann solver, then uses that electric field to update the magnetic field.
+
+Parameters
+^^^^^^^^^^
+Parameter file call: ``HydroMethod = 6``
+
+Method 5: No Hydro
+-------------
+
+.. versionadded:: 2.0
+
+For testing non-hydro machinery in Enzo, one can turn hydro off.
+
+Parameters
+^^^^^^^^^^
+Parameter file call: ``HydroMethod = 5``
 
 Notes
 -----

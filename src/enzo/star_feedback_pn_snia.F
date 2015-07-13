@@ -84,41 +84,42 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod,
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod,
      &      distrad, diststep, distcells, imetalSNIa, iPN
-      real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
-      real    dt, dx, z
-      real    d1, x1, v1, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(npart), yp(npart), zp(npart)
-      real    up(npart), vp(npart), wp(npart)
-      real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
-      integer type(npart)
-      real    metalSNIa(nx,ny,nz)
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    d1, x1, v1, t1, justburn
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(npart), yp(npart), zp(npart)
+      R_PREC    up(npart), vp(npart), wp(npart)
+      R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      INTG_PREC type(npart)
+      R_PREC    metalSNIa(nx,ny,nz)
 
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      integer i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
-      real mform, tfactor, clight, energy, sn_param, msolar_e51,
+      INTG_PREC i, j, k, n, ic, jc, kc, stepk, stepj, cellstep
+      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio,
      &     distmass, delta_z
-      parameter (clight = c_light, msolar_e51 = 1800.d0)
+      parameter (clight = c_light, msolar_e51 = 1800._RKIND)
 c     TSK variables for stellar feedback fitting formula      
-      real EdotSNII, EdotSNIa, EdotPN
-      real MdotSNII, MdotSNIa, MdotPN
-      real Edota, Edotb, Mdota, Mdotb, dvol
-      real tau, rmf, dtt, madd, madd_cell, delta_e, tmid, tnow
-      double precision msolar, esnIa, eSNII
-      parameter (tau=1.0d9,  msolar=1.989D33) ! tau in years
-      parameter (eSNIa=5D-6, eSNII=5D-6) 
+      R_PREC EdotSNII, EdotSNIa, EdotPN
+      R_PREC MdotSNII, MdotSNIa, MdotPN
+      R_PREC Edota, Edotb, Mdota, Mdotb, dvol
+      R_PREC tau, rmf, dtt, madd, madd_cell, delta_e, tmid, tnow
+      real*8 msolar, esnIa, eSNII
+      parameter (tau=1.0e9_RKIND,  msolar=1.989D33) ! tau in years
+      parameter (eSNIa=5.D-6, eSNII=5.D-6) 
 c-----------------------------------------------------------------------
 c
 c     The star particle creation algorithm partnered with this feedback
@@ -139,8 +140,8 @@ c
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and.
      &        (type(n) .eq. 2 .or. type(n) .eq. 7)) then
 c
-         tnow = (t-tcp(n))*t1/3.15E7 ! tnow is in yr
-         dtt = dt*t1/3.15e7
+         tnow = (t-tcp(n))*t1/3.15e7_RKIND ! tnow is in yr
+         dtt = dt*t1/3.15e7_RKIND
 
 c        !!TSK 2/10/09 recover the initial mass of each star particle based on
 c          its current mass (ignore the mass loss due to Type Ia SNe);
@@ -157,15 +158,15 @@ c         MdotSNII = minitial * (Mdota - MdotSNII)
          if (iPN .eq. 1) then
             MdotPN = minitial * (Mdotb - MdotPN)
          else
-            MdotPN = 0.0
+            MdotPN = 0._RKIND
          endif
 
-         tmid = max(tnow-0.5*dtt, 0.5*dtt)
+         tmid = max(tnow-0.5_RKIND*dtt, 0.5_RKIND*dtt)
          call SNIa_feedback(tmid, MdotSNIa, tau)
          if (imetalSNIa .eq. 1) then
             MdotSNIa = minitial * MdotSNIa * dtt
          else
-            MdotSNIa = 0.0
+            MdotSNIa = 0._RKIND
          endif
 c
 c        We define E_X = e_X * mp * c^2, X=SNIa, SNII
@@ -179,14 +180,14 @@ c        The unit of Energy input is ergs
 c
 c         EdotSNII = eSNII/0.150081 * MdotSNII*(clight/v1)**2
          if (imetalSNIa .eq. 1) then
-            EdotSNIa = eSNIa/1.234D-3 * MdotSNIa*(clight/v1)**2
+            EdotSNIa = eSNIa/1.234e-3_RKIND * MdotSNIa*(clight/v1)**2
          else
-            EdotSNIa = 0.0
+            EdotSNIa = 0._RKIND
          endif
          if (iPN .eq. 1) then
-            EdotPN = 0.5 * MdotPN * (1D6/v1)**2
+            EdotPN = 0.5_RKIND * MdotPN * (1.e6_RKIND/v1)**2
          else
-            EdotPN = 0.0
+            EdotPN = 0._RKIND
          endif
 c
 c        Now update the mass of star particles and  get the energy
@@ -198,9 +199,9 @@ c
 c
 c        Compute index of the cell that the star particle resides in.
 c 
-         i = int((xp(n) - xstart)/dx) + 1
-         j = int((yp(n) - ystart)/dx) + 1
-         k = int((zp(n) - zstart)/dx) + 1
+         i = int((xp(n) - xstart)/dx,IKIND) + 1
+         j = int((yp(n) - ystart)/dx,IKIND) + 1
+         k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
 c         check bounds - if star particle is outside of this grid
 c         then exit and give a warning.
@@ -213,7 +214,7 @@ c
 c
 c        skip if very little mass is formed.
 c
-         if (mform/d(i,j,k) .lt. 1.0d-10) goto 10
+         if (mform/d(i,j,k) .lt. 1.e-10_RKIND) goto 10
 c
 c        calculate mass added to each cell
 c
@@ -257,7 +258,7 @@ c
                do ic = i-distrad,i+distrad
                   cellstep = stepj + abs(ic-i)
                   if (cellstep .le. diststep) then
-                     dratio = 1.d0/(d(ic,jc,kc) + distmass)
+                     dratio = 1._RKIND/(d(ic,jc,kc) + distmass)
                      te(ic,jc,kc) = ((te(ic,jc,kc)*d(ic,jc,kc)) +
      &                    energy) * dratio
                      if (idual .eq. 1)
@@ -284,7 +285,7 @@ c         Type Ia SNe ejecta are nearly all metals, i.e. yield = 1.0
 c
                      if (imetalSNIa .eq. 1) then
                         delta_z = (mdotSNIa / distcells) * 
-     &                       (1.d0 * (1.d0-metalf(n)) + 
+     &                       (1._RKIND * (1._RKIND-metalf(n)) + 
      &                       m_eject * metalf(n))
                         metalSNIa(ic,jc,kc) = 
      &                       (metalSNIa(ic,jc,kc)*d(ic,jc,kc) + 
@@ -311,7 +312,7 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
                      if (imethod .ne. 2 .and. idual .eq. 1) then
-                        te(ic,jc,kc) = 0.5d0*(u(ic,jc,kc)**2 + 
+                        te(ic,jc,kc) = 0.5_RKIND*(u(ic,jc,kc)**2 + 
      &                       v(ic,jc,kc)**2 + w(ic,jc,kc)**2) +
      &                       ge(ic,jc,kc)
                      endif

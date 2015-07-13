@@ -50,6 +50,7 @@ xterm.  To do this, create a file with all of your GDB commands (in
 order, one command per line); let's call this file ``gdb.in``.  Then
 when you start ``mpirun``, you can specify this script to the GDB
 processes::
+
   18:16:32 [dreynolds@zeno ~]$  mpirun -np 4 xterm -e gdb -x gdb.in ./enzo.exe
 
 
@@ -99,7 +100,7 @@ systems by setting ``make opt-debug`` at the command line (see
 :ref:`MakeOptions`).
 
 Run Enzo
--------
+--------
 
 Now you're ready to run a test simulation.  This method works best when using
 only a few processors, so don't start a simulation with hundreds of processors

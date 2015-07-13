@@ -1,3 +1,4 @@
+#include "fortran.def"
 !=======================================================================
 !
 ! Copyright 2006 Daniel R. Reynolds
@@ -56,32 +57,32 @@ subroutine gFLDProblem_GasEnergySource(ecsrc, time, Era, eca, nHIa,     &
 !
 !=======================================================================
   implicit none
-#include "fortran.def"
+#include "fortran_types.def"
 !#ifdef USE_MPI
 !#include "mpif.h"
 !#endif
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: Nchem, Model, ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB,  intent(in) :: a
-  real, intent(in) :: time, HFrac
-  real, intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
+  INTG_PREC, intent(in) :: Nchem, Model, ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC,  intent(in) :: a
+  R_PREC, intent(in) :: time, HFrac
+  R_PREC, intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
        ErUnits, ecUnits, NiUnits
-  real, intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real, intent(in),                                        &
+  R_PREC, intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC, intent(in),                                        &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) &
        :: Era, eca, nHIa, nHeIa, nHeIIa, Temp, rhoa, eha, vxa, vya, vza
-  real, intent(out) ::                                     &
+  R_PREC, intent(out) ::                                     &
        ecsrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------
 ! locals
-  integer :: i, j, k
+  INTG_PREC :: i, j, k
 
 !=======================================================================
 
@@ -89,12 +90,12 @@ subroutine gFLDProblem_GasEnergySource(ecsrc, time, Era, eca, nHIa,     &
 
   ! initialize outputs to have all zero values, flag to success
   ier = 1
-  ecsrc = 0.d0
+  ecsrc = 0._RKIND
 
 
   if (ProbType == 416) then
 !!$     if (time/TimeUnits > 0.005) then
-        ecsrc = 1.d4
+        ecsrc = 1.e4_RKIND
 !!$     end if
   end if
 

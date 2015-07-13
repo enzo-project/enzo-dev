@@ -1,16 +1,18 @@
 #include "error.def"
+#include "fortran.def"
 
       subroutine wrapper2d(x, rank, n1, n2, n3, dir, method)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, dir
-      complex :: x(n1,n2)
+      INTG_PREC :: rank, n1, n2, n3, dir
+      CMPLX_PREC :: x(n1,n2)
       external :: method
 
-      complex, allocatable :: y(:,:)
-      integer :: n(3)
-      integer :: i,j
+      CMPLX_PREC, allocatable :: y(:,:)
+      INTG_PREC :: n(3)
+      INTG_PREC :: i,j
 
       if( rank /= 2 ) then
         write(0,*) '2D wrapper rank != 2'
@@ -51,10 +53,11 @@
       subroutine fftwrap2d( a, n, dir, method )
 
       implicit none
+#include "fortran_types.def"
 
-      complex :: a(*)
-      integer :: n(3)
-      integer :: dir
+      CMPLX_PREC :: a(*)
+      INTG_PREC :: n(3)
+      INTG_PREC :: dir
       external :: method
 
       call method(a, n(1), dir)

@@ -206,15 +206,15 @@ int grid::SourceTerms(float **dU)
   if (SelfGravity && GridRank == 1) {
     // calculate gravitational field
     float pi = 4.0*atan(1.0);
-    float *gr = new float[GridDimension[0]-2*DEFAULT_GHOST_ZONES];
+    float *gr = new float[GridDimension[0]-2*NumberOfGhostZones];
     FLOAT dx = CellWidth[0][0];
-    for (int i = 0; i < GridDimension[0]-2*DEFAULT_GHOST_ZONES; i++) {
+    for (int i = 0; i < GridDimension[0]-2*NumberOfGhostZones; i++) {
       gr[i] = 0.0;
-      for (int j = GridStartIndex[0]; j < i+DEFAULT_GHOST_ZONES; j++) {
+      for (int j = GridStartIndex[0]; j < i+NumberOfGhostZones; j++) {
 	gr[i] -= BaryonField[DensNum][j]*4.0*pi*pow(CellLeftEdge[0][j]+0.5*dx,2)*dx;
       }
-      gr[i] -= BaryonField[DensNum][i+DEFAULT_GHOST_ZONES]*2.0*pi*pow(CellLeftEdge[0][i+DEFAULT_GHOST_ZONES]+0.5*dx,2)*dx;
-      gr[i] /= pow(CellLeftEdge[0][i+DEFAULT_GHOST_ZONES]+0.5*dx,2);
+      gr[i] -= BaryonField[DensNum][i+NumberOfGhostZones]*2.0*pi*pow(CellLeftEdge[0][i+NumberOfGhostZones]+0.5*dx,2)*dx;
+      gr[i] /= pow(CellLeftEdge[0][i+NumberOfGhostZones]+0.5*dx,2);
     }
     float rho, gx;
     float vx;

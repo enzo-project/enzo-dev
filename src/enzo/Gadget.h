@@ -26,8 +26,13 @@
 #define  TABLESIZE 200		/* Max # of lines in TREECOOL */
 #define  MAXITER 200
 #define  SMALLNUM 1.0e-60
+
+#ifndef __GAMMA_DEFINED_
+#define __GAMMA_DEFINED_
 #define  GAMMA         (5.0/3.0)
 #define  GAMMA_MINUS1  (GAMMA-1.0)
+#endif
+
 #define  MINGASTEMP 0.1
 #define  HYDROGEN_MASSFRAC 0.76
 #define  PROTONMASS  1.6726e-24

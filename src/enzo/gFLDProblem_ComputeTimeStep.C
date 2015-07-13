@@ -170,7 +170,7 @@ float gFLDProblem::ComputeTimeStep(EnzoVector *uold, EnzoVector *unew,
 				+ atol);
 		diff = ninew[(k*x1len + j)*x0len + i] 
 		     - niold[(k*x1len + j)*x0len + i];
-		tmp = abs(diff/w);
+		tmp = fabs(diff/w);
 		loc_est[l] += POW(tmp,dtnorm);
 	      }
 	}

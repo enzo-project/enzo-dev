@@ -97,6 +97,8 @@ int ReadParameterFile(FILE *fptr, parmstruct *Parameters)
     ret += sscanf(line, "RefineBy = %"ISYM, &Parameters->RefineBy);
     ret += sscanf(line, "MaximumInitialRefinementLevel = %"ISYM, 
 		  &Parameters->MaximumInitialRefinementLevel);
+    ret += sscanf(line, "AutomaticSubgridBuffer = %"ISYM, 
+		  &Parameters->AutomaticSubgridBuffer);
 
  
     if (sscanf(line, "ParticlePositionName = %s", dummy) == 1)

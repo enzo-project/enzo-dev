@@ -44,26 +44,27 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
-      integer MAX_REFINE
+      INTG_PREC MAX_REFINE
       parameter (MAX_REFINE = 32)
 c
 c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, start1, start2,
+      INTG_PREC dim1, dim2, start1, start2,
      &        end1, end2, refine1, refine2,
      &        gdim1, gdim2, gstart1, gstart2, 
      &        wdim1, wdim2
-      real    parent(dim1, dim2), grid(gdim1, gdim2),
+      R_PREC    parent(dim1, dim2), grid(gdim1, gdim2),
      &        work(wdim1, wdim2)
 c
 c  locals
 c
-      integer i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
-      real    delf0, delf1, fbar, fx, fy, one
-      parameter (one=1.d0)
+      INTG_PREC i, i1, j, j1, pstart1, pstart2, pdim1, pdim2
+      R_PREC    delf0, delf1, fbar, fx, fy, one
+      parameter (one=1._RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -89,7 +90,7 @@ c     Interpolate values from cell centers to cell corners
 c
       do j = 1, pdim2+1
          do i = 1, pdim1+1
-            work(i, j) = 0.25*(
+            work(i, j) = 0.25_RKIND*(
      &           parent(pstart1+i-1, pstart2+j-1) +
      &           parent(pstart1+i-1, pstart2+j  ) +
      &           parent(pstart1+i  , pstart2+j-1) +
@@ -115,13 +116,13 @@ c
      &                      abs(fbar - work(i+1, j+1)) )*
      &               sign(one, (fbar - work(i  , j  )))
             if ((work(i+1, j+1) - fbar) * (fbar - work(i, j)) .lt. 0.0)
-     &         delf0 = 0.d0
+     &         delf0 = 0.0
 c
             delf1 =     min(abs(fbar - work(i+1, j  )),
      &                      abs(fbar - work(i  , j+1)) )*
      &               sign(one, (fbar - work(i+1, j  )))
             if ((work(i, j+1) - fbar) * (fbar - work(i+1, j)) .lt. 0.0)
-     &         delf1 = 0.d0
+     &         delf1 = 0.0
 c
 c           Now, find the the interpolation coefficients.
 c
@@ -134,10 +135,12 @@ c
                do i1 = 0, refine1-1
                   grid(gstart1+(i-1)*refine1+i1,
      &                 gstart2+(j-1)*refine2+j1) = (fbar +
-     &               (real(i1)+0.5d0 -
-     &                 0.5d0*real(refine1))/real(refine1)*fx +
-     &               (real(j1)+0.5d0 
-     &                 -0.5d0*real(refine2))/real(refine2)*fy )
+     &               (REAL(i1)+0.5_RKIND -
+     &                 0.5_RKIND*REAL(refine1)) / 
+     &                 REAL(refine1)*fx +
+     &               (REAL(j1)+0.5_RKIND - 
+     &                 0.5_RKIND*REAL(refine2)) / 
+     &                 REAL(refine2)*fy )
 c                  if (grid(gstart1+(i-1)*refine1+i1,
 c     &                     gstart2+(j-1)*refine2+j1) .lt. 0.0)
 c     &                write(6,*) 'b',i,j,i1,j1

@@ -64,7 +64,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
   float TotalMass;
   Star *ThisStar, *MoveStar;
   LevelHierarchyEntry *Temp;
-  FLOAT TimeNow;
+  FLOAT TimeNow = LevelArray[level]->GridData->ReturnTime();
+  float Timestep = LevelArray[level]->GridData->ReturnTimeStep();
 
   NumberOfStars = 0;
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar)
@@ -130,9 +131,6 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   int count = 0;
   int mbh_particle_io_count = 0;
-  float Timestep;
-  TimeNow = LevelArray[level]->GridData->ReturnTime();
-  Timestep = LevelArray[level]->GridData->ReturnTimeStep();
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
 //    if (debug) {

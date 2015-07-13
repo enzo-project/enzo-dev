@@ -77,16 +77,25 @@ code:
      RefineRegionLeftEdge          = 0.15523 0.14551 0.30074
      RefineRegionRightEdge         = 0.38523 0.37551 0.53074
      NewCenterFloat                = 0.270230055 0.260508984 0.415739357
+     AutomaticSubgridBuffer        = 4
 
 MaximumInitialRefinementLevel indicates how many extra levels you want
 to generate (in this case two additional levels, or 3 in total,
 including the root grid).  The next two parameters
 (RefineRegionLeftEdge and RefineRegionRightEdge) describe the region
 to be refined.  The fourth (optional) parameter re-centers the grid on
-the halo to be resimulated.
+the halo to be resimulated.  The fifth parameter (AutomaticSubgridBuffer)
+indicates how many course cells should be added around each refined
+region.
 
 Once you have added these parameters, run inits once on the new
-parameter file.  It will give you a progress report as it runs (note
+parameter file in the standard way:  
+
+::
+
+     inits [-d] MultiGridParameterFile
+
+It will give you a progress report as it runs (note
 that if MaximumInitialRefinementLevel is large, this can take a long
 time), and generate all of the necessary files (e.g.  GridDensity.0,
 GridDensity.1, etc.).
@@ -303,6 +312,12 @@ Grid Parameters: Advanced
 **NewCenterFloat**
     Indicates that the final grid should be recenter so that this point
     is the new center (0.5 0.5 0.5) of the grid.
+**AutomaticSubgridBuffer**
+    For multi-grid (nested) initial code generation (with the above
+    parameters).  This parameter controls how many coarse cells are
+    added around each refined region as buffer zones.  The value
+    of 1 is probably ok, but larger values (4?) are probably safer.
+    Default: 1
 **MaxDims**
     All dimensions are specified as one to three numbers deliminated by
     spaces (and for those familiar with the KRONOS or ZEUS method of

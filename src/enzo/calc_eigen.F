@@ -25,52 +25,53 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c     Arguments
 c
-      integer idim, is, ie
-      real dslice(idim), cs(idim)
-      real lem(idim,5,5), rem(idim,5,5)
+      INTG_PREC idim, is, ie
+      R_PREC dslice(idim), cs(idim)
+      R_PREC lem(idim,5,5), rem(idim,5,5)
 c
 c     Locals
 c
-      integer i, n, m
-      real csi, csqi, csq
+      INTG_PREC i, n, m
+      R_PREC csi, csqi, csq
 c
       do m = 1,5
          do n = 1,5
             do i = 1, idim
-               lem(i,n,m) = 0.d0
-               rem(i,n,m) = 0.d0
+               lem(i,n,m) = 0._RKIND
+               rem(i,n,m) = 0._RKIND
             enddo
          enddo
       enddo
 
       do i = 1, idim
-         csi = 1.0/cs(i)
+         csi = 1._RKIND/cs(i)
          csq = cs(i)**2
-         csqi = 1.d0/csq
+         csqi = 1._RKIND/csq
 c
 c     Left eigenvectors
 c         
-         lem(i,2,1) = -0.5d0*dslice(i)*csi
-         lem(i,5,1) = 0.5d0*csqi
-         lem(i,1,2) = 1.d0
+         lem(i,2,1) = -0.5_RKIND*dslice(i)*csi
+         lem(i,5,1) = 0.5_RKIND*csqi
+         lem(i,1,2) = 1._RKIND
          lem(i,5,2) = -csqi
-         lem(i,3,3) = 1.d0
-         lem(i,4,4) = 1.0
+         lem(i,3,3) = 1._RKIND
+         lem(i,4,4) = 1._RKIND
          lem(i,2,5) = -lem(i,2,1)
          lem(i,5,5) = lem(i,5,1)
 c
 c     Right eigenvectors
 c
-         rem(i,1,1) = 1.d0
+         rem(i,1,1) = 1._RKIND
          rem(i,1,2) = -cs(i)/dslice(i)
          rem(i,1,5) = csq
-         rem(i,2,1) = 1.d0
-         rem(i,3,3) = 1.d0
-         rem(i,4,4) = 1.d0
-         rem(i,5,1) = 1.d0
+         rem(i,2,1) = 1._RKIND
+         rem(i,3,3) = 1._RKIND
+         rem(i,4,4) = 1._RKIND
+         rem(i,5,1) = 1._RKIND
          rem(i,5,2) = -rem(i,1,2)
          rem(i,5,5) = csq
 

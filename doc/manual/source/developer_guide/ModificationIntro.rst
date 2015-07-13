@@ -76,8 +76,6 @@ Branches
    feature under development or some other characteristic of a line of
    development.
 
-On the Google Code wiki there is a list of active branches.
-
 When you check out the Enzo repository, you receive a full and complete copy of
 the entire history of that repository; you can update between revisions at
 will without ever touching the network again.  This allows not only for
@@ -100,8 +98,8 @@ tested, verified, or even to provide correct answers.
    development repository!
 
 To conceptually -- and technically! -- separate these two repositories, they
-also live in different places.  We keep the stable repository at Google Code,
-and the development repository at BitBucket.  Enzo is (as of 2.1) developed in
+also live in different places.  We keep both the stable repository 
+and the development repository at BitBucket.  Enzo is (as of 2.4) developed in
 a relatively simple fashion:
 
   #. On BitBucket, developers "fork" the primary development repository.
@@ -112,14 +110,13 @@ a relatively simple fashion:
      development branch.  New features will be aggregated into patch
      releases on the "stable" branch.
   #. When a new patch release is issued, the current development branch is
-     pushed to the "stable" branch on Google Code.
+     pushed to the "enzo-dev" repository on Bitbucket.
 
-The idea here is that there is a double firewall: the development repository is
-very high-cadence and with high-turnover, but the stable repository is much
+The idea here is that there is a double firewall: the development branch is
+very high-cadence and with high-turnover, but the stable branch is much
 slower, more carefully curated, and inclusions in it are well-tested.
 
- * Stable code lives at: http://enzo.googlecode.com/
- * Development code lives at: http://bitbucket.org/enzo/
+ * code lives at: http://bitbucket.org/enzo/enzo-dev
 
 How To Share Changes
 --------------------
@@ -157,11 +154,6 @@ functionality and rewriting it, you can create a new named branch.  You can
 mark the current repository as a new named branch by executing: ::
 
    $ hg branch new_feature_name
-
-The next commit and all subsequent commits will be contained within that named
-branch.  At this point, add your branch here:
-
-http://code.google.com/p/enzo/wiki/ActiveBranches
 
 To merge changes in from another branch, you would execute: ::
 

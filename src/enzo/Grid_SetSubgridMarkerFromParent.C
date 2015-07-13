@@ -57,6 +57,7 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
   int ParentStart[MAX_DIMENSION], CellOffset[MAX_DIMENSION];
   int Refinement[MAX_DIMENSION], MarkerRefinement;
   Eint32 *buffer = NULL;
+  grid *marker;
 
   /* check if the field has been allocated.  It should have been
      earlier! */ 
@@ -183,19 +184,24 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	      pi = ParentStart[0] + (i + CellOffset[0]) / Refinement[0];
 	      pindex = pi + 
 		Parent->GridDimension[0] * (pj + pk*Parent->GridDimension[1]);
-	      buffer[buffer_index] = Parent->SubgridMarker[pindex]->GetGridID();
+	      marker = Parent->SubgridMarker[pindex];
+	      if (marker != NULL) {
+		buffer[buffer_index] = marker->GetGridID();
 
-	      // Determine the level of the grid pointed to by the
-	      // subgrid marker
-	      MarkerRefinement = 
-		nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
-		      CellWidth[0][0] );
-	      marker_level = level;
-	      while (MarkerRefinement > 1) {
-		MarkerRefinement /= RefineBy;
-		marker_level--;
+		// Determine the level of the grid pointed to by the
+		// subgrid marker
+		MarkerRefinement = 
+		  nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
+			CellWidth[0][0] );
+		marker_level = level;
+		while (MarkerRefinement > 1) {
+		  MarkerRefinement /= RefineBy;
+		  marker_level--;
+		}
+		buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
+	      } else {
+		buffer[buffer_index] = INT_UNDEFINED;
 	      }
-	      buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
 	    }
 	  }
 	}
@@ -214,19 +220,23 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	      pi = ParentStart[0] + (i + CellOffset[0]) / Refinement[0];
 	      pindex = pi + 
 		Parent->GridDimension[0] * (pj + pk*Parent->GridDimension[1]);
-	      buffer[buffer_index] = Parent->SubgridMarker[pindex]->GetGridID();
+	      marker = Parent->SubgridMarker[pindex];
+	      if (marker != NULL) {
+		buffer[buffer_index] = marker->GetGridID();
 
-	      // Determine the level of the grid pointed to by the
-	      // subgrid marker
-	      MarkerRefinement = 
-		nint( Parent->SubgridMarker[pindex]->CellWidth[0][0] /
-		      CellWidth[0][0] );
-	      marker_level = level;
-	      while (MarkerRefinement > 1) {
-		MarkerRefinement /= RefineBy;
-		marker_level--;
+		// Determine the level of the grid pointed to by the
+		// subgrid marker
+		MarkerRefinement = 
+		  nint( marker->CellWidth[0][0] / CellWidth[0][0] );
+		marker_level = level;
+		while (MarkerRefinement > 1) {
+		  MarkerRefinement /= RefineBy;
+		  marker_level--;
+		}
+		buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
+	      } else {
+		buffer[buffer_index] = INT_UNDEFINED;
 	      }
-	      buffer[buffer_index] |= (marker_level << LEVEL_BIT_OFFSET);
 	    }
 	  }
 	}
@@ -288,7 +298,10 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	    for (j = GZStart[1]; j <= GZEnd[1]; j++) {
 	      index = GRIDINDEX_NOGHOST(GZStart[0], j, k);
 	      for (i = GZStart[0]; i <= GZEnd[0]; i++, index++, buffer_index++)
-		SubgridMarker[index] = (grid*) buffer[buffer_index];
+		if (buffer[buffer_index] == INT_UNDEFINED)
+		  SubgridMarker[index] = NULL;
+		else
+		  SubgridMarker[index] = (grid*) buffer[buffer_index];
 	    } // ENDFOR j
 
 	  // Right face
@@ -301,7 +314,10 @@ int grid::SetSubgridMarkerFromParent(grid *Parent, int level)
 	    for (j = GZStart[1]; j <= GZEnd[1]; j++) {
 	      index = GRIDINDEX_NOGHOST(GZStart[0], j, k);
 	      for (i = GZStart[0]; i <= GZEnd[0]; i++, index++, buffer_index++)
-		SubgridMarker[index] = (grid*) buffer[buffer_index];
+		if (buffer[buffer_index] == INT_UNDEFINED)
+		  SubgridMarker[index] = NULL;
+		else
+		  SubgridMarker[index] = (grid*) buffer[buffer_index];
 	    } // ENDFOR j
 
 	} // ENDFOR dim

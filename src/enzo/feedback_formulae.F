@@ -44,33 +44,34 @@ c  REMARKS:
 c    We may use the integral form to make result independant on time step
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments:
 c
-       real mtot, age, Edot, Mdot
+       R_PREC mtot, age, Edot, Mdot
 c
 c
 c  Locals:
 c
-       real tt, At
+       R_PREC tt, At
 c
-       if (age .gt. 0.0) then
-          tt = age/3.16E6       
-          if (age .lt. 3.16E6) then
+       if (age .gt. 0._RKIND) then
+          tt = age/3.16e6_RKIND
+          if (age .lt. 3.16e6_RKIND) then
              At = tt * exp(1-tt)
-          else if (age .lt. 3.16E7) then
-             At = tt**(-1.1)
+          else if (age .lt. 3.16e7_RKIND) then
+             At = tt**(-1.1_RKIND)
           else
-             At = 0.
+             At = 0._RKIND
           endif
 c
-          Edot = 1.D41 * mtot * At !ergs/yr
+          Edot = 1.d41 * mtot * At !ergs/yr
 c     Mdot = 2.851E-8 * mtot * At     !Msun/yr,  25% return at tt=10
-          Mdot = 1.71D-8 * mtot * At !Msun/yr, 15% return at tt=10
+          Mdot = 1.71e-8_RKIND * mtot * At !Msun/yr, 15% return at tt=10
        else
-          Edot = 0.0
-          Mdot = 0.0
+          Edot = 0._RKIND
+          Mdot = 0._RKIND
        endif
        return
        end
@@ -103,28 +104,31 @@ c  The Arguments have the same meaning as those in SNII_feedback
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments:
 c
-c       real mtot, age, Edot, Mdot, tau
-       real age, Mdot, tau
+c       R_PREC mtot, age, Edot, Mdot, tau
+       R_PREC age, Mdot, tau
 c
 c
 c  Locals:
 c
-       real tt
-       if (age .le. 3.16E7) then
-         !!Edot = 0.0
-         Mdot = 0.0
+       R_PREC tt
+       if (age .le. 3.16e7_RKIND) then
+         !!Edot = 0._RKIND
+         Mdot = 0._RKIND
        else
-         tt = (age/tau)**1.5
-         !!Edot = mtot * 9.467E36 * (age/1.5E10)**(-1.1) * tt/(1+tt) !!ergs/yr
-         !!Edot = Edot *2 !!In order to match Ken's plot
-         !!9.467E36 = 3.e41/1.e12 * Year_in_sec
-         !!Mdot = 1.4* Edot/1D51  !!Msun/yr, 1.4Msun per 1D51 ergs
+         tt = (age/tau)**1.5_RKIND
+         !!Edot = mtot * 9.467e36_RKIND * 
+     !!&         (age/1.5e10_RKIND)**(-1.1_RKIND) * tt/(1._RKIND+tt) !!ergs/yr
+         !!Edot = Edot *2._RKIND !!In order to match Ken's plot
+         !!9.467E36 = 3.e41_RKIND/1.e12_RKIND * Year_in_sec
+         !!Mdot = 1.4_RKIND* Edot/1e51_RKIND  !!Msun/yr, 1.4Msun per 1D51 ergs
          !!To match Ken's plot of SNIa mass loss, in unit of Msun/yr
-         Mdot = 2.65076E-14*(age/1.5E10)**(-1.1)*tt/(1+tt)
+         Mdot = 2.65076e-14_RKIND*(age/1.5e10_RKIND)**(-1.1_RKIND)
+     &        * tt/(1._RKIND+tt)
        endif
 c
        return
@@ -156,24 +160,27 @@ c    We may use the integral form to make result independant on time step
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments:
 c
-       real mtot, age, Edot, Mdot
+       R_PREC mtot, age, Edot, Mdot
 c
 c  Locals:
 c
-      real tt
+      R_PREC tt
 c      
-      Edot = 0.0
+      Edot = 0._RKIND
       tt = log10(age)
-      if ( tt .le. 7.5) then
-         Mdot = 0.0
-      else if (tt .le. 9.2) then
-         Mdot = mtot/1.E11 * 10**(-0.9*(tt-9)+0.6)
+      if ( tt .le. 7.5_RKIND) then
+         Mdot = 0._RKIND
+      else if (tt .le. 9.2_RKIND) then
+         Mdot = mtot/1.e11_RKIND * 
+     &        10._RKIND**(-0.9_RKIND*(tt-9._RKIND)+0.6_RKIND)
       else
-         Mdot = mtot/1.E11 * 10**(-1.4*(tt-9)+0.7)
+         Mdot = mtot/1.e11_RKIND * 
+     &        10._RKIND**(-1.4_RKIND*(tt-9._RKIND)+0.7_RKIND)
       endif
 c
       return
@@ -197,46 +204,50 @@ c     mlossPN - the cumulative mass ejection due to PN.
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments:
 c
-       real rmf, age
+       R_PREC rmf, age
 c
 c  Locals:
 c
-       real x, mlossSNII, mlossPN
-       real e
+       R_PREC x, mlossSNII, mlossPN
+       R_PREC e
 c
 c      cumulative mass loss due to SNe II, 15% mass loss when x=10 
 c
-       if (age .gt. 0.0) then
-          x = age/3.16E6
-          e = exp(1.0)
-          if ( x .le. 1.0) then
-             mlossSNII = 0.054 * e * (1 - (x+1)/exp(x))
-          else if (x .le. 10.0) then
-             mlossSNII = 0.054 * (e*(1-2/e) + 10*(1-x**(-0.1)))
+       if (age .gt. 0._RKIND) then
+          x = age/3.16e6_RKIND
+          e = exp(1._RKIND)
+          if ( x .le. 1._RKIND) then
+             mlossSNII = 0.054_RKIND * e * (1._RKIND 
+     &            - (x+1._RKIND)/exp(x))
+          else if (x .le. 10._RKIND) then
+             mlossSNII = 0.054_RKIND * (e*(1._RKIND-2._RKIND/e) + 
+     &            10._RKIND*(1._RKIND-x**(-0.1_RKIND)))
           else
-             mlossSNII = 0.1498
+             mlossSNII = 0.1498_RKIND
           endif
 c     
 c     cumulative mass loss due to PN
 c
-          x = alog10(age)
-          if ( x .le. 7.5) then
-             mlossPN = 0
-          else if ( x .le. 9.2) then
-             mlossPN = 10**(-1.3) * (age**0.1 - 10**0.75)
+          x = log10(age)
+          if ( x .le. 7.5_RKIND) then
+             mlossPN = 0._RKIND
+          else if ( x .le. 9.2_RKIND) then
+             mlossPN = 10._RKIND**(-1.3_RKIND) * 
+     &            (age**0.1_RKIND - 10._RKIND**0.75_RKIND)
           else
-             mlossPN = 0.239 - 498.82 * age**(-0.4)
+             mlossPN = 0.239_RKIND - 498.82_RKIND * age**(-0.4_RKIND)
           endif
 c
-          rmf = 1.0 - mlossSNII - mlossPN
+          rmf = 1._RKIND - mlossSNII - mlossPN
        else
-          mlossSNII = 0.0
-          mlossPN = 0.0
-          rmf = 1.0
+          mlossSNII = 0._RKIND
+          mlossPN = 0._RKIND
+          rmf = 1._RKIND
        endif
        return
        end       

@@ -104,7 +104,6 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 
     /* All of the calculation of particle mass flagging fields are
        done in grid::SetParticleMassFlaggingField now. */
-
  
     /* Flag all points that need extra resolution (FlagCellsToBeRefinedByMass
        return the number of flagged cells). */
@@ -115,6 +114,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     }
     break;
  
+    /* ==== METHOD 5: (disabled)  ==== */
+
     /* ==== METHOD 6: BY JEANS LENGTH ==== */
  
   case 6:
@@ -169,38 +170,38 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
 #endif /* TRANSFER */
     break;
 
+    /* ==== METHOD 11: BY RESISTIVE LENGTH ==== */
+
   case 11:
-      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByResistiveLength();
+    if (NumberOfFlaggedCells < 0) {
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByResistiveLength.");
+    }
+    break;
+
+    /* ==== METHOD 12: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
+ 
+  case 12:
+    if (level < MustRefineRegionMinRefinementLevel) {
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
       if (NumberOfFlaggedCells < 0) {
-		ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByResistiveLength.");
+	ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMustRefineRegion.");
       }
-      break;
-
-      /* ==== METHOD 12: FORCE REFINEMENT TO SOME LEVEL IN A SET REGION ==== */
+    }
+    break;
  
-    case 12:
-      if (level < MustRefineRegionMinRefinementLevel) {
-	NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMustRefineRegion(level);
-	if (NumberOfFlaggedCells < 0) {
-	  ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMustRefineRegion.");
-	}
+    /* ==== METHOD 13: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
+    
+  case 13:
+    if (level < MetallicityRefinementMinLevel) {
+      NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
+      if (NumberOfFlaggedCells < 0) {
+	ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMetallicity.");
       }
-      break;
- 
-
-      /* ==== METHOD 13: FORCE REFINEMENT BASED ON METALLICITY OF GAS ==== */
- 
-    case 13:
-      if (level < MetallicityRefinementMinLevel) {
-	NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetallicity(level);
-	if (NumberOfFlaggedCells < 0) {
-	  ENZO_FAIL("Error in grid->FlagCellsToBeRefinedByMetallicity.");
-	}
-      }
-      break;
- 
-
-      /* ==== METHOD 14: Refine around Shockwaves ==== */
+    }
+    break;
+    
+    /* ==== METHOD 14: Refine around Shockwaves ==== */
   case 14:
     NumberOfFlaggedCells = this->FlagCellsToBeRefinedByShockwaves(level);
     if (NumberOfFlaggedCells < 0) {
@@ -208,7 +209,19 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
       return FAIL;
     }
     break;
-    /* ==== undefined ==== */
+
+      /* ==== METHOD 15: Refine by Second Derivative ==== */
+  case 15:
+ 
+    /* flag all points needing extra resolution 
+     * (FlagCellsToBeRefinedBySecondDerivative)
+       returns the number of flagged cells). */
+ 
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedBySecondDerivative();
+    if (NumberOfFlaggedCells < 0) {
+      ENZO_FAIL("Error in grid->FlagCellsToBeRefinedBySecondDerivative.");
+    }
+    break;
     
     /* ==== METHOD 16: Refine on total Jeans length ==== */
   case 16: 
@@ -220,6 +233,8 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     }
     break;
 
+    /* ==== METHOD 17: undefined ==== */
+
     /* ==== METHOD 18: BY POSITION OF MUST-REFINE PARTICLES ONLY ABOVE A CERTAIN MASS  ==== */
   case 18:
 
@@ -229,7 +244,6 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
        is automatically turned if method #8 is specified. */
 
     break;
- 
  
     /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
  

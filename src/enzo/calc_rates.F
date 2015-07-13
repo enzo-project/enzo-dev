@@ -157,24 +157,25 @@ c
 #define USE_NEW_COLLISIONAL_RATES
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      integer nratec, iradtype, casebrates, threebody, ndratec
-      real    aye, temstart, temend, alpha0, f3, dtemstart, dtemend,
+      INTG_PREC nratec, iradtype, casebrates, threebody, ndratec
+      R_PREC  aye, temstart, temend, alpha0, f3, dtemstart, dtemend,
      &        utem, uxyz, uaye, urho, utim
-      real    ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
+      R_PREC  ceHIa(nratec), ceHeIa(nratec), ceHeIIa(nratec),
      &        ciHIa(nratec), ciHeIa(nratec), ciHeISa(nratec), 
      &        ciHeIIa(nratec), reHIIa(nratec), reHeII1a(nratec), 
      &        reHeII2a(nratec), reHeIIIa(nratec), brema(nratec)
-      real    hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
+      R_PREC  hyd01ka(nratec), h2k01a(nratec), vibha(nratec), 
      &        rotha(nratec), rotla(nratec), gpldl(nratec),
      &        gphdl(nratec), hdltea(nratec), hdlowa(nratec)
-      real    gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
+      R_PREC  gaHIa(nratec), gaH2a(nratec), gaHea(nratec), 
      &        gaHpa(nratec), gaela(nratec), gasgra(nratec),
      &        ciecoa(nratec)
-      real    compa, gammaha, gammahacgs, piHI, piHeI, piHeII
-      real    k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
+      R_PREC  compa, gammaha, gammahacgs, piHI, piHeI, piHeII
+      R_PREC  k1a (nratec), k2a (nratec), k3a (nratec), k4a (nratec), 
      &        k5a (nratec), k6a (nratec), k7a (nratec), k8a (nratec), 
      &        k9a (nratec), k10a(nratec), k11a(nratec), k12a(nratec), 
      &        k13a(nratec), k14a(nratec), k15a(nratec), k16a(nratec), 
@@ -183,29 +184,29 @@ c
      &        k30, k31,
      &        k22a(nratec), k50a(nratec), k51a(nratec), k52a(nratec), 
      &        k53a(nratec), k54a(nratec), k55a(nratec), k56a(nratec)
-      real    k13dda(nratec, 7), hdcool(nratec, 5),
-     &     h2dusta(nratec, ndratec),
-     &     ncrna(nratec), ncrd1a(nratec), ncrd2a(nratec)
-      integer ioutput
+      INTG_PREC ioutput
+      R_PREC  k13dda(nratec, 7), hdcool(nratec, 5),
+     &        h2dusta(nratec, ndratec),
+     &        ncrna(nratec), ncrd1a(nratec), ncrd2a(nratec)
 c
 c  Parameters
 c
-      integer nnu
+      INTG_PREC nnu
       parameter (nnu = 400)
-      integer ireco, ibrco, icico, iceco, iphoto_mol
+      INTG_PREC ireco, ibrco, icico, iceco, iphoto_mol
       parameter (ireco = 1, ibrco = 1, icico = 1, iceco = 1, 
      &           iphoto_mol = 0)
 
-      double precision everg, evhz, tevk, mh, pi, tiny_cgs, dhuge, kb
-      parameter (everg = ev2erg, evhz  = 2.41838d+14, 
-     &           tevk = 1.1605d+4, mh = mass_h, 
-     &           pi=pi_val, tiny_cgs = 1.0d-37, 
-     &           dhuge = 1.0d+30, kb = kboltz)
+      real*8 everg, evhz, tevk, mh, pi, dhuge, kb
+      parameter (everg = ev2erg, evhz  = 2.41838d14, 
+     &           tevk = 1.1605d4, mh = mass_h, 
+     &           pi=pi_val, dhuge = 1.0d30, 
+     &           kb = kboltz)
 
 c
 c         Set various cutoff values in eV.
 c
-      double precision e24,e25,e26,e27,e28a,e28b,e28c,e29a,e29b,e29c,
+      real*8 e24,e25,e26,e27,e28a,e28b,e28c,e29a,e29b,e29c,
      &                 e30a,e30b
         PARAMETER(
      &    e24  = 13.6d0
@@ -214,26 +215,26 @@ c
      &   ,e27  = 0.755d0
      &   ,e28a = 2.65d0
      &   ,e28b = 11.27d0
-     &   ,e28c = 21.0d0
+     &   ,e28c = 21.d0
      &   ,e29a = 15.42d0
      &   ,e29b = 16.5d0
      &   ,e29c = 17.7d0
-     &   ,e30a = 30.0d0
-     &   ,e30b = 70.0d0)
+     &   ,e30a = 30.d0
+     &   ,e30b = 70.d0)
 
 c  Locals
 c
-      integer i,j,n
-      double precision nu, delnu, hnu, logttt, ttt, tev, logtev, 
+      INTG_PREC i,j,n
+      real*8 nu, delnu, hnu, logttt, ttt, tev, logtev, 
      &                 xx, dum, tbase1, xbase1, kunit, coolunit,
      &                 dbase1, dlogtem, kunit_3bdy, x, y, cierate,
      &                 grain_coef, d_ttt, d_logttt, d_dlogtem,
      &                 ttt2, d_ttt2
-      double precision sigma24(nnu), sigma25(nnu), sigma26(nnu), 
+      real*8 sigma24(nnu), sigma25(nnu), sigma26(nnu), 
      &                 sigma27(nnu), sigma28(nnu), sigma29(nnu), 
      &                 sigma30(nnu), sigma31(nnu), fext(nnu)
-      real tm
-      double precision HDLR, HDLV, lt, t3, lt3
+      real*8 tm
+      real*8 HDLR, HDLV, lt, t3, lt3
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -295,13 +296,13 @@ c  3) the units for the radiative rate coefficients is just 1/[time]
 c
 c  4) Energy transfer from gas to dust grains, following equation 2.15
 c     of Hollenbach & McKee (1989).
-      grain_coef = 1.2d-31 * 1.0d3**-0.5d0
+      grain_coef = 1.2d-31 * 1.0d3**(-0.5d0)
 c
 c  Compute log spacing in temperature
 c
       ttt    = temstart
       logttt = log(ttt)
-      dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,8)
 c
 c  Compute log spacing in dust temperature
 c
@@ -383,7 +384,7 @@ c
         gaHea(i)    = tiny
         gaHpa(i)    = tiny
         gaela(i)    = tiny
-        gasgra(i)    = tiny
+        gasgra(i)   = tiny
       enddo
 c
 c  Fill in tables over the range temstart to temend
@@ -395,7 +396,7 @@ c
 c
 c       Compute temperature of this bin (in eV)
 c
-        logttt = log(temstart) + real(i-1)*dlogtem
+        logttt = log(temstart) + REAL(i-1,8)*dlogtem
         ttt = exp(logttt)
         ttt2 = ttt / 1.0d2
         tev = ttt/tevk
@@ -437,7 +438,8 @@ c
      &           + 0.0002067236157507d0*logtev**7
      &           - 3.649161410833d-6*logtev**8) / kunit
 c
-          k4a(i) = (1.54d-9*(1.d0+0.3d0/exp(8.099328789667d0/tev))
+          k4a(i) = (1.54d-9*(1.d0+0.3d0 / 
+     &         exp(8.099328789667d0/tev))
      &           / (exp(40.49664394833662d0/tev)*tev**1.5d0)
      &           + 3.92d-13/tev**0.6353d0) / kunit
 c
@@ -466,8 +468,8 @@ c       compute the HII rec. rate using either the case A or case B formula
         if (casebrates) then
            if (ttt < 1.0d9) then
               k2a(i) = 4.881357d-6*ttt**(-1.5d0) 
-     &             * (1.d0+1.14813d2*ttt**(-0.407d0))**(-2.242d0)
-     &             / kunit
+     &             * (1.d0+1.14813d2
+     &             * ttt**(-0.407d0))**(-2.242d0) / kunit
            else
               k2a(i) = tiny
            endif
@@ -491,9 +493,9 @@ c
 c       compute the HeIII rec. rate using either the case A or case B formula
         if (casebrates) then
            if (ttt < 1.0d9) then
-              k6a(i) = 7.8155d-5*ttt**(-1.5d0) 
-     &             * (1.d0+2.0189d2*ttt**(-0.407d0))**(-2.242d0)
-     &             / kunit
+              k6a(i) = 7.8155e-5d0*ttt**(-1.5d0) 
+     &             * (1.d0+2.0189d2 
+     &             * ttt**(-0.407d0))**(-2.242d0) / kunit
            else
               k6a(i) = tiny
            endif
@@ -527,9 +529,9 @@ c
         k10a(i) = 6.0d-10 / kunit
 c
         if (tev .gt. 0.3d0) then
-          k13a(i) = 1.0670825d-10*tev**2.012d0/
-     &              (exp(4.463d0/tev)*(1.d0+0.2472d0*tev)**3.512d0) / 
-     &              kunit
+          k13a(i) = 1.0670825d-10*tev**2.012d0
+     &          / (exp(4.463d0/tev)
+     &          * (1.d0+0.2472d0*tev)**3.512d0) / kunit
 c
           k11a(i) = exp(-24.24914687731536d0
      &            + 3.400824447095291d0*logtev
@@ -541,7 +543,8 @@ c
      &            + 0.0004138398421504563d0*logtev**7
      &            - 9.36345888928611d-6*logtev**8) / kunit
 
-          k12a(i) = 4.38d-10*exp(-102000.d0/ttt)*ttt**0.35d0 / kunit
+          k12a(i) = 4.38d-10*exp(-102000.d0/ttt)
+     &         * ttt**0.35d0 / kunit
         else
           k13a(i) = tiny
           k11a(i) = tiny
@@ -618,20 +621,21 @@ c Inverse of PSS83 three-body rate
         elseif(threebody.eq.2)then
 c Inverse of CW83 rate
           k22a(i) = 8.8d-33
-          k13a(i) = 8.4d-11 * ttt**0.515d0 * exp(-5.2d4 / ttt)
+          k13a(i) = 8.4d-11 * ttt**0.515d0
+     &         * exp(-5.2d4 / ttt)
         elseif(threebody.eq.3)then
 c Rate from JGC67, used by FH07 to construct their three-body rate
           k22a(i) = 1.44d-26 / ttt**1.54d0
           k13a(i) = (1.38d-4 / ttt**1.025d0)
-     &                   * exp(-5.2d4 / ttt)
+     &         * exp(-5.2d4 / ttt)
         elseif(threebody.eq.4)then
 c High density rate from MSM96
           k22a(i) = 7.7d-31 / ttt**0.464d0
-          k13a(i) = 1d1**(-178.4239d0 - 68.42243d0 * log10(ttt) 
-     &                   + 43.20243d0 * log10(ttt)**2
-     &                   - 4.633167d0 * log10(ttt)**3 
-     &                   + 69.70086d0 * log10(1d0 + 40870.38d0 / ttt)
-     &                   - (23705.7d0 / ttt))
+          k13a(i) = 10.d0**(-178.4239d0 - 68.42243d0 
+     &         * log10(ttt) + 43.20243d0 * log10(ttt)**2
+     &         - 4.633167d0 * log10(ttt)**3 
+     &         + 69.70086d0 * log10(1d0 + 40870.38d0 / ttt)
+     &         - (23705.7d0 / ttt))
         else
             write(0,*) "I didn't understand your threebody rate."
             stop
@@ -703,7 +707,7 @@ c  Write out cgs rate coefficients
 c
 c      open(10, file='k1-6.out', status='unknown')
 c      do i = 1, nratec
-c         write(10,1010) exp(log(temstart) + real(i-1)*dlogtem),
+c         write(10,1010) exp(log(temstart) + REAL(i-1,RKIND)*dlogtem),
 c     &               k1a(i),k2a(i),k3a(i),k4a(i),k5a(i),k6a(i)
 c      enddo
 c 1010 format(7(1pe11.4))
@@ -714,18 +718,21 @@ c  2) Cooling/heating rates (excluding external radiation field)
 c
       do i = 1, nratec
 c
-        logttt = log(temstart) + real(i-1)*dlogtem
+        logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
         ttt = exp(logttt)
 c
 c    a) Collisional excitations (Black 1981; Cen 1992)
 c
       if ( iceco .eq. 1 ) then
-        ceHIa(i)    = 7.5d-19*exp(-min(log(dhuge),118348.d0/ttt))
-     &              /(1.d0+sqrt(ttt/1.0d5)) / coolunit
-        ceHeIa(i)   = 9.1d-27*exp(-min(log(dhuge),13179.d0/ttt))
-     &              *ttt**(-0.1687d0)/(1.d0+sqrt(ttt/1.0d5)) / coolunit
-        ceHeIIa(i)  = 5.54d-17*exp(-min(log(dhuge),473638.d0/ttt))
-     &              *ttt**(-0.397d0)/(1.d0+sqrt(ttt/1.0d5)) / coolunit
+        ceHIa(i) = 7.5d-19*exp(-min(log(dhuge),
+     &        118348.d0/ttt))/(1.d0+sqrt(ttt/1.d5)) 
+     &        / coolunit
+        ceHeIa(i) = 9.1d-27*exp(-min(log(dhuge),13179.d0/ttt))
+     &       *ttt**(-0.1687d0)/(1.d0+sqrt(ttt/1.d5)) 
+     &       / coolunit
+        ceHeIIa(i) = 5.54d-17*exp(-min(log(dhuge),
+     &       473638.d0/ttt))*ttt**(-0.397d0) 
+     &       / (1.d0+sqrt(ttt/1.0d5)) / coolunit
       else
         ceHIa(i)    = tiny
         ceHeIa(i)   = tiny
@@ -743,8 +750,9 @@ c     &              *exp(-min(log(dhuge),285335.4/ttt)) / coolunit
 c        ciHeIIa(i)  = 4.95d-22*sqrt(ttt)/(1.+sqrt(ttt/1.0d5))
 c     &              *exp(-min(log(dhuge),631515.0/ttt)) / coolunit
 c
-        ciHeISa(i)  = 5.01d-27*(ttt)**(-0.1687d0)/(1.d0+sqrt(ttt/1.0d5))
-     &              *exp(-min(log(dhuge),55338.d0/ttt)) / coolunit
+        ciHeISa(i)  = 5.01d-27*(ttt)**(-0.1687d0) 
+     &        / (1.d0+sqrt(ttt/1.d5))
+     &        *exp(-min(log(dhuge),55338.d0/ttt)) / coolunit
 c
 c       Collisional ionizations (polynomial fits from Tom Abel)
 c
@@ -761,15 +769,17 @@ c
 c    c) Recombinations (Cen 1992)
 c
       if ( ireco .eq. 1 ) then
-        reHIIa(i)   = 8.70d-27*sqrt(ttt)*(ttt/1000.d0)**(-0.2d0)
-     &              / (1.d0 + (ttt/1.0d6)**(0.7d0)) / coolunit
+        reHIIa(i)   = 8.70d-27*sqrt(ttt)
+     &        * (ttt/1000.d0)**(-0.2d0)
+     &        / (1.d0 + (ttt/1.0d6)**(0.7d0)) / coolunit
         reHeII1a(i) = 1.55d-26*ttt**0.3647d0 / coolunit
-        reHeII2a(i) = 1.24d-13*ttt**(-1.5d0)
-     &              *exp(-min(log(dhuge),470000.d0/ttt))
-     &              *(1.d0+0.3d0*exp(-min(log(dhuge),94000.d0/ttt))) 
-     &              / coolunit
-        reHeIIIa(i) = 3.48d-26*sqrt(ttt)*(ttt/1000.d0)**(-0.2d0)
-     &              / (1.d0 + (ttt/1.d6)**(0.7d0)) / coolunit
+        reHeII2a(i) = 1.24d-13*ttt**(-1.5d0) *
+     &       exp(-min(log(dhuge),470000.d0/ttt)) *
+     &       (1.d0+0.3d0*exp(-min(log(dhuge),94000.d0/ttt))) 
+     &       / coolunit
+        reHeIIIa(i) = 3.48d-26*sqrt(ttt)
+     &       * (ttt/1000.d0)**(-0.2d0)
+     &       / (1.d0 + (ttt/1.d6)**(0.7d0)) / coolunit
       else
         reHIIa(i)   = tiny
         reHeII1a(i) = tiny
@@ -780,20 +790,19 @@ c
 c    d) Bremsstrahlung (Black 1981)(Spitzer & Hart 1979)
 c
       if ( ibrco .eq. 1 ) then
-        brema(i)    = 1.43d-27*sqrt(ttt)
-     &              *(1.1d0+0.34d0*exp(-(5.5d0-log10(ttt))**2/3.d0)) / 
-     &               coolunit
+        brema(i)    = 1.43d-27*sqrt(ttt)*(1.1d0+0.34d0
+     &        *exp(-(5.5d0-log10(ttt))**2/3.d0)) / coolunit
       else
         brema(i)    = tiny
       endif
 c
 c         Bremsstrahlung (Shapiro & Kang 1987)(Spitzer 1978)
 c
-c        if(ttt .lt. 1.0*3.2d5) gaunt = 0.79464 + 0.1243*log10(ttt/1.)
-c        if(ttt .ge. 1.0*3.2d5) gaunt = 2.13164 - 0.1240*log10(ttt/1.)
+c        if(ttt .lt. 3.2d5) gaunt = 0.79464d0 + 0.1243d0*log10(ttt)
+c        if(ttt .ge. 3.2d5) gaunt = 2.13164 - 0.1240d0*log10(ttt)
 c        brem1a(i) = 1.426d-27*sqrt(ttt)*gaunt / coolunit
-c        if(ttt .lt. 4.0*3.2d5) gaunt = 0.79464 + 0.1243*log10(ttt/4.)
-c        if(ttt .ge. 4.0*3.2d5) gaunt = 2.13164 - 0.1240*log10(ttt/4.)
+c        if(ttt .lt. 4.0*3.2d5) gaunt = 0.79464d0 + 0.1243d0*log10(ttt/4.d0)
+c        if(ttt .ge. 4.0*3.2d5) gaunt = 2.13164d0 - 0.1240d0*log10(ttt/4.d0)
 c        brem2a(i) = 1.426d-27*sqrt(ttt)*gaunt / coolunit
 c
 c    e) Molecular hydrogen cooling
@@ -802,20 +811,21 @@ c       (Which one is used is controlled by a flag in cool1d_mulit.src)
 c
 c    e part1) - Lepp & Shull rates
 c
-        xx = log10(ttt/1.0d4)
+        xx = log10(ttt/1.d4)
         vibha  (i) = 1.1d-18*exp(-min(log(dhuge),6744.d0/ttt)) 
      &               / coolunit
 c
         if( ttt .gt. 1635.d0) then
            dum = 1.0d-12*sqrt(ttt)*exp(-1000.d0/ttt)
         else
-           dum = 1.4d-13*exp((ttt/125.d0) - (ttt/577.d0)**2)
+           dum = 1.4d-13*exp((ttt/125.d0)-(ttt/577.d0)**2)
         endif
         hyd01ka(i) = dum*exp(-min(log(dhuge),
      &                            8.152d-13/(kboltz*ttt) )) 
      &               / coolunit
 c
-        dum = 8.152d-13*(4.2d0/(kboltz*(ttt+1190.d0)) +
+        dum = 8.152d-13*(4.2d0 /
+     &       (kboltz*(ttt+1190.d0)) +
      &       1.d0/(kboltz*ttt))
         h2k01a(i) = 1.45d-12*sqrt(ttt)*exp(-min(log(dhuge),dum)) 
      &              / coolunit
@@ -823,51 +833,54 @@ c
         if(ttt .gt. 4031.d0)then
           rotla(i) = 1.38d-22*exp(-9243.d0/ttt) / coolunit
         else
-          rotla(i) = 10.d0**(-22.9d0 - 0.553d0*xx - 1.148d0*xx*xx) / 
-     &               coolunit
+          rotla(i) = 10.d0**(-22.9d0 - 0.553d0*xx 
+     &          - 1.148d0*xx*xx) / coolunit
         endif
 c
         if(ttt .gt. 1087.d0)then
-          rotha(i) = 3.9d-19*exp(-6118.d0/ttt) / coolunit
+           rotha(i) = 3.9d-19*exp(-6118.d0/ttt) / coolunit
         else
-          rotha(i) = 10.d0**(-19.24d0 + 0.474d0*xx - 1.247d0*xx*xx) / 
-     &               coolunit
+           rotha(i) = 10.d0**(-19.24d0 + 0.474d0*xx
+     &          - 1.247d0*xx*xx) / coolunit
         endif
 c
 c     e part2) - Galli and Palla (1999) rates as fit by Tom Abel
 c
-        tm = max(ttt, 13.0d0)       ! no cooling below 13 Kelvin ...
-        tm = min(tm, 1.d5)      ! fixes numerics
+        tm = max(ttt, 13.d0)       ! no cooling below 13 Kelvin ...
+        tm = min(tm, 1.d5)         ! fixes numerics
         lt = log10(tm)
 c     low density limit from Galli and Palla
-        gpldl(i)  = 10.d0**(-103.d0+97.59d0*lt-48.05d0*lt**2 
-     &       +10.8d0*lt*lt*lt-0.9032d0*lt*lt*lt*lt) / coolunit
+        gpldl(i)  = 10.d0**(-103.d0+97.59d0*lt
+     &       - 48.05d0*lt**2+10.8d0*lt**3-0.9032d0*lt**4) 
+     &       / coolunit
 c     high density limit from HM79 (typo corrected Aug 30/2007)
         t3 = tm/1000.d0
-        HDLR = ((9.5e-22*t3**3.76d0)/(1.d0+0.12d0*t3**2.1d0)*
-     &            exp(-(0.13d0/t3)**3)+3.d-24*exp(-0.51d0/t3))
-        HDLV = (6.7d-19*exp(-5.86d0/t3) + 1.6d-18*exp(-11.7d0/t3))
+        HDLR = ((9.5d-22*t3**3.76d0)
+     &       / (1.d0+0.12d0*t3**2.1d0)*
+     &       exp(-(0.13d0/t3)**3)+3.d-24*exp(-0.51d0/t3))
+        HDLV = (6.7d-19*exp(-5.86d0/t3) + 1.6d-18 
+     &       * exp(-11.7d0/t3))
         gphdl(i)  = (HDLR + HDLV) / coolunit
 c
 c     e part 3) - Low density rates from Glover & Abel (2008)
 c
 c  Excitation by HI
 c
-      tm  = max(ttt, 10.0d0)
+      tm  = max(ttt, 10.d0)
       tm  = min(tm, 1.d4)
       lt3 = log10(tm / 1.d3)  
 
-      if (tm .lt. 1e2) then
+      if (tm .lt. 1.d2) then
         gaHIa(i) = 10.d0**(-16.818342d0
      &         + 37.383713d0 * lt3
      &         + 58.145166d0 * lt3**2
      &         + 48.656103d0 * lt3**3
      &         + 20.159831d0 * lt3**4
-     &         + 3.8479610d0 * lt3**5) / coolunit
-      elseif (tm .lt. 1e3) then
+     &         + 3.847961d0 * lt3**5) / coolunit
+      elseif (tm .lt. 1.d3) then
         gaHIa(i) = 10.d0**(-24.311209d0
      &         + 3.5692468d0 * lt3
-     &         - 11.332860d0 * lt3**2
+     &         - 11.33286d0 * lt3**2
      &         - 27.850082d0 * lt3**3
      &         - 21.328264d0 * lt3**4
      &         - 4.2519023d0 * lt3**5) / coolunit
@@ -883,7 +896,7 @@ c
 c Excitation by H2
 c
       gaH2a(i) = 10.d0**(-23.962112d0
-     &        + 2.09433740d0  * lt3
+     &        + 2.0943374d0  * lt3
      &        - 0.77151436d0  * lt3**2
      &        + 0.43693353d0  * lt3**3
      &        - 0.14913216d0  * lt3**4
@@ -909,17 +922,17 @@ c
 c
 c Excitation by electrons
 c
-      if (tm .lt. 200) then
+      if (tm .lt. 200.d0) then
         gaela(i) = 10.d0**(-34.286155d0
      &          - 48.537163d0  * lt3
      &          - 77.121176d0  * lt3**2
      &          - 51.352459d0  * lt3**3
-     &          - 15.169160d0  * lt3**4
+     &          - 15.16916d0  * lt3**4
      &          - 0.98120322d0 * lt3**5) / coolunit
       else
         gaela(i) = 10.d0**(-22.190316
      &          + 1.5728955d0  * lt3
-     &          - 0.21335100d0 * lt3**2
+     &          - 0.213351d0 * lt3**2
      &          + 0.96149759d0 * lt3**3
      &          - 0.91023195d0 * lt3**4
      &          + 0.13749749d0 * lt3**5) / coolunit
@@ -935,17 +948,20 @@ c
      &            5.58513d0   * (dlog10(ttt))**2 +
      &            0.8561149d0 * (dlog10(ttt))**3 - 
      &            1.75538d-2  * (dlog10(ttt))**4
-      hdltea(i) = (10.d0**min(hdltea(i), 0.d0)) / coolunit
+      hdltea(i) = (10.d0**min(hdltea(i), 0._RKIND)) / coolunit
 c      hdlte=10**lhdlte/den
 c
 c Galli and Palla 1998 low density limit (erg cm3 /s)
 c  uses HD-He collisional data, so reduced by 1.27
 c
-      hdlowa(i) = ((3.0d0 * (4.4d-12 + 3.6d-13*ttt**0.77d0) *
-     &            dexp(-128.d0/ttt) * 128.d0 +
-     &            (5.0d0/3.0d0) * (4.1d-12+2.1e-13*ttt**0.92d0) *
-     &            dexp(-255.d0/ttt) * 255.d0) * kb/1.27d0 ) / coolunit
-c      hdcool=hdlte/(1.0d0+hdlte/hdlow)
+      hdlowa(i) = ((3.d0 * (4.4d-12 
+     &     + 3.6d-13*ttt**0.77d0) *
+     &     dexp(-128.d0/ttt) * 128.d0 +
+     &     (5.d0/3.d0) * (4.1d-12 +
+     &     2.1d-13*ttt**0.92d0) *
+     &     dexp(-255.d0/ttt) * 255.d0) * kb/1.27d0 ) 
+     &     / coolunit
+c      hdcool=hdlte/(1.d0+hdlte/hdlow)
 c
 c     g) CIE cooling as discussed in Ripamonti & Abel (2003)
 c        cie_thin_cooling_rate returns rate as erg s^-1 cm^3 g^2 so
@@ -963,7 +979,7 @@ c     erg/s cm^3 we multiply by mh.  We can either divide by 2 for
 c     the H2 mass->number or in cool1d_multi_bdf.src, but we might
 c     as well do it here.
 c
-      ciecoa(i) = cierate * (mh/2.0d0) / coolunit
+      ciecoa(i) = cierate * (mh/2.d0) / coolunit
 c      write(6,*), "thin: ", ttt, cierate * 1e14*mh*2
 c
 c     h) Energy transfer from gas to dust grains, following 
@@ -1020,7 +1036,7 @@ c
 c       25) HeII photo-ionization cross-section
 c
         if (nu .gt. e25) then
-           dum = sqrt(nu/e25-1)
+           dum = sqrt(nu/e25-1.d0)
            sigma25(n) = 1.58d-18 * (e25/nu)**4
      &               * exp(4.d0-4.d0*atan(dum)/dum)
      &               / (1.d0-exp(-2.d0*pi/dum))
@@ -1056,11 +1072,11 @@ c
 c       28) H2II  + p   -> HI    + HII
 c
         if (nu .gt. e28a .and. nu .le. e28b) then
-          sigma28(n) = 10.d0**(-40.97d0+6.03d0*nu-0.504d0*nu**2
-     &          +1.387d-2*nu**3)
+          sigma28(n) = 10.d0**(-40.97d0+6.03d0*nu
+     &          -0.504d0*nu**2+1.387d-2*nu**3)
         elseif (nu .gt. e28b .and. nu .lt. e28c) then
-          sigma28(n) = 10.d0**(-30.26d0+2.79d0*nu-0.184d0*nu**2
-     &          +3.535d-3*nu**3)
+           sigma28(n) = 10.d0**(-30.26d0+2.79d0*nu
+     &          -0.184d0*nu**2+3.535d-3*nu**3)
         else
           sigma28(n) = 0.d0
         endif
@@ -1080,8 +1096,8 @@ c
 c       30) H2II  + p   -> 2HII  + e
 c
         if (nu .ge. e30a .and. nu .lt. e30b) then
-          sigma30(n) = 10.d0**(-16.926d0-4.528d-2*nu+2.238d-4*nu**2
-     &                      +4.245d-7*nu**3)
+           sigma30(n) = 10.d0**(-16.926d0-4.528d-2*nu
+     &          +2.238d-4*nu**2+4.245d-7*nu**3)
         else
           sigma30(n) = 0.d0
         endif
@@ -1116,7 +1132,8 @@ c         (f3 is the amplitude of flux at the HI ionization edge,
 c          the min is to prevent under-runs).
 c
            fext(n) = f3*(nu/12.86d0)**(-1.d0)*exp(-1.d0*
-     &       min(1.0d22*(sigma24(n) + 0.08d0*sigma26(n)), 100.d0))
+     &       min(1.d22*(sigma24(n) + 0.08d0*sigma26(n)), 
+     &           100.d0))
         else
 c
 c          otherwise) no radiation field
@@ -1158,7 +1175,7 @@ c
 c
 c            Add to HI,HeI,HeII photoionization heating coefficients
 c
-          dum = max(hnu - e24*everg, 0.0d0)
+          dum = max(hnu - e24*everg, 0.d0)
           piHI = piHI + fext(n)*sigma24(n)*delnu/hnu*dum/coolunit
 
 !         write(89,1089) hnu, fext(n),sigma24(n),k24, dum, piHI
@@ -1217,7 +1234,7 @@ c
 !      call open_mpi_error_file( 'cool_rates.out', 10, 'unknown' )
 
         do i=1, nratec
-           logttt = log(temstart) + real(i-1)*dlogtem
+           logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
            ttt = exp(logttt)
            write(10,1000) ttt, ceHIa(i), ceHeIa(i), ceHeIIa(i),
      &                    ciHIa(i), ciHeIa(i), ciHeISa(i),
@@ -1243,7 +1260,7 @@ c
 !      call open_mpi_error_file( 'rates.out', 10, 'unknown' )
 
         do i=1, nratec
-           logttt = log(temstart) + real(i-1)*dlogtem
+           logttt = log(temstart) + REAL(i-1,RKIND)*dlogtem
            ttt = exp(logttt)
            write(10,1000) ttt, k1a(i), k2a(i), k3a(i), k4a(i), k5a(i),
      &                    k6a(i), k7a(i), k8a(i), k9a(i), k10a(i),

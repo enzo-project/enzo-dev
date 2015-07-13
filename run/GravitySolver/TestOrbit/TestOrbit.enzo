@@ -31,3 +31,13 @@ CellFlaggingMethod        = 0
 #  set some global parameters
 #
 tiny_number            = 1.0e-10 // fixes velocity slope problem
+
+# Set the following three lines to 1 if you want the gravitational
+#  potential to be written out!
+
+TestOrbitUseBaryons = 0
+ComputePotential    = 0
+WritePotential      = 0
+
+#
+

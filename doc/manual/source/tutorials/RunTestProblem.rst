@@ -22,7 +22,7 @@ and so on. By inspecting the initializing routine for each kind of
 problem, you can see what and how things are being included in the
 simulation.
 
-The test problem parameter files are inside doc/examples.
+The test problem parameter files are inside the ``run`` subdirectory.
 Please see :ref:`EnzoTestSuite` for a full list of test
 problems. The files that end in .enzo are the Enzo parameter files,
 and .inits are inits parameter files. inits files are only used for

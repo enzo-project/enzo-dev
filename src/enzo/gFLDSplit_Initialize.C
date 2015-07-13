@@ -24,6 +24,9 @@
 #ifdef TRANSFER
 #include "gFLDSplit.h"
 #include "CosmologyParameters.h"
+// #ifdef _OPENMP
+// #include <omp.h>
+// #endif
 
 // character strings
 EXTERN char outfilename[];
@@ -31,6 +34,7 @@ EXTERN char outfilename[];
 
 // function prototypes
 int InitializeRateData(FLOAT Time);
+int FreezeRateData(FLOAT Time, HierarchyEntry &TopGrid);
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
@@ -84,6 +88,15 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     ENZO_FAIL("Error in gFLDSplit_Initialize");
   }
 
+  
+// #ifdef _OPENMP
+//   // output number of OpenMP threads that will be used in this run
+//   int nthreads = omp_get_max_threads();
+//   printf("FLD Initialize: MPI task %"ISYM" has %"ISYM" available OpenMP threads\n",
+//	  MyProcessorNumber,nthreads);
+// #endif
+
+
 #ifndef MPI_INT
   // in case MPI is not included
   int MPI_PROC_NULL = -3;
@@ -114,10 +127,14 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   ESpectrum = 1;        // T=10^5 blackbody spectrum
   HFrac  = 1.0;         // all Hydrogen
   theta  = 1.0;         // backwards euler implicit time discret.
+  maxsubcycles = 1.0;   // step ratio between radiation and hydro
+  maxchemsub = 1.0;     // step ratio between chemistry and radiation
   dtnorm = 2.0;         // use 2-norm for time step estimation
+  dtgrowth = 1.1;       // 10% allowed growth in dt per step
   ErScale = 1.0;        // no radiation equation scaling
   ecScale = 1.0;        // no energy equation scaling
   NiScale = 1.0;        // no chemistry equation scaling
+  int autoscale = 1;    // enable automatic variable scaling
   for (dim=0; dim<rank; dim++)     // set default radiation boundaries to 
     for (face=0; face<2; face++)   //   periodic in each direction
       BdryType[dim][face] = 0;
@@ -137,6 +154,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   sol_rlxtype        = 1;         // HYPRE relaxation type
   sol_npre           = 1;         // HYPRE num pre-smoothing steps
   sol_npost          = 1;         // HYPRE num post-smoothing steps
+  Krylov_method      = 1;         // BiCGStab outer solver
 
   // set default ionization parameters
   NGammaDot          = 0.0;       // ionization strength
@@ -177,13 +195,17 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	ret += sscanf(line, "RadHydroMaxDt = %"FSYM, &maxdt);
 	ret += sscanf(line, "RadHydroMinDt = %"FSYM, &mindt);
 	ret += sscanf(line, "RadHydroInitDt = %"FSYM, &initdt);
+	ret += sscanf(line, "RadHydroMaxSubcycles = %"FSYM, &maxsubcycles);
+	ret += sscanf(line, "RadHydroMaxChemSubcycles = %"FSYM, &maxchemsub);
 	ret += sscanf(line, "RadHydroDtNorm = %"FSYM, &dtnorm);
+	ret += sscanf(line, "RadHydroDtGrowth = %"FSYM, &dtgrowth);
 	ret += sscanf(line, "RadHydroDtRadFac = %"FSYM, &dtfac[0]);
 	ret += sscanf(line, "RadHydroDtGasFac = %"FSYM, &dtfac[1]);
 	ret += sscanf(line, "RadHydroDtChemFac = %"FSYM, &dtfac[2]);
 	ret += sscanf(line, "RadiationScaling = %"FSYM, &ErScale);
 	ret += sscanf(line, "EnergyCorrectionScaling = %"FSYM, &ecScale);
 	ret += sscanf(line, "ChemistryScaling = %"FSYM, &NiScale);
+	ret += sscanf(line, "AutomaticScaling = %"ISYM, &autoscale);
 	ret += sscanf(line, "RadHydroTheta = %"FSYM, &theta);
 	ret += sscanf(line, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM, 
 		      BdryType[0], BdryType[0]+1);
@@ -196,6 +218,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 	  }
 	}
 	ret += sscanf(line, "RadHydroInitialGuess = %"ISYM, &initial_guess);
+	ret += sscanf(line, "RadHydroKrylovMethod = %"ISYM, &Krylov_method);
 	ret += sscanf(line, "RadHydroSolTolerance = %"FSYM, &sol_tolerance);
 	ret += sscanf(line, "RadHydroMaxMGIters = %i", &sol_maxit);
 	ret += sscanf(line, "RadHydroMGRelaxType = %i", &sol_rlxtype);
@@ -273,7 +296,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   if ((Nchem < 0) || (Nchem > 10)) {
     fprintf(stderr,"gFLDSplit Initialize: illegal Nchem = %"ISYM"\n",Nchem);
     fprintf(stderr,"   re-setting Nchem to 0\n");
-    Nchem = 0;  // default is no chemistry
+    Nchem = 1;  // default is Hydrogen only
   }
 
   // RadHydroHFraction must be between 0 and 1
@@ -305,6 +328,34 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     initdt = huge_number;  // default is no limit
   }
 
+  // maxsubcycles gives the maximum desired ratio between hydro time step 
+  // size and radiation time step size (dt_rad <= dt_hydro)
+  if (maxsubcycles < 1.0) {
+    fprintf(stderr,"gFLDSplit Initialize: illegal RadHydroMaxSubcycles = %g\n",maxsubcycles);
+    fprintf(stderr,"   re-setting to 1.0\n");
+    maxsubcycles = 1.0;    // default is to synchronize steps
+  }
+
+  // maxchemsub gives the maximum desired ratio between radiation time step 
+  // size and chemistry time step size (dt_chem <= dt_rad)
+  if (maxchemsub < 1.0) {
+    fprintf(stderr,"gFLDSplit Initialize: illegal RadHydroMaxChemSubcycles = %g\n",maxchemsub);
+    fprintf(stderr,"   re-setting to %g\n",1.0);
+    maxchemsub = 1.0;    // default is to synchronize steps
+  }
+
+  // if using Enzo's chemistry module, warn if subcycling radiation, and reset chemsub
+  if (RadiativeCooling) {
+    if (maxsubcycles > 1.0) {
+      fprintf(stderr,"\n**************************************************************\n");
+      fprintf(stderr," WARNING: radiation subcycling (RadHydroMaxSubcycles = %g > 1.0)\n",
+	      maxsubcycles);
+      fprintf(stderr,"          may not work properly with Enzo chemistry module!\n");
+      fprintf(stderr,"**************************************************************\n\n");
+    }
+    maxchemsub = 1.0;
+  }
+
   // a, adot give cosmological expansion & rate
   a = 1.0;
   a0 = 1.0;
@@ -327,9 +378,10 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     fprintf(stderr,"   re-setting to 1.0\n");
     NiScale = 1.0;  // default is no scaling
   }
+  autoScale = (autoscale != 0);  // set bool based on integer input
   if (debug)
-    printf("gFLDSplit::Initialize p%"ISYM": ErScale = %g, ecScale = %g, NiScale = %g\n",
-	   MyProcessorNumber,ErScale,ecScale,NiScale);
+    printf("gFLDSplit::Initialize p%"ISYM": ErScale = %g, ecScale = %g, NiScale = %g, autoScale = %"ISYM"\n",
+	   MyProcessorNumber,ErScale,ecScale,NiScale,autoscale);
 
   // dtfac gives the desired percent change in values per step
   if (dtfac[0] <= 0.0) {
@@ -355,7 +407,14 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     dtnorm = 2.0;  // default is 2-norm
   }
 
-  // Theta gives the implicit time-stepping method (1->BE, 0.5->CN, 0->FE)
+  // dtgrowth gives the maximum growth factor in dt per step
+  if (dtgrowth < 1.0 || dtgrowth > 10.0) {
+    fprintf(stderr,"gFLDSplit Initialize: illegal RadHydroDtGrowth = %g\n",dtgrowth);
+    fprintf(stderr,"   re-setting to 1.1\n");
+    dtgrowth = 1.1;
+  }
+
+  // theta gives the implicit time-stepping method (1->BE, 0.5->CN, 0->FE)
   if ((theta < 0.0) || (theta > 1.0)) {
     fprintf(stderr,"gFLDSplit Initialize: illegal theta = %g\n",
 	    theta);
@@ -388,12 +447,12 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       NBors[dim][1] = MPI_PROC_NULL;
   }
   if (debug) {
-    printf("gFLDSplit::Initialize p%"ISYM": EdgeVals = (%g:%g,%g:%g,%g:%g)\n",
-	   MyProcessorNumber, EdgeVals[0][0], EdgeVals[0][1], EdgeVals[1][0],
-	   EdgeVals[1][1], EdgeVals[2][0], EdgeVals[2][1]);
-    printf("gFLDSplit::Initialize p%"ISYM": OnBdry = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,int(OnBdry[0][0]),int(OnBdry[0][1]),int(OnBdry[1][0]),int(OnBdry[1][1]),int(OnBdry[2][0]),int(OnBdry[2][1]));
-    printf("gFLDSplit::Initialize p%"ISYM": BdryType = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,BdryType[0][0],BdryType[0][1],BdryType[1][0],BdryType[1][1],BdryType[2][0],BdryType[2][1]);
-    printf("gFLDSplit::Initialize p%"ISYM": NBors = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,NBors[0][0],NBors[0][1],NBors[1][0],NBors[1][1],NBors[2][0],NBors[2][1]);
+//     printf("gFLDSplit::Initialize p%"ISYM": EdgeVals = (%g:%g,%g:%g,%g:%g)\n",
+// 	   MyProcessorNumber, EdgeVals[0][0], EdgeVals[0][1], EdgeVals[1][0],
+// 	   EdgeVals[1][1], EdgeVals[2][0], EdgeVals[2][1]);
+//     printf("gFLDSplit::Initialize p%"ISYM": OnBdry = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,int(OnBdry[0][0]),int(OnBdry[0][1]),int(OnBdry[1][0]),int(OnBdry[1][1]),int(OnBdry[2][0]),int(OnBdry[2][1]));
+//     printf("gFLDSplit::Initialize p%"ISYM": BdryType = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,BdryType[0][0],BdryType[0][1],BdryType[1][0],BdryType[1][1],BdryType[2][0],BdryType[2][1]);
+//     printf("gFLDSplit::Initialize p%"ISYM": NBors = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",MyProcessorNumber,NBors[0][0],NBors[0][1],NBors[1][0],NBors[1][1],NBors[2][0],NBors[2][1]);
   }
 
   // get the current units values (used to help set the time step size)
@@ -410,12 +469,23 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     aUnits = 1.0/(1.0 + InitialRedshift);
   }
 
-  // dt gives the time step size
-  dt = initdt;
-  dtchem = 0.1*initdt*TimeUnits;  // use the radiation dt/10 (raw units)
+  // copy initial units values into "old" units
+  a0 = a;
+  adot0 = adot;
+  ErUnits0 = ErUnits;
+  NiUnits0 = NiUnits;
+  DenUnits0 = DenUnits;
+  LenUnits0 = LenUnits;
+
+  // dt* gives the time step sizes for each piece of physics
+  dtrad  = initdt;                        // use the input value (scaled units)
+  dtchem = max(dtrad/maxchemsub,mindt);   // use the subcycled input value
+
+  // set a bound on the global initial dt as a factor of the radiation timestep
+  dt = initdt*maxsubcycles;
 
   // set initial time step into TopGrid
-  ThisGrid->GridData->SetMaxRadiationDt(initdt);
+  ThisGrid->GridData->SetMaxRadiationDt(dt);
   
   // compute global dimension information
   for (dim=0; dim<rank; dim++)
@@ -449,28 +519,28 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // store local array sizes (active + ghost)
   for (dim=0; dim<rank; dim++)
-    ArrDims[dim] = LocDims[dim] + 2*DEFAULT_GHOST_ZONES;
+    ArrDims[dim] = LocDims[dim] + 2*NumberOfGhostZones;
 
-  if (debug) {
-    printf("gFLDSplit::Initialize p%"ISYM": SolvIndices = (%i:%i,%i:%i,%i:%i)\n",
-	   MyProcessorNumber, SolvIndices[0][0], SolvIndices[0][1], SolvIndices[1][0], 
-	   SolvIndices[1][1], SolvIndices[2][0], SolvIndices[2][1]);
-    printf("gFLDSplit::Initialize p%"ISYM": SolvOff = (%"ISYM",%"ISYM",%"ISYM")\n",
-	   MyProcessorNumber, SolvOff[0], SolvOff[1], SolvOff[2]);
-    printf("gFLDSplit::Initialize p%"ISYM": LocDims = (%"ISYM",%"ISYM",%"ISYM")\n",
-	   MyProcessorNumber, LocDims[0], LocDims[1], LocDims[2]);
-    printf("gFLDSplit::Initialize p%"ISYM": ArrDims = (%"ISYM",%"ISYM",%"ISYM")\n",
-	   MyProcessorNumber, ArrDims[0], ArrDims[1], ArrDims[2]);
-  }
+//   if (debug) {
+//     printf("gFLDSplit::Initialize p%"ISYM": SolvIndices = (%i:%i,%i:%i,%i:%i)\n",
+// 	   MyProcessorNumber, SolvIndices[0][0], SolvIndices[0][1], SolvIndices[1][0], 
+// 	   SolvIndices[1][1], SolvIndices[2][0], SolvIndices[2][1]);
+//     printf("gFLDSplit::Initialize p%"ISYM": SolvOff = (%"ISYM",%"ISYM",%"ISYM")\n",
+// 	   MyProcessorNumber, SolvOff[0], SolvOff[1], SolvOff[2]);
+//     printf("gFLDSplit::Initialize p%"ISYM": LocDims = (%"ISYM",%"ISYM",%"ISYM")\n",
+// 	   MyProcessorNumber, LocDims[0], LocDims[1], LocDims[2]);
+//     printf("gFLDSplit::Initialize p%"ISYM": ArrDims = (%"ISYM",%"ISYM",%"ISYM")\n",
+// 	   MyProcessorNumber, ArrDims[0], ArrDims[1], ArrDims[2]);
+//   }
 
 //   if (debug)  printf("  Initialize: setting up EnzoVectors\n");
 
   // set up vector container for previous time step (empty data)
-  int xghosts = DEFAULT_GHOST_ZONES, yghosts=0, zghosts=0;
+  int xghosts = NumberOfGhostZones, yghosts=0, zghosts=0;
   if (rank > 1) {
-    yghosts = DEFAULT_GHOST_ZONES;
+    yghosts = NumberOfGhostZones;
     if (rank > 2) {
-      zghosts = DEFAULT_GHOST_ZONES;
+      zghosts = NumberOfGhostZones;
     }
   }
   int empty=1;
@@ -485,10 +555,10 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   GhDims[2][0] = zghosts;
   GhDims[2][1] = zghosts;
 
-  if (debug)
-    printf("gFLDSplit::Initialize p%"ISYM": GhDims = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",
-	   MyProcessorNumber, GhDims[0][0], GhDims[0][1], GhDims[1][0], 
-	   GhDims[1][1], GhDims[2][0], GhDims[2][1]);
+//   if (debug)
+//     printf("gFLDSplit::Initialize p%"ISYM": GhDims = (%"ISYM":%"ISYM",%"ISYM":%"ISYM",%"ISYM":%"ISYM")\n",
+// 	   MyProcessorNumber, GhDims[0][0], GhDims[0][1], GhDims[1][0], 
+// 	   GhDims[1][1], GhDims[2][0], GhDims[2][1]);
 
   // set up vectors for temporary storage and Jacobian components
   sol  = U0->clone();
@@ -501,12 +571,15 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 //   if (debug)  printf("  Initialize: setting up CoolData object\n");
 
-  // ensure that CoolData object has been set up
+  // ensure that CoolData object has been set up, and reset Hydrogen fraction
   if (CoolData.ceHI == NULL) 
     if (InitializeRateData(MetaData.Time) == FAIL) 
       ENZO_FAIL("Error in InitializeRateData.");
-  // un-scale rates for use within RadHydro solver (handles its own units)
-  {
+  CoolData.HydrogenFractionByMass = HFrac;
+
+  // if performing chemistry in this module, un-scale rates for use 
+  // within RadHydro solver (handles its own units) 
+  if (RadiativeCooling == 0) {
     float mp = 1.67262171e-24;   // Mass of a proton [g]
     float tbase1 = TimeUnits;
     float xbase1 = LenUnits/(a*aUnits);
@@ -575,6 +648,11 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 #ifdef USE_HYPRE
 
+#ifdef USE_MPI
+  float stime = MPI_Wtime();
+#else
+  float stime = 0.0;
+#endif
   // initialize HYPRE stuff
   //    initialize the diagnostic information
   totIters = 0;
@@ -669,6 +747,13 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   HYPRE_StructVectorCreate(MPI_COMM_WORLD, grid, &solvec);
   HYPRE_StructVectorInitialize(solvec);
 
+#ifdef USE_MPI
+  float ftime = MPI_Wtime();
+#else
+  float ftime = 0.0;
+#endif
+  HYPREtime += ftime-stime;
+
 #else  // ifdef USE_HYPRE
 
   ENZO_FAIL("gFLDSplit_Initialize ERROR: module requires USE_HYPRE to be set!");
@@ -677,7 +762,12 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
 //   if (debug)  printf("  Initialize: checking MG solver parameters\n");
 
-  //   check MG solver parameters
+  //   check HYPRE solver parameters
+  if (Krylov_method < 0 || Krylov_method > 2) {
+    fprintf(stderr,"Illegal RadHydroKrylovMethod = %"ISYM". Setting to 1 (BiCGStab\n",
+	    Krylov_method);
+    Krylov_method = 1;
+  }
   if (sol_maxit < 0) {
     fprintf(stderr,"Illegal RadHydroMaxMGIters = %i. Setting to 20\n",
 	    sol_maxit);
@@ -699,7 +789,7 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     sol_npost = 1;
   }
   if ((sol_tolerance < 1.0e-15) || (sol_tolerance > 1.0)) {
-    fprintf(stderr,"Illegal RadHydroNewtTolerance = %g. Setting to 1e-4\n",
+    fprintf(stderr,"Illegal RadHydroSolTolerance = %g. Setting to 1e-4\n",
 	    sol_tolerance);
     sol_tolerance = 1.0e-4;
   }
@@ -936,10 +1026,12 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     break;
     
     
-  // Ionization tests 0 and 1: set zero-gradient (homogeneous Neumann)
+  // Ionization tests 0,1,7,8: set zero-gradient (homogeneous Neumann)
   // boundary conditions on all faces.
   case 410:
   case 411:
+  case 417:
+  case 418:
     // first call local problem initializer (to allocate/setup local data)
     if (RHIonizationTestInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
       ENZO_FAIL("Error in RHIonizationTestInitialize.");
@@ -966,30 +1058,30 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
     
     
   // Ionization test 2: set zero-gradient (homogeneous Neumann)
-  // boundary conditions on all faces.
+  // boundary conditions on all non-periodic faces.
   case 412:
     // first call local problem initializer (to allocate/setup local data)
     if (RHIonizationClumpInitialize(fptr, fptr, TopGrid, MetaData, 1) == FAIL) 
       ENZO_FAIL("Error in RHIonizationSteepInitialize.");
     
-    //   x0, left
-    if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x0 left radiation BCs.");
-    //   x0, right
-    if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x0 right radiation BCs.");
-    //   x1, left
-    if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x1 left radiation BCs.");
-    //   x1, right
-    if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x1 right radiation BCs.");
-    //   x2, left
-    if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x2 left radiation BCs.");
-    //   x2, right
-    if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
-      ENZO_FAIL("Error setting x2 right radiation BCs.");
+    if (BdryType[0][0] != 0)
+      if (this->SetupBoundary(0,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 left radiation BCs.");
+    if (BdryType[0][1] != 0)
+      if (this->SetupBoundary(0,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x0 right radiation BCs.");
+    if (BdryType[1][0] != 0)
+      if (this->SetupBoundary(1,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 left radiation BCs.");
+    if (BdryType[1][1] != 0)
+      if (this->SetupBoundary(1,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x1 right radiation BCs.");
+    if (BdryType[2][0] != 0)
+      if (this->SetupBoundary(2,0,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 left radiation BCs.");
+    if (BdryType[2][1] != 0)
+      if (this->SetupBoundary(2,1,1,&ZERO) == FAIL) 
+	ENZO_FAIL("Error setting x2 right radiation BCs.");
     break;
     
     
@@ -1096,6 +1188,12 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
   }
   ////////////////////////////////
 
+  // if using an isothermal "model", freeze rate data, now that ICs exist
+  if (Model == 4) 
+    if (FreezeRateData(MetaData.Time, TopGrid) == FAIL) 
+      ENZO_FAIL("Error in FreezeRateData.");
+
+
   if (debug)  printf("  Initialize: outputting parameters to log file\n");
 
   // output RadHydro solver parameters to output log file 
@@ -1107,44 +1205,8 @@ int gFLDSplit::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
       ENZO_FAIL("Error in gFLDSplit_Initialize");
     }
     else {
-      fprintf(outfptr, "RadHydroESpectrum = %"ISYM"\n", ESpectrum);
-      fprintf(outfptr, "RadHydroChemistry = %"ISYM"\n", Nchem);
-      fprintf(outfptr, "RadHydroModel = %"ISYM"\n", Model);
-      fprintf(outfptr, "RadHydroMaxDt = %g\n", maxdt);
-      fprintf(outfptr, "RadHydroMinDt = %g\n", mindt);
-      fprintf(outfptr, "RadHydroInitDt = %g\n", initdt);
-      fprintf(outfptr, "RadHydroDtNorm = %"FSYM"\n", dtnorm);
-      fprintf(outfptr, "RadHydroDtRadFac = %g\n", dtfac[0]);
-      fprintf(outfptr, "RadHydroDtGasFac = %g\n", dtfac[1]);
-      fprintf(outfptr, "RadHydroDtChemFac = %g\n", dtfac[2]);
-      fprintf(outfptr, "RadiationScaling = %g\n", ErScale);
-      fprintf(outfptr, "EnergyCorrectionScaling = %g\n", ecScale);
-      fprintf(outfptr, "ChemistryScaling = %g\n", NiScale);
-      fprintf(outfptr, "RadHydroTheta = %g\n", theta);
-      fprintf(outfptr, "RadiationBoundaryX0Faces = %"ISYM" %"ISYM"\n", 
-	      BdryType[0][0], BdryType[0][1]);
-      if (rank > 1) {
-	fprintf(outfptr, "RadiationBoundaryX1Faces = %"ISYM" %"ISYM"\n", 
-		BdryType[1][0], BdryType[1][1]);
-	if (rank > 2) {
-	  fprintf(outfptr, "RadiationBoundaryX2Faces = %"ISYM" %"ISYM"\n", 
-		  BdryType[2][0], BdryType[2][1]);
-	}
-      }
-      fprintf(outfptr, "RadHydroInitialGuess = %"ISYM"\n", initial_guess);    
-      fprintf(outfptr, "RadHydroNewtTolerance = %g\n", sol_tolerance);    
-      fprintf(outfptr, "RadHydroMaxMGIters = %i\n", sol_maxit);    
-      fprintf(outfptr, "RadHydroMGRelaxType = %i\n", sol_rlxtype);    
-      fprintf(outfptr, "RadHydroMGPreRelax = %i\n", sol_npre);    
-      fprintf(outfptr, "RadHydroMGPostRelax = %i\n", sol_npost);    
-      fprintf(outfptr, "EnergyOpacityC0 = %g\n", EnergyOpacityC0);
-      fprintf(outfptr, "EnergyOpacityC1 = %g\n", EnergyOpacityC1);
-      fprintf(outfptr, "EnergyOpacityC2 = %g\n", EnergyOpacityC2);
-      fprintf(outfptr, "FSRadiationNGammaDot = %g\n", NGammaDot);
-      fprintf(outfptr, "FSRadiationEtaRadius = %g\n", EtaRadius);
-      fprintf(outfptr, "FSRadiationEtaCenter = %g  %g  %g\n", 
-	      EtaCenter[0], EtaCenter[1], EtaCenter[2]);
-      // close parameter file
+      // write parameters to log file and close
+      this->WriteParameters(outfptr);
       fclose(outfptr);
     }
   }

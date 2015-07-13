@@ -1,0 +1,46 @@
+#
+#  Cosmology Parameters
+#
+CosmologyOmegaMatterNow    = 0.268
+CosmologyOmegaLambdaNow    = 0.732
+CosmologyOmegaBaryonNow    = 0.0441
+CosmologyComovingBoxSize   = 10.0        // in Mpc/h
+CosmologyHubbleConstantNow = 0.704       // in units of 100 km/s/Mpc
+CosmologyInitialRedshift   = 60
+
+#
+#  Power spectrum Parameters
+#
+PowerSpectrumType            = 1             // BBKS
+PowerSpectrumSigma8          = 0.810
+PowerSpectrumPrimordialIndex = 0.967
+PowerSpectrumRandomSeed      = -123456789
+
+#
+#  Grid info
+#
+Rank                = 3
+InitializeGrids     = 1
+GridRefinement      = 1
+GridDims            = 64 64 64
+
+#
+#  Particle info
+#
+InitializeParticles = 1
+ParticleRefinement  = 1
+ParticleDims        = 64 64 64
+
+#
+#  Overall field parameters
+#
+MaxDims             = 64 64 64
+
+#
+#  Names
+#
+ParticlePositionName = ParticlePositions
+ParticleVelocityName = ParticleVelocities
+GridDensityName      = GridDensity
+GridVelocityName     = GridVelocities
+

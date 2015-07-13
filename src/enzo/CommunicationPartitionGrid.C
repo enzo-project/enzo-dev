@@ -84,7 +84,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   Grid->GridData->ReturnGridInfo(&Rank, Dims, Left, Right);
  
   for (dim = 0; dim < Rank; dim++)
-    Dims[dim] -= 2*DEFAULT_GHOST_ZONES;
+    Dims[dim] -= 2*NumberOfGhostZones;
  
   float Edge = POW(float(Dims[0]*Dims[1]*Dims[2])/float(NumberOfProcessors),
 		   1/float(Rank));
@@ -106,41 +106,34 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
   }
 */
 
-  int Nnodes = NumberOfProcessors;
-  int Ndims = Rank;
-  int LayoutDims[] = {0, 0, 0};
-
-  if (Enzo_Dims_create(Nnodes, Ndims, LayoutDims) != SUCCESS) {
-    ENZO_FAIL("Error in Enzo_Dims_create.");
+  /* If defined, use user defined Processor Topology. */
+  if( UserDefinedRootGridLayout[0] != INT_UNDEFINED &&
+      UserDefinedRootGridLayout[1] != INT_UNDEFINED &&
+      UserDefinedRootGridLayout[2] != INT_UNDEFINED ){
+    for (dim = 0; dim < Rank; dim++) {
+      Layout[dim] = UserDefinedRootGridLayout[dim];
+    }
   }
+  else {
+    int Nnodes = NumberOfProcessors;
+    int Ndims = Rank;
+    int LayoutDims[] = {0, 0, 0};
 
-  for (dim = 0; dim < Rank; dim++)
-    LayoutTemp[dim] = LayoutDims[dim];
- 
-  /* Swap layout because we want smallest value to be at Layout[0]. */
- 
-  for (dim = 0; dim < Rank; dim++)
-    Layout[dim] = LayoutTemp[Rank-1-dim] * NumberOfRootGridTilesPerDimensionPerProcessor;
- 
-  /* Force some distributions if the default is brain-dead. */
+    if (Enzo_Dims_create(Nnodes, Ndims, LayoutDims) != SUCCESS) {
+      ENZO_FAIL("Error in Enzo_Dims_create.");
+    }
 
-/*
-  if (Rank == 3 && NumberOfProcessors == 8)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 2;
+    for (dim = 0; dim < Rank; dim++) {
+      LayoutTemp[dim] = LayoutDims[dim];
+    }
 
-  if (Rank == 3 && NumberOfProcessors == 64)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 4;
+    /* Swap layout because we want smallest value to be at Layout[0]. */
+    for (dim = 0; dim < Rank; dim++) {
+      Layout[dim] = LayoutTemp[Rank-1-dim] *
+        NumberOfRootGridTilesPerDimensionPerProcessor;
+    }
 
-  if (Rank == 3 && NumberOfProcessors == 125)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 5;
- 
-  if (Rank == 3 && NumberOfProcessors == 216)
-    for (dim = 0; dim < Rank; dim++)
-      Layout[dim] = 6;
-*/
+  }
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {
     fprintf(stderr, "ENZO_layout %"ISYM" x %"ISYM" x %"ISYM"\n", Layout[0], Layout[1], Layout[2]);
@@ -256,7 +249,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
     } // ENDELSE ThisLevel == 1
 
     if (ParentGridNum == INT_UNDEFINED) {
-      ENZO_VFAIL("CommunicationPartitionGrid: grid %d (%d), Parent not found?\n",
+      ENZO_VFAIL("CommunicationPartitionGrid: grid %"ISYM" (%"ISYM"), Parent not found?\n",
 	      gridnum, ThisLevel)
     }
 
@@ -464,7 +457,7 @@ int CommunicationPartitionGrid(HierarchyEntry *Grid, int gridnum)
 	  RightEdge[dim] = Left[dim] + (Right[dim] - Left[dim])*
 	    FLOAT(StartIndex[dim][ijk]+TempDims[dim])/FLOAT(Dims[dim]);
 	  if (dim < Rank)
-	    TempDims[dim] += 2*DEFAULT_GHOST_ZONES;
+	    TempDims[dim] += 2*NumberOfGhostZones;
  
 //        printf("  LeftEdge[%"ISYM"] = %8.4"FSYM"  RightEdge[%"ISYM"] = %8.4"FSYM"\n",
 //               dim, LeftEdge[dim], dim, RightEdge[dim]);

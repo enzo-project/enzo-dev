@@ -27,7 +27,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
-#define DEFAULT_MU 0.5  // fully ionized hydrogen gas
+#define DEF_MU 0.5  // fully ionized hydrogen gas
 
 // function prototypes
 int InitializeRateData(FLOAT Time);
@@ -91,10 +91,10 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
   }
 
   /* error checking */
-  if (Mu != DEFAULT_MU) {
+  if (Mu != DEF_MU) {
     if (MyProcessorNumber == ROOT_PROCESSOR)
-      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEFAULT_MU);
-    Mu = DEFAULT_MU;
+      fprintf(stderr, "warning: mu =%f assumed in initialization; setting Mu = %f for consistency.\n", DEF_MU);
+    Mu = DEF_MU;
   }
 
   // set up CoolData object if not already set up
@@ -115,7 +115,7 @@ int RadHydroRadShockInitialize(FILE *fptr, FILE *Outfptr,
   // density (erg/cc) from input temperatures
   float gas_pressure;
   if ( CGSType == 1 ) 
-    gas_pressure  = DensityConstant * kb * GasTempConstant / DEFAULT_MU / mp;
+    gas_pressure  = DensityConstant * kb * GasTempConstant / DEF_MU / mp;
   if ( CGSType == 2 ) 
     gas_pressure  = (Gamma - 1.0) * Cv * DensityConstant * GasTempConstant;
 

@@ -195,7 +195,9 @@ int CommunicationBufferedSend(void *buffer, int size, MPI_Datatype Type, int Tar
   MPI_Arg Mtag = Tag;
  
   stat = MPI_Isend(buffer_send, Count, Type, Dest, Mtag, CommWorld, RequestHandle+index);
-    if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+  if( stat != MPI_SUCCESS ){my_exit(EXIT_FAILURE);}
+  // Uncommenting the next line can improve performance in some cases.
+  // MPI_Wait(RequestHandle+index, &Status);
  
   /* Store buffer info. */
  

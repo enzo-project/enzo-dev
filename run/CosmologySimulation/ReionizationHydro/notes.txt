@@ -1,0 +1,8 @@
+This is a cosmology simulation that simulates reionization using the 
+convention, non-radiative star formation and feedback and a Haardt &
+Madau background.  It will run on 2 processors in about 20 minutes.
+
+Usage:
+./inits.exe -d ReionizationHydro.inits
+mpirun -np 2 ./ring.exe pv ParticlePositions ParticleVelocities
+mpirun -np 2 ./enzo.exe -d ReionizationHydro.enzo

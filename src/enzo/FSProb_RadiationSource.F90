@@ -48,33 +48,35 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  real*8,  intent(in) :: NGammaDot
-  REALSUB, intent(in) :: a
-  real,    intent(in) :: time, EtaRadius, EtaCenter(3)
-  real,    intent(in) :: aUn, lUn, tUn, rUn
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(out) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  INTG_PREC, intent(in) :: ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  REAL*8,  intent(in) :: NGammaDot
+  P_PREC, intent(in) :: a
+  R_PREC,    intent(in) :: time, EtaRadius, EtaCenter(3)
+  R_PREC,    intent(in) :: aUn, lUn, tUn, rUn
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(out) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
 !--------------
 ! locals
-  integer :: i, j, k, l, nsrc, seed(12)
-  real    :: h_nu0, etaconst, rnums(10)
-  real    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
-  real    :: cellXc, cellYc, cellZc
-  real*8  :: dV
+  INTEGER   :: seed(12)
+  INTG_PREC :: i, j, k, l, nsrc
+  R_PREC    :: h_nu0, etaconst, rnums(10)
+  R_PREC    :: dx, dy, dz, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
+  R_PREC    :: cellXc, cellYc, cellZc
+  REAL*8    :: dV
 
 !=======================================================================
 
   ! initialize output to have all zero values, flag to success
-  eta = 0.d0
+  eta = 0._RKIND
   ier = 1
   
   ! initialize constants
@@ -82,7 +84,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   dy    = (x1R-x1L)/Ny                ! mesh spacing (comoving), x1 direction
   dz    = (x2R-x2L)/Nz                ! mesh spacing (comoving), x2 direction
   dV    = dx*dy*dz*(dble(lUn))**3     ! cell volume (proper)
-  h_nu0 = 13.6d0*ev2erg               ! ionization energy of HI [ergs]
+  h_nu0 = 13.6_RKIND*ev2erg               ! ionization energy of HI [ergs]
 
   ! compute point source emissivity for various problems
 
@@ -90,10 +92,10 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   if (ProbType == 450) then
 
      ! get the number of sources from EtaRadius
-     nsrc = EtaRadius   ! cast to an integer
+     nsrc = EtaRadius   ! cast to an INTG_PREC
 
-     ! set the seed by casting the time to an integer
-     seed(1) = 5.d0*time/tUn + x0L/dx + x1L/dy + x2L/dz
+     ! set the seed by casting the time to an INTG_PREC
+     seed(1) = 5._RKIND*time/tUn + x0L/dx + x1L/dy + x2L/dz
      seed(1) = seed(1) + 13
 !     print *,'random seed = ',seed(1),' time = ',time
      call random_seed(PUT=seed)
@@ -103,10 +105,10 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
 
         ! get 4 random numbers for each source (3 location, 1 strength)
         call random_number(rnums)
-        i = max(min(int(rnums(4)*Nx), Nx-1), 2)
-        j = max(min(int(rnums(6)*Ny), Ny-1), 2)
-        k = max(min(int(rnums(8)*Nz), Nz-1), 2)
-!        eta(i,j,k) = rnums(10)*h_nu0*real(NGammaDot/dV)
+        i = max(min(int(rnums(4)*Nx,IKIND), Nx-1), 2)
+        j = max(min(int(rnums(6)*Ny,IKIND), Ny-1), 2)
+        k = max(min(int(rnums(8)*Nz,IKIND), Nz-1), 2)
+!        eta(i,j,k) = rnums(10)*h_nu0*REAL(NGammaDot/dV,RKIND)
         eta(i,j,k) = rnums(10)*h_nu0*NGammaDot/dV
 !        print '(A,3(i2,1x),A,es9.2)', '   setting source at ',i,j,k,' with strength ',eta(i,j,k)
 
@@ -116,7 +118,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
   else if ((ProbType > 450) .and. (ProbType <= 460)) then
 
      ! one-cell source
-     if (EtaRadius == 0.d0) then
+     if (EtaRadius == 0._RKIND) then
         
         ! compute eta factor for given ionization source
         etaconst = h_nu0*NGammaDot/dV
@@ -154,23 +156,23 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      else
 
         ! compute eta factor for given ionization source
-        etaconst = h_nu0*NGammaDot/dV/8.d0/(EtaRadius**3)
+        etaconst = h_nu0*NGammaDot/dV/8._RKIND/(EtaRadius**3)
         
         ! place ionization source in center of domain
         do k=1,Nz,1
            
            ! z-center (comoving) for this cell
-           cellZc = x2L + (k-0.5d0)*dz
+           cellZc = x2L + (k-0.5_RKIND)*dz
            
            do j=1,Ny,1
               
               ! y-center (comoving) for this cell
-              cellYc = x1L + (j-0.5d0)*dy
+              cellYc = x1L + (j-0.5_RKIND)*dy
               
               do i=1,Nx,1
                  
                  ! x-center (comoving) for this cell
-                 cellXc = x0L + (i-0.5d0)*dx
+                 cellXc = x0L + (i-0.5_RKIND)*dx
                  
                  ! see if cell is within source region
                  if ( (abs(cellXc-EtaCenter(1)) < EtaRadius*dx) .and. &
@@ -192,7 +194,7 @@ subroutine FSProb_RadiationSource(eta, time, a, ProbType, NGammaDot,   &
      etaconst = h_nu0*NGammaDot/dV
         
      ! place ionization source in center of subdomain
-     eta(int(Nx/2),int(Ny/2),int(Nz/2)) = etaconst
+     eta(int(Nx/2,IKIND),int(Ny/2,IKIND),int(Nz/2,IKIND)) = etaconst
 
   !   homogeneous emissivity field w/ strength h_nu0*NGammaDot/dV
   elseif (ProbType == 462) then

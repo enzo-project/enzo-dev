@@ -25,7 +25,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int PoissonSolverTestInitialize(FILE *fptr, FILE *Outfptr, 
 			    HierarchyEntry &TopGrid, TopGridData &MetaData)
 {
-  if (!useMHD) 
+  if (!UseMHD) 
     ENZO_FAIL("DivergenceCleaning only useful with MHD simulations");
 
   char *DensName = "Density";

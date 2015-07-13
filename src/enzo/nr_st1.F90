@@ -1,20 +1,21 @@
       subroutine nr_st1(x, n1, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: n1, idir
-      complex :: x(n1)
+      INTG_PREC :: n1, idir
+      CMPLX_PREC :: x(n1)
 
-      integer :: n(3)
-      real :: factor
+      INTG_PREC :: n(3)
+      R_PREC :: factor
 
-      factor = 1.0/real(n1)
+      factor = 1.0_RKIND/REAL(n1,RKIND)
 
       n(1) = n1
       n(2) = 1
       n(3) = 1
 
-      call fourn(x, n, 1, idir)
+      call fourn(x, n, 1_IKIND, idir)
 
       if( idir == 1 ) then
         x = x * factor

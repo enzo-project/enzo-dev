@@ -23,18 +23,19 @@ c     M          - number of systems to solve
 c
 c  OUTPUT ARGUMENTS: 
 c     xvec       - solution NxM matrix
-c     ier        - integer return flag (0=>failure, 1=>success)
+c     ier        - INTG_PREC return flag (0=>failure, 1=>success)
 c
 c=======================================================================
       implicit none
+#include "fortran_types.def"
 c
 c  argument declarations
-      integer  N, M
-      integer  ier
-      REALSUB  Amat(N*N), xvec(N*M), bvec(N*M)
+      INTG_PREC  N, M
+      INTG_PREC  ier
+      R_PREC  Amat(N*N), xvec(N*M), bvec(N*M)
 c
 c  locals
-      integer  i, ierr, ipiv(N)
+      INTG_PREC  i, ierr, ipiv(N)
 c
 c=======================================================================
 c
@@ -80,11 +81,13 @@ c
       SUBROUTINE UGEMM ( TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
 *     .. Scalar Arguments ..
+      implicit none
+#include "fortran_types.def"
       CHARACTER*1        TRANSA, TRANSB
-      INTEGER            M, N, K, LDA, LDB, LDC
-      REALSUB            ALPHA, BETA
+      INTG_PREC          M, N, K, LDA, LDB, LDC
+      R_PREC             ALPHA, BETA
 *     .. Array Arguments ..
-      REALSUB            A( LDA, * ), B( LDB, * ), C( LDC, * )
+      R_PREC             A( LDA, * ), B( LDB, * ), C( LDC, * )
 *     ..
 *
 *  Purpose
@@ -128,28 +131,28 @@ c
 *
 *           Unchanged on exit.
 *
-*  M      - INTEGER.
+*  M      - INTG_PREC.
 *           On entry,  M  specifies  the number  of rows  of the  matrix
 *           op( A )  and of the  matrix  C.  M  must  be at least  zero.
 *           Unchanged on exit.
 *
-*  N      - INTEGER.
+*  N      - INTG_PREC.
 *           On entry,  N  specifies the number  of columns of the matrix
 *           op( B ) and the number of columns of the matrix C. N must be
 *           at least zero.
 *           Unchanged on exit.
 *
-*  K      - INTEGER.
+*  K      - INTG_PREC.
 *           On entry,  K  specifies  the number of columns of the matrix
 *           op( A ) and the number of rows of the matrix op( B ). K must
 *           be at least  zero.
 *           Unchanged on exit.
 *
-*  ALPHA  - REALSUB.
+*  ALPHA  - R_PREC.
 *           On entry, ALPHA specifies the scalar alpha.
 *           Unchanged on exit.
 *
-*  A      - REALSUB array of DIMENSION ( LDA, ka ), where ka is
+*  A      - R_PREC array of DIMENSION ( LDA, ka ), where ka is
 *           k  when  TRANSA = 'N' or 'n',  and is  m  otherwise.
 *           Before entry with  TRANSA = 'N' or 'n',  the leading  m by k
 *           part of the array  A  must contain the matrix  A,  otherwise
@@ -157,14 +160,14 @@ c
 *           matrix A.
 *           Unchanged on exit.
 *
-*  LDA    - INTEGER.
+*  LDA    - INTG_PREC.
 *           On entry, LDA specifies the first dimension of A as declared
 *           in the calling (sub) program. When  TRANSA = 'N' or 'n' then
 *           LDA must be at least  max( 1, m ), otherwise  LDA must be at
 *           least  max( 1, k ).
 *           Unchanged on exit.
 *
-*  B      - REALSUB array of DIMENSION ( LDB, kb ), where kb is
+*  B      - R_PREC array of DIMENSION ( LDB, kb ), where kb is
 *           n  when  TRANSB = 'N' or 'n',  and is  k  otherwise.
 *           Before entry with  TRANSB = 'N' or 'n',  the leading  k by n
 *           part of the array  B  must contain the matrix  B,  otherwise
@@ -172,26 +175,26 @@ c
 *           matrix B.
 *           Unchanged on exit.
 *
-*  LDB    - INTEGER.
+*  LDB    - INTG_PREC.
 *           On entry, LDB specifies the first dimension of B as declared
 *           in the calling (sub) program. When  TRANSB = 'N' or 'n' then
 *           LDB must be at least  max( 1, k ), otherwise  LDB must be at
 *           least  max( 1, n ).
 *           Unchanged on exit.
 *
-*  BETA   - REALSUB.
+*  BETA   - R_PREC.
 *           On entry,  BETA  specifies the scalar  beta.  When  BETA  is
 *           supplied as zero then C need not be set on input.
 *           Unchanged on exit.
 *
-*  C      - REALSUB array of DIMENSION ( LDC, n ).
+*  C      - R_PREC array of DIMENSION ( LDC, n ).
 *           Before entry, the leading  m by n  part of the array  C must
 *           contain the matrix  C,  except when  beta  is zero, in which
 *           case C need not be set on entry.
 *           On exit, the array  C  is overwritten by the  m by n  matrix
 *           ( alpha*op( A )*op( B ) + beta*C ).
 *
-*  LDC    - INTEGER.
+*  LDC    - INTG_PREC.
 *           On entry, LDC specifies the first dimension of C as declared
 *           in  the  calling  (sub)  program.   LDC  must  be  at  least
 *           max( 1, m ).
@@ -208,19 +211,19 @@ c
 *
 *
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX
 *     .. Local Scalars ..
-      LOGICAL            NOTA, NOTB
-      INTEGER            I, INFO, J, L, NCOLA, NROWA, NROWB
-      REALSUB            TEMP
+      LOGIC_PREC         NOTA, NOTB
+      INTG_PREC          I, INFO, J, L, NCOLA, NROWA, NROWB
+      R_PREC             TEMP
 *     .. Parameters ..
-      REALSUB            ONE         , ZERO
-      PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      R_PREC             ONE         , ZERO
+      PARAMETER        ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     ..
 *     .. Executable Statements ..
 *
@@ -395,12 +398,14 @@ c=======================================================================
 c
       SUBROUTINE UGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
-      REALSUB            ALPHA, BETA
-      INTEGER            INCX, INCY, LDA, M, N
+      R_PREC             ALPHA, BETA
+      INTG_PREC          INCX, INCY, LDA, M, N
       CHARACTER*1        TRANS
 *     .. Array Arguments ..
-      REALSUB            A( LDA, * ), X( * ), Y( * )
+      R_PREC             A( LDA, * ), X( * ), Y( * )
 *     ..
 *
 *  Purpose
@@ -428,32 +433,32 @@ c
 *
 *           Unchanged on exit.
 *
-*  M      - INTEGER.
+*  M      - INTG_PREC.
 *           On entry, M specifies the number of rows of the matrix A.
 *           M must be at least zero.
 *           Unchanged on exit.
 *
-*  N      - INTEGER.
+*  N      - INTG_PREC.
 *           On entry, N specifies the number of columns of the matrix A.
 *           N must be at least zero.
 *           Unchanged on exit.
 *
-*  ALPHA  - REALSUB.
+*  ALPHA  - R_PREC.
 *           On entry, ALPHA specifies the scalar alpha.
 *           Unchanged on exit.
 *
-*  A      - REALSUB array of DIMENSION ( LDA, n ).
+*  A      - R_PREC array of DIMENSION ( LDA, n ).
 *           Before entry, the leading m by n part of the array A must
 *           contain the matrix of coefficients.
 *           Unchanged on exit.
 *
-*  LDA    - INTEGER.
+*  LDA    - INTG_PREC.
 *           On entry, LDA specifies the first dimension of A as declared
 *           in the calling (sub) program. LDA must be at least
 *           max( 1, m ).
 *           Unchanged on exit.
 *
-*  X      - REALSUB array of DIMENSION at least
+*  X      - R_PREC array of DIMENSION at least
 *           ( 1 + ( n - 1 )*abs( INCX ) ) when TRANS = 'N' or 'n'
 *           and at least
 *           ( 1 + ( m - 1 )*abs( INCX ) ) otherwise.
@@ -461,17 +466,17 @@ c
 *           vector x.
 *           Unchanged on exit.
 *
-*  INCX   - INTEGER.
+*  INCX   - INTG_PREC.
 *           On entry, INCX specifies the increment for the elements of
 *           X. INCX must not be zero.
 *           Unchanged on exit.
 *
-*  BETA   - REALSUB.
+*  BETA   - R_PREC.
 *           On entry, BETA specifies the scalar beta. When BETA is
 *           supplied as zero then Y need not be set on input.
 *           Unchanged on exit.
 *
-*  Y      - REALSUB array of DIMENSION at least
+*  Y      - R_PREC array of DIMENSION at least
 *           ( 1 + ( m - 1 )*abs( INCY ) ) when TRANS = 'N' or 'n'
 *           and at least
 *           ( 1 + ( n - 1 )*abs( INCY ) ) otherwise.
@@ -479,7 +484,7 @@ c
 *           must contain the vector y. On exit, Y is overwritten by the
 *           updated vector y.
 *
-*  INCY   - INTEGER.
+*  INCY   - INTG_PREC.
 *           On entry, INCY specifies the increment for the elements of
 *           Y. INCY must not be zero.
 *           Unchanged on exit.
@@ -495,13 +500,13 @@ c
 *
 *
 *     .. Parameters ..
-      REALSUB            ONE         , ZERO
-      PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      R_PREC             ONE         , ZERO
+      PARAMETER        ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     .. Local Scalars ..
-      REALSUB            TEMP
-      INTEGER            I, INFO, IX, IY, J, JX, JY, KX, KY, LENX, LENY
+      R_PREC             TEMP
+      INTG_PREC          I, INFO, IX, IY, J, JX, JY, KX, KY, LENX, LENY
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
@@ -658,11 +663,13 @@ c
 c=======================================================================
 c
       SUBROUTINE UGER  ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
-      REALSUB            ALPHA
-      INTEGER            INCX, INCY, LDA, M, N
+      R_PREC             ALPHA
+      INTG_PREC          INCX, INCY, LDA, M, N
 *     .. Array Arguments ..
-      REALSUB            A( LDA, * ), X( * ), Y( * )
+      R_PREC             A( LDA, * ), X( * ), Y( * )
 *     ..
 *
 *  Purpose
@@ -678,48 +685,48 @@ c
 *  Parameters
 *  ==========
 *
-*  M      - INTEGER.
+*  M      - INTG_PREC.
 *           On entry, M specifies the number of rows of the matrix A.
 *           M must be at least zero.
 *           Unchanged on exit.
 *
-*  N      - INTEGER.
+*  N      - INTG_PREC.
 *           On entry, N specifies the number of columns of the matrix A.
 *           N must be at least zero.
 *           Unchanged on exit.
 *
-*  ALPHA  - REALSUB.
+*  ALPHA  - R_PREC.
 *           On entry, ALPHA specifies the scalar alpha.
 *           Unchanged on exit.
 *
-*  X      - REALSUB array of dimension at least
+*  X      - R_PREC array of dimension at least
 *           ( 1 + ( m - 1 )*abs( INCX ) ).
 *           Before entry, the incremented array X must contain the m
 *           element vector x.
 *           Unchanged on exit.
 *
-*  INCX   - INTEGER.
+*  INCX   - INTG_PREC.
 *           On entry, INCX specifies the increment for the elements of
 *           X. INCX must not be zero.
 *           Unchanged on exit.
 *
-*  Y      - REALSUB array of dimension at least
+*  Y      - R_PREC array of dimension at least
 *           ( 1 + ( n - 1 )*abs( INCY ) ).
 *           Before entry, the incremented array Y must contain the n
 *           element vector y.
 *           Unchanged on exit.
 *
-*  INCY   - INTEGER.
+*  INCY   - INTG_PREC.
 *           On entry, INCY specifies the increment for the elements of
 *           Y. INCY must not be zero.
 *           Unchanged on exit.
 *
-*  A      - REALSUB array of DIMENSION ( LDA, n ).
+*  A      - R_PREC array of DIMENSION ( LDA, n ).
 *           Before entry, the leading m by n part of the array A must
 *           contain the matrix of coefficients. On exit, A is
 *           overwritten by the updated matrix.
 *
-*  LDA    - INTEGER.
+*  LDA    - INTG_PREC.
 *           On entry, LDA specifies the first dimension of A as declared
 *           in the calling (sub) program. LDA must be at least
 *           max( 1, m ).
@@ -736,11 +743,11 @@ c
 *
 *
 *     .. Parameters ..
-      REALSUB            ZERO
-      PARAMETER        ( ZERO = 0.0D+0 )
+      R_PREC             ZERO
+      PARAMETER        ( ZERO = 0._RKIND )
 *     .. Local Scalars ..
-      REALSUB            TEMP
-      INTEGER            I, INFO, IX, J, JY, KX
+      R_PREC             TEMP
+      INTG_PREC          I, INFO, IX, J, JY, KX
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
 *     .. Intrinsic Functions ..
@@ -824,12 +831,14 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1992
 *
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
-      INTEGER            INFO, LDA, M, N
+      INTG_PREC          INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      REALSUB            A( LDA, * )
+      INTG_PREC          IPIV( * )
+      R_PREC             A( LDA, * )
 *     ..
 *
 *  Purpose
@@ -849,25 +858,25 @@ c
 *  Arguments
 *  =========
 *
-*  M       (input) INTEGER
+*  M       (input) INTG_PREC
 *          The number of rows of the matrix A.  M >= 0.
 *
-*  N       (input) INTEGER
+*  N       (input) INTG_PREC
 *          The number of columns of the matrix A.  N >= 0.
 *
-*  A       (input/output) REALSUB array, dimension (LDA,N)
+*  A       (input/output) R_PREC array, dimension (LDA,N)
 *          On entry, the m by n matrix to be factored.
 *          On exit, the factors L and U from the factorization
 *          A = P*L*U; the unit diagonal elements of L are not stored.
 *
-*  LDA     (input) INTEGER
+*  LDA     (input) INTG_PREC
 *          The leading dimension of the array A.  LDA >= max(1,M).
 *
-*  IPIV    (output) INTEGER array, dimension (min(M,N))
+*  IPIV    (output) INTG_PREC array, dimension (min(M,N))
 *          The pivot indices; for 1 <= i <= min(M,N), row i of the
 *          matrix was interchanged with row IPIV(i).
 *
-*  INFO    (output) INTEGER
+*  INFO    (output) INTG_PREC
 *          = 0: successful exit
 *          < 0: if INFO = -k, the k-th argument had an illegal value
 *          > 0: if INFO = k, U(k,k) is exactly zero. The factorization
@@ -878,14 +887,14 @@ c
 *  =====================================================================
 *
 *     .. Parameters ..
-      REALSUB            ONE, ZERO
-      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      R_PREC             ONE, ZERO
+      PARAMETER          ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     ..
 *     .. Local Scalars ..
-      INTEGER            J, JP
+      INTG_PREC          J, JP
 *     ..
 *     .. External Functions ..
-      INTEGER            e_idamax
+      INTG_PREC          e_idamax
       EXTERNAL           e_idamax
 *     ..
 *     .. External Subroutines ..
@@ -932,7 +941,7 @@ c
 *           Compute elements J+1:M of J-th column.
 *
             IF( J.LT.M )
-     $         CALL USCAL( M-J, ONE / A( J, J ), A( J+1, J ), 1 )
+     $         CALL USCAL( M-J, ONE / A( J, J ), A( J+1, J ), 1_IKIND )
 *
          ELSE IF( INFO.EQ.0 ) THEN
 *
@@ -943,8 +952,8 @@ c
 *
 *           Update trailing submatrix.
 *
-            CALL UGER( M-J, N-J, -ONE, A( J+1, J ), 1, A( J, J+1 ), LDA,
-     $                 A( J+1, J+1 ), LDA )
+            CALL UGER( M-J, N-J, -ONE, A(J+1,J), 1_IKIND, A(J,J+1), LDA,
+     $                 A(J+1,J+1), LDA )
          END IF
    10 CONTINUE
       RETURN
@@ -961,13 +970,15 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
-      INTEGER            INFO, LDA, M, N
+      INTG_PREC          INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      REALSUB            A( LDA, * )
+      INTG_PREC          IPIV( * )
+      R_PREC             A( LDA, * )
 *     ..
 *
 *  Purpose
@@ -987,25 +998,25 @@ c
 *  Arguments
 *  =========
 *
-*  M       (input) INTEGER
+*  M       (input) INTG_PREC
 *          The number of rows of the matrix A.  M >= 0.
 *
-*  N       (input) INTEGER
+*  N       (input) INTG_PREC
 *          The number of columns of the matrix A.  N >= 0.
 *
-*  A       (input/output) REALSUB array, dimension (LDA,N)
+*  A       (input/output) R_PREC array, dimension (LDA,N)
 *          On entry, the M-by-N matrix to be factored.
 *          On exit, the factors L and U from the factorization
 *          A = P*L*U; the unit diagonal elements of L are not stored.
 *
-*  LDA     (input) INTEGER
+*  LDA     (input) INTG_PREC
 *          The leading dimension of the array A.  LDA >= max(1,M).
 *
-*  IPIV    (output) INTEGER array, dimension (min(M,N))
+*  IPIV    (output) INTG_PREC array, dimension (min(M,N))
 *          The pivot indices; for 1 <= i <= min(M,N), row i of the
 *          matrix was interchanged with row IPIV(i).
 *
-*  INFO    (output) INTEGER
+*  INFO    (output) INTG_PREC
 *          = 0:  successful exit
 *          < 0:  if INFO = -i, the i-th argument had an illegal value
 *          > 0:  if INFO = i, U(i,i) is exactly zero. The factorization
@@ -1016,17 +1027,17 @@ c
 *  =====================================================================
 *
 *     .. Parameters ..
-      REALSUB            ONE
-      PARAMETER          ( ONE = 1.0D+0 )
+      R_PREC             ONE
+      PARAMETER          ( ONE = 1._RKIND )
 *     ..
 *     .. Local Scalars ..
-      INTEGER            I, IINFO, J, JB, NB
+      INTG_PREC          I, IINFO, J, JB, NB
 *     ..
 *     .. External Subroutines ..
       EXTERNAL           UGEMM, UGETF2, ULASWP, UTRSM, E_XERBLA
 *     ..
 *     .. External Functions ..
-      INTEGER            ILAENV
+      INTG_PREC          ILAENV
       EXTERNAL           ILAENV
 *     ..
 *     .. Intrinsic Functions ..
@@ -1072,7 +1083,7 @@ c
 *           Factor diagonal and subdiagonal blocks and test for exact
 *           singularity.
 *
-            CALL UGETF2( M-J+1, JB, A( J, J ), LDA, IPIV( J ), IINFO )
+            CALL UGETF2( M-J+1_IKIND, JB, A(J,J), LDA, IPIV(J), IINFO )
 *
 *           Adjust INFO and the pivot indices.
 *
@@ -1084,28 +1095,28 @@ c
 *
 *           Apply interchanges to columns 1:J-1.
 *
-            CALL ULASWP( J-1, A, LDA, J, J+JB-1, IPIV, 1 )
+            CALL ULASWP( J-1_IKIND, A, LDA, J, J+JB-1, IPIV, 1_IKIND )
 *
             IF( J+JB.LE.N ) THEN
 *
 *              Apply interchanges to columns J+JB:N.
 *
-               CALL ULASWP( N-J-JB+1, A( 1, J+JB ), LDA, J, J+JB-1,
-     $                      IPIV, 1 )
+               CALL ULASWP( N-J-JB+1_IKIND, A(1,J+JB), LDA, J, 
+     $                      J+JB-1_IKIND, IPIV, 1_IKIND )
 *
 *              Compute block row of U.
 *
                CALL UTRSM( 'Left', 'Lower', 'No transpose', 'Unit', JB,
-     $                     N-J-JB+1, ONE, A( J, J ), LDA, A( J, J+JB ),
+     $                     N-J-JB+1_IKIND, ONE, A(J,J), LDA, A(J,J+JB),
      $                     LDA )
                IF( J+JB.LE.M ) THEN
 *
 *                 Update trailing submatrix.
 *
-                  CALL UGEMM( 'No transpose', 'No transpose', M-J-JB+1,
-     $                        N-J-JB+1, JB, -ONE, A( J+JB, J ), LDA,
-     $                        A( J, J+JB ), LDA, ONE, A( J+JB, J+JB ),
-     $                        LDA )
+                  CALL UGEMM( 'No transpose', 'No transpose', 
+     $                        M-J-JB+1_IKIND, N-J-JB+1_IKIND, JB, -ONE, 
+     $                        A(J+JB,J), LDA, A(J,J+JB), LDA, ONE, 
+     $                        A(J+JB,J+JB), LDA )
                END IF
             END IF
    20    CONTINUE
@@ -1124,14 +1135,16 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     March 31, 1993
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
       CHARACTER          TRANS
-      INTEGER            INFO, LDA, LDB, N, NRHS
+      INTG_PREC          INFO, LDA, LDB, N, NRHS
 *     ..
 *     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      REALSUB            A( LDA, * ), B( LDB, * )
+      INTG_PREC          IPIV( * )
+      R_PREC             A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  Purpose
@@ -1151,46 +1164,46 @@ c
 *          = 'T':  A'* X = B  (Transpose)
 *          = 'C':  A'* X = B  (Conjugate transpose = Transpose)
 *
-*  N       (input) INTEGER
+*  N       (input) INTG_PREC
 *          The order of the matrix A.  N >= 0.
 *
-*  NRHS    (input) INTEGER
+*  NRHS    (input) INTG_PREC
 *          The number of right hand sides, i.e., the number of columns
 *          of the matrix B.  NRHS >= 0.
 *
-*  A       (input) REALSUB array, dimension (LDA,N)
+*  A       (input) R_PREC array, dimension (LDA,N)
 *          The factors L and U from the factorization A = P*L*U
 *          as computed by UGETRF.
 *
-*  LDA     (input) INTEGER
+*  LDA     (input) INTG_PREC
 *          The leading dimension of the array A.  LDA >= max(1,N).
 *
-*  IPIV    (input) INTEGER array, dimension (N)
+*  IPIV    (input) INTG_PREC array, dimension (N)
 *          The pivot indices from UGETRF; for 1<=i<=N, row i of the
 *          matrix was interchanged with row IPIV(i).
 *
-*  B       (input/output) REALSUB array, dimension (LDB,NRHS)
+*  B       (input/output) R_PREC array, dimension (LDB,NRHS)
 *          On entry, the right hand side matrix B.
 *          On exit, the solution matrix X.
 *
-*  LDB     (input) INTEGER
+*  LDB     (input) INTG_PREC
 *          The leading dimension of the array B.  LDB >= max(1,N).
 *
-*  INFO    (output) INTEGER
+*  INFO    (output) INTG_PREC
 *          = 0:  successful exit
 *          < 0:  if INFO = -i, the i-th argument had an illegal value
 *
 *  =====================================================================
 *
 *     .. Parameters ..
-      REALSUB            ONE
+      R_PREC             ONE
       PARAMETER          ( ONE = 1.0D+0 )
 *     ..
 *     .. Local Scalars ..
-      LOGICAL            NOTRAN
+      LOGIC_PREC         NOTRAN
 *     ..
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     ..
 *     .. External Subroutines ..
@@ -1233,7 +1246,7 @@ c
 *
 *        Apply row interchanges to the right hand sides.
 *
-         CALL ULASWP( NRHS, B, LDB, 1, N, IPIV, 1 )
+         CALL ULASWP( NRHS, B, LDB, 1_IKIND, N, IPIV, 1_IKIND )
 *
 *        Solve L*X = B, overwriting B with X.
 *
@@ -1260,7 +1273,7 @@ c
 *
 *        Apply row interchanges to the solution vectors.
 *
-         CALL ULASWP( NRHS, B, LDB, 1, N, IPIV, -1 )
+         CALL ULASWP( NRHS, B, LDB, 1_IKIND, N, IPIV, -1_IKIND )
       END IF
 *
       RETURN
@@ -1277,13 +1290,15 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1999
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
-      INTEGER            INCX, K1, K2, LDA, N
+      INTG_PREC          INCX, K1, K2, LDA, N
 *     ..
 *     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      REALSUB            A( LDA, * )
+      INTG_PREC          IPIV( * )
+      R_PREC             A( LDA, * )
 *     ..
 *
 *  Purpose
@@ -1295,31 +1310,31 @@ c
 *  Arguments
 *  =========
 *
-*  N       (input) INTEGER
+*  N       (input) INTG_PREC
 *          The number of columns of the matrix A.
 *
-*  A       (input/output) REALSUB array, dimension (LDA,N)
+*  A       (input/output) R_PREC array, dimension (LDA,N)
 *          On entry, the matrix of column dimension N to which the row
 *          interchanges will be applied.
 *          On exit, the permuted matrix.
 *
-*  LDA     (input) INTEGER
+*  LDA     (input) INTG_PREC
 *          The leading dimension of the array A.
 *
-*  K1      (input) INTEGER
+*  K1      (input) INTG_PREC
 *          The first element of IPIV for which a row interchange will
 *          be done.
 *
-*  K2      (input) INTEGER
+*  K2      (input) INTG_PREC
 *          The last element of IPIV for which a row interchange will
 *          be done.
 *
-*  IPIV    (input) INTEGER array, dimension (M*abs(INCX))
+*  IPIV    (input) INTG_PREC array, dimension (M*abs(INCX))
 *          The vector of pivot indices.  Only the elements in positions
 *          K1 through K2 of IPIV are accessed.
 *          IPIV(K) = L implies rows K and L are to be interchanged.
 *
-*  INCX    (input) INTEGER
+*  INCX    (input) INTG_PREC
 *          The increment between successive values of IPIV.  If IPIV
 *          is negative, the pivots are applied in reverse order.
 *
@@ -1332,8 +1347,8 @@ c
 * =====================================================================
 *
 *     .. Local Scalars ..
-      INTEGER            I, I1, I2, INC, IP, IX, IX0, J, K, N32
-      REALSUB            TEMP
+      INTG_PREC          I, I1, I2, INC, IP, IX, IX0, J, K, N32
+      R_PREC             TEMP
 *     ..
 *     .. Executable Statements ..
 *
@@ -1400,9 +1415,11 @@ c     interchanges two vectors.
 c     uses unrolled loops for increments equal one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 12/3/93, array(1) declarations changed to array(*)
+      implicit none
+#include "fortran_types.def"
 c
-      REALSUB dx(*),dy(*),dtemp
-      integer i,incx,incy,ix,iy,m,mp1,n
+      R_PREC dx(*),dy(*),dtemp
+      INTG_PREC i,incx,incy,ix,iy,m,mp1,n
 c
       if(n.le.0)return
       if(incx.eq.1.and.incy.eq.1)go to 20
@@ -1460,9 +1477,11 @@ c     uses unrolled loops for increment equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
+      implicit none
+#include "fortran_types.def"
 c
-      REALSUB da,dx(*)
-      integer i,incx,m,mp1,n,nincx
+      R_PREC da,dx(*)
+      INTG_PREC i,incx,m,mp1,n,nincx
 c
       if( n.le.0 .or. incx.le.0 )return
       if(incx.eq.1)go to 20
@@ -1501,12 +1520,14 @@ c=======================================================================
 c
       SUBROUTINE UTRSM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
+      implicit none
+#include "fortran_types.def"
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
-      INTEGER            M, N, LDA, LDB
-      REALSUB            ALPHA
+      INTG_PREC          M, N, LDA, LDB
+      R_PREC             ALPHA
 *     .. Array Arguments ..
-      REALSUB            A( LDA, * ), B( LDB, * )
+      R_PREC             A( LDA, * ), B( LDB, * )
 *     ..
 *
 *  Purpose
@@ -1569,23 +1590,23 @@ c
 *
 *           Unchanged on exit.
 *
-*  M      - INTEGER.
+*  M      - INTG_PREC.
 *           On entry, M specifies the number of rows of B. M must be at
 *           least zero.
 *           Unchanged on exit.
 *
-*  N      - INTEGER.
+*  N      - INTG_PREC.
 *           On entry, N specifies the number of columns of B.  N must be
 *           at least zero.
 *           Unchanged on exit.
 *
-*  ALPHA  - REALSUB.
+*  ALPHA  - R_PREC.
 *           On entry,  ALPHA specifies the scalar  alpha. When  alpha is
 *           zero then  A is not referenced and  B need not be set before
 *           entry.
 *           Unchanged on exit.
 *
-*  A      - REALSUB array of DIMENSION ( LDA, k ), where k is m
+*  A      - R_PREC array of DIMENSION ( LDA, k ), where k is m
 *           when  SIDE = 'L' or 'l'  and is  n  when  SIDE = 'R' or 'r'.
 *           Before entry  with  UPLO = 'U' or 'u',  the  leading  k by k
 *           upper triangular part of the array  A must contain the upper
@@ -1599,19 +1620,19 @@ c
 *           A  are not referenced either,  but are assumed to be  unity.
 *           Unchanged on exit.
 *
-*  LDA    - INTEGER.
+*  LDA    - INTG_PREC.
 *           On entry, LDA specifies the first dimension of A as declared
 *           in the calling (sub) program.  When  SIDE = 'L' or 'l'  then
 *           LDA  must be at least  max( 1, m ),  when  SIDE = 'R' or 'r'
 *           then LDA must be at least max( 1, n ).
 *           Unchanged on exit.
 *
-*  B      - REALSUB array of DIMENSION ( LDB, n ).
+*  B      - R_PREC array of DIMENSION ( LDB, n ).
 *           Before entry,  the leading  m by n part of the array  B must
 *           contain  the  right-hand  side  matrix  B,  and  on exit  is
 *           overwritten by the solution matrix  X.
 *
-*  LDB    - INTEGER.
+*  LDB    - INTG_PREC.
 *           On entry, LDB specifies the first dimension of B as declared
 *           in  the  calling  (sub)  program.   LDB  must  be  at  least
 *           max( 1, m ).
@@ -1629,19 +1650,19 @@ c
 *
 *
 *     .. External Functions ..
-      LOGICAL            LSAME
+      LOGIC_PREC         LSAME
       EXTERNAL           LSAME
 *     .. External Subroutines ..
       EXTERNAL           E_XERBLA
 *     .. Intrinsic Functions ..
       INTRINSIC          MAX
 *     .. Local Scalars ..
-      LOGICAL            LSIDE, NOUNIT, UPPER
-      INTEGER            I, INFO, J, K, NROWA
-      REALSUB            TEMP
+      LOGIC_PREC         LSIDE, NOUNIT, UPPER
+      INTG_PREC          I, INFO, J, K, NROWA
+      R_PREC             TEMP
 *     .. Parameters ..
-      REALSUB            ONE         , ZERO
-      PARAMETER        ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+      R_PREC             ONE         , ZERO
+      PARAMETER        ( ONE = 1._RKIND, ZERO = 0._RKIND )
 *     ..
 *     .. Executable Statements ..
 *
@@ -1880,15 +1901,15 @@ c
 c
 c=======================================================================
 c
-      integer function e_idamax(n,dx,incx)
+      INTG_PREC function e_idamax(n,dx,incx)
 c
 c     finds the index of element having max. absolute value.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-      REALSUB dx(*),dmax
-      integer i,incx,ix,n
+      R_PREC dx(*),dmax
+      INTG_PREC i,incx,ix,n
 c
       e_idamax = 0
       if( n.lt.1 .or. incx.le.0 ) return
@@ -1922,7 +1943,7 @@ c
 c
 c=======================================================================
 c
-      INTEGER          FUNCTION IEEECK( ISPEC, ZERO, ONE )
+      INTG_PREC        FUNCTION IEEECK( ISPEC, ZERO, ONE )
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
@@ -1930,8 +1951,8 @@ c
 *     June 30, 1998
 *
 *     .. Scalar Arguments ..
-      INTEGER            ISPEC
-      REAL               ONE, ZERO
+      INTG_PREC        ISPEC
+      R_PREC           ONE, ZERO
 *     ..
 *
 *  Purpose
@@ -1943,28 +1964,28 @@ c
 *  Arguments
 *  =========
 *
-*  ISPEC   (input) INTEGER
+*  ISPEC   (input) INTG_PREC
 *          Specifies whether to test just for inifinity arithmetic
 *          or whether to test for infinity and NaN arithmetic.
 *          = 0: Verify infinity arithmetic only.
 *          = 1: Verify infinity and NaN arithmetic.
 *
-*  ZERO    (input) REAL
+*  ZERO    (input) R_PREC
 *          Must contain the value 0.0
 *          This is passed to prevent the compiler from optimizing
 *          away this code.
 *
-*  ONE     (input) REAL
+*  ONE     (input) R_PREC
 *          Must contain the value 1.0
 *          This is passed to prevent the compiler from optimizing
 *          away this code.
 *
-*  RETURN VALUE:  INTEGER
+*  RETURN VALUE:  INTG_PREC
 *          = 0:  Arithmetic failed to produce the correct answers
 *          = 1:  Arithmetic produced the correct answers
 *
 *     .. Local Scalars ..
-      REAL               NAN1, NAN2, NAN3, NAN4, NAN5, NAN6, NEGINF,
+      R_PREC               NAN1, NAN2, NAN3, NAN4, NAN5, NAN6, NEGINF,
      $                   NEGZRO, NEWZRO, POSINF
 *     ..
 *     .. Executable Statements ..
@@ -2073,7 +2094,7 @@ c
 c
 c=======================================================================
 c
-      INTEGER          FUNCTION ILAENV( ISPEC, NAME, OPTS, N1, N2, N3,
+      INTG_PREC        FUNCTION ILAENV( ISPEC, NAME, OPTS, N1, N2, N3,
      $                 N4 )
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
@@ -2081,9 +2102,11 @@ c
 *     Courant Institute, Argonne National Lab, and Rice University
 *     June 30, 1999
 *
+      IMPLICIT NONE
+#include "fortran_types.def"      
 *     .. Scalar Arguments ..
       CHARACTER*( * )    NAME, OPTS
-      INTEGER            ISPEC, N1, N2, N3, N4
+      INTG_PREC          ISPEC, N1, N2, N3, N4
 *     ..
 *
 *  Purpose
@@ -2105,7 +2128,7 @@ c
 *  Arguments
 *  =========
 *
-*  ISPEC   (input) INTEGER
+*  ISPEC   (input) INTG_PREC
 *          Specifies the parameter to be returned as the value of
 *          ILAENV.
 *          = 1: the optimal blocksize; if this value is 1, an unblocked
@@ -2143,14 +2166,14 @@ c
 *          TRANS = 'T', and DIAG = 'N' for a triangular routine would
 *          be specified as OPTS = 'UTN'.
 *
-*  N1      (input) INTEGER
-*  N2      (input) INTEGER
-*  N3      (input) INTEGER
-*  N4      (input) INTEGER
+*  N1      (input) INTG_PREC
+*  N2      (input) INTG_PREC
+*  N3      (input) INTG_PREC
+*  N4      (input) INTG_PREC
 *          Problem dimensions for the subroutine NAME; these may not all
 *          be required.
 *
-* (ILAENV) (output) INTEGER
+* (ILAENV) (output) INTG_PREC
 *          >= 0: the value of the parameter specified by ISPEC
 *          < 0:  if ILAENV = -k, the k-th argument had an illegal value.
 *
@@ -2177,18 +2200,18 @@ c
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      LOGICAL            CNAME, SNAME
+      LOGIC_PREC         CNAME, SNAME
       CHARACTER*1        C1
       CHARACTER*2        C2, C4
       CHARACTER*3        C3
       CHARACTER*6        SUBNAM
-      INTEGER            I, IC, IZ, NB, NBMIN, NX
+      INTG_PREC          I, IC, IZ, NB, NBMIN, NX
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC          CHAR, ICHAR, INT, MIN, REAL
 *     ..
 *     .. External Functions ..
-      INTEGER            IEEECK
+      INTG_PREC          IEEECK
       EXTERNAL           IEEECK
 *     ..
 *     .. Executable Statements ..
@@ -2269,7 +2292,7 @@ c
 *     ISPEC = 1:  block size
 *
 *     In these examples, separate code is provided for setting NB for
-*     real and complex.  We assume that NB will take the same value in
+*     R_PREC and CMPLX_PREC.  We assume that NB will take the same value in
 *     single or double precision.
 *
       NB = 1
@@ -2569,7 +2592,7 @@ c
 *
 *     ISPEC = 6:  crossover point for SVD (used by xGELSS and xGESVD)
 *
-      ILAENV = INT( REAL( MIN( N1, N2 ) )*1.6E0 )
+      ILAENV = INT( REAL( MIN( N1, N2 ), RKIND)*1.6_RKIND, IKIND)
       RETURN
 *
   700 CONTINUE
@@ -2602,7 +2625,7 @@ c
 C     ILAENV = 0
       ILAENV = 1
       IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 0, 0.0, 1.0 ) 
+         ILAENV = IEEECK( 0, 0._RKIND, 1._RKIND ) 
       END IF
       RETURN
 *
@@ -2613,7 +2636,7 @@ C     ILAENV = 0
 C     ILAENV = 0
       ILAENV = 1
       IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 1, 0.0, 1.0 ) 
+         ILAENV = IEEECK( 1, 0._RKIND, 1._RKIND ) 
       END IF
       RETURN
 *
@@ -2623,7 +2646,7 @@ C     ILAENV = 0
 c
 c=======================================================================
 c
-      LOGICAL          FUNCTION LSAME( CA, CB )
+      LOGIC_PREC       FUNCTION LSAME( CA, CB )
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
@@ -2653,7 +2676,7 @@ c
       INTRINSIC          ICHAR
 *     ..
 *     .. Local Scalars ..
-      INTEGER            INTA, INTB, ZCODE
+      INTG_PREC          INTA, INTB, ZCODE
 *     ..
 *     .. Executable Statements ..
 *
@@ -2719,10 +2742,12 @@ c
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
 *     Courant Institute, Argonne National Lab, and Rice University
 *     February 29, 1992
+      implicit none
+#include "fortran_types.def"
 *
 *     .. Scalar Arguments ..
       CHARACTER*6        SRNAME
-      INTEGER            INFO
+      INTG_PREC          INFO
 *     ..
 *
 *  Purpose
@@ -2741,7 +2766,7 @@ c
 *  SRNAME  (input) CHARACTER*6
 *          The name of the routine which called E_XERBLA.
 *
-*  INFO    (input) INTEGER
+*  INFO    (input) INTG_PREC
 *          The position of the invalid parameter in the parameter list
 *          of the calling routine.
 *

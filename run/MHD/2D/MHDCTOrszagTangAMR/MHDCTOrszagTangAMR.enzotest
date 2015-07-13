@@ -1,0 +1,14 @@
+name = 'MHDCTOrszagTangAMR'
+#answer_testing_script = 'MHDCTOrszagTang__test_DivB_CT.py'  # or None
+nprocs = 1
+runtime = 'short'   # short, medium, long
+hydro = False
+mhd = True
+gravity = False
+AMR = True
+dimensionality = 2
+max_time_minutes = 2.5
+fullsuite = True
+pushsuite = True
+quicksuite = True
+problematic = True

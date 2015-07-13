@@ -33,7 +33,7 @@ c    i1,i2  - starting and ending addresses for dimension 1
 c    ibvdim1,2 - dimension of niib, noib, eiib, eoib
 c    idim   - declared leading dimension of slices
 c    idir   - direction of sweep w.r.t. 3d arrays (1=x, 2=y, 3=z)
-c    isteep - integer flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
+c    isteep - INTG_PREC flag for steepener (eq. 1.14,1.17,3.2) (0 = off)
 c    j1,j2  - starting and ending addresses for dimension 2
 c    jdim   - declared second dimension of slices
 c    k      - index in dimension 3
@@ -55,32 +55,34 @@ c  LOCALS:
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer i1, i2, ibvdim1, ibvdim2, idim, idir, idual, isteep,
+      INTG_PREC i1, i2, ibvdim1, ibvdim2, idim, idir, idual, isteep,
      &        j1, j2, jdim, k
-c      integer niib(ibvdim1,ibvdim2), noib(ibvdim1,ibvdim2)
-c      real    eiib(ibvdim1,ibvdim2), eoib(ibvdim1,ibvdim2)
-      real    dt, gamma, vgx
-      real   dslice(idim,jdim),     dxi(idim,jdim),  pslice(idim,jdim),
-     &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
-     &     dxlslice(idim,jdim),  eslice(idim,jdim), geslice(idim,jdim)
-      real       df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
-     &           vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
+c      INTG_PREC niib(ibvdim1,ibvdim2), noib(ibvdim1,ibvdim2)
+c      R_PREC    eiib(ibvdim1,ibvdim2), eoib(ibvdim1,ibvdim2)
+      R_PREC  dt, gamma, vgx
+      R_PREC  dslice(idim,jdim),     dxi(idim,jdim),  pslice(idim,jdim),
+     &        uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim),
+     &        dxlslice(idim,jdim),  eslice(idim,jdim), 
+     &        geslice(idim,jdim)
+      R_PREC  df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
+     &        vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim)
 c
 c  local declarations
 c
-      integer i, j
-      real    qa, qb, qc, qd, qe, s1, s2, udtim1, udti, ft,
+      INTG_PREC i, j
+      R_PREC    qa, qb, qc, qd, qe, s1, s2, udtim1, udti, ft,
      &        dplus, pplus, uplus, vplus, wplus, eplus, geplus,
      &        dmnus, pmnus, umnus, vmnus, wmnus, emnus, gemnus, yy, one
-      real  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
+      R_PREC  c1(ijkn), c2(ijkn), c3(ijkn), c4(ijkn), c5(ijkn), c6(ijkn)
      &    , dd(ijkn), dp(ijkn), du(ijkn), dv(ijkn), dw(ijkn), de(ijkn)
      &    ,dph(ijkn),pph(ijkn),uph(ijkn),vph(ijkn),wph(ijkn),eph(ijkn)
      &    ,d2d(ijkn),dxb(ijkn), dl(ijkn), el(ijkn), ul(ijkn), vl(ijkn)
@@ -90,7 +92,7 @@ c
 c
 c  Parameters
 c
-      parameter(ft=4.d0/3.d0, one=1.d0)
+      parameter(ft=4._RKIND/3._RKIND, one=1._RKIND)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////////
 c=======================================================================
@@ -101,17 +103,17 @@ c  Compute coefficients used in interpolation formulae
 c
       do i=i1-2, i2+2
          qa    = dxi(i,j)/(dxi(i-1,j) + dxi(i,j) + dxi(i+1,j))
-         c1(i)=qa*(2.d0*dxi(i-1,j)+dxi(i,j))/(dxi(i+1,j)+dxi(i,j))
-         c2(i)=qa*(2.d0*dxi(i+1,j)+dxi(i,j))/(dxi(i-1,j)+dxi(i,j))
+         c1(i)=qa*(2._RKIND*dxi(i-1,j)+dxi(i,j))/(dxi(i+1,j)+dxi(i,j))
+         c2(i)=qa*(2._RKIND*dxi(i+1,j)+dxi(i,j))/(dxi(i-1,j)+dxi(i,j))
       enddo
 c
       do i=i1-1, i2+2
          qa = dxi(i-2,j) + dxi(i-1,j) + dxi(i,j) + dxi(i+1,j)
          qb = dxi(i-1,j)/(dxi(i-1,j) + dxi(i,j))
-         qc = (dxi(i-2,j)+dxi(i-1,j))/(2.d0*dxi(i-1,j)+dxi(i  ,j))
-         qd = (dxi(i+1,j)+dxi(i  ,j))/(2.d0*dxi(i  ,j)+dxi(i-1,j))
-         qb = qb + 2.d0*dxi(i,j)*qb/qa*(qc-qd)
-         c3(i) = 1.d0 - qb 
+         qc = (dxi(i-2,j)+dxi(i-1,j))/(2._RKIND*dxi(i-1,j)+dxi(i  ,j))
+         qd = (dxi(i+1,j)+dxi(i  ,j))/(2._RKIND*dxi(i  ,j)+dxi(i-1,j))
+         qb = qb + 2._RKIND*dxi(i,j)*qb/qa*(qc-qd)
+         c3(i) = 1._RKIND - qb 
          c4(i) = qb
          c5(i) =  dxi(i  ,j)/qa*qd
          c6(i) = -dxi(i-1,j)/qa*qc
@@ -140,39 +142,39 @@ c
 c     
 c  Monotonize (eqn 1.8)
 c
-         if (dplus*dmnus .gt. 0.0) then
-            dd(i) = min(abs(dd(i)),2.d0*abs(dmnus),2.d0*abs(dplus))*
-     &              sign(one, dd(i))
+         if (dplus*dmnus .gt. 0._RKIND) then
+            dd(i) = min(abs(dd(i)),2._RKIND*abs(dmnus),
+     &           2._RKIND*abs(dplus))* sign(one, dd(i))
          else
-            dd(i) = 0.d0
+            dd(i) = 0._RKIND
          endif
 c
-         if (pplus*pmnus .gt. 0.0) then
-            dp(i) = min(abs(dp(i)),2.d0*abs(pmnus),2.d0*abs(pplus))*
-     &              sign(one, dp(i))
+         if (pplus*pmnus .gt. 0._RKIND) then
+            dp(i) = min(abs(dp(i)),2._RKIND*abs(pmnus),
+     &           2._RKIND*abs(pplus))* sign(one, dp(i))
          else
-            dp(i) = 0.d0
+            dp(i) = 0._RKIND
          endif
 c
-         if (uplus*umnus .gt. 0.0) then
-            du(i) = min(abs(du(i)),2.d0*abs(umnus),2.d0*abs(uplus))*
-     &              sign(one, du(i))
+         if (uplus*umnus .gt. 0._RKIND) then
+            du(i) = min(abs(du(i)),2._RKIND*abs(umnus),
+     &           2._RKIND*abs(uplus))* sign(one, du(i))
          else
-            du(i) = 0.d0
+            du(i) = 0._RKIND
          endif
 c
-         if (vplus*vmnus .gt. 0.0) then
-            dv(i) = min(abs(dv(i)),2.d0*abs(vmnus),2.d0*abs(vplus))*
-     &              sign(one, dv(i))
+         if (vplus*vmnus .gt. 0._RKIND) then
+            dv(i) = min(abs(dv(i)),2._RKIND*abs(vmnus),
+     &           2._RKIND*abs(vplus))* sign(one, dv(i))
          else
-            dv(i) = 0.d0
+            dv(i) = 0._RKIND
          endif
 c
-         if (wplus*wmnus .gt. 0.0) then
-            dw(i) = min(abs(dw(i)),2.d0*abs(wmnus),2.d0*abs(wplus))*
-     &              sign(one, dw(i))
+         if (wplus*wmnus .gt. 0._RKIND) then
+            dw(i) = min(abs(dw(i)),2._RKIND*abs(wmnus),
+     &           2._RKIND*abs(wplus))* sign(one, dw(i))
          else
-            dw(i) = 0.d0
+            dw(i) = 0._RKIND
          endif
       enddo
 c
@@ -189,8 +191,8 @@ c
      &            c5(i)*    dv(i-1  ) + c6(i)*dv(i)
          wph(i) = c3(i)*wslice(i-1,j) + c4(i)*wslice(i,j) +
      &            c5(i)*    dw(i-1  ) + c6(i)*dw(i)
-         eph(i) = pph(i)/((gamma-1.d0)*dph(i))
-     &          + 0.5d0*(uph(i)**2 + vph(i)**2 + wph(i)**2)
+         eph(i) = pph(i)/((gamma-1._RKIND)*dph(i))
+     &          + 0.5_RKIND*(uph(i)**2 + vph(i)**2 + wph(i)**2)
       enddo
 c
 c  Construct interface values of E (eqn 1.6)
@@ -202,11 +204,11 @@ c
       do i=i1-1, i2+1
          eplus = eslice(i+1,j)-eslice(i  ,j)
          emnus = eslice(i  ,j)-eslice(i-1,j)
-         if (eplus*emnus .gt. 0.0) then
-            de(i) = min(abs(de(i)),2.d0*abs(eplus),2.d0*abs(emnus))*
-     &              sign(one, de(i))
+         if (eplus*emnus .gt. 0._RKIND) then
+            de(i) = min(abs(de(i)),2._RKIND*abs(eplus),
+     &           2._RKIND*abs(emnus))* sign(one, de(i))
          else
-            de(i) = 0.d0
+            de(i) = 0._RKIND
          endif
       enddo
 c
@@ -220,7 +222,7 @@ c
       if (idual .eq. 1) then
 c
          do i=i1-1, i2+2
-            geph(i)= pph(i)/((gamma-1.d0)*dph(i))
+            geph(i)= pph(i)/((gamma-1._RKIND)*dph(i))
          enddo
 c
          do i=i1-1, i2+1
@@ -230,11 +232,11 @@ c
          do i=i1-1, i2+1
             geplus = geslice(i+1,j)-geslice(i  ,j)
             gemnus = geslice(i  ,j)-geslice(i-1,j)
-            if (geplus*gemnus .gt. 0.0) then
-               dge(i) = min(abs(dge(i)),2.d0*abs(geplus),
-     &                  2.d0*abs(gemnus)) * sign(one, dge(i))
+            if (geplus*gemnus .gt. 0._RKIND) then
+               dge(i) = min(abs(dge(i)),2._RKIND*abs(geplus),
+     &                  2._RKIND*abs(gemnus)) * sign(one, dge(i))
             else
-               dge(i) = 0.d0
+               dge(i) = 0._RKIND
             endif
          enddo
 c
@@ -309,23 +311,26 @@ c
             d2d(i) = (dslice(i+1,j)-dslice(i,j))/(dxi(i+1,j)+dxi(i,j))
             d2d(i) = (d2d(i) - (dslice(i,j)-dslice(i-1,j))
      &              /(dxi(i,j)+dxi(i-1,j)))/qa
-            dxb(i) = 0.5d0*(dxi(i,j)+dxi(i+1,j))
+            dxb(i) = 0.5_RKIND*(dxi(i,j)+dxi(i+1,j))
          enddo
          do i=i1-1, i2+1
             qc = abs(dslice(i+1,j)-dslice(i-1,j))
-     &           -0.01d0*min(abs(dslice(i+1,j)),abs(dslice(i-1,j)))
+     &           -0.01_RKIND*min(abs(dslice(i+1,j)),abs(dslice(i-1,j)))
             s1 = (d2d(i-1)-d2d(i+1))*(dxb(i-1)**3+dxb(i)**3)
      &           /((dxb(i)+dxb(i-1))*(dslice(i+1,j)-dslice(i-1,j)+
      &           tiny))
-            if (d2d(i+1)*d2d(i-1) .gt. 0.0 .or. qc .le. 0.0) s1 = 0.0
-            s2 = max(0.d0,min(20.d0*(s1-0.05d0), 1.d0))
+            if (d2d(i+1)*d2d(i-1) .gt. 0._RKIND .or. qc .le. 0._RKIND) 
+     &           s1 = 0._RKIND
+            s2 = max(0._RKIND,min(20._RKIND*(s1-0.05_RKIND), 1._RKIND))
             qa = abs(dslice(i+1,j)-dslice(i-1,j))/
      &           min(dslice(i+1,j),dslice(i-1,j))
             qb = abs(pslice(i+1,j)-pslice(i-1,j))/
      &           min(pslice(i+1,j),pslice(i-1,j))
-            if (gamma*0.1d0*qa .lt. qb) s2 = 0.d0
-            dl(i) = (1.d0-s2)*dl(i) + s2*(dslice(i-1,j)+0.5d0*dd(i-1))
-            dr(i) = (1.d0-s2)*dr(i) + s2*(dslice(i+1,j)-0.5d0*dd(i+1))
+            if (gamma*0.1_RKIND*qa .lt. qb) s2 = 0._RKIND
+            dl(i) = (1._RKIND-s2)*dl(i) + 
+     &           s2*(dslice(i-1,j)+0.5_RKIND*dd(i-1))
+            dr(i) = (1._RKIND-s2)*dr(i) + 
+     &           s2*(dslice(i+1,j)-0.5_RKIND*dd(i+1))
          enddo
       endif
 c
@@ -334,117 +339,117 @@ c
       do i=i1-1, i2+1
         qa = (dr(i)-dslice(i,j))*(dslice(i,j)-dl(i))
         qd = dr(i)-dl(i)
-        qe = 6.d0*(dslice(i,j)-0.5d0*(dr(i)+dl(i)))
-        if (qa .le. 0.d0) then
+        qe = 6._RKIND*(dslice(i,j)-0.5_RKIND*(dr(i)+dl(i)))
+        if (qa .le. 0._RKIND) then
            dl(i) = dslice(i,j)
            dr(i) = dslice(i,j)
         endif
-        if (qd**2-qd*qe .lt. 0.d0)
-     &      dl(i) = 3.d0*dslice(i,j)-2.d0*dr(i)
-        if (qd**2+qd*qe .lt. 0.d0)
-     &      dr(i) = 3.d0*dslice(i,j)-2.d0*dl(i)
+        if (qd**2-qd*qe .lt. 0._RKIND)
+     &      dl(i) = 3._RKIND*dslice(i,j)-2._RKIND*dr(i)
+        if (qd**2+qd*qe .lt. 0._RKIND)
+     &      dr(i) = 3._RKIND*dslice(i,j)-2._RKIND*dl(i)
 c
         qa = (er(i)-eslice(i,j))*(eslice(i,j)-el(i))
         qd = er(i)-el(i)
-        qe = 6.d0*(eslice(i,j)-0.5d0*(er(i)+el(i)))
-        if (qa .le. 0.d0) then
+        qe = 6._RKIND*(eslice(i,j)-0.5_RKIND*(er(i)+el(i)))
+        if (qa .le. 0._RKIND) then
            el(i) = eslice(i,j)
            er(i) = eslice(i,j)
         endif
-        if (qd**2-qd*qe .lt. 0.d0)
-     &      el(i) = 3.d0*eslice(i,j)-2.d0*er(i)
-        if (qd**2+qd*qe .lt. 0.d0)
-     &      er(i) = 3.d0*eslice(i,j)-2.d0*el(i)
+        if (qd**2-qd*qe .lt. 0._RKIND)
+     &      el(i) = 3._RKIND*eslice(i,j)-2._RKIND*er(i)
+        if (qd**2+qd*qe .lt. 0._RKIND)
+     &      er(i) = 3._RKIND*eslice(i,j)-2._RKIND*el(i)
 c
         qa = (ur(i)-uslice(i,j))*(uslice(i,j)-ul(i))
         qd = ur(i)-ul(i)
-        qe = 6.d0*(uslice(i,j)-0.5d0*(ur(i)+ul(i)))
-        if (qa .le. 0.d0) then
+        qe = 6._RKIND*(uslice(i,j)-0.5_RKIND*(ur(i)+ul(i)))
+        if (qa .le. 0._RKIND) then
            ul(i) = uslice(i,j)
            ur(i) = uslice(i,j)
         endif
-        if (qd**2-qd*qe .lt. 0.d0)
-     &      ul(i) = 3.d0*uslice(i,j)-2.d0*ur(i)
-        if (qd**2+qd*qe .lt. 0.d0)
-     &      ur(i) = 3.d0*uslice(i,j)-2.d0*ul(i)
+        if (qd**2-qd*qe .lt. 0._RKIND)
+     &      ul(i) = 3._RKIND*uslice(i,j)-2._RKIND*ur(i)
+        if (qd**2+qd*qe .lt. 0._RKIND)
+     &      ur(i) = 3._RKIND*uslice(i,j)-2._RKIND*ul(i)
 c
         qa = (vr(i)-vslice(i,j))*(vslice(i,j)-vl(i))
         qd = vr(i)-vl(i)
-        qe = 6.d0*(vslice(i,j)-0.5d0*(vr(i)+vl(i)))
-        if (qa .le. 0.d0) then
+        qe = 6._RKIND*(vslice(i,j)-0.5_RKIND*(vr(i)+vl(i)))
+        if (qa .le. 0._RKIND) then
            vl(i) = vslice(i,j)
            vr(i) = vslice(i,j)
         endif
-        if (qd**2-qd*qe .lt. 0.d0)
-     &      vl(i) = 3.d0*vslice(i,j)-2.d0*vr(i)
-        if (qd**2+qd*qe .lt. 0.d0)
-     &      vr(i) = 3.d0*vslice(i,j)-2.d0*vl(i)
+        if (qd**2-qd*qe .lt. 0._RKIND)
+     &      vl(i) = 3._RKIND*vslice(i,j)-2._RKIND*vr(i)
+        if (qd**2+qd*qe .lt. 0._RKIND)
+     &      vr(i) = 3._RKIND*vslice(i,j)-2._RKIND*vl(i)
 c
         qa = (wr(i)-wslice(i,j))*(wslice(i,j)-wl(i))
         qd = wr(i)-wl(i)
-        qe = 6.d0*(wslice(i,j)-0.5d0*(wr(i)+wl(i)))
-        if (qa .le. 0.d0) then
+        qe = 6._RKIND*(wslice(i,j)-0.5_RKIND*(wr(i)+wl(i)))
+        if (qa .le. 0._RKIND) then
            wl(i) = wslice(i,j)
            wr(i) = wslice(i,j)
         endif
-        if (qd**2-qd*qe .lt. 0.d0)
-     &      wl(i) = 3.d0*wslice(i,j)-2.d0*wr(i)
-        if (qd**2+qd*qe .lt. 0.d0)
-     &      wr(i) = 3.d0*wslice(i,j)-2.d0*wl(i)
+        if (qd**2-qd*qe .lt. 0._RKIND)
+     &      wl(i) = 3._RKIND*wslice(i,j)-2._RKIND*wr(i)
+        if (qd**2+qd*qe .lt. 0._RKIND)
+     &      wr(i) = 3._RKIND*wslice(i,j)-2._RKIND*wl(i)
       enddo
 c
       if (idual .eq. 1) then
          do i=i1-1, i2+1
             qa = (ger(i)-geslice(i,j))*(geslice(i,j)-gel(i))
             qd = ger(i)-gel(i)
-            qe = 6.d0*(geslice(i,j)-0.5d0*(ger(i)+gel(i)))
-            if (qa .le. 0.d0) then
+            qe = 6._RKIND*(geslice(i,j)-0.5_RKIND*(ger(i)+gel(i)))
+            if (qa .le. 0._RKIND) then
                gel(i) = geslice(i,j)
                ger(i) = geslice(i,j)
             endif
-            if (qd**2-qd*qe .lt. 0.d0)
-     &           gel(i) = 3.d0*geslice(i,j)-2.d0*ger(i)
-            if (qd**2+qd*qe .lt. 0.d0)
-     &           ger(i) = 3.d0*geslice(i,j)-2.d0*gel(i)
+            if (qd**2-qd*qe .lt. 0._RKIND)
+     &           gel(i) = 3._RKIND*geslice(i,j)-2._RKIND*ger(i)
+            if (qd**2+qd*qe .lt. 0._RKIND)
+     &           ger(i) = 3._RKIND*geslice(i,j)-2._RKIND*gel(i)
          enddo
       endif
 c
 c  Now construct interface fluxes (eqn 1.12)
 c
       do i=i1-1,i2+1
-         d6(i) = 6.d0*(dslice(i,j)-0.5d0*(dl(i)+dr(i)))
-         e6(i) = 6.d0*(eslice(i,j)-0.5d0*(el(i)+er(i)))
-         u6(i) = 6.d0*(uslice(i,j)-0.5d0*(ul(i)+ur(i)))
-         v6(i) = 6.d0*(vslice(i,j)-0.5d0*(vl(i)+vr(i)))
-         w6(i) = 6.d0*(wslice(i,j)-0.5d0*(wl(i)+wr(i)))
+         d6(i) = 6._RKIND*(dslice(i,j)-0.5_RKIND*(dl(i)+dr(i)))
+         e6(i) = 6._RKIND*(eslice(i,j)-0.5_RKIND*(el(i)+er(i)))
+         u6(i) = 6._RKIND*(uslice(i,j)-0.5_RKIND*(ul(i)+ur(i)))
+         v6(i) = 6._RKIND*(vslice(i,j)-0.5_RKIND*(vl(i)+vr(i)))
+         w6(i) = 6._RKIND*(wslice(i,j)-0.5_RKIND*(wl(i)+wr(i)))
       enddo
 c
       if (idual .eq. 1) then
          do i=i1-1,i2+1
-            ge6(i) = 6.d0*(geslice(i,j)-0.5d0*(gel(i)+ger(i)))
+            ge6(i) = 6._RKIND*(geslice(i,j)-0.5_RKIND*(gel(i)+ger(i)))
          enddo
       endif
 c
       do i=i1,i2+1
         yy     = dxlslice(i,j) - dt*vgx
-        udtim1 = abs(yy/(2.d0*dxi(i-1,j)))
-        udti   = abs(yy/(2.d0*dxi(i  ,j)))
+        udtim1 = abs(yy/(2._RKIND*dxi(i-1,j)))
+        udti   = abs(yy/(2._RKIND*dxi(i  ,j)))
 c
-        qa = dr(i-1)-udtim1*(dr(i-1)-dl(i-1)-(1.d0-ft*udtim1)*d6(i-1))
-        qb = dl(i  )+udti  *(dr(i  )-dl(i  )+(1.d0-ft*udti  )*d6(i  ))
-        if (yy .ge. 0.d0) then
+        qa=dr(i-1)-udtim1*(dr(i-1)-dl(i-1)-(1._RKIND-ft*udtim1)*d6(i-1))
+        qb=dl(i  )+udti  *(dr(i  )-dl(i  )+(1._RKIND-ft*udti  )*d6(i  ))
+        if (yy .ge. 0._RKIND) then
            df(i,j) = yy*qa
         else
            df(i,j) = yy*qb
         endif
 c
         yy = df(i,j)
-        udtim1 = abs(yy/(2.d0*dxi(i-1,j)*dslice(i-1,j)))
-        udti   = abs(yy/(2.d0*dxi(i  ,j)*dslice(i  ,j)))
+        udtim1 = abs(yy/(2._RKIND*dxi(i-1,j)*dslice(i-1,j)))
+        udti   = abs(yy/(2._RKIND*dxi(i  ,j)*dslice(i  ,j)))
 c
-        qc = er(i-1)-udtim1*(er(i-1)-el(i-1)-(1.d0-ft*udtim1)*e6(i-1))
-        qd = el(i  )+udti  *(er(i  )-el(i  )+(1.d0-ft*udti  )*e6(i  ))
-        if (yy .ge. 0.0) then
+        qc=er(i-1)-udtim1*(er(i-1)-el(i-1)-(1._RKIND-ft*udtim1)*e6(i-1))
+        qd=el(i  )+udti  *(er(i  )-el(i  )+(1._RKIND-ft*udti  )*e6(i  ))
+        if (yy .ge. 0._RKIND) then
            ef(i,j) = yy*qc
         else
            ef(i,j) = yy*qd
@@ -452,35 +457,35 @@ c
 c
         if (idual .eq. 1) then
            qc = ger(i-1)-
-     &          udtim1*(ger(i-1)-gel(i-1)-(1.d0-ft*udtim1)*ge6(i-1))
+     &          udtim1*(ger(i-1)-gel(i-1)-(1._RKIND-ft*udtim1)*ge6(i-1))
            qd = gel(i  )+
-     &          udti  *(ger(i  )-gel(i  )+(1.d0-ft*udti  )*ge6(i  ))
-           if (yy .ge. 0.0) then
+     &          udti  *(ger(i  )-gel(i  )+(1._RKIND-ft*udti  )*ge6(i  ))
+           if (yy .ge. 0._RKIND) then
               gef(i,j) = yy*qc
            else
               gef(i,j) = yy*qd
            endif
         endif
 c
-        qc = ur(i-1)-udtim1*(ur(i-1)-ul(i-1)-(1.d0-ft*udtim1)*u6(i-1))
-        qd = ul(i  )+udti  *(ur(i  )-ul(i  )+(1.d0-ft*udti  )*u6(i  ))
-        if (yy .ge. 0.0) then
+        qc=ur(i-1)-udtim1*(ur(i-1)-ul(i-1)-(1._RKIND-ft*udtim1)*u6(i-1))
+        qd=ul(i  )+udti  *(ur(i  )-ul(i  )+(1._RKIND-ft*udti  )*u6(i  ))
+        if (yy .ge. 0._RKIND) then
            uf(i,j) = yy*qc
         else
            uf(i,j) = yy*qd
         endif
 c
-        qc = vr(i-1)-udtim1*(vr(i-1)-vl(i-1)-(1.d0-ft*udtim1)*v6(i-1))
-        qd = vl(i  )+udti  *(vr(i  )-vl(i  )+(1.d0-ft*udti  )*v6(i  ))
-        if (yy .ge. 0.0) then
+        qc=vr(i-1)-udtim1*(vr(i-1)-vl(i-1)-(1._RKIND-ft*udtim1)*v6(i-1))
+        qd=vl(i  )+udti  *(vr(i  )-vl(i  )+(1._RKIND-ft*udti  )*v6(i  ))
+        if (yy .ge. 0._RKIND) then
            vf(i,j) = yy*qc
         else
            vf(i,j) = yy*qd
         endif
 c
-        qc = wr(i-1)-udtim1*(wr(i-1)-wl(i-1)-(1.d0-ft*udtim1)*w6(i-1))
-        qd = wl(i  )+udti  *(wr(i  )-wl(i  )+(1.d0-ft*udti  )*w6(i  ))
-        if (yy .ge. 0.0) then
+        qc=wr(i-1)-udtim1*(wr(i-1)-wl(i-1)-(1._RKIND-ft*udtim1)*w6(i-1))
+        qd=wl(i  )+udti  *(wr(i  )-wl(i  )+(1._RKIND-ft*udti  )*w6(i  ))
+        if (yy .ge. 0._RKIND) then
            wf(i,j) = yy*qc
         else
            wf(i,j) = yy*qd

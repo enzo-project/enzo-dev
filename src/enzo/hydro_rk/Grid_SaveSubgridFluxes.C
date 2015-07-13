@@ -36,9 +36,9 @@ int grid::SaveSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
     Offset, iflux, igridflux;
 
 
-  Activesize[0] = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
-  Activesize[1] = GridDimension[1] > 1 ? GridDimension[1]-2*DEFAULT_GHOST_ZONES : 1;
-  Activesize[2] = GridDimension[2] > 1 ? GridDimension[2]-2*DEFAULT_GHOST_ZONES : 1;
+  Activesize[0] = GridDimension[0]-2*NumberOfGhostZones;
+  Activesize[1] = GridDimension[1] > 1 ? GridDimension[1]-2*NumberOfGhostZones : 1;
+  Activesize[2] = GridDimension[2] > 1 ? GridDimension[2]-2*NumberOfGhostZones : 1;
 
   FLOAT a = 1, dadt;
 

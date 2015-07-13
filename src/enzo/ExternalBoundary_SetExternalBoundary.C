@@ -25,7 +25,7 @@
 // This is used to set the corners (which are not really used) of the
 //   grid to something reasonable in the case of periodic B.C.'s
  
-#define USE_PERIODIC
+//#define USE_PERIODIC
  
 //
 // Given a pointer to a field and its field type, find the equivalent

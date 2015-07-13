@@ -36,11 +36,8 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     }
 
     dpdrho = poverrho;
-    
     dpde = (Gamma - 1) * rho;
-    
     h = e + poverrho;
-
     cs = sqrt(Gamma*poverrho);
 
   }
@@ -99,7 +96,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     // cooling only to 100 should reduce the resolution requirements
     // for the initial tests
     //    cs  = sqrt(1.e-3 + 1./(1.+pow(rho, 1.5)));
-    cs *= sqrt(EOSCriticalDensity + 1./(1.+pow(rho, 1.5)));
+    cs *= sqrt(EOSCriticalDensity + 1./(1.+ rho*sqrt(rho)));
     p = rho * cs*cs;
     e = p / ((Gamma-1.0)*rho);
     dpdrho = 1;
@@ -113,7 +110,7 @@ inline void EOS(float &p, float &rho, float &e, float &h, float &cs, float &dpdr
     // divided by 1000 is the suggested wengen EOS
     // doing to only 100 should reduce the resolution requirements
     // for the initial tests			
-    cs = (rho > 1) ?  cs* sqrt(max(pow(rho, -1.5), 1.e-3)) : cs ;
+    cs = (rho > 1) ?  cs* sqrt(max(1./(rho*sqrt(rho)), 1.e-3)) : cs ;
     p = rho*cs*cs ;
     e = p / ((Gamma-1.0)*rho);
     dpdrho = 1;

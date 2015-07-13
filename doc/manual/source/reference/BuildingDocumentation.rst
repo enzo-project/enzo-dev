@@ -47,7 +47,7 @@ In the directory with the ``Makefile``, use this command:
 
 ::
 
-  $ make pdflatex
+  $ make latexpdf
 
 If this is successful, the PDF will be ``build/latex/Enzo.pdf``.
 The PDF might be preferred for some users, and can be searched all at once for
@@ -59,47 +59,13 @@ is not working, ``$ make latex`` will not attempt to make the PDF. A PS or DVI
 (or whatever anachronistic thing your SPARCstation makes)
 can be made starting from ``build/latex/Enzo.tex``.
 
-
 Updating the Online Pre-Built Documentation
 ---------------------------------------------
 
 If you are an Enzo developer and need to update the current build of the
-documentation, these instructions should step you through that process.
-In the directory doc/manual, clone a copy of the
-`docs repository <http://code.google.com/p/enzo/source/checkout?repo=docs>`_
-and call it enzo-docs:
-
-::
-
-  $ hg clone https://docs.enzo.googlecode.com/hg/ enzo-docs
-
-The enzo-docs repository holds HTML and image files which are accessed
-over the web on the Google Code pages, and it is not
-modified manually.
-
-In the directory doc/manual, execute these commands:
-
-::
-
-  $ cd enzo-docs
-  $ hg pull
-  $ hg up
-  $ cd ..
-  $ rm -rf enzo-docs/*
-  $ make clean
-  $ make html
-  $ export CURRENT_REV="`hg identify`"
-  $ cp -Rv build/html/* enzo-docs/
-  $ cd enzo-docs
-  $ hg addremove --similarity=25
-  $ hg ci -m "Build from ${CURRENT_REV}"
-  $ hg push
-
-The ``addremove`` extension will automatically update the current state of the
-files to be pushed with whatever is found in that directory. It will remove all
-files that it no longer sees and add all the files it currently does see.
-(You can supply ``--dry-run`` to see what it will do). The similarity argument just
-helps with keeping the size of the commits down, but because this repository
-is only to be used as a holding place for static content this should not be a
-problem.
-
+documentation, simply modify the docs in the enzo-dev repository in the
+same way you would edit the source code.  The docs exist in the 
+enzo-dev/doc directory.  Submit a pull request for these changes in the
+same way you would do so with source modifications.  If accepted, 
+these new docs will be available almost immediately at:
+``http://enzo.readthedocs.org``.

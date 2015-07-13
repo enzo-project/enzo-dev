@@ -1,3 +1,4 @@
+#include "fortran.def"
 *****************************************************************************
 *                                                                           *
 * Copyright 2004 Greg Bryan                                                 *
@@ -20,9 +21,10 @@ c=======================================================================
 
 
       implicit none
+#include "fortran_types.def"
 
       CHARACTER sourcefile*(*)
-      INTEGER linenumber
+      INTG_PREC linenumber
 
       CALL fc_error (sourcefile // char(0), linenumber)
 
@@ -39,9 +41,10 @@ c=======================================================================
 
 
       implicit none
+#include "fortran_types.def"
 
       CHARACTER sourcefile*(*)
-      INTEGER linenumber
+      INTG_PREC linenumber
 
       CALL fc_warning (sourcefile // char(0), linenumber)
       return

@@ -25,7 +25,12 @@
 #ifdef USE_MPI
 #include "mpi.h"
 #endif
-#include <stdlib.h>
+#ifdef USE_GRACKLE
+extern "C" {
+#include <grackle.h>
+}
+#endif
+/* #include <stdlib.h> */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

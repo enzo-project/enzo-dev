@@ -17,13 +17,17 @@ TopGridRank            = 2
 TopGridDimensions      = 480 120  // The same resolution as in WC84
 DomainRightEdge        = 4.0 1.0
 HydroMethod            = 0
+
+LeftFaceBoundaryCondition = 2 0 0
+RightFaceBoundaryCondition = 0 2 0
+
 #
 #
 #  set I/O and stop/start parameters
 #
 StopTime               = 0.205
 dtDataDump             = 0.1
-DataDumpName           = doubleMach_
+DataDumpName           = DD
 #
 #  set Hydro parameters
 #

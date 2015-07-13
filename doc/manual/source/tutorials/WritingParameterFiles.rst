@@ -4,12 +4,12 @@ Writing Enzo Parameter Files
 Putting together a parameter file for Enzo is possibly the most
 critical step when setting up a simulation, and is certainly the step
 which is most fraught with peril. There are over 200 parameters that
-one can set - see :doc:`../EnzoParameters` for a complete listing. For
-the most part, defaults are set to be sane values for cosmological
-simulations, and most physics packages are turned off by default, so
-that you have to explicitly turn on modules. All physics packages are
-compiled into Enzo (unlike codes such as ZEUS-MP 1.0, where you have
-to recompile the code in order to enable new physics).
+one can set - see :ref:`parameters` for a complete
+listing. For the most part, defaults are set to be sane values for
+cosmological simulations, and most physics packages are turned off by
+default, so that you have to explicitly turn on modules. All physics
+packages are compiled into Enzo (unlike codes such as ZEUS-MP 1.0,
+where you have to recompile the code in order to enable new physics).
 
 It is inadvisable for a novice to put together a parameter file from
 scratch. Several parameter files are available for download at
@@ -107,8 +107,10 @@ doing!
 Cosmology
 ---------
 
-Complete descriptions of all cosmology parameters are given here
-and here. ``ComovingCoordinates`` determines whether comoving
+Complete descriptions of all cosmology parameters are given 
+:ref:`here <cosmology-parameters>` and 
+:ref:`here <cosmologysimulation_param>`. ``ComovingCoordinates`` determines 
+whether comoving
 coordinates are used or not. In practice, turning this off turns
 off all of the cosmology machinery, so you want to leave it set to
 1 for a cosmology simulation. ``CosmologyInitialRedshift`` and
@@ -116,13 +118,12 @@ off all of the cosmology machinery, so you want to leave it set to
 simulation, respectively. ``CosmologyHubbleConstantNow`` sets the
 Hubble parameter, and is specified at z=0 in units of 100 km/s/Mpc.
 ``CosmologyComovingBoxSize`` sets the size of the box to be simulated
-(in units of Mpc/h) at z=0. ``CosmologyOmegaBaryonNow``,
-``CosmologyOmegaMatterNow``, ``CosmologyOmegaCDMNow`` and
-``CosmologyOmegaLambdaNow`` set the amounts of baryons, total matter,
-dark matter and vacuum energy (in units of the critical density at
-z=0). An addition to the standard baryon fields that can be
-initialized, one can create a metal tracer field by turning on
-``CosmologySimulationUseMetallicityField``. This is handy for
+(in units of Mpc/h) at z=0. ``CosmologySimulationOmegaBaryonNow``,
+``CosmologySimulationOmegaCDMNow``, ``CosmologyOmegaMatterNow``, and
+``CosmologyOmegaLambdaNow`` set the amounts of baryons, dark matter,
+total matter, and vacuum energy (in units of the critical density at
+z=0). Setting ``CosmologySimulationUseMetallicityField`` to 1 will 
+create an additional tracer field for following metals. This is handy for
 simulations with star formation and feedback (described below). For
 example, in a cosmology simulation with box size 100 Mpc/h with
 approximately the cosmological parameters determined by WMAP, which
@@ -136,10 +137,10 @@ put the following into the parameter file:
     CosmologyFinalRedshift = 2.0
     CosmologyHubbleConstantNow = 0.7
     CosmologyComovingBoxSize = 100.0
-    CosmologyOmegaBaryonNow = 0.04
     CosmologyOmegaMatterNow = 0.3
-    CosmologyOmegaCDMNow = 0.26
     CosmologyOmegaLambdaNow = 0.7
+    CosmologySimulationOmegaBaryonNow = 0.04
+    CosmologySimulationOmegaCDMNow = 0.26
     CosmologySimulationUseMetallicityField = 1
 
 Gravity and Particle Parameters
@@ -590,7 +591,7 @@ This page is intended to help novice Enzo users put together parameter
 files for their first simulation and therefore is not intended to be
 an exhaustive list of parameters nor a complete description of each
 parameter mentioned. It would be wise to refer to the Enzo user
-guide's :doc:`../EnzoParameters` for a more-or-less complete list of
+guide's :ref:`parameters` for a more-or-less complete list of
 AMR parameters, some of which may be extremely useful for your
 specific application.
 

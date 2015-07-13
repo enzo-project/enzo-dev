@@ -1,0 +1,126 @@
+#=======================================================================
+#
+# FILE:        Make.mach.gtech-pace
+#
+# DESCRIPTION: Makefile settings for Georgia Tech Pace Cluster
+#
+#    modules: intel/12.1.4
+#     	      mvapich2/1.6
+#	      hdf5/1.8.7/nompi
+#
+# AUTHOR:      Gabriel Altay
+# DATE:        2013-02-19
+#=======================================================================
+
+MACH_TEXT  = GT Pace
+MACH_VALID = 1
+MACH_FILE  = Make.mach.gtech-pace
+
+MACHINE_NOTES = "MACHINE_NOTES for Pace Cluster at Georgia Tech: \
+	The following modules are needed to compile: \
+              intel/12.1.4 \
+     	      mvapich2/1.6 \
+	      hdf5/1.8.7/nompi "
+
+#-----------------------------------------------------------------------
+# Commands to run test executables
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# Install paths (local variables)
+#-----------------------------------------------------------------------
+
+LOCAL_MPI_INSTALL    = /usr/local/packages//mvapich2/1.6/intel-12.1.4/
+LOCAL_HDF5_INSTALL   = /usr/local/packages/hdf5/1.8.7/nompi/
+LOCAL_PYTHON_INSTALL = /usr/local/packages/python/2.7.2/intel-12.1.4/
+LOCAL_COMPILER_DIR   = /usr/local/packages/intel/compiler/12.1.4/
+
+#-----------------------------------------------------------------------
+# Compiler settings
+#-----------------------------------------------------------------------
+
+MACH_CPP       = icpc
+
+# With MPI
+
+MACH_CC_MPI    = mpicc
+MACH_CXX_MPI   = mpicxx
+MACH_FC_MPI    = mpif77
+MACH_F90_MPI   = mpif90
+MACH_LD_MPI    = mpicxx
+
+# Without MPI
+
+MACH_CC_NOMPI  = icc
+MACH_CXX_NOMPI = icpc
+MACH_FC_NOMPI  = ifort
+MACH_F90_NOMPI = ifort
+MACH_LD_NOMPI  = icpc
+
+#-----------------------------------------------------------------------
+# Machine-dependent defines
+#-----------------------------------------------------------------------
+
+MACH_DEFINES = -DLINUX -DH5_USE_16_API 
+
+#-----------------------------------------------------------------------
+# Compiler flag settings
+#-----------------------------------------------------------------------
+
+MACH_CPPFLAGS = -P -traditional
+MACH_CFLAGS   = 
+MACH_CXXFLAGS = 
+MACH_FFLAGS   = 
+MACH_F90FLAGS = 
+MACH_LDFLAGS  = 
+#,-static 
+
+#-----------------------------------------------------------------------
+# Optimization flags
+#-----------------------------------------------------------------------
+
+# *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
+#
+#  Use optimization -O2 or greater with PGI compilers at your own
+#  risk!  Older versions of Grid_PPMDirectEuler.C compiled with -O2
+#  led to incorrect results on many test problems, and CURRENT
+#  (-r1995) versions of ffte4X.src and ZeusSource.C lead to incorrect
+#  results for ZeldovichPancake and ExtremeAdvectionTest tests,
+#  respectively.  jobordner@ucsd.edu
+#
+# *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
+
+MACH_OPT_WARN        = 
+MACH_OPT_DEBUG       = -g
+MACH_OPT_HIGH        = -O2
+# use -xSSE4.2, if you're using Pleiades/Nehalem-EP cores
+MACH_OPT_AGGRESSIVE  = -O3 -xSSE4.1
+
+#-----------------------------------------------------------------------
+# Includes
+#-----------------------------------------------------------------------
+
+LOCAL_INCLUDES_MPI    = -I$(LOCAL_MPI_INSTALL)/include
+LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include
+LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7/ \
+                        -I$(LOCAL_PYTHON_INSTALL)/lib/python2.7/site-packages/numpy/core/include
+
+MACH_INCLUDES         = $(LOCAL_INCLUDES_HDF5)
+MACH_INCLUDES_MPI     = $(LOCAL_INCLUDES_MPI)
+MACH_INCLUDES_HYPRE   = $(LOCAL_INCLUDES_HYPRE)
+
+#-----------------------------------------------------------------------
+# Libraries
+#-----------------------------------------------------------------------
+#
+
+LOCAL_LIBS_MPI    = -L$(LOCAL_MPI_INSTALL)/lib # -lmpi -lmpi++
+LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 -lz 
+#LOCAL_LIBS_HDF4   = -L$(LOCAL_HDF4_INSTALL)/lib -lm -lmfhdf -lz -ldf -ljpeg     
+#LOCAL_LIBS_PYTHON  = $(LOCAL_PYTHON_INSTALL)/lib/python2.6/config/libpython2.6.a -lpthread -lutil
+
+LOCAL_LIBS_MACH = -lifcore -lifport
+
+MACH_LIBS         = $(LOCAL_LIBS_HDF5) $(LOCAL_LIBS_MACH) #$(LOCAL_LIBS_PYTHON)
+MACH_LIBS_MPI     = $(LOCAL_LIBS_MPI)

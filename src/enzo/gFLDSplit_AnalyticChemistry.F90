@@ -26,27 +26,28 @@ subroutine gFLDSplit_AnalyticChemistry(Er, ec, HI, HeI, HeII, Er0, ec0,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, PType, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: CompA, CompXray, CompTemp
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
+  INTG_PREC, intent(in)  :: Model, PType, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: CompA, CompXray, CompTemp
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
        IsEsHeII, IsEsHeIInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(in) :: Er, ec0, Er0, HI0, HeI0, HeII0, vx, vy, vz,    &
        rho, eh, src_ec, src_HI, src_HeI, src_HeII, kappa
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(out) :: ec, HI, HeI, HeII
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
@@ -179,41 +180,42 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: CompA, CompXray, CompTemp
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: CompA, CompXray, CompTemp
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
        ErUnits, ecUnits, NiUnits, aUnits
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
        IsEsHeII, IsEsHeIInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(in) :: Er, ec0, Er0, HI0, HeI0, HeII0, vx, vy, vz,    &
        rho, eh, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),    &
        intent(out) :: ec, HI, HeI, HeII
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
 
 !--------------
 ! locals
-  integer :: i, j, k, l, sweeps, sweeps2
-  real*8  :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
-  real*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
-  real*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8  :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
-  real*8  :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8  :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  INTG_PREC :: i, j, k, l, sweeps, sweeps2
+  REAL*8  :: zr, Comp1, Comp2, CompX, CompT, KEconst, eint, gam
+  REAL*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn
+  REAL*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8  :: Ernew, ecnew, HInew, HeInew, HeIInew, change, lam, lam2, FPtol
+  REAL*8  :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8  :: rhoval, ecsrc, HIsrc, HeIsrc, HeIIsrc
   
 !=======================================================================
 
@@ -296,15 +298,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,       &
-                      Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,  &
-                      eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,       &
-                      Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                      int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                      TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,        &
+                      Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,   &
+                      eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,        &
+                      Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                      int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                      TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                       dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -326,15 +328,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,       &
-                         Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,  &
-                         eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,       &
-                         Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                         int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                         TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, 0.d0, 0.d0, 0.d0,        &
+                         Erold, ecold, 0.d0, 0.d0, 0.d0, deltat, deltax, rhoval,   &
+                         eint, 0.d0, ecsrc, 0.d0, 0.d0, 0.d0, gam, HydFrac,        &
+                         Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                         int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                         TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                          dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -383,15 +385,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,      &
-                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,      &
-                      Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                      int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                      TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                      Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                      eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                      Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                      int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                      TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                      ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                      reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                       dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -414,15 +416,15 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
                  do l=0,sweeps2
                     
                     ! call the local residual routine
-                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,      &
-                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval, &
-                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,      &
-                         Model, 0, aval, dadt, Comp1, Comp2, CompX, CompT, int1,  &
-                         int2, int3, int4, int5, int6, int7, NTempBins, TStart,   &
-                         TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb,        &
-                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,  &
-                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,   &
+                    call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                         res_HeI, res_HeII, Ernew, ecnew, HInew, 0.d0, 0.d0,       &
+                         Erold, ecold, HIold, 0.d0, 0.d0, deltat, deltax, rhoval,  &
+                         eint, 0.d0, ecsrc, HIsrc, 0.d0, 0.d0, gam, HydFrac,       &
+                         Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, CompT,   &
+                         int1, int2, int3, int4, int5, int6, int7, NTempBins,      &
+                         TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb, k6Tb, ceHITb, &
+                         ceHeITb, ceHeIITb, ciHITb, ciHeITb, ciHeISTb, ciHeIITb,   &
+                         reHIITb, reHeII1Tb, reHeII2Tb, reHeIIITb, bremTb, aUn,    &
                          dUn, vUn, lUn, tUn, rUn, eUn, nUn, Nchem, ier)
                     
                     ! check the error flag
@@ -480,16 +482,16 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
               do l=0,sweeps
                  
                  ! call the local residual routine
-                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,    &
-                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew, &
-                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,    &
-                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,  &
-                      HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,      &
-                      CompT, int1, int2, int3, int4, int5, int6, int7,         &
-                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
-                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,        &
-                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,       &
-                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,    &
+                 call gFLDProblem_AnalyticLocResid1(res_Er, res_ec, res_HI,     &
+                      res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew,  &
+                      Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,     &
+                      rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,   &
+                      HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX, &
+                      CompT, int1, int2, int3, int4, int5, int6, int7,          &
+                      NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,    &
+                      k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,         &
+                      ciHeISTb, ciHeIITb, reHIITb, reHeII1Tb, reHeII2Tb,        &
+                      reHeIIITb, bremTb, aUn, dUn, vUn, lUn, tUn, rUn, eUn,     &
                       nUn, Nchem, ier)
                  
                  ! check the error flag
@@ -520,7 +522,7 @@ subroutine gFLDSplit_AnalyticChemistry1(Er, ec, HI, HeI, HeII, Er0, ec0, &
                          res_HeI, res_HeII, Ernew, ecnew, HInew, HeInew, HeIInew, &
                          Erold, ecold, HIold, HeIold, HeIIold, deltat, deltax,    &
                          rhoval, eint, 0.d0, ecsrc, HIsrc, HeIsrc, HeIIsrc, gam,  &
-                         HydFrac, Model, 0, aval, dadt, Comp1, Comp2, CompX,      &
+                         HydFrac, Model, 0_IKIND, aval, dadt, Comp1, Comp2, CompX,&
                          CompT, int1, int2, int3, int4, int5, int6, int7,         &
                          NTempBins, TStart, TEnd, k1Tb, k2Tb, k3Tb, k4Tb, k5Tb,   &
                          k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,        &
@@ -639,31 +641,32 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: DenUnits, VelUnits, ErUnits, NiUnits, ecScale
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC,    intent(in) :: dt, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: DenUnits, VelUnits, ErUnits, NiUnits, ecScale
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), &
        intent(in) :: Er, Er0, HI0, vx, vy, vz, rho, eh, src_HI
-  real,    intent(out) :: HI(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  real,    intent(in) :: k1Tb(NTempBins)
+  R_PREC,    intent(out) :: HI(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in) :: k1Tb(NTempBins)
        
 
 !--------------
 ! locals
-  integer :: i, j, k, Tidx, Tidxp
-  real*8  :: KEconst, eint, HydFrac, deltat, int1, int2, int3
-  real*8  :: dUn, rUn, nUn, res_Er, res_HI, aval, dadt, Ernew, HInew
-  real*8  :: Erold, HIold, rhoval, HIsrc, T, lamT, lTemp
-  real*8  :: lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  INTG_PREC :: i, j, k, Tidx, Tidxp
+  REAL*8  :: KEconst, eint, HydFrac, deltat, int1, int2, int3
+  REAL*8  :: dUn, rUn, nUn, res_Er, res_HI, aval, dadt, Ernew, HInew
+  REAL*8  :: Erold, HIold, rhoval, HIsrc, T, lamT, lTemp
+  REAL*8  :: lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
@@ -694,14 +697,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
   if (DualEnergy == 1)  KEconst = 0.d0
 
   ! first compute the fixed temperature (isothermal model)
-  if (adot == 0.d0) then
-     eint = VelUnits*VelUnits*(eh(1,1,1)                        &
-          - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
-     T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
-     T = max(1.d0*T,1.d0)
-  else
-     T = ecScale
-  endif
+  T = ecScale
   
   ! now compute the Hydrogen reaction rates
   lamT = 3.15614d5/T
@@ -709,7 +705,7 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
   lTempE = log(TempEnd)
   dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
   lTemp = min(max(log(T), lTempS), lTempE)
-  Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+  Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
   Tidxp = Tidx+1
   Tl = lTempS + (Tidx-1)*dlTemp
   Tr = lTempS +  Tidx*dlTemp
@@ -736,8 +732,8 @@ subroutine gFLDSplit_AnalyticChemistry4(Er, HI, Er0, HI0, dt, vx, vy, vz, &
            HIsrc = src_HI(i,j,k)
            
            ! call the local residual routine
-           call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew, &
-                Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0,      &
+           call gFLDProblem_AnalyticLocResid4(res_Er, res_HI, Ernew, HInew,  &
+                Erold, HIold, deltat, rhoval, 0.d0, HIsrc, HydFrac, 0_IKIND, &
                 aval, dadt, int1, int2, int3, k1, k2, dUn, rUn, nUn, ier)
            
            ! check the error flag
@@ -806,28 +802,29 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, PType, DualEnergy
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real,    intent(in) :: dt, gamma
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits, &
+  INTG_PREC, intent(in)  :: Model, PType, DualEnergy
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC,    intent(in) :: dt, gamma
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits, &
        ErUnits, ecUnits, aUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr),  &
        intent(in) :: Er, ec0, Er0, vx, vy, vz, rho, eh, src_ec, kappa
-  real, intent(out) :: ec(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC, intent(out) :: ec(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
 !--------------
 ! locals
-  integer :: i, j, k, l
-  real*8  :: zr, KEconst, eint, gam, deltat, aUn, dUn, vUn, lUn, tUn, rUn
-  real*8  :: eUn, nUn, kap, res_Er, res_ec, aval, dadt, Ernew, ecnew
-  real*8  :: Erold, ecold, rhoval, ecsrc
+  INTG_PREC :: i, j, k, l
+  REAL*8  :: zr, KEconst, eint, gam, deltat, aUn, dUn, vUn, lUn, tUn, rUn
+  REAL*8  :: eUn, nUn, kap, res_Er, res_ec, aval, dadt, Ernew, ecnew
+  REAL*8  :: Erold, ecold, rhoval, ecsrc
   
 !=======================================================================
 
@@ -870,9 +867,9 @@ subroutine gFLDSplit_AnalyticChemistry10(Er, ec, Er0, ec0, dt, vx, vy,  &
                 - KEconst*(vx(i,j,k)**2 + vy(i,j,k)**2 + vz(i,j,k)**2))
            
            ! call the local residual routine
-           call gFLDProblem_AnalyticLTEResid(res_Er, res_ec, Ernew,  &
-                ecnew, Erold, ecold, deltat, rhoval, eint, 0.d0,     &
-                ecsrc, kap, gam, Model, PType, 0, aval, dadt, aUn,   &
+           call gFLDProblem_AnalyticLTEResid(res_Er, res_ec, Ernew,      &
+                ecnew, Erold, ecold, deltat, rhoval, eint, 0.d0,         &
+                ecsrc, kap, gam, Model, PType, 0_IKIND, aval, dadt, aUn, &
                 dUn, lUn, tUn, rUn, eUn, nUn, ier)
            
            ! check the error flag
@@ -973,51 +970,52 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
     
 !--------------
 ! argument declarations
-  integer, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
-  integer, intent(in)  :: Nx, NGxl, NGxr
-  integer, intent(in)  :: Ny, NGyl, NGyr
-  integer, intent(in)  :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a, adot
-  real,    intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
-  real,    intent(in) :: CompA, CompXray, CompTemp
-  real,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
+  INTG_PREC, intent(in)  :: Model, Nchem, NTempBins, DualEnergy, ESpectrum
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a, adot
+  R_PREC,    intent(in) :: dt, dx, dy, dz, gamma, HFrac, TempStart, TempEnd
+  R_PREC,    intent(in) :: CompA, CompXray, CompTemp
+  R_PREC,    intent(in) :: DenUnits, VelUnits, TimeUnits, LenUnits,   &
        ErUnits, ecUnits, NiUnits, aUnits, ecScale
-  real,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
+  R_PREC,    intent(in) :: IsE, IsEsHI, IsEsHInu, IsEsHeI, IsEsHeInu, &
        IsEsHeII, IsEsHeIInu
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: vx, vy, vz, rho, eh, src_Er, src_ec, src_HI, src_HeI, src_HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        ec, Er, HI, HeI, HeII
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) ::  &
        ecres, HIres, HeIres, HeIIres
-  real, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
+  R_PREC, dimension(NTempBins), intent(in) :: k1Tb, k2Tb, k3Tb, k4Tb, &
        k5Tb, k6Tb, ceHITb, ceHeITb, ceHeIITb, ciHITb, ciHeITb,      &
        ciHeIITb, ciHeISTb, reHIITb, reHeII1Tb, reHeII2Tb,           &
        reHeIIITb, bremTb
 
 !--------------
 ! locals
-  integer :: ijk, i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
-  real*8  :: chmin, chmax, chsum, eint, gam
-  real*8  :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
-  real*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
-  real*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
-  real*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
-  real*8  :: Ernew, ecnew, HInew, HeInew, HeIInew
-  real*8  :: Erold, ecold, HIold, HeIold, HeIIold
-  real*8  :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
-  real*8  :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
+  INTG_PREC :: ijk, i, j, k, l, l2, sweeps, sweeps2, lmax, lmin, lsum, Tidx, Tidxp
+  REAL*8  :: chmin, chmax, chsum, eint, gam
+  REAL*8  :: FPtol, lam, lam2, change, zr, Comp1, Comp2, CompX, CompT, KEconst
+  REAL*8  :: HydFrac, deltat, deltax, int1, int2, int3, int4, int5, int6, int7
+  REAL*8  :: TStart, TEnd, aUn, dUn, vUn, lUn, tUn, rUn, eUn, nUn, rhoval
+  REAL*8  :: res_Er, res_ec, res_HI, res_HeI, res_HeII, aval, dadt
+  REAL*8  :: Ernew, ecnew, HInew, HeInew, HeIInew
+  REAL*8  :: Erold, ecold, HIold, HeIold, HeIIold
+  REAL*8  :: Ersrc, ecsrc, HIsrc, HeIsrc, HeIIsrc
+  REAL*8  :: T, lamT, lTemp, lTempS, lTempE, dlTemp, Tl, Tr, Tfac, k1, k2
   
 !=======================================================================
 
   ! initialize success/fail flag to success
   ier = 1
 
-  ! we only have this enabled for Model 1 (case B HII recomb rate), 
+  ! we only have this enabled for Models 1 & 4 (case B HII recomb rate), 
   ! with chemistry 
   if ((Nchem == 0) .or. ((Model /= 1) .and. (Model /= 4))) then
      write(*,*) 'AnalyticInitGuess ERROR: only implemented for Models 1 & 4', &
@@ -1075,14 +1073,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
   if (Model == 4) then
 
      ! first compute the fixed temperature (isothermal model)
-     if (adot == 0.d0) then
-        eint = vUn*vUn*(eh(1,1,1)                                  &
-             - KEconst*(vx(1,1,1)**2 + vy(1,1,1)**2 + vz(1,1,1)**2))
-        T = eint*(gamma-1.d0)*0.6d0*mass_h/kboltz
-        T = max(1.d0*T,1.d0)
-     else
-        T = ecScale
-     endif
+     T = ecScale
 
      ! now compute the Hydrogen reaction rates
      lamT = 3.15614d5/T
@@ -1090,7 +1081,7 @@ subroutine gFLDSplit_AnalyticInitGuess(Er, ec, HI, HeI, HeII, dt, vx,    &
      lTempE = log(TempEnd)
      dlTemp = (lTempE - lTempS)/(1.d0*NTempBins - 1.d0)
      lTemp = min(max(log(T), lTempS), lTempE)
-     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp)+1))
+     Tidx = min(NTempBins-1, max(1, int((lTemp-lTempS)/dlTemp,IKIND)+1))
      Tidxp = Tidx+1
      Tl = lTempS + (Tidx-1)*dlTemp
      Tr = lTempS +  Tidx*dlTemp
@@ -1545,23 +1536,24 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
   !
   !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
-  integer, intent(in)  :: Model, PType, ESpectrum
-  integer, intent(out) :: ier
-  real*8,  intent(in) :: a, adot
-  real*8,  intent(in) :: dt, gamma, kappa
-  real*8,  intent(in) :: DenUnits, TimeUnits, LenUnits, &
+  INTG_PREC, intent(in)  :: Model, PType, ESpectrum
+  INTG_PREC, intent(out) :: ier
+  REAL*8,  intent(in) :: a, adot
+  REAL*8,  intent(in) :: dt, gamma, kappa
+  REAL*8,  intent(in) :: DenUnits, TimeUnits, LenUnits, &
        ErUnits, ecUnits, aUnits, NiUnits
-  real*8,  intent(in) :: Er, ec, Er0, ec0, rho, eint, src_Er, src_ec
-  real*8,  intent(out) :: Erres, ecres
+  REAL*8,  intent(in) :: Er, ec, Er0, ec0, rho, eint, src_Er, src_ec
+  REAL*8,  intent(out) :: Erres, ecres
 
   !--------------
   ! locals
-  real*8 :: afac, StBz, c, kb, mp, min_temp, min_rad, grey, eta
-  real*8 :: ecval, Erval, rhoval, Eranal, ecanal
-  real*8 :: T, P1, Q1, P2, Q2
+  REAL*8 :: afac, StBz, c, kb, mp, min_temp, min_rad, grey, eta
+  REAL*8 :: ecval, Erval, rhoval, Eranal, ecanal
+  REAL*8 :: T, P1, Q1, P2, Q2
 
   !=======================================================================
 
@@ -1589,7 +1581,7 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
 
   ! compute temperature and ODE terms
   if (PType == 405) then   ! Lowrie & Edwards radiating shock
-     T = (eint+ecval)/2.218056e12/kb*ev2erg
+     T = (eint+ecval)/2.218056d12/kb*ev2erg
   else
      if (PType == 404) then
         T = (gamma-1.0)*0.5d0*mp*(eint+ecval)/kb
@@ -1597,7 +1589,7 @@ subroutine gFLDProblem_AnalyticLTEResid(Erres, ecres, Er, ec, Er0, ec0,    &
         T = (gamma-1.0)*0.6d0*mp*(eint+ecval)/kb
      endif
   endif
-  T = max(1.d0*T, 1.d0*min_temp)
+  T = max(T, min_temp)
   eta = 4.d0*kappa*NiUnits*StBz*T**4
 
   ! compute radiation ODE rates

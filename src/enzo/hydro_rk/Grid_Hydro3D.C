@@ -53,16 +53,16 @@ int grid::Hydro3D(float **Prim, float **dU, float dt,
   float *Flux3D[NEQ_HYDRO+NSpecies+NColor];
 
   for (int dim = 0; dim < GridRank; dim++) {
-    fluxsize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES+1);
+    fluxsize *= (GridDimension[dim]-2*NumberOfGhostZones+1);
   }
 
   for (int dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim]-2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim]-2*NumberOfGhostZones);
   }
 
-  int Xactivesize = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
-  int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*DEFAULT_GHOST_ZONES : 1;
-  int Zactivesize = GridDimension[2] > 1 ? GridDimension[2]-2*DEFAULT_GHOST_ZONES : 1;
+  int Xactivesize = GridDimension[0]-2*NumberOfGhostZones;
+  int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*NumberOfGhostZones : 1;
+  int Zactivesize = GridDimension[2] > 1 ? GridDimension[2]-2*NumberOfGhostZones : 1;
 
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {
     Flux3D[field] = new float[fluxsize];

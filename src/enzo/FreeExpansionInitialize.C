@@ -219,7 +219,7 @@ int FreeExpansionInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
       /* compute the dimensions and left/right edges for the subgrid */
 
       for (dim = 0; dim < MetaData.TopGridRank; dim++) {
-	SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*DEFAULT_GHOST_ZONES;
+	SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*NumberOfGhostZones;
 	LeftEdge[dim]    = FreeExpansionSubgridLeft;
 	RightEdge[dim]   = FreeExpansionSubgridRight;
       }

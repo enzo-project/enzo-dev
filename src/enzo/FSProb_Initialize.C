@@ -322,14 +322,14 @@ int FSProb::Initialize(HierarchyEntry &TopGrid, TopGridData &MetaData)
 
   // store local array sizes (active + ghost)
   for (dim=0; dim<rank; dim++)
-    ArrDims[dim] = LocDims[dim] + 2*DEFAULT_GHOST_ZONES;
+    ArrDims[dim] = LocDims[dim] + 2*NumberOfGhostZones;
 
   // set up vector container for previous time step (empty data)
-  int xghosts = DEFAULT_GHOST_ZONES, yghosts=0, zghosts=0;
+  int xghosts = NumberOfGhostZones, yghosts=0, zghosts=0;
   if (rank > 1) {
-    yghosts = DEFAULT_GHOST_ZONES;
+    yghosts = NumberOfGhostZones;
     if (rank > 2) {
-      zghosts = DEFAULT_GHOST_ZONES;
+      zghosts = NumberOfGhostZones;
     }
   }
   int empty=1;

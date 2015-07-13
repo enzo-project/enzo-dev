@@ -61,7 +61,7 @@ subroutine FSProb_SetupSystem(mat, rhs, rhsnorm, E, E0, kappa_h2on,       &
 !                  BCs may move these to 0:Nx, 1:Nx+1, etc.
 !     Nx,Ny,Nz   - active mesh size in each direction
 !     NG*l/NG*r  - left/right ghost cells in each direction
-!     *{l,r}face - integer flag denoting whether direction/face 
+!     *{l,r}face - INTG_PREC flag denoting whether direction/face 
 !                  is external to the domain (0->int, 1->ext)
 !
 !     Note: the vector inputs are of size (Nx + NGxl + NGxr) in 
@@ -84,21 +84,22 @@ subroutine FSProb_SetupSystem(mat, rhs, rhsnorm, E, E0, kappa_h2on,       &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer, intent(in) :: rank, kappa_h2on
-  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
-  real,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
-  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real,    intent(in) :: E(*), E0(*), eta(*), kappa_arr(*)
-  real*8,  intent(out) :: mat(*)
-  real*8,  intent(out) :: rhs(*)
-  real,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: rank, kappa_h2on
+  INTG_PREC, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  P_PREC, intent(in) :: a, a0, adot, adot0
+  R_PREC,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
+  R_PREC,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC,    intent(in) :: E(*), E0(*), eta(*), kappa_arr(*)
+  REAL*8,  intent(out) :: mat(*)
+  REAL*8,  intent(out) :: rhs(*)
+  R_PREC,    intent(out) :: rhsnorm
+  INTG_PREC, intent(out) :: ier
 
   !=======================================================================
   
@@ -153,30 +154,31 @@ subroutine FSProb_SetupSystem3D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
 !  PURPOSE: 3D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer, intent(in) :: kappa_h2on
-  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  integer, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
-  real,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
-  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  INTG_PREC, intent(in) :: kappa_h2on
+  INTG_PREC, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  INTG_PREC, intent(in) :: BCZl, BCZr, x2s, x2e, Nz, NGzl, NGzr, zlface, zrface
+  P_PREC, intent(in) :: a, a0, adot, adot0
+  R_PREC,    intent(in) :: kappa_c, dt, theta, dx, dy, dz
+  R_PREC,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
                        :: E, E0, eta, kappa
-  real*8,  intent(out) :: mat(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real*8,  intent(out) :: rhs(x0s:x0e,x1s:x1e,x2s:x2e)
-  real,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  REAL*8,  intent(out) :: mat(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  REAL*8,  intent(out) :: rhs(x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC,    intent(out) :: rhsnorm
+  INTG_PREC, intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j, k
-  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
-  real*8  :: c, dxi, dxi0, dyi, dyi0, dzi, dzi0
-  real*8  :: afac, afac0, Edir(3), Emax, delta_nU
-  real*8  :: E0d_x, Ed_x, E0d_y, Ed_y, E0d_z, Ed_z
+  INTG_PREC :: i, j, k
+  REAL*8  :: dtfac, dtfac0, kap, kap0, eps, mu
+  REAL*8  :: c, dxi, dxi0, dyi, dyi0, dzi, dzi0
+  REAL*8  :: afac, afac0, Edir(3), Emax, delta_nU
+  REAL*8  :: E0d_x, Ed_x, E0d_y, Ed_y, E0d_z, Ed_z
 
 !=======================================================================
   
@@ -468,28 +470,29 @@ subroutine FSProb_SetupSystem2D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
 !  PURPOSE: 2D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer, intent(in) :: kappa_h2on
-  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  integer, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
-  real,    intent(in) :: kappa_c, dt, theta, dx, dy
-  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) :: E, E0, eta, kappa
-  real*8,  intent(out) :: mat(5,x0s:x0e,x1s:x1e)
-  real*8,  intent(out) :: rhs(x0s:x0e,x1s:x1e)
-  real,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: kappa_h2on
+  INTG_PREC, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  INTG_PREC, intent(in) :: BCYl, BCYr, x1s, x1e, Ny, NGyl, NGyr, ylface, yrface
+  P_PREC, intent(in) :: a, a0, adot, adot0
+  R_PREC,    intent(in) :: kappa_c, dt, theta, dx, dy
+  R_PREC,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) :: E, E0, eta, kappa
+  REAL*8,  intent(out) :: mat(5,x0s:x0e,x1s:x1e)
+  REAL*8,  intent(out) :: rhs(x0s:x0e,x1s:x1e)
+  R_PREC,    intent(out) :: rhsnorm
+  INTG_PREC, intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j
-  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
-  real*8  :: c, dxi, dxi0, dyi, dyi0
-  real*8  :: afac, afac0, Edir(2), Emax, delta_nU
-  real*8  :: E0d_x, Ed_x, E0d_y, Ed_y
+  INTG_PREC :: i, j
+  REAL*8  :: dtfac, dtfac0, kap, kap0, eps, mu
+  REAL*8  :: c, dxi, dxi0, dyi, dyi0
+  REAL*8  :: afac, afac0, Edir(2), Emax, delta_nU
+  REAL*8  :: E0d_x, Ed_x, E0d_y, Ed_y
 
 !=======================================================================
   
@@ -690,27 +693,28 @@ subroutine FSProb_SetupSystem1D(mat, rhs, rhsnorm, E, E0, kappa_h2on,    &
 !  PURPOSE: 1D version of the routine
 !=======================================================================
   implicit none
+#include "fortran_types.def"
   
   !--------------
   ! argument declarations
-  integer, intent(in) :: kappa_h2on
-  integer, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
-  REALSUB, intent(in) :: a, a0, adot, adot0
-  real,    intent(in) :: kappa_c, dt, theta, dx
-  real,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
-  real, dimension(1-NGxl:Nx+NGxr), intent(in) :: E, E0, eta, kappa
-  real*8,  intent(out) :: mat(3,x0s:x0e)
-  real*8,  intent(out) :: rhs(x0s:x0e)
-  real,    intent(out) :: rhsnorm
-  integer, intent(out) :: ier
+  INTG_PREC, intent(in) :: kappa_h2on
+  INTG_PREC, intent(in) :: BCXl, BCXr, x0s, x0e, Nx, NGxl, NGxr, xlface, xrface
+  P_PREC, intent(in) :: a, a0, adot, adot0
+  R_PREC,    intent(in) :: kappa_c, dt, theta, dx
+  R_PREC,    intent(in) :: lUn, lUn0, rUn, rUn0, nUn, nUn0
+  R_PREC, dimension(1-NGxl:Nx+NGxr), intent(in) :: E, E0, eta, kappa
+  REAL*8,  intent(out) :: mat(3,x0s:x0e)
+  REAL*8,  intent(out) :: rhs(x0s:x0e)
+  R_PREC,    intent(out) :: rhsnorm
+  INTG_PREC, intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i
-  real*8  :: dtfac, dtfac0, kap, kap0, eps, mu
-  real*8  :: c, dxi, dxi0
-  real*8  :: afac, afac0, Edir, delta_nU, ONE
-  real*8  :: E0d_x, Ed_x
+  INTG_PREC :: i
+  REAL*8  :: dtfac, dtfac0, kap, kap0, eps, mu
+  REAL*8  :: c, dxi, dxi0
+  REAL*8  :: afac, afac0, Edir, delta_nU, ONE
+  REAL*8  :: E0d_x, Ed_x
 
 !=======================================================================
   

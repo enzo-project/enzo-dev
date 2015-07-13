@@ -71,8 +71,30 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
   // Compute size of region to transfer
   int NumberOfFields, RegionSize, TransferSize;
  
-  NumberOfFields = ((SendField == ALL_FIELDS)? NumberOfBaryonFields : 1) *
-    ((NewOrOld == NEW_AND_OLD)? 2 : 1);
+int SendAllBaryonFields = FALSE;
+
+  switch( SendField ){
+  case ALL_FIELDS:
+  case JUST_BARYONS:
+  case BARYONS_ELECTRIC:
+  case BARYONS_MAGNETIC:
+    SendAllBaryonFields = TRUE;
+    break;
+  default:
+    SendAllBaryonFields = FALSE;
+    break;
+  }
+
+  NumberOfFields = 0;
+  if( SendAllBaryonFields == TRUE ) 
+    NumberOfFields = NumberOfBaryonFields;
+
+  //if SendField >= 0 then send only that field.
+  if( SendField >= 0 )
+    NumberOfFields = 1;
+
+  if( NewOrOld == NEW_AND_OLD )
+    NumberOfFields *= 2;
 
   if (SendField == INTERPOLATED_FIELDS) {
     switch (OutputSmoothedDarkMatter) {
@@ -80,10 +102,146 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
     case 2: NumberOfFields = 5; break;  // + rms velocity + 3-velocity
     }
   }
-
   RegionSize = RegionDim[0]*RegionDim[1]*RegionDim[2];
+
   TransferSize = RegionSize*NumberOfFields;
- 
+
+  int FromDim[MAX_DIMENSION], FromOffset[MAX_DIMENSION];
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    FromOffset[dim] = (dim < GridRank && IncludeBoundary == FALSE &&
+		       SendField != INTERPOLATED_FIELDS) ?
+      NumberOfGhostZones : 0;
+    FromDim[dim] = RegionDim[dim] + 2*FromOffset[dim];
+  }
+
+  //MHD if for the Magnetic Field
+  //MHDe is for the ElectricField
+  
+  int MHDRegionDim[3][3], MHDRegionSize[3]={1,1,1}, MHDFromDim[3][3];
+  int MHDeRegionDim[3][3], MHDeRegionSize[3]={1,1,1}, MHDeFromDim[3][3];
+  int ThisIsAFaceProjection=FALSE;
+  int MHD_SendBFlag[3]={FALSE,FALSE,FALSE};
+  int MHD_SendEFlag[3]={FALSE,FALSE,FALSE};
+  //This is used for determining the proper Electric dimensions.
+  int MHD_BoundaryOnly[3]={FALSE,FALSE,FALSE};
+
+  //This complicated Field Specific Send business is only important in MHD_ProjectFace.
+  if( UseMHDCT ){
+    switch(SendField){
+    case ALL_FIELDS:
+      for(dim=0;dim<3;dim++){
+	MHD_SendBFlag[dim]=TRUE;
+	MHD_SendEFlag[dim]=TRUE;  
+	MHD_BoundaryOnly[dim]=FALSE;
+      }
+      break;
+
+    case BARYONS_MAGNETIC:
+      for(dim=0;dim<3;dim++){
+	MHD_SendBFlag[dim]=TRUE;
+        MHD_SendEFlag[dim]=FALSE;
+        MHD_BoundaryOnly[dim]=FALSE;
+      }
+      break;
+    case BARYONS_ELECTRIC:
+      for(dim=0;dim<3;dim++){
+	MHD_SendBFlag[dim]=FALSE;
+        MHD_SendEFlag[dim]=TRUE;
+        MHD_BoundaryOnly[dim]=FALSE;
+      }
+      break;
+
+    case JUST_BARYONS:
+      for(dim=0;dim<3;dim++){
+	MHD_SendBFlag[dim]=FALSE;
+	MHD_SendEFlag[dim]=FALSE;
+      }
+      break;
+
+
+    case ELECTRIC_FIELD:
+      for(dim=0;dim<3;dim++){
+	MHD_SendEFlag[dim] = ( MHD_ProjectThisFace[dim] == TRUE ) ? FALSE : TRUE;
+	MHD_BoundaryOnly[dim] = MHD_ProjectThisFace[dim]; 
+
+      }//dim
+      break;
+      
+    case MAGNETIC_FIELD:
+
+      for(dim=0;dim<3;dim++){
+
+	if( MHD_ProjectThisFace[dim] == TRUE ){
+	  MHD_BoundaryOnly[dim] = TRUE;
+	  MHD_SendBFlag[dim] = TRUE;
+	}else{
+	  MHD_BoundaryOnly[dim] = FALSE;
+	  MHD_SendBFlag[dim]=FALSE;
+	}
+
+      }//dim
+
+      break;
+    default:
+      break;
+    }
+
+    // For the cell centered magnetic field:
+    TransferSize += ((SendField == ALL_FIELDS)? 3*RegionSize : 0 )*
+      ((NewOrOld == NEW_AND_OLD)? 2 : 1);
+    
+    //
+    // Face Centered Magnetic Field 
+    //
+
+    for(field =0; field<3;field++){
+
+      if( MHD_SendBFlag[field] == TRUE ){
+	
+	//Calculate size of transfer region
+	
+	for(dim=0;dim<3;dim++){
+	  
+	  //Only expand MHD region (in standard way) if 
+	  //NOT a face projection.
+	  
+	  MHDRegionDim[field][dim] = RegionDim[dim]
+	    +( (MHD_BoundaryOnly[dim]==TRUE)? 0: ( (field==dim) ? 1:0) );
+	
+	  MHDRegionSize[field] *= MHDRegionDim[field][dim];
+	  MHDFromDim[field][dim] = FromDim[dim] +( (field==dim) ? 1:0 ) ;
+	}//dim
+      	
+	//increase allocation for Face Centered field
+   
+	TransferSize += MHDRegionSize[field] *
+	  ((NewOrOld == NEW_AND_OLD)? 2 : 1);
+
+      }//SendBFlag
+    }//field
+    
+    //
+    // Transfer size for electric field
+    //
+
+    for(field=0;field<3;field++){
+
+      if(MHD_SendEFlag[field]==TRUE){
+	
+	for( dim=0; dim<3;dim++){
+	  MHDeRegionDim[field][dim] = RegionDim[dim] + 
+	    ( (field==dim) ? 0 : ( (MHD_BoundaryOnly[dim]==TRUE) ? 0:1 ) );
+	  MHDeRegionSize[field] *= MHDeRegionDim[field][dim];
+	  MHDeFromDim[field][dim] = FromDim[dim] +( (field==dim) ? 0 : 1 );
+	}
+	
+	TransferSize += MHDeRegionSize[field];
+	
+      }//Efield
+    }//field
+    
+  }//UseMHDCT
+
   // Allocate buffer
  
   float *buffer = NULL;
@@ -91,25 +249,14 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
     buffer = CommunicationReceiveBuffer[CommunicationReceiveIndex];
   else
     buffer = new float[TransferSize];
- 
-  /* If this is the from processor, pack fields */
- 
-  int FromDim[MAX_DIMENSION], FromOffset[MAX_DIMENSION];
- 
-  for (dim = 0; dim < MAX_DIMENSION; dim++) {
-    FromOffset[dim] = (dim < GridRank && IncludeBoundary == FALSE &&
-		       SendField != INTERPOLATED_FIELDS) ?
-      DEFAULT_GHOST_ZONES : 0;
-    FromDim[dim] = RegionDim[dim] + 2*FromOffset[dim];
-  }
- 
+
   if (MyProcessorNumber == FromProcessor) {
  
     index = 0;
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
       for (field = 0; field < FromGrid->NumberOfBaryonFields; field++)
-	if (field == SendField || SendField == ALL_FIELDS) {
+	if (field == SendField || SendField == ALL_FIELDS || SendAllBaryonFields == TRUE) {
 	  FORTRAN_NAME(copy3d)(FromGrid->BaryonField[field], &buffer[index],
 			       FromDim, FromDim+1, FromDim+2,
 			       RegionDim, RegionDim+1, RegionDim+2,
@@ -120,7 +267,7 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
       for (field = 0; field < FromGrid->NumberOfBaryonFields; field++)
-	if (field == SendField || SendField == ALL_FIELDS) {
+	if (field == SendField || SendField == ALL_FIELDS || SendAllBaryonFields == TRUE ){
 	  FORTRAN_NAME(copy3d)(FromGrid->OldBaryonField[field], &buffer[index],
 			       FromDim, FromDim+1, FromDim+2,
 			       RegionDim, RegionDim+1, RegionDim+2,
@@ -139,7 +286,58 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
 	index += RegionSize;
       }
     }
+
+    if( UseMHDCT ){
+      
+      /* Send Centered B */
+      if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
+	for(field = 0;field<3;field++)
+	  if( SendField == ALL_FIELDS){
+	    FORTRAN_NAME(copy3d)(FromGrid->CenteredB[field], &buffer[index],
+				 FromDim, FromDim+1, FromDim+2,
+				 RegionDim,RegionDim+1, RegionDim+2,
+				 Zero, Zero+1, Zero+2,
+				 FromOffset, FromOffset+1, FromOffset+2);
+	    index += RegionSize;
+	  }//field
+      
+      //There is no need to send OldCenteredB.
+
+      /* send Face B */
+      if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
+	for( field=0;field<3;field++)
+	  if( MHD_SendBFlag[field]==TRUE){
+
+	    FORTRAN_NAME(copy3d)(FromGrid->MagneticField[field], &buffer[index],
+				 MHDFromDim[field], MHDFromDim[field]+1, MHDFromDim[field]+2,
+				 MHDRegionDim[field], MHDRegionDim[field]+1, MHDRegionDim[field]+2,
+				 Zero, Zero+1, Zero+2,
+				 FromOffset, FromOffset+1, FromOffset+2);
+	    index += MHDRegionSize[field];
+	  }
+      
+      if( NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY )
+	  for( field=0;field<3;field++)
+	  if( MHD_SendBFlag[field]==TRUE){
+	    FORTRAN_NAME(copy3d)(FromGrid->OldMagneticField[field], &buffer[index],
+				 MHDFromDim[field], MHDFromDim[field]+1, MHDFromDim[field]+2,
+				 MHDRegionDim[field], MHDRegionDim[field]+1, MHDRegionDim[field]+2,
+				 Zero, Zero+1, Zero+2,
+				 FromOffset, FromOffset+1, FromOffset+2);
+	    index += MHDRegionSize[field];
+	  }
  
+      for( field=0; field<3; field++)
+	if( MHD_SendEFlag[field]==TRUE){	
+	  FORTRAN_NAME(copy3d)(FromGrid->ElectricField[field], &buffer[index],
+		       MHDeFromDim[field], MHDeFromDim[field]+1, MHDeFromDim[field]+2,
+		       MHDeRegionDim[field], MHDeRegionDim[field]+1, MHDeRegionDim[field]+2, 
+		       Zero, Zero+1, Zero+2,
+		       FromOffset, FromOffset+1, FromOffset+2);
+	  index += MHDeRegionSize[field];
+	}//field
+    }//UseMHDCT
+
   } // ENDIF FromProcessor
  
   /* Send buffer */
@@ -214,7 +412,7 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (field == SendField || SendField == ALL_FIELDS) {
+	if (field == SendField || SendField == ALL_FIELDS || SendAllBaryonFields == TRUE ){
 	  if (BaryonField[field] == NULL) {
 	    BaryonField[field] = new float[GridSize];
 	    for (i = 0; i < GridSize; i++)
@@ -231,7 +429,7 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
  
     if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY)
       for (field = 0; field < NumberOfBaryonFields; field++)
-	if (field == SendField || SendField == ALL_FIELDS) {
+	if (field == SendField || SendField == ALL_FIELDS || SendAllBaryonFields == TRUE) {
 	  if (OldBaryonField[field] == NULL) {
 	    OldBaryonField[field] = new float[GridSize];
 	    for (i = 0; i < GridSize; i++)
@@ -262,6 +460,78 @@ int grid::CommunicationReceiveRegion(grid *FromGrid, int FromProcessor,
 	index += RegionSize;
       }
 
+    if( UseMHDCT ){     
+      /* unpack centeredB */
+      if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
+	if( SendField == ALL_FIELDS )
+	  for(field = 0; field<3; field++){
+	    if(CenteredB[field] == NULL){
+	      CenteredB[field] = new float[GridSize];
+	      for(i=0;i<GridSize;i++) CenteredB[field][i] = 0.0;
+	    }//allocate Bc
+	    FORTRAN_NAME(copy3d)(&buffer[index], CenteredB[field],
+				 RegionDim, RegionDim+1, RegionDim+2,
+				 GridDimension, GridDimension+1, GridDimension+2,
+				 RegionStart, RegionStart+1, RegionStart+2,
+				 Zero, Zero+1, Zero+2);
+	    
+	    index += RegionSize;
+	    
+	  }//new Bc
+      
+      //There is no need to send OldCenteredB
+
+      /* unpack face B */
+      if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
+	for(field = 0; field<3; field++)
+	  if( MHD_SendBFlag[field]==TRUE){
+	    if(MagneticField[field] == NULL){
+	      MagneticField[field] = new float[MagneticSize[field] ];
+	      for(i=0;i<MagneticSize[field];i++) MagneticField[field][i] = 0.0;
+	    }//allocate Bf
+	    
+	    FORTRAN_NAME(copy3d)(&buffer[index], MagneticField[field],
+				 MHDRegionDim[field], MHDRegionDim[field]+1, MHDRegionDim[field]+2,
+				 MagneticDims[field], MagneticDims[field]+1, MagneticDims[field]+2,
+				 RegionStart, RegionStart+1, RegionStart+2,
+				 Zero, Zero+1, Zero+2);
+	    index += MHDRegionSize[field];
+	  }//unpack new bf
+    
+      if( NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY )
+	for(field = 0; field<3; field++)
+	  if( MHD_SendBFlag[field]==TRUE ){
+	    if(OldMagneticField[field] == NULL){
+	      OldMagneticField[field] = new float[MagneticSize[field] ];
+	      for(i=0;i<MagneticSize[field];i++) OldMagneticField[field][i] = 0.0;
+	    }//allocate Bf
+	    
+	    FORTRAN_NAME(copy3d)(&buffer[index], OldMagneticField[field],
+				 MHDRegionDim[field], MHDRegionDim[field]+1, MHDRegionDim[field]+2,
+				 MagneticDims[field], MagneticDims[field]+1, MagneticDims[field]+2,
+				 RegionStart, RegionStart+1, RegionStart+2,
+				 Zero, Zero+1, Zero+2);
+	    index += MHDRegionSize[field];
+	  }//unpack old bf
+      
+      for(field=0; field<3;field++)
+	if(MHD_SendEFlag[field]==TRUE){
+
+	  if( ElectricField[field] == NULL){
+	    ElectricField[field] = new float[ ElectricSize[field] ];
+	    for(i=0;i<ElectricSize[field];i++)
+	      ElectricField[field][i] = 0.0;
+	  }
+
+	  FORTRAN_NAME(copy3d)(&buffer[index], ElectricField[field],
+		       MHDeRegionDim[field], MHDeRegionDim[field]+1, MHDeRegionDim[field]+2,
+		       ElectricDims[field],ElectricDims[field]+1,ElectricDims[field]+2,
+		       RegionStart, RegionStart + 1, RegionStart + 2,
+		       Zero, Zero+1, Zero+2);
+	  index += MHDeRegionSize[field];
+	}
+            
+    }//UseMHDCT
  
     /* Clean up */
  

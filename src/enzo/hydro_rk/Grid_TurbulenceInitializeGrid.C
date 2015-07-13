@@ -86,7 +86,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
       FieldType[HDINum  = NumberOfBaryonFields++] = HDIDensity;
     }
   }
-  FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity;
+  //  FieldType[ColourNum = NumberOfBaryonFields++] = Metallicity;
 
   if (RadiativeTransfer && (MultiSpecies < 1)) {
     fprintf(stderr, "Grid_PhotonTestInitialize: Radiative Transfer but not MultiSpecies set");
@@ -182,7 +182,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   float CloudInternalEnergy, CloudPressure;
   activesize = 1;
   for (dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   }
 
   for (dim = 0; dim < GridRank; dim++) {
@@ -348,7 +348,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	}
 
 	BaryonField[iden ][n] = Density;
-	BaryonField[ColourNum][n] = Density*0.018477;
+	//	BaryonField[ColourNum][n] = Density*0.018477;
 	BaryonField[ivx  ][n] = Velx;
 	BaryonField[ivy  ][n] = Vely;
 	BaryonField[ivz  ][n] = Velz;
@@ -467,9 +467,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 			 GridDimension[2],
 			 4.0, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed);    
-    /*Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
-			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
-			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+    /*Turbulence_Generator(TurbulenceVelocity, GridDimension[0]-2*NumberOfGhostZones, 
+			 GridDimension[1]-2*NumberOfGhostZones,
+			 GridDimension[2]-2*NumberOfGhostZones,
 			 4.0, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed);    */
 
@@ -527,9 +527,9 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     k2 = 4.0;
     dk = 1.0;
     printf("Begin generating driving force field ...\n");
-    Turbulence_Generator(DrivingField, GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
-			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
-			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+    Turbulence_Generator(DrivingField, GridDimension[0]-2*NumberOfGhostZones, 
+			 GridDimension[1]-2*NumberOfGhostZones,
+			 GridDimension[2]-2*NumberOfGhostZones,
 			 4.0, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed);
     printf("Driving force field generated\n");

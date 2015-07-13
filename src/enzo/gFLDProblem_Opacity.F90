@@ -63,39 +63,40 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Model, Nchem
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  REALSUB, intent(in) :: a
-  real,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
-  real,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
-  real,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
-  real,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  INTG_PREC, intent(in) :: Model, Nchem
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  P_PREC, intent(in) :: a
+  R_PREC,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
+  R_PREC,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(in) :: PmC0, PmC1, PmC2, PmC3, PmC4
+  R_PREC,    intent(in) :: EmC0, EmC1, EmC2, EmC3, EmC4
+  R_PREC,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: rho, n_HI, n_HeI, n_HeII, Temp
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(out) &
        :: kappaP, kappaE
-  integer, intent(out) :: ier
+  INTG_PREC, intent(out) :: ier
 
   !--------------
   ! locals
-  integer :: i, j, k
-  real :: mp, HIconst, HeIconst, HeIIconst
-  real :: rhoval, Tval
+  INTG_PREC :: i, j, k
+  R_PREC :: mp, HIconst, HeIconst, HeIIconst
+  R_PREC :: rhoval, Tval
 
   !=======================================================================
 
 !!$  write(*,*) 'Entering gFLDProblem::Opacity routine'
 
   ! initialize outputs to zero, flag to success
-  kappaP = 0.d0
-  kappaE = 0.d0
+  kappaP = 0._RKIND
+  kappaE = 0._RKIND
   ier = 1
 
   ! set shortcut values
@@ -105,8 +106,8 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
   ! coefficient for density to convert from comoving to proper
   !    divide by mp since need NUMBER density
   HIconst   = IsEsHI/IsE*NiUnits
-  HeIconst  = IsEsHeI/IsE*NiUnits/4.d0
-  HeIIconst = IsEsHeII/IsE*NiUnits/4.d0
+  HeIconst  = IsEsHeI/IsE*NiUnits/4._RKIND
+  HeIIconst = IsEsHeII/IsE*NiUnits/4._RKIND
 
   ! compute opacity over domain depending on number of chemical species 
 
@@ -115,7 +116,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
      do k=1-NGzl,Nz+NGzr,1
         do j=1-NGyl,Ny+NGyr,1
            do i=1-NGxl,Nx+NGxr,1
-              kappaE(i,j,k) = 0.d0
+              kappaE(i,j,k) = 0._RKIND
            enddo
         enddo
      enddo
@@ -125,7 +126,7 @@ subroutine gFLDProblem_Opacity(kappaP, kappaE, time, rho, n_HI, n_HeI,   &
      do k=1-NGzl,Nz+NGzr,1
         do j=1-NGyl,Ny+NGyr,1
            do i=1-NGxl,Nx+NGxr,1
-              kappaE(i,j,k) = 0.d0
+              kappaE(i,j,k) = 0._RKIND
            enddo
         enddo
      enddo

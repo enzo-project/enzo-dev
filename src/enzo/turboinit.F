@@ -35,19 +35,20 @@ c  LOCALS:
 c
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer rank, nbox, in, jn, kn, ig, jg, kg
-      real u(in,jn,kn), v(in,jn,kn), w(in,jn,kn)
-      REALSUB random_forcing
+      INTG_PREC rank, nbox, in, jn, kn, ig, jg, kg
+      R_PREC u(in,jn,kn), v(in,jn,kn), w(in,jn,kn)
+      P_PREC random_forcing
 c
 c  Locals
 c
-      integer i, j, k, imo, nmode
+      INTG_PREC i, j, k, imo, nmode
       parameter (nmode=16)
-      integer mode(3,nmode)
+      INTG_PREC mode(3,nmode)
       data    mode/
      &             1,1,1,
      &             -1,1,1,
@@ -70,53 +71,65 @@ c A set of randomly selected phases for seed=12398L that provide good isotropy
 c Phases are uniformly sampled from [0, 2pi)
 c Phases for x, y, and z velocities for each mode
 c
-      real phax(nmode)
+      R_PREC phax(nmode)
       data phax/       
-     &       4.8827171d0 , 4.5501628d0 , 3.6897256d0  , 5.7606730d0, 
-     &       2.0264773d0 , 0.83200777d0, 1.9374901d0 , 0.014175551d0, 
-     &       5.1355696d0 , 2.7778759d0 , 2.0290945d0 , 0.66376913d0, 
-     &       1.8051250d0 , 3.3130596d0 , 1.0506331d0 , 1.7523085d0/
+     &       4.8827171_RKIND , 4.5501628_RKIND ,  3.6897256_RKIND ,
+     &       5.760673_RKIND  , 2.0264773_RKIND ,  0.83200777_RKIND, 
+     &       1.9374901_RKIND , 0.014175551_RKIND, 5.1355696_RKIND , 
+     &       2.7778759_RKIND , 2.0290945_RKIND ,  0.66376913_RKIND, 
+     &       1.805125_RKIND  , 3.3130596_RKIND ,  1.0506331_RKIND , 
+     &       1.7523085_RKIND/
 c
-      real phay(nmode)
+      R_PREC phay(nmode)
       data phay/
-     &       1.4011313d0, 5.7180996d0 , 3.8207288d0 , 1.0026506d0, 
-     &       2.2681668d0, 2.8144622d0 , 0.99058449d0, 2.9458065d0, 
-     &       3.9271564d0, 0.89623797d0, 1.8535780d0 , 2.8460610d0, 
-     &       1.6346333d0, 3.4661922d0 , 5.5859957d0 , 1.5948143d0/
+     &       1.4011313_RKIND, 5.7180996_RKIND , 3.8207288_RKIND , 
+     &       1.0026506_RKIND, 2.2681668_RKIND , 2.8144622_RKIND , 
+     &       0.99058449_RKIND, 2.9458065_RKIND, 3.9271564_RKIND, 
+     &       0.89623797_RKIND, 1.853578_RKIND , 2.846061_RKIND, 
+     &       1.6346333_RKIND, 3.4661922_RKIND , 5.5859957_RKIND , 
+     &       1.5948143_RKIND/
 c
-      real phaz(nmode)
+      R_PREC phaz(nmode)
       data phaz/
-     &       5.6059551d0, 4.1390905d0, 6.2273364d0, 5.9263325d0, 
-     &       3.5187488d0, 5.4222918d0, 5.7706189d0, 4.9518018d0, 
-     &       4.4614434d0, 5.2936754d0, 5.5074186d0, 2.3949680d0, 
-     &       4.5948687d0, 2.2385154d0, 3.1959155d0, 4.4706650d0/
+     &       5.6059551_RKIND, 4.1390905_RKIND, 6.2273364_RKIND, 
+     &       5.9263325_RKIND, 3.5187488_RKIND, 5.4222918_RKIND, 
+     &       5.7706189_RKIND, 4.9518018_RKIND, 4.4614434_RKIND, 
+     &       5.2936754_RKIND, 5.5074186_RKIND, 2.394968_RKIND, 
+     &       4.5948687_RKIND, 2.2385154_RKIND, 3.1959155_RKIND, 
+     &       4.470665_RKIND/
 c
 c Random Gaussian amplitudes for each mode for seed=12398L, solenoidalized
 c
-      real amp(nmode,3)
+      R_PREC amp(nmode,3)
       data amp/ 
-     &      0.075595722d0, -1.3572438d0,   0.37845582d0, -0.38310400d0,   ! X
-     &      0.11698084d0,  -1.1607968d0,   0.d0,         -0.028096508d0,  ! X
-     &      0.d0,           0.d0,         -0.23279878d0,  0.d0,           ! X
-     &      0.d0,          -0.87953436d0, -0.60458595d0,  0.d0,           ! X
-     &      1.0322379d0,    0.53098691d0, -0.24294342d0, -0.83271527d0,   ! Y
-     &     -0.60710335d0,   0.d0,         -0.27813554d0,  0.d0,           ! Y
-     &     -1.1801908d0,    0.d0,          0.d0,          0.97667843d0,   ! Y
-     &      0.d0,          -0.69450939d0,  0.d0,         -0.60800761d0,   ! Y
-     &      1.0182580d0,   -0.96607661d0,  0.21195602d0, -0.60592365d0,   ! Z
-     &      0.d0,           0.31490606d0,  0.10941788d0,  0.d0,           ! Z
-     &      0.d0,          -1.5361234d0,   0.d0,          0.d0,           ! Z
-     &      0.81321216d0,   0.d0,         -0.36861938d0, -0.37148938d0/   ! Z
+     &      0.075595722_RKIND, -1.3572438_RKIND,   0.37845582_RKIND,      ! X
+     &     -0.383104_RKIND,     0.11698084_RKIND, -1.1607968_RKIND,       ! X
+     &      0._RKIND,          -0.028096508_RKIND, 0._RKIND,              ! X
+     &      0._RKIND,          -0.23279878_RKIND,  0._RKIND,              ! X
+     &      0._RKIND,          -0.87953436_RKIND, -0.60458595_RKIND,      ! X
+     &      0._RKIND,                                                     ! X
+     &      1.0322379_RKIND,    0.53098691_RKIND, -0.24294342_RKIND,      ! Y
+     &     -0.83271527_RKIND,  -0.60710335_RKIND,  0._RKIND,              ! Y
+     &     -0.27813554_RKIND,   0._RKIND,          -1.1801908_RKIND,      ! Y
+     &      0._RKIND,          0._RKIND,          0.97667843_RKIND,       ! Y
+     &      0._RKIND,          -0.69450939_RKIND,  0._RKIND,              ! Y
+     &     -0.60800761_RKIND,                                             ! Y
+     &      1.018258_RKIND,   -0.96607661_RKIND,  0.21195602_RKIND,       ! Z
+     &     -0.60592365_RKIND,  0._RKIND,          0.31490606_RKIND,       ! Z
+     &      0.10941788_RKIND,  0._RKIND,          0._RKIND,               ! Z
+     &     -1.5361234_RKIND,   0._RKIND,          0._RKIND,               ! Z
+     &      0.81321216_RKIND,   0._RKIND,         -0.36861938_RKIND,      ! Z
+     &     -0.37148938_RKIND/                                             ! Z
 c
 c signs of choice in eqs. (10.6) and (10.7) in Crockett (2005), p.96
 c
-      real sign1(4)
-      data sign1/1.d0,-1.d0,-1.d0, 1.d0/
+      R_PREC sign1(4)
+      data sign1/1._RKIND,-1._RKIND,-1._RKIND, 1._RKIND/
 c
-      real sign2(4)
-      data sign2/-1.d0,-1.d0, 1.d0, 1.d0/
+      R_PREC sign2(4)
+      data sign2/-1._RKIND,-1._RKIND, 1._RKIND, 1._RKIND/
 c
-      real  aa, pi, phayy, phazz, k1
+      R_PREC  aa, pi, phayy, phazz, k1
       parameter (pi=pi_val) 
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\////////////////////////////////
@@ -141,7 +154,7 @@ c
 c      write(6,*) 'TURBOINIT: ig =',ig,  ' jg =',jg,  ' kg =',kg
 
 c   this is for large-scale force 1<k<2
-      aa    = 2.d0*pi/nbox
+      aa    = 2._RKIND*pi/nbox
 
 c   this is for the force  8<k<16
 c      aa    = 8.0*2.0*pi/nbox
@@ -154,9 +167,9 @@ c
 c
 c   fill in 0s first
 c
-               u(i,j,k) = 0.d0
-               v(i,j,k) = 0.d0
-               w(i,j,k) = 0.d0
+               u(i,j,k) = 0._RKIND
+               v(i,j,k) = 0._RKIND
+               w(i,j,k) = 0._RKIND
 c
 c   start with first four modes
 c
@@ -172,7 +185,7 @@ c k=(1,1,1), (-1,1,1), (1,-1,1), and (1,1,-1)
 c 
                   phayy = phax(imo) + sign1(imo)
      &                 *acos((amp(imo,3)**2-amp(imo,1)**2-amp(imo,2)**2)
-     &                 /2.d0/amp(imo,1)/mode(1,imo)
+     &                 /2._RKIND/amp(imo,1)/mode(1,imo)
      &                 /mode(2,imo)/amp(imo,2))
                   v(i,j,k) = v(i,j,k) + 
      &                 amp(imo,2)*cos(aa*k1 + phayy)
@@ -200,9 +213,9 @@ c
 c
 c normalize to get rms 3D Mach = 3.0
 c
-	       u(i,j,k) = u(i,j,k)/2.84832d0*random_forcing
-               v(i,j,k) = v(i,j,k)/2.84832d0*random_forcing
-               w(i,j,k) = w(i,j,k)/2.84832d0*random_forcing
+	       u(i,j,k) = u(i,j,k)/2.84832_RKIND*random_forcing
+               v(i,j,k) = v(i,j,k)/2.84832_RKIND*random_forcing
+               w(i,j,k) = w(i,j,k)/2.84832_RKIND*random_forcing
             enddo
          enddo
       enddo

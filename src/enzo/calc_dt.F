@@ -1,3 +1,4 @@
+#include "fortran.def"
 c=======================================================================
 c////////////////////////  SUBROUTINE CALC_DT  \\\\\\\\\\\\\\\\\\\\\\\\\
 c
@@ -7,7 +8,6 @@ c
      &                   dx, dy, dz, vgx, vgy, vgz, gamma, ipfree, aye,
      &                   d, p, u, v, w, dt, dtviscous)
 #ifndef CONFIG_PFLOAT_16
-#include "fortran.def"
 c
 c  COMPUTES TIME STEP FOR NEXT CYCLE
 c
@@ -47,20 +47,21 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c     Arguments
 c
-      integer idim, jdim, kdim, i1, i2, j1, j2, k1, k2, rank, ipfree,
+      INTG_PREC idim, jdim, kdim, i1, i2, j1, j2, k1, k2, rank, ipfree,
      &        ihydro
-      REALSUB dx(idim), dy(jdim), dz(kdim)
-      real    dt, vgx, vgy, vgz, gamma, aye, C2, dtviscous
-      real    d(idim,jdim,kdim), p(idim,jdim,kdim), u(idim,jdim,kdim),
+      P_PREC dx(idim), dy(jdim), dz(kdim)
+      R_PREC    dt, vgx, vgy, vgz, gamma, aye, C2, dtviscous
+      R_PREC    d(idim,jdim,kdim), p(idim,jdim,kdim), u(idim,jdim,kdim),
      &        v(idim,jdim,kdim), w(idim,jdim,kdim)
 c
 c     Locals
 c
-      integer i,j,k
-      real    cs, dt1
+      INTG_PREC i,j,k
+      R_PREC    cs, dt1
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
 c=======================================================================
@@ -75,12 +76,14 @@ c
          do i = i1+1, i2+1
             cs = max(sqrt(gamma*p(i,1,1)/d(i,1,1)), tiny)
             if (ipfree .eq. 1) cs = tiny
-            dt = min(dt, real(dx(i)*aye/(cs + abs(u(i,1,1)-vgx))))
+            dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,1,1)-vgx)),RKIND))
          enddo
          if (ihydro .eq. 2) then
             do i = i1+1, i2+1
                dtviscous = min(dtviscous,
-     &     real(dx(i)*aye/(4.d0*C2*max(-u(i+1,1,1)+u(i,1,1),tiny))))
+     &              REAL(dx(i)*aye/(4._RKIND*C2*
+     &              max(-u(i+1,1,1)+u(i,1,1),tiny)),
+     &              RKIND))
             enddo
          endif
       endif
@@ -96,22 +99,26 @@ c
 c
 c 	Here is Godunov's formula (to make sure ppm works with 0.8)
 c
- 	       dt = min(dt, real(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
-     &                       (cs + abs(v(i,j,1)-vgy))/dy(j)) ))
+ 	       dt = min(dt, REAL(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
+     &                       (cs + abs(v(i,j,1)-vgy))/dy(j)), RKIND))
                else
 c
 c       The way it was originally in enzo
 c
-               dt = min(dt, real(dx(i)*aye/(cs + abs(u(i,j,1)-vgx))),
-     &                      real(dy(j)*aye/(cs + abs(v(i,j,1)-vgy))))
+               dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,j,1)-vgx)),
+     &                           RKIND),
+     &                      REAL(dy(j)*aye/(cs + abs(v(i,j,1)-vgy)),
+     &                           RKIND))
                endif
             enddo
 c
             if (ihydro .eq. 2) then
                do i = i1+1, i2+1
                   dtviscous = min(dtviscous, 
-     &      real(dx(i)*aye/(4.d0*C2*max(-u(i+1,j,1)+u(i,j,1),tiny))),
-     &      real(dy(j)*aye/(4.d0*C2*max(-v(i,j+1,1)+v(i,j,1),tiny))))
+     &                 REAL(dx(i)*aye/(4._RKIND*C2*max(
+     &                 -u(i+1,j,1)+u(i,j,1),tiny)), RKIND),
+     &                 REAL(dy(j)*aye/(4._RKIND*C2*max(
+     &                 -v(i,j+1,1)+v(i,j,1),tiny)), RKIND))
                enddo
             endif
          enddo
@@ -156,9 +163,12 @@ c
                if (ihydro .eq. 2) then
                   do i = i1+1, i2+1
 	            dt1 = min(
-     &          dx(i)*aye/(4.d0*C2*max(-u(i+1,j,k)+u(i,j,k),tiny)),
-     &          dy(j)*aye/(4.d0*C2*max(-v(i,j+1,k)+v(i,j,k),tiny)),
-     &          dz(k)*aye/(4.d0*C2*max(-w(i,j,k+1)+w(i,j,k),tiny)))
+     &                    dx(i)*aye/(4._RKIND*C2*max(
+     &                        -u(i+1,j,k)+u(i,j,k), tiny)),
+     &                    dy(j)*aye/(4._RKIND*C2*max(
+     &                        -v(i,j+1,k)+v(i,j,k), tiny)),
+     &                    dz(k)*aye/(4._RKIND*C2*max(
+     &                        -w(i,j,k+1)+w(i,j,k), tiny)))
                      dtviscous = min(dtviscous, dt1)
                   enddo
                endif

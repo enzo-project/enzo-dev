@@ -139,10 +139,13 @@ MACHNOTES:
 	else \
 		$(LD) $(LDFLAGS) -o $*.exe $*.o $(OBJS_LIB) $(LIBS) >> $(OUTPUT) \
 		2>&1 ; \
-	fi)  
+	fi)	
 	@(if [ -e $@ ] ; then  \
 		echo "Success!" ; \
-                if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
+		echo "Compiled enzo from " ; \
+		echo "Mercurial Branch   `$(SVN) identify -b`" ; \
+		echo "Mercurial Revision `$(SVN) identify -i`" ; \
+		if [ ! -e $(TOP_DIR)/bin ]; then mkdir $(TOP_DIR)/bin; fi; \
 		if [ "$(CONFIG_OPT)" == "debug" ]; then \
 		echo "Compiled with opt-debug (OPT_FLAGS = $(ASSEMBLE_OPT_FLAGS))."; \
 		echo "May run much faster while still accurate with make opt-high (OPT_FLAGS = $(MACH_OPT_HIGH))"; \
@@ -214,7 +217,7 @@ verbose: $(EXE).exe
              exit 1; \
           fi ; \
 	else \
-	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $*.f >> $(OUTPUT) 2>&1 ; \
+	  $(FC) -c -o $@ $(FFLAGS)  $(DEFINES) $*.F >> $(OUTPUT) 2>&1 ; \
 	  if [ ! -e $@ ]; then \
 	     echo "See $(OUTPUT) for error messages"; \
 	     exit 1; \
@@ -233,7 +236,7 @@ verbose: $(EXE).exe
              echo; \
              echo "$(F90) -c -o $@ $(DEFINES) $(F90FLAGS) $*.F90"; \
              echo; \
-             $(F90) -c -o $@ $(F90FLAGS) $*.F90; \
+             $(F90) -c -o $@ $(F90FLAGS) $(DEFINES) $*.F90; \
              echo; \
              exit 1; \
 	  fi ; \
@@ -405,7 +408,7 @@ help:
 #-----------------------------------------------------------------------
 
 clean:
-	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) *.exe \
+	-@rm -f *.so *.o uuid/*.o *.mod *.f *.f90 DEPEND.bak *~ $(OUTPUT) enzo.exe \
           auto_show*.C hydro_rk/*.o *.oo hydro_rk/*.oo \
           uuid/*.oo DEPEND TAGS \
           libconfig/*.o \

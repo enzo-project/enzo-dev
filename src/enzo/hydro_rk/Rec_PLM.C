@@ -67,7 +67,7 @@ int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq)
   int iprim;
 
   for (int i = 0; i < ActiveSize+1; i++) {
-    iprim = i + DEFAULT_GHOST_ZONES - 1;
+    iprim = i + NumberOfGhostZones - 1;
     for (int field = 0; field < Neq; field++) {
       plm_point(prim[field][iprim-1], prim[field][iprim  ], prim[field][iprim+1],
 		priml[field][i]);
@@ -90,7 +90,7 @@ int plm_species(float **prim, int is, float **species, float *flux0, int ActiveS
 
   int iprim;
   for (int n = 0; n < ActiveSize+1; n++) {
-    iprim = n + DEFAULT_GHOST_ZONES - 1;    
+    iprim = n + NumberOfGhostZones - 1;    
     if (flux0[n] >= 0) {
       for (int field = 0; field < NSpecies; field++) {
 	plm_l(prim[field+is][iprim-1], prim[field+is][iprim], prim[field+is][iprim+1],
@@ -125,7 +125,7 @@ int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize)
 
   int iprim;
   for (int n = 0; n < ActiveSize+1; n++) {
-    iprim = n + DEFAULT_GHOST_ZONES - 1;        
+    iprim = n + NumberOfGhostZones - 1;        
     if (flux0[n] >= 0) {
       for (int field = is+NSpecies; field < is+NSpecies+NColor; field++) {
 	plm_l(prim[field][iprim-1], prim[field][iprim], prim[field][iprim+1],

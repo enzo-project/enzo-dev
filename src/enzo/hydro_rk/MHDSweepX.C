@@ -44,9 +44,9 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
   float *Prim1[NEQ_MHD+NSpecies+NColor-idual]; 
   float *priml[NEQ_MHD-idual], *primr[NEQ_MHD-idual], *species[NSpecies], *colors[NColor];
   
-  int Xactivesize = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
-  int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*DEFAULT_GHOST_ZONES : 1;
-  int Zactivesize = GridDimension[2] > 1 ? GridDimension[2]-2*DEFAULT_GHOST_ZONES : 1;
+  int Xactivesize = GridDimension[0]-2*NumberOfGhostZones;
+  int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*NumberOfGhostZones : 1;
+  int Zactivesize = GridDimension[2] > 1 ? GridDimension[2]-2*NumberOfGhostZones : 1;
 
 
   for (int field = 0; field < NEQ_MHD+NSpecies+NColor; field++) {
@@ -54,7 +54,7 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
   }
 
   //+icons may be needed for ConservativeReconstruction implementation
-  for (int field = 0; field < NEQ_MHD+NSpecies+NColor+idual; field++) {
+  for (int field = 0; field < NEQ_MHD+NSpecies+NColor-idual; field++) {
     Prim1[field] = new float[GridDimension[0]];
   }
 
@@ -105,7 +105,7 @@ int MHDSweepX(float **Prim, float **Flux3D, int GridDimension[],
 	  B2 = Bx*Bx + By*By + Bz*Bz;
 	  Prim1[1][i] = etot - 0.5*v2 - 0.5*B2/rho;
 	}
-
+        
 	if (EOSType > 0) {
 	  float h, cs, dpdrho, dpde;
 	  EOS(p, Prim[iden][igrid], Prim1[1][i], h, cs, dpdrho, dpde, EOSType, 0);

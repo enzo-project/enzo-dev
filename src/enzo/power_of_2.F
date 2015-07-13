@@ -1,8 +1,10 @@
-      integer function power_of_2(in)
+#include "fortran.def"
+      integer*8 function power_of_2(in)
 
       implicit none
+#include "fortran_types.def"
 
-      integer in, n, m
+      integer*8 in, n, m
 
       if( in .lt. 1 ) then
         power_of_2 = -1
@@ -28,7 +30,7 @@
 
         if( n .gt. 2 ) then
 
-          m = mod(n,2)
+          m = mod(n,2_8)
 
           if ( m .ne. 0 ) then
             power_of_2 = 1

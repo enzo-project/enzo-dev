@@ -154,8 +154,8 @@ int gFLDSplit::Opacity(float *kappaE, float *time, EnzoVector *u)
   float *n_HeII = NULL;
   if (Nchem > 0)  n_HI = u->GetData(2);
   if (Nchem > 1)  {
-    n_HeI = u->GetData(3);
-    n_HeI = u->GetData(4);
+    n_HeI  = u->GetData(3);
+    n_HeII = u->GetData(4);
   }
   FLOAT aval = (a+a0)*0.5;
   float dUn  = (DenUnits + DenUnits0)*0.5;

@@ -15,9 +15,7 @@
 // This routine intializes a new simulation based on the parameter file.
 //
 
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -60,6 +58,7 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
   int ClusterUseParticles    = FALSE;
   int ClusterUseColour       = FALSE;
   float ClusterInitialTemperature = 1000;
+  float ClusterInitialSpinParameter = 0.05;
   int   ClusterSphereType[MAX_SPHERES];
   float ClusterSphereDensity[MAX_SPHERES],
         ClusterSphereTemperature[MAX_SPHERES],
@@ -102,6 +101,8 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
                   &ClusterUseColour);
     ret += sscanf(line, "ClusterInitialTemperature = %"FSYM, 
                   &ClusterInitialTemperature);
+    ret += sscanf(line, "ClusterInitialSpinParameter = %"FSYM,
+		  &ClusterInitialSpinParameter);
     ret += sscanf(line, "ClusterUniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
                   ClusterUniformVelocity, ClusterUniformVelocity+1,
                   ClusterUniformVelocity+2);
@@ -144,11 +145,11 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
   if (TopGrid.GridData->ClusterInitializeGrid(
              ClusterNumberOfSpheres, ClusterSphereRadius,
              ClusterSphereCoreRadius, ClusterSphereDensity,
-             ClusterSphereTemperature,
+             ClusterSphereTemperature, 
              ClusterSpherePosition, ClusterSphereVelocity,
              ClusterSphereType, ClusterUseParticles,
              ClusterUniformVelocity, ClusterUseColour,
-             ClusterInitialTemperature, 0) == FAIL) {
+             ClusterInitialTemperature, ClusterInitialSpinParameter, 0) == FAIL) {
     fprintf(stderr, "Error in ClusterInitializeGrid.\n");
     return FAIL;
   }
@@ -208,11 +209,11 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
         if (Temp->GridData->ClusterInitializeGrid(
              ClusterNumberOfSpheres, ClusterSphereRadius,
              ClusterSphereCoreRadius, ClusterSphereDensity,
-             ClusterSphereTemperature,
+             ClusterSphereTemperature, 
              ClusterSpherePosition, ClusterSphereVelocity,
              ClusterSphereType, ClusterUseParticles,
              ClusterUniformVelocity, ClusterUseColour,
-             ClusterInitialTemperature, level+1) == FAIL) {
+             ClusterInitialTemperature, ClusterInitialSpinParameter, level+1) == FAIL) {
           fprintf(stderr, "Error in ClusterInitializeGrid.\n");
           return FAIL;
         }
@@ -265,6 +266,8 @@ int ClusterInitialize(FILE *fptr, FILE *Outfptr,
             ClusterUseColour);
     fprintf(Outfptr, "ClusterInitialTemperature = %"GOUTSYM"\n",
             ClusterInitialTemperature);
+    fprintf(fptr, "ClusterInitialSpinParameter   = %"FSYM"\n",
+	    ClusterInitialSpinParameter);
     fprintf(Outfptr, "ClusterUniformVelocity    = %"GOUTSYM" %"GOUTSYM" %"GOUTSYM"\n",
             ClusterUniformVelocity[0], ClusterUniformVelocity[1],
             ClusterUniformVelocity[2]);

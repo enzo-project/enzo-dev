@@ -41,7 +41,7 @@ grid::grid()
   SubgridsAreStatic                     = FALSE;
   ProcessorNumber                       = ROOT_PROCESSOR;
 
-  SubgridFluxStorage = new fluxes* [1];
+  SubgridFluxStorage = NULL;
   NumberOfSubgrids = 1;
  
   /* clear MAX_DIMENSION vectors */
@@ -140,6 +140,7 @@ grid::grid()
   PhotonPackages->ipix            = 0;         
   PhotonPackages->level           = 0;        
 
+  sfSeed                          = 0;
   ID                              = 0;
   HasRadiation                    = FALSE;
   SubgridMarker                   = NULL;
@@ -164,6 +165,43 @@ grid::grid()
   
   NumberOfStars = 0;
   Stars = NULL;
+
+  for(i=0;i<3;i++){
+    MagneticField[i] = NULL;
+    CenteredB[i]     = NULL;
+    ElectricField[i] = NULL;
+    AvgElectricField[i] = NULL;
+    OldMagneticField[i] = NULL;
+    OldElectricField[i] = NULL;
+    OldCenteredB[i] = NULL;
+    MHDParentTemp[i] = NULL;
+
+  }
+  dtParent = -1;
+
+  DyBx = NULL;
+  DzBx = NULL;
+  DyzBx = NULL;
+  DBxFlag = NULL;
+
+  DxBy = NULL;
+  DzBy = NULL;
+  DxzBy = NULL;
+  DByFlag = NULL;
+
+  DxBz = NULL;
+  DyBz = NULL;
+  DxyBz = NULL;
+  DBzFlag = NULL;
+
+  for(int field=0;field<3;field++){
+    MagneticSize[field] = -100;
+    ElectricSize[field] = -100;
+    for(int dim=0;dim<3;dim++){
+      MHDAdd[field][dim]=(field==dim) ? 1:0;
+      MagneticDims[field][dim] = -100;
+    }}
+
 
   /* For once-per-rootgrid-timestep star formation, the following flag
      determines whether SF is about to occur or not. It's currently

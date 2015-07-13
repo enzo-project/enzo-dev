@@ -100,7 +100,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
      in Grid::InitializeUniformGrid (to user-specified but constant values).  So, you really
      only need to modify what you want, but be careful to make sure that the field is
      divergence-free! */
-  if(useMHD){  
+  if(UseMHD){  
     iBx=FindField(Bfield1, FieldType, NumberOfBaryonFields);
     iBy=FindField(Bfield2, FieldType, NumberOfBaryonFields);
     iBz=FindField(Bfield3, FieldType, NumberOfBaryonFields);
@@ -274,7 +274,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 	  if(GridRank > 2)
 	    BaryonField[TENum][ELT(i,j,k)] += 0.5*POW(BaryonField[Vel3Num][ELT(i,j,k)], 2.0);
 	  
-	  if(useMHD)
+	  if(UseMHD)
 	    BaryonField[TENum][ELT(i,j,k)] += 0.5*(POW(BaryonField[iBx][ELT(i,j,k)],2.0) + 
 					    POW(BaryonField[iBy][ELT(i,j,k)],2.0) + 
 					    POW(BaryonField[iBz][ELT(i,j,k)],2.0))/BaryonField[DensNum][ELT(i,j,k)];	  
@@ -282,7 +282,7 @@ int grid::ConductionBubbleInitialize (FLOAT BubbleRadius, int PulseType, float D
 
 	// add magnetic field into total energy here - don't need to check for hydro method because we can't be 
 	// using ZEUS if MHD is turned on.
-	if(useMHD)
+	if(UseMHD)
 	  BaryonField[TENum][ELT(i,j,k)] += 0.5*(POW(BaryonField[iBx][ELT(i,j,k)],2.0) + 
 						 POW(BaryonField[iBy][ELT(i,j,k)],2.0) + 
 						 POW(BaryonField[iBz][ELT(i,j,k)],2.0))/BaryonField[DensNum][ELT(i,j,k)];

@@ -28,31 +28,32 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      integer in, jn, kn, is, js, ks, ie, je, ke, 
+      INTG_PREC in, jn, kn, is, js, ks, ie, je, ke, 
      &        idual, iexpand, nratec, idim, imethod, igammah
-      real    dt, aye, temstart, temend, fh, utem, urho, gammaha,
+      R_PREC    dt, aye, temstart, temend, fh, utem, urho, gammaha,
      &        eta1, eta2, gamma, coola(nratec), mu
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn),
      &        cooltime(in,jn,kn)
 c
 c  Parameters
 c
-      integer ijk
+      INTG_PREC ijk
       parameter (ijk = MAX_ANY_SINGLE_DIRECTION)
 c
 c  Locals
 c
-      integer i, j, k
-      real    energy
+      INTG_PREC i, j, k
+      R_PREC    energy
 c
 c  Slice locals
 c 
-      integer indixe(ijk)
-      real t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
+      INTG_PREC indixe(ijk)
+      R_PREC t1(ijk), t2(ijk), logtem(ijk), tdef(ijk), p2d(ijk),
      &     dtit(ijk), ttot(ijk), edot(ijk), tgas(ijk), tgasold(ijk),
      &     cool(ijk)
 c
@@ -74,7 +75,7 @@ c        Compute the cooling rate on a slice
 c
          call cool1d(d, e, ge, u, v, w,
      &               in, jn, kn, nratec, idual, idim, imethod, 
-     &               1, igammah,
+     &               1_IKIND, igammah,
      &               is, ie, j, k, 
      &               temstart, temend, fh, utem, urho, aye,
      &               eta1, eta2, gamma, coola, gammaha,
@@ -84,7 +85,7 @@ c
 c        Compute the cooling time on the slice
 c
          do i = is+1, ie+1
-            energy = max(p2d(i)/d(i,j,k)/(gamma-1.0d0), tiny)
+            energy = max(p2d(i)/d(i,j,k)/(gamma-1._RKIND), tiny)
             cooltime(i,j,k) = abs(energy/edot(i))
          enddo
 c

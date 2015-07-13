@@ -48,7 +48,7 @@ c    gravity - gravity flag (0 = off)
 c    grslice - acceleration in this dimension in this slice
 c    i1,i2  - starting and ending addresses for dimension 1
 c    idim   - declared leading dimension of slices
-c    idiff  - integer flag for standard artificial diffusion (0 = off)
+c    idiff  - INTG_PREC flag for standard artificial diffusion (0 = off)
 c    idual  - dual energy formalism flag (0 = off)
 c    j1,j2  - starting and ending addresses for dimension 2
 c    jdim   - declared second dimension of slices
@@ -75,31 +75,33 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
-      integer ijkn
+      INTG_PREC ijkn
       parameter (ijkn=MAX_ANY_SINGLE_DIRECTION)
 c-----------------------------------------------------------------------
 c
 c  argument declarations
 c
-      integer gravity, i1, i2, idiff, idim, idual, j1, j2, jdim, ncolor
-      real    dt, eta1, eta2, gamma
-      real diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim     ),
+      INTG_PREC gravity, i1, i2, idiff, idim, idual, j1, j2, 
+     &       jdim, ncolor
+      R_PREC    dt, eta1, eta2, gamma
+      R_PREC diffcoef(idim,jdim),  dslice(idim,jdim),      dx(idim   ),
      &       eslice(idim,jdim), grslice(idim,jdim), geslice(idim,jdim),
      &       uslice(idim,jdim),  vslice(idim,jdim),  wslice(idim,jdim)
-      real df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
+      R_PREC df(idim,jdim),      ef(idim,jdim),      uf(idim,jdim),
      &     vf(idim,jdim),      wf(idim,jdim),     gef(idim,jdim),
      &     ges(idim,jdim)
-      real colslice(idim,jdim,ncolor), colf(idim,jdim,ncolor)
+      R_PREC colslice(idim,jdim,ncolor), colf(idim,jdim,ncolor)
 c
 c  local declarations
 c
-      integer i, j, n
-      real qa, qb, qc, frac, uadvect, eold
-      real dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
+      INTG_PREC i, j, n
+      R_PREC qa, qb, qc, frac, uadvect, eold
+      R_PREC dnu(ijkn), dnuinv(ijkn), uold(ijkn), pcent(ijkn), 
      &     eratio(ijkn), dadx(ijkn),  dddx(ijkn)
-      real min_color
-      parameter(min_color=1d-05*tiny)
+      R_PREC min_color
+      parameter(min_color=1e-5_RKIND*tiny)
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 c=======================================================================
@@ -111,8 +113,8 @@ c     write(6,*) 'EULER: j1   =',j1,  ' j2   =',j2
 c
 c  Set constants
 c
-      qa = (gamma + 1.d0)/(2.d0*gamma)
-      qb = (gamma - 1.d0)/(gamma + 1.d0)
+      qa = (gamma + 1._RKIND)/(2._RKIND*gamma)
+      qb = (gamma - 1._RKIND)/(gamma + 1._RKIND)
 c
 c  Loop over sweep lines (in this slice)
 c
@@ -123,7 +125,7 @@ c
        do i=i1, i2
           qc = dt/dx(i)
           dnu(i) = dslice(i,j) + (df(i,j) - df(i+1,j))
-          dnuinv(i) = 1.d0/dnu(i)
+          dnuinv(i) = 1._RKIND/dnu(i)
 c          write(21,*) i, dnu(i), dub(i), db(i), ub(i)
 c          uadvect = (dnu(i)-dslice(i,j))/(qc*(db(i+1)-db(i)))
 c          if (uslice(i,j)/(uadvect) .gt. 1.8 .and. uadvect .ne. 0.0)
@@ -136,7 +138,7 @@ c     A small cheat: if idual is on, assume a cosmo sim, and institute a
 c     minimum density.  This should be a parameter and pased in.
 c
           if (idual .eq. 1 .and. gravity .eq. 1) 
-     &         dnu(i) = max(dnu(i),1.d-3)
+     &         dnu(i) = max(dnu(i),1.e-3_RKIND)
 
           uold(i)     = uslice(i,j)
 c          write(20,*) i, uslice(i,j), (uslice(i,j)*dslice(i,j) +
@@ -158,7 +160,7 @@ c            write(6,*) dueb(i),dueb(i+1),db(i),db(i+1)
 c            write(6,*) eb(i),eb(i+1),ub(i),ub(i+1)
 c          endif
           eold = eslice(i,j)
-          eslice(i,j) = max(0.1*eslice(i,j),
+          eslice(i,j) = max(0.1_RKIND*eslice(i,j),
      &                  (eslice(i,j)*dslice(i,j) +
      &         (ef(i,j) - ef(i+1,j))) * dnuinv(i))
        enddo
@@ -184,13 +186,13 @@ c            for the source term in the gas energy equation.
 c
        if (idual .eq. 1) then
           do i=i1, i2
-             if (geslice(i,j) .lt. 0.0) 
+             if (geslice(i,j) .lt. 0._RKIND) 
      $            write(6,*) 'euler: geslice<0:', i,j,geslice(i,j)
              geslice(i,j) = max((geslice(i,j)*dslice(i,j) +
-     $            (gef(i,j) - gef(i+1,j))/dx(i) + ges(i,j)) * dnuinv(i)
-     $            ,0.5d0*geslice(i,j))
+     $            (gef(i,j) - gef(i+1,j)) + ges(i,j)) * dnuinv(i)
+     $            ,0.5_RKIND*geslice(i,j))
 c             if (geslice(i,j) .lt. tiny) geslice(i,j) = tiny
-             if (geslice(i,j) .lt. 0.0) then
+             if (geslice(i,j) .lt. 0._RKIND) then
                 write(6,*) i,j,dslice(i,j),dnu(i),pcent(i),eslice(i,j),
      &               gef(i,j), gef(i+1,j), ges(i,j),
      &               geslice(i,j)*dslice(i,j),
@@ -218,15 +220,15 @@ c
              dadx(i) = grslice(i+1,j) - grslice(i-1,j)
              dddx(i) =  dslice(i+1,j) -  dslice(i-1,j)
 c
-             dddx(i) = 2.d0*( dslice(i,j) - max(dslice(i,j) -
-     &                  0.5d0*dddx(i), min(dslice(i,j), dslice(i-1,j))))
-             dddx(i) = 2.d0*(-dslice(i,j) + max(dslice(i,j) +
-     &                  0.5d0*dddx(i), min(dslice(i,j), dslice(i+1,j))))
+             dddx(i) = 2._RKIND*( dslice(i,j) - max(dslice(i,j) -
+     &            0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i-1,j))))
+             dddx(i) = 2._RKIND*(-dslice(i,j) + max(dslice(i,j) +
+     &            0.5_RKIND*dddx(i), min(dslice(i,j), dslice(i+1,j))))
           enddo
 c
           do i=i1, i2
              grslice(i,j) = grslice(i,j) + 
-     &                      0.5d0*dadx(i)*dddx(i)/(12.d0*dslice(i,j))
+     &            0.5_RKIND*dadx(i)*dddx(i)/(12._RKIND*dslice(i,j))
           enddo
        endif
 c
@@ -241,21 +243,22 @@ c
 #define GRAVITY_METHOD1
 
 #ifdef GRAVITY_METHOD1 /* (right) */
-             uslice(i,j) = uslice(i,j) + 
-     &            dt*grslice(i,j)*0.5d0*(dslice(i,j)*dnuinv(i)+1.d0)
-             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5d0*
+             uslice(i,j) = uslice(i,j) + dt*grslice(i,j)*0.5_RKIND*
+     &            (dslice(i,j)*dnuinv(i)+1._RKIND)
+             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5_RKIND*
      &            (uslice(i,j) + uold(i)*dslice(i,j)*dnuinv(i))
              if (eslice(i,j) .le. 0) write(6,*) 'eu1',i,j,eslice(i,j),
      &            dslice(i,j),dnu(i),uslice(i,j),grslice(i,j),
-     &            dt*grslice(i,j)*0.5d0*(dslice(i,j)/dnu(i)+1.d0),
-     &            dt*grslice(i,j)*0.5d0*
+     &            dt*grslice(i,j)*0.5_RKIND*
+     &            (dslice(i,j)/dnu(i)+1._RKIND),
+     &            dt*grslice(i,j)*0.5_RKIND*
      &            (uslice(i,j) + uold(i)*dslice(i,j)/dnu(i))
              eslice(i,j) = max(eslice(i,j), tiny)
 #endif /* GRAVITY_METHOD1 */
 
 #ifdef GRAVITY_METHOD2 /* (wrong) */
              uslice(i,j) = uslice(i,j) + dt*grslice(i,j)
-             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5d0*
+             eslice(i,j) = eslice(i,j) + dt*grslice(i,j)*0.5_RKIND*
      &                                      (uslice(i,j) + uold(i))
 #endif /* GRAVITY_METHOD2 */
           enddo

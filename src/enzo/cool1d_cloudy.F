@@ -58,40 +58,41 @@
 !-----------------------------------------------------------------------
 
       implicit NONE
+#include "fortran_types.def"
 
 !  General Arguments
 
-      integer in, jn, kn, is, ie, j, k, ispecies
+      INTG_PREC in, jn, kn, is, ie, j, k, ispecies
 
-      real comp2, dom, zr
-      real d(in,jn,kn), de(in,jn,kn),
-     &     rhoH(in), metallicity(in), logtem(in)
-      double precision edot(in)
+      R_PREC    comp2, dom, zr
+      R_PREC    d(in,jn,kn), de(in,jn,kn), rhoH(in), metallicity(in), 
+     &     logtem(in)
+      real*8 edot(in)
 
 !  Cloudy parameters and data
 
-      integer icmbTfloor, iClHeat, clGridRank, clDataSize
-      integer clGridDim(clGridRank)
-      real clEleFra
-      real clPar1(clGridDim(1)), clPar2(clGridDim(2)),
+      INTG_PREC icmbTfloor, iClHeat, clGridRank, clDataSize
+      INTG_PREC clGridDim(5)
+      R_PREC clEleFra
+      R_PREC clPar1(clGridDim(1)), clPar2(clGridDim(2)),
      &     clPar3(clGridDim(3)), clPar4(clGridDim(4)),
      &     clPar5(clGridDim(5))
-      real clCooling(clDataSize), clHeating(clDataSize)
+      R_PREC clCooling(clDataSize), clHeating(clDataSize)
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !  Parameters
 
 !  Locals
 
-      integer i, q
-      real dclPar(clGridRank), inv_log10, log10_tCMB
+      INTG_PREC i, q
+      R_PREC dclPar(clGridRank), inv_log10, log10_tCMB
 
 !  Slice locals
 
-      real log_Z(in), e_frac(in), log_e_frac(in), 
+      R_PREC log_Z(in), e_frac(in), log_e_frac(in), 
      &     cl_e_frac(in), fh(in), log_n_h(in),
      &     log_cool(in), log_cool_cmb(in), log_heat(in),
      &     edot_met(in), log10tem(in)
@@ -99,28 +100,28 @@
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
-      inv_log10 = 1.d0 / log(10.d0)
+      inv_log10 = 1._RKIND / log(10._RKIND)
       log10_tCMB = log10(comp2)
 
 !     Calculate parameter value slopes
 
       dclPar(1) = (clPar1(clGridDim(1)) - clPar1(1)) / 
-     &     real(clGridDim(1) - 1)
-      if (clGridRank .gt. 1) then
+     &     REAL(clGridDim(1) - 1, RKIND)
+      if (clGridRank > 1) then
          dclPar(2) = (clPar2(clGridDim(2)) - clPar2(1)) / 
-     &        real(clGridDim(2) - 1)
+     &        REAL(clGridDim(2) - 1, RKIND)
       endif
-      if (clGridRank .gt. 2) then
+      if (clGridRank > 2) then
          dclPar(3) = (clPar3(clGridDim(3)) - clPar3(1)) / 
-     &        real(clGridDim(3) - 1)
+     &        REAL(clGridDim(3) - 1, RKIND)
       endif
-      if (clGridRank .gt. 3) then
+      if (clGridRank > 3) then
          dclPar(4) = (clPar4(clGridDim(4)) - clPar4(1)) / 
-     &        real(clGridDim(4) - 1)
+     &        REAL(clGridDim(4) - 1, RKIND)
       endif
-      if (clGridRank .gt. 4) then
+      if (clGridRank > 4) then
          dclPar(5) = (clPar5(clGridDim(5)) - clPar5(1)) / 
-     &        real(clGridDim(5) - 1)
+     &        REAL(clGridDim(5) - 1, RKIND)
       endif
 
       do i=is+1, ie+1
@@ -134,7 +135,7 @@
 
 !           Calculate proper log(n_H)
 
-            if (clGridRank .gt. 1) then
+            if (clGridRank > 1) then
 
                log_n_h(i) = log10(rhoH(i) * dom)
 
@@ -142,7 +143,7 @@
 
 !           Calculate metallicity
 
-            if (clGridRank .gt. 2) then
+            if (clGridRank > 2) then
 
                log_Z(i) = log10(metallicity(i))
 
@@ -150,126 +151,126 @@
 
 !           Calculate electron fraction
             
-            if (clGridRank .gt. 3) then
+            if (clGridRank > 3) then
 
-               e_frac(i) = 2.d0 * de(i,j,k) / 
-     &              (d(i,j,k) * (1 + fh(i)))
+               e_frac(i) = 2._RKIND * de(i,j,k) / 
+     &              (d(i,j,k) * (1._RKIND + fh(i)))
 !           Make sure electron fraction is never above 1 
 !           which can give bad cooling/heating values when 
 !           extrapolating in the Cloudy data.
-               log_e_frac(i) = min(log10(e_frac(i)), 0.0d0)
+               log_e_frac(i) = min(log10(e_frac(i)), 0._RKIND)
 
 !           Get extra electrons contributed by metals
 
                cl_e_frac(i) = e_frac(i) * 
-     &              (1.d0 + (2.d0 * clEleFra * metallicity(i) * 
-     &              fh(i)) / (1.d0 + fh(i)))
+     &              (1._RKIND + (2._RKIND * clEleFra * metallicity(i) * 
+     &              fh(i)) / (1._RKIND + fh(i)))
 
             endif
 
 !           Call interpolation functions to get heating/cooling
 
 !           Interpolate over temperature.
-            if (clGridRank .eq. 1) then
+            if (clGridRank == 1) then
                call interpolate_1D(log10tem(i), clGridDim, clPar1,
      &              dclPar(1), clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10.d0**log_cool(i)
+               edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_1D(log10_tCMB, clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clCooling, 
      &                 log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_1D(log10tem(i), clGridDim, clPar1, 
      &                 dclPar(1), clDataSize, clHeating, 
      &                 log_heat(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_heat(i)
                endif
 
 !           Interpolate over density and temperature.
-            else if (clGridRank .eq. 2) then
+            else if (clGridRank == 2) then
                call interpolate_2D(log_n_h(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10.d0**log_cool(i)
+               edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.0)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2.0)) then
                   call interpolate_2D(log_n_h(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                call interpolate_2D(log_n_h(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_heat(i)
                endif
 
 !           Interpolate over density, metallicity, and temperature.
-            else if (clGridRank .eq. 3) then
+            else if (clGridRank == 3) then
                call interpolate_3D(log_n_h(i), log_Z(i), log10tem(i),
      &              clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clPar3, dclPar(3),
      &              clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10.d0**log_cool(i)
+               edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_3D(log_n_h(i), log_Z(i), log10_tCMB,
      &                 clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_3D(log_n_h(i), log_Z(i), log10tem(i),
      &                 clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3),
      &                 clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_heat(i)
                endif
 
 !           Interpolate over density, metallicity, electron fraction, and temperature.
-            else if (clGridRank .eq. 4) then
+            else if (clGridRank == 4) then
                call interpolate_4D(log_n_h(i), log_Z(i), 
      &              log_e_frac(i), log10tem(i), clGridDim,
      &              clPar1, dclPar(1), clPar2, dclPar(2),
      &              clPar3, dclPar(3), clPar4, dclPar(4),
      &              clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10.d0**log_cool(i)
+               edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_4D(log_n_h(i), log_Z(i),
      &                 log_e_frac(i), log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_4D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), log10tem(i), clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_heat(i)
                endif
 
 !           Interpolate over density, metallicity, electron fraction, redshift, 
@@ -281,33 +282,33 @@
      &           clPar3, dclPar(3), clPar4, dclPar(4),
      &           clPar5, dclPar(5),
      &           clDataSize, clCooling, log_cool(i))
-               edot_met(i) = -10.d0**log_cool(i)
+               edot_met(i) = -10._RKIND**log_cool(i)
 
 !     Ignore CMB term if T >> T_CMB
-               if ((icmbTfloor .eq. 1) .and. 
-     &              ((log10tem(i) - log10_tCMB) .lt. 2.d0)) then
+               if ((icmbTfloor == 1) .and. 
+     &              ((log10tem(i) - log10_tCMB) < 2._RKIND)) then
                   call interpolate_5D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), zr, log10_tCMB, clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clPar5, dclPar(5),
      &                 clDataSize, clCooling, log_cool_cmb(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_cool_cmb(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_cool_cmb(i)
                endif
 
-               if (iClHeat .eq. 1) then
+               if (iClHeat == 1) then
                   call interpolate_5D(log_n_h(i), log_Z(i), 
      &                 log_e_frac(i), zr, log10tem(i), clGridDim,
      &                 clPar1, dclPar(1), clPar2, dclPar(2),
      &                 clPar3, dclPar(3), clPar4, dclPar(4),
      &                 clPar5, dclPar(5),
      &                 clDataSize, clHeating, log_heat(i))
-                  edot_met(i) = edot_met(i) + 10.d0**log_heat(i)
+                  edot_met(i) = edot_met(i) + 10._RKIND**log_heat(i)
                endif
 
             endif
 
-            if (clGridRank .gt. 3) then
+            if (clGridRank > 3) then
                edot_met(i) = edot_met(i) * cl_e_frac(i)
             endif
 
@@ -325,26 +326,29 @@
       subroutine interpolate_1D(input1, gridDim, gridPar1, dgridPar1, 
      &     dataSize, dataField, value)
 
+      implicit NONE
+#include "fortran_types.def"
+
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(1)
-      real input1, value
-      real gridPar1(gridDim(1)), dgridPar1
-      real dataField(dataSize)
+      INTG_PREC dataSize
+      INTG_PREC gridDim(1)
+      R_PREC input1, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1
+      R_PREC dataField(dataSize)
 
 !  Locals
 
-      integer index1
-      real slope
+      INTG_PREC index1
+      R_PREC slope
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
 !     Calculate interpolation index
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
+      index1 = min(gridDim(1)-1, max(1,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
 
 !     Interpolate over parameter 1
 
@@ -364,29 +368,32 @@
      &     gridPar2, dgridPar2,
      &     dataSize, dataField, value)
 
+      implicit NONE
+#include "fortran_types.def"
+
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(2)
-      real input1, input2, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      INTG_PREC dataSize
+      INTG_PREC gridDim(2)
+      R_PREC input1, input2, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
-      integer index1, index2, int_index, q
-      real slope, value2(2)
+      INTG_PREC index1, index2, int_index, q
+      R_PREC slope, value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
+      index1 = min(gridDim(1)-1, max(1,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
+      index2 = min(gridDim(2)-1, max(1,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
 
       do q=1, 2
 
@@ -421,32 +428,35 @@
      &     gridPar3, dgridPar3,
      &     dataSize, dataField, value)
 
+      implicit NONE
+#include "fortran_types.def"
+
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(3)
-      real input1, input2, input3, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      INTG_PREC dataSize
+      INTG_PREC gridDim(3)
+      R_PREC input1, input2, input3, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
      &     gridPar3(gridDim(3)), dgridPar3
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
-      integer index1, index2, index3, int_index, q, w
-      real slope, value3(2), value2(2)
+      INTG_PREC index1, index2, index3, int_index, q, w
+      R_PREC slope, value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
-      index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3)+1))
+      index1 = min(gridDim(1)-1, max(1,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
+      index2 = min(gridDim(2)-1, max(1,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
+      index3 = min(gridDim(3)-1, max(1,
+     &     int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
 
       do q=1, 2
 
@@ -495,35 +505,38 @@
      &     gridPar4, dgridPar4,
      &     dataSize, dataField, value)
 
+      implicit NONE
+#include "fortran_types.def"
+
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(4)
-      real input1, input2, input3, input4, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      INTG_PREC dataSize
+      INTG_PREC gridDim(4)
+      R_PREC input1, input2, input3, input4, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
      &     gridPar3(gridDim(3)), dgridPar3,
      &     gridPar4(gridDim(4)), dgridPar4
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
-      integer index1, index2, index3, index4, int_index, q, w, e
-      real slope, value4(2), value3(2), value2(2)
+      INTG_PREC index1, index2, index3, index4, int_index, q, w, e
+      R_PREC slope, value4(2), value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
-      index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3)+1))
-      index4 = min(gridDim(4)-1,
-     &     max(1,int((input4-gridPar4(1))/dgridPar4)+1))
+      index1 = min(gridDim(1)-1, max(1,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
+      index2 = min(gridDim(2)-1, max(1,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
+      index3 = min(gridDim(3)-1, max(1,
+     &     int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
+      index4 = min(gridDim(4)-1, max(1,
+     &     int((input4-gridPar4(1))/dgridPar4,IKIND)+1))
 
       do q=1, 2
 
@@ -585,48 +598,51 @@
      &     gridPar5, dgridPar5,
      &     dataSize, dataField, value)
 
+      implicit NONE
+#include "fortran_types.def"
+
 !  General Arguments
 
-      integer dataSize
-      integer gridDim(4)
-      real input1, input2, input3, input4, input5, value
-      real gridPar1(gridDim(1)), dgridPar1,
+      INTG_PREC dataSize
+      INTG_PREC gridDim(5)
+      R_PREC input1, input2, input3, input4, input5, value
+      R_PREC gridPar1(gridDim(1)), dgridPar1,
      &     gridPar2(gridDim(2)), dgridPar2,
      &     gridPar3(gridDim(3)), dgridPar3,
      &     gridPar4(gridDim(4)), dgridPar4,
      &     gridPar5(gridDim(5)), dgridPar5
-      real dataField(dataSize)
+      R_PREC dataField(dataSize)
 
 !  Locals
 
-      integer index1, index2, index3, index4, index5, 
+      INTG_PREC index1, index2, index3, index4, index5, 
      &     int_index, q, w, e, r, midPt, highPt
-      real slope, value5(2), value4(2), value3(2), value2(2)
+      R_PREC slope, value5(2), value4(2), value3(2), value2(2)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
 !     Calculate interpolation indices
 
-      index1 = min(gridDim(1)-1,
-     &     max(1,int((input1-gridPar1(1))/dgridPar1)+1))
-      index2 = min(gridDim(2)-1,
-     &     max(1,int((input2-gridPar2(1))/dgridPar2)+1))
-      index3 = min(gridDim(3)-1,
-     &     max(1,int((input3-gridPar3(1))/dgridPar3)+1))
+      index1 = min(gridDim(1)-1, max(1,
+     &     int((input1-gridPar1(1))/dgridPar1,IKIND)+1))
+      index2 = min(gridDim(2)-1, max(1,
+     &     int((input2-gridPar2(1))/dgridPar2,IKIND)+1))
+      index3 = min(gridDim(3)-1, max(1,
+     &     int((input3-gridPar3(1))/dgridPar3,IKIND)+1))
 #define INDEX_4_BISECTION
 #ifdef INDEX_4_BISECTION
 !     get index 4 with bisection, since not evenly spaced
-      if (input4 .le. gridPar4(1)) then
+      if (input4 <= gridPar4(1)) then
          index4 = 1
-      else if (input4 .ge. gridPar4(gridDim(4)-1)) then
+      else if (input4 >= gridPar4(gridDim(4)-1)) then
          index4 = gridDim(4) - 1
       else
          index4 = 1
          highPt = gridDim(4)
-         do while ((highPt - index4) .gt. 1)
-            midPt = int((highPt + index4) / 2)
-            if (input4 .ge. gridPar4(midPt)) then
+         do while ((highPt - index4) > 1)
+            midPt = int((highPt + index4) / 2,IKIND)
+            if (input4 >= gridPar4(midPt)) then
                index4 = midPt
             else
                highPt = midPt
@@ -634,11 +650,11 @@
          enddo
       endif
 #else
-      index4 = min(gridDim(4)-1,
-     &     max(1,int((input4-gridPar4(1))/dgridPar4)+1))
+      index4 = min(gridDim(4)-1, max(1,
+     &     int((input4-gridPar4(1))/dgridPar4,IKIND)+1))
 #endif /* INDEX_4_BISECTION */
-      index5 = min(gridDim(5)-1,
-     &     max(1,int((input5-gridPar5(1))/dgridPar5)+1))
+      index5 = min(gridDim(5)-1, max(1,
+     &     int((input5-gridPar5(1))/dgridPar5,IKIND)+1))
 
       do q=1, 2
 

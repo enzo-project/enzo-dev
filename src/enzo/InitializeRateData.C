@@ -31,6 +31,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 int InitializeCloudyCooling(FLOAT Time);
 int InitializeLymanWernerTable();
+int InitializeHM12Photorates();
 int ReadMetalCoolingRates(float TemperatureUnits, float LengthUnits, 
 			  float aUnits, float DensityUnits, float TimeUnits, 
 			  float aye);
@@ -75,6 +76,10 @@ int InitializeRateData(FLOAT Time)
   
   if (debug) printf("InitializeRateData: NumberOfTemperatureBins = %"ISYM"\n",
 		    CoolData.NumberOfTemperatureBins);
+
+  if (debug) printf("InitializeRateData: RadiationFieldType = %"ISYM"\n",
+		    RadiationFieldType);
+
 
   /* Allocate CoolData space for rates. */
  
@@ -217,6 +222,13 @@ int InitializeRateData(FLOAT Time)
   if (TabulatedLWBackground) {
     if (InitializeLymanWernerTable() == FAIL) {
       ENZO_FAIL("Error in InitializeLymanWernerTable.\n");
+    }
+  }
+
+  /* If using tabulated HM12 photo-ionization/heating rates, initialize. */
+  if (RadiationFieldType == 15) {
+    if (InitializeHM12Photorates() == FAIL) {
+      ENZO_FAIL("Error in InitializeHM12Photorates.\n"); 
     }
   }
 

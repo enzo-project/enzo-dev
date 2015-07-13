@@ -191,7 +191,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
     if (Grids[lvl][i]->GridData->ReturnProcessorNumber() !=
 	NewProcessorNumber[index]) {
       Grids[lvl][i]->GridData->
-	CommunicationMoveGrid(NewProcessorNumber[index], FALSE, FALSE);
+	CommunicationMoveGrid(NewProcessorNumber[index], FALSE, FALSE, TRUE);
       GridsMoved++;
     }
 
@@ -206,7 +206,7 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
       if (RandomForcing)  //AK
 	Grids[lvl][i]->GridData->AppendForcingToBaryonFields();
       Grids[lvl][i]->GridData->
-	CommunicationMoveGrid(NewProcessorNumber[index], FALSE, FALSE);
+	CommunicationMoveGrid(NewProcessorNumber[index], FALSE, FALSE, TRUE);
     }
 
   /* Receive grids */
@@ -222,6 +222,12 @@ int CommunicationLoadBalancePhotonGrids(HierarchyEntry **Grids[], int *NumberOfG
     if (RandomForcing)  //AK
       Grids[lvl][i]->GridData->RemoveForcingFromBaryonFields();
   }
+
+  /* Post-process SubgridMarker to obtain grid pointers */
+
+  index = index2;
+  for (i = 0; i < NumberOfGrids[lvl]; i++, index++)
+    Grids[lvl][i]->GridData->SubgridMarkerPostParallel(Grids, NumberOfGrids);
 
   index2 += NumberOfGrids[lvl];
   CommunicationBarrier();

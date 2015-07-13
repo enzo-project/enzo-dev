@@ -32,36 +32,37 @@ c
 c-----------------------------------------------------------------------
 c
       implicit NONE
+#include "fortran_types.def"
 c
 c  Arguments
 c
-      integer in, jn, kn, is, ie, j, k,
+      INTG_PREC in, jn, kn, is, ie, j, k,
      &        idual, nratec, idim, imethod, iter, igammah
-      real    temstart, temend, fh, utem, urho, aye, gammaha,
+      R_PREC  temstart, temend, fh, utem, urho, aye, gammaha,
      &        eta1, eta2, gamma, coola(nratec), mu
-      real    d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
+      R_PREC  d(in,jn,kn),   ge(in,jn,kn),     e(in,jn,kn),
      &        u(in,jn,kn),    v(in,jn,kn),     w(in,jn,kn)
 c
 c  Parameters
 c
-      real pmin
+      R_PREC pmin
       parameter (pmin = tiny)
-      double precision mh
+      real*8 mh
 
       parameter (mh = mass_h)  ! DPC
 
 c
 c  Locals
 c
-      integer i
-      real logtem0, logtem9, dlogtem, dom, dom_inv
+      INTG_PREC i
+      R_PREC logtem0, logtem9, dlogtem, dom, dom_inv
 c
 c  Slice locals
 c 
-      integer indixe(in)
-      real t1(in), t2(in), logtem(in), tdef(in), p2d(in),
+      INTG_PREC indixe(in)
+      R_PREC t1(in), t2(in), logtem(in), tdef(in), p2d(in),
      &     tgas(in), tgasold(in), cool(in)
-      real edot(in)
+      R_PREC edot(in)
 c
 c  Set the mean molecular mass
 c     (see also Grid_ComputeTemperatureField.C)
@@ -74,7 +75,7 @@ c     Set log values of start and end of lookup tables
 c
       logtem0 = log(temstart)
       logtem9 = log(temend)
-      dlogtem= (log(temend) - log(temstart))/real(nratec-1)
+      dlogtem= (log(temend) - log(temstart))/REAL(nratec-1,RKIND)
 
 c
 c     Set units
@@ -89,7 +90,7 @@ c
 c        Zeus - e() is really gas energy
 c
          do i = is+1, ie+1
-            p2d(i) = (gamma - 1.d0)*d(i,j,k)*e(i,j,k)
+            p2d(i) = (gamma - 1._RKIND)*d(i,j,k)*e(i,j,k)
          enddo
       else
          if (idual .eq. 1) then
@@ -97,17 +98,17 @@ c
 c           PPM with dual energy -- use gas energy
 c
             do i = is+1, ie+1
-               p2d(i) = (gamma - 1.d0)*d(i,j,k)*ge(i,j,k)
+               p2d(i) = (gamma - 1._RKIND)*d(i,j,k)*ge(i,j,k)
             enddo
          else
 c
 c           PPM without dual energy -- use total energy
 c
             do i = is+1, ie+1
-               p2d(i) = e(i,j,k) - 0.5d0*u(i,j,k)**2
-               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5d0*v(i,j,k)**2
-               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5d0*w(i,j,k)**2
-               p2d(i) = max((gamma - 1.d0)*d(i,j,k)*p2d(i), tiny)
+               p2d(i) = e(i,j,k) - 0.5_RKIND*u(i,j,k)**2
+               if (idim .gt. 1) p2d(i) = p2d(i) - 0.5_RKIND*v(i,j,k)**2
+               if (idim .gt. 2) p2d(i) = p2d(i) - 0.5_RKIND*w(i,j,k)**2
+               p2d(i) = max((gamma - 1._RKIND)*d(i,j,k)*p2d(i), tiny)
             enddo
          endif
       endif
@@ -132,14 +133,14 @@ c
 c
 c        Compute log temperature and truncate if above/below table max/min
 c
-         logtem(i) = log(0.5d0*(tgas(i)+tgasold(i)))
+         logtem(i) = log(0.5_RKIND*(tgas(i)+tgasold(i)))
          logtem(i) = max(logtem(i), logtem0)
          logtem(i) = min(logtem(i), logtem9)
 c
 c        Compute index into the table and precompute parts of linear interp
 c
-         indixe(i) = min(nratec-1,
-     .                  max(1,int((logtem(i)-logtem0)/dlogtem)+1))
+         indixe(i) = min(nratec-1, max(1,
+     &        int((logtem(i)-logtem0)/dlogtem,IKIND)+1))
          t1(i) = (logtem0 + (indixe(i) - 1)*dlogtem)
          t2(i) = (logtem0 + (indixe(i)    )*dlogtem)
          tdef(i) = t2(i) - t1(i)
@@ -153,11 +154,11 @@ c        Compute the cooling function (assuming completely ionized)
 c              (the factors of mh have been incorporated into coolinit).
 c              (rate of change of specific energy)
 c
-         edot(i) = -cool(i)*(0.4*(fh+1)*d(i,j,k))
+         edot(i) = -cool(i)*(0.4_RKIND*(fh+1)*d(i,j,k))
 c
 c        Photoelectric heating  
 c
-         edot(i) = edot(i) + float(igammah)*gammaha*dom_inv
+         edot(i) = edot(i) + REAL(igammah,RKIND)*gammaha*dom_inv
 c
       enddo
 c
@@ -169,7 +170,7 @@ c
       do i = is+1, ie+1
          edot(i) = edot(i) + (
 c
-     .                  0.d0
+     .                  0._RKIND
 c
      .      )/dom
       enddo

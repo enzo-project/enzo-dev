@@ -6,7 +6,7 @@ c
       subroutine prefort(buffer, tempbuffer, dim1, dim2, dim3,
      &                   rdim1, rdim2, rdim3, rank, isign)
 c
-c  PREPARES THE REAL/COMPLEX BUFFER FOR A CALL TO FORTRAN COMPLEX FFT
+c  PREPARES THE REAL/CMPLX_PREC BUFFER FOR A CALL TO FORTRAN CMPLX_PREC FFT
 c
 c     written by: Robert Harkness
 c     date:       May, 2003
@@ -15,7 +15,7 @@ c
 c  PURPOSE:
 c
 c  INPUTS:
-c     buffer      - real or complex array to be transformed
+c     buffer      - real or CMPLX_PREC array to be transformed
 c     tempbuffer  - temporary buffer of size 2*dim1*dim2*dim3
 c     dim1,2,3    - dimension of transform
 c     rdim1,2,3   - declared dimension of buffer
@@ -32,19 +32,20 @@ c
 c  LOCALS:
 c-----------------------------------------------------------------------
       implicit NONE
+#include "fortran_types.def"
 c
 c-----------------------------------------------------------------------
 c
 c  arguments
 c
-      integer dim1, dim2, dim3, isign, rank, rdim1, rdim2, rdim3
-      real    buffer(rdim1, rdim2, rdim3), 
+      INTG_PREC dim1, dim2, dim3, isign, rank, rdim1, rdim2, rdim3
+      R_PREC    buffer(rdim1, rdim2, rdim3), 
      &        tempbuffer(2*dim1, dim2, dim3)
 c
 c  locals
 c
-      integer i, i1, j, j1, k, k1, dims(3)
-      real    factor
+      INTG_PREC i, i1, j, j1, k, k1, dims(3)
+      R_PREC    factor
 c
 c
 c\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\///////////////////////////////////
@@ -61,7 +62,7 @@ c
          ERROR_MESSAGE
       endif
 c
-c     Copy dims into integer array for fourn
+c     Copy dims into INTG_PREC array for fourn
 c
       dims(1) = dim1
       dims(2) = dim2
@@ -71,13 +72,13 @@ c     1) Forward direction
 c
       if (isign .eq. -1) then
 c
-c        Copy real data into complex temporary
+c        Copy real data into CMPLX_PREC temporary
 c
          do k = 1, dim3
             do j = 1, dim2
                do i = 1, dim1
                   tempbuffer(i*2-1, j, k) = buffer(i, j, k)
-                  tempbuffer(i*2  , j, k) = 0.0
+                  tempbuffer(i*2  , j, k) = 0._RKIND
                enddo
             enddo
          enddo
@@ -93,7 +94,7 @@ c
          call fortfft(tempbuffer, rank, dim1, dim2, dim3, isign)
 
 c
-c        Copy unique part of complex temporary back to buffer.
+c        Copy unique part of CMPLX_PREC temporary back to buffer.
 c
          do k = 1, dim3
             do j = 1, dim2
@@ -107,7 +108,7 @@ c     2) Inverse transform
 c
       else
 c
-c        Recreate the other half of the complex data.
+c        Recreate the other half of the CMPLX_PREC data.
 c
          do k = 1, dim3
             do j = 1, dim2
@@ -148,7 +149,7 @@ c
 c        Copy real part of tempbuffer to buffer & scale.
 c
 
-!        factor = 1.0/real(dim1*dim2*dim3)
+!        factor = 1.0/REAL(dim1*dim2*dim3,RKIND)
 
          do k = 1, dim3
             do j = 1, dim2

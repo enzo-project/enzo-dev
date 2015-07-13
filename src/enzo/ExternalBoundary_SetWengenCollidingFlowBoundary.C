@@ -79,8 +79,8 @@ int ExternalBoundary::SetWengenCollidingFlowBoundary(FLOAT time, FLOAT CellLeftE
       dim2 = dim1 + 1;
       dim2 = (dim2 == dim) ? dim2+1 : dim2;
       for (i = 0; i < 3; i++) {
-	NumberOfZones[i] = max(BoundaryDimension[i] - 2*DEFAULT_GHOST_ZONES,1);
-	Offset[i]        = min(DEFAULT_GHOST_ZONES, BoundaryDimension[i]) - 1;
+	NumberOfZones[i] = max(BoundaryDimension[i] - 2*NumberOfGhostZones,1);
+	Offset[i]        = min(NumberOfGhostZones, BoundaryDimension[i]) - 1;
       }
       //      fprintf(stdout, "ints: %i %i %i \n", dim, dim1, dim2);
       //      fprintf(stdout, "ints: %i %i %i \n", NumberOfZones[dim], NumberOfZones[dim1], NumberOfZones[dim2]);

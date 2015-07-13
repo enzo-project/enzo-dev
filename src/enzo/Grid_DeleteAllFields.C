@@ -56,6 +56,38 @@ void grid::DeleteAllFields()
     }
 #endif
  
+  for(i=0;i<3;i++){
+    if(MagneticField[i] != NULL){
+      delete [] MagneticField[i];
+      MagneticField[i] = NULL;
+    }
+    if( ElectricField[i] != NULL ){
+      delete [] ElectricField[i];
+      ElectricField[i] = NULL;
+    }
+    if( CenteredB[i] != NULL ){
+      delete [] CenteredB[i];
+      CenteredB[i]     = NULL;
+    }
+    if(OldMagneticField[i] != NULL){
+      delete [] OldMagneticField[i];
+      OldMagneticField[i] = NULL;
+    }
+    if(OldElectricField[i] != NULL){
+      delete [] OldElectricField[i];
+      OldElectricField[i] = NULL;
+    }
+    if(OldCenteredB[i] != NULL){
+      delete [] OldCenteredB[i];
+      OldCenteredB[i]     = NULL;
+    }
+
+    if( AvgElectricField[i] != NULL ){
+      delete[] AvgElectricField[i];
+      AvgElectricField[i] = NULL;
+    }
+  }
+
   delete [] PotentialField;
   delete [] GravitatingMassField;
   delete [] GravitatingMassFieldParticles;

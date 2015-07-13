@@ -44,7 +44,7 @@ int Star::AccreteAngularMomentum(void)
     ENZO_FAIL("star:AccreteAngularMomentum: 1 or 2 dimension is not implemented! \n");
   }
 
-  int dim, i, j, k, index, ibuff = DEFAULT_GHOST_ZONES;
+  int dim, i, j, k, index, ibuff = NumberOfGhostZones;
   double gas_angmom[] = {0.0, 0.0, 0.0}, total_gas_mass = 0.0, gas_mass = 0.0;
   FLOAT CellVolume = 1, BoxSize = 1, DensityConversion = 1, VelocityConversion = 1;
   FLOAT a = 1, dadt;

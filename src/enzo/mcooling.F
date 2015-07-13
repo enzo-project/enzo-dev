@@ -2,9 +2,9 @@
 #include "phys_const.def"
 #include "error.def"
 
+#ifdef CEN_METALS
 C     NAME MTLCLHT
       SUBROUTINE MTLCLHT(DEN,RADT,IPHOTT,CBOVCOOL,CBOVHEAT)
-#ifdef CEN_METALS
 C
 C     THIS PROGRAM CALCULATES A COOLING/HEATING TABLE FOR METALS FROM
 C     C TO NI EXCLUDING H AND HE, GIVEN AN IONIZING RADIATION FIELD
@@ -47,12 +47,14 @@ C              KI* CBOVHEAT * N_H       IN 10^{-23} ERG/CM^3/S
 C
 C     *******************************************************************
 C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
-      REAL DEN(NID)
-      REAL RADT(NIB)
-      REAL CBOVCOOL(NIT,NID)
-      REAL CBOVHEAT(NIT,NID)
+      R_PREC DEN(NID)
+      R_PREC RADT(NIB)
+      R_PREC CBOVCOOL(NIT,NID)
+      R_PREC CBOVHEAT(NIT,NID)
 C
 C
 C
@@ -116,17 +118,21 @@ C     EA(I)    : IONIZATION POTENTIAL FOR INNERSHELL IONIZATION
 C     S2J(),S3J(),S4J(),S5J() : COEFFICIENTS FOR PHOTOIONIZ. CROSS SECTION
 C
 C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
       DIMENSION WEIGHT(12), SOLAR(12)
 C
 C     ATOMIC WEIGHT IN ATOMIC MASS UNITS FOR THE ELEMENTS IN THE PROGRAM
-      DATA WEIGHT/4.00,12.01,14.01,16.00,20.18,24.31,28.09,32.06,
-     .  39.95,40.08,55.85,58.71/
+      DATA WEIGHT/4.00_RKIND,12.01_RKIND,14.01_RKIND,16.00_RKIND,
+     .     20.18_RKIND,24.31_RKIND,28.09_RKIND,32.06_RKIND,
+     .     39.95_RKIND,40.08_RKIND,55.85_RKIND,58.71_RKIND/
 C
 C     NEW SOLAR ABUNDACES FROM CLOUDY (7/28/94) 
-      DATA SOLAR/10.991, 8.56, 8.049, 8.93, 8.09, 7.58, 7.55,
-     .  7.21, 6.56, 6.36, 7.67, 6.246/
+      DATA SOLAR/10.991_RKIND, 8.56_RKIND, 8.049_RKIND, 8.93_RKIND, 
+     .     8.09_RKIND, 7.58_RKIND, 7.55_RKIND, 7.21_RKIND, 
+     .     6.56_RKIND, 6.36_RKIND, 7.67_RKIND, 6.246_RKIND/
 C
 C
 C
@@ -150,23 +156,25 @@ C     NAME METAL
       SUBROUTINE METAL(CBOVCOOL,CBOVHEAT)
 C 
 C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
-      REAL CBOVCOOL(NIT,NID)
-      REAL CBOVHEAT(NIT,NID)
+      R_PREC CBOVCOOL(NIT,NID)
+      R_PREC CBOVHEAT(NIT,NID)
 C
-      REAL ABNN(12)
-      REAL PHOTR(12,30),AP1(12,30),AP2(12,30)
-      REAL CNC(12,30,NID)
-      REAL HEATR(12,30)
-      REAL PCOOL(NID)
-      REAL HEATING(NID)
-      REAL DELNE(NID)
+      R_PREC ABNN(12)
+      R_PREC PHOTR(12,30),AP1(12,30),AP2(12,30)
+      R_PREC CNC(12,30,NID)
+      R_PREC HEATR(12,30)
+      R_PREC PCOOL(NID)
+      R_PREC HEATING(NID)
+      R_PREC DELNE(NID)
 C
       DO NO=1,NUME
 C        ABUNDANCE OF EACH ELEMENT FROM HE TO FE IN NUMBER 
 C        RELATIVE TO HYDROGEEN
-         ABNN(NO)=10.0**(ABUNJ(NO)-12.0)
+         ABNN(NO)=10._RKIND**(ABUNJ(NO)-12._RKIND)
       ENDDO
 C
 C
@@ -178,7 +186,7 @@ C     INITIALIZATION OF CNC
       DO I=1,12
          DO J=1,30
             DO ID=1,NID
-               CNC(I,J,ID)=0.0
+               CNC(I,J,ID)=0._RKIND
             ENDDO
          ENDDO
       ENDDO
@@ -199,7 +207,7 @@ C$&       ,SHARE(NJ,PHOTR,AP1,AP2,HEATR)
         DO NO=2,NUME
            NN = NJ(NO)
            DO J = 1,NN
-              HEATR(NO,J) = 0.0
+              HEATR(NO,J) = 0._RKIND
            ENDDO
         ENDDO
       ENDIF
@@ -218,13 +226,13 @@ C$&             ,NO,NN,DELNE,FRACT,BRMZ,FKI,DENH)
 C$&       ,SHARE(ABNN,NJ,AN,PHOTR,AP1,AP2,CBOVCOOL,CBOVHEAT)
 C
       DO IT=1,NIT
-         TEMPK  = 10.0**(TEMMIN+(IT-0.5)*DELT)
-         BREM   = SQRT(TEMPK)*1.5*1.42E-4
+         TEMPK  = 10._RKIND**(TEMMIN+(IT-0.5_RKIND)*DELT)
+         BREM   = SQRT(TEMPK)*1.5_RKIND*1.42E-4_RKIND
 C
          CALL FELINE(TEMPK,PHOTR,AP1,AP2,CNC,PCOOL)
 C
          DO ID=1,NID
-            HEATING(ID) = 0.0
+            HEATING(ID) = 0._RKIND
             DO NO = 2,NUME
                NN = NJ(NO)
                DO J = 1,NN
@@ -238,7 +246,7 @@ C
 C        COMPUTES THE ELECTRON NUMBER DNESITY FROM METALS AS A CHECK
 C        TO ASSUMPTION 1
          DO ID=1,NID
-            DELNE(ID) = 0.0 
+            DELNE(ID) = 0._RKIND 
             DO NO=2,NUME
                NN=NJ(NO)
                DO J=1,NN+1
@@ -248,7 +256,7 @@ C        TO ASSUMPTION 1
             ENDDO
 C
 C
-            BRMZ=0.0
+            BRMZ=0._RKIND
             DO NO=2,NUME
                DO J=1,NJ(NO)+1
                   BRMZ = BRMZ+(J-1)**2*ABNN(NO)*CNC(NO,J,ID)
@@ -270,29 +278,47 @@ C
 C     NAME=APHTR
       SUBROUTINE APHTR(NO,N,AP1,AP2,HEATR)
 C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
-      REAL AP1(12,30),AP2(12,30),HEATR(12,30)
+      R_PREC AP1(12,30),AP2(12,30),HEATR(12,30)
 C
 C     AUGER PHOTOIONIZATION : N=1 AND N=2 SHELLS
 C     USES COX & DALTABUIT AND REILMAN & MANSON CROSS SECTIONS
       DIMENSION A2P(20,20),B2P(20,20)
-      DATA A2P/20*0,12.60,20.58, 38*0., 4.520,3.945,5.546,7.213,
-     .  36*0., 1.286,1.316,1.843,2.556,3.363,3.654, 34*0.,
-     .  .6109,.6256,.8755,1.111,1.254,1.578,1.919,2.307, 32*0.,
-     .  .4075,.4438,.4801,.5164,.6798,.8431,.9660,1.089,1.288,1.488,
-     .  110*0., .1339,.1531,.1722,.1909,.2095,.2320,.2545,.3022,.3499,
-     .  .3628,.3756,.4630,.5504,.5820,.6136,.6679, 24*0.,
-     .  .1145,.1294,.1409,.1525,.1644,.1763,.1797,.1831,.2005,.2179,
-     .  .2425,.2670,.3393,.4116,.4266,.4415,.5339,.6263, 42*0./
-      DATA B2P/20*0.,.1887,-7.098, 38*0., 1.349,5.109,4.291,6.750,
-     .  36*0., 2.408,2.546,3.116,3.060,2.981,5.273, 34*0.,
-     .  1.377,1.456,1.782,1.930,2.384,2.572,3.023,3.451, 32*0.,
-     .  .7788,.9714,1.164,1.356,1.488,1.620,1.869,2.118,2.261,2.405,
-     .  110*0.,.3454,.3781,.4107,.4565,.5023,.5590,.6157,.6283,.6409,
-     .  .7392,.8375,.8258,.8142,.9381,1.062,1.207, 24*0.,
-     .  .2541,.2787,.3087,.3387,.3770,.4152,.4907,.5661,.6055,.6499,
-     .  .6729,.7010,.6410,.5809,.6970,.8130,.7768,.7406, 42*0./
+      DATA A2P/20*0._RKIND,12.60_RKIND,20.58_RKIND, 38*0._RKIND,
+     .     4.520_RKIND,3.945_RKIND,5.546_RKIND,7.213_RKIND, 36*0._RKIND,
+     .     1.286_RKIND,1.316_RKIND,1.843_RKIND,2.556_RKIND,3.363_RKIND,
+     .     3.654_RKIND, 34*0._RKIND, .6109_RKIND,.6256_RKIND,
+     .     .8755_RKIND,1.111_RKIND,1.254_RKIND,1.578_RKIND,1.919_RKIND,
+     .     2.307_RKIND, 32*0._RKIND, .4075_RKIND,.4438_RKIND,
+     .     .4801_RKIND,.5164_RKIND,.6798_RKIND,.8431_RKIND,.9660_RKIND,
+     .     1.089_RKIND,1.288_RKIND,1.488_RKIND, 110*0._RKIND,
+     .     .1339_RKIND,.1531_RKIND,.1722_RKIND,.1909_RKIND,.2095_RKIND,
+     .     .2320_RKIND,.2545_RKIND,.3022_RKIND,.3499_RKIND, .3628_RKIND,
+     .     .3756_RKIND,.4630_RKIND,.5504_RKIND,.5820_RKIND,.6136_RKIND,
+     .     .6679_RKIND, 24*0._RKIND, .1145_RKIND,.1294_RKIND,
+     .     .1409_RKIND,.1525_RKIND,.1644_RKIND,.1763_RKIND,.1797_RKIND,
+     .     .1831_RKIND,.2005_RKIND,.2179_RKIND, .2425_RKIND,.2670_RKIND,
+     .     .3393_RKIND,.4116_RKIND,.4266_RKIND,.4415_RKIND,.5339_RKIND,
+     .     .6263_RKIND, 42*0._RKIND/
+      DATA B2P/20*0._RKIND,.1887_RKIND,-7.098_RKIND, 38*0._RKIND,
+     .     1.349_RKIND,5.109_RKIND,4.291_RKIND,6.750_RKIND, 36*0._RKIND,
+     .     2.408_RKIND,2.546_RKIND,3.116_RKIND,3.060_RKIND,2.981_RKIND,
+     .     5.273_RKIND, 34*0._RKIND, 1.377_RKIND,1.456_RKIND,
+     .     1.782_RKIND,1.930_RKIND,2.384_RKIND,2.572_RKIND,3.023_RKIND,
+     .     3.451_RKIND, 32*0._RKIND, .7788_RKIND,.9714_RKIND,
+     .     1.164_RKIND,1.356_RKIND,1.488_RKIND,1.620_RKIND,1.869_RKIND,
+     .     2.118_RKIND,2.261_RKIND,2.405_RKIND, 110*0._RKIND,
+     .     .3454_RKIND,.3781_RKIND,.4107_RKIND,.4565_RKIND,.5023_RKIND,
+     .     .5590_RKIND,.6157_RKIND,.6283_RKIND,.6409_RKIND, .7392_RKIND,
+     .     .8375_RKIND,.8258_RKIND,.8142_RKIND,.9381_RKIND,1.062_RKIND,
+     .     1.207_RKIND, 24*0._RKIND, .2541_RKIND,.2787_RKIND,
+     .     .3087_RKIND,.3387_RKIND,.3770_RKIND,.4152_RKIND,.4907_RKIND,
+     .     .5661_RKIND,.6055_RKIND,.6499_RKIND, .6729_RKIND,.7010_RKIND,
+     .     .6410_RKIND,.5809_RKIND,.6970_RKIND,.8130_RKIND,.7768_RKIND,
+     .     .7406_RKIND, 42*0._RKIND/
 C
 C
       HE = 0.0
@@ -307,30 +333,30 @@ C                   FIELD: 1.E-21 ERG/CM^2/SEC
 C     SECOND FACTOR: CONVERTING eV to ERG
 C     THIRD FACTOR: UNITS OF THE PHOTOIONIZATION CROSS SECTION
 C
-      FACT1= 1.E-9/1.6*1.E-18
+      FACT1= 1.e-9_RKIND/1.6_RKIND*1.e-18_RKIND
 C
 C
 C
 C     FACT = 1.6E-12*1.E23 
 C     FIRST FACTOR: CONVERTING BACK ERG to eV      
 C     SECOND FACTOR: THE UNITS OF THE PHOTOHEATING IS OUTPUTED IN 1.E-23 ERG/SEC
-      FACT = 1.6E11
+      FACT = 1.6e11_RKIND
 C
 C
 C
       DO J=1,NN
          ISO = N-J+1
          RISO = ISO
-         PA1 = 0.
-         PA2 = 0.
-         HE = 0.
-         EKS = 13.6 * RN*RN * RISO ** (.24-.43/LOG10(RN))
+         PA1 = 0._RKIND
+         PA2 = 0._RKIND
+         HE = 0._RKIND
+         EKS = 13.6_RKIND * RN*RN *RISO**(.24_RKIND-.43_RKIND/LOG10(RN))
 C
-         IK = max(1.0,log10(EKS/freqmin)/freqdel)
+         IK = max(1._RKIND,log10(EKS/freqmin)/freqdel)
          IMAX = nib
          IF(ISO .GE. 11) IMAX = MIN(IK,nib)
-         IMIN = max(1.0,log10(EAJ(NO,J)/freqmin)/freqdel+1)
-         ebc  = freqmin*10**(freqdel*(imin-0.5)) 
+         IMIN = max(1._RKIND,log10(EAJ(NO,J)/freqmin)/freqdel+1)
+         ebc  = freqmin*10._RKIND**(freqdel*(imin-0.5_RKIND)) 
          IF(EAJ(NO,J) .GT. ebc) IMIN = IMIN+1
          IF(IMIN .GT. nib) GOTO 1001
 C
@@ -338,7 +364,7 @@ C
          A2 = A2P(ISO-10,N-10)
          B2 = B2P(ISO-10,N-10)
          DO I = IMIN,IMAX
-            HNU=  freqmin*10**(freqdel*(i-0.5)) 
+            HNU=  freqmin*10._RKIND**(freqdel*(i-0.5_RKIND)) 
             X  = EAJ(NO,J)/HNU
 C           IF(X.GT.1.0) GOTO 200
             SG = A2*X*X + B2*X*X*X
@@ -351,12 +377,12 @@ C           IF(X.GT.1.0) GOTO 200
 C
          IMIN = MAX(IK+1,1)
          IF(IMIN .GT. nib) GOTO 1001 
-         SSS = 1.66 * EKS ** (0.071)
+         SSS = 1.66_RKIND * EKS ** (0.071_RKIND)
          DO I=IMIN, nib
-            HNU= freqmin*10**(freqdel*(i-0.5)) 
+            HNU= freqmin*10._RKIND**(freqdel*(i-0.5_RKIND)) 
             X  = EKS / HNU
 C           IF(X.GT.1.0) GOTO 600
-            SG = (295. / EKS) * X ** SSS
+            SG = (295._RKIND / EKS) * X ** SSS
             PHOT1 = SG * FACT1 * ABIN(I) / HNU
             PA2 = PA2 + PHOT1
             HE = HE + PHOT1 * HNU * FACT
@@ -376,42 +402,58 @@ C
 C
 C     NAME=PHTR
       SUBROUTINE PHTR(NO,N,PHOTR,HEATR)
+C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
-      REAL PHOTR(12,30),HEATR(12,30)
+      R_PREC PHOTR(12,30),HEATR(12,30)
 C
       DIMENSION INNER(30),AINNER(12,9),BINNER(12,9),EINNER(12,9)
       DATA INNER/4*0,1,2,3,5*0,4,5,6,3*0,7,8,9,9*0/
-      DATA EINNER/0.,30.9,55.8,87.6,172.,283.,422.,589.,
-     .  784.,1006.,1842.,2178.,
-     .  0.,15.6,36.7,63.8,139.,241.,371.,528.,713.,925.,1731.,2056.,
-     .  2*0.,20.3,42.6,108.,201.,321.,469.,644.,847.,1622.,1938.,
-     .  6*0.,22.9,57.6,105.2,165.,421.,531.,
-     .  6*0.,13.5,43.8,87.6,144.,388.,493.,
-     .  7*0.,30.7,70.4,123.,356.,458.,
-     .  9*0.,28.,213.,296.,
-     .  9*0.,38.,190.,271.,
-     .  10*0.,169.,246./
-      DATA AINNER/0.,2.357,2.745,1.443,.6024,.3391,.2058,.1385,.09804,
-     .  .0764,.04443,.0376,
-     .  0.,18.26,6.950,2.817,.9583,.5001,.2672,.1685,.1184,.0913,.04837,
-     .  .0407,
-     . 2*0.,27.80,8.139,1.630,.7415,.3621,.2394,.1478,.112,.05442,.0455,
-     .  6*0.,4.961,2.695,1.401,.8416,.2929,.2254,
-     .  6*0.,10.489,5.507,1.575,1.409,.4378,.3263,
-     .  7*0.,12.06,4.726,2.351,.6321,.4799,
-     .  9*0.,29.6,2.452,1.788,
-     .  9*0.,53.8,3.265,2.070,   10*0.,4.078,2.351/
-      DATA BINNER/0.,-.7352,.0201,.4321,.4094,.2605,.1935,.1423,.111,
-     .  .0865,.04050,.0343,
-     .  0.,-6.256,-.2887,1.463,1.029,.5726,.4080,.2885,.2132,.164,
-     .  .07817,.0654,
-     .  2*0.,-14.93,1.194,2.298,1.106,.7338,.4742,.3510,.267,.1244,.104,
-     .  6*0.,-4.607,-1.863,-.6435,-.2594,-.0225,-.0111,
-     .  6*0.,-10.412,-4.613,-1.118,-.4648,-.0221,.0105,
-     .  7*0.,-11.09,-3.357,-1.014,-.0255,-.0078,
-     .  9*0.,-28.3,-.386,-.360,
-     .  9*0.,-45.8,-.610,-.178,  10*0.,-.834,.0037/
+      DATA EINNER/0._RKIND,30.9_RKIND,55.8_RKIND,87.6_RKIND,172._RKIND,
+     .     283._RKIND,422._RKIND,589._RKIND, 784._RKIND,1006._RKIND,
+     .     1842._RKIND,2178._RKIND, 0._RKIND,15.6_RKIND,36.7_RKIND,
+     .     63.8_RKIND,139._RKIND,241._RKIND,371._RKIND,528._RKIND,
+     .     713._RKIND,925._RKIND,1731._RKIND,2056._RKIND, 2*0._RKIND,
+     .     20.3_RKIND,42.6_RKIND,108._RKIND,201._RKIND,321._RKIND,
+     .     469._RKIND,644._RKIND,847._RKIND,1622._RKIND,1938._RKIND,
+     .     6*0._RKIND,22.9_RKIND,57.6_RKIND,105.2_RKIND,165._RKIND,
+     .     421._RKIND,531._RKIND, 6*0._RKIND,13.5_RKIND,43.8_RKIND,
+     .     87.6_RKIND,144._RKIND,388._RKIND,493._RKIND, 7*0._RKIND,
+     .     30.7_RKIND,70.4_RKIND,123._RKIND,356._RKIND,458._RKIND,
+     .     9*0._RKIND,28._RKIND,213._RKIND,296._RKIND, 9*0._RKIND,
+     .     38._RKIND,190._RKIND,271._RKIND, 10*0._RKIND,169._RKIND,
+     .     246._RKIND/
+      DATA AINNER/0._RKIND,2.357_RKIND,2.745_RKIND,1.443_RKIND,
+     .     .6024_RKIND,.3391_RKIND,.2058_RKIND,.1385_RKIND,.09804_RKIND,
+     .     .0764_RKIND,.04443_RKIND,.0376_RKIND, 0._RKIND,18.26_RKIND,
+     .     6.950_RKIND,2.817_RKIND,.9583_RKIND,.5001_RKIND,.2672_RKIND,
+     .     .1685_RKIND,.1184_RKIND,.0913_RKIND,.04837_RKIND,
+     .     .0407_RKIND,2*0._RKIND,27.80_RKIND,8.139_RKIND,1.630_RKIND,
+     .     .7415_RKIND,.3621_RKIND,.2394_RKIND,.1478_RKIND,.112_RKIND,
+     .     .05442_RKIND,.0455_RKIND, 6*0._RKIND,4.961_RKIND,2.695_RKIND,
+     .     1.401_RKIND,.8416_RKIND,.2929_RKIND,.2254_RKIND, 6*0._RKIND,
+     .     10.489_RKIND,5.507_RKIND,1.575_RKIND,1.409_RKIND,.4378_RKIND,
+     .     .3263_RKIND, 7*0._RKIND,12.06_RKIND,4.726_RKIND,2.351_RKIND,
+     .     .6321_RKIND,.4799_RKIND, 9*0._RKIND,29.6_RKIND,2.452_RKIND,
+     .     1.788_RKIND, 9*0._RKIND,53.8_RKIND,3.265_RKIND,2.070_RKIND,
+     .     10*0._RKIND,4.078_RKIND,2.351_RKIND/
+      DATA BINNER/0._RKIND,-.7352_RKIND,.0201_RKIND,.4321_RKIND,
+     .     .4094_RKIND,.2605_RKIND,.1935_RKIND,.1423_RKIND,.111_RKIND,
+     .     .0865_RKIND,.04050_RKIND,.0343_RKIND, 0._RKIND,-6.256_RKIND,
+     .     -.2887_RKIND,1.463_RKIND,1.029_RKIND,.5726_RKIND,.4080_RKIND,
+     .     .2885_RKIND,.2132_RKIND,.164_RKIND, .07817_RKIND,.0654_RKIND,
+     .     2*0._RKIND,-14.93_RKIND,1.194_RKIND,2.298_RKIND,1.106_RKIND,
+     .     .7338_RKIND,.4742_RKIND,.3510_RKIND,.267_RKIND,.1244_RKIND,
+     .     .104_RKIND, 6*0._RKIND,-4.607_RKIND,-1.863_RKIND,
+     .     -.6435_RKIND,-.2594_RKIND,-.0225_RKIND,-.0111_RKIND,
+     .     6*0._RKIND,-10.412_RKIND,-4.613_RKIND,-1.118_RKIND,
+     .     -.4648_RKIND,-.0221_RKIND,.0105_RKIND, 7*0._RKIND,
+     .     -11.09_RKIND,-3.357_RKIND,-1.014_RKIND,-.0255_RKIND,
+     .     -.0078_RKIND, 9*0._RKIND,-28.3_RKIND,-.386_RKIND,-.360_RKIND,
+     .     9*0._RKIND,-45.8_RKIND,-.610_RKIND,-.178_RKIND,  10*0._RKIND,
+     .     -.834_RKIND,.0037_RKIND/
 C
 C
 C
@@ -425,14 +467,14 @@ C                   FIELD: 1.E-21 ERG/CM^2/SEC
 C     SECOND FACTOR: CONVERTING eV to ERG
 C     THIRD FACTOR: UNITS OF THE PHOTOIONIZATION CROSS SECTION
 C
-      FACT1= 1.E-9/1.6*1.E-18
+      FACT1= 1.e-9_RKIND/1.6_RKIND*1.e-18_RKIND
 C
 C
 C
 C     FACT = 1.6E-12*1.E23 
 C     FIRST FACTOR: CONVERTING BACK ERG to eV      
 C     SECOND FACTOR: THE UNITS OF THE PHOTOHEATING IS OUTPUTED IN 1.E-23 ERG/SEC
-      FACT = 1.6E11
+      FACT = 1.6e11_RKIND
 C
 C
 C
@@ -444,32 +486,32 @@ C        S2,S3,S4,S5: COEFFICIENTS FOR PHOTOIONZATION CROSS SECTION
          SS5 = S5J(NO,J)
 C
 c
-         PHOT = 0.
-         HE   = 0.
+         PHOT = 0._RKIND
+         HE   = 0._RKIND
 C
-         IMIN = log10(EJ(NO,J)/freqmin+1.e-6)/freqdel + 1.0
+         IMIN = log10(EJ(NO,J)/freqmin+1.e-6_RKIND)/freqdel + 1._RKIND
          IMIN = max(1,IMIN)
-         ebc  = freqmin*10**(freqdel*(imin-0.5)) 
+         ebc  = freqmin*10._RKIND**(freqdel*(imin-0.5_RKIND)) 
          IF(EJ(NO,J) .GT. ebc) IMIN = IMIN + 1
          IF(IMIN .GT. nib) GOTO 1000 
          ISO  = N-J+1
-         IA   = log10(EAJ(NO,J)/freqmin+1.e-6)/freqdel
+         IA   = log10(EAJ(NO,J)/freqmin+1.e-6_RKIND)/freqdel
          IA   = max(1,IA)
          IMAX = nib 
          IF(ISO .GE. 3) IMAX = MIN(nib,IA)
          IISO = INNER(ISO)
          IF(IISO .EQ. 0) GOTO 991
          EIN = EINNER(NO,IISO)
-         IIN = log10(EIN/freqmin+1.e-6)/freqdel+1
+         IIN = log10(EIN/freqmin+1.e-6_RKIND)/freqdel+1
          IIN = max(1,IIN)
-         ebd = freqmin*10**(freqdel*(iin-0.5)) 
+         ebd = freqmin*10._RKIND**(freqdel*(iin-0.5_RKIND)) 
          IF(EIN .GT. ebd) IIN = IIN + 1
          IMAX = MIN(IIN-1,Nib)
          IMAX = MAX(1,IMAX) 
   991    CONTINUE
 C
          DO I = IMIN,IMAX
-            HNU   = freqmin*10.0**(freqdel*(i-0.5)) 
+            HNU   = freqmin*10._RKIND**(freqdel*(i-0.5_RKIND)) 
             X     = EJ(NO,J)/HNU
 C           IF(X.GT.1.0) GOTO 20
             X2    = X*X
@@ -489,9 +531,9 @@ C        INNER SUBSHELL
 C
 C
          DO I=IIN,IMAX
-            HNU=  freqmin*10**(freqdel*(i-0.5)) 
+            HNU=  freqmin*10._RKIND**(freqdel*(i-0.5_RKIND)) 
             X = EIN / HNU
-C           IF(X.GT.1.0) GOTO 979 
+C           IF(X.GT.1._RKIND) GOTO 979 
             SG = SS2 * X*X + SS3 * X*X*X
             PHOT1 = SG*FACT1*ABIN(I)/HNU
             PHOT = PHOT + PHOT1
@@ -514,25 +556,27 @@ C     NAME=FELINE
 C
 C     T  : TEMPERATURE
 C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
-      REAL E(30),EA(30),S2(30),S3(30),S4(30),S5(30)
+      R_PREC E(30),EA(30),S2(30),S3(30),S4(30),S5(30)
      .    ,WAVE(MAXLN),E3(MAXLN),F(MAXLN)
-      INTEGER LLL(30)
+      INTG_PREC LLL(30)
 C
-      REAL PHOTR(12,30),AP1(12,30),AP2(12,30)
-      REAL CNC(12,30,NID)
-      REAL PCOOL(NID)
-      REAL PCL(12,NID) 
-      REAL C2J(12,30)
-      REAL REDUC(4)
-      REAL TU(NID)
+      R_PREC PHOTR(12,30),AP1(12,30),AP2(12,30)
+      R_PREC CNC(12,30,NID)
+      R_PREC PCOOL(NID)
+      R_PREC PCL(12,NID) 
+      R_PREC C2J(12,30)
+      R_PREC REDUC(4)
+      R_PREC TU(NID)
 C
 C
 C
       DO NO=1,NUME
          DO ID=1,NID 
-            PCL(NO,ID)= 0.
+            PCL(NO,ID)= 0._RKIND
          ENDDO
       ENDDO
 C
@@ -545,10 +589,10 @@ C
 C     ELEMENT LOOP
       DO NO=2,NUME
          DO ID=1,NID
-            TU(ID) = 0.
+            TU(ID) = 0._RKIND
          ENDDO
 C
-         ABUND = 10**(ABUNJ(NO)-12.)
+         ABUND = 10._RKIND**(ABUNJ(NO)-12._RKIND)
 C
          DO L = 1,MAXLN
 C           WAVELENGTH
@@ -571,8 +615,8 @@ C
             S5(J) = S5J(NO,J)
          ENDDO
 C
-         E(N+1) = 0.
-         LLL(N+1) = 0.
+         E(N+1) = 0._RKIND
+         LLL(N+1) = 0._RKIND
 C
 C        CALCULATE THE IONIZATION FRACTION.
 C        NO: RANK [1...12]
@@ -585,19 +629,20 @@ C        CALCULATE THE PERMITTED LINE SPECTRUM AND COOLING
          IX=0
          DO IL=1,N
             IY=3*LLL(IL)
-            IF(IY .LE. 0.) GOTO 270
-            PW = 0.
+            IF(IY .LE. 0._RKIND) GOTO 270
+            PW = 0._RKIND
 C
             DO L = 1,IY
                JBB=IX+L
-               IF(WAVE(JBB) .LE. 0.) GOTO 260
+               IF(WAVE(JBB) .LE. 0._RKIND) GOTO 260
 C
                G = GAUNT(T,E3(JBB),N,IL,L,DENO,REDUC,PM)
 C
                ALPHAD=ALPHADI(NO,N,IL,L,JBB,T)
-               PW = ABUND*1.0E23*(ALPHAD*E3(JBB)*ev2erg
-     .         +2.72E-15*F(JBB)*EXP(-MIN(50.0,11590*E3(JBB)/T))*G/ST)
-     .         *12398./(WAVE(JBB)*E3(JBB))
+               PW = ABUND*1.e23_RKIND*(ALPHAD*E3(JBB)*ev2erg
+     .              +2.72e-15_RKIND*F(JBB)
+     .              *EXP(-MIN(50._RKIND,11590._RKIND*E3(JBB)/T))*G/ST)
+     .              *12398._RKIND/(WAVE(JBB)*E3(JBB))
 C
                DO ID = 1, NID
                   CN = CNC(NO,IL,ID)
@@ -609,15 +654,16 @@ C
 C
             IF(IL .EQ. N) THEN 
               EN = N
-              Y  = E3(IX+1) * 11590. / T
-              CC = LOG((Y+1)/Y) - 0.4/(Y+1)**2
-              GBAR = 0.047
-C             GBAR = 0.20 * Y * CC + 0.276 * CC
-              IF(N .EQ. 1) GBAR = .017 + .1*CC
+              Y  = E3(IX+1) * 11590._RKIND / T
+              CC = LOG((Y+1)/Y) - 0.4_RKIND/(Y+1)**2
+              GBAR = 0.047_RKIND
+C             GBAR = 0.20_RKIND * Y * CC + 0.276 * CC
+              IF(N .EQ. 1) GBAR = .017_RKIND + .1_RKIND*CC
 C             1.2 FOR CASCADES : TU IS DIRECT EXCITATION TWO PHOTON
-              OM   =1.2 * 14.5 * .416 * GBAR * 13.6 / E3(IX+1)
-              P2PPH=(8.63E-6*OM/SQRT(T))*EXP(-MIN(50.,Y))
-     .             *E3(IX+1)*1.6E11*ABUND
+              OM   =1.2_RKIND * 14.5_RKIND * .416_RKIND * GBAR 
+     .             * 13.6_RKIND / E3(IX+1)
+              P2PPH=(8.63e-6_RKIND*OM/SQRT(T))*EXP(-MIN(50._RKIND,Y))
+     .             *E3(IX+1)*1.6e11_RKIND*ABUND
               DO ID=1,NID
                  CN=CNC(NO,IL,ID)
                  TU(ID) = TU(ID) + P2PPH*CN
@@ -627,16 +673,21 @@ C             1.2 FOR CASCADES : TU IS DIRECT EXCITATION TWO PHOTON
               EN = N
 C             EXCITATION OF 1S2S 1S LEVEL PRADHAN ; 
 C             BALUJA,CALLAWAY,HENRY: 1.2 FOR CASCADES
-              Y  = 11590. * E3(IX+1) / T
-              CC = LOG((Y+1.)/Y) - 0.4/(Y+1)**2
-              GBAR = (.06168+.0002522*N)+(-.02404-.001948*N)*Y*CC
-     .             + (-.007604+.002416*N)*(Y-Y*Y*CC)
-C             GBAR = (.03014+.0009855*N)+(.2392-.007019*N)*Y*CC
-C    .             +(-.1292+.003543*N)*(Y-Y*Y*CC)
-              IF(N .EQ. 2) GBAR = .048*(T/10000.)**(.201)
-              OM = 1.2 * 14.5 * F(IX+1) * GBAR * 13.6 / E3(IX+1)
-              P2PPHE = (8.63E-6*OM/SQRT(T) )*EXP(-MIN(50.,Y))*ABUND
-     .                *E3(IX+1)*1.6E11
+              Y  = 11590._RKIND * E3(IX+1) / T
+              CC = LOG((Y+1._RKIND)/Y) - 0.4_RKIND/(Y+1)**2
+              GBAR = (.06168_RKIND+.0002522_RKIND*N)
+     .             + (-.02404_RKIND-.001948_RKIND*N)*Y*CC
+     .             + (-.007604_RKIND+.002416_RKIND*N)*(Y-Y*Y*CC)
+C             GBAR = (.03014_RKIND+.0009855_RKIND*N)
+C    .             +(.2392_RKIND-.007019_RKIND*N)*Y*CC
+C    .             +(-.1292_RKIND+.003543_RKIND*N)*(Y-Y*Y*CC)
+              IF(N .EQ. 2) 
+     .             GBAR = .048_RKIND*(T/10000._RKIND)**(.201_RKIND)
+              OM = 1.2_RKIND * 14.5_RKIND * F(IX+1) * GBAR 
+     .             * 13.6_RKIND / E3(IX+1)
+              P2PPHE = (8.63e-6_RKIND*OM/SQRT(T) )
+     .             *EXP(-MIN(50._RKIND,Y))*ABUND
+     .                *E3(IX+1)*1.6e11_RKIND
 C
               DO ID = 1, NID
                  CN = CNC(NO,IL,ID)
@@ -659,10 +710,10 @@ C
 C
 C 
       DO ID = 1, NID
-         PCOOL(ID) = 0.
+         PCOOL(ID) = 0._RKIND
          DO NO=2,NUME
             NN=NJ(NO)
-            RECENER=0.
+            RECENER=0._RKIND
             DO JK=2,NN+1
                RECENER=RECENER+1.6E11*10**(ABUNJ(NO)-12.)
      .                 *CNC(NO,JK,ID)*C2J(NO,JK)*EJ(NO,JK-1)
@@ -670,7 +721,7 @@ C              EJ=E: READIN CONSTANT
 C              C2J: RECOMBINATION COEFFICIENT FROM nquil.f
             ENDDO
             PCL(NO,ID)=PCL(NO,ID)-RECENER
-            IF(PCL(NO,ID).LE.0) PCL(NO,ID)=0.
+            IF(PCL(NO,ID).LE.0) PCL(NO,ID)=0._RKIND
          ENDDO
 C
          DO NO=2,NUME
@@ -695,53 +746,68 @@ C
 C     AS INPUT THIS ROUTINE TAKES THE ELECTRON NUMBER DENSITY IN THE FORM
 C     AN(), IN UNITS OF THE HYDROGEN ATOM NUMBER DENSITY
 C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"
 C
-      REAL PHOTR(12,30),AP1(12,30),AP2(12,30)
-      REAL CNC(12,30,NID)
-      REAL PCOOL(NID)
-      REAL C2J(12,30)
-      REAL CONCE(30)
-      REAL C1(30),C2(30),C1D(30,NID),CA(30,NID)
-      REAL REDUC(4)
+      R_PREC PHOTR(12,30),AP1(12,30),AP2(12,30)
+      R_PREC CNC(12,30,NID)
+      R_PREC PCOOL(NID)
+      R_PREC C2J(12,30)
+      R_PREC CONCE(30)
+      R_PREC C1(30),C2(30),C1D(30,NID),CA(30,NID)
+      R_PREC REDUC(4)
+      R_PREc PLUM
 C
 C
       DIMENSION EMETJ(30,4),CD1(28),CD2(28)
       DIMENSION RAT(30),PROD(30),C5(30),C6(30),OVER(30),IMETA(30)
       DIMENSION SEC(30),C0(30)
-      DATA EMETJ/5*0.,6.5,8.35,10.2,0.,14.,0.,17.6,0.,21.6,0.,25.3,0.,
-     .  29.0,0.,32.7,5*0.,47.0,0.,51.8,0.,0.,
-     .  5*0.,5.34,7.10,8.87,0.,12.5,0.,16.0,0.,19.8,0.,24.0,0.,28.6,0.,
-     .  34.2,5*0.,57.1,0.,64.8,0.,0.,
-     .  5*0.,4.18,5.78,7.48,0.,11.0,0.,14.7,0.,18.6,0.,23.0,0.,28.0,0.,
-     .  33.9,5*0.,60.4,0.,69.2,0.,0.,  11*0.,
-     .  2.72,0.,6.55,0.,10.4,0.,14.2,0.,18.1,5*0.,29.7,0.,38.9,2*0./
+      DATA EMETJ/5*0._RKIND,6.5_RKIND,8.35_RKIND,10.2_RKIND,0._RKIND,
+     .     14._RKIND,0._RKIND,17.6_RKIND,0._RKIND,21.6_RKIND,0._RKIND,
+     .     25.3_RKIND,0._RKIND,29.0_RKIND,0._RKIND,32.7_RKIND,
+     .     5*0._RKIND,47.0_RKIND,0._RKIND,51.8_RKIND,0._RKIND,0._RKIND,
+     .     5*0._RKIND,5.34_RKIND,7.10_RKIND,8.87_RKIND,0._RKIND,
+     .     12.5_RKIND,0._RKIND,16.0_RKIND,0._RKIND,19.8_RKIND,0._RKIND,
+     .     24.0_RKIND,0._RKIND,28.6_RKIND,0._RKIND,34.2_RKIND,
+     .     5*0._RKIND,57.1_RKIND,0._RKIND,64.8_RKIND,0._RKIND,0._RKIND,
+     .     5*0._RKIND,4.18_RKIND,5.78_RKIND,7.48_RKIND,0._RKIND,
+     .     11.0_RKIND,0._RKIND,14.7_RKIND,0._RKIND,18.6_RKIND,0._RKIND,
+     .     23.0_RKIND,0._RKIND,28.0_RKIND,0._RKIND,33.9_RKIND,
+     .     5*0._RKIND,60.4_RKIND,0._RKIND,69.2_RKIND,0._RKIND,0._RKIND,
+     .     11*0._RKIND,2.72_RKIND,0._RKIND,6.55_RKIND,0._RKIND,
+     .     10.4_RKIND,0._RKIND,14.2_RKIND,0._RKIND,18.1_RKIND,
+     .     5*0._RKIND,29.7_RKIND,0._RKIND,38.9_RKIND,2*0._RKIND/
 C
       DATA IMETA/0,0,0,1,2,3,5*0,4,18*0/
-      DATA CD1/.0024,-.0005,.00,.061,.027,.011,.005,.005,0.,.0107,
-     .  .09,.13,.11,.081,.075,.066,.051,11*0./
-      DATA CD2/0.,.01485,.30,.108,.107,.024,.075,.051,.054,.0167,.36,
-     .  17*0./
-      DATA SEC/4*1.,.9,.9,6*1.,.6,.5,1.,.7,.9,13*1./
+      DATA CD1/.0024_RKIND,-.0005_RKIND,.00_RKIND,.061_RKIND,.027_RKIND,
+     .     .011_RKIND,.005_RKIND,.005_RKIND,0._RKIND,.0107_RKIND,
+     .     .09_RKIND,.13_RKIND,.11_RKIND,.081_RKIND,.075_RKIND,
+     .     .066_RKIND,.051_RKIND,11*0._RKIND/
+      DATA CD2/0._RKIND,.01485_RKIND,.30_RKIND,.108_RKIND,.107_RKIND,
+     .     .024_RKIND,.075_RKIND,.051_RKIND,.054_RKIND,.0167_RKIND,
+     .     .36_RKIND,17*0._RKIND/
+      DATA SEC/4*1._RKIND,.9_RKIND,.9_RKIND,6*1._RKIND,.6_RKIND,
+     .     .5_RKIND,1._RKIND,.7_RKIND,.9_RKIND,13*1._RKIND/
 C
 C
 C
       DENO  = AN(NID2)
       IX    = 0
-      ABHE  = 10.0**(ABUNJ(1) - 12.)
-      ABUND = 10.0**(ABUNJ(NO)-12.)
+      ABHE  = 10._RKIND**(ABUNJ(1) - 12._RKIND)
+      ABUND = 10._RKIND**(ABUNJ(NO)-12._RKIND)
 
 C
-      PM    = 0.
+      PM    = 0._RKIND
 C
-      ORANGE  = 1.
-      C5(1)   = 0.
-      C5(N+1) = 0.
+      ORANGE  = 1._RKIND
+      C5(1)   = 0._RKIND
+      C5(N+1) = 0._RKIND
       JLOW    = 1
       JMAX    = N+1
       JTOP    = N+1
       C6(1)   = 0
-      T6      = T*1.0E-6
+      T6      = T*1.e-6_RKIND
       ST      = SQRT(T)
 C
 C     LOOP THROUGH ALL THE IONS
@@ -778,29 +844,30 @@ C        NOW GO ON TO CALCULATING THE RECOMBINTION RATES.
 C        RADIATIVE RECOMBINATION
 C
          ZEFF  = J
-         BETA  = ZEFF*ZEFF/(6.34*T6)
+         BETA  = ZEFF*ZEFF/(6.34_RKIND*T6)
 C
 C        C2 IS THE RECOMBINATION RATE TO FORM HYDROGENIC IONS,
 C        SEE COX AND TUCKER, APJ 157:1159. 
-         C2(J+1)= 2.07E-11*ZEFF*ZEFF*(0.4288 + 0.5*LOG(BETA)
-     .           +0.469*(BETA**(-1./3.)))/SQRT(T)
+         C2(J+1)= 2.07e-11_RKIND*ZEFF*ZEFF*(0.4288_RKIND 
+     .        + 0.5_RKIND*LOG(BETA) 
+     .        + 0.469_RKIND*(BETA**(-1._RKIND/3._RKIND)))/SQRT(T)
          RECOM1 = C2(J+1)
-         PLUM   = 0
-         RECN   = 0.
-         RGND   = 0.
+         PLUM   = 0._RKIND
+         RECN   = 0._RKIND
+         RGND   = 0._RKIND
 C    
          IF(N .EQ. J) GOTO 50
-         NVAL   = GND(N-J) + 0.1
-         STARN  = SQRT(13.6/EJ(NO,J))*ZEFF
+         NVAL   = GND(N-J) + 0.1_RKIND
+         STARN  = SQRT(13.6_RKIND/EJ(NO,J))*ZEFF
 C  
          DO NQM=1,NVAL
             QM      = NQM
             BE      = BETA/(QM*QM)
-            CHECK   = 5.197E-14*J*SQRT(BE)*SEATON(BE,QM)
-            C2(J+1) = C2(J+1) - 5.197E-14*J*SQRT(BE)*SEATON(BE,QM)
+            CHECK   = 5.197e-14_RKIND*J*SQRT(BE)*SEATON(BE,QM)
+            C2(J+1) = C2(J+1) - 5.197e-14_RKIND*J*SQRT(BE)*SEATON(BE,QM)
          ENDDO
 C
-         IF(C2(J+1) .LT. 0)  C2(J+1) =0
+         IF(C2(J+1) .LT. 0._RKIND)  C2(J+1) =0._RKIND
          RECOM2 = C2(J+1)
          I      = N-J
 C
@@ -817,18 +884,20 @@ C        RECOMBINATION TO OTHER STATES IN SAME SHELL
          IF(I .EQ. 12) LION = 3
          EI     = EI - E3J(NO,IX+LION)
    40    CONTINUE
-         STARN  = SQRT(13.595/EI)*ZEFF
+         STARN  = SQRT(13.595_RKIND/EI)*ZEFF
          BE     = BETA / (STARN*STARN)
-         RECN   = EFFNEW(N-J,T,ZEFF,N)*SEATON(BE,STARN)*2.599E-14*J
-     .           *SQRT(EI*11590./T)/(STARN*STARN)
+         RECN   = EFFNEW(N-J,T,ZEFF,N)*SEATON(BE,STARN)
+     .        *2.599e-14_RKIND*J*SQRT(EI*11590._RKIND/T)/(STARN*STARN)
    50    CONTINUE
          C2(J+1)= C2(J+1) + RECN + RGND
 C  
-         IF(BETA .GE. 0.5) THEN 
-           CHI  = 0.5 * (0.735 + LOG(BETA) + 1./(3.*BETA))
+         IF(BETA .GE. 0.5_RKIND) THEN 
+           CHI  = 0.5_RKIND * (0.735_RKIND + LOG(BETA) 
+     .           + 1._RKIND/(3._RKIND*BETA))
          ELSE
-           CHI  = 1.2*BETA+(0.55+1.04*LOG(BETA))*BETA*BETA
-     .           +(-0.43+1.01*LOG(BETA))*BETA**3
+           CHI  = 1.2_RKIND*BETA+(0.55_RKIND + 
+     .           1.04_RKIND*LOG(BETA))*BETA*BETA
+     .           +(-0.43_RKIND+1.01_RKIND*LOG(BETA))*BETA**3
          ENDIF
 C 
          DO NQM=1,NVAL
@@ -837,18 +906,19 @@ C
          ENDDO
 C
          CHI    = CHI + EFFN(N-J,ZEFF,T) * P(BETA,STARN)
-     .                 /(2.*STARN*STARN)
+     .                 /(2._RKIND*STARN*STARN)
          C6(J+1)= EJ(NO,J)*ev2erg*(C2(J+1)
-     .          + 4.22E-22*SQRT(T/1.037E-11)*CHI)
+     .          + 4.22e-22_RKIND*SQRT(T/1.037e-11_RKIND)*CHI)
 C  
 C        DIELECTRONIC RECOMBINATION ***** DENSITY DEPENDENCE 
 C        AND SECONDARY  ***** AUTOIONIZATION
          IY     = LLJ(NO,J) * 3
          IF(J .EQ. 1) GOTO 370
          ZEFF   = J-1
-         RHO    = (DENO/ZEFF**7.0)**0.2
-         DD     = 1.
-         IF(RHO.GE.3.0) DD=1./(1.+(CD1(N-J+1)+CD2(N-J+1)/ZEFF)*RHO)
+         RHO    = (DENO/ZEFF**7._RKIND)**0.2_RKIND
+         DD     = 1._RKIND
+         IF(RHO.GE.3._RKIND) 
+     .        DD=1._RKIND/(1._RKIND+(CD1(N-J+1)+CD2(N-J+1)/ZEFF)*RHO)
 C
          DO L=1,IY
             LN   = IX+L
@@ -859,8 +929,9 @@ C        DIELECTRONIC RECOMBINATION FOR METASTABLE LEVELS OF BE,B,C,MG ISO
          IMET   = IMETA(N-J+1)
          IF(IMET .EQ. 0) GOTO 321
          ZF     = J-1
-         B      = SQRT(ZF)*(ZF+1.)**2.5/SQRT(ZF*ZF+13.4)
-         PLUM   = PLUM * (1.-FMET)
+         B      = SQRT(ZF)*(ZF+1._RKIND)**2.5_RKIND / 
+     .        SQRT(ZF*ZF+13.4_RKIND)
+         PLUM   = PLUM * (1._RKIND-FMET)
          PLUM   = PLUM + FMET*DIMET(N,J,T,B,DD)
   321    CONTINUE
 C
@@ -868,27 +939,28 @@ C        ADD DIELECTRONIC RECOMB AND STOREYS LOW T DIELEC REC
          C2(J)  = C2(J) + PLUM +ALFLO(N,J,T)
   370    CONTINUE
          OVER(J)= PLUM/ORANGE
-         IF(J .NE. 1) C5(J) = PLUM*EJ(NO,J-1)*ABUND*1.6027E11
+         IF(J .NE. 1) C5(J) = PLUM*EJ(NO,J-1)*ABUND*1.6027e11_RKIND
          IX     = IX + IY
          ORANGE = RECOM1
       ENDDO
 C
-      C1(N+1)= 0.
-      C2(1)  = 0.
+      C1(N+1)= 0._RKIND
+      C2(1)  = 0._RKIND
       NN     = N + 1
 C
 C     CHARGE TRANSFER CONTRIBUTION
-      FPLUS  = 1.0
+      FPLUS  = 1._RKIND
       HENEUT = CNC(1,1,NID2)  
       HEPLUS = CNC(1,2,NID2)  
-      DENH   = 1./(.003 +FPLUS+ABHE*HEPLUS+ABHE*2.*(1.-HENEUT-HEPLUS))
+      DENH   = 1._RKIND/(.003_RKIND + FPLUS + 
+     .     ABHE*HEPLUS+ABHE*2._RKIND*(1._RKIND-HENEUT-HEPLUS))
 C  
 C
 C     S. BUTLER CHARGE TRANSFER RATES
       DO J=1,N
          C1(J)  = C1(J)+CTHI(N,J,T)*DENH*FPLUS
      .          + CTHEI(N,J,T,DENO)*HEPLUS*ABHE
-         C2(J+1)= C2(J+1)+CTHR(N,J+1,T,PM)*DENH*(1.-FPLUS)  
+         C2(J+1)= C2(J+1)+CTHR(N,J+1,T,PM)*DENH*(1._RKIND-FPLUS)  
      .          + CTHER(N,J+1,T)*HENEUT*ABHE
          C0(J)  = C1(J)
 C
@@ -913,26 +985,26 @@ C             CHANGED 11/21/96, R.CEN
 C
         DO J=1,30
            DO ID=1,NID
-              CA(J,ID) = 0.
+              CA(J,ID) = 0._RKIND
            ENDDO
         ENDDO
         RN=N
-        FLUOR = 0.5 * (RN/26.)**4
+        FLUOR = 0.5_RKIND * (RN/26._RKIND)**4
         DO J=1,N-2
            ISO = N-J+1
 C          AP1(NO,J), AP2(NO,J): PHOTOIONIZATION RATE  FROM aphtr.f
            PA1 = AP1(NO,J) 
            PA2 = AP2(NO,J)
            DO ID=1,NID
-              CA(J,ID)  = (PA1+PA2)*(1.-FLUOR)/(AN(ID))
+              CA(J,ID)  = (PA1+PA2)*(1._RKIND-FLUOR)/(AN(ID))
               C1D(J,ID) = C1D(J,ID)+(PA1+PA2)*FLUOR
      .                             /(AN(ID))
               IF(ISO .EQ. 3) THEN 
-                CA(J,ID)  = 0.
+                CA(J,ID)  = 0._RKIND
                 C1D(J,ID) = C1D(J,ID) + PA2/(AN(ID))
               ENDIF
               IF(ISO .EQ. 11) THEN 
-                CA(J,ID)  = (1.-FLUOR)*PA2/(AN(ID))
+                CA(J,ID)  = (1._RKIND-FLUOR)*PA2/(AN(ID))
                 C1D(J,ID) = C1D(J,ID)+(PA2*FLUOR+PA1)
      .                               /(AN(ID))
               ENDIF
@@ -940,11 +1012,11 @@ C          AP1(NO,J), AP2(NO,J): PHOTOIONIZATION RATE  FROM aphtr.f
         ENDDO
 C
         DO ID=1,NID
-           Q = 0.
+           Q = 0._RKIND
            X = CA(1,ID)
            DO J=1,N-1
               C1D(J,ID) = C1D(J,ID) + X
-              IF(C1D(J,ID) .GT. 0.) THEN 
+              IF(C1D(J,ID) .GT. 0._RKIND) THEN 
                 Q = C2(J+1) * CA(J,ID) / C1D(J,ID)
                 X = CA(J+1,ID) + Q
               ENDIF
@@ -959,16 +1031,17 @@ C
       DO ID=1,NID
          DO J=1,N
             C2(J+1)=ABS(C2(J+1))
-            IF(C1D(J,ID) / C2(J+1) .LE. 0.) THEN
-              RAT(J)=1.0E+6
+            IF(C1D(J,ID) / C2(J+1) .LE. 0._RKIND) THEN
+              RAT(J)=1.e+6_RKIND
             ELSE
               RAT(J)=C2(J+1)/C1D(J,ID)
             ENDIF
-            IF(J.EQ.1 .AND. T.GE.1.0E8) RAT(J)=MIN(RAT(J),1.0E4)
-            IF(RAT(J) .GE. 1.0E-5) GOTO 34
+            IF(J.EQ.1 .AND. T.GE.1.e8_RKIND) 
+     .           RAT(J)=MIN(RAT(J),1.e4_RKIND)
+            IF(RAT(J) .GE. 1.e-5_RKIND) GOTO 34
             JLOW=J+1
    34       CONTINUE
-            IF(RAT(J) .LT. 1.0E+5) GOTO 400
+            IF(RAT(J) .LT. 1.e+5_RKIND) GOTO 400
             JMAX=J
             GOTO 41
   400       CONTINUE
@@ -979,26 +1052,26 @@ C
          JUMP=JMAX - 1
          PROD(JUMP)=RAT(JUMP)
          KTOP=JUMP - JLOW
-         SUM = 1.00000 + PROD(JUMP)
+         SUM = 1._RKIND + PROD(JUMP)
          IF(KTOP .EQ. 0)  GOTO 550
 C
          DO K=1,KTOP
             PROD(JUMP-K)=RAT(JUMP-K)*PROD(JMAX-K)
-            PROD(JUMP-K) = MIN(PROD(JUMP-K),1.0E30)
+            PROD(JUMP-K) = MIN(PROD(JUMP-K),1.e30_RKIND)
             SUM = SUM + PROD(JUMP-K)
          ENDDO
 C
          GOTO 550
   525    CONTINUE 
-         SUM = 1.0000
+         SUM = 1._RKIND
   550    CONTINUE
 C
          DO J=1,JTOP
-            CONCE(J)=0
-            C5(J) = 0.
+            CONCE(J)=0._RKIND
+            C5(J) = 0._RKIND
          ENDDO
 C
-         CONCE(JMAX) = 1.000/SUM
+         CONCE(JMAX) = 1._RKIND/SUM
          KMAX=JMAX-JLOW
          IF(KMAX .EQ. 0)  GOTO 725
 C
@@ -1008,10 +1081,10 @@ C
 C
   725    CONTINUE
 C
-         PCOOL(ID) = 0.
+         PCOOL(ID) = 0._RKIND
          DO J=1,NN
             CNC(NO,J,ID) = CONCE(J)
-            PCOOL(ID)=PCOOL(ID) + C6(J)*CNC(NO,J,ID)*ABUND*1.0E23
+            PCOOL(ID)=PCOOL(ID) + C6(J)*CNC(NO,J,ID)*ABUND*1.e23_RKIND
          ENDDO
 C
       ENDDO
@@ -1029,10 +1102,10 @@ C     NAME=P
       FUNCTION P(Y,Q)
       A = Y/(Q*Q)
       IF(A .LE. 75) GO TO 20
-      P = 1./Q
+      P = 1._RKIND/Q
       RETURN
    20 CONTINUE
-      P = A * (1.-EXINT1(A,3)) / Q
+      P = A * (1._RKIND-EXINT1(A,3)) / Q
       RETURN
       END
 C
@@ -1046,54 +1119,66 @@ C
       DIMENSION IION(8,16),A(25),B(25),C(25),D(25),F(25)
 C
       DATA IION/40*0, 0,1,2,3,0,0,0,0,  0,4,5,6,7,0,0,0,
-     .  0,8,9,10,11,12,0,0,  8*0,  0,13,14,15,16,17,18,19,
-     . 8*0, 0,20,6*0, 0,21,22,5*0,  0,23,24,25,4*0,  8*0, 8*0/
+     .     0,8,9,10,11,12,0,0,  8*0,  0,13,14,15,16,17,18,19,
+     .     8*0, 0,20,6*0, 0,21,22,5*0,  0,23,24,25,4*0,  8*0, 8*0/
 C
-      DATA A/.0108,1.8267,2.3196,  0.0,0.0320,-.8806,.4134,
-     .  0.0,-.0036,0.0,.0061,-2.8425,
-     .  0.0,.0129,3.6781,-.0254,-.0141,19.928,5.4751,
-     .  1.2044,.0219,.7086,  -.0219,3.2163,.1203/
+      DATA A/.0108_RKIND,1.8267_RKIND,2.3196_RKIND,0._RKIND,
+     .     0.032_RKIND,-.8806_RKIND,.4134_RKIND,0._RKIND,-.0036_RKIND,
+     .     0._RKIND,.0061_RKIND,-2.8425_RKIND,0._RKIND,.0129_RKIND,
+     .     3.6781_RKIND,-.0254_RKIND,-.0141_RKIND,19.928_RKIND,
+     .     5.4751_RKIND,1.2044_RKIND,.0219_RKIND,.7086_RKIND,
+     .     -.0219_RKIND,3.2163_RKIND,.1203_RKIND/
 C
-      DATA B/-.1075,4.1012,10.7328,  .6310,-.6624,11.2406,-4.6319,
-     .  .0238,.7519,21.879,.2269,.2283,
-     .  0.0,-.1779,14.1481,5.5365,33.8479,235.0536,203.9751,
-     .  -4.6836,-.4528,-3.1083,.4364,-12.0571,-2.690/
+      DATA B/-.1075_RKIND,4.1012_RKIND,10.7328_RKIND,.6310_RKIND,
+     .     -.6624_RKIND,11.2406_RKIND,-4.6319_RKIND,.0238_RKIND,
+     .     .7519_RKIND,21.879_RKIND,.2269_RKIND,.2283_RKIND,0._RKIND,
+     .     -.1779_RKIND,14.1481_RKIND,5.5365_RKIND,33.8479_RKIND,
+     .     235.0536_RKIND,203.9751_RKIND,-4.6836_RKIND,-.4528_RKIND,
+     .     -3.1083_RKIND,.4364_RKIND,-12.0571_RKIND,-2.69_RKIND/
 C
-      DATA C/.2810,4.8443,6.8830,  .1990,4.3191,30.7066,25.9172,
-     .  .0659,1.5252,16.2730,32.1419,40.4072,
-     .  0.,.9353,17.1175,17.0727,43.1608,152.5096,86.9016,
-     .  7.6620,2.5427,7.0422,.0684,16.2118,19.1943/
+      DATA C/.281_RKIND,4.8443_RKIND,6.883_RKIND,.199_RKIND,
+     .     4.3191_RKIND,30.7066_RKIND,25.9172_RKIND,.0659_RKIND,
+     .     1.5252_RKIND,16.273_RKIND,32.1419_RKIND,40.4072_RKIND,
+     .     0._RKIND,.9353_RKIND,17.1175_RKIND,17.0727_RKIND,
+     .     43.1608_RKIND,152.5096_RKIND,86.9016_RKIND,7.662_RKIND,
+     .     2.5427_RKIND,7.0422_RKIND,.0684_RKIND,16.2118_RKIND,
+     .     19.1943_RKIND/
 C
-      DATA D/-.0193,.2261,-.1824,  -.0197,.0003,-1.1721,-2.2290,
-     .  .0349,-.0838,-.7020,1.9939,-3.4956,
-     .  0.,-.0682,-.5017,-.7225,-1.6072,9.1413,-7.4568,
-     .  -.5930,-.1678,.5998,-.0032,-.5886,-.1479/
+      DATA D/-.0193_RKIND,.2261_RKIND,-.1824_RKIND,-.0197_RKIND,
+     .     .0003_RKIND,-1.1721_RKIND,-2.2290_RKIND,.0349_RKIND,
+     .     -.0838_RKIND,-.7020_RKIND,1.9939_RKIND,-3.4956_RKIND,
+     .     0._RKIND,-.0682_RKIND,-.5017_RKIND,-.7225_RKIND,
+     .     -1.6072_RKIND,9.1413_RKIND,-7.4568_RKIND,-.5930_RKIND,
+     .     -.1678_RKIND,.5998_RKIND,-.0032_RKIND,-.5886_RKIND,
+     .     -.1479_RKIND/
 C
-      DATA F/-.1127,.5960,.4101,.4398,.5946,.6127,.2360,
-     .  .5334,.2769,1.1899,-.0646,1.7558,
-     .  0.,.4516,.2313,.1702,.1942,.1282,2.5145,
-     .  1.6260,.2276,.4194,.1342,.5613,.1118/
+      DATA F/-.1127_RKIND,.596_RKIND,.4101_RKIND,.4398_RKIND,
+     .     .5946_RKIND,.6127_RKIND,.236_RKIND,.5334_RKIND,.2769_RKIND,
+     .     1.1899_RKIND,-.0646_RKIND,1.7558_RKIND,0._RKIND,.4516_RKIND,
+     .     .2313_RKIND,.1702_RKIND,.1942_RKIND,.1282_RKIND,2.5145_RKIND,
+     .     1.6260_RKIND,.2276_RKIND,.4194_RKIND,.1342_RKIND,.5613_RKIND,
+     .     .1118_RKIND/
 C
-      ALFLO = 0.
+      ALFLO = 0._RKIND
       IF(J .EQ. 1 .OR. J .GT. 8) RETURN
       IF(N .GT. 14) RETURN
 C
-      T4 = T*0.0001
+      T4 = T*0.0001_RKIND
 C
-      IF(T4 .LT. 0.1 .OR. T4 .GT. 6.) RETURN
+      IF(T4 .LT. 0.1_RKIND .OR. T4 .GT. 6._RKIND) RETURN
 C
-      IF(N .EQ. 6 .AND. J .EQ. 2 .AND. T4 .LT. 0.2) RETURN
-      IF(N .EQ. 8 .AND. J .EQ. 4 .AND. T4 .LT. 0.2) RETURN
-      IF(N .EQ. 8 .AND. J .EQ. 6 .AND. T4 .LT. 0.4) RETURN
-      IF(N .EQ. 10 .AND. J .EQ. 8 .AND. T4 .LT. 0.2) RETURN
-      IF(N .EQ. 12 .AND. J .EQ. 2 .AND. T4 .LT. 0.15) RETURN
-      IF(N .EQ. 14 .AND. J .EQ. 3 .AND. T4 .LT. 0.15) RETURN
+      IF(N .EQ. 6 .AND. J .EQ. 2 .AND. T4 .LT. 0.2_RKIND) RETURN
+      IF(N .EQ. 8 .AND. J .EQ. 4 .AND. T4 .LT. 0.2_RKIND) RETURN
+      IF(N .EQ. 8 .AND. J .EQ. 6 .AND. T4 .LT. 0.4_RKIND) RETURN
+      IF(N .EQ. 10 .AND. J .EQ. 8 .AND. T4 .LT. 0.2_RKIND) RETURN
+      IF(N .EQ. 12 .AND. J .EQ. 2 .AND. T4 .LT. 0.15_RKIND) RETURN
+      IF(N .EQ. 14 .AND. J .EQ. 3 .AND. T4 .LT. 0.15_RKIND) RETURN
 C
       IJ = IION(J,N)
       IF(IJ .EQ. 0) RETURN
 C
-      ALFLO = 1.0E-12*(A(IJ)/T4 + B(IJ) + C(IJ)*T4 + D(IJ)*T4*T4)
-     .               *EXP(-MIN(50.0,F(IJ)/T4))/T4**1.5
+      ALFLO = 1.e-12_RKIND*(A(IJ)/T4 + B(IJ) + C(IJ)*T4 + D(IJ)*T4*T4)
+     .               *EXP(-MIN(50._RKIND,F(IJ)/T4))/T4**1.5
 C
       RETURN
       END
@@ -1111,29 +1196,30 @@ C
       INCLUDE "MTLPARAM.h"
 C
 C     BURGESS AND TWORKOWSKI
-      Z12 = J-12.
-      TWORK = .84 + .5/J**2 + .03*Z12/(1.+4.5E-5*Z12**3)
-      IF(N .NE. J) TWORK = 1.
-      ALPHADI = 0.
+      Z12 = J-12._RKIND
+      TWORK = .84_RKIND + .5_RKIND/J**2 + 
+     .     .03_RKIND*Z12/(1._RKIND+4.5e-5_RKIND*Z12**3)
+      IF(N .NE. J) TWORK = 1._RKIND
+      ALPHADI = 0._RKIND
       DL = DELTT(N,J,L)
-      IF(DL .LE. 0.) RETURN
-      ZF = J-1.
+      IF(DL .LE. 0._RKIND) RETURN
+      ZF = J-1._RKIND
 C     B = IS FOUND IN EQ 4 APJ 141:1590
-      B = SQRT(ZF)*(ZF+1.)**2.5/SQRT(ZF*ZF+13.4)
+      B = SQRT(ZF)*(ZF+1._RKIND)**2.5_RKIND/SQRT(ZF*ZF+13.4_RKIND)
 C     X = DOES NOT LOOK THE SAME AS IN THE DEFINITION OF X IN APJ 141:1590
-      X = E3J(NO,LN) / ((ZF+1.)*13.6)
+      X = E3J(NO,LN) / ((ZF+1._RKIND)*13.6_RKIND)
 C     A = IS FOUND IN EQ 3 APJ 141:1590
-      A = SQRT(X) / (1.+.105*X + .015*X*X)
+      A = SQRT(X) / (1._RKIND+.105_RKIND*X + .015_RKIND*X*X)
 C     EBAR = IS ACTUALLY DEFINED AS E3/A WHERE A IS IN EQ 6 APJ 141:1590
-      EBAR = E3J(NO,LN) / (1.+.015*ZF**3/(ZF+1.)**2)
+      EBAR = E3J(NO,LN) / (1._RKIND+.015_RKIND*ZF**3/(ZF+1._RKIND)**2)
       IF(N-J .NE. 1) GOTO 25
-      B = (0.5 * ZF/SQRT(ZF)) * B
-      X = 0.75 * J
-      A = SQRT(X) * 0.5 / (1.+0.21*X+0.03*X*X)
+      B = (0.5_RKIND * ZF/SQRT(ZF)) * B
+      X = 0.75_RKIND * J
+      A = SQRT(X) * 0.5_RKIND / (1._RKIND+0.21_RKIND*X+0.03_RKIND*X*X)
 C     YOUNGER JQSRT 29, 67 FOR HE-LIKE IONS
    25 CONTINUE
-      ALPHADI = 0.0030*T**(-1.5)*A*B*FJ(NO,LN)*TWORK*DL
-     .                *EXP(-MIN(50.0,EBAR*11590./T))
+      ALPHADI = 0.003_RKIND*T**(-1.5_RKIND)*A*B*FJ(NO,LN)*TWORK*DL
+     .                *EXP(-MIN(50._RKIND,EBAR*11590._RKIND/T))
       RETURN
       END
 C
@@ -1142,14 +1228,17 @@ C
 C
 C     NAME=ATREAD
       SUBROUTINE ATREAD
+C
+      IMPLICIT NONE
+#include "fortran_types.def"
       INCLUDE "MTLPARAM.h"   
-
-      REAL E(30),EA(30),S2(30),S3(30),S4(30),S5(30)
+C
+      R_PREC E(30),EA(30),S2(30),S3(30),S4(30),S5(30)
      .    ,WAVE(MAXLN),E3(MAXLN),F(MAXLN)
-      INTEGER LLL(30)
-      INTEGER INPUT_DONE
+      INTG_PREC LLL(30)
+      INTG_PREC INPUT_DONE
 
-      integer io_err
+      INTG_PREC io_err
 
       DATA INPUT_DONE / 0 /
 
@@ -1228,14 +1317,18 @@ C     SEQUENCES. CRANDALL ET AL PRA 25,143 FOR MG,SI.  MANN FOR FE* .75.
 C     COMPROMISE BETWEEN COWAN AND MANN AND DOUBLE THAT.
 C     USE 2S AT 2P ENERGY, ETC FOR B,C,... SEQUENCES
       DIMENSION ET(20),OM(20)
-      DATA ET/0.,55.,0.,115.,0.,190.,0.,280.,0.,375.,5*0.,802.,
-     .  0.,1002.,0.,0./
-      DATA OM/0.,.34,0.,.16,0.,.18,0.,.20,0.,.22,5*0.,.29,0.,.3,0.,0./
-      AUTOIN = 0.
+      DATA ET/0._RKIND,55._RKIND,0._RKIND,115._RKIND,0._RKIND,
+     .     190._RKIND,0._RKIND,280._RKIND,0._RKIND,375._RKIND,
+     .     5*0._RKIND,802._RKIND,0._RKIND,1002._RKIND,0._RKIND,0._RKIND/
+      DATA OM/0._RKIND,.34_RKIND,0._RKIND,.16_RKIND,0._RKIND,.18_RKIND,
+     .     0._RKIND,.20_RKIND,0._RKIND,.22_RKIND,5*0._RKIND,.29_RKIND,
+     .     0._RKIND,.3_RKIND,0._RKIND,0._RKIND/
+      AUTOIN = 0._RKIND
       IF(N .LE.10) RETURN
       I = N-J+1
       IF (I .LE. 10 .OR. I .GE. 15) RETURN
-      AUTOIN = 8.63E-6*OM(N-10)*EXP(-11590.*ET(N-10)/T)/SQRT(T)
+      AUTOIN = 8.63e-6_RKIND*OM(N-10) * 
+     .     EXP(-11590._RKIND*ET(N-10)/T)/SQRT(T)
 C     ASSUMES THAT NUMBER OF 32,3P ELECTRONS DOES NOT MATTER
       RETURN
       END
@@ -1253,46 +1346,63 @@ C
       DIMENSION A0(30),A1(30),A2(30),A3(30),B0(30),B1(30),B2(30),
      .  B3(30),C0(30),C1(30),C2(30),C3(30),D0(30),D1(30),D2(30),D3(30)
 C
-      DATA A0/13.5,27.0,9.07,11.80,20.2,28.6,37.0,45.4,53.8,62.2,
-     .11.7,38.8,37.27,46.7,57.4,67.0,77.8,90.1, 106.,120.8,135.6,150.4,
-     .165.2,180.0,194.8,209.6,224.4,239.2,154.0,268.8/
-      DATA A1/-14.2,-60.1,4.30,27*0./
-      DATA A2/40.6,140.,7.69,27*0./
-      DATA A3/-17.1,-89.8,-7.53, 27*0./
+      DATA A0/13.5_RKIND,27.0_RKIND,9.07_RKIND,11.80_RKIND,20.2_RKIND,
+     .     28.6_RKIND,37.0_RKIND,45.4_RKIND,53.8_RKIND,62.2_RKIND,
+     .     11.7_RKIND,38.8_RKIND,37.27_RKIND,46.7_RKIND,57.4_RKIND,
+     .     67.0_RKIND,77.8_RKIND,90.1_RKIND, 106._RKIND,120.8_RKIND,
+     .     135.6_RKIND,150.4_RKIND,.165.2_RKIND,180.0_RKIND,194.8_RKIND,
+     .     209.6_RKIND,224.4_RKIND,239.2_RKIND,154.0_RKIND,268.8_RKIND/
+      DATA A1/-14.2_RKIND,-60.1_RKIND,4.30_RKIND,27*0._RKIND/
+      DATA A2/40.6_RKIND,140._RKIND,7.69_RKIND,27*0._RKIND/
+      DATA A3/-17.1_RKIND,-89.8_RKIND,-7.53_RKIND, 27*0._RKIND/
 C
-      DATA B0/-4.81,-9.62,-2.47,-3.28,-5.96,-8.64,-11.32,-14.00,
-     .  -16.68,-19.36,  -4.29,-16.7,  -14.58,-16.95,-19.93,-23.05,
-     .  -26.00,-29.45, -34.25,-38.92,-43.59,-48.26,-52.93,-57.60,
-     .  -62.27,-66.94,-71.62,-76.29,-80.96,-85.63/
-      DATA B1/9.77,33.1,-3.78, 27*0./
-      DATA B2/-28.3,-82.5,-3.59, 27*0./
-      DATA B3/11.4,54.6,3.34, 27*0./
+      DATA B0/-4.81_RKIND,-9.62_RKIND,-2.47_RKIND,-3.28_RKIND,
+     .     -5.96_RKIND,-8.64_RKIND,-11.32_RKIND,-14.00_RKIND,
+     .     -16.68_RKIND,-19.36_RKIND,-4.29_RKIND,-16.7_RKIND,
+     .     -14.58_RKIND,-16.95_RKIND,-19.93_RKIND,-23.05_RKIND,
+     .     -26.00_RKIND,-29.45_RKIND,-34.25_RKIND,-38.92_RKIND,
+     .     -43.59_RKIND,-48.26_RKIND,-52.93_RKIND,-57.60_RKIND,
+     .     -62.27_RKIND,-66.94_RKIND,-71.62_RKIND,-76.29_RKIND,
+     .     -80.96_RKIND,-85.63_RKIND/
+      DATA B1/9.77_RKIND,33.1_RKIND,-3.78_RKIND, 27*0._RKIND/
+      DATA B2/-28.3_RKIND,-82.5_RKIND,-3.59_RKIND, 27*0._RKIND/
+      DATA B3/11.4_RKIND,54.6_RKIND,3.34_RKIND, 27*0._RKIND/
 C
-      DATA C0/1.85,3.69,1.34,1.64,2.31,2.984,3.656,4.328,5.00,5.672,
-     .1.061,1.87, 3.26,5.07,6.67,8.10,9.92,11.79,  7.953,8.408,
-     .8.863,9.318,9.773,10.228,10.683,11.138,11.593,12.048,12.505,12.96/
-      DATA C1/0.,4.32,.343, 27*0./
-      DATA C2/0.,-2.527,-2.46, 27*0./
-      DATA C3/0.,.262, 1.38, 27*0./
+      DATA C0/1.85_RKIND,3.69_RKIND,1.34_RKIND,1.64_RKIND,2.31_RKIND,
+     .     2.984_RKIND,3.656_RKIND,4.328_RKIND,5.00_RKIND,5.672_RKIND,
+     .     .1.061_RKIND,1.87_RKIND,3.26_RKIND,5.07_RKIND,6.67_RKIND,
+     .     8.10_RKIND,9.92_RKIND,11.79_RKIND,7.953_RKIND,8.408_RKIND,
+     .     .8.863_RKIND,9.318_RKIND,9.773_RKIND,10.228_RKIND,
+     .     10.683_RKIND,11.138_RKIND,11.593_RKIND,12.048_RKIND,
+     .     12.505_RKIND,12.96_RKIND/
+      DATA C1/0._RKIND,4.32_RKIND,.343_RKIND, 27*0._RKIND/
+      DATA C2/0._RKIND,-2.527_RKIND,-2.46_RKIND, 27*0._RKIND/
+      DATA C3/0._RKIND,.262_RKIND, 1.38_RKIND, 27*0._RKIND/
 C
-      DATA D0/-10.9,-21.7,-5.37,-7.58,-12.66,-17.74,-22.82,-27.9,-32.98,
-     .-38.06, -7.34,-28.8, -24.87,-30.5,-37.9,-45.3,-53.8,-64.6,
-     .-54.54,-61.70,-68.86,-76.02,-83.18,-90.34,-97.50,-104.66,-111.82,
-     .-118.98,-126.14,-133.32/
-      DATA D1/8.90,42.5,-12.4, 27*0./
-      DATA D2/-35.7,-131.,-8.09, 27*0./
-      DATA D3/16.5,87.4,1.23, 27*0./
+      DATA D0/-10.9_RKIND,-21.7_RKIND,-5.37_RKIND,-7.58_RKIND,
+     .     -12.66_RKIND,-17.74_RKIND,-22.82_RKIND,-27.9_RKIND,
+     .     -32.98_RKIND,.-38.06_RKIND,-7.34_RKIND,-28.8_RKIND,
+     .     -24.87_RKIND,-30.5_RKIND,-37.9_RKIND,-45.3_RKIND,-53.8_RKIND,
+     .     -64.6_RKIND,.-54.54_RKIND,-61.70_RKIND,-68.86_RKIND,
+     .     -76.02_RKIND,-83.18_RKIND,-90.34_RKIND,-97.50_RKIND,
+     .     -104.66_RKIND,-111.82_RKIND,.-118.98_RKIND,-126.14_RKIND,
+     .     -133.32_RKIND/
+      DATA D1/8.90_RKIND,42.5_RKIND,-12.4_RKIND, 27*0._RKIND/
+      DATA D2/-35.7_RKIND,-131._RKIND,-8.09_RKIND, 27*0._RKIND/
+      DATA D3/16.5_RKIND,87.4_RKIND,1.23_RKIND, 27*0._RKIND/
 C
-      CION = 0.
-      CHIR = T / (11590. * E)
-      IF( CHIR .LE. .0115) RETURN
-      CHI = MAX(CHIR,0.1)
+      CION = 0._RKIND
+      CHIR = T / (11590._RKIND * E)
+      IF( CHIR .LE. .0115_RKIND) RETURN
+      CHI = MAX(CHIR,0.1_RKIND)
       CH2 = CHI * CHI
       CH3 = CH2 * CHI
-      ALPHA = (.001193 + .9764*CHI + .6604*CH2 + .02590*CH3)
-     .  /(1.0 + 1.488*CHI + .2972*CH2 + .004925*CH3)
-      BETA = (-.0005725 + .01345*CHI + .8691*CH2 + .03404*CH3)
-     .  /(1.0 + 2.197*CHI + .2457*CH2 + .002503*CH3)
+      ALPHA = (.001193_RKIND + .9764_RKIND*CHI + .6604_RKIND*CH2 
+     .     + .02590_RKIND*CH3) / (1._RKIND + 1.488_RKIND*CHI 
+     .     + .2972_RKIND*CH2 + .004925_RKIND*CH3)
+      BETA = (-.0005725_RKIND + .01345_RKIND*CHI + .8691_RKIND*CH2
+     .     + .03404_RKIND*CH3) / (1._RKIND + 2.197_RKIND*CHI + 
+     .     .2457_RKIND*CH2 + .002503_RKIND*CH3)
       J2 = J*J
       J3 = J2*J
       ISO = N-J+1
@@ -1304,46 +1414,52 @@ C
 C
 C     FE II EXPERIMENTAL IONIZATION MONTAGUE ET AL: D. NEUFELD FIT
       IF(N .NE. 26 .OR. J .NE. 2) GOTO 10
-      A = -13.825
-      B = -11.0395
-      C = 21.07262
-      D = 0.
+      A = -13.825_RKIND
+      B = -11.0395_RKIND
+      C = 21.07262_RKIND
+      D = 0._RKIND
    10 CONTINUE
-      CH = 1./CHI
-      FCHI = 0.3*CH*(A+B*(1.+CH) + (C-(A+B*(2.+CH))*CH)*ALPHA 
-     .     + D * BETA * CH)
-      IF(ISO .GE. 4 .AND. ISO .LE. 10) FCHI = FCHI * 1.59
+      CH = 1._RKIND/CHI
+      FCHI = 0.3_RKIND*CH*(A+B*(1._RKIND+CH) 
+     .     + (C-(A+B*(2._RKIND+CH))*CH)*ALPHA + D * BETA * CH)
+      IF(ISO .GE. 4 .AND. ISO .LE. 10) FCHI = FCHI * 1.59_RKIND
 C     CORRECT YOUNGER JQSRT 27, 541 FROM TABLE TO GRAPHS
-      CION = 2.2E-6*SQRT(CHIR)*FCHI*EXP(-MIN(50.0,1./CHIR))
-     .      /(E*SQRT(E))
+      CION = 2.2e-6_RKIND*SQRT(CHIR)*FCHI
+     .     * EXP(-MIN(50._RKIND,1._RKIND/CHIR))/(E*SQRT(E))
       RETURN
       END
 
       FUNCTION CTHEI(N,J,T,DENO)
 C  SCOTTS RATES FOR HE+  + J  TO HE0  + J+1
 C  THROUGH ARGON  0.1 < T4 < 10.
-      CTHEI = 0.
-      T4 = 0.0001 * T
+      CTHEI = 0._RKIND
+      T4 = 0.0001_RKIND * T
       IF(J .EQ. 1 .OR. J .GE. 4) RETURN
       IF(J .EQ. 3) GOTO 10
-      IF(N .EQ. 6) CTHEI = 5.3E-10 * EXP(-MIN(50.0,13.2/T4))
+      IF(N .EQ. 6) 
+     .     CTHEI = 5.3e-10_RKIND * EXP(-MIN(50._RKIND,13.2_RKIND/T4))
 C  ALBERTS RATES FOR N+ FROM 1D LEVEL
       IF(N .NE. 7) GOTO 70
-      QDW = 5.14E-06 * DENO / SQRT(T)
-      QUP = 2.86E-6 * EXP(-MIN(50.0,21826./T))
-      R21 = QUP / (QDW + .0041)
-      D1 = R21 / (1.+R21)
-      P3 = 1. - D1
-      CTHEI = P3*4.1E-10*EXP(-MIN(50.0,10.4/T4))
-     .      + D1*1.1E-10*EXP(-MIN(50.0,3.59/T4))
+      QDW = 5.14e-06_RKIND * DENO / SQRT(T)
+      QUP = 2.86e-6_RKIND * EXP(-MIN(50._RKIND,21826._RKIND/T))
+      R21 = QUP / (QDW + .0041_RKIND)
+      D1 = R21 / (1._RKIND+R21)
+      P3 = 1._RKIND - D1
+      CTHEI = P3*4.1e-10_RKIND*EXP(-MIN(50._RKIND,10.4_RKIND/T4))
+     .      + D1*1.1e-10_RKIND*EXP(-MIN(50._RKIND,3.59_RKIND/T4))
    70 CONTINUE
-      IF(N .EQ. 14) CTHEI = 2.9E-10*EXP(-MIN(50.0,8.7/T4))
-      IF(N .EQ. 18) CTHEI = 1.1E-10*EXP(-MIN(50.0,3.57/T4))
+      IF(N .EQ. 14) 
+     .     CTHEI = 2.9e-10_RKIND*EXP(-MIN(50._RKIND,8.7_RKIND/T4))
+      IF(N .EQ. 18) 
+     .     CTHEI = 1.1e-10_RKIND*EXP(-MIN(50._RKIND,3.57_RKIND/T4))
       RETURN
    10   CONTINUE
-      IF(N .EQ. 14) CTHEI = 3.4E-9*EXP(-MIN(50.0,10.5/T4))
-      IF(N .EQ. 16) CTHEI = 4.8E-10*EXP(-MIN(50.0,15.7/T4))
-      IF(N .EQ. 26) CTHEI = 1.2E-9*SQRT(T4)*EXP(-MIN(50.0,12./T4))
+      IF(N .EQ. 14) 
+     .       CTHEI = 3.4e-9_RKIND*EXP(-MIN(50._RKIND,10.5_RKIND/T4))
+      IF(N .EQ. 16) 
+     .     CTHEI = 4.8e-10_RKIND*EXP(-MIN(50._RKIND,15.7_RKIND/T4))
+      IF(N .EQ. 26) CTHEI = 
+     .     1.2e-9_RKIND*SQRT(T4)*EXP(-MIN(50._RKIND,12._RKIND/T4))
       RETURN
       END
 C
@@ -1353,37 +1469,39 @@ C     NAME CTHER
 C     FITS TO SCOTTS RATES FOR  HE I + J   TO   HE II + J-1
 C     1000  TO 100,000 K THROUGH ARGON
       DIMENSION A(2,9)
-      DATA A/4*0.,.059,.00001,1.1,0.7,.00001,1.7,.075,2.2,.096,1.2,
-     .  1.1,.0008,.00001,1.0/
+      DATA A/4*0._RKIND,.059_RKIND,.00001_RKIND,1.1_RKIND,0.7_RKIND,
+     .     .00001_RKIND,1.7_RKIND,.075_RKIND,2.2_RKIND,.096_RKIND,
+     .     1.2_RKIND,1.1_RKIND,.0008_RKIND,.00001_RKIND,1.0_RKIND/
 C
-      CTHER = 0.
+      CTHER = 0._RKIND
       IF(J .EQ. 1) RETURN
-      T4 = MAX(.0001 * T,0.1)
-      T4 = MIN(T4,10.)
-      CR = 5.4E-10 * T4
+      T4 = MAX(.0001_RKIND * T,0.1_RKIND)
+      T4 = MIN(T4,10._RKIND)
+      CR = 5.4e-10_RKIND * T4
       IF(J .EQ. 2 .OR. N .GT. 18) RETURN
-      CTHER = MAX(CR,(-.1+.4*J)*1.0E-9)
+      CTHER = MAX(CR,(-.1_RKIND+.4_RKIND*J)*1.e-9_RKIND)
       IF(J .GE. 6) RETURN
       IF(J .NE. 3) GO TO 10
-      CTHER = 0.
+      CTHER = 0._RKIND
 C     INCLUDE ALBERTS RATE TO 1D OF N+
-      IF(N .EQ. 7) CTHER = 3.0E-10 * (1.+.26*T4) + 6.2E-11
-      IF(N .EQ. 8) CTHER = 3.3E-10 * T4 ** .7
-      IF(N .EQ. 18) CTHER = 1.3E-10
+      IF(N .EQ. 7) CTHER = 3.0e-10_RKIND * (1._RKIND+.26_RKIND*T4) 
+     .     + 6.2e-11_RKIND
+      IF(N .EQ. 8) CTHER = 3.3e-10_RKIND * T4 ** .7_RKIND
+      IF(N .EQ. 18) CTHER = 1.3e-10_RKIND
       RETURN
    10 IF(N .NE. 7) GO TO 11
-      CTHER = 1.1E-10
-      IF(J .EQ. 5) CTHER = 2.0E-9
+      CTHER = 1.1e-10_RKIND
+      IF(J .EQ. 5) CTHER = 2.0e-9_RKIND
       RETURN
    11 CONTINUE
       IN = N/2
-      CTHER = A(J-3,IN) * 1.0E-9
+      CTHER = A(J-3,IN) * 1.0e-9_RKIND
       IF(J .EQ. 5) GO TO 12
-      IF(N .EQ. 6) CTHER = 5.1E-11 * T4 ** 1.46
-      IF(N .EQ. 14) CTHER = 9.6E-10 * T4 ** .55
-      IF(N .EQ. 16) CTHER = 1.1E-9 * T4 ** .63
+      IF(N .EQ. 6) CTHER = 5.1e-11_RKIND * T4 ** 1.46_RKIND
+      IF(N .EQ. 14) CTHER = 9.6e-10_RKIND * T4 ** .55_RKIND
+      IF(N .EQ. 16) CTHER = 1.1e-9_RKIND * T4 ** .63_RKIND
       RETURN
-   12 IF(N .EQ. 18) CTHER = 1.0E-9 * T4 ** .91
+   12 IF(N .EQ. 18) CTHER = 1.0e-9_RKIND * T4 ** .91_RKIND
       RETURN
       END
 C
@@ -1391,21 +1509,24 @@ C
 C     NAME=CTHI
       FUNCTION CTHI(N,J,T)
 C     SCOTTS RATES FOR H II + J TO HI + J+1 THROUGH ARGON
-      T4 = MAX(.0001 * T,0.1)
-      T4 = MIN(T4,10.)
-      CTHI = 0.
+      T4 = MAX(.0001_RKIND * T,0.1_RKIND)
+      T4 = MIN(T4,10._RKIND)
+      CTHI = 0._RKIND
       IF(J .GT. 2) RETURN
       IF(J .EQ. 2) GOTO 2
-      IF(N .EQ. 6) CTHI = 2.5E-15
-      IF(N .EQ. 7) CTHI = 3.3E-13 * T4 ** .12
-      IF(N .EQ. 8) CTHI = 3.3E-10
-      IF(N .EQ. 16) CTHI = 6.7E-10
+      IF(N .EQ. 6) CTHI = 2.5E-15_RKIND
+      IF(N .EQ. 7) CTHI = 3.3E-13_RKIND * T4 ** .12_RKIND
+      IF(N .EQ. 8) CTHI = 3.3E-10_RKIND
+      IF(N .EQ. 16) CTHI = 6.7E-10_RKIND
       RETURN
-    2 IF(N .EQ. 12) CTHI = 2.6E-11 * EXP(-MIN(50.0,6.0/T4))
-      IF(N .EQ. 14) CTHI = 9.6E-10 * EXP(-MIN(50.0,2.74/T4))
+    2 IF(N .EQ. 12) 
+     .     CTHI = 2.6E-11_RKIND * EXP(-MIN(50._RKIND,6._RKIND/T4))
+      IF(N .EQ. 14) 
+     .     CTHI = 9.6e-10_RKIND * EXP(-MIN(50._RKIND,2.74_RKIND/T4))
 C     NEUFELDS FE II - FE III RATES
-      IF(N .EQ. 26) CTHI = 1.0E-9*1.666*(1.25+.25*LOG10(T4))
-     .                           *EXP(-MIN(50.0,3.005/T4))
+      IF(N .EQ. 26) CTHI = 1.e-9_RKIND*1.666_RKIND
+     .     *(1.25_RKIND+.25_RKIND*LOG10(T4))
+     .     *EXP(-MIN(50._RKIND,3.005_RKIND/T4))
       RETURN
       END
 C
@@ -1419,64 +1540,70 @@ C
       INCLUDE "MTLPARAM.h"
 C
       DIMENSION A(30),B(30)
-      DATA A/0.,0.,.00001,0.,5.9,6.2,7.8,9.4,11.,13.,14.,16.1,17.6,
-     .  19.,20.4,21.8,23.3,13*0./
-      DATA B/4*0.,.25,.18,.13,.1,.08,.05,.04,19*0./
+      DATA A/0._RKIND,0._RKIND,.00001_RKIND,0._RKIND,5.9_RKIND,
+     .     6.2_RKIND,7.8_RKIND,9.4_RKIND,11._RKIND,13._RKIND,14._RKIND,
+     .     16.1_RKIND,17.6_RKIND,19._RKIND,20.4_RKIND,21.8_RKIND,
+     .     23.3_RKIND,13*0._RKIND/
+      DATA B/4*0._RKIND,.25_RKIND,.18_RKIND,.13_RKIND,.1_RKIND,
+     .     .08_RKIND,.05_RKIND,.04_RKIND,19*0._RKIND/
 C
-      CTHR = 0.
+      CTHR = 0._RKIND
       IF(J .EQ. 1) RETURN
-      T4 = MAX(T * .0001,0.1)
-      T4 = MIN(T4,10.)
+      T4 = MAX(T * .0001_RKIND,0.1_RKIND)
+      T4 = MIN(T4,10._RKIND)
 C     NEUFELDS FE II - FE III, FE III-FE IV, AND NI II - NI III RATES
-      IF(N .EQ. 26 .AND. J .EQ. 3) CTHR=1.0E-9*(1.25+.25*LOG10(T4))
-      IF(N .EQ. 26 .AND. J .EQ. 4) CTHR = 3.4E-9 * SQRT(T4)
-      IF(N .EQ. 28 .AND. J .EQ. 3) CTHR = 1.0E-9*(.34+1.86*T4)
+      IF(N .EQ. 26 .AND. J .EQ. 3) 
+     .     CTHR=1.0E-9_RKIND*(1.25_RKIND+.25_RKIND*LOG10(T4))
+      IF(N .EQ. 26 .AND. J .EQ. 4) CTHR = 3.4E-9_RKIND * SQRT(T4)
+      IF(N .EQ. 28 .AND. J .EQ. 3) 
+     .     CTHR = 1.0E-9_RKIND*(.34_RKIND+1.86_RKIND*T4)
       IF(N .GT. 18) RETURN
-      CTHR = A(J) * (1.+B(J)*T4) * 1.0E-9
+      CTHR = A(J) * (1._RKIND+B(J)*T4) * 1.0E-9_RKIND
       IF(J .GE. 6) RETURN
       IF(N .NE. 2) GO TO 6
-      CTHR = 1.9E-15
-      IF(J .EQ. 3) CTHR = 1.7E-13
+      CTHR = 1.9E-15_RKIND
+      IF(J .EQ. 3) CTHR = 1.7E-13_RKIND
       RETURN
     6 IF(N .NE. 6) GO TO 7
 C     ALBERTS C III TRIPLET P
-      IF(J .EQ. 3) CTHR=2.5E-9*PM*EXP(-MIN(50.0,15000./T))
-      IF(J .EQ. 4) CTHR = 2.9E-9
-      IF(J .EQ. 5) CTHR = 7.6E-10 * T4 ** 1.48
+      IF(J .EQ. 3) 
+     .     CTHR = 2.5E-9_RKIND*PM*EXP(-MIN(50._RKIND,15000._RKIND/T))
+      IF(J .EQ. 4) CTHR = 2.9E-9_RKIND
+      IF(J .EQ. 5) CTHR = 7.6E-10_RKIND * T4 ** 1.48_RKIND
       RETURN
     7 IF(N .NE. 7) GO TO 8
-      CTHR = 1.1E-12 / (1.+.1*T4)
-      IF(J .EQ. 3) CTHR = 5.2E-10
-      IF(J .EQ. 4) CTHR = 2.7E-9 * T4 ** .926
-      IF(J .EQ. 5) CTHR = 1.7E-10 * T4 ** 1.40
+      CTHR = 1.1E-12_RKIND / (1._RKIND+.1_RKIND*T4)
+      IF(J .EQ. 3) CTHR = 5.2E-10_RKIND
+      IF(J .EQ. 4) CTHR = 2.7E-9_RKIND * T4 ** .926_RKIND
+      IF(J .EQ. 5) CTHR = 1.7E-10_RKIND * T4 ** 1.40_RKIND
 C     ALBERTS N VI
-      IF(J .EQ. 6) CTHR = 6.6E-10
+      IF(J .EQ. 6) CTHR = 6.6E-10_RKIND
       RETURN
     8 IF(N .NE. 8) GO TO 10
-      CTHR = 4.0E-10
-      IF(J .EQ. 3) CTHR = 7.7E-10 * SQRT(T4)
-      IF(J .EQ. 4) CTHR = 2.1E-9
-      IF(J .EQ. 5) CTHR = 1.4E-10 * (1.+T4)
+      CTHR = 4.0E-10_RKIND
+      IF(J .EQ. 3) CTHR = 7.7E-10_RKIND * SQRT(T4)
+      IF(J .EQ. 4) CTHR = 2.1E-9_RKIND
+      IF(J .EQ. 5) CTHR = 1.4E-10_RKIND * (1._RKIND+T4)
 C     ALBERTS O VII : NEED O VI
-      IF(J .EQ. 7) CTHR = 5.4E-8
+      IF(J .EQ. 7) CTHR = 5.4E-8_RKIND
       RETURN
    10 IF(N .NE. 10) GO TO 12
-      IF(J .EQ. 4) CTHR = 3.8E-9 * SQRT(T4)
+      IF(J .EQ. 4) CTHR = 3.8E-9_RKIND * SQRT(T4)
       RETURN
    12 IF(N .NE. 12) GO TO 14
-      IF(J .EQ. 4) CTHR = 4.4E-9 * (1. + .37*T4)
+      IF(J .EQ. 4) CTHR = 4.4E-9_RKIND * (1._RKIND + .37_RKIND*T4)
       RETURN
    14 IF(N .NE. 14) GO TO 16
-      IF(J .EQ. 3) CTHR = 4.0E-9 * T4**.23
-      IF(J .EQ. 4) CTHR = 4.1E-10
-      IF(J .EQ. 5) CTHR = 2.2E-9 * (1.+.1*T4)
+      IF(J .EQ. 3) CTHR = 4.0E-9_RKIND * T4**.23_RKIND
+      IF(J .EQ. 4) CTHR = 4.1E-10_RKIND
+      IF(J .EQ. 5) CTHR = 2.2E-9_RKIND * (1._RKIND+.1_RKIND*T4)
       RETURN
    16 IF(N .NE. 16) GO TO 18
-      IF(J .EQ. 4) CTHR = 2.5E-9
-      IF(J .EQ. 5) CTHR = 7.0E-9
+      IF(J .EQ. 4) CTHR = 2.5E-9_RKIND
+      IF(J .EQ. 5) CTHR = 7.0E-9_RKIND
       RETURN
    18 IF(N .NE. 18) GO TO 20
-      IF(J .EQ. 4) CTHR = 4.4E-8 * T4 ** .27
+      IF(J .EQ. 4) CTHR = 4.4E-8_RKIND * T4 ** .27_RKIND
       RETURN
    20 RETURN
       END
@@ -1496,7 +1623,7 @@ C     TRY BELY-DUBAU??????
       IF(L .EQ. 12 .AND. I .NE. 10) GOTO 20
       IF(L .NE. 1 .OR. I .LE. 2) GOTO 50
       IF(I .EQ. 13) GOTO 50
-   20 DELTT = 1.
+   20 DELTT = 1._RKIND
       GOTO 200
    50 CONTINUE
       IF(I .GE. 19) GOTO 19
@@ -1505,60 +1632,74 @@ C     TRY BELY-DUBAU??????
       GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13,14) , I
     1 CONTINUE
 C     BURGESS & TWORKOWSKI ARE IN ALPHADI
-      IF(L .EQ. 1) DELTT = 1.
-      IF(L .GT. 1) DELTT = 0.1
-      IF(L .EQ. 5) DELTT = 0.
+      IF(L .EQ. 1) DELTT = 1._RKIND
+      IF(L .GT. 1) DELTT = 0.1_RKIND
+      IF(L .EQ. 5) DELTT = 0._RKIND
       GOTO 200
-    2 IF (L .EQ. 4 .OR. L .EQ. 5) DELTT = 0.1
-      IF (L .EQ. 9) DELTT = 1.0
+    2 IF (L .EQ. 4 .OR. L .EQ. 5) DELTT = 0.1_RKIND
+      IF (L .EQ. 9) DELTT = 1.0_RKIND
       GOTO 200
-    3 IF (L .GE. 2 .AND. L .LE. 4) DELTT = .5 * (-.35+1.26*N/(N+11.))
+    3 IF (L .GE. 2 .AND. L .LE. 4) 
+     .     DELTT = .5_RKIND * (-.35_RKIND+1.26_RKIND*N/(N+11._RKIND))
       GOTO 200
-    4 IF (L .EQ. 7) DELTT = MAX(0.5 * (-.55+1.50*N/(N+11.)), 0.05)
+    4 IF (L .EQ. 7) DELTT = MAX(0.5_RKIND * 
+     .     (-.55_RKIND+1.50_RKIND*N/(N+11._RKIND)), 0.05_RKIND)
         GOTO 200
-    5   IF (L .LE. 6) DELTT = 1.
-        IF (L .EQ. 4 .OR. L .EQ. 5) DELTT = 0.5 * (-.54 + 2.2*N/(N+11.))
+    5   IF (L .LE. 6) DELTT = 1._RKIND
+        IF (L .EQ. 4 .OR. L .EQ. 5) 
+     .       DELTT = 0.5_RKIND * (-.54_RKIND+2.2_RKIND*N/(N+11._RKIND))
         GOTO 200
-    6   IF (L .LE. 5) DELTT = 1.
-        IF (L .EQ. 4) DELTT = MAX(0.5 * (-1.28+3.2*N/(N+11)), 0.05)
+    6   IF (L .LE. 5) DELTT = 1._RKIND
+        IF (L .EQ. 4) DELTT = MAX(0.5_RKIND * 
+     .       (-1.28_RKIND+3.2_RKIND*N/(N+11)), 0.05_RKIND)
         GOTO 200
-    7   IF (L .EQ. 4) DELTT = 1.
-        IF (L .EQ. 5) DELTT = MAX(0.5*(-1.44+3.4*N/(N+11.)),0.05)
-        IF (L .EQ. 7) DELTT = MAX(0.25*(-1.44+3.4*N/(N+11.)), 0.025)
+    7   IF (L .EQ. 4) DELTT = 1._RKIND
+        IF (L .EQ. 5) DELTT = MAX(
+     .       0.5_RKIND*(-1.44_RKIND+3.4_RKIND*N/(N+11._RKIND)),
+     .       0.05_RKIND)
+        IF (L .EQ. 7) DELTT = MAX(
+     .       0.25_RKIND*(-1.44_RKIND+3.4_RKIND*N/(N+11._RKIND)), 
+     .       0.025_RKIND)
         GOTO 200
-    8   IF (L .LE. 3) DELTT = 0.5*(-1.60 + 3.6*N/(N+11.))
-        IF (L .EQ. 4 .OR. L .EQ. 5) DELTT = 1.
-        IF (L .EQ. 7) DELTT = .25 * (-1.6+3.6*N/(N+11.))
-        IF (L .EQ. 15) DELTT = 1.
+    8   IF (L .LE. 3) 
+     .       DELTT = 0.5_RKIND*(-1.60_RKIND + 3.6_RKIND*N/(N+11._RKIND))
+        IF (L .EQ. 4 .OR. L .EQ. 5) DELTT = 1._RKIND
+        IF (L .EQ. 7) 
+     .       DELTT = .25_RKIND * (-1.6_RKIND+3.6_RKIND*N/(N+11._RKIND))
+        IF (L .EQ. 15) DELTT = 1._RKIND
         GOTO 200
-    9   IF (L .LE. 3) DELTT = 0.5 * (-1.75 + 3.8*N/(N+11.))
-        IF (L .EQ. 5) DELTT = 1.
-        IF (L .EQ. 6) DELTT = 0.25* (-1.75 + 3.8*N/(N+11.))
+    9   IF (L .LE. 3) 
+     .       DELTT = 0.5_RKIND*(-1.75_RKIND+3.8_RKIND*N/(N+11._RKIND))
+        IF (L .EQ. 5) DELTT = 1._RKIND
+        IF (L .EQ. 6) 
+     .       DELTT = 0.25_RKIND*(-1.75_RKIND+3.8_RKIND*N/(N+11._RKIND))
         GOTO 200
-   10   IF (L .LE. 2) DELTT = 1.
-        IF (L .GE. 3 .AND. L .LE. 5) DELTT = 0.5 * (-1.9+4.0*N/(N+11.))
-        IF (L .GE. 6 .AND. L .LT. 8) DELTT = .25*(-1.9+4.*N/(N+11.))
-        IF (L .EQ. 14) DELTT = 1.
+   10   IF (L .LE. 2) DELTT = 1._RKIND
+        IF (L .GE. 3 .AND. L .LE. 5) 
+     .       DELTT = 0.5_RKIND*(-1.9_RKIND+4.0_RKIND*N/(N+11._RKIND))
+        IF (L .GE. 6 .AND. L .LT. 8) 
+     .       DELTT = .25_RKIND*(-1.9_RKIND+4._RKIND*N/(N+11._RKIND))
+        IF (L .EQ. 14) DELTT = 1._RKIND
         GOTO 200
    11   CONTINUE
-        IF (L .EQ. 2 .OR. L .EQ. 3 .OR. L .EQ. 6) DELTT = .25
+        IF (L .EQ. 2 .OR. L .EQ. 3 .OR. L .EQ. 6) DELTT = .25_RKIND
         GOTO 200
-   12   IF (L .EQ. 2) DELTT = .25
+   12   IF (L .EQ. 2) DELTT = .25_RKIND
         GOTO 200
-   13   IF (L .EQ. 2 .OR. L .GE. 9) DELTT = 1.
-        IF (L .EQ. 3 .OR. L .EQ. 5) DELTT = .5
-        IF (L .EQ. 7) DELTT = 0.25
+   13   IF (L .EQ. 2 .OR. L .GE. 9) DELTT = 1._RKIND
+        IF (L .EQ. 3 .OR. L .EQ. 5) DELTT = .5_RKIND
+        IF (L .EQ. 7) DELTT = 0.25_RKIND
         GOTO 200
-   14   IF (L .LE. 2) DELTT = 1.
-        IF (L .EQ. 3 .OR. L .EQ. 4) DELTT = .25
+   14   IF (L .LE. 2) DELTT = 1._RKIND
+        IF (L .EQ. 3 .OR. L .EQ. 4) DELTT = .25_RKIND
         GOTO 200
-   18   DELTT = 0.25
-        IF (L .LE. 3) DELTT = 1.
+   18   DELTT = 0.25_RKIND
+        IF (L .LE. 3) DELTT = 1._RKIND
         IF (N .NE. 20) RETURN
         DELTT = 0.
-        IF (L .EQ. 6) DELTT = 0.05
+        IF (L .EQ. 6) DELTT = 0.05_RKIND
         GOTO 200
-   19   DELTT = 0.25
+   19   DELTT = 0.25_RKIND
   200 CONTINUE
         RETURN
         END
@@ -1568,90 +1709,98 @@ C     NAME=DIMET
       FUNCTION DIMET(N,J,T,B,DD)
       DIMENSION NOJ(30),E(12,3),F(12,3)
       DATA NOJ/0,1,3*0,2,3,4,0,5,0,6,0,7,0,8,0,9,0,10,5*0,11,0,12,2*0/
-      DATA E/0,10.55,13.4,16.3,22.1,27.9,40.0,40.5,46.7,52.8,76.3,86.2,
-     . 0.,12.28,16.06,19.8,27.4,35.0,42.7,51.0,60.9,73.5,122.,145.,
-     .  5*0.,4.46,9.55,14.5,19.5,24.5,40.7,51./
-      DATA F/0.,.26,.21,.18,.16,.12,.10,.091,.081,.075,.003,.002,
-     .  0.,.16,.17,.14,.084,.076,.071,.067,.063,.059,.049,.046,
-     . 5*0.,.61,.564,0.458,.408,.366,.30,.25/
+      DATA E/0._RKIND,10.55_RKIND,13.4_RKIND,16.3_RKIND,22.1_RKIND,
+     .     27.9_RKIND,40.0_RKIND,40.5_RKIND,46.7_RKIND,52.8_RKIND,
+     .     76.3_RKIND,86.2_RKIND,0._RKIND,12.28_RKIND,16.06_RKIND,
+     .     19.8_RKIND,27.4_RKIND,35.0_RKIND,42.7_RKIND,51.0_RKIND,
+     .     60.9_RKIND,73.5_RKIND,122._RKIND,145._RKIND,5*0._RKIND,
+     .     4.46_RKIND,9.55_RKIND,14.5_RKIND,19.5_RKIND,24.5_RKIND,
+     .     40.7_RKIND,51._RKIND/
+      DATA F/0._RKIND,.26_RKIND,.21_RKIND,.18_RKIND,.16_RKIND,.12_RKIND,
+     .     .10_RKIND,.091_RKIND,.081_RKIND,.075_RKIND,.003_RKIND,
+     .     .002_RKIND,0._RKIND,.16_RKIND,.17_RKIND,.14_RKIND,.084_RKIND,
+     .     .076_RKIND,.071_RKIND,.067_RKIND,.063_RKIND,.059_RKIND,
+     .     .049_RKIND,.046_RKIND,5*0._RKIND,.61_RKIND,.564_RKIND,
+     .     0.458_RKIND,.408_RKIND,.366_RKIND,.30_RKIND,.25_RKIND/
 C
       IJ = N-J-2
       IF(IJ .EQ. 9) IJ = 3
       Z  = J-1
       NO = NOJ(N)
-      X  = E(NO,IJ) / (J*13.6)
-      A  = SQRT(X) / (1.+.105*X+.015*X*X)
-      EBAR  = E(NO,IJ) / (1.+.015*Z*Z*Z/(J*J))
-      DIMET = 0.003*T**(-1.5)*A*B*F(NO,IJ)
-     .       *EXP(-MIN(50.0,11590.*EBAR/T))*DD
+      X  = E(NO,IJ) / (J*13.6_RKIND)
+      A  = SQRT(X) / (1._RKIND+.105_RKIND*X+.015_RKIND*X*X)
+      EBAR  = E(NO,IJ) / (1._RKIND+.015_RKIND*Z*Z*Z/(J*J))
+      DIMET = 0.003_RKIND*T**(-1.5_RKIND)*A*B*F(NO,IJ)
+     .       *EXP(-MIN(50._RKIND,11590._RKIND*EBAR/T))*DD
       RETURN
       END
 C
 C
 C     NAME=EFFN
       FUNCTION EFFN(I,ZEFF,T)
-      T3 = T/(ZEFF*ZEFF*1000.0)
-      XX = 0.4342 * LOG(T3)
-      IF(T3-1.0)101,101,102
-  101 F1 = 0.266
-      F2 = 0.13
-      F3 = 0.13
+      T3 = T/(ZEFF*ZEFF*1000._RKIND)
+      XX = 0.4342_RKIND * LOG(T3)
+      IF(T3-1._RKIND)101,101,102
+  101 F1 = 0.266_RKIND
+      F2 = 0.13_RKIND
+      F3 = 0.13_RKIND
       GOTO 105
-  102 IF(T3-10.**5)103,104,104
-  103 F1 = 0.266 + 0.1068 * XX - 0.074 * SIN(1.2566*XX)
-      F2 = 0.130 + 0.1160 * XX - 0.074 * SIN(1.2566*XX)
-      F3=0.130-0.0120*XX+0.050*EXP(-MIN(50.0,(XX-2.)*(XX-2.)))
+  102 IF(T3-10._RKIND**5)103,104,104
+  103 F1 = 0.266_RKIND+0.1068_RKIND*XX-0.074_RKIND*SIN(1.2566_RKIND*XX)
+      F2 = 0.130_RKIND+0.1160_RKIND*XX-0.074_RKIND*SIN(1.2566_RKIND*XX)
+      F3 = 0.130_RKIND-0.0120_RKIND*XX+0.050_RKIND 
+     .     * EXP(-MIN(50._RKIND,(XX-2._RKIND)*(XX-2._RKIND)))
       GOTO 105
-  104 F1 = 0.80
-      F2 = 0.71
-      F3 = 0.07
+  104 F1 = 0.80_RKIND
+      F2 = 0.71_RKIND
+      F3 = 0.07_RKIND
   105 CONTINUE
       IF(I .EQ. 0) GOTO 1
       IF(I-18) 110,110,18
   110 GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18),I
     1 EYE = I
-      EFFN = 2. - EYE
+      EFFN = 2._RKIND - EYE
       GOTO 1000
-    2 EFFN = 8.0
+    2 EFFN = 8.0_RKIND
       GOTO 1000
-    3 EFFN = 8. - (4.*F1)
+    3 EFFN = 8._RKIND - (4._RKIND*F1)
       GOTO 1000
-    4 EFFN = 8.*(1.-F1)
+    4 EFFN = 8._RKIND*(1._RKIND-F1)
       GOTO 1000
-    5 EFFN = 6.6667*(1.-F1)
+    5 EFFN = 6.6667_RKIND*(1._RKIND-F1)
       GOTO 1000
-    6 EFFN = 5.33333*(1.-F1)
+    6 EFFN = 5.33333_RKIND*(1._RKIND-F1)
       GOTO 1000
-    7 EFFN = 4. * (1.-F1)
+    7 EFFN = 4._RKIND * (1._RKIND-F1)
       GOTO 1000
-    8 EFFN =  2.6667*(1.-F1)
+    8 EFFN =  2.6667_RKIND*(1._RKIND-F1)
       GOTO 1000
-    9 EFFN =  1.33333*(1.-F1)
+    9 EFFN =  1.33333_RKIND*(1._RKIND-F1)
       GOTO 1000
-   10 EFFN = 18.
+   10 EFFN = 18._RKIND
       GOTO 1000
-   11 EFFN =  18.-(9.*F2)
+   11 EFFN =  18._RKIND-(9._RKIND*F2)
       GOTO 1000
-   12 EFFN = 18.0 * (1.-F2)
+   12 EFFN = 18.0_RKIND * (1._RKIND-F2)
       GOTO 1000
-   13 EFFN = 18.*(1.-F2) -1.*(9.*F3)
+   13 EFFN = 18._RKIND*(1._RKIND-F2) -1._RKIND*(9._RKIND*F3)
       GOTO 1000
-   14 EFFN = 18.*(1.-F2) -2.*(9.*F3)
+   14 EFFN = 18._RKIND*(1._RKIND-F2) -2._RKIND*(9._RKIND*F3)
       GOTO 1000
-   15 EFFN = 18.*(1.-F2) -3.*(9.*F3)
+   15 EFFN = 18._RKIND*(1._RKIND-F2) -3._RKIND*(9._RKIND*F3)
       GOTO 1000
-   16 EFFN = 18.*(1.-F2) - 4.*(9.*F3)
+   16 EFFN = 18._RKIND*(1._RKIND-F2) - 4._RKIND*(9._RKIND*F3)
       GOTO 1000
-   17 EFFN = 18.*(1.-F2) -45.0*F3
+   17 EFFN = 18._RKIND*(1._RKIND-F2) - 45._RKIND*F3
       GOTO 1000
    18 NO = 28 -I
-      EFFN = NO * 1.8 * (1.-3.*F3-F2)
+      EFFN = NO * 1.8_RKIND * (1._RKIND-3._RKIND*F3-F2)
       IF(EFFN)106,1000,1000
   106 EYE = I
-      EFFN = 60. -EYE
+      EFFN = 60._RKIND -EYE
 C     GUARD PACKAGE FOR I = 17
 C     PROBABLY UNNECESSARY
-      IF(EFFN .LE. 0) EFFN = 1.0
+      IF(EFFN .LE. 0) EFFN = 1._RKIND
  1000 CONTINUE
       RETURN
       END
@@ -1660,26 +1809,29 @@ C
 C     NAME=EFFNEW
       FUNCTION EFFNEW(I,T,Z,N)
 C
-      T3 = .001 * T / Z**2
-      XX = .4342 * LOG(T3)
+      T3 = .001_RKIND * T / Z**2
+      XX = .4342_RKIND * LOG(T3)
       IF(T3-1.) 101,101,102
-  101 F1 = .266
-      F2 = .13
-      F3 = .13
+  101 F1 = .266_RKIND
+      F2 = .13_RKIND
+      F3 = .13_RKIND
       GOTO 105
-  102 IF( (T3 - 1.E5) .GE. 0.) GOTO 104
-      F1 = .266 + .1068*XX - .074*SIN(1.2566*XX)
-      F2 = .130 + .1160*XX - .074*SIN(1.2566*XX)
-      F3 = .130 - .012 * XX + .05*EXP(-MIN(50.0,(XX-2.)*(XX-2.)))
+  102 IF( (T3 - 1.E5_RKIND) .GE. 0._RKIND) GOTO 104
+      F1 = .266_RKIND + .1068_RKIND*XX - .074_RKIND*SIN(1.2566_RKIND*XX)
+      F2 = .130_RKIND + .1160_RKIND*XX - .074_RKIND*SIN(1.2566_RKIND*XX)
+      F3 = .130_RKIND - .012_RKIND * XX + 
+     .     .05_RKIND*EXP(-MIN(50._RKIND,(XX-2._RKIND)*(XX-2._RKIND)))
       GOTO 105
-  104 F1 = .80
-      F2 = .71
-      F3 = .07
+  104 F1 = .80_RKIND
+      F2 = .71_RKIND
+      F3 = .07_RKIND
   105 CONTINUE
-      IF(I .EQ. 2 .OR. I .EQ. 3) EFFNEW = 8. * (1.-F1)
-      IF(I .EQ. 10 .OR. I .EQ. 11) EFFNEW = 18. * (1.-F2)
-      IF(I .GE. 12 .AND. I .LE. 17) EFFNEW = 18. * (1.-3.*F3 - F2)
-      IF(I .GE. 18) EFFNEW = (28. - N + Z) * 1.8 * (1.-3.*F3 - F2)
+      IF(I .EQ. 2 .OR. I .EQ. 3) EFFNEW = 8._RKIND * (1._RKIND-F1)
+      IF(I .EQ. 10 .OR. I .EQ. 11) EFFNEW = 18._RKIND * (1._RKIND-F2)
+      IF(I .GE. 12 .AND. I .LE. 17) 
+     .     EFFNEW = 18._RKIND * (1._RKIND-3._RKIND*F3 - F2)
+      IF(I .GE. 18) EFFNEW = (28._RKIND - N + Z) * 1.8_RKIND 
+     .     * (1._RKIND-3._RKIND*F3 - F2)
       RETURN
       END
 C
@@ -1695,21 +1847,21 @@ C     JUMP=3    EXINT1=X*EXP(X)*E1(X)
         X2=X*X
         X3=X2*X
         X4=X3*X
-        EXINT1=(X4+8.5733287401D0*X3+18.059016973D0*X2
-     .         +8.6347608925D0*X+0.2677737343D0
-     .         )/(X4+9.5733223454D0*X3+25.6329561486D0*X2
-     .           +21.0996530827D0*X+3.9584969228D0)
+        EXINT1=(X4+8.5733287401_RKIND*X3+18.059016973_RKIND*X2
+     .         +8.6347608925_RKIND*X+0.2677737343_RKIND
+     .         )/(X4+9.5733223454_RKIND*X3+25.6329561486_RKIND*X2
+     .           +21.0996530827_RKIND*X+3.9584969228_RKIND)
         IF(JUMP.EQ.1) THEN
-          EXINT1=EXINT1*EXP(-MIN(50.0,X))/X
+          EXINT1=EXINT1*EXP(-MIN(50._RKIND,X))/X
         ELSEIF(JUMP.EQ.2) THEN 
           EXINT1=EXINT1/X
         ENDIF
       ELSE
-        EXINT1 =((((((((7.122452D-7*X-1.766345D-6)*X
-     .                +2.928433D-5)*X-0.0002335379D0)*X
-     .              +0.001664156D0)*X-.01041576D0)*X
-     .            +0.05555682D0)*X-0.2500001D0)*X
-     .          +0.9999999D0)*X-LOG(X)-0.57721566490153D0
+        EXINT1 =((((((((7.122452e-7_RKIND*X-1.766345e-6_RKIND)*X
+     .                +2.928433e-5_RKIND)*X-0.0002335379_RKIND)*X
+     .              +0.001664156_RKIND)*X-.01041576_RKIND)*X
+     .            +0.05555682_RKIND)*X-0.2500001_RKIND)*X
+     .          +0.9999999_RKIND)*X-LOG(X)-0.57721566490153_RKIND
         IF(JUMP.EQ.2) THEN
           EXINT1=EXP(X)*EXINT1
         ELSEIF(JUMP.EQ.3) THEN 
@@ -1737,107 +1889,156 @@ C
       DIMENSION GAL(10),GAL2(10),A(10),B(10),C(10)
       DIMENSION GMSHELL(6,4),GK(10),GCA(10)
       DIMENSION A1(12),B1(12),C1N(12)
-      REAL REDUC(4)
+      R_PREC REDUC(4)
 C
 C
-      DATA AH/0.,.08,.08,.08,0./
-      DATA BH/.22,.16,.19,.20,0./
-      DATA GHE/.03785,.0002038,.04214,-.001901,-.03263,.004462,.28,0.,
-     .  .02327,-.0007424,-.06369,.001865,.07711,.000058,0.,0.,
-     .  -.03168,.0008439,.182,-.007289,-.05873,.009605,0.,0./
-      DATA GBE/.7114,.00558,-.9277,-.00153,.2711,.00523,0.0,0.0,
-     .   0.0,0.0,-.044,.00735,.482,-.01855,0.0,0.0,
-     .   .44,0.0,-.010,5*0.0,
-     .   .077,.00666,6*0.,
-     .   -.2943,-.00084,.2574,.01167,.04852,-.00777,.2671,.00555/
-      DATA GBE1/-.0264,0.03,0.0,0.20/
-      DATA GBE2/.0881,0.10,.117,0.10/
-      DATA GBE3/0.0,.064,.069,.048,.035,.0303,.025,.02,.02,.032,.032/
-      DATA GBE4/0.0,.342,.39,.192,.103,.0836,.063,.043,.043,0.0,0.0/
-      DATA GBE5/0.0,3*0.0,55000.,64000.,86000.,97000.,108000.,
-     .  156000.,168000./
-        DATA BESPEC/.00069,.122,.0059,.0063,  .0016,.13,.0073,.0058,
-     .  .0017,.127,.0087,.0040/
-      DATA GB/.2392,.00543,.3723,.0335,.0321,-.0253,.4591,-.00232,
-     .  .2317,.00654,-.1479,.03186,.3038,-.02130,.3904,-.00302,
-     .  .0811,.01318,-.2523,.04591,.2122,-.02192,.2304,.00639,
-     .  -.112,.0063,.050,.011,.0808,-.005,.239,.0023,
-     .  .126,0.0,.287,0.0,0.0,0.0,.28,0.0,
-     .  .128,-.025,-.46,.133,.138,-.023,-.70,.128/
-      DATA GC/.3539,.00039,.2314,.02314,.0358,-.01534,.5449,-.00858,
-     .        .2005,.00395,-.3012,.04332,-.09599,.01606,.3727,-.001517,
-     .        .3229,-.002883,.0212,.02481,.0783,-.01326,.4671,-.008106,
-     .        -.112,.0063,.050,.011,.0808,-.005,.239,.0023,
-     .        .128,-.025,-.46,.133,.138,-.023,-.70,.128,
-     .        -.269,-.00117,.0318,.0233,-.0102,-.0075,.235,.0172,
-     .        .22,.0056,6*0.,
-     .        .198,.0069,6*0.,
-     .        8*0./
-      DATA GN/-.01876,.0011,.0083,.00182,.0135,-.00083,.040,.00040,
-     .  .51,-.1,-1.84,.53,.55,-.091,-2.80,.51,
-     .  .128,-.025,-.46,.133,.138,-.023,-.70,.128,
-     .  -.07504,.0042,.033,.00726,.054,-.0033,.159,.0015/
+      DATA AH/0._RKIND,.08_RKIND,.08_RKIND,.08_RKIND,0._RKIND/
+      DATA BH/.22_RKIND,.16_RKIND,.19_RKIND,.20_RKIND,0._RKIND/
+      DATA GHE/.03785_RKIND,.0002038_RKIND,.04214_RKIND,-.001901_RKIND,
+     .     -.03263_RKIND,.004462_RKIND,.28_RKIND,0._RKIND,.02327_RKIND,
+     .     -.0007424_RKIND,-.06369_RKIND,.001865_RKIND,.07711_RKIND,
+     .     .000058_RKIND,0._RKIND,0._RKIND,-.03168_RKIND,.0008439_RKIND,
+     .     .182_RKIND,-.007289_RKIND,-.05873_RKIND,.009605_RKIND,
+     .     0._RKIND,0._RKIND/
+      DATA GBE/.7114_RKIND,.00558_RKIND,-.9277_RKIND,-.00153_RKIND,
+     .     .2711_RKIND,.00523_RKIND,0.0_RKIND,0.0_RKIND,0.0_RKIND,
+     .     0.0_RKIND,-.044_RKIND,.00735_RKIND,.482_RKIND,-.01855_RKIND,
+     .     0.0_RKIND,0.0_RKIND,.44_RKIND,0.0_RKIND,-.010_RKIND,
+     .     5*0.0_RKIND,.077_RKIND,.00666_RKIND,6*0._RKIND,-.2943_RKIND,
+     .     -.00084_RKIND,.2574_RKIND,.01167_RKIND,.04852_RKIND,
+     .     -.00777_RKIND,.2671_RKIND,.00555_RKIND/
+      DATA GBE1/-.0264_RKIND,0.03_RKIND,0.0_RKIND,0.20_RKIND/
+      DATA GBE2/.0881_RKIND,0.10_RKIND,.117_RKIND,0.10_RKIND/
+      DATA GBE3/0.0_RKIND,.064_RKIND,.069_RKIND,.048_RKIND,.035_RKIND,
+     .     .0303_RKIND,.025_RKIND,.02_RKIND,.02_RKIND,.032_RKIND,
+     .     .032_RKIND/ATA GBE4/0.0_RKIND,.342_RKIND,.39_RKIND,
+     .     .192_RKIND,.103_RKIND,.0836_RKIND,.063_RKIND,.043_RKIND,
+     .     .043_RKIND,0.0_RKIND,0.0_RKIND/
+      DATA GBE5/0.0_RKIND,3*0.0_RKIND,55000._RKIND,64000._RKIND,
+     .     86000._RKIND,97000._RKIND,108000._RKIND,156000._RKIND,
+     .     168000._RKIND/
+        DATA BESPEC/.00069_RKIND,.122_RKIND,.0059_RKIND,.0063_RKIND,
+     .     .0016_RKIND,.13_RKIND,.0073_RKIND,.0058_RKIND,.0017_RKIND,
+     .     .127_RKIND,.0087_RKIND,.0040_RKIND/
+      DATA GB/.2392_RKIND,.00543_RKIND,.3723_RKIND,.0335_RKIND,
+     .       .0321_RKIND,-.0253_RKIND,.4591_RKIND,-.00232_RKIND,
+     .       .2317_RKIND,.00654_RKIND,-.1479_RKIND,.03186_RKIND,
+     .       .3038_RKIND,-.02130_RKIND,.3904_RKIND,-.00302_RKIND,
+     .       .0811_RKIND,.01318_RKIND,-.2523_RKIND,.04591_RKIND,
+     .       .2122_RKIND,-.02192_RKIND,.2304_RKIND,.00639_RKIND,
+     .       -.112_RKIND,.0063_RKIND,.050_RKIND,.011_RKIND,.0808_RKIND,
+     .       -.005_RKIND,.239_RKIND,.0023_RKIND,.126_RKIND,0.0_RKIND,
+     .       .287_RKIND,0.0_RKIND,0.0_RKIND,0.0_RKIND,.28_RKIND,
+     .       0.0_RKIND,.128_RKIND,-.025_RKIND,-.46_RKIND,.133_RKIND,
+     .       .138_RKIND,-.023_RKIND,-.70_RKIND,.128_RKIND/
+      DATA GC/.3539_RKIND,.00039_RKIND,.2314_RKIND,.02314_RKIND,
+     .     .0358_RKIND,-.01534_RKIND,.5449_RKIND,-.00858_RKIND,
+     .     .2005_RKIND,.00395_RKIND,-.3012_RKIND,.04332_RKIND,
+     .     -.09599_RKIND,.01606_RKIND,.3727_RKIND,-.001517_RKIND,
+     .     .3229_RKIND,-.002883_RKIND,.0212_RKIND,.02481_RKIND,
+     .     .0783_RKIND,-.01326_RKIND,.4671_RKIND,-.008106_RKIND,
+     .     -.112_RKIND,.0063_RKIND,.050_RKIND,.011_RKIND,.0808_RKIND,
+     .     -.005_RKIND,.239_RKIND,.0023_RKIND,.128_RKIND,-.025_RKIND,
+     .     -.46_RKIND,.133_RKIND,.138_RKIND,-.023_RKIND,-.70_RKIND,
+     .     .128_RKIND,-.269_RKIND,-.00117_RKIND,.0318_RKIND,.0233_RKIND,
+     .     -.0102_RKIND,-.0075_RKIND,.235_RKIND,.0172_RKIND,.22_RKIND,
+     .     .0056_RKIND,6*0._RKIND,.198_RKIND,.0069_RKIND,6*0._RKIND,
+     .     8*0._RKIND/
+      DATA GN/-.01876_RKIND,.0011_RKIND,.0083_RKIND,.00182_RKIND,
+     .     .0135_RKIND,-.00083_RKIND,.040_RKIND,.00040_RKIND,.51_RKIND,
+     .     -.1_RKIND,-1.84_RKIND,.53_RKIND,.55_RKIND,-.091_RKIND,
+     .     -2.80_RKIND,.51_RKIND,.128_RKIND,-.025_RKIND,-.46_RKIND,
+     .     .133_RKIND,.138_RKIND,-.023_RKIND,-.70_RKIND,.128_RKIND,
+     .     -.07504_RKIND,.0042_RKIND,.033_RKIND,.00726_RKIND,.054_RKIND,
+     .     -.0033_RKIND,.159_RKIND,.0015_RKIND/
 C
-      DATA GOX/.69,0.0,4*0.0,.46,0.0,
-     .  -.112,.0063,.050,.011,.0808,-.005,.2391,.0023,
-     .  -.112,.0063,.050,.011,.0808,-.005,.2391,.0023,
-     .  .128,-.025,-.46,.133,.138,-.023,-.70,.128,
-     .  .51,-.1,-1.84,.53,.55,-.091,-2.80,.51,
-     .  .22,.0056,6*0.0,
-     .  8*0.,
-     .  .1261,0.0,.2869,0.0,0.0,0.0,.28,0.0/
-      DATA GF/.2246,.0075,.3055,.0062,-.0575,-.0017,.4248,-.0049,
-     .  -.063,0.,.407,0.,-.0238,0.,.478,0.,
-     .  -.0157,0.,.188,0.,.0195,0.,.283,0.,
-     .  -.001,0.,.134,0.,.123,0.,.158,0.,
-     .  .51,-.1,-1.84,.53,.55,-.091,-2.8,.51,
-     .  .039,.0154,6*0.,
-     .  8*0.,
-     .  .22,.056,6*0.,
-     .  8*0./
-        DATA GNE/-.72117,1.2406,11.746,8.2169,-7.7772,
-     .  1.0227,.70828,4.5400,4.1450,-3.8657,
-     .  -1.04290,.84411,6.7031,3.1927,-3.1693,
-     .  -.039582,.26837,.25803,.086929,-.086641,
-     .  -.017323,.29514,.29301,.13223,-.13071,
-     .  -.071593,.15504,.12598,-.000449,.000523,
-     .  .040202,.25113,.14858,.030780,-.030745,
-     .  .45761,.38477,.52142,.92153,-.91649,
-     .  -.17862,.32249,.28172,.040677,-.040639,
-     .  -.062670,.14921,1.5354,1.0586,-1.0219,
-     .  -.057871,.030701,.36471,.14784,-.14293,
-     .  .093106,-.001108,-.067652,-.021663,.021657/
+      DATA GOX/.69_RKIND,0.0_RKIND,4*0.0_RKIND,.46_RKIND,0.0_RKIND,
+     .     -.112_RKIND,.0063_RKIND,.050_RKIND,.011_RKIND,.0808_RKIND,
+     .     -.005_RKIND,.2391_RKIND,.0023_RKIND,-.112_RKIND,.0063_RKIND,
+     .     .050_RKIND,.011_RKIND,.0808_RKIND,-.005_RKIND,.2391_RKIND,
+     .     .0023_RKIND,.128_RKIND,-.025_RKIND,-.46_RKIND,.133_RKIND,
+     .     .138_RKIND,-.023_RKIND,-.70_RKIND,.128_RKIND,.51_RKIND,
+     .     -.1_RKIND,-1.84_RKIND,.53_RKIND,.55_RKIND,-.091_RKIND,
+     .     -2.80_RKIND,.51_RKIND,.22_RKIND,.0056_RKIND,6*0.0_RKIND,
+     .     8*0._RKIND,.1261_RKIND,0.0_RKIND,.2869_RKIND,0.0_RKIND,
+     .     0.0_RKIND,0.0_RKIND,.28_RKIND,0.0_RKIND/
+      DATA GF/.2246_RKIND,.0075_RKIND,.3055_RKIND,.0062_RKIND,
+     .     -.0575_RKIND,-.0017_RKIND,.4248_RKIND,-.0049_RKIND,
+     .     -.063_RKIND,0._RKIND,.407_RKIND,0._RKIND,-.0238_RKIND,
+     .     0._RKIND,.478_RKIND,0._RKIND,-.0157_RKIND,0._RKIND,
+     .     .188_RKIND,0._RKIND,.0195_RKIND,0._RKIND,.283_RKIND,0._RKIND,
+     .     -.001_RKIND,0._RKIND,.134_RKIND,0._RKIND,.123_RKIND,0._RKIND,
+     .     .158_RKIND,0._RKIND,.51_RKIND,-.1_RKIND,-1.84_RKIND,
+     .     .53_RKIND,.55_RKIND,-.091_RKIND,-2.8_RKIND,.51_RKIND,
+     .     .039_RKIND,.0154_RKIND,6*0._RKIND,8*0._RKIND,.22_RKIND,
+     .     .056_RKIND,6*0._RKIND,8*0._RKIND/
+        DATA GNE/-.72117_RKIND,1.2406_RKIND,11.746_RKIND,8.2169_RKIND,
+     .     -7.7772_RKIND,1.0227_RKIND,.70828_RKIND,4.5400_RKIND,
+     .     4.1450_RKIND,-3.8657_RKIND,-1.04290_RKIND,.84411_RKIND,
+     .     6.7031_RKIND,3.1927_RKIND,-3.1693_RKIND,-.039582_RKIND,
+     .     .26837_RKIND,.25803_RKIND,.086929_RKIND,-.086641_RKIND,
+     .     -.017323_RKIND,.29514_RKIND,.29301_RKIND,.13223_RKIND,
+     .     -.13071_RKIND,-.071593_RKIND,.15504_RKIND,.12598_RKIND,
+     .     -.000449_RKIND,.000523_RKIND,.040202_RKIND,.25113_RKIND,
+     .     .14858_RKIND,.030780_RKIND,-.030745_RKIND,.45761_RKIND,
+     .     .38477_RKIND,.52142_RKIND,.92153_RKIND,-.91649_RKIND,
+     .     -.17862_RKIND,.32249_RKIND,.28172_RKIND,.040677_RKIND,
+     .     -.040639_RKIND,-.062670_RKIND,.14921_RKIND,1.5354_RKIND,
+     .     1.0586_RKIND,-1.0219_RKIND,-.057871_RKIND,.030701_RKIND,
+     .     .36471_RKIND,.14784_RKIND,-.14293_RKIND,.093106_RKIND,
+     .     -.001108_RKIND,-.067652_RKIND,-.021663_RKIND,.021657_RKIND/
 C
-      DATA GNA/.1586,.007375,.1866,.04156,.02403,-.02416,.3100,-.00098,
-     .  -.3245,0.0,.5548,0.0,-.1562,0.0,.266,0./
-      DATA GNA4/1.153,-.0333,0.0,  .001,.0053,.058,  .67,-.0133,0.0/
-      DATA GMGII/.24,37.3,68.3,96.,96.,2.39,5.99,5.99,0.,0.,0.,.142/
-      DATA GMG/.9,.2,.25,.23,.23,.2,.2,.2,.14,.0094/
-      DATA GMGP/-.1333,.0155,-.6758,.0577,.5057,-.0323,.314,0.0,
-     .          -.294,0.0,.5043,0.0,-.1619,0.0,.2606,0.0/
-      DATA GAL/0.0139,.01,.06,0.,0.2,3*0.,1.64,.11/
-      DATA GAL2/0.0,.28,.28,0.,0.,3*0.,.00,.28/
-      DATA A/.022,.625,.660,.240,.061,.256,.0368,.271,.833,.696/
-      DATA B/.0035,.360,.432,.019,.364,.354,.343,.794,.404,.387/
-      DATA C/.1261,.1261,.1261,.477,.162,.0108,.138,.0719,.1261,.1261/
-      DATA GMSHELL/.453,.91,.13,.93,.2,.2,  .7,.98,.13,.93,0.,0.,
-     .  .59,.95,.13,.93,0.,0.,  .51,.95,.20,.29,0.,0./
-      DATA GK/.35,.35,1.1,.092,.91,.97,1.1,3*0./
-      DATA GCA/.35,.21,43.,.14,.12,.43,37.,.20,.11,4./
+      DATA GNA/.1586_RKIND,.007375_RKIND,.1866_RKIND,.04156_RKIND,
+     .       .02403_RKIND,-.02416_RKIND,.3100_RKIND,-.00098_RKIND,
+     .       -.3245_RKIND,0.0_RKIND,.5548_RKIND,0.0_RKIND,-.1562_RKIND,
+     .       0.0_RKIND,.266_RKIND,0._RKIND/
+      DATA GNA4/1.153_RKIND,-.0333_RKIND,0.0_RKIND,.001_RKIND,
+     .     .0053_RKIND,.058_RKIND,.67_RKIND,-.0133_RKIND,0.0_RKIND/
+      DATA GMGII/.24_RKIND,37.3_RKIND,68.3_RKIND,96._RKIND,96._RKIND,
+     .     2.39_RKIND,5.99_RKIND,5.99_RKIND,0._RKIND,0._RKIND,0._RKIND,
+     .     .142_RKIND/
+      DATA GMG/.9_RKIND,.2_RKIND,.25_RKIND,.23_RKIND,.23_RKIND,.2_RKIND,
+     .     .2_RKIND,.2_RKIND,.14_RKIND,.0094_RKIND/
+      DATA GMGP/-.1333_RKIND,.0155_RKIND,-.6758_RKIND,.0577_RKIND,
+     .     .5057_RKIND,-.0323_RKIND,.314_RKIND,0.0_RKIND,-.294_RKIND,
+     .     0.0_RKIND,.5043_RKIND,0.0_RKIND,-.1619_RKIND,0.0_RKIND,
+     .     .2606_RKIND,0.0_RKIND/
+      DATA GAL/0.0139_RKIND,.01_RKIND,.06_RKIND,0._RKIND,0.2_RKIND,
+     .     3*0._RKIND,1.64_RKIND,.11_RKIND/
+      DATA GAL2/0.0_RKIND,.28_RKIND,.28_RKIND,0._RKIND,0._RKIND,
+     .     3*0._RKIND,0._RKIND,.28_RKIND/
+      DATA A/.022_RKIND,.625_RKIND,.660_RKIND,.240_RKIND,.061_RKIND,
+     .     .256_RKIND,.0368_RKIND,.271_RKIND,.833_RKIND,.696_RKIND/
+      DATA B/.0035_RKIND,.360_RKIND,.432_RKIND,.019_RKIND,.364_RKIND,
+     .     .354_RKIND,.343_RKIND,.794_RKIND,.404_RKIND,.387_RKIND/
+      DATA C/.1261_RKIND,.1261_RKIND,.1261_RKIND,.477_RKIND,.162_RKIND,
+     .     .0108_RKIND,.138_RKIND,.0719_RKIND,.1261_RKIND,.1261_RKIND/
+      DATA GMSHELL/.453_RKIND,.91_RKIND,.13_RKIND,.93_RKIND,.2_RKIND,
+     .     .2_RKIND,.7_RKIND,.98_RKIND,.13_RKIND,.93_RKIND,0._RKIND,
+     .     0._RKIND,.59_RKIND,.95_RKIND,.13_RKIND,.93_RKIND,0._RKIND,
+     .     0._RKIND,.51_RKIND,.95_RKIND,.20_RKIND,.29_RKIND,0._RKIND,
+     .     0._RKIND/
+      DATA GK/.35_RKIND,.35_RKIND,1.1_RKIND,.092_RKIND,.91_RKIND,
+     .     .97_RKIND,1.1_RKIND,3*0._RKIND/
+      DATA GCA/.35_RKIND,.21_RKIND,43._RKIND,.14_RKIND,.12_RKIND,
+     .     .43_RKIND,37._RKIND,.20_RKIND,.11_RKIND,4._RKIND/
 C
-      DATA A1/0.,.4508,.3957,.5584,.5055,.5055,.5537,.5537,.5108,.5108,
-     .       1.235,1.235/
-      DATA B1/0.,-.02787,.4532,.1363,.3461,.3461,.3468,.3468,.3304,
-     .        .3304,-.6625,-.6625/
-      DATA C1N/0.,.1570,-.1219,.1158,-.01872,-.01872,.00516,.00516,
-     . .1007,.1007,.8310,.8310/
+      DATA A1/0._RKIND,.4508_RKIND,.3957_RKIND,.5584_RKIND,.5055_RKIND,
+     .     .5055_RKIND,.5537_RKIND,.5537_RKIND,.5108_RKIND,.5108_RKIND,
+     .     1.235_RKIND,1.235_RKIND/
+      DATA B1/0._RKIND,-.02787_RKIND,.4532_RKIND,.1363_RKIND,
+     .     .3461_RKIND,.3461_RKIND,.3468_RKIND,.3468_RKIND,.3304_RKIND,
+     .     .3304_RKIND,-.6625_RKIND,-.6625_RKIND/
+      DATA C1N/0._RKIND,.1570_RKIND,-.1219_RKIND,.1158_RKIND,
+     .     -.01872_RKIND,-.01872_RKIND,.00516_RKIND,.00516_RKIND,
+     .     .1007_RKIND,.1007_RKIND,.8310_RKIND,.8310_RKIND/
 C
 C     SHOULD PUT IN SENSIBLE 'F'S FOR POTASSIUM ISOSEQUENCE
 C
-      T4    = T / 10000.
+      T4    = T / 10000._RKIND
       ST    = SQRT(T)
-      GAUNT = 0.2
-      Y     = E33 * 11590. / T
+      GAUNT = 0.2_RKIND
+      Y     = E33 * 11590._RKIND / T
       CC    = EXINT1(Y,2)
       IF(J .EQ. 1 .AND. N .GT. 2) GOTO 150
 C
@@ -1847,10 +2048,12 @@ C
 C
     1 CONTINUE
 C     HYDROGENIC IONS: MEWE; HAYES AND SEATON: 3S,3D FROM THOMAS; OTHERS MEWE
-      GAUNT = AH(L) + BH(L)*Y*CC + .276*CC
-      IF(L .EQ. 5) GAUNT = .212 -.203*(Y-Y*Y*CC) + .0256*CC
+      GAUNT = AH(L) + BH(L)*Y*CC + .276_RKIND*CC
+      IF(L .EQ. 5) 
+     .     GAUNT = .212_RKIND -.203_RKIND*(Y-Y*Y*CC) + .0256_RKIND*CC
       IF(N .GT. 2) RETURN
-      IF(L .EQ. 5) GAUNT = .1198*Y*CC - .1194*(Y-Y*Y*CC) + .0328*CC
+      IF(L .EQ. 5) 
+     .     GAUNT =.1198_RKIND*Y*CC-.1194_RKIND*(Y-Y*Y*CC)+.0328_RKIND*CC
       GOTO 200
     2 CONTINUE
 C     HELIUM-LIKE IONS:  PRADHAN+CASCADES FOR N=2, MEWE N=3,4
@@ -1860,21 +2063,26 @@ C     L = 9 HAS GAUNT = 0.0,  SATELLITE LINES : L = 6 DONE BY BRANCH FROM L=3
       IF(L .GT. 3) GOTO 21
       GAUNT = GNCRCH(GHE,L,Y,CC,N)
       RETURN
-   21 IF(L .EQ. 4) GAUNT=(1.+7./N)*(.053+.022*(Y*Y*Y*CC-Y*Y+Y)+.276*CC)
-      IF(L .EQ. 5) GAUNT=(1+1.5/N)*(.053+.022*(Y*Y*Y*CC-Y*Y+Y)+.276*CC)
-      IF(L .EQ. 6) GAUNT = 0.
-      IF(L .EQ. 7) GAUNT = .04 * (Y-Y*Y*CC)
-      IF(L .EQ. 8) GAUNT = .02
-      IF(L .EQ. 9) GAUNT = 0.
+   21 IF(L .EQ. 4) 
+     .     GAUNT=(1._RKIND+7._RKIND/N)*(.053_RKIND + 
+     .     .022_RKIND*(Y*Y*Y*CC-Y*Y+Y)+.276_RKIND*CC)
+      IF(L .EQ. 5) GAUNT=(1._RKIND+1.5_RKIND/N)
+     .     * (.053_RKIND+.022_RKIND*(Y*Y*Y*CC-Y*Y+Y)+.276_RKIND*CC)
+      IF(L .EQ. 6) GAUNT = 0._RKIND
+      IF(L .EQ. 7) GAUNT = .04_RKIND * (Y-Y*Y*CC)
+      IF(L .EQ. 8) GAUNT = .02_RKIND
+      IF(L .EQ. 9) GAUNT = 0._RKIND
       RETURN
-   25 IF(L .EQ. 1) GAUNT = MIN(.00656*T4**(.89),.30*CC)
-      IF(L .EQ. 4 .OR. L .EQ. 5) GAUNT = .30 * CC
-      IF(L .EQ. 2) GAUNT = MIN(.0283*T4**(-.10),.359*T4**(-.569))
-      IF(L .EQ. 3) GAUNT = MIN(.0105*T4**(.30),.095*T4**(-.479))
-      IF(L .EQ. 6) GAUNT = 0.0
-      IF(L .EQ. 7) GAUNT = 4.08E-7 * T ** .941
-      IF(L .EQ. 8) GAUNT = 2.46E-8 * T ** 1.22
-      IF(L .EQ. 9) GAUNT = 0.0
+   25 IF(L .EQ. 1) GAUNT = MIN(.00656_RKIND*T4**(.89_RKIND),.30_RKIND*CC)
+      IF(L .EQ. 4 .OR. L .EQ. 5) GAUNT = .30_RKIND * CC
+      IF(L .EQ. 2) GAUNT = MIN(.0283_RKIND*T4**(-.10_RKIND),
+     .     .359_RKIND*T4**(-.569_RKIND))
+      IF(L .EQ. 3) GAUNT = MIN(.0105_RKIND*T4**(.30_RKIND),
+     .     .095_RKIND*T4**(-.479_RKIND))
+      IF(L .EQ. 6) GAUNT = 0.0_RKIND
+      IF(L .EQ. 7) GAUNT = 4.08E-7_RKIND * T ** .941_RKIND
+      IF(L .EQ. 8) GAUNT = 2.46E-8_RKIND * T ** 1.22_RKIND
+      IF(L .EQ. 9) GAUNT = 0.0_RKIND
       GOTO 200
     3 CONTINUE
 C     LITHIUM-LIKE IONS: MEWE MODIFIED TO FIT CLOSE-COUPLING 
@@ -1882,17 +2090,20 @@ C     CALCULATIONS OF ROBB, HENRY L=1 MODIFIED DEC 17, 1991
       I = N-4
       IF(N .GE. 10) I = N/2
       IF(N .GE. 26) I = N/2-2
-      IF(L .EQ. 1)GAUNT=A1(I)+(B1(I)*Y-C1N(I)*Y*Y+0.279)*CC+C1N(I)*Y
-      X = 1. / (N-3.)
-C     IF(L .EQ. 1) GAUNT = (0.68 + .02*N) * ((.7+.35*X) +
-C    .  ((1.-.8*X)*Y+(.5-.5*X)*Y*Y +.28)*CC - (.5-.5*X)*Y)
-      IF(L .EQ. 2) GAUNT = .053 + .16 * CC
-      IF(L .EQ. 3 .OR. L .EQ. 4) GAUNT = -(.16+.32*X)+
-     .  ((.8-.56*X)*Y+.2*Y*Y+.28)*CC-.2*Y
-      IF(L .EQ. 5) GAUNT = (.19+.25*X) + .079*CC
-      IF(L .EQ. 6) GAUNT = .31 - .1*Y*CC
-      IF(L .EQ. 7) GAUNT = .096 + .32 * X
-      IF (L .EQ. 8) GAUNT = .13
+      IF(L .EQ. 1)
+     .     GAUNT=A1(I)+(B1(I)*Y-C1N(I)*Y*Y+0.279_RKIND)*CC+C1N(I)*Y
+      X = 1._RKIND / (N-3._RKIND)
+C      IF(L .EQ. 1) GAUNT = (0.68_RKIND + .02_RKIND*N) * 
+C     .     ((.7_RKIND+.35_RKIND*X) + ((1._RKIND-.8_RKIND*X)*Y + 
+C     .     (.5_RKIND-.5_RKIND*X)*Y*Y +.28_RKIND)*CC
+C     .     - (.5_RKIND-.5_RKIND*X)*Y)
+      IF(L .EQ. 2) GAUNT = .053_RKIND + .16_RKIND * CC
+      IF(L .EQ. 3 .OR. L .EQ. 4) GAUNT = -(.16_RKIND+.32_RKIND*X)+
+     .  ((.8_RKIND-.56_RKIND*X)*Y+.2_RKIND*Y*Y+.28_RKIND)*CC-.2_RKIND*Y
+      IF(L .EQ. 5) GAUNT = (.19_RKIND+.25_RKIND*X) + .079_RKIND*CC
+      IF(L .EQ. 6) GAUNT = .31_RKIND - .1_RKIND*Y*CC
+      IF(L .EQ. 7) GAUNT = .096_RKIND + .32_RKIND * X
+      IF (L .EQ. 8) GAUNT = .13_RKIND
       GOTO 200
     4 CONTINUE
 C     BERYLLIUM-LIKE IONS:  QUB FOR N=2 UP THROUGH NE; MANN, ROBB & 
@@ -1904,23 +2115,23 @@ C     MASON & STOREY (FE XXII) AND LI-LIKE
       IF(N .GE. 26) I = N / 2 - 3
       IF(L .NE. 1) GOTO 41
       TL = LOG10(T)
-      GAUNT = .54 + .0125 * N + .135 * CC
+      GAUNT = .54_RKIND + .0125_RKIND * N + .135_RKIND * CC
       IF(N .LE. 10) GAUNT = GBE1(I) + GBE2(I) * TL
       GOTO 200
    41 IF(L .NE. 2) GOTO 42
-      GNT = GBE3(I) / (1. + GBE4(I)/Y)  +  GBE5(I) / T
-      IF(N .EQ. 6) GNT = .046 / (1. + T*T/6.25E10)
+      GNT = GBE3(I) / (1._RKIND + GBE4(I)/Y)  +  GBE5(I) / T
+      IF(N .EQ. 6) GNT = .046_RKIND / (1._RKIND + T*T/6.25E10_RKIND)
       GAUNT = GNT * REDUC(1)
       GOTO 200
    42 CONTINUE
       IF(L .LE. 7) GAUNT = GNCRCH(GBE,L-2,Y,CC,N)
-      IF(L .EQ. 8) GAUNT = .1261 + .2869*Y*CC + .276*CC
+      IF(L .EQ. 8) GAUNT = .1261_RKIND + .2869_RKIND*Y*CC +.276_RKIND*CC
       IF(N .GT. 8) GOTO 200
-      EM = -4.67 + 1.86 * N
-      EX = EXP(-MIN(50.0,EM*11590./T))
+      EM = -4.67_RKIND + 1.86_RKIND * N
+      EX = EXP(-MIN(50._RKIND,EM*11590._RKIND/T))
       M = N-5
-      IF(L .EQ. 10) GAUNT=BESPEC(1,M)*(1.-PM)*EX+BESPEC(2,M)*PM
-      IF(L .EQ. 11) GAUNT=BESPEC(3,M)*(1.-PM)*EX+BESPEC(4,M)*PM
+      IF(L .EQ. 10) GAUNT=BESPEC(1,M)*(1._RKIND-PM)*EX+BESPEC(2,M)*PM
+      IF(L .EQ. 11) GAUNT=BESPEC(3,M)*(1._RKIND-PM)*EX+BESPEC(4,M)*PM
       GOTO 200
     5 CONTINUE
 C     BORON ISOSEQUENCE: N=2 INTERPOLATED FROM O IV AND FE XXII OF ROBB; 
@@ -1932,42 +2143,43 @@ C     TO 8% FOR 2S-3P.  N = 4 FROM MASON & STOREY
 C     L = 9 INTERCOMBINATION LINE
       IF(L .LE. 6) GAUNT = GNCRCH(GB,L,Y,CC,N)
       IF(L .EQ. 9) GAUNT = REDUC(2)
-      IF(L .EQ. 12) GAUNT = 0.
+      IF(L .EQ. 12) GAUNT = 0._RKIND
       GOTO 200
     6 CONTINUE
 C     CARBON ISOSEQUENCE: N=2 INTERP FROM MANN AND ROBB;  
 C     AGREES TO 5-10% WITH BHATIA AR, MG
 C     N=3,4 GENERAL B-F; AGREES 3-10% WITH MANN 2P-3D; L=6 INTERCOMB
       IF(L .LE. 5) GAUNT = GNCRCH(GC,L,Y,CC,N)
-      IF(L .EQ. 7) GAUNT = .198 + .0069*N
-      IF(L .EQ. 8) GAUNT = .22 + .0056 * N
-      IF(L .EQ. 9) GAUNT = .1261 + (.2869*Y + .28) * CC
+      IF(L .EQ. 7) GAUNT = .198_RKIND + .0069_RKIND*N
+      IF(L .EQ. 8) GAUNT = .22_RKIND + .0056_RKIND * N
+      IF(L .EQ. 9) GAUNT = .1261_RKIND + (.2869_RKIND*Y + .28_RKIND) *CC
       IF(L .EQ. 6) GAUNT = REDUC(3)
-      IF(L .EQ. 6 .AND. N .EQ. 6) GAUNT=SQRT(.0001*T)*REDUC(3)
-      IF(L .EQ. 12) GAUNT = 0.
+      IF(L .EQ. 6 .AND. N .EQ. 6) GAUNT=SQRT(.0001_RKIND*T)*REDUC(3)
+      IF(L .EQ. 12) GAUNT = 0._RKIND
       GOTO 200
     7 CONTINUE
 C     NITROGEN SEQUENCE:   N=2 FROM MANN FE XX AND MASON &
 C     BHATIA MG,SI,S,AR,CA N=3 AND 4 GENERAL B-F
-      IF(L .EQ. 1) GAUNT = (1.086-1.71/J)*(.3642+.9358*Y*CC-.3758*
-     .  (Y-Y*Y*CC) + .3586 * CC)
+      IF(L .EQ. 1) 
+     .     GAUNT = (1.086_RKIND-1.71_RKIND/J)*(.3642_RKIND + 
+     .     .9358_RKIND*Y*CC-.3758_RKIND* (Y-Y*Y*CC) + .3586_RKIND * CC)
       IF(L .GE. 2 .AND. L .LE. 5) GAUNT = GNCRCH(GN,L-1,Y,CC,N)
-      IF(L .EQ. 12) GAUNT = 0.
-      IF(L .EQ. 8) GAUNT = .22 + .0056*N
-      IF(L .EQ. 9) GAUNT = .1261 + .2869*Y*CC + .276*CC
+      IF(L .EQ. 12) GAUNT = 0._RKIND
+      IF(L .EQ. 8) GAUNT = .22_RKIND + .0056_RKIND*N
+      IF(L .EQ. 9) GAUNT = .1261_RKIND + .2869_RKIND*Y*CC +.276_RKIND*CC
       GOTO 200
     8 CONTINUE
 C     OXYGEN ISOSEQUENCE:  N=2 FROM MANN, ROBB FE XIX AND FROM 
 C     BHATIA,F&D SI, S, AR OTHERS GENERIC B-F
       IF(L .LE. 8) GAUNT = GNCRCH(GOX,L,Y,CC,N)
-      IF(L .EQ. 10) GAUNT = .16 + .0015*N
-      IF(L .EQ. 15) GAUNT = 0.
+      IF(L .EQ. 10) GAUNT = .16_RKIND + .0015_RKIND*N
+      IF(L .EQ. 15) GAUNT = 0._RKIND
       GOTO 200
     9 CONTINUE
 C     FLUORINE SEQUENCE:   N=2 FROM MANN AL V AND ROBB FE XVIII;
 C     OTHERS GENERIC B-F ISO; N=3 FROM MANN
       IF(L .LE. 8) GAUNT = GNCRCH(GF,L,Y,CC,N)
-      IF(L .EQ. 9) GAUNT = .1261 + (.2869*Y + .28) * CC
+      IF(L .EQ. 9) GAUNT = .1261_RKIND + (.2869_RKIND*Y + .28_RKIND) *CC
       GOTO 200
    10 CONTINUE
 C     NEON SEQUENCE: SMITH ET AL INCLUDING CASCADES AND RESONANCES
@@ -1979,26 +2191,29 @@ C     ASSUME THEY ARE ALL LIKE FE XVII
 C     SODIUM SEQUENCE:  MANN, FLOWER & NUSSBAUMER, AND BLAHA
       IF(N .NE. 12) GOTO 111
       GAUNT = GMGII(L)
-      IF(L .EQ. 1) GAUNT=.112+(.0269*Y-.0998*Y*Y+.318)*CC+.0998*Y
-      IF(L .EQ. 2) GAUNT=141+(59.3*Y-671*Y*Y+.858)*CC+671*Y
+      IF(L .EQ. 1) GAUNT = .112_RKIND + 
+     .     (.0269_RKIND*Y-.0998_RKIND*Y*Y+.318_RKIND)*CC+.0998_RKIND*Y
+      IF(L .EQ. 2) GAUNT = 141._RKIND + 
+     .     (59.3_RKIND*Y-671._RKIND*Y*Y+.858_RKIND)*CC+671._RKIND*Y
       RETURN
   111 CONTINUE
       IF(L .GT. 2) GOTO 112
       GAUNT = GNCRCH(GNA,L,Y,CC,N-10)
-      IF(N .EQ. 14 .AND. L .EQ. 2) GAUNT = -0.0172 + (.832*Y
-     .                         +.029*Y*Y+.3513)*CC - .029*Y
+      IF(N .EQ. 14 .AND. L .EQ. 2) GAUNT = -0.0172_RKIND + (.832_RKIND*Y
+     .     +.029_RKIND*Y*Y+.3513_RKIND)*CC - .029_RKIND*Y
       RETURN
   112 CONTINUE
       IF(L .GT. 5) GOTO 113
       LLR = L-2
       GAUNT = GNA4(1,LLR) + GNA4(2,LLR)*N + GNA4(3,LLR)*CC
       RETURN
-  113 IF(L .EQ. 6) GAUNT = -.16 + .8*Y*CC - .2*(Y-Y*Y*CC)+.276*CC
-      IF(L .EQ. 7) GAUNT = .44 - 0.1*Y*CC
-      IF(L .EQ. 8) GAUNT = .15 - .05*Y*CC
-      IF(L .EQ. 9 .OR. L .EQ. 10) GAUNT = 0.03
-      IF(L .EQ. 11) GAUNT = 0.07
-      IF(L .EQ. 12) GAUNT = 0.15
+  113 IF(L .EQ. 6) GAUNT = -.16_RKIND + .8_RKIND*Y*CC - 
+     .     .2_RKIND*(Y-Y*Y*CC)+.276_RKIND*CC
+      IF(L .EQ. 7) GAUNT = .44_RKIND - 0.1_RKIND*Y*CC
+      IF(L .EQ. 8) GAUNT = .15_RKIND - .05_RKIND*Y*CC
+      IF(L .EQ. 9 .OR. L .EQ. 10) GAUNT = 0.03_RKIND
+      IF(L .EQ. 11) GAUNT = 0.07_RKIND
+      IF(L .EQ. 12) GAUNT = 0.15_RKIND
       RETURN
    12 CONTINUE
 C     MAGNESIUM SEQUENCE:   INTERPOLATE SI TO FE FOR 3P, 4P EXCITATIONS;
@@ -2007,7 +2222,8 @@ C     G FOR 4D = G FOR 4F;  L=10 IS INTERCOMBINATION LINE
       GAUNT = GMG(L)
       IF(L .LE. 2) GAUNT = GNCRCH(GMGP,L,Y,CC,N)
       IF(L .EQ. 10) GAUNT=REDUC(4)
-      IF(L .EQ. 10 .AND. N .EQ. 14) GAUNT=REDUC(4)*(20000./T)**(.406)
+      IF(L .EQ. 10 .AND. N .EQ. 14) 
+     .     GAUNT=REDUC(4)*(20000._RKIND/T)**(.406_RKIND)
       RETURN
    13 CONTINUE
 C     ALUMINUM ISO-SEQUENCE:   SI II FROM ROBERTS, S IV 3P FROM MANN,
@@ -2019,27 +2235,32 @@ C     FE XIV RESONANCES COMPUTED AS IN SMITH ET AL FROM BLAHA OMEGAS
       IF(L .GE. 4 .AND. L .LE. 8) GOTO 132
       IF(N .GT. 14) GOTO 131
       GAUNT = GAL(L) + GAL2(L) * CC
-      IF(L .EQ. 1) GAUNT=GAL(1)*1.9E7*ST /(DENO+ST*1.9E7)
+      IF(L .EQ. 1) GAUNT=GAL(1)*1.9E7_RKIND*ST /(DENO+ST*1.9E7_RKIND)
       RETURN
   131 IF(N .GT. 20) GOTO 132
-      CN = ST * 2.7 * 10. ** (7.+J/2.)
-      IF(L .EQ. 1) GAUNT =( (.128 + (.3449*Y+.3544*Y*Y)*CC-.3544*Y) *
-     .   1.8 / (1.+.25/Y) )  * .069 *  CN/(DENO+CN)
-      IF(L .EQ. 2) GAUNT = .0405+(.2052*Y+.0328*Y*Y+.2311)*CC-.0328*Y
-      IF(L .EQ. 3) GAUNT = .142 + .147*CC
-      IF(L .EQ. 9) GAUNT = .1330+(.3833*Y+.0934*Y*Y+.1611)*CC-.0934*Y
-      IF(L .EQ. 10) GAUNT =.1684+(.2432*Y+.0484*Y*Y+.2638)*CC-.0484*Y
+      CN = ST * 2.7_RKIND * 10._RKIND ** (7._RKIND+J/2._RKIND)
+      IF(L .EQ. 1) GAUNT = ( (.128_RKIND + 
+     .     (.3449_RKIND*Y+.3544_RKIND*Y*Y)*CC-.3544_RKIND*Y) *
+     .     1.8_RKIND / (1._RKIND+.25_RKIND/Y) )*.069_RKIND*CN/(DENO+CN)
+      IF(L .EQ. 2) GAUNT = .0405_RKIND+(.2052_RKIND*Y+.0328_RKIND*Y*Y + 
+     .     .2311_RKIND)*CC-.0328_RKIND*Y
+      IF(L .EQ. 3) GAUNT = .142_RKIND + .147_RKIND*CC
+      IF(L .EQ. 9) GAUNT = .1330_RKIND+(.3833_RKIND*Y+.0934_RKIND*Y*Y +
+     .     .1611_RKIND)*CC-.0934_RKIND*Y
+      IF(L .EQ. 10) GAUNT =.1684_RKIND+(.2432_RKIND*Y+.0484_RKIND*Y*Y +
+     .     .2638_RKIND)*CC-.0484_RKIND*Y
       RETURN
   132 CONTINUE
-      GAUNT = A(L) + B(L) * (1.-1. / (1. + C(L)/Y))
-      IF(L .EQ. 1) GAUNT=(.0121+.0036/(1.+.1261/Y)) 
-     .                  *6.0E17/(DENO+6.0E17)
+      GAUNT = A(L) + B(L) * (1._RKIND-1._RKIND / (1._RKIND + C(L)/Y))
+      IF(L .EQ. 1) 
+     .     GAUNT=(.0121_RKIND+.0036_RKIND/(1._RKIND+.1261_RKIND/Y)) 
+     .                  *6.0E17_RKIND/(DENO+6.0E17_RKIND)
       RETURN
 C
 C     SILICON THROUGH CHLORINE SEQUENCES
    14 GAUNT = GMSHELL(L,II-13)
       IF(L .EQ. 3 .AND. II .NE. 17)  GAUNT = GMSHELL(L,II-13) 
-     .                                     - 0.114/(1.+.138/Y)
+     .     - 0.114_RKIND/(1._RKIND+.138_RKIND/Y)
       RETURN
    50 CONTINUE
       IF(II .GT. 18) GOTO 19
@@ -2048,12 +2269,13 @@ C     SILICON THROUGH CHLORINE SEQUENCES
       GAUNT = GK(L)
       IF(N .EQ. 20) GAUNT = GCA(L)
       RETURN
-   20 IF(L .LE. 3) GAUNT = MAX(.2,-.606*LOG10(Y)-.052)
+   20 IF(L .LE. 3) GAUNT = MAX(.2_RKIND,-.606_RKIND*LOG10(Y)-.052_RKIND)
       RETURN
   150 CONTINUE
-      GAUNT = .01
-      IF(Y .LE. 10.) GAUNT = MIN(EXP(-MIN(50.0,.7*LOG(Y)-2.3)),
-     .                          .28*CC)
+      GAUNT = .01_RKIND
+      IF(Y .LE. 10._RKIND) 
+     .     GAUNT = MIN(EXP(-MIN(50._RKIND,.7_RKIND*LOG(Y)-2.3_RKIND)),
+     .                          .28_RKIND*CC)
   200 CONTINUE
       RETURN
       END
@@ -2074,10 +2296,10 @@ C
 C
 C     NAME=GND
       FUNCTION GND(NUM)
-      GND = 4.
-      IF(NUM .LT. 28) GND = 3.
-      IF(NUM .LT. 10) GND = 2.
-      IF(NUM .LT. 2 ) GND = 1.
+      GND = 4._RKIND
+      IF(NUM .LT. 28) GND = 3._RKIND
+      IF(NUM .LT. 10) GND = 2._RKIND
+      IF(NUM .LT. 2 ) GND = 1._RKIND
       RETURN
       END
 C
@@ -2088,17 +2310,21 @@ C
       INCLUDE "MTLPARAM.h"
 C
       DIMENSION DRAT(30)
-      DATA DRAT/2.,.5,2.,.5,6.,2.5,2.22,2.25,.67,.167,2.,.5,6.,2.5,
-     .  2.22,2.25,.67,.167,12*0./
+      DATA DRAT/2._RKIND,.5_RKIND,2._RKIND,.5_RKIND,6._RKIND,2.5_RKIND,
+     .     2.22_RKIND,2.25_RKIND,.67_RKIND,.167_RKIND,2._RKIND,.5_RKIND,
+     .     6._RKIND,2.5_RKIND,2.22_RKIND,2.25_RKIND,.67_RKIND,
+     .     .167_RKIND,12*0._RKIND/
       DEG = DRAT(N-J + 1)
-      X1  = EE*11590./T
+      X1  = EE*11590._RKIND/T
       X12 = X1*X1
       X14 = X12*X12
-      G = 5.238E-23*T**1.5*DEG*(S2J(NO,J)*X12+S4J(NO,J)*X12*X1+
-     .  X12*X1*S5J(NO,J)*(0.5-X1/2.)+EXINT1(X1,2)
-     . *(S3J(NO,J)*X12*X1-X14*S4J(NO,J)+X1*X14*S5J(NO,J)/2.))
+      G = 5.238E-23_RKIND*T**1.5_RKIND*DEG*(S2J(NO,J)*X12+S4J(NO,J)
+     .     *X12*X1 + X12*X1*S5J(NO,J)*(0.5_RKIND-X1/2._RKIND)
+     .     +EXINT1(X1,2)*(S3J(NO,J)*X12*X1-X14*S4J(NO,J)+
+     .     X1*X14*S5J(NO,J)/2._RKIND))
       GREC = G
-      IF(X1 .GE. 300.) GREC = 5.238E-23*T**1.5*DEG*(S2J(NO,J)
+      IF(X1 .GE. 300._RKIND) 
+     .     GREC = 5.238E-23_RKIND*T**1.5_RKIND*DEG*(S2J(NO,J)
      .  + S3J(NO,J) + S4J(NO,J) + S5J(NO,J)) * X12
       RETURN
       END
@@ -2121,7 +2347,7 @@ C     ZERO (IN WHICH CASE A MAY CONTAIN GARBAGE UPON RETURN).
       N = L - 1
       MAX = N * LMAX + L
       DO I = 1,L
-         X(I) = 1.
+         X(I) = 1._RKIND
       ENDDO
       K1 = -LMAX
       DO K=1,L
@@ -2140,7 +2366,7 @@ C     ZERO (IN WHICH CASE A MAY CONTAIN GARBAGE UPON RETURN).
   104       CONTINUE
          ENDDO
          A(K2) = X(K)
-         X(K) = 1.
+         X(K) = 1._RKIND
          DO I=1,L
             KI = K-I
             IF( KI )105,108,105
@@ -2148,7 +2374,7 @@ C     ZERO (IN WHICH CASE A MAY CONTAIN GARBAGE UPON RETURN).
             J1 = K1 + I
             IF( A(J1) )106,108,106
   106       CONTINUE
-            A(J1) = 0.
+            A(J1) = 0._RKIND
             DO J2 = I, MAX, LMAX
                J1 = J2 + KI
                A(J2) = A(J2) - A(J1)
@@ -2179,7 +2405,7 @@ C     CARBON-NICKEL RESONANCE CONTRIBUTIONS CALC FOR HIGH Z WITH
 C     SMITH ET AL METHOD PASSES REDUC BACK TO GAUNT FOR INTERCOMBINATION LINES
       INCLUDE "MTLPARAM.h"
 C
-      REAL MGMM,MGM1,MGM5,MG21,MG5,MG1
+      R_PREC MGMM,MGM1,MGM5,MG21,MG5,MG1
       DIMENSION RM5(12),EBE(12),POPS(4)
       DIMENSION MGMM(3,7),MGM1(7),MG5(7),MG21(2,7),EMG(7)
       DIMENSION NK(30),A21(2,12),B21(3,12),C21(3,12),RM1(12)
@@ -2187,154 +2413,209 @@ C
       DIMENSION ECM(2,12),R(3,3),X(3),C(3),CPR(3)
       DIMENSION RB5(10),RC5(10),RRES(4,10),ERES(4,10)
       DIMENSION RBE(10),BEE(10)
-      REAL REDUC(4)
+      R_PREC REDUC(4)
 C
-      DATA RM5/0.,18.6,11.7,6.09,2.79,1.54,.93,.61,.41,.31,.13,.10/
-      DATA EBE/0.,6.20,7.87,9.51,12.81,16.1,19.5,23.11,26.9,28.9,55.5,
-     .  63.1/
-      DATA MG21/430.,5.8E-4,22000.,.008,1.63E+5,.000,9.E+5,.12,3.3E+6,
-     .  .26,4.5E+7,1.00,8.E+7,2./
-      DATA MG5/0.2,0.5,.26,.035,.026,.0058,.0039/
+      DATA RM5/0._RKIND,18.6_RKIND,11.7_RKIND,6.09_RKIND,2.79_RKIND,
+     .     1.54_RKIND,.93_RKIND,.61_RKIND,.41_RKIND,.31_RKIND,.13_RKIND,
+     .     .10_RKIND/
+      DATA EBE/0._RKIND,6.20_RKIND,7.87_RKIND,9.51_RKIND,12.81_RKIND,
+     .     16.1_RKIND,19.5_RKIND,23.11_RKIND,26.9_RKIND,28.9_RKIND,
+     .     55.5_RKIND, 63.1_RKIND/
+      DATA MG21/430._RKIND,5.8E-4_RKIND,22000._RKIND,.008_RKIND,
+     .     1.63E+5_RKIND,.000_RKIND,9.E5_RKIND,.12_RKIND,3.3E6_RKIND,
+     .     .26_RKIND,4.5E7_RKIND,1.00_RKIND,8.E7_RKIND,2._RKIND/
+      DATA MG5/0.2_RKIND,0.5_RKIND,.26_RKIND,.035_RKIND,.026_RKIND,
+     .     .0058_RKIND,.0039_RKIND/
 C
 C     GILES QUOTED BY MENDOZA FOR S V, BALUJA FOR SI III
 C
-      DATA MGM1/.045,.35,.072,.026,.016,.0069,.0047/
-      DATA MGMM/.5,.38,1.5,1.4,1.06,4.1,.25,.39,1.32,
-     .  .29,.21,.82,.17,.13,.51,.033,.25,.43,.02,.13,.30/
-      DATA EMG/1.63,3.72,5.50,7.13,8.72,13.9,17./
+      DATA MGM1/.045_RKIND,.35_RKIND,.072_RKIND,.026_RKIND,.016_RKIND,
+     .     .0069_RKIND,.0047_RKIND/
+      DATA MGMM/.5_RKIND,.38_RKIND,1.5_RKIND,1.4_RKIND,1.06_RKIND,
+     .     4.1_RKIND,.25_RKIND,.39_RKIND,1.32_RKIND, .29_RKIND,
+     .     .21_RKIND,.82_RKIND,.17_RKIND,.13_RKIND,.51_RKIND,.033_RKIND,
+     .     .25_RKIND,.43_RKIND,.02_RKIND,.13_RKIND,.30_RKIND/
+      DATA EMG/1.63_RKIND,3.72_RKIND,5.50_RKIND,7.13_RKIND,8.72_RKIND,
+     .     13.9_RKIND,17._RKIND/
       DATA NK/0,1,0,0,0,2,3,4,0,5,0,6,0,7,0,8,0,9,0,10,5*0,11,0,12,0,0/
-      DATA A21/2*0.,77.2,.00282,471.,.00629,1880.,.0118,16200.,.0306,
-     .  84500.,.0629,320000.,.112,972600.,.1823,2.546E+6,.2781,
-     .  5.914E+6,.4029,7.3E+7,1.21,1.4E+8,1.8/
-      DATA B21/3*0.,332.,130.,82.,  1183.,130.,347.,4210.,499.,1470.,
-     . 28400.,3170.,8910.,152000.,19800.,56200.,705000.,102000.,288000.,
-     . 43790.,11613.,27300.,4.28E+06,7.08E+05,2.42E+06,
-     .  1.02E+07,1.55E+06,5.62E+06,8.E+7,1.E+7,5.E+7,2.E+8,2.E+7,1.E+8/
-      DATA C21/3*0.,.00031,.0026,32.,.0041,.0342,190.,.022,.16,385.,
-     .  .599,4.64,6910.,4.67,37.1,45200.,26.1,200.,197000.,115.,856.,
-     . 680000.,424.,3000.,2.0E+06,1370.,9090.,5.32E+06,
-     .  29400.,128000.,6.7E+7,95000.,380000.,1.7E+8/
+      DATA A21/2*0._RKIND,77.2_RKIND,.00282_RKIND,471._RKIND,
+     .     .00629_RKIND,1880._RKIND,.0118_RKIND,16200._RKIND,
+     .     .0306_RKIND, 84500._RKIND,.0629_RKIND,320000._RKIND,
+     .     .112_RKIND,972600._RKIND,.1823_RKIND,2.546E6_RKIND,
+     .     .2781_RKIND, 5.914E6_RKIND,.4029_RKIND,7.3E7_RKIND,
+     .     1.21_RKIND,1.4E8_RKIND,1.8_RKIND/
+      DATA B21/3*0._RKIND,332._RKIND,130._RKIND,82._RKIND,  1183._RKIND,
+     .     130._RKIND,347._RKIND,4210._RKIND,499._RKIND,1470._RKIND,
+     .     28400._RKIND,3170._RKIND,8910._RKIND,152000._RKIND,
+     .     19800._RKIND,56200._RKIND,705000._RKIND,102000._RKIND,
+     .     288000._RKIND,43790._RKIND,11613._RKIND,27300._RKIND,
+     .     4.28E6_RKIND,7.08E5_RKIND,2.42E6_RKIND, 1.02E7_RKIND,
+     .     1.55E6_RKIND,5.62E6_RKIND,8.E7_RKIND,1.E7_RKIND,5.E7_RKIND,
+     .     2.E8_RKIND,2.E7_RKIND,1.E8_RKIND/
+      DATA C21/3*0._RKIND,.00031_RKIND,.0026_RKIND,32._RKIND,
+     .     .0041_RKIND,.0342_RKIND,190._RKIND,.022_RKIND,.16_RKIND,
+     .     385._RKIND, .599_RKIND,4.64_RKIND,6910._RKIND,4.67_RKIND,
+     .     37.1_RKIND,45200._RKIND,26.1_RKIND,200._RKIND,197000._RKIND,
+     .     115._RKIND,856._RKIND,680000._RKIND,424._RKIND,3000._RKIND,
+     .     2.0E6_RKIND,1370._RKIND,9090._RKIND,5.32E6_RKIND,
+     .     29400._RKIND,128000._RKIND,6.7E7_RKIND,95000._RKIND,
+     .     380000._RKIND,1.7E8_RKIND/
 C
 C     REDUCED COLLISION RATES * 10. ** 7
 C
-      DATA RM1/0.,9.384,4.944,2.814,1.340,.7265,.4718,.3164,.2243,
-     .  .1732,.08,.062/
+      DATA RM1/0._RKIND,9.384_RKIND,4.944_RKIND,2.814_RKIND,1.340_RKIND,
+     .     .7265_RKIND,.4718_RKIND,.3164_RKIND,.2243_RKIND, .1732_RKIND,
+     .     .08_RKIND,.062_RKIND/
 C
 C     INCLUDES PROTON RATES FROM MUNRO THROUGH SI, EXT F OR S, NONE ABOVE A
 C
-      DATA RMM/3*0.,29.9,13.4,50.8,17.7,8.41,32.2,11.2,6.00,21.8,
-     .  6.48,4.19,13.9,3.96,3.04,9.68,2.91,2.67,7.96,2.19,2.42,6.83,
-     .  1.25,0.40,1.79,.533,.317,1.40,.046,.16,.67,.020,.12,.52/
-      DATA BM1/0.,14.,8.1,5.3,4.1,3.01,2.0,1.5,1.1,.95,.67,.58/
-      DATA BMM/3*0.,23.,7.9,31.,17.1,5.73,20.8,12.3,4.17,14.1,
-     .  6.52,2.39,7.91,3.84,1.47,3.01,2.65,1.01,3.16,18.6,13.9,38.,
-     .  1.68,.57,1.9,1.34,.43,1.45,.69,.18,.69,.55,.14,.54/
-      DATA CM1/3*0.,12.1,12.9,10.,51.,29.5,23.,12.0,8.6,4.18,
-     . 9.1,6.4,2.92,6.75,4.72,2.1,5.39,3.86,1.55,4.17,3.04,1.19,
-     .  2.84,2.02,1.00,2.43,1.57,0.90,1.1,.75,.60,1.0,.56,.54/
-      DATA CMM/2*0.,12.9,.0005,32.5,.001,29.,.0015,17.5,.00205,11.2,
-     .  .00173,7.42,.00173,5.44,.00518,4.1,.0069,3.52,.0138,1.7,.03,1.5,
-     .  .05/
-      DATA ECM/2*0.,1.26,2.68,1.90,4.05,2.42,5.34,3.76,7.93,5.09,10.6,
-     . 6.58,13.4,8.34,16.5,10.6,20.1,13.5,24.5,30.1,45.,51.,62./
-      DATA RB5/0.,25.,21.6,16.9,8.80,5.23,3.64,15.5,2*0./
-      DATA RC5/10*0./
-      DATA BEE/0.,10.5,13.4,16.3,22.1,28.,34.,40.5,2*0./
-      DATA RBE/0.,115.,95.4,78.4,47.7,32.1,24.6,18.2,2*0./
-      DATA ERES/4*0.,12.7,9.25,7.94,0.,16.3,12.5,11.5,0.,
-     .  19.7,15.8,14.9,0.,27.0,22.3,21.9,0.,33.8,28.8,28.9,4.35,
-     .  40.9,35.8,36.3,10.3,48.4,11.6,44.1,15.8,  8*0./
-      DATA RRES/4*0.,327.,95.,5.9,0.,306.,111.,74.9,0.,
-     .  229.,97.8,139.,0.,141.,60.7,111.,0.,96.,41.3,70.3,68.0,
-     .  71.7,30.3,37.1,956.,52.5,22.0,26.5,64.3,8*0./
+      DATA RMM/3*0._RKIND,29.9_RKIND,13.4_RKIND,50.8_RKIND,17.7_RKIND,
+     .     8.41_RKIND,32.2_RKIND,11.2_RKIND,6.00_RKIND,21.8_RKIND,
+     .     6.48_RKIND,4.19_RKIND,13.9_RKIND,3.96_RKIND,3.04_RKIND,
+     .     9.68_RKIND,2.91_RKIND,2.67_RKIND,7.96_RKIND,2.19_RKIND,
+     .     2.42_RKIND,6.83_RKIND, 1.25_RKIND,0.40_RKIND,1.79_RKIND,
+     .     .533_RKIND,.317_RKIND,1.40_RKIND,.046_RKIND,.16_RKIND,
+     .     .67_RKIND,.020_RKIND,.12_RKIND,.52_RKIND/
+      DATA BM1/0._RKIND,14._RKIND,8.1_RKIND,5.3_RKIND,4.1_RKIND,
+     .     3.01_RKIND,2.0_RKIND,1.5_RKIND,1.1_RKIND,.95_RKIND,.67_RKIND,
+     .     .58_RKIND/
+      DATA BMM/3*0._RKIND,23._RKIND,7.9_RKIND,31._RKIND,17.1_RKIND,
+     .     5.73_RKIND,20.8_RKIND,12.3_RKIND,4.17_RKIND,14.1_RKIND,
+     .     6.52_RKIND,2.39_RKIND,7.91_RKIND,3.84_RKIND,1.47_RKIND,
+     .     3.01_RKIND,2.65_RKIND,1.01_RKIND,3.16_RKIND,18.6_RKIND,
+     .     13.9_RKIND,38._RKIND, 1.68_RKIND,.57_RKIND,1.9_RKIND,
+     .     1.34_RKIND,.43_RKIND,1.45_RKIND,.69_RKIND,.18_RKIND,
+     .     .69_RKIND,.55_RKIND,.14_RKIND,.54_RKIND/
+      DATA CM1/3*0._RKIND,12.1_RKIND,12.9_RKIND,10._RKIND,51._RKIND,
+     .     29.5_RKIND,23._RKIND,12.0_RKIND,8.6_RKIND,4.18_RKIND,
+     .     9.1_RKIND,6.4_RKIND,2.92_RKIND,6.75_RKIND,4.72_RKIND,
+     .     2.1_RKIND,5.39_RKIND,3.86_RKIND,1.55_RKIND,4.17_RKIND,
+     .     3.04_RKIND,1.19_RKIND, 2.84_RKIND,2.02_RKIND,1.00_RKIND,
+     .     2.43_RKIND,1.57_RKIND,0.90_RKIND,1.1_RKIND,.75_RKIND,
+     .     .60_RKIND,1.0_RKIND,.56_RKIND,.54_RKIND/
+      DATA CMM/2*0._RKIND,12.9_RKIND,.0005_RKIND,32.5_RKIND,.001_RKIND,
+     .     29._RKIND,.0015_RKIND,17.5_RKIND,.00205_RKIND,11.2_RKIND,
+     .     .00173_RKIND,7.42_RKIND,.00173_RKIND,5.44_RKIND,.00518_RKIND,
+     .     4.1_RKIND,.0069_RKIND,3.52_RKIND,.0138_RKIND,1.7_RKIND,
+     .     .03_RKIND,1.5_RKIND, .05_RKIND/
+      DATA ECM/2*0._RKIND,1.26_RKIND,2.68_RKIND,1.90_RKIND,4.05_RKIND,
+     .     2.42_RKIND,5.34_RKIND,3.76_RKIND,7.93_RKIND,5.09_RKIND,
+     .     10.6_RKIND,6.58_RKIND,13.4_RKIND,8.34_RKIND,16.5_RKIND,
+     .     10.6_RKIND,20.1_RKIND,13.5_RKIND,24.5_RKIND,30.1_RKIND,
+     .     45._RKIND,51._RKIND,62._RKIND/
+      DATA RB5/0._RKIND,25._RKIND,21.6_RKIND,16.9_RKIND,8.80_RKIND,
+     .     5.23_RKIND,3.64_RKIND,15.5_RKIND,2*0._RKIND/
+      DATA RC5/10*0._RKIND/
+      DATA BEE/0._RKIND,10.5_RKIND,13.4_RKIND,16.3_RKIND,22.1_RKIND,
+     .     28._RKIND,34._RKIND,40.5_RKIND,2*0._RKIND/
+      DATA RBE/0._RKIND,115._RKIND,95.4_RKIND,78.4_RKIND,47.7_RKIND,
+     .     32.1_RKIND,24.6_RKIND,18.2_RKIND,
+     .     2*0._RKIND/
+      DATA ERES/4*0._RKIND,12.7_RKIND,9.25_RKIND,7.94_RKIND,0._RKIND,
+     .     16.3_RKIND,12.5_RKIND,11.5_RKIND,0._RKIND, 19.7_RKIND,
+     .     15.8_RKIND,14.9_RKIND,0._RKIND,27.0_RKIND,22.3_RKIND,
+     .     21.9_RKIND,0._RKIND,33.8_RKIND,28.8_RKIND,28.9_RKIND,
+     .     4.35_RKIND, 40.9_RKIND,35.8_RKIND,36.3_RKIND,10.3_RKIND,
+     .     48.4_RKIND,11.6_RKIND,44.1_RKIND,15.8_RKIND,  8*0._RKIND/
+      DATA RRES/4*0._RKIND,327._RKIND,95._RKIND,5.9_RKIND,0._RKIND,
+     .     306._RKIND,111._RKIND,74.9_RKIND,0._RKIND, 229._RKIND,
+     .     97.8_RKIND,139._RKIND,0._RKIND,141._RKIND,60.7_RKIND,
+     .     111._RKIND,0._RKIND,96._RKIND,41.3_RKIND,70.3_RKIND,
+     .     68.0_RKIND, 71.7_RKIND,30.3_RKIND,37.1_RKIND,956._RKIND,
+     .     52.5_RKIND,22.0_RKIND,26.5_RKIND,64.3_RKIND,8*0._RKIND/
 C
       DO I = 1,3
          DO J=1,3
-            R(I,J) = 0.
+            R(I,J) = 0._RKIND
          ENDDO
       ENDDO
 C
 C     AVOID OVERFLOW FOR LOW T
-      REDUC(IJ) = 0.
-      POPMET = 0.
-      IF(EMET*11590./T .GE. 25.) RETURN
+      REDUC(IJ) = 0._RKIND
+      POPMET = 0._RKIND
+      IF(EMET*11590._RKIND/T .GE. 25._RKIND) RETURN
       ST = SQRT(T)
       NO = NK(N)
-      V  = MAX(DENO * 1.E-7 / ST, 1.E-7/ST)
+      V  = MAX(DENO * 1.E-7_RKIND / ST, 1.E-7_RKIND/ST)
       GOTO (1,2,3,4) , IJ
     1 CONTINUE
-      R(1,1) = -(RM1(NO)+RMM(1,NO)*3.+RMM(2,NO)*5.) * V
-      R(2,2) = -A21(1,NO) - V*(RM1(NO)+RMM(1,NO)+RMM(3,NO)*1.6666667)
+      R(1,1) = -(RM1(NO)+RMM(1,NO)*3._RKIND+RMM(2,NO)*5._RKIND) * V
+      R(2,2) = -A21(1,NO) - 
+     .     V*(RM1(NO)+RMM(1,NO)+RMM(3,NO)*1.6666667_RKIND)
       R(3,3) = -A21(2,NO) - V * (RM1(NO)+RMM(2,NO)+RMM(3,NO))
-      R5 = RM5(NO)*V*EXP(-MIN(50.0,11590.*EBE(NO)/T))
+      R5 = RM5(NO)*V*EXP(-MIN(50._RKIND,11590._RKIND*EBE(NO)/T))
       R(1,1) = R(1,1) - R5
       R(2,2) = R(2,2) - R5
       R(3,3) = R(3,3) - R5
-      R(2,1) = V * RMM(1,NO) * 3.
-      R(3,1) = V * RMM(2,NO) * 5.
+      R(2,1) = V * RMM(1,NO) * 3._RKIND
+      R(3,1) = V * RMM(2,NO) * 5._RKIND
       R(1,2) = V * RMM(1,NO)
       R(1,3) = V * RMM(2,NO)
-      R(3,2) = V * 1.666667 * RMM(3,NO)
+      R(3,2) = V * 1.666667_RKIND * RMM(3,NO)
       R(2,3) = V * RMM(3,NO)
-      C(1) =-RM1(NO) * EXP(-MIN(50.0,EMET*11590./T)) * V
-      C(2) = C(1) * 3.
-      C(3) = C(1) * 5.
+      C(1) =-RM1(NO) * EXP(-MIN(50._RKIND,EMET*11590._RKIND/T)) * V
+      C(2) = C(1) * 3._RKIND
+      C(3) = C(1) * 5._RKIND
       GOTO 10
     2 CONTINUE
 C     B-LIKE IONS
-      R5 = RB5(NO)*V*EXP(-MIN(50.0,11590.*(ERES(2,NO)-EMET)/T))
-      R(1,1) = -(BM1(NO)+BMM(1,NO)*2.+BMM(2,NO)*3.)*V - B21(1,NO)
-      R(2,2) = -(BM1(NO)+BMM(1,NO)+BMM(3,NO)*1.5)*V - B21(2,NO)
+      R5 = RB5(NO)*V * 
+     .     EXP(-MIN(50._RKIND,11590._RKIND*(ERES(2,NO)-EMET)/T))
+      R(1,1) = -(BM1(NO)+BMM(1,NO)*2._RKIND+BMM(2,NO)*3._RKIND)*V
+     .     - B21(1,NO)
+      R(2,2) = -(BM1(NO)+BMM(1,NO)+BMM(3,NO)*1.5_RKIND)*V - B21(2,NO)
       R(3,3) = -(BM1(NO)+BMM(2,NO)+BMM(3,NO))*V - B21(3,NO)
-      R(2,1) = V * BMM(1,NO) * 2.
-      R(3,1) = V * BMM(2,NO) * 3.
+      R(2,1) = V * BMM(1,NO) * 2._RKIND
+      R(3,1) = V * BMM(2,NO) * 3._RKIND
       R(1,2) = V * BMM(1,NO)
       R(1,3) = V * BMM(2,NO)
-      R(3,2) = V * 1.5 * BMM(3,NO)
+      R(3,2) = V * 1.5_RKIND * BMM(3,NO)
       R(2,3) = V * BMM(3,NO)
-      C(1) = -BM1(NO) * EXP(-MIN(50.0,EMET*11590./T))*V / 3.
-      C(2) = C(1) * 2.
-      C(3) = C(1) * 3.
+      C(1) = -BM1(NO) * EXP(-MIN(50._RKIND,EMET*11590._RKIND/T))*V / 3._RKIND
+      C(2) = C(1) * 2._RKIND
+      C(3) = C(1) * 3._RKIND
       GOTO 10
     3 CONTINUE
 C     C-LIKE IONS
-      R5 = RC5(NO) * V * EXP(-MIN(50.0,11590.*(ERES(3,NO)-EMET)/T))
-      E1 = EXP(-MIN(50.0,ECM(1,NO)*11590./T))
-      E2 = EXP(-MIN(50.0,ECM(2,NO)*11590./T))
-      E3R = EXP(-MIN(50.0,EMET*11590./T))
-      R(1,1)=-(CM1(1,NO)+CMM(1,NO)*.2*E2/E1
+      R5 = RC5(NO) * V * 
+     .     EXP(-MIN(50._RKIND,11590._RKIND*(ERES(3,NO)-EMET)/T))
+      E1 = EXP(-MIN(50._RKIND,ECM(1,NO)*11590._RKIND/T))
+      E2 = EXP(-MIN(50._RKIND,ECM(2,NO)*11590._RKIND/T))
+      E3R = EXP(-MIN(50._RKIND,EMET*11590._RKIND/T))
+      R(1,1)=-(CM1(1,NO)+CMM(1,NO)*.2_RKIND*E2/E1
      .      +CMM(2,NO)*E3R/E1)*V-C21(1,NO)
       R(2,2) = -(CM1(2,NO)+CMM(1,NO))*V- C21(2,NO)
       R(3,3) = -(CM1(3,NO) + CMM(2,NO)) * V - C21(3,NO)
-      R(2,1) = V * CMM(1,NO) * .2 * E2/E1
+      R(2,1) = V * CMM(1,NO) * .2_RKIND * E2/E1
       R(1,2) = V * CMM(1,NO)
       R(3,1) = V * CMM(2,NO) * E3R/E1
       R(1,3) = V * CMM(2,NO)
-      R(3,2) = 0.
-      R(2,3) = 0.
-      C(1) = -CM1(1,NO) * V * 5. * E1 / 9.
-      C(2) = -CM1(2,NO) * V * E2 / 9.
-      C(3) = -CM1(3,NO) * V * E3R * 5. / 9.
+      R(3,2) = 0._RKIND
+      R(2,3) = 0._RKIND
+      C(1) = -CM1(1,NO) * V * 5._RKIND * E1 / 9._RKIND
+      C(2) = -CM1(2,NO) * V * E2 / 9._RKIND
+      C(3) = -CM1(3,NO) * V * E3R * 5._RKIND / 9._RKIND
       GOTO 10
     4 CONTINUE
-      V = 8.63E-6 * DENO / ST
+      V = 8.63E-6_RKIND * DENO / ST
       NP = NO - 5
       MG1 = V * MGM1(NP)
-      MGM5 = V * MG5(NP) * EXP(-MIN(50.0,11590.*EMG(NP)/T))
-      IF(N .EQ. 14) MGM5 = MGM5 / (1.+8.6E-6*T)
-      IF(N .EQ. 14) MG1 = MG1 / (1.+T*3.5E-6)
+      MGM5 = V * MG5(NP) * EXP(-MIN(50._RKIND,11590._RKIND*EMG(NP)/T))
+      IF(N .EQ. 14) MGM5 = MGM5 / (1._RKIND+8.6E-6_RKIND*T)
+      IF(N .EQ. 14) MG1 = MG1 / (1._RKIND+T*3.5E-6_RKIND)
       R(1,1) = -MG1 - MGM5 - MGMM(1,NP) * V - MGMM(2,NP) * V
       R(2,2) = -MG1-MGM5-MGMM(1,NP)*V/3-MGMM(3,NP)*V/3-MG21(1,NP)
-      R(3,3) = -MG1-MGM5-MG21(2,NP)-MGMM(2,NP)*V/5.-MGMM(3,NP)*V/5.
+      R(3,3) = -MG1-MGM5-MG21(2,NP)-MGMM(2,NP)*V/5._RKIND - 
+     .     MGMM(3,NP)*V/5._RKIND
       R(2,1) = V*MGMM(1,NP)
       R(3,1) = V*MGMM(2,NP)
-      R(1,2) = V*MGMM(1,NP) / 3.
-      R(1,3) = V*MGMM(2,NP) / 5.
-      R(3,2) = V*MGMM(3,NP) / 3.
-      R(2,3) = V * MGMM(3,NP) / 5.
-      C(1) = -MG1 * EXP(-MIN(50.0,11590.*EMET/T))
-      C(2) = C(1) * 3.
-      C(3) = C(1) * 5.
+      R(1,2) = V*MGMM(1,NP) / 3._RKIND
+      R(1,3) = V*MGMM(2,NP) / 5._RKIND
+      R(3,2) = V*MGMM(3,NP) / 3._RKIND
+      R(2,3) = V * MGMM(3,NP) / 5._RKIND
+      C(1) = -MG1 * EXP(-MIN(50._RKIND,11590._RKIND*EMET/T))
+      C(2) = C(1) * 3._RKIND
+      C(3) = C(1) * 5._RKIND
    10 CONTINUE
       NN = NOSON(R,X,3,3)
       IF(NN .EQ. 0) PRINT 99
@@ -2344,13 +2625,13 @@ c       WRITE(*,*)'BAD INVERSION T,DENO= ',T,DENO
 c     ENDIF
 C
       DO I = 1,3
-         CPR(I) = 0.
+         CPR(I) = 0._RKIND
          DO J = 1,3
             CPR(I) = CPR(I) + R(I,J) * C(J)
          ENDDO
       ENDDO
-      SUM = 1. + CPR(1) + CPR(2) + CPR(3)
-      POPS(1) = 1./SUM
+      SUM = 1._RKIND + CPR(1) + CPR(2) + CPR(3)
+      POPS(1) = 1._RKIND/SUM
       POPS(2) = CPR(1) / SUM
       POPS(3) = CPR(2) / SUM
       POPS(4) = CPR(3) / SUM
@@ -2376,8 +2657,12 @@ C
 C     NAME=SEATON
       FUNCTION SEATON(X,Q)
 C     R. MOORE OCTOBER 1976
-      IMPLICIT REAL*8(A,B)
-      DOUBLE PRECISION XD,XS1,XS2,X3
+#include "fortran_types.def"
+      IMPLICIT NONE
+      REAL*8 XD, XS1, XS2, X3, A10, A11, A12, A13, A14, A15, 
+     &                 A20, A21, A22, A23, A24, A25, A30, A31, A32, A33, 
+     &                 A34, A35, B10, B11, B12, B13, B14, B20, B21, B22, 
+     &                 B23, B24, B30, B31, B32, B33, B34, SEATON
       DATA A10/8.7469604697013D-4/    ,B10/-1.2007397521051D-4/
       DATA A11/.20406771231267D0/       ,B11/-.055223640825293D0/
       DATA A12/-2.1524482972354D0/      ,B12/.029171138841798D0/
@@ -2397,14 +2682,14 @@ C     R. MOORE OCTOBER 1976
       DATA A34/1.5264422582645D-5/    ,B34/8.4274360230135D-7/
       DATA A35/-2.2708774951499D-7/
 C
-      IF(X.GE.20.)  GOTO 40
-      IF(X.GT.2.)   GOTO 30
-      IF(X.GT.0.2)  GOTO 20
-      IF(X.GT.0.02) GOTO 10
-      XS1=0.4629*X*(1.+4.*X)-1.0368*X**1.3333333333333
-     .          *(1.+1.875*X)
-      XS2=-0.0672*X*(1.+3.*X)+.1488*X**1.6666666666667
-     .           *(1.+1.8*X)
+      IF(X.GE.20.d0)  GOTO 40
+      IF(X.GT.2.d0)   GOTO 30
+      IF(X.GT.0.2d0)  GOTO 20
+      IF(X.GT.0.02d0) GOTO 10
+      XS1=0.4629d0*X*(1.d0+4.d0*X)-1.0368d0*X**1.3333333333333d0
+     .          *(1.d0+1.875d0*X)
+      XS2=-0.0672d0*X*(1.d0+3.d0*X)+.1488d0*X**1.6666666666667d0
+     .           *(1.d0+1.8d0*X)
       GOTO 50
    10 XS1=A10+(A11+(A12+(A13+(A14+A15*X)*X)*X)*X)*X
       XS2=B10+(B11+(B12+(B13+B14*X)*X)*X)*X
@@ -2415,13 +2700,13 @@ C
    30 XS1=A30+(A31+(A32+(A33+(A34+A35*X)*X)*X)*X)*X
       XS2=B30+(B31+(B32+(B33+B34*X)*X)*X)*X
       GOTO 50
-   40 X3=3.*X
-      XS1=-0.1728*X**.33333333333333*(1.+(-8.
-     .         +(70.+(-800.+11440./X3)/X3)/X3)/X3)
-      XS2=-0.0496*X**.66666666666667*(1.+(-3.
-     .                      +(32.-448./X3)/X3)/X3)
-   50 X3=X**0.33333333333333*Q**0.66666666666667
+   40 X3=3.d0*X
+      XS1=-0.1728d0*X**.33333333333333d0*(1.d0+(-8.d0
+     .         +(70.d0+(-800.d0+11440.d0/X3)/X3)/X3)/X3)
+      XS2=-0.0496d0*X**.66666666666667d0*(1.d0+(-3.d0
+     .                      +(32.d0-448.d0/X3)/X3)/X3)
+   50 X3=X**0.33333333333333d0*Q**0.66666666666667d0
       SEATON=EXINT1(X,3)+(XS1+XS2/X3)/X3
-#endif /* CEN_METALS */
       RETURN
       END
+#endif /* CEN_METALS */

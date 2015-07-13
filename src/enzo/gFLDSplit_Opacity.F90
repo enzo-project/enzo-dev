@@ -57,36 +57,37 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: Model, Nchem
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in) :: a
-  real,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
-  real,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real,    intent(in) :: EmC0, EmC1, EmC2
-  real,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  INTG_PREC, intent(in) :: Model, Nchem
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in) :: a
+  R_PREC,    intent(in) :: time, IsE, IsEsHI, IsEsHInu, IsEsHeI
+  R_PREC,    intent(in) :: IsEsHeInu, IsEsHeII, IsEsHeIInu
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC,    intent(in) :: EmC0, EmC1, EmC2
+  R_PREC,    intent(in) :: aUnits, DenUnits, LenUnits, TimeUnits, NiUnits
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: rho, n_HI, n_HeI, n_HeII
-  real, intent(out) :: kappaE(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC, intent(out) :: kappaE(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
 
   !--------------
   ! locals
-  integer :: i, j, k
-  real    :: mp, HIconst, HeIconst, HeIIconst
-  real    :: rhoval, Tval
+  INTG_PREC :: i, j, k
+  R_PREC    :: mp, HIconst, HeIconst, HeIIconst
+  R_PREC    :: rhoval, Tval
 
   !=======================================================================
 
 !!$  write(*,*) 'Entering gFLDSplit::Opacity routine'
 
   ! initialize outputs to zero, flag to success
-  kappaE = 0.d0
+  kappaE = 0._RKIND
   ier = 1
 
   ! set shortcut values
@@ -94,8 +95,8 @@ subroutine gFLDSplit_Opacity(kappaE, time, rho, n_HI, n_HeI, n_HeII, &
 
   ! compute opacity shortcuts
   HIconst   = IsEsHI/IsE
-  HeIconst  = IsEsHeI/IsE/4.d0
-  HeIIconst = IsEsHeII/IsE/4.d0
+  HeIconst  = IsEsHeI/IsE/4._RKIND
+  HeIIconst = IsEsHeII/IsE/4._RKIND
 
   ! compute opacity over domain depending on number of chemical species 
 

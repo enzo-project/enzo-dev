@@ -52,6 +52,10 @@ int grid::TestGravitySphereInitializeGrid(float SphereInteriorDensity,
       FieldType[NumberOfBaryonFields++] = Velocity2;
     if (GridRank > 2)
       FieldType[NumberOfBaryonFields++] = Velocity3;
+
+    if (WritePotential)
+      FieldType[NumberOfBaryonFields++] = GravPotential;
+
   }
  
   /* Return if this doesn't concern us. */

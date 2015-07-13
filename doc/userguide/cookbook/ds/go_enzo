@@ -1,8 +1,0 @@
-#!/bin/csh
-
-setenv MP_BUFFER_MEM 64000000
-
-echo 'MP_BUFFER_MEM is'
-echo $MP_BUFFER_MEM
-
-poe enzo -d 256Mpc_256grid.parfile > 256Mpc_256grid.log

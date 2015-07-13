@@ -151,7 +151,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   }
   activesize = 1;
   for (dim = 0; dim < GridRank; dim++) {
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   }
 
   for (dim = 0; dim < GridRank; dim++) {
@@ -161,16 +161,7 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     }
   }
 
-  int count=0;
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-      for (i=0;i<size;i++)
-	BaryonField[field][i] = 0.;
-      count++;
-    }
-  }
-  printf("Allocated %"ISYM" Baryonfields\n", count);
+  this->AllocateGrids(); 
 
   printf("rho_sphere=%"GSYM", cs_sphere=%"GSYM", rho_medium=%"GSYM", p_medium=%"GSYM"\n",
 	 rho_sphere[0], cs_sphere[0], rho_medium, p_medium);
@@ -500,6 +491,14 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	  BaryonField[iBz ][n] = Bz;
 	  BaryonField[iPhi][n] = 0.0;
 	}
+  if (UseMHDCT){
+    MagneticField[0][n] = Bx;
+    MagneticField[1][n] = By;
+    MagneticField[2][n] = Bz;
+    CenteredB[0][n] = Bx;
+    CenteredB[1][n] = By;
+    CenteredB[2][n] = Bz;
+  }
 	BaryonField[NumberOfBaryonFields-1][n] = 0.;
       } // end loop over grid
     }
@@ -518,9 +517,9 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
     printf("Begin generating turbulent velocity spectrum...\n");
     Turbulence_Generator(TurbulenceVelocity, 
-			 GridDimension[0]-2*DEFAULT_GHOST_ZONES, 
-			 GridDimension[1]-2*DEFAULT_GHOST_ZONES,
-			 GridDimension[2]-2*DEFAULT_GHOST_ZONES,
+			 GridDimension[0]-2*NumberOfGhostZones, 
+			 GridDimension[1]-2*NumberOfGhostZones,
+			 GridDimension[2]-2*NumberOfGhostZones,
 			 4.0, k1, k2, dk,
 			 CellLeftEdge, CellWidth, TurbulenceSeed);    
 

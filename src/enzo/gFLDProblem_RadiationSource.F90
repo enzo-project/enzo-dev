@@ -66,30 +66,31 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in) :: Nchem, Model, ESpectrum, ProbType
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  REALSUB, intent(in) :: a
-  real,    intent(in) :: time, HFrac, NGammaDot, EtaRadius
-  real,    intent(in) :: EtaCenter0, EtaCenter1, EtaCenter2
-  real,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
+  INTG_PREC, intent(in) :: Nchem, Model, ESpectrum, ProbType
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  P_PREC, intent(in) :: a
+  R_PREC,    intent(in) :: time, HFrac, NGammaDot, EtaRadius
+  R_PREC,    intent(in) :: EtaCenter0, EtaCenter1, EtaCenter2
+  R_PREC,    intent(in) :: aUnits, DenUnits, VelUnits, LenUnits, TimeUnits, &
        ErUnits, ecUnits, NiUnits
-  real,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC,    intent(in) :: x0L, x0R, x1L, x1R, x2L, x2R
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: Era, eca, nHIa, nHeIa, nHeIIa, Temp, rhoa, eha, vxa, vya, vza
-  real, intent(out) :: Ersrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  integer, intent(out) :: ier
+  R_PREC, intent(out) :: Ersrc(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  INTG_PREC, intent(out) :: ier
   
 !--------------
 ! locals
-  integer :: i, j, k
-  real :: pi, h_nu0, etaconst
-  real :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
-  real :: cellXc, cellYc, cellZc
+  INTG_PREC :: i, j, k
+  R_PREC :: pi, h_nu0, etaconst
+  R_PREC :: dx, dy, dz, dV, cellXl, cellXr, cellYl, cellYr, cellZl, cellZr
+  R_PREC :: cellXc, cellYc, cellZc
 
 !=======================================================================
 
@@ -98,7 +99,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
 !!$  write(*,*) '   EtaRadius = ',EtaRadius
 
   ! initialize output to have all zero values, flag to success
-  Ersrc = 0.d0
+  Ersrc = 0._RKIND
   ier = 1
   
   ! initialize constants
@@ -107,7 +108,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
   dy    = (x1R-x1L)/Ny                ! mesh spacing (comoving), x1 direction
   dz    = (x2R-x2L)/Nz                ! mesh spacing (comoving), x2 direction
   dV    = dx*dy*dz*(LenUnits)**3      ! cell volume (proper)
-  h_nu0 = 13.6d0*ev2erg               ! ionization energy of HI [ergs]
+  h_nu0 = 13.6_RKIND*ev2erg               ! ionization energy of HI [ergs]
 
   ! compute point source emissivity for various problems
 
@@ -116,7 +117,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
       (ProbType == 413) .or. (ProbType == 415)) then
 
      ! one-cell source
-     if (EtaRadius == 0.d0) then
+     if (EtaRadius == 0._RKIND) then
         
         ! compute eta factor for given ionization source
         etaconst = h_nu0*NGammaDot/dV
@@ -125,7 +126,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
         !  T=1e5 blackbody spectrum; this factor is essentially 
         !  (\int_{nu0}^{infty} chi(nu) dnu) / (\int_0^{infty} chi(nu)/nu dnu)]
         if (ESpectrum == 1) then
-           etaconst = etaconst * 1.52877652583602d0
+           etaconst = etaconst * 1.52877652583602_RKIND
         endif
 
         
@@ -162,29 +163,29 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
      else
 
         ! compute eta factor for given ionization source
-        etaconst = h_nu0*NGammaDot/dV/8.d0/(EtaRadius**3)
+        etaconst = h_nu0*NGammaDot/dV/8._RKIND/(EtaRadius**3)
         ! (the differing factors arise due to monochromatic vs grey 
         !  radiation energy densities, where the grey source has a 
         !  T=1e5 blackbody spectrum)
         if (ESpectrum == 1) then
-           etaconst = etaconst * 1.52877652583602d0
+           etaconst = etaconst * 1.52877652583602_RKIND
         endif
         
         ! place ionization source in center of domain
         do k=1,Nz,1
            
            ! z-center (comoving) for this cell
-           cellZc = x2L + (k-0.5d0)*dz
+           cellZc = x2L + (k-0.5_RKIND)*dz
            
            do j=1,Ny,1
               
               ! y-center (comoving) for this cell
-              cellYc = x1L + (j-0.5d0)*dy
+              cellYc = x1L + (j-0.5_RKIND)*dy
               
               do i=1,Nx,1
                  
                  ! x-center (comoving) for this cell
-                 cellXc = x0L + (i-0.5d0)*dx
+                 cellXc = x0L + (i-0.5_RKIND)*dx
                  
                  ! see if cell is within source region
                  if ( (abs(cellXc-EtaCenter0) < EtaRadius*dx) .and. &
@@ -203,13 +204,13 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
   else if (ProbType == 412) then
 
      ! place ionization source along left wall (if on this subdomain)
-     if (x1L == 0.d0) then
+     if (x1L == 0._RKIND) then
 
         ! compute eta factor for given ionization source, and put on wall
         etaconst = h_nu0*NGammaDot/dy
         ! (the additional factor arises due to the grey source having a
         !  T=1e5 blackbody spectrum)
-        etaconst = etaconst * 1.52877652583602d0
+        etaconst = etaconst * 1.52877652583602_RKIND
         do k=1,Nz,1
            do j=1,Ny,1
               Ersrc(1,j,k) = etaconst
@@ -224,7 +225,7 @@ subroutine gFLDProblem_RadiationSource(Ersrc, time, Era, eca, nHIa,     &
      etaconst = h_nu0*NGammaDot/dV
         
      ! place ionization source in center of subdomain
-     Ersrc(int(Nx/2),int(Ny/2),int(Nz/2)) = etaconst
+     Ersrc(int(Nx/2,IKIND),int(Ny/2,IKIND),int(Nz/2,IKIND)) = etaconst
      
   endif ! ProbType
 

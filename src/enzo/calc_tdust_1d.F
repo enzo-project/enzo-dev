@@ -39,49 +39,51 @@
 !-----------------------------------------------------------------------
 
       implicit NONE
+#include "fortran_types.def"
 
 !  Arguments
 
-      integer in, is, ie, j, k
+      INTG_PREC in, is, ie, j, k
 
-      real tdust(in), tgas(in), nh(in), gasgr(in)
-      real trad
+      R_PREC tdust(in), tgas(in), nh(in), gasgr(in)
+      R_PREC trad
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !  Parameters
 
-      real radf, t_subl
-      parameter(radf = 4.d0 * sigma_sb)
-      parameter(t_subl = 1.5d3) ! grain sublimation temperature
-      real tol, bi_tol, minpert
-      parameter(tol = 1.d-5, bi_tol = 1.d-3, minpert = 1.d-10)
-      integer itmax, bi_itmax
+      R_PREC radf, t_subl
+      parameter(radf = 4._RKIND * sigma_sb)
+      parameter(t_subl = 1.5e3_RKIND) ! grain sublimation temperature
+      R_PREC tol, bi_tol, minpert
+      parameter(tol = 1.e-5_RKIND, bi_tol = 1.e-3_RKIND, 
+     &     minpert = 1.e-10_RKIND)
+      INTG_PREC itmax, bi_itmax
       parameter(itmax = 50, bi_itmax = 30)
 
 !  Locals
 
-      integer i, iter, c_done, c_total, nm_done
+      INTG_PREC i, iter, c_done, c_total, nm_done
 
-      double precision pert_i, trad4
+      real*8 pert_i, trad4
 
 !  Slice Locals
 
-      double precision kgr(in), kgrplus(in), sol(in), solplus(in), 
+      real*8 kgr(in), kgrplus(in), sol(in), solplus(in), 
      &     slope(in), tdplus(in), tdustnow(in), tdustold(in), pert(in),
      &     bi_t_mid(in), bi_t_high(in)
-      logical nm_itmask(in), bi_itmask(in)
+      LOGIC_PREC nm_itmask(in), bi_itmask(in)
 
-      double precision sola, solb, solpa, solpb
+      real*8 sola, solb, solpa, solpb
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
 
-      pert_i = 1.d-3
+      pert_i = 1.e-3_RKIND
 
-      trad  = max(1.d0, trad)
+      trad  = max(1._RKIND, trad)
       trad4 = trad**4
 
 !     Set total cells for calculation
@@ -108,7 +110,7 @@
                nm_itmask(i) = .false.
                nm_done = nm_done + 1
             else
-               tdustnow(i) = 0.5d0 * (trad + tgas(i))
+               tdustnow(i) = 0.5_RKIND * (trad + tgas(i))
                pert(i) = pert_i
             endif
 
@@ -127,7 +129,8 @@
          do i = is+1, ie+1
             if ( nm_itmask(i) ) then
 
-               tdplus(i) = max(0.001, ((1 + pert(i)) * tdustnow(i)))
+               tdplus(i) = max(1.e-3_RKIND, ((1._RKIND+pert(i)) 
+     &              * tdustnow(i)))
 
             endif
          enddo
@@ -172,7 +175,7 @@
                tdustnow(i) = tdustnow(i) - (sol(i) / slope(i))
 
                pert(i) = max(min(pert(i), 
-     &              (0.5 * abs(tdustnow(i) - tdustold(i)) / 
+     &              (0.5_RKIND * abs(tdustnow(i) - tdustold(i)) / 
      &              tdustnow(i))), minpert)
 
 !     If negative solution calculated, give up and wait for bisection step.
@@ -219,7 +222,7 @@
             do i = is+1, ie+1
                if ( bi_itmask(i) ) then
 
-                  bi_t_mid(i) = 0.5d0 * (tdustnow(i) + bi_t_high(i))
+                  bi_t_mid(i) = 0.5_RKIND * (tdustnow(i) + bi_t_high(i))
                   if (iter .eq. 1) then
                      bi_t_mid(i) = min(bi_t_mid(i), t_subl)
                   endif
@@ -230,7 +233,7 @@
      &                 (trad4 - bi_t_mid(i)**4) +
      &                 (gasgr(i) * nh(i) * 
      &                 (tgas(i) - bi_t_mid(i)))
-                  if (sol(i) .gt. 0.0) then
+                  if (sol(i) .gt. 0._RKIND) then
                      tdustnow(i) = bi_t_mid(i)
                   else
                      bi_t_high(i) = bi_t_mid(i)
@@ -271,7 +274,7 @@
          if ( itmask(i) ) then
 
 !     Check for bad solutions
-            if (tdustnow(i) .lt. 0.0) then
+            if (tdustnow(i) .lt. 0._RKIND) then
                write(6, *) 'CALC_TDUST Newton method - ',
      &              'T_dust < 0: i = ', i, 'j = ', j,
      &              'k = ', k, 'nh = ', nh(i), 
@@ -321,29 +324,30 @@
 !-----------------------------------------------------------------------
 
       implicit NONE
+#include "fortran_types.def"
 
 !  Arguments
 
-      integer in, is, ie
-      real t_subl
-      double precision tdust(in)
+      INTG_PREC in, is, ie
+      R_PREC t_subl
+      real*8 tdust(in)
 
 !  Iteration mask
 
-      logical itmask(in)
+      LOGIC_PREC itmask(in)
 
 !  Parameters
 
-      real kgr1, kgr200
-      parameter(kgr1 = 4.0e-4, kgr200 = 16.0)
+      R_PREC kgr1, kgr200
+      parameter(kgr1 = 4.0e-4_RKIND, kgr200 = 16.0_RKIND)
 
 !  Locals
 
-      integer i
+      INTG_PREC i
 
 !  Slice Locals
 
-      double precision kgr(in)
+      real*8 kgr(in)
 
 !\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\/////////////////////////////////
 !=======================================================================
@@ -354,13 +358,13 @@
 !     Temperature dependence from Dopcke et al. (2011).
 !     Normalized to Omukai (2000).
 
-            if (tdust(i) .lt. 200.0) then
+            if (tdust(i) .lt. 200._RKIND) then
                kgr(i) = kgr1 * tdust(i)**2
             else if (tdust(i) .lt. t_subl) then
                kgr(i) = kgr200
             else
                kgr(i) = max(tiny, 
-     &              (kgr200 * (tdust(i) / 1500.0)**-12))
+     &              (kgr200 * (tdust(i) / 1.5e3_RKIND)**(-12)))
             endif
 
          endif

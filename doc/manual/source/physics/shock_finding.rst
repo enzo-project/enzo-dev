@@ -4,6 +4,9 @@ Shock Finding
 ==================
 .. sectionauthor:: Sam Skillman <samskillman@gmail.com>
 .. versionadded:: 2.1
+
+For relevant parameters, please also see :ref:`shock_finding_parameters`.
+
 *Source: Grid_FindShocks.C*
 
 Shock finding is accomplished using one of four methods.  The primary

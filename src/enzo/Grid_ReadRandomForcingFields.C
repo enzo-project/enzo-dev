@@ -39,16 +39,10 @@ void my_exit(int status);
 #undef PROTO
 #endif
  
-// HDF5 function prototypes
- 
-
- 
 // function prototypes
  
 int ReadListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 int ReadListOfInts(FILE *fptr, int N, int nums[]);
- 
- 
  
 int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
 {
@@ -125,12 +119,14 @@ int grid::ReadRandomForcingFields(FILE *fptr, char DataFilename[])
   /* Assume general grid class data are known and
      read velocity fields only (as RandomForcingFields).
      Do not modify the existing current BaryonFields and grid class data. */
- 
-  if (NumberOfBaryonFields <= GridRank + 1) {
-    fprintf(stderr, "Error: No Baryon Fields => Nothing to Force. Right?.\n");
+
+  int MinNumberOfFields = GridRank + 1;
+  if( EquationOfState == 0 ) MinNumberOfFields++;
+  if (NumberOfBaryonFields < MinNumberOfFields) {
+    fprintf(stderr, "Error: No.  Baryon Fields (%"ISYM") => Nothing to Force. Right?.\n",
+            NumberOfBaryonFields);
     ERROR_MESSAGE;
   }
- 
 
   if (HierarchyFileInputFormat == 1) {
     /* Store the file position indicator. */

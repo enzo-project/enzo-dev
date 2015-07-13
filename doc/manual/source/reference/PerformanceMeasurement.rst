@@ -225,6 +225,65 @@ view it either by looking at the source code, or by loading it in python:
   import performance_tools as pt
   help(pt.perform)
 
+Additional Performance Tools
+############################
+
+An additional performance tool exists in the enzo source which provides
+slightly different details about a number of subprocesses in enzo.  By default,
+it is turned off, although you can enable it by adding a compiler flag to your 
+Makefile.  The downside to this 
+performance tool, called MPI Instrumentation, is that it only provides information
+if you're running MPI, it only gives you that information at the end of a 
+simulation (when it has successfully completed, not when it runs out of time),
+and it produces a file for every processor that was used in the simulation 
+(which can sometimes crowd your directory).
+
+To enable this feature, you can add a flag to your machine's Makefile to explicitly
+set this preprocessor keyword.  Do this by editing your machine's 
+Makefile to include this flag to your MACH_DEFINES:
+
+.. code-block:: C++
+
+  MACH_DEFINES = -DMPI_INSTRUMENTATION
+
+In case you want to see what sort of information is provided by MPI Instrumentation,
+a sample output file is included below:
+
+.. code-block:: bash
+
+  Elapsed wall time:                   3.582540e+03
+  Communication time:                  1.617045e+03
+  Global communication time:           9.343419e+02
+  Receive communication time:          4.590317e+00
+  Waiting communication time:          0.000000e+00
+  
+  
+  Transferring region       ( 1940795 times) 4.588604e+00
+  Sending particles         (    1592 times) 6.079674e-04
+  Transferring particles    (    9598 times) 5.879667e+01
+  Transferring Fluxes       (   32369 times) 9.276295e-02
+  ShareGrids                (    5777 times) 8.463278e+01
+  Transpose                 ( 1771716 times) 1.597000e+02
+  BroadcastValue            (    4915 times) 1.144109e-01
+  MinValue                  (   46066 times) 7.745399e+02
+  UpdateStarParticleCount   (    5770 times) 1.625819e+01
+  
+  
+  RebuildHierarchy          (    1626 times) 1.555615e+01
+  RebuildHierarchy interval (    1626 times) 7.773995e-02
+  Load balancing            (       0 times) 0.000000e+00
+  Region transfer size      ( 1940795 times) 9.709615e+09
+  Particles sent            (    1592 times) 0.000000e+00
+  Particle transfer size    (    9598 times) 1.039000e+04
+  
+    
+  Number of load balancing calls 0/0 (LOAD_BALANCE_RATIO=0.000000)
+  Number of flagging cells  (    5418 times) 4.116929e+07
+  
+  
+  Average percentage of flagging cells 2.420569e-01(= 1.311464e+03/5418)
+  Average percentage of moving cells 0
+
 | Samuel Skillman (samskillman at gmail.com) 
 | Cameron Hummels (chummels at gmail.com)
 

@@ -141,7 +141,7 @@ int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     /* Compute the dimensions and left/right edges for the subgrid. */
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++) {
-      SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*DEFAULT_GHOST_ZONES;
+      SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*NumberOfGhostZones;
       LeftEdge[dim]    = WavePoolSubgridLeft;
       RightEdge[dim]   = WavePoolSubgridRight;
     }

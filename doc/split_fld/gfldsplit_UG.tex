@@ -61,7 +61,7 @@ A FLD-based Radiation and Chemistry Solver for ENZO}
 
 This document describes a new, highly scalable,
 field-based radiation and chemistry solver for Enzo, 
-{\tt gFLSplit}. The target applications of this solver include the
+{\tt gFLDSplit}. The target applications of this solver include the
 transport of radiation using a flux-limited-diffusion-based solver,
 distributed among a possibly large number of 
 processors.  In this solver, the radiation field is assumed to be
@@ -74,11 +74,11 @@ for Hydrogen ionization.
 
 The defining characteristic of this solver in comparison
 with the {\tt gFLDProblem} solver is that in a given time step, this
-solver first evolves the radiation, before evolving a gas energy
-correction + Hydrogen evolution system, using an operator-split
-approach.  The goal in using an operator split solver on this problem
-is to provide for the most robust and computationally efficient
-solver possible for these interacting processes.
+solver separately evolves the radiation and the gas energy
+correction + primordial chemistry evolution system, using an
+operator-split formalism.  The goal in using an operator split solver
+on this problem is to provide for the most robust and computationally
+efficient solver possible for these interacting processes.
 
 This guide will only highlight the solvers and equations available in
 this module.  For further details on the equations, numerical methods,
@@ -108,13 +108,13 @@ the current solver, and that are under active development include:
   {\tt gFLDSplit} module in the near future. 
 \item Increased chemistry -- Due to the use of a single radiation
   field with an assumed spectrum, our initial solver development
-  focused only on Hydrogen chemistry.  This was based on the fact that
-  multiple chemical species would be best simulated with a radiation
+  focused only on primordial chemistry.  This was based on the fact that
+  more intricate chemical models would be best simulated with a radiation
   approximation that allows spectral variation in space, to allow for
-  spectral hardening and I-front preheating.  However, we plan on
-  extending this single-field solver to work with Helium and molecular
-  chemistry to match Enzo's standard chemistry models, for problems
-  where spectral variation may be less important.
+  spectral hardening and I-front preheating.  However, we do allow
+  coupling of the {\tt gFLDSplit} solver to Enzo's chemistry and
+  heating solvers, allowing investigation of problems in which
+  spectral variation may be less important.
 \end{itemize}
 
 
@@ -137,7 +137,7 @@ Foremost, Enzo must be built using the two configuration options
 Enzo source directory), and {\tt HYPRE} (enabled using the call 
 {\tt gmake hypre-yes}).  Moreover, the machine Makefile must specify
 how to include and link with an available HYPRE library (version $\ge$
-2.4.0b).  If a user must compile HYPRE themselves to obtain this
+2.8.0b).  If a user must compile HYPRE themselves to obtain this
 version, they should make note of the HYPRE configuration option
 {\tt --with-no-global-partition}, which must be used for solver
 scalability when using over $\sim\!1000$ processors, but which results
@@ -179,10 +179,13 @@ must be set (their default values are in brackets):
 \item {\tt RadiativeTransferOpticallyThinH2} [1] -- this must be set
   to 0.  A nonzero value will attempt to use a $1/r^2$ Lyman-Werner
   radiation field, that is {\em ignored} by the {\tt gFLDSplit} module.
-\item {\tt RadiativeCooling} [0] -- this must be set to 0.  A nonzero
-  value will attempt to use Enzo's built-in explicit subcycled gas
+\item {\tt RadiativeCooling} [0] -- this may be either 0 or 1.  A
+  nonzero value will enable Enzo's built-in explicit subcycled gas
   cooling modules instead of the coupled radiative-ionization provided
-  by {\tt gFLDSplit}, which has not yet been enabled to work together. 
+  by {\tt gFLDSplit}. 
+\item {\tt MultiSpecies} [0] -- this may be set to either 0 or 1.  A
+  nonzero value will enable Enzo's built-in chemistry modules instead
+  of the coupled radiative-ionization provided by {\tt gFLDSplit}.
 \end{itemize}
 
 In addition, if a user wishes to set up a new {\tt ProblemType} that
@@ -217,22 +220,28 @@ this document.
   assumed radiation energy spectrum from equation \eqref{eq:spectrum}.
   Allowed values include
   \begin{itemize}
-  \item[-1.] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
-  \item[0.] power law spectrum,
-    \[
-      \chi(\nu) = \left(\frac{\nu}{\nu_{HI}}\right)^{-1.5}
-    \]
   \item[1.] $T=10^5$ K blackbody spectrum, 
     \[
        \chi(\nu) = \frac{8 \pi h
          \left(\frac{\nu}{c}\right)^3}{\exp\left(\frac{h\nu}{k_b 10^5}\right)-1}.
     \]
+  \item[0.] power law spectrum,
+    \[
+      \chi(\nu) = \left(\frac{\nu}{\nu_{HI}}\right)^{-1.5}
+    \]
+  \item[-1.] monochromatic spectrum at frequency $h\nu_{HI} = 13.6$ eV.
+  \item[-2.] monochromatic spectrum at frequency $h\nu_{HeI} = 24.6$ eV.
+  \item[-3.] monochromatic spectrum at frequency $h\nu_{HeII} = 54.4$ eV.
   \end{itemize}
-\item {\tt RadHydroChemistry} [1], this parameter controls whether to
-  use Hydrogen chemistry or not.  Allowable values are
+\item {\tt RadHydroChemistry} [1], this parameter controls how {\tt
+  gFLDSplit} interfaces with chemistry.  While Enzo may be run with
+  any number of allowable chemical species, {\tt gFLDSplit} will
+  interact with primordial chemistry through opacities, photo-heating
+  and photo-ionization.  Allowable values are
   \begin{itemize}
-  \item[0.] no chemistry
+  \item[0.] no chemical interactions
   \item[1.] Hydrogen chemistry
+  \item[3.] Hydrogen + Helium chemistry
   \end{itemize}
 \item {\tt RadHydroHFraction} [1], this parameter controls the
   fraction of baryonic matter comprised of Hydrogen, allowable
@@ -262,6 +271,15 @@ this document.
   the module will take the smaller of $\dt_{\text{FLD}}$ and
   $\dt_{\text{CFL}}$, the default value is never actually used.  This
   value must also be given in scaled time units.
+\item {\tt RadHydroMaxSubcycles} [$1$], this parameter sets the
+  desired number of {\tt gFLDSplit} time steps per each hydrodynamics
+  time step (must be $\ge 1$).  When using Enzo's chemistry and
+  cooling solvers this parameter should be set to 1 to avoid overly
+  decoupling radiation and chemistry.
+\item {\tt RadHydroMaxChemSubcycles} [$1$], this parameter sets the
+  desired number of chemistry and heating time steps per each
+  radiation time step, {\em within} the {\tt gFLDSplit} solver.  This
+  value is unused if Enzo's chemistry and heating routines are used.
 \item {\tt RadHydroDtNorm} [2], this parameter sets the value
   of $p$ from equation \eqref{eq:time_error}.  
   \begin{itemize}
@@ -269,6 +287,9 @@ this document.
   \item A value $>0$ implies to use the corresponding $p$-norm,
   \item Values $<0$ are not allowed.
   \end{itemize}
+\item {\tt RadHydroDtGrowth}, [$1.1$], this value sets the maximum
+  growth factor in the {\tt gFLDSplit} time step size from one time
+  step to the next.
 \item {\tt RadHydroDtRadFac}, {\tt RadHydroDtGasFac} and {\tt
     RadHydroDtChemFac}  [$10^{20}$], these parameters give the values
   of $\tau_{\text{tol}}$ for the variables $E$, $e_c$ and $\mn_{HI}$
@@ -279,6 +300,11 @@ this document.
   factors $s_E$, $s_e$ and $s_{\mn}$ from
   \eqref{eq:variable_rescaling}, respectively; supplied values must be
   positive. 
+\item {\tt AutomaticScaling} [1], this enables an heuristic approach
+  to set the above scaling factors automatically by {\tt gFLDSplit}.
+  This has been heavily utilized within reionization calculations.
+  However, this is not recommended if optimal scaling factors are
+  known for specific problems.
 \item {\tt RadHydroTheta} [1.0], this parameter specifies the
   value of $\theta$ in equation \eqref{eq:radiation_PDE_theta},
   $0\le\theta\le 1$.
@@ -295,6 +321,14 @@ this document.
 \item {\tt RadHydroSolTolerance} [$10^{-8}$], this parameter
   specifies the linear tolerance $\delta$ from section
   \ref{sec:rad_solve}.  Allowable values must be between $10^{-15}$ and 1.
+\item {\tt RadHydroKrylovMethod} [$1$], this parameter
+  specifies the type of outer linear solver algorithm.  Allowable
+  values are
+  \begin{itemize}
+  \item[0.] Preconditioned Conjugate Gradient (PCG)
+  \item[1.] Stabilized Bi-Conjugate Gradient (BiCGStab)
+  \item[2.] Generalized Minimum Residual (GMRES)
+  \end{itemize}
 \item {\tt RadHydroMaxMGIters} [50], this positive parameter
   specifies the maximum number of multigrid iterations to perform in
   the MG-CG solver from section \ref{sec:rad_solve}.
@@ -429,7 +463,7 @@ temperature [K].
 
 
 
-\section{Chemistry-dependent couplings}
+\section{Chemistry-dependent couplings (internal)}
 \label{sec:chem_model}
 
 In general, radiation calculations in Enzo are used in simulations
@@ -499,19 +533,111 @@ equation to the integrated grey radiation equation.
 
 
 
+\section{Chemistry-dependent couplings (external)}
+\label{sec:chem_model_enzochem}
+
+The primary operating mode for the {\tt gFLDSplit} solver is to couple
+the FLD solver to Enzo's chemistry and heating approach.  To support
+these situations, we couple the radiation equation
+\eqref{eq:radiation_PDE} with Enzo's chemistry and heating routines
+through specification of photo-heating and photo-ionization rates that
+are passed to Enzo's rate solvers.  To that end, the Hydrogen + Helium
+photo-heating rate is set to be 
+\begin{align}
+  \notag
+  G &= \frac{c\,E\,\mn_{HI}}{\rhob} 
+    \left[\int_{\nu_{HI}}^{\infty} \sigma_{HI}\, \chi_E
+    \left(1-\frac{\nu_{HI}}{\nu}\right)\, d\nu\right] \bigg/
+    \left[\int_{\nu_{HI}}^{\infty} \chi_E d\nu\right] \\
+  \label{eq:photogamma}
+    &+ \frac{c\,E\,\mn_{HeI}}{\rhob} 
+    \left[\int_{\nu_{HeI}}^{\infty} \sigma_{HeI}\, \chi_E
+    \left(1-\frac{\nu_{HeI}}{\nu}\right)\, d\nu\right] \bigg/
+    \left[\int_{\nu_{HI}}^{\infty} \chi_E d\nu\right] \\
+  \notag
+    &+ \frac{c\,E\,\mn_{HeII}}{\rhob} 
+    \left[\int_{\nu_{HeII}}^{\infty} \sigma_{HeII}\, \chi_E
+    \left(1-\frac{\nu_{HeII}}{\nu}\right)\, d\nu\right] \bigg/
+    \left[\int_{\nu_{HI}}^{\infty} \chi_E d\nu\right],
+\end{align}
+where if {\tt RadHydroChemistry} is set to 1, only the first of these
+terms is used.  Similarly, the photo-ionization rates are calculated as
+\begin{align}
+  \label{eq:kphHI}
+  \Gamma_{HI}^{ph} \ &= \ \int_{\nu_{HI}}^{\infty}
+    \frac{c\,E_{\nu}\,\sigma_{HI}}{h\nu}\, d\nu 
+  \ = \ \frac{c\,E}{h} 
+    \left[\int_{\nu_{HI}}^{\infty} \frac{\sigma_{HI}\, \chi_E}{\nu}\,
+      d\nu\right] \bigg/ \left[\int_{\nu_{HI}}^{\infty} \chi_E
+      d\nu\right] \\
+  \label{eq:kphHeI}
+  \Gamma_{HeI}^{ph} \ &= \ \int_{\nu_{HeI}}^{\infty}
+    \frac{c\,E_{\nu}\,\sigma_{HeI}}{h\nu}\, d\nu 
+  \ = \ \frac{c\,E}{h} 
+    \left[\int_{\nu_{HeI}}^{\infty} \frac{\sigma_{HeI}\, \chi_E}{\nu}\,
+      d\nu\right] \bigg/ \left[\int_{\nu_{HI}}^{\infty} \chi_E
+      d\nu\right] \\
+  \label{eq:kphHeII}
+  \Gamma_{HeII}^{ph} \ &= \ \int_{\nu_{HeII}}^{\infty}
+    \frac{c\,E_{\nu}\,\sigma_{HeII}}{h\nu}\, d\nu 
+  \ = \ \frac{c\,E}{h} 
+    \left[\int_{\nu_{HeII}}^{\infty} \frac{\sigma_{HeII}\, \chi_E}{\nu}\,
+      d\nu\right] \bigg/ \left[\int_{\nu_{HI}}^{\infty} \chi_E
+      d\nu\right],
+\end{align}
+where again, the latter two of these rates are not filled unless {\tt
+  RadHydroChemistry} equals 3.  Finally, the frequency-integrated
+opacity is computed as,
+\begin{align}
+\notag
+  \kappa \ &= \ 
+  \left[\int_{\nu_{HI}}^{\infty} \kappa_{\nu}\,E_{\nu}\,d\nu\right] \bigg/
+  \left[\int_{\nu_{HI}}^{\infty} E_{\nu}\,d\nu\right] \\
+\label{eq:opacity}
+  \ &= \ 
+  \mn_{HI} \left[\int_{\nu_{HI}}^{\infty}
+    \chi_E\,\sigma_{HI}\,d\nu\right] \bigg/
+  \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right] \\
+\notag
+  &+ \ 
+  \mn_{HeI} \left[\int_{\nu_{HeI}}^{\infty}
+    \chi_E\,\sigma_{HeI}\,d\nu\right] \bigg/
+  \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right] \\
+\notag
+  &+ \ 
+  \mn_{HeII} \left[\int_{\nu_{HeII}}^{\infty}
+    \chi_E\,\sigma_{HeII}\,d\nu\right] \bigg/
+  \left[\int_{\nu_{HI}}^{\infty} \chi_E\,d\nu\right].
+\end{align}
+In all of the above, the assumed radiation spectrum $\chi(\nu)$ handle
+the change from the original frequency-dependent radiation equation to
+the integrated grey radiation equation.
+
+
+
+
 \section{Numerical solution approach}
 \label{sec:solution_approach}
 
-We solve these models in an operator-split fashion, where we solve
-the radiation equation \eqref{eq:radiation_PDE} separately from the
-more tightly-coupled gas energy correction and chemistry equations
+We solve these models in an operator-split fashion, using one of two
+separate approaches.  In the first approach, {\tt gFLDSplit} performs
+chemistry and heating internally; in the second approach {\tt
+  gFLDSplit} performs only the radiation evolution while Enzo performs
+the remaining physics.
+
+
+{\bf Approach 1: internal chemistry and heating}
+
+In this approach, we solve the radiation equation
+\eqref{eq:radiation_PDE} separately from the more tightly-coupled gas
+energy correction and chemistry equations
 \eqref{eq:cons_energy_correction} and \eqref{eq:hydrogen_ionization},
-which are evolved together.  These solves are coupled to Enzo's
+which are evolved together.  These solvers are coupled to Enzo's 
 existing operator-split solver framework in the following manner:
 \begin{itemize}
 \item[(i)] Evolve the radiation implicitly in time [{\tt gFLDSplit}].
-\item[(ii)] Evolve the gas energy correction and Hydrogen I number
-  density implicitly in time [{\tt gFLDSplit}]. 
+\item[(ii)] Evolve the gas energy correction and primordial chemistry
+  number densities implicitly in time [{\tt gFLDSplit}]. 
 \item[(iii)] Project the dark matter particles onto the finite-volume
   mesh to generate a dark-matter density field $\rho_{dm}$ [Enzo];
 \item[(iv)] Solve for the gravitational potential $\phi$ using a
@@ -529,15 +655,44 @@ The implicit solution approach for step (i) is similar to the one from
 to point out the available user parameters, and more fully describe
 some additional options available in the solver.
 
-In solving the steps (i) and (ii), we first discretize the
-equations \eqref{eq:radiation_PDE}, \eqref{eq:cons_energy_correction}
-and \eqref{eq:hydrogen_ionization} in space and time before we solve
-them computationally.  We use a method of lines approach for the
-space-time discretization, wherein we first discretize in space, and
-then evolve the resulting system of ODEs in time.  As with the rest of
-Enzo, we use a finite-volume spatial discretization, placing all of
-our unknowns at the center of each finite-volume cell, and performing
-all spatial derivatives through a divergence of face-centered fluxes.
+
+
+
+{\bf Approach 2: external chemistry and heating}
+
+In this approach, we solve the radiation equation
+\eqref{eq:radiation_PDE} in one phase, and all other Enzo components
+are solved in the existing operator-split manner:
+\begin{itemize}
+\item[(i)] Evolve the radiation implicitly in time [{\tt gFLDSplit}].
+\item[(iii)] Project the dark matter particles onto the finite-volume
+  mesh to generate a dark-matter density field $\rho_{dm}$ [Enzo];
+\item[(iv)] Solve for the gravitational potential $\phi$ using a
+  Poisson equation [Enzo];
+\item[(v)] Advect the dark matter particles with the Particle-Mesh
+  method [Enzo];
+\item[(vi)] Evolve the hydrodynamics equations using an up to
+  second-order explicit method, and have the velocity $\vb$ advect
+  both the Hydrogen I number density $\mn_{HI}$ and the grey radiation
+  field $E$ [Enzo]; 
+\item[(vii)] Evolve the gas energy and chemistry systems  [Enzo]. 
+\end{itemize}
+
+The implicit solution approach for step (i) is identical to the
+approach used in \label{sec:solution_approach1}.
+
+
+In solving the steps (i) and (ii) for both approaches, we first
+discretize the equations \eqref{eq:radiation_PDE},
+\eqref{eq:cons_energy_correction} and \eqref{eq:hydrogen_ionization}
+in space and time before we solve them computationally.  We use a
+method of lines approach for the space-time discretization, wherein we
+first discretize in space, and then evolve the resulting system of
+ODEs in time.  As with the rest of Enzo, we use a finite-volume
+spatial discretization, placing all of our unknowns at the center of
+each finite-volume cell, and performing all spatial derivatives
+through a divergence of face-centered fluxes. 
+
 
 
 \subsection{Radiation subsystem}
@@ -582,17 +737,18 @@ using using a multigrid-preconditioned conjugate gradient iteration.
 \subsection{Gas and Chemistry subsystem}
 \label{sec:analytic_solve}
 
-As with the radiation equation, we also assume that the advective
-portion of \eqref{eq:hydrogen_ionization} is taken care of using
-Enzo's hydrodynamics solvers.  Therefore, since the remainder of the
-gas energy and chemistry equations is spatially local, the solver for
-step (ii) is performed separately on a cell-by-cell basis.  To this
-end, we employ a new implicit-time version of the 
-{\em quasi-steady-state approximation}.  In this approach, instead of
-approximating the solution to the exact ODEs, we exactly solve
-approximate ODEs.  Here, if we assume in each equation that all but the
-time-evolving variable are held constant throughout the time step, we
-could consider the ODE system 
+This phase is only performed if {\tt gFLDSplit} is performing the
+chemistry and heating solve.  As with the radiation equation, we also
+assume that the advective portion of \eqref{eq:hydrogen_ionization} is
+taken care of using Enzo's hydrodynamics solvers.  Therefore, since
+the remainder of the gas energy and chemistry equations is spatially
+local, the solver for step (ii) is performed separately on a
+cell-by-cell basis.  To this end, we employ a new implicit-time
+version of the {\em quasi-steady-state approximation}.  In this
+approach, instead of approximating the solution to the exact ODEs, we
+exactly solve approximate ODEs.  Here, if we assume in each equation
+that all but the time-evolving variable are held constant throughout
+the time step, we could consider the ODE system 
 \begin{align}
   \label{eq:energy_correction_qss}
   \partial_t e_c &= -\frac{2\dot{a}}{a}e_c + G(\overline{E},\overline{\mn_{HI}}) - \Lambda(\overline{E},e,\overline{\mn_{HI}}), \\
@@ -698,11 +854,13 @@ override these adaptive time step controls with the input parameters
 $\dt_{\text{max}}$ and $\dt_{\text{min}}$. 
 
 We further note that when run in combination with Enzo's hydrodynamics
-routines, both modules will limit their maximum time step sizes to the
-minimum of $\dt_{\text{E}}$ and $\dt_{\text{CFL}}$.  As a result, in
-some physical regimes, the global time step size will be limited based
-on the radiation time scale, and in other regimes it will be limited
-by the hydrodynamic time scale. 
+routines, the {\tt gFLDSplit} solver will limit Enzo's hydrodynamics
+solver to have a maximum time step of size 
+{\tt RadHydroMaxSubcycles}$\dt_{\text{E}}$.  That said, the radiation
+time step will {\em never} be larger than the hydrodynamics time step
+size.  As a result, in some physical regimes, the global time step
+size will be limited based on the radiation time scale, and in other
+regimes it will be limited by the hydrodynamic time scale.
 
 
 
@@ -720,7 +878,9 @@ $s_{\mn}$, then we may define the rescaled variables
 \begin{align}
 \label{eq:variable_rescaling}
   \tilde{E} = E / s_E, \qquad \tilde{e}_c = e_c / s_e, \qquad 
-  \tilde{\mn}_{HI} = \mn_{HI} / s_{\mn},
+  \tilde{\mn}_{HI} = \mn_{HI} / s_{\mn},\qquad 
+  \tilde{\mn}_{HeI} = \mn_{HeI} / s_{\mn},\qquad 
+  \tilde{\mn}_{HeII} = \mn_{HeII} / s_{\mn},
 \end{align}
 and the {\tt gFLDSplit} module will use $\tilde{E}$, $\tilde{e}_c$ and
 $\tilde{\mn}_{HI}$ in its internal routines instead of Enzo's internal
@@ -731,6 +891,21 @@ for a small number of time steps and investigate Enzo's HDF5 output
 files to see the magnitude of the values stored internally by Enzo; if
 these are far from unit-magnitude, these scaling factors should be
 used. 
+
+In addition, if enabled through the {\tt AutomaticScaling} input
+parameter, {\tt gFLDSplit} can automatically update the values of
+$s_E$, $s_e$ and $s_{\mn}$.  These are set to be the maximum absolute
+value of each internal field (e.g. $\tilde{E}$, etc) from the previous
+time step, such that at the beginning of the next time step the
+maximum value of $\tilde{E}$ and $\tilde{e}_c$ equal 1, and the
+maximum value of the largest of $\tilde{\mn}_{HI}$,
+$\tilde{\mn}_{HeI}$ and $\tilde{\mn}_{HeII}$ equals 1.  We note that
+this approach \underline{will fail} if the radiation field values
+throughout a domain can deplete to 0, since eventually $s_E$ will
+decrease in magnitude until $\tilde{E} \approx \frac{0}{0}$.  In these
+situations, it is instead recommended to set these scaling factors
+manually, and to disable {\tt AutomaticScaling}.
+
 
 
 

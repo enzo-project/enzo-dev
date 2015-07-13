@@ -38,7 +38,7 @@ add_field('Pressure', function=_Pressure, units=r'\rm{dyne}/\rm{cm}^{2}')
 
 ### define fields vector
 fields = ('Density', 'Pressure', 'Bx', 'By')
-pc = PlotCollection(pf, center=[0.5,0.5,0.5])
+pc = PlotCollection(pf, center=[0.0,0.0,0.0])
 
 for f in fields:
     pc.add_slice(f, 2)

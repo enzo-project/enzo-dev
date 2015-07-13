@@ -62,16 +62,65 @@ int grid::FlagBufferZones()
   for (i = 0; i < size; i++)
     TempBuffer[i] = 0;
  
+  /* loop over each active face */
+ 
+  for (int ibuffer = 0; ibuffer<NumberOfBufferZones; ibuffer++){
+    Offset = 1;
+    //Do this for all cells except last ghost zone.
+    int kstart = 1;
+    int kend = GridDimension[2]-1;
+    int jstart = 1;
+    int jend = GridDimension[1]-1;
+    if(GridRank < 3){
+      kstart=0;
+      kend=1;
+    }
+    if(GridRank < 2){
+      jstart=0;
+      jend=1;
+    }
+
+    for (dim = 0; dim < GridRank; dim++){
+      if (GridDimension[dim] > 1) {
+
+        /* flag buffer zones to the left & right for this dimension */
+
+        for(k=kstart;k<kend;k++){
+          for(j=jstart; j<jend;j++){
+            Index = (k*GridDimension[1] + j)*GridDimension[0] + 1;
+            for(i=1; i<GridDimension[0]-1;i++, Index++){
+              TempBuffer[Index] += FlaggingField[Index         ] + 
+                FlaggingField[Index - Offset] +
+                FlaggingField[Index + Offset];
+            }
+          }
+        }
+
+        /* Update offset. */
+
+        Offset *= GridDimension[dim];
+
+        /* Copy TempBuffer back to FlaggingField. */
+
+        for (i = 0; i < size; i++)
+          FlaggingField[i] = TempBuffer[i];
+      }
+    } 
+  }
+  
+
   /* Remove points in ghost zones. */
  
   if (GridDimension[0] > 1)
     for (k = 0; k < GridDimension[2]; k++)
       for (j = 0; j < GridDimension[1]; j++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
-	for (i = 0; i < GridStartIndex[0]; i++)
+        for (i = 0; i < GridStartIndex[0]; i++){
           FlaggingField[Index+i] = 0;
-	for (i = GridEndIndex[0]+1; i < GridDimension[0]; i++)
+        }
+        for (i = GridEndIndex[0]+1; i < GridDimension[0]; i++){
           FlaggingField[Index+i] = 0;
+        }
       }
  
   if (GridDimension[1] > 1)
@@ -79,14 +128,16 @@ int grid::FlagBufferZones()
  
       for (j = 0; j < GridStartIndex[1]; j++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, Index++)
+        for (i = 0; i < GridDimension[0]; i++, Index++){
           FlaggingField[Index] = 0;
+        }
       }
- 
+
       for (j = GridEndIndex[1]+1; j < GridDimension[1]; j++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, Index++)
+        for (i = 0; i < GridDimension[0]; i++, Index++){
           FlaggingField[Index] = 0;
+        }
       }
     }
  
@@ -95,47 +146,17 @@ int grid::FlagBufferZones()
  
       for (k = 0; k < GridStartIndex[2]; k++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, Index++)
+        for (i = 0; i < GridDimension[0]; i++, Index++){
           FlaggingField[Index] = 0;
+        }
       }
  
       for (k = GridEndIndex[2]+1; k < GridDimension[2]; k++) {
         Index = (k*GridDimension[1] + j)*GridDimension[0];
-        for (i = 0; i < GridDimension[0]; i++, Index++)
+        for (i = 0; i < GridDimension[0]; i++, Index++){
           FlaggingField[Index] = 0;
-      }
-    }
- 
-  /* loop over each active face */
- 
-  for (dim = 0; dim < GridRank; dim++)
-    if (GridDimension[dim] > 1) {
- 
-      /* flag buffer zones to the left & right for this dimension */
- 
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
- 
-          Index = (k*GridDimension[1] + j)*GridDimension[0] +
-                  GridStartIndex[0];
- 
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, Index++) {
- 
-            TempBuffer[Index] += FlaggingField[Index         ] + 
-	                         FlaggingField[Index - Offset] +
-	                         FlaggingField[Index + Offset];
- 
-	  }
         }
- 
-      /* Update offset. */
- 
-      Offset *= GridDimension[dim];
- 
-      /* Copy TempBuffer back to FlaggingField. */
- 
-      for (i = 0; i < size; i++)
-	FlaggingField[i] = TempBuffer[i];
+      }
     }
  
   /* Set flag to zero if outside allowed refine region. */

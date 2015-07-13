@@ -35,7 +35,6 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "ExternalBoundary.h"
-#include "fortran.def"
 #include "Grid.h"
 #include "CosmologyParameters.h"
  
@@ -369,7 +368,7 @@ int grid::ComputeElementalDensity(float *temperature,
  
       /* Convert log(densit) into an integer in the table */
  
-      logd = log10(max(nH, tiny));
+      logd = log10(max(nH, tiny_number));
       logd = min(max(logd, TableDensity[0]), TableDensity[TableSize[0]-1]);
  
       ilogd = int((logd-TableDensity[0])/deld);

@@ -1,0 +1,833 @@
+#! /usr/bin/perl
+
+### np - an enzo progress meter.
+### January 26, 2009.
+
+### Author: Britton D. Smith <brittonsmith@gmail.com>
+
+### License:
+### Copyright (c) 2009 Britton D. Smith
+### 
+### Permission is hereby granted, free of charge, to any person
+### obtaining a copy of this software and associated documentation
+### files (the "Software"), to deal in the Software without
+### restriction, including without limitation the rights to use,
+### copy, modify, merge, publish, distribute, sublicense, and/or sell
+### copies of the Software, and to permit persons to whom the
+### Software is furnished to do so, subject to the following
+### conditions:
+
+### The above copyright notice and this permission notice shall be
+### included in all copies or substantial portions of the Software.
+
+### THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+### EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+### OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+### NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+### HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+### WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+### FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+### OTHER DEALINGS IN THE SOFTWARE.
+
+#################################################
+################ Default settings ###############
+# Change output file with -of.
+$outputFile = "estd.out";
+# Change output file with -pf.
+$parameterFile = "amr.out";
+# Change output file with -hf.
+$hierarchyFile = "OutputLevelInformation.out";
+# Change output log file with -ol.
+$outputLogFile = "OutputLog";
+# Change simulation directory with -d.
+$sim_dir = ".";
+
+# Simulation title.
+$simTitle = "";
+
+# Minimum time between outputs.
+# Change with -w.
+$minTimeBetweenOutput = 1; # seconds
+# Number of standard out lines printed at a time.
+# Change with -l.
+$logOutputLines = 0;
+
+# Catch control-c to end the tail process cleanly.
+$SIG{INT} = \&exit_cleanly;
+#################################################
+
+#################################################
+################# Output format #################
+$horizontalSpacing = 1;
+$verticalSpacing = 0;
+$clear = `clear`;
+
+# To switch format, uncomment one of the @format arrays.
+
+# This one is used now.
+# Nice 2 x 2.
+@format = ([\@timeSection,\@outputSection],
+	   [\@hierarchySection,\@redshiftSection]);
+
+# Horizontal.
+# @format = ([\@hierarchySection,\@timeSection,\@redshiftSection,\@outputSection]);
+
+# Vertical.
+# @format = ([\@hierarchySection],
+# 	   [\@timeSection],
+# 	   [\@redshiftSection],
+# 	   [\@outputSection]);
+#################################################
+
+# Parse input.
+while (my $arg = shift @ARGV) {
+    if ($arg =~ /^-h$/) {
+      &printHelp();
+      exit 0;
+    }
+    elsif ($arg =~ /^-d$/) {
+	$sim_dir = shift @ARGV or die "No directory given with -d.\n";
+    }
+    elsif ($arg =~ /^-hf$/) {
+      $hierarchyFile = shift @ARGV or die "No output file given with -hf.\n";
+    }
+    elsif ($arg =~ /^-l$/) {
+      $logOutputLines = shift @ARGV or die "No value given with -l.\n";
+    }
+    elsif ($arg =~ /^-of$/) {
+      $outputFile = shift @ARGV or die "No output file given with -of.\n";
+    }
+    elsif ($arg =~ /^-ol$/) {
+      $outputLogFile = shift @ARGV or die "No output log file given with -ol.\n";
+    }
+    elsif ($arg =~ /^-pf$/) {
+      $parameterFile = shift @ARGV or die "No output file given with -pf.\n";
+      $skip_output_log = 1;
+    }
+    elsif ($arg =~ /^-t$/) {
+      $simTitle = shift @ARGV or die "No title given with -t.\n";
+    }
+    elsif ($arg =~ /^-w$/) {
+      $minTimeBetweenOutput = shift @ARGV;
+    }
+    else {
+      print "Unrecognized option: $arg.\n";
+      &printHelp();
+      exit 0;
+    }
+}
+
+$outputFile = &path_join($sim_dir, $outputFile);
+$parameterFile = &path_join($sim_dir, $parameterFile);
+$hierarchyFile = &path_join($sim_dir, $hierarchyFile);
+$outputLogFile = &path_join($sim_dir, $outputLogFile);
+$simTitle = $sim_dir unless($simTitle);
+
+use Math::Trig;
+$kmPerMpc = 3.08567758e19;
+
+# Initialization.
+$pfile = &readOutputLog($outputLogFile) unless ($skip_output_log);
+$parameterFile = $pfile if ($pfile);
+&readParameters($parameterFile);
+$parameters{"CosmologyHubbleConstantNow"} *= 100;
+$TimeUnits = &ComputeTimeUnits();
+&FixCosmologyLimits();
+$codeUnitsToYears = $TimeUnits / 31556926;
+$processLevel = -1;
+$processStatus = ' ';
+&calculateDataDumps();
+
+&updateHierarchy($hierarchyFile);
+&formatHeader();
+
+$timeNow = time;
+$timeLastOutput = time;
+&parseOutput($outputFile, 1);
+&screenOutput();
+
+&parseOutput($outputFile, 0);
+
+sub parseOutput {
+    my ($file, $read) = @_;
+
+    die "Output file, $file, does not exist.\n" unless (-e $file);
+
+    if ($read) {
+	print "Updating status...\n";
+	open (TAIL, "<$outputFile") or die "Couldn't open output file.\n Use -of to specify a different output file if $outputFile does not exist.\n";
+	$tail_pid = -1;
+    }
+    else {
+	$tail_pid = open (TAIL,"tail -f $outputFile |") or die "Couldn't begin tail process.\nUse -of to specify a different output file if $outputFile does not exist.\n";
+    }
+
+    my $update;
+  OUTPUT: while ((my $line = <TAIL>) || (@outputLines > $logOutputLines)) {
+      $update = 0;
+
+      if (($logOutputLines > 0) && !($read)) {
+	push @outputLines, "| " . $line if ($line);
+	$update = 1;
+      }
+
+      if ($line =~ /^Level\[(\d+)\]\:\s+dt\s+\=\s+(\S+).+\((.+)\/(.+)\)/) {
+	  my $level = $1;
+	  my $dt = $2;
+	  my $completed = $3 / $4;
+	  $hierarchy{maxLevel} = $hierarchy{maxLevel} > $level ? $hierarchy{maxLevel} : $level;
+	  $hierarchy{"Levels"}[$level]{"dt"} = $dt;
+	  $hierarchy{"Levels"}[$level]{"completed"} = $completed;
+	  $hierarchy{"Levels"}[$level]{"counting"} += $dt;
+	  $processLevel = $level;
+	  $processStatus = 'E';
+	  $update = 1;
+      }
+      elsif ($line =~ /^EvolveLevel\[(\d+)\].+\((\d+).+\)/) {
+	  my $level = $1;
+	  my $iterations = $2;
+	  $hierarchy{"Levels"}[$level]{"iterations"} = $iterations;
+	  $processLevel = $level;
+	  $processStatus = '.';
+	  $update = 1;
+      }
+      elsif ($line =~ /^WriteAllData/) {
+	  $processLevel = -1;
+	  $processStatus = 'W';
+	  &updateOutputSection();
+	  $update = 1;
+      }
+      elsif ($line =~ /^TopGrid.+z =/) {
+	  &updateHierarchy($hierarchyFile);
+	  $processLevel = 0;
+          $processStatus = 'E';
+	  $update = 1;
+      }
+      elsif (($line =~ /^RebuildHierarchy\: level = (\d+)/) ||
+	     ($line =~ /^RebuildHierarchy\[(\d+)\]\:/)) {
+	  my $level = $1;
+	  $processLevel = $level;
+	  $processStatus = 'R';
+	  if ($line =~ /Flagged\s+\d+\/(\d+)/) {
+	      $hierarchy{"Levels"}[$level]{"grids"} = $1;
+	  }
+	  if ($level == 0) {
+	    &updateHierarchy($hierarchyFile);
+	  }
+	  else {
+	    for (my $q = $level+1;$q <= $hierarchy{maxLevel};$q++) {
+	      $hierarchy{"Levels"}[$q]{"completed"} = '?';
+	      $hierarchy{"Levels"}[$q]{"iteration"} = '?';
+	    }
+	  }
+	  $update = 1;
+      }
+      elsif ($line =~ /Exiting\.$/) {
+	  print "Simulation ended.\n";
+	  &exit_cleanly();
+      }
+
+      if ($update) {
+	  $timeNow = time;
+	  if ($timeNow - $timeLastOutput >= $minTimeBetweenOutput) {
+	      unless ($read) {
+		  &updateTimeSection();
+		  &updateRedshiftSection();
+		  &updateHierarchySection();
+		  &updateOutputSection();
+		  &screenOutput();
+		  $timeLastOutput = time;
+	      }
+	  }
+      }
+  }
+    close (TAIL);
+}
+
+sub screenOutput {
+    print $clear;
+
+    &updateHeaderSection();
+    print join "\n", @headerSection;
+    print "\n";
+
+    for (my $q = 0;$q < @format;$q++) {
+	if (ref($format[$q][0]) eq 'ARRAY') {
+	    my $maxHeight = 0;
+	    my @heights = ();
+	    my @lengths = ();
+	    for (my $w = 0;$w < @{$format[$q]};$w++) {
+		push @lengths, length $format[$q][$w][0];
+		push @heights, scalar @{$format[$q][$w]};
+		$maxHeight = ($maxHeight > $heights[-1]) ? $maxHeight : $heights[-1];
+	    }
+	    for (my $row = 0;$row < $maxHeight;$row++) {
+		for (my $w = 0;$w < @{$format[$q]};$w++) {
+		    if ($row < $heights[$w]) {
+			print $format[$q][$w][$row];
+		    }
+		    else {
+			print " " x $lengths[$w];
+		    }
+		    if ($w < @{$format[$q]}-1) {
+			print " " x $horizontalSpacing;
+		    }
+		}
+		print "\n";
+	    }
+	    print "\n" x $verticalSpacing;
+	}
+	else {
+	    print join "\n", @{$format[$q]};
+	    print "\n" x ($verticalSpacing+1);
+	}
+    }
+
+    if ($logOutputLines > 0  && @outputLines) {
+	print "+" . "-" x 45 . "\n";
+	@outputLines = @outputLines[-$logOutputLines .. -1];
+	print @outputLines;
+	print "+" . "-" x 45 . "\n";
+    }
+
+}
+
+sub updateHeaderSection {
+  @headerSection = ();
+  if ($simTitle) {
+    my $sideSpace = 0.5 * ($widthFirstRow - 4 - length $simTitle);
+    my $leftSide = int($sideSpace);
+    $leftSide++ if ((2 * $leftSide) < ($widthFirstRow - 4 - length $simTitle));
+    push @headerSection, "+" . "-" x $leftSide . " $simTitle " . "-" x $sideSpace . "+";
+  }
+  else {
+    push @headerSection, "+" . "-" x ($widthFirstRow - 2) . "+";
+  }
+  push @headerSection, "| " . scalar (localtime);
+  my $statusLine = sprintf "Status: %.3f%% complete.",(100 * $hierarchy{"Complete"});
+  if (length $statusLine < ($widthFirstRow - $widthFirstRowBox - 2 - $horizontalSpacing)) {
+    $headerSection[-1] .= " " x ($widthFirstRowBox + 1 + $horizontalSpacing - length $headerSection[-1]);
+    $headerSection[-1] .= $statusLine;
+    $headerSection[-1] .= " " x ($widthFirstRow - 1 - length $headerSection[-1]) . "|";
+  }
+  else {
+    $headerSection[-1] .= " " x ($widthFirstRow - 1 - length $headerSection[-1]) . "|";
+    push @headerSection, "| $statusLine";
+    $headerSection[-1] .= " " x ($widthFirstRow - 1 - length $headerSection[-1]) . "|";
+  }
+}
+
+sub updateTimeSection {
+    @timeSection = ();
+    $current_time = $hierarchy{"Time"} + $hierarchy{"Levels"}[$hierarchy{maxLevel}]{"counting"};
+    $hierarchy{"Complete"} = ($current_time - $parameters{"InitialTime"}) /
+	($parameters{"StopTime"} - $parameters{"InitialTime"});
+
+    push @timeSection, "+------------------- Time ------------------+";
+    push @timeSection, "|  Initial  |  Current  |   Final   | Units |";
+    push @timeSection, "+-----------+-----------+-----------+-------+";
+    push @timeSection, sprintf "| %6.3e | %6.3e | %6.3e | code  |", $parameters{"InitialTime"}, $current_time, $parameters{"StopTime"};
+    push @timeSection, sprintf "| %6.3e | %6.3e | %6.3e | years |", ($parameters{"InitialTime"}*$codeUnitsToYears),
+	($current_time*$codeUnitsToYears), ($parameters{"StopTime"}*$codeUnitsToYears);
+    push @timeSection, "+-------------------------------------------+";
+}
+
+sub updateRedshiftSection {
+    return unless ($parameters{"ComovingCoordinates"});
+    $hierarchy{"Redshift"} = &ComputeRedshiftFromTime($current_time * $TimeUnits);
+    @redshiftSection = ();
+    if ($parameters{"ComovingCoordinates"}) {
+	push @redshiftSection, "+--------- Redshift ----------+";
+	push @redshiftSection, "| Initial | Current |  Final  |";
+	push @redshiftSection, "+---------+---------+---------+";
+ 	push @redshiftSection, sprintf "| %s | %s | %s |",nf($parameters{"CosmologyInitialRedshift"},7),
+	nf($hierarchy{"Redshift"},7),nf($parameters{"CosmologyFinalRedshift"},7);
+	push @redshiftSection, "+-----------------------------+";
+    }
+}
+
+sub updateHierarchySection {
+    my $max_level_length = length($hierarchy{maxLevel});
+    my $max_grids_length = 5;
+    my $max_iter_length = 4;
+  LEVEL: for (my $q = 0;$q <= $hierarchy{maxLevel};$q++) {
+      $max_grids_length = ($max_grids_length > length($hierarchy{"Levels"}[$q]{"grids"})) ?
+	  $max_grids_length : length($hierarchy{"Levels"}[$q]{"grids"});
+      $max_iter_length = ($max_iter_length > length($hierarchy{"Levels"}[$q]{"iterations"})) ?
+	  $max_iter_length : length($hierarchy{"Levels"}[$q]{"iterations"});
+  }
+
+    @hierarchySection = ();
+    my $level_string = &center_string("L", $max_level_length, " ");
+    my $grids_string = &center_string("Grids", $max_grids_length, " ");
+    my $iter_string = &center_string("Iter", $max_iter_length, " ");
+    push @hierarchySection, "+" . &center_string(" Hierarchy ", (54 + $max_level_length + $max_grids_length + $max_iter_length), "-") . "+";
+    push @hierarchySection, sprintf "| %s | %s |  Volume   |    dt     |  Sub  | Completed | %s |%s|", 
+    $level_string, $grids_string, $iter_string, $processStatus;
+    push @hierarchySection,         "+" . "-" x ($max_level_length + 2) . "+" . 
+	"-" x ($max_grids_length + 2)  . "+-----------+-----------+-------+-----------+" .
+	"-" x ($max_iter_length + 2) . "+-+";
+
+  LEVEL: for (my $q = 0;$q <= $hierarchy{maxLevel};$q++) {
+      if (($q > $hierarchy{"MaxDepth"}) && ($hierarchy{"Levels"}[$q]{"completed"} eq '?')) {
+	  #last LEVEL;
+      }
+
+      my $completed;
+      if ($hierarchy{"Levels"}[$q]{"completed"} eq '?') {
+	  $completed = " --- ";
+      }
+      else {
+	  $completed = sprintf "%5.3f",$hierarchy{"Levels"}[$q]{"completed"};
+      }
+
+      my $iterations;
+      if ($hierarchy{"Levels"}[$q]{"iterations"} eq '?') {
+	$iterations = "-" x $max_iter_length;	
+      }
+      else {
+	$iterations = sprintf "%".$max_iter_length."d",$hierarchy{"Levels"}[$q]{"iterations"};
+      }
+
+      my $total_complete;
+      if (($hierarchy{"Levels"}[0]{"counting"} > 0) && ($hierarchy{"Levels"}[$q]{"counting"} > 0)) {
+	$total_complete = $hierarchy{"Levels"}[$q]{"counting"} / $hierarchy{"Levels"}[0]{"counting"};
+	$total_complete = ($total_complete < 1e-7) ? (sprintf "%9.3e", $total_complete) :
+	    (sprintf "%9.7f", $total_complete);
+      }
+      else {
+	$total_complete = " ------- ";
+      }
+
+      my $process = ($q == $processLevel) ? "<" : " ";
+
+      push @hierarchySection, sprintf "| %".$max_level_length."d | %".$max_grids_length."d | %.3e | %.3e | %s | %s | %".$max_iter_length."s |%s|",$q,
+	$hierarchy{"Levels"}[$q]{"grids"},$hierarchy{"Levels"}[$q]{"coverage"},$hierarchy{"Levels"}[$q]{"dt"},
+	  $completed,$total_complete,$iterations,$process;
+  }
+    push @hierarchySection, "+" . "-" x (54 + $max_level_length + $max_grids_length + $max_iter_length) . "+";
+}
+
+sub updateOutputSection {
+    @outputSection = ();
+    my $timeLastDump,$redshiftLastDump,$nameLastDump,$timeNextDump,$redshiftNextDump,$nameNextDump;
+    $timeLastDump = exists($hierarchy{"TimeLastDump"}) ? sprintf "%6.3e",$hierarchy{"TimeLastDump"} : "   --    ";
+    $timeNextDump = exists($hierarchy{"TimeNextDump"}) ? sprintf "%6.3e",$hierarchy{"TimeNextDump"} : "   --    ";
+    $redshiftLastDump = exists($hierarchy{"RedshiftLastDump"}) ? nf($hierarchy{"RedshiftLastDump"},8) : "   --   ";
+    $redshiftNextDump = exists($hierarchy{"RedshiftNextDump"}) ? nf($hierarchy{"RedshiftNextDump"},8) : "   --   ";
+    $nameLastDump = exists($hierarchy{"NameLastDump"}) ? $hierarchy{"NameLastDump"} : "  --  ";
+    $nameNextDump = exists($hierarchy{"NameNextDump"}) ? $hierarchy{"NameNextDump"} : "  --  ";
+
+    my $completed;
+    if ($processStatus eq 'W') {
+	$completed = " writing ";
+    }
+    elsif (exists($hierarchy{"TimeNextDump"})) {
+      $completed = 100 * ($hierarchy{"Time"} + 
+			  $hierarchy{"Levels"}[$hierarchy{maxLevel}]{"counting"} - 
+		    $hierarchy{"TimeLastDump"}) / 
+		    ($hierarchy{"TimeNextDump"} - $hierarchy{"TimeLastDump"});
+      $completed = 0 if ($completed <= 0);
+      $completed = nf($completed, 8);
+      $completed.= '%';
+    }
+    else {
+      $completed = " ------- ";
+    }
+
+    if ($parameters{"ComovingCoordinates"}) {
+	push @outputSection, "+-------------------- Output ----------------------+";
+	push @outputSection, "|      |   Time    | Redshift |  Name  | Completed |";
+	push @outputSection, "+------+-----------+----------+--------+-----------|";
+	push @outputSection, sprintf "| Last | %s | %s | %s |  -------  |",$timeLastDump,$redshiftLastDump,$nameLastDump;
+	push @outputSection, sprintf "| Next | %s | %s | %s | %s |",$timeNextDump,$redshiftNextDump,$nameNextDump,$completed;
+	push @outputSection, "+--------------------------------------------------+";
+    }
+    else {
+	push @outputSection, "+--------------- Output ----------------+";
+	push @outputSection, "|      |   Time    |  Name  | Completed |";
+	push @outputSection, "+------+-----------+--------+-----------|";
+	push @outputSection, sprintf "| Last | %s | %s |  -------  |",$timeLastDump,$nameLastDump;
+	push @outputSection, sprintf "| Next | %s | %s | %s |",$timeNextDump,$nameNextDump,$completed;
+	push @outputSection, "+---------------------------------------+";	
+    }
+}
+
+sub formatHeader {
+
+  $widthFirstRow = 0;
+  $widthFirstRowBox = 0;
+
+  if (ref($format[0][0]) eq 'ARRAY') {
+    $widthFirstRowBox = length $format[0][0][0];
+    for (my $q = 0;$q < @{$format[0]};$q++) {
+      $widthFirstRow += $horizontalSpacing + length $format[0][$q][0];
+    }
+    $widthFirstRow--;
+  }
+  else {
+    $widthFirstRowBox = length $format[0][0];
+    $widthFirstRow = $widthFirstRowBox;
+  }
+
+}
+
+sub calculateDataDumps {
+    @outputs = ();
+
+    if ($parameters{"dtDataDump"}) {
+	my $index = $parameters{"DataDumpNumber"} - 1;
+	for (my $t = $parameters{"TimeLastDataDump"};$t <= $parameters{"StopTime"};$t += $parameters{"dtDataDump"}) {
+	    my $redshift = &ComputeRedshiftFromTime($t*$TimeUnits) if ($parameters{"ComovingCoordinates"});
+	    %{$outputs[@outputs]} = (redshift => $redshift, time => $t, name => sprintf "DD%04d", $index);
+	    $index ++;
+	}
+	my $t = $parameters{"StopTime"};
+	my $redshift = &ComputeRedshiftFromTime($t*$TimeUnits) if ($parameters{"ComovingCoordinates"});
+	%{$outputs[@outputs]} = (redshift => $redshift, time => $t, name => sprintf "DD%04d", $index);
+    }
+
+    if ($parameters{"ComovingCoordinates"}) {
+	foreach $output (@{$parameters{"CosmologyOutputRedshift"}}) {
+	    my $time = &ComputeTimeFromRedshift($$output{value}) / $TimeUnits;
+	    %{$outputs[@outputs]} = (redshift => $$output{value}, time => $time, name => sprintf "RD%04d", $$output{index});
+	}
+    }
+
+    @outputs = sort {$a->{time} <=> $b->{time}} @outputs;
+}
+
+sub updateHierarchy {
+    my ($file) = @_;
+
+    my %oldHierarchy = %hierarchy;
+
+    $hierarchy{maxLevel} = 0;
+
+    open (IN,"<$file") or die "Couldn't open $file to get hierarchy.\nUse -hf to specify a different hierarchy file.\n";
+    while (my $line = <IN>) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	$line =~ s/\s+/ /g;
+
+	if ($line =~ /^Cycle/) {
+	    %hierarchy = ();
+
+	    my @onLine = split " ",$line;
+	    $hierarchy{"Time"} = $onLine[3];
+	    $hierarchy{"MaxDepth"} = $onLine[5];
+	    $hierarchy{"TotalGrids"} = $onLine[7];
+	    @{$hierarchy{"Levels"}} = ();
+	}
+	elsif ($line =~ /^Level/) {
+	    my @onLine = split " ",$line;
+	    my $level = $onLine[1];
+	    my $grids = $onLine[3];
+	    if ($grids) {
+		$hierarchy{maxLevel} = $hierarchy{maxLevel} > $level ? $hierarchy{maxLevel} : $level;
+	    }
+	    my $coverage = $onLine[7];
+	    %{$hierarchy{"Levels"}[$level]} = ("grids" => $grids,
+					       "coverage" => $coverage,
+					       "iterations" => "?",
+					       "completed" => "?",
+					       "counting" => 0);
+	    $hierarchy{"Levels"}[$level]{"iterations"} = $oldHierarchy{"Levels"}[$level]{"iterations"} if
+		(%oldHierarchy);
+	}
+    }
+    close (IN);
+
+    delete $hierarchy{"TimeNextDump"};
+    delete $hierarchy{"RedshiftNextDump"};
+    delete $hierarchy{"TimeLastDump"};
+    delete $hierarchy{"RedshiftLastDump"};
+
+  DATA: for (my $q = 0;$q < @outputs;$q++) {
+      if ($outputs[$q]{time} > 1.00001 * $hierarchy{"Time"}) {
+	  $hierarchy{"TimeNextDump"} = $outputs[$q]{time};
+	  $hierarchy{"RedshiftNextDump"} = $outputs[$q]{redshift} if ($parameters{"ComovingCoordinates"});
+	  $hierarchy{"NameNextDump"} = $outputs[$q]{name};
+	  if ($q > 0) {
+	      $hierarchy{"TimeLastDump"} = $outputs[$q-1]{time};
+	      $hierarchy{"RedshiftLastDump"} = $outputs[$q-1]{redshift} if ($parameters{"ComovingCoordinates"});
+	      $hierarchy{"NameLastDump"} = $outputs[$q-1]{name};
+	  }
+	  last DATA;
+      }
+  }
+
+    &updateTimeSection();
+    &updateRedshiftSection();
+    &updateHierarchySection();
+    &updateOutputSection();
+}
+
+sub readOutputLog {
+    my ($file) = @_;
+
+    return "" unless (-e $file);
+    open (IN,"<$file") or die "Couldn't open $file to get output log.\nUse -ol to specify a different parameter file.\n";
+    my @lines = <IN>;
+    close (IN);
+
+    my $pfile = (split " ", $lines[-1])[2];
+    $pfile = &path_join($sim_dir, $pfile);
+    return "" unless (-e $pfile);
+    return $pfile;
+}
+
+sub readParameters {
+    my ($file) = @_;
+
+    print "Reading simulation parameters from $file.\n";
+
+    %singleValueParameters = ("ComovingCoordinates" => 1,
+			      "CosmologyOmegaMatterNow" => 1,
+			      "CosmologyOmegaLambdaNow" => 1,
+			      "CosmologyHubbleConstantNow" => 1,
+			      "CosmologyInitialRedshift" => 1,
+			      "CosmologyFinalRedshift" => 1,
+			      "InitialTime" => 1,
+			      "TimeLastDataDump" => 1,
+			      "StopTime" => 1,
+			      "dtDataDump" => 1,
+			      "TimeUnits" => 1,
+			      "DataDumpNumber" => 1);
+    %arrayValueParameters = ("CosmologyOutputRedshift" => 1);
+
+    %parameters = ();
+
+    open (IN,"<$file") or die "Couldn't open $file to get parameters.\nUse -pf to specify a different parameter file.\n";
+    while (my $line = <IN>) {
+	chomp $line;
+	$line =~ s/^\s+//;
+	$line =~ s/\s+$//;
+	$line =~ s/\s+/ /g;
+	$line =~ s/\s*=\s*/=/;
+
+	my ($par,$value) = split "=", $line;
+
+	if ($singleValueParameters{$par}) {
+	    $parameters{$par} = $value;
+	}
+	elsif ($par =~ /(\w+)\[(\d*)\]/) {
+	    my $arrayPar = $1;
+	    my $arrayIndex = $2;
+	    if ($arrayValueParameters{$arrayPar}) {
+		@{$parameters{$arrayPar}} = () unless ($parameters{$arrayPar});
+		push @{$parameters{$arrayPar}}, {index => $arrayIndex, value => $value};
+	    }
+	}
+
+    }
+    close (IN);
+    $parameters{"TimeLastDataDump"} = $parameters{"InitialTime"} unless ($parameters{"TimeLastDataDump"});
+}
+
+sub ComputeTimeUnits {
+    if ($parameters{"ComovingCoordinates"}) {
+	return 2.52e19 / sqrt($parameters{"CosmologyOmegaMatterNow"}) /
+	    $parameters{"CosmologyHubbleConstantNow"} /
+	    (1 + $parameters{"CosmologyInitialRedshift"})**(1.5);
+    }
+    else {
+	return 1 unless ($parameters{"TimeUnits"});
+	return $parameters{"TimeUnits"};
+    }
+}
+
+sub FixCosmologyLimits {
+    # Make initial/final time consistent with initial/final redshift.
+
+    unless ($parameters{"ComovingCoordinates"}) {
+	return;
+    }
+
+    $parameters{"InitialTime"} = &ComputeTimeFromRedshift($parameters{"CosmologyInitialRedshift"}) / $TimeUnits;
+    $parameters{"StopTime"} = &ComputeTimeFromRedshift($parameters{"CosmologyFinalRedshift"}) / $TimeUnits;
+}
+
+sub ComputeRedshiftFromTime {
+    my ($time) = @_;
+
+    $OmegaCurvatureNow = 1.0 - $parameters{"CosmologyOmegaMatterNow"} -
+	$parameters{"CosmologyOmegaLambdaNow"};
+
+    $OMEGA_TOLERANCE = 1e-5;
+    $ETA_TOLERANCE = 1.0e-10;
+
+    # Convert the time to Time * H0.
+ 
+    $TimeHubble0 = $time * $parameters{"CosmologyHubbleConstantNow"} / $kmPerMpc;
+ 
+    # 1) For a flat universe with OmegaMatterNow = 1, it's easy.
+ 
+    if ((abs($parameters{"CosmologyOmegaMatterNow"}-1) < $OMEGA_TOLERANCE) &&
+	($parameters{"CosmologyOmegaLambdaNow"} < $OMEGA_TOLERANCE)) {
+	$a = ($time/$parameters{"InitialTime"})**(2.0/3.0);
+    }
+ 
+    # 2) For OmegaMatterNow < 1 and OmegaLambdaNow == 0 see
+    #    Peebles 1993, eq. 13-3, 13-10.
+    #    Actually, this is a little tricky since we must solve an equation
+    #    of the form eta - na.sinh(eta) + x = 0..
+ 
+    if (($parameters{"CosmologyOmegaMatterNow"} < 1) && 
+	($parameters{"CosmologyOmegaLambdaNow"} < $OMEGA_TOLERANCE)) {
+            $x = 2*$TimeHubble0*(1.0 - $parameters{"CosmologyOmegaMatterNow"})**(1.5) /
+                $parameters{"CosmologyOmegaMatterNow"};
+ 
+	    # Compute eta in a three step process, first from a third-order
+	    # Taylor expansion of the formula above, then use that in a fifth-order
+	    # approximation.  Then finally, iterate on the formula itself, solving for
+	    # eta.  This works well because parts 1 & 2 are an excellent approximation
+	    # when x is small and part 3 converges quickly when x is large. 
+ 
+	    $eta = (6*$x)**(1.0/3.0);                  # part 1
+	    $eta = (120*$x/(20+$eta*$eta))**(1.0/3.0); # part 2
+	  LOOP: for ($i == 0;$i < 40;$i++) {           # part 3
+	      $eta_old = $eta;
+	      $eta = asinh($eta + $x);
+	      if (abs($eta-$eta_old) < $ETA_TOLERANCE) {
+		  last LOOP;
+	      }
+	      if ($i == 39) {
+		  print "No convergence after $i iterations.\n";
+	      }
+	  }
+   
+	    # Now use eta to compute the expansion factor (eq. 13-10, part 2).
+ 
+	    $a = $parameters{"CosmologyOmegaMatterNow"} /
+		(2.0*(1.0 - $parameters{"CosmologyOmegaMatterNow"}))* (cosh($eta) - 1.0);
+
+    }
+
+    # 3) For OmegaMatterNow > 1 and OmegaLambdaNow == 0, use sin/cos.
+    #    Easy, but skip it for now.
+ 
+    if (($parameters{"CosmologyOmegaMatterNow"} > 1) && 
+	($parameters{"CosmologyOmegaLambdaNow"} < $OMEGA_TOLERANCE)) {
+	print "Never implemented in Enzo, not implemented here.";
+	return 0;
+    }
+ 
+    # 4) For flat universe, with non-zero OmegaLambdaNow, see eq. 13-20.
+ 
+    if ((abs($OmegaCurvatureNow) < $OMEGA_TOLERANCE) &&
+	($parameters{"CosmologyOmegaLambdaNow"} > $OMEGA_TOLERANCE)) {
+	$a = ($parameters{"CosmologyOmegaMatterNow"} /
+	      (1 - $parameters{"CosmologyOmegaMatterNow"}))**(1.0/3.0) *
+	      (sinh(1.5 * sqrt(1.0 - $parameters{"CosmologyOmegaMatterNow"}) *
+		    $TimeHubble0))**(2.0/3.0);
+
+	$a = $a > 1e-5 ? $a : 1e-5; 
+        $redshift = (1.0/$a) - 1.0;
+    }
+
+    return $redshift;
+}
+
+sub ComputeTimeFromRedshift {
+    my ($z) = @_;
+
+    $OmegaCurvatureNow = 1.0 - $parameters{"CosmologyOmegaMatterNow"} -
+	$parameters{"CosmologyOmegaLambdaNow"};
+ 
+    # 1) For a flat universe with OmegaMatterNow = 1, things are easy.
+ 
+    if (($parameters{"CosmologyOmegaMatterNow"} == 1.0) && 
+	($parameters{"CosmologyOmegaLambdaNow"} == 0.0)) {
+	$TimeHubble0 = 2.0/3.0/(1+$z)**(1.5);
+    }
+ 
+    # 2) For OmegaMatterNow < 1 and OmegaLambdaNow == 0 see
+    #    Peebles 1993, eq. 13-3, 13-10.
+ 
+    if (($parameters{"CosmologyOmegaMatterNow"} < 1) &&
+	($parameters{"CosmologyOmegaLambdaNow"} == 0)) {
+	$eta = acosh(1 + 2*(1-$parameters{"CosmologyOmegaMatterNow"}) /
+		       $parameters{"CosmologyOmegaMatterNow"} / (1+$z));
+	$TimeHubble0 = $parameters{"CosmologyOmegaMatterNow"} /
+	    (2*(1.0-$parameters{"CosmologyOmegaMatterNow"})**(1.5)) * (sinh($eta) - $eta);
+    }
+
+    # 3) For OmegaMatterNow > 1 && OmegaLambdaNow == 0, use sin/cos.
+ 
+    if (($parameters{"CosmologyOmegaMatterNow"} > 1) &&
+	($parameters{"CosmologyOmegaLambdaNow"} == 0)) {
+	$eta = acos(1 - 2*(1-$parameters{"CosmologyOmegaMatterNow"}) /
+		    $parameters{"CosmologyOmegaMatterNow"} / (1+$z));
+	$TimeHubble0 = $parameters{"CosmologyOmegaMatterNow"} /
+	    (2*(1.0-$parameters{"CosmologyOmegaMatterNow"})**(1.5)) * ($eta - sin($eta));
+    }
+
+    # 4) For flat universe, with non-zero OmegaLambdaNow, see eq. 13-20.
+ 
+    if ((abs($OmegaCurvatureNow) < 1.0e-3) &&
+	($parameters{"CosmologyOmegaLambdaNow"} != 0)) {
+	$TimeHubble0 = 2.0/3.0/sqrt(1-$parameters{"CosmologyOmegaMatterNow"})*
+	    asinh(sqrt((1-$parameters{"CosmologyOmegaMatterNow"}) /
+			 $parameters{"CosmologyOmegaMatterNow"}) / (1+$z)**(1.5));
+    }
+
+    # Now convert from Time * H0 to time.
+  
+    $time = $TimeHubble0 / ($parameters{"CosmologyHubbleConstantNow"} / $kmPerMpc);
+    
+    return $time;
+}
+
+sub printHelp {
+  print "np:\n";
+  print "\t-h: print this help output.\n";
+  print "\t-d <directory>: simulation directory (default: .).\n";
+  print "\t-hf <filename>: hierarchy file (default: $hierarchyFile).\n";
+  print "\t-l <number of output lines>: print enzo standard out lines (default: $logOutputLines).\n";
+  print "\t-of <filename>: enzo standard out file (default: $outputFile).\n";
+  print "\t-ol <filename>: enzo output log file (default: $outputLogFile).\n";
+  print "\t-pf <filename>: parameter file (default: $parameterFile).\n";
+  print "\t-t <title>: title of simulation.\n";
+  print "\t-w <seconds>: change number of seconds between output (default: $minTimeBetweenOutput).\n";
+  print "Status:\n";
+  print "\tE: Evolve Level\n";
+  print "\tR: Rebuild Hierarchy\n";
+  print "\tW: Writing Data\n";
+  print "\t.: Evolve Level Complete\n";
+}
+
+sub path_join {
+  my @parts = @_;
+
+  my $path = shift @parts;
+  $path =~ s/\/+$//;
+  foreach my $part (@parts) {
+    $part =~ s/^\/+//;
+    $part =~ s/\/+$//;
+    $path .= '/' . $part;
+  }
+  return $path;
+}
+
+sub center_string {
+    my ($value, $len, $spc) = @_;
+    return $value if ($len <= length($value));
+    my $right_space = int(($len - length($value)) / 2);
+    my $left_space = $len - length($value) - $right_space;
+    return ($spc x $left_space . $value . $spc x $right_space);
+}
+
+sub nf {
+    my ($value, $length) = @_;
+    my $strVal = sprintf "%s", $value;
+    my ($before, undef) = split /\./, $value;
+    my $place = $length - 1 - (length($before));
+    return (sprintf "%".$length.".".$place."f", $value);
+}
+
+sub exit_cleanly {
+    kill 1, $tail_pid if ($tail_pid > 0);
+    exit(0);
+}

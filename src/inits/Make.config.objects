@@ -30,7 +30,6 @@ OBJS_CONFIG_LIB = \
 	CosmologyReadParameters.o \
 	cray_x1_fft64.o \
 	eisenstein_power.o \
-	enzo_module.o \
 	enzo_ranf.o \
 	enzo_seed.o \
 	FastFourierTransform.o \

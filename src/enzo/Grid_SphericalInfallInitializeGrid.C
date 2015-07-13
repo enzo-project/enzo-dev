@@ -65,7 +65,8 @@ int grid::SphericalInfallInitializeGrid(float InitialPerturbation,
    if (WritePotential)
     FieldType[NumberOfBaryonFields++] = GravPotential;
 
-   NumberOfParticles = 1000;
+  NumberOfParticles = 0;
+
   /* Return if this doesn't concern us. */
  
   if (ProcessorNumber != MyProcessorNumber)

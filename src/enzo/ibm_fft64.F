@@ -1,4 +1,5 @@
 #include "error.def"
+#include "fortran.def"
 
 #ifdef SP2
 
@@ -7,13 +8,14 @@
       subroutine ibm_1d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1)
+      INTG_PREC :: rank, n1, n2, n3, idir
+      CMPLX_PREC :: x(n1)
 
-      real*4 :: factor
-      real*4 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*4 :: factor
+      REAL*4 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -36,22 +38,22 @@
       if( n1 <= 8192 ) then
         naux1 = 20000
       else
-        naux1 = 20000+(1.14)*n1
+        naux1 = 20000+(1.14_RKIND)*n1
       end if
 
       if( n1 <= 8192 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(1.14)*n1
+        naux2 = 20000+(1.14_RKIND)*n1
       end if 
 
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0/real(n1)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -76,13 +78,14 @@
       subroutine ibm_2d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2)
+      INTG_PREC :: rank, n1, n2, n3, idir
+      CMPLX_PREC :: x(n1,n2)
 
-      real*4 :: factor
-      real*4 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*4 :: factor
+      REAL*4 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir
@@ -104,19 +107,19 @@
       if( max(n1,n2) <= 8192 ) then
         naux1 = 40000
       else
-        naux1 = 40000+(1.14)*(n1+n2)
+        naux1 = 40000+(1.14_RKIND)*(n1+n2)
       end if
 
       if( max(n1,n2) < 252 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(max(n1,n2)+256)*(min(64,n1,n2)+1.14)
+        naux2 = 20000+(max(n1,n2)+256)*(min(64,n1,n2)+1.14_RKIND)
       end if
 
-      factor = 1.0/(real(n1)*real(n2))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -141,13 +144,14 @@
       subroutine ibm_3d( x, rank, n1, n2, n3, idir )
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2,n3)
+      INTG_PREC :: rank, n1, n2, n3, idir
+      CMPLX_PREC :: x(n1,n2,n3)
 
-      real*4 :: factor
-      real*4:: scale
-      real*8, allocatable :: aux(:)
+      REAL*4 :: factor
+      REAL*4:: scale
+      REAL*8, allocatable :: aux(:)
 
       integer*4 :: inc2x, inc3x, naux, jdir
       integer*4 :: m1, m2, m3, i0, i1
@@ -167,40 +171,40 @@
         if( n1 <= 8192 ) then
           naux = 60000
         else
-          naux = 60000+(2.28)*n1
+          naux = 60000+(2.28_RKIND)*n1
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 < 252 )) then
         if( n1 <= 8192 ) then
-          naux = 60000          +(n2+256)*(min(64,n1)+2.28)
+          naux = 60000                +(n2+256)*(min(64,n1)+2.28_RKIND)
         else
-          naux = 60000+(2.28)*n1+(n2+256)*(min(64,n1)+2.28)
+          naux = 60000+(2.28_RKIND)*n1+(n2+256)*(min(64,n1)+2.28_RKIND)
         end if
       end if
 
       if(( n2 < 252 ) .and. ( n3 >= 252 )) then
         if( n1 <= 8192 ) then
-          naux = 60000          +(n3+256)*(min(64,n1*n2)+2.28)
+          naux=60000                +(n3+256)*(min(64,n1*n2)+2.28_RKIND)
         else
-          naux = 60000+(2.28)*n1+(n3+256)*(min(64,n1*n2)+2.28)
+          naux=60000+(2.28_RKIND)*n1+(n3+256)*(min(64,n1*n2)+2.28_RKIND)
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 >= 252 )) then
 
         naux = max(
-     &         60000+(2.28)*n1+(n2+256)*(min(64,n1)+2.28),
-     &         60000+(2.28)*n1+(n3+256)*(min(64,n1*n2)+2.28) )
+     &        60000+(2.28_RKIND)*n1+(n2+256)*(min(64,n1)+2.28_RKIND),
+     &        60000+(2.28_RKIND)*n1+(n3+256)*(min(64,n1*n2)+2.28_RKIND))
 
       end if
 
       write(*,*) naux
 
-      factor = 1.0/(real(n1)*real(n2)*real(n3))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -223,13 +227,14 @@
       subroutine ibm_1d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1)
+      INTG_PREC :: rank, n1, n2, n3, idir
+      CMPLX_PREC :: x(n1)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir, mult
@@ -252,22 +257,22 @@
       if( n1 <= 2048 ) then
         naux1 = 20000
       else
-        naux1 = 20000+(2.28)*n1
+        naux1 = 20000+(2.28_RKIND)*n1
       end if
 
       if( n1 <= 2048 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(2.28)*n1
+        naux2 = 20000+(2.28_RKIND)*n1
       end if
 
       allocate ( aux1(naux1) )
       allocate ( aux2(naux2) )
 
-      factor = 1.0d-00/real(n1)
+      factor = 1._RKIND/REAL(n1,RKIND)
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -289,13 +294,14 @@
       subroutine ibm_2d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2)
+      INTG_PREC :: rank, n1, n2, n3, idir
+      CMPLX_PREC :: x(n1,n2)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux1(:), aux2(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux1(:), aux2(:)
 
       integer*4 :: inc1x, inc2x, inc1y, inc2y
       integer*4 :: naux1, naux2, jdir
@@ -317,19 +323,19 @@
       if( max(n1,n2) <= 2048 ) then
         naux1 = 40000
       else
-        naux1 = 40000+(2.28)*(n1+n2)
+        naux1 = 40000+(2.28_RKIND)*(n1+n2)
       end if
 
       if( max(n1,n2) < 252 ) then
         naux2 = 20000
       else
-        naux2 = 20000+(2*max(n1,n2)+256)*(min(64,n1,n2)+2.28)
+        naux2 = 20000+(2*max(n1,n2)+256)*(min(64,n1,n2)+2.28_RKIND)
       end if
 
-      factor = 1.0d-00/(real(n1)*real(n2))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -354,13 +360,14 @@
       subroutine ibm_3d( x, rank, n1, n2, n3, idir )
 
       implicit none
+#include "fortran_types.def"
 
-      integer :: rank, n1, n2, n3, idir
-      complex :: x(n1,n2,n3)
+      INTG_PREC :: rank, n1, n2, n3, idir
+      CMPLX_PREC :: x(n1,n2,n3)
 
-      real*8 :: factor
-      real*8 :: scale
-      real*8, allocatable :: aux(:)
+      REAL*8 :: factor
+      REAL*8 :: scale
+      REAL*8, allocatable :: aux(:)
 
       integer*4 :: inc2x, inc3x, naux, jdir
       integer*4 :: m1, m2, m3, i0, i1
@@ -380,40 +387,43 @@
         if( n1 <= 2048 ) then
           naux = 60000
         else
-          naux = 60000+(4.56)*n1
+          naux = 60000+(4.56_RKIND)*n1
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 < 252 )) then
         if( n1 <= 2048 ) then
-          naux = 60000          +(2*n2+256)*(min(64,n1)+4.56)
+          naux = 60000+(2*n2+256)*(min(64,n1)+4.56_RKIND)
         else
-          naux = 60000+(4.56)*n1+(2*n2+256)*(min(64,n1)+4.56)
+          naux = 60000+(4.56_RKIND)*n1
+     &          +(2*n2+256)*(min(64,n1)+4.56_RKIND)
         end if
       end if
 
       if(( n2 < 252 ) .and. ( n3 >= 252 )) then
         if( n1 <= 2048 ) then
-          naux = 60000          +(2*n3+256)*(min(64,n1*n2)+4.56)
+          naux = 60000+(2*n3+256)*(min(64,n1*n2)+4.56_RKIND)
         else
-          naux = 60000+(2.28)*n1+(2*n3+256)*(min(64,n1*n2)+4.56)
+          naux = 60000+(2.28_RKIND)*n1
+     &          +(2*n3+256)*(min(64,n1*n2)+4.56_RKIND)
         end if
       end if
 
       if(( n2 >= 252 ) .and. ( n3 >= 252 )) then
 
         naux = max(
-     &         60000+(4.56)*n1+(2*n2+256)*(min(64,n1)+4.56),
-     &         60000+(4.56)*n1+(2*n3+256)*(min(64,n1*n2)+4.56) )
+     &        60000+(4.56_RKIND)*n1+(2*n2+256)*(min(64,n1)+4.56_RKIND),
+     &        60000+(4.56_RKIND)*n1
+     &             +(2*n3+256)*(min(64,n1*n2)+4.56_RKIND) )
 
       end if
 
       write(*,*) naux
 
-      factor = 1.0d-00/(real(n1)*real(n2)*real(n3))
+      factor = 1._RKIND/(REAL(n1,RKIND)*REAL(n2,RKIND)*REAL(n3,RKIND))
 
       if( jdir == 1 ) then
-        scale = 1.0d-00
+        scale = 1._RKIND
       else
         scale = factor
       end if
@@ -433,9 +443,10 @@
       subroutine ibm_1d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer rank, n1, n2, n3, idir
-      complex x(n1)
+      INTG_PREC rank, n1, n2, n3, idir
+      CMPLX_PREC x(n1)
 
       write(0,'("Dummy IBM 1D FFT - error")')
       ERROR_MESSAGE
@@ -446,9 +457,10 @@
       subroutine ibm_2d(x, rank, n1, n2, n3, idir)
 
       implicit none
+#include "fortran_types.def"
 
-      integer rank, n1, n2, n3, idir
-      complex x(n1,n2)
+      INTG_PREC rank, n1, n2, n3, idir
+      CMPLX_PREC x(n1,n2)
 
       write(0,'("Dummy IBM 2D FFT - error")')
       ERROR_MESSAGE
@@ -459,9 +471,10 @@
       subroutine ibm_3d( x, rank, n1, n2, n3, idir )
 
       implicit none
+#include "fortran_types.def"
 
-      integer rank, n1, n2, n3, idir
-      complex x(n1,n2,n3)
+      INTG_PREC rank, n1, n2, n3, idir
+      CMPLX_PREC x(n1,n2,n3)
 
       write(0,'("Dummy IBM 3D FFT - error")')
       ERROR_MESSAGE

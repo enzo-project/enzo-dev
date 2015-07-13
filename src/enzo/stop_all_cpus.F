@@ -7,8 +7,8 @@
       include 'mpif.h'
 #endif
 
-      integer       error_code
-      integer       id, ierr
+      INTG_PREC       error_code
+      INTG_PREC       id, ierr
 
 #ifdef USE_MPI
       call mpi_comm_rank( MPI_COMM_WORLD, id, ierr )

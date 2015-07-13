@@ -76,8 +76,9 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     size *= GridDimension[dim];
 
   for (dim = 0; dim < GridRank; dim++)
-    activesize *= (GridDimension[dim] - 2*DEFAULT_GHOST_ZONES);
+    activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
+  /*
   int field;
   for (field = 0; field < NumberOfBaryonFields; field++) {
     if (BaryonField[field] == NULL) {
@@ -86,6 +87,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	BaryonField[field][i] = 0.0;
     }
   }
+  */
+  AllocateGrids();
 
   /* transform pressure to total energy */
   float etotl, etotu, v2, B2;
@@ -103,7 +106,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   }
 
 
-  int igrid;
+  int igrid, igrid2, field;
   FLOAT x, y;
 
   /* MHD2DProblemType == 0: Rayleigh-Taylor problem */
@@ -146,6 +149,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
+    if ( UseMHDCT ){
+      field=0;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+    }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = 1.0;
 	} else {  // endif y<0
@@ -170,6 +184,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
+    if ( UseMHDCT ){
+      field=0;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxu;
+      field=1;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byu;
+      field=2;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+    }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = tiny_number;
 	}
@@ -795,6 +820,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      field=0;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxu + ramp*(Bxl-Bxu);
+      field=1;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byu + ramp*(Byl-Byu);
+      field=2;
+	    igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+    }
       }
     }
   } // endif MHD2DProblemType == 9 
@@ -1094,6 +1130,9 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 15
+  if( UseMHDCT ){
+      CenterMagneticField();
+  }
 
   return SUCCESS;
 }

@@ -50,11 +50,66 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
+
+#ifdef IO_64
+#define io_type float64
+#else
+#define io_type float32
+#endif
+
+ 
+int WriteDataset(hid_t WriteLoc, float * data_buffer, io_type * tmp_buffer,
+		 int * DataDims, int GridRank,
+		 int *WriteStartIndex, int *WriteEndIndex, int * WriteDims,
+		 char * Label, char * Units,hid_t file_type_id,hid_t float_type_id,FILE *log_fptr ) 
+{
+
+  int i,j,k,dim;
+  herr_t h5_status, h5_error = -1;
+  
+  hsize_t     OutDims[MAX_DIMENSION];
+  for (dim = 0; dim < GridRank; dim++)
+    OutDims[GridRank-dim-1] = WriteDims[dim];
+  io_type dbg_temp;
+  for (k = WriteStartIndex[2]; k <= WriteEndIndex[2]; k++)
+    for (j = WriteStartIndex[1]; j <= WriteEndIndex[1]; j++)
+      for (i = WriteStartIndex[0]; i <= WriteEndIndex[0]; i++){
+	tmp_buffer[(i-WriteStartIndex[0])                           + 
+		   (j-WriteStartIndex[1])*WriteDims[0]              + 
+		   (k-WriteStartIndex[2])*WriteDims[0]*WriteDims[1] ] =
+	  io_type(
+		  data_buffer[i + j*DataDims[0] +
+			      k*DataDims[0]*DataDims[1]]
+		  );
+      }
+  hid_t file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);} 
+  hid_t dset_id =  H5Dcreate(WriteLoc, Label, file_type_id, file_dsp_id, H5P_DEFAULT);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}  
+  /* set datafield name and units, etc. */
+  
+  WriteStringAttr(dset_id, "Label", Label, log_fptr);
+  WriteStringAttr(dset_id, "Units", Units, log_fptr);
+  WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+  WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+  h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) tmp_buffer);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);} 
+  h5_status = H5Sclose(file_dsp_id);
+  if (log_fptr) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+	  
+  h5_status = H5Dclose(dset_id);
+  if (log_fptr) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
+  if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
+  
+}
+
 #ifndef NEW_GRID_IO
 int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t file_id)
 {
  
   int i, j, k, dim, field, size, active_size, ActiveDim[MAX_DIMENSION];
+  int WriteStartIndex[MAX_DIMENSION], WriteEndIndex[MAX_DIMENSION];
   int file_status;
 
   float *temperature, *dust_temperature,
@@ -68,7 +123,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
   io_type *temp, *temp_VelAnyl;
  
-  FILE *log_fptr;
+  FILE *log_fptr=NULL;
   FILE *procmap_fptr;
  
   hid_t       group_id, dset_id;
@@ -118,8 +173,22 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     GridEndIndex[dim] = 0;
   }
  
+  if( WriteBoundary == -1 ) {
+    WriteBoundary = 1;
+  }
+  if( WriteBoundary == TRUE ){
+    for(i=0;i<3; i++){
+      WriteStartIndex[i] = 0;
+      WriteEndIndex[i] = GridDimension[i] - 1;
+    }
+  }else{
+    for(i=0;i<3; i++){
+      WriteStartIndex[i] = GridStartIndex[i];
+      WriteEndIndex[i] = GridEndIndex[i];
+    }
+  }    
   for (dim = 0; dim < 3; dim++)
-    ActiveDim[dim] = GridEndIndex[dim] - GridStartIndex[dim] +1;
+    ActiveDim[dim] = WriteEndIndex[dim] - WriteStartIndex[dim] +1;
  
   /* ------------------------------------------------------------------- */
   /* 1) Save general grid class data */
@@ -284,88 +353,173 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
  
     if (MyProcessorNumber == ProcessorNumber) {
+      MHDCT_ConvertEnergyToSpecificC();//See docs and Grid_MHDCTEnergyToggle.C for when/if conversion happens
  
-    /* 2a) Set HDF file dimensions (use FORTRAN ordering). */
+      /* 2a) Set HDF file dimensions (use FORTRAN ordering). */
  
-    for (dim = 0; dim < GridRank; dim++)
-      OutDims[GridRank-dim-1] = ActiveDim[dim];
+      for (dim = 0; dim < GridRank; dim++)
+	OutDims[GridRank-dim-1] = ActiveDim[dim];
  
-    /* 2b) Write out co-ordinate values.  Use the centre of each cell. */
+      /* 2b) Write out co-ordinate values.  Use the centre of each cell. */
  
-    size = 1;
-    io_type *tempdim[MAX_DIMENSION];
+      size = 1;
+      io_type *tempdim[MAX_DIMENSION];
  
-    for (dim = GridRank-1; dim >= 0; dim--) {
+      for (dim = GridRank-1; dim >= 0; dim--) {
  
-      /* Compute cell centers and put them in temp. */
+	/* Compute cell centers and put them in temp. */
+	
+	tempdim[dim] = new io_type[GridDimension[dim]];
+	for (i = 0; i <= GridEndIndex[dim] - GridStartIndex[dim]; i++)
+	  tempdim[dim][i] = CellLeftEdge[dim][GridStartIndex[dim] + i] +
+	    0.5 * CellWidth[dim][GridStartIndex[dim] + i];
+	size *= GridDimension[dim];
+      }
  
-      tempdim[dim] = new io_type[GridDimension[dim]];
-      for (i = 0; i <= GridEndIndex[dim] - GridStartIndex[dim]; i++)
-	tempdim[dim][i] = CellLeftEdge[dim][GridStartIndex[dim] + i] +
-	          0.5 * CellWidth[dim][GridStartIndex[dim] + i];
-      size *= GridDimension[dim];
-    }
+      /* create temporary buffer */
  
-    /* create temporary buffer */
+      temp = new io_type[size];
+      
+      /* 2c) Loop over fields, writing each one. */
  
-    temp = new io_type[size];
- 
-    /* 2c) Loop over fields, writing each one. */
- 
-    for (field = 0; field < NumberOfBaryonFields; field++) {
+      for (field = 0; field < NumberOfBaryonFields; field++) {
 
-      /* copy active part of field into grid */
+	/* copy active part of field into grid */
  
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
-	    temp[(i-GridStartIndex[0])                           +
-	         (j-GridStartIndex[1])*ActiveDim[0]              +
-	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-		       io_type(
-	      BaryonField[field][i + j*GridDimension[0] +
-		                     k*GridDimension[0]*GridDimension[1]]
-                              );
+	for (k = WriteStartIndex[2]; k <= WriteEndIndex[2]; k++)
+	  for (j = WriteStartIndex[1]; j <= WriteEndIndex[1]; j++)
+	    for (i = WriteStartIndex[0]; i <= WriteEndIndex[0]; i++)
+	      temp[(i-WriteStartIndex[0])                           + 
+		   (j-WriteStartIndex[1])*ActiveDim[0]              + 
+		   (k-WriteStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+		io_type(
+			BaryonField[field][i + j*GridDimension[0] +
+					   k*GridDimension[0]*GridDimension[1]]
+			);
  
  
-      file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
+	file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-      if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",DataLabel[field]);
+	if (io_log) fprintf(log_fptr,"H5Dcreate with Name = %s\n",DataLabel[field]);
  
-      dset_id =  H5Dcreate(group_id, DataLabel[field], file_type_id, file_dsp_id, H5P_DEFAULT);
+	dset_id =  H5Dcreate(group_id, DataLabel[field], file_type_id, file_dsp_id, H5P_DEFAULT);
         if (io_log) fprintf(log_fptr, "H5Dcreate id: %"ISYM"\n", dset_id);
         if( dset_id == h5_error ){my_exit(EXIT_FAILURE);}
  
-      /* set datafield name and units, etc. */
+	/* set datafield name and units, etc. */
  
-      if ( DataUnits[field] == NULL )
-      {
-        DataUnits[field] = "none";
-      }
+	if ( DataUnits[field] == NULL )
+	  {
+	    DataUnits[field] = "none";
+	  }
  
-      //printf("OutPut Field2: %d \n", field);
-      WriteStringAttr(dset_id, "Label", DataLabel[field], log_fptr);
-      WriteStringAttr(dset_id, "Units", DataUnits[field], log_fptr);
-      WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
-      WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
+	//printf("OutPut Field2: %"ISYM" \n", field);
+	WriteStringAttr(dset_id, "Label", DataLabel[field], log_fptr);
+	WriteStringAttr(dset_id, "Units", DataUnits[field], log_fptr);
+	WriteStringAttr(dset_id, "Format", "e10.4", log_fptr);
+	WriteStringAttr(dset_id, "Geometry", "Cartesian", log_fptr);
  
  
-      h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
+	h5_status = H5Dwrite(dset_id, float_type_id, H5S_ALL, H5S_ALL, H5P_DEFAULT, (VOIDP) temp);
         if (io_log) fprintf(log_fptr, "H5Dwrite: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
- 
-      h5_status = H5Sclose(file_dsp_id);
+	
+	h5_status = H5Sclose(file_dsp_id);
         if (io_log) fprintf(log_fptr, "H5Sclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-      h5_status = H5Dclose(dset_id);
+	h5_status = H5Dclose(dset_id);
         if (io_log) fprintf(log_fptr, "H5Dclose: %"ISYM"\n", h5_status);
         if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
  
-    }   // end of loop over fields
+      }   // end of loop over fields
  
+      if( WriteAcceleration ){
+	char * AccelLabel[3] = {"Accel0","Accel1","Accel2"};
+
+	for (field = 0; field < GridRank; field++) {
+	  if( AccelerationField[field] == NULL ){
+	    continue;
+	  }
+	  WriteDataset(group_id,AccelerationField[field],temp,
+		       GridDimension,GridRank,
+		       WriteStartIndex,WriteEndIndex,ActiveDim,
+		       AccelLabel[field],"Smiles", file_type_id, float_type_id,log_fptr);
+        }
+    }
+
+      if( UseMHDCT ){
+	for(field=0;field<nBfields;field++){
+	  WriteDataset(group_id,CenteredB[field],temp,
+		       GridDimension,GridRank,
+		       WriteStartIndex,WriteEndIndex,ActiveDim,
+		       MHDcLabel[field], MHDUnits[0], file_type_id, float_type_id,log_fptr);
+	}
+
+	hsize_t MHDOutDims[3];
+	int MHDActive[3], MHDWriteStartIndex[3], MHDWriteEndIndex[3];
+	int BiggieSize = (GridDimension[0]+1)*(GridDimension[1]+1)*(GridDimension[2]+1);
+	int index1, index2;
+	io_type *MHDtmp = new io_type[BiggieSize];
+
+	for(field=0;field<nBfields;field++){
+	  if( WriteBoundary == TRUE){
+	    for(i=0;i<3;i++){
+	      MHDWriteStartIndex[i] = 0;
+	      MHDWriteEndIndex[i] = MagneticDims[field][i]-1;
+	    }
+	  }else{
+	    for(i=0;i<3;i++){
+	      MHDWriteStartIndex[i] = MHDStartIndex[field][i];
+	      MHDWriteEndIndex[i] = MHDEndIndex[field][i];
+	    }
+	  }
+
+	  for (dim = 0; dim < 3; dim++)
+	    MHDActive[dim] = MHDWriteEndIndex[dim] - MHDWriteStartIndex[dim] +1;
+	  WriteDataset(group_id,MagneticField[field],MHDtmp,
+		       MagneticDims[field],GridRank,
+		       MHDWriteStartIndex,MHDWriteEndIndex,MHDActive,
+		       MHDLabel[field],MHDUnits[0], file_type_id, float_type_id,log_fptr);
+	}
+
+	if( MHD_WriteElectric && ElectricField[0] != NULL ){
+	  for(field=0;field<nBfields;field++){
+	    if( WriteBoundary == TRUE ){
+	      for( i=0;i<3;i++){
+		MHDWriteStartIndex[i] = 0;
+		MHDWriteEndIndex[i] = ElectricDims[field][i] - 1;
+	      }
+	    }else{
+	      for(i=0;i<3;i++){
+		MHDWriteStartIndex[i] = MHDeStartIndex[field][i];
+		MHDWriteEndIndex[i] = MHDeEndIndex[field][i];
+	      }
+	    }
+	    for(dim = 0; dim<3; dim++)
+	      MHDActive[dim] = MHDWriteEndIndex[dim] - MHDWriteStartIndex[dim] +1;
+	    
+	    WriteDataset(group_id,ElectricField[field],MHDtmp,
+			 ElectricDims[field],GridRank,
+			 MHDWriteStartIndex,MHDWriteEndIndex,MHDActive,
+			 MHDeLabel[field],MHDeUnits[0], file_type_id, float_type_id,log_fptr);
+	    if( AvgElectricField[field] != NULL ){
+	      char name[30];
+	      sprintf(name, "AvgElec%"ISYM"",field);
+	      WriteDataset(group_id,AvgElectricField[field],MHDtmp,
+			   ElectricDims[field],GridRank,
+			   MHDWriteStartIndex,MHDWriteEndIndex,MHDActive,
+			   name,MHDeUnits[0], file_type_id, float_type_id,log_fptr);
+	    }
+	  }	
+	}//WriteElectric
+
+      delete [] MHDtmp;
+
+    }//UseMHDCT
+    
     /* If requested, compute and output the temperature field 
        as well since its such a pain to compute after the fact. */
  
@@ -381,17 +535,16 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
  
       /* Copy active part of field into grid */
  
-      for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
-	for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++)
-	  for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++)
-	    temp[(i-GridStartIndex[0])                           +
-	         (j-GridStartIndex[1])*ActiveDim[0]              +
-	         (k-GridStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
-		     io_type(
-		   temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
-			     );
- 
- 
+      for (k = WriteStartIndex[2]; k <= WriteEndIndex[2]; k++)
+	for (j = WriteStartIndex[1]; j <= WriteEndIndex[1]; j++)
+	  for (i = WriteStartIndex[0]; i <= WriteEndIndex[0]; i++)
+	    temp[(i-WriteStartIndex[0])                           + 
+	         (j-WriteStartIndex[1])*ActiveDim[0]              + 
+	         (k-WriteStartIndex[2])*ActiveDim[0]*ActiveDim[1] ] =
+	      io_type(
+		      temperature[(k*GridDimension[1] + j)*GridDimension[0] + i]
+		      );
+      
       file_dsp_id = H5Screate_simple((Eint32) GridRank, OutDims, NULL);
         if (io_log) fprintf(log_fptr, "H5Screate file_dsp_id: %"ISYM"\n", file_dsp_id);
         if( file_dsp_id == h5_error ){my_exit(EXIT_FAILURE);}
@@ -863,6 +1016,8 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* Write BoundaryFluxes info (why? it's just recreated when the grid
                                   is read in) */
  
+       MHDCT_ConvertEnergyToConservedC(); //See docs and Grid_MHDCTEnergyToggle.C for when/if conversion happens
+
    }  // end: if (ProcessorNumber == MyProcessorNumber)
   } // end: if (NumberOfBaryonFields > 0)
 

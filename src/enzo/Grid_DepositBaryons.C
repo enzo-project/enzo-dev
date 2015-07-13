@@ -51,6 +51,19 @@ extern "C" void FORTRAN_NAME(dep_grid_cic)(
 			       int *ddim1, int *ddim2, int *ddim3,
 			       int *refine1, int *refine2, int *refine3);
  
+extern "C" void FORTRAN_NAME(dep_grid_ngp)(
+                               float *source, float *dest, float *temp,
+			       float *velx, float *vely, float *velz,
+			       float *dt, float *rfield, int *ndim,
+                                   hydro_method *ihydro,
+			       float *delx, float *dely, float *delz,
+			       int *sdim1, int *sdim2, int *sdim3,
+			       int *sstart1, int *sstart2, int *sstart3,
+			       int *send1, int *send2, int *send3,
+			       float *offset1, float *offset2, float *offset3,
+			       int *ddim1, int *ddim2, int *ddim3,
+			       int *refine1, int *refine2, int *refine3);
+  
 int RK2SecondStepBaryonDeposit = 0;
 
 /* InterpolateBoundaryFromParent function */
@@ -93,6 +106,12 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
   TargetGrid->ComputeRefinementFactors(this, Refinement);
  
+  /* Use CIC deposition for this grid, NGP for subgrids. */
+
+  int DepositGridCIC = FALSE;
+  if (TargetGrid == this)
+    DepositGridCIC = TRUE;
+
   /* This routine will create a temporary patch with cell width equal to
      the target grid.  The current grid then deposits into this patch.
      Compute the TargetOffset (in grid units) and TargetStartIndex and
@@ -104,12 +123,11 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
        the TargetGrid mass field and the region to be deposited by this
        grid.  It must not extended beyond the active region of TargetGrid
        (if we are depositing in self). */
- 
+    
     GridOffset[dim] = nint((GridLeftEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-
-			   TargetGrid->GravitatingMassFieldCellSize); 
-
+			   TargetGrid->GravitatingMassFieldCellSize) - 1;
+    
     if (TargetGrid == this)
       GridOffset[dim] = max(GridOffset[dim],
 	nint((TargetGrid->GridLeftEdge[dim] -
@@ -130,7 +148,7 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
  
     GridOffsetEnd[dim] = nint((GridRightEdge[dim] -
 			    TargetGrid->GravitatingMassFieldLeftEdge[dim])/
-			   TargetGrid->GravitatingMassFieldCellSize) - 1;
+			   TargetGrid->GravitatingMassFieldCellSize);
 
     if (TargetGrid == this)
       GridOffsetEnd[dim] = min(GridOffsetEnd[dim],
@@ -149,11 +167,9 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     }
  
     if (RegionDim[dim] < 2) {
-      return SUCCESS;
-      fprintf(stderr, "this[%"ISYM"] = target%"ISYM"\n", this, TargetGrid);
       fprintf(stderr, "GridStart[%"ISYM"] = %"ISYM" \n", dim, GridStart[dim]);
-      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffsetEnd[dim]);
-      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM" < 2\n", dim, GridOffset[dim]);
+      fprintf(stderr, "GridOffsetEnd[%"ISYM"] = %"ISYM"\n", dim, GridOffsetEnd[dim]);
+      fprintf(stderr, "GridOffset[%"ISYM"] = %"ISYM"\n", dim, GridOffset[dim]);
       ENZO_VFAIL("RegionDim[%"ISYM"] = %"ISYM" < 2!\n", dim, RegionDim[dim])
     }
  
@@ -222,19 +238,33 @@ int grid::DepositBaryons(grid *TargetGrid, FLOAT DepositTime)
     }
 
     //    printf("DepositBaryons, %i\n", RK2SecondStepBaryonDeposit);
-    
-    FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
-			       input_velx, input_vely, input_velz,
-			       &dt,
-			       BaryonField[NumberOfBaryonFields], &GridRank,
-			       &HydroMethod,
-			       dxfloat, dxfloat+1, dxfloat+2,
-			       GridDimension, GridDimension+1, GridDimension+2,
-			       GridStartIndex, GridStartIndex+1, GridStartIndex+2,
-			       GridEndIndex, GridEndIndex+1, GridEndIndex+2,
-			       GridStart, GridStart+1, GridStart+2,
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       Refinement, Refinement+1, Refinement+2);
+
+    if (DepositGridCIC == TRUE)
+      FORTRAN_NAME(dep_grid_cic)(input_density, dens_field, vel_field,
+				 input_velx, input_vely, input_velz,
+				 &dt,
+				 BaryonField[NumberOfBaryonFields], &GridRank,
+				 &HydroMethod,
+				 dxfloat, dxfloat+1, dxfloat+2,
+				 GridDimension, GridDimension+1, GridDimension+2,
+				 GridStartIndex, GridStartIndex+1, GridStartIndex+2,
+				 GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+				 GridStart, GridStart+1, GridStart+2,
+				 RegionDim, RegionDim+1, RegionDim+2,
+				 Refinement, Refinement+1, Refinement+2);
+    else
+      FORTRAN_NAME(dep_grid_ngp)(input_density, dens_field, vel_field,
+				 input_velx, input_vely, input_velz,
+				 &dt,
+				 BaryonField[NumberOfBaryonFields], &GridRank,
+				 &HydroMethod,
+				 dxfloat, dxfloat+1, dxfloat+2,
+				 GridDimension, GridDimension+1, GridDimension+2,
+				 GridStartIndex, GridStartIndex+1, GridStartIndex+2,
+				 GridEndIndex, GridEndIndex+1, GridEndIndex+2,
+				 GridStart, GridStart+1, GridStart+2,
+				 RegionDim, RegionDim+1, RegionDim+2,
+				 Refinement, Refinement+1, Refinement+2);    
  
     delete [] vel_field;
     if ( RK2SecondStepBaryonDeposit ) 

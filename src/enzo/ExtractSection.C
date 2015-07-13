@@ -182,7 +182,7 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
 			    *(DomainRightEdge[dim] - DomainLeftEdge[dim]) +
 			      DomainLeftEdge[dim];
       ExtractDims[dim] = ExtractEnd[dim] - ExtractStart[dim] + 1
-	   + 2*DEFAULT_GHOST_ZONES;
+	   + 2*NumberOfGhostZones;
     }
  
     /* Create a new grid and fill it full of goodies. */
@@ -214,7 +214,8 @@ void ExtractSection(HierarchyEntry &TopGrid, TopGridData &MetaData,
     /* If level > 0: Interpolate from higher grid (if present). */
  
     if (level > 0)
-      if (Grids[level]->InterpolateFieldValues(Grids[level-1]) == FAIL) {
+      if (Grids[level]->InterpolateFieldValues(Grids[level-1]
+			,NULL, &MetaData) == FAIL) {
 	fprintf(stderr, "Error in grid->InterpolateFieldValues.\n");
 	my_exit(EXIT_FAILURE);
       }

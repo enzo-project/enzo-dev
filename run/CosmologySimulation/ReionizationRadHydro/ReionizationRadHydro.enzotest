@@ -1,0 +1,14 @@
+name = 'ReionizationRadHydro'
+answer_testing_script = None
+nprocs = 2
+runtime = 'long'
+AMR = True
+hydro = True
+gravity = True
+cosmology = True
+dimensionality = 3
+author = 'Uncle Enzo'
+max_time_minutes = 60
+fullsuite = False
+pushsuite = False
+quicksuite = False

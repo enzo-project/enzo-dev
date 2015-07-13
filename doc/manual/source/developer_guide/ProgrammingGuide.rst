@@ -15,20 +15,6 @@ Remember that other programmers will read your code
     chapter 2
 
 
-File Naming Convention
-----------------------
-
-With very few exceptions, Enzo has a one function per file layout, with the
-file name being the function name. Object methods have the object name
-prepended to the beginning, such as the member of the grid class
-``SolveHydroEquations`` lives in the file ``Grid_SolveHydroEquations.C``.
-
-This does create a large number of files. Familiarity with ``grep`` or ``ack``
-and pipes like ``ls -1 |grep`` are essential.
-
-Internal capitalization is used for C files, all lowercase with underscores for
-fortran files and header files. All Fortran files end with .F.
-
 Comments
 --------
 
@@ -58,6 +44,17 @@ float is double
 One must constantly be wary of the possibility of built in C types
 to be re-defined to higher precision types. This is outlined
 in :ref:`FloatIsDouble`.
+
+Fortran types
+-------------
+
+Unlike Enzo's C and C++ routines, Fortran files (.F and .F90) do not
+re-define the built-in 'integer' and 'real' types, so all variables
+and constants must be defined with the appropriate precision.  There
+are pre-defined type specifiers that will match Enzo's C and C++
+precision re-definitions, which should be used for all variables that
+pass through the C/Fortran interface.  This is discussed in detail in 
+:ref:`FloatIsDouble`.
 
 Header Files
 ------------

@@ -55,7 +55,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -91,33 +91,34 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
-  integer, intent(in)  :: Nz, NGzl, NGzr, zrface, x2s, x2e
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
-  real,    intent(in) :: dx, dy, dz, dt, theta
-  real,    intent(in) :: aUnits, LenUnits, EgUnits
-  real, target, intent(in),                                &
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
+  INTG_PREC, intent(in)  :: Nz, NGzl, NGzr, zrface, x2s, x2e
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a
+  R_PREC,    intent(in) :: dx, dy, dz, dt, theta
+  R_PREC,    intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, target, intent(in),                                &
        dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) &
        :: EgCur, EgOld
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr), intent(in) &
        :: Temp, kappaE
-  real*8, intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: adjvec
+  REAL*8, intent(out) :: matentries(7,x0s:x0e,x1s:x1e,x2s:x2e)
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr) :: adjvec
 
 !--------------
 ! locals
-  integer :: i, j, k
-  real :: c, pi, StBz, dxi, dyi, dzi, dtfac
-  real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: Dlim
-  real :: Rmin, acoef
+  INTG_PREC :: i, j, k
+  R_PREC :: c, pi, StBz, dxi, dyi, dzi, dtfac
+  R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
+  R_PREC :: Dlim
+  R_PREC :: Rmin, acoef
 
 !=======================================================================
   
@@ -133,9 +134,9 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
   dyi   = a/dy/LenUnits
   dzi   = a/dz/LenUnits
   c  = c_light           ! speed of light [cm/s]
-  StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  StBz = 5.6704e-5_RKIND ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   pi = pi_val
-  Rmin = 1.0e-20
+  Rmin = 1.0e-20_RKIND
 
   ! iterate over the active domain
   do k=1,Nz,1
@@ -143,7 +144,7 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
         do i=1,Nx,1
 
            ! initialize matrix entries
-           matentries(:,i,j,k) = 0.d0
+           matentries(:,i,j,k) = 0._RKIND
            matentries(4,i,j,k) = adjvec(i,j,k)
 
            !--------------
@@ -152,10 +153,10 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            AGradEg = abs(EgOld(i,j,k) - EgOld(i-1,j,k))*dxi
 
            !    face-centered radiation energy value
-           Egf = (EgOld(i,j,k) + EgOld(i-1,j,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i-1,j,k))/2._RKIND
 
            !    total extinction coeff on face
-           sigT = (kappaE(i,j,k)+kappaE(i-1,j,k))/2.d0
+           sigT = (kappaE(i,j,k)+kappaE(i-1,j,k))/2._RKIND
 
            !    compute R for limiter based on LimType
            if ((LimType == 4) .or. (LimType == 2)) then
@@ -163,8 +164,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               R = max(R,Rmin)
            else                             ! all others
               !    scaling coefficient ('effective albedo' -- LP)
-              Tf = (Temp(i,j,k)+Temp(i-1,j,k))/2.d0
-              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i-1,j,k))/2._RKIND
+              omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
               R = AGradEg/Egf/omega
@@ -173,13 +174,13 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else if (LimType == 2) then  ! Larsen n=2 lim.
-              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+              Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
-              Dlim = c/sigT/3.d0
+              Dlim = c/sigT/3._RKIND
            else if (LimType == 4) then  ! Zeus limiter
-              Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else                         ! standard Levermore-Pomraning (LP, 1981)
               Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
@@ -198,10 +199,10 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            AGradEg = abs(EgOld(i+1,j,k) - EgOld(i,j,k))*dxi
            
            !    face-centered radiation energy value
-           Egf = (EgOld(i,j,k) + EgOld(i+1,j,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i+1,j,k))/2._RKIND
            
            !    total extinction coeff on face
-           sigT = (kappaE(i,j,k)+kappaE(i+1,j,k))/2.d0
+           sigT = (kappaE(i,j,k)+kappaE(i+1,j,k))/2._RKIND
 
            !    compute R for limiter based on LimType
            if ((LimType == 4) .or. (LimType == 2)) then
@@ -209,8 +210,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               R = max(R,Rmin)
            else                             ! all others
               !    scaling coefficient ('effective albedo' -- LP)
-              Tf = (Temp(i,j,k)+Temp(i+1,j,k))/2.d0
-              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i+1,j,k))/2._RKIND
+              omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
               R = AGradEg/Egf/omega
@@ -219,21 +220,21 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else if (LimType == 2) then  ! Larsen n=2 lim.
-              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+              Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
-              Dlim = c/sigT/3.d0
+              Dlim = c/sigT/3._RKIND
            else if (LimType == 4) then  ! Zeus limiter
-              Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else                         ! standard Levermore-Pomraning (LP, 1981)
               Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-              acoef = 4.d0/3.d0*dxi/kappaE(i,j,k)
-              Dlim = 2.0*Dlim / (1.0 + acoef)
+              acoef = 4._RKIND/3._RKIND*dxi/kappaE(i,j,k)
+              Dlim = 2._RKIND*Dlim / (1._RKIND + acoef)
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
@@ -250,10 +251,10 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            AGradEg = abs(EgOld(i,j,k) - EgOld(i,j-1,k))*dyi
 
            !    face-centered radiation energy value
-           Egf = (EgOld(i,j,k) + EgOld(i,j-1,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j-1,k))/2._RKIND
 
            !    total extinction coeff on face
-           sigT = (kappaE(i,j,k)+kappaE(i,j-1,k))/2.d0
+           sigT = (kappaE(i,j,k)+kappaE(i,j-1,k))/2._RKIND
 
            !    compute R for limiter based on LimType
            if ((LimType == 4) .or. (LimType == 2)) then
@@ -261,8 +262,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               R = max(R,Rmin)
            else                             ! all others
               !    scaling coefficient ('effective albedo' -- LP)
-              Tf = (Temp(i,j,k)+Temp(i,j-1,k))/2.d0
-              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j-1,k))/2._RKIND
+              omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
               R = AGradEg/Egf/omega
@@ -271,13 +272,13 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else if (LimType == 2) then  ! Larsen n=2 lim.
-              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+              Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
-              Dlim = c/sigT/3.d0
+              Dlim = c/sigT/3._RKIND
            else if (LimType == 4) then  ! Zeus limiter
-              Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else                         ! standard Levermore-Pomraning (LP, 1981)
               Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
@@ -296,10 +297,10 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            AGradEg = abs(EgOld(i,j+1,k) - EgOld(i,j,k))*dyi
 
            !    face-centered radiation energy value
-           Egf = (EgOld(i,j,k) + EgOld(i,j+1,k))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j+1,k))/2._RKIND
 
            !    total extinction coeff on face
-           sigT = (kappaE(i,j,k)+kappaE(i,j+1,k))/2.d0
+           sigT = (kappaE(i,j,k)+kappaE(i,j+1,k))/2._RKIND
 
            !    compute R for limiter based on LimType
            if ((LimType == 4) .or. (LimType == 2)) then
@@ -307,8 +308,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               R = max(R,Rmin)
            else                             ! all others
               !    scaling coefficient ('effective albedo' -- LP)
-              Tf = (Temp(i,j,k)+Temp(i,j+1,k))/2.d0
-              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j+1,k))/2._RKIND
+              omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
               R = AGradEg/Egf/omega
@@ -317,21 +318,21 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else if (LimType == 2) then  ! Larsen n=2 lim.
-              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+              Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
-              Dlim = c/sigT/3.d0
+              Dlim = c/sigT/3._RKIND
            else if (LimType == 4) then  ! Zeus limiter
-              Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else                         ! standard Levermore-Pomraning (LP, 1981)
               Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (j==Ny) .and. (yrface==1)) then
-              acoef = 4.d0/3.d0*dyi/kappaE(i,j,k)
-              Dlim = 2.0*Dlim / (1.0 + acoef)
+              acoef = 4._RKIND/3._RKIND*dyi/kappaE(i,j,k)
+              Dlim = 2._RKIND*Dlim / (1._RKIND + acoef)
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
@@ -348,10 +349,10 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            AGradEg = abs(EgOld(i,j,k) - EgOld(i,j,k-1))*dzi
 
            !    face-centered radiation energy value
-           Egf = (EgOld(i,j,k) + EgOld(i,j,k-1))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j,k-1))/2._RKIND
 
            !    total extinction coeff on face
-           sigT = (kappaE(i,j,k)+kappaE(i,j,k-1))/2.d0
+           sigT = (kappaE(i,j,k)+kappaE(i,j,k-1))/2._RKIND
 
            !    compute R for limiter based on LimType
            if ((LimType == 4) .or. (LimType == 2)) then
@@ -359,8 +360,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               R = max(R,Rmin)
            else                             ! all others
               !    scaling coefficient ('effective albedo' -- LP)
-              Tf = (Temp(i,j,k)+Temp(i,j,k-1))/2.d0
-              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j,k-1))/2._RKIND
+              omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
               R = AGradEg/Egf/omega
@@ -369,13 +370,13 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else if (LimType == 2) then  ! Larsen n=2 lim.
-              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+              Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
-              Dlim = c/sigT/3.d0
+              Dlim = c/sigT/3._RKIND
            else if (LimType == 4) then  ! Zeus limiter
-              Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+              Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
            else                         ! standard Levermore-Pomraning (LP, 1981)
               Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
@@ -394,10 +395,10 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
            AGradEg = abs(EgOld(i,j,k+1) - EgOld(i,j,k))*dzi
 
            !    face-centered radiation energy value
-           Egf = (EgOld(i,j,k) + EgOld(i,j,k+1))/2.d0
+           Egf = (EgOld(i,j,k) + EgOld(i,j,k+1))/2._RKIND
 
            !    total extinction coeff on face
-           sigT = (kappaE(i,j,k)+kappaE(i,j,k+1))/2.d0
+           sigT = (kappaE(i,j,k)+kappaE(i,j,k+1))/2._RKIND
 
            !    compute R for limiter based on LimType
            if ((LimType == 4) .or. (LimType == 2)) then
@@ -405,8 +406,8 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
               R = max(R,Rmin)
            else                             ! all others
               !    scaling coefficient ('effective albedo' -- LP)
-              Tf = (Temp(i,j,k)+Temp(i,j,k+1))/2.d0
-              omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+              Tf = (Temp(i,j,k)+Temp(i,j,k+1))/2._RKIND
+              omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
               
               !    face-centered R value
               R = AGradEg/Egf/omega
@@ -415,21 +416,21 @@ subroutine gFLDProblem_MatrixEntries_3D(matentries, EgCur, EgOld, Temp,  &
 
            !    compute limiter
            if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-              Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R) 
+              Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R) 
            else if (LimType == 2) then  ! Larsen n=2 lim.
-              Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+              Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
            else if (LimType == 3) then  ! no limiter
-              Dlim = c/sigT/3.d0
+              Dlim = c/sigT/3._RKIND
            else if (LimType == 4) then  ! Zeus limiter
-              Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R) 
+              Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R) 
            else                         ! standard Levermore-Pomraning (LP, 1981)
               Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
            endif
 
            ! correct diffusion coefficient for Marshak boundaries
            if ((Model>=20) .and. (Model<30) .and. (k==Nz) .and. (zrface==1)) then
-              acoef = 4.d0/3.d0*dzi/kappaE(i,j,k)
-              Dlim = 2.0*Dlim / (1.0 + acoef)
+              acoef = 4._RKIND/3._RKIND*dzi/kappaE(i,j,k)
+              Dlim = 2._RKIND*Dlim / (1._RKIND + acoef)
            endif
 
            !    set the relevant matrix entries. Note: the diffusive component 
@@ -497,7 +498,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -533,31 +534,32 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
-  integer, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
-  real,    intent(in) :: dx, dy, dt, theta
-  real,    intent(in) :: aUnits, LenUnits, EgUnits
-  real, target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Ny, NGyl, NGyr, yrface, x1s, x1e
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a
+  R_PREC,    intent(in) :: dx, dy, dt, theta
+  R_PREC,    intent(in) :: aUnits, LenUnits, EgUnits
+  R_PREC, target, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: EgCur, EgOld
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr), intent(in) &
        :: Temp, kappaE
-  real*8, intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
-  real, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: adjvec
+  REAL*8, intent(out) :: matentries(5,x0s:x0e,x1s:x1e)
+  R_PREC, dimension(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr) :: adjvec
 
 !--------------
 ! locals
-  integer :: i, j
-  real :: c, pi, StBz, dxi, dyi, dtfac
-  real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: Dlim
-  real :: Rmin, acoef
+  INTG_PREC :: i, j
+  R_PREC :: c, pi, StBz, dxi, dyi, dtfac
+  R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
+  R_PREC :: Dlim
+  R_PREC :: Rmin, acoef
 
 !=======================================================================
   
@@ -572,16 +574,16 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
   dxi   = a/dx/LenUnits
   dyi   = a/dy/LenUnits
   c  = c_light           ! speed of light [cm/s]
-  StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  StBz = 5.6704e-5_RKIND ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   pi = pi_val
-  Rmin = 1.0e-20
+  Rmin = 1.0e-20_RKIND
 
   ! iterate over the active domain
   do j=1,Ny,1
      do i=1,Nx,1
 
         ! initialize matrix entries
-        matentries(:,i,j) = 0.d0
+        matentries(:,i,j) = 0._RKIND
         matentries(3,i,j) = adjvec(i,j)
 
         !--------------
@@ -590,10 +592,10 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         AGradEg = abs(EgOld(i,j) - EgOld(i-1,j))*dxi
 
         !    face-centered radiation energy value
-        Egf = (EgOld(i,j) + EgOld(i-1,j))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i-1,j))/2._RKIND
 
         !    total extinction coeff on face
-        sigT = (kappaE(i,j)+kappaE(i-1,j))/2.d0
+        sigT = (kappaE(i,j)+kappaE(i-1,j))/2._RKIND
 
         !    compute R for limiter based on LimType
         if ((LimType == 4) .or. (LimType == 2)) then
@@ -601,8 +603,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
            R = max(R,Rmin)
         else                             ! all others
            !    scaling coefficient ('effective albedo' -- LP)
-           Tf = (Temp(i,j)+Temp(i-1,j))/2.d0
-           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+           Tf = (Temp(i,j)+Temp(i-1,j))/2._RKIND
+           omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
            R = AGradEg/Egf/omega
@@ -611,13 +613,13 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else if (LimType == 2) then  ! Larsen n=2 lim.
-           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+           Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
-           Dlim = c/sigT/3.d0
+           Dlim = c/sigT/3._RKIND
         else if (LimType == 4) then  ! Zeus limiter
-           Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else                         ! standard Levermore-Pomraning (LP, 1981)
            Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
@@ -636,10 +638,10 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         AGradEg = abs(EgOld(i+1,j) - EgOld(i,j))*dxi
         
         !    face-centered radiation energy value
-        Egf = (EgOld(i,j) + EgOld(i+1,j))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i+1,j))/2._RKIND
         
         !    total extinction coeff on face
-        sigT = (kappaE(i,j)+kappaE(i+1,j))/2.d0
+        sigT = (kappaE(i,j)+kappaE(i+1,j))/2._RKIND
 
         !    compute R for limiter based on LimType
         if ((LimType == 4) .or. (LimType == 2)) then
@@ -647,8 +649,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
            R = max(R,Rmin)
         else                             ! all others
            !    scaling coefficient ('effective albedo' -- LP)
-           Tf = (Temp(i,j)+Temp(i+1,j))/2.d0
-           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+           Tf = (Temp(i,j)+Temp(i+1,j))/2._RKIND
+           omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
            R = AGradEg/Egf/omega
@@ -657,21 +659,21 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else if (LimType == 2) then  ! Larsen n=2 lim.
-           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+           Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
-           Dlim = c/sigT/3.d0
+           Dlim = c/sigT/3._RKIND
         else if (LimType == 4) then  ! Zeus limiter
-           Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else                         ! standard Levermore-Pomraning (LP, 1981)
            Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
 
         ! correct diffusion coefficient for Marshak boundaries
         if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-           acoef = 4.d0/3.d0*dxi/kappaE(i,j)
-           Dlim = 2.0*Dlim / (1.0 + acoef)
+           acoef = 4._RKIND/3._RKIND*dxi/kappaE(i,j)
+           Dlim = 2._RKIND*Dlim / (1._RKIND + acoef)
         endif
 
         !    set the relevant matrix entries. Note: the diffusive component 
@@ -688,10 +690,10 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         AGradEg = abs(EgOld(i,j) - EgOld(i,j-1))*dyi
 
         !    face-centered radiation energy value
-        Egf = (EgOld(i,j) + EgOld(i,j-1))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i,j-1))/2._RKIND
 
         !    total extinction coeff on face
-        sigT = (kappaE(i,j)+kappaE(i,j-1))/2.d0
+        sigT = (kappaE(i,j)+kappaE(i,j-1))/2._RKIND
 
         !    compute R for limiter based on LimType
         if ((LimType == 4) .or. (LimType == 2)) then
@@ -699,8 +701,8 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
            R = max(R,Rmin)
         else                             ! all others
            !    scaling coefficient ('effective albedo' -- LP)
-           Tf = (Temp(i,j)+Temp(i,j-1))/2.d0
-           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+           Tf = (Temp(i,j)+Temp(i,j-1))/2._RKIND
+           omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
            R = AGradEg/Egf/omega
@@ -709,13 +711,13 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else if (LimType == 2) then  ! Larsen n=2 lim.
-           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+           Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
-           Dlim = c/sigT/3.d0
+           Dlim = c/sigT/3._RKIND
         else if (LimType == 4) then  ! Zeus limiter
-           Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else                         ! standard Levermore-Pomraning lim. (LP, 1981)
            Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
@@ -734,10 +736,10 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         AGradEg = abs(EgOld(i,j+1) - EgOld(i,j))*dyi
 
         !    face-centered radiation energy value
-        Egf = (EgOld(i,j) + EgOld(i,j+1))/2.d0
+        Egf = (EgOld(i,j) + EgOld(i,j+1))/2._RKIND
 
         !    total extinction coeff on face
-        sigT = (kappaE(i,j)+kappaE(i,j+1))/2.d0
+        sigT = (kappaE(i,j)+kappaE(i,j+1))/2._RKIND
 
         !    compute R for limiter based on LimType
         if ((LimType == 4) .or. (LimType == 2)) then
@@ -745,7 +747,7 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
            R = max(R,Rmin)
         else                             ! all others
            !    scaling coefficient ('effective albedo' -- LP)
-           omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+           omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
            
            !    face-centered R value
            R = AGradEg/Egf/omega
@@ -754,21 +756,21 @@ subroutine gFLDProblem_MatrixEntries_2D(matentries, EgCur, EgOld, Temp,  &
         
         !    compute limiter
         if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-           Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else if (LimType == 2) then  ! Larsen n=2 lim.
-           Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+           Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
         else if (LimType == 3) then  ! no limiter
-           Dlim = c/sigT/3.d0
+           Dlim = c/sigT/3._RKIND
         else if (LimType == 4) then  ! Zeus limiter
-           Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+           Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
         else                         ! standard Levermore-Pomraning (LP, 1981)
            Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
         endif
 
         ! correct diffusion coefficient for Marshak boundaries
         if ((Model>=20) .and. (Model<30) .and. (j==Ny) .and. (yrface==1)) then
-           acoef = 4.d0/3.d0*dyi/kappaE(i,j)
-           Dlim = 2.0*Dlim / (1.0 + acoef)
+           acoef = 4._RKIND/3._RKIND*dyi/kappaE(i,j)
+           Dlim = 2._RKIND*Dlim / (1._RKIND + acoef)
         endif
 
         !    set the relevant matrix entries. Note: the diffusive component 
@@ -833,7 +835,7 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !     Temp       - fluid temperature
 !     kappaE     - Energy mean absorption coefficient in cell
 !     adjvec     - Schur complement adjustment vector (for diagonal)
-!     LimType    - integer flag denoting type of flux limiter:
+!     LimType    - INTG_PREC flag denoting type of flux limiter:
 !                       0 -> standard Levermore-Pomraning lim. (LP, 1981)
 !                       1 -> rational approx. to LP lim. (LP, 1981)
 !                       2 -> Larsen n=2 limiter
@@ -869,28 +871,29 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
 !--------------
 ! argument declarations
-  integer, intent(in)  :: LimType
-  integer, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
-  integer, intent(in)  :: Model
-  integer, intent(out) :: ier
-  REALSUB, intent(in)  :: a
-  real,    intent(in)  :: dx, dt, theta
-  real,    intent(in)  :: aUnits, LenUnits, EgUnits
-  real,    intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld
-  real,    intent(in), dimension(1-NGxl:Nx+NGxr) :: Temp, kappaE
-  real*8,  intent(out) :: matentries(3,x0s:x0e)
-  real, dimension(1-NGxl:Nx+NGxr) :: adjvec
+  INTG_PREC, intent(in)  :: LimType
+  INTG_PREC, intent(in)  :: Nx, NGxl, NGxr, xrface, x0s, x0e
+  INTG_PREC, intent(in)  :: Model
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in)  :: a
+  R_PREC,    intent(in)  :: dx, dt, theta
+  R_PREC,    intent(in)  :: aUnits, LenUnits, EgUnits
+  R_PREC,    intent(in), target, dimension(1-NGxl:Nx+NGxr) :: EgCur, EgOld
+  R_PREC,    intent(in), dimension(1-NGxl:Nx+NGxr) :: Temp, kappaE
+  REAL*8,  intent(out) :: matentries(3,x0s:x0e)
+  R_PREC, dimension(1-NGxl:Nx+NGxr) :: adjvec
 
 !--------------
 ! locals
-  integer :: i
-  real :: c, pi, StBz, dxi, dtfac
-  real :: Egf, omega, R, sigT, AGradEg, Tf
-  real :: Dlim
-  real :: Rmin, acoef
+  INTG_PREC :: i
+  R_PREC :: c, pi, StBz, dxi, dtfac
+  R_PREC :: Egf, omega, R, sigT, AGradEg, Tf
+  R_PREC :: Dlim
+  R_PREC :: Rmin, acoef
 
 !=======================================================================
   
@@ -904,15 +907,15 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
   dtfac = dt*theta       ! time step conversion factor
   dxi   = a/dx/LenUnits
   c  = c_light           ! speed of light [cm/s]
-  StBz = 5.6704d-5       ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
+  StBz = 5.6704e-5_RKIND ! Stefan-Boltzmann constant [ergs/(s cm^2 K^4)]
   pi = pi_val
-  Rmin = 1.0e-20
+  Rmin = 1.0e-20_RKIND
 
   ! iterate over the active domain
   do i=1,Nx,1
 
      ! initialize matrix entries
-     matentries(:,i) = 0.d0
+     matentries(:,i) = 0._RKIND
      matentries(2,i) = adjvec(i)
 
      !--------------
@@ -921,10 +924,10 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      AGradEg = abs(EgOld(i) - EgOld(i-1))*dxi
 
      !    face-centered radiation energy value
-     Egf = (EgOld(i) + EgOld(i-1))/2.d0
+     Egf = (EgOld(i) + EgOld(i-1))/2._RKIND
 
      !    total extinction coeff on face
-     sigT = (kappaE(i)+kappaE(i-1))/2.d0
+     sigT = (kappaE(i)+kappaE(i-1))/2._RKIND
 
      !    compute R for limiter based on LimType
      if ((LimType == 4) .or. (LimType == 2)) then
@@ -932,8 +935,8 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         R = max(R,Rmin)
      else                             ! all others
         !    scaling coefficient ('effective albedo' -- LP)
-        Tf = (Temp(i)+Temp(i-1))/2.d0
-        omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+        Tf = (Temp(i)+Temp(i-1))/2._RKIND
+        omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
         
         !    face-centered R value
         R = AGradEg/Egf/omega
@@ -942,13 +945,13 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         
      !    compute limiter
      if (LimType == 1) then        ! rational approx. to LP lim. (LP, 1981)
-        Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+        Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
      else if (LimType == 2) then  ! Larsen n=2 lim.
-        Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+        Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
      else if (LimType == 3) then  ! no limiter
-        Dlim = c/sigT/3.d0
+        Dlim = c/sigT/3._RKIND
      else if (LimType == 4) then  ! Zeus limiter
-        Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+        Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
      else                         ! standard Levermore-Pomraning (LP, 1981)
         Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
      endif
@@ -967,10 +970,10 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
      AGradEg = abs(EgOld(i+1) - EgOld(i))*dxi
      
      !    face-centered radiation energy value
-     Egf = (EgOld(i) + EgOld(i+1))/2.d0
+     Egf = (EgOld(i) + EgOld(i+1))/2._RKIND
      
      !    total extinction coeff on face
-     sigT = (kappaE(i)+kappaE(i+1))/2.d0
+     sigT = (kappaE(i)+kappaE(i+1))/2._RKIND
 
      !    compute R for limiter based on LimType
      if ((LimType == 4) .or. (LimType == 2)) then
@@ -978,8 +981,8 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         R = max(R,Rmin)
      else                             ! all others
         !    scaling coefficient ('effective albedo' -- LP)
-        Tf = (Temp(i)+Temp(i+1))/2.d0
-        omega = (4.d0*StBz/c*Tf**4)/Egf/EgUnits
+        Tf = (Temp(i)+Temp(i+1))/2._RKIND
+        omega = (4._RKIND*StBz/c*Tf**4)/Egf/EgUnits
         
         !    face-centered R value
         R = AGradEg/Egf/omega
@@ -988,21 +991,21 @@ subroutine gFLDProblem_MatrixEntries_1D(matentries, EgCur, EgOld, Temp, &
         
      !    compute limiter
      if (LimType == 1) then       ! rational approx. to LP lim. (LP, 1981)
-        Dlim = c/omega*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+        Dlim = c/omega*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
      else if (LimType == 2) then  ! Larsen n=2 lim.
-        Dlim = c/sqrt((3.d0*sigT)**2 + R**2)
+        Dlim = c/sqrt((3._RKIND*sigT)**2 + R**2)
      else if (LimType == 3) then  ! no limiter
-        Dlim = c/sigT/3.d0
+        Dlim = c/sigT/3._RKIND
      else if (LimType == 4) then  ! Zeus limiter
-        Dlim = c*(2.d0*sigT+R)/(6.d0*sigT*sigT+3.d0*sigT*R+R*R)
+        Dlim = c*(2._RKIND*sigT+R)/(6._RKIND*sigT*sigT+3._RKIND*sigT*R+R*R)
      else                         ! standard Levermore-Pomraning (LP, 1981)
         Dlim = c/omega*(cosh(R/sigT)/sinh(R/sigT)-sigT/R)/R
      endif
 
      ! correct diffusion coefficient for Marshak boundaries
      if ((Model>=20) .and. (Model<30) .and. (i==Nx) .and. (xrface==1)) then
-        acoef = 4.d0/3.d0*dxi/kappaE(i)
-        Dlim = 2.0*Dlim / (1.0 + acoef)
+        acoef = 4._RKIND/3._RKIND*dxi/kappaE(i)
+        Dlim = 2._RKIND*Dlim / (1._RKIND + acoef)
      endif
 
      !    set the relevant matrix entries. Note: the diffusive component 

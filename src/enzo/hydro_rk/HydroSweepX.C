@@ -42,9 +42,9 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
   float *Prim1[NEQ_HYDRO+NSpecies+NColor-idual];
   float *priml[NEQ_HYDRO-idual], *primr[NEQ_HYDRO-idual], *species[NSpecies], *colors[NColor];
   
-  int Xactivesize = GridDimension[0]-2*DEFAULT_GHOST_ZONES;
-  int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*DEFAULT_GHOST_ZONES : 1;
-  int Zactivesize = GridDimension[2] > 1 ? GridDimension[2]-2*DEFAULT_GHOST_ZONES : 1;
+  int Xactivesize = GridDimension[0]-2*NumberOfGhostZones;
+  int Yactivesize = GridDimension[1] > 1 ? GridDimension[1]-2*NumberOfGhostZones : 1;
+  int Zactivesize = GridDimension[2] > 1 ? GridDimension[2]-2*NumberOfGhostZones : 1;
 
 
   for (int field = 0; field < NEQ_HYDRO+NSpecies+NColor; field++) {

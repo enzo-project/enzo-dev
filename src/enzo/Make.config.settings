@@ -31,18 +31,17 @@
 #    CONFIG_ACCELERATION_BOUNDARY
 #    CONFIG_OPT
 #    CONFIG_TESTING
-#    CONFIG_TPVEL
 #    CONFIG_PHOTON
 #    CONFIG_HYPRE
 #    CONFIG_EMISSIVITY
 #    CONFIG_NEW_GRID_IO
 #    CONFIG_FAST_SIB
-#    CONFIG_FLUX_FIX
 #    CONFIG_USE_HDF4	
 #    CONFIG_BITWISE_IDENTICALITY
 #    CONFIG_USE_ECUDA
 #    CONFIG_SET_ACCELERATION_BOUNDARY
 #    CONFIG_ENZO_PERFORMANCE
+#    CONFIG_GRACKLE
 #
 #=======================================================================
 
@@ -236,15 +235,6 @@
      CONFIG_TESTING = no
 
 #=======================================================================
-# CONFIG_TPVEL
-#=======================================================================
-#    yes           Include tracer particle velocity info printout
-#    no            Do not include tracer particle velocity info printout
-#-----------------------------------------------------------------------
-
-     CONFIG_TPVEL = no
-
-#=======================================================================
 # CONFIG_PHOTON
 #=======================================================================
 #    yes           Include adaptive ray tracing for radiative transfer
@@ -289,15 +279,6 @@
 
      CONFIG_FAST_SIB = yes
 
-#=======================================================================
-# CONFIG_FLUX_FIX
-#=======================================================================
-#    yes           Include the SUBling (Subgrid of Sibling) Flux Correction Fix
-#    no            Skip this step
-#-----------------------------------------------------------------------
-
-     CONFIG_FLUX_FIX = yes
-
 #======================================================================= 
 # CONFIG_USE_HDF4
 #======================================================================= 
@@ -333,3 +314,12 @@
 #----------------------------------------------------------------------- 
  
      CONFIG_GRAVITY_4S = no
+
+#======================================================================= 
+# CONFIG_GRACKLE
+#======================================================================= 
+#    yes           Compile with Grackle support
+#    no            Compile without Grackle support
+#----------------------------------------------------------------------- 
+ 
+     CONFIG_GRACKLE = no

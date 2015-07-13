@@ -49,6 +49,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *GPotName  = "Grav_Potential";
  
   /* declarations */
  
@@ -215,7 +216,7 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
     /* compute the dimensions and left/right edges for the subgrid */
  
     for (dim = 0; dim < MetaData.TopGridRank; dim++) {
-      SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*DEFAULT_GHOST_ZONES;
+      SubgridDims[dim] = NumberOfSubgridZones[dim] + 2*NumberOfGhostZones;
       LeftEdge[dim]    = TestGravitySphereSubgridLeft;
       RightEdge[dim]   = TestGravitySphereSubgridRight;
     }
@@ -249,13 +250,14 @@ int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
  
-  DataUnits[0] = NULL;
-  DataUnits[1] = NULL;
-  DataUnits[2] = NULL;
-  DataUnits[3] = NULL;
-  DataUnits[4] = NULL;
-  DataUnits[5] = NULL;
- 
+  if (WritePotential){
+    DataLabel[count++] = GPotName;
+  }
+
+  for (int j = 0; j<count; j++){
+    DataUnits[j] = NULL;
+  }
+
   /* Write parameters to parameter output file */
  
   if (MyProcessorNumber == ROOT_PROCESSOR) {

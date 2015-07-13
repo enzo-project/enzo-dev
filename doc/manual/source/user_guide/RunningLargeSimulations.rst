@@ -58,7 +58,7 @@ Important Parameters
 
 * ``UnigridTranspose``: Default is 0, which is employs blocking MPI
   communication to transpose the root grid before and after the FFT.
-  In level-0 grids |ge| 1024\ :sup:`3`, this becomes the most
+  In level-0 grids >= 1024\ :sup:`3`, this becomes the most
   expense part of the calculation.  In these types of large runs,
   Option 2 is recommended, which uses non-blocking MPI calls; however
   it has some additional memory overhead, which is the reason it is

@@ -43,7 +43,7 @@ int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq
     dv[field] = new float[ActiveSize+1];
 
   for (int i = 0; i < ActiveSize+1; i++) {
-    iprim = i + DEFAULT_GHOST_ZONES - 1;
+    iprim = i + NumberOfGhostZones - 1;
     for (int field = 0; field < Neq; field++) 
       dv_plm_point(prim[field][iprim-1], prim[field][iprim  ], prim[field][iprim+1],
 		dv[field][i]);
@@ -51,7 +51,7 @@ int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq
 
   // limiting certain slopes 3.14 
     for (int i = 0; i < ActiveSize+1; i++) {
-      iprim = i + DEFAULT_GHOST_ZONES - 1;
+      iprim = i + NumberOfGhostZones - 1;
       // density
       dv[0][i] = sign(dv[0][i])*min(abs(dv[0][i]), prim[0][iprim]/2);
       // pressure
@@ -67,7 +67,7 @@ int cons_plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq
 
   // conservative reconstruction (equ.: 2.6-2.7)
   for (int i = 0; i < ActiveSize+1; i++) {
-    iprim = i + DEFAULT_GHOST_ZONES - 1;
+    iprim = i + NumberOfGhostZones - 1;
     // density & pressure
     
     for (int field = 0; field < 2; field++) { 

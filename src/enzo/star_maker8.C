@@ -817,7 +817,7 @@ int star_maker8(int *nx, int *ny, int *nz, int *size, float *d, float *te, float
 	      delz = zpos - zpold[n];
 	      dist2 = delx*delx + dely*dely + delz*delz;
 
-		/* If sink is within 5 cells and closest one, then add to it */
+		/* If sink is within 5 cells of the closest one, then add to it */
 	      if (dist2 < POW(BigStarSeparation,2) && dist2 < nearestdx2) {
 		nearestdx2 = dist2;
 		closest = n;		  

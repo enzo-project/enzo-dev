@@ -87,7 +87,6 @@ int RadiationFieldCalculateRates(FLOAT Time)
 
   if (ComovingCoordinates) {
     CosmologyComputeExpansionFactor(Time, &a, &dadt);
-
     aUnits = 1.0/(1.0 + InitialRedshift);
     Redshift = 1.0/(a*aUnits) - 1;
   } else {  
@@ -97,6 +96,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
     CoolData.RadiationRedshiftFullOn = RadiationFieldRedshift+0.1;
     CoolData.RadiationRedshiftDropOff = 0.0;
   }
+
     
   double tbase1 = TimeUnits;
   double xbase1 = LengthUnits/(a*aUnits);
@@ -509,8 +509,88 @@ int RadiationFieldCalculateRates(FLOAT Time)
       RateData.k31 = 1.13e8 * CoolData.f3 * TimeUnits;
   }
 
+
+  /* ------------------------------------------------------------------ */
+  /* 15) tabulated photoionization and photoheating rates from 
+     Haardt and Madau 2012.  rates are read into memory in 
+     InitializeHM12Photorates.C and interpolated here. */
+
+  if (RadiationFieldType == 15) {
+
+    double zhi, delta, frac;
+    int ilo, ihi;
+
+
+    /* first find indices that bracket the input redshift */
+    if ( Redshift <= RateData.HM12RedshiftLo ) {
+      ilo = 0;
+      ihi = ilo + 1;
+      frac = 0.0;
+    }
+    else if ( Redshift >= RateData.HM12RedshiftHi ) {
+      ihi = RateData.HM12NumberOfRedshiftBins - 1;
+      ilo = ihi - 1;
+      frac = 1.0;
+    }
+    else {
+      ihi = 0;
+      zhi = RateData.HM12Redshifts[ihi];
+      while ( zhi < Redshift ) {
+	ihi = ihi + 1;
+	zhi = RateData.HM12Redshifts[ihi];	  
+      }
+      ilo = ihi-1;
+      delta = RateData.HM12Redshifts[ihi] - RateData.HM12Redshifts[ilo];
+      frac = ( Redshift - RateData.HM12Redshifts[ilo] ) / delta;
+    }
+    
+    /* now interpolate the rates */
+    delta = RateData.HM12GH1[ihi] - RateData.HM12GH1[ilo];
+    RateData.k24 = POW( 10.0, RateData.HM12GH1[ilo] + frac * delta );
+    RateData.k24 *= TimeUnits * Ramp;
+    
+    delta = RateData.HM12GHe2[ihi] - RateData.HM12GHe2[ilo];
+    RateData.k25 = POW( 10.0, RateData.HM12GHe2[ilo] + frac * delta );
+    RateData.k25 *= TimeUnits * Ramp;
+
+    delta = RateData.HM12GHe1[ihi] - RateData.HM12GHe1[ilo];
+    RateData.k26 = POW( 10.0, RateData.HM12GHe1[ilo] + frac * delta );
+    RateData.k26 *= TimeUnits * Ramp;
+
+    delta = RateData.HM12GhH1[ihi] - RateData.HM12GhH1[ilo];
+    CoolData.piHI = POW( 10.0, RateData.HM12GhH1[ilo] + frac * delta );
+    CoolData.piHI = CoolData.piHI / CoolingUnits * Ramp;
+
+    delta = RateData.HM12GhHe1[ihi] - RateData.HM12GhHe1[ilo];
+    CoolData.piHeI = POW( 10.0, RateData.HM12GhHe1[ilo] + frac * delta );
+    CoolData.piHeI = CoolData.piHeI / CoolingUnits * Ramp;
+                 
+    delta = RateData.HM12GhHe2[ihi] - RateData.HM12GhHe2[ilo];
+    CoolData.piHeII = POW( 10.0, RateData.HM12GhHe2[ilo] + frac * delta );
+    CoolData.piHeII = CoolData.piHeII / CoolingUnits * Ramp;
+
+    /*
+    if (MyProcessorNumber == ROOT_PROCESSOR) {
+      printf( "Altay: TimeUnits = %"ESYM"\n", TimeUnits);
+      printf( "Altay: CoolingUnits = %"ESYM"\n", CoolingUnits);
+      printf( "Altay: Redshift = %"ESYM"\n", Redshift);
+      printf( "Altay: RadiationRedshiftOn = %"ESYM"\n", CoolData.RadiationRedshiftOn);
+      printf( "Altay: RadiationRedshiftFullOn = %"ESYM"\n", CoolData.RadiationRedshiftFullOn);
+      printf( "Altay: Ramp = %"ESYM"\n", Ramp);
+      printf( "Altay: k24 = %"ESYM"\n",RateData.k24); 
+      printf( "Altay: k25 = %"ESYM"\n",RateData.k25); 
+      printf( "Altay: k26 = %"ESYM"\n",RateData.k26); 
+      printf( "Altay: piHI = %"ESYM"\n",CoolData.piHI);
+      printf( "Altay: piHeI = %"ESYM"\n",CoolData.piHeI);
+      printf( "Altay: piHeII = %"ESYM"\n",CoolData.piHeII);
+    }
+    */
+    
+  }
+
+
 /* ------------------------------------------------------------------ */
-  if (RadiationFieldType < 0 || RadiationFieldType > 14) {
+  if (RadiationFieldType < 0 || RadiationFieldType > 15) {
     ENZO_VFAIL("RadiationFieldType %"ISYM" not recognized.\n", 
 	    RadiationFieldType)
    }
@@ -597,6 +677,7 @@ int RadiationFieldCalculateRates(FLOAT Time)
 /*
   fclose(fp);
 */
+
 
   return SUCCESS;
 }

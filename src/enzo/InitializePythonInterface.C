@@ -271,7 +271,6 @@ void ExportParameterFile(TopGridData *MetaData, FLOAT CurrentTime, FLOAT OldTime
   PyDict_SetItemString(yt_parameter_file, "LeftFaceBoundaryCondition", tgd_tuple);
   Py_XDECREF(tgd_tuple); Py_XDECREF(tgd0); Py_XDECREF(tgd1); Py_XDECREF(tgd2);
 
-
   /* Do the conversion factors */
   for (int dim = 0; dim < MAX_NUMBER_OF_BARYON_FIELDS; dim++) {
     if (DataLabel[dim]) {

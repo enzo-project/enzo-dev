@@ -70,40 +70,42 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum
-      real   d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real   u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real   r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
-      real   dt, dx, t, z
-      real   d1, x1, v1, t1
-      real   xstart, ystart, zstart
-      real   xp(nmax), yp(nmax), zp(nmax)
-      real   up(nmax), vp(nmax), wp(nmax)
-      real   mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      real   odthresh, masseff, smthresh, mintdyn
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum
+      R_PREC   d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC   u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC   r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
+      R_PREC   dt, dx, t, z
+      R_PREC   d1, x1, v1, t1
+      R_PREC   xstart, ystart, zstart
+      R_PREC   xp(nmax), yp(nmax), zp(nmax)
+      R_PREC   up(nmax), vp(nmax), wp(nmax)
+      R_PREC   mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC   odthresh, masseff, smthresh, mintdyn
 c
-      real   sformsum
+      R_PREC   sformsum
       save   sformsum
       data   sformsum/0/
 c
 c  Locals:
 c
-      integer  i, j, k, ii
-      real   div, tdyn, dtot
-      real   pi, G, sndspdC
-      real   isosndsp2, starmass, starfraction, bmass, jeanmass
-      double precision msolar
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      INTG_PREC  i, j, k, ii
+      R_PREC   div, tdyn, dtot
+      R_PREC   pi, G, sndspdC
+      R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
+      real*8 msolar
+      parameter (pi=pi_val, G=GravConst, 
+     &           sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass)
 
 
 !     external random
-      real random
+      R_PREC random
 
       call random_seed
 c
@@ -124,7 +126,7 @@ c
 c
 c              1) finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.d0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 c
 c              2) density greater than threshold
 c
@@ -143,15 +145,15 @@ c
      &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
-               if (div .ge. 0.d0) goto 10
+               if (div .ge. 0._RKIND) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
-               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1d4) goto 10
+     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
 c
 c              5) M > M_Jeans (this definition involves only baryons under
 c                 the assumption that the dark matter is stable, which
@@ -161,8 +163,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6.d0*sqrt(d(i,j,k)*dble(d1))) *
-     &                    dble(pi * isosndsp2 / G)**1.5d0 / msolar
+               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
 
                if (bmass .lt. jeanmass) goto 10
 c
@@ -171,7 +173,7 @@ c
 c       note:  currently, this only lets us make a star with mass
 c              15% of the baryon mass or less!
 c
-               starfraction = min(masseff*dt/tdyn, 0.15d0)
+               starfraction = min(masseff*dt/tdyn, 0.15_RKIND)
 
 c
 c  confusion might result here - for now, in this algorithm, mintdyn is 
@@ -182,7 +184,7 @@ c  nothing - however, it only lets a small fraction of particles be made.
 c
 
         call random_number(random)
-        if ( random .ge. exp( -1.d0 * mintdyn / tdyn ) ) goto 10
+        if ( random .ge. exp( -1._RKIND * mintdyn / tdyn ) ) goto 10
 
 c
 c              Create a star particle
@@ -191,13 +193,13 @@ c
                mp(ii)  = starfraction * d(i,j,k)
                tcp(ii) = t
                tdp(ii) = tdyn
-               xp(ii) = xstart + (float(i)-0.5d0)*dx
-               yp(ii) = ystart + (float(j)-0.5d0)*dx
-               zp(ii) = zstart + (float(k)-0.5d0)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
                if (imethod .eq. 2) then
-                  up(ii) = 0.5d0*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5d0*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5d0*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -210,12 +212,12 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
 c                  metalf(ii) = metal(i,j,k)/d(i,j,k)
                else
-                  metalf(ii) = 0.d0
+                  metalf(ii) = 0._RKIND
                endif
 c
 c              Remove mass from grid
 c
-               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1._RKIND - starfraction)*d(i,j,k)
 c
 c               write(7+procnum,1000) bmass*starfraction,tdp(ii),tcp(ii),
 c     &                       metalf(ii)
@@ -303,28 +305,29 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, imethod
-      real   d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real   u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real   r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
-      real   dt, dx, t, z
-      real   d1, x1, v1, t1
-      real   xstart, ystart, zstart, justburn
-      real   xp(npart), yp(npart), zp(npart)
-      real   up(npart), vp(npart), wp(npart)
-      real  mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, imethod
+      R_PREC   d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC   u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC   r(nx,ny,nz), metal(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC   dt, dx, t, z
+      R_PREC   d1, x1, v1, t1
+      R_PREC   xstart, ystart, zstart, justburn
+      R_PREC   xp(npart), yp(npart), zp(npart)
+      R_PREC   up(npart), vp(npart), wp(npart)
+      R_PREC  mp(npart), tdp(npart), tcp(npart), metalf(npart)
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      integer i, j, k, n
-      real mform, tfactor, clight, energy, sn_param, msolar_e51,
+      INTG_PREC i, j, k, n
+      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, dratio
-      parameter (clight = c_light, msolar_e51 = 1800.d0)
+      parameter (clight = c_light, msolar_e51 = 1800._RKIND)
 c      parameter (sn_param = 4e-6)    ! this seems a bit high
 c      parameter (m_eject = 0.3, yield = 0.02)
 c
@@ -343,19 +346,20 @@ c               calculate the mass formed during dt using the
 c               integral form on Cen & Ostriker formula.
 c
             xv1 = (t      - tcp(n))/tdp(n)
-            if (xv1 .gt. 12.d0) goto 10     ! t-tcp >> tdp so ignore
+            if (xv1 .gt. 12._RKIND) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
             minitial = mp(n) / 
-     &              (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
-            mform = minitial * ((1.d0 + xv1)*exp(-xv1) - 
-     &                          (1.d0 + xv2)*exp(-xv2))
+     &           (1._RKIND - m_eject*(1._RKIND - (1._RKIND + xv1)
+     &           *exp(-xv1)))
+            mform = minitial * ((1._RKIND + xv1)*exp(-xv1) - 
+     &                          (1._RKIND + xv2)*exp(-xv2))
             mform = min(mform, mp(n))
 c
 c           Compute index of nearest cell
 c 
-            i = int((xp(n) - xstart)/dx) + 1
-            j = int((yp(n) - ystart)/dx) + 1
-            k = int((zp(n) - zstart)/dx) + 1
+            i = int((xp(n) - xstart)/dx,IKIND) + 1
+            j = int((yp(n) - ystart)/dx,IKIND) + 1
+            k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
             if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
      &          .or. k .lt. 1 .or. k .gt. nz) then
@@ -363,7 +367,7 @@ c
                goto 100
             endif
 c
-            if (mform/d(i,j,k) .lt. 1.0d-10) goto 10
+            if (mform/d(i,j,k) .lt. 1.e-10_RKIND) goto 10
 c
             mp(n) = mp(n) - mform * m_eject
 c
@@ -382,7 +386,7 @@ c
 #define NO_SHARE_ENERGY
 #ifdef SHARE_ENERGY
             energy = energy*mform*m_eject/
-     &              (mform*m_eject + minitial*exp(-xv2)*(1.d0 + xv2))
+     &           (mform*m_eject + minitial*exp(-xv2)*(1._RKIND + xv2))
 #endif /* SHARE_ENERGY */
 c
 c           Add energy to energy field
@@ -410,7 +414,7 @@ c     &              (yield * (1.0-metalf(n)) + m_eject * metalf(n))
 c     &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
 
                metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-     &              (yield * (1.d0-metalf(n)) + m_eject * metalf(n)))
+     &              (yield * (1._RKIND-metalf(n)) + m_eject *metalf(n)))
      &              / (d(i,j,k)+mform*m_eject)  ! metal is a fraction
 c
             endif
@@ -429,7 +433,7 @@ c           If te is really total energy (and it is unless imethod=2),
 c             then just set this value
 c
             if (imethod .ne. 2 .and. idual .eq. 1) then
-               te(i,j,k) = 0.5d0*(u(i,j,k)**2 + v(i,j,k)**2 + 
+               te(i,j,k) = 0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + 
      &                            w(i,j,k)**2) + ge(i,j,k)
             endif
 c

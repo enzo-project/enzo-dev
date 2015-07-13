@@ -68,8 +68,8 @@ int AutomaticSubgridGeneration(parmstruct *Parameters)
 	/* Compute the start and end indices in the coarse level grid.   This is the
 	   bit of code which actually sets the size of the regions. */
 
-	StartIndex[dim] = max(int(LevelDims[dim]*Parameters->RefineRegionLeftEdge[dim])-1, 0);
-	EndIndex[dim] = int(LevelDims[dim]*Parameters->RefineRegionRightEdge[dim])+1;
+	StartIndex[dim] = max(int(LevelDims[dim]*Parameters->RefineRegionLeftEdge[dim]) - Parameters->AutomaticSubgridBuffer, 0);
+	EndIndex[dim] = int(LevelDims[dim]*Parameters->RefineRegionRightEdge[dim]) + Parameters->AutomaticSubgridBuffer;
 
 	/* Convert to the most refined level for start index. */
 
@@ -170,12 +170,12 @@ int AutomaticSubgridGeneration(parmstruct *Parameters)
 
       fprintf(fptr, "CosmologySimulationGridLeftEdge[%"ISYM"]     = ", level);
       for (dim = 0; dim < Parameters->Rank; dim++)
-	fprintf(fptr, "%"FSYM" ", FinalLeftEdge[dim]);
+	fprintf(fptr, "%"GOUTSYM" ", FinalLeftEdge[dim]);
       fprintf(fptr, "\n");
 
       fprintf(fptr, "CosmologySimulationGridRightEdge[%"ISYM"]     = ", level);
       for (dim = 0; dim < Parameters->Rank; dim++)
-	fprintf(fptr, "%"FSYM" ", FinalRightEdge[dim]);
+	fprintf(fptr, "%"GOUTSYM" ", FinalRightEdge[dim]);
       fprintf(fptr, "\n");
 
       fprintf(fptr, "CosmologySimulationGridLevel[%"ISYM"]         = %"ISYM"\n", level, level);

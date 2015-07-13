@@ -48,26 +48,27 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
 !
 !=======================================================================
   implicit none
+#include "fortran_types.def"
 
   !--------------
   ! argument declarations
-  integer, intent(in) :: iguess, kappa_h2on
-  integer, intent(in) :: Nx, NGxl, NGxr
-  integer, intent(in) :: Ny, NGyl, NGyr
-  integer, intent(in) :: Nz, NGzl, NGzr
-  integer, intent(out) :: ier
-  REALSUB, intent(in) :: a, adot
-  real,    intent(in) :: dt, kappa_c, dx, dy, dz
-  real,    intent(in) :: aUn, lUn, tUn, EUn, dUn
-  real,    intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  real,    intent(in) :: Ef0(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  real,    intent(in) :: kappa(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
-  real,    intent(out) :: Ef(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  INTG_PREC, intent(in) :: iguess, kappa_h2on
+  INTG_PREC, intent(in) :: Nx, NGxl, NGxr
+  INTG_PREC, intent(in) :: Ny, NGyl, NGyr
+  INTG_PREC, intent(in) :: Nz, NGzl, NGzr
+  INTG_PREC, intent(out) :: ier
+  P_PREC, intent(in) :: a, adot
+  R_PREC,    intent(in) :: dt, kappa_c, dx, dy, dz
+  R_PREC,    intent(in) :: aUn, lUn, tUn, EUn, dUn
+  R_PREC,    intent(in) :: eta(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in) :: Ef0(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(in) :: kappa(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
+  R_PREC,    intent(out) :: Ef(1-NGxl:Nx+NGxr,1-NGyl:Ny+NGyr,1-NGzl:Nz+NGzr)
   
   !--------------
   ! locals
-  integer :: i, j, k
-  real :: P, c, pi
+  INTG_PREC :: i, j, k
+  R_PREC :: P, c, pi
 
   !=======================================================================
 
@@ -90,15 +91,15 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
                  ! if attenuation is negligible, use simpler analytical 
                  ! solution to avoid division by zero 
                  P = adot/a + c*kappa(i,j,k)
-                 if (P < 1.d-14) then
-                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4.d0*pi
+                 if (P < 1.e-14_RKIND) then
+                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4._RKIND*pi
                  ! solution to avoid flt pt overflow
-                 elseif (P*dt > 7.0d2) then
-                    Ef(i,j,k) = eta(i,j,k)*4.d0*pi/P
+                 elseif (P*dt > 7.e2_RKIND) then
+                    Ef(i,j,k) = eta(i,j,k)*4._RKIND*pi/P
                  ! otherwise use full analytical solution
                  else
-                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4.d0*pi/P)*exp(-P*dt) &
-                              + eta(i,j,k)*4.d0*pi/P
+                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4._RKIND*pi/P)*exp(-P*dt) &
+                              + eta(i,j,k)*4._RKIND*pi/P
                  endif
               enddo
            enddo
@@ -112,15 +113,15 @@ subroutine FSProb_InitialGuess(Ef, Ef0, eta, iguess, dt, kappa_h2on,   &
                  ! if attenuation is negligible, use simpler analytical 
                  ! solution to avoid division by zero 
                  P = adot/a + c*kappa_c
-                 if (P < 1.d-14) then
-                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4.d0*pi
+                 if (P < 1.e-14_RKIND) then
+                    Ef(i,j,k) = Ef0(i,j,k) + dt*eta(i,j,k)*4._RKIND*pi
                  ! solution to avoid flt pt overflow
-                 elseif (P*dt > 7.0d2) then
-                    Ef(i,j,k) = eta(i,j,k)*4.d0*pi/P
+                 elseif (P*dt > 7.e2_RKIND) then
+                    Ef(i,j,k) = eta(i,j,k)*4._RKIND*pi/P
                  ! otherwise use full analytical solution
                  else
-                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4.d0*pi/P)*exp(-P*dt) &
-                              + eta(i,j,k)*4.d0*pi/P
+                    Ef(i,j,k) = (Ef0(i,j,k) - eta(i,j,k)*4._RKIND*pi/P)*exp(-P*dt) &
+                              + eta(i,j,k)*4._RKIND*pi/P
                  endif
               enddo
            enddo

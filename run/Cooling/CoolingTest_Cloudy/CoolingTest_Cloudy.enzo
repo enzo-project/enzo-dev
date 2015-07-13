@@ -74,13 +74,14 @@ MetalCooling              = 3          // Cloudy cooling
 CloudyCoolingGridFile     = solar_2008_3D_metals.h5 // 3D metals only
 CMBTemperatureFloor       = 0
 IncludeCloudyHeating      = 0
+TemperatureEnd            = 1.e8
 
 # Initial species fractions, fiddle at own risk,
 #TestProblemInitialHIFraction      = 0.998
 #TestProblemInitialHIIFraction     = 1e-10
 #TestProblemInitialHeIFraction     = 1.0
 #TestProblemInitialHeIIFraction    = 1.0e-20
-#TestProblemInitialHeIIIIFraction  = 1.0e-20
+#TestProblemInitialHeIIIFraction  = 1.0e-20
 #TestProblemInitialHMFraction      = 1.e-20
 #TestProblemInitialH2IFraction     = 1.e-3
 #TestProblemInitialH2IIFraction    = 1.e-20
