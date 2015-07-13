@@ -5,7 +5,7 @@
 c=======================================================================
 c////////////////////////  SUBROUTINE STAR_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
-      subroutine star_maker3(nx, ny, nz,
+      subroutine star_maker3mom(nx, ny, nz,
      &                      d, dm, temp, u, v, w, cooltime,
      &                      dt, r, metal, zfield1, zfield2,
      &                      dx, t, z, procnum, 
@@ -15,7 +15,8 @@ c
      &                      odthresh, masseff, smthresh, level, np, 
      &                      xp, yp, zp, up, vp, wp,
      &                      mp, tdp, tcp, metalf,
-     &                      imetalSNIa, metalSNIa, metalfSNIa)
+     &                      imetalSNIa, metalSNIa, metalfSNIa,
+     &                      exptime)
 
 c
 c  CREATES GALAXY PARTICLES
@@ -212,10 +213,14 @@ c              Create a star particle
 c
                ii = ii + 1
                mp(ii)  = starfraction * d(i,j,k)
-c               tcp(ii) = t
-c               tdp(ii) = tdyn
-               tcp(ii) = t + tdyn
-               tdp(ii) = dt
+               tcp(ii) = t
+               tdp(ii) = tdyn
+c              If discrete explosions are used, then use tdp as
+c              a flag indicating whether the particle has done
+c              feedback rather than dynamical time field
+               if (exptime .ge. 0.d0) then
+                  tdp(ii) = 1.d0
+               endif
                xp(ii) = xstart + (float(i)-0.5d0)*dx
                yp(ii) = ystart + (float(j)-0.5d0)*dx
                zp(ii) = zstart + (float(k)-0.5d0)*dx
@@ -286,7 +291,7 @@ c
 c=======================================================================
 c/////////////////////  SUBROUTINE STAR_FEEDBACK \\\\\\\\\\\\\\\\\\\\\\\
 c
-      subroutine star_feedback3(nx, ny, nz,
+      subroutine star_feedback3mom(nx, ny, nz,
      &               d, dm, te, ge, u, v, w,
      &               metal, zfield1, zfield2,
      &               idual, imetal, imulti_metals, imethod, 
@@ -296,22 +301,17 @@ c
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
-     &               kinf)
+     &               kinf_in,exptime_in)
 
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
-c  written by: Brian O,Shea
-c  date:       13 November 2002
-c  	this is a copy of star_maker2.src, and is designated
-c	as of this writing to be for unigrid runs with star 
-c	formation, and for experimentation.  See star_maker2.src
-c	for the changelog prior to 13 November 2002.
-c
-c  modified1:  Britton Smith
-c  date:       August 2010
-c              Added distributed feedback where gas, metals, and 
-c              energy are injected evenly over multiple cells.
+c  written by: Greg Bryan, Christine Simpson
+c  date:      July 2015
+c  	this is a copy of star_maker3.F that has been modifed to 
+c       include the deposition of kinetic as well as thermal energy
+c       and metals into a patch surrounding the star particle via a 
+c       CIC approach.
 c
 c  INPUTS:
 c
@@ -340,7 +340,9 @@ c    x/y/z start - starting position of grid origin
 c    xp,yp,zp - positions of created particles
 c    up,vp,wp - velocities of created particles
 c    mp       - mass of new particles
-c    tdp      - dynamical time of zone in which particle created
+c    tdp      - dynamical time of zone in which particle created or
+c               if exptime >= 0, a flag for whether the discrete 
+c               explosion has occurred
 c    tcp      - creation time of particle (-1 if not a star particle)
 c    metalf   - star particle metal fraction
 c    npart    - particle array size specified by calling routine
@@ -348,6 +350,11 @@ c    sn_param - fraction of stellar rest mass that goes to feedback
 c    m_eject  - fraction of stellar mass ejected back to gas
 c    yield    - fraction of stellar mass that is converted to metals
 c    type     - particle type
+c    kinf_fixed - fixed kinetic energy fraction for use when var is
+c                 false
+c    var      - variable kinetic energy flag
+c    exptime  - delay time for discrete explosions (if set to -1,
+c               continuous energy injection used)
 c
 c  OUTPUTS:
 c    d,u,v,w,ge,e - modified field
@@ -368,14 +375,14 @@ c
       real    r(nx,ny,nz), ge(nx,ny,nz)
       real    metal(nx,ny,nz)
       real    zfield1(nx,ny,nz), zfield2(nx,ny,nz)
-      real    dt, dx, z
+      real    dt, dx, dz
       real    dunits, x1, vunits, t1, justburn
       REALSUB xstart, ystart, zstart, t
       REALSUB xp(npart), yp(npart), zp(npart)
       real    up(npart), vp(npart), wp(npart)
       real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
       integer type(npart)
-      real 	  kinf
+      real 	  kinf,kinf_in,exptime_in,exptime
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
@@ -405,67 +412,78 @@ c      write(6,*) 'star_feedback3: start',npart
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
 c
-
-
 c        The star particle creation algorithm partnered with this 
-c          feedback algorithm creates a star particle instantaneously.
-c          However, we do feedback as if the star particles are created 
-c          over a long period of time (in code units), so the particle
-c          actually loses mass over time in an exponentially decaying
-c          way.
+c        feedback algorithm creates a star particle instantaneously.
+c        This feedback routine can either be used to also inject energy
+c        instantaneously or to do feedback over a longer period of time
+c        as done in star_maker3 modeled on Cen & Ostriker's method that
+c        accounts for the true (unsimulated) longer formation time of
+c        a stellar population.  The instananeous injection mode is 
+c        intended for use with low mass star particles that produce a
+c        handful of SN.
+c
+c     Determine how much of a given star particle would have been 
+c     turned into stars during this timestep.  Then calculate the mass
+c     which should have formed during this timestel dt using the integral
+c     form of the Cen & Ostriker formula.
 
-c        Determine how much of a given star particle would have been 
-c          turned into stars during this timestep.  Then calculate the mass
-c          which should have formed during this timestel dt using the integral
-c          form of the Cen & Ostriker formula.
+            if (exptime .ge. 0.d0) then
+c              convert explosion time to code units
+               exptime = exptime_in * 1e6 * 3.15e7 / t1  
 
+               if (tdp(n) .eq. 0.d0 .or. abs(t-tcp(n)) .lt. exptime+dt) goto 10
+               tdp(n) = 0.d0
+               mform = mp(n)
+               write(6,*) 'mform, minitial = ',mform,minitial,dt,tcp(n),dx
+               goto 5
+            endif
             
-c            write(6,*) t, dt, tcp(n), tdp(n),mp(n)
-            if (t+dt < tcp(n)) goto 10
-            xv1 = max((t      - tcp(n))/tdp(n), 0.0)
-c            if (imethod .eq. 3) xv1 = max((t - dt - tcp(n))/tdp(n), 0.0)
-c            write(6,*) 'xv1:',xv1
-            if (xv1 .gt. 10.d0) goto 10     ! t-tcp >> tdp so ignore
+            xv1 = (t      - tcp(n))/tdp(n)
+            if (xv1 .gt. 12.d0) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
-            if (imethod .eq. 3) xv2 = (t - tcp(n))/tdp(n)
-            write(6,*) 'xv1,xv2:',xv1, xv2
-            mform = ((1.d0 + xv1)*exp(-xv1) - (1.d0 + xv2)*exp(-xv2)) 
+
+c     First calculate the initial mass of the star particle 
+c     in question.
+            minitial = mp(n) / 
+     &           (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
+c     
+c     Then, calculate the amount of mass that would have formed in
+c     this timestep.
+c     
+            mform = minitial * ((1.d0 + xv1)*exp(-xv1) - 
+     &           (1.d0 + xv2)*exp(-xv2))
+            mform = max(min(mform, mp(n)), 0.d0)
+            
+c     Compute index of the cell that the star particle
+c     resides in.
+c 
+ 5          ip = int((xp(n) - xstart)/dx) + 1
+            jp = int((yp(n) - ystart)/dx) + 1
+            kp = int((zp(n) - zstart)/dx) + 1
+ 
 c
 c          skip if very little mass is formed.
 c
-            if (mform .lt. 1e-2) goto 10
-
-c        First calculate the initial mass of the star particle 
-c          in question.
-c
-            minitial = mp(n) / 
-     &              (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
-c
-c         Then, calculate the amount of mass that would have formed in
-c         this timestep.
-c
-            mform = minitial * mform
-            mform = max(min(mform, mp(n)), 0.d0)
-            write(6,*) 'mform, minitial = ',mform,minitial,dt,tcp(n)
+            if (mform/d(ip,jp,kp) .lt. 1e-10) goto 10
 c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
 c
             mp(n) = mp(n) - mform * m_eject
-c
-c           Record amount of star formation in this grid.
+c     
+c     Record amount of star formation in this grid.
 c
             justburn = justburn + mform * dt * dx**3
 c
-c           Assuming 3x3x3 cube, calculate cell distribution
+c     Assuming 3x3x3 cube, calculate cell distribution
 c
             write(6,*) 'distrad:',distrad
             distrad = 3
             dist_mass_cells = distrad**3
             dist_mom_cells = distrad**2 * 6
-c
+c     
 c           Calculate mass per cell ejected
-c
+c     
             mass_per_cell = mform * m_eject / dist_mass_cells
             write(6,*) 'mass_per_cell:',mass_per_cell,m_eject,
      &           dist_mass_cells
@@ -477,28 +495,53 @@ c
             energy_per_cell = energy / dist_mass_cells
             write(6,*) 'energy,energy_per_cell:',energy,energy_per_cell
 
-            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
-c            kinetic_energy_per_cell = kinf * energy_per_cell 
-
-c            write(6,*) 'kinetic_energy_per_cell:',
-c     &           kinetic_energy_per_cell
-
-c           Calculate momentum of this much energy spread into cells
-c             mom = sqrt(2 * mform * m_eject * energy)
-c
-
-c            mom_per_cell = sqrt(2.0 * m_eject * kinetic_energy_per_cell)
-
-c
-c         check bounds - if star particle is outside of this grid
-c         then exit and give a warning.
-c
             if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
      &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
      &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*ny) then
                write(6,*) 'warning: star particle out of grid',
      &              xp(n),yp(n),zp(n), xstart, ystart, zstart
                goto 100
+            endif
+
+c
+c	Set center of feedback zone
+c
+            xfc = xp(n)
+            yfc = yp(n)
+            zfc = zp(n)
+            fbuff = ibuff + 1.5
+c
+c         check bounds - if star particle is near grid edge
+c         then shift center of feedback region
+c
+            if (xfc .lt. xstart+fbuff*dx .or. 
+     &           xfc .gt. xstart+dx*nx-fbuff*dx .or.
+     &           yfc .lt. ystart+fbuff*dx .or. 
+     &           yfc .gt. ystart+dx*ny-fbuff*dx .or.
+     &           zfc .lt. zstart+fbuff*dx .or. 
+     &           zfc .gt. zstart+dx*nz-fbuff*dx) then
+               write(6,*) 'warning1: star feedback zone shifted',
+     &              xfc,yfc,zfc, xstart, ystart, zstart,fbuff
+               
+	       xfcshift = xfc
+	       yfcshift = yfc 
+	       zfcshift	= zfc
+
+	       xfc = max(xfc,xstart+fbuff*dx) 
+	       yfc = max(yfc,ystart+fbuff*dx) 
+	       zfc = max(zfc,zstart+fbuff*dx) 
+               
+	       xfc = min(xfc,xstart+dx*nx-fbuff*dx) 
+	       yfc = min(yfc,ystart+dx*ny-fbuff*dx) 
+	       zfc = min(zfc,zstart+dx*nz-fbuff*dx)
+
+	       xfcshift = xfcshift - xfc
+	       yfcshift = yfcshift - yfc 
+	       zfcshift	= zfcshift - zfc
+
+	       write(6,*) 'warning2: star feedback zone shifted',
+     &              xfc,yfc,zfc,dx,xfcshift,yfcshift,zfcshift, 
+     &		    nx, ny,nz
             endif
 c
 c           If using zeus, then velocities are face-centered so shift
@@ -511,9 +554,9 @@ c             accounting for possible face-centering
 c
 c            write(6,*) 'xp,yp,zp',xp(n), yp(n), zp(n)
 c            write(6,*) 'xstart,ystart,zstart', xstart, ystart, zstart
-            xface = (xp(n) - xstart)/dx - 0.5 - face_shift
-            yface = (yp(n) - ystart)/dx - 0.5 - face_shift
-            zface = (zp(n) - zstart)/dx - 0.5 - face_shift
+            xface = (xfc - xstart)/dx - 0.5 - face_shift
+            yface = (yfc - ystart)/dx - 0.5 - face_shift
+            zface = (zfc - zstart)/dx - 0.5 - face_shift
 c            write(6,*) 'xface,yface,zface',xface, yface, zface
 c
             iface = int(xface + 0.5)
@@ -528,9 +571,9 @@ c            write(6,*) 'dxf, dyf, dzf', dxf, dyf, dzf
 c
 c         Compute index of the first cell to add mass, assuming cell-centering
 c 
-            xpos = (xp(n) - xstart)/dx - 0.5
-            ypos = (yp(n) - ystart)/dx - 0.5
-            zpos = (zp(n) - zstart)/dx - 0.5
+            xpos = (xfc - xstart)/dx - 0.5
+            ypos = (yfc - ystart)/dx - 0.5
+            zpos = (zfc - zstart)/dx - 0.5
 c            write(6,*) 'xpos, ypos, zpos', xpos, ypos, zpos
 c
             ic = int(xpos + 0.5)
@@ -542,6 +585,97 @@ c
             dyc = real(jc) + 0.5 - ypos
             dzc = real(kc) + 0.5 - zpos
 c            write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
+
+c
+c     Use fixed kinf value, unless kinf < 0 - then compute
+c     variable kinf
+            kinf = kinf_in
+
+            if (kinf .lt. 0.d0) then
+c     Calculate variable kinf based on R_PDS from
+c     Cioffi et al. 1988
+c
+               realmass = mform * dunits * pc**3 /msolar
+
+               realmass = realmass * (dx* x1 / pc)**3
+               
+               energy_51 = sn_param * msolar_e51 * realmass
+               
+               Zsol = 0.0
+               num_d = 0.0
+               d_ave = 0.0
+c     
+c     Compute average density and metallcity around cell containing
+c     particle
+c     
+               write(6,*) 'averaging over patch'
+               do k = -1,1
+                  do j = -1,1
+                     do i = -1,1
+                        write(6,*) 'Zsol,num_d:',
+     &                       metal(ic+i,jc+j,kc+k)/0.02, 
+     &                       d(ic+i,jc+j,kc+k)*dunits/mu(ic+i,jc+j,kc+k)/mH  
+                        write(6,*) 'd,mu:', d(ic+i,jc+j,kc+k)*dunits,
+     &                       mu(ic+i,jc+j,kc+k)
+                        mu_cell = 0.82
+                        Zsol = Zsol + 
+     &                       metal(ic+i,jc+j,kc+k)/0.02
+                        num_d = num_d + 
+     &                       d(ic+i,jc+j,kc+k)*dunits/mu_cell/mH
+                        d_ave = d_ave + d(ic+i,jc+j,kc+k)*dunits
+                     enddo
+                  enddo
+               enddo
+               
+               Zsol = Zsol/27.0
+               num_d = num_d/27.0
+               d_ave = d_ave/27.0
+           
+c     compute time and radius of transition to PDS phase for gas
+c     with the computed properties
+c     Note: t_PDS has units of 1e3yrs and R_PDS has units of pc
+c          
+c     For metal poor gas
+c     
+               if (Zsol .lt. 0.01) then
+                  t_PDS = 3.06e2 * (energy_51**(1.0/8.0)) *
+     &                 (num_d**(-3.0/4.0))
+                  R_PDS = 49.3 * (energy_51**0.25) * 
+     &                 (num_d**(-0.5))
+               endif
+      
+c
+c     For metal rich gas
+c
+               if (Zsol .ge. 0.01) then
+                  t_PDS = 26.5 * (energy_51**(3.0/14.0)) * 
+     &                   (Zsol**(-5.0/14.0)) * (num_d**(-4.0/7.0))
+                  R_PDS = 18.5 * energy_51**(2.0/7.0) 
+     &                    * num_d**(-3.0/7.0)
+     &                    * Zsol**(-1.0/7.0)
+               endif
+               
+               R_resolve = dx*x1/pc
+               if (R_PDS .gt. 4.5*R_resolve) then
+                  kinf = 0.0
+                  write(6,*) 'Sedov phase resolved:',Zsol,num_d,
+     &                 energy_51,R_PDS,R_resolve, realmass
+               else                  
+                  d_ave = d_ave * pc**3 /msolar
+                  kinf = 3.97133e-6 * 0.82 * num_d * (R_resolve**(-2.0)) 
+     &                 * (R_PDS**7.0) * (t_PDS**(-2.0)) 
+     &                 * (energy_51**(-1.0))
+                  write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
+     &                 num_d, d_ave, energy_51,t_PDS,R_PDS,R_resolve
+               endif
+       
+            endif
+
+            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
+c
+c -------- Inject energy, mass & metals----------
+c
+
 c
 c           Zero local dummy field and kinetic energy field
 c
