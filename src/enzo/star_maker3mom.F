@@ -79,37 +79,38 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
-      integer procnum, imetalSNIa
-      real    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), cooltime(nx,ny,nz)
-      real    metal(nx,ny,nz), zfield1(nx,ny,nz), zfield2(nx,ny,nz)
-      real    dt, dx, z
-      real    dunits, x1, vunits, t1
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(nmax), yp(nmax), zp(nmax)
-      real    up(nmax), vp(nmax), wp(nmax)
-      real    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
-      real    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
-      real    odthresh, masseff, smthresh, mintdyn
+      INTG_PREC nx, ny, nz, ibuff, nmax, np, level, imetal, imethod
+      INTG_PREC procnum, imetalSNIa
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz)
+      R_PREC    metal(nx,ny,nz), zfield1(nx,ny,nz), zfield2(nx,ny,nz)
+      R_PREC    dt, dx, z
+      R_PREC    dunits, x1, vunits, t1
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(nmax), yp(nmax), zp(nmax)
+      R_PREC    up(nmax), vp(nmax), wp(nmax)
+      R_PREC    mp(nmax), tdp(nmax), tcp(nmax), metalf(nmax)
+      R_PREC    metalSNIa(nx,ny,nz), metalfSNIa(nmax)
+      R_PREC    odthresh, masseff, smthresh, mintdyn
 c
-      real   sformsum
+      R_PREC   sformsum
       save   sformsum
       data   sformsum/0/
 c
 c  Locals:
 c
-      integer  i, j, k, ii
-      real   div, tdyn, dtot
-      real   pi, G, sndspdC
-      real   isosndsp2, starmass, starfraction, bmass, jeanmass
-      double precision msolar
-      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095d8,
+      INTG_PREC  i, j, k, ii
+      R_PREC   div, tdyn, dtot
+      R_PREC   pi, G, sndspdC
+      R_PREC   isosndsp2, starmass, starfraction, bmass, jeanmass
+      real*8 msolar
+      parameter (pi=pi_val, G=GravConst, sndspdC=1.3095e8_RKIND,
      &           msolar=SolarMass)
 c
       ii = np
@@ -132,7 +133,7 @@ c
 c
 c              1) is this finest level of refinement?
 c
-               if (r(i,j,k) .ne. 0.d0) goto 10
+               if (r(i,j,k) .ne. 0._RKIND) goto 10
 c
 c              2) is density greater than threshold?
 c
@@ -151,15 +152,15 @@ c
      &                + v(i  ,j+1,k  ) - v(i  ,j-1,k  )
      &                + w(i  ,j  ,k+1) - w(i  ,j  ,k-1)
                endif
-               if (div .ge. 0.d0) goto 10
+               if (div .ge. 0._RKIND) goto 10
 c
 c              4) t_cool < t_free-fall (if T < 1.1e4 skip this check)
 c
                dtot = ( d(i,j,k) + dm(i,j,k) )*dunits
-               tdyn  = sqrt(3.d0*pi/32.d0/G/dtot)/t1
+               tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1d4) goto 10
+     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
 c
 c              5) is M > M_Jeans? (this definition involves only baryons under
 c                 the assumption that the dark matter is stable, which
@@ -169,8 +170,8 @@ c                 within large halos).
 c
                bmass = d(i,j,k)*dble(dunits)*dble(x1*dx)**3 / msolar
                isosndsp2 = sndspdC * temp(i,j,k)
-               jeanmass = pi/(6.d0*sqrt(d(i,j,k)*dble(dunits))) *
-     &                    dble(pi * isosndsp2 / G)**1.5d0 / msolar
+               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(dunits))) *
+     &                    dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
 
 c
 c  THIS IS COMMENTED OUT - NO JEANS MASS CRITERION IN THIS ALGORITHM!!!
@@ -180,8 +181,8 @@ c
 c              6) Check to see if star is above threshold (given
 c                 in units of M_solar)
 c
-               starfraction = min(masseff*dt/tdyn, 0.9d0)
-               tdyn = max(tdyn, mintdyn*3.15d7/t1)
+               starfraction = min(masseff*dt/tdyn, 0.9_RKIND)
+               tdyn = max(tdyn, mintdyn*3.15e7_RKIND/t1)
 
 c
 c  STOCHASTIC STAR FORMATION HAS BEEN ADDED AGAIN - BWO 20 Dec 2002
@@ -198,7 +199,7 @@ c
                if (starfraction*bmass .lt. smthresh) then
                   sformsum = sformsum + starfraction*bmass
                   if (sformsum .lt. smthresh) goto 10
-                  starfraction = min(smthresh/bmass, 0.5d0)
+                  starfraction = min(smthresh/bmass, 0.5_RKIND)
                   sformsum = sformsum - starfraction*bmass
                endif
 #else
@@ -218,21 +219,21 @@ c
 c              If discrete explosions are used, then use tdp as
 c              a flag indicating whether the particle has done
 c              feedback rather than dynamical time field
-               if (exptime .ge. 0.d0) then
-                  tdp(ii) = 1.d0
+               if (exptime .ge. 0._RKIND) then
+                  tdp(ii) = 1._RKIND
                endif
-               xp(ii) = xstart + (float(i)-0.5d0)*dx
-               yp(ii) = ystart + (float(j)-0.5d0)*dx
-               zp(ii) = zstart + (float(k)-0.5d0)*dx
+               xp(ii) = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+               yp(ii) = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+               zp(ii) = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
 c
 c              Star velocities averaged over multiple cells to
 c              avoid "runaway star particle" phenomenon
 c              imethod = 2 is zeus, otherwise PPM
 
                if (imethod .eq. 2) then
-                  up(ii) = 0.5*(u(i,j,k)+u(i+1,j,k))
-                  vp(ii) = 0.5*(v(i,j,k)+v(i,j+1,k))
-                  wp(ii) = 0.5*(w(i,j,k)+w(i,j,k+1))
+                  up(ii) = 0.5_RKIND*(u(i,j,k)+u(i+1,j,k))
+                  vp(ii) = 0.5_RKIND*(v(i,j,k)+v(i,j+1,k))
+                  wp(ii) = 0.5_RKIND*(w(i,j,k)+w(i,j,k+1))
                else
                   up(ii) = u(i,j,k)
                   vp(ii) = v(i,j,k)
@@ -246,7 +247,7 @@ c
                   metalf(ii) = metal(i,j,k)    ! in here metal is a fraction
                else
 !                 write(*,'("Zero metal fraction")')
-                  metalf(ii) = 0.d0
+                  metalf(ii) = 0._RKIND
                endif
 c
 c              MKRJ 2/20/08 Do the same for particle metal fraction from SN Ia
@@ -257,7 +258,7 @@ c
 c
 c              Remove mass from grid
 c
-               d(i,j,k) = (1.d0 - starfraction)*d(i,j,k)
+               d(i,j,k) = (1._RKIND - starfraction)*d(i,j,k)
 c
 c               write(7+procnum,1000) level,bmass*starfraction,tcp(ii),
 c     &                           tdp(ii)*t1,d(i,j,k)*dunits,z,metalf(ii)
@@ -363,33 +364,34 @@ c
 c
 c-----------------------------------------------------------------------
        implicit none
+#include "fortran_types.def"
 c-----------------------------------------------------------------------
 c
 c  Arguments
 c
-      integer nx, ny, nz, ibuff, npart, idual, imetal, 
+      INTG_PREC nx, ny, nz, ibuff, npart, idual, imetal, 
      &      imulti_metals, imethod,
      &      distrad, diststep, distcells
-      real    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    r(nx,ny,nz), ge(nx,ny,nz)
-      real    metal(nx,ny,nz)
-      real    zfield1(nx,ny,nz), zfield2(nx,ny,nz)
-      real    dt, dx, dz
-      real    dunits, x1, vunits, t1, justburn
-      REALSUB xstart, ystart, zstart, t
-      REALSUB xp(npart), yp(npart), zp(npart)
-      real    up(npart), vp(npart), wp(npart)
-      real    mp(npart), tdp(npart), tcp(npart), metalf(npart)
-      integer type(npart)
-      real 	  kinf,kinf_in,exptime_in,exptime
+      R_PREC    d(nx,ny,nz), dm(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    r(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    metal(nx,ny,nz)
+      R_PREC    zfield1(nx,ny,nz), zfield2(nx,ny,nz)
+      R_PREC    dt, dx, dz
+      R_PREC    dunits, x1, vunits, t1, justburn
+      P_PREC xstart, ystart, zstart, t
+      P_PREC xp(npart), yp(npart), zp(npart)
+      R_PREC    up(npart), vp(npart), wp(npart)
+      R_PREC    mp(npart), tdp(npart), tcp(npart), metalf(npart)
+      INTG_PREC type(npart)
+      R_PREC 	  kinf,kinf_in,exptime_in,exptime
 c
 c  Locals
 c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      integer n, ic, jc, kc,
+      INTG_PREC n, ic, jc, kc,
      &     iface, jface, kface, i, j, k
-      real mform, clight, energy, sn_param, msolar_e51,
+      R_PREC mform, clight, energy, sn_param, msolar_e51,
      &     m_eject, yield, minitial, xv1, xv2, 
      &     dist_mass_cells, dist_mom_cells, mass_per_cell, te_per_cell,
      &     thermal_energy_per_cell, kinetic_energy_per_cell,
@@ -398,11 +400,11 @@ c
      &     energy_before, energy_after, mass_before, mass_after,
      &     kin_energy_before, kin_energy_after,
      &     asum, bsum, csum, delta_ke, ke_injected, ke_after
-      real dxf, dyf, dzf, dxc, dyc, dzc
-      real u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
+      R_PREC dxf, dyf, dzf, dxc, dyc, dzc
+      R_PREC u1(4,4,4), v1(4,4,4), w1(4,4,4), d1(4,4,4),
      &     te1(4,4,4), ge1(4,4,4), metal1(4,4,4),
      &     ke_before(4,4,4)
-      parameter (clight = c_light, msolar_e51 = 1800.d0)
+      parameter (clight = c_light, msolar_e51 = 1800._RKIND)
 c
 c-----------------------------------------------------------------------
 c
@@ -422,37 +424,39 @@ c        a stellar population.  The instananeous injection mode is
 c        intended for use with low mass star particles that produce a
 c        handful of SN.
 c
-c     Determine how much of a given star particle would have been 
-c     turned into stars during this timestep.  Then calculate the mass
-c     which should have formed during this timestel dt using the integral
-c     form of the Cen & Ostriker formula.
-
-            if (exptime .ge. 0.d0) then
+c     Do instantaneous injeciton
+c
+            if (exptime .ge. 0._RKIND) then
 c              convert explosion time to code units
-               exptime = exptime_in * 1e6 * 3.15e7 / t1  
-
-               if (tdp(n) .eq. 0.d0 .or. abs(t-tcp(n)) .lt. exptime+dt) goto 10
-               tdp(n) = 0.d0
+               exptime = exptime_in * 1.e6_RKIND * 3.15e7_RKIND / t1  
+               if (tdp(n) .eq. 0._RKIND 
+               .or. abs(t-tcp(n)) .lt. exptime+dt) goto 10
+               tdp(n) = 0._RKIND
                mform = mp(n)
                write(6,*) 'mform, minitial = ',mform,minitial,dt,tcp(n),dx
                goto 5
             endif
+
+c     Determine how much of a given star particle would have been 
+c     turned into stars during this timestep.  Then calculate the mass
+c     which should have formed during this timestel dt using the integral
+c     form of the Cen & Ostriker formula.
             
             xv1 = (t      - tcp(n))/tdp(n)
-            if (xv1 .gt. 12.d0) goto 10     ! t-tcp >> tdp so ignore
+            if (xv1 .gt. 12._RKIND) goto 10     ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
 
 c     First calculate the initial mass of the star particle 
 c     in question.
             minitial = mp(n) / 
-     &           (1.d0 - m_eject*(1.d0 - (1.d0 + xv1)*exp(-xv1)))
+     &           (1._RKIND - m_eject*(1._RKIND - (1._RKIND + xv1)*exp(-xv1)))
 c     
 c     Then, calculate the amount of mass that would have formed in
 c     this timestep.
 c     
-            mform = minitial * ((1.d0 + xv1)*exp(-xv1) - 
-     &           (1.d0 + xv2)*exp(-xv2))
-            mform = max(min(mform, mp(n)), 0.d0)
+            mform = minitial * ((1._RKIND + xv1)*exp(-xv1) - 
+     &           (1._RKIND + xv2)*exp(-xv2))
+            mform = max(min(mform, mp(n)), 0._RKIND)
             
 c     Compute index of the cell that the star particle
 c     resides in.
@@ -464,7 +468,7 @@ c
 c
 c          skip if very little mass is formed.
 c
-            if (mform/d(ip,jp,kp) .lt. 1e-10) goto 10
+            if (mform/d(ip,jp,kp) .lt. 1e-10_RKIND) goto 10
 c
 c           subtract ejected mass from particle (ejection due
 c           to winds, supernovae)
@@ -509,7 +513,7 @@ c
             xfc = xp(n)
             yfc = yp(n)
             zfc = zp(n)
-            fbuff = ibuff + 1.5
+            fbuff = ibuff + 1.5_RKIND
 c
 c         check bounds - if star particle is near grid edge
 c         then shift center of feedback region
@@ -546,44 +550,44 @@ c
 c
 c           If using zeus, then velocities are face-centered so shift
 c
-            face_shift = 0.0
-            if (imethod .eq. 2) face_shift = 0.5
+            face_shift = 0._RKIND
+            if (imethod .eq. 2) face_shift = 0.5_RKIND
 c
 c         Compute index of the first cell to add momentum,
 c             accounting for possible face-centering
 c
 c            write(6,*) 'xp,yp,zp',xp(n), yp(n), zp(n)
 c            write(6,*) 'xstart,ystart,zstart', xstart, ystart, zstart
-            xface = (xfc - xstart)/dx - 0.5 - face_shift
-            yface = (yfc - ystart)/dx - 0.5 - face_shift
-            zface = (zfc - zstart)/dx - 0.5 - face_shift
+            xface = (xfc - xstart)/dx - 0.5_RKIND - face_shift
+            yface = (yfc - ystart)/dx - 0.5_RKIND - face_shift
+            zface = (zfc - zstart)/dx - 0.5_RKIND - face_shift
 c            write(6,*) 'xface,yface,zface',xface, yface, zface
 c
-            iface = int(xface + 0.5)
-            jface = int(yface + 0.5)
-            kface = int(zface + 0.5)
+            iface = int(xface + 0.5_RKIND)
+            jface = int(yface + 0.5_RKIND)
+            kface = int(zface + 0.5_RKIND)
 c            write(6,*) 'iface,jface,kface', iface, jface, kface
 c
-            dxf = real(iface) + 0.5 - xface
-            dyf = real(jface) + 0.5 - yface
-            dzf = real(kface) + 0.5 - zface
+            dxf = real(iface) + 0.5_RKIND - xface
+            dyf = real(jface) + 0.5_RKIND - yface
+            dzf = real(kface) + 0.5_RKIND - zface
 c            write(6,*) 'dxf, dyf, dzf', dxf, dyf, dzf
 c
 c         Compute index of the first cell to add mass, assuming cell-centering
 c 
-            xpos = (xfc - xstart)/dx - 0.5
-            ypos = (yfc - ystart)/dx - 0.5
-            zpos = (zfc - zstart)/dx - 0.5
+            xpos = (xfc - xstart)/dx - 0.5_RKIND
+            ypos = (yfc - ystart)/dx - 0.5_RKIND
+            zpos = (zfc - zstart)/dx - 0.5_RKIND
 c            write(6,*) 'xpos, ypos, zpos', xpos, ypos, zpos
 c
-            ic = int(xpos + 0.5)
-            jc = int(ypos + 0.5)
-            kc = int(zpos + 0.5)
+            ic = int(xpos + 0.5_RKIND)
+            jc = int(ypos + 0.5_RKIND)
+            kc = int(zpos + 0.5_RKIND)
 c            write(6,*) 'ic,jc,kc', ic,jc,kc
 c
-            dxc = real(ic) + 0.5 - xpos
-            dyc = real(jc) + 0.5 - ypos
-            dzc = real(kc) + 0.5 - zpos
+            dxc = real(ic) + 0.5_RKIND - xpos
+            dyc = real(jc) + 0.5_RKIND - ypos
+            dzc = real(kc) + 0.5_RKIND - zpos
 c            write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
 
 c
@@ -591,7 +595,7 @@ c     Use fixed kinf value, unless kinf < 0 - then compute
 c     variable kinf
             kinf = kinf_in
 
-            if (kinf .lt. 0.d0) then
+            if (kinf .lt. 0._RKIND) then
 c     Calculate variable kinf based on R_PDS from
 c     Cioffi et al. 1988
 c
@@ -601,9 +605,9 @@ c
                
                energy_51 = sn_param * msolar_e51 * realmass
                
-               Zsol = 0.0
-               num_d = 0.0
-               d_ave = 0.0
+               Zsol = 0._RKIND
+               num_d = 0._RKIND
+               d_ave = 0._RKIND
 c     
 c     Compute average density and metallcity around cell containing
 c     particle
@@ -613,13 +617,14 @@ c
                   do j = -1,1
                      do i = -1,1
                         write(6,*) 'Zsol,num_d:',
-     &                       metal(ic+i,jc+j,kc+k)/0.02, 
+     &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND, 
      &                       d(ic+i,jc+j,kc+k)*dunits/mu(ic+i,jc+j,kc+k)/mH  
                         write(6,*) 'd,mu:', d(ic+i,jc+j,kc+k)*dunits,
      &                       mu(ic+i,jc+j,kc+k)
-                        mu_cell = 0.82
+c     mu hardcoded for now, but this should be changed:
+                        mu_cell = 0.82_RKIND 
                         Zsol = Zsol + 
-     &                       metal(ic+i,jc+j,kc+k)/0.02
+     &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND
                         num_d = num_d + 
      &                       d(ic+i,jc+j,kc+k)*dunits/mu_cell/mH
                         d_ave = d_ave + d(ic+i,jc+j,kc+k)*dunits
@@ -627,9 +632,9 @@ c
                   enddo
                enddo
                
-               Zsol = Zsol/27.0
-               num_d = num_d/27.0
-               d_ave = d_ave/27.0
+               Zsol = Zsol/27._RKIND
+               num_d = num_d/27._RKIND
+               d_ave = d_ave/27._RKIND
            
 c     compute time and radius of transition to PDS phase for gas
 c     with the computed properties
@@ -637,41 +642,42 @@ c     Note: t_PDS has units of 1e3yrs and R_PDS has units of pc
 c          
 c     For metal poor gas
 c     
-               if (Zsol .lt. 0.01) then
-                  t_PDS = 3.06e2 * (energy_51**(1.0/8.0)) *
-     &                 (num_d**(-3.0/4.0))
-                  R_PDS = 49.3 * (energy_51**0.25) * 
-     &                 (num_d**(-0.5))
+               if (Zsol .lt. 0.01_RKIND) then
+                  t_PDS = 3.06e2_RKIND * (energy_51**(1._RKIND/8._RKIND)) *
+     &                 (num_d**(-3._RKIND/4._RKIND))
+                  R_PDS = 49.3_RKIND * (energy_51**0.25_RKIND) * 
+     &                 (num_d**(-0.5_RKIND))
                endif
       
 c
 c     For metal rich gas
 c
-               if (Zsol .ge. 0.01) then
-                  t_PDS = 26.5 * (energy_51**(3.0/14.0)) * 
-     &                   (Zsol**(-5.0/14.0)) * (num_d**(-4.0/7.0))
-                  R_PDS = 18.5 * energy_51**(2.0/7.0) 
-     &                    * num_d**(-3.0/7.0)
-     &                    * Zsol**(-1.0/7.0)
+               if (Zsol .ge. 0.01_RKIND) then
+                  t_PDS = 26.5_RKIND * (energy_51**(3._RKIND/14._RKIND)) * 
+     &                   (Zsol**(-5._RKIND/14._RKIND)) * (num_d**(-4._RKIND/7._RKIND))
+                  R_PDS = 18.5_RKIND * energy_51**(2._RKIND/7._RKIND) 
+     &                    * num_d**(-3._RKIND/7._RKIND)
+     &                    * Zsol**(-1._RKIND/7._RKIND)
                endif
                
                R_resolve = dx*x1/pc
                if (R_PDS .gt. 4.5*R_resolve) then
-                  kinf = 0.0
+                  kinf = 0._RKIND
                   write(6,*) 'Sedov phase resolved:',Zsol,num_d,
      &                 energy_51,R_PDS,R_resolve, realmass
                else                  
                   d_ave = d_ave * pc**3 /msolar
-                  kinf = 3.97133e-6 * 0.82 * num_d * (R_resolve**(-2.0)) 
-     &                 * (R_PDS**7.0) * (t_PDS**(-2.0)) 
-     &                 * (energy_51**(-1.0))
+                  kinf = 3.97133e-6_RKIND * 0.82_RKIND * num_d 
+     &                 * (R_resolve**(-2._RKIND)) 
+     &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
+     &                 * (energy_51**(-1._RKIND))
                   write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
      &                 num_d, d_ave, energy_51,t_PDS,R_PDS,R_resolve
                endif
        
             endif
 
-            thermal_energy_per_cell = (1.0 - kinf) * energy_per_cell
+            thermal_energy_per_cell = (1._RKIND - kinf) * energy_per_cell
 c
 c -------- Inject energy, mass & metals----------
 c
@@ -682,13 +688,13 @@ c
             do k = 1, 4
                do j = 1, 4
                   do i = 1, 4
-                     u1(i,j,k) = 0.0
-                     v1(i,j,k) = 0.0
-                     w1(i,j,k) = 0.0
-                     d1(i,j,k) = 0.0
-                     ge1(i,j,k) = 0.0
-                     te1(i,j,k) = 0.0
-                     metal1(i,j,k) = 0.0
+                     u1(i,j,k) = 0._RKIND
+                     v1(i,j,k) = 0._RKIND
+                     w1(i,j,k) = 0._RKIND
+                     d1(i,j,k) = 0._RKIND
+                     ge1(i,j,k) = 0._RKIND
+                     te1(i,j,k) = 0._RKIND
+                     metal1(i,j,k) = 0._RKIND
                   enddo
                enddo
             enddo
@@ -737,19 +743,16 @@ c
      &                        dxf, dyf, dzf, dxc, dyc, dzc,
      &                        imethod, imetal, imulti_metals, idual,
      &                        m_eject, yield, metalf(n),
-     &                        mass_per_cell, 1.0, 0.0)
+     &                        mass_per_cell, 1._RKIND, 0._RKIND)
 c
 c           The kinetic energy after the feedback event is a quadratic equation
 c           with delta_p, where delta_p is the total amount of momentum added
 c           to the feedback region:
 c           E_k,a = asum + bsum*delta_p + csum*delta_p*delta_p
 c
-c           asum = sum(p_i,b*p_i,b/(m_i,b + delta_m_i))
-c
-c
 c           Sum a, b and c terms to get momentum normalization
 c
-            if (kinf .gt. 0.0) then
+            if (kinf .gt. 0._RKIND) then
                call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
      &              nx, ny, nz, iface, jface, kface, ic, jc, kc,
      &              asum, bsum, csum)
@@ -759,14 +762,15 @@ c
 c
 c           Calculate momentum contribution
 c
-               mom_per_cell = (-bsum + sqrt(bsum**2 - 4.0*asum*csum))/
-     &              (2.0*csum)
+               mom_per_cell = (-bsum + 
+     &              sqrt(bsum**2._RKIND - 4._RKIND*asum*csum))/
+     &              (2._RKIND*csum)
             else
 c
 c           If the kinetic fraction is set to 0, then 0 momentum is added
 c           to each cell.
 c
-               mom_per_cell = 0.0
+               mom_per_cell = 0._RKIND
             endif
 
             write(6,*) 'mom_per_cell:',mom_per_cell
@@ -809,12 +813,12 @@ c             (unless we're using Zeus).  If using dual energy formalism, we
 c             might want to enforce consistency.
 c     
             if (imethod .ne. 2) then
-               ke_injected = 0.0
+               ke_injected = 0._RKIND
                do k = -1, +2
                   do j = -1, +2
                      do i = -1, +2
 
-                        ke_after = 0.5d0*
+                        ke_after = 0.5_RKIND*
      &                        d(ic+i, jc+j, kc+k) *
      &                       (u(ic+i ,jc+j ,kc+k)**2 + 
      &                        v(ic+i ,jc+j ,kc+k)**2 + 
@@ -838,8 +842,8 @@ c
 
                write(6,*) 'ke_injected:',ke_injected
                if (abs((ke_injected - kinf*energy)/
-     &                    ke_injected) .gt. 0.01 .and. 
-     &              kinf .ne. 0.0) then
+     &                    ke_injected) .gt. 0.01_RKIND .and. 
+     &              kinf .ne. 0._RKIND) then
                   write(6,*) 'star_maker3: ke_injected does not match'
                   write(6,*) ke_injected,kinf*energy
                   write(6,*) kin_energy_before,kin_energy_after
@@ -871,15 +875,15 @@ c
 c
 c     Arguments
 c
-      integer nx, ny, nz, ic, jc, kc
-      integer iface, jface, kface, imethod, imetal, idir
-      real    d(nx, ny, nz), metal(nx,ny,nz)
-      real    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
-      real    up, vp, wp
+      INTG_PREC nx, ny, nz, ic, jc, kc
+      INTG_PREC iface, jface, kface, imethod, imetal, idir
+      R_PREC    d(nx, ny, nz), metal(nx,ny,nz)
+      R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz)
+      R_PREC    up, vp, wp
 c
 c     Locals
 c
-      integer i, j, k
+      INTG_PREC i, j, k
 c
 c     Error check
 c
@@ -901,15 +905,15 @@ c
                   if (imethod .eq. 2) then
                      u(iface+i ,jc+j ,kc+k) = 
      &                            (u(iface+i ,jc+j ,kc+k) - up)
-     &                    * 0.5 * (d(iface+i  , jc+j, kc+k) +
+     &                    * 0.5_RKIND * (d(iface+i  , jc+j, kc+k) +
      &                             d(iface+i+1, jc+j, kc+k))
                      v(ic+i ,jface+j ,kc+k) = 
      &                            (v(ic+i ,jface+j ,kc+k) - vp)
-     &                    * 0.5 * (d(ic+i, jface+j  , kc+k) + 
+     &                    * 0.5_RKIND * (d(ic+i, jface+j  , kc+k) + 
      &                             d(ic+i, jface+j+1, kc+k))
                      w(ic+i ,jc+j ,kface+k) = 
      &                            (w(ic+i ,jc+j ,kface+k) - wp)
-     &                    * 0.5 * (d(ic+i, jc+j, kface+k  ) + 
+     &                    * 0.5_RKIND * (d(ic+i, jc+j, kface+k  ) + 
      &                             d(ic+i, jc+j, kface+k+1))
                   else
                      u(ic+i ,jc+j ,kc+k) = (u(ic+i ,jc+j ,kc+k)-up) *
@@ -929,13 +933,13 @@ c
                else
                   if (imethod .eq. 2) then
                      u(iface+i ,jc+j ,kc+k) = u(iface+i ,jc+j ,kc+k)
-     &                    /( 0.5 * (d(iface+i  , jc+j, kc+k) +
+     &                    /( 0.5_RKIND * (d(iface+i  , jc+j, kc+k) +
      &                              d(iface+i+1, jc+j, kc+k))) + up
                      v(ic+i ,jface+j ,kc+k) = v(ic+i ,jface+j ,kc+k) 
-     &                    /( 0.5 * (d(ic+i, jface+j  , kc+k) + 
+     &                    /( 0.5_RKIND * (d(ic+i, jface+j  , kc+k) + 
      &                              d(ic+i, jface+j+1, kc+k))) + vp
                      w(ic+i ,jc+j ,kface+k) = w(ic+i ,jc+j ,kface+k) 
-     &                    /( 0.5 * (d(ic+i, jc+j, kface+k  ) + 
+     &                    /( 0.5_RKIND * (d(ic+i, jc+j, kface+k  ) + 
      &                              d(ic+i, jc+j, kface+k+1))) + wp
                   else
                      u(ic+i ,jc+j ,kc+k) = u(ic+i ,jc+j ,kc+k) /
@@ -972,31 +976,26 @@ c
 c
 c     Arguments
 c
-      integer nx, ny, nz, iface, jface, kface, ic, jc, kc, idual
-      integer imethod
-      real    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
-      real    d(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
-      real    mass_sum, energy_sum, kin_energy_sum, kin_energy
+      INTG_PREC nx, ny, nz, iface, jface, kface, ic, jc, kc, idual
+      INTG_PREC imethod
+      R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
+      R_PREC    d(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    mass_sum, energy_sum, kin_energy_sum, kin_energy
 c
 c     Locals
 c
-      integer i, j, k
-      real    mass_term, mom_term, gas_energy
+      INTG_PREC i, j, k
+      R_PREC    mass_term, mom_term, gas_energy
 c
-      mass_sum = 0.0
-      energy_sum = 0.0
-      kin_energy_sum = 0.0
+      mass_sum = 0._RKIND
+      energy_sum = 0._RKIND
+      kin_energy_sum = 0._RKIND
 c
 c     Sum mass and energy      
 c
       do k = -1, +2
          do j = -1, +2
             do i = -1, +2
-c 1099          format(3(i10,2x),4(g12.3,2x))
-c               write(10,1099) i,j,k,d(ic+i,jc+j,kc+k),
-c     &              pu(iface+i ,jc   +j, kc+k),
-c     &              pv(ic   +i ,jface+j, kc+k   ),
-c     &              pw(ic   +i ,jc   +j, kface+k)
                mass_term = d(ic   +i ,jc   +j ,kc+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
@@ -1004,7 +1003,7 @@ c     &              pw(ic   +i ,jc   +j, kface+k)
 c
 c              Compute total mass and energy
 c              
-               kin_energy = mom_term / (2.0 * mass_term)
+               kin_energy = mom_term / (2._RKIND * mass_term)
 
                mass_sum = mass_sum + mass_term
 
@@ -1043,23 +1042,23 @@ c
 c
 c     Arguments
 c
-      integer nx, ny, nz, iface, jface, kface, ic, jc, kc
-      real    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
-      real    d(nx,ny,nz), ge(nx,ny,nz)
-      real    pu1(4,4,4), pv1(4,4,4), pw1(4,4,4), d1(4,4,4)
-      real    asum, bsum, csum
+      INTG_PREC nx, ny, nz, iface, jface, kface, ic, jc, kc
+      R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
+      R_PREC    d(nx,ny,nz), ge(nx,ny,nz)
+      R_PREC    pu1(4,4,4), pv1(4,4,4), pw1(4,4,4), d1(4,4,4)
+      R_PREC    asum, bsum, csum
 c
 c     Locals
 c
-      integer i, j, k, istart, jstart, kstart
-      real    mass_term, mom_term, aterm, bterm, cterm
-      real    mass_sum, energy_sum
+      INTG_PREC i, j, k, istart, jstart, kstart
+      R_PREC    mass_term, mom_term, aterm, bterm, cterm
+      R_PREC    mass_sum, energy_sum
 c
-      asum = 0.0
-      bsum = 0.0
-      csum = 0.0
-      mass_sum = 0.0
-      energy_sum = 0.0
+      asum = 0._RKIND
+      bsum = 0._RKIND
+      csum = 0._RKIND
+      mass_sum = 0._RKIND
+      energy_sum = 0._RKIND
 c
       istart = 2
       jstart = 2
@@ -1077,18 +1076,7 @@ c     &              d1(istart+i,jstart+j,kstart+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
      &                    pw(ic   +i ,jc   +j, kface+k)**2
-c               write(6,*) "mom_term:",mom_term,
-c     &              pu(iface+i ,jc   +j, kc+k   ), 
-c     &              pv(ic   +i ,jface+j, kc+k   ),
-c     &              pw(ic   +i ,jc   +j, kface+k)
-c     &              d1(istart+i,jstart+j,kstart+k)
 
-c
-c              Do these sums for the quadratic momentum calculation
-c                 asum = sum(p_i^2/(2*(m_i+dm_i)))
-c                 bsum = 2*sum(p_i*x_i*f_i/(2*(m_i+dm_i)))
-c                 csum = sum(x_i*x_i*f_i/(2*(m_i+dm_i)))
-c
                mass_term = mass_term + d1(istart+i,jstart+j,kstart+k)
                asum = asum + mom_term/(2.0 * mass_term)
                bterm = 
@@ -1102,15 +1090,11 @@ c
      &           pw1(istart+i,jstart+j,kstart+k)**2
 
                
-               csum = csum + cterm/(2.0*mass_term)
+               csum = csum + cterm/(2._RKIND*mass_term)
 c               write(6,*) "cterm,mterm:",cterm,mass_term,
 c     &              cterm/(2.0*mass_term),csum
 c
-c               mass_sum = mass_sum + mass_term
-c               write(6,*) "mass_sum:",mass_sum
-c               energy_sum = energy_sum + mom_term/(2.0*mass_term)
-c               energy_sum = energy_sum + ge(ic+1,jc+j,kc+k)
-c
+
             enddo
          enddo
       enddo
@@ -1137,19 +1121,19 @@ c
 c
 c     Arguments
 c
-      integer nx, ny, nz, ic, jc, kc
-      integer iface, jface, kface, imethod, imetal, imulti_metals, idual
-      real    d(nx, ny, nz), metal(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
-      real    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
-      real    mass_per_cell, mom_per_cell, therm_per_cell
-      real    m_eject, yield, metalf
-      real    dxf, dyf, dzf, dxc, dyc, dzc,
+      INTG_PREC nx, ny, nz, ic, jc, kc
+      INTG_PREC iface, jface, kface, imethod, imetal, imulti_metals, idual
+      R_PREC    d(nx, ny, nz), metal(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
+      R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
+      R_PREC    mass_per_cell, mom_per_cell, therm_per_cell
+      R_PREC    m_eject, yield, metalf
+      R_PREC    dxf, dyf, dzf, dxc, dyc, dzc,
      &        dxf1, dyf1, dzf1, dxc1, dyc1, dzc1
 c
 c     Locals
 c
-      integer i, j, k, i1, j1, k1
-      real    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
+      INTG_PREC i, j, k, i1, j1, k1
+      R_PREC    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
      &        dratio
 c
 c     Error check
@@ -1237,11 +1221,11 @@ c
                    metal(ic+i1, jc+j1, kc+k1) = 
      &                  metal(ic+i1, jc+j1, kc+k1) + 
      &                  (delta_mass/m_eject)
-     &                  * (yield * (1.d0-metalf) + 
+     &                  * (yield * (1._RKIND-metalf) + 
      &                  m_eject * metalf)
 
                    write(6,*) 'metals injected:',(delta_mass/m_eject)
-     &                  * (yield * (1.d0-metalf) +
+     &                  * (yield * (1._RKIND-metalf) +
      &                  m_eject * metalf),metal(ic+i1,jc+j1,kc+k1)
 c 
                 endif
