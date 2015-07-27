@@ -422,6 +422,7 @@ c
 c      write(6,*) 'star_feedback3: start',npart
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
+            write(6,*) 'star_feedback3mom'
 c
 c        The star particle creation algorithm partnered with this 
 c        feedback algorithm creates a star particle instantaneously.
@@ -435,13 +436,14 @@ c        handful of SN.
 c
 c     Do instantaneous injeciton
 c
-            if (exptime .ge. 0._RKIND) then
+            if (exptime_in .ge. 0._RKIND) then
+               write(6,*) 'exptime',exptime_in
 c              convert explosion time to code units
                exptime = exptime_in * 1.e6_RKIND * 3.15e7_RKIND / t1  
 c               write(6,*) 'times: ',abs(t-tcp(n)),exptime+dt,
 c     &              t,tcp(n),exptime,dt
                if (tdp(n) .eq. 0._RKIND
-     &              .or. abs(t-tcp(n)) .ge. exptime+dt) goto 10
+     &              .or. abs(t-tcp(n)) .lt. exptime) goto 10
                
                tdp(n) = 0._RKIND
                minitial = mp(n)
@@ -454,9 +456,11 @@ c     Determine how much of a given star particle would have been
 c     turned into stars during this timestep.  Then calculate the mass
 c     which should have formed during this timestel dt using the integral
 c     form of the Cen & Ostriker formula.
-            
+
             xv1 = (t      - tcp(n))/tdp(n)
-            if (xv1 .gt. 12._RKIND) goto 10     ! t-tcp >> tdp so ignore
+c            write(6,*) t,tcp(n),tdp(n),xv1
+            if (xv1 .lt. 0._RKIND) goto 10
+            if (xv1 .gt. 12._RKIND) goto 10 ! t-tcp >> tdp so ignore
             xv2 = (t + dt - tcp(n))/tdp(n)
 
 c     First calculate the initial mass of the star particle 
@@ -620,12 +624,11 @@ c               realmass = mform * dunits * pc**3 /msolar
 c
 c               realmass = realmass * (dx* x1 / pc)**3
 
-               realmass = mform * dunits /msolar
+               realmass = mform * dunits * dx * x1 *dx *x1 *dx *x1
+               realmass = realmass /msolar
 
-               realmass = realmass * (dx* x1)**3
-               
                energy_51 = sn_param * msolar_e51 * realmass
-               
+
                Zsol = 0._RKIND
                num_d = 0._RKIND
                d_ave = 0._RKIND
@@ -637,12 +640,12 @@ c
                do k = -1,1
                   do j = -1,1
                      do i = -1,1
-                        write(6,*) 'Zsol,num_d:',
-     &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND, 
-     &                       d(ic+i,jc+j,kc+k)*
-     &                       dunits/mH/mu(ic+i,jc+j,kc+k) 
-                        write(6,*) 'd,mu:', d(ic+i,jc+j,kc+k)*dunits,
-     &                       mu(ic+i,jc+j,kc+k)
+c                        write(6,*) 'Zsol,num_d:',
+c     &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND, 
+c     &                       d(ic+i,jc+j,kc+k)*
+c     &                       dunits/mH/mu(ic+i,jc+j,kc+k) 
+c                        write(6,*) 'd,mu:', d(ic+i,jc+j,kc+k)*dunits,
+c     &                       mu(ic+i,jc+j,kc+k)
 c     mu hardcoded for now, but this should be changed:
 c                        mu_cell = 0.82_RKIND 
                         mu_cell = mu(ic+i,jc+j,kc+k)
@@ -659,6 +662,8 @@ c                        mu_cell = 0.82_RKIND
                num_d = num_d/27._RKIND
                d_ave = d_ave/27._RKIND
            
+               write(6,*) 'Zsol,num_d(0):',Zsol,num_d
+   
 c     compute time and radius of transition to PDS phase for gas
 c     with the computed properties
 c     Note: t_PDS has units of 1e3yrs and R_PDS has units of pc
@@ -672,7 +677,8 @@ c
                   R_PDS = 49.3_RKIND * (energy_51**0.25_RKIND) * 
      &                 (num_d**(-0.5_RKIND))
                endif
-      
+               write(6,*) 'Zsol,num_d,energy_51(1):',Zsol,num_d,
+     &              energy_51
 c
 c     For metal rich gas
 c
@@ -685,13 +691,14 @@ c
      &                    * num_d**(-3._RKIND/7._RKIND)
      &                    * Zsol**(-1._RKIND/7._RKIND)
                endif
-               
+               write(6,*) 'Zsol,num_d(2):',Zsol,num_d
                R_resolve = dx*x1/pc
                if (R_PDS .gt. 4.5*R_resolve) then
                   kinf = 0._RKIND
                   write(6,*) 'Sedov phase resolved:',Zsol,num_d,
      &                 energy_51,R_PDS,R_resolve, realmass
                else                  
+                  write(6,*) 'Zsol,num_d(3):',Zsol,num_d
 c                  d_ave = d_ave * pc * pc * pc /msolar
                   d_ave = d_ave * (pc/msolar)
                   d_ave = d_ave * pc * pc
