@@ -5,37 +5,62 @@
 #
 ProblemType            = 90        // TestStarParaticle
 TopGridRank            = 3
-TopGridDimensions      = 32 32 32
-StarParticleFeedback   = 2
+TopGridDimensions      = 50 50 50
+StarParticleFeedback   = 8192
 TestStarParticleDensity = 1.0
-TestStarParticleEnergy  = 0.1
+TestStarParticleEnergy  = 6.55410093179e-06
+TestProblemInitialMetallicityFraction  =  2e-3
+TestStarParticleStarMass = 100.0
+StarEnergyToThermalFeedback = 5.59e-6
+StarMassEjectionFraction = 0.25
+StarFeedbackKineticFraction = 0.3
+StarMakerExplosionDelayTime = 1e-8
+OutputTemperature = 1
+OutputCoolingTime = 1
+Initialdt = 0.0010017410642
 #
 #  Units
 #
-LengthUnits            = 3.08e21  // 1 kpc
+LengthUnits  =  1.2344e+21
 TimeUnits              = 3.15e13  // 10 Myr
 DensityUnits           = 1.0e-24  // 1 part/cc
 #
 #  set I/O and stop/start parameters
 #
 StopTime               = 1
-dtDataDump             = 0.01
+dtDataDump             = 0.1
 #
 #  set Hydro parameters
 #
-HydroMethod            = 2
-DualEnergyFormalism    = 0
+HydroMethod            = 0
+DualEnergyFormalism    = 1
 CourantSafetyNumber    = 0.4
 PPMDiffusionParameter  = 0       // diffusion off
 PPMFlatteningParameter = 0       // flattening on
 PPMSteepeningParameter = 0       // steepening on
+Gamma = 1.6666667
 #
 #  set grid refinement parameters
 #
-StaticHierarchy           = 0    // static hierarchy
+StaticHierarchy           = 1    // static hierarchy
 RefineBy                  = 2    // refinement factor
 MaximumRefinementLevel    = 0
 CellFlaggingMethod        = 0
+#
+# Cooling
+#
+RadiativeCooling  =  1
+MultiSpecies  =  1
+MetalCooling  =  3
+CloudyCoolingGridFile  =  ../Cooling/CoolingTest_Cloudy/solar_2008_3D_metals.h5
+CMBTemperatureFloor = 0
+TestProblemUseMetallicityField  =  1
+TestProblemHydrogenFractionByMass  =  0.75
+TestProblemInitialMetallicityFraction  =  2e-3
+TestProblemInitialHIFraction  =  0.998
+TestProblemInitialHeIFraction  =  1.0
+TestProblemInitialHeIIFraction  =  1.0e-20
+TestProblemInitialHeIIIIFraction  =  1.0e-20
 #
 #  set some misc global parameters
 #

@@ -303,13 +303,12 @@ extern "C" void FORTRAN_NAME(star_feedback2)(int *nx, int *ny, int *nz,
 			float *justburn);
  
 extern "C" void FORTRAN_NAME(star_feedback3mom)(int *nx, int *ny, int *nz,
-             float *d, float *dm, float *te, float *ge, float *u, float *v,
+						float *d, float *mu, float *dm, float *te, float *ge, float *u, float *v,
 		       float *w, float *metal, float *zfield1, float *zfield2,
 	     int *idual, int *imetal, int *imulti_metals, hydro_method *imethod, 
 		       float *dt, float *r, float *dx, FLOAT *t, float *z,
              float *d1, float *x1, float *v1, float *t1,
                        float *sn_param, float *m_eject, float *yield,
-	     int *distrad, int *diststep, int *distcells,
              int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
@@ -1481,11 +1480,38 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   if (STARFEED_METHOD(UNIGRID_STAR_MOM)) {
 
-    //---- UNIGRID (NON-JEANS MASS) VERSION
- 
-      FORTRAN_NAME(star_feedback3mom)(
+    //---- UNIGRID (NON-JEANS MASS) VERSION WITH MOMENTUM
+
+    // Compute mu across grid
+    float *mu_field = new float[size];
+    for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++) {
+      for (j = GridStartIndex[1]; j <= GridEndIndex[1]; j++) {
+	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++) {
+	  
+	  index = i + j*GridDimension[0] + k*GridDimension[0]*GridDimension[1];
+	  mu_field[index] = 0.0;
+	  // calculate mu
+
+	  if (MultiSpecies == 0) {
+	    mu_field[index] = Mu;
+	  } else {
+	    mu_field[index] = BaryonField[DeNum][index] + BaryonField[HINum][index] + BaryonField[HIINum][index] +
+	      (BaryonField[HeINum][index] + BaryonField[HeIINum][index] + BaryonField[HeIIINum][index])/4.0;
+	    if (MultiSpecies > 1) {
+	      mu_field[index] += BaryonField[HMNum][index] + (BaryonField[H2INum][index] + BaryonField[H2IINum][index])/2.0;
+	    }
+	    if (MultiSpecies > 2) {
+	      mu_field[index] += (BaryonField[DINum][index] + BaryonField[DIINum][index])/2.0 + (BaryonField[HDINum][index]/3.0);
+	    }
+	    
+	  }
+	}
+      }
+    }
+    
+    FORTRAN_NAME(star_feedback3mom)(
        GridDimension, GridDimension+1, GridDimension+2,
-          BaryonField[DensNum], dmfield,
+       BaryonField[DensNum], mu_field, dmfield,
           BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
           BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
           BaryonField[MetalNum+1], BaryonField[MetalNum+2],
@@ -1494,8 +1520,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           &Time, &zred,
        &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
           &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
-          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
-       &StarFeedbackDistTotalCells,
+          &StarMetalYield, 
        &NumberOfParticles,
           CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
        ParticlePosition[0], ParticlePosition[1],
@@ -1505,6 +1530,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
        ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
        &StarFeedbackKineticFraction,&StarMakerExplosionDelayTime);
+
+    delete [] mu_field;
  
   } // end: if UNIGRID_STAR
 
