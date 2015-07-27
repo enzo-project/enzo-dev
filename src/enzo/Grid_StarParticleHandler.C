@@ -1495,6 +1495,12 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	  if (MultiSpecies == 0) {
 	    mu_field[index] = Mu;
 	  } else {
+
+	    if (IdentifySpeciesFields(DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum,
+				      HMNum, H2INum, H2IINum, DINum, DIINum, HDINum) == FAIL) {
+	      ENZO_FAIL("Error in grid->IdentifySpeciesFields.\n");
+	    }
+
 	    mu_field[index] = BaryonField[DeNum][index] + BaryonField[HINum][index] + BaryonField[HIINum][index] +
 	      (BaryonField[HeINum][index] + BaryonField[HeIINum][index] + BaryonField[HeIIINum][index])/4.0;
 	    if (MultiSpecies > 1) {

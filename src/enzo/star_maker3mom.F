@@ -438,11 +438,11 @@ c
             if (exptime .ge. 0._RKIND) then
 c              convert explosion time to code units
                exptime = exptime_in * 1.e6_RKIND * 3.15e7_RKIND / t1  
-               write(6,*) 'times: ',abs(t-tcp(n)),exptime+dt,
-     &              t,tcp(n),exptime,dt
+c               write(6,*) 'times: ',abs(t-tcp(n)),exptime+dt,
+c     &              t,tcp(n),exptime,dt
                if (tdp(n) .eq. 0._RKIND
      &              .or. abs(t-tcp(n)) .ge. exptime+dt) goto 10
-               write(6,*) 'mform, minitial = ',mform,minitial,dx
+c               write(6,*) 'mform, minitial = ',mform,minitial,dx
                tdp(n) = 0._RKIND
                minitial = mp(n)
                mform = mp(n)
