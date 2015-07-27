@@ -13,7 +13,7 @@ TestProblemInitialMetallicityFraction  =  2e-3
 TestStarParticleStarMass = 100.0
 StarEnergyToThermalFeedback = 5.59e-6
 StarMassEjectionFraction = 0.25
-StarFeedbackKineticFraction = 0.3
+StarFeedbackKineticFraction = 0.2
 StarMakerExplosionDelayTime = 1e-8
 OutputTemperature = 1
 OutputCoolingTime = 1
@@ -27,11 +27,11 @@ DensityUnits           = 1.0e-24  // 1 part/cc
 #
 #  set I/O and stop/start parameters
 #
-#StopTime               = 1
-#dtDataDump             = 0.1
-CycleSkipDataDump = 1
-StopCycle = 5
-PythonTopGridSkip  =  1
+StopTime               = 1
+dtDataDump             = 0.1
+#CycleSkipDataDump = 1
+#StopCycle = 5
+#PythonTopGridSkip  =  1
 #
 #  set Hydro parameters
 #

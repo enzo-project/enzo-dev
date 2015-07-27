@@ -442,11 +442,11 @@ c               write(6,*) 'times: ',abs(t-tcp(n)),exptime+dt,
 c     &              t,tcp(n),exptime,dt
                if (tdp(n) .eq. 0._RKIND
      &              .or. abs(t-tcp(n)) .ge. exptime+dt) goto 10
-c               write(6,*) 'mform, minitial = ',mform,minitial,dx
+               
                tdp(n) = 0._RKIND
                minitial = mp(n)
                mform = mp(n)
-               
+               write(6,*) 'mform, minitial = ',mform,minitial,dx
                goto 5
             endif
 
@@ -528,11 +528,13 @@ c
             xfc = xp(n)
             yfc = yp(n)
             zfc = zp(n)
-            fbuff = ibuff + 1.5_RKIND
+            fbuff = ibuff + 2._RKIND
 c
 c         check bounds - if star particle is near grid edge
 c         then shift center of feedback region
 c
+            write(6,*) 'buffers:',ibuff,fbuff
+
             if (xfc .lt. xstart+fbuff*dx .or. 
      &           xfc .gt. xstart+dx*nx-fbuff*dx .or.
      &           yfc .lt. ystart+fbuff*dx .or. 
@@ -614,9 +616,13 @@ c     variable kinf
 c     Calculate variable kinf based on R_PDS from
 c     Cioffi et al. 1988
 c
-               realmass = mform * dunits * pc**3 /msolar
+c               realmass = mform * dunits * pc**3 /msolar
+c
+c               realmass = realmass * (dx* x1 / pc)**3
 
-               realmass = realmass * (dx* x1 / pc)**3
+               realmass = mform * dunits /msolar
+
+               realmass = realmass * (dx* x1)**3
                
                energy_51 = sn_param * msolar_e51 * realmass
                
@@ -686,7 +692,9 @@ c
                   write(6,*) 'Sedov phase resolved:',Zsol,num_d,
      &                 energy_51,R_PDS,R_resolve, realmass
                else                  
-                  d_ave = d_ave * pc**3 /msolar
+c                  d_ave = d_ave * pc * pc * pc /msolar
+                  d_ave = d_ave * (pc/msolar)
+                  d_ave = d_ave * pc * pc
                   kinf = 3.97133e-6_RKIND * 0.82_RKIND * num_d 
      &                 * (R_resolve**(-2._RKIND)) 
      &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
@@ -786,6 +794,8 @@ c
      &              asum, bsum, csum)
                write(6,*) 'abc1',asum, bsum, csum
                asum = asum - (kin_energy_before + kinf*energy)
+               write(6,*) 'kin_energy_before,kinf*energy,energy:',
+     &              kin_energy_before,kinf*energy,energy
                write(6,*) 'abc2',asum, bsum, csum
 c
 c           Calculate momentum contribution
@@ -1167,7 +1177,8 @@ c     Locals
 c
       INTG_PREC i, j, k, i1, j1, k1
       R_PREC    delta_mass, delta_pu, delta_pv, delta_pw, delta_therm,
-     &        dratio
+     &        dratio, tot_mass
+
 c
 c     Error check
 c
@@ -1179,6 +1190,8 @@ c
 c     Loop "cells" in particle-frame
 c
       
+      tot_mass = 0._RKIND
+
       do k = -1, +1
        do j = -1, +1
         do i = -1, +1
@@ -1217,6 +1230,11 @@ c
 c               Add mass, momentum
 c                (add thermal energy here)
 c
+c                write(6,*) i,j,k,dxc1*dyc1*dzc1
+c                write(6,*) ic+i1,jc+j1,kc+k1
+c                write(6,*) nx-ic-i1,ny-jc-j1,nz-kc-k1
+c                write(6,*) '   '
+                
 
                 dratio = d(ic+i1, jc+j1, kc+k1)/(d(ic+i1, jc+j1, kc+k1) 
      &               + delta_mass)
@@ -1229,7 +1247,7 @@ c
                 pw(ic+i1 ,jc+j1 ,kface+k1) = 
      &               pw(ic+i1 ,jc+j1 ,kface+k1)+ delta_pw
 
-
+                tot_mass = tot_mass + delta_mass
 c
 c               Add thermal energy
 c
@@ -1276,6 +1294,8 @@ c
         enddo
        enddo
       enddo
+
+c      write(6,*) 'tot_mass:',tot_mass
 c
       return
       end
