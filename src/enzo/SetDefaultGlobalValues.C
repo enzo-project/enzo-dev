@@ -401,7 +401,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass   = 0.76;
   /* The DToHRatio is by mass in the code, so multiply by 2. */
   CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
-  CoolData.SolarMetalFractionByMass = 0.02041;
+
+  /*
+     Previously, the solar metal mass fraction was 0.02041.  
+     This is close to 0.0194 of Anders & Grevesse (1989), but significantly 
+     higher than the more recent value of 0.0122 from Asplund et al. (2005).
+     Now, the solar metal mass fraction has been set to 0.01295, 
+     which is consistent with the abundances used in Cloudy when generating the 
+     Grackle cooling tables.
+  */
+  CoolData.SolarMetalFractionByMass = 0.01295; // Cloudy v13 abundances
+
   CoolData.NumberOfTemperatureBins = 600;
   CoolData.ih2co                   = 1;
   CoolData.ipiht                   = 1;
