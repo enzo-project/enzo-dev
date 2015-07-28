@@ -165,7 +165,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
                  BaryonField[Vel3Num][ii]*BaryonField[Vel3Num][ii])*BaryonField[DensNum][ii]
             -0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
                   BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
-                  BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii]);
+                  BaryonField[B3Num][ii]*BaryonField[B3Num][ii])); 
       }
     }
   }
