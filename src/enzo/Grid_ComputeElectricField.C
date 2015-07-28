@@ -197,14 +197,13 @@ int grid::ComputeElectricField(float dT, float ** Fluxes, float a  ){
     ElectricEnd[dim] = GridDimension[dim]-2;
   }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-				       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
   }
   float inv_a = 1./a;
-  float * Bc[3] = {CenteredB[0], CenteredB[1],CenteredB[2]};
+  float * Bc[3] = {BaryonField[B1Num], BaryonField[B2Num], BaryonField[B3Num]};
   float * Bf[3] = {MagneticField[0], MagneticField[1], MagneticField[2]};
   float * Vel[3] = {BaryonField[ Vel1Num ], BaryonField[ Vel2Num ], BaryonField[ Vel3Num ] };
 #define Ec(index) (Bc[ dimY ][index]*Vel[ dimZ ][index] - Bc[ dimZ ][index]*Vel[ dimY ][index] )*inv_a

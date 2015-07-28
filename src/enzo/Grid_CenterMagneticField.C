@@ -51,6 +51,13 @@ int grid::CenterMagneticField(int * Start, int * End){
   //  For non-CT runs, it needs to be OFF (because you evolve CenteredB
   //  For GridRank < 3, use directy copy on the flat dimensions, simple averaging on non-flat.
 
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+  }
+
+  int BiIndex[3] = {B1Num,B2Num,B3Num};
   int i,j,k,dim, indexC, indexB1, indexB2;
   int Offset[3]={1,MagneticDims[1][0], MagneticDims[2][1]*MagneticDims[2][0]};
 
@@ -64,7 +71,7 @@ int grid::CenterMagneticField(int * Start, int * End){
 	  indexC = i + GridDimension[0]*(j + GridDimension[1]*k);
 	  indexB1= i + MagneticDims[dim][0]*(j+MagneticDims[dim][1]*k);
 	  indexB2= i + MagneticDims[dim][0]*(j+MagneticDims[dim][1]*k) + Offset[dim];
-	  CenteredB[dim][indexC] =  0.5 *(MagneticField[dim][indexB1] + MagneticField[dim][indexB2]);
+	  BaryonField[BiIndex[dim]][indexC] =  0.5 *(MagneticField[dim][indexB1] + MagneticField[dim][indexB2]);
 	  
 	}
   return SUCCESS;

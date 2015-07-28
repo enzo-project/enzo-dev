@@ -50,15 +50,6 @@ extern "C" void PFORTRAN_NAME(calc_dt)(
                   float *d, float *p, float *u, float *v, float *w,
 			     float *dt, float *dtviscous);
  
-extern "C" void
-FORTRAN_NAME(mhd_dt)(float *bxc, float *byc, float *bzc,
-                     float *vx, float *vy, float *vz,
-                     float *d, float *p, float *gamma, float *dt,
-                     FLOAT *dx, FLOAT *dy, FLOAT *dz,
-                     int *idim, int *jdim, int *kdim, int * rank,
-                     int *i1, int *i2,
-                     int *j1, int *j2,
-                     int *k1, int *k2, float* eng);
  
 float grid::ComputeTimeStep()
 {
@@ -99,7 +90,7 @@ float grid::ComputeTimeStep()
  
   /* 1) Compute Courant condition for baryons. */
  
-  if (NumberOfBaryonFields > 0 && (HydroMethod != HD_RK) && (HydroMethod != MHD_RK)) {
+  if (NumberOfBaryonFields > 0 && (HydroMethod != HD_RK) && (!UseMHD)) {
  
     /* Find fields: density, total energy, velocity1-3. */
  
@@ -150,7 +141,6 @@ float grid::ComputeTimeStep()
  
     /* Call fortran routine to do calculation. */
  
-    if( HydroMethod != MHD_Li)
       PFORTRAN_NAME(calc_dt)(&GridRank, GridDimension, GridDimension+1,
 			     GridDimension+2,
 			     GridStartIndex, GridEndIndex,
@@ -165,31 +155,6 @@ float grid::ComputeTimeStep()
 			     BaryonField[Vel3Num], &dtBaryons, &dtViscous);
  
 
-    if(HydroMethod == MHD_Li){
-      /* 1.5) Calculate minimum dt due to MHD: Maximum Fast MagnetoSonic Shock Speed */
-      
-      //Cosmos nees this, for some reason.
-      if(GridRank < 3 ){
-	if( CellWidth[2] == NULL ) CellWidth[2] = new FLOAT;
-	CellWidth[2][0] = 1.0;
-	if( GridRank < 2 ){
-	  if( CellWidth[1] == NULL ) CellWidth[1] = new FLOAT;
-	  CellWidth[1][0] = 1.0;
-	}
-      }
-      int Rank_Hack = 3; //MHD needs a 3d timestep always.
-      FORTRAN_NAME(mhd_dt)(CenteredB[0], CenteredB[1], CenteredB[2],
-			   BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
-			   BaryonField[DensNum], pressure_field, &Gamma, &dtMHD, 
-			   CellWidth[0], CellWidth[1], CellWidth[2],
-			   GridDimension, GridDimension + 1, GridDimension +2, &Rank_Hack,
-			   GridStartIndex, GridEndIndex,
-			   GridStartIndex+1, GridEndIndex+1,
-			   GridStartIndex+2, GridEndIndex+2, BaryonField[TENum]);
-      
-      dtMHD *= CourantSafetyNumber;
-      dtMHD *= afloat;  
-    }//if HydroMethod== MHD_Li
 
     /* Clean up */
  
@@ -263,7 +228,7 @@ float grid::ComputeTimeStep()
 
 
   // MHD
-  if (NumberOfBaryonFields > 0 && HydroMethod == MHD_RK) {
+  if (NumberOfBaryonFields > 0 && UseMHD) {
 
     int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
       B1Num, B2Num, B3Num, PhiNum;

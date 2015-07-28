@@ -323,6 +323,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       FieldType[NumberOfBaryonFields++] = Bfield1;
       FieldType[NumberOfBaryonFields++] = Bfield2;
       FieldType[NumberOfBaryonFields++] = Bfield3;
+    }
+    if( HydroMethod == MHD_RK ){
       FieldType[NumberOfBaryonFields++] = PhiField;
     }
     if(DualEnergyFormalism) FieldType[NumberOfBaryonFields++] = InternalEnergy;
