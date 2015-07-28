@@ -661,8 +661,6 @@ c                        mu_cell = 0.82_RKIND
                Zsol = Zsol/27._RKIND
                num_d = num_d/27._RKIND
                d_ave = d_ave/27._RKIND
-           
-               write(6,*) 'Zsol,num_d(0):',Zsol,num_d
    
 c     compute time and radius of transition to PDS phase for gas
 c     with the computed properties
@@ -677,8 +675,6 @@ c
                   R_PDS = 49.3_RKIND * (energy_51**0.25_RKIND) * 
      &                 (num_d**(-0.5_RKIND))
                endif
-               write(6,*) 'Zsol,num_d,energy_51(1):',Zsol,num_d,
-     &              energy_51
 c
 c     For metal rich gas
 c
@@ -691,23 +687,19 @@ c
      &                    * num_d**(-3._RKIND/7._RKIND)
      &                    * Zsol**(-1._RKIND/7._RKIND)
                endif
-               write(6,*) 'Zsol,num_d(2):',Zsol,num_d
                R_resolve = dx*x1/pc
                if (R_PDS .gt. 4.5*R_resolve) then
                   kinf = 0._RKIND
                   write(6,*) 'Sedov phase resolved:',Zsol,num_d,
      &                 energy_51,R_PDS,R_resolve, realmass
                else                  
-                  write(6,*) 'Zsol,num_d(3):',Zsol,num_d
-c                  d_ave = d_ave * pc * pc * pc /msolar
-                  d_ave = d_ave * (pc/msolar)
-                  d_ave = d_ave * pc * pc
-                  kinf = 3.97133e-6_RKIND * 0.82_RKIND * num_d 
+                  kinf = 3.97133e-6_RKIND * (d_ave/mH) 
      &                 * (R_resolve**(-2._RKIND)) 
      &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
      &                 * (energy_51**(-1._RKIND))
                   write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
-     &                 num_d, d_ave, energy_51,t_PDS,R_PDS,R_resolve
+     &                 num_d, d_ave, 
+     &                 energy_51,t_PDS,R_PDS,R_resolve
                endif
        
             endif
