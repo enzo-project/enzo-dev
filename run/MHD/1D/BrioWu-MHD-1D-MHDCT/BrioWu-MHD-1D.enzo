@@ -1,0 +1,73 @@
+# AMR PROBLEM DEFINITION FILE: MHD1D test
+#
+# Reference: Brio, M., & Wu, C. C. 1988, J. of Comput. Phys., 75, 400
+#
+# This also serves as an Example of how to do 1D HD/MHD tests with the myriad 
+# of shock tube problems defined in the literature
+#
+# define problem
+#
+
+ProblemType                = 200
+TopGridRank                = 1	     	
+TopGridDimensions          = 1000
+SelfGravity                = 0
+LeftFaceBoundaryCondition  = 1
+RightFaceBoundaryCondition = 1
+#DomainLeftEdge = -1 -1 -1
+#DomainRightEdge = 1 1 1
+#
+#  set I/O and stop/start parameters
+#
+
+StopTime               = 0.1
+dtDataDump             = 0.01
+DataDumpName           = data
+
+#
+#  set grid refinement parameters
+#
+
+StaticHierarchy           = 1
+FluxCorrection            = 0
+CellFlaggingMethod        = 1
+MaximumRefinementLevel    = 2
+RefineBy                  = 2
+
+#
+#  set hydro parameters
+#
+
+Gamma                       = 2.0
+CourantSafetyNumber         = 0.3
+HydroMethod                 = 6
+NumberOfGhostZones          = 5
+Initialdt                   = 0.00001
+RKOrder			    = 2
+DualEnergyFormalism         = 0
+Theta_Limiter               = 1.0
+RiemannSolver               = 1
+#SmallRho = 0.01
+#SmallP   = 0.000001
+
+#
+# problem parameters
+#
+
+LengthUnit = 1.0
+
+LeftDensity = 1.0
+LeftPressure = 1.0
+LeftVelocityX = 0.0
+LeftVelocityY = 0.0
+LeftVelocityZ = 0.0
+LeftBx = 0.75
+LeftBy = 1
+
+RightDensity = 0.125
+RightPressure = 0.1
+RightVelocityX = 0.0
+RightVelocityY = 0.0
+RightVelocityZ = 0.0
+RightBx = 0.75
+RightBy = -1
