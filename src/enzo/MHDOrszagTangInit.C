@@ -69,10 +69,12 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   DataLabel[count++] = Vel1Name;
   DataLabel[count++] = Vel2Name;
   DataLabel[count++] = Vel3Name;
-  if (HydroMethod == MHD_RK){
+  if( UseMHD ){
       DataLabel[count++] = BxName;
       DataLabel[count++] = ByName;
       DataLabel[count++] = BzName;
+  }
+  if (HydroMethod == MHD_RK){
       DataLabel[count++] = PhiName;
   }
 
@@ -80,9 +82,6 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataUnits[i] = NULL;
 
   if ( UseMHDCT ){
-      MHDcLabel[0] = "Bx";
-      MHDcLabel[1] = "By";
-      MHDcLabel[2] = "Bz";
 
       MHDLabel[0] = "BxF";
       MHDLabel[1] = "ByF";
