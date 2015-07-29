@@ -864,7 +864,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   UseMHD=0;
 
   //MHDCT variables
-  MHDCT_debug_flag = 0;
   MHDCTSlopeLimiter = 1;
   MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;
