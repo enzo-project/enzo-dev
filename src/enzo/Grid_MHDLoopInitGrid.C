@@ -30,6 +30,8 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if( HydroMethod == MHD_RK ){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
   if(DualEnergyFormalism) FieldType[NumberOfBaryonFields++] = InternalEnergy;
@@ -65,41 +67,13 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
   int index, size=1, i,j,k, Three=3,TENum=1; 
   float Scale[3];
 
+  //In order to ensure a good comparison, we use the MHD-CT initialization
+  //for both MHDCT and Dedner.  Temporarily, we make this code think that MHD-CT is on.
+  if ( HydroMethod == MHD_RK ){
+      UseMHDCT = TRUE;
+      MHD_SetupDims(); //this only sets some variables that won't be used
+  }
   this->AllocateGrids();  
-  //For Dedner MHD, we need to temporarily allocate the other fields
-  //to initialize the magnetic field in a manner that's consistent with MHDCT
-  if(UseMHD){  
-    //
-    for(int field=0; field<3; field++){
-      MagneticSize[field] = 1;
-      ElectricSize[field] = 1;
-
-      for(int dim=0; dim<3; dim++){
-        MagneticDims[field][dim] = GridDimension[dim];
-        ElectricDims[field][dim] = GridDimension[dim] +1;
-        if( field == dim ){
-          MagneticDims[field][dim]++;
-          ElectricDims[field][dim]--;
-        }
-      MagneticSize[field] *= MagneticDims[field][dim];
-      ElectricSize[field] *= ElectricDims[field][dim];
-      }
-    }
-    //
-    //
-    for(field=0;field<3;field++){
-
-      MagneticField[field] = new float[MagneticSize[field]];
-      ElectricField[field] = new float[ElectricSize[field]];
-
-      for(i=0; i<ElectricSize[field]; i++) ElectricField[field][i] = 0.0;
-      for(i=0; i<MagneticSize[field]; i++) MagneticField[field][i] = 0.0;      
-    }
-    CenteredB[0] = BaryonField[BxNum];
-    CenteredB[1] = BaryonField[ByNum];
-    CenteredB[2] = BaryonField[BzNum];
-    
-  } // if(UseMHD)
 
   for(i=0;i<GridRank;i++){
     size*=GridDimension[i];
@@ -170,10 +144,10 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
         X=(i-GridStartIndex[0])*Scale[0];
         Y=(j-GridStartIndex[1])*Scale[1];
         
-        LoopTotalEnergy=GasEnergy + 0.5*LoopDensity*(Vx*Vx+Vy*Vy + Vz*Vz)
-          +0.5*(CenteredB[0][index]*CenteredB[0][index]+
-                CenteredB[1][index]*CenteredB[1][index]+
-                CenteredB[2][index]*CenteredB[2][index]);
+        LoopTotalEnergy=GasEnergy + 0.5*(Vx*Vx+Vy*Vy + Vz*Vz)
+          +0.5*(BaryonField[BxNum][index]*BaryonField[BxNum][index]+
+                BaryonField[ByNum][index]*BaryonField[ByNum][index]+
+                BaryonField[BzNum][index]*BaryonField[BzNum][index])/LoopDensity;
 
         BaryonField[Eden][index]=LoopDensity;
         if( EquationOfState == 0 ) BaryonField[Eeng][index]=LoopTotalEnergy;
@@ -186,11 +160,11 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
 
       }
   
-  if(UseMHD){  
+  if(HydroMethod == MHD_RK){  
+      UseMHDCT = FALSE;
     for(field=0;field<3;field++){
 
       //No delete for CenteredB, since it's a pointer to BaryonField[B?Num]
-      CenteredB[field] = NULL; 
       delete MagneticField[field];
       MagneticField[field] = NULL;
       delete ElectricField[field];
@@ -200,7 +174,7 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
       MagneticSize[field] = 0;
       ElectricSize[field] = 0;
     }
-  }//usemdh
+  }//HydroRK
 
   return SUCCESS;
 
