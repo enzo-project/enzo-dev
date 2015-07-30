@@ -148,11 +148,13 @@ int grid::TurbulenceSimulationInitializeGrid(
       FieldType[NumberOfBaryonFields++] = Velocity2;
     if (GridRank > 2)
       FieldType[NumberOfBaryonFields++] = Velocity3;
-    if (HydroMethod == MHD_RK) {
+    if (UseMHD) {
         ibx = NumberOfBaryonFields;
       FieldType[NumberOfBaryonFields++] = Bfield1;
       FieldType[NumberOfBaryonFields++] = Bfield2;
       FieldType[NumberOfBaryonFields++] = Bfield3;
+    }
+    if(HydroMethod == MHD_RK){
       FieldType[NumberOfBaryonFields++] = PhiField;
     }
    
@@ -268,8 +270,7 @@ int grid::TurbulenceSimulationInitializeGrid(
       }
   /* Read the magnetic fields. */
  
-  if (TurbulenceSimulationMagneticNames[0] != NULL && ReadData && 
-      (HydroMethod == MHD_RK || HydroMethod == MHD_Li) ){
+  if (TurbulenceSimulationMagneticNames[0] != NULL && ReadData && UseMHD ){
 
     for (dim = 0; dim < GridRank; dim++){
   if( strcmp( TurbulenceSimulationMagneticNames[0] , TurbulenceSimulationMagneticNames[1] ) == 0 ){
@@ -345,7 +346,7 @@ int grid::TurbulenceSimulationInitializeGrid(
             ( (float)rand()/(float)(RAND_MAX)   - 0.5 );
       }
 
-    if( HydroMethod == MHD_RK){
+    if( UseMHD ){
         for( dim = 0; dim < 3; dim++){
             if( TurbulenceSimulationMagneticNames[ dim ] == NULL)
                 for (i = 0; i < size; i++)
@@ -356,9 +357,6 @@ int grid::TurbulenceSimulationInitializeGrid(
     }
     if( UseMHDCT == TRUE && TurbulenceSimulationMagneticNames[0] == NULL ){
       for(int field=0;field<3;field++){
-        CenteredB[field] = new float[size];
-        for(i=0;i<size;i++)
-          CenteredB[field][i]=TurbulenceSimulationInitialMagneticField[field];
         MagneticField[field] = new float[MagneticSize[field]];
         for(i=0;i<MagneticSize[field];i++)
           MagneticField[field][i]=TurbulenceSimulationInitialMagneticField[field];
@@ -398,20 +396,11 @@ int grid::TurbulenceSimulationInitializeGrid(
           BaryonField[1][i] +=
             0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
         }
-      if( HydroMethod == MHD_RK ){
+      if(UseMHD){
           for(i=0;i<size;i++){
               BaryonField[TENum][i] += (0.5*(BaryonField[B1Num][i]*BaryonField[B1Num][i]+
                                             BaryonField[B2Num][i]*BaryonField[B2Num][i]+
                                             BaryonField[B3Num][i]*BaryonField[B3Num][i])/
-                                        BaryonField[DensNum][i]);
-
-          }
-      }
-      if( HydroMethod == MHD_Li ){
-          for(i=0;i<size;i++){
-              BaryonField[TENum][i] += (0.5*(CenteredB[0][i]*CenteredB[0][i]+
-                                             CenteredB[1][i]*CenteredB[1][i]+
-                                             CenteredB[2][i]*CenteredB[2][i])/
                                         BaryonField[DensNum][i]);
 
           }

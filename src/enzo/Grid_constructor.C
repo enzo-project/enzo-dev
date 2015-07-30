@@ -168,14 +168,11 @@ grid::grid()
 
   for(i=0;i<3;i++){
     MagneticField[i] = NULL;
-    CenteredB[i]     = NULL;
     ElectricField[i] = NULL;
     AvgElectricField[i] = NULL;
     OldMagneticField[i] = NULL;
     OldElectricField[i] = NULL;
-    OldCenteredB[i] = NULL;
     MHDParentTemp[i] = NULL;
-
   }
   dtParent = -1;
 

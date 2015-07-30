@@ -485,20 +485,14 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 	if (DualEnergyFormalism) {
 	  BaryonField[ieint][n] = eint;
 	}
-	if (HydroMethod == MHD_RK) {
+	if (UseMHD) {
 	  BaryonField[iBx ][n] = Bx;
 	  BaryonField[iBy ][n] = By;
 	  BaryonField[iBz ][n] = Bz;
+    }
+    if( HydroMethod == MHD_RK ){
 	  BaryonField[iPhi][n] = 0.0;
 	}
-  if (UseMHDCT){
-    MagneticField[0][n] = Bx;
-    MagneticField[1][n] = By;
-    MagneticField[2][n] = Bz;
-    CenteredB[0][n] = Bx;
-    CenteredB[1][n] = By;
-    CenteredB[2][n] = Bz;
-  }
 	BaryonField[NumberOfBaryonFields-1][n] = 0.;
       } // end loop over grid
     }

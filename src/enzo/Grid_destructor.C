@@ -129,10 +129,6 @@ grid::~grid()
 	OldMagneticField[i] = NULL;
       }
 
-      if( CenteredB[i] != NULL ){
-	delete CenteredB[i];
-	CenteredB[i] = NULL;
-      }
 
       if(ElectricField[i] != NULL){
 	delete ElectricField[i];

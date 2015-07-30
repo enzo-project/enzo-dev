@@ -389,9 +389,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   //Variable names.
   int Eeng, Eden, Ev[3], Egas, BxNum = 0, ByNum = 1, BzNum = 2;
   int max_velocity_index = 3; //( (UseMHD || UseMHDCT ) ) ? 3 : GridRank;
-  if (this->IdentifyPhysicalQuantities(Eden, Egas, Ev[0], Ev[1], 
-                       Ev[2], Eeng, BxNum, ByNum, BzNum) == FAIL) 
-    ENZO_FAIL("MHDBlastInitializeGrid: Error in IdentifyPhysicalQuantities.");
+  this->IdentifyPhysicalQuantities(Eden, Egas, Ev[0], Ev[1], Ev[2], 
+                                   Eeng, BxNum, ByNum, BzNum);
   
   //For characteristic advection.  Right[field][wave]
   //8x = Square Wave.
@@ -459,15 +458,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
     fprintf(stderr,"EigenVector: B2 %"ISYM" B3 %"ISYM" \n", B2num, B3num);
   }
 
-  //Some juggles for MHD rectfication
-  if( UseMHDCT ){
-    BaryonField[NumberOfBaryonFields]   = CenteredB[0];
-    BaryonField[NumberOfBaryonFields+1] = CenteredB[1];
-    BaryonField[NumberOfBaryonFields+2] = CenteredB[2];
-    BxNum = NumberOfBaryonFields;
-    ByNum = NumberOfBaryonFields+1;
-    BzNum = NumberOfBaryonFields+2;
-  }
   //
   //Set up BaryonField and Centered Magnetic fields.
   //Add perturbation if necessary.
@@ -910,11 +900,6 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
              BaryonField[ByNum][index]*BaryonField[ByNum][index] +
              BaryonField[BzNum][index]*BaryonField[BzNum][index])/BaryonField[ Eden ][index];
     
-  if( UseMHDCT ){
-    BaryonField[NumberOfBaryonFields]   = NULL;
-    BaryonField[NumberOfBaryonFields+1] = NULL;
-    BaryonField[NumberOfBaryonFields+2] = NULL;
-  }
   return SUCCESS;
   
 }

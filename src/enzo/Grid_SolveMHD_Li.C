@@ -623,7 +623,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
 
     for( int field=0; field<3; field++){
       for( ii=0; ii<size; ii++){
-        CenteredB[field][ii] *= sqrt_a;
+        BaryonField[B1Num][ii] *= sqrt_a;
+        BaryonField[B2Num][ii] *= sqrt_a;
+        BaryonField[B3Num][ii] *= sqrt_a;
       }
       for( ii=0; ii<MagneticSize[field]; ii++){
         Fluxes[field][ii] *= sqrt_a/a[2];
