@@ -568,13 +568,7 @@ int grid::Group_ReadGrid(FILE *fptr, int GridID, HDF5_hid_t file_id,
 	    }
       
     }//End Read Magnetic Field
-    //allocate centeredB and ElectricFeel
-    for(field=0;field<3;field++){
-      CenteredB[field] = new float[size];
-      
-      for (i = 0; i < size; i++)
-	CenteredB[field][i] = 0.0;
-    }
+
     if( this->CenterMagneticField() == FAIL )
       ENZO_FAIL("error with CenterMagneticField , second call");
     for(field=0;field<3;field++)
