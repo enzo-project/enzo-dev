@@ -247,10 +247,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     MHDLabel[1] = "ByF";
     MHDLabel[2] = "BzF";
     
-    MHDcLabel[0] = "Bx";
-    MHDcLabel[1] = "By";
-    MHDcLabel[2] = "Bz";
-    
     MHDeLabel[0] = "Ex";
     MHDeLabel[1] = "Ey";
     MHDeLabel[2] = "Ez";

@@ -81,10 +81,12 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if( HydroMethod == MHD_RK ){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
 
@@ -493,6 +495,11 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
     if( HydroMethod == MHD_RK ){
 	  BaryonField[iPhi][n] = 0.0;
 	}
+    if( UseMHDCT ){
+        MagneticField[0][n] = Bx;
+        MagneticField[1][n] = By;
+        MagneticField[2][n] = Bz;
+    }
 	BaryonField[NumberOfBaryonFields-1][n] = 0.;
       } // end loop over grid
     }
