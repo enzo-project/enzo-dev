@@ -27,6 +27,7 @@
 #include "Hierarchy.h"
 #include "TopGridData.h"
 
+int MHDCTSetupFieldLabels();
 int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		      TopGridData &MetaData, ExternalBoundary &Exterior){
 
@@ -82,22 +83,7 @@ int MHDOrszagTangInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
     DataUnits[i] = NULL;
 
   if ( UseMHDCT ){
-
-      MHDLabel[0] = "BxF";
-      MHDLabel[1] = "ByF";
-      MHDLabel[2] = "BzF";
-
-      MHDeLabel[0] = "Ex";
-      MHDeLabel[1] = "Ey";
-      MHDeLabel[2] = "Ez";
-
-      MHDUnits[0] = "None";
-      MHDUnits[1] = "None";
-      MHDUnits[2] = "None";
-
-      MHDeUnits[0] = "None";
-      MHDeUnits[1] = "None";
-      MHDeUnits[2] = "None";
+      MHDCTSetupFieldLabels();
   }
 
 

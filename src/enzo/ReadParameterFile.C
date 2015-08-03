@@ -1150,8 +1150,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MHDLabel[dim] = dummy;
     if(sscanf(line, "MHDUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
       MHDUnits[dim] = dummy;
-    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
-      MHDcLabel[dim] = dummy;
+    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2){
+        ENZO_FAIL("Looks like you're restarting an OLD MHDCT run. \n Run src/CenteredBremover.py on your dataset.\n");
+    }
     if(sscanf(line, "MHDeLabel[%"ISYM"] = %s\n", &dim, dummy) ==2)
       MHDeLabel[dim] = dummy;
     if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)

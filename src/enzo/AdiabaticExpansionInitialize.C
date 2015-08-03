@@ -190,10 +190,6 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   DataUnits[3] = NULL;
   DataUnits[4] = NULL;
   if ( UseMHDCT ){
-      MHDcLabel[0] = "Bx";
-      MHDcLabel[1] = "By";
-      MHDcLabel[2] = "Bz";
-
       MHDLabel[0] = "BxF";
       MHDLabel[1] = "ByF";
       MHDLabel[2] = "BzF";
