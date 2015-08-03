@@ -102,13 +102,11 @@ float grid::ComputeTimeStep()
   if (NumberOfBaryonFields > 0 && (HydroMethod != HD_RK) && (HydroMethod != MHD_RK)) {
  
     /* Find fields: density, total energy, velocity1-3. */
- 
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
-      exit(FAIL);
-    }
+
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
+        B1Num, B2Num, B3Num, PhiNum;
+    this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                     TENum, B1Num, B2Num, B3Num, PhiNum); 
 
     /* For one-zone free-fall test, just compute free-fall time. */
     if (ProblemType == 63) {
@@ -167,11 +165,6 @@ float grid::ComputeTimeStep()
 
     if(HydroMethod == MHD_Li){
       /* 1.5) Calculate minimum dt due to MHD: Maximum Fast MagnetoSonic Shock Speed */
-    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
-      B1Num, B2Num, B3Num, PhiNum;
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL)
-      ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
       
       //Cosmos nees this, for some reason.
       if(GridRank < 3 ){
