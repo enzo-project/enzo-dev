@@ -116,10 +116,8 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   float * flux_magnetic_line = new float[ line_size ]; //for Powell fluxes
   float * flux_def_line = new float[ line_size ]; //For dual energy.  Get rid of this.
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-  }
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                   TENum, B1Num, B2Num, B3Num);
 
   float inv_sqrt_a = 1./sqrt(a[0]), sqrt_a = sqrt(a[0]);
   if( ComovingCoordinates ){
