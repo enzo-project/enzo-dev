@@ -64,37 +64,17 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
   for (dim = 0; dim < GridRank; dim++)
     activesize *= (GridDimension[dim] - 2*NumberOfGhostZones);
   
-  /*
-  int field;
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-    }
-  }
-
-  divB = new float[activesize];
-  for (int dim = 0; dim < 3; dim++) {
-    gradPhi[dim] = new float[activesize];
-  }
-
-  
-  for (int dim = GridRank; dim < 3; dim++) {
-    for (int n = 0; n < activesize; n++) {
-      gradPhi[dim][n] = 0.0;
-    }
-  }
-  */
   this->AllocateGrids();
 
   
   /* transform pressure to total energy */
   float etotl, etotr, v2, B2=0;
   v2 = vxl * vxl + vyl * vyl + vzl*vzl;
-  if (HydroMethod == MHD_RK || UseMHDCT) B2 = Bxl*Bxl + Byl*Byl + Bzl*Bzl;
+  if ( UseMHD ) B2 = Bxl*Bxl + Byl*Byl + Bzl*Bzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2 + 0.5*B2/rhol; 
 
   v2 = vxr * vxr + vyr * vyr + vzr*vzr;
-  if (HydroMethod == MHD_RK || UseMHDCT) B2 = Bxr*Bxr + Byr*Byr + Bzr*Bzr; else B2 = 0.;
+  if ( UseMHD ) B2 = Bxr*Bxr + Byr*Byr + Bzr*Bzr; else B2 = 0.;
   etotr = pr / ((Gamma-1.0)*rhor) + 0.5*v2 + 0.5*B2/rhor;
 
   FLOAT x;
