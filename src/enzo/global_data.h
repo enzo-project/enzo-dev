@@ -1025,7 +1025,6 @@ EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
 EXTERN int UseMHDCT;
 EXTERN int EquationOfState;
 EXTERN char *MHDLabel[3];
-EXTERN char *MHDcLabel[3];
 EXTERN char *MHDUnits[3];
 EXTERN char *MHDeLabel[3];
 EXTERN char *MHDeUnits[3];
