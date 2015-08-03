@@ -52,10 +52,8 @@ int grid::CenterMagneticField(int * Start, int * End){
   //  For GridRank < 3, use directy copy on the flat dimensions, simple averaging on non-flat.
 
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                                       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-  }
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                   TENum, B1Num, B2Num, B3Num);
 
   int BiIndex[3] = {B1Num,B2Num,B3Num};
   int i,j,k,dim, indexC, indexB1, indexB2;
