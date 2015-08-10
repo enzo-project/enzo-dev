@@ -500,8 +500,6 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   if (NumberOfBaryonFields == 0)
     return SUCCESS;
-
-//  printf("Npart = %d\n", NumberOfParticles);
  
   /* First, set under_subgrid field */
   HierarchyEntry *Subgrid;
