@@ -41,8 +41,7 @@ LOCAL_PACKAGES       = /usr/local
 # openmpi via macports.  
 LOCAL_MPI_INSTALL    = /usr/local
 LOCAL_FC_INSTALL     = /usr/local
-## LOCAL_HDF5_INSTALL   = /Users/christine/Codes/hdf5-1.8.5-macosx64-static/
-LOCAL_HDF5_INSTALL   = /Users/christine/Codes/yt-x86_64/
+LOCAL_HDF5_INSTALL   = $(YT_DEST)
 LOCAL_SZIP_INSTALL   = $(LOCAL_PACKAGES)
 LOCAL_HYPRE_INSTALL  = $(HOME)
 LOCAL_PYTHON_INSTALL = $(YT_DEST)
