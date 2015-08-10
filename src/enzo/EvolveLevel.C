@@ -660,9 +660,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #endif
 			  );
 #ifdef USE_PYTHON
-    //LCAPERF_START("CallPython");
-    //CallPython(LevelArray, MetaData, level, 0);
-    //LCAPERF_STOP("CallPython");
+    LCAPERF_START("CallPython");
+    CallPython(LevelArray, MetaData, level, 0);
+    LCAPERF_STOP("CallPython");
 #endif
 
     /* Update SubcycleNumber and the timestep counter for the
