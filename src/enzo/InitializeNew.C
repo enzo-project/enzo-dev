@@ -191,6 +191,11 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
 
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
+
+int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
+                         HierarchyEntry &TopGrid, TopGridData &MetaData,
+                         int SetBaryonFields);
+
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
@@ -535,6 +540,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = PhotonTestRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
 				     Exterior);
 #endif /* TRANSFER */
+
+  // Turbulence in a box with StochasticForcing
+  if (ProblemType == 59)
+    ret = DrivenFlowInitialize(fptr, Outfptr, TopGrid, MetaData,0);
 
   // 60) Turbulence Simulation.
   
@@ -950,6 +959,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #endif
 
   PrintMemoryUsage("After 2nd pass");
+
+  if (ProblemType == 59)
+    if (DrivenFlowInitialize(fptr, Outfptr, TopGrid, MetaData, 1) == FAIL)
+      ENZO_FAIL("Error in DrivenFlowInitialize with SetBaryons");
   
   // For problem 60, using ParallelGridIO, read in data only after
   // partitioning grid.

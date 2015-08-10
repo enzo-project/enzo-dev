@@ -192,6 +192,10 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
                                       float * norm, float * pTopGridTimeStep);
+
+int ComputeStochasticForcing(TopGridData *MetaData,
+        HierarchyEntry *Grids[], int NumberOfGrids);
+
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level);
 int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
 		      int StaticLevelZero,TopGridData * MetaData,int level);
@@ -461,6 +465,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+
+    /* Compute stochastic force field via FFT from the spectrum. */
+    if (DrivenFlowProfile) {
+        if (ComputeStochasticForcing(MetaData, Grids, NumberOfGrids) == FAIL) {
+            fprintf(stderr, "Error in ComputeStochasticForcing.\n");
+            return FAIL;
+        }
+    }
 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */

@@ -365,6 +365,17 @@ EXTERN FLOAT   RandomForcingEdot;
 EXTERN FLOAT   RandomForcingMachNumber;  //#####
 EXTERN fpos_t  BaryonFileNamePosition;
 
+/* StochasticForcing variables */
+
+EXTERN forcing_type DrivenFlowProfile;
+EXTERN int DrivenFlowAlpha[MAX_DIMENSION];
+EXTERN int DrivenFlowSeed;
+EXTERN float DrivenFlowWeight;
+EXTERN float DrivenFlowBandWidth[MAX_DIMENSION];
+EXTERN float DrivenFlowAutoCorrl[MAX_DIMENSION];
+EXTERN float DrivenFlowVelocity[MAX_DIMENSION];
+EXTERN float DrivenFlowDomainLength[MAX_DIMENSION];
+
 /* Multi-species rate equation flag and associated data. */
 
 EXTERN int MultiSpecies;

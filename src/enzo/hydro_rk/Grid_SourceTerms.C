@@ -255,12 +255,13 @@ int grid::SourceTerms(float **dU)
 	  dU[iS1  ][n] += dtFixed*rho*drivex*DrivingEfficiency;
 	  dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
 	  dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
-	  dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz)*DrivingEfficiency;
+	  dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz + 
+                0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez)) * DrivingEfficiency;
 	}
       }
     }
   }
-
+  
   /* Add centrifugal force for the shearing box */
 
 

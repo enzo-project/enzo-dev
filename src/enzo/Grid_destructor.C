@@ -56,8 +56,13 @@ grid::~grid()
     delete [] ParticleAcceleration[i];
     delete [] AccelerationField[i];
     delete [] RandomForcingField[i];
+    if (PhaseFctMultEven[i] != NULL) delete[] PhaseFctMultEven[i];
+    if (PhaseFctMultOdd[i] != NULL) delete[] PhaseFctMultOdd[i];
   }
  
+  if (PhaseFctInitEven != NULL) delete[] PhaseFctInitEven;
+  if (PhaseFctInitOdd != NULL) delete[] PhaseFctInitOdd;
+
   delete ParticleAcceleration[MAX_DIMENSION];
  
   for (i = 0; i < MAX_NUMBER_OF_BARYON_FIELDS; i++) {

@@ -496,6 +496,19 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "RandomForcingEdot = %"FSYM, &RandomForcingEdot); //AK
     ret += sscanf(line, "RandomForcingMachNumber = %"FSYM, //AK
                   &RandomForcingMachNumber);
+
+    ret += sscanf(line, "DrivenFlowProfile = %"ISYM, &DrivenFlowProfile);
+    ret += sscanf(line, "DrivenFlowWeight = %"FSYM, &DrivenFlowWeight);
+    ret += sscanf(line, "DrivenFlowAlpha = %"ISYM" %"ISYM" %"ISYM,
+                  DrivenFlowAlpha, DrivenFlowAlpha+1, DrivenFlowAlpha+2);
+    ret += sscanf(line, "DrivenFlowSeed = %"ISYM, &DrivenFlowSeed);
+    ret += sscanf(line, "DrivenFlowBandWidth = %"FSYM"%"FSYM"%"FSYM,
+                  DrivenFlowBandWidth, DrivenFlowBandWidth+1, DrivenFlowBandWidth+2);
+    ret += sscanf(line, "DrivenFlowVelocity = %"FSYM"%"FSYM"%"FSYM,
+                  DrivenFlowVelocity, DrivenFlowVelocity+1, DrivenFlowVelocity+2);
+    ret += sscanf(line, "DrivenFlowAutoCorrl = %"FSYM"%"FSYM"%"FSYM,
+                     DrivenFlowAutoCorrl, DrivenFlowAutoCorrl+1, DrivenFlowAutoCorrl+2);
+
 #ifdef USE_GRACKLE
     /* Grackle chemistry parameters */
     ret += sscanf(line, "use_grackle = %d", &grackle_data.use_grackle);
@@ -1243,6 +1256,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     if (strstr(line, "PhotonTest")          ) ret++;
 #endif
     if (strstr(line, "MHDDRF")              ) ret++;
+    if (strstr(line, "DrivenFlowMach")      ) ret++;
+    if (strstr(line, "DrivenFlowMagField")  ) ret++;
+    if (strstr(line, "DrivenFlowDensity")      ) ret++;
+    if (strstr(line, "DrivenFlowPressure")      ) ret++;
 
     if (strstr(line, "\"\"\"")              ) comment_count++;
 
@@ -1277,6 +1294,25 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
   delete [] dummy;
   rewind(fptr);
+
+
+/*  If stochastic forcing is used, initialize the object 
+ *  but only if it is not a fresh simulation*/
+  if (DrivenFlowProfile && MetaData.Time != 0.) {
+    for (dim = 0; dim < MetaData.TopGridRank; dim++)
+                 DrivenFlowDomainLength[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+
+    Forcing.Init(MetaData.TopGridRank,
+                 DrivenFlowProfile,
+                 DrivenFlowAlpha,
+                 DrivenFlowDomainLength,
+                 DrivenFlowBandWidth,
+                 DrivenFlowVelocity,
+                 DrivenFlowAutoCorrl,
+                 DrivenFlowWeight,
+                 DrivenFlowSeed);
+  }
+
 
   /* Now we know which hydro solver we're using, we can assign the
      default Riemann solver and flux reconstruction methods.  These

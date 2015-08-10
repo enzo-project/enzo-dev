@@ -47,6 +47,7 @@ Problem Type Description and Parameter List
 40 	     :ref:`supernovarestart_param`
 50 	     :ref:`photontest_param`
 51	     Photon Test Restart
+59       :ref:`stochastic_forcing_param`
 60 	     :ref:`turbulence_param` 
 61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
@@ -1151,6 +1152,51 @@ Photon Test (50)
     Sets the initial ionized fraction of H2. Default: 3e-14
 ``PhotonTestOmegaBaryonNow`` (obsolete)
     Default: 0.05.
+
+.. _stochastic_forcing_param:
+
+Turbulence Simulation with Stochastic Forcing (59)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
+    For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
+    http://dx.doi.org/10.1051/0004-6361:200809967
+
+    3D simulations with MUSCL hydro and MHD solver are tested.
+    PPM, ZEUS and MHDCT unsupported at this time.
+
+    Remember that in addition to the problem specific parameters below 
+    UseDrivingField = 1 has to be turned on!
+
+
+``DrivenFlowProfile`` (external)
+    Shape of forcing power spectrum (1: delta peak, 2: band, 3: parabolic window).
+
+``DrivenFlowAlpha`` (external)
+    Ratio of domain length to integral length for each dimension (L = X/alpha).
+
+``DrivenFlowBandWidth`` (external)
+    Determines band width of the forcing spectrum relative to alpha (maximal value = 1).
+
+``DrivenFlowMach`` (external)
+    Characteristic velocity scale for each dimension (charcteristic force per unit mass F = V*V/L).
+
+``DrivenFlowAutoCorrl`` (external)
+    Determines autocorrelation time of the stochastic force in units of the integral time scale T = L/V.
+
+``DrivenFlowWeight`` (external)
+    Determines weight of solenoidal relative to dilatational modes (1 = purely solenoidal, 0 = purely dilatational).
+
+``DrivenFlowSeed`` (external)
+    Seed of random number generator.
+
+``DrivenFlowDensity`` (external)
+    Initial uniform density.
+
+``DrivenFlowPressure`` (external)
+    Initial uniform pressure.
+
+``DrivenFlowMagField`` (external)
+    Initial uniform magnetic field (x-direction)
 
 .. _turbulence_param:
 
