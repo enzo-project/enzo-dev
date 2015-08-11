@@ -862,6 +862,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   UseMHD=0;
+  MaxVelocityIndex = 3;
 
   //MHDCT variables
   MHDCTSlopeLimiter = 1;

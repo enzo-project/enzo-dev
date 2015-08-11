@@ -1312,6 +1312,11 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 
   if (HydroMethod==MHD_RK) UseMHD = 1;
   if (HydroMethod==MHD_Li) {UseMHDCT = 1; UseMHD = 1;}
+  if (HydroMethod==MHD_Li ||HydroMethod==MHD_RK || HydroMethod==HD_RK ){
+      MaxVelocityIndex = 3;
+  }else{
+      MaxVelocityIndex = MetaData.TopGridRank ;
+  }
   if (UseMHDCT) CorrectParentBoundaryFlux = TRUE;
 
     if (DualEnergyFormalism == FALSE)
