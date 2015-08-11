@@ -334,7 +334,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     FLOAT r0 = 0.125;
     float rho0 = 1.0, pres0 = 100.0, pres1 = 1.0, Bx0 = 10.0/sqrt(2), By0 = 10.0/sqrt(2);
 
-    if ( UseMHD ) {
+    if ( !UseMHD ) {
       Bx0 = By0 = 0.;
     }
     
