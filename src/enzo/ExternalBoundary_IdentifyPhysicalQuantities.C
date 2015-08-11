@@ -123,7 +123,7 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &
 
   /* Find Velocity2, if possible. */
 
-  if (BoundaryRank > 1 || UseMHD)
+  if (BoundaryRank > 1 || HydroMethod == MHD_RK)
       if ((Vel2Num = FindField(Velocity2, BoundaryFieldType, 
 			   NumberOfBaryonFields)) < 0) {
         ENZO_FAIL("Cannot find Velocity2.");
@@ -131,13 +131,13 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &
 
   /* Find Velocity3, if possible. */
 
-  if (BoundaryRank > 2 || UseMHD)
+  if (BoundaryRank > 2 || HydroMethod == MHD_RK)
       if ((Vel3Num = FindField(Velocity3, BoundaryFieldType, 
                       NumberOfBaryonFields)) == 0) {
           ENZO_FAIL("Cannot find Velocity3.");
       }
 
-  if (UseMHD) {
+  if (!UseMHD) {
     return SUCCESS;
   }
 
@@ -155,10 +155,8 @@ int ExternalBoundary::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &
         ENZO_FAIL("Cannot find Bfield3.");
   }
 
-  if( HydroMethod == MHD_RK ){
-      if ((PhiNum = FindField(PhiField, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
-            ENZO_FAIL("Cannot find Phi field.");
-      }
+  if ((PhiNum = FindField(PhiField, BoundaryFieldType, NumberOfBaryonFields)) < 0) {
+        ENZO_FAIL("Cannot find Phi field.");
   }
 
   return SUCCESS;
