@@ -232,11 +232,13 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     DataLabel[count++] = BxName;
     DataLabel[count++] = ByName;
     DataLabel[count++] = BzName;
-    DataLabel[count++] = PhiName;
+    if( HydroMethod == MHD_RK ){
+        DataLabel[count++] = PhiName;
+    }
     if(UseDivergenceCleaning){
       DataLabel[count++] = Phi_pName;
       DataLabel[count++] = DebugName;
