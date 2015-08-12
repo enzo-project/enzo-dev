@@ -189,6 +189,23 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   DataUnits[2] = NULL;
   DataUnits[3] = NULL;
   DataUnits[4] = NULL;
+  if ( UseMHDCT ){
+      MHDLabel[0] = "BxF";
+      MHDLabel[1] = "ByF";
+      MHDLabel[2] = "BzF";
+
+      MHDeLabel[0] = "Ex";
+      MHDeLabel[1] = "Ey";
+      MHDeLabel[2] = "Ez";
+
+      MHDUnits[0] = "None";
+      MHDUnits[1] = "None";
+      MHDUnits[2] = "None";
+
+      MHDeUnits[0] = "None";
+      MHDeUnits[1] = "None";
+      MHDeUnits[2] = "None";
+  }
  
   /* Write parameters to parameter output file */
  

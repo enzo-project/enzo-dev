@@ -915,7 +915,6 @@ OBJS_CONFIG_LIB = \
     	Grid_ClearAvgElectricField.o\
     	ExternalBoundary_SetMagneticBoundary.o\
    	 mhd_dt.o\
-    	 Grid_SolveMHDEquations.o \
     	 Grid_MHD_UpdateMagneticField.o\
     	 Grid_MHDOrszagTangInitGrid.o \
     	 Grid_MHD_SetupDims.o \

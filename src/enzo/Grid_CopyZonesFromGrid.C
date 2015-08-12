@@ -409,18 +409,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
   
   int i,j,k,field;
   if( UseMHDCT ){
-    /* Centered Magentic Field */
-    for (field = 0; field < 3; field++)
-      for (k = 0; k < Dim[2]; k++)
-	for (j = 0; j < Dim[1]; j++) {
-	  thisindex = (0 + Start[0]) + (j + Start[1])*GridDimension[0] + 
-	    (k + Start[2])*GridDimension[0]*GridDimension[1];
-	  otherindex = (0 + StartOther[0]) + (j + StartOther[1])*OtherDim[0] + 
-	    (k + StartOther[2])*OtherDim[0]*OtherDim[1];
-	  for(i = 0; i < Dim[0];i++, thisindex++, otherindex++)
-	    CenteredB[field][thisindex] = 
-	      OtherGrid->CenteredB[field][otherindex];
-	}
     
     //
     // Face Centered Magnetic Field

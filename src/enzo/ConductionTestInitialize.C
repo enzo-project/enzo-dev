@@ -33,6 +33,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, double *MassUnits, FLOAT Time);
 
 // Problem Initializer
+int MHDCTSetupFieldLabels();
 int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid, TopGridData &MetaData){
 
   if(debug){
@@ -154,15 +155,18 @@ int ConductionTestInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   if (MetaData.TopGridRank > 0) {DataLabel[i++] = "x-velocity";}
   if (MetaData.TopGridRank > 1 || HydroMethod > 2) {DataLabel[i++] = "y-velocity";}
   if (MetaData.TopGridRank > 2 || HydroMethod > 2) {DataLabel[i++] = "z-velocity";}
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     DataLabel[i++] = "Bx";
     DataLabel[i++] = "By";
     DataLabel[i++] = "Bz";
+  }
+  if ( HydroMethod == MHD_RK ){
     DataLabel[i++] = "Phi";
     if(UseDivergenceCleaning){
       DataLabel[i++] = "Phip";
     }
   }
+  MHDCTSetupFieldLabels();
 
   if (TestProblemData.UseMetallicityField)
     DataLabel[i++] = "Metal_Density";

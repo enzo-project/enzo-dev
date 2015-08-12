@@ -102,13 +102,11 @@ float grid::ComputeTimeStep()
   if (NumberOfBaryonFields > 0 && (HydroMethod != HD_RK) && (HydroMethod != MHD_RK)) {
  
     /* Find fields: density, total energy, velocity1-3. */
- 
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-					 Vel3Num, TENum) == FAIL) {
-      fprintf(stderr, "ComputeTimeStep: IdentifyPhysicalQuantities error.\n");
-      exit(FAIL);
-    }
+
+    int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, 
+        B1Num, B2Num, B3Num, PhiNum;
+    this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                     TENum, B1Num, B2Num, B3Num, PhiNum); 
 
     /* For one-zone free-fall test, just compute free-fall time. */
     if (ProblemType == 63) {
@@ -178,7 +176,7 @@ float grid::ComputeTimeStep()
 	}
       }
       int Rank_Hack = 3; //MHD needs a 3d timestep always.
-      FORTRAN_NAME(mhd_dt)(CenteredB[0], CenteredB[1], CenteredB[2],
+      FORTRAN_NAME(mhd_dt)(BaryonField[B1Num], BaryonField[B2Num], BaryonField[B3Num],
 			   BaryonField[Vel1Num], BaryonField[Vel2Num], BaryonField[Vel3Num],
 			   BaryonField[DensNum], pressure_field, &Gamma, &dtMHD, 
 			   CellWidth[0], CellWidth[1], CellWidth[2],

@@ -66,10 +66,6 @@ void grid::CleanUp()
 	OldMagneticField[i] = NULL;
       }
 
-      if( OldCenteredB[i] != NULL ) {
-	delete [] OldCenteredB[i];
-	OldCenteredB[i] = NULL;
-      }
       
     }
   }

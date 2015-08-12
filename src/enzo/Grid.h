@@ -2859,12 +2859,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
   //CT style algorithm.
   float *MagneticField[3]; 
-  float *CenteredB[3]; 
   float *ElectricField[3];
   float *AvgElectricField[3];
   float *OldMagneticField[3];
   float *OldElectricField[3];
-  float *OldCenteredB[3];
   //Magnetic dimensions: MagneticDims[field][axis]
   int MagneticDims[3][3], ElectricDims[3][3];
   int MHDStartIndex[3][3], MHDEndIndex[3][3];//For the MagneticField

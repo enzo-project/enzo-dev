@@ -150,7 +150,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
   float *velocity3   = BaryonField[Vel3Num];
 
   /* Compute total gas energy if using MHD */
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     totalenergy = new float[size];
     float B2;
     for (int n=0; n<size; n++) {
@@ -332,7 +332,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
       ENZO_FAIL("Error in FORTRAN rate/cool solver!\n");
   }
 
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     float B2, v2;
     for (int n = 0; n < size; n++) {
       B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);
