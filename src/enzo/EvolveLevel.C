@@ -715,7 +715,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
     if(UseMHDCT == TRUE && MHD_ProjectE == TRUE){
       for(grid1=0;grid1<NumberOfGrids; grid1++){
-        Grids[grid1]->GridData->MHD_UpdateMagneticField(level, LevelArray[level+1]);
+        Grids[grid1]->GridData->MHD_UpdateMagneticField(level, LevelArray[level+1], FALSE);
         }
     }//MHD True
 

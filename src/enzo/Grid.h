@@ -2907,7 +2907,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int CenterMagneticField(int * Start = NULL, int * End = NULL);
 
   int ClearAvgElectricField();
-  int MHD_UpdateMagneticField(int level, LevelHierarchyEntry * Level);
+  int MHD_UpdateMagneticField(int level, LevelHierarchyEntry * Level,
+                              int TimeIsBeforeSetLevelTimestep);
   int MHD_ProjectFace(grid &ParentGrid,
 		  boundary_type LeftFaceBoundaryCondition[],
 		      boundary_type RightFaceBoundaryCondition[]);
