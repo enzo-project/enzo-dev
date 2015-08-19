@@ -146,6 +146,9 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   InitialTotalEnergy = InitialGasEnergy;
   InitialVels[0] = AdiabaticExpansionInitialVelocity/VelocityUnits*1.0e5;
   InitialTotalEnergy += 0.5*POW(InitialVels[0],2);
+  for (int dim = 0; dim < MAX_DIMENSION; dim++){
+    InitialTotalEnergy += 0.5*AdiabaticExpansionInitialUniformBField[dim]*AdiabaticExpansionInitialUniformBField[dim]; 
+  }
   for (int dim = 1; dim < MAX_DIMENSION; dim++)
     InitialVels[dim] = 0.0;
  
@@ -170,10 +173,12 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[i++] = Vel1Name;
   DataLabel[i++] = Vel2Name;
   DataLabel[i++] = Vel3Name;
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     DataLabel[i++] = BxName;
     DataLabel[i++] = ByName;
     DataLabel[i++] = BzName;
+  }
+  if( HydroMethod == MHD_Li ){
     DataLabel[i++] = PhiName;
   }
   if(UseDivergenceCleaning){
