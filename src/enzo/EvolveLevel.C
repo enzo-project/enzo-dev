@@ -132,8 +132,7 @@ int CallProblemSpecificRoutines(TopGridData * MetaData, HierarchyEntry *ThisGrid
 
 #ifdef FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
-			SiblingGridList SiblingList[],
-			int level, TopGridData *MetaData, FLOAT When);
+			int level, TopGridData *MetaData, FLOAT When, SiblingGridList **SiblingGridListStorage);
 #else  // !FAST_SIB
 int PrepareDensityField(LevelHierarchyEntry *LevelArray[],
                         int level, TopGridData *MetaData, FLOAT When);
@@ -193,6 +192,10 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 int ComputeRandomForcingNormalization(LevelHierarchyEntry *LevelArray[],
                                       int level, TopGridData *MetaData,
                                       float * norm, float * pTopGridTimeStep);
+
+int ComputeStochasticForcing(TopGridData *MetaData,
+        HierarchyEntry *Grids[], int NumberOfGrids);
+
 int ClusterSMBHSumGasMass(HierarchyEntry *Grids[], int NumberOfGrids, int level);
 int CreateSiblingList(HierarchyEntry ** Grids, int NumberOfGrids, SiblingGridList *SiblingList, 
 		      int StaticLevelZero,TopGridData * MetaData,int level);
@@ -257,11 +260,13 @@ static int StaticLevelZero = 0;
 
 extern int RK2SecondStepBaryonDeposit;
 
+
 int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 		int level, float dtLevelAbove, ExternalBoundary *Exterior
 #ifdef TRANSFER
 		, ImplicitProblemABC *ImplicitSolver
 #endif
+    , SiblingGridList *SiblingGridListStorage[] 
 		)
 {
   /* Declarations */
@@ -301,6 +306,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
   if (dbx) fprintf(stderr, "EL: Initialize FSL \n"); 
   SiblingGridList *SiblingList = new SiblingGridList[NumberOfGrids];
+  SiblingGridListStorage[level] = SiblingList;
   CreateSiblingList(Grids, NumberOfGrids, SiblingList, StaticLevelZero,MetaData,level);
   
   /* Adjust the refine region so that only the finest particles 
@@ -449,7 +455,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     When = 0.5;
 
 #ifdef FAST_SIB
-     PrepareDensityField(LevelArray, SiblingList, level, MetaData, When);
+     PrepareDensityField(LevelArray,  level, MetaData, When, SiblingGridListStorage);
 #else   // !FAST_SIB
      PrepareDensityField(LevelArray, level, MetaData, When);
 #endif  // end FAST_SIB
@@ -459,6 +465,15 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
  
     ComputeRandomForcingNormalization(LevelArray, 0, MetaData,
 				      &norm, &TopGridTimeStep);
+
+
+    /* Compute stochastic force field via FFT from the spectrum. */
+    if (DrivenFlowProfile) {
+        if (ComputeStochasticForcing(MetaData, Grids, NumberOfGrids) == FAIL) {
+            fprintf(stderr, "Error in ComputeStochasticForcing.\n");
+            return FAIL;
+        }
+    }
 
     /* ------------------------------------------------------- */
     /* Evolve all grids by timestep dtThisLevel. */
@@ -640,6 +655,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
 		      , ImplicitSolver
 #endif
+          ,SiblingGridListStorage
 		      ) == FAIL) {
 	ENZO_VFAIL("Error in EvolveLevel (%"ISYM").\n", level)
       }
@@ -828,6 +844,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
         delete [] SiblingList[grid1].GridList;
     }
     delete [] SiblingList;
+    SiblingGridListStorage[level] = NULL;
   }
 
   return SUCCESS;

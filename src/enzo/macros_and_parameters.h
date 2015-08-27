@@ -495,6 +495,7 @@ typedef int            HDF5_hid_t;
 #define MBH_PARTICLE    9
 #define COLORED_POP3_STAR  10
 #define H2REG_STAR     11
+#define SINGLE_SUPERNOVA 12
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)
@@ -545,6 +546,9 @@ typedef int            HDF5_hid_t;
 /* Maximum number of leafs per parent in radiation source tree. */
 
 #define MAX_LEAF 2
+
+/* Maximum number of stochastic foring modes. */
+#define MAX_FORCING_MODES                 255
 
 /* Number of entries in the Pop III IMF lookup table */
 

@@ -8,6 +8,8 @@ struct TestProblemDataType
 {
 
   float HydrogenFractionByMass;
+  float HeliumFractionByMass;
+  float MetalFractionByMass;
   float DeuteriumToHydrogenRatio;
 
   /* multispecies */
@@ -53,6 +55,7 @@ struct TestProblemDataType
   int UseMetallicityField;
   float MetallicityField_Fraction;
   float MetallicitySNIaField_Fraction;
+  float MetallicitySNIIField_Fraction;
   float MetallicityNormalization;
 
   float InitialMetalMass;

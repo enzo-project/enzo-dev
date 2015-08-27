@@ -71,6 +71,7 @@ TimeUnits                 = 3.1557e+11 // 10,000 yr in s
 RadiativeCooling          = 1
 MultiSpecies              = 1
 MetalCooling              = 1          // John Wise's metal cooling
+TemperatureEnd            = 1.e8
 
 # Initial species fractions, fiddle at own risk,
 #TestProblemInitialHIFraction      = 0.998

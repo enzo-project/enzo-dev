@@ -14,11 +14,8 @@
 ************************************************************************/
  
 // Compute the cooling time
- 
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "ErrorExceptions.h"
+
+#include "preincludes.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -201,16 +198,27 @@ int grid::ComputeCoolingTime(float *cooling_time)
   } // ENDELSE both metal types
  
 #ifdef USE_GRACKLE
-  if (grackle_chemistry.use_grackle) {
+  if (grackle_data.use_grackle == TRUE) {
+
+    Eint32 *g_grid_dimension, *g_grid_start, *g_grid_end;
+    g_grid_dimension = new Eint32[GridRank];
+    g_grid_start = new Eint32[GridRank];
+    g_grid_end = new Eint32[GridRank];
+    for (i = 0; i < GridRank; i++) {
+      g_grid_dimension[i] = (Eint32) GridDimension[i];
+      g_grid_start[i] = (Eint32) GridStartIndex[i];
+      g_grid_end[i] = (Eint32) GridEndIndex[i];
+    }
 
     /* Update units. */
 
-    grackle_units.comoving_coordinates = ComovingCoordinates;
-    grackle_units.density_units        = DensityUnits;
-    grackle_units.length_units         = LengthUnits;
-    grackle_units.time_units           = TimeUnits;
-    grackle_units.velocity_units       = VelocityUnits;
-    grackle_units.a_units              = aUnits;
+    code_units grackle_units;
+    grackle_units.comoving_coordinates = (Eint32) ComovingCoordinates;
+    grackle_units.density_units        = (double) DensityUnits;
+    grackle_units.length_units         = (double) LengthUnits;
+    grackle_units.time_units           = (double) TimeUnits;
+    grackle_units.velocity_units       = (double) VelocityUnits;
+    grackle_units.a_units              = (double) aUnits;
 
     int temp_thermal = FALSE;
     float *thermal_energy;
@@ -246,10 +254,10 @@ int grid::ComputeCoolingTime(float *cooling_time)
       } // for (int i = 0; i < size; i++)
     }
 
-    if (calculate_cooling_time(grackle_chemistry, grackle_units,
-                               afloat,
-                               GridRank, GridDimension,
-                               GridStartIndex, GridEndIndex,
+    if (calculate_cooling_time(&grackle_units,
+                               (double) afloat,
+                               (Eint32) GridRank, g_grid_dimension,
+                               g_grid_start, g_grid_end,
                                density, thermal_energy,
                                velocity1, velocity2, velocity3,
                                BaryonField[HINum],   BaryonField[HIINum], 
@@ -262,11 +270,18 @@ int grid::ComputeCoolingTime(float *cooling_time)
       ENZO_FAIL("Error in Grackle calculate_cooling_time.\n");
     }
 
+    for (i = 0; i < size; i++) {
+      cooling_time[i] = fabs(cooling_time[i]);
+    }
+
     if (temp_thermal == TRUE) {
       delete [] thermal_energy;
     }
 
     delete [] TotalMetals;
+    delete [] g_grid_dimension;
+    delete [] g_grid_start;
+    delete [] g_grid_end;
 
     return SUCCESS;
   }

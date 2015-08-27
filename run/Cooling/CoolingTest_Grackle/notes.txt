@@ -1,0 +1,22 @@
+CoolingTest_Grackle
+-------------------
+
+This test problem will set up a single grid that varies smoothly in density, 
+metallicity, and temperature, then iterate the rate equations in the chemisty 
+module for 50,000 years with hydro deactivated.  The code will make an 
+output at the end of the run that includes the cooling time.
+
+The cooling tests will run in a few minutes on a single processor.
+
+The three parameter files are:
+CoolingTest_Grackle.enzo - uses Grackle cooling along with the 
+                           non-equilibrium atomic H/He chemistry.
+
+Cooling data files:
+primordial_cie.dat - CIE cooling rates for atomic H and He taken from 
+		     	 	 Black (1981).
+CloudyData_UVB=HM2012.h5 - input data for Grackle cooling.
+
+The script plot.py will plot cooling rates from the cooling test 
+along with the H/He cooling rate from Black (1981) and the Z = Zsun 
+rate from Sarazin & White (1987)

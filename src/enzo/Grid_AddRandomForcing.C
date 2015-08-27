@@ -27,17 +27,49 @@
 int grid::AddRandomForcing(float * norm, float dtTopGrid)
 {
  
-  /* Return if this doesn't concern us. */
-  if (!(RandomForcing)) return SUCCESS;
- 
   if (ProcessorNumber != MyProcessorNumber)
     return SUCCESS;
- 
+  
+  int i, dim;
+  float *ForcingField[GridRank];
+  float levelNorm = (*norm)*dtFixed/dtTopGrid;
+
+  // use original RandomForcing field
+  if (RandomForcing) { 
+
+    for (dim = 0; dim < GridRank; dim++)
+        ForcingField[dim] = RandomForcingField[dim];
+  
+    if (dtTopGrid == 0.0)
+      ERROR_MESSAGE;
+    levelNorm = (*norm)*dtFixed/dtTopGrid;
+
+  // use StochasticForcing in combination with MHDCT
+  // for RK2 based solvers, the forcing happens in the Grid_*SourceTerms.C
+  } else if (UseDrivingField && HydroMethod == MHD_Li) {
+    int Drive1Num, Drive2Num, Drive3Num;
+    if (this->IdentifyDrivingFields(Drive1Num, Drive2Num, Drive3Num) == FAIL) {
+      printf("grid::AddRandomForcing: canot identify driving fields.\n");
+      return FAIL;
+    }
+
+    for (dim = 0; dim < GridRank; dim++)
+      ForcingField[dim] = BaryonField[Drive1Num+dim];
+
+    // this ensures, that a) norm is set and b) we'll always use the proper 
+    // timestep. This may change when StochasticForcing has been tested for
+    // other configurations than static, uniform grids
+    levelNorm = dtFixed;
+
+  /* Return if this doesn't concern us. */
+  } else  
+    return SUCCESS;
+
+
   /* Find fields: density, total energy, velocity1-3. */
  
   int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
 
-  int i, dim;
 
   LCAPERF_START("grid_AddRandomForcing");
 
@@ -48,16 +80,12 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
  
   /* error check. */
  
-  if (RandomForcingField[0] == NULL)
+  if (ForcingField[0] == NULL)
     ERROR_MESSAGE;
  
-  int corneri=  GridStartIndex[0] + GridDimension[0]*(GridStartIndex[1]+GridStartIndex[2]*GridDimension[1]);
-  if (RandomForcingField[0][0] == 0.0)
+  if (ForcingField[0][0] == 0.0)
     ERROR_MESSAGE;
-  fprintf(stderr, "TopGridTimeStep: %g\n", dtTopGrid);
-  if (dtTopGrid == 0.0)
-    ERROR_MESSAGE;
- 
+  //fprintf(stderr, "TopGridTimeStep: %g\n", dtTopGrid);
  
   /* compute the field size */
  
@@ -68,7 +96,6 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
   /* update total energy first. */
  
  
-  float levelNorm = (*norm)*dtFixed/dtTopGrid;
   if (levelNorm <= 0.0)
     WARNING_MESSAGE;
  
@@ -81,15 +108,15 @@ int grid::AddRandomForcing(float * norm, float dtTopGrid)
     for (i = 0; i < size; i++)
       for (dim = 0; dim < GridRank; dim++){
 	BaryonField[TENum][i] +=
-	  BaryonField[Vel1Num+dim][i]*RandomForcingField[dim][i]*levelNorm +
-	  0.5*RandomForcingField[dim][i]*levelNorm*RandomForcingField[dim][i]*levelNorm;
+	  BaryonField[Vel1Num+dim][i]*ForcingField[dim][i]*levelNorm +
+	  0.5*ForcingField[dim][i]*levelNorm*ForcingField[dim][i]*levelNorm;
       }
  
   /* add velocity perturbation to velocity fields. */
  
   for (dim = 0; dim < GridRank; dim++)
     for (i = 0; i < size; i++)
-	BaryonField[Vel1Num+dim][i] += RandomForcingField[dim][i]*levelNorm;
+	BaryonField[Vel1Num+dim][i] += ForcingField[dim][i]*levelNorm;
 
   if ( HydroMethod == MHD_Li )
       MHDCT_ConvertEnergyToConservedC();  //See docs or Grid_MHDCTEnergyToggle.C for if/when this is done

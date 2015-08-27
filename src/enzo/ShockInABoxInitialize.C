@@ -171,43 +171,58 @@ int ShockInABoxInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   
  
   /* set up field names and units */
- 
-  DataLabel[0] = DensName;
-  DataLabel[1] = Vel1Name;
-  DataLabel[2] = Vel2Name;
-  DataLabel[3] = Vel3Name;
-  DataLabel[4] = TEName;
- 
-  DataUnits[0] = NULL;
-  DataUnits[1] = NULL;
-  DataUnits[2] = NULL;
-  DataUnits[3] = NULL;
-  DataUnits[4] = NULL;
- 
-  int field_counter = 5;
+  int labelCounter = 0;
 
+  // Density
+  int DensNum = labelCounter;
+  DataUnits[labelCounter] = NULL;
+  DataLabel[labelCounter++] = DensName;
+  // Velocity 1
+  int Vel1Num = labelCounter;
+  DataUnits[labelCounter] = NULL; 
+  DataLabel[labelCounter++] = Vel1Name;
+  // Velocity 2
+  int Vel2Num = -1;
+  int Vel3Num = -1;
+  if (TopGrid.GridData->GetGridRank() > 1 || HydroMethod > 2) {
+    Vel2Num = labelCounter;
+    DataUnits[labelCounter] = NULL; 
+    DataLabel[labelCounter++] = Vel2Name;
+    // Velocity 3
+    if (TopGrid.GridData->GetGridRank() > 2 || HydroMethod > 2) {
+      Vel3Num = labelCounter;
+      DataUnits[labelCounter] = NULL; 
+      DataLabel[labelCounter++] = Vel3Name;
+    }
+  }
+  // Total Energy
+  int TENum = labelCounter;
+  DataUnits[labelCounter] = NULL; 
+  DataLabel[labelCounter++] = TEName;
+ 
   if (ShockMethod) {
-    DataLabel[field_counter++] = MachName;
-    if(StorePreShockFields){
-      DataLabel[field_counter++] = PSTempName;
-      DataLabel[field_counter++] = PSDenName;
+    DataUnits[labelCounter] = NULL; 
+    DataLabel[labelCounter++] = MachName;
+    if (StorePreShockFields) {
+      DataUnits[labelCounter] = NULL; 
+      DataLabel[labelCounter++] = PSTempName;
+      DataUnits[labelCounter] = NULL; 
+      DataLabel[labelCounter++] = PSDenName;
     }
   } 
-  for (int j = 0; j < field_counter; j++)
-    DataUnits[j] = NULL;
 
   /* Initialize the exterior. */
  
   Exterior.Prepare(TopGrid.GridData);
  
-  float InflowValue[field_counter], Dummy[field_counter];
-  for (int j = 0; j < field_counter; j++){
+  float InflowValue[labelCounter], Dummy[labelCounter];
+  for (int j = 0; j < labelCounter; j++){
     InflowValue[j] = 0.0;
     Dummy[j] = 0.0;
   }
-  InflowValue[0] = ShockInABoxDensity[0];
-  InflowValue[1] = ShockInABoxVelocity[0];
-  InflowValue[4] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0]
+  InflowValue[DensNum] = ShockInABoxDensity[0];
+  InflowValue[Vel1Num] = ShockInABoxVelocity[0];
+  InflowValue[TENum] = ShockInABoxPressure[0]/(Gamma-1.0)/ShockInABoxDensity[0]
                    + 0.5*POW(ShockInABoxVelocity[0], 2);
  
   if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,

@@ -1,0 +1,8 @@
+
+MHD suppresses the Rayleigh Taylor instability (in 2D)
+This is set with a magnetic field that is just slightly below the critical value
+for complete suppression, but one does see a severe reduction in growth rate and
+secondary instability.
+
+Fun things to try include reducing the field strength and changing the
+direction!  

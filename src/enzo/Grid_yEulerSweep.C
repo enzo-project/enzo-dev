@@ -270,6 +270,18 @@ int grid::yEulerSweep(int i, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			    &NumberOfColours, colslice, colls, colrs, colf);
     break;
 
+  default:
+    for (int index = 0; index < size; index++) {
+      df[index] = 0;
+      ef[index] = 0;
+      uf[index] = 0;
+      vf[index] = 0;
+      wf[index] = 0;
+      gef[index] = 0;
+      ges[index] = 0;
+    }
+    break;
+
   } // ENDCASE
 
 

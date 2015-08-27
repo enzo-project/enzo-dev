@@ -86,6 +86,7 @@ void ContinueExecution(void);
 int CreateSmoothedDarkMatterFields(TopGridData &MetaData, HierarchyEntry *TopGrid);
  
 int CreateGriddedStarParticleFields(TopGridData &MetaData, HierarchyEntry *TopGrid); 
+int mt_save(char *fname);
 
 #ifndef FAST_SIB
 int SetBoundaryConditions(HierarchyEntry *Grids[], int NumberOfGrids,
@@ -104,6 +105,8 @@ extern char hdfsuffix[];
 extern char RadiationSuffix[];
 extern char TaskMapSuffix[];
 extern char MemoryMapSuffix[];
+extern char ForcingSuffix[]; // WS
+extern char MTSuffix[];
 extern char ConfigureSuffix[];
 
 char CPUSuffix[]       = ".cpu";
@@ -138,6 +141,8 @@ int Group_WriteAllData(char *basename, int filenumber,
   char memorymapname[MAX_LINE_LENGTH];
   char configurename[MAX_LINE_LENGTH];
   char groupfilename[MAX_LINE_LENGTH];
+  char forcingname[MAX_LINE_LENGTH]; // WS
+  char mtname[MAX_LINE_LENGTH];
  
   int unixresult;
   int status;
@@ -643,6 +648,31 @@ int Group_WriteAllData(char *basename, int filenumber,
   //    if( h5_status == h5_error ){my_exit(EXIT_FAILURE);}
 
 #endif
+
+  // WS: Output forcing spectrum
+  if (MyProcessorNumber == ROOT_PROCESSOR) {
+    if (DrivenFlowProfile) {
+      strcpy(forcingname, name);
+      strcat(forcingname, ForcingSuffix);
+      if (debug)
+          printf("Group_WriteAllData: writing file %s.\n", forcingname);
+      if (Forcing.WriteSpectrum(forcingname) == FAIL) {
+          fprintf(stderr, "Error in WriteSpectrum.\n");
+          return FAIL;
+      }
+      
+      /* Save state of RNG */
+      strcpy(mtname, name);
+      strcat(mtname, MTSuffix);
+      if (debug)
+          printf("Group_WriteAllData: writing file %s.\n", mtname);
+      if (mt_save(mtname) == FAIL) {
+          fprintf(stderr, "Error in mt_save.\n");
+          return FAIL;
+      }
+    }
+  } 
+
  
   // Set MetaData.BoundaryConditionName
  

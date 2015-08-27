@@ -129,12 +129,12 @@ int grid::GetProjectedBoundaryFluxes(grid *ParentGrid, fluxes &ProjectedFluxes)
  
 	  /* project (downsample by RefinementFactors[i] Fluxes */
  
-	  for (i = 0; i < Dims[0]; i++) {
-	    i1 = i/RefinementFactors[0];
+	  for (k = 0; k < Dims[2]; k++) {
+	    k1 = k/RefinementFactors[2];
 	    for (j = 0; j < Dims[1]; j++) {
 	      j1 = j/RefinementFactors[1];
-	      for (k = 0; k < Dims[2]; k++) {
-		k1 = k/RefinementFactors[2];
+	      for (i = 0; i < Dims[0]; i++) {
+		i1 = i/RefinementFactors[0];
 		*(ProjectedFluxes.LeftFluxes[field][dim] +
 		  i1 + j1*ProjectedDims[0] +
 		  k1*ProjectedDims[0]*ProjectedDims[1]) +=

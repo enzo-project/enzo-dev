@@ -1,0 +1,67 @@
+#
+# PROBLEM DEFINITION FILE: MHD/HD turbulence problem with stochastic forcing 
+# Philipp Grete 2014
+#
+# Typical "turbulence-in-a-box" problem with non-static driving field.
+# For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
+# http://dx.doi.org/10.1051/0004-6361:200809967
+#
+# Works/properly tested only on 3D uniform grids with MUSCL type solvers and MHDCT at this point.
+# For hydro use HydroMethod 3
+# For MHD use HydroMethod 4
+# For MHDCT use HydroMethod 6
+# 
+#  define problem
+#
+UseCUDA                    = 0
+ProblemType                = 59
+TopGridRank                = 3	
+TopGridDimensions          = 32 32 32
+SelfGravity                = 0
+TopGridGravityBoundary     = 0
+LeftFaceBoundaryCondition  = 3 3 3
+RightFaceBoundaryCondition = 3 3 3
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime            = 0.86
+dtDataDump          = 0.0215
+DataDumpName        = data
+ParallelRootGridIO  = 1
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 1
+MaximumRefinementLevel    = 0
+
+#
+#  set hydro parameters
+#
+HydroMethod                 = 4     # 3 - no MHD, 4 - MHD, 6 - MHDCT
+DualEnergyFormalism         = 1
+CourantSafetyNumber         = 0.4
+Gamma                       = 1.001
+Mu                          = 1.0
+InterpolationMethod         = 1
+ConservativeInterpolation   = 1
+Theta_Limiter               = 1.5
+EOSType                     = 0
+
+#
+# problem parameters
+#
+UseDrivingField     = 1           # otherwise no driving...
+DrivenFlowProfile   = 2           # 0 - off (def.), 1 - peak, 2 - parabolic, 3 - band
+DrivenFlowAlpha     = 2 2 2       # ratio of domain size to characteristic length
+DrivenFlowSeed      = 20150419    # seed of random number generator
+DrivenFlowBandWidth = 1.0 1.0 1.0 # band width (1.0 = maximal) 
+DrivenFlowAutoCorrl = 1.0 1.0 1.0 # ratio auto-correlation to large-eddy turn-over time scale
+DrivenFlowMach      = 2.9 2.9 2.9 # Mach number
+DrivenFlowWeight    = 0.5         # weight of solenoidal components
+DrivenFlowDensity    = 1.0        # initial uniform density
+DrivenFlowPressure   = 1.0        # initial uniform pressure
+DrivenFlowMagField  = 3.1622777   # initial uniform field (x direction)
+
+

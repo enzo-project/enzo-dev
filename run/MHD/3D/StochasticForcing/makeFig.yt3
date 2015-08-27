@@ -1,0 +1,53 @@
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import yt
+import numpy as np
+
+Fields = ["mach_number","vorticity_magnitude"]
+
+Ts = yt.load("DD????/data????")
+
+Times = []
+FieldsEvol = {}
+
+for field in Fields:
+    FieldsEvol[field] = []
+
+for ds in Ts:
+    Times.append(ds.current_time/0.172328) # time in turnover times
+    dd = ds.all_data()
+    for field in Fields:
+            FieldsEvol[field].append(np.sqrt((dd[field] * dd[field]).sum()/float(dd[field].size)))
+
+for field in Fields:
+    np.savetxt(field + ".dat",FieldsEvol[field])
+np.savetxt("time.dat",Times)
+
+timeRef = np.loadtxt("time.dat.ref")
+machRef = np.loadtxt("mach_number.dat.ref")
+vortRef = np.loadtxt("vorticity_magnitude.dat.ref")
+
+fig, p = plt.subplots(3, sharex=True,figsize=(4,6))
+
+p[0].set_ylabel("RMS sonic Mach")
+p[0].plot(Times,FieldsEvol["mach_number"],label="this run")
+p[0].plot(timeRef,machRef,label="reference")
+p[0].legend(loc=4)
+
+
+p[1].set_ylabel("RMS |vorticity|")
+p[1].plot(Times,FieldsEvol["vorticity_magnitude"],label="this run")
+p[1].plot(timeRef,vortRef,label="reference")
+p[1].legend(loc=4)
+
+p[2].set_ylabel("abs. error")
+p[2].plot(Times,np.abs(FieldsEvol["mach_number"] - machRef),label="sonic Mach")
+p[2].plot(Times,np.abs(FieldsEvol["vorticity_magnitude"] - vortRef),label="|vorticity|")
+p[2].legend(loc=4)
+
+p[2].set_xlabel("time $t$")
+
+fig.tight_layout()
+fig.subplots_adjust(hspace = .001)
+fig.savefig("StochasticForcing-comparison")

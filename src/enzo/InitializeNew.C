@@ -191,6 +191,11 @@ int CosmoIonizationInitialize(FILE *fptr, FILE *Outfptr,
 
 int TurbulenceInitialize(FILE *fptr, FILE *Outfptr, 
 			 HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields);
+
+int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
+                         HierarchyEntry &TopGrid, TopGridData &MetaData,
+                         int SetBaryonFields);
+
 int Collapse3DInitialize(FILE *fptr, FILE *Outfptr,
 			 HierarchyEntry &TopGrid, TopGridData &MetaData);
 int Collapse1DInitialize(FILE *fptr, FILE *Outfptr,
@@ -252,12 +257,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   // Declarations
  
   FILE *fptr, *BCfptr, *Outfptr;
-  float Dummy[MAX_DIMENSION];
   int dim, i;
-
- 
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    Dummy[dim] = 0.0;
  
   // Open parameter file
  
@@ -302,6 +302,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
     } else {
       NumberOfParticleAttributes = 0;
     }
@@ -539,6 +540,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
     ret = PhotonTestRestartInitialize(fptr, Outfptr, TopGrid, MetaData,
 				     Exterior);
 #endif /* TRANSFER */
+
+  // Turbulence in a box with StochasticForcing
+  if (ProblemType == 59)
+    ret = DrivenFlowInitialize(fptr, Outfptr, TopGrid, MetaData,0);
 
   // 60) Turbulence Simulation.
   
@@ -786,7 +791,15 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 	    fprintf(stderr, "SimpleConstantBoundary FALSE\n");
 	  }
 	}
-        
+
+        float Dummy[TopGrid.GridData->ReturnNumberOfBaryonFields()];
+        for (
+          int fieldIndex = 0; 
+          fieldIndex < TopGrid.GridData->ReturnNumberOfBaryonFields(); 
+          fieldIndex++
+        ) {
+          Dummy[fieldIndex] = 0.0;
+        }
 	for (dim = 0; dim < MetaData.TopGridRank; dim++)
 	  if (Exterior.InitializeExternalBoundaryFace(dim,
 						      MetaData.LeftFaceBoundaryCondition[dim],
@@ -946,6 +959,10 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
 #endif
 
   PrintMemoryUsage("After 2nd pass");
+
+  if (ProblemType == 59)
+    if (DrivenFlowInitialize(fptr, Outfptr, TopGrid, MetaData, 1) == FAIL)
+      ENZO_FAIL("Error in DrivenFlowInitialize with SetBaryons");
   
   // For problem 60, using ParallelGridIO, read in data only after
   // partitioning grid.

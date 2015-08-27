@@ -27,6 +27,9 @@
 
 #include "TopGridData.h"
 
+#include "StochasticForcing.h"
+extern StochasticForcing Forcing;
+
 struct HierarchyEntry;
 
 #include "EnzoArray.h"
@@ -82,6 +85,7 @@ class grid
   FLOAT OldTime;                       // time corresponding to OldBaryonField
   int   SubgridsAreStatic;             // 
   int   ID;                            // Grid ID Number
+  int   sfSeed;
 //
 //  Baryon grid data
 //
@@ -119,6 +123,7 @@ class grid
   PINT  *ParticleNumber;                   // unique identifier
   int   *ParticleType;                     // type of particle
   float *ParticleAttribute[MAX_NUMBER_OF_PARTICLE_ATTRIBUTES];
+
 //
 //  Star particle data
 //
@@ -146,6 +151,20 @@ class grid
   int    GravitatingMassFieldParticlesDimension[MAX_DIMENSION];
   gravity_boundary_type GravityBoundaryType;
   float  PotentialSum;
+
+
+  //
+  //  WS: total energy injection by stochastic forcing
+  //
+  float* EnergyInjection;
+  //
+  //  WS: Initial phase factors and multiplicators for stochastic forcing
+  //
+  float* PhaseFctInitEven;
+  float* PhaseFctInitOdd;
+  float* PhaseFctMultEven[MAX_DIMENSION];
+  float* PhaseFctMultOdd[MAX_DIMENSION];
+
 //
 //  Top grid parallelism (for implicit solvers)
 //
@@ -503,7 +522,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the pressure at the requested time. */
 
-   int ComputePressure(FLOAT time, float *pressure,
+  int ComputePressure(FLOAT time, float *pressure,
                       float MinimumSupportEnergyCoefficient=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
@@ -1676,7 +1695,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   /* Identify colour field */
 
   int IdentifyColourFields(int &SNColourNum, int &MetalNum, 
-			   int &MetalIaNum, int &MBHColourNum,
+			   int &MetalIaNum, int &MetalIINum, int &MBHColourNum,
 			   int &Galaxy1ColourNum, int &Galaxy2ColourNum);
 
   /* Identify Multi-species fields. */
@@ -2300,6 +2319,19 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 //  int TurbulenceSimulationInitializeGrid(TURBULENCE_INIT_PARAMETERS_DECL);
  public:
 
+    /* Stochastic forcing: initialization. */
+
+    int DrivenFlowInitializeGrid(float StochasticFlowDensity,
+    float StochasticFlowPressure, float InitialBField,int SetBaryonFields); // WS
+
+    /* Stochastic forcing: Calculate initial phase factors and phase multiplicators
+    for the inverse FT of the forcing spectrum onto a particular grid domain */
+
+    void Phases(); // WS
+
+    /* Stochastic forcing: Compute physical force field via inverse FT of the forcing pectrum */
+
+    int FTStochasticForcing(int FieldDim); // WS
 
 /* Comoving coordinate expansion terms. */
 
@@ -2868,7 +2900,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   float *DxBz, *DyBz, *DxyBz;
   int * DBxFlag, *DByFlag, *DBzFlag;
 
-  int MHD_Diagnose(char * message);
+  int MHD_Diagnose(char * message, float * &DivB);
   inline int indexb1(int i, int j, int k)    {return i+MagneticDims[0][0]*(j+MagneticDims[0][1]*k);}  
   inline int indexb2(int i, int j, int k)    {return i+MagneticDims[1][0]*(j+MagneticDims[1][1]*k);}  
   inline int indexb3(int i, int j, int k)    {return i+MagneticDims[2][0]*(j+MagneticDims[2][1]*k);}

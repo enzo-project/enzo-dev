@@ -1,0 +1,6 @@
+= Notes on the output =
+
+(Stephen Skory, June 2010, David Collins, January 2015)
+
+This is an update to the test in run/GravitySolver/BinaryCollapse, to include
+MHDCT.  A shorter test to ensure MHDCT runs.  This runs in less than 5 minutes.

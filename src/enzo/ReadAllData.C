@@ -47,12 +47,15 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt);
 int ReadStarParticleData(FILE *fptr, hid_t Hfile_id, FILE *log_fptr);
 int ReadRadiationData(FILE *fptr);
 int AssignGridToTaskMap(Eint64 *GridIndex, Eint64 *Mem, int Ngrids);
+int mt_read(char *fname);
  
 extern char RadiationSuffix[];
 extern char HierarchySuffix[];
 extern char hdfsuffix[];
 extern char TaskMapSuffix[];
 extern char MemoryMapSuffix[]; 
+extern char ForcingSuffix[];
+extern char MTSuffix[];
  
 //#define IO_LOG
 #ifdef IO_LOG
@@ -75,6 +78,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
  
   char pid[MAX_TASK_TAG_SIZE];
   char hierarchyname[MAX_LINE_LENGTH], radiationname[MAX_LINE_LENGTH];
+  char mtname[MAX_LINE_LENGTH], forcingname[MAX_LINE_LENGTH];
   char HDF5hierarchyname[MAX_LINE_LENGTH];
   // Code shrapnel. See comments below. --Rick
   // char taskmapname[MAX_LINE_LENGTH];
@@ -112,6 +116,29 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
   fprintf(stderr, "fclose: opening boundary condition file: %s\n", MetaData.BoundaryConditionName);
  
   fclose(fptr);
+
+  if (DrivenFlowProfile) {
+      strcpy(forcingname, name);
+      strcat(forcingname, ForcingSuffix);
+      if (debug)
+          printf("ReadAllData: reading file %s.\n", forcingname);
+      if (Forcing.ReadSpectrum(forcingname) == FAIL) {
+          fprintf(stderr, "Error in ReadSpectrum.\n");
+          return FAIL;
+     }
+      
+     /* Load state of RNG */
+      strcpy(mtname, name);
+      strcat(mtname, MTSuffix);
+      if (debug)
+          printf("ReadAllData: reading file %s.\n", mtname);
+      if (mt_read(mtname) == FAIL) {
+          fprintf(stderr, "Error in mt_read.\n");
+          return FAIL;
+     }
+  }
+
+
  
   /* Set the number of particle attributes, if left unset. */
 
@@ -120,6 +147,7 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
     if (StarParticleCreation || StarParticleFeedback) {
       NumberOfParticleAttributes = 3;
       if (StarMakerTypeIaSNe) NumberOfParticleAttributes++;
+      if (StarMakerTypeIISNeMetalField) NumberOfParticleAttributes++;
       AddParticleAttributes = TRUE;
     } else {
       NumberOfParticleAttributes = 0;

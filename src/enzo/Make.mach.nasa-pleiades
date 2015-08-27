@@ -102,7 +102,7 @@ MACH_LDFLAGS  =
 # *** WARNING *** WARNING *** WARNING *** WARNING *** WARNING ***
 
 MACH_OPT_WARN        = 
-MACH_OPT_DEBUG       = -g
+MACH_OPT_DEBUG       = -g -O0
 # Best for pleiades ivy bridge nodes.
 # See: goo.gl/A0IFMV
 MACH_OPT_HIGH        = -g -O2 -xAVX -ip -ipo

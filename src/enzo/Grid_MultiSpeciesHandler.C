@@ -13,8 +13,7 @@
 /
 ************************************************************************/
 
-#include <stdio.h>
-#include "ErrorExceptions.h"
+#include "preincludes.h"
 #include "performance.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
@@ -32,7 +31,7 @@ int grid::MultiSpeciesHandler()
   LCAPERF_START("grid_MultiSpeciesHandler");
 
 #ifdef USE_GRACKLE
-  if (grackle_chemistry.use_grackle) {
+  if (grackle_data.use_grackle == TRUE) {
     if (this->GrackleWrapper() == FAIL) {
       ENZO_FAIL("Error in GrackleWrapper.\n");
     }

@@ -103,10 +103,10 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
 
   /* Add the colours (NColor is determined in EvolveLevel_RK2) */  
 
-  int SNColourNum, MetalNum, MetalIaNum, MBHColourNum, Galaxy1ColourNum, 
+  int SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, Galaxy1ColourNum, 
     Galaxy2ColourNum; 
 
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum, 
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum, 
 				 Galaxy1ColourNum, Galaxy2ColourNum) == FAIL) {
     fprintf(stderr, "Error in grid->IdentifyColourFields.\n");
     return FAIL;
@@ -116,6 +116,8 @@ int grid::ReturnHydroRKPointers(float **Prim, bool ReturnMassFractions)
     Prim[nfield++] = BaryonField[MetalNum];
     if (StarMakerTypeIaSNe)
       Prim[nfield++] = BaryonField[MetalIaNum];
+    if (StarMakerTypeIISNeMetalField)
+      Prim[nfield++] = BaryonField[MetalIINum];
     if (MultiMetals || TestProblemData.MultiMetals) {
       Prim[nfield++] = BaryonField[MetalNum+1];
       Prim[nfield++] = BaryonField[MetalNum+2];

@@ -18,10 +18,6 @@
 #include "RadiationFieldData.h"
 #include "TestProblemData.h"
 
-#ifdef USE_GRACKLE
-#include <grackle.h>
-#endif
-
 /* These are the different types of baryon fields. */
 
 #ifdef SMALL_INTS
@@ -35,6 +31,7 @@ typedef int enum_type;
 typedef int staggering;
 typedef int fieldtype;
 typedef int mhd_ct_method;
+typedef int forcing_type;
 #endif
 
 #ifdef LARGE_INTS
@@ -48,6 +45,7 @@ typedef long_int enum_type;
 typedef long_int staggering;
 typedef long_int fieldtype;
 typedef int mhd_ct_method;
+typedef long_int forcing_type;
 #endif
 
 const field_type 
@@ -167,9 +165,10 @@ const field_type
 
 /* Metals from Type Ia SNe */
   MetalSNIaDensity = 95,
+  MetalSNIIDensity = 96,
 
-  FieldUndefined  = 96;
-   
+  FieldUndefined  = 97;
+
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 		 Velocity1, Velocity2, Velocity3, 
@@ -184,6 +183,13 @@ enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
 #define FieldTypeIsDensity(A) ((((A) >= TotalEnergy && (A) <= Velocity3) || ((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RaySegments) || ((A) >= Bfield1 && (A) <= AccelerationField3)) ? FALSE : TRUE)
 #define FieldTypeIsRadiation(A) ((((A) >= kphHI && (A) <= kdissH2I) || ((A) >= RadiationFreq0 && (A) <= RadiationFreq9)) ? TRUE : FALSE)
 #define FieldTypeNoInterpolate(A) (((((A) >= Mach) && ((A) <= PreShockDensity)) || ((A) == GravPotential)) ? TRUE : FALSE)
+
+/* Different stochastic forcing types */
+const forcing_type
+  None       = 0,
+  Peak       = 1,
+  Parabolic  = 2,
+  Band       = 3;
 
 /* These are the different types of fluid boundary conditions. */
 

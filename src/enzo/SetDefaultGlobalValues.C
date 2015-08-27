@@ -15,10 +15,8 @@
  
 // This routine intializes a new simulation based on the parameter file.
 //
- 
-#include <string.h>
-#include <stdio.h>
-#include "ErrorExceptions.h"
+
+#include "preincludes.h" 
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -359,6 +357,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   RandomForcing               = FALSE;             // off //AK
   RandomForcingEdot           = -1.0;              //AK
   RandomForcingMachNumber     = 0.0;               //AK
+
+  DrivenFlowProfile = 0; // off
+  DrivenFlowSeed = 0;
+  DrivenFlowWeight = 0.0;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    DrivenFlowAlpha[dim] = 0;
+    DrivenFlowBandWidth[dim] = 0.0;
+    DrivenFlowAutoCorrl[dim] = 0.0;
+    DrivenFlowVelocity[dim] = 0.0;
+    DrivenFlowDomainLength[dim] = 0.0;
+  }
+
   RadiativeCooling            = FALSE;             // off
   RadiativeCoolingModel       = 1;                 //1=cool_rates.in table lookup
                                                    //3=Koyama&Inutsuka 2002
@@ -407,7 +417,17 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CoolData.HydrogenFractionByMass   = 0.76;
   /* The DToHRatio is by mass in the code, so multiply by 2. */
   CoolData.DeuteriumToHydrogenRatio = 2.0*3.4e-5; // Burles & Tytler 1998
-  CoolData.SolarMetalFractionByMass = 0.02041;
+
+  /*
+     Previously, the solar metal mass fraction was 0.02041.  
+     This is close to 0.0194 of Anders & Grevesse (1989), but significantly 
+     higher than the more recent value of 0.0122 from Asplund et al. (2005).
+     Now, the solar metal mass fraction has been set to 0.01295, 
+     which is consistent with the abundances used in Cloudy when generating the 
+     Grackle cooling tables.
+  */
+  CoolData.SolarMetalFractionByMass = 0.01295; // Cloudy v13 abundances
+
   CoolData.NumberOfTemperatureBins = 600;
   CoolData.ih2co                   = 1;
   CoolData.ipiht                   = 1;
@@ -428,28 +448,30 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
 
 #ifdef USE_GRACKLE
   // Grackle chemistry data structure.
-  grackle_chemistry                     = set_default_chemistry_parameters();
+  if (set_default_chemistry_parameters() == FAIL) {
+    ENZO_FAIL("Error in grackle: set_default_chemistry_parameters\n");
+  }
   // Map Grackle defaults to corresponding Enzo parameters
-  Gamma                                 = grackle_chemistry.Gamma;
-  MultiSpecies                          = grackle_chemistry.primordial_chemistry;
-  MetalCooling                          = grackle_chemistry.metal_cooling;
-  H2FormationOnDust                     = grackle_chemistry.h2_on_dust;
-  CloudyCoolingData.CMBTemperatureFloor = grackle_chemistry.cmb_temperature_floor;
-  ThreeBodyRate                         = grackle_chemistry.three_body_rate;
-  CIECooling                            = grackle_chemistry.cie_cooling;
-  H2OpticalDepthApproximation           = grackle_chemistry.h2_optical_depth_approximation;
-  PhotoelectricHeating                  = grackle_chemistry.photoelectric_heating;
-  PhotoelectricHeatingRate              = grackle_chemistry.photoelectric_heating_rate;
-  CoolData.NumberOfTemperatureBins      = grackle_chemistry.NumberOfTemperatureBins;
-  RateData.CaseBRecombination           = grackle_chemistry.CaseBRecombination;
-  CoolData.TemperatureStart             = grackle_chemistry.TemperatureStart;
-  CoolData.TemperatureEnd               = grackle_chemistry.TemperatureEnd;
-  RateData.NumberOfDustTemperatureBins  = grackle_chemistry.NumberOfDustTemperatureBins;
-  RateData.DustTemperatureStart         = grackle_chemistry.DustTemperatureStart;
-  RateData.DustTemperatureEnd           = grackle_chemistry.DustTemperatureEnd;
-  CoolData.HydrogenFractionByMass       = grackle_chemistry.HydrogenFractionByMass;
-  CoolData.DeuteriumToHydrogenRatio     = grackle_chemistry.DeuteriumToHydrogenRatio;
-  CoolData.SolarMetalFractionByMass     = grackle_chemistry.SolarMetalFractionByMass;
+  Gamma                                 = (float) grackle_data.Gamma;
+  MultiSpecies                          = (int) grackle_data.primordial_chemistry;
+  MetalCooling                          = (int) grackle_data.metal_cooling;
+  H2FormationOnDust                     = (int) grackle_data.h2_on_dust;
+  CloudyCoolingData.CMBTemperatureFloor = (int) grackle_data.cmb_temperature_floor;
+  ThreeBodyRate                         = (int) grackle_data.three_body_rate;
+  CIECooling                            = (int) grackle_data.cie_cooling;
+  H2OpticalDepthApproximation           = (int) grackle_data.h2_optical_depth_approximation;
+  PhotoelectricHeating                  = (int) grackle_data.photoelectric_heating;
+  PhotoelectricHeatingRate              = (float) grackle_data.photoelectric_heating_rate;
+  CoolData.NumberOfTemperatureBins      = (int) grackle_data.NumberOfTemperatureBins;
+  RateData.CaseBRecombination           = (int) grackle_data.CaseBRecombination;
+  CoolData.TemperatureStart             = (float) grackle_data.TemperatureStart;
+  CoolData.TemperatureEnd               = (float) grackle_data.TemperatureEnd;
+  RateData.NumberOfDustTemperatureBins  = (int) grackle_data.NumberOfDustTemperatureBins;
+  RateData.DustTemperatureStart         = (float) grackle_data.DustTemperatureStart;
+  RateData.DustTemperatureEnd           = (float) grackle_data.DustTemperatureEnd;
+  CoolData.HydrogenFractionByMass       = (float) grackle_data.HydrogenFractionByMass;
+  CoolData.DeuteriumToHydrogenRatio     = (float) grackle_data.DeuteriumToHydrogenRatio;
+  CoolData.SolarMetalFractionByMass     = (float) grackle_data.SolarMetalFractionByMass;
 #endif
 
   OutputCoolingTime = FALSE;
@@ -491,7 +513,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   SimpleRampTime                   = 0.1;
   StarFormationOncePerRootGridTimeStep = FALSE;
   StarMakerTypeIaSNe               = FALSE;
+  StarMakerTypeIISNeMetalField     = FALSE;
   StarMakerPlanetaryNebulae        = FALSE;
+  StarMakerUseOverDensityThreshold = TRUE;
+  StarMakerMaximumFractionCell     = 0.5;
   StarMakerOverDensityThreshold    = 100;          // times mean total density
   StarMakerSHDensityThreshold      = 7e-26;        // cgs density for rho_crit in Springel & Hernquist star_maker5
   StarMakerTimeIndependentFormation = FALSE;
@@ -759,6 +784,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.UseMetallicityField = 0;
   TestProblemData.MetallicityField_Fraction = tiny_number;
   TestProblemData.MetallicitySNIaField_Fraction = tiny_number;
+  TestProblemData.MetallicitySNIIField_Fraction = tiny_number;
 
   TestProblemData.UseMassInjection = 0;
   TestProblemData.InitialHydrogenMass = tiny_number;

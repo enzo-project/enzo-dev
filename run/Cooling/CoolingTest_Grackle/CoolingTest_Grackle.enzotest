@@ -1,0 +1,14 @@
+name = 'CoolingTest_Grackle'
+author = 'Britton Smith'
+answer_testing_script = 'test_cooling.py'
+nprocs = 1
+runtime = 'medium'
+hydro = False
+gravity = False
+cooling = True
+chemistry = True
+dimensionality = 3
+max_time_minutes = 10
+fullsuite = True
+pushsuite = True
+quicksuite = False

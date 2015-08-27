@@ -635,11 +635,11 @@ int grid::InterpolateBoundaryFromParent(grid *ParentGrid)
 			   +(j)*MHDChildTempDims[field][0]
 			   +(k)*MHDChildTempDims[field][0]*MHDChildTempDims[field][1]);
 	      
-	      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
-
-		fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
-			field,i,j,k);
-	      }
+//      if(  MHDChildTemp[field][tempindex] !=  MHDChildTemp[field][tempindex] ){
+//
+//	fprintf(stderr,"Error: Bad Child Temp. %"ISYM" (%"ISYM",%"ISYM",%"ISYM")\n",
+//		field,i,j,k);
+//      }
 
 	    }//i,j,k
       
