@@ -628,7 +628,7 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
 #ifdef WRITE_COOLING_DEBUG
                   if (ge(i,j,k) <= 0.0) write(3,*)
      &                 'a',ge(i,j,k),energy,d(i,j,k),e(i,j,k),iter
-#endif WRITE_COOLING_DEBUG
+#endif /* WRITE_COOLING_DEBUG */
                endif
             endif               ! itmask
             enddo
@@ -1648,8 +1648,7 @@ c --- (C) Now do extra 3-species for molecular hydrogen ---
      &                      ( 1._RKIND + acoef*dtit(i) )
             if (HIp(i) .ne. HIp(i)) then
                write(*,*) '[1]HUGE HIp! :: ', i, j, k, HIp(i), HI(i,j,k),
-     $              HII(i,j,k), de(i,j,k), H2I(i,j,k), k31shield(i),
-     $              kphHI(i,j,k)
+     $              HII(i,j,k), de(i,j,k), H2I(i,j,k), kphHI(i,j,k)
                write(*,*) '[2]HUGE HIp! :: ', i, j, k, 
      $              scoef, acoef, dtit(i),
      $              k2(i), k11(i), k12(i), k13(i), k14(i), k15(i),
