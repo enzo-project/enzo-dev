@@ -400,7 +400,6 @@ int grid::CopyZonesFromGrid(grid *OtherGrid, FLOAT EdgeOffset[MAX_DIMENSION])
 	}}}
  
   
-  int i,j,k,field;
   if( UseMHDCT ){
     /* Centered Magentic Field */
     for (field = 0; field < 3; field++)
