@@ -68,7 +68,7 @@ int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq)
 {
   int iprim;
 
-  const int offset = DEFAULT_GHOST_ZONES - 1;
+  const int offset = NumberOfGhostZones - 1;
   
   for (int field = 0; field < Neq; field++) {
     iprim = offset;
@@ -92,7 +92,7 @@ int plm_species(float **prim, int is, float **species, float *flux0, int ActiveS
 {
 
   int iprim;
-  const int offset = DEFAULT_GHOST_ZONES - 1;
+  const int offset = NumberOfGhostZones - 1;
   static float sum[MAX_ANY_SINGLE_DIRECTION];
 
   for (int field = 0; field < NSpecies; field++) {
@@ -131,7 +131,7 @@ int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize)
 {
 
   int iprim;
-  const int offset = DEFAULT_GHOST_ZONES - 1;
+  const int offset = NumberOfGhostZones - 1;
   for (int field = is+NSpecies; field < is+NSpecies+NColor; field++) {
     iprim = offset;
     for (int n = 0; n < ActiveSize+1; n++, iprim++) {
