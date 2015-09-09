@@ -352,8 +352,10 @@ int grid::TurbulenceSimulationInitializeGrid(
                 for (i = 0; i < size; i++)
                      BaryonField[B1Num + dim ][i] =TurbulenceSimulationInitialMagneticField[dim];
         }
+        if( HydroMethod == MHD_RK){
         for( i=0; i< size; i++)
             BaryonField[PhiNum][i]= 0;
+    }
     }
     if( UseMHDCT == TRUE && TurbulenceSimulationMagneticNames[0] == NULL ){
       for(int field=0;field<3;field++){
