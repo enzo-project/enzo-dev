@@ -387,7 +387,7 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     first_field = temp_field;
     second_field = BaryonField[0];
     ProjType = 4;
-    ConversionFactor = DensityConversion;//*DensityConversion;
+    ConversionFactor = DensityConversion;
 
     FORTRAN_NAME(projplane)(first_field, second_field,
                              BaryonField[NumberOfBaryonFields], &One,
