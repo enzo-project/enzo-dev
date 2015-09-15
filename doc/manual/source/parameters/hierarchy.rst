@@ -42,6 +42,7 @@ Hierarchy Control Parameters
     14                 Refine by shockwaves (found w/shock finder)
     15                 Refine by normalized second derivative
     16                 Refine by Jeans length from the inertial tensor
+    19                 Refine by metal mass
     100                Avoid refinement based on ForbiddenRefinement field
     101                Avoid refinement in regions defined in "AvoidRefineRegion"
     ================== ==========================================================
@@ -156,7 +157,13 @@ Hierarchy Control Parameters
     calculates it based on shear and vorticity and makes some assumptions
     about the simulations (c_s=1, etc.).  However, this is necessary
     if you want to reproduce some of the old enzo results 
-    (e.g. Kritsuk et al. 2006).  Default: 0
+(e.g. Kritsuk et al. 2006).  Default: 0
+``MetallicityForRefinement`` (external)
+    Used with refinement method 19.  Flags cells for refinement when
+    the metal mass is above the necessary baryon mass (method 2) for
+    refinement multiplied by MetallicityForRefinement (in units of
+    solar metallicity).  Behaves similarly to refinement by baryon
+    mass but focuses on metal-enriched regions. Default: 1.0
 ``MetallicityRefinementMinMetallicity`` (external)
     This is the threshold metallicity (in units of solar metallicity)
     above which cells must be refined to a minimum level of
