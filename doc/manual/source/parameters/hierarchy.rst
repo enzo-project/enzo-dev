@@ -157,7 +157,7 @@ Hierarchy Control Parameters
     calculates it based on shear and vorticity and makes some assumptions
     about the simulations (c_s=1, etc.).  However, this is necessary
     if you want to reproduce some of the old enzo results 
-(e.g. Kritsuk et al. 2006).  Default: 0
+    (e.g. Kritsuk et al. 2006).  Default: 0
 ``MetallicityForRefinement`` (external)
     Used with refinement method 19.  Flags cells for refinement when
     the metal mass is above the necessary baryon mass (method 2) for
