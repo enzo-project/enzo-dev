@@ -11,7 +11,9 @@ Background Radiation Parameters
     is to be used. Except for ``RadiationFieldType`` = 9, which should
     be used with ``MultiSpecies`` = 2, UV backgrounds can currently
     only be used with ``MultiSpecies`` = 1 (i.e. no molecular H
-    support). The following values are used. Default: 0
+    support). The following values are used.  For field type 15, see
+    Table 3 in `Haardt & Madau (2012)
+    <http://adsabs.harvard.edu/abs/2012ApJ...746..125H />`_. Default: 0
 
    ::
   
@@ -25,7 +27,7 @@ Background Radiation Parameters
      10 - Internally computed radiation field using the algorithm of Cen & Ostriker
      11 - Same as previous, but with very, very simple optical shielding fudge
      12 - Haardt & Madau spectrum with q_alpha = 1.57
-     15 - Haardt & Madau 2012.  See Table 3 in '2012ApJ...746..125H <http://adsabs.harvard.edu/abs/2012ApJ...746..125H />'_
+     15 - Haardt & Madau 2012.
 
 ``RadiationFieldLevelRecompute`` (external)
     This integer parameter is used only if the previous parameter is
@@ -45,8 +47,11 @@ Background Radiation Parameters
 ``RadiationShield`` (external)
     This parameter specifies whether the user wants to employ
     approximate radiative-shielding. This parameter will be
-    automatically turned on when RadiationFieldType is set to 11. See
-    ``calc_photo_rates.src``. Default: 0
+    automatically turned on when RadiationFieldType is set to 11. When
+    set to 1, it calculates shielding for H/He. See
+    ``calc_photo_rates.src`` for more details.  When set to 2, it
+    shields only H2 with the Sobolev-like approximation from
+    Wolcott-Green et al. (2011).  Default: 0
 ``RadiationFieldRedshift`` (external)
     This parameter specifies the redshift at which the radiation field
     is calculated.  Default: 0

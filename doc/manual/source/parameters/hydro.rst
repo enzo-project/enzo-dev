@@ -107,7 +107,7 @@ General
     3                                  [reserved]
     4                                  [reserved]
     6                     6            MUSCL-Hancock (Non Runge-Kutta) 
-    ===================== ============ ====================
+    ===================== ============ ===================
 
     Default: 0 (PLM) for ``HydroMethod`` = 3; 1 (PPM) for ``HydroMethod`` = 0
 ``ConservativeReconstruction`` (external; only if ``HydroMethod`` is 3 or 4)
