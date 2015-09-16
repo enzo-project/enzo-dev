@@ -111,7 +111,6 @@ int grid::UpdateMHDPrim(float **dU, float c1, float c2)
           igrid = (k * GridDimension[1] + j) * GridDimension[0] + GridStartIndex[0];
           for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, n++, igrid++) {
             Prim[field][igrid] = min(1.0, max((Prim[field][igrid]/D[n]), SmallX));
-            //Prim[field][igrid] = Prim[field][igrid]/D[n];
             sum[n] += Prim[field][igrid];
           }
         }
