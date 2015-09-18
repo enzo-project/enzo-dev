@@ -132,7 +132,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   int count = 0;
   int mbh_particle_io_count = 0;
-  const int OutputOnPop3Feedback = FALSE;
+  const int PopIIIOutputOnFeedback = FALSE;
   OutputNow = FALSE;
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
@@ -142,7 +142,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 //    } 
     if (AddedFeedback[count]) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
-      if (ThisStar->ReturnType() == PopIII && OutputOnPop3Feedback == TRUE)
+      if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
 	OutputNow = TRUE;
     }
     ThisStar->ResetAccretion();
@@ -166,7 +166,7 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   } // ENDFOR stars
 
-  if (OutputOnPop3Feedback)
+  if (PopIIIOutputOnFeedback)
     OutputNow = CommunicationMaxValue(OutputNow);
   
   /* Merge star particles */

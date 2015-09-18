@@ -914,8 +914,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
           PopIIIColorDensityThreshold);
   fprintf(fptr, "PopIIIColorMass                       = %"GSYM"\n",
           PopIIIColorMass);
-  fprintf(fptr, "PopIIIUseHypernova                    = %"ISYM"\n\n",
+  fprintf(fptr, "PopIIIUseHypernova                    = %"ISYM"\n",
           PopIIIUseHypernova);
+  fprintf(fptr, "PopIIIOutputOnFeedback                = %"ISYM"\n\n",
+          PopIIIOutputOnFeedback);
 
   fprintf(fptr, "MBHAccretion                          = %"ISYM"\n", MBHAccretion);
   fprintf(fptr, "MBHAccretionRadius                    = %"GSYM"\n", MBHAccretionRadius);
