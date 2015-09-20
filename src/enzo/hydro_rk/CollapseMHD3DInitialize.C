@@ -38,7 +38,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 		      float *VelocityUnits, FLOAT Time);
 
 int CollapseMHD3DInitialize(FILE *fptr, FILE *Outfptr, 
-			    HierarchyEntry &TopGrid, TopGridData &MetaData, int SetBaryonFields)
+			    HierarchyEntry &TopGrid, TopGridData &MetaData,
+			    int SetBaryonFields)
 {
    const char *DensName = "Density";
    const char *TEName   = "TotalEnergy";

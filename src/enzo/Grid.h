@@ -2688,7 +2688,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			      float vyl,  float vyu,
 			      float pl,   float pu,
 			      float Bxl,  float Bxu,
-			      float Byl,  float Byu);
+			      float Byl,  float Byu, int SetBaryonFields);
   int MHD3DTestInitializeGrid(int MHD3DProblemType,
 			      float rhol, float rhou,
 			      float vxl,  float vxu,

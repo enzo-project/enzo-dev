@@ -40,7 +40,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
 
 int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr, 
-			HierarchyEntry &TopGrid, TopGridData &MetaData) 
+			HierarchyEntry &TopGrid,
+			TopGridData &MetaData, int SetBaryonFields) 
 {
   char *DensName = "Density";
   char *PresName = "Pressure";
@@ -138,18 +139,26 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   }
 
   /* set up grid */
-
-  if (TopGrid.GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
+  HierarchyEntry *CurrentGrid; // all level 0 grids on this processor first
+  CurrentGrid = &TopGrid;
+  int count = 0;
+  while (CurrentGrid != NULL) {
+    printf("count %i %i\n", count++, MyProcessorNumber);
+    if (CurrentGrid->GridData->MHD2DTestInitializeGrid(MHD2DProblemType, UseColour,
 						RampWidth,
 						LowerDensity, UpperDensity,
 						LowerVelocityX,  UpperVelocityX,
 						LowerVelocityY,  UpperVelocityY,
 						LowerPressure,   UpperPressure,
 						LowerBx,  UpperBx,
-						LowerBy,  UpperBy)  == FAIL) {
+						LowerBy,  UpperBy,
+						SetBaryonFields)  == FAIL) {
     fprintf(stderr, "Error in MHD2DTestInitializeGrid.\n");
     return FAIL;
-  }
+    }
+    CurrentGrid = CurrentGrid->NextGridThisLevel;
+    
+  } // while CurrentGrid
 
   /* Convert minimum initial overdensity for refinement to mass
      (unless MinimumMass itself was actually set). */
@@ -192,7 +201,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 						    LowerVelocityY,  UpperVelocityY,
 						    LowerPressure,   UpperPressure,
 						    LowerBx,  UpperBx,
-						    LowerBy,  UpperBy) == FAIL) {
+						    LowerBy,  UpperBy,
+						    SetBaryonFields) == FAIL) {
 	  fprintf(stderr, "Error in MHD2DTestInitializeGrid.\n");
 	  return FAIL;
 	}
@@ -223,7 +233,7 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* set up field names and units */
 
-  int count = 0;
+  count = 0;
   DataLabel[count++] = DensName;
   DataLabel[count++] = Vel1Name;
   DataLabel[count++] = Vel2Name;

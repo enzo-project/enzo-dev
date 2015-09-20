@@ -1,0 +1,17 @@
+Implements initial condition generator for 
+http://arxiv.org/abs/1509.03630
+A Validated Nonlinear Kelvin-Helmholtz Benchmark for Numerical Hydrodynamics
+Daniel Lecoanet, Michael McCourt, Eliot Quataert, Keaton J. Burns, 
+Geoffrey M. Vasil, Jeffrey S. Oishi, Benjamin P. Brown, James M. Stone, Ryan M. O'Leary (2015)
+
+Note, this has not been tested much. 
+It uses the machinery for the MHD2D tests in hydro_rk. 
+It should also work with PPM (i.e. HydroMethod = 0) but is not setup to do Zeus (HydroMethod=1 tests). 
+However, HydroMethod=3 offers many options for Riemann Solvers and Slope limiting which may be interesting to test. 
+
+To run in parallel keep the ParallelRootgridIO = 1 on.
+
+This is a code test for a limit high resolution shock captruing codes are not often optimized for.
+It is useful to see whether your choice of hydro method has sufficient diffusivity to give behave sensibly in
+a convergence study. 
+

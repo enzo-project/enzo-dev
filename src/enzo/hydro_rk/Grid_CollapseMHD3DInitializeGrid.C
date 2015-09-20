@@ -569,7 +569,6 @@ int grid::CollapseMHD3DInitializeGrid(int n_sphere,
 
 
 
-
   int TestBinary = 0;
   if (TestBinary == 1 && level == 0) {
 
