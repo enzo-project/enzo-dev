@@ -172,7 +172,8 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
 
   /* If requested, refine the grid to the desired level. */
 
-  if (RefineAtStart) {
+
+  if (SetBaryonFields && RefineAtStart) {
 
     /* Declare, initialize and fill out the LevelArray. */
 
