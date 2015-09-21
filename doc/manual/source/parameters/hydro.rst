@@ -140,6 +140,12 @@ General
     approximately 0.01-0.02 to keep star particles from flying all over
     the place. Otherwise, this does not need to be set, and in any case
     should never be set to a value greater than 1.0. Default: 1.0.
+``UseCoolingTimestep`` (external)
+    This parameter will limit the timestep on each level by some
+    fraction of the minimum cooling time on the level, where this
+    fraction is set by ``CoolingTimestepSafetyFactor``.  Default: OFF
+``CoolingTimestepSafetyFactory`` (external)
+    Described in ``UseCoolingTime``.  Default: 0.1
 ``DualEnergyFormalism`` (external)
     The dual energy formalism is needed to make total energy schemes
     such as PPM DE and PPM LR stable and accurate in the

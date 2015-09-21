@@ -124,11 +124,15 @@ have a look at :ref:`controlling_data_output` for more information.
     ``star_particle_density``; and 2 will dump
     ``actively_forming_stellar_mass_density``, ``SFR_density``, etc.
     Default: 0.
+``OutputOnPop3Feedback`` (external)
+    Writes an interpolated output when a Pop III is formed or goes
+    supernova.  Default: 0
 ``OutputOnDensity`` (external)
-    Should interpolated outputs be generated at varying peak density?  Default: 0
+    Should interpolated outputs be generated at varying peak density?
+    Default: 0
 ``StartDensityOutput`` (external)
     The first density (in log g/cc) at which to output.
-``CurrentDensityOutput`` (external)
+``CurrentDensityOutput`` (internal)
     The most recent density at which output was generated.
 ``IncrementDensityOutput`` (external)
     After a density-directed output, how much should the density be increased by?  Default: 999
@@ -196,6 +200,18 @@ Stopping Parameters
     Causes the simulation to immediately stop when a specified level is
     reached. Default value 0 (off), possible values are levels 1
     through maximum number of levels in a given simulation.
+``StopFirstTimeAtDensity`` (external)
+    Causes the simulation to immediately stop when the maximum gas
+    density reaches this value.  In units of g/cm^3.  Not used if less
+    than or equal to zero. Default: 0.0
+``StopFirstTimeAtMetalEnrichedDensity`` (external)
+    Causes the simulation to immediately stop when the maximum gas
+    density with above some metallicity, specified by
+    ``EnrichedMetalFraction``, is reached.  In units of g/cm^3.  Not
+    used if less than or equal to zero.  Default: 0.0
+``EnrichedMetalFraction`` (external)
+    See ``StopFirstTimeAtMetalEnrichedDensity``.  In units of absolute
+    metal fraction.  Default: 1e-8
 ``NumberOfOutputsBeforeExit`` (external)
     After this many datadumps have been written, the code will exit.  If 
     set to 0 (default), this option will not be used.  Default: 0.

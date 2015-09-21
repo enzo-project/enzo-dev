@@ -208,6 +208,15 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Default: 1.
 ``PopIIISupernovaUseColour`` (external)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
+``PopIIIUseHypernovae`` (external)
+    Set to 1 to use the hypernova energies and metal ejecta masses
+    from Nomoto et al. (2006).  If set to 0, then the supernova
+    energies are always 1e51 erg but use the supernova metal ejecta
+    masses from Nomoto et al. (2006).  Default: 1
+``PopIIISupernovaExplosions`` (external)
+    Set to 1 to consider supernovae from Pop III stars.  Set to 0 to
+    neglect all Pop III supernovae, regardless of their masses.
+    Default: 1
 ``PopIIIInitialMassFunction`` (external)
     When turned on, each Pop III stellar mass is randomly drawn from an IMF that is Salpeter above some characteristic mass and exponentially cutoff below this mass.  Default: 0
 ``PopIIIInitialMassFunctionSeed`` (external)
