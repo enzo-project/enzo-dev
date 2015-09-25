@@ -152,7 +152,7 @@ int FindSuperSourceByPosition(FLOAT *pos, SuperSourceEntry **result,
 /* SSE intrinsic approximate inverse sqrt.  IEEE precision isn't
    required to choose the correct leafs. */
 
-inline void vrsqrt(float* __x, float* __outrsqrt)
+inline void vrsqrt(Eflt32* __x, Eflt32* __outrsqrt)
 {
   __m128 x = _mm_set_ss(*__x);
   __m128 recip = _mm_rsqrt_ss(x);
@@ -170,7 +170,8 @@ float CalculateLWFromTree(const FLOAT pos[],
 
   int dim;
   FLOAT dx, radius2;
-  float radius_inv, tan_angle, result, temp;
+  float tan_angle, result;
+  Eflt32 temp, radius_inv;
 
   if (Leaf == NULL) 
     return result0;
@@ -182,7 +183,7 @@ float CalculateLWFromTree(const FLOAT pos[],
     radius2 += dx*dx;
   }
 
-  temp = (float)radius2;
+  temp = (Eflt32)radius2;
   temp = max(min_radius, temp);
   vrsqrt(&temp, &radius_inv);
   //radius_inv = 1.0 / sqrtf((float)radius2);
