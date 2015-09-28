@@ -2024,23 +2024,23 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
 			     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
 			     float SphereFracKeplarianRot[MAX_SPHERES],
-				 float SphereTurbulence[MAX_SPHERES],
-				 float SphereDispersion[MAX_SPHERES],
-				 float SphereCutOff[MAX_SPHERES],
-				 float SphereAng1[MAX_SPHERES],
-				 float SphereAng2[MAX_SPHERES],
-				 int   SphereNumShells[MAX_SPHERES],
-				 int   SphereType[MAX_SPHERES],
-				 int   SphereConstantPressure[MAX_SPHERES],
-				 int   SphereSmoothSurface[MAX_SPHERES],
-				 float SphereSmoothRadius[MAX_SPHERES],
-				 int   SphereUseParticles,
-				 float ParticleMeanDensity,
-				 float UniformVelocity[MAX_DIMENSION],
-				 int   SphereUseColour,
-				 int   SphereUseMetals,
-				 float InitialTemperature, 
-				 float InitialDensity, int level);
+			     float SphereTurbulence[MAX_SPHERES],
+			     float SphereDispersion[MAX_SPHERES],
+			     float SphereCutOff[MAX_SPHERES],
+			     float SphereAng1[MAX_SPHERES],
+			     float SphereAng2[MAX_SPHERES],
+			     int   SphereNumShells[MAX_SPHERES],
+			     int   SphereType[MAX_SPHERES],
+			     int   SphereConstantPressure[MAX_SPHERES],
+			     int   SphereSmoothSurface[MAX_SPHERES],
+			     float SphereSmoothRadius[MAX_SPHERES],
+			     int   SphereUseParticles,
+			     float ParticleMeanDensity,
+			     float UniformVelocity[MAX_DIMENSION],
+			     int   SphereUseColour,
+			     int   SphereUseMetals,
+			     float InitialTemperature, 
+			     float InitialDensity, int level);
 
 /* Cluster: initialize grid. */
 
@@ -2056,45 +2056,45 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float UniformVelocity[MAX_DIMENSION],
                              int   SphereUseColour,
                              float InitialTemperature, 
-			    float ClusterInitialSpinParameter, int level);
+ 			     float ClusterInitialSpinParameter, int level);
 
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(
-					int   InitialGridNumber,
-					float CosmologySimulationOmegaBaryonNow,
-					float CosmologySimulationOmegaCDMNow,
-					float CosmologySimulationInitialTemperature,
-					char *CosmologySimulationDensityName,
-					char *CosmologySimulationTotalEnergyName,
-					char *CosmologySimulationGasEnergyName,
-					char *CosmologySimulationVelocityNames[],
-					char *CosmologySimulationParticlePositionName,
-					char *CosmologySimulationParticleVelocityName,
-					char *CosmologySimulationParticleDisplacementName,
-					char *CosmologySimulationParticleMassName,
-					char *CosmologySimulationParticleTypeName,
-					char *CosmologySimulationParticlePositionNames[],
-					char *CosmologySimulationParticleVelocityNames[],
-					char *CosmologySimulationParticleDisplacementNames[],
-					int   CosmologySimulationSubgridsAreStatic,
-					int   TotalRefinement,
-					float CosmologySimulationInitialFractionHII,
-					float CosmologySimulationInitialFractionHeII,
-					float CosmologySimulationInitialFractionHeIII,
-					float CosmologySimulationInitialFractionHM,
-					float CosmologySimulationInitialFractionH2I,
-					float CosmologySimulationInitialFractionH2II,
-					float CosmologySimulationInitialFractionMetal,
-					float CosmologySimulationInitialFractionMetalIa,
+		       	  int   InitialGridNumber,
+	       		  float CosmologySimulationOmegaBaryonNow,
+			  float CosmologySimulationOmegaCDMNow,
+		          float CosmologySimulationInitialTemperature,
+			  char *CosmologySimulationDensityName,
+			  char *CosmologySimulationTotalEnergyName,
+			  char *CosmologySimulationGasEnergyName,
+			  char *CosmologySimulationVelocityNames[],
+			  char *CosmologySimulationParticlePositionName,
+			  char *CosmologySimulationParticleVelocityName,
+			  char *CosmologySimulationParticleDisplacementName,
+			  char *CosmologySimulationParticleMassName,
+			  char *CosmologySimulationParticleTypeName,
+			  char *CosmologySimulationParticlePositionNames[],
+			  char *CosmologySimulationParticleVelocityNames[],
+			  char *CosmologySimulationParticleDisplacementNames[],
+			  int   CosmologySimulationSubgridsAreStatic,
+			  int   TotalRefinement,
+			  float CosmologySimulationInitialFractionHII,
+			  float CosmologySimulationInitialFractionHeII,
+			  float CosmologySimulationInitialFractionHeIII,
+			  float CosmologySimulationInitialFractionHM,
+			  float CosmologySimulationInitialFractionH2I,
+			  float CosmologySimulationInitialFractionH2II,
+			  float CosmologySimulationInitialFractionMetal,
+			  float CosmologySimulationInitialFractionMetalIa,
 #ifdef TRANSFER
-					float RadHydroInitialRadiationEnergy,
+			  float RadHydroInitialRadiationEnergy,
 #endif
-					int   CosmologySimulationUseMetallicityField,
-					PINT &CurrentNumberOfParticles,
-					int CosmologySimulationManuallySetParticleMassRatio,
-					float CosmologySimulationManualParticleMassRatio,
-					int CosmologySimulationCalculatePositions,
-					float CosmologySimulationInitialUniformBField[]);
+			  int   CosmologySimulationUseMetallicityField,
+			  PINT &CurrentNumberOfParticles,
+			  int CosmologySimulationManuallySetParticleMassRatio,
+			  float CosmologySimulationManualParticleMassRatio,
+			  int CosmologySimulationCalculatePositions,
+			  float CosmologySimulationInitialUniformBField[]);
 
   int CosmologyReadParticles3D(
 		   char *CosmologySimulationParticleVelocityName,
@@ -2117,39 +2117,39 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* CosmologySimulation: initialize partitioned nested grids. */
   int NestedCosmologySimulationInitializeGrid(
-					      int   InitialGridNumber,
-					      float CosmologySimulationOmegaBaryonNow,
-					      float CosmologySimulationOmegaCDMNow,
-					      float CosmologySimulationInitialTemperature,
-					      char *CosmologySimulationDensityName,
-					      char *CosmologySimulationTotalEnergyName,
-					      char *CosmologySimulationGasEnergyName,
-					      char *CosmologySimulationVelocityNames[],
-					      char *CosmologySimulationParticlePositionName,
-					      char *CosmologySimulationParticleDisplacementName,
-					      char *CosmologySimulationParticleVelocityName,
-					      char *CosmologySimulationParticleMassName,
-					      char *CosmologySimulationParticleTypeName,
-					      char *CosmologySimulationParticleVelocityNames[],
-					      char *CosmologySimulationParticleDisplacementNames[],
-					      int   CosmologySimulationSubgridsAreStatic,
-					      int   TotalRefinement,
-					      float CosmologySimulationInitialFractionHII,
-					      float CosmologySimulationInitialFractionHeII,
-					      float CosmologySimulationInitialFractionHeIII,
-					      float CosmologySimulationInitialFractionHM,
-					      float CosmologySimulationInitialFractionH2I,
-					      float CosmologySimulationInitialFractionH2II,
-					      float CosmologySimulationInitialFractionMetal,
-					      float CosmologySimulationInitialFractionMetalIa,
-					      int   CosmologySimulationUseMetallicityField,
-					      PINT &CurrentNumberOfParticles,
-					      int CosmologySimulationManuallySetParticleMassRatio,
-					      float CosmologySimulationManualParticleMassRatio,
-					      int CosmologySimulationCalculatePositions,
-					      FLOAT SubDomainLeftEdge[],
-					      FLOAT SubDomainRightEdge[],
-					      float CosmologySimulationInitialUniformBField[]);
+			  int   InitialGridNumber,
+			  float CosmologySimulationOmegaBaryonNow,
+			  float CosmologySimulationOmegaCDMNow,
+			  float CosmologySimulationInitialTemperature,
+			  char *CosmologySimulationDensityName,
+			  char *CosmologySimulationTotalEnergyName,
+			  char *CosmologySimulationGasEnergyName,
+			  char *CosmologySimulationVelocityNames[],
+			  char *CosmologySimulationParticlePositionName,
+			  char *CosmologySimulationParticleDisplacementName,
+			  char *CosmologySimulationParticleVelocityName,
+			  char *CosmologySimulationParticleMassName,
+			  char *CosmologySimulationParticleTypeName,
+			  char *CosmologySimulationParticleVelocityNames[],
+			  char *CosmologySimulationParticleDisplacementNames[],
+			  int   CosmologySimulationSubgridsAreStatic,
+			  int   TotalRefinement,
+			  float CosmologySimulationInitialFractionHII,
+			  float CosmologySimulationInitialFractionHeII,
+			  float CosmologySimulationInitialFractionHeIII,
+			  float CosmologySimulationInitialFractionHM,
+			  float CosmologySimulationInitialFractionH2I,
+			  float CosmologySimulationInitialFractionH2II,
+			  float CosmologySimulationInitialFractionMetal,
+			  float CosmologySimulationInitialFractionMetalIa,
+			  int   CosmologySimulationUseMetallicityField,
+			  PINT &CurrentNumberOfParticles,
+			  int CosmologySimulationManuallySetParticleMassRatio,
+			  float CosmologySimulationManualParticleMassRatio,
+			  int CosmologySimulationCalculatePositions,
+			  FLOAT SubDomainLeftEdge[],
+			  FLOAT SubDomainRightEdge[],
+			  float CosmologySimulationInitialUniformBField[]);
 
 
   /* Initialization for isolated galaxy sims */
@@ -2259,7 +2259,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* FLD Radiation test problem: grey Marshak wave test (SUCCESS or FAIL) */
   int RadHydroGreyMarshakWaveInitializeGrid(float DensityConst, float IEConst, 
-					    float EgConst, int GreyMarshDir,
+			      	            float EgConst, int GreyMarshDir,
 					    int local);
 
   /* FLD Radiation test problem: radiating shock test (SUCCESS or FAIL) */
@@ -2415,7 +2415,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
-				  int InitialMagneticFieldConfiguration);
+				int InitialMagneticFieldConfiguration);
 
   int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
@@ -2544,9 +2544,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[], float &OneOverRSquaredSum);
   int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
-    float &mass, float &metallicity2, 
-    float &metallicity3,
-    float &coldgas_mass, float AvgVelocity[]);
+			     float &mass, float &metallicity2, 
+			     float &metallicity3,
+			     float &coldgas_mass, float AvgVelocity[]);
 
   int RemoveParticle(int ID, bool disable=false);
 
@@ -2557,9 +2557,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			int &CellsModified);
 
   int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
-	    float LengthUnits, float VelocityUnits, 
-	    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
-	    int &CellsModified);
+				     float LengthUnits, float VelocityUnits, 
+				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+				     int &CellsModified);
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
@@ -2586,8 +2586,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 //------------------------------------------------------------------------
 
   int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
-	     int &kphHeINum, int &kphHeIINum, 
-	     int &kdissH2INum);
+				      int &kphHeINum, int &kphHeIINum, 
+				      int &kdissH2INum);
 
 #ifdef TRANSFER
 #include "PhotonGrid_Methods.h"
@@ -2601,7 +2601,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ComputeCellCenteredField(int Num);
   
   float ComputeInterpolatedValue(int Num, int vci, int vcj, int vck, 
-	float mx, float my, float mz);
+				 float mx, float my, float mz);
   
   int NeighborIndices(int index, int vi[]);
   int NeighborVertexIndices(int index, int vi[]);
@@ -2621,7 +2621,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields);
   int ComputeMetalLineLuminosity(float *total_luminosity, float *all_emis, 
-	float *temperature);
+				 float *temperature);
 
 
 //------------------------------------------------------------------------
@@ -2642,7 +2642,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int FindMinimumParticleMass(float &min_mass, int level);
 
   int FindMassiveParticles(float min_mass, int level, FLOAT *pos[], int &npart,
-  int CountOnly);
+			   int CountOnly);
 
 //------------------------------------------------------------------------
 //  Inline FOF halo finder and particle interpolation using a tree
@@ -2684,37 +2684,37 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
 	      float fluxcoef, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
-      float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-      int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
-      int level, int SetBaryonFields);
+			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
+			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
+			       int level, int SetBaryonFields);
   int Collapse3DInitializeGrid(int n_sphere,
-      FLOAT r_sphere[MAX_SPHERES],
-      FLOAT rc_sphere[MAX_SPHERES],
-      float rho_sphere[MAX_SPHERES],
-      float p_sphere[MAX_SPHERES],
-      float cs_sphere[MAX_SPHERES],
-      FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-      float omega_sphere[MAX_SPHERES],
-      int   sphere_type[MAX_SPHERES],
-      float rho_medium, float p_medium, int level);
+			       FLOAT r_sphere[MAX_SPHERES],
+			       FLOAT rc_sphere[MAX_SPHERES],
+			       float rho_sphere[MAX_SPHERES],
+			       float p_sphere[MAX_SPHERES],
+			       float cs_sphere[MAX_SPHERES],
+			       FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
+			       float omega_sphere[MAX_SPHERES],
+			       int   sphere_type[MAX_SPHERES],
+			       float rho_medium, float p_medium, int level);
   int Collapse1DInitializeGrid(FLOAT r_sphere,
-      FLOAT rc_sphere,
-      float rho_sphere,
-      float p_sphere,
-      float cs_sphere,
-      float omega_sphere,
-      int   sphere_type,
-      float rho_medium, float p_medium);
+			       FLOAT rc_sphere,
+			       float rho_sphere,
+			       float p_sphere,
+			       float cs_sphere,
+			       float omega_sphere,
+			       int   sphere_type,
+			       float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
   int SourceTerms(float **dU);
   int MHD1DTestInitializeGrid(float rhol, float rhor,
-     float vxl,  float vxr,
-     float vyl,  float vyr,
-     float vzl,  float vzr,
-     float pl,   float pr,
-     float Bxl,  float Bxr,
-     float Byl,  float Byr,
-     float Bzl,  float Bzr);
+			      float vxl,  float vxr,
+			      float vyl,  float vyr,
+			      float vzl,  float vzr,
+			      float pl,   float pr,
+			      float Bxl,  float Bxr,
+			      float Byl,  float Byr,
+			      float Bzl,  float Bzr);
   int MHD1DTestWavesInitializeGrid(float rhol, 
                                    float vxl,
                                    float vyl,
@@ -2724,40 +2724,40 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                    float Byl,
                                    float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
-     int UseColour,
-     float RampWidth,
-     float rhol, float rhou,
-     float vxl,  float vxu,
-     float vyl,  float vyu,
-     float pl,   float pu,
-     float Bxl,  float Bxu,
-     float Byl,  float Byu);
+			      int UseColour,
+			      float RampWidth,
+			      float rhol, float rhou,
+			      float vxl,  float vxu,
+			      float vyl,  float vyu,
+			      float pl,   float pu,
+			      float Bxl,  float Bxu,
+			      float Byl,  float Byu);
   int MHD3DTestInitializeGrid(int MHD3DProblemType,
-     float rhol, float rhou,
-     float vxl,  float vxu,
-     float vyl,  float vyu,
-     float pl,   float pu,
-     float Bxl,  float Bxu,
-     float Byl,  float Byu);
+			      float rhol, float rhou,
+			      float vxl,  float vxu,
+			      float vyl,  float vyu,
+			      float pl,   float pu,
+			      float Bxl,  float Bxu,
+			      float Byl,  float Byu);
   int CollapseMHD3DInitializeGrid(int n_sphere,
-	 FLOAT r_sphere[MAX_SPHERES],
-	 FLOAT rc_sphere[MAX_SPHERES],
-	 float rho_sphere[MAX_SPHERES],
-	 float p_sphere[MAX_SPHERES],
-	 float cs_sphere[MAX_SPHERES],
-	 FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-	 float omega_sphere[MAX_SPHERES], 
-	 float turb_sphere[MAX_SPHERES], 
-	 float Bnaught, float theta_B,
-	 int Bdirection,
-	 int   sphere_type[MAX_SPHERES],
-	 float rho_medium, float p_medium, int level, int SetBaryonFields);
+				  FLOAT r_sphere[MAX_SPHERES],
+				  FLOAT rc_sphere[MAX_SPHERES],
+				  float rho_sphere[MAX_SPHERES],
+				  float p_sphere[MAX_SPHERES],
+				  float cs_sphere[MAX_SPHERES],
+				  FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
+				  float omega_sphere[MAX_SPHERES], 
+				  float turb_sphere[MAX_SPHERES], 
+				  float Bnaught, float theta_B,
+				  int Bdirection,
+				  int   sphere_type[MAX_SPHERES],
+				  float rho_medium, float p_medium, int level, int SetBaryonFields);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
-	 float Bnaught, int seed, int level, int SetBaryonFields);
+				  float Bnaught, int seed, int level, int SetBaryonFields);
   int MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium, float mach, 
-		  float Bnaught, int seed, 
-		  float Sindex, float Skmin, float Skmax, 
-		  int level, int SetBaryonFields);
+					   float Bnaught, int seed, 
+					   float Sindex, float Skmin, float Skmax, 
+					   int level, int SetBaryonFields);
 
   int PrepareVelocityNormalization(double *v_rms, double *Volume);
   int NormalizeVelocities(Eflt factor);
@@ -2766,33 +2766,33 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int NormalizeMagneticFields(Eflt factor);
 
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
-      FLOAT HaloRadius[MAX_SPHERES],
-      FLOAT HaloCoreRadius[MAX_SPHERES],
-      float HaloDensity[MAX_SPHERES],
-      float HaloTemperature[MAX_SPHERES],
-      FLOAT HaloPosition[MAX_SPHERES][MAX_DIMENSION],
-      float HaloSpin[MAX_SPHERES],
-      float HaloVelocity[MAX_SPHERES][MAX_DIMENSION],
-      float HaloAngVel[MAX_SPHERES],
-      float HaloMagneticField,
-      FLOAT DiskRadius[MAX_SPHERES],
-      FLOAT DiskHeight[MAX_SPHERES],
-      float DiskDensity[MAX_SPHERES],
-      float DiskTemperature[MAX_SPHERES],
-      float DiskMassFraction[MAX_SPHERES],
-      float DiskFlaringParameter[MAX_SPHERES],
-      int   GalaxyType[MAX_SPHERES],
-      int   UseParticles, int UseGas,
-      float UniformVelocity[MAX_DIMENSION],
-      float MediumTemperature, float MediumDensity, int level);
+			       FLOAT HaloRadius[MAX_SPHERES],
+			       FLOAT HaloCoreRadius[MAX_SPHERES],
+			       float HaloDensity[MAX_SPHERES],
+			       float HaloTemperature[MAX_SPHERES],
+			       FLOAT HaloPosition[MAX_SPHERES][MAX_DIMENSION],
+			       float HaloSpin[MAX_SPHERES],
+			       float HaloVelocity[MAX_SPHERES][MAX_DIMENSION],
+			       float HaloAngVel[MAX_SPHERES],
+			       float HaloMagneticField,
+			       FLOAT DiskRadius[MAX_SPHERES],
+			       FLOAT DiskHeight[MAX_SPHERES],
+			       float DiskDensity[MAX_SPHERES],
+			       float DiskTemperature[MAX_SPHERES],
+			       float DiskMassFraction[MAX_SPHERES],
+			       float DiskFlaringParameter[MAX_SPHERES],
+			       int   GalaxyType[MAX_SPHERES],
+			       int   UseParticles, int UseGas,
+			       float UniformVelocity[MAX_DIMENSION],
+			       float MediumTemperature, float MediumDensity, int level);
   int AGNDiskInitializeGrid(float BlackHoleMass,
-   int BlackHoleType,
-   int DiskType,
-   float DiskDensity,
-   float DiskTemperature,
-   FLOAT DiskRadius,
-   FLOAT DiskHeight, 
-   int UseGas, int level);
+			    int BlackHoleType,
+			    int DiskType,
+			    float DiskDensity,
+			    float DiskTemperature,
+			    FLOAT DiskRadius,
+			    FLOAT DiskHeight, 
+			    int UseGas, int level);
   int MHDRK2_1stStep(fluxes *SubgridFluxes[], 
 		     int NumberOfSubgrids, int level,
 		     ExternalBoundary *Exterior);
@@ -2805,7 +2805,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDSourceTerms(float **dU);
   int UpdateMHDPrim(float **dU, float c1, float c2);
   int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
-  float *Flux3D[], int flux, float fluxcoef, float dt);
+			   float *Flux3D[], int flux, float fluxcoef, float dt);
   int SetFloor();
 
 
