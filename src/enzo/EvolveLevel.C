@@ -582,9 +582,9 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Compute and apply thermal conduction. */
       if(IsotropicConduction || AnisotropicConduction){
-        if(Grids[grid1]->GridData->ConductHeat() == FAIL){
-          ENZO_FAIL("Error in grid->ConductHeat.\n");
-        }
+       if(Grids[grid1]->GridData->ConductHeat() == FAIL){
+         ENZO_FAIL("Error in grid->ConductHeat.\n");
+       }
       }
 
       /* Compute and Apply Cosmic Ray Diffusion */

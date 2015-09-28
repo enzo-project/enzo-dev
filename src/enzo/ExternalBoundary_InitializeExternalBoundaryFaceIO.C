@@ -48,7 +48,6 @@ int ExternalBoundary::InitializeExternalBoundaryFace(int dim,
 					     float LeftBoundaryValue[],
 					     float RightBoundaryValue[])
 {
-
   int field, index;
 
 #ifdef OOC_BOUNDARY

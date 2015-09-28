@@ -333,7 +333,7 @@ class grid
    (returns: success/failure). */
 
    int WriteGridInterpolate(FLOAT WriteTime, FILE *main_file_pointer, 
-   char *base_name, int grid_id);
+			    char *base_name, int grid_id);
 
 /* Interpolate to specified time and write grid data to a group file
    (returns: success/failure). */
@@ -403,8 +403,9 @@ public:
    float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
 /* Member functions for dealing with Cosmic Ray Diffusion */
-	int ComputeCRDiffusion(); // CR Diffusion Method 
-	int ComputeCRDiffusionTimeStep(float &dt);
+
+   int ComputeCRDiffusion(); // CR Diffusion Method 
+   int ComputeCRDiffusionTimeStep(float &dt);
 
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
@@ -427,7 +428,7 @@ public:
     (for step #16) */
 
    int SolveHydroEquations(int CycleNumber, int NumberOfSubgrids, 
-  fluxes *SubgridFluxes[], int level);
+			   fluxes *SubgridFluxes[], int level);
 
 /* Baryons: return pointer to the BoundaryFluxes of this grid */
 
@@ -489,9 +490,9 @@ public:
     (for step #19) */
 
    int CorrectForRefinedFluxes(fluxes *InitialFluxes, fluxes *RefinedFluxes,
-      fluxes *BoundaryFluxesThisTimeStep,
-      int SUBlingGrid,
-      TopGridData *MetaData);
+			       fluxes *BoundaryFluxesThisTimeStep,
+			       int SUBlingGrid,
+			       TopGridData *MetaData);
 
 /* Baryons: add the fluxes pointed to by the argument to the boundary fluxes
             of this grid (sort of for step #16).  Note that the two fluxes
@@ -556,13 +557,13 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Baryons: compute X-ray emissivity in specified band. */
 
    int ComputeXrayEmissivity(float *temperature,
-    float *xray_emissivity, float keV1, float keV2,
-    char *XrayFileName);
+			     float *xray_emissivity, float keV1, float keV2,
+			     char *XrayFileName);
 
 /* Baryons: compute number density of ionized elements (just O7 and O8). */
 
    int ComputeElementalDensity(float *temperature, float *elemental_density,
-      int Type);
+			       int Type);
 
 /* Baryons: compute the ratio of specific heats. */
 
@@ -655,27 +656,27 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Output grid information (for movie generation). */
 
    int OutputGridMovieData(FILE *Gridfptr, FILE *DMfptr, FILE *Starfptr,
-  FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
-  FLOAT WriteOutTime, int NumberOfPoints[3],
-  int NumberOfValuesPerPoint[3],
-  char *PointValueNames[3][20], float BaseRadius);
+			   FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
+			   FLOAT WriteOutTime, int NumberOfPoints[3],
+			   int NumberOfValuesPerPoint[3],
+			   char *PointValueNames[3][20], float BaseRadius);
 
 /* Output movie data (sequential format) */
 
    int WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
-int RootResolution, FLOAT StopTime, 
-AMRHDF5Writer &AmiraGrid,
-int lastMovieStep, int TopGridCycle, 
-int WriteMe, int MovieTimestepCounter, int open, 
-FLOAT WriteTime,
-int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
-int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
+			 int RootResolution, FLOAT StopTime, 
+			 AMRHDF5Writer &AmiraGrid,
+			 int lastMovieStep, int TopGridCycle, 
+			 int WriteMe, int MovieTimestepCounter, int open, 
+			 FLOAT WriteTime,
+			 int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
+			 int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
 
    int WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
-		 FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
-		 int lastMovieStep, int WriteMe, 
-		 FLOAT WriteTime, int alreadyopened[],
-		 int NumberOfStarParticlesOnProc[]);
+					  FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
+					  int lastMovieStep, int WriteMe, 
+					  FLOAT WriteTime, int alreadyopened[],
+					  int NumberOfStarParticlesOnProc[]);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 

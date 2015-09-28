@@ -18,8 +18,6 @@
 Eint64 mused(void)
 {
 
-//#define MEM_TRACE
-
 #ifdef MEM_TRACE
   struct rusage temp;
 #if defined (__APPLE__)

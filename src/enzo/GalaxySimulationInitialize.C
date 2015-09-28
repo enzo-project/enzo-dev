@@ -160,9 +160,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationGasMass = %"FSYM,
 		  &GalaxySimulationGasMass);
     ret += sscanf(line, "GalaxySimulationCR = %"FSYM,
-      &GalaxySimulationCR);
+		  &GalaxySimulationCR);
     ret += sscanf(line, "GalaxySimulationUniformCR = %"FSYM,
-      &GalaxySimulationUniformCR);
+		  &GalaxySimulationUniformCR);
     ret += sscanf(line, "GalaxySimulationDiskPosition = %"PSYM" %"PSYM" %"PSYM, 
 		  &GalaxySimulationDiskPosition[0],
 		  &GalaxySimulationDiskPosition[1],
@@ -172,17 +172,17 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationDiskScaleHeightR = %"PSYM,
 		  &GalaxySimulationDiskScaleHeightR);
     ret += sscanf(line, "GalaxySimulationTruncationRadius = %"PSYM,
-      &GalaxySimulationTruncationRadius);
+		  &GalaxySimulationTruncationRadius);
     ret += sscanf(line, "GalaxySimulationDarkMatterConcentrationParameter = %"FSYM,
 		  &GalaxySimulationDarkMatterConcentrationParameter);
     ret += sscanf(line, "GalaxySimulationDiskTemperature = %"FSYM,
 		  &GalaxySimulationDiskTemperature);
     ret += sscanf(line, "GalaxySimulationGasHalo = %"ISYM,
-      &GalaxySimulationGasHalo);
+		  &GalaxySimulationGasHalo);
     ret += sscanf(line, "GalaxySimulationGasHaloScaleRadius = %"FSYM,
-      &GalaxySimulationGasHaloScaleRadius);
+		  &GalaxySimulationGasHaloScaleRadius);
     ret += sscanf(line, "GalaxySimulationGasHaloDensity = %"FSYM,
-      &GalaxySimulationGasHaloDensity);
+		  &GalaxySimulationGasHaloDensity);
     ret += sscanf(line, "GalaxySimulationInflowTime = %"FSYM,
 		  &GalaxySimulationInflowTime);
     ret += sscanf(line, "GalaxySimulationInflowDensity = %"FSYM,
@@ -228,14 +228,14 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskPosition, 
 						       GalaxySimulationDiskScaleHeightz,
 						       GalaxySimulationDiskScaleHeightR,
-                   GalaxySimulationTruncationRadius, 
+						       GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
-                   GalaxySimulationGasHalo,
-                   GalaxySimulationGasHaloScaleRadius,
-                   GalaxySimulationGasHaloDensity,
+						       GalaxySimulationGasHalo,
+						       GalaxySimulationGasHaloScaleRadius,
+						       GalaxySimulationGasHaloDensity,
 						       GalaxySimulationAngularMomentum,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
@@ -286,20 +286,20 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       GalaxySimulationDiskPosition, 
 						       GalaxySimulationDiskScaleHeightz,
 						       GalaxySimulationDiskScaleHeightR,
-                   GalaxySimulationTruncationRadius, 
+						       GalaxySimulationTruncationRadius, 
 						       GalaxySimulationDarkMatterConcentrationParameter,
 						       GalaxySimulationDiskTemperature, 
 						       GalaxySimulationInitialTemperature,
 						       GalaxySimulationUniformDensity,
-                   GalaxySimulationGasHalo,
-                   GalaxySimulationGasHaloScaleRadius,
-                   GalaxySimulationGasHaloDensity,
+						       GalaxySimulationGasHalo,
+						       GalaxySimulationGasHaloScaleRadius,
+						       GalaxySimulationGasHaloDensity,
 						       GalaxySimulationAngularMomentum,
 						       GalaxySimulationUniformVelocity,
 						       GalaxySimulationUseMetallicityField,
 						       GalaxySimulationInflowTime,
 						       GalaxySimulationInflowDensity,level,
-                   GalaxySimulationCR )
+						       GalaxySimulationCR )
 	      == FAIL) {
 	    ENZO_FAIL("Error in GalaxySimulationInitialize[Sub]Grid.");
 	}// end subgrid if
@@ -307,7 +307,6 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 	Temp = Temp->NextGridThisLevel;
       }
     } // end: loop over levels
-
 
     /* Loop back from the bottom, restoring the consistency among levels. */
 
@@ -325,48 +324,48 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
 
   } // end: if (GalaxySimulationRefineAtStart)
 
-
   /* If Galaxy is Subject to ICM Wind, Initialize the exterior */
-	if( GalaxySimulationRPSWind > 0 ){
-  	Exterior.Prepare(TopGrid.GridData);
+
+  if ( GalaxySimulationRPSWind > 0 ) {
+    Exterior.Prepare(TopGrid.GridData);
 	
-		const int MAX_BNDRY_VARS = 6;
-		float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
-	  InflowValue[0] = GalaxySimulationRPSWindDensity;
-	  InflowValue[1] = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
-	  if (HydroMethod != 2) {
-	    InflowValue[1] = InflowValue[1] + 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
+    const int MAX_BNDRY_VARS = 6;
+    float InflowValue[MAX_BNDRY_VARS], Dummy[MAX_BNDRY_VARS];
+    InflowValue[0] = GalaxySimulationRPSWindDensity;
+    InflowValue[1] = GalaxySimulationRPSWindPressure/(Gamma-1.0)/GalaxySimulationRPSWindDensity;
+    if (HydroMethod != 2) {
+      InflowValue[1] = InflowValue[1] + 0.5*(   pow(GalaxySimulationRPSWindVelocity[0],2)
 	                                            + pow(GalaxySimulationRPSWindVelocity[1],2)
 	                                            + pow(GalaxySimulationRPSWindVelocity[2],2));
-	  }
-	  InflowValue[2] = GalaxySimulationRPSWindVelocity[0];
-	  InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
-	  InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
-		if(GalaxySimulationUseMetallicityField)
-			InflowValue[5] = 1.0e-10;
+    }
+    InflowValue[2] = GalaxySimulationRPSWindVelocity[0];
+    InflowValue[3] = GalaxySimulationRPSWindVelocity[1];
+    InflowValue[4] = GalaxySimulationRPSWindVelocity[2];
+    if (GalaxySimulationUseMetallicityField)
+      InflowValue[5] = 1.0e-10;
   
-	 if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
-						      Dummy) == FAIL) {
-	    fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
-	      return FAIL;
-	 }
-	 if (MetaData.TopGridRank > 1)
- 	   Exterior.InitializeExternalBoundaryFace(1, inflow, outflow,
-						    InflowValue, Dummy);
- 	 if (MetaData.TopGridRank > 2)
- 	   Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
-						    InflowValue, Dummy);
+    if (Exterior.InitializeExternalBoundaryFace(0, inflow, outflow, InflowValue,
+						Dummy) == FAIL) {
+      fprintf(stderr, "Error in InitializeExternalBoundaryFace.\n");
+      return FAIL;
+    }
+    if (MetaData.TopGridRank > 1)
+      Exterior.InitializeExternalBoundaryFace(1, inflow, outflow,
+					      InflowValue, Dummy);
+    if (MetaData.TopGridRank > 2)
+      Exterior.InitializeExternalBoundaryFace(2, inflow, outflow,
+					      InflowValue, Dummy);
 	
-		/* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
-		GalaxySimulationRPSWindDelay += TopGrid.GridData->ReturnTime();
-		GalaxySimulationRPSWindTotalEnergy = InflowValue[1]; 
-	
-		GalaxySimulationPreWindDensity     = GalaxySimulationUniformDensity/DensityUnits;
-		GalaxySimulationPreWindTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6); 
-		GalaxySimulationPreWindVelocity[0] = 0.0;
-		GalaxySimulationPreWindVelocity[1] = 0.0;
-		GalaxySimulationPreWindVelocity[2] = 0.0;
-	}
+    /* Set Global Variables for RPS Wind (see ExternalBoundary_SetGalaxySimulationBoundary.C)*/
+
+    GalaxySimulationRPSWindDelay += TopGrid.GridData->ReturnTime();
+    GalaxySimulationRPSWindTotalEnergy = InflowValue[1]; 	
+    GalaxySimulationPreWindDensity     = GalaxySimulationUniformDensity/DensityUnits;
+    GalaxySimulationPreWindTotalEnergy = GalaxySimulationInitialTemperature/TemperatureUnits/((Gamma-1.0)*0.6); 
+    GalaxySimulationPreWindVelocity[0] = 0.0;
+    GalaxySimulationPreWindVelocity[1] = 0.0;
+    GalaxySimulationPreWindVelocity[2] = 0.0;
+  }
 
  /* set up field names and units */
 

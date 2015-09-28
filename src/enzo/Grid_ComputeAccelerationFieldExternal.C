@@ -109,7 +109,7 @@ int grid::ComputeAccelerationFieldExternal()
      ----------------------------------------------------------------- */
  
   if (PointSourceGravity > 0) {
-
+ 
     FLOAT a = 1.0, accel, dadt, radius, rcubed, rsquared, 
       xpos, ypos = 0.0, zpos = 0.0, rcore,x ;
  
