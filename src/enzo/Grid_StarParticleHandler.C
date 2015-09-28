@@ -792,7 +792,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
           tg->ParticleType[i] = NormalStarType;
     } 
 
-    if (STARMAKE_METHOD(UNIGRID_STAR_MOM)) {
+    if (STARMAKE_METHOD(MOM_STAR)) {
 
       //---- UNIGRID ALGORITHM (NO JEANS MASS)
       
@@ -1476,7 +1476,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
  
   } // end: if NORMAL_STAR
  
-  if (STARFEED_METHOD(UNIGRID_STAR_MOM)) {
+  if (STARFEED_METHOD(MOM_STAR)) {
 
     //---- UNIGRID (NON-JEANS MASS) VERSION WITH MOMENTUM
 
