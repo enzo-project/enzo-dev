@@ -134,7 +134,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
           while (log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
             CurrentDensityOutput += IncrementDensityOutput;
           }
-          fprintf(stderr, "Outputting based on DensMax == %0.3f (now set to %0.3f)\n",
+          fprintf(stderr, "Outputting based on DensMax == %"FSYM" (now set to %"FSYM")\n",
                   log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
           WriteOutput = TRUE;
         }

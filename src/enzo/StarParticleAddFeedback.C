@@ -194,13 +194,12 @@ int StarParticleAddFeedback(TopGridData *MetaData,
 	 sphere. */
 
       int nbins;
-      double Q[MAX_ENERGY_BINS], LConv, Q_HI, sigma;
+      double Q[MAX_ENERGY_BINS], Q_HI, sigma;
       float energies[MAX_ENERGY_BINS], deltaE;
       if (RadiativeTransfer) {
 	cstar->ComputePhotonRates(nbins, energies, Q);
 	sigma = (double) FindCrossSection(0, energies[0]);  // HI (cm^2)
-	//LConv = (double) TimeUnits / pow(LengthUnits, 3);  // #/s -> RT units
-	Q_HI = Q[0];// * LConv;
+	Q_HI = Q[0];
 	deltaE = energies[0] - 13.6;  // eV
       } else {
 	Q_HI = 0.0;

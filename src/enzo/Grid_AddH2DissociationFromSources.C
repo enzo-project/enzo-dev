@@ -143,8 +143,6 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	  index = GRIDINDEX(0, j, k);
 	  for (i = 0; i < ActiveDims[0]; i++, index++) {
 	    radius2 = radius2_yz + ddr2[0][i];
-	    //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	    //radius2 = max(radius2, dilRadius2);
 	    if (radius2 < dilRadius2)
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 	    else
@@ -199,10 +197,7 @@ int grid::AddH2DissociationFromSources(Star *AllStars)
 	  index = GRIDINDEX(0, j, k);
 	  for (i = 0; i < ActiveDims[0]; i++, index++) {
 	    radius2 = radius2_yz + ddr2[0][i];
-	    //if (radius2 < outerFront2 && radius2 > innerFront2) {
-	    //radius2 = max(radius2, dilRadius2);
 	    if (radius2 < dilRadius2)
-
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / dilRadius2;
 	    else
 	      BaryonField[kdissH2INum][index] += kdiss_r2 / radius2;

@@ -83,7 +83,7 @@ int Star::HitEndpoint(FLOAT Time)
       result = NO_DEATH;
 
     if (debug)
-      printf("HitEndpoint[%d]: type = %d, mass = %g, result = %d, feedback = %d, Time = %f/%f\n",
+      printf("HitEndpoint[%"ISYM"]: type = %"ISYM", mass = %"GOUTSYM", result = %"ISYM", feedback = %"ISYM", Time = %"PSYM"/%"PSYM"\n",
 	     this->Identifier, this->type, this->Mass, result, this->FeedbackFlag, Time,
 	     this->BirthTime+this->LifeTime);
 

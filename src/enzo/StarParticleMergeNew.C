@@ -104,8 +104,7 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
      is still is ramping up its luminosity) is nearby.  Not good for
      binaries.  Set StarClusterCombineRadius => 0 to ignore this. */
 
-  // Should be a parameter (50 kyr).  Used in StarParticleRadTransfer.C.
-  //const float PopIIIRampTime = 1.57785e12 / TimeUnits;
+  // Should be a parameter (10 kyr).  Used in StarParticleRadTransfer.C.
   const float PopIIIRampTime = 3.1557e11 / TimeUnits;
 
 #define NO_POP3_BINARIES

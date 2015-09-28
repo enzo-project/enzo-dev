@@ -65,8 +65,6 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
      this level */
 
   for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
-    //    if (Temp->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
-    //Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
 
       for (i = 0; i < 8; i++) {
 	if (cornerDone[i]) continue;  // Skip if already locally found
@@ -78,7 +76,6 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
 	  cornerDone[i] = 1;
       } // ENDFOR corners
 
-      //    } // ENDIF MyProcessorNumber == ProcessorNumber
   } // ENDFOR grids
 
   /* Take the MPI_MAX of cornerDone flags, then sum them to see if

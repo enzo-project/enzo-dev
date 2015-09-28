@@ -114,7 +114,7 @@ int StarParticleRadTransfer(LevelHierarchyEntry *LevelArray[], int level,
 	}
       } else if (cstar->ReturnType() == PopIII)
 	// should be an parameter or determined from the data
-	ramptime = TimeInYears * 10e3; //TimeInYears * 50e3;
+	ramptime = TimeInYears * 10e3;
       else if (cstar->ReturnType() == SimpleSource)
 	ramptime = TimeInYears * 1e6 * SimpleRampTime;
 

@@ -37,7 +37,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       FLOAT Time, bool &SphereCheck)
 {
 
-  // Parameters for the Stroemgen sphere in Whalen et al. (2004)
+  // Parameters for the Stroemgren sphere in Whalen et al. (2004)
   const float	BirthRadius	  = 50;		// pc
   const float	WhalenTemperature = 20000;	// K
   const float	WhalenDensity	  = 1;	        // cm^-3

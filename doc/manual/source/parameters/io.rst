@@ -202,7 +202,7 @@ Stopping Parameters
     through maximum number of levels in a given simulation.
 ``StopFirstTimeAtDensity`` (external)
     Causes the simulation to immediately stop when the maximum gas
-    density reaches this value.  In units of g/cm^3.  Not used if less
+    density reaches this value.  In units of proper g/cm^3.  Not used if less
     than or equal to zero. Default: 0.0
 ``StopFirstTimeAtMetalEnrichedDensity`` (external)
     Causes the simulation to immediately stop when the maximum gas

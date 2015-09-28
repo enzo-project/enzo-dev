@@ -180,12 +180,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
       cstar->vel[2] *= frac;
     } // ENDIF !Supernova
 
-//    printf("grid::AFS: after : cstar->Mass = %lf\n", cstar->Mass); 
-//    printf("grid::AFS: pos = %"FSYM" %"FSYM" %"FSYM"\n", 
-//	   cstar->pos[0], cstar->pos[1], cstar->pos[2]);
-
-//    const float WarningTemperature = 10.0;
-//    float warnGE = WarningTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6);
     maxGE = MAX_TEMPERATURE / (TemperatureUnits * (Gamma-1.0) * 0.6);
 
     for (k = 0; k < GridDimension[2]; k++) {
@@ -236,18 +230,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 		       ramp * factor * EjectaDensity * EjectaThermalEnergy) /
 		BaryonField[DensNum][index];
 	      newGE = min(newGE, maxGE);
-//	      if (newGE < BaryonField[GENum][index])
-//		printf("Smaller Energy[%d %d %d] = %g = %g K, OldGE = %g, \n"
-//		       "\t delta(rho) = %g, delta(E) = %g\n",
-//		       i,j,k, newGE, newGE * (TemperatureUnits * (Gamma-1.0) * 0.6),
-//		       BaryonField[GENum][index], EjectaDensity, EjectaThermalEnergy);
-//	      if (newGE < warnGE)
-//		printf("Low gas Energy[%d %d %d] = %g = %g K, OldGE = %g, \n"
-//		       "\t delta(rho) = %g, delta(E) = %g\n",
-//		       i,j,k, newGE, newGE * (TemperatureUnits * (Gamma-1.0) * 0.6),
-//		       BaryonField[GENum][index], EjectaDensity, EjectaThermalEnergy);
-//	      newGE = ramp * EjectaThermalEnergy;
-
 	      BaryonField[GENum][index] = newGE;
 	      BaryonField[TENum][index] = newGE;
 
@@ -865,7 +847,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
     //if (cstar->type == PopII)
     //MinimumTemperature = (MultiSpecies > 1) ? 1e3 : 1e4;
 
-    /* For the initial Stroemgen sphere, pre-calculate the numerator
+    /* For the initial Stroemgren sphere, pre-calculate the numerator
        of the photo-ionization and photo-heating terms and also absorb
        the unit conversions and (1/4pi) into the cross-section. */
 
@@ -906,7 +888,7 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	  radius2 = delx*delx + dely*dely + delz*delz;
 	  if (radius2 <= radius*radius) {
 
-	    radius2 = max(radius2, 0.125*CellWidth[0][i]*CellWidth[0][i]); // (0.25*dx)^2
+	    radius2 = max(radius2, 0.0625*CellWidth[0][i]*CellWidth[0][i]); // (0.25*dx)^2
 
 	    if (MetallicityField == TRUE)
 	      metallicity = BaryonField[MetalNum][index] / BaryonField[DensNum][index];
@@ -916,13 +898,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    fhz = fh * (1-metallicity);
 	    fhez = (1-fh) * (1-metallicity);
 
-            //if (abs(cstar->type) == SimpleSource) {
-	    //  factor = PopIIIStarMass/EjectaDensity;
-	    //}
-	    //else
-	    //factor = EjectaDensity / BaryonField[DensNum][index];
-	    //factor = EjectaDensity;  // Temporary (EjectaDensity is the percentage decrease)
-	    //BaryonField[DensNum][index] *= factor;
 	    BaryonField[DensNum][index] = EjectaDensity;
 
 	    if (MultiSpecies) {

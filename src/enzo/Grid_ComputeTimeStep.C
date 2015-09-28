@@ -441,8 +441,6 @@ float grid::ComputeTimeStep()
 
 #ifdef TRANSFER
 
-  /* 8) If star formation, set a minimum timestep */
-
   float TemperatureUnits, DensityUnits, LengthUnits, 
     VelocityUnits, TimeUnits, aUnits = 1;
 
@@ -451,27 +449,7 @@ float grid::ComputeTimeStep()
     ENZO_FAIL("Error in GetUnits.");
   }
 
-#ifdef UNUSED
-  float mindtNOstars;  // Myr
-  const int NumberOfStepsInLifetime = 5;
-  float dtStar = huge_number;
-
-  if (STARFEED_METHOD(POP3_STAR))
-    mindtNOstars = 3;  // Myr
-  if (STARFEED_METHOD(STAR_CLUSTER))
-    mindtNOstars = 10;  // Myr
-
-  if (STARFEED_METHOD(POP3_STAR) || STARFEED_METHOD(STAR_CLUSTER))
-    if (G_TotalNumberOfStars > 0 && minStarLifetime < 1e6)
-      dtStar = minStarLifetime/NumberOfStepsInLifetime;
-    else
-      dtStar = 3.1557e13*mindtNOstars/TimeUnits;
-
-  dt = min(dt, dtStar);
-#endif /* UNUSED */
-
-
-  /* 9) If using radiation pressure, calculate minimum dt */
+  /* 8) If using radiation pressure, calculate minimum dt */
 
   float dtRadPressure = huge_number;
   float absVel, absAccel;
@@ -498,7 +476,7 @@ float grid::ComputeTimeStep()
 
   } /* ENDIF RadiationPressure */
 
-  /* 10) Safety Velocity to limit timesteps */
+  /* 9) Safety Velocity to limit timesteps */
 
   float dtSafetyVelocity = huge_number;
   if (TimestepSafetyVelocity > 0)
@@ -508,7 +486,7 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtSafetyVelocity);
 
 
-  /* 9) FLD Radiative Transfer timestep limitation */
+  /* 10) FLD Radiative Transfer timestep limitation */
   if (RadiativeTransferFLD)
     dt = min(dt, MaxRadiationDt);
   
