@@ -280,7 +280,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
   /* Do the first grid regeneration. */
  
   if(CheckpointRestart == FALSE) {
-		if( MetaData.CycleNumber == 2093 ) fprintf(stderr,"CALLED HERE @ 281 !!!\n");
     RebuildHierarchy(&MetaData, LevelArray, 0);
   }
 
@@ -371,7 +370,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 
     if (MyProcessorNumber == ROOT_PROCESSOR)
       fclose(LevelInfofptr);
-
+ 
     /* Compute minimum timestep on the top level. */
  
     float dtProc   = huge_number;
@@ -596,7 +595,7 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
     PrintMemoryUsage("Pre loop rebuild");
  
     if (ProblemType != 25 && Restart == FALSE)
-			RebuildHierarchy(&MetaData, LevelArray, 0);
+      RebuildHierarchy(&MetaData, LevelArray, 0);
 
     PrintMemoryUsage("Post loop rebuild");
 
@@ -788,6 +787,6 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 #ifdef USE_MPI
   texit = MPI_Wtime();
 #endif
-
+ 
   return SUCCESS;
 }

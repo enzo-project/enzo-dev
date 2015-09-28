@@ -141,9 +141,9 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) 
     AdiabaticExpansionInitialUniformBField[dim] /= MagneticUnits;
- 
-	AdiabaticExpansionInitialCR /= CRUnits;
- 
+
+  AdiabaticExpansionInitialCR /= CRUnits;
+
   /* Put inputs in a form that will be understood by InitializeUniformGrid. */
  
   float InitialTotalEnergy, InitialGasEnergy;
@@ -152,8 +152,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   if (MultiSpecies == FALSE) InitialGasEnergy /=  DEFAULT_MU;
   InitialTotalEnergy = InitialGasEnergy;
   InitialVels[0] = AdiabaticExpansionInitialVelocity/VelocityUnits*1.0e5;
-//  if( HydroMethod != 2 ) // zeus  FIXME
-		InitialTotalEnergy += 0.5*POW(InitialVels[0],2);
+  InitialTotalEnergy += 0.5*POW(InitialVels[0],2);
   for (int dim = 1; dim < MAX_DIMENSION; dim++)
     InitialVels[dim] = 0.0;
  
@@ -164,7 +163,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 					      InitialTotalEnergy,
 					      InitialGasEnergy, InitialVels,
 					      AdiabaticExpansionInitialUniformBField,
-	              AdiabaticExpansionInitialCR
+					      AdiabaticExpansionInitialCR
 					      ) == FAIL) {
         ENZO_FAIL("Error in InitializeUniformGrid.");
   }
