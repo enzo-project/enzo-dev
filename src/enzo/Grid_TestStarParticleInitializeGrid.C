@@ -76,11 +76,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
     ParticleType[i] = PARTICLE_TYPE_STAR;
   }
 
-  /* Set central particle. */
-
-  //ParticlePosition[0][0] = 0.25*(DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
-  //ParticleVelocity[0][0] = 5.0*1e5*TimeUnits/LengthUnits;
-  
+  /* Set central particle. */ 
   for (dim = 0; dim < GridRank; dim++) {
     ParticlePosition[dim][0] = TestStarParticleStarPosition[dim]*
       (DomainLeftEdge[dim]+DomainRightEdge[dim]) + 0.5*CellWidth[0][0];
@@ -89,7 +85,7 @@ int grid::TestStarParticleInitializeGrid(float TestStarParticleStarMass,
   ParticleMass[0] = CentralMass;
   ParticleAttribute[0][0] = Time+1e-7; //creation time:make sure it is non-zero
   if (STARFEED_METHOD(UNIGRID_STAR)) ParticleAttribute[1][0] = 1e7*3.15e7/TimeUnits;
-  if (STARFEED_METHOD(UNIGRID_STAR_MOM)) ParticleAttribute[1][0] = TestInitialdt/100.0; // dynamical time?
+  if (STARFEED_METHOD(MOM_STAR)) ParticleAttribute[1][0] = TestInitialdt/100.0; // dynamical time?
   ParticleAttribute[2][0] = 0.0;  // Metal fraction
   ParticleAttribute[3][0] = 0.0;  // metalfSNIa
 
