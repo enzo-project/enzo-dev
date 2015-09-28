@@ -80,6 +80,7 @@ float grid::ComputeTimeStep()
   float dtAcceleration = huge_number;
   float dtMHD          = huge_number;
   float dtConduction   = huge_number;
+  float dtCR           = huge_number;
   float dtGasDrag      = huge_number;
   int dim, i, j, k, index, result;
  
@@ -140,7 +141,7 @@ float grid::ComputeTimeStep()
     /* Compute the pressure. */
  
     float *pressure_field = new float[size];
-    this->ComputePressure(Time, pressure_field);
+    this->ComputePressure(Time, pressure_field,0,1); // USE CRs
  
 #ifdef UNUSED
     int Zero[3] = {0,0,0}, TempInt[3] = {0,0,0};
@@ -405,14 +406,25 @@ float grid::ComputeTimeStep()
 
     dtConduction *= float(NumberOfGhostZones);     // for subcycling 
   }
+  
+  /* 6) Calculate minimum dt due to CR diffusion */
 
-  /* 6) GasDrag time step */
+  if(CRModel && CRDiffusion ){
+    if( this->ComputeCRDiffusionTimeStep(dtCR) == FAIL) {
+      fprintf(stderr, "Error in ComputeCRDiffusionTimeStep.\n");
+      return FAIL;
+    }
+    dtCR *= CRCourantSafetyNumber;
+    dtCR *= float(NumberOfGhostZones);  // for subcycling
+  }
+
+  /* 7) GasDrag time step */
   if (UseGasDrag && GasDragCoefficient != 0.) {
     dtGasDrag = 0.5/GasDragCoefficient;
   }
 
 
-  /* 7) calculate minimum timestep */
+  /* 8) calculate minimum timestep */
  
   dt = min(dtBaryons, dtParticles);
   dt = min(dt, dtMHD);
@@ -420,6 +432,7 @@ float grid::ComputeTimeStep()
   dt = min(dt, dtAcceleration);
   dt = min(dt, dtExpansion);
   dt = min(dt, dtConduction);
+  dt = min(dt, dtCR);
   dt = min(dt, dtGasDrag);
 
 #ifdef TRANSFER

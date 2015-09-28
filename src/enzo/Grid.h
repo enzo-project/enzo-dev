@@ -333,7 +333,7 @@ class grid
    (returns: success/failure). */
 
    int WriteGridInterpolate(FLOAT WriteTime, FILE *main_file_pointer, 
-			    char *base_name, int grid_id);
+   char *base_name, int grid_id);
 
 /* Interpolate to specified time and write grid data to a group file
    (returns: success/failure). */
@@ -402,6 +402,10 @@ public:
    int ConductHeat();			     /* Conduct Heat */
    float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
+/* Member functions for dealing with Cosmic Ray Diffusion */
+	int ComputeCRDiffusion(); // CR Diffusion Method 
+	int ComputeCRDiffusionTimeStep(float &dt);
+
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
 
@@ -423,7 +427,7 @@ public:
     (for step #16) */
 
    int SolveHydroEquations(int CycleNumber, int NumberOfSubgrids, 
-			   fluxes *SubgridFluxes[], int level);
+  fluxes *SubgridFluxes[], int level);
 
 /* Baryons: return pointer to the BoundaryFluxes of this grid */
 
@@ -485,9 +489,9 @@ public:
     (for step #19) */
 
    int CorrectForRefinedFluxes(fluxes *InitialFluxes, fluxes *RefinedFluxes,
-			       fluxes *BoundaryFluxesThisTimeStep,
-			       int SUBlingGrid,
-			       TopGridData *MetaData);
+      fluxes *BoundaryFluxesThisTimeStep,
+      int SUBlingGrid,
+      TopGridData *MetaData);
 
 /* Baryons: add the fluxes pointed to by the argument to the boundary fluxes
             of this grid (sort of for step #16).  Note that the two fluxes
@@ -523,7 +527,8 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Baryons: compute the pressure at the requested time. */
 
   int ComputePressure(FLOAT time, float *pressure,
-                      float MinimumSupportEnergyCoefficient=0);
+                      float MinimumSupportEnergyCoefficient=0,
+                      int IncludeCRs=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
             formalism. */
@@ -532,7 +537,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the temperature. */
 
-   int ComputeTemperatureField(float *temperature);
+   int ComputeTemperatureField(float *temperature,int IncludeCRs=0);
 
 /* Baryons: compute the temperature at the requested time using
    Gadget equilibrium cooling. */
@@ -551,13 +556,13 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Baryons: compute X-ray emissivity in specified band. */
 
    int ComputeXrayEmissivity(float *temperature,
-			     float *xray_emissivity, float keV1, float keV2,
-			     char *XrayFileName);
+    float *xray_emissivity, float keV1, float keV2,
+    char *XrayFileName);
 
 /* Baryons: compute number density of ionized elements (just O7 and O8). */
 
    int ComputeElementalDensity(float *temperature, float *elemental_density,
-			       int Type);
+      int Type);
 
 /* Baryons: compute the ratio of specific heats. */
 
@@ -650,27 +655,27 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Output grid information (for movie generation). */
 
    int OutputGridMovieData(FILE *Gridfptr, FILE *DMfptr, FILE *Starfptr,
-			   FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
-			   FLOAT WriteOutTime, int NumberOfPoints[3],
-			   int NumberOfValuesPerPoint[3],
-			   char *PointValueNames[3][20], float BaseRadius);
+  FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[],
+  FLOAT WriteOutTime, int NumberOfPoints[3],
+  int NumberOfValuesPerPoint[3],
+  char *PointValueNames[3][20], float BaseRadius);
 
 /* Output movie data (sequential format) */
 
    int WriteNewMovieData(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
-			 int RootResolution, FLOAT StopTime, 
-			 AMRHDF5Writer &AmiraGrid,
-			 int lastMovieStep, int TopGridCycle, 
-			 int WriteMe, int MovieTimestepCounter, int open, 
-			 FLOAT WriteTime,
-			 int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
-			 int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
+int RootResolution, FLOAT StopTime, 
+AMRHDF5Writer &AmiraGrid,
+int lastMovieStep, int TopGridCycle, 
+int WriteMe, int MovieTimestepCounter, int open, 
+FLOAT WriteTime,
+int alreadyopened[][MAX_DEPTH_OF_HIERARCHY] = NULL, 
+int NumberOfStarParticlesOnProcOnLvl[][MAX_DEPTH_OF_HIERARCHY] = NULL);
 
    int WriteNewMovieDataSeparateParticles(FLOAT RegionLeftEdge[], FLOAT RegionRightEdge[], 
-					  FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
-					  int lastMovieStep, int WriteMe, 
-					  FLOAT WriteTime, int alreadyopened[],
-					  int NumberOfStarParticlesOnProc[]);
+		 FLOAT StopTime, AMRHDF5Writer &AmiraGrid,
+		 int lastMovieStep, int WriteMe, 
+		 FLOAT WriteTime, int alreadyopened[],
+		 int NumberOfStarParticlesOnProc[]);
 
    int ReturnMovieTimestep() { return TimestepsSinceCreation; };
 
@@ -716,28 +721,28 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Driving routine for Gadget equilibrium cooling */
 
    int GadgetCalculateCooling(float *d, float *e, float *ge,
-			      float *u, float *v, float *w,
-			      int *in, int *jn, int *kn,
-			      int *iexpand, hydro_method *imethod, 
-			      int *idual, int *idim,
-			      int *is, int *js, int *ks, int *ie, int *je,
-			      int *ke, float *dt, float *aye,
-			      float *fh, float *utem, float *uxyz,
-			      float *uaye, float *urho, float *utim,
-			      float *gamma);
+     float *u, float *v, float *w,
+     int *in, int *jn, int *kn,
+     int *iexpand, hydro_method *imethod, 
+     int *idual, int *idim,
+     int *is, int *js, int *ks, int *ie, int *je,
+     int *ke, float *dt, float *aye,
+     float *fh, float *utem, float *uxyz,
+     float *uaye, float *urho, float *utim,
+     float *gamma);
 
 /* Computes cooling time using gadget equilibrium cooling */
 
    int GadgetCoolingTime(float *d, float *e, float *ge,
-			 float *u, float *v, float *w,
-			 float *cooltime,
-			 int *in, int *jn, int *kn,
-			 int *iexpand, hydro_method *imethod, int *idual, int *idim,
-			 int *is, int *js, int *ks, int *ie, int *je,
-			 int *ke, float *dt, float *aye,
-			 float *fh, float *utem, float *uxyz,
-			 float *uaye, float *urho, float *utim,
-			 float *gamma);
+float *u, float *v, float *w,
+float *cooltime,
+int *in, int *jn, int *kn,
+int *iexpand, hydro_method *imethod, int *idual, int *idim,
+int *is, int *js, int *ks, int *ie, int *je,
+int *ke, float *dt, float *aye,
+float *fh, float *utem, float *uxyz,
+float *uaye, float *urho, float *utim,
+float *gamma);
 
 
 /* calculates abundances and rates using Gadget equilibrium cooling */
@@ -756,9 +761,9 @@ gradient force to gravitational force for one-zone collapse test. */
 /* wrapper for GadgetCoolingRate */
 
    float Gadget_EquilibriumCooling(float u_old, float rho, float dt,
-				   float *ne_guess, float *utem, float *uxyz, 
-				   float *uaye, float *urho,
-				   float *utim, float redshift);
+	  float *ne_guess, float *utem, float *uxyz, 
+	  float *uaye, float *urho,
+	  float *utim, float redshift);
 
 /* calculates cooling rate (not cooling time) using energy instead of temperature 
    for Gadget equil. cooling */
@@ -797,8 +802,8 @@ gradient force to gravitational force for one-zone collapse test. */
    aren't local. */
 
    int SetParticleMassFlaggingField(int StartProc=0, int EndProc=0, int level=-1, 
-				    int ParticleMassMethod=-1, int *SendProcs=NULL, 
-				    int NumberOfSends=0);
+	   int ParticleMassMethod=-1, int *SendProcs=NULL, 
+	   int NumberOfSends=0);
    int CollectParticleMassFlaggingField(void);
    void ClearParticleMassFlaggingField(void);
 
@@ -954,7 +959,7 @@ gradient force to gravitational force for one-zone collapse test. */
             Returns SUCCESS or FAIL. */
 
    int InterpolateFieldValues(grid *ParentGrid , 
-			      LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData);
+     LevelHierarchyEntry * OldFineLevel, TopGridData * MetaData);
 
 
 /* Interpolate one radiation field.  Based on InterpolateFieldValues
@@ -969,7 +974,7 @@ gradient force to gravitational force for one-zone collapse test. */
 		       boundary_type LeftFaceBoundaryCondition[],
 		       boundary_type RightFaceBoundaryCondition[],
 		       int (grid::*CopyFunction)(grid *OtherGrid,
-						 FLOAT EdgeOffset[]));
+			FLOAT EdgeOffset[]));
 
  
 
@@ -978,16 +983,16 @@ gradient force to gravitational force for one-zone collapse test. */
 /* baryons: check for subgrids adjacent to external boundary with reflecting BCs. */
 
    int CheckForExternalReflections(
-				   boundary_type LeftFaceBoundaryCondition[],
-				   boundary_type RightFaceBoundaryCondition[]);
+	  boundary_type LeftFaceBoundaryCondition[],
+	  boundary_type RightFaceBoundaryCondition[]);
 
 /* David Collins flux correction - July 2005 */
    int CheckForSharedFace(grid *OtherGrid,
-			       boundary_type LeftFaceBoundaryCondition[],
-			       boundary_type RightFaceBoundaryCondition[]);
+      boundary_type LeftFaceBoundaryCondition[],
+      boundary_type RightFaceBoundaryCondition[]);
 
    int CheckForSharedFaceHelper(grid *OtherGrid,
-				     FLOAT EdgeOffset[MAX_DIMENSION]);
+	    FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* baryons: check for overlap between grids & return TRUE if it exists
             (correctly includes periodic boundary conditions). */
@@ -1002,13 +1007,13 @@ gradient force to gravitational force for one-zone collapse test. */
             (gg #7).  Return SUCCESS or FAIL. */
 
    int CopyZonesFromGrid(grid *GridOnSameLevel, 
-			 FLOAT EdgeOffset[MAX_DIMENSION]);
+FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* gravity: copy coincident potential field zones from grid in the argument
             (gg #7).  Return SUCCESS or FAIL. */
 
    int CopyPotentialField(grid *GridOnSameLevel, 
-			  FLOAT EdgeOffset[MAX_DIMENSION]);
+ FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* baryons: check for coincident zone from the (old) grid in the argument
             (gg #7).  Return SUCCESS or FAIL. */
@@ -1168,7 +1173,7 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Generic routine for interpolating particles/grid. */
 
    int InterpolatePositions(FLOAT *Positions[], int dim, float *Field, 
-			    int Number);
+   int Number);
 
 /* Gravity: Delete GravitatingMassField. */
 
@@ -1343,7 +1348,7 @@ gradient force to gravitational force for one-zone collapse test. */
    GravitatingMassField. */
 
    int AddOverlappingParticleMassField(grid *TargetGrid, 
-				       FLOAT EdgeOffset[MAX_DIMENSION]);
+	      FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* Particles: Apply particle acceleration to velocity for particles in this 
               grid
@@ -1454,7 +1459,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
    void SetParticlePointers(float *Mass, PINT *Number, int *Type,
                             FLOAT *Position[], 
-			    float *Velocity[], float *Attribute[]) {
+   float *Velocity[], float *Attribute[]) {
     ParticleMass   = Mass;
     ParticleNumber = Number;
     ParticleType   = Type;
@@ -1553,20 +1558,20 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Send a region from a real grid to a 'fake' grid on another processor. */
 
   int CommunicationSendRegion(grid *ToGrid, int ToProcessor, int SendField, 
-			     int NewOrOld, int RegionStart[], int RegionDim[]);
+    int NewOrOld, int RegionStart[], int RegionDim[]);
 
 /* Send a region from a 'fake' grid to a real grid on another processor. */
 
   int CommunicationReceiveRegion(grid *ToGrid, int ToProcessor, 
-				 int SendField, int NewOrOld, 
-				 int RegionStart[], int RegionDim[],
-				 int IncludeBoundary);
+	int SendField, int NewOrOld, 
+	int RegionStart[], int RegionDim[],
+	int IncludeBoundary);
 
 /* Move a grid from one processor to another. */
 
   int CommunicationMoveGrid(int ToProcessor, int MoveParticles = TRUE,
-			    int DeleteAllFields = TRUE, 
-			    int MoveSubgridMarker = FALSE);
+   int DeleteAllFields = TRUE, 
+   int MoveSubgridMarker = FALSE);
 
 /* Send particles from one grid to another. */
 
@@ -1576,19 +1581,19 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Transfer particle amount level 0 grids. */
 
   int CommunicationTransferParticles(grid* Grids[], int NumberOfGrids,
-				     int ThisGridNum, int TopGridDims[],
-				     int *&NumberToMove, 
-				     int StartIndex, int EndIndex, 
-				     particle_data *&List,
-				     int *Layout, int *GStartIndex[],
-				     int *GridMap, int CopyDirection);
+	    int ThisGridNum, int TopGridDims[],
+	    int *&NumberToMove, 
+	    int StartIndex, int EndIndex, 
+	    particle_data *&List,
+	    int *Layout, int *GStartIndex[],
+	    int *GridMap, int CopyDirection);
   int CommunicationTransferStars(grid* Grids[], int NumberOfGrids,
-				 int ThisGridNum, int TopGridDims[],
-				 int *&NumberToMove, 
-				 int StartIndex, int EndIndex, 
-				 star_data *&List, int *Layout, 
-				 int *GStartIndex[], int *GridMap, 
-				 int CopyDirection);
+	int ThisGridNum, int TopGridDims[],
+	int *&NumberToMove, 
+	int StartIndex, int EndIndex, 
+	star_data *&List, int *Layout, 
+	int *GStartIndex[], int *GridMap, 
+	int CopyDirection);
 
   int CollectParticles(int GridNum, int* &NumberToMove, 
 		       int &StartIndex, int &EndIndex, 
@@ -1603,19 +1608,19 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 		       int AllLocal);
 
   int TransferSubgridParticles(grid* Subgrids[], int NumberOfSubgrids, 
-			       int* &NumberToMove, int StartIndex, 
-			       int EndIndex, particle_data* &List, 
-			       bool KeepLocal, bool ParticlesAreLocal,
-			       int CopyDirection,
-			       int IncludeGhostZones = FALSE,
-			       int CountOnly = FALSE);
+      int* &NumberToMove, int StartIndex, 
+      int EndIndex, particle_data* &List, 
+      bool KeepLocal, bool ParticlesAreLocal,
+      int CopyDirection,
+      int IncludeGhostZones = FALSE,
+      int CountOnly = FALSE);
 
   int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
-			   int* &NumberToMove, int StartIndex, 
-			   int EndIndex, star_data* &List, 
-			   bool KeepLocal, bool ParticlesAreLocal,
-			   int CopyDirection,
-			   int IncludeGhostZones = FALSE);
+  int* &NumberToMove, int StartIndex, 
+  int EndIndex, star_data* &List, 
+  bool KeepLocal, bool ParticlesAreLocal,
+  int CopyDirection,
+  int IncludeGhostZones = FALSE);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
@@ -1664,15 +1669,22 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Baryons: find certain commonly used variables from the list of fields. */
 
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num, 
-				 int &Vel2Num, int &Vel3Num, int &TENum);
+	int &Vel2Num, int &Vel3Num, int &TENum);
+
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num,
+         int &Vel2Num, int &Vel3Num, int &TENum, int &CRNum);
 
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
-				 int &Vel2Num, int &Vel3Num, int &TENum,
-				 int &B1Num, int &B2Num, int &B3Num);
+	int &Vel2Num, int &Vel3Num, int &TENum,
+	int &B1Num, int &B2Num, int &B3Num);
 
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
-				 int &Vel2Num, int &Vel3Num, int &TENum,
-				 int &B1Num, int &B2Num, int &B3Num, int &PhiNum);
+	int &Vel2Num, int &Vel3Num, int &TENum,
+	int &B1Num, int &B2Num, int &B3Num, int &PhiNum);
+
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
+  int &Vel2Num, int &Vel3Num, int &TENum,
+  int &B1Num, int &B2Num, int &B3Num, int &PhiNum, int &CRNum);
 
   /* Identify driving fields */
 
@@ -1691,8 +1703,8 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   /* Identify Multi-species fields. */
 
   int IdentifySpeciesFields(int &DeNum, int &HINum, int &HIINum, 
-			    int &HeINum, int &HeIINum, int &HeIIINum,
-			    int &HMNum, int &H2INum, int &H2IINum,
+   int &HeINum, int &HeIINum, int &HeIIINum,
+   int &HMNum, int &H2INum, int &H2IINum,
                             int &DINum, int &DIINum, int &HDINum);
 
   /* Identify shock fields. */
@@ -1700,14 +1712,14 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 
   // Identify Simon Glover Species Fields
   int IdentifyGloverSpeciesFields(int &HIINum,int &HINum,int &H2INum,
-				  int &DINum,int &DIINum,int &HDINum,
-				  int &HeINum,int &HeIINum,int &HeIIINum,
-				  int &CINum,int &CIINum,int &OINum,
-				  int &OIINum,int &SiINum,int &SiIINum,
-				  int &SiIIINum,int &CHINum,int &CH2INum,
-				  int &CH3IINum,int &C2INum,int &COINum,
-				  int &HCOIINum,int &OHINum,int &H2OINum,
-				  int &O2INum);
+	 int &DINum,int &DIINum,int &HDINum,
+	 int &HeINum,int &HeIINum,int &HeIIINum,
+	 int &CINum,int &CIINum,int &OINum,
+	 int &OIINum,int &SiINum,int &SiIINum,
+	 int &SiIIINum,int &CHINum,int &CH2INum,
+	 int &CH3IINum,int &C2INum,int &COINum,
+	 int &HCOIINum,int &OHINum,int &H2OINum,
+	 int &O2INum);
 
 /* Zeus Solver. */
 
@@ -1764,36 +1776,60 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
 /* Protostellar Collapse problem: initialize grid (returns SUCCESS or FAIL) */
   int ProtostellarCollapseInitializeGrid(float CoreDensity,
-					 float CoreEnergy,
-					 float CoreRadius,
-					 float AngularVelocity);
+		float CoreEnergy,
+		float CoreRadius,
+		float AngularVelocity);
 
 /* HydroShockTubes problems: initialize grid (returns SUCCESS or FAIL) */
 
   int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
-				    float LeftDensity, float RightDensity,
-				    float LeftVelocityX, float RightVelocityX,
-				    float LeftVelocityY, float RightVelocityY,
-				    float LeftVelocityZ, float RightVelocityZ,
-				    float LeftPressure, float RightPressure);
+	   float LeftDensity, float RightDensity,
+	   float LeftVelocityX, float RightVelocityX,
+	   float LeftVelocityY, float RightVelocityY,
+	   float LeftVelocityZ, float RightVelocityZ,
+	   float LeftPressure, float RightPressure);
   int HydroShockTubesInitializeGrid(float InitialDiscontinuity,
-				    float SecondDiscontinuity,
-				    float LeftDensity, float RightDensity,
-				    float CenterDensity,
-				    float LeftVelocityX, float RightVelocityX,
-				    float CenterVelocityX,
-				    float LeftVelocityY, float RightVelocityY,
-				    float CenterVelocityY,
-				    float LeftVelocityZ, float RightVelocityZ,
-				    float CenterVelocityZ,
-				    float LeftPressure, float RightPressure,
-				    float CenterPressure);
+	   float SecondDiscontinuity,
+	   float LeftDensity, float RightDensity,
+	   float CenterDensity,
+	   float LeftVelocityX, float RightVelocityX,
+	   float CenterVelocityX,
+	   float LeftVelocityY, float RightVelocityY,
+	   float CenterVelocityY,
+	   float LeftVelocityZ, float RightVelocityZ,
+	   float CenterVelocityZ,
+	   float LeftPressure, float RightPressure,
+	   float CenterPressure);
+
+/* Cosmic Ray Shock Tube Problems: Initialize grid (returns SUCCESS or FAIL) */
+
+  int CRShockTubesInitializeGrid(float InitialDiscontinuity,
+            float LeftDensity, float RightDensity,
+            float LeftVelocityX, float RightVelocityX,
+            float LeftVelocityY, float RightVelocityY,
+            float LeftVelocityZ, float RightVelocityZ,
+            float LeftPressure, float RightPressure,
+            float LeftCRDensity, float RightCRDensity);
+  int CRShockTubesInitializeGrid(float InitialDiscontinuity,
+            float SecondDiscontinuity,
+            float LeftDensity, float RightDensity,
+            float CenterDensity,
+            float LeftVelocityX, float RightVelocityX,
+            float CenterVelocityX,
+            float LeftVelocityY, float RightVelocityY,
+            float CenterVelocityY,
+            float LeftVelocityZ, float RightVelocityZ,
+            float CenterVelocityZ,
+            float LeftPressure, float RightPressure,
+            float CenterPressure,
+            float LeftCRDensity, float RightCRDensity,
+            float CenterCRDensity);
 
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
-			    float UniformGasEnergy, float UniformVelocity[], 
-			    float UniformBField[]);
+   float UniformGasEnergy, float UniformVelocity[], 
+   float UniformBField[],float UniformCR = 0.0);
 
 
 /* Initialize a grid for the Double Mach reflection problem. */
@@ -1804,7 +1840,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Initialize a grid for Implosion test problem */
 
   int ImplosionInitializeGrid(float ImplosionDiamondDensity,
-			      float ImplosionDiamondTotalEnergy);
+     float ImplosionDiamondTotalEnergy);
 
 
 /* Initialize a grid for Sedov Explosion */
@@ -1820,35 +1856,35 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Initialize a grid for RadiatingShock (Sedov+Cooling) Explosion */
 
   int RadiatingShockInitializeGrid(FLOAT RadiatingShockInitialRadius,
-				   float RadiatingShockInnerDensity,
-				   float RadiatingShockInnerTotalEnergy,
-				   int RadiatingShockUseDensityFluctuations,
-				   int RadiatingShockRandomSeed,
-				   float RadiatingShockDensityFluctuationLevel,
-				   int RadiatingShockInitializeWithKE,
-				   int RadiatingShockUseSedovProfile,
-				   FLOAT RadiatingShockSedovBlastRadius,
-				   float RadiatingShockEnergy,
-				   float RadiatingShockPressure,
-				   float RadiatingShockKineticEnergyFraction,
-				   float RadiatingShockRhoZero,
-				   float RadiatingShockVelocityZero,
-				   int RadiatingShockRandomSeedInitialize,
-				   FLOAT RadiatingShockCenterPosition[MAX_DIMENSION]);
+	  float RadiatingShockInnerDensity,
+	  float RadiatingShockInnerTotalEnergy,
+	  int RadiatingShockUseDensityFluctuations,
+	  int RadiatingShockRandomSeed,
+	  float RadiatingShockDensityFluctuationLevel,
+	  int RadiatingShockInitializeWithKE,
+	  int RadiatingShockUseSedovProfile,
+	  FLOAT RadiatingShockSedovBlastRadius,
+	  float RadiatingShockEnergy,
+	  float RadiatingShockPressure,
+	  float RadiatingShockKineticEnergyFraction,
+	  float RadiatingShockRhoZero,
+	  float RadiatingShockVelocityZero,
+	  int RadiatingShockRandomSeedInitialize,
+	  FLOAT RadiatingShockCenterPosition[MAX_DIMENSION]);
 
   /* Initialize a grid for a rotating cylinder collapse */
   int RotatingCylinderInitializeGrid(FLOAT RotatingCylinderRadius,
-				     FLOAT RotatingCylinderCenterPosition[MAX_DIMENSION],
-				     float RotatingCylinderLambda,
-				     float RotatingCylinderOverdensity);
+	    FLOAT RotatingCylinderCenterPosition[MAX_DIMENSION],
+	    float RotatingCylinderLambda,
+	    float RotatingCylinderOverdensity);
 
   int RotatingDiskInitializeGrid(float RDScaleRadius,
-				 float RDScaleHeight, 
-				 float RDTemperature,
-				 float RDDMConcentration, 
-				 float RDTotalDMMass,
-				 float RDCentralDensity,
-				 float RDOuterEdge);
+	float RDScaleHeight, 
+	float RDTemperature,
+	float RDDMConcentration, 
+	float RDTotalDMMass,
+	float RDCentralDensity,
+	float RDOuterEdge);
 
   int RotatingSphereInitializeGrid(float RotatingSphereNFWMass,
                                    float RotatingSphereNFWConcentration,
@@ -1894,25 +1930,25 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Zeldovich Pancake: initial grid (returns SUCCESS or FAIL). */
 
   int ZeldovichPancakeInitializeGrid(int   ZeldovichPancakeDirection,
-				     float ZeldovichPancakeCentralOffset,
-				     float ZeldovichPancakeOmegaBaryonNow,
-				     float ZeldovichPancakeOmegaCDMNow,
-				     float ZeldovichPancakeCollapseRedshift,
-				     float ZeldovichPancakeInitialTemperature,
-				     float ZeldovichPancakeInitialUniformBField[]);
+	    float ZeldovichPancakeCentralOffset,
+	    float ZeldovichPancakeOmegaBaryonNow,
+	    float ZeldovichPancakeOmegaCDMNow,
+	    float ZeldovichPancakeCollapseRedshift,
+	    float ZeldovichPancakeInitialTemperature,
+	    float ZeldovichPancakeInitialUniformBField[]);
 
 /* 1D Pressureless Collapse: initialize grid. */
 
   int PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
-				    float PressurelessCollapseInitialDensity,
-				      int PressurelessCollapseNumberOfCells);
+	   float PressurelessCollapseInitialDensity,
+	     int PressurelessCollapseNumberOfCells);
 
 /* Gravity Test: particles in isolated boundaries */
   int TestOrbitInitializeGrid(int NumberOfTestParticles,
-			      FLOAT TestRadius,
-			      float CentralMass,
-			      float TestMass,
-			      int UseBaryons);
+     FLOAT TestRadius,
+     float CentralMass,
+     float TestMass,
+     int UseBaryons);
 
 /* Gravity Test: initialize grid. */
 
@@ -1930,10 +1966,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Gravity Test (Sphere): initialize grid. */
 
   int TestGravitySphereInitializeGrid(float InteriorDensity, 
-				      float ExteriorDensity,
-				      float SphereRadius, 
-				      int SphereType, int UseBaryons,
-				      FLOAT SphereCenter[]);
+	     float ExteriorDensity,
+	     float SphereRadius, 
+	     int SphereType, int UseBaryons,
+	     FLOAT SphereCenter[]);
 
 /* Gravity Test (Sphere): check results. */
 
@@ -1950,20 +1986,20 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Conducting Bubble Test: initialize grid. */
 
   int ConductionBubbleInitialize(FLOAT BubbleRadius, int PulseType, float DeltaEntropy, 
-				 float MidpointEntropy, float EntropyGradient,
-				 float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]);
+	float MidpointEntropy, float EntropyGradient,
+	float MidpointTemperature, FLOAT BubbleCenter[MAX_DIMENSION]);
 
 /* Exploding Stratified Medium Test: initialize grid. */
 
   int StratifiedMediumExplosionInitialize(FLOAT BubbleRadius, int PulseType,
-					  float ExplosionEnergy, FLOAT BubbleCenter[MAX_DIMENSION]);
+		 float ExplosionEnergy, FLOAT BubbleCenter[MAX_DIMENSION]);
 
 /* Spherical Infall Test: initialize grid. */
 
   int SphericalInfallInitializeGrid(float InitialPerturbation, int UseBaryons,
-				    float SphericalInfallOmegaBaryonNow,
-				    float SphericalInfallOmegaCDMNow,
-				    int SubgridIsStatic);
+	   float SphericalInfallOmegaBaryonNow,
+	   float SphericalInfallOmegaCDMNow,
+	   int SubgridIsStatic);
 
 
 /* Spherical Infall Test: get the profile from the center. */
@@ -1979,31 +2015,31 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 #define MAX_SPHERES 10
 
   int CollapseTestInitializeGrid(int NumberOfSpheres,
-			     FLOAT SphereRadius[MAX_SPHERES],
-			     FLOAT SphereCoreRadius[MAX_SPHERES],
-			     float SphereDensity[MAX_SPHERES],
-			     float SphereTemperature[MAX_SPHERES],
-			     float SphereMetallicity[MAX_SPHERES],
-			     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
-			     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
-			     float SphereFracKeplarianRot[MAX_SPHERES],
-			     float SphereTurbulence[MAX_SPHERES],
-			     float SphereDispersion[MAX_SPHERES],
-			     float SphereCutOff[MAX_SPHERES],
-			     float SphereAng1[MAX_SPHERES],
-			     float SphereAng2[MAX_SPHERES],
-			     int   SphereNumShells[MAX_SPHERES],
-			     int   SphereType[MAX_SPHERES],
-			     int   SphereConstantPressure[MAX_SPHERES],
-			     int   SphereSmoothSurface[MAX_SPHERES],
-			     float SphereSmoothRadius[MAX_SPHERES],
-			     int   SphereUseParticles,
-			     float ParticleMeanDensity,
-			     float UniformVelocity[MAX_DIMENSION],
-			     int   SphereUseColour,
-			     int   SphereUseMetals,
-			     float InitialTemperature, 
-			     float InitialDensity, int level);
+    FLOAT SphereRadius[MAX_SPHERES],
+    FLOAT SphereCoreRadius[MAX_SPHERES],
+    float SphereDensity[MAX_SPHERES],
+    float SphereTemperature[MAX_SPHERES],
+    float SphereMetallicity[MAX_SPHERES],
+    FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
+    float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
+    float SphereFracKeplarianRot[MAX_SPHERES],
+    float SphereTurbulence[MAX_SPHERES],
+    float SphereDispersion[MAX_SPHERES],
+    float SphereCutOff[MAX_SPHERES],
+    float SphereAng1[MAX_SPHERES],
+    float SphereAng2[MAX_SPHERES],
+    int   SphereNumShells[MAX_SPHERES],
+    int   SphereType[MAX_SPHERES],
+    int   SphereConstantPressure[MAX_SPHERES],
+    int   SphereSmoothSurface[MAX_SPHERES],
+    float SphereSmoothRadius[MAX_SPHERES],
+    int   SphereUseParticles,
+    float ParticleMeanDensity,
+    float UniformVelocity[MAX_DIMENSION],
+    int   SphereUseColour,
+    int   SphereUseMetals,
+    float InitialTemperature, 
+    float InitialDensity, int level);
 
 /* Cluster: initialize grid. */
 
@@ -2019,45 +2055,45 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float UniformVelocity[MAX_DIMENSION],
                              int   SphereUseColour,
                              float InitialTemperature, 
-			     float ClusterInitialSpinParameter, int level);
+    float ClusterInitialSpinParameter, int level);
 
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(
-			  int   InitialGridNumber,
-			  float CosmologySimulationOmegaBaryonNow,
-			  float CosmologySimulationOmegaCDMNow,
-			  float CosmologySimulationInitialTemperature,
-			  char *CosmologySimulationDensityName,
-			  char *CosmologySimulationTotalEnergyName,
-			  char *CosmologySimulationGasEnergyName,
-			  char *CosmologySimulationVelocityNames[],
-			  char *CosmologySimulationParticlePositionName,
-			  char *CosmologySimulationParticleVelocityName,
- 			  char *CosmologySimulationParticleDisplacementName,
-			  char *CosmologySimulationParticleMassName,
-			  char *CosmologySimulationParticleTypeName,
-			  char *CosmologySimulationParticlePositionNames[],
-			  char *CosmologySimulationParticleVelocityNames[],
- 			  char *CosmologySimulationParticleDisplacementNames[],
-			  int   CosmologySimulationSubgridsAreStatic,
-			  int   TotalRefinement,
-			  float CosmologySimulationInitialFractionHII,
-			  float CosmologySimulationInitialFractionHeII,
-			  float CosmologySimulationInitialFractionHeIII,
-			  float CosmologySimulationInitialFractionHM,
-			  float CosmologySimulationInitialFractionH2I,
-			  float CosmologySimulationInitialFractionH2II,
-			  float CosmologySimulationInitialFractionMetal,
-			  float CosmologySimulationInitialFractionMetalIa,
+ int   InitialGridNumber,
+ float CosmologySimulationOmegaBaryonNow,
+ float CosmologySimulationOmegaCDMNow,
+ float CosmologySimulationInitialTemperature,
+ char *CosmologySimulationDensityName,
+ char *CosmologySimulationTotalEnergyName,
+ char *CosmologySimulationGasEnergyName,
+ char *CosmologySimulationVelocityNames[],
+ char *CosmologySimulationParticlePositionName,
+ char *CosmologySimulationParticleVelocityName,
+  char *CosmologySimulationParticleDisplacementName,
+ char *CosmologySimulationParticleMassName,
+ char *CosmologySimulationParticleTypeName,
+ char *CosmologySimulationParticlePositionNames[],
+ char *CosmologySimulationParticleVelocityNames[],
+  char *CosmologySimulationParticleDisplacementNames[],
+ int   CosmologySimulationSubgridsAreStatic,
+ int   TotalRefinement,
+ float CosmologySimulationInitialFractionHII,
+ float CosmologySimulationInitialFractionHeII,
+ float CosmologySimulationInitialFractionHeIII,
+ float CosmologySimulationInitialFractionHM,
+ float CosmologySimulationInitialFractionH2I,
+ float CosmologySimulationInitialFractionH2II,
+ float CosmologySimulationInitialFractionMetal,
+ float CosmologySimulationInitialFractionMetalIa,
 #ifdef TRANSFER
-			  float RadHydroInitialRadiationEnergy,
+ float RadHydroInitialRadiationEnergy,
 #endif
-			  int   CosmologySimulationUseMetallicityField,
-			  PINT &CurrentNumberOfParticles,
-			  int CosmologySimulationManuallySetParticleMassRatio,
-			  float CosmologySimulationManualParticleMassRatio,
-			  int CosmologySimulationCalculatePositions,
-			  float CosmologySimulationInitialUniformBField[]);
+ int   CosmologySimulationUseMetallicityField,
+ PINT &CurrentNumberOfParticles,
+ int CosmologySimulationManuallySetParticleMassRatio,
+ float CosmologySimulationManualParticleMassRatio,
+ int CosmologySimulationCalculatePositions,
+ float CosmologySimulationInitialUniformBField[]);
 
   int CosmologyReadParticles3D(
 		   char *CosmologySimulationParticleVelocityName,
@@ -2080,74 +2116,80 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* CosmologySimulation: initialize partitioned nested grids. */
   int NestedCosmologySimulationInitializeGrid(
-			  int   InitialGridNumber,
-			  float CosmologySimulationOmegaBaryonNow,
-			  float CosmologySimulationOmegaCDMNow,
-			  float CosmologySimulationInitialTemperature,
-			  char *CosmologySimulationDensityName,
-			  char *CosmologySimulationTotalEnergyName,
-			  char *CosmologySimulationGasEnergyName,
-			  char *CosmologySimulationVelocityNames[],
-			  char *CosmologySimulationParticlePositionName,
-			  char *CosmologySimulationParticleDisplacementName,
-			  char *CosmologySimulationParticleVelocityName,
-			  char *CosmologySimulationParticleMassName,
-			  char *CosmologySimulationParticleTypeName,
-			  char *CosmologySimulationParticleVelocityNames[],
-			  char *CosmologySimulationParticleDisplacementNames[],
-			  int   CosmologySimulationSubgridsAreStatic,
-			  int   TotalRefinement,
-			  float CosmologySimulationInitialFractionHII,
-			  float CosmologySimulationInitialFractionHeII,
-			  float CosmologySimulationInitialFractionHeIII,
-			  float CosmologySimulationInitialFractionHM,
-			  float CosmologySimulationInitialFractionH2I,
-			  float CosmologySimulationInitialFractionH2II,
-			  float CosmologySimulationInitialFractionMetal,
-			  float CosmologySimulationInitialFractionMetalIa,
-			  int   CosmologySimulationUseMetallicityField,
-			  PINT &CurrentNumberOfParticles,
-			  int CosmologySimulationManuallySetParticleMassRatio,
-			  float CosmologySimulationManualParticleMassRatio,
-			  int CosmologySimulationCalculatePositions,
-			  FLOAT SubDomainLeftEdge[],
-			  FLOAT SubDomainRightEdge[],
-			  float CosmologySimulationInitialUniformBField[]);
+ int   InitialGridNumber,
+ float CosmologySimulationOmegaBaryonNow,
+ float CosmologySimulationOmegaCDMNow,
+ float CosmologySimulationInitialTemperature,
+ char *CosmologySimulationDensityName,
+ char *CosmologySimulationTotalEnergyName,
+ char *CosmologySimulationGasEnergyName,
+ char *CosmologySimulationVelocityNames[],
+ char *CosmologySimulationParticlePositionName,
+ char *CosmologySimulationParticleDisplacementName,
+ char *CosmologySimulationParticleVelocityName,
+ char *CosmologySimulationParticleMassName,
+ char *CosmologySimulationParticleTypeName,
+ char *CosmologySimulationParticleVelocityNames[],
+ char *CosmologySimulationParticleDisplacementNames[],
+ int   CosmologySimulationSubgridsAreStatic,
+ int   TotalRefinement,
+ float CosmologySimulationInitialFractionHII,
+ float CosmologySimulationInitialFractionHeII,
+ float CosmologySimulationInitialFractionHeIII,
+ float CosmologySimulationInitialFractionHM,
+ float CosmologySimulationInitialFractionH2I,
+ float CosmologySimulationInitialFractionH2II,
+ float CosmologySimulationInitialFractionMetal,
+ float CosmologySimulationInitialFractionMetalIa,
+ int   CosmologySimulationUseMetallicityField,
+ PINT &CurrentNumberOfParticles,
+ int CosmologySimulationManuallySetParticleMassRatio,
+ float CosmologySimulationManualParticleMassRatio,
+ int CosmologySimulationCalculatePositions,
+ FLOAT SubDomainLeftEdge[],
+ FLOAT SubDomainRightEdge[],
+ float CosmologySimulationInitialUniformBField[]);
 
 
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(
-				     FLOAT DiskRadius,
-				     float GalaxyMass,
-				     float GasMass,
-				     FLOAT DiskPosition[MAX_DIMENSION], 
-				     FLOAT ScaleHeightz,
-				     FLOAT ScaleHeightR, 
-				     float DMConcentration,
-				     float DiskTemperature,
-				     float InitialTemperature,
-				     float AngularMomentum[MAX_DIMENSION],
-				     float UniformVelocity[MAX_DIMENSION], 
-				     int UseMetallicityField, 
-				     float GalaxySimulationInflowTime,
-				     float GalaxySimulationInflowDensity,
-				     int level);
+	    FLOAT DiskRadius,
+	    float GalaxyMass,
+	    float GasMass,
+	    FLOAT DiskPosition[MAX_DIMENSION], 
+	    FLOAT ScaleHeightz,
+	    FLOAT ScaleHeightR, 
+	    FLOAT GalaxyTruncationRadius,
+             float DMConcentration,
+	    float DiskTemperature,
+	    float InitialTemperature,
+	    float UniformDensity,
+	    int   GasHalo,
+	    float GasHaloScaleRadius,
+	    float GasHaloDensity,
+	    float AngularMomentum[MAX_DIMENSION],
+	    float UniformVelocity[MAX_DIMENSION], 
+	    int UseMetallicityField, 
+	    float GalaxySimulationInflowTime,
+	    float GalaxySimulationInflowDensity,
+	    int level,
+			float GalaxySimulationCR = 0.0 );
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,
-				  float FreeExpansionDensity,
-				  double FreeExpansionEnergy,
-				  float FreeExpansionMaxVelocity,
-				  float FreeExpansionMass,
-				  float FreeExpansionRadius,
-				  float DensityUnits, float VelocityUnits,
-				  float LengthUnits, float TimeUnits);
+	 float FreeExpansionDensity,
+	 double FreeExpansionEnergy,
+	 float FreeExpansionMaxVelocity,
+	 float FreeExpansionMass,
+	 float FreeExpansionRadius,
+	 float DensityUnits, float VelocityUnits,
+	 float LengthUnits, float TimeUnits);
 
   /* Supernova restart initialize grid. */
   int SupernovaRestartInitialize(float EjectaDensity, float EjectaRadius,
-				 float EjectaThermalEnergy, 
-				 FLOAT EjectaCenter[3], int ColourField,
-				 int *NumberOfCellsSet);
+	float EjectaThermalEnergy, 
+	FLOAT EjectaCenter[3], int ColourField,
+	int *NumberOfCellsSet);
 
   /* Put Sink restart initialize grid. */
   int PutSinkRestartInitialize(int level ,int *NumberOfCellsSet);
@@ -2157,24 +2199,24 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* Free-streaming radiation test problem: initialize grid (SUCCESS or FAIL) */
   int FSMultiSourceInitializeGrid(float DensityConst, float V0Const, 
-				  float V1Const, float V2Const, float TEConst, 
-				  float RadConst, int local);
+	 float V1Const, float V2Const, float TEConst, 
+	 float RadConst, int local);
 
   /* FLD Radiation test problem: initialize grid (SUCCESS or FAIL) */
   int RadHydroConstTestInitializeGrid(int NumChem, float DensityConst, 
-				      float V0Const, float V1Const, 
-				      float V2Const, float IEConst, 
-				      float EgConst, float HMassFrac, 
-				      float InitFracHII, float InitFracHeII, 
-				      float InitFracHeIII, int local);
+	     float V0Const, float V1Const, 
+	     float V2Const, float IEConst, 
+	     float EgConst, float HMassFrac, 
+	     float InitFracHII, float InitFracHeII, 
+	     float InitFracHeIII, int local);
 
   /* FLD Radiation ionization test problem: initialize grid (SUCCESS or FAIL) */
   int RHIonizationTestInitializeGrid(int NumChem, float DensityConst, 
-				     float V0Const, float V1Const, 
-				     float V2Const, float IEConst, 
-				     float EgConst, float HMassFrac, 
-				     float InitFracHII, float InitFracHeII, 
-				     float InitFracHeIII, int local);
+	    float V0Const, float V1Const, 
+	    float V2Const, float IEConst, 
+	    float EgConst, float HMassFrac, 
+	    float InitFracHII, float InitFracHeII, 
+	    float InitFracHeIII, int local);
 
   /* FLD Radiation clump ionization problem: initialize grid (SUCCESS or FAIL) */
   int RHIonizationClumpInitializeGrid(int NumChem, float NumDensityIn, 
@@ -2207,21 +2249,21 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* FLD Radiation test problem: stream test (SUCCESS or FAIL) */
   int RadHydroStreamTestInitializeGrid(float DensityConst, float EgConst,
-				       int RadStreamDim, int RadStreamDir,
-				       int local);
+	      int RadStreamDim, int RadStreamDir,
+	      int local);
 
   /* FLD Radiation test problem: pulse test (SUCCESS or FAIL) */
   int RadHydroPulseTestInitializeGrid(float DensityConst, float EgConst,
-				      int RadPulseDim, int local);
+	     int RadPulseDim, int local);
 
   /* FLD Radiation test problem: grey Marshak wave test (SUCCESS or FAIL) */
   int RadHydroGreyMarshakWaveInitializeGrid(float DensityConst, float IEConst, 
-			      	            float EgConst, int GreyMarshDir,
-					    int local);
+     	            float EgConst, int GreyMarshDir,
+		   int local);
 
   /* FLD Radiation test problem: radiating shock test (SUCCESS or FAIL) */
   int RadHydroRadShockInitializeGrid(float DensityConst, float TEConst, 
-			      	     float REConst, float VelocityConst,
+     	     float REConst, float VelocityConst,
                                      int ShockDir, int local);
 
   /* Cooling test initialization */
@@ -2254,7 +2296,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int AddFields(int TypesToAdd[], int NumberOfFields);
   int DeleteObsoleteFields(int *ObsoleteFields, 
-			   int NumberOfObsoleteFields);
+  int NumberOfObsoleteFields);
  
   inline bool isLocal () {return MyProcessorNumber == ProcessorNumber; };
 
@@ -2334,7 +2376,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Star Particle handler routine. */
 
   int StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
-			  float dtLevelAbove, float TopGridTimeStep);
+ float dtLevelAbove, float TopGridTimeStep);
 
 /* Particle splitter routine. */
 
@@ -2372,7 +2414,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
-			       int InitialMagneticFieldConfiguration);
+      int InitialMagneticFieldConfiguration);
 
   int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
@@ -2501,9 +2543,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 		      float &metallicity, float &coldgas_mass, 
 		      float AvgVelocity[], float &OneOverRSquaredSum);
   int GetEnclosedMassInShell(Star *star, float radius0, float radius1, 
-			     float &mass, float &metallicity2, 
-			     float &metallicity3,
-			     float &coldgas_mass, float AvgVelocity[]);
+    float &mass, float &metallicity2, 
+    float &metallicity3,
+    float &coldgas_mass, float AvgVelocity[]);
 
   int RemoveParticle(int ID, bool disable=false);
 
@@ -2514,9 +2556,9 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			int &CellsModified);
 
   int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
-				     float LengthUnits, float VelocityUnits, 
-				     float TemperatureUnits, float TimeUnits, double EjectaDensity, 
-				     int &CellsModified);
+	    float LengthUnits, float VelocityUnits, 
+	    float TemperatureUnits, float TimeUnits, double EjectaDensity, 
+	    int &CellsModified);
 
   int MoveAllStars(int NumberOfGrids, grid* FromGrid[], int TopGridDimension);
 
@@ -2543,8 +2585,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 //------------------------------------------------------------------------
 
   int IdentifyRadiativeTransferFields(int &kphHINum, int &gammaNum,
-				      int &kphHeINum, int &kphHeIINum, 
-				      int &kdissH2INum);
+	     int &kphHeINum, int &kphHeIINum, 
+	     int &kdissH2INum);
 
 #ifdef TRANSFER
 #include "PhotonGrid_Methods.h"
@@ -2558,7 +2600,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int ComputeCellCenteredField(int Num);
   
   float ComputeInterpolatedValue(int Num, int vci, int vcj, int vck, 
-				 float mx, float my, float mz);
+	float mx, float my, float mz);
   
   int NeighborIndices(int index, int vi[]);
   int NeighborVertexIndices(int index, int vi[]);
@@ -2578,7 +2620,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ComputeLuminosity(float *luminosity, int NumberOfLuminosityFields);
   int ComputeMetalLineLuminosity(float *total_luminosity, float *all_emis, 
-				 float *temperature);
+	float *temperature);
 
 
 //------------------------------------------------------------------------
@@ -2599,7 +2641,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int FindMinimumParticleMass(float &min_mass, int level);
 
   int FindMassiveParticles(float min_mass, int level, FLOAT *pos[], int &npart,
-			   int CountOnly);
+  int CountOnly);
 
 //------------------------------------------------------------------------
 //  Inline FOF halo finder and particle interpolation using a tree
@@ -2641,37 +2683,37 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 	      fluxes *SubgridFluxes[], int NumberOfSubgrids,
 	      float fluxcoef, int fallback);
   int TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FLOAT CloudRadius, 
-			       float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
-			       int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
-			       int level, int SetBaryonFields);
+      float CloudMachNumber, float CloudAngularVelocity, float InitialBField,
+      int SetTurbulence, int CloudType, int TurbulenceSeed, int PutSink, 
+      int level, int SetBaryonFields);
   int Collapse3DInitializeGrid(int n_sphere,
-			       FLOAT r_sphere[MAX_SPHERES],
-			       FLOAT rc_sphere[MAX_SPHERES],
-			       float rho_sphere[MAX_SPHERES],
-			       float p_sphere[MAX_SPHERES],
-			       float cs_sphere[MAX_SPHERES],
-			       FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-			       float omega_sphere[MAX_SPHERES],
-			       int   sphere_type[MAX_SPHERES],
-			       float rho_medium, float p_medium, int level);
+      FLOAT r_sphere[MAX_SPHERES],
+      FLOAT rc_sphere[MAX_SPHERES],
+      float rho_sphere[MAX_SPHERES],
+      float p_sphere[MAX_SPHERES],
+      float cs_sphere[MAX_SPHERES],
+      FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
+      float omega_sphere[MAX_SPHERES],
+      int   sphere_type[MAX_SPHERES],
+      float rho_medium, float p_medium, int level);
   int Collapse1DInitializeGrid(FLOAT r_sphere,
-			       FLOAT rc_sphere,
-			       float rho_sphere,
-			       float p_sphere,
-			       float cs_sphere,
-			       float omega_sphere,
-			       int   sphere_type,
-			       float rho_medium, float p_medium);
+      FLOAT rc_sphere,
+      float rho_sphere,
+      float p_sphere,
+      float cs_sphere,
+      float omega_sphere,
+      int   sphere_type,
+      float rho_medium, float p_medium);
   int AddSelfGravity(float coef);
   int SourceTerms(float **dU);
   int MHD1DTestInitializeGrid(float rhol, float rhor,
-			      float vxl,  float vxr,
-			      float vyl,  float vyr,
-			      float vzl,  float vzr,
-			      float pl,   float pr,
-			      float Bxl,  float Bxr,
-			      float Byl,  float Byr,
-			      float Bzl,  float Bzr);
+     float vxl,  float vxr,
+     float vyl,  float vyr,
+     float vzl,  float vzr,
+     float pl,   float pr,
+     float Bxl,  float Bxr,
+     float Byl,  float Byr,
+     float Bzl,  float Bzr);
   int MHD1DTestWavesInitializeGrid(float rhol, 
                                    float vxl,
                                    float vyl,
@@ -2681,40 +2723,40 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                                    float Byl,
                                    float Bzl);
   int MHD2DTestInitializeGrid(int MHD2DProblemType, 
-			      int UseColour,
-			      float RampWidth,
-			      float rhol, float rhou,
-			      float vxl,  float vxu,
-			      float vyl,  float vyu,
-			      float pl,   float pu,
-			      float Bxl,  float Bxu,
-			      float Byl,  float Byu);
+     int UseColour,
+     float RampWidth,
+     float rhol, float rhou,
+     float vxl,  float vxu,
+     float vyl,  float vyu,
+     float pl,   float pu,
+     float Bxl,  float Bxu,
+     float Byl,  float Byu);
   int MHD3DTestInitializeGrid(int MHD3DProblemType,
-			      float rhol, float rhou,
-			      float vxl,  float vxu,
-			      float vyl,  float vyu,
-			      float pl,   float pu,
-			      float Bxl,  float Bxu,
-			      float Byl,  float Byu);
+     float rhol, float rhou,
+     float vxl,  float vxu,
+     float vyl,  float vyu,
+     float pl,   float pu,
+     float Bxl,  float Bxu,
+     float Byl,  float Byu);
   int CollapseMHD3DInitializeGrid(int n_sphere,
-				  FLOAT r_sphere[MAX_SPHERES],
-				  FLOAT rc_sphere[MAX_SPHERES],
-				  float rho_sphere[MAX_SPHERES],
-				  float p_sphere[MAX_SPHERES],
-				  float cs_sphere[MAX_SPHERES],
-				  FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
-				  float omega_sphere[MAX_SPHERES], 
-				  float turb_sphere[MAX_SPHERES], 
-				  float Bnaught, float theta_B,
-				  int Bdirection,
-				  int   sphere_type[MAX_SPHERES],
-				  float rho_medium, float p_medium, int level, int SetBaryonFields);
+	 FLOAT r_sphere[MAX_SPHERES],
+	 FLOAT rc_sphere[MAX_SPHERES],
+	 float rho_sphere[MAX_SPHERES],
+	 float p_sphere[MAX_SPHERES],
+	 float cs_sphere[MAX_SPHERES],
+	 FLOAT sphere_position[MAX_SPHERES][MAX_DIMENSION],
+	 float omega_sphere[MAX_SPHERES], 
+	 float turb_sphere[MAX_SPHERES], 
+	 float Bnaught, float theta_B,
+	 int Bdirection,
+	 int   sphere_type[MAX_SPHERES],
+	 float rho_medium, float p_medium, int level, int SetBaryonFields);
   int MHDTurbulenceInitializeGrid(float rho_medium, float cs_medium, float mach, 
-				  float Bnaught, int seed, int level, int SetBaryonFields);
+	 float Bnaught, int seed, int level, int SetBaryonFields);
   int MHDDecayingRandomFieldInitializeGrid(float rho_medium, float cs_medium, float mach, 
-					   float Bnaught, int seed, 
-					   float Sindex, float Skmin, float Skmax, 
-					   int level, int SetBaryonFields);
+		  float Bnaught, int seed, 
+		  float Sindex, float Skmin, float Skmax, 
+		  int level, int SetBaryonFields);
 
   int PrepareVelocityNormalization(double *v_rms, double *Volume);
   int NormalizeVelocities(Eflt factor);
@@ -2723,33 +2765,33 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int NormalizeMagneticFields(Eflt factor);
 
   int GalaxyDiskInitializeGrid(int NumberOfHalos,
-			       FLOAT HaloRadius[MAX_SPHERES],
-			       FLOAT HaloCoreRadius[MAX_SPHERES],
-			       float HaloDensity[MAX_SPHERES],
-			       float HaloTemperature[MAX_SPHERES],
-			       FLOAT HaloPosition[MAX_SPHERES][MAX_DIMENSION],
-			       float HaloSpin[MAX_SPHERES],
-			       float HaloVelocity[MAX_SPHERES][MAX_DIMENSION],
-			       float HaloAngVel[MAX_SPHERES],
-			       float HaloMagneticField,
-			       FLOAT DiskRadius[MAX_SPHERES],
-			       FLOAT DiskHeight[MAX_SPHERES],
-			       float DiskDensity[MAX_SPHERES],
-			       float DiskTemperature[MAX_SPHERES],
-			       float DiskMassFraction[MAX_SPHERES],
-			       float DiskFlaringParameter[MAX_SPHERES],
-			       int   GalaxyType[MAX_SPHERES],
-			       int   UseParticles, int UseGas,
-			       float UniformVelocity[MAX_DIMENSION],
-			       float MediumTemperature, float MediumDensity, int level);
+      FLOAT HaloRadius[MAX_SPHERES],
+      FLOAT HaloCoreRadius[MAX_SPHERES],
+      float HaloDensity[MAX_SPHERES],
+      float HaloTemperature[MAX_SPHERES],
+      FLOAT HaloPosition[MAX_SPHERES][MAX_DIMENSION],
+      float HaloSpin[MAX_SPHERES],
+      float HaloVelocity[MAX_SPHERES][MAX_DIMENSION],
+      float HaloAngVel[MAX_SPHERES],
+      float HaloMagneticField,
+      FLOAT DiskRadius[MAX_SPHERES],
+      FLOAT DiskHeight[MAX_SPHERES],
+      float DiskDensity[MAX_SPHERES],
+      float DiskTemperature[MAX_SPHERES],
+      float DiskMassFraction[MAX_SPHERES],
+      float DiskFlaringParameter[MAX_SPHERES],
+      int   GalaxyType[MAX_SPHERES],
+      int   UseParticles, int UseGas,
+      float UniformVelocity[MAX_DIMENSION],
+      float MediumTemperature, float MediumDensity, int level);
   int AGNDiskInitializeGrid(float BlackHoleMass,
-			    int BlackHoleType,
-			    int DiskType,
-			    float DiskDensity,
-			    float DiskTemperature,
-			    FLOAT DiskRadius,
-			    FLOAT DiskHeight, 
-			    int UseGas, int level);
+   int BlackHoleType,
+   int DiskType,
+   float DiskDensity,
+   float DiskTemperature,
+   FLOAT DiskRadius,
+   FLOAT DiskHeight, 
+   int UseGas, int level);
   int MHDRK2_1stStep(fluxes *SubgridFluxes[], 
 		     int NumberOfSubgrids, int level,
 		     ExternalBoundary *Exterior);
@@ -2762,7 +2804,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   int MHDSourceTerms(float **dU);
   int UpdateMHDPrim(float **dU, float c1, float c2);
   int SaveMHDSubgridFluxes(fluxes *SubgridFluxes[], int NumberOfSubgrids,
-			   float *Flux3D[], int flux, float fluxcoef, float dt);
+  float *Flux3D[], int flux, float fluxcoef, float dt);
   int SetFloor();
 
 
@@ -2794,7 +2836,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   
 
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
-			      int check, float diffvalue);  
+     int check, float diffvalue);  
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
   int PrintToScreenBoundaries(float *field, char *display);
   int PrintToScreenBoundaries();

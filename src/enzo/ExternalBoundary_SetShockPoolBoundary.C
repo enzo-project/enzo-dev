@@ -22,7 +22,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "ShockPoolGlobalData.h"
  
 /* function prototypes */
  
@@ -34,8 +33,24 @@ int FindField(int f, int farray[], int n);
  
 int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 {
+
+	if( MyProcessorNumber == ROOT_PROCESSOR ){
+	  fprintf(stderr,"ShockPoolAngle = %"GSYM"\n",ShockPoolAngle);
+	  fprintf(stderr,"ShockPoolShockSpeed = %"GSYM"\n",ShockPoolShockSpeed);
+
+	  fprintf(stderr,"ShockPoolShockDensity = %"GSYM"\n",ShockPoolShockDensity);
+	  fprintf(stderr,"ShockPoolShockTotalEnergy = %"GSYM"\n",ShockPoolShockTotalEnergy);
+	  fprintf(stderr,"ShockPoolShockVelocity = %"GSYM", %"GSYM", %"GSYM"\n",
+			ShockPoolShockVelocity[0],ShockPoolShockVelocity[1], ShockPoolShockVelocity[2]);
+
+	  fprintf(stderr,"ShockPoolDensity = %"GSYM"\n",ShockPoolDensity);
+	  fprintf(stderr,"ShockPoolTotalEnergy = %"GSYM"\n",ShockPoolTotalEnergy);
+	  fprintf(stderr,"ShockPoolVelocity = %"GSYM", %"GSYM", %"GSYM"\n",
+			ShockPoolVelocity[0],ShockPoolVelocity[1],ShockPoolVelocity[2]);
+	} // end if
+
   /* declarations */
- 
+
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
   float deltime, distance, pos[MAX_DIMENSION];
@@ -106,7 +121,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	  /* Find the difference between the current time and the time at
 	     which the wave will reach this point. */
  
-	  deltime = time - distance/ShockPoolShockSpeed;
+	  deltime = time - distance/ShockPoolShockSpeed - ShockPoolDelay;
  
 	  /* If deltime < 0, the shock has not yet reached this point. */
  
@@ -118,11 +133,9 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	    BoundaryValue[TENum][dim][0][index] = ShockPoolShockTotalEnergy;
 	    BoundaryValue[Vel1Num][dim][0][index] = ShockPoolShockVelocity[0];
 	    if (BoundaryRank > 1)
-	      BoundaryValue[Vel2Num][dim][0][index] =
-	                                             ShockPoolShockVelocity[1];
+	      BoundaryValue[Vel2Num][dim][0][index] = ShockPoolShockVelocity[1];
 	    if (BoundaryRank > 2)
-	      BoundaryValue[Vel3Num][dim][0][index] =
-	                                             ShockPoolShockVelocity[2];
+	      BoundaryValue[Vel3Num][dim][0][index] = ShockPoolShockVelocity[2];
  
 	  } else {
  
@@ -134,15 +147,13 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	    if (BoundaryRank > 1)
 	      BoundaryValue[Vel2Num][dim][0][index] = ShockPoolVelocity[1];
 	    if (BoundaryRank > 2)
-
 	      BoundaryValue[Vel3Num][dim][0][index] = ShockPoolVelocity[2];
- 
 	  }
  
 	} // end loop over boundary slice
  
     } // end loop over boundary directions
- 
+
   return SUCCESS;
  
 }

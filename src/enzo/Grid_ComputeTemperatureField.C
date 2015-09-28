@@ -44,7 +44,7 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
  
  
-int grid::ComputeTemperatureField(float *temperature)
+int grid::ComputeTemperatureField(float *temperature,int IncludeCRs)
 {
   /* Return if this doesn't concern us. */
  
@@ -72,7 +72,7 @@ int grid::ComputeTemperatureField(float *temperature)
 
   /* Compute the pressure first. */
  
-  this->ComputePressure(Time, temperature);
+  this->ComputePressure(Time, temperature,0,IncludeCRs);
  
   /* Compute the size of the fields. */
  

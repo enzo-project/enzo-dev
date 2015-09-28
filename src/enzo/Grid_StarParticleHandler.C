@@ -298,7 +298,7 @@ extern "C" void FORTRAN_NAME(star_feedback3)(int *nx, int *ny, int *nz,
 		       int *ibuff,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf, int *type,
-			float *justburn);
+			float *justburn, int *crmodel, float *crfeedback, float *cr);
 
 extern "C" void FORTRAN_NAME(star_feedback5)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *te, float *ge, float *u, float *v, 
@@ -481,7 +481,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,
+    CRNum;
   const double m_h = 1.673e-24;
 
   /* Find Multi-species fields. */
@@ -508,9 +509,16 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find fields: density, total energy, velocity1-3. */
  
   this->DebugCheck("StarParticleHandler");
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-        ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+  if( CRModel ){
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                 Vel3Num, TENum, CRNum ) == FAIL) {
+          ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+    }
+  } else {
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+  				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+          ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
+    }
   }
  
   /* If using MHD, subtract magnetic energy from total energy because 
@@ -1434,7 +1442,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
        ParticleVelocity[0], ParticleVelocity[1],
           ParticleVelocity[2],
        ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
-       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+       ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation,
+       &CRModel, &CRFeedback, (CRModel?BaryonField[CRNum]:NULL));
  
   } // end: if UNIGRID_STAR
  

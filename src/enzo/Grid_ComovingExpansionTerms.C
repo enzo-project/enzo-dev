@@ -23,7 +23,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-#define USE_FORTRAN
+//#define USE_FORTRAN
 
 /* function prototypes */
 
@@ -73,9 +73,10 @@ int grid::ComovingExpansionTerms()
     /* Find the density, gas energy, velocities & total energy
        (where appropriate). */
 
-    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum;
+    int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, 
+		    B1Num, B2Num, B3Num, PhiNum, CRNum;
     if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, 
-					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum) == FAIL) {
+					 Vel3Num, TENum, B1Num, B2Num, B3Num, PhiNum, CRNum) == FAIL) {
             ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
     }
 
@@ -89,6 +90,7 @@ int grid::ComovingExpansionTerms()
 
 #ifdef USE_FORTRAN
 
+		
     /* Compute the time-centered pressure for this grid. */
 
     this->ComputePressure(PressureTime, Pressure);
@@ -140,11 +142,21 @@ int grid::ComovingExpansionTerms()
 
     if (HydroMethod == Zeus_Hydro) {
 
-      for (i = 0; i < size; i++) {
-	BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
-		      (BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
-				     0.5*BaryonField[TENum][i]);
-      }
+			if( CRModel ){
+				double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
+      	for (i = 0; i < size; i++)
+					BaryonField[TENum][i] *= gas_coeff;
+				double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
+				for( i = 0 ; i != size; ++i )
+					BaryonField[CRNum][i] *= cr_coeff;
+			} // end CR model if
+			else {
+				for (i = 0; i < size; i++) {
+					BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
+						(BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
+						 0.5*BaryonField[TENum][i]);
+				} // end for 
+			} // end CR if/else
 
     } else {
 

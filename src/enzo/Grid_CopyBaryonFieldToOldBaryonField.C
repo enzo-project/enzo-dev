@@ -109,7 +109,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
   // Mod from Brian O'Shea, 8th August 2006
   // In case there are no baryon fields
 
-  if( (SelfGravity || UniformGravity || PointSourceGravity) && (NumberOfBaryonFields > 0) ) {
+  if( (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity ) && (NumberOfBaryonFields > 0) ) {
 
     for(field = 0; field < GridRank; field++) {
 
