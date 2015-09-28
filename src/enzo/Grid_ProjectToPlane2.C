@@ -281,9 +281,6 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
   if (NumberOfBaryonFields > 0) {
 
-//    for (i = 0; i < size; i++)
-//      temp_field[i] = BaryonField[0][i] * BaryonField[0][i];
-    
     first_field = BaryonField[0];
     second_field = BaryonField[0];
     ProjType = 4;
