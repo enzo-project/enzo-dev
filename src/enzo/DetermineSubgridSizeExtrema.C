@@ -31,8 +31,8 @@
 #include "LevelHierarchy.h"
 #include "CommunicationUtilities.h"
 
-#define MINIMUM_EDGE 3
-#define MINIMUM_SIZE 1000
+#define MINIMUM_EDGE 4
+#define MINIMUM_SIZE 2000
 
 int DetermineSubgridSizeExtrema(long_int NumberOfCells, int level, int MaximumStaticSubgridLevel)
 {
