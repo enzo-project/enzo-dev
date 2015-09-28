@@ -1,5 +1,3 @@
-
-
 /***********************************************************************
 /
 /  GRID CLASS (COPY OVERLAPPING ZONES FROM GRID IN ARGUMENT TO THIS GRID)
