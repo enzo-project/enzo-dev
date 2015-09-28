@@ -99,9 +99,16 @@ c
 c
 c 	Here is Godunov's formula (to make sure ppm works with 0.8)
 c
-                  dt1 = REAL(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
-     &                 (cs + abs(v(i,j,1)-vgy))/dy(j)), RKIND)
-                  dt = min(dt, dt1)
+ 	       dt = min(dt, REAL(aye/((cs + abs(u(i,j,1)-vgx))/dx(i)+
+     &                       (cs + abs(v(i,j,1)-vgy))/dy(j)), RKIND))
+               else
+c
+c       The way it was originally in enzo
+c
+               dt = min(dt, REAL(dx(i)*aye/(cs + abs(u(i,j,1)-vgx)),
+     &                           RKIND),
+     &                      REAL(dy(j)*aye/(cs + abs(v(i,j,1)-vgy)),
+     &                           RKIND))
                endif
             enddo
 c
@@ -128,12 +135,21 @@ c
      &               write(6,*) 'calc_dt',d(i,j,k),p(i,j,k),i,j,k
                   cs = max(sqrt(gamma*p(i,j,k)/d(i,j,k)), tiny)
                   if (ipfree .eq. 1) cs = tiny
+                  if (ihydro .eq. 0) then
 c     
 c     Godunov's formula.
 c     
-                  dt1 = aye/((cs + abs(u(i,j,k)-vgx))/dx(i) +
-     &                 (cs + abs(v(i,j,k)-vgy))/dy(j) +
-     &                 (cs + abs(w(i,j,k)-vgz))/dz(k))
+                     dt1 = aye/((cs + abs(u(i,j,k)-vgx))/dx(i) +
+     &                    (cs + abs(v(i,j,k)-vgy))/dy(j) +
+     &                    (cs + abs(w(i,j,k)-vgz))/dz(k))
+                  else
+c     
+c     The way it was originally in enzo
+c     
+                     dt1 = min(dx(i)*aye/(cs + abs(u(i,j,k)-vgx)),
+     &                    dy(j)*aye/(cs + abs(v(i,j,k)-vgy)),
+     &                    dz(k)*aye/(cs + abs(w(i,j,k)-vgz)))
+                  endif
                   dt = min(dt, dt1)
 C                   if (dt1 .lt. 1.0e-5) then
 C                      write(6,*) d(i-1,j,k), d(i+1,j,k), d(i,j-1,k),
