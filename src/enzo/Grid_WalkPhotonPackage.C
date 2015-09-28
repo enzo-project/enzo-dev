@@ -524,22 +524,8 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	taua[i] = thisDensity[i] * ddr * sigma[i];
       }
 
-      /* Vectorize each exp() call for the limiting cases. */
-#ifdef UNUSED
-      for (i = 0; i <= type; i++)
-	if (taua[i] > 20.0)
-	  // at most use all photons for photo-ionizations
-	  dPi[i] = (1.0+BFLOAT_EPSILON) * (*PP)->Photons;
-      for (i = 0; i <= type; i++)
-	if (taua[i] < 1.0e-4)
-	  dPi[i] = (*PP)->Photons*taua[i];
-      for (i = 0; i <= type; i++)
-	if (taua[i] >= 1.0e-4 && taua[i] <= 20.0)
-	  dPi[i] = (*PP)->Photons*(1-expf(-taua[i]));
-#endif
       for (i = 0; i <= type; i++)
 	dPi[i] = (*PP)->Photons*(1-expf(-taua[i]));
-
 
       /* Calculate photo-ionization and photo-heating rates */
       

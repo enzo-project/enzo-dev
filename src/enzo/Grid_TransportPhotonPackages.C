@@ -27,6 +27,7 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
@@ -148,7 +149,6 @@ int grid::TransportPhotonPackages(int level, int finest_level,
 
   /* Calculate minimum photon flux before a ray is deleted */
   
-  const double mh = 1.673e-24;
   const double alphaB = 2.6e-13;
   float MinimumPhotonFlux, RecombinationTime;
   int gmethod = INT_UNDEFINED;
@@ -182,7 +182,6 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   int AdvancePhotonPointer;
   int DeleteMe, DeltaLevel, PauseMe;
 
-  const float clight = 2.9979e10;
   float LightCrossingTime = 1.7320508 * (VelocityUnits) /
     (clight * RadiativeTransferPropagationSpeedFraction);  // sqrt(3)=1.73
   FLOAT EndTime;

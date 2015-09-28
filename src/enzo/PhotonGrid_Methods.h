@@ -180,10 +180,10 @@ float ReturnTotalNumberOfRaySegments(int RaySegNum) {
 }
 
 /************************************************************************
-   UNUSED FUNCTIONS (FOR DEBUGGING PHOTON COUNTS)
+   FUNCTIONS FOR DEBUGGING PHOTON COUNTS
 ************************************************************************/
-
-#ifdef UNUSED
+#define NO_DEBUG
+#ifdef DEBUG
 int ErrorCheckSource(void) {
   PhotonPackageEntry *PP;
   for (PP = PhotonPackages->NextPackage; PP; PP = PP->NextPackage) {
@@ -256,9 +256,9 @@ int ReturnRealPhotonCount(void) {
   }
   return result;
 }
-#endif /* UNUSED */
+#endif /* DEBUG */
 /************************************************************************
-   END -- UNUSED FUNCTIONS
+   END -- DEBUG FUNCTIONS
 ************************************************************************/
 
 int CountPhotonNumber(void) {

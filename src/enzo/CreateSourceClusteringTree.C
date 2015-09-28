@@ -58,7 +58,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
 
   const int LymanWernerBin = 3;
 
-  int i, j, num[2], dim, sort_dim, median, nleft, nright;
+  int i, j, LR_leaf_flag[2], dim, sort_dim, median, nleft, nright;
   bool top_level = false;
   SuperSourceEntry *new_leaf = NULL;
   SuperSourceData *temp = NULL; // workspace
@@ -248,14 +248,16 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
     if (nShine > 1) {
       if (SourceList[0].Position[sort_dim] <
 	  SourceList[1].Position[sort_dim]) {
-	num[0] = 0;
-	num[1] = 1;
+	// Determine whether the [0]-source is the left (=0) or right
+	// (=1) and the same thing for the [1]-source.
+	LR_leaf_flag[0] = 0;
+	LR_leaf_flag[1] = 1;
       } else {
-	num[0] = 1;
-	num[1] = 0;
+	LR_leaf_flag[0] = 1;
+	LR_leaf_flag[1] = 0;
       }
     } else {
-      num[0] = 0;
+      LR_leaf_flag[0] = 0;
     }
     for (i = 0; i < nShine; i++) {
       new_leaf = new SuperSourceEntry;
@@ -268,7 +270,7 @@ int CreateSourceClusteringTree(int nShine, SuperSourceData *SourceList,
       new_leaf->LeafID = INT_UNDEFINED;
       new_leaf->LWLuminosity = SourceList[i].LWLuminosity;
       new_leaf->ParentSource = SourceClusteringTree;
-      SourceClusteringTree->ChildSource[num[i]] = new_leaf;
+      SourceClusteringTree->ChildSource[LR_leaf_flag[i]] = new_leaf;
     } // ENDFOR i
 
   }
