@@ -989,8 +989,8 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* David Collins flux correction - July 2005 */
    int CheckForSharedFace(grid *OtherGrid,
-			  boundary_type LeftFaceBoundaryCondition[],
-			  boundary_type RightFaceBoundaryCondition[]);
+			      boundary_type LeftFaceBoundaryCondition[],
+			      boundary_type RightFaceBoundaryCondition[]);
 
    int CheckForSharedFaceHelper(grid *OtherGrid,
 				FLOAT EdgeOffset[MAX_DIMENSION]);
@@ -999,10 +999,10 @@ gradient force to gravitational force for one-zone collapse test. */
             (correctly includes periodic boundary conditions). */
 
    int CheckForPossibleOverlap(grid *OtherGrid,
-			       boundary_type LeftFaceBoundaryCondition[],
-			       boundary_type RightFaceBoundaryCondition[]);
+		       boundary_type LeftFaceBoundaryCondition[],
+		       boundary_type RightFaceBoundaryCondition[]);
    int CheckForPossibleOverlapHelper(grid *OtherGrid,
-				     FLOAT EdgeOffset[MAX_DIMENSION]);
+				        FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* baryons: copy coincident zone from the (old) grid in the argument
             (gg #7).  Return SUCCESS or FAIL. */
@@ -1559,7 +1559,7 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 /* Send a region from a real grid to a 'fake' grid on another processor. */
 
   int CommunicationSendRegion(grid *ToGrid, int ToProcessor, int SendField, 
-			      int NewOrOld, int RegionStart[], int RegionDim[]);
+			     int NewOrOld, int RegionStart[], int RegionDim[]);
 
 /* Send a region from a 'fake' grid to a real grid on another processor. */
 
@@ -1617,11 +1617,11 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
 			       int CountOnly = FALSE);
 
   int TransferSubgridStars(grid* Subgrids[], int NumberOfSubgrids, 
-  int* &NumberToMove, int StartIndex, 
-  int EndIndex, star_data* &List, 
-  bool KeepLocal, bool ParticlesAreLocal,
-  int CopyDirection,
-  int IncludeGhostZones = FALSE);
+			   int* &NumberToMove, int StartIndex, 
+			   int EndIndex, star_data* &List, 
+			   bool KeepLocal, bool ParticlesAreLocal,
+			   int CopyDirection,
+			   int IncludeGhostZones = FALSE);
 
 // -------------------------------------------------------------------------
 // Helper functions (should be made private)
@@ -1931,18 +1931,18 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* Zeldovich Pancake: initial grid (returns SUCCESS or FAIL). */
 
   int ZeldovichPancakeInitializeGrid(int   ZeldovichPancakeDirection,
-	    float ZeldovichPancakeCentralOffset,
-	    float ZeldovichPancakeOmegaBaryonNow,
-	    float ZeldovichPancakeOmegaCDMNow,
-	    float ZeldovichPancakeCollapseRedshift,
-	    float ZeldovichPancakeInitialTemperature,
-	    float ZeldovichPancakeInitialUniformBField[]);
+				     float ZeldovichPancakeCentralOffset,
+				     float ZeldovichPancakeOmegaBaryonNow,
+				     float ZeldovichPancakeOmegaCDMNow,
+				     float ZeldovichPancakeCollapseRedshift,
+				     float ZeldovichPancakeInitialTemperature,
+				     float ZeldovichPancakeInitialUniformBField[]);
 
 /* 1D Pressureless Collapse: initialize grid. */
 
   int PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
-					 float PressurelessCollapseInitialDensity,
-					 int PressurelessCollapseNumberOfCells);
+				   float PressurelessCollapseInitialDensity,
+				     int PressurelessCollapseNumberOfCells);
 
 /* Gravity Test: particles in isolated boundaries */
   int TestOrbitInitializeGrid(int NumberOfTestParticles,
@@ -2016,14 +2016,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 #define MAX_SPHERES 10
 
   int CollapseTestInitializeGrid(int NumberOfSpheres,
-				 FLOAT SphereRadius[MAX_SPHERES],
-				 FLOAT SphereCoreRadius[MAX_SPHERES],
-				 float SphereDensity[MAX_SPHERES],
-				 float SphereTemperature[MAX_SPHERES],
-				 float SphereMetallicity[MAX_SPHERES],
-				 FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
-				 float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
-				 float SphereFracKeplarianRot[MAX_SPHERES],
+			     FLOAT SphereRadius[MAX_SPHERES],
+			     FLOAT SphereCoreRadius[MAX_SPHERES],
+			     float SphereDensity[MAX_SPHERES],
+			     float SphereTemperature[MAX_SPHERES],
+			     float SphereMetallicity[MAX_SPHERES],
+			     FLOAT SpherePosition[MAX_SPHERES][MAX_DIMENSION],
+			     float SphereVelocity[MAX_SPHERES][MAX_DIMENSION],
+			     float SphereFracKeplarianRot[MAX_SPHERES],
 				 float SphereTurbulence[MAX_SPHERES],
 				 float SphereDispersion[MAX_SPHERES],
 				 float SphereCutOff[MAX_SPHERES],
