@@ -242,7 +242,7 @@ int grid::Shine(RadiationSourceEntry *RadiationSource)
 	}
 
 	if (NewPack->Type != 3)  // not Lyman-Werner
-	  for (bin = 0; bin <= 3; bin++)
+	  for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
 	    NewPack->CrossSection[bin] = FindCrossSection(bin, NewPack->Energy);
 
 	/* Set the photon origin to the source radius (0 = point src) */

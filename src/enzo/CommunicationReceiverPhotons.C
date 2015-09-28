@@ -206,7 +206,7 @@ int CommunicationReceiverPhotons(LevelHierarchyEntry *LevelArray[],
       NewPack->EmissionTime		= RecvBuffer[i].buffer.EmissionTime;
       NewPack->CurrentTime		= RecvBuffer[i].buffer.CurrentTime;
       NewPack->ColumnDensity	= RecvBuffer[i].buffer.ColumnDensity;
-      for (j = 0; j <= 3; j++)
+      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
 	NewPack->CrossSection[j] = RecvBuffer[i].buffer.CrossSection[j];
       NewPack->Radius		= RecvBuffer[i].buffer.Radius;
       NewPack->ipix			= RecvBuffer[i].buffer.ipix;

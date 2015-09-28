@@ -83,6 +83,8 @@
 
 #define MAX_ENERGY_BINS                    10
 
+#define MAX_CROSS_SECTIONS                  4
+
 #define ROOT_PROCESSOR                      0
 
 #define VERSION                             2.4  /* current version number */

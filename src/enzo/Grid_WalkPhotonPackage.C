@@ -27,6 +27,7 @@
 #include "GridList.h"
 #include "Grid.h"
 #include "CosmologyParameters.h"
+#include "phys_constants.h"
 
 #define MAX_HEALPIX_LEVEL 13
 #define MAX_COLUMN_DENSITY 1e25
@@ -51,8 +52,6 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 			    float TimeUnits, float LightSpeed,
 			    float MinimumPhotonFlux) {
 
-  const float erg_eV = 1.602176e-12;
-  const float c_cgs = 2.99792e10;
   const float EnergyThresholds[] = {13.6, 24.6, 54.4, 11.2};
   const float PopulationFractions[] = {1.0, 0.25, 0.25, 1.0};
   const float EscapeRadiusFractions[] = {0.5, 1.0, 2.0};
@@ -60,10 +59,10 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   const double k_b = 8.62e-5; // eV/K
   const int offset[] = {1, GridDimension[0], GridDimension[0]*GridDimension[1]};
 
-  float ConvertToProperNumberDensity = DensityUnits/1.673e-24f;
+  float ConvertToProperNumberDensity = DensityUnits/mh;
 
   bool OutsideGhostZones;
-  int i, index, dim, splitMe, direction;
+  int i, index, dim, splitMe, direction, i_main_absorber;
   int keep_walking, count, H2Thin, type, TemperatureField;
   int g[3], celli[3], u_dir[3], u_sign[3];
   int cindex;
@@ -219,9 +218,11 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   float ion2_factor[] = {1.0, 1.0, 1.0};
 
   if ((*PP)->Type == iH2I) {
-    sigma[0] = 3.71e-18 * LengthUnits; // H2I average cross-section
+    i_main_absorber = 0;  // H2I in the sigma and thisDensity arrays
+    sigma[i_main_absorber] = 3.71e-18 * LengthUnits; // H2I average cross-section
   } else {
-    for (i = 0; i <= 3; i++)
+    i_main_absorber = 0;  // HI in the sigma and thisDensity arrays
+    for (i = 0; i < MAX_CROSS_SECTIONS; i++)
       sigma[i] = (*PP)->CrossSection[i] * LengthUnits;
     if ((*PP)->Type == 4) {  // X-rays
       nSecondaryHII = (*PP)->Energy / 13.6;
@@ -332,7 +333,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
   double RadiationPressureConversion = 0.0;
   if (RadiationPressure)
     RadiationPressureConversion =
-      erg_eV * emission_dt_inv * Volume_inv / (DensityUnits * VelocityUnits * c_cgs);
+      erg_eV * emission_dt_inv * Volume_inv / (DensityUnits * VelocityUnits * clight);
 
   // Mark that this grid has radiation (mainly for the coupled rate solver)
   HasRadiation = TRUE;
@@ -554,7 +555,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       /************************************************************/
     case iH2I:
       if (MultiSpecies > 1)
-	thisDensity[0] = PopulationFractions[type] * fields[type][index] * 
+	thisDensity[i_main_absorber] = PopulationFractions[type] * fields[type][index] * 
 	  ConvertToProperNumberDensity;
 
       /* We treat H2 dissociation with the shielding function from
@@ -568,7 +569,7 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
 	H2Thin = FALSE;
       }
 
-      (*PP)->ColumnDensity += thisDensity[0] * ddr * LengthUnits;
+      (*PP)->ColumnDensity += thisDensity[i_main_absorber] * ddr * LengthUnits;
       if ((*PP)->ColumnDensity < 1e14) {
 	shield2 = 1;
       } else {
@@ -692,9 +693,9 @@ int grid::WalkPhotonPackage(PhotonPackageEntry **PP,
       for (i = 0; i < 4; i++) dPXray[i] = 0.0;
 
       // calculate dColumnDensity of this ray segment (only for the main absorber, HI)     
-      thisDensity[0] = PopulationFractions[0] * fields[0][index] * 
+      thisDensity[i_main_absorber] = PopulationFractions[0] * fields[0][index] * 
 	ConvertToProperNumberDensity; 
-      dColumnDensity = thisDensity[0] * ddr * LengthUnits;
+      dColumnDensity = thisDensity[i_main_absorber] * ddr * LengthUnits;
       
       /* Loop over absorbers */
       for (i = 0; i < 3; i++) {   //##### for TraceSpectrum test 3 -> 1

@@ -177,7 +177,7 @@ int grid::MergePausedPhotonPackages() {
       NewPack->Photons = TempPP[i].Photons;
       NewPack->Type = TempPP[i].Type;
       NewPack->Energy = TempPP[i].Energy;
-      for (j = 0; j <= 3; j++)
+      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
 	NewPack->CrossSection[j] = TempPP[i].CrossSection[j];
       NewPack->EmissionTimeInterval = TempPP[i].EmissionTimeInterval * weight;
       NewPack->EmissionTime = TempPP[i].EmissionTime;

@@ -42,7 +42,7 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     NewPack->ipix            = nipix++;
     NewPack->level           = PP->level+1;
     NewPack->Energy          = PP->Energy;
-    for (bin = 0; bin <= 3; bin++)
+    for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
       NewPack->CrossSection[bin] = PP->CrossSection[bin];
     for (dim = 0; dim < 3; dim++)
       NewPack->SourcePosition[dim] = PP->SourcePosition[dim];

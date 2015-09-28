@@ -47,7 +47,7 @@ PhotonPackageEntry *LinkedListToArray(PhotonPackageEntry *Node, int n)
     result[count].Photons = tmp->Photons;
     result[count].Type = tmp->Type;
     result[count].Energy = tmp->Energy;
-    for (bin = 0; bin <= 3; bin++)
+    for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
       result[count].CrossSection[bin] = tmp->CrossSection[bin];
     result[count].EmissionTimeInterval = tmp->EmissionTimeInterval;
     result[count].EmissionTime = tmp->EmissionTime;

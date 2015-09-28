@@ -223,7 +223,7 @@ int CommunicationTransferPhotons(LevelHierarchyEntry *LevelArray[],
 	Mover->PhotonPackage->CurrentTime;
       SendList[ToProc][ToCount].buffer.ColumnDensity        = 
 	Mover->PhotonPackage->ColumnDensity;
-      for (j = 0; j <= 3; j++)
+      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
 	SendList[ToProc][ToCount].buffer.CrossSection[j]         = 
 	  Mover->PhotonPackage->CrossSection[j];
 

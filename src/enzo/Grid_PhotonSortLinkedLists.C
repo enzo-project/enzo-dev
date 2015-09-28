@@ -63,7 +63,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    for (j = 0; j <= 3; j++)
+    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
       NewPack->CrossSection[j] = TempPP[count].CrossSection[j];
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
@@ -112,7 +112,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    for (j = 0; j <= 3; j++)
+    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
       NewPack->CrossSection[j] = TempPP[count].CrossSection[j];
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
@@ -160,7 +160,7 @@ int grid::PhotonSortLinkedLists(void)
     NewPack->Photons = TempPP[count].Photons;
     NewPack->Type = TempPP[count].Type;
     NewPack->Energy = TempPP[count].Energy;
-    for (j = 0; j <= 3; j++)
+    for (j = 0; j < MAX_CROSS_SECTIONS; j++)
       NewPack->CrossSection[j] = TempPP[count].CrossSection[j];
     NewPack->EmissionTimeInterval = TempPP[count].EmissionTimeInterval;
     NewPack->EmissionTime = TempPP[count].EmissionTime;
