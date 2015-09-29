@@ -481,8 +481,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* initialize */
  
   int dim, i, j, k, index, size, field, GhostZones = NumberOfGhostZones;
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num,
-    CRNum;
+  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, B1Num, B2Num, B3Num;
+  int CRNum;
   const double m_h = 1.673e-24;
 
   /* Find Multi-species fields. */
@@ -509,17 +509,13 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* Find fields: density, total energy, velocity1-3. */
  
   this->DebugCheck("StarParticleHandler");
-  if( CRModel ){
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                 Vel3Num, TENum, CRNum ) == FAIL) {
-          ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
-    }
-  } else {
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
   				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-          ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
-    }
+    ENZO_FAIL("Error in IdentifyPhysicalQuantities.");
   }
+  if (CRModel)
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Rays");
  
   /* If using MHD, subtract magnetic energy from total energy because 
      density may be modified in star_maker8. */

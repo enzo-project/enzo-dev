@@ -253,11 +253,9 @@ int grid::IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
 				   TENum,B1Num,B2Num,B3Num,PhiNum);
 
   CRNum = 0;
-  if(CRModel)
-    if ((CRNum = FindField(CRDensity, FieldType,
-           NumberOfBaryonFields)) < 0) {
+  if (CRModel)
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
       ENZO_FAIL("Cannot Find Cosmic Rays");
-    }
 
   return SUCCESS;
 

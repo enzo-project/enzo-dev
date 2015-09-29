@@ -181,7 +181,7 @@ int grid::NestedCosmologySimulationInitializeGrid(
     {
       if ( (ParallelRootGridIO != TRUE) && (ParallelParticleIO != TRUE) )
 	{
-				if( MyProcessorNumber == ROOT_PROCESSOR )
+	  if (MyProcessorNumber == ROOT_PROCESSOR)
         fprintf(stderr, "WARNING: ParallelRootGridIO and ParallelParticleIO are recommended for > 64 cpus to shrink data read-in time.");
 	}
     }
