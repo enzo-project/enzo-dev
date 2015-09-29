@@ -574,7 +574,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderOutputParticleList     = FALSE;
   HaloFinderRunAfterOutput         = TRUE;
   HaloFinderMinimumSize            = 50;
-  HaloFinderLinkingLength          = 0.1;
+  HaloFinderLinkingLength          = 0.2;
   HaloFinderCycleSkip              = 3;
   HaloFinderTimestep               = FLOAT_UNDEFINED;
   HaloFinderLastTime               = 0.0;
