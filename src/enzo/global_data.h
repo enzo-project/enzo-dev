@@ -1087,19 +1087,6 @@ EXTERN int CorrectParentBoundaryFlux;
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
-/* For the shock pool boundary method */
-EXTERN float ShockPoolAngle;
-EXTERN float ShockPoolShockSpeed;
-EXTERN float ShockPoolDelay;
-
-EXTERN float ShockPoolDensity;
-EXTERN float ShockPoolTotalEnergy;
-EXTERN float ShockPoolVelocity[MAX_DIMENSION];
-
-EXTERN float ShockPoolShockDensity;
-EXTERN float ShockPoolShockTotalEnergy;
-EXTERN float ShockPoolShockVelocity[MAX_DIMENSION];
-
 /* For the galaxy simulation boundary method */
 EXTERN int GalaxySimulationRPSWind;
 /* GalaxySimulationRPSWind

@@ -22,6 +22,7 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
+#include "ShockPoolGlobalData.h"
  
 /* function prototypes */
  
@@ -50,7 +51,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	} // end if
 
   /* declarations */
-
+ 
   int i, j, dim, index;
   int NumberOfZones[MAX_DIMENSION], Offset[MAX_DIMENSION];
   float deltime, distance, pos[MAX_DIMENSION];
@@ -153,7 +154,7 @@ int ExternalBoundary::SetShockPoolBoundary(FLOAT time)
 	} // end loop over boundary slice
  
     } // end loop over boundary directions
-
+ 
   return SUCCESS;
  
 }

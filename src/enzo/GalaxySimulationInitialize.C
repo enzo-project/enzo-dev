@@ -149,7 +149,7 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
     ret += sscanf(line, "GalaxySimulationInitialTemperature = %"FSYM,
 		  &GalaxySimulationInitialTemperature);
     ret += sscanf(line, "GalaxySimulationUniformDensity = %"FSYM,
-      &GalaxySimulationUniformDensity);
+		  &GalaxySimulationUniformDensity);
     ret += sscanf(line, "GalaxySimulationUniformVelocity = %"FSYM" %"FSYM" %"FSYM,
                   &GalaxySimulationUniformVelocity[0], &GalaxySimulationUniformVelocity[1],
                   &GalaxySimulationUniformVelocity[2]);

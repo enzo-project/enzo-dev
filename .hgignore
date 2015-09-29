@@ -6,7 +6,6 @@ syntax: glob
 *.f90
 *~
 *.pyc
-*_test_standard.py
 
 bin/enzo
 bin/inits

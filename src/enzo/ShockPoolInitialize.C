@@ -50,6 +50,9 @@
 #include "Grid.h"
 #include "Hierarchy.h"
 #include "TopGridData.h"
+#define DEFINE_STORAGE
+#include "ShockPoolGlobalData.h"
+#undef DEFINE_STORAGE
  
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData)

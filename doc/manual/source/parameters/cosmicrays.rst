@@ -26,13 +26,13 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
 
 
 ``CRkappa`` (external)
-    Cosmic ray diffusion coefficient, Default: 0.0. For MW-like galaxies: 1E28.
+    Cosmic ray diffusion coefficient in CGS units (cm^2/s), Default: 0.0. For MW-like galaxies: 1E28.
 
 ``CRCourantSafetyNumber`` (external)
     Multiplies CR diffusion timestep, for stability should be <= 0.5. Default: 0.0
 
 ``CRFeedback`` (external)
-    Specify how much star formation feedback energy should be diverted into the cosmic
+    Specify fraction of star formation feedback energy should be diverted into the cosmic
     ray energy density. implemented ONLY for star_maker3 (feedback method 2). Default: 0.0
 
 ``CRdensFloor`` (external)
