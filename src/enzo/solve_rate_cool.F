@@ -506,8 +506,8 @@ c      chunit = (7.17775e-12_RKIND)/(2._RKIND*uvel*uvel*mh)   ! 4.5 eV per H2 fo
                 if(d(i,j,k)*dom>1e18 .and. i==4)write(0,*)
      &              HI(i,j,k)/heq, edot(i),tgas(i)
                 dtit(i) = min(dtit(i), 0.1d0*heq/dheq)
-                if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
               endif
+              if (iter.gt.10) dtit(i) = min(olddtit*1.5d0, dtit(i))
 
 #define DONT_WRITE_COOLING_DEBUG
 #ifdef WRITE_COOLING_DEBUG
