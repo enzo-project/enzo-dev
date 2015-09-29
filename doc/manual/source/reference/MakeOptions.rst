@@ -234,7 +234,7 @@ Performance settings
 **packed-mem-[yes\|no]**          Set whether to use 'packed memory' option: requires packed AMR.
 **unigrid-transpose-[yes\|no]**   Set whether to perform unigrid communication transpose performance   optimization
 **ooc-boundary-[yes\|no]**        Set whether to use out-of-core handling of the boundary
-**load-balance-[yes\|no]**        Set whether to use load balancing of grids
+**log2alloc-[yes\|no]**           Set whether to compile with grid/particle arrays allocated in sizes of powers of 2
 ================================= ============================
 
 
