@@ -120,9 +120,9 @@ int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr,
   GalaxySimulationGasMass            = 4.0e10;
   GalaxySimulationGalaxyMass         = 1.0e12;
   GalaxySimulationDiskTemperature    = 1000.0;
-	GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
-	GalaxySimulationGasHaloScaleRadius = .001; // Mpc
-	GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
+  GalaxySimulationGasHalo            = 0; // uniform halo w/ densicm and UniformTemperature
+  GalaxySimulationGasHaloScaleRadius = .001; // Mpc
+  GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
   GalaxySimulationInflowTime         = -1;
   GalaxySimulationInflowDensity      = 0;
   for (dim = 0; dim < MAX_DIMENSION; dim++) {
