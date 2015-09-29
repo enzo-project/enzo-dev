@@ -90,19 +90,19 @@ void* operator new(size_t NumberOfBytes)
 }
  
 
-#ifdef MEMORY_TRACE
 void operator delete(void *pointer)
 {
   if (pointer == NULL){
     return;}
  
+#ifdef MEMORY_TRACE
   CurrentMemoryUsage -= *(((float *) pointer) - 1);
+#endif /* MEMORY_TRACE */
  
   free(((float *) pointer) - 1);
  
   return;
 }
-#endif /* MEMORY_TRACE */
 
 #endif /* defined(MEMORY_TRACE) || defined(USE_LOG2ALLOC) */
 
