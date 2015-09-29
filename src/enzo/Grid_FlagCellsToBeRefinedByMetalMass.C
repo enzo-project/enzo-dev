@@ -28,7 +28,7 @@ int grid::FlagCellsToBeRefinedByMetalMass(int level)
 {
 
   int i, dim, size, method;
-  const float Zsun = 0.0204;
+  const float Zsun = CoolData.SolarMetalFractionByMass;
  
   /* Return if this grid is not on this processor. */
  
