@@ -999,10 +999,10 @@ gradient force to gravitational force for one-zone collapse test. */
             (correctly includes periodic boundary conditions). */
 
    int CheckForPossibleOverlap(grid *OtherGrid,
-		       boundary_type LeftFaceBoundaryCondition[],
-		       boundary_type RightFaceBoundaryCondition[]);
+		        boundary_type LeftFaceBoundaryCondition[],
+		        boundary_type RightFaceBoundaryCondition[]);
    int CheckForPossibleOverlapHelper(grid *OtherGrid,
-				        FLOAT EdgeOffset[MAX_DIMENSION]);
+				     FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* baryons: copy coincident zone from the (old) grid in the argument
             (gg #7).  Return SUCCESS or FAIL. */
@@ -1941,8 +1941,8 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 /* 1D Pressureless Collapse: initialize grid. */
 
   int PressurelessCollapseInitializeGrid(int PressurelessCollapseDirection,
-				   float PressurelessCollapseInitialDensity,
-				     int PressurelessCollapseNumberOfCells);
+				    float PressurelessCollapseInitialDensity,
+				      int PressurelessCollapseNumberOfCells);
 
 /* Gravity Test: particles in isolated boundaries */
   int TestOrbitInitializeGrid(int NumberOfTestParticles,
@@ -2056,26 +2056,26 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
                              float UniformVelocity[MAX_DIMENSION],
                              int   SphereUseColour,
                              float InitialTemperature, 
- 			     float ClusterInitialSpinParameter, int level);
+			     float ClusterInitialSpinParameter, int level);
 
   /* CosmologySimulation: initialize grid. */
   int CosmologySimulationInitializeGrid(
-		       	  int   InitialGridNumber,
-	       		  float CosmologySimulationOmegaBaryonNow,
+			  int   InitialGridNumber,
+			  float CosmologySimulationOmegaBaryonNow,
 			  float CosmologySimulationOmegaCDMNow,
-		          float CosmologySimulationInitialTemperature,
+			  float CosmologySimulationInitialTemperature,
 			  char *CosmologySimulationDensityName,
 			  char *CosmologySimulationTotalEnergyName,
 			  char *CosmologySimulationGasEnergyName,
 			  char *CosmologySimulationVelocityNames[],
 			  char *CosmologySimulationParticlePositionName,
 			  char *CosmologySimulationParticleVelocityName,
-			  char *CosmologySimulationParticleDisplacementName,
+ 			  char *CosmologySimulationParticleDisplacementName,
 			  char *CosmologySimulationParticleMassName,
 			  char *CosmologySimulationParticleTypeName,
 			  char *CosmologySimulationParticlePositionNames[],
 			  char *CosmologySimulationParticleVelocityNames[],
-			  char *CosmologySimulationParticleDisplacementNames[],
+ 			  char *CosmologySimulationParticleDisplacementNames[],
 			  int   CosmologySimulationSubgridsAreStatic,
 			  int   TotalRefinement,
 			  float CosmologySimulationInitialFractionHII,
@@ -2411,7 +2411,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
-				int InitialMagneticFieldConfiguration);
+			       int InitialMagneticFieldConfiguration);
 
   int ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
@@ -2837,7 +2837,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   
 
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice,
-     int check, float diffvalue);  
+			      int check, float diffvalue);  
   int PrintToScreenBoundaries(float *field, char *display, int direction, int slice);
   int PrintToScreenBoundaries(float *field, char *display);
   int PrintToScreenBoundaries();
