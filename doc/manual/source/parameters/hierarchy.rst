@@ -158,16 +158,16 @@ Hierarchy Control Parameters
     about the simulations (c_s=1, etc.).  However, this is necessary
     if you want to reproduce some of the old enzo results 
     (e.g. Kritsuk et al. 2006).  Default: 0
-``MetallicityForRefinement`` (external)
-    Used with refinement method 19.  Flags cells for refinement when
-    the metal mass is above the necessary baryon mass (method 2) for
-    refinement multiplied by MetallicityForRefinement (in units of
-    solar metallicity).  Behaves similarly to refinement by baryon
-    mass but focuses on metal-enriched regions. Default: 1.0
 ``MetallicityRefinementMinMetallicity`` (external)
-    This is the threshold metallicity (in units of solar metallicity)
-    above which cells must be refined to a minimum level of
-    ``MetallicityRefinementMinLevel``. Default: 1.0e-5
+    For method 13 (metallicity refinement), this is the threshold
+    metallicity (in units of solar metallicity) above which cells must
+    be refined to a minimum level of
+    ``MetallicityRefinementMinLevel``.  For method 19 (metal mass),
+    this flags cells for refinement when the metal mass is above the
+    necessary baryon mass (method 2) for refinement multiplied by this
+    parameter.  Behaves similarly to refinement by baryon mass but
+    focuses on metal-enriched regions.  In units of solar metallicity.
+    Default: 1.0e-5
 ``MetallicityRefinementMinLevel`` (external)
     Sets the minimum level (maximum cell size) to which a cell enriched
     with metal above a level set by ``MetallicityRefinementMinMetallicity``
