@@ -124,7 +124,7 @@ have a look at :ref:`controlling_data_output` for more information.
     ``star_particle_density``; and 2 will dump
     ``actively_forming_stellar_mass_density``, ``SFR_density``, etc.
     Default: 0.
-``OutputOnPop3Feedback`` (external)
+``PopIIIOutputOnFeedback`` (external)
     Writes an interpolated output when a Pop III is formed or goes
     supernova.  Default: 0
 ``OutputOnDensity`` (external)
