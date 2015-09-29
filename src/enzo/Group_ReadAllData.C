@@ -448,18 +448,18 @@ int Group_ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData
   */
   if (BRerr) {
     fprintf(stderr,"Setting External Boundaries.\n");
-  float Dummy[MAX_DIMENSION];
-  int dim;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    Dummy[dim] = 0.0;
-  fprintf(stderr, "Because of trouble in reading the boundary we reset it now.\n");
-  Exterior->Prepare(TopGrid->GridData);
-  for (dim = 0; dim < MetaData.TopGridRank; dim++)
-    Exterior->InitializeExternalBoundaryFace(dim,
-					     MetaData.LeftFaceBoundaryCondition[dim],
-					     MetaData.RightFaceBoundaryCondition[dim],
-					     Dummy, Dummy);
-  TopGrid->GridData->SetExternalBoundaryValues(Exterior);
+    float Dummy[MAX_DIMENSION];
+    int dim;
+    for (dim = 0; dim < MAX_DIMENSION; dim++)
+      Dummy[dim] = 0.0;
+    fprintf(stderr, "Because of trouble in reading the boundary we reset it now.\n");
+    Exterior->Prepare(TopGrid->GridData);
+    for (dim = 0; dim < MetaData.TopGridRank; dim++)
+      Exterior->InitializeExternalBoundaryFace(dim,
+					       MetaData.LeftFaceBoundaryCondition[dim],
+					       MetaData.RightFaceBoundaryCondition[dim],
+					       Dummy, Dummy);
+    TopGrid->GridData->SetExternalBoundaryValues(Exterior);
   }
 
   /* Read StarParticle data. */

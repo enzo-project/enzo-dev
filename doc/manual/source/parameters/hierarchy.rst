@@ -194,8 +194,10 @@ Hierarchy Control Parameters
     which must cover one Jeans length. Default: 4
 ``JeansRefinementColdTemperature`` (external)
     If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
-    is being used, and this parameter is greater than zero, it will be
-    used in place of the temperature in all cells. Default: -1.0
+    is being used, and this parameter is greater than zero, this
+    temperature will be used in all cells when calculating the Jeans
+    length.  If it is less than or equal to zero, it will be used as a
+    temperature floor when calculating the Jeans length. Default: -1.0
 ``RefineByResistiveLengthSafetyFactor`` (external)
     Resistive length is defined as the curl of the magnetic field over
     the magnitude of the magnetic field. We make sure this length is
