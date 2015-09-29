@@ -977,14 +977,14 @@
 
     ERROR_LOG2ALLOC = 1
 
-    # Settings to turn fast sibling search ON
+    # Settings to turn on log2 array allocations
 
     ifeq ($(CONFIG_LOG2ALLOC),yes)
         ERROR_LOG2ALLOC = 0
         ASSEMBLE_LOG2ALLOC_DEFINES = -DUSE_LOG2ALLOC
     endif
 
-    # Settings to turn fast sibling search OFF
+    # Settings to turn off log2 array allocations
 
     ifeq ($(CONFIG_LOG2ALLOC),no)
         ERROR_LOG2ALLOC = 0
