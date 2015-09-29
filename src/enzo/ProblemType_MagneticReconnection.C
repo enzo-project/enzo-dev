@@ -430,9 +430,16 @@ This is the grid-by-grid initializer.
             if (thisgrid->GridRank == 3)
                z = thisgrid->CellLeftEdge[2][k] + 0.5*thisgrid->CellWidth[2][k];
 
-            thisgrid->BaryonField[DensNum][cellindex] = MagneticReconnectionOverdensity/POW(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + MagneticReconnectionDensity;
+            thisgrid->BaryonField[DensNum][cellindex] = 
+                MagneticReconnectionOverdensity/POW(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) 
+                + MagneticReconnectionDensity;
 
-            thisgrid->BaryonField[TENum][cellindex] = MagneticReconnectionTotalEnergy/(Gamma - 1.0) + 0.5 * (POW(thisgrid->BaryonField[B1Num][cellindex], 2) + POW(thisgrid->BaryonField[B2Num][cellindex], 2) + POW(thisgrid->BaryonField[B3Num][cellindex], 2))/thisgrid->BaryonField[DensNum][cellindex];
+            thisgrid->BaryonField[TENum][cellindex] = 
+                MagneticReconnectionTotalEnergy/(Gamma - 1.0) 
+                        + 0.5 * (POW(thisgrid->BaryonField[B1Num][cellindex], 2) 
+                               + POW(thisgrid->BaryonField[B2Num][cellindex], 2) 
+                               + POW(thisgrid->BaryonField[B3Num][cellindex], 2))/
+                                  thisgrid->BaryonField[DensNum][cellindex];
           } // for (i = 0; i < GridDimension[0]; i++)
 
       return SUCCESS;
