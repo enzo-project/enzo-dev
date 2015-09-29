@@ -239,8 +239,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     DiskGravityAngularMomentum[dim] = 0.0;
     MustRefineRegionLeftEdge[dim]   = 0.0;
     MustRefineRegionRightEdge[dim]  = 1.0;
-    ShockPoolVelocity[dim]          = 0.0;
-    ShockPoolShockVelocity[dim]     = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
   }
@@ -358,15 +356,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParticleSubgridDepositMode  = CIC_DEPOSIT_SMALL;
   BaryonSelfGravityApproximation = TRUE;           // less accurate but faster
 
-	ShockPoolAngle = 0.0;
-  ShockPoolShockSpeed = 1.0;
-  ShockPoolDelay = 0.0;
-  ShockPoolDensity = 0.0;
-  ShockPoolTotalEnergy = 0.0;
-  ShockPoolShockDensity = 0.0;
-  ShockPoolShockTotalEnergy = 0.0;
-
-	GalaxySimulationRPSWind = 0;
+  GalaxySimulationRPSWind = 0;
   GalaxySimulationRPSWindShockSpeed = 0.0;
   GalaxySimulationRPSWindDelay = 0.0;
 
