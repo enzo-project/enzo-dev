@@ -144,13 +144,14 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
             BaryonField[iPhi ][i] = 0.0;
       }
       if( UseMHDCT ){
+          //While the MagneticField is larger along each axis,
+          //here we can exploit the symmetry of the problem and let
+          //the boundary conditions take care of the extra zones.
           MagneticField[0][i] = Bxl;
-          MagneticField[1][i] = Byl;
-          MagneticField[2][i] = Bzl;
           for ( int k=0; k<2; k++)
           for ( int j=0; j<2; j++){
-              MagneticField[1][i + MagneticDims[1][0]*(j*MagneticDims[1][1]*k)] = Byl;
-              MagneticField[2][i + MagneticDims[2][0]*(j*MagneticDims[2][1]*k)] = Bzl;
+              MagneticField[1][i + MagneticDims[1][0]*(j*MagneticDims[1][1] + k)] = Byl;
+              MagneticField[2][i + MagneticDims[2][0]*(j*MagneticDims[2][1] + k)] = Bzl;
           }
 
       }
@@ -172,13 +173,14 @@ int grid::MHD1DTestInitializeGrid(float rhol, float rhor,
         BaryonField[iPhi ][i] = 0.0;
       }
       if( UseMHDCT ){
+          //While the MagneticField is larger along each axis,
+          //here we can exploit the symmetry of the problem and let
+          //the boundary conditions take care of the extra zones.
           MagneticField[0][i] = Bxr;
-          MagneticField[1][i] = Byr;
-          MagneticField[2][i] = Bzr;
           for ( int k=0; k<2; k++)
           for ( int j=0; j<2; j++){
-              MagneticField[1][i + MagneticDims[1][0]*(j*MagneticDims[1][1]*k)] = Byr;
-              MagneticField[2][i + MagneticDims[2][0]*(j*MagneticDims[2][1]*k)] = Bzr;
+              MagneticField[1][i + MagneticDims[1][0]*(j*MagneticDims[1][1] + k)] = Byr;
+              MagneticField[2][i + MagneticDims[2][0]*(j*MagneticDims[2][1] + k)] = Bzr;
           }
 
       }

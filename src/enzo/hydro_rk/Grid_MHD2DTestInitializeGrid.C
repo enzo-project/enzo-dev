@@ -152,15 +152,21 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
     if ( UseMHDCT ){
-      field=0;
-	    igrid2 = i+MagneticDims[field][0]*j;
-      MagneticField[field][igrid2] = Bxl;
-      field=1;
-	    igrid2 = i+MagneticDims[field][0]*j;
-      MagneticField[field][igrid2] = Byl;
-      field=2;
-	    igrid2 = i+MagneticDims[field][0]*j;
-      MagneticField[field][igrid2] = 0;
+        //Here we exploit the symmetry of the problem set up 
+        //to skip setting the extra dimensions for Bx and By, letting
+        //the boundary conditions set the values.  This cannot be done for Bz in 2d
+        //so that field is done manually.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;  
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
     }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = 1.0;
@@ -187,14 +193,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxu;
       field=1;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Byu;
       field=2;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
 	  if (UseColour)
@@ -245,6 +254,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iPhi][igrid] = 0.0;
       }
       if ( UseMHDCT ){
+          //See the comment at the top regarding extra dimensions.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -253,6 +263,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         MagneticField[field][igrid2] = Byl;
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j+MagneticDims[field][1]*1);
         MagneticField[field][igrid2] = 0;
       }
 	  if (UseColour)
@@ -283,6 +295,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
          BaryonField[iPhi][igrid] = 0.0;
       }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -292,6 +305,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
       }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = tiny_number;
@@ -358,6 +373,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxu;
@@ -366,6 +382,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byu;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
 	if (r < r0) {
@@ -429,6 +447,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iPhi][igrid] = 0.0;
       }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -437,6 +456,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         MagneticField[field][igrid2] = Byl;
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
         MagneticField[field][igrid2] = 0;
       }
           EOS(pres, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
@@ -458,6 +479,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iPhi][igrid] = 0.0;
       }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -467,6 +489,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
       }
           EOS(pres, rho1, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx1 * vx1 + 0.5 * (Bx * Bx) / rho1;
@@ -532,6 +556,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iPhi][igrid] = 0.0;
       }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -541,6 +566,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
       }
           EOS(pres0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx0 * vx0 + 0.5 * (Bx * Bx) / rho0;
@@ -559,6 +586,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[iPhi][igrid] = 0.0;
       }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -568,6 +596,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
       }
           EOS(pres1, rho1, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx1 * vx1 + 0.5 * (Bx * Bx) / rho1;
@@ -697,6 +727,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -706,6 +737,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
       }
 
       }
@@ -762,6 +795,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ietot][igrid] += 0.5*(Bxl*Bxl+Byl*Byl)/BaryonField[iden][igrid];
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -770,6 +804,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
 
@@ -829,6 +865,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -837,6 +874,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
 
@@ -881,6 +920,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -890,6 +930,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = 0.0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
     }
 
  	float ramp =  1./((1.+exp(-2/delx*(x-xs))));
@@ -956,14 +998,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxu + ramp*(Bxl-Bxu);
       field=1;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Byu + ramp*(Byl-Byu);
       field=2;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       }
@@ -1011,6 +1056,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -1019,6 +1065,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         MagneticField[field][igrid2] = Byl;
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
         MagneticField[field][igrid2] = 0;
       }
 	} else {  // endif y<0
@@ -1044,6 +1092,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
       if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
         field=0;
         igrid2 = i+MagneticDims[field][0]*j;
         MagneticField[field][igrid2] = Bxl;
@@ -1052,6 +1101,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
         MagneticField[field][igrid2] = Byl;
         field=2;
         igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
         MagneticField[field][igrid2] = 0;
       }
 	}
@@ -1097,6 +1148,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -1105,6 +1157,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       } // endfor i
@@ -1155,6 +1209,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -1163,6 +1218,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       } // endfor i
@@ -1210,6 +1267,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -1218,6 +1276,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       } // endfor i
@@ -1268,6 +1328,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -1276,6 +1337,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       } // endfor i
@@ -1329,6 +1392,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
       igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxl;
@@ -1337,6 +1401,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
       MagneticField[field][igrid2] = Byl;
       field=2;
       igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       } // endfor i
