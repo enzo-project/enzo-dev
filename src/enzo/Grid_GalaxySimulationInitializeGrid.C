@@ -80,21 +80,21 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 					 FLOAT DiskPosition[MAX_DIMENSION], 
 					 FLOAT ScaleHeightz,
 					 FLOAT ScaleHeightR,
-           FLOAT GalaxyTruncationRadius, 
+					 FLOAT GalaxyTruncationRadius, 
 					 float DMConcentration,
 					 float DiskTemperature,
 					 float InitialTemperature,
 					 float UniformDensity,
-           int   GasHalo,
-           float GasHaloScaleRadius,
-           float GasHaloDensity,
+					 int   GasHalo,
+					 float GasHaloScaleRadius,
+					 float GasHaloDensity,
 					 float AngularMomentum[MAX_DIMENSION],
 					 float UniformVelocity[MAX_DIMENSION], 
 					 int UseMetallicityField, 
 					 float GalaxySimulationInflowTime,
 					 float GalaxySimulationInflowDensity,
 					 int level,
-           float GalaxySimulationCR )
+					 float GalaxySimulationCR )
 {
  /* declarations */
 
@@ -104,7 +104,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
  float DiskDensity, DiskVelocityMag;
   int CRNum, DensNum;
 
-  /* global-scope variables for disk potential functions (FIXME) */
+  /* global-scope variables for disk potential functions (would be better if not global) */
+
   gScaleHeightR = ScaleHeightR;
   gScaleHeightz = ScaleHeightz;
   densicm = UniformDensity;
@@ -223,7 +224,8 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    if (BaryonField[field] == NULL)
      BaryonField[field] = new float[size];
 
-	/* set metals to small value */
+ /* set metals to small value */
+
   if (UseMetallicityField)
     for (i = 0; i < size; i++)
       BaryonField[MetalNum][i] = 1.0e-10;
@@ -328,36 +330,34 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 		  inv[j][i] = temp;
 		}
 
-			if( fabs(drcyl*LengthUnits/Mpc) > TruncRadius ){
-				dens1 = 0.0;
-				break;
-			}
+	    if( fabs(drcyl*LengthUnits/Mpc) > TruncRadius ){
+	      dens1 = 0.0;
+	      break;
+	    }
 		  
-			DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) DENSITY NEEDS CUTOFF
+	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) DENSITY NEEDS CUTOFF
 
-	    if( PointSourceGravity > 0 )
+	    if (PointSourceGravity > 0 )
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
 	    else if( DiskGravity > 0 ){
 	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv,
-	        DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
+				    DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
 
 	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
 
 	      DiskVelocityMag = DiskPotentialCircularVelocity(CellWidth[0][0], zheight*LengthUnits, dens1, temp1);
-			}
-      if( PointSourceGravity*DiskGravity != FALSE ) 
+	    }
+	    if (PointSourceGravity*DiskGravity != FALSE ) 
 	      ENZO_FAIL("Cannot activate both PointSource and Disk gravity options for Isolated Galaxy");
 
-	    if (dim == 0)
-	      {
-		CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
-				      DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
-
-
-		dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
-	      }
+	    if (dim == 0) {
+	      CellMass = gauss_mass(drad*LengthUnits,zheight*LengthUnits, xpos*LengthUnits, ypos*LengthUnits, zpos*LengthUnits, inv, 
+				    DiskDensity*DensityUnits,ScaleHeightR*Mpc, ScaleHeightz*Mpc, CellWidth[0][0]*LengthUnits);
+	      dens1 = CellMass/POW(CellWidth[0][0]*LengthUnits,3)/DensityUnits;
+	    }
 
 	    /* If we're above the disk, then exit. */
+
 	    if (dens1 < density)
 	      break;
 
@@ -382,15 +382,16 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	   	    
 	    /* If the density is larger than the background (or the previous
 	       disk), then set the velocity. */
+
 	  if (dens1 > density && fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 	    density = dens1;
 	    if (temp1 == init_temp)
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
-			if( temperature > 1e7 )
-				temperature = init_temp;
-			if( UseMetallicityField ) // FIXME - this obviously breaks metallicity feature
-				BaryonField[MetalNum][n] = density;
+	    if( temperature > 1e7 )
+	      temperature = init_temp;
+	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
+	      BaryonField[MetalNum][n] = density;
 	  }
 
 	} // end: if (r < DiskRadius)
@@ -528,31 +529,33 @@ float gauss_mass(FLOAT r, FLOAT z, FLOAT xpos, FLOAT ypos, FLOAT zpos, FLOAT inv
   float Mass = 0;
   FLOAT xrot,yrot,zrot;
   int i,j,k;
-	FLOAT rrot;
+  FLOAT rrot;
 	
-  for (i=0;i<5;i++)
-    {
+  for (i=0;i<5;i++) {
+
       xResult[i] = 0.0;
-      for (j=0;j<5;j++)
-	{
+      for (j=0;j<5;j++) {
+
 	  yResult[j] = 0.0;
-	  for (k=0;k<5;k++)
-	    {
+	  for (k=0;k<5;k++) {
+
 	      rot_to_disk(xpos+EvaluationPoints[i]*cellwidth/2.0,ypos+EvaluationPoints[j]*cellwidth/2.0,zpos+EvaluationPoints[k]*cellwidth/2.0,xrot,yrot,zrot,inv);
-				rrot = sqrt(POW(xrot,2)+POW(yrot,2));
-				if( PointSourceGravity > 0 )
-		      yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-rrot/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
-				else if( DiskGravity > 0 ){
-					if( rrot/Mpc < SmoothRadius )
-						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz);
-					else if( rrot/Mpc < TruncRadius )
-						yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
-				} // end disk gravity if
-	    }
+	      rrot = sqrt(POW(xrot,2)+POW(yrot,2));
+
+	      if( PointSourceGravity > 0 )
+		yResult[j] += cellwidth/2.0*Weights[k]*PEXP(-rrot/ScaleHeightR)/POW(cosh(zrot/(2.0*ScaleHeightz)),2);
+	      else if( DiskGravity > 0 ){
+		if( rrot/Mpc < SmoothRadius )
+		  yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz);
+		else if( rrot/Mpc < TruncRadius )
+		  yResult[j] += cellwidth/2.0*Weights[k]/cosh(rrot/ScaleHeightR)/cosh(fabs(zrot)/ScaleHeightz)*0.5*(1.0+cos(pi*(rrot-SmoothRadius*Mpc)/(SmoothLength*Mpc)));
+	      } // end disk gravity if
+
+	  }
 	  xResult[i] += cellwidth/2.0*Weights[j]*yResult[j];
-	}
+      }
       Mass += cellwidth/2.0*Weights[i]*xResult[i];
-    }  
+  }  
   Mass *= DiskDensity;
   return Mass;
 }

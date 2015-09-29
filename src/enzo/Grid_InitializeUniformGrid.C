@@ -28,7 +28,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 				float UniformInternalEnergy,
 				float UniformVelocity[], 
 				float UniformBField[],
-        float UniformCR)
+				float UniformCR)
 {
   /* declarations */
  
@@ -66,10 +66,10 @@ int grid::InitializeUniformGrid(float UniformDensity,
     }
   }
 
-  if( CRModel ){
-		CRNum = NumberOfBaryonFields;
-		FieldType[NumberOfBaryonFields++] = CRDensity;
-	}
+  if ( CRModel ) {
+    CRNum = NumberOfBaryonFields;
+    FieldType[NumberOfBaryonFields++] = CRDensity;
+  }
 
   if (WritePotential)
     FieldType[NumberOfBaryonFields++] = GravPotential;
@@ -190,9 +190,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
   /* set density, total energy */
  
   for (i = 0; i < size; i++) {
-    BaryonField[0][i]     = UniformDensity;
-    BaryonField[1][i]     = UniformTotalEnergy;
-		if( CRModel ) BaryonField[CRNum][i] = UniformCR;
+    BaryonField[0][i] = UniformDensity;
+    BaryonField[1][i] = UniformTotalEnergy;
+    if ( CRModel ) BaryonField[CRNum][i] = UniformCR;
   }
  
   /* set velocities */

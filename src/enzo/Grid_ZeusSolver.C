@@ -143,8 +143,8 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   /* figure out if we're using metals. If so, grab field */
   int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum;
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MBHColourNum,
+    MetalIaNum, MetalIINum;
+  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum,
          Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
     ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
   UseMetallicityField = ( MetalNum != -1 );
