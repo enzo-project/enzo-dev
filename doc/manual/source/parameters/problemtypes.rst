@@ -71,6 +71,7 @@ Problem Type Description and Parameter List
 208          :ref:`agndisk_param`
 209	     MHD 1D Waves
 210	     MHD Decaying Random Magnetic Fields
+250	     :ref:`cr_shocktube_param`
 300          :ref:`poissonsolver_param`
 400          :ref:`rhdtest1_param`
 401          :ref:`rhdtest2_param`
@@ -1620,6 +1621,20 @@ AGN Disk (207)
     Initial height of the disk. Default: 1
 
 .. _poissonsolver_param:
+.. _shocktube_param:
+
+CR Shock Tube (250: unigrid and AMR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Very similar to normal shock tube (see problem 1) but includes CR
+    component.  See Salem, Bryan & Hummels (2014) for discussion.
+
+    In addition the regular shock tube parameters, we add:
+
+``HydroShockTubesLeftCREnDensity``, ``HydroShockTubesRightCREnDensity`` (external)
+    The initial CR energy density on the left and right sides.
+    Default: 1.0 for each value.
+
 
 Poisson Solver Test (300)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
