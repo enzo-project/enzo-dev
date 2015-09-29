@@ -194,9 +194,9 @@ int grid::ComputeElectricField(float dT, float ** Fluxes){
   IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
                              TENum, B1Num, B2Num, B3Num);
 
-  float * Bc[3] = {BaryonField[B1Num], BaryonField[B2Num], BaryonField[B3Num]};
-  float * Bf[3] = {MagneticField[0], MagneticField[1], MagneticField[2]};
-  float * Vel[3] = {BaryonField[ Vel1Num ], BaryonField[ Vel2Num ], BaryonField[ Vel3Num ] };
+  float *Bc[3] = {BaryonField[B1Num], BaryonField[B2Num], BaryonField[B3Num]};
+  float *Bf[3] = {MagneticField[0], MagneticField[1], MagneticField[2]};
+  float *Vel[3] = {BaryonField[ Vel1Num ], BaryonField[ Vel2Num ], BaryonField[ Vel3Num ] };
 #define Ec(index) (Bc[ dimY ][index]*Vel[ dimZ ][index] - Bc[ dimZ ][index]*Vel[ dimY ][index] )
   
    
