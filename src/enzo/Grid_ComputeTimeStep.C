@@ -416,7 +416,7 @@ float grid::ComputeTimeStep()
   /* Cooling time */
   if (UseCoolingTimestep == TRUE) {
     float *cooling_time = new float[size];
-    if (this->ComputeCoolingTime(cooling_time, FALSE) == FAIL) {
+    if (this->ComputeCoolingTime(cooling_time, TRUE) == FAIL) {
       ENZO_FAIL("Error in grid->ComputeCoolingTime.\n");
     }
 
@@ -424,7 +424,7 @@ float grid::ComputeTimeStep()
       for (j = GridStartIndex[1]; j < GridEndIndex[1]; j++) {
 	index = GRIDINDEX_NOGHOST(GridStartIndex[0], j, k);
 	for (i = GridStartIndex[0]; i < GridEndIndex[0]; i++, index++) {
-	  dtCooling = min(dtCooling, fabs(cooling_time[index]));
+	  dtCooling = min(dtCooling, cooling_time[index]);
 	}
       }
     }

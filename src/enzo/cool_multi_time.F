@@ -213,7 +213,7 @@
          if (coolonly .eq. 1) then
             do i = is+1, ie+1
                energy = max(p2d(i)/(gamma-1._RKIND), tiny)   
-               if (energy .lt. 0._RKIND) then
+               if (edot(i) .lt. 0._RKIND) then
                   cooltime(i,j,k) = -energy/edot(i)
                else
                   cooltime(i,j,k) = huge;
