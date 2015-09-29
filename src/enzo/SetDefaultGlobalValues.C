@@ -235,10 +235,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
-    DiskGravityPosition[dim]        = 0.0;
-    DiskGravityAngularMomentum[dim] = 0.0;
     MustRefineRegionLeftEdge[dim]   = 0.0;
     MustRefineRegionRightEdge[dim]  = 1.0;
+    DiskGravityPosition[dim]        = 0.0;
+    DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
   }
