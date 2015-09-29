@@ -195,7 +195,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
 	printf("%"FSYM"\t%"FSYM"\n", x , BaryonField[ietot][i] );
   }
 
-  // --------------- FOR DIFFUSION PROBLEM -- DELETE ME
+  // --------------- FOR DIFFUSION PROBLEM --
 	if( crc == 123.4 ){
 		int i0,i1,i2;
 		i0 = GridDimension[0] / 4;

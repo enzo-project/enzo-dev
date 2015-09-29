@@ -192,7 +192,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
    ENZO_FAIL("ERROR IN GALAXY SIM GRID INITIALIZE: non-cosmology units not supported for point source gravity");
  } else {
    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-                &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+                &TimeUnits, &VelocityUnits, Time) == FAIL) {
       ENZO_FAIL("Error in GetUnits.");
   } // end get units error if  
  } // end units if/else

@@ -989,20 +989,20 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* David Collins flux correction - July 2005 */
    int CheckForSharedFace(grid *OtherGrid,
-			      boundary_type LeftFaceBoundaryCondition[],
-			      boundary_type RightFaceBoundaryCondition[]);
+			       boundary_type LeftFaceBoundaryCondition[],
+			       boundary_type RightFaceBoundaryCondition[]);
 
    int CheckForSharedFaceHelper(grid *OtherGrid,
-				FLOAT EdgeOffset[MAX_DIMENSION]);
+				     FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* baryons: check for overlap between grids & return TRUE if it exists
             (correctly includes periodic boundary conditions). */
 
    int CheckForPossibleOverlap(grid *OtherGrid,
-		        boundary_type LeftFaceBoundaryCondition[],
-		        boundary_type RightFaceBoundaryCondition[]);
+                       boundary_type LeftFaceBoundaryCondition[],
+                       boundary_type RightFaceBoundaryCondition[]);
    int CheckForPossibleOverlapHelper(grid *OtherGrid,
-				     FLOAT EdgeOffset[MAX_DIMENSION]);
+                                        FLOAT EdgeOffset[MAX_DIMENSION]);
 
 /* baryons: copy coincident zone from the (old) grid in the argument
             (gg #7).  Return SUCCESS or FAIL. */
@@ -2264,7 +2264,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   /* FLD Radiation test problem: radiating shock test (SUCCESS or FAIL) */
   int RadHydroRadShockInitializeGrid(float DensityConst, float TEConst, 
-				     float REConst, float VelocityConst,
+			      	     float REConst, float VelocityConst,
                                      int ShockDir, int local);
 
   /* Cooling test initialization */
@@ -2411,11 +2411,11 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int ShearingBoxInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
-			       int InitialMagneticFieldConfiguration);
+				int InitialMagneticFieldConfiguration);
 
   int ShearingBox2DInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
-				int InitialMagneticFieldConfiguration);
+			       int InitialMagneticFieldConfiguration);
 
   int ShearingBoxStratifiedInitializeGrid(float ThermalMagneticRatio, float fraction, 
 				float ShearingGeometry, 
