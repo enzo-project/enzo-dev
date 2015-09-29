@@ -103,27 +103,39 @@ int grid::TestOrbitInitializeGrid(int NumberOfTestParticles,
 
   }
 
-  /* This is an orbit in the x-y plane. */
-
-  ParticlePosition[0][1] = ParticlePosition[0][0] - TestRadius;
-  ParticlePosition[1][1] = ParticlePosition[1][0];
-  ParticlePosition[2][1] = ParticlePosition[2][0];
-
-  ParticleVelocity[0][1] = 0;
-
-/* JRT 09/13/06 */
-/*ParticleVelocity[1][1] = circular_velocity; */
-  ParticleVelocity[1][1] = TestVelocity;
-/* JRT 09/13/06 */
-  ParticleVelocity[2][1] = 0;
-
   ParticleMass[1] = TestMass/pow(CellWidth[0][0], 3);  // what is actually stored in ParticleMass is density so divide by volume
+  if(MustRefineParticlesRefineToLevel > 0){
+    /* if using MRPs orbit in xz plane */
+    ParticlePosition[0][1] = ParticlePosition[0][0] - TestRadius;
+    ParticlePosition[1][1] = ParticlePosition[1][0];
+    ParticlePosition[2][1] = ParticlePosition[2][0];
 
-/* JRT 09/13/06  */
+    ParticleVelocity[0][1] = 0;
+    ParticleVelocity[2][1] = TestVelocity;
+    ParticleVelocity[1][1] = 0;
+    ParticleVelocity[2][0] = - CentralVelocity;
+
+  }else{
+    /* This is an orbit in the x-y plane. */
+
+    ParticlePosition[0][1] = ParticlePosition[0][0] - TestRadius;
+    ParticlePosition[1][1] = ParticlePosition[1][0];
+    ParticlePosition[2][1] = ParticlePosition[2][0];
+    
+    ParticleVelocity[0][1] = 0;
+    
+    /* JRT 09/13/06 */
+    /*ParticleVelocity[1][1] = circular_velocity; */
+    ParticleVelocity[1][1] = TestVelocity;
+    /* JRT 09/13/06 */
+    ParticleVelocity[2][1] = 0;
+    
   
-  ParticleVelocity[1][0] = - CentralVelocity;
-/* JRT 09/13/06  */
-
+    /* JRT 09/13/06  */
+    
+    ParticleVelocity[1][0] = - CentralVelocity;
+    /* JRT 09/13/06  */
+  }
 
   printf("The particle masses are:\n");
   printf("   (central)   %e\n",ParticleMass[0]);
