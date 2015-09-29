@@ -23,7 +23,7 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 
-//#define USE_FORTRAN
+#define USE_FORTRAN
 
 /* function prototypes */
 
@@ -33,7 +33,7 @@ extern "C" void FORTRAN_NAME(expand_terms)(
    float *p,  float *d, float *e, float *ge, 
       float *u, float *v, float *w,
    float *dold, float *eold, float *geold, float *uold, float *vold, 
-      float *wold);
+   float *wold, int *icr, float *ecr, float *ecrold);
 extern "C" void FORTRAN_NAME(expand_mhd_terms)(
    int *rank, int *isize, int *idual, float *coef, int *imethod, float *gamma,
    float *p, float *pdual, float *d, float *e, float *ge, 
@@ -90,7 +90,6 @@ int grid::ComovingExpansionTerms()
 
 #ifdef USE_FORTRAN
 
-		
     /* Compute the time-centered pressure for this grid. */
 
     this->ComputePressure(PressureTime, Pressure);
@@ -123,7 +122,8 @@ int grid::ComovingExpansionTerms()
 				 BaryonField[Vel2Num], BaryonField[Vel3Num],
 				 OldBaryonField[DensNum], OldBaryonField[TENum], 
 				 OldBaryonField[GENum], OldBaryonField[Vel1Num], 
-				 OldBaryonField[Vel2Num], OldBaryonField[Vel3Num]);
+				 OldBaryonField[Vel2Num], OldBaryonField[Vel3Num],
+				 &CRModel, BaryonField[CRNum], OldBaryonField[CRNum]);
     
 
 #else /* USE_FORTRAN */
@@ -142,21 +142,21 @@ int grid::ComovingExpansionTerms()
 
     if (HydroMethod == Zeus_Hydro) {
 
-			if( CRModel ){
-				double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
+      if( CRModel ){
+	double gas_coeff = (1.0-Coefficient)/(1.0+Coefficient);
       	for (i = 0; i < size; i++)
-					BaryonField[TENum][i] *= gas_coeff;
-				double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
-				for( i = 0 ; i != size; ++i )
-					BaryonField[CRNum][i] *= cr_coeff;
-			} // end CR model if
-			else {
-				for (i = 0; i < size; i++) {
-					BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
-						(BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
-						 0.5*BaryonField[TENum][i]);
-				} // end for 
-			} // end CR if/else
+	  BaryonField[TENum][i] *= gas_coeff;
+	double cr_coeff = (2.0-Coefficient)/(2.0+Coefficient);
+	for( i = 0 ; i != size; ++i )
+	  BaryonField[CRNum][i] *= cr_coeff;
+      } // end CR model if
+      else {
+	for (i = 0; i < size; i++) {
+	  BaryonField[TENum][i] -= min(Coefficient*6.0*Pressure[i]/
+				       (BaryonField[DensNum][i] + OldBaryonField[DensNum][i]),
+				       0.5*BaryonField[TENum][i]);
+	} // end for 
+      } // end CR if/else
 
     } else {
 
