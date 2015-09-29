@@ -362,9 +362,6 @@ int RebuildHierarchy(TopGridData *MetaData,
 
       DetermineSubgridSizeExtrema(ncells, i+1, MaximumStaticSubgridLevel+1);
 
-      DetermineSubgridSizeExtrema(NumberOfCells[i+1], i+1, 
-				  MaximumStaticSubgridLevel+1);
-
       /* 3a) Generate an array of grids on this level. */
  
 //??      HierarchyEntry *GridHierarchyPointer[MAX_NUMBER_OF_SUBGRIDS];
