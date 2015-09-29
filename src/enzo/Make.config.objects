@@ -357,8 +357,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCellCenteredField.o \
 	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
-  Grid_ComputeCRDiffusion.o \
-  Grid_ComputeCRDiffusionTimeStep.o \
+        Grid_ComputeCRDiffusion.o \
+        Grid_ComputeCRDiffusionTimeStep.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \

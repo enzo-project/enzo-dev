@@ -53,7 +53,7 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
 int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
-            HierarchyEntry &TopGrid, TopGridData &MetaData);
+			   HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,

@@ -137,6 +137,8 @@ int ReadAllData(char *name, HierarchyEntry *TopGrid, TopGridData &MetaData,
           return FAIL;
      }
   }
+
+
  
   /* Set the number of particle attributes, if left unset. */
 
