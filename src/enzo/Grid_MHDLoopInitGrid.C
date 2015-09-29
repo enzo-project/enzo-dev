@@ -144,14 +144,13 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
         X=(i-GridStartIndex[0])*Scale[0];
         Y=(j-GridStartIndex[1])*Scale[1];
         
-        LoopTotalEnergy=GasEnergy + 0.5*(Vx*Vx+Vy*Vy + Vz*Vz)
+        LoopTotalEnergy=GasEnergy + 0.5*(Vx*Vx + Vy*Vy + Vz*Vz)
           +0.5*(BaryonField[BxNum][index]*BaryonField[BxNum][index]+
                 BaryonField[ByNum][index]*BaryonField[ByNum][index]+
                 BaryonField[BzNum][index]*BaryonField[BzNum][index])/LoopDensity;
 
         BaryonField[Eden][index]=LoopDensity;
         if( EquationOfState == 0 ) BaryonField[Eeng][index]=LoopTotalEnergy;
-  //int Eeng, Eden, Ev[3], Egas, BxNum = 0, ByNum = 1, BzNum = 2;
         if (DualEnergyFormalism)
           BaryonField[Egas][index]=GasEnergy/LoopDensity;
         BaryonField[ Ev[0] ][index]=Vx;
@@ -164,7 +163,6 @@ int grid::MHDLoopInitGrid(float LoopDensity,float Pressure, float Vx, float Vy, 
       UseMHDCT = FALSE;
     for(field=0;field<3;field++){
 
-      //No delete for CenteredB, since it's a pointer to BaryonField[B?Num]
       delete MagneticField[field];
       MagneticField[field] = NULL;
       delete ElectricField[field];
