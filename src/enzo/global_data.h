@@ -540,7 +540,6 @@ EXTERN float MinimumOverDensityForRefinement[MAX_FLAGGING_METHODS];
 EXTERN float MinimumMassForRefinement[MAX_FLAGGING_METHODS];
 EXTERN float MinimumMassForRefinementLevelExponent[MAX_FLAGGING_METHODS];
 EXTERN float DepositPositionsParticleSmoothRadius;
-EXTERN float MetallicityForRefinement;
 
 /* For CellFlaggingMethod = 3,
    The minimum pressure jump required to be a shock.
