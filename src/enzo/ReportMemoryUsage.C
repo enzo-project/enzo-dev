@@ -20,21 +20,21 @@
 #include "typedefs.h"
 #include "global_data.h"
  
-#define NO_OVERLOAD_NEW
+#define NO_MEMORY_TRACE
  
-#ifdef OVERLOAD_NEW
+#ifdef MEMORY_TRACE
 extern int CurrentMemoryUsage;   // in words
 extern int MaximumMemoryUsage;
 extern int NumberOfCalls     ;
 extern void *FirstAddress;
 extern void *LargestAddress;
-#endif /* OVERLOAD_NEW */
+#endif /* MEMORY_TRACE */
  
  
 int ReportMemoryUsage(char *header = NULL)
 {
  
-#ifdef OVERLOAD_NEW
+#ifdef MEMORY_TRACE
  
   float Current = float(CurrentMemoryUsage),
         Maximum = float(MaximumMemoryUsage),
@@ -44,7 +44,7 @@ int ReportMemoryUsage(char *header = NULL)
 	 header, MyProcessorNumber, Current, Maximum, Arena,
 	 Maximum/Arena*100.0);
  
-#endif /* OVERLOAD_NEW */
+#endif /* MEMORY_TRACE */
  
   return SUCCESS;
 }
