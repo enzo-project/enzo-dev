@@ -201,7 +201,6 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetallicityRefinementMinLevel = -1;
   MetallicityRefinementMinMetallicity = 1.0e-5;
   MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
-  MetallicityForRefinement  = 1.0;
   FluxCorrection            = TRUE;
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm

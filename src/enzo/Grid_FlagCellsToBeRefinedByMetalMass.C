@@ -69,7 +69,7 @@ int grid::FlagCellsToBeRefinedByMetalMass(int level)
   /* Compute the ModifiedMinimumMass */
  
   float ModifiedMinimumMassForRefinement =
-    (MetallicityForRefinement*Zsun) * 
+    (MetallicityRefinementMinMetallicity*Zsun) * 
     MinimumMassForRefinement[MassFlaggingMethod] * 
     POW(RefineBy, level*MinimumMassForRefinementLevelExponent[MassFlaggingMethod]);
 

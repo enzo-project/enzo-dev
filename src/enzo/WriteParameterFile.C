@@ -337,8 +337,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  MetallicityRefinementMinMetallicity);
   fprintf(fptr, "MetallicityRefinementMinDensity     = %"GSYM"\n", 
 	  MetallicityRefinementMinDensity);
-  fprintf(fptr, "MetallicityForRefinement            = %"GSYM"\n", 
-	  MetallicityForRefinement);
  
   fprintf(fptr, "DomainLeftEdge         = ");
   WriteListOfFloats(fptr, MetaData.TopGridRank, DomainLeftEdge);
