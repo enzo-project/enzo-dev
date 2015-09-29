@@ -180,8 +180,6 @@ c
                   endif
                endif
 
-c               write(6, *) 'star_maker_ssn: new particle created!'
-
                starfraction = min(starfraction, mfcell)
 
 c
@@ -661,6 +659,7 @@ c     &            te(i,j,k),wind_energy
 
             if((dEject + dEjectSN) .gt. mp(n)) then
                 write(6,*) 'WARNING: losing too much mass'
+                write(6,*) 'Setting particle mass to zero'
                 write(6, *) mp(n), dEject, dEjectSN
                 write(6,*) 'm_eject, m_ejSN, td7 ',m_eject,m_ejSN,td7
                 write(6,*)  willExplode(n), explosionFlag(n),i,j,k,n
