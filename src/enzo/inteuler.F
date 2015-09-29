@@ -545,8 +545,8 @@ c
       enddo
       do ic = 1,ncolor
          do i = i1,i2+1
-            colls(i,j,ic) = max(colls(i,j,ic), 1.d-35)
-            colrs(i,j,ic) = max(colrs(i,j,ic), 1.d-35)
+            colls(i,j,ic) = max(colls(i,j,ic), color_floor)
+            colrs(i,j,ic) = max(colrs(i,j,ic), color_floor)
          enddo
       enddo
 c
