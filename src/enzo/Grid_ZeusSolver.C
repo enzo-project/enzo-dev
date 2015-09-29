@@ -94,7 +94,7 @@ int ZeusSource(float *d, float *e, float *u, float *v, float *w, float *p, float
 int GetUnits (float *DensityUnits, float *LengthUnits,
          float *TemperatureUnits, float *TimeUnits,
          float *VelocityUnits, double *MassUnits, FLOAT Time);
-
+int FindField(int field, int farray[], int numfields);
 
 int grid::ZeusSolver(float *gamma, int igamfield, int nhy, 
 		     float dx[], float dy[], float dz[], 
@@ -110,7 +110,6 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
   int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, CRNum;
   float pmin;
   float *d, *e, *u, *v, *w, *cr, *m;
-  int UseMetallicityField;
 
   /* Error Check */
 
@@ -128,27 +127,12 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
      Create zero fields for velocity2-3 for low-dimension runs because solver
      assumes they exist. */
 
-  if(CRModel) {
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-              Vel3Num, TENum, CRNum ) == FAIL ) {
-      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-    }
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum );
+  if (CRModel) {
+    if ((CRNum = FindField(CRDensity, FieldType, NumberOfBaryonFields)) < 0)
+      ENZO_FAIL("Cannot Find Cosmic Rays");
     cr = BaryonField[CRNum];
-  } else {
-    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-              Vel3Num, TENum ) == FAIL ) {
-      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
-    }
   }
-
-  /* figure out if we're using metals. If so, grab field */
-  int SNColourNum, MetalNum, MBHColourNum, Galaxy1ColourNum, Galaxy2ColourNum,
-    MetalIaNum, MetalIINum;
-  if (this->IdentifyColourFields(SNColourNum, MetalNum, MetalIaNum, MetalIINum, MBHColourNum,
-         Galaxy1ColourNum, Galaxy2ColourNum) == FAIL)
-    ENZO_FAIL("Error in grid->IdentifyColourFields.\n");
-  UseMetallicityField = ( MetalNum != -1 );
-  if(UseMetallicityField) m = BaryonField[MetalNum]; 
   
   d = BaryonField[DensNum];
   e = BaryonField[TENum];
@@ -227,19 +211,19 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
 
   /* Error check */
   
-	float CRcs = 0.0;
-  if(CRmaxSoundSpeed != 0.0){
+  float CRcs = 0.0;
+  if (CRmaxSoundSpeed != 0.0){
 		  // Get system of units
-		  float CRsound,DensityUnits,LengthUnits,TemperatureUnits,
-				TimeUnits,VelocityUnits,MassUnits,Time;
-		  if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-		               &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
-		    ENZO_FAIL("Error in GetUnits.");
-		  }
+    float CRsound,DensityUnits,LengthUnits,TemperatureUnits,
+          TimeUnits,VelocityUnits,MassUnits,Time;
+    if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
+		 &TimeUnits, &VelocityUnits, &MassUnits, Time) == FAIL) {
+      ENZO_FAIL("Error in GetUnits.");
+    }
 
-		CRsound = CRmaxSoundSpeed/VelocityUnits; 
-		CRcs = (CRgamma-1.0)/(CRsound*CRsound);
-	}
+    CRsound = CRmaxSoundSpeed/VelocityUnits; 
+    CRcs = (CRgamma-1.0)/(CRsound*CRsound);
+  }
 
   for (i = 0; i < size; i++) {
     if (fabs(u[i]) > dx[0]/dtFixed ||
@@ -251,12 +235,12 @@ int grid::ZeusSolver(float *gamma, int igamfield, int nhy,
     }
   
     /* -- density/TE floor for CR model -- */
-    if( CRModel ){
-      if( CRdensFloor != 0.0 && d[i] < CRdensFloor ) d[i] = CRdensFloor;
-      if( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed 
-      if( e[i] < tiny_number*1e-5                  ) e[i] = tiny_number*1e-5;
+
+    if ( CRModel ){
+      if ( CRdensFloor != 0.0 && d[i] < CRdensFloor ) d[i] = CRdensFloor;
+      if ( CRcs        != 0.0 && d[i] < CRcs*cr[i]  ) d[i] = CRcs*cr[i];   // Limits sound-speed 
+      if ( e[i] < tiny_number*1e-5                  ) e[i] = tiny_number*1e-5;
     } // end cr model if
-    if( UseMetallicityField && m[i] < tiny_number*1e-5 ) m[i] = tiny_number*1e-5;
   } // end i for
 
   /*  2) Transport step */
