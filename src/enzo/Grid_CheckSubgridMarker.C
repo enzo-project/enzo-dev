@@ -33,6 +33,9 @@ int grid::CheckSubgridMarker(void)
 	CellCenter[0] = CellLeftEdge[0][i] + 0.5 * CellWidth[0][i];
 	CellCenter[1] = CellLeftEdge[1][j] + 0.5 * CellWidth[1][j];
 	CellCenter[2] = CellLeftEdge[2][k] + 0.5 * CellWidth[2][k];
+	// Not necessary to check the case where the cell center
+	// equals the domain edge because the cell centers are always
+	// offset by 1/2 of a cell width.
 	for (dim = 0; dim < GridRank; dim++) {
 	  if (CellCenter[dim] < DomainLeftEdge[dim])
 	    CellCenter[dim] += DomainWidth[dim];
