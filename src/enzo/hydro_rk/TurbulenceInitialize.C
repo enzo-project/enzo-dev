@@ -272,7 +272,7 @@ printf("Plasma beta=%"GSYM"\n", CloudDensity*CloudSoundSpeed*CloudSoundSpeed/(In
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-  if (UseMDH) {
+  if (UseMHD) {
     DataLabel[count++] = BxName;
     DataLabel[count++] = ByName;
     DataLabel[count++] = BzName;
