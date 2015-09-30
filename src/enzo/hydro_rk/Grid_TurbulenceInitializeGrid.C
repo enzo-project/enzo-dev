@@ -59,10 +59,12 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  if (HydroMethod == MHD_RK) {
+  if (UseMDH) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if ( HydroMethod == MHD_RK){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
   if(UseDivergenceCleaning)
@@ -161,14 +163,7 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
     size *= GridDimension[dim];
   }
 
-  for (field = 0; field < NumberOfBaryonFields; field++) {
-    if (BaryonField[field] == NULL) {
-      BaryonField[field] = new float[size];
-      for (n = 0; n < size; n++) {
-	BaryonField[field][n] = 0.0;
-      }
-    }
-  }
+  AllocateGrids();
 
   /* Initialize radiation fields */
 #ifdef TRANSFER
@@ -362,13 +357,20 @@ int grid::TurbulenceInitializeGrid(float CloudDensity, float CloudSoundSpeed, FL
 	if(Velx != 0.0) 
 	  printf("    PROBLEM!!!! eint = %g, Velx = %g, Vely = %g, Velz = %g \n", eint, Velx, Vely, Velz);
 
-	if (HydroMethod == MHD_RK) {
+	if (UseMHD) {
 	  BaryonField[iBx  ][n]  = 0.0;//-InitialBField*sinphi;
 	  BaryonField[iBy  ][n]  = 0.0;//InitialBField*sintheta;
 	  BaryonField[iBz  ][n]  = InitialBField;
-	  BaryonField[iPhi ][n]  = 0.0;
 	  BaryonField[ietot][n] += 0.5 * pow(InitialBField,2) / Density;
 	}
+    if( HydroMethod == MHD_RK ){
+	  BaryonField[iPhi ][n]  = 0.0;
+    }
+    if ( UseMHDCT ){
+        MagneticField[0][n] = 0.0;
+        BaryonField[iBy][n] = 0.0;
+        BaryonField[iBz][n] = InitialBField;
+    }
 
 	if (UseDrivingField) {
 	  BaryonField[idrivex][n] = 0.0;
