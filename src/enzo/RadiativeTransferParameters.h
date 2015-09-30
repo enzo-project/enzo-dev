@@ -42,9 +42,10 @@ EXTERN float RadiativeTransferPhotonEscapeRadius;
 EXTERN int RadiativeTransferInterpolateField;
 
 /* Associated velocity in km/s to limit the photon timestep.  
-   min(dt) = dx_min / v_limit */
+   min(dt) = dx_min / v_limit on the specified level */
 
 EXTERN float RadiativeTransferTimestepVelocityLimit;
+EXTERN int RadiativeTransferTimestepVelocityLevel;
 
 /* Flag whether to cluster sources on a binary tree and merge rays at
    a certain radii with associated SuperSources */
@@ -104,3 +105,9 @@ EXTERN int RadiativeTransferLoadBalance;
    flux (RadiationFieldType > 0) */
 
 EXTERN float RadiativeTransferFluxBackgroundLimit;
+
+/* Parameter to control flux threshold when rays are deleted when the
+   photo-ionization rate becomes as long as the Hubble time times this
+   constant. */
+
+EXTERN float RadiativeTransferHubbleTimeFraction;

@@ -255,6 +255,25 @@ int MHD1DTestInitialize(FILE *fptr, FILE *Outfptr,
   for (i = 0; i < count; i++)
     DataUnits[i] = NULL;
 
+  if ( UseMHDCT ){
+  MHDLabel[0] = "BxF";
+  MHDLabel[1] = "ByF";
+  MHDLabel[2] = "BzF";
+  
+  MHDeLabel[0] = "Ex";
+  MHDeLabel[1] = "Ey";
+  MHDeLabel[2] = "Ez";
+  
+  MHDUnits[0] = "None";
+  MHDUnits[1] = "None";
+  MHDUnits[2] = "None";
+  
+  MHDeUnits[0] = "None";
+  MHDeUnits[1] = "None";
+  MHDeUnits[2] = "None";
+  }
+  
+
   /* Write parameters to parameter output file */
 
   if (MyProcessorNumber == ROOT_PROCESSOR) {

@@ -128,23 +128,6 @@ int grid::SetExternalBoundaryValues(ExternalBoundary *Exterior)
 				       MagneticField[2],Bfield3) == FAIL)
 	ENZO_FAIL("Error in Exterior->SetMagneticBoundary, B3.");
 
-      //centeredB is set using FieldType == VelocityX since the FieldType array is 
-      //compared against.  This will be irrelevant when CenteredB gets stored in BaryonField.
-      if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
-					GridStartIndex, GridEndIndex,
-				CenteredB[0], Density) == FAIL)
-ENZO_FAIL("Error: Something's wrong with the CenteredB[0] boundary.");
-      
-      if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
-					GridStartIndex, GridEndIndex,
-				CenteredB[1], Density) == FAIL)
-ENZO_FAIL("Error: Something's wrong with the CenteredB[1] boundary.");
-
-      if( Exterior->SetExternalBoundary(GridRank, GridDimension, GridOffset,
-					GridStartIndex, GridEndIndex,
-				CenteredB[2], Density) == FAIL)
-ENZO_FAIL("Error: Something's wrong with the CenteredB[2] boundary.");
- 
  
     }// if(UseMHDCT)
 

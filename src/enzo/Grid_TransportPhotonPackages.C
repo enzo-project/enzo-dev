@@ -27,6 +27,7 @@
 #include "Fluxes.h"
 #include "GridList.h"
 #include "Grid.h"
+#include "phys_constants.h"
 
 void InsertPhotonAfter(PhotonPackageEntry * &Node, PhotonPackageEntry * &NewNode);
 PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node);
@@ -36,7 +37,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *TemperatureUnits, float *TimeUnits,
 	     float *VelocityUnits, FLOAT Time);
 
-int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove, 
+int grid::TransportPhotonPackages(int level, int finest_level, 
+				  ListOfPhotonsToMove **PhotonsToMove, 
 				  int GridNum, grid **Grids0, int nGrids0, 
 				  grid *ParentGrid, grid *CurrentGrid)
 {
@@ -91,13 +93,15 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   /* Get units. */
 
+  double MassUnits, RT_Units;
   float LengthUnits, TimeUnits, TemperatureUnits, VelocityUnits, 
     DensityUnits;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
-	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL) {
+	       &TimeUnits, &VelocityUnits, PhotonTime) == FAIL)
     ENZO_FAIL("Error in GetUnits.\n");
-  }
+  MassUnits = (double) DensityUnits * POW(LengthUnits, 3.0);
+  RT_Units = (double) TimeUnits * POW(LengthUnits, -3.0);
 
   /* speed of light in code units. note this one is independent of
      a(t), and Modify the photon propagation speed by this
@@ -109,12 +113,15 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     (c_cgs/VelocityUnits);
 
   float DomainWidth[MAX_DIMENSION];
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
+  //double FinestCellVolume = pow(RefineBy, -3*(finest_level-level));
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
     DomainWidth[dim] = DomainRightEdge[dim] - DomainLeftEdge[dim];
+    //FinestCellVolume *= CellWidth[dim][0];
+  }
 
-  if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
-  if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
-		     GridStartIndex[0], GridEndIndex[0]);
+  // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: initialize fields.\n");
+  // if (DEBUG) fprintf(stdout,"TransportPhotonPackage: %"ISYM" %"ISYM" .\n",
+  // 		     GridStartIndex[0], GridEndIndex[0]);
 
   PhotonPackageEntry *PP, *FPP, *SavedPP, *PausedPP;
   PP = PhotonPackages;
@@ -126,7 +133,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
       PP=PP->NextPackage;
     }
     fprintf(stdout, "TransportPhotonPackage: done initializing.\n");
-    fprintf(stdout, "counted %"ISYM" packages\n", count);
+    fprintf(stdout, "[%d] counted %"ISYM" packages\n", this->ID, count);
   }
 
   /* If requested, make vertex centered field (only when it doesn't
@@ -140,6 +147,29 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 		  "(field %"ISYM").\n", i)
 	}
 
+  /* Calculate minimum photon flux before a ray is deleted */
+  
+  const double alphaB = 2.6e-13;
+  float MinimumPhotonFlux, RecombinationTime;
+  int gmethod = INT_UNDEFINED;
+  for (i = 0; i < MAX_FLAGGING_METHODS; i++)
+    if (CellFlaggingMethod[i] == 2) gmethod = i;
+  if (gmethod == INT_UNDEFINED)
+    MinimumPhotonFlux = POW(TopGridDx[0], GridRank) * POW(RefineBy, level); // estimate
+  else
+    MinimumPhotonFlux = MinimumMassForRefinement[gmethod] * 
+      POW(RefineBy, level*MinimumMassForRefinementLevelExponent[gmethod]);
+  if (ComovingCoordinates)
+    MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
+				  (PhotonTime * RadiativeTransferHubbleTimeFraction));
+  else {
+    RecombinationTime = 1.0 / (alphaB * DensityUnits / mh) / TimeUnits;
+    MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
+				  (10*RecombinationTime));
+  }
+  // float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
+  //   (PhotonTime * RadiativeTransferHubbleTimeFraction);
+
   count = 0;
   PP = PhotonPackages->NextPackage;
   FPP = this->FinishedPhotonPackages;
@@ -152,7 +182,6 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
   int AdvancePhotonPointer;
   int DeleteMe, DeltaLevel, PauseMe;
 
-  const float clight = 2.9979e10;
   float LightCrossingTime = 1.7320508 * (VelocityUnits) /
     (clight * RadiativeTransferPropagationSpeedFraction);  // sqrt(3)=1.73
   FLOAT EndTime;
@@ -179,7 +208,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 			RPresNum2, RPresNum3, RaySegNum,
 			DeleteMe, PauseMe, DeltaLevel, LightCrossingTime,
 			DensityUnits, TemperatureUnits, VelocityUnits, 
-			LengthUnits, TimeUnits, LightSpeed);
+			LengthUnits, TimeUnits, LightSpeed, MinimumPhotonFlux);
       tcount++;
     } else {
 
@@ -221,7 +250,7 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
     } 
 
     if (MoveToGrid != NULL) {
-      if (DEBUG) {
+      if (DEBUG > 1) {
 	fprintf(stdout, "moving photon from %x to %x\n", 
 		 CurrentGrid,  MoveToGrid);
 	fprintf(stdout, "moving photon %x %x %x %x\n", 
@@ -260,10 +289,10 @@ int grid::TransportPhotonPackages(int level, ListOfPhotonsToMove **PhotonsToMove
 
   } // ENDWHILE photons
 
-  if (debug1)
-    fprintf(stdout, "grid::TransportPhotonPackage: "
+  if (DEBUG)
+    fprintf(stdout, "grid::TransportPhotonPackage[%d]: "
 	    "transported %"ISYM" deleted %"ISYM" paused %"ISYM" moved %"ISYM"\n",
-	    tcount, dcount, pcount, trcount);
+	    this->ID, tcount, dcount, pcount, trcount);
   NumberOfPhotonPackages -= dcount;
 
 #ifdef UNUSED

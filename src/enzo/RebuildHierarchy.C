@@ -122,7 +122,8 @@ int RebuildHierarchy(TopGridData *MetaData,
  
   bool ParticlesAreLocal, SyncNumberOfParticles = true;
   bool MoveStars = true;
-  int i, j, k, grids, grids2, subgrids, MoveParticles, ncells;
+  long_int ncells;
+  int i, j, k, grids, grids2, subgrids, MoveParticles;
   int TotalFlaggedCells, FlaggedGrids;
   FLOAT ZeroVector[MAX_DIMENSION];
   LevelHierarchyEntry *Temp;

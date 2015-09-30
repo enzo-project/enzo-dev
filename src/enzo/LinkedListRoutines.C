@@ -36,7 +36,7 @@ PhotonPackageEntry *PopPhoton(PhotonPackageEntry * &Node)
 
 PhotonPackageEntry *LinkedListToArray(PhotonPackageEntry *Node, int n)
 {
-  int dim, count = 0;
+  int dim, bin, count = 0;
   PhotonPackageEntry *result = new PhotonPackageEntry[n];
   PhotonPackageEntry *tmp = Node;
   while (tmp != NULL) {
@@ -47,7 +47,8 @@ PhotonPackageEntry *LinkedListToArray(PhotonPackageEntry *Node, int n)
     result[count].Photons = tmp->Photons;
     result[count].Type = tmp->Type;
     result[count].Energy = tmp->Energy;
-    result[count].CrossSection = tmp->CrossSection;
+    for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
+      result[count].CrossSection[bin] = tmp->CrossSection[bin];
     result[count].EmissionTimeInterval = tmp->EmissionTimeInterval;
     result[count].EmissionTime = tmp->EmissionTime;
     result[count].CurrentTime = tmp->CurrentTime;

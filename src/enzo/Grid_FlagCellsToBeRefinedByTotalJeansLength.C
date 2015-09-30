@@ -65,14 +65,14 @@ int grid::FlagCellsToBeRefinedByTotalJeansLength()
   float *temperature = NULL;
   if (ProblemType != 60 && ProblemType != 61 && EOSType == 0) { //AK
     temperature = new float[size];
-    if (this->ComputeTemperatureField(temperature) == FAIL) {
-      fprintf(stderr, "Error in grid->ComputeTemperature.\n");
-      return -1;
-    }
-    /* This is less efficient, but it avoids too many conditionals */
-    if(JeansRefinementColdTemperature > 0.0){
-      for (i = 0; i < size; i++) temperature[i] =
-				   JeansRefinementColdTemperature;
+    if (JeansRefinementColdTemperature > 0.0) {
+      for (i = 0; i < size; i++)
+	temperature[i] = JeansRefinementColdTemperature;
+    } else {
+      if (this->ComputeTemperatureField(temperature) == FAIL)
+	ENZO_FAIL("Error in grid->ComputeTemperature.");
+      for (i = 0; i < size; i++) 
+	temperature[i] = max(JeansRefinementColdTemperature, temperature[i]);
     }
   }
  

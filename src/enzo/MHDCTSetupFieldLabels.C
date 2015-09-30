@@ -22,12 +22,6 @@
 void MHDCTSetupFieldLabels(void){
   if (!UseMHDCT)
     return;
-  if(MHDcLabel[0]==NULL)
-    MHDcLabel[0] = "Bx";
-  if(MHDcLabel[1]==NULL)
-    MHDcLabel[1] = "By";
-  if(MHDcLabel[2]==NULL)
-    MHDcLabel[2] = "Bz";
 
   if(MHDLabel[0]==NULL)
     MHDLabel[0] = "BxF";

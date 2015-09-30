@@ -451,12 +451,6 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     }
 
       if( UseMHDCT ){
-	for(field=0;field<nBfields;field++){
-	  WriteDataset(group_id,CenteredB[field],temp,
-		       GridDimension,GridRank,
-		       WriteStartIndex,WriteEndIndex,ActiveDim,
-		       MHDcLabel[field], MHDUnits[0], file_type_id, float_type_id,log_fptr);
-	}
 
 	hsize_t MHDOutDims[3];
 	int MHDActive[3], MHDWriteStartIndex[3], MHDWriteEndIndex[3];
@@ -588,7 +582,7 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
     /* If requested, compute and output the dust temperature field 
        as well since its such a pain to compute after the fact. */
 
-    if (OutputDustTemperature) {
+    if (OutputDustTemperature != FALSE) {
  
       /* Get temperature field if we do not already have it. */
 

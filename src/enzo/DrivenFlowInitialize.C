@@ -27,6 +27,7 @@
 #include "phys_constants.h"
 
 StochasticForcing Forcing;
+void MHDCTSetupFieldLabels();
 
 int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr, 
              HierarchyEntry &TopGrid, TopGridData &MetaData, 
@@ -192,33 +193,15 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism)
     DataLabel[count++] = GEName;
 
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     DataLabel[count++] = BxName;
     DataLabel[count++] = ByName;
     DataLabel[count++] = BzName;
+  }
+  if( HydroMethod == MHD_RK ){
     DataLabel[count++] = PhiName;
   }
-  if ( UseMHDCT ) {
-    MHDLabel[0] = "BxF";
-    MHDLabel[1] = "ByF";
-    MHDLabel[2] = "BzF";
-    
-    MHDcLabel[0] = "Bx";
-    MHDcLabel[1] = "By";
-    MHDcLabel[2] = "Bz";
-    
-    MHDeLabel[0] = "Ex";
-    MHDeLabel[1] = "Ey";
-    MHDeLabel[2] = "Ez";
-    
-    MHDUnits[0] = "None";
-    MHDUnits[1] = "None";
-    MHDUnits[2] = "None";
-    
-    MHDeUnits[0] = "None";
-    MHDeUnits[1] = "None";
-    MHDeUnits[2] = "None";
-    }
+  MHDCTSetupFieldLabels();
 
     DataLabel[count++] = StochAccel1Name;
     DataLabel[count++] = StochAccel2Name;
