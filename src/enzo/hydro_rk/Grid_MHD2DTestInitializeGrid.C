@@ -65,7 +65,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     //FieldType[NumberOfBaryonFields++] = DebugField;  
   }
   if (UseColour) {
-    FieldType[iZ = NumberOfBaryonFields++] = Metallicity;
+    FieldType[iZ = NumberOfBaryonFields++] = SNColour;
   }
 
   /* Return if this doesn't concern us. */
@@ -1432,7 +1432,6 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     float y1=0.5;
     float y2=1.5;
     float ramp,eint;
-    float delx=0.05; // range in y over which to apply the ramp
     float a=RampWidth;
     float sigma2=0.2*0.2;
     float dpde, dpdrho,h,cs;
@@ -1446,7 +1445,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
 	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
 	
-	//	ramp =  1./((1.+exp(-2/delx*(y-0.25)))*(1.+exp(-2/delx*(0.75-y))));
+
 	float rhoramp = 0.5*(tanh((y-y1)/a)-tanh((y-y2)/a));
 	float rho = rhol + rhoramp*(rhou/rhol-1.);
 	BaryonField[iden ][igrid] = rho;
