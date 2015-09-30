@@ -85,7 +85,7 @@ int grid::CreateEmissivityLW(Star *AllStars, FLOAT TimeFLD, float dtFLD)
 	else
 	  TimeFraction = 1.0;
 
-	cstar->ComputePhotonRates(nbins, energies, Luminosity);
+	cstar->ComputePhotonRates(TimeUnits, nbins, energies, Luminosity);
 	E_LW = energies[3];
 	L_LW = Luminosity[3];
 

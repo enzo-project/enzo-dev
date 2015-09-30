@@ -940,26 +940,6 @@ int grid::AddFeedbackSphere(Star *cstar, int level, float radius, float DensityU
 	    if (Metal2Num > 0)
 	      BaryonField[Metal2Num][index] *= factor;
 
-	    // For cold gas accretion, set a minimum temperature of
-	    // 1e4 K since it has been accreted onto the star
-
-	    if (DualEnergyFormalism) {
-	      GasEnergy = BaryonField[GENum][index];
-	    } else {
-	      GasEnergy = BaryonField[TENum][index];
-	      if (HydroMethod != Zeus_Hydro)
-		for (dim = 0; dim < GridRank; dim++)
-		  GasEnergy -= 0.5*BaryonField[Vel1Num+dim][index] * 
-		    BaryonField[Vel1Num+dim][index];
-	    }
-	    AdditionalEnergy = 
-	      MinimumTemperature / (TemperatureUnits * (Gamma-1.0) * 0.6) - 
-	      GasEnergy;
-	    AdditionalEnergy = max(AdditionalEnergy, 0.0);
-	    BaryonField[TENum][index] += AdditionalEnergy;
-	    if (DualEnergyFormalism)
-	      BaryonField[GENum][index] += AdditionalEnergy;
-
 	    CellsModified++;
 
 	  }  // END if inside radius
