@@ -73,7 +73,8 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
     NumberOfStars++;
   bool *AddedFeedback = new bool[NumberOfStars];
 
-  BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
+  if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel)
+    BigStarFormationDone = CommunicationMaxValue(BigStarFormationDone);
 
   LCAPERF_START("StarParticleFinalize");
 

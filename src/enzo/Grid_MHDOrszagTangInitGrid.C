@@ -50,10 +50,12 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   FieldType[NumberOfBaryonFields++] = Velocity1;
   FieldType[NumberOfBaryonFields++] = Velocity2;
   FieldType[NumberOfBaryonFields++] = Velocity3;
-  if ( HydroMethod == MHD_RK ){
+  if( UseMHD ){
       FieldType[NumberOfBaryonFields++] = Bfield1;
       FieldType[NumberOfBaryonFields++] = Bfield2;
       FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if ( HydroMethod == MHD_RK ){
       FieldType[NumberOfBaryonFields++] = PhiField;
   }
 
@@ -128,9 +130,9 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
 
         if( EquationOfState == 0 ){
           TotalEnergy=GasEnergy + 0.5*DensityIn*(Vx*Vx+Vy*Vy)
-            +0.5*(CenteredB[0][index]*CenteredB[0][index]+
-              CenteredB[1][index]*CenteredB[1][index]+
-              CenteredB[2][index]*CenteredB[2][index]);
+            +0.5*(BaryonField[B1Num][index]*BaryonField[B1Num][index]+
+                  BaryonField[B2Num][index]*BaryonField[B2Num][index]+
+                  BaryonField[B3Num][index]*BaryonField[B3Num][index]);
         BaryonField[TENum][index]=TotalEnergy/DensityIn;
 
         }
@@ -145,13 +147,9 @@ int grid::MHDOrszagTangInitGrid(float DensityIn,float Pressure, float V0, float 
   if ( HydroMethod == MHD_RK ){
       //Clean up.
       UseMHDCT = FALSE;
-      int BNUM[3] = {B1Num, B2Num, B3Num};
       for ( field=0; field<3; field++){
           delete [] MagneticField[field];
           delete [] ElectricField[field];
-          delete [] BaryonField[BNUM[field]];
-          BaryonField[BNUM[field]] = CenteredB[field];
-          CenteredB[field] = NULL;
           MagneticField[field] = NULL;
           ElectricField[field] = NULL;
       }

@@ -58,7 +58,7 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   bool SphereCheck;
   int i, l, dim, temp_int, SkipMassRemoval, SphereContained,
       SphereContainedNextLevel, dummy, count;
-  float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar;
+  float influenceRadius, RootCellWidth, SNe_dt, dtForThisStar, MassLoss;
   double EjectaThermalEnergy, EjectaDensity, EjectaMetalDensity;
   FLOAT Time;
   LevelHierarchyEntry *Temp;
@@ -90,6 +90,15 @@ int StarParticleAddFeedback(TopGridData *MetaData,
   for (cstar = AllStars; cstar; cstar = cstar->NextStar, count++) {
 
     AddedFeedback[count] = false;
+
+    /* Special case for "normal" star particles to account for mass
+       loss through supernovae. */
+
+    if (cstar->ReturnType() == NormalStar &&
+	cstar->ReturnLevel() == level) {
+      MassLoss = cstar->CalculateMassLoss(SNe_dt);
+      cstar->SetAccretionMass(-MassLoss);
+    }
 
     if ((cstar->ReturnFeedbackFlag() != MBH_THERMAL) &&
 	(cstar->ReturnFeedbackFlag() != MBH_JETS) &&

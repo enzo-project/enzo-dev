@@ -58,7 +58,7 @@ extern "C" void FORTRAN_NAME(multi_cool)(
         int *idual, int *ispecies, int *imetal, int *imcool, int *idust, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co,
 	int *ipiht,
-	float *dt, float *aye, float *temstart, float *temend,
+	float *dt, float *aye, float *redshift, float *temstart, float *temend,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
 	float *eta1, float *eta2, float *gamma, float *z_solar,
 	float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa,
@@ -157,7 +157,7 @@ int grid::SolveRadiativeCooling()
   float *velocity3   = BaryonField[Vel3Num];
  
   /* Compute total gas energy if using MHD */
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     totalenergy = new float[size];
     float B2;
     for (int n=0; n<size; n++) {
@@ -271,7 +271,8 @@ int grid::SolveRadiativeCooling()
        &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
        GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &CoolData.ih2co, &CoolData.ipiht,
-       &dtFixed, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
+       &dtFixed, &afloat, &RadiationFieldRedshift,
+       &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
        &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma, 
        &CoolData.SolarMetalFractionByMass,
@@ -349,7 +350,7 @@ int grid::SolveRadiativeCooling()
        CoolData.EquilibriumRate, &CoolData.gammah, &Mu);
   }
 
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     float B2, v2;//, rho, eint, p, h, cs, dpdrho, dpde;
     for (int n=0; n<size; n++) {
       B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);

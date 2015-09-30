@@ -127,7 +127,10 @@ int Star::SetFeedbackFlag(FLOAT Time)
     else
       this->FeedbackFlag = NO_FEEDBACK;      
 #endif
+    break;
 
+  default:
+    this->FeedbackFlag = NO_FEEDBACK;
     break;
 
   } // ENDSWITCH

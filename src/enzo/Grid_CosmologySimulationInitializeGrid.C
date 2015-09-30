@@ -227,9 +227,9 @@ int grid::CosmologySimulationInitializeGrid(
     FieldType[NumberOfBaryonFields++] = Density;
     vel = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = Velocity1;
-    if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if (GridRank > 1 || (UseMHD) || (HydroMethod == HD_RK))
       FieldType[NumberOfBaryonFields++] = Velocity2;
-    if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if (GridRank > 2 || (UseMHD) || (HydroMethod == HD_RK))
       FieldType[NumberOfBaryonFields++] = Velocity3;
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
@@ -237,10 +237,12 @@ int grid::CosmologySimulationInitializeGrid(
     if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
     
-    if (HydroMethod == MHD_RK) {
+    if (UseMHD) {
       FieldType[NumberOfBaryonFields++] = Bfield1;
       FieldType[NumberOfBaryonFields++] = Bfield2;
       FieldType[NumberOfBaryonFields++] = Bfield3;
+    }
+    if( HydroMethod == MHD_RK ){
       FieldType[NumberOfBaryonFields++] = PhiField;
     }
     
@@ -562,7 +564,7 @@ int grid::CosmologySimulationInitializeGrid(
           BaryonField[iTE][i] +=
               0.5 * BaryonField[vel+dim][i] * BaryonField[vel+dim][i];
       }
-          if (HydroMethod == MHD_RK) {
+          if (UseMHD) {
             BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
             BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
             BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
@@ -572,18 +574,9 @@ int grid::CosmologySimulationInitializeGrid(
                                         BaryonField[iBz][i] * BaryonField[iBz][i])/
                 BaryonField[iden][i];
           }
-          if(UseMHDCT == TRUE){      
-            CenteredB[0][i] = CosmologySimulationInitialUniformBField[0];
-            CenteredB[1][i] = CosmologySimulationInitialUniformBField[1];
-            CenteredB[2][i] = CosmologySimulationInitialUniformBField[2];
-            BaryonField[iTE][i] += 0.5*(CenteredB[0][i] * CenteredB[0][i]+
-                                        CenteredB[1][i] * CenteredB[1][i]+
-                                        CenteredB[2][i] * CenteredB[2][i])/
-                BaryonField[0][i];
-          }
       }
 
-      if(UseMHDCT == TRUE){
+      if(UseMHDCT){
         for(int field=0;field<3;field++)
           for(int k=0; k<MagneticDims[field][2]; k++)
             for(int j=0; j<MagneticDims[field][1]; j++)

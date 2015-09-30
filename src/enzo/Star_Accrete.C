@@ -30,7 +30,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 int Star::Accrete(void)
 {
 
-  if (this->CurrentGrid == NULL || this->naccretions == 0)
+  if (this->CurrentGrid == NULL || 
+      (this->naccretions == 0 && abs(this->DeltaMass) < tiny_number))
     return SUCCESS;
 
   const double Msun = 1.989e33, yr = 3.1557e7;

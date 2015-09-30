@@ -398,7 +398,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
                                                    // during output by default.
   RadiationFieldType          = 0;
-  RadiationFieldRedshift      = 0.0;
+  RadiationFieldRedshift      = FLOAT_UNDEFINED;
   TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
@@ -509,6 +509,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
+  StarParticleRadiativeFeedback    = FALSE;
   BigStarFormation                 = FALSE;
   BigStarFormationDone             = FALSE;
   BigStarSeparation                = 0.25;
@@ -582,7 +583,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderOutputParticleList     = FALSE;
   HaloFinderRunAfterOutput         = TRUE;
   HaloFinderMinimumSize            = 50;
-  HaloFinderLinkingLength          = 0.1;
+  HaloFinderLinkingLength          = 0.2;
   HaloFinderCycleSkip              = 3;
   HaloFinderTimestep               = FLOAT_UNDEFINED;
   HaloFinderLastTime               = 0.0;
@@ -885,9 +886,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   UseMHD=0;
+  MaxVelocityIndex = 3;
 
   //MHDCT variables
-  MHDCT_debug_flag = 0;
   MHDCTSlopeLimiter = 1;
   MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;

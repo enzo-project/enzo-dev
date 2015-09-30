@@ -51,10 +51,12 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if( HydroMethod == MHD_RK ){
     FieldType[NumberOfBaryonFields++] = PhiField;
   }
   if (UseDivergenceCleaning) {
@@ -150,15 +152,21 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
     if ( UseMHDCT ){
-      field=0;
-	    igrid2 = i+MagneticDims[field][0]*j;
-      MagneticField[field][igrid2] = Bxl;
-      field=1;
-	    igrid2 = i+MagneticDims[field][0]*j;
-      MagneticField[field][igrid2] = Byl;
-      field=2;
-	    igrid2 = i+MagneticDims[field][0]*j;
-      MagneticField[field][igrid2] = 0;
+        //Here we exploit the symmetry of the problem set up 
+        //to skip setting the extra dimensions for Bx and By, letting
+        //the boundary conditions set the values.  This cannot be done for Bz in 2d
+        //so that field is done manually.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;  
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
     }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = 1.0;
@@ -185,14 +193,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxu;
       field=1;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Byu;
       field=2;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
 	  if (UseColour)
@@ -236,10 +247,26 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  if (DualEnergyFormalism) {
 	    BaryonField[ieint][igrid] = eint;
 	  }
-	  BaryonField[iBx ][igrid] = Bx0;
-	  BaryonField[iBy ][igrid] = 0.0;
-	  BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
+      if( HydroMethod == MHD_RK ){
+          BaryonField[iBx ][igrid] = Bx0;
+          BaryonField[iBy ][igrid] = 0.0;
+          BaryonField[iBz ][igrid] = 0.0;
+          BaryonField[iPhi][igrid] = 0.0;
+      }
+      if ( UseMHDCT ){
+          //See the comment at the top regarding extra dimensions.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j+MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = 1.0;
 
@@ -261,10 +288,26 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           if (DualEnergyFormalism) {
             BaryonField[ieint][igrid] = eint;
           }
-	  BaryonField[iBx ][igrid] = Bx0;
-          BaryonField[iBy ][igrid] = 0.0;
-          BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
+      if ( HydroMethod == MHD_RK ){
+         BaryonField[iBx ][igrid] = Bx0;
+         BaryonField[iBy ][igrid] = 0.0;
+         BaryonField[iBz ][igrid] = 0.0;
+         BaryonField[iPhi][igrid] = 0.0;
+      }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
 	  if (UseColour)
 	    BaryonField[iZ][igrid] = tiny_number;
 
@@ -306,7 +349,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     FLOAT r0 = 0.125;
     float rho0 = 1.0, pres0 = 100.0, pres1 = 1.0, Bx0 = 10.0/sqrt(2), By0 = 10.0/sqrt(2);
 
-    if (HydroMethod != MHD_RK) {
+    if ( !UseMHD ) {
       Bx0 = By0 = 0.;
     }
     
@@ -329,6 +372,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxu;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byu;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
 	if (r < r0) {
           EOS(pres0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * (Bx0 * Bx0 + By0 * By0) / rho0;
@@ -383,10 +440,26 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ivx ][igrid] = vx0 + eps1;
 	  BaryonField[ivy ][igrid] = eps2;
 	  BaryonField[ivz ][igrid] = 0.0;
-	  BaryonField[iBx ][igrid] = Bx;
-	  BaryonField[iBy ][igrid] = 0.0;
-	  BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
+      if ( HydroMethod == MHD_RK ){
+          BaryonField[iBx ][igrid] = Bx;
+          BaryonField[iBy ][igrid] = 0.0;
+          BaryonField[iBz ][igrid] = 0.0;
+          BaryonField[iPhi][igrid] = 0.0;
+      }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
           EOS(pres, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx0 * vx0 + 0.5 * (Bx * Bx) / rho0;
 	  BaryonField[ietot][igrid] = etot;
@@ -399,10 +472,26 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ivx ][igrid] = vx1 + eps1;
 	  BaryonField[ivy ][igrid] = eps2;
 	  BaryonField[ivz ][igrid] = 0.0;
-	  BaryonField[iBx ][igrid] = Bx;
-	  BaryonField[iBy ][igrid] = 0.0;
-	  BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
+      if ( HydroMethod == MHD_RK ){
+          BaryonField[iBx ][igrid] = Bx;
+          BaryonField[iBy ][igrid] = 0.0;
+          BaryonField[iBz ][igrid] = 0.0;
+          BaryonField[iPhi][igrid] = 0.0;
+      }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
           EOS(pres, rho1, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx1 * vx1 + 0.5 * (Bx * Bx) / rho1;
 	  BaryonField[ietot][igrid] = etot;
@@ -460,10 +549,26 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ivx ][igrid] = vx0 + eps1;
 	  BaryonField[ivy ][igrid] = eps2;
 	  BaryonField[ivz ][igrid] = 0.0;
-	  BaryonField[iBx ][igrid] = Bx;
-	  BaryonField[iBy ][igrid] = 0.0;
-	  BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
+      if ( HydroMethod == MHD_RK ){
+          BaryonField[iBx ][igrid] = Bx;
+          BaryonField[iBy ][igrid] = 0.0;
+          BaryonField[iBz ][igrid] = 0.0;
+          BaryonField[iPhi][igrid] = 0.0;
+      }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
           EOS(pres0, rho0, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx0 * vx0 + 0.5 * (Bx * Bx) / rho0;
 	  BaryonField[ietot][igrid] = etot;
@@ -474,10 +579,26 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ivx ][igrid] = vx1 + eps1;
 	  BaryonField[ivy ][igrid] = eps2;
 	  BaryonField[ivz ][igrid] = 0.0;
-	  BaryonField[iBx ][igrid] = Bx;
-	  BaryonField[iBy ][igrid] = 0.0;
-	  BaryonField[iBz ][igrid] = 0.0;
-	  BaryonField[iPhi][igrid] = 0.0;
+      if ( HydroMethod == MHD_RK ){
+          BaryonField[iBx ][igrid] = Bx;
+          BaryonField[iBy ][igrid] = 0.0;
+          BaryonField[iBz ][igrid] = 0.0;
+          BaryonField[iPhi][igrid] = 0.0;
+      }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
           EOS(pres1, rho1, eint, h, cs, dpdrho, dpde, 0, 1);
 	  etot = eint + 0.5 * vx1 * vx1 + 0.5 * (Bx * Bx) / rho1;
 	  BaryonField[ietot][igrid] = etot;
@@ -541,7 +662,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ietot][igrid] = etot;
 	  if (DualEnergyFormalism) 
 	    BaryonField[ieint][igrid] = eint;
-	  if (HydroMethod == MHD_RK) 
+	  if ( UseMHD ) 
 	    BaryonField[ietot][igrid] += 0.5 * (Bx * Bx) / rho0;
 	} 
 
@@ -554,7 +675,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[ietot][igrid] = etot;
           if (DualEnergyFormalism)
             BaryonField[ieint][igrid] = eint;
-          if (HydroMethod == MHD_RK)
+          if ( UseMHD )
             BaryonField[ietot][igrid] += 0.5 * (Bx * Bx) / rho0;
         }
 
@@ -570,7 +691,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[ietot][igrid] = etot;
           if (DualEnergyFormalism)
             BaryonField[ieint][igrid] = eint;
-          if (HydroMethod == MHD_RK)
+          if ( UseMHD )
             BaryonField[ietot][igrid] += 0.5*(Bx*Bx)/BaryonField[iden][igrid] ;	  
 	} 
 	if (r < a) {
@@ -583,7 +704,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
           BaryonField[ietot][igrid] = etot;
           if (DualEnergyFormalism)
             BaryonField[ieint][igrid] = eint;
-          if (HydroMethod == MHD_RK)
+          if ( UseMHD )
             BaryonField[ietot][igrid] += 0.5*(Bx*Bx)/BaryonField[iden][igrid] ;
 	}
 
@@ -605,6 +726,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0.0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
 
       }
     }
@@ -659,6 +794,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi][igrid] = 0.0;
 	  BaryonField[ietot][igrid] += 0.5*(Bxl*Bxl+Byl*Byl)/BaryonField[iden][igrid];
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
 
       }
     }
@@ -715,6 +864,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
 
       }
     }
@@ -756,6 +919,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz ][igrid] = 0.0;
 	  BaryonField[iPhi][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0.0;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0.0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
 
  	float ramp =  1./((1.+exp(-2/delx*(x-xs))));
 	BaryonField[iden][igrid] = rho0 + ramp*(rho1-rho0);
@@ -766,7 +943,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	BaryonField[ietot][igrid] = etot;
 	if (DualEnergyFormalism) 
 	  BaryonField[ieint][igrid] = eint0+ramp*(eint1-eint0);
-	if (HydroMethod == MHD_RK) 
+	if ( UseMHD ) 
 	  BaryonField[ietot][igrid] += 0.5 * (Bx * Bx) / BaryonField[iden][igrid];
 
 
@@ -821,14 +998,17 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
     if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
       field=0;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Bxu + ramp*(Bxl-Bxu);
       field=1;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
       MagneticField[field][igrid2] = Byu + ramp*(Byl-Byu);
       field=2;
-	    igrid2 = i+MagneticDims[field][0]*j;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
       MagneticField[field][igrid2] = 0;
     }
       }
@@ -875,6 +1055,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
 	} else {  // endif y<0
 	  /* calculate pressure from hydro equilibrium */
 	  float g = ConstantAcceleration[1];
@@ -897,6 +1091,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	    BaryonField[iBz  ][igrid] = 0.0;
 	    BaryonField[iPhi ][igrid] = 0.0;
 	  }
+      if ( UseMHDCT ){
+        //regarding the extra zones, see the comment above.
+        field=0;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Bxl;
+        field=1;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = Byl;
+        field=2;
+        igrid2 = i+MagneticDims[field][0]*j;
+        MagneticField[field][igrid2] = 0;
+        igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+        MagneticField[field][igrid2] = 0;
+      }
 	}
       } // endfor i
     } // endfor j 
@@ -939,6 +1147,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 11
@@ -986,6 +1208,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 12
@@ -1030,6 +1266,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 13
@@ -1077,6 +1327,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 14
@@ -1127,6 +1391,20 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 	  BaryonField[iBz  ][igrid] = 0.0;
 	  BaryonField[iPhi ][igrid] = 0.0;
 	}
+    if ( UseMHDCT ){
+      //regarding the extra zones, see the comment above.
+      field=0;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Bxl;
+      field=1;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = Byl;
+      field=2;
+      igrid2 = i+MagneticDims[field][0]*j;
+      MagneticField[field][igrid2] = 0;
+      igrid2 = i+MagneticDims[field][0]*(j + MagneticDims[field][1]*1);
+      MagneticField[field][igrid2] = 0;
+    }
       } // endfor i
     } // endfor j 
   } // if MHD2DProblemType == 15

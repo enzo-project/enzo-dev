@@ -22,10 +22,12 @@
 #include "ExternalBoundary.h"
 #include "Grid.h"
 #include "EOS.h"
+#include "phys_constants.h"
 
 int HydroLine(float **Prim, float **priml, float **primr,
 	      float **species, float **colors, float **FluxLine, int ActiveSize,
 	      float dtdx, char direc, int ij, int ik, int fallback);
+
 
 int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[], 
 		int GridStartIndex[], FLOAT **CellWidth, float dtdx, int fallback)
@@ -70,10 +72,12 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
     colors[field] = new float[Xactivesize+1];
   }
 
+
   float min_coeff = 0.0;
   if (UseMinimumPressureSupport) {
-    min_coeff = MinimumPressureSupportParameter*
-      0.32*pow(CellWidth[0][0],2)/(Gamma*(Gamma-1.0));
+    min_coeff = GravitationalConstant/(4.0*pi) / (pi * (Gamma*(Gamma-1.0))) *
+      MinimumPressureSupportParameter *
+      CellWidth[0][0] * CellWidth[0][0];
   }
 
   float etot, vx, vy, vz, v2, p;
@@ -102,9 +106,13 @@ int HydroSweepX(float **Prim, float **Flux3D, int GridDimension[],
 	  float h, cs, dpdrho, dpde;
 	  EOS(p, Prim[iden][igrid], Prim1[1][i], h, cs, dpdrho, dpde, EOSType, 0);
 	  Prim1[1][i] = p;
+	  // then compare pressures, not energies, if using floor
+	  Prim1[1][i] = max(Prim1[1][i], min_coeff*Prim1[0][i]*Prim1[0][i]*(Gamma-1.0));
 	}
-
-	Prim1[1][i] = max(Prim1[1][i], min_coeff*Prim1[0][i]);
+	else 
+	  // compare energies if using floor
+	  Prim1[1][i] = max(Prim1[1][i], min_coeff*Prim1[0][i]);
+	
 	Prim1[2][i] = vx;
 	Prim1[3][i] = vy;
 	Prim1[4][i] = vz;

@@ -433,6 +433,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 #ifdef TRANSFER
     /* Initialize the radiative transfer */
 
+    TIMER_STOP(level_name);
     RadiativeTransferPrepare(LevelArray, level, MetaData, AllStars, 
 			     dtLevelAbove);
     RadiativeTransferCallFLD(LevelArray, level, MetaData, AllStars, 
@@ -442,6 +443,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	
     GridTime = Grids[0]->GridData->ReturnTime() + dtThisLevel[level];
     EvolvePhotons(MetaData, LevelArray, AllStars, GridTime, level);
+    TIMER_START(level_name);
  
 #endif /* TRANSFER */
 
@@ -534,16 +536,8 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 
       /* Call hydro solver and save fluxes around subgrids. */
 
-      if( UseMHDCT && HydroMethod == MHD_Li && MHDCT_debug_flag == 1){
-        //Temporarily allow the option of calling SolveMHDEqations 
-        //while I transition MHDCT to SolveHydroEquations.
-	Grids[grid1]->GridData->SolveMHDEquations(LevelCycleCount[level],
-		NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level ,grid1); 
-	
-      }else{
 	Grids[grid1]->GridData->SolveHydroEquations(LevelCycleCount[level],
 	    NumberOfSubgrids[grid1], SubgridFluxesEstimate[grid1], level);
-      }
 
       /* Solve the cooling and species rate equations. */
  

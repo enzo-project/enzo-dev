@@ -86,11 +86,11 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
       char *Vel2Name = "y-velocity";
       char *Vel3Name = "z-velocity";
       char *MetalName = "Metal_Density";
+      char *BxName = "Bx";
+      char *ByName = "By";
+      char *BzName = "Bz";
+      char *PhiName = "Phi";
       if ( UseMHDCT ){
-         MHDcLabel[0] = "Bx";
-         MHDcLabel[1] = "By";
-         MHDcLabel[2] = "Bz";
-         
          MHDLabel[0] = "BxF";
          MHDLabel[1] = "ByF";
          MHDLabel[2] = "BzF";
@@ -238,11 +238,20 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         DataLabel[i++] = GEName;
       DataLabel[i++] = Vel1Name;
 
-      if(MetaData.TopGridRank > 1)
+      if(MetaData.TopGridRank > 1 || UseMHD )
         DataLabel[i++] = Vel2Name;
 
-      if(MetaData.TopGridRank > 2)
+      if(MetaData.TopGridRank > 2 || UseMHD )
         DataLabel[i++] = Vel3Name;
+
+      if( UseMHD ){
+          DataLabel[count++] = BxName;
+          DataLabel[count++] = ByName;
+          DataLabel[count++] = BzName;
+      }
+      if (HydroMethod == MHD_RK){
+          DataLabel[count++] = PhiName;
+      }
 
       if (TestProblemData.UseMetallicityField)
         DataLabel[i++] = MetalName;
@@ -308,7 +317,6 @@ This is the grid-by-grid initializer.
 
       FLOAT r, x, y, z, xy, yx;
 
-      int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num, MetalNum;
 
       float TemperatureUnits = 1.0, DensityUnits = 1.0, LengthUnits = 1.0;
       float VelocityUnits = 1.0, TimeUnits = 1.0;
@@ -322,11 +330,9 @@ This is the grid-by-grid initializer.
 
       float lambda_scaled = MagneticReconnectionLambda/LengthUnits;
 
-      if (thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-            Vel3Num, TENum) == FAIL) {
-        fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-        ENZO_FAIL("");
-      }
+      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, MetalNum;
+      this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                       TENum, B1Num, B2Num, B3Num); 
 
       int MetallicityField = FALSE;
       if ((MetalNum = FindField(Metallicity, thisgrid->FieldType, thisgrid->NumberOfBaryonFields))
@@ -424,9 +430,16 @@ This is the grid-by-grid initializer.
             if (thisgrid->GridRank == 3)
                z = thisgrid->CellLeftEdge[2][k] + 0.5*thisgrid->CellWidth[2][k];
 
-            thisgrid->BaryonField[DensNum][cellindex] = MagneticReconnectionOverdensity/POW(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) + MagneticReconnectionDensity;
+            thisgrid->BaryonField[DensNum][cellindex] = 
+                MagneticReconnectionOverdensity/POW(cosh((y-MagneticReconnectionCenterPosition[1])/lambda_scaled),2) 
+                + MagneticReconnectionDensity;
 
-            thisgrid->BaryonField[TENum][cellindex] = MagneticReconnectionTotalEnergy/(Gamma - 1.0) + 0.5 * (POW(thisgrid->CenteredB[0][cellindex], 2) + POW(thisgrid->CenteredB[1][cellindex], 2) + POW(thisgrid->CenteredB[2][cellindex], 2))/thisgrid->BaryonField[DensNum][cellindex];
+            thisgrid->BaryonField[TENum][cellindex] = 
+                MagneticReconnectionTotalEnergy/(Gamma - 1.0) 
+                        + 0.5 * (POW(thisgrid->BaryonField[B1Num][cellindex], 2) 
+                               + POW(thisgrid->BaryonField[B2Num][cellindex], 2) 
+                               + POW(thisgrid->BaryonField[B3Num][cellindex], 2))/
+                                  thisgrid->BaryonField[DensNum][cellindex];
           } // for (i = 0; i < GridDimension[0]; i++)
 
       return SUCCESS;
