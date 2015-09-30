@@ -120,6 +120,16 @@ Radiative Transfer (Ray Tracing) Parameters
     Once photons are past this radius, they can no longer split. In
     units of kpc. If this value is negative (by default), photons can
     always split. Default: ``FLOAT_UNDEFINED``.
+``RadiativeTransferHubbleTimeFraction`` (external)
+    Photon packages are deleted when its associated photo-ionization
+    timescale, considering the limit when all photons are absorbed in
+    one cell, drops below a fraction (this parameter) of a Hubble
+    time.  This parameter can be safely set to 0.01 when ray merging
+    is used.  Default: 0.1
+``RadiativeTransferFluxBackgroundLimit`` (external)
+    When the flux of a photon package drops below a fraction (this
+    parameter) of the background radiation field, the ray is deleted.
+    Only used with ray merging.  Default: 0.01
 ``RadiativeTransferPhotonEscapeRadius`` (external)
     The number of photons that pass this distance from its source are
     summed into the global variable ``EscapedPhotonCount[]``. This variable
@@ -144,6 +154,11 @@ Radiative Transfer (Ray Tracing) Parameters
     Limits the radiative transfer timestep to a minimum value that is
     determined by the cell width at the finest level divided by this
     velocity. Units are in km/s. Default: 100.
+``RadiativeTransferTimestepVelocityLevel`` (external)
+    Limit the ray tracing timestep by a sound crossing time (see
+    ``RadiativeTransferTimestepVelocityLimit``) across a
+    cell on the level specified with this parameter.  Not used if
+    equal to INT_UNDEFINED (-99999).  Default: INT_UNDEFINED
 ``RadiativeTransferHIIRestrictedTimestep`` (external)
     Adaptive ray tracing timesteps will be restricted by a maximum change of 10% in neutral fraction if this parameter is set to 1.  If set to 2, then the incident flux can change by a maximum of 0.5 between cells.  See Wise & Abel (2011) in Sections 3.4.1 and 3.4.4 for more details.  Default: 0
 ``RadiativeTransferAdaptiveTimestep`` (external)

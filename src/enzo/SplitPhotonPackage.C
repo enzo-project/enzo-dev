@@ -8,7 +8,7 @@
 int SplitPhotonPackage(PhotonPackageEntry *PP)
 {
 
-  int childrays, dim;
+  int childrays, dim, bin;
   long nipix;
   PhotonPackageEntry *NewPack;
 
@@ -42,7 +42,8 @@ int SplitPhotonPackage(PhotonPackageEntry *PP)
     NewPack->ipix            = nipix++;
     NewPack->level           = PP->level+1;
     NewPack->Energy          = PP->Energy;
-    NewPack->CrossSection    = PP->CrossSection;
+    for (bin = 0; bin < MAX_CROSS_SECTIONS; bin++)
+      NewPack->CrossSection[bin] = PP->CrossSection[bin];
     for (dim = 0; dim < 3; dim++)
       NewPack->SourcePosition[dim] = PP->SourcePosition[dim];
     NewPack->SourcePositionDiff  = PP->SourcePositionDiff;

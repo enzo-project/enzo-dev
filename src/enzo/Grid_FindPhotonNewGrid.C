@@ -25,7 +25,7 @@
 #include "GridList.h"
 #include "Grid.h"
 
-int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
+int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u, int *g,
 			    PhotonPackageEntry* &PP,
 			    grid* &MoveToGrid, int &DeltaLevel,
 			    const float *DomainWidth, int &DeleteMe,
@@ -40,11 +40,16 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
      destination grid, and "nudge" the photon package to avoid
      loitering on boundaries. */
 
+  PP->Radius += PFLOAT_EPSILON;
+  for (dim = 0; dim < MAX_DIMENSION; dim++) {
+    r[dim] += u[dim] * PFLOAT_EPSILON;
+    g[dim] = GridStartIndex[dim] + 
+      nint(floor((r[dim] - GridLeftEdge[dim]) / CellWidth[dim][0]));
+  }
+
+  cindex = GRIDINDEX_NOGHOST(g[0], g[1], g[2]);
   RayInsideGrid = this->PointInGridNB(r);
   MoveToGrid = SubgridMarker[cindex];
-  PP->Radius += PFLOAT_EPSILON;
-  for (dim = 0; dim < MAX_DIMENSION; dim++)
-    r[dim] += u[dim] * PFLOAT_EPSILON;
 
   /***** Root grids *****/
 
@@ -64,10 +69,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 	  for (dim = 0; dim < 3; dim++)
 	    if (r[dim] < DomainLeftEdge[dim]) {
  	      PP->SourcePosition[dim] += DomainWidth[dim];
-	      //r[dim] += DomainWidth[dim];
 	    } else if (r[dim] > DomainRightEdge[dim]) {
  	      PP->SourcePosition[dim] -= DomainWidth[dim];
-	      //r[dim] -= DomainWidth[dim];
 	    }
 	} // ENDIF periodic
 	else {
@@ -111,10 +114,8 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 	  for (dim = 0; dim < 3; dim++)
 	    if (r[dim] < DomainLeftEdge[dim]) {
 	      PP->SourcePosition[dim] += DomainWidth[dim];
-	      //r[dim] += DomainWidth[dim];
 	    } else if (r[dim] > DomainRightEdge[dim]) {
 	      PP->SourcePosition[dim] -= DomainWidth[dim];
-	      //r[dim] -= DomainWidth[dim];
 	    }
 	} // ENDIF periodic
       } // ENDELSE !InsideDomain
@@ -132,8 +133,20 @@ int grid::FindPhotonNewGrid(int cindex, FLOAT *r, FLOAT *u,
 
 #ifdef UNUSED
   if (MoveToGrid != NULL && InsideDomain)
-    if (MoveToGrid->PointInGridNB(r) == FALSE)
+    if (MoveToGrid->PointInGridNB(r) == FALSE) {
+      printf("Grid %d, MoveGrid %d\n", this->ID, MoveToGrid->ID);
+      printf("Cell = %6d %6d %6d\n", g[0], g[1], g[2]);
+      printf("Position = %15.12f %15.12f %15.12f\n", r[0], r[1], r[2]);
+      printf("Source = %15.12f %15.12f %15.12f\n", (PP)->SourcePosition[0],
+	     (PP)->SourcePosition[1], (PP)->SourcePosition[2]);
+      printf("Direction = %15.12f %15.12f %15.12f\n", u[0], u[1], u[2]);
+      (PP)->PrintInfo();
+      printf("GridLeft = %15.12f %15.12f %15.12f\n", GridLeftEdge[0], GridLeftEdge[1], GridLeftEdge[2]);
+      printf("GridRight = %15.12f %15.12f %15.12f\n", GridRightEdge[0], GridRightEdge[1], GridRightEdge[2]);
+      printf("MoveGridLeft = %15.12f %15.12f %15.12f\n", MoveToGrid->GridLeftEdge[0], MoveToGrid->GridLeftEdge[1], MoveToGrid->GridLeftEdge[2]);
+      printf("MoveGridRight = %15.12f %15.12f %15.12f\n", MoveToGrid->GridRightEdge[0], MoveToGrid->GridRightEdge[1], MoveToGrid->GridRightEdge[2]);
       ENZO_FAIL("Photon not contained in MoveToGrid!");
+    }
 #endif
 
   return SUCCESS;
