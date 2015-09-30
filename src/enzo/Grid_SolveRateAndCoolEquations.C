@@ -49,7 +49,7 @@ extern "C" void FORTRAN_NAME(solve_rate_cool)(
         int *idual, int *ispecies, int *imetal, int *imcool, int *idust, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co, 
 	int *ipiht, int *igammah,
-	float *dt, float *aye, float *temstart, float *temend,
+	FLOAT *dx, float *dt, float *aye, float *redshift, float *temstart, float *temend,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
 	float *eta1, float *eta2, float *gamma, float *fh, float *dtoh,
 	float *z_solar,
@@ -150,7 +150,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
   float *velocity3   = BaryonField[Vel3Num];
 
   /* Compute total gas energy if using MHD */
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     totalenergy = new float[size];
     float B2;
     for (int n=0; n<size; n++) {
@@ -259,14 +259,15 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
     density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
     BaryonField[DeNum], BaryonField[HINum], BaryonField[HIINum], 
     BaryonField[HeINum], BaryonField[HeIINum], BaryonField[HeIIINum], 
-    GridDimension, GridDimension+1, GridDimension+2, 
+    GridDimension, GridDimension+1, GridDimension+2,
     &CoolData.NumberOfTemperatureBins, &ComovingCoordinates, &HydroMethod, 
     &DualEnergyFormalism, &MultiSpecies, &MetalFieldPresent, &MetalCooling, 
     &H2FormationOnDust, 
     &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2, 
     GridEndIndex, GridEndIndex+1, GridEndIndex+2,
     &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
-    &dtCool, &afloat, &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
+    CellWidth[0], &dtCool, &afloat, &RadiationFieldRedshift, 
+    &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
     &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
     &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
     &CoolData.HydrogenFractionByMass, &CoolData.DeuteriumToHydrogenRatio,
@@ -332,7 +333,7 @@ int grid::SolveRateAndCoolEquations(int RTCoupledSolverIntermediateStep)
       ENZO_FAIL("Error in FORTRAN rate/cool solver!\n");
   }
 
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     float B2, v2;
     for (int n = 0; n < size; n++) {
       B2 = pow(BaryonField[B1Num][n],2) + pow(BaryonField[B2Num][n],2) + pow(BaryonField[B3Num][n],2);

@@ -5,3 +5,4 @@
 #define JHW_METALS_NORMZ 0.1
 #define NSPECIES 13
 #define CORRECTIONSTEPS 30
+#define color_floor 1.d-35

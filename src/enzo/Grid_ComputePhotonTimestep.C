@@ -197,6 +197,7 @@ float grid::ComputePhotonTimestep()
 
   /* 6) If star formation (Pop III for now), set a minimum timestep */
 
+#ifdef UNUSED
   float mindtNOstars;  // Myr
   const int NumberOfStepsInLifetime = 5;
   float dtStar = huge_number;
@@ -213,6 +214,7 @@ float grid::ComputePhotonTimestep()
       dtStar = 3.1557e13*mindtNOstars/TimeUnits;
 
   dt = min(dt, dtStar);
+#endif
   
   /* 7) If using radiation pressure, calculate minimum dt */
 
@@ -254,12 +256,19 @@ float grid::ComputePhotonTimestep()
      affect hydro dt). */
 
   // parameter in km/s
+  float dx_level, dx_ratio;
   float dtPhotonSafety = tiny_number;
 
   if (RadiativeTransferTimestepVelocityLimit > 0)
     dtPhotonSafety = a*CellWidth[0][0] / 
       (RadiativeTransferTimestepVelocityLimit*1e5 / VelocityUnits);
-  dt = max(dt, dtPhotonSafety);
+  if (RadiativeTransferTimestepVelocityLevel >= 0) {
+    dx_level = TopGridDx[0] * POW(RefineBy, -RadiativeTransferTimestepVelocityLevel);
+    dx_ratio = dx_level / CellWidth[0][0];
+    if (dx_ratio > 1)
+      dtPhotonSafety *= dx_ratio;
+  }
+  dt = max(dt, CourantSafetyNumber*dtPhotonSafety);
 
   /* Debugging info. */
 
@@ -276,14 +285,10 @@ float grid::ComputePhotonTimestep()
 //      printf("Acc = %"FSYM" ", dtAcceleration);
 //    if (NumberOfParticles)
 //      printf("Part = %"FSYM" ", dtParticles);
-//    if (StarParticleFeedback >> POP3_STAR & 1 ||
-//	StarParticleFeedback >> STAR_CLUSTER & 1)
-//      printf("Star = %"FSYM" ", dtStar);
 //#ifdef TRANSFER
 //    if (RadiationPressure && RadiativeTransfer && dtRadPressure < 100)
 //      printf("Rad = %"GSYM" ", dtRadPressure);
 //    if (dtSafetyVelocity != huge_number)
-
 //      printf("Saf = %"GSYM" ", dtSafetyVelocity); 
 //#endif /* TRANSFER */
 //    printf(")\n");

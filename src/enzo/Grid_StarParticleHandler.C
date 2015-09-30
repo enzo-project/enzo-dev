@@ -258,6 +258,24 @@ extern "C" void FORTRAN_NAME(star_maker_h2reg)(int *nx, int *ny, int *nz,
              float *up, float *vp, float *wp,
              float *mp, float *tdp, float *tcp, float *metalf);
 
+/* adding distributed starmaker and feedback (from Norman+ 2014 and
+   So+ 2014) */
+
+extern "C" void FORTRAN_NAME(star_maker10)(int *nx, int *ny, int *nz,
+             float *d, float *dm, float *temp, float *u, float *v, float *w,
+                float *cooltime,
+             float *dt, float *r, float *metal, float *zfield1, float *zfield2,
+             float *dx, FLOAT *t, float *z,
+             int *procnum,
+             float *d1, float *x1, float *v1, float *t1,
+             int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
+     		 int *ibuff,
+             int *imetal, hydro_method *imethod, float *mintdyn,
+             float *odthresh, float *massff, float *smthrest, int *level,
+		 int *np, 
+             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+             float *mp, float *tdp, float *tcp, float *metalf);
+
 
 #ifdef STAR1
 extern "C" void FORTRAN_NAME(star_feedback1)(int *nx, int *ny, int *nz,
@@ -356,6 +374,23 @@ extern "C" void FORTRAN_NAME(star_feedback7)(int *nx, int *ny, int *nz,
              FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
 	     float *mp, float *tdp, float *tcp, float *metalf, int *type,
 			float *justburn, int *ctype, float *mbhradius);
+
+/* adding distributed starmaker and feedback (from Norman+ 2014 and
+   So+ 2014) */
+
+extern "C" void FORTRAN_NAME(star_feedback10)(int *nx, int *ny, int *nz,
+             float *d, float *dm, float *te, float *ge, float *u, float *v,
+		       float *w, float *metal, float *zfield1, float *zfield2,
+	     int *idual, int *imetal, int *imulti_metals, hydro_method *imethod, 
+		       float *dt, float *r, float *dx, FLOAT *t, float *z,
+             float *d1, float *x1, float *v1, float *t1,
+                       float *sn_param, float *m_eject, float *yield,
+	     int *distrad, int *diststep, int *distcells,
+             int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart,
+		       int *ibuff,
+             FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp,
+             float *mp, float *tdp, float *tcp, float *metalf, int *type,
+			float *justburn);
 
 extern "C" void FORTRAN_NAME(star_feedback_pn_snia)
   (int *nx, int *ny, int *nz,
@@ -1140,6 +1175,34 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	this->MakeStars = 0;
     }
 
+    if (STARMAKE_METHOD(DISTR_FEEDBACK)) {
+
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      FORTRAN_NAME(star_maker10)(
+       GridDimension, GridDimension+1, GridDimension+2,
+       BaryonField[DensNum], dmfield, temperature, BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time,
+       &dtFixed, BaryonField[NumberOfBaryonFields], BaryonField[MetalNum],
+       BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+          &CellWidthTemp, &Time, &zred, &MyProcessorNumber,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+       &MaximumNumberOfNewParticles, CellLeftEdge[0], CellLeftEdge[1],
+          CellLeftEdge[2], &GhostZones,
+       &MetallicityField, &HydroMethod, &StarMakerMinimumDynamicalTime,
+       &StarMakerOverDensityThreshold, &StarMakerMassEfficiency,
+       &StarMakerMinimumMass, &level, &NumberOfNewParticles, 
+       tg->ParticlePosition[0], tg->ParticlePosition[1],
+          tg->ParticlePosition[2],
+       tg->ParticleVelocity[0], tg->ParticleVelocity[1],
+          tg->ParticleVelocity[2],
+       tg->ParticleMass, tg->ParticleAttribute[1], tg->ParticleAttribute[0],
+          tg->ParticleAttribute[2]);
+
+      for (i = NumberOfNewParticlesSoFar; i < NumberOfNewParticles; i++)
+          tg->ParticleType[i] = NormalStarType;
+
+    }
 
     /* This creates sink particles which suck up mass off the grid. */
 
@@ -1754,6 +1817,32 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       //fprintf(stderr,"After feedback is called");
 
   } // end: if (StarParticleFeedback == 5)
+
+  if (STARFEED_METHOD(DISTR_FEEDBACK)) {
+
+      FORTRAN_NAME(star_feedback10)(
+       GridDimension, GridDimension+1, GridDimension+2,
+          BaryonField[DensNum], dmfield,
+          BaryonField[TENum], BaryonField[GENum], BaryonField[Vel1Num],
+          BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[MetalNum],
+          BaryonField[MetalNum+1], BaryonField[MetalNum+2],
+       &DualEnergyFormalism, &MetallicityField, &MultiMetals, &HydroMethod,
+       &dtFixed, BaryonField[NumberOfBaryonFields], &CellWidthTemp,
+          &Time, &zred,
+       &DensityUnits, &LengthUnits, &VelocityUnits, &TimeUnits,
+          &StarEnergyToThermalFeedback, &StarMassEjectionFraction,
+          &StarMetalYield, &StarFeedbackDistRadius, &StarFeedbackDistCellStep, 
+       &StarFeedbackDistTotalCells,
+       &NumberOfParticles,
+          CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+       ParticlePosition[0], ParticlePosition[1],
+          ParticlePosition[2],
+       ParticleVelocity[0], ParticleVelocity[1],
+          ParticleVelocity[2],
+       ParticleMass, ParticleAttribute[1], ParticleAttribute[0],
+          ParticleAttribute[2], ParticleType, &RadiationData.IntegratedStarFormation);
+
+  }
 
   if (StarMakerTypeIaSNe == 1 || StarMakerPlanetaryNebulae == 1) {
 

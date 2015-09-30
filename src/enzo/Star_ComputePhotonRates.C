@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "ErrorExceptions.h"
+#include "phys_constants.h"
 #include "macros_and_parameters.h"
 #include "typedefs.h"
 #include "global_data.h"
@@ -30,12 +31,15 @@
 
 float ReturnValuesFromSpectrumTable(float ColumnDensity, float dColumnDensity, int mode);
 
-int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
+int Star::ComputePhotonRates(const float TimeUnits, int &nbins, float E[], double Q[])
 {
 
+  const float eV_erg = 6.241509e11;
+
   int i;
+  double L_UV, cgs_convert;
   float x, x2, _mass, EnergyFractionLW, MeanEnergy, XrayLuminosityFraction;
-  float EnergyFractionHeI, EnergyFractionHeII;
+  float Mform, EnergyFractionHeI, EnergyFractionHeII;
   x = log10((float)(this->Mass));
   x2 = x*x;
 
@@ -79,9 +83,9 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     if (!RadiativeTransferOpticallyThinH2 &&
 	MultiSpecies > 1) nbins++;
 #endif
-    EnergyFractionLW   = 0.01;
-    EnergyFractionHeI  = 0.4284;
-    EnergyFractionHeII = 0.0282;
+    EnergyFractionLW   = 1.288;
+    EnergyFractionHeI  = 0.2951;
+    EnergyFractionHeII = 2.818e-4;
     E[0] = 21.62; // eV (good for a standard, low-Z IMF)
     E[1] = 30.0;
     E[2] = 60.0;
@@ -174,6 +178,21 @@ int Star::ComputePhotonRates(int &nbins, float E[], double Q[])
     // radiating particle that ramps with time, independant of mass
     E[0] = 20.0;
     Q[0] = SimpleQ; // ramping done in StarParticleRadTransfer.C
+    break;
+
+  case NormalStar:
+    nbins = 1;
+    E[0] = 21.0;  // Good for [Z/H] > -1.3  (Schaerer 2003)
+    // Calculate Delta(M_SF) for Cen & Ostriker star particles
+#ifdef TRANSFER
+    Mform = this->CalculateMassLoss(dtPhoton) / StarMassEjectionFraction;
+    // units of Msun/(time in code units)
+    L_UV = 4 * pi * StarEnergyToStellarUV * Mform * clight * clight / dtPhoton;
+    cgs_convert = SolarMass / TimeUnits;
+    Q[0] = cgs_convert * L_UV * eV_erg / E[0]; // ph/s
+#else
+    Q[0] = 0.0;
+#endif
     break;
 
   default:

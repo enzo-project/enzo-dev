@@ -48,7 +48,7 @@ c        smthresh unless (random number) < starmass/smthresh )
 c    level - current level of refinement
 c    procnum - processor number (for output)
 c    imetalSNIa - SN Ia metallicity flag (0 - none, 1 - yes)
-c    mfcell - the maximum baryonic mass of a cell we allow to become a star particle. 
+c    mfcell - the maximum baryonic mass of a cell we allow to become a star particle.
 c
 c  OUTPUTS:
 c
@@ -117,7 +117,7 @@ c     on each processor.
 
 c
 c  for each zone, : "star" particle is created if the density is
-c  greater than a critical density 
+c  greater than a critical density
 c
       do k=1+ibuff,nz-ibuff
          do j=1+ibuff,ny-ibuff
@@ -125,8 +125,15 @@ c
 c
 c              1) is density greater than threshold (if we are using it)?
 c
-               if (useodthresh .eq. 1) then 
-                  if (d(i,j,k) .lt. odthresh) then 
+               if (useodthresh .eq. 1) then
+                  if (d(i,j,k) .lt. odthresh) then
+                     goto 10
+                  endif
+               else
+c              Make sure we never use more than half the mass in the cell to
+c              create a particle.  One can think of this as an implicit
+c              resolution-dependent density threshold.
+                  if (mfcell*bmass .lt. smthresh) then
                      goto 10
                   endif
                endif
@@ -138,22 +145,13 @@ c
                dtot = ( d(i,j,k) + dm(i,j,k) )*d1
                tdyn  = sqrt(3._RKIND*pi/32._RKIND/G/dtot)/t1
                bmass = d(i,j,k)*dble(d1)*dble(x1*dx)**3 / msolar
-               isosndsp2 = sndspdC * temp(i,j,k) 
-               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) * 
-     &           dble(pi * isosndsp2 / G)**1.5_RKIND / msolar 
+               isosndsp2 = sndspdC * temp(i,j,k)
+               jeanmass = pi/(6._RKIND*sqrt(d(i,j,k)*dble(d1))) *
+     &           dble(pi * isosndsp2 / G)**1.5_RKIND / msolar
 
-               if (jeanmass > bmass) then 
-                   goto 10 
-               endif 
-
-
-c               if (useodthresh .ne. 1) then
-c	          Make sure we never use more than half the mass in the cell to create a particle.
-c                 One can think of this as an implicit resolution-dependent density threshold.
-                  if (mfcell*bmass .lt. smthresh) then
-                     goto 10
-                  endif
-c               endif
+               if (jeanmass > bmass) then
+                  goto 10
+               endif
 
 c
 c              3) Calculate fraction of cell mass to convert into
@@ -251,31 +249,6 @@ cc
       end
 
 
-      function typical_mass(td7)
-c
-c   This is a fitting function to the results of a starburst99
-c    calculation. The input, td7, is the delay time in units of
-c    10^7 years. The output, typical_mass, is the mass in solar
-c    masses of a star that explodes with the given delay time. 
-c   The intermediate quantity td77 = (td7)^7
-      R_PREC typical_mass,td7,td77
-      typical_mass = 0
-      td77 = td7*td7*td7*td7*td7*td7*td7
-      typical_mass = typical_mass + 4.42035634891
-      typical_mass = typical_mass - 13.2890466089*td7
-      typical_mass = typical_mass + 26.1103296098*td7*td7
-      typical_mass = typical_mass - 30.1876007562*td7*td7*td7
-      typical_mass = typical_mass + 21.8976126631*td7*td7*td7*td7
-      typical_mass = typical_mass -10.2544493943*td7*td7*td7*td7*td7
-      typical_mass = typical_mass+3.09621304958*td7*td7*td7*td7*td7*td7
-      typical_mass = typical_mass-0.581870413299*td77
-      typical_mass = typical_mass+0.0618795946119*td77*td7
-      typical_mass = typical_mass-0.00284352366041*td77*td7*td7
-
-      typical_mass = 10**typical_mass
-      return
-      end
-
 c
 c=======================================================================
 c/////////////////////  SUBROUTINE STAR_FEEDBACK \\\\\\\\\\\\\\\\\\\\\\\
@@ -286,12 +259,13 @@ c
      &                      d1, x1, v1, t1, sn_param, retfr, yield,
      &                      npart, xstart, ystart, zstart, ibuff, level,
      &                      xp, yp, zp, up, vp, wp,
-     &                      mp, tdp, tcp, metalf, type, 
+     &                      mp, tdp, tcp, metalf, type,
      &                      explosionFlag,smthresh,
-     &                      willExplode, soonestExplosion, gam, mu, 
+     &                      willExplode, soonestExplosion, gam, mu,
      &                      te1, metalSNII,
      &                      metalfSNII, imetalSNII,
-     &                      s49_tot, maxlevel)
+     &                      s49_tot, maxlevel,
+     &                      distrad, diststep, distcells)
 c
 c  RELEASES "STAR" PARTICLE ENERGY, MASS AND METALS
 c
@@ -301,7 +275,7 @@ c  modified1:  BWO
 c              13 Nov 2002
 c              Many changes have been made between the date of
 c              initial creation and today - all of them unlogged,
-c              unfortunately.  Bugs were fixed in calculation of 
+c              unfortunately.  Bugs were fixed in calculation of
 c              total energy and conservation of metal and gas density.
 c              The code has been cleaned up in general to enhance
 c              readability.  This is the stable version - star_maker1
@@ -376,20 +350,24 @@ c
       R_PREC s49_tot(npart)
       INTG_PREC r(nx,ny,nz)
       INTG_PREC maxlevel
+      INTG_PREC distrad
+      INTG_PREC diststep
+      INTG_PREC distcells
 c
 c  Locals
-c    (msolar_e51 is one solar rest mass energy divided by 10^51 erg)
 c
-      INTG_PREC i, j, k, n, coldWind
-      R_PREC mform, tfactor, clight, energy, sn_param, msolar_e51,
-     &     m_eject, yield, minitial, xv1, xv2, dratio, dEject, ZSN,
-     &     m_ejSN, dSN, td7, td7p2, td7p4, ionized, theDiff, q2,
+      INTG_PREC i, j, k, n, coldWind, stepk, stepj, cellstep, ic, jc, kc
+      R_PREC mform, tfactor, clight, energy, sn_param,
+     &     m_eject, yield, minitial, xv1, xv2, dEject, ZSN,
+     &     m_ejSN, dSN, td7, td7p2, td7p4, ionized, theDiff,
      &     logfac, alpha, num, stromgren_radius, stromgren_volume,
-     &     cell_volume, pi, mh
-      parameter (clight = c_light, msolar_e51 = 1800._RKIND,
-     &           pi=pi_val, mh=mass_h)
-      LOGICAL typ, cond
-      R_PREC dbe, dmi, den, geb, teb, gem, tem
+     &     cell_volume, pi, mh, dEjectSN, year, xc, yc, zc, mc,
+     &     wind_energy, sn_energy, p_sn, radius, rx, ry, rz, msun, kms,
+     $     ex, ey, ez, px, py, pz, kesum, mv, pcell
+      parameter (clight = c_light, pi=pi_val,
+     &     mh=mass_h, year=3.15569d7, msun=SolarMass,
+     &     kms=1d5)
+      LOGICAL typ
 c
       do n=1, npart
          typ = type(n) .eq. 2 .or. type(n) .eq. 4
@@ -403,40 +381,42 @@ c
 c
 c         Compute index of the cell that the star particle
 c           resides in.
-c 
+c
             i = int((xp(n) - xstart)/dx,IKIND) + 1
             j = int((yp(n) - ystart)/dx,IKIND) + 1
             k = int((zp(n) - zstart)/dx,IKIND) + 1
 c
 c         check bounds - if star particle is outside of this grid
-c         then exit and give a warning.
+c         then something is very wrong and we should crash
 c
-            if (i .lt. 1 .or. i .gt. nx .or. j .lt. 1 .or. j .gt. ny
-     &          .or. k .lt. 1 .or. k .gt. nz) then
+            if (i .lt. 1 .or. i .gt. nx .or. 
+     &          j .lt. 1 .or. j .gt. ny .or.
+     &          k .lt. 1 .or. k .gt. nz) then
                write(6,*) 'star particle out of grid; i,j,k,level,',
      &                     i,j,k,level
-               goto 100
+               ERROR_MESSAGE
             endif
+
+c
+c          if using distributed feedback, correct if particle
+c          is too close to the grid boundary
+c
+
+           if (distrad .gt. 0) then
+              i = max((1 + ibuff + distrad),
+     &             min((nx - ibuff - distrad), i))
+              j = max((1 + ibuff + distrad),
+     &              min((ny - ibuff - distrad), j))
+              k = max((1 + ibuff + distrad),
+     &             min((nz - ibuff - distrad), k))
+           endif
+
 
 c	   If the zone in which the particle sits is further refined
 c           then do nothing.
            if( r(i,j,k) .eq. 0 .and. level .ne. maxlevel) then
                goto 100
            endif
-
-           geb = ge(i,j,k)
-           teb = te(i,j,k)
-           dbe = d(i,j,k)
-           cond = te(i,j,k) .gt. 100_RKIND .or. ge(i,j,k) .gt. 100_RKIND
-           if( cond ) then
-	     write(6,*) 'ssn low density 395: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe, geb,teb
-           endif
-
-c
-c           subtract ejected mass from particle (ejection due
-c           to winds, supernovae)
-c
 
 c
 c           Add internal energy to account for photoionization heating.
@@ -455,7 +435,8 @@ c           Case B recombination, assuming T = 10^4 K.
             stromgren_volume =
      &         (4._RKIND/3._RKIND)*pi*stromgren_radius**3
             cell_volume = dx*x1*dx*x1*dx*x1
-            ionized = 3.96e-5_RKIND
+
+            ionized = kboltz*1e4 / mu / mh / x1**2 * t1**2
             if (stromgren_volume .le. cell_volume) then
                ionized = ionized * stromgren_volume/cell_volume
             endif
@@ -465,295 +446,267 @@ c           Case B recombination, assuming T = 10^4 K.
                te(i,j,k) = te(i,j,k) + theDiff
             endif
 
-           cond = te(i,j,k) .gt. 100_RKIND .or. ge(i,j,k) .gt. 100_RKIND
-           if( cond ) then
-	     write(6,*) 'ssn low density 458: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe, geb,teb
-           endif
-
 
 c           In preparation for using upcoming fitting formulae,
 c           compute the current delay time in units of 10^7 yrs
-            td7 = (t-tcp(n))*t1/3.16e14
+            td7 = (t-tcp(n))*t1/3.16d14
             td7p2 = td7*td7
             td7p4 = td7p2*td7p2
 
-c           The mass ejected in Msun. First calculate the contr from
-c               stellar winds (we'll add SNe momentarily)            
+c
+c           Here m_eject is the mass ejection rate in log solar masses per year.
+c
+c           First calculate the contribution from stellar winds
+c           (we'll add SNe momentarily)
+c
             m_eject = 0.0_RKIND
             if (td7 .le. 0.29_RKIND) then
-                m_eject = m_eject - 2.72379457924 
-                m_eject = m_eject + 9.03549102928*td7
-                m_eject = m_eject - 349.073894935*td7p2
-                m_eject = m_eject + 6133.48804337*td7p2*td7
-                m_eject = m_eject - 45526.5891824*td7p4
-                m_eject = m_eject + 160159.422053*td7p4*td7
-                m_eject = m_eject - 254942.557778*td7p4*td7p2
-                m_eject = m_eject + 133227.581992*td7p4*td7p2*td7
+                m_eject = m_eject - 2.72379457924_RKIND
+                m_eject = m_eject + 9.03549102928_RKIND*td7
+                m_eject = m_eject - 349.073894935_RKIND*td7p2
+                m_eject = m_eject + 6133.48804337_RKIND*td7p2*td7
+                m_eject = m_eject - 45526.5891824_RKIND*td7p4
+                m_eject = m_eject + 160159.422053_RKIND*td7p4*td7
+                m_eject = m_eject - 254942.557778_RKIND*td7p4*td7p2
+                m_eject = m_eject + 133227.581992_RKIND*td7p4*td7p2*td7
             else if (td7 .gt. .29_RKIND .and. td7 .le. .447_RKIND) then
-                m_eject = m_eject + 1024395.67006
-                m_eject = m_eject - 22826983.8411*td7
-                m_eject = m_eject + 221695566.585*td7p2
-                m_eject = m_eject - 1225731636.28*td7p2*td7
-                m_eject = m_eject + 4219889881.74*td7p4
-                m_eject = m_eject - 9263931021.04*td7p4*td7
-                m_eject = m_eject + 12664879027.3*td7p4*td7p2
-                m_eject = m_eject - 9858823353.65*td7p4*td7p2*td7
-                m_eject = m_eject + 3345877714.47*td7p4*td7p4
+                m_eject = m_eject + 1024395.67006_RKIND
+                m_eject = m_eject - 22826983.8411_RKIND*td7
+                m_eject = m_eject + 221695566.585_RKIND*td7p2
+                m_eject = m_eject - 1225731636.28_RKIND*td7p2*td7
+                m_eject = m_eject + 4219889881.74_RKIND*td7p4
+                m_eject = m_eject - 9263931021.04_RKIND*td7p4*td7
+                m_eject = m_eject + 12664879027.3_RKIND*td7p4*td7p2
+                m_eject = m_eject - 9858823353.65_RKIND*td7p4*td7p2*td7
+                m_eject = m_eject + 3345877714.47_RKIND*td7p4*td7p4
             else if (td7.ge. 0.447_RKIND .and. td7 .le. 3.24_RKIND) then
-                m_eject = m_eject - 69.9540656568
-                m_eject = m_eject + 540.489990705*td7
-                m_eject = m_eject - 1785.45996729*td7p2
-                m_eject = m_eject + 3267.21333796*td7p2*td7
-                m_eject = m_eject - 3721.01017711*td7p4
-                m_eject = m_eject + 2776.66619261*td7p4*td7
-                m_eject = m_eject - 1381.69750895*td7p4*td7p2
-                m_eject = m_eject + 454.445793525*td7p4*td7p2*td7
-                m_eject = m_eject - 94.8530920783*td7p4*td7p4
-                m_eject = m_eject + 11.3775633348*td7p4*td7p4*td7
-                m_eject = m_eject - 0.597112042033*td7p4*td7p4*td7p2
+                m_eject = m_eject - 69.9540656568_RKIND
+                m_eject = m_eject + 540.489990705_RKIND*td7
+                m_eject = m_eject - 1785.45996729_RKIND*td7p2
+                m_eject = m_eject + 3267.21333796_RKIND*td7p2*td7
+                m_eject = m_eject - 3721.01017711_RKIND*td7p4
+                m_eject = m_eject + 2776.66619261_RKIND*td7p4*td7
+                m_eject = m_eject - 1381.69750895_RKIND*td7p4*td7p2
+                m_eject = m_eject + 454.445793525_RKIND*td7p4*td7p2*td7
+                m_eject = m_eject - 94.8530920783_RKIND*td7p4*td7p4
+                m_eject = m_eject + 11.3775633348_RKIND*td7p4*td7p4*td7
+                m_eject = m_eject -
+     &               0.597112042033_RKIND*td7p4*td7p4*td7p2
             else if (td7 .ge. 3.24_RKIND .and. td7 .le. 7.28_RKIND) then
-                m_eject = m_eject + 14.8304028947
-                m_eject = m_eject - 16.0726787694*td7
-                m_eject = m_eject + 4.55554172673*td7p2
-                m_eject = m_eject - 0.522521195039*td7p2*td7
-                m_eject = m_eject + 0.0214246750892*td7p4
+                m_eject = m_eject + 14.8304028947_RKIND
+                m_eject = m_eject - 16.0726787694_RKIND*td7
+                m_eject = m_eject + 4.55554172673_RKIND*td7p2
+                m_eject = m_eject - 0.522521195039_RKIND*td7p2*td7
+                m_eject = m_eject + 0.0214246750892_RKIND*td7p4
             else if (td7 .ge. 7.28_RKIND .and. td7 .le. 7.8_RKIND) then
-                m_eject = m_eject + 3533.50268935
-                m_eject = m_eject - 1430.45985176*td7
-                m_eject = m_eject + 192.934935096*td7p2
-                m_eject = m_eject - 8.67530777079*td7p2*td7
+                m_eject = m_eject + 3533.50268935_RKIND
+                m_eject = m_eject - 1430.45985176_RKIND*td7
+                m_eject = m_eject + 192.934935096_RKIND*td7p2
+                m_eject = m_eject - 8.67530777079_RKIND*td7p2*td7
             else if (td7 .ge. 7.8_RKIND) then
-                m_eject = m_eject - 3.5441266853
-                m_eject = m_eject - 0.0101229134154*td7
+                m_eject = m_eject - 3.5441266853_RKIND
+                m_eject = m_eject - 0.0101229134154_RKIND*td7
             endif !! End of delay time cases
 
-           if( d(i,j,k) .lt. 25.0) then
-	     write(6,*) 'ssn low density 509: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe
-           endif
-
-c           At this point, energy is specific energy, i.e. vel sq
-            energy = 0.0
+c           These are log specific energies with units of log((cm/s)^2)
+            wind_energy = 0.0
             if ( td7 .lt. 0.29) then
-                energy = energy + 16.7458830136
-                energy = energy + 2.87170884625*td7
-                energy = energy - 260.188160495*td7p2
-                energy = energy + 7588.41970548*td7p2*td7
-                energy = energy - 109128.119673*td7p4
-                energy = energy + 834565.297424*td7p4*td7
-                energy = energy - 3488638.06781*td7p4*td7p2
-                energy = energy + 7534432.3913*td7p4*td7p2*td7
-                energy = energy - 6577304.157*td7p4*td7p4
+                wind_energy = wind_energy + 16.7458830136_RKIND
+                wind_energy = wind_energy + 2.87170884625_RKIND*td7
+                wind_energy = wind_energy - 260.188160495_RKIND*td7p2
+                wind_energy = wind_energy +
+     &               7588.41970548_RKIND*td7p2*td7
+                wind_energy = wind_energy - 109128.119673_RKIND*td7p4
+                wind_energy = wind_energy +
+     &               834565.297424_RKIND*td7p4*td7
+                wind_energy = wind_energy -
+     &               3488638.06781_RKIND*td7p4*td7p2
+                wind_energy = wind_energy +
+     &               7534432.3913_RKIND*td7p4*td7p2*td7
+                wind_energy = wind_energy -
+     &               6577304.157_RKIND*td7p4*td7p4
             else if( td7 .ge. 0.29 .and. td7 .le. 0.518) then
-                energy = energy-8756108.90226
-                energy = energy+249183578.797*td7
-                energy = energy-3210919258.32*td7p2
-                energy = energy+24729596291.2*td7p2*td7
-                energy = energy-126485776877.0*td7p4
-                energy = energy+451123199767.0*td7p4*td7
-                energy = energy-1.14486556168e12*td7p4*td7p2
-                energy = energy+2.067395301e+12*td7p4*td7p2*td7
-                energy = energy-2.60335249368e+12*td7p4*td7p4
-                energy = energy+2.17720380795e+12*td7p4*td7p4*td7
-                energy = energy-1.08835588273e+12*td7p4*td7p4*td7p2
-                energy = energy+246366864343.0*td7p4*td7p4*td7p2*td7
+                wind_energy = wind_energy-8756108.90226_RKIND
+                wind_energy = wind_energy+249183578.797_RKIND*td7
+                wind_energy = wind_energy-3210919258.32_RKIND*td7p2
+                wind_energy = wind_energy+24729596291.2_RKIND*td7p2*td7
+                wind_energy = wind_energy-126485776877.0_RKIND*td7p4
+                wind_energy = wind_energy+451123199767.0_RKIND*td7p4*td7
+                wind_energy = wind_energy-1.14486556168d12*td7p4*td7p2
+                wind_energy = wind_energy+2.067395301d12*td7p4*
+     &               td7p2*td7
+                wind_energy = wind_energy-2.60335249368d12*td7p4*td7p4
+                wind_energy = wind_energy+2.17720380795d12*td7p4*
+     &               td7p4*td7
+                wind_energy = wind_energy-1.08835588273d12*td7p4*
+     &               td7p4*td7p2
+                wind_energy = wind_energy+246366864343.0_RKIND*td7p4*
+     &               td7p4*td7p2*td7
             else if(td7 .ge. 0.518 .and. td7 .le. 2.0) then
-                energy = energy+300.659606389
-                energy = energy-2175.28137376*td7
-                energy = energy+7038.17965731*td7p2
-                energy = energy-12640.7809456*td7p2*td7
-                energy = energy+13818.3936865*td7p4
-                energy = energy-9434.54106014*td7p4*td7
-                energy = energy+3935.34399667*td7p4*td7p2
-                energy = energy-918.140140181*td7p4*td7p2*td7
-                energy = energy+91.8268783049*td7p4*td7p4
+                wind_energy = wind_energy+300.659606389_RKIND
+                wind_energy = wind_energy-2175.28137376_RKIND*td7
+                wind_energy = wind_energy+7038.17965731_RKIND*td7p2
+                wind_energy = wind_energy-12640.7809456_RKIND*td7p2*td7
+                wind_energy = wind_energy+13818.3936865_RKIND*td7p4
+                wind_energy = wind_energy-9434.54106014_RKIND*td7p4*td7
+                wind_energy = wind_energy+
+     &               3935.34399667_RKIND*td7p4*td7p2
+                wind_energy = wind_energy-
+     &               918.140140181_RKIND*td7p4*td7p2*td7
+                wind_energy = wind_energy+
+     &               91.8268783049_RKIND*td7p4*td7p4
             else if(td7 .ge. 2.0 .and. td7 .le. 3.23) then
-                energy = energy+1955.41904193
-                energy = energy-4288.5933438*td7
-                energy = energy+3935.44109106*td7p2
-                energy = energy-1921.4747372*td7p2*td7
-                energy = energy+526.42694795*td7p4
-                energy = energy-76.729393462*td7p4*td7
-                energy = energy+4.64818353202*td7p4*td7p2
+                wind_energy = wind_energy+1955.41904193_RKIND
+                wind_energy = wind_energy-4288.5933438_RKIND*td7
+                wind_energy = wind_energy+3935.44109106_RKIND*td7p2
+                wind_energy = wind_energy-1921.4747372_RKIND*td7p2*td7
+                wind_energy = wind_energy+526.42694795_RKIND*td7p4
+                wind_energy = wind_energy-76.729393462_RKIND*td7p4*td7
+                wind_energy = wind_energy+
+     &               4.64818353202_RKIND*td7p4*td7p2
             else if(td7 .ge. 3.23) then
-                energy = energy+12.6540102838
+                wind_energy = wind_energy+12.6540102838_RKIND
             endif !! End of delay time cases.
 
+c           If the most massive star in this particle has a delay
+c           time greater than 22 Myr (i.e. it is low mass)
+c           turn on 10 km/s wind outflows.
             coldWind = 0
             if( soonestExplosion(n) .lt. 0) then
                 coldWind=1
             endif
-            if( soonestExplosion(n)*t1/3.16e14 .gt. 2.20) then
+            if( soonestExplosion(n)*t1/3.16d14 .gt. 2.20_RKIND) then
                 coldWind=1
             endif
 
             if( coldWind .eq. 1) then
-                energy = 12.6540102838
+                wind_energy = 12.6540102838_RKIND
             endif
 
-           if( d(i,j,k) .lt. 25.0) then
-	     write(6,*) 'ssn low density 574: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe
-           endif
+c           Convert wind_energy from cm^2/s^2 to code units
+            wind_energy = 10.0_RKIND**(wind_energy -2.0_RKIND*log10(v1))
 
-            logfac = 0.0
-            if (energy .gt. 15.416685) then
-                logfac = energy - 15.416685
-                energy = energy - logfac
-            endif
-c           Convert energy from cm^2/s^2 to code units            
-            energy = 10.0**(energy -2.0*log10(v1))
+c           Find mass ejection rate in solar masses per year
+            m_eject = 10.0_RKIND**m_eject
 
+c           This ejection rate is correct for the 10^6 solar mass 'cluster'
+c           used to compute these rates with starburst 99.  Reduce to account
+c           for the size of the star particle
 
+            m_eject = m_eject * smthresh/1d6
 
-            m_eject = m_eject + logfac
+c           Convert mass ejection rate from solar masses per year to solar
+c           masses per second
 
-c           Using the current dt, find the mass ejected this timestep            
-c           m_eject is the log base 10 of the rate in Msun/yr
-c           multiply by dt in seconds, divide by seconds per year
-c           and multply by the ratio of the star particle mass to 
-c           10^6 solar masses, the mass of the 'cluster' used to
-c           compute these rates with starburst 99.
-            m_eject = 10.0**m_eject * dt * t1 * smthresh/ 3.16e13
-           
+            m_eject = m_eject / year
+
+c           Convert m_eject into a mass in solar masses rather than
+c           a mass ejection rate by multiplying through by dt in seconds
+
+            m_eject = m_eject * dt * t1
+
+c           m_eject is now the mass ejected in winds in this timestep in
+c           solar masses.
+
 c           Now if there's a supernova, add the mass from that.
-            m_ejSN = 0.0
+            m_ejSN = 0.0_RKIND
             if (explosionFlag(n) .gt. 0) then
              if (td7 .lt. 0.513_RKIND) then
-                    m_ejSN = m_ejSN + 3.40965833751
-                    m_ejSN = m_ejSN - 16.0346449798*td7
-                    m_ejSN = m_ejSN + 31.5091825735*td7p2
-                    m_ejSN = m_ejSN - 21.3218283568*td7p2*td7
+                    m_ejSN = m_ejSN + 3.40965833751_RKIND
+                    m_ejSN = m_ejSN - 16.0346449798_RKIND*td7
+                    m_ejSN = m_ejSN + 31.5091825735_RKIND*td7p2
+                    m_ejSN = m_ejSN - 21.3218283568_RKIND*td7p2*td7
              else if(.513_RKIND .le. td7 .and. td7 .le. .918_RKIND) then
-                    m_ejSN = m_ejSN - 314538.854117
-                    m_ejSN = m_ejSN + 4453582.08399*td7
-                    m_ejSN = m_ejSN - 28218211.3741*td7p2
-                    m_ejSN = m_ejSN + 105370186.068*td7p2*td7
-                    m_ejSN = m_ejSN - 256824281.305*td7p4
-                    m_ejSN = m_ejSN + 426986197.681*td7p4*td7
-                    m_ejSN = m_ejSN - 490461521.485*td7p4*td7p2
-                    m_ejSN = m_ejSN + 384394390.035*td7p4*td7p2*td7
-                    m_ejSN = m_ejSN - 196752045.251*td7p4*td7p4
-                    m_ejSN = m_ejSN + 59399337.5861*td7p4*td7p4*td7
-                    m_ejSN = m_ejSN - 8033095.66643*td7p4*td7p4*td7p2
+                    m_ejSN = m_ejSN - 314538.854117_RKIND
+                    m_ejSN = m_ejSN + 4453582.08399_RKIND*td7
+                    m_ejSN = m_ejSN - 28218211.3741_RKIND*td7p2
+                    m_ejSN = m_ejSN + 105370186.068_RKIND*td7p2*td7
+                    m_ejSN = m_ejSN - 256824281.305_RKIND*td7p4
+                    m_ejSN = m_ejSN + 426986197.681_RKIND*td7p4*td7
+                    m_ejSN = m_ejSN - 490461521.485_RKIND*td7p4*td7p2
+                    m_ejSN = m_ejSN +
+     &                   384394390.035_RKIND*td7p4*td7p2*td7
+                    m_ejSN = m_ejSN - 196752045.251_RKIND*td7p4*td7p4
+                    m_ejSN = m_ejSN +
+     &                   59399337.5861_RKIND*td7p4*td7p4*td7
+                    m_ejSN = m_ejSN -
+     &                   8033095.66643_RKIND*td7p4*td7p4*td7p2
              else if (0.918_RKIND .le. td7 .and. td7 .le. 3.23) then
-                    m_ejSN = m_ejSN + 1.74261906723
-                    m_ejSN = m_ejSN - 0.92589554122*td7
-                    m_ejSN = m_ejSN + 0.551250718292*td7p2
-                    m_ejSN = m_ejSN - 0.220085806978*td7p2*td7
-                    m_ejSN = m_ejSN + 0.0510662546479*td7p4
-                    m_ejSN = m_ejSN - 0.00504400687495*td7p4*td7
+                    m_ejSN = m_ejSN + 1.74261906723_RKIND
+                    m_ejSN = m_ejSN - 0.92589554122_RKIND*td7
+                    m_ejSN = m_ejSN + 0.551250718292_RKIND*td7p2
+                    m_ejSN = m_ejSN - 0.220085806978_RKIND*td7p2*td7
+                    m_ejSN = m_ejSN + 0.0510662546479_RKIND*td7p4
+                    m_ejSN = m_ejSN - 0.00504400687495_RKIND*td7p4*td7
              else if (td7 .ge. 3.23_RKIND) then
-                    m_ejSN = m_ejSN + 2.67991943387
-                    m_ejSN = m_ejSN - 0.461075452846*td7
-                    m_ejSN = m_ejSN - 0.0326899620754*td7p2
+                    m_ejSN = m_ejSN + 2.67991943387_RKIND
+                    m_ejSN = m_ejSN - 0.461075452846_RKIND*td7
+                    m_ejSN = m_ejSN - 0.0326899620754_RKIND*td7p2
              endif !! End of delay time cases
-             m_ejSN = 10.0**m_ejSN * explosionFlag(n)
-c           Current time (code units), Delay time (10^7 yrs), 
+             m_ejSN = 10.0_RKIND**m_ejSN * explosionFlag(n)
+c           Current time (code units), Delay time (10^7 yrs),
 c           Mass ejected by SN (MSun), Mass ejected by winds (MSun)
 c           Particle mass (code density), x,y,z of particle (code)
 c           Density, Gas energy, Total energy in cell prior to SN (code)
 c           and finally sp. energy of stellar wind (code units)
-             write(6,*) 'Supernova! ', t,td7,m_ejSN,m_eject,
-     &         mp(n), xp(n),yp(n),zp(n), d(i,j,k),ge(i,j,k),
-     &         te(i,j,k),energy
-             m_eject = m_eject + m_ejSN
+c             write(6,*) 'Supernova! ', t,td7,m_ejSN,m_eject,
+c     &         mp(n), xp(n),yp(n),zp(n),d(i,j,k),ge(i,j,k),
+c     &            te(i,j,k),wind_energy
             endif !! End of explosionFlag>0
 
+            dEjectSN = m_ejSN * 1.989d33 / (dx*x1)**3 / d1
+            dEject = m_eject * 1.989d33 / (dx*x1)**3 / d1
 
-           if( d(i,j,k) .lt. 25.0) then
-	     write(6,*) 'ssn low density 643: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe
-           endif
-
-            dSN = m_ejSN * 1.989e33 / (dx*x1)**3 / d1
-            dEject = m_eject * 1.989e33 / (dx*x1)**3 / d1
-            if(dEject .gt. mp(n)) then
-                write(6,*) 'WARNING: losing too much mass',mp(n),dEject
+            if((dEject + dEjectSN) .gt. mp(n)) then
+                write(6,*) 'WARNING: losing too much mass'
+                write(6,*) 'Setting particle mass to zero'
+                write(6, *) mp(n), dEject, dEjectSN
                 write(6,*) 'm_eject, m_ejSN, td7 ',m_eject,m_ejSN,td7
                 write(6,*)  willExplode(n), explosionFlag(n),i,j,k,n
+                mp(n)=0.0_RKIND
+            else
+                mp(n) = mp(n) - (dEject + dEjectSN)
             endif
-            mp(n) = mp(n) - dEject
+
+c           sn_energy is in code units of energy
 
             if (explosionFlag(n) .gt. 0) then
-c               Add wind and SN energy. Need to weight by their
-c               respective masses.
-                energy = energy*(m_eject-m_ejSN*explosionFlag(n)) 
-                energy = energy + 1.0e18 / 1.989 /v1/v1
-                energy = energy / m_eject
+               sn_energy = explosionFlag(n) *
+     &              (1.0d51/(d1*x1**3)/v1/v1)
+            else
+               sn_energy = 0
             endif  !! end of explosionFlag>0
 c           Now we spread the energy out over the whole cell:
-            energy = energy * dEject/ (d(i,j,k) + dEject)
-c            energy = sn_param * mform * (clight/v1)**2 / 
-c     &                (d(i,j,k)+mform*m_eject)
-c
-c
-c
-c
-c            write(6,*) 'star_feedback7: mp, minitial, mform, energy',
-c     &                  mp(n), minitial, mform, energy
-c
-c
-c              Add energy to energy field
-c
-               dratio = d(i,j,k)/(d(i,j,k) + dEject)
-c               write(6,*) 'ssn: ',dratio,te(i,j,k),ge(i,j,k),energy,t,td7, 
-c     &          dEject,m_ejSN,d(i,j,k),t1,m_eject,dEject,dx,dt
-               te(i,j,k) = te(i,j,k)*dratio + energy
-               if (idual .eq. 1) 
-     &            ge(i,j,k) = ge(i,j,k)*dratio + energy
+            energy = wind_energy*dEject*dx**3 + sn_energy
+            energy = energy / ((d(i,j,k) + dEject + dEjectSN)*dx**3)
 
+c           Add wind and SN energy to the cell the particle lives in.
 
-           gem = (ge(i,j,k) - energy)/dratio
-           tem = (te(i,j,k) - energy)/dratio
-           cond = te(i,j,k) .gt. 100_RKIND .or. ge(i,j,k) .gt. 100_RKIND
-           if( cond ) then
-	     write(6,*) 'ssn low density 686: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe,energy,
-     &             te(i,j,k),ge(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k),
-     &             dRatio, td7, geb, teb, gem, tem
-           endif
-
+            te(i,j,k) = te(i,j,k) + energy
+            if (idual .eq. 1)
+     &           ge(i,j,k) = ge(i,j,k) + energy
 
 c
-c              Metal feedback (note that in this function gas metal is
-c              a fraction (rho_metal/rho_gas) rather than a density.
-c              The conversion has been done in the handling routine)
+c            Metal feedback (note that in this function gas metal is
+c            a fraction (rho_metal/rho_gas) rather than a density.
+c            The conversion has been done in the handling routine)
 c
-               if (imetal .eq. 1) then
-c
-c              "Cen method".  This takes into account gas recycling.
-c
-c               To be more specific, it looks like we add up metals from
-c               1) The gas in the cell, 2) metals instantaneously
-c               produced this time step by star formation, and 3) the
-c               metals which were originally in the gas when the star
-c               formed and are now being released in proportion to 
-c               the mass of stars formed this time step. Let's not do
-c               this.
-c                  metal(i,j,k) = (metal(i,j,k)*d(i,j,k) + mform * 
-c     &                 (yield * (1._RKIND-metalf(n)) + m_eject * 
-c     &                 metalf(n))) / (d(i,j,k)+dEject)  ! metal is a fraction
-c
+            if (imetal .eq. 1) then
 
-
-
-
-            ZSN = 0.0
+            ZSN = 0.0_RKIND
             if(explosionFlag(n) .gt. 0) then
              if (td7 .le. 0.365_RKIND) then
-                    ZSN = ZSN - 2.12788803787_RKIND 
+                    ZSN = ZSN - 2.12788803787_RKIND
                     ZSN = ZSN - 3.08562080661_RKIND * td7
                     ZSN = ZSN + 83.9782331967_RKIND * td7p2
                     ZSN = ZSN - 158.867576409_RKIND * td7p2*td7
              else if(.365_RKIND .le. td7 .and. td7 .le. .442_RKIND) then
-                    ZSN = ZSN + 0.584246828515_RKIND  
+                    ZSN = ZSN + 0.584246828515_RKIND
                     ZSN = ZSN - 10.2313474777_RKIND * td7
                     ZSN = ZSN + 42.3869874214_RKIND * td7p2
                     ZSN = ZSN - 46.7483110349_RKIND * td7p2*td7
             else if(.442_RKIND .le. td7 .and. td7 .le. .517_RKIND) then
-                    ZSN = ZSN - 6913398.58591_RKIND 
+                    ZSN = ZSN - 6913398.58591_RKIND
                     ZSN = ZSN + 99253357.5895_RKIND * td7
                     ZSN = ZSN - 610064398.162_RKIND * td7p2
                     ZSN = ZSN + 2081033583.17_RKIND * td7p2*td7
@@ -762,13 +715,13 @@ c
                     ZSN = ZSN - 3545287887.67_RKIND * td7p4*td7p2
                     ZSN = ZSN + 1032027574.24_RKIND * td7p4*td7p2*td7
              else if(.517_RKIND .le. td7 .and. td7 .le. .718_RKIND) then
-                    ZSN = ZSN - 0.856562917033
-                    ZSN = ZSN + 2.72919708256 *td7
-                    ZSN = ZSN - 1.22818002617 *td7p2
-                    ZSN = ZSN - 0.536735943166 *td7p2*td7
+                    ZSN = ZSN - 0.856562917033_RKIND
+                    ZSN = ZSN + 2.72919708256_RKIND *td7
+                    ZSN = ZSN - 1.22818002617_RKIND *td7p2
+                    ZSN = ZSN - 0.536735943166_RKIND *td7p2*td7
              else if(.718_RKIND .le. td7 .and. td7 .le. 1.7_RKIND) then
-                    ZSN = ZSN + 6.69150908774
-                    ZSN = ZSN - 51.5159032945_RKIND * td7 
+                    ZSN = ZSN + 6.69150908774_RKIND
+                    ZSN = ZSN - 51.5159032945_RKIND * td7
                     ZSN = ZSN + 172.980768687_RKIND * td7p2
                     ZSN = ZSN - 307.64633271_RKIND  * td7p2*td7
                     ZSN = ZSN + 311.333072359_RKIND * td7p4
@@ -789,66 +742,168 @@ c
             endif !! End of explosionFlag>0
 
 
-           if( d(i,j,k) .lt. 25.0) then
-	     write(6,*) 'ssn low density 763: ',d(i,j,k),dEject,level, 
-     &           willExplode(n), explosionFlag(n),i,j,k,n,dbe
-           endif
-
-
-            q2 = dEject - dSN
-            metal(i,j,k) = metal(i,j,k) * d(i,j,k) 
-            metal(i,j,k) = metal(i,j,k) +   metalf(n) * q2
-            metal(i,j,k) = metal(i,j,k) +   ZSN * dSN 
-            metal(i,j,k) = metal(i,j,k)  / (dEject + d(i,j,k))
+            metal(i,j,k) = metal(i,j,k) * d(i,j,k)
+            metal(i,j,k) = metal(i,j,k) + metalf(n) * dEject
+            metal(i,j,k) = metal(i,j,k) + ZSN * dEjectSN
+            metal(i,j,k) = metal(i,j,k) / (dEject + dEjectSN + d(i,j,k))
             if (imetalSNII .eq. 1) then
-             metalSNII(i,j,k) = metalSNII(i,j,k) * d(i,j,k)
-             metalSNII(i,j,k) = metalSNII(i,j,k) + metalfSNII(n) *q2
-             metalSNII(i,j,k) = metalSNII(i,j,k) + ZSN * dSN
-             metalSNII(i,j,k) = metalSNII(i,j,k) / (dEject + d(i,j,k))
-            endif  !! End of imetalSNII==1
+               metalSNII(i,j,k) = metalSNII(i,j,k) * d(i,j,k)
+               metalSNII(i,j,k) = metalSNII(i,j,k) +
+     &              (metalfSNII(n) * dEject)
+               metalSNII(i,j,k) = metalSNII(i,j,k) + ZSN * dEjectSN
+               metalSNII(i,j,k) = metalSNII(i,j,k)
+     &             / (dEject + dEjectSN + d(i,j,k))
+            endif !! End of imetalSNII==1
 
-           endif !! End of imetal==1
-
-
-               dmi = d(i,j,k)
-               if( d(i,j,k) .lt. 25.0) then
-		 write(6,*) 'ssn low density 787: ',d(i,j,k),dEject,level,
-     &             willExplode(n),explosionFlag(n),i,j,k,n,dbe,dmi,
-     &             metal(i,j,k), metalSNII(i,j,k)
-               endif
+         endif                  !! End of imetal==1
 
 
 c
-c              Mass and momentum feedback
+c              Mass and momentum feedback from winds and SN ejecta (NOT from SN blastwaves)
 c
-               u(i,j,k) = u(i,j,k)*d(i,j,k) + dEject * up(n)
-               v(i,j,k) = v(i,j,k)*d(i,j,k) + dEject * vp(n)
-               w(i,j,k) = w(i,j,k)*d(i,j,k) + dEject * wp(n)
-               d(i,j,k) = d(i,j,k) + dEject
-               u(i,j,k) = u(i,j,k)/d(i,j,k)
-               v(i,j,k) = v(i,j,k)/d(i,j,k)
-               w(i,j,k) = w(i,j,k)/d(i,j,k)
+           u(i,j,k) = u(i,j,k)*d(i,j,k) + (dEject + dEjectSN) * up(n)
+           v(i,j,k) = v(i,j,k)*d(i,j,k) + (dEject + dEjectSN) * vp(n)
+           w(i,j,k) = w(i,j,k)*d(i,j,k) + (dEject + dEjectSN) * wp(n)
+           d(i,j,k) = d(i,j,k) + dEject + dEjectSN
+           u(i,j,k) = u(i,j,k)/d(i,j,k)
+           v(i,j,k) = v(i,j,k)/d(i,j,k)
+           w(i,j,k) = w(i,j,k)/d(i,j,k)
 c
 c              If te is really total energy (and it is unless imethod=2),
 c              then just set this value
 c
-               if (imethod .ne. 2 .and. idual .eq. 1) then
-                  te(i,j,k) = 0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 + 
-     &                               w(i,j,k)**2) + ge(i,j,k)
-               endif
+           if (imethod .ne. 2 .and. idual .eq. 1) then
+              te(i,j,k) = 0.5_RKIND*(u(i,j,k)**2 + v(i,j,k)**2 +
+     &             w(i,j,k)**2) + ge(i,j,k)
+           endif
 
-
-	       den = d(i,j,k)
-               cond = te(i,j,k) .gt. 100_RKIND
-               cond = cond  .or. ge(i,j,k) .gt. 100_RKIND
-               if( cond ) then
-		 write(6,*) 'ssn low density 761: ',d(i,j,k),dEject,level,
-     &             willExplode(n), explosionFlag(n),i,j,k,n,dbe,dmi,den,
-     &             te(i,j,k),ge(i,j,k),u(i,j,k),v(i,j,k),w(i,j,k),
-     &             energy, dRatio, td7
-               endif
-		
 c
+c          do not do distributed feedback if there are no SNe
+c          or if it is not turned on
+c
+
+           if (sn_energy .eq. 0) then
+              goto 100
+           endif
+
+           if  (distrad .eq. 0) then
+              goto 100
+           endif
+
+c
+c          Find momentum to deposit per SNe in code units.
+c
+
+           p_sn = explosionFlag(n) * 3d5 * msun / (d1*x1**3) * 
+     &      kms / v1 / (distcells - 1)
+
+c          Approximate that the explosion happens in the center of the
+c          feedback zone
+
+           ex = xstart + (REAL(i,RKIND)-0.5_RKIND)*dx
+           ey = ystart + (REAL(j,RKIND)-0.5_RKIND)*dx
+           ez = zstart + (REAL(k,RKIND)-0.5_RKIND)*dx
+
+c
+c          do momentum feedback over a distributed region
+c          distribute equally among zones participating in feedback
+c          Limit velocity after feedback to 1000 km/s to avoid accelerating
+c          material in cells with very little mass
+c
+
+           kesum = 0
+           mv = 1d3*kms/v1
+
+           do kc = k-distrad,k+distrad
+              stepk = abs(kc-k)
+              do jc = j-distrad,j+distrad
+                 stepj = stepk + abs(jc-j)
+                 do ic = i-distrad,i+distrad
+                    cellstep = stepj + abs(ic-i)
+                    if (cellstep .le. diststep) then
+
+c                      Don't do momentum feedback in the cell the SN goes off in
+
+                       if ((ic .eq. i) .and. (jc .eq. j) .and.
+     &                      (kc .eq. k)) then
+                          continue
+                       else
+
+c                         Define some useful intermediate variables
+
+                          xc = xstart + (REAL(ic,RKIND)-0.5_RKIND)*dx
+                          yc = ystart + (REAL(jc,RKIND)-0.5_RKIND)*dx
+                          zc = zstart + (REAL(kc,RKIND)-0.5_RKIND)*dx
+
+                          radius = sqrt((xc - ex)**2 + (yc - ey)**2
+     &                         + (zc - ez)**2)
+
+                          rx = (xc - ex)/radius
+                          ry = (yc - ey)/radius
+                          rz = (zc - ez)/radius
+
+                          mc = d(ic,jc,kc)*dx**3
+
+c                         Limit momentum feedback such that each cell can do
+c                         no more than its fair share of the thermal energy
+c                         from the SNe
+
+                          if (p_sn**2/(2.0_RKIND*mc) .gt. 
+     &                         sn_energy/(distcells-1)) then
+                             pcell=2.0_RKIND*mc*sn_energy/(distcells-1)
+                             pcell=SQRT(pcell)
+                          else
+                             pcell = p_sn
+                          endif
+
+c                         Limit maximum velocity boost to 1000 km/s
+
+                          if ((p_sn/mc) .gt. mv) then
+                             pcell = mc*mv
+                          endif
+
+c                         Add momentum feedback
+
+                          u(ic,jc,kc) = u(ic,jc,kc) + (rx*pcell)/mc
+                          v(ic,jc,kc) = v(ic,jc,kc) + (ry*pcell)/mc
+                          w(ic,jc,kc) = w(ic,jc,kc) + (rz*pcell)/mc
+
+                          if (imethod .ne. 2 .and. idual .eq. 1) then
+                             te(ic,jc,kc) = ge(ic,jc,kc) + 0.5_RKIND*(
+     &                            u(ic,jc,kc)**2 +
+     &                            v(ic,jc,kc)**2 +
+     &                            w(ic,jc,kc)**2)
+                          endif
+
+c                         Record kinetic energy deposited in this cell
+
+                          kesum = kesum + 0.5_RKIND/mc*pcell**2
+                       endif
+                    endif
+                 enddo
+              enddo
+           enddo
+
+           if (kesum .gt. sn_energy) then
+              write(6,*) 'ssn1: Kinetic energy from momentum feedback
+     & exceeds thermal energy', kesum, sn_energy, wind_energy, energy,
+     &             ge(i,j,k), te(i,j,k), kesum/(d(i,j,k)*dx**3)
+              kesum = sn_energy
+           endif
+
+           if (kesum/(d(i, j, k)*dx**3) .ge. ge(i,j,k)) then
+              write(6,*) 'ssn2: Kinetic energy from momentum feedback
+     & exceeds thermal energy', kesum, sn_energy, wind_energy, energy,
+     &             ge(i,j,k), te(i,j,k), kesum/(d(i,j,k)*dx**3)
+              ERROR_MESSAGE
+           endif
+
+c          Assume kinetic energy from momentum feedback is extracted from
+c          thermal energy in the host zone
+
+           ge(i, j, k) = ge(i, j, k) - kesum/(d(i, j, k)*dx**3)
+           te(i, j, k) = te(i, j, k) - kesum/(d(i, j, k)*dx**3)
+
 c
 c
 c
@@ -861,6 +916,6 @@ c
 c
 c      write(6,*) 'star_feedback7: end'
  200  continue
-  
+
       return
       end

@@ -39,6 +39,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &WritePotentialOnly,
 			 int &SmoothedDarkMatterOnly,
 			 int &WriteCoolingTimeOnly,
+			 int &WriteDustTemperatureOnly,
 			 int MyProcessorNumber)
 {
  
@@ -81,6 +82,12 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 
       case 'C':
 	WriteCoolingTimeOnly = TRUE;
+	break;
+
+	/* Add dust temperature to data */
+
+      case 'D':
+	WriteDustTemperatureOnly = TRUE;
 	break;
 
 	/* debug */
@@ -296,6 +303,7 @@ void PrintUsage(char *myname)
 	          "      -M (Write smoothed DM field only)\n"
 	          "      -F(riends-of-friends halo finder only)\n"
 	          "      -C(ooling time write only)\n"
+	          "      -D(ust temperature write only)\n"
                   "      -h(elp)\n"
 	          "      -i(nformation output)\n"
 	          "      -V (show compiler options and flags)\n"

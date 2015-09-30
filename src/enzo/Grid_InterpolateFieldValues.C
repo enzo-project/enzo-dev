@@ -455,14 +455,11 @@ int grid::InterpolateFieldValues(grid *ParentGrid
 	MHDParentTemp[field] = new float[ MHDParentTempSize[field] ];
 	MHDChildTemp[field] = new float[ MHDChildTempSize[field] ];
 
-	if( CenteredB[field] == NULL ) 
-	  CenteredB[field] = new float[GridSize];
 
 	if( MagneticField[field] == NULL )
 	  MagneticField[field] = new float[ MagneticSize[field] ];
 	
 
-	for(i=0;i<GridSize;i++) CenteredB[field][i] = 1.0;
 	for(i=0;i<MagneticSize[field]; i++) MagneticField[field][i] = 1.0;
 	for(i=0;i<MHDParentTempSize[field];i++) MHDParentTemp[field][i] = 1.0;
 	for(i=0;i<MHDChildTempSize[field];i++) MHDChildTemp[field][i] = 1.0;

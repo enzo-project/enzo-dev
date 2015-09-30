@@ -317,6 +317,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "CellFlaggingMethod             = ");
   WriteListOfInts(fptr, MAX_FLAGGING_METHODS, CellFlaggingMethod);
   fprintf(fptr, "FluxCorrection                 = %"ISYM"\n", FluxCorrection);
+  fprintf(fptr, "UseCoolingTimestep             = %"ISYM"\n", UseCoolingTimestep);
+  fprintf(fptr, "CoolingTimestepSafetyFactor    = %"GSYM"\n", CoolingTimestepSafetyFactor);
   fprintf(fptr, "InterpolationMethod            = %"ISYM"\n", InterpolationMethod);
   fprintf(fptr, "ConservativeInterpolation      = %"ISYM"\n", ConservativeInterpolation);
   fprintf(fptr, "MinimumEfficiency              = %"GSYM"\n", MinimumEfficiency);
@@ -519,7 +521,10 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   else
     fprintf(fptr, "OutputCoolingTime              = %"ISYM"\n", OutputCoolingTime);
   fprintf(fptr, "OutputTemperature              = %"ISYM"\n", OutputTemperature);
-  fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", OutputDustTemperature);
+  if (OutputDustTemperature < 0)
+    fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", 0);
+  else
+    fprintf(fptr, "OutputDustTemperature          = %"ISYM"\n", OutputDustTemperature);
 
   // Negative number means that it was flagged from the command line.  Don't propagate.
   if (OutputSmoothedDarkMatter < 0)
@@ -780,6 +785,8 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 	  StarFormationOncePerRootGridTimeStep);
   fprintf(fptr, "StarParticleFeedback                  = %"ISYM"\n",
 	  StarParticleFeedback);
+  fprintf(fptr, "StarParticleRadiativeFeedback         = %"ISYM"\n",
+	  StarParticleRadiativeFeedback);
   fprintf(fptr, "NumberOfParticleAttributes            = %"ISYM"\n",
 	  NumberOfParticleAttributes);
 
@@ -1109,7 +1116,6 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "MHDCTSlopeLimiter          = %"ISYM"\n", MHDCTSlopeLimiter);
   fprintf(fptr, "MHDCTDualEnergyMethod          = %"ISYM"\n", MHDCTDualEnergyMethod);
   fprintf(fptr, "MHDPowellSource          = %"ISYM"\n", MHDCTPowellSource);
-  fprintf(fptr, "MHDCTUseSpecificEnergy          = %"ISYM"\n", MHDCTUseSpecificEnergy);
   fprintf(fptr, "WriteBoundary          = %"ISYM"\n", WriteBoundary);
   fprintf(fptr,"CT_AthenaDissipation          =%"GSYM"\n",CT_AthenaDissipation);
   fprintf(fptr,"MHD_WriteElectric             =%"ISYM"\n",MHD_WriteElectric);

@@ -158,6 +158,8 @@ c
      &                    sqrt(sample1)*sample2**2 * weight1
                      if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
      &                    sample1**1.5_RKIND*sample2**2 *weight1
+                     if (ifield .eq. 4) plane(i,j) = plane(i,j) + 
+     &                    sample1*sample2 * weight1
 c
                   endif
 c     
@@ -210,6 +212,8 @@ c
      &                    sqrt(sample1)*sample2**2 * weight1
                      if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
      &                    sample1**1.5_RKIND*sample2**2 *weight1
+                     if (ifield .eq. 4) plane(i,j) = plane(i,j) + 
+     &                    sample1*sample2 * weight1
 c
                   endif
 c     
@@ -262,6 +266,8 @@ c
      &                    sqrt(sample1)*sample2**2 * weight1
                      if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
      &                    sample1**1.5_RKIND*sample2**2 *weight1
+                     if (ifield .eq. 4) plane(i,j) = plane(i,j) + 
+     &                    sample1*sample2 * weight1
 c
                   endif
 c     
@@ -302,6 +308,8 @@ c
      &                 sqrt(sample1) * grid2(n,j0,k0)**2 * weight1
                   if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
      &                 sample1**1.5_RKIND *grid2(n,j0,k0)**2 * weight1
+                  if (ifield .eq. 4) plane(i,j) = plane(i,j) + 
+     &                 sample1 * grid2(n,j0,k0) * weight1
 c     
                enddo
             enddo
@@ -336,6 +344,8 @@ c
      &                 sqrt(sample1)  *grid2(i0,n,k0)**2 * weight1
                   if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
      &                 sample1**1.5_RKIND *grid2(i0,n,k0)**2 * weight1
+                  if (ifield .eq. 4) plane(i,j) = plane(i,j) + 
+     &                 sample1 * grid2(n,j0,k0) * weight1
 c     
                enddo
             enddo
@@ -370,6 +380,8 @@ c
      &                 sqrt(sample1)  *grid2(i0,j0,n)**2 * weight1
                   if (ifield .eq. 3) plane(i,j) = plane(i,j) + 
      &                 sample1**1.5_RKIND *grid2(i0,j0,n)**2 * weight1
+                  if (ifield .eq. 4) plane(i,j) = plane(i,j) + 
+     &                 sample1 * grid2(n,j0,k0) * weight1
 c     
                enddo
             enddo
