@@ -296,6 +296,15 @@
             gamma2 = 1._RKIND + (nH2 + nother)/
      &                      (nH2*gamma2 + nother/(gamma-1._RKIND))
             tgas(i) = tgas(i) * (gamma2 - 1._RKIND)/(gamma - 1._RKIND)
+            if (tgas(i) .ne. tgas(i)) then
+               write(6,*) 'NaN in tgas[1a]: ', i, j, k, edot(i), 
+     &              HI(i,j,k), HII(i,j,k), HeI(i,j,k), HeII(i,j,k), 
+     &              HeIII(i,j,k), de(i,j,k), d(i,j,k), 
+     &              tgas(i), p2d(i)
+               write(6,*) 'NaN in tgas[1b]: ', HM(i,j,k), H2I(i,j,k), 
+     &              H2II(i,j,k), metal(i,j,k), nh(i), nH2, nother, gamma2
+               ERROR_MESSAGE
+            endif
             end if
          enddo
       endif
@@ -404,10 +413,14 @@
      &             *dom_inv)
 
          if (edot(i) .ne. edot(i)) then
-            write(6,*) 'NaN in edot[1]: ', i, j, k, edot(i), 
+            write(6,*) 'NaN in edot[1a]: ', i, j, k, edot(i), 
      &           HI(i,j,k), HII(i,j,k), HeI(i,j,k), HeII(i,j,k), 
      &           HeIII(i,j,k), de(i,j,k), d(i,j,k), 
      &           tgas(i), p2d(i)
+            if (ispecies.gt.1) then
+               write(6,*) 'NaN in edot[1b]: ', HM(i,j,k), H2I(i,j,k), 
+     &              H2II(i,j,k), metal(i,j,k), nh(i)
+            endif
             ERROR_MESSAGE
          endif
          

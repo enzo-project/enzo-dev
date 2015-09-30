@@ -57,9 +57,6 @@ int MHDLoopInit(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
   for ( int j=0;j<i;j++)
     DataUnits[j] = NULL;
 
-  MHDcLabel[0] = "Bx";
-  MHDcLabel[1] = "By";
-  MHDcLabel[2] = "Bz";
 
   MHDLabel[0] = "BxF";
   MHDLabel[1] = "ByF";

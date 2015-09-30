@@ -83,6 +83,8 @@
 
 #define MAX_ENERGY_BINS                    10
 
+#define MAX_CROSS_SECTIONS                  4
+
 #define ROOT_PROCESSOR                      0
 
 #define VERSION                             2.4  /* current version number */
@@ -496,6 +498,7 @@ typedef int            HDF5_hid_t;
 #define COLORED_POP3_STAR  10
 #define H2REG_STAR     11
 #define SINGLE_SUPERNOVA 12
+#define DISTR_FEEDBACK 13
 
 #define STARMAKE_METHOD(A) (StarParticleCreation >> (A) & 1)
 #define STARFEED_METHOD(A) (StarParticleFeedback >> (A) & 1)

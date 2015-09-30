@@ -88,16 +88,7 @@ int grid::CopyBaryonFieldToOldBaryonField()
 	OldMagneticField[field][i] = MagneticField[field][i];
       }
 
-      if(CenteredB[field] == NULL)
-	ENZO_FAIL("CenteredB missing in CopyBaryonFieldToOldBaryonField");
       
-      if(OldCenteredB[field] == NULL) {
-	OldCenteredB[field] = new float[size];
-      }
-      
-      for(i=0;i<size;i++){
-	OldCenteredB[field][i] = CenteredB[field][i];
-      }
 
     }//for(field < 3;)
   }//end if(UseMHDCT)

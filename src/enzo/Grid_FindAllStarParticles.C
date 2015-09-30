@@ -40,6 +40,7 @@ int grid::FindAllStarParticles(int level)
     return SUCCESS;
 
   int i, StarType;
+  float LifetimeFactor;
   Star *NewStar;
   
   /* Read only active star particles.  Unborn stars will be read later
@@ -52,10 +53,18 @@ int grid::FindAllStarParticles(int level)
 	ParticleType[i] == PARTICLE_TYPE_CLUSTER ||
         ParticleType[i] == PARTICLE_TYPE_COLOR_STAR ||
 	ParticleType[i] == PARTICLE_TYPE_MBH ||
-	ParticleType[i] == PARTICLE_TYPE_SIMPLE_SOURCE) {
+	ParticleType[i] == PARTICLE_TYPE_SIMPLE_SOURCE ||
+	(StarParticleRadiativeFeedback == TRUE &&
+	 ParticleType[i] == PARTICLE_TYPE_STAR)) {
 
+      if (ParticleType[i] == PARTICLE_TYPE_STAR)
+	LifetimeFactor = 12.0;
+      else
+	LifetimeFactor = 1.0;
+      
       if (this->Time >= ParticleAttribute[0][i] &&
-	  this->Time <= ParticleAttribute[0][i]+ParticleAttribute[1][i]) {
+	  this->Time <= ParticleAttribute[0][i] + 
+	  LifetimeFactor * ParticleAttribute[1][i]) {
 	  
 #ifdef RESET_BH_LIFETIMES // Make BH lifetimes "infinite"
 	if (ParticleType[i] == PARTICLE_TYPE_BLACK_HOLE &&

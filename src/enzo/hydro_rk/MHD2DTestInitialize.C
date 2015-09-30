@@ -232,11 +232,13 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
   if (DualEnergyFormalism) {
     DataLabel[count++] = GEName;
   }
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     DataLabel[count++] = BxName;
     DataLabel[count++] = ByName;
     DataLabel[count++] = BzName;
-    DataLabel[count++] = PhiName;
+    if( HydroMethod == MHD_RK ){
+        DataLabel[count++] = PhiName;
+    }
     if(UseDivergenceCleaning){
       DataLabel[count++] = Phi_pName;
       DataLabel[count++] = DebugName;
@@ -246,10 +248,6 @@ int MHD2DTestInitialize(FILE *fptr, FILE *Outfptr,
     MHDLabel[0] = "BxF";
     MHDLabel[1] = "ByF";
     MHDLabel[2] = "BzF";
-    
-    MHDcLabel[0] = "Bx";
-    MHDcLabel[1] = "By";
-    MHDcLabel[2] = "Bz";
     
     MHDeLabel[0] = "Ex";
     MHDeLabel[1] = "Ey";

@@ -18,9 +18,10 @@
 #include "typedefs.h"
 #include "global_data.h"
 #include "ReconstructionRoutines.h"
+#include "fortran.def"
 
 
-inline void plm_l(float &vm1, float &v, float &vp1, float &vl_plm)
+inline float plm_l(float vm1, float v, float vp1)
 {
 
   float dv_l, dv_r, dv_m, dv;
@@ -31,10 +32,10 @@ inline void plm_l(float &vm1, float &v, float &vp1, float &vl_plm)
   
   dv = minmod(dv_l, dv_r, dv_m);
 
-  vl_plm = v + 0.5*dv;
+  return v + 0.5*dv;
 }
 
-inline void plm_r(float &vm1, float &v, float &vp1, float &vr_plm)
+inline float plm_r(float vm1, float v, float vp1)
 {
 
   float dv_l, dv_r, dv_m, dv;
@@ -45,10 +46,10 @@ inline void plm_r(float &vm1, float &v, float &vp1, float &vr_plm)
   
   dv = minmod(dv_l, dv_r, dv_m);
 
-  vr_plm = v - 0.5*dv;
+  return v - 0.5*dv;
 }
 
-inline void plm_point(float &vm1, float &v, float &vp1, float &vl_plm)
+inline float plm_point(float vm1, float v, float vp1)
 {
 
   float dv_l, dv_r, dv_m, dv;
@@ -59,22 +60,24 @@ inline void plm_point(float &vm1, float &v, float &vp1, float &vl_plm)
   
   dv = minmod(dv_l, dv_r, dv_m);
 
-  vl_plm = v + 0.5*dv;
+  return v + 0.5*dv;
+  
 }
 
 int plm(float **prim, float **priml, float **primr, int ActiveSize, int Neq)
 {
   int iprim;
 
-  for (int i = 0; i < ActiveSize+1; i++) {
-    iprim = i + NumberOfGhostZones - 1;
-    for (int field = 0; field < Neq; field++) {
-      plm_point(prim[field][iprim-1], prim[field][iprim  ], prim[field][iprim+1],
-		priml[field][i]);
-      plm_point(prim[field][iprim+2], prim[field][iprim+1], prim[field][iprim],
-		primr[field][i]);
+  const int offset = NumberOfGhostZones - 1;
+  
+  for (int field = 0; field < Neq; field++) {
+    iprim = offset;
+    for (int i = 0; i < ActiveSize+1; i++, iprim++) {
+      priml[field][i] = plm_point(prim[field][iprim-1], prim[field][iprim  ], prim[field][iprim+1]);
+      primr[field][i] = plm_point(prim[field][iprim+2], prim[field][iprim+1], prim[field][iprim]);
     }
-
+  }
+  for (int i = 0; i < ActiveSize+1; i++) {
     priml[0][i] = max(priml[0][i], SmallRho);
     //priml[1][i] = max(priml[1][i], SmallEint);
     primr[0][i] = max(primr[0][i], SmallRho);
@@ -89,29 +92,33 @@ int plm_species(float **prim, int is, float **species, float *flux0, int ActiveS
 {
 
   int iprim;
-  for (int n = 0; n < ActiveSize+1; n++) {
-    iprim = n + NumberOfGhostZones - 1;    
-    if (flux0[n] >= 0) {
-      for (int field = 0; field < NSpecies; field++) {
-	plm_l(prim[field+is][iprim-1], prim[field+is][iprim], prim[field+is][iprim+1],
-	      species[field][n]);
-      }
-    } else {
-      for (int field = 0; field < NSpecies; field++) {
-	plm_r(prim[field+is][iprim], prim[field+is][iprim+1], prim[field+is][iprim+2],
-	      species[field][n]);
+  const int offset = NumberOfGhostZones - 1;
+  static float sum[MAX_ANY_SINGLE_DIRECTION];
+
+  for (int field = 0; field < NSpecies; field++) {
+    iprim = offset;
+    for (int n = 0; n < ActiveSize+1; n++, iprim++) {
+      if (flux0[n] >= 0) {
+	species[field][n] = plm_l(prim[field+is][iprim-1], prim[field+is][iprim], prim[field+is][iprim+1]);
+      } else {
+	species[field][n] = plm_r(prim[field+is][iprim], prim[field+is][iprim+1], prim[field+is][iprim+2]);
       }
     }
+  } // ENDFOR field
 
-    /* renormalize species field */
-    if (NoMultiSpeciesButColors != TRUE) {
-      float sum = 0;
-      for (int field = 0; field < NSpecies; field++) {
-        sum += species[field][n];
-      }
-      for (int field = 0; field < NSpecies; field++) {
-        species[field][n] /= sum;
-      }
+  /* renormalize species field */
+
+  if (NoMultiSpeciesButColors != TRUE) {
+    for (int n = 0; n < ActiveSize+1; n++)
+      sum[n] = 0.0f;
+    for (int field = 0; field < NSpecies; field++) {
+      for (int n = 0; n < ActiveSize+1; n++)
+        sum[n] += species[field][n];
+    }
+
+    for (int field = 0; field < NSpecies; field++) {
+      for (int n = 0; n < ActiveSize+1; n++)
+        species[field][n] /= sum[n];
     }
   }
 
@@ -124,20 +131,16 @@ int plm_color(float **prim, int is, float **color, float *flux0, int ActiveSize)
 {
 
   int iprim;
-  for (int n = 0; n < ActiveSize+1; n++) {
-    iprim = n + NumberOfGhostZones - 1;        
-    if (flux0[n] >= 0) {
-      for (int field = is+NSpecies; field < is+NSpecies+NColor; field++) {
-	plm_l(prim[field][iprim-1], prim[field][iprim], prim[field][iprim+1],
-	      color[field-is-NSpecies][n]);
-      }
-    } else {
-      for (int field = is+NSpecies; field < is+NSpecies+NColor; field++) {
-	plm_r(prim[field][iprim], prim[field][iprim+1], prim[field][iprim+2],
-	      color[field-is-NSpecies][n]);
+  const int offset = NumberOfGhostZones - 1;
+  for (int field = is+NSpecies; field < is+NSpecies+NColor; field++) {
+    iprim = offset;
+    for (int n = 0; n < ActiveSize+1; n++, iprim++) {
+      if (flux0[n] >= 0) {
+	color[field-is-NSpecies][n] = plm_l(prim[field][iprim-1], prim[field][iprim], prim[field][iprim+1]);
+      } else {
+	color[field-is-NSpecies][n] = plm_r(prim[field][iprim], prim[field][iprim+1], prim[field][iprim+2]);
       }
     }
-
   }
 
   return SUCCESS;

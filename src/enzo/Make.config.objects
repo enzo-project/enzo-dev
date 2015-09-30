@@ -429,6 +429,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
+	Grid_FlagCellsToBeRefinedByMetalMass.o \
 	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o \
 	Grid_FlagCellsToBeRefinedByResistiveLength.o \
@@ -687,6 +688,7 @@ OBJS_CONFIG_LIB = \
 	OneZoneFreefallTestInitialize.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
+	OutputDustTemperatureOnly.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
 	OutputPotentialFieldOnly.o \
@@ -823,6 +825,7 @@ OBJS_CONFIG_LIB = \
 	Star_AssignFinalMassFromIMF.o \
         Star_CalculateFeedbackParameters.o \
         Star_CalculateMassAccretion.o \
+        Star_CalculateMassLoss.o \
         Star_ComputePhotonRates.o \
         Star_DeleteCopyInGridGlobal.o \
         Star_DeleteParticle.o \
@@ -845,6 +848,7 @@ OBJS_CONFIG_LIB = \
         star_maker7.o \
 	star_maker8.o \
 	star_maker9.o \
+	star_maker10.o \
 	star_maker_h2reg.o \
     star_maker_ssn.o \
 	StratifiedMediumExplosionInitialize.o \
@@ -920,7 +924,6 @@ OBJS_CONFIG_LIB = \
     	Grid_ClearAvgElectricField.o\
     	ExternalBoundary_SetMagneticBoundary.o\
    	 mhd_dt.o\
-    	 Grid_SolveMHDEquations.o \
     	 Grid_MHD_UpdateMagneticField.o\
     	 Grid_MHDOrszagTangInitGrid.o \
     	 Grid_MHD_SetupDims.o \
@@ -978,9 +981,12 @@ POBJS_CONFIG_LIB = \
 	FindSuperSourceByPosition.o \
 	FLDCorrectForImpulses.o \
 	Grid_AddH2Dissociation.o \
+	Grid_AddH2DissociationFromSources.o \
+	Grid_AddH2DissociationFromTree.o \
 	Grid_AddRadiationImpulse.o \
 	Grid_AddRadiationPressureAcceleration.o \
 	Grid_AllocateInterpolatedRadiation.o \
+	Grid_CheckSubgridMarker.o \
 	Grid_CommunicationSendPhotonPackages.o \
 	Grid_CommunicationSendSubgridMarker.o \
         Grid_ComputePhotonTimestep.o \
