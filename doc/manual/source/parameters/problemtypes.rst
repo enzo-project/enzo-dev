@@ -1043,6 +1043,49 @@ Isolated Galaxy Evolution (31)
     Unit vector that defines the angular momentum vector of the galaxy
     (in other words, this and the center position define the plane of
     the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
+``GalaxySimulationRPSWind`` (external)
+    This flag turns on the ram pressure stripped (RPS) wind in the
+    GalaxySimulation problem and sets the mode.  0 = off, 1 = on with
+    simple constant wind values, 2 = on with RPS values set from a
+    file with the name ICMinflow_data.in.  For the file input case,
+    the file should consist of a set of lines with each line
+    specifying a 6 columns consisting of time, wind density, wind
+    temperature, wind x/y/z velocity.  All units in the file are
+    assumed to be CGS and wind values are applied at the time
+    indicated to the corner of the box, with linear interpolation
+    between key frames.  See Salem et al. (2015) for a worked example.
+    Default: 0
+``GalaxySimulationRPSWindShockSpeed`` (external)
+    This is speed of the RPS driven shock (which differs from the
+    wind velocity), to be used to determine where and when to apply
+    the appropriate wind boundary condition on the boundary.  Code units.
+    Default: 0.0
+``GalaxySimulationRPSWindDelay`` (external)
+    This is a delay (in code units) for the RPS wind to be applied
+    (for example to give time for the galaxy to relax).
+    Default: 0.0
+``GalaxySimulationRPSWindDensity`` (external)
+    For case 1, this is the density of the RPS wind, in code units.
+    Default: 1.0
+``GalaxySimulationRPSWindtotalEnergy`` (external)
+    For case 1, this is the total energy of the RPS wind, in code units.
+    Default: 1.0
+``GalaxySimulationRPSWindPressure`` (external)
+    For case 1, this is the pressutre of the RPS wind (unused).
+    Default: 1.0
+``GalaxySimulationRPSWindVelocity`` (external)
+    For case 1, This is the wind velocity (code units)
+    Default: 0 0 0
+``GalaxySimulationRPSWindPreWindDensity`` (external)
+    This is the density applied to the boundary before the wind arrives.
+    Default: 1.0
+``GalaxySimulationRPSWindPreWindTotalEnergy`` (external)
+    This is the total energy applied to the boundary before the wind arrives.
+    Default: 1.0
+``GalaxySimulationRPSWindPreWindVelocity`` (external)
+    This is the velocity vector applied to the boundary before the
+    wind arrives.
+    Default:
 
 .. _shearingbox_param:
 
