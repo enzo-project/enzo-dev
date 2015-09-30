@@ -61,8 +61,8 @@ static float CosmologySimulationInitialFractionHeIII = 1.0e-17;
 static float CosmologySimulationInitialFractionHM    = 2.0e-9;
 static float CosmologySimulationInitialFractionH2I   = 2.0e-20;
 static float CosmologySimulationInitialFractionH2II  = 3.0e-14;
-static float CollapseTestInitialMetallicity = 2.04e-8;
-static float SphereColour = 2.04e-8;
+static float CollapseTestInitialMetallicity = 1e-6;
+static float SphereColour = 1e-6;
 
 int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 				     FLOAT SphereRadius[MAX_SPHERES],
@@ -472,8 +472,10 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 	  density = InitialDensity;
 	  temperature = temp1 = InitialTemperature;
 	  sigma = sigma1 = 0;
-	  colour = SphereColour;
-	  metallicity = CollapseTestInitialMetallicity;
+	  colour = SphereColour *
+	    CoolData.SolarMetalFractionByMass;
+	  metallicity = CollapseTestInitialMetallicity *
+	    CoolData.SolarMetalFractionByMass;
 	  HII_Fraction = CollapseTestInitialFractionHII;
 	  HeII_Fraction = CollapseTestInitialFractionHeII;
 	  HeIII_Fraction = CollapseTestInitialFractionHeIII;
@@ -801,8 +803,9 @@ int grid::CollapseTestInitializeGrid(int NumberOfSpheres,
 		//	  density, weight, temperature, Velocity[0], Velocity[1],
 		//	  Velocity[2]);
 
+		/* only mark first sphere */
 		if (sphere == 0)
-		  colour = SphereColour; /* only mark first sphere */
+		  colour = SphereColour * CoolData.SolarMetalFractionByMass;
 
 		HII_Fraction = SphereHII[sphere];
 		HeII_Fraction = SphereHeII[sphere];
