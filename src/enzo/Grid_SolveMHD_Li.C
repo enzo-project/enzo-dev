@@ -78,16 +78,10 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //DO 2d
   
   FLOAT a[4];
-  
-  if(ComovingCoordinates==1){
-      CosmologyComputeExpansionFactor(Time, &a[0], &a[1]) ;
-      CosmologyComputeExpansionFactor(Time+(FLOAT)0.5*dtFixed, &a[2], &a[3]);
-  }else{
-      a[0] = 1.0;
-      a[1] = 0.0;
-      a[2] = 1.0;
-      a[3] = 0.0;
-  }
+   a[0] = 1.0;
+   a[1] = 0.0;
+   a[2] = 1.0;
+   a[3] = 0.0;
 
 
   int line_size = max( GridDimension[0], max(GridDimension[1], GridDimension[2]));
@@ -119,30 +113,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
                                    TENum, B1Num, B2Num, B3Num);
 
-  float inv_sqrt_a = 1./sqrt(a[0]), sqrt_a = sqrt(a[0]);
-  if( ComovingCoordinates ){
-    if ( EquationOfState == 0 ){
-      for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] -= 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
-                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
-                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
-      }
-    }
-
-    for( ii=0; ii<size; ii++){
-      BaryonField[B1Num][ii] *= inv_sqrt_a;
-      BaryonField[B2Num][ii] *= inv_sqrt_a;
-      BaryonField[B3Num][ii] *= inv_sqrt_a;
-    }
-    
-    if ( EquationOfState == 0 ){
-      for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] += 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
-                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
-                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
-      }
-    }
-  }//comoving
 
  
 
@@ -610,35 +580,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     delete [] rindex[dim];
   }
 
-  if( ComovingCoordinates ){
-    if ( EquationOfState == 0 ){
-      for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] -= 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
-                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
-                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
-      }
-    }
-
-    for( ii=0; ii<size; ii++){
-      BaryonField[B1Num][ii] *= sqrt_a;
-      BaryonField[B2Num][ii] *= sqrt_a;
-      BaryonField[B3Num][ii] *= sqrt_a;
-    }
-    for( int field=0; field<3; field++){
-      for( ii=0; ii<MagneticSize[field]; ii++){
-        Fluxes[field][ii] *= sqrt_a/a[2];
-        Fluxes[field][ii+MagneticSize[field]] *= sqrt_a/a[2];
-      }
-    }
-
-    if ( EquationOfState == 0 ){
-      for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] += 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
-                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
-                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
-      }
-    }
-  }//comoving
 
 
   
