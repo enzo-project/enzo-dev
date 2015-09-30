@@ -45,6 +45,19 @@ One must constantly be wary of the possibility of built in C types
 to be re-defined to higher precision types. This is outlined
 in :ref:`FloatIsDouble`.
 
+Allocating arrays with ``new``
+------------------------------
+
+Enzo has a significant issue with memory fragmentation.  This is due
+to grid and particle storage arrays being constantly created,
+destroyed, and re-created with slightly different sizes.  The most
+successful solution to this problem has been to limit the sizes of
+arrays to powers of 2.  When compiling Enzo with log2alloc-yes,
+``new`` is overloaded such that arrays are always created with sizes
+that are the nearest power of 2.  Thus, it is important to keep in
+mind that arrays created with ``new`` will usually be slightly
+larger than you think.
+
 Fortran types
 -------------
 
