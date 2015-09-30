@@ -165,7 +165,7 @@ int grid::TransportPhotonPackages(int level, int finest_level,
   else {
     RecombinationTime = 1.0 / (alphaB * DensityUnits / mh) / TimeUnits;
     MinimumPhotonFlux *= (float) ((RT_Units / TimeUnits) * (MassUnits / mh) * dtPhoton / 
-				  (RecombinationTime * RadiativeTransferHubbleTimeFraction));
+				  (10*RecombinationTime));
   }
   // float MinimumPhotonFlux = (DensityUnits/mh) * FinestCellVolume * dtPhoton /
   //   (PhotonTime * RadiativeTransferHubbleTimeFraction);
