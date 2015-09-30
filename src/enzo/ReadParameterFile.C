@@ -1144,11 +1144,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  ExtraOutputs +7,ExtraOutputs +8,ExtraOutputs +9);
 
     //MHDCT variables
-    ret += sscanf(line, "MHDCT_debug_flag      = %"ISYM, &MHDCT_debug_flag);
     ret += sscanf(line, "MHDCTPowellSource             = %"ISYM, &MHDCTPowellSource);
     ret += sscanf(line, "MHDCTDualEnergyMethod             = %"ISYM, &MHDCTDualEnergyMethod);
     ret += sscanf(line, "MHDCTSlopeLimiter             = %"ISYM, &MHDCTSlopeLimiter);
-    ret += sscanf(line, "MHDCTUseSpecificEnergy             = %"ISYM, &MHDCTUseSpecificEnergy);
     ret += sscanf(line, "WriteBoundary          = %"ISYM, &WriteBoundary);
     ret += sscanf(line,"TracerParticlesAddToRestart = %"ISYM,&TracerParticlesAddToRestart);
     ret += sscanf(line,"RefineByJeansLengthUnits = %"ISYM,&RefineByJeansLengthUnits);
@@ -1167,8 +1165,9 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
       MHDLabel[dim] = dummy;
     if(sscanf(line, "MHDUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
       MHDUnits[dim] = dummy;
-    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2)
-      MHDcLabel[dim] = dummy;
+    if(sscanf(line, "MHDcLabel[%"ISYM"] = %s\n", &dim, dummy) == 2){
+        ENZO_FAIL("Looks like you're restarting an OLD MHDCT run. \n Run src/CenteredBremover.py on your dataset.\n");
+    }
     if(sscanf(line, "MHDeLabel[%"ISYM"] = %s\n", &dim, dummy) ==2)
       MHDeLabel[dim] = dummy;
     if(sscanf(line, "MHDeUnits[%"ISYM"] = %s\n", &dim, dummy) == 2)
@@ -1350,7 +1349,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
         ReconstructionMethod = PLM;
 
   if (HydroMethod==MHD_RK) UseMHD = 1;
-  if (HydroMethod==MHD_Li) UseMHDCT = 1;
+  if (HydroMethod==MHD_Li) {UseMHDCT = 1; UseMHD = 1;}
+  if (HydroMethod==MHD_Li ||HydroMethod==MHD_RK || HydroMethod==HD_RK ){
+      MaxVelocityIndex = 3;
+  }else{
+      MaxVelocityIndex = MetaData.TopGridRank ;
+  }
   if (UseMHDCT) CorrectParentBoundaryFlux = TRUE;
 
     if (DualEnergyFormalism == FALSE)

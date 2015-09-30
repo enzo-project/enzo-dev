@@ -142,33 +142,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 
     if(UseMHDCT && SendField == ALL_FIELDS){
 
-      if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY ){
-	for( field = 0; field<3; field++){
-	  if(CenteredB[field] == NULL ){
-	    fprintf(stderr, "Severe Error in Grid_CommunicationSendRegion:  CenteredB = NULL.");
-	  }
-	  FORTRAN_NAME(copy3d)(CenteredB[field], &buffer[index],
-			       GridDimension, GridDimension+1, GridDimension+2,
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       Zero, Zero+1, Zero+2,
-			       RegionStart, RegionStart+1, RegionStart+2);
-	  index += RegionSize;
 
-	}
-      }
-
-      if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY){
-	for( field = 0; field<3; field++){
-	  FORTRAN_NAME(copy3d)(OldCenteredB[field], &buffer[index],
-			       GridDimension, GridDimension+1, GridDimension+2,
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       Zero, Zero+1, Zero+2,
-			       RegionStart, RegionStart+1, RegionStart+2);
-	  index += RegionSize;
-	}
-            
-
-      }
       if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY ){
 	
 	for(field=0;field<3;field++){
@@ -351,37 +325,7 @@ int grid::CommunicationSendRegion(grid *ToGrid, int ToProcessor,int SendField,
 	}
  
     if( UseMHDCT && SendField == ALL_FIELDS ){
-      if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY){
-	for(field=0;field<3;field++){
-	  delete ToGrid->CenteredB[field];
-	  ToGrid->CenteredB[field]=new float[RegionSize];
-	  FORTRAN_NAME(copy3d)(&buffer[index], CenteredB[field],
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       Zero, Zero+1, Zero+2,
-			       Zero, Zero+1, Zero+2);
-	  index += RegionSize;
 
-	  float total=0;
-	  for(int i=0;i<RegionSize;i++){
-	    total += fabs(CenteredB[field][i]);
-	  }
-	}
-
-      }
-
-      if (NewOrOld == NEW_AND_OLD || NewOrOld == OLD_ONLY){
-	for(field=0;field<3;field++){
-	  delete ToGrid->OldCenteredB[field];
-	  ToGrid->OldCenteredB[field] = new float[RegionSize];
-	  FORTRAN_NAME(copy3d)(&buffer[index], OldCenteredB[field],
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       RegionDim, RegionDim+1, RegionDim+2,
-			       Zero, Zero+1, Zero+2,
-			       Zero, Zero+1, Zero+2);
-	  index += RegionSize;
-	}
-      }
       /* send Bf */
       if (NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY){
 	for(field=0;field<3;field++){

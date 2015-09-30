@@ -424,6 +424,7 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByTotalJeansLength.o \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
+	Grid_FlagCellsToBeRefinedByMetalMass.o \
 	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o \
 	Grid_FlagCellsToBeRefinedByResistiveLength.o \
@@ -682,6 +683,7 @@ OBJS_CONFIG_LIB = \
 	OneZoneFreefallTestInitialize.o \
         OutputAsParticleData.o \
 	OutputCoolingTimeOnly.o \
+	OutputDustTemperatureOnly.o \
         OutputFromEvolveLevel.o\
         OutputLevelInformation.o \
 	OutputPotentialFieldOnly.o \
@@ -915,7 +917,6 @@ OBJS_CONFIG_LIB = \
     	Grid_ClearAvgElectricField.o\
     	ExternalBoundary_SetMagneticBoundary.o\
    	 mhd_dt.o\
-    	 Grid_SolveMHDEquations.o \
     	 Grid_MHD_UpdateMagneticField.o\
     	 Grid_MHDOrszagTangInitGrid.o \
     	 Grid_MHD_SetupDims.o \

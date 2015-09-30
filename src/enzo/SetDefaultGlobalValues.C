@@ -578,7 +578,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderOutputParticleList     = FALSE;
   HaloFinderRunAfterOutput         = TRUE;
   HaloFinderMinimumSize            = 50;
-  HaloFinderLinkingLength          = 0.1;
+  HaloFinderLinkingLength          = 0.2;
   HaloFinderCycleSkip              = 3;
   HaloFinderTimestep               = FLOAT_UNDEFINED;
   HaloFinderLastTime               = 0.0;
@@ -878,9 +878,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   UseMHD=0;
+  MaxVelocityIndex = 3;
 
   //MHDCT variables
-  MHDCT_debug_flag = 0;
   MHDCTSlopeLimiter = 1;
   MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;

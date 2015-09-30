@@ -115,16 +115,16 @@ and
 
   TIMER_STOP("YourTimerName");
 
-around the code you want to time.  
+around the code you want to time.  And adding an initializer statement to
+enzo.C (along with the other timer initializers):
+
+.. code-block:: c
+
+  TIMER_REGISTER("YourTimerName");
 
 The string that you pass in gets collected in a map which is then iterated over
 at the end of each evolve hierarchy.  At that time it prints into a file named
 performance.out.
-
-**Note**: To make sure all processors register a timer, be sure to place the
-start/stop calls in a location that all processors will reach.  If this is not
-possible, you must first register the timer with
-TIMER_REGISTER("YourTimerName").  
 
 Generating Plots
 ################

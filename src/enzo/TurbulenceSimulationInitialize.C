@@ -257,7 +257,7 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     TurbulenceSimulationInitialTemperature = 1.0;
   }
 
-  if( HydroMethod == MHD_RK) {
+  if(UseMHD) {
     if( InitialMagneticFieldDefined != TRUE) {
       TurbulenceSimulationInitialMagneticField[0] = 1e-8;
       TurbulenceSimulationInitialMagneticField[1] = 1e-8;
@@ -352,10 +352,12 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
   DataLabel[i++] = Vel1Name;
   DataLabel[i++] = Vel2Name;
   DataLabel[i++] = Vel3Name;
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     DataLabel[i++] = BxName;
     DataLabel[i++] = ByName;
     DataLabel[i++] = BzName;
+  }
+  if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
   }
   if (UseDrivingField) {
@@ -422,10 +424,6 @@ int TurbulenceSimulationInitialize(FILE *fptr, FILE *Outfptr,
     MHDLabel[1] = "ByF";
     MHDLabel[2] = "BzF";
     
-    MHDcLabel[0] = "Bx";
-    MHDcLabel[1] = "By";
-    MHDcLabel[2] = "Bz";
-
     MHDeLabel[0] = "Ex";
     MHDeLabel[1] = "Ey";
     MHDeLabel[2] = "Ez";

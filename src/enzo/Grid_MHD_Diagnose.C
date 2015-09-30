@@ -73,13 +73,10 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
       return SUCCESS;
     }
 
-  int DensNum, GENum, TENum, Vel1Num, Vel2Num, Vel3Num;
-  
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-                       Vel3Num, TENum) == FAIL) {
-    fprintf(stderr, "Error in IdentifyPhysicalQuantities.\n");
-    return FAIL;
-  }
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                   TENum, B1Num, B2Num, B3Num);
+
   
   
   //Compute total energy, gas, kinetic, and magnetic energies
@@ -97,9 +94,9 @@ int grid::MHD_Diagnose(char * label, float * &DivB)
     v2 =  BaryonField[Vel2Num][index];
     v3 =  BaryonField[Vel3Num][index];
     dens = BaryonField[DensNum][index];
-    b1 = CenteredB[0][index];
-    b2 = CenteredB[1][index];
-    b3 = CenteredB[2][index];
+    b1 = BaryonField[B1Num][index];
+    b2 = BaryonField[B2Num][index];
+    b3 = BaryonField[B3Num][index];
     
     TotalEnergy += eng;
     Kinetic += 0.5*dens*(v1*v1+v2*v2+v3*v3);

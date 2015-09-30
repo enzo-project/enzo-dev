@@ -77,9 +77,6 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //DO strang
   //DO 2d
   
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum;
-
-  IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum);
   FLOAT a[4];
   
   if(ComovingCoordinates==1){
@@ -118,27 +115,31 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   //Both of these need to be convolved with the above.
   float * flux_magnetic_line = new float[ line_size ]; //for Powell fluxes
   float * flux_def_line = new float[ line_size ]; //For dual energy.  Get rid of this.
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
+  this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
+                                   TENum, B1Num, B2Num, B3Num);
 
   float inv_sqrt_a = 1./sqrt(a[0]), sqrt_a = sqrt(a[0]);
   if( ComovingCoordinates ){
     if ( EquationOfState == 0 ){
       for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] -= 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
-                                       CenteredB[1][ii]*CenteredB[1][ii]+
-                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+        BaryonField[TENum][ii] -= 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
+                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
+                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
       }
     }
 
-    for( int field=0; field<3; field++){
-      for( ii=0; ii<size; ii++){
-        CenteredB[field][ii] *= inv_sqrt_a;
-      }
+    for( ii=0; ii<size; ii++){
+      BaryonField[B1Num][ii] *= inv_sqrt_a;
+      BaryonField[B2Num][ii] *= inv_sqrt_a;
+      BaryonField[B3Num][ii] *= inv_sqrt_a;
     }
+    
     if ( EquationOfState == 0 ){
       for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] += 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
-                                       CenteredB[1][ii]*CenteredB[1][ii]+
-                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+        BaryonField[TENum][ii] += 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
+                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
+                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
       }
     }
   }//comoving
@@ -160,9 +161,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             0.5*(BaryonField[Vel1Num][ii]*BaryonField[Vel1Num][ii]+
                  BaryonField[Vel2Num][ii]*BaryonField[Vel2Num][ii]+
                  BaryonField[Vel3Num][ii]*BaryonField[Vel3Num][ii])*BaryonField[DensNum][ii]
-            -0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
-                  CenteredB[1][ii]*CenteredB[1][ii]+
-                  CenteredB[2][ii]*CenteredB[2][ii]));
+            -0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
+                  BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
+                  BaryonField[B3Num][ii]*BaryonField[B3Num][ii])); 
       }
     }
   }
@@ -222,9 +223,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             field_line[ ii + line_size*1] = BaryonField[Vel1Num][index_bf]*BaryonField[DensNum][index_bf];
             field_line[ ii + line_size*2] = BaryonField[Vel2Num][index_bf]*BaryonField[DensNum][index_bf];
             field_line[ ii + line_size*3] = BaryonField[Vel3Num][index_bf]*BaryonField[DensNum][index_bf];
-            field_line[ ii + line_size*4] = CenteredB[0][index_bf];
-            field_line[ ii + line_size*5] = CenteredB[1][index_bf];
-            field_line[ ii + line_size*6] = CenteredB[2][index_bf];
+            field_line[ ii + line_size*4] = BaryonField[B1Num][index_bf];
+            field_line[ ii + line_size*5] = BaryonField[B2Num][index_bf];
+            field_line[ ii + line_size*6] = BaryonField[B3Num][index_bf];
             if ( EquationOfState == 0 ){
               field_line[ ii + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ ii + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
@@ -262,9 +263,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             BaryonField[Vel1Num][index_bf] = field_line[ ii + line_size*1]/field_line[ ii + line_size*0];
             BaryonField[Vel2Num][index_bf] = field_line[ ii + line_size*2]/field_line[ ii + line_size*0];
             BaryonField[Vel3Num][index_bf] = field_line[ ii + line_size*3]/field_line[ ii + line_size*0];
-            CenteredB[0][index_bf]         = field_line[ ii + line_size*4];
-            CenteredB[1][index_bf]         = field_line[ ii + line_size*5];
-            CenteredB[2][index_bf]         = field_line[ ii + line_size*6];
+            BaryonField[B1Num][index_bf]         = field_line[ ii + line_size*4];
+            BaryonField[B2Num][index_bf]         = field_line[ ii + line_size*5];
+            BaryonField[B3Num][index_bf]         = field_line[ ii + line_size*6];
             if ( EquationOfState == 0 ){
               BaryonField[TENum][index_bf] = field_line[ ii + line_size*7];
               pressure[index_bf]           = field_line[ii + line_size*8 ] *POW(field_line[ii + line_size*0], (Gamma - 1));
@@ -336,7 +337,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     if ( (n % 3 == 1) )
       if ( nyz == 1 ){
         TransverseMagneticFlux(BaryonField[Vel2Num], BaryonField[Vel3Num], BaryonField[Vel1Num],
-                               CenteredB[1], CenteredB[2], CenteredB[0], 
+                               BaryonField[B2Num], BaryonField[B3Num], BaryonField[B1Num], 
                                MagFluxY2, MagFluxY1, GridDimension, MagneticDims[1]);
 
       }else if ( nyz > 1) {
@@ -348,9 +349,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             field_line[ jj + line_size*1] = BaryonField[Vel2Num][index_bf]*BaryonField[DensNum][index_bf];
             field_line[ jj + line_size*2] = BaryonField[Vel3Num][index_bf]*BaryonField[DensNum][index_bf];
             field_line[ jj + line_size*3] = BaryonField[Vel1Num][index_bf]*BaryonField[DensNum][index_bf];
-            field_line[ jj + line_size*4] = CenteredB[1][index_bf];
-            field_line[ jj + line_size*5] = CenteredB[2][index_bf];
-            field_line[ jj + line_size*6] = CenteredB[0][index_bf];
+            field_line[ jj + line_size*4] = BaryonField[B2Num][index_bf];
+            field_line[ jj + line_size*5] = BaryonField[B3Num][index_bf];
+            field_line[ jj + line_size*6] = BaryonField[B1Num][index_bf];
             if ( EquationOfState == 0 ){
               field_line[ jj + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ jj + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
@@ -387,9 +388,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             BaryonField[Vel1Num][index_bf]= field_line[ jj + line_size*3]/field_line[ jj + line_size*0];
             BaryonField[Vel2Num][index_bf]= field_line[ jj + line_size*1]/field_line[ jj + line_size*0];
             BaryonField[Vel3Num][index_bf]= field_line[ jj + line_size*2]/field_line[ jj + line_size*0];
-            CenteredB[0][index_bf]        = field_line[ jj + line_size*6];
-            CenteredB[1][index_bf]        = field_line[ jj + line_size*4];
-            CenteredB[2][index_bf]        = field_line[ jj + line_size*5];
+            BaryonField[B1Num][index_bf]       = field_line[ jj + line_size*6];
+            BaryonField[B2Num][index_bf]       = field_line[ jj + line_size*4];
+            BaryonField[B3Num][index_bf]       = field_line[ jj + line_size*5];
             if ( EquationOfState == 0 ){
               BaryonField[TENum][index_bf] = field_line[ jj + line_size*7];
               pressure[index_bf] = field_line[jj + line_size*8 ] *POW(field_line[jj + line_size*0], (Gamma - 1));
@@ -457,7 +458,7 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
     if( (n % 3 == 2) )
       if ( nzz == 1 ){
         TransverseMagneticFlux(BaryonField[Vel3Num], BaryonField[Vel1Num], BaryonField[Vel2Num],
-                               CenteredB[2], CenteredB[0], CenteredB[1], 
+                               BaryonField[B3Num], BaryonField[B1Num], BaryonField[B2Num],
                                MagFluxZ1, MagFluxZ2, GridDimension, MagneticDims[2]);
 
       }else if ( nzz > 1) {
@@ -470,9 +471,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             field_line[ kk + line_size*1] = BaryonField[Vel3Num][index_bf]*BaryonField[DensNum][index_bf];
             field_line[ kk + line_size*2] = BaryonField[Vel1Num][index_bf]*BaryonField[DensNum][index_bf];
             field_line[ kk + line_size*3] = BaryonField[Vel2Num][index_bf]*BaryonField[DensNum][index_bf];
-            field_line[ kk + line_size*4] = CenteredB[2][index_bf];
-            field_line[ kk + line_size*5] = CenteredB[0][index_bf];
-            field_line[ kk + line_size*6] = CenteredB[1][index_bf];
+            field_line[ kk + line_size*4] = BaryonField[B3Num][index_bf];
+            field_line[ kk + line_size*5] = BaryonField[B1Num][index_bf];
+            field_line[ kk + line_size*6] = BaryonField[B2Num][index_bf];
             if ( EquationOfState == 0 ){
               field_line[ kk + line_size*7] = BaryonField[TENum][index_bf];
               field_line[ kk + line_size*8] = pressure[index_bf]/POW(BaryonField[DensNum][index_bf],Gamma-1);
@@ -514,9 +515,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
             BaryonField[Vel1Num][index_bf]= field_line[ kk + line_size*2]/field_line[ kk + line_size*0];
             BaryonField[Vel2Num][index_bf]= field_line[ kk + line_size*3]/field_line[ kk + line_size*0];
             BaryonField[Vel3Num][index_bf]= field_line[ kk + line_size*1]/field_line[ kk + line_size*0];
-            CenteredB[0][index_bf]        = field_line[ kk + line_size*5];
-            CenteredB[1][index_bf]        = field_line[ kk + line_size*6];
-            CenteredB[2][index_bf]        = field_line[ kk + line_size*4];
+             BaryonField[B1Num][index_bf]       = field_line[ kk + line_size*5];
+             BaryonField[B2Num][index_bf]       = field_line[ kk + line_size*6];
+             BaryonField[B3Num][index_bf]       = field_line[ kk + line_size*4];
             if ( EquationOfState == 0 ){
               BaryonField[TENum][index_bf] = field_line[ kk + line_size*7];
               pressure[index_bf] = field_line[kk + line_size*8 ] *POW(field_line[kk + line_size*0], (Gamma - 1));
@@ -612,16 +613,18 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
   if( ComovingCoordinates ){
     if ( EquationOfState == 0 ){
       for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] -= 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
-                                       CenteredB[1][ii]*CenteredB[1][ii]+
-                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+        BaryonField[TENum][ii] -= 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
+                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
+                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
       }
     }
 
+    for( ii=0; ii<size; ii++){
+      BaryonField[B1Num][ii] *= sqrt_a;
+      BaryonField[B2Num][ii] *= sqrt_a;
+      BaryonField[B3Num][ii] *= sqrt_a;
+    }
     for( int field=0; field<3; field++){
-      for( ii=0; ii<size; ii++){
-        CenteredB[field][ii] *= sqrt_a;
-      }
       for( ii=0; ii<MagneticSize[field]; ii++){
         Fluxes[field][ii] *= sqrt_a/a[2];
         Fluxes[field][ii+MagneticSize[field]] *= sqrt_a/a[2];
@@ -630,9 +633,9 @@ int grid::SolveMHD_Li(int CycleNumber, int NumberOfSubgrids,
 
     if ( EquationOfState == 0 ){
       for( ii=0; ii<size; ii++){
-        BaryonField[TENum][ii] += 0.5*(CenteredB[0][ii]*CenteredB[0][ii]+
-                                       CenteredB[1][ii]*CenteredB[1][ii]+
-                                       CenteredB[2][ii]*CenteredB[2][ii])/BaryonField[DensNum][ii];
+        BaryonField[TENum][ii] += 0.5*(BaryonField[B1Num][ii]*BaryonField[B1Num][ii]+
+                                       BaryonField[B2Num][ii]*BaryonField[B2Num][ii]+
+                                       BaryonField[B3Num][ii]*BaryonField[B3Num][ii])/BaryonField[DensNum][ii];
       }
     }
   }//comoving
