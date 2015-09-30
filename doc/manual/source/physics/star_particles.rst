@@ -438,12 +438,12 @@ grid in a given timestep is
 
 This energy is divided between thermal and kinetic energies.  This is despite 
 the name of ``StarEnergyToThermalFeedback``, which would indicate that it is 
-just thermal energy.  This name was kept for consisitency with other star 
+just thermal energy.  This name was kept for consistency with other star 
 makers.
 
 If ``StarMakerExplosionDelayTime`` is negative, M\ :sub:`form` is computed 
 as it is for star maker methods 0 and 1 as described above.  If 
-``StarMaerExplosionDelayTime >= 0.0`` then M\ :sub:`form` is the initial 
+``StarMakerExplosionDelayTime >= 0.0`` then M\ :sub:`form` is the initial 
 star particle mass.  In this case, all energy, mass and metals are injected 
 in a single timestep that is delayed from the formation time of the star 
 particle creation by the value of ``StarMakerExplosionDelayTime``, which 
