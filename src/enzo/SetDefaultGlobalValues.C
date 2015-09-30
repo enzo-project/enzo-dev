@@ -202,6 +202,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetallicityRefinementMinMetallicity = 1.0e-5;
   MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
   FluxCorrection            = TRUE;
+
+  UseCoolingTimestep = FALSE;
+  CoolingTimestepSafetyFactor = 0.1;
+
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
@@ -424,7 +428,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
                                                    // during output by default.
   RadiationFieldType          = 0;
-  RadiationFieldRedshift      = 0.0;
+  RadiationFieldRedshift      = FLOAT_UNDEFINED;
   TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;

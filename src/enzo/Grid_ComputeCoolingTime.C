@@ -53,13 +53,13 @@ int GadgetCoolingTime(float *d, float *e, float *ge,
 extern "C" void FORTRAN_NAME(cool_multi_time)(
 	float *d, float *e, float *ge, float *u, float *v, float *w, float *de,
 	float *HI, float *HII, float *HeI, float *HeII, float *HeIII,
-	float *cooltime,
+	float *cooltime, int *coolonly,
 	int *in, int *jn, int *kn, int *nratec, int *iexpand,
 	hydro_method *imethod,
         int *idual, int *ispecies, int *imetal, int *imcool, int *idust, int *idim,
 	int *is, int *js, int *ks, int *ie, int *je, int *ke, int *ih2co,
 	int *ipiht, int *igammah,
-	float *dt, float *aye, float *temstart, float *temend,
+	float *dt, float *aye, float *redshift, float *temstart, float *temend,
 	float *utem, float *uxyz, float *uaye, float *urho, float *utim,
 	float *eta1, float *eta2, float *gamma, float *z_solar,
 	float *ceHIa, float *ceHeIa, float *ceHeIIa, float *ciHIa, float *ciHeIa,
@@ -90,7 +90,7 @@ extern "C" void FORTRAN_NAME(cool_time)(
 	float *fh, float *utem, float *urho, 
 	float *eta1, float *eta2, float *gamma, float *coola, float *gammaha, float *mu);
  
-int grid::ComputeCoolingTime(float *cooling_time)
+int grid::ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly)
 {
  
   /* Return if this doesn't concern us. */
@@ -352,7 +352,7 @@ int grid::ComputeCoolingTime(float *cooling_time)
        density, totalenergy, gasenergy, velocity1, velocity2, velocity3,
        BaryonField[DeNum], BaryonField[HINum], BaryonField[HIINum],
        BaryonField[HeINum], BaryonField[HeIINum], BaryonField[HeIIINum],
-       cooling_time,
+       cooling_time, &CoolingTimeOnly,
        GridDimension, GridDimension+1, GridDimension+2,
        &CoolData.NumberOfTemperatureBins, &ComovingCoordinates,
        &HydroMethod,
@@ -361,8 +361,8 @@ int grid::ComputeCoolingTime(float *cooling_time)
        &GridRank, GridStartIndex, GridStartIndex+1, GridStartIndex+2,
        GridEndIndex, GridEndIndex+1, GridEndIndex+2,
        &CoolData.ih2co, &CoolData.ipiht, &PhotoelectricHeating,
-       &dtFixed, &afloat, &CoolData.TemperatureStart,
-       &CoolData.TemperatureEnd,
+       &dtFixed, &afloat, &RadiationFieldRedshift,
+       &CoolData.TemperatureStart, &CoolData.TemperatureEnd,
        &TemperatureUnits, &LengthUnits, &aUnits, &DensityUnits, &TimeUnits,
        &DualEnergyFormalismEta1, &DualEnergyFormalismEta2, &Gamma,
        &CoolData.SolarMetalFractionByMass,

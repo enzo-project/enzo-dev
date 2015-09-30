@@ -324,6 +324,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	     CellFlaggingMethod+3, CellFlaggingMethod+4, CellFlaggingMethod+5,
 	     CellFlaggingMethod+6);
     ret += sscanf(line, "FluxCorrection         = %"ISYM, &FluxCorrection);
+    ret += sscanf(line, "UseCoolingTimestep     = %"ISYM, &UseCoolingTimestep);
+    ret += sscanf(line, "CoolingTimestepSafetyFactor = %"FSYM, &CoolingTimestepSafetyFactor);
     ret += sscanf(line, "InterpolationMethod    = %"ISYM, &InterpolationMethod);
     ret += sscanf(line, "ConservativeInterpolation = %"ISYM,
 		  &ConservativeInterpolation);
