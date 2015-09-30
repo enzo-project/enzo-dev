@@ -338,12 +338,6 @@ int grid::WriteGrid(FILE *fptr, char *base_name, int grid_id)
     }   // end of loop over fields
 
     if( UseMHDCT ){
-      for(field=0;field<nBfields;field++){
-	WriteDataset(file_id,CenteredB[field],temp,
-		     GridDimension,GridRank,
-		     GridStartIndex,GridEndIndex,ActiveDim,
-		     MHDcLabel[field], MHDUnits[0], file_type_id, float_type_id,log_fptr);
-      }
 
       hsize_t MHDOutDims[3];
       int MHDActive[3], MHDWriteStartIndex[3], MHDWriteEndIndex[3];
