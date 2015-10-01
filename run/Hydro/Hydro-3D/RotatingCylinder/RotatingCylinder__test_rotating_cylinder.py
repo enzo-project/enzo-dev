@@ -14,10 +14,10 @@ class TestLVariation(AnswerTestingTest):
     _attrs = ()
 
     def __init__(self, pf):
-        self.ds = pf
+        self.pf = pf
 
     def run(self):
-        ad = self.ds.all_data()
+        ad = self.pf.h.all_data()
         return na.array(ad.quantities['TotalQuantity'](["AngularMomentumX", 
                                                         "AngularMomentumY", 
                                                         "AngularMomentumZ"]))

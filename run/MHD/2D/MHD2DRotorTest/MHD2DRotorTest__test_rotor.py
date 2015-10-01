@@ -8,18 +8,18 @@ from yt.frontends.enzo.answer_testing_support import \
 
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
-_fields = ('Density', 'Bx', 'pressure')
+_fields = ('Density', 'Bx','Pressure')
 
 class TestRotorImage(AnswerTestingTest):
     _type_name = "mhd_rotor_image"
     _attrs = ("field", )
 
     def __init__(self, pf, field):
-        self.ds = pf
+        self.pf = pf
         self.field = field
 
     def run(self):
-        sl = self.ds.slice(2, 0.5)
+        sl = self.pf.h.slice(2, 0.5)
         frb = FixedResolutionBuffer(sl, (0.0, 1.0, 0.0, 1.0), (200,200))
         dd = frb[self.field]
         return np.array([dd.mean(), dd.std(), dd.min(), dd.max()])

@@ -16,8 +16,8 @@ class TestGravityTest(AnswerTestingTest):
     _attrs = ()
 
     def __init__(self):
-        self.ds = None
-
+        self.pf = None
+    
     def run(self):
         Data = np.loadtxt("TestGravityCheckResults.out")
         radius = Data[:,0]

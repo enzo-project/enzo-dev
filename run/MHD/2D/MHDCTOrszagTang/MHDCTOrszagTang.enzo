@@ -13,7 +13,7 @@ ReconstructionMethod = 6
 MHD_CT_Method       = 1  //0 = none, 1 = Balsara, 2 = Poisson, 3=RJ (use 1)
 HydroMethod            = 6
 CourantSafetyNumber    = 0.5
-BAnyl = 1
+
 
 # Hydro control
 
