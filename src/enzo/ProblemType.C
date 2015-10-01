@@ -137,10 +137,12 @@ int EnzoProblemType::InitializeUniformGrid(
     tg->FieldType[tg->NumberOfBaryonFields++] = Velocity2;
   if (tg->GridRank > 2 || HydroMethod > 2)
     tg->FieldType[tg->NumberOfBaryonFields++] = Velocity3;
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     tg->FieldType[B1Num = tg->NumberOfBaryonFields++] = Bfield1;
     tg->FieldType[B2Num = tg->NumberOfBaryonFields++] = Bfield2;
     tg->FieldType[B3Num = tg->NumberOfBaryonFields++] = Bfield3;
+  }
+  if( HydroMethod == MHD_RK ){
     tg->FieldType[PhiNum = tg->NumberOfBaryonFields++] = PhiField;
     if (UseDivergenceCleaning) {
       tg->FieldType[tg->NumberOfBaryonFields++] = Phi_pField;
@@ -278,7 +280,7 @@ int EnzoProblemType::InitializeUniformGrid(
     for (i = 0; i < size; i++)
       tg->BaryonField[2][i] = UniformInternalEnergy;
 
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     for (dim = 0; dim < 3; dim++) 
       for (i = 0; i < size; i++)
 	tg->BaryonField[B1Num+dim][i] = UniformBField[dim];

@@ -227,9 +227,9 @@ int grid::CosmologySimulationInitializeGrid(
     FieldType[NumberOfBaryonFields++] = Density;
     vel = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = Velocity1;
-    if (GridRank > 1 || (UseMHD) || (HydroMethod == HD_RK))
+    if (MaxVelocityIndex > 1)
       FieldType[NumberOfBaryonFields++] = Velocity2;
-    if (GridRank > 2 || (UseMHD) || (HydroMethod == HD_RK))
+    if (MaxVelocityIndex > 2)
       FieldType[NumberOfBaryonFields++] = Velocity3;
     iTE = NumberOfBaryonFields;
     FieldType[NumberOfBaryonFields++] = TotalEnergy;
@@ -568,11 +568,13 @@ int grid::CosmologySimulationInitializeGrid(
             BaryonField[iBx  ][i] = CosmologySimulationInitialUniformBField[0];
             BaryonField[iBy  ][i] = CosmologySimulationInitialUniformBField[1];
             BaryonField[iBz  ][i] = CosmologySimulationInitialUniformBField[2];
-            BaryonField[iPhi ][i] = 0.0;
             BaryonField[iTE][i] += 0.5*(BaryonField[iBx][i] * BaryonField[iBx][i]+
                                         BaryonField[iBy][i] * BaryonField[iBy][i]+
                                         BaryonField[iBz][i] * BaryonField[iBz][i])/
                 BaryonField[iden][i];
+          }
+          if( HydroMethod == MHD_RK ){
+            BaryonField[iPhi ][i] = 0.0;
           }
       }
 
