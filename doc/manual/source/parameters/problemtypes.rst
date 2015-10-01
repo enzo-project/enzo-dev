@@ -1482,6 +1482,10 @@ Cluster Cooling Flow (108)
 2D MHD Test (201)
 ~~~~~~~~~~~~~~~~~
 
+This problem type sets up many common 2D hydro and MHD problem types.
+Many of them can be run also without MHD despite the name. Which problem is done is controled by
+MHD2DProblemType which can vary from 0 to 16 so far.
+
 ``RefineAtStart`` (external)
     Boolean flag. Default: TRUE
 ``LowerVelocityX``, ``UpperVelocityX`` (external)
@@ -1498,6 +1502,7 @@ Cluster Cooling Flow (108)
     Initial magnetic field y-direction. Default: 0 (for both)
 ``MHD2DProblemType`` (external)
     Default: 0
+    0: Raleigh-Taylor, 1: MHD rotor (Toth 2000, JCompPhys 161, 605.), 2: MHD blast wave (Gardiner and Stone 2005, JCompPhys. 205, 509), 3: MHD Kelvin-Helmholtz (Gardiner & Stone 2005), 4: Another MHD Kelvin Helmholtz, 5: Shock-vortex interaction (Rault, Chiavassa & Donat, 2003, J. Scientific Computing, 19, 1.), 6: Sedov-Taylor Blast Wave (Fryxell et al. 2000, ApJS, 131, 273), 7: Cylindrical Sedov-Taylor Blast Wave (Fryxell et al. 2000), 8: Like MHD2DProblemType = 5 but with a small perturbation upstream of the shock to test odd even coupling of Reimann Solvers, 9: Smoothed Kelvin Helnholtz problem (Robertson, Kravtsov, Gnedin, Abel & Rudd 2010, MNRAS, 401), 10: A modified Raleigh-Taylor problem, 11: Uniform density with sinusoidal shear velocity (Compare to rpSPH tests in Abel 2012), 12: Experimental test, 13: Exploratory blob test, 14: Wengen 2 test to study colliding flows with very soft equations of state, 15: Another experiment with B-fields, 16: A validated non-linear Kelvin Helmholtz test (Lecoanet, McCourt, Quataert, Burns, Vasil, Oishi, Brown, Stone, & O’Leary 2015 preprint)
 ``RampWidth`` (external)
     Default: 0.05
 ``UserColour`` (external)

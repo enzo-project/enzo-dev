@@ -890,7 +890,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
 
   /* Standing shock like in MHD2SProblemtype 5 but with small density perturbation
-     downstream from the shock to look at odd-even coupling. */ 
+     upstream from the shock to look at odd-even coupling. */ 
 
   if (MHD2DProblemType == 8) { 
 
