@@ -8,7 +8,7 @@ from yt.frontends.enzo.answer_testing_support import \
 
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
-_fields = ('Density', 'Pressure')
+_fields = ('Density', 'pressure')
 
 class TestFryxellImage(AnswerTestingTest):
     _type_name = "fryxell_image"
