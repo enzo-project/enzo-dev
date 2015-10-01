@@ -8,7 +8,7 @@ from yt.frontends.enzo.answer_testing_support import \
 
 _pf_name = os.path.basename(os.path.dirname(__file__)) + ".enzo"
 _dir_name = os.path.dirname(__file__)
-_fields = ('Density', 'H_p1_Fraction', 'H_p2_Fraction', 'HI_kph')
+_fields = ('Density', 'HI_Fraction', 'HII_Fraction', 'HI_kph')
 
 class TestAMRPhotonTest(AnswerTestingTest):
     _type_name = "photon_shadowing_image"

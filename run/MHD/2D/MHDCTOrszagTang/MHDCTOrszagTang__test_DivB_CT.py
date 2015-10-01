@@ -13,7 +13,7 @@ from yt.frontends.enzo.answer_testing_support import \
     standard_small_simulation
 
 _base_fields = ("Density",
-                "pressure",
+                "Pressure",
                 "x-velocity",
                 "y-velocity",
                 "Bx",
