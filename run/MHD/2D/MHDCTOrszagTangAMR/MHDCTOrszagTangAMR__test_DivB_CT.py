@@ -13,7 +13,7 @@ from yt.frontends.enzo.answer_testing_support import \
     standard_small_simulation
 
 _base_fields = ("Density",
-                "Pressure",
+                "pressure",
                 "x-velocity",
                 "y-velocity",
                 "Bx",
@@ -38,25 +38,9 @@ def test_exist():
     if not os.path.exists(filename):
         raise EnzoTestOutputFileNonExistent(filename)
 
-# Defines a new derived field for divergence of B
-def _DivB_CT(field,data):
-    """ Doesn't seem to work right now..."""
-    bx = data['BxF']
-    by = data['ByF']
-    bz = data['BzF']
-    #print d.shape
-    nx,ny,nz=bx.shape
-    #print "ManualDivB: bx shape", bx.shape
-    nx-=1 #because it came from bx, which is one too large
-    return ((bx[1:nx+1,:,:]-bx[0:nx,:,:])/data['dx']+
-            (by[:,1:ny+1,:]-by[:,0:ny,:])/data['dy']+
-            (bz[:,:,1:nz+1]-bz[:,:,0:nz])/data['dz'])
-
 @requires_outputlog(os.path.dirname(__file__), "MHDCTOrszagTangAMR.enzo") # Verifies that OutputLog exists
 def test_DivB_CT():
     """ Make sure that Divergence of B is zero everywhere. """
-    add_field('DivB_CT', function = _DivB_CT,take_log=False,
-              validators=[ValidateGridType()])
     sim = sim_dir_load("MHDCTOrszagTangAMR.enzo",
                        path="./MHD/2D/MHDCTOrszagTangAMR",
                        find_outputs=True)
@@ -64,6 +48,6 @@ def test_DivB_CT():
     yield VerifySimulationSameTest(sim)
     # Only test the last output.
     pf = sim[-1]
-    max_value = pf.h.find_max('DivB_CT')
+    max_value = pf.h.find_max('DivB')
     max_value = float(max_value[0])
     assert (max_value < 1e-10)
