@@ -178,7 +178,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = ByName;
     DataLabel[i++] = BzName;
   }
-  if( HydroMethod == MHD_Li ){
+  if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
   }
   if(UseDivergenceCleaning){
