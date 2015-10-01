@@ -1,4 +1,6 @@
-# Relevant Section of Enzo Paramter File (NOT COMPLETE!) 
+#
+#   AMRNestedCosmology_MRP test
+#
 ProblemType                              = 30      // cosmology simulation
 TopGridRank                              = 3
 TopGridDimensions                        = 32 32 32
@@ -46,16 +48,15 @@ GreensFunctionMaxNumber = 40
 # hydro parameters
 #
 Gamma                       = 1.6667
-PPMDiffusionParameter       = 0
-DualEnergyFormalism         = 1
-HydroMethod                 = 0
-InterpolationMethod         = 1 
+HydroMethod                 = 2
 CourantSafetyNumber         = 0.4
 ParticleCourantSafetyNumber = 0.6
-UseMinimumPressureSupport   = 0
-FluxCorrection              = 1
-ConservativeInterpolation   = 0
-
+#
+# microphysics parameters
+#
+RadiativeCooling   = 1    
+MultiSpecies       = 2
+RadiationFieldType = 0
 
 CosmologySimulationNumberOfInitialGrids  = 3
 CosmologySimulationGridDimension[1]      =               28               30               32
@@ -76,7 +77,7 @@ MaximumGravityRefinementLevel		  = 4
 MaximumParticleRefinementLevel		  = 4
 MustRefineParticlesRefineToLevel	  = 3
 CellFlaggingMethod			  = 2 4 8
-MinimumOverDensityForRefinement		  0.0625				
+MinimumOverDensityForRefinement		  = 0.0625 0.0625
 #
 # I/O and stop/start parameters
 #
