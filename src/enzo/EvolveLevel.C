@@ -183,7 +183,7 @@ int RadiationFieldUpdate(LevelHierarchyEntry *LevelArray[], int level,
 
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-			  int level, ExternalBoundary *Exterior
+			  int level, ExternalBoundary *Exterior, int OutputNow
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
@@ -220,7 +220,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
-			 int TotalStarParticleCountPrevious[]);
+			 int TotalStarParticleCountPrevious[], int &OutputNow);
 int AdjustRefineRegion(LevelHierarchyEntry *LevelArray[], 
 		       TopGridData *MetaData, int EL_level);
 int AdjustMustRefineParticlesRefineToLevel(TopGridData *MetaData, int EL_level);
@@ -278,7 +278,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   //float dtThisLevelSoFar = 0.0, dtThisLevel;
   int cycle = 0, counter = 0, grid1, subgrid, grid2;
   HierarchyEntry *NextGrid;
-  int dummy_int;
+  int dummy_int, OutputNow = FALSE;
 
   char level_name[MAX_LINE_LENGTH];
   sprintf(level_name, "Level_%02"ISYM, level);
@@ -606,7 +606,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     /* Finalize (accretion, feedback, etc.) star particles */
 
     StarParticleFinalize(Grids, MetaData, NumberOfGrids, LevelArray,
-			 level, AllStars, TotalStarParticleCountPrevious);
+			 level, AllStars, TotalStarParticleCountPrevious, OutputNow);
 
     /* For each grid: a) interpolate boundaries from the parent grid.
                       b) copy any overlapping zones from siblings. */
@@ -661,7 +661,7 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
     lcaperf.attribute ("level",&lcaperf_level,LCAPERF_INT);
 #endif
 
-    OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior
+    OutputFromEvolveLevel(LevelArray, MetaData, level, Exterior, OutputNow
 #ifdef TRANSFER
 			  , ImplicitSolver
 #endif

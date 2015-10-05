@@ -152,7 +152,7 @@ public:
 				    float DensityUnits, float LengthUnits, 
 				    float TemperatureUnits, float TimeUnits,
 				    float VelocityUnits, float dtForThisStar,
-				    FLOAT Time);
+				    FLOAT Time, bool &SphereCheck);
   int RemoveMassFromStarAfterFeedback(float &Radius, double &EjectaDensity, 
 				      float DensityUnits, float LengthUnits,
 				      int &CellsModified);

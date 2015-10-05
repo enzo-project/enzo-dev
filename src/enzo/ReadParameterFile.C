@@ -169,6 +169,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
            &CurrentDensityOutput);
     ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
            &IncrementDensityOutput);
+    ret += sscanf(line, "StopFirstTimeAtDensity = %"FSYM,
+           &StopFirstTimeAtDensity);
+    ret += sscanf(line, "StopFirstTimeAtMetalEnrichedDensity = %"FSYM,
+           &StopFirstTimeAtMetalEnrichedDensity);
+    ret += sscanf(line, "EnrichedMetalFraction = %"FSYM,
+           &EnrichedMetalFraction);
 
     /* Subcycle directed output */
     ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
@@ -936,6 +942,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorDensityThreshold);
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
+    ret += sscanf(line, "PopIIIUseHypernova = %"ISYM,
+		  &PopIIIUseHypernova);
+    ret += sscanf(line, "PopIIISupernovaExplosions = %"ISYM,
+		  &PopIIISupernovaExplosions);
+    ret += sscanf(line, "PopIIIOutputOnFeedback = %"ISYM,
+		  &PopIIIOutputOnFeedback);
 
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);

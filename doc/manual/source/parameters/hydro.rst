@@ -141,12 +141,14 @@ General
     the place. Otherwise, this does not need to be set, and in any case
     should never be set to a value greater than 1.0. Default: 1.0.
 ``UseCoolingTimestep`` (external)
-    This flag will limit the timestep to some fraction of the minimum
-    cooling time on each level.  Use ``CoolingTimestepSafetyFactor``
-    to set this fraction.  Default: OFF
+    This parameter will limit the timestep on each level by some fraction
+    of the minimum cooling time on the level, where this fraction is
+    set by ``CoolingTimestepSafetyFactor``.  In most cases, this will
+    substantially decrease the timesteps, depending on the local
+    cooling time, and thus increase the run time of any
+    simulation. Default: OFF
 ``CoolingTimestepSafetyFactor`` (external)
-    This is the fraction of the cooling time used in the timestep
-    limiter if ``UseCoolingTimestep`` is on.  Default: 0.1.
+    Described in ``UseCoolingTime``.  Default: 0.1
 ``DualEnergyFormalism`` (external)
     The dual energy formalism is needed to make total energy schemes
     such as PPM DE and PPM LR stable and accurate in the

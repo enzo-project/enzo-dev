@@ -252,10 +252,12 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
       // Remove the stellar mass from the sphere and distribute the
       // gas evenly in the sphere since this is what will happen once
       // the I-front passes through it.
+      //EjectaDensity = (MassEnclosed - AccretedMass) / MassEnclosed;
       EjectaDensity = (float) 
 	(double(Msun * (MassEnclosed - AccretedMass)) / 
 	 double(4*M_PI/3.0 * pow(Radius*LengthUnits, 3)) /
 	 DensityUnits);
+    
     else 
       // for MBH, we reduce EjectaThermalEnergy because Radius is now expanded
       EjectaThermalEnergy *= pow(initialRadius/Radius, 3);
@@ -300,7 +302,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
      checking in this case, doesn't hurt...), check if the sphere is
      contained within grids on this level.  */
 
-  if (SphereContained == TRUE)
+  if (SphereContained == TRUE && FeedbackFlag != FORMATION)
     SphereContained = this->SphereContained(LevelArray, level, Radius);
 
   /* If contained and this is for star formation, we record how much
@@ -338,7 +340,7 @@ int Star::FindFeedbackSphere(LevelHierarchyEntry *LevelArray[], int level,
     // then turn it on.
     //#ifdef UNUSED
     if (StarType == PopII && this->Mass < StarClusterMinimumMass &&
-	Time-this->BirthTime > tdyn_code) {
+	Time-this->BirthTime > 0.1*tdyn_code) {
       if (debug) 
 	printf("star::FindFeedbackSphere: Old protostar: lived %g yr. "
 	       "Particle mass = %g. Star particle %"PISYM".  Turning on.\n",
