@@ -101,7 +101,6 @@ c
       R_PREC   div, tdyn, dtot, wgt
       R_PREC   pi, G, sndspdC, m1
       R_PREC   isosndsp2, bmass, jeanmass, lum
-      R_PREC   h2diss_crit, my_h2crit
       real*8 msolar, mh
       parameter (pi=pi_val, G=GravConst, 
      &           sndspdC=1.3095e8_RKIND,
@@ -111,10 +110,6 @@ c
 c
 c     calculate how many solar masses are in d1*x1^3
       m1 = dble(x1*dx)**3 * dble(d1) / msolar
-c
-c     critical H2 dissociation rate above which we set the critical 
-c     H2 fraction much lower to fake shielding.
-      h2diss_crit = 8.4e-07 * t1
 c
 c  for each zone, : a primordial "star" particle is created if answers
 c  to all the following questions are affirmative:
@@ -196,26 +191,16 @@ c
      $              goto 10
 c
 c              8) Check if molecular hydrogren fraction is greater than
-c              critical value
+c              critical value and there is no ionizing radiation
 c
-c              Set the critical H2 fraction based on the local H2
-c              dissociating radiation field.
-c
-c               if (h2diss(i,j,k) .ge. h2diss_crit) then
-c                  my_h2crit = h2crit !1.e-7_RKIND
-c               else
-               my_h2crit = h2crit
-c               endif
-c
-               if (h2d(i,j,k) .lt. my_h2crit) goto 10
+               if (h2d(i,j,k) .lt. h2crit) goto 10
                if (kph(i,j,k) .gt. tiny) goto 10
 c
 c               write(6,7777) i, j, k
 c               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 
 c     &              cooltime(i,j,k)
 c               write(6,*) temp(i,j,k), h2d(i,j,k), bmass
-c               write(6,*) my_h2crit, h2diss(i,j,k), h2diss_crit, 
-c     &              kph(i,j,k)
+c               write(6,*) h2diss(i,j,k), kph(i,j,k)
 c
 c              Create a star particle
 c
