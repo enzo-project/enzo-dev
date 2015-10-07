@@ -193,6 +193,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
   }
 
   // --------------- FOR DIFFUSION PROBLEM --
+  // This sets of a linear ramp
 
   if( crc == 123.4 ){
     int i0,i1,i2;
@@ -214,6 +215,7 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
   } // end if
 
   /*--- FOR NEW CR DIFFUSION PROBLEM --- */
+  // This sets up a Gaussian
 
   if ( crc == 567.8 ){
     double t0 = 1.0;	// STARTING TIME

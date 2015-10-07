@@ -1677,6 +1677,20 @@ CR Shock Tube (250: unigrid and AMR)
 ``HydroShockTubesLeftCREnDensity``, ``HydroShockTubesRightCREnDensity`` (external)
     The initial CR energy density on the left and right sides.
     Default: 1.0 for each value.
+``HydroShockTubesCenterDensity``, ``HydroShockTubesCenterPressure``,
+``HydroShockTubesCenterVelocityX``,
+``HydroShockTubesCenterVelocityY``,
+``HydroShockTubesCenterVelocityZ``,
+``HydroShockTubesCenterCREnDensity`` (external)
+    In addition to setting a shock tube with two constant regions,
+    this version also allows for three constant region, 
+    with a Center region in addition to the Left and Right regions.
+    Finally, there are two special cases -- if
+    HydroShockTubesCenterCREnDensity is set to 123.4, then the central
+    region will be set to a ramp between the left and right regions,
+    and if HydroShockTubesCenterCREnDensity is set to 567.8, then a
+    gaussian CR energy density is initialized (these problems were set
+    up to test the CR diffusion).
 
 
 Poisson Solver Test (300)
