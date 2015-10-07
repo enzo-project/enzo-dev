@@ -54,7 +54,8 @@ void DeleteStarList(Star * &Node);
 int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			 int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			 int level, Star *&AllStars,
-			 int TotalStarParticleCountPrevious[])
+			 int TotalStarParticleCountPrevious[],
+			 int &OutputNow)
 {
 
   if (!StarParticleCreation && !StarParticleFeedback)
@@ -132,14 +133,18 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   int count = 0;
   int mbh_particle_io_count = 0;
+  OutputNow = FALSE;
   for (ThisStar = AllStars; ThisStar; ThisStar = ThisStar->NextStar, count++) {
     //TimeNow = LevelArray[ThisStar->ReturnLevel()]->GridData->ReturnTime();
 //    if (debug) {
 //      printf("AddedFeedback[%d] = %d\n", count, AddedFeedback[count]);
 //     ThisStar->PrintInfo();
 //    } 
-    if (AddedFeedback[count])
+    if (AddedFeedback[count]) {
       ThisStar->ActivateNewStar(TimeNow, Timestep);
+      if (ThisStar->ReturnType() == PopIII && PopIIIOutputOnFeedback == TRUE)
+	OutputNow = TRUE;
+    }
     ThisStar->ResetAccretion();
     ThisStar->CopyToGrid();
     ThisStar->MirrorToParticle();
@@ -161,6 +166,9 @@ int StarParticleFinalize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   } // ENDFOR stars
 
+  if (PopIIIOutputOnFeedback)
+    OutputNow = CommunicationMaxValue(OutputNow);
+  
   /* Merge star particles */
 
   if (STARMAKE_METHOD(SINK_PARTICLE) && level == MaximumRefinementLevel) {  
