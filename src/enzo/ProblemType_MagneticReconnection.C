@@ -245,12 +245,12 @@ class ProblemType_MagneticReconnection : public EnzoProblemType
         DataLabel[i++] = Vel3Name;
 
       if( UseMHD ){
-          DataLabel[count++] = BxName;
-          DataLabel[count++] = ByName;
-          DataLabel[count++] = BzName;
+          DataLabel[i++] = BxName;
+          DataLabel[i++] = ByName;
+          DataLabel[i++] = BzName;
       }
       if (HydroMethod == MHD_RK){
-          DataLabel[count++] = PhiName;
+          DataLabel[i++] = PhiName;
       }
 
       if (TestProblemData.UseMetallicityField)
@@ -331,8 +331,8 @@ This is the grid-by-grid initializer.
       float lambda_scaled = MagneticReconnectionLambda/LengthUnits;
 
       int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, MetalNum;
-      this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, 
-                                       TENum, B1Num, B2Num, B3Num); 
+      thisgrid->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                                           Vel3Num, TENum, B1Num, B2Num, B3Num);
 
       int MetallicityField = FALSE;
       if ((MetalNum = FindField(Metallicity, thisgrid->FieldType, thisgrid->NumberOfBaryonFields))
