@@ -423,7 +423,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    BaryonField[1][n] += 0.5*POW(BaryonField[vel+dim][n], 2);
 
 	if (BaryonField[1][n] <= 0.0)
-	  printf("G_GSIC: negative or zero energy  n = %"ISM"  temp = %"FSYM"   e = %"FSYM"\n",
+	  printf("G_GSIC: negative or zero energy  n = %"ISYM"  temp = %"FSYM"   e = %"FSYM"\n",
 		 n, temperature, BaryonField[1][n]);
 
      if( CRModel )
@@ -854,20 +854,6 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 // *************************************************************
 // The functions integrated by qromb (parameter must be external)
 
-// Stellar Bulge functions
-
-double PbulgeComp1(double zint)
-{
-  extern double drcyl;
-  return PbulgeComp_general(drcyl*LengthUnits, zint);
-}
-
-double PbulgeComp2(double zint)
-{
-  extern double r2;
-  return Pbulge_general(r2, zint);
-}
-
 // Given the in place radius and height, this returns density times
 //    the stellar bulge force
 
@@ -882,21 +868,21 @@ double PbulgeComp_general(double rvalue, double zint)
 	  sqrt(pow(zint,2)+pow(rvalue,2)));
 }
 
-// Stellar Disk functions
+// Stellar Bulge functions
 
-double PstellarComp1(double zint)
+double PbulgeComp1(double zint)
 {
   extern double drcyl;
-  return PstellarComp_general(drcyl*LengthUnits, zint);
+  return PbulgeComp_general(drcyl*LengthUnits, zint);
 }
 
-double PstellarComp2(double zint)
+double PbulgeComp2(double zint)
 {
   extern double r2;
-  return PstellarComp_general(r2, zint);
+  return PbulgeComp_general(r2, zint);
 }
 
-double PstellarComp_general(dobule rvalue, double zint)
+double PstellarComp_general(double rvalue, double zint)
 {
   return (-MgasScale*SolarMass/
 	  (2*pi*pow(gScaleHeightR*Mpc,2)*gScaleHeightz*Mpc)*0.25/
@@ -912,6 +898,20 @@ double PstellarComp_general(dobule rvalue, double zint)
 		       ,2)
 		   ,3))/
 	  sqrt(pow(zint,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)));
+}
+
+// Stellar Disk functions
+
+double PstellarComp1(double zint)
+{
+  extern double drcyl;
+  return PstellarComp_general(drcyl*LengthUnits, zint);
+}
+
+double PstellarComp2(double zint)
+{
+  extern double r2;
+  return PstellarComp_general(r2, zint);
 }
 
 // Will be called by qromb to find the pressure at every point in disk.
