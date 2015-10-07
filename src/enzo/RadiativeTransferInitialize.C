@@ -72,7 +72,7 @@ int RadiativeTransferInitialize(char *ParameterFile,
   int ObsoleteFields[MAX_NUMBER_OF_BARYON_FIELDS];
 
   if (RadiativeTransfer == FALSE && RadiativeTransferFLD == FALSE &&  
-    StarParticleFeedback == 0) {
+      StarParticleFeedback == 0) {
 
     /* Check for radiation fields and delete them */
 
