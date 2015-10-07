@@ -19,24 +19,8 @@ c
      &                      exptime)
 
 c
-c  CREATES GALAXY PARTICLES
+c  CREATES STAR PARTICLES FOR KINETIC FEEDBACK
 c
-c  written by: Brian O'Shea
-c  date:       13 November 2002
-c	This file was originally a copy of star_maker2.src,
-c	which was originally written by Chris Loken.  As of
-c	today, this is intended to be the unigrid version of
-c	star_maker2, so the jeans mass and stochastic star
-c	formation have been completely removed.  See
-c	star_maker2.src for changes previous to 13 Nov. 2002.
-c
-c  modified1:  20 Dec 2002 by BWO
-c       Stochastic star formation is added again.
-c       The particle masses are averaged over several cells to avoid
-c       the "runaway star particle" phenomenon
-c  modified2: 27 Sept 2011 by JHW
-c    added metalSNIa & metalfSNIa; included feedback from SN Ia/PN
-c    (original changes by M. Ryan Joung)
 c
 c  INPUTS:
 c
