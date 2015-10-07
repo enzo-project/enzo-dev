@@ -358,19 +358,20 @@ int grid::ComputeAccelerationFieldExternal()
           xpos -= 0.5*CellWidth[0][i];
 
         /* Compute distance from center. */
+
         rsquared = xpos*xpos + ypos*ypos + zpos*zpos;
 
-        /* add on here */
-
         double accelsph, accelcylR, accelcylz, zheight, xpos1, ypos1, zpos1;
+
         /* Compute z and r_perp (AngularMomentum is angular momentum 
          * and must have unit length). */
 
         /* magnitude of z = r.L in L direction */
 
-        zheight=AngularMomentumx*xpos + AngularMomentumy*ypos +AngularMomentumz*zpos;
+        zheight=AngularMomentumx*xpos + AngularMomentumy*ypos + AngularMomentumz*zpos;
 
         /* position in plane of disk */
+
         xpos1=xpos-zheight*AngularMomentumx;
         ypos1=ypos-zheight*AngularMomentumy;
         zpos1=zpos-zheight*AngularMomentumz;
@@ -416,7 +417,10 @@ int grid::ComputeAccelerationFieldExternal()
       } } } // end: loop over grid (i/j/k)
     } // end: loop over dims
 
-    /* ---  FIXME PARTICLES NOT IMPLEMENTED FIXME --- */
+    /* ---  PARTICLES NOT IMPLEMENTED -- SHOULD BE ADDED HERE --- */
+
+    if (NumberOfParticles > 0)
+      ENZO_FAIL("DiskGravity with particles not yet implemented.");
 
   } // end: if (DiskGravity)
 
@@ -443,13 +447,13 @@ int grid::ComputeAccelerationFieldExternal()
     FLOAT xc = 0.5, yc = 0.5, zc = 0.5;
 
     double rs = rvir / c;
-    double Mvir = 4.0*M_PI*rhoc*pow(rs,3)*(log(1.0+c)-c/(1.0+c));
+    double Mvir = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+c)-c/(1.0+c));
     
     float DensityUnits = 1.0, LengthUnits = 1.0, TemperatureUnits = 1, 
       TimeUnits = 1.0, VelocityUnits = 1.0;
     GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	     &TimeUnits, &VelocityUnits, &MassUnits, Time);
-    double AccelerationUnits = LengthUnits / pow(TimeUnits,2);
+    double AccelerationUnits = LengthUnits / POW(TimeUnits,2);
     double CGSGravConst = 6.672e-8;
 
     printf("rhoc=%g, rvir=%g, Mvir=%g\n", rhoc, rvir, Mvir/1.989e33);
@@ -485,12 +489,12 @@ int grid::ComputeAccelerationFieldExternal()
 	  
 	  if (r < rvir/LengthUnits) {
 	    x1 = r*LengthUnits/rs;
-	    M = 4.0*M_PI*rhoc*pow(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	    M = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
 	  }
 	  else {
 	    M = Mvir;
 	  }
-	  g = CGSGravConst*M/pow(r*LengthUnits,2);
+	  g = CGSGravConst*M/POW(r*LengthUnits,2);
 	  g /= AccelerationUnits;
 	  if (dim == 0) { 
 	    AccelerationField[0][n] += -g*xpos/r;
@@ -518,12 +522,12 @@ int grid::ComputeAccelerationFieldExternal()
 
       if (r < rvir/LengthUnits) {
 	x1 = r*LengthUnits/rs;
-	M = 4.0*M_PI*rhoc*pow(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
+	M = 4.0*M_PI*rhoc*POW(rs,3)*(log(1.0+x1)-x1/(1.0+x1));
       }
       else {
 	M = Mvir;
       }
-      g = CGSGravConst*M/pow(r*LengthUnits,2);
+      g = CGSGravConst*M/POW(r*LengthUnits,2);
       g /= AccelerationUnits;
 
       ParticleAcceleration[0][i] += -g*xpos/r;
