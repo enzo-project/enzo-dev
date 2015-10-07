@@ -322,6 +322,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    inv[2][0] = xhat[2]; inv[2][1] = yhat[2]; inv[2][2] = AngularMomentum[2];
 	    
 	    // Matrix is orthogonal by construction so inverse = transpose
+
 	    for (i=0;i<3;i++)
 	      for (j=i+1;j<3;j++)
 		{
@@ -335,7 +336,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	      break;
 	    }
 		  
-	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) DENSITY NEEDS CUTOFF
+	    DiskDensity = (GasMass*SolarMass/(8.0*pi*ScaleHeightz*Mpc*POW(ScaleHeightR*Mpc,2.0)))/DensityUnits;   //Code units (rho_0) 
 
 	    if (PointSourceGravity > 0 )
 	      DiskVelocityMag = gasvel(drad, DiskDensity, ExpansionFactor, GalaxyMass, ScaleHeightR, ScaleHeightz, DMConcentration, Time);
@@ -388,7 +389,7 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	    if (temp1 == init_temp)
 	      temp1 = DiskTemperature;
 	    temperature = temp1;
-	    if( temperature > 1e7 )
+	    if( temperature > 1.0e7 )
 	      temperature = init_temp;
 	    if( UseMetallicityField ) // This should be converted to a general color field at some point - this obviously breaks metallicity feature
 	      BaryonField[MetalNum][n] = density;
@@ -421,9 +422,9 @@ int grid::GalaxySimulationInitializeGrid(FLOAT DiskRadius,
 	  for (dim = 0; dim < GridRank; dim++)
 	    BaryonField[1][n] += 0.5*POW(BaryonField[vel+dim][n], 2);
 
-	if (BaryonField[1][n] <= 0)
-	  printf("n = %d  temp = %g   e = %g\n", 0, temperature, 
-	       BaryonField[1][0]);
+	if (BaryonField[1][n] <= 0.0)
+	  printf("G_GSIC: negative or zero energy  n = %"ISM"  temp = %"FSYM"   e = %"FSYM"\n",
+		 n, temperature, BaryonField[1][n]);
 
      if( CRModel )
        BaryonField[CRNum][n] = BaryonField[DensNum][n] * GalaxySimulationCR;
@@ -709,130 +710,144 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 				    FLOAT &temperature)
 {
 
-	extern double drcyl;
-	double PbulgeComp1(double zint);       // (density times Stellar bulge force)
-	double PbulgeComp2(double zint);       // same but for r2 (3D distance)
-	double PstellarComp1(double zint);     // (density times stellar disk force)
-	double PstellarComp2(double zint);     // same but for r2 (3D distance plane)
+  extern double drcyl;
+  double PbulgeComp1(double zint);       // (density times Stellar bulge force)
+  double PbulgeComp2(double zint);       // same but for r2 (3D distance)
+  double PstellarComp1(double zint);     // (density times stellar disk force)
+  double PstellarComp2(double zint);     // same but for r2 (3D distance plane)
 
-	double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
-		zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp,rsph_icm;
+  double Pressure,Pressure2,zicm,zicm2,zicmf=0.0,zsmall=0.0,
+    zicm2f=0.0,zint,FdPdR,FtotR,denuse,rsph,vrot,bulgeComp,rsph_icm;
 
-	r2 = (drcyl+0.01*cellwidth)*LengthUnits;  // in plane radius
-	rsph = sqrt(pow(drcyl*LengthUnits,2)+pow(z,2)); // 3D radius
+  r2 = (drcyl+0.01*cellwidth)*LengthUnits;  // in plane radius
+  rsph = sqrt(pow(drcyl*LengthUnits,2)+pow(z,2)); // 3D radius
 
-	/*	Determine zicm: the height above the disk where rho -> rho_ICM,
-	 *	use this to find P_icm and dP_icm  */
+  /*	Determine zicm: the height above the disk where rho -> rho_ICM,
+   *	use this to find P_icm and dP_icm  */
 
-	if (fabs(drcyl*LengthUnits/Mpc) <= SmoothRadius) {
+  if (fabs(drcyl*LengthUnits/Mpc) <= SmoothRadius) {
 
-	  zicm  = findZicm(drcyl)*LengthUnits;
-	  zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
+    zicm  = findZicm(drcyl)*LengthUnits;
+    zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
 
-	  if( fabs(z) < fabs(zicm) ){
+    if( fabs(z) < fabs(zicm) ){
 
-	    /* Integrate the density times force to get pressure.  Do this
-	       at two different locations to get a numerical gradient. */
+      /* Integrate the density times force to get pressure.  Do this
+	 at two different locations to get a numerical gradient. */
 
-	    bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ? 
-			 0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
-	    Pressure= bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z));
+      bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ? 
+		   0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
+      Pressure= bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z));
 
-	    bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ? 
-			 0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
-	    Pressure2= bulgeComp + qromb(PstellarComp2, fabs(zicm2), fabs(z));
+      bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ? 
+		   0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
+      Pressure2= bulgeComp + qromb(PstellarComp2, fabs(zicm2), fabs(z));
 
-	  }  // end |z| < |zicm| if
+    }  // end |z| < |zicm| if
 
-	}  else {
+  }  else {
 
-	  if (fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
+    if (fabs(drcyl*LengthUnits/Mpc) <= TruncRadius ) {
 
-	    zicm  = findZicm(drcyl)*LengthUnits;
-	    zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
+      zicm  = findZicm(drcyl)*LengthUnits;
+      zicm2 = findZicm(r2/LengthUnits)*LengthUnits;
 
-	    /* This checks to see if the returned density is smaller than the halo
-	       density and issues warning. */
+      /* This checks to see if the returned density is smaller than the halo
+	 density and issues warning. */
 
-	    if ( HaloGasDensity(sqrt(drcyl*drcyl+z*z)) >= DiskPotentialGasDensity(drcyl,z)
-		 && fabs(z) < zicm) {
-	      printf("warning: small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
-	    } // end small density if
+      if ( HaloGasDensity(sqrt(drcyl*drcyl+z*z)) >= DiskPotentialGasDensity(drcyl,z)
+	   && fabs(z) < zicm) {
+	printf("warning: small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
+      } // end small density if
 
-	    if (fabs(z) < fabs(zicm)) {
+      if (fabs(z) < fabs(zicm)) {
 	      
-	      bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
-			   0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
-	      Pressure  = (bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z)))
-		*(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/
-			       (SmoothLength*Mpc))));
+	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
+		     0.0 : qromb(PbulgeComp1, fabs(zicm), fabs(z)));
+	Pressure  = (bulgeComp + qromb(PstellarComp1, fabs(zicm), fabs(z)))
+	  *(0.5*(1.0+cos(pi*(drcyl*LengthUnits-SmoothRadius*Mpc)/
+			 (SmoothLength*Mpc))));
 
-	      bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
-			   0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
-	      Pressure2 = (bulgeComp + qromb(PbulgeComp2, fabs(zicm2), fabs(z)))
-		*(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
+	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
+		     0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
+	Pressure2 = (bulgeComp + qromb(PbulgeComp2, fabs(zicm2), fabs(z)))
+	  *(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
 
-	    } // end |z| < |zicm| if
+      } // end |z| < |zicm| if
 
-	  } // end r_cyle < TruncRadius if
+    } // end r_cyle < TruncRadius if
 
-	} // end r_cyl < SmoothRadius if/else
+  } // end r_cyl < SmoothRadius if/else
 
-	denuse = density*DensityUnits; 
+  denuse = density*DensityUnits; 
 
-	if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= TruncRadius && fabs(z) <= fabs(zicm)) {
-		fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc, drcyl*LengthUnits/Mpc);
-	}
-	if (fabs(drcyl)*LengthUnits/Mpc >= TruncRadius || fabs(zicm) <= fabs(z)){
-	  Pressure = 0.0;
-	  Pressure2 = 0.0;
-	  denuse = HaloGasDensity(rsph);
-	}
-	if (Pressure2 <= 0.0 && Pressure <= 0.0){
-	  Pressure = 0.0;
-	  Pressure2 = 0.0;
-	  denuse = HaloGasDensity(rsph);
-	}
-	if (Pressure <= 0.0) {
-	  Pressure = 0.0;
-	  Pressure2 = 0.0;
-	  denuse = HaloGasDensity(rsph);
-	}
-	if (denuse < HaloGasDensity(rsph)) {
-	  fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
-	}
-	rsph_icm = sqrt(drcyl*drcyl+pow(zicm/LengthUnits,2));
-	Picm = HaloGasDensity(rsph_icm)*kboltz*HaloGasTemperature(rsph_icm)/(0.6*mh);
-	temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
+  if (Pressure < 0.0 && fabs(drcyl)*LengthUnits/Mpc <= TruncRadius && fabs(z) <= fabs(zicm)) {
+    fprintf(stderr,"neg pressure:  P = %"FSYM", z = %"FSYM", r = %"FSYM"\n", Pressure, z/Mpc, drcyl*LengthUnits/Mpc);
+  }
+  if (fabs(drcyl)*LengthUnits/Mpc >= TruncRadius || fabs(zicm) <= fabs(z)){
+    Pressure = 0.0;
+    Pressure2 = 0.0;
+    denuse = HaloGasDensity(rsph);
+  }
+  if (Pressure2 <= 0.0 && Pressure <= 0.0){
+    Pressure = 0.0;
+    Pressure2 = 0.0;
+    denuse = HaloGasDensity(rsph);
+  }
+  if (Pressure <= 0.0) {
+    Pressure = 0.0;
+    Pressure2 = 0.0;
+    denuse = HaloGasDensity(rsph);
+  }
+  if (denuse < HaloGasDensity(rsph)) {
+    fprintf(stderr,"denuse small:  %"FSYM"\n", denuse);
+  }
+  rsph_icm = sqrt(drcyl*drcyl+pow(zicm/LengthUnits,2));
+  Picm = HaloGasDensity(rsph_icm)*kboltz*HaloGasTemperature(rsph_icm)/(0.6*mh);
+  temperature=0.6*mh*(Picm+Pressure)/(kboltz*denuse);
 
-	/* Calculate pressure gradient */
-	FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; 
+  /* Calculate pressure gradient */
 
-	/* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
-	FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*pow(DiskGravityDarkMatterR*Mpc,3)/pow(rsph,3)*drcyl*LengthUnits
-	         *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc)+2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc)
-	           +log(1.0+pow(rsph/DiskGravityDarkMatterR/Mpc,2)));
-	FtotR += -GravConst*DiskGravityStellarDiskMass*SolarMass*drcyl*LengthUnits
-             /sqrt(pow(pow(drcyl*LengthUnits,2)+pow(DiskGravityStellarDiskScaleHeightR*Mpc
-	                   +sqrt(pow(z,2)+pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)),2),3));
-	FtotR += -GravConst*DiskGravityStellarBulgeMass*SolarMass
-	           /pow(sqrt(pow(z,2)+pow(drcyl*LengthUnits,2))+DiskGravityStellarBulgeR*Mpc,2)*drcyl*LengthUnits/sqrt(pow(z,2)
-	                +pow(drcyl*LengthUnits,2));
+  FdPdR = (Pressure2 - Pressure)/(r2-drcyl*LengthUnits)/density; 
 
+  /* Calculate Gravity = Fg_DM + Fg_StellarDisk + Fg_StellaDiskGravityStellarBulgeR */
+  
+  FtotR  = (-pi)*GravConst*DiskGravityDarkMatterDensity*
+          pow(DiskGravityDarkMatterR*Mpc,3)/pow(rsph,3)*drcyl*LengthUnits
+	  *(-2.0*atan(rsph/DiskGravityDarkMatterR/Mpc) + 
+	    2.0*log(1.0+rsph/DiskGravityDarkMatterR/Mpc) +
+	    log(1.0+pow(rsph/DiskGravityDarkMatterR/Mpc,2)));
+  FtotR += -GravConst*DiskGravityStellarDiskMass*SolarMass*drcyl*LengthUnits
+	  /sqrt(pow(pow(drcyl*LengthUnits,2) + 
+		    pow(DiskGravityStellarDiskScaleHeightR*Mpc +
+			sqrt(pow(z,2) + 
+			     pow(DiskGravityStellarDiskScaleHeightz*Mpc,2)),
+			2),
+		    3));
+  FtotR += -GravConst*DiskGravityStellarBulgeMass*SolarMass
+           /pow(sqrt(pow(z,2) + pow(drcyl*LengthUnits,2)) + 
+	        DiskGravityStellarBulgeR*Mpc,2)*drcyl*LengthUnits/
+           sqrt(pow(z,2) +pow(drcyl*LengthUnits,2));
 
-	if (temperature < 0.0) fprintf(stderr,"temp = %g, P = %g, z = %g, zicm = %g, zicmf=%g, zsmall=%g, drcyl = %g\n", 
-		temperature, Pressure, z/Mpc, zicm/Mpc, zicmf, zsmall, drcyl*LengthUnits/Mpc);
-	if ((FtotR - FdPdR) > 0.0) { 
-		fprintf(stderr,"FtotR = %g, FdPdR = %g, P = %g,P2 = %g, Picm = %g, dr = %g, drcyl = %g, z = %g\n", 
-			FtotR, FdPdR, Pressure, Pressure2, Picm, r2-drcyl*LengthUnits, drcyl*LengthUnits/Mpc, z/Mpc);
-   	FdPdR = 0.0;
-	} // end FtotR - FdPdr > 0.0 if
+  /* Some error checking. */
 
-	/* Find circular velocity by balancing FG and dPdR against centrifugal force */
-	vrot=sqrt(-drcyl*LengthUnits*(FtotR-FdPdR));
-	if ((denuse == densicm)) vrot = 0.0;
+  if (temperature < 0.0) 
+    fprintf(stderr,"G_GSIG: temp = %"FSYM", P = %"FSYM", z = %"FSYM", zicm = %"FSYM", zicmf=%"FSYM", zsmall=%"FSYM", drcyl = %"FSYM"\n", 
+	    temperature, Pressure, z/Mpc, zicm/Mpc, zicmf, zsmall, drcyl*LengthUnits/Mpc);
+  if ((FtotR - FdPdR) > 0.0) { 
+    fprintf(stderr,"G_GSIG: FtotR = %"FSYM", FdPdR = %"FSYM", P = %"FSYM",P2 = %"FSYM", Picm = %"FSYM", dr = %"FSYM", drcyl = %"FSYM", z = %"FSYM"\n", 
+	    FtotR, FdPdR, Pressure, Pressure2, Picm, r2-drcyl*LengthUnits, drcyl*LengthUnits/Mpc, z/Mpc);
+    FdPdR = 0.0;
+  } // end FtotR - FdPdr > 0.0 if
+
+  /* Find circular velocity by balancing FG and dPdR against centrifugal force */
+
+  vrot=sqrt(-drcyl*LengthUnits*(FtotR-FdPdR));
+
+  if ((denuse == densicm)) vrot = 0.0;
 
   return (vrot/VelocityUnits); //code units
+
 } // end DiskPotentialCircularVelocity
 
 
