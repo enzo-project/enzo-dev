@@ -35,16 +35,13 @@ int grid::CRShockTubesInitializeGrid(   float x0,
   
   int iCRD = FindField(CRDensity, FieldType, NumberOfBaryonFields);
 
-
   if (DualEnergyFormalism) {
     FieldType[NumberOfBaryonFields++] = InternalEnergy;
   }
-
   
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
-
 
   int size = 1, activesize = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
@@ -57,9 +54,9 @@ int grid::CRShockTubesInitializeGrid(   float x0,
   for (field = 0; field < NumberOfBaryonFields; field++)
     if (BaryonField[field] == NULL)
       BaryonField[field] = new float[size];
-
   
   /* transform pressure to total energy */
+
   float etotl, etotr, v2;
   v2 = vxl * vxl + vyl * vyl + vzl * vzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2;
@@ -128,7 +125,6 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     return SUCCESS;
   }
 
-
   int size = 1, activesize = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
     size *= GridDimension[dim];
@@ -141,8 +137,8 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
     if (BaryonField[field] == NULL)
       BaryonField[field] = new float[size];
 
-  
   /* transform pressure to total energy */
+
   float etotl, etotr, etotc, v2;
   v2 = vxl * vxl + vyl * vyl + vzl * vzl;
   etotl = pl / ((Gamma-1.0)*rhol) + 0.5*v2;
@@ -192,40 +188,42 @@ int grid::CRShockTubesInitializeGrid(   float x0,   float x1,
       }
     }
 
-	printf("%"FSYM"\t%"FSYM"\n", x , BaryonField[ietot][i] );
+    if (debug)
+      printf("%"FSYM"\t%"FSYM"\n", x , BaryonField[ietot][i] );
   }
 
   // --------------- FOR DIFFUSION PROBLEM --
-	if( crc == 123.4 ){
-		int i0,i1,i2;
-		i0 = GridDimension[0] / 4;
-		i1 = i0*2; i2 = i0*3;
-	
-		double mCR = ( crc - crl ) / ( i2 - i1 );
-	
-		for (i = 0; i < GridDimension[0]; i++) {
-			if( i < i0 )
-				BaryonField[iCRD][i] = crl;
-			else if( i < i1 )
-				BaryonField[iCRD][i] = crl + mCR*(i-i0);
-			else if( i < i2 )
-				BaryonField[iCRD][i] = crc - mCR*(i-i1);
-			else
-				BaryonField[iCRD][i] = crl;
-		} // end i for
-	} // end if
 
-	/*--- FOR NEW CR DIFFUSION PROBLEM --- */
-	if ( crc == 567.8 ){
-		double t0 = 1.0;	// STARTING TIME
+  if( crc == 123.4 ){
+    int i0,i1,i2;
+    i0 = GridDimension[0] / 4;
+    i1 = i0*2; i2 = i0*3;
+	
+    double mCR = ( crc - crl ) / ( i2 - i1 );
+	
     for (i = 0; i < GridDimension[0]; i++) {
-			x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];		
-			x = x - x0;	// translate gaussian to center
-			BaryonField[iCRD][i] = 1.0/sqrt(4.0*3.14159*CRkappa*t0)
-				* PEXP( -x*x/(4.0*CRkappa*t0));
-		} // end i for
+      if( i < i0 )
+	BaryonField[iCRD][i] = crl;
+      else if( i < i1 )
+	BaryonField[iCRD][i] = crl + mCR*(i-i0);
+      else if( i < i2 )
+	BaryonField[iCRD][i] = crc - mCR*(i-i1);
+      else
+	BaryonField[iCRD][i] = crl;
+    } // end i for
   } // end if
 
+  /*--- FOR NEW CR DIFFUSION PROBLEM --- */
+
+  if ( crc == 567.8 ){
+    double t0 = 1.0;	// STARTING TIME
+    for (i = 0; i < GridDimension[0]; i++) {
+      x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];		
+      x = x - x0;	// translate gaussian to center
+      BaryonField[iCRD][i] = 1.0/sqrt(4.0*3.14159*CRkappa*t0)
+	* PEXP( -x*x/(4.0*CRkappa*t0));
+    } // end i for
+  } // end if
 
   return SUCCESS;
 }

@@ -46,5 +46,5 @@ Parameter list for more information.
 
 
 Cosmic Rays have also been implemented in the isolated galaxy simulation. They initialize with
-a profile identical to the thermal gas, multiplied by a constant, ``GalaxySimulationCR``, typically
-set to 0.1.
+a profile equal to the density of the thermal gas, multiplied by a constant, ``GalaxySimulationCR``, typically
+set to 0.1 (all in code units).

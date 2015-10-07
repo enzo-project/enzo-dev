@@ -266,7 +266,6 @@ int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 
   }
 
-  //return FAIL;
   return SUCCESS;
 
 }
