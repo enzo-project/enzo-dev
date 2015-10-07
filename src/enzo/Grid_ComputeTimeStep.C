@@ -140,7 +140,7 @@ float grid::ComputeTimeStep()
     /* Compute the pressure. */
  
     float *pressure_field = new float[size];
-    this->ComputePressure(Time, pressure_field,0,1); // USE CRs
+    this->ComputePressure(Time, pressure_field,0,1); // Note: Force use of CRs to get sound speed correct
  
 #ifdef UNUSED
     int Zero[3] = {0,0,0}, TempInt[3] = {0,0,0};

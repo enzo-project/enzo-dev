@@ -95,21 +95,28 @@ int grid::ComputeCRDiffusion(){
   while(dtSoFar < dtFixed){
 
     // compute this subcycle timestep
+
     if (this->ComputeCRDiffusionTimeStep(dtSubcycle) == FAIL) {
       ENZO_FAIL("Error in ComputeConductionTimeStep.");
     }
-    dtSubcycle *= CRCourantSafetyNumber;  // for stability FIXME
+    dtSubcycle *= CRCourantSafetyNumber;  // for stability
 
     // make sure we don't extend past dtFixed
+
     dtSubcycle = min(dtSubcycle, dtFixed-dtSoFar);
 
     // compute dCR/dt for each cell.
+
     int GridStart[] = {0, 0, 0}, GridEnd[] = {0, 0, 0};
+
+    /* Set up start and end indexes to cover all of grid except outermost cells. */
 
     for (int dim = 0; dim<GridRank; dim++ ) {
       GridStart[dim] = 1;
       GridEnd[dim] = GridDimension[dim]-1;
     }
+
+    /* Compute CR fluxes at each cell face. */
 
     for (k = GridStart[2]; k <= GridEnd[2]; k++)
       for (j = GridStart[1]; j <= GridEnd[1]; j++)
@@ -126,34 +133,39 @@ int grid::ComputeCRDiffusion(){
 	    kdCRdz[idx] = kappa*(cr[idx]-cr[ELT(i,j,k-1)])/dx[2];
         } // end triple for
 
+    /* Trim GridEnd so that we don't apply fluxes to cells that don't have
+       them computed on both faces. */
+
     for (int dim = 0; dim<GridRank; dim++) {
       GridEnd[dim]--;
     }
 
+    /* Loop over all all cells and compute cell updats (flux differences) */
+
     for (k = GridStart[2]; k <= GridEnd[2]; k++)
       for (j = GridStart[1]; j <= GridEnd[1]; j++)
         for (i = GridStart[0]; i <= GridEnd[0]; i++) {
-		idx = ELT(i,j,k);
+	  idx = ELT(i,j,k);
 		
-    		dCRdt[idx] = (kdCRdx[ELT(i+1,j,k)]-kdCRdx[idx])/dx[0];
-		if( GridRank > 1 )
-		  dCRdt[idx] += (kdCRdy[ELT(i,j+1,k)]-kdCRdy[idx])/dx[1];
-		if( GridRank > 2 )
-		  dCRdt[idx] += (kdCRdz[ELT(i,j,k+1)]-kdCRdz[idx])/dx[2];
+	  dCRdt[idx] = (kdCRdx[ELT(i+1,j,k)]-kdCRdx[idx])/dx[0];
+	  if( GridRank > 1 )
+	    dCRdt[idx] += (kdCRdy[ELT(i,j+1,k)]-kdCRdy[idx])/dx[1];
+	  if( GridRank > 2 )
+	    dCRdt[idx] += (kdCRdz[ELT(i,j,k+1)]-kdCRdz[idx])/dx[2];
         }// end triple for
 
-    // And then update the current CR baryon field
+    // And then update the current CR baryon field (Could be combined with step above)
 
     for (k = GridStart[2]; k <= GridEnd[2]; k++) 
       for (j = GridStart[1]; j <= GridEnd[1]; j++) 
   	for (i = GridStart[0]; i <= GridEnd[0]; i++) {
 	  idx = ELT(i,j,k);
-	  crOld=cr[idx];
+	  crOld = cr[idx];
   	  cr[idx] += dCRdt[idx]*dtSubcycle;
           if( cr[idx] < 0.0 ){
             printf("Negative CR (after diff) i,j,k = %"ISYM", %"ISYM", %"ISYM"\n",i,j,k);
             printf("\t\t>> Old CR: %"ESYM"\n",crOld);
-          } // end err if FIXME
+          } // end err if
 	} // triple for loop
 
     // increment timestep
@@ -162,8 +174,8 @@ int grid::ComputeCRDiffusion(){
 
   } // while(dtSoFar < dtFixed)
 
-  // FIXME
-  if(debug) printf("Grid::ComputeCRDiffusion:  Nsubcycles = %"ISYM", kappa = %"ESYM", dx=%"ESYM"\n",Nsub,kappa,dx[0]); 
+  if (debug) 
+    printf("Grid::ComputeCRDiffusion:  Nsubcycles = %"ISYM", kappa = %"ESYM", dx=%"ESYM"\n", Nsub, kappa, dx[0]); 
 	
   delete [] dCRdt;
   delete [] kdCRdx;	
