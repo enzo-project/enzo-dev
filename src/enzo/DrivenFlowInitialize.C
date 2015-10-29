@@ -201,6 +201,7 @@ int DrivenFlowInitialize(FILE *fptr, FILE *Outfptr,
   if( HydroMethod == MHD_RK ){
     DataLabel[count++] = PhiName;
   }
+  if ( UseMHDCT )
   MHDCTSetupFieldLabels();
 
     DataLabel[count++] = StochAccel1Name;
