@@ -47,20 +47,6 @@ Background Radiation Parameters
     approximate radiative-shielding. This parameter will be
     automatically turned on when RadiationFieldType is set to 11. See
     ``calc_photo_rates.src``. Default: 0
-``RadiationShieldUseAverageCrossSections`` (external)
-    This parameter specifies whether the user wants to employ average 
-    photoionizing and photoheating cross-sections for use with approximate 
-    radiative-shielding, controlled by ``RadiationShield``.  The average 
-    cross-sections depend on ``RadiationShieldBackgroundSpectrumSlope`` 
-    and are described in Simpson et al. (2012). Default: 0
-``RadiationShieldBackgroundSpectrumSlope`` (external)
-    The slope of the ionizing background over which average photoionizing
-    and photoheating cross-sections are computed.  This parameter is used
-    with ``RadiationShieldUseAverageCrossSections``.  Default: -1.5
-``PhotodissociationShield`` (external)
-    This parameter specifies whether the user wants to employ
-    approximate photodissociative shielding as described by 
-    Shang, Bryan & Haiman (2010). Default: 0
 ``RadiationFieldRedshift`` (external)
     This parameter specifies the redshift at which the radiation field
     is calculated.  Default: 0
