@@ -72,7 +72,7 @@ int ProtoSubgrid::AcceptableSubgrid()
  
   if (efficiency > MinimumEfficiency)
     return TRUE;
-   
+
   /* Not acceptable yet -- keep refining. */
  
   return FALSE;
