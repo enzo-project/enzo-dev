@@ -24,7 +24,7 @@ MACHINE_NOTES = "MACHINE_NOTES for Trestles at SDSC/UCSD: \
 #-----------------------------------------------------------------------
 
 LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel/
-LOCAL_PYTHON_INSTALL = /home/csimpson/yt-x86_64/
+LOCAL_PYTHON_INSTALL = /home/mturk/yt-x86_64/
 #LOCAL_COMPILER_DIR = /opt/pgi/linux86-64/10.5
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072
 LOCAL_HYPRE_INSTALL = 
@@ -84,7 +84,7 @@ MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = 
-LOCAL_INCLUDES_HDF5   = -I/home/csimpson/yt-x86_64/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I/home/mturk/yt-x86_64/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7 \
@@ -101,7 +101,7 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = 
-LOCAL_LIBS_HDF5   = -L/home/csimpson/yt-x86_64/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L/home/mturk/yt-x86_64/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PAPI   = # PAPI libraries
 LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \

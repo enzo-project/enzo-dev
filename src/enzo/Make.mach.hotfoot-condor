@@ -15,12 +15,6 @@ MACH_VALID = 0
 MACH_FILE  = Make.mach.hotfoot-condor
 
 #-----------------------------------------------------------------------
-# Install paths (local variables)
-#-----------------------------------------------------------------------
-
-LOCAL_HDF5_INSTALL    = /hpc/astro/users/cms2166/yt-x86_64-shared
-
-#-----------------------------------------------------------------------
 # Compiler settings
 #-----------------------------------------------------------------------
 
@@ -77,7 +71,7 @@ MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = # MPI includes
-LOCAL_INCLUDES_HDF5   = -I$(LOCAL_HDF5_INSTALL)/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = # hypre includes
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 
@@ -92,7 +86,7 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = # MPI libraries
-LOCAL_LIBS_HDF5   = -L$(LOCAL_HDF5_INSTALL)/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = # hypre libraries
 LOCAL_LIBS_PAPI   = # PAPI libraries
 
