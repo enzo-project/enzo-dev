@@ -65,7 +65,7 @@ void CommunicationBroadcastValues(int *Value, int Number, int BroadcastProcessor
 EXTERN int LevelCycleCount[MAX_DEPTH_OF_HIERARCHY];
 
 int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaData,
-			  int level, ExternalBoundary *Exterior
+			  int level, ExternalBoundary *Exterior, int OutputNow
 #ifdef TRANSFER
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
@@ -74,6 +74,7 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
   int WriteOutput = FALSE, ExitEnzo = FALSE, NumberOfGrids;
   int PackedStatus = 0;
   int CheckpointDump = FALSE;
+  WriteOutput = OutputNow;
 
   //Do all "bottom of hierarchy" checks
   if (LevelArray[level+1] == NULL){
@@ -100,7 +101,9 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
       WriteOutput = TRUE;
     }
 
-    if(OutputOnDensity == 1) {
+    if (OutputOnDensity == 1 ||
+        StopFirstTimeAtDensity > 0. ||
+        StopFirstTimeAtMetalEnrichedDensity > 0.) {
 
       /* Get our units, but only if we need to. */
       float DensityUnits = 1, LengthUnits = 1, TemperatureUnits = 1,
@@ -113,15 +116,51 @@ int OutputFromEvolveLevel(LevelHierarchyEntry *LevelArray[],TopGridData *MetaDat
 
       /* Make sure we are all synced up across processors. */
       CurrentMaximumDensity = CommunicationMaxValue(CurrentMaximumDensity);
-      if(log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
-        while (log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
-          CurrentDensityOutput += IncrementDensityOutput;
+      if (MyProcessorNumber == ROOT_PROCESSOR) {
+        fprintf(stderr, "Current maximum density is %"GSYM" g/cm^3.\n",
+                (CurrentMaximumDensity*DensityUnits));
+      }
+
+      if (StopFirstTimeAtMetalEnrichedDensity > 0.) {
+        CurrentMaximumMetalEnrichedDensity = CommunicationMaxValue(CurrentMaximumMetalEnrichedDensity);
+        if (MyProcessorNumber == ROOT_PROCESSOR) {
+          fprintf(stderr, "Current maximum metal enriched density is %"GSYM" g/cm^3.\n",
+                  (CurrentMaximumMetalEnrichedDensity*DensityUnits));
         }
-        fprintf(stderr, "Outputting based on DensMax == %0.3f (now set to %0.3f)\n",
-            log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
+      }
+
+      if (OutputOnDensity == 1) {
+        if(log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
+          while (log10(CurrentMaximumDensity*DensityUnits) > CurrentDensityOutput) {
+            CurrentDensityOutput += IncrementDensityOutput;
+          }
+          fprintf(stderr, "Outputting based on DensMax == %"FSYM" (now set to %"FSYM")\n",
+                  log10(CurrentMaximumDensity*DensityUnits), CurrentDensityOutput);
+          WriteOutput = TRUE;
+        }
+      }
+
+      if (StopFirstTimeAtDensity > 0. && 
+          CurrentMaximumDensity*DensityUnits >= StopFirstTimeAtDensity) {
+        if (MyProcessorNumber == ROOT_PROCESSOR) {
+          fprintf(stderr, "Exiting after reaching max density of %"GSYM" g/cm^3.\n",
+                  (StopFirstTimeAtDensity));
+        }
+        ExitEnzo = TRUE;
         WriteOutput = TRUE;
       }
-    }
+
+      if (StopFirstTimeAtMetalEnrichedDensity > 0. && 
+          CurrentMaximumMetalEnrichedDensity*DensityUnits >= StopFirstTimeAtMetalEnrichedDensity) {
+        if (MyProcessorNumber == ROOT_PROCESSOR) {
+          fprintf(stderr, "Exiting after reaching max density of %"GSYM" g/cm^3.\n",
+                  (StopFirstTimeAtMetalEnrichedDensity));
+        }
+        ExitEnzo = TRUE;
+        WriteOutput = TRUE;
+      }
+
+    } // end: if (OutputOnDensity == 1 || ...
 
     // File directed output:
     // Existence of the file outputNow will cause enzo to output the next time the bottom

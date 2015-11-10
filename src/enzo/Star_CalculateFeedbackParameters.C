@@ -34,10 +34,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
 				       float DensityUnits, float LengthUnits, 
 				       float TemperatureUnits, float TimeUnits,
 				       float VelocityUnits, float dtForThisStar,
-				       FLOAT Time)
+				       FLOAT Time, bool &SphereCheck)
 {
 
-  // Parameters for the Stroemgen sphere in Whalen et al. (2004)
+  // Parameters for the Stroemgren sphere in Whalen et al. (2004)
   const float	BirthRadius	  = 50;		// pc
   const float	WhalenTemperature = 20000;	// K
   const float	WhalenDensity	  = 1;	        // cm^-3
@@ -46,13 +46,20 @@ void Star::CalculateFeedbackParameters(float &Radius,
   const double pc = 3.086e18, Msun = 1.989e33, Grav = 6.673e-8, yr = 3.1557e7, Myr = 3.1557e13, 
     k_b = 1.38e-16, m_h = 1.673e-24, c = 3.0e10, sigma_T = 6.65e-25, h=0.70;
 
-  const float TypeIILowerMass = 11, TypeIIUpperMass = 40;
+  const float TypeIILowerMass = 11, TypeIIUpperMass = 40.1;
   const float PISNLowerMass = 140, PISNUpperMass = 260;
 
   // From Nomoto et al. (2006)
-  const float HypernovaMass[] = {19.99, 25, 30, 35, 40.01};  // Msun
   const float HypernovaMetals[] = {3.36, 3.53, 5.48, 7.03, 8.59}; // Msun
-  const float HypernovaEnergy[] = {10, 10, 20, 25, 30};  // 1e51 erg
+  const float HypernovaEnergy[] = {10, 10, 20, 25, 30}; // 1e51 erg 
+  const float CoreCollapseMetals[] = {3.63, 4.41, 6.71, 8.95, 11.19}; // Msun
+  const float CoreCollapseEnergy[] = {1, 1, 1, 1, 1}; // 1e51 erg
+
+  const float SNExplosionMass[] = {19.99, 25, 30, 35, 40.01};  // Msun
+  const float *SNExplosionMetals = (PopIIIUseHypernova ==TRUE) ? 
+    HypernovaMetals : CoreCollapseMetals;
+  const float *SNExplosionEnergy = (PopIIIUseHypernova ==TRUE) ? 
+    HypernovaEnergy : CoreCollapseEnergy;
 
   float StarLevelCellWidth, tdyn, frac;
   double EjectaVolume, SNEnergy, HeliumCoreMass, Delta_SF, MetalMass;
@@ -65,6 +72,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   int size=1;
   float mdot;
 
+  SphereCheck = true;
   Radius = 0.0;
   EjectaDensity = 0.0;
   EjectaThermalEnergy = 0.0;
@@ -75,7 +83,7 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case SUPERNOVA:  // Single thermal bubble of SN feedback
     Radius = PopIIISupernovaRadius * pc / LengthUnits;
     Radius = max(Radius, 3.5*StarLevelCellWidth);
-    EjectaVolume = 4.0/3.0 * 3.14159 * pow(PopIIISupernovaRadius*pc, 3);
+    EjectaVolume = 4.0/3.0 * 3.14159 * pow(Radius*LengthUnits, 3);
     EjectaDensity = Mass * Msun / EjectaVolume / DensityUnits;
 
     // pair-instability SNe
@@ -92,13 +100,13 @@ void Star::CalculateFeedbackParameters(float &Radius,
 	SNEnergy = 1e51;
 	MetalMass = 0.1077 + 0.3383 * (this->Mass - 11.0);  // Fit to Nomoto+06
       } else { // Hypernova (should we add the "failed" SNe?)
-	bin = search_lower_bound((float*)HypernovaMass, this->Mass, 0, 5, 5);
-	frac = (HypernovaMass[bin+1] - this->Mass) / 
-	  (HypernovaMass[bin+1] - HypernovaMass[bin]);
-	SNEnergy = 1e51 * (HypernovaEnergy[bin] + 
-			   frac * (HypernovaEnergy[bin+1] - HypernovaEnergy[bin]));
-	MetalMass = (HypernovaMetals[bin] + 
-		     frac * (HypernovaMetals[bin+1] - HypernovaMetals[bin]));
+	bin = search_lower_bound((float*)SNExplosionMass, this->Mass, 0, 5, 5);
+	frac = (SNExplosionMass[bin+1] - this->Mass) / 
+	  (SNExplosionMass[bin+1] - SNExplosionMass[bin]);
+	SNEnergy = 1e51 * (SNExplosionEnergy[bin] + 
+			   frac * (SNExplosionEnergy[bin+1] - SNExplosionEnergy[bin]));
+	MetalMass = (SNExplosionMetals[bin] + 
+		     frac * (SNExplosionMetals[bin+1] - SNExplosionMetals[bin]));
       }
       EjectaMetalDensity = MetalMass * Msun / EjectaVolume / DensityUnits;
     }
@@ -136,7 +144,10 @@ void Star::CalculateFeedbackParameters(float &Radius,
   case CONT_SUPERNOVA:
     // Inject energy into a sphere
     Radius = StarClusterSNRadius * pc / LengthUnits;
-    Radius = max(Radius, 2*StarLevelCellWidth);
+    if (Radius < 2*StarLevelCellWidth) {
+      Radius = 2*StarLevelCellWidth;
+      SphereCheck = false;
+    }
 
     // Release SNe energy constantly over 16 Myr (t = 4-20 Myr), which is defined in Star_SetFeedbackFlag.C.
     //Delta_SF = StarMassEjectionFraction * Mass * SNe_dt * TimeUnits / (16.0*Myr);

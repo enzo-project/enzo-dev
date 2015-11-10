@@ -202,6 +202,10 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MetallicityRefinementMinMetallicity = 1.0e-5;
   MetallicityRefinementMinDensity = FLOAT_UNDEFINED;
   FluxCorrection            = TRUE;
+
+  UseCoolingTimestep = FALSE;
+  CoolingTimestepSafetyFactor = 0.1;
+
   InterpolationMethod       = SecondOrderA;      // ?
   ConservativeInterpolation = TRUE;              // true for ppm
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
@@ -310,7 +314,11 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   CurrentDensityOutput             = 999;
   IncrementDensityOutput           = 999;
   CurrentMaximumDensity            = -999;
- 
+  StopFirstTimeAtDensity              = 0.0;
+  StopFirstTimeAtMetalEnrichedDensity = 0.0;
+  CurrentMaximumMetalEnrichedDensity  = -999;
+  EnrichedMetalFraction               = 1.e-8;
+
   CubeDumpEnabled             = 0;
 
 #ifdef STAGE_INPUT
@@ -394,7 +402,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   FindShocksOnlyOnOutput      = 0;                 // Find at every cycle and 
                                                    // during output by default.
   RadiationFieldType          = 0;
-  RadiationFieldRedshift      = 0.0;
+  RadiationFieldRedshift      = FLOAT_UNDEFINED;
   TabulatedLWBackground       = 0;
   RadiationFieldLevelRecompute = 0;
   RadiationData.RadiationShield = 0;
@@ -506,6 +514,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ComovingCoordinates              = FALSE;        // No comoving coordinates
   StarParticleCreation             = FALSE;
   StarParticleFeedback             = FALSE;
+  StarParticleRadiativeFeedback    = FALSE;
   BigStarFormation                 = FALSE;
   BigStarFormationDone             = FALSE;
   BigStarSeparation                = 0.25;
@@ -579,7 +588,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   HaloFinderOutputParticleList     = FALSE;
   HaloFinderRunAfterOutput         = TRUE;
   HaloFinderMinimumSize            = 50;
-  HaloFinderLinkingLength          = 0.1;
+  HaloFinderLinkingLength          = 0.2;
   HaloFinderCycleSkip              = 3;
   HaloFinderTimestep               = FLOAT_UNDEFINED;
   HaloFinderLastTime               = 0.0;
@@ -618,6 +627,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   PopIIISupernovaMustRefineResolution = 32;
   PopIIIColorDensityThreshold      = 1e6;          // times mean total density
   PopIIIColorMass                  = 1e6;          // total mass to color
+  PopIIIUseHypernova               = TRUE;         // TRUE for HN yields, FALSE for CCSN
+  PopIIISupernovaExplosions        = TRUE;         // TRUE for supernova energy injection
+  PopIIIOutputOnFeedback           = FALSE;        // TRUE to output at creation and supernova
   IMFData                          = NULL;
 
   MBHAccretion                     = FALSE;        // 1: Bondi rate, 2: fix temperature, 3: fix rate, 4: Bondi with v_rel=0, 5: Bondi with v_rel=0 and vorticity
@@ -879,9 +891,9 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShearingVelocityDirection=-1;
   ShearingBoxProblemType = 0; 
   UseMHD=0;
+  MaxVelocityIndex = 3;
 
   //MHDCT variables
-  MHDCT_debug_flag = 0;
   MHDCTSlopeLimiter = 1;
   MHDCTDualEnergyMethod = INT_UNDEFINED;
   MHDCTPowellSource = 0;

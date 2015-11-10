@@ -260,8 +260,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
     first_field = temperature;
     second_field = BaryonField[0];
-    ProjType = 3;
-    ConversionFactor = DensityConversion*DensityConversion;
+    ProjType = 4;
+    ConversionFactor = DensityConversion;
 
     FORTRAN_NAME(projplane)(first_field, second_field,
 			    BaryonField[NumberOfBaryonFields], &One,
@@ -281,13 +281,10 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
   if (NumberOfBaryonFields > 0) {
 
-    for (i = 0; i < size; i++)
-      temp_field[i] = BaryonField[0][i] * BaryonField[0][i];
-    
-    first_field = temp_field;
-    second_field = NULL;
-    ProjType = 1;
-    ConversionFactor = DensityConversion*DensityConversion;
+    first_field = BaryonField[0];
+    second_field = BaryonField[0];
+    ProjType = 4;
+    ConversionFactor = DensityConversion;
 
     FORTRAN_NAME(projplane)(first_field, second_field,
                              BaryonField[NumberOfBaryonFields], &One,
@@ -312,8 +309,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     first_field = temp_field;
     second_field = BaryonField[0];
     //second_field = NULL;
-    ProjType = 3;
-    ConversionFactor = DensityConversion*DensityConversion/CoolData.SolarMetalFractionByMass;
+    ProjType = 4;
+    ConversionFactor = DensityConversion/CoolData.SolarMetalFractionByMass;
     //ConversionFactor = One;
 
     FORTRAN_NAME(projplane)(first_field, second_field,
@@ -361,8 +358,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
     
     first_field = temp_field;
     second_field = BaryonField[0];
-    ProjType = 3;
-    ConversionFactor = DensityConversion*DensityConversion;
+    ProjType = 4;
+    ConversionFactor = DensityConversion;
 
     FORTRAN_NAME(projplane)(first_field, second_field,
                              BaryonField[NumberOfBaryonFields], &One,
@@ -386,8 +383,8 @@ int grid::ProjectToPlane2(FLOAT ProjectedFieldLeftEdge[],
 
     first_field = temp_field;
     second_field = BaryonField[0];
-    ProjType = 3;
-    ConversionFactor = DensityConversion*DensityConversion;
+    ProjType = 4;
+    ConversionFactor = DensityConversion;
 
     FORTRAN_NAME(projplane)(first_field, second_field,
                              BaryonField[NumberOfBaryonFields], &One,

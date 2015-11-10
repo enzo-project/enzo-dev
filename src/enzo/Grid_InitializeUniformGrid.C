@@ -55,11 +55,13 @@ int grid::InitializeUniformGrid(float UniformDensity,
     FieldType[NumberOfBaryonFields++] = Velocity2;
   if (GridRank > 2 || HydroMethod > 2)
     FieldType[NumberOfBaryonFields++] = Velocity3;
-  if (HydroMethod == MHD_RK) {
+  if ( UseMHD ) {
     FieldType[B1Num = NumberOfBaryonFields++] = Bfield1;
     FieldType[B2Num = NumberOfBaryonFields++] = Bfield2;
     FieldType[B3Num = NumberOfBaryonFields++] = Bfield3;
-    FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
+    if( HydroMethod == MHD_RK ){
+        FieldType[PhiNum = NumberOfBaryonFields++] = PhiField;
+    }
     if (UseDivergenceCleaning) {
       FieldType[NumberOfBaryonFields++] = Phi_pField;
     }
@@ -200,10 +202,10 @@ int grid::InitializeUniformGrid(float UniformDensity,
     for (i = 0; i < size; i++)
       BaryonField[2][i] = UniformInternalEnergy;
 
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     for (dim = 0; dim < 3; dim++) 
       for (i = 0; i < size; i++)
-	BaryonField[B1Num+dim][i] = UniformBField[dim];
+        BaryonField[B1Num+dim][i] = UniformBField[dim];
   }
 
    /* set density of color fields to user-specified values (if user doesn't specify, 
@@ -345,12 +347,6 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
     } // if(TestProblemData.GloverChemistryModel)
     
-    if(UseMHDCT == TRUE){      
-      CenteredB[0][i] = UniformBField[0];
-      CenteredB[1][i] = UniformBField[1];
-      CenteredB[2][i] = UniformBField[2];
-    }
-
 
   } // for (i = 0; i < size; i++)
 

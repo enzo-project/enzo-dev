@@ -156,7 +156,7 @@ int grid::GrackleWrapper()
  
   int temp_thermal = FALSE;
   float *thermal_energy;
-  if (HydroMethod == MHD_RK){
+  if ( UseMHD ){
     iBx = FindField(Bfield1, FieldType, NumberOfBaryonFields);
     iBy = FindField(Bfield2, FieldType, NumberOfBaryonFields);
     iBz = FindField(Bfield3, FieldType, NumberOfBaryonFields);  
@@ -179,7 +179,7 @@ int grid::GrackleWrapper()
       if(GridRank > 2)
         thermal_energy[i] -= 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
-      if(HydroMethod == MHD_RK) {
+      if( UseMHD ) {
         thermal_energy[i] -= 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
                                     POW(BaryonField[iBy][i], 2.0) + 
                                     POW(BaryonField[iBz][i], 2.0)) / 
@@ -218,7 +218,7 @@ int grid::GrackleWrapper()
       if(GridRank > 2)
         BaryonField[TENum][i] += 0.5 * POW(BaryonField[Vel3Num][i], 2.0);
 
-      if(HydroMethod == MHD_RK) {
+      if( UseMHD ) {
         BaryonField[TENum][i] += 0.5 * (POW(BaryonField[iBx][i], 2.0) + 
                                         POW(BaryonField[iBy][i], 2.0) + 
                                         POW(BaryonField[iBz][i], 2.0)) / 

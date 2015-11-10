@@ -42,6 +42,7 @@
  
 // Function prototypes
  
+void MHDCTSetupFieldLabels();
 void WriteListOfFloats(FILE *fptr, int N, float floats[]);
 void WriteListOfFloats(FILE *fptr, int N, FLOAT floats[]);
 void WriteListOfInts(FILE *fptr, int N, int nums[]);
@@ -722,23 +723,26 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   i = 0;
   DataLabel[i++] = DensName;
   DataLabel[i++] = Vel1Name;
-  if (MetaData.TopGridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+  if (MaxVelocityIndex > 1)
     DataLabel[i++] = Vel2Name;
-  if (MetaData.TopGridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+  if (MaxVelocityIndex > 2)
     DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     DataLabel[i++] = BxName;
     DataLabel[i++] = ByName;
     DataLabel[i++] = BzName;
+  }
+  if( HydroMethod == MHD_RK ){
     DataLabel[i++] = PhiName;
     if(UseDivergenceCleaning){
       DataLabel[i++] = Phi_pName;
       DataLabel[i++] = DebugName;
     }
   }
+  MHDCTSetupFieldLabels();
   /*
   DataLabel[i++] = DensName;
   DataLabel[i++] = TEName;
@@ -814,10 +818,6 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     DataUnits[j] = NULL;
  
   if ( UseMHDCT ){
-      MHDcLabel[0] = "Bx";
-      MHDcLabel[1] = "By";
-      MHDcLabel[2] = "Bz";
-
       MHDLabel[0] = "BxF";
       MHDLabel[1] = "ByF";
       MHDLabel[2] = "BzF";

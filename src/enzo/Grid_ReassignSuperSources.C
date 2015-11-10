@@ -25,6 +25,7 @@ int grid::ReassignSuperSources(void)
   if (PhotonPackages->NextPackage == NULL)
     return SUCCESS;
 
+  bool outside = false;
   PhotonPackageEntry *PP;
   int dim, LeafID;
   float radius2, dx;
@@ -40,14 +41,16 @@ int grid::ReassignSuperSources(void)
 
     // Reassign super source by leaf ID
     LeafID = PP->CurrentSource->LeafID;
-    if (FindSuperSource(&PP, LeafID, FALSE) == FAIL) {
-      ENZO_FAIL("Error in FindSuperSource.\n");
-    }
+    FindSuperSource(&PP, LeafID, TRUE);
 
     radius2 = 0;
-    for (dim = 0; dim < MAX_DIMENSION; dim++) {
-      dx = PP->CurrentSource->Position[dim] - OldPosition[dim];
-      radius2 += dx*dx;
+    if (PP->CurrentSource != NULL) {
+      for (dim = 0; dim < MAX_DIMENSION; dim++) {
+	dx = PP->CurrentSource->Position[dim] - OldPosition[dim];
+	radius2 += dx*dx;
+      }
+      outside = (radius2 > PP->CurrentSource->ClusteringRadius *
+		PP->CurrentSource->ClusteringRadius);
     }
 
     /* In the case where the leaf ID has changed (check by change in
@@ -55,12 +58,9 @@ int grid::ReassignSuperSources(void)
        undefined, then FindSuperSource couldn't locate the leaf by its
        ID, so we search by position. */
 
-    if (radius2 > PP->CurrentSource->ClusteringRadius *
-	PP->CurrentSource->ClusteringRadius ||
-	LeafID == INT_UNDEFINED)
+    if (outside || LeafID == INT_UNDEFINED || PP->CurrentSource == NULL)
       if (FindSuperSourceByPosition(&PP) == FAIL) {
 	ENZO_FAIL("Error in FindSuperSourceByPosition.\n");
-
       }
 
   } // ENDFOR photons

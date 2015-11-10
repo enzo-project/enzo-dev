@@ -86,10 +86,15 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   char *dummy = new char[MAX_LINE_LENGTH];
   int   dim, ret, level, sphere, i, source;
   int   TotalRefinement;
+  dummy[0] = 0;
 
   /* set default parameters */
 
-  char *PhotonTestDensityFilename = NULL;
+  char *PhotonTestDensityFilename = NULL,
+    *PhotonTestHIIFractionFilename = NULL,
+    *PhotonTestHeIIFractionFilename = NULL,
+    *PhotonTestHeIIIFractionFilename = NULL,
+    *PhotonTestTemperatureFilename = NULL;
   int PhotonTestNumberOfSpheres = 1;
   int PhotonTestUseParticles    = FALSE;
   int PhotonTestUseColour       = FALSE;
@@ -176,7 +181,28 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		  &PhotonTestInitialTemperature);
     if (sscanf(line, "PhotonTestDensityFilename = %s", dummy) == 1) {
       ret++;
-      PhotonTestDensityFilename = dummy;
+      PhotonTestDensityFilename = new char[MAX_LINE_LENGTH];
+      strcpy(PhotonTestDensityFilename, dummy);
+    }
+    if (sscanf(line, "PhotonTestHIIFractionFilename = %s", dummy) == 1) {
+      ret++;
+      PhotonTestHIIFractionFilename = new char[MAX_LINE_LENGTH];
+      strcpy(PhotonTestHIIFractionFilename, dummy);
+    }
+    if (sscanf(line, "PhotonTestHeIIFractionFilename = %s", dummy) == 1) {
+      ret++;
+      PhotonTestHeIIFractionFilename = new char[MAX_LINE_LENGTH];
+      strcpy(PhotonTestHeIIFractionFilename, dummy);
+    }
+    if (sscanf(line, "PhotonTestHeIIIFractionFilename = %s", dummy) == 1) {
+      ret++;
+      PhotonTestHeIIIFractionFilename = new char[MAX_LINE_LENGTH];
+      strcpy(PhotonTestHeIIIFractionFilename, dummy);
+    }
+    if (sscanf(line, "PhotonTestTemperatureFilename = %s", dummy) == 1) {
+      ret++;
+      PhotonTestTemperatureFilename = new char[MAX_LINE_LENGTH];
+      strcpy(PhotonTestTemperatureFilename, dummy);
     }
     ret += sscanf(line, "PhotonTestUniformVelocity = %"FSYM" %"FSYM" %"FSYM, 
 		  PhotonTestUniformVelocity, PhotonTestUniformVelocity+1,
@@ -316,7 +342,9 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II, 
-	     RefineByOpticalDepth, TotalRefinement, PhotonTestDensityFilename);
+	     RefineByOpticalDepth, TotalRefinement, PhotonTestDensityFilename,
+	     PhotonTestHIIFractionFilename, PhotonTestHeIIFractionFilename,
+	     PhotonTestHeIIIFractionFilename, PhotonTestTemperatureFilename);
 
     CurrentGrid = CurrentGrid->NextGridThisLevel;
 
@@ -384,7 +412,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 	     PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 	     PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 	     PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
-	     RefineByOpticalDepth, TotalRefinement, NULL) == FAIL) {
+	     RefineByOpticalDepth, TotalRefinement, 
+	     NULL, NULL, NULL, NULL, NULL) == FAIL) {
 	  ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
 	}
 	Temp = Temp->NextGridThisLevel;
@@ -438,7 +467,8 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
 		    PhotonTestInitialFractionHII, PhotonTestInitialFractionHeII,
 		    PhotonTestInitialFractionHeIII, PhotonTestInitialFractionHM,
 		    PhotonTestInitialFractionH2I, PhotonTestInitialFractionH2II,
-		    RefineByOpticalDepth, TotalRefinement, NULL) == FAIL) {
+		    RefineByOpticalDepth, TotalRefinement, 
+		    NULL, NULL, NULL, NULL, NULL) == FAIL) {
 	    ENZO_FAIL("Error in PhotonTestInitializeGrid.\n");
 	  }
 	  Temp = Temp->NextGridThisLevel;
@@ -583,6 +613,11 @@ int PhotonTestInitialize(FILE *fptr, FILE *Outfptr,
   }
   } // ENDIF !Reinitialize
 
+  delete[] PhotonTestDensityFilename;
+  delete[] PhotonTestHIIFractionFilename;
+  delete[] PhotonTestHeIIFractionFilename;
+  delete[] PhotonTestHeIIIFractionFilename;
+  delete[] PhotonTestTemperatureFilename;
   delete [] dummy;
 
   return SUCCESS;

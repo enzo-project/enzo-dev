@@ -29,7 +29,8 @@ General
 	8  - Springel & Hernquist (2003)
 	9  - Massive Black Hole (MBH) particles insertion by hand / Kim et al. (2010)
 	10 - Population III stellar tracers  
-	11 - Molecular hydrogen regulated star formation
+        11 - Molecular hydrogen regulated star formation
+        13 - Distributed stellar feedback model (So et al. 2014)
 
 ``StarParticleFeedback`` (external)
     This parameter works the same way as ``StarParticleCreation`` but only
@@ -63,7 +64,7 @@ General
     traced in a separate species field, ``MetalSNIa_Density``.  The
     metallicity of star particles that comes from this ejecta is
     stored in the particle attribute ``typeia_fraction``.  Can be used
-    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, and 8.  Default:
+    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, 8, and 13.  Default:
     0.
 
 ``StarMakerPlanetaryNebulae`` (external) 
@@ -74,13 +75,19 @@ General
     feedback injects gas with the same metallicity as the star
     particle, and the thermal feedback equates to a 10 km/s wind.  The
     ejecta are not stored in its own species field.  Can be used
-    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, and 8.  Default: 0.
+    with ``StarParticleCreation`` method = 0, 1, 2, 5, 7, 8, and 13.  Default: 0.
 
+``StarParticleRadiativeFeedback`` (external)
+    By setting this parameter to 1, star particles created with
+    methods (0, 1, 2, 5, 7, 8, 13) will become radiation sources with
+    the UV luminosity being determined with the parameter
+    ``StarEnergyToStellarUV``.  Default: OFF
+    
 Normal Star Formation
 ^^^^^^^^^^^^^^^^^^^^^
 
 The parameters below are considered in ``StarParticleCreation`` method
-0, 1, 2, 7 and 8.
+0, 1, 2, 7, 8, and 13
 
 ``StarMakerOverDensityThreshold`` (external)
     The overdensity threshold in code units (for cosmological simulations, note that code units are relative to the total mean density, not
@@ -208,6 +215,15 @@ The parameters below are considered in ``StarParticleCreation`` method 3.
     Default: 1.
 ``PopIIISupernovaUseColour`` (external)
     Set to 1 to trace the metals expelled from supernovae. Default: 0.
+``PopIIIUseHypernovae`` (external)
+    Set to 1 to use the hypernova energies and metal ejecta masses
+    from Nomoto et al. (2006).  If set to 0, then the supernova
+    energies are always 1e51 erg but use the supernova metal ejecta
+    masses from Nomoto et al. (2006).  Default: 1
+``PopIIISupernovaExplosions`` (external)
+    Set to 1 to consider supernovae from Pop III stars.  Set to 0 to
+    neglect all Pop III supernovae, regardless of their masses.
+    Default: 1
 ``PopIIIInitialMassFunction`` (external)
     When turned on, each Pop III stellar mass is randomly drawn from an IMF that is Salpeter above some characteristic mass and exponentially cutoff below this mass.  Default: 0
 ``PopIIIInitialMassFunctionSeed`` (external)

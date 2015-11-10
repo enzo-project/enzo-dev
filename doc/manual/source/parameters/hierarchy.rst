@@ -42,6 +42,7 @@ Hierarchy Control Parameters
     14                 Refine by shockwaves (found w/shock finder)
     15                 Refine by normalized second derivative
     16                 Refine by Jeans length from the inertial tensor
+    19                 Refine by metal mass
     100                Avoid refinement based on ForbiddenRefinement field
     101                Avoid refinement in regions defined in "AvoidRefineRegion"
     ================== ==========================================================
@@ -158,9 +159,15 @@ Hierarchy Control Parameters
     if you want to reproduce some of the old enzo results 
     (e.g. Kritsuk et al. 2006).  Default: 0
 ``MetallicityRefinementMinMetallicity`` (external)
-    This is the threshold metallicity (in units of solar metallicity)
-    above which cells must be refined to a minimum level of
-    ``MetallicityRefinementMinLevel``. Default: 1.0e-5
+    For method 13 (metallicity refinement), this is the threshold
+    metallicity (in units of solar metallicity) above which cells must
+    be refined to a minimum level of
+    ``MetallicityRefinementMinLevel``.  For method 19 (metal mass),
+    this flags cells for refinement when the metal mass is above the
+    necessary baryon mass (method 2) for refinement multiplied by this
+    parameter.  Behaves similarly to refinement by baryon mass but
+    focuses on metal-enriched regions.  In units of solar metallicity.
+    Default: 1.0e-5
 ``MetallicityRefinementMinLevel`` (external)
     Sets the minimum level (maximum cell size) to which a cell enriched
     with metal above a level set by ``MetallicityRefinementMinMetallicity``
@@ -194,8 +201,10 @@ Hierarchy Control Parameters
     which must cover one Jeans length. Default: 4
 ``JeansRefinementColdTemperature`` (external)
     If the Jeans length refinement criterion (see ``CellFlaggingMethod``)
-    is being used, and this parameter is greater than zero, it will be
-    used in place of the temperature in all cells. Default: -1.0
+    is being used, and this parameter is greater than zero, this
+    temperature will be used in all cells when calculating the Jeans
+    length.  If it is less than or equal to zero, it will be used as a
+    temperature floor when calculating the Jeans length. Default: -1.0
 ``RefineByResistiveLengthSafetyFactor`` (external)
     Resistive length is defined as the curl of the magnetic field over
     the magnitude of the magnetic field. We make sure this length is

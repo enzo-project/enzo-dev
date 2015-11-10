@@ -4,8 +4,8 @@ c=======================================================================
 c////////////////////////  SUBROUTINE POP3_MAKER \\\\\\\\\\\\\\\\\\\\\\\
 c
       subroutine pop3_maker(nx, ny, nz,
-     &                      d, dm, h2d, temp, u, v, w, cooltime,
-     &                      dt, r, metal, dx, t, z, procnum, 
+     &                      d, dm, h2d, h2diss, kph, temp, u, v, w, 
+     &                      cooltime, dt, r, metal, dx, t, z, procnum, 
      &                      d1, x1, v1, t1,
      &                      nmax, xstart, ystart, zstart, ibuff, 
      &                      imetal, imethod, h2crit, metalcrit,
@@ -83,6 +83,7 @@ c
       INTG_PREC procnum, ctype, iradtrans
       R_PREC    d(nx,ny,nz), dm(nx,ny,nz), temp(nx,ny,nz)
       R_PREC    u(nx,ny,nz), v(nx,ny,nz), w(nx,ny,nz), h2d(nx,ny,nz)
+      R_PREC    h2diss(nx,ny,nz), kph(nx,ny,nz)
       R_PREC    r(nx,ny,nz), cooltime(nx,ny,nz), metal(nx,ny,nz)
       R_PREC    dt, dx, z
       R_PREC    d1, x1, v1, t1, justburn
@@ -160,7 +161,7 @@ c               write(6,*) 'b:', i,j,k,d(i,j,k), div, temp(i,j,k),
 c     $              tdyn, cooltime(i,j,k), h2d(i,j,k), h2crit
 
                if (tdyn .lt. cooltime(i,j,k) .and. 
-     &             temp(i,j,k) .gt. 1.1e4_RKIND) goto 10
+     &             temp(i,j,k) .gt. 1.0e3_RKIND) goto 10
 c
 c              JHW (30 AUG 2005) : REMOVED JEANS MASS CRITERION
 c
@@ -190,9 +191,16 @@ c
      $              goto 10
 c
 c              8) Check if molecular hydrogren fraction is greater than
-c              critical value
+c              critical value and there is no ionizing radiation
 c
                if (h2d(i,j,k) .lt. h2crit) goto 10
+               if (kph(i,j,k) .gt. tiny) goto 10
+c
+c               write(6,7777) i, j, k
+c               write(6,*) 'pop3:', i,j,k, d(i,j,k), div, tdyn, 
+c     &              cooltime(i,j,k)
+c               write(6,*) temp(i,j,k), h2d(i,j,k), bmass
+c               write(6,*) h2diss(i,j,k), kph(i,j,k)
 c
 c              Create a star particle
 c

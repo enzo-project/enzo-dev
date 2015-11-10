@@ -45,10 +45,12 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
   if (DualEnergyFormalism)
       FieldType[NumberOfBaryonFields++] = InternalEnergy;
 
-  if (HydroMethod == MHD_RK) {
+  if (UseMHD) {
     FieldType[NumberOfBaryonFields++] = Bfield1;
     FieldType[NumberOfBaryonFields++] = Bfield2;
     FieldType[NumberOfBaryonFields++] = Bfield3;
+  }
+  if (HydroMethod == MHD_RK){
     FieldType[NumberOfBaryonFields++] = PhiField;
     
     if(UseDivergenceCleaning)
@@ -109,10 +111,8 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
     for ( int i = 0; i < MagneticSize[0]; i++){
        MagneticField[0][i] = DrivenFlowMagField;
     }
-    for( int i = 0; i < size; i++){
-      CenteredB[0][i] = DrivenFlowMagField;
-    }
     Energy += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
+  this->CenterMagneticField();
   }
   
   if (EquationOfState == 0)

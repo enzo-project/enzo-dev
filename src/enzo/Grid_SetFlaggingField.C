@@ -268,6 +268,16 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
        is automatically turned if method #8 is specified. */
 
     break;
+
+    /* ==== METHOD 19: Refine on metal mass ==== */
+
+  case 19:
+    NumberOfFlaggedCells = this->FlagCellsToBeRefinedByMetalMass(level);
+    if (NumberOfFlaggedCells < 0) {
+      fprintf(stderr, "Error in grid->FlagCellsToBeRefinedByMetalMass.\n");
+      return FAIL;
+    }
+    break;
  
     /* ==== METHOD 100: UNDO REFINEMENT IN SOME REGIONS ==== */
  
@@ -291,8 +301,11 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
     ENZO_VFAIL("CellFlaggingMethod[%"ISYM"] = %"ISYM" unknown\n", method,
                CellFlaggingMethod[method])
  
-  } // ENDSWITCH
-  } // ENDIF must-refine
+  }
+
+  if (debug1 && NumberOfFlaggedCells > 0)
+    printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
+	   CellFlaggingMethod[method], NumberOfFlaggedCells);
 
   } // ENDFOR methods
  
@@ -322,10 +335,7 @@ int grid::SetFlaggingField(int &NumberOfFlaggedCells, int level)
   counter[4]++;
   timer[4] += NumberOfFlaggedCells;
 #endif /* MPI_INSTRUMENTATION */
-  if (debug1 && NumberOfFlaggedCells > 0)
-    printf("SetFlaggingField[method = %"ISYM"]: NumberOfFlaggedCells = %"ISYM".\n",
-	   method, NumberOfFlaggedCells);
- 
+  
   return SUCCESS;
  
 }

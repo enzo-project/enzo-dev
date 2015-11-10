@@ -187,6 +187,11 @@ EXTERN float TimestepSafetyVelocity;
 
 EXTERN int FluxCorrection;
 
+/* Cooling time timestep limit. */
+
+EXTERN int UseCoolingTimestep;
+EXTERN float CoolingTimestepSafetyFactor;
+
 /* This specifies the interpolation method (see typedefs.h). */
 
 EXTERN interpolation_type InterpolationMethod;
@@ -505,6 +510,10 @@ EXTERN float StartDensityOutputs;
 EXTERN float CurrentDensityOutput;
 EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
+EXTERN float StopFirstTimeAtDensity;
+EXTERN float StopFirstTimeAtMetalEnrichedDensity;
+EXTERN float CurrentMaximumMetalEnrichedDensity;
+EXTERN float EnrichedMetalFraction;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;
@@ -630,6 +639,7 @@ EXTERN int   ComovingCoordinates;
 
 EXTERN int   StarParticleCreation;
 EXTERN int   StarParticleFeedback;
+EXTERN int   StarParticleRadiativeFeedback;
 EXTERN int   NumberOfParticleAttributes;
 EXTERN int   AddParticleAttributes;
 EXTERN int   BigStarFormation;
@@ -960,6 +970,7 @@ EXTERN int ShearingBoundaryDirection;
 EXTERN int ShearingVelocityDirection;
 EXTERN int ShearingOtherDirection;
 EXTERN int UseMHD;
+EXTERN int MaxVelocityIndex;
 EXTERN FLOAT TopGridDx[MAX_DIMENSION];
 EXTERN int ShearingBoxProblemType; // 0 = advecting sphere; 1 = shearing box; 2 = vortex wave ; 3 = stratified
 
@@ -1032,7 +1043,6 @@ EXTERN float ClusterSMBHAccretionTime;  // Used only when CalculateGasMass=2
 EXTERN int ClusterSMBHJetDim;  // Jet dimension
 EXTERN float ClusterSMBHAccretionEpsilon;  // Edot=epsilon*Mdot(accreted/removed)*c^2
 
-EXTERN int MHDCT_debug_flag;
 EXTERN int MHDCTSlopeLimiter;
 EXTERN int MHDCTDualEnergyMethod;
 EXTERN int MHDCTPowellSource;
@@ -1052,7 +1062,6 @@ EXTERN int MHD_ProjectE;// Should always be TRUE for the evoloution
 EXTERN int UseMHDCT;
 EXTERN int EquationOfState;
 EXTERN char *MHDLabel[3];
-EXTERN char *MHDcLabel[3];
 EXTERN char *MHDUnits[3];
 EXTERN char *MHDeLabel[3];
 EXTERN char *MHDeUnits[3];
