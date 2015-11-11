@@ -852,7 +852,7 @@ c                        write(6,*) 'delta_ke:',ke_before(i+2,j+2,k+2),
 c     &                       ke_after,delta_ke
 
                         te(ic+i ,jc+j ,kc+k) = 
-     &                       te(iface+i ,jc+j ,kc+k) + 
+     &                       te(ic+i ,jc+j ,kc+k) + 
      &                       delta_ke/d(ic+i, jc+j, kc+k)
 
                         ke_injected = ke_injected + delta_ke
