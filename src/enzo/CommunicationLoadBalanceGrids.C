@@ -133,7 +133,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
          MaxProc = i;
        }
       }
-      MinVal = MaxVal; //Sometimes min(ProcessorComputeTime) > huge_number, which causes this loop to fail
+      MinVal = 1.001*MaxVal;
       for (i = StartProc; i < EndProc; i++) {
        if (ProcessorComputeTime[i] < MinVal) {
          MinVal = ProcessorComputeTime[i];
@@ -149,7 +149,7 @@ int CommunicationLoadBalanceGrids(HierarchyEntry *GridHierarchyPointer[],
          MaxProc = i;
        }
       }
-      MinVal = MaxVal; //Sometimes min(ProcessorComputeTime) > huge_number, which causes this loop to fail
+      MinVal = 1.001*MaxVal;
       for (i = proc0; i < NumberOfProcessors; i += dproc) {
        if (ProcessorComputeTime[i] < MinVal) {
          MinVal = ProcessorComputeTime[i];
