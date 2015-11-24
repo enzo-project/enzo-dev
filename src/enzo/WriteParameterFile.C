@@ -262,7 +262,7 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
 		TimeActionRedshift[dim]);
       else
 	fprintf(fptr, "TimeActionTime[%"ISYM"]      = %"GOUTSYM"\n", dim,
-		TimeActionRedshift[dim]);
+		TimeActionTime[dim]);
       fprintf(fptr, "TimeActionParameter[%"ISYM"] = %"GSYM"\n", dim,
 	      TimeActionParameter[dim]);
     }
