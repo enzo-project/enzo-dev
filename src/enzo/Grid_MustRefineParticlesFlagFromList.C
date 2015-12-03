@@ -34,10 +34,6 @@ int grid::MustRefineParticlesFlagFromList()
   FILE *fptr;
   float tempf;
 
-  
-  /* Exit if grid is not on this processor, but not before recording increase
-     in the number of particles, both in this grid and in the metadata. */
-
   if (MyProcessorNumber != ProcessorNumber)
     return SUCCESS;
 
@@ -63,7 +59,9 @@ int grid::MustRefineParticlesFlagFromList()
 
   fclose(fptr);
 
-  /* Loop over particles. */
+  /* Loop over particles. A bisection search is employed to speed things up.
+     For this to work, the ParticleNumberList must be sorted before it is 
+     read in. */
   ParticlesFlagged=0.;
   for (i = 0; i < NumberOfParticles; i++) {
     /* Find place in sorted ParticleNumberList by bisection. */
@@ -77,18 +75,14 @@ int grid::MustRefineParticlesFlagFromList()
 	LowerIndex = MidPoint;
       else
 	UpperIndex = MidPoint;
-
     }
-    //if (LowerIndex == -1) LowerIndex = UpperIndex;
-
+    
     /* If found, set left/right edge and output */
-
     if (ParticleNumber[i] == ParticleNumberList[LowerIndex] ||
 	ParticleNumber[i] == ParticleNumberList[UpperIndex]  ) {
       ParticleType[i] = PARTICLE_TYPE_MUST_REFINE;
       ParticlesFlagged=ParticlesFlagged+1.;
-      //printf("Particle Flagged: %d\n",ParticleNumber[i]);
-    } // end: if (index != -1)
+     } // end: if (index != -1)
 
   } // end: loop over particles
   if (ParticlesFlagged > 0)

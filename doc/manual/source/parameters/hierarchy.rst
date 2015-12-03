@@ -223,8 +223,9 @@ Hierarchy Control Parameters
    1 - If the user specifies ``MustRefineParticlesLeftEdge`` and 
        ``MustRefineParticlesRightEdge``, dark matter particles within the 
        specified region are flagged.  Otherwise, the code looks for an ascii 
-       input file called MustRefineParticlesFlaggingList.in that contains a list 
-       of particle ids to be flagged.
+       input file called MustRefineParticlesFlaggingList.in that contains a list
+       of particle ids to be flagged.  The ids in this list must be sorted in 
+       acending order.
    2 - For use with ellipsodial masking in MUSIC inititial conditions.  This 
        setting uses traditional static grids for intermediate resolution levels.  
        MUSIC will generate RefinementMask files and the ``ParticleTypeName`` 

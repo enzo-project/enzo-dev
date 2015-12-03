@@ -336,8 +336,7 @@ int grid::CosmologyInitializeParticles(
       } // ENDFOR j
   } // ENDIF types
   printf("Number of MRPs created on level %d is %d.\n",level,num_flip);
-  //printf("MR type is %d\n",PARTICLE_TYPE_MUST_REFINE);
-
+  
 #ifdef ICPART_SHIFT8
   /* Check to see if the particle is adjacent to static grid boundary
      (level 1 only).  If so, shift it by 1/8th of a cell inwards
