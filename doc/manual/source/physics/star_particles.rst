@@ -400,10 +400,10 @@ star maker, so don't set StarParticleFeedback = 2048. Instead the user
 should select one of the feedback schemes associated with the other
 star makers (StarParticleFeedback = 4 comes to mind).
 
-Method 13: Kinetic Feedback
+Method 14: Kinetic Feedback
 -------------------------------------------------------
-Select this method by setting ``StarParticleCreation = 8192`` and
-``StarParticleFeedback = 8192``.
+Select this method by setting ``StarParticleCreation = 16384`` and
+``StarParticleFeedback = 16384``.
 
 *Source: star_maker3mom.F*
 
