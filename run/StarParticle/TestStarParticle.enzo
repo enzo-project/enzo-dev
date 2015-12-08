@@ -6,7 +6,7 @@
 ProblemType            = 90        // TestStarParaticle
 TopGridRank            = 3
 TopGridDimensions      = 50 50 50
-StarParticleFeedback   = 8192
+StarParticleFeedback   = 16384 //Star feedback method 14, kinetic feedback
 TestStarParticleDensity = 1.0
 TestStarParticleEnergy  = 6.55410093179e-06
 TestProblemInitialMetallicityFraction  =  2e-3
@@ -29,9 +29,6 @@ DensityUnits           = 1.0e-24  // 1 part/cc
 #
 StopTime               = 1
 dtDataDump             = 0.1
-#CycleSkipDataDump = 1
-#StopCycle = 5
-#PythonTopGridSkip  =  1
 #
 #  set Hydro parameters
 #
@@ -55,7 +52,7 @@ CellFlaggingMethod        = 0
 RadiativeCooling  =  0
 #MultiSpecies  =  1
 #MetalCooling  =  3
-#CloudyCoolingGridFile  =  ../Cooling/CoolingTest_Cloudy/solar_2008_3D_metals.h5
+#CloudyCoolingGridFile  =  solar_2008_3D_metals.h5
 #CMBTemperatureFloor = 0
 #TestProblemMultiSpecies = 1
 #TestProblemUseMetallicityField  =  1

@@ -70,7 +70,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 
 
   int colorfields = NumberOfBaryonFields;
- 
+
   // Enzo's standard multispecies (primordial chemistry - H, D, He)
   if (TestProblemData.MultiSpecies) {
     FieldType[DeNum     = NumberOfBaryonFields++] = ElectronDensity;
