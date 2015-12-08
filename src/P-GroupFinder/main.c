@@ -16,7 +16,7 @@
 #include "proto.h"
 #include "h5utilities.h"
 
-double LinkLength = 0.1;   /* in terms of mean interparticle seperation */
+double LinkLength = 0.2;   /* in terms of mean interparticle seperation */
 int    GroupMinLen= 50;    /*  store only groups in the catalogue 
                                with at least this number of particles */
 

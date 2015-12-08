@@ -27,6 +27,9 @@
 
 #include "TopGridData.h"
 
+#include "StochasticForcing.h"
+extern StochasticForcing Forcing;
+
 struct HierarchyEntry;
 
 #include "EnzoArray.h"
@@ -148,6 +151,20 @@ class grid
   int    GravitatingMassFieldParticlesDimension[MAX_DIMENSION];
   gravity_boundary_type GravityBoundaryType;
   float  PotentialSum;
+
+
+  //
+  //  WS: total energy injection by stochastic forcing
+  //
+  float* EnergyInjection;
+  //
+  //  WS: Initial phase factors and multiplicators for stochastic forcing
+  //
+  float* PhaseFctInitEven;
+  float* PhaseFctInitOdd;
+  float* PhaseFctMultEven[MAX_DIMENSION];
+  float* PhaseFctMultOdd[MAX_DIMENSION];
+
 //
 //  Top grid parallelism (for implicit solvers)
 //
@@ -548,7 +565,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the cooling time. */
 
-   int ComputeCoolingTime(float *cooling_time);
+   int ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly=FALSE);
 
 /* Baryons & DualEnergyFormalism: Restore consistency between total and
                                   internal energy fields. */
@@ -894,6 +911,9 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int FlagCellsToBeRefinedByMetallicity(int level);
 
+/* Flag all cells which have more than a specified metal mass */
+
+   int FlagCellsToBeRefinedByMetalMass(int level);
 
 /* Flagging all cell adjacent to a previous flagged cell.  Also, remove all
    Flagged cells in the boundary zones and within one zone of the boundary. */
@@ -1986,13 +2006,24 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			     int   SphereConstantPressure[MAX_SPHERES],
 			     int   SphereSmoothSurface[MAX_SPHERES],
 			     float SphereSmoothRadius[MAX_SPHERES],
+			     float SphereHII[MAX_SPHERES],
+			     float SphereHeII[MAX_SPHERES],
+			     float SphereHeIII[MAX_SPHERES],
+			     float SphereH2I[MAX_SPHERES],
 			     int   SphereUseParticles,
 			     float ParticleMeanDensity,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
 			     int   SphereUseMetals,
 			     float InitialTemperature, 
-			     float InitialDensity, int level);
+			     float InitialDensity, int level,
+			     float CollapseTestInitialFractionHII, 
+			     float CollapseTestInitialFractionHeII,
+			     float CollapseTestInitialFractionHeIII, 
+			     float CollapseTestInitialFractionHM,
+			     float CollapseTestInitialFractionH2I, 
+			     float CollapseTestInitialFractionH2II);
+
 
 /* Cluster: initialize grid. */
 
@@ -2298,6 +2329,19 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 //  int TurbulenceSimulationInitializeGrid(TURBULENCE_INIT_PARAMETERS_DECL);
  public:
 
+    /* Stochastic forcing: initialization. */
+
+    int DrivenFlowInitializeGrid(float StochasticFlowDensity,
+    float StochasticFlowPressure, float InitialBField,int SetBaryonFields); // WS
+
+    /* Stochastic forcing: Calculate initial phase factors and phase multiplicators
+    for the inverse FT of the forcing spectrum onto a particular grid domain */
+
+    void Phases(); // WS
+
+    /* Stochastic forcing: Compute physical force field via inverse FT of the forcing pectrum */
+
+    int FTStochasticForcing(int FieldDim); // WS
 
 /* Comoving coordinate expansion terms. */
 
@@ -2487,7 +2531,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
-			int &CellsModified);
+			double Q_HI, double sigma_HI, float deltaE, int &CellsModified);
 
   int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
 				     float LengthUnits, float VelocityUnits, 
@@ -2510,7 +2554,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 
   int UpdateStarParticles(int level);
 
-  int AddH2Dissociation(Star *AllStars);
+  int AddH2Dissociation(Star *AllStars, int NumberOfSources);
+
+  int AddH2DissociationFromTree(void);
+  int AddH2DissociationFromSources(Star *AllStars);
 
   int ReturnStarStatistics(int &Number, float &minLife);
 
@@ -2835,12 +2882,10 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
   //MagneticField is the face centered magnetic field, and is the quantity ultimately updated by the 
   //CT style algorithm.
   float *MagneticField[3]; 
-  float *CenteredB[3]; 
   float *ElectricField[3];
   float *AvgElectricField[3];
   float *OldMagneticField[3];
   float *OldElectricField[3];
-  float *OldCenteredB[3];
   //Magnetic dimensions: MagneticDims[field][axis]
   int MagneticDims[3][3], ElectricDims[3][3];
   int MHDStartIndex[3][3], MHDEndIndex[3][3];//For the MagneticField

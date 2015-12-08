@@ -76,7 +76,7 @@ MACH_LDFLAGS  = -Bdynamic
 
 MACH_OPT_WARN        = 
 MACH_OPT_DEBUG       = -g
-MACH_OPT_HIGH        = -O2
+MACH_OPT_HIGH        = -O2 -finline-functions -fwhole-program -flto -march=bdver1 -mtune=bdver1 -mprefer-avx128 -ftree-vectorize
 MACH_OPT_AGGRESSIVE  = -O3
 
 #-----------------------------------------------------------------------

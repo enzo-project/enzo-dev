@@ -128,6 +128,7 @@ int InterpretCommandLine(int argc, char *argv[], char *myname,
 			 int &WritePotentialOnly,
 			 int &SmoothedDarkMatterOnly,
 			 int &WriteCoolingTimeOnly,
+			 int &WriteDustTemperatureOnly,
 			 int MyProcessorNumber);
 void AddLevel(LevelHierarchyEntry *Array[], HierarchyEntry *Grid, int level);
 int SetDefaultGlobalValues(TopGridData &MetaData);
@@ -215,6 +216,15 @@ int OutputCoolingTimeOnly(char *ParameterFile,
 			  , ImplicitProblemABC *ImplicitSolver
 #endif
 			  );
+int OutputDustTemperatureOnly(char *ParameterFile,
+			      LevelHierarchyEntry *LevelArray[], 
+			      HierarchyEntry *TopGrid,
+			      TopGridData &MetaData,
+			      ExternalBoundary &Exterior
+#ifdef TRANSFER
+			      , ImplicitProblemABC *ImplicitSolver
+#endif
+			  );
 
 
 void CommunicationAbort(int);
@@ -288,8 +298,14 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
   t_init0 = MPI_Wtime();
 #endif /* USE_MPI */
 
-  // Create enzo timer
+  // Create enzo timer and initialize default timers
   enzo_timer = new enzo_timing::enzo_timer();
+  TIMER_REGISTER("CommunicationTranspose");
+  TIMER_REGISTER("ComputePotentialFieldLevelZero");
+  TIMER_REGISTER("RebuildHierarchy");
+  TIMER_REGISTER("SetBoundaryConditions");
+  TIMER_REGISTER("SolveHydroEquations");
+  TIMER_REGISTER("Total");
 
 #ifdef USE_LCAPERF
 
@@ -360,6 +376,7 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
     WritePotentialOnly       = FALSE,
     SmoothedDarkMatterOnly   = FALSE,
     WriteCoolingTimeOnly     = FALSE,
+    WriteDustTemperatureOnly = FALSE,
     project                  = FALSE,
     ProjectionDimension      = INT_UNDEFINED,
     ProjectionSmooth         = FALSE,
@@ -455,7 +472,8 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 			   RegionStartCoordinates, RegionEndCoordinates,
 			   RegionLevel, HaloFinderOnly,
 			   WritePotentialOnly, SmoothedDarkMatterOnly,
-			   WriteCoolingTimeOnly, MyProcessorNumber) == FAIL) {
+			   WriteCoolingTimeOnly, WriteDustTemperatureOnly,
+			   MyProcessorNumber) == FAIL) {
     if(int_argc==1){
       my_exit(EXIT_SUCCESS);
     } else {
@@ -625,6 +643,16 @@ Eint32 MAIN_NAME(Eint32 argc, char *argv[])
 			  MetaData, Exterior
 #ifdef TRANSFER
 			  , ImplicitSolver
+#endif
+			  );
+    my_exit(EXIT_SUCCESS);
+  }
+
+  if (WriteDustTemperatureOnly) {
+    OutputDustTemperatureOnly(ParameterFile, LevelArray, &TopGrid,
+			      MetaData, Exterior
+#ifdef TRANSFER
+			      , ImplicitSolver
 #endif
 			  );
     my_exit(EXIT_SUCCESS);

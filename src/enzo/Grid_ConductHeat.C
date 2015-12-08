@@ -75,7 +75,7 @@ int grid::ConductHeat(){
       // energy will be calculated below inside time loop.
       e = new float[size];
     } 
-  } else if (HydroMethod == MHD_RK) {
+  } else if ( UseMHD ) {
     e = new float[size];
   } else {  // fails for PPM_LR, HD_RK
     ENZO_FAIL("Error in Grid::ConductHeat - your Hydro/MHD method is not supported!\n");
@@ -104,7 +104,7 @@ int grid::ConductHeat(){
       }
     }
 
-    if(HydroMethod==MHD_RK){  // convert total energy into internal energy: subract off kinetic, magnetic energy
+    if( UseMHD ){  // convert total energy into internal energy: subract off kinetic, magnetic energy
       
       for (i = 0; i < size; i++) {
 	e[i] = BaryonField[TENum][i] - 0.5*POW(BaryonField[Vel1Num][i], 2.0);
@@ -180,7 +180,7 @@ int grid::ConductHeat(){
 
   if(debug1) printf("Grid::ConductHeat:  Nsubcycles = %"ISYM"\n",Nsub);
 
-  if((HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0) || (HydroMethod==MHD_RK))
+  if((HydroMethod==PPM_DirectEuler && DualEnergyFormalism==0) || ( UseMHD ))
     delete [] e;
 
   delete [] dedt;

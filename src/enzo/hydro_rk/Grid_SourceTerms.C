@@ -174,7 +174,7 @@ int grid::SourceTerms(float **dU)
     }
   }
 
-  if ((SelfGravity) || ExternalGravity || (PointSourceGravity > 0)) {
+  if ((SelfGravity) || ExternalGravity || UniformGravity || (PointSourceGravity > 0)) {
     int igrid;
     float rho, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;
@@ -255,12 +255,13 @@ int grid::SourceTerms(float **dU)
 	  dU[iS1  ][n] += dtFixed*rho*drivex*DrivingEfficiency;
 	  dU[iS2  ][n] += dtFixed*rho*drivey*DrivingEfficiency;
 	  dU[iS3  ][n] += dtFixed*rho*drivez*DrivingEfficiency;
-	  dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz)*DrivingEfficiency;
+	  dU[iEtot][n] += dtFixed*rho*(drivex*vx + drivey*vy + drivez*vz + 
+                0.5 * dtFixed * (drivex * drivex + drivey * drivey + drivez * drivez)) * DrivingEfficiency;
 	}
       }
     }
   }
-
+  
   /* Add centrifugal force for the shearing box */
 
 

@@ -18,6 +18,8 @@ struct SuperSourceEntry {
   FLOAT Position[MAX_DIMENSION];
   int LeafID;
   float ClusteringRadius;
+  // Used for computing the Lyman-Werner radiation with the tree.
+  float LWLuminosity;
 };
 
 struct RadiationSourceEntry  {
@@ -29,6 +31,8 @@ struct RadiationSourceEntry  {
   int   Type;                     // Type allows for beaming etc.      
   float Luminosity;               // Bolometric photon number luminosity
 				  // in [#/s] * TimeUnits/LengthUnits^3
+  float LWLuminosity;             // Lyman-Werner photon number luminosity 
+                                  // (only used in optically-thin case)
   float CreationTime;             // When Source is formed in code units
   float LifeTime;                 // LifeTime of source in code units
   float RampTime;                 // Time for the source to reach full luminosity
@@ -45,6 +49,7 @@ struct SuperSourceData {
   RadiationSourceEntry *Source;
   FLOAT Position[MAX_DIMENSION];
   float Luminosity;
+  float LWLuminosity;
 };
 
 #endif

@@ -464,6 +464,11 @@ int EvolveHierarchy(HierarchyEntry &TopGrid, TopGridData &MetaData,
 	  ENZO_FAIL("Error in SetEvolveRefineRegion.");
     }
 
+    /* Evolve the stochastic forcing spectrum and add
+     *  the force to the acceleration fields */
+    if (DrivenFlowProfile)
+        Forcing.Evolve(dt); 
+
     /* Evolve the top grid (and hence the entire hierarchy). */
 
 #ifdef USE_MPI 

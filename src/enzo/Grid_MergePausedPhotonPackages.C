@@ -86,7 +86,7 @@ int grid::MergePausedPhotonPackages() {
   if (PausedPhotonPackages->NextPackage == NULL)
     return 0;
 
-  int i, dim, nphotons;
+  int i, j, dim, nphotons;
   PhotonPackageEntry *PP, *TempPP;
   
   /* It's easier to sort an array with qsort rather than a linked
@@ -177,7 +177,8 @@ int grid::MergePausedPhotonPackages() {
       NewPack->Photons = TempPP[i].Photons;
       NewPack->Type = TempPP[i].Type;
       NewPack->Energy = TempPP[i].Energy;
-      NewPack->CrossSection = TempPP[i].CrossSection;
+      for (j = 0; j < MAX_CROSS_SECTIONS; j++)
+	NewPack->CrossSection[j] = TempPP[i].CrossSection[j];
       NewPack->EmissionTimeInterval = TempPP[i].EmissionTimeInterval * weight;
       NewPack->EmissionTime = TempPP[i].EmissionTime;
       NewPack->CurrentTime = TempPP[i].CurrentTime;
@@ -191,7 +192,7 @@ int grid::MergePausedPhotonPackages() {
       
       // go up one level up in the source tree
       NewPack->CurrentSource = TempPP[i].CurrentSource->ParentSource;
-	
+
       merges++;
     } // ENDELSE match
   } // ENDFOR photons

@@ -289,20 +289,6 @@ int SendAllBaryonFields = FALSE;
 
     if( UseMHDCT ){
       
-      /* Send Centered B */
-      if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
-	for(field = 0;field<3;field++)
-	  if( SendField == ALL_FIELDS){
-	    FORTRAN_NAME(copy3d)(FromGrid->CenteredB[field], &buffer[index],
-				 FromDim, FromDim+1, FromDim+2,
-				 RegionDim,RegionDim+1, RegionDim+2,
-				 Zero, Zero+1, Zero+2,
-				 FromOffset, FromOffset+1, FromOffset+2);
-	    index += RegionSize;
-	  }//field
-      
-      //There is no need to send OldCenteredB.
-
       /* send Face B */
       if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
 	for( field=0;field<3;field++)
@@ -461,26 +447,7 @@ int SendAllBaryonFields = FALSE;
       }
 
     if( UseMHDCT ){     
-      /* unpack centeredB */
-      if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
-	if( SendField == ALL_FIELDS )
-	  for(field = 0; field<3; field++){
-	    if(CenteredB[field] == NULL){
-	      CenteredB[field] = new float[GridSize];
-	      for(i=0;i<GridSize;i++) CenteredB[field][i] = 0.0;
-	    }//allocate Bc
-	    FORTRAN_NAME(copy3d)(&buffer[index], CenteredB[field],
-				 RegionDim, RegionDim+1, RegionDim+2,
-				 GridDimension, GridDimension+1, GridDimension+2,
-				 RegionStart, RegionStart+1, RegionStart+2,
-				 Zero, Zero+1, Zero+2);
-	    
-	    index += RegionSize;
-	    
-	  }//new Bc
       
-      //There is no need to send OldCenteredB
-
       /* unpack face B */
       if( NewOrOld == NEW_AND_OLD || NewOrOld == NEW_ONLY )
 	for(field = 0; field<3; field++)

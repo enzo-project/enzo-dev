@@ -65,10 +65,6 @@ void grid::DeleteAllFields()
       delete [] ElectricField[i];
       ElectricField[i] = NULL;
     }
-    if( CenteredB[i] != NULL ){
-      delete [] CenteredB[i];
-      CenteredB[i]     = NULL;
-    }
     if(OldMagneticField[i] != NULL){
       delete [] OldMagneticField[i];
       OldMagneticField[i] = NULL;
@@ -76,10 +72,6 @@ void grid::DeleteAllFields()
     if(OldElectricField[i] != NULL){
       delete [] OldElectricField[i];
       OldElectricField[i] = NULL;
-    }
-    if(OldCenteredB[i] != NULL){
-      delete [] OldCenteredB[i];
-      OldCenteredB[i]     = NULL;
     }
 
     if( AvgElectricField[i] != NULL ){

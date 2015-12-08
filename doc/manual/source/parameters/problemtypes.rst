@@ -47,6 +47,7 @@ Problem Type Description and Parameter List
 40 	     :ref:`supernovarestart_param`
 50 	     :ref:`photontest_param`
 51	     Photon Test Restart
+59       :ref:`stochastic_forcing_param`
 60 	     :ref:`turbulence_param` 
 61 	     :ref:`protostellar_param` 
 62 	     :ref:`coolingtest_param`
@@ -742,6 +743,24 @@ Collapse Test (27)
 
 ``CollapseTestInitialTemperature`` (external)
     Initial gas temperature. Default: 1000 K. Units: degrees Kelvin
+``CollapseTestInitialFractionHII`` (external)
+    Initial HII fraction in the domain except for the spheres.
+    Default: 1.2e-5
+``CollapseTestInitialFractionHeII`` (external)
+    Initial HeII fraction in the domain except for the spheres.
+    Default: 1e-14
+``CollapseTestInitialFractionHeIII`` (external)
+    Initial HeIII fraction in the domain except for the spheres.
+    Default: 1e-17
+``CollapseTestInitialFractionHM`` (external)
+    Initial H- fraction in the domain except for the spheres.
+    Default: 2e-9
+``CollapseTestInitialFractionH2I`` (external)
+    Initial H2I fraction in the domain except for the spheres.
+    Default: 2e-20
+``CollapseTestInitialFractionH2II`` (external)
+    Initial H2II fraction in the domain except for the spheres.
+    Default: 3e-14
 ``CollapseTestNumberOfSpheres`` (external)
     Number of spheres to collapse; must be <= ``MAX_SPHERES=10`` (see
     ``Grid.h`` for definition). Default: 1
@@ -813,6 +832,18 @@ Collapse Test (27)
 ``CollapseTestSmoothRadius`` (external)
     The outer radius of the smoothed interface.  This parameter is in
     units of the sphere radius.  Default: 1.2
+``CollapseTestSphereHIIFraction`` (external)
+    Initial HII fraction of the sphere.  Default: 1.2e-5
+``CollapseTestSphereHeIIFraction`` (external)
+    Initial HeII fraction of the sphere.  Default: 1e-14
+``CollapseTestSphereHeIIIFraction`` (external)
+    Initial HeIII fraction of the sphere.  Default: 1e-17
+``CollapseTestSphereHMFraction`` (external)
+    Initial H- fraction of the sphere.  Default: 2e-9
+``CollapseTestSphereH2IFraction`` (external)
+    Initial H2I fraction of the sphere.  Default: 2e-20
+``CollapseTestSphereH2IIFraction`` (external)
+    Initial H2II fraction of the sphere.  Default: 3e-14
 ``CollapseTestSphereInitialLevel`` (external)
     Failed experiment to try to force refinement to a specified level.
     Not working. Default: 0.
@@ -1151,6 +1182,66 @@ Photon Test (50)
     Sets the initial ionized fraction of H2. Default: 3e-14
 ``PhotonTestOmegaBaryonNow`` (obsolete)
     Default: 0.05.
+``PhotonTestDensityFilename`` (external)
+    Filename of an external density field in HDF5 format.  The file
+    should only have one dataset. Default: (undefined)
+``PhotonTestHIIFractionFilename`` (external)
+    Filename of an external HII fraction field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+``PhotonTestHeIIFractionFilename`` (external)
+    Filename of an external HeII fraction field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+``PhotonTestHeIIIFractionFilename`` (external)
+    Filename of an external HeIII fraction field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+``PhotonTestTemperatureFilename`` (external)
+    Filename of an external temperature field in its own HDF5 format.
+    The file should only have one dataset.  Default: (undefined)
+
+.. _stochastic_forcing_param:
+
+Turbulence Simulation with Stochastic Forcing (59)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Typical quasi-isothermal "turbulence-in-a-box" problem with non-static driving field.
+    For details on stochastic forcing, see Schmidt et al. 2009 A&A 494, 127-145 
+    http://dx.doi.org/10.1051/0004-6361:200809967
+
+    3D simulations with MUSCL hydro and MHD solver are tested.
+    PPM, ZEUS and MHDCT unsupported at this time.
+
+    Remember that in addition to the problem specific parameters below 
+    UseDrivingField = 1 has to be turned on!
+
+
+``DrivenFlowProfile`` (external)
+    Shape of forcing power spectrum (1: delta peak, 2: band, 3: parabolic window).
+
+``DrivenFlowAlpha`` (external)
+    Ratio of domain length to integral length for each dimension (L = X/alpha).
+
+``DrivenFlowBandWidth`` (external)
+    Determines band width of the forcing spectrum relative to alpha (maximal value = 1).
+
+``DrivenFlowMach`` (external)
+    Characteristic velocity scale for each dimension (charcteristic force per unit mass F = V*V/L).
+
+``DrivenFlowAutoCorrl`` (external)
+    Determines autocorrelation time of the stochastic force in units of the integral time scale T = L/V.
+
+``DrivenFlowWeight`` (external)
+    Determines weight of solenoidal relative to dilatational modes (1 = purely solenoidal, 0 = purely dilatational).
+
+``DrivenFlowSeed`` (external)
+    Seed of random number generator.
+
+``DrivenFlowDensity`` (external)
+    Initial uniform density.
+
+``DrivenFlowPressure`` (external)
+    Initial uniform pressure.
+
+``DrivenFlowMagField`` (external)
+    Initial uniform magnetic field (x-direction)
 
 .. _turbulence_param:
 
