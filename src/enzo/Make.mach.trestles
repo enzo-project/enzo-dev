@@ -23,8 +23,8 @@ MACHINE_NOTES = "MACHINE_NOTES for Trestles at SDSC/UCSD: \
 # Compiler settings
 #-----------------------------------------------------------------------
 
-LOCAL_MPI_INSTALL = /home/diag/opt/openmpi/1.4.3/gnu/
-LOCAL_PYTHON_INSTALL = /home/csimpson/yt-x86_64-shared/
+LOCAL_MPI_INSTALL = /home/diag/opt/mvapich2/1.5.1p1/intel/
+LOCAL_PYTHON_INSTALL = /home/mturk/yt-x86_64/
 #LOCAL_COMPILER_DIR = /opt/pgi/linux86-64/10.5
 LOCAL_COMPILER_DIR = /opt/intel/Compiler/11.1/072
 LOCAL_HYPRE_INSTALL = 
@@ -40,11 +40,11 @@ MACH_LD_MPI    = $(LOCAL_MPI_INSTALL)/bin/mpicxx # Linker when using MPI
 
 # Without MPI
 
-MACH_CC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/intel64/icc # C compiler when not using MPI
-MACH_CXX_NOMPI = $(LOCAL_COMPILER_DIR)/bin/intel64/icpc # C++ compiler when not using MPI
-MACH_FC_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/intel64/ifort # Fortran 77 compiler when not using MPI
-MACH_F90_NOMPI = $(LOCAL_COMPILER_DIR)/bin/intel64/ifort # Fortran 90 compiler when not using MPI
-MACH_LD_NOMPI  = $(LOCAL_COMPILER_DIR)/bin/intel64/icpc # Linker when not using MPI
+MACH_CC_NOMPI  = $(LOCAL_COMPILER_DIR)/intel64/bin/icc # C compiler when not using MPI
+MACH_CXX_NOMPI = $(LOCAL_COMPILER_DIR)/intel64/bin/icpc # C++ compiler when not using MPI
+MACH_FC_NOMPI  = $(LOCAL_COMPILER_DIR)/intel64/bin/ifort # Fortran 77 compiler when not using MPI
+MACH_F90_NOMPI = $(LOCAL_COMPILER_DIR)/intel64/bin/ifort # Fortran 90 compiler when not using MPI
+MACH_LD_NOMPI  = $(LOCAL_COMPILER_DIR)/intel64/bin/icpc # Linker when not using MPI
 
 #-----------------------------------------------------------------------
 # Machine-dependent defines
@@ -84,7 +84,7 @@ MACH_OPT_AGGRESSIVE  = -O3 # Flags for aggressive optimization
 #-----------------------------------------------------------------------
 
 LOCAL_INCLUDES_MPI    = 
-LOCAL_INCLUDES_HDF5   = -I/home/csimpson/yt-x86_64-shared/include # HDF5 includes
+LOCAL_INCLUDES_HDF5   = -I/home/mturk/yt-x86_64/include # HDF5 includes
 LOCAL_INCLUDES_HYPRE  = 
 LOCAL_INCLUDES_PAPI   = # PAPI includes
 LOCAL_INCLUDES_PYTHON = -I$(LOCAL_PYTHON_INSTALL)/include/python2.7 \
@@ -101,10 +101,10 @@ MACH_INCLUDES_PAPI    = $(LOCAL_INCLUDES_PAPI)
 #-----------------------------------------------------------------------
 
 LOCAL_LIBS_MPI    = 
-LOCAL_LIBS_HDF5   = -L/home/csimpson/yt-x86_64-shared/lib -lhdf5 # HDF5 libraries
+LOCAL_LIBS_HDF5   = -L/home/mturk/yt-x86_64/lib -lhdf5 # HDF5 libraries
 LOCAL_LIBS_HYPRE  = 
 LOCAL_LIBS_PAPI   = # PAPI libraries
-LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib -lpython2.7 \
+LOCAL_LIBS_PYTHON  = -L$(LOCAL_PYTHON_INSTALL)/lib/ -lpython2.7 \
                      -lreadline -ltermcap -lutil
 
 #LOCAL_LIBS_MACH   = -L$(LOCAL_COMPILER_DIR)/lib \
