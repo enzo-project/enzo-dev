@@ -283,7 +283,6 @@ c
      &               idual, imetal, imulti_metals, imethod, 
      &               dt, r, dx, t, z,
      &               dunits, x1, vunits, t1, sn_param, m_eject, yield,
-c     &               distrad, diststep, distcells,
      &               npart, xstart, ystart, zstart, ibuff,
      &               xp, yp, zp, up, vp, wp,
      &               mp, tdp, tcp, metalf, type, justburn,
@@ -406,7 +405,6 @@ c
 c      write(6,*) 'star_feedback3: start',npart
       do n=1, npart
          if (tcp(n) .gt. 0 .and. mp(n) .gt. 0 .and. type(n) .eq. 2) then
-            write(6,*) 'star_feedback3mom'
 c
 c        The star particle creation algorithm partnered with this 
 c        feedback algorithm creates a star particle instantaneously.
@@ -421,18 +419,14 @@ c
 c     Do instantaneous injeciton
 c
             if (exptime_in .ge. 0._RKIND) then
-               write(6,*) 'exptime',exptime_in
 c              convert explosion time to code units
                exptime = exptime_in * 1.e6_RKIND * 3.15e7_RKIND / t1  
-c               write(6,*) 'times: ',abs(t-tcp(n)),exptime+dt,
-c     &              t,tcp(n),exptime,dt
                if (tdp(n) .eq. 0._RKIND
      &              .or. abs(t-tcp(n)) .lt. exptime) goto 10
-               
                tdp(n) = 0._RKIND
                minitial = mp(n)
                mform = mp(n)
-               write(6,*) 'mform, minitial = ',mform,minitial,dx
+c               write(6,*) 'mform, minitial = ',mform,minitial
                goto 5
             endif
 
@@ -487,20 +481,16 @@ c
             distrad = 3
             dist_mass_cells = distrad**3
             dist_mom_cells = distrad**2 * 6
-            write(6,*) 'distrad:',distrad
 c     
 c           Calculate mass per cell ejected
 c     
             mass_per_cell = mform * m_eject / dist_mass_cells
-            write(6,*) 'mass_per_cell:',mass_per_cell,m_eject,
-     &           dist_mass_cells
 c
 c           Calculate how much of the star formation in this
 c           timestep would have gone into supernova energy.
 c            
             energy = sn_param * mform * (clight/vunits)**2
             energy_per_cell = energy / dist_mass_cells
-            write(6,*) 'energy,energy_per_cell:',energy,energy_per_cell
 
             if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
      &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
@@ -509,7 +499,6 @@ c
      &              xp(n),yp(n),zp(n), xstart, ystart, zstart
                goto 100
             endif
-
 c
 c	Set center of feedback zone
 c
@@ -521,8 +510,6 @@ c
 c         check bounds - if star particle is near grid edge
 c         then shift center of feedback region
 c
-            write(6,*) 'buffers:',ibuff,fbuff
-
             if (xfc .lt. xstart+fbuff*dx .or. 
      &           xfc .gt. xstart+dx*nx-fbuff*dx .or.
      &           yfc .lt. ystart+fbuff*dx .or. 
@@ -561,40 +548,31 @@ c
 c         Compute index of the first cell to add momentum,
 c             accounting for possible face-centering
 c
-c            write(6,*) 'xp,yp,zp',xp(n), yp(n), zp(n)
-c            write(6,*) 'xstart,ystart,zstart', xstart, ystart, zstart
             xface = (xfc - xstart)/dx - 0.5_RKIND - face_shift
             yface = (yfc - ystart)/dx - 0.5_RKIND - face_shift
             zface = (zfc - zstart)/dx - 0.5_RKIND - face_shift
-c            write(6,*) 'xface,yface,zface',xface, yface, zface
-c
+
             iface = int(xface + 0.5_RKIND)
             jface = int(yface + 0.5_RKIND)
             kface = int(zface + 0.5_RKIND)
-c            write(6,*) 'iface,jface,kface', iface, jface, kface
-c
+
             dxf = real(iface) + 0.5_RKIND - xface
             dyf = real(jface) + 0.5_RKIND - yface
             dzf = real(kface) + 0.5_RKIND - zface
-c            write(6,*) 'dxf, dyf, dzf', dxf, dyf, dzf
 c
 c         Compute index of the first cell to add mass, assuming cell-centering
 c 
             xpos = (xfc - xstart)/dx - 0.5_RKIND
             ypos = (yfc - ystart)/dx - 0.5_RKIND
             zpos = (zfc - zstart)/dx - 0.5_RKIND
-c            write(6,*) 'xpos, ypos, zpos', xpos, ypos, zpos
-c
+
             ic = int(xpos + 0.5_RKIND)
             jc = int(ypos + 0.5_RKIND)
             kc = int(zpos + 0.5_RKIND)
-c            write(6,*) 'ic,jc,kc', ic,jc,kc
-c
+
             dxc = real(ic) + 0.5_RKIND - xpos
             dyc = real(jc) + 0.5_RKIND - ypos
             dzc = real(kc) + 0.5_RKIND - zpos
-c            write(6,*) 'dxc, dyc, dzc', dxc, dyc, dzc
-
 c
 c     Use fixed kinf value, unless kinf < 0 - then compute
 c     variable kinf
@@ -604,10 +582,6 @@ c     variable kinf
 c     Calculate variable kinf based on R_PDS from
 c     Cioffi et al. 1988
 c
-c               realmass = mform * dunits * pc**3 /msolar
-c
-c               realmass = realmass * (dx* x1 / pc)**3
-
                realmass = mform * dunits * dx * x1 *dx *x1 *dx *x1
                realmass = realmass /msolar
 
@@ -624,14 +598,6 @@ c
                do k = -1,1
                   do j = -1,1
                      do i = -1,1
-c                        write(6,*) 'Zsol,num_d:',
-c     &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND, 
-c     &                       d(ic+i,jc+j,kc+k)*
-c     &                       dunits/mH/mu(ic+i,jc+j,kc+k) 
-c                        write(6,*) 'd,mu:', d(ic+i,jc+j,kc+k)*dunits,
-c     &                       mu(ic+i,jc+j,kc+k)
-c     mu hardcoded for now, but this should be changed:
-c                        mu_cell = 0.82_RKIND 
                         mu_cell = mu(ic+i,jc+j,kc+k)
                         Zsol = Zsol + 
      &                       metal(ic+i,jc+j,kc+k)/0.02_RKIND
@@ -674,16 +640,16 @@ c
                R_resolve = dx*x1/pc
                if (R_PDS .gt. 4.5*R_resolve) then
                   kinf = 0._RKIND
-                  write(6,*) 'Sedov phase resolved:',Zsol,num_d,
-     &                 energy_51,R_PDS,R_resolve, realmass
+c                  write(6,*) 'Sedov phase resolved:',Zsol,num_d,
+c     &                 energy_51,R_PDS,R_resolve, realmass
                else                  
                   kinf = 3.97133e-6_RKIND * (d_ave/mH) 
      &                 * (R_resolve**(-2._RKIND)) 
      &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
      &                 * (energy_51**(-1._RKIND))
-                  write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
-     &                 num_d, d_ave, 
-     &                 energy_51,t_PDS,R_PDS,R_resolve
+c                  write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
+c     &                 num_d, d_ave, 
+c     &                 energy_51,t_PDS,R_PDS,R_resolve
                endif
        
             endif
@@ -691,9 +657,8 @@ c
             thermal_energy_per_cell = (1._RKIND - kinf) * 
      &                                energy_per_cell
 
-
-            write(6,*) 'thermal_energy_per_cell:',
-     &           thermal_energy_per_cell,kinf,energy_per_cell
+c            write(6,*) 'thermal_energy_per_cell:',
+c     &           thermal_energy_per_cell,kinf,energy_per_cell
 c
 c -------- Inject energy, mass & metals----------
 c
@@ -745,7 +710,6 @@ c
 c
 c           Sum mass and energy before
 c
-c     change this to sum_mass_kin_energy
             call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_before, energy_before, 
@@ -775,11 +739,11 @@ c
                call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
      &              nx, ny, nz, iface, jface, kface, ic, jc, kc,
      &              asum, bsum, csum)
-               write(6,*) 'abc1',asum, bsum, csum
+c               write(6,*) 'abc1',asum, bsum, csum
                asum = asum - (kin_energy_before + kinf*energy)
-               write(6,*) 'kin_energy_before,kinf*energy,energy:',
-     &              kin_energy_before,kinf*energy,energy
-               write(6,*) 'abc2',asum, bsum, csum
+c               write(6,*) 'kin_energy_before,kinf*energy,energy:',
+c     &              kin_energy_before,kinf*energy,energy
+c               write(6,*) 'abc2',asum, bsum, csum
 c
 c           Calculate momentum contribution
 c
@@ -794,7 +758,7 @@ c
                mom_per_cell = 0._RKIND
             endif
 
-            write(6,*) 'mom_per_cell:',mom_per_cell
+c            write(6,*) 'mom_per_cell:',mom_per_cell
 c
 c           Now add mass and momentum, using three-point CIC
 c
@@ -814,14 +778,43 @@ c
      &                           mass_after, energy_after, 
      &                           kin_energy_after, idual, imethod)
 c
-            write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
-     &           energy_before + energy,energy
-            write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
-     &           mass_before + mform*m_eject,mform*m_eject
-            write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
-     &           kin_energy_after, kin_energy_before + kinf*energy, 
-     &           kinf*energy
-            write(6,*) 'idual:',idual
+c           Error checks to see if the energy added in the particle frame
+c           matches the values set by the input parameters
+c
+            if (abs(kin_energy_after - kin_energy_before - kinf*energy)
+     &           /(kinf*energy) > 0.01_RKIND .and. 
+     &           kinf .ne. 0._RKIND) then
+
+               write(6,*) 'Kinetic energy added to mesh does not match', 
+     &              ' kinetic energy feedback parameters'
+               write(6,*) 'kin_energy_after - kin_energy_before',
+     &              kin_energy_after - kin_energy_before
+               write(6,*) 'energy*fkin',kinf*energy
+               write(6,*) '%diff',abs(kin_energy_after - 
+     &              kin_energy_before - kinf*energy)
+     &              /(kinf*energy)
+               ERROR_MESSAGE
+            endif
+
+            if (abs(energy_after - energy_before - energy)
+     &           /energy > 0.01_RKIND) then
+
+               write(6,*) 'Energy added to mesh does not match', 
+     &              ' kinetic energy feedback parameters'
+               write(6,*) 'energy_after - energy_before, energy',
+     &              energy_after - energy_before, energy
+               write(6,*) '%diff',abs(energy_after - energy_before 
+     &              - energy)/energy
+               ERROR_MESSAGE
+            endif
+
+c            write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
+c     &           energy_before + energy,energy
+c            write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
+c     &           mass_before + mform*m_eject,mform*m_eject
+c            write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
+c     &           kin_energy_after, kin_energy_before + kinf*energy, 
+c     &           kinf*energy
 c
 c           Convert momenta back to velocities and transform back to lab frame
 c
@@ -860,18 +853,6 @@ c     &                       ke_after,delta_ke
                      enddo
                   enddo
                enddo
-c
-
-               write(6,*) 'ke_injected:',ke_injected
-               if (abs((ke_injected - kinf*energy)/
-     &                    ke_injected) .gt. 0.01_RKIND .and. 
-     &              kinf .ne. 0._RKIND) then
-                  write(6,*) 'star_maker3: ke_injected does not match'
-                  write(6,*) ke_injected,kinf*energy
-                  write(6,*) kin_energy_before,kin_energy_after
-                  write(6,*) kin_energy_after - kin_energy_before
-                  ERROR_MESSAGE
-               endif
             endif
 c
  10         continue
@@ -1094,10 +1075,7 @@ c
       do k = -1, +2
          do j = -1, +2
             do i = -1, +2
-c
                mass_term = d(ic   +i ,jc   +j ,kc+k)
-c               write(6,*) "mass_term:",mass_term,
-c     &              d1(istart+i,jstart+j,kstart+k)
                mom_term = pu(iface+i ,jc   +j, kc+k   )**2 + 
      &                    pv(ic   +i ,jface+j, kc+k   )**2 +
      &                    pw(ic   +i ,jc   +j, kface+k)**2
@@ -1113,12 +1091,8 @@ c     &              d1(istart+i,jstart+j,kstart+k)
      &           pu1(istart+i,jstart+j,kstart+k)**2 +
      &           pv1(istart+i,jstart+j,kstart+k)**2 +
      &           pw1(istart+i,jstart+j,kstart+k)**2
-
                
                csum = csum + cterm/(2._RKIND*mass_term)
-c               write(6,*) "cterm,mterm:",cterm,mass_term,
-c     &              cterm/(2.0*mass_term),csum
-c
 
             enddo
          enddo
@@ -1197,27 +1171,16 @@ c
                 dzc1 = dzc
                 if (k1 .eq. k+1) dzf1 = 1.0 - dzf
                 if (k1 .eq. k+1) dzc1 = 1.0 - dzc
-c
+
                 delta_mass = mass_per_cell*dxc1*dyc1*dzc1
-c                delme = delme + delta_mass
-c                write(6,*) 'delta_mass:',i,j,k,delta_mass
                 delta_pu   = i*mom_per_cell*dxf1*dyc1*dzc1
                 delta_pv   = j*mom_per_cell*dxc1*dyf1*dzc1
                 delta_pw   = k*mom_per_cell*dxc1*dyc1*dzf1
                 delta_therm   = therm_per_cell*dxc1*dyc1*dzc1
-
-
-c                write(6,*) 'delta:',delta_pu,delta_pv,delta_pw,
-c     &               delta_therm
 c
 c               Add mass, momentum
 c                (add thermal energy here)
 c
-c                write(6,*) i,j,k,dxc1*dyc1*dzc1
-c                write(6,*) ic+i1,jc+j1,kc+k1
-c                write(6,*) nx-ic-i1,ny-jc-j1,nz-kc-k1
-c                write(6,*) '   '
-                
 
                 dratio = d(ic+i1, jc+j1, kc+k1)/(d(ic+i1, jc+j1, kc+k1) 
      &               + delta_mass)
@@ -1253,17 +1216,12 @@ c
 c           "Cen method".  This takes into account gas recycling.
 c                 (metal is not a fraction here)
 c
-     
                    metal(ic+i1, jc+j1, kc+k1) = 
      &                  metal(ic+i1, jc+j1, kc+k1) + 
      &                  (delta_mass/m_eject)
      &                  * (yield * (1._RKIND-metalf) + 
      &                  m_eject * metalf)
 
-c                   write(6,*) 'metals injected:',(delta_mass/m_eject)
-c     &                  * (yield * (1._RKIND-metalf) +
-c     &                  m_eject * metalf),metal(ic+i1,jc+j1,kc+k1)
-c 
                 endif
 c
 c             End loop over CIC-deposit
