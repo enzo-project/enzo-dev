@@ -187,6 +187,11 @@ EXTERN float TimestepSafetyVelocity;
 
 EXTERN int FluxCorrection;
 
+/* Cooling time timestep limit. */
+
+EXTERN int UseCoolingTimestep;
+EXTERN float CoolingTimestepSafetyFactor;
+
 /* This specifies the interpolation method (see typedefs.h). */
 
 EXTERN interpolation_type InterpolationMethod;
@@ -501,6 +506,10 @@ EXTERN float StartDensityOutputs;
 EXTERN float CurrentDensityOutput;
 EXTERN float CurrentMaximumDensity;
 EXTERN float IncrementDensityOutput;
+EXTERN float StopFirstTimeAtDensity;
+EXTERN float StopFirstTimeAtMetalEnrichedDensity;
+EXTERN float CurrentMaximumMetalEnrichedDensity;
+EXTERN float EnrichedMetalFraction;
 
 /* Parameter(s) for embedded python execution */
 EXTERN int PythonTopGridSkip;

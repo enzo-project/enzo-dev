@@ -64,22 +64,18 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
   /* Check if the influenced sphere is contained within the grids on
      this level */
 
-  Temp = LevelArray[level];
   for (Temp = LevelArray[level]; Temp; Temp = Temp->NextGridThisLevel) {
-    if (Temp->GridData->ReturnProcessorNumber() == MyProcessorNumber) {
-      Temp->GridData->ReturnGridInfo(&Rank, Dims, LeftEdge, RightEdge);
 
       for (i = 0; i < 8; i++) {
 	if (cornerDone[i]) continue;  // Skip if already locally found
 	inside = true;
 	for (dim = 0; dim < MAX_DIMENSION; dim++)
-	  inside &= (corners[dim][i] >= LeftEdge[dim] &&
-		     corners[dim][i] <= RightEdge[dim]);
+	  inside &= (corners[dim][i] >= Temp->GridData->GridLeftEdge[dim] &&
+		     corners[dim][i] <= Temp->GridData->GridRightEdge[dim]);
 	if (inside)
 	  cornerDone[i] = 1;
       } // ENDFOR corners
 
-    } // ENDIF MyProcessorNumber == ProcessorNumber
   } // ENDFOR grids
 
   /* Take the MPI_MAX of cornerDone flags, then sum them to see if
@@ -87,7 +83,7 @@ int Star::SphereContained(LevelHierarchyEntry *LevelArray[], int level,
      this level. */
 
 #ifdef USE_MPI
-  CommunicationAllReduceValues(cornerDone, 8, MPI_MAX);
+  //  CommunicationAllReduceValues(cornerDone, 8, MPI_MAX);
 #endif
 
   cornersContained = 0;

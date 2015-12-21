@@ -169,6 +169,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
            &CurrentDensityOutput);
     ret += sscanf(line, "IncrementDensityOutput = %"FSYM,
            &IncrementDensityOutput);
+    ret += sscanf(line, "StopFirstTimeAtDensity = %"FSYM,
+           &StopFirstTimeAtDensity);
+    ret += sscanf(line, "StopFirstTimeAtMetalEnrichedDensity = %"FSYM,
+           &StopFirstTimeAtMetalEnrichedDensity);
+    ret += sscanf(line, "EnrichedMetalFraction = %"FSYM,
+           &EnrichedMetalFraction);
 
     /* Subcycle directed output */
     ret += sscanf(line, "SubcycleSkipDataDump = %"ISYM, 
@@ -324,6 +330,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 	     CellFlaggingMethod+3, CellFlaggingMethod+4, CellFlaggingMethod+5,
 	     CellFlaggingMethod+6);
     ret += sscanf(line, "FluxCorrection         = %"ISYM, &FluxCorrection);
+    ret += sscanf(line, "UseCoolingTimestep     = %"ISYM, &UseCoolingTimestep);
+    ret += sscanf(line, "CoolingTimestepSafetyFactor = %"FSYM, &CoolingTimestepSafetyFactor);
     ret += sscanf(line, "InterpolationMethod    = %"ISYM, &InterpolationMethod);
     ret += sscanf(line, "ConservativeInterpolation = %"ISYM,
 		  &ConservativeInterpolation);
@@ -934,6 +942,12 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &PopIIIColorDensityThreshold);
     ret += sscanf(line, "PopIIIColorMass = %"FSYM,
 		  &PopIIIColorMass);
+    ret += sscanf(line, "PopIIIUseHypernova = %"ISYM,
+		  &PopIIIUseHypernova);
+    ret += sscanf(line, "PopIIISupernovaExplosions = %"ISYM,
+		  &PopIIISupernovaExplosions);
+    ret += sscanf(line, "PopIIIOutputOnFeedback = %"ISYM,
+		  &PopIIIOutputOnFeedback);
 
     ret += sscanf(line, "MBHAccretion = %"ISYM, &MBHAccretion);
     ret += sscanf(line, "MBHAccretionRadius = %"FSYM, &MBHAccretionRadius);
@@ -1196,6 +1210,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
  
     if (*dummy != 0) {
       dummy = new char[MAX_LINE_LENGTH];
+      dummy[0] = 0;
       ret++;
     }
  

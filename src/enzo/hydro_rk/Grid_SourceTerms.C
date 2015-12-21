@@ -174,7 +174,7 @@ int grid::SourceTerms(float **dU)
     }
   }
 
-  if ((SelfGravity) || ExternalGravity || (PointSourceGravity > 0)) {
+  if ((SelfGravity) || ExternalGravity || UniformGravity || (PointSourceGravity > 0)) {
     int igrid;
     float rho, gx, gy, gz;
     float vx, vy, vz, vx_old, vy_old, vz_old;

@@ -408,13 +408,13 @@ extern "C" void FORTRAN_NAME(star_feedback_pn_snia)
 
 extern "C" void FORTRAN_NAME(pop3_maker)
   (int *nx, int *ny, int *nz, 
-   float *d, float *dm, float *h2d, float *temp, 
+   float *d, float *dm, float *h2d, float *h2diss, float *kph, float *temp, 
    float *u, float *v, float *w, 
    float *cooltime, float *dt, float *r, float *metal, float *dx, FLOAT *t, 
    float *z, int *procnum, 
    float *d1, float *x1, float *v1, float *t1, 
    int *nmax, FLOAT *xstart, FLOAT *ystart, FLOAT *zstart, 
-   int *ibuff, int *imetal, hydro_method *imethod, float *h2crit, 
+   int *ibuff, int *imetal, hydro_method *imethod, float *h2crit,
    float *metalcrit, float *odthresh, float *starmass, int *level, int *np, 
    FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up, float *vp, float *wp, 
    float *mp, float *tdp, float *tcp, float *metalf, 
@@ -652,6 +652,7 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
   /* If creating primordial stars, make a total H2 density field */
 
   float *h2field = NULL;
+  int kdissH2INum, kphHINum;
   if (STARMAKE_METHOD(POP3_STAR)) {
     h2field = new float[size];
     for (k = GridStartIndex[2]; k <= GridEndIndex[2]; k++)
@@ -661,6 +662,10 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 	for (i = GridStartIndex[0]; i <= GridEndIndex[0]; i++, index++) 
 	  h2field[index] = BaryonField[H2INum][index] + BaryonField[H2IINum][index];
       }
+
+    // get H2 photo-dissociation and HI-ionizing fields
+    kphHINum = FindField(kphHI, FieldType, NumberOfBaryonFields);
+    kdissH2INum = FindField(kdissH2I, FieldType, NumberOfBaryonFields);
   }
 
   /* If both metal fields exist, make a total metal field */
@@ -863,7 +868,8 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
 
       FORTRAN_NAME(pop3_maker)
 	(GridDimension, GridDimension+1, GridDimension+2, BaryonField[DensNum], 
-	 dmfield, h2field, temperature, BaryonField[Vel1Num], 
+	 dmfield, h2field, BaryonField[kdissH2INum], BaryonField[kphHINum],
+	 temperature, BaryonField[Vel1Num], 
 	 BaryonField[Vel2Num], BaryonField[Vel3Num], cooling_time, &dtFixed, 
 	 BaryonField[NumberOfBaryonFields], MetalPointer, 
 	 &CellWidthTemp, &Time, &zred, &MyProcessorNumber, &DensityUnits, 

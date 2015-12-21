@@ -565,7 +565,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the cooling time. */
 
-   int ComputeCoolingTime(float *cooling_time);
+   int ComputeCoolingTime(float *cooling_time, int CoolingTimeOnly=FALSE);
 
 /* Baryons & DualEnergyFormalism: Restore consistency between total and
                                   internal energy fields. */
@@ -2000,13 +2000,24 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			     int   SphereConstantPressure[MAX_SPHERES],
 			     int   SphereSmoothSurface[MAX_SPHERES],
 			     float SphereSmoothRadius[MAX_SPHERES],
+			     float SphereHII[MAX_SPHERES],
+			     float SphereHeII[MAX_SPHERES],
+			     float SphereHeIII[MAX_SPHERES],
+			     float SphereH2I[MAX_SPHERES],
 			     int   SphereUseParticles,
 			     float ParticleMeanDensity,
 			     float UniformVelocity[MAX_DIMENSION],
 			     int   SphereUseColour,
 			     int   SphereUseMetals,
 			     float InitialTemperature, 
-			     float InitialDensity, int level);
+			     float InitialDensity, int level,
+			     float CollapseTestInitialFractionHII, 
+			     float CollapseTestInitialFractionHeII,
+			     float CollapseTestInitialFractionHeIII, 
+			     float CollapseTestInitialFractionHM,
+			     float CollapseTestInitialFractionH2I, 
+			     float CollapseTestInitialFractionH2II);
+
 
 /* Cluster: initialize grid. */
 
@@ -2514,7 +2525,7 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			float LengthUnits, float VelocityUnits, 
 			float TemperatureUnits, float TimeUnits, double EjectaDensity, 
 			double EjectaMetalDensity, double EjectaThermalEnergy,
-			int &CellsModified);
+			double Q_HI, double sigma_HI, float deltaE, int &CellsModified);
 
   int SubtractAccretedMassFromSphere(Star *cstar, int level, float radius, float DensityUnits,
 				     float LengthUnits, float VelocityUnits, 
