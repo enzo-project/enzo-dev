@@ -171,9 +171,9 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
  
     if (HydroMethod == Zeus_Hydro) xEulerian -= 0.5; // only approximate
     BaryonField[vel][i]     = AmplitudeVel * sin(kx*xEulerian);
-    if (GridRank > 1 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if ( MaxVelocityIndex > 1)
       BaryonField[vel+1][i] = AmplitudeVel * sin(kx*xEulerian);
-    if (GridRank > 2 || (HydroMethod == MHD_RK) || (HydroMethod == HD_RK))
+    if ( MaxVelocityIndex > 2)
       BaryonField[vel+2][i] = AmplitudeVel * sin(kx*xEulerian);
 
     if ( UseMHD ) {
@@ -198,7 +198,7 @@ int grid::ZeldovichPancakeInitializeGrid(int  ZeldovichPancakeDirection,
 
   /* set transverse velocities (i.e. erase any incorrectly set velocities). */
  
-  for (field = vel; field < vel+((HydroMethod == MHD_RK  || (HydroMethod == HD_RK) ) ? 3 : GridRank); field++)
+  for (field = vel; field < vel+MaxVelocityIndex; field++)
     if (field != ZeldovichPancakeDirection+vel)
       for (i = 0; i < size; i++)
 	BaryonField[field][i] = 0.0;
