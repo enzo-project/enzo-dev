@@ -405,7 +405,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
   //6 right fast
   float Right[7][7], Pos, Amp, InitialPressure;
 
-  int B2num=1, B3num= 2, wave = 1, Map[7];
+  int B2num=1, B3num= 2, wave = 1, Map[8];
   for( i=0; i<7; i++)
     for( j=0; j<7; j++)
       Right[i][j] = 10*i+j;
@@ -696,6 +696,8 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
       BaryonField[ Eeng ][index] *= BaryonField[Eden][index];
 	    
 	    for(field=0; field< NumberOfBaryonFields; field++){
+            if( FieldType[field] > Velocity3 || FieldType[field] == InternalEnergy )
+                continue;
 	      BaryonField[field][index] +=  Amp*PerturbAmplitude*Right[ Map[field] ][wave];
 	      
 	    }
@@ -848,6 +850,7 @@ int grid::MHDBlastInitializeGrid(float DensityA, float DensityB,
     }//field
   
   int index_periodic, k1, j1, i1, do_periodic;
+  if ( UseMHDCT )
   for(field=0;field<3;field++)
     for( k=0;k<ElectricDims[field][2];k++)
       for( j=0;j<ElectricDims[field][1];j++)
