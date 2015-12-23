@@ -19,6 +19,11 @@ CT preserves :math:`\nabla \cdot B` to machine precision, but is slightly harder
     ====================== ==================== ===============
 
 
+Cosmology
+=========
+
+See the note at the bottom of the page for cosmology details.  The method papers
+are now out of date.
 
 Use of Dedner
 ============= 
@@ -74,22 +79,55 @@ Implementation and test problems:
 `Collins, Xu, Norman, Li & Li, ApJS 186, 2, 308
 <http://adsabs.harvard.edu/abs/2010ApJS..186..308C>`_.
 
-More Details
-============ 
+Controlling MHD in the code
+===========================
 
 Within the code, there are several flags to control use of magnetic fields.
 
 ``UseMHD`` is true when *either* MHD module is on.  
 
-``UseMHDCT`` is true when ``HydroMethod=6``, and controls use of the face- and
-edge- centered fields.
+``UseMHDCT``  controls use of the face- and
+edge- centered fields.  While it is associated with ``HydroMethod=6``, in
+it only controlls the face- and edge-centered fields, so future ``HydroMethods``
+can also use these fields.  
 
-``HydroMethod==4`` or ``HydroMethod==MHD_RK`` controls things that only pertain
-to that hydro method.  This is either control of the solver itself, or any
-setting of the centered magnetic field (e.g. ``BaryonField[B1Num]``).
+ ``HydroMethod==MHD_RK`` controls things that only pertain
+to that hydro method.  This is either control of the solver itself, or the
+fields that pertain exclusively to that solver 
+(e.g. ``BaryonField[PhiNum]``, the Phi field is exclusive to the Dedner method.)
 
-``HydroMethod==6`` or ``HydroMethod==MHD_Li`` typically only deals with control
-of the ``MHD_Li`` solver.  Things dealing with the data structures should be
-controlled with ``UseMHDCT``
+``HydroMethod==6`` or ``HydroMethod==MHD_Li`` typically only deals with control of the ``MHD_Li`` solver.  Currently this only triggers the call to the solver.  Things dealing with the data structures should be controlled with ``UseMHDCT``
+
+Wait, what?  ``UseMHD`` is usually what you want to use in your code.  ``UseMHDCT`` is for
+``MagneticField`` or ``ElectricField.``  ``HydroMethod==MHD_RK`` when you need
+the Phi field, which you only really need for initialization.
 
 Implementation details for MHDCT can be found in :ref:`mhdct_details`
+
+Cosmology
+=========
+
+As of January 2015, the cosmology has been modified slightly in MHDCT.  This was
+done in order to rectify the treatment of cosmology in the bulk of the code as
+well as the output fields, and to rectify a missing :math:`1/a` in the pressure
+when using MHDCT (it probably did not impact your run.)  For clarity we briefly
+summarize the differences here.  The major difference between ``MHD_RK`` and
+``MHD_Li`` is now the treatment of the dilution of the field due to cosmological
+expansion.  These terms are the :math:``\dot{a}/a`` in the method papers.
+
+In both methods, the magnetic field most often seen in the code and in output is
+the comoving magnetic field.  The induction equation for the comoving magnetic
+field has an expansion term, :math:``\dot{a}/2 B``.  For ``MHD_RK``, this is
+integrated in ``Grid_MHDSourceTerms.C``, by way
+of direct finite difference.  For ``MHDCT``, the induction is formulated with a
+semi-comoving field, :math:``B_{semi} = B_{comoving} \sqrt{a}``.  In this
+formulation there is no explicit expansion source term.  This is done in order
+to keep the divergence zero, and is the result of the manner in which
+projection from fine to coarse grids happens in the code.   In order to keep the
+code representation consistent throughout the bulk of Enzo, this change of
+fields from comoving to semi-comoving is done in
+``Grid_MHD_UpdateMagneticField.C``. 
+
+Care should be taken with simulations using cosmology and ``MHDCT`` that were
+run before Fall 2015.
+
