@@ -8,6 +8,7 @@ TopGridRank            = 1
 TopGridDimensions      = 100
 SelfGravity            = 1       // gravity on
 TopGridGravityBoundary = 1       // Isolated BCs
+UnigridTranspose       = 0
 LeftFaceBoundaryCondition  = 1   // outflow
 RightFaceBoundaryCondition = 1   // outflow
 PressureFree           = 1       // turn off pressure
