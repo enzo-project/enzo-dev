@@ -126,7 +126,12 @@ to keep the divergence zero, and is the result of the manner in which
 projection from fine to coarse grids happens in the code.   In order to keep the
 code representation consistent throughout the bulk of Enzo, this change of
 fields from comoving to semi-comoving is done in
-``Grid_MHD_UpdateMagneticField.C``. 
+``Grid_MHD_UpdateMagneticField.C``.   It should be noted that in the Bryan et al
+2014, the total pressure is stated as :math:``p^* = p + B^2/2a`` (Equation 6 in
+that paper.)  This is no
+longer valid, now the total pressure should be :math:``p^* = p + B^2/2``.
+
+It should also be noted that ``ElectricField`` is semi-comoving.
 
 Care should be taken with simulations using cosmology and ``MHDCT`` that were
 run before Fall 2015.
