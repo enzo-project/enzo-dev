@@ -425,7 +425,6 @@ OBJS_CONFIG_LIB = \
 	Grid_FlagCellsToBeRefinedByMass.o \
 	Grid_FlagCellsToBeRefinedByMetallicity.o \
 	Grid_FlagCellsToBeRefinedByMetalMass.o \
-	Grid_FlagCellsToBeRefinedByMustRefineParticles.o \
 	Grid_FlagCellsToBeRefinedByMustRefineRegion.o \
 	Grid_FlagCellsToBeRefinedByResistiveLength.o \
 	Grid_FlagCellsToBeRefinedByShear.o \
@@ -489,6 +488,8 @@ OBJS_CONFIG_LIB = \
 	Grid_MoveSubgridParticles.o \
 	Grid_MoveSubgridStars.o \
 	Grid_MultiSpeciesHandler.o \
+	Grid_MustRefineParticlesFlagFromList.o \
+        Grid_MustRefineParticlesFlagInRegion.o \
 	Grid_NestedCosmologySimulationInitializeGrid.o \
 	Grid_NohInitializeGrid.o \
 	Grid_OneZoneFreefallTestInitializeGrid.o \
@@ -728,6 +729,7 @@ OBJS_CONFIG_LIB = \
         ProtoSubgrid_CopyFlaggedZonesFromGrid.o \
         ProtoSubgrid_CopyToNewSubgrid.o \
         ProtoSubgrid_FindGridsByZeroSignature.o \
+        ProtoSubgrid_LargeAxisRatioCheck.o \
         ProtoSubgrid_ReturnNthLongestDimension.o \
         ProtoSubgrid_ShrinkToMinimumSize.o \
 	PutSinkRestartInitialize.o \

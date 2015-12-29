@@ -341,6 +341,7 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &OptimalSubgridsPerProcessor);
     ret += sscanf(line, "MinimumSubgridEdge     = %"ISYM, &MinimumSubgridEdge);
     ret += sscanf(line, "MaximumSubgridSize     = %"ISYM, &MaximumSubgridSize);
+    ret += sscanf(line, "CriticalGridRatio      = %"FSYM, &CriticalGridRatio);
     ret += sscanf(line, "NumberOfBufferZones    = %"ISYM, &NumberOfBufferZones);
     ret += sscanf(line, "FastSiblingLocatorEntireDomain = %"ISYM, &FastSiblingLocatorEntireDomain);
     ret += sscanf(line, "MustRefineRegionMinRefinementLevel = %"ISYM,
@@ -622,6 +623,14 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
 		  &RefineByResistiveLengthSafetyFactor);
     ret += sscanf(line, "MustRefineParticlesRefineToLevel = %"ISYM,
                   &MustRefineParticlesRefineToLevel);
+    ret += sscanf(line, "MustRefineParticlesCreateParticles = %"ISYM,
+                  &MustRefineParticlesCreateParticles);
+    ret += sscanf(line, "MustRefineParticlesLeftEdge  = %"PSYM" %"PSYM" %"PSYM,
+                  MustRefineParticlesLeftEdge, MustRefineParticlesLeftEdge+1, 
+                  MustRefineParticlesLeftEdge+2);
+    ret += sscanf(line, "MustRefineParticlesRightEdge = %"PSYM" %"PSYM" %"PSYM,
+                  MustRefineParticlesRightEdge, MustRefineParticlesRightEdge+1,
+                  MustRefineParticlesRightEdge+2);
     ret += sscanf(line, "MustRefineParticlesRefineToLevelAutoAdjust = %"ISYM,
                   &MustRefineParticlesRefineToLevelAutoAdjust);
     ret += sscanf(line, "MustRefineParticlesMinimumMass = %"FSYM,

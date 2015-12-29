@@ -1,0 +1,50 @@
+#
+# AMR PROBLEM DEFINITION FILE: Orbit Test Problem with MRPs 
+#                              (MustRefineParticles)
+#
+#  NOTE: This version of the parameter file writes
+#    out the gravitational potential, and is intended
+#    to be used with run/TestOrbit/make_TE_plot.py 
+#    to make a graph of total particle energy as a 
+#    function of orbit!
+
+#
+#  define problem
+#
+ProblemType            = 29      // orbit test
+TopGridRank            = 3
+TopGridDimensions      = 32 32 32
+SelfGravity            = 1       // gravity on
+TopGridGravityBoundary = 1       // Isolated BCs
+#
+#  set problem parameters
+#
+TestOrbitRadius      = 0.3;
+TestOrbitCentralMass = 1.0;
+TestOrbitTestMass    = 1.0e-6;
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 2.0
+dtDataDump             = 0.1
+ParticleCourantSafetyNumber = 0.4
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 2    // use up to this many extra levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 8
+MustRefineParticlesRefineToLevel = 2
+#
+#  set some global parameters
+#
+tiny_number            = 1.0e-10 // fixes velocity slope problem
+
+#
+#  Parameters required to write out grav. potential
+#
+TestOrbitUseBaryons = 1
+ComputePotential = 1
+WritePotential = 1
+

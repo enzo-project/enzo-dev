@@ -797,7 +797,8 @@ gradient force to gravitational force for one-zone collapse test. */
    aren't local. */
 
    int SetParticleMassFlaggingField(int StartProc=0, int EndProc=0, int level=-1, 
-				    int ParticleMassMethod=-1, int *SendProcs=NULL, 
+				    int ParticleMassMethod=-1, int MustRefineMethod=-1,
+				    int *SendProcs=NULL, 
 				    int NumberOfSends=0);
    int CollectParticleMassFlaggingField(void);
    void ClearParticleMassFlaggingField(void);
@@ -834,7 +835,8 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Particles: deposit particles to particle mass flagging field. */
 
-   int DepositMustRefineParticles(int pmethod, int level);
+   int DepositMustRefineParticles(int pmethod, int level,
+				  bool KeepFlaggingField);
 
 /* baryons: add baryon density to mass flaggin field (so the mass flagging
             field contains the mass in the cell (not the density) 
@@ -854,7 +856,7 @@ gradient force to gravitational force for one-zone collapse test. */
      Returns the number of flagged cells.  Returns the number of flagged cells
      (gg #4) */
 
-   int FlagCellsToBeRefinedByMass(int level, int method);
+   int FlagCellsToBeRefinedByMass(int level, int method, int RestrictFlag);
 
 /* Flag all points that require refining by their slope.
      Returns the number of flagged cells.  Returns the number of flagged cells
@@ -899,9 +901,12 @@ gradient force to gravitational force for one-zone collapse test. */
 
    int FlagCellsToBeRefinedByCoolingTime();
 
-/* Flag all cells which are near a must-refine particle. */
+/* Flag particles within the MustRefineParticles region as MustRefine Particles */
+   int MustRefineParticlesFlagInRegion();
 
-   int FlagCellsToBeRefinedByMustRefineParticles();
+/* Flag MustRefine Particles from list */
+
+   int MustRefineParticlesFlagFromList();
 
 /* Flag all cells which are within a user-specified refinement region. */
 
@@ -1340,7 +1345,8 @@ gradient force to gravitational force for one-zone collapse test. */
    int DepositParticlePositions(grid *TargetGrid, FLOAT DepositTime, 
 				int DepositField);
 
-   int DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField);
+   int DepositParticlePositionsLocal(FLOAT DepositTime, int DepositField,
+				     bool BothFlags);
 
 /* Particles: add overlapping ParticleMassField to Target's 
    GravitatingMassField. */
