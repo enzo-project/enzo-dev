@@ -17,6 +17,7 @@ TopGridRank                = 3
 TopGridDimensions          = 32 32 32
 SelfGravity                = 1       // 
 TopGridGravityBoundary     = 1       //
+UnigridTranspose           = 0
 LeftFaceBoundaryCondition  = 3 3 3   // periodic
 RightFaceBoundaryCondition = 3 3 3
 PotentialIterations = 1
