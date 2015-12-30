@@ -211,6 +211,8 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   MinimumEfficiency         = 0.2;               // between 0-1, usually ~0.1
   MinimumSubgridEdge        = 6;                 // min for acceptable subgrid
   MaximumSubgridSize        = 32768;             // max for acceptable subgrid
+  CriticalGridRatio         = 3.0;              // max grid ratio
+
   SubgridSizeAutoAdjust     = TRUE; // true for adjusting maxsize and minedge
   OptimalSubgridsPerProcessor = 16;    // Subgrids per processor
   NumberOfBufferZones       = 1;
@@ -239,12 +241,19 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
     MetaData.NewMovieLeftEdge[dim]  = 0.0;
     MetaData.NewMovieRightEdge[dim] = 1.0;
     PointSourceGravityPosition[dim] = 0.0;
+<<<<<<< local
     MustRefineRegionLeftEdge[dim]   = 0.0;
     MustRefineRegionRightEdge[dim]  = 1.0;
     DiskGravityPosition[dim]        = 0.0;
     DiskGravityAngularMomentum[dim] = 0.0;
     GalaxySimulationRPSWindVelocity[dim] = 0.0;
     GalaxySimulationPreWindVelocity[dim] = 0.0;
+=======
+    MustRefineRegionLeftEdge[dim] = 0.0;
+    MustRefineRegionRightEdge[dim] = 1.0;
+    MustRefineParticlesLeftEdge[dim] = 0.0;
+    MustRefineParticlesRightEdge[dim] = 0.0;
+>>>>>>> other
   }
   if( MAX_DIMENSION > 0 ) DiskGravityAngularMomentum[MAX_DIMENSION-1] = 1.0; 
 
@@ -291,7 +300,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ParallelRootGridIO          = FALSE;
   ParallelParticleIO          = FALSE;
   Unigrid                     = FALSE;
-  UnigridTranspose            = FALSE;
+  UnigridTranspose            = 2;
   NumberOfRootGridTilesPerDimensionPerProcessor = 1;
   PartitionNestedGrids        = FALSE;
   ExtractFieldsOnly           = TRUE;
@@ -538,6 +547,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   ShockwaveRefinementMinVelocity = 1.0e7; //1000 km/s
   ShockwaveRefinementMaxLevel = 0; 
   MustRefineParticlesRefineToLevel = 0;
+  MustRefineParticlesCreateParticles = 0;
   MustRefineParticlesRefineToLevelAutoAdjust = FALSE;
   MustRefineParticlesMinimumMass   = 0.0;
   ComovingCoordinates              = FALSE;        // No comoving coordinates

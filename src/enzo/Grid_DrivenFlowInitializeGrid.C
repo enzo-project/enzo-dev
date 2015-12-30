@@ -112,12 +112,12 @@ int grid::DrivenFlowInitializeGrid(float DrivenFlowDensity,
        MagneticField[0][i] = DrivenFlowMagField;
     }
     Energy += 0.5 * pow(DrivenFlowMagField,2) / DrivenFlowDensity;
+  this->CenterMagneticField();
   }
   
   if (EquationOfState == 0)
     for( int i = 0; i < size; i++)
       BaryonField[ietot][i] = Energy;
 
-  this->CenterMagneticField();
   return SUCCESS;
 }

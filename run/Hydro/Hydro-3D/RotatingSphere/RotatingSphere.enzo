@@ -17,6 +17,7 @@ TopGridGravityBoundary = 0  # 1 = Isolated
 
 # Hierarchy Control Parameters
 StaticHierarchy            = 0 # 0 = AMR, 1 = No AMR
+UnigridTranspose           = 0
 MaximumRefinementLevel     = 2
 RefineBy                   = 2
 CellFlaggingMethod = 12

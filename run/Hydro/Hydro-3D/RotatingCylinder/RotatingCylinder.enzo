@@ -60,8 +60,9 @@ TimeUnits = 3.1557e+13    # one megayear in seconds (Per Mass, Don't Forget.)
 
 SelfGravity                = 1
 GravitationalConstant      = 0.0139394         # 4*pi*G_{cgs}*DensityUnits*TimeUnits^2
-TopGridGravityBoundary = 1 //Topgrid Isolated
-LeftFaceBoundaryCondition = 1 1 1
+TopGridGravityBoundary     = 1 //Topgrid Isolated
+UnigridTranspose           = 0
+LeftFaceBoundaryCondition  = 1 1 1
 RightFaceBoundaryCondition = 1 1 1
 
 # other stuff (controlling chemistry, etc.)
