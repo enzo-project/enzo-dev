@@ -184,7 +184,7 @@ int gFLDProblem::Evolve(HierarchyEntry *ThisGrid, float deltat)
       // update HeI, HeII as appropriate fractions of 'true' density
       nHeI[i]   *= rho[i]*(1.0-HFrac)/rhochem;
       nHeII[i]  *= rho[i]*(1.0-HFrac)/rhochem;
-      nHeIII[i] *= max(0.0, rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i]);
+      nHeIII[i] = max(0.0, rho[i]*(1.0-HFrac) - nHeI[i] - nHeII[i]);
     }
   }
 
