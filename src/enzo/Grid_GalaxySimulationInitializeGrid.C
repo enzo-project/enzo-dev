@@ -755,10 +755,12 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
       /* This checks to see if the returned density is smaller than the halo
 	 density and issues warning. */
 
+#ifdef UNUSED
       if ( HaloGasDensity(sqrt(drcyl*drcyl+z*z)) >= DiskPotentialGasDensity(drcyl,z)
 	   && fabs(z) < zicm) {
 	printf("warning: small density zicm = %g, z = %g\n", zicm/Mpc, z/Mpc);
       } // end small density if
+#endif /* UNUSED */
 
       if (fabs(z) < fabs(zicm)) {
 	      
@@ -770,7 +772,7 @@ float DiskPotentialCircularVelocity(FLOAT cellwidth, FLOAT z, FLOAT density,
 
 	bulgeComp = (DiskGravityStellarBulgeMass == 0.0 ?
 		     0.0 : qromb(PbulgeComp2, fabs(zicm2), fabs(z)));
-	Pressure2 = (bulgeComp + qromb(PbulgeComp2, fabs(zicm2), fabs(z)))
+	Pressure2 = (bulgeComp + qromb(PstellarComp2, fabs(zicm2), fabs(z)))
 	  *(0.5*(1.0+cos(pi*(r2-SmoothRadius*Mpc)/(SmoothLength*Mpc))));
 
       } // end |z| < |zicm| if
