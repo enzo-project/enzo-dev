@@ -29,7 +29,7 @@ For details on the cosmic ray solver in Enzo see :ref:`cosmic_rays`.
     Cosmic ray diffusion coefficient in CGS units (cm^2/s), Default: 0.0. For MW-like galaxies: 1E28.
 
 ``CRCourantSafetyNumber`` (external)
-    Multiplies CR diffusion timestep, for stability should be <= 0.5. Default: 0.0
+    Multiplies CR diffusion timestep, for stability should be <= 0.5. Default: 0.5
 
 ``CRFeedback`` (external)
     Specify fraction of star formation feedback energy should be diverted into the cosmic
