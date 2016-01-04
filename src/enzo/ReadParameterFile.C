@@ -1103,10 +1103,10 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "ViscosityCoefficient = %"FSYM, &ViscosityCoefficient);  
     ret += sscanf(line, "UseAmbipolarDiffusion = %"ISYM"", &UseAmbipolarDiffusion);
     ret += sscanf(line, "UseResistivity = %"ISYM"", &UseResistivity);
-    ret += sscanf(line, "SmallRho = %g", &SmallRho);
-    ret += sscanf(line, "SmallP = %g", &SmallP);
-    ret += sscanf(line, "SmallT = %g", &SmallT);
-    ret += sscanf(line, "MaximumAlvenSpeed = %g", &MaximumAlvenSpeed);
+    ret += sscanf(line, "SmallRho = %"FSYM, &SmallRho);
+    ret += sscanf(line, "SmallP = %"FSYM, &SmallP);
+    ret += sscanf(line, "SmallT = %"FSYM, &SmallT);
+    ret += sscanf(line, "MaximumAlvenSpeed = %"FSYM, &MaximumAlvenSpeed);
     ret += sscanf(line, "Coordinate = %"ISYM, &Coordinate);
     ret += sscanf(line, "RiemannSolver = %"ISYM, &RiemannSolver);
     ret += sscanf(line, "RiemannSolverFallback = %"ISYM, &RiemannSolverFallback);
