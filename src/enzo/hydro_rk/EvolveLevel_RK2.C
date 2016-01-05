@@ -270,7 +270,8 @@ int EvolveLevel_RK2(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
   /* Count the number of colours in the first grid (to define NColor) */
 
   Grids[0]->GridData->SetNumberOfColours();
-  fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
+  if (debug)
+  	fprintf(stdout, "EvolveLevel_RK2: NColor = %"ISYM", NSpecies = %"ISYM"\n", NColor, NSpecies); 
 
   /* Clear the boundary fluxes for all Grids (this will be accumulated over
      the subcycles below (i.e. during one current grid step) and used to by the
