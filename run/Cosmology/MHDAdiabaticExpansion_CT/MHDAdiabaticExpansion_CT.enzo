@@ -1,0 +1,85 @@
+#AdiabaticExpansionInitialUniformBField = 0.0 1e-5 0.0
+#AdiabaticExpansionInitialUniformBField = 0.0 1e-6 0.0
+#AdiabaticExpansionInitialUniformBField = 0.0 1e-9 0.0
+#AdiabaticExpansionInitialUniformBField = 0.0 1.0 0.0
+AdiabaticExpansionInitialUniformBField = 0.0 0.0 0.0
+CycleSkipDataDump = 1
+StopCycle = 15
+#WriteGhostZones = 1
+#WriteBoundary = 1
+#StopCycle = 1
+#
+# AMR PROBLEM DEFINITION FILE: Adiabatic Expansion test
+#
+#  define problem
+#
+ProblemType                = 22      // Adiabatic Expansion
+TopGridRank                = 3
+TopGridDimensions          = 16 16 16
+SelfGravity                = 0       // gravity off
+TopGridGravityBoundary     = 0       // Periodic BC for gravity
+LeftFaceBoundaryCondition  = 3 3 3      // same for fluid
+RightFaceBoundaryCondition = 3 3 3
+#
+StaticRefineRegionLevel[0] = 0
+#StaticRefineRegionLeftEdge[0] = 0.375 0.375 0.375 
+#StaticRefineRegionRightEdge[0] = 0.625 0.625 0.625
+StaticRefineRegionLeftEdge[0] = 0.475 0.475 0.475 
+StaticRefineRegionRightEdge[0] = 0.725 0.725 0.725
+#
+#  problem parameters
+#
+AdiabaticExpansionInitialTemperature = 20000   // K
+AdiabaticExpansionInitialVelocity    = 0 #100   // km/s
+AdiabaticExpansionOmegaBaryonNow     = 1.0
+#AdiabaticExpansionInitialUniformBField = 0.0 0.0 0.0
+#
+#  define cosmology parameters
+
+
+ComovingCoordinates        = 1       // Expansion ON
+CosmologyHubbleConstantNow = 1.
+CosmologyOmegaMatterNow = 1
+CosmologyOmegaLambdaNow = 0
+CosmologyComovingBoxSize   = 64.0    // 64 Mpc/h
+CosmologyMaxExpansionRate  = 0.05    //
+CosmologyInitialRedshift   = 20      // start at z=20
+CosmologyFinalRedshift     = 0
+GravitationalConstant      = 1       // this must be true for cosmology
+#
+#  set I/O and stop/start parameters
+#
+Initialdt              = 1e-16
+dtDataDump             = 5.0
+
+#
+#  set hydro parameters
+#
+InterpolationMethod    = 1
+ConservativeInterpolation = 1
+UseHydro               = 1
+
+#HydroMethod            = 0
+HydroMethod            = 6
+NumberOfGhostZones     = 5
+MHD_CT_Method = 2
+Gamma                  = 1.6667
+CourantSafetyNumber    = 0.2
+PPMDiffusionParameter  = 0       // diffusion off
+DualEnergyFormalism    = 1       // use total & internal energy
+FluxCorrection = 1
+MaximumRefinementLevel = 1
+MaximumGravityRefinementLevel = 1
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // static hierarchy
+CellFlaggingMethod        = 2
+#
+#  set some global parameters
+#
+ParallelRootGridIO = 0
+PotentialIterations = 0
+WritePotential  = 1
+ComputePotential = 1
+Debug1 = 1
