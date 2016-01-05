@@ -1,13 +1,3 @@
-#AdiabaticExpansionInitialUniformBField = 0.0 1e-5 0.0
-#AdiabaticExpansionInitialUniformBField = 0.0 1e-6 0.0
-#AdiabaticExpansionInitialUniformBField = 0.0 1e-9 0.0
-#AdiabaticExpansionInitialUniformBField = 0.0 1.0 0.0
-AdiabaticExpansionInitialUniformBField = 0.0 0.0 0.0
-CycleSkipDataDump = 1
-StopCycle = 15
-#WriteGhostZones = 1
-#WriteBoundary = 1
-#StopCycle = 1
 #
 # AMR PROBLEM DEFINITION FILE: Adiabatic Expansion test
 #
@@ -22,17 +12,15 @@ LeftFaceBoundaryCondition  = 3 3 3      // same for fluid
 RightFaceBoundaryCondition = 3 3 3
 #
 StaticRefineRegionLevel[0] = 0
-#StaticRefineRegionLeftEdge[0] = 0.375 0.375 0.375 
-#StaticRefineRegionRightEdge[0] = 0.625 0.625 0.625
 StaticRefineRegionLeftEdge[0] = 0.475 0.475 0.475 
 StaticRefineRegionRightEdge[0] = 0.725 0.725 0.725
 #
 #  problem parameters
 #
 AdiabaticExpansionInitialTemperature = 20000   // K
-AdiabaticExpansionInitialVelocity    = 0 #100   // km/s
+AdiabaticExpansionInitialVelocity    = 100   // km/s
+AdiabaticExpansionInitialUniformBField = 0.0 1e-5 0.0
 AdiabaticExpansionOmegaBaryonNow     = 1.0
-#AdiabaticExpansionInitialUniformBField = 0.0 0.0 0.0
 #
 #  define cosmology parameters
 
@@ -50,7 +38,7 @@ GravitationalConstant      = 1       // this must be true for cosmology
 #  set I/O and stop/start parameters
 #
 Initialdt              = 1e-16
-dtDataDump             = 5.0
+dtDataDump             = 300
 
 #
 #  set hydro parameters
@@ -83,3 +71,4 @@ PotentialIterations = 0
 WritePotential  = 1
 ComputePotential = 1
 Debug1 = 1
+BAnyl = 1
