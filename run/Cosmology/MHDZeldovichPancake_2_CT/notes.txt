@@ -1,0 +1,10 @@
+
+This is another iteration of Zel'Dovich pancake.  This is tuned to almost 
+reproduce the result from Collins et al 2010, as well as the Dedner run in 
+run/Cosmology/MHDZeldovichPancake_2_Dedner
+
+Slight differences with the method paper exist due to the uniform initial
+distribution in the method paper.  
+
+Neither this nor the Dedner version use Dual Energy Formalism, in order to match
+the temperature field as well as possible.

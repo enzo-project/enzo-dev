@@ -37,7 +37,8 @@ dtDataDump             = 100.0    // dump at beginning and end
 #
 #  set hydro parameters
 #
-HydroMethod            = 4
+NumberOfGhostZones     = 5
+HydroMethod            = 6
 Gamma                  = 1.6667
 CourantSafetyNumber    = 0.2
 PPMDiffusionParameter  = 0       // diffusion off
@@ -47,7 +48,6 @@ ReconstructionMethod   = 0
 RiemannSolver          = 1
 Theta_Limiter          = 1.1
 Mu = 0.6
-SmallT = 2e-30
 #
 #  set grid refinement parameters
 #
