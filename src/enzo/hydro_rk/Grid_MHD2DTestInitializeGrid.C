@@ -35,7 +35,8 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 				  float vyl,  float vyu,
 				  float pl,   float pu,
 				  float Bxl,  float Bxu,
-				  float Byl,  float Byu)
+				  float Byl,  float Byu,
+				  int SetBaryonFields)
 {  
 
   int iZ;
@@ -64,7 +65,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
     //FieldType[NumberOfBaryonFields++] = DebugField;  
   }
   if (UseColour) {
-    FieldType[iZ = NumberOfBaryonFields++] = Metallicity;
+    FieldType[iZ = NumberOfBaryonFields++] = SNColour;
   }
 
   /* Return if this doesn't concern us. */
@@ -72,6 +73,10 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if (ProcessorNumber != MyProcessorNumber) {
     return SUCCESS;
   }
+
+  if (SetBaryonFields == 0) 
+    return SUCCESS;
+
 
   int size = 1, activesize = 1, dim;
   for (dim = 0; dim < GridRank; dim++)
@@ -885,7 +890,7 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
 
 
   /* Standing shock like in MHD2SProblemtype 5 but with small density perturbation
-     downstream from the shock to look at odd-even coupling. */ 
+     upstream from the shock to look at odd-even coupling. */ 
 
   if (MHD2DProblemType == 8) { 
 
@@ -1411,6 +1416,72 @@ int grid::MHD2DTestInitializeGrid(int MHD2DProblemType,
   if( UseMHDCT ){
       CenterMagneticField();
   }
+
+
+    /* Kelvin Helmholtz Problem as in D. Lecoanet et al. 2015 */ 
+  // rhol = rho_0
+  // rhou = delta rho
+  // vxl = u_flow
+  // vyl = A
+  // RampWidth = a
+
+  if (MHD2DProblemType == 16) {
+    FLOAT x,y;
+    int n=0;
+    float omega=vyu; // reusing UpperVelocityY as perturbation amplitude
+    float y1=0.5;
+    float y2=1.5;
+    float ramp,eint;
+    float a=RampWidth;
+    float sigma2=0.2*0.2;
+    float dpde, dpdrho,h,cs;
+    for (int j = 0; j < GridDimension[1]; j++) {
+      for (int i = 0; i < GridDimension[0]; i++, n++) {
+	
+	igrid = i + j*GridDimension[0];
+	
+	/* Compute position */
+	
+	x = CellLeftEdge[0][i] + 0.5*CellWidth[0][i];
+	y = CellLeftEdge[1][j] + 0.5*CellWidth[1][j];
+	
+
+	float rhoramp = 0.5*(tanh((y-y1)/a)-tanh((y-y2)/a));
+	float rho = rhol + rhoramp*(rhou/rhol-1.);
+	BaryonField[iden ][igrid] = rho;
+	BaryonField[ivx  ][igrid] = vxl  *(2.*rhoramp-1);
+	BaryonField[ivy  ][igrid]   = vyl*sin(2.*M_PI*x)*(exp(-(y-y1)*(y-y1)/sigma2)+exp(-(y-y2)*(y-y2)/sigma2));
+	BaryonField[ivz  ][igrid] = 0.0;
+
+	float P0=10;
+	float eint0=0.;
+	EOS(P0, rho, eint0, h, cs, dpdrho, dpde, 0, 1);
+
+	eint = eint0;
+	BaryonField[ietot][igrid] = eint + 
+	  0.5*(pow(BaryonField[ivx  ][igrid],2)+
+	       pow(BaryonField[ivy  ][igrid],2)+
+	       pow(BaryonField[ivz  ][igrid],2));
+	if (DualEnergyFormalism) {
+	  BaryonField[ieint][igrid] = eint ;
+	}
+	if (HydroMethod == MHD_RK) {
+	  BaryonField[iBx  ][igrid] = Bxu + ramp*(Bxl-Bxu);
+	  BaryonField[iBy  ][igrid] = Byu + ramp*(Byl-Byu);
+	  BaryonField[iBz  ][igrid] = 0.0;
+	  BaryonField[iPhi ][igrid] = 0.0;
+	}
+	if (UseColour)
+	  BaryonField[iZ][igrid] = 1.-rhoramp;
+
+      }
+    }
+  } // endif MHD2DProblemType == 16
+
+
+
+
+
 
   return SUCCESS;
 }

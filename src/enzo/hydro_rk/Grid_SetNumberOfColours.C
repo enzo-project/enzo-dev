@@ -74,12 +74,15 @@ int grid::SetNumberOfColours(void)
 
   NColor = 0;  
   NSpecies += _nc;
+
+  
   if (NSpecies != 0 && MultiSpecies == 0)
     NoMultiSpeciesButColors = 1;
-  /*
-  fprintf(stdout, "grid:SetNumberOfColours: NEQ_HYDRO = %"ISYM", NSpecies = %"ISYM", NColor = %"ISYM"\n", 
+
+  if (debug) 
+    fprintf(stdout, "grid:SetNumberOfColours: NEQ_HYDRO = %"ISYM", NSpecies = %"ISYM", NColor = %"ISYM"\n", 
   	  NEQ_HYDRO, NSpecies, NColor); 
-  */
+
 
   return SUCCESS;
 
