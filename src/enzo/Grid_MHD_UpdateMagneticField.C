@@ -46,7 +46,6 @@
 
 int CosmologyComputeExpansionFactor(FLOAT time, FLOAT *a, FLOAT *dadt);
 
-//int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel){
 int grid::MHD_UpdateMagneticField(int level, LevelHierarchyEntry * NextLevel, 
                                   int TimeIsBeforeSetLevelTimestep){
 
