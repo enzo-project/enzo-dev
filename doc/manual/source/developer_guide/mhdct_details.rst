@@ -52,17 +52,17 @@ In the grid initializer, e.g. ``Grid_MHDBlastInitializeGrid.C``, add
 
 This is the same as Dedner simulation.  Old versions of the code used a variable ``CenteredB``, which was redundant and cumbersome.
 
-2.) **Allocate the appropriate fields** 
+3.) **Allocate the appropriate fields** 
 Ensure your code calls ``this->AllocateGrids();`` rather than
 ``BaryonField[field] = new float[size]``.  
 
 
-3.) **Fill the Fields**  This can be either very straight forward, or very
+4.) **Fill the Fields**  This can be either very straight forward, or very
 difficult depending on your problem.  Here we'll present three cases.  Note that
 the very most important thing is that the field is **numerically** divergence
 free.  
 
-3a) **Uniform Magnetic Fields** If you have a uniform magnetic field defined by ``UniformField[3]``, you can initialize them like this:
+4a) **Uniform Magnetic Fields** If you have a uniform magnetic field defined by ``UniformField[3]``, you can initialize them like this:
 
 .. code-block:: c
 
@@ -77,7 +77,7 @@ Here, ``MagneticSize[]`` is defined in ``grid::AllocateGrids``.  In some initali
 over ``BaryonField``.  This is also acceptable, the missing face will be taken care of by the boundary set on the root grid.
 
 
-3b) **Simple Analytic Function** If you have a function, ``Function``, that is *numerically*
+4b) **Simple Analytic Function** If you have a function, ``Function``, that is *numerically*
 divergence free but a function of space,  you can loop over the grids
 zone-by-zone in the following manner.  **NOTE that your function is probably not
 like this**  Many functions are analytically diverence free, but numerically
@@ -97,7 +97,7 @@ involving sine is not.
     }
   }
  
-3c) **Anything Else** For any function that is more complex than a Heaviside
+4c) **Anything Else** For any function that is more complex than a Heaviside
 function, you will need to write your initial magnetic field as the curl of a
 vector potential, :math:`B = \nabla \times A`.    The curl operator,
 ``grid::MHD_Curl``, will allow you to take any field you like to initialize the
@@ -120,7 +120,7 @@ the vector potential in this case.  Such code might look like this:
 
 where ``Function`` is anything you like.  
 
-4.) **Center the magnetic field**  The final step is to fill the centered field, ``BaryonField[B1Num]`` (etc) from ``MagneticField``.  Call this
+5.) **Center the magnetic field**  The final step is to fill the centered field, ``BaryonField[B1Num]`` (etc) from ``MagneticField``.  Call this
 function once you've filled ``MagneticField``.
 
 .. code-block:: c
@@ -128,7 +128,7 @@ function once you've filled ``MagneticField``.
     this->CenterMagneticField();
 
 
-5.) **Add to the Energy** Finally you need to add the magnetic energy to the total
+6.) **Add to the Energy** Finally you need to add the magnetic energy to the total
 energy.  There are several ways to accomplish this.  Something like this is
 sufficient:
 
@@ -144,7 +144,7 @@ sufficient:
   }  
 
 
-6.) **If you refine on initialization** Some problems refine on initialization.
+7.) **If you refine on initialization** Some problems refine on initialization.
 If you have such an initializer, quite often the grid initializer is called on
 successive levels, then projected from fine to coarse.  If your routine does
 this, **AND** you have a simple (i.e. you didn't call ``MHD_Curl``) initializer,
