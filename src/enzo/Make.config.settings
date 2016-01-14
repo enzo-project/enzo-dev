@@ -331,4 +331,4 @@
 #    no            Compile without power of 2 block size allocations
 #----------------------------------------------------------------------- 
  
-     CONFIG_LOG2ALLOC = yes
+     CONFIG_LOG2ALLOC = no

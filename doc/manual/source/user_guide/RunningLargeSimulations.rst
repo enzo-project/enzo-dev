@@ -84,8 +84,9 @@ Compile-time options
 
 * ``log2alloc-yes``: All arrays created with ``new`` are allocated 
   with sizes that are the nearest power of 2.  This will result in a 
-  roughly 20% increase in overall memory usage, but will
-  significantly reduce memory fragmentation.  Default: ON
+  roughly 20% increase in overall memory usage, but in some cases,
+  should reduce memory fragmentation.  If you are having problems
+  with memory fragmentation, consider enabling this.  Default: OFF
 
 .. |ge| unicode:: 0x2265
 
