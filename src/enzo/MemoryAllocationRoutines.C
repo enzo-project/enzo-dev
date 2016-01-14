@@ -36,7 +36,7 @@
 #if defined(MEMORY_TRACE) || defined(USE_LOG2ALLOC)
 
 #ifdef USE_LOG2ALLOC
-#define LOG2ALLOC(size) ((size_t)pow(2, (int)log2(size-1)+1))
+#define LOG2ALLOC(size) ((size) > 1 ? ((size_t)pow(2, (int)log2(size-1)+1)) : 1 )
 #else
 #define LOG2ALLOC(size) (size)
 #endif
