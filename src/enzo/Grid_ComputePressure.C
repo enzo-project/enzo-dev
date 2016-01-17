@@ -35,7 +35,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
  
 int grid::ComputePressure(FLOAT time, float *pressure,
-                          float MinimumSupportEnergyCoefficient)
+                          float MinimumSupportEnergyCoefficient,
+                          int IncludeCRs)
 {
  
   /* declarations */
@@ -66,11 +67,17 @@ int grid::ComputePressure(FLOAT time, float *pressure,
     size *= GridDimension[dim];
  
   /* Find fields: density, total energy, velocity1-3. */
- 
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRNum;
+  if(CRModel) {
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+              Vel3Num, TENum, CRNum) == FAIL) {
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+    }
+  } else {
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+              Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+    }
   }
  
   /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
@@ -309,6 +316,14 @@ int grid::ComputePressure(FLOAT time, float *pressure,
       pressure[i] *= (Gamma1 - 1.0)/(Gamma - 1.0);
     }
 
+   /* If cosmic rays present, add pressure contribution */
+   if( CRModel && IncludeCRs){
+     float crDensity;
+     for (i=0; i<size; i++) {
+       crDensity = BaryonField[CRNum][i];
+       pressure[i] += max((CRgamma-1.0)*crDensity,0.0);
+     } // end for
+   } // end CRModel if
 
   return SUCCESS;
 }

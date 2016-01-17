@@ -52,6 +52,8 @@ int CommunicationBroadcastValue(PINT *Value, int BroadcastProcessor);
  
 int HydroShockTubesInitialize(FILE *fptr, FILE *Outfptr,
 			      HierarchyEntry &TopGrid, TopGridData &MetaData);
+int CRShockTubesInitialize(FILE *fptr, FILE *Outfptr,
+			   HierarchyEntry &TopGrid, TopGridData &MetaData);
 int WavePoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 		       TopGridData &MetaData);
 int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
@@ -95,7 +97,7 @@ int TestGravityInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
 int TestOrbitInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
                         TopGridData &MetaData);
 int GalaxySimulationInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
-                        TopGridData &MetaData);
+                        TopGridData &MetaData, ExternalBoundary &Exterior);
 int TestGravitySphereInitialize(FILE *fptr, FILE *Outfptr,
 			       HierarchyEntry &TopGrid, TopGridData &MetaData);
 int SphericalInfallInitialize(FILE *fptr, FILE *Outfptr,
@@ -510,7 +512,7 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   
   // 31) GalaxySimulation
   if (ProblemType == 31)
-    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData);
+    ret = GalaxySimulationInitialize(fptr, Outfptr, TopGrid, MetaData,Exterior);
 
   // 35) Shearing Box Simulation
   if (ProblemType == 35) 
@@ -656,6 +658,12 @@ int InitializeNew(char *filename, HierarchyEntry &TopGrid,
   if (ProblemType == 210) {
     ret = MHDDecayingRandomFieldInitialize(fptr, Outfptr, TopGrid, MetaData, 0);
   }
+
+  // 250 ) Cosmic Ray Shocktube Problem
+  if (ProblemType == 250){
+    ret = CRShockTubesInitialize(fptr, Outfptr, TopGrid, MetaData);
+  }
+
 
 
   /* ???? */

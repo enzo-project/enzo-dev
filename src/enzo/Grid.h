@@ -402,6 +402,11 @@ public:
    int ConductHeat();			     /* Conduct Heat */
    float ComputeConductionTimeStep(float &dt); /* Estimate conduction time-step */
 
+/* Member functions for dealing with Cosmic Ray Diffusion */
+
+   int ComputeCRDiffusion(); // CR Diffusion Method 
+   int ComputeCRDiffusionTimeStep(float &dt);
+
 /* Baryons: Copy current solution to Old solution (returns success/fail)
     (for step #16) */
 
@@ -523,7 +528,8 @@ gradient force to gravitational force for one-zone collapse test. */
 /* Baryons: compute the pressure at the requested time. */
 
   int ComputePressure(FLOAT time, float *pressure,
-                      float MinimumSupportEnergyCoefficient=0);
+                      float MinimumSupportEnergyCoefficient=0,
+                      int IncludeCRs=0);
 
 /* Baryons: compute the pressure at the requested time using the dual energy
             formalism. */
@@ -532,7 +538,7 @@ gradient force to gravitational force for one-zone collapse test. */
 
 /* Baryons: compute the temperature. */
 
-   int ComputeTemperatureField(float *temperature);
+   int ComputeTemperatureField(float *temperature,int IncludeCRs=0);
 
 /* Baryons: compute the temperature at the requested time using
    Gadget equilibrium cooling. */
@@ -1675,6 +1681,9 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num, 
 				 int &Vel2Num, int &Vel3Num, int &TENum);
 
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum,   int &Vel1Num,
+				 int &Vel2Num, int &Vel3Num, int &TENum, int &CRNum);
+
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
 				 int &Vel2Num, int &Vel3Num, int &TENum,
 				 int &B1Num, int &B2Num, int &B3Num);
@@ -1682,6 +1691,10 @@ int CreateParticleTypeGrouping(hid_t ptype_dset,
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
 				 int &Vel2Num, int &Vel3Num, int &TENum,
 				 int &B1Num, int &B2Num, int &B3Num, int &PhiNum);
+
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
+				 int &Vel2Num, int &Vel3Num, int &TENum,
+				 int &B1Num, int &B2Num, int &B3Num, int &PhiNum, int &CRNum);
 
   /* Identify driving fields */
 
@@ -1798,11 +1811,35 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				    float LeftPressure, float RightPressure,
 				    float CenterPressure);
 
+/* Cosmic Ray Shock Tube Problems: Initialize grid (returns SUCCESS or FAIL) */
+
+  int CRShockTubesInitializeGrid(float InitialDiscontinuity,
+				 float LeftDensity, float RightDensity,
+				 float LeftVelocityX, float RightVelocityX,
+				 float LeftVelocityY, float RightVelocityY,
+				 float LeftVelocityZ, float RightVelocityZ,
+				 float LeftPressure, float RightPressure,
+				 float LeftCRDensity, float RightCRDensity);
+  int CRShockTubesInitializeGrid(float InitialDiscontinuity,
+				 float SecondDiscontinuity,
+				 float LeftDensity, float RightDensity,
+				 float CenterDensity,
+				 float LeftVelocityX, float RightVelocityX,
+				 float CenterVelocityX,
+				 float LeftVelocityY, float RightVelocityY,
+				 float CenterVelocityY,
+				 float LeftVelocityZ, float RightVelocityZ,
+				 float CenterVelocityZ,
+				 float LeftPressure, float RightPressure,
+				 float CenterPressure,
+				 float LeftCRDensity, float RightCRDensity,
+				 float CenterCRDensity);
+
 /* Initialize for a uniform grid (returns SUCCESS or FAIL) */
 
   int InitializeUniformGrid(float UniformDensity, float UniformTotalEnergy,
 			    float UniformGasEnergy, float UniformVelocity[], 
-			    float UniformBField[]);
+			    float UniformBField[], float UniformCR = 0.0);
 
 
 /* Initialize a grid for the Double Mach reflection problem. */
@@ -2143,15 +2180,21 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 				     FLOAT DiskPosition[MAX_DIMENSION], 
 				     FLOAT ScaleHeightz,
 				     FLOAT ScaleHeightR, 
+				     FLOAT GalaxyTruncationRadius,
 				     float DMConcentration,
 				     float DiskTemperature,
 				     float InitialTemperature,
+				     float UniformDensity,
+				     int   GasHalo,
+				     float GasHaloScaleRadius,
+				     float GasHaloDensity,
 				     float AngularMomentum[MAX_DIMENSION],
 				     float UniformVelocity[MAX_DIMENSION], 
 				     int UseMetallicityField, 
 				     float GalaxySimulationInflowTime,
 				     float GalaxySimulationInflowDensity,
-				     int level);
+				     int level,
+				     float GalaxySimulationCR = 0.0 );
 
   /* Free expansion test */
   int FreeExpansionInitializeGrid(int FreeExpansionFullBox,

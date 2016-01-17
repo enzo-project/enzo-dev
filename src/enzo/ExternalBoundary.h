@@ -106,6 +106,9 @@ class ExternalBoundary
 //
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
                                  int &Vel2Num, int &Vel3Num, int &TENum);
+  int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num,
+                                 int &Vel2Num, int &Vel3Num, int &TENum,
+                                 int &CRNum );
   int IdentifyPhysicalQuantities(int &DensNum, int &GENum, int &Vel1Num, 
                                  int &Vel2Num, int &Vel3Num, int &TENum,
 				 int &B1Num, int&B2Num, int &B3Num, int &PhiNum);
@@ -121,9 +124,16 @@ class ExternalBoundary
 //
 // ShockPool test problem:
 //  This routine sets up the inflow boundary conditions to model an inflowing
-//   shock wave (from the left boundary).  See also ShockPoolGlobalData.h.
+//   shock wave (from the left boundary).
 //
   int SetShockPoolBoundary(FLOAT time);
+
+//
+// Galaxy Simulation RPS Wind boundary
+//   Sets up the inflow boundary conditions to model an 
+//   ICM wind bombarding a galaxy from an arbitrary angle
+  int SetGalaxySimulationBoundary(FLOAT time);
+
 //
 // DoubleMach problem:
 //  This routine sets up the necessary inflow boundary conditions.

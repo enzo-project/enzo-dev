@@ -1,0 +1,65 @@
+#
+# PROBLEM DEFINITION FILE: 
+#
+#  Cosmic Ray Shock Tube Problem
+#
+#  This is a fairly mild test. The solution consists of left
+#  rarefaction wave, a contact discontinuity, and a right shock.
+#
+#  See Pfrommer et al 2006 for information on the analytic sol'tn
+#
+
+#
+#  define problem
+#
+ProblemType            = 250
+TopGridRank            = 1
+TopGridDimensions      = 100	# From 100 
+
+#  Use Zeus Hydro along the CR Two-Fluid model
+#
+HydroMethod            = 2
+CRModel                = 1
+
+#
+#  set I/O and stop/start parameters
+#
+StopTime               = 0.31
+dtDataDump             = 1.0
+DataDumpName           = data
+
+#
+#  Boundary conditions are typically set to be transmissive for shock tubes
+#
+DomainRightEdge = 500.0
+LeftFaceBoundaryCondition    = 1 1 1
+RightFaceBoundaryCondition   = 1 1 1
+
+#  set hydro parameters
+#
+Gamma                  = 1.6666  #1.4
+CRgamma		       = 1.3333
+CourantSafetyNumber    = 0.4
+
+#
+#  set grid refinement parameters
+#
+StaticHierarchy           = 0    // dynamic hierarchy (AMR)
+MaximumRefinementLevel    = 3    // use up to 3 levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 1    // refine by local gradients
+MinimumSlopeForRefinement = 0.2
+
+#
+# The following parameters define the shock tube problem
+#
+HydroShockTubesInitialDiscontinuity  = 250.0
+HydroShockTubesSecondDiscontinuity   = 250.0
+HydroShockTubesLeftDensity           = 1.0
+HydroShockTubesLeftVelocityX         = 0.0
+HydroShockTubesLeftPressure          = 66666.0
+HydroShockTubesLeftCREnDensity       = 400000.0
+HydroShockTubesRightDensity          = 0.2
+HydroShockTubesRightVelocityX        = 0.0
+HydroShockTubesRightPressure         = 267.2
+HydroShockTubesRightCREnDensity      = 801.6

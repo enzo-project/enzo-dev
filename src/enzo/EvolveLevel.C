@@ -581,6 +581,14 @@ int EvolveLevel(TopGridData *MetaData, LevelHierarchyEntry *LevelArray[],
 	}
       }
 
+      /* Compute and Apply Cosmic Ray Diffusion */
+      if(CRDiffusion){
+        if(Grids[grid1]->GridData->ComputeCRDiffusion() == FAIL){
+          fprintf(stderr, "Error in grid->ComputeCRDiffusion.\n");
+          return FAIL;
+        } // end ComputeCRDiffusion if
+      }// end CRDiffusion if
+
       /* Gravity: clean up AccelerationField. */
 
 #ifndef SAB

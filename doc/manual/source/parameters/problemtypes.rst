@@ -71,6 +71,7 @@ Problem Type Description and Parameter List
 208          :ref:`agndisk_param`
 209	     MHD 1D Waves
 210	     MHD Decaying Random Magnetic Fields
+250	     :ref:`cr_shocktube_param`
 300          :ref:`poissonsolver_param`
 400          :ref:`rhdtest1_param`
 401          :ref:`rhdtest2_param`
@@ -1072,6 +1073,49 @@ Isolated Galaxy Evolution (31)
     Unit vector that defines the angular momentum vector of the galaxy
     (in other words, this and the center position define the plane of
     the galaxy). This _MUST_ be set! Default: (0.0, 0.0, 0.0)
+``GalaxySimulationRPSWind`` (external)
+    This flag turns on the ram pressure stripped (RPS) wind in the
+    GalaxySimulation problem and sets the mode.  0 = off, 1 = on with
+    simple constant wind values, 2 = on with RPS values set from a
+    file with the name ICMinflow_data.in.  For the file input case,
+    the file should consist of a set of lines with each line
+    specifying a 6 columns consisting of time, wind density, wind
+    temperature, wind x/y/z velocity.  All units in the file are
+    assumed to be CGS and wind values are applied at the time
+    indicated to the corner of the box, with linear interpolation
+    between key frames.  See Salem et al. (2015) for a worked example.
+    Default: 0
+``GalaxySimulationRPSWindShockSpeed`` (external)
+    This is speed of the RPS driven shock (which differs from the
+    wind velocity), to be used to determine where and when to apply
+    the appropriate wind boundary condition on the boundary.  Code units.
+    Default: 0.0
+``GalaxySimulationRPSWindDelay`` (external)
+    This is a delay (in code units) for the RPS wind to be applied
+    (for example to give time for the galaxy to relax).
+    Default: 0.0
+``GalaxySimulationRPSWindDensity`` (external)
+    For case 1, this is the density of the RPS wind, in code units.
+    Default: 1.0
+``GalaxySimulationRPSWindtotalEnergy`` (external)
+    For case 1, this is the total energy of the RPS wind, in code units.
+    Default: 1.0
+``GalaxySimulationRPSWindPressure`` (external)
+    For case 1, this is the pressutre of the RPS wind (unused).
+    Default: 1.0
+``GalaxySimulationRPSWindVelocity`` (external)
+    For case 1, This is the wind velocity (code units)
+    Default: 0 0 0
+``GalaxySimulationRPSWindPreWindDensity`` (external)
+    This is the density applied to the boundary before the wind arrives.
+    Default: 1.0
+``GalaxySimulationRPSWindPreWindTotalEnergy`` (external)
+    This is the total energy applied to the boundary before the wind arrives.
+    Default: 1.0
+``GalaxySimulationRPSWindPreWindVelocity`` (external)
+    This is the velocity vector applied to the boundary before the
+    wind arrives.
+    Default:
 
 .. _shearingbox_param:
 
@@ -1670,6 +1714,34 @@ AGN Disk (207)
     Initial height of the disk. Default: 1
 
 .. _poissonsolver_param:
+.. _shocktube_param:
+
+CR Shock Tube (250: unigrid and AMR)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Very similar to normal shock tube (see problem 1) but includes CR
+    component.  See Salem, Bryan & Hummels (2014) for discussion.
+
+    In addition the regular shock tube parameters, we add:
+
+``HydroShockTubesLeftCREnDensity``, ``HydroShockTubesRightCREnDensity`` (external)
+    The initial CR energy density on the left and right sides.
+    Default: 1.0 for each value.
+``HydroShockTubesCenterDensity``, ``HydroShockTubesCenterPressure``,
+``HydroShockTubesCenterVelocityX``,
+``HydroShockTubesCenterVelocityY``,
+``HydroShockTubesCenterVelocityZ``,
+``HydroShockTubesCenterCREnDensity`` (external)
+    In addition to setting a shock tube with two constant regions,
+    this version also allows for three constant region, 
+    with a Center region in addition to the Left and Right regions.
+    Finally, there are two special cases -- if
+    HydroShockTubesCenterCREnDensity is set to 123.4, then the central
+    region will be set to a ramp between the left and right regions,
+    and if HydroShockTubesCenterCREnDensity is set to 567.8, then a
+    gaussian CR energy density is initialized (these problems were set
+    up to test the CR diffusion).
+
 
 Poisson Solver Test (300)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

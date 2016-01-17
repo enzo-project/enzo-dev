@@ -259,7 +259,16 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     } // if(TestProblemData.GloverChemistryModel)
 
 
-    /* Add shock/cosmic ray variables as a colour variable. */
+    /* Add Cosmic Ray Energy Density as a colour variable. */
+    if(CRModel){
+      int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, CRNum;
+      if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+                       Vel3Num, TENum, CRNum ) == FAIL )
+        ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+      colnum[NumberOfColours++] = CRNum;
+    } // end CR if
+
+    /* Add shock variables as a colour variable. */
 
     if(ShockMethod){
       int MachNum, PSTempNum,PSDenNum;
@@ -402,7 +411,7 @@ int grid::SolveHydroEquations(int CycleNumber, int NumberOfSubgrids,
     /* Prepare Gravity. */
 
     int GravityOn = 0, FloatSize = sizeof(float);
-    if (SelfGravity || UniformGravity || PointSourceGravity || ExternalGravity)
+    if (SelfGravity || UniformGravity || PointSourceGravity || DiskGravity || ExternalGravity )
       GravityOn = 1;
 #ifdef TRANSFER
     if (RadiationPressure)

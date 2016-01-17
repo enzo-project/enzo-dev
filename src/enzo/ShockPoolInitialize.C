@@ -112,6 +112,7 @@ int ShockPoolInitialize(FILE *fptr, FILE *Outfptr, HierarchyEntry &TopGrid,
  
     ret += sscanf(line, "ShockPoolSubgridLeft = %"PSYM, &ShockPoolSubgridLeft);
     ret += sscanf(line, "ShockPoolSubgridRight = %"PSYM, &ShockPoolSubgridRight);
+    ret += sscanf(line, "ShockPoolDelay = %"FSYM, &ShockPoolDelay);
  
     /* if the line is suspicious, issue a warning */
  

@@ -126,6 +126,7 @@ OBJS_CONFIG_LIB = \
         CreateSmoothedDarkMatterFields.o \
         CreateSUBlingList.o \
         CreateFluxes.o \
+        CRShockTubesInitialize.o \
         InitializeFluxes.o \
         DeleteFluxes.o \
         DeleteSUBlingList.o \
@@ -166,6 +167,7 @@ OBJS_CONFIG_LIB = \
         ExternalBoundary_SetExternalBoundaryIO.o \
         ExternalBoundary_SetExternalBoundaryParticles.o \
         ExternalBoundary_SetShockPoolBoundary.o \
+        ExternalBoundary_SetGalaxySimulationBoundary.o \
         ExternalBoundary_SetWavePoolBoundary.o \
         ExternalBoundary_SetWengenCollidingFlowBoundary.o \
         ExternalBoundary_WriteExternalBoundary.o \
@@ -355,6 +357,8 @@ OBJS_CONFIG_LIB = \
 	Grid_ComputeCellCenteredField.o \
 	Grid_ComputeConductionTimeStep.o \
 	Grid_ComputeCoolingTime.o \
+        Grid_ComputeCRDiffusion.o \
+        Grid_ComputeCRDiffusionTimeStep.o \
 	Grid_ComputeDustTemperatureField.o \
 	Grid_ComputeElementalDensity.o \
 	Grid_ComputeEnergy.o \
@@ -394,6 +398,7 @@ OBJS_CONFIG_LIB = \
 	Grid_CreateChildParticles.o \
 	Grid_CreateFieldArray.o \
 	Grid_CreateParticleTypeGrouping.o \
+	Grid_CRShockTubesInitializeGrid.o \
 	Grid_DebugCheck.o \
 	Grid_DeleteAllButParticles.o \
 	Grid_DeleteAllFields.o \
