@@ -35,7 +35,8 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 	     float *VelocityUnits, FLOAT Time);
  
 int grid::ComputePressure(FLOAT time, float *pressure,
-                          float MinimumSupportEnergyCoefficient)
+                          float MinimumSupportEnergyCoefficient,
+                          int IncludeCRs)
 {
  
   /* declarations */
@@ -66,11 +67,17 @@ int grid::ComputePressure(FLOAT time, float *pressure,
     size *= GridDimension[dim];
  
   /* Find fields: density, total energy, velocity1-3. */
- 
-  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num;
-  if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
-				       Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
-    ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+  int DensNum, GENum, Vel1Num, Vel2Num, Vel3Num, TENum, B1Num, B2Num, B3Num, CRNum;
+  if(CRModel) {
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+              Vel3Num, TENum, CRNum) == FAIL) {
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+    }
+  } else {
+    if (this->IdentifyPhysicalQuantities(DensNum, GENum, Vel1Num, Vel2Num,
+              Vel3Num, TENum, B1Num, B2Num, B3Num) == FAIL) {
+      ENZO_FAIL("Error in IdentifyPhysicalQuantities.\n");
+    }
   }
  
   /* If using Zeus_Hydro, then TotalEnergy is really GasEnergy so don't
@@ -141,16 +148,14 @@ int grid::ComputePressure(FLOAT time, float *pressure,
 
 	  pressure[i] = (Gamma - 1.0)*density*gas_energy;
 
-
 	  if (pressure[i] < tiny_number)
 	    pressure[i] = tiny_number;
-      
 
       min_pressure =
         MinimumSupportEnergyCoefficient * (Gamma - 1.0) * density * density;
 
-        if (pressure[i] < min_pressure)
-         pressure[i] = min_pressure;
+         if (pressure[i] < min_pressure)
+          pressure[i] = min_pressure;
 
         }
 
@@ -310,6 +315,15 @@ int grid::ComputePressure(FLOAT time, float *pressure,
       Gamma1 = min(Gamma + (log10(BaryonField[DensNum][i])-8.0)*0.3999/2.5, 1.4);
       pressure[i] *= (Gamma1 - 1.0)/(Gamma - 1.0);
     }
+
+   /* If cosmic rays present, add pressure contribution */
+   if( CRModel && IncludeCRs){
+     float crDensity;
+     for (i=0; i<size; i++) {
+       crDensity = BaryonField[CRNum][i];
+       pressure[i] += max((CRgamma-1.0)*crDensity,0.0);
+     } // end for
+   } // end CRModel if
 
   return SUCCESS;
 }

@@ -13,6 +13,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <new>
 #ifdef USE_JEMALLOC
 #define JEMALLOC_MANGLE
@@ -24,28 +25,39 @@
 #include "typedefs.h"
 #include "global_data.h"
 
-#define NO_OVERLOAD_NEW
+#define NO_MEMORY_TRACE
 #define NO_MALLOC_REPORT
 #define MALLOC_REPORT_FREQUENCY 100
 
 /************************************************************************
- *  NEW/DELETE OVERLOAD, ADDING MEMORY LOGGING
+ *  NEW/DELETE OVERLOAD, ADDING MEMORY LOGGING AND/OR LOG2ALLOC
  ************************************************************************/
- 
-#ifdef OVERLOAD_NEW
- 
+
+#if defined(MEMORY_TRACE) || defined(USE_LOG2ALLOC)
+
+#ifdef USE_LOG2ALLOC
+#define LOG2ALLOC(size) ((size) > 1 ? ((size_t)pow(2, (int)log2(size-1)+1)) : 1 )
+#else
+#define LOG2ALLOC(size) (size)
+#endif
+
+#ifdef MEMORY_TRACE
 int CurrentMemoryUsage = 0;   // in words
 int MaximumMemoryUsage = 0;
 int NumberOfCalls      = 0;
 void *FirstAddress     = NULL;
 void *LargestAddress   = NULL;
+#endif /* MEMORY_TRACE */
  
 void* operator new(size_t NumberOfBytes)
 {
  
+  NumberOfBytes = LOG2ALLOC(NumberOfBytes);
+
   if (NumberOfBytes == 0)
     return NULL;
- 
+
+#ifdef MEMORY_TRACE
   CurrentMemoryUsage += NumberOfBytes;
   MaximumMemoryUsage = max(MaximumMemoryUsage, CurrentMemoryUsage);
   NumberOfCalls++;
@@ -56,6 +68,7 @@ void* operator new(size_t NumberOfBytes)
 	   float(CurrentMemoryUsage),
 	   float(MaximumMemoryUsage));
 #endif /* MALLOC_REPORT */
+#endif /* MEMORY_TRACE */
  
   void *pointer = malloc(NumberOfBytes+sizeof(float));
  
@@ -64,30 +77,34 @@ void* operator new(size_t NumberOfBytes)
     exit(EXIT_FAILURE);
   }
  
+#ifdef MEMORY_TRACE
   if (FirstAddress == NULL)
     FirstAddress = pointer;
   LargestAddress = max(LargestAddress, pointer);
- 
+#endif /* MEMORY_TRACE */
+
   *((float *) pointer) = float(NumberOfBytes);
  
   return (void *) (((float *) pointer) + 1);
  
 }
  
- 
+
 void operator delete(void *pointer)
 {
   if (pointer == NULL){
     return;}
  
+#ifdef MEMORY_TRACE
   CurrentMemoryUsage -= *(((float *) pointer) - 1);
+#endif /* MEMORY_TRACE */
  
   free(((float *) pointer) - 1);
  
   return;
 }
- 
-#endif /* OVERLOAD_NEW */
+
+#endif /* defined(MEMORY_TRACE) || defined(USE_LOG2ALLOC) */
 
 /************************************************************************
  *  NEW/DELETE OVERLOAD, USING AN EXTERNAL LIBRARY, JEMALLOC

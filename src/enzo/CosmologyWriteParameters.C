@@ -44,14 +44,15 @@ int CosmologyWriteParameters(FILE *fptr, FLOAT StopTime, FLOAT CurrentTime)
 		CosmologyOutputRedshiftName[i]);
     }
  
-  fprintf(fptr, "CosmologyHubbleConstantNow = %"GSYM"\n", HubbleConstantNow);
-  fprintf(fptr, "CosmologyOmegaMatterNow    = %"GSYM"\n", OmegaMatterNow);
-  fprintf(fptr, "CosmologyOmegaLambdaNow    = %"GSYM"\n", OmegaLambdaNow);
-  fprintf(fptr, "CosmologyComovingBoxSize   = %"GSYM"\n", ComovingBoxSize);
-  fprintf(fptr, "CosmologyMaxExpansionRate  = %"GSYM"\n", MaxExpansionRate);
-  fprintf(fptr, "CosmologyInitialRedshift   = %"GOUTSYM"\n", InitialRedshift);
-  fprintf(fptr, "CosmologyFinalRedshift     = %"GOUTSYM"\n", FinalRedshift);
-  fprintf(fptr, "CosmologyCurrentRedshift   = %"GOUTSYM"\n\n", CurrentRedshift);
+  fprintf(fptr, "CosmologyHubbleConstantNow  = %"GSYM"\n", HubbleConstantNow);
+  fprintf(fptr, "CosmologyOmegaMatterNow     = %"GSYM"\n", OmegaMatterNow);
+  fprintf(fptr, "CosmologyOmegaDarkMatterNow = %"GSYM"\n", OmegaDarkMatterNow);
+  fprintf(fptr, "CosmologyOmegaLambdaNow     = %"GSYM"\n", OmegaLambdaNow);
+  fprintf(fptr, "CosmologyComovingBoxSize    = %"GSYM"\n", ComovingBoxSize);
+  fprintf(fptr, "CosmologyMaxExpansionRate   = %"GSYM"\n", MaxExpansionRate);
+  fprintf(fptr, "CosmologyInitialRedshift    = %"GOUTSYM"\n", InitialRedshift);
+  fprintf(fptr, "CosmologyFinalRedshift      = %"GOUTSYM"\n", FinalRedshift);
+  fprintf(fptr, "CosmologyCurrentRedshift    = %"GOUTSYM"\n\n", CurrentRedshift);
  
   return SUCCESS;
 }

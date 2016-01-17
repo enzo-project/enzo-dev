@@ -1,0 +1,124 @@
+ 
+#
+# AMR PROBLEM DEFINITION FILE: 
+# 	Galaxy Simulation
+
+#  define problem
+ProblemType                = 31      // Galaxy Simulation
+TopGridRank                = 3
+TopGridDimensions          = 256 256 256
+SelfGravity                = 1       // gravity on
+TopGridGravityBoundary     = 1       // isolated gravity BCs
+UnigridTranspose           = 0       // currently required for isolated BCs
+LeftFaceBoundaryCondition  = 2 2 2    // periodic
+RightFaceBoundaryCondition = 1 1 1  
+ZEUSQuadraticArtificialViscosity = 2.0
+BaryonSelfGravityApproximation = 0
+
+GalaxySimulationUseMetallicityField   = 1 // tracer of disk gas for us
+
+GalaxySimulationDiskRadius       			= 0.3 // not what you think it is
+GalaxySimulationRefineAtStart         = 1
+
+# Gaseous Disk Params
+GalaxySimulationDiskPosition    			= 0.333 0.333 0.333
+GalaxySimulationGasMass        				= 5e8      // Msun
+GalaxySimulationDiskScaleHeightR			= 1.7e-3      //Mpc
+GalaxySimulationDiskScaleHeightz			= .34e-3      //Mpc
+GalaxySimulationTruncationRadius      = 15.0e-3     //Mpc
+
+# Gaseous Halo Params
+GalaxySimulationGasHalo            = 1        // hydrostatic
+GalaxySimulationGasHaloScaleRadius = .002     // Mpc
+GalaxySimulationGasHaloDensity     = 1.8e-27; // cgs
+ 
+# Pre-Shock Ambient Halo
+GalaxySimulationInitialTemperature      = 1199219.3517       // Kelvin
+GalaxySimulationUniformDensity          = 1.84562780554e-29  // g/cm^3
+
+
+GalaxySimulationAngularMomentum         = 0.0 0.0 -1.0
+ 
+# Post-Shock Wind
+# 0 - No Wind
+# 1 - Constant Values (specified below)
+# 2 - Lookup table (ICMinflow_data.in)
+GalaxySimulationRPSWind = 2
+GalaxySimulationRPSWindDensity     = 1.0E-28        # g/cm^3
+GalaxySimulationRPSWindPressure    = 1.012E-13      # dynes/cm^2
+GalaxySimulationRPSWindShockSpeed  = 341393.        # cm/s
+GalaxySimulationRPSWindDelay       = 0.0            # seconds
+GalaxySimulationPreWindDensity     = 1.0e-33        # g/cm^3
+GalaxySimulationPreWindTotalEnergy = 3.44e11        # (cm/s)^2
+
+
+
+# Stellar Disk/Bulge and Dark Matter 
+DiskGravity                        = 1
+DiskGravityPosition                = 0.333 0.333 0.333
+DiskGravityStellarDiskMass         = 2.7E9         // Msun
+DiskGravityStellarDiskScaleHeightR = 1.7E-3        // Mpc
+DiskGravityStellarDiskScaleHeightz = .34E-3        // Mpc
+DiskGravityStellarBulgeMass        = 0.0           // Msun
+DiskGravityStellarBulgeR           = 0.0           // Mpc
+DiskGravityDarkMatterR             = 2.5E-3        // Mpc
+DiskGravityDarkMatterDensity       = 7.7E-24   // CGS
+
+# Set units / box size
+DensityUnits          = 1e-27          # Related to LCDM Critical Density [ CGS ]
+LengthUnits           = 1.85140655e23  # 60 kpc in cm
+TimeUnits             = 3.1557e+13
+GravitationalConstant = 2.81259113e-9  # 4 pi G_cgs * DensUn * TimeUn^2
+
+#  set I/O and stop/start parameters
+dtDataDump             = 100.0 # Myr
+DataDumpName           = DD
+StopCycle 	           = 100000
+ParallelRootGridIO     = 0
+WriteExternalAccel     = 1
+OutputTemperature      = 1
+
+#
+#  set hydro parameters
+#
+Gamma                       = 1.6667
+PPMDiffusionParameter       = 0       // diffusion off
+CourantSafetyNumber         = 0.4
+#RootGridCourantSafetyNumber = 0.01 // reduce time step on root 
+#RadiativeCooling            = 1
+MultiSpecies                = 0
+FluxCorrection              = 1
+ConservativeInterpolation   = 0
+HydroMethod                 = 2  // ZEUS
+#DiffuseHeating		    = 8.5e-26
+#IsothermalEquationOfState   = 0
+#IsothermalTemperature       = 1.0e4  // in K
+
+#
+# Star Particles
+StarParticleCreation   = 0
+StarParticleFeedback   = 0
+StarMakerMassEfficiency = 0.05
+StarMakerOverDensityThreshold = 6.67e+7
+StarMakerMinimumMass = 1.0e+04
+StarMakerMinimumDynamicalTime = 1.0e+07
+OutputGriddedStarParticle      = 1
+StarEnergyToThermalFeedback = 3.0e-06
+
+#
+#  set grid refinement parameters
+StaticHierarchy           = 0    // dynamic hierarchy
+MaximumRefinementLevel    = 3    // use up to 5 levels
+RefineBy                  = 2    // refinement factor
+CellFlaggingMethod        = 2    // use baryon mass for refinement 
+MinimumEfficiency         = 0.3  // fraction efficiency
+MinimumOverDensityForRefinement = 4.0 // times the initial density
+MinimumMassForRefinementLevelExponent = 0.0
+MinimumEnergyRatioForRefinement = 0.4 // min Egas/Etot for shock refinement
+RefineRegionLeftEdge            = 0.1 0.1 0.1
+RefineRegionRightEdge           = 0.8 0.8 0.8
+SubgridSizeAutoAdjust           = 1
+
+#
+#  set some global parameters
+GreensFunctionMaxNumber   = 100   // # of greens function at any one time

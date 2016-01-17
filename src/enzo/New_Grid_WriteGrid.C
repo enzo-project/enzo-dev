@@ -409,6 +409,19 @@ int grid::Group_WriteGrid(FILE *fptr, char *base_name, int grid_id, HDF5_hid_t f
       }
     }
 
+		/* If requested, write the External Acceleration field */
+    if (WriteExternalAccel==1){
+				this->ComputeAccelerationFieldExternal();
+        this->write_dataset(GridRank, OutDims, "External_Acceleration_x",
+            group_id, file_type_id, (VOIDP) AccelerationField[0], TRUE, temp);
+        if (GridRank==3){
+          this->write_dataset(GridRank, OutDims, "External_Acceleration_y",
+              group_id, file_type_id, (VOIDP) AccelerationField[1], TRUE, temp);
+          this->write_dataset(GridRank, OutDims, "External_Acceleration_z",
+              group_id, file_type_id, (VOIDP) AccelerationField[2], TRUE, temp);
+        }
+    } // end if for write external acceleration field
+
    
 
     /* If requested, compute and output the temperature field 

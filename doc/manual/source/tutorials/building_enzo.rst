@@ -284,6 +284,7 @@ explanation of what these mean, see :ref:`MakeOptions`.
     CONFIG_FLUX_FIX  [fluxfix-{yes,no}]                       : yes
     CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : no
     CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : yes
+    CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : yes
     
     ~/enzo/src/enzo $ 
 

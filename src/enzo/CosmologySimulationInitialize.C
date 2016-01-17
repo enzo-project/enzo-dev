@@ -109,6 +109,7 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   char *Vel1Name = "x-velocity";
   char *Vel2Name = "y-velocity";
   char *Vel3Name = "z-velocity";
+  char *CRName   = "CREnergyDensity";
   char *ElectronName = "Electron_Density";
   char *HIName    = "HI_Density";
   char *HIIName   = "HII_Density";
@@ -403,6 +404,9 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
     Mu = 0.6;
   }
 
+  // Copy Omega_DM to a global variable
+  OmegaDarkMatterNow = CosmologySimulationOmegaCDMNow;
+  
   // If temperature is left unset, set it assuming that T=550 K at z=200
  
   if (CosmologySimulationInitialTemperature == FLOAT_UNDEFINED)
@@ -671,6 +675,22 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
 						       ) == FAIL) {
       ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
+
+    // Initialize MustRefine particles if MustRefineParticlesCreateParticles is set.
+
+    if (ParallelRootGridIO != TRUE && MustRefineParticlesCreateParticles == 1) {
+      if (MustRefineParticlesRefineToLevel != -1){
+	if (MustRefineParticlesRightEdge[0] != 0.0 ||
+	    MustRefineParticlesRightEdge[1] != 0.0 ||
+	    MustRefineParticlesRightEdge[2] != 0.0)
+	  GridsList[gridnum]->GridData->MustRefineParticlesFlagInRegion();
+	if (MustRefineParticlesRightEdge[0] == 0.0 &&
+	    MustRefineParticlesRightEdge[1] == 0.0 &&
+	    MustRefineParticlesRightEdge[2] == 0.0)
+	  GridsList[gridnum]->GridData->MustRefineParticlesFlagFromList();
+      }
+    }
+
  
     // Set boundary conditions if necessary
  
@@ -709,6 +729,8 @@ int CosmologySimulationInitialize(FILE *fptr, FILE *Outfptr,
   if (MaxVelocityIndex > 2)
     DataLabel[i++] = Vel3Name;
   DataLabel[i++] = TEName;
+	if(CRModel)
+    DataLabel[i++] = CRName;
   if (DualEnergyFormalism)
     DataLabel[i++] = GEName;
   if (UseMHD) {
@@ -1068,6 +1090,22 @@ int CosmologySimulationReInitialize(HierarchyEntry *TopGrid,
       ENZO_FAIL("Error in grid->CosmologySimulationInitializeGrid.\n");
     }
  
+    //Initialize MustRefine particles if MustRefineParticlesCreateParticles is set.
+     
+      if (MustRefineParticlesCreateParticles == 1) {
+      if (MustRefineParticlesRefineToLevel != -1){
+	if (MustRefineParticlesRightEdge[0] != 0.0 ||
+	    MustRefineParticlesRightEdge[1] != 0.0 ||
+	    MustRefineParticlesRightEdge[2] != 0.0)
+	  Temp->GridData->MustRefineParticlesFlagInRegion();
+	if (MustRefineParticlesRightEdge[0] == 0.0 &&
+	    MustRefineParticlesRightEdge[1] == 0.0 &&
+	    MustRefineParticlesRightEdge[2] == 0.0)
+	  Temp->GridData->MustRefineParticlesFlagFromList();
+      }
+    }
+
+
     Temp = Temp->NextGridThisLevel;
   }
 

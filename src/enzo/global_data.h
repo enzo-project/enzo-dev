@@ -217,6 +217,10 @@ EXTERN int MinimumSubgridEdge;
 
 EXTERN int MaximumSubgridSize;
 
+/* This is the maximum allowed ratio for a new subgrid */
+
+EXTERN float CriticalGridRatio;
+
 /* The number of zones that will be refined around each flagged zone. */
 
 EXTERN int NumberOfBufferZones;
@@ -266,6 +270,18 @@ EXTERN int PointSourceGravity;
 EXTERN FLOAT PointSourceGravityPosition[MAX_DIMENSION];
 EXTERN float PointSourceGravityConstant;
 EXTERN float PointSourceGravityCoreRadius;
+
+/* disk gravity */
+EXTERN int DiskGravity;
+EXTERN FLOAT DiskGravityPosition[MAX_DIMENSION],
+             DiskGravityAngularMomentum[MAX_DIMENSION];
+EXTERN float DiskGravityStellarDiskMass;
+EXTERN float DiskGravityStellarDiskScaleHeightR;
+EXTERN float DiskGravityStellarDiskScaleHeightz;
+EXTERN float DiskGravityStellarBulgeMass;
+EXTERN float DiskGravityStellarBulgeR;
+EXTERN float DiskGravityDarkMatterR;
+EXTERN float DiskGravityDarkMatterDensity;
 
 /* SelfGravity (TRUE or FALSE) */
 
@@ -397,6 +413,28 @@ EXTERN int GloverOpticalDepth; // 0: opticaly thin, 1: single-cell
 /* Multi-element metallicity field flag and count. */
 
 EXTERN int MultiMetals;
+
+/* Cosmic Ray Model
+ * 0: Off - default
+ * 1: On, (two fluid model)
+ */
+EXTERN int CRModel;
+/* Cosmic Ray Diffusion
+ * 0: Off - default
+ * 1: On, CRkappa is constant across grid
+ */
+EXTERN int CRDiffusion;
+/* Cosmic Ray Feedback
+ *    0.0 -- No CR feedback
+ *    1.0 -- All feedback into CR field
+ */
+EXTERN float CRFeedback;
+EXTERN float CRkappa;
+EXTERN float CRCourantSafetyNumber;
+EXTERN float CRdensFloor;
+EXTERN float CRmaxSoundSpeed;
+EXTERN float CRgamma;
+EXTERN float CosmologySimulationUniformCR; // FIXME
 
 /* Shock Finding Method
  * 0: Off - default
@@ -580,6 +618,17 @@ EXTERN int   MustRefineParticlesRefineToLevelAutoAdjust;
    For new particle system only refine around particles above the minimum mass */
 
 EXTERN float MustRefineParticlesMinimumMass;
+
+/* For CellFlaggingMethod = 8,
+   region in which particles are flagged as MustRefine particles */
+
+EXTERN FLOAT MustRefineParticlesLeftEdge[MAX_DIMENSION], 
+             MustRefineParticlesRightEdge[MAX_DIMENSION];
+
+/* For CellFlaggingMethod = 8,
+   binary switch that allows must refine particles to be created by the 
+   routines MustRefineParticlesFlagFromList or MustRefineParticlesFlagInRegion*/
+EXTERN int MustRefineParticlesCreateParticles;
 
 /* For CellFlaggingMethod = 9,   
    The minimum shear (roughly, dv accross two zones) required for 
@@ -990,6 +1039,9 @@ EXTERN int OutputWhenJetsHaveNotEjected;
 EXTERN int VelAnyl;
 EXTERN int BAnyl;
 
+/* Write Out External Acceleration Field */
+EXTERN int WriteExternalAccel;
+
 /* Gas drag */
 EXTERN int UseGasDrag;
 EXTERN float GasDragCoefficient;
@@ -1059,4 +1111,23 @@ EXTERN int CorrectParentBoundaryFlux;
 /* For EnzoTiming Behavior */
 EXTERN int TimingCycleSkip; // Frequency of timing data dumps.
 
+/* For the galaxy simulation boundary method */
+EXTERN int GalaxySimulationRPSWind;
+/* GalaxySimulationRPSWind
+ *   0 - OFF 
+ *   1 - Simple Shock w/ angle and delay 
+ *   2 - Lookup table of density and velocity
+ */
+EXTERN float GalaxySimulationRPSWindShockSpeed;
+EXTERN float GalaxySimulationRPSWindDelay;
+
+EXTERN float GalaxySimulationRPSWindDensity;
+EXTERN float GalaxySimulationRPSWindTotalEnergy;
+EXTERN float GalaxySimulationRPSWindVelocity[MAX_DIMENSION];
+EXTERN float GalaxySimulationRPSWindPressure;
+
+EXTERN float GalaxySimulationPreWindDensity;
+EXTERN float GalaxySimulationPreWindTotalEnergy; 
+EXTERN float GalaxySimulationPreWindVelocity[MAX_DIMENSION];
+ 
 #endif

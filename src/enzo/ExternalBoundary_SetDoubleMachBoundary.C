@@ -22,7 +22,6 @@
 #include "GridList.h"
 #include "ExternalBoundary.h"
 #include "Grid.h"
-#include "ShockPoolGlobalData.h"
  
 /* function prototypes */
  

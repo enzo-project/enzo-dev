@@ -59,6 +59,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   char *PhiName = "Phi";
   char *DebugName = "Debug";
   char *Phi_pName = "Phip";
+  char *CRName = "CREnergyDensity";
   char *GPotName  = "Grav_Potential";
 
   /* declarations */
@@ -79,6 +80,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   float AdiabaticExpansionInitialTemperature = 200;  // degrees K
   float AdiabaticExpansionInitialUniformBField[MAX_DIMENSION];  // in Gauss
   float AdiabaticExpansionInitialVelocity    = 100;  // km/s
+	float AdiabaticExpansionInitialCR          = 1.8e-15; // ergs/cm^3
  
   float InitialVels[MAX_DIMENSION];  // Initialize arrays
   for (int dim = 0; dim < MAX_DIMENSION; dim++) {
@@ -106,6 +108,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 		  AdiabaticExpansionInitialUniformBField+2);
     ret += sscanf(line, "AdiabaticExpansionInitialVelocity = %"FSYM,
 		  &AdiabaticExpansionInitialVelocity);
+    ret += sscanf(line, "AdiabaticExpansionInitialCR = %"FSYM,
+      &AdiabaticExpansionInitialCR);
  
     /* if the line is suspicious, issue a warning */
  
@@ -125,7 +129,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   /* Get the units so we can convert temperature later. */
  
   float DensityUnits=1, LengthUnits=1, TemperatureUnits=1, TimeUnits=1,
-    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0;
+    VelocityUnits=1, PressureUnits=1.,MagneticUnits=1., a=1,dadt=0,CRUnits=1;
 
   if (GetUnits(&DensityUnits, &LengthUnits, &TemperatureUnits,
 	       &TimeUnits, &VelocityUnits, InitialTimeInCodeUnits) == FAIL) {
@@ -133,10 +137,13 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
   }
   PressureUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
   MagneticUnits = sqrt(PressureUnits*4.0*M_PI);
+	CRUnits = DensityUnits * (LengthUnits/TimeUnits)*(LengthUnits/TimeUnits);
 
   for (int dim = 0; dim < MAX_DIMENSION; dim++) 
     AdiabaticExpansionInitialUniformBField[dim] /= MagneticUnits;
-  
+
+  AdiabaticExpansionInitialCR /= CRUnits;
+
   /* Put inputs in a form that will be understood by InitializeUniformGrid. */
  
   float InitialTotalEnergy, InitialGasEnergy;
@@ -158,7 +165,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 					      AdiabaticExpansionOmegaBaryonNow,
 					      InitialTotalEnergy,
 					      InitialGasEnergy, InitialVels,
-					      AdiabaticExpansionInitialUniformBField
+					      AdiabaticExpansionInitialUniformBField,
+					      AdiabaticExpansionInitialCR
 					      ) == FAIL) {
         ENZO_FAIL("Error in InitializeUniformGrid.");
   }
@@ -185,6 +193,7 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
     DataLabel[i++] = Phi_pName;
     DataLabel[i++] = DebugName;
   }
+	if(CRModel) DataLabel[i++] = CRName;
   if (WritePotential)
     DataLabel[i++] = GPotName;  
  
@@ -226,6 +235,8 @@ int AdiabaticExpansionInitialize(FILE *fptr, FILE *Outfptr,
 
     fprintf(Outfptr, "AdiabaticExpansionInitialVelocity    = %"FSYM"\n\n",
 	    AdiabaticExpansionInitialVelocity);
+    fprintf(Outfptr, "AdiabaticExpansionInitialCR          = %"FSYM"\n\n",
+      AdiabaticExpansionInitialCR);
   }
  
   return SUCCESS;

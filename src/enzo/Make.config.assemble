@@ -971,6 +971,35 @@
     endif
 
 
+#-----------------------------------------------------------------------
+# DETERMINE LOG2ALLOC SETTINGS
+#-----------------------------------------------------------------------
+
+    ERROR_LOG2ALLOC = 1
+
+    # Settings to turn on log2 array allocations
+
+    ifeq ($(CONFIG_LOG2ALLOC),yes)
+        ERROR_LOG2ALLOC = 0
+        ASSEMBLE_LOG2ALLOC_DEFINES = -DUSE_LOG2ALLOC
+    endif
+
+    # Settings to turn off log2 array allocations
+
+    ifeq ($(CONFIG_LOG2ALLOC),no)
+        ERROR_LOG2ALLOC = 0
+        ASSEMBLE_LOG2ALLOC_DEFINES =
+    endif
+
+    # error if CONFIG_LOG2ALLOCis incorrect
+
+    ifeq ($(ERROR_LOG2ALLOC),1)
+       .PHONY: error_log2alloc
+       error_log2alloc:
+	$(error Illegal value '$(CONFIG_LOG2ALLOC)' for $$(CONFIG_LOG2ALLOC))
+    endif
+
+
 #=======================================================================
 # ASSIGN ALL OUTPUT VARIABLES
 #=======================================================================
@@ -1027,6 +1056,7 @@
               $(ASSEMBLE_GRAVITY_4S_DEFINES) \
               $(ASSEMBLE_ENZO_PERFORMANCE_DEFINES) \
               $(ASSEMBLE_GRACKLE_DEFINES) \
+              $(ASSEMBLE_LOG2ALLOC_DEFINES) \
               $(ASSEMBLE_ACCELERATION_BOUNDARY_DEFINES)
 
 

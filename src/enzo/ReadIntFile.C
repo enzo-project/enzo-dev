@@ -258,9 +258,8 @@ int ReadIntFile(char *name, int Rank, int Dim[], int StartIndex[],
   Slab_Dims[0] = component_rank_attr;
  
   for ( dim = 1; dim < Slab_Rank; dim++ )
-  {
-    Slab_Dims[dim] = field_dims_attr[dim-1];
-  }
+    Slab_Dims[dim] = field_dims_attr[Rank-dim];
+
  
   if (io_log) fprintf(log_fptr, "  Extended Rank %"ISYM"\n", (int) Slab_Rank);
   for ( dim = 0; dim < Slab_Rank; dim++ )

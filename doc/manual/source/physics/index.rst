@@ -12,4 +12,4 @@ physics modules.
    cooling.rst
    radiative_transfer.rst
    shock_finding.rst
-
+   cosmic_rays.rst
