@@ -73,14 +73,14 @@ free.
 
   }
 
-Here, ``MagneticSize[]`` is defined in ``grid::AllocateGrids``.  In some initalizers this is done within the ``i,j,k`` loop
+Here, ``MagneticSize[]`` is defined in ``grid::AllocateGrids``.  In some initializers this is done within the ``i,j,k`` loop
 over ``BaryonField``.  This is also acceptable, the missing face will be taken care of by the boundary set on the root grid.
 
 
 4b) **Simple Analytic Function** If you have a function, ``Function``, that is *numerically*
 divergence free but a function of space,  you can loop over the grids
 zone-by-zone in the following manner.  **NOTE that your function is probably not
-like this**  Many functions are analytically diverence free, but numerically
+like this**  Many functions are analytically divergence free, but numerically
 they are not.  Piecewise constant functions are possible candidates, anything
 involving sine is not.
 
@@ -168,7 +168,7 @@ or the code will fail horribly.
 **If you refine on initialization and have a complex initializer** you will need
 to project the electric field, then take the curl over the whole grid.  I have
 never done this, so writing documentation would be speculative at best.  Please
-feel free to contact David Collins through the enzo mailing list in such a case, and I can both help make it happen and write the document.
+feel free to contact David Collins through the Enzo mailing list in such a case, and I can both help make it happen and write the document.
 
 
 Data Structures
@@ -190,7 +190,7 @@ these variables.
 The centered magnetic field will be updated by ``grid::CenterMagneticField()``
 used strategically throughout the code.
 
-Note that old versions of the code incorporate an additonal data strucure,
+Note that old versions of the code incorporate an additional data structure,
 ``CenteredB``, to store the cell centered field.  This has been removed, and
 should be replaced by ``BaryonField[B1Num]``, etc.
 
@@ -251,7 +251,7 @@ improve memory overhead.  Again, interested parties can contact me for details.
 
 Multi-species needs to be tested.
 
-The mhd interpolation routine, ``mhd_interpolate.F``, could use to be refactored.  The interested 
+The mhd interpolation routine, ``mhd_interpolate.F``, could use to be re-factored.  The interested 
 student can feel free to contact David Collins.
 
 
