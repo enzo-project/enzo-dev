@@ -426,7 +426,7 @@ c              convert explosion time to code units
                tdp(n) = 0._RKIND
                minitial = mp(n)
                mform = mp(n)
-c               write(6,*) 'mform, minitial = ',mform,minitial
+               write(6,*) 'mform, minitial = ',mform,minitial
                goto 5
             endif
 
@@ -740,11 +740,11 @@ c
                call sum_abc(u, v, w, d, ge, u1, v1, w1, d1, 
      &              nx, ny, nz, iface, jface, kface, ic, jc, kc,
      &              asum, bsum, csum)
-c               write(6,*) 'abc1',asum, bsum, csum
+               write(6,*) 'abc1',asum, bsum, csum, kinf
                asum = asum - (kin_energy_before + kinf*energy)
 c               write(6,*) 'kin_energy_before,kinf*energy,energy:',
 c     &              kin_energy_before,kinf*energy,energy
-c               write(6,*) 'abc2',asum, bsum, csum
+               write(6,*) 'abc2',asum, bsum, csum
 c
 c           Calculate momentum contribution
 c
@@ -758,8 +758,11 @@ c           to each cell.
 c
                mom_per_cell = 0._RKIND
             endif
-
-c            write(6,*) 'mom_per_cell:',mom_per_cell
+            
+            write(6,*) 'mass_per_cell:',mass_per_cell
+            write(6,*) 'mom_per_cell:',mom_per_cell
+            write(6,*) 'thermal_energy_per_cell:',
+     &           thermal_energy_per_cell
 c
 c           Now add mass and momentum, using three-point CIC
 c
@@ -787,6 +790,16 @@ c     kin_energy_before has to be subtracted from energy_after
 c
             if(idual .eq. 0 .and. imethod .ne. 2)
      &           energy_after = energy_after - kin_energy_before
+
+
+            write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
+     &           energy_before + energy,energy,
+     &           abs(energy_after-energy_before -energy)/energy
+            write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
+     &           mass_before + mform*m_eject,mform*m_eject
+            write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
+     &           kin_energy_after, kin_energy_before + kinf*energy, 
+     &           kinf*energy
 
 c
 c           Error checks to see if the energy added in the particle frame
