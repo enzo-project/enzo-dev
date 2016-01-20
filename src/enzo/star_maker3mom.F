@@ -713,7 +713,8 @@ c
             call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_before, energy_before, 
-     &                           kin_energy_before, idual, imethod)
+     &                           kin_energy_before, idual, imethod,
+     &                           0)
 c            write(6,*) "m,e before:", mass_before, energy_before
 c
 c           Now add mass and momentum terms (normalization 1.0) to
@@ -776,7 +777,17 @@ c
             call sum_mass_energy(u, v, w, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_after, energy_after, 
-     &                           kin_energy_after, idual, imethod)
+     &                           kin_energy_after, idual, imethod, 
+     &                           1)
+c
+c     In the case where the dual energy formalism is not used and the
+c     solver is not Zeus, the energy_after is not correct because the te
+c     field has not been updated.  The 
+c     kin_energy_before has to be subtracted from energy_after
+c
+            if(idual .eq. 0 .and. imethod .ne. 2)
+     &           energy_after = energy_after - kin_energy_before
+
 c
 c           Error checks to see if the energy added in the particle frame
 c           matches the values set by the input parameters
@@ -809,7 +820,8 @@ c
             endif
 
 c            write(6,*) 'energy (b,a,preda):',energy_before,energy_after, 
-c     &           energy_before + energy,energy
+c     &           energy_before + energy,energy,
+c     &           abs(energy_after-energy_before -energy)/energy
 c            write(6,*) 'mass (b,a,preda):', mass_before, mass_after, 
 c     &           mass_before + mform*m_eject,mform*m_eject
 c            write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
@@ -974,7 +986,7 @@ c
       subroutine sum_mass_energy(pu, pv, pw, d, ge, te, nx, ny, nz,
      &                           iface, jface, kface, ic, jc, kc,
      &                           mass_sum, energy_sum, kin_energy_sum,
-     &                           idual, imethod)
+     &                           idual, imethod, ite_not_updated)
 c
       implicit none
 #include "fortran_types.def"
@@ -982,10 +994,11 @@ c
 c     Arguments
 c
       INTG_PREC nx, ny, nz, iface, jface, kface, ic, jc, kc, idual
-      INTG_PREC imethod
+      INTG_PREC imethod,ite_not_updated
       R_PREC    pu(nx,ny,nz), pv(nx,ny,nz), pw(nx,ny,nz)
       R_PREC    d(nx,ny,nz), ge(nx,ny,nz), te(nx,ny,nz)
       R_PREC    mass_sum, energy_sum, kin_energy_sum, kin_energy
+
 c
 c     Locals
 c
@@ -1021,9 +1034,25 @@ c
      &              te(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k)
                if (idual .eq. 1) gas_energy = 
      &              ge(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k)
-               if (imethod .ne. 2 .and. idual .eq. 0) gas_energy =
-     &              te(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k) 
+c     The te field is not updated with the kinetic energy until the very end of the main routine
+c     to make sure it is consistent with the bulk velocities directly (an not just with the
+c     gas momenta).
+c     If the gas energy needs to be computed from the te field, then this needs to be taken into account.
+c     If te has not been updated with the kinetic energy, do not subtract off the present kinetic
+c     energy to get the gas internal energy.  The energy_sum returned by this routine is therefore 
+c     not strictly correct, but needs to be corrected in the main routine.
+c     If te has been updated, then kin_energy should be subtracted and the total energy returned is correct.
+               if (imethod .ne. 2 .and. idual .eq. 0 
+     &              .and. ite_not_updated .eq. 1) 
+     &              gas_energy = 
+     &              te(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k)
+
+               if (imethod .ne. 2 .and. idual .eq. 0 
+     &              .and. ite_not_updated .eq. 0) 
+     &              gas_energy = 
+     &              te(ic+i, jc+j, kc+k)*d(ic+i, jc+j, kc+k)
      &              - kin_energy
+
 c
                energy_sum = energy_sum + kin_energy + gas_energy
 c
