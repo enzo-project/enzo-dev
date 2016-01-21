@@ -10,7 +10,7 @@ CT preserves :math:`\nabla \cdot B` to machine precision, but is slightly harder
 
 
     ====================== ==================== ===============
-    quantity               MHD-RK               MHD-CT
+    quantity               MHD-RK               MHD-CT/MHD_Li
     ====================== ==================== ===============
     Reconstruction         PLM                  PLM
     Splitting              Unsplit, Runge Kutta Split (strang)
@@ -48,7 +48,11 @@ Use of MHD-CT
 Use of MHD-CT (``HydroMethod = 6``) is somewhat complicated by the staggered nature of the magnetic field.  This allows the
 field to be updated by the curl of an electric field, thus preserving
 :math:`\nabla \cdot B = 0` to machine precision, but requires some additional
-machinery to ensure consistency of the data structure.
+machinery to ensure consistency of the data structure.  In principle,
+Constrained Transport can be used with a variety of MHD methods, but presently
+it only works with the second-order scheme described by Li, Li, and Cen.  For
+this reason, a distinction is made between the hydro solver, ``MHD_Li`` as it is
+referred to in the code, and CT.
 
 The magnetic field is represented by two data structures.  
 
@@ -113,23 +117,24 @@ well as the output fields, and to rectify a missing :math:`1/a` in the pressure
 when using MHDCT (it probably did not impact your run.)  For clarity we briefly
 summarize the differences here.  The major difference between ``MHD_RK`` and
 ``MHD_Li`` is now the treatment of the dilution of the field due to cosmological
-expansion.  These terms are the :math:``\dot{a}/a`` in the method papers.
+expansion.  These terms are the :math:`\dot{a}/a` in the method papers.
 
 In both methods, the magnetic field most often seen in the code and in output is
 the comoving magnetic field.  The induction equation for the comoving magnetic
-field has an expansion term, :math:``\dot{a}/2 B``.  For ``MHD_RK``, this is
+field has an expansion term, :math:`\dot{a}/2 B`.  For ``MHD_RK``, this is
 integrated in ``Grid_MHDSourceTerms.C``, by way
 of direct finite difference.  For ``MHDCT``, the induction is formulated with a
-semi-comoving field, :math:``B_{semi} = B_{comoving} \sqrt{a}``.  In this
+semi-comoving field, :math:`B_{semi} = B_{comoving} \sqrt{a}`.  In this
 formulation there is no explicit expansion source term.  This is done in order
 to keep the divergence zero, and is the result of the manner in which
 projection from fine to coarse grids happens in the code.   In order to keep the
 code representation consistent throughout the bulk of Enzo, this change of
 fields from comoving to semi-comoving is done in
 ``Grid_MHD_UpdateMagneticField.C``.   It should be noted that in the Bryan et al
-2014, the total pressure is stated as :math:``p^* = p + B^2/2a`` (Equation 6 in
+2014, the total pressure is stated as :math:`p^* = p + B^2/2a` (Equation 6 in
 that paper.)  This is no
-longer valid, now the total pressure should be :math:``p^* = p + B^2/2``.
+longer valid, now the total pressure should be :math:`p^* = p + B^2/2` for both
+solvers in both the code and in analysis.
 
 It should also be noted that ``ElectricField`` is semi-comoving.
 
