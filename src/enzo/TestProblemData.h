@@ -64,6 +64,15 @@ struct TestProblemDataType
   float MultiMetalsField1_Fraction;
   float MultiMetalsField2_Fraction;
 
+  /* AJE */
+  float NI_Fraction;
+  float MgI_Fraction;
+  float FeI_Fraction;
+  float YI_Fraction;
+  float BaI_Fraction;
+  float LaI_Fraction;
+  float EuI_Fraction;
+
   /* simon glover chemistry+cooling */
   int GloverChemistryModel;
   

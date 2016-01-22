@@ -37,6 +37,9 @@ int grid::InitializeUniformGrid(float UniformDensity,
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum;
 
+  // AJE
+  int NINum, MgINum, FeINum, YINum, LaINum, BaINum, EuINum;
+
   int CINum, CIINum, OINum, OIINum, SiINum, SiIINum, SiIIINum, CHINum, CH2INum, 
     CH3IINum, C2INum, COINum, HCOIINum, OHINum, H2OINum, O2INum;
 
@@ -99,18 +102,52 @@ int grid::InitializeUniformGrid(float UniformDensity,
     }
   }
 
-  //  Metal fields, including the standard 'metallicity' as well 
-  // as two extra fields
+  //  Metal fields as defined by MultiMetals: (AJE 1/21/16)
+  //      0    : Standard metallicity field
+  //      1    : Above + two extra blank fields
+  //      --- Values > 2 meant to be coupled to stellar
+  //                   chemical evolution models + ejecta
+  //      These numbers are additive, meanting to include the elements
+  //      from 2 and 3 use 5. Use 9 to include all
+  //      2    : Metallicity field + alpha elements and Iron:
+  //             C, N, O, Mg, Si, Fe
+  //      3    : same as 2 + s-process
+  //             Y, Ba, La
+  //      4    : 3 + r-process
+  //             Eu   (Y, Ba, La as well but already defined above)
+  //
+  //  Full element names used to keep these distinct from 
+  //  Simon Glover's chemistry models (see below)          
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
     if (StarMakerTypeIaSNe)
       FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
-    if(TestProblemData.MultiMetals){
+    if(TestProblemData.MultiMetals == 1){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
       FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
     }
+    if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
+       TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
+      FieldType[CINum  = NumberOfBaryonFields++] =  CIDensity;
+      FieldType[NINum  = NumberOfBaryonFields++] =  NIDensity;
+      FieldType[OINum  = NumberOfBaryonFields++] =  OIDensity;
+      FieldType[MgINum = NumberOfBaryonFields++] = MgIDensity;
+      FieldType[SiINum = NumberOfBaryonFields++] = SiIDensity;
+      FieldType[FeINum = NumberOfBaryonFields++] = FeIDensity;
+    }
+    if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 || 
+       TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      FieldType[YINum  = NumberOfBaryonFields++] =  YIDensity;
+      FieldType[BaINum = NumberOfBaryonFields++] = BaIDensity;
+      FieldType[LaINum = NumberOfBaryonFeilds++] = LaIDensity;
+    }
+    if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
+       TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9    ){
+      FieldType[EuINum = NumberOfBaryonFields++] = EuIDensity;
+    }
+
   }
  
   // Simon glover's chemistry models (there are several)
@@ -279,6 +316,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
     } // if(TestProblemData.MultiSpecies)
 
     // metallicity fields (including 'extra' metal fields)
+    // AJE 1/21/19
     if(TestProblemData.UseMetallicityField){
       BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
@@ -286,11 +324,33 @@ int grid::InitializeUniformGrid(float UniformDensity,
 	BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*
 	  UniformDensity;
 
-      if(TestProblemData.MultiMetals){
+      if(TestProblemData.MultiMetals == 1){
       BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
       BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
 
       }
+      if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
+         TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
+ 
+        BaryonField[ CINum][i] = TestProblemData.CI_Fraction* UniformDensity;
+        BaryonField[ NINum][i] = TestProblemData.NI_Fraction* UniformDensity;
+        BaryonField[ OINum][i] = TestProblemData.OI_Fraction* UniformDensity;
+        BaryonField[MgINum][i] = TestProblemData.MgI_Fraction* UniformDensity;
+        BaryonField[SiINum][i] = TestProblemData.SiI_Fraction* UniformDensity;
+        BaryonField[FeINum][i] = TestProblemData.FeI_Fraction* UniformDensity;
+      }
+      if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 ||
+         TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+        BaryonField[ YINum][i] = TestProblemData.YI_Fraction* UniformDensity;
+        BaryonField[BaINum][i] = TestProblemData.BaI_Fraction* UniformDensity;
+        BaryonField[LaINum][i] = TestProblemData.LaI_Fraction* UniformDensity;
+      }
+     if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
+        TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+        BaryonField[EuINum][i] = TestProblemData.EuI_Fraction* UniformDensity;
+      }
+
+
     } // if(TestProblemData.UseMetallicityField)
 
         // simon glover chemistry stuff

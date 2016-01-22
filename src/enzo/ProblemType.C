@@ -177,10 +177,33 @@ int EnzoProblemType::InitializeUniformGrid(
   if (TestProblemData.UseMetallicityField) {
     tg->FieldType[MetalNum = tg->NumberOfBaryonFields++] = Metallicity;
 
-    if(TestProblemData.MultiMetals){
+    if(TestProblemData.MultiMetals == 1){
       tg->FieldType[ExtraField[0] = tg->NumberOfBaryonFields++] = ExtraType0;
       tg->FieldType[ExtraField[1] = tg->NumberOfBaryonFields++] = ExtraType1;
     }
+
+    if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
+       TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
+
+      tg->FieldType[ CINum = tg->NumberOfBaryonFields++] = CIDensity;
+      tg->FieldType[ NINum = tg->NumberOfBaryonFields++] = NIDensity;
+      tg->FieldType[ OINum = tg->NumberOfBaryonFields++] = OIDensity;
+      tg->FieldType[MgINum = tg->NumberOfBaryonFields++] = MgIDensity;
+      tg->FieldType[SiINum = tg->NumberOfBaryonFields++] = SiDensity;
+      tg->FieldType[FeINum = tg->NumberOfBaryonFields++] = FeIDesity;
+
+    }
+    if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 ||
+       TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      tg->FieldType[YINum  = tg->NumberOfBaryonFields++] =  YIDensity;
+      tg->FieldType[BaINum = tg->NumberOfBaryonFields++] = BaIDensity;
+      tg->FieldType[LaINum = tg->NumberOfBaryonFeilds++] = LaIDensity;
+        
+     }
+    if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
+        TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      tg->FieldType[EuINum = tg->NumberOfBaryonFields++] = EuIDensity;
+     }
   }
  
   // Simon glover's chemistry models (there are several)
@@ -355,11 +378,37 @@ int EnzoProblemType::InitializeUniformGrid(
     if(TestProblemData.UseMetallicityField){
       tg->BaryonField[MetalNum][i] = TestProblemData.MetallicityField_Fraction* UniformDensity;
 
-      if(TestProblemData.MultiMetals){
+      if(TestProblemData.MultiMetals == 1){
       tg->BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
       tg->BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
-
       }
+
+      if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
+         TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
+
+        tg->BaryonField[ CINum][i] = TestProblemData.CI_Fraction* UniformDensity;
+        tg->BaryonField[ NINum][i] = TestProblemData.NI_Fraction* UniformDensity;
+        tg->BaryonField[ OINum][i] = TestProblemData.OI_Fraction* UniformDensity;
+        tg->BaryonField[MgINum][i] = TestProblemData.MgI_Fraction* UniformDensity;
+        tg->BaryonField[SiINum][i] = TestProblemData.SiI_Fraction* UniformDensity;
+        tg->BaryonField[FeINum][i] = TestProblemData.FeI_Fraction* UniformDensity;
+      }
+      if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 ||
+         TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+        tg->BaryonField[ YINum][i] = TestProblemData.YI_Fraction* UniformDensity;
+        tg->BaryonField[BaINum][i] = TestProblemData.BaI_Fraction* UniformDensity;
+        tg->BaryonField[LaINum][i] = TestProblemData.LaI_Fraction* UniformDensity;
+      }
+     if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
+        TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+        tg->BaryonField[EuINum][i] = TestProblemData.EuI_Fraction* UniformDensity;
+      }
+
+
+
+
+
+
     } // if(TestProblemData.UseMetallicityField)
 
         // simon glover chemistry stuff

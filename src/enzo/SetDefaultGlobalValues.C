@@ -842,6 +842,15 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   TestProblemData.MultiMetalsField1_Fraction = tiny_number;
   TestProblemData.MultiMetalsField2_Fraction = tiny_number;
 
+  // AJE alpha process, iron, s and r process elements
+  TestProblemData.NI_Fraction  = tiny_number;
+  TestProblemData.MgI_Fraction = tiny_number;
+  TestProblemData.FeI_Fraction = tiny_number;
+  TestProblemData.YI_Fraction  = tiny_number;
+  TestProblemData.BaI_Fraction = tiny_number;
+  TestProblemData.LaI_Fraction = tiny_number;
+  TestProblemData.EuI_Fraction = tiny_number;
+
   TestProblemData.GloverChemistryModel = 0;
   // This is for the gas in the surrounding medium, for the blast wave problem.
   TestProblemData.CI_Fraction = tiny_number;

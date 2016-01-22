@@ -170,7 +170,17 @@ const field_type
   /* Cosmic Ray Energy Density */
   CRDensity = 97,
 
-  FieldUndefined  = 98;
+  /* AJE chemical evolution element densities */
+  NIDensity  = 98,
+  MgIDensity = 99,
+  FeIDensity = 100,
+  YIDensity  = 101,
+  BaIDensity = 102,
+  LaIDensity = 103,
+  EuIDensity = 104,
+
+
+  FieldUndefined  = 105;
 
 /*
 enum field_type {Density, TotalEnergy, InternalEnergy, Pressure,
