@@ -2172,6 +2172,14 @@ int zEulerSweep(int j, int NumberOfSubgrids, fluxes *SubgridFluxes[],
 			  float CosmologySimulationInitialUniformBField[]);
 
 
+  /* Initialization for chemical evolution test */
+  int ChemicalEvolutionInitialzeGrid(float StarMass, 
+                                     float StarPosX,
+                                     float StarPosY,
+                                     float StarPosZ,
+                                     float GasDensity,
+                                     float GasTemperature);
+
   /* Initialization for isolated galaxy sims */
   int GalaxySimulationInitializeGrid(
 				     FLOAT DiskRadius,

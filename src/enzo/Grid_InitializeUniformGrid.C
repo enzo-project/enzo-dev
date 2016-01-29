@@ -32,7 +32,7 @@ int grid::InitializeUniformGrid(float UniformDensity,
 {
   /* declarations */
  
-  int dim, i, j, k, index, size, field, GCM;
+  int dim, i, j, k, index, size, field, GCM, MM;
 
   int DeNum, HINum, HIINum, HeINum, HeIINum, HeIIINum, HMNum, H2INum, H2IINum,
     DINum, DIINum, HDINum, MetalNum, MetalIaNum, B1Num, B2Num, B3Num, PhiNum, CRNum;
@@ -121,30 +121,29 @@ int grid::InitializeUniformGrid(float UniformDensity,
   if (TestProblemData.UseMetallicityField) {
     FieldType[MetalNum = NumberOfBaryonFields++] = Metallicity;
 
+    MM = TestProblemData.MultiMetals; // for convenience
+  
     if (StarMakerTypeIaSNe)
       FieldType[MetalIaNum = NumberOfBaryonFields++] = MetalSNIaDensity;
 
-    if(TestProblemData.MultiMetals == 1){
+    if(MM == 1){
       FieldType[ExtraField[0] = NumberOfBaryonFields++] = ExtraType0;
       FieldType[ExtraField[1] = NumberOfBaryonFields++] = ExtraType1;
     }
-    if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
-       TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
+    if( (MM==2) || (MM==5) || (MM==6) || (MM==9){
       FieldType[CINum  = NumberOfBaryonFields++] =  CIDensity;
-      FieldType[NINum  = NumberOfBaryonFields++] =  NIDensity;
-      FieldType[OINum  = NumberOfBaryonFields++] =  OIDensity;
+      FieldType[NINum  = NumberOfBaryonFields++] =  OIDensity;
+      FieldType[OINum  = NumberOfBaryonFields++] =  NIDensity;
       FieldType[MgINum = NumberOfBaryonFields++] = MgIDensity;
       FieldType[SiINum = NumberOfBaryonFields++] = SiIDensity;
       FieldType[FeINum = NumberOfBaryonFields++] = FeIDensity;
     }
-    if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 || 
-       TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+    if( (MM==3) || (MM==5) || (MM==7) || (MM==9){
       FieldType[YINum  = NumberOfBaryonFields++] =  YIDensity;
       FieldType[BaINum = NumberOfBaryonFields++] = BaIDensity;
       FieldType[LaINum = NumberOfBaryonFeilds++] = LaIDensity;
     }
-    if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
-       TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9    ){
+    if( (MM==4) || (MM==6) || (MM==7) || (MM==9){
       FieldType[EuINum = NumberOfBaryonFields++] = EuIDensity;
     }
 
@@ -324,29 +323,27 @@ int grid::InitializeUniformGrid(float UniformDensity,
 	BaryonField[MetalIaNum][i] = TestProblemData.MetallicitySNIaField_Fraction*
 	  UniformDensity;
 
-      if(TestProblemData.MultiMetals == 1){
+      MM = TestProblemData.MultiMetals;
+
+      if(MM==1){
       BaryonField[ExtraField[0]][i] = TestProblemData.MultiMetalsField1_Fraction* UniformDensity;
       BaryonField[ExtraField[1]][i] = TestProblemData.MultiMetalsField2_Fraction* UniformDensity;
 
       }
-      if(TestProblemData.MultiMetals == 2 || TestProblemData.MultiMetals == 5 ||
-         TestProblemData.MultiMetals == 6 || TestProblemData.MultiMetals == 9   ){
- 
+      if( (MM==2) || (MM==5) || (MM==6) || (MM==9){ 
         BaryonField[ CINum][i] = TestProblemData.CI_Fraction* UniformDensity;
-        BaryonField[ NINum][i] = TestProblemData.NI_Fraction* UniformDensity;
-        BaryonField[ OINum][i] = TestProblemData.OI_Fraction* UniformDensity;
+        BaryonField[ NINum][i] = TestProblemData.OI_Fraction* UniformDensity;
+        BaryonField[ OINum][i] = TestProblemData.NI_Fraction* UniformDensity;
         BaryonField[MgINum][i] = TestProblemData.MgI_Fraction* UniformDensity;
         BaryonField[SiINum][i] = TestProblemData.SiI_Fraction* UniformDensity;
         BaryonField[FeINum][i] = TestProblemData.FeI_Fraction* UniformDensity;
       }
-      if(TestProblemData.MultiMetals == 3 || TestProblemData.MultiMetals == 5 ||
-         TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      if( (MM==3) || (MM==5) || (MM==7) || (MM==9){
         BaryonField[ YINum][i] = TestProblemData.YI_Fraction* UniformDensity;
         BaryonField[BaINum][i] = TestProblemData.BaI_Fraction* UniformDensity;
         BaryonField[LaINum][i] = TestProblemData.LaI_Fraction* UniformDensity;
       }
-     if(TestProblemData.MultiMetals == 4 || TestProblemData.MultiMetals == 6 ||
-        TestProblemData.MultiMetals == 7 || TestProblemData.MultiMetals == 9   ){
+      if( (MM==4) || (MM==6) || (MM==7) || (MM==9){
         BaryonField[EuINum][i] = TestProblemData.EuI_Fraction* UniformDensity;
       }
 
