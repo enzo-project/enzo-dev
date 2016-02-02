@@ -493,7 +493,7 @@ c
 
             if (xp(n) .lt. xstart .or. xp(n) .gt. xstart+dx*nx .or.
      &          yp(n) .lt. ystart .or. yp(n) .gt. ystart+dx*ny .or.
-     &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*ny) then
+     &          zp(n) .lt. zstart .or. zp(n) .gt. zstart+dx*nz) then
                write(6,*) 'warning: star particle out of grid',
      &              xp(n),yp(n),zp(n), xstart, ystart, zstart
                goto 100
