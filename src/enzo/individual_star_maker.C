@@ -97,9 +97,21 @@ int individual_star_maker(// a lot of stuff in here
                 type[ii] = -(*ctype);
                 tcp[ii]  = *t; // time of creation
 
-                xp[ii] = *xstart + ((float) i - 0.5)*(*dx);
-                yp[ii] = *ystart + ((float) j - 0.5)*(*dx);
-                zp[ii] = *zstart + ((float) k - 0.5)*(*dx);
+                // give the star particle a position chosen at random over
+                // the grid cell size .... random() function different 
+                // than mt_random to keep repeatability of IMF draws
+
+                // note to self... there is a bug in the .C star maker methods
+                // from the fortran due to the fact that they star at 0 and 1 in 
+                // index increments resepctively
+
+                xp[ii] = (*dx) * random() + *xstart + ((float) i + 0.5)*(*dx);
+                yp[ii] = (*dx) * random() + *ystart + ((float) j + 0.5)*(*dx);
+                zp[ii] = (*dx) * random() + *zstart + ((float) k + 0.5)*(*dx);
+                // upper.. from star_maker9 ... i think below should be i + 0.5 etc... 
+                //xp[ii] = *xstart + ((float) i - 0.5)*(*dx);
+                //yp[ii] = *ystart + ((float) j - 0.5)*(*dx);
+                //zp[ii] = *zstart + ((float) k - 0.5)*(*dx);
                
 
                 // Assign velocities depending on Hydro method
