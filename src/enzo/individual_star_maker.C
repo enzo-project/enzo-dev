@@ -17,22 +17,47 @@ int GetUnits(float *DensityUnits, float *LengthUnits,
 
 float SampleIMF(void);
 
+float GaussianRandomVariable(void);
+
 unsigned_long_int mt_random(void);
 
+float random(void);
 
 
-int individual_star_maker(// a lot of stuff in here
-                         )
+// need to initialize random!!!
+
+
+int individual_star_maker(int *nx, int *ny, int *nz, int *size,
+                          float *d, float *te, float *ge, float *u,
+                          float *v, float *w,  float *dt, float *r,
+                          float *dx, FLOAT *t, float *z, int *procnum,
+                          float *d1, float *x1, float *v1, float *t1, 
+                          int *nmax, FLOAT *xstart, FLOAT *ystart, 
+                          FLOAT *zstart, int *ibuff, int *imethod,
+                          int *level, float *gamma, float *mu, int *nproc, int *nstar,
+                          float *metal)
+
+ // since I would need to read in all of the chemical tracer fields in the above
+ // what I can do in StarParticleHandler is check which (if any) field is defined
+ // and then if it exists, pass the field
+ // if it doesn't exist then just pass a zero value array of size equal to the grid size...
+ // not sure how to do this completely though.
+
+
 {
   
   double msun = 1.989e33;
   double m1   = (*d1)*POW(*x1,3)/msun; // mass of gas
 
+  int i, j, k, index, ii;
+  int xo, yo, zo;
+  float bmass, div, min_temp, star_mass; 
+
   // check jeans length refinement
-  if (*jlrefine > 0){
-    jlsquared = ((double)((*gamma) * 3.14159621 * 1.38e-16 / 6.673e-08)/
-        ((double)(*d1) * 1.673e-24)) / (POW(*x1,2) / (*mu) / POW((*jlrefine),2);
-  }
+  //if (*jlrefine > 0){
+  //  jlsquared = ((double)((*gamma) * 3.14159621 * 1.38e-16 / 6.673e-08)/
+  //      ((double)(*d1) * 1.673e-24)) / (POW(*x1,2) / (*mu) / POW((*jlrefine),2);
+  //}
 
   /* Loop over grid and apply star formation criteria
      Create a star particle if it matches all of the criteria */
@@ -44,6 +69,8 @@ int individual_star_maker(// a lot of stuff in here
     xo = 1;
     yo = *nx;
     zo = (*nx) * (*ny);
+
+    min_temp = 1.0E4; // set conditional based on cooling and metals present
 
     for (k = *ibuff; k < *nz - *ibuff; k++){
       for (j = *ibuff; j < *ny - *ibuff; j++){
@@ -57,8 +84,10 @@ int individual_star_maker(// a lot of stuff in here
 
           bmass = d[index] * m1;
 
-          if (r[index] == 0.0 && d[index] > densthresh && temp[index] <= min_temp
-            && bmass > minimum_star_mass){
+          if (   r[index] == 0.0 
+              && d[index]     > IndividualStarDensityThreshold 
+              && temp[index] <= min_temp
+              && bmass        > IndividualStarIMFLowerMassCutoff){
 
             // 3) only check if above true. Divergence
             if (*imethod == 2) {
@@ -66,7 +95,7 @@ int individual_star_maker(// a lot of stuff in here
                     v[index + yo] - v[index] +
                     w[index + zo] - w[index];
             } else{
-              dev = u[index + xo] - u[index - xo] +
+              div = u[index + xo] - u[index - xo] +
                     v[index + yo] - v[index - yo] +
                     w[index + zo] - w[index - zo];        
 
@@ -76,14 +105,12 @@ int individual_star_maker(// a lot of stuff in here
             
               
               // -------------- create star particles --------------
-              while ( ii < *nmax ||  ) {
+              sum_mass = 0.0;
+              while ( ii < *nmax && 
+                      sum_mass < IndividualStarEfficiency * bmass) {
 
                 // here, make a call to IMF to sample the stellar mass
-                starMass = SampleIMF() ;
-                //
-                
-                 
-                mp[ii] = starMass;
+                mp[ii] = SampleIMF();
               
                 if (mp[ii] < 2){
                   tdp[ii] = POW(mp[ii], -3.0) ; //Msun**4.0 / Lsun
@@ -128,7 +155,8 @@ int individual_star_maker(// a lot of stuff in here
                        0.5 * (u[index-zo] + u[index + xo - ko])*d[index-ko]) /
                       ( d[index] + d[index-xo] + d[index+xo] +
                         d[index-yo] + d[index+yo] +
-                        d[index-ko] + d[index+ko] ); // 
+                        d[index-ko] + d[index+ko] ); //                
+
                  //below copied from above... check for typos 
                   vp[ii] = (
                        0.5 * (v[index   ] + v[index+xo])*d[index] +
@@ -187,19 +215,35 @@ int individual_star_maker(// a lot of stuff in here
                              d[index-yo] + d[index+yo] +
                              d[index-zo] + d[index+zo]);
                 } // imethod velocity assignment
+
+
+                //
+                // need to handle units... GRV returns mean of zero, std of 1
+                //  
+
+                // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
+                // sqrt(1/3) to get disp in each component... taking above velocities as the mean
+                up[ii] += GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269;
+                vp[ii] += GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269;
+                wp[ii] += GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269;
+                
                 
                 // this is where code would go to assign
                 // chemical tags to all of the particles 
                 // depending on whether or not multimetals is ON
-                if (imetal == 1){
+                if (TestProblemData.UseMetallicityField == 1){
                   metalf(ii) = metal[index];
+
+
+                  // if statements here for absorbing the individual metal fields
+
                 } else{
                   metalf(ii) = 0.0;
                 }
 
                 
 
-                
+                sum_mass += mp[ii]; // add to counter 
                 ii++; // increment star index
               } // end while loop for creating stars
               // ---------------------------------------------------
@@ -209,15 +253,17 @@ int individual_star_maker(// a lot of stuff in here
                 return FAIL;
               }
                          
-
+              // remove mass from grid
+              d[index] = (d[index] * (*dx)*(*dx)*(*dx) - sum_mass) / 
+                                    ((*dx)*(*dx)*(*dx));
               
 
-            }
+            } // if div < 0
               
 
 
 
-           } // resolution and density
+          } // resolution and density
 
 
         } // enx x loop
@@ -265,4 +311,25 @@ float SampleIMF(void)
 
 // put feedback here
 
+
+float GaussianRandomVariable(void){
+ // returns gaussian random variable y1
+
+    float y1, y2, w; 
+    float x1 = random(), x2 = random();
+
+    do {
+       x1 = 2.0 * random() - 1.0;
+       x2 = 2.0 * random() - 1.0;
+       w  = x1 * x1 + x2 * x2;
+    } while ( w >= 1.0);
+
+
+  w = sqrt( ( -2.0 * log( w ) ) / w );
+  y1 = x1 * w;
+  y2 = x2 * w;
+
+  return y1;
+
+}
 
