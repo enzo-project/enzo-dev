@@ -1030,6 +1030,18 @@ int WriteParameterFile(FILE *fptr, TopGridData &MetaData, char *name = NULL)
   fprintf(fptr, "H2StarMakerH2FloorInColdGas        = %"GSYM"\n\n", H2StarMakerH2FloorInColdGas);
   fprintf(fptr, "H2StarMakerColdGasTemperature      = %"GSYM"\n\n", H2StarMakerColdGasTemperature);
 
+  /* AJE Indiviudal Star */
+  fprintf(fptr, "IndividualStarIMFUpperMassCutoff = %"FSYM"\n", IndividualStarIMFUpperMassCutoff);
+  fprintf(fptr, "IndividualStarIMFLowerMassCutoff = %"FSYM"\n", IndividualStarLowerMassCutoff);
+  fprintf(fptr, "IndividualStarVelocityDispersion = %"FSYM"\n", IndividualStarVelocityDispersion);
+  fprintf(fptr, "IndividualStarIMFSeed = %"ISYM"\n", IndividualStarIMFSeed);
+  fprintf(fptr, "IndividualStarIMF = %"ISYM"\n", IndividualStarIMF);
+  fprintf(fptr, "IndividualStarIMFCalls = %"ISYM"\n", IndividualStarIMFCalls);
+  fprintf(fptr, "IndividualStarSalpeterSlope = %"FSYM"\n", IndividualStarSalpeterSlope);
+  fprintf(fptr, "IndividualStarKroupaAlpha1 = %"FSYM"\n", IndividualStarKroupaAlpha1);
+  fprintf(fptr, "IndividualStarKroupaAlpha2 = %"FSYM"\n", IndividualStarKroupaAlpha2);
+  fprintf(fptr, "IndividualStarKroupaAlpha3 = %"FSYM"\n", IndividualStarKroupaAlpha3);
+
   /* Most Stanford additions: */
 
   fprintf(fptr, "UseHydro                   = %"ISYM"\n", UseHydro);

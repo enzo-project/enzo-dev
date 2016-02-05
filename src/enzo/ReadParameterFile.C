@@ -1045,6 +1045,28 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
     ret += sscanf(line, "H2StarMakerColdGasTemperature = %"FSYM,
 		  &H2StarMakerColdGasTemperature);
 
+    /* AJE Individual Star */
+    ret += sscanf(line, "IndividualStarIMFUpperMassCutoff = %"FSYM,
+                        &IndividualStarIMFUpperMassCutoff);
+    ret += sscanf(line, "IndividualStarIMFLowerMassCutoff = %"FSYM,
+                        &IndividualStarIMFLowerMassCutoff);
+    ret += sscanf(line, "IndividualStarVelocityDispersion = %"FSYM,
+                        &IndividualStarVelocityDispersion);
+    ret += sscanf(line, "IndividualStarIMFSeed = %"ISYM,
+                        &IndividualStarIMFSeed);
+    ret += sscanf(line, "IndividualStarIMFCalls = %"ISYM,
+                        &IndividualStarIMFCalls);
+    ret += sscanf(line, "IndividualStarIMF = %"ISYM,
+                        &IndividualStarIMF);
+    ret += sscanf(line, "IndividualStarSalpeterSlope =%"FSYM,
+                        &IndividualStarSalpeterSlope);
+    ret += sscanf(line, "IndividualStarKroupaAlpha1 =%"FSYM,
+                        &IndividualStarKroupaAlpha1);
+    ret += sscanf(line, "IndividualStarKroupaAlpha2 =%"FSYM,
+                        &IndividualStarKroupaAlpha2);
+    ret += sscanf(line, "IndividualStarKroupaAlpha3 =%"FSYM,
+                        &IndividualStarKroupaAlpha3);
+
     /* Read Movie Dump parameters */
 
     ret += sscanf(line, "MovieSkipTimestep = %"ISYM, &MovieSkipTimestep);

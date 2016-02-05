@@ -129,6 +129,17 @@ SPEXTERN float  H2StarMakerH2DissociationFlux_MW;
 SPEXTERN float  H2StarMakerH2FloorInColdGas;
 SPEXTERN float  H2StarMakerColdGasTemperature;
 
+SPEXTERN float IndividualStarIMFUpperMassCutoff;
+SPEXTERN float IndividualStarIMFLowerMassCutoff;
+SPEXTERN float IndividualStarVelocityDispersion;
+SPEXTERN int   IndividualStarIMFSeed;
+SPEXTERN int   IndividualStarIMF;
+SPEXTERN int   IndividualStarIMFCalls;
+SPEXTERN float IndividualStarSalpeterSlope;
+SPEXTERN float IndividualStarKroupaAlpha1;
+SPEXTERN float IndividualStarKroupaAlpha2;
+SPEXTERN float IndividualStarKroupaAlpha3;
+
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
 SPEXTERN float *IMFData;
