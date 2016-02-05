@@ -230,6 +230,20 @@ extern "C" void FORTRAN_NAME(star_maker_ssn)(int *nx, int *ny, int *nz,
     int *imetalSNIa, float *metalSNIa, float *metalfSNIa,
     int *imetalSNII, float *metalSNII, float *metalfSNII, float *mfcell);
 
+// AE 2/19
+int individual_star_maker(int *nx, int *ny, int *nz, int *size,
+                          float *d, float *dm, float *temp, float *u,
+                          float *v, float *w, float *dt,
+                          float *dx, FLOAT *t, float *z, int *procnum,
+                          float *d1, float *x1, float *v1, float *t1,
+                          int *nmax, FLOAT *xstart, FLOAT *ystart,
+                          FLOAT *zstart, int *ibuff, int *imethod,
+                          float *mu,
+                          float *metal, int *ctype,
+                          int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
+                          float *vp, float *wp, float *mp, float *tdp, 
+                          float *tcp, float *metalf, int *type);
+
 extern "C" void FORTRAN_NAME(star_maker_h2reg)(int *nx, int *ny, int *nz,
              float *d, float *dm, float *temp, float *u, float *v, float *w,
                 float *cooltime,
@@ -979,6 +993,40 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       }
       
     }
+
+    if (STARMAKE_METHOD(INDIVIDUAL_STAR)) {
+    
+      // comments
+      NumberOfNewParticlesSoFar = NumberOfNewParticles;
+
+      // convert overdensity threshold
+      if (level == MaximumRefinementLevel)
+      {
+        // lets try and form stars
+        if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
+                                 &size, BaryonField[DensNum], dmfield, temperature,
+                                 BaryonField[Vel1Num], BaryonField[Vel2Num],
+                                 BaryonField[Vel3Num], &dtFixed, &CellWidthTemp, &Time,
+                                 &zred, &MyProcessorNumber, &DensityUnits, &LengthUnits,
+                                 &VelocityUnits, &TimeUnits, &MaximumNumberOfNewPartilces,
+                                 CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
+                                 &HydroMethod, &Mu, &MetallicityField, &SingleStarType,
+                                 &NumberOfNewParticles, tg->ParticlePosition[0], tg->ParticlePosition[1],
+                                 tg->ParticlePosition[2], tg->ParticleVelocity[0], tg->ParticleVelocity[1],
+                                 tg->ParticleVelocity[2], tg->ParticleMass, tg->ParticleAttribute[1],
+                                 tg->ParticleAttribute[0], tg->ParticleAttribute[2], tg->ParticleType)
+                                                                            == FAIL){
+          ENZO_FAIL("Error in individual_star_maker.\n");
+        } // check work
+
+        // might be able to handle metal tagging here... rather than
+        // have to pass alll metal fields to the above function, have above save indeces
+        // for each star in an array, loop over newly formed particles and indeces and tag them here
+        // can even just to the 1D index... way better than having to pass many fields.
+
+      } // if max ref
+
+    } // INDIVIDUAL_STAR
 
     if (STARMAKE_METHOD(SINGLE_SUPERNOVA)) {
 
