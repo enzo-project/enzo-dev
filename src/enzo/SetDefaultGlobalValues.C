@@ -702,6 +702,18 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   H2StarMakerH2FloorInColdGas = 0.0;
   H2StarMakerColdGasTemperature = 1e4;
 
+  // AJE Individual Star
+  IndividualStarIMFUpperMassCutoff = 100.0;
+  IndividualStarIMFLowerMassCutoff =   1.0;
+  IndividualStarVelocityDispersion =   1.0; //km.s
+  IndividualStarIMFSeed            = INT_UNDEFINED;
+  IndividualStarIMF                = 0;
+  IndividualStarIMFCalls           = 0;
+  IndividualStarSalpeterSlope      = 2.5;
+  IndividualStarKroupaAlpha1       = 0.3;
+  IndividualStarKroupaAlpha2       = 1.3;
+  IndividualStarKroupaAlpha3       = 2.3;
+
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;
   LastSupernovaTime                = FLOAT_UNDEFINED;
