@@ -713,6 +713,7 @@ int SetDefaultGlobalValues(TopGridData &MetaData)
   IndividualStarKroupaAlpha1       = 0.3;
   IndividualStarKroupaAlpha2       = 1.3;
   IndividualStarKroupaAlpha3       = 2.3;
+  IndividualStarMassFraction       = 0.5;
 
   NumberOfParticleAttributes       = INT_UNDEFINED;
   AddParticleAttributes            = FALSE;

@@ -1066,6 +1066,8 @@ int ReadParameterFile(FILE *fptr, TopGridData &MetaData, float *Initialdt)
                         &IndividualStarKroupaAlpha2);
     ret += sscanf(line, "IndividualStarKroupaAlpha3 =%"FSYM,
                         &IndividualStarKroupaAlpha3);
+    ret += sscanf(line, "IndividualStarMassFraction =%"FSYM,
+                        &IndividualStarMassFraction);
 
     /* Read Movie Dump parameters */
 

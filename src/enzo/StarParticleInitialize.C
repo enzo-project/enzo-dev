@@ -33,10 +33,17 @@ int FindTotalNumberOfParticles(LevelHierarchyEntry *LevelArray[]);
 void RecordTotalStarParticleCount(HierarchyEntry *Grids[], int NumberOfGrids,
 				  int TotalStarParticleCountPrevious[]);
 
+
+int StarParticleIndividual_IMFInitialize(void);
+
+
+
 int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 			   int NumberOfGrids, LevelHierarchyEntry *LevelArray[], 
 			   int ThisLevel, Star *&AllStars,
 			   int TotalStarParticleCountPrevious[])
+
+
 {
 
   /* Return if this does not concern us */
@@ -58,6 +65,10 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   if (PopIIIInitialMassFunction)
     StarParticlePopIII_IMFInitialize();
+
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    StarParticleIndividual_IMFInitialize();
+  }
 
   int level, grids;
   Star *cstar;

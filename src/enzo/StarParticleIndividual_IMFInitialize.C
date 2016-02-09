@@ -30,20 +30,21 @@
 void mt_init(unsigned_int seed);
 unsigned_long_int mt_random(void);
 
-int StarParticleIndividual_IMFInitialize(float *IMF)
+int StarParticleIndividual_IMFInitialize(void)
 {
 
-  if (IMFData != NULL)
+  if (IMFData != NULL){
     return SUCCESS;
+  }
 
   IMFData = new float[IMF_TABLE_ENTRIES];
 
   int i;
   float m, m0, dm, total_fn;
 
-  dm = log10(IndividualStarUpperMassCutoff / IndividualStarLowerMassCutoff)/
+  dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/
        (float) (IMF_TABLE_ENTRIES-1);
-  m0 = log10(IndividualStarLowerMassCutoff);
+  m0 = log10(IndividualStarIMFLowerMassCutoff);
 
   total_fn = 0; // will hold cumulative probability density function
 
@@ -55,7 +56,7 @@ int StarParticleIndividual_IMFInitialize(float *IMF)
       IMFData[i] = total_fn;
     } // end tabulate
 
-  } else if (IndividualStarIMF == 1)} // Chabrier 2003
+  } else if (IndividualStarIMF == 1){ // Chabrier 2003
     for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
       m = POW(10.0, m0 + i*dm);
       total_fn += 0.158 * exp( - 0.5 * POW(log10(m)-log10(0.08),2.0) /

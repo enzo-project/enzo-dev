@@ -238,8 +238,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                           float *d1, float *x1, float *v1, float *t1,
                           int *nmax, FLOAT *xstart, FLOAT *ystart,
                           FLOAT *zstart, int *ibuff, int *imethod,
-                          float *mu,
-                          float *metal, int *ctype,
+                          float *mu, float *metal, int *ctype,
                           int *np, FLOAT *xp, FLOAT *yp, FLOAT *zp, float *up,
                           float *vp, float *wp, float *mp, float *tdp, 
                           float *tcp, float *metalf, int *type);
@@ -999,23 +998,24 @@ int grid::StarParticleHandler(HierarchyEntry* SubgridPointer, int level,
       // comments
       NumberOfNewParticlesSoFar = NumberOfNewParticles;
 
+
       // convert overdensity threshold
       if (level == MaximumRefinementLevel)
       {
+
         // lets try and form stars
         if(individual_star_maker(GridDimension, GridDimension+1, GridDimension+2,
                                  &size, BaryonField[DensNum], dmfield, temperature,
                                  BaryonField[Vel1Num], BaryonField[Vel2Num],
                                  BaryonField[Vel3Num], &dtFixed, &CellWidthTemp, &Time,
                                  &zred, &MyProcessorNumber, &DensityUnits, &LengthUnits,
-                                 &VelocityUnits, &TimeUnits, &MaximumNumberOfNewPartilces,
+                                 &VelocityUnits, &TimeUnits, &MaximumNumberOfNewParticles,
                                  CellLeftEdge[0], CellLeftEdge[1], CellLeftEdge[2], &GhostZones,
-                                 &HydroMethod, &Mu, &MetallicityField, &SingleStarType,
+                                 &HydroMethod, &Mu, MetalPointer, &SingleStarType,
                                  &NumberOfNewParticles, tg->ParticlePosition[0], tg->ParticlePosition[1],
                                  tg->ParticlePosition[2], tg->ParticleVelocity[0], tg->ParticleVelocity[1],
                                  tg->ParticleVelocity[2], tg->ParticleMass, tg->ParticleAttribute[1],
-                                 tg->ParticleAttribute[0], tg->ParticleAttribute[2], tg->ParticleType)
-                                                                            == FAIL){
+                                 tg->ParticleAttribute[0], tg->ParticleAttribute[2], tg->ParticleType) == FAIL){
           ENZO_FAIL("Error in individual_star_maker.\n");
         } // check work
 

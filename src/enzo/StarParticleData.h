@@ -139,6 +139,7 @@ SPEXTERN float IndividualStarSalpeterSlope;
 SPEXTERN float IndividualStarKroupaAlpha1;
 SPEXTERN float IndividualStarKroupaAlpha2;
 SPEXTERN float IndividualStarKroupaAlpha3;
+SPEXTERN float IndividualStarMassFraction;
 
 SPEXTERN float minStarLifetime;
 SPEXTERN FLOAT LastSupernovaTime;
