@@ -2,13 +2,20 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
-#include "macros_and_parameters.h"  // for multimetals access
+#include "ErrorExceptions.h"
+#include "macros_and_parameters.h"
 #include "typedefs.h"
-#include "global_data.h" // not sure
+#include "global_data.h"
+#include "Fluxes.h"
+#include "GridList.h"
+#include "ExternalBoundary.h"
+#include "Grid.h"
+#include "Hierarchy.h"
+#include "TopGridData.h"
+#include "LevelHierarchy.h"
 #include "phys_constants.h"
-// 
 
-#define USE // not sure if needed
+
 
 /* function prototypes */
 int GetUnits(float *DensityUnits, float *LengthUnits,
@@ -21,7 +28,7 @@ float GaussianRandomVariable(void);
 
 unsigned_long_int mt_random(void);
 
-float random(void);
+
 
 
 // need to initialize random!!!
@@ -48,16 +55,26 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
 {
 
-  const double msun = 1.989e33;
-  double m1   = (*d1)*POW(*x1,3)/msun; // mass of gas
+  const double msolar = 1.989e33;
+  const double sndspdC = 1.3095e8;
+  double m1   = (*d1)*POW(*x1,3); // mass units
 
-  int i, j, k, index, ii, istar, index_presf;
+  int i, j, k, index, ii=0, istar=0, index_presf=0;
   int xo, yo, zo;
-  float bmass, div, min_temp, star_mass, sum_mass;
+  float bmass, div, min_temp, star_mass=0.0, sum_mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
   float dtot, isosndsp2, jeansmass, star_fraction, odthreshold;
   float umean, vmean, wmean, px, py, pz, px_excess, py_excess, pz_excess;
+  float rnum;
   const double m_h = 1.673e-24;
+
+  const int max_random = (1<<16);
+
+
+  if ((*dt) == 0.0){
+    printf("DT EQUAL TO ZERO\N");
+    return FAIL;
+  }
 
   // check jeans length refinement
   //if (*jlrefine > 0){
@@ -73,17 +90,18 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
     yo = *nx;
     zo = (*nx) * (*ny);
 
-    min_temp = 1.0E4; // set conditional based on cooling and metals present
+    min_temp = 1.0E5; // set conditional based on cooling and metals present
 
     odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
 
+    printf("individual_star_maker: about to loop over grid cells\n");
     for (k = *ibuff; k < *nz - *ibuff; k++){
       for (j = *ibuff; j < *ny - *ibuff; j++){
-        index = (k * (*ny) + j) * (*nx) + (*ibuff);
+//        index = (k * (*ny) + j) * (*nx) + (*ibuff);
         for (i = *ibuff; i < *nx - *ibuff; i++){
+          index = i + (j + k * (*ny)) * (*nx);
 
-
-          bmass = d[index] * m1;
+          bmass = (d[index]*(*dx)*(*dx)*(*dx)) * m1 / msolar; // in solar masses
 
           // perform the following easy checks for SF before proceeding
           // 1) Are we in the highest resolution region? (yes if this is called)
@@ -93,9 +111,13 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
           //    above some fraction of cell mass. This is very unlikely to occur
           //    in intended use case:
           //    (i.e. baryon mass likely always going to be > ~10 solar masses)
+
+//break individual_star_maker.C:106
+
           if ( d[index]      > odthreshold
               && temp[index] <= min_temp
-              && IndividualStarMassFracion*bmass > IndividualStarIMFLowerMassCutoff){
+              && IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
+              && 0.5*bmass > IndividualStarIMFUpperMassCutoff){
 
             // 5) only check if above true. Divergence
             //if (*imethod == 2) {
@@ -111,46 +133,39 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
             // now that the above is done, compute some values
             dtot = ( d[index] + dm[index] ) * (*d1); // total density
-            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (*t1);
+            tdyn = sqrt(3.0 * pi / 32.0 / GravConst / dtot) / (*t1); // in code units
             isosndsp2 = sndspdC * temp[index] ; // not sure
             jeansmass = pi / (6.0 * sqrt(d[index]*(*d1)) *
-                            POW(pi * isosndsp2 / GravConst),1.5) / msolar;
+                            POW(pi * isosndsp2 / GravConst ,1.5)) / msolar; // in solar masses
 
-
+//break individual_star_maker.C:131
             if (jeansmass <= bmass){
-            //if ( 1 == true){ // temporary if statement to replace div check
-            //if (div < 0 ){ // if divergence is negative
 
 
 
-/*              // probability of star formation
-              if (star_fraction * bmass < IndividualStarIMFLowerMassCutoff){
-                pstar = starfraction * bmass / IndividualStarIMFLowerMassCutoff;
-                if (random() < pstar){
-                    star_fraction = IndividualStarIMFLowerMassCutoff / bmass;
-                }
-
-              }
-*/
               sum_mass = 0.0;
               index_presf = ii;
               //
-              star_fraction  = min(StarMakerMassEfficienty*(*dt)/tdyn,1.0);
+              star_fraction  = min(StarMakerMassEfficiency*(*dt)/tdyn, 1.0);
               mass_to_stars  = star_fraction * bmass;
               mass_available = StarMakerMassEfficiency * bmass;
               mass_to_stars  = min(mass_to_stars, mass_available);
-
+//              printf("individual_star_maker: SFM %"FSYM" dt %"FSYM" tdyn %"FSYM"\n",StarMakerMassEfficiency, *dt, tdyn);
+//              printf("individual_star_maker: sf %"FSYM" m2s %"FSYM" ma %"FSYM" sfb %"FSYM"\n", star_fraction, mass_to_stars, mass_available, star_fraction * bmass);
+//break individual_star_maker.C:144
               // if mass_to_stars greater than available mass, convert
               // all of available mass into stars
               // Frankly this is very unlikely to occur...
               if(mass_to_stars >= mass_available){
-                while( ii < *nmax && mass_available > IndividualStarIMFUpperMassCutoff){
+                mass_to_stars = mass_available;
+                while( ii < *nmax && mass_to_stars > IndividualStarIMFUpperMassCutoff){
                   mp[ii] = SampleIMF();
 
                   sum_mass       += mp[ii]; // counter for total star mass formed this cell
-                  mass_available -= mp[ii]; // reduce available mass
+                  mass_to_stars  -= mp[ii]; // reduce available mass
                   ii++;
                 }
+//                printf("individual_star_maker: mass available n m %"FSYM"  %"FSYM"\n",ii,sum_mass);
               }
 
               if (mass_to_stars > IndividualStarIMFUpperMassCutoff){
@@ -158,35 +173,49 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                   mp[ii] = SampleIMF();
                   sum_mass      += mp[ii];
                   mass_to_stars -= mp[ii];
-                  i++;
+                  ii++;
                 }
+//                printf("individual_star_maker: nUpper mass cutoff n m %"FSYM"  %"FSYM"\n",ii,sum_mass);
               }
 
               if (mass_to_stars > IndividualStarIMFLowerMassCutoff){
                 while (ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
                     mp[ii] = SampleIMF();
                     // accept if star mass doesn't exceed available
-                    if( mass_to_stars >= mp[ii]){
-                      sum_mass += mp[ii];
+
+                    if (mp[ii] <= mass_to_stars){
+                      sum_mass      += mp[ii];
                       mass_to_stars -= mp[ii];
-                      i++;
+                      ii++;
+                    } else if (abs(mp[ii] - mass_to_stars) < 0.1){
+                      mp[ii] = mass_to_stars;
+                      sum_mass      += mp[ii];
+                      mass_to_stars -= mp[ii];
+                      ii++;
                     }
                 }
+//                printf("individual_star_maker: lower mass cutoff  %"FSYM"  %"FSYM"\n",ii,sum_mass);
               }
 
               // now we are in the Goldbaum et. al. 2015 regime (star_maker_ssn.F)
               // random sample from IMF, calculate probability of that star forming
-              if (mass_to_stars < IndividualStarIMFLowerMassCutoff){
-                star_mass = sampleIMF();
+              if (mass_to_stars < IndividualStarIMFLowerMassCutoff && mass_to_stars > 0.0){
+                star_mass = SampleIMF();
                 pstar     = mass_to_stars / star_mass;
-                if (random() < pstar){
+                rnum =  (float) (random() % max_random) / (float) (max_random);
+                if (rnum < pstar){
                   mp[ii] = star_mass;
                   sum_mass += mp[ii];
-                  i++;
+                  ii++;
                 }
+//                printf("individual_star_maker: star_mass %"FSYM" pstar  %"FSYM" rnum  %"FSYM"\n",star_mass, pstar, rnum);
               }
 
-
+//              printf("individual_star_maker: mass_available %"FSYM"\n",mass_available);
+//             printf("individual_star_maker: ii %"ISYM"  mass_to_stars %"FSYM"\n",ii,mass_to_stars);
+//              printf("individual_star_maker: sum_mass %"FSYM"\n",sum_mass);
+//              printf("individual_star_maker: bmass %"FSYM"\n",bmass);
+//break individual_star_maker.C:198
 /*
               // -------------- create star particles --------------
               while ( ii < *nmax &&
@@ -229,11 +258,11 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                        0.5 * (u[index+xo] + u[index + xo + xo])*d[index+xo] +
                        0.5 * (u[index+yo] + u[index + xo + yo])*d[index+yo] +
                        0.5 * (u[index-yo] + u[index + xo - yo])*d[index-yo] +
-                       0.5 * (u[index+zo] + u[index + xo + ko])*d[index+ko] +
-                       0.5 * (u[index-zo] + u[index + xo - ko])*d[index-ko]) /
+                       0.5 * (u[index+zo] + u[index + xo + zo])*d[index+zo] +
+                       0.5 * (u[index-zo] + u[index + xo - zo])*d[index-zo]) /
                       ( d[index] + d[index-xo] + d[index+xo] +
                         d[index-yo] + d[index+yo] +
-                        d[index-ko] + d[index+ko] ); //
+                        d[index-zo] + d[index+zo] ); //
                 //below copied from above... check for typos
                 vmean = (
                          0.5 * (v[index   ] + v[index+xo])*d[index] +
@@ -241,22 +270,22 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                          0.5 * (v[index+xo] + v[index + xo + xo])*d[index+xo] +
                          0.5 * (v[index+yo] + v[index + xo + yo])*d[index+yo] +
                          0.5 * (v[index-yo] + v[index + xo - yo])*d[index-yo] +
-                         0.5 * (v[index+zo] + v[index + xo + ko])*d[index+ko] +
-                         0.5 * (v[index-zo] + v[index + xo - ko])*d[index-ko]) /
+                         0.5 * (v[index+zo] + v[index + xo + zo])*d[index+zo] +
+                         0.5 * (v[index-zo] + v[index + xo - zo])*d[index-zo]) /
                         ( d[index] + d[index-xo] + d[index+xo] +
                          d[index-yo] + d[index+yo] +
-                          d[index-ko] + d[index+ko] ); // 
+                          d[index-zo] + d[index+zo] ); // 
                 wmean = (
                          0.5 * (w[index   ] + w[index+xo])*d[index] +
                          0.5 * (w[index-xo] + w[index   ])*d[index-xo] +
                          0.5 * (w[index+xo] + w[index + xo + xo])*d[index+xo] +
                          0.5 * (w[index+yo] + w[index + xo + yo])*d[index+yo] +
                          0.5 * (w[index-yo] + w[index + xo - yo])*d[index-yo] +
-                         0.5 * (w[index+zo] + w[index + xo + ko])*d[index+ko] +
-                         0.5 * (w[index-zo] + w[index + xo - ko])*d[index-ko]) /
+                         0.5 * (w[index+zo] + w[index + xo + zo])*d[index+zo] +
+                         0.5 * (w[index-zo] + w[index + xo - zo])*d[index-zo]) /
                         ( d[index] + d[index-xo] + d[index+xo] +
                           d[index-yo] + d[index+yo] +
-                          d[index-ko] + d[index+ko] ); // 
+                          d[index-zo] + d[index+zo] ); // 
               }
               else{
                 umean = (u[index]*d[index] +
@@ -298,14 +327,13 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
               // now assign particle properties
               px = 0.0; py = 0.0; pz =0.0; // initialize momentum counters
+ //             printf("individual_star_maker: index_presf and ii %"ISYM"    %"ISYM"\n",index_presf,ii);
               for (istar = index_presf; istar < ii; istar++){
 
-                //if (mp[istar] <2){ tdp[istar] = POW(mp[istar], -3.0); }
-                //else if (mp[istar] < 20){ tdp[istar] = 0.666666667 *POW(mp[istar],-2.5);} // units!!
-                //else    {tdp[istar] = 3.125e-4;}
                 // need to make a new particle property thats the stellar lifetime
 
-                type[istar] = -(*ctype)
+//                type[istar] = -(*ctype);
+                type[istar] = 2;
                 tcp[istar]  = *t;
                 tdp[istar]  = tdyn;
 
@@ -317,89 +345,16 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                 // from the fortran due to the fact that they star at 0 and 1 in 
                 // index increments resepctively
 
-                xp[istar] = (*dx) * random() + *xstart + ((float) i + 0.5)*(*dx);
-                yp[istar] = (*dx) * random() + *ystart + ((float) j + 0.5)*(*dx);
-                zp[istar] = (*dx) * random() + *zstart + ((float) k + 0.5)*(*dx);
+                rnum =  (float) (random() % max_random) / (float) (max_random);
+                xp[istar] = (*dx) * rnum + *xstart + ((float) i + 0.5)*(*dx);
+                rnum =  (float) (random() % max_random) / (float) (max_random);
+                yp[istar] = (*dx) * rnum + *ystart + ((float) j + 0.5)*(*dx);
+                rnum =  (float) (random() % max_random) / (float) (max_random);
+                zp[istar] = (*dx) * rnum + *zstart + ((float) k + 0.5)*(*dx);
                 // upper.. from star_maker9 ... i think below should be i + 0.5 etc... 
                 //xp[ii] = *xstart + ((float) i - 0.5)*(*dx);
                 //yp[ii] = *ystart + ((float) j - 0.5)*(*dx);
                 //zp[ii] = *zstart + ((float) k - 0.5)*(*dx);
-
-/*
-                  // Assign velocities depending on Hydro method
-                  // 2 = Zeus .. otherwise PPM
-                  // copied from pop3_maker.F
-                  if (*imethod == 2){
-                    up[istar] = (
-                         0.5 * (u[index   ] + u[index+xo])*d[index] +
-                         0.5 * (u[index-xo] + u[index   ])*d[index-xo] +
-                         0.5 * (u[index+xo] + u[index + xo + xo])*d[index+xo] +
-                         0.5 * (u[index+yo] + u[index + xo + yo])*d[index+yo] +
-                         0.5 * (u[index-yo] + u[index + xo - yo])*d[index-yo] +
-                         0.5 * (u[index+zo] + u[index + xo + ko])*d[index+ko] +
-                         0.5 * (u[index-zo] + u[index + xo - ko])*d[index-ko]) /
-                        ( d[index] + d[index-xo] + d[index+xo] +
-                          d[index-yo] + d[index+yo] +
-                          d[index-ko] + d[index+ko] ); //
-
-                   //below copied from above... check for typos
-                    vp[istar] = (
-                         0.5 * (v[index   ] + v[index+xo])*d[index] +
-                         0.5 * (v[index-xo] + v[index   ])*d[index-xo] +
-                         0.5 * (v[index+xo] + v[index + xo + xo])*d[index+xo] +
-                         0.5 * (v[index+yo] + v[index + xo + yo])*d[index+yo] +
-                         0.5 * (v[index-yo] + v[index + xo - yo])*d[index-yo] +
-                         0.5 * (v[index+zo] + v[index + xo + ko])*d[index+ko] +
-                         0.5 * (v[index-zo] + v[index + xo - ko])*d[index-ko]) /
-                        ( d[index] + d[index-xo] + d[index+xo] +
-                         d[index-yo] + d[index+yo] +
-                          d[index-ko] + d[index+ko] ); // 
-                    wp[istar] = (
-                         0.5 * (w[index   ] + w[index+xo])*d[index] +
-                         0.5 * (w[index-xo] + w[index   ])*d[index-xo] +
-                         0.5 * (w[index+xo] + w[index + xo + xo])*d[index+xo] +
-                         0.5 * (w[index+yo] + w[index + xo + yo])*d[index+yo] +
-                         0.5 * (w[index-yo] + w[index + xo - yo])*d[index-yo] +
-                         0.5 * (w[index+zo] + w[index + xo + ko])*d[index+ko] +
-                         0.5 * (w[index-zo] + w[index + xo - ko])*d[index-ko]) /
-                        ( d[index] + d[index-xo] + d[index+xo] +
-                          d[index-yo] + d[index+yo] +
-                          d[index-ko] + d[index+ko] ); // 
-                  }
-                  else{
-                    up[istar] = (u[index]*d[index] +
-                              u[index-xo]*d[index-xo] +
-                              u[index+xo]*d[index+xo] +
-                              u[index-yo]*d[index-yo] +
-                              u[index+yo]*d[index+yo] +
-                              u[index+zo]*d[index+zo] +
-                              u[index-zo]*d[index-zo] ) /
-                              (d[index] + d[index-xo] + d[index+xo] +
-                               d[index-yo] + d[index+yo] +
-                               d[index-zo] + d[index+zo]);
-                    vp[istar] = (v[index]*d[index] +
-                              v[index-xo]*d[index-xo] +
-                              v[index+xo]*d[index+xo] +
-                              v[index-yo]*d[index-yo] +
-                              v[index+yo]*d[index+yo] +
-                              v[index+zo]*d[index+zo] +
-                              v[index-zo]*d[index-zo] ) /
-                              (d[index] + d[index-xo] + d[index+xo] +
-                               d[index-yo] + d[index+yo] +
-                               d[index-zo] + d[index+zo]);
-
-                    wp[istar] = (w[index]*d[index] +
-                              w[index-xo]*d[index-xo] +
-                              w[index+xo]*d[index+xo] +
-                              w[index-yo]*d[index-yo] +
-                              w[index+yo]*d[index+yo] +
-                              w[index+zo]*d[index+zo] +
-                              w[index-zo]*d[index-zo] ) /
-                              (d[index] + d[index-xo] + d[index+xo] +
-                               d[index-yo] + d[index+yo] +
-                               d[index-zo] + d[index+zo]);
-                  } // imethod velocity assignment
-*/
 
                 //
                 // need to handle units... GRV returns mean of zero, std of 1
@@ -407,9 +362,9 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
                 // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
-                up[istar] = umean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269;
-                vp[istar] = vmean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269;
-                wp[istar] = wmean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269;
+                up[istar] = umean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269 *1.0E5 *(*x1)/(*t1);
+                vp[istar] = vmean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(*x1)/(*t1);
+                wp[istar] = wmean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*x1)/(*t1);
 
                 // ENSURE MOMENTUM CONSERVATION!!!!!
                 // make running total of momentum in each direction
@@ -428,6 +383,8 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
                   metalf[istar] = 0.0;
                 }
 
+
+
               } // end while loop for assigning particle properties
               // ---------------------------------------------------
 
@@ -441,32 +398,38 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               py_excess = vmean * sum_mass + py;
               pz_excess = wmean * sum_mass + pz;
 
-              // remove momentum evenly from each star, weighted by mass
+              // remove momentum evenly from each star
               if ( abs(px_excess) > 1.0e-12) {
                 for (istar = index_presf; istar < ii; istar++){
-                  up[istar] += (-1.0 * px_excess) * (mp[istar] / sum_mass);
+//                  up[istar] += (-1.0 * px_excess) * (mp[istar] / sum_mass);
+                  up[istar] += (-1.0 * px_excess) / (mp[istar] * (ii-index_presf));
                 }
               }
               if ( abs(py_excess) > 1.0e-12){
                 for (istar = index_presf; istar < ii; istar++){
-                  vp[istar] = (-1.0 * py_excess) * (mp[istar] / sum_mass);
+                  vp[istar] = (-1.0 * py_excess) / (mp[istar] * (ii-index_presf));
                 }
               }
               if ( abs(pz_excess) > 1.0E-12){
                 for (istar = index_presf; istar < ii; istar++){
-                  wp[istar] = (-1.0 * pz_excess) * (mp[istar] / sum_mass);
+                  wp[istar] = (-1.0 * pz_excess) / (mp[istar] * (ii-index_presf));
                 }
               }
               // done with modifying momentum of stars
 
               // now remove mass from grid
-              d[index] = (d[index] * (*dx)*(*dx)*(*dx) - sum_mass*msolar) /
-                                    ((*dx)*(*dx)*(*dx));
+              d[index] = (d[index] * (*dx)*(*dx)*(*dx) - sum_mass*msolar/(m1) ) /
+                                    ((*dx)*(*dx)*(*dx)) ;
 
 
+              for(istar = index_presf; istar < ii; istar++){
+               mp[ii] = mp[ii] * msolar / m1;
+              }
+
+//            printf("Done assigning star properties. Exiting jeans if\n");
             } // if jeans mass unstable
 
-
+//            printf("Done with density threshold loop. ii %"ISYM"\n",ii);
           } // resolution and density
 
 
@@ -493,7 +456,7 @@ float SampleIMF(void)
   unsigned_long_int random_int = mt_random();
   const int max_random = (1<<16);
   float x = (float) (random_int%max_random) / (float) (max_random);
-  float dm = log10(IndividualStarUpperMassCutoff / IndividualStarLowerMassCutoff)/ (float) (IMF_TABLE_ENTRIES-1);
+  float dm = log10(IndividualStarIMFUpperMassCutoff / IndividualStarIMFLowerMassCutoff)/ (float) (IMF_TABLE_ENTRIES-1);
   float m;
 
 
@@ -511,8 +474,8 @@ float SampleIMF(void)
     }
   } // found the bin
 
-  m = IndividualStarLowerMassCutoff * POW(10.0, bin_number * dm);
-    
+  m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
+
   return m;
 }
 
@@ -527,12 +490,15 @@ float SampleIMF(void)
 float GaussianRandomVariable(void){
  // returns gaussian random variable y1
 
-    float y1, y2, w; 
-    float x1 = random(), x2 = random();
+    const int max_random = (1<<16);
+
+    float y1, y2, w;
+    float x1 = (float) (random() % max_random) / ((float) (max_random));
+    float x2 = (float) (random() % max_random) / ((float) (max_random));
 
     do {
-       x1 = 2.0 * random() - 1.0;
-       x2 = 2.0 * random() - 1.0;
+       x1 = 2.0 * (float) (random() % max_random) / ((float) (max_random)) - 1.0;
+       x2 = 2.0 * (float) (random() % max_random) / ((float) (max_random)) - 1.0;
        w  = x1 * x1 + x2 * x2;
     } while ( w >= 1.0);
 
