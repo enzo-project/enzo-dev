@@ -49,6 +49,10 @@ int StarParticleMergeNew(LevelHierarchyEntry *LevelArray[], Star *&AllStars)
   int dim, level;
   const float pc = 3.086e18;
 
+  if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
+    return SUCCESS; // no merging!!!
+  }
+
   /* Get the time at the finest level */
   
   for (level = MAX_DEPTH_OF_HIERARCHY-1; level >= 0; level--)
