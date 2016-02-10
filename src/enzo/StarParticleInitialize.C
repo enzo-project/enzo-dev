@@ -63,7 +63,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
   /* Initialize the IMF lookup table if requested and not defined */
 
-  if (PopIIIInitialMassFunction)
+  if (PopIIIInitialMassFunction && STARMAKE_METHOD(INDIVIDUAL_STAR) == FALSE)
     StarParticlePopIII_IMFInitialize();
 
   if(STARMAKE_METHOD(INDIVIDUAL_STAR)){
@@ -95,6 +95,7 @@ int StarParticleInitialize(HierarchyEntry *Grids[], TopGridData *MetaData,
 
     /* Merge any newly created, clustered particles */
 
+    /* If individual stars, no merging */
     if (StarParticleMergeNew(LevelArray, AllStars) == FAIL) {
         ENZO_FAIL("Error in StarParticleMergeNew.");
     }

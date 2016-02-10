@@ -28,6 +28,8 @@
 #include "LevelHierarchy.h"
 
 void mt_init(unsigned_int seed);
+//void random_init(unsigned_int seed); need to find this function (2/8/16 AJE)
+
 unsigned_long_int mt_random(void);
 
 int StarParticleIndividual_IMFInitialize(void)
@@ -86,21 +88,26 @@ int StarParticleIndividual_IMFInitialize(void)
 
 
   // Normalize cpdf to 1
-  for (i = 0; i < IMF_TABLE_ENTRIES; i ++)
+  for (i = 0; i < IMF_TABLE_ENTRIES; i ++){
     IMFData[i] /= IMFData[IMF_TABLE_ENTRIES-1];
+  }
 
   /* Initialize random number generator. If restart, call it the
      number of times + 1 to return to state before restart. */
-  if (IndividualStarIMFSeed == INT_UNDEFINED)
+  if (IndividualStarIMFSeed == INT_UNDEFINED){
     mt_init(time(NULL)); //
-  else
+//    random_init(time(NULL));
+  }
+  else{
     mt_init(IndividualStarIMFSeed); //
-  
-  unsigned_long_int trash;
-  for (i = 0; i < 1 + IndividualStarIMFCalls; i++) 
-    trash = mt_random();
+//    random_init(IndividualStarIMFSeed - 1);
+  }
 
-   
+  unsigned_long_int trash;
+  for (i = 0; i < 1 + IndividualStarIMFCalls; i++){
+    trash = mt_random();
+  }
+
   return SUCCESS;
 }
 

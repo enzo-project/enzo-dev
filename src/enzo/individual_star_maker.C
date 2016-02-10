@@ -60,7 +60,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
   double m1   = (*d1)*POW(*x1,3); // mass units
 
   int i, j, k, index, ii=0, istar=0, index_presf=0;
-  int xo, yo, zo;
+  int xo, yo, zo, rsign=1;
   float bmass, div, min_temp, star_mass=0.0, sum_mass=0.0;
   float pstar, mass_to_stars, mass_available, tdyn;
   float dtot, isosndsp2, jeansmass, star_fraction, odthreshold;
@@ -95,6 +95,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
     odthreshold = StarMakerOverDensityThreshold * m_h * (*mu) / (*d1);
 
     printf("individual_star_maker: about to loop over grid cells\n");
+    ii = 0; index_presf = 0;
     for (k = *ibuff; k < *nz - *ibuff; k++){
       for (j = *ibuff; j < *ny - *ibuff; j++){
 //        index = (k * (*ny) + j) * (*nx) + (*ibuff);
@@ -113,7 +114,7 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
           //    (i.e. baryon mass likely always going to be > ~10 solar masses)
 
 //break individual_star_maker.C:106
-
+          sum_mass = 0.0; index_presf = ii;
           if ( d[index]      > odthreshold
               && temp[index] <= min_temp
               && IndividualStarMassFraction*bmass > IndividualStarIMFLowerMassCutoff
@@ -141,10 +142,6 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 //break individual_star_maker.C:131
             if (jeansmass <= bmass){
 
-
-
-              sum_mass = 0.0;
-              index_presf = ii;
               //
               star_fraction  = min(StarMakerMassEfficiency*(*dt)/tdyn, 1.0);
               mass_to_stars  = star_fraction * bmass;
@@ -180,14 +177,16 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
               if (mass_to_stars > IndividualStarIMFLowerMassCutoff){
                 while (ii < *nmax && mass_to_stars > IndividualStarIMFLowerMassCutoff){
-                    mp[ii] = SampleIMF();
+                    //mp[ii] = SampleIMF();
+                    star_mass = SampleIMF();
                     // accept if star mass doesn't exceed available
 
-                    if (mp[ii] <= mass_to_stars){
+                    if (star_mass <= mass_to_stars){
+                      mp[ii] = star_mass;
                       sum_mass      += mp[ii];
                       mass_to_stars -= mp[ii];
                       ii++;
-                    } else if (abs(mp[ii] - mass_to_stars) < 0.1){
+                    } else if (abs(star_mass - mass_to_stars) < 0.1*IndividualStarIMFLowerMassCutoff){
                       mp[ii] = mass_to_stars;
                       sum_mass      += mp[ii];
                       mass_to_stars -= mp[ii];
@@ -332,10 +331,12 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
                 // need to make a new particle property thats the stellar lifetime
 
-//                type[istar] = -(*ctype);
-                type[istar] = 2;
+                type[istar] = (*ctype);
+//                type[istar] = 2;
                 tcp[istar]  = *t;
                 tdp[istar]  = tdyn;
+                // mass in code units:
+                mp[istar] = mp[istar] * msolar / m1;
 
                 // give the star particle a position chosen at random over
                 // the grid cell size .... random() function different 
@@ -362,9 +363,17 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
 
                 // assume velocity dispersion is isotropic in each velocity component. Multiply disp by
                 // sqrt(1/3) to get disp in each component... taking above velocities as the mean
-                up[istar] = umean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269 *1.0E5 *(*x1)/(*t1);
-                vp[istar] = vmean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(*x1)/(*t1);
-                wp[istar] = wmean + GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*x1)/(*t1);
+                rnum  =  (float) (random() % max_random) / (float) (max_random);
+                rsign = rnum>0.5 ? 1:-1;
+                up[istar] = umean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
+
+                rnum  =  (float) (random() % max_random) / (float) (max_random);
+                rsign = rnum>0.5 ? 1:-1;
+                vp[istar] = vmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0e5*(*t1)/(*x1);
+
+                rnum  =  (float) (random() % max_random) / (float) (max_random);
+                rsign = rnum>0.5 ? 1:-1;
+                wp[istar] = wmean + rsign * GaussianRandomVariable() * IndividualStarVelocityDispersion * 0.577350269*1.0E5*(*t1)/(*x1);
 
                 // ENSURE MOMENTUM CONSERVATION!!!!!
                 // make running total of momentum in each direction
@@ -393,6 +402,8 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               // should be equal to the total momentum of the stars
               // compute excess momentum and modify star velocity evenly (mass weighted)
               // this is not completely physical, as pre-SF and post-SF gas vel is the same
+              sum_mass = sum_mass * msolar / m1; // in code units
+
 
               px_excess = umean * sum_mass + px;
               py_excess = vmean * sum_mass + py;
@@ -402,29 +413,28 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
               if ( abs(px_excess) > 1.0e-12) {
                 for (istar = index_presf; istar < ii; istar++){
 //                  up[istar] += (-1.0 * px_excess) * (mp[istar] / sum_mass);
-                  up[istar] += (-1.0 * px_excess) / (mp[istar] * (ii-index_presf));
+                  up[istar] += (-1.0 * px_excess) / (mp[istar] * (float) (ii-index_presf));
                 }
               }
               if ( abs(py_excess) > 1.0e-12){
                 for (istar = index_presf; istar < ii; istar++){
-                  vp[istar] = (-1.0 * py_excess) / (mp[istar] * (ii-index_presf));
+                  vp[istar] = (-1.0 * py_excess) / (mp[istar] * (float) (ii-index_presf));
                 }
               }
               if ( abs(pz_excess) > 1.0E-12){
                 for (istar = index_presf; istar < ii; istar++){
-                  wp[istar] = (-1.0 * pz_excess) / (mp[istar] * (ii-index_presf));
+                  wp[istar] = (-1.0 * pz_excess) / (mp[istar] * (float) (ii-index_presf));
                 }
               }
               // done with modifying momentum of stars
 
               // now remove mass from grid
-              d[index] = (d[index] * (*dx)*(*dx)*(*dx) - sum_mass*msolar/(m1) ) /
-                                    ((*dx)*(*dx)*(*dx)) ;
+              d[index] = (bmass*msolar/m1 - sum_mass) / ((*dx)*(*dx)*(*dx)) ;
 
 
-              for(istar = index_presf; istar < ii; istar++){
-               mp[ii] = mp[ii] * msolar / m1;
-              }
+//              for(istar = index_presf; istar < ii; istar++){
+//                mp[istar] = mp[istar] * msolar / m1;
+//              }
 
 //            printf("Done assigning star properties. Exiting jeans if\n");
             } // if jeans mass unstable
@@ -445,6 +455,17 @@ int individual_star_maker(int *nx, int *ny, int *nz, int *size,
       fprintf(stdout, "individual_star_maker: reached max new particle count!! Available: %"ISYM". Made: %"ISYM"\n", *nmax, ii);
 
     }
+
+    for (int counter = 0; counter < ii; counter++){
+      if(mp[counter]*m1/msolar > IndividualStarIMFUpperMassCutoff){
+        printf("individual_star_maker: problem lies in function m = %"FSYM"\n",mp[counter]);
+      } else if (mp[counter] * m1 / msolar < 0.1){
+        printf("individual_star_maker: there is a units misunderstanding");
+      }
+
+    }
+
+
 
     *np = ii;
     return SUCCESS;
@@ -475,6 +496,12 @@ float SampleIMF(void)
   } // found the bin
 
   m = IndividualStarIMFLowerMassCutoff * POW(10.0, bin_number * dm);
+
+  IndividualStarIMFCalls++;
+
+  if ( m > IndividualStarIMFUpperMassCutoff){
+    printf("individual_star_maker: IMF sampling not working m %"FSYM" %"FSYM"\n",m, IndividualStarIMFUpperMassCutoff);
+  }
 
   return m;
 }
