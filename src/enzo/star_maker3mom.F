@@ -644,11 +644,18 @@ c
      &                 * (R_resolve**(-2._RKIND)) 
      &                 * (R_PDS**7._RKIND) * (t_PDS**(-2._RKIND)) 
      &                 * (energy_51**(-1._RKIND))
+
+                  if (kinf .le. tiny) then 
+                     kinf = 0._RKIND
+                  endif
                   write(6,*) 'Sedov phase not resolved:',kinf,Zsol,
      &                 num_d, d_ave, 
      &                 energy_51,t_PDS,R_PDS,R_resolve
+                  
                endif
-       
+ 
+               
+      
             endif
 c
 c     Finished computing kinf; now compute the amount of thermal energy
@@ -784,7 +791,7 @@ c
      &           mass_before + mform*m_eject,mform*m_eject
             write(6,*) 'kinetic energy (b,a,preda):',kin_energy_before,
      &           kin_energy_after, kin_energy_before + kinf*energy, 
-     &           kinf*energy
+     &           kinf
 c
 c           Error checks to see if the kinetic energy added in the particle frame
 c           matches the values set by the input parameters
