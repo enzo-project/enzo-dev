@@ -462,7 +462,7 @@ typedef int            HDF5_hid_t;
 
 /* Particle types (note: gas is a conceptual type) */
 
-#define NUM_PARTICLE_TYPES 11
+#define NUM_PARTICLE_TYPES 12
 
 #define PARTICLE_TYPE_RESET         -1
 #define PARTICLE_TYPE_GAS            0
@@ -476,6 +476,7 @@ typedef int            HDF5_hid_t;
 #define PARTICLE_TYPE_MBH            8
 #define PARTICLE_TYPE_COLOR_STAR     9
 #define PARTICLE_TYPE_SIMPLE_SOURCE 10
+#define PARTICLE_TYPE_INDIVIDUAL_STAR 11
 
 #define CHILDRENPERPARENT           12
 /* Ways to deposit particles from a subgrid. */
